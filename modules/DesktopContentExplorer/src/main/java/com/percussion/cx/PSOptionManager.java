@@ -44,8 +44,8 @@ public class PSOptionManager {
   /**
    * Creates a new instance of this object.
    *
-   * @param defApplet - the applet which contains data needed to perform the request that will be
-   *     made to load and save the option. Must not be <code>null</code>.
+   * @param applet the applet which contains data needed to perform the request that will be made to
+   *     load and save the option. Must not be <code>null</code>.
    */
   public PSOptionManager(PSContentExplorerApplet applet) {
     if (applet == null) throw new IllegalArgumentException("applet must not be null or empty");
@@ -102,10 +102,21 @@ public class PSOptionManager {
     return theDisplayOptions;
   }
 
+  /**
+   * Gets the user options associated with the supplied category.
+   *
+   * @param category the options category, assumed not <code>null</code>.
+   * @return the matching options, may be <code>null</code>.
+   */
   public PSOptions getCategoryOptions(String category) {
     return getUserOptions().getOptions(category);
   }
 
+  /**
+   * Adds the supplied options to the user's options collection.
+   *
+   * @param options the options to add, may not be <code>null</code>.
+   */
   public void addUserOptions(PSOptions options) {
     getUserOptions().addOptions(options);
   }
@@ -246,6 +257,12 @@ public class PSOptionManager {
    *
    * @return may be <code>null</code> if the category "display" is <code>null</code> or empty.
    */
+  /**
+   * Returns the <code>PSDisplayOptions</code>.
+   *
+   * @return may be <code>null</code> if the category "display" is <code>null</code> or empty.
+   * @throws PSContentExplorerException if an error occurs loading the display options.
+   */
   public PSDisplayOptions getDefaultDisplayOptions() throws PSContentExplorerException {
     PSDisplayOptions theDisplayOptions = null;
 
@@ -294,19 +311,19 @@ public class PSOptionManager {
 
   /**
    * This value is used to get the options from the session object, this is the value of a {@link
-   * #IPSHTMLParameter.SYS_COMMAND } key.
+   * IPSHtmlParameters#SYS_COMMAND IPSHtmlParameters.SYS_COMMAND} key.
    */
   public static final String LOAD_COMMAND = "get";
 
   /**
    * This value is used to explicitely get the default options from the system. This is the value of
-   * a {@link #IPSHTMLParameter.SYS_COMMAND } key.
+   * a {@link IPSHtmlParameters#SYS_COMMAND IPSHtmlParameters.SYS_COMMAND} key.
    */
   public static final String LOAD_DEFAULT = "default";
 
   /**
    * This value is used to put the options into the session object, this is the value of a {@link
-   * #IPSHTMLParameter.SYS_COMMAND } key.
+   * IPSHtmlParameters#SYS_COMMAND IPSHtmlParameters.SYS_COMMAND} key.
    */
   public static final String SAVE_COMMAND = "put";
 }

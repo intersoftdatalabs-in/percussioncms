@@ -37,7 +37,7 @@ public class PSJdbcBinaryColumnValue {
     return stream;
   }
 
-  public void setStream(FileInputStream stream) {
+  public final void setStream(FileInputStream stream) {
     this.stream = stream;
   }
 
@@ -45,7 +45,7 @@ public class PSJdbcBinaryColumnValue {
     return fileSize;
   }
 
-  public void setFileSize(long fileSize) {
+  public final void setFileSize(long fileSize) {
     this.fileSize = fileSize;
   }
 }

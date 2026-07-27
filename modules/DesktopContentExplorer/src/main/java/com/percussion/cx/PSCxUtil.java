@@ -66,17 +66,42 @@ public final class PSCxUtil {
   // instantiated.
   private PSCxUtil() {}
 
+  /**
+   * Shows a stack-trace dialog for the supplied throwable using its message as the dialog message.
+   *
+   * @param throwable the throwable whose stack trace should be displayed, may not be <code>null
+   *     </code>.
+   * @param title the dialog title, may be <code>null</code> or empty.
+   */
   public static void showStackTraceDialog(Throwable throwable, String title) {
     /*from  w  w w .  j av a2s  .  co  m*/
     String message = throwable.getMessage() == null ? throwable.toString() : throwable.getMessage();
     showStackTraceDialog(throwable, title, message);
   }
 
+  /**
+   * Shows a stack-trace dialog for the supplied throwable using the supplied message.
+   *
+   * @param throwable the throwable whose stack trace should be displayed, may not be <code>null
+   *     </code>.
+   * @param title the dialog title, may be <code>null</code> or empty.
+   * @param message the message displayed above the stack trace, may be <code>null</code> or empty.
+   */
   public static void showStackTraceDialog(Throwable throwable, String title, String message) {
     Window window = DefaultKeyboardFocusManager.getCurrentKeyboardFocusManager().getActiveWindow();
     showStackTraceDialog(throwable, window, title, message);
   }
 
+  /**
+   * Shows a stack-trace dialog for the supplied throwable, parented to the given component.
+   *
+   * @param throwable the throwable whose stack trace should be displayed, may not be <code>null
+   *     </code>.
+   * @param parentComponent the component used to locate the parent window, may be <code>null</code>
+   *     .
+   * @param title the dialog title, may be <code>null</code> or empty.
+   * @param message the message displayed above the stack trace, may be <code>null</code> or empty.
+   */
   public static void showStackTraceDialog(
       Throwable throwable, Component parentComponent, String title, String message) {
     final String more = "More";
@@ -134,6 +159,14 @@ public final class PSCxUtil {
     dialog.dispose();
   }
 
+  /**
+   * Positions the first component relative to the second, keeping the result on-screen. Falls back
+   * to centering on the default screen if no usable parent can be found.
+   *
+   * @param c1 the component to position, may not be <code>null</code>.
+   * @param c2 the reference component, may be <code>null</code> in which case the screen center is
+   *     used.
+   */
   public static void setLocationRelativeTo(Component c1, Component c2) {
     Container root = null;
 
@@ -232,6 +265,8 @@ public final class PSCxUtil {
    * button click or release.
    *
    * @param event the <code>MouseEvent</code> object, cannot be <code>null</code>.
+   * @param applet the content explorer applet used to determine the current platform, may not be
+   *     <code>null</code>.
    * @return <code>true</code> if this is a menu event.
    */
   public static boolean isMouseMenuGesture(MouseEvent event, PSContentExplorerApplet applet) {
@@ -247,6 +282,8 @@ public final class PSCxUtil {
   /**
    * Returns a valid window background color for windows and Mac
    *
+   * @param applet the content explorer applet used to determine the current platform, may not be
+   *     <code>null</code>.
    * @return valid window background Color, Never <code>null</code>
    */
   public static Color getWindowBkgColor(PSContentExplorerApplet applet) {
@@ -263,6 +300,8 @@ public final class PSCxUtil {
    * @param parentnode PSNode representing the parent folder, may be <code>null</code>.
    * @param skipSelfCheck, if <code>true</code> then only check for marked ancestors and ignore if
    *     self is marked
+   * @param applet the content explorer applet whose flagged folder set is consulted, may not be
+   *     <code>null</code>.
    * @return <code>true</code> if the folder should be marked.
    */
   public static boolean shouldFolderBeMarked(
@@ -299,6 +338,8 @@ public final class PSCxUtil {
    * Gets the icon paths for the supplied item locators.
    *
    * @param items list of locators must not be <code>null</code>.
+   * @param applet the content explorer applet used to make the request to the server, may not be
+   *     <code>null</code>.
    * @return Map of content ids and their icon paths. Never <code>null</code> may be empty if there
    *     is an error getting the icons. The path may be empty for content ids whose contenttypes do
    *     not have icons associated with them.
@@ -332,6 +373,12 @@ public final class PSCxUtil {
 
   private static ResourceBundle m_res = null;
 
+  /**
+   * Gets the cached resource bundle used by these utility methods, lazily loading it from the
+   * default locale if it has not been loaded yet.
+   *
+   * @return the resource bundle, never <code>null</code>.
+   */
   public static ResourceBundle getResources() {
     if (m_res == null) m_res = ResourceBundle.getBundle(getResourceName(), Locale.getDefault());
     return m_res;

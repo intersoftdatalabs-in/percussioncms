@@ -83,6 +83,8 @@ import org.apache.tools.ant.taskdefs.Zip;
  * </pre>
  */
 public class PSZipPackage extends Zip {
+  /** Creates a new zip package task. */
+  public PSZipPackage() {}
 
   public String getDestDirPath() {
     return destDirPath;

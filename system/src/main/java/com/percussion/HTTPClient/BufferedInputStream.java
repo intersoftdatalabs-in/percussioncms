@@ -112,8 +112,11 @@ class BufferedInputStream extends FilterInputStream {
 
     int left = end - pos;
     if (n <= left) {
-      pos += n;
-      return n;
+      // Explicit cast: n is already clamped to `left` (int range of buffer remaining).
+      // Closes CodeQL java/implicit-cast-in-compound-assignment #638.
+      int skip = (int) n;
+      pos += skip;
+      return skip;
     } else {
       pos = end;
       return left + in.skip(n - left);

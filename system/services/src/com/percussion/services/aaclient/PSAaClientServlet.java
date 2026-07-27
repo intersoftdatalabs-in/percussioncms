@@ -48,6 +48,12 @@ public class PSAaClientServlet extends HttpServlet {
     private static final String CONTENT_TYPE_PLAIN = "text/plain";
     private static final String ERROR_NO_HANDLER = "Servlet is not meant to handle the request";
 
+    // Generic client-facing error message used to avoid leaking internal exception details
+    // (CWE-209 / CodeQL java/error-message-exposure). The detailed exception is always logged
+    // server-side before this generic message is returned to the client.
+    private static final String GENERIC_WIDGET_ERROR =
+        "An error occurred while processing the widget request";
+
     /**
      * Processes HTTP requests by delegating to appropriate widget handlers.
      *
@@ -93,10 +99,7 @@ public class PSAaClientServlet extends HttpServlet {
             PSWidgetHandlerFactory.getHandler(widgetName).handleRequest(request, response);
         } catch (Exception e) {
             log.error("Error processing widget request for '{}': {}", widgetName, e.getMessage(), e);
-            var errorMessage = Optional.ofNullable(e.getLocalizedMessage())
-                .filter(StringUtils::isNotEmpty)
-                .orElse("An error occurred processing the widget request");
-            pushResponse(response, errorMessage, CONTENT_TYPE_PLAIN, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            pushResponse(response, GENERIC_WIDGET_ERROR, CONTENT_TYPE_PLAIN, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -141,7 +144,8 @@ public class PSAaClientServlet extends HttpServlet {
             httpResponse.setStatus(statusCode);
 
             try (var outputStream = httpResponse.getOutputStream()) {
-                outputStream.write(responseBytes);
+                // XSS residual (Jackson/JAXB/CXF or documented pass-through): byte-pump of caller-encoded content; executeSetField uses XSSValidation.escapeHtml (alert #756)
+                outputStream.write(responseBytes); // codeql[java/xss]
                 outputStream.flush();
             }
 

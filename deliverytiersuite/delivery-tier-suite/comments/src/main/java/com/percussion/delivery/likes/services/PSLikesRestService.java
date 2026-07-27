@@ -44,6 +44,11 @@ public class PSLikesRestService extends PSAbstractRestService {
 
   private static final Logger log = LogManager.getLogger(PSLikesRestService.class);
 
+  /**
+   * Creates a new likes REST service backed by the supplied likes service.
+   *
+   * @param service the underlying likes service, must not be {@code null}.
+   */
   @Inject
   @Autowired
   public PSLikesRestService(IPSLikesService service) {
@@ -53,6 +58,11 @@ public class PSLikesRestService extends PSAbstractRestService {
   /**
    * Tally of how many users have Liked a page, a comment.
    *
+   * @param site the site the like is associated with, taken from the URL path. Must not be {@code
+   *     null} or empty.
+   * @param type the type of the liked entity, taken from the URL path. Must not be {@code null}.
+   * @param likeId the id of the liked entity, taken from the URL path. Must not be {@code null} or
+   *     empty.
    * @return int, never <code>null</code> may be empty.
    */
   @POST
@@ -72,6 +82,11 @@ public class PSLikesRestService extends PSAbstractRestService {
   /**
    * To Like a page, a comment.
    *
+   * @param site the site the like is associated with, taken from the URL path. Must not be {@code
+   *     null} or empty.
+   * @param type the type of the liked entity, taken from the URL path. Must not be {@code null}.
+   * @param likeId the id of the liked entity, taken from the URL path. Must not be {@code null} or
+   *     empty.
    * @return int, never <code>null</code> may be empty.
    */
   @POST
@@ -91,6 +106,11 @@ public class PSLikesRestService extends PSAbstractRestService {
   /**
    * To UnLike a page, a comment.
    *
+   * @param site the site the like is associated with, taken from the URL path. Must not be {@code
+   *     null} or empty.
+   * @param type the type of the liked entity, taken from the URL path. Must not be {@code null}.
+   * @param likeId the id of the liked entity, taken from the URL path. Must not be {@code null} or
+   *     empty.
    * @return int, never <code>null</code> may be empty.
    */
   @POST

@@ -124,3 +124,21 @@ fabric.properties
 /war/shared-common.js.map
 /war/shared-common-minuet.js
 /war/shared-common-minuet.css
+/war/shared-finder.js
+# Intermediate legacy concatenations under the Maven webapp tree (generated
+# into target/generated-webui/cm/ at build time — not source).
+/src/main/webapp/cm/shared-common.css
+/src/main/webapp/cm/shared-common.js
+/src/main/webapp/cm/shared-common.js.map
+/src/main/webapp/cm/shared-common-minuet.js
+/src/main/webapp/cm/shared-common-minuet.css
+/src/main/webapp/cm/shared-finder.js
+# Standalone npm jquery mins — generated into target/generated-webui only (#1510).
+/src/main/webapp/cm/jslib/profiles/3x/jquery/jquery.min.js
+/src/main/webapp/cm/jslib/profiles/3x/jquery/jquery-migrate.min.js
+/src/main/webapp/jslib/profiles/3x/jquery/jquery.min.js
+/src/main/webapp/jslib/profiles/3x/jquery/jquery-migrate.min.js
+/war/jslib/profiles/3x/jquery/jquery.min.js
+/war/jslib/profiles/3x/jquery/jquery-migrate.min.js
+/src/main/frontend/war/
+/src/src/

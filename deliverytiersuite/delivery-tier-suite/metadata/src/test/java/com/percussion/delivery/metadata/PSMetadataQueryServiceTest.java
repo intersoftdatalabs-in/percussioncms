@@ -477,7 +477,12 @@ public class PSMetadataQueryServiceTest {
     q.setTotalMaxResults(10);
     try {
       List<Object[]> cats = service.executeCategoryQuery(q);
-
+      assertNotNull(cats, "category results should not be null (even if empty)");
+      // Unfiltered query with seeded test data should yield at least one category row
+      // (v8.1.7 #782 empty-criteria fast path).
+      assertFalse(
+          cats.isEmpty(),
+          "expected at least one category row for unfiltered query with seeded test data");
     } catch (PSMalformedMetadataQueryException e) {
       fail(e.getMessage());
     }

@@ -118,9 +118,9 @@ public abstract class PSBaseListViewHelper implements IPSListViewHelper {
    * <p>Note that the underlying implementations MUST NOT modify the {@link PSPathItem} object.
    *
    * @param pathItem A PSPathItem object to get display properties from.
-   * @return A Map<String, String> object with field name as keys and their corresponding values.
-   *     All supported keys reside in the {@link IPSListViewHelper} interface, for example, {@link
-   *     IPSListViewHelper#TITLE_NAME} is used for the name.
+   * @return A {@code Map<String, String>} object with field name as keys and their corresponding
+   *     values. All supported keys reside in the {@link IPSListViewHelper} interface, for example,
+   *     {@link IPSListViewHelper#TITLE_NAME} is used for the name.
    */
   protected abstract Map<String, String> getDisplayProperties(PSPathItem pathItem);
 

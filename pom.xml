@@ -67,6 +67,7 @@
         <module>modules/perc-packages</module>
         <module>deliverytiersuite/delivery-tier-suite</module>
         <module>modules/perc-distribution-tree</module>
+        <module>modules/perc-qa-automation</module>
     </modules>
     <scm>
         <connection>scm:git:https://github.com/intersoftdatalabs-in/percussioncms</connection>
@@ -116,20 +117,25 @@
         <ehcache.version>3.10.8</ehcache.version>
         <esapi.encoder.version>1.4.0</esapi.encoder.version>
         <esapi.version>2.7.0.0</esapi.version>
+        <failsafeArgLine/>
         <fop.version>2.11</fop.version>
         <glassfish.jakarta.el.version>4.0.2</glassfish.jakarta.el.version>
         <google.java.format.version>1.33.0</google.java.format.version>
         <gson.version>2.13.2</gson.version>
         <guava.version>33.5.0-jre</guava.version>
         <gwt.maven.plugin.version>2.10.0</gwt.maven.plugin.version>
+        <!-- #548 default embedded replacement (bake-off primary); Derby retained for migration window -->
+        <h2.version>2.3.232</h2.version>
+        <!-- #1500 external PostgreSQL repository backend (org.postgresql:postgresql, Java 21) -->
+        <postgresql.version>42.7.12</postgresql.version>
         <hibernate.validator.version>8.0.1.Final</hibernate.validator.version>
         <hibernate.version>7.2.6.Final</hibernate.version>
         <hikaricp.version>7.0.2</hikaricp.version>
         <httpcomponents.core.version>4.4.16</httpcomponents.core.version>
         <httpcomponents.version>4.5.14</httpcomponents.version>
         <install.jre.version>8.222.10.1</install.jre.version>
-        <jackson.annotation.api.version>2.21</jackson.annotation.api.version>
-        <jackson.version>2.21.1</jackson.version>
+        <jackson.annotation.api.version>2.22</jackson.annotation.api.version>
+        <jackson.version>2.22.1</jackson.version>
         <jakarta.activation.version>2.1.4</jakarta.activation.version>
         <jakarta.annotation.api.version>3.0.0</jakarta.annotation.api.version>
         <jakarta.el.api.version>6.0.1</jakarta.el.api.version>
@@ -158,7 +164,8 @@
         <jdeps.fail.build>false</jdeps.fail.build>
         <jdk.version>21</jdk.version>
         <jenkins.buildNumber>2024</jenkins.buildNumber>
-        <jetty.maven.plugin.version>11.0.26</jetty.maven.plugin.version>
+        <!-- Jetty 12 EE11 Maven plugin (dev jetty:run). Runtime packaging uses perc-jetty ee11 / jetty.version. -->
+        <jetty.maven.plugin.version>${jetty.version}</jetty.maven.plugin.version>
         <jetty.version>12.1.7</jetty.version>
         <jfx.version>11.0.2</jfx.version>
         <json.version>20251224</json.version>
@@ -171,6 +178,7 @@
         <liquibase.version>4.17.0</liquibase.version>
         <log4j2.version>2.25.4</log4j2.version>
         <lucene.version>8.11.4</lucene.version>
+        <mariadb.version>3.5.7</mariadb.version>
         <maven.antrun.plugin.version>3.2.0</maven.antrun.plugin.version>
         <maven.assembly.plugin.version>3.8.0</maven.assembly.plugin.version>
         <maven.build.helper.plugin.version>3.6.1</maven.build.helper.plugin.version>
@@ -206,8 +214,9 @@
         <maven.war.plugin.version>3.5.1</maven.war.plugin.version>
         <mockito.version>5.21.0</mockito.version>
         <mssql.version>13.3.1.jre11-preview</mssql.version>
-        <myfaces.version>4.1.2</myfaces.version>
+        <mysql.connector.version>8.4.0</mysql.connector.version>
         <nettyall.version>4.2.9.Final</nettyall.version>
+        <ojdbc17.version>23.26.0.0.0</ojdbc17.version>
         <opencsv.version>5.12.0</opencsv.version>
         <oracle.version>12.1.0.1</oracle.version>
         <owasp.csrfguard.version>4.5.0-jakarta</owasp.csrfguard.version>
@@ -221,8 +230,6 @@
         <rome.version>2.1.0</rome.version>
         <saxon.version>6.5.3</saxon.version>
         <servlet.spec>6.1.0</servlet.spec>
-        <sigstore.java.version>1.2.0</sigstore.java.version>
-        <sigstore.maven.plugin.version>2.0.0</sigstore.maven.plugin.version>
         <simple.jndi.version>0.11.4.1</simple.jndi.version>
         <simplexml.version>2.7.1</simplexml.version>
         <sitemap4j.version>1.1.2</sitemap4j.version>
@@ -237,6 +244,7 @@
         <spring.version>7.0.7</spring.version>
         <sqlite.version>3.51.1.0</sqlite.version>
         <stax.version>1.0.1</stax.version>
+        <surefireArgLine/>
         <swagger.ui.version>5.31.0</swagger.ui.version>
         <swagger.version>2.2.42</swagger.version>
         <tika.version>3.2.3</tika.version>
@@ -245,7 +253,6 @@
         <!-- with this project's Apache 2.0 license for distribution. -->
         <!-- Do NOT upgrade past 6.8.x without a legal review. -->
         <tinymce.version>6.8.6</tinymce.version>
-        <trinidad.version>2.2.1</trinidad.version>
         <twelvemonkeys.version>3.13.1</twelvemonkeys.version>
         <velocity.tools.version>3.1</velocity.tools.version>
         <velocity.version>2.4.1</velocity.version>
@@ -570,6 +577,8 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
                 <version>${spring.version}</version>
+                <!-- Test-only: never package into WAR or Jetty server libs. -->
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
@@ -867,7 +876,7 @@
             <dependency>
                 <groupId>javax.jcr</groupId>
                 <artifactId>jcr</artifactId>
-                <version>1.0</version>
+                <version>2.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.jettison</groupId>
@@ -889,16 +898,6 @@
                 <groupId>org.json</groupId>
                 <artifactId>json</artifactId>
                 <version>${json.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.myfaces.core</groupId>
-                <artifactId>myfaces-api</artifactId>
-                <version>${myfaces.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.myfaces.core</groupId>
-                <artifactId>myfaces-impl</artifactId>
-                <version>${myfaces.version}</version>
             </dependency>
             <dependency>
                 <groupId>saxon</groupId>
@@ -1026,21 +1025,6 @@
                         <artifactId>gson</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.myfaces.trinidad</groupId>
-                <artifactId>trinidad-api</artifactId>
-                <version>${trinidad.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.myfaces.trinidad</groupId>
-                <artifactId>trinidad-impl</artifactId>
-                <version>${trinidad.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.myfaces.tomahawk</groupId>
-                <artifactId>tomahawk</artifactId>
-                <version>1.1.14</version>
             </dependency>
             <dependency>
                 <groupId>com.thoughtworks.xstream</groupId>
@@ -1291,19 +1275,18 @@
                 <version>${quartz.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-imaging</artifactId>
-                <version>1.0.0-alpha6</version>
-            </dependency>
-            <dependency>
                 <groupId>com.googlecode.json-simple</groupId>
                 <artifactId>json-simple</artifactId>
                 <version>1.1.1</version>
             </dependency>
+            <!-- Use jakarta classifier: default artifact implements javax.servlet.* and
+                 fails on Jetty EE11 (NoClassDefFoundError: javax/servlet/ServletContextListener)
+                 when IIOProviderContextListener is declared in web.xml. -->
             <dependency>
                 <groupId>com.twelvemonkeys.servlet</groupId>
                 <artifactId>servlet</artifactId>
                 <version>${twelvemonkeys.version}</version>
+                <classifier>jakarta</classifier>
             </dependency>
             <dependency>
                 <groupId>com.twelvemonkeys.imageio</groupId>
@@ -1406,11 +1389,6 @@
                 <version>1.4.0</version>
             </dependency>
             <dependency>
-                <groupId>dev.sigstore</groupId>
-                <artifactId>sigstore-java</artifactId>
-                <version>${sigstore.java.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.htmlparser</groupId>
                 <artifactId>htmlparser</artifactId>
                 <version>2.1</version>
@@ -1466,6 +1444,11 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${h2.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>evil.deeds</groupId>
                 <artifactId>websphinx</artifactId>
                 <version>1.0.0</version>
@@ -1473,7 +1456,7 @@
             <dependency>
                 <groupId>com.oracle.database.jdbc</groupId>
                 <artifactId>ojdbc17</artifactId>
-                <version>23.26.0.0.0</version>
+                <version>${ojdbc17.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.sourceforge.jtds</groupId>
@@ -1484,6 +1467,21 @@
                 <groupId>com.microsoft.sqlserver</groupId>
                 <artifactId>mssql-jdbc</artifactId>
                 <version>${mssql.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mariadb.jdbc</groupId>
+                <artifactId>mariadb-java-client</artifactId>
+                <version>${mariadb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.mysql</groupId>
+                <artifactId>mysql-connector-j</artifactId>
+                <version>${mysql.connector.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
             </dependency>
             <dependency>
                 <groupId>evil.deeds</groupId>
@@ -1745,6 +1743,12 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-email</artifactId>
                 <version>${commons-email.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.sun.mail</groupId>
+                        <artifactId>jakarta.mail</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.github.dfabulich</groupId>
@@ -1920,6 +1924,14 @@
                 <artifactId>simple-jndi</artifactId>
                 <version>${simple.jndi.version}</version>
             </dependency>
+            <!-- Google Cloud Libraries BOM for GA4 Analytics APIs -->
+            <dependency>
+                <groupId>com.google.cloud</groupId>
+                <artifactId>libraries-bom</artifactId>
+                <version>26.80.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <build>
@@ -1946,9 +1958,10 @@
                         <includes>
                             <include>**/*Test.java</include>
                         </includes>
-                        <!-- Needed for Mockito on Java 21+ -->
-                        <argLine>-javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
-                            -Xshare:off</argLine>
+                        <argLine>-XX:+EnableDynamicAgentLoading</argLine>
+                        <forkCount>1</forkCount>
+                        <reuseForks>true</reuseForks>
+                        <!-- <forkNode implementation="org.apache.maven.plugin.surefire.extensions.SurefireForkNodeFactory"/> -->
                     </configuration>
                     <dependencies/>
                 </plugin>
@@ -1966,8 +1979,8 @@
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.cargo</groupId>
-                    <artifactId>cargo-maven2-plugin</artifactId>
-                    <version>1.9.0</version>
+                    <artifactId>cargo-maven3-plugin</artifactId>
+                    <version>1.10.28</version>
                 </plugin>
                 <plugin>
                     <groupId>com.github.eirslett</groupId>
@@ -2085,11 +2098,11 @@
                     <version>${maven.compiler.plugin.version}</version>
                     <configuration>
                         <release>${java.version}</release>
-                        <fork>true</fork>
+                        <fork>false</fork>
                         <debug>true</debug>
                         <debuglevel>lines,vars,source</debuglevel>
-                        <meminitial>1024m</meminitial>
-                        <maxmem>2024m</maxmem>
+                        <meminitial>512m</meminitial>
+                        <maxmem>1024m</maxmem>
                         <compilerArgs>
                             <arg>-proc:none</arg>
                             <arg>-Xlint</arg>
@@ -2133,8 +2146,8 @@
                     </configuration>
                 </plugin>
                 <plugin>
-                    <groupId>org.eclipse.jetty</groupId>
-                    <artifactId>jetty-maven-plugin</artifactId>
+                    <groupId>org.eclipse.jetty.ee11</groupId>
+                    <artifactId>jetty-ee11-maven-plugin</artifactId>
                     <version>${jetty.maven.plugin.version}</version>
                     <configuration>
                         <scanIntervalSeconds>10</scanIntervalSeconds>
@@ -2381,7 +2394,6 @@
                                 <exclude>**/cui/components/jquery/**</exclude>
                                 <exclude>**/cui/components/jquery-migrate/**</exclude>
                                 <exclude>**/cui/components/jquery-ui/**</exclude>
-                                <exclude>**/cui/components/twitter-bootstrap-3.0.0/**</exclude>
                                 <exclude>**/cui/components/dynatree/**</exclude>
                                 <exclude>**/cui/components/pubsub-js/**</exclude>
                                 <exclude>**/cui/components/requirejs/**</exclude>
@@ -2390,10 +2402,8 @@
                                 <exclude>**/cui/components/google-fonts/**</exclude>
                                 <exclude>**/cui/**/build/**</exclude>
                                 <exclude>**/cui/**/dist/**</exclude>
-                                <exclude>**/cui/components/twitter-bootstrap-3.0.0/assets/js/raw-files.js</exclude>
                                 <exclude>**/system/Docs/Rhythmyx_Publishing_Design_Help/dhtml_search.js</exclude>
                                 <exclude>**/*.min.js</exclude>
-                                <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/**</exclude>
                             </excludes>
                             <prettier>
                                 <prettierVersion>2.8.8</prettierVersion>
@@ -2470,8 +2480,6 @@
                                     <!-- Exclude docs with legacy encodings to avoid UTF-8 checks -->
                                     <exclude>**/system/Docs/**</exclude>
                                     <exclude>**/Docs/**</exclude>
-                                    <!-- Exclude legacy Dojo vendor files that Prettier/Spotless can't parse -->
-                                    <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/**</exclude>
                                     <!-- Exclude vendor-provided component templates (may include templating tags) -->
                                     <exclude>**/cui/components/**</exclude>
                                     <!-- Exclude HTML files under test resources to avoid formatting issues in test fixtures -->
@@ -2494,7 +2502,6 @@
                                     <exclude>**/system/**</exclude>
                                     <!-- Exclude system release documentation and legacy release materials -->
                                     <exclude>**/system/release/**</exclude>
-                                    <exclude>**/system/ApplicationFiles/dojo/**</exclude>
                                     <!-- Exclude docker development data which contains unparseable HTML snippets and is not part of source -->
                                     <exclude>**/docker/dev-data/**</exclude>
                                 </excludes>
@@ -2522,7 +2529,6 @@
                                     <exclude>**/src/test/resources/**/*.css</exclude>
                                     <exclude>**/src/test/resources/**/*.scss</exclude>
                                     <exclude>**/src/test/java/**/*.css</exclude>
-                                    <exclude>**/system/ApplicationFiles/dojo/**</exclude>
                                     <exclude>**/docker/dev-data/**</exclude>
                                 </excludes>
                                 <prettier>
@@ -2620,11 +2626,6 @@
                     </dependencies>
                 </plugin>
                 <plugin>
-                    <groupId>dev.sigstore</groupId>
-                    <artifactId>sigstore-maven-plugin</artifactId>
-                    <version>${sigstore.maven.plugin.version}</version>
-                </plugin>
-                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>3.12.0</version>
@@ -2645,7 +2646,7 @@
                 <plugin>
                     <groupId>com.intsof</groupId>
                     <artifactId>ai-build-integrity-maven-plugin</artifactId>
-                    <version>0.9.0</version>
+                    <version>0.13.3</version>
                     <configuration>
                         <hashFileMode>CENTRAL</hashFileMode>
                         <!-- Scan the entire repo, not just the current module's basedir -->
@@ -2700,6 +2701,7 @@
             <plugin>
                 <groupId>com.intsof</groupId>
                 <artifactId>ai-build-integrity-maven-plugin</artifactId>
+                <version>0.13.3</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -2788,30 +2790,6 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>${maven.jar.plugin.version}</version>
             </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>${maven.exec.plugin.version}</version>
-                <executions>
-                    <!-- TODO: Experimental - potentially remove 
-			<execution>
-                        <id>verify-agent-integrity</id>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <phase>validate</phase>
-                        <configuration>
-                            <executable>${maven.multiModuleProjectDirectory}/modules/ai-shared-develop/scripts/build-integrity-check.sh</executable>
-                            <arguments>
-                                <argument>${maven.multiModuleProjectDirectory}/AGENTS.md</argument>
-                            </arguments>
-                            <successCodes>
-                                <successCode>0</successCode>
-                            </successCodes>
-                        </configuration>
-                    </execution> -->
-                </executions>
-            </plugin>
             <!-- Used to find plugin updates -->
             <!-- mvn versions:display-plugin-updates
             mvn versions:display-dependency-updates -->
@@ -2830,14 +2808,14 @@
                 <version>${maven.surefire.plugin.version}</version>
                 <configuration>
                     <skipTests>${skipTests}</skipTests>
-                    <argLine>${surefireArgLine}</argLine>
                     <testFailureIgnore>false</testFailureIgnore>
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
-                    <!-- Needed for Mockito on Java 21+ -->
-                    <argLine>-javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
-                        -Xshare:off</argLine>
+                    <argLine>-XX:+EnableDynamicAgentLoading</argLine>
+                    <!-- <argLine>${surefireArgLine} -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar -Xshare:off -Xmx1024m -Djava.awt.headless=true</argLine> -->
+                    <forkCount>1</forkCount>
+                    <reuseForks>true</reuseForks>
                 </configuration>
             </plugin>
             <!-- Modern Failsafe plugin for JUnit5 -->
@@ -3063,7 +3041,7 @@
                                     <executable>bash</executable>
                                     <arguments>
                                         <argument>-c</argument>
-                                        <argument>set -euo pipefail; command -v codeql &gt;/dev/null || { echo "CodeQL CLI not found in PATH."; exit 1; }; mkdir -p "${codeql.database.dir}"; rm -rf "${codeql.database.dir}/actions" "${codeql.database.dir}/java" "${codeql.database.dir}/js"; codeql database create "${codeql.database.dir}/actions" --language=actions --source-root "${codeql.source.root}" --codescanning-config="${codeql.source.root}/.github/codeql/codeql-config.yml"; codeql database create "${codeql.database.dir}/java" --language=java --build-mode none --source-root "${codeql.source.root}" --codescanning-config="${codeql.source.root}/.github/codeql/codeql-config.yml"; codeql database create "${codeql.database.dir}/js" --language=javascript --source-root "${codeql.source.root}" --codescanning-config="${codeql.source.root}/.github/codeql/codeql-config.yml"; echo "CodeQL databases created in ${codeql.database.dir}";</argument>
+                                        <argument>set -euo pipefail; command -v codeql &gt;/dev/null || { echo "CodeQL CLI not found in PATH."; exit 1; }; mkdir -p "${codeql.database.dir}"; rm -rf "${codeql.database.dir}/java" "${codeql.database.dir}/js"; codeql database create "${codeql.database.dir}/java" --language=java --build-mode none --source-root "${codeql.source.root}" --codescanning-config="${codeql.source.root}/.github/codeql/codeql-config.yml"; codeql database create "${codeql.database.dir}/js" --language=javascript --source-root "${codeql.source.root}" --codescanning-config="${codeql.source.root}/.github/codeql/codeql-config.yml"; echo "CodeQL databases created in ${codeql.database.dir}";</argument>
                                     </arguments>
                                 </configuration>
                             </execution>
@@ -3077,7 +3055,7 @@
                                     <executable>bash</executable>
                                     <arguments>
                                         <argument>-c</argument>
-                                        <argument>set -euo pipefail; command -v codeql &gt;/dev/null || { echo "CodeQL CLI not found in PATH."; exit 1; }; [[ -d "${codeql.database.dir}/actions" ]] || { echo "Missing database: ${codeql.database.dir}/actions. Run exec:exec@codeql-create-db first."; exit 1; }; [[ -d "${codeql.database.dir}/java" ]] || { echo "Missing database: ${codeql.database.dir}/java. Run exec:exec@codeql-create-db first."; exit 1; }; [[ -d "${codeql.database.dir}/js" ]] || { echo "Missing database: ${codeql.database.dir}/js. Run exec:exec@codeql-create-db first."; exit 1; }; mkdir -p "${codeql.results.dir}"; codeql database analyze "${codeql.database.dir}/actions" codeql/actions-queries --format=sarif-latest --output "${codeql.results.dir}/actions.sarif"; codeql database analyze "${codeql.database.dir}/java" codeql/java-queries "${codeql.source.root}/codeql-custom-queries-java" --format=sarif-latest --output "${codeql.results.dir}/java.sarif"; codeql database analyze "${codeql.database.dir}/js" codeql/javascript-queries --format=sarif-latest --output "${codeql.results.dir}/javascript.sarif"; echo "CodeQL analysis complete. SARIF files are in ${codeql.results.dir}";</argument>
+                                        <argument>set -euo pipefail; command -v codeql &gt;/dev/null || { echo "CodeQL CLI not found in PATH."; exit 1; }; [[ -d "${codeql.database.dir}/java" ]] || { echo "Missing database: ${codeql.database.dir}/java. Run exec:exec@codeql-create-db first."; exit 1; }; [[ -d "${codeql.database.dir}/js" ]] || { echo "Missing database: ${codeql.database.dir}/js. Run exec:exec@codeql-create-db first."; exit 1; }; mkdir -p "${codeql.results.dir}"; codeql database analyze "${codeql.database.dir}/java" codeql/java-queries "${codeql.source.root}/codeql-custom-queries-java" --format=sarif-latest --output "${codeql.results.dir}/java.sarif"; codeql database analyze "${codeql.database.dir}/js" codeql/javascript-queries --format=sarif-latest --output "${codeql.results.dir}/javascript.sarif"; echo "CodeQL analysis complete. SARIF files are in ${codeql.results.dir}";</argument>
                                     </arguments>
                                 </configuration>
                             </execution>
@@ -3091,7 +3069,7 @@
                                     <executable>bash</executable>
                                     <arguments>
                                         <argument>-c</argument>
-                                        <argument>set -euo pipefail; command -v codeql &gt;/dev/null || { echo "CodeQL CLI not found in PATH."; exit 1; }; mkdir -p "${codeql.database.dir}" "${codeql.results.dir}"; rm -rf "${codeql.database.dir}/actions" "${codeql.database.dir}/java" "${codeql.database.dir}/js"; codeql database create "${codeql.database.dir}/actions" --language=actions --source-root "${codeql.source.root}" --codescanning-config="${codeql.source.root}/.github/codeql/codeql-config.yml"; codeql database create "${codeql.database.dir}/java" --language=java --build-mode none --source-root "${codeql.source.root}" --codescanning-config="${codeql.source.root}/.github/codeql/codeql-config.yml"; codeql database create "${codeql.database.dir}/js" --language=javascript --source-root "${codeql.source.root}" --codescanning-config="${codeql.source.root}/.github/codeql/codeql-config.yml"; codeql database analyze "${codeql.database.dir}/actions" codeql/actions-queries --format=sarif-latest --output "${codeql.results.dir}/actions.sarif"; codeql database analyze "${codeql.database.dir}/java" codeql/java-queries "${codeql.source.root}/codeql-custom-queries-java" --format=sarif-latest --output "${codeql.results.dir}/java.sarif"; codeql database analyze "${codeql.database.dir}/js" codeql/javascript-queries --format=sarif-latest --output "${codeql.results.dir}/javascript.sarif"; echo "CodeQL scan complete. SARIF files are in ${codeql.results.dir}";</argument>
+                                        <argument>set -euo pipefail; command -v codeql &gt;/dev/null || { echo "CodeQL CLI not found in PATH."; exit 1; }; mkdir -p "${codeql.database.dir}" "${codeql.results.dir}"; rm -rf "${codeql.database.dir}/java" "${codeql.database.dir}/js"; codeql database create "${codeql.database.dir}/java" --language=java --build-mode none --source-root "${codeql.source.root}" --codescanning-config="${codeql.source.root}/.github/codeql/codeql-config.yml"; codeql database create "${codeql.database.dir}/js" --language=javascript --source-root "${codeql.source.root}" --codescanning-config="${codeql.source.root}/.github/codeql/codeql-config.yml"; codeql database analyze "${codeql.database.dir}/java" codeql/java-queries "${codeql.source.root}/codeql-custom-queries-java" --format=sarif-latest --output "${codeql.results.dir}/java.sarif"; codeql database analyze "${codeql.database.dir}/js" codeql/javascript-queries --format=sarif-latest --output "${codeql.results.dir}/javascript.sarif"; echo "CodeQL scan complete. SARIF files are in ${codeql.results.dir}";</argument>
                                     </arguments>
                                 </configuration>
                             </execution>
@@ -3132,31 +3110,6 @@
             <id>sign</id>
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>dev.sigstore</groupId>
-                        <artifactId>sigstore-maven-plugin</artifactId>
-                        <version>${sigstore.maven.plugin.version}</version>
-                        <configuration>
-                            <!-- Sigstore OIDC configuration - uses SIGSTORE_IDENTITY_TOKEN env var -->
-                            <sigstore>
-                                <online>true</online>
-                            </sigstore>
-                            <!-- Pass the identity token via environment variable to forked JVMs -->
-                            <environmentVariables>
-                                <SIGSTORE_IDENTITY_TOKEN>${env.SIGSTORE_IDENTITY_TOKEN}</SIGSTORE_IDENTITY_TOKEN>
-                            </environmentVariables>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>sigstore-sign</id>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                                <phase>verify</phase>
-                                <inherited>false</inherited>
-                            </execution>
-                        </executions>
-                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>

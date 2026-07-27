@@ -66,14 +66,6 @@
 				dir="${jetty-directory}/perc-jetty-${project.version}/" />
 		</copy>
 
-		<echo>Updating patch Jetty jars...</echo>
-		<copy todir="${assembly-directory}/jetty/upstream/lib/"
-			failonerror="false" overwrite="true">
-			<fileset
-				dir="{basedir}/../../../system/Tools/jetty/upstream/lib/"
-				followsymlinks="false" includes="*.jar" />
-		</copy>
-
 		<!-- Unpack perc-web-ui WAR to Rhythmyx -->
 		<echo>Unpacking perc-web-ui WAR...</echo>
 		<mkdir dir="${assembly-directory}/jetty/base/webapps/Rhythmyx" />
@@ -153,6 +145,20 @@
 				dir="${basedir}/../perc-tinymce/target/classes/META-INF/resources/sys_resources">
 			</fileset>
 		</copy>
+
+		<!-- AI tools (skills, prompts, instructions, future plugins) staged into the install.
+		     sys_resources/ai-tools/ is replaced on every upgrade.
+		     rx_resources/ai-tools/ is created empty as the customer overlay — files added
+		     there by an operator survive upgrades and take precedence at runtime. -->
+		<echo>Staging AI tools into sys_resources/ai-tools/...</echo>
+		<copy todir="${assembly-directory}/sys_resources/ai-tools"
+			overwrite="true" verbose="true" force="true">
+			<fileset
+				dir="${basedir}/../../modules/ai-shared-release/src/main/resources">
+				<exclude name="**/.gitkeeep" />
+			</fileset>
+		</copy>
+		<mkdir dir="${assembly-directory}/rx_resources/ai-tools" />
 
 		<!-- Duplicate rx_resources copy removed: identical operation already performed
 			above (line ~109). -->
@@ -546,6 +552,8 @@
 				<include name="authtypes.properties" />
 				<include name="stylesheetCleanupFilter.xml" />
 				<include name="addThumbnailURL.properties" />
+				<include name="allowedUrls.properties" />
+				<include name="blockedUrls.properties" />
 			</fileset>
 		</PSCopy>
 
@@ -692,14 +700,68 @@
 		<echo>Creating jetty work directory..</echo>
 		<mkdir dir="${assembly-directory}/jetty/base/work" />
 
+		<!-- Populate jetty/base/lib/jdbc/ with the curated JDBC driver set. The
+			staged JARs are placed in ${assembly-directory}/_jdbc-stage/ by maven-dependency-plugin
+			(see pom.xml execution id=stage-jdbc-drivers) and copied here unconditionally
+			for every build. The JARs retain their Maven-resolved filenames (e.g. mariadb-java-client-3.5.7.jar)
+			so the version is visible to integrators and version drift does not break
+			downstream paths. Loud-failure on missing drivers comes from TWO upstream
+			mechanisms, NOT from this ANT <copy>: an empty globbed <fileset> is a silent
+			no-op. (a) failOnAnyMissingDependency=true on the Maven copy-dependencies
+			execution (pom.xml stage-jdbc-drivers) catches missing Maven coordinates
+			at the generate-resources phase. (b) scripts/verify-jdbc-drivers.py (cross-platform
+			Python port; the canonical implementation is the com.percussion.distribution.install.VerifyJdbcDrivers
+			Java main invoked by exec-maven-plugin:java in pom.xml), wired into the Maven
+			verify phase, inspects the assembled JAR and fails the build when the curated
+			driver set is missing or invalid. The <delete> immediately below removes
+			the transient _jdbc-stage directory after the copy so it cannot leak into
+			the assembled perc-distribution-tree.jar (FR-001). failonerror="false" makes
+			the delete idempotent on a missing directory (FR-007). -->
+		<echo>Copying curated JDBC drivers into jetty/base/lib/jdbc/..</echo>
+		<mkdir dir="${assembly-directory}/jetty/base/lib/jdbc/" />
+		<copy todir="${assembly-directory}/jetty/base/lib/jdbc/"
+			overwrite="true">
+			<fileset dir="${assembly-directory}/_jdbc-stage">
+				<include name="mariadb-java-client-*.jar" />
+				<include name="mysql-connector-j-*.jar" />
+				<!-- #548 default embedded engine -->
+				<include name="h2-*.jar" />
+				<!-- Derby 10.15+ splits the engine across multiple JARs. The embedded
+					driver (derby.jar) requires derbyshared.jar (StandardException, etc.) and
+					typically derbytools.jar. Omitting them yields: ClassNotFoundException: org.apache.derby.shared.common.error.StandardException
+					Note: include pattern "derby-*.jar" does NOT match derbyshared-* or derbytools-*
+					(no hyphen after "derby"). Retained for migration. -->
+				<include name="derby-*.jar" />
+				<include name="derbyclient-*.jar" />
+				<include name="derbynet-*.jar" />
+				<include name="derbyshared-*.jar" />
+				<include name="derbytools-*.jar" />
+				<include name="mssql-jdbc-*.jar" />
+				<include name="jtds-*.jar" />
+				<include name="ojdbc17-*.jar" />
+				<!-- #1500 PostgreSQL external CMS repository -->
+				<include name="postgresql-*.jar" />
+			</fileset>
+		</copy>
+		<!-- FR-001 / FR-007: physically remove the transient staging directory
+			so the jar-with-dependencies assembly does not package every other provided-scope
+			dep (saxon, tablefactory, perc-ant, perc-i18n, etc.) alongside the curated
+			drivers. -->
+		<delete dir="${assembly-directory}/_jdbc-stage"
+			failonerror="false" verbose="true" />
+
+		<!-- LEGACY: DEVELOPMENT=true historical override. Preserved for backward
+			compatibility (FR-004). Adds an extra development MySQL connector on top
+			of the production driver set; the legacy source path may not exist in the
+			current tree, so failure is non-fatal here. -->
 		<if>
 			<equals arg1="${DEVELOPMENT}" arg2="true" />
 			<then>
-				<echo>Copying MySQL connector for development install..</echo>
-				<mkdir dir="${assembly-directory}/jetty/base/lib/jdbc/" />
+				<echo>Copying legacy MySQL connector for development install..</echo>
 				<copy
 					file="${basedir}../../../system/Tools/mysql/mysql-connector-java-8.0.18.jar"
-					tofile="${assembly-directory}/jetty/base/lib/jdbc/mysql-connector.jar" />
+					tofile="${assembly-directory}/jetty/base/lib/jdbc/mysql-connector.jar"
+					failonerror="false" />
 			</then>
 		</if>
 

@@ -17,6 +17,7 @@
 
 package com.percussion.preinstall;
 
+import com.percussion.preinstall.java.JavaInstallSelection;
 import com.percussion.security.validation.PathValidation;
 import java.io.File;
 import java.io.IOException;
@@ -41,10 +42,21 @@ public class MainDTSPreInstall {
   private static final String INSTALL_TEMPDIR = "percDTSInstallTmp_";
   private static final String PERC_ANT_JAR = "perc-ant";
   private static final String ANT_INSTALL = "installDts.xml";
-  private static final String DB_TYPE_DEFAULT = "derby";
-  private static final String DB_SSL_ENABLED_DEFAULT = "true";
-  private static final String DB_SSL_VERIFY_DEFAULT = "true";
-  private static final String DB_SSL_ALLOW_SELF_SIGNED_DEFAULT = "false";
+
+  /** Default embedded engine after Apache Derby retirement (GitHub #548). */
+  public static final String DB_TYPE_DEFAULT = "h2";
+
+  /** Default SSL enabled value for new DTS installs. */
+  public static final String DB_SSL_ENABLED_DEFAULT = "true";
+
+  /** Default SSL verify value for new DTS installs. */
+  public static final String DB_SSL_VERIFY_DEFAULT = "true";
+
+  /** Default SSL allow-self-signed value for new DTS installs. */
+  public static final String DB_SSL_ALLOW_SELF_SIGNED_DEFAULT = "false";
+
+  /** CLI key for silent/non-interactive mode (--silent or --no-tty). */
+  public static final String SILENT_KEY = "silent";
 
   /**
    * Find a jar by path pattern to avoid hard coding / forcing version.
@@ -81,7 +93,37 @@ public class MainDTSPreInstall {
   public static void main(String[] args) {
     int exitCode = 0;
     try {
-      var javaHome = System.getProperty(PERC_JAVA_HOME);
+      ParsedArgs parsedArgs = parseArgs(args);
+      boolean silent = isSilentMode(parsedArgs.options());
+      // Issue #1513 Phase 4: interactive path / Java / server type / DB / confirm when TTY.
+      boolean interactive =
+          InteractiveDtsInstallWizard.isInteractive(silent, System.console() != null);
+      InteractiveDtsInstallWizard.WizardResult wizard =
+          InteractiveDtsInstallWizard.run(
+              parsedArgs,
+              interactive,
+              SystemConsoleInstallPrompt.INSTANCE,
+              parseUnattendedJavaHome(System.getProperty(PERC_JAVA_HOME)),
+              System.getProperty("install.prod.dts"));
+      if (!wizard.proceed()) {
+        if (wizard.message() != null && !wizard.message().isBlank()) {
+          System.out.println(wizard.message());
+        }
+        System.exit(wizard.exitCode());
+        return;
+      }
+
+      var installPath = wizard.installPath();
+      ResolvedDbConfig resolvedDbConfig = wizard.dbConfig();
+      var isProduction = wizard.isProduction();
+      if (wizard.javaOutcome() != null) {
+        System.out.println("DTS Java home selection: " + wizard.javaOutcome().summary());
+      }
+
+      var javaHome =
+          wizard.javaOutcome() != null && wizard.javaOutcome().javaHome() != null
+              ? wizard.javaOutcome().javaHome().toString()
+              : System.getProperty(PERC_JAVA_HOME);
       if (javaHome == null || javaHome.trim().isEmpty()) {
         javaHome = System.getProperty(JAVA_HOME);
       }
@@ -99,40 +141,8 @@ public class MainDTSPreInstall {
       System.out.println("perc.java.home=" + javaHome);
       System.out.println("java.executable=" + javabin);
       System.out.println("perc.version=" + percVersion);
-
-      ParsedArgs parsedArgs = parseArgs(args);
-      if (parsedArgs.installPath() == null) {
-        System.out.println("Must specify installation or upgrade folder");
-        System.exit(0);
-      }
-
-      System.out.println("Installation folder =" + parsedArgs.installPath());
-      var installPath = parsedArgs.installPath();
-      ResolvedDbConfig resolvedDbConfig = resolveDbConfig(parsedArgs.options());
-      var isProduction = System.getProperty("install.prod.dts");
-      System.out.println(
-          "====Will remove below code if value of is Production comes fine"
-              + " PSDeliveryTierServerTYpePanel"
-              + isProduction);
-
-      var staging = installPath.toFile() + File.separator + "Staging";
-      var f = new File(staging);
-      var prod = installPath.toFile() + File.separator + "Deployment";
-      var f2 = new File(prod);
-
-      if (Files.exists(f.toPath()) && !Files.exists(f2.toPath())) {
-        isProduction = "false";
-      }
-
-      // If isProduction value is not passed in and we are not able to figure out either, then set
-      // the value to be true
-      // e.g. in case of upgrade installer is passing value $DTS_SERVER_TYPE$, which doesn't match
-      // any of the cases and thus fails
-      if (isProduction == null
-          || isProduction.isEmpty()
-          || (!"true".equalsIgnoreCase(isProduction) && !"false".equalsIgnoreCase(isProduction))) {
-        isProduction = "true"; // change done for dev environment
-      }
+      System.out.println("Installation folder =" + installPath);
+      System.out.println("install.prod.dts=" + isProduction);
 
       Path installSrc;
       var currentJar =
@@ -216,8 +226,17 @@ public class MainDTSPreInstall {
           }
           System.out.println("Creating file " + entryDest);
           Files.copy(archive.getInputStream(entry), entryDest);
-        } catch (SecurityException se) {
-          // ZipSlip attack detected - skip malicious entry
+          // Preserve executable permissions for shell scripts (v8.1.7 #515 / GH-510)
+          if (entryName.endsWith(".sh")) {
+            File sh = entryDest.toFile();
+            if (!sh.setExecutable(true, false)) {
+              System.out.println("Warning: could not set executable bit on " + entryDest);
+            }
+          }
+        } catch (PathValidation.SecurityException | SecurityException se) {
+          // ZipSlip / path traversal rejected by PathValidation (CWE-22).
+          // PathValidation throws its nested SecurityException (RuntimeException),
+          // not java.lang.SecurityException — catch both so either form is skipped.
           System.out.println("Security: Rejected malicious zip entry: " + entryName);
         }
       }
@@ -268,7 +287,7 @@ public class MainDTSPreInstall {
     return process.exitValue();
   }
 
-  private static ParsedArgs parseArgs(String[] args) {
+  static ParsedArgs parseArgs(String[] args) {
     Path installPath = null;
     Map<String, String> options = new HashMap<>();
 
@@ -308,7 +327,58 @@ public class MainDTSPreInstall {
     return new ParsedArgs(installPath, options);
   }
 
-  private static ResolvedDbConfig resolveDbConfig(Map<String, String> cliOptions) {
+  /**
+   * Treat -Dperc.java.home=... as the unattended input to the Java home selector. Returns {@code
+   * null} when unset so the discovery / interactive path takes over.
+   */
+  static java.nio.file.Path parseUnattendedJavaHome(String raw) {
+    if (raw == null) {
+      return null;
+    }
+    String trimmed = raw.trim();
+    if (trimmed.isEmpty() || "${perc.java.home}".equals(trimmed)) {
+      return null;
+    }
+    return java.nio.file.Path.of(trimmed);
+  }
+
+  /**
+   * Check if silent/non-interactive mode is enabled via --silent or --no-tty CLI options.
+   *
+   * @param options parsed CLI options
+   * @return true if silent mode is enabled
+   */
+  /**
+   * Check if silent/non-interactive mode is enabled via --silent or --no-tty CLI options.
+   *
+   * @param options parsed CLI options
+   * @return true if silent mode is enabled
+   */
+  static boolean isSilentMode(Map<String, String> options) {
+    if (options == null) {
+      return false;
+    }
+    String silent = options.get(SILENT_KEY);
+    String noTty = options.get("no-tty");
+    return "true".equalsIgnoreCase(silent)
+        || "yes".equalsIgnoreCase(silent)
+        || "1".equals(silent)
+        || "true".equalsIgnoreCase(noTty)
+        || "yes".equalsIgnoreCase(noTty)
+        || "1".equals(noTty);
+  }
+
+  /**
+   * Resolve DTS database configuration into {@code perc.db.*} system properties for the ANT install
+   * JVM.
+   *
+   * @param cliOptions options from {@link #parseArgs(String[])}
+   * @return resolved config (never null)
+   */
+  static ResolvedDbConfig resolveDbConfig(Map<String, String> cliOptions) {
+    if (cliOptions == null) {
+      cliOptions = Map.of();
+    }
     Map<String, String> envFileValues = new HashMap<>();
     String envFilePath =
         firstNonBlank(
@@ -384,7 +454,9 @@ public class MainDTSPreInstall {
     String password = systemProperties.get("perc.db.password");
     String schema = systemProperties.get("perc.db.schema");
 
-    if (!"derby".equals(dbTypeNormalized)) {
+    // Embedded engines (H2 default, Derby migration window) do not require host/port/name.
+    boolean embedded = "h2".equals(dbTypeNormalized) || "derby".equals(dbTypeNormalized);
+    if (!embedded) {
       List<String> missing = new ArrayList<>();
       if (isBlank(host)) {
         missing.add("db.host");
@@ -451,6 +523,19 @@ public class MainDTSPreInstall {
           "perc.db.dts.hibernateDialect",
           "com.percussion.delivery.rdbms.PSUnicodeSQLServerDialect");
       systemProperties.put("perc.db.dts.schema", firstNonBlank(schema, "DBO"));
+    } else if ("postgresql".equals(dbTypeNormalized) || "postgres".equals(dbTypeNormalized)) {
+      String dtsJdbcUrl =
+          "jdbc:postgresql://"
+              + host
+              + ":"
+              + port
+              + "/"
+              + name;
+      systemProperties.put("perc.db.dts.jdbcUrl", dtsJdbcUrl);
+      systemProperties.put("perc.db.dts.jdbcDriver", "org.postgresql.Driver");
+      systemProperties.put(
+          "perc.db.dts.hibernateDialect", "org.hibernate.dialect.PostgreSQLDialect");
+      systemProperties.put("perc.db.dts.schema", firstNonBlank(schema, "public"));
     }
 
     return new ResolvedDbConfig(systemProperties);
@@ -539,7 +624,13 @@ public class MainDTSPreInstall {
     }
   }
 
-  private record ParsedArgs(Path installPath, Map<String, String> options) {}
+  /** CLI arguments parsed from the DTS preinstall invocation. */
+  public record ParsedArgs(Path installPath, Map<String, String> options) {}
 
-  private record ResolvedDbConfig(Map<String, String> systemProperties) {}
+  /**
+   * Resolved database configuration for the ANT install JVM.
+   *
+   * @param systemProperties map of {@code perc.db.*} keys for the ANT JVM
+   */
+  public record ResolvedDbConfig(Map<String, String> systemProperties) {}
 }

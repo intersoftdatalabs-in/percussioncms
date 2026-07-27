@@ -62,7 +62,7 @@
         <dependency>
             <groupId>org.springframework.ldap</groupId>
             <artifactId>spring-ldap-core</artifactId>
-            <version>4.0.2</version>
+            <version>4.0.3</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -91,9 +91,6 @@
             </resource>
         </resources>
         <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>

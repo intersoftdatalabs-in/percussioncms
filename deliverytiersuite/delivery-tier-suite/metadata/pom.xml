@@ -143,6 +143,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
             <scope>test</scope>
@@ -229,9 +234,6 @@
                     </dependency>
                 </dependencies>
             </plugin>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -241,30 +243,31 @@
                 <plugins>
                     <plugin>
                         <groupId>org.codehaus.cargo</groupId>
-                        <artifactId>cargo-maven2-plugin</artifactId>
-                        <version>1.9.0</version>
+                        <artifactId>cargo-maven3-plugin</artifactId>
+                        <version>1.10.28</version>
                         <configuration>
                             <container>
-                                <containerId>tomcat7x</containerId>
+                                <!-- Align optional cargo.run profile with DTS Tomcat 11 / EE11 baseline (#667) -->
+                                <containerId>tomcat11x</containerId>
                                 <!-- <type>embedded</type> -->
                                 <zipUrlInstaller>
-                                    <url>http://repo1.maven.org/maven2/org/apache/tomcat/tomcat/7.0.68/tomcat-7.0.68.zip</url>
+                                    <url>https://repo1.maven.org/maven2/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip</url>
                                 </zipUrlInstaller>
                                 <dependencies>
                                     <dependency>
-                                        <groupId>org.apache.derby</groupId>
-                                        <artifactId>derby</artifactId>
+                                        <groupId>com.h2database</groupId>
+                                        <artifactId>h2</artifactId>
                                     </dependency>
                                 </dependencies>
                             </container>
                             <configuration>
                                 <properties>
                                     <cargo.servlet.port>8080</cargo.servlet.port>
-                                    <cargo.datasource.datasource.derby>cargo.datasource.driver=org.apache.derby.jdbc.EmbeddedDriver|
-										cargo.datasource.url=jdbc:derby:derbyDB;create=true|
+                                    <cargo.datasource.datasource.h2>cargo.datasource.driver=org.h2.Driver|
+										cargo.datasource.url=jdbc:h2:mem:cargoDB;DB_CLOSE_DELAY=-1|
 										cargo.datasource.jndi=jdbc/CargoDS|
 										cargo.datasource.username=APP|
-										cargo.datasource.password=nonemptypassword</cargo.datasource.datasource.derby>
+										cargo.datasource.password=nonemptypassword</cargo.datasource.datasource.h2>
                                 </properties>
                             </configuration>
                             <packager>

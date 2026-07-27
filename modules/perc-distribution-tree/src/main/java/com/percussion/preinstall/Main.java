@@ -16,6 +16,7 @@
 
 package com.percussion.preinstall;
 
+import com.percussion.preinstall.java.JavaInstallSelection;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.validation.PathValidation;
 import com.percussion.security.xml.PSSecureXMLUtils;
@@ -33,11 +34,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -57,6 +55,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+/**
+ * Pre-install entry point invoked by the distribution assembly. Extracts the assembled
+ * distribution, resolves database configuration, selects a runtime Java home, and executes the ANT
+ * installer against the target directory.
+ */
 public class Main {
 
   private static final Logger log = LogManager.getLogger(Main.class);
@@ -68,17 +71,16 @@ public class Main {
   public static final String INSTALL_TEMPDIR = "percInstallTmp_";
   public static final String PERC_ANT_JAR = "perc-ant";
   public static final String DEVELOPMENT = "DEVELOPMENT";
+
+  /** Name of the ANT build file inside the installer directory. */
   public static final String ANT_INSTALL = "install.xml";
+
   public static final String JAVA_TEMP = "java.io.tmpdir";
   public static final String VERSION_PROPERTIES = "Version.properties";
   private static final String INSTALLATION_PROPS_PATH = "/jetty/base/etc/installation.properties";
   private static final String SERVER_PROPS_PATH = "/rxconfig/Server/server.properties";
   private static final String JETTY_JDBC_PATH = "/jetty/base/lib/jdbc/";
   private static final String OLD_JDBC_LIST_PATH = "/rxconfig/Installer/oldJdbcJarsList.txt";
-  private static final String DB_TYPE_DEFAULT = "derby";
-  private static final String DB_SSL_ENABLED_DEFAULT = "true";
-  private static final String DB_SSL_VERIFY_DEFAULT = "true";
-  private static final String DB_SSL_ALLOW_SELF_SIGNED_DEFAULT = "false";
   public static File tmpFolder;
   public static String developmentFlag = "false";
   public static String percVersion;
@@ -93,22 +95,43 @@ public class Main {
   public static void main(String[] args) {
     try {
 
-      ParsedArgs parsedArgs = parseArgs(args);
-      if (parsedArgs.installPath() == null) {
-        System.out.println("Must specify installation or upgrade folder");
-        System.exit(0);
+      DbInstallConfigResolver.ParsedArgs parsedArgs = DbInstallConfigResolver.parseArgs(args);
+      Map<String, String> options = parsedArgs.options();
+      // Check for silent/non-interactive mode (--silent or --no-tty)
+      boolean silent = isSilentMode(options);
+      // Issue #1513 Phase 1: interactive path prompt + summary/confirm when a TTY is present.
+      // Silent / no-console keeps the historical parameter-driven contract (usage if no path).
+      boolean interactive =
+          InteractiveInstallWizard.isInteractive(silent, System.console() != null);
+      InteractiveInstallWizard.Phase1Result phase1 =
+          InteractiveInstallWizard.runPhase1(
+              parsedArgs, interactive, SystemConsoleInstallPrompt.INSTANCE);
+      if (!phase1.proceed()) {
+        if (phase1.message() != null && !phase1.message().isBlank()) {
+          System.out.println(phase1.message());
+        }
+        System.exit(phase1.exitCode());
+        return;
       }
 
-      Path installPath = parsedArgs.installPath();
-
-      ResolvedDbConfig resolvedDbConfig = resolveDbConfig(parsedArgs.options());
+      Path installPath = phase1.installPath();
+      options = phase1.options();
+      DbInstallConfigResolver.ResolvedDbConfig resolvedDbConfig = phase1.dbConfig();
+      // Issue #1340 / #1513 Phase 2: Java home already selected and persisted by the wizard.
+      JavaInstallSelection.SelectionOutcome javaOutcome = phase1.javaOutcome();
+      if (javaOutcome != null) {
+        System.out.println("Java home selection: " + javaOutcome.summary());
+      }
 
       debug = System.getProperty("DEBUG");
       if (debug == null || debug.equalsIgnoreCase("")) {
         debug = "false";
       }
 
-      String javaHome = System.getProperty(PERC_JAVA_HOME);
+      String javaHome =
+          javaOutcome != null && javaOutcome.javaHome() != null
+              ? javaOutcome.javaHome().toString()
+              : System.getProperty(PERC_JAVA_HOME);
       if (javaHome == null || javaHome.trim().equalsIgnoreCase(""))
         javaHome = System.getProperty(JAVA_HOME);
 
@@ -140,12 +163,18 @@ public class Main {
         String minor = existingVersion.getProperty("minorVersion");
         log.info("Major Version Found: {}", major);
         log.info("Minor Version Found: {}", minor);
-        try {
-          majorVersion = Integer.parseInt(major);
-          minorVersion = Integer.parseInt(minor);
-        } catch (NumberFormatException ne) {
-          log.warn("Invalid Version number in Version File");
-        }
+        majorVersion = parseVersionPart(major, "majorVersion");
+        minorVersion = parseVersionPart(minor, "minorVersion");
+      }
+
+      // Issue #1157: optional early cleanup of obsolete install-root directories on upgrade only
+      try {
+        runObsoleteInstallDirCleanup(installPath, options, silent);
+      } catch (Exception cleanupEx) {
+        System.out.println(
+            "Obsolete directory cleanup reported an error (upgrade will continue): "
+                + cleanupEx.getMessage());
+        log.warn("Obsolete directory cleanup error", cleanupEx);
       }
 
       Path installSrc;
@@ -187,15 +216,139 @@ public class Main {
       Path execPath = installSrc.resolve(Paths.get("rxconfig", "Installer"));
       Path installAntJarPath =
           execPath.resolve(PathUtils.getVersionLessJarFilePath(execPath, PERC_ANT_JAR + "-*.jar"));
-      execJar(installAntJarPath, execPath, installPath, resolvedDbConfig);
+
+      // Note: operator-supplied embedded H2 DB passwords are intentionally NOT
+      // persisted under var/config/generated/passwords. That file is reserved
+      // for credentials the system auto-generates (silent-install random
+      // cmdb password via PSGenerateRepositoryPassword, plus Admin / Editor /
+      // Contributor demo defaults managed by PSUserService). Operator-chosen
+      // secrets live only in rxrepository.properties and the encrypted
+      // perc-ds.properties written by PSConfigureDatasource.
+
+      Integer antExit = execJar(installAntJarPath, execPath, installPath, resolvedDbConfig);
       deleteOldJDBCJars(installPath);
+
+      int exitCode = resolveInstallExitCode(antExit, error, processCode);
+      if (exitCode != 0) {
+        System.out.println(
+            "Installation failed (exit code "
+                + exitCode
+                + "). See installer output and logs under the install directory.");
+        System.exit(exitCode);
+      }
 
     } catch (Exception e) {
       System.out.println(
           "An error occurred while executing the installation, installation has likely failed. "
               + e.getMessage());
+      System.exit(1);
+      return;
     }
     System.out.println("Done extracting");
+  }
+
+  /**
+   * Early upgrade cleanup of obsolete install-root directories (issue #1157). Never fails the
+   * overall install solely due to cleanup errors.
+   */
+  /** Parse a version property; blank/null/invalid → 0 (never throws). */
+  static int parseVersionPart(String raw, String label) {
+    if (raw == null || raw.isBlank()) {
+      return 0;
+    }
+    try {
+      return Integer.parseInt(raw.trim());
+    } catch (NumberFormatException ne) {
+      log.warn("Invalid {} in Version.properties: {}", label, raw);
+      return 0;
+    }
+  }
+
+  /**
+   * Treat the supplied -Dperc.java.home value as the unattended input to the Java home selection.
+   * Returns {@code null} when the property is unset, so the discovery / interactive path takes
+   * over.
+   */
+  static java.nio.file.Path parseUnattendedJavaHome(String raw) {
+    if (raw == null) {
+      return null;
+    }
+    String trimmed = raw.trim();
+    if (trimmed.isEmpty() || "${perc.java.home}".equals(trimmed)) {
+      return null;
+    }
+    return java.nio.file.Path.of(trimmed);
+  }
+
+  static void runObsoleteInstallDirCleanup(
+      Path installPath, java.util.Map<String, String> cliOptions, boolean silent) throws Exception {
+    if (!ObsoleteInstallDirCleaner.isUpgradeInstallRoot(installPath)) {
+      return;
+    }
+    boolean cleanFlag = ObsoleteInstallDirCleaner.parseCleanInstallDirFlag(cliOptions);
+    boolean interactive = !silent && System.console() != null;
+    ObsoleteInstallDirCleaner.CleanupResult result =
+        ObsoleteInstallDirCleaner.run(
+            installPath,
+            majorVersion,
+            minorVersion,
+            cleanFlag,
+            interactive,
+            prompt -> {
+              if (silent) {
+                return "";
+              }
+              System.out.print(prompt);
+              System.out.flush();
+              java.io.Console console = System.console();
+              if (console == null) {
+                return "";
+              }
+              String line = console.readLine();
+              return line == null ? "" : line;
+            });
+    System.out.print(ObsoleteInstallDirCleaner.formatCleanupReport(result));
+    if (!result.proceeded()
+        && "default-retain".equals(result.decisionSource())
+        && !result.candidates().isEmpty()) {
+      System.out.println(
+          "Tip: re-run upgrade with --clean-install-dir to remove obsolete directories"
+              + " without a prompt.");
+    }
+  }
+
+  /**
+   * Map Ant process outcome to the preinstall process exit code.
+   *
+   * @param antExit return value from {@link #execJar}, may be null
+   * @param errorFlag shared error flag set by {@link #execJar}
+   * @param sharedProcessCode shared process code field updated by {@link #execJar}
+   * @return 0 on success; non-zero on failure
+   */
+  static int resolveInstallExitCode(Integer antExit, Boolean errorFlag, Integer sharedProcessCode) {
+    if (antExit != null && antExit != 0) {
+      return antExit;
+    }
+    if (Boolean.TRUE.equals(errorFlag)) {
+      if (sharedProcessCode != null && sharedProcessCode != 0) {
+        return sharedProcessCode;
+      }
+      return 1;
+    }
+    if (sharedProcessCode != null && sharedProcessCode != 0) {
+      return sharedProcessCode;
+    }
+    return 0;
+  }
+
+  /**
+   * Check if silent/non-interactive mode is enabled via --silent or --no-tty CLI options.
+   *
+   * @param options parsed CLI options
+   * @return true if silent mode is enabled
+   */
+  static boolean isSilentMode(Map<String, String> options) {
+    return InteractiveInstallWizard.isSilentMode(options);
   }
 
   private static void deleteOldJDBCJars(Path installPath) {
@@ -269,6 +422,13 @@ public class Main {
           }
           System.out.println("Creating file " + entryDest);
           Files.copy(archive.getInputStream(entry), entryDest);
+          // Preserve executable permissions for shell scripts (v8.1.7 #515 / GH-510)
+          if (entryName.endsWith(".sh")) {
+            File sh = entryDest.toFile();
+            if (!sh.setExecutable(true, false)) {
+              log.warn("Could not set executable bit on extracted script: {}", entryDest);
+            }
+          }
         } catch (SecurityException se) {
           // ZipSlip or path traversal attack detected
           log.warn("Rejected malicious zip entry: {} - {}", entryName, se.getMessage());
@@ -282,7 +442,10 @@ public class Main {
   }
 
   public static Integer execJar(
-      Path jar, Path execPath, Path installDir, ResolvedDbConfig resolvedDbConfig)
+      Path jar,
+      Path execPath,
+      Path installDir,
+      DbInstallConfigResolver.ResolvedDbConfig resolvedDbConfig)
       throws IOException, InterruptedException {
 
     try {
@@ -405,324 +568,7 @@ public class Main {
     return processCode;
   }
 
-  private static ParsedArgs parseArgs(String[] args) {
-    Path installPath = null;
-    Map<String, String> options = new HashMap<>();
-
-    int index = 0;
-    while (index < args.length) {
-      String argument = args[index];
-      if (!argument.startsWith("--")) {
-        if (installPath == null) {
-          installPath = Paths.get(argument);
-        }
-        index++;
-        continue;
-      }
-
-      String option = argument.substring(2);
-      String key;
-      String value;
-      int equalsPosition = option.indexOf('=');
-      if (equalsPosition > -1) {
-        key = option.substring(0, equalsPosition).trim();
-        value = option.substring(equalsPosition + 1).trim();
-      } else {
-        key = option.trim();
-        if (index + 1 < args.length && !args[index + 1].startsWith("--")) {
-          value = args[index + 1].trim();
-          index++;
-        } else {
-          value = "true";
-        }
-      }
-
-      if (!key.isEmpty()) {
-        options.put(key, value);
-      }
-      index++;
-    }
-
-    return new ParsedArgs(installPath, options);
-  }
-
-  private static ResolvedDbConfig resolveDbConfig(Map<String, String> cliOptions) {
-    Map<String, String> environmentFileValues = new HashMap<>();
-    String envFilePath =
-        firstNonBlank(
-            cliOptions.get("db.config.env.file"),
-            System.getenv("DB_CONFIG_ENV_FILE"),
-            System.getenv("PERC_DB_CONFIG_ENV_FILE"));
-
-    if (envFilePath != null) {
-      environmentFileValues.putAll(loadEnvFile(envFilePath));
-    }
-
-    String dbType = getConfigValue("db.type", cliOptions, environmentFileValues, null);
-    if (isBlank(dbType)) {
-      dbType = DB_TYPE_DEFAULT;
-    }
-    dbType = dbType.toLowerCase(Locale.ROOT);
-
-    String sslEnabled =
-        normalizeBoolean(
-            getConfigValue(
-                "db.ssl.enabled", cliOptions, environmentFileValues, DB_SSL_ENABLED_DEFAULT),
-            "db.ssl.enabled");
-    String sslVerify =
-        normalizeBoolean(
-            getConfigValue(
-                "db.ssl.verify", cliOptions, environmentFileValues, DB_SSL_VERIFY_DEFAULT),
-            "db.ssl.verify");
-    String sslAllowSelfSigned =
-        normalizeBoolean(
-            getConfigValue(
-                "db.ssl.allowSelfSigned",
-                cliOptions,
-                environmentFileValues,
-                DB_SSL_ALLOW_SELF_SIGNED_DEFAULT),
-            "db.ssl.allowSelfSigned");
-
-    String host = getConfigValue("db.host", cliOptions, environmentFileValues, null);
-    String port = getConfigValue("db.port", cliOptions, environmentFileValues, null);
-    String name = getConfigValue("db.name", cliOptions, environmentFileValues, null);
-    String schema = getConfigValue("db.schema", cliOptions, environmentFileValues, null);
-    String user = getConfigValue("db.user", cliOptions, environmentFileValues, null);
-    String password = getConfigValue("db.password", cliOptions, environmentFileValues, null);
-
-    if (!Objects.equals(dbType, "derby")) {
-      List<String> missing = new ArrayList<>();
-      if (isBlank(host)) {
-        missing.add("db.host");
-      }
-      if (isBlank(port)) {
-        missing.add("db.port");
-      }
-      if (isBlank(name)) {
-        missing.add("db.name");
-      }
-      if (isBlank(user)) {
-        missing.add("db.user");
-      }
-      if (isBlank(password)) {
-        missing.add("db.password");
-      }
-      if (!missing.isEmpty()) {
-        throw new IllegalArgumentException(
-            "Missing required database parameters for db.type="
-                + dbType
-                + ": "
-                + String.join(", ", missing));
-      }
-    }
-
-    Map<String, String> systemProperties = new HashMap<>();
-    systemProperties.put("perc.db.type", dbType);
-    systemProperties.put("perc.db.ssl.enabled", sslEnabled);
-    systemProperties.put("perc.db.ssl.verify", sslVerify);
-    systemProperties.put("perc.db.ssl.allowSelfSigned", sslAllowSelfSigned);
-    setIfPresent(systemProperties, "perc.db.host", host);
-    setIfPresent(systemProperties, "perc.db.port", port);
-    setIfPresent(systemProperties, "perc.db.name", name);
-    setIfPresent(systemProperties, "perc.db.schema", schema);
-    setIfPresent(systemProperties, "perc.db.user", user);
-    setIfPresent(systemProperties, "perc.db.password", password);
-    setIfPresent(
-        systemProperties,
-        "perc.db.ssl.trustStorePath",
-        getConfigValue("db.ssl.trustStorePath", cliOptions, environmentFileValues, null));
-    setIfPresent(
-        systemProperties,
-        "perc.db.ssl.trustStorePassword",
-        getConfigValue("db.ssl.trustStorePassword", cliOptions, environmentFileValues, null));
-    setIfPresent(
-        systemProperties,
-        "perc.db.ssl.keyStorePath",
-        getConfigValue("db.ssl.keyStorePath", cliOptions, environmentFileValues, null));
-    setIfPresent(
-        systemProperties,
-        "perc.db.ssl.keyStorePassword",
-        getConfigValue("db.ssl.keyStorePassword", cliOptions, environmentFileValues, null));
-
-    if (Objects.equals(dbType, "mysql")) {
-      String resolvedSchema = firstNonBlank(schema, "");
-      String cmsServer =
-          "//"
-              + host
-              + ":"
-              + port
-              + "/"
-              + name
-              + "?useUnicode=yes&characterEncoding=UTF-8"
-              + "&useSSL="
-              + sslEnabled
-              + "&requireSSL="
-              + sslEnabled
-              + "&verifyServerCertificate="
-              + sslVerify;
-      systemProperties.put("perc.db.cms.backend", "MYSQL");
-      systemProperties.put("perc.db.cms.driverName", "mysql");
-      systemProperties.put("perc.db.cms.driverClass", "com.mysql.cj.jdbc.Driver");
-      systemProperties.put("perc.db.cms.server", cmsServer);
-      systemProperties.put("perc.db.cms.name", name);
-      systemProperties.put("perc.db.cms.schema", resolvedSchema);
-      systemProperties.put(
-          "perc.db.dts.jdbcUrl",
-          "jdbc:mysql://"
-              + host
-              + ":"
-              + port
-              + "/"
-              + name
-              + "?useUnicode=yes&characterEncoding=UTF-8"
-              + "&useSSL="
-              + sslEnabled
-              + "&requireSSL="
-              + sslEnabled
-              + "&verifyServerCertificate="
-              + sslVerify);
-      systemProperties.put("perc.db.dts.jdbcDriver", "com.mysql.cj.jdbc.Driver");
-      systemProperties.put(
-          "perc.db.dts.hibernateDialect", "org.hibernate.dialect.MySQL5InnoDBDialect");
-      systemProperties.put("perc.db.dts.schema", resolvedSchema);
-    } else if (Objects.equals(dbType, "sqlserver")) {
-      String resolvedSchema = firstNonBlank(schema, "DBO");
-      String trustServerCertificate =
-          Objects.equals(sslAllowSelfSigned, "true") || Objects.equals(sslVerify, "false")
-              ? "true"
-              : "false";
-      String cmsServer =
-          "//"
-              + host
-              + ":"
-              + port
-              + ";databaseName="
-              + name
-              + ";encrypt="
-              + sslEnabled
-              + ";trustServerCertificate="
-              + trustServerCertificate;
-      systemProperties.put("perc.db.cms.backend", "MSSQL");
-      systemProperties.put("perc.db.cms.driverName", "sqlserver");
-      systemProperties.put(
-          "perc.db.cms.driverClass", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
-      systemProperties.put("perc.db.cms.server", cmsServer);
-      systemProperties.put("perc.db.cms.name", name);
-      systemProperties.put("perc.db.cms.schema", resolvedSchema);
-      systemProperties.put(
-          "perc.db.dts.jdbcUrl",
-          "jdbc:sqlserver://"
-              + host
-              + ":"
-              + port
-              + ";databaseName="
-              + name
-              + ";encrypt="
-              + sslEnabled
-              + ";trustServerCertificate="
-              + trustServerCertificate);
-      systemProperties.put(
-          "perc.db.dts.jdbcDriver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
-      systemProperties.put(
-          "perc.db.dts.hibernateDialect",
-          "com.percussion.delivery.rdbms.PSUnicodeSQLServerDialect");
-      systemProperties.put("perc.db.dts.schema", resolvedSchema);
-    }
-
-    return new ResolvedDbConfig(systemProperties);
-  }
-
-  private static Map<String, String> loadEnvFile(String envFilePath) {
-    Map<String, String> values = new HashMap<>();
-    Path path = Paths.get(envFilePath);
-    if (!Files.exists(path)) {
-      throw new IllegalArgumentException("db.config.env.file not found: " + envFilePath);
-    }
-    try {
-      List<String> lines = Files.readAllLines(path);
-      for (String line : lines) {
-        if (line == null) {
-          continue;
-        }
-        String trimmed = line.trim();
-        if (trimmed.isEmpty() || trimmed.startsWith("#")) {
-          continue;
-        }
-        int separator = trimmed.indexOf('=');
-        if (separator <= 0) {
-          continue;
-        }
-        String key = trimmed.substring(0, separator).trim();
-        String value = trimmed.substring(separator + 1).trim();
-        values.put(key, value);
-      }
-      return values;
-    } catch (IOException e) {
-      throw new IllegalArgumentException("Unable to read db.config.env.file: " + envFilePath, e);
-    }
-  }
-
-  private static String getConfigValue(
-      String logicalKey,
-      Map<String, String> cliOptions,
-      Map<String, String> envFileValues,
-      String defaultValue) {
-    String envStyle = logicalToEnvStyle(logicalKey);
-    String percEnvStyle = "PERC_" + envStyle;
-    return firstNonBlank(
-        cliOptions.get(logicalKey),
-        cliOptions.get(envStyle),
-        cliOptions.get(percEnvStyle),
-        envFileValues.get(logicalKey),
-        envFileValues.get(envStyle),
-        envFileValues.get(percEnvStyle),
-        System.getenv(logicalKey),
-        System.getenv(envStyle),
-        System.getenv(percEnvStyle),
-        defaultValue);
-  }
-
-  private static String logicalToEnvStyle(String logicalKey) {
-    return logicalKey.toUpperCase(Locale.ROOT).replace('.', '_');
-  }
-
-  private static String firstNonBlank(String... values) {
-    for (String value : values) {
-      if (!isBlank(value)) {
-        return value.trim();
-      }
-    }
-    return null;
-  }
-
-  private static boolean isBlank(String value) {
-    return value == null || value.trim().isEmpty();
-  }
-
-  private static String normalizeBoolean(String value, String key) {
-    if (isBlank(value)) {
-      throw new IllegalArgumentException("Missing required boolean value for " + key);
-    }
-    if ("true".equalsIgnoreCase(value)) {
-      return "true";
-    }
-    if ("false".equalsIgnoreCase(value)) {
-      return "false";
-    }
-    throw new IllegalArgumentException("Invalid boolean value for " + key + ": " + value);
-  }
-
-  private static void setIfPresent(Map<String, String> target, String key, String value) {
-    if (!isBlank(value)) {
-      target.put(key, value.trim());
-    }
-  }
-
-  private record ParsedArgs(Path installPath, Map<String, String> options) {}
-
-  private record ResolvedDbConfig(Map<String, String> systemProperties) {}
-
-  private static Properties loadVersionProperties(Path installDir) {
+private static Properties loadVersionProperties(Path installDir) {
     File versionFile = new File(installDir + File.separator + VERSION_PROPERTIES);
     Properties rawVersionProperties = new Properties();
     if (versionFile.exists()) {

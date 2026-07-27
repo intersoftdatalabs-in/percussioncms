@@ -55,6 +55,9 @@ import org.apache.tools.ant.taskdefs.condition.Condition;
  * </pre>
  */
 public class PSTableViewExistsWizCondition extends PSAction implements Condition {
+  /** Creates a new table view exists wizard condition. */
+  public PSTableViewExistsWizCondition() {}
+
   /* (non-Javadoc)
    * @see org.apache.tools.ant.taskdefs.condition.Condition#eval()
    */

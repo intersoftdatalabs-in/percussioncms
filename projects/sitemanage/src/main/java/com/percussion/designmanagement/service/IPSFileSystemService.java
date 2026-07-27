@@ -60,22 +60,22 @@ public interface IPSFileSystemService {
    *
    * @param path The path of the folder. Assumed not <code>null</code>.
    * @return A list of children of the folder path represented by 'path'.
-   * @throws IOException
+   * @throws FileNotFoundException
    */
   List<File> getChildren(String path) throws FileNotFoundException;
 
   /**
-   * Adds a new folder with a fixed name specified by the implementation class (for example,
-   * "New Folder") in the parent folder given as an argument. So after calling this method
-   * successfully, a new folder with that name is created. A {@link File} object is returned
-   * pointing to the newly created folder.
-   * <p>
-   * Note that subsequent calls using the same path will not file. If the folder name prefix
-   * specified by the implementation is, for instance, "New Folder", a second call will create
-   * a folder with the name "New Folder 1". The number is incremented in subsequent calls.
+   * Adds a new folder with a fixed name specified by the implementation class (for example, "New
+   * Folder") in the parent folder given as an argument. So after calling this method successfully,
+   * a new folder with that name is created. A {@link File} object is returned pointing to the newly
+   * created folder.
+   *
+   * <p>Note that subsequent calls using the same path will not file. If the folder name prefix
+   * specified by the implementation is, for instance, "New Folder", a second call will create a
+   * folder with the name "New Folder 1". The number is incremented in subsequent calls.
    *
    * @param parentPath Parent folder path. Cannot be <code>null</code>.
-   * @return A File object pointing to the newly created folder. Never <code>null<code>.
+   * @return A File object pointing to the newly created folder. Never <code>null</code>.
    * @throws IOException
    */
   File addFolder(String parentPath) throws IOException;
@@ -170,14 +170,13 @@ public interface IPSFileSystemService {
    *
    * @param path the path to the new file. It includes its name.
    * @param pageContent the file to save
-   * @return the response gotten from the logic.
    */
   void fileUpload(String path, InputStream pageContent) throws PSFileOperationException;
 
   /**
    * Checks if the name contains an invalid character.
    *
-   * @param newFolderName the name to check. Assumed not <code>null</code>
+   * @param name the name to check. Assumed not <code>null</code>
    * @return <code>true</code> if the name contains an invalid character. <code>false</code>
    *     otherwise.
    */

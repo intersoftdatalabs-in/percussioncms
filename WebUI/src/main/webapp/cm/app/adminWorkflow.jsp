@@ -47,8 +47,7 @@
 
     <!-- Themes never should be concatenated or packed -->
     <link rel="stylesheet" type="text/css" href="../themes/smoothness/jquery-ui-1.8.9.custom.css"/>
-    <link rel="stylesheet" type="text/css" href="/cm/pages/app/js/legacy/profiles/3x/libraries/fontawesome/css/all.css"/>
-    <!-- <link rel="stylesheet" type="text/css" href="../cui/components/twitter-bootstrap-3.0.0/dist/css/bootstrap.min.css"/> -->
+    <link rel="stylesheet" type="text/css" href="/cm/jslib/profiles/3x/libraries/fontawesome/css/all.css"/>
      <link rel="stylesheet" type="text/css" href="../jslib/profiles/3x/libraries/bootstrap/css/bootstrap.min.css"/>
     <script src="/Rhythmyx/tmx/tmx.jsp?mode=js&amp;prefix=perc.ui.&amp;sys_lang=<%= locale%>"></script>
     <script src="/JavaScriptServlet"></script>
@@ -104,9 +103,11 @@
             $.wfViewObject.cancelJobs();
             return dirtyController.navigationEvent();
         }
-        //Initialization code
+        //Initialization code (US6: removed $.Percussion.PercFinderView();
+        //       the modern React ContentExplorerShell is mounted via the
+        //       PercModernUI bridge below; the legacy miller-column Finder
+        //       has been hard-cut from the primary nav per SC-006).
         $(function () {
-            $.Percussion.PercFinderView();
             $.PercWorkflowView();
             $.PercUserView();
             $.PercRoleView();
@@ -211,6 +212,42 @@
     <jsp:include page="includes/header.jsp" flush="true">
         <jsp:param name="mainNavTab" value="workflow"/>
     </jsp:include>
+
+    <%-- US6 (T031): the primary-nav region of this shell is now a modern
+         ContentExplorerShell mount target. The legacy miller-column Finder
+         has been hard-cut (SC-006). --%>
+    <div id="perc-admin-workflow-explorer"
+         data-testid="perc-admin-workflow-explorer"
+         style="border: 1px solid #ddd; background: #fff;"></div>
+    <script>
+        (function () {
+                // US6 (T031): self-load the modern bridge if a parent page
+                // didn't already include it. The bridge is loaded exactly
+                // once per page; the cb= cache-buster ensures the browser
+                // picks up the new bundle on the first paint of each
+                // iter-dev cycle.
+                if (!document.querySelector('script[src*="perc-modern-ui.js"]')) {
+                    var s = document.createElement("script");
+                    s.type = "module";
+                    s.src = "/cm/modern/assets/perc-modern-ui.js?cb=" + Date.now();
+                    document.head.appendChild(s);
+                }
+                            function mountExplorer() {
+                if (!window.PercModernUI || typeof window.PercModernUI.mount !== "function") {
+                    window.setTimeout(mountExplorer, 50);
+                    return;
+                }
+                window.PercModernUI.mount("perc-admin-workflow-explorer", "ContentExplorerShell", {
+                    initialPath: ""
+                });
+            }
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", mountExplorer);
+            } else {
+                mountExplorer();
+            }
+        })();
+    </script>
 
 </div>
 <div class="perc-workflow-container">

@@ -67,7 +67,11 @@ public class PSSearchViewActionManager {
    *
    * @param proxy the remote proxy to use to make requests to the server, may not be <code>null
    *     </code>
+   * @param remCataloger the remote cataloger to use to get search configuration, may not be <code>
+   *     null</code>
    * @param urlBase the base url of the applet to make url requests, may not be <code>null</code>
+   * @param applet the content explorer applet reference, may not be <code>null</code>
+   * @throws PSContentExplorerException if an error occurs while initializing the search manager.
    */
   public PSSearchViewActionManager(
       PSComponentProcessorProxy proxy,
@@ -97,6 +101,11 @@ public class PSSearchViewActionManager {
     }
   }
 
+  /**
+   * Gets the content explorer applet this manager is associated with.
+   *
+   * @return the applet, never <code>null</code>.
+   */
   public PSContentExplorerApplet getApplet() {
     return m_applet;
   }
@@ -143,8 +152,12 @@ public class PSSearchViewActionManager {
   /**
    * saves the new search to the server. Delegates to search processor proxy.
    *
-   * @param searchNode new search to save.
+   * @param searchNode new search to save, may not be <code>null</code>
    * @param name name of the search, must not be <code>null</code> or <code>empty</code>
+   * @param showTo the visibility scope for the search, one of the <code>PSSearch.SHOW_TO_xxx</code>
+   *     values
+   * @return the saved search, never <code>null</code>
+   * @throws PSContentExplorerException if an error happens saving the search.
    */
   public PSSearch saveNewSearch(PSNode searchNode, String name, int showTo)
       throws PSContentExplorerException {
@@ -318,6 +331,7 @@ public class PSSearchViewActionManager {
    * @return the list of search results that are children of search node, never <code>null</code>,
    *     may be empty. An empty iterator if the node is is a new search node and not yet
    *     initialized.
+   * @throws PSCmsException if an error occurs while loading the search results.
    * @throws PSContentExplorerException if an error happens executing search.
    */
   public Iterator loadChildren(PSNode searchNode)
@@ -503,6 +517,7 @@ public class PSSearchViewActionManager {
    * Easy method to find if the supplied node is initializable.
    *
    * @param node node under test, must not be <code>null</code>
+   * @return <code>true</code> if the node is initializable, <code>false</code> otherwise.
    */
   public static boolean isNodeInitializable(PSNode node) {
     if (node == null) throw new IllegalArgumentException("node must not be null");
@@ -638,12 +653,22 @@ public class PSSearchViewActionManager {
    */
   private PSSearchConfig m_searchConfig = null;
 
+  /**
+   * Gets the search configuration for this manager.
+   *
+   * @return the search configuration, may be <code>null</code> if not initialized.
+   */
   public PSSearchConfig getSearchConfig() {
     return m_searchConfig;
   }
 
   private boolean m_searchAvailable = false;
 
+  /**
+   * Indicates whether a search engine is available on the server.
+   *
+   * @return <code>true</code> if a search engine is available, <code>false</code> otherwise.
+   */
   public boolean isSearchAvailable() {
     return m_searchAvailable;
   }

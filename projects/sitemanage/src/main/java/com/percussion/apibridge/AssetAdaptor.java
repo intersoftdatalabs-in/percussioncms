@@ -39,7 +39,6 @@ import com.percussion.rest.Status;
 import com.percussion.rest.assets.Asset;
 import com.percussion.rest.assets.AssetField;
 import com.percussion.rest.assets.BinaryFile;
-import com.percussion.rest.assets.Flash;
 import com.percussion.rest.assets.IAssetAdaptor;
 import com.percussion.rest.assets.ImageInfo;
 import com.percussion.rest.errors.AssetNotFoundException;
@@ -447,8 +446,6 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
     if (StringUtils.isEmpty(assetTypeStr)) {
       if (fileMimeType.startsWith("image")) {
         assetTypeStr = "image";
-      } else if (fileMimeType.startsWith("application/x-shockwave-flash")) {
-        assetTypeStr = "flash";
       } else {
         assetTypeStr = "file";
       }
@@ -516,7 +513,7 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
 
   /** Returns the field name for the given asset type. */
   private String getFileFieldByType(String assetType) {
-    if (assetType.equals("percFileAsset") || assetType.equals("percFlashAsset")) {
+    if (assetType.equals("percFileAsset")) {
       return "item_file_attachment";
     }
     if (assetType.equals("percImageAsset")) {
@@ -575,27 +572,6 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
       if (from.getFields().get("item_file_attachment_ext") != null)
         file.setExtension(from.getFields().get("item_file_attachment_ext").toString());
       to.setFile(file);
-    } else if (from.getType().equals("percFlashAsset")) {
-      var flash = new Flash();
-      if (from.getFields().get("item_file_attachment_filename") != null)
-        flash.setFilename(from.getFields().get("item_file_attachment_filename").toString());
-      if (from.getFields().get("item_file_attachment_size") != null)
-        flash.setSize(Long.parseLong(from.getFields().get("item_file_attachment_size").toString()));
-      if (from.getFields().get("item_file_attachment_type") != null)
-        flash.setType(from.getFields().get("item_file_attachment_type").toString());
-      if (from.getFields().get("item_file_attachment_ext") != null)
-        flash.setExtension(from.getFields().get("item_file_attachment_ext").toString());
-      if (from.getFields().get("flashversion") != null)
-        flash.setFlashVersion(from.getFields().get("flashversion").toString());
-      if (from.getFields().get("usage") != null)
-        flash.setUsage(from.getFields().get("usage").toString());
-      if (from.getFields().get("item_file_attachment_width") != null)
-        flash.setWidth(
-            Integer.parseInt(from.getFields().get("item_file_attachment_width").toString()));
-      if (from.getFields().get("item_file_attachment_height") != null)
-        flash.setHeight(
-            Integer.parseInt(from.getFields().get("item_file_attachment_height").toString()));
-      to.setFlash(flash);
     }
     for (var kvp : from.getFields().entrySet()) {
       var fieldname = kvp.getKey();
@@ -658,7 +634,6 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
   private static final ImmutableList<String> localHandledFields;
   private static final ImmutableMap<String, ImmutableList<String>> assetRequiredFields;
   public static final String ASSET_TYPE_FILE = "percFileAsset";
-  public static final String ASSET_TYPE_FLASH = "percFlashAsset";
   public static final String ASSET_TYPE_IMAGE = "percImageAsset";
   private static final ImmutableList<String> assetBinaryTypes;
 
@@ -677,11 +652,7 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
             .put("percRichTextAsset", ImmutableList.<String>builder().add("text").build())
             .build();
     assetBinaryTypes =
-        ImmutableList.<String>builder()
-            .add(ASSET_TYPE_FILE)
-            .add(ASSET_TYPE_IMAGE)
-            .add(ASSET_TYPE_FLASH)
-            .build();
+        ImmutableList.<String>builder().add(ASSET_TYPE_FILE).add(ASSET_TYPE_IMAGE).build();
   }
 
   @Override
@@ -918,8 +889,15 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
     List<String> ret = new ArrayList<String>();
 
     // Verify that the os path exists and that it is a directory
-    File f = new File(osFolder);
-    if (!f.exists() || !f.isDirectory()) {
+    // osFolder is an admin-provided OS path for bulk import preview; canonicalize
+    // and require it is an existing directory (CWE-22 residual #671/#672).
+    File f;
+    try {
+      f = new File(osFolder).getCanonicalFile(); // codeql[java/path-injection]
+    } catch (java.io.IOException e) {
+      throw new FolderNotFoundException();
+    }
+    if (!f.exists() || !f.isDirectory()) { // codeql[java/path-injection]
       throw new FolderNotFoundException();
     }
 

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0  http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.percussion</groupId>
+        <artifactId>core</artifactId>
+        <version>8.2.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+    <artifactId>perc-qa-automation</artifactId>
+    <version>8.2.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>perc-qa-automation</name>
+    <dependencies>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>6.9.6</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>perc-shared-test-resources</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <properties>
+        <!-- Layer-1 install matrix defaults (opt-in profile matrix-smoke) -->
+        <matrix.product>cms</matrix.product>
+        <matrix.db>h2</matrix.db>
+        <matrix.probe.timeout>1200</matrix.probe.timeout>
+        <matrix.skip.image.build>true</matrix.skip.image.build>
+    </properties>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>1.15.0</version>
+                <configuration>
+                    <nodeVersion>v22.22.0</nodeVersion>
+                    <workingDirectory>${project.basedir}/frontend</workingDirectory>
+                    <installDirectory>${user.home}/.m2/frontend</installDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>install-node-and-npm</id>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                    </execution>
+                    <execution>
+                        <id>npm-install</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <arguments>ci</arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!--
+      Opt-in CMS/DTS install matrix (Layer 1: silent install + start + login probe).
+
+      Default ``mvn test`` / reactor builds do NOT run this (Docker + long installs).
+
+      Examples (from modules/perc-qa-automation, with repo-root mvn-env wrapper):
+
+        ../../mvn-env.sh -Pmatrix-smoke test
+        ../../mvn-env.sh -Pmatrix-smoke -Dmatrix.db=postgresql test
+        ../../mvn-env.sh -Pmatrix-smoke -Dmatrix.product=cms -Dmatrix.db=h2,postgresql,mysql,sqlserver test
+
+      Requires: Docker, docker compose, and a built perc-distribution-tree.jar
+      (or set installer path via env the harness understands). See README.
+    -->
+    <profiles>
+        <profile>
+            <id>matrix-smoke</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>matrix-install-smoke</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>python3</executable>
+                                    <workingDirectory>${project.basedir}/../..</workingDirectory>
+                                    <arguments>
+                                        <argument>docker/scripts/matrix-install-smoke.py</argument>
+                                        <argument>--product</argument>
+                                        <argument>${matrix.product}</argument>
+                                        <argument>--db</argument>
+                                        <argument>${matrix.db}</argument>
+                                        <argument>--probe-timeout</argument>
+                                        <argument>${matrix.probe.timeout}</argument>
+                                        <argument>--skip-image-build</argument>
+                                    </arguments>
+                                    <successCodes>
+                                        <successCode>0</successCode>
+                                    </successCodes>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

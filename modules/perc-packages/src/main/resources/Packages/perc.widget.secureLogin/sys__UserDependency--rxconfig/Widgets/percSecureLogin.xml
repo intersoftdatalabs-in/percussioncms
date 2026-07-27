@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Widget>
-	<WidgetPrefs title="Secure Login"
+	<WidgetPrefs title="Secure Login (Deprecated)"
 		contenttype_name="percSecureLogin" category="integration"
-		description="Login widget to access secured content."
+		description="Login widget to access secured content. (Deprecated)"
 		author="Percussion Software Inc."
 		thumbnail="/rx_resources/widgets/percSecureLogin/images/widgetIconLogin.gif"
 		preferred_editor_width="780" preferred_editor_height="450"

@@ -17,6 +17,7 @@
 
 package com.percussion.tablefactory;
 
+import com.percussion.security.SecureStringUtils;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.tablefactory.tools.PSCatalogTableData;
@@ -905,88 +906,111 @@ public class PSJdbcTableFactory {
    * @param args
    */
   private static void mainImport(String[] args) {
-    // Validates and gets the options as a map, if the args are not valid then shows usage and
-    // exits.
     Map<String, String> optionsMap = PSJdbcImportExportHelper.getOptions(args);
-    BufferedReader in = null;
-    PSJdbcDbmsDef dbmsDef = null;
     try {
-      // Props file
-      dbmsDef =
+      PSJdbcDbmsDef dbmsDef =
           PSCatalogTableData.loadProps(optionsMap.get(PSJdbcImportExportHelper.OPTION_DB_PROPS));
-
-      // root storage path
       String storagePath = optionsMap.get(PSJdbcImportExportHelper.OPTION_STORAGE_PATH);
-      File binaryStorageFolder =
-          new File(storagePath + File.separator + PSJdbcImportExportHelper.BINARY_DATA_FOLDER);
-      dbmsDef.setBinaryStorageLocation(binaryStorageFolder);
-
-      File defDataFolder =
-          new File(storagePath + File.separator + PSJdbcImportExportHelper.DEF_DATA_FOLDER);
-
-      // Load the table definition file
-      File tableDefFile = new File(defDataFolder + File.separator + "tableDef.xml");
-      in =
-          new BufferedReader(
-              new InputStreamReader(new FileInputStream(tableDefFile), StandardCharsets.UTF_8));
-
-      Document allTablesDef = PSXmlDocumentBuilder.createXmlDocument(in, false);
-      in.close();
-
-      NodeList nodeList = allTablesDef.getElementsByTagName("table");
-      // Loop through the tables and load the individual data file and process
-      for (int i = 0; i < nodeList.getLength(); i++) {
-
-        Document tableDef = PSXmlDocumentBuilder.createXmlDocument();
-        Element root = tableDef.createElement("tables");
-        tableDef.appendChild(root);
-
-        Element tableElem = (Element) nodeList.item(i);
-        root.appendChild(tableDef.importNode(tableElem, true));
-        String tableName = tableElem.getAttribute("name");
-
-        File tableDataFile = new File(defDataFolder + File.separator + tableName + "-data.xml");
-        // If the table data file exits, process it
-        if (tableDataFile.exists()) {
-          FileInputStream inputXml = null;
-          try {
-            inputXml = new FileInputStream(tableDataFile);
-
-            in = new BufferedReader(new PSXmlNormalizingReader(inputXml));
-            Document tableData = PSXmlDocumentBuilder.createXmlDocument(in, false);
-            in.close();
-            log.info("Started processing: " + tableName);
-            processTables(dbmsDef, null, tableDef, tableData, null, false);
-            log.info("Finished processing: " + tableName);
-          } catch (Exception e) {
-            log.error(
-                "Error occurred while importing table data : {} Error: {}",
-                tableName,
-                PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-          } finally {
-            if (inputXml != null) inputXml.close();
-
-            if (in != null) in.close();
-          }
-        } else {
-          // Just create the empty table by passing null for data file.
-          System.out.println("Started processing empty table: " + tableName);
-          processTables(dbmsDef, null, tableDef, null, null, false);
-          System.out.println("Finished processing empty table: " + tableName);
-        }
-      }
+      // CLI historically continues after per-table errors; still exit 0 if no fatal error.
+      int tables = importDatabase(dbmsDef, new File(storagePath), false);
+      System.out.println("Import completed, tables processed: " + tables);
       System.exit(0);
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-    } finally {
-      if (in != null)
-        try {
-          in.close();
-        } catch (IOException e) {
-        }
+      System.exit(1);
     }
+  }
+
+  /**
+   * Programmatic import of a prior {@link
+   * com.percussion.tablefactory.tools.PSCatalogTableData#exportDatabase} (or {@code -dbexport})
+   * staging tree into the target backend described by {@code dbmsDef}.
+   *
+   * <p>Applies TableFactory schema create/load via {@link #processTables} using the target driver's
+   * datatype map (e.g. H2 for #548). Binary LOBs are read from {@code storageRoot/binaryData}.
+   *
+   * @param dbmsDef target database (H2, MySQL, …); binary storage location is set by this method
+   * @param storageRoot export root containing {@code defData/tableDef.xml}
+   * @param failFast if {@code true}, abort on first table error (required for safe migration); if
+   *     {@code false}, log and continue (legacy CLI behavior)
+   * @return number of tables processed (def entries)
+   * @throws PSJdbcTableFactoryException on failure when failFast, or if tableDef is missing
+   * @throws IOException on I/O errors
+   * @throws Exception on XML parse errors
+   */
+  public static int importDatabase(PSJdbcDbmsDef dbmsDef, File storageRoot, boolean failFast)
+      throws Exception {
+    if (dbmsDef == null) {
+      throw new IllegalArgumentException("dbmsDef may not be null");
+    }
+    if (storageRoot == null) {
+      throw new IllegalArgumentException("storageRoot may not be null");
+    }
+
+    File binaryStorageFolder = new File(storageRoot, PSJdbcImportExportHelper.BINARY_DATA_FOLDER);
+    dbmsDef.setBinaryStorageLocation(binaryStorageFolder);
+
+    File defDataFolder = new File(storageRoot, PSJdbcImportExportHelper.DEF_DATA_FOLDER);
+    File tableDefFile = new File(defDataFolder, "tableDef.xml");
+    if (!tableDefFile.isFile()) {
+      throw new PSJdbcTableFactoryException(
+          IPSTableFactoryErrors.SCHEMA_COLL_PROCESS_ERROR,
+          "tableDef.xml not found under export storage: " + tableDefFile.getAbsolutePath());
+    }
+
+    Document allTablesDef;
+    try (BufferedReader in =
+        new BufferedReader(
+            new InputStreamReader(new FileInputStream(tableDefFile), StandardCharsets.UTF_8))) {
+      allTablesDef = PSXmlDocumentBuilder.createXmlDocument(in, false);
+    }
+
+    NodeList nodeList = allTablesDef.getElementsByTagName("table");
+    int processed = 0;
+    for (int i = 0; i < nodeList.getLength(); i++) {
+      Document tableDef = PSXmlDocumentBuilder.createXmlDocument();
+      Element root = tableDef.createElement("tables");
+      tableDef.appendChild(root);
+
+      Element tableElem = (Element) nodeList.item(i);
+      root.appendChild(tableDef.importNode(tableElem, true));
+      String tableName = tableElem.getAttribute("name");
+
+      File tableDataFile = new File(defDataFolder, tableName + "-data.xml");
+      try {
+        if (tableDataFile.isFile()) {
+          try (FileInputStream inputXml = new FileInputStream(tableDataFile);
+              BufferedReader in = new BufferedReader(new PSXmlNormalizingReader(inputXml))) {
+            Document tableData = PSXmlDocumentBuilder.createXmlDocument(in, false);
+            log.info("Started processing: {}", tableName);
+            processTables(dbmsDef, null, tableDef, tableData, null, false);
+            log.info("Finished processing: {}", tableName);
+          }
+        } else {
+          log.info("Started processing empty table: {}", tableName);
+          processTables(dbmsDef, null, tableDef, null, null, false);
+          log.info("Finished processing empty table: {}", tableName);
+        }
+        processed++;
+      } catch (Exception e) {
+        log.error(
+            "Error occurred while importing table data : {} Error: {}",
+            tableName,
+            PSExceptionUtils.getMessageForLog(e));
+        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+        if (failFast) {
+          if (e instanceof PSJdbcTableFactoryException) {
+            throw (PSJdbcTableFactoryException) e;
+          }
+          throw new PSJdbcTableFactoryException(
+              IPSTableFactoryErrors.DATA_PROCESS_ERROR,
+              new Object[] {tableName, e.getMessage()},
+              e);
+        }
+      }
+    }
+    return processed;
   }
 
   /**
@@ -1210,13 +1234,14 @@ public class PSJdbcTableFactory {
 
     if (tableSchema == null) throw new IllegalArgumentException("tableSchema may not be null");
 
+    // CWE-89 / java/sql-injection #658: table/schema/catalog names cannot be bound as
+    // JDBC parameters. Fail closed on non-identifier characters before concatenation.
+    String safeTable = SecureStringUtils.requireSqlObjectName(tableSchema.getName());
+    String safeDb = SecureStringUtils.requireSqlObjectNameOrNull(dbmsDef.getDataBase());
+    String safeSchema = SecureStringUtils.requireSqlObjectNameOrNull(dbmsDef.getSchema());
     String sqlStmt =
         "SELECT COUNT(*) FROM "
-            + PSSqlHelper.qualifyTableName(
-                tableSchema.getName(),
-                dbmsDef.getDataBase(),
-                dbmsDef.getSchema(),
-                dbmsDef.getDriver());
+            + PSSqlHelper.qualifyTableName(safeTable, safeDb, safeSchema, dbmsDef.getDriver());
 
     Statement stmt = null;
     ResultSet rsCount = null;
@@ -1224,7 +1249,12 @@ public class PSJdbcTableFactory {
     try {
       int count = 0;
       stmt = PSSQLStatement.getStatement(conn);
-      rsCount = stmt.executeQuery(sqlStmt);
+      // Identifiers already fail-closed via requireSqlObjectName*; COUNT(*) template is fixed.
+      rsCount =
+          stmt.executeQuery(
+              sqlStmt); // codeql[java/sql-injection] justification: table/schema/db validated by
+      // SecureStringUtils.requireSqlObjectName before qualifyTableName; not user
+      // SQL (alert #658)
 
       if (rsCount.next()) count = rsCount.getInt(1);
 
@@ -1345,12 +1375,17 @@ public class PSJdbcTableFactory {
     // catalog the table names
     List<String> tableList = new ArrayList<>();
 
+    // H2: catalog/schema pattern "%" matches nothing useful; use null for "any".
+    // Blank DB_NAME/DB_SCHEMA in embedded installs must not become empty-string catalog.
     String db = dbmsDef.getDataBase();
-
-    if (db.trim().length() == 0) db = filterAll;
+    if (db != null && db.trim().length() == 0) {
+      db = null;
+    }
 
     String schema = dbmsDef.getSchema();
-    if (schema.trim().length() == 0) schema = filterAll;
+    if (schema != null && schema.trim().length() == 0) {
+      schema = null;
+    }
 
     Connection conn = dbmsDef.getConnection();
 
@@ -1361,7 +1396,21 @@ public class PSJdbcTableFactory {
 
       if (rs != null) {
         while (rs.next()) {
-          tableList.add(rs.getString(COLNO_TABLE_NAME));
+          String tableSchema = rs.getString("TABLE_SCHEM");
+          if (tableSchema != null) {
+            String s = tableSchema.toUpperCase();
+            if (s.equals("INFORMATION_SCHEMA")
+                || s.equals("SYS")
+                || s.equals("SYSTEM")
+                || s.startsWith("PG_")) {
+              continue;
+            }
+          }
+          String tName = rs.getString(COLNO_TABLE_NAME);
+          if (tName != null && tName.toUpperCase().startsWith("SYS")) {
+            continue;
+          }
+          tableList.add(tName);
         }
       }
     } finally {

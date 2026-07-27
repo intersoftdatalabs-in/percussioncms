@@ -29,7 +29,14 @@ public class PSProcessMonitor {
   /**
    * Constructs this object to monitor the processing of supplied number of nodes.
    *
-   * @param total the total number of nodes to process, may not be <= 0.
+   * @param total the total number of nodes to process, may not be &lt;= 0.
+   * @throws IllegalArgumentException if total is invalid.
+   */
+  /**
+   * Constructs this object to monitor the processing of supplied number of nodes.
+   *
+   * @param total the total number of nodes to process, may not be &lt;= 0.
+   * @param applet the content explorer applet, may not be <code>null</code>.
    * @throws IllegalArgumentException if total is invalid.
    */
   public PSProcessMonitor(int total, PSContentExplorerApplet applet) {
@@ -56,7 +63,7 @@ public class PSProcessMonitor {
    * Updates this monitor with the current node processing. If the status dialog is set with this
    * monitor, the dialog's status will be updated.
    *
-   * @param current the current node processing, must be >= 0 and <= total number of nodes
+   * @param current the current node processing, must be &gt;= 0 and &lt;= total number of nodes
    *     processing.
    * @param processingNode the node being processed, used to display status message.
    * @throws IllegalArgumentException if any parameter is invalid
@@ -116,7 +123,7 @@ public class PSProcessMonitor {
    * one exists or diplays it tight here is not.
    *
    * @param message the error message to be displayed, may be <code>null</code> or empty.
-   * @param component the parent component that shows the error dialog, may be <code>null</code>.
+   * @param parent the parent component that shows the error dialog, may be <code>null</code>.
    */
   public void showError(Component parent, String message) {
     if (m_dlg != null) m_dlg.showError(message);

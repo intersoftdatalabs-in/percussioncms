@@ -38,8 +38,8 @@ public class PSNamedLockManager {
   /**
    * Creates the lock manager, specifying the timeout for acquiring a lock.
    *
-   * @param waitMillis The timeout, in milliseconds, specifies the wait time when acquiring locks,
-   *     <=0 for no wait.
+   * <p>* @param waitMillis The timeout, in milliseconds, specifies the wait time when acquiring
+   * locks, {@code <=0} for no wait.
    */
   public PSNamedLockManager(long waitMillis) {
     this.waitMillis = waitMillis;

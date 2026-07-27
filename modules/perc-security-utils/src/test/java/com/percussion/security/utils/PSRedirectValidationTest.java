@@ -475,4 +475,102 @@ class PSRedirectValidationTest {
       assertNotNull(result, "Legitimate post-login redirect should be allowed");
     }
   }
+
+  @Nested
+  @DisplayName("rebuildValidatedRedirect — preserve encoding (Jetty UriCompliance)")
+  class RebuildValidatedRedirectTests {
+
+    @Test
+    @DisplayName(
+        "Must not double-encode login sys_redirect query (Jetty Ambiguous URI path encoding)")
+    void rebuildPreservesSingleEncodedSysRedirectQuery() {
+      // addRedirect encodes once; rebuild must not turn %3a into %253a
+      String loginWithRedirect =
+          "/login?sys_redirect=http%3a%2f%2flocalhost%3a9992%2fRhythmyx%2fcm%2fapp";
+      String rebuilt = PSRedirectValidation.rebuildValidatedRedirect(loginWithRedirect);
+      assertEquals(loginWithRedirect, rebuilt);
+      assertFalse(rebuilt.contains("%25"), "must not produce %25 (double-encoded %)");
+    }
+
+    @Test
+    @DisplayName("Preserves absolute URL path encoding without %2520")
+    void rebuildPreservesEncodedPath() {
+      String url = "http://example.com/path%20with%20spaces";
+      assertEquals(url, PSRedirectValidation.rebuildValidatedRedirect(url));
+    }
+
+    @Test
+    @DisplayName("Preserves simple absolute and relative targets")
+    void rebuildSimpleTargets() {
+      assertEquals("index.jsp", PSRedirectValidation.rebuildValidatedRedirect("index.jsp"));
+      assertEquals("/cm/app", PSRedirectValidation.rebuildValidatedRedirect("/cm/app"));
+      assertEquals(
+          "http://example.com/logout",
+          PSRedirectValidation.rebuildValidatedRedirect("http://example.com/logout"));
+    }
+
+    @Test
+    @DisplayName("Returns null for blank")
+    void rebuildBlank() {
+      assertNull(PSRedirectValidation.rebuildValidatedRedirect(null));
+      assertNull(PSRedirectValidation.rebuildValidatedRedirect("   "));
+    }
+  }
+
+  @Nested
+  @DisplayName("decodeOverEncodedRedirect — fix double-encoded sys_redirect")
+  class DecodeOverEncodedRedirectTests {
+
+    @Test
+    @DisplayName("Decodes double-encoded absolute URL (session after buggy Location header)")
+    void decodeDoubleEncodedAbsolute() {
+      // After getParameter once-decodes double-encoded Location query
+      String stillEncoded = "http%3a%2f%2flocalhost%3a9992%2fRhythmyx%2fcm%2fapp";
+      assertEquals(
+          "http://localhost:9992/Rhythmyx/cm/app",
+          PSRedirectValidation.decodeOverEncodedRedirect(stillEncoded));
+    }
+
+    @Test
+    @DisplayName("Decodes triple-encoded absolute URL down to usable form")
+    void decodeTripleEncodedAbsolute() {
+      String triple = "http%253a%252f%252flocalhost%253a9992%252fRhythmyx%252fcm%252fapp";
+      assertEquals(
+          "http://localhost:9992/Rhythmyx/cm/app",
+          PSRedirectValidation.decodeOverEncodedRedirect(triple));
+    }
+
+    @Test
+    @DisplayName("Leaves normal URLs and paths unchanged")
+    void leavesNormalUnchanged() {
+      assertEquals(
+          "http://localhost:9992/cm/app",
+          PSRedirectValidation.decodeOverEncodedRedirect("http://localhost:9992/cm/app"));
+      assertEquals("/cm/app", PSRedirectValidation.decodeOverEncodedRedirect("/cm/app"));
+      assertEquals("index.jsp", PSRedirectValidation.decodeOverEncodedRedirect("index.jsp"));
+    }
+
+    @Test
+    @DisplayName("Decodes path-absolute percent sequences before .. gate (e.g. %2e%2e)")
+    void decodesPathAbsoluteEncodedDotDot() {
+      assertEquals("/../secret", PSRedirectValidation.decodeOverEncodedRedirect("/%2e%2e/secret"));
+      assertEquals("/../secret", PSRedirectValidation.decodeOverEncodedRedirect("/%2E%2E/secret"));
+    }
+  }
+
+  @Nested
+  @DisplayName("rebuildValidatedRedirect — path-less absolute URIs")
+  class RebuildPathlessAbsoluteTests {
+
+    @Test
+    @DisplayName("Does not force trailing slash on path-less absolute hosts")
+    void rebuildPreservesPathlessAbsolute() {
+      assertEquals(
+          "http://example.com",
+          PSRedirectValidation.rebuildValidatedRedirect("http://example.com"));
+      assertEquals(
+          "https://example.com:8443",
+          PSRedirectValidation.rebuildValidatedRedirect("https://example.com:8443"));
+    }
+  }
 }

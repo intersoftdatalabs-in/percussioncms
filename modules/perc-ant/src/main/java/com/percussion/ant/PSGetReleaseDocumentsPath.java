@@ -55,24 +55,54 @@ import org.apache.tools.ant.Task;
  */
 public class PSGetReleaseDocumentsPath extends Task {
 
+  /** Creates a new task to determine the release documents path. */
+  public PSGetReleaseDocumentsPath() {
+    super();
+  }
+
   // Mutators for various task attributes
 
+  /**
+   * Sets the root directory where version subdirectories are located.
+   *
+   * @param dir the root directory path, never <code>null</code> or empty.
+   */
   public void setRootdir(String dir) {
     m_rootDir = dir;
   }
 
+  /**
+   * Sets the major version component.
+   *
+   * @param major the major version string, never <code>null</code> or empty.
+   */
   public void setMajor(String major) {
     m_major = major;
   }
 
+  /**
+   * Sets the minor version component.
+   *
+   * @param minor the minor version string, never <code>null</code> or empty.
+   */
   public void setMinor(String minor) {
     m_minor = minor;
   }
 
+  /**
+   * Sets the micro version component.
+   *
+   * @param micro the micro version string, never <code>null</code> or empty.
+   */
   public void setMicro(String micro) {
     m_micro = micro;
   }
 
+  /**
+   * Sets the Ant property name where the resolved path will be stored.
+   *
+   * @param property the property name, defaults to <code>RELEASE.DOCS.PATH</code> if not set.
+   */
   public void setProperty(String property) {
     m_property = property;
   }

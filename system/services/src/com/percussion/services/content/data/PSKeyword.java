@@ -113,6 +113,12 @@ public class PSKeyword implements Serializable, IPSCatalogSummary,
    @Transient
    private List<PSKeywordChoice> m_choices = new ArrayList<>();
 
+   static {
+      // Package XML uses <choice> (collection singular of "choices"), not the mapped type name
+      // "keyword-choice". Register once for Betwixt (not on every fromXML call).
+      PSXmlSerializationHelper.addType("choice", PSKeywordChoice.class);
+   }
+
    /**
     * Default constructor required by JPA/Hibernate.
     * Use factory methods or parameterized constructors for creating new instances.

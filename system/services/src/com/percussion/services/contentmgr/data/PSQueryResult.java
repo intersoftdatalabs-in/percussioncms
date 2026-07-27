@@ -112,6 +112,13 @@ public class PSQueryResult implements QueryResult
       return new PSQueryNodeIterator(guids);
    }
 
+   @Override
+   public String[] getSelectorNames() throws RepositoryException
+   {
+      // Single-selector product queries: no multi-selector JCR model.
+      return new String[0];
+   }
+
    /**
     * Add a row to the results
     * 

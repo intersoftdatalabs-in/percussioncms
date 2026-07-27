@@ -996,6 +996,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
           if (!wfIds.contains(defaultWfId)) {
             wfIds.add(defaultWfId);
           }
+          ce.setWorkflowId(defaultWfId.intValue());
         } else {
           // could not locate workflow, disable content type
           enableCType = false;
@@ -1008,8 +1009,14 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
                       + itemDef.getName()
                       + ".  The Content Type will be disabled.");
         }
+      }
 
-        ce.setWorkflowId(defaultWfId.intValue());
+      // Final guard: default workflow id must appear in inclusionary list (server validates this).
+      // Skip when enableCType is false — no valid default was found, so re-adding
+      // ce.getWorkflowId() would restore a stale package default that may already have
+      // been removed from the inclusion list (Kilo review on PR #1337).
+      if (objType != null && objType.isWorkflowable() && enableCType) {
+        PSContentTypeWorkflowInstallUtils.ensureDefaultWorkflowInInclusionList(ce);
       }
 
       // save the content type
@@ -1020,11 +1027,11 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
       if (itemDef != null) {
         appname = itemDef.getAppName();
       }
-      String msg = "\n Error was: {}";
-      log.error(msg, PSExceptionUtils.getMessageForLog(e));
+      String detail = PSExceptionUtils.getMessageForLog(e);
+      log.error("Error occurred while installing content type:{} — {}", appname, detail, e);
       throw new PSDeployException(
           IPSDeploymentErrors.UNEXPECTED_ERROR,
-          "Error occurred while installing content type:" + appname + msg);
+          "Error occurred while installing content type:" + appname + "\n Error was: " + detail);
     }
 
     // make sure mapping is reset after update
@@ -1483,12 +1490,8 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
     }
 
     if (defaultWfId == -1) {
-      // use default workflow from target system
-
-      defaultWfId =
-          ((com.percussion.services.workflow.impl.PSWorkflowService) ms_wfSvc)
-              .getDefaultWorkflowId()
-              .getUUID();
+      // Use IPSWorkflowService — never cast Spring JDK proxy to PSWorkflowService impl
+      defaultWfId = PSContentTypeWorkflowInstallUtils.uuidFromGuid(ms_wfSvc.getDefaultWorkflowId());
     }
 
     return defaultWfId;
@@ -1523,12 +1526,11 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
         if (idMap != null) {
           String targetId = idMap.getTargetId();
           wf = ms_wfSvc.loadWorkflow(PSGuidUtils.makeGuid(targetId, PSTypeEnum.WORKFLOW));
+        }
 
-          // If the workflow exists on the target system, add it to the
-          // content editor's workflow info
-          if (wf != null) {
-            ids.remove();
-          }
+        // Drop when not present on target (and not a package child). Do not invert to wf != null.
+        if (PSContentTypeWorkflowInstallUtils.shouldRemoveWorkflowAssociation(wf)) {
+          ids.remove();
         }
       }
 

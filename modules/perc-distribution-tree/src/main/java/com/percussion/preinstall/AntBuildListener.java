@@ -20,16 +20,19 @@ package com.percussion.preinstall;
 import org.apache.tools.ant.BuildEvent;
 import org.apache.tools.ant.BuildListener;
 
-/***
- * Listens for ant build output and passes the messages to the Installer if running
- * in installer mode.  For dev installs does nothing.
+/**
+ * Listens for ant build output and passes the messages to the Installer if running in installer
+ * mode. For dev installs does nothing.
  *
- * See https://ant.apache.org/manual/develop.html#buildevents
+ * <p>See https://ant.apache.org/manual/develop.html#buildevents
  *
- * Note: InstallAnywhere is no longer used by the product. This listener is kept as a no-op
- * to maintain backward compatibility with build scripts.
+ * <p>Note: InstallAnywhere is no longer used by the product. This listener is kept as a no-op to
+ * maintain backward compatibility with build scripts.
  */
 public class AntBuildListener implements BuildListener {
+
+  /** Creates a no-op build listener. */
+  public AntBuildListener() {}
 
   @Override
   public void buildStarted(BuildEvent buildEvent) {

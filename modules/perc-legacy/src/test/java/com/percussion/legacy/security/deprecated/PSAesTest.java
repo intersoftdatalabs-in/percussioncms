@@ -26,6 +26,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 @Deprecated
+@SuppressWarnings({"removal", "deprecation"})
 public class PSAesTest {
   /** Encryption key used to test AES functionality. Must be 16 bytes */
   final String encryptionKey = "0123456789abcdef";

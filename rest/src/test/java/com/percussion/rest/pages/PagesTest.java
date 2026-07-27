@@ -114,4 +114,77 @@ public class PagesTest {
     assertThrows(
         WebApplicationException.class, () -> resource.updatePage(p, "site/path/page.html"));
   }
+
+  /**
+   * Regression for GH-891 / v8.1.7 PR #894: paths that include a leading {@code Sites/} (or {@code
+   * /Sites/}) prefix must strip that segment before matching site / folder / page.
+   *
+   * <p>Ported from the Jersey integration test on development-8.1.x to this Mockito unit suite on
+   * JDK 21 {@code development}.
+   */
+  @Test
+  void shouldStripLeadingSitesPrefixOnGetPage() throws Exception {
+    Page page = new Page();
+    page.setName("page1.html");
+    when(adaptor.getPage(
+            any(), eq("sitea"), eq("path1/pathsub /pathsub2/pathsub3"), eq("page1.html")))
+        .thenReturn(page);
+
+    Page result = resource.getPage("Sites/sitea/path1/pathsub%20/pathsub2/pathsub3/page1.html");
+    assertSame(page, result);
+    verify(adaptor)
+        .getPage(uriInfo.getBaseUri(), "sitea", "path1/pathsub /pathsub2/pathsub3", "page1.html");
+  }
+
+  @Test
+  void shouldStripLeadingSlashAndSitesPrefixOnGetPage() throws Exception {
+    Page page = new Page();
+    page.setName("page1.html");
+    when(adaptor.getPage(any(), eq("sitea"), eq("path1/pathsub2"), eq("page1.html")))
+        .thenReturn(page);
+
+    Page result = resource.getPage("/Sites/sitea/path1/pathsub2/page1.html");
+    assertSame(page, result);
+    verify(adaptor).getPage(uriInfo.getBaseUri(), "sitea", "path1/pathsub2", "page1.html");
+  }
+
+  @Test
+  void shouldStripLeadingSitesPrefixOnDeletePage() throws Exception {
+    doNothing().when(adaptor).deletePage(any(), eq("sitea"), eq("path1"), eq("page1.html"));
+
+    var status = resource.deletePage("Sites/sitea/path1/page1.html");
+    assertEquals("Deleted", status.getMessage().orElse(null));
+    verify(adaptor).deletePage(uriInfo.getBaseUri(), "sitea", "path1", "page1.html");
+  }
+
+  /**
+   * Original v8.1.7 coverage: double leading slash before {@code Sites/} must still normalize
+   * (collapse all leading slashes, then strip the CMS root once).
+   */
+  @Test
+  void shouldStripDoubleLeadingSlashAndSitesPrefixOnGetPage() throws Exception {
+    Page page = new Page();
+    page.setName("page1.html");
+    when(adaptor.getPage(any(), eq("sitea"), eq("path1/pathsub2"), eq("page1.html")))
+        .thenReturn(page);
+
+    Page result = resource.getPage("//Sites/sitea/path1/pathsub2/page1.html");
+    assertSame(page, result);
+    verify(adaptor).getPage(uriInfo.getBaseUri(), "sitea", "path1/pathsub2", "page1.html");
+  }
+
+  /**
+   * A site literally named {@code Sites} is addressed as {@code Sites/Sites/...} so that the CMS
+   * root prefix is stripped once and the real site name remains.
+   */
+  @Test
+  void shouldAllowSiteNamedSitesAfterRootPrefixStrip() throws Exception {
+    Page page = new Page();
+    page.setName("home.html");
+    when(adaptor.getPage(any(), eq("Sites"), eq("folder"), eq("home.html"))).thenReturn(page);
+
+    Page result = resource.getPage("Sites/Sites/folder/home.html");
+    assertSame(page, result);
+    verify(adaptor).getPage(uriInfo.getBaseUri(), "Sites", "folder", "home.html");
+  }
 }

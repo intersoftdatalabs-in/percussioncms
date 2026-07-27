@@ -50,7 +50,7 @@ public class PSBinaryAssetRequest extends PSAbstractAssetRequest {
 
   @Override
   public void setType(AssetType type) {
-    if (type != AssetType.FILE && type != AssetType.FLASH && type != AssetType.IMAGE) {
+    if (type != AssetType.FILE && type != AssetType.IMAGE) {
       throw new IllegalArgumentException("unsupported asset type : " + type);
     }
     super.setType(type);

@@ -248,8 +248,10 @@
 			sql="create view PSX_DISPLAYFORMATPROPERTY_VIEW as select * from PSX_DISPLAYFORMATPROPERTIES union select p.OBJECTID PROPERTYID, 'sys_community' PROPERTYNAME,   ltrim(str(p.COMMUNITYID)) PROPERTYVALUE, 'from acls' DESCRIPTION from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 31"
 			sqlOracle="create view PSX_DISPLAYFORMATPROPERTY_VIEW as select * from PSX_DISPLAYFORMATPROPERTIES union select p.OBJECTID PROPERTYID, 'sys_community' PROPERTYNAME,   ltrim(to_char(p.COMMUNITYID)) PROPERTYVALUE, 'from acls' DESCRIPTION from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 31"
 			sqlUDB="create view PSX_DISPLAYFORMATPROPERTY_VIEW as select * from PSX_DISPLAYFORMATPROPERTIES union select p.OBJECTID PROPERTYID, 'sys_community' PROPERTYNAME,   rtrim(char(p.COMMUNITYID)) PROPERTYVALUE, 'from acls' DESCRIPTION from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 31"
-			sqlMysql="create view PSX_DISPLAYFORMATPROPERTY_VIEW as select * from PSX_DISPLAYFORMATPROPERTIES union select p.OBJECTID PROPERTYID, 'sys_community' PROPERTYNAME,   rtrim(cast(p.COMMUNITYID AS CHAR)) PROPERTYVALUE, 'from acls' DESCRIPTION from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 31"
+			sqlMysql="create view PSX_DISPLAYFORMATPROPERTY_VIEW as select * from PSX_DISPLAYFORMATPROPERTIES union select p.OBJECTID PROPERTYID, 'sys_community' PROPERTYNAME,   rtrim(cast(p.COMMUNITYID AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci) PROPERTYVALUE, 'from acls' DESCRIPTION from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 31"
 			sqlDerby="create view PSX_DISPLAYFORMATPROPERTY_VIEW as select * from PSX_DISPLAYFORMATPROPERTIES union select p.OBJECTID PROPERTYID, 'sys_community' PROPERTYNAME,   rtrim(char(p.COMMUNITYID)) PROPERTYVALUE, 'from acls' DESCRIPTION from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 31"
+			sqlH2="create view PSX_DISPLAYFORMATPROPERTY_VIEW as select * from PSX_DISPLAYFORMATPROPERTIES union select p.OBJECTID PROPERTYID, 'sys_community' PROPERTYNAME,   rtrim(cast(p.COMMUNITYID as varchar)) PROPERTYVALUE, 'from acls' DESCRIPTION from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 31"
+			sqlPostgresql="create view PSX_DISPLAYFORMATPROPERTY_VIEW as select * from PSX_DISPLAYFORMATPROPERTIES union select p.OBJECTID PROPERTYID, 'sys_community' PROPERTYNAME,   cast(p.COMMUNITYID as varchar) PROPERTYVALUE, 'from acls' DESCRIPTION from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 31"
 			failonerror="true" silenceerrors="false" />
 
 		<!-- PSX_SEARCHPROPERTIES -->
@@ -259,8 +261,10 @@
 			sql="create view PSX_SEARCHPROPERTIES_VIEW as select * from PSX_SEARCHPROPERTIES union select p.OBJECTID PROPERTYID, 'sys_community' PROPERTYNAME, ltrim(str(p.COMMUNITYID)) PROPERTYVALUE, 'from acls' DESCRIPTION from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 15 OR p.OBJECTTYPE = 18"
 			sqlOracle="create view PSX_SEARCHPROPERTIES_VIEW as select * from PSX_SEARCHPROPERTIES union select p.OBJECTID PROPERTYID, 'sys_community' PROPERTYNAME,   ltrim(to_char(p.COMMUNITYID)) PROPERTYVALUE, 'from acls' DESCRIPTION from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 15 OR p.OBJECTTYPE = 18"
 			sqlUDB="create view PSX_SEARCHPROPERTIES_VIEW as select * from PSX_SEARCHPROPERTIES union select p.OBJECTID PROPERTYID, 'sys_community' PROPERTYNAME, rtrim(char(p.COMMUNITYID)) PROPERTYVALUE, 'from acls' PROPERTYDESCRIPTION from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 15 OR p.OBJECTTYPE = 18"
-			sqlMysql="create view PSX_SEARCHPROPERTIES_VIEW as select * from PSX_SEARCHPROPERTIES union select p.OBJECTID PROPERTYID, 'sys_community' PROPERTYNAME, rtrim(cast(p.COMMUNITYID AS CHAR)) PROPERTYVALUE, 'from acls' PROPERTYDESCRIPTION from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 15 OR p.OBJECTTYPE = 18"
+			sqlMysql="create view PSX_SEARCHPROPERTIES_VIEW as select * from PSX_SEARCHPROPERTIES union select p.OBJECTID PROPERTYID, 'sys_community' PROPERTYNAME, rtrim(cast(p.COMMUNITYID AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci) PROPERTYVALUE, 'from acls' PROPERTYDESCRIPTION from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 15 OR p.OBJECTTYPE = 18"
 			sqlDerby="create view PSX_SEARCHPROPERTIES_VIEW as select * from PSX_SEARCHPROPERTIES union select p.OBJECTID PROPERTYID, 'sys_community' PROPERTYNAME, rtrim(char(p.COMMUNITYID)) PROPERTYVALUE, 'from acls' PROPERTYDESCRIPTION from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 15 OR p.OBJECTTYPE = 18"
+			sqlH2="create view PSX_SEARCHPROPERTIES_VIEW as select * from PSX_SEARCHPROPERTIES union select p.OBJECTID PROPERTYID, 'sys_community' PROPERTYNAME, rtrim(cast(p.COMMUNITYID as varchar)) PROPERTYVALUE, 'from acls' PROPERTYDESCRIPTION from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 15 OR p.OBJECTTYPE = 18"
+			sqlPostgresql="create view PSX_SEARCHPROPERTIES_VIEW as select * from PSX_SEARCHPROPERTIES union select p.OBJECTID PROPERTYID, 'sys_community' PROPERTYNAME, cast(p.COMMUNITYID as varchar) PROPERTYVALUE, 'from acls' PROPERTYDESCRIPTION from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 15 OR p.OBJECTTYPE = 18"
 			failonerror="true" silenceerrors="false" />
 
 
@@ -271,8 +275,10 @@
 			sql="create view PSX_MENUVISIBILITY_VIEW as select * from RXMENUVISIBILITY where VISIBILITYCONTEXT &lt;&gt; '2' union select a.ACTIONID, '2' VISIBILITYCONTEXT, ltrim(str(C.COMMUNITYID)) VALUE, 'from acls' DESCRIPTION from RXMENUACTION a, RXCOMMUNITY C where (select count(*) from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 107 and p.OBJECTID = a.ACTIONID and (C.COMMUNITYID = COMMUNITYID) and p.PERMISSION = 40) = 0 and (select count(*) from PSX_ACLS ACL where OBJECTTYPE = 107 and OBJECTID = a.ACTIONID) &lt;&gt; 0"
 			sqlOracle="create view PSX_MENUVISIBILITY_VIEW AS select * from RXMENUVISIBILITY where VISIBILITYCONTEXT &lt;&gt; '2' union select a.ACTIONID, '2' VISIBILITYCONTEXT, ltrim(to_char(C.COMMUNITYID)) VALUE, 'from acls' DESCRIPTION from (select a2.actionid actionid from RXMENUACTION a2 where exists (select * from PSX_ACLS ACL where OBJECTTYPE = 107 and OBJECTID = a2.ACTIONID)) a, RXCOMMUNITY C where C.COMMUNITYID NOT IN (select COMMUNITYID FROM PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 107 and p.OBJECTID = a.ACTIONID)"
 			sqlUDB="create view PSX_MENUVISIBILITY_VIEW as select * from RXMENUVISIBILITY where VISIBILITYCONTEXT &lt;&gt; '2' union select a.ACTIONID, '2' VISIBILITYCONTEXT, rtrim(char(C.COMMUNITYID)) VALUE, 'from acls' DESCRIPTION from RXMENUACTION a, RXCOMMUNITY C where (select count(*) from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 107 and p.OBJECTID = a.ACTIONID and (C.COMMUNITYID = COMMUNITYID) and p.PERMISSION = 40) = 0 and (select count(*) from PSX_ACLS ACL where OBJECTTYPE = 107 and OBJECTID = a.ACTIONID) &lt;&gt; 0"
-			sqlMysql="create view PSX_MENUVISIBILITY_VIEW as select * from RXMENUVISIBILITY where VISIBILITYCONTEXT &lt;&gt; '2' union select a.ACTIONID, '2' VISIBILITYCONTEXT, rtrim(cast(C.COMMUNITYID AS CHAR)) VALUE, 'from acls' DESCRIPTION from RXMENUACTION a, RXCOMMUNITY C where (select count(*) from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 107 and p.OBJECTID = a.ACTIONID and (C.COMMUNITYID = COMMUNITYID) and p.PERMISSION = 40) = 0 and (select count(*) from PSX_ACLS ACL where OBJECTTYPE = 107 and OBJECTID = a.ACTIONID) &lt;&gt; 0"
+			sqlMysql="create view PSX_MENUVISIBILITY_VIEW as select * from RXMENUVISIBILITY where VISIBILITYCONTEXT &lt;&gt; '2' union select a.ACTIONID, '2' VISIBILITYCONTEXT, rtrim(cast(C.COMMUNITYID AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci) VALUE, 'from acls' DESCRIPTION from RXMENUACTION a, RXCOMMUNITY C where (select count(*) from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 107 and p.OBJECTID = a.ACTIONID and (C.COMMUNITYID = COMMUNITYID) and p.PERMISSION = 40) = 0 and (select count(*) from PSX_ACLS ACL where OBJECTTYPE = 107 and OBJECTID = a.ACTIONID) &lt;&gt; 0"
 			sqlDerby="create view PSX_MENUVISIBILITY_VIEW as select * from RXMENUVISIBILITY where VISIBILITYCONTEXT &lt;&gt; '2' union select a.ACTIONID, '2' VISIBILITYCONTEXT, rtrim(char(C.COMMUNITYID)) VALUE, 'from acls' DESCRIPTION from RXMENUACTION a, RXCOMMUNITY C where (select count(*) from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 107 and p.OBJECTID = a.ACTIONID and (C.COMMUNITYID = COMMUNITYID) and p.PERMISSION = 40) = 0 and (select count(*) from PSX_ACLS ACL where OBJECTTYPE = 107 and OBJECTID = a.ACTIONID) &lt;&gt; 0"
+			sqlH2="create view PSX_MENUVISIBILITY_VIEW as select * from RXMENUVISIBILITY where VISIBILITYCONTEXT &lt;&gt; '2' union select a.ACTIONID, '2' VISIBILITYCONTEXT, rtrim(cast(C.COMMUNITYID as varchar)) VALUE, 'from acls' DESCRIPTION from RXMENUACTION a, RXCOMMUNITY C where (select count(*) from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 107 and p.OBJECTID = a.ACTIONID and (C.COMMUNITYID = COMMUNITYID) and p.PERMISSION = 40) = 0 and (select count(*) from PSX_ACLS ACL where OBJECTTYPE = 107 and OBJECTID = a.ACTIONID) &lt;&gt; 0"
+			sqlPostgresql="create view PSX_MENUVISIBILITY_VIEW as select * from RXMENUVISIBILITY where VISIBILITYCONTEXT &lt;&gt; '2' union select a.ACTIONID, '2' VISIBILITYCONTEXT, cast(C.COMMUNITYID as varchar) VALUE, 'from acls' DESCRIPTION from RXMENUACTION a, RXCOMMUNITY C where (select count(*) from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 107 and p.OBJECTID = a.ACTIONID and (C.COMMUNITYID = COMMUNITYID) and p.PERMISSION = 40) = 0 and (select count(*) from PSX_ACLS ACL where OBJECTTYPE = 107 and OBJECTID = a.ACTIONID) &lt;&gt; 0"
 			failonerror="true" silenceerrors="false" />
 
 
@@ -365,6 +371,15 @@
 			sql="update RXSITES as site set site.IS_PAGE_BASED = 'T' where exists (select pubser.* from PSX_PUBSERVER pubser where pubser.SITEID = site.SITEID group by pubser.SITEID);"
 			failonerror="false" silenceerrors="true" />
 
+		<PSExecSQLStmt printExceptionStackTrace="true"
+			qualifyTableNames="TRANSITIONS" qualifyViewNames=""
+			sqlOracle="UPDATE TRANSITIONS SET TRANSITIONACTIONS = CASE WHEN TRANSITIONACTIONS IS NULL OR TRANSITIONACTIONS = ' ' THEN 'Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' WHEN TRANSITIONACTIONS LIKE '%sys_DirectoryIndexTouchWorkflowAction%' THEN TRANSITIONACTIONS ELSE TRANSITIONACTIONS || ',Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' END WHERE WORKFLOWAPPID = 6 AND TRANSITIONLABEL = 'Approve'"
+			sqlSqlServer="UPDATE TRANSITIONS SET TRANSITIONACTIONS = CASE WHEN TRANSITIONACTIONS IS NULL OR TRANSITIONACTIONS = '' THEN 'Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' WHEN TRANSITIONACTIONS LIKE '%sys_DirectoryIndexTouchWorkflowAction%' THEN TRANSITIONACTIONS ELSE TRANSITIONACTIONS + ',Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' END WHERE WORKFLOWAPPID = 6 AND TRANSITIONLABEL = 'Approve'"
+			sqlMysql="UPDATE TRANSITIONS SET TRANSITIONACTIONS = CASE WHEN TRANSITIONACTIONS IS NULL OR TRANSITIONACTIONS = '' THEN 'Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' WHEN TRANSITIONACTIONS LIKE '%sys_DirectoryIndexTouchWorkflowAction%' THEN TRANSITIONACTIONS ELSE CONCAT(TRANSITIONACTIONS, ',Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction') END WHERE WORKFLOWAPPID = 6 AND TRANSITIONLABEL = 'Approve'"
+			sqlDerby="UPDATE TRANSITIONS SET TRANSITIONACTIONS = CASE WHEN TRANSITIONACTIONS IS NULL OR TRANSITIONACTIONS = '' THEN 'Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' WHEN TRANSITIONACTIONS LIKE '%sys_DirectoryIndexTouchWorkflowAction%' THEN TRANSITIONACTIONS ELSE TRANSITIONACTIONS || ',Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' END WHERE WORKFLOWAPPID = 6 AND TRANSITIONLABEL = 'Approve'"
+			sql="UPDATE TRANSITIONS SET TRANSITIONACTIONS = CASE WHEN TRANSITIONACTIONS IS NULL OR TRANSITIONACTIONS = '' THEN 'Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' WHEN TRANSITIONACTIONS LIKE '%sys_DirectoryIndexTouchWorkflowAction%' THEN TRANSITIONACTIONS ELSE TRANSITIONACTIONS || ',Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' END WHERE WORKFLOWAPPID = 6 AND TRANSITIONLABEL = 'Approve'"
+			failonerror="false" silenceerrors="false" />
+
 
 	</target>
 
@@ -380,7 +395,9 @@
 			<then>
 				<echo>Applying fresh-install database configuration...</echo>
 
-				<property name="perc.db.type" value="derby" />
+				<!-- Default embedded engine is H2 (#548); Derby still recognized for
+					legacy/migration -->
+				<property name="perc.db.type" value="h2" />
 				<property name="perc.db.ssl.enabled" value="true" />
 				<property name="perc.db.ssl.verify" value="true" />
 				<property name="perc.db.ssl.allowSelfSigned" value="false" />
@@ -388,8 +405,12 @@
 				<if>
 					<and>
 						<not>
-							<equals arg1="${perc.db.type}" arg2="derby"
-								casesensitive="false" />
+							<or>
+								<equals arg1="${perc.db.type}" arg2="derby"
+									casesensitive="false" />
+								<equals arg1="${perc.db.type}" arg2="h2"
+									casesensitive="false" />
+							</or>
 						</not>
 						<or>
 							<not>
@@ -468,12 +489,105 @@
 					</then>
 				</if>
 
+				<!-- #1500: silent/matrix installs use db.type=postgresql. Without this
+					branch rxrepository stayed on shipped H2 defaults and TableFactory plus Jetty
+					used H2 while perc.db system properties showed POSTGRES. -->
+				<if>
+					<equals arg1="${perc.db.type}" arg2="postgresql"
+						casesensitive="false" />
+					<then>
+						<propertyfile file="${rxrepository.properties}"
+							comment="Repository Properties">
+							<entry key="DB_BACKEND" value="${perc.db.cms.backend}" />
+							<entry key="DB_DRIVER_NAME"
+								value="${perc.db.cms.driverName}" />
+							<entry key="DB_DRIVER_CLASS_NAME"
+								value="${perc.db.cms.driverClass}" />
+							<entry key="DB_SERVER" value="${perc.db.cms.server}" />
+							<entry key="DB_NAME" value="${perc.db.cms.name}" />
+							<entry key="DB_SCHEMA" value="${perc.db.cms.schema}" />
+							<entry key="UID" value="${perc.db.user}" />
+							<entry key="PWD" value="${perc.db.password}" />
+							<entry key="PWD_ENCRYPTED" value="N" />
+							<entry key="DB_SSL_ENABLED" value="${perc.db.ssl.enabled}" />
+							<entry key="DB_SSL_VERIFY" value="${perc.db.ssl.verify}" />
+							<entry key="DB_SSL_ALLOW_SELF_SIGNED"
+								value="${perc.db.ssl.allowSelfSigned}" />
+						</propertyfile>
+					</then>
+				</if>
+
+				<if>
+					<equals arg1="${perc.db.type}" arg2="oracle"
+						casesensitive="false" />
+					<then>
+						<propertyfile file="${rxrepository.properties}"
+							comment="Repository Properties">
+							<entry key="DB_BACKEND" value="${perc.db.cms.backend}" />
+							<entry key="DB_DRIVER_NAME"
+								value="${perc.db.cms.driverName}" />
+							<entry key="DB_DRIVER_CLASS_NAME"
+								value="${perc.db.cms.driverClass}" />
+							<entry key="DB_SERVER" value="${perc.db.cms.server}" />
+							<entry key="DB_NAME" value="${perc.db.cms.name}" />
+							<entry key="DB_SCHEMA" value="${perc.db.cms.schema}" />
+							<entry key="UID" value="${perc.db.user}" />
+							<entry key="PWD" value="${perc.db.password}" />
+							<entry key="PWD_ENCRYPTED" value="N" />
+							<entry key="DB_SSL_ENABLED" value="${perc.db.ssl.enabled}" />
+							<entry key="DB_SSL_VERIFY" value="${perc.db.ssl.verify}" />
+							<entry key="DB_SSL_ALLOW_SELF_SIGNED"
+								value="${perc.db.ssl.allowSelfSigned}" />
+						</propertyfile>
+					</then>
+				</if>
+
 				<if>
 					<equals arg1="${perc.db.type}" arg2="derby"
 						casesensitive="false" />
 					<then>
 						<propertyfile file="${rxrepository.properties}"
 							comment="Repository Properties">
+							<entry key="DB_SSL_ENABLED" value="${perc.db.ssl.enabled}" />
+							<entry key="DB_SSL_VERIFY" value="${perc.db.ssl.verify}" />
+							<entry key="DB_SSL_ALLOW_SELF_SIGNED"
+								value="${perc.db.ssl.allowSelfSigned}" />
+						</propertyfile>
+					</then>
+				</if>
+
+				<if>
+					<equals arg1="${perc.db.type}" arg2="h2"
+						casesensitive="false" />
+					<then>
+						<!-- Persist a CMS DB password for the embedded H2 backend. Silent
+							/ non-interactive installs use a random value; interactive installs have
+							already set ${cmdb.password} before the wizard hands control to ANT. Issue
+							#548 / #1500: a non-empty password avoids the "Wrong user name or password"
+							failure mode when the H2 file DB is first created. The random value is also
+							written to var/config/generated/passwords so operators can recover it. -->
+						<if>
+							<not>
+								<isset property="cmdb.password" />
+							</not>
+							<then>
+								<PSGenerateRepositoryPassword
+									rootDir="${install.dir}" random="true" />
+							</then>
+						</if>
+						<!-- Ensure H2 defaults when fresh-install path runs; ship file already
+							H2 -->
+						<propertyfile file="${rxrepository.properties}"
+							comment="Repository Properties">
+							<entry key="DB_BACKEND" value="H2" />
+							<entry key="DB_DRIVER_NAME" value="h2" />
+							<entry key="DB_DRIVER_CLASS_NAME" value="org.h2.Driver" />
+							<entry key="DB_SERVER"
+								value="file:../../Repository/CMDB;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=VALUE" />
+							<entry key="DB_SCHEMA" value="PUBLIC" />
+							<entry key="UID" value="sa" />
+							<entry key="PWD" value="${cmdb.password}" />
+							<entry key="PWD_ENCRYPTED" value="N" />
 							<entry key="DB_SSL_ENABLED" value="${perc.db.ssl.enabled}" />
 							<entry key="DB_SSL_VERIFY" value="${perc.db.ssl.verify}" />
 							<entry key="DB_SSL_ALLOW_SELF_SIGNED"
@@ -496,7 +610,40 @@
 			</then>
 		</if>
 
-		<PSMakeLasagna root="${install.dir}" />
+		<if>
+			<not>
+				<equals arg1="${perc.db.type}" arg2="h2"
+					casesensitive="false" />
+			</not>
+			<then>
+				<!-- H2 keeps PWD plaintext under the random cmdb.password scheme so
+					the runtime can open the file DB without decrypting against install-time
+					key material. Encrypt the password for all other backends. -->
+				<PSMakeLasagna root="${install.dir}" />
+			</then>
+		</if>
+
+		<!-- New-install non-embedded only: fail fast if repository is unreachable
+			(issue #949 FR-008). Skip embedded H2/Derby defaults (product defaults; validation
+			targets enterprise backends). Upgrades excluded via do.install so backends
+			are not re-validated/rewritten. -->
+		<if>
+			<and>
+				<istrue value="${do.install}" />
+				<not>
+					<or>
+						<equals arg1="${perc.db.type}" arg2="derby"
+							casesensitive="false" />
+						<equals arg1="${perc.db.type}" arg2="h2"
+							casesensitive="false" />
+					</or>
+				</not>
+			</and>
+			<then>
+				<PSValidateRepositoryConnection
+					rootDir="${install.dir}" loginTimeoutSeconds="15" />
+			</then>
+		</if>
 	</target>
 
 	<target name="exportDB">

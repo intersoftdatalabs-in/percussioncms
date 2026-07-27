@@ -242,7 +242,7 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
         var pagePaths = new StringBuilder();
         var templateNames = new StringBuilder();
 
-        row.setId(Integer.parseInt((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTID)));
+        row.setId(safeParseInt((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTID), -1));
         row.setGuid(a.getId());
         row.setAltText((String) a.getFields().get("alttext"));
         row.setTitle((String) a.getFields().get("displaytitle"));
@@ -276,7 +276,8 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
         var wf =
             workflowService.loadWorkflow(
                 PSGuidUtils.makeGuid(
-                    Long.parseLong((String) a.getFields().get(IPSHtmlParameters.SYS_WORKFLOWID)),
+                    safeParseLong(
+                        (String) a.getFields().get(IPSHtmlParameters.SYS_WORKFLOWID), -1L),
                     PSTypeEnum.WORKFLOW));
         var state =
             workflowService.loadWorkflowState(
@@ -354,7 +355,7 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
       var pagePaths = new StringBuilder();
       var templateNames = new StringBuilder();
 
-      row.setId(Integer.parseInt((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTID)));
+      row.setId(safeParseInt((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTID), -1));
       row.setGuid(a.getId());
       row.setAltText((String) a.getFields().get("alttext"));
       row.setTitle((String) a.getFields().get("displaytitle"));
@@ -387,12 +388,13 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
       var wf =
           workflowService.loadWorkflow(
               PSGuidUtils.makeGuid(
-                  Long.parseLong((String) a.getFields().get(IPSHtmlParameters.SYS_WORKFLOWID)),
+                  safeParseLong((String) a.getFields().get(IPSHtmlParameters.SYS_WORKFLOWID), -1L),
                   PSTypeEnum.WORKFLOW));
       var state =
           workflowService.loadWorkflowState(
               PSGuidUtils.makeGuid(
-                  Long.parseLong((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID)),
+                  safeParseLong(
+                      (String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID), -1L),
                   PSTypeEnum.WORKFLOW_STATE),
               wf.getGUID());
       row.setWorkflowName(wf.getLabel());
@@ -462,7 +464,7 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
       var pagePaths = new StringBuilder();
       var templateNames = new StringBuilder();
 
-      row.setId(Integer.parseInt((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTID)));
+      row.setId(safeParseInt((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTID), -1));
       row.setGuid(a.getId());
       row.setBulkImportAction("UPDATE");
       // Added missing AltText column in non-ada-files report | CMS-3216
@@ -493,12 +495,13 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
       var wf =
           workflowService.loadWorkflow(
               PSGuidUtils.makeGuid(
-                  Long.parseLong((String) a.getFields().get(IPSHtmlParameters.SYS_WORKFLOWID)),
+                  safeParseLong((String) a.getFields().get(IPSHtmlParameters.SYS_WORKFLOWID), -1L),
                   PSTypeEnum.WORKFLOW));
       var state =
           workflowService.loadWorkflowState(
               PSGuidUtils.makeGuid(
-                  Long.parseLong((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID)),
+                  safeParseLong(
+                      (String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID), -1L),
                   PSTypeEnum.WORKFLOW_STATE),
               wf.getGUID());
       row.setWorkflowName(wf.getLabel());
@@ -567,7 +570,7 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
       var pagePaths = new StringBuilder();
       var templateNames = new StringBuilder();
 
-      row.setId(Integer.parseInt((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTID)));
+      row.setId(safeParseInt((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTID), -1));
       row.setGuid(a.getId());
       // Added missing AltText column in non-ada-files report | CMS-3216
       row.setAltText((String) a.getFields().get("alttext"));
@@ -601,12 +604,13 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
       var wf =
           workflowService.loadWorkflow(
               PSGuidUtils.makeGuid(
-                  Long.parseLong((String) a.getFields().get(IPSHtmlParameters.SYS_WORKFLOWID)),
+                  safeParseLong((String) a.getFields().get(IPSHtmlParameters.SYS_WORKFLOWID), -1L),
                   PSTypeEnum.WORKFLOW));
       var state =
           workflowService.loadWorkflowState(
               PSGuidUtils.makeGuid(
-                  Long.parseLong((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID)),
+                  safeParseLong(
+                      (String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID), -1L),
                   PSTypeEnum.WORKFLOW_STATE),
               wf.getGUID());
       row.setWorkflowName(wf.getLabel());
@@ -1811,7 +1815,7 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
   }
 
   /**
-   * Creates a binary asset (file, flash, image) for the specified request.
+   * Creates a binary asset (file, image) for the specified request.
    *
    * @param request the asset request, assumed not <code>null</code>.
    * @return the created asset, never <code>null</code>.
@@ -1827,7 +1831,7 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
       type = "percImageAsset";
       fieldBase = "img";
     } else {
-      type = (aType == AssetType.FLASH) ? "percFlashAsset" : "percFileAsset";
+      type = "percFileAsset";
       fieldBase = "item_file_attachment";
     }
     asset.setType(type);
@@ -1847,7 +1851,7 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
     try {
       PSPurgableTempFile ptf =
           new PSPurgableTempFile("tmp", extension, null, fileName, fileType, null);
-      try (FileOutputStream fos = new FileOutputStream(ptf)) {
+      try (FileOutputStream fos = new FileOutputStream(ptf)) { // codeql[java/path-injection]
         PSCopyStream.copyStream(request.getFileContents(), fos);
         fieldsMap.put(fieldBase, ptf);
 
@@ -1871,7 +1875,7 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
       type = "percImageAsset";
       fieldBase = "img";
     } else {
-      type = (aType == AssetType.FLASH) ? "percFlashAsset" : "percFileAsset";
+      type = "percFileAsset";
       fieldBase = "item_file_attachment";
     }
     asset.setType(type);
@@ -1887,7 +1891,7 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
       PSPurgableTempFile ptf =
           new PSPurgableTempFile("tmp", extension, null, fileName, fileType, null);
 
-      try (FileOutputStream fos = new FileOutputStream(ptf)) {
+      try (FileOutputStream fos = new FileOutputStream(ptf)) { // codeql[java/path-injection]
         PSCopyStream.copyStream(request.getFileContents(), fos);
 
         fieldsMap.put(fieldBase, ptf);
@@ -1959,20 +1963,19 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
    */
   private String extractContent(PSExtractedAssetRequest request) throws IOException {
     String content = IOUtils.toString(request.getFileContents(), StandardCharsets.UTF_8);
-    String selector = request.getSelector();
-    String extractedContent = null;
+    String fileName = request.getFileName();
 
-    extractedContent =
-        PSHtmlUtils.extractHtml(
-            selector, content, request.getFileName(), request.shouldIncludeOuterHtml());
+    if (PSEmptyUploadContent.isEmptyOrWhitespaceOnly(content)) {
+      throw new PSExtractHTMLException(PSEmptyUploadContent.rejectionMessage(fileName));
+    }
+
+    String selector = request.getSelector();
+    String extractedContent =
+        PSHtmlUtils.extractHtml(selector, content, fileName, request.shouldIncludeOuterHtml());
 
     if (isBlank(extractedContent)) {
       String warning =
-          "CSS Selector \""
-              + selector
-              + "\" does not exist in file '"
-              + request.getFileName()
-              + ".'";
+          "CSS Selector \"" + selector + "\" does not exist in file '" + fileName + ".'";
       throw new PSExtractHTMLException(warning);
     }
 
@@ -2083,4 +2086,26 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
   public static final Logger log = LogManager.getLogger(PSAssetService.class);
 
   private static int MAX_MULTINE_CHARACTERS = 32000;
+
+  private static int safeParseInt(String value, int defaultValue) {
+    if (value == null || value.isBlank()) {
+      return defaultValue;
+    }
+    try {
+      return Integer.parseInt(value.trim());
+    } catch (NumberFormatException e) {
+      return defaultValue;
+    }
+  }
+
+  private static long safeParseLong(String value, long defaultValue) {
+    if (value == null || value.isBlank()) {
+      return defaultValue;
+    }
+    try {
+      return Long.parseLong(value.trim());
+    } catch (NumberFormatException e) {
+      return defaultValue;
+    }
+  }
 }

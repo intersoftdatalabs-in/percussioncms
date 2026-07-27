@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,41 +20,41 @@ import com.percussion.install.InstallUtil;
 import org.apache.tools.ant.BuildException;
 
 /**
- * An install action bean to check for a running Rhythmyx server. If a running server is found, a
- * build exception will be thrown. <br>
- * Example Usage: <br>
+ * Install action that aborts when a CMS (Rhythmyx) server is still running under the target root
+ * (bind port / Derby Network Server heuristics via {@link InstallUtil#checkServerRunning(String)}).
  *
- * <pre>
+ * <p>Pair with {@link PSCheckRunningDtsServer} for DTS Tomcat instances.
  *
- * First set the taskdef:
- *
- *  <code>
- *  &lt;taskdef name="checkRunningServer"
- *              class="com.percussion.ant.install.PSCheckRunningServer"
- *              classpathref="INSTALL.CLASSPATH"/&gt;
- *  </code>
- *
- * Now use the task to check for a running server.
- *
- *  <code>
- *  &lt;checkRunningServer/&gt;
- *  </code>
- *
- * </pre>
+ * <pre>{@code
+ * <PSCheckRunningServer rootDir="${install.dir}"/>
+ * }</pre>
  *
  * @author vamsinukala
  */
 public class PSCheckRunningServer extends PSAction {
-  // see base class
+  /** Creates a new running server check task. */
+  public PSCheckRunningServer() {}
+
   @Override
   public void execute() {
-    if (InstallUtil.checkServerRunning(getRootDir())) {
+    // Intentionally no super.execute(): this is a pure gate check without logger/version side
+    // effects.
+    String root = getRootDir();
+    if (root == null || root.isBlank()) {
+      // Fall back to Ant project install.dir when task omits rootDir attribute
+      if (getProject() != null) {
+        root = getProject().getProperty("install.dir");
+      }
+    }
+    if (root == null || root.isBlank()) {
+      throw new BuildException("PSCheckRunningServer: rootDir (or install.dir) is required");
+    }
+    if (InstallUtil.checkServerRunning(root)) {
       throw new BuildException(
-          "A running Rhythmyx server has been "
-              + "detected in the installation directory "
-              + getRootDir()
-              + ".  Please shut down this instance of Rhythmyx before "
-              + "installing/upgrading to this location.");
+          "A running CMS (Rhythmyx) server has been detected in the installation directory "
+              + root
+              + ". Stop this instance before installing or upgrading to this location"
+              + " (offline only).");
     }
   }
 }

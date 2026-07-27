@@ -60,6 +60,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * The main host frame for the Percussion Content Explorer. Provides the Swing and applet-stub
+ * infrastructure used by the embedded {@link PSContentExplorerApplet} and acts as the top-level
+ * window for the JavaFX application launch.
+ */
 public class PSContentExplorerFrame extends PSDesktopExplorerWindow
     implements AppletStub, AppletContext {
 
@@ -67,23 +72,26 @@ public class PSContentExplorerFrame extends PSDesktopExplorerWindow
 
   static Logger log = LogManager.getLogger(PSContentExplorerFrame.class);
 
+  /** Helper instance used to resolve resources and helper methods. */
   private PSContentExplorerHelper helper = new PSContentExplorerHelper();
 
-  /** hashmap containing all parameters needed for the applet */
+  /** Hashmap containing all parameters needed for the applet. */
   Map<String, String> parameters = new HashMap<String, String>();
 
-  /** the login panel, containing all GUI elements for the login dialog */
+  /** The login panel containing all GUI elements for the login dialog, may be <code>null</code>. */
   private PSContentExplorerLoginPanel loginPanel = null;
 
+  /** The URI of the Rhythmyx server, may be <code>null</code>. */
   private URI serverUri = null;
 
+  /** Whether the host portion of the URI is fixed. */
   private boolean fixedHost = false;
 
   /**
    * The constuctor sets the applications main frame size and title. It adds a new window listener
    * to watch for closing events. Then it performs the same initialization as a browser.
    *
-   * @param uri
+   * @param uri the URI of the Rhythmyx server, assumed not <code>null</code>.
    */
   public PSContentExplorerFrame(URI uri) {
 
@@ -195,6 +203,12 @@ public class PSContentExplorerFrame extends PSDesktopExplorerWindow
     this.setResizable(true);
   }
 
+  /**
+   * Merges the supplied parameters into this frame's parameter map, overwriting any existing
+   * entries with matching keys.
+   *
+   * @param params the parameters to merge in, may not be <code>null</code> but may be empty.
+   */
   public void mergeParams(Map<String, String> params) {
     // merge parameters into default
     if (params.size() > 0) {
@@ -205,6 +219,7 @@ public class PSContentExplorerFrame extends PSDesktopExplorerWindow
     }
   }
 
+  /** Displays the login panel for the desktop content explorer. */
   public void showLogin() {
 
     try {
@@ -230,6 +245,12 @@ public class PSContentExplorerFrame extends PSDesktopExplorerWindow
     return applet.getEngine();
   }
 
+  /**
+   * Initializes the content explorer session after a successful login. Initializes the applet, sets
+   * the user info, starts the applet, and positions the frame on the screen.
+   *
+   * @throws PSCmsException if an error occurs initializing the applet session.
+   */
   public void initCESession() throws PSCmsException {
 
     this.setTitle(getCETitle());
@@ -336,14 +357,30 @@ public class PSContentExplorerFrame extends PSDesktopExplorerWindow
     return returnValue;
   }
 
+  /**
+   * Sets the value of the named applet parameter, replacing any existing value.
+   *
+   * @param paremeter the parameter name, assumed not <code>null</code>.
+   * @param value the new parameter value, may be <code>null</code>.
+   */
   public void setParameter(String paremeter, String value) {
     this.parameters.put(paremeter, value);
   }
 
+  /**
+   * Gets the applet parameter map for this frame.
+   *
+   * @return the parameter map, never <code>null</code>.
+   */
   public Map<String, String> getParameters() {
     return parameters;
   }
 
+  /**
+   * Replaces the applet parameter map with the supplied one.
+   *
+   * @param paremeters the new parameter map, assumed not <code>null</code>.
+   */
   public void setParameters(Map<String, String> paremeters) {
     this.parameters = paremeters;
   }
@@ -412,6 +449,10 @@ public class PSContentExplorerFrame extends PSDesktopExplorerWindow
     this.toFront();
   }
 
+  /**
+   * Stops and destroys the hosted applet, if any. Used when shutting down the frame or before
+   * recreating the applet.
+   */
   public void cleanup() {
     if (applet != null) {
       applet.stop();
@@ -419,10 +460,16 @@ public class PSContentExplorerFrame extends PSDesktopExplorerWindow
     }
   }
 
+  /**
+   * Gets the content explorer applet hosted by this frame.
+   *
+   * @return the applet, may be <code>null</code> if no applet has been created yet.
+   */
   public PSContentExplorerApplet getApplet() {
     return this.applet;
   }
 
+  /** Logs the current user out, tears down the applet and shows the login panel again. */
   public void logout() {
     this.setVisible(false);
     cleanup();

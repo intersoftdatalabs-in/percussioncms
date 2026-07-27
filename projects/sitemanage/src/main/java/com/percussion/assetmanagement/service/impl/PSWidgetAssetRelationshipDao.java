@@ -37,7 +37,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * The service used to update Page & Asset relationships.
+ * The service used to update Page &amp; Asset relationships.
  *
  * @author YuBingChen
  */

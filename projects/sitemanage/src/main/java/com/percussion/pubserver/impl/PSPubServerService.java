@@ -2080,7 +2080,9 @@ public class PSPubServerService implements IPSPubServerService {
   };
 
   /**
-   * Decrypt the string. Will attempt to decrypt using legacy algorithms to handle upgrade scenario.
+   * Decrypt the string. Tries modern AES/GCM ({@link PSEncryptor}) first, then falls back to legacy
+   * {@link PSAesCBC} so upgrades can still read pre-8.2 ciphertext. New secrets are always written
+   * with {@link PSEncryptor#encryptString} — never with {@code PSAesCBC.encrypt}.
    *
    * @param dstr base64 encoded encrypted string
    * @return clear text version of the string.
@@ -2096,6 +2098,7 @@ public class PSPubServerService implements IPSPubServerService {
           "Decryption failed: {}. Attempting to decrypt with legacy algorithm",
           PSExceptionUtils.getMessageForLog(e));
       try {
+        // Decrypt-only upgrade fallback (accepted-risk T047/T048) — do not encrypt with PSAesCBC
         PSAesCBC aes = new PSAesCBC();
         return aes.decrypt(dstr, IPSPubServerDao.ENCRYPTION_KEY);
       } catch (PSEncryptionException psEncryptionException) {

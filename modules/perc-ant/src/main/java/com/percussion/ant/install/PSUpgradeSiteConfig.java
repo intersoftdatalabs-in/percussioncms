@@ -25,6 +25,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class PSUpgradeSiteConfig extends PSAction {
+  /** Creates a new site config upgrade task. */
+  public PSUpgradeSiteConfig() {}
 
   Logger log = LogManager.getLogger(PSUpgradeSiteConfig.class);
 

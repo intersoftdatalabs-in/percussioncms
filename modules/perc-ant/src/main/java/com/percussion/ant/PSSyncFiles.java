@@ -30,8 +30,15 @@ import java.util.Set;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
-/** */
+/**
+ * Synchronizes files and directories from a source directory to a destination directory. Handles
+ * copying new and modified files and deleting files and directories that no longer exist in the
+ * source.
+ */
 public class PSSyncFiles extends Task {
+  /** Creates a new file synchronization task. */
+  public PSSyncFiles() {}
+
   public void setFromdir(File fromDir) {
     m_fromDir = fromDir;
   }

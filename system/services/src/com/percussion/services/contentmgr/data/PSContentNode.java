@@ -39,11 +39,13 @@ import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.nodetype.NodeDefinition;
 import javax.jcr.nodetype.NodeType;
+import javax.jcr.version.ActivityViolationException;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionException;
 import javax.jcr.version.VersionHistory;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -585,6 +587,107 @@ public class PSContentNode implements IPSNode, IPSJcrCacheItem, Serializable
       }
    }
 
+   /**
+    * JCR 2.0 identifier — same stable content identity as {@link #getUUID()}.
+    *
+    * @see javax.jcr.Node#getIdentifier()
+    */
+   @Override
+   public String getIdentifier() throws RepositoryException
+   {
+      return getUUID();
+   }
+
+   @Override
+   public NodeIterator getNodes(String[] nameGlobs) throws RepositoryException
+   {
+      // Name-glob filtering not implemented; return empty set (optional capability).
+      return new PSNodeIterator(new ArrayListValuedHashMap<>(), null);
+   }
+
+   @Override
+   public PropertyIterator getProperties(String[] nameGlobs) throws RepositoryException
+   {
+      return new PSPropertyIterator(Collections.emptyMap(), null);
+   }
+
+   @Override
+   public PropertyIterator getReferences(String name) throws RepositoryException
+   {
+      return getReferences();
+   }
+
+   @Override
+   public PropertyIterator getWeakReferences() throws RepositoryException
+   {
+      return new PSPropertyIterator(Collections.emptyMap(), null);
+   }
+
+   @Override
+   public PropertyIterator getWeakReferences(String name) throws RepositoryException
+   {
+      return getWeakReferences();
+   }
+
+   @Override
+   public Property setProperty(String name, Binary value)
+         throws ValueFormatException, VersionException, LockException,
+         ConstraintViolationException, RepositoryException
+   {
+      throw new LockException("Read-only instance");
+   }
+
+   @Override
+   public Property setProperty(String name, BigDecimal value)
+         throws ValueFormatException, VersionException, LockException,
+         ConstraintViolationException, RepositoryException
+   {
+      throw new LockException("Read-only instance");
+   }
+
+   @Override
+   public void setPrimaryType(String nodeTypeName)
+         throws NoSuchNodeTypeException, VersionException, ConstraintViolationException,
+         LockException, RepositoryException
+   {
+      throw new UnsupportedRepositoryOperationException("setPrimaryType not supported");
+   }
+
+   @Override
+   public NodeIterator getSharedSet() throws RepositoryException
+   {
+      return new PSNodeIterator(new ArrayListValuedHashMap<>(), null);
+   }
+
+   @Override
+   public void removeShare()
+         throws VersionException, LockException, ConstraintViolationException, RepositoryException
+   {
+      throw new UnsupportedRepositoryOperationException("Shareable nodes not supported");
+   }
+
+   @Override
+   public void removeSharedSet()
+         throws VersionException, LockException, ConstraintViolationException, RepositoryException
+   {
+      throw new UnsupportedRepositoryOperationException("Shareable nodes not supported");
+   }
+
+   @Override
+   public void followLifecycleTransition(String transition)
+         throws UnsupportedRepositoryOperationException, InvalidLifecycleTransitionException,
+         RepositoryException
+   {
+      throw new UnsupportedRepositoryOperationException("Lifecycle not supported");
+   }
+
+   @Override
+   public String[] getAllowedLifecycleTransistions()
+         throws UnsupportedRepositoryOperationException, RepositoryException
+   {
+      throw new UnsupportedRepositoryOperationException("Lifecycle not supported");
+   }
+
    /** (non-Javadoc)
     * @see javax.jcr.Node#getIndex()
     */
@@ -742,8 +845,9 @@ public class PSContentNode implements IPSNode, IPSJcrCacheItem, Serializable
    /** (non-Javadoc)
     * @see javax.jcr.Node#checkout()
     */
+   @Override
    public void checkout() throws UnsupportedRepositoryOperationException,
-         LockException, RepositoryException
+         LockException, ActivityViolationException, RepositoryException
    {
       throw new UnsupportedRepositoryOperationException("Not supported");
    }
@@ -820,9 +924,10 @@ public class PSContentNode implements IPSNode, IPSJcrCacheItem, Serializable
    /** (non-Javadoc)
     * @see javax.jcr.Node#restore(javax.jcr.version.Version, boolean)
     */
+   @Override
    public void restore(Version arg0, boolean arg1) throws VersionException,
-         ItemExistsException, UnsupportedRepositoryOperationException,
-         LockException, RepositoryException
+         ItemExistsException, InvalidItemStateException,
+         UnsupportedRepositoryOperationException, LockException, RepositoryException
    {
       throw new UnsupportedRepositoryOperationException();
    }
@@ -1065,8 +1170,9 @@ public class PSContentNode implements IPSNode, IPSJcrCacheItem, Serializable
    /** (non-Javadoc)
     * @see javax.jcr.Item#remove()
     */
+   @Override
    public void remove() throws VersionException, LockException,
-         ConstraintViolationException, RepositoryException
+         ConstraintViolationException, AccessDeniedException, RepositoryException
    {
       throw new RepositoryException("Read-only instance");
    }

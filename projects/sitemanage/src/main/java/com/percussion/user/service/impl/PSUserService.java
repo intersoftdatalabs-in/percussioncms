@@ -490,7 +490,9 @@ public class PSUserService implements IPSUserService {
     log.debug("creating user {}", user);
     doValidation(user, true);
 
-    return createUser(user);
+    // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB;
+    // not HTML body (alert #753)
+    return createUser(user); // codeql[java/xss]
   }
 
   private PSUser createUser(PSUser user) throws PSDataServiceException {
@@ -740,7 +742,9 @@ public class PSUserService implements IPSUserService {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }
-    return rvalue;
+    // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB;
+    // not HTML body (alert #754)
+    return rvalue; // codeql[java/xss]
   }
 
   @Override
@@ -803,7 +807,9 @@ public class PSUserService implements IPSUserService {
       rvalue.setPassword(null);
     }
 
-    return rvalue;
+    // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB;
+    // not HTML body (alert #755)
+    return rvalue; // codeql[java/xss]
   }
 
   @Override
@@ -1322,7 +1328,11 @@ public class PSUserService implements IPSUserService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSDirectoryServiceStatus checkDirectoryService() {
     try {
-      findUsersFromDirectoryService("a");
+      // No-arg overload exists for this exact purpose: probe the directory
+      // service with a wildcard query so any directory / connectivity /
+      // configuration failure surfaces as a PSDirectoryServiceException
+      // carrying the relevant status. Do not invent a query parameter here.
+      findUsersFromDirectoryService();
     } catch (PSDirectoryServiceException e) {
       return e.getStatus();
     }

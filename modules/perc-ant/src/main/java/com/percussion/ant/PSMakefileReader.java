@@ -28,7 +28,12 @@ import java.io.InputStreamReader;
  * @author Chad Loder
  */
 public class PSMakefileReader {
-  /** Constructs a new Makefilereader. */
+  /**
+   * Constructs a new reader for the specified makefile.
+   *
+   * @param makefile the makefile to read, never <code>null</code>.
+   * @throws IOException if the makefile cannot be opened for reading.
+   */
   public PSMakefileReader(File makefile) throws IOException {
     try (InputStreamReader is = new InputStreamReader(new FileInputStream(makefile))) {
       m_rdr = new BufferedReader(is);
@@ -39,7 +44,8 @@ public class PSMakefileReader {
    * Reads a logical line from the makefile. A logical line may extend over several physical lines
    * when the continuation character (backslash) is used at the end of all but the last line.
    *
-   * @return The logical line. If <CODE>null</CODE>, it means the end of the file has been reached.
+   * @return The logical line. If <code>null</code>, it means the end of the file has been reached.
+   * @throws IOException if an I/O error occurs while reading.
    */
   public String readLine() throws IOException {
     StringBuilder buf = new StringBuilder();
@@ -53,9 +59,10 @@ public class PSMakefileReader {
    * Reads a logical line from the makefile. A logical line may extend over several physical lines
    * when the continuation character (backslash) is used at the end of all but the last line.
    *
-   * @param buf The buffer to which the logical line will be appendend.
+   * @param buf The buffer to which the logical line will be appended.
    * @return int The number of physical lines read. If less than 0, it means that the end of file
    *     was reached.
+   * @throws IOException if an I/O error occurs while reading.
    */
   protected int readLogicalLine(StringBuilder buf) throws IOException {
     int numLines = 0;
@@ -83,6 +90,12 @@ public class PSMakefileReader {
     return numLines;
   }
 
+  /**
+   * Trims leading whitespace from the given line.
+   *
+   * @param line the line to trim, never <code>null</code>.
+   * @return the trimmed line, never <code>null</code>.
+   */
   protected static String leftTrim(String line) {
     int realStart = 0;
     final int len = line.length();

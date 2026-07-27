@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -104,19 +105,71 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
       }
 
       url = url + prepend + queryString;
+      // Cache getRequestRoot() so the validation branch and the
+      // internal/external dispatch below both see the same value
+      // (single-call semantics; per the review on this PR at line 124).
+      String requestRoot = PSServer.getRequestRoot();
+      boolean isInternal = url.startsWith(requestRoot);
       if (url.startsWith("../")) {
         // Rewrite as absolute to the server
-        url = PSServer.getRequestRoot() + url.substring(2);
+        url = requestRoot + url.substring(2);
+        isInternal = true;
       }
 
-      if (url.startsWith(PSServer.getRequestRoot())) {
+      // Validate the EFFECTIVE OUTBOUND target URL, not the raw request
+      // string. This is the data-flow ordering CodeQL's taint analysis
+      // needs to recognize the request as sanitized per specs/004-
+      // zero-code-scanning-alerts/tasks.md T037 and contracts/C2.
+      //
+      // For internal requests (../ rewrite or absolute path under
+      // requestRoot) the outbound target is forced to 127.0.0.1:
+      // PSServer.getListenerPort(); build that URL and validate it.
+      // Loopback is always allowed per URLValidationConfig regardless
+      // of port, so this passes the validator for every internal
+      // request regardless of the requestRoot hostname.
+      //
+      // For external requests the outbound target is the URL itself.
+      // The validator accepts the scheme, host, and port per
+      // URLValidationConfig; the path that flows into the URI is the
+      // same one the validator accepted.
+      // (per the review on this PR at line 127: avoids the regression
+      //  where PSServer.getRequestRoot resolves to a non-loopback host
+      //  on a non-standard listener port and is rejected by the validator.)
+      URL validatedUrl;
+      try {
+        if (isInternal) {
+          int internalPort = PSServer.getListenerPort();
+          int pathStart = url.indexOf('/', requestRoot.length());
+          String targetPath = pathStart >= 0 ? url.substring(pathStart) : "/";
+          URL outboundTarget = new URL(scheme, "127.0.0.1", internalPort, targetPath);
+          validatedUrl = URLValidation.validateURLString(outboundTarget.toString());
+        } else {
+          validatedUrl = URLValidation.validateURLString(url);
+        }
+      } catch (SecurityException e) {
+        log.error("URL validation failed for request: {}", PSExceptionUtils.getMessageForLog(e));
+        throw new PSExtensionProcessingException(0, "Invalid URL: " + e.getMessage());
+      }
+
+      if (isInternal) {
         internalRequest = true;
 
         host = "127.0.0.1";
         port = PSServer.getListenerPort();
 
         try {
-          requestUri = URI.create(scheme + "://" + host + ":" + port + url);
+          // Use the validated URL's protocol/path/query/ref; force the
+          // host/port to 127.0.0.1:PSServer.getListenerPort() since the
+          // relative-URL branch concatenates against requestRoot.
+          requestUri =
+              new URI(
+                  validatedUrl.getProtocol(),
+                  null,
+                  host,
+                  port,
+                  validatedUrl.getPath(),
+                  validatedUrl.getQuery(),
+                  validatedUrl.getRef());
 
           // This is an internal request so pass the jsessionid
           String sessionid = (String) PSRequestInfo.getRequestInfo(KEY_JSESSIONID);
@@ -142,34 +195,44 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
         }
       } else {
         try {
-          requestUri = URI.create(url);
-
-        } catch (IllegalArgumentException e) {
+          // Rebuild the URI from validated components. Protocol is forced
+          // to one of the two literals URLValidation allows (http/https)
+          // so the scheme component cannot carry residual taint from the
+          // raw request string. Host/path/query still come from the
+          // validated URL object that passed the SSRF checks (private
+          // ranges, metadata endpoints, dangerous protocols). See T037
+          // and contracts/C2; residual CodeQL java/ssrf is documented
+          // in .github/codeql/codeql-config.yml (alert #1064).
+          String safeProtocol =
+              "https".equalsIgnoreCase(validatedUrl.getProtocol()) ? "https" : "http";
+          requestUri =
+              new URI(
+                  safeProtocol,
+                  validatedUrl.getUserInfo(),
+                  validatedUrl.getHost(),
+                  validatedUrl.getPort(),
+                  validatedUrl.getPath(),
+                  validatedUrl.getQuery(),
+                  validatedUrl.getRef());
+        } catch (URISyntaxException e) {
           log.error(
-              "Error parsing supplied url: {} Error: {}",
+              "Error converting validated url to URI: {} Error: {}",
               url,
               PSExceptionUtils.getMessageForLog(e));
-          throw new RuntimeException("Error parsing supplied url:" + url, e);
+          throw new RuntimeException("Error converting validated url:" + url, e);
         }
       }
 
       String repr = "url = " + url + " user = " + user + " password = " + password;
       log.debug("Trying to get document with: {}", repr);
 
-      // Validate URL to prevent SSRF attacks (CWE-918)
-      if (!internalRequest) {
-        try {
-          URLValidation.validateURLString(url);
-        } catch (SecurityException e) {
-          log.error(
-              "URL validation failed for external request: {}",
-              PSExceptionUtils.getMessageForLog(e));
-          throw new PSExtensionProcessingException(0, "Invalid URL: " + e.getMessage());
-        }
-      }
-
       HttpClient client =
-          HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build();
+          HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build();
+      // codeql[java/ssrf] justification: requestUri is built only after
+      // URLValidation.validateURLString rejects private ranges, cloud
+      // metadata, and non-http(s) schemes. Host/path come from that
+      // validated URL; protocol is a safe literal. See alert #1064 and
+      // suppressions.md.
       HttpRequest.Builder requestBuilder = HttpRequest.newBuilder(requestUri).GET();
 
       if (!internalRequest && !StringUtils.isEmpty(user)) {
@@ -184,6 +247,17 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
             client.send(
                 requestBuilder.build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
         int statusCode = response.statusCode();
+
+        // Redirect.NEVER returns the 3xx response without following. Do not
+        // treat that as a soft null — fail closed so callers cannot silently
+        // continue with a missing document after a redirect (SSRF open-redirect
+        // pivot). Declared as PSExtensionProcessingException so the outer catch
+        // rethrows instead of returning null.
+        if (statusCode >= 300 && statusCode < 400) {
+          log.error("Remote redirect refused (SSRF hardening) url={} status={}", url, statusCode);
+          throw new PSExtensionProcessingException(
+              0, "Remote redirect refused for SSRF hardening: " + url + " status " + statusCode);
+        }
 
         if (statusCode != 200) {
           log.error("Remote request to url: {} failed with status code: {}", url, statusCode);
@@ -210,6 +284,9 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
         log.error("Fatal transport error: {}", PSExceptionUtils.getMessageForLog(e));
         throw new Exception(e);
       }
+    } catch (PSExtensionProcessingException e) {
+      // Fail closed: validation / redirect refusal must not become null.
+      throw e;
     } catch (Exception e) {
       log.debug("PSProxyQueryResource attempt failed. Returning null to caller.", e);
       return null;

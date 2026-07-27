@@ -16,13 +16,76 @@
  */
 
 /**
- * Main entry point for the modern UI bundle.
+ * Main entry for the modern UI bundle.
  *
- * <p>Importing this module initialises the bridge layer so that
- * {@code window.PercModernUI.mount()} is available for legacy pages.</p>
+ * <ul>
+ *   <li>Always registers {@code window.PercModernUI} for residual bridge embeds.</li>
+ *   <li>If {@code #perc-login-root} is present, boots the React Login front door.</li>
+ *   <li>If SPA root is present ({@code #perc-spa-root}, {@code #root}, {@code #perc-app-root}),
+ *       boots the authenticated App shell.</li>
+ * </ul>
  */
 
-// Initialise the bridge (registers on window.PercModernUI)
+import React from "react";
+import { createRoot } from "react-dom/client";
 import "./bridge";
+import { ensureModernStyles } from "./ensureModernStyles";
+import { LoginPage, readLoginBootstrap } from "./login";
+
+// Entry CSS is not auto-linked without an HTML entry — inject before any boot.
+ensureModernStyles();
+
+function bootLogin(): void {
+  const el = document.getElementById("perc-login-root");
+  if (!el) {
+    return;
+  }
+  const bootstrap = readLoginBootstrap();
+  createRoot(el).render(React.createElement(LoginPage, { bootstrap }));
+  console.info("[PercModernUI] Login SPA mounted.");
+}
+
+function findSpaRoot(): HTMLElement | null {
+  return (
+    document.getElementById("perc-spa-root") ??
+    document.getElementById("root") ??
+    document.getElementById("perc-app-root")
+  );
+}
+
+function bootSpa(): void {
+  const el = findSpaRoot();
+  if (!el) {
+    return;
+  }
+  void import("./app/main")
+    .then((m) => {
+      m.boot(el);
+    })
+    .catch((err) => {
+      console.error("[PercModernUI] Failed to load SPA app module", err);
+      el.setAttribute("data-perc-spa-boot-error", "1");
+      el.textContent =
+        "Unable to load the modern UI. Check the browser console or reload the page.";
+    });
+}
+
+function boot(): void {
+  if (document.getElementById("perc-login-root")) {
+    bootLogin();
+    return;
+  }
+  if (findSpaRoot()) {
+    bootSpa();
+    return;
+  }
+  console.info("[PercModernUI] bridge ready (no SPA root)");
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}
 
 console.info("[PercModernUI] Modern UI bridge loaded.");

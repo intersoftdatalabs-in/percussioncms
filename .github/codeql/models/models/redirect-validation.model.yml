@@ -1,0 +1,30 @@
+# Models PSRedirectValidation as a url-redirection barrier (T051).
+# Runtime: validateRedirectUrl / validateInternalRedirectUrl reject open redirects,
+# protocol-relative URLs, javascript:/data: schemes, and path traversal.
+extensions:
+  - addsTo:
+      pack: codeql/java-all
+      extensible: barrierModel
+    data:
+      - [
+          "com.percussion.security.utils",
+          "PSRedirectValidation",
+          false,
+          "validateRedirectUrl",
+          "(String,java.util.Set)",
+          "",
+          "ReturnValue",
+          "url-redirection",
+          "manual",
+        ]
+      - [
+          "com.percussion.security.utils",
+          "PSRedirectValidation",
+          false,
+          "validateInternalRedirectUrl",
+          "(String)",
+          "",
+          "ReturnValue",
+          "url-redirection",
+          "manual",
+        ]

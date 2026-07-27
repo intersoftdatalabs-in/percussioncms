@@ -17,9 +17,11 @@
 package com.percussion.xml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -395,5 +397,37 @@ public class PSXmlTreeWalkerTest {
     String test = PSXmlTreeWalker.convertToXmlEntities("This is a test \uD83E\uDD21");
 
     assertEquals("This is a test &#129313;", test);
+  }
+
+  /**
+   * Regression test: the JDK XSLTC transformer (Java 9+) emits CRLF line separators and an extra
+   * trailing newline after the closing element when INDENT=yes. The historical Saxon serializer
+   * used LF only and did not add a trailing newline, and a number of unit tests across the codebase
+   * rely on that exact output. This guards PSXmlTreeWalker.write against regressing to the JDK
+   * XSLTC default behavior.
+   */
+  @Test
+  public void testWriteLineEndingAndTrailingNewline() throws IOException {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(doc, "Root");
+    Element child = PSXmlDocumentBuilder.addEmptyElement(doc, root, "Child");
+    PSXmlDocumentBuilder.addElement(doc, child, "Value", "v");
+
+    StringWriter w = new StringWriter();
+    new PSXmlTreeWalker(doc).write(w);
+
+    String out = w.toString();
+    // No CRLF should leak through; everything should be LF.
+    assertEquals(-1, out.indexOf("\r"), "Output should not contain CR characters");
+    // The output should end with a single LF after the closing element, not two.
+    assertTrue(
+        out.endsWith("</Root>\n"),
+        "Output should end with '</Root>\\n', was: " + describeTail(out));
+    assertFalse(out.endsWith("</Root>\n\n"), "Output should not contain a double trailing newline");
+  }
+
+  private static String describeTail(String s) {
+    String tail = s.length() <= 20 ? s : s.substring(s.length() - 20);
+    return tail.replace("\n", "\\n");
   }
 }

@@ -79,7 +79,7 @@
 
     <!-- Themes never should be concatenated or packed -->
     <link rel="stylesheet" type="text/css" href="../themes/smoothness/jquery-ui-1.8.9.custom.css"/>
-    <link rel="stylesheet" type="text/css" href="/cm/pages/app/js/legacy/profiles/3x/libraries/fontawesome/css/all.css"/>
+    <link rel="stylesheet" type="text/css" href="/cm/jslib/profiles/3x/libraries/fontawesome/css/all.css"/>
     <link rel="stylesheet" type="text/css" href="/cm/widgets/repository/PercBlogsGadget/PercNewBlogDialog.css"/>
     <script src="/Rhythmyx/tmx/tmx.jsp?mode=js&amp;prefix=perc.ui.&amp;sys_lang=<%= locale%>"></script>
     <script src="/JavaScriptServlet"></script>
@@ -180,9 +180,11 @@
             var fakeData = <%=fakeData%>;
             var trafficScale = <%=trafficScale%>;
 
-            //Finder initialization code
+            //Finder initialization code (US6: removed $.Percussion.PercFinderView();
+            //       the modern React ContentExplorerShell is mounted via the
+            //       PercModernUI bridge below; the legacy miller-column Finder
+            //       has been hard-cut from the primary nav per SC-006).
             $(document).ready(function () {
-                $.Percussion.PercFinderView();
 
                 // update bottom DIV on window resize
                 window.onresize = function () {
@@ -226,9 +228,42 @@
         <jsp:param name="mainNavTab" value="dashboard"/>
     </jsp:include>
     <div class="ui-layout-north" style="padding: 0px 0px; overflow: visible">
-        <jsp:include page="includes/finder.jsp" flush="true">
-            <jsp:param name="openedObject" value="PERC_SITE"/>
-        </jsp:include>
+        <%-- US6 (T031): legacy miller-column Finder include replaced with
+             a modern ContentExplorerShell mount target. The Finder
+             include file remains in the source tree for shells that
+             haven't been hard-cut yet (none, after this commit). --%>
+        <div id="perc-dashboard-explorer"
+             data-testid="perc-dashboard-explorer"
+             style="border: 1px solid #ddd; background: #fff;"></div>
+        <script>
+            (function () {
+                // US6 (T031): self-load the modern bridge if a parent page
+                // didn't already include it. The bridge is loaded exactly
+                // once per page; the cb= cache-buster ensures the browser
+                // picks up the new bundle on the first paint of each
+                // iter-dev cycle.
+                if (!document.querySelector('script[src*="perc-modern-ui.js"]')) {
+                    var s = document.createElement("script");
+                    s.type = "module";
+                    s.src = "/cm/modern/assets/perc-modern-ui.js?cb=" + Date.now();
+                    document.head.appendChild(s);
+                }
+                                function mountExplorer() {
+                    if (!window.PercModernUI || typeof window.PercModernUI.mount !== "function") {
+                        window.setTimeout(mountExplorer, 50);
+                        return;
+                    }
+                    window.PercModernUI.mount("perc-dashboard-explorer", "ContentExplorerShell", {
+                        initialPath: ""
+                    });
+                }
+                if (document.readyState === "loading") {
+                    document.addEventListener("DOMContentLoaded", mountExplorer);
+                } else {
+                    mountExplorer();
+                }
+            })();
+        </script>
     </div>
 </div>
 
@@ -249,6 +284,7 @@
                     <option value="all"><i18n:message key = "perc.ui.dashboard@View All"/></option>
                     <option selected="true" value="percussion">Percussion</option>
                     <option value="custom"><i18n:message key = "perc.ui.dashboard@Custom"/></option>
+                    <option value="deprecated"><i18n:message key = "perc.ui.dashboard@Deprecated" /></option>
                 </select>
                 <label><i18n:message key = "perc.ui.dashboard@Category"/></label>
                 <select class="perc-gadget-category" tabindex="0">

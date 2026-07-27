@@ -20,12 +20,14 @@ import com.percussion.utils.io.PSReaderInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import javax.jcr.Binary;
 import javax.jcr.Node;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
@@ -57,6 +59,16 @@ public class PSValueFactory implements ValueFactory {
     }
     if (data instanceof Value) {
       return (Value) data;
+    }
+    if (data instanceof Binary) {
+      try {
+        return ms_fact.createValue((Binary) data);
+      } catch (Exception e) {
+        throw new ValueFormatException("Problem creating binary value", e);
+      }
+    }
+    if (data instanceof BigDecimal) {
+      return ms_fact.createValue((BigDecimal) data);
     }
     if (data instanceof Number) {
       if (data instanceof Double || data instanceof Float) {
@@ -167,5 +179,37 @@ public class PSValueFactory implements ValueFactory {
 
   public Value createValue(Node arg0) throws RepositoryException {
     return new PSReferenceValue(arg0);
+  }
+
+  @Override
+  public Binary createBinary(InputStream stream) throws RepositoryException {
+    return new PSBinary(stream);
+  }
+
+  @Override
+  public Value createValue(Binary binary) {
+    if (binary == null) {
+      throw new IllegalArgumentException("binary may not be null");
+    }
+    try {
+      return createValue(binary.getStream());
+    } catch (RepositoryException e) {
+      // Match factory pattern: binary read failures surface as runtime for non-throwing override
+      throw new IllegalStateException("Unable to create value from binary", e);
+    }
+  }
+
+  @Override
+  public Value createValue(BigDecimal decimal) {
+    if (decimal == null) {
+      throw new IllegalArgumentException("decimal may not be null");
+    }
+    return createValue(decimal.doubleValue());
+  }
+
+  @Override
+  public Value createValue(Node node, boolean weak) throws RepositoryException {
+    // Product content projection does not distinguish weak references; treat as strong reference.
+    return createValue(node);
   }
 }

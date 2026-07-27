@@ -32,11 +32,14 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>com.percussion</groupId>
-            <artifactId>servlet-utils</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
+        <!-- servlet-utils must NOT be on the Jetty server classloader (defaults/lib/perc).
+             It references jakarta.servlet.*; that API lives on the EE11 environment
+             classloader (child of server). Parent classloaders cannot see child types,
+             which caused:
+               NoClassDefFoundError: jakarta/servlet/ServletResponse
+             when PSContextLoaderListener called PSServletUtils.initialize().
+             Packaged into Rhythmyx WEB-INF/lib via explicit WebUI dependency
+             (perc-system keeps servlet-utils as provided). -->
         <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derbyclient</artifactId>

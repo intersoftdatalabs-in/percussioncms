@@ -30,15 +30,31 @@ import javax.swing.ImageIcon;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Helper class that provides shared utilities for the Content Explorer, including resource loading,
+ * default parameter initialization, and image icon resolution.
+ */
 public class PSContentExplorerHelper {
-  static Logger log = LogManager.getLogger(PSContentExplorerHeader.class);
 
+  /** Logger for this class. */
+  private static final Logger log = LogManager.getLogger(PSContentExplorerHelper.class);
+
+  /** List of recognized HTML file extensions. */
   public static List<String> htmExt = Arrays.asList("html", "htm");
 
+  /** List of recognized Excel file extensions. */
   public static List<String> xlsExt = Arrays.asList("xls");
 
   private static ResourceBundle sm_res = null;
 
+  /** Constructs a new helper instance. */
+  public PSContentExplorerHelper() {}
+
+  /**
+   * Gets the code base URL for the Content Explorer applet.
+   *
+   * @return the code base URL, or <code>null</code> if it could not be constructed.
+   */
   public URL getCodeBase() {
     URL url = null;
     try {
@@ -53,6 +69,11 @@ public class PSContentExplorerHelper {
     return url;
   }
 
+  /**
+   * Gets the shared resource bundle for the Content Explorer UI strings.
+   *
+   * @return the resource bundle, may be <code>null</code> if the bundle is not found.
+   */
   public static ResourceBundle getResources() {
     try {
       if (sm_res == null)
@@ -66,6 +87,13 @@ public class PSContentExplorerHelper {
     return sm_res;
   }
 
+  /**
+   * Gets an image icon for the given class using the main icon path from the resource bundle.
+   *
+   * @param clazz the class whose resource path is used to locate the icon, assumed not <code>null
+   *     </code>.
+   * @return the loaded image icon, or <code>null</code> if it cannot be loaded.
+   */
   public static ImageIcon getImageIcon(Class clazz) {
 
     ImageIcon icon;
@@ -78,6 +106,11 @@ public class PSContentExplorerHelper {
     return icon;
   }
 
+  /**
+   * Initializes the default applet parameters for the Content Explorer view.
+   *
+   * @return a map of default parameter names to values, never <code>null</code>.
+   */
   public static Map<String, String> initializeDefaultParameters() {
     Map<String, String> parameters = new HashMap<String, String>();
 
@@ -117,6 +150,12 @@ public class PSContentExplorerHelper {
     return parameters;
   }
 
+  /**
+   * Initializes the parameters specific to the Dependency Tree view.
+   *
+   * @param parameters the existing parameter map to update, assumed not <code>null</code>.
+   * @return the updated parameter map, never <code>null</code>.
+   */
   public static Map<String, String> initializeDTParameters(Map<String, String> parameters) {
 
     parameters.put("VIEW", "DT");
@@ -133,6 +172,15 @@ public class PSContentExplorerHelper {
     return parameters;
   }
 
+  /**
+   * Initializes the parameters specific to the Item Assembly view, derived from the supplied base
+   * parameter map and the action URL.
+   *
+   * @param parameters the existing parameter map to update, assumed not <code>null</code>.
+   * @param actionUrl the action URL whose query string, if any, is appended to the navigation URL,
+   *     may be <code>null</code> or empty.
+   * @return the updated parameter map, never <code>null</code>.
+   */
   public static Map<String, String> initializeIAParameters(
       Map<String, String> parameters, String actionUrl) {
     String queryParams = "";

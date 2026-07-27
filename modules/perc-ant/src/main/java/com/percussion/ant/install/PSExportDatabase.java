@@ -45,33 +45,11 @@ import java.util.stream.Collectors;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-/**
- * This class creates backup of specified tables. If backup of the table is successfully created,
- * then it may drop the original table if <code>dropTables</code> is <code>true</code>. Create
- * backup table name by appending <code>suffix</code> to table name. <br>
- * Example Usage: <br>
- *
- * <pre>
- *
- * First set the taskdef:
- *
- *  <code>
- *  &lt;taskdef name="createTableBackupAction"
- *              class="com.percussion.ant.install.PSCreateTableBackupAction"
- *              classpathref="INSTALL.CLASSPATH"/&gt;
- *  </code>
- *
- * Now use the task to create a backup of the specified table(s).
- *
- *  <code>
- *  &lt;createTableBackupAction dropTables="false"
- *                  suffix="_BAK"
- *                  tables="TABLE1,TABLE2"/&gt;
- *  </code>
- *
- * </pre>
- */
+/** Exports database table definitions and data to XML files. */
 public class PSExportDatabase extends PSAction {
+  /** Creates a new database export task. */
+  public PSExportDatabase() {}
+
   private static final String ERROR = "ERROR :";
 
   // see base class
@@ -227,18 +205,38 @@ public class PSExportDatabase extends PSAction {
     this.tableIncludes = convertToArray(tableExcludes);
   }
 
+  /**
+   * Gets the table definition file path.
+   *
+   * @return the table definition file path, never <code>null</code>
+   */
   public String getTableDefFile() {
     return tableDefFile;
   }
 
+  /**
+   * Gets the table data file path.
+   *
+   * @return the table data file path, never <code>null</code>
+   */
   public String getTableDataFile() {
     return tableDataFile;
   }
 
+  /**
+   * Sets the table definition file path.
+   *
+   * @param tableDefFile the table definition file path, never <code>null</code>
+   */
   public void setTableDefFile(String tableDefFile) {
     this.tableDefFile = tableDefFile;
   }
 
+  /**
+   * Sets the table data file path.
+   *
+   * @param tableDataFile the table data file path, never <code>null</code>
+   */
   public void setTableDataFile(String tableDataFile) {
     this.tableDataFile = tableDataFile;
   }

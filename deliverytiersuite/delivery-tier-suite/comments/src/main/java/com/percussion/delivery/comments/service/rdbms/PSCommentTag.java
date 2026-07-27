@@ -29,6 +29,9 @@ import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
 
 /**
+ * Represents a tag attached to a comment. Tags are stored in their own table and linked back to a
+ * {@link PSComment} via a many-to-one relationship.
+ *
  * @author miltonpividori
  */
 @Entity
@@ -52,28 +55,59 @@ public class PSCommentTag {
 
   @Basic private String name;
 
+  /** Default no-arg constructor required by Hibernate. */
   public PSCommentTag() {}
 
+  /**
+   * Creates a new tag with the given name.
+   *
+   * @param name the tag name, must not be {@code null}.
+   */
   public PSCommentTag(String name) {
     this.name = name;
   }
 
+  /**
+   * Gets the unique id assigned to this tag.
+   *
+   * @return the id.
+   */
   public long getId() {
     return id;
   }
 
+  /**
+   * Gets the comment this tag is attached to.
+   *
+   * @return the parent {@link PSComment}.
+   */
   public PSComment getComment() {
     return comment;
   }
 
+  /**
+   * Sets the comment this tag is attached to.
+   *
+   * @param comment the parent {@link PSComment}.
+   */
   public void setComment(PSComment comment) {
     this.comment = comment;
   }
 
+  /**
+   * Gets the tag name.
+   *
+   * @return the tag name.
+   */
   public String getName() {
     return name;
   }
 
+  /**
+   * Sets the tag name.
+   *
+   * @param name the tag name.
+   */
   public void setName(String name) {
     this.name = name;
   }

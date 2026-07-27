@@ -21,6 +21,7 @@ import static org.springframework.util.StringUtils.trimTrailingCharacter;
 
 import com.percussion.designmanagement.service.IPSFileSystemService;
 import com.percussion.pathmanagement.service.IPSPathService;
+import com.percussion.security.io.PSPathInjectionGuard;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -131,20 +132,113 @@ public class PSFileSystemService implements IPSFileSystemService {
     return rootDirectory;
   }
 
+  /**
+   * Validates a user-supplied path against the CWE-22 path-traversal defense. The defense has two
+   * parts:
+   *
+   * <ol>
+   *   <li>Every path segment (delimited by {@code /} or {@code \}) is checked against the
+   *       traversal-marker contract: segments equal to {@code .} or {@code ..} are rejected. This
+   *       closes the leaf-only bypass flagged by the CRITICAL review thread on PR #1210: a payload
+   *       like {@code themes/../../etc/passwd} yields a leaf of {@code passwd} that passes a
+   *       name-only check, yet the intermediate {@code ..} segments resolve the file outside the
+   *       intended root. Checking every segment rejects this payload before the
+   *       canonical-containment step even runs.
+   *   <li>The resolved canonical path is verified to be contained within the server-controlled
+   *       {@link #getRootDirectory() rootDirectory} (the configured web_resources root).
+   *       Containment is checked against the trusted root, NOT against an input-derived parent: the
+   *       latter would be a tautology that still permits traversal (a payload whose {@code ..}
+   *       segments live in the parent portion canonicalizes outside the parent and the check would
+   *       pass against the traversed parent). The trusted-root check closes this bypass as well.
+   * </ol>
+   *
+   * This method is the single sanitizer boundary for the file-system service CWE-22 defense (per
+   * T043d / PR #1210). It is called from every public entry point that accepts a user-supplied path
+   * ({@link #getChildren}, {@link #getFile}, {@link #addFolder}, {@link #renameFolder}, {@link
+   * #deleteFolder}, {@link #deleteFile}, {@link #validateFileUpload}); the downstream {@code new
+   * File(root, path)} constructions in those entry points are protected by this call.
+   *
+   * @param path a user-supplied path (relative or absolute), never {@code null}
+   * @throws IllegalArgumentException if any segment is {@code .} or {@code ..}, if the path
+   *     contains a NUL byte, or if the resolved canonical path escapes the configured root
+   *     directory
+   */
+  private void validatePath(String path) {
+    if (path == null) {
+      throw new IllegalArgumentException("path must not be null");
+    }
+    if (path.indexOf('\0') >= 0) {
+      throw new IllegalArgumentException("path must not contain a NUL byte");
+    }
+    String[] segments = path.split("[/\\\\]");
+    for (String segment : segments) {
+      if ("..".equals(segment) || ".".equals(segment)) {
+        throw new IllegalArgumentException(
+            "path segment '"
+                + segment
+                + "' is not allowed in path '"
+                + path
+                + "' (path-traversal attempt blocked)");
+      }
+    }
+    // codeql[java/path-injection] reason: path is a user-supplied string.
+    // This method is the single sanitizer boundary for the file-system
+    // service CWE-22 defense (T043d / PR #1210). The segment-marker
+    // check above rejects every `.`/`..` segment in the input, and
+    // the canonical-path containment check below verifies the resolved
+    // path is contained within the server-controlled rootDirectory.
+    // Containment is checked against the trusted root, not against an
+    // input-derived parent, so traversal payloads like
+    // "themes/../../etc/passwd" (which canonicalize outside the root)
+    // are rejected. Absolute inputs are resolved as-is (not re-rooted
+    // under rootDirectory): on Unix, `new File(root, "/etc/passwd")`
+    // re-parents to root+"/etc/passwd", which would hide absolute-path
+    // escapes; matching PSPathInjectionGuard.requireUnderBase.
+    // The downstream new File(root, path) constructions in the public
+    // entry points are all preceded by a validatePath call and inherit
+    // this sanitizer.
+    File candidate = new File(path);
+    File resolved = candidate.isAbsolute() ? candidate : new File(getRootDirectory(), path);
+    String canonical;
+    String rootCanonical;
+    try {
+      canonical = resolved.getCanonicalPath();
+      rootCanonical = getRootDirectory().getCanonicalPath();
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Failed to resolve canonical path for input: " + path, e);
+    }
+    // Normalize separators so Windows prefix checks are reliable
+    // (same approach as PSPathInjectionGuard.requireUnderBase).
+    String canonicalNorm = canonical.replace('\\', '/');
+    String rootNorm = rootCanonical.replace('\\', '/');
+    String rootWithSep = rootNorm.endsWith("/") ? rootNorm : rootNorm + "/";
+    if (!canonicalNorm.equals(rootNorm) && !canonicalNorm.startsWith(rootWithSep)) {
+      throw new IllegalArgumentException(
+          "Resolved path '"
+              + canonical
+              + "' is not under root '"
+              + rootCanonical
+              + "' (path-traversal attempt blocked)");
+    }
+  }
+
   /*
    * (non-Javadoc)
    * @see com.percussion.designmanagement.service.IPSFileSystemService#getChildren(java.lang.String)
    */
   @Override
   public List<File> getChildren(String path) throws FileNotFoundException {
+    validatePath(path);
     var root = getRootDirectory();
-    var pathFile = new File(root, path);
+    // After validatePath, resolve under trusted root (CodeQL residual after barrier)
+    String rel = path.startsWith("/") ? path.substring(1) : path;
+    var pathFile = rel.isEmpty() ? root : PSPathInjectionGuard.requireUnderBase(root, rel);
 
-    if (!pathFile.exists()) {
+    if (!pathFile.exists()) { // codeql[java/path-injection]
       throw new FileNotFoundException("The path doesn't exist: " + path);
     }
 
-    var children = pathFile.listFiles();
+    var children = pathFile.listFiles(); // codeql[java/path-injection]
     if (children == null) {
       return List.of();
     }
@@ -169,7 +263,13 @@ public class PSFileSystemService implements IPSFileSystemService {
   @Override
   public File getFile(String path) {
     Validate.notNull(path, "path must not be null");
-    return new File(getRootDirectory(), path);
+    validatePath(path);
+    String rel = path.startsWith("/") ? path.substring(1) : path;
+    if (rel.isEmpty()) {
+      return getRootDirectory();
+    }
+    return PSPathInjectionGuard.requireUnderBase(
+        getRootDirectory(), rel); // codeql[java/path-injection]
   }
 
   /* (non-Javadoc)
@@ -178,6 +278,7 @@ public class PSFileSystemService implements IPSFileSystemService {
   @Override
   public File addFolder(String newFolderPath) throws IOException {
     Validate.notNull(newFolderPath, "newFolderPath cannot be null");
+    validatePath(newFolderPath);
     var folderPath = getFile(newFolderPath);
 
     if (folderPath.isFile()) {
@@ -227,10 +328,22 @@ public class PSFileSystemService implements IPSFileSystemService {
       throws PSFolderOperationException {
     Validate.notNull(oldFolderPath, "oldFolderPath cannot be null");
     Validate.notNull(newFolderName, "newFolderName cannot be null");
+    validatePath(oldFolderPath);
 
     var oldFolder = getFile(oldFolderPath);
     var parentFolder = oldFolder.getParentFile();
 
+    // The new folder name is a single-segment value, not a multi-segment
+    // path. The existing per-name checks below (containsInvalidChars,
+    // isReservedFilename) already reject every traversal payload:
+    //   - containsInvalidChars rejects every path separator and the
+    //     reserved characters ('/', '\\', ':', '*', '?', '"', '<', '>', '|')
+    //     with the specific PSInvalidCharacterInFolderNameException.
+    //   - isReservedFilename rejects `.` and `..` (they are members of
+    //     RESERVED_FILENAMES) with the specific PSInvalidFolderNameException.
+    // Calling requireSafeFileName(newFolderName) here would duplicate both
+    // checks and downgrade the exception type to IllegalArgumentException,
+    // losing the domain-specific signal callers depend on.
     if (containsInvalidChars(newFolderName)) {
       throw new PSInvalidCharacterInFolderNameException(getInvalidCharsAsString());
     }
@@ -244,8 +357,9 @@ public class PSFileSystemService implements IPSFileSystemService {
       throw new PSExistingFolderException();
     }
 
-    var newFolder = new File(parentFolder.getAbsolutePath(), newFolderName);
-    oldFolder.renameTo(newFolder);
+    var newFolder =
+        new File(parentFolder.getAbsolutePath(), newFolderName); // codeql[java/path-injection]
+    oldFolder.renameTo(newFolder); // codeql[java/path-injection]
 
     return newFolder;
   }
@@ -280,8 +394,9 @@ public class PSFileSystemService implements IPSFileSystemService {
   @Override
   public void deleteFolder(String folderPath) throws IOException {
     Validate.notNull(folderPath, "path cannot be null");
+    validatePath(folderPath);
     var fileToDelete = getFile(folderPath);
-    FileUtils.deleteDirectory(fileToDelete);
+    FileUtils.deleteDirectory(fileToDelete); // codeql[java/path-injection]
   }
 
   /*
@@ -294,10 +409,11 @@ public class PSFileSystemService implements IPSFileSystemService {
   @Override
   public void deleteFile(String filePath) throws PSFileOperationException {
     Validate.notNull(filePath, "path cannot be null");
+    validatePath(filePath);
     var fileToDelete = getFile(filePath);
-    if (fileToDelete.exists()) {
+    if (fileToDelete.exists()) { // codeql[java/path-injection]
       try {
-        Files.delete(fileToDelete.toPath());
+        Files.delete(fileToDelete.toPath()); // codeql[java/path-injection]
       } catch (IOException e) {
         throw new PSFileOperationException(
             "Could not delete the file '" + fileToDelete.getName() + "'. " + e.getMessage());
@@ -336,6 +452,7 @@ public class PSFileSystemService implements IPSFileSystemService {
    */
   @Override
   public void validateFileUpload(String path) throws PSFileOperationException {
+    validatePath(path);
     var file = getFile(path);
     var parentFolder = file.getParentFile();
 

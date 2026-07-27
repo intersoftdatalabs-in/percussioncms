@@ -19,18 +19,22 @@ package com.percussion.security.xml;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
+import java.io.InputStream;
 import java.io.StringReader;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.transform.Source;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
+import org.xml.sax.XMLReader;
 
 /** Utility class for securing XML parses. */
 public class PSSecureXMLUtils {
@@ -51,20 +55,24 @@ public class PSSecureXMLUtils {
   public static final String SAX_GENERAL_EXTERNAL_ENTITIES_FEATURE =
       "http://xml.org/sax/features/external-general-entities";
 
-  // Set to true
+  /**
+   * Xerces / JDK feature IDs for external entities. Note: these are the real
+   * Apache feature URIs — not the xerces.apache.org documentation page URLs that
+   * were previously used and always produced "feature is not recognized" noise.
+   */
   public static final String X1_GENERAL_EXTERNAL_ENTITIES_FEATURE =
-      "http://xerces.apache.org/xerces-j/features.html#external-general-entities";
+      "http://apache.org/xml/features/external-general-entities";
 
-  // Set to true
+  /** Alias retained for callers; same URI as {@link #X1_GENERAL_EXTERNAL_ENTITIES_FEATURE}. */
   public static final String X2_GENERAL_EXTERNAL_ENTITIES_FEATURE =
-      "http://xerces.apache.org/xerces2-j/features.html#external-general-entities";
+      X1_GENERAL_EXTERNAL_ENTITIES_FEATURE;
 
-  // false
   public static final String X1_EXTERNAL_PARAMETER_ENTITIES_FEATURE =
-      "http://xerces.apache.org/xerces-j/features.html#external-parameter-entities";
+      "http://apache.org/xml/features/external-parameter-entities";
 
+  /** Alias retained for callers; same URI as {@link #X1_EXTERNAL_PARAMETER_ENTITIES_FEATURE}. */
   public static final String X2_EXTERNAL_PARAMETER_ENTITIES_FEATURE =
-      "http://xerces.apache.org/xerces2-j/features.html#external-parameter-entities";
+      X1_EXTERNAL_PARAMETER_ENTITIES_FEATURE;
 
   public static final String SAX_EXTERNAL_PARAMETER_ENTITIES_FEATURE =
       "http://xml.org/sax/features/external-parameter-entities";
@@ -416,6 +424,71 @@ public class PSSecureXMLUtils {
    */
   public static InputSource getNoOpSource() {
     return new InputSource(new StringReader(""));
+  }
+
+  /**
+   * Returns a {@link Source} backed by a secured SAX parser for use with JAXB {@code
+   * Unmarshaller.unmarshal(Source)}. External entity declarations are rejected and external DTDs
+   * are disabled at the parser level, preventing XXE (CWE-611) regardless of the JAXB default
+   * configuration.
+   *
+   * <p>Default security options (from {@link PSXmlSecurityOptions#secure()}): DTDs disabled,
+   * external entities disabled, external DTD references disabled, secure processing on. Callers
+   * that need DTDs (e.g., legacy XSD imports) can pass a custom {@link PSXmlSecurityOptions} to the
+   * overload below.
+   *
+   * @param inputStream the XML input stream; assumed not {@code null}
+   * @return a SAXSource backed by a secured XMLReader
+   * @throws Exception if the secured SAX parser cannot be constructed
+   */
+  public static Source getSecuredSaxSource(InputStream inputStream) throws Exception {
+    return getSecuredSaxSource(inputStream, PSXmlSecurityOptions.secure());
+  }
+
+  /**
+   * Returns a {@link Source} backed by a secured SAX parser for use with JAXB {@code
+   * Unmarshaller.unmarshal(Source)}.
+   *
+   * @param inputStream the XML input stream; assumed not {@code null}
+   * @param options the security options to apply
+   * @return a SAXSource backed by a secured XMLReader
+   * @throws Exception if the secured SAX parser cannot be constructed
+   */
+  public static Source getSecuredSaxSource(InputStream inputStream, PSXmlSecurityOptions options)
+      throws Exception {
+    SAXParserFactory spf = getSecuredSaxParserFactory(options);
+    XMLReader xmlReader = spf.newSAXParser().getXMLReader();
+
+    // Defense-in-depth: explicitly set the XXE-prevention features on the
+    // XMLReader itself, in addition to the SAXParserFactory. CodeQL's
+    // taint analysis does not always recognize the feature propagation
+    // from SAXParserFactory -> SAXParser -> XMLReader; setting the
+    // features directly on the reader makes the security guarantees
+    // visible on the very object that JAXB will use. Each feature is
+    // wrapped in try/catch for the same "unsupported feature is logged
+    // at DEBUG" semantics as the factory.
+    setFeatureSafe(xmlReader, DISALLOW_DOCTYPES_FEATURE, true /* always disallow */);
+    setFeatureSafe(xmlReader, SAX_GENERAL_EXTERNAL_ENTITIES_FEATURE, false);
+    setFeatureSafe(xmlReader, X1_GENERAL_EXTERNAL_ENTITIES_FEATURE, false);
+    setFeatureSafe(xmlReader, X1_EXTERNAL_PARAMETER_ENTITIES_FEATURE, false);
+    setFeatureSafe(xmlReader, X2_EXTERNAL_PARAMETER_ENTITIES_FEATURE, false);
+    setFeatureSafe(xmlReader, SAX_EXTERNAL_PARAMETER_ENTITIES_FEATURE, false);
+    setFeatureSafe(xmlReader, LOAD_EXTERNAL_DTD, options.isEnableExternalDtdReferences());
+
+    InputSource inputSource = new InputSource(inputStream);
+    return new SAXSource(xmlReader, inputSource);
+  }
+
+  /**
+   * Safely set a SAX feature on an {@link XMLReader}, logging (but otherwise ignoring) any
+   * unrecognized/unsupported feature per the existing factory-style handling.
+   */
+  private static void setFeatureSafe(XMLReader xmlReader, String feature, boolean value) {
+    try {
+      xmlReader.setFeature(feature, value);
+    } catch (SAXNotRecognizedException | SAXNotSupportedException e) {
+      log.debug(UNSUPPORTED_FEATURE_WARN, feature);
+    }
   }
 
   /**

@@ -60,6 +60,9 @@ import org.apache.tools.ant.taskdefs.condition.Condition;
  * </pre>
  */
 public class PSVersionBuildNumberProdCondition extends PSAction implements Condition {
+  /** Creates a new version build number production condition. */
+  public PSVersionBuildNumberProdCondition() {}
+
   /* (non-Javadoc)
    * @see org.apache.tools.ant.taskdefs.condition.Condition#eval()
    */

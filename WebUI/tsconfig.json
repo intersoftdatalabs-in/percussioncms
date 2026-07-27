@@ -17,8 +17,16 @@
     "rootDir": "src/main/ts",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/main/ts/*"]
-    }
+      "@/*": ["src/main/ts/*"],
+      "react": ["src/main/frontend/node_modules/@types/react"],
+      "react-dom": ["src/main/frontend/node_modules/@types/react-dom"],
+      "react/jsx-runtime": [
+        "src/main/frontend/node_modules/@types/react/jsx-runtime"
+      ],
+      "react-dom/*": ["src/main/frontend/node_modules/@types/react-dom/*"],
+      "*": ["src/main/frontend/node_modules/*"]
+    },
+    "typeRoots": ["src/main/frontend/node_modules/@types"]
   },
   "include": ["src/main/ts"],
   "exclude": ["node_modules", "war", "target"]

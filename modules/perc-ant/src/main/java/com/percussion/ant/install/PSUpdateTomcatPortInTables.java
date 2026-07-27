@@ -22,6 +22,9 @@ import java.util.regex.Pattern;
 
 /** See super class */
 public class PSUpdateTomcatPortInTables extends PSExecSQLStmt {
+  /** Creates a new Tomcat port update task. */
+  public PSUpdateTomcatPortInTables() {}
+
   // see base class
   @Override
   public void execute() {

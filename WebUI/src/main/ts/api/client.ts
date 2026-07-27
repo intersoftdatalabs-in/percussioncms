@@ -19,9 +19,11 @@
  * Typed fetch wrapper for Percussion CMS REST APIs.
  *
  * <p>Every request automatically includes the OWASP CSRFGuard token (if
- * available) and sends/receives JSON by default.</p>
+ * available) and sends/receives JSON by default. Endpoints that return
+ * {@code text/plain} (e.g. widgetbuilder /active) are parsed as text.</p>
  */
 
+import { redirectToLoginOnUnauthorized } from "../app/auth/sessionHandlers";
 import { getCsrfToken } from "./csrf";
 
 export interface ApiError {
@@ -30,12 +32,32 @@ export interface ApiError {
   body: unknown;
 }
 
-function buildHeaders(extra: HeadersInit = {}): Headers {
+/**
+ * Thrown after a mid-session 401 has already started navigation to React Login.
+ * Callers should not surface this as a normal API failure (toasts / form errors).
+ */
+export class SessionRedirectError extends Error {
+  readonly status = 401;
+  constructor(message = "Session expired; redirecting to login") {
+    super(message);
+    this.name = "SessionRedirectError";
+  }
+}
+
+/** True when the error is a terminal session redirect (page is navigating away). */
+export function isSessionRedirectError(err: unknown): boolean {
+  return err instanceof SessionRedirectError;
+}
+
+function buildHeaders(extra: HeadersInit = {}, preferJson = true): Headers {
   const headers = new Headers(extra);
-  if (!headers.has("Content-Type")) {
+  if (!headers.has("Content-Type") && preferJson) {
     headers.set("Content-Type", "application/json");
   }
-  headers.set("Accept", "application/json");
+  // Accept both — some endpoints are TEXT_PLAIN (boolean flags)
+  if (!headers.has("Accept")) {
+    headers.set("Accept", "application/json, text/plain, */*");
+  }
 
   const csrf = getCsrfToken();
   if (csrf) {
@@ -44,13 +66,41 @@ function buildHeaders(extra: HeadersInit = {}): Headers {
   return headers;
 }
 
+async function parseBody(response: Response): Promise<unknown> {
+  const contentType = (response.headers.get("Content-Type") || "").toLowerCase();
+  const text = await response.text();
+  if (text == null || text.length === 0) {
+    return undefined;
+  }
+  if (
+    contentType.includes("application/json") ||
+    contentType.includes("+json") ||
+    text.trimStart().startsWith("{") ||
+    text.trimStart().startsWith("[")
+  ) {
+    try {
+      return JSON.parse(text);
+    } catch {
+      return text;
+    }
+  }
+  return text;
+}
+
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
+    // Mid-session expiry / auth loss → React Login (query return URL).
+    // Do not parse the body or throw a normal ApiError — callers would race
+    // setState/toasts while the document navigates away (#1526 review).
+    if (response.status === 401) {
+      redirectToLoginOnUnauthorized({ reason: "api-401" });
+      throw new SessionRedirectError();
+    }
     let body: unknown;
     try {
-      body = await response.json();
+      body = await parseBody(response);
     } catch {
-      body = await response.text();
+      body = undefined;
     }
     const error: ApiError = {
       status: response.status,
@@ -63,10 +113,10 @@ async function handleResponse<T>(response: Response): Promise<T> {
   if (response.status === 204) {
     return undefined as T;
   }
-  return response.json() as Promise<T>;
+  return (await parseBody(response)) as T;
 }
 
-/** Sends a GET request and returns the parsed JSON body. */
+/** Sends a GET request and returns the parsed body (JSON object/array or plain text). */
 export async function get<T>(
   url: string,
   headers?: HeadersInit,

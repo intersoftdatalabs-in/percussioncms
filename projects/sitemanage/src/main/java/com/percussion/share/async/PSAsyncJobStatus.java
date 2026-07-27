@@ -26,8 +26,8 @@ import java.util.Objects;
 /**
  * Represents the current status of a running asynchronous job. Includes the status as a value
  * between 1-100 to indicate the % done and a corresponding message. 100 indicates that the job has
- * completed successfully. If the job has terminated abnormally, the status will be {@link
- * #ABORT_STATUS} and the message will contain the error message.
+ * completed successfully. If the job has terminated abnormally, the status will be set to
+ * ABORT_STATUS (-1) and the message will contain the error message.
  *
  * @author JaySeletz
  */

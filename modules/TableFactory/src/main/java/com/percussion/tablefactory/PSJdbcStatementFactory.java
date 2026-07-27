@@ -245,7 +245,8 @@ public class PSJdbcStatementFactory {
       } else if (column.getAction() == PSJdbcTableComponent.ACTION_DELETE) {
         block.addStep(getDropComponentStatement(fullTableName, column.getName()));
       } else if (column.getAction() == PSJdbcTableComponent.ACTION_REPLACE) {
-        if (PSSqlHelper.isDerby(dbmsDef.getDriver())) {
+        if (PSSqlHelper.isDerby(dbmsDef.getDriver()) || PSSqlHelper.isH2(dbmsDef.getDriver())) {
+          // Derby and H2 (#548) need recreate-style alter for some type changes
           List<PSJdbcSqlStatement> steps =
               getAlterColumnRecreateStatements(dbmsDef, fullTableName, column);
           for (PSJdbcExecutionStep step : steps) {
@@ -1408,13 +1409,33 @@ public class PSJdbcStatementFactory {
     buf3.append(column.getName());
     steps.add(new PSJdbcSqlStatement(buf3.toString()));
 
-    StringBuilder buf4 = new StringBuilder();
-    buf4.append("RENAME COLUMN ");
-    buf4.append(tableName);
-    buf4.append(".");
-    buf4.append(column.getName() + "_NEW TO " + column.getName());
-    steps.add(new PSJdbcSqlStatement(buf4.toString()));
+    String fromCol = column.getName() + "_NEW";
+    String toCol = column.getName();
+    steps.add(
+        new PSJdbcSqlStatement(
+            buildColumnRenameStatement(dbmsDef.getDriver(), tableName, fromCol, toCol)));
     return steps;
+  }
+
+  /**
+   * Build a driver-correct column rename statement for the recreate-alter path.
+   *
+   * <p>Derby uses {@code RENAME COLUMN table.old TO new}. H2 requires {@code ALTER TABLE t ALTER
+   * COLUMN old RENAME TO new} (#548 / Kilo on PR #1494).
+   *
+   * @param driver JDBC driver name (e.g. {@code derby}, {@code h2})
+   * @param tableName fully qualified table name
+   * @param fromColumn current column name
+   * @param toColumn new column name
+   * @return SQL string, never null
+   */
+  static String buildColumnRenameStatement(
+      String driver, String tableName, String fromColumn, String toColumn) {
+    if (PSSqlHelper.isH2(driver)) {
+      return "ALTER TABLE " + tableName + " ALTER COLUMN " + fromColumn + " RENAME TO " + toColumn;
+    }
+    // Derby (and historical recreate path)
+    return "RENAME COLUMN " + tableName + "." + fromColumn + " TO " + toColumn;
   }
 
   /**
@@ -1444,8 +1465,11 @@ public class PSJdbcStatementFactory {
       buf.append(tableName);
       buf.append(" MODIFY ");
       buf.append(column.getSqlDef(dbmsDef));
-    } else if (PSSqlHelper.isDerby(dbmsDef.getDriver()) || PSSqlHelper.isDB2(dbmsDef.getDriver())) {
+    } else if (PSSqlHelper.isDerby(dbmsDef.getDriver())
+        || PSSqlHelper.isDB2(dbmsDef.getDriver())
+        || PSSqlHelper.isH2(dbmsDef.getDriver())) {
       // ALTER TABLE [table] ALTER COLUMN [column] SET DATA TYPE [type];
+      // H2 (#548) accepts SET DATA TYPE similarly to Derby
       buf.append("ALTER TABLE ");
       buf.append(tableName);
       buf.append(" ALTER COLUMN ");

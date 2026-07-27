@@ -96,8 +96,11 @@ public interface IPSLikes {
 
   /** Like types. */
   enum Type {
+    /** Like applied to a page. */
     page,
+    /** Like applied to a comment. */
     comment,
+    /** Like applied to an image. */
     image
   }
 }

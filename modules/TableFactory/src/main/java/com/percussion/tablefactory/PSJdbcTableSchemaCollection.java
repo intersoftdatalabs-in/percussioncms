@@ -32,6 +32,7 @@ import org.w3c.dom.Element;
  * This class is a container for a list of PSJdbcTableSchema objects, enabling them to be serialized
  * as a collection to and from Xml.
  */
+@SuppressWarnings("this-escape")
 public class PSJdbcTableSchemaCollection extends PSCollection {
   /** Constructs an empty PSJdbcTableSchemaCollection */
   public PSJdbcTableSchemaCollection() {
@@ -71,7 +72,7 @@ public class PSJdbcTableSchemaCollection extends PSCollection {
    * @throws IllegalArgumentException if sourceNode is <code>null</code>.
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
-  public void fromXml(Element sourceNode, PSJdbcDataTypeMap dataTypeMap)
+  public final void fromXml(Element sourceNode, PSJdbcDataTypeMap dataTypeMap)
       throws PSJdbcTableFactoryException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
 
@@ -248,8 +249,9 @@ public class PSJdbcTableSchemaCollection extends PSCollection {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public Iterator<PSJdbcTableSchema> iterator() {
-    return super.iterator();
+    return (Iterator<PSJdbcTableSchema>) super.iterator();
   }
 
   /** The name of this objects root Xml element. */

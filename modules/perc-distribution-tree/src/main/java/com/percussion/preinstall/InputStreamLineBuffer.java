@@ -24,6 +24,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Buffers lines read from an {@link InputStream} on a background thread so callers can poll for
+ * output without blocking.
+ */
 public class InputStreamLineBuffer {
 
   private static final Logger log = LogManager.getLogger(InputStreamLineBuffer.class);
@@ -34,6 +38,11 @@ public class InputStreamLineBuffer {
   private Thread inputCatcher;
   private boolean isAlive;
 
+  /**
+   * Captures lines from the supplied input stream. Reading starts when {@link #start()} is called.
+   *
+   * @param is source input stream; must not be null
+   */
   public InputStreamLineBuffer(InputStream is) {
     inputStream = is;
     lines = new ConcurrentLinkedQueue<>();
@@ -66,28 +75,28 @@ public class InputStreamLineBuffer {
             });
   }
 
-  // is the input reader thread alive
+  /** Returns true while the reader thread is still alive. */
   public boolean isAlive() {
     return isAlive;
   }
 
-  // start the input reader thread
+  /** Starts the background reader thread. */
   public void start() {
     isAlive = true;
     inputCatcher.start();
   }
 
-  // has Queue some lines
+  /** Returns true when at least one buffered line is available. */
   public boolean hasNext() {
     return lines.size() > 0;
   }
 
-  // get next line from Queue
+  /** Returns and removes the next buffered line, or null if none are available. */
   public String getNext() {
     return lines.poll();
   }
 
-  // how much time has elapsed since last line was read
+  /** Returns milliseconds elapsed since the most recent line was read. */
   public long timeElapsed() {
     return (System.currentTimeMillis() - lastTimeModified);
   }

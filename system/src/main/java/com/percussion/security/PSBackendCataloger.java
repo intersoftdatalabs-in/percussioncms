@@ -39,12 +39,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Base class which holds common backend catalog functionality used in security classes. */
 @SuppressWarnings(value = {"unchecked"})
 public class PSBackendCataloger {
+
+  private static final Logger log = LogManager.getLogger(PSBackendCataloger.class);
+
   /**
    * Convenience method that call {@link #getRoleAttributes(String, String)
    * getRoleAttributes(String, null)}.
@@ -229,8 +234,12 @@ public class PSBackendCataloger {
     for (; null != el; el = tree.getNextElement("Attribute", ms_nextFlags)) {
       String name = tree.getElementData("@name", false);
       if ((name == null) || (name.trim().length() == 0)) {
-        Object[] args = {"Attribute", "@name", "null"};
-        throw new PSSecurityException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+        // Outer-join subject attribute catalogs (sys_catalogOuterJoinSubjectAttributes)
+        // can emit empty <Attribute> shells for subjects with no global attributes.
+        // Throwing here floods PSRoleMgr with "Error finding users" on every UI poll.
+        // Skip the empty node; keep hard-failing only is not useful for runtime catalog.
+        log.debug("Skipping catalog Attribute without @name under parent {}", parent.getTagName());
+        continue;
       }
 
       List values = getValues(el);

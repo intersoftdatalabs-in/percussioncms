@@ -241,9 +241,7 @@ public class PSRenderService implements IPSRenderService {
     return pageService.validate(page);
   }
 
-  /**
-   * @{inheritDoc}
-   */
+  /** {@inheritDoc} */
   @GET
   @Path("/page/{id}")
   @Produces({
@@ -269,9 +267,7 @@ public class PSRenderService implements IPSRenderService {
     }
   }
 
-  /**
-   * @{inheritDoc}
-   */
+  /** {@inheritDoc} */
   @GET
   @Path("/page/editmode/{id}")
   @Produces({
@@ -307,9 +303,7 @@ public class PSRenderService implements IPSRenderService {
     else return EditType.PAGE;
   }
 
-  /**
-   * @{inheritDoc}
-   */
+  /** {@inheritDoc} */
   @GET
   @Path("/page/editmode/scriptsoff/{id}")
   @Produces({

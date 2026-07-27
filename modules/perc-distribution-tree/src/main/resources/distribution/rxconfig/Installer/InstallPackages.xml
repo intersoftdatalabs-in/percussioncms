@@ -41,10 +41,6 @@
 		<status>PENDING</status>
 	</PackageFileEntry>
 	<PackageFileEntry>
-		<packageName>perc.flashWidget</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
 		<packageName>perc.widget.iframe</packageName>
 		<status>PENDING</status>
 	</PackageFileEntry>
@@ -145,10 +141,6 @@
 		<status>PENDING</status>
 	</PackageFileEntry>
 	<PackageFileEntry>
-		<packageName>perc.evergageBeacon</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
 		<packageName>perc.defaultLanguage</packageName>
 		<status>PENDING</status>
 	</PackageFileEntry>
@@ -174,10 +166,6 @@
 	</PackageFileEntry>
 	<PackageFileEntry>
 		<packageName>perc.widget.cookieConsent</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
-		<packageName>perc.widget.emseventlist</packageName>
 		<status>PENDING</status>
 	</PackageFileEntry>
 	<PackageFileEntry>

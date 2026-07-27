@@ -47,7 +47,7 @@
 
     <!-- Themes never should be concatenated or packed -->
     <link rel="stylesheet" type="text/css" href="../themes/smoothness/jquery-ui-1.8.9.custom.css" />
-    <link rel="stylesheet" type="text/css" href="/cm/pages/app/js/legacy/profiles/3x/libraries/fontawesome/css/all.css"/>
+    <link rel="stylesheet" type="text/css" href="/cm/jslib/profiles/3x/libraries/fontawesome/css/all.css"/>
     <script src="/Rhythmyx/tmx/tmx.jsp?mode=js&amp;prefix=perc.ui.&amp;sys_lang=<%=locale%>"></script>
     <script src="/JavaScriptServlet"></script>
     <%  if(isDebug)

@@ -1,0 +1,56 @@
+# Models com.percussion.security.validation.URLValidation as a request-forgery
+# (SSRF) barrier. Runtime: validateURLString / validateURL reject private ranges,
+# cloud metadata hosts, and non-http(s) schemes.
+#
+# Without this model, CodeQL java/ssrf tracks taint through the method body
+# (new URL(tainted) → return) and re-flags callers on every PR re-scan
+# (alerts #1064/#1066/#1067/#726 and residuals #1733–#1736).
+extensions:
+  - addsTo:
+      pack: codeql/java-all
+      extensible: barrierModel
+    data:
+      - [
+          "com.percussion.security.validation",
+          "URLValidation",
+          false,
+          "validateURLString",
+          "(String)",
+          "",
+          "ReturnValue",
+          "request-forgery",
+          "manual",
+        ]
+      - [
+          "com.percussion.security.validation",
+          "URLValidation",
+          false,
+          "validateURLString",
+          "(String,URLValidationConfig)",
+          "",
+          "ReturnValue",
+          "request-forgery",
+          "manual",
+        ]
+      - [
+          "com.percussion.security.validation",
+          "URLValidation",
+          false,
+          "validateURL",
+          "(URL)",
+          "",
+          "Argument[0]",
+          "request-forgery",
+          "manual",
+        ]
+      - [
+          "com.percussion.security.validation",
+          "URLValidation",
+          false,
+          "validateURL",
+          "(URL,URLValidationConfig)",
+          "",
+          "Argument[0]",
+          "request-forgery",
+          "manual",
+        ]

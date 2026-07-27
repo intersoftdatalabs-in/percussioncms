@@ -65,10 +65,8 @@ public class PSSitePublishServiceHelper implements IPSSitePublishServiceHelper {
   String allValidRelationshipConfigs;
 
   private IPSAssetService assetService;
-  private List<String> binaryAssetTypes =
-      Arrays.asList("percFileAsset", "percImageAsset", "percFlashAsset");
-  private String binaryAssetTypesStr =
-      "'percPage','percFileAsset', 'percImageAsset', 'percFlashAsset'";
+  private List<String> binaryAssetTypes = Arrays.asList("percFileAsset", "percImageAsset");
+  private String binaryAssetTypesStr = "'percPage','percFileAsset', 'percImageAsset'";
   private String invalidRelationshipConfigName = "'RecycledContent','LocalContent'";
 
   @Autowired

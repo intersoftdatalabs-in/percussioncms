@@ -142,6 +142,70 @@
             <version>${project.parent.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!-- Build-time only: JDBC drivers staged into the distribution's jetty/base/lib/jdbc/ folder.
+             Sourced from parent-POM-managed versions; copied via maven-dependency-plugin. -->
+        <dependency>
+            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mariadb-java-client</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derby</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbyclient</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbynet</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Required by derby.jar since 10.15 (StandardException, shared i18n, etc.) -->
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbyshared</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbytools</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sourceforge.jtds</groupId>
+            <artifactId>jtds</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc17</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- #1500 PostgreSQL external CMS repository -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>
@@ -283,6 +347,13 @@
             <artifactId>perc-xml-security</artifactId>
             <version>${project.parent.version}</version>
             <scope>runtime</scope>
+        </dependency>
+        <!-- 002-jdbc-drivers-cleanup: JUnit 5 for new test sources under src/test/java.
+             Version inherited from parent dependencyManagement (root pom.xml junit5.version). -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
@@ -450,6 +521,24 @@
                                     <includes>i18n/**</includes>
                                 </artifactItem>
                             </artifactItems>
+                        </configuration>
+                    </execution>
+                    <!-- Stage curated JDBC driver JARs from parent-POM-managed coordinates into
+                         ${assembly-directory}/_jdbc-stage so installDistributionFiles.xml can copy
+                         them into jetty/base/lib/jdbc/ during assembly.
+                         failOnAnyMissingDependency=true satisfies FR-003 / SC-004 (loud failure). -->
+                    <execution>
+                        <id>stage-jdbc-drivers</id>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <includeScope>provided</includeScope>
+                            <excludeTransitive>true</excludeTransitive>
+                            <outputDirectory>${assembly-directory}/_jdbc-stage</outputDirectory>
+                            <failOnAnyMissingDependency>true</failOnAnyMissingDependency>
+                            <includeTypes>jar</includeTypes>
                         </configuration>
                     </execution>
                 </executions>
@@ -651,15 +740,81 @@
                         <phase>process-classes</phase>
                         <configuration>
                             <mainClass>org.eclipse.jetty.start.Main</mainClass>
+                            <!-- jetty.home / jetty.base MUST be JVM system properties (-D…),
+                                 not StartArgs key=value arguments. BaseHome initialises
+                                 before StartArgs parses the CLI; without -D properties it
+                                 falls back to the CWD and then PathMatchers tries
+                                 Path.of("basehome:lib/jdbc/…"), which throws
+                                 InvalidPathException: Illegal char <:> on Windows
+                                 (issue #1179) and silently misses JDBC jars on Linux.
+                                 See modules/perc-jetty/.../worklog/jetty-12-basehome-prefix-removal.md
+                                 PR #1181 landed the right approach then a follow-up commit
+                                 re-added CLI args and dropped systemProperties. -->
+                            <systemProperties>
+                                <systemProperty>
+                                    <key>jetty.home</key>
+                                    <value>${assembly-directory}/jetty/upstream</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <key>jetty.base</key>
+                                    <value>${assembly-directory}/jetty/base</value>
+                                </systemProperty>
+                            </systemProperties>
                             <arguments>
-                                <argument>jetty.home=${assembly-directory}/jetty/upstream</argument>
-                                <argument>jetty.base=${assembly-directory}/jetty/base</argument>
                                 <argument>--include-jetty-dir=${assembly-directory}/jetty/defaults</argument>
                                 <argument>--create-start-d</argument>
                                 <argument>--create-files</argument>
                                 <argument>--modules=perc-logging</argument>
                                 <argument>--add-modules=perc</argument>
                                 <argument>--approve-all-licenses</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <!-- Verify the assembled distribution ships JDBC drivers (FR-007 / SC-005).
+                         Runs the cross-platform Java main (canonical implementation); the
+                         operator-facing scripts/verify-jdbc-drivers.py port (spec 994 US6)
+                         exists for manual runs. Uses the expected-driver-glob option so the
+                         check stays correct across driver version bumps without editing this
+                         pom. -->
+                    <execution>
+                        <id>verify-jdbc-drivers</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <phase>verify</phase>
+                        <configuration>
+                            <mainClass>com.percussion.distribution.install.VerifyJdbcDrivers</mainClass>
+                            <arguments>
+                                <argument>--artifact</argument>
+                                <argument>${project.build.directory}/perc-distribution-tree.jar</argument>
+                                <argument>--expected-driver-glob</argument>
+                                <argument>mariadb-java-client-*.jar,mysql-connector-j-*.jar,h2-*.jar,derby-*.jar,derbyclient-*.jar,derbynet-*.jar,derbyshared-*.jar,derbytools-*.jar,mssql-jdbc-*.jar,jtds-*.jar,ojdbc17-*.jar,postgresql-*.jar</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <!-- FR-003 / FR-008.b / SC-006: assert the install/upgrade script's
+                         <delete> block uses exact bundled-driver filenames, not globs.
+                         A future change that re-introduces a glob (e.g. mysql-connector-java-*.jar)
+                         will silently purge integrator-supplied drivers on upgrade; this
+                         check fails the build before such a change can land. Cross-platform
+                         Java main (canonical implementation); the operator-facing
+                         scripts/check-no-glob-deletes.py port (spec 994 US6) exists for
+                         manual runs. -->
+                    <execution>
+                        <id>check-no-glob-deletes</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <phase>verify</phase>
+                        <configuration>
+                            <mainClass>com.percussion.distribution.install.CheckNoGlobDeletes</mainClass>
+                            <!-- Absolute module path: exec:java keeps the reactor launch CWD
+                                 (often repo root), so a relative src/main/resources/... path
+                                 fails outside modules/perc-distribution-tree. Same pattern as
+                                 verify-jdbc-drivers using ${project.build.directory}. -->
+                            <arguments>
+                                <argument>--install-xml</argument>
+                                <argument>${project.basedir}/src/main/resources/distribution/rxconfig/Installer/install.xml</argument>
                             </arguments>
                         </configuration>
                     </execution>

@@ -1321,7 +1321,8 @@ public class PSSqlHelper {
     // get the plaintext version of the password
     props.put("password", password);
 
-    if (database != null) {
+    // Empty catalog confuses H2 (SET CATALOG with no name). Only set when non-blank.
+    if (database != null && database.trim().length() > 0) {
       props.put("catalog", database);
       props.put("db", database); // this was the ODBC name for it
     }
@@ -1364,6 +1365,34 @@ public class PSSqlHelper {
 
   public static boolean isDerby(String driverName) {
     return (driverName.toUpperCase().contains("DERBY"));
+  }
+
+  /**
+   * @param driverName JDBC driver name or URL fragment; may be {@code null}
+   * @return {@code true} if the driver is H2 (GitHub #548 default embedded engine)
+   */
+  public static boolean isH2(String driverName) {
+    return driverName != null && driverName.toUpperCase().contains("H2");
+  }
+
+  /**
+   * @param driverName the database driver name, may be {@code null}
+   * @return {@code true} if the driver is PostgreSQL (GitHub #1500 external backend)
+   */
+  public static boolean isPostgres(String driverName) {
+    if (driverName == null) {
+      return false;
+    }
+    String d = driverName.toLowerCase();
+    return d.contains("postgresql") || "postgres".equals(d);
+  }
+
+  /**
+   * Product-managed embedded file-store backends (Derby legacy or H2 default). Used for LOB
+   * materialization and similar cross-engine behavior (must not treat only Derby as special).
+   */
+  public static boolean isEmbeddedFileStore(String driverName) {
+    return isDerby(driverName) || isH2(driverName);
   }
 
   /**

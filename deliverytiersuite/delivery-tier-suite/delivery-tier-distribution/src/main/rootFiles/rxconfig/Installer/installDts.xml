@@ -11,7 +11,7 @@
 	<property name="perc.java.home" value="${install.dir}/JRE" />
 	<property name="perc.dts.backup"
 		value="${install.dir}/PreInstall/Backups" />
-	<property name="perc.db.type" value="derby" />
+	<property name="perc.db.type" value="h2" />
 	<property name="perc.db.ssl.enabled" value="true" />
 	<property name="perc.db.ssl.verify" value="true" />
 	<property name="perc.db.ssl.allowSelfSigned" value="false" />
@@ -92,6 +92,19 @@
 		<echo>Property configuration..</echo>
 		<echoproperties />
 
+		<!-- Hard offline gate: refuse install/upgrade while DTS Tomcat is running -->
+		<echo>Checking for running DTS (Production)...</echo>
+		<PSCheckRunningDtsServer rootDir="${install.dir}" />
+		<if>
+			<available
+				file="${install.dir}/Staging/Deployment/Server/conf/server.xml"
+				type="file" />
+			<then>
+				<echo>Checking for running DTS (Staging)...</echo>
+				<PSCheckRunningDtsServer rootDir="${install.dir}/Staging" />
+			</then>
+		</if>
+
 		<if>
 			<isset property="${isMac}" />
 			<then>
@@ -102,7 +115,7 @@
 					<isset property="isLinux" />
 					<then>
 						<echo>Setting executable Permissions</echo>
-						<chmod perm="o+x" failifexecutionfails="false"
+						<chmod perm="ugo+x" failifexecutionfails="false"
 							failonerror="false" includes="**/*.sh" dir="${install.dir}" />
 					</then>
 				</if>
@@ -346,7 +359,7 @@
 					<include name="log4j*.jar" />
 					<include name="commons-logging*.jar" />
 					<include name="slf4j*.jar" />
-					<include name="disrupter*.jar" />
+					<include name="disruptor*.jar" />
 				</fileset>
 			</copy>
 
@@ -447,7 +460,7 @@
 				file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-security.properties">
 				<entry key="encryption.type" default="ENC" />
 				<entry key="contentSecurityPolicy"
-					default="default-src * ; img-src * 'self' 'unsafe-inline' 'unsafe-eval';object-src * 'self' 'unsafe-inline' 'unsafe-eval'; font-src * 'unsafe-inline' 'unsafe-eval' ; script-src * 'unsafe-inline' 'unsafe-eval' ; style-src * 'unsafe-inline' 'unsafe-eval' ; frame-src * 'self' 'unsafe-inline' 'unsafe-eval'; frame-ancestors * 'self';" />
+					default="default-src * ; img-src * 'self' data: blob: 'unsafe-inline' 'unsafe-eval';object-src * 'self' 'unsafe-inline' 'unsafe-eval'; font-src * 'unsafe-inline' 'unsafe-eval' ; script-src * 'unsafe-inline' 'unsafe-eval' ; style-src * 'unsafe-inline' 'unsafe-eval' ; frame-src * 'self' 'unsafe-inline' 'unsafe-eval'; frame-ancestors * 'self';" />
 				<entry key="cspReportOnly" default="false" />
 				<entry key="csrfCookieHttpOnly" default="false" />
 				<entry key="xframeOptionsPolicy" default="SAMEORIGIN" />
@@ -474,6 +487,16 @@
 						</fileset>
 					</copy>
 
+					<!-- Fail closed: hollow installer jars (scripts + common/lib only) used to
+					     report BUILD SUCCESSFUL with no Tomcat/webapps. Fresh install must have
+					     a real server tree from the shipping distribution payload. -->
+					<available
+						file="${install.dir}${staging.dir}/Deployment/Server/conf/server.xml"
+						type="file"
+						property="dts.fresh.server.xml.present" />
+					<fail unless="dts.fresh.server.xml.present"
+						message="DTS fresh install: ${install.dir}${staging.dir}/Deployment/Server/conf/server.xml is missing after copying Deployment/** from the installer payload. The delivery-tier-distribution.jar was built without the Cargo Tomcat package (bin/conf/lib/webapps). Rebuild delivery-tier-distribution so jar contains distribution/Deployment/Server/conf/server.xml and webapps/*.war." />
+
 					<copy todir="${install.dir}${staging.dir}/" verbose="true">
 						<fileset dir="${install.src}">
 							<include name="*" />
@@ -483,8 +506,8 @@
 							<exclude name="linux-x64-jre/" />
 							<exclude name="windows-x64-jre/" />
 							<exclude name="rxconfig/" />
-							<exclude name="tomcat10.exe" />
-							<exclude name="tomcat10w.exe" />
+							<exclude name="tomcat11.exe" />
+							<exclude name="tomcat11w.exe" />
 							<exclude name="tcnative-1.dll" />
 							<exclude name="DTSProductionService.bat" />
 							<exclude name="DTSStagingService.bat" />
@@ -503,8 +526,8 @@
 					<copy
 						todir="${install.dir}${staging.dir}/Deployment/Server/bin">
 						<fileset dir="${install.src}">
-							<include name="tomcat10.exe" if="${isWindows}" />
-							<include name="tomcat10w.exe" if="${isWindows}" />
+							<include name="tomcat11.exe" if="${isWindows}" />
+							<include name="tomcat11w.exe" if="${isWindows}" />
 							<include name="tcnative-1.dll" if="${isWindows}" />
 						</fileset>
 					</copy>
@@ -595,7 +618,7 @@
 							<include name="log4j*.jar" />
 							<include name="commons-logging*.jar" />
 							<include name="slf4j*.jar" />
-							<include name="disrupter*.jar" />
+							<include name="disruptor*.jar" />
 						</fileset>
 					</copy>
 
@@ -654,8 +677,8 @@
 						todir="${install.dir}${staging.dir}/Deployment/Server/bin"
 						overwrite="true" verbose="true">
 						<fileset dir="${install.src}">
-							<include name="tomcat10.exe" if="${isWindows}" />
-							<include name="tomcat10w.exe" if="${isWindows}" />
+							<include name="tomcat11.exe" if="${isWindows}" />
+							<include name="tomcat11w.exe" if="${isWindows}" />
 							<include name="tcnative-1.dll" if="${isWindows}" />
 						</fileset>
 					</copy>
@@ -672,7 +695,18 @@
 						</fileset>
 					</copy>
 
-					<echo>Restore Server.xml... if perc_catalina is already created</echo>
+					                    <!-- Update CSP policy in restored perc-security.properties for issue 818 -->
+                    <if>
+                        <available file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-security.properties" type="file"/>
+                        <then>
+                            <echo>Updating Content Security Policy (CSP) in restored perc-security.properties for issue 818...</echo>
+                            <replaceregexp file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-security.properties"
+                                           match="img-src\s+\*\s+'self'(\s+data:)?(\s+blob:)?\s+'unsafe-inline'\s+'unsafe-eval'"
+                                           replace="img-src * 'self' data: blob: 'unsafe-inline' 'unsafe-eval'"
+                                           byline="true"/>
+                        </then>
+                    </if>
+                    <echo>Restore Server.xml... if perc_catalina is already created</echo>
 					<if>
 						<available
 							file="${new.backup.dir}${staging.dir}/Server/conf/perc/perc-catalina.properties" />
@@ -782,8 +816,8 @@
 							<exclude name="linux-x64-jre/" />
 							<exclude name="windows-x64-jre/" />
 							<exclude name="rxconfig/" />
-							<exclude name="tomcat10.exe" />
-							<exclude name="tomcat10w.exe" />
+							<exclude name="tomcat11.exe" />
+							<exclude name="tomcat11w.exe" />
 							<exclude name="tcnative-1.dll" />
 							<exclude name="DTSProductionService.bat" />
 							<exclude name="DTSStagingService.bat" />
@@ -906,10 +940,25 @@
 										username="APP" password="test" />
 								</then>
 							</if>
+
+							<!-- #548: migrate product-managed Derby service DBs to H2 after
+							     legacy Derby engine upgrade (if any). Idempotent when already H2. -->
+							<echo>Migrating DTS embedded repositories Derby→H2 (#548)...</echo>
+							<PSMigrateDtsEmbeddedRepository
+								rootDir="${install.dir}${staging.dir}"
+								performProductBackup="true"
+								failOnBlock="true" />
 						</then>
 						<else>
 							<echo>Skipping Derby upgrade as
 								${install.dir}${staging.dir}/derbydata is not found.</echo>
+							<!-- Still attempt H2 migration path if props point at Derby without
+							     local derbydata (networked) or for mixed partial installs. -->
+							<echo>Running DTS embedded repository migration check (#548)...</echo>
+							<PSMigrateDtsEmbeddedRepository
+								rootDir="${install.dir}${staging.dir}"
+								performProductBackup="true"
+								failOnBlock="false" />
 						</else>
 					</if>
 
@@ -992,7 +1041,10 @@
 					<available
 						file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-datasources.properties" />
 					<not>
-						<equals arg1="${perc.db.type}" arg2="derby" casesensitive="false" />
+						<or>
+							<equals arg1="${perc.db.type}" arg2="derby" casesensitive="false" />
+							<equals arg1="${perc.db.type}" arg2="h2" casesensitive="false" />
+						</or>
 					</not>
 				</and>
 				<then>
@@ -1036,12 +1088,23 @@
 			</if>
 
 			<echo>Adding Ciphers to connector...</echo>
+			<!--
+			  Issue #1475: skip the ciphers replacement on fresh installs where
+			  Deployment/Server/conf/server.xml does not yet exist. The replacement
+			  is an upgrade-only operation; for fresh installs (or for any install
+			  target that lacks the file) the section below silently no-ops. The
+			  `<available>` guard is the same pattern used elsewhere in this script
+			  to defer to the install target's existing layout.
+			-->
 			<if>
-				<not>
-					<resourcecontains
-						resource="${install.dir}${staging.dir}/Deployment/Server/conf/server.xml"
-						substring="ciphers=" />
-				</not>
+				<and>
+					<available file="${install.dir}${staging.dir}/Deployment/Server/conf/server.xml" type="file" />
+					<not>
+						<resourcecontains
+							resource="${install.dir}${staging.dir}/Deployment/Server/conf/server.xml"
+							substring="ciphers=" />
+					</not>
+				</and>
 				<then>
 					<replace
 						file="${install.dir}${staging.dir}/Deployment/Server/conf/server.xml"
@@ -1054,17 +1117,33 @@
 				</then>
 			</if>
 
-			<replace
-				file="${install.dir}${staging.dir}/Deployment/Server/bin/setenv.sh"
-				summary="yes" token="@JAVA_OPTS@"
-				value="-Drxdeploydir=${install.dir}">
-			</replace>
+			<!--
+			  Issue #1475: same fresh-install guard as the ciphers block above.
+			  setenv.sh / setenv.bat are staged by the install script from a
+			  previous install; on a fresh install the files do not yet exist,
+			  so the token-replace would fail with 'source file ... doesn't exist'.
+			-->
+			<if>
+				<available file="${install.dir}${staging.dir}/Deployment/Server/bin/setenv.sh" type="file" />
+				<then>
+					<replace
+						file="${install.dir}${staging.dir}/Deployment/Server/bin/setenv.sh"
+						summary="yes" token="@JAVA_OPTS@"
+						value="-Drxdeploydir=${install.dir}">
+					</replace>
+				</then>
+			</if>
 
-			<replace
-				file="${install.dir}${staging.dir}/Deployment/Server/bin/setenv.bat"
-				summary="yes" token="@JAVA_OPTS@"
-				value="-Drxdeploydir=${install.dir}">
-			</replace>
+			<if>
+				<available file="${install.dir}${staging.dir}/Deployment/Server/bin/setenv.bat" type="file" />
+				<then>
+					<replace
+						file="${install.dir}${staging.dir}/Deployment/Server/bin/setenv.bat"
+						summary="yes" token="@JAVA_OPTS@"
+						value="-Drxdeploydir=${install.dir}">
+					</replace>
+				</then>
+			</if>
 
 			<echo>Registering current TLS ciphers...</echo>
 			<echo>NOTE: Ciphers supported will depend on the JRE version and make

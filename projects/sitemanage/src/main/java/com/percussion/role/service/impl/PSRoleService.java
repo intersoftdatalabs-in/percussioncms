@@ -115,7 +115,9 @@ public class PSRoleService implements IPSRoleService {
     wfService.addWorkflowRole(null, roleName);
 
     try {
-      return (!role.getUsers().isEmpty()) ? update(role) : role.clone();
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB;
+      // not HTML body (alert #749)
+      return (!role.getUsers().isEmpty()) ? update(role) : role.clone(); // codeql[java/xss]
     } catch (CloneNotSupportedException e) {
       throw new PSDataServiceException(e);
     }
@@ -413,7 +415,8 @@ public class PSRoleService implements IPSRoleService {
         || !(homepage.equals(HOMEPAGE_TYPE_DASHBOARD)
             || homepage.equals(HOMEPAGE_TYPE_EDITOR)
             || homepage.equals(HOMEPAGE_TYPE_HOME))) {
-      homepage = HOMEPAGE_TYPE_DASHBOARD;
+      // SPA product default landing is Home (not Dashboard)
+      homepage = HOMEPAGE_TYPE_HOME;
     }
     var key = META_DATA_HOMEPAGE_PREFIX + roleName;
     var md = mdService.find(key);
@@ -431,7 +434,8 @@ public class PSRoleService implements IPSRoleService {
     }
     var key = META_DATA_HOMEPAGE_PREFIX + roleName;
     var md = mdService.find(key);
-    return (md == null ? HOMEPAGE_TYPE_DASHBOARD : md.getData());
+    // Unset role homepage → Home (SPA default landing)
+    return (md == null ? HOMEPAGE_TYPE_HOME : md.getData());
   }
 
   private List<String> getSingleRoleUsers(List<String> users) {
@@ -516,20 +520,37 @@ public class PSRoleService implements IPSRoleService {
     }
 
     Set<String> userHomePages = new HashSet<>();
-    String homepage = null;
     if (userRoles != null) {
       for (var role : userRoles) {
         userHomePages.add(getHomepage(role));
       }
     }
-    if (userHomePages.isEmpty() || userHomePages.contains(HOMEPAGE_TYPE_DASHBOARD)) {
-      homepage = HOMEPAGE_TYPE_DASHBOARD;
-    } else if (userHomePages.contains(HOMEPAGE_TYPE_EDITOR)) {
-      homepage = HOMEPAGE_TYPE_EDITOR;
-    } else {
-      homepage = HOMEPAGE_TYPE_HOME;
+    return resolveUserHomepage(userHomePages);
+  }
+
+  /**
+   * Resolve effective homepage from the set of role homepage values.
+   *
+   * <p>Product priority (SPA-first): Home &gt; Dashboard &gt; Editor. Empty/unset → Home.
+   *
+   * @param userHomePages role homepage types, never {@code null} (may be empty)
+   * @return one of {@link #HOMEPAGE_TYPE_HOME}, {@link #HOMEPAGE_TYPE_DASHBOARD}, {@link
+   *     #HOMEPAGE_TYPE_EDITOR}
+   */
+  static String resolveUserHomepage(Set<String> userHomePages) {
+    if (userHomePages == null || userHomePages.isEmpty()) {
+      return HOMEPAGE_TYPE_HOME;
     }
-    return homepage;
+    if (userHomePages.contains(HOMEPAGE_TYPE_HOME)) {
+      return HOMEPAGE_TYPE_HOME;
+    }
+    if (userHomePages.contains(HOMEPAGE_TYPE_DASHBOARD)) {
+      return HOMEPAGE_TYPE_DASHBOARD;
+    }
+    if (userHomePages.contains(HOMEPAGE_TYPE_EDITOR)) {
+      return HOMEPAGE_TYPE_EDITOR;
+    }
+    return HOMEPAGE_TYPE_HOME;
   }
 
   public IPSRoleMgr getRoleMgr() {

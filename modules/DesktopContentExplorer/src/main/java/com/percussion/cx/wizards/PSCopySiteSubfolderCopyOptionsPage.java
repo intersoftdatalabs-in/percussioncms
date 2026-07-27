@@ -28,7 +28,11 @@ import javax.swing.JRadioButton;
 
 /** This wizard panel allows a user to select the option for what content should be copied. */
 public class PSCopySiteSubfolderCopyOptionsPage extends PSCopySiteCopyOptionsPage {
-  /** Instantiate with applet to make config options from applet available to panel */
+  /**
+   * Instantiate with applet to make config options from applet available to panel.
+   *
+   * @param applet the content explorer applet, never <code>null</code>.
+   */
   public PSCopySiteSubfolderCopyOptionsPage(PSContentExplorerApplet applet) {
     super(applet);
     initPanel(createMainPanel());

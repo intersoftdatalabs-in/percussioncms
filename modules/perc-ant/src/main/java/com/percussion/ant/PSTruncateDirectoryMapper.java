@@ -24,8 +24,6 @@ import org.apache.tools.ant.util.FileNameMapper;
  * before the specified truncation string. Correctly handles differences in Unix and Windows-style
  * paths.
  *
- * <p>
- *
  * <pre>
  *    USAGE:
  *
@@ -42,6 +40,8 @@ import org.apache.tools.ant.util.FileNameMapper;
  * </pre>
  */
 public class PSTruncateDirectoryMapper implements FileNameMapper {
+  /** Creates a new truncate directory mapper. */
+  public PSTruncateDirectoryMapper() {}
 
   /** Ignored. */
   public void setFrom(@SuppressWarnings("unused") String from) {}

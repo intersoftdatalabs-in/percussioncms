@@ -13,7 +13,6 @@
 		   <service>perc-comments-services</service>
 		   <service>perc-metadata-services</service>
 		   <service>perc-membership-services</service>
-		   <service>perc-integrations</service>
 		</availableServices>
 	</DeliveryServer>
 	<DeliveryServer>
@@ -29,7 +28,6 @@
 		   <service>perc-comments-services</service>
 		   <service>perc-metadata-services</service>
 		   <service>perc-membership-services</service>
-		   <service>perc-integrations</service>
 		</availableServices>
 	</DeliveryServer>
 	<DeliveryServer>

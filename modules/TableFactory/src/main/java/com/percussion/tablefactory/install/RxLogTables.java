@@ -296,10 +296,10 @@ public class RxLogTables {
    */
   public static void addJarFileUrl(URL jarUrl) {
     if (jarUrl == null) throw new IllegalArgumentException("jarUrl may not be null");
-    if (m_jarUrls == null) m_jarUrls = new ArrayList();
+    if (m_jarUrls == null) m_jarUrls = new ArrayList<>();
     m_jarUrls.add(jarUrl);
   }
 
   /** the list of jar file URLs for jdbc drivers, initially <code>null</code> */
-  private static List m_jarUrls = null;
+  private static List<URL> m_jarUrls = null;
 }

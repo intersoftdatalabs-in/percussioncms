@@ -194,9 +194,7 @@ public class PSPageRestService {
     }
   }
 
-  /**
-   * @{inheritDoc}
-   */
+  /** {@inheritDoc} */
   @GET
   @Path(LOAD_PATH)
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -241,9 +239,7 @@ public class PSPageRestService {
     pageService.updateTemplateMigrationVersion(pageId);
   }
 
-  /**
-   * @{inheritDoc}
-   */
+  /** {@inheritDoc} */
   @GET
   @Path("/pagesByTemplate/{templateId}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -341,13 +337,15 @@ public class PSPageRestService {
     try {
       if (page.getTitle().isEmpty()) page.setTitle(page.getLinkTitle());
 
-      return pageService.save(page);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB;
+      // not HTML body (alert #748)
+      return pageService.save(page); // codeql[java/xss]
     } catch (PSBeanValidationException bve) {
       throw bve;
     } catch (PSDataServiceException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new WebApplicationException(e);
+      throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
 

@@ -53,6 +53,8 @@ import org.apache.tools.ant.Task;
  * </pre>
  */
 public class PSCheckVersion extends Task {
+  /** Creates a new version check task. */
+  public PSCheckVersion() {}
 
   private static final Logger log = LogManager.getLogger(PSCheckVersion.class);
 
@@ -254,6 +256,11 @@ public class PSCheckVersion extends Task {
     return p.getProperty("optionalId");
   }
 
+  /**
+   * Sets the Rhythmyx root directory.
+   *
+   * @param root the Rhythmyx root directory, cannot be <code>null</code> or empty
+   */
   public void setRoot(String root) {
     if (root == null || root.trim().length() == 0) {
       throw new IllegalArgumentException("root may not be null or empty");
@@ -262,6 +269,11 @@ public class PSCheckVersion extends Task {
     m_root = root;
   }
 
+  /**
+   * Sets the jar file path.
+   *
+   * @param jarFile the jar file path, cannot be <code>null</code> or empty
+   */
   public void setJarFile(String jarFile) {
     if (jarFile == null || jarFile.trim().length() == 0) {
       throw new IllegalArgumentException("jarFile may not be null or empty");
@@ -270,6 +282,12 @@ public class PSCheckVersion extends Task {
     m_jarFile = jarFile;
   }
 
+  /**
+   * Sets the operation type.
+   *
+   * @param operation the operation type, must be "install" or "uninstall", cannot be <code>null
+   *     </code>
+   */
   public void setOperation(String operation) {
     if (operation == null
         || !operation.equalsIgnoreCase(INSTALL_OP) && !operation.equalsIgnoreCase(UNINSTALL_OP)) {

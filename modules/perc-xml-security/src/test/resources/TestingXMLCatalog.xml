@@ -1,10 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE catalog
-        PUBLIC "-//OASIS//DTD Entity Resolution XML Catalog V1.0//EN"
-        "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd">
-<!-- This catalog is for any external DTD and Entity references. We block
-	external entities and DTD references that are not defined in this catalog
-	file to prevent XXE vulnerabilities -->
+<!-- Test OASIS XML Catalog — no DOCTYPE (secure SAX cannot load external catalog.dtd). -->
 <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog"
 	prefer="system">
 

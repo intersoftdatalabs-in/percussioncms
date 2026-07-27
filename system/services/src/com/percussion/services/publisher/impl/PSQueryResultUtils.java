@@ -80,6 +80,12 @@ public class PSQueryResultUtils
       {
          throw new UnsupportedOperationException("Not supported");
       }
+
+      @Override
+      public String[] getSelectorNames() throws RepositoryException
+      {
+         return new String[0];
+      }
    
    }
 

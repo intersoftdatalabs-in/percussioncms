@@ -27,11 +27,11 @@ set PR_DESCRIPTION="Percussion Services For CMS - Jetty Server"
 set JETTY_HOME="%JETTY_ROOT%upstream"
 set JETTY_BASE="%JETTY_ROOT%base"
 set JETTY_DEFAULTS="%JETTY_ROOT%defaults"
+REM Operator-customizable stop port/key (must match StopJetty.bat / StartJetty.bat).
+REM Change these before install/update if 50011 is taken or multiple CMS instances share a host.
+REM Values are applied as Jetty start properties jetty.shutdown.port / jetty.shutdown.key
+REM (ShutdownService). Do NOT use -DSTOP.PORT on the server JVM (deprecated ShutdownMonitor).
 set STOPKEY=SHUTDOWN
-
-REM Note stop port number must be available and unique on the server.  Copy this file,
-REM Change this number and the service name if you need
-REM to create a separate service.
 set STOPPORT=50011
 
 set PR_INSTALL="%JETTY_ROOT%service\win\prunsrv.exe"
@@ -44,10 +44,20 @@ set PR_STDOUTPUT=auto
 set PR_STDERROR=auto
 set PR_LOGLEVEL=Error
 
-@REM Path to Java Installation
+@REM GH-991: install-time selection wrote java.properties at CMS install root.
+@REM Hard-fail via resolve helper — do not require <InstallRoot>\JRE.
+@REM Helper lives next to StartJetty under jetty\; install root is parent of JETTY_ROOT.
+REM See specs/991-system-java-home/contracts/java-home-resolution.md.
+call "%~dp0..\resolve-java-home.bat" "%JETTY_ROOT%.."
+if errorlevel 1 (
+    echo install-jetty-service: Java home resolution failed. Check java.properties or JAVA_HOME. 1>&2
+    goto end
+)
+if not defined JAVA_HOME (
+    echo install-jetty-service: resolve-java-home did not set JAVA_HOME. 1>&2
+    goto end
+)
 
-CALL :NORMALIZEPATH "%JETTY_ROOT%..\JRE"
-set JAVA_HOME=%RETVAL%
 set PR_JVM="%JAVA_HOME%\bin\server\jvm.dll"
 set PR_CLASSPATH="%JETTY_HOME%\start.jar;%JAVA_HOME%\lib\tools.jar"
 
@@ -64,9 +74,13 @@ set PR_STARTUP=auto
 set PR_STARTMODE=exe
 set PR_STARTCLASS=%JETTY_START_CLASS%
 set PR_START_PATH=%JETTY_ROOT%
-set PR_STARTPARAMS=-Drxdeploydir=%JETTY_ROOT%..;-DSTOP.PORT=%STOPPORT%;-DSTOP.KEY=%STOPKEY%
+REM GH-1486 / PR #1518 review: pass operator STOPPORT/STOPKEY as Jetty start properties
+REM (jetty.shutdown.*) so multi-instance installs keep a custom stop port without
+REM activating deprecated ShutdownMonitor via -DSTOP.PORT on the server JVM.
+REM StartJetty.bat already sets -Drxdeploydir; start params are forwarded via %*.
+set PR_STARTPARAMS=jetty.shutdown.port=%STOPPORT%;jetty.shutdown.key=%STOPKEY%
 
-@REM Shutdown Configuration
+@REM Shutdown Configuration (client: start.jar --stop still uses -DSTOP.PORT/-DSTOP.KEY)
 set PR_STOPMODE=exe
 set PR_STOPCLASS=%JETTY_STOP_CLASS%
 set PR_STOP_PATH=%JETTY_ROOT%

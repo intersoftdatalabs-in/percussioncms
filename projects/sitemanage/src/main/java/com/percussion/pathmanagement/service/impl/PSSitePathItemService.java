@@ -23,6 +23,7 @@ import static org.apache.commons.lang3.Validate.notNull;
 import com.percussion.assetmanagement.service.IPSAssetService;
 import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
 import com.percussion.fastforward.managednav.IPSManagedNavService;
+import com.percussion.i18n.ui.PSI18NTranslationKeyValues;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.pathmanagement.data.PSDeleteFolderCriteria;
@@ -113,14 +114,19 @@ public class PSSitePathItemService extends PSPathItemService {
       try {
         site = siteDataService.findByPath(("/Sites/" + path).replace("//", "/"));
       } catch (IPSDataService.DataServiceNotFoundException | PSValidationException e1) {
-        // Site not found, assume orphaned path
+        // Site not found, assume orphaned path (messages from TMX; EN uses curly apostrophes)
         var msg =
             sfp.isOnlySiteId()
-                ? "Oops.  We can't find the site "
+                ? PSI18NTranslationKeyValues.getInstance()
+                        .getTranslationValue(
+                            "perc.ui.pathmanagement@Oops.  We can't find the site ")
                     + sfp.getSiteId()
-                    + ".  It may have been deleted."
-                : "Oops. We're sorry. This page should have been deleted when its site was deleted."
-                    + " Please contact Customer Success for assistance.";
+                    + PSI18NTranslationKeyValues.getInstance()
+                        .getTranslationValue("perc.ui.pathmanagement@.  It may have been deleted.")
+                : PSI18NTranslationKeyValues.getInstance()
+                    .getTranslationValue(
+                        "perc.ui.pathmanagement@Oops. We're sorry. The requested page is no longer"
+                            + " available.");
         throw new PSPathNotFoundServiceException(msg);
       }
     }

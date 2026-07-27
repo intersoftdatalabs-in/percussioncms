@@ -146,7 +146,7 @@ public interface IPSIdMapper {
    * Generates a new, unique id which can be used for local content items. The id is generated from
    * next number table's "PSX_LOCAL_CONTENT" value.
    *
-   * @return the id, never <= 0
+   * @return the id, never {@code <= 0}
    */
   int getLocalContentId();
 }

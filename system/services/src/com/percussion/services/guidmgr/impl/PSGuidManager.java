@@ -503,7 +503,16 @@ public class PSGuidManager implements IPSGuidManager
       }
       catch (Exception e)
       {
-         throw new RuntimeException("Logic problem in next calculation",e);
+         // Preserve root cause (often No transactional EntityManager / SQL) —
+         // callers and logs previously only saw this generic wrapper.
+         throw new RuntimeException(
+             "Logic problem in next calculation for type "
+                 + type
+                 + " key="
+                 + key
+                 + ": "
+                 + e.getMessage(),
+             e);
       }
 
    }
@@ -528,38 +537,80 @@ public class PSGuidManager implements IPSGuidManager
       return ms_allocation.computeIfAbsent(key, k -> new Allocation(BLOCK_SIZE,(bs,sv) -> PSGuidManagerLocator.getGuidMgr().updateNextLong(key)));
    }
 
+   /**
+    * Advance the on-disk GUID block for {@code key} and return the first id of the
+    * new block. Uses pessimistic locking and retries optimistic failures from
+    * concurrent package installs. New rows are {@link Session#persist}ed without
+    * forcing {@code @Version} (must stay {@code -1} for inserts); managed rows are
+    * dirty-checked only — {@link Session#merge} on a versioned detached instance
+    * caused {@code StaleObjectStateException} / "Failed to allocate new block"
+    * during startup package install (Hibernate 7).
+    */
    public long updateNextLong(Integer key)
    {
-       Session s = getSession();
-       PSGuidGeneratorData data;
-       long current = -1L;
-
-      // Use pessimistic locking to prevent OptimisticLockException during concurrent allocation
-      // This ensures only one thread can update the GUID allocation at a time
-      data = s.get(PSGuidGeneratorData.class, key, LockMode.PESSIMISTIC_WRITE);
-
-      if (data == null)
+      Session s = getSession();
+      final int maxAttempts = 8;
+      RuntimeException last = null;
+      for (int attempt = 0; attempt < maxAttempts; attempt++)
       {
-         // New entry - create it without locking issues
-         data = new PSGuidGeneratorData(key, 1);
-         data.setVersion(0);
-      }
-      current = data.getValue();
+         try
+         {
+            PSGuidGeneratorData data =
+                s.get(PSGuidGeneratorData.class, key, LockMode.PESSIMISTIC_WRITE);
 
-      long next = current + BLOCK_SIZE;
-
-      data.setValue(next);
-      try
-      {
-         // Persist the updated value - pessimistic lock ensures no version conflict
-         s.merge(data);
+            long current;
+            if (data == null)
+            {
+               // Transient: leave @Version at default (-1) so Hibernate treats as insert
+               data = new PSGuidGeneratorData(key, 1);
+               current = 1L;
+               data.setValue(current + BLOCK_SIZE);
+               s.persist(data);
+            }
+            else
+            {
+               current = data.getValue();
+               data.setValue(current + BLOCK_SIZE);
+               // Entity is managed after get(); no merge — flush on commit
+            }
+            s.flush();
+            return current + 1;
+         }
+         catch (jakarta.persistence.OptimisticLockException e)
+         {
+            last =
+                new RuntimeException(
+                    "Could not create or save guid info for key=" + key + " attempt=" + attempt,
+                    e);
+            try
+            {
+               s.clear();
+            }
+            catch (RuntimeException clearEx)
+            {
+               last.addSuppressed(clearEx);
+            }
+         }
+         catch (HibernateException e)
+         {
+            // Includes StaleObjectStateException (subclass of HibernateException)
+            last =
+                new RuntimeException(
+                    "Could not create or save guid info for key=" + key + " attempt=" + attempt,
+                    e);
+            try
+            {
+               s.clear();
+            }
+            catch (RuntimeException clearEx)
+            {
+               last.addSuppressed(clearEx);
+            }
+         }
       }
-      catch (HibernateException e1)
-      {
-         throw new RuntimeException("Could not create or save guid info");
-      }
-
-      return current+1;
+      throw last != null
+          ? last
+          : new RuntimeException("Could not create or save guid info for key=" + key);
    }
 
    /*

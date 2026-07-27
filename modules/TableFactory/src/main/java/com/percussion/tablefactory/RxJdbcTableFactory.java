@@ -161,7 +161,7 @@ public class RxJdbcTableFactory {
 
         RxTables rxTable = null;
         for (int iTable = 0; iTable < cDB.RxTables.size(); ++iTable) {
-          rxTable = (RxTables) cDB.RxTables.get(iTable);
+          rxTable = cDB.RxTables.get(iTable);
           if (rxTable != null && rxTable.getTableName().equals(sTableName)) break;
         }
 
@@ -311,17 +311,17 @@ public class RxJdbcTableFactory {
               locColumns.setColName(sValue);
 
               eList = xmlTableDoc.getNextElement(false);
-              sValue = xmlTableDoc.getElementData(eList);
+              sValue = PSXmlTreeWalker.getElementData(eList);
               locColumns.setJdbcDataType(sValue);
               locColumns.setNativeType(dbmsDef.getDataTypeMapping(sValue));
 
               eList = xmlTableDoc.getNextElement(false);
-              sValue = xmlTableDoc.getElementData(eList);
+              sValue = PSXmlTreeWalker.getElementData(eList);
               if (sValue.length() > 0) locColumns.setColLength(Integer.parseInt(sValue));
               else locColumns.setColLength(0);
               // NULL
               eList = xmlTableDoc.getNextElement(false);
-              sValue = xmlTableDoc.getElementData(eList);
+              sValue = PSXmlTreeWalker.getElementData(eList);
               if (sValue.equalsIgnoreCase("no")) {
                 locColumns.setAllowNull(false);
               } else locColumns.setAllowNull(true);
@@ -595,22 +595,22 @@ public class RxJdbcTableFactory {
     }
 
     public String getDataTypeMapping(String jdbcType) {
-      return (String) m_dtJdbcStr2Native.get(jdbcType);
+      return m_dtJdbcStr2Native.get(jdbcType);
     }
 
     public String getJdbcDataTypeMapping(String nativeType) {
-      String strRet = (String) m_dtNative2JdbcStr.get(nativeType);
+      String strRet = m_dtNative2JdbcStr.get(nativeType);
       if (strRet == null) {
-        strRet = (String) m_dtNative2JdbcStr.get(nativeType.toUpperCase());
+        strRet = m_dtNative2JdbcStr.get(nativeType.toUpperCase());
       }
 
       return strRet;
     }
 
     public int getJdbcTypeMapping(String jdbcType) {
-      Integer type = (Integer) m_dtJdbcStr2JdbcInt.get(jdbcType);
+      Integer type = m_dtJdbcStr2JdbcInt.get(jdbcType);
       if (type == null) {
-        type = (Integer) m_dtJdbcStr2JdbcInt.get(jdbcType.toUpperCase());
+        type = m_dtJdbcStr2JdbcInt.get(jdbcType.toUpperCase());
       }
       if (type == null) {
         throw new IllegalArgumentException("No mapping defined for " + jdbcType);
@@ -822,9 +822,9 @@ public class RxJdbcTableFactory {
 
             if (fExtCol != null) {
               String[] fkInfo = new String[3];
-              fkInfo[0] = w.getElementData(fCol);
-              fkInfo[1] = w.getElementData(fExtTable);
-              fkInfo[2] = w.getElementData(fExtCol);
+              fkInfo[0] = PSXmlTreeWalker.getElementData(fCol);
+              fkInfo[1] = PSXmlTreeWalker.getElementData(fExtTable);
+              fkInfo[2] = PSXmlTreeWalker.getElementData(fExtCol);
               m_fKey.add(fkInfo);
             }
           }
@@ -871,7 +871,7 @@ public class RxJdbcTableFactory {
       buf.append(" (");
       for (int i = 0; i < m_columns.size(); i++) {
         if (i > 0) buf.append(", ");
-        buf.append(((ColumnDefinition) m_columns.get(i)).getColumnName());
+        buf.append(m_columns.get(i).getColumnName());
       }
       buf.append(")");
 
@@ -902,7 +902,7 @@ public class RxJdbcTableFactory {
 
       for (int i = 0; i < m_columns.size(); i++) {
         if (i > 0) buf.append(", ");
-        buf.append(((ColumnDefinition) m_columns.get(i)).getColumnDef());
+        buf.append(m_columns.get(i).getColumnDef());
       }
 
       if (includePrimaryKey && (m_pKey.size() > 0)) {
@@ -911,7 +911,7 @@ public class RxJdbcTableFactory {
         buf.append(" PRIMARY KEY (");
         for (int i = 0; i < m_pKey.size(); i++) {
           if (i > 0) buf.append(", ");
-          buf.append((String) m_pKey.get(i));
+          buf.append(m_pKey.get(i));
         }
         buf.append(")");
       }
@@ -939,7 +939,7 @@ public class RxJdbcTableFactory {
       for (int i = 0; i < rxTable.vColumns.size(); i++) {
         if (i > 0) buf.append(", ");
 
-        buf.append(((RxColumns) rxTable.vColumns.get(i)).getColName());
+        buf.append(rxTable.vColumns.get(i).getColName());
       }
 
       buf.append(") ");
@@ -948,7 +948,7 @@ public class RxJdbcTableFactory {
       for (int i = 0; i < rxTable.vColumns.size(); i++) {
         if (i > 0) buf.append(", ");
 
-        buf.append(((RxColumns) rxTable.vColumns.get(i)).getColName());
+        buf.append(rxTable.vColumns.get(i).getColName());
       }
 
       buf.append(" FROM ");
@@ -975,7 +975,7 @@ public class RxJdbcTableFactory {
       for (int i = 0; i < rxTable.vColumns.size(); i++) {
         if (i > 0) buf.append(", ");
 
-        buf.append(((RxColumns) rxTable.vColumns.get(i)).getColumnDef());
+        buf.append(rxTable.vColumns.get(i).getColumnDef());
       }
 
       buf.append(")");
@@ -993,14 +993,15 @@ public class RxJdbcTableFactory {
       buf.append(" PRIMARY KEY (");
       for (int i = 0; i < m_pKey.size(); i++) {
         if (i > 0) buf.append(", ");
-        buf.append((String) m_pKey.get(i));
+        buf.append(m_pKey.get(i));
       }
       buf.append(")");
 
       return buf.toString();
     }
 
-    public String getAddPrimaryKeyStatement(Vector vKeys, RxTables rxTable) throws SQLException {
+    public String getAddPrimaryKeyStatement(Vector<String> vKeys, RxTables rxTable)
+        throws SQLException {
       StringBuilder buf = new StringBuilder();
 
       String qualifiedName = "";
@@ -1020,7 +1021,7 @@ public class RxJdbcTableFactory {
 
       for (int i = 0; i < vKeys.size(); i++) {
         if (i > 0) buf.append(", ");
-        buf.append((String) vKeys.get(i));
+        buf.append(vKeys.get(i));
       }
       buf.append(")");
 
@@ -1097,7 +1098,7 @@ public class RxJdbcTableFactory {
       Vector<RxTables> locRxTables = new Vector<>();
       Vector<Object> vtSqlStmt = new Vector<>();
       Vector<Object> vtSqlList = new Vector<>();
-      Vector<Object> vtColumns = new Vector<>();
+      Vector<WfSqlCreate> vtColumns = new Vector<>();
 
       WfSqlCreate locColumns = new WfSqlCreate();
       String sTableName = new String();
@@ -1135,7 +1136,7 @@ public class RxJdbcTableFactory {
 
           for (eIndex = 0; eIndex < locRxTables.size(); eIndex++) {
             if (locTable == null) locTable = new RxTables();
-            locTable = (RxTables) locRxTables.elementAt(eIndex);
+            locTable = locRxTables.elementAt(eIndex);
             if (locTable.getTableName().equalsIgnoreCase(sTableName)) break;
           }
 
@@ -1178,7 +1179,7 @@ public class RxJdbcTableFactory {
                         || eList.getTagName().equalsIgnoreCase("table") == false)) {
                   atts = eList.getAttributes();
                   String attName = atts.getNamedItem("name").getNodeValue();
-                  String attValue = xmlDataDoc.getElementData(eList);
+                  String attValue = PSXmlTreeWalker.getElementData(eList);
                   if (locColumns == null) locColumns = new WfSqlCreate();
                   locColumns.setColValue(attValue);
                   locColumns.setColName(attName);
@@ -1209,7 +1210,7 @@ public class RxJdbcTableFactory {
                   && (eList.getTagName().equalsIgnoreCase("delete") == false)) {
                 atts = eList.getAttributes();
                 String sName = atts.item(0).getNodeValue();
-                String sValue = xmlDataDoc.getElementData(eList);
+                String sValue = PSXmlTreeWalker.getElementData(eList);
                 if (locColumns == null) locColumns = new WfSqlCreate();
                 locColumns.setColValue(sValue);
                 locColumns.setColName(sName);
@@ -1233,7 +1234,7 @@ public class RxJdbcTableFactory {
                         "Error Processing SQL Statement on table " + locTable.getTableName() + "\n";
                     String sDataError = new String();
                     for (int i = 0; i < vtColumns.size(); i++) {
-                      RxColumns wfErrorColumn = (RxColumns) vtColumns.elementAt(i);
+                      WfSqlCreate wfErrorColumn = vtColumns.elementAt(i);
                       sDataError =
                           sDataError
                               + wfErrorColumn.getColName()
@@ -1275,7 +1276,10 @@ public class RxJdbcTableFactory {
     } // parseTableData()
 
     private String processSqlStmt(
-        RxTables wfLocalTable, Vector<Object> vtColumns, String sAction, DbmsDefinition dbmsDef) {
+        RxTables wfLocalTable,
+        Vector<WfSqlCreate> vtColumns,
+        String sAction,
+        DbmsDefinition dbmsDef) {
       System.out.println("processSqlStmt");
       String sSqlStmt = new String();
       WfSqlCreate newColumns = new WfSqlCreate();
@@ -1304,7 +1308,7 @@ public class RxJdbcTableFactory {
         sPrefix = wfLocalTable.getTableName();
       }
 
-      Vector vtNewColumns = reOrderColumns(wfLocalTable, vtColumns);
+      Vector<WfSqlCreate> vtNewColumns = reOrderColumns(wfLocalTable, vtColumns);
       try {
         cConn = dbmsDef.getConnection();
       } catch (SQLException e) {
@@ -1424,7 +1428,10 @@ public class RxJdbcTableFactory {
 
     // Insertion of new data
     String wfInsertRecord(
-        RxTables wfLocalTable, Vector vtColumns, String sAction, DbmsDefinition dbmsDef) {
+        RxTables wfLocalTable,
+        Vector<WfSqlCreate> vtColumns,
+        String sAction,
+        DbmsDefinition dbmsDef) {
       String sSqlStmt = new String();
       WfSqlCreate newColumns = new WfSqlCreate();
       PreparedStatement pStmt = null;
@@ -1458,11 +1465,11 @@ public class RxJdbcTableFactory {
         sPrefix = wfLocalTable.getTableName();
       }
 
-      Vector vtNewColumns = reOrderColumns(wfLocalTable, vtColumns);
+      Vector<WfSqlCreate> vtNewColumns = reOrderColumns(wfLocalTable, vtColumns);
 
       for (int i = 0; i < vtNewColumns.size(); i++) {
         if (newColumns == null) newColumns = new WfSqlCreate();
-        newColumns = (WfSqlCreate) vtNewColumns.elementAt(i);
+        newColumns = vtNewColumns.elementAt(i);
         sInsertColumns = sInsertColumns + sPrefix + "." + newColumns.getColName() + ",";
         sInsertValues = sInsertValues + "?,";
         newColumns = null;
@@ -1486,7 +1493,7 @@ public class RxJdbcTableFactory {
         for (int i = 1; i <= vtNewColumns.size(); i++) {
           newColumns = null;
           newColumns = new WfSqlCreate();
-          newColumns = (WfSqlCreate) vtNewColumns.elementAt(i - 1);
+          newColumns = vtNewColumns.elementAt(i - 1);
           pStmt = setSqlStmtData(pStmt, newColumns, i, dbmsDef);
         }
 
@@ -1512,7 +1519,10 @@ public class RxJdbcTableFactory {
     }
 
     String wfUpdateRecord(
-        RxTables wfLocalTable, Vector vtColumns, String sAction, DbmsDefinition dbmsDef) {
+        RxTables wfLocalTable,
+        Vector<WfSqlCreate> vtColumns,
+        String sAction,
+        DbmsDefinition dbmsDef) {
       String sSqlStmt = new String();
       WfSqlCreate newColumns = new WfSqlCreate();
       String sUpdateColumns = new String();
@@ -1547,7 +1557,7 @@ public class RxJdbcTableFactory {
         sPrefix = wfLocalTable.getTableName();
       }
 
-      Vector vtNewColumns = reOrderColumns(wfLocalTable, vtColumns);
+      Vector<WfSqlCreate> vtNewColumns = reOrderColumns(wfLocalTable, vtColumns);
 
       try {
         cConn = dbmsDef.getConnection();
@@ -1559,7 +1569,7 @@ public class RxJdbcTableFactory {
 
       newColumns = null;
       newColumns = new WfSqlCreate();
-      newColumns = (WfSqlCreate) vtColumns.elementAt(0);
+      newColumns = vtColumns.elementAt(0);
       sKeyColName = newColumns.getColName();
       sKeyColValue = newColumns.getColValue();
       sKeyColDataType = newColumns.getColDataType().toUpperCase();
@@ -1568,14 +1578,14 @@ public class RxJdbcTableFactory {
       for (i = 1; i < vtColumns.size(); i++) {
         newColumns = null;
         newColumns = new WfSqlCreate();
-        newColumns = (WfSqlCreate) vtNewColumns.elementAt(i);
+        newColumns = vtNewColumns.elementAt(i);
         sUpdateColumns = sUpdateColumns + sPrefix + "." + newColumns.getColName() + "=?,";
         newColumns = null;
       }
       if (vtColumns.size() == 1) {
         newColumns = null;
         newColumns = new WfSqlCreate();
-        newColumns = (WfSqlCreate) vtColumns.elementAt(0);
+        newColumns = vtColumns.elementAt(0);
         sUpdateColumns = sUpdateColumns + sPrefix + "." + newColumns.getColName() + "=?,";
         newColumns = null;
       }
@@ -1583,7 +1593,7 @@ public class RxJdbcTableFactory {
       sUpdateColumns = " SET " + sUpdateColumns;
       newColumns = null;
       newColumns = new WfSqlCreate();
-      newColumns = (WfSqlCreate) vtColumns.elementAt(0);
+      newColumns = vtColumns.elementAt(0);
       sSqlStmt =
           "UPDATE " + sPrefix + sUpdateColumns + " WHERE " + sPrefix + "." + sKeyColName + "=?";
 
@@ -1591,13 +1601,11 @@ public class RxJdbcTableFactory {
       try {
         pStmt = PSPreparedStatement.getPreparedStatement(cConn, sSqlStmt);
         for (i = 1; i < vtNewColumns.size(); i++) {
-          WfSqlCreate valColumn = new WfSqlCreate();
-          valColumn = (WfSqlCreate) vtNewColumns.elementAt(i);
+          WfSqlCreate valColumn = vtNewColumns.elementAt(i);
           pStmt = setSqlStmtData(pStmt, valColumn, i, dbmsDef);
         }
         if (vtNewColumns.size() == 1) {
-          WfSqlCreate valColumn = new WfSqlCreate();
-          valColumn = (WfSqlCreate) vtNewColumns.elementAt(0);
+          WfSqlCreate valColumn = vtNewColumns.elementAt(0);
           pStmt = setSqlStmtData(pStmt, valColumn, 1, dbmsDef);
         }
         // Set Key Column
@@ -1663,7 +1671,10 @@ public class RxJdbcTableFactory {
 
     // Delete the Record
     String wfDeleteRecord(
-        RxTables wfLocalTable, Vector vtColumns, String sAction, DbmsDefinition dbmsDef) {
+        RxTables wfLocalTable,
+        Vector<WfSqlCreate> vtColumns,
+        String sAction,
+        DbmsDefinition dbmsDef) {
       String sSqlStmt = new String();
       String sKeyColName = new String();
       String sKeyColValue = new String();
@@ -1692,7 +1703,7 @@ public class RxJdbcTableFactory {
         sPrefix = wfLocalTable.getTableName();
       }
 
-      Vector vtNewColumns = reOrderColumns(wfLocalTable, vtColumns);
+      Vector<WfSqlCreate> vtNewColumns = reOrderColumns(wfLocalTable, vtColumns);
 
       try {
         cConn = dbmsDef.getConnection();
@@ -1709,7 +1720,7 @@ public class RxJdbcTableFactory {
         sKeyColName = "";
         sKeyColValue = "";
         newColumns = new WfSqlCreate();
-        newColumns = (WfSqlCreate) vtNewColumns.elementAt(0);
+        newColumns = vtNewColumns.elementAt(0);
         sKeyColName = newColumns.getColName();
         sKeyColValue = newColumns.getColValue();
         sSqlStmt = "DELETE FROM " + sPrefix + " WHERE " + sPrefix + "." + sKeyColName + "=?";
@@ -1883,7 +1894,8 @@ public class RxJdbcTableFactory {
       return pStmt;
     } // SetSqlStemData
 
-    private Vector<WfSqlCreate> reOrderColumns(RxTables wfLocalTable, Vector<Object> vtColumns) {
+    private Vector<WfSqlCreate> reOrderColumns(
+        RxTables wfLocalTable, Vector<WfSqlCreate> vtColumns) {
       Vector<WfSqlCreate> vtOrderedColumns = new Vector<>(); // Return Param
       Vector<RxColumns> vtTabColumns = new Vector<>();
 
@@ -1891,11 +1903,11 @@ public class RxJdbcTableFactory {
 
       for (int i = 0; i < vtTabColumns.size(); i++) {
         RxColumns RxColumns = new RxColumns();
-        RxColumns = (RxColumns) vtTabColumns.elementAt(i);
+        RxColumns = vtTabColumns.elementAt(i);
         String colName = RxColumns.getColName();
         for (int j = 0; j < vtColumns.size(); j++) {
           WfSqlCreate locColumns = new WfSqlCreate();
-          locColumns = (WfSqlCreate) vtColumns.elementAt(j);
+          locColumns = vtColumns.elementAt(j);
           if (locColumns.getColName().equalsIgnoreCase(colName) == true) {
             locColumns.setColDataType(RxColumns.getJdbcDataType());
             vtOrderedColumns.add(locColumns);
@@ -1988,7 +2000,7 @@ public class RxJdbcTableFactory {
               // check rxTable against orgTable
               // rxtable is from the xml def
               // orgTable is from the sql db
-              Vector vColumnActions = rxTable.compareTables(orgTable);
+              Vector<RxColumns> vColumnActions = rxTable.compareTables(orgTable);
               boolean bAnyNonUser = RxJdbcTableFactory.anyNonUser(vColumnActions);
               if (bAnyNonUser) {
                 // we have table changes, but do we have only adds?
@@ -1997,7 +2009,7 @@ public class RxJdbcTableFactory {
                   System.out.println("found only column adds for " + rxTable.getTableName());
 
                   for (int iAddCol = 0; iAddCol < vColumnActions.size(); ++iAddCol) {
-                    RxColumns addCol = (RxColumns) vColumnActions.get(iAddCol);
+                    RxColumns addCol = vColumnActions.get(iAddCol);
 
                     s = getAddColumnStatement(addCol);
                     System.out.println("Executing: " + s);
@@ -2066,7 +2078,7 @@ public class RxJdbcTableFactory {
                       checkUserTable(dbmsDef, strQualBackupName, strBackupTable);
 
                   // check the table design
-                  Vector vDiffs = orgTable.compareTables(rxBackupTable);
+                  Vector<RxColumns> vDiffs = orgTable.compareTables(rxBackupTable);
                   if (vDiffs.size() > 0) {
                     return "Table upgrade aborted. Copying of backup failed to copy table design.";
                   }
@@ -2111,7 +2123,7 @@ public class RxJdbcTableFactory {
                     // now add the user defined columns that we do not know
                     // about
                     for (int iColAction = 0; iColAction < vColumnActions.size(); ++iColAction) {
-                      RxColumns col = (RxColumns) vColumnActions.get(iColAction);
+                      RxColumns col = vColumnActions.get(iColAction);
 
                       if (col.getColAction() == RxColumns.USER_COLUMN) {
                         s = getAddColumnStatement(col);
@@ -2345,7 +2357,7 @@ public class RxJdbcTableFactory {
     } // generateTable
 
     // Creation of Primary Keys
-    String createPrimaryKey(List key, Statement stStmt) {
+    String createPrimaryKey(List<String> key, Statement stStmt) {
       String sStmt = new String();
 
       if (key.size() > 0) {
@@ -2368,7 +2380,7 @@ public class RxJdbcTableFactory {
 
       Vector<String> vKeys = new Vector<>();
       for (int iCol = 0; iCol < rxTable.vColumns.size(); ++iCol) {
-        RxColumns col = (RxColumns) rxTable.vColumns.get(iCol);
+        RxColumns col = rxTable.vColumns.get(iCol);
         if (col.getKey()) vKeys.add(col.getColName());
       }
 
@@ -2654,7 +2666,7 @@ public class RxJdbcTableFactory {
       vtColumns = orgTable.vColumns;
       for (int i = 0; i < orgTable.vColumns.size(); i++) {
         RxColumns orgColumns = new RxColumns();
-        orgColumns = (RxColumns) vtColumns.elementAt(i);
+        orgColumns = vtColumns.elementAt(i);
         sColumn = sColumn + "," + prefix + orgTable.getTableName() + "." + orgColumns.getColName();
       }
       sColumn = sColumn.substring(1);
@@ -2677,8 +2689,8 @@ public class RxJdbcTableFactory {
     } // storeOldData
 
     private sqlTransactLog setColumnData(RxTables orgTable, ResultSet rsResults) {
-      Vector vtOldTables = cDB.wfOldTables;
-      Vector vtOrgColumns = orgTable.vColumns;
+      Vector<RxTables> vtOldTables = cDB.wfOldTables;
+      Vector<RxColumns> vtOrgColumns = orgTable.vColumns;
       Vector<RxColumns> vtStoredColumns = new Vector<>();
       RxTables oldTables = new RxTables();
       Vector<Object> vtValues = new Vector<>();
@@ -2690,7 +2702,7 @@ public class RxJdbcTableFactory {
           rowCount++;
           RxColumns oldColumn = new RxColumns();
           for (int i = 0; i < vtOrgColumns.size(); i++) {
-            oldColumn = (RxColumns) vtOrgColumns.elementAt(i);
+            oldColumn = vtOrgColumns.elementAt(i);
             String sColValue = rsResults.getString(oldColumn.getColName());
             if (sColValue == null) sColValue = "";
             //                  int dataType = rsResults.getMetaData();
@@ -2739,8 +2751,8 @@ public class RxJdbcTableFactory {
       int i = 0;
       int rowCount = 0;
 
-      Vector vtOldColumns = wfTable.vColumns;
-      RxColumns tmpRxColumns = (RxColumns) vtOldColumns.elementAt(0);
+      Vector<RxColumns> vtOldColumns = wfTable.vColumns;
+      RxColumns tmpRxColumns = vtOldColumns.elementAt(0);
       rowCount = tmpRxColumns.vtOldValues.size();
       try {
         Element eDataRoot = xmlDoc.getDocumentElement();
@@ -2750,10 +2762,10 @@ public class RxJdbcTableFactory {
           eRow = xmlDoc.createElement("row");
           Element eColumn = null;
           for (i = 0; i < vtOldColumns.size(); i++) {
-            RxColumns wfColumn = (RxColumns) vtOldColumns.elementAt(i);
+            RxColumns wfColumn = vtOldColumns.elementAt(i);
             eColumn = xmlDoc.createElement("column");
             eColumn.setAttribute("name", wfColumn.getColName());
-            String sColValue = (String) wfColumn.vtOldValues.elementAt(j);
+            String sColValue = wfColumn.vtOldValues.elementAt(j);
             if (wfColumn.getJdbcDataType().equalsIgnoreCase("LONGVARBINARY")
                 && sColValue != null
                 && sColValue.length() > 0) { // TODO == Ram ????
@@ -2779,7 +2791,7 @@ public class RxJdbcTableFactory {
     }
 
     // Create an Element from a Table Name and Column Vector
-    Document createDtdElement(Document dtdDoc, String tableName, Vector vtColumns) {
+    Document createDtdElement(Document dtdDoc, String tableName, Vector<RxColumns> vtColumns) {
       Element eDtd = null;
       Document xmlDoc = dtdDoc;
 
@@ -2791,7 +2803,7 @@ public class RxJdbcTableFactory {
 
         Element eColumn = null;
         for (int i = 0; i < vtColumns.size(); i++) {
-          RxColumns column = (RxColumns) vtColumns.elementAt(i);
+          RxColumns column = vtColumns.elementAt(i);
           eColumn = xmlDoc.createElement("column");
           eColumn.setAttribute("name", column.getColName());
           Element eDataType = xmlDoc.createElement("jdbctype");
@@ -2829,13 +2841,13 @@ public class RxJdbcTableFactory {
       String sPrefix = new String();
       Vector<RxColumns> vtColumns = new Vector<>();
 
-      Vector vtOldTables = cDB.wfOldTables;
+      Vector<RxTables> vtOldTables = cDB.wfOldTables;
 
       // TODO ==  Replace TableName with NewTableName
-      Vector vtTables = cDB.RxTables;
+      Vector<RxTables> vtTables = cDB.RxTables;
 
       for (int i = 0; i < vtOldTables.size(); i++) {
-        oldTable = (RxTables) vtOldTables.elementAt(i);
+        oldTable = vtOldTables.elementAt(i);
         if (oldTable.getTableName().equalsIgnoreCase(sTableName) == true) {
           vtColumns = oldTable.vColumns;
           String sColumns = new String();
@@ -2853,7 +2865,7 @@ public class RxJdbcTableFactory {
           String qMarks = new String();
           for (int j = 0; j < vtColumns.size(); j++) {
             RxColumns oldColumn = new RxColumns();
-            oldColumn = (RxColumns) vtColumns.elementAt(j);
+            oldColumn = vtColumns.elementAt(j);
             sColumns = sColumns + "," + sPrefix + "." + oldColumn.getColName();
             qMarks = qMarks + ",?";
             oldColumn = null;
@@ -2867,15 +2879,15 @@ public class RxJdbcTableFactory {
         }
       }
 
-      Vector vtOldColumns = oldTable.vColumns;
+      Vector<RxColumns> vtOldColumns = oldTable.vColumns;
       try {
         cConn = dbmsDef.getConnection();
         cConn.setAutoCommit(false); // Trun off Auto Commit
         for (int i = 0; i < iRowCount; i++) {
           PreparedStatement pStmt = PSPreparedStatement.getPreparedStatement(cConn, sSQLInsert);
           for (int j = 0; j < oldTable.vColumns.size(); j++) {
-            RxColumns oldDataColumn = (RxColumns) vtOldColumns.elementAt(j);
-            String sOldColValue = (String) oldDataColumn.vtOldValues.elementAt(i);
+            RxColumns oldDataColumn = vtOldColumns.elementAt(j);
+            String sOldColValue = oldDataColumn.vtOldValues.elementAt(i);
             // System.out.println(oldDataColumn.getColName()+
             //                  "[" + oldDataColumn.getColNo() +
             //                  "]= "+sOldColValue);
@@ -3015,7 +3027,7 @@ public class RxJdbcTableFactory {
         case CREATE_NEW_OVERWRITE:
           try {
             FileOutputStream fOutDataFile = new FileOutputStream(sFileName);
-            fileDoc.write(dDataDoc, fOutDataFile);
+            PSXmlDocumentBuilder.write(dDataDoc, fOutDataFile);
             fOutDataFile.close();
           } catch (Exception e) {
             log.error(PSExceptionUtils.getMessageForLog(e));
@@ -3034,7 +3046,7 @@ public class RxJdbcTableFactory {
           }
           try {
             FileOutputStream fOutDataFile = new FileOutputStream(sFileName);
-            fileDoc.write(dDataDoc, fOutDataFile);
+            PSXmlDocumentBuilder.write(dDataDoc, fOutDataFile);
             fOutDataFile.close();
           } catch (Exception e) {
             log.error(PSExceptionUtils.getMessageForLog(e));
@@ -3108,7 +3120,7 @@ public class RxJdbcTableFactory {
           String value = w.getElementData(".", false);
 
           // get this as a 1-based index
-          Integer colNo = (Integer) m_columnPos.get(name);
+          Integer colNo = m_columnPos.get(name);
           if (colNo == null) {
             try {
               stmt.close();
@@ -3118,11 +3130,7 @@ public class RxJdbcTableFactory {
             throw new IllegalArgumentException(
                 "Failed to load data. " + name + " is not a defined column name.");
           }
-          storeColumnData(
-              stmt,
-              (ColumnDefinition) m_columns.get(colNo.intValue() - 1),
-              value,
-              colNo.intValue());
+          storeColumnData(stmt, m_columns.get(colNo.intValue() - 1), value, colNo.intValue());
         }
 
         rowCount += stmt.executeUpdate();
@@ -3171,18 +3179,14 @@ public class RxJdbcTableFactory {
               String value = w.getElementData(".", false);
 
               // get this as a 1-based index
-              Integer colNo = (Integer) m_columnPos.get(name);
+              Integer colNo = m_columnPos.get(name);
               if (colNo == null) {
                 conn.setAutoCommit(false);
                 throw new IllegalArgumentException(
                     "Failed to sanity check. " + name + " is not a defined column name.");
               }
 
-              compareColumnData(
-                  rs,
-                  (ColumnDefinition) m_columns.get(colNo.intValue() - 1),
-                  value,
-                  colNo.intValue());
+              compareColumnData(rs, m_columns.get(colNo.intValue() - 1), value, colNo.intValue());
             }
             rowCount++;
           }
@@ -3518,11 +3522,11 @@ public class RxJdbcTableFactory {
     private Element m_dataNode;
     private DbmsDefinition m_dbmsDef = null;
 
-    List getColumns() {
+    List<ColumnDefinition> getColumns() {
       return m_columns;
     }
 
-    HashMap getColumnPos() {
+    HashMap<String, Integer> getColumnPos() {
       return m_columnPos;
     }
   }
@@ -3638,7 +3642,7 @@ public class RxJdbcTableFactory {
     ColumnDefinition(DbmsDefinition dbmsDef, PSXmlTreeWalker w) throws java.sql.SQLException {
       m_name = dbmsDef.fixIdentifierCase(w.getElementData("@name", false));
       m_jdbcType = w.getElementData("jdbctype", false);
-      m_nativeType = (String) dbmsDef.getDataTypeMapping(m_jdbcType);
+      m_nativeType = dbmsDef.getDataTypeMapping(m_jdbcType);
       if (m_nativeType == null) m_nativeType = m_jdbcType; // hope this works
       m_jdbcIntType = dbmsDef.getJdbcTypeMapping(m_jdbcType);
 
@@ -3827,12 +3831,12 @@ public class RxJdbcTableFactory {
    *
    * @param vColumnChanges - Vector of RxColumns to check.
    */
-  public static final boolean onlyAdds(Vector vColumnChanges) {
+  public static final boolean onlyAdds(Vector<RxColumns> vColumnChanges) {
     boolean bOnlyAdds = true;
 
     if (vColumnChanges != null) {
       for (int iCol = 0; iCol < vColumnChanges.size(); ++iCol) {
-        RxColumns column = (RxColumns) vColumnChanges.get(iCol);
+        RxColumns column = vColumnChanges.get(iCol);
 
         if (column != null) {
           if (column.getColAction() != RxColumns.ADD_COLUMN) return (false);
@@ -3849,12 +3853,12 @@ public class RxJdbcTableFactory {
    *
    * @param vColumnChanges - Vector of RxColumns to check.
    */
-  public static final boolean anyNonUser(Vector vColumnChanges) {
+  public static final boolean anyNonUser(Vector<RxColumns> vColumnChanges) {
     boolean bAnyNonUser = false;
 
     if (vColumnChanges != null) {
       for (int iCol = 0; iCol < vColumnChanges.size(); ++iCol) {
-        RxColumns column = (RxColumns) vColumnChanges.get(iCol);
+        RxColumns column = vColumnChanges.get(iCol);
 
         if (column != null) {
           if (column.getColAction() != RxColumns.USER_COLUMN) {
@@ -3923,8 +3927,8 @@ public class RxJdbcTableFactory {
     String propsFile = null;
     String typemapFile = null;
 
-    Collection defs = new ArrayList();
-    Collection datas = new ArrayList();
+    Collection<String> defs = new ArrayList<>();
+    Collection<String> datas = new ArrayList<>();
 
     boolean nextDbProps = false;
     boolean nextDbTypeMap = false;
@@ -3974,10 +3978,10 @@ public class RxJdbcTableFactory {
       conn = PSJdbcTableFactory.getConnection(dbmsDef);
 
       // get table def files
-      Iterator itdefs = defs.iterator();
+      Iterator<String> itdefs = defs.iterator();
 
       while (itdefs.hasNext()) {
-        String filePath = (String) itdefs.next();
+        String filePath = itdefs.next();
 
         Document doc =
             PSXmlDocumentBuilder.createXmlDocument(new FileInputStream(new File(filePath)), false);
@@ -3987,10 +3991,10 @@ public class RxJdbcTableFactory {
       }
 
       // get table data files
-      Iterator itdatas = datas.iterator();
+      Iterator<String> itdatas = datas.iterator();
 
       while (itdatas.hasNext()) {
-        String filePath = (String) itdatas.next();
+        String filePath = itdatas.next();
 
         File f = new File(filePath);
 
@@ -4010,12 +4014,12 @@ public class RxJdbcTableFactory {
       }
 
       int schemaObjectsLen = schemaColl.size();
-      Iterator it = schemaColl.iterator();
+      Iterator<PSJdbcTableSchema> it = schemaColl.iterator();
       int percentCompleted = 0;
       int index = 0;
 
       while (it.hasNext()) {
-        schema = (PSJdbcTableSchema) it.next();
+        schema = it.next();
         String tblName = schema.getName();
         data = dataColl.getTableData(tblName);
         // getTableData may return null if this table has no data associated

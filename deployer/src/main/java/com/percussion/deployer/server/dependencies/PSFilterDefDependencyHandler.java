@@ -56,8 +56,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Class to handle packaging and deploying a Filter definition.
@@ -254,7 +252,11 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
     } catch (PSDeployServiceException e) {
       throw new PSDeployException(
           IPSDeploymentErrors.UNEXPECTED_ERROR,
-          "error occurred while installing site: " + e.getLocalizedMessage());
+          e,
+          "error occurred while installing filter: " + e.getLocalizedMessage());
+    } catch (RuntimeException e) {
+      throw new PSDeployException(
+          IPSDeploymentErrors.UNEXPECTED_ERROR, e, PSFilterInstallUtils.formatInstallError(e));
     }
 
     // add transaction log
@@ -262,22 +264,31 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
   }
 
   /**
-   * TROLL thru the object and restore the versions of child-lings ;).
+   * Persist the filter. {@code ver} is the Hibernate optimistic-lock version from the target DB for
+   * updates, or {@code null} for inserts ({@link
+   * com.percussion.services.filter.impl.PSFilterManager#saveFilter} treats null version as
+   * persist-new).
    *
    * @param f the actual filter never <code>null</code>
-   * @param ver the version of filter
+   * @param ver the version of filter, may be <code>null</code> for new filters
    * @throws PSDeployException
    */
-  @Transactional(propagation = Propagation.REQUIRED)
+  /**
+   * Not Spring-managed — do not put {@code @Transactional} here. Persistence runs under {@link
+   * com.percussion.deployer.services.impl.PSDeployService}'s transaction (and the filter service's
+   * own {@code @Transactional} join). Nested annotations on non-proxied handlers are ignored and
+   * mislead maintainers.
+   */
   public void saveFilter(IPSItemFilter f, Integer ver) throws PSDeployException {
-    // nullify and set it to the passed version of the Filter, can be null
-    ((PSItemFilter) f).setVersion(null);
+    // Apply version once. Do not null-then-restore on a managed entity elsewhere in the TX —
+    // that dirties the session with a null @Version and fails flush under Hibernate 7.
     ((PSItemFilter) f).setVersion(ver);
     try {
       m_filterSvc.saveFilter(f);
     } catch (Exception e1) {
       throw new PSDeployException(
           IPSDeploymentErrors.UNEXPECTED_ERROR,
+          e1,
           "Could not save or update the filter:" + f.getName() + "\n" + e1.getLocalizedMessage());
     }
   }

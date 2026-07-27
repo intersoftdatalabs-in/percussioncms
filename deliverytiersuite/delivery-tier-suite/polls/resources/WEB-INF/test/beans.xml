@@ -37,18 +37,18 @@
             <!-- Global and database-agnostic Hibernate properties -->
 
 		    <!-- Apache Derby -->
-	        <prop key="jdbcUrl">jdbc:derby:memory:percpolls;create=true</prop>
+	        <prop key="jdbcUrl">jdbc:h2:mem:percpolls;DB_CLOSE_DELAY=-1</prop>
            <!-- Use the standard Derby embedded driver class -->
-           <prop key="jdbcDriver">org.apache.derby.jdbc.EmbeddedDriver</prop>
+           <prop key="jdbcDriver">org.h2.Driver</prop>
 	        <prop key="db.username">test</prop>
 	        <prop key="db.password">test</prop>
-	        <prop key="db.schema">APP</prop>
+	        <prop key="db.schema">PUBLIC</prop>
             <prop key="datasource">percDataSource</prop>
             <prop key="hibernateProperties">percHibernateProperties</prop>
             <prop key="hibernate.cache.use_second_level_cache">false</prop>
             <prop key="hibernate.cache.use_query_cache">false</prop>
-	        <prop key="hibernate.dialect">org.hibernate.community.dialect.DerbyDialect</prop>
-	        <prop key="hibernate.query.substitutions">true 'T', false 'F'</prop>
+	        <prop key="hibernate.dialect">org.hibernate.dialect.H2Dialect</prop>
+	        <prop key="hibernate.query.substitutions"></prop>
 
             <!-- MySQL -->
 <!-- 	        <prop key="jdbcUrl">jdbc:mysql://localhost:3306/deliverydb</prop> -->

@@ -52,6 +52,8 @@ import org.apache.tools.ant.Task;
  * </pre>
  */
 public class PSMakeLasagna extends Task {
+  /** Creates a new make lasagna task. */
+  public PSMakeLasagna() {}
 
   /**
    * Sets the root directory.

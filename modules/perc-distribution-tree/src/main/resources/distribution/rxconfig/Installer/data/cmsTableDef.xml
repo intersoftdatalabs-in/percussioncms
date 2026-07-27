@@ -4917,26 +4917,28 @@
                 <size>250</size>
                 <allowsnull>no</allowsnull>
             </column>
+            <!-- BIT maps to BOOLEAN on PostgreSQL/H2 and BIT on SQL Server/MySQL;
+                 Quartz JDBC delegates bind these flags with setBoolean/getBoolean. -->
             <column name="IS_DURABLE">
-                <jdbctype>VARCHAR</jdbctype>
-                <size>5</size>
+                <jdbctype>BIT</jdbctype>
+                <size/>
                 <allowsnull>no</allowsnull>
             </column>
             <column name="IS_NONCONCURRENT">
-                <jdbctype>VARCHAR</jdbctype>
-                <size>5</size>
+                <jdbctype>BIT</jdbctype>
+                <size/>
                 <allowsnull>no</allowsnull>
                 <defaultvalue>0</defaultvalue>
             </column>
             <column name="IS_UPDATE_DATA">
-                <jdbctype>VARCHAR</jdbctype>
-                <size>5</size>
+                <jdbctype>BIT</jdbctype>
+                <size/>
                 <allowsnull>no</allowsnull>
                 <defaultvalue>0</defaultvalue>
             </column>
             <column name="REQUESTS_RECOVERY">
-                <jdbctype>VARCHAR</jdbctype>
-                <size>5</size>
+                <jdbctype>BIT</jdbctype>
+                <size/>
                 <allowsnull>no</allowsnull>
             </column>
             <column name="JOB_DATA">
@@ -5324,13 +5326,13 @@
                 <allowsnull>yes</allowsnull>
             </column>
             <column name="IS_NONCONCURRENT">
-                <jdbctype>VARCHAR</jdbctype>
-                <size>1</size>
+                <jdbctype>BIT</jdbctype>
+                <size/>
                 <allowsnull>yes</allowsnull>
             </column>
             <column name="REQUESTS_RECOVERY">
-                <jdbctype>VARCHAR</jdbctype>
-                <size>1</size>
+                <jdbctype>BIT</jdbctype>
+                <size/>
                 <allowsnull>yes</allowsnull>
             </column>
         </row>

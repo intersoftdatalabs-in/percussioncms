@@ -278,7 +278,7 @@ public class PSResourceLinkAndLocationUtils {
    * characters that are not allowed come from the Windows operating system as it is more
    * restrictive than Unix.
    *
-   * <p>The following characters are bad: \ | < > ? " : *
+   * <p>The following characters are bad: {@code \ | < > ? " : *}
    *
    * @param path never {@code null} or empty.
    * @throws IllegalArgumentException if the path is bad

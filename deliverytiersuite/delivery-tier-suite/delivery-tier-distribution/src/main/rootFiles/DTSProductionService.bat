@@ -39,13 +39,13 @@ rem Guess CATALINA_HOME if not defined
 set CURRENT_DIR=%cd%
 
 set CATALINA_HOME=%cd%
-if exist "%CATALINA_HOME%\bin\tomcat9.exe" goto okHome
+if exist "%CATALINA_HOME%\bin\tomcat11.exe" goto okHome
 rem CD to the upper dir
 cd ..
 set CATALINA_HOME=%cd%
 :gotHome
-if exist "%CATALINA_HOME%\bin\tomcat9.exe" goto okHome
-echo The tomcat9.exe was not found...
+if exist "%CATALINA_HOME%\bin\tomcat11.exe" goto okHome
+echo The tomcat11.exe was not found...
 echo The CATALINA_HOME environment variable is not defined correctly.
 echo This environment variable is needed to run this program
 goto end
@@ -54,7 +54,7 @@ rem Make sure prerequisite environment variables are set
 
 set CATALINA_BASE=%CATALINA_HOME%
  
-set EXECUTABLE=%CATALINA_HOME%\bin\tomcat9.exe
+set EXECUTABLE=%CATALINA_HOME%\bin\tomcat11.exe
 
 rem Set default Service name
 set SERVICE_NAME=PercussionProductionDTS
@@ -82,10 +82,16 @@ echo The service '%SERVICE_NAME%' has been removed
 goto end
 
 :doInstall
-cd %CATALINA_HOME%
-cd ..\..\JRE
-SET JRE_HOME=%cd%
-SET JAVA_HOME=%cd%
+REM GH-991: install-time selection wrote java.properties at product surface root.
+REM Hard-fail via resolve helper — do not require <InstallRoot>\JRE.
+REM Script lives at <InstallRoot>\Deployment\Server\; helper is two levels up.
+call "%~dp0..\..\resolve-java-home.bat" "%~dp0..\.."
+if errorlevel 1 (
+    echo DTSProductionService: Java home resolution failed. Check java.properties or JAVA_HOME. 1>&2
+    goto end
+)
+
+SET JRE_HOME=%JAVA_HOME%
 
 rem Install the service
 echo Installing the service '%SERVICE_NAME%' ...
@@ -117,12 +123,13 @@ set PR_LOGPATH=
 set PR_CLASSPATH=
 set PR_JVM=
 rem Set extra parameters
-"%EXECUTABLE%" //US//%SERVICE_NAME% --JvmOptions "-Dcatalina.base=%CATALINA_BASE%;-Dcatalina.home=%CATALINA_HOME%;-Djava.endorsed.dirs=%CATALINA_HOME%\endorsed" --StartMode jvm --StopMode jvm
+REM Note: java.endorsed.dirs property is not supported on Java 9+ (fatal on 21); do not add it back.
+"%EXECUTABLE%" //US//%SERVICE_NAME% --JvmOptions "-Dcatalina.base=%CATALINA_BASE%;-Dcatalina.home=%CATALINA_HOME%" --StartMode jvm --StopMode jvm
 rem More extra parameters
 set PR_LOGPATH=%CATALINA_BASE%\logs
 set PR_STDOUTPUT=auto
 set PR_STDERROR=auto
-"%EXECUTABLE%" //US//%SERVICE_NAME% ++JvmOptions "-Djava.net.preferIPv4Stack=true;-Djava.net.preferIPv4Addresses=true;-Djava.io.tmpdir=%CATALINA_BASE%\temp;-Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager;-Djava.util.logging.config.file=%CATALINA_BASE%\log4j2\conf\log4j2-tomcat.xml;-Dfile.encoding=UTF-8;-Dderby.system.home=%CATALINA_HOME%\derbydata" --JvmMs 128 --JvmMx 1024
+"%EXECUTABLE%" //US//%SERVICE_NAME% ++JvmOptions "-Djava.net.preferIPv4Stack=true;-Djava.net.preferIPv4Addresses=true;-Djava.io.tmpdir=%CATALINA_BASE%\temp;-Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager;-Djava.util.logging.config.file=%CATALINA_BASE%\log4j2\conf\log4j2-tomcat.xml;-Dfile.encoding=UTF-8;-Dderby.system.home=%CATALINA_HOME%\derbydata;-Dperc.h2.data.home=%CATALINA_HOME%\h2data" --JvmMs 128 --JvmMx 1024
 echo The service '%SERVICE_NAME%' has been installed.
 
 :end

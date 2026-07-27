@@ -1,5 +1,5 @@
 <%@page contentType="text/html; charset=utf-8"
-		import="org.apache.commons.lang.StringEscapeUtils"
+		import="org.apache.commons.lang3.StringEscapeUtils"
 		import="com.percussion.server.PSServer"
 		import="java.util.Enumeration" %>
 

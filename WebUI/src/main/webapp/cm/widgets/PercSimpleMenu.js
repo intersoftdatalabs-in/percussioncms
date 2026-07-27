@@ -66,6 +66,90 @@
   };
 
   /**
+   * Resolve a menu label without ever passing an untrusted string to $().
+   * CodeQL js/unsafe-jquery-plugin (#1681): pre-fix used $(menuLabels[ml]), which
+   * HTML-parses strings that look like markup.
+   *
+   * - jQuery / DOM nodes pass through
+   * - plain strings become text in a &lt;span&gt;
+   * - simple first-party "&lt;a&gt;...&lt;/a&gt;" becomes a real &lt;a&gt; with text only
+   *   (href/target applied later from trusted callbackData)
+   */
+  function resolveMenuLabel(label) {
+    if (label == null || label === "") {
+      return $("<span>");
+    }
+    if (label.jquery) {
+      return label;
+    }
+    if (typeof label === "object" && label.nodeType) {
+      return $(label);
+    }
+    if (typeof label !== "string") {
+      return $("<span>").text(String(label));
+    }
+    var trimmed = label.trim();
+    // First-party "<a>label</a>" only: parse with DOMParser and take textContent.
+    // Do NOT regex-strip tags (CodeQL js/incomplete-multi-character-sanitization #1780).
+    if (/^<a[\s>]/i.test(trimmed) && /<\/a>\s*$/i.test(trimmed)) {
+      try {
+        var doc = new DOMParser().parseFromString(trimmed, "text/html");
+        var anchors = doc.body ? doc.body.getElementsByTagName("a") : [];
+        if (
+          anchors.length === 1 &&
+          doc.body.children.length === 1 &&
+          anchors[0].tagName === "A"
+        ) {
+          return $("<a>").text(anchors[0].textContent || "");
+        }
+      } catch (e) {
+        // fall through to plain text
+      }
+    }
+    // Plain text or any other string — never pass to $() HTML constructor
+    return $("<span>").text(label);
+  }
+
+  /**
+   * Set title content without .html(string) for plain labels; allow jQuery/DOM.
+   */
+  function setTitleContent($el, content) {
+    $el.empty();
+    if (content == null) {
+      return;
+    }
+    if (content.jquery || (typeof content === "object" && content.nodeType)) {
+      $el.append(content);
+      return;
+    }
+    if (typeof content === "string" && content.trim().charAt(0) === "<") {
+      // First-party icon markup (e.g. &lt;img&gt;): parse via DOMParser, allow only img
+      try {
+        var doc = new DOMParser().parseFromString(content, "text/html");
+        var imgs = doc.body.querySelectorAll("img");
+        if (imgs.length === 1 && doc.body.children.length === 1) {
+          var src = imgs[0].getAttribute("src") || "";
+          if (
+            !/^\s*javascript:/i.test(src) &&
+            !/^\s*data:text\/html/i.test(src)
+          ) {
+            var img = document.createElement("img");
+            img.setAttribute("src", src);
+            if (imgs[0].getAttribute("alt") != null) {
+              img.setAttribute("alt", imgs[0].getAttribute("alt"));
+            }
+            $el.append(img);
+            return;
+          }
+        }
+      } catch (e) {
+        // fall through to text
+      }
+    }
+    $el.text(String(content));
+  }
+
+  /**
    *  percSimpleMenu()
    *  plugin implementation
    */
@@ -82,20 +166,24 @@
 
     // create menu dynamically
     // create menu container, add title
-    var $menu = $("<div class='perc-simplemenu-menu'>");
-    var $menuTitle = $("<div class='perc-simplemenu-title'>");
-    $menuTitle.append(menuTitleCollapsed);
+    var $menu = $("<div>").addClass("perc-simplemenu-menu");
+    var $menuTitle = $("<div>").addClass("perc-simplemenu-title");
+    setTitleContent($menuTitle, menuTitleCollapsed);
 
     // add menu items
-    var $menuItems = $("<div class='perc-simplemenu-menuitems'>");
-    for (ml = 0; ml < menuLabels.length; ml++) {
-      var $menuItem = $("<div class='perc-simplemenu-menuitem'>");
-      var $menuLabel = $(menuLabels[ml]);
+    var $menuItems = $("<div>").addClass("perc-simplemenu-menuitems");
+    for (var ml = 0; ml < menuLabels.length; ml++) {
+      var $menuItem = $("<div>").addClass("perc-simplemenu-menuitem");
+      var $menuLabel = resolveMenuLabel(menuLabels[ml]);
 
       if ($menuLabel.is("a")) {
         $menuItem.css("padding", "0");
 
-        if (callbackData[ml].formSummary.totalSubmissions > 0) {
+        if (
+          callbackData[ml] &&
+          callbackData[ml].formSummary &&
+          callbackData[ml].formSummary.totalSubmissions > 0
+        ) {
           $menuLabel.attr(
             "href",
             escape(
@@ -108,17 +196,20 @@
           $menuLabel.attr("target", "_blank");
         }
 
-        $menuLabel.attr(
-          "style",
-          "text-decoration: none; padding: 0; " +
-            "font-family: Verdana; font-size: 11px; " +
-            "color: white; display: block; width: 100%; padding: 5px"
-        );
-      } else {
-        $menuLabel = menuLabels[ml];
+        $menuLabel.css({
+          "text-decoration": "none",
+          padding: "5px",
+          "font-family": "Verdana",
+          "font-size": "11px",
+          color: "white",
+          display: "block",
+          width: "100%",
+        });
       }
       // add the new class, use with identifier unique
-      $menuItem.addClass(optionClasses[ml]);
+      if (optionClasses[ml]) {
+        $menuItem.addClass(optionClasses[ml]);
+      }
       // configure each menu item
       $menuItem
         .data("callbackData", callbackData[ml])
@@ -222,7 +313,7 @@
     var menuTitleCollapsed = config.menuTitleCollapsed;
     var menuTitle = menu.find(".perc-simplemenu-title");
 
-    menuTitle.html(menuTitleExpanded);
+    setTitleContent(menuTitle, menuTitleExpanded);
     menuItems.css("position", "absolute");
     // Get pagination control as a reference to calculate menu's position (upwards or downwards)
     var oPaginate = $("#" + menu.parents("table").attr("id") + "_paginate");
@@ -257,7 +348,7 @@
     var menuTitleCollapsed = config.menuTitleCollapsed;
     var menuTitle = menu.find(".perc-simplemenu-title");
 
-    menuTitle.html(menuTitleCollapsed);
+    setTitleContent(menuTitle, menuTitleCollapsed);
     menuItems.hide();
   }
 })(jQuery);

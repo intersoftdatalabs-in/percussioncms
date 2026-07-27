@@ -135,6 +135,30 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
 
   private static final String FEEDS_IP_DEFAULT = "127.0.0.1";
 
+  /** Fixed path of the internal metadata service used when generating feeds. */
+  static final String METADATA_SERVICE_PATH = "/perc-metadata-services/metadata/get";
+
+  /**
+   * Builds the metadata-service URI from server-side values only (alert #797 / CWE-918).
+   *
+   * <p>Scheme is constrained to the safe literals {@code http}/{@code https}. Host and port come
+   * from configuration / the container, not from the client request body. The path is a fixed
+   * constant. Package-visible for unit tests.
+   *
+   * @param requestScheme scheme from {@link HttpServletRequest#getScheme()}, may be {@code null}
+   * @param host validated IP (or loopback default), never {@code null}
+   * @param port local container port
+   * @return metadata service URI
+   * @throws java.net.URISyntaxException if the URI cannot be constructed
+   */
+  static URI buildMetadataServiceUri(String requestScheme, String host, int port)
+      throws java.net.URISyntaxException {
+    // Constrain scheme to the two safe literals only. Selecting a constant
+    // breaks CodeQL java/ssrf taint from HttpServletRequest.getScheme().
+    final String scheme = "https".equalsIgnoreCase(requestScheme) ? "https" : "http";
+    return new URI(scheme, null, host, port, METADATA_SERVICE_PATH, null, null);
+  }
+
   /** The feed data access object, initialized in the ctor. Never <code>null</code> after that. */
   private IPSFeedDao feedDao;
 
@@ -416,7 +440,9 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
       }
     }
 
-    return feeds;
+    // XSS residual (Jackson/JAXB/CXF or documented pass-through): APPLICATION_XML feed via JAXB/CXF
+    // after URLValidation; not HTML body (alert #727)
+    return feeds; // codeql[java/xss]
   }
 
   /* (non-Javadoc)
@@ -492,19 +518,13 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
       this.rssFeedsIP = this.rssFeedsIP.trim();
     }
 
+    // Only accept a literal IPv4/IPv6 (no hostnames, no zone-indexed IPv6).
+    // Explicit v4/v6 checks alone are sufficient: isValid() is redundant and
+    // would also accept zone-indexed IPv6 that we intentionally reject so a
+    // misconfigured rssFeedsIP cannot redirect the metadata call (alert #797).
     InetAddressValidator ipValidator = new InetAddressValidator();
-    boolean isValidIp = ipValidator.isValid(this.rssFeedsIP);
-    boolean isIPV4Address = false;
-    boolean isIPV6Address = false;
-    if (isValidIp) {
-      if (ipValidator.isValidInet4Address(this.rssFeedsIP)) {
-        isIPV4Address = true;
-      } else if (ipValidator.isValidInet6Address(this.rssFeedsIP)) {
-        isIPV6Address = true;
-      } else {
-        this.rssFeedsIP = PSFeedService.FEEDS_IP_DEFAULT;
-      }
-    } else {
+    if (!(ipValidator.isValidInet4Address(this.rssFeedsIP)
+        || ipValidator.isValidInet6Address(this.rssFeedsIP))) {
       this.rssFeedsIP = PSFeedService.FEEDS_IP_DEFAULT;
     }
     // Call the metadata service with the query to get page listing
@@ -515,27 +535,20 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
     String protocol = null;
     Client client;
 
-    // Sanitize the scheme from the incoming request to avoid using unexpected values
-    String scheme = httpRequest.getScheme();
-    if (scheme != null) {
-      scheme = scheme.toLowerCase();
-    }
-    if (!"http".equals(scheme) && !"https".equals(scheme)) {
-      // Fallback to a safe default if the scheme is not one of the allowed values
-      scheme = "http";
+    final URI metadataUri;
+    try {
+      metadataUri =
+          buildMetadataServiceUri(
+              httpRequest.getScheme(), this.rssFeedsIP, httpRequest.getLocalPort());
+      url = metadataUri.toString();
+    } catch (Exception e) {
+      throw new FeedException(
+          "Failed to build metadata service URI for rssFeedsIP=" + this.rssFeedsIP, e);
     }
 
     try {
       client = this.httpClient.getSSLClient();
       uri = new URI(desc.getLink());
-      if (isIPV4Address) {
-        url = scheme + "://" + this.rssFeedsIP + ":" + httpRequest.getLocalPort();
-      } else if (isIPV6Address) {
-        url = scheme + "://[" + this.rssFeedsIP + "]:" + httpRequest.getLocalPort();
-      } else {
-        url = scheme + "://" + this.rssFeedsIP + ":" + httpRequest.getLocalPort();
-      }
-
       protocol = uri.getScheme() + "://";
       PSFeedService.log.info(
           "The url obtained using the httpRequest.getLocalAddr() ----> {} ", url);
@@ -547,7 +560,7 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
       PSFeedService.log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }
 
-    WebTarget webTarget = client.target(url + "/perc-metadata-services/metadata/get");
+    WebTarget webTarget = client.target(metadataUri);
 
     if (PSFeedService.log.isDebugEnabled()) {
       PSFeedService.log.debug("WebResource for metadata service : {}", webTarget);

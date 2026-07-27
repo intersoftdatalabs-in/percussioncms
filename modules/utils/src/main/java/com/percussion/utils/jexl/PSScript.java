@@ -27,8 +27,10 @@ import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.JexlEngine;
 import org.apache.commons.jexl3.JexlException;
+import org.apache.commons.jexl3.JexlFeatures;
 import org.apache.commons.jexl3.JexlScript;
 import org.apache.commons.jexl3.MapContext;
+import org.apache.commons.jexl3.introspection.JexlPermissions;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -50,10 +52,24 @@ public class PSScript implements IPSScript {
   // Control JEXL debug
   private static boolean jexlUseDebug = false;
 
+  /**
+   * Optional JexlFeatures toggles (legacy defaults: off). Loaded from server.properties only when
+   * {@link #reinit(boolean)} is called with {@code reloadOptionsFromConfig=true}; there is no
+   * automatic startup reload today (same as jexlUseStrict/silent/debug/cache).
+   */
+  private static boolean jexlLexical = false;
+
+  private static boolean jexlLexicalShade = false;
+  private static boolean jexlConstCapture = false;
+
   private boolean compilable = false;
 
-  private JexlScript compiledScript = null;
-  private String fixedScriptText = null;
+  /** Compiled script; volatile for safe publication under concurrent first eval. */
+  private volatile JexlScript compiledScript = null;
+
+  /** Script text after legacy syntax fixes; volatile for concurrent first compile. */
+  private volatile String fixedScriptText = null;
+
   // Per-instance JEXL mode flags to avoid cross-test/global state pollution
   private boolean useStrictMode = jexlUseStrict;
   private boolean useDebugMode = jexlUseDebug;
@@ -126,46 +142,91 @@ public class PSScript implements IPSScript {
   public Object eval(Map<String, Object> bindingsMap) throws JexlException {
     JexlContext context = new MapContext(bindingsMap);
 
-    if (compiledScript == null) {
-      this.fixedScriptText = JexlScriptFixes.fixScript(scriptText, ownerType, ownerName);
+    try {
+      // Double-checked locking: safe publication of compiled script under concurrent first eval
+      JexlScript local = compiledScript;
+      if (local == null) {
+        synchronized (this) {
+          local = compiledScript;
+          if (local == null) {
+            if (fixedScriptText == null) {
+              this.fixedScriptText = JexlScriptFixes.fixScript(scriptText, ownerType, ownerName);
+            }
 
-      // Use the shared engine if instance flags match defaults; otherwise create an
-      // engine configured for this instance so mode changes don't affect other instances/tests.
-      if (useStrictMode == jexlUseStrict
-          && useDebugMode == jexlUseDebug
-          && useSilentMode == jexlUseSilent) {
-        compiledScript = EngineSingletonHolder.DEFAULT_ENGINE.createScript(this.fixedScriptText);
+            // Use the shared engine if instance flags match defaults; otherwise create an
+            // engine configured for this instance so mode changes don't affect other
+            // instances/tests.
+            if (useStrictMode == jexlUseStrict
+                && useDebugMode == jexlUseDebug
+                && useSilentMode == jexlUseSilent) {
+              local = EngineSingletonHolder.DEFAULT_ENGINE.createScript(this.fixedScriptText);
+            } else {
+              JexlEngine engine = newBuilder(useStrictMode, useSilentMode, useDebugMode).create();
+              local = engine.createScript(this.fixedScriptText);
+            }
+            compiledScript = local;
+          }
+        }
+      }
+
+      if (ownerName == null) {
+        this.ownerName = "";
       } else {
-        JexlEngine engine =
-            new JexlBuilder()
-                .strict(useStrictMode)
-                .silent(useSilentMode)
-                .debug(useDebugMode)
-                .logger(LOG)
-                .cache(CACHE_SIZE)
-                .create();
-        compiledScript = engine.createScript(this.fixedScriptText);
+        this.ownerName = ownerName.trim();
       }
-    }
-    if (ownerName == null) {
-      this.ownerName = "";
-    } else {
+
+      Object result = local.execute(context);
+
+      // Enforce strict-mode behavior: if strict is enabled and silent is disabled,
+      // a top-level $ expression that evaluates to null should throw an exception
+      // (matches legacy expectations/tests).
+      if (useStrictMode && !useSilentMode) {
+        String src = this.fixedScriptText != null ? this.fixedScriptText : this.scriptText;
+        if (src != null && src.trim().startsWith("$") && result == null) {
+          throw new RuntimeException("JEXL evaluation returned null in strict mode for: " + src);
+        }
+      }
       this.ownerName = ownerName.trim();
-    }
-
-    Object result = compiledScript.execute(context);
-
-    // Enforce strict-mode behavior: if strict is enabled and silent is disabled,
-    // a top-level $ expression that evaluates to null should throw an exception
-    // (matches legacy expectations/tests).
-    if (useStrictMode && !useSilentMode) {
-      String src = this.fixedScriptText != null ? this.fixedScriptText : this.scriptText;
-      if (src != null && src.trim().startsWith("$") && result == null) {
-        throw new RuntimeException("JEXL evaluation returned null in strict mode for: " + src);
+      return result;
+    } catch (JexlException x) {
+      // Add owner context for faster diagnosis while preserving original exception type
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(
+            "JEXL error in script. Type: "
+                + ownerType
+                + " Name: "
+                + ownerName
+                + " Script: "
+                + scriptText);
       }
+      throw x;
     }
-    this.ownerName = ownerName.trim();
-    return result;
+  }
+
+  /**
+   * Builds a {@link JexlBuilder} with product defaults: unrestricted permissions (JEXL 2.x / legacy
+   * 3.x compatibility), safe navigation when not strict, and optional lexical feature flags from
+   * server.properties.
+   *
+   * @param strict whether strict mode is enabled
+   * @param silent whether silent mode is enabled
+   * @param debug whether debug mode is enabled
+   * @return a configured builder (not yet created)
+   */
+  private static JexlBuilder newBuilder(boolean strict, boolean silent, boolean debug) {
+    return new JexlBuilder()
+        .strict(strict)
+        .safe(!strict)
+        .silent(silent)
+        .permissions(JexlPermissions.UNRESTRICTED)
+        .debug(debug)
+        .logger(LOG)
+        .cache(CACHE_SIZE)
+        .features(
+            new JexlFeatures()
+                .lexical(jexlLexical)
+                .lexicalShade(jexlLexicalShade)
+                .constCapture(jexlConstCapture));
   }
 
   @Override
@@ -220,13 +281,7 @@ public class PSScript implements IPSScript {
 
     /** The JEXL engine singleton instance. */
     private static JexlEngine DEFAULT_ENGINE =
-        new JexlBuilder()
-            .strict(jexlUseStrict)
-            .silent(jexlUseSilent)
-            .debug(jexlUseDebug)
-            .logger(LOG)
-            .cache(CACHE_SIZE)
-            .create();
+        newBuilder(jexlUseStrict, jexlUseSilent, jexlUseDebug).create();
 
     private static void initConfig() {
       DefaultConfigurationContextImpl config =
@@ -257,6 +312,11 @@ public class PSScript implements IPSScript {
         jexlUseDebug = Boolean.parseBoolean(props.getProperty("jexlUseDebug", "false"));
 
         CACHE_SIZE = Integer.parseInt(props.getProperty("jexlCacheSize", "512"));
+
+        // Feature flags default to false for legacy semantics; can be enabled via config
+        jexlLexical = Boolean.parseBoolean(props.getProperty("jexlLexical", "false"));
+        jexlLexicalShade = Boolean.parseBoolean(props.getProperty("jexlLexicalShade", "false"));
+        jexlConstCapture = Boolean.parseBoolean(props.getProperty("jexlConstCapture", "false"));
       }
     }
 
@@ -266,14 +326,7 @@ public class PSScript implements IPSScript {
 
       if (DEFAULT_ENGINE != null) DEFAULT_ENGINE.clearCache();
 
-      DEFAULT_ENGINE =
-          new JexlBuilder()
-              .strict(jexlUseStrict)
-              .silent(jexlUseSilent)
-              .debug(jexlUseDebug)
-              .logger(LOG)
-              .cache(CACHE_SIZE)
-              .create();
+      DEFAULT_ENGINE = newBuilder(jexlUseStrict, jexlUseSilent, jexlUseDebug).create();
     }
   }
 

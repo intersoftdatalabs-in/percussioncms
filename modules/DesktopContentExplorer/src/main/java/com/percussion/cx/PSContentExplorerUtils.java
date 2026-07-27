@@ -38,9 +38,25 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Utility class for the desktop content explorer providing helpers for URL parsing, downloads and
+ * i18n value logging.
+ */
 public class PSContentExplorerUtils {
+
+  /** Default constructor. */
+  public PSContentExplorerUtils() {
+    // no-op
+  }
+
   static Logger log = LogManager.getLogger(PSContentExplorerUtils.class);
 
+  /**
+   * Parses the supplied URL and returns a map of its query string parameters.
+   *
+   * @param url the URL to parse, assumed not <code>null</code>.
+   * @return a map of query parameter name to value, never <code>null</code>, may be empty.
+   */
   public static Map<String, String> getQueryMap(String url) {
     Map<String, String> map = new HashMap<>();
 
@@ -58,6 +74,16 @@ public class PSContentExplorerUtils {
     return map;
   }
 
+  /**
+   * Downloads the file at the supplied URL into the supplied target directory, replacing any
+   * existing file with the same name.
+   *
+   * @param sourceUrl the URL of the file to download, may not be <code>null</code>.
+   * @param targetDirectory the local directory to receive the file, may not be <code>null</code>.
+   * @return the path of the downloaded file on the local file system, never <code>null</code>.
+   * @throws MalformedURLException if the supplied URL is malformed.
+   * @throws IOException if an I/O error occurs during the download.
+   */
   public static Path download(String sourceUrl, String targetDirectory)
       throws MalformedURLException, IOException {
     URL url = new URL(sourceUrl);
@@ -77,9 +103,10 @@ public class PSContentExplorerUtils {
    * server.
    *
    * @param actionUrl the url to split. This will have a syntax:
-   *     <p>http://<server>:port/Rhythmyx/appName/resource.html?param1= value1&param2=value2....
+   *     <p>http://&lt;server&gt;:port/Rhythmyx/appName/resource.html?param1=
+   *     value1&amp;param2=value2....
    *     <p>The result would be such that the returned string is
-   *     <p>http://<server>:port/Rhythmyx/appName/resource.html and the params object which is
+   *     <p>http://&lt;server&gt;:port/Rhythmyx/appName/resource.html and the params object which is
    *     assumed to empty but not <code>null</code> will containg the paramN-valueN pairs.
    * @param params An empty Map object to contain the param-value pairs after splitting. Must not be
    *     <code>null</code>. The existing map values will not be deleted, if it is not empty.
@@ -123,6 +150,12 @@ public class PSContentExplorerUtils {
     return url;
   }
 
+  /**
+   * Logs user information (session id, user name and locale) for the supplied applet at debug
+   * level. Errors are caught and logged at error level.
+   *
+   * @param applet the applet whose user info should be logged, may not be <code>null</code>.
+   */
   public static void outputUserInfo(PSContentExplorerApplet applet) {
     try {
       log.debug("checking userinfo");

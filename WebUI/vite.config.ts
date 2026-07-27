@@ -13,7 +13,7 @@ export default defineConfig({
     rollupOptions: {
       input: resolve(__dirname, "src/main/ts/index.ts"),
       output: {
-        entryFileNames: "assets/[name]-[hash].js",
+        entryFileNames: "assets/perc-modern-ui.js",
         chunkFileNames: "assets/[name]-[hash].js",
         assetFileNames: "assets/[name]-[hash][extname]",
       },

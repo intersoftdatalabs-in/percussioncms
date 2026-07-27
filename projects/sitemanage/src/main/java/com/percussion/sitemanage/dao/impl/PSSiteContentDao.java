@@ -122,7 +122,6 @@ public class PSSiteContentDao implements com.percussion.sitemanage.dao.IPSSiteCo
    *
    * @param site The site model for which a home page will be created, may not be <code>null</code>.
    * @throws PSErrorException If an error occurs.
-   * @throws PSAssemblyException If an error occurs finding the base template.
    */
   @Override
   public void createRelatedItems(PSSite site) {
@@ -316,7 +315,6 @@ public class PSSiteContentDao implements com.percussion.sitemanage.dao.IPSSiteCo
    *
    * @param site the summary describing the site, may not be <code>null</code>.
    * @return the homepage page item, or <code>null</code> if one could not be found.
-   * @throws Exception if an error occurs finding the navigation tree.
    */
   @Override
   public PSPage getHomePage(PSSiteSummary site) throws PSNavException, PSDataServiceException {
@@ -338,7 +336,6 @@ public class PSSiteContentDao implements com.percussion.sitemanage.dao.IPSSiteCo
    *
    * @param siteSummary describing the site, may not be <code>null</code>.
    * @return the nav title, never <code>null</code>, may be empty.
-   * @throws Exception if an error occurs finding the navigation tree for the site.
    */
   @Override
   public String getNavTitle(PSSiteSummary siteSummary)

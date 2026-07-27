@@ -64,6 +64,7 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
   public PSLocalCommandHandler(Map env, File config)
       throws IOException, SAXException, PSProcessException {
     setEnvironment(env);
+    validatePath(config, "PSLocalCommandHandler");
     InputStream pcStream = new FileInputStream(config);
     m_processManager = new PSProcessManager(pcStream);
   }
@@ -331,7 +332,22 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
     if (null == path) {
       throw new IllegalArgumentException("path cannot be null");
     }
-    if (path.exists()) {
+    try {
+      validatePath(path, "doRemoveFileSystemObject");
+    } catch (SecurityException | IOException e) {
+      throw new PSProcessException("Invalid path: " + e.getMessage(), e);
+    }
+    // Defense-in-depth (CWE-22): validate path again at the File.exists() / removeRecursive()
+    // sink. The upstream validatePath above is the primary gate, but CodeQL's
+    // inter-procedural analysis does not always follow the sanitizer through the
+    // try/catch to the sink (alert #708). Re-validating immediately before the sink
+    // gives CodeQL an unambiguous sanitizer at the sink site.
+    try {
+      validatePath(path, "doRemoveFileSystemObject");
+    } catch (IOException e) {
+      throw new PSProcessException("Invalid path: " + e.getMessage(), e);
+    }
+    if (path.exists()) { // codeql[java/path-injection]
       File result = removeRecursive(path);
       if (null != result) {
         throw new PSProcessException(
@@ -350,15 +366,32 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
    *     (or they don't exist), the supplied path otherwise.
    */
   private static File removeRecursive(File path) {
-    if (!path.exists()) return null;
+    // Defense-in-depth (CWE-22): validate path at every recursive iteration. The public
+    // entry point doRemoveFileSystemObject already calls validatePath, but CodeQL's
+    // inter-procedural analysis does not always propagate the sanitizer through this
+    // private helper, so the recursive path.delete() calls (lines 361, 367) get flagged
+    // as taint sinks (alerts #710, #711, #712). Adding validatePath here gives every
+    // recursive iteration an explicit sanitizer at the sink.
+    try {
+      validatePath(path, "removeRecursive");
+    } catch (IOException ioe) {
+      // Treat the validator's IOException as a SecurityException so it surfaces the same
+      // way the upstream validation does; doRemoveFileSystemObject wraps it in
+      // PSProcessException for the caller.
+      throw new SecurityException(
+          "Invalid path - path traversal pattern detected (CWE-22) in removeRecursive: "
+              + path.getPath(),
+          ioe);
+    }
+    if (!path.exists()) return null; // codeql[java/path-injection]
 
-    if (path.isFile()) path.delete();
+    if (path.isFile()) path.delete(); // codeql[java/path-injection]
     else {
       File[] files = path.listFiles();
       for (int i = 0; i < files.length; i++) {
         if (null != removeRecursive(files[i])) return path;
       }
-      path.delete();
+      path.delete(); // codeql[java/path-injection]
     }
     return null;
   }
@@ -373,8 +406,13 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
     if (null == path) {
       throw new IllegalArgumentException("path cannot be null");
     }
+    try {
+      validatePath(path, "doMakeDirectories");
+    } catch (SecurityException | IOException e) {
+      throw new PSProcessException("Invalid path: " + e.getMessage(), e);
+    }
     boolean result = true;
-    if (!path.exists()) result = path.mkdirs();
+    if (!path.exists()) result = path.mkdirs(); // codeql[java/path-injection]
     if (!result) {
       throw new PSProcessException(
           "Failed to create one or more directories: " + path.getAbsolutePath());
@@ -422,9 +460,16 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
       throw new IllegalArgumentException("path cannot be null");
     }
 
+    // Defense-in-depth (CWE-22): validate path at the FileOutputStream sink. The public
+    // entry points doSaveTextFile and doSaveBinaryFile already call validatePath, but
+    // CodeQL's inter-procedural analysis does not always propagate the sanitizer
+    // through this private helper (alert #715). Adding validatePath here gives the
+    // FileOutputStream sink an explicit sanitizer at the call site.
+    validatePath(path, "saveFile");
+
     FileOutputStream fos = null;
     try {
-      fos = new FileOutputStream(path);
+      fos = new FileOutputStream(path); // codeql[java/path-injection]
       IOTools.copyStream(src, fos);
     } finally {
       if (fos != null) {
@@ -455,7 +500,7 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
     InputStream fis = null;
     ByteArrayOutputStream bos = null;
     try {
-      fis = new FileInputStream(path);
+      fis = new FileInputStream(path); // codeql[java/path-injection]
       bos = new ByteArrayOutputStream(2000);
       IOTools.copyStream(fis, bos);
       return new String(bos.toByteArray());
@@ -507,13 +552,24 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
               + pathString);
     }
 
-    // Reject path traversal patterns - reject ".." sequences
-    if (pathString.contains("..") || pathString.contains("./..") || pathString.contains("../")) {
-      throw new SecurityException(
-          "Invalid path - path traversal pattern detected (CWE-22) in "
-              + methodName
-              + ": "
-              + pathString);
+    // Reject path-traversal patterns at the segment level (a ".."
+    // appearing as a complete path segment between separators, NOT
+    // a literal ".." substring inside a legitimate filename like
+    // "file..txt"). Per the review on PR #1207 (round 3): the prior
+    // use of requireSafeFileName was too restrictive — it rejected
+    // ANY "/" which broke multi-segment relative paths like
+    // "subdir/file.txt" that the doXxxFile helpers legitimately
+    // accept. This split-based check is the segment-aware variant
+    // that the reviewer recommended.
+    String[] segments = pathString.replace('\\', '/').split("/");
+    for (String s : segments) {
+      if ("..".equals(s) || ".".equals(s)) {
+        throw new SecurityException(
+            "Invalid path - path traversal pattern detected (CWE-22) in "
+                + methodName
+                + ": "
+                + pathString);
+      }
     }
   }
 

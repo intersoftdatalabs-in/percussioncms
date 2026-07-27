@@ -49,6 +49,11 @@ import java.io.IOException;
  * </pre>
  */
 public class PSInstallLogTablesAction extends PSAction {
+  /** Creates a new action to install log table properties. */
+  public PSInstallLogTablesAction() {
+    super();
+  }
+
   // see base class
   @Override
   public void execute() {
@@ -110,20 +115,45 @@ public class PSInstallLogTablesAction extends PSAction {
   /**************************************************************************
    * Static Strings
    *************************************************************************/
+  /** Key for the driver type property. */
   public static String DRIVER = "driverType";
 
+  /** Key for the logger class name property. */
   public static String CLASS = "loggerClassname";
+
+  /** Key for the server name property. */
   public static String SERVER = "serverName";
+
+  /** Key for the login id property. */
   public static String ID = "loginId";
+
+  /** Key for the login password property. */
   public static String PW = "loginPw";
+
+  /** Key for the database name property. */
   public static String DATABASE = "databaseName";
+
+  /** Key for the schema name property. */
   public static String SCHEMA = "schemaName";
 
+  /** Repository driver name property key. */
   public static String REP_DRIVER = "DB_DRIVER_NAME";
+
+  /** Repository driver class name property key. */
   public static String REP_CLASS = "DB_DRIVER_CLASS_NAME";
+
+  /** Repository server property key. */
   public static String REP_SERVER = "DB_SERVER";
+
+  /** Repository user id property key. */
   public static String REP_ID = "UID";
+
+  /** Repository password property key. */
   public static String REP_PW = "PWD";
+
+  /** Repository database name property key. */
   public static String REP_DATABASE = "DB_NAME";
+
+  /** Repository schema name property key. */
   public static String REP_SCHEMA = "DB_SCHEMA";
 }

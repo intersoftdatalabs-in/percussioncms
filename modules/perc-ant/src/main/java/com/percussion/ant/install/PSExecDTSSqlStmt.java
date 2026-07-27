@@ -30,7 +30,10 @@ import java.sql.Statement;
 import java.util.Properties;
 import org.apache.tools.ant.BuildException;
 
+/** Executes a DTS specific SQL statement. */
 public class PSExecDTSSqlStmt extends PSExecSQLStmt {
+  /** Creates a new DTS SQL statement executor. */
+  public PSExecDTSSqlStmt() {}
 
   /**
    * The sql statement to execute if database specific sql statment is empty, never <code>null
@@ -40,24 +43,49 @@ public class PSExecDTSSqlStmt extends PSExecSQLStmt {
 
   private int preSqlValue = 0;
 
+  /**
+   * Gets the path to the DTS database property file.
+   *
+   * @return the property file path, never <code>null</code>
+   */
   protected String getDBPropertyFile() {
     return getRootDir()
         + File.separator
         + "Deployment/Server/conf/perc/perc-datasources.properties";
   }
 
+  /**
+   * Gets the pre-SQL statement.
+   *
+   * @return the pre-SQL statement, never <code>null</code>, may be empty
+   */
   public String getPreSql() {
     return preSql;
   }
 
+  /**
+   * Sets the pre-SQL statement.
+   *
+   * @param preSql the pre-SQL statement, may be <code>null</code>
+   */
   public void setPreSql(String preSql) {
     this.preSql = preSql;
   }
 
+  /**
+   * Gets the pre-SQL statement expected value.
+   *
+   * @return the pre-SQL statement expected value
+   */
   public int getPreSqlValue() {
     return preSqlValue;
   }
 
+  /**
+   * Sets the pre-SQL statement expected value.
+   *
+   * @param preSqlValue the pre-SQL statement expected value
+   */
   public void setPreSqlValue(int preSqlValue) {
     this.preSqlValue = preSqlValue;
   }

@@ -55,6 +55,9 @@ import org.w3c.dom.Document;
  * </pre>
  */
 public class PSExtensions extends PSAction {
+  /** Creates a new extensions task. */
+  public PSExtensions() {}
+
   // see base class
   @Override
   public void execute() {
@@ -158,10 +161,20 @@ public class PSExtensions extends PSAction {
    * Property accessors and mutators
    ***********************************************************************/
 
+  /**
+   * Gets the install location.
+   *
+   * @return the install location path
+   */
   public String getInstallLocation() {
     return m_strInstallLoc;
   }
 
+  /**
+   * Sets the install location.
+   *
+   * @param strInstallLoc the install location path
+   */
   public void setInstallLocation(String strInstallLoc) {
     m_strInstallLoc = strInstallLoc;
   }

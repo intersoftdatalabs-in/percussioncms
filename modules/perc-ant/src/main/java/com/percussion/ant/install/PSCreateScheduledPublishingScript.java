@@ -49,6 +49,9 @@ import java.util.Properties;
  * </pre>
  */
 public class PSCreateScheduledPublishingScript extends PSAction {
+  /** Creates a new scheduled publishing script task. */
+  public PSCreateScheduledPublishingScript() {}
+
   // see base class
   @Override
   public void execute() {

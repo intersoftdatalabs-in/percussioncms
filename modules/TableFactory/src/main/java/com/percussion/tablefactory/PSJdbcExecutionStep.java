@@ -109,7 +109,8 @@ public abstract class PSJdbcExecutionStep {
     if (listeners == null || listeners.isEmpty())
       throw new IllegalArgumentException("listeners may not be null or empty");
 
-    PSEntrySet entry = new PSEntrySet(e, listeners);
+    PSEntrySet<PSJdbcTableChangeEvent, List<IPSJdbcTableChangeListener>> entry =
+        new PSEntrySet<>(e, listeners);
     if (m_listenerEvents == null) m_listenerEvents = new ArrayList<>();
     m_listenerEvents.add(entry);
   }
@@ -120,9 +121,10 @@ public abstract class PSJdbcExecutionStep {
    */
   public void notifyChangeListeners() {
     if (m_listenerEvents != null) {
-      for (PSEntrySet entry : m_listenerEvents) {
-        PSJdbcTableChangeEvent e = (PSJdbcTableChangeEvent) entry.getKey();
-        List<?> listenerList = (List<?>) entry.getValue();
+      for (PSEntrySet<PSJdbcTableChangeEvent, List<IPSJdbcTableChangeListener>> entry :
+          m_listenerEvents) {
+        PSJdbcTableChangeEvent e = entry.getKey();
+        List<?> listenerList = entry.getValue();
         for (Object o : listenerList) {
           IPSJdbcTableChangeListener listener = (IPSJdbcTableChangeListener) o;
           listener.tableChanged(e);
@@ -182,7 +184,8 @@ public abstract class PSJdbcExecutionStep {
    * IPSJdbcTableChangeListener} objects as the value. Modified by a call to {@link
    * #addTableChangeEvent(PSJdbcTableChangeEvent, List)}, may be <code>null</code>.
    */
-  private List<PSEntrySet> m_listenerEvents = null;
+  private List<PSEntrySet<PSJdbcTableChangeEvent, List<IPSJdbcTableChangeListener>>>
+      m_listenerEvents = null;
 
   /**
    * Set of sql states for sql exceptions that should be ignored when <code>execute()</code> method

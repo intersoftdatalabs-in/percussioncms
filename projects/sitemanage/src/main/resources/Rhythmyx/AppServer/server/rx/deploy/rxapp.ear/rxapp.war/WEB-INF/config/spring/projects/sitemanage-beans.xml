@@ -83,6 +83,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="restContentTypesResource" />
             <ref bean="restContextResource" />
             <ref bean="restDeliveryTypesResource"/>
+            <ref bean="restRelationshipSummaryResource"/>
             <ref bean="restEditionsResource"/>
             <ref bean="restExtensionsResource"/>
             <ref bean="restItemFilterResource"/>
@@ -123,6 +124,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="sitePublishStatusService"/>
             <ref bean="monitorService"/>
             <ref bean="publishStagingService"/>
+            <ref bean="publishingDesignRestService"/>
         </jaxrs:serviceBeans>
         <jaxrs:extensionMappings>
             <entry key="json" value="application/json"/>
@@ -219,6 +221,22 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
                 </property>
             </bean>-->
         </jaxrs:features>
+    </jaxrs:server>
+
+    <jaxrs:server id="taskmanagement-jax-rs" address="/taskmanagement">
+        <jaxrs:serviceBeans>
+            <ref bean="taskManagementService"/>
+        </jaxrs:serviceBeans>
+        <jaxrs:extensionMappings>
+            <entry key="json" value="application/json"/>
+            <entry key="xml" value="application/xml"/>
+        </jaxrs:extensionMappings>
+        <jaxrs:providers>
+            <ref bean="validationExceptionMapper"/>
+            <ref bean="constraintsViolatedExceptionMapper"/>
+            <ref bean="runtimeExceptionMapper"/>
+            <ref bean="jacksonProvider"/>
+        </jaxrs:providers>
     </jaxrs:server>
 
     <jaxrs:server id="role-jax-rs" address="/rolemanagement">
@@ -446,7 +464,8 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
     <jaxrs:server id="integration-siteimprove-jax-rs" address="/integrations">
         <jaxrs:serviceBeans>
             <ref bean="siteImproveService"/>
-            <ref bean="emsAPIService"/>
+            <!-- emsAPIService removed: bean was never defined (NoSuchBeanDefinitionException
+                 blocked ROOT webapp start once H2 install/startup reached Spring refresh). -->
         </jaxrs:serviceBeans>
         <jaxrs:extensionMappings>
             <entry key="json" value="application/json"/>
@@ -1292,6 +1311,9 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
          </constructor-arg>
      </bean>
     -->
+    <!-- Feature 990: Design/Runtime JSON façade (also scanned via @PSSiteManageBean). -->
+    <bean id="publishingDesignRestService"
+          class="com.percussion.publishingdesign.impl.PSPublishingDesignRestService"/>
     <!--  Folder UI Management  -->
     <!--
      <bean id="folderService" class="com.percussion.foldermanagement.service.impl.PSFolderService" autowire="constructor">
@@ -1577,7 +1599,6 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
                 <!-- Relative Folder Paths from Assets-->
                 <entry key="percImageAsset" value="/uploads/images"/>
                 <entry key="percFileAsset" value="/uploads/files"/>
-                <entry key="percFlashAsset" value="/uploads/files"/>
                 <entry key="percFormAsset" value="/forms"/>
                 <entry key="percCalendarAsset" value="/calendars"/>
                 <entry key="percPollAsset" value="/polls"/>

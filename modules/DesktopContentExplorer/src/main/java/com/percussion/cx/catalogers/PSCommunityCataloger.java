@@ -131,13 +131,20 @@ public class PSCommunityCataloger {
      *
      * @param elemRoot the element that contains data for a single community, never <code>null
      *     </code>
+     * @throws PSUnknownNodeTypeException if the supplied element does not match the expected
+     *     schema.
      */
     public Community(Element elemRoot) throws PSUnknownNodeTypeException {
       fromXml(elemRoot);
     }
 
-    /*
-     * Implementation of the interface method
+    /**
+     * Populates this community instance from the supplied XML element.
+     *
+     * @param elemRoot the element that contains data for a single community, never <code>null
+     *     </code>.
+     * @throws PSUnknownNodeTypeException if the supplied element does not match the expected
+     *     schema.
      */
     public void fromXml(Element elemRoot) throws PSUnknownNodeTypeException {
       PSXMLDomUtil.checkNode(elemRoot, XML_ELEM_LIST);
@@ -157,6 +164,8 @@ public class PSCommunityCataloger {
     }
 
     /**
+     * Get the unique identifier of this community.
+     *
      * @return community id
      */
     public int getId() {
@@ -164,6 +173,8 @@ public class PSCommunityCataloger {
     }
 
     /**
+     * Get the name of this community.
+     *
      * @return community name, never <code>null</code>
      */
     public String getName() {
@@ -171,6 +182,8 @@ public class PSCommunityCataloger {
     }
 
     /**
+     * Get the description of this community.
+     *
      * @return community description, never <code>null</code>
      */
     public String getDesc() {
@@ -230,8 +243,12 @@ public class PSCommunityCataloger {
     private String m_communityDesc;
   }
 
-  /*
-   * Implementation of the interface method
+  /**
+   * Populates this cataloger from the supplied XML element by clearing any existing communities and
+   * cataloging each community entry found.
+   *
+   * @param elemRoot the root element containing the communities data, never <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the supplied element does not match the expected schema.
    */
   public void fromXml(Element elemRoot) throws PSUnknownNodeTypeException {
     m_collCommunities.clear();
@@ -253,7 +270,9 @@ public class PSCommunityCataloger {
   }
 
   /**
-   * @return unmodifiable collection of cataloged Community instances , never <code>null</code>.
+   * Returns an unmodifiable view of all cataloged community instances.
+   *
+   * @return unmodifiable collection of cataloged Community instances, never {@code null}
    */
   public Collection getCommunities() {
     return Collections.unmodifiableCollection(m_collCommunities);
@@ -276,9 +295,18 @@ public class PSCommunityCataloger {
   /** collection of cataloged Community instances */
   private Collection m_collCommunities = new ArrayList();
 
+  /** The XML root element name containing all cataloged communities. */
   public static final String XML_ELEM_ROOT = "communities";
+
+  /** The XML element name for a single community entry within the list. */
   public static final String XML_ELEM_LIST = "list";
+
+  /** The XML element name for the community name. */
   public static final String XML_ELEM_COMMUNITYNAME = "communityname";
+
+  /** XML element name for the community identifier. */
   public static final String XML_ELEM_COMMUNITYID = "communityid";
+
+  /** XML element name for the community description. */
   public static final String XML_ELEM_COMMUNITYDESC = "communitydesc";
 }

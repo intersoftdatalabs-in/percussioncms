@@ -940,8 +940,7 @@ public class PSDispatchingPathService implements IPSPathService, IPSPathRecycleS
        * See {@link IPSPathService#findItemProperties(PSItemByWfStateRequest)}.
        *
        * @param workflowName the workflow of the items, never <code>null</code> or empty.
-       * @param stateName the workflow state of the items, may be <code>null<code>.
-       *
+       * @param stateName the workflow state of the items, may be <code>null</code>.
        * @return list of item properties, never <code>null</code>, may be empty.
        */
       public List<PSItemProperties> findItemProperties(String workflowName, String stateName)

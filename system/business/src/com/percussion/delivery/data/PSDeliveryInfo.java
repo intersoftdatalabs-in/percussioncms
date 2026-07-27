@@ -41,7 +41,7 @@ public class PSDeliveryInfo extends PSAbstractDataObject {
     public static final String SERVICE_CACHING = "perc-cache-manager";
     public static final String SERVICE_MEMBERSHIP = "perc-membership-services";
     public static final String SERVICE_THIRDPARTY = "perc-thirdparty-services";
-    public static final String SERVICE_INTEGRATIONS = "perc-integrations";
+    // SERVICE_INTEGRATIONS (perc-integrations / EMS) removed with GH#706
 
     private String username;
     private String password;

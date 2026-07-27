@@ -40,6 +40,7 @@ public class ItemSummaryFinder {
 
   private IPSCmsContentSummaries cmsContentSummaries = null;
 
+  /** Creates a new item summary finder. */
   public ItemSummaryFinder() {
     super();
   }
@@ -54,11 +55,25 @@ public class ItemSummaryFinder {
     this.cmsContentSummaries = cmsContentSummaries;
   }
 
+  /**
+   * Gets the current or edit locator for the given guid.
+   *
+   * @param guid the guid
+   * @return the locator
+   * @throws PSException when the locator cannot be found
+   */
   public PSLocator getCurrentOrEditLocator(IPSGuid guid) throws PSException {
     int id = guid.getUUID();
     return getCurrentOrEditLocator(id);
   }
 
+  /**
+   * Gets the current or edit locator for the given content id.
+   *
+   * @param contentId the content id
+   * @return the locator
+   * @throws PSException when the locator cannot be found
+   */
   public PSLocator getCurrentOrEditLocator(String contentId) throws PSException {
     if (StringUtils.isBlank(contentId) || !StringUtils.isNumeric(contentId)) {
       String emsg = "Content id must be numeric " + contentId;
@@ -69,6 +84,13 @@ public class ItemSummaryFinder {
     return getCurrentOrEditLocator(id);
   }
 
+  /**
+   * Gets the current or edit locator for the given content id.
+   *
+   * @param id the content id
+   * @return the locator
+   * @throws PSException when the locator cannot be found
+   */
   public PSLocator getCurrentOrEditLocator(int id) throws PSException {
     PSComponentSummary cs = getSummary(id);
     PSLocator loc = cs.getCurrentLocator();
@@ -79,12 +101,23 @@ public class ItemSummaryFinder {
     return loc;
   }
 
+  /** Constant for no checkout status. */
   public static final int CHECKOUT_NONE = 1;
 
+  /** Constant for checkout by the current user. */
   public static final int CHECKOUT_BY_ME = 2;
 
+  /** Constant for checkout by another user. */
   public static final int CHECKOUT_BY_OTHER = 3;
 
+  /**
+   * Gets the checkout status for the given content id and user name.
+   *
+   * @param contentId the content id
+   * @param userName the user name
+   * @return one of {@link #CHECKOUT_NONE}, {@link #CHECKOUT_BY_ME}, {@link #CHECKOUT_BY_OTHER}
+   * @throws PSException when the content summary cannot be found
+   */
   public int getCheckoutStatus(String contentId, String userName) throws PSException {
     if (StringUtils.isBlank(userName)) {
       String emsg = "User name must not be blank";
@@ -107,7 +140,7 @@ public class ItemSummaryFinder {
    *
    * @param contentId the content id
    * @return the component summary. Never <code>null</code>.
-   * @throws PhotoGalleryException when the item does not exist
+   * @throws PSException when the item does not exist
    */
   public PSComponentSummary getSummary(String contentId) throws PSException {
     if (StringUtils.isBlank(contentId) || !StringUtils.isNumeric(contentId)) {
@@ -119,11 +152,25 @@ public class ItemSummaryFinder {
     return getSummary(id);
   }
 
+  /**
+   * Gets the component summary for an item.
+   *
+   * @param guid the guid
+   * @return the component summary. Never <code>null</code>.
+   * @throws PSException when the item does not exist
+   */
   public PSComponentSummary getSummary(IPSGuid guid) throws PSException {
     int id = guid.getUUID();
     return getSummary(id);
   }
 
+  /**
+   * Gets the component summary for an item.
+   *
+   * @param id the content id
+   * @return the component summary. Never <code>null</code>.
+   * @throws PSException when the item does not exist
+   */
   public PSComponentSummary getSummary(int id) throws PSException {
 
     PSComponentSummary sum = getCmsContentSummaries().loadComponentSummary(id);
@@ -135,10 +182,20 @@ public class ItemSummaryFinder {
     return sum;
   }
 
+  /**
+   * Gets the CMS content summaries service.
+   *
+   * @return the CMS content summaries service
+   */
   public IPSCmsContentSummaries getCmsContentSummaries() {
     return cmsContentSummaries;
   }
 
+  /**
+   * Sets the CMS content summaries service.
+   *
+   * @param cmsContentSummaries the CMS content summaries service
+   */
   public void setCmsContentSummaries(IPSCmsContentSummaries cmsContentSummaries) {
     this.cmsContentSummaries = cmsContentSummaries;
   }

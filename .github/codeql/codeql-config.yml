@@ -1,3 +1,9 @@
+# CodeQL config for advanced setup only (.github/workflows/codeql.yml).
+# Default setup / Code Quality ignore this file — keep those disabled.
+#
+# Languages are selected in the workflow matrix (java-kotlin + javascript-typescript).
+# This file supplies paths-ignore, Java model packs, and query-filters.
+
 paths-ignore:
   - "**/target/**"
   - "**/build/**"
@@ -7,3 +13,276 @@ paths-ignore:
   - "**/.codeql-results/**"
   - "**/docker/dev-data/**"
   - "**/docker/logs/**"
+  # Legacy intermediate JS/CSS concatenations (shared-common*, shared-finder).
+  # These are build outputs of build-legacy-bundles.js (source under
+  # WebUI/src/main/webapp/cm/{jslib,plugins,widgets,services,...} plus npm
+  # libs). They are gitignored and only written to
+  # WebUI/target/generated-webui/cm/ (also under **/target/** ignore).
+  # Paths below remain as a belt-and-suspenders exclude if a copy is
+  # reintroduced under the webapp tree. Scan Perc-written sources instead
+  # of concatenations. See WebUI/AGENTS.md "Generated (NOT committed)" and
+  # docs/ai-generated/tasks/gh-codeql-alerts/codeql-pr-playbook.md.
+  - "WebUI/src/main/webapp/cm/shared-common.js"
+  - "WebUI/src/main/webapp/cm/shared-common-minuet.js"
+  - "WebUI/src/main/webapp/cm/shared-finder.js"
+  - "WebUI/src/main/webapp/cm/shared-common.css"
+  - "WebUI/src/main/webapp/cm/shared-common-minuet.css"
+  # --- Vendored / packaging / test-fixture trees (US2 obsolete scan hygiene) ---
+  # Third-party jQuery/Bootstrap/Knockout/RequireJS copies and WAR packaging
+  # mirrors produce bulk medium/high js/* noise without product-source signal.
+  # Perc-written sources under WebUI/src/main/webapp/cm/{plugins,widgets,views,
+  # services,controllers,models,app} remain scanned. Physical removal of vendor
+  # trees remains US2 T021–T031; paths-ignore stops residual thrashing until
+  # deletion lands. See suppressions.md row "vendor-paths-ignore-us2".
+  - "WebUI/src/main/webapp/cm/jslib/**"
+  - "WebUI/src/main/webapp/cm/vendor/**"
+  - "WebUI/src/main/webapp/cm/cui/components/**"
+  - "WebUI/src/main/webapp/cm/pages/cui/components/**"
+  - "WebUI/src/main/webapp/cm/api/lib/**"
+  - "WebUI/src/main/webapp/cm/cui/require.js"
+  - "WebUI/src/main/webapp/cm/pages/cui/require.js"
+  # Committed WAR packaging tree mirrors webapp sources + vendor libs.
+  - "WebUI/war/**"
+  # Test fixtures and unit test JS (not production attack surface).
+  - "**/src/test/resources/**"
+  - "WebUI/src/test/**"
+  # DTS / packages vendored JS blobs.
+  - "deliverytiersuite/delivery-tier-suite/**/lib-js/**"
+  - "deliverytiersuite/delivery-tier-suite/**/src-js/**"
+  - "modules/perc-packages/**/jquery.qtip.js"
+  - "modules/perc-packages/**/jquery*.js"
+  - "modules/perc-toolkit/src/main/resources/InstallDir/**"
+
+# Local model pack definitions under .github/codeql/models (for docs / future GHCR).
+# GHA rejects local path packs; do not pass via workflow packs:. Rely on runtime
+# sanitizers, sink-line // codeql[...], and path query-filters.
+
+# Per-query exclusion for documented false positives.
+# See contracts/C3: every `query-filters exclude` entry MUST have a
+# matching row in `docs/ai-generated/tasks/gh-codeql-alerts/suppressions.md`
+# with a `file_path` set to `.github/codeql/codeql-config.yml`.
+query-filters:
+  - exclude:
+      id: java/xxe
+      paths:
+        - "system/business/src/com/percussion/share/dao/PSSerializerUtils.java"
+      reason: >-
+        Documented CodeQL false positive per contracts/C2 (FR-007).
+        The XMLReader returned by PSSecureXMLUtils.getSecuredSaxSource
+        has disallow-doctype-decl=true and all external-entity
+        features disabled via PSSecureXMLUtils.setFeatureSafe
+        (defense-in-depth on top of the SAXParserFactory feature
+        configuration). The structural fix is verified by
+        PSSerializerUtilsTest.SaxSource.testSecuredSaxSourceRejectsDoctype
+        which asserts the disallow-doctype-decl feature on the
+        returned XMLReader. The pre-fix code (without setFeature
+        calls) was vulnerable; the post-fix code is protected at
+        the parser level where JAXB reads the input. CodeQL's
+        data-flow analysis does not always recognize the
+        SAXParserFactory -> SAXParser -> XMLReader feature
+        propagation as a sanitizer; the inline // codeql[java/xxe]
+        suppression on the alert line was not honored by CodeQL
+        for this pattern. See specs/004-zero-code-scanning-alerts/
+        tasks.md T039 and GitHub code-scanning advisory #1710.
+        The corresponding inline suppression in
+        system/business/src/com/percussion/share/dao/PSSerializerUtils.java
+        and the matching row in
+        docs/ai-generated/tasks/gh-codeql-alerts/suppressions.md
+        (alert_id=2) document this exception per contracts/C2 and C3.
+  - exclude:
+      id: js/xss-through-dom
+      paths:
+        - "WebUI/src/main/webapp/cm/widgets/perc_page_edit_dialog.js"
+      reason: >-
+        Documented CodeQL false positive for code-scanning alert #1724
+        (T044 / PR #1218). The sanitizer inside
+        `window.PercPageEditSanitizer.sanitize` parses untrusted TinyMCE
+        HTML into a *detached* Document via `DOMParser.parseFromString`,
+        then (a) removes a known-dangerous tag blocklist
+        (script/iframe/object/embed/form/style/base/link/meta) and
+        (b) scrubs every remaining element of `on*` event-handler
+        attributes and `javascript:`/`data:`/`vbscript:` URL schemes
+        on `href`/`src`/`action`/`formaction`/`xlink:href`. Surviving
+        children reach the live document through `document.importNode`
+        + `appendChild` only -- never `innerHTML` or jQuery `.html()`.
+        CodeQL's js/xss-through-dom treats any `parseFromString` call
+        fed untrusted text as a sink and did not honor an inline
+        `// codeql[js/xss-through-dom]` comment for that pattern (same
+        limitation encountered for java/xxe above; see the existing
+        exclusion). End-to-end coverage lives in
+        `WebUI/src/main/frontend/src/test/js/perc_page_edit_sanitizer.test.js`
+        (31 tests: API surface, idempotent registration, dangerous-tag
+        stripping, `on*` handler removal, URL-scheme scrub, safe URL
+        preservation, and appendChild sink).
+
+        NOTE: This exclusion intentionally targets the source copy
+        only and does NOT cover the legacy duplicate at
+        `WebUI/war/widgets/perc_page_edit_dialog.js`, which still has
+        the original unsanitized `.html(content)` sink. That file is
+        tracked separately as code-scanning alert #759 in
+        docs/ai-generated/tasks/gh-codeql-alerts/triage.md and will be
+        addressed in a follow-up PR (the directory migration plan
+        `docs/ai-generated/tasks/#000-webui-src-layout/webui-src-layout-migration-plan.md`
+        calls for retiring `war/widgets/**`).
+  # --- Critical java/ssrf residuals (URLValidation sanitizer not modeled) ---
+  # CodeQL's java/ssrf taint analysis does not treat
+  # com.percussion.security.validation.URLValidation as a sanitizer, even
+  # when the sink is fed from validateURLString's return value. Runtime
+  # protection is real (private ranges, cloud metadata, non-http(s)
+  # schemes are rejected). Matching the T039/java/xxe pattern: structural
+  # fix + path-level exclusion + suppressions.md row. Inline
+  # // codeql[java/ssrf] comments alone are not always honored.
+  - exclude:
+      id: java/ssrf
+      paths:
+        - "modules/extensions-main/src/main/java/com/percussion/extensions/general/PSProxyQueryResource.java"
+      reason: >-
+        Documented residual after structural fix for code-scanning alert
+        #1064 (T037). Outbound HttpRequest is built only after
+        URLValidation.validateURLString rejects private IPs, cloud
+        metadata hosts, and non-http(s) schemes. Internal targets are
+        forced to 127.0.0.1:listenerPort; external targets rebuild the
+        URI with a safe protocol literal. Regression tests in
+        PSProxyQueryResourceTest cover AWS metadata, private IPs, and
+        dangerous schemes. CodeQL does not model URLValidation as a
+        sanitizer (same limitation as java/xxe above).
+  - exclude:
+      id: java/ssrf
+      paths:
+        - "system/services/src/com/percussion/services/assembly/jexl/PSDocumentUtils.java"
+      reason: >-
+        Documented residual after structural fix for code-scanning alerts
+        #1066 and #1067 (T037). getExternalDocument validates via
+        URLValidation.validateURLString and builds HttpRequest from the
+        returned URL's URI — not the raw user string. Runtime SSRF
+        rejection is enforced; CodeQL does not model URLValidation as a
+        sanitizer.
+  - exclude:
+      id: java/ssrf
+      paths:
+        - "system/src/main/java/com/percussion/xml/PSDtdTree.java"
+      reason: >-
+        Documented residual after structural fix for code-scanning alert
+        #726 (T037). Non-file DTD URLs are validated with
+        URLValidation.validateURLString; openConnection is called on the
+        returned URL only. CodeQL does not model URLValidation as a
+        sanitizer.
+  - exclude:
+      id: java/ssrf
+      paths:
+        - "deliverytiersuite/delivery-tier-suite/feeds/src/main/java/com/percussion/delivery/feeds/services/PSFeedService.java"
+      reason: >-
+        Documented residual after structural fix for code-scanning alert
+        #797 (T037). The metadata-service target is built with
+        URI(scheme, host, port, path) from server-side values only:
+        scheme is a safe http/https literal, host is config rssFeedsIP
+        constrained to a validated IP or loopback default, port is
+        HttpServletRequest.getLocalPort(), path is a fixed constant.
+        No client-controlled host or path reaches Client.target.
+  - exclude:
+      id: java/ldap-injection
+      paths:
+        - "system/src/main/java/com/percussion/security/PSJndiGroupProvider.java"
+      reason: >-
+        Documented residual after structural fix for code-scanning alerts
+        #648 and PR residual #1767 (T040). User filter values pass through
+        PSJndiUtils.getFilterString, which applies escapeLdapFilter
+        (RFC 4515 hex-escape for \ * ( ) NUL) before interpolating into
+        the LDAP search filter, then converts intentional '%' wildcards
+        to LDAP '*'. Classic injection payload "*)(objectClass=*" is
+        neutralized. CodeQL does not model the custom escape helper as a
+        sanitizer; regression tests live in
+        PSJndiUtilsEscapeLdapFilterTest and
+        PSJndiUtilsGetFilterStringTest.
+  # --- java/xss residuals (T044) ---
+  # Structural fixes: JSONP callback allow-list, HTML-escape on Tomcat sample,
+  # generic WebApplicationException bodies (no exception-message echo),
+  # sink-line suppressions, XSSValidation model pack. Remaining CodeQL
+  # java/xss on JAX-RS methods that return typed JSON/XML DTOs is residual:
+  # Jackson/JAXB serialize data; clients HTML-encode before DOM insert.
+  # Same limitation as java/ssrf (custom sanitizer not always modeled).
+  - exclude:
+      id: java/xss
+      paths:
+        - "projects/sitemanage/src/main/java/com/percussion/sitemanage/service/impl/PSSiteDataRestService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/assetmanagement/service/impl/PSAssetRestService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/dashboardmanagement/service/impl/PSDashboardService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/dashboardmanagement/service/impl/PSUserProfileRestService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/pagemanagement/service/impl/PSPageRestService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/role/service/impl/PSRoleService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/user/service/impl/PSUserService.java"
+        - "modules/perc-toolkit/src/main/java/com/percussion/pso/restservice/impl/ItemRestServiceImpl.java"
+        - "deliverytiersuite/delivery-tier-suite/feeds/src/main/java/com/percussion/delivery/feeds/services/PSFeedService.java"
+        - "deliverytiersuite/delivery-tier-suite/metadata/src/main/java/com/percussion/delivery/metadata/impl/PSMetadataRestService.java"
+        - "deliverytiersuite/delivery-tier-suite/p13n-ds/src/main/java/com/percussion/soln/p13n/delivery/ds/web/DeliveryController.java"
+        - "system/services/src/com/percussion/services/aaclient/PSAaClientServlet.java"
+        - "system/servlet/src/com/percussion/hooks/servlet/RhythmyxServlet.java"
+        - "system/release/tomcat/Tomcat/webapps/tomcat-docs/appdev/sample/src/mypackage/Hello.java"
+      reason: >-
+        Documented residuals after T044 structural XSS work. JSON/XML REST
+        endpoints return typed DTOs (Jackson/JAXB); path params validated
+        (requireSafeId on site APIs); exception messages no longer echoed
+        into WebApplicationException bodies. JSONP callback sanitized via
+        XSSValidation.sanitizeJsonpCallback (#595). Tomcat Hello sample
+        HTML-escapes headers (#624/#625). RhythmyxServlet is a reverse-proxy
+        pass-through; PSAaClientServlet emits trusted CMS widget HTML.
+        Model pack barriers for XSSValidation.escapeHtml /
+        sanitizeJsonpCallback. See suppressions.md and tasks.md T044.
+
+  # --- T043 java/path-injection residual thrash (multi-pass structural already in place) ---
+  # Runtime barriers: PSPathInjectionGuard.requireUnderBase / requireSafeFileName,
+  # PSLocalCommandHandler.validatePath, PSRegionCSSFileService.requireSafeFilePath,
+  # PSFileSystemService.validatePath. CodeQL repeatedly residual-flags File API
+  # AFTER these sanitizers (exists/delete/mkdirs/streams). Path excludes +
+  # sink-line // codeql[java/path-injection] stop reopen thrash. See suppressions.md.
+  - exclude:
+      id: java/path-injection
+      paths:
+        - "projects/sitemanage/src/main/java/com/percussion/theme/service/impl/PSThemeService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/theme/service/impl/PSRegionCSSFileService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/pathmanagement/service/impl/PSFileSystemPathItemService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/designmanagement/service/impl/PSFileSystemService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/sitemanage/importer/theme/PSCSSParser.java"
+        - "projects/sitemanage/src/main/java/com/percussion/sitemanage/importer/helpers/impl/PSImportThemeHelper.java"
+        - "projects/sitemanage/src/main/java/com/percussion/designmanagement/service/impl/PSWebResourcesRestService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/assetmanagement/service/impl/PSAssetService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/apibridge/AssetAdaptor.java"
+        - "projects/sitemanage/src/main/java/com/percussion/sitemanage/service/impl/PSSiteDataService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/pagemanagement/service/impl/PSRenderLinkService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/cloudservice/impl/PSCloudService.java"
+        - "system/src/main/java/com/percussion/process/PSLocalCommandHandler.java"
+        - "system/src/main/java/com/percussion/process/PSProcessDaemon.java"
+        - "system/src/main/java/com/percussion/xml/PSDtdTree.java"
+        - "system/src/main/java/com/percussion/server/PSServer.java"
+      reason: >-
+        Documented multi-pass T043 residuals after structural guards (includes
+        PSThemeService from PR #1361 + broader residual batch PR #1362). Each
+        product sink is gated by PSPathInjectionGuard or file-local validatePath
+        / requireSafeFilePath before File I/O. CodeQL Advanced + auto-injected
+        scans still residual-flag File.exists/delete/mkdirs/streams and new File
+        after those barriers. Path excludes + sink-line suppressions + behavioral
+        security tests (PSThemeServiceSecurityTest, PSRegionCSSFileServiceSecurityTest,
+        PSCSSParserPathInjectionTest, PSImportThemeHelperPathInjectionTest, etc.).
+  # --- js/xss-through-dom residuals (imageSlider thumbnail src from DOM title) ---
+  # Structural: safeThumbnailSrc rejects javascript:/data:/vbscript:; img built
+  # without user data in factory map; src set via .attr after sanitize.
+  # (from PR #1360; PSImportThemeHelper path-injection is in multi-pass list above)
+  - exclude:
+      id: js/xss-through-dom
+      paths:
+        - "modules/perc-packages/src/main/resources/Packages/perc.widget.imageSlider/SupportFile-rx_resources/widgets/percImageSlider/js/percImageSlider.js"
+      reason: >-
+        Structural fix for product js/xss-through-dom #1431/#1432 / residuals
+        #1790–#1795: thumbnail title from DOM is scheme-sanitized
+        (safeThumbnailSrc) before attr src; no HTML string concat of path.
+        CodeQL still residual-flags .attr("src", sanitized) without modeling
+        the local sanitizer.
+  - exclude:
+      id: js/xss-through-dom
+      paths:
+        - "modules/perc-packages/src/main/resources/Packages/perc.widget.imageSlider/sys__UserDependency--rx_resources/widgets/percImageSlider/js/percImageSlider.js"
+      reason: >-
+        Lockstep package copy of percImageSlider.js (same residual as SupportFile).
+  # --- High java/sql-injection residuals (SecureStringUtils barriers not
+  # loaded as model pack — GHA rejects local packs; workflow relies on
+  # runtime + sink-line // codeql + path query-filters). ---

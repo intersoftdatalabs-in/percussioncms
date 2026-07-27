@@ -78,7 +78,7 @@ src/main/ts/
 ### App.tsx
 
 ```typescript
-import { RouterProvider } from 'react-router-dom';
+import { RouterProvider } from 'react-router';
 import { router } from '../router';
 
 export const App: React.FC = () => {
@@ -97,7 +97,7 @@ Instead of manually managing Layout, Navigation, and pages, the Router handles t
 Updated to use React Router's `useNavigate` hook:
 
 ```typescript
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 export const Navigation: React.FC<{ items: NavItem[] }> = ({ items }) => {
   const navigate = useNavigate();

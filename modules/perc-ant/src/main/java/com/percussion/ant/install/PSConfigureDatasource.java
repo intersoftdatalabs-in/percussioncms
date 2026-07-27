@@ -68,6 +68,8 @@ import org.w3c.dom.NodeList;
  * </pre>
  */
 public class PSConfigureDatasource extends PSAction {
+  /** Creates a new datasource configuration task. */
+  public PSConfigureDatasource() {}
 
   private static final Logger log = LogManager.getLogger(PSConfigureDatasource.class);
 
@@ -168,32 +170,56 @@ public class PSConfigureDatasource extends PSAction {
    * Property Accessors and Mutators
    *************************************************************************/
 
-  /** Accessor for the repository location */
+  /**
+   * Accessor for the repository location.
+   *
+   * @return the repository location path
+   */
   public String getRepositoryLocation() {
     return m_strRepositoryLocation;
   }
 
-  /** Accessor for the server configuration location */
+  /**
+   * Accessor for the server configuration location.
+   *
+   * @return the server configuration location path
+   */
   public String getServerConfigLocation() {
     return m_strServerConfigLocation;
   }
 
-  /** Accessor for the Jndi datasource configuration location */
+  /**
+   * Accessor for the Jndi datasource configuration location.
+   *
+   * @return the JNDI datasource configuration location path
+   */
   public String getJndiDatasourceConfigLocation() {
     return m_strJndiDatasourceConfigLocation;
   }
 
-  /** Accessor for the login configuration location */
+  /**
+   * Accessor for the login configuration location.
+   *
+   * @return the login configuration location path
+   */
   public static String getLoginConfigLocation() {
     return ms_strLoginConfigLocation;
   }
 
-  /** Returns the name of the default Rhythmyx repository datasource configuration. */
+  /**
+   * Returns the name of the default Rhythmyx repository datasource configuration.
+   *
+   * @return the datasource configuration name
+   */
   public String getName() {
     return m_strName;
   }
 
-  /** Sets the name of the default Rhythmyx repository datasource configuration. */
+  /**
+   * Sets the name of the default Rhythmyx repository datasource configuration.
+   *
+   * @param dsConfig the datasource configuration name
+   */
   public void setName(String dsConfig) {
     m_strName = dsConfig;
   }

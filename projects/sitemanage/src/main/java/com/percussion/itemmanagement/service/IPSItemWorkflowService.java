@@ -248,8 +248,11 @@ public interface IPSItemWorkflowService {
 
   /**
    * Checks if a modification to the given item is allowed. The modifications are allowed if:
-   * <li>the item is checked out to the current user
-   * <li>the item is not checked out to current user
+   *
+   * <ul>
+   *   <li>the item is checked out to the current user
+   *   <li>the item is not checked out to current user
+   * </ul>
    *
    * @param id String with the id of the item. Must not be null
    * @return true if the modifications are allowed, false otherwise

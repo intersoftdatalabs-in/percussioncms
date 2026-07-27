@@ -32,10 +32,10 @@ public class PSOrphanedAssetSummary extends PSDataItemSummary {
 
   private static final long serialVersionUID = 1L;
 
-  /** Represents the SLOT_ID field from a {@link PSRelationship} object. */
+  /** Represents the SLOT_ID field. */
   private String slotId;
 
-  /** Represents the WIDGET_NAME field from a {@link PSRelationship} object. */
+  /** Represents the WIDGET_NAME field. */
   private String widgetName;
 
   private int relationshipId;

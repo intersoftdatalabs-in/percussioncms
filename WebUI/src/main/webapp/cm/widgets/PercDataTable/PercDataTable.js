@@ -158,13 +158,13 @@
 
       var pInfo = $(".perc-datatables-info");
       if (pInfo.length > 0) {
-        pInfo.html(pageOfPages);
+        // Page numbers only — use text(), not html() (js/html-constructed-from-input)
+        pInfo.text(pageOfPages);
       } else {
-        $(
-          "<div class='datatables_info perc-datatables-info'>" +
-            pageOfPages +
-            "</div>"
-        ).appendTo("body");
+        $("<div>")
+          .addClass("datatables_info perc-datatables-info")
+          .text(pageOfPages)
+          .appendTo("body");
       }
 
       var gFooterBar = $(".perc-footer-bar");
@@ -191,9 +191,10 @@
     fnDrawCallback: tableRedrawCallback,
     fnFooterCallback: footerRedrawCallback,
     oLanguage: {
-      sZeroRecords: I18N.message(
-        "perc.ui.workflow.status.gadget@No Pages Found"
-      ),
+      sZeroRecords:
+        typeof I18N === "undefined"
+          ? "No Pages Found"
+          : I18N.message("perc.ui.workflow.status.gadget@No Pages Found"),
       oPaginate: {
         sFirst: "&lt;&lt;",
         sPrevious: "&lt;",
@@ -346,38 +347,18 @@
             config.percHeaders[colIndex].replace(/ /g, "-").toLowerCase();
         }
 
-        // create the table data
-        var columnTd = $(
-          "<td class='" +
-            percType +
-            " " +
-            headerClass +
-            " perc-datatable-column perc-ellipsis perc-index-" +
-            colIndex +
-            " perc-cell-" +
-            colIndex +
-            "-" +
-            rowIndex +
-            " " +
-            firstLast +
-            "' valign='top'>"
-        );
+        // Build <td> via jQuery APIs — never interpolate untrusted tokens into HTML
+        // (CodeQL js/html-constructed-from-input #1575–#1578).
+        var columnTd = $("<td>")
+          .attr("valign", "top")
+          .addClass(percType)
+          .addClass(headerClass)
+          .addClass("perc-datatable-column perc-ellipsis")
+          .addClass("perc-index-" + colIndex)
+          .addClass("perc-cell-" + colIndex + "-" + rowIndex)
+          .addClass(firstLast);
         if (aoIndex == 1) {
-          columnTd = $(
-            "<td scope = row' class='" +
-              percType +
-              " " +
-              headerClass +
-              " perc-datatable-column perc-ellipsis perc-index-" +
-              colIndex +
-              " perc-cell-" +
-              colIndex +
-              "-" +
-              rowIndex +
-              " " +
-              firstLast +
-              "' valign='top'>"
-          );
+          columnTd.attr("scope", "row");
         }
         var columnRow;
         if (typeof column === "object") {
@@ -387,7 +368,7 @@
           // iterate over the rows within a table cell
           if (Array.isArray(column)) {
             $.each(column, function (colRowIndex, element) {
-              if (!element) element = "&nbsp;";
+              if (!element) element = "\u00a0";
               var columnRowData = element;
               var firstLast = "";
               if (colRowIndex === 0) firstLast = "perc-first";
@@ -406,16 +387,14 @@
                 title = columnRowData.title;
               }
 
-              if (title === "&nbsp;") title = "";
+              if (title === "&nbsp;" || title === "\u00a0") title = "";
 
               // finally, wrap the content in a div and then add it to the table data
-              columnRow = $(
-                "<div style='width:100%' class='perc-datatable-columnrow perc-ellipsis perc-index-" +
-                  colRowIndex +
-                  " " +
-                  firstLast +
-                  "'>"
-              );
+              columnRow = $("<div>")
+                .css("width", "100%")
+                .addClass("perc-datatable-columnrow perc-ellipsis")
+                .addClass("perc-index-" + colRowIndex)
+                .addClass(firstLast);
               if (columnRowData.callback) {
                 var cBack = $("<span>").attr("title", title).append(content);
                 cBack.css("cursor", "pointer").addClass("perc-callback");
@@ -437,17 +416,20 @@
           } else {
             let title = element.title;
             let content = element.content;
-            columnRow = $(
-              "<div title='" +
-                title +
-                "' class='perc-datatable-columnrow perc-ellipsis perc-index-0 perc-first'>"
-            ).append(content);
+            columnRow = $("<div>")
+              .attr("title", title == null ? "" : String(title))
+              .addClass(
+                "perc-datatable-columnrow perc-ellipsis perc-index-0 perc-first"
+              )
+              .append(content);
             columnTd.append(columnRow);
           }
         } else {
-          columnRow = $(
-            "<div class='perc-datatable-columnrow perc-ellipsis perc-index-0 perc-first'>"
-          ).append(element);
+          columnRow = $("<div>")
+            .addClass(
+              "perc-datatable-columnrow perc-ellipsis perc-index-0 perc-first"
+            )
+            .append(element);
           columnTd.append(columnRow);
         }
         // add the table data to the row
@@ -505,17 +487,14 @@
         if (index === 0) firstLast = "perc-first";
         else if (index === headers.length - 1) firstLast = "perc-last";
         else firstLast = "perc-middle";
-        var head = $(
-          "<th scope='col' class='" +
-            percType +
-            " " +
-            headerClass +
-            " perc-datatable-head-column perc-index-" +
-            index +
-            " " +
-            firstLast +
-            "'>"
-        );
+        // Build <th> via jQuery APIs (CodeQL js/html-constructed-from-input #1579–#1580)
+        var head = $("<th>")
+          .attr("scope", "col")
+          .addClass(percType)
+          .addClass(headerClass)
+          .addClass("perc-datatable-head-column")
+          .addClass("perc-index-" + index)
+          .addClass(firstLast);
 
         head.width(columnWidth);
 

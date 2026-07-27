@@ -26,6 +26,8 @@
 		classname="com.percussion.ant.install.PSUpdatePropFileWizAction" />
 	<taskdef name="PSCheckRunningServer"
 		classname="com.percussion.ant.install.PSCheckRunningServer" />
+	<taskdef name="PSCheckRunningDtsServer"
+		classname="com.percussion.ant.install.PSCheckRunningDtsServer" />
 	<taskdef name="PSUpgradeRepository"
 		classname="com.percussion.ant.install.PSUpgradeRepository" />
 	<taskdef name="PSCheckInstallLog"
@@ -116,6 +118,8 @@
 		classname="com.percussion.ant.install.PSExportDatabase" />
 	<taskdef name="PSMakeLasagna"
 		classname="com.percussion.ant.install.PSMakeLasagna" />
+	<taskdef name="PSValidateRepositoryConnection"
+		classname="com.percussion.ant.install.PSValidateRepositoryConnection" />
 	<taskdef name="PSCopyDirectory"
 		classname="com.percussion.ant.packagetool.PSCopyDirectory" />
 	<taskdef name="PSUnZipPackage"
@@ -153,6 +157,12 @@
 		classname="com.percussion.ant.PSSyncFiles" />
 	<taskdef name="PSUpgradeDerby"
 		classname="com.percussion.ant.install.PSUpgradeDerby" />
+	<!-- #548 CMS Derby→H2 migration (upgrade; fail install on FAILED/BLOCKED) -->
+	<taskdef name="PSMigrateEmbeddedRepository"
+		classname="com.percussion.ant.install.PSMigrateEmbeddedRepository" />
+	<!-- #548 DTS per-service Derby→H2 migration -->
+	<taskdef name="PSMigrateDtsEmbeddedRepository"
+		classname="com.percussion.ant.install.PSMigrateDtsEmbeddedRepository" />
 	<taskdef name="PSUpgradeEncryption"
 		classname="com.percussion.ant.install.PSUpgradeEncryption" />
 	<taskdef name="PSUpgradeSiteConfig"

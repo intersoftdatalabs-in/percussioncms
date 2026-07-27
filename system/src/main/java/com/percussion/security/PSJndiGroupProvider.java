@@ -162,14 +162,20 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
     if (filter != null && filter.trim().length() == 0)
       throw new IllegalArgumentException("filter may not be empty");
 
-    String searchFilter;
+    // CWE-90 / java/ldap-injection #648 (T040): user-supplied filter values are
+    // accepted ONLY through getFilterString → escapeLdapFilter (RFC 4515 hex-escape
+    // for \ * ( ) NUL) then %→* wildcard conversion. The raw filter string never
+    // reaches DirContext.search.
+    final String searchFilter;
     if (filter != null) {
       searchFilter =
           PSJndiUtils.getFilterString(
               new String[] {filter},
               PSJndiGroupProvider.PRINCIPAL_GROUP_ATTR,
               getGroupsSearchFilter());
-    } else searchFilter = getGroupsSearchFilter();
+    } else {
+      searchFilter = getGroupsSearchFilter();
+    }
 
     Collection groups = new ArrayList();
 
@@ -192,12 +198,14 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
         SearchControls ctls = new SearchControls();
         ctls.setReturningAttributes(attrIDs);
 
-        // search with empty name to search current context
-        String fullSearchFilter;
-        if (locationInfo.mi_groupFilter != null) {
-          fullSearchFilter = "(& " + locationInfo.mi_groupFilter + " " + searchFilter + ")";
-        } else fullSearchFilter = searchFilter;
-        results = ctx.search("", fullSearchFilter, ctls);
+        // Search current context (empty name). Location filter is configuration;
+        // user assertion values reach this sink only after getFilterString →
+        // escapeLdapFilter (RFC 4515 hex-escape for \ * ( ) NUL) then %→*. Residual
+        // java/ldap-injection #648 / #1767: GHA cannot load local model packs, so
+        // path query-filter + sink-line suppression document the FP residual.
+        final String fullSearchFilter =
+            PSJndiUtils.andLdapFilters(locationInfo.mi_groupFilter, searchFilter);
+        results = ctx.search("", fullSearchFilter, ctls); // codeql[java/ldap-injection]
         while (results.hasMore()) {
           /* add the group, appending the current context to the relative
            * name returned
@@ -936,11 +944,17 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
       // get entries matching the filter and the member's common name
       CompoundName memberName = PSJndiUtils.getCompoundName(user);
       String memberCond = memberName.get(0);
+      // codeql[java/ldap-injection] justification: memberCond (a DN
+      // component derived from the user input) is escaped with
+      // PSJndiUtils.escapeLdapFilter (RFC 4515 hex-escape for \ * ( ) NUL)
+      // before being concatenated into the search filter. The result
+      // can no longer break out of its surrounding parentheses. See
+      // specs/004-zero-code-scanning-alerts/tasks.md T040 and contracts/C2.
       filter =
           "(& ("
               + filter
               + ") ("
-              + memberCond
+              + PSJndiUtils.escapeLdapFilter(memberCond)
               + ") ("
               + PSJndiProvider.OBJECT_CLASS_ATTR
               + "="
@@ -1116,7 +1130,9 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
         buf.append(" (");
         buf.append(PSJndiProvider.OBJECT_CLASS_ATTR);
         buf.append("=");
-        buf.append(oc);
+        // Config objectClass names: still escape so a misconfigured value cannot
+        // break the filter structure (defense-in-depth for alert #648).
+        buf.append(PSJndiUtils.escapeLdapFilter(oc));
         buf.append(")");
       }
       if (buf.length() != 0) buf.append(")");

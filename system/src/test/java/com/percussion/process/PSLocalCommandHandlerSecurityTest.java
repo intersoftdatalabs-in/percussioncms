@@ -23,6 +23,8 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
@@ -82,6 +84,7 @@ class PSLocalCommandHandlerSecurityTest {
 
     @Test
     @DisplayName("Should reject absolute paths like /etc/passwd")
+    @EnabledOnOs({OS.LINUX, OS.MAC})
     void shouldRejectAbsoluteEtcPasswd() {
       File absolutePath = new File("/etc/passwd");
 
@@ -93,6 +96,7 @@ class PSLocalCommandHandlerSecurityTest {
 
     @Test
     @DisplayName("Should reject absolute system paths")
+    @EnabledOnOs({OS.LINUX, OS.MAC})
     void shouldRejectAbsoluteSystemPath() {
       File absolutePath = new File("/usr/bin/bash");
 
@@ -121,6 +125,7 @@ class PSLocalCommandHandlerSecurityTest {
 
     @Test
     @DisplayName("Should prevent /etc/passwd access attempt")
+    @EnabledOnOs({OS.LINUX, OS.MAC})
     void shouldPreventEtcPasswdAccess() {
       File etcPasswd = new File("/etc/passwd");
 
@@ -241,6 +246,41 @@ class PSLocalCommandHandlerSecurityTest {
           SecurityException.class,
           () -> PSLocalCommandHandler.doGetTextFile(symlinkPath),
           "Should reject symlink-style traversal attempts");
+    }
+  }
+
+  @Nested
+  @DisplayName("Additional Entry Points Security Tests")
+  class AdditionalEntryPointsSecurityTests {
+    @Test
+    @DisplayName("Should reject path traversal pattern in doRemoveFileSystemObject")
+    void shouldRejectPathTraversalInRemove() {
+      File path = new File("../../etc/passwd");
+      assertThrows(
+          PSProcessException.class, () -> PSLocalCommandHandler.doRemoveFileSystemObject(path));
+    }
+
+    @Test
+    @DisplayName("Should reject path traversal pattern in doMakeDirectories")
+    void shouldRejectPathTraversalInMakeDirs() {
+      File path = new File("../../etc/passwd");
+      assertThrows(PSProcessException.class, () -> PSLocalCommandHandler.doMakeDirectories(path));
+    }
+
+    @Test
+    @DisplayName("Should reject path traversal pattern in doSaveTextFile")
+    void shouldRejectPathTraversalInSaveText() {
+      File path = new File("../../etc/passwd");
+      assertThrows(
+          SecurityException.class, () -> PSLocalCommandHandler.doSaveTextFile(path, "test"));
+    }
+
+    @Test
+    @DisplayName("Should reject path traversal pattern in doSaveBinaryFile")
+    void shouldRejectPathTraversalInSaveBinary() {
+      File path = new File("../../etc/passwd");
+      assertThrows(
+          SecurityException.class, () -> PSLocalCommandHandler.doSaveBinaryFile(path, null));
     }
   }
 }

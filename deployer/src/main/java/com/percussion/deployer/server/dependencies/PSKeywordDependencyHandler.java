@@ -188,7 +188,12 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
     } catch (PSDeployServiceException e) {
       throw new PSDeployException(
           IPSDeploymentErrors.UNEXPECTED_ERROR,
+          e,
           "error occurred while installing keyword: " + e.getLocalizedMessage());
+    } catch (RuntimeException e) {
+      // UnexpectedRollbackException and similar often hide the real Hibernate failure
+      throw new PSDeployException(
+          IPSDeploymentErrors.UNEXPECTED_ERROR, e, PSKeywordInstallUtils.formatInstallError(e));
     }
   }
 
@@ -215,7 +220,7 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
     if (keyMapping != null) keyword = findKeywordByDependencyID(keyMapping.getTargetId());
     else keyword = findKeywordByDependencyID(dep.getDependencyId());
 
-    boolean isNew = (keyword == null) ? true : false;
+    boolean isNew = (keyword == null);
     try {
       // load packaged keyword
       String packagedContent = PSDependencyUtils.getFileContentAsString(archive, file);
@@ -225,7 +230,14 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
       if (!isNew) {
         keyword = ms_contentSvc.loadKeyword(keyword.getGUID(), null);
       } else {
-        keyword = ms_contentSvc.createKeyword(tempKey.getLabel(), tempKey.getDescription());
+        // Prefer existing row with same label (reinstall / partial prior install) over create
+        List<PSKeyword> byLabel = ms_contentSvc.findKeywordsByLabel(tempKey.getLabel(), null);
+        if (byLabel != null && !byLabel.isEmpty()) {
+          keyword = ms_contentSvc.loadKeyword(byLabel.get(0).getGUID(), null);
+          isNew = false;
+        } else {
+          keyword = ms_contentSvc.createKeyword(tempKey.getLabel(), tempKey.getDescription());
+        }
       }
 
       keyword.copy(tempKey);
@@ -246,15 +258,15 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
 
       keyword.setChoices(tempKey.getChoices());
 
-      Integer version = keyword.getVersion();
-      if (version != null) {
-        keyword.setVersion(null);
-
-        // bump the current version as hibernate is not incrementing the
-        // version on save if the keyword object has not been modified
-        keyword.setVersion(version + 1);
-      } else {
-        keyword.setVersion(0);
+      // Hibernate 7: never force-bump @Version before merge (optimistic lock / rollback-only).
+      if (PSKeywordInstallUtils.shouldForceHibernateVersionBump()) {
+        Integer version = keyword.getVersion();
+        if (version != null) {
+          keyword.setVersion(null);
+          keyword.setVersion(version + 1);
+        } else {
+          keyword.setVersion(0);
+        }
       }
 
       ms_contentSvc.saveKeyword(keyword);

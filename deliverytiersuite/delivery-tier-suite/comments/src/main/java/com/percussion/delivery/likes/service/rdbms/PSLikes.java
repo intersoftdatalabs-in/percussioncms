@@ -31,6 +31,9 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
+ * RDBMS-backed entity representing a like count for a (site, likeId, type) tuple. Stored in the
+ * {@code PERC_PAGE_LIKES} table with a uniqueness constraint on those three columns.
+ *
  * @author davidpardini
  */
 @Entity
@@ -41,6 +44,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 public class PSLikes implements IPSLikes, Serializable {
   private static final long serialVersionUID = 1L;
 
+  /** Unique identifier for the like row. Assigned by the persistence layer. */
   @TableGenerator(
       name = "likesId",
       table = "PERC_ID_GEN",
@@ -52,14 +56,19 @@ public class PSLikes implements IPSLikes, Serializable {
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "likesId")
   private long id;
 
+  /** Site the like belongs to. */
   @Basic private String site;
 
+  /** Identifier of the liked entity. */
   @Basic private String likeId;
 
+  /** Type of liked entity (page, comment, image). */
   @Basic private String type;
 
+  /** Current total number of likes. */
   @Basic private int total;
 
+  /** Default no-arg constructor required by Hibernate. */
   public PSLikes() {}
 
   /**
@@ -74,6 +83,13 @@ public class PSLikes implements IPSLikes, Serializable {
     this.total = likes.getTotal();
   }
 
+  /**
+   * Creates a new likes row for the given site, like id and type.
+   *
+   * @param site the site name, must not be {@code null}.
+   * @param likeId the like id, must not be {@code null}.
+   * @param type the like type, must not be {@code null}.
+   */
   public PSLikes(String site, String likeId, String type) {
     super();
     this.site = site;
@@ -82,6 +98,8 @@ public class PSLikes implements IPSLikes, Serializable {
   }
 
   /**
+   * Sets the unique identifier for this like.
+   *
    * @param id the id to set
    */
   public void setId(String id) {
@@ -89,6 +107,8 @@ public class PSLikes implements IPSLikes, Serializable {
   }
 
   /**
+   * Gets the like identifier.
+   *
    * @return the likeId
    */
   public String getLikeId() {
@@ -96,13 +116,17 @@ public class PSLikes implements IPSLikes, Serializable {
   }
 
   /**
-   * @param url the likeId to set
+   * Sets the like identifier.
+   *
+   * @param likeId the likeId to set
    */
   public void setLikeId(String likeId) {
     this.likeId = likeId;
   }
 
   /**
+   * Gets the type of liked entity.
+   *
    * @return the type
    */
   public String getType() {
@@ -110,6 +134,8 @@ public class PSLikes implements IPSLikes, Serializable {
   }
 
   /**
+   * Sets the type of liked entity.
+   *
    * @param type the type to set
    */
   public void setType(String type) {
@@ -117,6 +143,8 @@ public class PSLikes implements IPSLikes, Serializable {
   }
 
   /**
+   * Gets the site this like belongs to.
+   *
    * @return the site
    */
   public String getSite() {
@@ -124,6 +152,8 @@ public class PSLikes implements IPSLikes, Serializable {
   }
 
   /**
+   * Sets the site this like belongs to.
+   *
    * @param site the site to set
    */
   public void setSite(String site) {
@@ -131,6 +161,8 @@ public class PSLikes implements IPSLikes, Serializable {
   }
 
   /**
+   * Gets the unique identifier for this like.
+   *
    * @return the id
    */
   public String getId() {
@@ -138,6 +170,8 @@ public class PSLikes implements IPSLikes, Serializable {
   }
 
   /**
+   * Gets the current total number of likes.
+   *
    * @return the total
    */
   public int getTotal() {
@@ -145,6 +179,8 @@ public class PSLikes implements IPSLikes, Serializable {
   }
 
   /**
+   * Sets the current total number of likes.
+   *
    * @param total the total to set
    */
   public void setTotal(int total) {

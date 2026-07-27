@@ -52,9 +52,9 @@ public class PSSearchPatternService {
    * <p><b>Example:</b>
    *
    * <pre>
-   * List<String> items = List.of("test.txt", "test[1].txt", "test(1).txt");
+   * {@code List<String>} items = List.of("test.txt", "test[1].txt", "test(1).txt");
    * // User searches for ".txt" - will match the literal dot, not regex any character
-   * List<String> results = filterContentByNamePattern(items, ".txt");
+   * {@code List<String>} results = filterContentByNamePattern(items, ".txt");
    * // Returns only ["test.txt"] - not ["test.txt", "test[1].txt", "test(1).txt"]
    * </pre>
    *

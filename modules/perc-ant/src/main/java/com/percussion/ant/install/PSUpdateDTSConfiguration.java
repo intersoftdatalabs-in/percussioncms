@@ -39,6 +39,8 @@ import org.apache.tools.ant.Project;
  * server.xml is updated or replaced.
  */
 public class PSUpdateDTSConfiguration extends PSAction {
+  /** Creates a new DTS configuration update task. */
+  public PSUpdateDTSConfiguration() {}
 
   private static String PROD_PATH = "Deployment";
   private static String STAGING_PATH = "Staging/Deployment";

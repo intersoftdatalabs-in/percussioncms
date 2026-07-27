@@ -2,7 +2,7 @@
          import="com.percussion.services.utils.jspel.*"
          import="com.percussion.i18n.*"
          import="java.net.URLEncoder"
-         import="org.apache.commons.lang.*"
+         import="org.apache.commons.lang3.*"
          import="com.percussion.rx.ui.jsf.beans.PSTopNavigation"
          import="org.jsoup.Jsoup"
          import="org.jsoup.safety.Safelist"

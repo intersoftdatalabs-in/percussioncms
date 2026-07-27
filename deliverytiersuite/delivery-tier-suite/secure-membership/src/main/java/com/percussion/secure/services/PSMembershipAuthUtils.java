@@ -33,6 +33,10 @@ import org.springframework.web.context.ContextLoader;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+/**
+ * @deprecated This class is part of the deprecated secure-membership module.
+ */
+@Deprecated
 public class PSMembershipAuthUtils {
 
   private static final Logger log = LogManager.getLogger(PSMembershipAuthUtils.class);

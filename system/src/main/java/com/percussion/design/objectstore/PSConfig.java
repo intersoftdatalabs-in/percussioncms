@@ -22,7 +22,6 @@ import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.Version;
@@ -34,6 +33,8 @@ import java.util.Properties;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -356,10 +357,29 @@ public class PSConfig extends PSComponent {
   @Column(name = "NAME")
   private String m_name = null;
 
-  @SuppressWarnings("unused")
   @Version
   @Column(name = "VERSION")
   private Integer version;
+
+  /**
+   * Hibernate optimistic-lock version for this configuration row.
+   *
+   * @return the version, may be {@code null} before first persist
+   */
+  public Integer getVersion() {
+    return version;
+  }
+
+  /**
+   * Sets the Hibernate optimistic-lock version. Used when re-syncing a long-lived in-memory cache
+   * entry with the database before {@code merge} (e.g. package install saves the relationships
+   * config many times).
+   *
+   * @param version the version from the database, may be {@code null}
+   */
+  public void setVersion(Integer version) {
+    this.version = version;
+  }
 
   /**
    * The configuration file type. Initialized in ctor, never <code>null</code> or empty after that.
@@ -384,8 +404,13 @@ public class PSConfig extends PSComponent {
   /**
    * The string representation of the configuration content. Initialized in ctor, never <code>null
    * </code> after that.
+   *
+   * <p>Use {@link SqlTypes#LONGVARCHAR} rather than {@code @Lob}: on PostgreSQL, {@code @Lob} maps
+   * to OID large-objects, but the install schema stores CONFIGURATION as TEXT (see cmsTableDef).
+   * Reading OID from a TEXT column yields "Bad value for type long" when loading relationship
+   * configs.
    */
-  @Lob
+  @JdbcTypeCode(SqlTypes.LONGVARCHAR)
   @Column(name = "CONFIGURATION")
   private String m_configString = null;
 

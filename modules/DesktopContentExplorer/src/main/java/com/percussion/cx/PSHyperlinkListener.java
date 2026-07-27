@@ -33,6 +33,10 @@ import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.html.HTMLAnchorElement;
 
+/**
+ * Listener that intercepts anchor clicks in the embedded header web view and opens the target URL
+ * in the system browser instead of navigating within the embedded view.
+ */
 public class PSHyperlinkListener implements ChangeListener<State>, EventListener {
   private static Logger log = LogManager.getLogger(PSHyperlinkListener.class);
 
@@ -41,6 +45,12 @@ public class PSHyperlinkListener implements ChangeListener<State>, EventListener
 
   private final WebView webView;
 
+  /**
+   * Constructs the listener for the given web view.
+   *
+   * @param webView the web view whose anchor clicks will be intercepted, may not be <code>null
+   *     </code>.
+   */
   public PSHyperlinkListener(WebView webView) {
     this.webView = webView;
   }

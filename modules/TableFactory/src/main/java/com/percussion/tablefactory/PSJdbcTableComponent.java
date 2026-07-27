@@ -26,6 +26,7 @@ import org.w3c.dom.Element;
  * Abstract base class for all table component classes such as column defintions, primary keys and
  * foreign keys.
  */
+@SuppressWarnings("this-escape")
 public abstract class PSJdbcTableComponent {
   /** Parameterless constructor for derived classes only */
   protected PSJdbcTableComponent() {}
@@ -322,7 +323,7 @@ public abstract class PSJdbcTableComponent {
    * </code>determines it may not be <code>null</code> or empty, otherwise it may.
    * @throws IllegalArgumentException if name is not valid.
    */
-  public void setName(String name) {
+  public final void setName(String name) {
     if (!validateName(name)) throw new IllegalArgumentException("name is invalid");
 
     m_name = name;
@@ -343,7 +344,7 @@ public abstract class PSJdbcTableComponent {
    * @param action The action, one of the ACTION_xxx contstant values.
    * @throws IllegalArgumentException if action is not valid.
    */
-  public void setAction(int action) {
+  public final void setAction(int action) {
     if (!validateAction(action)) throw new IllegalArgumentException("action is invalid");
 
     m_action = action;
@@ -363,7 +364,7 @@ public abstract class PSJdbcTableComponent {
    *
    * @return <code>true</code> if name is valid, <code>false</code> if not.
    */
-  private boolean validateName(String name) {
+  private final boolean validateName(String name) {
 
     return (name != null && name.trim().length() != 0) || !isNameRequired();
   }
@@ -374,7 +375,7 @@ public abstract class PSJdbcTableComponent {
    * @param action The action to validate.
    * @return <code>true</code> if action is valid, <code>false</code> if not.
    */
-  private boolean validateAction(int action) {
+  private final boolean validateAction(int action) {
     boolean isValid = false;
     switch (action) {
       case ACTION_CREATE:

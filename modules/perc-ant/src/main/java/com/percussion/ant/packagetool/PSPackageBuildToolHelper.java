@@ -35,6 +35,9 @@ import org.apache.logging.log4j.Logger;
 /** Few helper methods to deal with directories paths etc for storing contents of the .ppkg files */
 public class PSPackageBuildToolHelper {
 
+  /** Creates a new helper instance. */
+  public PSPackageBuildToolHelper() {}
+
   private static final Logger log = LogManager.getLogger(PSPackageBuildToolHelper.class);
 
   /**
@@ -115,6 +118,7 @@ public class PSPackageBuildToolHelper {
    *
    * @param zipFileWithPath cannot be <code>null</code>
    * @param rootDirectory cannot be <code>null</code>
+   * @return the destination directory path under the root directory
    */
   public static String getDestinationDirectoryPath(String zipFileWithPath, String rootDirectory) {
     String subDirectory = getSubDirectory(zipFileWithPath);
@@ -145,6 +149,15 @@ public class PSPackageBuildToolHelper {
     return fileList;
   }
 
+  /**
+   * Returns a list of files with their source paths resolved.
+   *
+   * @param filelist the list of files to process
+   * @param sourceDir the source directory
+   * @param tempDir the temporary directory
+   * @param isDelete if <code>true</code>, mark files for deletion rather than path mapping
+   * @return a list of File objects with resolved source paths
+   */
   public static List<File> getFilesWithSourcePath(
       List<File> filelist, File sourceDir, File tempDir, boolean isDelete) {
     List<File> sourcePathList = new ArrayList<File>();
@@ -352,9 +365,11 @@ public class PSPackageBuildToolHelper {
   }
 
   /**
+   * Loads the mapping properties file for the specified folder.
+   *
    * @param folderPath Cannot be <code>null</code> or Cannot be <code>empty</code>.
-   * @return the folderanme.mapping.properties file
-   * @throws IOException
+   * @return the folder name mapping properties file
+   * @throws IOException if the properties file cannot be read
    */
   public static Properties getPropertiesFile(String folderPath) throws IOException {
     Properties props = new Properties();
@@ -374,8 +389,9 @@ public class PSPackageBuildToolHelper {
    * Builds the properties file name and Copies the properties file in the tempDirPath to the
    * properties file in destDirectoryPath
    *
-   * @param tempDirPath
-   * @param destDirectoryPath
+   * @param tempDirPath the temporary directory path containing the mapping properties file
+   * @param destDirectoryPath the destination directory path where the properties file should be
+   *     copied
    */
   public static void copyPropertiesFile(String tempDirPath, String destDirectoryPath) {
     String directoryName = getDirectoryName(tempDirPath);

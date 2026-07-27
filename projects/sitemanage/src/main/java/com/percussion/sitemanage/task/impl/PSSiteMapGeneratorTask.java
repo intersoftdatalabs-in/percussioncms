@@ -63,9 +63,8 @@ public class PSSiteMapGeneratorTask implements IPSEditionTask {
   /**
    * Perform the task, either before or after the edition is run, depending on the registration.
    *
-   * <h3>Implementation notes</h3>
-   *
-   * Note for each parameter whether the parameter is available given a usage.
+   * <p><b>Implementation notes:</b> Note for each parameter whether the parameter is available
+   * given a usage.
    *
    * <p>Post edition tasks may also wish to retrieve status information from the service and change
    * behavior according to whether a particular item published successfully or not.
@@ -108,14 +107,20 @@ public class PSSiteMapGeneratorTask implements IPSEditionTask {
 
     if (site.isGenerateSitemap()) {
 
-      var mapper = new ObjectMapper();
       var jsonString = site.getGenerateSiteMapOptions();
       PSGenerateSiteMapOptions psGenerateSiteMapOptions = null;
-      try {
-        psGenerateSiteMapOptions = mapper.readValue(jsonString, PSGenerateSiteMapOptions.class);
-      } catch (JsonProcessingException e) {
-        log.error(PSExceptionUtils.getMessageForLog(e));
-        throw new PSExtensionException(e);
+      if (jsonString != null && !jsonString.trim().isEmpty()) {
+        var mapper = new ObjectMapper();
+        try {
+          psGenerateSiteMapOptions = mapper.readValue(jsonString, PSGenerateSiteMapOptions.class);
+        } catch (JsonProcessingException e) {
+          log.warn(
+              "Failed to parse generateSiteMapOptions JSON, using defaults. Error: {}",
+              PSExceptionUtils.getMessageForLog(e));
+        }
+      }
+      if (psGenerateSiteMapOptions == null) {
+        psGenerateSiteMapOptions = new PSGenerateSiteMapOptions();
       }
 
       long count = 0;

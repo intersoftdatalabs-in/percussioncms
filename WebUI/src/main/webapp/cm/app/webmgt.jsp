@@ -134,7 +134,7 @@
 
     <!-- Themes never should be concatenated or packed -->
     <link rel="stylesheet" type="text/css" href="../themes/smoothness/jquery-ui-1.8.9.custom.css"/>
-    <link rel="stylesheet" type="text/css" href="/cm/pages/app/js/legacy/profiles/3x/libraries/fontawesome/css/all.css"/>
+    <link rel="stylesheet" type="text/css" href="/cm/jslib/profiles/3x/libraries/fontawesome/css/all.css"/>
     <script src="/Rhythmyx/tmx/tmx.jsp?mode=js&amp;prefix=perc.ui.&amp;sys_lang=<%=locale %>"></script>
     <script src="/JavaScriptServlet"></script>
     <% if (isDebug) { %>
@@ -298,9 +298,14 @@
             }
 
             $.PercViewReadyManager.init();
-            var viewWrapper = $.PercComponentWrapper("perc-view-editor", ["perc-ui-component-finder", "perc-ui-component-editor-toolbar", "perc-ui-component-editor-frame"]);
+            // US6 (T031): primary nav Finder is no longer mounted here.
+            // The modern React Content Explorer (ContentExplorerShell) is
+            // mounted via PercModernUI.mount(...) into #perc-web-management-
+            // explorer below; the right-hand editor (toolbar + iframe) is
+            // unchanged. See modules/perc-qa-automation/frontend/tests/
+            // us6-hard-cut.spec.js for the no-Finder-chrome assertion.
+            var viewWrapper = $.PercComponentWrapper("perc-view-editor", ["perc-ui-component-editor-toolbar", "perc-ui-component-editor-frame"]);
             $.PercViewReadyManager.setWrapper(viewWrapper);
-            $.Percussion.PercFinderView();
         });
         // dont allow navigation and window events if template is dirty
         // this method is bound to body's onbeforeunload event
@@ -322,9 +327,49 @@
 
     <div id="perc-web-management">
 
-        <jsp:include page="includes/finder.jsp" flush="true">
-            <jsp:param name="openedObject" value="PERC_PAGE"/>
-        </jsp:include>
+        <%-- US6 (T031): the legacy miller-column Finder include
+             (<jsp:include page="includes/finder.jsp" ...>) has been
+             removed. The modern React Content Explorer is mounted
+             into #perc-web-management-explorer via PercModernUI.mount
+             (initialised in the init script below). The legacy
+             includes/finder.jsp and includes/finder_js.jsp files
+             remain in the source tree for the other shells
+             (dashboard, admin, editAsset, editTemplate, adminWorkflow,
+             users, siteArchitecture) which are pending cutover in
+             follow-up PRs; per T032 they are removed once all
+             primary-nav shells are migrated. --%>
+        <div id="perc-web-management-explorer"
+             data-testid="perc-web-management-explorer"
+             style="border: 1px solid #ddd; background: #fff;"></div>
+        <script>
+            (function () {
+        // US6 (T031): self-load the modern bridge if a parent page didn't
+        // already include it. Idempotent — once loaded, the bridge
+        // exposes window.PercModernUI globally. The cb= cache-buster
+        // busts the browser's cache on first paint so iter-dev cycles
+        // pick up the new bundle.
+        if (!document.querySelector('script[src*="perc-modern-ui.js"]')) {
+            var s = document.createElement("script");
+            s.type = "module";
+            s.src = "/cm/modern/assets/perc-modern-ui.js?cb=" + Date.now();
+            document.head.appendChild(s);
+        }
+                        function mountExplorer() {
+                    if (!window.PercModernUI || typeof window.PercModernUI.mount !== "function") {
+                        window.setTimeout(mountExplorer, 50);
+                        return;
+                    }
+                    window.PercModernUI.mount("perc-web-management-explorer", "ContentExplorerShell", {
+                        initialPath: ""
+                    });
+                }
+                if (document.readyState === "loading") {
+                    document.addEventListener("DOMContentLoaded", mountExplorer);
+                } else {
+                    mountExplorer();
+                }
+            })();
+        </script>
         <div id="perc-pageEditor-tabs" perc-ui-component="perc-ui-component-editor-toolbar">
             <div class="perc-page-details">
                 <div class="perc-page-status">

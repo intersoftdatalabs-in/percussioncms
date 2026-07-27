@@ -823,13 +823,12 @@ public class PSSearchDialog extends PSDialog {
 
   /**
    * This is a convenient method which returns <code>true</code> if
-   * RestrictSearchFieldsToUserCommunity property exists in the server.property
-   * and its value is yes and if the search type is either user search or
-   * related content search or a new search. Otherwise returns
-   * <code>false</code>.
+   * RestrictSearchFieldsToUserCommunity property exists in the server.property and its value is yes
+   * and if the search type is either user search or related content search or a new search.
+   * Otherwise returns <code>false</code>.
    *
-   * @return <code>true</code> or <code>false> based on the search type and
-   * RestrictSearchFieldsToUserCommunity flag.
+   * @return <code>true</code> or <code>false</code> based on the search type and
+   *     RestrictSearchFieldsToUserCommunity flag.
    */
   public boolean isRestrictToUserCommunity() {
     String part = m_search.getLocator().getPart();

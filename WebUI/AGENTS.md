@@ -4,90 +4,69 @@ Read the root [@AGENTS.md](../AGENTS.md) for general guidelines. This file conta
 
 ## Module Overview
 
-**WebUI** is a **hybrid J2EE WAR module** undergoing a multi-phase, multi-track modernization strategy. The application contains **8 distinct UI layers**, each with different technologies, features, and communication protocols. The module is transitioning from legacy frameworks (Dojo, jQuery, Knockout) to a unified React-based UI.
+**WebUI** is the CMS browser UI WAR. The **product user interface is React + TypeScript** (Vite), delivered as a pure SPA under `/cm/app/`.
 
-**Three Parallel Tracks:**
-- **Track A:** Remove Dojo 0.4.3 security risk by migrating 5 Active Assembly screens to jQuery (next release)
-- **Track B:** Build consolidated React UI to replace all legacy JS layers (long-term strategic)
-- **Maintenance:** Continue supporting jQuery (~20 screens), Knockout/CUI (~8 screens), and JSF Admin/Publishing
+| Field | Value |
+|-------|--------|
+| **Product UI** | React 19 + TypeScript + Vite → `/cm/modern/assets/perc-modern-ui.js` |
+| **Canonical source** | `WebUI/src/main/ts/` (build cwd: `WebUI/src/main/frontend/`) |
+| **SPA document** | `cm/app/spa.jsp` + path routes (`/cm/app/home`, …) via `BrowserRouter` + `PSWebUiSpaFallbackFilter` |
+| **Login** | React `LoginPage` on `rxlogin.jsp` (POST `/login`) |
+| **Direction plan** | [`docs/ai-generated/tasks/#000-unified-ui-plan/unified-ui-plan.md`](../docs/ai-generated/tasks/#000-unified-ui-plan/unified-ui-plan.md) **rev 4.1** |
+| **SPA infra design** | [`docs/ai-generated/tasks/#000-pure-react-spa/`](../docs/ai-generated/tasks/#000-pure-react-spa/) |
 
-**Current Status:**
-- ✅ Phase 0: Vite build pipeline established
-- ✅ Phase 1: React Dashboard complete (24 widget components)
-- ✅ Phase 2: Build output separation to `target/generated-webui/`
-- ✅ Phase 3: Full Maven integration validated
-- 🔄 Track A: Dojo→jQuery migration planned
-- 🚀 Track B: Incremental React component migration ongoing
+### Product locks (agents must follow)
 
----
+1. **React + TypeScript only** for product UI work. New features ship as SPA routes/modules under `src/main/ts/`.
+2. **Do not carry jQuery (or Knockout/Dojo) into the new UI.**  
+   - **Forbidden** in `WebUI/src/main/ts/**`, SPA hosts (`spa.jsp`, `rxlogin.jsp` product path), and the **modern** Vite bundle (`perc-modern-ui.js`).  
+   - No `import "jquery"`, no `window.$` / `jQuery` usage, no jQuery plugins, no FancyTree-via-jQuery in React.  
+   - Use React state, browser APIs, and typed `api/*` REST instead.  
+   - jQuery packages under `frontend/package.json` exist **only** to pack **residual legacy** pages (`build:legacy`) until those pages are deleted — **not** for SPA features.
+3. **No dual mode.** No feature flags that keep classic and modern as peer production UIs for the same job.
+4. **No new bridges.** Do not add `PercModernUI.mount` product hosts. Bridge mounts are residual debt only (see residual-bridge-embeds doc).
+5. **Shell ≠ done.** A screen is incomplete until features work (data, actions, navigation, errors, roles) on a real CMS.
+6. **Screen-by-screen.** Prove one surface fully before treating it as accepted. **Current focus: Home.**
+7. **Server deep links / login return:** query `spa.jsp?entry=…` only (never `#` in `Location`). Client may use path URLs after handoff.
 
-## UI Layers Inventory
+### Current status (honest)
 
-The WebUI shares the Percussion CMS application with 7 other UI layers:
+| Area | Status |
+|------|--------|
+| SPA shell, login front door, routing cutover, path URLs (PR-1…9) | **Infra landed** |
+| Home, Publish, Explorer, Admin, Workflow, WB **as usable product** | **Not accepted** — shells/routes exist; **Home is first functional gate** (user: shell visible, not functional) |
+| Residual jQuery pages / AA / dialog hosts / JSF / GWT | **Legacy debt** — replace with React or delete; **not** imported into SPA |
+| Vendored Dojo library | **Removed** from ApplicationFiles; residual `ps.*` AA code may remain as debt |
 
-|        Layer         |              Technology               |   Screens   |       Protocol        |          Track           |
-|----------------------|---------------------------------------|-------------|-----------------------|--------------------------|
-| Desktop Explorer     | Java Swing + JavaFX WebView           | ~10         | JAX-WS SOAP           | Legacy                   |
-| Rhythmyx Admin       | MyFaces JSF + Trinidad                | 12          | JSF managed beans     | Legacy                   |
-| Rhythmyx Publishing  | MyFaces JSF + Trinidad                | 28          | JSF managed beans     | Legacy                   |
-| Package Manager      | GWT + SmartGWT                        | 3+          | GWT-RPC               | Legacy                   |
-| **WebUI Legacy**     | **jQuery 3.6 + jQuery UI + Backbone** | **~20**     | **REST/JSON**         | **Maintaining**          |
-| Contributor UI (CUI) | RequireJS + Knockout.js               | ~8          | REST/JSON             | Maintaining              |
-| Dojo Screens (AA/CB) | **Dojo 0.4.3**                        | **5**       | **REST/JSON**         | **→Track A (jQuery)**    |
-| **React Modern**     | **React 19 + TypeScript + Vite**      | **Growing** | **REST/JSON (Fetch)** | **→Track B (Strategic)** |
-
-**Reference:** [UI Layer Inventory & Technical Research](../docs/ai-generated/tasks/#000-unified-ui-plan/ui-layer-inventory.md)
-
----
-
-## Track A: Dojo → jQuery (Next Release)
-
-**Status:** Planned for next release
-**Purpose:** Remove security scan alerts from Dojo 0.4.3 (pre-1.0, from 2006)
-**Scope:** ~43 custom `ps.*` modules (~10K lines) + 1,477 Dojo vendor files
-
-**Screens Affected:**
-- Active Assembly editor
-- Content Browser
-- Relationship Editor
-- Field editing UI
-- Search interface
-
-**Key Work Items:**
-1. Rewrite `ps.io.Actions` (1,179 lines) — `dojo.io.bind()` → `$.ajax()`
-2. Rewrite `ps.aa.controller` (2,475 lines) — Dojo events → jQuery, Dojo classes → ES6
-3. Replace Dojo widgets with jQuery UI equivalents
-4. Update server-side HTML generation (PSPageTree.java, PSActionBar.java)
-5. Update XSL, JSP, and HTML entry points
-6. Delete Dojo vendor directory
-
-**Reference:** [Unified UI Plan — Track A Detail](../docs/ai-generated/tasks/#000-unified-ui-plan/unified-ui-plan.md)
-
-**DO NOT:**
-- Add new Dojo code (violates Track A roadmap)
-- Extend existing Dojo functionality without approval
-- Create new `ps.*` modules using Dojo patterns
+**Do not** describe Track A (Dojo→jQuery) or Track B dual-mode as the active product plan. That framing is retired (see unified-ui-plan rev 4.1).  
+**Do not** “modernize” by wrapping jQuery widgets in React or calling `$` from TS.
 
 ---
 
-## Track B: React Unified UI (Long-Term Strategic)
+## Active work order
 
-**Status:** In progress (Phase 3 complete)
-**Goal:** Consolidate all legacy JS layers (jQuery, Knockout, Dojo) into a single React-based UI
-**Timeline:** Multi-release roadmap
+1. **Home** — make Recent / Bookmarks / Library / Search / Create / Gadgets fully functional; pass Home acceptance checklist in the unified UI plan.
+2. **Publish** → **Explorer** → **Admin** → **Workflow** → **Widget Builder** (same bar).
+3. **Legacy exits** (editor, design, arch, residual dialogs) — SPA rewrite or retire; delete bridges when openers move.
 
-**Completed Milestones:**
-- ✅ Phase 0 (Build): Vite pipeline, React bridge (`PercModernUI.mount()`)
-- ✅ Phase 1 (Dashboard): 24 widget components replacing Shindig gadgets
-- ✅ Phase 2 (Build Structure): Output separation to `target/generated-webui/cm/`
-- ✅ Phase 3 (Maven Integration): Full WAR generation tested
+Checklist and register: unified-ui-plan rev 4.1 §4–§5.
 
-**Next Steps:**
-- Incrementally migrate high-value screens from jQuery/Knockout
-- Establish patterns for React component library
-- Plan screen-by-screen migration roadmap
+---
 
-**Reference:** [Unified UI Plan — Track B](../docs/ai-generated/tasks/#000-unified-ui-plan/unified-ui-plan.md) | [Source Layout Migration](../docs/ai-generated/tasks/#000-webui-src-layout/webui-src-layout-migration-plan.md)
+## What may still exist in the WAR (not product direction)
+
+These are **not** peer product UIs. Agents may touch them only for security/hotfix or to remove after React replacement:
+
+| Layer | Tech | Policy |
+|-------|------|--------|
+| Residual bridge dialogs / embeds | React via `PercModernUI.mount` on old JSPs | Delete when SPA owns the job; **no new mounts** |
+| WebUI legacy pages | jQuery / Backbone | No new features |
+| Contributor UI leftovers | Knockout | No new features |
+| Active Assembly / residual `ps.*` | Historical Dojo-shaped code + shims | No new Dojo; replace with React when editor wave runs |
+| Package Manager | GWT | Legacy until React wave |
+| JSF residual packaging | JSF | Prefer SPA Admin/Publish |
+
+Historical inventory (may lag): [`docs/ai-generated/tasks/#000-unified-ui-plan/ui-layer-inventory.md`](../docs/ai-generated/tasks/#000-unified-ui-plan/ui-layer-inventory.md).
 
 ---
 
@@ -97,164 +76,81 @@ The WebUI shares the Percussion CMS application with 7 other UI layers:
 WebUI/
 ├── src/
 │   ├── main/
-│   │   ├── java/                        # Java servlets, REST controllers
-│   │   ├── resources/                   # Shared config files
-│   │   ├── webapp/                      # War root; JSP pages, legacy JS/CSS
-│   │   │   ├── cm/                      # Deployed application root
-│   │   │   │   ├── app/                 # JSP application pages
-│   │   │   │   ├── jslib/               # Legacy JavaScript source (~43 ps.* modules)
-│   │   │   │   ├── jslibMin/            # Generated minified JavaScript
-│   │   │   │   ├── cssMin/              # Generated minified CSS
-│   │   │   │   ├── modern/              # Generated React/Vite bundles
-│   │   │   │   ├── vendor/              # Vendor libs (jQuery, Bootstrap, etc.)
-│   │   │   │   ├── widgets/             # jQuery UI widgets
-│   │   │   │   └── themes/              # CSS themes
-│   │   │   ├── dce/                     # Desktop Content Explorer pages
-│   │   │   ├── *.jsp                    # War root JSP files
-│   │   │   └── WEB-INF/                 # Deployment configuration
-│   │   └── frontend/                    # ← Node.js/React/Vite source (NEW LOCATION)
-│   │       ├── package.json
-│   │       ├── tsconfig.json
-│   │       ├── vite.config.ts           # Modern ES2020+ build
-│   │       ├── vite.legacy.config.ts    # Legacy ES5 bundles
-│   │       ├── scripts/
-│   │       │   └── build-legacy-bundles.js
-│   │       └── src/main/ts/
-│   │           ├── components/          # React components
-│   │           ├── api/                 # API client code
-│   │           ├── dashboard/           # Dashboard (fully migrated)
-│   │           ├── hooks/               # Custom React hooks
-│   │           └── index.ts             # Entry point
+│   │   ├── java/                        # Servlets, filters (e.g. SPA fallback)
+│   │   ├── resources/
+│   │   ├── webapp/                      # WAR root (JSP, legacy assets)
+│   │   │   ├── cm/app/                  # spa.jsp, index.jsp, residual legacy JSPs
+│   │   │   ├── cm/modern/               # Generated React bundle (build output)
+│   │   │   └── WEB-INF/
+│   │   ├── ts/                          # ← Product UI TypeScript/React source
+│   │   │   ├── app/                     # SPA App, routes, layout, deep links
+│   │   │   ├── home/, publishing/, …    # Feature modules
+│   │   │   ├── api/, i18n/, ui-themes/
+│   │   │   ├── bridge.ts, registry.ts   # Residual embed support only
+│   │   │   └── index.ts
+│   │   └── frontend/                    # Vite/npm workingDirectory
 │   └── test/
-│       ├── java/                        # JUnit 5 tests
-│       └── ts/                          # Vitest tests
+│       ├── java/
+│       └── ts/                          # Vitest
 ├── pom.xml
-└── target/
-    └── generated-webui/                 # Build outputs (NOT in git)
-        └── cm/
-            ├── modern/
-            ├── jslibMin/
-            └── cssMin/
+└── target/generated-webui/              # Build outputs (not git)
 ```
 
 ---
 
 ## Build Pipeline
 
-### Maven Build (Full Application)
+### Standalone module (preferred pre-PR)
 
 ```bash
-./mvn-env.sh -pl WebUI clean install         # Build everything
-./mvn-env.sh -pl WebUI clean package         # Skip test phase
-./mvn-env.sh -pl WebUI clean install -DskipTests
+cd WebUI
+../mvn-env.sh clean install
 ```
 
-**What happens:**
-1. Maven invokes `frontend-maven-plugin` to:
-- Install Node.js if needed
-- Run `npm install`
-- Run `npm run build` (TypeScript compilation via Vite)
-2. Legacy bundle builder generates minified JS/CSS bundles
-3. Maven packages single WAR containing:
-- Compiled Java classes (src/main/java)
-- JSP pages and assets (src/main/webapp)
-- Generated React bundles (target/generated-webui/cm/modern)
-- Generated legacy bundles (target/generated-webui/cm/jslibMin, cssMin)
-
-### Node.js/npm Commands (Frontend Development)
+### Frontend-only iteration
 
 ```bash
 cd WebUI/src/main/frontend
-
-npm run dev              # Vite dev server with HMR (React)
-npm run build            # Build modern + legacy bundles
-npm run build:modern     # Modern ES2020+ only
-npm run build:legacy     # Legacy ES5 JavaScript/CSS bundles
-npm run preview          # Preview production build
-npm run test             # Run Vitest tests once
-npm run test:watch       # Watch mode for tests
-npm run lint             # Check ESLint errors
+npm run build:modern     # tsc + vite
+npm run test             # Vitest
+npm run dev              # HMR when wired to a running CMS
 ```
 
-### Quick Type Check & Linting
+### Hot copy to docker CMS (example)
 
 ```bash
-cd WebUI/src/main/frontend
-npx tsc --noEmit         # Verify TypeScript types
-npm run lint             # Check code style
+cp WebUI/target/generated-webui/cm/modern/assets/perc-modern-ui.js \
+   /opt/Percussion/jetty/base/webapps/Rhythmyx/cm/modern/assets/perc-modern-ui.js
+cp WebUI/target/generated-webui/cm/modern/assets/perc-modern-ui.css \
+   /opt/Percussion/jetty/base/webapps/Rhythmyx/cm/modern/assets/perc-modern-ui.css
+# Path routes: spa.jsp + filter are on the server; rebuild WAR or copy JSP/filter classes as needed
 ```
 
 ---
 
 ## Coding Standards
 
-### Java (Servlets, REST Controllers)
+### React + TypeScript (product code)
 
-Follow root [@AGENTS.md](../AGENTS.md) Java standards:
-- Use dependency injection
-- Keep servlets thin; move logic to service classes
-- Provide RESTful endpoints consumable by both legacy and modern UIs
-- Use JUnit 5 + Mockito for testing
-- Document API contracts clearly
+- Functional components + hooks; strict TypeScript (avoid `any`)
+- Feature modules under `src/main/ts/<feature>/`
+- REST via `api/client.ts` + feature APIs; CSRF from bootstrap / `OWASP_CSRFTOKEN`
+- i18n via TMX `message()` helpers — no raw keys in primary chrome
+- Styles: CSS modules preferred; theme tokens via `ui-themes`
+- Tests: Vitest for non-trivial logic; update tests with every behavior change
+- SPA routing: `app/routes.tsx` + deep-link allowlists; server entry allowlists stay in lockstep
 
-### React + TypeScript (Track B, Growing)
+### Java (WebUI)
 
-**Component Development:**
-- Functional components with React hooks only
-- Strict TypeScript (no `any` types)
-- One file per component: `ComponentName.tsx`
-- Props interface in `ComponentName.types.ts` if complex
+- Thin filters/servlets; portable paths (`Path` / `Files` when filesystem)
+- New filters (e.g. SPA fallback) must have unit tests for allowlists
 
-**Styling:**
-- Bootstrap 5 classes for new components
-- CSS modules: `ComponentName.module.css` for local scoping
-- Avoid inline styles
-- Be aware of global CSS conflicts from jQuery/legacy
+### Legacy (jQuery, Knockout, residual AA, bridge)
 
-**Testing (Vitest):**
-
-```bash
-npm run test             # Run once
-npm run test:watch     # Development watch mode
-```
-
-**Example Component:**
-
-```typescript
-// src/main/ts/components/MyWidget.tsx
-import styles from './MyWidget.module.css';
-
-interface MyWidgetProps {
-  title: string;
-  count: number;
-}
-
-export function MyWidget({ title, count }: MyWidgetProps) {
-  return <div className={styles.widget}>{title}: {count}</div>;
-}
-```
-
-### jQuery + jQuery UI (Legacy, Under Maintenance)
-
-**Rules:**
-- Do NOT add new jQuery code
-- Evaluate React migration for features you modify
-- Keep jQuery isolated from React DOM
-
-### Knockout.js (Contributor UI, Under Maintenance)
-
-**Rules:**
-- Do NOT extend Knockout bindings
-- Evaluate React migration for pages you modify
-- Use bridge pattern if React/Knockout coexist
-
-### Dojo 0.4.3 (Being Removed — Track A)
-
-**Rules:**
-- ❌ Do NOT write new Dodo code
-- ❌ Do NOT extend existing Dojo modules
-- Contact team lead before touching Dojo files
-- All Dojo code targets jQuery migration in Track A
+- **Do not** add product features
+- **Do not** add Dojo
+- **Do not** add new `PercModernUI.mount` hosts
+- Security/hotfix only, or delete after React acceptance
 
 ---
 
@@ -262,252 +158,38 @@ export function MyWidget({ title, count }: MyWidgetProps) {
 
 ### React/TypeScript (Vitest)
 
-**Rules:**
-- Use Vitest (not Jest)
-- Filename: `ComponentName.test.tsx` or `utilityName.test.ts`
-- Mock API calls; don't call real endpoints
-- Test user-facing behavior, not implementation
-- Target >80% coverage for new components
-
-**Example:**
-
-```typescript
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { MyWidget } from './MyWidget';
-
-describe('MyWidget', () => {
-  it('should render title', () => {
-    render(<MyWidget title="Test" count={5} />);
-    expect(screen.getByText('Test: 5')).toBeInTheDocument();
-  });
-});
-```
-
-### Java (JUnit 5)
-
-**Rules:**
-- Use JUnit 5 (refactor any JUnit 3/4)
-- Filename: `ServiceNameTest.java`
-- Mock external dependencies with Mockito
-- Test servlets, REST endpoints, business logic
-
----
-
-## Backend Integration
-
-### REST API Contract
-
-Create clear, typed endpoints:
-
-```java
-@RestController
-@RequestMapping("/api/items")
-public class ItemController {
-  @GetMapping("/{id}")
-  public ItemDTO getItem(@PathVariable String id) {
-    return itemService.findById(id);
-  }
-}
-```
-
-Frontend calls it:
-
-```typescript
-// src/main/ts/api/itemApi.ts
-export interface ItemDTO {
-  id: string;
-  name: string;
-  created: string;
-}
-
-export async function fetchItem(id: string): Promise<ItemDTO> {
-  const res = await fetch(`/api/items/${id}`);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
-}
-```
-
-### Authentication & Sessions
-
-- Own from `/api/auth` endpoint
-- Use HTTP-only cookies where possible
-- Include `Authorization` header when needed
-- Handle logout for both legacy and React UIs
-
-### Shared Data Between Frameworks
-
-Instead of coupling jQuery + React directly:
-
-```
-jQuery code → /api/shared-data ← React code
-```
-
-Both frameworks call the same REST endpoint, get consistent JSON.
-
----
-
-## Migration Strategy
-
-### When to Migrate to React
-
-**Priority:**
-1. Security-sensitive features
-2. High-traffic screens
-3. Features needing rich interactivity
-4. Components that benefit from type safety
-
-### Migration Approach
-
-1. **Analyze current implementation** — Document JSP/jQuery/Knockout code
-2. **Design REST API** — Create clean endpoints if not present
-3. **Build React component** — New component in `src/main/ts/components/`
-4. **Create JSP entry point** — Embed React with `PercModernUI.mount()`
-5. **Test thoroughly** — Component behavior + coexistence with legacy
-6. **Deploy & monitor** — Full Maven build + production verification
-7. **Clean up** — Remove old code only after verification
-
-### Best Practices
-
-**DO:**
-- ✅ Use REST APIs for inter-framework communication
-- ✅ Isolate React in separate DOM subtrees
-- ✅ Test coexistence before cleanup
-- ✅ Document API contracts
-- ✅ Maintain backward compatibility
-- ✅ Write thorough tests
-
-**DON'T:**
-- ❌ Mix React and jQuery on same element
-- ❌ Mix React and Knockout on same element
-- ❌ Share global variables between frameworks
-- ❌ Create new Dojo code
-- ❌ Add new jQuery UI code
-- ❌ Directly manipulate DOM from multiple frameworks
-
-### Bridge Pattern Example
-
-**Legacy jQuery notifying React:**
-
-```javascript
-document.dispatchEvent(new CustomEvent('itemUpdated', { detail: itemData }));
-```
-
-**React component listening:**
-
-```typescript
-useEffect(() => {
-  const handleUpdate = (e: Event) => {
-    const customEvent = e as CustomEvent;
-    console.log('Item updated:', customEvent.detail);
-  };
-  document.addEventListener('itemUpdated', handleUpdate);
-  return () => document.removeEventListener('itemUpdated', handleUpdate);
-}, []);
-```
-
----
-
-## Build Outputs & WAR Packaging
-
-### Source vs. Generated Files
-
-**Committed to Git:**
-- `src/main/webapp/cm/` — JSP pages, static assets
-- `src/main/frontend/src/main/ts/` — React/TypeScript source
-
-**Generated (NOT committed):**
-- `target/generated-webui/cm/modern/` — React bundles
-- `target/generated-webui/cm/jslibMin/` — Minified legacy JS
-- `target/generated-webui/cm/cssMin/` — Minified legacy CSS
-
-**.gitignore includes:**
-
-```gitignore
-WebUI/target/generated-webui/
-WebUI/war/modern/
-WebUI/war/jslibMin/
-WebUI/war/cssMin/
-```
-
-### WAR Contents
-
-**Final `target/perc-web-ui-8.2.0-SNAPSHOT.war`:**
-
-```
-cm/
-├── app/                 # JSP pages (from source)
-├── jslib/               # Legacy JS source (from source)
-├── jslibMin/            # Minified bundles (generated)
-├── cssMin/              # Minified CSS (generated)
-├── modern/              # React bundles (generated)
-├── vendor/              # jQuery, Bootstrap, etc. (from source)
-├── widgets/, themes/, api/
-└── [other static assets]
-
-WEB-INF/
-├── web.xml
-├── classes/             # Compiled Java
-└── lib/                 # JAR dependencies
-```
-
----
-
-## Version Requirements
-
-|       Branch        | Node | JDK |
-|---------------------|------|-----|
-| `development`       | 22   | 21  |
-| `development-8.1.x` | 18   | 8   |
-
 ```bash
-# development branch
-export JAVA_HOME=/path/to/jdk-21
-nvm use 22
-./mvn-env.sh clean install
-
-# development-8.1.x branch
-export JAVA_HOME=/path/to/jdk-8
-nvm use 18
-./mvn-env.sh clean install
+cd WebUI/src/main/frontend
+npm run test
 ```
 
----
+### Acceptance (product)
 
-## Hot Deployment
+Follow the **screen checklist** in the unified UI plan. Home must pass on a **real CMS** (not only unit tests) before Home is marked accepted.
 
-```bash
-./scripts/hot-deploy-local.sh \
-  --install-dir /path/to/cms-install \
-  --modules webui \
-  --restart
-```
+### Pre-PR
 
-Rebuilds WebUI and redeploys to local installation.
+- `cd WebUI && ../mvn-env.sh clean install` — BUILD SUCCESS, tests pass, no new warnings
+- Erlang review on authored diffs
+- PR body: commands run + test counts + which checklist items were verified
 
 ---
 
-## Common Tasks Cheatsheet
+## Agent DO / DO NOT (summary)
 
-|        Task        |                                    Command                                    |
-|--------------------|-------------------------------------------------------------------------------|
-| Full build         | `./mvn-env.sh -pl WebUI clean install`                                        |
-| Build (skip tests) | `./mvn-env.sh -pl WebUI clean install -DskipTests`                            |
-| React dev server   | `cd WebUI/src/main/frontend && npm run dev`                                   |
-| Build React only   | `cd WebUI/src/main/frontend && npm run build`                                 |
-| Run tests          | `cd WebUI/src/main/frontend && npm run test:watch`                            |
-| Check types        | `cd WebUI/src/main/frontend && npx tsc --noEmit`                              |
-| Lint check         | `cd WebUI/src/main/frontend && npm run lint`                                  |
-| Format code        | `./mvn-env.sh spotless:apply`                                                 |
-| Hot deploy         | `./scripts/hot-deploy-local.sh --install-dir /path --modules webui --restart` |
+| DO | DO NOT |
+|----|--------|
+| Ship SPA React features | Dual-mode / classic peer UIs |
+| Fix Home until functional | Declare “done” because shell renders |
+| Delete obsolete hosts after acceptance | New bridge product pages |
+| Align allowlists (TS + JSP/filter) | New Dojo / Knockout / jQuery product code |
+| Document acceptance evidence | Invent REST APIs without checking existing `api/` + `rest` module |
 
 ---
 
-## Documentation & References
+## Related docs
 
-- [Unified UI Plan](../docs/ai-generated/tasks/#000-unified-ui-plan/unified-ui-plan.md) — Tracks A & B roadmap
-- [UI Layer Inventory](../docs/ai-generated/tasks/#000-unified-ui-plan/ui-layer-inventory.md) — 8 UI layers analysis
-- [WebUI Source Layout Migration](../docs/ai-generated/tasks/#000-webui-src-layout/webui-src-layout-migration-plan.md) — Build structure design
-- [Phase 2: Build Output Separation](../docs/ai-generated/tasks/#000-webui-src-layout/PHASE-2-BUILD-OUTPUT-SEPARATION.md) — Current setup details
-- [Phase 3: Full Integration Test](../docs/ai-generated/tasks/#000-webui-src-layout/PHASE-3-FULL-INTEGRATION-TEST.md) — Maven integration validation
-
+- [Unified UI Plan rev 4.0](../docs/ai-generated/tasks/#000-unified-ui-plan/unified-ui-plan.md) — **direction of record**
+- [Pure React SPA design](../docs/ai-generated/tasks/#000-pure-react-spa/design.md) — entry contract, bootstrap, PR 1–9
+- [Residual bridge embeds](../docs/ai-generated/tasks/#000-pure-react-spa/residual-bridge-embeds.md) — delete list
+- Root [AGENTS.md](../AGENTS.md) — monorepo, Maven, cross-platform, Erlang

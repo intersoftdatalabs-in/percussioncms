@@ -19,7 +19,11 @@ package com.percussion.ant.install;
 
 import com.percussion.install.InstallUtil;
 
+/** Shuts down the Derby server after all database tasks have completed. */
 public class PSDerbyServer extends PSAction {
+  /** Creates a new Derby server shutdown task. */
+  public PSDerbyServer() {}
+
   /** This will handle Shutting down the Derby Server after all DB tasks are done. CMS-5932. */
   public void execute() {
     InstallUtil.shutDownDerby();

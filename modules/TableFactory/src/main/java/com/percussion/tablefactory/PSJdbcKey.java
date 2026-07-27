@@ -31,6 +31,7 @@ import org.w3c.dom.Element;
  * This is the base class for classes used to represent an object in a table schema consisting of a
  * distinct list of column names.
  */
+@SuppressWarnings("this-escape")
 public abstract class PSJdbcKey extends PSJdbcTableComponent {
   /**
    * Basic constructor for this class.
@@ -136,7 +137,8 @@ public abstract class PSJdbcKey extends PSJdbcTableComponent {
    * @throws PSJdbcTableFactoryException if the Xml definition contains any empty column names, or
    *     if there are any other errors.
    */
-  protected void fromXml(Element sourceNode, String nodeName) throws PSJdbcTableFactoryException {
+  protected final void fromXml(Element sourceNode, String nodeName)
+      throws PSJdbcTableFactoryException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
 
     if (nodeName == null || nodeName.trim().length() == 0)
@@ -335,7 +337,8 @@ public abstract class PSJdbcKey extends PSJdbcTableComponent {
    * @throws PSJdbcTableFactoryException if columnNames contains any empty or duplicate names (case
    *     sensitive).
    */
-  public void setColumnNames(Iterator<String> columnNames) throws PSJdbcTableFactoryException {
+  public final void setColumnNames(Iterator<String> columnNames)
+      throws PSJdbcTableFactoryException {
     if (columnNames == null || !columnNames.hasNext())
       throw new IllegalArgumentException("columnNames may not be null or empty");
 

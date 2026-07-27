@@ -134,6 +134,27 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
       }
     }
 
+    // Fast path: no criteria (common for global category trees). Complex Q1–Q4
+    // builder assumes at least one filter and produces invalid HQL when empty
+    // (v8.1.7 #782 / GH-748).
+    if (entryCrit.isEmpty() && propsCrit.isEmpty()) {
+      String hql =
+          "SELECT distinct count(p.entry.id), p.name, p.stringvalue "
+              + "FROM PSDbMetadataProperty p "
+              + "WHERE p.name = 'perc:category' "
+              + "GROUP BY p.name, p.stringvalue "
+              + "ORDER BY p.stringvalue";
+      log.debug("{}", hql);
+      try (Session session = getSession()) {
+        Query hq = session.createQuery(hql);
+        cats = hq.getResultList();
+      } catch (Exception e) {
+        log.error("Simple category query failed: {}", e.getMessage());
+        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      }
+      return cats;
+    }
+
     StringBuilder Q4WhereClause = null;
     String clauseTemplate = " e.{0} {1} :{2}";
     int paramIndex = 0;
@@ -219,13 +240,20 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
       }
     }
 
-    StringBuilder Q2 =
-        new StringBuilder(
-            "select distinct p2.entry.id from PSDbMetadataProperty p2 where p2.entry.id in( ");
+    // After empty-criteria fast path return, at least one of Q3/Q4 is non-null.
+    StringBuilder Q2;
     if (Q3 != null) {
-      Q2.append(Q3).append(" )");
-    } else if (Q4 != null) {
-      Q2.append(Q4).append(" )");
+      Q2 =
+          new StringBuilder(
+                  "select distinct p2.entry.id from PSDbMetadataProperty p2 where p2.entry.id in( ")
+              .append(Q3)
+              .append(" )");
+    } else {
+      Q2 =
+          new StringBuilder(
+                  "select distinct p2.entry.id from PSDbMetadataProperty p2 where p2.entry.id in( ")
+              .append(Q4)
+              .append(" )");
     }
 
     StringBuilder Q1 =
@@ -433,12 +461,9 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
 
     if (!entryCrit.isEmpty() || !propsCrit.isEmpty()) queryBuf.append(" where");
 
-    if ((isSortingOnProperty)) {
-      queryBuf
-          .append(" prop.name = ")
-          .append("'")
-          .append(PSMetadataQueryServiceHelper.getSortPropertyName(orderBy))
-          .append("'");
+    // CWE-89 / java/sql-injection #656: bind prop.name; do not quote-concatenate the token.
+    if (isSortingOnProperty) {
+      queryBuf.append(" prop.name = :sortPropName");
     }
     String clauseTemplate = " me.{0} {1} :{2}";
     String inClauseTemplate = " me.{0} {1} (:{2})";
@@ -447,6 +472,10 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
     Map<String, PSCriteriaElement.OPERATION_TYPE> paramOps = new HashMap<>();
     boolean needConjunction = false;
     if (isSortingOnProperty) {
+      String sortProp =
+          SecureStringUtils.requireSafeMetadataToken(
+              PSMetadataQueryServiceHelper.getSortPropertyName(orderBy));
+      paramValues.put("sortPropName", sortProp);
       needConjunction = true;
     }
     for (PSCriteriaElement ce : entryCrit) {
@@ -544,14 +573,15 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
           }
         }
       } else {
-        // Make it case insensitive
-        // queryBuf.append(" order by " + "lower(me." +
-        // PSMetadataQueryServiceHelper.getSortPropertyName(orderBy) + ") ");
-        queryBuf
-            .append(" order by ")
-            .append("me.")
-            .append(PSMetadataQueryServiceHelper.getSortPropertyName(orderBy))
-            .append(" ");
+        // ORDER BY identifiers cannot be bound; only allowlisted entry columns are concatenated.
+        String sortProp =
+            SecureStringUtils.requireSafeMetadataToken(
+                PSMetadataQueryServiceHelper.getSortPropertyName(orderBy));
+        if (!PSMetadataQueryServiceHelper.ENTRY_PROPERTY_KEYS.contains(sortProp)) {
+          throw new PSMalformedMetadataQueryException(
+              "orderBy field is not a known metadata entry column: " + sortProp);
+        }
+        queryBuf.append(" order by ").append("me.").append(sortProp).append(" ");
       }
 
       if (sortColumns.isEmpty())
@@ -698,7 +728,13 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
       String[] arrayOrderBy = orderByColumns.split(",");
 
       for (String orderColumn : arrayOrderBy) {
-        String sortField = PSMetadataQueryServiceHelper.getSortPropertyName(orderColumn.trim());
+        String sortField =
+            SecureStringUtils.requireSafeMetadataToken(
+                PSMetadataQueryServiceHelper.getSortPropertyName(orderColumn.trim()));
+        // Only entry-table columns may appear as me.<name> in ORDER BY (allowlist).
+        if (!PSMetadataQueryServiceHelper.ENTRY_PROPERTY_KEYS.contains(sortField)) {
+          continue;
+        }
         String sortingOrder = PSMetadataQueryServiceHelper.getSortingOrder(orderColumn.trim());
         hMapColumns.put(sortField, sortingOrder);
       }
@@ -751,6 +787,9 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
 
   /** constant for the MySQL driver type. */
   public static final String JDBC_MYSQL_DRIVER = "mysql";
+
+  /** constant for the PostgreSQL driver type. */
+  public static final String JDBC_POSTGRESQL_DRIVER = "postgresql";
 
   /** constant for the Apache Derby driver type. */
   public static final String JDBC_DERBY_DRIVER = "derby";

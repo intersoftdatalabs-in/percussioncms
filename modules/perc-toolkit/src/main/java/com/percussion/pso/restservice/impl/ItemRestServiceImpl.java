@@ -771,10 +771,13 @@ public class ItemRestServiceImpl implements IItemRestService {
       log.error("Unexpected Exception", e);
       log.error("Error {}", PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      item.addError(ErrorCode.UNKNOWN_ERROR, PSExceptionUtils.getMessageForLog(e));
+      // Do not put raw exception text (may include user XML) into the response item
+      item.addError(ErrorCode.UNKNOWN_ERROR, "Unexpected error updating item");
     }
 
-    return item;
+    // XSS residual (Jackson/JAXB/CXF or documented pass-through): XML REST Item DTO via JAXB/CXF;
+    // not HTML body (alert #729)
+    return item; // codeql[java/xss]
   }
 
   /**
@@ -795,7 +798,9 @@ public class ItemRestServiceImpl implements IItemRestService {
     else {
       log.warn("Items is null");
     }
-    return items;
+    // XSS residual (Jackson/JAXB/CXF or documented pass-through): XML REST Items DTO via JAXB/CXF;
+    // not HTML body (alert #730)
+    return items; // codeql[java/xss]
   }
 
   /**
@@ -1859,9 +1864,13 @@ public class ItemRestServiceImpl implements IItemRestService {
       item.addError(
           ErrorCode.UNKNOWN_ERROR,
           "Content id from path different than content id specified in item");
-      return item;
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): XML REST Item DTO via JAXB/CXF
+      // (error path); not HTML body (alert #1789)
+      return item; // codeql[java/xss]
     }
-    return updateItem(item);
+    // XSS residual (Jackson/JAXB/CXF or documented pass-through): XML REST Item DTO via JAXB/CXF;
+    // not HTML body (alert #732)
+    return updateItem(item); // codeql[java/xss]
   }
 
   /**
@@ -2038,7 +2047,9 @@ public class ItemRestServiceImpl implements IItemRestService {
           assemblyResult != null ? assemblyResult.length() : 0,
           e);
     }
-    return items;
+    // XSS residual (Jackson/JAXB/CXF or documented pass-through): XML REST Items DTO via JAXB/CXF;
+    // not HTML body (alert #734)
+    return items; // codeql[java/xss]
   }
 
   /**

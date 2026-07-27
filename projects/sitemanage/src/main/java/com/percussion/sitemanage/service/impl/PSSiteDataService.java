@@ -61,6 +61,7 @@ import com.percussion.queue.IPSPageImportQueue;
 import com.percussion.recent.service.rest.IPSRecentService;
 import com.percussion.search.PSSearchIndexEventQueue;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.server.PSServer;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.contentchange.IPSContentChangeService;
@@ -128,6 +129,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
@@ -367,20 +370,23 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     props.setMobilePreviewEnabled(site.isMobilePreviewEnabled());
     props.setGenerateSiteMap(site.isGenerateSitemap());
 
-    ObjectMapper mapper = new ObjectMapper();
     String jsonString = site.getGenerateSiteMapOptions();
-    if (jsonString != null) {
-      PSGenerateSiteMapOptions psGenerateSiteMapOptions = null;
+    PSGenerateSiteMapOptions psGenerateSiteMapOptions = null;
+    if (StringUtils.isNotBlank(jsonString)) {
+      ObjectMapper mapper = new ObjectMapper();
       try {
         psGenerateSiteMapOptions = mapper.readValue(jsonString, PSGenerateSiteMapOptions.class);
       } catch (JsonProcessingException e) {
-        log.error(
-            "Error in json String for site {} and the error is: {} ",
+        log.warn(
+            "Failed to parse generateSiteMapOptions JSON for site {}, using defaults. Error: {}",
             site.getName(),
             PSExceptionUtils.getMessageForLog(e));
       }
-      props.setGenerateSiteMapOptions(psGenerateSiteMapOptions);
     }
+    if (psGenerateSiteMapOptions == null) {
+      psGenerateSiteMapOptions = new PSGenerateSiteMapOptions();
+    }
+    props.setGenerateSiteMapOptions(psGenerateSiteMapOptions);
   }
 
   public PSSitePublishProperties getSitePublishProperties(String siteName)
@@ -483,20 +489,28 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
         oldSiteName,
         newSiteName);
 
-    var sourceCacheDir =
-        new File(
-            PSServer.getRxDir().getAbsolutePath()
-                + PAGE_IMAGE_CACHE_DIR
-                + File.separator
-                + oldSiteName);
-    var destCacheDir =
-        new File(
-            PSServer.getRxDir().getAbsolutePath()
-                + PAGE_IMAGE_CACHE_DIR
-                + File.separator
-                + newSiteName);
-    if (sourceCacheDir.renameTo(destCacheDir))
-      log.info("Page and Template image cache folder moved to: {}", destCacheDir.getAbsolutePath());
+    // CWE-22/CWE-23 (path traversal) defense: site names must be single path
+    // segments with no separators or traversal sequences before being appended
+    // to a server-controlled base directory. A user-supplied site name like
+    // "../../etc/passwd" or "foo/bar" must NOT reach File construction.
+    // PSPathInjectionGuard.requireSafeFileName rejects null/empty values,
+    // forward/back slashes, embedded NUL bytes, and the literal ".." segment.
+    PSPathInjectionGuard.requireSafeFileName(oldSiteName);
+    PSPathInjectionGuard.requireSafeFileName(newSiteName);
+
+    File cacheRoot = new File(PSServer.getRxDir().getAbsolutePath() + PAGE_IMAGE_CACHE_DIR);
+    if (!cacheRoot.exists() && !cacheRoot.mkdirs() && !cacheRoot.isDirectory()) {
+      // mkdirs() false can mean "already exists as dir after race" or true failure.
+      log.error(
+          "Unable to create page/template image cache root: {}. Site thumbnail cache rename"
+              + " skipped.",
+          cacheRoot.getAbsolutePath());
+      return;
+    }
+    var sourceCacheDir = PSPathInjectionGuard.requireUnderBase(cacheRoot, oldSiteName);
+    var destCacheDir = PSPathInjectionGuard.requireUnderBase(cacheRoot, newSiteName);
+    if (sourceCacheDir.renameTo(destCacheDir)) // codeql[java/path-injection]
+    log.info("Page and Template image cache folder moved to: {}", destCacheDir.getAbsolutePath());
     else
       log.error(
           "Unable to automatically move: {} to {}.  An administrator may need to stop the service"
@@ -1789,12 +1803,14 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
         if (replaceVal != null) {
           for (String original : replaceMappings.keySet()) {
             String replacement = replaceMappings.get(original);
+            String quotedOriginal = Pattern.quote(original);
+            String quotedReplacement = Matcher.quoteReplacement(replacement);
             if (replaceVal.contains(original + '/')) {
-              replaceVal = replaceVal.replaceFirst(original + '/', replacement + '/');
+              replaceVal = replaceVal.replaceFirst(quotedOriginal + '/', quotedReplacement + '/');
             } else if (replaceVal.contains(original + '%')) {
-              replaceVal = replaceVal.replaceFirst(original + '%', replacement + '%');
+              replaceVal = replaceVal.replaceFirst(quotedOriginal + '%', quotedReplacement + '%');
             } else {
-              replaceVal = replaceVal.replaceFirst(original, replacement);
+              replaceVal = replaceVal.replaceFirst(quotedOriginal, quotedReplacement);
             }
           }
 
@@ -1868,7 +1884,9 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
       String copySiteName = copySite.getName();
       String origSiteName = origSite.getName();
 
-      String origPagePath = pagePath.replaceFirst(copySiteName, origSiteName);
+      String origPagePath =
+          pagePath.replaceFirst(
+              Pattern.quote(copySiteName), Matcher.quoteReplacement(origSiteName));
       PSPage origPage = pageDao.findPageByPath(origPagePath);
 
       Collection<String> assetIds = null;

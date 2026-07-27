@@ -108,16 +108,21 @@ public class PSRoleCataloger {
     public Role() {}
 
     /**
-     * Constructor that calls fromXml
+     * Constructor that calls fromXml.
      *
-     * @param elemRoot the element that contains data for a single Role , never <code>null</code>
+     * @param elemRoot the element that contains data for a single Role, never <code>null</code>.
+     * @throws PSUnknownNodeTypeException if the element is not in the expected format.
      */
     public Role(Element elemRoot) throws PSUnknownNodeTypeException {
       fromXml(elemRoot);
     }
 
-    /*
-     * Implementation of the interface method
+    /**
+     * Implementation of the interface method.
+     *
+     * @param elemRoot the element that contains data for a single role, may not be <code>null
+     *     </code>.
+     * @throws PSUnknownNodeTypeException if the element is not in the expected format.
      */
     public void fromXml(Element elemRoot) throws PSUnknownNodeTypeException {
       PSXMLDomUtil.checkNode(elemRoot, XML_ELEM_PSXROLE);
@@ -126,6 +131,8 @@ public class PSRoleCataloger {
     }
 
     /**
+     * Gets the name of the role.
+     *
      * @return role name, never <code>null</code>
      */
     public String getName() {
@@ -173,12 +180,15 @@ public class PSRoleCataloger {
       return m_name.hashCode();
     }
 
-    /** */
+    /** The role name. */
     private String m_name;
   }
 
-  /*
-   * Implementation of the interface method
+  /**
+   * Implementation of the interface method.
+   *
+   * @param elemRoot the root element of the catalog response, may not be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the element is not in the expected format.
    */
   public void fromXml(Element elemRoot) throws PSUnknownNodeTypeException {
     m_collRoles.clear();
@@ -197,8 +207,11 @@ public class PSRoleCataloger {
     }
   }
 
-  /*
-   * Implementation of the interface method
+  /**
+   * Implementation of the interface method.
+   *
+   * @param doc the document used to create the new element, may not be <code>null</code>.
+   * @return the new root element, never <code>null</code>.
    */
   public Element toXml(Document doc) {
     Element elem = PSXmlDocumentBuilder.createRoot(doc, XML_ELEM_ROOT);
@@ -207,16 +220,23 @@ public class PSRoleCataloger {
   }
 
   /**
+   * Gets the cataloged roles.
+   *
    * @return unmodifiable collection of cataloged Role instances , never <code>null</code>.
    */
   public Collection getRoles() {
     return Collections.unmodifiableCollection(m_collRoles);
   }
 
-  /** collection of cataloged Role instances */
+  /** Collection of cataloged Role instances. */
   private Collection m_collRoles = new ArrayList();
 
+  /** Root element name in the catalog response. */
   public static final String XML_ELEM_ROOT = "getRole";
+
+  /** Role element name in the catalog response. */
   public static final String XML_ELEM_PSXROLE = "PSXRole";
+
+  /** Name element in the role XML. */
   public static final String XML_ELEM_NAME = "name";
 }

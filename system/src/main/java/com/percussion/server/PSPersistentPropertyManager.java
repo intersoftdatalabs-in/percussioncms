@@ -145,8 +145,7 @@ public class PSPersistentPropertyManager {
       PSPersistentPropertyMeta pm, PSUserSession user) {
     IPSCmsObjectMgr mgr = PSCmsObjectMgrLocator.getObjectManager();
 
-    PSPersistentPropertyMeta ret =
-        ((com.percussion.services.legacy.impl.PSCmsObjectMgr) mgr).savePersistentPropertyMeta(pm);
+    PSPersistentPropertyMeta ret = mgr.savePersistentPropertyMeta(pm);
 
     resetMetaCache(user);
     return ret;
@@ -288,9 +287,7 @@ public class PSPersistentPropertyManager {
               .filter(pm -> pm.getUserName().equals(userName))
               .collect(java.util.stream.Collectors.toList());
     } else {
-      persists =
-          ((com.percussion.services.legacy.impl.PSCmsObjectMgr) mgr)
-              .findPersistentPropertiesByName(userName);
+      persists = mgr.findPersistentPropertiesByName(userName);
     }
 
     Iterator ps = persists.iterator();
@@ -501,7 +498,7 @@ public class PSPersistentPropertyManager {
       String propName = prop.getName();
       if (getPersistedProperty(prop.getCategory(), session, propName).isEmpty()) {
         try {
-          ((com.percussion.services.legacy.impl.PSCmsObjectMgr) mgr).savePersistentProperty(prop);
+          mgr.savePersistentProperty(prop);
         } catch (org.springframework.dao.DataIntegrityViolationException e) {
           // CMS-1018  System displays stack trace in the UI if two people login with the same user
           // name at the same time
@@ -522,12 +519,12 @@ public class PSPersistentPropertyManager {
                 + propName
                 + "].  The property will be updated instead.");
 
-        ((com.percussion.services.legacy.impl.PSCmsObjectMgr) mgr).updatePersistentProperty(prop);
+        mgr.updatePersistentProperty(prop);
       }
     } else if (action.equals(UPDATE)) {
-      ((com.percussion.services.legacy.impl.PSCmsObjectMgr) mgr).updatePersistentProperty(prop);
+      mgr.updatePersistentProperty(prop);
     } else if (action.equals(DELETE)) {
-      ((com.percussion.services.legacy.impl.PSCmsObjectMgr) mgr).deletePersistentProperty(prop);
+      mgr.deletePersistentProperty(prop);
     }
   }
 

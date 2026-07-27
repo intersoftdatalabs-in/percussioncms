@@ -16,7 +16,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tools.ant.BuildException;
 
+/** Executes a SQL statement to check for duplicate templates and removes them if none are found. */
 public class PSExecSQLCheckDupTemplates extends PSExecSQLStmt {
+  /** Creates a new SQL check duplicate templates statement. */
+  public PSExecSQLCheckDupTemplates() {}
+
   private static final Logger log = LogManager.getLogger(PSExecSQLCheckDupTemplates.class);
   private String qualifyingTableName = "";
   private String qualifyingTableNameDelete = "";
@@ -107,37 +111,77 @@ public class PSExecSQLCheckDupTemplates extends PSExecSQLStmt {
     }
   }
 
+  /**
+   * Gets the qualifying table name.
+   *
+   * @return the qualifying table name, never <code>null</code>, may be empty
+   */
   public String getQualifyingTableName() {
     return qualifyingTableName;
   }
 
+  /**
+   * Sets the qualifying table name.
+   *
+   * @param qualifyingTableName the qualifying table name, may be <code>null</code>
+   */
   public void setQualifyingTableName(String qualifyingTableName) {
     if (qualifyingTableName == null) qualifyingTableName = "";
     this.qualifyingTableName = qualifyingTableName;
   }
 
+  /**
+   * Gets the qualifying table name for delete operations.
+   *
+   * @return the qualifying table name for delete, never <code>null</code>, may be empty
+   */
   public String getQualifyingTableNameDelete() {
     return qualifyingTableNameDelete;
   }
 
+  /**
+   * Sets the qualifying table name for delete operations.
+   *
+   * @param qualifyingTableNameDelete the qualifying table name for delete, may be <code>null</code>
+   */
   public void setQualifyingTableNameDelete(String qualifyingTableNameDelete) {
     if (qualifyingTableNameDelete == null) qualifyingTableNameDelete = "";
     this.qualifyingTableNameDelete = qualifyingTableNameDelete;
   }
 
+  /**
+   * Gets the column name.
+   *
+   * @return the column name, never <code>null</code>, may be empty
+   */
   public String getColumn() {
     return column;
   }
 
+  /**
+   * Sets the column name.
+   *
+   * @param column the column name, may be <code>null</code>
+   */
   public void setColumn(String column) {
     if (column == null) column = "";
     this.column = column;
   }
 
+  /**
+   * Gets the column name for delete operations.
+   *
+   * @return the column name for delete, never <code>null</code>, may be empty
+   */
   public String getColumnDelete() {
     return columnDelete;
   }
 
+  /**
+   * Sets the column name for delete operations.
+   *
+   * @param columnDelete the column name for delete, may be <code>null</code>
+   */
   public void setColumnDelete(String columnDelete) {
     if (columnDelete == null) columnDelete = "";
     this.columnDelete = columnDelete;

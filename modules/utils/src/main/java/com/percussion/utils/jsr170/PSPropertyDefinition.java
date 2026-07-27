@@ -100,4 +100,21 @@ public class PSPropertyDefinition implements PropertyDefinition {
   public boolean isProtected() {
     return false;
   }
+
+  @Override
+  public String[] getAvailableQueryOperators() {
+    return new String[] {
+      "=", "<>", "<", "<=", ">", ">=", "LIKE", "NOT LIKE", "IS NULL", "IS NOT NULL"
+    };
+  }
+
+  @Override
+  public boolean isFullTextSearchable() {
+    return true;
+  }
+
+  @Override
+  public boolean isQueryOrderable() {
+    return true;
+  }
 }

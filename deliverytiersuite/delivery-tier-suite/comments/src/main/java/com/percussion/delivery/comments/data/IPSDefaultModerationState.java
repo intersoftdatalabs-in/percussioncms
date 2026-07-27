@@ -18,25 +18,36 @@
 
 package com.percussion.delivery.comments.data;
 
+/**
+ * Represents the default moderation state configured for a site.
+ */
 public interface IPSDefaultModerationState {
 
-  /* (non-Javadoc)
-   * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getSite()
+  /**
+   * Gets the site name the default moderation state is associated with.
+   *
+   * @return the site name, never {@code null} or empty.
    */
   public abstract String getSite();
 
-  /* (non-Javadoc)
-   * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setSite(java.lang.String)
+  /**
+   * Sets the site name the default moderation state is associated with.
+   *
+   * @param site the site name, must not be {@code null} or empty.
    */
   public abstract void setSite(String site);
 
-  /* (non-Javadoc)
-   * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getDefaultState()
+  /**
+   * Gets the default moderation state for the site.
+   *
+   * @return the default approval state, never {@code null}.
    */
   public abstract String getDefaultState();
 
-  /* (non-Javadoc)
-   * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setDefaultState(java.lang.String)
+  /**
+   * Sets the default moderation state for the site.
+   *
+   * @param defaultState the default approval state, must not be {@code null}.
    */
   public abstract void setDefaultState(String defaultState);
 }

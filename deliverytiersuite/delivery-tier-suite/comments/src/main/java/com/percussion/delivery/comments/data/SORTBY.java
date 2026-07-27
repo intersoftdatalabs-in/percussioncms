@@ -3,9 +3,13 @@ package com.percussion.delivery.comments.data;
 
 /** Enum representing the available sort options for comments. */
 public enum SORTBY {
+  /** Sort by the comment creation date. */
   CREATED_DATE,
+  /** Sort by the comment author user name. */
   USERNAME,
+  /** Sort by the comment title. */
   TITLE,
+  /** Sort by the approval state. */
   STATE;
 
   /**

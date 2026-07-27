@@ -27,6 +27,11 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derbyclient</artifactId>
             <version>${derby.version}</version>
@@ -97,9 +102,41 @@
             <groupId>org.apache.geronimo.components</groupId>
             <artifactId>geronimo-jaspi</artifactId>
         </dependency>
+        <!-- GH-939: unit tests for perc-logging log4j2 retention policy (packaging=pom) -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>test-compile</id>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                        <phase>test-compile</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-test</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <phase>test</phase>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- Copies the additional distribution content over the unpacked jetty-home
 				artifact contents, after the antrun execution that initially populates the
 				jetty-distribution directory -->
@@ -175,6 +212,16 @@
                         <phase>package</phase>
                         <configuration>
                             <artifactItems>
+                                <!-- #548 default embedded engine -->
+                                <artifactItem>
+                                    <groupId>com.h2database</groupId>
+                                    <artifactId>h2</artifactId>
+                                    <version>${h2.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${assembly-directory}/base/lib/jdbc</outputDirectory>
+                                </artifactItem>
+                                <!-- Derby retained for migration / legacy installs -->
                                 <artifactItem>
                                     <groupId>org.apache.derby</groupId>
                                     <artifactId>derbynet</artifactId>
@@ -284,6 +331,37 @@
                                 <copy todir="${assembly-directory}">
                                     <fileset dir="${basedir}/src/main/jetty"/>
                                 </copy>
+                                <!--
+                                  GH-1487: stock jetty.xml uses unnamed Server constructor Args.
+                                  When XmlConfiguration cannot bind them, it logs
+                                  WARN Ignored arg [[]] three times. Named Args match Jetty's
+                                  @Name annotations (threadpool / scheduler / bufferPool).
+                                -->
+                                <replace file="${assembly-directory}/upstream/etc/jetty.xml"
+                                         token="&lt;Arg&gt;&lt;Ref refid=&quot;threadPool&quot;/&gt;&lt;/Arg&gt;"
+                                         value="&lt;Arg name=&quot;threadpool&quot;&gt;&lt;Ref refid=&quot;threadPool&quot;/&gt;&lt;/Arg&gt;"/>
+                                <replace file="${assembly-directory}/upstream/etc/jetty.xml"
+                                         token="&lt;Arg&gt;&lt;Ref refid=&quot;scheduler&quot;/&gt;&lt;/Arg&gt;"
+                                         value="&lt;Arg name=&quot;scheduler&quot;&gt;&lt;Ref refid=&quot;scheduler&quot;/&gt;&lt;/Arg&gt;"/>
+                                <replace file="${assembly-directory}/upstream/etc/jetty.xml"
+                                         token="&lt;Arg&gt;&lt;Ref refid=&quot;byteBufferPool&quot;/&gt;&lt;/Arg&gt;"
+                                         value="&lt;Arg name=&quot;bufferPool&quot;&gt;&lt;Ref refid=&quot;byteBufferPool&quot;/&gt;&lt;/Arg&gt;"/>
+                                <!--
+                                  GH-1487: package W3C schema DTDs for DigesterFactory
+                                  (org/apache/tomcat/util/descriptor/*) as a small classpath jar.
+                                -->
+                                <mkdir dir="${assembly-directory}/defaults/lib/perc"/>
+                                <jar destfile="${assembly-directory}/defaults/lib/perc/perc-xml-schemas.jar"
+                                     basedir="${basedir}/src/build/perc-xml-schemas"
+                                     includes="org/**"/>
+                                <!--
+                                  Jetty 12 DeploymentScanner rejects both Name and Name.war as
+                                  directories for the same deployable. Source keeps exploded
+                                  CI_Home / EI_Home (referenced by *.xml); remove residual
+                                  *.war trees left from older checkouts or unclean target/.
+                                -->
+                                <delete dir="${assembly-directory}/base/webapps/CI_Home.war" quiet="true"/>
+                                <delete dir="${assembly-directory}/base/webapps/EI_Home.war" quiet="true"/>
                             </target>
                         </configuration>
                     </execution>
@@ -344,5 +422,7 @@
                 <artifactId>maven-site-plugin</artifactId>
             </plugin>
         </plugins>
+        <!-- packaging=pom has no default test bindings; bind compiler + surefire explicitly -->
+        <testSourceDirectory>src/test/java</testSourceDirectory>
     </build>
 </project>

@@ -6,7 +6,7 @@ description: "Developer-focused commands for installing, operating, and querying
 
 # Percussion CMS Developer Operations
 
-Use this skill for developer day-to-day work: build/install the CMS and DTS, start local instances, and query the REST APIs from the command line. All scripts live under `.github/skills/percussioncms-dev/scripts/` and have both Linux/macOS (`.sh`) and Windows PowerShell (`.ps1`) alternatives.
+Use this skill for developer day-to-day work: build/install the CMS and DTS, start local instances, and query the REST APIs from the command line. All scripts live under `.github/skills/percussioncms-dev/scripts/` as cross-platform Python entry points (Windows / Linux / macOS).
 
 ## Maven + Docker Compose (Canonical workflow)
 
@@ -14,7 +14,7 @@ Use Maven profiles and lifecycle phases as the primary dev workflow for local ru
 
 ### Concise logging for agents (preferred command surface)
 
-Use `./docker/scripts/perc-devctl.sh` when an AI agent needs deterministic success/failure output and detailed logs on failure.
+Use `./docker/scripts/perc-devctl.py` when an AI agent needs deterministic success/failure output and detailed logs on failure.
 
 - Success format: `RESULT:OK STEP:<step> LOG:<path>`
 - Failure format: `RESULT:FAIL STEP:<step> LOG:<path>`
@@ -24,19 +24,19 @@ Detailed logs are always written under `docker/logs/`.
 Common commands:
 
 ```bash
-./docker/scripts/perc-devctl.sh up --build
-./docker/scripts/perc-devctl.sh verify --timeout-seconds 300
-./docker/scripts/perc-devctl.sh deploy-jar --jar modules/utils/target/<your-jar>.jar --target both --restart --verify
-./docker/scripts/perc-devctl.sh verify-fix --jar modules/utils/target/<your-jar>.jar --target both --restart --timeout-seconds 240
-./docker/scripts/perc-devctl.sh it-verify
-./docker/scripts/perc-devctl.sh down --volumes
+./docker/scripts/perc-devctl.py up --build
+./docker/scripts/perc-devctl.py verify --timeout-seconds 300
+./docker/scripts/perc-devctl.py deploy-jar --jar modules/utils/target/<your-jar>.jar --target both --restart --verify
+./docker/scripts/perc-devctl.py verify-fix --jar modules/utils/target/<your-jar>.jar --target both --restart --timeout-seconds 240
+./docker/scripts/perc-devctl.py it-verify
+./docker/scripts/perc-devctl.py down --volumes
 ```
 
 Database and credential verification commands:
 
 ```bash
-./docker/scripts/perc-devctl.sh inspect-install
-./docker/scripts/perc-devctl.sh show-generated-passwords
+./docker/scripts/perc-devctl.py inspect-install
+./docker/scripts/perc-devctl.py show-generated-passwords
 ```
 
 `inspect-install` captures effective CMS and DTS DB settings from the running server config files.
@@ -92,10 +92,10 @@ For fast module-level validation (e.g., `utils`, `perc-system`), build the modul
 
 ```bash
 ./mvn-env.sh -pl modules/utils -am package -DskipTests
-./docker/scripts/hot-deploy-jar.sh --jar modules/utils/target/<your-jar>.jar --target both --restart
+./docker/scripts/hot-deploy-jar.py --jar modules/utils/target/<your-jar>.jar --target both --restart
 ```
 
-`hot-deploy-jar.sh` supports `--target cms|dts|both|/absolute/path` and optional `--container` override.
+`hot-deploy-jar.py` supports `--target cms|dts|both|/absolute/path` and optional `--container` override.
 
 ### Persisted developer-writable paths
 
@@ -140,12 +140,12 @@ Download the latest release artifacts from GitHub.
 1. Run the Linux script:
 
    ```bash
-   .github/skills/percussioncms-dev/scripts/download-latest.sh
+   .github/skills/percussioncms-dev/scripts/download-latest.py
    ```
 2. Windows developers can use the PowerShell helper:
 
    ```powershell
-   .github/skills/percussioncms-dev/scripts/download-latest.ps1
+   .github/skills/percussioncms-dev/scripts/download-latest.py
    ```
 3. The script calls `https://api.github.com/repos/${GITHUB_REPO}/releases/latest` and downloads `perc-distribution-tree.jar` into a `downloads/` folder by default.
    Add `--dts` (Linux/macOS) or `-DownloadDts` (PowerShell) when you also need `delivery-tier-distribution.jar`.
@@ -163,18 +163,18 @@ Install the CMS from the local Maven build artifact. To install a release JAR, p
 2. Run the Linux script:
 
    ```bash
-   .github/skills/percussioncms-dev/scripts/install-cms.sh
+   .github/skills/percussioncms-dev/scripts/install-cms.py
    ```
 
    To install a release JAR instead:
 
    ```bash
-   .github/skills/percussioncms-dev/scripts/install-cms.sh --jar downloads/perc-distribution-tree.jar
+   .github/skills/percussioncms-dev/scripts/install-cms.py --jar downloads/perc-distribution-tree.jar
    ```
 3. Windows developers can run:
 
    ```powershell
-   .github/skills/percussioncms-dev/scripts/install-cms.ps1
+   .github/skills/percussioncms-dev/scripts/install-cms.py
    ```
 4. Each script creates (or refreshes) a `JRE` symlink pointing to `JAVA_HOME` and verifies that `jetty/StartJetty.{sh|bat}` exists.
 
@@ -194,12 +194,12 @@ Install DTS from the local build artifact (use `--jar downloads/delivery-tier-di
 2. Run the Linux script:
 
    ```bash
-   .github/skills/percussioncms-dev/scripts/install-dts.sh
+   .github/skills/percussioncms-dev/scripts/install-dts.py
    ```
 3. Windows developers can run:
 
    ```powershell
-   .github/skills/percussioncms-dev/scripts/install-dts.ps1
+   .github/skills/percussioncms-dev/scripts/install-dts.py
    ```
 4. Each installer links `JRE -> JAVA_HOME` and checks for `${DTS_INSTALL_DIR}/Deployment/Server`.
 
@@ -216,12 +216,12 @@ Same workflow as `install_latest_dts` — the scripts already default to the dev
 1. Linux/macOS:
 
    ```bash
-   .github/skills/percussioncms-dev/scripts/start-cms.sh
+   .github/skills/percussioncms-dev/scripts/start-cms.py
    ```
 2. Windows:
 
    ```powershell
-   .github/skills/percussioncms-dev/scripts/start-cms.ps1
+   .github/skills/percussioncms-dev/scripts/start-cms.py
    ```
 3. Wait for the CMS to be reachable (poll `${CMS_BASE_URL}/Rhythmyx/rest/folders/by-path/Assets`).
 4. Stop the server by pressing CTRL-C in the terminal/PowerShell session.
@@ -231,12 +231,12 @@ Same workflow as `install_latest_dts` — the scripts already default to the dev
 1. Linux/macOS:
 
    ```bash
-   .github/skills/percussioncms-dev/scripts/start-dts.sh
+   .github/skills/percussioncms-dev/scripts/start-dts.py
    ```
 2. Windows:
 
    ```powershell
-   .github/skills/percussioncms-dev/scripts/start-dts.ps1
+   .github/skills/percussioncms-dev/scripts/start-dts.py
    ```
 3. Check the Tomcat logs or hit a known DTS endpoint to ensure the server is alive.
 
@@ -248,31 +248,41 @@ All API calls target `${API_BASE}` (default `http://localhost:9992/Rhythmyx/rest
 
 ### Authentication
 
-- **Linux/macOS:** Source `.github/skills/percussioncms-dev/scripts/api-client.sh` to load the `perc_login`, `perc_api`, and helper functions.
-- **Windows:** Import `.github/skills/percussioncms-dev/scripts/api-client.ps1` and use the provided cmdlets.
+- **All hosts:** invoke `python3 .github/skills/percussioncms-dev/scripts/api-client.py --method GET --endpoint /folders/by-path/Assets` (one-shot CLI; the original shell-function surface becomes per-call argparse arguments).
+- Login: add `--login-form --user "${CMS_USER}" --password "${CMS_PASSWORD}" --endpoint /j_security_check` (omit `--endpoint` for the form path which targets `${API_BASE%/rest}/j_security_check` by default).
 
 ```bash
-# Login (Linux/macOS)
-source .github/skills/percussioncms-dev/scripts/api-client.sh
-perc_login "${CMS_USER}" "${CMS_PASSWORD}"
+# Login (Linux/macOS, form-based)
+# --endpoint must be /j_security_check for the form-based j_security_check login
+# path; without it, the script returns EXIT_INVOCATION (exit 1).
+python3 .github/skills/percussioncms-dev/scripts/api-client.py \
+    --login-form \
+    --endpoint /j_security_check \
+    --user "${CMS_USER}" \
+    --password "${CMS_PASSWORD}"
 ```
 
 ```powershell
-# Login (Windows)
-Import-Module ".github/skills/percussioncms-dev/scripts/api-client.ps1"
-perc-login -Username ${CMS_USER} -Password (Read-Host -AsSecureString)
+# Login (Windows, form-based)
+python3 .github\skills\percussioncms-dev\scripts\api-client.py `
+    --login-form `
+    --endpoint /j_security_check `
+    --user $env:CMS_USER `
+    --password $env:CMS_PASSWORD
 ```
 
 ### 3.1 api_list_sites
 
-Call `/folders/by-path/Sites` to retrieve the list of site folders. Use `perc_api GET "/folders/by-path/Sites"` or the Windows equivalent. Responses include `subfolders` entries for each site.
+Call `/folders/by-path/Sites` to retrieve the list of site folders. Use `python3 .github/skills/percussioncms-dev/scripts/api-client.py --method GET --endpoint /folders/by-path/Sites` on every host. Responses include `subfolders` entries for each site.
 
 ### 3.2 api_list_folders
 
 List folders within a site or nested path. Example:
 
 ```bash
-perc_api GET "/folders/by-path/MySite/FolderA"
+python3 .github/skills/percussioncms-dev/scripts/api-client.py \
+    --method GET \
+    --endpoint /folders/by-path/MySite/FolderA
 ```
 
 ### 3.3 api_list_assets
@@ -306,7 +316,7 @@ Pages are returned as part of folder responses. Use `/pages/by-path/MySite/MyPag
 ## 5. Troubleshooting
 
 - **CMS won't start:** Ensure `JRE` points at a JDK 21 installation (`JAVA_HOME`).
-- **API returns 401/403:** Run `perc_login`/`perc-login`, then retry the call.
+- **API returns 401/403:** Re-run `api-client.py --login-form --user ... --password ...` to refresh the cookie jar, then retry the call.
   -- **Local build JAR missing:** Run `./mvn-env.sh clean install` to produce the artifacts.
 - **Port conflict:** CMS defaults to 9992. Check `lsof` (Linux/macOS) or `netstat` (Windows) for other services.
 - **Windows symlinks fail:** Run PowerShell as Administrator so `New-Item -ItemType SymbolicLink` succeeds.

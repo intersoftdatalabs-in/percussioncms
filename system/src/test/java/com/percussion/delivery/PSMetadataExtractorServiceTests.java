@@ -18,6 +18,7 @@
 package com.percussion.delivery;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.percussion.delivery.metadata.IPSMetadataProperty;
@@ -133,6 +134,59 @@ public class PSMetadataExtractorServiceTests {
               + "</div>",
           map.get("dcterms:abstract"));
       assertEquals("article", map.get("og:type"));
+    }
+  }
+
+  /**
+   * Regression for HTML entity decoding and script stripping in the RDFa metadata extractor (v8.1.7
+   * PR #107 / DTS platform track residue).
+   *
+   * <p>Fixture {@code /com/percussion/delivery/entity-test.html} includes encoded entities in meta
+   * content and body abstract, plus {@code <script>} / JSON-LD that must not pollute extracted
+   * properties.
+   */
+  @Test
+  public void testEntityAndScriptHandling() throws IOException {
+    InputStream is =
+        PSMetadataExtractorServiceTests.class.getResourceAsStream(
+            "/com/percussion/delivery/entity-test.html");
+    assertNotNull(is, "entity-test.html fixture must be on the test classpath");
+
+    try (InputStreamReader inputStreamReader = new InputStreamReader(is)) {
+      PSMetadataExtractorService svc = new PSMetadataExtractorService();
+      PSMetadataEntry entry =
+          svc.process(inputStreamReader, "text/html", "/Sites/test/entity-test.html", null);
+
+      assertNotNull(entry);
+      HashMap<String, String> map = new HashMap<>();
+      for (IPSMetadataProperty prop : entry.getProperties()) {
+        map.put(prop.getName(), prop.getValue());
+      }
+
+      // Title meta uses &amp; which should be decoded to a bare ampersand
+      assertEquals("Comprehensive Test Title & More", map.get("dcterms:title"));
+
+      String description = map.get("dcterms:description");
+      assertNotNull(description, "dcterms:description should be extracted");
+
+      String abstractText = map.get("dcterms:abstract");
+      assertNotNull(abstractText, "dcterms:abstract should be extracted");
+
+      // Script bodies (including JSON-LD and inline JS) must not appear in property values
+      for (String value : map.values()) {
+        if (value == null) {
+          continue;
+        }
+        assertFalse(
+            value.contains("console.log"),
+            "script text must be stripped from metadata properties: " + value);
+        assertFalse(
+            value.contains("@context"),
+            "JSON-LD script must be stripped from metadata properties: " + value);
+        assertFalse(
+            value.contains("var x = 10"),
+            "inline script must be stripped from metadata properties: " + value);
+      }
     }
   }
 }

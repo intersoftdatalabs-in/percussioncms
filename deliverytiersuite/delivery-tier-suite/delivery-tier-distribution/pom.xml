@@ -73,32 +73,32 @@
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpkix-jdk18on</artifactId>
-                <version>1.84</version>
+                <version>${bc.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcjmail-jdk18on</artifactId>
-                <version>1.82</version>
+                <version>${bc.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcutil-jdk18on</artifactId>
-                <version>1.82</version>
+                <version>${bc.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bctls-jdk18on</artifactId>
-                <version>1.82</version>
+                <version>${bc.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpg-jdk18on</artifactId>
-                <version>1.84</version>
+                <version>${bc.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk18on</artifactId>
-                <version>1.84</version>
+                <version>${bc.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.poi</groupId>
@@ -136,8 +136,6 @@
             <version>${project.version}</version>
             <type>war</type>
         </dependency>
-        <!-- <dependency> <groupId>com.percussion.deliverytier</groupId> <artifactId>perc-integrations</artifactId>
-			<version>${project.version}</version> <type>war</type> </dependency> -->
         <dependency>
             <groupId>com.percussion.deliverytier</groupId>
             <artifactId>perc-membership-services</artifactId>
@@ -341,6 +339,11 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
             <version>${derby.version}</version>
@@ -368,6 +371,11 @@
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
             <artifactId>ojdbc17</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -502,6 +510,22 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- GH-962: structural tests for DTS systemd unit + install scripts -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <finalName>delivery-tier-distribution</finalName>
@@ -538,11 +562,11 @@
             </plugin>
             <plugin>
                 <groupId>org.codehaus.cargo</groupId>
-                <artifactId>cargo-maven2-plugin</artifactId>
-                <version>1.9.0</version>
+                <artifactId>cargo-maven3-plugin</artifactId>
+                <version>1.10.28</version>
                 <configuration>
                     <container>
-                        <containerId>tomcat10x</containerId>
+                        <containerId>tomcat11x</containerId>
                         <!-- <type>embedded</type> -->
                         <!-- TODO: This really should be moved to be mirrored on Percussion's
 							nexus server -->
@@ -621,7 +645,7 @@
                     <configuration>
                         <files>
                             <file>
-                                <file>${project.basedir}/src/main/tomcat10/webapps/ROOT/</file>
+                                <file>${project.basedir}/src/main/tomcat11/webapps/ROOT/</file>
                                 <todir>webapps/ROOT</todir>
                             </file>
                             <file>
@@ -691,23 +715,20 @@
                                 <todir>conf/perc</todir>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/src/main/conf/perc/integrations-log4j2.xml</file>
-                                <todir>conf/perc</todir>
-                            </configfile>
-                            <configfile>
-                                <file>${project.basedir}/src/main/tomcat10/conf/context.xml</file>
+                                <!-- Tomcat 11 (development); integrations log4j removed with GH#706 -->
+                                <file>${project.basedir}/src/main/tomcat11/conf/context.xml</file>
                                 <todir>conf</todir>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/src/main/tomcat10/conf/server.xml</file>
+                                <file>${project.basedir}/src/main/tomcat11/conf/server.xml</file>
                                 <todir>conf</todir>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/src/main/tomcat10/conf/log4j2-tomcat.xml</file>
+                                <file>${project.basedir}/src/main/tomcat11/conf/log4j2-tomcat.xml</file>
                                 <todir>log4j2/conf</todir>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/src/main/tomcat10/conf/catalina.properties</file>
+                                <file>${project.basedir}/src/main/tomcat11/conf/catalina.properties</file>
                                 <todir>conf</todir>
                             </configfile>
                             <configfile>
@@ -715,19 +736,19 @@
                                 <todir>conf/perc</todir>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/src/main/tomcat10/bin/setenv.bat</file>
+                                <file>${project.basedir}/src/main/tomcat11/bin/setenv.bat</file>
                                 <todir>bin</todir>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/src/main/tomcat10/bin/setenv.sh</file>
+                                <file>${project.basedir}/src/main/tomcat11/bin/setenv.sh</file>
                                 <todir>bin</todir>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/src/main/tomcat10/bin/catalina.sh</file>
+                                <file>${project.basedir}/src/main/tomcat11/bin/catalina.sh</file>
                                 <todir>bin</todir>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/src/main/tomcat10/conf/catalina.policy</file>
+                                <file>${project.basedir}/src/main/tomcat11/conf/catalina.policy</file>
                                 <todir>conf</todir>
                             </configfile>
                         </configfiles>
@@ -787,8 +808,11 @@
                             <type>war</type>
                         </deployable>
                     </deployables>
+                    <!-- Cargo 1.10+ writes the package tree to outputLocation (not always target/package).
+                         Keep output under ${project.build.directory}/package so stage-cargo-package-into-assembly
+                         can copy + strip manager apps into the shipping jar layout (issue #667). -->
                     <packager>
-                        <outputLocation>${assembly-directory}/Deployment/Server</outputLocation>
+                        <outputLocation>${project.build.directory}/package</outputLocation>
                     </packager>
                 </configuration>
                 <executions>
@@ -809,6 +833,7 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
@@ -816,7 +841,17 @@
                         <goals>
                             <goal>copy</goal>
                         </goals>
-                        <phase>package</phase>
+                        <!--
+                          Run at prepare-package (BEFORE package) so that the artifacts
+                          (perc-ant.jar, perc-service-wrapper.jar) are staged under
+                          target/classes/distribution/{rxconfig/Installer,}/ before the
+                          jar-plugin:jar packages the staging directory. The previous
+                          phase=package declaration ran AFTER jar-plugin had already
+                          packaged an empty staging directory, so the artifacts never
+                          made it into delivery-tier-distribution.jar and the preinstall
+                          extractor failed with 'perc-ant-*.jar not found'.
+                        -->
+                        <phase>prepare-package</phase>
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
@@ -842,6 +877,106 @@
                             <overWriteSnapshots>true</overWriteSnapshots>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>unpack-pathvalidation</id>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.percussion</groupId>
+                                    <artifactId>perc-security-utils</artifactId>
+                                    <version>${project.parent.version}</version>
+                                    <type>jar</type>
+                                    <includes>com/percussion/security/validation/PathValidation.class,com/percussion/security/validation/PathValidation$*.class</includes>
+                                    <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.logging.log4j</groupId>
+                                    <artifactId>log4j-api</artifactId>
+                                    <version>${log4j2.version}</version>
+                                    <type>jar</type>
+                                    <!--
+                                      PathValidation's <clinit> resolves LogManager at
+                                      class init, and LogManager's <clinit> transitively
+                                      loads org.apache.logging.log4j.spi.AbstractLogger (the
+                                      superclass of Logger) plus many other log4j-api
+                                      classes. Listing each class by hand is brittle —
+                                      previous attempt missed AbstractLogger and produced
+                                      a NoClassDefFoundError at first use. Unpack the
+                                      full log4j-api jar so every internal class is
+                                      present; the size overhead (~1.5 MB) is negligible
+                                      compared to the 143 MB perc-ant.jar already bundled.
+                                      module-info.class is excluded so the JPMS
+                                      `requires org.osgi.core` it declares does not have
+                                      to be resolvable in this non-modular runtime.
+                                    -->
+                                    <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                                    <excludes>module-info.class</excludes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-deployment-server-common-lib</id>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <!--
+                          Bundle the runtime libraries installDts.xml copies out of
+                          ${install.src}/Deployment/Server/common/lib/ at line 345-349
+                          (log4j*.jar, commons-logging*.jar, slf4j*.jar). Without this,
+                          the bundled Ant installer fails at line 344 with
+                          'Deployment\Server\common\lib does not exist' (#1473).
+                          Run at prepare-package so the jars are staged alongside
+                          perc-ant.jar / perc-service-wrapper.jar before jar-plugin
+                          packages the staging tree.
+
+                          installDts.xml selects disruptor*.jar (typo disrupter* fixed
+                          on this branch). The com.lmax:disruptor jar is staged here so
+                          the Ant log4j2/lib copy finds it even if Cargo packaging order
+                          differs.
+                        -->
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.logging.log4j</groupId>
+                                    <artifactId>log4j-api</artifactId>
+                                    <type>jar</type>
+                                    <outputDirectory>${assembly-directory}/Deployment/Server/common/lib</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.logging.log4j</groupId>
+                                    <artifactId>log4j-core</artifactId>
+                                    <type>jar</type>
+                                    <outputDirectory>${assembly-directory}/Deployment/Server/common/lib</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>commons-logging</groupId>
+                                    <artifactId>commons-logging</artifactId>
+                                    <type>jar</type>
+                                    <outputDirectory>${assembly-directory}/Deployment/Server/common/lib</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.slf4j</groupId>
+                                    <artifactId>slf4j-api</artifactId>
+                                    <type>jar</type>
+                                    <outputDirectory>${assembly-directory}/Deployment/Server/common/lib</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.lmax</groupId>
+                                    <artifactId>disruptor</artifactId>
+                                    <type>jar</type>
+                                    <outputDirectory>${assembly-directory}/Deployment/Server/common/lib</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -853,6 +988,27 @@
                             <mainClass>com.percussion.preinstall.MainDTSPreInstall</mainClass>
                         </manifest>
                     </archive>
+                    <!--
+                      The preinstall extractor relies on perc-ant-*.jar being present
+                      alongside installDts.xml inside <assembly-directory>/rxconfig/Installer/
+                      after Maven extraction (see extractArchive in MainDTSPreInstall.java).
+                      maven-antrun-plugin and maven-dependency-plugin:copy both stage
+                      perc-ant.jar there. The single <include>**/*</include> pattern packages
+                      every staged file (jar files included); the previous explicit
+                      extension list silently dropped jar files from the staging dir even
+                      though the pattern matched by eye. Use the catch-all pattern so a
+                      future addition to the staging dir (e.g. another extension) is
+                      packaged automatically.
+
+                      When the previous maven-shade-plugin (shadedArtifactAttached=false)
+                      was active it OVERWROTE the jar produced here, silently dropping the
+                      install payload. That plugin has been replaced with a
+                      maven-dependency-plugin:unpack execution above so the staging
+                      directory is now packaged verbatim.
+                    -->
+                    <includes>
+                        <include>**/*</include>
+                    </includes>
                 </configuration>
             </plugin>
             <plugin>
@@ -895,6 +1051,100 @@
                             </target>
                         </configuration>
                     </execution>
+                    <!--
+                      Stage Cargo Tomcat + DTS wars into the installer assembly.
+
+                      cargo:package (prepare-package) builds a full configured Tomcat under
+                      ${project.build.directory}/package (packager.outputLocation; cargo-maven3 1.10+
+                      with tomcat11x). Antrun then copies into ${assembly-directory}/Deployment/Server
+                      and strips manager apps so the shipping jar is complete.
+                    -->
+                    <execution>
+                        <id>stage-cargo-package-into-assembly</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <target>
+                                <property location="${project.build.directory}/package" name="cargo.package.dir"/>
+                                <property location="${cargo.package.dir}/conf/server.xml" name="cargo.package.server.xml"/>
+                                <available file="${cargo.package.server.xml}" property="cargo.package.present"/>
+                                <fail message="Cargo package incomplete: missing ${cargo.package.server.xml}. cargo:package must run before this step (phase prepare-package)." unless="cargo.package.present"/>
+                                <mkdir dir="${assembly-directory}/Deployment/Server"/>
+                                <copy overwrite="true" todir="${assembly-directory}/Deployment/Server" verbose="false">
+                                    <fileset dir="${cargo.package.dir}">
+                                        <exclude name="temp/**"/>
+                                    </fileset>
+                                </copy>
+                                <!-- Match prior antrun cleanup: do not ship Tomcat manager apps -->
+                                <delete dir="${assembly-directory}/Deployment/Server/webapps/manager" failonerror="false"/>
+                                <delete dir="${assembly-directory}/Deployment/Server/webapps/host-manager" failonerror="false"/>
+                                <delete failonerror="false" file="${assembly-directory}/Deployment/Server/conf/logging.properties"/>
+                                <!--
+                                  Belt-and-suspenders: cargo:package can leave a stale target/package
+                                  with stock Tomcat conf (HTTP 8080) when configfiles are not reapplied
+                                  on incremental builds. Always force Percussion conf from source so
+                                  ${http.port}=9980 (perc-catalina.properties) is what customers get.
+                                -->
+                                <copy file="${project.basedir}/src/main/tomcat11/conf/server.xml"
+                                      tofile="${assembly-directory}/Deployment/Server/conf/server.xml"
+                                      overwrite="true" failonerror="true"/>
+                                <copy file="${project.basedir}/src/main/tomcat11/conf/catalina.properties"
+                                      tofile="${assembly-directory}/Deployment/Server/conf/catalina.properties"
+                                      overwrite="true" failonerror="true"/>
+                                <copy file="${project.basedir}/src/main/conf/perc/perc-catalina.properties"
+                                      tofile="${assembly-directory}/Deployment/Server/conf/perc/perc-catalina.properties"
+                                      overwrite="true" failonerror="true"/>
+                                <available file="${assembly-directory}/Deployment/Server/conf/server.xml" property="assembly.has.server.xml"/>
+                                <fail message="Assembly missing Deployment/Server/conf/server.xml after staging Cargo package" unless="assembly.has.server.xml"/>
+                                <available file="${assembly-directory}/Deployment/Server/webapps/perc-metadata-services.war" property="assembly.has.metadata.war"/>
+                                <fail message="Assembly missing perc-metadata-services.war after staging Cargo package" unless="assembly.has.metadata.war"/>
+                                <echo message="Staged Cargo package into ${assembly-directory}/Deployment/Server"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <!--
+                      GH-1180 regression gate: the packaged installer jar must contain
+                      PathValidation after the minimal shade. Runs on every verify so a
+                      future pom change cannot drop the shade without failing the build.
+                    -->
+                    <execution>
+                        <id>verify-pathvalidation-shaded</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>verify</phase>
+                        <configuration>
+                            <target>
+                                <property location="${project.build.directory}/${project.build.finalName}.jar" name="dts.installer.jar"/>
+                                <available file="${dts.installer.jar}" property="dts.installer.jar.exists"/>
+                                <fail message="DTS installer jar missing: ${dts.installer.jar}" unless="dts.installer.jar.exists"/>
+                                <!-- Portable: jar tool is on the JDK used by Maven; works on Windows/Linux/macOS -->
+                                <exec executable="jar" failonerror="true" outputproperty="dts.installer.listing">
+                                    <arg value="tf"/>
+                                    <arg file="${dts.installer.jar}"/>
+                                </exec>
+                                <condition property="dts.has.pathvalidation">
+                                    <contains string="${dts.installer.listing}" substring="com/percussion/security/validation/PathValidation.class"/>
+                                </condition>
+                                <fail message="GH-1180: ${dts.installer.jar} is missing PathValidation.class — minimal shade of perc-security-utils failed or was removed." unless="dts.has.pathvalidation"/>
+                                <condition property="dts.has.log4j.api">
+                                    <contains string="${dts.installer.listing}" substring="org/apache/logging/log4j/LogManager.class"/>
+                                </condition>
+                                <fail message="GH-1180: ${dts.installer.jar} is missing log4j-api (LogManager) required by PathValidation." unless="dts.has.log4j.api"/>
+                                <condition property="dts.has.server.xml">
+                                    <contains string="${dts.installer.listing}" substring="distribution/Deployment/Server/conf/server.xml"/>
+                                </condition>
+                                <fail message="DTS installer jar missing distribution/Deployment/Server/conf/server.xml (Cargo package not staged)." unless="dts.has.server.xml"/>
+                                <condition property="dts.has.metadata.war">
+                                    <contains string="${dts.installer.listing}" substring="distribution/Deployment/Server/webapps/perc-metadata-services.war"/>
+                                </condition>
+                                <fail message="DTS installer jar missing perc-metadata-services.war (Cargo package not staged)." unless="dts.has.metadata.war"/>
+                                <echo message="GH-1180: PathValidation + log4j-api + Tomcat/server.xml + metadata war present in ${dts.installer.jar}"/>
+                            </target>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
@@ -906,8 +1156,8 @@
                 <plugins>
                     <plugin>
                         <groupId>org.codehaus.cargo</groupId>
-                        <artifactId>cargo-maven2-plugin</artifactId>
-                        <version>1.9.0</version>
+                        <artifactId>cargo-maven3-plugin</artifactId>
+                        <version>1.10.28</version>
                         <configuration>
                             <container>
                                 <containerId>jetty9x</containerId>
@@ -926,6 +1176,11 @@
                                         <groupId>c3p0</groupId>
                                         <artifactId>c3p0</artifactId>
                                     </dependency>
+                                    <dependency>
+                                        <groupId>com.h2database</groupId>
+                                        <artifactId>h2</artifactId>
+                                    </dependency>
+                                    <!-- Derby retained on cargo classpath for FR-021 migration-window tests only -->
                                     <dependency>
                                         <groupId>org.apache.derby</groupId>
                                         <artifactId>derby</artifactId>
@@ -1027,11 +1282,11 @@
                                     <cargo.servlet.port>9980</cargo.servlet.port>
                                     <cargo.runtime.args>${project.basedir}/src/main/resources/etc/dts-realm.xml
 										${project.basedir}/src/main/resources/etc/dts-realm.properties</cargo.runtime.args>
-                                    <cargo.datasource.datasource.derby>cargo.datasource.driver=org.apache.derby.jdbc.EmbeddedDriver|
-										cargo.datasource.url=jdbc:derby:derbyDB;create=true|
+                                    <cargo.datasource.datasource.h2>cargo.datasource.driver=org.h2.Driver|
+										cargo.datasource.url=jdbc:h2:mem:cargoDB;DB_CLOSE_DELAY=-1|
 										cargo.datasource.jndi=jdbc/CargoDS|
 										cargo.datasource.username=APP|
-										cargo.datasource.password=nonemptypassword</cargo.datasource.datasource.derby>
+										cargo.datasource.password=nonemptypassword</cargo.datasource.datasource.h2>
                                     <!-- <cargo.jetty.realm.name>metadata</cargo.jetty.realm.name> -->
                                 </properties>
                                 <configfiles>

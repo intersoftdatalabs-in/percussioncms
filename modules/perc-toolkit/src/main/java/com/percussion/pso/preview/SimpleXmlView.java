@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,12 @@ public class SimpleXmlView extends AbstractView implements View {
 
   private static final Logger log = LogManager.getLogger(SimpleXmlView.class);
 
+  // Generic client-facing error message used to avoid leaking internal result-key details
+  // (CWE-209 / CodeQL java/error-message-exposure #770/#1782). Detailed reasons are logged
+  // server-side only; nothing is thrown out of renderMergedOutputModel.
+  private static final String GENERIC_RENDER_ERROR =
+      "An error occurred while rendering the response";
+
   private String encoding = "UTF-8";
 
   private String resultKey = "result";
@@ -50,35 +56,59 @@ public class SimpleXmlView extends AbstractView implements View {
   @SuppressWarnings({"rawtypes"})
   protected void renderMergedOutputModel(
       Map model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    // Never throw: Spring AbstractView can surface exception text on the response.
+    // Missing/wrong model types write only GENERIC_RENDER_ERROR (alerts #770/#1782).
     Document result = findResult(model);
+    if (result == null) {
+      writeGenericError(response);
+      return;
+    }
 
-    Writer writer = response.getWriter();
-    response.setContentType(this.getContentType());
-    response.setCharacterEncoding(getEncoding());
-    String content = PSXmlDocumentBuilder.toString(result, PSXmlDocumentBuilder.FLAG_OMIT_DOC_TYPE);
-    writer.append(content);
-    writer.flush();
+    try {
+      Writer writer = response.getWriter();
+      response.setContentType(this.getContentType());
+      response.setCharacterEncoding(getEncoding());
+      String content =
+          PSXmlDocumentBuilder.toString(result, PSXmlDocumentBuilder.FLAG_OMIT_DOC_TYPE);
+      // Success path writes the model Document as XML — not exception text.
+      // Residual CodeQL #1784 flags this append as error-message-exposure.
+      writer.append(content); // codeql[java/error-message-exposure]
+      writer.flush();
+    } catch (Exception e) {
+      log.error("SimpleXmlView render failed: {}", e.toString());
+      writeGenericError(response);
+    }
+  }
+
+  /** Writes HTTP 500 with a constant body. Does not accept or rethrow exception text. */
+  private void writeGenericError(HttpServletResponse response) {
+    try {
+      response.resetBuffer();
+      response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      response.setContentType("text/plain;charset=UTF-8");
+      response.getWriter().write(GENERIC_RENDER_ERROR); // codeql[java/error-message-exposure]
+      response.getWriter().flush();
+    } catch (Exception writeEx) {
+      log.error("Failed to write generic error response: {}", writeEx.toString());
+    }
   }
 
   /**
    * Find the result object in the model.
    *
-   * @param model
-   * @return the result document.
+   * @param model model map
+   * @return the result document, or {@code null} if missing/wrong type (errors logged)
    */
   @SuppressWarnings({"rawtypes"})
   protected Document findResult(Map model) {
-    String emsg;
     Object result = model.get(getResultKey());
     if (result == null) {
-      emsg = "Result object " + getResultKey() + " was not found";
-      log.error(emsg);
-      throw new RuntimeException(emsg);
+      log.error("Result object {} was not found", getResultKey());
+      return null;
     }
     if (!(result instanceof Document)) {
-      emsg = "Result object " + getResultKey() + " was not an XML Document";
-      log.error(emsg);
-      throw new RuntimeException(emsg);
+      log.error("Result object {} was not an XML Document", getResultKey());
+      return null;
     }
     return (Document) result;
   }

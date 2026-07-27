@@ -14111,6 +14111,16 @@ Documentación' href='https://percussioncmshelp.intsof.com/'&gt;percussioncmshel
 	        <seg>Personalizado</seg>
 	    </tuv>
 	 </tu>
+  <tu tuid="perc.ui.dashboard@Deprecated">
+         <prop type="sectionname" xml:lang="en-us">Dashboard</prop>
+         <note xml:lang="en-us"></note>
+         <tuv xml:lang="en-us">
+             <seg>Deprecated (Pending Removal)</seg>
+         </tuv>
+           <tuv xml:lang="es">
+             <seg>En desuso (eliminación pendiente)</seg>
+         </tuv>
+      </tu>
 	 <tu tuid="perc.ui.dashboard@Type">
 	    <prop type="sectionname" xml:lang="en-us">Dashboard</prop>
 	    <note xml:lang="en-us"></note>
@@ -17650,10 +17660,10 @@ Documentación' href='https://percussioncmshelp.intsof.com/'&gt;percussioncmshel
 	</tuv>
 </tu>
 <tu tuid="perc.ui.google.setup.gadget@Select Google Profile">
-	<prop type="sectionname" xml:lang="en-us">Select Google Profile</prop>
+	<prop type="sectionname" xml:lang="en-us">Select Google Property</prop>
 	<note xml:lang="en-us"></note>
 	<tuv xml:lang="en-us">
-		<seg>Select a Google profile for each site:</seg>
+		<seg>Select a Google property for each site:</seg>
 	</tuv>
 	  <tuv xml:lang="es">
 		<seg>Seleccione un perfil de Google para cada sitio:</seg>
@@ -17700,20 +17710,20 @@ Documentación' href='https://percussioncmshelp.intsof.com/'&gt;percussioncmshel
 	</tuv>
 </tu>
 <tu tuid="perc.ui.google.setup.gadget@Select Google Analytics Profile">
-	<prop type="sectionname" xml:lang="en-us">Select Google Analytics Profile</prop>
+	<prop type="sectionname" xml:lang="en-us">Select Google Analytics Property</prop>
 	<note xml:lang="en-us"></note>
 	<tuv xml:lang="en-us">
-		<seg>Select Google Analytics Profile</seg>
+		<seg>Select Google Analytics Property</seg>
 	</tuv>
 	  <tuv xml:lang="es">
 		<seg>Seleccione el perfil de Google Analytics</seg>
 	</tuv>
 </tu>
 <tu tuid="perc.ui.google.setup.gadget@Enter API Key">
-	<prop type="sectionname" xml:lang="en-us">Enter API Key for this Google Analytics Profile</prop>
+	<prop type="sectionname" xml:lang="en-us">Enter API Key for this Google Analytics Property</prop>
 	<note xml:lang="en-us"></note>
 	<tuv xml:lang="en-us">
-		<seg>Enter API Key for this Google Analytics Profile</seg>
+		<seg>Enter API Key for this Google Analytics Property</seg>
 	</tuv>
 	  <tuv xml:lang="es">
 		<seg>Ingrese la clave API para este perfil de Google Analytics</seg>
@@ -17898,6 +17908,553 @@ Documentación' href='https://percussioncmshelp.intsof.com/'&gt;percussioncmshel
 	  <tuv xml:lang="es">
 		<seg>Su navegador no soporta iframes.</seg>
 	</tuv>
+</tu>
+<tu tuid="perc.ui.reports.gadget@Report Help">
+<prop type="sectionname" xml:lang="en-us">Report Help</prop>
+<note xml:lang="en-us"></note>
+<tuv xml:lang="en-us">
+<seg>Note: Reports will be emailed to your user's email address. In order for report emails to be delivered, email support must first be configured in rxconfig/Workflow/rxworkflow.properties by the System Administrator.</seg>
+</tuv>
+  <tuv xml:lang="es">
+<seg>Nota: Los informes se enviarán por correo electrónico a la dirección de correo electrónico de su usuario. Para que los correos electrónicos de los informes se entreguen, el correo electrónico debe estar configurado en rxconfig/Workflow/rxworkflow.properties por el Administrador del Sistema.</seg>
+</tuv>
+</tu>
+<tu tuid="perc.ui.pathmanagement@Oops.  We can't find the site ">
+<prop type="sectionname" xml:lang="en-us">Error</prop>
+<note xml:lang="en-us"></note>
+<tuv xml:lang="en-us">
+<seg>Oops.  We can’t find the site </seg>
+</tuv>
+  <tuv xml:lang="es">
+<seg>Oops. No podemos encontrar el sitio </seg>
+</tuv>
+</tu>
+<tu tuid="perc.ui.pathmanagement@.  It may have been deleted.">
+<prop type="sectionname" xml:lang="en-us">Error</prop>
+<note xml:lang="en-us"></note>
+<tuv xml:lang="en-us">
+<seg>.  It may have been deleted.</seg>
+</tuv>
+  <tuv xml:lang="es">
+<seg>. Es posible que haya sido eliminado.</seg>
+</tuv>
+</tu>
+<tu tuid="perc.ui.pathmanagement@Oops. We're sorry. The requested page is no longer available.">
+<prop type="sectionname" xml:lang="en-us">Error</prop>
+<note xml:lang="en-us"></note>
+<tuv xml:lang="en-us">
+<seg>Oops. We’re sorry. The requested page is no longer available.</seg>
+</tuv>
+  <tuv xml:lang="es">
+<seg>Oops. Lo sentimos. La página solicitada ya no está disponible.</seg>
+</tuv>
+</tu>
+<!-- Modern Home / Widget Builder chrome (989-react-cui-widget-builder) FR-021/022 -->
+<tu tuid="perc.ui.home.modern@Home">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Modern Home shell title</note>
+    <tuv xml:lang="en-us"><seg>Home</seg></tuv>
+    <tuv xml:lang="es"><seg>Inicio</seg></tuv>
+    <tuv xml:lang="hi"><seg>Home</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Library">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Home Library section</note>
+    <tuv xml:lang="en-us"><seg>Library</seg></tuv>
+    <tuv xml:lang="es"><seg>Biblioteca</seg></tuv>
+    <tuv xml:lang="hi"><seg>Library</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Search">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Home Search section / submit</note>
+    <tuv xml:lang="en-us"><seg>Search</seg></tuv>
+    <tuv xml:lang="es"><seg>Buscar</seg></tuv>
+    <tuv xml:lang="hi"><seg>Search</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@No Recent Items">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Recent empty state</note>
+    <tuv xml:lang="en-us"><seg>No recent items</seg></tuv>
+    <tuv xml:lang="es"><seg>No hay elementos recientes</seg></tuv>
+    <tuv xml:lang="hi"><seg>No recent items</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@No Search Results">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Search empty results</note>
+    <tuv xml:lang="en-us"><seg>No search results</seg></tuv>
+    <tuv xml:lang="es"><seg>Sin resultados de búsqueda</seg></tuv>
+    <tuv xml:lang="hi"><seg>No search results</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Search Placeholder">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Search input placeholder</note>
+    <tuv xml:lang="en-us"><seg>Search content…</seg></tuv>
+    <tuv xml:lang="es"><seg>Buscar contenido…</seg></tuv>
+    <tuv xml:lang="hi"><seg>Search content…</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Create Page">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Create page action</note>
+    <tuv xml:lang="en-us"><seg>Create page</seg></tuv>
+    <tuv xml:lang="es"><seg>Crear página</seg></tuv>
+    <tuv xml:lang="hi"><seg>Create page</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Create Hint">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Create section hint</note>
+    <tuv xml:lang="en-us"><seg>Add a page, asset, or blog post using the same steps as before.</seg></tuv>
+    <tuv xml:lang="es"><seg>Añada una página, un recurso o una entrada de blog con los mismos pasos de antes.</seg></tuv>
+    <tuv xml:lang="hi"><seg>Add a page, asset, or blog post using the same steps as before.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Loading">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Loading status</note>
+    <tuv xml:lang="en-us"><seg>Loading…</seg></tuv>
+    <tuv xml:lang="es"><seg>Cargando…</seg></tuv>
+    <tuv xml:lang="hi"><seg>Loading…</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Error">
+    <prop type="sectionname" xml:lang="en-us">Error</prop>
+    <note xml:lang="en-us">Generic client error chrome</note>
+    <tuv xml:lang="en-us"><seg>Something went wrong. Try again or re-sign in if your session expired.</seg></tuv>
+    <tuv xml:lang="es"><seg>Algo salió mal. Inténtelo de nuevo o vuelva a iniciar sesión si la sesión expiró.</seg></tuv>
+    <tuv xml:lang="hi"><seg>Something went wrong. Try again or re-sign in if your session expired.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Open">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Open content item</note>
+    <tuv xml:lang="en-us"><seg>Open</seg></tuv>
+    <tuv xml:lang="es"><seg>Abrir</seg></tuv>
+    <tuv xml:lang="hi"><seg>Open</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Title">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Widget Builder modern title</note>
+    <tuv xml:lang="en-us"><seg>Widget Builder</seg></tuv>
+    <tuv xml:lang="es"><seg>Constructor de widgets</seg></tuv>
+    <tuv xml:lang="hi"><seg>Widget Builder</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Disabled">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">WB disabled message</note>
+    <tuv xml:lang="en-us"><seg>Widget Builder is not enabled for this system.</seg></tuv>
+    <tuv xml:lang="es"><seg>El constructor de widgets no está habilitado en este sistema.</seg></tuv>
+    <tuv xml:lang="hi"><seg>Widget Builder is not enabled for this system.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Empty">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">WB empty list</note>
+    <tuv xml:lang="en-us"><seg>No widget definitions yet.</seg></tuv>
+    <tuv xml:lang="es"><seg>Aún no hay definiciones de widgets.</seg></tuv>
+    <tuv xml:lang="hi"><seg>No widget definitions yet.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@New">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>New definition</seg></tuv>
+    <tuv xml:lang="es"><seg>Nueva definición</seg></tuv>
+    <tuv xml:lang="hi"><seg>New definition</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Edit">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Edit</seg></tuv>
+    <tuv xml:lang="es"><seg>Editar</seg></tuv>
+    <tuv xml:lang="hi"><seg>Edit</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Delete">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Delete</seg></tuv>
+    <tuv xml:lang="es"><seg>Eliminar</seg></tuv>
+    <tuv xml:lang="hi"><seg>Delete</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Confirm Delete">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">window.confirm text before deleting a widget definition</note>
+    <tuv xml:lang="en-us"><seg>Delete this widget definition?</seg></tuv>
+    <tuv xml:lang="es"><seg>¿Eliminar esta definición de widget?</seg></tuv>
+    <tuv xml:lang="hi"><seg>Delete this widget definition?</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Label Required">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Label is required.</seg></tuv>
+    <tuv xml:lang="es"><seg>La etiqueta es obligatoria.</seg></tuv>
+    <tuv xml:lang="hi"><seg>Label is required.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Prefix Required">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Prefix is required.</seg></tuv>
+    <tuv xml:lang="es"><seg>El prefijo es obligatorio.</seg></tuv>
+    <tuv xml:lang="hi"><seg>Prefix is required.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Deploy">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Deploy</seg></tuv>
+    <tuv xml:lang="es"><seg>Implementar</seg></tuv>
+    <tuv xml:lang="hi"><seg>Deploy</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Save">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Save</seg></tuv>
+    <tuv xml:lang="es"><seg>Guardar</seg></tuv>
+    <tuv xml:lang="hi"><seg>Save</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Validate">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Validate</seg></tuv>
+    <tuv xml:lang="es"><seg>Validar</seg></tuv>
+    <tuv xml:lang="hi"><seg>Validate</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Cancel">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Cancel</seg></tuv>
+    <tuv xml:lang="es"><seg>Cancelar</seg></tuv>
+    <tuv xml:lang="hi"><seg>Cancel</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Add Field">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Add field</seg></tuv>
+    <tuv xml:lang="es"><seg>Añadir campo</seg></tuv>
+    <tuv xml:lang="hi"><seg>Add field</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Saved">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Saved successfully. Reloaded current server state (last write wins).</seg></tuv>
+    <tuv xml:lang="es"><seg>Guardado correctamente. Estado del servidor recargado (última escritura gana).</seg></tuv>
+    <tuv xml:lang="hi"><seg>Saved successfully. Reloaded current server state (last write wins).</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Deployed">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Widget package deploy requested successfully.</seg></tuv>
+    <tuv xml:lang="es"><seg>Implementación del paquete de widget solicitada correctamente.</seg></tuv>
+    <tuv xml:lang="hi"><seg>Widget package deploy requested successfully.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Valid">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Validation passed.</seg></tuv>
+    <tuv xml:lang="es"><seg>Validación superada.</seg></tuv>
+    <tuv xml:lang="hi"><seg>Validation passed.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Unavailable">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Moved/unavailable legacy path message</note>
+    <tuv xml:lang="en-us"><seg>This page has moved or is no longer available. Use Home or Widget Builder from the main navigation.</seg></tuv>
+    <tuv xml:lang="es"><seg>Esta página se ha movido o ya no está disponible. Use Inicio o Constructor de widgets en la navegación principal.</seg></tuv>
+    <tuv xml:lang="hi"><seg>This page has moved or is no longer available. Use Home or Widget Builder from the main navigation.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@My Bookmarks">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Home My Bookmarks section (classic CUI tab)</note>
+    <tuv xml:lang="en-us"><seg>My Bookmarks</seg></tuv>
+    <tuv xml:lang="es"><seg>Mis favoritos</seg></tuv>
+    <tuv xml:lang="hi"><seg>My Bookmarks</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@No Bookmarks">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Bookmarks empty state</note>
+    <tuv xml:lang="en-us"><seg>You have not bookmarked any content. Open content and use the bookmark action to add it here.</seg></tuv>
+    <tuv xml:lang="es"><seg>No ha marcado ningún contenido. Ábralo y use la acción de favorito para añadirlo aquí.</seg></tuv>
+    <tuv xml:lang="hi"><seg>You have not bookmarked any content. Open content and use the bookmark action to add it here.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Choose Content Type">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>What do you want to add?</seg></tuv>
+    <tuv xml:lang="es"><seg>¿Qué desea añadir?</seg></tuv>
+    <tuv xml:lang="hi"><seg>What do you want to add?</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Create Asset">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Asset</seg></tuv>
+    <tuv xml:lang="es"><seg>Recurso</seg></tuv>
+    <tuv xml:lang="hi"><seg>Asset</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Create Blog Post">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Blog post</seg></tuv>
+    <tuv xml:lang="es"><seg>Entrada de blog</seg></tuv>
+    <tuv xml:lang="hi"><seg>Blog post</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Back">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Back</seg></tuv>
+    <tuv xml:lang="es"><seg>Atrás</seg></tuv>
+    <tuv xml:lang="hi"><seg>Back</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Site">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Site</seg></tuv>
+    <tuv xml:lang="es"><seg>Sitio</seg></tuv>
+    <tuv xml:lang="hi"><seg>Site</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Template">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Template</seg></tuv>
+    <tuv xml:lang="es"><seg>Plantilla</seg></tuv>
+    <tuv xml:lang="hi"><seg>Template</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Folder">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Folder</seg></tuv>
+    <tuv xml:lang="es"><seg>Carpeta</seg></tuv>
+    <tuv xml:lang="hi"><seg>Folder</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Title">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Title</seg></tuv>
+    <tuv xml:lang="es"><seg>Título</seg></tuv>
+    <tuv xml:lang="hi"><seg>Title</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@File Name">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>File name</seg></tuv>
+    <tuv xml:lang="es"><seg>Nombre de archivo</seg></tuv>
+    <tuv xml:lang="hi"><seg>File name</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Asset Type">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Asset type</seg></tuv>
+    <tuv xml:lang="es"><seg>Tipo de recurso</seg></tuv>
+    <tuv xml:lang="hi"><seg>Asset type</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Blog">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Blog</seg></tuv>
+    <tuv xml:lang="es"><seg>Blog</seg></tuv>
+    <tuv xml:lang="hi"><seg>Blog</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Select">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Select…</seg></tuv>
+    <tuv xml:lang="es"><seg>Seleccionar…</seg></tuv>
+    <tuv xml:lang="hi"><seg>Select…</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Create">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Create</seg></tuv>
+    <tuv xml:lang="es"><seg>Crear</seg></tuv>
+    <tuv xml:lang="hi"><seg>Create</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Create Validation">
+    <prop type="sectionname" xml:lang="en-us">Error</prop>
+    <tuv xml:lang="en-us"><seg>Complete all required fields.</seg></tuv>
+    <tuv xml:lang="es"><seg>Complete todos los campos obligatorios.</seg></tuv>
+    <tuv xml:lang="hi"><seg>Complete all required fields.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@File Name Too Long">
+    <prop type="sectionname" xml:lang="en-us">Error</prop>
+    <tuv xml:lang="en-us"><seg>File name must be 255 characters or fewer.</seg></tuv>
+    <tuv xml:lang="es"><seg>El nombre de archivo debe tener 255 caracteres o menos.</seg></tuv>
+    <tuv xml:lang="hi"><seg>File name must be 255 characters or fewer.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Create Not Authorized">
+    <prop type="sectionname" xml:lang="en-us">Error</prop>
+    <tuv xml:lang="en-us"><seg>You are not authorized to create content in this location.</seg></tuv>
+    <tuv xml:lang="es"><seg>No está autorizado para crear contenido en esta ubicación.</seg></tuv>
+    <tuv xml:lang="hi"><seg>You are not authorized to create content in this location.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@No Blogs">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>No blogs are available for posting.</seg></tuv>
+    <tuv xml:lang="es"><seg>No hay blogs disponibles para publicar.</seg></tuv>
+    <tuv xml:lang="hi"><seg>No blogs are available for posting.</seg></tuv>
+</tu>
+
+<!-- Unified Publishing UI (990) modern shell keys -->
+<tu tuid="perc.ui.publish.modern@Sites & Servers">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Sites &amp; Servers</seg></tuv>
+    <tuv xml:lang="es"><seg>Sitios y servidores</seg></tuv>
+    <tuv xml:lang="hi"><seg>Sites &amp; Servers</seg></tuv>
+</tu>
+<tu tuid="perc.ui.publish.modern@Logs">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Logs</seg></tuv>
+    <tuv xml:lang="es"><seg>Registros</seg></tuv>
+    <tuv xml:lang="hi"><seg>Logs</seg></tuv>
+</tu>
+<tu tuid="perc.ui.publish.modern@Design">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Design</seg></tuv>
+    <tuv xml:lang="es"><seg>Diseño</seg></tuv>
+    <tuv xml:lang="hi"><seg>Design</seg></tuv>
+</tu>
+<tu tuid="perc.ui.publish.modern@Runtime">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Runtime</seg></tuv>
+    <tuv xml:lang="es"><seg>Ejecución</seg></tuv>
+    <tuv xml:lang="hi"><seg>Runtime</seg></tuv>
+</tu>
+<tu tuid="perc.ui.publish.modern@Incremental">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Incremental</seg></tuv>
+    <tuv xml:lang="es"><seg>Incremental</seg></tuv>
+    <tuv xml:lang="hi"><seg>Incremental</seg></tuv>
+</tu>
+<tu tuid="perc.ui.publish.modern@No Sites">
+    <prop type="sectionname" xml:lang="en-us">Empty</prop>
+    <tuv xml:lang="en-us"><seg>No sites are available for publishing.</seg></tuv>
+    <tuv xml:lang="es"><seg>No hay sitios disponibles para publicar.</seg></tuv>
+    <tuv xml:lang="hi"><seg>No sites are available for publishing.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.publish.modern@No Servers">
+    <prop type="sectionname" xml:lang="en-us">Empty</prop>
+    <tuv xml:lang="en-us"><seg>No publish servers configured. Add a server before publishing.</seg></tuv>
+    <tuv xml:lang="es"><seg>No hay servidores de publicación. Agregue un servidor antes de publicar.</seg></tuv>
+    <tuv xml:lang="hi"><seg>No publish servers configured. Add a server before publishing.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.publish.modern@No Active Jobs">
+    <prop type="sectionname" xml:lang="en-us">Empty</prop>
+    <tuv xml:lang="en-us"><seg>No active publishing jobs.</seg></tuv>
+    <tuv xml:lang="es"><seg>No hay trabajos de publicación activos.</seg></tuv>
+    <tuv xml:lang="hi"><seg>No active publishing jobs.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.publish.modern@No Logs">
+    <prop type="sectionname" xml:lang="en-us">Empty</prop>
+    <tuv xml:lang="en-us"><seg>No publishing logs match the current filters.</seg></tuv>
+    <tuv xml:lang="es"><seg>No hay registros de publicación para los filtros actuales.</seg></tuv>
+    <tuv xml:lang="hi"><seg>No publishing logs match the current filters.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.publish.modern@Publish Forbidden">
+    <prop type="sectionname" xml:lang="en-us">Error</prop>
+    <tuv xml:lang="en-us"><seg>You are not allowed to publish.</seg></tuv>
+    <tuv xml:lang="es"><seg>No tiene permiso para publicar.</seg></tuv>
+    <tuv xml:lang="hi"><seg>You are not allowed to publish.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.publish.modern@Bad Server Configuration">
+    <prop type="sectionname" xml:lang="en-us">Error</prop>
+    <tuv xml:lang="en-us"><seg>Publish server configuration is invalid.</seg></tuv>
+    <tuv xml:lang="es"><seg>La configuración del servidor de publicación no es válida.</seg></tuv>
+    <tuv xml:lang="hi"><seg>Publish server configuration is invalid.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.publish.modern@Section Coming Soon">
+    <prop type="sectionname" xml:lang="en-us">Empty</prop>
+    <tuv xml:lang="en-us"><seg>This Publishing section is not available yet.</seg></tuv>
+    <tuv xml:lang="es"><seg>Esta sección de publicación aún no está disponible.</seg></tuv>
+    <tuv xml:lang="hi"><seg>This Publishing section is not available yet.</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Back">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Back</seg></tuv>
+    <tuv xml:lang="es"><seg>Atrás</seg></tuv>
+    <tuv xml:lang="hi"><seg>Back</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Folder">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Folder</seg></tuv>
+    <tuv xml:lang="es"><seg>Carpeta</seg></tuv>
+    <tuv xml:lang="hi"><seg>Folder</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Edit Server">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Edit server</seg></tuv>
+    <tuv xml:lang="es"><seg>Editar servidor</seg></tuv>
+    <tuv xml:lang="hi"><seg>Edit server</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Server Name">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Server name</seg></tuv>
+    <tuv xml:lang="es"><seg>Nombre del servidor</seg></tuv>
+    <tuv xml:lang="hi"><seg>Server name</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Delivery Type">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Delivery type</seg></tuv>
+    <tuv xml:lang="es"><seg>Tipo de entrega</seg></tuv>
+    <tuv xml:lang="hi"><seg>Delivery type</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Driver">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Driver</seg></tuv>
+    <tuv xml:lang="es"><seg>Controlador</seg></tuv>
+    <tuv xml:lang="hi"><seg>Driver</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Save">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Save</seg></tuv>
+    <tuv xml:lang="es"><seg>Guardar</seg></tuv>
+    <tuv xml:lang="hi"><seg>Save</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Confirm Delete Server">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Delete this publish server?</seg></tuv>
+    <tuv xml:lang="es"><seg>¿Eliminar este servidor de publicación?</seg></tuv>
+    <tuv xml:lang="hi"><seg>Delete this publish server?</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Discard Changes">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Discard unsaved server changes?</seg></tuv>
+    <tuv xml:lang="es"><seg>¿Descartar los cambios no guardados del servidor?</seg></tuv>
+    <tuv xml:lang="hi"><seg>Discard unsaved server changes?</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Add Server">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Add server</seg></tuv>
+    <tuv xml:lang="es"><seg>Agregar servidor</seg></tuv>
+    <tuv xml:lang="hi"><seg>Add server</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Set as Publish Now Server">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Set as Publish Now server</seg></tuv>
+    <tuv xml:lang="es"><seg>Establecer como servidor Publish Now</seg></tuv>
+    <tuv xml:lang="hi"><seg>Set as Publish Now server</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Ignore Unmodified Assets">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Ignore unmodified assets</seg></tuv>
+    <tuv xml:lang="es"><seg>Ignorar activos no modificados</seg></tuv>
+    <tuv xml:lang="hi"><seg>Ignore unmodified assets</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Publish Related Items">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Publish related items</seg></tuv>
+    <tuv xml:lang="es"><seg>Publicar elementos relacionados</seg></tuv>
+    <tuv xml:lang="hi"><seg>Publish related items</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.view@Add Server">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Add server</seg></tuv>
+    <tuv xml:lang="es"><seg>Agregar servidor</seg></tuv>
+    <tuv xml:lang="hi"><seg>Add server</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.servers@Set as Publish Now Server">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Set as Publish Now server</seg></tuv>
+    <tuv xml:lang="es"><seg>Establecer como servidor Publish Now</seg></tuv>
+    <tuv xml:lang="hi"><seg>Set as Publish Now server</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.servers@Ignore Unmodified Assets">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Ignore unmodified assets</seg></tuv>
+    <tuv xml:lang="es"><seg>Ignorar activos no modificados</seg></tuv>
+    <tuv xml:lang="hi"><seg>Ignore unmodified assets</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.servers@Publish Related Items">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Publish related items</seg></tuv>
+    <tuv xml:lang="es"><seg>Publicar elementos relacionados</seg></tuv>
+    <tuv xml:lang="hi"><seg>Publish related items</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Confirm Delete Design Object">
+    <prop type="sectionname" xml:lang="en-us">Confirm</prop>
+    <tuv xml:lang="en-us"><seg>Delete this design object? This cannot be undone.</seg></tuv>
+    <tuv xml:lang="es"><seg>¿Eliminar este objeto de diseño? Esta acción no se puede deshacer.</seg></tuv>
+    <tuv xml:lang="hi"><seg>Delete this design object? This cannot be undone.</seg></tuv>
 </tu>
     </body>
 </tmx>

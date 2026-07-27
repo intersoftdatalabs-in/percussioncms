@@ -73,40 +73,30 @@ public class SimpleXmlViewTest {
   }
 
   @Test
-  public final void testRenderMergedOutputWrongType() {
-    Document doc = PSXmlDocumentBuilder.createXmlDocument();
-    Element root = PSXmlDocumentBuilder.createRoot(doc, "root");
-
+  public final void testRenderMergedOutputWrongTypeWritesGenericError() throws Exception {
     MockHttpServletRequest request = new MockHttpServletRequest();
     MockHttpServletResponse response = new MockHttpServletResponse();
     cut.setResultKey("foo");
     model.put("foo", "doc");
 
-    try {
-      cut.render(model, request, response);
-      fail("Should throw exception");
-    } catch (Exception ex) {
-      // message first, condition second per JUnit 5 signature
-      assertTrue(true, "ExpectedException");
-    }
+    // RuntimeException is caught; response body is the generic message only (#769)
+    cut.render(model, request, response);
+    assertEquals(500, response.getStatus());
+    String body = response.getContentAsString();
+    assertTrue(body.contains("An error occurred while rendering the response"));
+    assertFalse(body.contains("doc"));
   }
 
   @Test
-  public final void testRenderMergedOutputWrongName() {
-    Document doc = PSXmlDocumentBuilder.createXmlDocument();
-    Element root = PSXmlDocumentBuilder.createRoot(doc, "root");
-
+  public final void testRenderMergedOutputWrongNameWritesGenericError() throws Exception {
     MockHttpServletRequest request = new MockHttpServletRequest();
     MockHttpServletResponse response = new MockHttpServletResponse();
     cut.setResultKey("faz");
     model.put("foo", "doc");
 
-    try {
-      cut.render(model, request, response);
-      fail("Should throw exception");
-    } catch (Exception ex) {
-      // message first, condition second per JUnit 5 signature
-      assertTrue(true, "ExpectedException");
-    }
+    cut.render(model, request, response);
+    assertEquals(500, response.getStatus());
+    String body = response.getContentAsString();
+    assertTrue(body.contains("An error occurred while rendering the response"));
   }
 }

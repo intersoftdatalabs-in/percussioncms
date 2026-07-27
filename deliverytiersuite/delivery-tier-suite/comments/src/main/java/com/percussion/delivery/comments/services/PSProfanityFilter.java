@@ -64,6 +64,11 @@ public class PSProfanityFilter {
     setProfanity();
   }
 
+  /**
+   * Creates a profanity filter that loads its word list from the supplied sample file.
+   *
+   * @param fileSample the file to load the profanity word list from, must not be {@code null}.
+   */
   public PSProfanityFilter(File fileSample) {
     profanityFile = fileSample;
     setProfanity();

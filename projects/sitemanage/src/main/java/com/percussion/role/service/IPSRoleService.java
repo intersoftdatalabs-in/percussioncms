@@ -79,9 +79,12 @@ public interface IPSRoleService {
 
   /**
    * Validates that the specified role meets the following for deletion:
-   * <li>All users assigned to the role are also assigned to at least one other role.
-   * <li>The role is not being used by a workflow, i.e., it is not assigned permissions (other than
-   *     READ) in a workflow.
+   *
+   * <ul>
+   *   <li>All users assigned to the role are also assigned to at least one other role.
+   *   <li>The role is not being used by a workflow, i.e., it is not assigned permissions (other
+   *       than READ) in a workflow.
+   * </ul>
    *
    * @param role never null. A role object is used instead of a string in order to support non-ascii
    *     characters in the role name.
@@ -103,7 +106,9 @@ public interface IPSRoleService {
   /**
    * Gets the homepage for the logged in user.
    *
-   * @return String never null, if it is not set for any of the user roles, returns "Dashboard".
+   * @return String never null. Product default is {@link #HOMEPAGE_TYPE_HOME} when unset. When the
+   *     user has multiple roles, {@link #HOMEPAGE_TYPE_HOME} wins over Dashboard/Editor (SPA-first
+   *     landing).
    */
   String getUserHomepage() throws IPSGenericDao.LoadException;
 }

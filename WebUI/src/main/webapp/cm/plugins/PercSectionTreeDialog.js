@@ -53,7 +53,7 @@
         $dialog = $("<div/>")
           .append(
             $("<div style='float:left;'/>")
-              .html(treeLabel)
+              .text(treeLabel)
               .append(
                 $("<div id='perc-movesection-tree' />").append(
                   $("<ul/>").append(buildSectionTreeList(result.SectionNode))
@@ -153,22 +153,14 @@
       results = $("<li/>")
         .attr("id", "perc_section_tree|" + sectionNode.id)
         .attr("class", "folder expanded")
-        .attr(
-          "data",
-          "icon:'section.png',sectionName:'" +
-            menuTitle.replace(/'/g, "\\'").replace(/"/g, '\\"') +
-            "'"
-        )
+        .attr("data-icon", "section.png")
+        .data("sectionName", menuTitle)
         .append(
           $("<a/>")
             .attr("href", "#")
             .text(menuTitle)
-            .attr(
-              "data",
-              "icon:'section.png',sectionName:'" +
-                menuTitle.replace(/'/g, "\\'").replace(/"/g, '\\"') +
-                "'"
-            )
+            .attr("data-icon", "section.png")
+            .data("sectionName", menuTitle)
         );
 
       if (sectionNode.childNodes !== "") {

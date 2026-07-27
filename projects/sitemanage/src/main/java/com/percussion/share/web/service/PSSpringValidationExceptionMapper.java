@@ -25,6 +25,7 @@ import com.percussion.system.utils.PSSiteManageBean;
 import jakarta.inject.Singleton;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import org.apache.logging.log4j.LogManager;
@@ -57,5 +58,11 @@ public class PSSpringValidationExceptionMapper
   protected PSErrors createErrors(PSSpringValidationException exception) {
     log.debug(ERROR_MESSAGE, exception);
     return exception.getValidationErrors();
+  }
+
+  @Override
+  @Produces(MediaType.APPLICATION_JSON)
+  protected Response.Status getStatus(PSSpringValidationException exception) {
+    return Response.Status.BAD_REQUEST;
   }
 }

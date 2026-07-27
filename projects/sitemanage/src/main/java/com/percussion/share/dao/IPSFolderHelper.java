@@ -174,7 +174,7 @@ public interface IPSFolderHelper {
   /**
    * Gets the parent folder ID for the specified item.
    *
-   * @param item ID in question, not <code>null</code>.
+   * @param itemId ID in question, not <code>null</code>.
    * @return the folder ID, never <code>null</code>.
    */
   IPSGuid getParentFolderId(IPSGuid itemId) throws PSValidationException;
@@ -182,7 +182,7 @@ public interface IPSFolderHelper {
   /**
    * Gets the parent folder ID for the specified item.
    *
-   * @param item ID in question, not <code>null</code>.
+   * @param itemId ID in question, not <code>null</code>.
    * @param isRequired if <code>true</code>, then the returned ID can never be <code>null</code>;
    *     otherwise, the returned ID may be <code>null</code> if cannot find the parent folder.
    * @return the folder ID. It may be <code>null</code> if <code>isRequired</code> is <code>false
@@ -316,7 +316,6 @@ public interface IPSFolderHelper {
      * The item that the path points to.
      *
      * @return never <code>null</code>.
-     * @throws Exception if item does not exist.
      */
     public IPSItemSummary getItem() throws PSDataServiceException {
       if (item == null) throw new PSDataServiceException("Item not found.");
@@ -694,7 +693,7 @@ public interface IPSFolderHelper {
   /**
    * Gets the user name and date when the specified item was last check in or out.
    *
-   * @param summary the summary of the specified item, not <code>null</code>.
+   * @param id the id of the specified item, not <code>null</code>.
    * @param isPublishable <code>true</code> if item is in a publishable state, <code>false</code> if
    *     not.
    * @return the user name (1st element) and modified date (2nd element, never <code>null</code>.

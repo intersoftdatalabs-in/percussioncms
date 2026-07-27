@@ -19,16 +19,19 @@ package com.percussion.utils.jsr170;
 import com.percussion.utils.beans.PSPropertyAccessException;
 import com.percussion.utils.beans.PSPropertyWrapper;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 import javax.jcr.AccessDeniedException;
+import javax.jcr.Binary;
 import javax.jcr.Item;
 import javax.jcr.ItemNotFoundException;
 import javax.jcr.ItemVisitor;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
+import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -189,6 +192,26 @@ public class PSMultiProperty extends PSPropertyWrapper implements IPSJcrCacheIte
     throw new RepositoryException("Set is not supported");
   }
 
+  @Override
+  public void setValue(Binary value)
+      throws ValueFormatException,
+          VersionException,
+          LockException,
+          ConstraintViolationException,
+          RepositoryException {
+    throw new RepositoryException("Set is not supported");
+  }
+
+  @Override
+  public void setValue(BigDecimal value)
+      throws ValueFormatException,
+          VersionException,
+          LockException,
+          ConstraintViolationException,
+          RepositoryException {
+    throw new RepositoryException("Set is not supported");
+  }
+
   public Value getValue() throws ValueFormatException, RepositoryException {
     throw new ValueFormatException("This is a multi valued property");
   }
@@ -223,6 +246,27 @@ public class PSMultiProperty extends PSPropertyWrapper implements IPSJcrCacheIte
 
   public Node getNode() throws RepositoryException {
     throw new ValueFormatException("This is a multi valued property");
+  }
+
+  @Override
+  public Property getProperty()
+      throws ItemNotFoundException, ValueFormatException, RepositoryException {
+    throw new ValueFormatException("This is a multi valued property");
+  }
+
+  @Override
+  public Binary getBinary() throws ValueFormatException, RepositoryException {
+    throw new ValueFormatException("This is a multi valued property");
+  }
+
+  @Override
+  public BigDecimal getDecimal() throws ValueFormatException, RepositoryException {
+    throw new ValueFormatException("This is a multi valued property");
+  }
+
+  @Override
+  public boolean isMultiple() throws RepositoryException {
+    return true;
   }
 
   public long getLength() throws RepositoryException {

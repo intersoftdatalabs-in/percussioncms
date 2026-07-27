@@ -47,7 +47,7 @@ public class PSAssetEditor extends PSAbstractDataObject {
    * as
    *
    * <pre>
-   * &sys_folderid=100
+   * &amp;sys_folderid=100
    * </pre>
    *
    * where 100 is the folder id value. The folder id is needed instead of the path because legacy

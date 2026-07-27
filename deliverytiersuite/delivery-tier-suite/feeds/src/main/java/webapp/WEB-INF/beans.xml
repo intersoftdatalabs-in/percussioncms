@@ -37,16 +37,16 @@
         <property name="properties">
             <props>
                 <!-- default properties for database -->
-                <prop key="jdbcUrl">jdbc:derby:${catalina.home}/derbydata/percfeeds;create=true</prop>
-                <prop key="jdbcDriver">org.apache.derby.jdbc.EmbeddedDriver</prop>
+                <prop key="jdbcUrl">jdbc:h2:file:${catalina.home}/h2data/percfeeds;DB_CLOSE_ON_EXIT=FALSE</prop>
+                <prop key="jdbcDriver">org.h2.Driver</prop>
                 <prop key="maximumPoolSize">10</prop>
                 <prop key="db.username">test</prop>
                 <prop key="db.password">test</prop>
-                <prop key="db.schema">APP</prop>
+                <prop key="db.schema">PUBLIC</prop>
                 <prop key="datasource">percDataSource</prop>
                 <prop key="hibernateProperties">percHibernateProperties</prop>
-                <prop key="hibernate.dialect">org.hibernate.community.dialect.DerbyDialect</prop>
-                <prop key="hibernate.query.substitutions">true 'T', false 'F'</prop>
+                <prop key="hibernate.dialect">org.hibernate.dialect.H2Dialect</prop>
+                <prop key="hibernate.query.substitutions"></prop>
                 <prop key="hibernate.cache.use_second_level_cache">false</prop>
                 <prop key="hibernate.cache.use_query_cache">false</prop>
                 <prop key="hibernate.hbm2ddl.auto">update</prop>
@@ -54,7 +54,7 @@
                 <!-- default properties for encryption -->
                 <prop key="encryption.type">ENC</prop>
                 <!-- default properties for Spring Security -->
-                <prop key="contentSecurityPolicy">default-src 'self' *;</prop>
+                <prop key="contentSecurityPolicy">default-src 'self' *; img-src * 'self' data: blob:;</prop>
                 <prop key="rss.feeds.ip">127.0.0.1</prop>
             </props>
         </property>

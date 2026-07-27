@@ -14,7 +14,6 @@
 			<service>perc-comments-services</service>
 			<service>perc-metadata-services</service>
 			<service>perc-membership-services</service>
-			<service>perc-integrations</service>
 		</availableServices>
 	</DeliveryServer>
 	<DeliveryServer>
@@ -31,7 +30,6 @@
 			<service>perc-comments-services</service>
 			<service>perc-metadata-services</service>
 			<service>perc-membership-services</service>
-			<service>perc-integrations</service>
 		</availableServices>
 	</DeliveryServer>
 	<DeliveryServer>
@@ -43,7 +41,6 @@
 		<allow-self-signed-certificate>false</allow-self-signed-certificate>
 		<availableServices>
 			<service>perc-thirdparty-services</service>
-			<service>perc-integrations</service>
 		</availableServices>
 	</DeliveryServer>
 </DeliveryServerConfig>

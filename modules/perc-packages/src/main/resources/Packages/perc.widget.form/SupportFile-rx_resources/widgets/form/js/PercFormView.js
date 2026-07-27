@@ -520,6 +520,25 @@
     );
     var mailTo = $("#perc-formbuild-mail-to").val();
     var mailSubject = $("#perc-formbuild-mail-subject").val();
+    // CodeQL js/xss-through-dom (#1430): escape DOM-sourced metadata before HTML concat.
+    var safeSuccessUrl = $("<div/>")
+      .text(successUrl || "")
+      .html();
+    var safeErrorUrl = $("<div/>")
+      .text(errorUrl || "")
+      .html();
+    var safeMetaDescription = $("<div/>")
+      .text(metaDescriptiton || "")
+      .html();
+    var safeMailTo = $("<div/>")
+      .text(mailTo || "")
+      .html();
+    var safeMailSubject = $("<div/>")
+      .text(mailSubject || "")
+      .html();
+    var safeSaveToUrl = $("<div/>")
+      .text(saveToUrl || "")
+      .html();
     var readOnlyMetadata = $(
       "<div id='perc-form-metadata-panel'>" +
         "<div id='perc-form-edit-metadata-link' class='perc-form-spacer'>" +
@@ -533,7 +552,7 @@
         "</div>" +
         "<div>" +
         "<div style = 'position:relative'><div type='text' id='perc-formbuild-success-url-readonly'>" +
-        successUrl +
+        safeSuccessUrl +
         "</div>" +
         "<input type='hidden' id='perc-formbuild-success-url-paired-unencrypted' />" +
         "<input type='hidden' id='perc-formbuild-success-url-paired-encrypted' /></div>" +
@@ -545,7 +564,7 @@
         "</div>" +
         "<div>" +
         "<div style = 'position:relative'><div type='text' id='perc-formbuild-error-url-readonly'>" +
-        errorUrl +
+        safeErrorUrl +
         "</div>" +
         "<input type='hidden' id='perc-formbuild-error-url-paired-unencrypted' />" +
         "<input type='hidden' id='perc-formbuild-error-url-paired-encrypted' /></div>" +
@@ -559,7 +578,7 @@
         "<div>" +
         "<div id='perc-form-meta-readonly-description' name=" +
         "'perc-form-description' class='perc-form-meta-textarea'>" +
-        metaDescriptiton +
+        safeMetaDescription +
         "</div>" +
         "</div>" +
         "</div>" +
@@ -591,7 +610,7 @@
         "<div id='perc-form-negative-expander'>" +
         "<div class='perc-form-datadisplay' name='perc-save-to-url' type='text' " +
         "id='perc-form-metadata-save-to-url-text-readonly'>" +
-        saveToUrl +
+        safeSaveToUrl +
         "</div>" +
         "</div>" +
         "</div>" +
@@ -611,7 +630,7 @@
         "</div>" +
         "<div>" +
         "<div style = 'position:relative'><div type='text' id='perc-formbuild-mail-to-readonly'>" +
-        mailTo +
+        safeMailTo +
         "</div></div>" +
         "</div>" +
         "</div>" +
@@ -622,7 +641,7 @@
         "<div>" +
         "<div id='perc-form-meta-readonly-mail-subject' name=" +
         "'perc-form-mail-subject' class='perc-form-meta-textarea'>" +
-        mailSubject +
+        safeMailSubject +
         "</div></div>" +
         "</div>" +
         "</div>" +

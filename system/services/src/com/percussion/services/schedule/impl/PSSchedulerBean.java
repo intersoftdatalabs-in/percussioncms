@@ -131,13 +131,46 @@ public class PSSchedulerBean implements FactoryBean<Scheduler>, InitializingBean
         var connectionDetail = getConnectionDetail();
         var driver = connectionDetail.getDriver();
 
-        var delegateClass = Optional.ofNullable(driver)
-                .filter(StringUtils::isNotBlank)
-                .map(DRIVER_DELEGATES::get)
+        var delegateClass = Optional.ofNullable(resolveDriverDelegateClass(driver))
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Unrecognized database driver: \"" + driver + "\""));
 
         m_quartzProperties.put("org.quartz.jobStore.driverDelegateClass", delegateClass);
+    }
+
+    /**
+     * Map a JDBC driver name (or URL-derived form such as {@code h2:file}) to a Quartz JDBC job
+     * store delegate class name.
+     *
+     * <p>H2 file URLs are {@code jdbc:h2:file:...}; if {@link
+     * com.percussion.utils.jdbc.PSJdbcUtils#getDriverFromUrl(String)} falls through without an
+     * explicit map entry it can yield {@code h2:file}. Normalize that (and {@code h2:mem}, {@code
+     * h2:tcp}) to the H2 delegate. PostgreSQL and the default embedded H2 use Quartz's standard
+     * JDBC delegate (#548 / #1500).
+     *
+     * <p>Package-visible for unit tests.
+     *
+     * @param driver JDBC driver name from connection detail; may be null
+     * @return fully qualified Quartz delegate class name, or null if unknown
+     */
+    static String resolveDriverDelegateClass(String driver) {
+        if (StringUtils.isBlank(driver)) {
+            return null;
+        }
+        var key = driver.trim().toLowerCase(java.util.Locale.ROOT);
+        var exact = DRIVER_DELEGATES.get(key);
+        if (exact != null) {
+            return exact;
+        }
+        // jdbc:h2:file:..., jdbc:h2:mem:..., jdbc:h2:tcp:... → treat as H2
+        if (key.equals("h2") || key.startsWith("h2:")) {
+            return DRIVER_DELEGATES.get("h2");
+        }
+        // postgres alias and any postgresql: subprotocol form
+        if (key.equals("postgres") || key.startsWith("postgresql")) {
+            return DRIVER_DELEGATES.get("postgresql");
+        }
+        return null;
     }
 
     /**
@@ -222,7 +255,8 @@ public class PSSchedulerBean implements FactoryBean<Scheduler>, InitializingBean
     private PSServiceConfigurationBean m_configurationBean;
 
     /**
-     * A mapping between JDBC driver names and Quartz database delegates.
+     * A mapping between JDBC driver names (lowercase) and Quartz database delegates.
+     * H2 and PostgreSQL use the standard JDBC delegate (no product-specific SQL).
      */
     private static final Map<String, String> DRIVER_DELEGATES = Map.of(
             "jtds:sqlserver", "org.quartz.impl.jdbcjobstore.MSSQLDelegate",
@@ -231,7 +265,10 @@ public class PSSchedulerBean implements FactoryBean<Scheduler>, InitializingBean
             "oracle:thin", "org.quartz.impl.jdbcjobstore.oracle.OracleDelegate",
             "db2", "org.quartz.impl.jdbcjobstore.DB2v8Delegate",
             "derby", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate",
-            "mysql", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate"
+            "mysql", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate",
+            // #548 default embedded H2; #1500 external PostgreSQL (use PG delegate, not Std)
+            "h2", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate",
+            "postgresql", "org.quartz.impl.jdbcjobstore.PostgreSQLDelegate"
     );
 
     /**

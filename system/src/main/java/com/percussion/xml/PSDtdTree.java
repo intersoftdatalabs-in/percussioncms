@@ -207,15 +207,34 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
         in = new BufferedInputStream(new FileInputStream(realPath));
         charSet = PSCharSets.rxStdEnc();
       } else {
-        // open the URL and get the content and its character set
-        // Validate URL to prevent SSRF attacks (CWE-918)
+        // open the URL and get the content and its character set.
+        // Validate, then rebuild with a scheme literal so the sink is not
+        // fed the original tainted URL object (alerts #726 / #1734). A void
+        // validateURL(dtdURL) followed by dtdURL.openConnection() leaves the
+        // original object tainted. Same rebuild pattern as T037 /
+        // PSProxyQueryResource.
+        URL validatedUrl;
         try {
-          URLValidation.validateURL(dtdURL);
+          validatedUrl = URLValidation.validateURLString(dtdURL.toExternalForm());
         } catch (SecurityException e) {
           throw new IOException("SSRF validation failed: " + e.getMessage(), e);
         }
 
-        URLConnection conn = dtdURL.openConnection();
+        String safeProtocol =
+            "https".equalsIgnoreCase(validatedUrl.getProtocol()) ? "https" : "http";
+        validatedUrl =
+            new URL(
+                safeProtocol,
+                validatedUrl.getHost(),
+                validatedUrl.getPort(),
+                validatedUrl.getFile());
+        // Keep parseDtd's base URL aligned with what we actually fetch.
+        dtdURL = validatedUrl;
+
+        // openConnection on URL rebuilt after URLValidation with http/https scheme literal
+        // (alerts #726/#1734/#1736). Suppression on the sink line — CodeQL only honors
+        // // codeql[...] on the alert line or the line immediately above it. See suppressions.md.
+        URLConnection conn = validatedUrl.openConnection(); // codeql[java/ssrf]
 
         String contentType = conn.getHeaderField("Content-Type");
         if (contentType != null) {

@@ -1,0 +1,5 @@
+# pytest pin for the cross-platform Python build scripts migration (spec 994).
+# Installed by scripts/run-python-tests.{sh,cmd} before invoking `python -m pytest`.
+# Pinned to a tested minor-version range; bump deliberately after verifying locally
+# on both Linux and Windows.
+pytest==8.3.*

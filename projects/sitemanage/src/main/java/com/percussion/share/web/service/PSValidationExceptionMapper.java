@@ -58,6 +58,6 @@ public class PSValidationExceptionMapper extends PSAbstractExceptionMapper<PSVal
   @Override
   @Produces(MediaType.APPLICATION_JSON)
   protected Status getStatus(PSValidationException exception) {
-    return super.getStatus(exception);
+    return Status.BAD_REQUEST;
   }
 }

@@ -64,6 +64,12 @@ cd modules/perc-distribution-tree
 ../../mvn-env.sh clean install
 ```
 
+### Verifying the JDBC driver set
+
+After `mvn verify`, the `scripts/verify-jdbc-drivers.py` script (cross-platform Python port of the original `.sh`/`.bat`) runs against the built distribution artifact and asserts that `jetty/base/lib/jdbc/` is populated with the expected JDBC drivers (sourced from parent-POM-managed Maven coordinates; see `pom.xml` execution `stage-jdbc-drivers`). See `scripts/README.md` for invocation details and exit-code table.
+
+The Maven `verify` phase invokes the canonical Java main `com.percussion.distribution.install.VerifyJdbcDrivers` directly via `exec-maven-plugin:java`, so the build gate does not depend on a Python interpreter being on PATH. The `.bat` shim that previously wrapped that Java main has been removed (spec 994 / FR-004).
+
 ### Modifying Distribution Assembly
 
 Changes to `installDistributionFiles.xml` affect how all distributions are built. Always:

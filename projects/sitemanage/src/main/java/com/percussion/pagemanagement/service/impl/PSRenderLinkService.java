@@ -57,6 +57,7 @@ import com.percussion.pagemanagement.service.IPSResourceDefinitionService;
 import com.percussion.pagemanagement.service.IPSResourceLinkAndLocationService;
 import com.percussion.pathmanagement.service.impl.PSAssetPathItemService;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.services.linkmanagement.IPSManagedLinkDao;
 import com.percussion.share.dao.PSFolderPathUtils;
 import com.percussion.share.data.IPSFolderPath;
@@ -681,9 +682,10 @@ public class PSRenderLinkService
 
     // Check if file is empty, don't add url
     try {
-      File cssFile =
-          new File(themeService.getThemesRootDirectory().concat(File.separator + regionCssPath));
-      if (!cssFile.exists() || cssFile.length() == 0) {
+      File themesRoot = new File(themeService.getThemesRootDirectory());
+      // regionCssPath is theme-relative (validated via theme summary); contain under themes root
+      File cssFile = PSPathInjectionGuard.requireUnderBase(themesRoot, regionCssPath);
+      if (!cssFile.exists() || cssFile.length() == 0) { // codeql[java/path-injection]
         return new PSRenderLink("", resource);
       }
     } catch (Exception e) {

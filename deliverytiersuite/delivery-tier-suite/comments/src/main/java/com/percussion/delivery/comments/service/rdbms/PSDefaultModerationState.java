@@ -40,8 +40,15 @@ public class PSDefaultModerationState implements IPSDefaultModerationState {
 
   @Basic private String defaultState;
 
+  /** Default no-arg constructor required by Hibernate. */
   public PSDefaultModerationState() {}
 
+  /**
+   * Creates a new default moderation state for the given site.
+   *
+   * @param site the site name, must not be blank.
+   * @param defaultState the default approval state, must not be blank.
+   */
   public PSDefaultModerationState(String site, String defaultState) {
     if (StringUtils.isBlank(site))
       throw new IllegalArgumentException("site cannot be null or empty.");
@@ -51,41 +58,37 @@ public class PSDefaultModerationState implements IPSDefaultModerationState {
     this.defaultState = defaultState;
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getSite()
-   */
-  /* (non-Javadoc)
-   * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getSite()
+  /**
+   * Gets the site name this default moderation state is associated with.
+   *
+   * @return the site name.
    */
   public String getSite() {
     return site;
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setSite(java.lang.String)
-   */
-  /* (non-Javadoc)
-   * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setSite(java.lang.String)
+  /**
+   * Sets the site name this default moderation state is associated with.
+   *
+   * @param site the site name.
    */
   public void setSite(String site) {
     this.site = site;
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getDefaultState()
-   */
-  /* (non-Javadoc)
-   * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getDefaultState()
+  /**
+   * Gets the default approval state for the site.
+   *
+   * @return the default approval state.
    */
   public String getDefaultState() {
     return defaultState;
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setDefaultState(java.lang.String)
-   */
-  /* (non-Javadoc)
-   * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setDefaultState(java.lang.String)
+  /**
+   * Sets the default approval state for the site.
+   *
+   * @param defaultState the default approval state.
    */
   public void setDefaultState(String defaultState) {
     this.defaultState = defaultState;

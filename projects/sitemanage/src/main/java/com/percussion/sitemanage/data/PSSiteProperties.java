@@ -135,7 +135,7 @@ public class PSSiteProperties extends PSAbstractPersistantObject {
   }
 
   /**
-   * @return <code>true<code> if the site is secure. <code>false<code> otherwise.
+   * @return <code>true</code> if the site is secure. <code>false</code> otherwise.
    */
   @XmlElement(name = "isSecure")
   public boolean isSecure() {
@@ -162,7 +162,7 @@ public class PSSiteProperties extends PSAbstractPersistantObject {
    * Registration widget, and protected region feature in templates Eg: /index
    *
    * @author rafaelsalis
-   * @param registration - the path to the sitewide login page
+   * @param registrationPage the path to the sitewide registration page
    */
   public void setRegistrationPage(String registrationPage) {
     this.registrationPage = registrationPage;
@@ -173,7 +173,6 @@ public class PSSiteProperties extends PSAbstractPersistantObject {
    * Eg: /registration/registration_confirmation.html
    *
    * @author jshirai
-   * @param registrationConfirmationPage - the path to the sitewide registration confirmation page
    */
   public Optional<String> getRegistrationConfirmationPage() {
     return Optional.ofNullable(registrationConfirmationPage);
@@ -184,7 +183,6 @@ public class PSSiteProperties extends PSAbstractPersistantObject {
    * Eg: /registration/registration_confirmation.html
    *
    * @author jshirai
-   * @param registrationConfirmationPage - the path to the sitewide registration confirmation page
    */
   public void setRegistrationConfirmationPage(String registrationConfirmationPage) {
     this.registrationConfirmationPage = registrationConfirmationPage;
@@ -251,7 +249,7 @@ public class PSSiteProperties extends PSAbstractPersistantObject {
   }
 
   /**
-   * @param the default file extension used when creating a new page.
+   * @param defaultFileExtention the default file extension used when creating a new page.
    */
   @XmlElement(name = "defaultFileExtention")
   public void setDefaultFileExtention(String defaultFileExtention) {
@@ -269,7 +267,9 @@ public class PSSiteProperties extends PSAbstractPersistantObject {
 
   /**
    * Determines if canonical tags should be rendered or not during the publishing.
-   * @return <code>true<code> if the site is (marked) to render canonical tags. <code>false<code> otherwise.
+   *
+   * @return <code>true</code> if the site is (marked) to render canonical tags. <code>false</code>
+   *     otherwise.
    */
   @XmlElement(name = "isCanonical")
   public boolean isCanonical() {
@@ -279,7 +279,7 @@ public class PSSiteProperties extends PSAbstractPersistantObject {
   /**
    * Enable or disable canonical tags rendering.
    *
-   * @param setCanonical <code>true</code> if enable rendering of canonical tags; otherwise disable
+   * @param is_canonical <code>true</code> if enable rendering of canonical tags; otherwise disable
    *     rendering for the site.
    */
   public void setCanonical(boolean is_canonical) {
@@ -291,7 +291,7 @@ public class PSSiteProperties extends PSAbstractPersistantObject {
   }
 
   /**
-   * @param the URLs' protocol ("http" or "https") used when rendering canonical tags.
+   * @param siteProtocol the URLs' protocol ("http" or "https") used when rendering canonical tags.
    */
   public void setSiteProtocol(String siteProtocol) {
     this.siteProtocol = siteProtocol;
@@ -302,7 +302,8 @@ public class PSSiteProperties extends PSAbstractPersistantObject {
   }
 
   /**
-   * @param the site's default document (like "index.html") used when rendering canonical tags.
+   * @param defaultDocument the site's default document (like "index.html") used when rendering
+   *     canonical tags.
    */
   public void setDefaultDocument(String defaultDocument) {
     this.defaultDocument = defaultDocument;
@@ -313,14 +314,16 @@ public class PSSiteProperties extends PSAbstractPersistantObject {
   }
 
   /**
-   * @param the URLs' destination ("sections" or "pages") used when rendering canonical tags.
+   * @param canonicalDist the URLs' destination ("sections" or "pages") used when rendering
+   *     canonical tags.
    */
   public void setCanonicalDist(String canonicalDist) {
     this.canonicalDist = canonicalDist;
   }
 
   /**
-   * @return <code>true<code> if the site is (marked) to replace custom canonical tags. <code>false<code> otherwise.
+   * @return <code>true</code> if the site is (marked) to replace custom canonical tags. <code>false
+   *     </code> otherwise.
    */
   @XmlElement(name = "isCanonicalReplace")
   public boolean isCanonicalReplace() {
@@ -330,7 +333,7 @@ public class PSSiteProperties extends PSAbstractPersistantObject {
   /**
    * Enable or disable replacing custom canonical tags with rendered.
    *
-   * @param setCanonical <code>true</code> if enable replacing of custom canonical tags with
+   * @param is_canonical_replace <code>true</code> if enable replacing of custom canonical tags with
    *     rendered; otherwise disable replacing for the site.
    */
   public void setCanonicalReplace(boolean is_canonical_replace) {
@@ -347,7 +350,7 @@ public class PSSiteProperties extends PSAbstractPersistantObject {
   }
 
   /**
-   * See {@link #didPubServersChanged()}
+   * See {@link #isPubServersChanged()}
    *
    * @param isPubServerChanged
    */

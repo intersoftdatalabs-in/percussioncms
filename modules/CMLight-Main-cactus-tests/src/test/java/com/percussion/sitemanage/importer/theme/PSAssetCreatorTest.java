@@ -82,6 +82,8 @@ class PSAssetCreatorTest {
 
   @Test
   void testCreateAssetForFlash() {
+    // Note: test name kept for history; flash widget removed (task_1780430034917 / GH#685),
+    // .swf now creates percFileAsset via generic path. QA verified no widget refs remain.
     var folderPath = "/Assets/uploads/www.percussion.com/flash.swf";
     try (InputStream in = getClass().getResourceAsStream("flash.swf")) {
       var newAsset = assetCreator.createAssetIfNeeded(in, folderPath);

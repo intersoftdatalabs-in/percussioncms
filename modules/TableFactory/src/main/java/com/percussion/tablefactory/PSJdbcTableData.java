@@ -203,7 +203,7 @@ public class PSJdbcTableData {
    * @throws IllegalArgumentException if sourceNode is <code>null</code>.
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
-  public void fromXml(Element sourceNode) throws PSJdbcTableFactoryException {
+  public final void fromXml(Element sourceNode) throws PSJdbcTableFactoryException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
 
     if (!sourceNode.getNodeName().equals(NODE_NAME)) {

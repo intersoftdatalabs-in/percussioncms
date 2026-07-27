@@ -61,6 +61,133 @@ cd modules/perc-distribution-tree
 - **`src/main/assembly/perc-assembly.xml`**: Maven Assembly plugin descriptor for distribution packaging
 - **`pom.xml`**: Maven configuration with `maven-antrun-plugin` and `maven-assembly-plugin`
 
+## Bundled JDBC Drivers
+
+Every production build of this module ships a curated JDBC driver set into `jetty/base/lib/jdbc/` of the assembled distribution. The drivers are sourced from parent-POM-managed Maven coordinates and staged into `target/classes/distribution/_jdbc-stage/` by the `stage-jdbc-drivers` execution of `maven-dependency-plugin`, then copied into `jetty/base/lib/jdbc/` by the ANT script.
+
+|               Database               |                  Driver coordinate                  |           Source of truth           |
+|--------------------------------------|-----------------------------------------------------|-------------------------------------|
+| MariaDB / MySQL (default repository) | `org.mariadb.jdbc:mariadb-java-client`              | root `pom.xml` `${mariadb.version}` |
+| Derby (embedded/dev)                 | `org.apache.derby:derby`, `derbyclient`, `derbynet` | root `pom.xml` `${derby.version}`   |
+| MS SQL Server (modern)               | `com.microsoft.sqlserver:mssql-jdbc`                | root `pom.xml` `${mssql.version}`   |
+| MS SQL Server (legacy jTDS)          | `net.sourceforge.jtds:jtds`                         | root `pom.xml` `${jtds.version}`    |
+| Oracle                               | `com.oracle.database.jdbc:ojdbc17`                  | root `pom.xml` `${ojdbc17.version}` |
+
+JARs are placed in the install with their Maven-resolved filenames (e.g. `mariadb-java-client-3.5.7.jar`) so the bundled version is visible to integrators and any version drift is explicit.
+
+### Extending the driver set
+
+Integrators who need a driver that is not bundled (for example an enterprise Oracle driver) can simply drop a JDBC driver JAR into `jetty/base/lib/jdbc/` of the unpacked distribution. The install scripts (`rxconfig/Installer/install.xml`, `installServer.xml`, `installRepository.xml`) do not purge this folder.
+
+## CLI installer: interactive mode (issue #1513)
+
+When a **console/TTY is available** and you do **not** pass `--silent` / `--no-tty`, the CMS preinstall walks through:
+
+1. Installation directory (prompted if the path argument is omitted)
+2. System Java 21+ home (discovery / multi-candidate menu; or `-Dperc.java.home=...`)
+3. Database backend (menu: H2, SQL Server/Express, MySQL/MariaDB, PostgreSQL, Oracle, or load a properties file)
+4. Optional connection test for external backends (best-effort; full validation still runs during install)
+5. Summary (no secrets) and confirm
+
+Silent/automation installs are unchanged: pass the install path and `--dbprops` / `--db.*` as before.
+
+```bash
+# Interactive (console): omit path to be prompted
+java -jar PercussionCMS.jar
+
+# Silent / CI
+java -jar PercussionCMS.jar /path/to/install/root --silent --db.type=h2
+```
+
+## CLI installer: database targets for new installs
+
+By default a **new** command-line install uses the embedded **H2** repository (GitHub #548; Apache Derby is retired as the live default and retained only for upgrade migration). To target MySQL/MariaDB, SQL Server, or Oracle on a **new install only**, supply a repository properties file in the same format as `rxconfig/Installer/rxrepository.properties`:
+
+```bash
+java -Ddbprops=/path/to/rxrepository.mysql.properties -jar PercussionCMS.jar /path/to/install/root
+# equivalent:
+java -jar PercussionCMS.jar /path/to/install/root --dbprops=/path/to/rxrepository.mysql.properties
+```
+
+### Supported backends
+
+| `DB_BACKEND` | Structured `db.type` |                             Notes                             |
+|--------------|----------------------|---------------------------------------------------------------|
+| `H2`         | `h2`                 | Default embedded engine when no override is given (#548)      |
+| `DERBY`      | `derby`              | Legacy product-managed embedded; upgrade migration only       |
+| `MYSQL`      | `mysql`              | MySQL or MariaDB-compatible; sample uses MariaDB driver class |
+| `MSSQL`      | `sqlserver`          | Microsoft SQL Server                                          |
+| `ORACLE`     | `oracle`             | Oracle thin                                                   |
+
+### Sample files
+
+Shipped under the distribution installer tree:
+
+- `rxconfig/Installer/samples/rxrepository.mysql.properties`
+- `rxconfig/Installer/samples/rxrepository.sqlserver.properties`
+- `rxconfig/Installer/samples/rxrepository.oracle.properties`
+
+Copy a sample, replace host/credentials, pre-create the empty database/schema, then pass the file with `-Ddbprops` / `--dbprops`.
+
+### Input precedence (new install)
+
+1. `dbprops` file (`-Ddbprops` / `--dbprops`)
+2. Structured CLI `--db.*` (and env-style aliases)
+3. Env file (`--db.config.env.file` / `DB_CONFIG_ENV_FILE`)
+4. Process environment
+5. Defaults (H2 embedded)
+
+### New install vs upgrade
+
+- **New install**: database target input applies; installer writes effective `rxconfig/Installer/rxrepository.properties` and validates connectivity before schema setup.
+- **Upgrade**: existing repository configuration is preserved. You do **not** need `-Ddbprops` to keep a non-H2 / external backend. Product-managed Derby installs are migrated to H2 by the upgrade path (#548).
+
+Feature design artifacts: `specs/006-installer-db-targets/` (contracts under `contracts/`).
+
+## CLI installer: clean obsolete directories on upgrade
+
+Long-lived installs may retain multi-GB **obsolete** directories (especially `PreInstall` from the old installer). On **upgrade only**, the preinstall step can remove a curated set **early** (before ANT upgrade work):
+
+|                       Relative path                        |                                                       Notes                                                       |
+|------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
+| `PreInstall`                                               | Legacy preinstall/backup tree unused by 8.x                                                                       |
+| `_Percussion_Installation` (or `_Percussion_installation`) | Legacy install-metadata folder                                                                                    |
+| `JBossServerXML_BAK`                                       | Offered only when safe for the detected version (not when a 5.3-era migration still needs it without `AppServer`) |
+
+### Flag (automation)
+
+```bash
+java -jar PercussionCMS.jar /path/to/existing/install --clean-install-dir
+# or
+java -jar PercussionCMS.jar /path/to/existing/install --clean-install-dir=true
+```
+
+- **Default: false** — non-interactive upgrades never delete these folders unless the flag is set.
+- When true, candidates are deleted without a second confirmation (even if a TTY is present).
+
+### Interactive upgrade
+
+If a TTY is available, the flag is not set, and candidate folders exist, the installer prints the list and approximate freeable space and asks `[y/N]` (default **N**).
+
+### Failure policy
+
+If a folder cannot be deleted (permissions, locks), the installer **warns and continues** the upgrade.
+
+Design artifacts: `specs/007-clean-install-dir/`.
+
+The install/upgrade script's `<delete>` block in `install.xml` is pinned to the exact bundled-driver filenames shipped in this release (sourced from the parent POM's version properties: `${mariadb.version}`, `${derby.version}`, `${mssql.version}`, `${jtds.version}`, `${ojdbc17.version}`). When a driver version is bumped, THREE places MUST be updated in lockstep in the same commit:
+
+1. **Parent POM** — bump the relevant version property (`${mariadb.version}`, `${derby.version}`, `${mssql.version}`, `${jtds.version}`, or `${ojdbc17.version}`).
+2. **`BundledJdbcDrivers` (test source of truth)** — `modules/perc-distribution-tree/src/test/java/com/percussion/distribution/jdbc/BundledJdbcDrivers.java` exposes two sets:
+   - `EXACT_FILENAMES` — the CURRENT bundled filenames for this release.
+   - `PRIOR_FILENAMES` — the bundled filenames from the immediately preceding release.
+     Move the old filename from `EXACT_FILENAMES` to `PRIOR_FILENAMES` (or add a new `PRIOR_FILENAMES` entry if it isn't already there).
+3. **`install.xml`** — `modules/perc-distribution-tree/src/main/resources/distribution/rxconfig/Installer/install.xml`. The `<delete>` block in the `install_jdbc_drivers` target has a CURRENT `<include>` list and a PRIOR `<include>` list. Update both to mirror `BundledJdbcDrivers` exactly.
+
+The PRIOR set exists so an upgrade from N-1 to N does not leave the prior-version JAR on the Jetty classpath (which can cause `LinkageError` / wrong-version-loaded issues). Old PRIOR entries can be removed by the release manager once they are confident no field upgrade from that era is still in flight. The pin list is enforced as exact filenames — no globs — by `scripts/check-no-glob-deletes.py` (cross-platform Python port; wired into the Maven `verify` phase via the `com.percussion.distribution.install.CheckNoGlobDeletes` Java main), and `InstallXmlDeleteSetTest.deleteSetContainsAllBundledFilenames` asserts that `install.xml`'s delete set equals the union of the two Java constants, so any drift between the three places fails the build with a clear JUnit error rather than silently corrupting the installer.
+
+The bundled driver set is verified by `scripts/verify-jdbc-drivers.py`, which is wired into the Maven `verify` phase via the `com.percussion.distribution.install.VerifyJdbcDrivers` Java main. CI fails the build if any expected driver is missing or is a stub.
+
 ## Related Documentation
 
 For information about logging configuration and how the centralized logging works, refer to:
@@ -68,4 +195,5 @@ For information about logging configuration and how the centralized logging work
 - `modules/perc-jetty/src/main/jetty/defaults/modules/perc-logging/resources/log4j2.xml` - Log4j2 configuration
 - `modules/perc-jetty-logging/README.md` - Jetty logging module artifacts
 - Main project documentation on logging and Jetty configuration
+- `scripts/README.md` — verification utilities used by this module
 

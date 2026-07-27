@@ -19,6 +19,25 @@
  * Utility functions and constants for use with client services.
  */
 (function ($) {
+  if (typeof jQuery !== "undefined") {
+    if (
+      typeof jQuery.getDeliveryServiceBase !== "function" &&
+      typeof window.percDeliveryServiceBase !== "undefined"
+    ) {
+      jQuery.getDeliveryServiceBase = function () {
+        return window.percDeliveryServiceBase;
+      };
+    }
+    if (
+      typeof jQuery.getCMSVersion !== "function" &&
+      typeof window.percCMSVersion !== "undefined"
+    ) {
+      jQuery.getCMSVersion = function () {
+        return window.percCMSVersion;
+      };
+    }
+  }
+
   /**
    * Constant indicating a successful request.
    */
@@ -57,7 +76,6 @@
   var CSRF_METADATA_PATH = "/perc-metadata-services/metadata/csrf";
   var CSRF_FORMS_PATH = "/perc-form-processor/forms/csrf";
   var CSRF_POLLS_PATH = "/perc-polls-services/polls/csrf";
-  var CSRF_INTEGRATION_PATH = "/perc-integrations/integrations/csrf";
   var CSRF_COMMENTS_PATH = "/perc-comments-services/comment/csrf";
   var CSRF_MEMBERSHIP_PATH = "/perc-membership-services/membership/csrf";
   var CSRF_FEEDS_PATH = "/feeds/rss/csrf";
@@ -133,16 +151,9 @@
         if (typeof response !== "undefined" && response != null) {
           var tokenHeader = response.getResponseHeader("X-CSRF-HEADER");
           if (typeof tokenHeader === "undefined" || tokenHeader === null) {
-            if (
-              typeof callback.callcount !== "undefined" &&
-              callback.callcount === 1
-            ) {
-              callback.callcount = 2;
-            } else {
-              callback.callcount = 1;
-            }
-            csrfGetToken(url, callback);
-            return;
+            // The header might be missing due to CORS Access-Control-Expose-Headers.
+            // Instead of retrying and silently dropping the request, proceed with the callback.
+            callback(response);
           } else {
             callback(response);
           }

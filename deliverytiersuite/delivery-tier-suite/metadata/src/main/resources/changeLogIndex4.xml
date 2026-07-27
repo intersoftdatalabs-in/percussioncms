@@ -66,4 +66,20 @@
 		</sql>
 	</changeSet>
 
+	<changeSet runAlways="true" id="20170503041548-1-h2"
+		author="user" dbms="h2">
+		<preConditions onFail="CONTINUE">
+			<dbms type="h2" />
+			<sqlCheck expectedResult="0">SELECT COUNT(*) FROM
+				INFORMATION_SCHEMA.INDEXES
+				WHERE INDEX_NAME =
+				'IX_PRCPGMTDT_DV_NAME_ENTID' AND TABLE_NAME =
+				'PERC_PAGE_METADATA_PROPERTIES'
+			</sqlCheck>
+		</preConditions>
+		<sql>CREATE INDEX IX_PRCPGMTDT_DV_NAME_ENTID ON
+			PERC_PAGE_METADATA_PROPERTIES (datevalue ASC, name ASC, ENTRY_ID ASC)
+		</sql>
+	</changeSet>
+
 </databaseChangeLog>

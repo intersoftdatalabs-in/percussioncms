@@ -84,7 +84,7 @@ public class PSJdbcIndex extends PSJdbcKey {
    * @throws PSJdbcTableFactoryException if the Xml definition contains any empty or duplicate
    *     column names, or if there are any other errors.
    */
-  public void fromXml(Element sourceNode) throws PSJdbcTableFactoryException {
+  public final void fromXml(Element sourceNode) throws PSJdbcTableFactoryException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
 
     super.fromXml(sourceNode, NODE_NAME);
@@ -149,7 +149,7 @@ public class PSJdbcIndex extends PSJdbcKey {
    * @param type indicates the type of index, should be one of <code>TYPE_XXX</code> value.
    * @throws IllegalArgumentException if <code>type</code> is invalid
    */
-  public void setType(int type) {
+  public final void setType(int type) {
     if (!((type == TYPE_UNIQUE) || (type == TYPE_NON_UNIQUE)))
       throw new IllegalArgumentException("Invalid index type: " + type);
     m_type = type;

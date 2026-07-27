@@ -744,7 +744,7 @@ public class PSWidgetDefinition extends PSAbstractPersistantObject {
   public static class CssPref extends AbstractUserPref {}
 
   /**
-   * Represents an individual <Resource> element in the widget definition XML.
+   * Represents an individual {@code Resource} element in the widget definition XML.
    *
    * <p>This nested type used to be generated from PSWidgetDefinition.xsd in earlier branches; it
    * was accidentally removed during refactoring and caused numerous "cannot find symbol Resource"

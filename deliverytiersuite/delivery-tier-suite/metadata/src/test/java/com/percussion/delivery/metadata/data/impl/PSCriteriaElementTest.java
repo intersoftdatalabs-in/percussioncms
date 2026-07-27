@@ -158,4 +158,51 @@ public class PSCriteriaElementTest {
     } catch (PSMalformedMetadataQueryException ignore) {
     }
   }
+
+  /**
+   * Regression test for the {@code java/polynomial-redos} alerts CodeQL raised at
+   * PSCriteriaElement.java:111 and :118 on the {@code [-+]?[0-9]*\.?[0-9]+} numeric validator. The
+   * pre-fix pattern has overlapping {@code [0-9]*} / {@code [0-9]+} quantifiers that produce
+   * polynomial backtracking on adversarial inputs such as long runs of digits followed by a
+   * non-digit. The post-fix validator ({@code NUMERIC_PATTERN}) is anchored and uses three
+   * unambiguous alternation branches so each branch can match in linear time. We measure that a
+   * worst-case adversarial criteria still completes well within the fail-then-pass loop budget
+   * (Constitution III).
+   */
+  @Test
+  public void testNumericValidatorRejectsAdversarialInputWithoutPolynomialBacktracking()
+      throws Exception {
+    int[] adversarialLengths = {1000, 2000, 4000, 8000};
+    long perCallBudgetMillis = 1000L;
+
+    for (int len : adversarialLengths) {
+      StringBuilder sb = new StringBuilder(len + 1);
+      for (int i = 0; i < len; i++) {
+        sb.append('0');
+      }
+      sb.append('X'); // forces the validator to reject the value (not a number)
+      String adversarial = sb.toString();
+      String rawCriteria = "somenumber=" + adversarial;
+
+      long start = System.nanoTime();
+      try {
+        new PSCriteriaElement(rawCriteria);
+        fail(
+            "Adversarial input length "
+                + len
+                + " should have been rejected as malformed criteria.");
+      } catch (PSMalformedMetadataQueryException expected) {
+        long elapsedMillis = (System.nanoTime() - start) / 1_000_000L;
+        assertTrue(
+            elapsedMillis < perCallBudgetMillis,
+            "Adversarial numeric validation of length "
+                + len
+                + " took "
+                + elapsedMillis
+                + "ms (budget "
+                + perCallBudgetMillis
+                + "ms); polynomial-redos regression");
+      }
+    }
+  }
 }

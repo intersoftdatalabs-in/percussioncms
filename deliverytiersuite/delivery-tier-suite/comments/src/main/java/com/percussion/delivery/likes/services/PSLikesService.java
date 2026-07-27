@@ -31,16 +31,31 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * Default implementation of {@link IPSLikesService} backed by a {@link IPSLikesDao}.
+ */
 public class PSLikesService implements IPSLikesService {
 
+  /** DAO used to read and write likes. */
   private IPSLikesDao dao;
 
+  /** List of registered data change listeners. */
   private List<IPSServiceDataChangeListener> listeners = new ArrayList<>();
+
+  /** Names of services whose cache regions must be flushed when likes change. */
   private final String[] PERC_LIKES_SERVICES = {"perc-likes-services"};
 
   /** Logger for this class */
   public static final Logger log = LogManager.getLogger(PSCommentsService.class);
 
+  /** Default no-arg constructor required by Spring for bean instantiation. */
+  public PSLikesService() {}
+
+  /**
+   * Creates a new likes service backed by the supplied DAO.
+   *
+   * @param dao the likes data access object, must not be {@code null}.
+   */
   @Autowired
   public PSLikesService(IPSLikesDao dao) {
     this.dao = dao;
@@ -49,9 +64,9 @@ public class PSLikesService implements IPSLikesService {
   /**
    * Tally of how many users have Liked a page, a comment.
    *
-   * @param site Must not be <code>null</null>.
-   * @param likeId Must not be <code>null</null>.
-   * @param type Must not be <code>null</null>. May be any implementation of
+   * @param site Must not be {@code null}.
+   * @param likeId Must not be {@code null}.
+   * @param type Must not be {@code null}. May be any implementation of
    *            IPSLikes interface.
    *
    */
@@ -74,9 +89,9 @@ public class PSLikesService implements IPSLikesService {
   /**
    * To Like a page, a comment.
    *
-   * @param site Must not be <code>null</null>.
-   * @param likeId Must not be <code>null</null>.
-   * @param type Must not be <code>null</null>. May be any implementation of
+   * @param site Must not be {@code null}.
+   * @param likeId Must not be {@code null}.
+   * @param type Must not be {@code null}. May be any implementation of
    *            IPSLikes interface.
    *
    * @return int total of likes after of last like.
@@ -88,9 +103,9 @@ public class PSLikesService implements IPSLikesService {
   /**
    * To UnLike a page, a comment.
    *
-   * @param site Must not be <code>null</null>.
-   * @param likeId Must not be <code>null</null>.
-   * @param type Must not be <code>null</null>. May be any implementation of
+   * @param site Must not be {@code null}.
+   * @param likeId Must not be {@code null}.
+   * @param type Must not be {@code null}. May be any implementation of
    *            IPSLikes interface.
    * @return updated count.
    */
@@ -100,11 +115,11 @@ public class PSLikesService implements IPSLikesService {
 
   /**
    * Method to do the work of liking or unliking an object.
-   * @param site . Must not be <code>null</null>.
-   * @param likeId . Must not be <code>null</null>.
-   * @param type . Must not be <code>null</null>. May be any implementation of
+   * @param site . Must not be {@code null}.
+   * @param likeId . Must not be {@code null}.
+   * @param type . Must not be {@code null}. May be any implementation of
    *            IPSLikes interface.
-   * @param isLike if <code>true</code> then this is a like operation.
+   * @param isLike if {@code true} then this is a like operation.
    * @return updated count.
    */
   private int likeUnlike(String site, String likeId, String type, boolean isLike) {
@@ -141,15 +156,19 @@ public class PSLikesService implements IPSLikesService {
   }
 
   /**
-   * @param listener
+   * Adds a data change listener to this service.
+   *
+   * @param listener the listener to add, must not be {@code null}.
    */
   public void addServicedataChangeListener(IPSServiceDataChangeListener listener) {
     Validate.notNull(listener, "listener cannot be null.");
     if (!listeners.contains(listener)) listeners.add(listener);
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.metadata.IPSMetadataIndexerService#removeMetadataListener(com.percussion.metadata.event.IPSMetadataListener)
+  /**
+   * Removes a data change listener from this service.
+   *
+   * @param listener the listener to remove, must not be {@code null}.
    */
   public void removeServicedataChangeListener(IPSServiceDataChangeListener listener) {
     Validate.notNull(listener, "listener cannot be null.");

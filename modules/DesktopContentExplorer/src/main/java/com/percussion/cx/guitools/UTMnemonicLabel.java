@@ -41,8 +41,8 @@ public class UTMnemonicLabel extends JLabel {
 
   /**
    * Construct a label attached to the provided component using the passed resource bundle and
-   * resource ID. The mnemonic character must be in the provided resource bundle and the ID is
-   * <resId>Mnemonic.
+   * resource ID. The mnemonic character must be in the provided resource bundle and the ID is the
+   * resId mnemonic.
    *
    * @param res the resource bundle
    * @param resId the resource ID

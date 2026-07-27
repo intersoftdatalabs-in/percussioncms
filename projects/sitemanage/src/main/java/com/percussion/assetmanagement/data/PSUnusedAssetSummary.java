@@ -40,7 +40,7 @@ public class PSUnusedAssetSummary extends PSDataItemSummary
 
   /**
    * This field is used to label the asset on the UI, in the unused assets tray. The items will have
-   * the form 'Untitled < asset type label > <#>'.
+   * the form {@code 'Untitled <asset type label> <#>'}.
    */
   private String title = "Untitled";
 

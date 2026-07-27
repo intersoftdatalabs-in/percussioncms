@@ -19,10 +19,16 @@ package com.percussion.utils.jdbc;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.percussion.util.PSSqlHelper;
+import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class PSJdbcUtilsTest {
+
+  @TempDir Path tempDir;
 
   @Test
   public void testGetDriverFromUrl() {
@@ -55,6 +61,113 @@ public class PSJdbcUtilsTest {
         PSJdbcUtils.JTDS_DB_BACKEND, PSJdbcUtils.getDBBackendForDriver(PSJdbcUtils.JTDS_DRIVER));
     assertEquals(
         PSJdbcUtils.ORACLE_DB_BACKEND, PSJdbcUtils.getDBBackendForDriver(PSJdbcUtils.ORACLE));
+    assertEquals(
+        PSJdbcUtils.H2_DB_BACKEND, PSJdbcUtils.getDBBackendForDriver(PSJdbcUtils.H2_DRIVER));
+    assertEquals(PSJdbcUtils.H2_DB_BACKEND, PSJdbcUtils.getDBBackendForDriver("h2"));
+  }
+
+  @Test
+  public void testH2JdbcUrlAndDriverMap() {
+    // VALUE is an H2 keyword; getJdbcUrl appends NON_KEYWORDS so product columns named VALUE work.
+    assertEquals(
+        "jdbc:h2:./data/cms;NON_KEYWORDS=VALUE",
+        PSJdbcUtils.getJdbcUrl(PSJdbcUtils.H2_DRIVER, "./data/cms"));
+    assertEquals(
+        "jdbc:h2:file:../../Repository/CMDB;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=VALUE",
+        PSJdbcUtils.getJdbcUrl(
+            PSJdbcUtils.H2_DRIVER, "file:../../Repository/CMDB;DB_CLOSE_ON_EXIT=FALSE"));
+    // Do not double-append when already present.
+    assertEquals(
+        "jdbc:h2:./data/cms;NON_KEYWORDS=VALUE,KEY",
+        PSJdbcUtils.getJdbcUrl(PSJdbcUtils.H2_DRIVER, "./data/cms;NON_KEYWORDS=VALUE,KEY"));
+    assertEquals("h2", PSJdbcUtils.getDriverFromUrl("jdbc:h2:./data/cms"));
+    // File/mem/tcp subprotocols must not surface as "h2:file" (PSSchedulerBean / install).
+    assertEquals(
+        "h2",
+        PSJdbcUtils.getDriverFromUrl(
+            "jdbc:h2:file:../../Repository/CMDB;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=VALUE"));
+    assertEquals("h2", PSJdbcUtils.getDriverFromUrl("jdbc:h2:mem:test"));
+    assertEquals("h2", PSJdbcUtils.getDriverFromUrl("jdbc:h2:tcp://localhost/~/test"));
+    assertEquals(PSJdbcUtils.H2_DRIVER_CLASS, "org.h2.Driver");
+    assertEquals(PSJdbcUtils.H2, PSJdbcUtils.H2_DRIVER);
+  }
+
+  @Test
+  public void testResolveEmbeddedFileServer_relativeProductDefault() {
+    Path installRoot = tempDir.resolve("Percussion").toAbsolutePath().normalize();
+    String resolved =
+        PSJdbcUtils.resolveEmbeddedFileServer(
+            "file:../../Repository/CMDB;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=VALUE", installRoot);
+    String expected =
+        "file:"
+            + installRoot
+                .resolve("Repository")
+                .resolve("CMDB")
+                .toAbsolutePath()
+                .normalize()
+                .toString()
+                .replace('\\', '/')
+            + ";DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=VALUE";
+    assertEquals(expected, resolved);
+  }
+
+  @Test
+  public void testResolveEmbeddedFileServer_absoluteUnchangedExceptNormalize() {
+    Path absDb = tempDir.resolve("abs").resolve("CMDB").toAbsolutePath().normalize();
+    String absFragment = "file:" + absDb.toString().replace('\\', '/') + ";DB_CLOSE_ON_EXIT=FALSE";
+    String resolved = PSJdbcUtils.resolveEmbeddedFileServer(absFragment, tempDir);
+    assertEquals(
+        "file:" + absDb.toString().replace('\\', '/') + ";DB_CLOSE_ON_EXIT=FALSE", resolved);
+  }
+
+  @Test
+  public void testResolveEmbeddedFileServer_nullsAndNonFile() {
+    assertNull(PSJdbcUtils.resolveEmbeddedFileServer(null, tempDir));
+    assertEquals(
+        "file:../../Repository/CMDB",
+        PSJdbcUtils.resolveEmbeddedFileServer("file:../../Repository/CMDB", null));
+    assertEquals("//localhost:5432/cms", PSJdbcUtils.resolveEmbeddedFileServer("//localhost:5432/cms", tempDir));
+  }
+
+  @Test
+  public void testSqlHelperH2AndEmbeddedFileStore() {
+    assertTrue(PSSqlHelper.isH2("h2"));
+    assertTrue(PSSqlHelper.isH2("H2"));
+    assertFalse(PSSqlHelper.isH2("derby"));
+    assertFalse(PSSqlHelper.isH2(null));
+    assertTrue(PSSqlHelper.isEmbeddedFileStore("h2"));
+    assertTrue(PSSqlHelper.isEmbeddedFileStore("derby"));
+    assertFalse(PSSqlHelper.isEmbeddedFileStore("mysql"));
+  }
+
+  @Test
+  public void testPostgresJdbcUrlDriverMapAndBackend() {
+    assertEquals(
+        "jdbc:postgresql://db.example.com:5432/percussion",
+        PSJdbcUtils.getJdbcUrl(PSJdbcUtils.POSTGRES_DRIVER, "//db.example.com:5432/percussion"));
+    assertEquals(
+        "postgresql", PSJdbcUtils.getDriverFromUrl("jdbc:postgresql://db.example.com:5432/cms"));
+    assertEquals(PSJdbcUtils.POSTGRES_DRIVER_CLASS, "org.postgresql.Driver");
+    assertEquals(
+        PSJdbcUtils.POSTGRES_DB_BACKEND,
+        PSJdbcUtils.getDBBackendForDriver(PSJdbcUtils.POSTGRES_DRIVER));
+    assertEquals(PSJdbcUtils.POSTGRES_DB_BACKEND, PSJdbcUtils.getDBBackendForDriver("postgres"));
+    assertTrue(PSSqlHelper.isPostgres("postgresql"));
+    assertTrue(PSSqlHelper.isPostgres("POSTGRESQL"));
+    assertTrue(PSSqlHelper.isPostgres("postgres"));
+    assertFalse(PSSqlHelper.isPostgres("mysql"));
+    assertFalse(PSSqlHelper.isPostgres(null));
+    assertFalse(PSSqlHelper.isEmbeddedFileStore("postgresql"));
+    assertTrue(PSJdbcUtils.isExternalDriver(PSJdbcUtils.POSTGRES_DRIVER));
+  }
+
+  @Test
+  public void testMysqlConnParamsIncludeUtf8mb4Collation() {
+    // Matrix MySQL 8 failed install views with latin1 connection vs utf8mb4 tables.
+    assertTrue(
+        PSJdbcUtils.MYSQL_CONN_PARAMS.contains("connectionCollation=utf8mb4_unicode_ci"),
+        PSJdbcUtils.MYSQL_CONN_PARAMS);
+    assertTrue(PSJdbcUtils.MYSQL_CONN_PARAMS.contains("characterEncoding=UTF-8"));
   }
 
   @Test

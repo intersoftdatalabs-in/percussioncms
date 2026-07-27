@@ -46,6 +46,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
+import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -56,6 +57,7 @@ import java.util.Map;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -800,38 +802,59 @@ public class PSDeliveryClient implements IPSDeliveryClient
     {
         try
         {
-            TrustManager[] trustAll = new TrustManager[] {new X509TrustManager()
-            {
-                @Override
-                public java.security.cert.X509Certificate[] getAcceptedIssuers()
-                {
-                    return new java.security.cert.X509Certificate[0];
-                }
-
-                @Override
-                public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType)
-                {
-                    // allow all
-                }
-
-                @Override
-                public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType)
-                {
-                    // allow all
-                }
-            }};
+            // CodeQL java/insecure-trustmanager (alert #1068): previously used an all-trusting
+            // X509TrustManager that returned new X509Certificate[0] from getAcceptedIssuers
+            // and accepted any chain. Replace with the JVM's default trust managers, which
+            // validate against the system trust store (cacerts / JSSE cacerts). Operators
+            // who need to import a private CA / self-signed cert should add it to the JVM
+            // trust store via `keytool -importcert -alias <name> -file <cert> -cacerts`.
+            TrustManager[] trustManagers = createDefaultTrustManagers();
 
             SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, trustAll, new SecureRandom());
+            sslContext.init(null, trustManagers, new SecureRandom());
             builder.sslContext(sslContext);
             SSLParameters sslParameters = new SSLParameters();
-            sslParameters.setEndpointIdentificationAlgorithm(null);
+            // Endpoint identification (SNI/hostname verification) is enabled by default
+            // when HttpsURLConnection is in play. HttpClient's setEndpointIdentificationAlgorithm
+            // (HTTPS) was added in JDK 20; for JDK 21 (per AGENTS.md) the algorithm stays as
+            // "HTTPS" so cert hostname still gets verified against the URL host.
+            sslParameters.setEndpointIdentificationAlgorithm("HTTPS");
             builder.sslParameters(sslParameters);
         }
         catch (GeneralSecurityException e)
         {
             throw new PSDeliveryClientException("Unable to configure TLS for self-signed certificates", e);
         }
+    }
+
+    /**
+     * Returns the JVM's default {@link TrustManager}s, which validate TLS server certificates
+     * against the system trust store ({@code $JAVA_HOME/lib/security/cacerts} plus any
+     * {@code -Djavax.net.ssl.trustStore=...} override). Replaces the previous
+     * all-trusting X509TrustManager that was flagged by CodeQL {@code java/insecure-trustmanager}
+     * (alert #1068).
+     *
+     * @return the trust managers, never null or empty
+     * @throws GeneralSecurityException if the platform does not provide a default
+     *     {@code PKIX} or {@code SunX509} {@link javax.net.ssl.TrustManagerFactory}
+     */
+    static TrustManager[] createDefaultTrustManagers() throws GeneralSecurityException
+    {
+        // Prefer the algorithm-agnostic default algorithm (PKIX on modern JDKs).
+        String algorithm = TrustManagerFactory.getDefaultAlgorithm();
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance(algorithm);
+        // Passing null to init() loads the default trust store (cacerts), per
+        // TrustManagerFactory#init(KeyStore) contract.
+        tmf.init((KeyStore) null);
+        TrustManager[] trustManagers = tmf.getTrustManagers();
+        if (trustManagers == null || trustManagers.length == 0)
+        {
+            throw new GeneralSecurityException(
+                    "Default TrustManagerFactory returned no trust managers (algorithm="
+                            + algorithm
+                            + ")");
+        }
+        return trustManagers;
     }
 
     private HttpRequest.Builder createRequestBuilder(String targetUrl)

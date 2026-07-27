@@ -86,45 +86,23 @@ public class PSAntEditionTask implements IPSEditionTask {
   /**
    * Executes an ant script provided in the params.
    *
-   * <table border="1">
-   * <tr>
-   * <th>param</th>
-   * <th>description</th>
-   * </tr>
-   * <tr>
-   * <td>ant_file</td>
-   * <td>The ant file that lives in sys_resources/ant</td>
-   * </tr>
-   * </table>
+   * <p><b>Parameters:</b>
+   *
+   * <ul>
+   *   <li><b>ant_file</b> - The ant file that lives in sys_resources/ant
+   * </ul>
    *
    * <p>The following properties are pushed into the ant script:
    *
-   * <table border="1">
-   * <tr>
-   * <th>name</th>
-   * <th>description</th>
-   * </tr>
-   * <tr>
-   * <td>perc.site.name</td>
-   * <td>The site name</td>
-   * </tr>
-   * <tr>
-   * <td>perc.site.baseUrl</td>
-   * <td>The base url of the site (http://mysite.com)</td>
-   * </tr>
-   * <tr>
-   * <td>perc.site.root</td>
-   * <td>The physical root folder path of the site (/)</td>
-   * </tr>
-   * <tr>
-   * <td>perc.site.cmsFolderPath</td>
-   * <td>The site cm system folder path.</td>
-   * </tr>
-   * <tr>
-   * <td>perc.sys.dir</td>
-   * <td>The cm system directory.</td>
-   * </tr>
-   * </table>
+   * <p><b>Properties:</b>
+   *
+   * <ul>
+   *   <li><b>perc.site.name</b> - The site name
+   *   <li><b>perc.site.baseUrl</b> - The base url of the site (http://mysite.com)
+   *   <li><b>perc.site.root</b> - The physical root folder path of the site (/)
+   *   <li><b>perc.site.cmsFolderPath</b> - The site cm system folder path.
+   *   <li><b>perc.sys.dir</b> - The cm system directory.
+   * </ul>
    */
   @Override
   public void perform(

@@ -1,0 +1,369 @@
+diff --git a/WebUI/src/main/ts/contentExplorer/messages.ts b/WebUI/src/main/ts/contentExplorer/messages.ts
+index 87ca691a03..77f1793c55 100644
+--- a/WebUI/src/main/ts/contentExplorer/messages.ts
++++ b/WebUI/src/main/ts/contentExplorer/messages.ts
+@@ -42,11 +42,14 @@ export const EXPLORER_MSG = {
+   ACTION_COPY: "perc.ui.explorer@Copy",
+   ACTION_DELETE: "perc.ui.explorer@Delete",
+   CONFIRM_DELETE_TITLE: "perc.ui.explorer@Delete Confirmation",
+-  CONFIRM_DELETE_BODY: "perc.ui.explorer@Are you sure you want to delete this item?",
++  CONFIRM_DELETE_BODY:
++    "perc.ui.explorer@Are you sure you want to delete this item?",
+   CONFIRM_OK: "perc.ui.explorer@OK",
+   CONFIRM_CANCEL: "perc.ui.explorer@Cancel",
+-  PERMISSION_DENIED: "perc.ui.explorer@You do not have permission to perform this action",
+-  SESSION_EXPIRED: "perc.ui.explorer@Your session has expired. Please log in again.",
++  PERMISSION_DENIED:
++    "perc.ui.explorer@You do not have permission to perform this action",
++  SESSION_EXPIRED:
++    "perc.ui.explorer@Your session has expired. Please log in again.",
+   RETRY: "perc.ui.explorer@Retry",
+   PROMPT_NEW_FOLDER_NAME: "perc.ui.explorer@Enter new folder name",
+   PROMPT_NEW_NAME: "perc.ui.explorer@Enter new name",
+@@ -61,7 +64,8 @@ export const EXPLORER_MSG = {
+   CLIPBOARD_CLEAR: "perc.ui.explorer@Clear clipboard",
+   CLIPBOARD_PASTE: "perc.ui.explorer@Paste",
+   CLIPBOARD_EMPTY: "perc.ui.explorer@Clipboard is empty",
+-  CLIPBOARD_PASTE_TARGET_REQUIRED: "perc.ui.explorer@Select a destination folder before pasting",
++  CLIPBOARD_PASTE_TARGET_REQUIRED:
++    "perc.ui.explorer@Select a destination folder before pasting",
+ 
+   WIZARD_NEXT: "perc.ui.explorer@Next",
+   WIZARD_BACK: "perc.ui.explorer@Back",
+@@ -92,10 +96,14 @@ export const EXPLORER_MSG = {
+   DEPENDENCY_LOCAL: "perc.ui.explorer@Local dependencies",
+   DEPENDENCY_REVERSE: "perc.ui.explorer@Reverse dependencies",
+   DEPENDENCY_CLIENT_SIDE_PREVIEW: "perc.ui.explorer@Client-side preview",
++  DEPENDENCY_LOADING: "perc.ui.explorer@Loading relationship summary…",
++  DEPENDENCY_ERROR: "perc.ui.explorer@Could not load relationship summary",
+ 
+   RELATIONSHIPS_TITLE: "perc.ui.explorer@IA Relationships",
+   RELATIONSHIPS_CLIENT_SIDE_PREVIEW:
+     "perc.ui.explorer@Client-side preview (full graph pending rest enhancement)",
++  RELATIONSHIPS_LOADING: "perc.ui.explorer@Loading IA relationships…",
++  RELATIONSHIPS_ERROR: "perc.ui.explorer@Could not load IA relationships",
+   // US5 P-Search / search panel (FR-017, FR-018, SC-005)
+   SEARCH_TITLE: "perc.ui.explorer@Search",
+   SEARCH_PLACEHOLDER: "perc.ui.explorer@Type to search…",
+@@ -105,14 +113,16 @@ export const EXPLORER_MSG = {
+   SEARCH_ERROR: "perc.ui.explorer@Search failed",
+   SEARCH_OPEN: "perc.ui.explorer@Open",
+   SEARCH_REVEAL: "perc.ui.explorer@Reveal in folder",
+-  SEARCH_PERMISSION_DENIED: "perc.ui.explorer@You do not have permission to open this item",
++  SEARCH_PERMISSION_DENIED:
++    "perc.ui.explorer@You do not have permission to open this item",
+   // US4 P-ACL / folder security (FR-014–FR-016, SC-004)
+   SECURITY_TITLE: "perc.ui.explorer@Folder Security",
+   SECURITY_LOADING: "perc.ui.explorer@Loading permissions",
+   SECURITY_LOAD_ERROR: "perc.ui.explorer@Failed to load folder permissions",
+   SECURITY_SAVE_SUCCESS: "perc.ui.explorer@Permissions saved",
+   SECURITY_SAVE_ERROR: "perc.ui.explorer@Failed to save permissions",
+-  SECURITY_READ_ONLY: "perc.ui.explorer@View-only (you do not have ADMIN access)",
++  SECURITY_READ_ONLY:
++    "perc.ui.explorer@View-only (you do not have ADMIN access)",
+   SECURITY_LOCKOUT_WARNING_TITLE: "perc.ui.explorer@Confirm self-lockout",
+   SECURITY_LOCKOUT_WARNING_BODY:
+     "perc.ui.explorer@Saving these changes will remove your access to this folder. Continue?",
+@@ -125,4 +135,4 @@ export const EXPLORER_MSG = {
+   SECURITY_PRINCIPAL_REMOVE: "perc.ui.explorer@Remove",
+   SECURITY_PRINCIPAL_ADD: "perc.ui.explorer@Add principal",
+   SECURITY_PRINCIPAL_NAME_LABEL: "perc.ui.explorer@Principal name",
+-} as const;
+\ No newline at end of file
++} as const;
+diff --git a/WebUI/src/main/ts/contentExplorer/views/DependencyViewer.tsx b/WebUI/src/main/ts/contentExplorer/views/DependencyViewer.tsx
+index 1fd8ba2aad..d6e8f602de 100644
+--- a/WebUI/src/main/ts/contentExplorer/views/DependencyViewer.tsx
++++ b/WebUI/src/main/ts/contentExplorer/views/DependencyViewer.tsx
+@@ -58,7 +58,109 @@ export function DependencyViewer(props: DependencyViewerProps): React.JSX.Elemen
+     ariaLabel,
+     className,
+   } = props;
++<<<<<<< Updated upstream
+   const summary: NodeRelationshipSummary = summarise(item, aaLinkCount);
++=======
++  const summarise = composeSummary ?? defaultComposeSummary;
++
++  const itemId = item.id ?? "";
++  const [state, setState] = React.useState<
++    | { kind: "loading" }
++    | { kind: "ok"; summary: PSNodeRelationshipSummary }
++    | { kind: "auth" }
++    | { kind: "error"; message: string }
++  >({ kind: "loading" });
++
++  React.useEffect(() => {
++    let alive = true;
++    if (!itemId) {
++      // No item id → don't fire a network round-trip; the rest endpoint
++      // would 404 on the empty path segment. Render the auth placeholder
++      // instead so the dependency view surfaces the no-access signal
++      // cleanly (per the bot review on PR #1410).
++      setState({ kind: "auth" });
++      return;
++    }
++    setState({ kind: "loading" });
++    loadServerSummary(itemId)
++      .then((summary) => {
++        if (!alive) return;
++        setState({ kind: "ok", summary });
++      })
++      .catch((err: unknown) => {
++        if (!alive) return;
++        if (
++          err &&
++          typeof err === "object" &&
++          "status" in err &&
++          (err as { status: number }).status === 403
++        ) {
++          setState({ kind: "auth" });
++          return;
++        }
++        setState({
++          kind: "error",
++          message: err instanceof Error ? err.message : String(err),
++        });
++      });
++    return () => {
++      alive = false;
++    };
++  }, [itemId, loadServerSummary]);
++
++  if (state.kind === "loading") {
++    return (
++      <section
++        role="region"
++        aria-label={ariaLabel ?? message(EXPLORER_MSG.DEPENDENCY_TITLE)}
++        data-testid="dependency-viewer"
++        data-testid-state="loading"
++        className={className}
++        style={{ border: "1px solid #ccc", padding: 12, background: "#fff" }}
++      >
++        <p aria-live="polite">{message(EXPLORER_MSG.DEPENDENCY_LOADING)}</p>
++      </section>
++    );
++  }
++  if (state.kind === "auth") {
++    return (
++      <section
++        role="region"
++        aria-label={ariaLabel ?? message(EXPLORER_MSG.DEPENDENCY_TITLE)}
++        data-testid="dependency-viewer"
++        data-testid-state="auth"
++        className={className}
++        style={{ border: "1px solid #ccc", padding: 12, background: "#fff" }}
++      >
++        <p role="status" aria-live="polite">
++          {message(EXPLORER_MSG.PERMISSION_DENIED)}
++        </p>
++      </section>
++    );
++  }
++  if (state.kind === "error") {
++    return (
++      <section
++        role="region"
++        aria-label={ariaLabel ?? message(EXPLORER_MSG.DEPENDENCY_TITLE)}
++        data-testid="dependency-viewer"
++        data-testid-state="error"
++        className={className}
++        style={{ border: "1px solid #ccc", padding: 12, background: "#fff" }}
++      >
++        <p role="alert">
++          {message(EXPLORER_MSG.DEPENDENCY_ERROR)}: {state.message}
++        </p>
++      </section>
++    );
++  }
++
++  const summary: NodeRelationshipSummary = summarise(
++    item,
++    state.summary,
++    aaLinkCount,
++  );
++>>>>>>> Stashed changes
+   const total = totalKnownEdges(summary);
+   return (
+     <section
+diff --git a/WebUI/src/main/ts/contentExplorer/views/RelationshipsView.tsx b/WebUI/src/main/ts/contentExplorer/views/RelationshipsView.tsx
+index ec2380fc57..448fb1074d 100644
+--- a/WebUI/src/main/ts/contentExplorer/views/RelationshipsView.tsx
++++ b/WebUI/src/main/ts/contentExplorer/views/RelationshipsView.tsx
+@@ -73,6 +73,105 @@ export function RelationshipsView(
+   } = props;
+   const summary = summarise(item, aaLinkCount);
+ 
++<<<<<<< Updated upstream
++=======
++  const itemId = item.id ?? "";
++  const [state, setState] = React.useState<
++    | { kind: "loading" }
++    | { kind: "ok"; summary: PSNodeRelationshipSummary }
++    | { kind: "auth" }
++    | { kind: "error"; message: string }
++  >({ kind: "loading" });
++
++  React.useEffect(() => {
++    let alive = true;
++    if (!itemId) {
++      // No item id → don't fire a network round-trip; the rest endpoint
++      // would 404 on the empty path segment. Render the auth placeholder
++      // instead (per the bot review on PR #1410).
++      setState({ kind: "auth" });
++      return;
++    }
++    setState({ kind: "loading" });
++    loadServerSummary(itemId)
++      .then((summary) => {
++        if (!alive) return;
++        setState({ kind: "ok", summary });
++      })
++      .catch((err: unknown) => {
++        if (!alive) return;
++        if (
++          err &&
++          typeof err === "object" &&
++          "status" in err &&
++          (err as { status: number }).status === 403
++        ) {
++          setState({ kind: "auth" });
++          return;
++        }
++        setState({
++          kind: "error",
++          message: err instanceof Error ? err.message : String(err),
++        });
++      });
++    return () => {
++      alive = false;
++    };
++  }, [itemId, loadServerSummary]);
++
++  if (state.kind === "loading") {
++    return (
++      <section
++        role="region"
++        aria-label={ariaLabel ?? message(EXPLORER_MSG.RELATIONSHIPS_TITLE)}
++        data-testid="relationships-view"
++        data-testid-state="loading"
++        className={className}
++        style={{ border: "1px solid #ccc", padding: 12, background: "#fff" }}
++      >
++        <p aria-live="polite">{message(EXPLORER_MSG.SEARCH_LOADING)}</p>
++      </section>
++    );
++  }
++  if (state.kind === "auth") {
++    return (
++      <section
++        role="region"
++        aria-label={ariaLabel ?? message(EXPLORER_MSG.RELATIONSHIPS_TITLE)}
++        data-testid="relationships-view"
++        data-testid-state="auth"
++        className={className}
++        style={{ border: "1px solid #ccc", padding: 12, background: "#fff" }}
++      >
++        <p role="status" aria-live="polite">
++          {message(EXPLORER_MSG.PERMISSION_DENIED)}
++        </p>
++      </section>
++    );
++  }
++  if (state.kind === "error") {
++    return (
++      <section
++        role="region"
++        aria-label={ariaLabel ?? message(EXPLORER_MSG.RELATIONSHIPS_TITLE)}
++        data-testid="relationships-view"
++        data-testid-state="error"
++        className={className}
++        style={{ border: "1px solid #ccc", padding: 12, background: "#fff" }}
++      >
++        <p role="alert">
++          {message(EXPLORER_MSG.RELATIONSHIPS_ERROR)}: {state.message}
++        </p>
++      </section>
++    );
++  }
++
++  const summary: NodeRelationshipSummary = summarise(
++    item,
++    state.summary,
++    aaLinkCount,
++  );
++>>>>>>> Stashed changes
+   const primary = summary.dimensions.filter((d: RelationshipSummary) =>
+     IA_PRIMARY.some((k) => k === d.dimension),
+   );
+diff --git a/WebUI/src/test/ts/contentExplorer/DependencyViewer.test.tsx b/WebUI/src/test/ts/contentExplorer/DependencyViewer.test.tsx
+index 5aa6951a61..8d4490ee30 100644
+--- a/WebUI/src/test/ts/contentExplorer/DependencyViewer.test.tsx
++++ b/WebUI/src/test/ts/contentExplorer/DependencyViewer.test.tsx
+@@ -7,9 +7,14 @@
+  *
+  *     http://www.apache.org/licenses/LICENSE-2.0
+  */
++<<<<<<< Updated upstream
+ 
+ import { render, screen } from "@testing-library/react";
+ import { describe, expect, it } from "vitest";
++=======
++import { render, screen, waitFor } from "@testing-library/react";
++import { describe, expect, it, vi } from "vitest";
++>>>>>>> Stashed changes
+ import { DependencyViewer } from "../../../main/ts/contentExplorer/views/DependencyViewer";
+ import { renderA11yGate } from "./a11y";
+ 
+@@ -49,4 +54,16 @@ describe("DependencyViewer", () => {
+     );
+     await renderA11yGate(container);
+   });
++
++  it("renders the auth placeholder and does not call loadServerSummary when item.id is missing", async () => {
++    const loader = vi.fn();
++    render(<DependencyViewer item={{}} loadServerSummary={loader} />);
++    await waitFor(() =>
++      expect(screen.queryByTestId("dependency-viewer")).toHaveAttribute(
++        "data-testid-state",
++        "auth",
++      ),
++    );
++    expect(loader).not.toHaveBeenCalled();
++  });
+ });
+diff --git a/WebUI/src/test/ts/contentExplorer/RelationshipsView.test.tsx b/WebUI/src/test/ts/contentExplorer/RelationshipsView.test.tsx
+index 90b159e4fb..a22036d305 100644
+--- a/WebUI/src/test/ts/contentExplorer/RelationshipsView.test.tsx
++++ b/WebUI/src/test/ts/contentExplorer/RelationshipsView.test.tsx
+@@ -7,9 +7,14 @@
+  *
+  *     http://www.apache.org/licenses/LICENSE-2.0
+  */
++<<<<<<< Updated upstream
+ 
+ import { render, screen } from "@testing-library/react";
+ import { describe, expect, it } from "vitest";
++=======
++import { render, screen, waitFor } from "@testing-library/react";
++import { describe, expect, it, vi } from "vitest";
++>>>>>>> Stashed changes
+ import { RelationshipsView } from "../../../main/ts/contentExplorer/views/RelationshipsView";
+ import { renderA11yGate } from "./a11y";
+ 
+@@ -41,4 +46,16 @@ describe("RelationshipsView", () => {
+     );
+     await renderA11yGate(container);
+   });
++
++  it("renders the auth placeholder and does not call loadServerSummary when item.id is missing", async () => {
++    const loader = vi.fn();
++    render(<RelationshipsView item={{}} loadServerSummary={loader} />);
++    await waitFor(() =>
++      expect(screen.queryByTestId("relationships-view")).toHaveAttribute(
++        "data-testid-state",
++        "auth",
++      ),
++    );
++    expect(loader).not.toHaveBeenCalled();
++  });
+ });

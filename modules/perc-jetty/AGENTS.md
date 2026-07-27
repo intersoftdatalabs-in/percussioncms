@@ -4,6 +4,38 @@
 
 - Read modules/perc-jetty/README.md before making changes in this module.
 
+## Linux service install (systemd / init.d)
+
+- Scripts: `src/main/jetty/service/install-jetty-service.sh`, unit template
+  `percussion-cms.service.in`, ops notes `README-systemd.md`
+- GH-962 / specs `988-linux-systemd-services`: prefer **native systemd** unit;
+  init.d is fallback (`--initd`). Do not dual-register chkconfig when systemd is used.
+- Default `TimeoutStartSec=1800` for long post-upgrade starts; journal for stdout/stderr.
+- Tests: `src/test/java/com/percussion/jetty/service/*Test.java`
+
+## Java home resolution (GH-991 / issue #1340)
+
+- Scripts at `src/main/jetty/resolve-java-home.{sh,bat}` implement the shared
+  precedence (java.properties > env > optional install-dir JRE|JRE64 > PATH)
+  and require major version **21+**. Operators do **not** need `<InstallDir>/JRE`.
+- `StartJetty.sh`, `StartJetty.bat`, `StopJetty.bat`, and
+  `service/install-jetty-service.{sh,bat}` source/call the helper and **hard-fail**
+  on resolve failure (no soft-fail into unvalidated JRE/JRE64).
+- Spec/contracts live in `specs/991-system-java-home/contracts/`; tests live
+  under `src/test/java/com/percussion/jetty/java/` and
+  `src/test/java/com/percussion/jetty/service/`.
+- Re-point Java: edit `<InstallDir>/java.properties`, restart console; for
+  services re-run `install-jetty-service.sh install` or update the Procrun
+  service JavaHome.
+
+## Logging (perc-logging / Log4j2)
+
+- Config: `src/main/jetty/defaults/modules/perc-logging/resources/log4j2.xml`
+- GH-939: size rotate **10 MB**, keep **10** rolled files, **Delete** older dated
+  archives via `IfAccumulatedFileCount` (do not rely on `max` alone with `%d` patterns).
+- Tests: `src/test/java/com/percussion/jetty/logging/PercLoggingLog4j2ConfigTest.java`
+  (surefire is explicitly bound because this module is `packaging=pom`).
+
 ## Embedded Messaging
 
 - Embedded JMS broker uses Apache Artemis, not ActiveMQ Classic.

@@ -137,8 +137,11 @@ final class RespInputStream extends InputStream implements GlobalConstants {
     int left = end - offset;
     if (buffer != null && !(left == 0 && interrupted)) {
       num = (num > left ? left : num);
-      offset += num;
-      return num;
+      // Explicit cast: num is clamped to `left` (int range of buffer remaining).
+      // Closes CodeQL java/implicit-cast-in-compound-assignment #639.
+      int skip = (int) num;
+      offset += skip;
+      return skip;
     } else {
       long skpd = demux.skip(num, resph);
       if (resph.resp.got_headers) count += skpd;

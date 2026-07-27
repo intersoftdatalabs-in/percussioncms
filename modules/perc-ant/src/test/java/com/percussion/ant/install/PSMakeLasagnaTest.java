@@ -54,8 +54,13 @@ public class PSMakeLasagnaTest {
 
   @AfterEach
   public void teardown() {
-    // Reset the deploy dir property if it was set prior to test
-    if (rxdeploydir != null) System.setProperty("rxdeploydir", rxdeploydir);
+    // Reset the deploy dir property; clear when it was unset so deleted @TempDir is not left behind
+    PathUtils.clearRxDir();
+    if (rxdeploydir != null) {
+      System.setProperty("rxdeploydir", rxdeploydir);
+    } else {
+      System.clearProperty("rxdeploydir");
+    }
   }
 
   @Test

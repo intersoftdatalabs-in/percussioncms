@@ -165,6 +165,48 @@
 			</fileset>
 		</copy>
 		<echo>Copying JDBC Jars...</echo>
+		<!-- Purge the bundled JDBC driver JARs from the install dir before copying
+			the current bundled set. The delete set is pinned to exact filenames, in
+			two tiers: (1) CURRENT: the bundled filenames shipped in this release (sourced
+			from the parent POM's version properties: ${mariadb.version}, ${derby.version},
+			${mssql.version}, ${jtds.version}, ${ojdbc17.version}). (2) PRIOR: the bundled
+			filenames shipped in the immediately preceding release of this codebase.
+			This tier exists so that an upgrade from N-1 to N does not leave stale prior-version
+			JARs on the Jetty classpath (e.g. an upgrade derby-10.16.1.1 -> derby-10.17.1.0
+			would otherwise leave derby-10.16.1.1.jar on the classpath, causing LinkageError
+			/ wrong-version-loaded issues). When a driver version bumps in the parent
+			POM, the old filename MUST be moved from the CURRENT block to the PRIOR block
+			in the same commit. Customer-supplied drivers (e.g. an integrator's ojdbc17-23.5.0.0.0.jar
+			or mysql-connector-java-9.0.0.jar) are intentionally NOT matched, so they
+			are preserved across upgrades. See BundledJdbcDrivers constant in src/test/java
+			for the source of truth; check-no-glob-deletes.sh (verify phase) guards against
+			regression to glob patterns. -->
+		<delete failonerror="false" verbose="true">
+			<fileset dir="${install.dir}/jetty/base/lib/jdbc">
+				<!-- CURRENT (matches BundledJdbcDrivers.EXACT_FILENAMES) -->
+				<include name="mariadb-java-client-3.5.7.jar" />
+				<include name="mysql-connector-j-8.4.0.jar" />
+				<!-- #548 default embedded -->
+				<include name="h2-2.3.232.jar" />
+				<include name="derby-10.17.1.0.jar" />
+				<include name="derbyclient-10.17.1.0.jar" />
+				<include name="derbynet-10.17.1.0.jar" />
+				<include name="mssql-jdbc-13.3.1.jre11-preview.jar" />
+				<include name="jtds-1.3.1.jar" />
+				<include name="ojdbc17-23.26.0.0.0.jar" />
+				<!-- #1500 PostgreSQL external CMS repository -->
+				<include name="postgresql-42.7.12.jar" />
+				<!-- PRIOR: filenames from the immediately preceding release. Update
+					in lockstep when driver versions bump in the parent POM. Old PRIOR entries
+					can be removed by the release manager once they are confident no field upgrade
+					from that era is in flight. -->
+				<include name="derby-10.16.1.1.jar" />
+				<include name="derbyclient-10.16.1.1.jar" />
+				<include name="derbynet-10.16.1.1.jar" />
+				<include name="mssql-jdbc-13.3.0.jre11-preview.jar" />
+				<include name="postgresql-42.7.7.jar" />
+			</fileset>
+		</delete>
 		<copy todir="${install.dir}/jetty/base/lib/jdbc" overwrite="true"
 			force="true">
 			<fileset dir="${install.src}/jetty/base/lib/jdbc">
@@ -474,6 +516,11 @@
 	<patternset id="upgrade.delete">
 		<include name="jetty/base/lib/extra/PSOToolkit*.jar" />
 		<include name="jetty/base/webapps/Rhythmyx/**" />
+		<!-- Jetty 12 DeploymentScanner rejects both Name and Name.war as deployable
+			directories; older distributions shipped exploded CI_Home.war / EI_Home.war
+			trees alongside CI_Home / EI_Home. -->
+		<include name="jetty/base/webapps/CI_Home.war/**" />
+		<include name="jetty/base/webapps/EI_Home.war/**" />
 		<include name="Repository/derby.properties" />
 		<include name="cm/**" />
 		<include name="jdbc/**" />
@@ -575,6 +622,9 @@
 		</if>
 	</target>
 	<target name="install" depends="init">
+		<!-- Hard offline gate: refuse install/upgrade while CMS is running -->
+		<echo>Checking for running CMS server...</echo>
+		<PSCheckRunningServer rootDir="${install.dir}" />
 		<if>
 			<and>
 				<istrue value="${do.install}" />
@@ -603,9 +653,12 @@
 		<antcall target="clean" inheritall="true" inheritrefs="true" />
 		<antcall target="install_server" inheritall="true"
 			inheritrefs="true" />
+		<!-- setupDB (repository_properties) must run before configure_jetty so
+			PSConfigureDatasource reads the target backend (postgresql/mysql/…) rather
+			than the shipped H2 defaults written during install_server (#1500 matrix). -->
+		<antcall target="setupDB" inheritall="true" inheritrefs="true" />
 		<antcall target="configure_jetty" inheritall="true"
 			inheritrefs="true" />
-		<antcall target="setupDB" inheritall="true" inheritrefs="true" />
 		<antcall target="updatePackages" inheritall="true"
 			inheritrefs="true" />
 		<antcall target="updateExtensions" inheritall="true"
@@ -624,8 +677,22 @@
 			inheritrefs="true" />
 		<antcall target="deleteOldLog4jJars" inheritall="true"
 			inheritrefs="true" />
+		<antcall target="deleteOldJdbcDrivers" inheritall="true"
+			inheritrefs="true" />
+		<!-- #548: Derby→H2 before file overwrite / DB setup plugins use repository -->
+		<echo>Migrating product-managed embedded repository if still Derby
+			(#548)...</echo>
+		<PSMigrateEmbeddedRepository
+			rootDir="${install.dir}" performProductBackup="true"
+			failOnBlock="true" />
 		<antcall target="upgrade_server" inheritall="true"
 			inheritrefs="true" />
+		<!-- After Rhythmyx overwrite: drop retired product JARs/config that are
+			no longer in the WAR. upgrade.delete wipes Rhythmyx/** first, but partial
+			upgrades, dirty install.src, and sibling webapps (CI_Home.war) still leave
+			javax/JSF classpath poison. -->
+		<antcall target="deleteObsoleteRhythmyxWebInfArtifacts"
+			inheritall="true" inheritrefs="true" />
 		<antcall target="setupDB" inheritall="true" inheritrefs="true" />
 		<antcall target="upgradeRelationshipConfig" inheritall="true"
 			inheritrefs="true" />
@@ -681,6 +748,26 @@
 			</fileset>
 		</delete>
 	</target>
+	<target name="deleteOldJdbcDrivers"
+		description="Remove stale, version-suffixed JDBC driver JARs from a previous install before the current bundled set is copied in. Globs cover all known driver families; customer-supplied drivers with names outside these globs are preserved.">
+		<delete failonerror="false" verbose="true">
+			<fileset dir="${install.dir}/jetty/base/lib/jdbc">
+				<include name="mariadb-java-client-*.jar" />
+				<include name="h2-*.jar" />
+				<include name="derby-*.jar" />
+				<include name="derbyclient-*.jar" />
+				<include name="derbynet-*.jar" />
+				<include name="derbyshared-*.jar" />
+				<include name="derbytools-*.jar" />
+				<include name="mssql-jdbc-*.jar" />
+				<include name="jtds-*.jar" />
+				<include name="ojdbc17-*.jar" />
+				<include name="mysql-connector-j-*.jar" />
+				<include name="mysql-connector-java-*.jar" />
+				<include name="mysql-connector.jar" />
+			</fileset>
+		</delete>
+	</target>
 	<target name="backupSharedContent">
 		<if>
 			<and>
@@ -733,6 +820,77 @@
 			<fileset dir="${install.dir}/JRE64/lib/ext"
 				includes="**/bcpg-*.jar" />
 		</delete>
+	</target>
+	<!-- Remove product-shipped artifacts that must not remain on Jetty EE11
+		(Jakarta) classpaths after upgrade. These are not integrator customizations:
+		they were previously bundled by Percussion and left behind when the WAR no
+		longer contains them (upgrade copies do not delete orphans outside the overwrite
+		set for sibling trees, and a dirty WEB-INF/lib is a common field failure
+		mode). Keep servlet-*-jakarta.jar (TwelveMonkeys EE11); delete the javax
+		sibling servlet-3.x.y.jar only. -->
+	<target name="deleteObsoleteRhythmyxWebInfArtifacts"
+		description="Remove retired JSF/javax WEB-INF artifacts and Jetty-conflicting *.war webapp trees left after upgrade.">
+		<echo>Deleting obsolete Rhythmyx WEB-INF / Jetty webapp artifacts...</echo>
+		<delete failonerror="false" verbose="true">
+			<fileset
+				dir="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/lib">
+				<!-- Retired MyFaces / Trinidad / Tomahawk (all product versions) -->
+				<include name="myfaces-api-*.jar" />
+				<include name="myfaces-impl-*.jar" />
+				<include name="trinidad-api-*.jar" />
+				<include name="trinidad-impl-*.jar" />
+				<include name="tomahawk-*.jar" />
+				<!-- Test-only Spring must never remain in the production WAR -->
+				<include name="spring-test-*.jar" />
+				<!-- TwelveMonkeys javax servlet artifact (not the jakarta classifier) -->
+				<include name="servlet-3.*.jar" />
+				<exclude name="servlet-*-jakarta.jar" />
+			</fileset>
+		</delete>
+		<!-- Retired faces / Trinidad configuration (source no longer ships these).
+			JSF/Trinidad/Tomahawk tag libraries are packaged as META-INF/*.tld inside
+			the JARs above — removing those JARs removes the TLDs and any listeners declared
+			in them (what Jetty EE11 TldScanner loads). Do NOT delete product TLDs: rxcomp.tld,
+			tmxtags.tld, tlds/csrfguard.tld. -->
+		<delete failonerror="false" verbose="true"
+			file="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/faces-config.xml" />
+		<delete failonerror="false" verbose="true"
+			file="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/admin-faces-config.xml" />
+		<delete failonerror="false" verbose="true"
+			file="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/publishing-faces-config.xml" />
+		<delete failonerror="false" verbose="true"
+			file="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/trinidad-config.xml" />
+		<delete failonerror="false" verbose="true"
+			file="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/trinidad-skins.xml" />
+		<delete failonerror="false" verbose="true"
+			includeemptydirs="true"
+			dir="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/trinidad" />
+		<!-- Per-install faces fragment left under config/user (upgrade.excludes
+			preserve WEB-INF/config/user/** so this survives overwrite). -->
+		<delete failonerror="false" verbose="true"
+			includeemptydirs="true"
+			dir="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/faces" />
+		<!-- Loose product-era faces/trinidad taglib descriptors if ever extracted
+			outside JARs (defensive; not shipped today). -->
+		<delete failonerror="false" verbose="true">
+			<fileset
+				dir="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF">
+				<include name="**/*trinidad*.tld" />
+				<include name="**/*tomahawk*.tld" />
+				<include name="**/*myfaces*.tld" />
+				<include name="**/*jsf*.tld" />
+				<include name="**/html_basic.tld" />
+				<include name="**/html_basic_el.tld" />
+				<include name="**/jsf_core.tld" />
+			</fileset>
+		</delete>
+		<!-- Jetty 12: cannot deploy both CI_Home and CI_Home.war directories -->
+		<delete failonerror="false" verbose="true"
+			includeemptydirs="true"
+			dir="${install.dir}/jetty/base/webapps/CI_Home.war" />
+		<delete failonerror="false" verbose="true"
+			includeemptydirs="true"
+			dir="${install.dir}/jetty/base/webapps/EI_Home.war" />
 	</target>
 	<target name="deleteOldJqueryUIJsFile">
 		<if>

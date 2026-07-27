@@ -55,6 +55,9 @@ import org.apache.tools.ant.taskdefs.condition.Condition;
  * </pre>
  */
 public class PSFFTableDataInstallProdCondition extends PSAction implements Condition {
+  /** Creates a new FF table data install production condition. */
+  public PSFFTableDataInstallProdCondition() {}
+
   /* (non-Javadoc)
    * @see org.apache.tools.ant.taskdefs.condition.Condition#eval()
    */

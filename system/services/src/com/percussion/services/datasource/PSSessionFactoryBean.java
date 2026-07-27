@@ -176,19 +176,22 @@ public class PSSessionFactoryBean extends LocalSessionFactoryBean {
     }
 
     /**
-     * Configure database-specific properties for DB2 and Derby.
+     * Configure database-specific properties for DB2, Derby, and H2.
+     *
+     * <p>H2 (#548) does <strong>not</strong> inherit Derby {@code true=T,false=F} substitutions;
+     * it uses native BOOLEAN. Isolation READ_UNCOMMITTED is only applied for DB2/Derby.
      */
     private void configureDatabaseSpecificProperties(Properties props, PSConnectionDetail connDetail) {
         var driver = connDetail.getDriver();
 
-        // Set transaction isolation for DB2 & Derby
+        // Set transaction isolation for DB2 & Derby (not H2)
         if (PSJdbcUtils.DB2.equalsIgnoreCase(driver) ||
             PSJdbcUtils.DERBY_DRIVER.equalsIgnoreCase(driver)) {
             props.setProperty("hibernate.connection.isolation",
                 PSJdbcUtils.TRANSACTION_READ_UNCOMMITTED_VALUE);
         }
 
-        // Configure Derby-specific query substitutions
+        // Configure Derby-specific query substitutions (do not apply to H2)
         if (PSJdbcUtils.DERBY_DRIVER.equalsIgnoreCase(driver)) {
             props.setProperty("hibernate.query.substitutions",
                 "true=T,false=F,yes=Y,no=N");

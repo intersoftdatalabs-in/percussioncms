@@ -26,6 +26,12 @@ import org.apache.tools.ant.BuildException;
  * @author peterfrontiero
  */
 public class PSMain extends org.apache.tools.ant.Main {
+  /**
+   * Constructs a new PSMain with the given arguments.
+   *
+   * @param args command-line arguments
+   * @throws BuildException if an error occurs
+   */
   public PSMain(String[] args) throws BuildException {
     super(args);
   }

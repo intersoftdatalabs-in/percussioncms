@@ -2,7 +2,7 @@
    import="com.percussion.services.utils.jspel.*"
    import="com.percussion.i18n.*" 
    import="java.net.URLEncoder"
-   import="org.apache.commons.lang.*"
+   import="org.apache.commons.lang3.*"
    %>
 <%@ taglib uri="http://rhythmyx.percussion.com/components"
 	prefix="rxcomp"%>

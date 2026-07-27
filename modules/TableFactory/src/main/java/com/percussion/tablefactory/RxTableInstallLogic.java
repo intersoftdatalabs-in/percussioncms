@@ -227,7 +227,7 @@ public class RxTableInstallLogic {
    * @return the assignment type - -ne of the values defined in this file (RxTableInstallLogic.java)
    */
   public static int compareRoleList(
-      ArrayList assignmentTypeList, ArrayList roleList, String sRoleList) {
+      ArrayList<Integer> assignmentTypeList, ArrayList<String> roleList, String sRoleList) {
     StringTokenizer sTokenizer = new StringTokenizer(sRoleList, ROLE_DELIMITER);
     String sRole = "";
     String sToken = "";
@@ -240,7 +240,7 @@ public class RxTableInstallLogic {
         sRole = roleList.get(i).toString();
         if (sRole.trim().equalsIgnoreCase(sToken)) {
           if (false == bPresent) bPresent = true;
-          index = (Integer) assignmentTypeList.get(i);
+          index = assignmentTypeList.get(i);
           if (index.intValue() > nAssignMentType) nAssignMentType = index.intValue();
         }
       }

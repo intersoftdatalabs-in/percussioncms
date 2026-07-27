@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -42,11 +43,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import javax.jcr.Binary;
 import javax.jcr.Item;
 import javax.jcr.ItemNotFoundException;
 import javax.jcr.ItemVisitor;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
+import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -307,6 +310,16 @@ public class PSProperty extends PSPropertyWrapper implements IPSProperty, IPSJcr
     throw new RepositoryException(SET_NOT_SUPPORTED);
   }
 
+  @Override
+  public void setValue(Binary arg0) throws RepositoryException {
+    throw new RepositoryException(SET_NOT_SUPPORTED);
+  }
+
+  @Override
+  public void setValue(BigDecimal arg0) throws RepositoryException {
+    throw new RepositoryException(SET_NOT_SUPPORTED);
+  }
+
   /*
    * (non-Javadoc)
    *
@@ -478,6 +491,28 @@ public class PSProperty extends PSPropertyWrapper implements IPSProperty, IPSJcr
 
     if (value instanceof Node) return (Node) value;
     else return null;
+  }
+
+  @Override
+  public Property getProperty()
+      throws ItemNotFoundException, ValueFormatException, RepositoryException {
+    throw new ValueFormatException(
+        "PATH/REFERENCE property access via getProperty is not supported");
+  }
+
+  @Override
+  public Binary getBinary() throws ValueFormatException, RepositoryException {
+    return getValue().getBinary();
+  }
+
+  @Override
+  public BigDecimal getDecimal() throws ValueFormatException, RepositoryException {
+    return getValue().getDecimal();
+  }
+
+  @Override
+  public boolean isMultiple() throws RepositoryException {
+    return false;
   }
 
   /*

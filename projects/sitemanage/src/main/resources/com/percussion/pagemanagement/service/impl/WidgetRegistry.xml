@@ -30,11 +30,9 @@
 		<widget name="Navigation" />
 		<widget name="Page Auto List" />
 		<widget name="Polls" />
-		<widget name="Registration" />
 		<widget name="Rich Text" />
 		<widget name="RSS" />
 		<widget name="Result" />
-		<widget name="Secure Login" />
 		<widget name="Social Buttons" />
 		<widget name="Twitter Summary Cards" />
 		<widget name="Facebook Open Graph" />
@@ -50,13 +48,10 @@
 		<widget name="Most Read Blog Posts" />
 		<widget name="Redirect" />
 	</group>
-	<group name="Community">
-		<widget name="Evergage Beacon" />
-		<widget name="EMS Event List" />
-	</group>
+	<!-- Community group removed with EMS Event List widget (GH#706) -->
 	<group name="Deprecated">
-		<widget name="Share This" />
 		<widget name="Calendar" />
-		<widget name="Flash" />
+		<widget name="Secure Login (Deprecated)" />
+		<widget name="Registration (Deprecated)" />
 	</group>
 </widgets>

@@ -40,6 +40,8 @@ import org.apache.tools.ant.BuildException;
  * embedded mode - single user
  */
 public class PSUpgradeDerby extends PSAction {
+  /** Creates a new Derby upgrade task. */
+  public PSUpgradeDerby() {}
 
   private String targetVersion;
 

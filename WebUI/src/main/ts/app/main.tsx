@@ -1,0 +1,36 @@
+/*
+ * Copyright 1999-2026 Percussion Software, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import React from "react";
+import { createRoot } from "react-dom/client";
+import { App, handoffSpaEntryBeforeMount } from "./App";
+import { resetLoginRedirectLatch } from "./auth/sessionHandlers";
+import { loadSpaBootstrap } from "./bootstrap/loadBootstrap";
+
+/**
+ * Boot the authenticated SPA into the given root element.
+ */
+export function boot(rootEl: HTMLElement): void {
+  // Fresh SPA lifecycle — allow mid-session 401 redirects again
+  resetLoginRedirectLatch();
+  const bootstrap = loadSpaBootstrap();
+  // Rewrite spa.jsp?entry=… → /cm/app/{entry}/… before React mounts so the
+  // first BrowserRouter paint is the feature route (not /spa.jsp → unavailable).
+  handoffSpaEntryBeforeMount();
+  createRoot(rootEl).render(React.createElement(App, { bootstrap }));
+  console.info("[PercModernUI] SPA App mounted.");
+}

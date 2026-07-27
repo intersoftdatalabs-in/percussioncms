@@ -26,6 +26,7 @@ import com.percussion.deployer.server.PSDependencyManager;
 import com.percussion.deployer.server.PSImportCtx;
 import com.percussion.deployer.server.dependencies.PSDependencyHandler;
 import com.percussion.deployer.server.dependencies.PSFilterDefDependencyHandler;
+import com.percussion.deployer.server.dependencies.PSFilterInstallUtils;
 import com.percussion.deployer.server.dependencies.PSSiteDefDependencyHandler;
 import com.percussion.deployer.server.dependencies.PSTemplateDefDependencyHandler;
 import com.percussion.deployer.server.dependencies.PSVariantDefDependencyHandler;
@@ -53,8 +54,13 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * An MSM related service which delineates the transaction boundaries for specific assembly
  * elements. Handles deserialization, transformation, and persistence of deployment objects.
+ *
+ * <p><b>Transaction policy:</b> roll back on any {@link Exception}. The previous {@code
+ * noRollbackFor = Exception.class} caused Hibernate/nested {@code RuntimeException} failures to
+ * mark the TX rollback-only, after which Spring attempted to <em>commit</em> and only reported
+ * {@code UnexpectedRollbackException} — hiding the real cause (filter/keyword package install).
  */
-@Transactional(propagation = Propagation.REQUIRED, noRollbackFor = Exception.class)
+@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 public class PSDeployService implements IPSDeployService {
   private SessionFactory sessionFactory;
 
@@ -147,30 +153,66 @@ public class PSDeployService implements IPSDeployService {
 
     var dh = (PSFilterDefDependencyHandler) depHandler;
     try {
-      var filter = dh.findFilterByDependencyID(dep.getDependencyId());
-      boolean isNew = (filter == null);
-      String fName = "";
-      Integer lver = null;
+      // Always deserialize package payload into a fresh (non-managed) object.
+      var packageFilter = dh.generateFilterFromFile(tok, archive, dep, depFile, ctx, null);
+      packageFilter = dh.doTransforms(packageFilter, dep, ctx, true);
 
-      if (!isNew) {
-        fName = filter.getName();
-        List<IPSGuid> ids = new ArrayList<>();
-        ids.add(filter.getGUID());
-        IPSFilterService filterSvc = PSFilterServiceLocator.getFilterService();
-        try {
-          filter = filterSvc.loadFilter(ids).get(0);
-        } catch (PSNotFoundException e) {
+      IPSFilterService filterSvc = PSFilterServiceLocator.getFilterService();
+
+      // Prefer match by natural id (name). Package dep ids often do not match a prior
+      // install's GUID; treating that as "new" then persist hits NAME unique constraint
+      // only at flush → UnexpectedRollbackException with no app-level exception.
+      // Only FILTER_MISSING means first install; blank names and other PSFilterException
+      // codes must not be swallowed (Kilo review / unique-constraint mask).
+      com.percussion.services.filter.IPSItemFilter existingByName = null;
+      String filterName = packageFilter.getName();
+      try {
+        existingByName = filterSvc.findFilterByName(filterName);
+      } catch (IllegalArgumentException e) {
+        throw new PSDeployException(
+            IPSDeploymentErrors.UNEXPECTED_ERROR,
+            e,
+            "Filter package has blank or invalid name while installing dependency "
+                + dep.getDependencyId());
+      } catch (com.percussion.services.filter.PSFilterException e) {
+        if (!PSFilterInstallUtils.isFilterMissingErrorCode(e.getErrorCode())) {
           throw new PSDeployException(
-              IPSDeploymentErrors.UNEXPECTED_ERROR, "Could not load the existing filter: " + fName);
+              IPSDeploymentErrors.UNEXPECTED_ERROR,
+              e,
+              "Failed to resolve existing filter by name: " + filterName);
         }
-        lver = ((PSItemFilter) filter).getVersion();
-        ((PSItemFilter) filter).setVersion(null);
-        filter = null;
+        // True first install — row not present
+        existingByName = null;
       }
 
-      filter = dh.generateFilterFromFile(tok, archive, dep, depFile, ctx, filter);
-      filter = dh.doTransforms(filter, dep, ctx, isNew);
-      dh.saveFilter(filter, lver);
+      if (existingByName != null) {
+        List<IPSGuid> ids = new ArrayList<>();
+        ids.add(existingByName.getGUID());
+        try {
+          // Reload for a managed instance we will domain-merge into
+          existingByName = filterSvc.loadFilter(ids).get(0);
+        } catch (PSNotFoundException e) {
+          throw new PSDeployException(
+              IPSDeploymentErrors.UNEXPECTED_ERROR,
+              "Could not load the existing filter: " + packageFilter.getName());
+        }
+        PSItemFilter managed = (PSItemFilter) existingByName;
+        Integer lver = managed.getVersion();
+        // Domain-merge package fields onto the managed row; keep its version untouched.
+        try {
+          managed.merge(packageFilter);
+        } catch (com.percussion.services.filter.PSFilterException e) {
+          throw new PSDeployException(
+              IPSDeploymentErrors.UNEXPECTED_ERROR,
+              e,
+              "Could not merge package filter onto existing filter: " + packageFilter.getName());
+        }
+        // Save with DB version (update path in PSFilterManager)
+        dh.saveFilter(managed, lver);
+      } else {
+        // True insert: null version selects persist path in PSFilterManager
+        dh.saveFilter(packageFilter, null);
+      }
     } catch (PSDeployException e) {
       throw new PSDeployServiceException(e);
     }

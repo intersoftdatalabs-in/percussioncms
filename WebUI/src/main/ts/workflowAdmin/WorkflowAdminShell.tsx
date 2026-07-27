@@ -1,0 +1,181 @@
+/*
+ * Copyright 1999-2026 Percussion Software, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import React, { useState } from "react";
+import { message } from "../i18n/message";
+import { WF_ADMIN_MSG } from "./messages";
+import { WorkflowSection } from "./workflow/WorkflowSection";
+import { RolesSection } from "./role/RolesSection";
+import { UsersSection } from "./user/UsersSection";
+import { CategoriesSection } from "./category/CategoriesSection";
+
+export type WorkflowAdminTab = "workflow" | "roles" | "users" | "categories";
+
+const WORKFLOW_TABS: readonly WorkflowAdminTab[] = [
+  "workflow",
+  "roles",
+  "users",
+  "categories",
+];
+
+export function normalizeWorkflowAdminTab(
+  raw: string | null | undefined,
+): WorkflowAdminTab {
+  if (raw == null || !raw.trim()) {
+    return "workflow";
+  }
+  const n = raw.trim().toLowerCase();
+  return (WORKFLOW_TABS as readonly string[]).includes(n)
+    ? (n as WorkflowAdminTab)
+    : "workflow";
+}
+
+export interface WorkflowAdminShellProps {
+  initialTab?: WorkflowAdminTab | string;
+  /**
+   * When true (SPA AppLayout), shell is under product chrome.
+   * Reserved for layout tweaks; no BrandBar today.
+   */
+  embedded?: boolean;
+}
+
+export const WorkflowAdminShell: React.FC<WorkflowAdminShellProps> = ({
+  initialTab = "workflow",
+  embedded: _embedded = false,
+}) => {
+  const [activeTab, setActiveTab] = useState<WorkflowAdminTab>(() =>
+    normalizeWorkflowAdminTab(initialTab),
+  );
+
+  return (
+    <div
+      className="perc-workflow-admin-shell"
+      data-testid="perc-workflow-admin-shell"
+      style={{
+        fontFamily: "var(--perc-font-family, sans-serif)",
+        padding: "20px",
+        maxWidth: "1200px",
+        margin: "0 auto",
+      }}
+    >
+      <header style={{ marginBottom: "20px" }}>
+        <h1>{message(WF_ADMIN_MSG.TITLE)}</h1>
+      </header>
+
+      <nav
+        className="perc-tab-nav"
+        role="tablist"
+        style={{
+          display: "flex",
+          borderBottom: "1px solid #e2e8f0",
+          marginBottom: "20px",
+        }}
+      >
+        <button
+          type="button"
+          role="tab"
+          id="tab-workflow"
+          aria-selected={activeTab === "workflow"}
+          aria-controls="panel-workflow"
+          onClick={() => setActiveTab("workflow")}
+          style={{
+            padding: "10px 20px",
+            border: "none",
+            borderBottom: activeTab === "workflow" ? "3px solid #007ea8" : "none",
+            fontWeight: activeTab === "workflow" ? 600 : 400,
+            background: "transparent",
+            cursor: "pointer",
+          }}
+          data-testid="tab-workflow"
+        >
+          {message(WF_ADMIN_MSG.TAB_WORKFLOW)}
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          id="tab-roles"
+          aria-selected={activeTab === "roles"}
+          aria-controls="panel-roles"
+          onClick={() => setActiveTab("roles")}
+          style={{
+            padding: "10px 20px",
+            border: "none",
+            borderBottom: activeTab === "roles" ? "3px solid #007ea8" : "none",
+            fontWeight: activeTab === "roles" ? 600 : 400,
+            background: "transparent",
+            cursor: "pointer",
+          }}
+          data-testid="tab-roles"
+        >
+          {message(WF_ADMIN_MSG.TAB_ROLES)}
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          id="tab-users"
+          aria-selected={activeTab === "users"}
+          aria-controls="panel-users"
+          onClick={() => setActiveTab("users")}
+          style={{
+            padding: "10px 20px",
+            border: "none",
+            borderBottom: activeTab === "users" ? "3px solid #007ea8" : "none",
+            fontWeight: activeTab === "users" ? 600 : 400,
+            background: "transparent",
+            cursor: "pointer",
+          }}
+          data-testid="tab-users"
+        >
+          {message(WF_ADMIN_MSG.TAB_USERS)}
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          id="tab-categories"
+          aria-selected={activeTab === "categories"}
+          aria-controls="panel-categories"
+          onClick={() => setActiveTab("categories")}
+          style={{
+            padding: "10px 20px",
+            border: "none",
+            borderBottom: activeTab === "categories" ? "3px solid #007ea8" : "none",
+            fontWeight: activeTab === "categories" ? 600 : 400,
+            background: "transparent",
+            cursor: "pointer",
+          }}
+          data-testid="tab-categories"
+        >
+          {message(WF_ADMIN_MSG.TAB_CATEGORIES)}
+        </button>
+      </nav>
+
+      <main
+        className="perc-tab-content"
+        role="tabpanel"
+        id={`panel-${activeTab}`}
+        aria-labelledby={`tab-${activeTab}`}
+      >
+        {activeTab === "workflow" && <WorkflowSection />}
+        {activeTab === "roles" && <RolesSection />}
+        {activeTab === "users" && <UsersSection />}
+        {activeTab === "categories" && <CategoriesSection />}
+      </main>
+    </div>
+  );
+};

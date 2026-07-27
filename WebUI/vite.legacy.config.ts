@@ -19,12 +19,10 @@ export default defineConfig({
         "jslibMin/perc_architecture.packed.min":
           "src/main/bundles/perc_architecture.bundle.js",
         "jslibMin/perc_webmgt.packed.min": "src/main/bundles/perc_webmgt.bundle.js",
-        "jslibMin/perc_publish.packed.min": "src/main/bundles/perc_publish.bundle.js",
+        // perc_publish exclusive Minuet UI retired (feature 990 / PR #1370); pack via static-bundles.json services only
         "jslibMin/perc_users.packed.min": "src/main/bundles/perc_users.bundle.js",
         "jslibMin/perc_editTemplate.packed.min":
           "src/main/bundles/perc_editTemplate.bundle.js",
-        "jslibMin/perc_widgetBuilder.packed.min":
-          "src/main/bundles/perc_widgetBuilder.bundle.js",
         "jslibMin/perc_admin.packed.min": "src/main/bundles/perc_admin.bundle.js",
         "jslibMin/perc_common_ui": "src/main/bundles/perc_common_ui.bundle.js",
       },

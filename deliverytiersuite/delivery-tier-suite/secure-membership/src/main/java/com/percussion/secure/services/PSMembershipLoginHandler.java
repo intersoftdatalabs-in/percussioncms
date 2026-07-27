@@ -30,7 +30,9 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
  * Handles setting the membership session cookie after successful authentication.
  *
  * @author Jay Seletz
+ * @deprecated This class is part of the deprecated secure-membership module.
  */
+@Deprecated
 public class PSMembershipLoginHandler extends SavedRequestAwareAuthenticationSuccessHandler {
   private PSMembershipConfiguration membershipConfig;
 

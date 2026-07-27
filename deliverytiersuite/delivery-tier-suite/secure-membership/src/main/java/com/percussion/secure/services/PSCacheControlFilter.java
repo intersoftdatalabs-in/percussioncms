@@ -26,6 +26,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
 
+/**
+ * @deprecated This class is part of the deprecated secure-membership module.
+ */
+@Deprecated
 public class PSCacheControlFilter implements Filter {
   // REFACTORED: CP-JAVA11
   @Override

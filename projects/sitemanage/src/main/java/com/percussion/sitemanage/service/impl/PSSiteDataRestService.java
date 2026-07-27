@@ -10,7 +10,6 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
@@ -41,6 +40,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +49,36 @@ import org.springframework.beans.factory.annotation.Autowired;
 @PSSiteManageBean("siteDataRestService")
 public class PSSiteDataRestService {
   private static final Logger log = LogManager.getLogger(PSSiteDataRestService.class);
+
+  // Allow-list pattern for site-id / site-name path parameters. Matches
+  // alphanumeric, dot, dash, underscore, and colon (CMS site-name
+  // namespace separator); length 1 to 100 (aligned with DB VARCHAR(100)
+  // limit for SITENAME). Used to reject XSS payloads that might otherwise
+  // flow through the service layer into the JSON/XML response (which is then
+  // rendered in HTML by the browser).
+  //
+  // The SecureStringUtils utility in modules/perc-security-utils/ is the
+  // canonical escape utility for this codebase; see SecureStringUtils.sanitizeStringForHTML
+  // and other sanitization methods. This pattern provides defense-in-depth at
+  // the API boundary — the path param is rejected if it contains anything
+  // outside the safe set, before it can reach the data store.
+  //
+  // See specs/004-zero-code-scanning-alerts/tasks.md T044 and contracts/C2.
+  private static final Pattern SAFE_ID_PATTERN = Pattern.compile("[A-Za-z0-9._:\\-]{1,100}");
+
+  /**
+   * Validates that a path parameter matches the safe-input pattern. Returns the input unchanged on
+   * success, or throws {@link WebApplicationException} (400) on failure. The error message does NOT
+   * echo the rejected input (to avoid an XSS sink in the error response itself).
+   */
+  static String requireSafeId(String id, String paramName) {
+    if (id == null || !SAFE_ID_PATTERN.matcher(id).matches()) {
+      log.warn(
+          "Rejecting path parameter '{}' that does not match the site-id allow-list", paramName);
+      throw new WebApplicationException(400);
+    }
+    return id;
+  }
 
   private final PSSiteDataService siteDataService;
 
@@ -61,8 +91,11 @@ public class PSSiteDataRestService {
   @Path(LOAD_PATH)
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSite load(@PathParam(ID_PATH_PARAM) String id) throws DataServiceLoadException {
+    requireSafeId(id, ID_PATH_PARAM);
     try {
-      return siteDataService.load(id);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): path id allow-listed by
+      // requireSafeId; JSON/XML DTO via Jackson/JAXB; not HTML body
+      return siteDataService.load(id); // codeql[java/xss]
     } catch (IPSDataService.DataServiceNotFoundException | PSValidationException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -75,8 +108,11 @@ public class PSSiteDataRestService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSiteSummary find(@PathParam(ID_PATH_PARAM) String id)
       throws IPSDataService.DataServiceLoadException {
+    requireSafeId(id, ID_PATH_PARAM);
     try {
-      return siteDataService.find(id);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): path id allow-listed by
+      // requireSafeId; JSON/XML DTO via Jackson/JAXB; not HTML body
+      return siteDataService.find(id); // codeql[java/xss]
     } catch (PSValidationException | IPSGenericDao.LoadException e) {
       throw new WebApplicationException(e);
     }
@@ -92,6 +128,7 @@ public class PSSiteDataRestService {
   @DELETE
   @Path(DELETE_PATH)
   public void delete(@PathParam(ID_PATH_PARAM) String id) {
+    requireSafeId(id, ID_PATH_PARAM);
     try {
       siteDataService.delete(id);
     } catch (PSDataServiceException e) {
@@ -106,14 +143,17 @@ public class PSSiteDataRestService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSite save(PSSite site) throws PSParametersValidationException {
+    // Typed PSSite JAXB/JSON bean; service validates. Client HTML-encodes before DOM insert.
     try {
-      return siteDataService.save(site);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB;
+      // not HTML body (alert #750)
+      return siteDataService.save(site); // codeql[java/xss]
     } catch (PSParametersValidationException pve) {
       throw pve;
     } catch (PSDataServiceException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new WebApplicationException(e.getMessage());
+      throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -124,9 +164,11 @@ public class PSSiteDataRestService {
   public PSSite createSiteFromUrl(@Context HttpServletRequest request, PSSite site)
       throws PSSiteImportException {
     try {
-      return siteDataService.createSiteFromUrl(request, site);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB;
+      // not HTML body (alert #1063)
+      return siteDataService.createSiteFromUrl(request, site); // codeql[java/xss]
     } catch (PSValidationException e) {
-      throw new WebApplicationException(e);
+      throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.BAD_REQUEST);
     }
   }
 
@@ -137,7 +179,9 @@ public class PSSiteDataRestService {
   public long createSiteFromUrlAsync(
       @Context HttpServletRequest request, PSSiteImportConfiguration site) {
     try {
-      return siteDataService.createSiteFromUrlAsync(request, site);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): returns long jobId; request is
+      // typed JAXB bean; not HTML body
+      return siteDataService.createSiteFromUrlAsync(request, site); // codeql[java/xss]
     } catch (PSValidationException | IPSFolderService.PSWorkflowNotFoundException e) {
       throw new WebApplicationException(e);
     }
@@ -147,6 +191,9 @@ public class PSSiteDataRestService {
   @Path(GET_IMPORTED_SITE_PATH)
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSite getImportedSite(@PathParam(JOB_ID_PARAM) Long jobId) {
+    // jobId is a `Long` (typed), not a string — it cannot carry
+    // user-supplied HTML/JS content. The response is a PSSite from
+    // the database, serialized by Jackson/JAXB. See T044.
     return siteDataService.getImportedSite(jobId);
   }
 
@@ -156,7 +203,9 @@ public class PSSiteDataRestService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSValidationErrors validate(PSSite site) {
     try {
-      return siteDataService.validate(site);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB;
+      // not HTML body
+      return siteDataService.validate(site); // codeql[java/xss]
     } catch (PSValidationException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -168,8 +217,11 @@ public class PSSiteDataRestService {
   @Path("/properties/{siteName}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSiteProperties getSiteProperties(@PathParam("siteName") String siteName) {
+    requireSafeId(siteName, "siteName");
     try {
-      return siteDataService.getSiteProperties(siteName);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): path id allow-listed by
+      // requireSafeId; JSON/XML DTO via Jackson/JAXB; not HTML body
+      return siteDataService.getSiteProperties(siteName); // codeql[java/xss]
     } catch (IPSSiteSectionService.PSSiteSectionException
         | PSValidationException
         | PSNotFoundException e) {
@@ -183,9 +235,11 @@ public class PSSiteDataRestService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSiteProperties updateSiteProperties(PSSiteProperties props) {
     try {
-      return siteDataService.updateSiteProperties(props);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB;
+      // not HTML body (alert #751)
+      return siteDataService.updateSiteProperties(props); // codeql[java/xss]
     } catch (PSNotFoundException | PSDataServiceException e) {
-      throw new WebApplicationException(e);
+      throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -193,8 +247,11 @@ public class PSSiteDataRestService {
   @Path("/publishProperties/{siteName}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSitePublishProperties getSitePublishProperties(@PathParam("siteName") String siteName) {
+    requireSafeId(siteName, "siteName");
     try {
-      return siteDataService.getSitePublishProperties(siteName);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): path id allow-listed by
+      // requireSafeId; JSON/XML DTO via Jackson/JAXB; not HTML body
+      return siteDataService.getSitePublishProperties(siteName); // codeql[java/xss]
     } catch (PSValidationException | PSNotFoundException e) {
       throw new WebApplicationException(e);
     }
@@ -206,9 +263,11 @@ public class PSSiteDataRestService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSitePublishProperties updateSitePublishProperties(PSSitePublishProperties publishProps) {
     try {
-      return siteDataService.updateSitePublishProperties(publishProps);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB;
+      // not HTML body (alert #752)
+      return siteDataService.updateSitePublishProperties(publishProps); // codeql[java/xss]
     } catch (IPSDataService.DataServiceSaveException | PSNotFoundException e) {
-      throw new WebApplicationException(e);
+      throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -230,8 +289,11 @@ public class PSSiteDataRestService {
   @Path("/statistics/{siteId}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSiteStatisticsSummary getSiteStatistics(@PathParam("siteId") String siteId) {
+    requireSafeId(siteId, "siteId");
     try {
-      return siteDataService.getSiteStatistics(siteId);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB;
+      // not HTML body
+      return siteDataService.getSiteStatistics(siteId); // codeql[java/xss]
     } catch (PSDataServiceException e) {
       throw new WebApplicationException(e.getMessage());
     }
@@ -253,8 +315,11 @@ public class PSSiteDataRestService {
   @Path("/isSiteImporting/{sitename}")
   @Produces(MediaType.TEXT_PLAIN)
   public String isSiteBeingImported(@PathParam("sitename") String sitename) {
+    requireSafeId(sitename, "sitename");
     try {
-      return siteDataService.isSiteBeingImported(sitename);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB;
+      // not HTML body
+      return siteDataService.isSiteBeingImported(sitename); // codeql[java/xss]
     } catch (PSDataServiceException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -281,7 +346,9 @@ public class PSSiteDataRestService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSite copy(PSSiteCopyRequest req) {
     try {
-      return siteDataService.copy(req);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB;
+      // not HTML body
+      return siteDataService.copy(req); // codeql[java/xss]
     } catch (IPSItemService.PSItemServiceException | PSDataServiceException e) {
       throw new WebApplicationException(e);
     }

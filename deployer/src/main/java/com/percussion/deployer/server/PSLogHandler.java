@@ -736,6 +736,21 @@ public class PSLogHandler {
    * @return The archive id of new entry in the archive log summary table.
    * @throws PSDeployException if any error occurs.
    */
+  /**
+   * Public wrapper for {@link #getTableDataForSaveArchiveSummary(int, PSArchiveInfo,
+   * PSArchiveManifest)}.
+   *
+   * @param id the archive log summary id
+   * @param archiveInfo the archive info (must not be {@code null})
+   * @param archiveManifest the archive manifest (must not be {@code null})
+   * @return table data ready for insertion into the archive summary table
+   */
+  public PSJdbcTableData createArchiveLogSummaryTableData(
+      int id, PSArchiveInfo archiveInfo, PSArchiveManifest archiveManifest) {
+    String tgtServer = PSServer.getHostName() + ":" + PSServer.getListenerPort();
+    return buildArchiveLogSummaryTableData(id, tgtServer, archiveInfo, archiveManifest);
+  }
+
   public int createArchiveLog(PSArchiveInfo archiveInfo, PSArchiveManifest archiveManifest)
       throws PSDeployException {
     if (archiveInfo == null || archiveInfo.getArchiveDetail() == null)
@@ -774,6 +789,24 @@ public class PSLogHandler {
    */
   private PSJdbcTableData getTableDataForSaveArchiveSummary(
       int id, PSArchiveInfo archiveInfo, PSArchiveManifest archiveManifest) {
+    // Local server identity. If this fails (misconfigured Rx install),
+    // let it propagate rather than silently writing a placeholder like
+    // "localhost:9992" into the TGT_SERVER_NAME column — a bogus value
+    // would corrupt deployment metadata and downstream "find archives for
+    // this server" queries.
+    String tgtServer = PSServer.getHostName() + ":" + PSServer.getListenerPort();
+    return buildArchiveLogSummaryTableData(id, tgtServer, archiveInfo, archiveManifest);
+  }
+
+  /**
+   * Builds the archive-log summary row for insertion. Package-private and static so unit tests can
+   * exercise it without a real database (the {@link PSLogHandler} constructor opens DB schemas via
+   * {@link PSDbmsHelper}). The caller supplies {@code tgtServer} (the local-server identity for the
+   * {@code TGT_SERVER_NAME} column); tests pass a literal string, production callers pass {@code
+   * PSServer.getHostName() + ":" + PSServer.getListenerPort()}.
+   */
+  static PSJdbcTableData buildArchiveLogSummaryTableData(
+      int id, String tgtServer, PSArchiveInfo archiveInfo, PSArchiveManifest archiveManifest) {
     // prepare the row data
     List<PSJdbcColumnData> cols = new ArrayList<>();
 
@@ -799,12 +832,10 @@ public class PSLogHandler {
     col = new PSJdbcColumnData(ALS_SRC_SERVER_BUILD_ID, archiveInfo.getServerBuildId());
     cols.add(col);
 
-    col =
-        new PSJdbcColumnData(
-            ALS_TGT_SERVER_NAME, PSServer.getHostName() + ":" + PSServer.getListenerPort());
+    col = new PSJdbcColumnData(ALS_TGT_SERVER_NAME, tgtServer);
     cols.add(col);
 
-    String sqlDatePattern = "yyyy-mm-dd hh:mm:ss"; // JDBC Date format.
+    String sqlDatePattern = "yyyy-MM-dd HH:mm:ss"; // JDBC Date format.
     FastDateFormat dateFormat = FastDateFormat.getInstance(sqlDatePattern);
     col =
         new PSJdbcColumnData(
@@ -826,7 +857,6 @@ public class PSLogHandler {
     List<PSJdbcRowData> rDataList = new ArrayList<>();
     rDataList.add(rData);
     PSJdbcTableData tData = new PSJdbcTableData(ALS_TABLE_NAME, rDataList.iterator(), false);
-
     return tData;
   }
 
@@ -1256,6 +1286,7 @@ public class PSLogHandler {
   private static final String ALS_SRC_SERVER_NAME = "SRC_SERVER_NAME";
   private static final String ALS_SRC_SERVER_VERSION = "SRC_SERVER_VERSION";
   private static final String ALS_SRC_SERVER_BUILD_ID = "SRC_SERVER_BUILD_ID";
+  // Physical column is SRC_SERVER_BUILD_DATE (ALS_ is Java-only naming, like other ALS_* keys).
   private static final String ALS_SRC_SERVER_BUILD_DATE = "SRC_SERVER_BUILD_DATE";
   private static final String ALS_TGT_SERVER_NAME = "TGT_SERVER_NAME";
   private static final String ALS_ARCHIVE_INFO = "ARCHIVE_INFO";

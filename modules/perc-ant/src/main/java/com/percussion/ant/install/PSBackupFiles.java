@@ -50,6 +50,9 @@ import org.apache.tools.ant.BuildException;
  * </pre>
  */
 public class PSBackupFiles extends PSAction {
+  /** Creates a new backup files task. */
+  public PSBackupFiles() {}
+
   // see base class
   @Override
   public void execute() {

@@ -49,6 +49,9 @@ import java.io.IOException;
  * </pre>
  */
 public class PSPropertySet extends PSAction {
+  /** Creates a new property set task. */
+  public PSPropertySet() {}
+
   // see base class
   @Override
   public void execute() {
@@ -76,32 +79,56 @@ public class PSPropertySet extends PSAction {
   /*************************************************************************
    * Property Accessors and Mutators
    *************************************************************************/
-  /** Accessor for the Property File */
+  /**
+   * Accessor for the Property File
+   *
+   * @return the property file path
+   */
   public String getPropertyFile() {
     return m_strPropertyFile;
   }
 
-  /** Mutator for the Property File. */
+  /**
+   * Mutator for the Property File.
+   *
+   * @param strPropertyFile the property file path to set, must not be <code>null</code> or empty
+   */
   public void setPropertyFile(String strPropertyFile) {
     m_strPropertyFile = strPropertyFile;
   }
 
-  /** Accessor for the Property Name */
+  /**
+   * Accessor for the Property Name
+   *
+   * @return the property name
+   */
   public String getPropertyName() {
     return m_strPropertyName;
   }
 
-  /** Mutator for the Property Name. */
+  /**
+   * Mutator for the Property Name.
+   *
+   * @param strPropertyName the property name to set, must not be <code>null</code> or empty
+   */
   public void setPropertyName(String strPropertyName) {
     m_strPropertyName = strPropertyName;
   }
 
-  /** Accessor for the property value */
+  /**
+   * Accessor for the property value
+   *
+   * @return the property value
+   */
   public String getPropertyValue() {
     return m_strPropertyValue;
   }
 
-  /** Mutator for the property value */
+  /**
+   * Mutator for the property value
+   *
+   * @param strPropertyValue the property value to set
+   */
   public void setPropertyValue(String strPropertyValue) {
     m_strPropertyValue = strPropertyValue;
   }

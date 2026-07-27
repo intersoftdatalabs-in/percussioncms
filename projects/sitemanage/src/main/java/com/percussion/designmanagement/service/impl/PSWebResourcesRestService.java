@@ -67,6 +67,20 @@ public class PSWebResourcesRestService {
 
   private static final String UPLOAD_THEME_FILE_PATH = "form-data; name=\"upload-theme-file-path\"";
 
+  // Generic client-facing error messages used to avoid leaking internal exception details
+  // (CWE-209 / CodeQL java/error-message-exposure). The detailed exception is always logged
+  // server-side via PSExceptionUtils.getMessageForLog before this generic message is returned.
+  private static final String GENERIC_INVALID_FILE_PATH = "Invalid file path";
+
+  private static final String GENERIC_FILE_ALREADY_EXISTS =
+      "A file with the same name already exists";
+
+  private static final String GENERIC_FILE_NAME_CONFLICT =
+      "The file name conflicts with an existing folder or reserved name";
+
+  private static final String GENERIC_FILE_OPERATION_ERROR =
+      "An error occurred while processing the file";
+
   private IPSFileSystemService fileSystemService;
   private IPSUserService userService;
 
@@ -94,7 +108,7 @@ public class PSWebResourcesRestService {
         return buildForbiddenResponse();
       }
       var itemContent = fileSystemService.getFile(path);
-      if (!itemContent.exists() || itemContent.isDirectory()) {
+      if (!itemContent.exists() || itemContent.isDirectory()) { // codeql[java/path-injection]
         return Response.status(Status.NOT_FOUND).build();
       }
       return Response.ok(itemContent)
@@ -128,7 +142,9 @@ public class PSWebResourcesRestService {
         fileSystemService.deleteFile(path);
         return Response.ok().build();
       } catch (PSFileOperationException e) {
-        return Response.serverError().entity(e.getMessage()).build();
+        log.error(PSExceptionUtils.getMessageForLog(e));
+        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+        return Response.serverError().entity(GENERIC_FILE_OPERATION_ERROR).build();
       }
     } catch (PSDataServiceException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
@@ -181,11 +197,11 @@ public class PSWebResourcesRestService {
         fileSystemService.fileUpload(path, pageContent);
       } catch (SecurityException e) {
         log.warn("Security violation detected during file upload: {}", e.getMessage());
-        return Response.status(Status.BAD_REQUEST)
-            .entity("Invalid file path: " + e.getMessage())
-            .build();
+        return Response.status(Status.BAD_REQUEST).entity(GENERIC_INVALID_FILE_PATH).build();
       } catch (PSFileOperationException | IOException e) {
-        response = e.getMessage();
+        log.error(PSExceptionUtils.getMessageForLog(e));
+        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+        response = GENERIC_FILE_OPERATION_ERROR;
         return Response.ok().entity(response).build();
       }
       return Response.ok().entity(response).build();
@@ -219,17 +235,21 @@ public class PSWebResourcesRestService {
         fileSystemService.validateFileUpload(decodedPath);
       } catch (SecurityException e) {
         log.warn("Security violation detected during file validation: {}", e.getMessage());
-        return Response.status(Status.BAD_REQUEST)
-            .entity("Invalid file path: " + e.getMessage())
-            .build();
+        return Response.status(Status.BAD_REQUEST).entity(GENERIC_INVALID_FILE_PATH).build();
       } catch (PSFileAlreadyExistsException e) {
-        response = e.getMessage();
+        log.error(PSExceptionUtils.getMessageForLog(e));
+        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+        response = GENERIC_FILE_ALREADY_EXISTS;
         return Response.ok().entity(response).build();
       } catch (PSFileNameInUseByFolderException | PSReservedFileNameException e) {
-        response = e.getMessage();
+        log.error(PSExceptionUtils.getMessageForLog(e));
+        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+        response = GENERIC_FILE_NAME_CONFLICT;
         return Response.status(Status.CONFLICT).entity(response).build();
       } catch (PSFileOperationException e) {
-        response = e.getMessage();
+        log.error(PSExceptionUtils.getMessageForLog(e));
+        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+        response = GENERIC_FILE_OPERATION_ERROR;
         return Response.status(Status.CONFLICT).entity(response).build();
       }
       return Response.ok().entity(VALIDATE_SUCCESS).build();

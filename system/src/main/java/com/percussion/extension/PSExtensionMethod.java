@@ -234,7 +234,9 @@ public final class PSExtensionMethod implements Serializable {
 
     try {
       setName(source.getAttribute("name"));
-      setReturnType(source.getAttribute("returnType"));
+      // Packages historically serialize lowercase "returntype"; toXML uses "returnType".
+      // DOM attribute names are case-sensitive — accept both.
+      setReturnType(readReturnTypeAttribute(source));
       setDescription(source.getAttribute("description"));
 
       var paramNodes = source.getElementsByTagName(PSExtensionMethodParam.XML_NAME);
@@ -245,6 +247,24 @@ public final class PSExtensionMethod implements Serializable {
     } catch (Exception e) {
       throw new PSExtensionException("Failed to deserialize PSExtensionMethod", e);
     }
+  }
+
+  /**
+   * Reads the method return-type attribute from extension XML.
+   *
+   * <p>Shipped {@code .extension} package files use {@code returntype} (all lowercase). Runtime
+   * {@link #toXML(Document)} writes {@code returnType}. Both must deserialize successfully.
+   *
+   * @param source method element, not {@code null}
+   * @return attribute value, may be blank if neither attribute is present
+   */
+  static String readReturnTypeAttribute(Element source) {
+    Objects.requireNonNull(source, "source element cannot be null");
+    String returnType = source.getAttribute(XML_ATTR_RETURN_TYPE);
+    if (StringUtils.isBlank(returnType)) {
+      returnType = source.getAttribute(XML_ATTR_RETURN_TYPE_LEGACY);
+    }
+    return returnType;
   }
 
   /**
@@ -259,7 +279,7 @@ public final class PSExtensionMethod implements Serializable {
 
     var element = doc.createElement(XML_NAME);
     element.setAttribute("name", m_name);
-    element.setAttribute("returnType", m_returnType);
+    element.setAttribute(XML_ATTR_RETURN_TYPE, m_returnType);
     element.setAttribute("description", m_description);
 
     for (var param : m_parameters) {
@@ -271,4 +291,13 @@ public final class PSExtensionMethod implements Serializable {
 
   /** The XML element name for this class. */
   public static final String XML_NAME = "PSExtensionMethod";
+
+  /** Canonical attribute name written by {@link #toXML(Document)}. */
+  public static final String XML_ATTR_RETURN_TYPE = "returnType";
+
+  /**
+   * Legacy attribute name found in shipped package {@code .extension} files (e.g. pageutils in
+   * perc.Baseline).
+   */
+  public static final String XML_ATTR_RETURN_TYPE_LEGACY = "returntype";
 }

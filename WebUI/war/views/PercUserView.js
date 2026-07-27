@@ -218,7 +218,7 @@
                 importDialog.dialog('close');
             });
 
-            narrowSearchLabel.html(I18N.message("perc.ui.users.import.dialogs@NarrowSearch", [maxNumberOfUsers]));
+            narrowSearchLabel.text(I18N.message("perc.ui.users.import.dialogs@NarrowSearch", [maxNumberOfUsers]));
 
             //
             // maxusersLabel.html(maxNumberOfUsers);
@@ -553,7 +553,7 @@
             for(i in assignedRolesArray) {
                 var userRole = assignedRolesArray[i];
                 // use the user item template replacing the username
-                var html = $("<option/>").val(userRole).html(userRole);
+                var html = $("<option/>").val(userRole).text(userRole);
                 // append html to DOM
                 $assignedRoles.append(html);
             }
@@ -577,7 +577,7 @@
             for(i in rolesArrayCache) {
                 var assignedRole = assignedRoles[assignedIndex];
                 if(rolesArrayCache[i] != assignedRole) {
-                    var html = $("<option/>").val(rolesArrayCache[i]).html(rolesArrayCache[i]);
+                    var html = $("<option/>").val(rolesArrayCache[i]).text(rolesArrayCache[i]);
                     availableRoles.append(html);
                 } else {
                     assignedIndex++;
@@ -655,7 +655,7 @@
                 assignedRoleSelected.remove();
 
             // add role to available role list
-            var availableRole = $("<option/>").val(selectedAssignedRoleValue).html(selectedAssignedRoleValue);
+            var availableRole = $("<option/>").val(selectedAssignedRoleValue).text(selectedAssignedRoleValue);
             var availableRoles = $("#perc-users-available-roles > select")
                 .append(availableRole);
 
@@ -678,7 +678,7 @@
                 availableRoleSelected.remove();
 
             // add role to available role list
-            var assignedRole = $("<option/>").val(selectedAvailableRoleValue).html(selectedAvailableRoleValue);
+            var assignedRole = $("<option/>").val(selectedAvailableRoleValue).text(selectedAvailableRoleValue);
             var assignedRoles = $("#perc-users-assigned-roles > select")
                 .append(assignedRole);
 

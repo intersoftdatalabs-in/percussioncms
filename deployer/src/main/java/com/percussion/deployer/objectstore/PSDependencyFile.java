@@ -22,7 +22,6 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.io.File;
-import java.util.Optional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -169,6 +168,10 @@ public class PSDependencyFile implements IPSDeployComponent {
    * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
    * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
+   *
+   * <p>Must restore the {@code fileType} attribute. Omitting it leaves {@code m_type} at the field
+   * default ({@link #TYPE_APPLICATION_XML}), which causes package install to parse DTD/PDT
+   * companions and other non-app files as application XML (well-formed / wrong-type failures).
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     if (sourceNode == null) {
@@ -179,23 +182,51 @@ public class PSDependencyFile implements IPSDeployComponent {
           IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
           new Object[] {XML_NODE_NAME, sourceNode.getNodeName()});
     }
+
+    // fileType is required — maps to TYPE_ENUM / TYPE_xxx constants
+    m_type = UNDEFINED;
+    String fileTypeAttr =
+        PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_FILE_TYPE);
+    for (int i = 0; i < TYPE_ENUM.length && m_type == UNDEFINED; i++) {
+      if (TYPE_ENUM[i].equals(fileTypeAttr)) {
+        m_type = i;
+      }
+    }
+    if (m_type == UNDEFINED) {
+      throw new PSUnknownNodeTypeException(
+          IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR,
+          new Object[] {sourceNode.getTagName(), XML_ATTR_FILE_TYPE, fileTypeAttr});
+    }
+
     var tree = new PSXmlTreeWalker(sourceNode);
     m_file =
         new File(
             PSDeployComponentUtils.getRequiredElement(tree, XML_NODE_NAME, XML_EL_RX_FILE, true));
-    m_archiveLocation =
-        Optional.ofNullable(tree.getElementData(XML_EL_ARCHIVE_FILE))
-            .map(File::new)
-            .orElseThrow(
-                () ->
-                    new PSUnknownNodeTypeException(
-                        IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD,
-                        new Object[] {XML_NODE_NAME, XML_EL_ARCHIVE_FILE, "null"}));
+
+    // Archive path is required and must be non-empty (reset walker; prior get may have advanced it)
+    tree.setCurrent(sourceNode);
+    String archiveLocation =
+        PSDeployComponentUtils.getRequiredElement(tree, XML_NODE_NAME, XML_EL_ARCHIVE_FILE, false);
+    if (archiveLocation.trim().isEmpty()) {
+      throw new PSUnknownNodeTypeException(
+          IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD,
+          new Object[] {XML_NODE_NAME, XML_EL_ARCHIVE_FILE, "null"});
+    }
+    m_archiveLocation = new File(archiveLocation);
+
+    // Optional original file (normalized separators when present)
+    m_originalFile = null;
+    tree.setCurrent(sourceNode);
     var origFileEl = tree.getNextElement(XML_EL_ORIG_FILE, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
-    m_originalFile =
-        origFileEl != null
-            ? new File(PSDeployComponentUtils.getNormalizedPath(tree.getElementData(origFileEl)))
-            : null;
+    if (origFileEl != null) {
+      String origPath = tree.getElementData(origFileEl);
+      if (origPath == null || origPath.trim().isEmpty()) {
+        throw new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD,
+            new Object[] {XML_NODE_NAME, XML_EL_ORIG_FILE, "null"});
+      }
+      m_originalFile = new File(PSDeployComponentUtils.getNormalizedPath(origPath));
+    }
   }
 
   // see IPSDeployComponent

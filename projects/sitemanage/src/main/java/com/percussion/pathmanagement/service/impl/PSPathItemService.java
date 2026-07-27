@@ -357,6 +357,30 @@ public abstract class PSPathItemService implements IPSPathService {
     } catch (Exception e) {
       throw new PSPathServiceException("Failed to add folder: " + path, e);
     }
+
+    int retryCount = 5;
+    int retryDelayMs = 200;
+    PSPathNotFoundServiceException lastException = null;
+    for (int i = 0; i < retryCount; i++) {
+      try {
+        return find(path);
+      } catch (PSPathNotFoundServiceException e) {
+        lastException = e;
+        log.warn(
+            "Folder added but path not found, retrying lookup. Attempt {} of {}",
+            i + 1,
+            retryCount);
+        try {
+          Thread.sleep(retryDelayMs);
+        } catch (InterruptedException ie) {
+          Thread.currentThread().interrupt();
+          break;
+        }
+      }
+    }
+    if (lastException != null) {
+      throw lastException;
+    }
     return find(path);
   }
 
@@ -833,12 +857,10 @@ public abstract class PSPathItemService implements IPSPathService {
   protected abstract String getInUseTemplatesResult() throws PSPathServiceException;
 
   /**
-   * Used to determine if an item should be filtered in
-   * {@link #findItems(String)}.
+   * Used to determine if an item should be filtered in {@link #findItems(String)}.
    *
    * @param item the summary that will be checked for filtering.
-   * @return <code>true</code> if the item should be filtered,
-   *         <code>false<code> otherwise.
+   * @return <code>true</code> if the item should be filtered, <code>false</code> otherwise.
    */
   protected boolean shouldFilterItem(IPSItemSummary item) {
     return false;

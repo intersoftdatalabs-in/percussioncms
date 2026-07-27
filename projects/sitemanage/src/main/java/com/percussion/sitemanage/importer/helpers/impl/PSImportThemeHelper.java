@@ -20,6 +20,7 @@ package com.percussion.sitemanage.importer.helpers.impl;
 import static com.percussion.share.spring.PSSpringWebApplicationContextUtils.getWebApplicationContext;
 import static org.apache.commons.lang3.Validate.notNull;
 
+import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.sitemanage.data.PSPageContent;
 import com.percussion.sitemanage.data.PSSite;
 import com.percussion.sitemanage.data.PSSiteImportCtx;
@@ -114,7 +115,7 @@ public class PSImportThemeHelper extends PSImportHelper {
               sourceDoc, baseUrl, siteName, themeRootDirectory, themeRootUrl, context.getLogger());
 
       linkPaths = headerImporter.getLinkPaths();
-      removeIfExists(linkPaths);
+      removeIfExists(linkPaths, themeRootDirectory);
 
       scriptPaths = headerImporter.getScriptPaths();
       resources.putAll(scriptPaths);
@@ -208,14 +209,54 @@ public class PSImportThemeHelper extends PSImportHelper {
    *
    * @param linkPaths the map of link paths to check.
    */
-  private void removeIfExists(Map<String, String> linkPaths) {
+  private void removeIfExists(Map<String, String> linkPaths, String themeRootDirectory) {
     Set<String> cssURLs = new HashSet<>(linkPaths.keySet());
+    File themeRoot = new File(themeRootDirectory);
+    // Soft-fail when themeRoot does not yet exist (e.g. first import of a
+    // brand-new theme). Pre-fix code only checked new File(cssFile).exists()
+    // which is false for a missing dir without throwing. requireUnderBase
+    // requires baseDir to exist and be a directory; bail out here to
+    // preserve the pre-fix soft behavior (nothing under a missing root can
+    // exist anyway) and prevent the exception from being swallowed by
+    // process()'s catch(Exception) and silently aborting the whole import.
+    if (!themeRoot.isDirectory()) {
+      return;
+    }
     for (var cssURL : cssURLs) {
       var cssFile = linkPaths.get(cssURL);
-      var f = new File(cssFile);
-      if (f.exists()) {
+      // linkPaths carries mixed values: for off-site CSS links the value
+      // IS the remote URL (e.g. "https://cdn.example/style.css" or
+      // protocol-relative "//cdn.example/style.css"); for on-site CSS
+      // links the value is a local filesystem path produced by
+      // PSURLConverter. Only the on-site (filesystem-path) values need the
+      // CWE-22/CWE-23 containment check. URL values were never meant to
+      // be opened as files (pre-fix code's `new File(url)` just returns
+      // false); we skip them so external stylesheet support is preserved.
+      if (isRemoteUrl(cssFile)) {
+        continue;
+      }
+      // Defense-in-depth: requireUnderBase canonicalizes cssFile and
+      // verifies it is contained within themeRoot. Traversal payloads
+      // (../) or absolute escapes throw IllegalArgumentException BEFORE
+      // any File construction.
+      // CWE-22/CWE-23 (T043 / #1054): requireUnderBase is the barrier;
+      // exists() only stats the already-safe File.
+      File safe = PSPathInjectionGuard.requireUnderBase(themeRoot, cssFile);
+      if (safe.exists()) { // codeql[java/path-injection]
         linkPaths.remove(cssURL);
       }
     }
+  }
+
+  /**
+   * True if {@code value} is an http, https, or protocol-relative URL (case-insensitive).
+   * Protocol-relative URLs ({@code //cdn.example/style.css}) are preserved by getLinkPaths() for
+   * off-site CSS imports and must be skipped — otherwise canonicalizing them as a filesystem path
+   * would throw on Windows or silently mis-resolve on Unix.
+   */
+  private static boolean isRemoteUrl(String value) {
+    if (value == null) return false;
+    String lower = value.toLowerCase(java.util.Locale.ROOT);
+    return lower.startsWith("http://") || lower.startsWith("https://") || lower.startsWith("//");
   }
 }

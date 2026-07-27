@@ -28,7 +28,9 @@ import com.percussion.services.system.IPSSystemService;
 import com.percussion.share.data.PSPagedItemList;
 import com.percussion.share.data.PSPagedItemPropertiesList;
 import com.percussion.share.service.IPSDataService;
+import com.percussion.share.service.exception.PSParametersValidationException;
 import com.percussion.share.service.exception.PSValidationException;
+import com.percussion.share.validation.PSValidationErrorsBuilder;
 import com.percussion.webservices.PSWebserviceUtils;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.Consumes;
@@ -40,7 +42,7 @@ import jakarta.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.lucene.queryparser.flexible.standard.QueryParserUtil;
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -72,7 +74,7 @@ public class PSSearchRestService {
       var q = criteria.getQuery();
       if (q != null) {
         q = SecureStringUtils.sanitizeStringForHTML(q);
-        q = QueryParserUtil.escape(q);
+        q = QueryParser.escape(q);
         criteria.setQuery(q);
       }
 
@@ -114,7 +116,11 @@ public class PSSearchRestService {
           }
           itemList = searchService.search(criteria, contentIds);
         } else {
-          itemList = searchService.search(criteria);
+          try {
+            itemList = searchService.search(criteria);
+          } catch (PSSearchServiceException e) {
+            return checkAndThrowValidationException(e, criteria);
+          }
         }
       }
       return itemList;
@@ -135,6 +141,39 @@ public class PSSearchRestService {
       throws PSSearchServiceException {
     criteria = searchService.validateSearchCriteria(criteria);
     sanitizeCriteria(criteria);
-    return searchService.getExtendedSearchResults(criteria);
+    try {
+      return searchService.getExtendedSearchResults(criteria);
+    } catch (PSSearchServiceException e) {
+      try {
+        return checkAndThrowValidationException(e, criteria);
+      } catch (PSValidationException ve) {
+        throw new WebApplicationException(ve);
+      }
+    }
+  }
+
+  /**
+   * If the failure chain contains a Lucene {@code ParseException}, throw a field validation error;
+   * otherwise rethrow the original search exception. Never returns normally.
+   *
+   * @param <T> dummy return type so callers can {@code return} this and satisfy control-flow
+   */
+  private <T> T checkAndThrowValidationException(
+      PSSearchServiceException e, PSSearchCriteria criteria)
+      throws PSValidationException, PSSearchServiceException {
+    Throwable cause = e.getCause();
+    while (cause != null) {
+      if (cause instanceof org.apache.lucene.queryparser.classic.ParseException) {
+        PSValidationErrorsBuilder builder = new PSValidationErrorsBuilder("PSSearchRestService");
+        builder.rejectField(
+            "query",
+            "invalid",
+            "The search query is invalid: " + cause.getMessage(),
+            criteria.getQuery());
+        throw new PSParametersValidationException(builder.build());
+      }
+      cause = cause.getCause();
+    }
+    throw e;
   }
 }

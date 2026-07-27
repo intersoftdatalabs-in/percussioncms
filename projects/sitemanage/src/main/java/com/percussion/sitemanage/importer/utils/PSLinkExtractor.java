@@ -91,7 +91,7 @@ public final class PSLinkExtractor {
   /**
    * Gets a list of PSLink objects for a given Document
    *
-   * @param url the URL target
+   * @param siteUrl the URL target
    * @return a list of PSLink objects
    */
   public static List<PSLink> getLinksForDocument(

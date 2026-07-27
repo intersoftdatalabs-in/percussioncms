@@ -29,6 +29,7 @@ import com.percussion.pagemanagement.data.PSPage;
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.pagemanagement.service.IPSRenderService;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.server.PSServer;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.share.dao.IPSFolderHelper;
@@ -232,9 +233,13 @@ public class PSCloudService implements IPSCloudService {
    * @return the thumbnail URL for the supplied page.
    */
   public String generateThumbUrl(String pageId, String siteName) {
+    // CWE-22: siteName/pageId are path segments under rxDir + PAGE_THUMB_ROOT
+    PSPathInjectionGuard.requireSafeFileName(siteName);
+    PSPathInjectionGuard.requireSafeFileName(pageId);
     var thumbUrl = PAGE_THUMB_ROOT + siteName + "/" + pageId + PAGE_THUMB_SUFFIX;
-    var file = new File(PSServer.getRxDir() + thumbUrl);
-    if (!file.exists()) {
+    File rx = PSServer.getRxDir();
+    var file = PSPathInjectionGuard.requireUnderBase(rx, thumbUrl.replaceFirst("^/+", ""));
+    if (!file.exists()) { // codeql[java/path-injection]
       thumbUrl = "";
     } else {
       thumbUrl = "/Rhythmyx" + thumbUrl;

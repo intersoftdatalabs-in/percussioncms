@@ -408,7 +408,7 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
    * @param origin The origin or schema to use, may be <code>null</code> or empty.
    * @throws NamingException If there is an error attempting to derive the JDBC driver name.
    */
-  protected void init(DataSource dataSource, String driverType, String origin)
+  protected final void init(DataSource dataSource, String driverType, String origin)
       throws NamingException {
     m_database = null;
     m_backendDb = null;
@@ -487,7 +487,10 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
         try {
           conn = DriverManager.getConnection(connStr, props);
           if (conn != null) {
-            if (database != null) conn.setCatalog(database);
+            // H2 and other embedded engines reject setCatalog("") as invalid SET CATALOG
+            if (database != null && database.trim().length() > 0) {
+              conn.setCatalog(database);
+            }
             break;
           }
         } catch (SQLException e) {

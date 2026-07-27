@@ -22,24 +22,36 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.apache.tools.ant.types.FileSet;
 
+/**
+ * Copies a directory tree from a root directory to a destination directory based on package
+ * structure.
+ */
 public class PSCopyDirectory extends Copy {
+  /** Creates a new copy directory task. */
+  public PSCopyDirectory() {}
 
   /**
-   * @param rootDirPath the rootDirPath to set
+   * Sets the root directory path.
+   *
+   * @param rootDirPath the root directory path, never <code>null</code>
    */
   public void setRootDirPath(String rootDirPath) {
     this.rootDirPath = rootDirPath;
   }
 
   /**
-   * @param packageName the packageName to set
+   * Sets the package name.
+   *
+   * @param packageName the package name, never <code>null</code>
    */
   public void setPackageName(String packageName) {
     this.packageName = packageName;
   }
 
   /**
-   * @param destDir the destDir to set
+   * Sets the destination directory.
+   *
+   * @param destDir the destination directory path, never <code>null</code>
    */
   public void setDestDir(String destDir) {
     this.destDir = destDir;

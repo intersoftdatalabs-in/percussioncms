@@ -32,7 +32,6 @@ import com.percussion.sitemanage.data.*;
 import com.percussion.sitemanage.error.PSSiteImportException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.core.Context;
-import java.io.IOException;
 import java.util.List;
 
 /** CRUD operations for sites. */
@@ -107,7 +106,7 @@ public interface IPSSiteDataService extends IPSDataService<PSSite, PSSiteSummary
    *
    * @param includePubInfo if <code>true</code> adds the publishing info, the value may be <code>
    *     null</code> if the site's default server is not amazon s3 server.
-   * @return List<PSSiteSummary> of all sites.
+   * @return {@code List<PSSiteSummary>} of all sites.
    */
   List<PSSiteSummary> findAll(boolean includePubInfo);
 
@@ -145,7 +144,6 @@ public interface IPSSiteDataService extends IPSDataService<PSSite, PSSiteSummary
    * @param config the import configuration for the new site with only name and baseUrl set. Not
    *     <code>null</code> and the name of the site cannot be one of the existing site.
    * @return the job id of the running job that is importing the site, never <code>null</code>.
-   * @throws PSSiteImportException if an unexpected error occurred during site import.
    */
   Long createSiteFromUrlAsync(@Context HttpServletRequest request, PSSiteImportConfiguration config)
       throws PSValidationException, IPSFolderService.PSWorkflowNotFoundException;
@@ -196,7 +194,6 @@ public interface IPSSiteDataService extends IPSDataService<PSSite, PSSiteSummary
    *
    * @param publishProps publish properties of the site. never <code>null</code>
    * @return the updated publish properties never <code>null</code>.
-   * @throws IOException if an error takes place when handling the secure configuration files.
    */
   PSSitePublishProperties updateSitePublishProperties(PSSitePublishProperties publishProps)
       throws DataServiceSaveException, PSNotFoundException;

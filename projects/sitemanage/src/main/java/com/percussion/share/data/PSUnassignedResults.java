@@ -101,7 +101,7 @@ public class PSUnassignedResults extends PSAbstractDataObject {
     /**
      * The items that belong to this page.
      *
-     * @return List<UnassignedItem> not null after constructor.
+     * @return {@code List<UnassignedItem>} not null after constructor.
      */
     public List<UnassignedItem> getChildrenInPage() {
       return childrenInPage;
@@ -109,7 +109,7 @@ public class PSUnassignedResults extends PSAbstractDataObject {
 
     /**
      * @see #getChildrenInPage()
-     * @param childrenInPage List<UnassignedItem> assumed not null.
+     * @param childrenInPage {@code List<UnassignedItem>} assumed not null.
      */
     public void setChildrenInPage(List<UnassignedItem> childrenInPage) {
       this.childrenInPage = childrenInPage;

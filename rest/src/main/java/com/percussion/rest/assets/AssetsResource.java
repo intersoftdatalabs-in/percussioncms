@@ -133,7 +133,7 @@ public class AssetsResource {
       description =
           "Useful to run before running an import of Assets to determine the impact of the import."
               + " The report will also indicate the Asset type that files would be imported to,"
-              + " currently Image, File, or Flash assets are supported.",
+              + " currently Image or File assets are supported.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -176,9 +176,9 @@ public class AssetsResource {
       summary = "Creates a binary asset by uploading the binary",
       description =
           "Create a new asset by uploading a binary file. Asset type will be based upon the file"
-              + " type.  Images will create image assets, flash files will create flash assets and"
-              + " everything else will create file assets.  Optional assetType query parameter can"
-              + " be passed to override this default (Options are file, flash, or image).",
+              + " type.  Images will create image assets and everything else will create file"
+              + " assets.  Optional assetType query parameter can be passed to override this"
+              + " default (Options are file or image).",
       responses = {
         @ApiResponse(
             responseCode = "500",
@@ -221,7 +221,7 @@ public class AssetsResource {
   @Operation(
       summary = "Retrieve a binary file.",
       description =
-          "Get the binary for an image, flash or file asset. Returns a jakarta.ws.rs.core.Response"
+          "Get the binary for an image or file asset. Returns a jakarta.ws.rs.core.Response"
               + " object.",
       responses = {
         @ApiResponse(responseCode = "404", description = "Asset not found"),
@@ -256,8 +256,6 @@ public class AssetsResource {
       type = asset.getFile().flatMap(BinaryFile::getType).orElse(type);
     else if (asset.getImage().isPresent())
       type = asset.getImage().flatMap(ImageInfo::getType).orElse(type);
-    else if (asset.getFlash().isPresent())
-      type = asset.getFlash().flatMap(Flash::getType).orElse(type);
 
     var r =
         Response.ok(out)
@@ -400,7 +398,7 @@ public class AssetsResource {
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       return Response.serverError().build();
     }
-    return Response.accepted().build();
+    return Response.accepted().status(202).build();
   }
 
   @GET
@@ -429,7 +427,7 @@ public class AssetsResource {
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       return Response.serverError().build();
     }
-    return Response.accepted().build();
+    return Response.accepted().status(202).build();
   }
 
   @GET
@@ -459,7 +457,7 @@ public class AssetsResource {
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       return Response.serverError().build();
     }
-    return Response.accepted().build();
+    return Response.accepted().status(202).build();
   }
 
   @GET
@@ -486,7 +484,7 @@ public class AssetsResource {
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       return Response.serverError().build();
     }
-    return Response.accepted().build();
+    return Response.accepted().status(202).build();
   }
 
   private void generateReport(String reportType)
@@ -511,8 +509,7 @@ public class AssetsResource {
               sendMail(out, reportType, toAddress);
             } catch (Exception ex) {
               var errorStr = "Error occurred while generating " + reportType + " report";
-              log.error(errorStr + " cause: " + PSExceptionUtils.getMessageForLog(ex));
-              log.debug(PSExceptionUtils.getDebugMessageForLog(ex));
+              log.error(errorStr, ex);
               sendMail(errorStr, reportType, toAddress);
             }
           });

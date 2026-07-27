@@ -260,6 +260,32 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
   }
 
   /**
+   * Creates a secured SAXReader instance with XXE defenses enabled.
+   *
+   * @return a secured SAXReader instance
+   * @throws RuntimeException if the secure features cannot be configured
+   */
+  private SAXReader createSecureSAXReader() {
+    SAXReader reader = new SAXReader();
+    try {
+      reader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+      reader.setFeature("http://xml.org/sax/features/external-general-entities", false);
+      reader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+      reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+      reader.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
+    } catch (Exception e) {
+      log.error("Critical: Failed to set secure features on SAXReader", e);
+      throw new RuntimeException("Failed to initialize secure XML parser", e);
+    }
+    reader.setEntityResolver(
+        (publicId, systemId) -> {
+          throw new org.xml.sax.SAXException(
+              "Resolution of external entity is blocked: " + systemId);
+        });
+    return reader;
+  }
+
+  /**
    * Method getPostDom.
    *
    * @return Document
@@ -273,7 +299,7 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
     HttpServletRequest sreq = req.getServletRequest();
 
     Document document = null;
-    SAXReader reader = new SAXReader();
+    SAXReader reader = createSecureSAXReader();
     try {
       document = reader.read(sreq.getInputStream());
     } catch (DocumentException e) {
@@ -297,7 +323,7 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
   public Document getDomFromString(String string) throws IOException {
 
     Document document = null;
-    SAXReader reader = new SAXReader();
+    SAXReader reader = createSecureSAXReader();
 
     try {
       document = reader.read(new StringReader(string));

@@ -2,7 +2,7 @@
 
 ## Agent-friendly command interface
 
-Use `./docker/scripts/perc-devctl.sh` for concise pass/fail output with full logs saved to `docker/logs/`.
+Use `./docker/scripts/perc-devctl.py` for concise pass/fail output with full logs saved to `docker/logs/`.
 
 Each command prints a single summary line:
 
@@ -51,18 +51,19 @@ Resolution order:
 
 Defaults:
 
-- `db.type=derby`
+- `db.type=h2` (embedded default after Apache Derby retirement; GitHub #548)
 - `db.ssl.enabled=true`
 - `db.ssl.verify=true`
 - `db.ssl.allowSelfSigned=false`
 
 Supported fresh-install DB types:
 
-- `derby`
+- `h2` (default embedded)
+- `derby` (legacy; upgrade/migration only)
 - `mysql`
 - `sqlserver`
 
-For non-Derby installs, required parameters are:
+For non-embedded installs (not `h2` / `derby`), required parameters are:
 
 - `db.host`
 - `db.port`
@@ -84,12 +85,12 @@ Developer self-signed mode (explicit opt-in):
   - `MYSQL_PASSWORD`
   - `MYSQL_ROOT_PASSWORD`
 - The MySQL service runs with UTF-8 defaults (`utf8mb4`, `utf8mb4_unicode_ci`).
-- Installer defaults are historically Derby-oriented unless installation/runtime configs are changed.
+- Installer defaults use embedded **H2** unless installation/runtime configs target an external RDBMS or a legacy Derby path for migration testing.
 
 To confirm what the running server actually uses (CMS repo + DTS datasource), run:
 
 ```bash
-./docker/scripts/perc-devctl.sh inspect-install
+./docker/scripts/perc-devctl.py inspect-install
 ```
 
 The referenced log file includes values from:
@@ -106,7 +107,7 @@ docker compose --env-file .env.compose up -d --build
 Agent-friendly equivalent:
 
 ```bash
-./docker/scripts/perc-devctl.sh up --build
+./docker/scripts/perc-devctl.py up --build
 ```
 
 Maven lifecycle equivalent (profile-driven):
@@ -133,17 +134,51 @@ Then the combined app container starts both CMS and DTS processes.
 
 Container env equivalents for installer contract are provided in `.env.compose.example` as `PERC_DB_*` keys.
 
-## Persistent writable mount paths
+## Persistent writable data (`var/config` contract)
 
-CMS-DTS container host bindings:
+**Design intent:** under RX root (`/opt/Percussion`), **`var/config`** is the home for
+**user-writable / instance-specific** data that Docker (and similar deployments) should
+persist on a volume. Product code and packaging should prefer writing runtime-generated
+or operator-mutable files under `var/config` (or paths that resolve there) rather than
+into the immutable distribution tree.
 
-- `docker/dev-data/cms-dts/ObjectStore -> /opt/Percussion/ObjectStore`
-- `docker/dev-data/cms-dts/var -> /opt/Percussion/var`
-- `docker/dev-data/cms-dts/rxconfig -> /opt/Percussion/rxconfig`
-- `docker/dev-data/cms-dts/Deployment/Server/conf -> /opt/Percussion/Deployment/Server/conf`
-- `docker/dev-data/cms-dts/jetty/base -> /opt/Percussion/jetty/base`
+|               Path                |                                 Role                                 |
+|-----------------------------------|----------------------------------------------------------------------|
+| `var/config/`                     | Root for persistent, instance-specific config and writable artifacts |
+| `var/config/generated/`           | Auto-generated secrets and similar (e.g. first-boot passwords)       |
+| `var/config/generated/passwords`  | Generated CMS credentials on first startup                           |
+| `var/config/CustomXMLCatalog.xml` | Instance XML catalog overrides (when present)                        |
 
-These host-side folders are editable directly from your IDE.
+**Also treated as persistent / user-writable** (and often volume-mounted next to or via
+the same durability strategy as `var/`):
+
+|           Path            |                              Role                              |
+|---------------------------|----------------------------------------------------------------|
+| `ObjectStore/`            | CMS object store (design-time apps, content editor defs, etc.) |
+| `rxconfig/`               | Server runtime config (Installer, I18n, ESAPI, categories, …)  |
+| `jetty/base/`             | Jetty base (logs, webapps overlay, runtime jetty config)       |
+| `Deployment/Server/conf/` | DTS Tomcat/conf and perc datasources                           |
+
+When adding new features that write files at runtime (generated passwords, locks,
+catalogs, local overrides), put them under **`var/config`** (or a clearly versioned
+subdir there) so Docker can map one durable volume for “anything the user/instance owns.”
+
+`ObjectStore` and `rxconfig` historically live at RX root for on-prem layouts; in Docker
+they are volume-mounted separately today. Future hardening may re-home or symlink more of
+those trees under `var/config` — until then, treat **all of the mounts below** as the
+writable set.
+
+### Compose dev mounts (current)
+
+CMS-DTS container host bindings (`docker-compose.yml`):
+
+- `docker/dev-data/cms-dts/ObjectStore` → `/opt/Percussion/ObjectStore`
+- `docker/dev-data/cms-dts/var` → `/opt/Percussion/var` (**includes `var/config`**)
+- `docker/dev-data/cms-dts/rxconfig` → `/opt/Percussion/rxconfig`
+- `docker/dev-data/cms-dts/Deployment/Server/conf` → `/opt/Percussion/Deployment/Server/conf`
+- `docker/dev-data/cms-dts/jetty/base` → `/opt/Percussion/jetty/base`
+
+These host-side folders are editable directly from your IDE and survive container rebuilds.
 
 ## Logs and status
 
@@ -155,8 +190,8 @@ docker compose --env-file .env.compose logs -f cms-dts
 Agent-friendly status + verification:
 
 ```bash
-./docker/scripts/perc-devctl.sh status
-./docker/scripts/perc-devctl.sh verify --timeout-seconds 300
+./docker/scripts/perc-devctl.py status
+./docker/scripts/perc-devctl.py verify --timeout-seconds 300
 ```
 
 ## Stop stack
@@ -168,7 +203,7 @@ docker compose --env-file .env.compose down
 Agent-friendly equivalent:
 
 ```bash
-./docker/scripts/perc-devctl.sh down
+./docker/scripts/perc-devctl.py down
 ```
 
 Maven lifecycle equivalent:
@@ -186,7 +221,7 @@ docker compose --env-file .env.compose down -v
 Agent-friendly with volume cleanup:
 
 ```bash
-./docker/scripts/perc-devctl.sh down --volumes
+./docker/scripts/perc-devctl.py down --volumes
 ```
 
 ## Run integration tests against Compose stack
@@ -200,7 +235,7 @@ Use profile-driven lifecycle to start stack, run integration tests, and teardown
 Agent-friendly equivalent:
 
 ```bash
-./docker/scripts/perc-devctl.sh it-verify
+./docker/scripts/perc-devctl.py it-verify
 ```
 
 This flow performs:
@@ -236,19 +271,19 @@ Build just the module jar, then deploy into running container:
 
 ```bash
 ./mvn-env.sh -pl modules/utils -am package -DskipTests
-./docker/scripts/hot-deploy-jar.sh --jar modules/utils/target/<your-jar>.jar --target both --restart
+./docker/scripts/hot-deploy-jar.py --jar modules/utils/target/<your-jar>.jar --target both --restart
 ```
 
 Agent-friendly equivalent with optional post-deploy verification:
 
 ```bash
-./docker/scripts/perc-devctl.sh deploy-jar --jar modules/utils/target/<your-jar>.jar --target both --restart --verify
+./docker/scripts/perc-devctl.py deploy-jar --jar modules/utils/target/<your-jar>.jar --target both --restart --verify
 ```
 
 Single-command fix verification (deploy + verify + one final result line):
 
 ```bash
-./docker/scripts/perc-devctl.sh verify-fix --jar modules/utils/target/<your-jar>.jar --target both --restart --timeout-seconds 240
+./docker/scripts/perc-devctl.py verify-fix --jar modules/utils/target/<your-jar>.jar --target both --restart --timeout-seconds 240
 ```
 
 Notes:
@@ -267,7 +302,7 @@ On first CMS startup, generated credentials are written to:
 Retrieve with:
 
 ```bash
-./docker/scripts/perc-devctl.sh show-generated-passwords
+./docker/scripts/perc-devctl.py show-generated-passwords
 ```
 
 If unavailable, the command returns `RESULT:FAIL` and a detailed log path.

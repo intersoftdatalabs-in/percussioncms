@@ -37,9 +37,9 @@ public interface IPSFileDownloader {
    * @param context PSSiteImportCtx object, must not be null.
    * @param createAsset true if an asset needs to be created. The resource is downloaded to a temp
    *     file, then deleted. false otherwise.
-   * @return List of PSPair<Boolean, String>. For each value, the first element is true if the
-   *     download was successful, and false otherwise. The second element is the success message or
-   *     an error message.
+   * @return List of {@code PSPair<Boolean, String>}. For each value, the first element is true if
+   *     the download was successful, and false otherwise. The second element is the success message
+   *     or an error message.
    */
   List<PSPair<Boolean, String>> downloadFiles(
       Map<String, String> urlToPathMap, PSSiteImportCtx context, boolean createAsset);
@@ -50,8 +50,8 @@ public interface IPSFileDownloader {
    *
    * @param url URL where the file is hosted. Assumed not null.
    * @param destinationPath Destination path for the downloaded file. Assumed not null.
-   * @return PSPair<Boolean, String>. The first element is true if the download was successful,
-   *     false otherwise. The second element is the success message or an error message.
+   * @return {@code PSPair<Boolean, String>}. The first element is true if the download was
+   *     successful, false otherwise. The second element is the success message or an error message.
    */
   PSPair<Boolean, String> downloadFile(String url, String destinationPath);
 }

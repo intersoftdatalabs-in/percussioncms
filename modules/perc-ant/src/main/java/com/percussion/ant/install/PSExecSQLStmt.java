@@ -37,11 +37,14 @@ import org.apache.tools.ant.BuildException;
 /**
  * PSExecSQLStmt is an Installshield wizard bean which executes specified sql statement during
  * install. It has a general sql statement <code>sql</code> and a sql statement for each database
- * that is supported, <code>sqlSqlServer</code>, <code>sqlOracle</code>, and <code>sqlUDB</code>.
- * Database specific sql statement takes preference over the general sql statement. However if the
- * database specific sql statement is <code>null</code> or empty, then general sql statement is
- * used. The <code>objectNames</code> contains the names of tables or views which should be replaced
- * by fully qualified table or view name before executing the sql statement. For example, if the sql
+ * that is supported, <code>sqlSqlServer</code>, <code>sqlOracle</code>, <code>sqlUDB</code>,
+ * <code>sqlDerby</code>, <code>sqlMysql</code>, <code>sqlH2</code> (#548), and
+ * <code>sqlPostgresql</code> (#1500). Database specific sql statement takes preference over the
+ * general sql statement. However if the database specific sql statement is <code>null</code> or
+ * empty, then general sql statement is used. For H2, if <code>sqlH2</code> is empty, <code>
+ * sqlDerby</code> is used when present (H2 is the default embedded replacement for Derby). The
+ * <code>objectNames</code> contains the names of tables or views which should be replaced by fully
+ * qualified table or view name before executing the sql statement. For example, if the sql
  * statement is CREATE VIEW RXRELATEDCONTENT ... then "RXRELATEDCONTENT" string should be added to
  * <code>objectNames</code> so that it is replaced by fully qualified name such as
  * "rxmaster.dbo.RXRELATEDCONTENT" on MS SqlServer before executing the sql statement. <br>
@@ -68,12 +71,17 @@ import org.apache.tools.ant.BuildException;
  *                  sqlSqlServer=""
  *                  sqlUDB=""
  *                  sqlDerby=""
- *                  sqlMysql=""/&gt;
+ *                  sqlMysql=""
+ *                  sqlH2=""
+ *                  sqlPostgresql=""/&gt;
  *  </code>
  *
  * </pre>
  */
 public class PSExecSQLStmt extends PSAction {
+  /** Creates a new SQL statement executor. */
+  public PSExecSQLStmt() {}
+
   private static final Logger log = LogManager.getLogger(PSExecSQLStmt.class);
 
   // see base class
@@ -108,18 +116,17 @@ public class PSExecSQLStmt extends PSAction {
               + uid);
       try (Connection conn = InstallUtil.createConnection(driver, server, database, uid, pw)) {
 
-        String strStmt = sql;
-        String dbStrStmt = "";
-
-        if (driver.equalsIgnoreCase(PSJdbcUtils.DB2)) dbStrStmt = sqlUDB;
-        else if (driver.equalsIgnoreCase(PSJdbcUtils.DERBY_DRIVER)) dbStrStmt = sqlDerby;
-        else if (driver.equalsIgnoreCase(PSJdbcUtils.MYSQL_DRIVER)) dbStrStmt = sqlMysql;
-        else if (driver.equalsIgnoreCase(PSJdbcUtils.JTDS_DRIVER)
-            || driver.equalsIgnoreCase(PSJdbcUtils.MICROSOFT_DRIVER)
-            || driver.equalsIgnoreCase(PSJdbcUtils.SPRINTA)) dbStrStmt = sqlSqlServer;
-        else if (driver.startsWith(PSJdbcUtils.ORACLE_PRIMARY)) dbStrStmt = sqlOracle;
-
-        if (!dbStrStmt.trim().isEmpty()) strStmt = dbStrStmt;
+        String strStmt =
+            resolveDialectSql(
+                driver,
+                sql,
+                sqlSqlServer,
+                sqlOracle,
+                sqlUDB,
+                sqlDerby,
+                sqlMysql,
+                sqlH2,
+                sqlPostgresql);
 
         if (strStmt.trim().isEmpty()) return;
 
@@ -148,8 +155,12 @@ public class PSExecSQLStmt extends PSAction {
     }
   }
 
+  /**
+   * Handles exceptions thrown during SQL execution.
+   *
+   * @param ex the exception to handle, never <code>null</code>
+   */
   public void handleException(Exception ex) {
-    // ERROR Code for specified View Not Exist, ignore it
     if (ex.getMessage().contains("ORA-00942") || ex.getMessage().contains("does not exist")) {
       PSLogger.logWarn(ex.getMessage());
       return;
@@ -362,6 +373,90 @@ public class PSExecSQLStmt extends PSAction {
   }
 
   /**
+   * SQL for H2 (default embedded, #548). If empty at execute time, {@link #sqlDerby} is used when
+   * non-empty.
+   */
+  public String getSqlH2() {
+    return sqlH2;
+  }
+
+  /** Sets the H2-specific SQL statement (Ant attribute {@code sqlH2}). */
+  public void setSqlH2(String sqlH2) {
+    if (sqlH2 == null) sqlH2 = "";
+    this.sqlH2 = sqlH2;
+  }
+
+  /**
+   * SQL for PostgreSQL external repository (#1500). If empty, the generic {@code sql} attribute is
+   * used.
+   */
+  public String getSqlPostgresql() {
+    return sqlPostgresql;
+  }
+
+  /** Sets the PostgreSQL-specific SQL statement (Ant attribute {@code sqlPostgresql}). */
+  public void setSqlPostgresql(String sqlPostgresql) {
+    if (sqlPostgresql == null) sqlPostgresql = "";
+    this.sqlPostgresql = sqlPostgresql;
+  }
+
+  /**
+   * Choose the dialect-specific SQL for the JDBC driver name, falling back to {@code defaultSql}
+   * when the dialect form is blank. H2 falls back to Derby SQL when {@code sqlH2} is blank so
+   * existing {@code sqlDerby} install statements apply to the H2 default without mass rewrites.
+   *
+   * <p>Package-private for unit tests.
+   *
+   * @param driver JDBC driver name (e.g. {@code h2}, {@code postgresql})
+   * @param defaultSql generic {@code sql} attribute
+   * @return statement to execute (may be empty)
+   */
+  static String resolveDialectSql(
+      String driver,
+      String defaultSql,
+      String sqlSqlServer,
+      String sqlOracle,
+      String sqlUDB,
+      String sqlDerby,
+      String sqlMysql,
+      String sqlH2,
+      String sqlPostgresql) {
+    String base = defaultSql == null ? "" : defaultSql;
+    if (driver == null) {
+      return base;
+    }
+    String dbStrStmt = "";
+    if (driver.equalsIgnoreCase(PSJdbcUtils.DB2)) {
+      dbStrStmt = nullToEmpty(sqlUDB);
+    } else if (driver.equalsIgnoreCase(PSJdbcUtils.DERBY_DRIVER)) {
+      dbStrStmt = nullToEmpty(sqlDerby);
+    } else if (driver.equalsIgnoreCase(PSJdbcUtils.H2_DRIVER)) {
+      // Prefer explicit sqlH2; otherwise reuse Derby dialect (embedded migration parity).
+      String h2 = nullToEmpty(sqlH2);
+      dbStrStmt = !h2.trim().isEmpty() ? h2 : nullToEmpty(sqlDerby);
+    } else if (driver.equalsIgnoreCase(PSJdbcUtils.MYSQL_DRIVER)) {
+      dbStrStmt = nullToEmpty(sqlMysql);
+    } else if (driver.equalsIgnoreCase(PSJdbcUtils.POSTGRES_DRIVER)
+        || "postgres".equalsIgnoreCase(driver)) {
+      dbStrStmt = nullToEmpty(sqlPostgresql);
+    } else if (driver.equalsIgnoreCase(PSJdbcUtils.JTDS_DRIVER)
+        || driver.equalsIgnoreCase(PSJdbcUtils.MICROSOFT_DRIVER)
+        || driver.equalsIgnoreCase(PSJdbcUtils.SPRINTA)) {
+      dbStrStmt = nullToEmpty(sqlSqlServer);
+    } else if (driver.startsWith(PSJdbcUtils.ORACLE_PRIMARY)) {
+      dbStrStmt = nullToEmpty(sqlOracle);
+    }
+    if (!dbStrStmt.trim().isEmpty()) {
+      return dbStrStmt;
+    }
+    return base;
+  }
+
+  private static String nullToEmpty(String s) {
+    return s == null ? "" : s;
+  }
+
+  /**
    * Indicates whether the stack trace of the exception generated when executing the SQL statement
    * should be printed to the log.
    *
@@ -501,6 +596,18 @@ public class PSExecSQLStmt extends PSAction {
    * <code>sql</code> is executed if it is not empty
    */
   private String sqlMysql = "";
+
+  /**
+   * sql statement to use for H2 database (#548), never <code>null</code>, may be empty. If empty
+   * at execute time, {@link #sqlDerby} is used when non-empty.
+   */
+  private String sqlH2 = "";
+
+  /**
+   * sql statement to use for PostgreSQL (#1500), never <code>null</code>, may be empty. If empty,
+   * <code>sql</code> is executed if it is not empty.
+   */
+  private String sqlPostgresql = "";
 
   /**
    * Indicates whether the stack trace of the exception generated when executing the SQL statement

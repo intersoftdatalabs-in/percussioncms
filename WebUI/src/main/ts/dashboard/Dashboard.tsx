@@ -85,7 +85,8 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
     name: "Activity",
     component: ActivityWidget,
     description: "Recent content activity timeline",
-    category: "Content Management",
+    // GadgetRegistry.xml group "Deprecated" (v8.1.7 #722 / #885)
+    category: "Deprecated",
   },
   {
     id: "process-monitor",
@@ -176,7 +177,8 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
     name: "Membership",
     component: MembershipWidget,
     description: "User membership information and statistics",
-    category: "System",
+    // GadgetRegistry.xml group "Deprecated" (v8.1.7 #722 / #885)
+    category: "Deprecated",
   },
   {
     id: "sitewide-framework",
@@ -190,7 +192,8 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
     name: "Siteimprove",
     component: SiteimproveWidget,
     description: "Accessibility and quality metrics from Siteimprove",
-    category: "Analytics",
+    // GadgetRegistry.xml group "Deprecated" (v8.1.7 #722 / #885)
+    category: "Deprecated",
   },
   {
     id: "iframe",
@@ -211,9 +214,11 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
     name: "Dashboard Configuration",
     component: WidgetConfigurationWidget,
     description: "Manage dashboard widgets and configuration",
-    category: "System",
+    // GadgetRegistry.xml group "Deprecated" (v8.1.7 #722 / #885)
+    category: "Deprecated",
   },
 ];
+
 const DEFAULT_GADGETS: DashboardWidget[] = [
   {
     id: "welcome",
@@ -248,17 +253,25 @@ const DEFAULT_GADGETS: DashboardWidget[] = [
 export interface DashboardProps {
   legacyDashboardUrl?: string;
   userId?: string;
+  /**
+   * When true (Home Gadgets section), avoid full-viewport loading chrome and
+   * treat this as an embedded panel rather than a standalone page.
+   */
+  embedded?: boolean;
 }
 
 /**
- * Main dashboard component.
+ * Dashboard gadget host — React widgets formerly shown on the peer dash page.
+ * Product placement is Home → Gadgets (PR-7); this component remains reusable.
  *
  * @param legacyDashboardUrl - Optional URL to legacy dashboard for fallback
  * @param userId - Optional user ID for loading/saving dashboard configuration
+ * @param embedded - Home section embed (compact loading, no peer-page framing)
  */
 export const Dashboard: React.FC<DashboardProps> = ({
   legacyDashboardUrl = "/cm/app/dashboard.jsp?legacy=true",
   userId,
+  embedded = false,
 }) => {
   const [gadgets, setGadgets] = useState<DashboardWidget[]>(DEFAULT_GADGETS);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -429,21 +442,22 @@ export const Dashboard: React.FC<DashboardProps> = ({
   if (isLoading && userId) {
     return (
       <div
+        data-testid="dashboard-loading"
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          height: "100vh",
+          minHeight: embedded ? "12rem" : "100vh",
           color: "#999",
         }}
       >
-        <p>Loading dashboard...</p>
+        <p>Loading gadgets…</p>
       </div>
     );
   }
 
   return (
-    <div style={{ width: "100%" }}>
+    <div style={{ width: "100%" }} data-testid="dashboard-root" data-embedded={embedded ? "1" : "0"}>
       {/* Dashboard Header */}
       <div
         style={{

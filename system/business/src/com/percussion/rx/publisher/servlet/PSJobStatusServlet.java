@@ -21,7 +21,7 @@ import com.percussion.rx.publisher.IPSPublisherJobStatus;
 import com.percussion.rx.publisher.IPSRxPublisherService;
 import com.percussion.rx.publisher.IPSRxPublisherServiceInternal;
 import com.percussion.rx.publisher.PSRxPubServiceInternalLocator;
-import com.percussion.rx.publisher.jsf.nodes.PSPublishingStatusHelper;
+import com.percussion.rx.publisher.PSPublishingStatusHelper;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.services.publisher.IPSEdition;
 import com.percussion.services.publisher.PSPublisherServiceLocator;

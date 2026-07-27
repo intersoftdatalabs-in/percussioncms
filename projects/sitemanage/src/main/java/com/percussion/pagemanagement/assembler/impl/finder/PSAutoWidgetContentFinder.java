@@ -33,22 +33,14 @@ import org.apache.logging.log4j.Logger;
 /**
  * The auto widget content finder allows a widget to be filled with items returned by a query.
  *
- * <table>
- * <tr>
- * <th>Parameter</th>
- * <th>Description</th>
- * </tr>
- * <tr>
- * <td>query</td>
- * <td>The JSR-170 query to be performed</td>
- * </tr>
- * <tr>
- * <td>max_results</td>
- * <td>Optional parameter. It is the maximum number of the returned result
- * from the find method if specified, zero or negative indicates no limit.
- * It defaults to zero if not specified.</td>
- * </tr>
- * </table>
+ * <p><b>Parameters:</b>
+ *
+ * <ul>
+ *   <li><b>query</b> - The JSR-170 query to be performed
+ *   <li><b>max_results</b> - Optional parameter. It is the maximum number of the returned result
+ *       from the find method if specified, zero or negative indicates no limit. It defaults to zero
+ *       if not specified.
+ * </ul>
  *
  * @author YuBingChen
  */

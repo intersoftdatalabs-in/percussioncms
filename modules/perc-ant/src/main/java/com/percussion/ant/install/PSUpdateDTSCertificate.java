@@ -32,6 +32,9 @@ import java.security.cert.CertificateException;
 import java.util.Properties;
 
 public class PSUpdateDTSCertificate extends PSAction {
+  /** Creates a new DTS certificate update task. */
+  public PSUpdateDTSCertificate() {}
+
   private static String PROD_PATH = "Deployment";
   private static String STAGING_PATH = "Staging/Deployment";
   private static String CATALINA_PROPERTIES = "Server/conf/perc/perc-catalina.properties";

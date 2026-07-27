@@ -49,10 +49,13 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class PSSaxHelper {
 
-  /** Parser factory used in the static helper methods here. The */
+  /**
+   * Parser factory used in the static helper methods here. Uses secure defaults with DTD allowed
+   * for local catalog-backed legacy content; external entities remain hard-disabled by {@link
+   * PSSecureXMLUtils}.
+   */
   static final SAXParserFactory ms_factory =
-      PSSecureXMLUtils.getSecuredSaxParserFactory(
-          new PSXmlSecurityOptions(true, true, true, false, true, false));
+      PSSecureXMLUtils.getSecuredSaxParserFactory(PSXmlSecurityOptions.secureWithDtd());
 
   /**
    * This method instantiates the passed content handler with the arguments given. The passed

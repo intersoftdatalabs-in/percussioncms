@@ -48,8 +48,8 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * The class that should be used to construct menus, sub-menus and pop-up menus represented by
- * {@link com.percussion.cx.objectstore#PSAction}. This class implements the Callable interface so
- * the menu can be built on a separate thread when selection changes.
+ * {@link PSMenuAction}. This class implements the Callable interface so the menu can be built on a
+ * separate thread when selection changes.
  */
 public class PSContentExplorerMenu implements PopupMenuListener, Callable<PSContentExplorerMenu> {
   static Logger log = LogManager.getLogger(PSContentExplorerMenu.class);

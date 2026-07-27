@@ -27,8 +27,6 @@
 			<AdditionalHeadContent>head</AdditionalHeadContent>
 			<AfterBodyStart>after</AfterBodyStart>
 			<BeforeBodyClose>before</BeforeBodyClose>
-			<Widget widgetName="percFlash" regionName="leftsidebar"
-				sourceAssetName="/dodad/flashAsset" />
 		</TemplateDef>
 		<!--TemplateDef name="sampleTpl2" label="sampleTpl2Label" baseTemplateName="perc.base.Box"
 			siteName="Mysite7"> <BodyMarkup>Body Markup</BodyMarkup> <CssOverride>css
@@ -45,20 +43,6 @@
 		<AssetDef name="htmlAsset" contentType="percRawHtmlAsset">
 			<Field name="html">TestHTML</Field>
 		</AssetDef>
-		<!-- -->
-		<AssetDef name="flashAsset" contentType="percFlashAsset">
-			<Field name="filename">tangramone.swf</Field>
-			<Field name="item_file_attachment" href="./tangramone.swf" />
-			<Field name="item_file_attachment_filename">tangramone.swf</Field>
-			<Field name="item_file_attachment_ext">.swf</Field>
-			<Field name="item_file_attachment_type">application/x-shockwave-flash</Field>
-			<Field name="item_file_attachment_size">94661</Field>
-			<Field name="item_file_attachment_width">200</Field>
-			<Field name="item_file_attachment_height">100</Field>
-			<Field name="flashversion">10</Field>
-			<Field name="displaytitle">flash displaytitle</Field>
-		</AssetDef>
-
 		<AssetDef name="fileAsset" contentType="percFileAsset">
 			<Field name="item_file_attachment"
 				href="./WP Technical Debt.pdf" />
@@ -114,8 +98,6 @@
 				sourceAssetName="/dodad/htmlAsset" />
 			<Widget widgetName="percImage" regionName="rightsidebar"
 				sourceAssetName="/images/testImage" />
-			<Widget widgetName="percFlash" regionName="leftsidebar"
-				sourceAssetName="/dodad/flashAsset" />
 			<Widget widgetName="percFile" regionName="content"
 				sourceAssetName="/dodad/fileAsset" />
 		</PageDef>

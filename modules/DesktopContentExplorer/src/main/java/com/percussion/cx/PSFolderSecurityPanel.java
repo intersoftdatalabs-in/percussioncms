@@ -814,22 +814,22 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
     return (PSObjectAclEntry) selObj;
   }
 
-  /** JList of ACL Entries */
+  /** JList of ACL Entries. */
   private JList m_aclList;
 
-  /** */
+  /** Checkbox for the "read" permission. */
   private JCheckBox m_cbReadPermission;
 
-  /** */
+  /** Checkbox for the "write" permission. */
   private JCheckBox m_cbWritePermission;
 
-  /** */
+  /** Checkbox for the "admin" permission. */
   private JCheckBox m_cbAdminPermission;
 
-  /** */
+  /** Button used to add a new ACL entry. */
   private JButton m_addButton;
 
-  /** */
+  /** Button used to remove the selected ACL entry. */
   private JButton m_removeButton;
 
   /** reference to the parent dialog, initialized in the ctor */

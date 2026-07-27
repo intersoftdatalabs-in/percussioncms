@@ -458,11 +458,14 @@ public class PSSaveAssetsMaintenanceProcess
                 + ":not(img["
                 + IPSManagedLinkService.PERC_LINKID_ATTR
                 + "])");
+    // get all anchor links with an href attr and target="_blank" but without the rel attr.
+    // A_HREF is already "a[href]", so append attribute filters only (not another "a[...]").
+    // Fix ported from v8.1.7 PR #716.
     var targetAnchors =
         doc.select(
             IPSManagedLinkService.A_HREF
-                + "a[target=\"_blank\"]"
-                + ":not(a[rel=\"noopener noreferrer\"])");
+                + "[target=\"_blank\"]"
+                + ":not([rel=\"noopener noreferrer\"])");
     if (anchors.isEmpty() && imgs.isEmpty() && targetAnchors.isEmpty()) {
       hasUnmanagedLinks = false;
     } else {
@@ -824,24 +827,33 @@ public class PSSaveAssetsMaintenanceProcess
     }
   }
 
+  /**
+   * Legacy dual-column cleanup for {@code CT_PERCFILEASSET}: when both {@code ITEM_FILE_ATTACHMENT}
+   * and {@code ITEM_FILE_ATTACHMENTX} exist (or only the old name remains), rename the old column
+   * onto the canonical name.
+   *
+   * <p><b>Must not</b> drop {@code ITEM_FILE_ATTACHMENT} solely because {@code COUNT(... IS NOT
+   * NULL) == 0} — that is true on empty / fresh installs and previously deleted the only real
+   * column, breaking {@code psx_cepercFileAsset} with {@code no such column ITEM_FILE_ATTACHMENT}.
+   */
   public void checkDuplicateColumn() {
-    var qualifyingTableName = "CT_PERCFILEASSET";
-    var columnNew = "ITEM_FILE_ATTACHMENT";
-    var columnOld = "ITEM_FILE_ATTACHMENTX";
+    var qualifyingTableName = PSFileAssetColumnMigration.TABLE;
+    var columnNew = PSFileAssetColumnMigration.COLUMN_NEW;
+    var columnOld = PSFileAssetColumnMigration.COLUMN_OLD;
     var baseConfigDir = PSServer.getBaseConfigDir();
     log.info(baseConfigDir);
     var rootDir = PSServer.getRxDir().getAbsolutePath();
     if (baseConfigDir.contains("jetty")) {
       rootDir = baseConfigDir.substring(0, baseConfigDir.lastIndexOf("jetty") - 1);
     }
-    var propFile = rootDir + File.separator + "rxconfig/Installer/rxrepository.properties";
-    log.info(propFile);
-    var f = new File(propFile);
-    if (!(f.exists() && f.isFile())) {
+    var propFile =
+        java.nio.file.Path.of(rootDir, "rxconfig", "Installer", "rxrepository.properties").toFile();
+    log.info(propFile.getAbsolutePath());
+    if (!(propFile.exists() && propFile.isFile())) {
       log.error("Unable to connect to the repository datasource file: {}", propFile);
       return;
     }
-    try (var in = new FileInputStream(f)) {
+    try (var in = new FileInputStream(propFile)) {
       var props = new Properties();
       props.load(in);
       var dbmsDef = new PSJdbcDbmsDef(props);
@@ -869,43 +881,59 @@ public class PSSaveAssetsMaintenanceProcess
                 dbmsDef.getDataBase(),
                 dbmsDef.getSchema(),
                 dbmsDef.getDriver());
-        var sqlSelect =
-            String.format(
-                "SELECT COUNT(*) FROM %s WHERE %s IS NOT NULL ", finalTableName, columnNew);
-        PSLogger.logInfo("Executing select statement : " + sqlSelect);
-        try (var stmtSelect = conn.createStatement();
-            var stmtAlterDropColumn = conn.createStatement();
-            var stmtAlterChangeName = conn.createStatement()) {
-          var rs = stmtSelect.executeQuery(sqlSelect);
-          var count = -1;
-          while (rs.next()) {
-            count = rs.getInt(1);
+        var schema = dbmsDef.getSchema();
+        var hasNew = columnExists(conn, schema, qualifyingTableName, columnNew);
+        var hasOld = columnExists(conn, schema, qualifyingTableName, columnOld);
+        if (!PSFileAssetColumnMigration.shouldMigrate(hasNew, hasOld)) {
+          PSLogger.logInfo(
+              "CT_PERCFILEASSET attachment columns OK (new="
+                  + hasNew
+                  + ", old="
+                  + hasOld
+                  + "); skip legacy rename.");
+          return;
+        }
+        int nonNullNewCount = 0;
+        if (hasNew) {
+          var sqlSelect =
+              String.format(
+                  "SELECT COUNT(*) FROM %s WHERE %s IS NOT NULL ", finalTableName, columnNew);
+          PSLogger.logInfo("Executing select statement : " + sqlSelect);
+          try (var stmtSelect = conn.createStatement();
+              var rs = stmtSelect.executeQuery(sqlSelect)) {
+            if (rs.next()) {
+              nonNullNewCount = rs.getInt(1);
+            }
           }
-          rs.close();
-          if (count == 0) {
+        }
+        try (var stmtAlter = conn.createStatement()) {
+          if (PSFileAssetColumnMigration.shouldDropEmptyNewColumn(
+              hasNew, hasOld, nonNullNewCount)) {
             var sqlAlterDropColumn =
                 String.format("ALTER TABLE %s DROP COLUMN %s ", finalTableName, columnNew);
-            var sqlAlterChangeName =
-                String.format(
-                    "ALTER TABLE %s RENAME COLUMN %s TO %s ", finalTableName, columnOld, columnNew);
-            stmtAlterDropColumn.executeUpdate(sqlAlterDropColumn);
-            if (driver.equalsIgnoreCase(PSJdbcUtils.MYSQL_DRIVER)) {
-              sqlAlterChangeName =
-                  String.format(
-                      "ALTER TABLE %s CHANGE %s %s LONGBLOB NULL",
-                      finalTableName, columnOld, columnNew);
-            } else if (driver.equalsIgnoreCase(PSJdbcUtils.JTDS_DRIVER)
-                || driver.equalsIgnoreCase(PSJdbcUtils.MICROSOFT_DRIVER)
-                || driver.equalsIgnoreCase(PSJdbcUtils.SPRINTA)) {
-              sqlAlterChangeName =
-                  String.format(
-                      "sp_rename '%s.%s', '%s', 'COLUMN' ", finalTableName, columnOld, columnNew);
-            } else if (driver.equalsIgnoreCase(PSJdbcUtils.DERBY_DRIVER)) {
-              sqlAlterChangeName =
-                  String.format("RENAME COLUMN %s.%s TO %s ", finalTableName, columnOld, columnNew);
-            }
-            stmtAlterChangeName.executeUpdate(sqlAlterChangeName);
+            PSLogger.logInfo("Dropping empty dual column: " + sqlAlterDropColumn);
+            stmtAlter.executeUpdate(sqlAlterDropColumn);
           }
+          var sqlAlterChangeName =
+              String.format(
+                  "ALTER TABLE %s RENAME COLUMN %s TO %s ", finalTableName, columnOld, columnNew);
+          if (driver.equalsIgnoreCase(PSJdbcUtils.MYSQL_DRIVER)) {
+            sqlAlterChangeName =
+                String.format(
+                    "ALTER TABLE %s CHANGE %s %s LONGBLOB NULL",
+                    finalTableName, columnOld, columnNew);
+          } else if (driver.equalsIgnoreCase(PSJdbcUtils.JTDS_DRIVER)
+              || driver.equalsIgnoreCase(PSJdbcUtils.MICROSOFT_DRIVER)
+              || driver.equalsIgnoreCase(PSJdbcUtils.SPRINTA)) {
+            sqlAlterChangeName =
+                String.format(
+                    "sp_rename '%s.%s', '%s', 'COLUMN' ", finalTableName, columnOld, columnNew);
+          } else if (driver.equalsIgnoreCase(PSJdbcUtils.DERBY_DRIVER)) {
+            sqlAlterChangeName =
+                String.format("RENAME COLUMN %s.%s TO %s ", finalTableName, columnOld, columnNew);
+          }
+          PSLogger.logInfo("Renaming legacy attachment column: " + sqlAlterChangeName);
+          stmtAlter.executeUpdate(sqlAlterChangeName);
         } catch (Exception e) {
           handleException(e);
         }
@@ -916,6 +944,44 @@ public class PSSaveAssetsMaintenanceProcess
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }
+  }
+
+  /**
+   * Whether a column exists on the table (case-insensitive match on name).
+   *
+   * @param conn open connection
+   * @param schema DB schema, may be null
+   * @param table un-qualified table name
+   * @param column column name
+   * @return true if metadata reports the column
+   */
+  static boolean columnExists(Connection conn, String schema, String table, String column)
+      throws SQLException {
+    var md = conn.getMetaData();
+    // Derby and others often store unquoted identifiers upper-case
+    try (var rs = md.getColumns(conn.getCatalog(), schema, table, null)) {
+      while (rs.next()) {
+        var name = rs.getString("COLUMN_NAME");
+        if (name != null && name.equalsIgnoreCase(column)) {
+          return true;
+        }
+      }
+    }
+    // Retry with upper-case table name if first pass found nothing (driver quirks)
+    try (var rs =
+        md.getColumns(
+            conn.getCatalog(),
+            schema != null ? schema.toUpperCase() : null,
+            table.toUpperCase(),
+            null)) {
+      while (rs.next()) {
+        var name = rs.getString("COLUMN_NAME");
+        if (name != null && name.equalsIgnoreCase(column)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   public void handleException(Exception ex) {

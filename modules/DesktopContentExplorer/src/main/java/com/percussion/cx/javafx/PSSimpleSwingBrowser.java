@@ -76,6 +76,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Swing frame that hosts an embedded JavaFX WebView for displaying content from a URL. Used by the
+ * content explorer when a more isolated browser surface is required (e.g. dependency tree, item
+ * assembly) instead of the main content explorer view.
+ */
 public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow {
 
   private static final String CANNOT_READ_MESSAGE =
@@ -88,30 +93,57 @@ public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow {
 
   private static final long serialVersionUID = 1L;
 
+  /** JavaScript expression for accessing the TinyMCE global object. */
   protected static final String TINYMCE = "window.tinymce";
+
+  /** JavaScript expression for accessing the active TinyMCE editor. */
   protected static final String TINYMCE_EDITOR = TINYMCE + ".EditorManager.activeEditor";
 
+  /** The JavaFX panel embedded in the Swing frame. */
   private final JFXPanel jfxPanel = new JFXPanel();
 
+  /** The main Swing content panel. */
   private final JPanel panel = new JPanel();
 
+  /** Whether the embedded window has completed loading. */
   private boolean windowLoaded = false;
 
+  /** The status bar label. */
   private final JLabel lblStatus = new JLabel();
 
+  /** The top bar panel that contains the open-in-browser and done buttons. */
   JPanel topBar = new JPanel(new BorderLayout(5, 0));
 
+  /** The "open in system browser" button shown for accessibility. */
   private final JButton btnGo = new JButton("Open in System Browser to Read");
+
+  /** The "Done" button. */
   private final JButton btnDone = new JButton("Done");
+
+  /** The text field used to display the current URL. */
   private final JTextField txtURL = new JTextField();
+
+  /** The progress bar shown while the page is loading. */
   private final JProgressBar progressBar = new JProgressBar();
 
+  /**
+   * Logs the supplied message using the "log" type.
+   *
+   * @param message the message text, may not be <code>null</code>.
+   */
   void addMessage(String message) {
     addMessage("log", message);
   }
 
+  /** Counter used to prefix sequential log messages. */
   int myMessageCount = 0;
 
+  /**
+   * Logs the supplied message using the given type, prefixing it with a sequential count.
+   *
+   * @param type the message type, one of "log", "warn", "error", or "debug".
+   * @param message the message text, may not be <code>null</code>.
+   */
   void addMessage(String type, String message) {
     myMessageCount++;
     String countedMessage = "[" + myMessageCount + "]" + message;
@@ -138,7 +170,18 @@ public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow {
     Platform.runLater(() -> {});
   }
 
+  /**
+   * JavaScript bridge that connects the Chrome DevTools debugger to the embedded web view, allowing
+   * the developer tools to attach for debugging.
+   */
   public class DevToolsJsBridge extends DevToolsDebuggerJsBridge {
+    /**
+     * Constructs the bridge for the given web view and state provider.
+     *
+     * @param webView the web view to debug, may not be <code>null</code>.
+     * @param instance the dev tools instance number.
+     * @param stateProvider the script state provider, may not be <code>null</code>.
+     */
     public DevToolsJsBridge(
         final WebView webView, final int instance, final JfxScriptStateProvider stateProvider) {
       super(webView, webView.getEngine(), instance, stateProvider);
@@ -162,6 +205,7 @@ public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow {
     }
   }
 
+  /** Default constructor. */
   public PSSimpleSwingBrowser() {
     super();
   }
@@ -301,14 +345,24 @@ public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow {
         });
   }
 
+  /**
+   * Lightweight action handler exposed to the page's JavaScript via {@code webviewAction} that can
+   * open the currently displayed URL in the system browser.
+   */
   public static class WebViewAction {
 
     private String urlToShow;
 
+    /**
+     * Constructs the action for the given URL.
+     *
+     * @param url the URL to open in the system browser, may not be <code>null</code>.
+     */
     public WebViewAction(String url) {
       urlToShow = url;
     }
 
+    /** Opens the stored URL in the system browser. */
     public void showFileInBrowser() {
       try {
         PSBrowserUtils.openWebpage(new URL(urlToShow));
@@ -318,6 +372,12 @@ public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow {
     }
   }
 
+  /**
+   * Loads the given URL in the embedded web view. If the URL cannot be parsed it is treated as a
+   * relative {@code http://} reference.
+   *
+   * @param url the URL to load, may not be <code>null</code>.
+   */
   public void loadURL(final String url) {
 
     String tmp = toURL(url);
@@ -834,6 +894,12 @@ public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow {
     }
   }
 
+  /**
+   * Window state listener hook for the embedded web view's host window. Currently adjusts the size
+   * of the JavaFX panel when the window is maximized.
+   *
+   * @param e the window state change event, assumed not <code>null</code>.
+   */
   public void frameWindowStateChanged(WindowEvent e) {
     // minimized
     if ((e.getNewState() & ICONIFIED) == ICONIFIED) {
@@ -857,7 +923,13 @@ public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow {
     return accessibleContext;
   }
 
+  /** Custom accessible frame implementation that surfaces the accessibility menu on focus. */
   protected class PSAccessibleJFrame extends AccessibleJFrame {
+    /** Default constructor. */
+    public PSAccessibleJFrame() {
+      // no-op
+    }
+
     @Override
     public String getAccessibleName() {
       if (!topBar.isVisible()) {
@@ -869,12 +941,17 @@ public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow {
     }
   }
 
+  /** Callback invoked when the page finishes loading. */
+  /** Callback invoked when the page finishes loading. */
   Runnable myOnPageLoadRunnable = null;
+
+  /** Callback invoked when the DevTools connection state changes. */
   Runnable myOnConnectionChangeRunnable = null;
 
   /* *****************************************************************************************
    *  Required: JSBridge to handle debugging proxy interface
    *******************************************************************************************/
+  /** Bridge to the Chrome DevTools debugger for the embedded web view. */
   DevToolsDebuggerJsBridge myJSBridge;
 
   /* *****************************************************************************************

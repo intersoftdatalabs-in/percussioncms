@@ -192,90 +192,146 @@ public class GenericLinkbackController extends AbstractController {
     }
   }
 
+  /**
+   * Gets the redirect path.
+   *
+   * @return the redirect path
+   */
   public String getRedirectPath() {
     return redirectPath;
   }
 
+  /**
+   * Sets the redirect path.
+   *
+   * @param redirectPath the redirect path to set
+   */
   public void setRedirectPath(String redirectPath) {
     this.redirectPath = redirectPath;
   }
 
+  /**
+   * Gets the help view name.
+   *
+   * @return the help view name
+   */
   public String getHelpViewName() {
     return helpViewName;
   }
 
+  /**
+   * Sets the help view name.
+   *
+   * @param helpViewName the help view name to set
+   */
   public void setHelpViewName(String helpViewName) {
     this.helpViewName = helpViewName;
   }
 
+  /**
+   * Gets the linkback codec.
+   *
+   * @return the linkback codec
+   */
   public LinkbackTokenCodec getLinkbackCodec() {
     return linkbackCodec;
   }
 
+  /**
+   * Sets the linkback codec.
+   *
+   * @param linkbackCodec the linkback codec to set
+   */
   public void setLinkbackCodec(LinkbackTokenCodec linkbackCodec) {
     this.linkbackCodec = linkbackCodec;
   }
 
   /**
-   * @return the linkbackParameterName
+   * Gets the linkback parameter name.
+   *
+   * @return the linkback parameter name
    */
   public String getLinkbackParameterName() {
     return linkbackParameterName;
   }
 
   /**
-   * @param linkbackParameterName the linkbackParameterName to set
+   * Sets the linkback parameter name.
+   *
+   * @param linkbackParameterName the linkback parameter name to set
    */
   public void setLinkbackParameterName(String linkbackParameterName) {
     this.linkbackParameterName = linkbackParameterName;
   }
 
   /**
-   * @return the requiredParameterNames
+   * Gets the required parameter names.
+   *
+   * @return the required parameter names
    */
   public List<String> getRequiredParameterNames() {
     return requiredParameterNames;
   }
 
   /**
-   * @param requiredParameterNames the requiredParameterNames to set
+   * Sets the required parameter names.
+   *
+   * @param requiredParameterNames the required parameter names to set
    */
   public void setRequiredParameterNames(List<String> requiredParameterNames) {
     this.requiredParameterNames = requiredParameterNames;
   }
 
   /**
-   * @return the optionalParameterNames
+   * Gets the optional parameter names.
+   *
+   * @return the optional parameter names
    */
   public List<String> getOptionalParameterNames() {
     return optionalParameterNames;
   }
 
   /**
-   * @param optionalParameterNames the optionalParameterNames to set
+   * Sets the optional parameter names.
+   *
+   * @param optionalParameterNames the optional parameter names to set
    */
   public void setOptionalParameterNames(List<String> optionalParameterNames) {
     this.optionalParameterNames = optionalParameterNames;
   }
 
   /**
-   * @return the additionalParameters
+   * Gets the additional parameters.
+   *
+   * @return the additional parameters
    */
   public Map<String, String> getAdditionalParameters() {
     return additionalParameters;
   }
 
   /**
-   * @param additionalParameters the additionalParameters to set
+   * Sets the additional parameters.
+   *
+   * @param additionalParameters the additional parameters to set
    */
   public void setAdditionalParameters(Map<String, String> additionalParameters) {
     this.additionalParameters = additionalParameters;
   }
 
+  /**
+   * Gets the error view name.
+   *
+   * @return the error view name
+   */
   public String getErrorViewName() {
     return errorViewName;
   }
 
+  /**
+   * Sets the error view name.
+   *
+   * @param errorViewName the error view name to set
+   */
   public void setErrorViewName(String errorViewName) {
     this.errorViewName = errorViewName;
   }

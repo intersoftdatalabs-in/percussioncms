@@ -166,7 +166,7 @@
             callback($.PercServiceUtils.STATUS_ERROR, I18N.message("perc.ui.user.service@Null String"));
             return;
         }
-        usernameStartsWith = usernameStartsWith.replace("%", "*");
+        usernameStartsWith = usernameStartsWith.replace(/%/g, "*");
         if(!usernameStartsWith.endsWith("*"))
             usernameStartsWith = usernameStartsWith + "*";
         var urlfindExternalUsernamesThatStartwith = $.perc_paths.USER_EXTERNAL_FIND + "/" + encodeURIComponent(usernameStartsWith);

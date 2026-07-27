@@ -277,7 +277,7 @@ public class PSDESEncryptor implements IPSEncryptor {
     int count = 0;
     byte[] eightBytes = new byte[8];
     for (int i = 8 * blockIndex; i < 8 * blockIndex + 8; i++) {
-      eightBytes[count] = ((Integer) (m_dataList.get(i))).byteValue();
+      eightBytes[count] = m_dataList.get(i).byteValue();
       count++;
     }
 

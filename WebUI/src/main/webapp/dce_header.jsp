@@ -18,8 +18,8 @@
     <table width="500" cellpadding="0" cellspacing="0" border="0" class="rx-banner-table">
         <tr class="rx-banner-row" valign="bottom" align="right">
             <td>
-                <a href="<%=root%>/ui/publishing/SiteList.faces" class="perc-button" accesskey="d">Publishing Design</a>
-                <a href="<%=root%>/ui/pubruntime" class="perc-button" accesskey="r">Publishing Runtime</a>
+                <a href="<%=root%>/cm/app/?view=publish&section=design" class="perc-button" accesskey="d">Publishing Design</a>
+                <a href="<%=root%>/cm/app/?view=publish&section=runtime" class="perc-button" accesskey="r">Publishing Runtime</a>
                 <a href="<%=root%>/Rhythmyx/sys_wfEditor/welcome.html?sys_componentname=wf_all&sys_pagename=wf_all" class="perc-button" accesskey="w">Workflow</a>
                 <a href="<%=root%>/ui/admin" class="perc-button" accesskey="a">Admin</a>
             </td>

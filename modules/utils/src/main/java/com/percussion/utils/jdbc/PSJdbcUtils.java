@@ -16,10 +16,12 @@
  */
 package com.percussion.utils.jdbc;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
@@ -43,6 +45,27 @@ public class PSJdbcUtils {
 
   /** constant for the Embedded Apache Derby driver type. */
   public static final String DERBY_DRIVER = "derby";
+
+  /**
+   * Constant for the H2 embedded driver type (default embedded replacement for retired Derby —
+   * GitHub #548). Must match driver name in server configuration ({@code config.xml}).
+   */
+  public static final String H2_DRIVER = "h2";
+
+  /** H2 JDBC driver class name. */
+  public static final String H2_DRIVER_CLASS = "org.h2.Driver";
+
+  /**
+   * Constant for the PostgreSQL JDBC driver type (external repository backend — GitHub #1500). Must
+   * match driver name in server configuration ({@code config.xml}).
+   */
+  public static final String POSTGRES_DRIVER = "postgresql";
+
+  /** PostgreSQL JDBC driver class name ({@code org.postgresql:postgresql}). */
+  public static final String POSTGRES_DRIVER_CLASS = "org.postgresql.Driver";
+
+  /** Default PostgreSQL TCP port. */
+  public static final int POSTGRES_DEFAULT_PORT = 5432;
 
   /** constant for the DB2 driver type. */
   public static final String DB2_DRIVER = "db2";
@@ -92,6 +115,12 @@ public class PSJdbcUtils {
   /** constant for the Apache Derby driver type. */
   public static final String DERBY = DERBY_DRIVER;
 
+  /** constant for the H2 driver type (alias of {@link #H2_DRIVER}). */
+  public static final String H2 = H2_DRIVER;
+
+  /** constant for the PostgreSQL driver type (alias of {@link #POSTGRES_DRIVER}). */
+  public static final String POSTGRES = POSTGRES_DRIVER;
+
   /** constant for the MYSQL driver type. */
   public static final String MYSQL = MYSQL_DRIVER;
 
@@ -122,6 +151,15 @@ public class PSJdbcUtils {
   /** Constant for Apache Derby db backend property, see */
   public static final String DERBY_DB_BACKEND = "DERBY";
 
+  /** Constant for H2 db backend property ({@code DB_BACKEND=H2}). */
+  public static final String H2_DB_BACKEND = "H2";
+
+  /**
+   * Constant for PostgreSQL db backend property ({@code DB_BACKEND=POSTGRES}). Installer {@code
+   * db.type} aliases {@code postgresql} / {@code postgres} normalize to this backend label.
+   */
+  public static final String POSTGRES_DB_BACKEND = "POSTGRES";
+
   /** Constant for MYSQL db backend property, see */
   public static final String MYSQL_DB_BACKEND = "MYSQL";
 
@@ -149,8 +187,14 @@ public class PSJdbcUtils {
       "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 
   /** Additional connection url parameters required to use unicode (UTF-8) with mysql. */
+  /**
+   * Default MySQL/MariaDB JDBC query string. {@code connectionCollation} keeps connection string
+   * literals aligned with utf8mb4 table columns so CREATE VIEW … UNION install steps do not fail
+   * with "Illegal mix of collations" (matrix MySQL 8 / #1500).
+   */
   public static String MYSQL_CONN_PARAMS =
-      "?useUnicode=yes&characterEncoding=UTF-8&useSSL=true&requireSSL=false&verifyServerCertificate=false";
+      "?useUnicode=yes&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
+          + "&useSSL=true&requireSSL=false&verifyServerCertificate=false";
 
   /**
    * Parses the specified database URL and returns the driver for which this is a valid URL.
@@ -335,9 +379,61 @@ public class PSJdbcUtils {
     } else if (DERBY_DRIVER.equalsIgnoreCase(driverName)
         && serverNameOrConnUrl.indexOf(";create=true") == -1) {
       rval.append(";create=true");
+    } else if (H2_DRIVER.equalsIgnoreCase(driverName)
+        && !serverNameOrConnUrl.toUpperCase(Locale.ROOT).contains("NON_KEYWORDS")) {
+      // H2 treats VALUE as a keyword; product schema uses VALUE as a column name
+      // (RXMENUVISIBILITY, PSX_SHARED_PROPERTIES, etc.). Without NON_KEYWORDS,
+      // CREATE TABLE ... VALUE VARCHAR fails with "expected identifier" (#548).
+      rval.append(";NON_KEYWORDS=VALUE");
     }
+    // H2 file URLs create the database by default; do not append Derby-style ";create=true".
 
     return rval.toString().replace(";;", ";");
+  }
+
+  /**
+   * Resolve relative H2 {@code file:} {@code DB_SERVER} fragments against the install tree.
+   *
+   * <p>Product default is {@code file:../../Repository/CMDB;...}, authored relative to {@code
+   * jetty/base}. During silent install Ant runs with {@code user.dir} under the extract temp tree,
+   * so without this resolution H2 creates the database under temp and Jetty later opens an empty
+   * database under the install root (matrix smoke / #548 / #1500).
+   *
+   * <p>Relative paths are always anchored at {@code installRoot/jetty/base} (whether or not that
+   * directory exists yet) so {@code ../../Repository/CMDB} normalizes to {@code
+   * installRoot/Repository/CMDB}. Absolute {@code file:} paths are normalized only. Non-{@code
+   * file:} fragments are returned unchanged.
+   *
+   * @param serverFragment value of {@code DB_SERVER} (not a full {@code jdbc:} URL); may be {@code
+   *     null}
+   * @param installRoot install root used as resolution base; if {@code null}, returns {@code
+   *     serverFragment} unchanged
+   * @return absolute {@code file:} fragment when input was relative; otherwise the original (or
+   *     path-normalized absolute) fragment
+   */
+  public static String resolveEmbeddedFileServer(String serverFragment, Path installRoot) {
+    if (serverFragment == null || installRoot == null) {
+      return serverFragment;
+    }
+    String s = serverFragment.trim();
+    if (!s.regionMatches(true, 0, "file:", 0, 5)) {
+      return s;
+    }
+    String pathAndParams = s.substring(5);
+    int semi = pathAndParams.indexOf(';');
+    String pathPart = semi >= 0 ? pathAndParams.substring(0, semi) : pathAndParams;
+    String params = semi >= 0 ? pathAndParams.substring(semi) : "";
+    if (pathPart.isEmpty()) {
+      return s;
+    }
+    Path path = Path.of(pathPart);
+    if (path.isAbsolute()) {
+      return "file:" + path.toAbsolutePath().normalize().toString().replace('\\', '/') + params;
+    }
+    // Product-relative H2 paths are authored for jetty/base (../../Repository/CMDB).
+    Path base = installRoot.toAbsolutePath().normalize().resolve("jetty").resolve("base");
+    Path resolved = base.resolve(pathPart).normalize().toAbsolutePath();
+    return "file:" + resolved.toString().replace('\\', '/') + params;
   }
 
   /**
@@ -352,12 +448,15 @@ public class PSJdbcUtils {
     if (driver.equals(SPRINTA)) strDBBackend = SPRINTA_DB_BACKEND;
     else if (driver.equals(DB2)) strDBBackend = DB2_DB_BACKEND;
     else if (driver.equals(DERBY_DRIVER)) strDBBackend = DERBY_DB_BACKEND;
+    else if (driver.equalsIgnoreCase(H2_DRIVER)) strDBBackend = H2_DB_BACKEND;
+    else if (driver.equalsIgnoreCase(POSTGRES_DRIVER)
+        || "postgres".equalsIgnoreCase(driver)) strDBBackend = POSTGRES_DB_BACKEND;
     else if (driver.equals(MYSQL_DRIVER)) strDBBackend = MYSQL_DB_BACKEND;
     else if (driver.equals(JTDS_DRIVER)
         || driver.equalsIgnoreCase(MICROSOFT_DRIVER)
         || driver.equalsIgnoreCase(MICROSOFT_DRIVER)) strDBBackend = JTDS_DB_BACKEND;
     else {
-      // Oracle is the only supported driver left
+      // Oracle thin/oci families and any remaining legacy thin aliases
       strDBBackend = ORACLE_DB_BACKEND;
     }
 
@@ -405,6 +504,13 @@ public class PSJdbcUtils {
     ms_jdbcUrlToDriverMap.put(MICROSOFT_DRIVER, MICROSOFT_DRIVER);
     ms_jdbcUrlToDriverMap.put(JTDS_DRIVER, JTDS_DRIVER);
     ms_jdbcUrlToDriverMap.put(DERBY_DRIVER, DERBY_DRIVER);
+    ms_jdbcUrlToDriverMap.put(H2_DRIVER, H2_DRIVER);
+    // jdbc:h2:file:... / jdbc:h2:mem:... / jdbc:h2:tcp:... use a subprotocol segment;
+    // without these entries getDriverFromUrl would return "h2:file" etc. (#548 runtime).
+    ms_jdbcUrlToDriverMap.put("h2:file", H2_DRIVER);
+    ms_jdbcUrlToDriverMap.put("h2:mem", H2_DRIVER);
+    ms_jdbcUrlToDriverMap.put("h2:tcp", H2_DRIVER);
+    ms_jdbcUrlToDriverMap.put(POSTGRES_DRIVER, POSTGRES_DRIVER);
     ms_jdbcUrlToDriverMap.put(MYSQL_DRIVER, MYSQL_DRIVER);
 
     // weblogic drivers
@@ -417,8 +523,9 @@ public class PSJdbcUtils {
     ms_jdbcUrlToDriverMap.put("datadirect:oracle", "datadirect:oracle");
     ms_jdbcUrlToDriverMap.put("datadirect:sqlserver", "datadirect:sqlserver");
 
-    // external drivers
+    // external drivers (not the product-managed embedded default)
     ms_externalDrivers.add(MYSQL_DRIVER);
+    ms_externalDrivers.add(POSTGRES_DRIVER);
   }
 
   /**

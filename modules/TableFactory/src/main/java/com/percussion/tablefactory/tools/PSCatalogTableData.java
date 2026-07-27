@@ -16,6 +16,7 @@
 package com.percussion.tablefactory.tools;
 
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.tablefactory.IPSTableFactoryErrors;
 import com.percussion.tablefactory.PSJdbcColumnDef;
 import com.percussion.tablefactory.PSJdbcDataTypeMap;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
@@ -263,8 +264,10 @@ public class PSCatalogTableData {
 
     Element table = walker.getNextElement(PSJdbcTableSchema.NODE_NAME, firstFlags);
     if (table == null) {
-      usage();
-      return; // must have at least one table
+      // Do not System.exit — this path is used programmatically by migration (#548)
+      throw new PSJdbcTableFactoryException(
+          IPSTableFactoryErrors.SCHEMA_COLL_PROCESS_ERROR,
+          "No tables found to export (empty tables document)");
     }
 
     Document outDefDoc = PSXmlDocumentBuilder.createXmlDocument();
@@ -375,10 +378,10 @@ public class PSCatalogTableData {
     Element tablesToExportRoot = tablesToExportDoc.createElement("tables");
     tablesToExportDoc.appendChild(tablesToExportRoot);
 
-    Collection tables = PSJdbcTableFactory.catalogTables(dbdef, "%");
-    Iterator iter = tables.iterator();
+    Collection<String> tables = PSJdbcTableFactory.catalogTables(dbdef, "%");
+    Iterator<String> iter = tables.iterator();
     while (iter.hasNext()) {
-      String tName = (String) iter.next();
+      String tName = iter.next();
       Element tn = tablesToExportDoc.createElement("table");
       tn.setAttribute("name", tName);
       tablesToExportRoot.appendChild(tn);
@@ -388,39 +391,78 @@ public class PSCatalogTableData {
 
   public static void mainExport(String[] args) {
     Map<String, String> optionsMap = PSJdbcImportExportHelper.getOptions(args);
-    PSJdbcDbmsDef dbdef = null;
     try {
-      // Props file
-      dbdef = loadProps(optionsMap.get(PSJdbcImportExportHelper.OPTION_DB_PROPS));
-
-      // Storage location
+      PSJdbcDbmsDef dbdef = loadProps(optionsMap.get(PSJdbcImportExportHelper.OPTION_DB_PROPS));
       String storagePath = optionsMap.get(PSJdbcImportExportHelper.OPTION_STORAGE_PATH);
-      File binaryStorageFolder =
-          new File(
-              storagePath
-                  + File.separator
-                  + PSJdbcImportExportHelper.BINARY_DATA_FOLDER
-                  + File.separator
-                  + PSJdbcImportExportHelper.BINARY_DATA_INITIAL_BUCKET);
-      binaryStorageFolder.mkdirs();
-      dbdef.setBinaryStorageLocation(binaryStorageFolder);
-
-      File defDataFolder =
-          new File(storagePath + File.separator + PSJdbcImportExportHelper.DEF_DATA_FOLDER);
-      defDataFolder.mkdirs();
-
-      Document docTablesToExport = generateTablesDocument(dbdef);
-
-      File tableDef = new File(defDataFolder + File.separator + "tableDef.xml");
-      File tableData = new File(defDataFolder + File.separator + "tableData.xml");
-
-      generateSchemaAndDataFiles(tableDef, tableData, dbdef, docTablesToExport, true);
-
+      int count = exportDatabase(dbdef, new File(storagePath));
+      System.out.println("Export completed, tables processed: " + count);
       System.exit(0);
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      System.exit(1);
     }
+  }
+
+  /**
+   * Programmatic full-database export: catalog all user tables and write schema + per-table data
+   * XML (and binary LOB files) under {@code storageRoot} in the same layout as {@code -dbexport}.
+   *
+   * <p>Layout:
+   *
+   * <ul>
+   *   <li>{@code defData/tableDef.xml} — all table definitions
+   *   <li>{@code defData/&lt;table&gt;-data.xml} — per-table data when non-empty
+   *   <li>{@code binaryData/bucket_0/} — binary column storage
+   * </ul>
+   *
+   * <p>Used by CLI {@code -dbexport} and by CMS Derby→H2 migration (#548) instead of ad-hoc JDBC
+   * pumps.
+   *
+   * @param dbdef source database definition (connection + backend); binary storage location is set
+   *     by this method
+   * @param storageRoot export root directory (created if missing)
+   * @return number of tables cataloged into tableDef.xml
+   * @throws Exception on I/O, SQL, or table factory errors
+   */
+  public static int exportDatabase(PSJdbcDbmsDef dbdef, File storageRoot) throws Exception {
+    if (dbdef == null) {
+      throw new IllegalArgumentException("dbdef may not be null");
+    }
+    if (storageRoot == null) {
+      throw new IllegalArgumentException("storageRoot may not be null");
+    }
+
+    File binaryStorageFolder =
+        new File(
+            storageRoot,
+            PSJdbcImportExportHelper.BINARY_DATA_FOLDER
+                + File.separator
+                + PSJdbcImportExportHelper.BINARY_DATA_INITIAL_BUCKET);
+    if (!binaryStorageFolder.mkdirs() && !binaryStorageFolder.isDirectory()) {
+      throw new IOException("Cannot create binary storage folder: " + binaryStorageFolder);
+    }
+    dbdef.setBinaryStorageLocation(binaryStorageFolder);
+
+    File defDataFolder = new File(storageRoot, PSJdbcImportExportHelper.DEF_DATA_FOLDER);
+    if (!defDataFolder.mkdirs() && !defDataFolder.isDirectory()) {
+      throw new IOException("Cannot create defData folder: " + defDataFolder);
+    }
+
+    Document docTablesToExport = generateTablesDocument(dbdef);
+    File tableDef = new File(defDataFolder, "tableDef.xml");
+    // Combined data file unused when saveIndividual=true; path still required by helper
+    File tableData = new File(defDataFolder, "tableData.xml");
+
+    generateSchemaAndDataFiles(tableDef, tableData, dbdef, docTablesToExport, true);
+
+    int count = 0;
+    if (tableDef.isFile()) {
+      Document defDoc =
+          PSXmlDocumentBuilder.createXmlDocument(new FileInputStream(tableDef), false);
+      count = defDoc.getElementsByTagName("table").getLength();
+    }
+    return count;
   }
 
   /**

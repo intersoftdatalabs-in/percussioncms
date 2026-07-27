@@ -1,0 +1,125 @@
+/*
+ * Copyright 1999-2026 Percussion Software, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+.brandBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  background: linear-gradient(
+    90deg,
+    var(--color-brand-900, #0b224a) 0%,
+    var(--color-brand-700, #2f456e) 60%,
+    var(--color-brand-500, #4a6aa3) 100%
+  );
+  color: var(--color-text-inverse, #ffffff);
+  font-family: var(--font-font-family-heading, "Rubik", sans-serif);
+  border-bottom: 1px solid var(--color-border, #d8dee9);
+  box-shadow: var(--space-shadows-sm, 0 1px 2px rgba(11, 34, 74, 0.08));
+}
+
+.brandLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.brandLogoLink {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  flex: 0 0 auto;
+}
+
+.brandLogo {
+  /* Source logo is large; cap height so missing CSS cannot blow up the bar */
+  height: 32px;
+  max-height: 32px;
+  max-width: 160px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+
+.brandProduct {
+  font-size: var(--font-font-size-sm, 12px);
+  font-weight: var(--font-font-weight-medium, 500);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-brand-100, #d5dce9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.brandRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.brandTagline {
+  font-size: var(--font-font-size-sm, 12px);
+  font-style: italic;
+  color: var(--color-brand-100, #d5dce9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.brandAccent {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background: var(--color-accent, #fbb03b);
+  border-radius: 2px;
+  flex: 0 0 auto;
+}
+
+.brandFooter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--color-surface-alt, #f5f7fb);
+  color: var(--color-text-muted, #5b6478);
+  font-size: var(--font-font-size-sm, 12px);
+  border-top: 1px solid var(--color-border, #d8dee9);
+  font-family: var(--font-font-family, "Inter", sans-serif);
+}
+
+.brandFooterLink {
+  color: var(--color-primary, #4a6aa3);
+  text-decoration: none;
+  font-weight: var(--font-font-weight-medium, 500);
+}
+
+.brandFooterLink:hover,
+.brandFooterLink:focus {
+  text-decoration: underline;
+}
+
+.brandProductBold {
+  color: var(--color-text, #181c2c);
+  font-weight: var(--font-font-weight-semibold, 600);
+}

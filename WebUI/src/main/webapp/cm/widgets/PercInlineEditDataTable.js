@@ -224,33 +224,26 @@
         value = $(aData[colNumber]).text().trim();
         if (config.percShowValuesPlaceholders && value === placeHolderValue)
           value = "";
-        nCol.innerHTML =
-          '<input id="inputEdition' +
-          colNumber +
-          '" placeholder="' +
-          placeHolderValue +
-          '" type="text" value="' +
-          value +
-          '" />';
       } else {
         value = aData[colNumber].trim();
         if (config.percShowValuesPlaceholders && value === placeHolderValue)
           value = "";
-        nCol.innerHTML =
-          '<input id="inputEdition' +
-          colNumber +
-          '" placeholder="' +
-          placeHolderValue +
-          '" type="text" value="' +
-          value +
-          '" />';
       }
+      $(nCol)
+        .empty()
+        .append(
+          $("<input/>")
+            .attr("id", "inputEdition" + colNumber)
+            .attr("placeholder", placeHolderValue)
+            .attr("type", "text")
+            .val(value)
+        );
       $(table).find("td input").on("focusout", tableCellFocusOut);
-      var labelHtml =
-        '<label class="visuallyhidden" for="inputEdition' +
-        colNumber +
-        '">Search:</label>';
-      table.parent().append(labelHtml);
+      var label = $("<label/>")
+        .addClass("visuallyhidden")
+        .attr("for", "inputEdition" + colNumber)
+        .text("Search:");
+      table.parent().append(label);
       addPlaceHolder();
 
       $(nCol).find("input").trigger("focus");
@@ -276,24 +269,16 @@
         $(table)
           .parent()
           .append(
-            '<label class="visuallyhidden" for="inputEdition' +
-              i +
-              '">Search:</label>'
+            $("<label/>")
+              .addClass("visuallyhidden")
+              .attr("for", "inputEdition" + i)
+              .text("Search:")
           );
         var value = "";
         if ($(aData[i]).length > 0) {
           value = $(aData[i]).text().trim();
           if (config.percShowValuesPlaceholders && value === placeHolderValue)
             value = "";
-
-          jqTds[i].innerHTML =
-            '<input id="inputEdition' +
-            i +
-            '" placeholder="' +
-            placeHolderValue +
-            '" type="text" value="' +
-            value +
-            '" />';
         } else {
           value = "";
           if (typeof aData[i] != "undefined") {
@@ -302,15 +287,16 @@
 
           if (config.percShowValuesPlaceholders && value === placeHolderValue)
             value = "";
-          jqTds[i].innerHTML =
-            '<input id="inputEdition' +
-            i +
-            '" placeholder="' +
-            placeHolderValue +
-            '" type="text" value="' +
-            value +
-            '" />';
         }
+        $(jqTds[i])
+          .empty()
+          .append(
+            $("<input/>")
+              .attr("id", "inputEdition" + i)
+              .attr("placeholder", placeHolderValue)
+              .attr("type", "text")
+              .val(value)
+          );
       }
       addPlaceHolder();
 

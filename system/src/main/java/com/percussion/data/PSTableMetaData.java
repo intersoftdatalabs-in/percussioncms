@@ -80,10 +80,71 @@ public class PSTableMetaData implements IPSConnectionInfo {
     m_primaryKeyColumns = new ArrayList();
     m_foreignKeyColumns = new ArrayList();
 
+    /*
+     * Fold catalog/schema/table to the case the backend stores unquoted
+     * identifiers in. PostgreSQL and often MySQL (lower_case_table_names=1)
+     * store lowercase; DatabaseMetaData.getColumns is case-sensitive on the
+     * table name, so CONTENTSTATUS vs contentstatus returns no columns and
+     * surface as "no such column COMMUNITYID". Same pattern as
+     * PSJdbcTableMetaData in TableFactory.
+     */
+    foldIdentifiersForMetaData(dmd);
+
     // now load the data (columns, pkeys, fkeys, indices)
     loadColumnInformation(dmd);
     loadKeyInformation(dmd);
     loadStatsAndIndexInformation(dmd);
+  }
+
+  /**
+   * Adjusts {@link #m_catalog}, {@link #m_schema}, and {@link #m_tableName} to match how this
+   * backend stores unquoted identifiers (lower/upper), so JDBC metadata lookups succeed.
+   *
+   * @param dmd driver metadata, not {@code null}
+   * @throws SQLException if the driver cannot report identifier storage flags
+   */
+  void foldIdentifiersForMetaData(DatabaseMetaData dmd) throws SQLException {
+    m_tableName = foldStoredIdentifier(m_tableName, dmd);
+    m_schema = foldStoredIdentifier(m_schema, dmd);
+    m_catalog = foldStoredIdentifier(m_catalog, dmd);
+  }
+
+  /**
+   * Folds an unquoted SQL identifier to the case the backend stores, per {@link
+   * DatabaseMetaData#storesLowerCaseIdentifiers()} / {@link
+   * DatabaseMetaData#storesUpperCaseIdentifiers()}. Package-visible for unit tests.
+   *
+   * @param identifier table, schema, or catalog name; may be {@code null}
+   * @param dmd driver metadata, not {@code null}
+   * @return folded name, or {@code null} if {@code identifier} was null
+   * @throws SQLException if the driver cannot report identifier storage flags
+   */
+  static String foldStoredIdentifier(String identifier, DatabaseMetaData dmd) throws SQLException {
+    if (identifier == null) {
+      return null;
+    }
+    if (dmd.storesLowerCaseIdentifiers()) {
+      return identifier.toLowerCase();
+    }
+    if (dmd.storesUpperCaseIdentifiers()) {
+      return identifier.toUpperCase();
+    }
+    return identifier;
+  }
+
+  /**
+   * Case-insensitive column name lookup for sorted {@link #m_columns}. Used when the driver returns
+   * lowercase names (PostgreSQL) but content editors request {@code COMMUNITYID}.
+   *
+   * @param columnName name to find, may be {@code null}
+   * @return index in {@link #m_columns}, or negative if not found (same contract as {@link
+   *     Collections#binarySearch})
+   */
+  int findColumnIndex(String columnName) {
+    if (columnName == null) {
+      return -1;
+    }
+    return Collections.binarySearch(m_columns, columnName);
   }
 
   /**
@@ -243,7 +304,7 @@ public class PSTableMetaData implements IPSConnectionInfo {
    * @since 1.1 1999/4/30
    */
   public boolean isNullable(String columnName) throws SQLException {
-    int colIdx = Collections.binarySearch(m_columns, columnName);
+    int colIdx = findColumnIndex(columnName);
     if (colIdx < 0) throw new SQLException("no such column " + columnName);
 
     ColumnInfo info = (ColumnInfo) m_columns.get(colIdx);
@@ -260,7 +321,7 @@ public class PSTableMetaData implements IPSConnectionInfo {
    * @since 1.1 1999/4/30
    */
   public int columnIndex(String columnName) throws SQLException {
-    int colIdx = Collections.binarySearch(m_columns, columnName);
+    int colIdx = findColumnIndex(columnName);
     if (colIdx < 0) return -1;
     ColumnInfo info = (ColumnInfo) m_columns.get(colIdx);
     return info.m_ordinalPosition;
@@ -297,7 +358,7 @@ public class PSTableMetaData implements IPSConnectionInfo {
    * @throws SQLException If this table does not have a column by the supplied name.
    */
   public int getSize(String columnName) throws SQLException {
-    int colIdx = Collections.binarySearch(m_columns, columnName);
+    int colIdx = findColumnIndex(columnName);
     if (colIdx < 0) throw new SQLException("no such column " + columnName);
     ColumnInfo info = (ColumnInfo) m_columns.get(colIdx);
     return info.m_size;
@@ -311,7 +372,7 @@ public class PSTableMetaData implements IPSConnectionInfo {
    * @throws SQLException If this table does not have a column by the supplied name.
    */
   public int getScale(String columnName) throws SQLException {
-    int colIdx = Collections.binarySearch(m_columns, columnName);
+    int colIdx = findColumnIndex(columnName);
     if (colIdx < 0) throw new SQLException("no such column " + columnName);
     ColumnInfo info = (ColumnInfo) m_columns.get(colIdx);
     return info.m_fractionalDigits;
@@ -324,7 +385,7 @@ public class PSTableMetaData implements IPSConnectionInfo {
    * @throws SQLException If this table does not have a column by the supplied name.
    */
   public String getTypeName(String columnName) throws SQLException {
-    int colIdx = Collections.binarySearch(m_columns, columnName);
+    int colIdx = findColumnIndex(columnName);
     if (colIdx < 0) throw new SQLException("no such column " + columnName);
     ColumnInfo info = (ColumnInfo) m_columns.get(colIdx);
     return null == info.m_typeName ? "" : info.m_typeName;
@@ -751,10 +812,11 @@ public class PSTableMetaData implements IPSConnectionInfo {
     }
 
     public int compareTo(Object o) {
-      if (o instanceof String) return m_name.compareTo((String) o);
+      // Case-insensitive: PG/MySQL return lowercase names; editors request UPPER.
+      if (o instanceof String) return m_name.compareToIgnoreCase((String) o);
 
       ColumnInfo other = (ColumnInfo) o;
-      return m_name.compareTo(other.m_name);
+      return m_name.compareToIgnoreCase(other.m_name);
     }
 
     public String m_name;

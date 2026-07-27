@@ -42,6 +42,7 @@ public interface IPSCommentsService {
    *     true</code> then any comments returned by this method call will have their "viewed" flag
    *     set to <code>true</code> and persisted.
    * @return list of comments, never <code>null</code>, may be empty.
+   * @throws Exception if an error occurs while retrieving the comments.
    */
   public PSComments getComments(PSCommentCriteria criteria, boolean isModerator) throws Exception;
 
@@ -54,6 +55,7 @@ public interface IPSCommentsService {
    * @param startIndex the index offset of results returned, used for paging. If zero or less then
    *     start index will be zero.
    * @return a page summaries object, never <code>null</code>, may be empty.
+   * @throws Exception if an error occurs while retrieving the page summaries.
    */
   public PSPageSummaries getPagesWithComments(String site, int maxResults, int startIndex)
       throws Exception;
@@ -76,6 +78,7 @@ public interface IPSCommentsService {
    * @param criteria the comment criteria object that specifies the comments to be returned. Cannot
    *     be <code>null</code>.
    * @return list of comments, never <code>null</code>, may be empty.
+   * @throws Exception if an error occurs while retrieving the comments.
    */
   public PSComments getComments(PSCommentCriteria criteria) throws Exception;
 
@@ -87,6 +90,7 @@ public interface IPSCommentsService {
    *
    * @param comment the comment object, cannot be <code>null</code>.
    * @return The newly added comment instance. This one has the comment ID inserted in the database.
+   * @throws Exception if an error occurs while adding the comment.
    */
   public IPSComment addComment(IPSComment comment) throws Exception;
 
@@ -124,6 +128,8 @@ public interface IPSCommentsService {
   public void deleteComments(Collection<String> ids);
 
   /**
+   * Retrieves the default moderation state configured for the specified site.
+   *
    * @param sitename the site who's default moderation state we want to retrieve. Cannot be <code>
    *     null</code> or empty.
    * @return the current default, never <code>null</code>.

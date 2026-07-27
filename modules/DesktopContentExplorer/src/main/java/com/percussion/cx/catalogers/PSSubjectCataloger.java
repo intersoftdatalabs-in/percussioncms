@@ -110,16 +110,21 @@ public class PSSubjectCataloger {
     public Subject() {}
 
     /**
-     * Constructor that calls fromXml
+     * Constructor that calls fromXml.
      *
-     * @param elemRoot the element that contains data for a single Subject, never <code>null</code>
+     * @param elemRoot the element that contains data for a single Subject, never <code>null</code>.
+     * @throws PSUnknownNodeTypeException if the element is not in the expected format.
      */
     public Subject(Element elemRoot) throws PSUnknownNodeTypeException {
       fromXml(elemRoot);
     }
 
-    /*
+    /**
      * Implementation of the interface method.
+     *
+     * @param elemRoot the element that contains data for a single subject, may not be <code>null
+     *     </code>.
+     * @throws PSUnknownNodeTypeException if the element is not in the expected format.
      */
     public void fromXml(Element elemRoot) throws PSUnknownNodeTypeException {
       PSXMLDomUtil.checkNode(elemRoot, XML_ELEM_PSXSUBJECT);
@@ -139,6 +144,8 @@ public class PSSubjectCataloger {
     }
 
     /**
+     * Gets the name of the subject.
+     *
      * @return subject name, never <code>null</code>, never <code>empty</code>
      */
     public String getName() {
@@ -146,6 +153,8 @@ public class PSSubjectCataloger {
     }
 
     /**
+     * Gets the security provider type id of the subject.
+     *
      * @return SecurityProvider type as.
      */
     public int getSecurityProviderTypeId() {
@@ -153,6 +162,8 @@ public class PSSubjectCataloger {
     }
 
     /**
+     * Gets the security provider instance name of the subject.
+     *
      * @return SecurityProviderInstance name, may be <code>empty</code>, never <code>null</code>
      */
     public String getSecurityProviderInstance() {
@@ -210,22 +221,30 @@ public class PSSubjectCataloger {
       return m_name.hashCode() + m_securityProviderType + m_securityProviderInstance.hashCode();
     }
 
-    /** */
+    /** The subject name. */
     private String m_name;
 
-    /** */
+    /** The security provider type id for the subject. */
     private int m_securityProviderType;
 
-    /** */
+    /** The security provider instance name for the subject. */
     private String m_securityProviderInstance;
 
+    /** Name element in the subject XML. */
     public static final String XML_ELEM_NAME = "name";
+
+    /** Security provider type element in the subject XML. */
     public static final String XML_ELEM_SP_TYPE = "securityProviderType";
+
+    /** Security provider instance element in the subject XML. */
     public static final String XML_ELEM_SP_INSTANCE = "securityProviderInstance";
   }
 
-  /*
+  /**
    * Implementation of the interface method.
+   *
+   * @param elemRoot the root element of the catalog response, may not be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the element is not in the expected format.
    */
   public void fromXml(Element elemRoot) throws PSUnknownNodeTypeException {
     m_collSubjects.clear();
@@ -247,18 +266,20 @@ public class PSSubjectCataloger {
   }
 
   /**
+   * Gets the cataloged subjects.
+   *
    * @return unmodifiable collection of cataloged Subject instances, never <code>null</code>.
    */
   public Collection getSubjects() {
     return Collections.unmodifiableCollection(m_collSubjects);
   }
 
-  /**
-   * collection of cataloged Subject instances.import
-   * com.percussion.cms.objectstore.PSRoleCataloger;
-   */
+  /** Collection of cataloged Subject instances. */
   private Collection m_collSubjects = new ArrayList();
 
+  /** Root element name in the catalog response. */
   public static final String XML_ELEM_ROOT = "getSubject";
+
+  /** Subject element name in the catalog response. */
   public static final String XML_ELEM_PSXSUBJECT = "PSXSubject";
 }

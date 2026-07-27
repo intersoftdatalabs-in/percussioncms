@@ -441,6 +441,10 @@ public class PSConfigManager {
       }
 
       IPSCmsObjectMgr cmsMgr = PSCmsObjectMgrLocator.getObjectManager();
+      // Long-lived cache: package install saves the same relationships config once per
+      // relationship def. After the first merge, DB @Version advances while this instance
+      // still holds the old value → Hibernate 7 "Row was already updated or deleted".
+      refreshOptimisticLockVersion(cfg, cmsMgr);
       cmsMgr.saveConfig(cfg);
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
@@ -448,6 +452,33 @@ public class PSConfigManager {
       String[] args = {name, e.getLocalizedMessage()};
       throw new PSServerConfigException(IPSServerErrors.ERROR_LOAD_CONFIGS, args);
     }
+  }
+
+  /**
+   * Syncs {@link PSConfig#getVersion()} from the database onto the cached instance so the next
+   * {@code merge} uses the current optimistic-lock token.
+   *
+   * @param cfg cached config, never {@code null}
+   * @param cmsMgr object manager, never {@code null}
+   */
+  static void refreshOptimisticLockVersion(PSConfig cfg, IPSCmsObjectMgr cmsMgr)
+      throws com.percussion.cms.PSCmsException {
+    if (cfg == null || cmsMgr == null) {
+      return;
+    }
+    String name = cfg.getName();
+    if (name == null || name.isBlank()) {
+      return;
+    }
+    cmsMgr
+        .findConfig(name)
+        .ifPresent(
+            db -> {
+              Integer dbVersion = db.getVersion();
+              if (dbVersion != null) {
+                cfg.setVersion(dbVersion);
+              }
+            });
   }
 
   /**
