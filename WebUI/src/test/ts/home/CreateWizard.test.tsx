@@ -37,19 +37,18 @@ describe("CreateWizard", () => {
     await waitFor(() => {
       expect(screen.getByTestId("create-type-chooser")).toBeDefined();
     });
-    expect(screen.getByText("perc.ui.home.modern@Create Page")).toBeDefined();
-    expect(screen.getByText("perc.ui.home.modern@Create Asset")).toBeDefined();
-    expect(
-      screen.getByText("perc.ui.home.modern@Create Blog Post"),
-    ).toBeDefined();
+    expect(screen.getByText("Create Page")).toBeDefined();
+    expect(screen.getByText("Create Asset")).toBeDefined();
+    expect(screen.getByText("Create Blog Post")).toBeDefined();
   });
 
   it("opens page wizard from chooser", async () => {
     render(<CreateWizard />);
     await waitFor(() => screen.getByTestId("create-type-chooser"));
-    fireEvent.click(screen.getByText("perc.ui.home.modern@Create Page"));
+    fireEvent.click(screen.getByText("Create Page"));
     await waitFor(() => {
       expect(screen.getByTestId("page-wizard")).toBeDefined();
     });
   });
 });
+

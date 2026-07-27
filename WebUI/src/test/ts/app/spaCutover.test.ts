@@ -145,7 +145,10 @@ describe("PR-8 delete obsolete product host JSPs", () => {
     expect(read(appSpa)).toBe(read(pagesSpa));
     // SPA boot root (index.ts accepts perc-spa-root / root / perc-app-root)
     expect(read(appSpa)).toContain("perc-spa-root");
+    // Home and all SPA chrome need TMX before the modern bundle
+    expect(read(appSpa)).toContain("tmx/tmx.jsp");
   });
+
 
   it("rxlogin.jsp remains the React login host", () => {
     const login = resolve(webappRoot, "rxlogin.jsp");

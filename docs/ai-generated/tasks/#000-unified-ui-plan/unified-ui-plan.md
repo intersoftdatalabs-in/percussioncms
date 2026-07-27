@@ -1,171 +1,220 @@
-# Unified UI Plan: Dojo → jQuery (Tactical) + Consolidated React UI (Strategic)
+# Unified UI Plan — React / TypeScript Only (Aggressive)
 
-**Status**: Active
-**Created**: 2026-02-27
-**Replaces**: [#000-modern-ui-plan](../archived/#000-modern-ui-plan/) (archived)
-
-## Summary
-
-Two parallel tracks. **Track A** is a fast, mechanical Dojo 0.4.3 → jQuery swap on 5 legacy
-Rhythmyx screens to eliminate security scan alerts — ships in the next release. **Track B** is a
-longer-term effort to design a single React UI that replaces all legacy UI layers.
-
-### Completed Milestones (Prior Work)
-
-- [x] Phase 0 — Build pipeline: Vite, frontend-maven-plugin, React bridge (`PercModernUI.mount()`)
-- [x] Phase 1 — React Dashboard: 24 widget components replacing Shindig gadget container
-- [x] FancyTree migration: Dynatree → FancyTree across 16 files
-- [x] Bootstrap 5 migration
+| Field | Value |
+|-------|--------|
+| **Status** | **Active — product direction (rev 4.0, 2026-07-27)** |
+| **Supersedes** | Track A (Dojo→jQuery as product strategy), Track B dual-mode / soft cutover, bridge-first hybrid, dual production modes |
+| **Canonical SPA design** | [`#000-pure-react-spa/design.md`](../#000-pure-react-spa/design.md) (infra PRs 1–9) |
+| **Module** | `WebUI/` (React + TypeScript + Vite) |
+| **Stack** | React 19, TypeScript 5.8, Vite, Jetty WAR under `/cm/` |
 
 ---
 
-## UI Layer Inventory
+## 1. Product locks (non-negotiable)
 
-| # |          Layer           |              Technology               |                                                                 Exclusive Features                                                                 |        Comm Protocol        |  Screens  |
-|---|--------------------------|---------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------|-----------|
-| 1 | Desktop Content Explorer | Java Swing + JavaFX WebView           | Clipboard, desktop app                                                                                                                             | JAX-WS SOAP + HTTP          | ~10       |
-| 2 | Rhythmyx Admin           | MyFaces JSF + Trinidad                | Server console, scheduled tasks, notifications, consistency checker, RxFix, variant migration                                                      | JSF managed beans           | 12        |
-| 3 | Rhythmyx Publishing      | MyFaces JSF + Trinidad                | Site/edition/content list/context/delivery type/location scheme CRUD, pub runtime, pub logs                                                        | JSF managed beans           | 28        |
-| 4 | Package Manager          | GWT + SmartGWT                        | Package install/uninstall, visibility                                                                                                              | GWT-RPC                     | 3+dialogs |
-| 5 | WebUI Legacy             | jQuery 3.6 + jQuery UI + Backbone     | Template design/layout/style, site architecture, user/role/category mgmt, pub servers/reports, widget builder, revision comparison, content finder | REST/JSON                   | ~20       |
-| 6 | Contributor UI (CUI)     | RequireJS + Knockout.js + widGEL      | Simplified content browsing, page/asset/blog creation wizards                                                                                      | REST/JSON                   | ~8        |
-| 7 | Rhythmyx Dojo Screens    | **Dojo 0.4.3** (→ jQuery via Track A) | Active Assembly, Content Browser, Relationship Editor, field editing, search                                                                       | REST/JSON (`/contentui/aa`) | 5         |
-| 8 | Eclipse Workbench        | Eclipse RCP plugin (external repo)    | Content type editor, system design, XML application editor                                                                                         | Custom protocol             | 3 views   |
-| — | React Modern (new)       | React 19 + TypeScript 5.8 + Vite 6    | Dashboard (done), future unified UI                                                                                                                | REST/JSON (typed Fetch)     | Growing   |
+1. **The product UI is React + TypeScript.** New user-facing work ships in `WebUI/src/main/ts/` inside the SPA (`spa.jsp` / path routes). Not jQuery, not Knockout, not Dojo, not a new bridge island for a product page.
+2. **No dual mode.** No feature flag that keeps classic and modern as peer production UIs for the same feature. Rollback = git revert / redeploy.
+3. **No new bridges.** `PercModernUI.mount` is **legacy debt**, not a pattern for new work. Do not add mounts for product navigation. Prefer SPA routes (and SPA dialogs when openers are ready).
+4. **No “shell counts as done.”** A screen is **not** accepted until features work end-to-end (load data, act, navigate, errors, roles). Empty chrome is a defect, not a milestone.
+5. **Screen-by-screen, feature-by-feature.** Prove one surface fully, then delete its legacy peer when safe, then move on. Home first.
+6. **Server entry stays query-only for redirects/login.** `spa.jsp?entry=…` (or path after client handoff). Never `Location: …#/…`.
 
 ---
 
-## Track A — Dojo → jQuery (Immediate, Next Release)
+## 2. What already shipped (infra — not functional acceptance)
 
-### A0. Prune Unused Dojo Files
+SPA program PR-1…PR-9 built the **front door and shell**:
 
-1. Delete from `system/cms/content/applications/sys_resources/ApplicationFiles/dojo/`:
-   `tests/`, `demos/`, `release/dojo/`, `src/crypto/`, and all `src/` subdirectories not
-   referenced by `build.txt` or `ps.*` modules.
-2. Update `system/ear/install-dojo.xml` and `system/ear/install.xml` (~line 598).
-3. Update Spotless exclusions in root `pom.xml` (lines 2337–2343, 2419–2471).
-4. Add temporary OWASP suppressions in `owasp-suppressions.xml`.
+| Wave | What landed | Honest status |
+|------|-------------|----------------|
+| Login | React `LoginPage` on `rxlogin.jsp` | **Product path** — verify CSRF/errors/return on real CMS |
+| App shell | TopNav, bootstrap, 401→login, BrowserRouter + filter | **Chrome only** |
+| Routes | Home, Publish, Workflow, Admin, WB, Explorer mounted | **Embedded shells** — functional depth varies; many not product-ready |
+| Cutover | `index.jsp` → SPA for modern views; obsolete `*Modern.jsp` product hosts deleted | **Routing done** |
+| Gadgets | React gadgets section on Home | **Compose done** — verify widgets work |
 
-### A1. jQuery Compatibility Layer for `ps.io`
-
-Rewrite `ps/io/Actions.js` (1,179 lines) — `dojo.io.bind()` → `$.ajax()`. Same endpoints
-(`/contentui/aa?action=<Name>`), same parameters, same response parsing. Keep `async: false`
-initially to preserve behavior.
-
-~25 action methods: `move`, `addSnippet`, `removeSnippet`, `checkInItem`, `transitionItem`,
-`getUrl`, `getActionVisibility`, `getSlotContent`, `getSnippetContent`, `getFieldContent`, etc.
-
-### A2. jQuery Replacements for `ps.widget.*`
-
-|                             Dojo Widget                              |        jQuery Replacement         |
-|----------------------------------------------------------------------|-----------------------------------|
-| `ps.widget.PSButton`                                                 | Plain `<button>` + CSS            |
-| `ps.widget.Tree` / `TreeSelector` / `TreeIcon` / `TreeDndController` | FancyTree                         |
-| `ps.widget.PSSplitContainer`                                         | CSS flexbox + jQuery UI Resizable |
-| `ps.widget.PopupMenu` / `MenuBar2` / `MenuBarItem2`                  | jQuery UI Menu                    |
-| `ps.widget.ContentPaneProgress`                                      | `<div>` + `$.load()` + spinner    |
-| `ps.widget.ScrollableNodes` / `Autoscroller`                         | jQuery UI Draggable scroll option |
-| `ps.widget.PSImageGallery`                                           | Simple jQuery gallery plugin      |
-
-### A3. Rewrite `ps.aa.*` Controller & Modules
-
-Rewrite `ps/aa/controller.js` (2,475 lines): `dojo.event.connect` → `$.on()`,
-`dojo.byId` → `$()`, `dojo.lang.declare` → ES6 class. Same for Page.js, Tree.js,
-Menu.js, dnd.js, Field.js, SnippetMove.js.
-
-Replace DnD with jQuery UI Draggable/Droppable/Sortable.
-
-### A4. Update Server-Side HTML Generation
-
-- `PSPageTree.java` (line 389): `dojoType="TreeNodeV3"` → FancyTree-compatible markup.
-- `PSActionBar.java` (line 304): `dojoType="MenuItem2"` → jQuery UI Menu `<li>` markup.
-
-### A5. Update XSL, JSP, and HTML Entry Points
-
-- `sys_aaPageHeader.html`: Replace `dojo.js` with jQuery + jQuery UI includes.
-- `rceditor.xsl` (line 32): Dojo script → jQuery.
-- `ContentBrowserDialog.jsp` (line 21): Replace Dojo includes. Remove `dojo.hostenv.writeIncludes()`.
-- `singleFieldEdit.xsl` (lines 159–169): `dojoType="ps:PSButton"` → plain `<button>`.
-- `sys_Templates.xsl` (line 3883): Remove `psxctl:FileDescriptor` for `dojo.js`.
-- `getQuery.xsl` (lines 133–134): `dojoType="Button"` → plain `<button>`.
-- `activeEdit.xsl` (lines 145–155): Update `ps.aa.controller` references.
-- All JSPs in `system/ear/jsps/ui/content/` and `system/ear/jsps/ui/activeassembly/`.
-- `styles.css`: Replace `.dojoButton`, `.dojoMenuBar2`, etc. with jQuery UI classes.
-
-### A6. Delete Dojo
-
-- Delete entire `dojo/` directory.
-- Delete `install-dojo.xml` and its call in `install.xml`.
-- Remove OWASP suppressions from A0.
-- Remove Spotless exclusions.
-- Clean up UnitTestResources copies.
+**Vendor Dojo library** was removed from the tree (security). Residual `ps.*` Active Assembly code and jQuery/JSF/GWT layers still exist as **legacy debt to eliminate or replace in React**, not as a long-lived second product UI.
 
 ---
 
-## Track B — Unified React UI (Strategic, Multi-Release)
+## 3. Target architecture (single product path)
 
-**Active product path (2026):** Pure React SPA (login-first) owns modern Home, Publish, Workflow,
-Admin, Widget Builder, and Explorer. Entry is `spa.jsp?entry=…` (query contract); obsolete
-product `*Modern.jsp` hosts were deleted in PR-8. Design: [`#000-pure-react-spa/`](../#000-pure-react-spa/).
-Residual bridge embeds remain only for legacy full-page exits and dialog pilots.
+```
+Browser
+  │
+  ├─ Public:  /rxlogin.jsp  → React LoginPage  → POST /login
+  │
+  └─ Auth:    /cm/app/spa.jsp?entry=…  OR  /cm/app/{home|publish|…}
+              → React App (BrowserRouter + AppLayout + TopNav)
+              → Feature route → *Shell / feature modules (TS)
+              → REST (typed api/*) + CSRF + TMX
+```
 
-### B0. Feature Inventory & REST API Gap Analysis
-
-Catalog every feature across all 8 layers, the endpoints each uses, and identify where REST
-endpoints are missing:
-
-- **JSF Admin/Publishing** (40 pages): Managed bean logic → needs REST endpoints.
-- **Desktop Content Explorer**: SOAP via JAX-WS → some REST equivalents may exist.
-- **Package Manager**: GWT-RPC → needs REST endpoints.
-- **Eclipse Workbench**: Content type/template/XML app CRUD → needs REST endpoints.
-
-See [ui-layer-inventory.md](ui-layer-inventory.md) for the full feature-to-layer matrix and
-API surface catalog.
-
-### B1. React Application Architecture
-
-- **Shell**: Single React SPA at `/cm/modern/` with sidebar navigation, breadcrumbs, tabbed content.
-- **Feature modules**: Lazy-loaded React route modules per feature area.
-- **Shared component library**: Tree (FancyTree wrapper), DataTable, Dialog, SplitPane, Menu, Forms.
-- **API client**: Extend existing typed `api/client.ts`.
-- **Auth/session**: Integrate with existing CSRF infrastructure (`window.OWASP_CSRFTOKEN`).
-- **Feature flags**: Each module deployable independently with fallback to legacy UI.
-
-### B2. Prioritized Migration Roadmap
-
-Order based on: security risk, maintenance burden, feature overlap, user impact.
-
-1. **GWT Package Manager** — smallest scope (~3 screens), GWT is dead technology
-2. **CUI Contributor UI** — small scope (~8 widgets), high overlap with WebUI finder, Knockout unmaintained
-3. **JSF Admin screens** — 12 pages, MyFaces+Trinidad ancient, exclusive features
-4. **JSF Publishing screens** — 28 pages, largest JSF scope, exclusive features
-5. **Rhythmyx jQuery screens** (from Track A) — now on jQuery, lower urgency
-6. **WebUI Legacy jQuery/Backbone** — largest scope (~20 views), actively maintained, lowest risk
-7. **Desktop Content Explorer** — drop desktop model; web-based replacement
-8. **Eclipse Workbench** — web-based content type designer, template assembler, XML app editor
+| Concern | Rule |
+|---------|------|
+| Product navigation | SPA only |
+| Feature code | `WebUI/src/main/ts/**` |
+| New pages | SPA route (+ server allowlist if deep-linked) |
+| Legacy full-page exits | Temporary only until that feature is React; then delete exit |
+| Residual `PercModernUI.mount` | Only until that host is rewritten or deleted — **no new hosts** |
+| jQuery / Knockout / JSF / GWT / residual Dojo-shaped `ps.*` | **Debt**. Touch only to fix blockers or to delete after React replacement |
 
 ---
 
-## Verification
+## 4. Screen register (order of work)
 
-|          Track           |                                                                                                           How to Verify                                                                                                            |
-|--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Track A (per step)**   | Smoke test: AA (tree, menu, DnD, slot add/remove), Content Browser (folder nav, search, select), Relationship Editor, Workflow Actions, Content Editor fields. OWASP + CodeQL scans. `grep -r "dojo\." system/` = 0 hits after A6. |
-| **Track B (per module)** | Vitest unit tests per React component. Integration tests against REST API. Manual QA comparing new vs legacy. WCAG 2.1 AA accessibility audit. Performance benchmarks.                                                             |
+Status meanings:
+
+| Status | Meaning |
+|--------|---------|
+| **Shell** | Route/chrome exists; features incomplete or broken |
+| **Partial** | Some features work; gaps known |
+| **Accepted** | Passes acceptance checklist on a real CMS; legacy peer removed or explicitly N/A |
+| **Legacy exit** | Still full-page leave SPA (must become SPA or be retired) |
+
+### Wave 0 — Front door (keep green)
+
+| Surface | Entry | Status | Notes |
+|---------|-------|--------|-------|
+| Login | `/rxlogin.jsp` | Partial → prove | CSRF, locales, errors, return to SPA |
+| App chrome | TopNav / user menu / 401 | Partial → prove | Roles hide/show; logout |
+
+### Wave 1 — **Home first (current focus)**
+
+| Surface | Entry | Status | Notes |
+|---------|-------|--------|-------|
+| **Home** | `/cm/app/home`, `?entry=home` | **Shell — not accepted** | User report: shell visible, **nothing functional** |
+
+**Home sections (each must work):**
+
+| Section | Route | Must work |
+|---------|-------|-----------|
+| Recent | `/home` / `/home/recent` | List loads; open item → editor (or agreed SPA path); empty/error states |
+| Bookmarks | `/home/bookmarks` | List; open; empty/error |
+| Library | `/home/library` | Browse/list; open; empty/error |
+| Search | `/home/search` | Query; results; open; empty/error |
+| Create | `/home/create` | Page/asset/blog wizards complete successfully |
+| Gadgets | `/home/gadgets` | Widgets load/configure/persist as product requires |
+
+**Home acceptance checklist (all required):**
+
+- [ ] Fresh login lands on Home (correct role homepage metadata)
+- [ ] Section tabs switch and deep links (`/home/gadgets`) work + refresh (path URL)
+- [ ] Each section loads real data against live REST (not forever loading / silent fail)
+- [ ] Open item navigates to a working editor path
+- [ ] Create wizards finish without dead ends
+- [ ] Gadgets usable for default set (no blank shell)
+- [ ] TMX labels (no raw keys for primary chrome)
+- [ ] Non-admin / admin differences correct
+- [ ] Vitest for non-trivial logic; manual smoke on docker/dev CMS recorded
+- [ ] No dependency on classic CUI Home for the same job
+
+**Home exit criteria:** checklist green → mark Home **Accepted** → remove any remaining classic Home peers still reachable from product nav.
+
+### Wave 2 — Primary SPA features (after Home accepted)
+
+Order (adjust only with product reason):
+
+1. **Publish** (`PublishingShell`) — sites, status, logs, design, runtime  
+2. **Explorer** (`ContentExplorerShell`) — tree, list, open, core actions  
+3. **Admin tools** (`AdminShell`) — tasks, logs, notifications, tools  
+4. **Workflow admin** (`WorkflowAdminShell`) — workflows, roles, users, categories  
+5. **Widget Builder** (`WidgetBuilderApp`) — if still product-enabled  
+
+Same rule: **feature checklist per screen**, then delete legacy peer.
+
+### Wave 3 — Remaining product surfaces (SPA or retire)
+
+| Surface | Today | Direction |
+|---------|--------|-----------|
+| Editor (webmgt / AA) | Legacy exit | React rewrite (large); interim: fix critical bugs only |
+| Design / Architecture | Legacy exit | React or retire paths |
+| Residual dialog hosts (pickers, search panel, US7 tools) | Bridge mounts | SPA dialogs / explorer actions; then **delete** hosts |
+| Package Manager (GWT) | Legacy | React when scheduled |
+| JSF admin/publishing residual | Packaging | Prefer SPA Admin/Publish; delete dead JSF |
+| Desktop CE / Eclipse | Out of band | Not SPA; do not block Home |
 
 ---
 
-## Key Decisions
+## 5. Working rules for agents & developers
 
-- **jQuery for Track A, React for Track B** — jQuery is tactical (eliminate scan alerts now);
-  React is the strategic consolidation target. No intermediate framework.
-- **No Dojo shim** — even shimmed, Dojo source files still trigger scanner alerts.
-- **FancyTree reuse** — bridge widget used in jQuery screens (Track A) and eventually wrapped
-  for React (Track B).
-- **Synchronous XHR preserved in Track A** — `$.ajax({ async: false })` to minimize behavioral
-  changes initially.
-- **Eclipse Workbench → web-based** — Content Design, System Design, XML Server become
-  admin-role React route modules.
-- **REST API creation is the long pole** — Track B gated by REST endpoints for features behind
-  JSF beans, SOAP, and GWT-RPC. Start API work early.
+### DO
 
+- Implement features in **React + TypeScript** under `WebUI/src/main/ts/`.
+- Use SPA routes and existing REST + CSRF + TMX patterns.
+- For each screen: **acceptance checklist** + Vitest for non-trivial logic + real CMS smoke.
+- Prefer fixing broken SPA behavior over wiring another jQuery page.
+- After a surface is **Accepted**, delete obsolete hosts/scripts for that surface in the same or immediate follow-up PR.
+
+### DO NOT
+
+- Add dual-mode flags or “keep classic as production peer.”
+- Add new `PercModernUI.mount` product pages.
+- Add new Dojo or new Knockout features.
+- Expand jQuery except critical security/hotfix on a surface not yet replaced.
+- Call a route “done” because the shell renders.
+
+### Residual bridge / legacy code
+
+- Documented only as **delete candidates** (`#000-pure-react-spa/residual-bridge-embeds.md`).
+- Allowed to touch for: security, compile, or **removing** after React replacement.
+- Not a place to invest new product UX.
+
+---
+
+## 6. Dojo / Track A historical note
+
+Earlier plans used **Track A = Dojo→jQuery** and **Track B = React**. That split is **retired as product strategy**.
+
+| Fact | Status |
+|------|--------|
+| Vendored Dojo 0.4.3 under ApplicationFiles | **Removed** (security; e.g. #1197) |
+| Residual `ps.*` AA code / compat shims | **Debt** — replace with React or delete when AA is rewritten; **not** a jQuery product investment track |
+| install-dojo.xml / residual `dojo.*` call sites | Cleanup when safe; not a parallel roadmap |
+
+---
+
+## 7. Immediate next work (execution)
+
+1. **Home functional recovery (Wave 1)** — diagnose why shell is empty/non-functional (API paths, CSRF, bootstrap, section routing, open-item, create wizards, gadgets). Fix until Home checklist is green.  
+2. Update residual docs/AGENTS as Home acceptance lands.  
+3. Then Wave 2 screen by screen with the same bar.
+
+Infra PRs (login shell, cutover, path URLs) stay; **value is measured by accepted screens**, starting with Home.
+
+---
+
+## 8. Verification standard (every screen)
+
+| Layer | Required |
+|-------|----------|
+| Manual | Checklist on real CMS (docker/dev) |
+| Automated | Vitest for logic; Playwright where already used for the surface |
+| Build | `cd WebUI && ../mvn-env.sh clean install` before PR |
+| Review | Erlang pre-commit on authored code |
+| Legacy | Explicit “delete / keep temporary” note in PR |
+
+---
+
+## 9. Related artifacts
+
+| Artifact | Role |
+|----------|------|
+| [`#000-pure-react-spa/design.md`](../#000-pure-react-spa/design.md) | SPA entry, bootstrap, router, PR 1–9 history |
+| [`#000-pure-react-spa/residual-bridge-embeds.md`](../#000-pure-react-spa/residual-bridge-embeds.md) | Residual mounts to eliminate |
+| [`WebUI/AGENTS.md`](../../../WebUI/AGENTS.md) | Module agent rules (React-only product) |
+| [`ui-layer-inventory.md`](ui-layer-inventory.md) | Historical inventory (may lag; this plan wins on direction) |
+
+---
+
+## 10. Key decisions (rev 4.0)
+
+| ID | Decision |
+|----|----------|
+| KD-R1 | Product UI = React + TypeScript SPA only |
+| KD-R2 | No dual mode / no soft feature-flag cutover |
+| KD-R3 | No new PercModernUI product hosts |
+| KD-R4 | Shell ≠ done; feature acceptance required |
+| KD-R5 | Home first, then Publish → Explorer → Admin → Workflow → WB |
+| KD-R6 | Track A Dojo→jQuery as product strategy is retired; vendor Dojo already gone |
+| KD-R7 | Server redirects stay query `entry` contract; client uses path URLs |

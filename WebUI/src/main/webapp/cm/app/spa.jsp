@@ -119,6 +119,8 @@
     <meta name="_csrf_header" content="<csrf:tokenname/>"/>
     <meta name="_csrf" content="<csrf:tokenvalue/>"/>
     <script src="/JavaScriptServlet"></script>
+    <%-- TMX catalog for React message() (required for Home and all SPA chrome) --%>
+    <script src="<%= request.getContextPath() %>/tmx/tmx.jsp?mode=js&amp;prefix=perc.ui.&amp;sys_lang=<%= locale %>"></script>
     <link rel="stylesheet" href="/cm/modern/assets/perc-modern-ui.css"/>
     <script type="module" src="/cm/modern/assets/perc-modern-ui.js"></script>
     <style>html, body { margin: 0; padding: 0; }</style>

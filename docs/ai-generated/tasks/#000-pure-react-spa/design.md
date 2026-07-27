@@ -2,15 +2,16 @@
 
 | Field | Value |
 |-------|-------|
-| **Status** | Implementation-ready (rev **3.2** — **aggressive SPA-first**, **login-first demo path**) |
+| **Status** | Infra PRs 1–9 landed or in flight; **product acceptance** is screen-by-screen per unified-ui-plan **rev 4.0** (Home first) |
 | **Module** | `WebUI/` |
 | **Branch base** | `development` |
 | **Stack (verified)** | React 19.1, TypeScript 5.8, Vite 8, Jetty WAR under `/cm/` |
 | **Canonical frontend** | `WebUI/src/main/frontend/` (Maven `frontend-maven-plugin` `workingDirectory`). Root `WebUI/package.json` / `WebUI/vite.config.ts` are **not** product build paths. |
-| **Supersedes** | Track B shell architecture in `docs/ai-generated/tasks/#000-unified-ui-plan/unified-ui-plan.md`; design revs 1–2 dual-mode / soft-flag strategies; rev 3.1 “login deferred” sequencing |
-| **Cutover stance** | **Aggressive SPA-first.** The SPA is the product UI. No dual-mode production path, no feature-flag kill-switch story. Old JSP shells may linger as **reference only** until cleanup deletes them. |
-| **Demo sequencing (locked)** | **Start at the front door:** React Login is the first shippable vertical slice so stakeholders can demo Login → SPA app without walking through legacy `rxlogin.jsp`. Authenticated shell routes follow immediately. |
-| **Out of scope (initially)** | Full React rewrite of webmgt editor, template layout/style, site architecture, Dojo AA/CB (Track A), Package Manager GWT, Desktop CE; inventing a parallel auth API (reuse existing `/login` POST) |
+| **Product direction of record** | [`#000-unified-ui-plan/unified-ui-plan.md`](../#000-unified-ui-plan/unified-ui-plan.md) **rev 4.0** — React/TS only; no dual mode; no new bridges; shell ≠ done |
+| **Supersedes** | Dual-mode / soft-flag strategies; Track A Dojo→jQuery as product strategy; bridge-first product pages; “shell = done” milestones |
+| **Cutover stance** | **Aggressive SPA-first.** The SPA is the product UI. No dual-mode production path. Residual hosts are **delete debt**, not peers. |
+| **Functional sequencing (locked)** | **Home first** (must be fully functional), then Publish → Explorer → Admin → Workflow → WB. Infra login/shell already shipped. |
+| **Out of scope until later waves** | Full editor/AA rewrite, Package Manager GWT, Desktop CE, Eclipse; inventing a parallel auth API (reuse existing `/login` POST) |
 
 ---
 

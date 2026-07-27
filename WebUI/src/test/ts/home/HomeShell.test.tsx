@@ -47,12 +47,13 @@ describe("HomeShell", () => {
   it("renders shell and section navigation including gadgets", () => {
     render(<HomeShell initialSection="list" />);
     expect(screen.getByTestId("home-shell")).toBeDefined();
-    expect(screen.getByText("perc.ui.home@My Recent")).toBeDefined();
-    expect(screen.getByText("perc.ui.home.modern@My Bookmarks")).toBeDefined();
-    expect(screen.getByText("perc.ui.home.modern@Library")).toBeDefined();
-    expect(screen.getByText("perc.ui.home.modern@Search")).toBeDefined();
-    expect(screen.getByText("perc.ui.home@Add New")).toBeDefined();
-    expect(screen.getByText("perc.ui.home.modern@Gadgets")).toBeDefined();
+    // TMX stub returns key; message() falls back to text after @
+    expect(screen.getByText("My Recent")).toBeDefined();
+    expect(screen.getByText("My Bookmarks")).toBeDefined();
+    expect(screen.getByText("Library")).toBeDefined();
+    expect(screen.getByText("Search")).toBeDefined();
+    expect(screen.getByText("Add New")).toBeDefined();
+    expect(screen.getByText("Gadgets")).toBeDefined();
   });
 
   it("opens gadgets section with dashboard widgets embedded", async () => {
@@ -87,17 +88,31 @@ describe("HomeShell", () => {
   it("starts on library when initialScreen is library", async () => {
     render(<HomeShell initialSection="library" />);
     await waitFor(() => {
-      expect(screen.getByText("perc.ui.home@No Site Exists")).toBeDefined();
+      expect(screen.getByText("No Site Exists")).toBeDefined();
     });
   });
 
   it("switches sections on nav click", async () => {
     render(<HomeShell initialSection="list" />);
-    fireEvent.click(screen.getByText("perc.ui.home.modern@Search"));
+    fireEvent.click(screen.getByTestId("home-nav-search"));
     await waitFor(() => {
-      expect(
-        screen.getByLabelText("perc.ui.home.modern@Search"),
-      ).toBeDefined();
+      expect(screen.getByTestId("home-nav-search").getAttribute("aria-current")).toBe(
+        "page",
+      );
     });
   });
+
+  it("notifies onSectionChange when a section tab is clicked", () => {
+    const onSectionChange = vi.fn();
+    render(
+      <HomeShell
+        embedded
+        initialSection="recent"
+        onSectionChange={onSectionChange}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("home-nav-gadgets"));
+    expect(onSectionChange).toHaveBeenCalledWith("gadgets");
+  });
 });
+

@@ -31,8 +31,23 @@ declare global {
 }
 
 /**
- * Resolve a TMX message key. Falls back to the key itself when I18N is
- * unavailable (e.g. unit tests without tmx.jsp).
+ * Human-readable fallback when TMX is not loaded.
+ * Percussion keys often look like {@code perc.ui.home.modern@Home} — use text after {@code @}.
+ */
+export function fallbackLabelFromKey(key: string): string {
+  if (!key) {
+    return "";
+  }
+  const at = key.lastIndexOf("@");
+  if (at >= 0 && at < key.length - 1) {
+    return key.slice(at + 1);
+  }
+  return key;
+}
+
+/**
+ * Resolve a TMX message key. Falls back to the English segment after {@code @}
+ * (or the raw key) when I18N is unavailable (tests, or spa.jsp missing tmx load).
  *
  * @param key - catalog key such as {@code perc.ui.home@My Recent}
  * @param args - optional format arguments (legacy I18N.message second arg)
@@ -41,12 +56,20 @@ export function message(key: string, args?: unknown[]): string {
   const i18n = typeof window !== "undefined" ? window.I18N : undefined;
   if (i18n?.message) {
     try {
-      return args != null ? i18n.message(key, args) : i18n.message(key);
+      const resolved = args != null ? i18n.message(key, args) : i18n.message(key);
+      // Some TMX stubs return the key unchanged when missing
+      if (resolved && resolved !== key) {
+        return resolved;
+      }
+      if (resolved === key) {
+        return fallbackLabelFromKey(key);
+      }
+      return resolved ?? fallbackLabelFromKey(key);
     } catch {
-      return key;
+      return fallbackLabelFromKey(key);
     }
   }
-  return key;
+  return fallbackLabelFromKey(key);
 }
 
 export const MSG = {

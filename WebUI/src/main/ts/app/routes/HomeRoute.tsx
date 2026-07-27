@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-import React, { lazy } from "react";
-import { useParams } from "react-router";
+import React, { lazy, useCallback } from "react";
+import { useNavigate, useParams } from "react-router";
 import { useSpaBootstrap } from "../bootstrap/BootstrapContext";
 import { loadComponent } from "../../registry";
+import type { HomeSection } from "../../home/deepLinkMap";
 import { LazyRouteFrame } from "./RouteErrorBoundary";
 
 const HomeShellLazy = lazy(() =>
@@ -28,10 +29,24 @@ const HomeShellLazy = lazy(() =>
 /**
  * SPA Home route — product default landing after login.
  * Dashboard gadgets compose as Home section {@code gadgets} (PR-7), not a peer SPA route.
+ * Section tabs update the client path ({@code /home}, {@code /home/library}, …).
  */
 export function HomeRoute(): React.ReactElement {
   const { section } = useParams();
+  const navigate = useNavigate();
   const { isAdmin } = useSpaBootstrap();
+
+  const onSectionChange = useCallback(
+    (next: HomeSection) => {
+      // recent is the default /home index (no extra segment)
+      if (next === "recent") {
+        navigate("/home", { replace: false });
+      } else {
+        navigate(`/home/${next}`, { replace: false });
+      }
+    },
+    [navigate],
+  );
 
   return (
     <LazyRouteFrame
@@ -42,7 +57,12 @@ export function HomeRoute(): React.ReactElement {
         </div>
       }
     >
-      <HomeShellLazy embedded initialSection={section} isAdmin={isAdmin} />
+      <HomeShellLazy
+        embedded
+        initialSection={section}
+        isAdmin={isAdmin}
+        onSectionChange={onSectionChange}
+      />
     </LazyRouteFrame>
   );
 }
