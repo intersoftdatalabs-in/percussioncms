@@ -425,8 +425,7 @@ public class PSXmlSerializationHelper {
     }
     FindIdAttribute fia = new FindIdAttribute();
     SAXParserFactory fact =
-        PSSecureXMLUtils.getSecuredSaxParserFactory(
-            new PSXmlSecurityOptions(true, true, true, false, true, false));
+        PSSecureXMLUtils.getSecuredSaxParserFactory(PSXmlSecurityOptions.secureWithDtd());
 
     try {
       SAXParser parser = fact.newSAXParser();
@@ -487,7 +486,19 @@ public class PSXmlSerializationHelper {
     if (StringUtils.isBlank(xmlString)) {
       throw new IllegalArgumentException("xmlString may not be null or empty");
     }
-    Document doc = PSXmlDocumentBuilder.createXmlDocument(new StringReader(xmlString), false);
+
+    // Rewrite legacy Betwixt root <null>…</null> to the mapped type element name
+    // before parsing. Package payloads (keywords, etc.) were often written with a
+    // root of "null"; Betwixt 0.7 only allows one registered name per class, and
+    // registerBeanClass(Class) binds the mapped name (e.g. "keyword"), so parse()
+    // of a <null> root returns null → "No bean found".
+    String parseXml = rewriteLegacyNullRoot(xmlString, clazz);
+
+    Document doc = PSXmlDocumentBuilder.createXmlDocument(new StringReader(parseXml), false);
+    String rootName =
+        (doc != null && doc.getDocumentElement() != null)
+            ? doc.getDocumentElement().getTagName()
+            : null;
 
     SAXParser parser = null;
     Object restored = null;
@@ -497,7 +508,7 @@ public class PSXmlSerializationHelper {
       BeanReader reader = new BeanReader(parser);
 
       standardBetwixtConfiguration(reader, clazz);
-      Reader r = new StringReader(xmlString);
+      Reader r = new StringReader(parseXml);
 
       BeanCreationList chain = BeanCreationList.createStandardChain();
       chain.insertBeanCreator(1, getBeanCreator());
@@ -505,12 +516,61 @@ public class PSXmlSerializationHelper {
 
       restored = reader.parse(r);
     } catch (ParserConfigurationException e) {
-      throw new SAXException("No bean found");
+      throw new SAXException(
+          "No bean found (parser configuration failed"
+              + (clazz != null ? " for " + clazz.getName() : "")
+              + (rootName != null ? ", root='" + rootName + "'" : "")
+              + "): "
+              + e.getMessage(),
+          e);
     }
     if (restored == null) {
-      throw new SAXException("No bean found");
+      throw new SAXException(
+          "No bean found"
+              + (clazz != null ? " for " + clazz.getName() : "")
+              + (rootName != null ? ", root element '" + rootName + "'" : "")
+              + ". Check that the root element is registered for Betwixt.");
     }
     return restored;
+  }
+
+  /**
+   * When {@code clazz} is provided and the document root is the legacy element name {@code null},
+   * rewrite open/close root tags to the Betwixt-mapped type name (via {@link PSNameMapper}).
+   *
+   * <p>Package archives under {@code modules/perc-packages} commonly contain keyword XML whose root
+   * is {@code <null id="…">} rather than {@code <keyword>}. Left unchanged, Betwixt cannot bind the
+   * root and {@link #readFromXML(String, Class)} fails with "No bean found".
+   *
+   * @param xmlString original XML, never blank
+   * @param clazz target type, may be {@code null} (no rewrite)
+   * @return XML ready for Betwixt (possibly unchanged)
+   */
+  static String rewriteLegacyNullRoot(String xmlString, Class<?> clazz) {
+    if (clazz == null || StringUtils.isBlank(xmlString)) {
+      return xmlString;
+    }
+    // Fast path: most modern payloads are already correctly named
+    if (!xmlString.contains("<null") && !xmlString.contains("</null>")) {
+      return xmlString;
+    }
+
+    PSNameMapper mapper = new PSNameMapper();
+    String mapped = mapper.mapTypeToElementName(clazz.getSimpleName());
+    if (StringUtils.isBlank(mapped) || "null".equals(mapped)) {
+      return xmlString;
+    }
+
+    // Only rewrite when the document element is literally "null" (not a nested tag).
+    // Match: optional XML declaration, then <null …> or <null>
+    String openReplaced =
+        xmlString.replaceFirst(
+            "(?is)^(\\s*<\\?xml\\b[^?]*\\?>\\s*)?<null(\\s|>)", "$1<" + mapped + "$2");
+    if (openReplaced.equals(xmlString)) {
+      return xmlString; // root was not <null>
+    }
+    // Matching close tag at end of document (allow trailing whitespace)
+    return openReplaced.replaceFirst("(?is)</null>\\s*$", "</" + mapped + ">");
   }
 
   /**

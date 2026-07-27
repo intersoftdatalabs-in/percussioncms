@@ -522,6 +522,9 @@ public class PSKeyword implements Serializable, IPSCatalogSummary,
     */
    public void fromXML(String xmlsource) throws IOException, SAXException
    {
+      // Package XML uses <choice> (collection singular of "choices"), not the
+      // mapped type name "keyword-choice". Register before Betwixt parse.
+      PSXmlSerializationHelper.addType("choice", PSKeywordChoice.class);
       PSXmlSerializationHelper.readFromXML(xmlsource, this);
    }
 

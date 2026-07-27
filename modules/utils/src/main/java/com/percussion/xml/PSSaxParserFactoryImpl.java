@@ -46,7 +46,7 @@ public class PSSaxParserFactoryImpl extends SAXParserFactory {
                   PSSecureXMLUtils.getSecuredSaxParserFactory(
                       "org.apache.xerces.jaxp.SAXParserFactoryImpl",
                       null,
-                      new PSXmlSecurityOptions(true, true, true, false, true, false));
+                      PSXmlSecurityOptions.secureWithDtd());
               factory.setNamespaceAware(true);
               factory.setValidating(false);
               factory.setFeature("http://xml.org/sax/features/namespaces", true);
@@ -73,8 +73,8 @@ public class PSSaxParserFactoryImpl extends SAXParserFactory {
     try {
       factoryThreadLocal.get().setFeature(name, value);
     } catch (SAXNotRecognizedException | SAXNotSupportedException e1) {
-      log.warn(e1.getMessage());
-      log.debug(e1.getMessage(), e1);
+      // Optional / implementation-specific features are common; keep console clean.
+      log.debug("SAX feature not supported by underlying factory: {} — {}", name, e1.getMessage());
     }
   }
 

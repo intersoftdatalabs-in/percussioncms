@@ -1,8 +1,14 @@
 <?xml version="1.0"?>
+<!--
+  Explicit property map for package slot-type-association payloads.
+  Archives use unhyphenated names (contenttypeid, templateid, slotid), not the
+  default hyphenated mapper output (content-type-id, etc.).
+-->
 <info primitiveTypes="element">
-  <element>
+  <element name="slot-type-association">
     <element name="slotid" property="slotId"/>
     <element name="templateid" property="templateId"/>
     <element name="contenttypeid" property="contentTypeId"/>
+    <element name="version" property="version"/>
   </element>
 </info>

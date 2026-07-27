@@ -205,9 +205,11 @@ public class PSXmlDocumentBuilder {
 
     try {
       if (dbf == null) {
-        dbf =
-            PSSecureXMLUtils.getSecuredDocumentBuilderFactory(
-                new PSXmlSecurityOptions(true, true, true, true, true, validating));
+        // External entities always hard-disabled by PSSecureXMLUtils; request
+        // secure defaults so we do not WARN on every factory create (CWE-611).
+        PSXmlSecurityOptions opts = PSXmlSecurityOptions.secureWithDtd();
+        opts.setEnableValidation(validating);
+        dbf = PSSecureXMLUtils.getSecuredDocumentBuilderFactory(opts);
       }
     } catch (FactoryConfigurationError err) {
       dbf = null;
@@ -215,10 +217,11 @@ public class PSXmlDocumentBuilder {
 
     if (dbf == null) {
       try {
+        PSXmlSecurityOptions opts = PSXmlSecurityOptions.secureWithDtd();
+        opts.setEnableValidation(false);
         dbf =
             PSSecureXMLUtils.getSecuredDocumentBuilderFactory(
-                "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl",
-                new PSXmlSecurityOptions(true, true, true, false, true, false));
+                "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl", opts);
       } catch (Exception e) {
         dbf = null;
         throw new RuntimeException(e);

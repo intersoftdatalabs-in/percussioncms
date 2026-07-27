@@ -34,6 +34,20 @@ public class PSCatalogResolver extends CatalogResolver {
   private static final Logger log = LogManager.getLogger(PSCatalogResolver.class);
   private IPSInternalRequestURIResolver internalRequestURIResolver = null;
 
+  /**
+   * Builds a CatalogManager that tolerates missing catalog entries and prefers system IDs. Catalog
+   * file paths still come from {@code xml.catalog.files} / CatalogManager.properties when set by
+   * the JVM (see perc-jetty {@code jvm.ini}).
+   */
+  static CatalogManager createDefaultCatalogManager() {
+    CatalogManager manager = new CatalogManager();
+    manager.setIgnoreMissingProperties(true);
+    manager.setPreferPublic(false); // prefer system (matches xml.catalog.prefer=system)
+    manager.setUseStaticCatalog(true);
+    manager.setVerbosity(0);
+    return manager;
+  }
+
   public IPSInternalRequestURIResolver getInternalRequestURIResolver() {
     return internalRequestURIResolver;
   }
@@ -43,18 +57,27 @@ public class PSCatalogResolver extends CatalogResolver {
     this.internalRequestURIResolver = internalRequestURIResolver;
   }
 
-  /** Constructor */
+  /**
+   * Constructor. Uses a private CatalogManager so catalog parse failures (e.g. legacy TR9401
+   * fallback AIOOBE on mis-formed catalogs) cannot corrupt the static CatalogManager shared by
+   * other resolvers.
+   */
   public PSCatalogResolver() {
-    super();
+    super(createDefaultCatalogManager());
   }
 
   /**
    * Constructor
    *
-   * @param privateCatalog
+   * @param privateCatalog when {@code true}, uses a private catalog instance (preferred)
    */
   public PSCatalogResolver(boolean privateCatalog) {
-    super(privateCatalog);
+    // CatalogResolver(boolean) uses the static CatalogManager; prefer our configured manager
+    // with a private catalog either way to avoid shared-state parse corruption.
+    super(createDefaultCatalogManager());
+    if (!privateCatalog) {
+      log.debug("PSCatalogResolver(false): still using private CatalogManager for isolation");
+    }
   }
 
   /**
@@ -63,7 +86,7 @@ public class PSCatalogResolver extends CatalogResolver {
    * @param manager
    */
   public PSCatalogResolver(CatalogManager manager) {
-    super(manager);
+    super(manager != null ? manager : createDefaultCatalogManager());
   }
 
   /** Return the underlying catalog */

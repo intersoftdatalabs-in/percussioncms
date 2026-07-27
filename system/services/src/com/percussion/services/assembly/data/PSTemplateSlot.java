@@ -338,7 +338,30 @@ public class PSTemplateSlot
     public void fromXML(String xmlsource) throws IOException, SAXException {
         id = 0L; // Avoid problems during restore
         this.version=null;
-        PSXmlSerializationHelper.readFromXML(xmlsource, this);
+        // Package archives (perc.nav etc.) use unhyphenated association field names
+        // (contenttypeid/templateid/slotid). Default Betwixt/PSNameMapper expects
+        // content-type-id etc.; without that rewrite, associations restore as zeros and
+        // deploy fails with "ContentType with source ID 0".
+        PSXmlSerializationHelper.readFromXML(normalizePackageAssociationElementNames(xmlsource), this);
+    }
+
+    /**
+     * Rewrites legacy package element names on slot-type associations to hyphenated names
+     * expected by {@link PSXmlSerializationHelper}'s name mapper.
+     */
+    static String normalizePackageAssociationElementNames(String xml) {
+        if (xml == null || xml.isEmpty()) {
+            return xml;
+        }
+        String out = xml;
+        // Tag names only (not attribute values / text)
+        out = out.replace("<contenttypeid>", "<content-type-id>");
+        out = out.replace("</contenttypeid>", "</content-type-id>");
+        out = out.replace("<templateid>", "<template-id>");
+        out = out.replace("</templateid>", "</template-id>");
+        out = out.replace("<slotid>", "<slot-id>");
+        out = out.replace("</slotid>", "</slot-id>");
+        return out;
     }
 
     /**

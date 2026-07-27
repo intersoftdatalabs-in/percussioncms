@@ -55,20 +55,24 @@ public class PSSecureXMLUtils {
   public static final String SAX_GENERAL_EXTERNAL_ENTITIES_FEATURE =
       "http://xml.org/sax/features/external-general-entities";
 
-  // Set to true
+  /**
+   * Xerces / JDK feature IDs for external entities. Note: these are the real
+   * Apache feature URIs — not the xerces.apache.org documentation page URLs that
+   * were previously used and always produced "feature is not recognized" noise.
+   */
   public static final String X1_GENERAL_EXTERNAL_ENTITIES_FEATURE =
-      "http://xerces.apache.org/xerces-j/features.html#external-general-entities";
+      "http://apache.org/xml/features/external-general-entities";
 
-  // Set to true
+  /** Alias retained for callers; same URI as {@link #X1_GENERAL_EXTERNAL_ENTITIES_FEATURE}. */
   public static final String X2_GENERAL_EXTERNAL_ENTITIES_FEATURE =
-      "http://xerces.apache.org/xerces2-j/features.html#external-general-entities";
+      X1_GENERAL_EXTERNAL_ENTITIES_FEATURE;
 
-  // false
   public static final String X1_EXTERNAL_PARAMETER_ENTITIES_FEATURE =
-      "http://xerces.apache.org/xerces-j/features.html#external-parameter-entities";
+      "http://apache.org/xml/features/external-parameter-entities";
 
+  /** Alias retained for callers; same URI as {@link #X1_EXTERNAL_PARAMETER_ENTITIES_FEATURE}. */
   public static final String X2_EXTERNAL_PARAMETER_ENTITIES_FEATURE =
-      "http://xerces.apache.org/xerces2-j/features.html#external-parameter-entities";
+      X1_EXTERNAL_PARAMETER_ENTITIES_FEATURE;
 
   public static final String SAX_EXTERNAL_PARAMETER_ENTITIES_FEATURE =
       "http://xml.org/sax/features/external-parameter-entities";

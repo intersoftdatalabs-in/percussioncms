@@ -1,10 +1,12 @@
 <?xml version="1.0"?>
-<!DOCTYPE catalog
-        PUBLIC "-//OASIS//DTD Entity Resolution XML Catalog V1.0//EN"
-        "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd">
-<!-- This catalog is for any external DTD and Entity references. We block
-	external entities and DTD references that are not defined in this catalog
-	file to prevent XXE vulnerabilities -->
+<!--
+  OASIS XML Catalog for local DTD/entity resolution (XXE mitigation).
+  No DOCTYPE: under secured SAX (no external DTD load), a DOCTYPE that
+  references the oasis-open.org catalog.dtd causes SAX parse failure, then
+  xml-resolver falls back to TR9401 text parsing and throws
+  ArrayIndexOutOfBoundsException in TextCatalogReader.
+  OASISXMLCatalogReader keys off the catalog namespace below, not DOCTYPE.
+-->
 <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog"
 	prefer="system" xml:base="file://@@rxdir@@">
 
