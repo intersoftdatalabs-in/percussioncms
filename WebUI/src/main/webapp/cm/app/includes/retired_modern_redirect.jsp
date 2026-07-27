@@ -17,9 +17,11 @@
     }
     StringBuilder url = new StringBuilder();
     url.append(proxyURL).append("/cm/app/?view=").append(URLEncoder.encode(retiredView, "UTF-8"));
-    // Preserve deep-link params; index.jsp allowlists before building spa.jsp Location
+    // Re-forward only params that index.jsp buildSpaEntryRedirect actually consumes
+    // (then allowlists into spa.jsp?entry=…). Do not pass path/site — those are not
+    // mapped for home/publish/workflow/admin/widgetbuilder SPA entries from this host.
     String[] keys = new String[]{
-            "initialScreen", "section", "tab", "siteId", "serverId", "path", "site"
+            "initialScreen", "section", "tab", "siteId", "serverId"
     };
     for (int i = 0; i < keys.length; i++) {
         String key = keys[i];
