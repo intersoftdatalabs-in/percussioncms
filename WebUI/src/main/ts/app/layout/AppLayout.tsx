@@ -16,7 +16,7 @@
  */
 
 import React from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet } from "react-router";
 import { BrandBar, BrandFooter } from "../../ui-themes/components";
 import { TopNav } from "./TopNav";
 import styles from "./AppLayout.module.css";

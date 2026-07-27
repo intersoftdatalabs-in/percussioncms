@@ -16,7 +16,7 @@
  */
 
 import React, { lazy, useMemo } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation } from "react-router";
 import { normalizeExplorerPath } from "../deepLinks/allowlists";
 import { loadComponent } from "../../registry";
 import { LazyRouteFrame } from "./RouteErrorBoundary";

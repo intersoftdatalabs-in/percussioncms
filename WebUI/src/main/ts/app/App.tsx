@@ -16,7 +16,7 @@
  */
 
 import React, { useEffect } from "react";
-import { HashRouter, useNavigate } from "react-router-dom";
+import { HashRouter, useNavigate } from "react-router";
 import { ThemeProvider } from "../ui-themes/ThemeProvider";
 import { BootstrapProvider } from "./bootstrap/BootstrapContext";
 import type { SpaBootstrap } from "./bootstrap/types";

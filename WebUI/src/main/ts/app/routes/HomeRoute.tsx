@@ -16,7 +16,7 @@
  */
 
 import React, { lazy } from "react";
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 import { useSpaBootstrap } from "../bootstrap/BootstrapContext";
 import { loadComponent } from "../../registry";
 import { LazyRouteFrame } from "./RouteErrorBoundary";
