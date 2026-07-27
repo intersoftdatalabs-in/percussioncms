@@ -30,6 +30,7 @@ dist/
 .kilo/package.json
 .kilo/rules/memory-bank/
 .kilo/rules/memory-bank-instructions.md
+.kilo/kilo.json
 
 # Personal agent state (always local)
 .grok
