@@ -20,6 +20,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { FeaturePlaceholder } from "./FeaturePlaceholder";
 import { AppLayout } from "./layout/AppLayout";
 import { AdminRoute } from "./routes/AdminRoute";
+import { ExplorerRoute } from "./routes/ExplorerRoute";
 import { HomeRoute } from "./routes/HomeRoute";
 import { PublishRoute } from "./routes/PublishRoute";
 import { WidgetBuilderRoute } from "./routes/WidgetBuilderRoute";
@@ -27,8 +28,8 @@ import { WorkflowRoute } from "./routes/WorkflowRoute";
 
 /**
  * Authenticated SPA routes.
- * Home is the product default landing. Modern admin surfaces embedded (PR-3/PR-4).
- * Explorer remains a placeholder until PR-6.
+ * Home is the product default landing. Feature shells embedded (PR-3–PR-6).
+ * Residual bridge embeds remain only on unmigrated legacy pages.
  */
 export function AppRoutes(): React.ReactElement {
   return (
@@ -44,16 +45,7 @@ export function AppRoutes(): React.ReactElement {
         <Route path="admin" element={<AdminRoute />} />
         <Route path="admin/:tab" element={<AdminRoute />} />
         <Route path="widget-builder" element={<WidgetBuilderRoute />} />
-        <Route
-          path="explorer"
-          element={
-            <FeaturePlaceholder
-              title="Content Explorer"
-              legacyHref="/cm/app/explorerModern.jsp"
-              testId="route-explorer"
-            />
-          }
-        />
+        <Route path="explorer" element={<ExplorerRoute />} />
         <Route
           path="unavailable"
           element={

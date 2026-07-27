@@ -167,4 +167,28 @@ describe("App shell", () => {
     });
     expect(screen.queryByTestId("widget-builder-app")).toBeNull();
   });
+
+  it("loads ContentExplorerShell for explorer entry", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response("[]", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    try {
+      render(
+        <App
+          bootstrap={bootstrap}
+          entrySearch="?entry=explorer&path=/Sites"
+        />,
+      );
+      await waitFor(() => {
+        expect(screen.getByTestId("content-explorer-shell")).toBeTruthy();
+      });
+      expect(screen.queryByTestId("route-explorer")).toBeNull();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
 });
