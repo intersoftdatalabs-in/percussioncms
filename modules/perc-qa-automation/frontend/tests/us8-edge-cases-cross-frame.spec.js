@@ -42,7 +42,7 @@
 const { test, expect, chromium } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
 
-const MODERN_EXPLORER_URL = `${BASE_URL}/Rhythmyx/cm/app/explorerModern.jsp?_=${Date.now()}`;
+const MODERN_EXPLORER_URL = `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=explorer&_=${Date.now()}`;
 const LEGACY_EDITOR_URL = `${BASE_URL}/Rhythmyx/cm/app/folders.jsp?_=${Date.now()}`;
 
 test.describe("T092d / Edge Cases #7 — cross-frame session + CSRF", () => {

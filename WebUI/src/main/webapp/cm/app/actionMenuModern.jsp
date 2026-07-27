@@ -67,7 +67,7 @@
             });
             window.PercModernUI.mount("perc-context-menu-root", "ContextMenu", {
                 actions: [
-                    { name: "open", label: "Open", url: "/cm/app/explorerModern.jsp", handler: undefined, sortRank: 10, menuType: "MENUITEM" },
+                    { name: "open", label: "Open", url: "/cm/app/spa.jsp?entry=explorer", handler: undefined, sortRank: 10, menuType: "MENUITEM" },
                     { name: "preview", label: "Preview", url: undefined, handler: "client", sortRank: 20, menuType: "MENUITEM" }
                 ],
                 ariaLabel: "Demo context menu",

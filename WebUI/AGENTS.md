@@ -17,11 +17,11 @@ Read the root [@AGENTS.md](../AGENTS.md) for general guidelines. This file conta
 - ✅ Phase 2: Build output separation to `target/generated-webui/`
 - ✅ Phase 3: Full Maven integration validated
 - ✅ Track B Home + Widget Builder: React shells (`HomeShell`, `WidgetBuilderApp`) via `PercModernUI`; classic CUI/WB clients removed on feature `989-react-cui-widget-builder`
-- ✅ **Pure React SPA (login-first):** React Login front door (`rxlogin.jsp` host → `LoginPage`) + post-login SPA landing (`/cm/app/spa.jsp`). Design: `docs/ai-generated/tasks/#000-pure-react-spa/`. Classic markup: `rxlogin-classic.jsp` (reference only).
-- ✅ **SPA product cutover (PR-5):** `cm/app/index.jsp` (and pages tree) maps modern `?view=` (home/publish/workflow/admin/widgetbuilder) → `proxyURL + /cm/app/spa.jsp?entry=…` (query only). Retired `*Modern.jsp` hosts 302 back through the dispatcher.
+- ✅ **Pure React SPA (login-first):** React Login front door (`rxlogin.jsp` host → `LoginPage`) + post-login SPA landing (`/cm/app/spa.jsp`). Design: `docs/ai-generated/tasks/#000-pure-react-spa/`.
+- ✅ **SPA product cutover (PR-5):** `cm/app/index.jsp` (and pages tree) maps modern `?view=` (home/publish/workflow/admin/widgetbuilder) → `proxyURL + /cm/app/spa.jsp?entry=…` (query only).
 - ✅ **Home gadgets (PR-7):** Dashboard React widgets compose as Home section `gadgets` (`/home/gadgets`, `?view=dash` → SPA). Not a peer SPA `/dashboard`.
+- ✅ **PR-8:** Deleted obsolete product hosts (`homeModern` / `publishModern` / `admin*Modern` / `widgetBuilderModern` / `unavailableModern` / `explorerModern`, classic `rxlogin-classic.jsp`). Residual bridge dialogs remain (pickers, search, action menu, US7 advanced). Optional next: path-based SPA URLs (PR-9).
 - 🔄 Track A: Dojo→jQuery migration planned
-- 🚀 Track B / SPA: Explorer + Home gadgets + delete obsolete JSP hosts next
 
 ---
 
@@ -530,9 +530,10 @@ cp WebUI/target/generated-webui/cm/modern/assets/perc-modern-ui.js.map \
    /opt/Percussion/jetty/base/webapps/Rhythmyx/cm/modern/assets/perc-modern-ui.js.map
 
 # 3. Copy new/modified JSPs (Jetty serves them fresh on the next request)
-cp WebUI/src/main/webapp/cm/app/explorerModern.jsp \
-   /opt/Percussion/jetty/base/webapps/Rhythmyx/cm/app/explorerModern.jsp
-# (and the cm/pages/app/ mirror if the page is reached through the legacy Track A path)
+cp WebUI/src/main/webapp/cm/app/spa.jsp \
+   /opt/Percussion/jetty/base/webapps/Rhythmyx/cm/app/spa.jsp
+# Residual bridge dialog hosts (pickers, search, etc.) live under cm/app/*Modern.jsp
+# when still needed; product navigation is spa.jsp?entry=… only.
 
 # 4. Bust the browser cache for the new bundle
 # Add a cache-buster to the JSP <script> tag, e.g.:

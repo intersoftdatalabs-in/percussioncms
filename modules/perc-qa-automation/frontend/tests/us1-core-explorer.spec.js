@@ -19,8 +19,8 @@
  *
  * <p>Drives the modern React Content Explorer against the live docker dev
  * CMS at the dedicated entry point
- * {@code /Rhythmyx/cm/app/explorerModern.jsp}, which mounts
- * {@code ContentExplorerShell} via the {@code PercModernUI} bridge.</p>
+ * {@code /Rhythmyx/cm/app/spa.jsp?entry=explorer}, which mounts
+ * {@code ContentExplorerShell} inside the pure React SPA (PR-6/PR-8).</p>
  *
  * <p>Run from {@code modules/perc-qa-automation/frontend}:</p>
  * <pre>
@@ -41,7 +41,7 @@ const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL, ADMIN_USERNAME } = require("./helpers/auth");
 const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
 
-const EXPLORER_URL = `${BASE_URL}/Rhythmyx/cm/app/explorerModern.jsp?_=${Date.now()}`;
+const EXPLORER_URL = `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=explorer&_=${Date.now()}`;
 
 test.describe("modern React Content Explorer (US1) — feature 992", () => {
   test.beforeEach(async ({ page }) => {
@@ -53,11 +53,7 @@ test.describe("modern React Content Explorer (US1) — feature 992", () => {
     page,
   }) => {
     await page.goto(EXPLORER_URL, { waitUntil: "networkidle" });
-    // The mount target div is rendered by the JSP.
-    const root = page.locator('[data-testid="perc-explorer-modern-root"]');
-    await expect(root).toBeVisible();
-    // Wait for the React component to take over the div. The shell
-    // wrapper carries data-testid="content-explorer-shell" + role="application".
+    // SPA route embeds ContentExplorerShell (data-testid on the shell).
     const shell = page.locator('[data-testid="content-explorer-shell"]');
     await expect(shell).toBeVisible({ timeout: 15_000 });
     // The shell wraps a tree region, a list region, and a toolbar

@@ -27,7 +27,7 @@ colors, and typography with the Intersoft brand.
 
 ## Modern Publishing UI (feature 990)
 
-Primary nav `view=publish` redirects (PR-5) to `/cm/app/spa.jsp?entry=publish` (query contract); React `PublishingShell` mounts inside the SPA shell. Retired `publishModern.jsp` re-enters the dispatcher only.
+Primary nav `view=publish` redirects (PR-5) to `/cm/app/spa.jsp?entry=publish` (query contract); React `PublishingShell` mounts inside the SPA shell. Product host `publishModern.jsp` was removed in PR-8.
 
 ### Query parameters (allowlisted)
 
@@ -45,20 +45,20 @@ Spec/plan/tasks: `specs/990-unified-publishing-ui/`.
 
 Modern React replacement for the legacy Miller-column Finder and the Desktop Content Explorer (DCE). New entry points mount `ContentExplorerShell` (US1 core navigate), plus per-feature panels for menus (US3), folder security (US4), search (US5), and advanced CE tools (US7). New reusable `ContentBrowser` dialog (US2) replaces the per-host asset / page / folder pickers.
 
-### Entry points (modern JSP pilots)
+### Entry points
 
-|            Pilot             |                URL                |                                          Component(s) mounted                                          |
-|------------------------------|-----------------------------------|--------------------------------------------------------------------------------------------------------|
-| Modern explorer shell        | `cm/app/explorerModern.jsp`       | `ContentExplorerShell`                                                                                 |
-| Modern ContentBrowser dialog | `cm/app/assetPickerModern.jsp`    | `ContentBrowser` (asset-only, single-select)                                                           |
-| Modern ContentBrowser dialog | `cm/app/pagePickerModern.jsp`     | `ContentBrowser` (page-only, single-select)                                                            |
-| Modern ContentBrowser dialog | `cm/app/folderPickerModern.jsp`   | `ContentBrowser` (folder-only, single-select)                                                          |
-| Action menu pilot            | `cm/app/actionMenuModern.jsp`     | `ContextMenu` + `ActionToolbar`                                                                        |
-| Folder security pilot        | `cm/app/folderSecurityModern.jsp` | `FolderSecurityPanel`                                                                                  |
-| Search panel pilot           | `cm/app/searchModern.jsp`         | `SearchPanel`                                                                                          |
-| Advanced CE pilot            | `cm/app/us7AdvancedModern.jsp`    | `ClipboardPanel` + `SiteCopyWizard` + `SubfolderCopyWizard` + `DependencyViewer` + `RelationshipsView` |
+|            Surface             |                URL                |                                          Component(s)                                          |
+|--------------------------------|-----------------------------------|------------------------------------------------------------------------------------------------|
+| **SPA product explorer**       | `cm/app/spa.jsp?entry=explorer`   | `ContentExplorerShell` (primary product path)                                                  |
+| Residual ContentBrowser dialog | `cm/app/assetPickerModern.jsp`    | `ContentBrowser` (asset-only, single-select)                                                   |
+| Residual ContentBrowser dialog | `cm/app/pagePickerModern.jsp`     | `ContentBrowser` (page-only, single-select)                                                    |
+| Residual ContentBrowser dialog | `cm/app/folderPickerModern.jsp`   | `ContentBrowser` (folder-only, single-select)                                                  |
+| Residual action menu pilot     | `cm/app/actionMenuModern.jsp`     | `ContextMenu` + `ActionToolbar`                                                                |
+| Residual folder security       | `cm/app/folderSecurityModern.jsp` | `FolderSecurityPanel`                                                                          |
+| Residual search panel          | `cm/app/searchModern.jsp`         | `SearchPanel`                                                                                  |
+| Residual advanced CE pilot     | `cm/app/us7AdvancedModern.jsp`    | `ClipboardPanel` + `SiteCopyWizard` + `SubfolderCopyWizard` + `DependencyViewer` + `RelationshipsView` |
 
-All modern pilots are mirrored under `cm/pages/app/`. Legacy Finder chrome (`.perc-mcol`, `$.perc_finder()` widgets) is **not** loaded on any modern pilot page.
+Product shell hosts (`explorerModern.jsp`, `homeModern.jsp`, etc.) were **removed in PR-8**. Residual dialog pilots are mirrored under `cm/pages/app/` (except `assetPickerModern`, app-tree only). Legacy Finder chrome (`.perc-mcol`, `$.perc_finder()` widgets) is **not** loaded on residual modern pilot pages.
 
 ### Finder / DCE retirement
 
@@ -73,7 +73,7 @@ The legacy Miller-column Finder is hard-cut in 8.2:
 
 |       Component        |         Mount path         |                                      Role                                       |
 |------------------------|----------------------------|---------------------------------------------------------------------------------|
-| `ContentExplorerShell` | `explorerModern.jsp`       | Tree + detail-list + action toolbar + context-menu compose                      |
+| `ContentExplorerShell` | SPA `entry=explorer`       | Tree + detail-list + action toolbar + context-menu compose                      |
 | `ExplorerTree`         | inside Shell               | Sites / folders tree; lazy expand                                               |
 | `DetailList`           | inside Shell               | Item list with pagination; SC-005 perf regression                               |
 | `ReducedActions`       | inside Shell               | Per-item menu (open/preview/createFolder/rename/move/copy/delete)               |
@@ -108,27 +108,27 @@ The legacy Miller-column Finder is hard-cut in 8.2:
 
 Modern React replacement for the legacy Workflow, Role, User, Category, and Admin UI screens. Integrated within `WorkflowAdminShell` and `AdminShell`.
 
-### Entry points (modern JSP host pages)
+### Entry points (SPA — PR-5/PR-8)
 
-|         Page          |               URL                |                                   Component(s) mounted                                    |
-|-----------------------|----------------------------------|-------------------------------------------------------------------------------------------|
-| Modern Workflow Shell | `cm/app/adminWorkflowModern.jsp` | `WorkflowAdminShell` (Workflow definitions, assignment, roles, users, categories)         |
-| Modern Admin Shell    | `cm/app/adminModern.jsp`         | `AdminShell` (Scheduled Tasks, Task Logs, Task Notifications, System Consistency Checker) |
+|         Page          |               URL                        |                                   Component(s)                                    |
+|-----------------------|------------------------------------------|-----------------------------------------------------------------------------------|
+| Workflow Admin        | `cm/app/spa.jsp?entry=workflow`          | `WorkflowAdminShell` (Workflow definitions, assignment, roles, users, categories) |
+| Admin                 | `cm/app/spa.jsp?entry=admin`             | `AdminShell` (Scheduled Tasks, Task Logs, Task Notifications, System Consistency Checker) |
 
-All modern JSP hosts are mirrored under `cm/pages/app/`.
+Former product hosts `adminWorkflowModern.jsp` / `adminModern.jsp` were removed in PR-8.
 
 ### React Components — interactive map
 
 |          Component          |        Mount path         |                                       Role                                       |
 |-----------------------------|---------------------------|----------------------------------------------------------------------------------|
-| `WorkflowAdminShell`        | `adminWorkflowModern.jsp` | Top-level workflow navigation (Workflows, Site Assign, Roles, Users, Categories) |
+| `WorkflowAdminShell`        | SPA `entry=workflow`      | Top-level workflow navigation (Workflows, Site Assign, Roles, Users, Categories) |
 | `WorkflowsSection`          | inside Shell              | Workflow list, creation, editing, state & transition management                  |
 | `WorkflowAssignmentSection` | inside Shell              | Site-to-workflow mapping, contentType & publishing default template rules        |
 | `RolesSection`              | inside Shell              | Role list, creation, member management with dual list picker                     |
 | `UsersSection`              | inside Shell              | User list, user creation, role & group assignment                                |
 | `CategoriesSection`         | inside Shell              | Category tree explorer, node creation, lock management                           |
 | `InContextTransitionButton` | standalone / editor       | Action button for executing item workflow state transitions                      |
-| `AdminShell`                | `adminModern.jsp`         | System administration shell (Tasks, Logs, Notifications, System Tools)           |
+| `AdminShell`                | SPA `entry=admin`         | System administration shell (Tasks, Logs, Notifications, System Tools)           |
 | `TasksSection`              | inside AdminShell         | Scheduled task list, schedule builder, trigger actions                           |
 | `TaskLogsSection`           | inside AdminShell         | Task execution logs, status filter, detail viewer                                |
 | `TaskNotifications`         | inside AdminShell         | Email notification template manager                                              |

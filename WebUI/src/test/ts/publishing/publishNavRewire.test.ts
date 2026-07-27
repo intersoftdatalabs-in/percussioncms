@@ -1,11 +1,11 @@
 /*
  * Copyright 1999-2026 Percussion Software, Inc.
  */
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-describe("publish nav rewire (US8) — PR-5 SPA cutover", () => {
+describe("publish nav rewire (US8) — SPA cutover", () => {
   it("index.jsp maps publish to spa.jsp?entry=publish (not *Modern.jsp)", () => {
     // vite root is frontend/; module webapp is three levels up from frontend
     const indexPath = resolve(
@@ -31,15 +31,12 @@ describe("publish nav rewire (US8) — PR-5 SPA cutover", () => {
     expect(text).not.toContain("PercPublishMinuetView");
   });
 
-  it("publishModern.jsp is a retired host that re-enters the SPA dispatcher", () => {
+  it("publishModern.jsp product host is removed (PR-8)", () => {
     const modern = resolve(
       __dirname,
       "../../../main/webapp/cm/app/publishModern.jsp",
     );
-    const text = readFileSync(modern, "utf8");
-    expect(text).toContain('retiredModernView", "publish"');
-    expect(text).toContain("retired_modern_redirect.jsp");
-    expect(text).not.toContain("PercModernUI.mount");
+    expect(existsSync(modern)).toBe(false);
   });
 });
 

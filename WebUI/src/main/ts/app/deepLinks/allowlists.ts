@@ -86,7 +86,7 @@ const ID_RE = /^[A-Za-z0-9_-]{1,128}$/;
  * Explorer deep-link path charset for the **query contract** (server Location +
  * client parse). Intentionally ASCII-safe for JSP redirects / XSS hygiene.
  * Full CMS folder names may be richer in-app; only deep-link query paths are
- * constrained. Keep in lockstep with explorerModern.jsp path validation.
+ * constrained. Path validation for explorer entry lives here (SPA query contract).
  */
 export const EXPLORER_PATH_RE = /^[/A-Za-z0-9._-]+$/;
 

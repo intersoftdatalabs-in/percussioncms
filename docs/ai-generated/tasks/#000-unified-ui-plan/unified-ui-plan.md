@@ -104,6 +104,11 @@ Replace DnD with jQuery UI Draggable/Droppable/Sortable.
 
 ## Track B — Unified React UI (Strategic, Multi-Release)
 
+**Active product path (2026):** Pure React SPA (login-first) owns modern Home, Publish, Workflow,
+Admin, Widget Builder, and Explorer. Entry is `spa.jsp?entry=…` (query contract); obsolete
+product `*Modern.jsp` hosts were deleted in PR-8. Design: [`#000-pure-react-spa/`](../#000-pure-react-spa/).
+Residual bridge embeds remain only for legacy full-page exits and dialog pilots.
+
 ### B0. Feature Inventory & REST API Gap Analysis
 
 Catalog every feature across all 8 layers, the endpoints each uses, and identify where REST
