@@ -33,6 +33,7 @@ import com.percussion.utils.container.config.model.impl.BaseContainerUtils;
 import com.percussion.utils.io.PathUtils;
 import com.percussion.utils.jdbc.IPSDatasourceResolver;
 import com.percussion.utils.jdbc.PSDatasourceResolver;
+import com.percussion.utils.jdbc.PSJdbcUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
@@ -340,13 +341,21 @@ public class JettyDatasourceConfigurationAdapter
 
           props.setProperty(
               prefix + IPSJdbcJettyDbmsDefConstants.JETTY_SERVER_SUFFIX, datasource.getServer());
-          // H2 (and other) installs commonly use empty password (UID=sa, PWD=). Encrypting an empty
-          // string produces a non-empty ciphertext; if decrypt at Jetty start uses a different
-          // secure-dir key material (install cwd vs rxdeploydir), Hikari fails with H2
-          // "Wrong user name or password" and the webapp never starts (#548 / #1500 matrix smoke).
+          // H2 embedded DBs use a random password persisted under
+          // var/config/generated/passwords (key "cmdb"). Storing the encrypted
+          // ciphertext in perc-ds.properties risks a Hikari "Wrong user name or
+          // password" failure when install-time cwd-derived key material does not
+          // match runtime RX_DIR (issue #548 / #1500 matrix smoke). Persist the H2
+          // password in plaintext so the runtime can open the file DB without a
+          // secure-dir roundtrip.
           String plainPwd = datasource.getPassword();
-          if (plainPwd == null || plainPwd.isEmpty()) {
-            props.setProperty(prefix + IPSJdbcJettyDbmsDefConstants.JETTY_PWD_SUFFIX, "");
+          boolean embeddedPlaintext =
+              plainPwd != null
+                  && !plainPwd.isEmpty()
+                  && PSJdbcUtils.H2_DRIVER.equalsIgnoreCase(datasource.getDriverName());
+          if (plainPwd == null || plainPwd.isEmpty() || embeddedPlaintext) {
+            String stored = plainPwd == null ? "" : plainPwd;
+            props.setProperty(prefix + IPSJdbcJettyDbmsDefConstants.JETTY_PWD_SUFFIX, stored);
             props.setProperty(
                 prefix + IPSJdbcJettyDbmsDefConstants.JETTY_PWD_ENCRYPTED_SUFFIX, "N");
           } else {
