@@ -24,12 +24,41 @@ import { ToolsSection } from "./tools/ToolsSection";
 
 export type AdminTab = "tasks" | "logs" | "notifications" | "tools";
 
-export interface AdminShellProps {
-  initialTab?: AdminTab;
+const ADMIN_TABS: readonly AdminTab[] = [
+  "tasks",
+  "logs",
+  "notifications",
+  "tools",
+];
+
+export function normalizeAdminShellTab(
+  raw: string | null | undefined,
+): AdminTab {
+  if (raw == null || !raw.trim()) {
+    return "tasks";
+  }
+  const n = raw.trim().toLowerCase();
+  return (ADMIN_TABS as readonly string[]).includes(n)
+    ? (n as AdminTab)
+    : "tasks";
 }
 
-export const AdminShell: React.FC<AdminShellProps> = ({ initialTab = "tasks" }) => {
-  const [activeTab, setActiveTab] = useState<AdminTab>(initialTab);
+export interface AdminShellProps {
+  initialTab?: AdminTab | string;
+  /**
+   * When true (SPA AppLayout), shell is under product chrome.
+   * Reserved for layout tweaks; no BrandBar today.
+   */
+  embedded?: boolean;
+}
+
+export const AdminShell: React.FC<AdminShellProps> = ({
+  initialTab = "tasks",
+  embedded: _embedded = false,
+}) => {
+  const [activeTab, setActiveTab] = useState<AdminTab>(() =>
+    normalizeAdminShellTab(initialTab),
+  );
 
   return (
     <div

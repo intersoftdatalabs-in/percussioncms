@@ -21,6 +21,16 @@ vi.mock("../../../main/ts/api/publishing", () => ({
   // Publishing sections load their own APIs; keep module resolution soft
 }));
 
+vi.mock("../../../main/ts/api/widgetbuilder/widgetBuilderApi", () => ({
+  isWidgetBuilderActive: vi.fn().mockResolvedValue(true),
+  fetchSummaries: vi.fn().mockResolvedValue([]),
+  loadDefinition: vi.fn(),
+  saveDefinition: vi.fn(),
+  deleteDefinition: vi.fn(),
+  deployDefinition: vi.fn(),
+  validateDefinition: vi.fn(),
+}));
+
 const bootstrap: SpaBootstrap = {
   userName: "demo",
   locale: "en-us",
@@ -69,5 +79,49 @@ describe("App shell", () => {
     );
     expect(screen.queryByTestId("nav-admin")).toBeNull();
     expect(screen.queryByTestId("nav-publish")).toBeNull();
+  });
+
+  it("loads WorkflowAdminShell for admin entry", async () => {
+    render(<App bootstrap={bootstrap} entrySearch="?entry=workflow&tab=roles" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-workflow-admin-shell")).toBeTruthy();
+    });
+    expect(screen.getByTestId("tab-roles").getAttribute("aria-selected")).toBe(
+      "true",
+    );
+  });
+
+  it("loads AdminShell for admin tools entry", async () => {
+    render(<App bootstrap={bootstrap} entrySearch="?entry=admin&tab=tools" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-admin-shell")).toBeTruthy();
+    });
+    expect(screen.getByTestId("tab-tools").getAttribute("aria-selected")).toBe(
+      "true",
+    );
+  });
+
+  it("loads WidgetBuilder for eligible users", async () => {
+    render(
+      <App bootstrap={bootstrap} entrySearch="?entry=widget-builder" />,
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("widget-builder-app") ||
+          screen.getByTestId("wb-disabled"),
+      ).toBeTruthy();
+    });
+  });
+
+  it("redirects non-admin away from workflow to home", async () => {
+    render(
+      <App
+        bootstrap={{ ...bootstrap, isAdmin: false, isDesigner: true }}
+        entrySearch="?entry=workflow"
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("home-shell")).toBeTruthy();
+    });
   });
 });

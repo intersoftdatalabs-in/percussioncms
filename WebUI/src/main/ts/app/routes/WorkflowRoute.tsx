@@ -1,0 +1,46 @@
+/*
+ * Copyright 1999-2026 Percussion Software, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import React, { Suspense, lazy } from "react";
+import { useParams } from "react-router-dom";
+import { loadComponent } from "../../registry";
+import { RequireRole } from "./RequireRole";
+
+const WorkflowAdminShellLazy = lazy(() =>
+  loadComponent("WorkflowAdminShell").then((C) => ({ default: C })),
+);
+
+/**
+ * SPA Administration (workflow) route — Admin only.
+ */
+export function WorkflowRoute(): React.ReactElement {
+  const { tab } = useParams();
+
+  return (
+    <RequireRole gate="admin">
+      <Suspense
+        fallback={
+          <div data-testid="route-workflow-loading" style={{ padding: "1.5rem" }}>
+            Loading Administration…
+          </div>
+        }
+      >
+        <WorkflowAdminShellLazy embedded initialTab={tab} />
+      </Suspense>
+    </RequireRole>
+  );
+}
