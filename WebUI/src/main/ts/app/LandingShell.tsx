@@ -103,11 +103,10 @@ export function LandingShell({
               proves the front-door login → SPA path.
             </p>
             <nav style={navStyle} aria-label="Temporary navigation">
-              {/* Full-page exits until SPA routes exist */}
-              <a style={linkStyle} href="/cm/app/?view=home">
-                Home (current product)
+              <a style={linkStyle} href="/cm/app/spa.jsp?entry=home">
+                Home
               </a>
-              <a style={linkStyle} href="/cm/app/?view=publish">
+              <a style={linkStyle} href="/cm/app/spa.jsp?entry=publish">
                 Publishing
               </a>
               <a style={linkStyle} href="/cm/app/?view=dash">

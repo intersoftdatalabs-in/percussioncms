@@ -27,7 +27,7 @@ colors, and typography with the Intersoft brand.
 
 ## Modern Publishing UI (feature 990)
 
-Primary nav `view=publish` loads `cm/app/publishModern.jsp` (mirrored under `cm/pages/app`), mounting React `PublishingShell` via `PercModernUI`.
+Primary nav `view=publish` redirects (PR-5) to `/cm/app/spa.jsp?entry=publish` (query contract); React `PublishingShell` mounts inside the SPA shell. Retired `publishModern.jsp` re-enters the dispatcher only.
 
 ### Query parameters (allowlisted)
 
