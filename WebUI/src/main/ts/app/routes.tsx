@@ -16,7 +16,7 @@
  */
 
 import React from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router";
 import { FeaturePlaceholder } from "./FeaturePlaceholder";
 import { AppLayout } from "./layout/AppLayout";
 import { AdminRoute } from "./routes/AdminRoute";

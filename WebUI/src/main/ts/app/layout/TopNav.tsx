@@ -16,7 +16,7 @@
  */
 
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink } from "react-router";
 import { useSpaBootstrap } from "../bootstrap/BootstrapContext";
 import { UserMenu } from "./UserMenu";
 import styles from "./AppLayout.module.css";

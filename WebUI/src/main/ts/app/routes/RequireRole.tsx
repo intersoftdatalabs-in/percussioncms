@@ -16,7 +16,7 @@
  */
 
 import React from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate } from "react-router";
 import { useSpaBootstrap } from "../bootstrap/BootstrapContext";
 
 export type SpaRoleGate = "admin" | "adminOrDesigner" | "widgetBuilder";

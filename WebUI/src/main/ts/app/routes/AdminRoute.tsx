@@ -16,7 +16,7 @@
  */
 
 import React, { lazy } from "react";
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 import { loadComponent } from "../../registry";
 import { LazyRouteFrame } from "./RouteErrorBoundary";
 import { RequireRole } from "./RequireRole";
