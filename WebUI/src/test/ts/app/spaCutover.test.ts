@@ -35,7 +35,9 @@ describe("PR-5 aggressive index.jsp SPA cutover", () => {
       const text = read(indexPath);
       expect(text).toContain("buildSpaEntryRedirect");
       expect(text).toContain("/cm/app/spa.jsp?");
-      expect(text).toContain('entry=").append');
+      // Intent: SPA Location query starts with entry= (avoid coupling to JSP format)
+      expect(text).toMatch(/"entry="\s*\)|entry=\s*"\s*\+/);
+      expect(text).toMatch(/URLEncoder\.encode\(\s*entry\b/);
       // Must not forward product modern views to *Modern.jsp
       expect(text).not.toMatch(
         /legacyViews\.put\("home",\s*"homeModern\.jsp"\)/,
@@ -77,6 +79,23 @@ describe("PR-5 aggressive index.jsp SPA cutover", () => {
     expect(text).toContain("WORKFLOW_TABS");
     expect(text).toContain("ADMIN_TABS");
     expect(text).toContain('"widget-builder"');
+  });
+
+  it("retired_modern_redirect only re-forwards params buildSpaEntryRedirect consumes", () => {
+    const redirect = read(
+      resolve(
+        __dirname,
+        "../../../main/webapp/cm/app/includes/retired_modern_redirect.jsp",
+      ),
+    );
+    expect(redirect).toContain('"initialScreen"');
+    expect(redirect).toContain('"section"');
+    expect(redirect).toContain('"tab"');
+    expect(redirect).toContain('"siteId"');
+    expect(redirect).toContain('"serverId"');
+    // Intentionally not re-forwarded (Kilo #1531): not mapped for these SPA entries
+    expect(redirect).not.toMatch(/"path"\s*,/);
+    expect(redirect).not.toMatch(/"site"\s*\]/);
   });
 
   it("dual-tree index.jsp files stay aligned for SPA cutover", () => {
