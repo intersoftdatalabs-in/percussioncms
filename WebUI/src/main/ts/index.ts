@@ -21,15 +21,15 @@
  * <ul>
  *   <li>Always registers {@code window.PercModernUI} for residual bridge embeds.</li>
  *   <li>If {@code #perc-login-root} is present, boots the React Login front door.</li>
- *   <li>If {@code #perc-spa-root} is present, boots the authenticated SPA landing.</li>
+ *   <li>If SPA root is present ({@code #perc-spa-root}, {@code #root}, {@code #perc-app-root}),
+ *       boots the authenticated App shell.</li>
  * </ul>
  */
 
 import React from "react";
 import { createRoot } from "react-dom/client";
 import "./bridge";
-import { LandingShell } from "./app/LandingShell";
-import { LoginPage, readLoginBootstrap, readSpaLandingBootstrap } from "./login";
+import { LoginPage, readLoginBootstrap } from "./login";
 
 function bootLogin(): void {
   const el = document.getElementById("perc-login-root");
@@ -41,25 +41,34 @@ function bootLogin(): void {
   console.info("[PercModernUI] Login SPA mounted.");
 }
 
-function bootSpaLanding(): void {
-  const el = document.getElementById("perc-spa-root");
+function findSpaRoot(): HTMLElement | null {
+  return (
+    document.getElementById("perc-spa-root") ??
+    document.getElementById("root") ??
+    document.getElementById("perc-app-root")
+  );
+}
+
+function bootSpa(): void {
+  const el = findSpaRoot();
   if (!el) {
     return;
   }
-  const bootstrap = readSpaLandingBootstrap();
-  createRoot(el).render(React.createElement(LandingShell, { bootstrap }));
-  console.info("[PercModernUI] SPA landing mounted.");
+  void import("./app/main").then((m) => {
+    m.boot(el);
+  });
 }
 
 function boot(): void {
-  // Login page is public and exclusive; SPA landing is authenticated.
   if (document.getElementById("perc-login-root")) {
     bootLogin();
     return;
   }
-  if (document.getElementById("perc-spa-root")) {
-    bootSpaLanding();
+  if (findSpaRoot()) {
+    bootSpa();
+    return;
   }
+  console.info("[PercModernUI] bridge ready (no SPA root)");
 }
 
 if (document.readyState === "loading") {

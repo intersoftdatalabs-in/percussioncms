@@ -18,19 +18,14 @@
 /**
  * Bridge layer for embedding React components inside existing JSP pages.
  *
- * <p>This module exposes a {@code mountReactComponent} function on
- * {@code window.PercModernUI} so legacy pages can mount React components into
- * arbitrary DOM elements without a full SPA takeover.</p>
- *
- * <p>Usage from a JSP or legacy JS file:</p>
- * <pre>
- *   window.PercModernUI.mount('my-container', 'HelloWorld', { name: 'Sal' });
- * </pre>
+ * <p>{@code mount}/{@code unmount} remain <strong>synchronous</strong> for hosts.
+ * Loads use shared {@link loadComponent} with generation tokens so late resolves
+ * after unmount or remount are ignored (§2.9).</p>
  */
 
 import React from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { componentRegistry } from "./registry";
+import { isRegisteredComponent, loadComponent } from "./registry";
 
 declare global {
   interface Window {
@@ -46,13 +41,17 @@ declare global {
 }
 
 const activeRoots = new Map<string, Root>();
+/** Generation token per elementId — bumped on each mount/unmount. */
+const generations = new Map<string, number>();
+
+function bumpGeneration(elementId: string): number {
+  const next = (generations.get(elementId) ?? 0) + 1;
+  generations.set(elementId, next);
+  return next;
+}
 
 /**
- * Mounts a registered React component into a DOM element.
- *
- * @param elementId - the id of the target container element
- * @param componentName - the key used to register the component
- * @param props - optional props to pass to the component
+ * Mounts a registered React component into a DOM element (sync API; async load).
  */
 export function mountReactComponent(
   elementId: string,
@@ -61,34 +60,52 @@ export function mountReactComponent(
 ): void {
   const container = document.getElementById(elementId);
   if (!container) {
-    console.error(
-      `[PercModernUI] Container element "#${elementId}" not found.`,
-    );
+    console.error(`[PercModernUI] Container element "#${elementId}" not found.`);
     return;
   }
 
-  const Component = componentRegistry.get(componentName);
-  if (!Component) {
+  if (!isRegisteredComponent(componentName)) {
     console.error(
       `[PercModernUI] Component "${componentName}" is not registered.`,
     );
     return;
   }
 
-  // Unmount any existing root at the same element to avoid leaks
-  unmountReactComponent(elementId);
+  // Invalidate any prior pending load for this element
+  const gen = bumpGeneration(elementId);
+  unmountRootOnly(elementId);
 
-  const root = createRoot(container);
-  root.render(React.createElement(Component, props));
-  activeRoots.set(elementId, root);
+  void loadComponent(componentName)
+    .then((Component) => {
+      if (generations.get(elementId) !== gen) {
+        // Stale: unmount or remount happened before resolve
+        return;
+      }
+      const el = document.getElementById(elementId);
+      if (!el) {
+        return;
+      }
+      unmountRootOnly(elementId);
+      const root = createRoot(el);
+      root.render(React.createElement(Component, props));
+      activeRoots.set(elementId, root);
+    })
+    .catch((err) => {
+      if (generations.get(elementId) !== gen) {
+        return;
+      }
+      console.error(
+        `[PercModernUI] Failed to load component "${componentName}"`,
+        err,
+      );
+      const el = document.getElementById(elementId);
+      if (el) {
+        el.setAttribute("data-perc-mount-error", "1");
+      }
+    });
 }
 
-/**
- * Unmounts a previously mounted React component.
- *
- * @param elementId - the id of the container element
- */
-export function unmountReactComponent(elementId: string): void {
+function unmountRootOnly(elementId: string): void {
   const existing = activeRoots.get(elementId);
   if (existing) {
     existing.unmount();
@@ -96,7 +113,18 @@ export function unmountReactComponent(elementId: string): void {
   }
 }
 
-// Expose on the global window so legacy JS/JSP pages can call it
+/**
+ * Unmounts a previously mounted React component and invalidates pending loads.
+ */
+export function unmountReactComponent(elementId: string): void {
+  bumpGeneration(elementId);
+  unmountRootOnly(elementId);
+  const el = document.getElementById(elementId);
+  if (el) {
+    el.removeAttribute("data-perc-mount-error");
+  }
+}
+
 window.PercModernUI = {
   mount: mountReactComponent,
   unmount: unmountReactComponent,

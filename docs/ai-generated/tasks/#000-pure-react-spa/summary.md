@@ -36,9 +36,9 @@
 
 ## PR plan (login-first)
 
-1. **Login front door** + SPA landing  
-2. App shell + TopNav + entry query + 401→Login  
-3. Home + Publish routes  
+1. **Login front door** + SPA landing — **done** (#1523)  
+2. App shell + TopNav + entry query + 401→Login — **in progress** (`feat/000-react-spa-pr2-app-shell`)  
+3. Home + Publish routes (embedded shells)  
 4. Workflow + Admin + Widget Builder  
 5. Aggressive `index.jsp` cutover  
 6. Explorer  
