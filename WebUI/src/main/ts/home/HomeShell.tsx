@@ -58,6 +58,11 @@ export interface HomeShellProps {
    * when id/path are present.
    */
   onOpenItem?: (item: ContentListItem) => void;
+  /**
+   * When set (SPA route), section tab clicks update the client route
+   * ({@code /home}, {@code /home/gadgets}, …) instead of only local state.
+   */
+  onSectionChange?: (section: HomeSection) => void;
 }
 
 const SECTIONS: { id: HomeSection; key: string }[] = [
@@ -90,6 +95,7 @@ function HomeShellBody({
   initialSection,
   isAdmin = false,
   onOpenItem = defaultOpenItem,
+  onSectionChange,
 }: Omit<HomeShellProps, "embedded">): React.ReactElement {
   const start = useMemo(
     () => mapInitialScreenToSection(initialSection),
@@ -102,10 +108,15 @@ function HomeShellBody({
     setSection(mapInitialScreenToSection(initialSection));
   }, [initialSection]);
 
+  function selectSection(next: HomeSection): void {
+    setSection(next);
+    onSectionChange?.(next);
+  }
+
   return (
     <>
       <header style={headerStyle}>
-        <h1 style={{ margin: 0, fontSize: "1.25rem" }}>
+        <h1 style={{ margin: 0, fontSize: "1.25rem" }} data-testid="home-title">
           {message(MSG.HOME_TITLE)}
         </h1>
       </header>
@@ -117,7 +128,7 @@ function HomeShellBody({
             style={navButtonStyle(section === s.id)}
             aria-current={section === s.id ? "page" : undefined}
             data-testid={`home-nav-${s.id}`}
-            onClick={() => setSection(s.id)}
+            onClick={() => selectSection(s.id)}
           >
             {message(s.key)}
           </button>

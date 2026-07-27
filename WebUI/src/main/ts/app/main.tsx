@@ -17,7 +17,7 @@
 
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { App } from "./App";
+import { App, handoffSpaEntryBeforeMount } from "./App";
 import { resetLoginRedirectLatch } from "./auth/sessionHandlers";
 import { loadSpaBootstrap } from "./bootstrap/loadBootstrap";
 
@@ -28,6 +28,9 @@ export function boot(rootEl: HTMLElement): void {
   // Fresh SPA lifecycle — allow mid-session 401 redirects again
   resetLoginRedirectLatch();
   const bootstrap = loadSpaBootstrap();
+  // Rewrite spa.jsp?entry=… → /cm/app/{entry}/… before React mounts so the
+  // first BrowserRouter paint is the feature route (not /spa.jsp → unavailable).
+  handoffSpaEntryBeforeMount();
   createRoot(rootEl).render(React.createElement(App, { bootstrap }));
   console.info("[PercModernUI] SPA App mounted.");
 }

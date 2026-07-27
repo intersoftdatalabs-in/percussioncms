@@ -16,8 +16,12 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { fetchRecentItems } from "../../api/home/homeApi";
+import {
+  fetchRecentItems,
+  formatApiError,
+} from "../../api/home/homeApi";
 import type { ContentListItem } from "../../api/home/types";
+import { isSessionRedirectError } from "../../api/client";
 import { message, MSG } from "../../i18n/message";
 import { errorStyle, listItemStyle, listStyle } from "../home.styles";
 
@@ -42,10 +46,13 @@ export function RecentSection({
           setError(null);
         }
       })
-      .catch(() => {
-        if (!cancelled) {
-          setError(message(MSG.ERROR_GENERIC));
+      .catch((err: unknown) => {
+        if (cancelled || isSessionRedirectError(err)) {
+          return;
         }
+        setError(
+          formatApiError(err, message(MSG.ERROR_GENERIC)),
+        );
       })
       .finally(() => {
         if (!cancelled) {
@@ -58,17 +65,23 @@ export function RecentSection({
   }, []);
 
   if (loading) {
-    return <p role="status">{message(MSG.LOADING)}</p>;
+    return (
+      <p role="status" data-testid="home-recent-loading">
+        {message(MSG.LOADING)}
+      </p>
+    );
   }
   if (error) {
     return (
-      <p role="alert" style={errorStyle}>
+      <p role="alert" style={errorStyle} data-testid="home-recent-error">
         {error}
       </p>
     );
   }
   if (items.length === 0) {
-    return <p>{message(MSG.RECENT_EMPTY)}</p>;
+    return (
+      <p data-testid="home-recent-empty">{message(MSG.RECENT_EMPTY)}</p>
+    );
   }
 
   return (

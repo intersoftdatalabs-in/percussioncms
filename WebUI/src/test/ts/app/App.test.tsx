@@ -45,14 +45,23 @@ describe("App shell", () => {
     (window as unknown as { I18N: { message: (k: string) => string } }).I18N = {
       message: (key: string) => key,
     };
+    // BrowserRouter basename="/cm/app" requires pathname under that prefix
+    window.history.replaceState({}, "", "/cm/app/spa.jsp");
   });
 
   afterEach(() => {
     cleanup();
+    window.history.replaceState({}, "", "/");
   });
 
   it("renders TopNav and embedded Home shell from entry query", async () => {
-    render(<App bootstrap={bootstrap} entrySearch="?entry=home" />);
+    render(
+      <App
+        bootstrap={bootstrap}
+        entrySearch="?entry=home"
+        basename="/cm/app"
+      />,
+    );
     expect(screen.getByTestId("perc-spa-topnav")).toBeTruthy();
     expect(screen.getByTestId("perc-spa-user-name").textContent).toContain(
       "demo",
@@ -63,7 +72,13 @@ describe("App shell", () => {
   });
 
   it("shows publish nav for designer and loads PublishingShell", async () => {
-    render(<App bootstrap={bootstrap} entrySearch="?entry=publish" />);
+    render(
+      <App
+        bootstrap={bootstrap}
+        entrySearch="?entry=publish"
+        basename="/cm/app"
+      />,
+    );
     expect(screen.getByTestId("nav-publish")).toBeTruthy();
     await waitFor(() => {
       expect(screen.getByTestId("publishing-shell")).toBeTruthy();
@@ -75,6 +90,7 @@ describe("App shell", () => {
       <App
         bootstrap={{ ...bootstrap, isAdmin: false, isDesigner: false }}
         entrySearch="?entry=home"
+        basename="/cm/app"
       />,
     );
     expect(screen.queryByTestId("nav-admin")).toBeNull();
@@ -82,7 +98,13 @@ describe("App shell", () => {
   });
 
   it("loads WorkflowAdminShell for admin entry", async () => {
-    render(<App bootstrap={bootstrap} entrySearch="?entry=workflow&tab=roles" />);
+    render(
+      <App
+        bootstrap={bootstrap}
+        entrySearch="?entry=workflow&tab=roles"
+        basename="/cm/app"
+      />,
+    );
     await waitFor(() => {
       expect(screen.getByTestId("perc-workflow-admin-shell")).toBeTruthy();
     });
@@ -92,7 +114,13 @@ describe("App shell", () => {
   });
 
   it("loads AdminShell for admin tools entry", async () => {
-    render(<App bootstrap={bootstrap} entrySearch="?entry=admin&tab=tools" />);
+    render(
+      <App
+        bootstrap={bootstrap}
+        entrySearch="?entry=admin&tab=tools"
+        basename="/cm/app"
+      />,
+    );
     await waitFor(() => {
       expect(screen.getByTestId("perc-admin-shell")).toBeTruthy();
     });
@@ -103,7 +131,11 @@ describe("App shell", () => {
 
   it("loads WidgetBuilder for eligible users", async () => {
     render(
-      <App bootstrap={bootstrap} entrySearch="?entry=widget-builder" />,
+      <App
+        bootstrap={bootstrap}
+        entrySearch="?entry=widget-builder"
+        basename="/cm/app"
+      />,
     );
     await waitFor(() => {
       const app = screen.queryByTestId("widget-builder-app");
@@ -117,6 +149,8 @@ describe("App shell", () => {
       <App
         bootstrap={{ ...bootstrap, isAdmin: false, isDesigner: true }}
         entrySearch="?entry=workflow"
+      
+        basename="/cm/app"
       />,
     );
     await waitFor(() => {
@@ -129,6 +163,8 @@ describe("App shell", () => {
       <App
         bootstrap={{ ...bootstrap, isAdmin: false, isDesigner: true }}
         entrySearch="?entry=admin"
+      
+        basename="/cm/app"
       />,
     );
     await waitFor(() => {
@@ -147,6 +183,8 @@ describe("App shell", () => {
           isWidgetBuilderActive: true,
         }}
         entrySearch="?entry=widget-builder"
+      
+        basename="/cm/app"
       />,
     );
     await waitFor(() => {
@@ -160,6 +198,8 @@ describe("App shell", () => {
       <App
         bootstrap={{ ...bootstrap, isWidgetBuilderActive: false }}
         entrySearch="?entry=widget-builder"
+      
+        basename="/cm/app"
       />,
     );
     await waitFor(() => {
@@ -181,7 +221,9 @@ describe("App shell", () => {
         <App
           bootstrap={bootstrap}
           entrySearch="?entry=explorer&path=/Sites"
-        />,
+        
+        basename="/cm/app"
+      />,
       );
       await waitFor(() => {
         expect(screen.getByTestId("content-explorer-shell")).toBeTruthy();

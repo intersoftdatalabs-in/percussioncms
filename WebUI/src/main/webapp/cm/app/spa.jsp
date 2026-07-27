@@ -6,8 +6,9 @@
 <%@ page import="com.percussion.widgetbuilder.service.PSWidgetBuilderService" %>
 <%@ taglib uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" prefix="csrf" %>
 <%--
-  Authenticated SPA document (PR-2 app shell).
-  Entry: /cm/app/spa.jsp?entry=home (query contract — no hash on server redirects).
+  Authenticated SPA document (PR-2 app shell; PR-9 BrowserRouter path URLs).
+  Server entry / login return: /cm/app/spa.jsp?entry=home (query contract — no hash).
+  Client routes: /cm/app/home, /cm/app/publish/… (refresh via PSWebUiSpaFallbackFilter).
   No header.jsp / mainnav.jsp — React AppLayout + TopNav.
 --%>
 <%!
@@ -118,6 +119,8 @@
     <meta name="_csrf_header" content="<csrf:tokenname/>"/>
     <meta name="_csrf" content="<csrf:tokenvalue/>"/>
     <script src="/JavaScriptServlet"></script>
+    <%-- TMX catalog for React message() (required for Home and all SPA chrome) --%>
+    <script src="<%= request.getContextPath() %>/tmx/tmx.jsp?mode=js&amp;prefix=perc.ui.&amp;sys_lang=<%= locale %>"></script>
     <link rel="stylesheet" href="/cm/modern/assets/perc-modern-ui.css"/>
     <script type="module" src="/cm/modern/assets/perc-modern-ui.js"></script>
     <style>html, body { margin: 0; padding: 0; }</style>

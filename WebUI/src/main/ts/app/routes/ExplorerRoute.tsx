@@ -28,8 +28,8 @@ const ContentExplorerShellLazy = lazy(() =>
 
 /**
  * SPA Content Explorer route (PR-6).
- * Deep-link path comes from client hash query ({@code #/explorer?path=/Sites/...})
- * seeded from server {@code spa.jsp?entry=explorer&path=…} via parseEntryQuery.
+ * Deep-link path comes from client search ({@code /explorer?path=/Sites/...} under
+ * basename) seeded from server {@code spa.jsp?entry=explorer&path=…} or path refresh.
  */
 export function ExplorerRoute(): React.ReactElement {
   const location = useLocation();

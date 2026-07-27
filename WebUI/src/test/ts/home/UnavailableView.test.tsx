@@ -16,7 +16,7 @@ describe("UnavailableView", () => {
   it("renders moved/unavailable message", () => {
     render(<UnavailableView detail="/cm/pages/cui/index.html" />);
     expect(screen.getByTestId("unavailable-view")).toBeDefined();
-    expect(screen.getByText("perc.ui.home.modern@Unavailable")).toBeDefined();
+    expect(screen.getByText("Unavailable")).toBeDefined();
     expect(screen.getByText("/cm/pages/cui/index.html")).toBeDefined();
   });
 });

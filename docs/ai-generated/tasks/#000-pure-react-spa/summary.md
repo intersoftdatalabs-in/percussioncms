@@ -1,55 +1,46 @@
-# Design summary: Pure React / TypeScript WebUI — eliminate JSP shells
+# Design summary: Pure React / TypeScript WebUI
 
-## Produced
+## Direction of record (2026-07-27)
 
-| Artifact | Path |
-|----------|------|
-| Full design (**rev 3.2** — aggressive SPA-first, **login-first**) | `docs/ai-generated/tasks/#000-pure-react-spa/design.md` |
-| This summary | `docs/ai-generated/tasks/#000-pure-react-spa/summary.md` |
+**Product UI = React + TypeScript SPA only.** No dual mode, no new bridges, **no jQuery in the SPA**, no “shell = done.”
+
+- **Plan of record:** [`#000-unified-ui-plan/unified-ui-plan.md`](../#000-unified-ui-plan/unified-ui-plan.md) **rev 4.1**
+- **Module rules:** [`WebUI/AGENTS.md`](../../../WebUI/AGENTS.md)
+- **Infra design (entry, bootstrap, PR 1–9):** [`design.md`](design.md)
+
+### Immediate focus
+
+**Home must become fully functional** (Recent, Bookmarks, Library, Search, Create, Gadgets). SPA chrome without working features is not acceptance.
+
+Then: Publish → Explorer → Admin → Workflow → Widget Builder, same bar.
+
+## Infra already produced (PR-1…PR-9)
+
+| PR | Outcome |
+|----|---------|
+| 1–2 | React Login + SPA app shell |
+| 3–4 | Feature routes (shells embedded) |
+| 5 | `index.jsp` cutover to SPA |
+| 6 | Explorer route + residual bridge doc |
+| 7 | Gadgets on Home |
+| 8 | Deleted obsolete product `*Modern.jsp` hosts |
+| 9 | BrowserRouter + `PSWebUiSpaFallbackFilter` path URLs |
+
+These are **routing/chrome**. Functional acceptance is **screen-by-screen** per unified-ui-plan rev 4.1.
 
 ## Product locks
 
-1. **SPA is the product UI** for modern features. No dual-mode, no soft feature-flag cutover. Old JSPs = reference until delete.
-2. **Start at the front door:** React Login is the first shippable slice for **stakeholder demos** (Login → SPA), then authenticated routes.
-3. **Home is the default product landing** after sign-in (not a separate “dashboard” peer).
-4. **Dashboard gadgets have real product value**, but that capability should **live on Home** (section / widgets / compose), **not** as a long-term separate SPA route. Until then: legacy `?view=dash` full-page exit only.
+1. SPA is the product UI for modern features  
+2. React Login front door  
+3. Home is default landing (gadgets on Home, not peer `/dashboard`)  
+4. Server entry = query `spa.jsp?entry=…` only (never `#` on redirects)  
+5. No dual-mode / no new PercModernUI product hosts  
+6. **No jQuery (or Knockout/Dojo) in `src/main/ts` / modern bundle**  
+7. Shell ≠ done  
 
-## Stakeholder demo path
+## Explicitly not product strategy
 
-1. Open product → **React Login** (not classic `rxlogin.jsp` UI)
-2. Sign in (POST existing `/login`) → **React SPA** landing
-3. As later PRs land: Home → Publish → Admin… without `*Modern.jsp` hosts
-
-## Implementability locks (still apply)
-
-1. **Server entry = query only** — `spa.jsp?entry=…` (never `Location: …#/…`)
-2. **Bridge** — sync `mount` + lazy `loadComponent` + generation tokens
-3. **proxyURL** parity on all SPA redirects
-4. **Login** — UI is React; auth remains existing form POST to `/login`
-
-## Monday PR-1
-
-`feat(webui): React Login SPA as product front door`
-
-- React LoginPage + thin public host
-- POST `/login` (CSRF, same fields as `rxlogin.jsp`)
-- Success → `spa.jsp?entry=home` (proxyURL-aware)
-- Minimal SPA landing so demo does not drop into a JSP shell
-
-## PR plan (login-first)
-
-1. **Login front door** + SPA landing — **done** (#1523)  
-2. App shell + TopNav + entry query + 401→Login — **done** (#1526)  
-3. Home + Publish routes (embedded shells) — **done** (#1527); **Home is default landing**  
-4. Workflow + Admin + Widget Builder — **done** (#1528)  
-5. Aggressive `index.jsp` cutover — **done** (#1531); includes login CSS load fix  
-6. Explorer SPA route + residual bridge doc — **done** (#1533)  
-7. **Home + gadgets:** fold React Dashboard widgets into Home — **done** (#1540)  
-8. Delete obsolete product host JSPs — **in progress** (`feat/000-react-spa-pr8-delete-obsolete-hosts`)  
-9. Optional path URLs (PR-9)
-
-## Explicitly not first
-
-- Dual-mode / feature-flag fallback  
+- Track A Dojo→jQuery as a long-lived product track (vendor Dojo already removed; residual AA is debt)  
+- Soft feature-flag cutover  
 - Parallel auth REST API  
-- Full editor/template/arch rewrite in PR-1  
+- Bridge-first new features  

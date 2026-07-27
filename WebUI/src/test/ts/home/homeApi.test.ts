@@ -36,13 +36,27 @@ describe("homeApi", () => {
     vi.unstubAllGlobals();
   });
 
+  function mockJsonResponse(body: unknown, init: { ok?: boolean; status?: number } = {}) {
+    const text =
+      typeof body === "string" ? body : JSON.stringify(body);
+    return {
+      ok: init.ok ?? true,
+      status: init.status ?? 200,
+      statusText: init.ok === false ? "Error" : "OK",
+      headers: {
+        get: (name: string) =>
+          name.toLowerCase() === "content-type" ? "application/json" : null,
+      },
+      text: async () => text,
+      json: async () => body,
+    };
+  }
+
   it("fetchRecentItems returns list payload", async () => {
     const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>;
-    fetchMock.mockResolvedValue({
-      ok: true,
-      status: 200,
-      json: async () => [{ name: "Page A", id: "1" }],
-    });
+    fetchMock.mockResolvedValue(
+      mockJsonResponse([{ name: "Page A", id: "1" }]),
+    );
     const items = await fetchRecentItems("item");
     expect(items).toHaveLength(1);
     expect(items[0].name).toBe("Page A");
@@ -50,13 +64,11 @@ describe("homeApi", () => {
 
   it("fetchMyContent maps ItemProperties list", async () => {
     const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>;
-    fetchMock.mockResolvedValue({
-      ok: true,
-      status: 200,
-      json: async () => ({
+    fetchMock.mockResolvedValue(
+      mockJsonResponse({
         ItemProperties: [{ name: "Bookmarked", path: "/Sites/a/b" }],
       }),
-    });
+    );
     const items = await fetchMyContent();
     expect(items).toHaveLength(1);
     expect(items[0].name).toBe("Bookmarked");
@@ -64,14 +76,11 @@ describe("homeApi", () => {
 
   it("fetchSites surfaces API errors", async () => {
     const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>;
-    fetchMock.mockResolvedValue({
-      ok: false,
-      status: 401,
-      statusText: "Unauthorized",
-      json: async () => ({ message: "nope" }),
-    });
+    fetchMock.mockResolvedValue(
+      mockJsonResponse({ message: "nope" }, { ok: false, status: 403 }),
+    );
     await expect(fetchSites()).rejects.toMatchObject({
-      status: 401,
+      status: 403,
     } as Partial<ApiError>);
   });
 
