@@ -15,175 +15,195 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from 'react';
-import { post } from '../api/client';
-import { styles } from './dashboard.styles';
-
-interface EffectivenessMetric {
-  name: string;
-  value: number;
-  unit?: string;
-  trend?: 'up' | 'down' | 'stable';
-  target?: number;
-  percentage?: number;
-}
-
-interface EffectivenessData {
-  metrics?: EffectivenessMetric[];
-  timestamp?: string;
-  period?: string;
-  [key: string]: unknown;
-}
+import React, { useCallback, useEffect, useState } from "react";
+import { isSessionRedirectError } from "../api/client";
+import { isAnalyticsProviderConfigured } from "../api/dashboard/analyticsApi";
+import {
+  fetchDefaultEffectiveness,
+  type EffectivenessRow,
+} from "../api/dashboard/gadgetApi";
+import { formatApiError } from "../api/home/homeApi";
+import { styles } from "./dashboard.styles";
 
 export interface EffectivenessWidgetProps {
   title?: string;
   refreshInterval?: number;
+  /** Duration window in days (classic duration + durationType=days). */
+  durationDays?: number;
 }
 
 /**
- * EffectivenessWidget displays performance metrics and efficiency measurements.
- * Fetches data from the effectiveness REST endpoint and shows key performance indicators.
+ * Classic **What's Working** (effectiveness) gadget.
+ *
+ * <p>Server: {@code POST /services/activitymanagement/activity/effectiveness}
+ * with {@code EffectivenessRequest}. Requires Google Analytics provider
+ * config (server rejects with “Analytics has not been setup yet”).</p>
  */
 export const EffectivenessWidget: React.FC<EffectivenessWidgetProps> = ({
-  title = 'Effectiveness Metrics',
+  title = "What's Working",
   refreshInterval = 60000,
+  durationDays = 30,
 }) => {
-  const [metrics, setMetrics] = useState<EffectivenessMetric[]>([]);
+  const [path, setPath] = useState("");
+  const [rows, setRows] = useState<EffectivenessRow[]>([]);
+  const [analyticsOk, setAnalyticsOk] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchMetrics = async () => {
+  const load = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      let configured = false;
       try {
-        setIsLoading(true);
-        setError(null);
-
-        // Fetch effectiveness metrics from the activity service
-        const response = await post<EffectivenessData>('/services/activity/effectiveness', {});
-
-        // Handle both possible response structures
-        let metricArray: EffectivenessMetric[] = [];
-        if (response.metrics && Array.isArray(response.metrics)) {
-          metricArray = response.metrics;
-        } else if (Array.isArray(response)) {
-          metricArray = response as EffectivenessMetric[];
-        }
-
-        setMetrics(metricArray);
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : 'Failed to load effectiveness metrics';
-        setError(errorMessage);
-        console.error('EffectivenessWidget error:', err);
-      } finally {
-        setIsLoading(false);
+        configured = await isAnalyticsProviderConfigured();
+      } catch {
+        configured = false;
       }
-    };
+      setAnalyticsOk(configured);
+      if (!configured) {
+        setRows([]);
+        setPath("");
+        setError(null);
+        return;
+      }
+      const result = await fetchDefaultEffectiveness(durationDays);
+      setPath(result.path);
+      setRows(result.rows);
+    } catch (err: unknown) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setError(formatApiError(err, "Failed to load effectiveness metrics"));
+      setRows([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [durationDays]);
 
-    // Fetch immediately
-    fetchMetrics();
-
-    // Set up refresh interval if specified
-    const interval =
-      refreshInterval > 0 ? setInterval(fetchMetrics, refreshInterval) : undefined;
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [refreshInterval]);
-
-  const getTrendIcon = (metric: EffectivenessMetric): string => {
-    const trend = metric.trend?.toLowerCase();
-    if (trend === 'up') return '📈';
-    if (trend === 'down') return '📉';
-    return '➡️';
-  };
-
-  const getPercentageColor = (metric: EffectivenessMetric): string => {
-    if (!metric.percentage && !metric.target) return '#666';
-    const percentage = metric.percentage || 0;
-    if (percentage >= 90) return '#4caf50'; // Green
-    if (percentage >= 70) return '#ff9800'; // Orange
-    return '#f44336'; // Red
-  };
+  useEffect(() => {
+    void load();
+    if (refreshInterval <= 0) {
+      return;
+    }
+    const id = window.setInterval(() => void load(), refreshInterval);
+    return () => window.clearInterval(id);
+  }, [load, refreshInterval]);
 
   const renderContent = () => {
     if (isLoading) {
       return (
-        <div style={styles.widgetLoading}>
-          <p>Loading effectiveness metrics...</p>
+        <div
+          style={styles.widgetLoading}
+          data-testid="effectiveness-widget-loading"
+        >
+          <p>Loading effectiveness...</p>
+        </div>
+      );
+    }
+
+    if (analyticsOk === false) {
+      return (
+        <div
+          style={styles.widgetContent}
+          data-testid="effectiveness-widget-needs-analytics"
+        >
+          <p style={{ fontWeight: 600, marginTop: 0 }}>
+            Google Analytics is not configured
+          </p>
+          <p style={{ fontSize: "0.9em", color: "#555" }}>
+            What&apos;s Working needs a Google Analytics provider and site
+            profile. Use the <strong>Google Setup</strong> gadget, then refresh
+            this widget.
+          </p>
         </div>
       );
     }
 
     if (error) {
       return (
-        <div style={styles.widgetError}>
+        <div
+          style={styles.widgetError}
+          data-testid="effectiveness-widget-error"
+        >
           <p>Error: {error}</p>
         </div>
       );
     }
 
-    if (!metrics || metrics.length === 0) {
+    if (rows.length === 0) {
       return (
-        <div style={styles.widgetContent}>
-          <p>No effectiveness metrics available</p>
+        <div
+          style={styles.widgetContent}
+          data-testid="effectiveness-widget-empty"
+        >
+          <p>No effectiveness data for this path and duration.</p>
+          {path ? (
+            <p style={{ fontSize: "0.85em", color: "#666" }}>
+              {path} · last {durationDays} days
+            </p>
+          ) : null}
         </div>
       );
     }
 
+    const max = Math.max(...rows.map((r) => r.effectiveness), 1);
+
     return (
-      <div style={styles.widgetContent}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' } as React.CSSProperties}>
-          {metrics.map((metric, index) => (
-            <div
-              key={metric.name || index}
-              style={{
-                padding: '10px',
-                borderLeft: `4px solid ${getPercentageColor(metric)}`,
-                backgroundColor: '#f9f9f9',
-                borderRadius: '2px',
-              } as React.CSSProperties}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as React.CSSProperties}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 500, color: '#333', fontSize: '0.9em' }}>
-                    {metric.name}
-                  </div>
-                  <div style={{ fontSize: '1.3em', fontWeight: '700', color: '#007ea8', marginTop: '4px' } as React.CSSProperties}>
-                    {metric.value}
-                    {metric.unit && <span style={{ fontSize: '0.8em', marginLeft: '4px' }}>{metric.unit}</span>}
-                  </div>
+      <div style={styles.widgetContent} data-testid="effectiveness-widget-list">
+        <p style={{ fontSize: "0.85em", color: "#666", marginTop: 0 }}>
+          {path} · last {durationDays} days
+        </p>
+        <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+          {rows.map((row) => {
+            const pct = Math.round((row.effectiveness / max) * 100);
+            return (
+              <li
+                key={row.name}
+                style={{
+                  padding: "8px 0",
+                  borderBottom: "1px solid #e0e0e0",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: "8px",
+                    marginBottom: "4px",
+                  }}
+                >
+                  <span style={{ fontWeight: 500 }}>{row.name}</span>
+                  <span style={{ color: "#007ea8", fontWeight: 600 }}>
+                    {row.effectiveness.toLocaleString()}
+                  </span>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px', marginLeft: '12px' } as React.CSSProperties}>
-                  <div style={{ fontSize: '1.4em' }}>{getTrendIcon(metric)}</div>
-                  {metric.percentage !== undefined && (
-                    <div
-                      style={{
-                        fontSize: '0.8em',
-                        fontWeight: 'bold',
-                        color: getPercentageColor(metric),
-                      } as React.CSSProperties}
-                    >
-                      {Math.round(metric.percentage)}%
-                    </div>
-                  )}
-                  {metric.target !== undefined && (
-                    <div style={{ fontSize: '0.75em', color: '#999' }}>
-                      Target: {metric.target}
-                    </div>
-                  )}
+                <div
+                  style={{
+                    height: "6px",
+                    backgroundColor: "#e0e0e0",
+                    borderRadius: "3px",
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      height: "100%",
+                      width: `${pct}%`,
+                      backgroundColor: "#007ea8",
+                    }}
+                  />
                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
+              </li>
+            );
+          })}
+        </ul>
       </div>
     );
   };
 
   return (
-    <div style={styles.widget}>
+    <div style={styles.widget} data-testid="effectiveness-widget">
       <div style={styles.widgetTitle}>{title}</div>
       {renderContent()}
     </div>

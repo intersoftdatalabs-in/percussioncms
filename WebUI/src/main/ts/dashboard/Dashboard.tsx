@@ -97,9 +97,10 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
   },
   {
     id: "effectiveness",
-    name: "Effectiveness",
+    name: "What's Working",
     component: EffectivenessWidget,
-    description: "Performance and effectiveness metrics",
+    description:
+      "Effectiveness scores (requires Google Analytics — see Google Setup)",
     category: "Analytics",
   },
   {
@@ -127,7 +128,8 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
     id: "traffic",
     name: "Traffic",
     component: TrafficWidget,
-    description: "Content traffic analytics with charts",
+    description:
+      "Content traffic series (visits need Google Analytics profile)",
     category: "Analytics",
   },
   {
@@ -169,8 +171,9 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
     id: "google-setup",
     name: "Google Setup",
     component: GoogleSetupWidget,
-    description: "Google integration and account configuration status",
-    category: "Integration",
+    description:
+      "Google Analytics provider status (required for Traffic / What's Working)",
+    category: "Analytics",
   },
   {
     id: "membership",
@@ -220,9 +223,9 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
 ];
 
 /**
- * Default Home Gadgets layout — only widgets with verified sitemanage APIs.
- * Assets By Status and other invented-endpoint shells stay in AVAILABLE_GADGETS
- * for optional add, but are not auto-mounted (they still 500/404).
+ * Default Home Gadgets layout — widgets with verified sitemanage APIs.
+ * Remaining catalog entries (Traffic, Effectiveness, SEO, etc.) stay optional
+ * until rewritten off invented endpoints.
  */
 const DEFAULT_GADGETS: DashboardWidget[] = [
   {
@@ -252,6 +255,41 @@ const DEFAULT_GADGETS: DashboardWidget[] = [
     component: ActivityWidget,
     props: {},
     position: { column: "right", order: 0 },
+  },
+  {
+    id: "assets-status",
+    name: "Assets By Status",
+    component: AssetsStatusWidget,
+    props: {},
+    position: { column: "right", order: 1 },
+  },
+  {
+    id: "process-monitor",
+    name: "Process Monitor",
+    component: ProcessMonitorWidget,
+    props: {},
+    position: { column: "right", order: 2 },
+  },
+  {
+    id: "google-setup",
+    name: "Google Setup",
+    component: GoogleSetupWidget,
+    props: {},
+    position: { column: "left", order: 3 },
+  },
+  {
+    id: "traffic",
+    name: "Traffic",
+    component: TrafficWidget,
+    props: {},
+    position: { column: "right", order: 3 },
+  },
+  {
+    id: "effectiveness",
+    name: "What's Working",
+    component: EffectivenessWidget,
+    props: {},
+    position: { column: "right", order: 4 },
   },
 ];
 

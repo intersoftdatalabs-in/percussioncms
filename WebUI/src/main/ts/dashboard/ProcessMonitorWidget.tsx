@@ -15,23 +15,14 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from 'react';
-import { get } from '../api/client';
-import { styles } from './dashboard.styles';
-
-interface Monitor {
-  designator: string;
-  name: string;
-  status?: string;
-  message?: string;
-  [key: string]: unknown;
-}
-
-interface MonitorList {
-  monitors?: Monitor[];
-  monitor?: Monitor[];
-  [key: string]: unknown;
-}
+import React, { useCallback, useEffect, useState } from "react";
+import { isSessionRedirectError } from "../api/client";
+import {
+  fetchProcessMonitors,
+  type ProcessMonitorRow,
+} from "../api/dashboard/gadgetApi";
+import { formatApiError } from "../api/home/homeApi";
+import { styles } from "./dashboard.styles";
 
 export interface ProcessMonitorWidgetProps {
   title?: string;
@@ -39,156 +30,128 @@ export interface ProcessMonitorWidgetProps {
 }
 
 /**
- * ProcessMonitorWidget displays the status of system background processes and monitors.
- * Fetches data from the monitor REST endpoint and auto-refreshes.
+ * Classic **Process Monitor** gadget.
+ *
+ * <p>Server: {@code GET /services/sitemanage/monitor/all}
+ * (classic {@code PROCESS_STATUS_ALL}). Not {@code /services/monitor/all}.</p>
  */
 export const ProcessMonitorWidget: React.FC<ProcessMonitorWidgetProps> = ({
-  title = 'Process Monitor',
+  title = "Process Monitor",
   refreshInterval = 30000,
 }) => {
-  const [monitors, setMonitors] = useState<Monitor[]>([]);
+  const [monitors, setMonitors] = useState<ProcessMonitorRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchMonitors = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        // Fetch all monitors from the monitor service
-        const response = await get<MonitorList>('/services/monitor/all');
-
-        // Handle both possible response structures
-        let monitorArray: Monitor[] = [];
-        if (response.monitors && Array.isArray(response.monitors)) {
-          monitorArray = response.monitors;
-        } else if (response.monitor && Array.isArray(response.monitor)) {
-          monitorArray = response.monitor;
-        } else if (Array.isArray(response)) {
-          monitorArray = response as Monitor[];
-        }
-
-        setMonitors(monitorArray);
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : 'Failed to load process monitor';
-        setError(errorMessage);
-        console.error('ProcessMonitorWidget error:', err);
-      } finally {
-        setIsLoading(false);
+  const load = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      setMonitors(await fetchProcessMonitors());
+    } catch (err: unknown) {
+      if (isSessionRedirectError(err)) {
+        return;
       }
-    };
+      setError(formatApiError(err, "Failed to load process monitor"));
+      setMonitors([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-    // Fetch immediately
-    fetchMonitors();
+  useEffect(() => {
+    void load();
+    if (refreshInterval <= 0) {
+      return;
+    }
+    const id = window.setInterval(() => void load(), refreshInterval);
+    return () => window.clearInterval(id);
+  }, [load, refreshInterval]);
 
-    // Set up refresh interval if specified
-    const interval =
-      refreshInterval > 0
-        ? setInterval(fetchMonitors, refreshInterval)
-        : undefined;
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [refreshInterval]);
-
-  const getStatusIcon = (monitor: Monitor): string => {
+  const getStatusIcon = (monitor: ProcessMonitorRow): string => {
     const status = monitor.status?.toString().toLowerCase();
-    if (status === 'running' || status === 'active' || status === 'ok') {
-      return '✅';
+    if (status === "running" || status === "active" || status === "ok") {
+      return "✅";
     }
-    if (status === 'paused' || status === 'idle') {
-      return '⏸️';
+    if (status === "paused" || status === "idle") {
+      return "⏸️";
     }
-    if (status === 'error' || status === 'failed') {
-      return '❌';
+    if (status === "error" || status === "failed") {
+      return "❌";
     }
-    return '📊';
+    return "📊";
   };
 
   const renderContent = () => {
     if (isLoading) {
       return (
-        <div style={styles.widgetLoading}>
+        <div style={styles.widgetLoading} data-testid="process-monitor-loading">
           <p>Loading process monitor...</p>
         </div>
       );
     }
-
     if (error) {
       return (
-        <div style={styles.widgetError}>
+        <div style={styles.widgetError} data-testid="process-monitor-error">
           <p>Error: {error}</p>
         </div>
       );
     }
-
-    if (!monitors || monitors.length === 0) {
+    if (monitors.length === 0) {
       return (
-        <div style={styles.widgetContent}>
+        <div style={styles.widgetContent} data-testid="process-monitor-empty">
           <p>No monitors available</p>
         </div>
       );
     }
-
     return (
-      <div style={styles.widgetContent}>
-        <div style={{ listStyle: 'none', padding: 0, margin: 0 } as React.CSSProperties}>
-          {monitors.map((monitor, index) => (
-            <div
-              key={monitor.designator || index}
-              style={{
-                padding: '10px 0',
-                borderBottom: '1px solid #e0e0e0',
-                display: 'flex',
-                gap: '12px',
-                alignItems: 'center',
-              } as React.CSSProperties}
-            >
-              <div style={{ fontSize: '1.2em', minWidth: '28px', textAlign: 'center' }}>
-                {getStatusIcon(monitor)}
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 500, color: '#333', fontSize: '0.95em' }}>
-                  {monitor.name || monitor.designator || `Monitor ${index + 1}`}
-                </div>
-                {monitor.message && (
-                  <div
-                    style={{
-                      fontSize: '0.8em',
-                      color: '#666',
-                      marginTop: '2px',
-                    } as React.CSSProperties}
-                  >
-                    {monitor.message}
-                  </div>
-                )}
-              </div>
-              {monitor.status && (
-                <div
-                  style={{
-                    fontSize: '0.8em',
-                    padding: '4px 8px',
-                    borderRadius: '4px',
-                    backgroundColor: '#f0f0f0',
-                    color: '#555',
-                    whiteSpace: 'nowrap',
-                  } as React.CSSProperties}
-                >
-                  {monitor.status}
-                </div>
-              )}
+      <div style={styles.widgetContent} data-testid="process-monitor-list">
+        {monitors.map((monitor, index) => (
+          <div
+            key={monitor.designator || index}
+            style={{
+              padding: "10px 0",
+              borderBottom: "1px solid #e0e0e0",
+              display: "flex",
+              gap: "12px",
+              alignItems: "center",
+            }}
+          >
+            <div style={{ fontSize: "1.2em", minWidth: "28px", textAlign: "center" }}>
+              {getStatusIcon(monitor)}
             </div>
-          ))}
-        </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 500, color: "#333", fontSize: "0.95em" }}>
+                {monitor.name}
+              </div>
+              {monitor.message ? (
+                <div style={{ fontSize: "0.8em", color: "#666", marginTop: "2px" }}>
+                  {monitor.message}
+                </div>
+              ) : null}
+            </div>
+            {monitor.status ? (
+              <div
+                style={{
+                  fontSize: "0.8em",
+                  padding: "4px 8px",
+                  borderRadius: "4px",
+                  backgroundColor: "#f0f0f0",
+                  color: "#555",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {monitor.status}
+              </div>
+            ) : null}
+          </div>
+        ))}
       </div>
     );
   };
 
   return (
-    <div style={styles.widget}>
+    <div style={styles.widget} data-testid="process-monitor-widget">
       <div style={styles.widgetTitle}>{title}</div>
       {renderContent()}
     </div>

@@ -15,203 +15,168 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from 'react';
-import { get } from '../api/client';
-import { styles } from './dashboard.styles';
-
-interface AssetWorkflow {
-  name: string;
-  count: number;
-  percentage?: number;
-  icon?: string;
-}
-
-interface AssetStatusData {
-  workflows?: AssetWorkflow[];
-  timestamp?: string;
-  [key: string]: unknown;
-}
+import React, { useCallback, useEffect, useState } from "react";
+import { isSessionRedirectError } from "../api/client";
+import {
+  fetchAssetsByStatusSummary,
+  type PagesByStatusResult,
+} from "../api/dashboard/gadgetApi";
+import { formatApiError } from "../api/home/homeApi";
+import { styles } from "./dashboard.styles";
 
 export interface AssetsStatusWidgetProps {
   title?: string;
+  path?: string;
+  workflow?: string;
   refreshInterval?: number;
 }
 
 /**
- * AssetsStatusWidget displays the distribution of assets across workflow statuses.
- * Shows how many assets are in each workflow stage (Draft, Review, Published, etc.).
- * Fetches data from the asset workflow REST endpoint and updates periodically.
+ * Classic **Assets By Status** gadget.
+ *
+ * <p>Uses the same {@code path/item/wfState} API as Pages By Status, rooted
+ * under {@code /Assets}. Invented path {@code /services/asset/workflow-status}
+ * does not exist.</p>
  */
 export const AssetsStatusWidget: React.FC<AssetsStatusWidgetProps> = ({
-  title = 'Assets By Status',
+  title = "Assets By Status",
+  path,
+  workflow,
   refreshInterval = 30000,
 }) => {
-  const [workflows, setWorkflows] = useState<AssetWorkflow[]>([]);
+  const [data, setData] = useState<PagesByStatusResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [total, setTotal] = useState(0);
+
+  const load = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const result = await fetchAssetsByStatusSummary({ path, workflow });
+      setData(result);
+    } catch (err: unknown) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setError(formatApiError(err, "Failed to load asset status"));
+      setData(null);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [path, workflow]);
 
   useEffect(() => {
-    const fetchWorkflows = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        // Fetch asset workflow status from the asset service
-        const response = await get<AssetStatusData>('/services/asset/workflow-status');
-
-        // Handle response format
-        let workflowArray: AssetWorkflow[] = [];
-        if (response.workflows && Array.isArray(response.workflows)) {
-          workflowArray = response.workflows;
-        } else if (Array.isArray(response)) {
-          workflowArray = response as AssetWorkflow[];
-        }
-
-        // Calculate total and percentages
-        const sum = workflowArray.reduce((acc, w) => acc + (w.count || 0), 0);
-        setTotal(sum);
-
-        const withPercentages = workflowArray.map((w) => ({
-          ...w,
-          percentage: sum > 0 ? Math.round((w.count / sum) * 100) : 0,
-        }));
-
-        setWorkflows(withPercentages);
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : 'Failed to load asset workflow status';
-        setError(errorMessage);
-        console.error('AssetsStatusWidget error:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    // Fetch immediately
-    fetchWorkflows();
-
-    // Set up refresh interval if specified
-    const interval =
-      refreshInterval > 0 ? setInterval(fetchWorkflows, refreshInterval) : undefined;
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [refreshInterval]);
-
-  const getWorkflowIcon = (name: string): string => {
-    const nameLower = name?.toLowerCase() || '';
-    if (nameLower.includes('draft') || nameLower.includes('new')) return '📝';
-    if (nameLower.includes('review') || nameLower.includes('pending')) return '👁️';
-    if (nameLower.includes('approved') || nameLower.includes('publish')) return '✅';
-    if (nameLower.includes('archived')) return '📦';
-    if (nameLower.includes('rejected')) return '❌';
-    return '📄';
-  };
+    void load();
+    if (refreshInterval <= 0) {
+      return;
+    }
+    const id = window.setInterval(() => void load(), refreshInterval);
+    return () => window.clearInterval(id);
+  }, [load, refreshInterval]);
 
   const getStatusColor = (percentage: number): string => {
-    if (percentage === 0) return '#ccc';
-    if (percentage >= 50) return '#4caf50'; // Green
-    if (percentage >= 25) return '#ff9800'; // Orange
-    return '#f44336'; // Red
+    if (percentage === 0) return "#ccc";
+    if (percentage >= 50) return "#4caf50";
+    if (percentage >= 25) return "#ff9800";
+    return "#f44336";
   };
 
   const renderContent = () => {
     if (isLoading) {
       return (
-        <div style={styles.widgetLoading}>
+        <div style={styles.widgetLoading} data-testid="assets-status-loading">
           <p>Loading asset status...</p>
         </div>
       );
     }
-
     if (error) {
       return (
-        <div style={styles.widgetError}>
+        <div style={styles.widgetError} data-testid="assets-status-error">
           <p>Error: {error}</p>
         </div>
       );
     }
-
-    if (!workflows || workflows.length === 0) {
+    if (!data || data.buckets.length === 0) {
       return (
-        <div style={styles.widgetContent}>
-          <p>No asset workflow status available</p>
+        <div style={styles.widgetContent} data-testid="assets-status-empty">
+          <p>No assets found for this path and workflow.</p>
+          {data ? (
+            <p style={{ fontSize: "0.85em", color: "#666" }}>
+              {data.path} · {data.workflow}
+            </p>
+          ) : null}
         </div>
       );
     }
 
+    const total = data.totalItems;
     return (
-      <div style={styles.widgetContent}>
-        <div style={{ marginBottom: '8px', fontSize: '0.85em', color: '#666' } as React.CSSProperties}>
-          Total Assets: <strong>{total}</strong>
+      <div style={styles.widgetContent} data-testid="assets-status-list">
+        <div style={{ marginBottom: "8px", fontSize: "0.85em", color: "#666" }}>
+          {data.path} · {data.workflow} · Total: <strong>{total}</strong>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' } as React.CSSProperties}>
-          {workflows.map((workflow, index) => (
-            <div
-              key={workflow.name || index}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '8px',
-                backgroundColor: '#f9f9f9',
-                borderRadius: '4px',
-              } as React.CSSProperties}
-            >
-              <div style={{ fontSize: '1.2em', minWidth: '24px' }}>
-                {workflow.icon || getWorkflowIcon(workflow.name)}
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 500, color: '#333', fontSize: '0.9em' }}>
-                  {workflow.name}
-                </div>
-                <div
-                  style={{
-                    height: '6px',
-                    backgroundColor: '#e0e0e0',
-                    borderRadius: '3px',
-                    marginTop: '4px',
-                    overflow: 'hidden',
-                  } as React.CSSProperties}
-                >
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          {data.buckets.map((bucket) => {
+            const percentage =
+              total > 0 ? Math.round((bucket.count / total) * 100) : 0;
+            return (
+              <div
+                key={bucket.state}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "8px",
+                  backgroundColor: "#f9f9f9",
+                  borderRadius: "4px",
+                }}
+              >
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 500, color: "#333", fontSize: "0.9em" }}>
+                    {bucket.state}
+                  </div>
+                  {bucket.sampleNames.length > 0 ? (
+                    <div style={{ fontSize: "0.8em", color: "#666" }}>
+                      {bucket.sampleNames.join(", ")}
+                      {bucket.count > bucket.sampleNames.length ? "…" : ""}
+                    </div>
+                  ) : null}
                   <div
                     style={{
-                      height: '100%',
-                      backgroundColor: getStatusColor(workflow.percentage || 0),
-                      width: `${workflow.percentage || 0}%`,
-                      transition: 'width 0.3s ease',
-                    } as React.CSSProperties}
-                  />
+                      height: "6px",
+                      backgroundColor: "#e0e0e0",
+                      borderRadius: "3px",
+                      marginTop: "4px",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div
+                      style={{
+                        height: "100%",
+                        backgroundColor: getStatusColor(percentage),
+                        width: `${percentage}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+                <div style={{ textAlign: "right", whiteSpace: "nowrap" }}>
+                  <div style={{ fontWeight: "bold", color: "#007ea8" }}>
+                    {bucket.count}
+                  </div>
+                  <div style={{ fontSize: "0.75em", color: "#999" }}>
+                    {percentage}%
+                  </div>
                 </div>
               </div>
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'flex-end',
-                  gap: '2px',
-                  marginLeft: '8px',
-                  whiteSpace: 'nowrap',
-                } as React.CSSProperties}
-              >
-                <div style={{ fontWeight: 'bold', color: '#007ea8', fontSize: '0.95em' }}>
-                  {workflow.count}
-                </div>
-                <div style={{ fontSize: '0.75em', color: '#999' }}>
-                  {workflow.percentage}%
-                </div>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     );
   };
 
   return (
-    <div style={styles.widget}>
+    <div style={styles.widget} data-testid="assets-status-widget">
       <div style={styles.widgetTitle}>{title}</div>
       {renderContent()}
     </div>

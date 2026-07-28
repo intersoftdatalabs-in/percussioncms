@@ -15,199 +15,249 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from 'react';
-import { get } from '../api/client';
-import { styles } from './dashboard.styles';
-
-interface GoogleService {
-  name: string;
-  enabled: boolean;
-  connected?: boolean;
-  lastSync?: string;
-  status?: string;
-}
-
-interface GoogleSetup {
-  accountConnected: boolean;
-  email?: string;
-  services: GoogleService[];
-  lastUpdate?: string;
-  syncStatus?: string;
-}
-
-interface GoogleSetupData {
-  setup?: GoogleSetup;
-  data?: GoogleSetup;
-  google?: GoogleSetup;
-  [key: string]: unknown;
-}
+import React, { useCallback, useEffect, useState } from "react";
+import { isSessionRedirectError } from "../api/client";
+import {
+  deleteAnalyticsProviderConfig,
+  fetchGoogleSetupSummary,
+} from "../api/dashboard/analyticsApi";
+import { formatApiError } from "../api/home/homeApi";
+import { styles } from "./dashboard.styles";
 
 export interface GoogleSetupWidgetProps {
   title?: string;
   refreshInterval?: number;
+  /** When true, show a Clear config control (admin). */
+  allowDelete?: boolean;
 }
 
 /**
- * GoogleSetupWidget displays Google integration status and configuration.
- * Shows connected services, sync status, and account information.
+ * Classic **Google Setup** gadget — analytics provider status for GA-backed
+ * gadgets (Traffic, What's Working / effectiveness).
+ *
+ * <p>Server:
+ * {@code GET /services/analytics/provider/config},
+ * {@code GET …/isProfileConfigured/{site}}.
+ * Invented path {@code /services/google/setup} does not exist.</p>
+ *
+ * <p>Full credential upload (JSON key multipart) remains a follow-up;
+ * this wave shows status and site profile readiness so operators know why
+ * Traffic / Effectiveness fail.</p>
  */
 export const GoogleSetupWidget: React.FC<GoogleSetupWidgetProps> = ({
-  title = 'Google Setup',
-  refreshInterval,
+  title = "Google Setup",
+  refreshInterval = 0,
+  allowDelete = false,
 }) => {
-  const [setup, setSetup] = useState<GoogleSetup | null>(null);
+  const [summary, setSummary] = useState<
+    Awaited<ReturnType<typeof fetchGoogleSetupSummary>> | null
+  >(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      setSummary(await fetchGoogleSetupSummary());
+    } catch (err: unknown) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setError(formatApiError(err, "Failed to load Google Analytics setup"));
+      setSummary(null);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchSetup = async () => {
-      setIsLoading(true);
-      try {
-        const response = await get<GoogleSetupData>('/services/google/setup');
-        let setupData: GoogleSetup | null = null;
-
-        if (response.setup) {
-          setupData = response.setup;
-        } else if (response.data) {
-          setupData = response.data;
-        } else if (response.google) {
-          setupData = response.google;
-        } else if (typeof response === 'object' && !('setup' in response) && !('data' in response) && !('google' in response)) {
-          setupData = {
-            accountConnected: (response as Record<string, unknown>).accountConnected as boolean,
-            email: (response as Record<string, unknown>).email as string | undefined,
-            services: (response as Record<string, unknown>).services as GoogleService[] | undefined,
-            lastUpdate: (response as Record<string, unknown>).lastUpdate as string | undefined,
-            syncStatus: (response as Record<string, unknown>).syncStatus as string | undefined,
-          } as GoogleSetup;
-        }
-
-        setSetup(setupData);
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : 'Failed to load Google setup data';
-        setError(errorMessage);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchSetup();
-    if (refreshInterval) {
-      const interval = setInterval(fetchSetup, refreshInterval * 1000);
-      return () => clearInterval(interval);
+    void load();
+    if (refreshInterval <= 0) {
+      return;
     }
-  }, [refreshInterval]);
+    const id = window.setInterval(() => void load(), refreshInterval);
+    return () => window.clearInterval(id);
+  }, [load, refreshInterval]);
 
-  const getStatusColor = (connected?: boolean): string => {
-    return connected ? '#28a745' : '#dc3545';
-  };
-
-  const getStatusIcon = (connected?: boolean): string => {
-    return connected ? '✓' : '✕';
+  const onClear = async () => {
+    if (
+      !window.confirm(
+        "Remove stored Google Analytics credentials and site profile mappings?",
+      )
+    ) {
+      return;
+    }
+    try {
+      setBusy(true);
+      await deleteAnalyticsProviderConfig();
+      await load();
+    } catch (err: unknown) {
+      if (!isSessionRedirectError(err)) {
+        setError(formatApiError(err, "Failed to clear analytics config"));
+      }
+    } finally {
+      setBusy(false);
+    }
   };
 
   if (isLoading) {
     return (
-      <div style={styles.widget}>
+      <div style={styles.widget} data-testid="google-setup-widget">
         <div style={styles.widgetTitle}>{title}</div>
-        <div style={styles.widgetLoading}>Loading Google setup data...</div>
+        <div style={styles.widgetLoading} data-testid="google-setup-loading">
+          Loading Google setup data...
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div style={styles.widget}>
+      <div style={styles.widget} data-testid="google-setup-widget">
         <div style={styles.widgetTitle}>{title}</div>
-        <div style={styles.widgetError}>{error}</div>
+        <div style={styles.widgetError} data-testid="google-setup-error">
+          {error}
+        </div>
       </div>
     );
   }
 
-  if (!setup) {
-    return (
-      <div style={styles.widget}>
-        <div style={styles.widgetTitle}>{title}</div>
-        <div style={styles.widgetContent}>No Google setup data available</div>
-      </div>
-    );
-  }
+  const provider = summary?.provider;
+  const configured = Boolean(provider?.configured);
+  const sites = summary?.sites ?? [];
+  const readySites = sites.filter((s) => s.profileConfigured).length;
 
   return (
-    <div style={styles.widget}>
+    <div style={styles.widget} data-testid="google-setup-widget">
       <div style={styles.widgetTitle}>{title}</div>
-      <div style={styles.widgetContent}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' } as React.CSSProperties}>
-          {/* Account Connection Status */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' } as React.CSSProperties}>
+      <div style={styles.widgetContent} data-testid="google-setup-content">
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          <div
+            style={{ display: "flex", alignItems: "center", gap: "8px" }}
+            data-testid="google-setup-account"
+          >
             <div
               style={{
-                fontSize: '1.2em',
-                fontWeight: '700',
-                color: getStatusColor(setup.accountConnected),
+                fontSize: "1.2em",
+                fontWeight: 700,
+                color: configured ? "#28a745" : "#dc3545",
               }}
             >
-              {getStatusIcon(setup.accountConnected)}
+              {configured ? "✓" : "✕"}
             </div>
             <div>
-              <div style={{ fontSize: '0.85em', fontWeight: '600', color: '#333' }}>
-                Account {setup.accountConnected ? 'Connected' : 'Not Connected'}
+              <div style={{ fontSize: "0.85em", fontWeight: 600, color: "#333" }}>
+                {configured
+                  ? "Analytics provider configured"
+                  : "Analytics provider not configured"}
               </div>
-              {setup.email && (
-                <div style={{ fontSize: '0.75em', color: '#666' }}>{setup.email}</div>
-              )}
+              {provider?.userId ? (
+                <div
+                  style={{ fontSize: "0.75em", color: "#666" }}
+                  data-testid="google-setup-userid"
+                >
+                  Account: {provider.userId}
+                </div>
+              ) : null}
             </div>
           </div>
 
-          {/* Services Section */}
-          {setup.services && setup.services.length > 0 && (
-            <div style={{ borderTop: '1px solid #eee', paddingTop: '8px' }}>
-              <div style={{ fontSize: '0.85em', fontWeight: '600', marginBottom: '6px', color: '#333' }}>
-                Services ({setup.services.length})
+          <div
+            style={{
+              fontSize: "0.8em",
+              color: "#555",
+              padding: "8px",
+              backgroundColor: "#f5f9fc",
+              borderRadius: "4px",
+              borderLeft: "3px solid #007ea8",
+            }}
+          >
+            Traffic and What&apos;s Working (effectiveness) use this Google
+            Analytics configuration. Without credentials and a site profile
+            mapping, those gadgets cannot load data.
+          </div>
+
+          {sites.length > 0 ? (
+            <div data-testid="google-setup-sites">
+              <div
+                style={{
+                  fontSize: "0.85em",
+                  fontWeight: 600,
+                  marginBottom: "6px",
+                  color: "#333",
+                }}
+              >
+                Site profiles ({readySites}/{sites.length} ready)
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' } as React.CSSProperties}>
-                {setup.services.map((svc, idx) => (
-                  <div
-                    key={idx}
+              <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                {sites.map((s) => (
+                  <li
+                    key={s.siteName}
                     style={{
-                      fontSize: '0.8em',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      padding: '4px',
-                      backgroundColor: svc.connected ? '#f0f8f0' : '#fff5f5',
-                      borderRadius: '3px',
+                      fontSize: "0.8em",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      gap: "8px",
+                      padding: "4px 0",
+                      borderBottom: "1px solid #eee",
                     }}
                   >
-                    <span style={{ color: getStatusColor(svc.connected) }}>
-                      {getStatusIcon(svc.connected)}
+                    <span>{s.siteName}</span>
+                    <span
+                      style={{
+                        color: s.profileConfigured ? "#28a745" : "#999",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {s.profileConfigured
+                        ? s.mapping?.webPropertyId
+                          ? `Ready · ${s.mapping.webPropertyId}`
+                          : "Ready"
+                        : "No profile"}
                     </span>
-                    <span style={{ flex: 1 }}>{svc.name}</span>
-                    {svc.enabled && (
-                      <span style={{ fontSize: '0.7em', color: '#999' }}>Enabled</span>
-                    )}
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
+            </div>
+          ) : (
+            <div style={{ fontSize: "0.8em", color: "#666" }}>
+              No sites found to check profile mappings.
             </div>
           )}
 
-          {/* Sync Status */}
-          {setup.syncStatus && (
-            <div style={{ fontSize: '0.8em', color: '#666', padding: '6px', backgroundColor: '#f9f9f9', borderRadius: '3px' }}>
-              <span style={{ fontWeight: '600' }}>Sync Status:</span> {setup.syncStatus}
+          {!configured ? (
+            <div
+              style={{ fontSize: "0.8em", color: "#666" }}
+              data-testid="google-setup-hint"
+            >
+              Configure a Google service account and map each site to a GA
+              profile (classic Google Setup or Admin). Credential upload from
+              this React gadget is a follow-up.
             </div>
-          )}
+          ) : null}
 
-          {/* Last Update */}
-          {setup.lastUpdate && (
-            <div style={{ fontSize: '0.7em', color: '#999', marginTop: '4px', paddingTop: '8px', borderTop: '1px solid #eee' }}>
-              Last updated: {setup.lastUpdate}
-            </div>
-          )}
+          {allowDelete && configured ? (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void onClear()}
+              data-testid="google-setup-clear"
+              style={{
+                alignSelf: "flex-start",
+                padding: "6px 12px",
+                fontSize: "0.85em",
+                cursor: busy ? "default" : "pointer",
+              }}
+            >
+              {busy ? "Clearing…" : "Clear analytics config"}
+            </button>
+          ) : null}
         </div>
       </div>
     </div>
   );
 };
+
+export default GoogleSetupWidget;
