@@ -18,8 +18,11 @@
 package com.percussion.itemmanagement.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
+
+import jakarta.ws.rs.WebApplicationException;
 
 import com.percussion.assetmanagement.dao.IPSAssetDao;
 import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
@@ -134,5 +137,12 @@ class PSItemServiceIsMyPageTest {
     when(idMapper.getContentId("page-guid")).thenReturn(42);
     when(userItemDao.find("testuser", 42)).thenReturn(null);
     assertFalse(service.isMyPage("page-guid"));
+  }
+
+  @Test
+  void isMyPageBlankPageIdThrowsWebApplicationException() {
+    assertThrows(WebApplicationException.class, () -> service.isMyPage(""));
+    assertThrows(WebApplicationException.class, () -> service.isMyPage("   "));
+    assertThrows(WebApplicationException.class, () -> service.isMyPage(null));
   }
 }
