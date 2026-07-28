@@ -1,8 +1,8 @@
 # Phase 4 scope survey — what's actually involved
 
-> Status: Tier 1 (2 read-only exits) migrated and compile clean. Tier 2 (4 read-only exits) and Tier 3 (2 complex exits + writes) require deeper refactors than can fit in one Phase 4 PR. Captured here so the next Phase 4 PRs can be sized realistically.
+> Status: **Phase 4a (Tier 1) shipped in PR #1575.** **Phase 4b (Tier 2 — state-roles + auth-flag + authenticate-user exits) shipped in PR #1576 (this branch).** Tier 3 remains.
 
-## What ships in this PR (Phase 4a — Tier 1)
+## What ships in Phase 4a (PR #1575, merged)
 
 | Exit | Reads | Writes | Done |
 |---|---|---|---|
@@ -13,7 +13,43 @@ Both exits no longer call `new PSConnectionMgr()` for the `CONTENTSTATUS` read �
 `PSCmsObjectMgr#loadComponentSummary(int)` which returns a Hibernate `PSComponentSummary` on
 the same Spring-managed datasource as the surrounding request.
 
-## What remains in this PR (Tier 2 / Tier 3)
+## What ships in Phase 4b (this branch — PR to follow)
+
+### New Hibernate service methods (in `system/services`)
+
+- `IPSWorkflowService#findStateRoles(long workflowAppId, long stateId, int minAssignmentType)`
+  returns `List<PSAssignedRole>`. JPQL: `from PSAssignedRole where workflowId = :wf and
+  stateId = :sid and assignmentType >= :at order by roleId`. Replaces the raw SQL in
+  `PSStateRolesContext.QRYSTRING`.
+- `IPSWorkflowService#findWorkflowRoles(long workflowAppId, Set<Long> roleIds)` returns
+  `List<PSWorkflowRole>`. JPQL: `from PSWorkflowRole where workflowId = :wf and roleId in :ids`.
+  Replaces the raw SQL in `PSStateRolesContext.QRYSTRING` for the `ROLES` join.
+- `IPSSystemService#findContentAdhocUsers(int contentId)` returns `List<PSContentAdhocUser>`.
+  JPQL: `from PSContentAdhocUser where contentId = :cid order by adhocUserId`. Replaces the raw
+  SQL in `PSContentAdhocUsersContext.QRYSTRING`.
+
+### Hibernate-backed factories (in `modules/extensions-workflow`)
+
+- `PSStateRolesContext.loadFromHibernate(int workflowId, int stateId, int assignmentType)`
+  populates the existing in-memory state shape (the 11 maps / lists) from the Hibernate rows.
+  Validates role-name hydration; throws `PSRoleException` on missing role names; throws
+  `PSEntryNotFoundException` when no rows match.
+- `PSContentAdhocUsersContext.loadFromHibernate(int contentId)` populates the existing in-memory
+  state shape from `PSContentAdhocUser` rows; classifies by `adhocType` (DISABLED / ENABLED /
+  ANONYMOUS).
+
+### Exits migrated off `new PSConnectionMgr()`
+
+| Exit | Reads | Writes | Done |
+|---|---|---|---|
+| `PSExitAddEditAuthFlag` | `CONTENTSTATUS` (Hibernate) + `STATEROLES` + `CONTENTADHOCUSERS` (Hibernate) | — | ✅ |
+| `PSExitAuthenticateUser` | `CONTENTSTATUS` (Hibernate) + `STATEROLES` + `CONTENTADHOCUSERS` (Hibernate) | — | ✅ |
+
+Both exits now use the no-connection overload of
+`PSWorkflowRoleInfoStatic.getActorRoles(userName, roleNameList, src, cauc, authUser)` since
+both `src` and `cauc` are populated from Hibernate (no second pool connection).
+
+## What remains (Tier 3)
 
 ### Tier 2 exits — state-roles helpers are the blocker
 
