@@ -177,9 +177,19 @@ public class PSTemplateService implements IPSTemplateService {
     }
     template = templateDao.save(template, siteId);
 
-    var srcTemplate = templateDao.find(srcId);
-    if (!srcTemplate.isReadOnly()) {
-      widgetAssetRelationshipService.copyAssetWidgetRelationships(srcId, template.getId());
+    // Base (assembly) templates are read-only; skip relationship copy without a full reload.
+    // A find() here can fail with a null Hibernate connection after contentWs.saveItems runs
+    // workflow JDBC on a separate connection (site create path).
+    try {
+      var srcTemplate = templateDao.find(srcId);
+      if (srcTemplate != null && !srcTemplate.isReadOnly()) {
+        widgetAssetRelationshipService.copyAssetWidgetRelationships(srcId, template.getId());
+      }
+    } catch (Exception e) {
+      log.debug(
+          "Skip copyAssetWidgetRelationships for srcId={} after createTemplate: {}",
+          srcId,
+          e.toString());
     }
     return template;
   }

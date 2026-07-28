@@ -137,7 +137,13 @@ public abstract class PSAbstractContentItemDao<T extends IPSItemSummary>
     object.setType(item.getType());
     object.setFolderPaths(item.getFolderPaths());
     postItemSave(object, item);
-    return find(item.getId());
+    // Do not re-find after save. Post-save find() reloads JCR fields via PSJcrNodeMap →
+    // loadBodies. After contentWs.saveItems runs workflow JDBC (sys_wfUpdateHistory) on a
+    // separate connection, the Hibernate session connection may be null. loadBodies is
+    // @Transactional: even if the caller catches the NPE, Spring has already marked the outer
+    // transaction rollback-only (site create then dies with UnexpectedRollbackException).
+    // Domain fields were applied via convertToItem before save; id/paths are set above.
+    return object;
   }
 
   /** Gets the first folder path from the content item, or null if none. */
