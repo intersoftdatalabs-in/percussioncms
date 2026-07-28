@@ -452,6 +452,29 @@ public class PSSystemService
    }
 
    /**
+    * Find all content adhoc user records for the specified item. Added for #1561
+    * Phase 4b so {@code modules/extensions-workflow/.../PSContentAdhocUsersContext} can load
+    * its data from the shared Hibernate session without opening a second pool connection.
+    *
+    * <p>Returns rows that match the supplied content id (PSContentAdhocUser.contentId) on the
+    * shared Hibernate session.
+    */
+   @Transactional
+   public java.util.List<com.percussion.services.workflow.data.PSContentAdhocUser>
+       findContentAdhocUsers(int contentId)
+   {
+      if (contentId <= 0)
+         throw new IllegalArgumentException("contentId must be > 0");
+
+      return getSession()
+          .createQuery(
+              "from PSContentAdhocUser where contentId = :cid",
+              com.percussion.services.workflow.data.PSContentAdhocUser.class)
+          .setParameter("cid", contentId)
+          .getResultList();
+   }
+
+   /**
     * Gets the content IDs where there is no specified work-flow
     * activities before the specified date; but there are such
     * work-flow activities after the date. The work-flow activities

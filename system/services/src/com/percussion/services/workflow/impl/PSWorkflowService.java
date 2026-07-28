@@ -812,6 +812,57 @@ public class PSWorkflowService
    }
 
    /**
+    * Phase 4b: Hibernate-backed equivalent of the raw-JDBC {@code PSStateRolesContext}
+    * constructor. Returns matching {@link PSAssignedRole} rows for the (workflowId,
+    * stateId, minAssignmentType) tuple; callers hydrate role names via
+    * {@link #findWorkflowRoles}.
+    */
+   @Transactional
+   public java.util.List<com.percussion.services.workflow.data.PSAssignedRole>
+       findStateRoles(long workflowAppId, long stateId, int minAssignmentType)
+   {
+      if (workflowAppId <= 0)
+         throw new IllegalArgumentException("workflowAppId must be > 0");
+      if (stateId <= 0)
+         throw new IllegalArgumentException("stateId must be > 0");
+
+      return getSession()
+          .createQuery(
+              "from PSAssignedRole "
+                  + "where workflowId = :wf and stateId = :sid and assignmentType >= :at "
+                  + "order by roleId",
+              com.percussion.services.workflow.data.PSAssignedRole.class)
+          .setParameter("wf", workflowAppId)
+          .setParameter("sid", stateId)
+          .setParameter("at", minAssignmentType)
+          .getResultList();
+   }
+
+   /**
+    * Phase 4b: load workflow-role names for the supplied role-id set, restricted to the
+    * supplied workflow id. Returns an empty list if {@code roleIds} is empty.
+    */
+   @Transactional
+   public java.util.List<com.percussion.services.workflow.data.PSWorkflowRole>
+       findWorkflowRoles(long workflowAppId, java.util.Set<Long> roleIds)
+   {
+      if (workflowAppId <= 0)
+         throw new IllegalArgumentException("workflowAppId must be > 0");
+      if (roleIds == null)
+         throw new IllegalArgumentException("roleIds may not be null");
+      if (roleIds.isEmpty())
+         return java.util.Collections.emptyList();
+
+      return getSession()
+          .createQuery(
+              "from PSWorkflowRole where workflowId = :wf and roleId in :ids",
+              com.percussion.services.workflow.data.PSWorkflowRole.class)
+          .setParameter("wf", workflowAppId)
+          .setParameter("ids", roleIds)
+          .getResultList();
+   }
+
+   /**
     * Forces lazy load of members.
     *
     * @param workflow the workflow to load members, assumed not

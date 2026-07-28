@@ -241,12 +241,23 @@ public interface IPSSystemService
    public List<PSContentStatusHistory> findContentStatusHistory(IPSGuid id);
    
    /**
-    * Save the specified content history entry. A new ID will be set if the ID 
+    * Save the specified content history entry. A new ID will be set if the ID
     * is less than <code>0</code>.
-    * 
+    *
     * @param entity the to be saved content history entry, not <code>null</code>.
     */
    public void saveContentStatusHistory(PSContentStatusHistory entity);
+
+   /**
+    * Find all content adhoc user records for the specified item. Added for #1561
+    * Phase 4b so {@code modules/extensions-workflow/.../PSContentAdhocUsersContext} can load
+    * its data from the shared Hibernate session without opening a second pool connection.
+    *
+    * @param contentId the content id; must be {@code > 0}.
+    * @return the list of adhoc user rows for that content, never <code>null</code>, may be empty.
+    */
+   public java.util.List<com.percussion.services.workflow.data.PSContentAdhocUser>
+       findContentAdhocUsers(int contentId);
    
    /**
     * Deletes the specified content history entry.
