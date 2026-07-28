@@ -127,7 +127,7 @@
 			display_value="French Switzerland (CH)" />
 		<EnumValue value="fr" display_value="French France (FR)" />
 		<EnumValue value="he" display_value="Hebrew Israel (IL)" />
-		<EnumValue value="hi" display_value="Hindi India (IN)" />
+		<EnumValue value="hi-in" display_value="Hindi India (IN)" />
 		<EnumValue value="hr" display_value="Croatian Croatia (HR)" />
 		<EnumValue value="hu" display_value="Hungarian Hungary (HU)" />
 		<EnumValue value="id"

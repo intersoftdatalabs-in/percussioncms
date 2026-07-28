@@ -104,6 +104,33 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
   }
 
   /**
+   * Test-only entry point. Clears the static cache without touching the
+   * singleton instance. Used by {@code PSTmxResourceBundleTest} to isolate
+   * tests; production code must never call this.
+   */
+  void flushCacheForTest() {
+    flushCache();
+  }
+
+  /**
+   * Test-only entry point. Exposes {@link #addResourcesToCache(Document)}
+   * to JUnit tests in the same package so they can drive the cache with
+   * synthetic DOM documents without depending on filesystem state.
+   */
+  void addResourcesToCacheForTest(Document doc) {
+    addResourcesToCache(doc);
+  }
+
+  /**
+   * Test-only entry point. Returns the populated cache so tests can assert
+   * that the loader normalized language tags correctly. Production code
+   * must never call this.
+   */
+  Map<String, Map<String, PSTmxUnit>> getResourceBundlesForTest() {
+    return ms_ResourceBundles;
+  }
+
+  /**
    * Get the value for the given key using the default language. Simply delegates to <code>
    * getString(String, String)</code>
    *
@@ -216,7 +243,18 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
     if (key == null || key.length() < 1) return null;
     if (language == null || language.length() < 1) language = ms_DefaultLanguage;
 
-    Map<String, PSTmxUnit> map = ms_ResourceBundles.get(language);
+    String normalized = normalizeLang(language);
+    Map<String, PSTmxUnit> map = ms_ResourceBundles.get(normalized);
+    if (map == null) {
+      // Fall back to the language-only bucket (e.g. "en-gb" -> "en").
+      // If that bucket is also missing, the next branch falls back to
+      // ms_DefaultLanguage (e.g. "en-us"), so "en-gb" reaches English
+      // content only because ms_DefaultLanguage is itself English.
+      int dash = normalized.indexOf('-');
+      if (dash > 0) {
+        map = ms_ResourceBundles.get(normalized.substring(0, dash));
+      }
+    }
     if (map == null) map = ms_ResourceBundles.get(ms_DefaultLanguage);
 
     PSTmxUnit obj = null;
@@ -242,8 +280,16 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
   public Iterator<String> getKeys(String language) {
     if (language == null || language.length() < 1) language = ms_DefaultLanguage;
 
-    Map<String, PSTmxUnit> map = ms_ResourceBundles.get(language);
-
+    String normalized = normalizeLang(language);
+    Map<String, PSTmxUnit> map = ms_ResourceBundles.get(normalized);
+    if (map == null) {
+      // Fall back to the language-only bucket (e.g. "en-gb" -> "en"),
+      // then to ms_DefaultLanguage (e.g. "en-us") if even that is absent.
+      int dash = normalized.indexOf('-');
+      if (dash > 0) {
+        map = ms_ResourceBundles.get(normalized.substring(0, dash));
+      }
+    }
     if (map == null) map = ms_ResourceBundles.get(ms_DefaultLanguage);
 
     if (map == null) {
@@ -255,6 +301,25 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
       // get the keys set and iterator here
       return map.keySet().iterator();
     }
+  }
+
+  /**
+   * Normalize a language tag to canonical BCP-47 lowercase-hyphen form. This
+   * collapses per-locale files that registered tags like {@code "DE"},
+   * {@code "en_US"}, or {@code "es_ES"} into the canonical {@code "de"},
+   * {@code "en-us"}, or {@code "es-es"} form. Returns the input unchanged
+   * if it is {@code null} or empty.
+   *
+   * <p>Locale-tag normalization is header-only: the runtime already accepts
+   * whatever {@code <tuv xml:lang="...">} value the TU carries, so this
+   * method only affects keys derived from the header's
+   * {@code <prop type="supportedlanguage">} props. Inline {@code <tuv>}
+   * attributes in the canonical files are written in canonical form by the
+   * {@code i18n_translate.py} CLI and never need re-normalization.
+   */
+  static String normalizeLang(String lang) {
+    if (lang == null || lang.isEmpty()) return lang;
+    return lang.toLowerCase().replace('_', '-');
   }
 
   /**
@@ -303,6 +368,15 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
 
   public static final String RX_RESOURCES_I18NPATH = "rx_resources" + File.separator + "I18n";
   public static final String SYS_RESOURCES_I18NPATH = "sys_resources" + File.separator + "I18n";
+
+  /**
+   * Lowercase {@code rxconfig/i18n/} sibling of {@link #RX_RESOURCES_I18NPATH}.
+   * The Maven build extracts the canonical {@code CmsUi.tmx} and {@code
+   * SystemResources.tmx} files here (see {@code
+   * modules/perc-distribution-tree/pom.xml:507-525}), so the loader must
+   * scan this directory in addition to the uppercase paths above.
+   */
+  public static final String RXCONFIG_I18NPATH = "rxconfig" + File.separator + "i18n";
 
   /** String constant specifying the location path of the TMX resource bundle. */
   public static final String MASTER_RESOURCE_FILEPATH =
@@ -379,6 +453,22 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
       ret = false;
     }
 
+    // rxconfig/i18n/*.tmx (lowercase). The Maven build extracts the canonical
+    // CmsUi.tmx and SystemResources.tmx into this directory (see
+    // modules/perc-distribution-tree/pom.xml:507-525). The legacy
+    // MASTER_RESOURCE_FILEPATH above uses rxconfig/I18n (uppercase) and the
+    // two sibling directories above use I18n as well; on Windows and
+    // case-insensitive macOS volumes they collapse to the same on-disk
+    // location, but on case-sensitive Linux the lowercase path would
+    // otherwise be invisible. Scan it explicitly so the canonical files
+    // always reach users.
+    try {
+      processResourceFiles(Paths.get(m_rxRootDir, RXCONFIG_I18NPATH));
+    } catch (IOException | ParserConfigurationException | SAXException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      ret = false;
+    }
+
     log.info("Done Loading.");
     return ret;
   }
@@ -430,7 +520,7 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
       if (node instanceof Text) value = ((Text) node).getData();
       if (value.length() < 1) continue;
 
-      ms_ResourceBundles.computeIfAbsent(value, k -> new HashMap<>());
+      ms_ResourceBundles.computeIfAbsent(normalizeLang(value), k -> new HashMap<>());
     }
     if (ms_ResourceBundles.size() < 1) {
       log.error("Invalid TMX Document. No supported language is specified in the header.");
@@ -464,7 +554,7 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
           lang = elemTuv.getAttribute(IPSTmxDtdConstants.ATTR_XML_LANG);
         }
 
-        map = ms_ResourceBundles.get(lang);
+        map = ms_ResourceBundles.get(normalizeLang(lang));
         if (map == null) {
           continue;
         }

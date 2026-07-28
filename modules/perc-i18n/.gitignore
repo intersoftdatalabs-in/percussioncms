@@ -1,0 +1,61 @@
+# Python bytecode cache (developer scripts only)
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Translation working files (must never be committed; only canonical TMX files ship)
+test_*.tmx
+debug_*.tmx
+mini_*.tmx
+simple_test.tmx
+backup/*.tmx
+
+# Per-locale sibling TMX files are forbidden by modules/perc-i18n/AGENTS.md.
+# If you need a translation source, use modules/perc-i18n/scripts/i18n_translate.py.
+# Underscore variants (en_*.tmx, de_DE.tmx, etc.) and uppercase-hyphen
+# variants (en-US.tmx, de-DE.tmx) are all ignored so case-sensitive
+# filesystems cannot reintroduce per-locale sibling files.
+en_*.tmx
+de_*.tmx
+es_*.tmx
+fr_*.tmx
+hi_*.tmx
+it_*.tmx
+ja_*.tmx
+nl_*.tmx
+pt_*.tmx
+tr_*.tmx
+en-*.tmx
+de-*.tmx
+es-*.tmx
+fr-*.tmx
+hi-*.tmx
+it-*.tmx
+ja-*.tmx
+nl-*.tmx
+pt-*.tmx
+tr-*.tmx
+en-*.TMX
+de-*.TMX
+es-*.TMX
+fr-*.TMX
+hi-*.TMX
+it-*.TMX
+ja-*.TMX
+nl-*.TMX
+pt-*.TMX
+tr-*.TMX
+en_*.TMX
+de_*.TMX
+es_*.TMX
+fr_*.TMX
+hi_*.TMX
+it_*.TMX
+ja_*.TMX
+nl_*.TMX
+pt_*.TMX
+tr_*.TMX
+
+# Translation cache (per-machine resume state)
+.cache/
