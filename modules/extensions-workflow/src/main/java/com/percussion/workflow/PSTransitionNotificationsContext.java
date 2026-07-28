@@ -218,27 +218,18 @@ public class PSTransitionNotificationsContext extends PSAbstractMultipleRecordWo
 
   /******** Database Related Variables ********/
 
-  /** static constant string that represents the qualified table name. */
+  /**
+   * Qualified table name only (e.g. {@code PUBLIC.TRANSITIONNOTIFICATIONS} on H2). Do
+   * <strong>not</strong> use this as a column qualifier — {@code schema.table.column} is rejected by
+   * H2 as {@code Column "PUBLIC" not found}. Columns in the statement below are unqualified.
+   */
   private static String TABLE_TNC =
       PSConnectionMgr.getQualifiedIdentifier("TRANSITIONNOTIFICATIONS");
 
-  /** SQL query string to get data base records for the notifications. */
+  /** SQL query — unqualified column names for H2-safe schema-qualified table names. */
   private static final String QRYSTRING =
-      "SELECT "
-          + TABLE_TNC
-          + ".NOTIFICATIONID, "
-          + TABLE_TNC
-          + ".STATEROLERECIPIENTTYPES, "
-          + TABLE_TNC
-          + ".ADDITIONALRECIPIENTLIST, "
-          + TABLE_TNC
-          + ".CCLIST "
+      "SELECT NOTIFICATIONID, STATEROLERECIPIENTTYPES, ADDITIONALRECIPIENTLIST, CCLIST "
           + "FROM "
           + TABLE_TNC
-          + " WHERE ("
-          + TABLE_TNC
-          + ".WORKFLOWAPPID=? "
-          + "AND "
-          + TABLE_TNC
-          + ".TRANSITIONID=?)";
+          + " WHERE (WORKFLOWAPPID=? AND TRANSITIONID=?)";
 }

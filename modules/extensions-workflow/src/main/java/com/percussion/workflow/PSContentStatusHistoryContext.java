@@ -18,6 +18,9 @@ package com.percussion.workflow;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.extension.IPSExtensionErrors;
+import com.percussion.services.system.IPSSystemService;
+import com.percussion.services.system.PSSystemServiceLocator;
+import com.percussion.services.system.data.PSContentStatusHistory;
 import com.percussion.util.PSPreparedStatement;
 import java.sql.Connection;
 import java.sql.Date;
@@ -91,11 +94,25 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
 
   /**
    * Constructor for a new ContentStatusHistory entry specifying all required data; commits the
-   * record to the data base and frees all JDBC objects.
+   * record to the data base via the shared Hibernate session used by the rest of the CMS.
    *
-   * @param contentStatusHistoryID ID for new ContentStatusHistory entry.
+   * <p><strong>Deprecated.</strong> New in-product callers should construct a {@link
+   * com.percussion.services.system.data.PSContentStatusHistory} entity and call {@link
+   * com.percussion.services.system.IPSSystemService#saveContentStatusHistory} via {@link
+   * com.percussion.services.system.PSSystemServiceLocator}. This constructor is preserved only so
+   * legacy callers (notably the {@code sys_wfUpdateHistory} exit before it was migrated in Phase 2
+   * of #1561, and the legacy {@code PSContentStatusHistoryContextTest} integration harness) keep
+   * compiling and behaving identically.
+   *
+   * <p>The {@code connection} parameter is accepted for backward compatibility with the original
+   * signature but is no longer used: the write goes through the Spring-managed datasource via
+   * {@link PSSystemServiceLocator#getSystemService()} rather than through this argument.
+   *
+   * @param contentStatusHistoryID ignored when {@code < 1}; otherwise treated as the desired ID.
+   *     Pass {@code -1} (or any non-positive value) to let Hibernate allocate a new {@code
+   *     CONTENTSTATUSHISTORYID} via the global GUID manager.
    * @param workFlowID ID of the workflow for this item
-   * @param connection data base connection
+   * @param connection data base connection (ignored; preserved for binary compatibility)
    * @param contentID ID of the content item
    * @param contentStatusContext PSContentStatusContext for the content item
    * @param statesContext the PSStatesContext for the content state
@@ -106,8 +123,10 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
    * @param roleName list of names of assignee roles for the state of the content item
    * @param baseRevisionNum the base revision of the content item for checkouts, otherwise the
    *     current revision.
-   * @throws SQLException if a SQL error occurs
-   * @throws PSEntryNotFoundException if no records were returned for an existing entry.
+   * @throws SQLException never thrown by this constructor; preserved in the signature for binary
+   *     compatibility.
+   * @throws PSEntryNotFoundException never thrown by this constructor; preserved in the signature
+   *     for binary compatibility.
    * @throws IllegalArgumentException if any of the input parameters is not valid.
    */
   public PSContentStatusHistoryContext(
@@ -124,8 +143,8 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
       String roleName,
       int baseRevisionNum)
       throws SQLException, PSEntryNotFoundException {
-    // Initialize the data
-    m_Connection = connection;
+    // The connection argument is intentionally unused — see class-level Javadoc.
+    // Kept in the signature only for binary compatibility with legacy callers.
 
     if (null == contentStatusContext) {
       throw new IllegalArgumentException(
@@ -136,8 +155,47 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
       throw new IllegalArgumentException(
           "statesContext is null in " + "PSContentStatusHistoryContext.");
     }
-    m_EventTime = new Date(new java.util.Date().getTime());
-    setContentStatusHistoryID(contentStatusHistoryID);
+
+    PSContentStatusHistory entity = new PSContentStatusHistory();
+    // -1 (or any non-positive value) lets saveContentStatusHistory allocate a new ID.
+    entity.setId(contentStatusHistoryID <= 0 ? -1L : contentStatusHistoryID);
+    entity.setWorkflowId(workFlowID);
+    entity.setContentId(contentID);
+    entity.setSessionId(sessionID);
+    entity.setActor(actorName);
+    entity.setRevision(baseRevisionNum);
+    entity.setRoleName(roleName);
+    entity.setTransitionComment(transitionComment);
+    entity.setIsValidValue(statesContext.getIsValid() ? "Y" : "N");
+    entity.setStateId(contentStatusContext.getContentStateID());
+    entity.setStateName(statesContext.getStateName());
+    entity.setTitle(contentStatusContext.getTitle());
+    entity.setCheckoutUserName(contentStatusContext.getContentCheckedOutUserName());
+    entity.setLastModifierName(contentStatusContext.getContentLastModifierName());
+    Date lastModifiedDate = contentStatusContext.getContentLastModifiedDate();
+    entity.setLastModifiedDate(lastModifiedDate);
+    Date eventTime = new Date(new java.util.Date().getTime());
+    entity.setEventTime(eventTime);
+
+    if (null == transitionContext) {
+      entity.setTransitionId(IPSConstants.TRANSITIONID_CHECKINOUT);
+      if (null == contentStatusContext.getContentCheckedOutUserName()) {
+        entity.setTransitionLabel("CheckIn");
+      } else {
+        entity.setTransitionLabel("CheckOut");
+      }
+    } else {
+      entity.setTransitionId(transitionContext.getTransitionID());
+      entity.setTransitionLabel(transitionContext.getTransitionLabel());
+    }
+
+    IPSSystemService svc = PSSystemServiceLocator.getSystemService();
+    svc.saveContentStatusHistory(entity);
+
+    // Mirror the persisted entity into the legacy fields so the interface getters
+    // (still exercised by the legacy PSContentStatusHistoryContextTest harness) keep
+    // returning the values that match what was just written.
+    setContentStatusHistoryID((int) entity.getId());
     setWorkFlowID(workFlowID);
     setContentID(contentID);
     setContentIsValid(statesContext.getIsValid());
@@ -146,65 +204,15 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
     setContentStateID(contentStatusContext.getContentStateID());
     setContentCheckoutUserName(contentStatusContext.getContentCheckedOutUserName());
     setContentLastModifierName(contentStatusContext.getContentLastModifierName());
-    setContentLastModifiedDate(contentStatusContext.getContentLastModifiedDate());
-
-    if (null == transitionContext) {
-      setTransitionID(IPSConstants.TRANSITIONID_CHECKINOUT);
-      setTransitionLabel(null);
-    } else {
-      setTransitionID(transitionContext.getTransitionID());
-      setTransitionLabel(transitionContext.getTransitionLabel());
-    }
-
+    setContentLastModifiedDate(lastModifiedDate);
+    setTransitionID(entity.getTransitionId());
+    setTransitionLabel(entity.getTransitionLabel());
     setTransitionComment(transitionComment);
     setActorName(actorName);
     setSessionID(sessionID);
     setContentStateRoleName(roleName);
     setRevision(baseRevisionNum);
-
-    // Prepare the SQL statement
-    prepareInsertStatement();
-
-    // Commit the insert
-    m_Statement.executeUpdate();
-
-    m_Statement.close();
-
-    close();
-  }
-
-  /**
-   * Prepares the SQL INSERT statement to create a new entry in the CONTENTSTATUSHISTORY table,
-   * using the connection associated with this PSContentStatusHistoryContext. Sets EVENTTIME to the
-   * current time and gets LASTMODIFIEDDATE to the value from the content status record.
-   */
-  private void prepareInsertStatement() throws SQLException {
-    m_Statement = PSPreparedStatement.getPreparedStatement(m_Connection, INSERTSTRING);
-    int nLoc = 0;
-    m_Statement.setInt(++nLoc, m_nWorkflowID);
-    m_Statement.setString(++nLoc, m_sSessionID);
-    m_Statement.setInt(++nLoc, m_nContentStatusHistoryID);
-    m_Statement.setInt(++nLoc, m_nContentID);
-    m_Statement.setInt(++nLoc, m_nStateID);
-    m_Statement.setString(++nLoc, m_sActor);
-    m_Statement.setInt(++nLoc, m_nTransitionID);
-    if (m_bValid) {
-      m_Statement.setString(++nLoc, "Y");
-    } else {
-      m_Statement.setString(++nLoc, "N");
-    }
-    m_Statement.setString(++nLoc, m_sRoleName);
-    m_Statement.setString(++nLoc, m_sCheckOutUserName);
-    m_Statement.setString(++nLoc, m_sLastModifierName);
-    m_Statement.setString(++nLoc, m_sTransitionComment);
-    m_Statement.setInt(++nLoc, m_nRevision);
-    m_Statement.setString(++nLoc, m_sTitle);
-    m_Statement.setString(++nLoc, m_sTransitionLabel);
-    m_Statement.setString(++nLoc, m_sStateName);
-
-    PSAbstractWorkflowContext.setDate(m_Statement, ++nLoc, m_LastModifiedDate);
-
-    PSAbstractWorkflowContext.setDate(m_Statement, ++nLoc, m_EventTime);
+    m_EventTime = eventTime;
   }
 
   /**
@@ -213,8 +221,7 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
    * @param contentStatusHistoryID the content status history ID for this entry. Must be <CODE>> 0
    *     </CODE>.
    */
-  private void setContentStatusHistoryID(int contentStatusHistoryID)
-      throws SQLException, PSEntryNotFoundException {
+  private void setContentStatusHistoryID(int contentStatusHistoryID) {
     m_nContentStatusHistoryID = contentStatusHistoryID;
   }
 
@@ -699,16 +706,4 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
           + "FROM "
           + TABLE_CSHC
           + " WHERE (WORKFLOWAPPID=? AND CONTENTID=?)";
-
-  /**
-   * SQL insert for a new content status history row. Columns are unqualified so schema-qualified
-   * table names (H2 {@code PUBLIC.CONTENTSTATUSHISTORY}) remain valid.
-   */
-  private static final String INSERTSTRING =
-      "INSERT INTO "
-          + TABLE_CSHC
-          + " (WORKFLOWAPPID, SESSIONID, CONTENTSTATUSHISTORYID, CONTENTID, STATEID, ACTOR, "
-          + "TRANSITIONID, VALID, ROLENAME, CHECKOUTUSERNAME, LASTMODIFIERNAME, TRANSITIONCOMMENT, "
-          + "REVISIONID, TITLE, TRANSITIONLABEL, STATENAME, LASTMODIFIEDDATE, EVENTTIME)"
-          + " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 }

@@ -357,37 +357,31 @@ public class PSStateRolesContext implements IPSStateRolesContext {
   /** Map of role IDs for all state roles with trimmed lower case role names as key */
   private Map<String, Integer> m_lowerCaseRoleNameToIDMap = new HashMap<>();
 
-  /* String for data base read query */
+  /*
+   * Strings for the data base read query. Both tables are qualified (e.g. {@code PUBLIC.STATEROLES}
+   * on H2); columns are unqualified and disambiguated with the {@code sr} / {@code r} aliases
+   * because {@code ROLEID} and {@code WORKFLOWAPPID} exist in both tables. Do <strong>not</strong>
+   * use {@code schema.table.column} as a column qualifier — H2 rejects it as
+   * {@code Column "PUBLIC" not found}.
+   */
   private static String SR = PSConnectionMgr.getQualifiedIdentifier("STATEROLES");
   private static String R = PSConnectionMgr.getQualifiedIdentifier("ROLES");
   private static String QRYSTRING =
       "SELECT "
+          + "sr.ROLEID, "
+          + "sr.ADHOCTYPE, "
+          + "sr.ASSIGNMENTTYPE, "
+          + "sr.ISNOTIFYON, "
+          + "r.ROLENAME "
+          + "FROM "
           + SR
-          + ".ROLEID,"
-          + SR
-          + ".ADHOCTYPE,"
-          + SR
-          + ".ASSIGNMENTTYPE,"
-          + SR
-          + ".ISNOTIFYON,"
+          + " sr, "
           + R
-          + ".ROLENAME FROM "
-          + SR
-          + ","
-          + R
-          + " WHERE ("
-          + SR
-          + ".WORKFLOWAPPID=? AND "
-          + SR
-          + ".STATEID=? AND ("
-          + SR
-          + ".ASSIGNMENTTYPE>=?) AND "
-          + SR
-          + ".ROLEID="
-          + R
-          + ".ROLEID AND "
-          + SR
-          + ".WORKFLOWAPPID="
-          + R
-          + ".WORKFLOWAPPID)";
+          + " r "
+          + "WHERE "
+          + "sr.WORKFLOWAPPID=? "
+          + "AND sr.STATEID=? "
+          + "AND sr.ASSIGNMENTTYPE>=? "
+          + "AND sr.ROLEID=r.ROLEID "
+          + "AND sr.WORKFLOWAPPID=r.WORKFLOWAPPID";
 }

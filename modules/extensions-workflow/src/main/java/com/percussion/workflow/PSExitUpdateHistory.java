@@ -37,6 +37,9 @@ import com.percussion.server.PSInternalRequest;
 import com.percussion.server.PSServer;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
+import com.percussion.services.system.IPSSystemService;
+import com.percussion.services.system.PSSystemServiceLocator;
+import com.percussion.services.system.data.PSContentStatusHistory;
 import com.percussion.utils.exceptions.PSORMException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.File;
@@ -232,6 +235,15 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
       }
 
       // Get the connection
+      //
+      // PHASE 2 NOTE: The connection obtained here is only used for read-only
+      // PSContentStatusContext / PSTransitionsContext lookups inside
+      // updateHistory. The CONTENTSTATUSHISTORY write that used to ride on this
+      // connection has been moved to PSSystemServiceLocator.getSystemService()
+      // .saveContentStatusHistory(...) so it joins the shared Hibernate session
+      // of the surrounding request rather than opening a second pool connection.
+      // Migrating the read paths to the ORM stack is tracked as PHASE 3 in
+      // docs/ai-generated/migrations/workflow-orm/00-inventory.md.
       Connection connection = null;
       try {
         connectionMgr = new PSConnectionMgr();
@@ -332,7 +344,6 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
       Connection connection)
       throws SQLException, PSEntryNotFoundException, PSExtensionProcessingException {
     PSWorkFlowUtils.printWorkflowMessage(request, "  Entering updateHistory");
-    Integer temp = null;
     int contentstatushistoryid = 0;
     PSContentStatusContext csc = null;
     int workflowID = 0;
@@ -384,28 +395,50 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
       }
     }
 
-    temp = PSExitNextNumber.getNextNumber("CONTENTSTATUSHISTORY");
-    contentstatushistoryid = temp;
+    // PHASE 2: route the CONTENTSTATUSHISTORY write through the shared Hibernate
+    // session. The legacy PSExitNextNumber.getNextNumber(...) pre-allocation step
+    // is gone — saveContentStatusHistory allocates a new CONTENTSTATUSHISTORYID
+    // via m_guidMgr.createGuid(PSTypeEnum.ITEM_HISTORY) when entity.getId() < 0L.
+    PSContentStatusHistory entity = new PSContentStatusHistory();
+    entity.setId(-1L);
+    entity.setWorkflowId(workflowID);
+    entity.setContentId(contentID);
+    entity.setSessionId(sessionID);
+    entity.setActor(userName);
+    entity.setRevision(baseRevisionNum);
+    entity.setRoleName(stateAssignedRole);
+    entity.setTransitionComment(transitionComment);
+    Date eventTime = new Date();
+    entity.setEventTime(eventTime);
+    entity.setIsValidValue(sc.getIsValid() ? "Y" : "N");
+    entity.setStateId(csc.getContentStateID());
+    entity.setStateName(sc.getStateName());
+    entity.setTitle(csc.getTitle());
+    entity.setCheckoutUserName(csc.getContentCheckedOutUserName());
+    entity.setLastModifierName(csc.getContentLastModifierName());
+    entity.setLastModifiedDate(csc.getContentLastModifiedDate());
+
+    if (null == tc) {
+      // Check-in / check-out — no transition row.
+      entity.setTransitionId(IPSConstants.TRANSITIONID_CHECKINOUT);
+      if (null == csc.getContentCheckedOutUserName()) {
+        entity.setTransitionLabel("CheckIn");
+      } else {
+        entity.setTransitionLabel("CheckOut");
+      }
+    } else {
+      entity.setTransitionId(tc.getTransitionID());
+      entity.setTransitionLabel(tc.getTransitionLabel());
+    }
 
     try {
       // If restoring revision, a new history is created for old revision
       // thus making this check to avoid that. Only create history for current revision
       if (baseRevisionNum == csc.getCurrentRevision()) {
-        PSContentStatusHistoryContext csh =
-            new PSContentStatusHistoryContext(
-                contentstatushistoryid,
-                workflowID,
-                connection,
-                contentID,
-                csc,
-                sc,
-                tc,
-                transitionComment,
-                userName,
-                sessionID,
-                stateAssignedRole,
-                baseRevisionNum);
-        updateLastPublicRevision(csh, sc, request, csc);
+        IPSSystemService svc = PSSystemServiceLocator.getSystemService();
+        svc.saveContentStatusHistory(entity);
+        contentstatushistoryid = (int) entity.getId();
+        updateLastPublicRevision(entity, sc, request, csc);
       }
     } catch (Exception e) {
       PSWorkFlowUtils.printWorkflowException(request, e);
@@ -418,23 +451,23 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
   /**
    * Updates the last public revision for the supplied item if needed.
    *
-   * @param csh the to be updated item, assumed not <code>null</code>.
+   * @param entity the freshly saved content status history entity, assumed not <code>null</code>.
    * @param sc the states context for the current state of the item, assumed not <code>null</code>.
    * @param request the request context, assumed not <code>null</code>.
    * @throws PSException if an error occurs.
    */
   private void updateLastPublicRevision(
-      PSContentStatusHistoryContext csh,
+      PSContentStatusHistory entity,
       IPSStatesContext sc,
       IPSRequestContext request,
       PSContentStatusContext csc)
       throws PSException {
     int revision;
-    if (csh.getContentIsValid()) {
+    if (entity.isValid()) {
       if (!needToUpdatePublicRevision(csc)) return;
 
       // if public, update to current revision
-      revision = csh.getRevision();
+      revision = entity.getRevision();
     } else if (sc.getIsUnpublish()) {
       // if unpublish, clear public revision
       revision = -1;
@@ -451,7 +484,7 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
 
     Element elem = doc.createElement("putLastPublicRev");
-    elem.setAttribute("contentId", String.valueOf(csh.getContentID()));
+    elem.setAttribute("contentId", String.valueOf(entity.getContentId()));
     elem.setAttribute("lastPublicRevision", String.valueOf(revision));
     doc.appendChild(elem);
 

@@ -113,24 +113,18 @@ public class PSContentTypesContext implements IPSContentTypesContext {
     }
   }
 
-  /** static constant string that represents the qualified table name. */
+  /**
+   * Qualified table name only (e.g. {@code PUBLIC.CONTENTTYPES} on H2). Do <strong>not</strong>
+   * use this as a column qualifier — {@code schema.table.column} is rejected by H2 as {@code Column
+   * "PUBLIC" not found}. Columns in the statement below are unqualified.
+   */
   private static String TABLE_CTC = PSConnectionMgr.getQualifiedIdentifier("CONTENTTYPES");
 
+  /** SQL query — unqualified column names for H2-safe schema-qualified table names. */
   private static final String QRYSTRING =
-      "SELECT "
-          + TABLE_CTC
-          + ".CONTENTTYPENAME,"
-          + TABLE_CTC
-          + ".CONTENTTYPEDESC,"
-          + TABLE_CTC
-          + ".CONTENTTYPENEWREQUEST,"
-          + TABLE_CTC
-          + ".CONTENTTYPEQUERYREQUEST,"
-          + TABLE_CTC
-          + ".CONTENTTYPEUPDATEREQUEST "
+      "SELECT CONTENTTYPENAME, CONTENTTYPEDESC, CONTENTTYPENEWREQUEST, "
+          + "CONTENTTYPEQUERYREQUEST, CONTENTTYPEUPDATEREQUEST "
           + "FROM "
           + TABLE_CTC
-          + " WHERE ("
-          + TABLE_CTC
-          + ".CONTENTTYPEID=?)";
+          + " WHERE (CONTENTTYPEID=?)";
 }
