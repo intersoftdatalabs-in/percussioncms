@@ -182,6 +182,21 @@ export const PATHS = {
   get COOKIE_CONSENT_TOTALS() {
     return `${SERVICES_ROOT}/delivery/consent/log/totals`;
   },
+  /**
+   * Google Analytics provider config (classic Google Setup gadget).
+   * GET/POST/DELETE {@code /analytics/provider/config}
+   */
+  get ANALYTICS_CONFIG() {
+    return `${SERVICES_ROOT}/analytics/provider/config`;
+  },
+  /** Whether a site has a GA profile mapping. Returns plain {@code "true"|"false"}. */
+  get ANALYTICS_IS_PROFILE_CONFIGURED() {
+    return `${SERVICES_ROOT}/analytics/provider/isProfileConfigured`;
+  },
+  /** List GA profiles (requires stored credentials). */
+  get ANALYTICS_PROFILES() {
+    return `${SERVICES_ROOT}/analytics/provider/profiles`;
+  },
   get PATH_ADD_NEW_FOLDER() {
     return `${SERVICES_ROOT}/pathmanagement/path/addNewFolder`;
   },
