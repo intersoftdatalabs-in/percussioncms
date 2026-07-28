@@ -12,12 +12,12 @@ import {
 } from "@/home/create/filenameUtils";
 
 describe("filenameUtils", () => {
-  it("maps title to page file name like classic CUI", () => {
-    expect(titleToPageFileName("Hello World!")).toBe("hello-world");
+  it("maps title to page file name like classic CUI with .html", () => {
+    expect(titleToPageFileName("Hello World!")).toBe("hello-world.html");
   });
 
-  it("maps title to blog file name", () => {
-    expect(titleToBlogFileName("My_Post Title")).toBe("my-post-title");
+  it("maps title to blog file name with .html", () => {
+    expect(titleToBlogFileName("My_Post Title")).toBe("my-post-title.html");
   });
 
   it("normalizes and joins paths", () => {

@@ -5,25 +5,40 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { CreateWizard } from "@/home/create/CreateWizard";
+import * as homeApi from "@/api/home/homeApi";
 
-vi.mock("@/api/home/homeApi", () => ({
-  fetchSites: vi.fn().mockResolvedValue([{ name: "Demo" }]),
-  fetchBlogsForSite: vi.fn().mockResolvedValue([
-    {
-      title: "News",
-      folderPath: "/Sites/Demo/News",
-      templateId: "tmpl-1",
-      site: "Demo",
-    },
-  ]),
-  fetchTemplatesForSite: vi.fn().mockResolvedValue([
-    { id: "t1", name: "Base" },
-  ]),
-  fetchFolderChildren: vi.fn().mockResolvedValue([]),
-  fetchAssetTypes: vi.fn().mockResolvedValue([{ id: "w1", name: "Image" }]),
-  createPageAndPath: vi.fn().mockResolvedValue("/Sites/Demo/page"),
-  formatApiError: vi.fn((_e: unknown, fallback: string) => fallback),
-}));
+vi.mock("@/api/home/homeApi", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/api/home/homeApi")>();
+  return {
+    ...actual,
+    fetchSites: vi.fn().mockResolvedValue([{ name: "Demo" }]),
+    fetchAllBlogs: vi.fn().mockResolvedValue([
+      {
+        title: "News",
+        folderPath: "/Sites/Demo/News",
+        templateId: "tmpl-1",
+        site: "Demo",
+      },
+    ]),
+    fetchBlogsForSite: vi.fn().mockResolvedValue([
+      {
+        title: "News",
+        folderPath: "/Sites/Demo/News",
+        templateId: "tmpl-1",
+        site: "Demo",
+      },
+    ]),
+    fetchTemplatesForSite: vi.fn().mockResolvedValue([
+      { id: "t1", name: "Base" },
+    ]),
+    fetchFolderChildren: vi.fn().mockResolvedValue([]),
+    fetchAssetTypes: vi.fn().mockResolvedValue([
+      { id: "percImage", name: "Image", label: "Image" },
+    ]),
+    createPageAndPath: vi.fn().mockResolvedValue("/Sites/Demo/page.html"),
+    formatApiError: vi.fn((_e: unknown, fallback: string) => fallback),
+  };
+});
 
 describe("CreateWizard", () => {
   beforeEach(() => {
@@ -37,18 +52,50 @@ describe("CreateWizard", () => {
     await waitFor(() => {
       expect(screen.getByTestId("create-type-chooser")).toBeDefined();
     });
-    expect(screen.getByText("Create Page")).toBeDefined();
-    expect(screen.getByText("Create Asset")).toBeDefined();
-    expect(screen.getByText("Create Blog Post")).toBeDefined();
+    expect(screen.getByTestId("create-choose-page")).toBeDefined();
+    expect(screen.getByTestId("create-choose-asset")).toBeDefined();
+    expect(screen.getByTestId("create-choose-blog")).toBeDefined();
   });
 
   it("opens page wizard from chooser", async () => {
     render(<CreateWizard />);
     await waitFor(() => screen.getByTestId("create-type-chooser"));
-    fireEvent.click(screen.getByText("Create Page"));
+    fireEvent.click(screen.getByTestId("create-choose-page"));
     await waitFor(() => {
       expect(screen.getByTestId("page-wizard")).toBeDefined();
     });
   });
-});
 
+  it("opens asset wizard and lists widget ids as options", async () => {
+    render(<CreateWizard />);
+    await waitFor(() => screen.getByTestId("create-type-chooser"));
+    fireEvent.click(screen.getByTestId("create-choose-asset"));
+    await waitFor(() => {
+      expect(screen.getByTestId("asset-wizard")).toBeDefined();
+    });
+    const select = screen.getByTestId("asset-wizard-type") as HTMLSelectElement;
+    const values = Array.from(select.options).map((o) => o.value);
+    expect(values).toContain("percImage");
+    expect(homeApi.fetchAssetTypes).toHaveBeenCalled();
+  });
+
+  it("opens blog wizard", async () => {
+    render(<CreateWizard />);
+    await waitFor(() => screen.getByTestId("create-type-chooser"));
+    fireEvent.click(screen.getByTestId("create-choose-blog"));
+    await waitFor(() => {
+      expect(screen.getByTestId("blog-wizard")).toBeDefined();
+    });
+    expect(homeApi.fetchAllBlogs).toHaveBeenCalled();
+  });
+
+  it("shows no-blogs empty state when none configured", async () => {
+    vi.mocked(homeApi.fetchAllBlogs).mockResolvedValueOnce([]);
+    render(<CreateWizard />);
+    await waitFor(() => screen.getByTestId("create-type-chooser"));
+    fireEvent.click(screen.getByTestId("create-choose-blog"));
+    await waitFor(() => {
+      expect(screen.getByTestId("blog-wizard-empty")).toBeDefined();
+    });
+  });
+});

@@ -194,6 +194,41 @@ export async function fetchTemplatesForSite(
   return [];
 }
 
+/**
+ * Map a WidgetContentType wire row to {@link AssetTypeSummary}.
+ * Classic createAsset / editAsset require the string {@code widgetId}
+ * (e.g. percImage), not the numeric contentTypeId.
+ */
+export function mapAssetType(raw: unknown): AssetTypeSummary {
+  const o = (raw ?? {}) as Record<string, unknown>;
+  const widgetId =
+    o.widgetId != null && String(o.widgetId).trim()
+      ? String(o.widgetId).trim()
+      : o.id != null && String(o.id).trim()
+        ? String(o.id).trim()
+        : "";
+  const label =
+    o.widgetLabel != null
+      ? String(o.widgetLabel)
+      : o.label != null
+        ? String(o.label)
+        : undefined;
+  const name =
+    label ||
+    (o.contentTypeName != null ? String(o.contentTypeName) : undefined) ||
+    (o.name != null ? String(o.name) : undefined) ||
+    widgetId;
+  return {
+    id: widgetId,
+    name,
+    label,
+    contentTypeId:
+      o.contentTypeId != null ? String(o.contentTypeId) : undefined,
+    contentTypeName:
+      o.contentTypeName != null ? String(o.contentTypeName) : undefined,
+  };
+}
+
 /** Asset widget types (classic getAssetTypes). */
 export async function fetchAssetTypes(
   filterDisabled = true,
@@ -210,14 +245,38 @@ export async function fetchAssetTypes(
   } else if (Array.isArray(data)) {
     list = data;
   }
-  return list.map((t) => {
-    const o = t as Record<string, unknown>;
-    return {
-      id: String(o.contentTypeId ?? o.widgetId ?? o.id ?? ""),
-      name: String(o.name ?? o.label ?? o.id ?? ""),
-      label: o.label ? String(o.label) : undefined,
-    };
-  });
+  return list.map(mapAssetType).filter((t) => Boolean(t.id));
+}
+
+function mapBlogSummary(
+  raw: unknown,
+  siteFallback?: string,
+): BlogSummary {
+  const o = (raw ?? {}) as Record<string, unknown>;
+  const path = String(o.path ?? "");
+  // Wire path is typically the blog section/page path; posts go in that folder.
+  let folderPath =
+    o.folderPath != null && String(o.folderPath).trim()
+      ? String(o.folderPath).trim()
+      : path && path.includes("/")
+        ? path.substring(0, path.lastIndexOf("/"))
+        : path;
+  folderPath = normalizeCmsPath(folderPath);
+  // Site from path /Sites/{site}/... when not provided
+  let site = siteFallback;
+  if (!site && folderPath.toLowerCase().startsWith("/sites/")) {
+    const parts = folderPath.split("/").filter(Boolean);
+    if (parts.length >= 2) {
+      site = parts[1];
+    }
+  }
+  return {
+    title: String(o.title ?? o.name ?? "Blog"),
+    folderPath,
+    templateId: String(o.blogPostTemplateId ?? o.templateId ?? ""),
+    site,
+    path: path || undefined,
+  };
 }
 
 /** Blogs for a site (classic getBlogsForSite). */
@@ -234,21 +293,41 @@ export async function fetchBlogsForSite(
   } else if (Array.isArray(data)) {
     list = data;
   }
-  return list.map((raw) => {
-    const o = raw as Record<string, unknown>;
-    const path = String(o.path ?? "");
-    const folderPath =
-      path && path.includes("/")
-        ? path.substring(0, path.lastIndexOf("/"))
-        : String(o.folderPath ?? "");
-    return {
-      title: String(o.title ?? o.name ?? ""),
-      folderPath,
-      templateId: String(o.blogPostTemplateId ?? o.templateId ?? ""),
-      site: siteName,
-      path,
-    };
-  });
+  return list
+    .map((raw) => mapBlogSummary(raw, siteName))
+    .filter((b) => Boolean(b.templateId && b.folderPath));
+}
+
+/**
+ * All blogs across sites (single call — preferred for Home Create chooser).
+ */
+export async function fetchAllBlogs(): Promise<BlogSummary[]> {
+  const data = await get<unknown>(PATHS.ALL_BLOGS);
+  let list: unknown[] = [];
+  if (data && typeof data === "object" && "SiteBlogProperties" in data) {
+    const b = (data as { SiteBlogProperties: unknown }).SiteBlogProperties;
+    list = Array.isArray(b) ? b : b ? [b] : [];
+  } else if (Array.isArray(data)) {
+    list = data;
+  }
+  return list
+    .map((raw) => mapBlogSummary(raw))
+    .filter((b) => Boolean(b.templateId && b.folderPath));
+}
+
+/**
+ * Ensure page/blog file names end with {@code .html} when the user did not
+ * supply an extension (classic CUI page names usually include it).
+ */
+export function ensurePageFileName(name: string): string {
+  const n = String(name ?? "").trim();
+  if (!n) {
+    return n;
+  }
+  if (/\.[a-zA-Z0-9]{1,8}$/.test(n)) {
+    return n;
+  }
+  return `${n}.html`;
 }
 
 /**
@@ -258,9 +337,10 @@ export async function fetchBlogsForSite(
 export async function createPage(req: CreatePageRequest): Promise<unknown> {
   // Page REST validates via contentWs.getIdByPath, which requires //Sites/...
   const folderPath = toRepositoryCmsPath(req.folderPath);
+  const name = ensurePageFileName(req.name);
   const body = {
     Page: {
-      name: req.name,
+      name,
       title: req.title,
       templateId: req.templateId,
       linkTitle: req.linkTitle,
@@ -277,8 +357,9 @@ export async function createPage(req: CreatePageRequest): Promise<unknown> {
 export async function createPageAndPath(
   req: CreatePageRequest,
 ): Promise<string> {
-  await createPage(req);
-  return joinFolderAndName(req.folderPath, req.name);
+  const name = ensurePageFileName(req.name);
+  await createPage({ ...req, name });
+  return joinFolderAndName(req.folderPath, name);
 }
 
 /**

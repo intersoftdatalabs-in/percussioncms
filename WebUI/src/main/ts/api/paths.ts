@@ -87,6 +87,10 @@ export const PATHS = {
   get BLOGS_FOR_SITE() {
     return `${SERVICES_ROOT}/sitemanage/section/blogs`;
   },
+  /** All blogs across sites (PSSiteSectionRestService#getAllBlogs). */
+  get ALL_BLOGS() {
+    return `${SERVICES_ROOT}/sitemanage/section/allBlogs`;
+  },
   get ASSET_TYPES() {
     return `${SERVICES_ROOT}/assetmanagement/asset/assetTypes`;
   },

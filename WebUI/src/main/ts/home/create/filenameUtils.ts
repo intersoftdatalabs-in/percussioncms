@@ -15,22 +15,30 @@
  * limitations under the License.
  */
 
-/** Classic CUI page title → file name autofill rules. */
+/** Classic CUI page title → file name autofill rules (with .html). */
 export function titleToPageFileName(title: string): string {
-  return title
+  const base = title
     .replace(/[ _]/g, "-")
     .replace(/[^a-zA-Z0-9\-_.]/g, "")
     .replace(/[-]+/g, "-")
     .toLowerCase();
+  if (!base) {
+    return base;
+  }
+  return base.endsWith(".html") ? base : `${base}.html`;
 }
 
-/** Classic CUI blog title → file name autofill (no dots in body). */
+/** Classic CUI blog title → file name autofill (no dots in body; add .html). */
 export function titleToBlogFileName(title: string): string {
-  return title
+  const base = title
     .replace(/[ _]/g, "-")
     .replace(/[^a-zA-Z0-9\-_]/g, "")
     .replace(/[-]+/g, "-")
     .toLowerCase();
+  if (!base) {
+    return base;
+  }
+  return `${base}.html`;
 }
 
 export function sanitizeFileNameInput(fileName: string): string {

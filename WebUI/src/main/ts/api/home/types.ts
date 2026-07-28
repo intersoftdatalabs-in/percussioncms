@@ -47,9 +47,15 @@ export interface TemplateSummary {
 }
 
 export interface AssetTypeSummary {
+  /**
+   * Widget definition id used by classic createAsset / editAsset
+   * (e.g. {@code percImage}), not the numeric content type id.
+   */
   id: string;
   name: string;
   label?: string;
+  contentTypeId?: string;
+  contentTypeName?: string;
 }
 
 export interface BlogSummary {
