@@ -16,9 +16,13 @@
  */
 package com.percussion.workflow;
 
+import com.percussion.services.workflow.IPSWorkflowService;
+import com.percussion.services.workflow.PSWorkflowServiceLocator;
+import com.percussion.services.workflow.data.PSNotification;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import javax.naming.NamingException;
 
 /**
@@ -30,6 +34,73 @@ import javax.naming.NamingException;
 @Deprecated
 public class PSTransitionNotificationsContext extends PSAbstractMultipleRecordWorkflowContext
     implements IPSTransitionNotificationsContext {
+  /**
+   * Hibernate-backed factory added for #1561 Phase 4c. Loads the {@code TRANSITIONNOTIFICATIONS}
+   * rows for the supplied (workflowId, transitionId) via the shared Hibernate session — no second
+   * pool connection.
+   *
+   * <p>Equivalent to the raw-JDBC constructor
+   * {@link #PSTransitionNotificationsContext(int, int, Connection)} but participates in the
+   * surrounding Spring transaction so the dual-connection defect fixed in Phase 2/3 does not
+   * re-emerge for this code path.
+   *
+   * @param workflowId the workflow id; must be {@code > 0}.
+   * @param transitionId the transition id; must be {@code > 0}.
+   * @return the populated context, never {@code null}; may have count 0 if no notifications are
+   *     configured for the transition.
+   */
+  public static PSTransitionNotificationsContext loadFromHibernate(
+      int workflowId, int transitionId) {
+    if (workflowId <= 0) {
+      throw new IllegalArgumentException("workflowId must be > 0");
+    }
+    if (transitionId <= 0) {
+      throw new IllegalArgumentException("transitionId must be > 0");
+    }
+
+    IPSWorkflowService wfSvc = PSWorkflowServiceLocator.getWorkflowService();
+    List<PSNotification> rows = wfSvc.findTransitionNotifications(workflowId, transitionId);
+
+    PSTransitionNotificationsContext ctx = new PSTransitionNotificationsContext();
+    ctx.populateFromHibernate(workflowId, transitionId, rows);
+    return ctx;
+  }
+
+  /** Package-private default constructor used by {@link #loadFromHibernate}. */
+  PSTransitionNotificationsContext() {}
+
+  /**
+   * Populates the in-memory state from a list of {@link PSNotification} ({@code TRANSITIONNOTIFICATIONS})
+   * rows. Mirrors the cursor accumulated in the raw-JDBC constructor's
+   * {@link #AccumulateCurrentDataSet()} / {@link #MoveAccumulatedDataSet(int)} pattern so consumers
+   * iterating via {@link #moveNext()} see the same { @code notificationId / recipientType /
+   * additionalRecipientList / ccList } sequence.
+   *
+   * @param workflowId the workflow id.
+   * @param transitionId the transition id.
+   * @param rows the Hibernate rows; may be empty but never {@code null}.
+   */
+  private void populateFromHibernate(
+      int workflowId, int transitionId, List<PSNotification> rows) {
+    m_nWorkflowID = workflowId;
+    m_nTransitionID = transitionId;
+    m_nCount = 0;
+    // Reset the boolean flags so the new AccumulateCurrentDataSet re-derives them.
+    m_bRequireToStateRoles = false;
+    m_bRequireFromStateRoles = false;
+    for (PSNotification row : rows) {
+      m_nNotificationID = (int) row.getNotificationId();
+      m_nStateRoleRecipientTypes = row.getStateRoleRecipientType().getValue();
+      m_sAdditionalRecipientList = row.getRecipients().isEmpty() ? "" : String.join(",", row.getRecipients());
+      m_sCCList = row.getCCRecipients().isEmpty() ? "" : String.join(",", row.getCCRecipients());
+      AccumulateCurrentDataSet();
+      m_nCount++;
+    }
+    if (m_nCount > 1) {
+      MoveAccumulatedDataSet(0);
+    }
+  }
+
   /**
    * Constructor specifying the workflowID and transition ID for the collection of notifications.
    *

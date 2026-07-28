@@ -16,6 +16,8 @@
  */
 package com.percussion.workflow;
 
+import com.percussion.services.system.PSSystemServiceLocator;
+import com.percussion.services.workflow.data.PSNotificationDef;
 import com.percussion.tablefactory.PSJdbcTableFactory;
 import java.io.IOException;
 import java.sql.Connection;
@@ -35,6 +37,61 @@ public class PSNotificationsContext extends PSAbstractWorkflowContext
     implements IPSNotificationsContext {
 
   private static final Logger log = LogManager.getLogger(PSNotificationsContext.class);
+
+  /**
+   * Hibernate-backed factory added for #1561 Phase 4c. Loads the notification subject + body for
+   * the supplied (workflowId, notificationId) via the shared Hibernate session — no second pool
+   * connection.
+   *
+   * <p>Equivalent to the raw-JDBC constructor
+   * {@link #PSNotificationsContext(int, int, Connection)} but participates in the surrounding
+   * Spring transaction so the dual-connection defect fixed in Phase 2/3 does not re-emerge for
+   * this code path.
+   *
+   * @param workflowId the workflow id; must be {@code > 0}.
+   * @param notificationId the notification id; must be {@code > 0}.
+   * @return the populated context, never {@code null}; throws {@link PSEntryNotFoundException}
+   *     when no row matches.
+   */
+  public static PSNotificationsContext loadFromHibernate(int workflowId, int notificationId)
+      throws PSEntryNotFoundException {
+    if (workflowId <= 0) {
+      throw new IllegalArgumentException("workflowId must be > 0");
+    }
+    if (notificationId <= 0) {
+      throw new IllegalArgumentException("notificationId must be > 0");
+    }
+
+    PSNotificationDef hib =
+        PSSystemServiceLocator.getSystemService().findNotificationDef(workflowId, notificationId);
+    if (hib == null) {
+      throw new PSEntryNotFoundException(
+          "No notification with notification ID = "
+              + notificationId
+              + " exists in the workflow "
+              + workflowId
+              + ".");
+    }
+
+    PSNotificationsContext ctx = new PSNotificationsContext();
+    ctx.populateFromHibernate(hib);
+    return ctx;
+  }
+
+  /** Package-private default constructor used by {@link #loadFromHibernate}. */
+  PSNotificationsContext() {}
+
+  /**
+   * Populates the in-memory subject + body from a {@link PSNotificationDef} row.
+   *
+   * @param hib the Hibernate-loaded notification definition row; must not be {@code null}.
+   */
+  private void populateFromHibernate(PSNotificationDef hib) {
+    m_nWorkflowID = (int) hib.getWorkflowId();
+    m_nNotificationID = (int) hib.getGUID().longValue();
+    m_sSubject = hib.getSubject();
+    m_sBody = hib.getBody();
+  }
 
   /**
    * Constructor specifying the workflowID and notification ID.

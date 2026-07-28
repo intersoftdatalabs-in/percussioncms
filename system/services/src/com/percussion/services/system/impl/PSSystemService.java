@@ -475,6 +475,32 @@ public class PSSystemService
    }
 
    /**
+    * Find a notification definition (NOTIFICATIONS table) by (workflowId, notificationId).
+    * Added for #1561 Phase 4c so {@code modules/extensions-workflow/.../PSNotificationsContext}
+    * can load its data from the shared Hibernate session instead of opening a second pool
+    * connection.
+    *
+    * @param workflowId the workflow id; must be {@code > 0}.
+    * @param notificationId the notification id; must be {@code > 0}.
+    * @return the notification definition, or {@code null} when no row matches.
+    */
+   @Transactional
+   public com.percussion.services.workflow.data.PSNotificationDef findNotificationDef(
+       long workflowId, long notificationId)
+   {
+      if (workflowId <= 0)
+         throw new IllegalArgumentException("workflowId must be > 0");
+      if (notificationId <= 0)
+         throw new IllegalArgumentException("notificationId must be > 0");
+
+      return getSession()
+          .get(
+              com.percussion.services.workflow.data.PSNotificationDef.class,
+              new com.percussion.services.workflow.data.PSNotificationDefPK(
+                  workflowId, notificationId));
+   }
+
+   /**
     * Gets the content IDs where there is no specified work-flow
     * activities before the specified date; but there are such
     * work-flow activities after the date. The work-flow activities

@@ -863,6 +863,34 @@ public class PSWorkflowService
    }
 
    /**
+    * Phase 4c: Hibernate-backed equivalent of the raw-JDBC
+    * {@code PSTransitionNotificationsContext(workflowId, transitionId, Connection)} read path.
+    *
+    * <p>Returns the ordered list of {@link PSNotification} (TRANSITIONNOTIFICATIONS table) rows
+    * for the supplied (workflowId, transitionId) tuple. The result list mirrors the cursor
+    * order produced by the legacy raw-JDBC context so that
+    * {@code PSTransitionNotificationsContext.moveNext()} consumers see the same iteration order.
+    */
+   @Transactional
+   public java.util.List<PSNotification> findTransitionNotifications(
+       long workflowAppId, long transitionId)
+   {
+      if (workflowAppId <= 0)
+         throw new IllegalArgumentException("workflowAppId must be > 0");
+      if (transitionId <= 0)
+         throw new IllegalArgumentException("transitionId must be > 0");
+
+      return getSession()
+          .createQuery(
+              "from PSNotification where workflowId = :wf and transitionId = :tid "
+                  + "order by transitionNotificationId",
+              PSNotification.class)
+          .setParameter("wf", workflowAppId)
+          .setParameter("tid", transitionId)
+          .getResultList();
+   }
+
+   /**
     * Forces lazy load of members.
     *
     * @param workflow the workflow to load members, assumed not

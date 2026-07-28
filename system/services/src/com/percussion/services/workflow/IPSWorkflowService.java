@@ -402,19 +402,32 @@ public interface IPSWorkflowService {
      */
     PSTransition loadWorkflowTransition(long workflowAppId, long transitionId);
 
+    /**
+     * Loads the assigned state roles for a (workflow, state) pair, filtered by minimum assignment
+     * type. Added for #1561 Phase 4b so {@code modules/extensions-workflow/.../PSStateRolesContext}
+     * can load its data from the shared Hibernate session instead of opening a second pool connection.
+     *
+     * @param workflowAppId the workflow id, must be {@code > 0}.
+     * @param stateId the state id, must be {@code > 0}.
+     * @param minAssignmentType the minimum assignment type; passed through unchanged to
+     *     {@code PSAssignedRole.assignmentType}.
+     * @return the matching rows, never {@code null}, may be empty.
+     */
+    java.util.List<com.percussion.services.workflow.data.PSAssignedRole>
+        findStateRoles(long workflowAppId, long stateId, int minAssignmentType);
+
    /**
-    * Loads the assigned state roles for a (workflow, state) pair, filtered by minimum assignment
-    * type. Added for #1561 Phase 4b so {@code modules/extensions-workflow/.../PSStateRolesContext}
+    * Loads the {@code TRANSITIONNOTIFICATIONS} rows for a (workflowId, transitionId) pair.
+    * Added for #1561 Phase 4c so {@code modules/extensions-workflow/.../PSTransitionNotificationsContext}
     * can load its data from the shared Hibernate session instead of opening a second pool connection.
     *
     * @param workflowAppId the workflow id, must be {@code > 0}.
-    * @param stateId the state id, must be {@code > 0}.
-    * @param minAssignmentType the minimum assignment type; passed through unchanged to
-    *     {@code PSAssignedRole.assignmentType}.
-    * @return the matching rows, never {@code null}, may be empty.
+    * @param transitionId the transition id, must be {@code > 0}.
+    * @return the matching rows, never {@code null}, may be empty if no notifications are configured
+    *     for the transition.
     */
-   java.util.List<com.percussion.services.workflow.data.PSAssignedRole>
-       findStateRoles(long workflowAppId, long stateId, int minAssignmentType);
+   java.util.List<PSNotification> findTransitionNotifications(
+       long workflowAppId, long transitionId);
 
    /**
     * Loads the workflow roles for the supplied workflow id, restricted to those whose ids appear
