@@ -33,8 +33,19 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * JPA-backed implementation of {@link IPSFormDao} that lives in the RDBMS micro-service. All
+ * data access runs inside a single Spring-managed read-committed transaction so that reads
+ * observe a consistent view of the {@code PSFormData} table.
+ */
 @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
 public class PSFormDao implements IPSFormDao {
+
+  /**
+   * No-arg constructor required by the JPA / Spring infrastructure. The {@link EntityManager}
+   * is injected by the container rather than supplied at construction time.
+   */
+  public PSFormDao() {}
 
   @PersistenceContext private EntityManager entityManager;
 

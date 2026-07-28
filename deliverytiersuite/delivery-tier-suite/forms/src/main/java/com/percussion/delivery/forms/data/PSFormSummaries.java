@@ -33,13 +33,32 @@ import java.util.List;
     name = "",
     propOrder = {"formsInfo"})
 public class PSFormSummaries {
+  /**
+   * No-arg constructor required by the JAXB binding provider. Application code can populate
+   * the container via the setters or by adding entries to the result of
+   * {@link #getSummaries()}.
+   */
+  public PSFormSummaries() {}
+
   private List<PSFormSummary> formsInfo = new ArrayList<>();
 
+  /**
+   * Returns the list of form summaries backing this container, lazily initializing it when
+   * accessed for the first time after deserialization.
+   *
+   * @return the live list of summaries, never <code>null</code>.
+   */
   public List<PSFormSummary> getSummaries() {
     if (formsInfo == null) formsInfo = new ArrayList<>();
     return formsInfo;
   }
 
+  /**
+   * Replaces the list of summaries backing this container.
+   *
+   * @param formSummaries the new summaries, may be <code>null</code> in which case the
+   *     container will lazily create an empty list on the next read.
+   */
   public void setSummaries(List<PSFormSummary> formSummaries) {
     this.formsInfo = formSummaries;
   }
