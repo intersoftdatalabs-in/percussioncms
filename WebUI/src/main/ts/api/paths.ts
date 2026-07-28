@@ -69,6 +69,18 @@ export const PATHS = {
   get MY_CONTENT() {
     return `${SERVICES_ROOT}/itemmanagement/item/mycontent`;
   },
+  /** Favorite / My Pages (classic CUI bookmarks) — PUT with page id */
+  get ADD_TO_MYPAGES() {
+    return `${SERVICES_ROOT}/itemmanagement/item/addtomypages`;
+  },
+  /** Favorite / My Pages — DELETE with page id */
+  get REMOVE_FROM_MYPAGES() {
+    return `${SERVICES_ROOT}/itemmanagement/item/removefrommypages`;
+  },
+  /** Favorite / My Pages membership — GET returns plain boolean */
+  get IS_MY_PAGE() {
+    return `${SERVICES_ROOT}/itemmanagement/item/ismypage`;
+  },
   get TEMPLATES_BY_SITE() {
     return `${SERVICES_ROOT}/sitemanage/sitetemplates/templates`;
   },

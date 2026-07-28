@@ -17,14 +17,24 @@
 
 import React, { useState } from "react";
 import { isSessionRedirectError } from "../../api/client";
-import { formatApiError, searchContent } from "../../api/home/homeApi";
+import {
+  contentItemId,
+  formatApiError,
+  searchContent,
+} from "../../api/home/homeApi";
 import type { ContentListItem } from "../../api/home/types";
 import { message, MSG } from "../../i18n/message";
+import { ContentListRow } from "../components/ContentListRow";
+import { useBookmarks } from "../hooks/useBookmarks";
 import {
+  actionButtonStyle,
+  emptyStateStyle,
   errorStyle,
   formRowStyle,
-  listItemStyle,
   listStyle,
+  searchFormActionsStyle,
+  searchInputStyle,
+  sectionHintStyle,
 } from "../home.styles";
 
 export interface SearchSectionProps {
@@ -38,6 +48,7 @@ export function SearchSection({
   const [items, setItems] = useState<ContentListItem[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const bookmarks = useBookmarks(true);
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,6 +72,7 @@ export function SearchSection({
 
   return (
     <div data-testid="home-search-section">
+      <p style={sectionHintStyle}>{message(MSG.SEARCH_HINT)}</p>
       <form onSubmit={onSubmit}>
         <div style={formRowStyle}>
           <label htmlFor="home-search-query">
@@ -73,28 +85,35 @@ export function SearchSection({
             value={query}
             onChange={(ev) => setQuery(ev.target.value)}
             placeholder={message(MSG.SEARCH_PLACEHOLDER)}
+            style={searchInputStyle}
+            autoComplete="off"
           />
         </div>
-        <button
-          type="submit"
-          data-testid="home-search-submit"
-          disabled={loading || !query.trim()}
-        >
-          {message(MSG.SEARCH_SUBMIT)}
-        </button>
+        <div style={searchFormActionsStyle}>
+          <button
+            type="submit"
+            data-testid="home-search-submit"
+            style={actionButtonStyle("primary")}
+            disabled={loading || !query.trim()}
+          >
+            {loading ? message(MSG.LOADING) : message(MSG.SEARCH_SUBMIT)}
+          </button>
+        </div>
       </form>
-      {loading && (
-        <p role="status" data-testid="home-search-loading">
-          {message(MSG.LOADING)}
-        </p>
-      )}
       {error && (
         <p role="alert" style={errorStyle} data-testid="home-search-error">
           {error}
         </p>
       )}
+      {bookmarks.error && (
+        <p role="alert" style={errorStyle} data-testid="home-search-bookmark-error">
+          {bookmarks.error}
+        </p>
+      )}
       {items && items.length === 0 && (
-        <p data-testid="home-search-empty">{message(MSG.SEARCH_EMPTY)}</p>
+        <p style={emptyStateStyle} data-testid="home-search-empty">
+          {message(MSG.SEARCH_EMPTY)}
+        </p>
       )}
       {items && items.length > 0 && (
         <ul
@@ -103,18 +122,22 @@ export function SearchSection({
           data-testid="home-search-results"
         >
           {items.map((item, index) => {
-            const label =
-              item.name || item.title || item.path || item.id || `hit-${index}`;
+            const id = contentItemId(item);
             return (
-              <li
-                key={String(item.id ?? item.path ?? index)}
-                style={listItemStyle}
-              >
-                <span>{label}</span>
-                <button type="button" onClick={() => onOpenItem?.(item)}>
-                  {message(MSG.OPEN_ITEM)}
-                </button>
-              </li>
+              <ContentListRow
+                key={String(id ?? item.path ?? index)}
+                item={item}
+                index={index}
+                fallbackLabel={`hit-${index}`}
+                onOpenItem={onOpenItem}
+                bookmarkMode="toggle"
+                isBookmarked={bookmarks.isBookmarked(item)}
+                bookmarkPending={id != null && bookmarks.pendingIds.has(id)}
+                onBookmark={(row) => {
+                  void bookmarks.toggleBookmark(row);
+                }}
+                testIdPrefix="home-search"
+              />
             );
           })}
         </ul>

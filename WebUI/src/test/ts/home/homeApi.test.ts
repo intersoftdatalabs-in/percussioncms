@@ -17,12 +17,17 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
+  addToMyPages,
+  contentItemId,
   createPage,
   fetchMyContent,
   fetchRecentItems,
   fetchSites,
   formatApiError,
+  isBookmarkableItem,
+  isMyPage,
   normalizeContentItem,
+  removeFromMyPages,
   searchContent,
 } from "@/api/home/homeApi";
 import type { ApiError } from "@/api/client";
@@ -175,6 +180,57 @@ describe("homeApi", () => {
         folderPath: "/Sites/x",
       }),
     ).toMatchObject({ id: "c1", name: "T", path: "/Sites/x" });
+  });
+
+  it("addToMyPages PUTs encoded page id", async () => {
+    const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>;
+    fetchMock.mockResolvedValue(mockJsonResponse({ result: "ok" }));
+    await addToMyPages("guid:1-2-3");
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toContain("/itemmanagement/item/addtomypages/");
+    expect(url).toContain(encodeURIComponent("guid:1-2-3"));
+    expect(init.method).toBe("PUT");
+  });
+
+  it("removeFromMyPages DELETEs encoded page id", async () => {
+    const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>;
+    fetchMock.mockResolvedValue(mockJsonResponse({ result: "ok" }));
+    await removeFromMyPages("page-9");
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toContain("/itemmanagement/item/removefrommypages/");
+    expect(url).toContain("page-9");
+    expect(init.method).toBe("DELETE");
+  });
+
+  it("isMyPage parses text/plain boolean and prefers Accept text/plain", async () => {
+    const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>;
+    fetchMock.mockResolvedValue({
+      ok: true,
+      status: 200,
+      statusText: "OK",
+      headers: {
+        get: (name: string) =>
+          name.toLowerCase() === "content-type" ? "text/plain" : null,
+      },
+      text: async () => "true",
+      json: async () => {
+        throw new Error("not json");
+      },
+    });
+    await expect(isMyPage("p1")).resolves.toBe(true);
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const headers = new Headers(init.headers as HeadersInit);
+    expect(headers.get("Accept") ?? "").toMatch(/text\/plain/i);
+  });
+
+  it("contentItemId and isBookmarkableItem helpers", () => {
+    expect(contentItemId({ id: " a " })).toBe("a");
+    expect(contentItemId({ contentId: "c2" })).toBe("c2");
+    expect(contentItemId({})).toBeNull();
+    expect(isBookmarkableItem({ id: "1", type: "page" })).toBe(true);
+    expect(isBookmarkableItem({ id: "1", folder: true })).toBe(false);
+    expect(isBookmarkableItem({ id: "1", type: "Folder" })).toBe(false);
+    expect(isBookmarkableItem({ name: "no-id" })).toBe(false);
   });
 
   it("fetchSites surfaces API errors", async () => {

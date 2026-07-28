@@ -116,7 +116,10 @@ function HomeShellBody({
   return (
     <>
       <header style={headerStyle}>
-        <h1 style={{ margin: 0, fontSize: "1.25rem" }} data-testid="home-title">
+        <h1
+          style={{ margin: 0, fontSize: "1.3rem", fontWeight: 650, letterSpacing: "-0.01em" }}
+          data-testid="home-title"
+        >
           {message(MSG.HOME_TITLE)}
         </h1>
       </header>

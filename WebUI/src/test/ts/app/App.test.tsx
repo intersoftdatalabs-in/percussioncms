@@ -8,14 +8,22 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "../../../main/ts/app/App";
 import type { SpaBootstrap } from "../../../main/ts/app/bootstrap/types";
 
-vi.mock("../../../main/ts/api/home/homeApi", () => ({
-  fetchRecentItems: vi.fn().mockResolvedValue([]),
-  fetchMyContent: vi.fn().mockResolvedValue([]),
-  fetchSites: vi.fn().mockResolvedValue([]),
-  fetchFolderChildren: vi.fn().mockResolvedValue([]),
-  searchContent: vi.fn().mockResolvedValue([]),
-  createPage: vi.fn().mockResolvedValue({}),
-}));
+vi.mock("../../../main/ts/api/home/homeApi", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../../main/ts/api/home/homeApi")>();
+  return {
+    ...actual,
+    fetchRecentItems: vi.fn().mockResolvedValue([]),
+    fetchMyContent: vi.fn().mockResolvedValue([]),
+    fetchSites: vi.fn().mockResolvedValue([]),
+    fetchFolderChildren: vi.fn().mockResolvedValue([]),
+    searchContent: vi.fn().mockResolvedValue([]),
+    createPage: vi.fn().mockResolvedValue({}),
+    addToMyPages: vi.fn().mockResolvedValue(undefined),
+    removeFromMyPages: vi.fn().mockResolvedValue(undefined),
+    isMyPage: vi.fn().mockResolvedValue(false),
+  };
+});
 
 vi.mock("../../../main/ts/api/publishing", () => ({
   // Publishing sections load their own APIs; keep module resolution soft
