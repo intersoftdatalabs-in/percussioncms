@@ -7,11 +7,15 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 describe("login / modern CSS host contract", () => {
-  it("rxlogin.jsp links stable perc-modern-ui.css", () => {
+  it("rxlogin.jsp links stable perc-modern-ui.css and loads TMX with perc.ui. prefix", () => {
     const path = resolve(__dirname, "../../../main/webapp/rxlogin.jsp");
     const text = readFileSync(path, "utf8");
     expect(text).toContain('href="/cm/modern/assets/perc-modern-ui.css"');
     expect(text).toContain("perc-modern-ui.js");
+    // Login form chrome needs I18N.message from tmx.jsp (initial session locale).
+    expect(text).toContain("tmx/tmx.jsp");
+    expect(text).toContain("prefix=perc.ui.");
+    expect(text).toContain("sys_lang=");
     // Defensive logo cap if CSS fails
     expect(text).toMatch(/max-height:\s*48px/);
   });

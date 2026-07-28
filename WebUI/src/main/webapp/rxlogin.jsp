@@ -48,7 +48,6 @@
     String username = request.getParameter("j_username");
     String locale = request.getParameter("j_locale");
     String error = request.getParameter("j_error");
-    String lang = "en";
 
     if (username == null) {
         username = "";
@@ -56,10 +55,8 @@
     if (locale == null) {
         locale = PSI18nUtils.getSystemLanguage();
     }
-    if (locale != null && locale.contains("-")) {
-        lang = locale.split("-")[0];
-    } else if (locale != null) {
-        lang = locale;
+    if (locale == null) {
+        locale = "en-us";
     }
 
     String loginComplete = PSServer.getServerProps().getProperty("loginAutoComplete");
@@ -99,7 +96,7 @@
     localesJson.append(']');
 %>
 <!DOCTYPE html>
-<html lang="<%= lang %>">
+<html lang="<%= locale %>">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -107,6 +104,8 @@
     <meta name="_csrf_header" content="<csrf:tokenname/>"/>
     <meta name="_csrf" content="<csrf:tokenvalue/>"/>
     <script src="/JavaScriptServlet"></script>
+    <%-- TMX catalog for React message() (required for login form chrome) --%>
+    <script src="<%= request.getContextPath() %>/tmx/tmx.jsp?mode=js&amp;prefix=perc.ui.&amp;sys_lang=<%= locale %>"></script>
     <%-- Stable CSS entry (Vite cssCodeSplit:false). JS also injects if this is missing. --%>
     <link rel="stylesheet" href="/cm/modern/assets/perc-modern-ui.css"/>
     <script type="module" src="/cm/modern/assets/perc-modern-ui.js"></script>

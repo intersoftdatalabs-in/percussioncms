@@ -69,9 +69,12 @@ export default defineConfig({
       "src/test/ts/**/*.{test,spec}.{ts,tsx}",
       "src/test/js/**/*.{test,spec}.js",
       // Module-level modern tests (WebUI/src/test/ts) — Track B home, publishing, etc.
-      resolve(__dirname, "../../test/ts/**/*.{test,spec}.{ts,tsx}"),
+      // Relative paths so vitest's glob parser treats them as globs (not
+      // escape sequences) on Windows where resolve(__dirname, ...) returns
+      // backslash-separated absolute paths.
+      "../../test/ts/**/*.{test,spec}.{ts,tsx}",
       // Legacy module-level JS tests
-      resolve(__dirname, "../../test/js/**/*.{test,spec}.js"),
+      "../../test/js/**/*.{test,spec}.js",
     ],
   },
 });
