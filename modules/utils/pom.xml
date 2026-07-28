@@ -35,6 +35,12 @@
             <version>${junit5.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- Live H2 probes for PSJdbcConnectionDiagnostics (NON_KEYWORDS / VALUE identifier). -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>com.ibm.icu</groupId>
             <artifactId>icu4j</artifactId>

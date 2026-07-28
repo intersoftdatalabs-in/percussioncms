@@ -50,6 +50,7 @@ import org.xml.sax.SAXException;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -268,18 +269,22 @@ public class PSSite implements IPSSite, IPSCatalogItem {
 
     @Basic
     @Column(name = "ENABLE_MOBILE_PREVIEW")
+    @Convert(converter = BooleanToTFCharConverter.class)
     private Boolean mobilePreviewEnabled;
 
     @Basic
     @Column(name = "OVERRIDE_JQUERY")
+    @Convert(converter = BooleanToTFCharConverter.class)
     private Boolean overrideSystemJQuery;
 
     @Basic
     @Column(name = "OVERRIDE_FOUNDATION")
+    @Convert(converter = BooleanToTFCharConverter.class)
     private Boolean overrideSystemFoundation;
 
     @Basic
     @Column(name = "OVERRIDE_JQUERYUI")
+    @Convert(converter = BooleanToTFCharConverter.class)
     private Boolean overrideSystemJQueryUI;
 
     @ManyToMany(targetEntity = PSAssemblyTemplate.class, fetch = FetchType.LAZY)
@@ -296,6 +301,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
 
     @Basic
     @Column(name = "IS_PAGE_BASED")
+    @Convert(converter = BooleanToTFCharConverter.class)
     private Boolean pageBased;
 
     @OneToMany(targetEntity = PSSiteProperty.class,
@@ -904,27 +910,29 @@ public class PSSite implements IPSSite, IPSCatalogItem {
 
     @Override
     public boolean isSecure() {
-        return "true".equalsIgnoreCase(is_secure);
+        return BooleanToTFCharConverter.isTruthy(is_secure);
     }
 
     @Override
     public void setSecure(boolean isSecure) {
-        this.is_secure = Boolean.toString(isSecure);
+        // CHAR(1) column — must be T/F, not Boolean.toString()
+        this.is_secure = BooleanToTFCharConverter.toChar(isSecure);
     }
 
     @Override
     public boolean isCanonical() {
-        return "true".equalsIgnoreCase(is_canonical);
+        return BooleanToTFCharConverter.isTruthy(is_canonical);
     }
 
     @Override
     public void setCanonical(boolean isCanonical) {
-        this.is_canonical = Boolean.toString(isCanonical);
+        // CHAR(1) column — must be T/F, not Boolean.toString() ("true" is 4 chars)
+        this.is_canonical = BooleanToTFCharConverter.toChar(isCanonical);
     }
 
     @Override
     public boolean isCanonicalReplace() {
-        return "true".equalsIgnoreCase(is_canonical_replace);
+        return BooleanToTFCharConverter.isTruthy(is_canonical_replace);
     }
 
     @Override
@@ -939,7 +947,8 @@ public class PSSite implements IPSSite, IPSCatalogItem {
 
     @Override
     public void setCanonicalReplace(boolean isCanonicalReplace) {
-        this.is_canonical_replace = Boolean.toString(isCanonicalReplace);
+        // CHAR(1) column — must be T/F, not Boolean.toString()
+        this.is_canonical_replace = BooleanToTFCharConverter.toChar(isCanonicalReplace);
     }
 
     @Override
@@ -964,12 +973,13 @@ public class PSSite implements IPSSite, IPSCatalogItem {
 
     @Override
     public void setGenerateSitemap(boolean generateSitemap) {
-        this.generateSiteMap = Boolean.toString(generateSitemap);
+        // CHAR(1) column — must be T/F, not Boolean.toString()
+        this.generateSiteMap = BooleanToTFCharConverter.toChar(generateSitemap);
     }
 
     @Override
     public boolean isGenerateSitemap() {
-        return "true".equalsIgnoreCase(this.generateSiteMap) || Boolean.parseBoolean(this.generateSiteMap);
+        return BooleanToTFCharConverter.isTruthy(this.generateSiteMap);
     }
 
     @Override

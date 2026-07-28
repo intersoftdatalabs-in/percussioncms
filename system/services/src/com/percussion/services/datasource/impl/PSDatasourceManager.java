@@ -24,11 +24,14 @@ import com.percussion.utils.jdbc.IPSDatasourceConfig;
 import com.percussion.utils.jdbc.IPSDatasourceManager;
 import com.percussion.utils.jdbc.IPSDatasourceResolver;
 import com.percussion.utils.jdbc.PSConnectionDetail;
+import com.percussion.utils.jdbc.PSJdbcConnectionDiagnostics;
 import com.percussion.utils.jdbc.PSJdbcUtils;
 import com.percussion.utils.jdbc.PSMissingDatasourceConfigException;
 import com.percussion.utils.jndi.PSJndiObjectLocator;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
@@ -40,6 +43,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -54,6 +58,8 @@ import java.util.stream.Collectors;
  * @since 6.0
  */
 public class PSDatasourceManager implements IPSDatasourceManager {
+
+    private static final Logger log = LogManager.getLogger(PSDatasourceManager.class);
 
     /**
      * Default hibernate properties for backward compatibility.
@@ -70,6 +76,9 @@ public class PSDatasourceManager implements IPSDatasourceManager {
      */
     private static final AtomicReference<IPSDatasourceResolver> DATASOURCE_RESOLVER_REF =
         new AtomicReference<>();
+
+    /** Emit pool/H2 diagnostics at most once per JVM (startup noise control). */
+    private static final AtomicBoolean REPOSITORY_DIAG_LOGGED = new AtomicBoolean(false);
 
     /**
      * Default constructor that initializes default hibernate properties.
@@ -134,6 +143,24 @@ public class PSDatasourceManager implements IPSDatasourceManager {
         var url = getConnectionUrl(dsName);
         var driver = PSJdbcUtils.getDriverFromUrl(url);
         var database = dsConfig.getDatabase();
+
+        // Once: prove whether Hikari configured URL has NON_KEYWORDS and whether the
+        // live connection accepts unquoted VALUE (package install / Hibernate probe).
+        // DatabaseMetaData.getURL() alone is misleading on H2 (settings stripped).
+        if (info == null && REPOSITORY_DIAG_LOGGED.compareAndSet(false, true)) {
+            try {
+                var ds = getDatasource(dsName);
+                log.info(
+                    "Repository datasource diagnostics (dsName={}): {}",
+                    dsName,
+                    PSJdbcConnectionDiagnostics.describeDataSource(ds));
+            } catch (Exception e) {
+                log.warn(
+                    "Repository datasource diagnostics unavailable for {}: {}",
+                    dsName,
+                    e.toString());
+            }
+        }
 
         return new PSConnectionDetail(dsName, driver, database,
             dsConfig.getOrigin(), url);

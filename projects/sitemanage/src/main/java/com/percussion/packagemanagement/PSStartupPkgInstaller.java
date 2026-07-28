@@ -30,6 +30,8 @@ import com.percussion.rx.services.deployer.PSPackageUninstall;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSServer;
 import com.percussion.services.error.PSNotFoundException;
+import com.percussion.utils.jdbc.PSConnectionHelper;
+import com.percussion.utils.jdbc.PSJdbcConnectionDiagnostics;
 import com.percussion.services.notification.IPSNotificationListener;
 import com.percussion.services.notification.IPSNotificationService;
 import com.percussion.services.notification.PSNotificationEvent;
@@ -206,6 +208,17 @@ public class PSStartupPkgInstaller implements IPSNotificationListener, IPSMainte
         "Starting package installation using package file list: " + packageFileListPath,
         null,
         true);
+    // Prove H2 NON_KEYWORDS / unquoted VALUE on the same connection package install will use.
+    try (var diagConn = PSConnectionHelper.getDbConnection()) {
+      appendLogEntry(
+          "Package install JDBC diagnostics: "
+              + PSJdbcConnectionDiagnostics.describeConnection(diagConn),
+          null,
+          true);
+    } catch (Exception e) {
+      appendLogEntry(
+          "Package install JDBC diagnostics unavailable: " + e.getMessage(), null, true);
+    }
 
     try {
       packageFileList = getPackageFileList();

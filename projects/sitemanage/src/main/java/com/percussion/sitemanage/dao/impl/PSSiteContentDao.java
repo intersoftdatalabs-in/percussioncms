@@ -161,6 +161,8 @@ public class PSSiteContentDao implements com.percussion.sitemanage.dao.IPSSiteCo
               pageDaoHelper.getWorkflowIdForPath(folderRoot));
       createHomePageAndTemplate(site, folderRoot, navtreeId, null);
     } catch (Exception e) {
+      // Log nested cause — outer Spring tx often only surfaces UnexpectedRollbackException
+      log.error("Error creating site items for site={}: {}", site.getName(), e.toString(), e);
       throw new RuntimeException("Error creating site items", e);
     }
   }

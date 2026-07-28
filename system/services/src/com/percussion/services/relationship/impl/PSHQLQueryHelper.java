@@ -152,7 +152,7 @@ class PSHQLQueryHelper  implements IPSQueryHelper
       {
          appendSelectJoinOwnerId(m_qryBuffer);
          m_qryBuffer
-               .append(" ((c.m_editRevision > 0 and r.owner_revision = c.m_editRevision) or (r.owner_revision = c.m_currRevision))");
+               .append(" ((c.m_editRevision > 0 and r.ownerRevision = c.m_editRevision) or (r.ownerRevision = c.m_currRevision))");
 
          m_isAddAND = true;
       }
@@ -163,7 +163,7 @@ class PSHQLQueryHelper  implements IPSQueryHelper
             m_qryBuffer.append(AND);
          else
             appendSelectJoinOwnerId(m_qryBuffer);
-         m_qryBuffer.append(" r.owner_revision = c.m_publicRevision");
+         m_qryBuffer.append(" r.ownerRevision = c.m_publicRevision");
 
          m_isAddAND = true;
       }
@@ -600,7 +600,8 @@ class PSHQLQueryHelper  implements IPSQueryHelper
          return;
 
       appendAndWhere();
-      m_qryBuffer.append("((" + FN_FOLDER_ID + " is not null) or (" + FN_SITE_ID + " is not null))");
+      m_qryBuffer.append(
+          "((" + R_TABLE + FN_FOLDER_ID + " is not null) or (" + R_TABLE + FN_SITE_ID + " is not null))");
       m_isAddAND = true;
    }
 
@@ -779,21 +780,27 @@ class PSHQLQueryHelper  implements IPSQueryHelper
    private Map<String, Integer> m_nameMapToId = null;
 
    /**
-    * A list of field names for PSRelationshipData class.
+    * A list of field names for {@link com.percussion.services.relationship.data.PSRelationshipData}.
+    *
+    * <p>Hibernate 6 HQL resolves Java property names (camelCase), not SQL column names
+    * ({@code OWNER_ID}). Using snake_case here produces {@code UnknownPathException} at runtime
+    * (e.g. page/template save during site create).
     */
    private static final String FN_RID = "rid";
 
-   private static final String FN_CONFIGID = "config_id";
+   private static final String FN_CONFIGID = "configId";
 
-   private static final String FN_OWNERID = "owner_id";
+   private static final String FN_OWNERID = "ownerId";
 
-   private static final String FN_OWNER_REV = "owner_revision";
+   private static final String FN_OWNER_REV = "ownerRevision";
 
-   private static final String FN_DEPENDENTID = "dependent_id";
+   private static final String FN_DEPENDENTID = "dependentId";
 
-   private static final String FN_DEPENDENTIDS = "dependent_ids";
+   /** Named-parameter token only (not an entity property path). */
+   private static final String FN_DEPENDENTIDS = "dependentIds";
 
-   private static final String FN_CONFIGID_LIST = "config_id_list";
+   /** Named-parameter token only (not an entity property path). */
+   private static final String FN_CONFIGID_LIST = "configIdList";
 
    private static final String FN_OWNER_CTYPEID = "owner_ctypeid";
 
@@ -805,18 +812,18 @@ class PSHQLQueryHelper  implements IPSQueryHelper
 
    private static final String FN_DEPENDENT_OBJTYPE = "dependent_objtype";
 
-   // a list of pre-defined user properties
-   private static final String FN_FOLDER_ID = "folder_id";
+   // a list of pre-defined user properties (entity property names)
+   private static final String FN_FOLDER_ID = "folderId";
 
-   private static final String FN_SITE_ID = "site_id";
+   private static final String FN_SITE_ID = "siteId";
 
-   private static final String FN_SLOT_ID = "slot_id";
+   private static final String FN_SLOT_ID = "slotId";
 
-   private static final String FN_SORT_RANK = "sort_rank";
+   private static final String FN_SORT_RANK = "sortRank";
 
-   private static final String FN_VARIANT_ID = "variant_id";
+   private static final String FN_VARIANT_ID = "variantId";
 
-   private static final String FN_INLINELINK = "inline_relationship";
+   private static final String FN_INLINELINK = "inlineRelationship";
 
    // a list of field names for PSRelationshipPersistentProperty
    private static final String FN_PROPERTY_NAME = "m_propertyName";
@@ -830,9 +837,9 @@ class PSHQLQueryHelper  implements IPSQueryHelper
 
    private static final String FROM_P = ", PSRelationshipPropertyData as p ";
 
-   private static final String JOIN_OWNERID = " where r.owner_id = c.m_contentId and ";
+   private static final String JOIN_OWNERID = " where r.ownerId = c.m_contentId and ";
 
-   private static final String JOIN_DEPENDENTID = " where r.dependent_id = c.m_contentId and ";
+   private static final String JOIN_DEPENDENTID = " where r.dependentId = c.m_contentId and ";
 
    private static final String JOIN_RID = " r.rid = p.m_rid ";
 
