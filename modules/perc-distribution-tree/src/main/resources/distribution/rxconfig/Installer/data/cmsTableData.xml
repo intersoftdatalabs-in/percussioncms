@@ -12055,18 +12055,153 @@
         <row onTableCreateOnly="no" action="i">
             <column name="LOCALEID">1</column>
             <column name="LANGUAGESTRING">en-us</column>
-            <column name="DISPLAYNAME">US English</column>
-            <column name="SORTORDER">1</column>
+            <column name="DISPLAYNAME">English (United States)</column>
+            <column name="SORTORDER">10</column>
             <column name="DESCRIPTION">English language used in United States of America</column>
             <column name="STATUS">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
             <column name="LOCALEID">2</column>
+            <column name="LANGUAGESTRING">en-gb</column>
+            <column name="DISPLAYNAME">English (United Kingdom)</column>
+            <column name="SORTORDER">20</column>
+            <column name="DESCRIPTION">English language used in United Kingdom</column>
+            <column name="STATUS">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">3</column>
+            <column name="LANGUAGESTRING">de-de</column>
+            <column name="DISPLAYNAME">German (Germany)</column>
+            <column name="SORTORDER">30</column>
+            <column name="DESCRIPTION">German language used in Germany</column>
+            <column name="STATUS">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">4</column>
             <column name="LANGUAGESTRING">es</column>
             <column name="DISPLAYNAME">Spanish</column>
-            <column name="SORTORDER">2</column>
-            <column name="DESCRIPTION">General Spanish language locale</column>
+            <column name="SORTORDER">40</column>
+            <column name="DESCRIPTION">General Spanish language locale (covers all es-* variants)</column>
+            <column name="STATUS">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">5</column>
+            <column name="LANGUAGESTRING">es-cl</column>
+            <column name="DISPLAYNAME">Spanish (Chile)</column>
+            <column name="SORTORDER">41</column>
+            <column name="DESCRIPTION">Spanish language used in Chile</column>
+            <column name="STATUS">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">6</column>
+            <column name="LANGUAGESTRING">es-es</column>
+            <column name="DISPLAYNAME">Spanish (Spain)</column>
+            <column name="SORTORDER">42</column>
+            <column name="DESCRIPTION">Spanish language used in Spain (canonical Castilian)</column>
+            <column name="STATUS">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">7</column>
+            <column name="LANGUAGESTRING">es-mx</column>
+            <column name="DISPLAYNAME">Spanish (Mexico)</column>
+            <column name="SORTORDER">43</column>
+            <column name="DESCRIPTION">Spanish language used in Mexico</column>
+            <column name="STATUS">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">8</column>
+            <column name="LANGUAGESTRING">fr-ca</column>
+            <column name="DISPLAYNAME">French (Canada)</column>
+            <column name="SORTORDER">50</column>
+            <column name="DESCRIPTION">French language used in Canada</column>
+            <column name="STATUS">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">9</column>
+            <column name="LANGUAGESTRING">fr-fr</column>
+            <column name="DISPLAYNAME">French (France)</column>
+            <column name="SORTORDER">51</column>
+            <column name="DESCRIPTION">French language used in France</column>
+            <column name="STATUS">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">10</column>
+            <column name="LANGUAGESTRING">hi</column>
+            <column name="DISPLAYNAME">Hindi</column>
+            <column name="SORTORDER">60</column>
+            <column name="DESCRIPTION">Hindi language (generic, no region)</column>
+            <column name="STATUS">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">11</column>
+            <column name="LANGUAGESTRING">hi-in</column>
+            <column name="DISPLAYNAME">Hindi (India)</column>
+            <column name="SORTORDER">61</column>
+            <column name="DESCRIPTION">Hindi language used in India (canonical regional form)</column>
+            <column name="STATUS">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">12</column>
+            <column name="LANGUAGESTRING">it-it</column>
+            <column name="DISPLAYNAME">Italian (Italy)</column>
+            <column name="SORTORDER">70</column>
+            <column name="DESCRIPTION">Italian language used in Italy</column>
+            <column name="STATUS">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">13</column>
+            <column name="LANGUAGESTRING">ja-jp</column>
+            <column name="DISPLAYNAME">Japanese (Japan)</column>
+            <column name="SORTORDER">80</column>
+            <column name="DESCRIPTION">Japanese language used in Japan</column>
+            <column name="STATUS">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">14</column>
+            <column name="LANGUAGESTRING">nl-nl</column>
+            <column name="DISPLAYNAME">Dutch (Netherlands)</column>
+            <column name="SORTORDER">90</column>
+            <column name="DESCRIPTION">Dutch language used in Netherlands</column>
+            <column name="STATUS">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">15</column>
+            <column name="LANGUAGESTRING">pt-br</column>
+            <column name="DISPLAYNAME">Portuguese (Brazil)</column>
+            <column name="SORTORDER">100</column>
+            <column name="DESCRIPTION">Portuguese language used in Brazil</column>
+            <column name="STATUS">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">16</column>
+            <column name="LANGUAGESTRING">pt-pt</column>
+            <column name="DISPLAYNAME">Portuguese (Portugal)</column>
+            <column name="SORTORDER">101</column>
+            <column name="DESCRIPTION">Portuguese language used in Portugal</column>
+            <column name="STATUS">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">17</column>
+            <column name="LANGUAGESTRING">tr-tr</column>
+            <column name="DISPLAYNAME">Turkish (Turkey)</column>
+            <column name="SORTORDER">110</column>
+            <column name="DESCRIPTION">Turkish language used in Turkey</column>
             <column name="STATUS">1</column>
             <column name="VERSION">0</column>
         </row>

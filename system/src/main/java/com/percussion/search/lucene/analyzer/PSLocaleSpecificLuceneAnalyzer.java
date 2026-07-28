@@ -151,6 +151,7 @@ public class PSLocaleSpecificLuceneAnalyzer implements IPSLuceneAnalyzer {
       case "gl":
         return new GalicianAnalyzer();
       case "hi":
+      case "hi-in":
         return new HindiAnalyzer();
       case "hu":
         return new HungarianAnalyzer();
