@@ -84,6 +84,10 @@ export const PATHS = {
   get TEMPLATES_BY_SITE() {
     return `${SERVICES_ROOT}/sitemanage/sitetemplates/templates`;
   },
+  /** Full template load (widgets / region associations). */
+  get TEMPLATE_LOAD() {
+    return `${SERVICES_ROOT}/pagemanagement/template`;
+  },
   get BLOGS_FOR_SITE() {
     return `${SERVICES_ROOT}/sitemanage/section/blogs`;
   },

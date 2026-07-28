@@ -13,9 +13,12 @@ vi.mock("@/api/home/homeApi", async (importOriginal) => {
     ...actual,
     fetchAllBlogs: vi.fn(),
     fetchSites: vi.fn().mockResolvedValue([{ name: "Demo" }]),
-    fetchTemplatesForSite: vi
-      .fn()
-      .mockResolvedValue([{ id: "t1", name: "Base" }]),
+    fetchBlogListTemplates: vi.fn().mockResolvedValue([
+      { id: "list-t", name: "Blog List Tmpl" },
+    ]),
+    fetchBlogPostTemplates: vi.fn().mockResolvedValue([
+      { id: "post-t", name: "Blog Post Tmpl" },
+    ]),
     formatApiError: vi.fn((_e: unknown, f: string) => f),
   };
 });
@@ -58,7 +61,7 @@ describe("BlogsWidget", () => {
     expect(screen.getAllByText(/News/).length).toBeGreaterThan(0);
   });
 
-  it("opens create blog section form", async () => {
+  it("opens create blog section form with filtered template lists", async () => {
     vi.mocked(homeApi.fetchAllBlogs).mockResolvedValue([]);
     render(<BlogsWidget />);
     await waitFor(() => screen.getByTestId("blogs-widget-empty"));
@@ -66,6 +69,35 @@ describe("BlogsWidget", () => {
     await waitFor(() => {
       expect(screen.getByTestId("blogs-widget-create-form")).toBeDefined();
     });
+    await waitFor(() => {
+      expect(homeApi.fetchBlogListTemplates).toHaveBeenCalledWith("Demo");
+      expect(homeApi.fetchBlogPostTemplates).toHaveBeenCalledWith("Demo");
+    });
+    const indexSel = screen.getByTestId(
+      "blogs-create-index-template",
+    ) as HTMLSelectElement;
+    const postSel = screen.getByTestId(
+      "blogs-create-post-template",
+    ) as HTMLSelectElement;
+    expect(
+      Array.from(indexSel.options).map((o) => o.value),
+    ).toContain("list-t");
+    expect(Array.from(postSel.options).map((o) => o.value)).toContain("post-t");
+  });
+
+  it("shows guidance when no eligible templates", async () => {
+    vi.mocked(homeApi.fetchAllBlogs).mockResolvedValue([]);
+    vi.mocked(homeApi.fetchBlogListTemplates).mockResolvedValueOnce([]);
+    vi.mocked(homeApi.fetchBlogPostTemplates).mockResolvedValueOnce([]);
+    render(<BlogsWidget />);
+    await waitFor(() => screen.getByTestId("blogs-widget-empty"));
+    fireEvent.click(screen.getByTestId("blogs-widget-create-section"));
+    await waitFor(() => {
+      expect(screen.getByTestId("blogs-create-no-templates")).toBeDefined();
+    });
+    expect(
+      (screen.getByTestId("blogs-create-submit") as HTMLButtonElement).disabled,
+    ).toBe(true);
   });
 });
 

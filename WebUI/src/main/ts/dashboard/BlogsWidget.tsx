@@ -18,9 +18,12 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { isSessionRedirectError } from "../api/client";
 import {
+  BLOG_LIST_WIDGET_ID,
+  BLOG_POST_WIDGET_ID,
   fetchAllBlogs,
+  fetchBlogListTemplates,
+  fetchBlogPostTemplates,
   fetchSites,
-  fetchTemplatesForSite,
   formatApiError,
 } from "../api/home/homeApi";
 import type { BlogSummary, SiteSummary, TemplateSummary } from "../api/home/types";
@@ -183,7 +186,8 @@ function CreateBlogSectionForm({
 }: CreateBlogSectionFormProps): React.ReactElement {
   const [sites, setSites] = useState<SiteSummary[]>([]);
   const [site, setSite] = useState("");
-  const [templates, setTemplates] = useState<TemplateSummary[]>([]);
+  const [listTemplates, setListTemplates] = useState<TemplateSummary[]>([]);
+  const [postTemplates, setPostTemplates] = useState<TemplateSummary[]>([]);
   const [indexTemplateId, setIndexTemplateId] = useState("");
   const [postTemplateId, setPostTemplateId] = useState("");
   const [title, setTitle] = useState("");
@@ -191,6 +195,7 @@ function CreateBlogSectionForm({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [templatesLoading, setTemplatesLoading] = useState(false);
 
   useEffect(() => {
     fetchSites()
@@ -210,28 +215,39 @@ function CreateBlogSectionForm({
 
   useEffect(() => {
     if (!site) {
-      setTemplates([]);
+      setListTemplates([]);
+      setPostTemplates([]);
       setIndexTemplateId("");
       setPostTemplateId("");
       return;
     }
-    fetchTemplatesForSite(site)
-      .then((t) => {
-        setTemplates(t);
-        if (t.length >= 1) {
-          setIndexTemplateId(t[0].id);
-          setPostTemplateId(t[0].id);
-        }
-        if (t.length >= 2) {
-          setPostTemplateId(t[1].id);
-        }
+    setTemplatesLoading(true);
+    setError(null);
+    // Index template must contain Blog List widget; post template Blog Post widget.
+    Promise.all([
+      fetchBlogListTemplates(site),
+      fetchBlogPostTemplates(site),
+    ])
+      .then(([listT, postT]) => {
+        setListTemplates(listT);
+        setPostTemplates(postT);
+        setIndexTemplateId(listT[0]?.id ?? "");
+        setPostTemplateId(postT[0]?.id ?? "");
       })
       .catch((err: unknown) => {
         if (!isSessionRedirectError(err)) {
-          setError(formatApiError(err, "Failed to load templates"));
+          setError(formatApiError(err, "Failed to load blog templates"));
         }
-      });
+      })
+      .finally(() => setTemplatesLoading(false));
   }, [site]);
+
+  const canCreate =
+    Boolean(site) &&
+    listTemplates.length > 0 &&
+    postTemplates.length > 0 &&
+    Boolean(indexTemplateId) &&
+    Boolean(postTemplateId);
 
   const onTitleChange = (v: string) => {
     setTitle(v);
@@ -242,8 +258,10 @@ function CreateBlogSectionForm({
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (!site || !title.trim() || !urlId.trim() || !indexTemplateId || !postTemplateId) {
-      setError("Site, title, URL name, and templates are required.");
+    if (!canCreate || !title.trim() || !urlId.trim()) {
+      setError(
+        "Site, title, URL name, and eligible list/post templates are required.",
+      );
       return;
     }
     setBusy(true);
@@ -332,18 +350,30 @@ function CreateBlogSectionForm({
           style={{ display: "block", width: "100%", marginTop: 4 }}
         />
       </label>
+      {templatesLoading && (
+        <p style={{ fontSize: "0.85rem", color: "#666" }}>
+          Checking templates for Blog List / Blog Post widgets…
+        </p>
+      )}
       <label style={{ display: "block", marginBottom: 8, fontSize: "0.85rem" }}>
-        Index template
+        Blog list template
+        <span style={{ display: "block", color: "#666", fontWeight: 400 }}>
+          Must include the <code>{BLOG_LIST_WIDGET_ID}</code> (Blog List) widget
+        </span>
         <select
           data-testid="blogs-create-index-template"
           value={indexTemplateId}
           onChange={(e) => setIndexTemplateId(e.target.value)}
           required
-          disabled={!site}
+          disabled={!site || templatesLoading || listTemplates.length === 0}
           style={{ display: "block", width: "100%", marginTop: 4 }}
         >
-          <option value="">Select…</option>
-          {templates.map((t) => (
+          <option value="">
+            {listTemplates.length === 0
+              ? "No eligible list templates"
+              : "Select…"}
+          </option>
+          {listTemplates.map((t) => (
             <option key={t.id} value={t.id}>
               {t.name}
             </option>
@@ -351,30 +381,54 @@ function CreateBlogSectionForm({
         </select>
       </label>
       <label style={{ display: "block", marginBottom: 8, fontSize: "0.85rem" }}>
-        Post template
+        Blog post template
+        <span style={{ display: "block", color: "#666", fontWeight: 400 }}>
+          Must include the <code>{BLOG_POST_WIDGET_ID}</code> (Blog Post) widget
+        </span>
         <select
           data-testid="blogs-create-post-template"
           value={postTemplateId}
           onChange={(e) => setPostTemplateId(e.target.value)}
           required
-          disabled={!site}
+          disabled={!site || templatesLoading || postTemplates.length === 0}
           style={{ display: "block", width: "100%", marginTop: 4 }}
         >
-          <option value="">Select…</option>
-          {templates.map((t) => (
+          <option value="">
+            {postTemplates.length === 0
+              ? "No eligible post templates"
+              : "Select…"}
+          </option>
+          {postTemplates.map((t) => (
             <option key={t.id} value={t.id}>
               {t.name}
             </option>
           ))}
         </select>
       </label>
+      {!templatesLoading &&
+        site &&
+        (listTemplates.length === 0 || postTemplates.length === 0) && (
+          <p
+            data-testid="blogs-create-no-templates"
+            style={{ fontSize: "0.85rem", color: "#664d03", background: "#fff8e1", padding: 8 }}
+          >
+            A blog needs two existing templates: one with a <strong>Blog List</strong>{" "}
+            widget and one with a <strong>Blog Post</strong> widget. Create those in
+            Design / Templates first (or copy base blog templates onto this site).
+            Server create will then clone them as {"{blog}"}-{"{source}"} templates.
+          </p>
+        )}
       {error && (
         <p role="alert" style={{ color: "#a00", fontSize: "0.85rem" }}>
           {error}
         </p>
       )}
       <div style={{ display: "flex", gap: 8 }}>
-        <button type="submit" data-testid="blogs-create-submit" disabled={busy}>
+        <button
+          type="submit"
+          data-testid="blogs-create-submit"
+          disabled={busy || !canCreate}
+        >
           {busy ? "Creating…" : "Create blog"}
         </button>
         <button type="button" onClick={onCancel}>

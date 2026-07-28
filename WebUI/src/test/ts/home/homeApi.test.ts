@@ -18,9 +18,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
   addToMyPages,
+  BLOG_LIST_WIDGET_ID,
+  BLOG_POST_WIDGET_ID,
   contentItemId,
   createPage,
   ensurePageFileName,
+  extractTemplateWidgetDefinitionIds,
   fetchAssetTypes,
   fetchMyContent,
   fetchRecentItems,
@@ -32,6 +35,7 @@ import {
   normalizeContentItem,
   removeFromMyPages,
   searchContent,
+  templateHasWidget,
 } from "@/api/home/homeApi";
 import type { ApiError } from "@/api/client";
 
@@ -232,6 +236,28 @@ describe("homeApi", () => {
     expect(ensurePageFileName("foo")).toBe("foo.html");
     expect(ensurePageFileName("foo.html")).toBe("foo.html");
     expect(ensurePageFileName("foo.XML")).toBe("foo.XML");
+  });
+
+  it("extractTemplateWidgetDefinitionIds finds blog widgets", () => {
+    const raw = {
+      Template: {
+        regionTree: {
+          regionWidgetAssociations: [
+            {
+              regionId: "content",
+              widgetItems: [
+                { definitionId: BLOG_LIST_WIDGET_ID, id: "w1" },
+              ],
+            },
+          ],
+        },
+      },
+    };
+    expect(extractTemplateWidgetDefinitionIds(raw)).toContain(
+      BLOG_LIST_WIDGET_ID,
+    );
+    expect(templateHasWidget(raw, BLOG_LIST_WIDGET_ID)).toBe(true);
+    expect(templateHasWidget(raw, BLOG_POST_WIDGET_ID)).toBe(false);
   });
 
   it("normalizeContentItem fills name/path from alternate fields", () => {
