@@ -21,11 +21,9 @@ import com.percussion.cms.IPSConstants;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSUdfProcessor;
 import com.percussion.extension.PSExtensionException;
-import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.pagemanagement.service.IPSRenderService;
 import com.percussion.search.lucene.textconverter.PSTextConverterHtml;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.server.PSConsole;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.share.service.IPSIdMapper;
@@ -36,7 +34,6 @@ import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.publishing.IPSPublishingWs;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -86,23 +83,38 @@ public class PSExtractHtmlContent implements IPSUdfProcessor {
       return "";
     }
 
-    PSWebserviceUtils.setUserName(request.getOriginalSubject().getName());
+    /*
+     * Full page assembly is best-effort for search indexing. If preview/render
+     * fails (TX, bindings, velocity tools, request-info, etc.), we must not throw
+     * — a thrown exception aborts PSServerItem.load for the whole item and the FTS
+     * queue skips indexing entirely (titles/sys_title never enter Lucene). Returning
+     * empty string still allows other searchable fields to be indexed.
+     */
+    try {
+      PSWebserviceUtils.setUserName(request.getOriginalSubject().getName());
 
-    // assemble the page
-    var renderedPage = renderService.renderPage(idMapper.getString(guid));
-    if (renderedPage.contains("<html")) {
-      // remove everything before the start of the html tag to allow for proper extraction
-      renderedPage = renderedPage.substring(renderedPage.indexOf("<html"));
-    }
+      // Assemble on a REQUIRES_NEW TX (see renderPageForSearchIndex) so the FTS
+      // queue thread does not nest Hibernate under the content-editor load session.
+      var renderedPage = renderService.renderPageForSearchIndex(idMapper.getString(guid));
+      if (renderedPage == null) {
+        return "";
+      }
+      if (renderedPage.contains("<html")) {
+        // remove everything before the start of the html tag to allow for proper extraction
+        renderedPage = renderedPage.substring(renderedPage.indexOf("<html"));
+      }
 
-    // extract the html content
-    try (InputStream bis =
-        new ByteArrayInputStream(renderedPage.getBytes(IPSUtilsConstants.RX_JAVA_ENC))) {
-      var converter = new PSTextConverterHtml();
-      return converter.getConvertedText(bis, "");
-    } catch (IOException | PSExtensionProcessingException e) {
-      log.error("Failed to extract HTML content: {}", e.getLocalizedMessage(), e);
-      PSConsole.printMsg(this.getClass().getName(), e.getLocalizedMessage());
+      // extract the html content
+      try (InputStream bis =
+          new ByteArrayInputStream(renderedPage.getBytes(IPSUtilsConstants.RX_JAVA_ENC))) {
+        var converter = new PSTextConverterHtml();
+        return converter.getConvertedText(bis, "");
+      }
+    } catch (Exception e) {
+      log.warn(
+          "Failed to extract HTML content for search index (item will still index other fields): {}",
+          e.getLocalizedMessage());
+      log.debug("Search HTML extract failure", e);
     }
 
     return "";

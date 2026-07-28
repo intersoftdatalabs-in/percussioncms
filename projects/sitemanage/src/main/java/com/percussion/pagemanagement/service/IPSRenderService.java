@@ -90,6 +90,19 @@ public interface IPSRenderService {
   String renderPage(String id) throws PSRenderServiceException;
 
   /**
+   * Renders a page for full-text search HTML extraction on a clean transaction.
+   *
+   * <p>Used by {@code PSExtractHtmlContent} from the FTS index queue thread. Must use {@code
+   * REQUIRES_NEW} so assembly/Hibernate is not nested inside the legacy content-editor load
+   * transaction (which otherwise leaves a null JDBC connection and aborts indexing).
+   *
+   * @param id page GUID string
+   * @return rendered HTML, never {@code null} (empty if render fails is handled by the caller)
+   * @throws PSRenderServiceException if rendering fails
+   */
+  String renderPageForSearchIndex(String id) throws PSRenderServiceException;
+
+  /**
    * Similar to {@link #renderPage(String)}, except sets a flag that can be used by widgets if they
    * want or need to render their output differently when a page is being edited. For example, if a
    * widget has no content, it may render some sample content or it may allow in-line editing of its

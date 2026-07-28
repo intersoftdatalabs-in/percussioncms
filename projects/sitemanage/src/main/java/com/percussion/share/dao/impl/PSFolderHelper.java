@@ -65,7 +65,6 @@ import com.percussion.services.notification.IPSNotificationService;
 import com.percussion.services.notification.PSNotificationEvent;
 import com.percussion.services.notification.PSNotificationEvent.EventType;
 import com.percussion.services.publisher.IPSPublisherService;
-import com.percussion.services.publisher.impl.PSPublisherService;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.system.IPSSystemService;
@@ -261,10 +260,10 @@ public class PSFolderHelper implements IPSFolderHelper {
     var pageNode = getPageNode(item);
 
     var itemId = new PSLegacyGuid(compSum.getHeadLocator());
-    // the version of IPSPublisherService on the classpath may not yet expose
-    // this utility method, so cast to the concrete implementation which does
-    // provide it.
-    var pubStatus = ((PSPublisherService) pubService).findLastPublishedItemStatus(itemId);
+    // Use interface method — Spring injects a JDK proxy of IPSPublisherService;
+    // casting to PSPublisherService throws ClassCastException and empties
+    // search/recent result rows (hits still counted via Lucene).
+    var pubStatus = pubService.findLastPublishedItemStatus(itemId);
     var publishDate = PSDateUtils.getDateToString(pubStatus == null ? null : pubStatus.getDate());
 
     var userName = compSum.getContentLastModifier();
