@@ -26,6 +26,7 @@ import com.percussion.services.system.IPSSystemService;
 import com.percussion.services.system.PSSystemServiceLocator;
 import com.percussion.services.workflow.data.PSNotificationDef;
 import com.percussion.utils.guid.IPSGuid;
+import java.lang.reflect.Field;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,10 @@ import org.junit.jupiter.api.Test;
  * alongside the legacy classes they exercise, but the legacy classes' static initializers call
  * {@code PSConnectionMgr.getQualifiedIdentifier} which requires a live DB connection detail,
  * so the suite is {@link Disabled} until the Phase 4+ Spring+H2 infrastructure ships.
+ *
+ * <p>The mock service is wired into {@link PSSystemServiceLocator} via reflection on the
+ * private static field so the disabled tests will pass as soon as the static-initializer
+ * blocker is removed (Phase 4+ follow-up).
  */
 @Disabled(
     "Static initializer of PSNotificationsContext calls PSConnectionMgr.getQualifiedIdentifier;"
@@ -43,16 +48,13 @@ import org.junit.jupiter.api.Test;
 public class PSNotificationsContextLoadFromHibernateTest {
 
   private IPSSystemService mockSystem;
-  private IPSSystemService savedSystem;
 
   @BeforeEach
-  void setUp() {
-    savedSystem = PSSystemServiceLocator.getSystemService();
+  void setUp() throws Exception {
     mockSystem = mock(IPSSystemService.class);
-    // Replace the locator backing — simpler than @InjectMocks here.
-    PSSystemServiceLocator.getSystemService();
-    // Phase 4b test uses a similar pattern; we just need the static field re-assigned.
-    // We cannot easily replace the singleton; instead we use the static return path.
+    Field f = PSSystemServiceLocator.class.getDeclaredField("ssr");
+    f.setAccessible(true);
+    f.set(null, mockSystem);
   }
 
   @Test

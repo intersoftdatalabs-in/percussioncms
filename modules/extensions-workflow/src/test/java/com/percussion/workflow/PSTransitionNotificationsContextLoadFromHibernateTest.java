@@ -26,9 +26,11 @@ import com.percussion.services.workflow.IPSWorkflowService;
 import com.percussion.services.workflow.PSWorkflowServiceLocator;
 import com.percussion.services.workflow.data.PSNotification;
 import com.percussion.services.workflow.data.PSNotification.PSStateRoleRecipientTypeEnum;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -39,6 +41,10 @@ import org.junit.jupiter.api.Test;
  * placed alongside the legacy classes they exercise, but the legacy classes' static initializers
  * call {@code PSConnectionMgr.getQualifiedIdentifier} which requires a live DB connection detail,
  * so the suite is {@link Disabled} until the Phase 4+ Spring+H2 infrastructure ships.
+ *
+ * <p>The mock service is wired into {@link PSWorkflowServiceLocator} via reflection on the
+ * private static {@code AtomicReference} field so the disabled tests will pass as soon as the
+ * static-initializer blocker is removed (Phase 4+ follow-up).
  */
 @Disabled(
     "Static initializer of PSTransitionNotificationsContext calls"
@@ -49,9 +55,11 @@ public class PSTransitionNotificationsContextLoadFromHibernateTest {
   private IPSWorkflowService mockWf;
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws Exception {
     mockWf = mock(IPSWorkflowService.class);
-    PSWorkflowServiceLocator.getWorkflowService();
+    Field f = PSWorkflowServiceLocator.class.getDeclaredField("workflowService");
+    f.setAccessible(true);
+    f.set(null, new AtomicReference<>(mockWf));
   }
 
   @Test
@@ -77,6 +85,26 @@ public class PSTransitionNotificationsContextLoadFromHibernateTest {
 
     assertNotNull(ctx);
     assertEquals(0, ctx.getCount());
+  }
+
+  @Test
+  void singleRowCursorIsPositionedAtIndex0() {
+    // Locks in the cursor invariant: for N=1, the inner loop sets
+    // m_nNotificationID directly so getNotificationID() returns row 0's data
+    // without needing moveNext(). The legacy PSAbstractMultipleRecordWorkflowContext
+    // intentionally guards MoveAccumulatedDataSet(0) behind m_nCount > 1; the
+    // initial currentContextDataIndex = 0 IS the first entry position.
+    PSNotification only = makeRow(101L, PSStateRoleRecipientTypeEnum.TO_STATE_RECIPIENTS, "", "");
+    when(mockWf.findTransitionNotifications(7L, 11L)).thenReturn(Collections.singletonList(only));
+
+    PSTransitionNotificationsContext ctx =
+        PSTransitionNotificationsContext.loadFromHibernate(7, 11);
+
+    assertEquals(1, ctx.getCount());
+    // Without calling moveNext(), consumers expect getNotificationID() to return row 0.
+    assertEquals(101, ctx.getNotificationID());
+    // First moveNext() advances past the last row and returns false.
+    assertEquals(false, ctx.moveNext());
   }
 
   @Test
