@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { isSessionRedirectError } from "../../api/client";
 import {
   contentItemId,
@@ -25,6 +25,11 @@ import {
   isBookmarkableItem,
 } from "../../api/home/homeApi";
 import type { ContentListItem, SiteSummary } from "../../api/home/types";
+import {
+  cmsPathSegments,
+  normalizeCmsPath,
+  parentCmsPath,
+} from "../create/filenameUtils";
 import { message, MSG } from "../../i18n/message";
 import { ContentListRow } from "../components/ContentListRow";
 import { useBookmarks } from "../hooks/useBookmarks";
@@ -76,29 +81,73 @@ export function LibrarySection({
     loadSites();
   }, [loadSites]);
 
+  const loadFolder = useCallback(
+    (folderPath: string) => {
+      const normalized = normalizeCmsPath(folderPath);
+      setPath(normalized);
+      setLoading(true);
+      fetchFolderChildren(normalized)
+        .then((list) => {
+          setChildren(list);
+          setError(null);
+        })
+        .catch(onApiError)
+        .finally(() => setLoading(false));
+    },
+    [onApiError],
+  );
+
   const openSite = (siteName: string) => {
-    const folderPath = `/Sites/${siteName}`;
-    setPath(folderPath);
-    setLoading(true);
-    fetchFolderChildren(folderPath)
-      .then((list) => {
-        setChildren(list);
-        setError(null);
-      })
-      .catch(onApiError)
-      .finally(() => setLoading(false));
+    loadFolder(`/Sites/${siteName}`);
   };
 
   const openFolder = (folderPath: string) => {
-    setPath(folderPath);
-    setLoading(true);
-    fetchFolderChildren(folderPath)
-      .then((list) => {
-        setChildren(list);
-        setError(null);
-      })
-      .catch(onApiError)
-      .finally(() => setLoading(false));
+    loadFolder(folderPath);
+  };
+
+  const goUp = () => {
+    if (!path) {
+      return;
+    }
+    const parent = parentCmsPath(path);
+    if (parent == null) {
+      setPath(null);
+      setChildren([]);
+      setError(null);
+      return;
+    }
+    loadFolder(parent);
+  };
+
+  const segments = useMemo(
+    () => (path ? cmsPathSegments(path) : []),
+    [path],
+  );
+
+  /** Navigate to breadcrumb index (0 = Sites root → site list). */
+  const goToSegment = (index: number) => {
+    if (index < 0) {
+      setPath(null);
+      setChildren([]);
+      setError(null);
+      return;
+    }
+    // index 0 is "Sites" — not a browsable folder alone; require site name
+    if (index === 0 && segments[0]?.toLowerCase() === "sites") {
+      setPath(null);
+      setChildren([]);
+      setError(null);
+      return;
+    }
+    const next = `/${segments.slice(0, index + 1).join("/")}`;
+    // /Sites alone → site list
+    if (/^\/Sites$/i.test(next)) {
+      setPath(null);
+      setChildren([]);
+      setError(null);
+      return;
+    }
+    loadFolder(next);
   };
 
   if (loading && !path && sites.length === 0) {
@@ -159,16 +208,56 @@ export function LibrarySection({
 
   return (
     <div data-testid="home-library-folder">
-      <p style={sectionHintStyle}>
+      <nav
+        style={{
+          ...sectionHintStyle,
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          gap: 6,
+        }}
+        aria-label={message(MSG.LIBRARY_BREADCRUMB)}
+        data-testid="home-library-breadcrumb"
+      >
+        <button
+          type="button"
+          style={actionButtonStyle("ghost")}
+          data-testid="home-library-up"
+          onClick={goUp}
+        >
+          ← {message(MSG.LIBRARY_UP)}
+        </button>
         <button
           type="button"
           style={actionButtonStyle("ghost")}
           data-testid="home-library-back"
-          onClick={() => setPath(null)}
+          onClick={() => {
+            setPath(null);
+            setChildren([]);
+            setError(null);
+          }}
         >
-          ← {message(MSG.SECTION_LIBRARY)}
-        </button>{" "}
-        <code style={{ fontSize: "0.85rem" }}>{path}</code>
+          {message(MSG.SECTION_LIBRARY)}
+        </button>
+        {segments.map((seg, i) => (
+          <React.Fragment key={`${seg}-${i}`}>
+            <span aria-hidden="true">/</span>
+            <button
+              type="button"
+              style={{
+                ...actionButtonStyle("ghost"),
+                fontWeight: i === segments.length - 1 ? 600 : 400,
+              }}
+              data-testid={`home-library-crumb-${i}`}
+              onClick={() => goToSegment(i)}
+            >
+              {seg}
+            </button>
+          </React.Fragment>
+        ))}
+      </nav>
+      <p style={{ margin: "0 0 12px", fontSize: "0.8rem", color: "#666" }}>
+        <code data-testid="home-library-path">{path}</code>
       </p>
       {bookmarks.error && (
         <p role="alert" style={errorStyle} data-testid="home-library-bookmark-error">
@@ -179,7 +268,7 @@ export function LibrarySection({
         <p role="status">{message(MSG.LOADING)}</p>
       ) : children.length === 0 ? (
         <p style={emptyStateStyle} data-testid="home-library-folder-empty">
-          {message(MSG.SEARCH_EMPTY)}
+          {message(MSG.LIBRARY_FOLDER_EMPTY)}
         </p>
       ) : (
         <ul style={listStyle} data-testid="home-library-children">

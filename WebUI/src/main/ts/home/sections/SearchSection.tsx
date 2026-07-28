@@ -41,11 +41,20 @@ export interface SearchSectionProps {
   onOpenItem?: (item: ContentListItem) => void;
 }
 
+/** Format result count for status line (TMX key falls back after @). */
+export function formatSearchResultCount(count: number): string {
+  if (count === 1) {
+    return "1 result";
+  }
+  return `${count} results`;
+}
+
 export function SearchSection({
   onOpenItem,
 }: SearchSectionProps): React.ReactElement {
   const [query, setQuery] = useState("");
   const [items, setItems] = useState<ContentListItem[] | null>(null);
+  const [lastQuery, setLastQuery] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bookmarks = useBookmarks(true);
@@ -60,7 +69,10 @@ export function SearchSection({
     setError(null);
     // Wire contract: SearchCriteria.query + maxResults (see searchExtended / US5).
     searchContent({ query: q, maxResults: 50, startIndex: 1 })
-      .then((list) => setItems(list))
+      .then((list) => {
+        setItems(list);
+        setLastQuery(q);
+      })
       .catch((err: unknown) => {
         if (isSessionRedirectError(err)) {
           return;
@@ -113,34 +125,50 @@ export function SearchSection({
       {items && items.length === 0 && (
         <p style={emptyStateStyle} data-testid="home-search-empty">
           {message(MSG.SEARCH_EMPTY)}
+          {lastQuery ? (
+            <span data-testid="home-search-empty-query">
+              {" "}
+              ({lastQuery})
+            </span>
+          ) : null}
         </p>
       )}
       {items && items.length > 0 && (
-        <ul
-          style={listStyle}
-          aria-label={message(MSG.SECTION_SEARCH)}
-          data-testid="home-search-results"
-        >
-          {items.map((item, index) => {
-            const id = contentItemId(item);
-            return (
-              <ContentListRow
-                key={String(id ?? item.path ?? index)}
-                item={item}
-                index={index}
-                fallbackLabel={`hit-${index}`}
-                onOpenItem={onOpenItem}
-                bookmarkMode="toggle"
-                isBookmarked={bookmarks.isBookmarked(item)}
-                bookmarkPending={id != null && bookmarks.pendingIds.has(id)}
-                onBookmark={(row) => {
-                  void bookmarks.toggleBookmark(row);
-                }}
-                testIdPrefix="home-search"
-              />
-            );
-          })}
-        </ul>
+        <>
+          <p
+            role="status"
+            style={{ margin: "0 0 10px", color: "#444", fontSize: "0.9rem" }}
+            data-testid="home-search-count"
+          >
+            {formatSearchResultCount(items.length)}
+            {lastQuery ? ` · “${lastQuery}”` : ""}
+          </p>
+          <ul
+            style={listStyle}
+            aria-label={message(MSG.SECTION_SEARCH)}
+            data-testid="home-search-results"
+          >
+            {items.map((item, index) => {
+              const id = contentItemId(item);
+              return (
+                <ContentListRow
+                  key={String(id ?? item.path ?? index)}
+                  item={item}
+                  index={index}
+                  fallbackLabel={`hit-${index}`}
+                  onOpenItem={onOpenItem}
+                  bookmarkMode="toggle"
+                  isBookmarked={bookmarks.isBookmarked(item)}
+                  bookmarkPending={id != null && bookmarks.pendingIds.has(id)}
+                  onBookmark={(row) => {
+                    void bookmarks.toggleBookmark(row);
+                  }}
+                  testIdPrefix="home-search"
+                />
+              );
+            })}
+          </ul>
+        </>
       )}
     </div>
   );

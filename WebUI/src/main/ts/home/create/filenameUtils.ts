@@ -75,6 +75,48 @@ export function toRepositoryCmsPath(path: string): string {
   return normalized.startsWith("//") ? normalized : `/${normalized}`;
 }
 
+/**
+ * Parent CMS path for Library navigation.
+ *
+ * <p>Site roots ({@code /Sites/{site}} or {@code /Assets}) have no parent folder
+ * in the Home Library UI (return {@code null} → site list). Deeper folders return
+ * the normalized parent path.
+ */
+export function parentCmsPath(path: string): string | null {
+  const normalized = normalizeCmsPath(path);
+  if (!normalized || normalized === "/") {
+    return null;
+  }
+  const trimmed = normalized.replace(/\/+$/, "") || "/";
+  // Site root: /Sites/{siteName} or /Assets (no trailing segments)
+  const siteRoot = /^\/Sites\/[^/]+$/i;
+  if (siteRoot.test(trimmed) || /^\/Assets$/i.test(trimmed)) {
+    return null;
+  }
+  const slash = trimmed.lastIndexOf("/");
+  if (slash <= 0) {
+    return null;
+  }
+  const parent = trimmed.substring(0, slash);
+  // Never leave orphan /Sites as a "folder" browse target
+  if (parent === "/Sites" || parent === "/Assets" || parent === "/") {
+    return null;
+  }
+  return parent;
+}
+
+/**
+ * Breadcrumb segments for a CMS path (excluding empty leading slash).
+ * Example: {@code /Sites/Demo/blog} → {@code ["Sites","Demo","blog"]}.
+ */
+export function cmsPathSegments(path: string): string[] {
+  const normalized = normalizeCmsPath(path);
+  if (!normalized || normalized === "/") {
+    return [];
+  }
+  return normalized.split("/").filter(Boolean);
+}
+
 export function joinFolderAndName(folderPath: string, name: string): string {
   const folder = normalizeCmsPath(folderPath);
   if (folder.endsWith("/")) {
