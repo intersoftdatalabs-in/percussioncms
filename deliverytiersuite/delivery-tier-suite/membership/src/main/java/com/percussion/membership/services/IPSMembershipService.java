@@ -121,12 +121,12 @@ public interface IPSMembershipService {
    * @param email Used as the user id for the account, may not be <code>null</code> or empty.
    * @param password The password for the account, may not be <code>null</code> or empty.
    * @return The session id for the user, not <code>null</code> or empty.
-   * @throws PSMemberExistsException if a member with that user name already exists.
+   * @throws PSResetPwdException if the supplied reset key is invalid or expired.
    * @throws PSAuthenticationFailedException if the member cannot be authenticated.
    * @throws Exception If there are any unexpected errors.
    */
   public String resetPwd(String resetKey, String email, String password)
-      throws PSMemberExistsException, PSAuthenticationFailedException, Exception;
+      throws PSResetPwdException, PSAuthenticationFailedException, Exception;
 
   /**
    * Changes the state of an account.
@@ -149,10 +149,13 @@ public interface IPSMembershipService {
    *
    * @param confirmKey String containing the token key, may not be <code>null</code>.
    * @return The id for the user, not <code>null</code> may be empty.
+   * @throws PSResetPwdException if the confirm key is invalid, expired, or the user is already
+   *     confirmed.
    * @throws PSAuthenticationFailedException if the member cannot be authenticated.
    * @throws Exception If there are any unexpected errors.
    */
-  public String confirmAccount(String confirmKey) throws PSAuthenticationFailedException, Exception;
+  public String confirmAccount(String confirmKey)
+      throws PSAuthenticationFailedException, PSResetPwdException, Exception;
 
   /**
    * Set the groups for a given user.
