@@ -517,3 +517,241 @@ export async function fetchFormsForDefaultSite(): Promise<{
   const forms = await fetchFormsForSite(site);
   return { site, forms };
 }
+
+// ---------------------------------------------------------------------------
+// Traffic + What's Working (effectiveness) — activitymanagement
+// ---------------------------------------------------------------------------
+
+/** Granularity for content traffic (matches {@code PSDateRange.Granularity}). */
+export type TrafficGranularity = "DAY" | "WEEK" | "MONTH" | "YEAR";
+
+/**
+ * Traffic series keys (matches {@code PSTrafficTypeEnum#toString()}).
+ * Visits requires Google Analytics profile mapping.
+ */
+export type TrafficSeriesKey =
+  | "LIVE_PAGES"
+  | "NEW_PAGES"
+  | "UPDATED_PAGES"
+  | "TAKE_DOWNS"
+  | "VISITS";
+
+export const DEFAULT_TRAFFIC_SERIES: TrafficSeriesKey[] = [
+  "LIVE_PAGES",
+  "NEW_PAGES",
+  "UPDATED_PAGES",
+  "TAKE_DOWNS",
+  "VISITS",
+];
+
+export interface ContentTrafficResult {
+  site?: string;
+  path: string;
+  startDate: string;
+  endDate: string;
+  /** Chart points aligned by date. */
+  points: TrafficChartPoint[];
+  totalVisits: number;
+  totalLivePages: number;
+}
+
+export interface TrafficChartPoint {
+  date: string;
+  visits: number;
+  livePages: number;
+  newPages: number;
+  pageUpdates: number;
+  takeDowns: number;
+}
+
+export interface EffectivenessRow {
+  name: string;
+  effectiveness: number;
+}
+
+/** Format date as classic traffic wire {@code MM/dd/yyyy}. */
+export function formatTrafficDate(d: Date): string {
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  return `${mm}/${dd}/${yyyy}`;
+}
+
+function asNumberArray(v: unknown): number[] {
+  if (!Array.isArray(v)) {
+    return [];
+  }
+  return v.map((x) => {
+    const n = Number(x);
+    return Number.isFinite(n) ? n : 0;
+  });
+}
+
+function asStringArray(v: unknown): string[] {
+  if (!Array.isArray(v)) {
+    return [];
+  }
+  return v.map((x) => String(x ?? ""));
+}
+
+/**
+ * Normalize {@code PSContentTraffic} / {@code ContentTraffic} wire to chart points.
+ */
+export function normalizeContentTraffic(
+  data: unknown,
+  path: string,
+  startDate: string,
+  endDate: string,
+): ContentTrafficResult {
+  const root = asRecord(data);
+  const body =
+    (root && asRecord(root.ContentTraffic)) ||
+    (root && asRecord(root.contentTraffic)) ||
+    root ||
+    {};
+
+  const dates = asStringArray(body.dates);
+  const visits = asNumberArray(body.visits);
+  const livePages = asNumberArray(body.livePages);
+  const newPages = asNumberArray(body.newPages);
+  const pageUpdates = asNumberArray(body.pageUpdates);
+  const takeDowns = asNumberArray(body.takeDowns);
+
+  const len = Math.max(
+    dates.length,
+    visits.length,
+    livePages.length,
+    newPages.length,
+    pageUpdates.length,
+    takeDowns.length,
+  );
+
+  const points: TrafficChartPoint[] = [];
+  for (let i = 0; i < len; i++) {
+    points.push({
+      date: dates[i] || `p${i + 1}`,
+      visits: visits[i] ?? 0,
+      livePages: livePages[i] ?? 0,
+      newPages: newPages[i] ?? 0,
+      pageUpdates: pageUpdates[i] ?? 0,
+      takeDowns: takeDowns[i] ?? 0,
+    });
+  }
+
+  return {
+    site: body.site != null ? String(body.site) : undefined,
+    path,
+    startDate,
+    endDate,
+    points,
+    totalVisits: visits.reduce((a, b) => a + b, 0),
+    totalLivePages: livePages.reduce((a, b) => a + b, 0),
+  };
+}
+
+/**
+ * Content traffic for a path (classic Traffic gadget).
+ * POST {@code /activitymanagement/activity/contenttraffic}.
+ */
+export async function fetchContentTraffic(options: {
+  path: string;
+  startDate: string;
+  endDate: string;
+  granularity?: TrafficGranularity;
+  trafficRequested?: TrafficSeriesKey[];
+  usage?: "pageviews" | "uniquepageviews";
+}): Promise<ContentTrafficResult> {
+  const path = options.path.trim();
+  const granularity = options.granularity ?? "DAY";
+  const trafficRequested = options.trafficRequested ?? DEFAULT_TRAFFIC_SERIES;
+  const body = {
+    ContentTrafficRequest: {
+      path,
+      startDate: options.startDate,
+      endDate: options.endDate,
+      granularity,
+      usage: options.usage ?? "uniquepageviews",
+      trafficRequested,
+    },
+  };
+  const data = await post<unknown>(PATHS.ACTIVITY_TRAFFIC, body);
+  return normalizeContentTraffic(
+    data,
+    path,
+    options.startDate,
+    options.endDate,
+  );
+}
+
+/**
+ * Traffic for the first site (or {@code /Sites/}) over the last N days.
+ */
+export async function fetchDefaultContentTraffic(
+  daysRange = 30,
+  granularity: TrafficGranularity = "DAY",
+): Promise<ContentTrafficResult> {
+  const path = await resolveDefaultActivityPath();
+  const end = new Date();
+  const start = new Date();
+  start.setDate(start.getDate() - Math.max(1, daysRange));
+  return fetchContentTraffic({
+    path,
+    startDate: formatTrafficDate(start),
+    endDate: formatTrafficDate(end),
+    granularity,
+  });
+}
+
+export function normalizeEffectivenessRows(data: unknown): EffectivenessRow[] {
+  return unwrapNamedList(data, "Effectiveness")
+    .map((raw) => {
+      const o = asRecord(raw);
+      if (!o) return null;
+      const name = o.name != null ? String(o.name).trim() : "";
+      if (!name) return null;
+      const effectiveness = Number(o.effectiveness ?? 0);
+      return {
+        name,
+        effectiveness: Number.isFinite(effectiveness) ? effectiveness : 0,
+      };
+    })
+    .filter((r): r is EffectivenessRow => r != null);
+}
+
+/**
+ * What's Working / effectiveness.
+ * POST {@code /activitymanagement/activity/effectiveness}.
+ * Requires Google Analytics setup (server throws if not configured).
+ */
+export async function fetchEffectiveness(options: {
+  path: string;
+  durationType?: ActivityDurationType;
+  duration?: string | number;
+  usage?: "pageviews" | "unique_pageviews";
+  threshold?: number;
+}): Promise<EffectivenessRow[]> {
+  const body = {
+    EffectivenessRequest: {
+      path: options.path.trim(),
+      durationType: options.durationType ?? "days",
+      duration: String(options.duration ?? 30),
+      usage: options.usage ?? "unique_pageviews",
+      threshold: options.threshold ?? 1,
+    },
+  };
+  const data = await post<unknown>(PATHS.ACTIVITY_EFFECTIVENESS, body);
+  return normalizeEffectivenessRows(data);
+}
+
+/** Effectiveness for first site / default path. */
+export async function fetchDefaultEffectiveness(
+  durationDays = 30,
+): Promise<{ path: string; rows: EffectivenessRow[] }> {
+  const path = await resolveDefaultActivityPath();
+  const rows = await fetchEffectiveness({
+    path,
+    durationType: "days",
+    duration: durationDays,
+  });
+  return { path, rows };
+}
