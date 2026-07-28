@@ -20,12 +20,15 @@ import {
   addToMyPages,
   contentItemId,
   createPage,
+  ensurePageFileName,
+  fetchAssetTypes,
   fetchMyContent,
   fetchRecentItems,
   fetchSites,
   formatApiError,
   isBookmarkableItem,
   isMyPage,
+  mapAssetType,
   normalizeContentItem,
   removeFromMyPages,
   searchContent,
@@ -170,6 +173,65 @@ describe("homeApi", () => {
     const body = JSON.parse(String(init.body));
     expect(body.Page.folderPath).toBe("//Sites/Demo");
     expect(body.Page.addToRecent).toBe(true);
+  });
+
+  it("createPage appends .html when name has no extension", async () => {
+    const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>;
+    fetchMock.mockResolvedValue(
+      mockJsonResponse({ Page: { id: "1", name: "about.html" } }),
+    );
+    await createPage({
+      name: "about",
+      title: "About",
+      linkTitle: "About",
+      templateId: "t1",
+      folderPath: "/Sites/Demo",
+    });
+    const body = JSON.parse(
+      String((fetchMock.mock.calls[0] as [string, RequestInit])[1].body),
+    );
+    expect(body.Page.name).toBe("about.html");
+  });
+
+  it("mapAssetType prefers widgetId over contentTypeId", () => {
+    expect(
+      mapAssetType({
+        contentTypeId: 1075,
+        contentTypeName: "percImageAsset",
+        widgetId: "percImage",
+        widgetLabel: "Image",
+      }),
+    ).toMatchObject({
+      id: "percImage",
+      name: "Image",
+      label: "Image",
+      contentTypeId: "1075",
+    });
+  });
+
+  it("fetchAssetTypes maps WidgetContentType list", async () => {
+    const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>;
+    fetchMock.mockResolvedValue(
+      mockJsonResponse({
+        WidgetContentType: [
+          {
+            contentTypeId: 1075,
+            widgetId: "percImage",
+            widgetLabel: "Image",
+          },
+        ],
+      }),
+    );
+    const types = await fetchAssetTypes();
+    expect(types).toEqual([
+      expect.objectContaining({ id: "percImage", label: "Image" }),
+    ]);
+  });
+
+  it("ensurePageFileName", () => {
+    expect(ensurePageFileName("foo")).toBe("foo.html");
+    expect(ensurePageFileName("foo.html")).toBe("foo.html");
+    expect(ensurePageFileName("foo.XML")).toBe("foo.XML");
   });
 
   it("normalizeContentItem fills name/path from alternate fields", () => {

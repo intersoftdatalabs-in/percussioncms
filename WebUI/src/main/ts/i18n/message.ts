@@ -118,7 +118,13 @@ export const MSG = {
   CREATE_VALIDATION: "perc.ui.home.modern@Create Validation",
   CREATE_FILE_TOO_LONG: "perc.ui.home.modern@File Name Too Long",
   CREATE_NOT_AUTHORIZED: "perc.ui.home.modern@Create Not Authorized",
-  CREATE_NO_BLOGS: "perc.ui.home.modern@No Blogs",
+  CREATE_NO_BLOGS:
+    "perc.ui.home.modern@No blogs are configured. Create a blog section on a site first.",
+  CREATE_NO_ASSET_TYPES: "perc.ui.home.modern@No asset types available",
+  CREATE_ASSET_HINT:
+    "perc.ui.home.modern@Choose a type and folder. The asset editor opens so you can finish and save.",
+  CREATE_BLOG_HINT:
+    "perc.ui.home.modern@Choose a blog, then enter a title for the new post.",
   LOADING: "perc.ui.home.modern@Loading",
   RETRY: "perc.ui.home.modern@Retry",
   ERROR_GENERIC: "perc.ui.home.modern@Error",

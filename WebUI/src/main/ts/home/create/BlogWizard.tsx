@@ -16,15 +16,19 @@
  */
 
 import React, { useEffect, useState } from "react";
+import { isSessionRedirectError } from "../../api/client";
 import {
   createPageAndPath,
-  fetchBlogsForSite,
-  fetchSites,
+  fetchAllBlogs,
   formatApiError,
 } from "../../api/home/homeApi";
 import type { BlogSummary } from "../../api/home/types";
 import { message, MSG } from "../../i18n/message";
-import { errorStyle, formRowStyle } from "../home.styles";
+import {
+  actionButtonStyle,
+  errorStyle,
+  formRowStyle,
+} from "../home.styles";
 import {
   sanitizeFileNameInput,
   titleToBlogFileName,
@@ -46,25 +50,19 @@ export function BlogWizard({ onBack }: BlogWizardProps): React.ReactElement {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchSites()
-      .then(async (sites) => {
-        const all: BlogSummary[] = [];
-        for (const s of sites) {
-          try {
-            const list = await fetchBlogsForSite(s.name);
-            for (const b of list) {
-              all.push({ ...b, site: s.name });
-            }
-          } catch {
-            // continue
-          }
-        }
+    fetchAllBlogs()
+      .then((all) => {
         setBlogs(all);
         if (all.length === 1) {
           setBlogKey(blogOptionKey(all[0], 0));
         }
       })
-      .catch(() => setError(message(MSG.ERROR_GENERIC)))
+      .catch((err: unknown) => {
+        if (isSessionRedirectError(err)) {
+          return;
+        }
+        setError(formatApiError(err, message(MSG.ERROR_GENERIC)));
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -105,6 +103,9 @@ export function BlogWizard({ onBack }: BlogWizardProps): React.ReactElement {
       });
       window.location.href = `/cm/app/?view=editor&path=${encodeURIComponent(fullPath)}`;
     } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
       setError(formatApiError(err, message(MSG.CREATE_NOT_AUTHORIZED)));
     } finally {
       setBusy(false);
@@ -112,12 +113,16 @@ export function BlogWizard({ onBack }: BlogWizardProps): React.ReactElement {
   };
 
   if (loading) {
-    return <p role="status">{message(MSG.LOADING)}</p>;
+    return (
+      <p role="status" data-testid="blog-wizard-loading">
+        {message(MSG.LOADING)}
+      </p>
+    );
   }
   if (blogs.length === 0) {
     return (
-      <div>
-        <button type="button" onClick={onBack}>
+      <div data-testid="blog-wizard-empty">
+        <button type="button" style={actionButtonStyle("ghost")} onClick={onBack}>
           {message(MSG.CREATE_BACK)}
         </button>
         <p>{message(MSG.CREATE_NO_BLOGS)}</p>
@@ -128,16 +133,20 @@ export function BlogWizard({ onBack }: BlogWizardProps): React.ReactElement {
   return (
     <form data-testid="blog-wizard" onSubmit={onSubmit}>
       <p>
-        <button type="button" onClick={onBack}>
+        <button type="button" style={actionButtonStyle("ghost")} onClick={onBack}>
           {message(MSG.CREATE_BACK)}
         </button>
       </p>
       <h2 style={{ fontSize: "1.1rem" }}>{message(MSG.CREATE_TYPE_BLOG)}</h2>
+      <p style={{ color: "#555", fontSize: "0.9rem" }}>
+        {message(MSG.CREATE_BLOG_HINT)}
+      </p>
 
       <div style={formRowStyle}>
         <label htmlFor="bw-blog">{message(MSG.CREATE_BLOG)}</label>
         <select
           id="bw-blog"
+          data-testid="blog-wizard-blog"
           value={blogKey}
           onChange={(e) => setBlogKey(e.target.value)}
           required
@@ -156,6 +165,7 @@ export function BlogWizard({ onBack }: BlogWizardProps): React.ReactElement {
         <label htmlFor="bw-title">{message(MSG.CREATE_TITLE)}</label>
         <input
           id="bw-title"
+          data-testid="blog-wizard-title"
           value={title}
           onChange={(e) => onTitleChange(e.target.value)}
           required
@@ -166,6 +176,7 @@ export function BlogWizard({ onBack }: BlogWizardProps): React.ReactElement {
         <label htmlFor="bw-file">{message(MSG.CREATE_FILENAME)}</label>
         <input
           id="bw-file"
+          data-testid="blog-wizard-filename"
           value={fileName}
           onChange={(e) => {
             setAutofill(false);
@@ -176,12 +187,17 @@ export function BlogWizard({ onBack }: BlogWizardProps): React.ReactElement {
       </div>
 
       {error && (
-        <p role="alert" style={errorStyle}>
+        <p role="alert" style={errorStyle} data-testid="blog-wizard-error">
           {error}
         </p>
       )}
 
-      <button type="submit" disabled={busy}>
+      <button
+        type="submit"
+        data-testid="blog-wizard-submit"
+        style={actionButtonStyle("primary")}
+        disabled={busy}
+      >
         {message(MSG.CREATE_SUBMIT)}
       </button>
     </form>

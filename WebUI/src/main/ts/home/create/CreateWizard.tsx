@@ -17,13 +17,9 @@
 
 import React, { useEffect, useState } from "react";
 import { isSessionRedirectError } from "../../api/client";
-import {
-  fetchBlogsForSite,
-  fetchSites,
-  formatApiError,
-} from "../../api/home/homeApi";
+import { fetchSites, formatApiError } from "../../api/home/homeApi";
 import { message, MSG } from "../../i18n/message";
-import { errorStyle } from "../home.styles";
+import { actionButtonStyle, errorStyle } from "../home.styles";
 import { AssetWizard } from "./AssetWizard";
 import { BlogWizard } from "./BlogWizard";
 import { PageWizard } from "./PageWizard";
@@ -37,31 +33,12 @@ export type CreateKind = "page" | "asset" | "blog" | null;
 export function CreateWizard(): React.ReactElement {
   const [kind, setKind] = useState<CreateKind>(null);
   const [hasSites, setHasSites] = useState<boolean | null>(null);
-  const [hasBlogs, setHasBlogs] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchSites()
-      .then(async (sites) => {
+      .then((sites) => {
         setHasSites(sites.length > 0);
-        if (sites.length === 0) {
-          setHasBlogs(false);
-          return;
-        }
-        // Discover blogs across sites (classic addwizard)
-        let found = false;
-        for (const s of sites) {
-          try {
-            const blogs = await fetchBlogsForSite(s.name);
-            if (blogs.length > 0) {
-              found = true;
-              break;
-            }
-          } catch {
-            // ignore per-site blog failures
-          }
-        }
-        setHasBlogs(found);
       })
       .catch((err: unknown) => {
         if (isSessionRedirectError(err)) {
@@ -80,10 +57,14 @@ export function CreateWizard(): React.ReactElement {
     );
   }
   if (hasSites === null) {
-    return <p role="status">{message(MSG.LOADING)}</p>;
+    return (
+      <p role="status" data-testid="create-wizard-loading">
+        {message(MSG.LOADING)}
+      </p>
+    );
   }
   if (!hasSites) {
-    return <p>{message(MSG.NO_SITES_ADMIN)}</p>;
+    return <p data-testid="create-wizard-no-sites">{message(MSG.NO_SITES_ADMIN)}</p>;
   }
 
   if (kind === "page") {
@@ -101,17 +82,30 @@ export function CreateWizard(): React.ReactElement {
       <p>{message(MSG.CREATE_HINT)}</p>
       <p style={{ fontWeight: 600 }}>{message(MSG.CREATE_CHOOSE_TYPE)}</p>
       <div style={{ display: "flex", flexDirection: "column", gap: 10, maxWidth: 320 }}>
-        <button type="button" onClick={() => setKind("page")}>
+        <button
+          type="button"
+          data-testid="create-choose-page"
+          style={actionButtonStyle("primary")}
+          onClick={() => setKind("page")}
+        >
           {message(MSG.CREATE_TYPE_PAGE)}
         </button>
-        <button type="button" onClick={() => setKind("asset")}>
+        <button
+          type="button"
+          data-testid="create-choose-asset"
+          style={actionButtonStyle("secondary")}
+          onClick={() => setKind("asset")}
+        >
           {message(MSG.CREATE_TYPE_ASSET)}
         </button>
-        {hasBlogs ? (
-          <button type="button" onClick={() => setKind("blog")}>
-            {message(MSG.CREATE_TYPE_BLOG)}
-          </button>
-        ) : null}
+        <button
+          type="button"
+          data-testid="create-choose-blog"
+          style={actionButtonStyle("secondary")}
+          onClick={() => setKind("blog")}
+        >
+          {message(MSG.CREATE_TYPE_BLOG)}
+        </button>
       </div>
     </div>
   );

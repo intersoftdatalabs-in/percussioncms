@@ -25,11 +25,16 @@ import {
 } from "../../api/home/homeApi";
 import type { SiteSummary, TemplateSummary } from "../../api/home/types";
 import { message, MSG } from "../../i18n/message";
-import { errorStyle, formRowStyle } from "../home.styles";
+import {
+  actionButtonStyle,
+  errorStyle,
+  formRowStyle,
+} from "../home.styles";
 import {
   sanitizeFileNameInput,
   titleToPageFileName,
 } from "./filenameUtils";
+import { isSessionRedirectError } from "../../api/client";
 
 export interface PageWizardProps {
   onBack: () => void;
@@ -131,6 +136,9 @@ export function PageWizard({ onBack }: PageWizardProps): React.ReactElement {
       });
       window.location.href = `/cm/app/?view=editor&path=${encodeURIComponent(fullPath)}`;
     } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
       setError(
         formatApiError(err, message(MSG.CREATE_NOT_AUTHORIZED)),
       );
@@ -146,7 +154,7 @@ export function PageWizard({ onBack }: PageWizardProps): React.ReactElement {
   return (
     <form data-testid="page-wizard" onSubmit={onSubmit}>
       <p>
-        <button type="button" onClick={onBack}>
+        <button type="button" style={actionButtonStyle("ghost")} onClick={onBack}>
           {message(MSG.CREATE_BACK)}
         </button>
       </p>
@@ -232,7 +240,12 @@ export function PageWizard({ onBack }: PageWizardProps): React.ReactElement {
         </p>
       )}
 
-      <button type="submit" disabled={busy}>
+      <button
+        type="submit"
+        data-testid="page-wizard-submit"
+        style={actionButtonStyle("primary")}
+        disabled={busy}
+      >
         {message(MSG.CREATE_SUBMIT)}
       </button>
     </form>
