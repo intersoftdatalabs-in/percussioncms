@@ -15,19 +15,31 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { isSessionRedirectError } from "../../api/client";
-import { fetchMyContent, formatApiError } from "../../api/home/homeApi";
+import {
+  contentItemId,
+  fetchMyContent,
+  formatApiError,
+  removeFromMyPages,
+} from "../../api/home/homeApi";
 import type { ContentListItem } from "../../api/home/types";
 import { message, MSG } from "../../i18n/message";
-import { errorStyle, listItemStyle, listStyle } from "../home.styles";
+import { ContentListRow } from "../components/ContentListRow";
+import {
+  emptyStateStyle,
+  errorStyle,
+  listStyle,
+  sectionHintStyle,
+} from "../home.styles";
 
 export interface BookmarksSectionProps {
   onOpenItem?: (item: ContentListItem) => void;
 }
 
 /**
- * Classic CUI "My Bookmarks" — bookmarked content via item/mycontent.
+ * Classic CUI "My Bookmarks" — bookmarked content via item/mycontent,
+ * with remove via removefrommypages.
  */
 export function BookmarksSection({
   onOpenItem,
@@ -35,6 +47,26 @@ export function BookmarksSection({
   const [items, setItems] = useState<ContentListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [pendingIds, setPendingIds] = useState<Set<string>>(() => new Set());
+
+  const load = useCallback(() => {
+    setLoading(true);
+    return fetchMyContent()
+      .then((list) => {
+        setItems(list);
+        setError(null);
+      })
+      .catch((err: unknown) => {
+        if (isSessionRedirectError(err)) {
+          return;
+        }
+        setError(formatApiError(err, message(MSG.ERROR_GENERIC)));
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -62,6 +94,30 @@ export function BookmarksSection({
     };
   }, []);
 
+  const onRemove = async (item: ContentListItem) => {
+    const id = contentItemId(item);
+    if (!id) {
+      setActionError(message(MSG.BOOKMARK_NEEDS_ID));
+      return;
+    }
+    setPendingIds((prev) => new Set(prev).add(id));
+    setActionError(null);
+    try {
+      await removeFromMyPages(id);
+      setItems((prev) => prev.filter((row) => contentItemId(row) !== id));
+    } catch (err: unknown) {
+      if (!isSessionRedirectError(err)) {
+        setActionError(formatApiError(err, message(MSG.ERROR_GENERIC)));
+      }
+    } finally {
+      setPendingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+  };
+
   if (loading) {
     return (
       <p role="status" data-testid="home-bookmarks-loading">
@@ -71,39 +127,58 @@ export function BookmarksSection({
   }
   if (error) {
     return (
-      <p role="alert" style={errorStyle} data-testid="home-bookmarks-error">
-        {error}
-      </p>
+      <div data-testid="home-bookmarks-error-block">
+        <p role="alert" style={errorStyle} data-testid="home-bookmarks-error">
+          {error}
+        </p>
+        <button type="button" onClick={() => void load()}>
+          {message(MSG.RETRY)}
+        </button>
+      </div>
     );
   }
   if (items.length === 0) {
     return (
-      <p data-testid="home-bookmarks-empty">{message(MSG.BOOKMARKS_EMPTY)}</p>
+      <div data-testid="home-bookmarks-empty-block">
+        <p style={sectionHintStyle}>{message(MSG.BOOKMARKS_HINT)}</p>
+        <p style={emptyStateStyle} data-testid="home-bookmarks-empty">
+          {message(MSG.BOOKMARKS_EMPTY)}
+        </p>
+      </div>
     );
   }
 
   return (
-    <ul
-      style={listStyle}
-      aria-label={message(MSG.SECTION_BOOKMARKS)}
-      data-testid="home-bookmarks-list"
-    >
-      {items.map((item, index) => {
-        const label =
-          item.name ||
-          item.title ||
-          item.path ||
-          item.id ||
-          `bookmark-${index}`;
-        return (
-          <li key={String(item.id ?? item.path ?? index)} style={listItemStyle}>
-            <span>{String(label)}</span>
-            <button type="button" onClick={() => onOpenItem?.(item)}>
-              {message(MSG.OPEN_ITEM)}
-            </button>
-          </li>
-        );
-      })}
-    </ul>
+    <div data-testid="home-bookmarks-section">
+      <p style={sectionHintStyle}>{message(MSG.BOOKMARKS_HINT)}</p>
+      {actionError && (
+        <p role="alert" style={errorStyle} data-testid="home-bookmarks-action-error">
+          {actionError}
+        </p>
+      )}
+      <ul
+        style={listStyle}
+        aria-label={message(MSG.SECTION_BOOKMARKS)}
+        data-testid="home-bookmarks-list"
+      >
+        {items.map((item, index) => {
+          const id = contentItemId(item);
+          return (
+            <ContentListRow
+              key={String(id ?? item.path ?? index)}
+              item={item}
+              index={index}
+              fallbackLabel={`bookmark-${index}`}
+              onOpenItem={onOpenItem}
+              bookmarkMode="remove"
+              isBookmarked
+              bookmarkPending={id != null && pendingIds.has(id)}
+              onBookmark={onRemove}
+              testIdPrefix="home-bookmarks"
+            />
+          );
+        })}
+      </ul>
+    </div>
   );
 }

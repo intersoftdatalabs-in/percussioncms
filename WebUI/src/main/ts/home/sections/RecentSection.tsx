@@ -17,13 +17,21 @@
 
 import React, { useEffect, useState } from "react";
 import {
+  contentItemId,
   fetchRecentItems,
   formatApiError,
 } from "../../api/home/homeApi";
 import type { ContentListItem } from "../../api/home/types";
 import { isSessionRedirectError } from "../../api/client";
 import { message, MSG } from "../../i18n/message";
-import { errorStyle, listItemStyle, listStyle } from "../home.styles";
+import { ContentListRow } from "../components/ContentListRow";
+import { useBookmarks } from "../hooks/useBookmarks";
+import {
+  emptyStateStyle,
+  errorStyle,
+  listStyle,
+  sectionHintStyle,
+} from "../home.styles";
 
 export interface RecentSectionProps {
   onOpenItem?: (item: ContentListItem) => void;
@@ -35,6 +43,7 @@ export function RecentSection({
   const [items, setItems] = useState<ContentListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const bookmarks = useBookmarks(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -50,9 +59,7 @@ export function RecentSection({
         if (cancelled || isSessionRedirectError(err)) {
           return;
         }
-        setError(
-          formatApiError(err, message(MSG.ERROR_GENERIC)),
-        );
+        setError(formatApiError(err, message(MSG.ERROR_GENERIC)));
       })
       .finally(() => {
         if (!cancelled) {
@@ -80,24 +87,47 @@ export function RecentSection({
   }
   if (items.length === 0) {
     return (
-      <p data-testid="home-recent-empty">{message(MSG.RECENT_EMPTY)}</p>
+      <div data-testid="home-recent-empty-block">
+        <p style={sectionHintStyle}>{message(MSG.RECENT_HINT)}</p>
+        <p style={emptyStateStyle} data-testid="home-recent-empty">
+          {message(MSG.RECENT_EMPTY)}
+        </p>
+      </div>
     );
   }
 
   return (
-    <ul style={listStyle} aria-label={message(MSG.SECTION_RECENT)}>
-      {items.map((item, index) => {
-        const label =
-          item.name || item.title || item.path || item.id || `item-${index}`;
-        return (
-          <li key={String(item.id ?? item.path ?? index)} style={listItemStyle}>
-            <span>{label}</span>
-            <button type="button" onClick={() => onOpenItem?.(item)}>
-              {message(MSG.OPEN_ITEM)}
-            </button>
-          </li>
-        );
-      })}
-    </ul>
+    <div data-testid="home-recent-section">
+      <p style={sectionHintStyle}>{message(MSG.RECENT_HINT)}</p>
+      {bookmarks.error && (
+        <p role="alert" style={errorStyle} data-testid="home-recent-bookmark-error">
+          {bookmarks.error}
+        </p>
+      )}
+      <ul
+        style={listStyle}
+        aria-label={message(MSG.SECTION_RECENT)}
+        data-testid="home-recent-list"
+      >
+        {items.map((item, index) => {
+          const id = contentItemId(item);
+          return (
+            <ContentListRow
+              key={String(id ?? item.path ?? index)}
+              item={item}
+              index={index}
+              onOpenItem={onOpenItem}
+              bookmarkMode="toggle"
+              isBookmarked={bookmarks.isBookmarked(item)}
+              bookmarkPending={id != null && bookmarks.pendingIds.has(id)}
+              onBookmark={(row) => {
+                void bookmarks.toggleBookmark(row);
+              }}
+              testIdPrefix="home-recent"
+            />
+          );
+        })}
+      </ul>
+    </div>
   );
 }

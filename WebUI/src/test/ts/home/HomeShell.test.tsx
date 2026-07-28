@@ -19,14 +19,21 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { HomeShell } from "@/home/HomeShell";
 
-vi.mock("@/api/home/homeApi", () => ({
-  fetchRecentItems: vi.fn().mockResolvedValue([]),
-  fetchMyContent: vi.fn().mockResolvedValue([]),
-  fetchSites: vi.fn().mockResolvedValue([]),
-  fetchFolderChildren: vi.fn().mockResolvedValue([]),
-  searchContent: vi.fn().mockResolvedValue([]),
-  createPage: vi.fn().mockResolvedValue({}),
-}));
+vi.mock("@/api/home/homeApi", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/api/home/homeApi")>();
+  return {
+    ...actual,
+    fetchRecentItems: vi.fn().mockResolvedValue([]),
+    fetchMyContent: vi.fn().mockResolvedValue([]),
+    fetchSites: vi.fn().mockResolvedValue([]),
+    fetchFolderChildren: vi.fn().mockResolvedValue([]),
+    searchContent: vi.fn().mockResolvedValue([]),
+    createPage: vi.fn().mockResolvedValue({}),
+    addToMyPages: vi.fn().mockResolvedValue(undefined),
+    removeFromMyPages: vi.fn().mockResolvedValue(undefined),
+    isMyPage: vi.fn().mockResolvedValue(false),
+  };
+});
 
 // Lazy GadgetsSection pulls the full dashboard graph; stub for Home shell tests
 vi.mock("@/home/sections/GadgetsSection", () => ({

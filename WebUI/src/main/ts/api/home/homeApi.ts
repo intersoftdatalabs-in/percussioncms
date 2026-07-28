@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { get, post } from "../client";
+import { del, get, post, put } from "../client";
 import type { ApiError } from "../client";
 import { PATHS } from "../paths";
 import { searchExtended } from "../contentExplorer/searchApi";
@@ -54,6 +54,89 @@ export async function fetchRecentItems(
 export async function fetchMyContent(): Promise<ContentListItem[]> {
   const data = await get<unknown>(PATHS.MY_CONTENT);
   return normalizeList(data).map(normalizeContentItem);
+}
+
+/**
+ * Add a page to the current user's favorites (classic addToMyPages / My Bookmarks).
+ *
+ * @param pageId - string page guid (same id shape as editor / mycontent rows)
+ */
+export async function addToMyPages(pageId: string): Promise<void> {
+  const id = String(pageId ?? "").trim();
+  if (!id) {
+    throw new Error("pageId is required");
+  }
+  await put(`${PATHS.ADD_TO_MYPAGES}/${encodeURIComponent(id)}`);
+}
+
+/**
+ * Remove a page from the current user's favorites (classic removeFromMyPages).
+ *
+ * @param pageId - string page guid
+ */
+export async function removeFromMyPages(pageId: string): Promise<void> {
+  const id = String(pageId ?? "").trim();
+  if (!id) {
+    throw new Error("pageId is required");
+  }
+  await del(`${PATHS.REMOVE_FROM_MYPAGES}/${encodeURIComponent(id)}`);
+}
+
+/**
+ * Whether the page is in the current user's favorites.
+ * Server returns {@code text/plain} true/false.
+ */
+export async function isMyPage(pageId: string): Promise<boolean> {
+  const id = String(pageId ?? "").trim();
+  if (!id) {
+    return false;
+  }
+  // Endpoint is @Produces(TEXT_PLAIN); prefer text so JAX-RS does not 406
+  // when Accept leads with application/json.
+  const data = await get<unknown>(
+    `${PATHS.IS_MY_PAGE}/${encodeURIComponent(id)}`,
+    { Accept: "text/plain, */*" },
+  );
+  if (typeof data === "boolean") {
+    return data;
+  }
+  if (typeof data === "string") {
+    return data.trim().toLowerCase() === "true";
+  }
+  return Boolean(data);
+}
+
+/**
+ * Stable id for bookmark operations from a list row.
+ * Prefers {@code id}, then {@code contentId}.
+ */
+export function contentItemId(item: ContentListItem): string | null {
+  if (item.id != null && String(item.id).trim()) {
+    return String(item.id).trim();
+  }
+  const raw = item as ContentListItem & { contentId?: unknown };
+  if (raw.contentId != null && String(raw.contentId).trim()) {
+    return String(raw.contentId).trim();
+  }
+  return null;
+}
+
+/**
+ * True when the row looks like a bookmarkable page (has id, not a folder).
+ * Classic My Pages only supports pages.
+ */
+export function isBookmarkableItem(item: ContentListItem): boolean {
+  if (!contentItemId(item)) {
+    return false;
+  }
+  if (item.folder === true) {
+    return false;
+  }
+  const type = item.type != null ? String(item.type).toLowerCase() : "";
+  if (type === "folder" || type === "site") {
+    return false;
+  }
+  return true;
 }
 
 /** All sites for Library root. */
