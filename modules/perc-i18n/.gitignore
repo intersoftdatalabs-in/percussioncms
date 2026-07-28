@@ -1,0 +1,28 @@
+# Python bytecode cache (developer scripts only)
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Translation working files (must never be committed; only canonical TMX files ship)
+test_*.tmx
+debug_*.tmx
+mini_*.tmx
+simple_test.tmx
+backup/*.tmx
+
+# Per-locale sibling TMX files are forbidden by modules/perc-i18n/AGENTS.md.
+# If you need a translation source, use modules/perc-i18n/scripts/i18n_translate.py.
+en_*.tmx
+de_*.tmx
+es_*.tmx
+fr_*.tmx
+hi_*.tmx
+it_*.tmx
+ja-*.tmx
+nl_*.tmx
+pt_*.tmx
+tr_*.tmx
+
+# Translation cache (per-machine resume state)
+.cache/
