@@ -48,8 +48,13 @@ import jakarta.ws.rs.core.MediaType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 @Path("/render")
 @Component("renderService")
@@ -59,16 +64,19 @@ public class PSRenderService implements IPSRenderService {
   private final IPSRenderAssemblyBridge renderAssemblyBridge;
   private final IPSPageService pageService;
   private final IPSTemplateService templateService;
+  private final PlatformTransactionManager transactionManager;
 
   @Autowired
   public PSRenderService(
       IPSPageService pageService,
       IPSRenderAssemblyBridge renderAssemblyBridge,
-      IPSTemplateService templateService) {
+      IPSTemplateService templateService,
+      @Qualifier("sys_transactionManager") PlatformTransactionManager transactionManager) {
     super();
     this.pageService = pageService;
     this.renderAssemblyBridge = renderAssemblyBridge;
     this.templateService = templateService;
+    this.transactionManager = transactionManager;
   }
 
   @POST
@@ -264,6 +272,59 @@ public class PSRenderService implements IPSRenderService {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new WebApplicationException(e);
+    }
+  }
+
+  /**
+   * Search-index extract path: new read-only transaction so FTS queue assembly does not share the
+   * legacy content-load session (null JDBC connection under nested Hibernate work).
+   *
+   * <p>Uses a programmatic {@code REQUIRES_NEW} TX rather than {@code @Transactional}: assembly
+   * swallows plugin failures into a failure payload while nested Hibernate work may still mark
+   * the TX rollback-only. Committing that TX raises {@code UnexpectedRollbackException}; we detect
+   * rollback-only and throw a clear RuntimeException so {@code PSExtractHtmlContent} soft-fails
+   * and other FTS fields still index.
+   */
+  @Override
+  public String renderPageForSearchIndex(String id) {
+    log.debug("renderPageForSearchIndex, pageId: {}", id);
+    var def = new DefaultTransactionDefinition();
+    def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+    def.setReadOnly(true);
+    def.setName("renderPageForSearchIndex");
+    TransactionStatus status = transactionManager.getTransaction(def);
+    boolean finished = false;
+    try {
+      String html = renderAssemblyBridge.renderPage(id, false, false);
+      if (status.isRollbackOnly()) {
+        transactionManager.rollback(status);
+        finished = true;
+        throw new RuntimeException(
+            "Search-index render rolled back (assembly/Hibernate failure) for page " + id);
+      }
+      transactionManager.commit(status);
+      finished = true;
+      return html != null ? html : "";
+    } catch (RuntimeException e) {
+      if (!finished) {
+        try {
+          transactionManager.rollback(status);
+        } catch (Exception rollbackEx) {
+          log.debug("Rollback after search-index render failure: {}", rollbackEx.toString());
+        }
+      }
+      throw e;
+    } catch (Exception e) {
+      if (!finished) {
+        try {
+          transactionManager.rollback(status);
+        } catch (Exception rollbackEx) {
+          log.debug("Rollback after search-index render failure: {}", rollbackEx.toString());
+        }
+      }
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new RuntimeException("Search-index render failed for page " + id, e);
     }
   }
 

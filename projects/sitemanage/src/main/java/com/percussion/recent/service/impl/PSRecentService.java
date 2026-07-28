@@ -101,6 +101,13 @@ public class PSRecentService implements IPSRecentService {
     var recentEntries = recentService.findRecent(user, null, RecentType.ITEM);
     var items = new ArrayList<PSItemProperties>();
     var toDelete = new ArrayList<String>();
+    if (log.isDebugEnabled()) {
+      log.debug(
+          "findRecentItem user={} entryCount={} entries={}",
+          user,
+          recentEntries.size(),
+          recentEntries);
+    }
     for (var entry : recentEntries) {
       ItemLookupResult lookup = findItemPropertiesIsolated(entry);
       if (lookup.properties != null) {
@@ -118,11 +125,18 @@ public class PSRecentService implements IPSRecentService {
         log.debug("Removing recent item find returned null : {}", entry);
         toDelete.add(entry);
       } else {
-        log.debug("Keeping recent item after lookup failure : {}", entry);
+        log.warn(
+            "Keeping recent item after lookup failure (entry will not display): {}", entry);
       }
     }
     if (!toDelete.isEmpty()) {
       recentService.deleteRecent(user, null, RecentType.ITEM, toDelete);
+    }
+    if (!recentEntries.isEmpty() && items.isEmpty()) {
+      log.warn(
+          "findRecentItem: {} stored entries for user {} but 0 displayable items",
+          recentEntries.size(),
+          user);
     }
     return items;
   }
@@ -159,32 +173,37 @@ public class PSRecentService implements IPSRecentService {
    */
   private ItemLookupResult findItemPropertiesIsolated(String entry) {
     if (requiresNewReadOnly == null) {
-      // Fallback when no TX manager (unit tests): same-thread lookup.
-      try {
-        PSItemProperties props = folderHelper.findItemPropertiesById(entry);
-        return props != null ? ItemLookupResult.found(props) : ItemLookupResult.notFound();
-      } catch (Exception e) {
-        log.debug(
-            "Recent item lookup failed for {}, Error: {}",
-            entry,
-            PSExceptionUtils.getMessageForLog(e));
-        return ItemLookupResult.failed();
-      }
+      return lookupItemProperties(entry);
     }
     return requiresNewReadOnly.execute(
         status -> {
-          try {
-            PSItemProperties props = folderHelper.findItemPropertiesById(entry);
-            return props != null ? ItemLookupResult.found(props) : ItemLookupResult.notFound();
-          } catch (Exception e) {
-            log.debug(
-                "Recent item lookup failed for {}, Error: {}",
-                entry,
-                PSExceptionUtils.getMessageForLog(e));
+          ItemLookupResult result = lookupItemProperties(entry);
+          if (result.properties == null && !result.missing) {
+            // Hibernate may have marked the nested session; roll back only the nested TX
             status.setRollbackOnly();
-            return ItemLookupResult.failed();
           }
+          return result;
         });
+  }
+
+  /**
+   * Resolve recent entry id to item properties via folderHelper (same path as search result rows).
+   */
+  private ItemLookupResult lookupItemProperties(String entry) {
+    try {
+      PSItemProperties props = folderHelper.findItemPropertiesById(entry);
+      if (props != null) {
+        return ItemLookupResult.found(props);
+      }
+      return ItemLookupResult.notFound();
+    } catch (Exception e) {
+      log.warn(
+          "folderHelper.findItemPropertiesById failed for {}: {}",
+          entry,
+          PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      return ItemLookupResult.failed();
+    }
   }
 
   /** Finds recent templates for the current user and site. */
@@ -297,6 +316,7 @@ public class PSRecentService implements IPSRecentService {
     locator.setRevision(-1);
     value = idMapper.getString(locator);
     recentService.addRecent(user, null, RecentType.ITEM, value);
+    log.debug("addRecentItem user={} storedValue={}", user, value);
   }
 
   /** Adds a recent template for the current user and site. */
