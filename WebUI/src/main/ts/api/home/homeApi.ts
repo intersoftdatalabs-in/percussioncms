@@ -29,7 +29,11 @@ import type {
   SiteSummary,
   TemplateSummary,
 } from "./types";
-import { joinFolderAndName, normalizeCmsPath } from "../../home/create/filenameUtils";
+import {
+  joinFolderAndName,
+  normalizeCmsPath,
+  toRepositoryCmsPath,
+} from "../../home/create/filenameUtils";
 
 /** Recent content items (type typically {@code item}). */
 export async function fetchRecentItems(
@@ -169,7 +173,8 @@ export async function fetchBlogsForSite(
  * folderPath should be the parent folder (classic passes path with leading slash).
  */
 export async function createPage(req: CreatePageRequest): Promise<unknown> {
-  const folderPath = normalizeCmsPath(req.folderPath);
+  // Page REST validates via contentWs.getIdByPath, which requires //Sites/...
+  const folderPath = toRepositoryCmsPath(req.folderPath);
   const body = {
     Page: {
       name: req.name,

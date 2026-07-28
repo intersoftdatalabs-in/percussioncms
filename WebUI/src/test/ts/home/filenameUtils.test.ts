@@ -8,6 +8,7 @@ import {
   normalizeCmsPath,
   titleToBlogFileName,
   titleToPageFileName,
+  toRepositoryCmsPath,
 } from "@/home/create/filenameUtils";
 
 describe("filenameUtils", () => {
@@ -23,5 +24,11 @@ describe("filenameUtils", () => {
     expect(normalizeCmsPath("//Sites/a")).toBe("/Sites/a");
     expect(joinFolderAndName("/Sites/a", "page")).toBe("/Sites/a/page");
     expect(joinFolderAndName("/Sites/a/", "page")).toBe("/Sites/a/page");
+  });
+
+  it("converts UI paths to repository // form for page create", () => {
+    expect(toRepositoryCmsPath("/Sites/Demo")).toBe("//Sites/Demo");
+    expect(toRepositoryCmsPath("//Sites/Demo")).toBe("//Sites/Demo");
+    expect(toRepositoryCmsPath("Sites/Demo")).toBe("//Sites/Demo");
   });
 });

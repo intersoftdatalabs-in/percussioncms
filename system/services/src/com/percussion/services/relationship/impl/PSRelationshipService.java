@@ -644,8 +644,10 @@ public class PSRelationshipService implements IPSRelationshipService {
    public List<PSRelationshipData> findByDependentId(int dependentId) {
       Session session = getSession();
 
+      // Hibernate 6 HQL: property name dependentId (not column dependent_id)
       Query query = session
-              .createQuery("from PSRelationshipData " + " where dependent_id =  " + dependentId);
+              .createQuery("from PSRelationshipData where dependentId = :dependentId")
+              .setParameter("dependentId", dependentId);
       return  query.list();
    }
 
@@ -956,8 +958,12 @@ public class PSRelationshipService implements IPSRelationshipService {
    public List<PSRelationshipData> findByDependentIdConfigId(int dependentId, int configId) {
       Session session = getSession();
 
+      // Hibernate 6 HQL: property names dependentId / configId (not SQL columns)
       Query query = session
-              .createQuery("from PSRelationshipData " + " where dependent_id =  " + dependentId +" and config_id = " + configId);
+              .createQuery(
+                  "from PSRelationshipData where dependentId = :dependentId and configId = :configId")
+              .setParameter("dependentId", dependentId)
+              .setParameter("configId", configId);
       return query.list();
 
    }

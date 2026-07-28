@@ -367,8 +367,22 @@ public class PSContentItemDao implements IPSContentItemDao {
               f.addValue(fv);
             } else {
               if (value != null) {
-                fv = f.createFieldValue((String) value);
-                f.addValue(fv);
+                // Coerce non-String (e.g. Optional) and skip blank / unparseable date noise
+                // such as "Optional.empty" that would abort the entire save.
+                String text =
+                    value instanceof String ? (String) value : String.valueOf(value);
+                if (text.isBlank()
+                    || "Optional.empty".equals(text)
+                    || text.startsWith("Optional[")) {
+                  f.clearValues();
+                } else {
+                  try {
+                    fv = f.createFieldValue(text);
+                    f.addValue(fv);
+                  } catch (IllegalArgumentException badValue) {
+                    f.clearValues();
+                  }
+                }
               } else {
                 f.clearValues();
               }

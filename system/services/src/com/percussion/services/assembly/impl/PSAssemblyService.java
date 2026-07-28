@@ -289,7 +289,14 @@ public class PSAssemblyService implements IPSAssemblyService
          sw.start();
          if (notification.getType().equals(EventType.CONTENT_CHANGED))
          {
-            var ccid = (IPSGuid) notification.getTarget();
+            // Callers pass either IPSGuid (content repository) or String id
+            // (e.g. PSPageChangeHandler). Accept both so page create does not
+            // fail the content-changed listener with ClassCastException.
+            var ccid = toGuid(notification.getTarget());
+            if (ccid == null)
+            {
+               return;
+            }
             synchronized (ContentCacheKey.class)
             {
                var keys = ContentCacheKey.getAndClearKeys(ccid);
@@ -304,13 +311,58 @@ public class PSAssemblyService implements IPSAssemblyService
          }
          else if (notification.getType().equals(EventType.OBJECT_INVALIDATION))
          {
-            var guid = (IPSGuid) notification.getTarget();
+            var guid = toGuid(notification.getTarget());
+            if (guid == null)
+            {
+               return;
+            }
             short type = guid.getType();
             if (ms_invalidatefor.contains(type))
             {
                cache.clear(CONTENT_REGION);
             }
          }
+      }
+
+      /**
+       * Resolve notification target to a GUID. Supports {@link IPSGuid} and
+       * string forms (legacy content guids such as {@code 16777215-101-12345}).
+       */
+      private static IPSGuid toGuid(Object target)
+      {
+         if (target == null)
+         {
+            return null;
+         }
+         if (target instanceof IPSGuid)
+         {
+            return (IPSGuid) target;
+         }
+         if (target instanceof String)
+         {
+            String s = ((String) target).trim();
+            if (s.isEmpty())
+            {
+               return null;
+            }
+            try
+            {
+               // Prefer legacy content guid parse for page/item ids
+               return new PSLegacyGuid(s);
+            }
+            catch (Exception e)
+            {
+               try
+               {
+                  return new PSGuid(s);
+               }
+               catch (Exception e2)
+               {
+                  return null;
+               }
+            }
+         }
+         return null;
       }
    }
 

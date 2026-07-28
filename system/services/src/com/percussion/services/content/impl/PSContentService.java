@@ -460,11 +460,12 @@ public class PSContentService implements IPSContentService {
       }
 
       try {
+         // Hibernate 6 HQL: entity property names (dependentId, configId), not SQL columns
          var queryString =
             "SELECT pfp FROM PSFolderProperty pfp, PSRelationshipData prd " +
             "WHERE pfp.propertyName = :property " +
-            "AND pfp.contentID = prd.dependent_id " +
-            "AND prd.config_id != :recycledId";
+            "AND pfp.contentID = prd.dependentId " +
+            "AND prd.configId != :recycledId";
 
          TypedQuery<PSFolderProperty> query = entityManager.createQuery(queryString, PSFolderProperty.class);
          query.setParameter("property", property);
