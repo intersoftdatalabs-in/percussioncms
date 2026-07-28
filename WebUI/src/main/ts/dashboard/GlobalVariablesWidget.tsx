@@ -15,30 +15,14 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from 'react';
-import { get } from '../api/client';
-import { styles } from './dashboard.styles';
-
-interface Variable {
-  name: string;
-  value: string;
-  scope?: string;
-  type?: string;
-}
-
-interface Variables {
-  variables?: Variable[];
-  items?: Variable[];
-  count?: number;
-  lastModified?: string;
-}
-
-interface VariablesData {
-  variables?: Variables;
-  data?: Variables;
-  admin?: Variables;
-  [key: string]: unknown;
-}
+import React, { useCallback, useEffect, useState } from "react";
+import { isSessionRedirectError } from "../api/client";
+import {
+  fetchGlobalVariables,
+  type GlobalVariableEntry,
+} from "../api/dashboard/gadgetApi";
+import { formatApiError } from "../api/home/homeApi";
+import { styles } from "./dashboard.styles";
 
 export interface GlobalVariablesWidgetProps {
   title?: string;
@@ -46,137 +30,128 @@ export interface GlobalVariablesWidgetProps {
 }
 
 /**
- * GlobalVariablesWidget displays system-wide global variables and configuration.
- * Shows variable names, values, scopes, and modification dates.
+ * Classic **Global Variables** gadget.
+ *
+ * <p>Server: {@code GET /services/metadatamanagement/metadata/percglobalvariables}.
+ * Invented path {@code /services/admin/variables} does not exist.</p>
  */
 export const GlobalVariablesWidget: React.FC<GlobalVariablesWidgetProps> = ({
-  title = 'Global Variables',
-  refreshInterval,
+  title = "Global Variables",
+  refreshInterval = 0,
 }) => {
-  const [variables, setVariables] = useState<Variable[]>([]);
-  const [count, setCount] = useState(0);
+  const [variables, setVariables] = useState<GlobalVariableEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchVariables = async () => {
+  const load = useCallback(async () => {
+    try {
       setIsLoading(true);
-      try {
-        const response = await get<VariablesData>('/services/admin/variables');
-        let vars: Variable[] = [];
-        let varCount = 0;
-
-        if (response.variables) {
-          vars = response.variables.variables || response.variables.items || [];
-          varCount = response.variables.count || vars.length;
-        } else if (response.data) {
-          vars = response.data.variables || response.data.items || [];
-          varCount = response.data.count || vars.length;
-        } else if (response.admin) {
-          vars = response.admin.variables || response.admin.items || [];
-          varCount = response.admin.count || vars.length;
-        } else if (Array.isArray(response.variables)) {
-          vars = response.variables;
-          varCount = vars.length;
-        }
-
-        setVariables(vars);
-        setCount(varCount);
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : 'Failed to load variables';
-        setError(errorMessage);
-      } finally {
-        setIsLoading(false);
+      setError(null);
+      setVariables(await fetchGlobalVariables());
+    } catch (err: unknown) {
+      if (isSessionRedirectError(err)) {
+        return;
       }
-    };
-
-    fetchVariables();
-    if (refreshInterval) {
-      const interval = setInterval(fetchVariables, refreshInterval * 1000);
-      return () => clearInterval(interval);
+      setError(formatApiError(err, "Failed to load global variables"));
+      setVariables([]);
+    } finally {
+      setIsLoading(false);
     }
-  }, [refreshInterval]);
+  }, []);
+
+  useEffect(() => {
+    void load();
+    if (refreshInterval <= 0) {
+      return;
+    }
+    const id = window.setInterval(() => void load(), refreshInterval);
+    return () => window.clearInterval(id);
+  }, [load, refreshInterval]);
 
   if (isLoading) {
     return (
-      <div style={styles.widget}>
+      <div style={styles.widget} data-testid="global-variables-widget">
         <div style={styles.widgetTitle}>{title}</div>
-        <div style={styles.widgetLoading}>Loading variables...</div>
+        <div style={styles.widgetLoading} data-testid="global-variables-loading">
+          Loading variables...
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div style={styles.widget}>
+      <div style={styles.widget} data-testid="global-variables-widget">
         <div style={styles.widgetTitle}>{title}</div>
-        <div style={styles.widgetError}>{error}</div>
+        <div style={styles.widgetError} data-testid="global-variables-error">
+          {error}
+        </div>
       </div>
     );
   }
 
-  if (!variables || variables.length === 0) {
+  if (variables.length === 0) {
     return (
-      <div style={styles.widget}>
+      <div style={styles.widget} data-testid="global-variables-widget">
         <div style={styles.widgetTitle}>{title}</div>
-        <div style={styles.widgetContent}>No variables available</div>
+        <div style={styles.widgetContent} data-testid="global-variables-empty">
+          No variables available
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={styles.widget}>
+    <div style={styles.widget} data-testid="global-variables-widget">
       <div style={styles.widgetTitle}>{title}</div>
-      <div style={styles.widgetContent}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' } as React.CSSProperties}>
-          {/* Count Summary */}
-          <div style={{ fontSize: '0.85em', fontWeight: '600', color: '#333', marginBottom: '4px' }}>
-            Total Variables: <span style={{ color: '#007ea8' }}>{count}</span>
-          </div>
-
-          {/* Variables List */}
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '4px',
-              maxHeight: '300px',
-              overflowY: 'auto' as React.CSSProperties['overflowY'],
-            }}
-          >
-            {variables.slice(0, 10).map((variable, idx) => (
+      <div style={styles.widgetContent} data-testid="global-variables-list">
+        <div style={{ fontSize: "0.85em", fontWeight: 600, marginBottom: "8px" }}>
+          Total Variables: <span style={{ color: "#007ea8" }}>{variables.length}</span>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "4px",
+            maxHeight: "300px",
+            overflowY: "auto",
+          }}
+        >
+          {variables.slice(0, 20).map((variable) => (
+            <div
+              key={variable.name}
+              style={{
+                fontSize: "0.75em",
+                padding: "6px",
+                backgroundColor: "#f9f9f9",
+                borderLeft: "2px solid #007ea8",
+                borderRadius: "2px",
+              }}
+            >
+              <div style={{ fontWeight: 600, color: "#333", marginBottom: "2px" }}>
+                {variable.name}
+              </div>
               <div
-                key={idx}
                 style={{
-                  fontSize: '0.75em',
-                  padding: '6px',
-                  backgroundColor: '#f9f9f9',
-                  borderLeft: '2px solid #007ea8',
-                  borderRadius: '2px',
+                  color: "#666",
+                  wordBreak: "break-word",
                 }}
               >
-                <div style={{ fontWeight: '600', color: '#333', marginBottom: '2px' }}>
-                  {variable.name}
-                </div>
-                <div style={{ color: '#666', fontSize: '0.9em', wordBreak: 'break-word' }}>
-                  {variable.value.substring(0, 100)}{variable.value.length > 100 ? '...' : ''}
-                </div>
-                {variable.scope && (
-                  <div style={{ fontSize: '0.8em', color: '#999', marginTop: '2px' }}>
-                    Scope: {variable.scope}
-                  </div>
-                )}
+                {variable.value.length > 120
+                  ? `${variable.value.slice(0, 120)}…`
+                  : variable.value}
               </div>
-            ))}
-            {variables.length > 10 && (
-              <div style={{ fontSize: '0.75em', color: '#999', fontStyle: 'italic', textAlign: 'center' }}>
-                +{variables.length - 10} more variables
-              </div>
-            )}
-          </div>
+            </div>
+          ))}
+          {variables.length > 20 ? (
+            <div style={{ fontSize: "0.75em", color: "#999", textAlign: "center" }}>
+              +{variables.length - 20} more variables
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
   );
 };
+
+export default GlobalVariablesWidget;

@@ -6,8 +6,13 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   fetchContentActivity,
   fetchItemsByWorkflowState,
+  fetchProcessMonitors,
+  fetchGlobalVariables,
+  fetchFormsForSite,
   groupItemsByStatus,
   normalizeContentActivityRow,
+  normalizeProcessMonitors,
+  parseGlobalVariablesData,
   unwrapNamedList,
 } from "@/api/dashboard/gadgetApi";
 import * as client from "@/api/client";
@@ -127,5 +132,79 @@ describe("gadgetApi", () => {
     ]);
     expect(buckets.find((b) => b.state === "Draft")?.count).toBe(2);
     expect(buckets.find((b) => b.state === "Live")?.count).toBe(1);
+  });
+
+  it("normalizeProcessMonitors reads stats.entries", () => {
+    const rows = normalizeProcessMonitors({
+      monitor: [
+        {
+          stats: {
+            entries: {
+              name: "Publish",
+              designator: "pub",
+              status: "idle",
+              message: "ok",
+            },
+          },
+        },
+      ],
+    });
+    expect(rows).toEqual([
+      {
+        designator: "pub",
+        name: "Publish",
+        status: "idle",
+        message: "ok",
+      },
+    ]);
+  });
+
+  it("fetchProcessMonitors GETs sitemanage/monitor/all", async () => {
+    vi.mocked(client.get).mockResolvedValue({ monitor: [] });
+    await fetchProcessMonitors();
+    expect(client.get).toHaveBeenCalledWith(PATHS.MONITOR_ALL);
+  });
+
+  it("parseGlobalVariablesData handles map and variables array", () => {
+    expect(
+      parseGlobalVariablesData({ variables: [{ name: "a", value: "1" }] }),
+    ).toEqual([{ name: "a", value: "1" }]);
+    expect(parseGlobalVariablesData('{"siteName":"Demo"}')).toEqual([
+      { name: "siteName", value: "Demo" },
+    ]);
+  });
+
+  it("fetchGlobalVariables loads percglobalvariables metadata", async () => {
+    vi.mocked(client.get).mockResolvedValue({
+      metaData: {
+        key: "percglobalvariables",
+        data: JSON.stringify({ foo: "bar" }),
+      },
+    });
+    const vars = await fetchGlobalVariables();
+    expect(client.get).toHaveBeenCalledWith(
+      `${PATHS.METADATA_FIND}/percglobalvariables`,
+    );
+    expect(vars).toEqual([{ name: "foo", value: "bar" }]);
+  });
+
+  it("fetchFormsForSite GETs asset forms", async () => {
+    vi.mocked(client.get).mockResolvedValue({
+      FormSummary: [
+        {
+          name: "contact",
+          title: "Contact",
+          totalSubmissions: 3,
+          newSubmissions: 1,
+        },
+      ],
+    });
+    const forms = await fetchFormsForSite("Demo");
+    expect(client.get).toHaveBeenCalledWith(`${PATHS.ASSET_FORMS}/Demo`);
+    expect(forms[0]).toMatchObject({
+      name: "contact",
+      totalSubmissions: 3,
+      newSubmissions: 1,
+    });
   });
 });

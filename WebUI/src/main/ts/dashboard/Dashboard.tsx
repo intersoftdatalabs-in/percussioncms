@@ -220,9 +220,9 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
 ];
 
 /**
- * Default Home Gadgets layout — only widgets with verified sitemanage APIs.
- * Assets By Status and other invented-endpoint shells stay in AVAILABLE_GADGETS
- * for optional add, but are not auto-mounted (they still 500/404).
+ * Default Home Gadgets layout — widgets with verified sitemanage APIs.
+ * Remaining catalog entries (Traffic, Effectiveness, SEO, etc.) stay optional
+ * until rewritten off invented endpoints.
  */
 const DEFAULT_GADGETS: DashboardWidget[] = [
   {
@@ -252,6 +252,20 @@ const DEFAULT_GADGETS: DashboardWidget[] = [
     component: ActivityWidget,
     props: {},
     position: { column: "right", order: 0 },
+  },
+  {
+    id: "assets-status",
+    name: "Assets By Status",
+    component: AssetsStatusWidget,
+    props: {},
+    position: { column: "right", order: 1 },
+  },
+  {
+    id: "process-monitor",
+    name: "Process Monitor",
+    component: ProcessMonitorWidget,
+    props: {},
+    position: { column: "right", order: 2 },
   },
 ];
 

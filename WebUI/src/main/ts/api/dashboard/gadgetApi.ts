@@ -296,3 +296,224 @@ export async function fetchPagesByStatusSummary(options?: {
     totalItems: items.length,
   };
 }
+
+/** Classic Assets tree root for Assets By Status. */
+export const ASSETS_ROOT_PATH = "/Assets";
+
+/**
+ * Assets By Status — same wfState API as pages, rooted under {@code /Assets}.
+ */
+export async function fetchAssetsByStatusSummary(options?: {
+  path?: string;
+  workflow?: string;
+}): Promise<PagesByStatusResult> {
+  return fetchPagesByStatusSummary({
+    path: options?.path?.trim() || ASSETS_ROOT_PATH,
+    workflow: options?.workflow,
+  });
+}
+
+/** One process monitor row. */
+export interface ProcessMonitorRow {
+  designator: string;
+  name: string;
+  status?: string;
+  message?: string;
+}
+
+/**
+ * Parse classic {@code PSMonitorList} / {@code PSMonitor} wire (stats map).
+ */
+export function normalizeProcessMonitors(data: unknown): ProcessMonitorRow[] {
+  const list = unwrapNamedList(data, "monitor");
+  // also try "Monitor" / nested list
+  const raw =
+    list.length > 0
+      ? list
+      : unwrapNamedList(data, "Monitor").length > 0
+        ? unwrapNamedList(data, "Monitor")
+        : Array.isArray(data)
+          ? data
+          : [];
+
+  const out: ProcessMonitorRow[] = [];
+  for (const item of raw) {
+    const o = asRecord(item);
+    if (!o) continue;
+    const stats = asRecord(o.stats) ?? o;
+    const entries =
+      asRecord(stats.entries) ??
+      (stats.entries && typeof stats.entries === "object"
+        ? (stats.entries as Record<string, unknown>)
+        : stats);
+    const ent = asRecord(entries) ?? {};
+    const designator =
+      (ent.designator != null && String(ent.designator)) ||
+      (o.designator != null && String(o.designator)) ||
+      "";
+    const name =
+      (ent.name != null && String(ent.name)) ||
+      (o.name != null && String(o.name)) ||
+      designator ||
+      "Monitor";
+    const status =
+      (ent.status != null && String(ent.status)) ||
+      (o.status != null && String(o.status)) ||
+      undefined;
+    const message =
+      (ent.message != null && String(ent.message)) ||
+      (o.message != null && String(o.message)) ||
+      undefined;
+    out.push({ designator: designator || name, name, status, message });
+  }
+  return out;
+}
+
+/** Classic PROCESS_STATUS_ALL: GET sitemanage/monitor/all */
+export async function fetchProcessMonitors(): Promise<ProcessMonitorRow[]> {
+  const data = await get<unknown>(PATHS.MONITOR_ALL);
+  return normalizeProcessMonitors(data);
+}
+
+export interface GlobalVariableEntry {
+  name: string;
+  value: string;
+}
+
+/**
+ * Parse global variables metadata {@code data} field (JSON string or object).
+ * Classic key: {@code percglobalvariables}.
+ */
+export function parseGlobalVariablesData(dataField: unknown): GlobalVariableEntry[] {
+  let parsed: unknown = dataField;
+  if (typeof dataField === "string") {
+    const t = dataField.trim();
+    if (!t) return [];
+    try {
+      parsed = JSON.parse(t);
+    } catch {
+      // plain text / non-JSON — single synthetic entry
+      return [{ name: "data", value: t }];
+    }
+  }
+  const out: GlobalVariableEntry[] = [];
+  const walk = (node: unknown, prefix = ""): void => {
+    if (node == null) return;
+    if (typeof node === "string" || typeof node === "number" || typeof node === "boolean") {
+      if (prefix) {
+        out.push({ name: prefix, value: String(node) });
+      }
+      return;
+    }
+    if (Array.isArray(node)) {
+      node.forEach((v, i) => walk(v, prefix ? `${prefix}[${i}]` : `[${i}]`));
+      return;
+    }
+    if (typeof node === "object") {
+      const o = node as Record<string, unknown>;
+      // Common shapes: { name, value } arrays, or map of name→value
+      if (Array.isArray(o.variables)) {
+        for (const v of o.variables) {
+          const r = asRecord(v);
+          if (r && r.name != null) {
+            out.push({
+              name: String(r.name),
+              value: r.value != null ? String(r.value) : "",
+            });
+          }
+        }
+        return;
+      }
+      for (const [k, v] of Object.entries(o)) {
+        const key = prefix ? `${prefix}.${k}` : k;
+        if (v != null && typeof v === "object" && !Array.isArray(v)) {
+          const r = asRecord(v);
+          if (r && ("value" in r || "val" in r)) {
+            out.push({
+              name: key,
+              value: String(r.value ?? r.val ?? ""),
+            });
+          } else {
+            walk(v, key);
+          }
+        } else if (typeof v === "string" || typeof v === "number" || typeof v === "boolean") {
+          out.push({ name: key, value: String(v) });
+        } else {
+          walk(v, key);
+        }
+      }
+    }
+  };
+  walk(parsed);
+  return out;
+}
+
+/** Load global variables metadata key {@code percglobalvariables}. */
+export async function fetchGlobalVariables(): Promise<GlobalVariableEntry[]> {
+  const data = await get<unknown>(
+    `${PATHS.METADATA_FIND}/${encodeURIComponent("percglobalvariables")}`,
+  );
+  const root = asRecord(data);
+  // { metaData: { key, data } } or flat { key, data }
+  const body = asRecord(root?.metaData) ?? root;
+  if (!body) {
+    return [];
+  }
+  return parseGlobalVariablesData(body.data);
+}
+
+export interface FormSummaryRow {
+  id?: string;
+  name: string;
+  title?: string;
+  state?: string;
+  site?: string;
+  totalSubmissions: number;
+  newSubmissions: number;
+}
+
+export function normalizeFormSummary(raw: unknown): FormSummaryRow | null {
+  const o = asRecord(raw);
+  if (!o) return null;
+  const name = o.name != null ? String(o.name).trim() : "";
+  if (!name) return null;
+  return {
+    id: o.id != null ? String(o.id) : undefined,
+    name,
+    title: o.title != null ? String(o.title) : undefined,
+    state: o.state != null ? String(o.state) : undefined,
+    site: o.site != null ? String(o.site) : undefined,
+    totalSubmissions: num(o.totalSubmissions),
+    newSubmissions: num(o.newSubmissions),
+  };
+}
+
+/**
+ * Form Tracker: GET assetmanagement/asset/forms/{site}.
+ */
+export async function fetchFormsForSite(siteName: string): Promise<FormSummaryRow[]> {
+  const site = siteName.trim();
+  if (!site) {
+    return [];
+  }
+  const data = await get<unknown>(
+    `${PATHS.ASSET_FORMS}/${encodeURIComponent(site)}`,
+  );
+  return unwrapNamedList(data, "FormSummary")
+    .map(normalizeFormSummary)
+    .filter((r): r is FormSummaryRow => r != null);
+}
+
+/** Forms for the first site (or empty if none). Propagates API errors. */
+export async function fetchFormsForDefaultSite(): Promise<{
+  site: string | null;
+  forms: FormSummaryRow[];
+}> {
+  const sites = await fetchSites();
+  const site = sites[0]?.name?.trim() || null;
+  if (!site) {
+    return { site: null, forms: [] };
+  }
+  const forms = await fetchFormsForSite(site);
+  return { site, forms };
+}

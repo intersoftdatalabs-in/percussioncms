@@ -15,220 +15,139 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from 'react';
-import { get } from '../api/client';
-import { styles } from './dashboard.styles';
-
-interface FormSubmission {
-  id: string;
-  formName: string;
-  formId?: string;
-  submissions: number;
-  successCount?: number;
-  errorCount?: number;
-  lastSubmission?: string;
-  createdAt?: string;
-  submissionRate?: string;
-  status?: string;
-}
-
-interface FormsTrackerData {
-  forms?: FormSubmission[];
-  items?: FormSubmission[];
-  trackedForms?: FormSubmission[];
-  data?: FormSubmission[];
-  [key: string]: unknown;
-}
+import React, { useCallback, useEffect, useState } from "react";
+import { isSessionRedirectError } from "../api/client";
+import {
+  fetchFormsForDefaultSite,
+  fetchFormsForSite,
+  type FormSummaryRow,
+} from "../api/dashboard/gadgetApi";
+import { formatApiError } from "../api/home/homeApi";
+import { styles } from "./dashboard.styles";
 
 export interface FormsTrackerWidgetProps {
   title?: string;
+  /** Site name; when omitted, first site is used. */
+  site?: string;
   refreshInterval?: number;
-  maxForms?: number;
 }
 
 /**
- * FormsTrackerWidget displays form submission metrics and tracking.
- * Shows form name, total submissions, success/error counts, and trends.
- * Fetches data from the forms tracker REST endpoint and updates periodically.
+ * Classic **Forms Tracker** gadget.
+ *
+ * <p>Server: {@code GET /services/assetmanagement/asset/forms/{site}}.
+ * Invented path {@code /services/forms/tracker} does not exist.</p>
  */
 export const FormsTrackerWidget: React.FC<FormsTrackerWidgetProps> = ({
-  title = 'Form Tracker',
-  refreshInterval = 25000,
-  maxForms = 10,
+  title = "Form Tracker",
+  site: siteProp,
+  refreshInterval = 60000,
 }) => {
-  const [forms, setForms] = useState<FormSubmission[]>([]);
+  const [forms, setForms] = useState<FormSummaryRow[]>([]);
+  const [site, setSite] = useState<string | null>(siteProp ?? null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchForms = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        // Fetch forms tracker data
-        const response = await get<FormsTrackerData>('/services/forms/tracker');
-
-        // Handle response format
-        let formArray: FormSubmission[] = [];
-        if (response.forms && Array.isArray(response.forms)) {
-          formArray = response.forms;
-        } else if (response.items && Array.isArray(response.items)) {
-          formArray = response.items;
-        } else if (response.trackedForms && Array.isArray(response.trackedForms)) {
-          formArray = response.trackedForms;
-        } else if (response.data && Array.isArray(response.data)) {
-          formArray = response.data;
-        } else if (Array.isArray(response)) {
-          formArray = response as FormSubmission[];
-        }
-
-        // Limit to maxForms
-        setForms(formArray.slice(0, maxForms));
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : 'Failed to load forms tracker data';
-        setError(errorMessage);
-        console.error('FormsTrackerWidget error:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    // Fetch immediately
-    fetchForms();
-
-    // Set up refresh interval if specified
-    const interval =
-      refreshInterval > 0 ? setInterval(fetchForms, refreshInterval) : undefined;
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [refreshInterval, maxForms]);
-
-  const getStatusIcon = (f: FormSubmission): string => {
-    const errorRate = f.errorCount ? (f.errorCount / f.submissions) * 100 : 0;
-    if (errorRate > 20) return '⚠️';
-    if (f.status?.toLowerCase() === 'inactive') return '⏸️';
-    return '📋';
-  };
-
-  const getStatusColor = (f: FormSubmission): string => {
-    const errorRate = f.errorCount ? (f.errorCount / f.submissions) * 100 : 0;
-    if (errorRate > 20) return '#ff5722';
-    if (f.status?.toLowerCase() === 'inactive') return '#999';
-    return '#4caf50';
-  };
-
-  const formatDate = (timestamp: string | undefined): string => {
-    if (!timestamp) return '';
+  const load = useCallback(async () => {
     try {
-      const date = new Date(timestamp);
-      const now = new Date();
-      const diffMs = now.getTime() - date.getTime();
-      const diffHours = Math.floor(diffMs / 3600000);
-      const diffDays = Math.floor(diffMs / 86400000);
-
-      if (diffHours < 1) return 'just now';
-      if (diffHours < 24) return `${diffHours}h ago`;
-      if (diffDays < 7) return `${diffDays}d ago`;
-      return date.toLocaleDateString();
-    } catch {
-      return timestamp;
+      setIsLoading(true);
+      setError(null);
+      if (siteProp?.trim()) {
+        const list = await fetchFormsForSite(siteProp.trim());
+        setSite(siteProp.trim());
+        setForms(list);
+      } else {
+        const result = await fetchFormsForDefaultSite();
+        setSite(result.site);
+        setForms(result.forms);
+      }
+    } catch (err: unknown) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setError(formatApiError(err, "Failed to load forms"));
+      setForms([]);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [siteProp]);
 
-  const calculateSuccessRate = (f: FormSubmission): string => {
-    if (!f.submissions || f.submissions === 0) return '0%';
-    if (!f.errorCount) return '100%';
-    const successCount = f.submissions - (f.errorCount || 0);
-    const rate = ((successCount / f.submissions) * 100).toFixed(0);
-    return `${rate}%`;
-  };
+  useEffect(() => {
+    void load();
+    if (refreshInterval <= 0) {
+      return;
+    }
+    const id = window.setInterval(() => void load(), refreshInterval);
+    return () => window.clearInterval(id);
+  }, [load, refreshInterval]);
 
   const renderContent = () => {
     if (isLoading) {
       return (
-        <div style={styles.widgetLoading}>
-          <p>Loading form tracker...</p>
+        <div style={styles.widgetLoading} data-testid="forms-tracker-loading">
+          <p>Loading forms...</p>
         </div>
       );
     }
-
     if (error) {
       return (
-        <div style={styles.widgetError}>
+        <div style={styles.widgetError} data-testid="forms-tracker-error">
           <p>Error: {error}</p>
         </div>
       );
     }
-
-    if (!forms || forms.length === 0) {
+    if (!site) {
       return (
-        <div style={styles.widgetContent}>
-          <p>No tracked forms</p>
+        <div style={styles.widgetContent} data-testid="forms-tracker-empty">
+          <p>No sites available to load forms.</p>
         </div>
       );
     }
-
+    if (forms.length === 0) {
+      return (
+        <div style={styles.widgetContent} data-testid="forms-tracker-empty">
+          <p>No forms for site {site}.</p>
+        </div>
+      );
+    }
     return (
-      <div style={styles.widgetContent}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' } as React.CSSProperties}>
-          {forms.map((form, index) => (
-            <div
-              key={form.id || index}
+      <div style={styles.widgetContent} data-testid="forms-tracker-list">
+        <p style={{ fontSize: "0.85em", color: "#666", marginTop: 0 }}>
+          Site: {site} · {forms.length} form{forms.length === 1 ? "" : "s"}
+        </p>
+        <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+          {forms.map((form) => (
+            <li
+              key={form.id ?? form.name}
               style={{
-                padding: '10px',
-                backgroundColor: '#fafafa',
-                border: `1px solid ${getStatusColor(form)}33`,
-                borderLeft: `3px solid ${getStatusColor(form)}`,
-                borderRadius: '3px',
-                transition: 'all 0.2s ease',
-              } as React.CSSProperties}
-              onMouseEnter={(e) => {
-                const el = e.currentTarget as HTMLDivElement;
-                el.style.backgroundColor = '#f0f7ff';
-              }}
-              onMouseLeave={(e) => {
-                const el = e.currentTarget as HTMLDivElement;
-                el.style.backgroundColor = '#fafafa';
+                padding: "8px 0",
+                borderBottom: "1px solid #e0e0e0",
+                display: "flex",
+                justifyContent: "space-between",
+                gap: "12px",
               }}
             >
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', marginBottom: '6px' } as React.CSSProperties}>
-                <div style={{ fontSize: '1.1em', flexShrink: 0 }}>
-                  {getStatusIcon(form)}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: '600', fontSize: '0.9em', color: '#333', marginBottom: '2px' }}>
-                    {form.formName}
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', fontSize: '0.75em', color: '#666' } as React.CSSProperties}>
-                    <div>📊 {form.submissions} submissions</div>
-                    {form.successCount !== undefined && (
-                      <div style={{ color: '#4caf50' }}>✓ {form.successCount} success</div>
-                    )}
-                    <div>Success Rate: <span style={{ fontWeight: '600', color: getStatusColor(form) }}>{calculateSuccessRate(form)}</span></div>
-                    {form.errorCount !== undefined && form.errorCount > 0 && (
-                      <div style={{ color: '#c33' }}>✗ {form.errorCount} errors</div>
-                    )}
-                  </div>
-                  {form.lastSubmission && (
-                    <div style={{ fontSize: '0.7em', color: '#999', marginTop: '4px' }}>
-                      Last: {formatDate(form.lastSubmission)}
-                    </div>
-                  )}
+              <div>
+                <div style={{ fontWeight: 500 }}>{form.title || form.name}</div>
+                <div style={{ fontSize: "0.8em", color: "#666" }}>
+                  {form.state ? `State: ${form.state}` : form.name}
                 </div>
               </div>
-            </div>
+              <div style={{ textAlign: "right", fontSize: "0.85em", color: "#007ea8" }}>
+                <div>
+                  <strong>{form.totalSubmissions}</strong> total
+                </div>
+                <div style={{ color: "#666" }}>{form.newSubmissions} new</div>
+              </div>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     );
   };
 
   return (
-    <div style={styles.widget}>
+    <div style={styles.widget} data-testid="forms-tracker-widget">
       <div style={styles.widgetTitle}>{title}</div>
       {renderContent()}
     </div>

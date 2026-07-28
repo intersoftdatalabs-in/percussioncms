@@ -155,6 +155,33 @@ export const PATHS = {
   get ACTIVITY_CONTENT() {
     return `${SERVICES_ROOT}/activitymanagement/activity/contentactivity`;
   },
+  /** What's Working / effectiveness (POST EffectivenessRequest). */
+  get ACTIVITY_EFFECTIVENESS() {
+    return `${SERVICES_ROOT}/activitymanagement/activity/effectiveness`;
+  },
+  /** Traffic gadget (POST ContentTrafficRequest). */
+  get ACTIVITY_TRAFFIC() {
+    return `${SERVICES_ROOT}/activitymanagement/activity/contenttraffic`;
+  },
+  /**
+   * Process Monitor list (classic PROCESS_STATUS_ALL).
+   * {@code GET /sitemanage/monitor/all}
+   */
+  get MONITOR_ALL() {
+    return `${SERVICES_ROOT}/sitemanage/monitor/all`;
+  },
+  /** Metadata find by key — e.g. {@code percglobalvariables}. */
+  get METADATA_FIND() {
+    return `${SERVICES_ROOT}/metadatamanagement/metadata`;
+  },
+  /** Form Tracker — GET asset forms for a site. */
+  get ASSET_FORMS() {
+    return `${SERVICES_ROOT}/assetmanagement/asset/forms`;
+  },
+  /** Cookie consent totals (proxies DTS; may fail if delivery not configured). */
+  get COOKIE_CONSENT_TOTALS() {
+    return `${SERVICES_ROOT}/delivery/consent/log/totals`;
+  },
   get PATH_ADD_NEW_FOLDER() {
     return `${SERVICES_ROOT}/pathmanagement/path/addNewFolder`;
   },
