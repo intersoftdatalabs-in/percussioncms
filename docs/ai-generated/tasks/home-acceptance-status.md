@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Date** | 2026-07-28 |
-| **Branch tip** | `development` (post #1571–#1575) |
+| **Branch tip** | `development` (post Home PRs #1571–#1574) |
 | **Overall** | **Not accepted** — core sections largely functional; Gadgets not product-ready |
 
 ## Section status
