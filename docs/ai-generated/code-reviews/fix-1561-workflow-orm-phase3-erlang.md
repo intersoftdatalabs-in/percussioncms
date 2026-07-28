@@ -100,9 +100,23 @@ Build: `mvn-env.bat -N clean test -Dmaven.javadoc.skip=true` → **BUILD SUCCESS
 | Bug (caught at build): `transitionContext` vs `transition` variable mismatch in new builder overload | **resolved** | renamed + used `transition.getGUID().longValue()` / `getLabel()` |
 | Suggestion: `getContentCreatedBy` returns `""` (matches legacy behaviour) | **documented** | comment notes the deviation and equivalent behaviour |
 
+## PR #1570 review comments (re-reviewed)
+
+After the Phase 3 PR was opened, GitHub reviews raised four concerns (all addressed
+in the same branch, on a follow-up commit):
+
+| Comment | Severity | Resolution |
+|---|---|---|
+| Dead code: `PSTransformTransitionUtils.getTransition(PSTransitionHib)` was renamed to `convertTransition` but the original private method was never deleted. | bug | **Fixed**: deleted the dead `private static PSTransition getTransition(PSTransitionHib)` (former line 161). |
+| `PSComponentSummaryAdapter` has no unit tests; its fallback values (`""` for creator, `false` for `isRevisionLocked` / `neverAged`, `null` for `reminderDate`) are undocumented assumptions about what legacy callers tolerate. | bug | **Fixed**: added `PSComponentSummaryAdapterTest` with 7 tests (happy path + null-date narrowing + fallback values + boxed-Integer zero coercion + null-checkout-user preservation + null-summary rejection + mutator `UnsupportedOperationException`). |
+| `PSComponentSummaryAdapter.getContentCreatedBy()` returns `""` but the reviewer thought the legacy returned `null` when the column was NULL. | suggestion (incorrect) | **Documented**: the legacy `moveNext()` used `PSWorkFlowUtils.trimmedOrEmptyString(m_Rs.getString("CONTENTCREATEDBY"))`, which by its own Javadoc returns `""` for `null`. The adapter matches byte-for-byte. Inline reply on the thread cites the Javadoc and the test that pins the contract. |
+| `PSWorkflowService.loadWorkflowTransition(long, long)` has no unit tests; its aging-filter, null-result, and validation branches aren't covered. | bug | **Fixed**: added `PSWorkflowServiceLoadWorkflowTransitionTest` with 6 tests (rejects non-positive workflowAppId / transitionId, aging-transition null return, missing-row null return, happy path, composite-key verification). All Mockito-based, no Spring context. |
+
 ---
 
 ## Concrete tests added (this branch)
+
+### Original Phase 3 tests (PR #1570)
 
 | Test | Coverage |
 |---|---|
@@ -112,6 +126,16 @@ Build: `mvn-env.bat -N clean test -Dmaven.javadoc.skip=true` → **BUILD SUCCESS
 The `PSContentStatusHistoryEntityBuilderTest` suite still passes **9 / 9**; this branch makes no new tests but does add test-classpath deps that exercise the existing suite in CI (it was previously running `Tests run: 0`).
 
 `mvn-env.bat -N clean test -Dmaven.javadoc.skip=true` → **BUILD SUCCESS**, `Tests run: 9, Failures: 0, Errors: 0, Skipped: 0`.
+
+### Tests added in the PR #1570 review-comment fix pack
+
+| Test class | Tests | Coverage |
+|---|---|---|
+| `PSComponentSummaryAdapterTest` | **7** | happy-path getter mapping + date narrowing; null dates stay null (not synthetic defaults); documented fallback values for fields `PSComponentSummary` does not expose (`""` for creator, `false` for `isRevisionLocked` / `neverAged`, `null` for `reminderDate`); boxed-Integer fields (`CURRENTREVISION`, `EDITREVISION`, `TIPREVISION`) null-coerce to zero; null checkout user stays null; null summary is rejected by the constructor; mutators throw `UnsupportedOperationException`; `close()` is a no-op (Phase 3 in-memory cursor). |
+| `PSWorkflowServiceLoadWorkflowTransitionTest` | **6** | rejects non-positive `workflowAppId` (0, -1) and `transitionId` (0, -3); aging-transition row → returns `null` (the new safety branch); missing row → returns `null`; happy path returns a converted `PSTransition` with the right `GUID`, `workflowId`, `label`; composite-key verification — `Session.get` is called with a `PSTransitionPK(7L, 11L)` exactly. |
+
+`mvn-env.bat -N clean install -Dmaven.javadoc.skip=true` in `modules/extensions-workflow` → **BUILD SUCCESS**, `Tests run: 16, Failures: 0, Errors: 0, Skipped: 0` (7 new + 9 existing).
+`mvn-env.bat -N clean install -Dmaven.javadoc.skip=true -Dtest=PSWorkflowServiceLoadWorkflowTransitionTest` in `system` → **BUILD SUCCESS**, `Tests run: 6, Failures: 0, Errors: 0, Skipped: 0`.
 
 ---
 

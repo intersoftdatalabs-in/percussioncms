@@ -153,21 +153,7 @@ public class PSTransformTransitionUtils
       return hib;
    }
    
-   /**
-    * Converts the persisted transition object to non-persisted transition
-    * @param hib the persisted transition, assumed not <code>null</code>.
-    * @return the converted non-persisted transition, not <code>null</code>.
-    */
-   private static PSTransition getTransition(PSTransitionHib hib)
-   {
-      PSTransition trans = new PSTransition();
-      copyBaseProperties(hib, trans, true);
-      copyTransitionProperties(hib, trans);
-
-      return trans;
-   }
-   
-   /**
+/**
     * Converts the given non-persisted transition objects to the persisted transition objects.
     * 
     * @param transitions the non-persisted transition objects, assumed not <code>null</code>, but may be empty.
