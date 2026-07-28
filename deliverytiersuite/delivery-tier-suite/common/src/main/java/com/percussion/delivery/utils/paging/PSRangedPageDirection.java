@@ -22,6 +22,8 @@ package com.percussion.delivery.utils.paging;
  * @author natechadwick
  */
 public enum PSRangedPageDirection {
+  /** The paging operation moves forward through the result set. */
   FORWARD,
+  /** The paging operation moves backward through the result set. */
   BACKWARD
 }

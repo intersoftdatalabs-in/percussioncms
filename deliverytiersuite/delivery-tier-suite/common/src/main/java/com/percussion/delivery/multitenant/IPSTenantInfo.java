@@ -25,59 +25,76 @@ import java.util.Date;
  */
 public interface IPSTenantInfo {
 
-  /***
-   * Sets the Tenant ID or License Number
+  /**
+   * Sets the tenant ID or license number associated with this tenant.
    *
-   * @param id A valid string
+   * @param id the tenant id, never <code>null</code>.
    */
   public void setTenantId(String id);
 
-  /***
-   * Returns the Tenant ID
+  /**
+   * Returns the tenant ID.
    *
+   * @return the tenant id, may be <code>null</code>.
    */
   public String getTenantId();
 
-  /***
-   * Returns a long representing the total number of API Calls made by a tenant to this service.
+  /**
+   * Returns the total number of API calls made by this tenant to the service.
    *
+   * @return the cumulative API call count.
    */
   public long getAPIUsage();
 
-  /***
-   * Adds the specified value to the Tenant current API usage counter.
-   * @param value A number representing API calls made to the service.
+  /**
+   * Adds the specified value to the tenant's current API usage counter.
+   *
+   * @param value a number representing API calls made to the service.
    */
   public void addAPIUsage(long value);
 
-  /***
-   * Clears the tenant API usage counter.
-   */
+  /** Clears the tenant API usage counter. */
   public void clearAPIUsage();
 
-  /***
-   * Sets the date and time that API Usage counting was reset to 0
-   * @param start
+  /**
+   * Sets the date and time that API usage counting was reset to zero.
+   *
+   * @param start the date and time of the last reset.
    */
   public void setAPIUsageStart(Date start);
 
-  /***
-   * Returns the Data and Time that usage counting was started for this
-   * tenant.
+  /**
+   * Returns the date and time that usage counting was started for this tenant.
    *
-   *
+   * @return the API usage start date, never <code>null</code>.
    */
   public Date getAPIUsageStart();
 
-  /***
-   * Returns the date and time that the License was last authorized.
+  /**
+   * Returns the date and time that the license was last authorized.
    *
+   * @return the last authorization check date, may be <code>null</code>.
    */
   public Date getLastAuthorizationCheckDate();
 
+  /**
+   * Sets the date and time that the license was last authorized.
+   *
+   * @param date the new authorization check date.
+   */
   public void setLastAuthorizationCheckDate(Date date);
 
+  /**
+   * Returns the current license status for the tenant.
+   *
+   * @return the license status, may be <code>null</code>.
+   */
   public PSLicenseStatus getLicenseStatus();
 
+  /**
+   * Sets the current license status for the tenant.
+   *
+   * @param status the license status, may be <code>null</code>.
+   */
   public void setLicenseStatus(PSLicenseStatus status);
 }

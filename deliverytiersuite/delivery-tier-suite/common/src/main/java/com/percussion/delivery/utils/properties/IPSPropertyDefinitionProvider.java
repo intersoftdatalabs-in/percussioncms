@@ -24,9 +24,25 @@ import java.util.List;
  *
  * @author natechadwick
  */
+/**
+ * Defines the contract for services that expose configurable property definitions which can be
+ * edited from the front-end.
+ *
+ * @author natechadwick
+ */
 public interface IPSPropertyDefinitionProvider {
 
+  /**
+   * Returns the property groups exposed by this provider.
+   *
+   * @return the list of property group definitions, never <code>null</code>; may be empty.
+   */
   public List<PSPropertyGroupDefinition> getPropertyGroups();
 
+  /**
+   * Sets the property groups exposed by this provider.
+   *
+   * @param groups the property groups to expose, may be <code>null</code>.
+   */
   public void setPropertyGroups(List<PSPropertyGroupDefinition> groups);
 }

@@ -28,6 +28,9 @@ import org.apache.commons.mail.MultiPartEmail;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Default implementation of {@link IPSEmailHelper} backed by Apache Commons Email.
+ */
 public class PSEmailHelper implements IPSEmailHelper {
   /**
    * Constructor for this class, initializes email client with the supplied properties.
@@ -41,12 +44,18 @@ public class PSEmailHelper implements IPSEmailHelper {
     this.emailProps = emailProps;
   }
 
-  /*
-   * (non-Javadoc)
+  /**
+   * Sends an email assembled from the supplied {@link IPSEmailRequest}. The recipients are
+   * added from the request's To, CC and BCC lists, and the email is dispatched using the
+   * authenticated SMTP client configured at construction.
    *
-   * @see
-   * com.percussion.delivery.utils.IPSEmailHelper#sendMail(com.percussion.
-   * delivery.email.data.IPSEmailRequest)
+   * @param emailRequest the request describing the email to send, never <code>null</code>.
+   * @return the message id returned by the underlying mail client, never <code>null</code>.
+   * @throws PSEmailServiceNotInitializedException if no email client could be initialized from
+   *     the configured properties.
+   * @throws PSEmailException if any error occurs while preparing or sending the email.
+   * @see com.percussion.delivery.utils.IPSEmailHelper#sendMail(
+   *     com.percussion.delivery.email.data.IPSEmailRequest)
    */
   @Override
   public String sendMail(IPSEmailRequest emailRequest)

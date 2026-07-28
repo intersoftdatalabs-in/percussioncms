@@ -18,13 +18,15 @@
 package com.percussion.delivery.multitenant;
 
 /**
- * Context for the currently operated tenant. Implementations of this class could be something that
- * holds the current tenant in Request.args, or it could hold the current tenant in ThreadLocal.
+ * Context for the currently operated tenant. Implementations of this interface could hold the
+ * current tenant in request attributes, in a {@link ThreadLocal}, or via some other scope.
  */
 public interface IPSTenantContext {
 
   /**
-   * @return current tenant id, or null if tenant isn't known currently
+   * Returns the current tenant id.
+   *
+   * @return the current tenant id, or <code>null</code> if the tenant is not known.
    */
   public String getTenantId();
 }

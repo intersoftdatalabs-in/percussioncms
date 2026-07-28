@@ -28,6 +28,11 @@ import jakarta.ws.rs.core.Response.Status;
 public class PSBadRequestException extends WebApplicationException {
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Constructs a new bad request exception with the supplied message.
+   *
+   * @param message the message to include in the 400 response body, may be <code>null</code>.
+   */
   public PSBadRequestException(String message) {
     super(Response.status(Status.BAD_REQUEST).entity(message).build());
   }

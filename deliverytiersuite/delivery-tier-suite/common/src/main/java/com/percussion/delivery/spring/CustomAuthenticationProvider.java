@@ -35,6 +35,17 @@ import org.springframework.stereotype.Component;
 public class CustomAuthenticationProvider
     implements AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
 
+  /** Default constructor. */
+  public CustomAuthenticationProvider() {}
+
+  /**
+   * Loads user details from the supplied pre-authenticated authentication token by unwrapping
+   * the underlying Tomcat {@code GenericPrincipal}.
+   *
+   * @param token the pre-authenticated authentication token, never <code>null</code>.
+   * @return the loaded user details, never <code>null</code>.
+   * @throws UsernameNotFoundException if the user cannot be resolved.
+   */
   @Override
   public UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken token)
       throws UsernameNotFoundException {

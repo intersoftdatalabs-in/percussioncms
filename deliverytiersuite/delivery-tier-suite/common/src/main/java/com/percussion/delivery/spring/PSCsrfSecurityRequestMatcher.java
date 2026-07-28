@@ -24,6 +24,11 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
 
+/**
+ * Spring Security {@link RequestMatcher} that decides whether a request needs CSRF protection.
+ * Requests matching one of the configured HTTP methods, or whose URI contains one of the
+ * unprotected paths, are considered exempt from CSRF validation.
+ */
 @Component
 public class PSCsrfSecurityRequestMatcher implements RequestMatcher {
 
@@ -34,9 +39,14 @@ public class PSCsrfSecurityRequestMatcher implements RequestMatcher {
   private boolean caseInsensitive = false;
 
   /**
-   * @param allowedMethodsPattern Regular expression listing excluded methods
-   * @param unprotectedPaths comma seperated list of paths to ignore
-   * @param caseInsensitive use case-insensitive comparison
+   * Constructs a new request matcher.
+   *
+   * @param allowedMethodsPattern regular expression listing excluded HTTP methods; matches the
+   *     request method against this pattern.
+   * @param unprotectedPaths comma separated list of URI fragments to ignore; a request is exempt
+   *     if its URI contains any of these substrings.
+   * @param caseInsensitive when <code>true</code>, the comparison against {@code
+   *     unprotectedPaths} and the URI is performed case-insensitively.
    */
   public PSCsrfSecurityRequestMatcher(
       String allowedMethodsPattern, String unprotectedPaths, boolean caseInsensitive) {

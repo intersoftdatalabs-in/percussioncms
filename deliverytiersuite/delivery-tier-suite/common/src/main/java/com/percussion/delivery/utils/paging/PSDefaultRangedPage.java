@@ -18,6 +18,7 @@ package com.percussion.delivery.utils.paging;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.commons.lang3.Validate;
 
 /**
  * Provides a generic implementation of a Ranged Page object.
@@ -34,20 +35,15 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author natechadwick
  */
 public class PSDefaultRangedPage implements IPSRangedPage {
-  /***
-   * Default used when page size is not set.
-   * Target is roughly 3 UX screens of data.
+  /**
+   * Default used when page size is not set. Target is roughly 3 UX screens of data.
    */
   public static final int DEFAULT_PAGE_SIZE = 75;
 
-  /***
-   * The direction of the paging operation.
-   */
+  /** The direction of the paging operation. */
   private PSRangedPageDirection direction;
 
-  /***
-   * The map of sort fields with sort directions
-   */
+  /** The map of sort fields with sort directions. */
   private ConcurrentHashMap<String, PSRangedPageSortDirection> sortFields =
       new ConcurrentHashMap<>();
 
@@ -131,9 +127,17 @@ public class PSDefaultRangedPage implements IPSRangedPage {
     this.direction = dir;
   }
 
+  /** Default constructor. */
   public PSDefaultRangedPage() {}
 
+  /**
+   * Copy-constructs a ranged page from the supplied source.
+   *
+   * @param page the source ranged page whose state is copied, never <code>null</code>.
+   * @throws IllegalArgumentException if {@code page} is <code>null</code>.
+   */
   public PSDefaultRangedPage(IPSRangedPage page) {
+    Validate.notNull(page);
     this.direction = page.getDirection();
     this.pageFields = (ConcurrentHashMap<String, Object>) page.getPageFields();
     this.pageSize = page.getPageSize();

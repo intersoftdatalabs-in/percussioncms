@@ -31,13 +31,29 @@ import jakarta.ws.rs.ext.Provider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Default {@link ExceptionMapper} used by the delivery tier services. Recognized JSON parsing or
+ * mapping errors are reported as 400 Bad Request; existing {@link WebApplicationException}s are
+ * passed through; everything else is surfaced as a 500 Internal Server Error.
+ */
 @Provider
 public class PSExceptionMapper implements ExceptionMapper<Exception> {
+
+  /** Default constructor. */
+  public PSExceptionMapper() {}
 
   private static final Logger log = LogManager.getLogger(PSExceptionMapper.class);
 
   @Context private HttpServletRequest request;
 
+  /**
+   * Maps an exception to a JAX-RS {@link Response}. Recognized JSON parsing/mapping errors are
+   * reported as 400 Bad Request. Other exceptions fall through to a 500 Internal Server Error.
+   * Existing {@link WebApplicationException} responses are returned unchanged.
+   *
+   * @param e the exception to map, never <code>null</code>.
+   * @return a JAX-RS response describing the error.
+   */
   @Override
   public Response toResponse(Exception e) {
 

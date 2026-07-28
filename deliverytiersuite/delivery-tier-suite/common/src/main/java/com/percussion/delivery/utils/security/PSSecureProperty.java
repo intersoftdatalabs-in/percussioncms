@@ -119,6 +119,14 @@ public class PSSecureProperty {
     }
   }
 
+  /**
+   * Validates that the supplied path refers to an existing regular file.
+   *
+   * @param filepath the properties file to validate, never <code>null</code>.
+   * @return <code>true</code> if the path exists and is a regular file; <code>false</code>
+   *     otherwise. A warning is logged when the file does not exist.
+   * @throws IllegalArgumentException if {@code filepath} is <code>null</code>.
+   */
   private static boolean validateFilePath(File filepath) {
 
     if (filepath == null) throw new IllegalArgumentException(ERROR_FILEPATH);
@@ -130,6 +138,11 @@ public class PSSecureProperty {
     return true;
   }
 
+  /**
+   * Decrypts all specified properties in the supplied file if they are currently encrypted.
+   *
+   * @param filepath the properties file to modify. Cannot be <code>null</code>.
+   */
   public static void unsecureProperties(File filepath) {
 
     if (validateFilePath(filepath)) {
@@ -144,8 +157,8 @@ public class PSSecureProperty {
         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       }
 
-      for (Map.Entry entry : props.entrySet()) {
-        String value = (String) entry.getValue();
+      for (Map.Entry<Object, Object> entry : props.entrySet()) {
+        String value = String.valueOf(entry.getValue());
         if (isValueClouded(value)) {
           props.put(entry.getKey(), getValue(value, null));
           modified = true;
@@ -225,7 +238,7 @@ public class PSSecureProperty {
    * Retrieves the encrypted value of the passed in string.
    *
    * @param s A clear text string to encrypted.
-   * @return A clouded & encrypted string
+   * @return A clouded and encrypted string
    */
   public static String getClouded(String s) {
     if (s == null) throw new IllegalArgumentException();

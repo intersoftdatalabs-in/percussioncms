@@ -26,22 +26,29 @@ import jakarta.servlet.ServletRequest;
 public interface IPSTenantAuthorization {
 
   /**
-   * Authorize the tenantid from a request to make sure it is an existing tenantid attached to a
-   * customer account and it is active and the request quota has not been exceeded.
+   * Authorize the tenant id from a request to make sure it is an existing tenant id attached to a
+   * customer account and is active, and that the request quota has not been exceeded.
    *
-   * @param tenantid the tenantid string, cannot be <code>null</code> or empty.
-   * @return the appropriate status code, never <code>null</code>.
+   * @param tenantid the tenant id string, cannot be <code>null</code> or empty.
+   * @param apiCalls the number of API calls being charged against the tenant for this request.
+   * @param req the current servlet request, may be <code>null</code>.
+   * @return the authorization status, never <code>null</code>.
    */
   public PSLicenseStatus authorize(String tenantid, long apiCalls, ServletRequest req);
 
   /** Authorization status codes. */
   public enum Status {
-    UNEXPECTED_ERROR, // Validation failed due to a system error - client behavior will be different
-    // than a failure
-    EXCEEDED_QUOTA, // User has exceeded quota
-    NO_ACCOUNT_EXISTS, // There is no license matching that number
-    NOT_ACTIVE, // The license is valid but not activated
-    SUCCESS, // The licence is active and valid
-    SUSPENDED // The license has been suspended by Percussion.
+    /** Validation failed due to a system error - client behavior will be different than a failure. */
+    UNEXPECTED_ERROR,
+    /** User has exceeded quota. */
+    EXCEEDED_QUOTA,
+    /** There is no license matching that number. */
+    NO_ACCOUNT_EXISTS,
+    /** The license is valid but not activated. */
+    NOT_ACTIVE,
+    /** The licence is active and valid. */
+    SUCCESS,
+    /** The license has been suspended by Percussion. */
+    SUSPENDED
   }
 }

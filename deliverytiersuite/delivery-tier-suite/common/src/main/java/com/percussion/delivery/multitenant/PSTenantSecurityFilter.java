@@ -54,12 +54,14 @@ public class PSTenantSecurityFilter implements Filter {
   /** The header and query string parameter name for the tenant id. */
   public static final String TENANTID_PARAM_NAME = "perc-tid";
 
+  /** Default company name applied when the license status does not specify a company. */
   public static final String DEFAULT_COMPANY = "Percussion Software";
 
   /**
    * Create a new security filter.
    *
-   * @param tenantAuth cannot be <code>null</code>.
+   * @param tenantAuth the authorization provider, may be <code>null</code>.
+   * @param tenantCache the tenant cache, may be <code>null</code>.
    */
   public PSTenantSecurityFilter(IPSTenantAuthorization tenantAuth, IPSTenantCache tenantCache) {
     if (tenantAuth == null) log.warn("tenantAuth cannot be null. skipping authorization filter.");
@@ -207,6 +209,13 @@ public class PSTenantSecurityFilter implements Filter {
     return tenantid;
   }
 
+  /**
+   * Tests whether the supplied string parses as a Java {@code double}.
+   *
+   * @param str the candidate string, may be <code>null</code>.
+   * @return <code>true</code> if the string parses as a {@code double}; <code>false</code>
+   *     otherwise.
+   */
   public static boolean isNumeric(String str) {
     double d;
     try {

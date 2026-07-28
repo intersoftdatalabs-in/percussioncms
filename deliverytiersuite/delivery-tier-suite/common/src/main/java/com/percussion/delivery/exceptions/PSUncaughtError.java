@@ -28,15 +28,23 @@ import jakarta.ws.rs.ext.Provider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Catch-all uncaught error handler used by the delivery tier services to log the original failure
+ * and attempt a safe redirect to a local error page.
+ */
 @Provider
 public class PSUncaughtError extends Throwable implements ExceptionMapper<Throwable> {
+
+  /** Default constructor. */
+  public PSUncaughtError() {}
+
   private static final long serialVersionUID = 1L;
 
   private static final Logger log = LogManager.getLogger(PSUncaughtError.class);
 
-  @Context private HttpServletRequest request;
+  @Context private transient HttpServletRequest request;
 
-  @Context private HttpServletResponse response;
+  @Context private transient HttpServletResponse response;
 
   @Override
   public Response toResponse(Throwable exception) {

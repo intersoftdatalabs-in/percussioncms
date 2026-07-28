@@ -26,6 +26,9 @@ import java.util.Date;
  */
 public class PSTenantInfo implements IPSTenantInfo {
 
+  /** Default constructor. */
+  public PSTenantInfo() {}
+
   private String tenantid;
   private long api_counter;
   private Date api_start;

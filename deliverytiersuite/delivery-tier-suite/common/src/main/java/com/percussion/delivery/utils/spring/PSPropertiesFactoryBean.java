@@ -76,11 +76,24 @@ import org.springframework.core.io.Resource;
  * @author erikserating
  */
 public class PSPropertiesFactoryBean extends PropertiesFactoryBean {
+
+  /** Default constructor. */
+  public PSPropertiesFactoryBean() {}
+
   private static final Logger log = LogManager.getLogger(PSPropertiesFactoryBean.class);
+
+  /** All resources that have been assigned to this factory bean via {@link #setLocation} or
+   * {@link #setLocations}. */
   private final List<Resource> resList = new ArrayList<>();
+
+  /** Names of properties whose values should be encrypted when {@link #autoSecure} is enabled. */
   private String[] securedProperties;
+
+  /** When <code>true</code>, the factory bean will encrypt the configured
+   * {@link #securedProperties} on load. */
   private boolean autoSecure;
 
+  /** Decryption key used when securing properties. */
   private String key;
 
   /* (non-Javadoc)
@@ -96,7 +109,7 @@ public class PSPropertiesFactoryBean extends PropertiesFactoryBean {
    * @see org.springframework.core.io.support.PropertiesLoaderSupport#setLocations(org.springframework.core.io.Resource[])
    */
   @Override
-  public void setLocations(Resource[] locations) {
+  public void setLocations(Resource... locations) {
     if (locations != null) {
       for (Resource r : locations) resList.add(r);
     }
@@ -119,42 +132,55 @@ public class PSPropertiesFactoryBean extends PropertiesFactoryBean {
   }
 
   /**
-   * @return the securedProperties
+   * Returns the configured property names that should be encrypted when auto-secure is enabled.
+   *
+   * @return the secured property names, may be <code>null</code>.
    */
   public String[] getSecuredProperties() {
     return securedProperties;
   }
 
   /**
-   * @param securedProperties the securedProperties to set
+   * Sets the configured property names that should be encrypted when auto-secure is enabled.
+   *
+   * @param securedProperties the property names to secure.
    */
   public void setSecuredProperties(String[] securedProperties) {
     this.securedProperties = securedProperties;
   }
 
   /**
-   * @return the autoSecure
+   * Returns whether auto-secure is enabled.
+   *
+   * @return <code>true</code> when auto-secure will encrypt the configured properties on load.
    */
   public boolean isAutoSecure() {
     return autoSecure;
   }
 
   /**
-   * @param autoSecure the autoSecure to set
+   * Configures whether the factory bean should automatically encrypt the configured
+   * {@link #setSecuredProperties secured properties} on load.
+   *
+   * @param autoSecure <code>true</code> to enable auto-secure, <code>false</code> to disable.
    */
   public void setAutoSecure(boolean autoSecure) {
     this.autoSecure = autoSecure;
   }
 
   /**
-   * @return the key
+   * Returns the decryption key used when securing properties.
+   *
+   * @return the configured key, may be <code>null</code> to use the default key.
    */
   public String getKey() {
     return key;
   }
 
   /**
-   * @param key the key to set
+   * Sets the decryption key used when securing properties.
+   *
+   * @param key the key to use, may be <code>null</code> to use the default key.
    */
   public void setKey(String key) {
     this.key = key;

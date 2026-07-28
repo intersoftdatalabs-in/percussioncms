@@ -25,44 +25,60 @@ import java.util.List;
  *
  * @author natechadwick
  */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(
-    name = "property",
-    propOrder = {"enumValue"})
-public class PSPropertyDefinition {
+  @XmlAccessorType(XmlAccessType.FIELD)
+  @XmlType(
+      name = "property",
+      propOrder = {"enumValue"})
+  public class PSPropertyDefinition {
 
-  @XmlElement(name = "EnumValue")
-  private List<EnumValue> enumValue;
+    /** Default constructor. */
+    public PSPropertyDefinition() {}
 
-  @XmlAttribute(required = true)
-  private String name;
+    /** The allowed enumerated values when {@link #datatype} is {@code enum}. */
+    @XmlElement(name = "EnumValue")
+    private List<EnumValue> enumValue;
 
-  @XmlAttribute(name = "display_name")
-  private String displayName;
+    /** The XML attribute name for this property. */
+    @XmlAttribute(required = true)
+    private String name;
 
-  @XmlAttribute(name = "default_value")
-  private String defaultValue;
+    /** The display label shown in the UI. */
+    @XmlAttribute(name = "display_name")
+    private String displayName;
 
-  @XmlAttribute private String required;
-  @XmlAttribute private String datatype;
+    /** The default value applied when no explicit value is supplied. */
+    @XmlAttribute(name = "default_value")
+    private String defaultValue;
 
-  @XmlAttribute(name = "max_length")
-  private int maxLength;
+    /** Flag indicating whether the property is required. */
+    @XmlAttribute private String required;
 
-  @XmlAttribute(name = "validation_regex")
-  private String validationRegEx;
+    /** The data type of this property; matches one of {@link PSPropertyDataType}. */
+    @XmlAttribute private String datatype;
 
-  @XmlAttribute(name = "validation_message")
-  private String validationMessage;
+    /** Maximum length of the property value (string fields). */
+    @XmlAttribute(name = "max_length")
+    private int maxLength;
 
-  @XmlAttribute(name = "help_text")
-  private String helpText;
+    /** Regular expression used to validate the property value. */
+    @XmlAttribute(name = "validation_regex")
+    private String validationRegEx;
 
-  @XmlAttribute(name = "display_regex")
-  private String displayRegEx;
+    /** User-facing message displayed when validation fails. */
+    @XmlAttribute(name = "validation_message")
+    private String validationMessage;
 
-  @XmlAttribute(name = "property_value")
-  private Object propertyValue;
+    /** Help text displayed alongside the property in the UI. */
+    @XmlAttribute(name = "help_text")
+    private String helpText;
+
+    /** Regular expression used to format the display of the property value. */
+    @XmlAttribute(name = "display_regex")
+    private String displayRegEx;
+
+    /** The current value of the property, if any. */
+    @XmlAttribute(name = "property_value")
+    private Object propertyValue;
 
   /**
    * Gets the value of the enumValue property.
@@ -256,14 +272,18 @@ public class PSPropertyDefinition {
   }
 
   /**
-   * @return the validationMessage
+   * Returns the user-facing message shown when validation of this property fails.
+   *
+   * @return the validation message, may be <code>null</code>.
    */
   public String getValidationMessage() {
     return validationMessage;
   }
 
   /**
-   * @param validationMessage the validationMessage to set
+   * Sets the user-facing message shown when validation of this property fails.
+   *
+   * @param validationMessage the validation message, may be <code>null</code>.
    */
   public void setValidationMessage(String validationMessage) {
     this.validationMessage = validationMessage;
@@ -307,9 +327,14 @@ public class PSPropertyDefinition {
   @XmlType(name = "")
   public static class EnumValue {
 
+    /** Default constructor. */
+    public EnumValue() {}
+
+    /** The internal value of the enum option. */
     @XmlAttribute(required = true)
     protected String value;
 
+    /** The user-facing label of the enum option. */
     @XmlAttribute(name = "display_value")
     protected String displayValue;
 

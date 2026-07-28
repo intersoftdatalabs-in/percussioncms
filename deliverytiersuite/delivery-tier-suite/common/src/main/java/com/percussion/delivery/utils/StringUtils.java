@@ -17,8 +17,22 @@
 
 package com.percussion.delivery.utils;
 
+/**
+ * Utility helpers for working with {@link String} values used throughout the delivery tier.
+ */
 public class StringUtils {
 
+  /** Default constructor; this is a utility class and is not meant to be instantiated. */
+  private StringUtils() {}
+
+  /**
+   * Joins two URL path fragments with exactly one forward slash, trimming any existing leading or
+   * trailing slash from the parts.
+   *
+   * @param firstPart the leading URL fragment; may be <code>null</code> or empty.
+   * @param secondPart the trailing URL fragment; may be <code>null</code> or empty.
+   * @return the joined URL path, never <code>null</code>.
+   */
   public static String joinURL(String firstPart, String secondPart) {
 
     String ret = null;

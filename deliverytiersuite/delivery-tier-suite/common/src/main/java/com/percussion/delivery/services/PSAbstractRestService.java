@@ -30,9 +30,15 @@ import org.apache.logging.log4j.Logger;
  */
 public abstract class PSAbstractRestService implements IPSRestService {
 
+  /** Default constructor. */
+  public PSAbstractRestService() {}
+
   private final Logger log = LogManager.getLogger(this.getClass());
 
   /**
+   * Looks up the version of this service as published in {@code build.properties}.
+   *
+   * @return the deployed version string, never <code>null</code>.
    * @see com.percussion.delivery.services.IPSRestService#getVersion()
    */
   @Override

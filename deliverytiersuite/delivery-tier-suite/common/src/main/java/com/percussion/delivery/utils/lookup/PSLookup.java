@@ -27,23 +27,27 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-/***
- * Provides a generic sys_Lookup style
- * list that can be used by Rhythmyx controls.
+/**
+ * Provides a generic sys_Lookup style list that can be used by Rhythmyx controls.
  *
  * @author natechadwick
- * @param <T>
- *
  */
 @XmlRootElement(name = "sys_Lookup")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class PSLookup implements List<PSXEntry> {
 
   @XmlElement(name = "PSXEntry")
+  /** The list of {@link PSXEntry} values backing this lookup. */
   private List<PSXEntry> list = new ArrayList<>();
 
+  /** Default constructor. */
   public PSLookup() {}
 
+  /**
+   * Returns the number of entries in this lookup.
+   *
+   * @return the number of entries.
+   */
   @Override
   public int size() {
     return list.size();
@@ -69,8 +73,9 @@ public class PSLookup implements List<PSXEntry> {
     return list.toArray();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public Object[] toArray(Object[] a) {
+  public <T> T[] toArray(T[] a) {
     return list.toArray(a);
   }
 
@@ -80,27 +85,29 @@ public class PSLookup implements List<PSXEntry> {
   }
 
   @Override
-  public boolean containsAll(@SuppressWarnings("rawtypes") Collection c) {
+  public boolean containsAll(Collection<?> c) {
     return list.containsAll(c);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public boolean addAll(@SuppressWarnings("rawtypes") Collection c) {
-    return list.addAll(c);
+  public boolean addAll(Collection<? extends PSXEntry> c) {
+    return list.addAll((Collection<PSXEntry>) c);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public boolean addAll(int index, Collection<? extends PSXEntry> c) {
+    return list.addAll(index, (Collection<PSXEntry>) c);
   }
 
   @Override
-  public boolean addAll(int index, @SuppressWarnings("rawtypes") Collection c) {
-    return list.addAll(index, c);
-  }
-
-  @Override
-  public boolean removeAll(@SuppressWarnings("rawtypes") Collection c) {
+  public boolean removeAll(Collection<?> c) {
     return list.removeAll(c);
   }
 
   @Override
-  public boolean retainAll(@SuppressWarnings("rawtypes") Collection c) {
+  public boolean retainAll(Collection<?> c) {
     return list.retainAll(c);
   }
 

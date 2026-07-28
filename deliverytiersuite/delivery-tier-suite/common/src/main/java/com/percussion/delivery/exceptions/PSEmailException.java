@@ -17,13 +17,27 @@
 
 package com.percussion.delivery.exceptions;
 
+/**
+ * Signals that an error occurred while sending or preparing an email message in the delivery
+ * tier.
+ */
 public class PSEmailException extends Exception {
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Constructs a new email exception that wraps the supplied cause.
+   *
+   * @param e the underlying cause of the failure, never <code>null</code>.
+   */
   public PSEmailException(Exception e) {
     super(e);
   }
 
+  /**
+   * Constructs a new email exception with the supplied message.
+   *
+   * @param s the message describing the failure, may be <code>null</code>.
+   */
   public PSEmailException(String s) {
     super(s);
   }

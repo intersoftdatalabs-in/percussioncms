@@ -19,6 +19,9 @@ package com.percussion.delivery.listeners;
 import java.util.Set;
 
 /**
+ * Defines callbacks that the delivery tier services may invoke when their data is changed, both
+ * before and after the change is committed.
+ *
  * @author erikserating
  */
 public interface IPSServiceDataChangeListener {
@@ -34,6 +37,9 @@ public interface IPSServiceDataChangeListener {
   /**
    * Called when a data change is requested but before the data is actually committed to the
    * repository.
+   *
+   * @param sites the set of sites whose data is being changed, never <code>null</code>.
+   * @param services the services affected by the data change, never <code>null</code>.
    */
   public void dataChangeRequested(Set<String> sites, String[] services);
 }
