@@ -14,12 +14,50 @@ The `perc-i18n` module is the **canonical source for all i18n resources** in Per
 
 All TMX files are centralized in `src/main/resources/i18n/`:
 - **ResourceBundle.tmx** - Master resource bundle
-- **CmsUi.tmx** - UI translations (en-us, es, hi)
-- **SystemResources.tmx** - System/editor resources (en-us, es)
+- **CmsUi.tmx** - UI translations (17-locale matrix, see Quick Reference)
+- **SystemResources.tmx** - System/editor resources (same 17-locale matrix)
 
 **Legacy locations are deprecated:**
 - ~~`system/config/I18n/`~~ (TMX files removed)
 - ~~`system/cms/content/applications/sys_resources/ApplicationFiles/i18n/`~~ (TMX files removed)
+- ~~Per-locale sibling `en_US.tmx`, `de_DE.tmx`, `hi_IN.tmx`, etc.~~ (forbidden; inline only)
+- ~~`backup/*.tmx` snapshots~~ (forbidden; inline only)
+
+### 1a. Canonical TMX Layout Rules
+
+- **Inline `<tuv>` is the only supported TMX layout.** Every translation for a
+  given key lives inside the same canonical file (`CmsUi.tmx` or
+  `SystemResources.tmx`) as `<tuv xml:lang="...">` siblings. Do not add
+  per-locale sibling files (e.g. `de_DE.tmx`, `es_ES.tmx`, `ja-JP.tmx`)
+  — they are ignored by `PSTmxResourceBundle` and bypass the cache
+  normalization.
+- **Locale tag convention is lowercase hyphen BCP-47**: `en-us`,
+  `es-es`, `hi-in`. The runtime normalizes incoming tags via
+  `PSTmxResourceBundle.normalizeLang(...)`, so `EN_US`, `en-us`,
+  `en-US` and `EN-us` all resolve to the same `en-us` bucket.
+  Tag mismatches between the `<header>` `<prop type="supportedlanguage">`
+  line and the inline `<tuv xml:lang="...">` attribute still work
+  because both are normalized on read, but new content must use the
+  canonical form.
+- **Canonical 17-locale set**: `en-us`, `en-gb`, `de-de`, `es`,
+  `es-cl`, `es-es`, `es-mx`, `fr-ca`, `fr-fr`, `hi`, `hi-in`,
+  `it-it`, `ja-jp`, `nl-nl`, `pt-br`, `pt-pt`, `tr-tr`. `es` is the
+  generic Spanish catch-all; `hi` is generic Hindi; both stay in the
+  matrix alongside their regional siblings. Do not introduce a code
+  outside this set without updating `RXLOCALE` in
+  `modules/perc-distribution-tree/.../cmsTableData.xml` first.
+- **Header `<prop type="supportedlanguage">` lines must match the 17
+  codes above in alphabetical order.** The header is the source of
+  truth for "what languages ship out of the box".
+- **Per-key translations are owned by `i18n_translate.py`.** Do not
+  hand-edit translated `<seg>` text in a TMX file; re-run the script
+  (see section 1b). Hand-edits are only acceptable for English source
+  strings and for review-driven fixes.
+- **Duplicate `<tu tuid="...">` entries are runtime last-wins** via
+  `PSTmxResourceBundle.addResourcesToCache` (`map.put` at line ~564).
+  Resolve duplicates by hand before commit; rely on order is fragile
+  because per-locale sibling files and inline merges can re-introduce
+  the same key.
 
 ### 2. Build Integration
 
@@ -35,6 +73,59 @@ When modifying i18n resources:
 ./mvn-env.sh -pl modules/perc-i18n clean install
 ./mvn-env.sh -pl modules/perc-distribution-tree clean install
 ```
+
+The runtime loader (`PSTmxResourceBundle`) scans BOTH `rxconfig/I18n/`
+(uppercase, master file path) and `rxconfig/i18n/` (lowercase, where
+the Maven build extracts the canonical TMX files). The lowercase scan
+was added in this revision so that the canonical files reach users on
+case-sensitive filesystems (Linux) in addition to the case-insensitive
+ones (Windows / macOS default volumes).
+
+### 2a. Translation Pipeline
+
+The `scripts/i18n_translate.py` CLI is the single source of new
+translation text. It shells out to `docker run --rm
+soimort/translate-shell` and writes results back into the canonical
+TMX files with proper XML escaping. It honors rate limits with
+exponential backoff and caches results on disk so a re-run resumes
+from where it stopped.
+
+```bash
+# Translate every <tu> missing a German TUV in both canonical files.
+python3 modules/perc-i18n/scripts/i18n_translate.py --target de-de
+
+# See what's missing without invoking the translation service.
+python3 modules/perc-i18n/scripts/i18n_translate.py --target ja-jp --dry-run
+
+# Re-translate Turkish, ignoring the cache, only CmsUi.tmx, max 50 keys.
+python3 modules/perc-i18n/scripts/i18n_translate.py --target tr-tr --force --file CmsUi.tmx --limit 50
+```
+
+The script is a developer tool, not a Maven build gate. See
+`scripts/README.md` for the full CLI contract, rate-limit semantics,
+and cross-platform guarantees.
+
+### 2b. Adding a New Locale
+
+1. Add `<prop type="supportedlanguage"><code></prop>` to the header of
+   `CmsUi.tmx` and `SystemResources.tmx` (alphabetical position).
+2. Add a new row in `RXLOCALE` in
+   `modules/perc-distribution-tree/src/main/resources/distribution/rxconfig/Installer/data/cmsTableData.xml`
+   with `STATUS=1` (visible by default) and a sensible `SORTORDER`.
+3. If the new code is a regional variant (e.g. `xx-yy` where `xx`
+   already exists), update locale-aware consumers:
+   - `modules/perc-packages/.../perc.widget.calendar/percCalendarTwo.xml`
+     enum if a new picker entry is required.
+   - `system/src/main/java/com/percussion/search/lucene/analyzer/PSLocaleSpecificLuceneAnalyzer.java`
+     if a new analyzer branch is required.
+4. Run `python3 modules/perc-i18n/scripts/i18n_translate.py --target <code>`
+   to back-fill translations for the existing keys.
+5. Run `./mvn-env.sh -pl modules/perc-i18n clean install` and the
+   matching `perc-distribution-tree` build.
+6. Update the Quick Reference table at the bottom of this file and
+   the Supported Languages section in `README.md`.
+
+For a generic (non-regional) locale, step 3 is a no-op.
 
 ### 3. TMX File Format
 
@@ -82,12 +173,17 @@ Examples:
 
 - **Framework Code Path**: `src/main/java/com/percussion/i18n/`
 - **Core Classes**:
-  - `PSTmxResourceBundle` - Loads and caches TMX resources
+  - `PSTmxResourceBundle` - Loads and caches TMX resources; normalizes
+    locale tags via `normalizeLang(String)`, scans `rxconfig/i18n/`
+    (lowercase) in addition to the uppercase legacy paths.
   - `PSTmxDocument` - Parses TMX documents
   - `PSI18nUtils` - Utility methods for localization
 - **No changes to resource loading logic without architecture review**
 - Use existing extension points (`Java/i18n/sys_LocalizedTextLookup`, `Java/i18n/sys_LocalizedTextLookupUser`)
 - Follow Google Java Style Guide per root AGENTS.md
+- Test-only entry points are package-private with `@VisibleForTesting`
+  JavaDoc: `flushCacheForTest()`, `addResourcesToCacheForTest(Document)`,
+  `getResourceBundlesForTest()`. Do not call them from production code.
 
 ### 6. Testing
 
@@ -126,28 +222,49 @@ Update README.md if:
 
 ## Common Tasks
 
-### Adding a New Language to CmsUi.tmx
+### Adding a New Translation to an Existing Key
 
-1. Add language to header: `<prop type="supportedlanguage">NEW_LANG</prop>`
-2. Add translation unit variants for each new language
-3. Validate XML: `xmllint --noout CmsUi.tmx`
-4. Rebuild: `./mvn-env.sh -pl modules/perc-i18n clean install`
-5. Test: `./mvn-env.sh -pl modules/perc-i18n test`
+1. Run `python3 modules/perc-i18n/scripts/i18n_translate.py --target <lang> --file CmsUi.tmx`
+   to fill the missing `<tuv>` from the canonical source. Pass `--dry-run`
+   first to confirm the key set.
+2. Validate the diff: `xmllint --noout CmsUi.tmx`
+3. Rebuild: `./mvn-env.sh -pl modules/perc-i18n clean install`
+4. Test: `./mvn-env.sh -pl modules/perc-i18n test`
+
+Hand-editing a single `<tuv>` is allowed for review fixes but should be
+followed by a re-run of `i18n_translate.py --force` for the affected
+key so the script's cache and the committed file stay in sync.
 
 ### Adding a New Translation Unit
 
-1. Edit appropriate TMX file (ResourceBundle.tmx, CmsUi.tmx, or SystemResources.tmx)
-2. Follow key naming convention for that file
-3. Include tu (translation unit) element with all supported languages
-4. Validate and rebuild
+1. Edit the appropriate TMX file (`CmsUi.tmx` or `SystemResources.tmx`).
+   `ResourceBundle.tmx` is the master/seed file and is documented as
+   having an empty body — do not add TUs there.
+2. Follow the key naming convention for that file (`perc.ui.*` for
+   CmsUi, `psx.ce.*` for SystemResources).
+3. Always include `<tuv xml:lang="en-us">` as the canonical source.
+4. Use `python3 modules/perc-i18n/scripts/i18n_translate.py --target <lang>`
+   to back-fill the rest of the matrix.
+5. Validate XML and rebuild.
+
+### Adding a New Language to CmsUi.tmx / SystemResources.tmx
+
+Follow the checklist in section 2b above. The single source of new
+translation text is `i18n_translate.py`; do not hand-translate.
 
 ### Fixing TMX Parsing Errors
 
 If seeing `PSTmxResourceBundle` errors:
 1. Check XML syntax: `xmllint --noout <file.tmx>`
-2. Verify supported languages declared in header
-3. Check for properly closed elements
+2. Verify supported languages declared in header (17 codes, see
+   Quick Reference)
+3. Check for properly closed elements (especially `<seg>` content with
+   `<` / `>` / `&` characters that must be XML-escaped)
 4. Validate against TMX 1.4 schema
+5. If a new TUV was just inserted by hand and the file no longer
+   parses, re-run `i18n_translate.py --force --target <lang>` for the
+   affected key — the script XML-escapes `<seg>` content via
+   `xml.sax.saxutils.escape` on write.
 
 ## Related Modules
 
@@ -159,9 +276,28 @@ If seeing `PSTmxResourceBundle` errors:
 
 |        File         |         Purpose         |   Languages   |          Location          |
 |---------------------|-------------------------|---------------|----------------------------|
-| ResourceBundle.tmx  | Master bundle           | en-us         | `src/main/resources/i18n/` |
-| CmsUi.tmx           | UI labels/strings       | en-us, es, hi | `src/main/resources/i18n/` |
-| SystemResources.tmx | System/editor resources | en-us, es     | `src/main/resources/i18n/` |
+| ResourceBundle.tmx  | Master bundle (seed)    | en-us         | `src/main/resources/i18n/` |
+| CmsUi.tmx           | UI labels/strings       | 17-locale matrix (see below) | `src/main/resources/i18n/` |
+| SystemResources.tmx | System/editor resources | 17-locale matrix (see below) | `src/main/resources/i18n/` |
+
+**17-locale matrix** (alphabetical, BCP-47 lowercase hyphen):
+
+`en-us`, `en-gb`, `de-de`, `es`, `es-cl`, `es-es`, `es-mx`,
+`fr-ca`, `fr-fr`, `hi`, `hi-in`, `it-it`, `ja-jp`, `nl-nl`,
+`pt-br`, `pt-pt`, `tr-tr`.
+
+`es` and `hi` are the generic (language-only) catch-alls;
+`es-es` / `hi-in` are the canonical regional variants. The runtime
+loader normalizes incoming tags so `EN_US`, `en-US`, `es_ES`,
+`ja-JP`, etc. all resolve to their canonical bucket.
+
+**Developer tooling** (outside the JAR; in `scripts/`):
+
+|        File                  |         Purpose                              |
+|------------------------------|----------------------------------------------|
+| `scripts/i18n_translate.py`  | Back-fill missing TUVs via Docker translate-shell |
+| `scripts/test_i18n_translate.py` | Unit tests (no Docker required)         |
+| `scripts/README.md`          | CLI contract, rate-limit semantics, cross-platform notes |
 
 ## Questions or Issues?
 
