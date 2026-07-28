@@ -260,6 +260,20 @@ describe("homeApi", () => {
     expect(templateHasWidget(raw, BLOG_POST_WIDGET_ID)).toBe(false);
   });
 
+  it("extractTemplateWidgetDefinitionIds respects depth limit on deep trees", () => {
+    // Nest past TEMPLATE_WIDGET_WALK_MAX_DEPTH (32) so definitionId is unreachable.
+    let deep: Record<string, unknown> = {
+      definitionId: BLOG_POST_WIDGET_ID,
+    };
+    for (let i = 0; i < 40; i++) {
+      deep = { child: deep };
+    }
+    const raw = { Template: { regionTree: deep } };
+    expect(extractTemplateWidgetDefinitionIds(raw)).not.toContain(
+      BLOG_POST_WIDGET_ID,
+    );
+  });
+
   it("normalizeContentItem fills name/path from alternate fields", () => {
     expect(
       normalizeContentItem({

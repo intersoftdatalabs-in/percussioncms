@@ -38,15 +38,26 @@ export interface DashboardConfig {
   updatedAt: string;
 }
 
+/**
+ * Dashboard config mutations are **session-local** only: they update React
+ * state and do not POST/PUT to the server. Classic dashboard persist expects
+ * PSDashboard + Shindig gadget URLs; a first-class React layout persist is
+ * not wired yet. Callers may still `await` these methods for a stable API.
+ */
 export interface UseDashboardConfigResult {
   config: DashboardConfig | null;
   isLoading: boolean;
   /** Soft error — UI should still show default gadgets. */
   error: string | null;
+  /** Session-local only — no server I/O (see interface note). */
   saveConfig: (newConfig: DashboardConfig) => Promise<void>;
+  /** Session-local only — no server I/O. */
   addWidget: (widget: WidgetConfig) => Promise<void>;
+  /** Session-local only — no server I/O. */
   removeWidget: (widgetKey: string) => Promise<void>;
+  /** Session-local only — no server I/O. */
   updateWidget: (widgetKey: string, updates: Partial<WidgetConfig>) => Promise<void>;
+  /** Session-local only — no server I/O. */
   reorderWidget: (
     widgetKey: string,
     column: "left" | "right",
@@ -145,6 +156,9 @@ export function parseDashboardResponse(
     const key = mapClassicGadgetUrlToWidgetKey(url);
     if (!key || seen.has(key)) continue;
     seen.add(key);
+    // Classic dashboard is a two-column layout (col 0 = left, any other = right).
+    // Server col values outside {0,1} are rare; map non-zero to right until we
+    // support multi-column React gadgets.
     const col = Number(og.col ?? 0) === 0 ? "left" : "right";
     const order = Number(og.row ?? widgets.length);
     widgets.push({
@@ -225,15 +239,18 @@ export const useDashboardConfig = (
     }
   }, [userId, autoRefresh, loadConfig]);
 
+  /**
+   * Session-local only: updates React state; does not call the server.
+   * Classic POST expects PSDashboard + Shindig URLs; React persist is deferred.
+   */
   const saveConfig = async (newConfig: DashboardConfig) => {
     if (!userId) {
       throw new Error("User ID is required to save dashboard configuration");
     }
-    // Classic POST expects PSDashboard with Shindig gadget URLs. React layout
-    // is session-local until a first-class React layout persist exists.
     setConfig(newConfig);
   };
 
+  /** Session-local only — no server I/O. */
   const addWidget = async (widget: WidgetConfig) => {
     const base: DashboardConfig =
       config ??
@@ -252,6 +269,7 @@ export const useDashboardConfig = (
     setConfig(newConfig);
   };
 
+  /** Session-local only — no server I/O. */
   const removeWidget = async (widgetKey: string) => {
     if (!config) return;
     setConfig({
@@ -261,6 +279,7 @@ export const useDashboardConfig = (
     });
   };
 
+  /** Session-local only — no server I/O. */
   const updateWidget = async (
     widgetKey: string,
     updates: Partial<WidgetConfig>,
@@ -275,6 +294,7 @@ export const useDashboardConfig = (
     });
   };
 
+  /** Session-local only — no server I/O. */
   const reorderWidget = async (
     widgetKey: string,
     column: "left" | "right",

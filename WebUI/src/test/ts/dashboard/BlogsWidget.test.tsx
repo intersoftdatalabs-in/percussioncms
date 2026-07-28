@@ -34,6 +34,13 @@ vi.mock("@/api/client", async (importOriginal) => {
 describe("BlogsWidget", () => {
   beforeEach(() => {
     vi.mocked(homeApi.fetchAllBlogs).mockReset();
+    vi.mocked(homeApi.fetchSites).mockReset().mockResolvedValue([{ name: "Demo" }]);
+    vi.mocked(homeApi.fetchBlogListTemplates)
+      .mockReset()
+      .mockResolvedValue([{ id: "list-t", name: "Blog List Tmpl" }]);
+    vi.mocked(homeApi.fetchBlogPostTemplates)
+      .mockReset()
+      .mockResolvedValue([{ id: "post-t", name: "Blog Post Tmpl" }]);
   });
 
   it("shows empty state when no blogs", async () => {

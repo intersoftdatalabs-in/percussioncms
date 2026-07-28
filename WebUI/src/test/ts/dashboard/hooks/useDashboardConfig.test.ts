@@ -2,7 +2,7 @@
  * Copyright 1999-2026 Percussion Software, Inc.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
 import {
   DASHBOARD_API,
@@ -24,6 +24,10 @@ vi.mock("@/api/client", async (importOriginal) => {
 
 describe("useDashboardConfig", () => {
   beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
     vi.clearAllMocks();
   });
 

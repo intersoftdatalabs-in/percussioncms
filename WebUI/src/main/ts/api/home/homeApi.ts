@@ -205,18 +205,43 @@ export async function fetchTemplate(templateId: string): Promise<unknown> {
   );
 }
 
+/** Max walk depth for template JSON (guards pathological nesting / cycles). */
+const TEMPLATE_WIDGET_WALK_MAX_DEPTH = 32;
+
 /**
  * Collect widget definitionIds from a loaded template JSON (Template.regionTree).
+ * Uses iterative DFS with a depth limit to avoid stack overflow on deep trees.
  */
 export function extractTemplateWidgetDefinitionIds(raw: unknown): string[] {
   const ids = new Set<string>();
-  const walk = (node: unknown): void => {
-    if (node == null) return;
+  const root =
+    raw && typeof raw === "object" && "Template" in (raw as object)
+      ? (raw as { Template: unknown }).Template
+      : raw;
+
+  type Frame = { node: unknown; depth: number };
+  const stack: Frame[] = [];
+  if (root && typeof root === "object") {
+    const t = root as Record<string, unknown>;
+    stack.push({ node: t.regionTree, depth: 0 });
+    stack.push({ node: t.regionWidgetAssociations, depth: 0 });
+    stack.push({ node: t.widgets, depth: 0 });
+  } else {
+    stack.push({ node: root, depth: 0 });
+  }
+
+  while (stack.length > 0) {
+    const frame = stack.pop();
+    if (!frame) break;
+    const { node, depth } = frame;
+    if (node == null || depth > TEMPLATE_WIDGET_WALK_MAX_DEPTH) continue;
     if (Array.isArray(node)) {
-      for (const n of node) walk(n);
-      return;
+      for (const n of node) {
+        stack.push({ node: n, depth: depth + 1 });
+      }
+      continue;
     }
-    if (typeof node !== "object") return;
+    if (typeof node !== "object") continue;
     const o = node as Record<string, unknown>;
     if (o.definitionId != null && String(o.definitionId).trim()) {
       ids.add(String(o.definitionId).trim());
@@ -226,20 +251,8 @@ export function extractTemplateWidgetDefinitionIds(raw: unknown): string[] {
       ids.add(String(o.widgetDefinitionId).trim());
     }
     for (const v of Object.values(o)) {
-      walk(v);
+      stack.push({ node: v, depth: depth + 1 });
     }
-  };
-  const root =
-    raw && typeof raw === "object" && "Template" in (raw as object)
-      ? (raw as { Template: unknown }).Template
-      : raw;
-  if (root && typeof root === "object") {
-    const t = root as Record<string, unknown>;
-    walk(t.regionTree);
-    walk(t.regionWidgetAssociations);
-    walk(t.widgets);
-  } else {
-    walk(root);
   }
   return Array.from(ids);
 }
@@ -271,8 +284,12 @@ export async function fetchTemplatesWithWidget(
       if (templateHasWidget(full, widgetDefinitionId)) {
         out.push(s);
       }
-    } catch {
-      // skip templates that fail to load
+    } catch (err: unknown) {
+      // Skip templates that fail to load; log so network/500 failures are visible.
+      console.warn(
+        `fetchTemplatesWithWidget: failed to load template ${s.id}`,
+        err,
+      );
     }
   }
   return out;
