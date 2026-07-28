@@ -97,9 +97,10 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
   },
   {
     id: "effectiveness",
-    name: "Effectiveness",
+    name: "What's Working",
     component: EffectivenessWidget,
-    description: "Performance and effectiveness metrics",
+    description:
+      "Effectiveness scores (requires Google Analytics — see Google Setup)",
     category: "Analytics",
   },
   {
@@ -127,7 +128,8 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
     id: "traffic",
     name: "Traffic",
     component: TrafficWidget,
-    description: "Content traffic analytics with charts",
+    description:
+      "Content traffic series (visits need Google Analytics profile)",
     category: "Analytics",
   },
   {
@@ -274,6 +276,20 @@ const DEFAULT_GADGETS: DashboardWidget[] = [
     component: GoogleSetupWidget,
     props: {},
     position: { column: "left", order: 3 },
+  },
+  {
+    id: "traffic",
+    name: "Traffic",
+    component: TrafficWidget,
+    props: {},
+    position: { column: "right", order: 3 },
+  },
+  {
+    id: "effectiveness",
+    name: "What's Working",
+    component: EffectivenessWidget,
+    props: {},
+    position: { column: "right", order: 4 },
   },
 ];
 

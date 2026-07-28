@@ -15,222 +15,227 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from 'react';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { subDays, format } from 'date-fns';
-import { post } from '../api/client';
-import { styles } from './dashboard.styles';
-
-interface TrafficDataPoint {
-  date?: string;
-  time?: string;
-  views?: number;
-  visitors?: number;
-  pageViews?: number;
-  uniqueVisitors?: number;
-  bounceRate?: number;
-  [key: string]: unknown;
-}
-
-interface TrafficResponse {
-  data?: TrafficDataPoint[];
-  traffic?: TrafficDataPoint[];
-  dataPoints?: TrafficDataPoint[];
-  totalViews?: number;
-  totalVisitors?: number;
-  [key: string]: unknown;
-}
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import { isSessionRedirectError } from "../api/client";
+import { isAnalyticsProviderConfigured } from "../api/dashboard/analyticsApi";
+import {
+  fetchDefaultContentTraffic,
+  type ContentTrafficResult,
+  type TrafficGranularity,
+} from "../api/dashboard/gadgetApi";
+import { formatApiError } from "../api/home/homeApi";
+import { styles } from "./dashboard.styles";
 
 export interface TrafficWidgetProps {
   title?: string;
   refreshInterval?: number;
   daysRange?: number;
-  granularity?: 'daily' | 'hourly';
-  chartType?: 'line' | 'bar';
+  granularity?: TrafficGranularity;
 }
 
 /**
- * TrafficWidget displays content traffic analytics with an interactive chart.
- * Shows views, unique visitors, and trends over a configurable time period.
- * Uses Recharts for visualization with daily or hourly granularity options.
+ * Classic **Traffic** gadget.
+ *
+ * <p>Server: {@code POST /services/activitymanagement/activity/contenttraffic}
+ * with {@code ContentTrafficRequest}. Visits series needs Google Analytics
+ * profile mapping (see Google Setup).</p>
  */
 export const TrafficWidget: React.FC<TrafficWidgetProps> = ({
-  title = 'Content Traffic',
-  refreshInterval = 300000, // 5 minutes
+  title = "Traffic",
+  refreshInterval = 300000,
   daysRange = 30,
-  granularity = 'daily',
-  chartType = 'line',
+  granularity = "DAY",
 }) => {
-  const [data, setData] = useState<TrafficDataPoint[]>([]);
+  const [result, setResult] = useState<ContentTrafficResult | null>(null);
+  const [analyticsOk, setAnalyticsOk] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [totalViews, setTotalViews] = useState<number>(0);
-  const [totalVisitors, setTotalVisitors] = useState<number>(0);
+
+  const load = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      let configured = false;
+      try {
+        configured = await isAnalyticsProviderConfigured();
+      } catch {
+        configured = false;
+      }
+      setAnalyticsOk(configured);
+      const data = await fetchDefaultContentTraffic(daysRange, granularity);
+      setResult(data);
+    } catch (err: unknown) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setError(formatApiError(err, "Failed to load traffic data"));
+      setResult(null);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [daysRange, granularity]);
 
   useEffect(() => {
-    const fetchTraffic = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        const startDate = subDays(new Date(), daysRange);
-        const endDate = new Date();
-
-        const payload = {
-          startDate: format(startDate, 'yyyy-MM-dd'),
-          endDate: format(endDate, 'yyyy-MM-dd'),
-          granularity: granularity,
-        };
-
-        // Fetch traffic data
-        const response = await post<TrafficResponse>('/services/activity/contenttraffic', payload);
-
-        // Handle response format
-        let dataArray: TrafficDataPoint[] = [];
-        let views = 0;
-        let visitors = 0;
-
-        if (response.data && Array.isArray(response.data)) {
-          dataArray = response.data;
-        } else if (response.traffic && Array.isArray(response.traffic)) {
-          dataArray = response.traffic;
-        } else if (response.dataPoints && Array.isArray(response.dataPoints)) {
-          dataArray = response.dataPoints;
-        } else if (Array.isArray(response)) {
-          dataArray = response as TrafficDataPoint[];
-        }
-
-        // Extract totals
-        if (response.totalViews !== undefined) {
-          views = response.totalViews;
-        } else {
-          views = dataArray.reduce((sum, point) => sum + ((point.views ?? 0) + (point.pageViews ?? 0)), 0);
-        }
-
-        if (response.totalVisitors !== undefined) {
-          visitors = response.totalVisitors;
-        } else {
-          visitors = dataArray.reduce((sum, point) => sum + ((point.visitors ?? 0) + (point.uniqueVisitors ?? 0)), 0);
-        }
-
-        setData(dataArray);
-        setTotalViews(views);
-        setTotalVisitors(visitors);
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : 'Failed to load traffic data';
-        setError(errorMessage);
-        console.error('TrafficWidget error:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    // Fetch immediately
-    fetchTraffic();
-
-    // Set up refresh interval
-    const interval =
-      refreshInterval > 0 ? setInterval(fetchTraffic, refreshInterval) : undefined;
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [refreshInterval, daysRange, granularity]);
-
-  const renderChart = () => {
-    if (!data || data.length === 0) {
-      return (
-        <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
-          No traffic data available
-        </div>
-      );
+    void load();
+    if (refreshInterval <= 0) {
+      return;
     }
-
-    const chartData = data.map((point) => ({
-      ...point,
-      name: point.date || point.time || 'Data',
-      views: point.views ?? point.pageViews ?? 0,
-      visitors: point.visitors ?? point.uniqueVisitors ?? 0,
-    }));
-
-    return (
-      <ResponsiveContainer width="100%" height={300}>
-        {chartType === 'bar' ? (
-          <BarChart data={chartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" fontSize={12} />
-            <YAxis fontSize={12} />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="views" fill="#8884d8" name="Page Views" />
-            <Bar dataKey="visitors" fill="#82ca9d" name="Unique Visitors" />
-          </BarChart>
-        ) : (
-          <LineChart data={chartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" fontSize={12} />
-            <YAxis fontSize={12} />
-            <Tooltip />
-            <Legend />
-            <Line type="monotone" dataKey="views" stroke="#8884d8" name="Page Views" />
-            <Line type="monotone" dataKey="visitors" stroke="#82ca9d" name="Unique Visitors" />
-          </LineChart>
-        )}
-      </ResponsiveContainer>
-    );
-  };
-
-  const renderMetrics = () => {
-    return (
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' } as React.CSSProperties}>
-        <div style={{ flex: 1, padding: '12px', backgroundColor: '#e3f2fd', borderRadius: '4px' } as React.CSSProperties}>
-          <div style={{ fontSize: '0.8em', color: '#666', marginBottom: '4px' }}>
-            Page Views
-          </div>
-          <div style={{ fontSize: '1.5em', fontWeight: '700', color: '#1976d2' }}>
-            {totalViews.toLocaleString()}
-          </div>
-        </div>
-        <div style={{ flex: 1, padding: '12px', backgroundColor: '#e8f5e9', borderRadius: '4px' } as React.CSSProperties}>
-          <div style={{ fontSize: '0.8em', color: '#666', marginBottom: '4px' }}>
-            Unique Visitors
-          </div>
-          <div style={{ fontSize: '1.5em', fontWeight: '700', color: '#388e3c' }}>
-            {totalVisitors.toLocaleString()}
-          </div>
-        </div>
-      </div>
-    );
-  };
+    const id = window.setInterval(() => void load(), refreshInterval);
+    return () => window.clearInterval(id);
+  }, [load, refreshInterval]);
 
   const renderContent = () => {
     if (isLoading) {
       return (
-        <div style={styles.widgetLoading}>
+        <div style={styles.widgetLoading} data-testid="traffic-widget-loading">
           <p>Loading traffic data...</p>
         </div>
       );
     }
-
     if (error) {
       return (
-        <div style={styles.widgetError}>
+        <div style={styles.widgetError} data-testid="traffic-widget-error">
           <p>Error: {error}</p>
+          {analyticsOk === false ? (
+            <p style={{ fontSize: "0.85em", marginTop: "8px" }}>
+              Visits require Google Analytics setup. Open the Google Setup
+              gadget and map a profile for this site.
+            </p>
+          ) : null}
+        </div>
+      );
+    }
+    if (!result || result.points.length === 0) {
+      return (
+        <div style={styles.widgetContent} data-testid="traffic-widget-empty">
+          <p>No traffic data for this path and date range.</p>
+          {result ? (
+            <p style={{ fontSize: "0.85em", color: "#666" }}>
+              {result.path} · {result.startDate} – {result.endDate}
+            </p>
+          ) : null}
         </div>
       );
     }
 
+    const chartData = result.points.map((p) => ({
+      name: p.date,
+      visits: p.visits,
+      livePages: p.livePages,
+      newPages: p.newPages,
+      pageUpdates: p.pageUpdates,
+    }));
+
     return (
-      <div style={styles.widgetContent}>
-        {renderMetrics()}
-        {renderChart()}
+      <div style={styles.widgetContent} data-testid="traffic-widget-list">
+        <p style={{ fontSize: "0.85em", color: "#666", marginTop: 0 }}>
+          {result.path}
+          {result.site ? ` · ${result.site}` : ""} · {result.startDate} –{" "}
+          {result.endDate}
+        </p>
+        {analyticsOk === false ? (
+          <p
+            style={{
+              fontSize: "0.8em",
+              color: "#856404",
+              background: "#fff3cd",
+              padding: "8px",
+              borderRadius: "4px",
+            }}
+            data-testid="traffic-analytics-hint"
+          >
+            Google Analytics is not configured — visit counts may be empty.
+            Use Google Setup to connect a profile.
+          </p>
+        ) : null}
+        <div
+          style={{
+            display: "flex",
+            gap: "12px",
+            marginBottom: "12px",
+            flexWrap: "wrap",
+          }}
+        >
+          <div
+            style={{
+              flex: 1,
+              minWidth: "100px",
+              padding: "10px",
+              backgroundColor: "#e3f2fd",
+              borderRadius: "4px",
+            }}
+          >
+            <div style={{ fontSize: "0.75em", color: "#666" }}>Visits</div>
+            <div style={{ fontSize: "1.25em", fontWeight: 700, color: "#1976d2" }}>
+              {result.totalVisits.toLocaleString()}
+            </div>
+          </div>
+          <div
+            style={{
+              flex: 1,
+              minWidth: "100px",
+              padding: "10px",
+              backgroundColor: "#e8f5e9",
+              borderRadius: "4px",
+            }}
+          >
+            <div style={{ fontSize: "0.75em", color: "#666" }}>Live pages Σ</div>
+            <div style={{ fontSize: "1.25em", fontWeight: 700, color: "#388e3c" }}>
+              {result.totalLivePages.toLocaleString()}
+            </div>
+          </div>
+        </div>
+        <div style={{ width: "100%", height: 260 }} data-testid="traffic-chart">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={chartData}
+              margin={{ top: 5, right: 16, left: 0, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" fontSize={11} />
+              <YAxis fontSize={11} />
+              <Tooltip />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="visits"
+                stroke="#1976d2"
+                name="Visits"
+                dot={false}
+              />
+              <Line
+                type="monotone"
+                dataKey="livePages"
+                stroke="#388e3c"
+                name="Live pages"
+                dot={false}
+              />
+              <Line
+                type="monotone"
+                dataKey="newPages"
+                stroke="#f57c00"
+                name="New pages"
+                dot={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     );
   };
 
   return (
-    <div style={styles.widget}>
+    <div style={styles.widget} data-testid="traffic-widget">
       <div style={styles.widgetTitle}>{title}</div>
       {renderContent()}
     </div>

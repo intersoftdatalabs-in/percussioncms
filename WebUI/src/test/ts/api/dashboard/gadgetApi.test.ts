@@ -9,8 +9,13 @@ import {
   fetchProcessMonitors,
   fetchGlobalVariables,
   fetchFormsForSite,
+  fetchContentTraffic,
+  fetchEffectiveness,
+  formatTrafficDate,
   groupItemsByStatus,
   normalizeContentActivityRow,
+  normalizeContentTraffic,
+  normalizeEffectivenessRows,
   normalizeProcessMonitors,
   parseGlobalVariablesData,
   unwrapNamedList,
@@ -207,4 +212,82 @@ describe("gadgetApi", () => {
       newSubmissions: 1,
     });
   });
+
+  it("formatTrafficDate uses MM/dd/yyyy", () => {
+    expect(formatTrafficDate(new Date(2026, 0, 5))).toBe("01/05/2026");
+  });
+
+  it("normalizeContentTraffic builds points", () => {
+    const r = normalizeContentTraffic(
+      {
+        ContentTraffic: {
+          site: "Demo",
+          dates: ["01/01/2026", "01/02/2026"],
+          visits: [1, 2],
+          livePages: [3, 4],
+          newPages: [0, 1],
+          pageUpdates: [0, 0],
+          takeDowns: [0, 0],
+        },
+      },
+      "/Sites/Demo",
+      "01/01/2026",
+      "01/02/2026",
+    );
+    expect(r.points).toHaveLength(2);
+    expect(r.totalVisits).toBe(3);
+    expect(r.points[1].livePages).toBe(4);
+  });
+
+  it("fetchContentTraffic POSTs ContentTrafficRequest", async () => {
+    vi.mocked(client.post).mockResolvedValue({
+      ContentTraffic: {
+        dates: ["01/01/2026"],
+        visits: [5],
+        livePages: [1],
+        newPages: [0],
+        pageUpdates: [0],
+        takeDowns: [0],
+      },
+    });
+    await fetchContentTraffic({
+      path: "/Sites/Demo",
+      startDate: "01/01/2026",
+      endDate: "01/31/2026",
+      granularity: "DAY",
+    });
+    expect(client.post).toHaveBeenCalledWith(
+      PATHS.ACTIVITY_TRAFFIC,
+      expect.objectContaining({
+        ContentTrafficRequest: expect.objectContaining({
+          path: "/Sites/Demo",
+          granularity: "DAY",
+        }),
+      }),
+    );
+  });
+
+  it("normalizeEffectivenessRows and fetchEffectiveness", async () => {
+    expect(
+      normalizeEffectivenessRows({
+        Effectiveness: [{ name: "A", effectiveness: 9 }],
+      }),
+    ).toEqual([{ name: "A", effectiveness: 9 }]);
+
+    vi.mocked(client.post).mockResolvedValue({
+      Effectiveness: [{ name: "A", effectiveness: 9 }],
+    });
+    const rows = await fetchEffectiveness({ path: "/Sites/Demo" });
+    expect(client.post).toHaveBeenCalledWith(
+      PATHS.ACTIVITY_EFFECTIVENESS,
+      expect.objectContaining({
+        EffectivenessRequest: expect.objectContaining({
+          path: "/Sites/Demo",
+          durationType: "days",
+        }),
+      }),
+    );
+    expect(rows[0].name).toBe("A");
+  });
 });
+
