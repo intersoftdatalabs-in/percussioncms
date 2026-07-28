@@ -63,7 +63,6 @@ public class PSSendNotificationsTest extends PSAbstractWorkflowTest {
           userName,
           wfRoleInfo,
           request,
-          connection,
           communityId);
     } catch (Exception e) {
       exceptionMessage = "Exception: ";

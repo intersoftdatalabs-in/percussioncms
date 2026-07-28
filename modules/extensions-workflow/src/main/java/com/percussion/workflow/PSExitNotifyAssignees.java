@@ -17,6 +17,7 @@
 package com.percussion.workflow;
 
 import com.percussion.cms.IPSConstants;
+import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.data.PSConversionException;
 import com.percussion.design.objectstore.PSAttribute;
 import com.percussion.design.objectstore.PSContentEditorSystemDef;
@@ -50,6 +51,8 @@ import com.percussion.server.PSServer;
 import com.percussion.services.assembly.jexl.PSExtensionWrapper;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
+import com.percussion.services.legacy.IPSCmsObjectMgr;
+import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.services.system.IPSSystemService;
 import com.percussion.services.system.PSSystemServiceLocator;
 import com.percussion.services.utils.jexl.PSJexlUtils;
@@ -59,6 +62,7 @@ import com.percussion.services.workflow.PSWorkflowServiceLocator;
 import com.percussion.services.workflow.data.PSAdhocTypeEnum;
 import com.percussion.services.workflow.data.PSAssignedRole;
 import com.percussion.services.workflow.data.PSAssignmentTypeEnum;
+import com.percussion.services.workflow.data.PSTransition;
 import com.percussion.services.workflow.data.PSState;
 import com.percussion.system.utils.PSUrlUtils;
 import com.percussion.util.PSDataTypeConverter;
@@ -75,8 +79,6 @@ import java.io.File;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -88,7 +90,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import javax.jcr.RepositoryException;
-import javax.naming.NamingException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.logging.log4j.LogManager;
@@ -145,8 +146,6 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
     String userName = null;
     Map<String, Object> htmlParams = null;
     PSWorkFlowContext wfContext = null;
-    PSTransitionsContext tc = null;
-    PSConnectionMgr connectionMgr = null;
     PSWorkflowRoleInfo wfRoleInfo = null;
     Exception except = null;
     String contentURL = null;
@@ -246,24 +245,22 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
         throw new PSExtensionProcessingException(language, m_fullExtensionName, te);
       }
 
-      // Get the connection
-      Connection connection = null;
+      // Get the fromStateID via the shared Hibernate session (no second pool connection).
+      // Replaces the legacy raw-JDBC PSTransitionsContext read path.
+      IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
       try {
-        connectionMgr = new PSConnectionMgr();
-        connection = connectionMgr.getConnection();
-      } catch (Exception e) {
-        l.warn(
-            "Error while sending notification to user {} and contentid {}. Error: {}",
-            userName,
-            contentID,
-            PSExceptionUtils.getMessageForLog(e));
-        throw new PSExtensionProcessingException(m_fullExtensionName, e);
-      }
-
-      try {
-        tc = new PSTransitionsContext(transitionID, workflowID, connection);
-        tc.close();
-        fromStateID = tc.getTransitionFromStateID();
+        PSTransition transition =
+            PSWorkflowServiceLocator.getWorkflowService()
+                .loadWorkflowTransition(workflowID, transitionID);
+        if (transition == null) {
+          throw new PSEntryNotFoundException(
+              "No transition with transition ID = "
+                  + transitionID
+                  + " exists in the workflow "
+                  + workflowID
+                  + ".");
+        }
+        fromStateID = (int) transition.getStateId();
       } catch (PSEntryNotFoundException e) {
         l.warn(
             "Error while sending notification to user {} for contentid {}. Error: {}",
@@ -275,14 +272,6 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
         String language = e.getLanguageString();
         if (language == null) language = PSI18nUtils.DEFAULT_LANG;
         throw new PSExtensionProcessingException(language, m_fullExtensionName, e);
-      } catch (SQLException e) {
-        l.warn(
-            "SQL Exception while sending notification to user {} for contentid {}. Error: {}",
-            userName,
-            contentID,
-            PSExceptionUtils.getMessageForLog(e));
-        // error message should be improved
-        throw new PSExtensionProcessingException(m_fullExtensionName, e);
       }
 
       wfRoleInfo =
@@ -358,13 +347,14 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
         }
       }
 
-      PSContentStatusContext csc = null;
+      PSComponentSummary csc = null;
       try {
-        csc = new PSContentStatusContext(connection, contentID);
+        csc = cms.loadComponentSummary(contentID);
         String enableNotification =
             PSWorkFlowUtils.getProperty(PSWorkFlowUtils.NOTIFICATION_ENABLE);
 
         if (enableNotification != null && enableNotification.equalsIgnoreCase("Y")) {
+          String communityId = csc == null ? "" : String.valueOf(csc.getCommunityId());
           sendNotifications(
               contentID,
               revisionID,
@@ -376,12 +366,9 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
               userName,
               wfRoleInfo,
               request,
-              connection,
-              String.valueOf(csc.getCommunityID()));
+              communityId);
         }
 
-      } catch (SQLException e) {
-        except = e;
       } catch (PSEntryNotFoundException e) {
         if (e.getLanguageString() == null) e.setLanguageString(lang);
         except = e;
@@ -391,19 +378,9 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
       } catch (Exception e) {
         except = e;
       } finally {
-        if (csc != null) {
-          try {
-            csc.close();
-          } catch (Exception ex) {
-            // no-op
-          }
-        }
+        // no-op: csc is a Hibernate-loaded bean, no close needed
       }
     } finally {
-      try {
-        if (null != connectionMgr) connectionMgr.releaseConnection();
-      } catch (SQLException sqe) {
-      }
       if (null != except) {
         PSWorkFlowUtils.printWorkflowException(request, except);
         if (except instanceof PSException) {
@@ -434,13 +411,10 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
    * @param userName name of user sending the notification
    * @param wfRoleInfo Object containing role info such as from and to state adhoc user information.
    * @param request request context for the exit
-   * @param connection connection to back-end database
    * @param communityId the community id by which to filter the subjects to which the notifications
    *     are sent, may be <code>null</code> to ignore the ccommunity filter.
    * @throws PSMailException if an error occurs while sending the mail.
-   * @throws SQLException if a database error occurs
    * @throws PSEntryNotFoundException if there is no data base entry for the content item.
-   * @throws NamingException if a datasource cannot be resolved
    * @throws RepositoryException if item field replacement fails
    */
   @SuppressWarnings({"unchecked"})
@@ -455,12 +429,9 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
       String userName,
       IWorkflowRoleInfo wfRoleInfo,
       IPSRequestContext request,
-      Connection connection,
       String communityId)
       throws PSEntryNotFoundException,
           PSMailException,
-          SQLException,
-          NamingException,
           RepositoryException {
     PSWorkFlowUtils.printWorkflowMessage(request, "  Entering Method sendNotifications");
 
@@ -493,17 +464,7 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
     }
 
     // Get the notification messages for the transition
-    try {
-      tnc = new PSTransitionNotificationsContext(workflowID, transitionID, connection);
-    } catch (SQLException e2) {
-      m_log.error(
-          "SQL exception occurred while getting notification message for the transition.", e2);
-      throw new SQLException(e2);
-    } catch (NamingException e2) {
-      m_log.error(
-          "Naming exception occurred while getting notification message for the transition.", e2);
-      throw new NamingException(e2.getMessage());
-    }
+    tnc = PSTransitionNotificationsContext.loadFromHibernate(workflowID, transitionID);
     if (0 == tnc.getCount()) {
       PSWorkFlowUtils.printWorkflowMessage(
           request,
@@ -519,8 +480,8 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
     if (tnc.requireFromStateRoles()) {
       try {
         fromStateRoleContext =
-            new PSStateRolesContext(
-                workflowID, connection, fromStateID, PSWorkFlowUtils.ASSIGNMENT_TYPE_ASSIGNEE);
+            PSStateRolesContext.loadFromHibernate(
+                workflowID, fromStateID, PSWorkFlowUtils.ASSIGNMENT_TYPE_ASSIGNEE);
 
         fromStateRoleNotificationList =
             PSWorkflowRoleInfoStatic.getStateRoleNameNotificationList(
@@ -576,8 +537,8 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
           toStateRoleContext = fromStateRoleContext;
         } else {
           toStateRoleContext =
-              new PSStateRolesContext(
-                  workflowID, connection, toStateID, PSWorkFlowUtils.ASSIGNMENT_TYPE_ASSIGNEE);
+              PSStateRolesContext.loadFromHibernate(
+                  workflowID, toStateID, PSWorkFlowUtils.ASSIGNMENT_TYPE_ASSIGNEE);
 
           toStateRoleNotificationList =
               PSWorkflowRoleInfoStatic.getStateRoleNameNotificationList(
@@ -656,21 +617,7 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
       notificationID = tnc.getNotificationID();
 
       // This will throw an exception if the notification does not exist
-      try {
-        nc = new PSNotificationsContext(workflowID, notificationID, connection);
-      } catch (PSEntryNotFoundException e1) {
-        m_log.error("Notification entry not found. ", e1);
-        throw new PSEntryNotFoundException(e1.getMessage());
-      } catch (SQLException e1) {
-        m_log.error("SQL exception occurred. May be notification does not exist.", e1);
-        throw new SQLException(e1);
-      } catch (NamingException e1) {
-        m_log.error(
-            "Naming exception occurred. Possibly the notification with the given name does not"
-                + " exist.",
-            e1);
-        throw new NamingException(e1.getMessage());
-      }
+      nc = PSNotificationsContext.loadFromHibernate(workflowID, notificationID);
 
       additionalRecipientString = tnc.getAdditionalRecipientList();
 

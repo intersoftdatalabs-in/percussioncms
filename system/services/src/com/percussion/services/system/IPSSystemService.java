@@ -258,6 +258,19 @@ public interface IPSSystemService
     */
    public java.util.List<com.percussion.services.workflow.data.PSContentAdhocUser>
        findContentAdhocUsers(int contentId);
+
+   /**
+    * Find a notification definition (NOTIFICATIONS table) by (workflowId, notificationId).
+    * Added for #1561 Phase 4c so {@code modules/extensions-workflow/.../PSNotificationsContext}
+    * can load its data from the shared Hibernate session instead of opening a second pool
+    * connection.
+    *
+    * @param workflowId the workflow id; must be {@code > 0}.
+    * @param notificationId the notification id; must be {@code > 0}.
+    * @return the notification definition, or {@code null} when no row matches.
+    */
+   public com.percussion.services.workflow.data.PSNotificationDef findNotificationDef(
+       long workflowId, long notificationId);
    
    /**
     * Deletes the specified content history entry.

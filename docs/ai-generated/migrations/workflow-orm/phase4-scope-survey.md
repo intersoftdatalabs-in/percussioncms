@@ -1,6 +1,6 @@
 # Phase 4 scope survey — what's actually involved
 
-> Status: **Phase 4a (Tier 1) shipped in PR #1575.** **Phase 4b (Tier 2 — state-roles + auth-flag + authenticate-user exits) shipped in PR #1576 (this branch).** Tier 3 remains.
+> Status: **Phase 4a (Tier 1) shipped in PR #1575.** **Phase 4b (Tier 2 — state-roles + auth-flag + authenticate-user exits) shipped in PR #1578.** **Phase 4c (Tier 3a — `PSExitNotifyAssignees` + NOTIFICATIONS + TRANSITIONNOTIFICATIONS) shipped in PR TBD (this branch).** Tier 3b remains.
 
 ## What ships in Phase 4a (PR #1575, merged)
 
