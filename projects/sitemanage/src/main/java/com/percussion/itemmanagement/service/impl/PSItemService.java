@@ -1475,9 +1475,16 @@ public class PSItemService implements IPSItemService {
     }
   }
 
+  /**
+   * Whether the given page is in the current user's My Pages / bookmarks.
+   *
+   * <p>Internal sitemanage surface (not the public OpenAPI {@code rest} module).
+   * Produces JSON/XML like sibling item endpoints so SPA clients that send
+   * {@code Accept: application/json} do not receive HTTP 406.
+   */
   @GET
   @Path("/ismypage/{pageId}")
-  @Produces(MediaType.TEXT_PLAIN)
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public boolean isMyPage(@PathParam("pageId") String pageId) {
     try {
       rejectIfBlank("isMyPage", "pageId", pageId);

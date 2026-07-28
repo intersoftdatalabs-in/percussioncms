@@ -83,19 +83,16 @@ export async function removeFromMyPages(pageId: string): Promise<void> {
 }
 
 /**
- * Whether the page is in the current user's favorites.
- * Server returns {@code text/plain} true/false.
+ * Whether the page is in the current user's favorites (internal isMyPage).
+ * Expects a JSON boolean (or stringified true/false from the wire parser).
  */
 export async function isMyPage(pageId: string): Promise<boolean> {
   const id = String(pageId ?? "").trim();
   if (!id) {
     return false;
   }
-  // Endpoint is @Produces(TEXT_PLAIN); prefer text so JAX-RS does not 406
-  // when Accept leads with application/json.
   const data = await get<unknown>(
     `${PATHS.IS_MY_PAGE}/${encodeURIComponent(id)}`,
-    { Accept: "text/plain, */*" },
   );
   if (typeof data === "boolean") {
     return data;
