@@ -117,16 +117,38 @@ public class PSFormRestService extends PSAbstractRestService implements IPSFormR
   /** Logger for this class. */
   private static final Logger log = LogManager.getLogger(PSFormRestService.class);
 
+  /**
+   * Default constructor used by the Jersey/Spring runtime. Initializes the form data joiner
+   * and leaves the form service to be injected by the container.
+   */
   public PSFormRestService() { // NOOP
     formDataJoiner = new PSFormDataJoiner();
   }
 
+  /**
+   * Programmatic constructor that pre-wires the collaborators for unit tests and other
+   * non-container driven call sites.
+   *
+   * @param service the form service used to persist and read submissions, never
+   *     <code>null</code>.
+   * @param enabledCiphers optional comma-separated list of TLS cipher suites to enable when
+   *     proxying to a remote form processor, may be <code>null</code> or empty.
+   */
   public PSFormRestService(IPSFormService service, String enabledCiphers) {
     formService = service;
     formDataJoiner = new PSFormDataJoiner();
     this.enabledCiphers = enabledCiphers;
   }
 
+  /**
+   * Echoes the {@code XSRF-TOKEN} cookie value back as response headers so that client-side
+   * JavaScript can read it and echo it on the next state-changing request.
+   *
+   * @param request the servlet request providing the incoming cookies, never
+   *     <code>null</code>.
+   * @param response the servlet response that will receive the CSRF headers, never
+   *     <code>null</code>.
+   */
   @HEAD
   @Path("/csrf")
   public void csrf(@Context HttpServletRequest request, @Context HttpServletResponse response) {
@@ -535,9 +557,9 @@ public class PSFormRestService extends PSAbstractRestService implements IPSFormR
   /**
    * Sends an email with the supplied form data
    *
-   * @param emailNotifTo The to addresses, comma-delimited, assumed not <code>null<code/> or empty.
-   * @param emailNotifSubject The subject, assumed not <code>null<code/> or empty
-   * @param form
+   * @param emailNotifTo The to addresses, comma-delimited, assumed not <code>null</code> or empty.
+   * @param emailNotifSubject The subject, assumed not <code>null</code> or empty
+   * @param form the form data to include in the body, never <code>null</code>.
    */
   private void sendFormDataEmail(String emailNotifTo, String emailNotifSubject, IPSFormData form) {
     try {

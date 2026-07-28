@@ -36,7 +36,12 @@ import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import org.glassfish.jersey.server.ContainerRequest;
 
-/** */
+/**
+ * REST/Webservice interface for the forms delivery-tier service. Endpoints cover collecting
+ * form submissions from the published site and managing persisted form data for the CMS UI.
+ *
+ * <p>All endpoints are secured with SSL and HTTP Basic Authentication.</p>
+ */
 @Path("/forms")
 public interface IPSFormRestService extends IPSRestService {
 
@@ -44,9 +49,7 @@ public interface IPSFormRestService extends IPSRestService {
    * Delete a form using the name provided if it was exported. If 'formName' is null or empty, then
    * all exported forms are deleted. Form name comparison is case-insensitive
    *
-   * <p>(SSL and HTTP Basic Authentication).
-   *
-   * @param formName The name of the form to delete. 204. 500.
+   * @param formName The name of the form to delete.
    */
   @DELETE
   @Path("/form/cms/{formName}")
@@ -56,10 +59,15 @@ public interface IPSFormRestService extends IPSRestService {
    * Processes an entry form and adds a new form to the form service. Upon form addition the form
    * redirects back to the referer.
    *
-   * <p>(read-only method).
-   *
-   * @throws IOException
-   * @throws WebApplicationException 200. 500.
+   * @param containerRequest the Jersey container request providing access to the decoded form
+   *     body and Jersey-specific properties.
+   * @param action the form action value supplied by the published site, may be <code>null</code>.
+   * @param header the HTTP headers associated with the incoming request, never
+   *     <code>null</code>.
+   * @param request the servlet request, never <code>null</code>.
+   * @param resp the servlet response used to deliver the redirect, never <code>null</code>.
+   * @throws IOException if an I/O error occurs while writing the redirect response.
+   * @throws WebApplicationException if the submitted form fails validation or processing.
    */
   @POST
   @Path("/form/collect")
@@ -75,10 +83,8 @@ public interface IPSFormRestService extends IPSRestService {
   /**
    * Retrieves the form given the name.
    *
-   * <p>(SSL and HTTP Basic Authentication).
-   *
    * @param formName the name of the form to be found an returned.
-   * @return the form if found, never <code>null</code>, may be empty. 200. 500.
+   * @return the form if found, never <code>null</code>, may be empty.
    */
   @GET
   @Path("/form/cms/{formName}")
@@ -89,9 +95,7 @@ public interface IPSFormRestService extends IPSRestService {
    * Retrieves list of form summaries. Form summaries include the name, total forms count, and total
    * exported forms count.
    *
-   * <p>(SSL and HTTP Basic Authentication).
-   *
-   * @return list of form summaries, never <code>null</code>, may be empty. 200. 500.
+   * @return list of form summaries, never <code>null</code>, may be empty.
    */
   @GET
   @Path("/form/cms/list")
@@ -101,11 +105,9 @@ public interface IPSFormRestService extends IPSRestService {
   /**
    * Export the form given the name.
    *
-   * <p>(SSL and HTTP Basic Authentication).
-   *
    * @param formName the name of the form to be found an returned.
    * @param csvFile the name for the CSV file.
-   * @return the csv if form was found, never <code>null</code>, may be empty. 200. 500.
+   * @return the csv if form was found, never <code>null</code>, may be empty.
    */
   @GET
   @Path("/form/cms/{formName}/{csvFile}")

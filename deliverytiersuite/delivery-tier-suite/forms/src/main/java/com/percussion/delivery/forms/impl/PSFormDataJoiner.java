@@ -43,6 +43,12 @@ import org.supercsv.prefs.CsvPreference;
  */
 public class PSFormDataJoiner {
 
+  /**
+   * Default constructor for {@link PSFormDataJoiner}. The joiner is stateless and holds no
+   * configuration of its own.
+   */
+  public PSFormDataJoiner() {}
+
   private static final String FORM_NAME_FIELD = "Form name";
 
   private static final String CREATE_DATE_FIELD = "Create date";
@@ -67,7 +73,7 @@ public class PSFormDataJoiner {
    * the 'form name' and 'create date'. Assumed not <code>null</code>.
    * @return A CaselessString list with all the header columns given in the
    * argument, plus the 'form name' and 'create date' fields. Never
-   * <code>null<code>, never empty.
+   * <code>null</code>, never empty.
    */
   private List<CaselessString> prepareHeader(SortedSet<CaselessString> headerColumns) {
     List<CaselessString> finalHeader = new ArrayList<>(headerColumns);
@@ -153,7 +159,7 @@ public class PSFormDataJoiner {
    * @param formDataProcessingResult Result of processing forms data. Assumed not <code>null</code>.
    * @return CSV produced according with the parsing result. It's produced according to Excel rules.
    *     Never <code>null</code>, maybe empty.
-   * @throws Exception
+   * @throws IOException if writing the CSV output fails.
    */
   private String writeCSV(FormDataProcessingResult formDataProcessingResult) throws IOException {
     if (formDataProcessingResult.isEmpty()) return StringUtils.EMPTY;
@@ -180,7 +186,7 @@ public class PSFormDataJoiner {
    * @return A CSV with all forms data merged. It has the columns of all forms given in the 'forms'
    *     argument, in ascending alpha order. Two columns are added: 'Form name' and 'Create date'.
    *     Never <code>null</code>, may be empty.
-   * @throws Exception
+   * @throws IOException if an I/O error occurs while generating the CSV output.
    */
   public String generateCsv(List<IPSFormData> forms) throws IOException {
     if (forms == null || forms.size() == 0) return StringUtils.EMPTY;
@@ -194,6 +200,8 @@ public class PSFormDataJoiner {
    * Generate the email body containing the fields and values including form name and create date
    *
    * @param form The form to process, not <code>null</code>.
+   * @return The formatted email body string with each field name and value on a separate line.
+   *     Never <code>null</code>, may be empty.
    */
   public String generateEmailBody(IPSFormData form) {
     Validate.notNull(form);

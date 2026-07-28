@@ -88,6 +88,8 @@ public class PSFormData implements IPSFormData {
   private Map<String, String> properties = new HashMap<>();
 
   /**
+   * Creates a new form record with the supplied form name and field map.
+   *
    * @param name The name of the form. Never <code>null</code> or empty. Max length is 50 chars.
    * @param props The fields of the form with their values. The key is the name of the field,
    *     case-sensitive. If the value is a <code>String[]</code>, then all the entries in the array
@@ -142,36 +144,48 @@ public class PSFormData implements IPSFormData {
     return s;
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.delivery.forms.data.IPSFormData#getName()
+  /**
+   * Returns the configured name of the form.
+   *
+   * @return the form name, never <code>null</code>.
    */
   public String getName() {
     return name;
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.delivery.forms.data.IPSFormData#getCreateDate()
+  /**
+   * Returns the timestamp at which the form was submitted.
+   *
+   * @return the creation date, never <code>null</code>.
    */
   public Date getCreateDate() {
     return created;
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.delivery.forms.data.IPSFormData#isExported()
+  /**
+   * Reports whether the form has been exported. The value is either {@code 'y'} when the form
+   * has been exported, or {@code 'n'} otherwise.
+   *
+   * @return the export flag character.
    */
   public char isExported() {
     return isExported;
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.delivery.forms.data.IPSFormData#getCreated()
+  /**
+   * Returns the creation timestamp of the form record (identical to
+   * {@link #getCreateDate()}).
+   *
+   * @return the creation date, never <code>null</code>.
    */
   public Date getCreated() {
     return created;
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.delivery.forms.data.IPSFormData#getFieldNames()
+  /**
+   * Returns the names of every field captured by the submission.
+   *
+   * @return an unmodifiable view of the field name set, never <code>null</code>, may be empty.
    */
   public Set<String> getFieldNames() {
     Set<String> result = Collections.unmodifiableSet(properties.keySet());
@@ -179,24 +193,35 @@ public class PSFormData implements IPSFormData {
     return result;
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.delivery.forms.data.IPSFormData#getFields()
+  /**
+   * Returns the captured field names and their associated values.
+   *
+   * @return an unmodifiable view of the field map, never <code>null</code>, may be empty.
    */
   public Map<String, String> getFields() {
     return Collections.unmodifiableMap(properties);
   }
 
+  /**
+   * Default constructor required by the JPA provider. Application code should use
+   * {@link #PSFormData(String, Map)} instead.
+   */
   protected PSFormData() {}
 
-  /* (non-Javadoc)
-   * @see com.percussion.delivery.forms.data.IPSFormData#getId()
+  /**
+   * Returns the string form of the persistent identifier assigned to this form.
+   *
+   * @return the form id, never <code>null</code>.
    */
   public String getId() {
     return String.valueOf(id);
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.delivery.forms.data.IPSFormData#setId(long)
+  /**
+   * Sets the persistent identifier for this form. A <code>null</code> value resets the
+   * identifier to {@code 0}.
+   *
+   * @param id the identifier, may be <code>null</code>.
    */
   public void setId(String id) {
     if (id == null) {

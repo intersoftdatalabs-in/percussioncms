@@ -22,32 +22,68 @@ package com.percussion.delivery.forms.data;
  * @author leonardohildt
  */
 public class PSFormSummary {
+  /**
+   * No-arg constructor required by the JAXB binding provider. Application code should use the
+   * setters to populate the bean before serializing it.
+   */
+  public PSFormSummary() {}
+
   private String name;
 
   private Long totalForms;
 
   private Long exportedForms;
 
+  /**
+   * Returns the form name represented by this summary.
+   *
+   * @return the form name, may be <code>null</code>.
+   */
   public String getName() {
     return name;
   }
 
+  /**
+   * Sets the form name represented by this summary.
+   *
+   * @param name the form name, may be <code>null</code>.
+   */
   public void setName(String name) {
     this.name = name;
   }
 
+  /**
+   * Returns the total number of submissions currently stored for the form.
+   *
+   * @return the total form count, may be <code>null</code> when uninitialized.
+   */
   public Long getTotalForms() {
     return totalForms;
   }
 
+  /**
+   * Sets the total number of submissions currently stored for the form.
+   *
+   * @param totalForms the total form count, may be <code>null</code> when uninitialized.
+   */
   public void setTotalForms(Long totalForms) {
     this.totalForms = totalForms;
   }
 
+  /**
+   * Returns the number of submissions that have been marked as exported.
+   *
+   * @return the exported form count, may be <code>null</code> when uninitialized.
+   */
   public Long getExportedForms() {
     return exportedForms;
   }
 
+  /**
+   * Sets the number of submissions that have been marked as exported.
+   *
+   * @param exportedForms the exported form count, may be <code>null</code> when uninitialized.
+   */
   public void setExportedforms(Long exportedForms) {
     this.exportedForms = exportedForms;
   }
