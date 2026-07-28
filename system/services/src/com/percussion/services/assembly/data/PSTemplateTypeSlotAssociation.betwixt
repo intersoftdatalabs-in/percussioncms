@@ -1,14 +1,18 @@
 <?xml version="1.0"?>
 <!--
-  Explicit property map for package slot-type-association payloads.
-  Archives use unhyphenated names (contenttypeid, templateid, slotid), not the
-  default hyphenated mapper output (content-type-id, etc.).
+  Property map for slot-type-association payloads after package-name normalize.
+
+  Package archives (perc.nav etc.) ship unhyphenated tags (contenttypeid, templateid,
+  slotid). PSTemplateSlot.fromXML rewrites those to the hyphenated names below so they
+  match PSXmlSerializationHelper's HyphenatedNameMapper. This .betwixt must use the
+  same hyphenated names: if Digester loads it, unhyphenated names here would fight the
+  rewrite and restore content/template ids as 0 (deploy fails with ContentType source ID 0).
 -->
 <info primitiveTypes="element">
   <element name="slot-type-association">
-    <element name="slotid" property="slotId"/>
-    <element name="templateid" property="templateId"/>
-    <element name="contenttypeid" property="contentTypeId"/>
+    <element name="slot-id" property="slotId"/>
+    <element name="template-id" property="templateId"/>
+    <element name="content-type-id" property="contentTypeId"/>
     <element name="version" property="version"/>
   </element>
 </info>

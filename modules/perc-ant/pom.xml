@@ -72,6 +72,17 @@
             <artifactId>derbyshared</artifactId>
             <scope>compile</scope>
         </dependency>
+        <!-- #548: H2 must be shaded into perc-ant (same as Derby). TableFactory
+             Class.forName(org.h2.Driver) during Derby→H2 migration runs on the
+             installer system classloader (java -jar perc-ant-*.jar). ant.deps
+             jetty/base/lib/jdbc JARs are on a child Ant classloader and are not
+             visible to that Class.forName — field symptom: export 209 tables OK,
+             import fails "Unable to connect to database server: org.h2.Driver". -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>net.sourceforge.jtds</groupId>
             <artifactId>jtds</artifactId>

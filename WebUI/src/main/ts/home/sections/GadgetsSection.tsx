@@ -16,16 +16,22 @@
  */
 
 import React from "react";
+import { useSpaBootstrap } from "../../app/bootstrap/BootstrapContext";
 import { Dashboard } from "../../dashboard";
 
 /**
  * Home section that hosts dashboard gadgets (PR-7 product lock).
  * Reuses the React Dashboard widget registry — not a peer SPA /dashboard route.
+ *
+ * <p>Passes the SPA bootstrap username so dashboard layout can load/save
+ * per-user configuration. Without it, only hard-coded default gadgets render
+ * and persistence is skipped.</p>
  */
 export function GadgetsSection(): React.ReactElement {
+  const { userName } = useSpaBootstrap();
   return (
     <div data-testid="home-gadgets-section" aria-label="Gadgets">
-      <Dashboard embedded />
+      <Dashboard embedded userId={userName || undefined} />
     </div>
   );
 }

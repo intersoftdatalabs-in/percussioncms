@@ -40,6 +40,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import java.util.ArrayList;
+import java.util.HashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -83,9 +84,12 @@ public class PSSearchRestService {
       criteria.setSearchType(
           SecureStringUtils.removeInvalidSQLObjectNameCharacters(criteria.getSearchType()));
 
+      // getSearchFields() returns an unmodifiable view (or emptyMap); never mutate it.
       var fields = criteria.getSearchFields();
-      if (fields != null) {
-        fields.replaceAll((k, v) -> SecureStringUtils.sanitizeStringForHTML(fields.get(k)));
+      if (fields != null && !fields.isEmpty()) {
+        var sanitized = new HashMap<String, String>(fields);
+        sanitized.replaceAll((k, v) -> SecureStringUtils.sanitizeStringForHTML(v));
+        criteria.setSearchFields(sanitized);
       }
       if (criteria.getFolderPath() != null
           && !SecureStringUtils.isValidCMSPathString(

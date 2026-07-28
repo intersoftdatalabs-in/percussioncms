@@ -41,6 +41,32 @@ class PSSearchRestServiceTest {
   }
 
   /**
+   * getSearchFields() returns an unmodifiable view; sanitize must not call
+   * replaceAll on that view (UnsupportedOperationException → Home Search 500).
+   */
+  @Test
+  void sanitizeCriteriaDoesNotMutateUnmodifiableSearchFields() {
+    PSSearchRestService restService = new PSSearchRestService(null, null, null);
+    PSSearchCriteria criteria = new PSSearchCriteria();
+    criteria.setQuery("hello");
+    criteria.setSearchFields(java.util.Map.of("sys_title", "<b>x</b>"));
+    restService.sanitizeCriteria(criteria);
+    assertEquals("hello", criteria.getQuery()); // also escaped if special chars
+    assertEquals("&lt;b&gt;x&lt;/b&gt;", criteria.getSearchFields().get("sys_title"));
+  }
+
+  @Test
+  void sanitizeCriteriaHandlesNullAndEmptySearchFields() {
+    PSSearchRestService restService = new PSSearchRestService(null, null, null);
+    PSSearchCriteria criteria = new PSSearchCriteria();
+    criteria.setQuery("q");
+    restService.sanitizeCriteria(criteria); // null fields
+    criteria.setSearchFields(java.util.Map.of());
+    restService.sanitizeCriteria(criteria); // empty fields
+    assertEquals("q", criteria.getQuery());
+  }
+
+  /**
    * Exercises {@link PSLuceneQueryEscaper#escape(String)} mid-query slash escaping used on the
    * urlDecodedQuery search path in {@code PSSearchService} (GH-878 / #889 / #914).
    */

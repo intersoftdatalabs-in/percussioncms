@@ -16,7 +16,8 @@
  */
 
 import React, { useState } from "react";
-import { searchContent } from "../../api/home/homeApi";
+import { isSessionRedirectError } from "../../api/client";
+import { formatApiError, searchContent } from "../../api/home/homeApi";
 import type { ContentListItem } from "../../api/home/types";
 import { message, MSG } from "../../i18n/message";
 import {
@@ -40,16 +41,26 @@ export function SearchSection({
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const q = query.trim();
+    if (!q) {
+      return;
+    }
     setLoading(true);
     setError(null);
-    searchContent({ query, searchText: query, maxResults: 50 })
+    // Wire contract: SearchCriteria.query + maxResults (see searchExtended / US5).
+    searchContent({ query: q, maxResults: 50, startIndex: 1 })
       .then((list) => setItems(list))
-      .catch(() => setError(message(MSG.ERROR_GENERIC)))
+      .catch((err: unknown) => {
+        if (isSessionRedirectError(err)) {
+          return;
+        }
+        setError(formatApiError(err, message(MSG.ERROR_GENERIC)));
+      })
       .finally(() => setLoading(false));
   };
 
   return (
-    <div>
+    <div data-testid="home-search-section">
       <form onSubmit={onSubmit}>
         <div style={formRowStyle}>
           <label htmlFor="home-search-query">
@@ -57,25 +68,40 @@ export function SearchSection({
           </label>
           <input
             id="home-search-query"
+            data-testid="home-search-input"
             type="search"
             value={query}
             onChange={(ev) => setQuery(ev.target.value)}
             placeholder={message(MSG.SEARCH_PLACEHOLDER)}
           />
         </div>
-        <button type="submit" disabled={loading || !query.trim()}>
+        <button
+          type="submit"
+          data-testid="home-search-submit"
+          disabled={loading || !query.trim()}
+        >
           {message(MSG.SEARCH_SUBMIT)}
         </button>
       </form>
-      {loading && <p role="status">{message(MSG.LOADING)}</p>}
+      {loading && (
+        <p role="status" data-testid="home-search-loading">
+          {message(MSG.LOADING)}
+        </p>
+      )}
       {error && (
-        <p role="alert" style={errorStyle}>
+        <p role="alert" style={errorStyle} data-testid="home-search-error">
           {error}
         </p>
       )}
-      {items && items.length === 0 && <p>{message(MSG.SEARCH_EMPTY)}</p>}
+      {items && items.length === 0 && (
+        <p data-testid="home-search-empty">{message(MSG.SEARCH_EMPTY)}</p>
+      )}
       {items && items.length > 0 && (
-        <ul style={listStyle} aria-label={message(MSG.SECTION_SEARCH)}>
+        <ul
+          style={listStyle}
+          aria-label={message(MSG.SECTION_SEARCH)}
+          data-testid="home-search-results"
+        >
           {items.map((item, index) => {
             const label =
               item.name || item.title || item.path || item.id || `hit-${index}`;

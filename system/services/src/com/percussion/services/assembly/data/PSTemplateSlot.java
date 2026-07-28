@@ -339,24 +339,29 @@ public class PSTemplateSlot
         id = 0L; // Avoid problems during restore
         this.version=null;
         // Package archives (perc.nav etc.) use unhyphenated association field names
-        // (contenttypeid/templateid/slotid). Default Betwixt/PSNameMapper expects
-        // content-type-id etc.; without that rewrite, associations restore as zeros and
-        // deploy fails with "ContentType with source ID 0".
+        // (contenttypeid/templateid/slotid). PSNameMapper / PSTemplateTypeSlotAssociation.betwixt
+        // expect hyphenated names (content-type-id etc.). Without the rewrite, associations
+        // restore as zeros and deploy fails with "ContentType with source ID 0".
+        // Both the default introspector path and a successfully loaded .betwixt must agree
+        // on hyphenated names — see PSTemplateTypeSlotAssociation.betwixt.
         PSXmlSerializationHelper.readFromXML(normalizePackageAssociationElementNames(xmlsource), this);
     }
 
     /**
      * Rewrites legacy package element names on slot-type associations to hyphenated names expected
-     * by {@link PSXmlSerializationHelper}'s name mapper.
+     * by {@link PSXmlSerializationHelper}'s name mapper and by {@code
+     * PSTemplateTypeSlotAssociation.betwixt}.
      *
      * <p>Only rewrites element open/close tags ({@code <name>} / {@code </name>} / {@code
      * <name ...>}), not bare text or attribute values such as {@code name="contenttypeid"}.
+     * Already-hyphenated tags are left unchanged.
      */
     static String normalizePackageAssociationElementNames(String xml) {
         if (xml == null || xml.isEmpty()) {
             return xml;
         }
         String out = xml;
+        // Only rewrite the unhyphenated package forms; do not touch content-type-id etc.
         out = renameElementTags(out, "contenttypeid", "content-type-id");
         out = renameElementTags(out, "templateid", "template-id");
         out = renameElementTags(out, "slotid", "slot-id");

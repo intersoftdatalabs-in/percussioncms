@@ -164,7 +164,8 @@ public class PSQueryTransformer extends PSQueryNodeVisitor
                   throw new InvalidQueryException(
                         "Value for jcr:path must be a string");
                }
-               left = new PSQueryNodeIdentifier("f.owner_id", PropertyType.LONG);
+               // Hibernate 6 HQL: property name ownerId (not column OWNER_ID / owner_id)
+               left = new PSQueryNodeIdentifier("f.ownerId", PropertyType.LONG);
                
                List<IPSGuid> folders = m_folderExpander
                      .expandPath((String) valuesValue);
@@ -183,7 +184,7 @@ public class PSQueryTransformer extends PSQueryNodeVisitor
                         .extractContentIds(folders));
                   m_idCollections.add(collectionId);
                   return new PSQueryNodeLiteral(
-                        "f.owner_id in (select t.pk.itemId from "
+                        "f.ownerId in (select t.pk.itemId from "
                               + "PSTempId t where t.pk.id = " + collectionId
                               + ")");
                }

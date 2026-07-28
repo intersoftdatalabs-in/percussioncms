@@ -93,13 +93,13 @@ export async function searchExtended(
     return {
       children: [],
       totalCount: 0,
-      startIndex: criteria.startIndex ?? 0,
+      startIndex: criteria.startIndex ?? 1,
     };
   }
   return {
     children: envelope.childrenInPage ?? [],
     totalCount: envelope.childrenCount,
-    startIndex: envelope.startIndex ?? criteria.startIndex ?? 0,
+    startIndex: envelope.startIndex ?? criteria.startIndex ?? 1,
   };
 }
 

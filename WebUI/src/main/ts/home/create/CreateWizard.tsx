@@ -16,7 +16,12 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { fetchBlogsForSite, fetchSites } from "../../api/home/homeApi";
+import { isSessionRedirectError } from "../../api/client";
+import {
+  fetchBlogsForSite,
+  fetchSites,
+  formatApiError,
+} from "../../api/home/homeApi";
 import { message, MSG } from "../../i18n/message";
 import { errorStyle } from "../home.styles";
 import { AssetWizard } from "./AssetWizard";
@@ -58,8 +63,11 @@ export function CreateWizard(): React.ReactElement {
         }
         setHasBlogs(found);
       })
-      .catch(() => {
-        setError(message(MSG.ERROR_GENERIC));
+      .catch((err: unknown) => {
+        if (isSessionRedirectError(err)) {
+          return;
+        }
+        setError(formatApiError(err, message(MSG.ERROR_GENERIC)));
         setHasSites(false);
       });
   }, []);

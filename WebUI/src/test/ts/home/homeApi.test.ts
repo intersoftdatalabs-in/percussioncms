@@ -21,6 +21,8 @@ import {
   fetchRecentItems,
   fetchSites,
   formatApiError,
+  normalizeContentItem,
+  searchContent,
 } from "@/api/home/homeApi";
 import type { ApiError } from "@/api/client";
 
@@ -62,6 +64,24 @@ describe("homeApi", () => {
     expect(items[0].name).toBe("Page A");
   });
 
+  it("fetchRecentItems maps ItemProperties wrapper", async () => {
+    const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>;
+    fetchMock.mockResolvedValue(
+      mockJsonResponse({
+        ItemProperties: [
+          { id: "42", name: "Recent Page", path: "/Sites/Demo/page" },
+        ],
+      }),
+    );
+    const items = await fetchRecentItems("item");
+    expect(items).toHaveLength(1);
+    expect(items[0]).toMatchObject({
+      id: "42",
+      name: "Recent Page",
+      path: "/Sites/Demo/page",
+    });
+  });
+
   it("fetchMyContent maps ItemProperties list", async () => {
     const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>;
     fetchMock.mockResolvedValue(
@@ -72,6 +92,69 @@ describe("homeApi", () => {
     const items = await fetchMyContent();
     expect(items).toHaveLength(1);
     expect(items[0].name).toBe("Bookmarked");
+    expect(items[0].path).toBe("/Sites/a/b");
+  });
+
+  it("searchContent wraps SearchCriteria and unwraps paged results", async () => {
+    const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>;
+    fetchMock.mockResolvedValue(
+      mockJsonResponse({
+        PagedItemPropertiesList: {
+          childrenCount: 1,
+          startIndex: 0,
+          childrenInPage: [
+            {
+              id: "9",
+              title: "Hit Title",
+              folderPath: "/Sites/Demo/hit",
+              type: "page",
+            },
+          ],
+        },
+      }),
+    );
+    const items = await searchContent({ query: "hit", maxResults: 50 });
+    expect(items).toHaveLength(1);
+    expect(items[0].name).toBe("Hit Title");
+    expect(items[0].path).toBe("/Sites/Demo/hit");
+    expect(items[0].id).toBe("9");
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toContain("/searchmanagement/search/get/extendedresults");
+    const body = JSON.parse(String(init.body));
+    expect(body).toEqual({
+      SearchCriteria: {
+        query: "hit",
+        maxResults: 50,
+        startIndex: 1,
+        formatId: 9,
+      },
+    });
+  });
+
+  it("searchContent accepts legacy searchText alias", async () => {
+    const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>;
+    fetchMock.mockResolvedValue(
+      mockJsonResponse({
+        PagedItemPropertiesList: { childrenInPage: [] },
+      }),
+    );
+    await searchContent({ searchText: "legacy", maxResults: 10 });
+    const body = JSON.parse(
+      String((fetchMock.mock.calls[0] as [string, RequestInit])[1].body),
+    );
+    expect(body.SearchCriteria.query).toBe("legacy");
+  });
+
+  it("normalizeContentItem fills name/path from alternate fields", () => {
+    expect(
+      normalizeContentItem({
+        contentId: "c1",
+        title: "T",
+        folderPath: "/Sites/x",
+      }),
+    ).toMatchObject({ id: "c1", name: "T", path: "/Sites/x" });
   });
 
   it("fetchSites surfaces API errors", async () => {
