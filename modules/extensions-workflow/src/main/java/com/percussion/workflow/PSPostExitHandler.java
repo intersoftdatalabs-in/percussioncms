@@ -63,8 +63,6 @@ public class PSPostExitHandler implements IPSResultDocumentProcessor {
    * @param request the current request context, may be <code>null</code>.
    * @param resDoc the result XML document, may be <code>null</code>.
    * @return the supplied result document, possibly <code>null</code>.
-   * @throws PSParameterMismatchException never thrown.
-   * @throws PSExtensionProcessingException never thrown.
    */
   public Document processResultDocument(Object[] params, IPSRequestContext request, Document resDoc)
       throws PSParameterMismatchException, PSExtensionProcessingException {
@@ -123,7 +121,7 @@ public class PSPostExitHandler implements IPSResultDocumentProcessor {
    * Logs the contents of the supplied request context (application name, request URL, CGI
    * variables, HTML parameters and response cookies) to the workflow log for debugging.
    *
-   * @param request the request context to log, may be <code>null</code>.
+   * @param request the request context to log, must not be <code>null</code>.
    */
   public static void printRequestContext(IPSRequestContext request) {
     log.info("");
