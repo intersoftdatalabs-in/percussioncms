@@ -468,7 +468,7 @@ public class PSSystemService
 
       return getSession()
           .createQuery(
-              "from PSContentAdhocUser where contentId = :cid order by adhocUserId",
+              "from PSContentAdhocUser where contentId = :cid",
               com.percussion.services.workflow.data.PSContentAdhocUser.class)
           .setParameter("cid", contentId)
           .getResultList();

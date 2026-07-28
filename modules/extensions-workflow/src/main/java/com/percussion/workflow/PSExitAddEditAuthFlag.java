@@ -242,7 +242,7 @@ public class PSExitAddEditAuthFlag implements IPSResultDocumentProcessor {
     try {
       src = PSStateRolesContext.loadFromHibernate(
           nWorkFlowAppID, csc.getContentStateId(), requiredAccessLevel);
-    } catch (PSEntryNotFoundException | PSRoleException e) {
+    } catch (PSEntryNotFoundException | PSRoleException | IllegalArgumentException e) {
       return false;
     }
 

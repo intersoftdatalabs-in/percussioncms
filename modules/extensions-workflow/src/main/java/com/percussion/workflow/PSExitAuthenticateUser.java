@@ -480,6 +480,16 @@ if ((int) csc.getContentTypeId() == PSCmsObject.TYPE_FOLDER) {
             Integer.toString(csc.getContentStateId()),
             Integer.toString(nWorkFlowAppID)
           });
+    } catch (IllegalArgumentException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      throw new PSAuthorizationException(
+          lang,
+          IPSExtensionErrors.ROLES_NOT_ASSIGNED,
+          new Object[] {
+            Integer.toString(requiredAccessLevel),
+            Integer.toString(csc.getContentStateId()),
+            Integer.toString(nWorkFlowAppID)
+          });
     }
 
     PSContentAdhocUsersContext cauc =
@@ -559,11 +569,38 @@ private boolean canUserCreate(AuthParams localParams)
     List<String> stateRoleList = new ArrayList<>();
     PSStateRolesContext src;
 
-    src =
-        PSStateRolesContext.loadFromHibernate(
-            localParams.m_workflowAppID,
-            wcxt.getWorkFlowInitialStateID(),
-            localParams.m_requiredAccessLevel);
+    try {
+      src =
+          PSStateRolesContext.loadFromHibernate(
+              localParams.m_workflowAppID,
+              wcxt.getWorkFlowInitialStateID(),
+              localParams.m_requiredAccessLevel);
+    } catch (PSEntryNotFoundException e) {
+      // No state roles for the initial state — user cannot create.
+      PSWorkFlowUtils.printWorkflowMessage(localParams.m_request,
+          "    No state roles for initial state. Exiting canUserCreate");
+      return false;
+    } catch (PSRoleException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      throw new PSAuthorizationException(
+          lang,
+          IPSExtensionErrors.ROLE_ERROR_STATEID_WORKFLOWID,
+          new Object[] {
+            Integer.toString(wcxt.getWorkFlowInitialStateID()),
+            Integer.toString(localParams.m_workflowAppID),
+            e.toString()
+          });
+    } catch (IllegalArgumentException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      throw new PSAuthorizationException(
+          lang,
+          IPSExtensionErrors.ROLE_ERROR_STATEID_WORKFLOWID,
+          new Object[] {
+            Integer.toString(wcxt.getWorkFlowInitialStateID()),
+            Integer.toString(localParams.m_workflowAppID),
+            e.toString()
+          });
+    }
 
     stateRoleList = src.getStateRoleNames();
 

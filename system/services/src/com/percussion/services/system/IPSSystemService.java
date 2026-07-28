@@ -253,7 +253,7 @@ public interface IPSSystemService
     * Phase 4b so {@code modules/extensions-workflow/.../PSContentAdhocUsersContext} can load
     * its data from the shared Hibernate session without opening a second pool connection.
     *
-    * @param contentId the content id, never <code>null</code>.
+    * @param contentId the content id; must be {@code > 0}.
     * @return the list of adhoc user rows for that content, never <code>null</code>, may be empty.
     */
    public java.util.List<com.percussion.services.workflow.data.PSContentAdhocUser>
