@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,81 +15,75 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from 'react';
-import { get } from '../api/client';
-import { styles } from './dashboard.styles';
-
-interface WorkflowItem {
-  id: string;
-  name: string;
-  state: string;
-  count: number;
-  progress?: number;
-}
-
-interface WorkflowStatusData {
-  items: WorkflowItem[];
-  totalCount: number;
-  lastUpdated: string;
-}
+import React, { useCallback, useEffect, useState } from "react";
+import { isSessionRedirectError } from "../api/client";
+import {
+  fetchPagesByStatusSummary,
+  type PagesByStatusResult,
+} from "../api/dashboard/gadgetApi";
+import { formatApiError } from "../api/home/homeApi";
+import { styles } from "./dashboard.styles";
 
 export interface WorkflowStatusWidgetProps {
+  /** Display title (classic gadget: Pages By Status). */
   title?: string;
+  /** Optional CMS path; defaults to first site. */
+  path?: string;
+  /** Optional workflow name; defaults to system default workflow label. */
+  workflow?: string;
   refreshInterval?: number;
 }
 
 /**
- * WorkflowStatusWidget displays the current workflow statuses and task counts.
- * Fetches data from the dashboard management REST endpoint and refreshes automatically.
+ * Classic **Pages By Status** gadget (React key {@code workflow}).
+ *
+ * <p>Server: {@code POST /services/pathmanagement/path/item/wfState} with
+ * {@code ItemByWfStateRequest}. Invented path
+ * {@code /dashboardmanagement/gadget/workflow-status} does not exist.</p>
  */
 export const WorkflowStatusWidget: React.FC<WorkflowStatusWidgetProps> = ({
-  title = 'Workflow Status',
+  title = "Pages By Status",
+  path,
+  workflow,
   refreshInterval = 30000,
 }) => {
-  const [data, setData] = useState<WorkflowStatusData | null>(null);
+  const [data, setData] = useState<PagesByStatusResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchWorkflowStatus = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        // Call dashboard gadget REST endpoint
-        const response = await get<WorkflowStatusData>(
-          '/services/dashboardmanagement/gadget/workflow-status'
-        );
-
-        setData(response);
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : 'Failed to load workflow status';
-        setError(errorMessage);
-        console.error('WorkflowStatusWidget error:', err);
-      } finally {
-        setIsLoading(false);
+  const load = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const result = await fetchPagesByStatusSummary({ path, workflow });
+      setData(result);
+    } catch (err: unknown) {
+      if (isSessionRedirectError(err)) {
+        return;
       }
-    };
+      setError(formatApiError(err, "Failed to load pages by status"));
+      setData(null);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [path, workflow]);
 
-    // Fetch immediately
-    fetchWorkflowStatus();
-
-    // Set up refresh interval if specified
-    const interval =
-      refreshInterval > 0
-        ? setInterval(fetchWorkflowStatus, refreshInterval)
-        : undefined;
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [refreshInterval]);
+  useEffect(() => {
+    void load();
+    if (refreshInterval <= 0) {
+      return;
+    }
+    const id = window.setInterval(() => void load(), refreshInterval);
+    return () => window.clearInterval(id);
+  }, [load, refreshInterval]);
 
   const renderContent = () => {
     if (isLoading) {
       return (
-        <div style={styles.widgetLoading}>
+        <div
+          style={styles.widgetLoading}
+          data-testid="workflow-status-loading"
+        >
           <p>Loading workflow status...</p>
         </div>
       );
@@ -97,73 +91,75 @@ export const WorkflowStatusWidget: React.FC<WorkflowStatusWidgetProps> = ({
 
     if (error) {
       return (
-        <div style={styles.widgetError}>
+        <div style={styles.widgetError} data-testid="workflow-status-error">
           <p>Error: {error}</p>
         </div>
       );
     }
 
-    if (!data || !data.items || data.items.length === 0) {
+    if (!data || data.buckets.length === 0) {
       return (
-        <div style={styles.widgetContent}>
-          <p>No active workflows</p>
+        <div style={styles.widgetContent} data-testid="workflow-status-empty">
+          <p>No pages found for this path and workflow.</p>
+          {data ? (
+            <p style={{ fontSize: "0.85em", color: "#666" }}>
+              {data.path} · {data.workflow}
+            </p>
+          ) : null}
         </div>
       );
     }
 
     return (
-      <div style={styles.widgetContent}>
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {data.items.map((item) => (
+      <div style={styles.widgetContent} data-testid="workflow-status-list">
+        <p style={{ fontSize: "0.85em", color: "#666", marginTop: 0 }}>
+          {data.path} · {data.workflow} · {data.totalItems} page
+          {data.totalItems === 1 ? "" : "s"}
+        </p>
+        <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+          {data.buckets.map((bucket) => (
             <li
-              key={item.id}
+              key={bucket.state}
               style={{
-                padding: '8px 0',
-                borderBottom: '1px solid #e0e0e0',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              } as React.CSSProperties}
+                padding: "8px 0",
+                borderBottom: "1px solid #e0e0e0",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
             >
               <div>
-                <div style={{ fontWeight: 500, color: '#333' }}>
-                  {item.name}
+                <div style={{ fontWeight: 500, color: "#333" }}>
+                  {bucket.state}
                 </div>
-                <div style={{ fontSize: '0.85em', color: '#666' }}>
-                  State: {item.state}
-                </div>
+                {bucket.sampleNames.length > 0 ? (
+                  <div style={{ fontSize: "0.85em", color: "#666" }}>
+                    {bucket.sampleNames.join(", ")}
+                    {bucket.count > bucket.sampleNames.length ? "…" : ""}
+                  </div>
+                ) : null}
               </div>
               <div
                 style={{
-                  backgroundColor: '#e8f4f8',
-                  padding: '4px 12px',
-                  borderRadius: '12px',
+                  backgroundColor: "#e8f4f8",
+                  padding: "4px 12px",
+                  borderRadius: "12px",
                   fontWeight: 600,
-                  color: '#007ea8',
-                  fontSize: '0.9em',
+                  color: "#007ea8",
+                  fontSize: "0.9em",
                 }}
               >
-                {item.count}
+                {bucket.count}
               </div>
             </li>
           ))}
         </ul>
-        <div
-          style={{
-            marginTop: '12px',
-            fontSize: '0.8em',
-            color: '#999',
-            textAlign: 'right',
-          }}
-        >
-          Updated: {new Date(data.lastUpdated).toLocaleTimeString()}
-        </div>
       </div>
     );
   };
 
   return (
-    <div style={styles.widget}>
+    <div style={styles.widget} data-testid="workflow-status-widget">
       <div style={styles.widgetTitle}>{title}</div>
       {renderContent()}
     </div>

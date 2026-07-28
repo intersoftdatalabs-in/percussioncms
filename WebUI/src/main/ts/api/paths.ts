@@ -141,8 +141,19 @@ export const PATHS = {
   get PATH_ITEM() {
     return `${SERVICES_ROOT}/pathmanagement/path/item`;
   },
+  /** Pages/items by workflow state (classic Pages By Status gadget). POST body. */
+  get PATH_ITEM_BY_WF_STATE() {
+    return `${SERVICES_ROOT}/pathmanagement/path/item/wfState`;
+  },
   get PATH_ITEM_ID() {
     return `${SERVICES_ROOT}/pathmanagement/path/item/id`;
+  },
+  /**
+   * Content activity metrics (classic Activity gadget).
+   * POST body: {@code ContentActivityRequest} (path, durationType, duration).
+   */
+  get ACTIVITY_CONTENT() {
+    return `${SERVICES_ROOT}/activitymanagement/activity/contentactivity`;
   },
   get PATH_ADD_NEW_FOLDER() {
     return `${SERVICES_ROOT}/pathmanagement/path/addNewFolder`;
