@@ -518,10 +518,12 @@ public class PSSearchService implements IPSSearchService {
             criteria.getFormatId() + " must have a numeric value for search");
       }
     }
+    // getSearchFields() is unmodifiable — copy before validating / rewriting values.
     var fields = criteria.getSearchFields();
-    if (fields != null) {
+    if (fields != null && !fields.isEmpty()) {
+      var mutableFields = new HashMap<String, String>(fields);
       var systemFieldSet = PSServer.getContentEditorSystemDef().getFieldSet();
-      for (var field : fields.entrySet()) {
+      for (var field : mutableFields.entrySet()) {
         var f = systemFieldSet.findFieldByName(field.getKey(), false);
         if (f != null) {
           if (f.getDataType().equalsIgnoreCase(PSField.DT_INTEGER)
@@ -553,7 +555,7 @@ public class PSSearchService implements IPSSearchService {
           field.setValue(SecureStringUtils.sanitizeStringForSQLStatement(field.getValue(), type));
         }
       }
-      criteria.setSearchFields(fields);
+      criteria.setSearchFields(mutableFields);
     }
     return criteria;
   }

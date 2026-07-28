@@ -18,6 +18,8 @@
 import { get, post } from "../client";
 import type { ApiError } from "../client";
 import { PATHS } from "../paths";
+import { searchExtended } from "../contentExplorer/searchApi";
+import type { PSSearchCriteria } from "../contentExplorer/types";
 import type {
   AssetTypeSummary,
   BlogSummary,
@@ -39,7 +41,7 @@ export async function fetchRecentItems(
     url += `/${encodeURIComponent(site)}`;
   }
   const data = await get<unknown>(url);
-  return normalizeList(data);
+  return normalizeList(data).map(normalizeContentItem);
 }
 
 /**
@@ -47,7 +49,7 @@ export async function fetchRecentItems(
  */
 export async function fetchMyContent(): Promise<ContentListItem[]> {
   const data = await get<unknown>(PATHS.MY_CONTENT);
-  return normalizeList(data);
+  return normalizeList(data).map(normalizeContentItem);
 }
 
 /** All sites for Library root. */
@@ -76,7 +78,7 @@ export async function fetchFolderChildren(
   const data = await get<unknown>(
     `${PATHS.PATH_FOLDER}${encodeURI(normalized)}`,
   );
-  return normalizeList(data) as FolderChild[];
+  return normalizeList(data).map(normalizeContentItem) as FolderChild[];
 }
 
 /** Templates for a site (classic getTemplates). */
@@ -191,12 +193,98 @@ export async function createPageAndPath(
   return joinFolderAndName(req.folderPath, req.name);
 }
 
-/** Run extended finder search. */
+/**
+ * Run extended finder search (same REST as Content Explorer US5).
+ *
+ * <p>Must wrap body under {@code SearchCriteria} and unwrap
+ * {@code PagedItemPropertiesList.childrenInPage}. A bare criteria object
+ * or flat array unwrap silently yields empty Home Search results.</p>
+ */
 export async function searchContent(
-  criteria: Record<string, unknown>,
+  criteria: PSSearchCriteria | Record<string, unknown>,
 ): Promise<ContentListItem[]> {
-  const data = await post<unknown>(PATHS.FINDER_SEARCH_EXTENDED, criteria);
-  return normalizeList(data);
+  const query =
+    typeof criteria.query === "string"
+      ? criteria.query
+      : typeof (criteria as { searchText?: unknown }).searchText === "string"
+        ? String((criteria as { searchText: string }).searchText)
+        : "";
+  const maxResults =
+    typeof criteria.maxResults === "number" ? criteria.maxResults : 50;
+  // Server rejects startIndex < 1 (IllegalArgumentException).
+  const startIndex =
+    typeof criteria.startIndex === "number" && criteria.startIndex >= 1
+      ? criteria.startIndex
+      : 1;
+  const folderPath =
+    typeof criteria.folderPath === "string" ? criteria.folderPath : undefined;
+
+  // formatId is required by PSSearchService.searchForIds (classic finder uses
+  // the active display format; Home defaults to system list format id 9).
+  const formatId =
+    typeof criteria.formatId === "number" ? criteria.formatId : 9;
+
+  const searchCriteria: PSSearchCriteria = {
+    query: query.trim(),
+    maxResults,
+    startIndex,
+    folderPath,
+    formatId,
+    searchType:
+      typeof criteria.searchType === "string" ? criteria.searchType : undefined,
+    sortColumn:
+      typeof criteria.sortColumn === "string" ? criteria.sortColumn : undefined,
+    sortOrder:
+      typeof criteria.sortOrder === "string" ? criteria.sortOrder : undefined,
+  };
+
+  const results = await searchExtended(searchCriteria);
+  return results.children.map((row) =>
+    normalizeContentItem({
+      id: row.id,
+      name: row.name ?? row.title,
+      title: row.title ?? row.name,
+      path: row.folderPath ?? (row as { path?: string }).path,
+      type: row.type,
+      ...row,
+    }),
+  );
+}
+
+/**
+ * Normalize PSItemProperties / PathItem-style rows so Home sections always
+ * have display {@code name} and openable {@code path}/{@code id}.
+ */
+export function normalizeContentItem(
+  raw: ContentListItem | Record<string, unknown>,
+): ContentListItem {
+  const o = raw as ContentListItem & {
+    contentId?: string;
+    folderPath?: string;
+    title?: string;
+    name?: string;
+    path?: string;
+    id?: string;
+  };
+  const path =
+    (o.path != null && String(o.path).trim()) ||
+    (o.folderPath != null && String(o.folderPath).trim()) ||
+    undefined;
+  const id =
+    (o.id != null && String(o.id)) ||
+    (o.contentId != null && String(o.contentId)) ||
+    undefined;
+  const name =
+    (o.name != null && String(o.name).trim()) ||
+    (o.title != null && String(o.title).trim()) ||
+    undefined;
+  return {
+    ...o,
+    id,
+    name,
+    title: o.title != null ? String(o.title) : name,
+    path,
+  };
 }
 
 /**
@@ -242,6 +330,14 @@ function normalizeList(data: unknown): ContentListItem[] {
   }
   if (data && typeof data === "object") {
     const obj = data as Record<string, unknown>;
+    // Search wire: { PagedItemPropertiesList: { childrenInPage: [...] } }
+    const paged = obj.PagedItemPropertiesList;
+    if (paged && typeof paged === "object") {
+      const children = (paged as { childrenInPage?: unknown }).childrenInPage;
+      if (Array.isArray(children)) {
+        return children as ContentListItem[];
+      }
+    }
     for (const key of [
       "RecentItemList",
       "ItemProperties",
@@ -250,13 +346,24 @@ function normalizeList(data: unknown): ContentListItem[] {
       "results",
       "PathItem",
       "children",
+      "childrenInPage",
       "resultPage",
       "FolderItem",
       "childFolders",
+      "PagedItemList",
     ]) {
       const v = obj[key];
       if (Array.isArray(v)) {
         return v as ContentListItem[];
+      }
+      // Nested list wrappers (e.g. PagedItemList.childrenInPage)
+      if (v && typeof v === "object") {
+        const nested = v as Record<string, unknown>;
+        for (const nk of ["childrenInPage", "children", "ItemProperties", "PathItem"]) {
+          if (Array.isArray(nested[nk])) {
+            return nested[nk] as ContentListItem[];
+          }
+        }
       }
     }
     for (const v of Object.values(obj)) {

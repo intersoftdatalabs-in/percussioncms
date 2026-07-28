@@ -16,7 +16,12 @@
  */
 
 import React, { useCallback, useEffect, useState } from "react";
-import { fetchFolderChildren, fetchSites } from "../../api/home/homeApi";
+import { isSessionRedirectError } from "../../api/client";
+import {
+  fetchFolderChildren,
+  fetchSites,
+  formatApiError,
+} from "../../api/home/homeApi";
 import type { ContentListItem, SiteSummary } from "../../api/home/types";
 import { message, MSG } from "../../i18n/message";
 import { errorStyle, listItemStyle, listStyle } from "../home.styles";
@@ -36,6 +41,13 @@ export function LibrarySection({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const onApiError = useCallback((err: unknown): void => {
+    if (isSessionRedirectError(err)) {
+      return;
+    }
+    setError(formatApiError(err, message(MSG.ERROR_GENERIC)));
+  }, []);
+
   const loadSites = useCallback(() => {
     setLoading(true);
     fetchSites()
@@ -43,9 +55,9 @@ export function LibrarySection({
         setSites(list);
         setError(null);
       })
-      .catch(() => setError(message(MSG.ERROR_GENERIC)))
+      .catch(onApiError)
       .finally(() => setLoading(false));
-  }, []);
+  }, [onApiError]);
 
   useEffect(() => {
     loadSites();
@@ -60,7 +72,7 @@ export function LibrarySection({
         setChildren(list);
         setError(null);
       })
-      .catch(() => setError(message(MSG.ERROR_GENERIC)))
+      .catch(onApiError)
       .finally(() => setLoading(false));
   };
 
@@ -72,7 +84,7 @@ export function LibrarySection({
         setChildren(list);
         setError(null);
       })
-      .catch(() => setError(message(MSG.ERROR_GENERIC)))
+      .catch(onApiError)
       .finally(() => setLoading(false));
   };
 

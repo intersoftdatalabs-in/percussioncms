@@ -109,7 +109,7 @@ export function SearchPanel(props: SearchPanelProps): React.JSX.Element {
       const results = await search({
         ...initialCriteria,
         query: trimmed,
-        startIndex: initialCriteria.startIndex ?? 0,
+        startIndex: initialCriteria.startIndex ?? 1,
         maxResults: initialCriteria.maxResults ?? 25,
       });
       setStatus({ kind: "ready", query: trimmed, results });

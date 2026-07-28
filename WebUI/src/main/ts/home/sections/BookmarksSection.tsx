@@ -16,7 +16,8 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { fetchMyContent } from "../../api/home/homeApi";
+import { isSessionRedirectError } from "../../api/client";
+import { fetchMyContent, formatApiError } from "../../api/home/homeApi";
 import type { ContentListItem } from "../../api/home/types";
 import { message, MSG } from "../../i18n/message";
 import { errorStyle, listItemStyle, listStyle } from "../home.styles";
@@ -41,14 +42,15 @@ export function BookmarksSection({
     fetchMyContent()
       .then((list) => {
         if (!cancelled) {
-          setItems(normalizeBookmarkRows(list));
+          setItems(list);
           setError(null);
         }
       })
-      .catch(() => {
-        if (!cancelled) {
-          setError(message(MSG.ERROR_GENERIC));
+      .catch((err: unknown) => {
+        if (cancelled || isSessionRedirectError(err)) {
+          return;
         }
+        setError(formatApiError(err, message(MSG.ERROR_GENERIC)));
       })
       .finally(() => {
         if (!cancelled) {
@@ -61,26 +63,36 @@ export function BookmarksSection({
   }, []);
 
   if (loading) {
-    return <p role="status">{message(MSG.LOADING)}</p>;
+    return (
+      <p role="status" data-testid="home-bookmarks-loading">
+        {message(MSG.LOADING)}
+      </p>
+    );
   }
   if (error) {
     return (
-      <p role="alert" style={errorStyle}>
+      <p role="alert" style={errorStyle} data-testid="home-bookmarks-error">
         {error}
       </p>
     );
   }
   if (items.length === 0) {
-    return <p>{message(MSG.BOOKMARKS_EMPTY)}</p>;
+    return (
+      <p data-testid="home-bookmarks-empty">{message(MSG.BOOKMARKS_EMPTY)}</p>
+    );
   }
 
   return (
-    <ul style={listStyle} aria-label={message(MSG.SECTION_BOOKMARKS)}>
+    <ul
+      style={listStyle}
+      aria-label={message(MSG.SECTION_BOOKMARKS)}
+      data-testid="home-bookmarks-list"
+    >
       {items.map((item, index) => {
         const label =
           item.name ||
           item.title ||
-          (item as { path?: string }).path ||
+          item.path ||
           item.id ||
           `bookmark-${index}`;
         return (
@@ -94,23 +106,4 @@ export function BookmarksSection({
       })}
     </ul>
   );
-}
-
-/** Map PSItemProperties-style rows into ContentListItem fields when needed. */
-function normalizeBookmarkRows(list: ContentListItem[]): ContentListItem[] {
-  return list.map((raw) => {
-    const o = raw as ContentListItem & {
-      id?: string;
-      contentId?: string;
-      name?: string;
-      path?: string;
-      folderPath?: string;
-    };
-    return {
-      ...o,
-      id: o.id ?? o.contentId,
-      name: o.name ?? o.title,
-      path: o.path ?? o.folderPath,
-    };
-  });
 }

@@ -377,9 +377,9 @@ public class PSQuery implements Query
       {
          rval.append(", "); //$NON-NLS-1$
       }
-      // we have to use "sys_folderid", but not "rx:sys_folderid" because this
-      // will be literally passed to HQL, but the ':' is not a valid character.
-      rval.append("f.owner_id as " + IPSHtmlParameters.SYS_FOLDERID); //$NON-NLS-1$
+      // Hibernate 6 HQL requires entity property names (ownerId), not SQL columns.
+      // Alias remains sys_folderid for callers that read the projection by that key.
+      rval.append("f.ownerId as " + IPSHtmlParameters.SYS_FOLDERID); //$NON-NLS-1$
       rval.append(")"); //$NON-NLS-1$
 
       return rval.toString();
