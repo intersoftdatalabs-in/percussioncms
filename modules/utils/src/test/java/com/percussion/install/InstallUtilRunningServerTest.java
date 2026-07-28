@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -96,6 +97,13 @@ public class InstallUtilRunningServerTest {
     assertNull(InstallUtil.resolveTomcatPortToken("${missing.port}", p));
     assertNull(InstallUtil.resolveTomcatPortToken("not-a-port", p));
     assertNull(InstallUtil.resolveTomcatPortToken(null, p));
+  }
+
+  @Test
+  void portAvailable_ignoresUdpBinding() throws Exception {
+    try (DatagramSocket hold = new DatagramSocket(0)) {
+      assertTrue(InstallUtil.portAvailable(hold.getLocalPort()));
+    }
   }
 
   @Test

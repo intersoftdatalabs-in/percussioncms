@@ -33,7 +33,6 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
@@ -812,17 +811,14 @@ public class InstallUtil {
   }
 
   /**
-   * Checks to see if a specific port is available. From Apache Camel, removed max / min port
-   * arguments
+   * Checks whether a TCP port can be bound.
    *
-   * @param port the port to check for availability
+   * @param port the TCP port to check for availability
+   * @return {@code true} when the TCP port can be bound, otherwise {@code false}
    */
   public static boolean portAvailable(int port) {
     try (ServerSocket ss = new ServerSocket(port)) {
       ss.setReuseAddress(true);
-      try (DatagramSocket ds = new DatagramSocket(port)) {
-        ds.setReuseAddress(true);
-      }
       return true;
     } catch (IOException e) {
       logError("Port Availability Check Failed." + e.getMessage());
