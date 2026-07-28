@@ -134,7 +134,7 @@ Same rule: **feature checklist per screen**, then delete legacy peer.
 | Surface | Today | Direction |
 |---------|--------|-----------|
 | Editor (webmgt / AA) | Legacy exit | React rewrite (large); interim: fix critical bugs only |
-| Design / Architecture | Legacy exit | React or retire paths |
+| Design / Architecture | Legacy exit | React or retire paths — **placeholder track:** [`design-templates-item-types/`](../design-templates-item-types/README.md) (page + non-page templates, Non-asset items; gaps from Home) |
 | Residual dialog hosts (pickers, search panel, US7 tools) | Bridge mounts | SPA dialogs / explorer actions; then **delete** hosts |
 | Package Manager (GWT) | Legacy | React when scheduled |
 | JSF admin/publishing residual | Packaging | Prefer SPA Admin/Publish; delete dead JSF |
