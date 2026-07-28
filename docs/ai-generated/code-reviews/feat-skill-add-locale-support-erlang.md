@@ -35,3 +35,22 @@ None.
 - **Style** — Markdown renders correctly in current `CommonMark`; frontmatter ends with `---` block; no emojis; `description` is the same multi-line `>-` style as the other developer skills. Two minor nits that do not block:
   - §5 references `mvn-env.sh` while the development working tree currently uses `.bat` (`mvn-env.bat`). Per root `AGENTS.md` the wrapper has both entry points and the `.sh` form is documented as canonical in the helpers repo; this skill matches the convention used by `perc-i18n/AGENTS.md` itself. Leaving as-is.
   - §2 step b says "calendar widget picker — only if you are adding a calendar regional variant or your code needs a visible widget entry". The "code needs" branch is vague; an implementer might over-extend. Consider tightening to "only if the new code is itself a calendar region or your UI team confirms a picker entry is required". Suggestion, not blocking.
+
+## Re-review
+
+Triggered by `kilo-code-bot` review comments on PR #1562. Both items were captured as `suggestion` in the original report, not blocking.
+
+- **Line 110 — vague "your code needs a visible widget entry"** — Tightened the pre-condition to "only if the new locale is itself a calendar region, **or** your UI team has confirmed that a picker entry is required for this locale". The over-extension surface is gone.
+- **Line 117-122 — contradictory mirror-copy instruction** — Split into two enumerated branches: (a) lockstep confirmed → update both; (b) not in lockstep → update only `Widgets/` (source of truth) and explicitly forbid editing `Resources/` from this skill. The original "otherwise … canonical for the legacy UI" was leaving the `Widgets/` copy's treatment ambiguous; that ambiguity is now resolved.
+
+Re-review diff is limited to the §3a "Calendar widget picker" bullet. No other SKILL section changes; no other product code touched.
+
+### Scope (re-review)
+
+- Base: PR head `feat/skill-add-locale-support` @ `2ae589dc84`
+- Head: branch `fix/skill-add-locale-support-pr-1562`, working tree → single-file hunks in `SKILL.md`
+- Files: 1 changed in `SKILL.md`; Erlang report appended (this section); no new files
+
+### Recommendation (re-review)
+
+approve — gate still `May commit/push: yes`. Both `kilo-code-bot` `suggestion` findings are closed with concrete fixes; no new bugs, no path/I/O regressions, no behavioral-test analogue required (docs-only change).
