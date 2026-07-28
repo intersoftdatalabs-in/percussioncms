@@ -1,0 +1,329 @@
+#!/usr/bin/env python3
+"""Fill missing translations in the perc-i18n canonical TMX files.
+
+Walks ``modules/perc-i18n/src/main/resources/i18n/{CmsUi,SystemResources}.tmx``
+and, for every ``<tuv xml:lang="<target>">`` that is absent on a ``<tu>``,
+shells out to ``docker run --rm soimort/translate-shell --brief ...`` to
+fetch a translation. Honors rate-limit responses with exponential backoff,
+caches results on disk so a re-run resumes from where it stopped, skips
+placeholder-only source segments, and writes the new ``<tuv>`` back into
+the canonical TMX with proper XML escaping.
+
+Usage (from repository root)::
+
+    python3 modules/perc-i18n/scripts/i18n_translate.py --target de-de
+    python3 modules/perc-i18n/scripts/i18n_translate.py --target ja-jp --file CmsUi.tmx --dry-run
+    python3 modules/perc-i18n/scripts/i18n_translate.py --target tr-tr --force
+
+The script is a developer tool, not a Maven build gate. It requires Docker
+(``soimort/translate-shell`` image) on PATH; missing Docker is a fail-loud
+condition with a printable install hint. The unit tests in
+``test_i18n_translate.py`` exercise the cache, backoff, placeholder skip,
+and XML-escape paths without needing Docker.
+
+Cross-platform: paths use :mod:`pathlib` exclusively; no ``os.path`` joins
+or hardcoded separators. Line endings are written verbatim from the
+parser's text content; no transformations.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import random
+import re
+import shutil
+import subprocess
+import sys
+import time
+from pathlib import Path
+from xml.etree import ElementTree as ET
+from xml.sax.saxutils import escape as xml_escape
+
+# ---------------------------------------------------------------------------
+# Constants
+# ---------------------------------------------------------------------------
+
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+I18N_DIR = REPO_ROOT / 'modules' / 'perc-i18n' / 'src' / 'main' / 'resources' / 'i18n'
+CACHE_FILE = Path(__file__).resolve().parent / '.cache' / 'i18n_translate.json'
+
+# Canonical TMX files this script edits.
+DEFAULT_FILES = ('CmsUi.tmx', 'SystemResources.tmx')
+
+# Placeholder-only segment pattern (e.g. '{0}', '{1,2,3}'). Matches the
+# existing translate_tmx.py rule from update_tmx_limited.py:40.
+PLACEHOLDER_RE = re.compile(r'^\s*\{[0-9]+(,[0-9]+)*\}\s*$')
+
+# Exponential-backoff parameters.
+BACKOFF_START_SEC = 2.0
+BACKOFF_MAX_SEC = 60.0
+BACKOFF_JITTER = 0.2
+
+# Docker invocation. soimort/translate-shell accepts the form
+# `docker run --rm soimort/translate-shell --brief "<text>" :<target>`.
+DOCKER_IMAGE = 'soimort/translate-shell'
+DOCKER_BRIEF_FLAG = '--brief'
+
+# Languages whose source string is already non-English and shouldn't be
+# retranslated. We always translate FROM English to the target lang.
+SOURCE_LANG = 'en-us'
+
+
+# ---------------------------------------------------------------------------
+# Cache helpers
+# ---------------------------------------------------------------------------
+
+def cache_key(text: str, target: str) -> str:
+    """Stable hash for a (text, target) translation request."""
+    h = hashlib.sha256()
+    h.update(target.encode('utf-8'))
+    h.update(b'\x00')
+    h.update(text.encode('utf-8'))
+    return h.hexdigest()
+
+
+def load_cache() -> dict[str, str]:
+    if CACHE_FILE.exists():
+        try:
+            return json.loads(CACHE_FILE.read_text(encoding='utf-8'))
+        except (OSError, json.JSONDecodeError):
+            return {}
+    return {}
+
+
+def save_cache(cache: dict[str, str]) -> None:
+    CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    tmp = CACHE_FILE.with_suffix('.tmp')
+    tmp.write_text(json.dumps(cache, ensure_ascii=False, indent=2, sort_keys=True),
+                   encoding='utf-8')
+    tmp.replace(CACHE_FILE)
+
+
+# ---------------------------------------------------------------------------
+# Translation invocation
+# ---------------------------------------------------------------------------
+
+def invoke_translate(text: str, target: str, *,
+                     docker_cmd: list[str] | None = None) -> str:
+    """Run soimort/translate-shell on Docker. Returns the translated string.
+
+    Raises :class:`RuntimeError` if Docker is unavailable or the translation
+    could not be obtained after exhausting retries. Rate-limit responses
+    trigger exponential backoff per ``backoff_sleep``.
+    """
+    cmd = docker_cmd if docker_cmd is not None else [
+        'docker', 'run', '--rm', DOCKER_IMAGE, DOCKER_BRIEF_FLAG, text, f':{target}',
+    ]
+    delay = BACKOFF_START_SEC
+    attempt = 0
+    while True:
+        attempt += 1
+        try:
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                check=False,
+                encoding='utf-8',
+            )
+        except FileNotFoundError as e:
+            raise RuntimeError(
+                'Docker is not on PATH. Install Docker Desktop (Windows/macOS) '
+                'or docker-engine (Linux), then pull the soimort/translate-shell '
+                f'image. Underlying error: {e}',
+            ) from e
+        if result.returncode == 0:
+            return result.stdout.rstrip('\n')
+        # Crude rate-limit detection: 429-like substrings in stderr or stdout.
+        lowered = (result.stderr + result.stdout).lower()
+        is_rate_limit = (
+            '429' in lowered
+            or 'rate limit' in lowered
+            or 'too many requests' in lowered
+        )
+        if is_rate_limit and attempt < 5:
+            jitter = 1.0 + random.uniform(-BACKOFF_JITTER, BACKOFF_JITTER)
+            sleep_s = min(BACKOFF_MAX_SEC, delay) * jitter
+            print(f'  rate limit; sleeping {sleep_s:.1f}s (attempt {attempt})',
+                  file=sys.stderr)
+            time.sleep(sleep_s)
+            delay *= 2
+            continue
+        raise RuntimeError(
+            f'translate-shell failed (rc={result.returncode}): '
+            f'stdout={result.stdout!r} stderr={result.stderr!r}',
+        )
+
+
+# ---------------------------------------------------------------------------
+# Translation request (cached)
+# ---------------------------------------------------------------------------
+
+def translate(text: str, target: str, *,
+              cache: dict[str, str] | None = None,
+              force: bool = False) -> str:
+    """Translate ``text`` to ``target``, honoring the on-disk cache."""
+    if PLACEHOLDER_RE.match(text):
+        return text  # leave placeholders verbatim
+    if cache is None:
+        cache = load_cache()
+    key = cache_key(text, target)
+    if not force and key in cache:
+        return cache[key]
+    translated = invoke_translate(text, target)
+    cache[key] = translated
+    return translated
+
+
+# ---------------------------------------------------------------------------
+# TMX editing
+# ---------------------------------------------------------------------------
+
+class TmxFile:
+    """Lightweight TMX editor that preserves existing formatting."""
+
+    def __init__(self, path: Path):
+        self.path = path
+        self.text = path.read_text(encoding='utf-8')
+
+    def _parse(self) -> ET.Element:
+        return ET.fromstring(self.text)
+
+    def list_missing(self, target: str) -> list[tuple[str, str]]:
+        """Return [(tuid, en_seg)] for every <tu> that has no <tuv xml:lang=target>."""
+        root = self._parse()
+        missing: list[tuple[str, str]] = []
+        for tu in root.iter('tu'):
+            tuid = tu.get('tuid') or ''
+            if not tuid:
+                continue
+            en_seg = ''
+            has_target = False
+            for tuv in tu.findall('tuv'):
+                tlang = tuv.get('{http://www.w3.org/XML/1998/namespace}lang') \
+                    or tuv.get('xml:lang')
+                if tlang == target:
+                    has_target = True
+                    break
+                if tlang == SOURCE_LANG:
+                    seg_el = tuv.find('seg')
+                    if seg_el is not None and seg_el.text:
+                        en_seg = seg_el.text
+            if not has_target and en_seg:
+                missing.append((tuid, en_seg))
+        return missing
+
+    def inject(self, target: str, translations: dict[str, str]) -> int:
+        """Insert ``<tuv xml:lang="target"><seg>...</seg></tuv>`` blocks for
+        every tuid in ``translations`` that is missing that lang. Returns the
+        number of inserted TUVs."""
+        if not translations:
+            return 0
+        # Build a regex that matches each <tu ...>...</tu> we care about.
+        inserted = 0
+        out: list[str] = []
+        pos = 0
+        tu_pattern = re.compile(r'<tu\s+tuid="([^"]+)"[^>]*>.*?</tu>', re.DOTALL)
+        for m in tu_pattern.finditer(self.text):
+            tuid = m.group(1)
+            if tuid not in translations:
+                continue
+            # Check if this TU already has the target lang (skip).
+            tu_text = m.group(0)
+            if re.search(rf'<tuv\s+xml:lang="{re.escape(target)}"', tu_text):
+                continue
+            # Build the new TUV. Escape XML characters in seg text.
+            seg = xml_escape(translations[tuid], {'"': '&quot;'})
+            new_tuv = f'<tuv xml:lang="{target}"><seg>{seg}</seg></tuv>'
+            # Insert before </tu>.
+            replacement = tu_text[:-len('</tu>')] + new_tuv + '</tu>'
+            out.append(self.text[pos:m.start()])
+            out.append(replacement)
+            pos = m.end()
+            inserted += 1
+        out.append(self.text[pos:])
+        if inserted:
+            self.text = ''.join(out)
+        return inserted
+
+    def commit(self) -> None:
+        self.path.write_text(self.text, encoding='utf-8')
+
+
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('--target', required=True,
+                        help='Target BCP-47 locale code, e.g. de-de, ja-jp, tr-tr.')
+    parser.add_argument('--file', action='append', dest='files',
+                        help='Restrict to a single TMX file (repeatable). '
+                             f'Default: {", ".join(DEFAULT_FILES)}.')
+    parser.add_argument('--dry-run', action='store_true',
+                        help='Report missing TUVs without calling translate-shell.')
+    parser.add_argument('--force', action='store_true',
+                        help='Ignore the on-disk cache and refetch every translation.')
+    parser.add_argument('--limit', type=int, default=0,
+                        help='Stop after processing this many missing TUVs (0 = unlimited).')
+    parser.add_argument('--no-docker-check', action='store_true',
+                        help='Skip the upfront Docker availability check.')
+    args = parser.parse_args(argv)
+
+    files = [I18N_DIR / f for f in (args.files or DEFAULT_FILES)]
+    for f in files:
+        if not f.exists():
+            print(f'error: {f} not found', file=sys.stderr)
+            return 2
+
+    if not args.no_docker_check and not args.dry_run:
+        if shutil.which('docker') is None:
+            print('error: docker is not on PATH. Install Docker and run:\n'
+                  '  docker pull soimort/translate-shell',
+                  file=sys.stderr)
+            return 2
+
+    cache = load_cache()
+    total_missing = 0
+    total_inserted = 0
+    for f in files:
+        tmx = TmxFile(f)
+        missing = tmx.list_missing(args.target)
+        total_missing += len(missing)
+        print(f'{f.name}: {len(missing)} <tu> missing <tuv xml:lang="{args.target}">')
+        if args.dry_run or not missing:
+            continue
+        translations: dict[str, str] = {}
+        processed = 0
+        for tuid, en_seg in missing:
+            if args.limit and processed >= args.limit:
+                print(f'  --limit={args.limit} reached, stopping')
+                break
+            try:
+                translations[tuid] = translate(en_seg, args.target,
+                                               cache=cache, force=args.force)
+            except RuntimeError as e:
+                print(f'  ERROR on tuid={tuid!r}: {e}', file=sys.stderr)
+                save_cache(cache)  # persist progress
+                return 1
+            processed += 1
+            if processed % 25 == 0:
+                print(f'  ... {processed}/{len(missing)} translated')
+                save_cache(cache)
+        save_cache(cache)
+        if translations:
+            inserted = tmx.inject(args.target, translations)
+            if not args.dry_run:
+                tmx.commit()
+            total_inserted += inserted
+            print(f'  inserted {inserted} TUVs into {f.name}')
+
+    print(f'\nDone. Total missing: {total_missing}; inserted: {total_inserted}')
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())
