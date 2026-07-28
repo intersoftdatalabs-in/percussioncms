@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,15 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
-import { get, put } from '../../api/client';
+import { useCallback, useEffect, useState } from "react";
+import { get, isSessionRedirectError } from "../../api/client";
+import type { ApiError } from "../../api/client";
 
 export interface WidgetConfig {
   widgetKey: string;
   widgetType: string;
   position: {
-    column: 'left' | 'right';
+    column: "left" | "right";
     order: number;
   };
   settings?: Record<string, unknown>;
@@ -40,157 +41,255 @@ export interface DashboardConfig {
 export interface UseDashboardConfigResult {
   config: DashboardConfig | null;
   isLoading: boolean;
+  /** Soft error — UI should still show default gadgets. */
   error: string | null;
   saveConfig: (newConfig: DashboardConfig) => Promise<void>;
   addWidget: (widget: WidgetConfig) => Promise<void>;
   removeWidget: (widgetKey: string) => Promise<void>;
   updateWidget: (widgetKey: string, updates: Partial<WidgetConfig>) => Promise<void>;
-  reorderWidget: (widgetKey: string, column: 'left' | 'right', order: number) => Promise<void>;
+  reorderWidget: (
+    widgetKey: string,
+    column: "left" | "right",
+    order: number,
+  ) => Promise<void>;
+}
+
+/** Live dashboard REST root (session user is implied — no path userId). */
+export const DASHBOARD_API = "/services/dashboardmanagement/dashboard";
+
+/**
+ * Map classic Shindig gadget URL file name → React widget key when known.
+ * Unknown legacy gadgets are skipped (React registry has no peer).
+ */
+export function mapClassicGadgetUrlToWidgetKey(url: string): string | null {
+  if (!url) {
+    return null;
+  }
+  const file = url.split("/").pop()?.toLowerCase() ?? "";
+  // Product / common mappings (expand as React widgets are completed)
+  if (file.includes("blog")) return "blogs";
+  if (file.includes("workflow")) return "workflow";
+  if (file.includes("activity") || file.includes("recent")) return "activity";
+  if (file.includes("welcome")) return "welcome";
+  if (file.includes("comment")) return "comments";
+  if (file.includes("form")) return "forms-tracker";
+  if (file.includes("traffic")) return "traffic";
+  if (file.includes("report")) return "reports";
+  if (file.includes("process") || file.includes("monitor")) return "process-monitor";
+  if (file.includes("asset")) return "assets-status";
+  if (file.includes("membership")) return "membership";
+  if (file.includes("siteimprove")) return "siteimprove";
+  if (file.includes("seo")) return "seo-audit";
+  if (file.includes("cookie")) return "cookie-consent";
+  if (file.includes("google")) return "google-setup";
+  // External / third-party Shindig URLs (labpixies, etc.) → generic iframe
+  if (file.endsWith(".xml") || url.includes("labpixies") || url.startsWith("http")) {
+    return null; // no React peer for pure Shindig XML gadgets
+  }
+  return null;
 }
 
 /**
- * Hook for loading and managing user dashboard configuration.
+ * Normalize server dashboard payload (classic PSDashboard wire) to DashboardConfig.
+ */
+export function parseDashboardResponse(
+  data: unknown,
+  userId: string,
+): DashboardConfig {
+  const now = new Date().toISOString();
+  const empty: DashboardConfig = {
+    userId,
+    widgets: [],
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  if (!data || typeof data !== "object") {
+    return empty;
+  }
+
+  const root = data as Record<string, unknown>;
+  // Already modern shape
+  if (Array.isArray(root.widgets)) {
+    return {
+      userId: String(root.userId ?? userId),
+      widgets: root.widgets as WidgetConfig[],
+      theme: root.theme ? String(root.theme) : undefined,
+      refreshInterval:
+        typeof root.refreshInterval === "number" ? root.refreshInterval : undefined,
+      createdAt: String(root.createdAt ?? now),
+      updatedAt: String(root.updatedAt ?? now),
+    };
+  }
+
+  const dash =
+    root.Dashboard && typeof root.Dashboard === "object"
+      ? (root.Dashboard as Record<string, unknown>)
+      : root;
+
+  const gadgetsRaw = dash.gadgets;
+  let gadgets: unknown[] = [];
+  if (Array.isArray(gadgetsRaw)) {
+    gadgets = gadgetsRaw;
+  } else if (gadgetsRaw && typeof gadgetsRaw === "object") {
+    // single gadget
+    gadgets = [gadgetsRaw];
+  }
+
+  const widgets: WidgetConfig[] = [];
+  const seen = new Set<string>();
+  for (const g of gadgets) {
+    if (!g || typeof g !== "object") continue;
+    const og = g as Record<string, unknown>;
+    const url = og.url != null ? String(og.url) : "";
+    const key = mapClassicGadgetUrlToWidgetKey(url);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    const col = Number(og.col ?? 0) === 0 ? "left" : "right";
+    const order = Number(og.row ?? widgets.length);
+    widgets.push({
+      widgetKey: key,
+      widgetType: key,
+      position: { column: col, order },
+      settings: {},
+    });
+  }
+
+  return {
+    userId: String(dash.id ?? userId),
+    widgets,
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
+function formatErr(err: unknown): string {
+  if (isSessionRedirectError(err)) {
+    return "Session expired";
+  }
+  if (err && typeof err === "object" && "status" in err) {
+    const api = err as ApiError;
+    if (typeof api.body === "string" && api.body.trim()) {
+      return api.body;
+    }
+    return `HTTP ${api.status}`;
+  }
+  if (err instanceof Error) {
+    return err.message;
+  }
+  return "Failed to load dashboard configuration";
+}
+
+/**
+ * Load and manage dashboard configuration for Home Gadgets.
  *
- * <p>Fetches the user's persisted dashboard configuration from the backend
- * and provides methods to update widgets, save preferences, and manage layout.</p>
- *
- * @param userId - The current user's ID (required to load their config)
- * @param autoRefresh - Whether to automatically refresh config on mount (default: true)
- * @returns Dashboard configuration state and manipulation methods
+ * <p>Server API is {@code GET/POST /services/dashboardmanagement/dashboard}
+ * (session user — <strong>not</strong> {@code /dashboard/{userId}}).</p>
  */
 export const useDashboardConfig = (
   userId?: string,
-  autoRefresh: boolean = true
+  autoRefresh = true,
 ): UseDashboardConfigResult => {
   const [config, setConfig] = useState<DashboardConfig | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(Boolean(userId && autoRefresh));
   const [error, setError] = useState<string | null>(null);
 
-  // Load dashboard config from server
-  const loadConfig = async () => {
+  const loadConfig = useCallback(async () => {
     if (!userId) {
       setIsLoading(false);
       return;
     }
-
     try {
       setIsLoading(true);
       setError(null);
-
-      const response = await get<DashboardConfig>(
-        `/services/dashboardmanagement/dashboard/${userId}`
-      );
-
-      setConfig(response);
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Failed to load dashboard configuration';
-      setError(errorMessage);
-      console.error('useDashboardConfig error:', err);
-      // Return default config on error
+      const response = await get<unknown>(DASHBOARD_API);
+      setConfig(parseDashboardResponse(response, userId));
+    } catch (err: unknown) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      // Soft-fail: Gadgets section must still render DEFAULT_GADGETS
+      console.error("useDashboardConfig error:", err);
+      setError(formatErr(err));
       setConfig(null);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userId]);
 
-  // Load config on mount if user ID is provided
   useEffect(() => {
     if (autoRefresh && userId) {
-      loadConfig();
+      void loadConfig();
     } else {
       setIsLoading(false);
     }
-  }, [userId, autoRefresh]);
+  }, [userId, autoRefresh, loadConfig]);
 
-  // Save entire config to server
   const saveConfig = async (newConfig: DashboardConfig) => {
     if (!userId) {
-      throw new Error('User ID is required to save dashboard configuration');
+      throw new Error("User ID is required to save dashboard configuration");
     }
-
-    try {
-      const response = await put<DashboardConfig>(
-        `/services/dashboardmanagement/dashboard/${userId}`,
-        newConfig
-      );
-
-      setConfig(response);
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Failed to save dashboard configuration';
-      setError(errorMessage);
-      throw err;
-    }
+    // Classic POST expects PSDashboard with Shindig gadget URLs. React layout
+    // is session-local until a first-class React layout persist exists.
+    setConfig(newConfig);
   };
 
-  // Add a single widget to the config
   const addWidget = async (widget: WidgetConfig) => {
-    if (!config) {
-      throw new Error('Configuration not loaded');
-    }
+    const base: DashboardConfig =
+      config ??
+      ({
+        userId: userId ?? "",
+        widgets: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      } as DashboardConfig);
 
     const newConfig: DashboardConfig = {
-      ...config,
-      widgets: [...config.widgets, widget],
+      ...base,
+      widgets: [...base.widgets, widget],
       updatedAt: new Date().toISOString(),
     };
-
-    await saveConfig(newConfig);
+    setConfig(newConfig);
   };
 
-  // Remove a widget from the config
   const removeWidget = async (widgetKey: string) => {
-    if (!config) {
-      throw new Error('Configuration not loaded');
-    }
-
-    const newConfig: DashboardConfig = {
+    if (!config) return;
+    setConfig({
       ...config,
       widgets: config.widgets.filter((w) => w.widgetKey !== widgetKey),
       updatedAt: new Date().toISOString(),
-    };
-
-    await saveConfig(newConfig);
+    });
   };
 
-  // Update a specific widget's settings
-  const updateWidget = async (widgetKey: string, updates: Partial<WidgetConfig>) => {
-    if (!config) {
-      throw new Error('Configuration not loaded');
-    }
-
-    const newConfig: DashboardConfig = {
+  const updateWidget = async (
+    widgetKey: string,
+    updates: Partial<WidgetConfig>,
+  ) => {
+    if (!config) return;
+    setConfig({
       ...config,
       widgets: config.widgets.map((w) =>
-        w.widgetKey === widgetKey ? { ...w, ...updates } : w
+        w.widgetKey === widgetKey ? { ...w, ...updates } : w,
       ),
       updatedAt: new Date().toISOString(),
-    };
-
-    await saveConfig(newConfig);
+    });
   };
 
-  // Reorder a widget in the layout
-  const reorderWidget = async (widgetKey: string, column: 'left' | 'right', order: number) => {
-    if (!config) {
-      throw new Error('Configuration not loaded');
-    }
-
-    const newConfig: DashboardConfig = {
+  const reorderWidget = async (
+    widgetKey: string,
+    column: "left" | "right",
+    order: number,
+  ) => {
+    if (!config) return;
+    setConfig({
       ...config,
       widgets: config.widgets.map((w) =>
         w.widgetKey === widgetKey
-          ? {
-              ...w,
-              position: { column, order },
-            }
-          : w
+          ? { ...w, position: { column, order } }
+          : w,
       ),
       updatedAt: new Date().toISOString(),
-    };
-
-    await saveConfig(newConfig);
+    });
   };
 
   return {

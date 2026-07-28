@@ -91,6 +91,10 @@ export const PATHS = {
   get ALL_BLOGS() {
     return `${SERVICES_ROOT}/sitemanage/section/allBlogs`;
   },
+  /** Create site section (including sectionType=blog). */
+  get SECTION_CREATE() {
+    return `${SERVICES_ROOT}/sitemanage/section`;
+  },
   get ASSET_TYPES() {
     return `${SERVICES_ROOT}/assetmanagement/asset/assetTypes`;
   },

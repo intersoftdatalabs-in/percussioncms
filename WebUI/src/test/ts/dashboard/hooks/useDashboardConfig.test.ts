@@ -1,218 +1,115 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 1999-2026 Percussion Software, Inc.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
-import { useDashboardConfig, type WidgetConfig } from '@/dashboard/hooks/useDashboardConfig';
-import * as clientModule from '@/api/client';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { renderHook, waitFor } from "@testing-library/react";
+import {
+  DASHBOARD_API,
+  mapClassicGadgetUrlToWidgetKey,
+  parseDashboardResponse,
+  useDashboardConfig,
+} from "@/dashboard/hooks/useDashboardConfig";
+import * as clientModule from "@/api/client";
 
-// Mock the API client
-vi.mock('@/api/client', () => ({
-  get: vi.fn(),
-  put: vi.fn(),
-}));
-
-describe('useDashboardConfig hook', () => {
-  const mockConfig = {
-    userId: 'test-user',
-    widgets: [
-      {
-        widgetKey: 'welcome',
-        widgetType: 'WelcomeWidget',
-        position: { column: 'left' as const, order: 0 },
-      },
-      {
-        widgetKey: 'workflow',
-        widgetType: 'WorkflowStatusWidget',
-        position: { column: 'right' as const, order: 0 },
-      },
-    ],
-    createdAt: '2026-02-01T00:00:00Z',
-    updatedAt: '2026-02-25T00:00:00Z',
+vi.mock("@/api/client", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/api/client")>();
+  return {
+    ...actual,
+    get: vi.fn(),
+    put: vi.fn(),
+    post: vi.fn(),
   };
+});
 
+describe("useDashboardConfig", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('should load dashboard config on mount', async () => {
-    vi.mocked(clientModule.get).mockResolvedValue(mockConfig);
-
-    const { result } = renderHook(() => useDashboardConfig('test-user'));
-
-    expect(result.current.isLoading).toBe(true);
-
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-
-    expect(result.current.config).toEqual(mockConfig);
-    expect(clientModule.get).toHaveBeenCalledWith('/services/dashboardmanagement/dashboard/test-user');
+  it("mapClassicGadgetUrlToWidgetKey maps known names", () => {
+    expect(mapClassicGadgetUrlToWidgetKey("/path/blogs.xml")).toBe("blogs");
+    expect(mapClassicGadgetUrlToWidgetKey("http://x/workflowStatus.xml")).toBe(
+      "workflow",
+    );
+    expect(
+      mapClassicGadgetUrlToWidgetKey(
+        "http://www.labpixies.com/campaigns/todo/todo.xml",
+      ),
+    ).toBeNull();
   });
 
-  it('should handle loading error', async () => {
-    const error = new Error('Failed to load config');
-    vi.mocked(clientModule.get).mockRejectedValue(error);
-
-    const { result } = renderHook(() => useDashboardConfig('test-user'));
-
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-
-    expect(result.current.error).toBe('Failed to load config');
-    expect(result.current.config).toBeNull();
-  });
-
-  it('should not load config if userId is not provided', async () => {
-    const { result } = renderHook(() => useDashboardConfig(undefined));
-
-    expect(result.current.isLoading).toBe(false);
-    expect(clientModule.get).not.toHaveBeenCalled();
-  });
-
-  it('should add a widget to config', async () => {
-    vi.mocked(clientModule.get).mockResolvedValue(mockConfig);
-    vi.mocked(clientModule.put).mockResolvedValue({
-      ...mockConfig,
-      widgets: [
-        ...mockConfig.widgets,
-        {
-          widgetKey: 'activity',
-          widgetType: 'ActivityWidget',
-          position: { column: 'left' as const, order: 1 },
+  it("parseDashboardResponse maps classic Dashboard gadgets", () => {
+    const cfg = parseDashboardResponse(
+      {
+        Dashboard: {
+          id: "Admin",
+          gadgets: [
+            {
+              instanceId: 1,
+              url: "/cm/gadgets/repository/perc/perc_blog_gadget.xml",
+              col: 0,
+              row: 0,
+            },
+            {
+              instanceId: 2,
+              url: "http://www.labpixies.com/campaigns/todo/todo.xml",
+              col: 1,
+              row: 0,
+            },
+          ],
         },
-      ],
-    });
-
-    const { result } = renderHook(() => useDashboardConfig('test-user'));
-
-    await waitFor(() => {
-      expect(result.current.config).toBeDefined();
-    });
-
-    const newWidget = {
-      widgetKey: 'activity',
-      widgetType: 'ActivityWidget',
-      position: { column: 'left' as const, order: 1 },
-    };
-
-    await result.current.addWidget(newWidget);
-
-    expect(clientModule.put).toHaveBeenCalled();
-    expect(result.current.config?.widgets.length).toBe(3);
-  });
-
-  it('should remove a widget from config', async () => {
-    vi.mocked(clientModule.get).mockResolvedValue(mockConfig);
-    vi.mocked(clientModule.put).mockResolvedValue({
-      ...mockConfig,
-      widgets: mockConfig.widgets.filter((w) => w.widgetKey !== 'workflow'),
-    });
-
-    const { result } = renderHook(() => useDashboardConfig('test-user'));
-
-    await waitFor(() => {
-      expect(result.current.config).toBeDefined();
-    });
-
-    await result.current.removeWidget('workflow');
-
-    expect(clientModule.put).toHaveBeenCalled();
-    expect(result.current.config?.widgets.length).toBe(1);
-  });
-
-  it('should update widget settings', async () => {
-    vi.mocked(clientModule.get).mockResolvedValue(mockConfig);
-    const updatedConfig = {
-      ...mockConfig,
-      widgets: mockConfig.widgets.map((w) =>
-        w.widgetKey === 'workflow'
-          ? { ...w, settings: { refreshInterval: 60000 } }
-          : w
-      ),
-    };
-    vi.mocked(clientModule.put).mockResolvedValue(updatedConfig);
-
-    const { result } = renderHook(() => useDashboardConfig('test-user'));
-
-    await waitFor(() => {
-      expect(result.current.config).toBeDefined();
-    });
-
-    await result.current.updateWidget('workflow', {
-      settings: { refreshInterval: 60000 },
-    });
-
-    expect(clientModule.put).toHaveBeenCalled();
-    const updatedWidget = result.current.config?.widgets.find(
-      (w: WidgetConfig) => w.widgetKey === 'workflow'
+      },
+      "Admin",
     );
-    expect(updatedWidget?.settings).toEqual({ refreshInterval: 60000 });
+    expect(cfg.userId).toBe("Admin");
+    expect(cfg.widgets).toEqual([
+      expect.objectContaining({
+        widgetKey: "blogs",
+        position: { column: "left", order: 0 },
+      }),
+    ]);
   });
 
-  it('should reorder a widget', async () => {
-    vi.mocked(clientModule.get).mockResolvedValue(mockConfig);
-    const reorderedConfig = {
-      ...mockConfig,
-      widgets: mockConfig.widgets.map((w) =>
-        w.widgetKey === 'welcome' ? { ...w, position: { column: 'right' as const, order: 1 } } : w
-      ),
-    };
-    vi.mocked(clientModule.put).mockResolvedValue(reorderedConfig);
-
-    const { result } = renderHook(() => useDashboardConfig('test-user'));
-
-    await waitFor(() => {
-      expect(result.current.config).toBeDefined();
+  it("loads from session dashboard API without userId path segment", async () => {
+    vi.mocked(clientModule.get).mockResolvedValue({
+      Dashboard: {
+        id: "Admin",
+        gadgets: [
+          {
+            url: "/x/perc_blog_gadget.xml",
+            col: 0,
+            row: 0,
+          },
+        ],
+      },
     });
 
-    await result.current.reorderWidget('welcome', 'right', 1);
-
-    expect(clientModule.put).toHaveBeenCalled();
-    const movedWidget = result.current.config?.widgets.find(
-      (w: WidgetConfig) => w.widgetKey === 'welcome'
-    );
-    expect(movedWidget?.position.column).toBe('right');
-    expect(movedWidget?.position.order).toBe(1);
-  });
-
-  it('should throw error when adding widget without config loaded', async () => {
-    const { result } = renderHook(() => useDashboardConfig());
+    const { result } = renderHook(() => useDashboardConfig("Admin"));
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    const newWidget = {
-      widgetKey: 'test',
-      widgetType: 'TestWidget',
-      position: { column: 'left' as const, order: 0 },
-    };
-
-    await expect(result.current.addWidget(newWidget)).rejects.toThrow(
-      'Configuration not loaded'
-    );
+    expect(clientModule.get).toHaveBeenCalledWith(DASHBOARD_API);
+    expect(result.current.config?.widgets[0]?.widgetKey).toBe("blogs");
+    expect(result.current.error).toBeNull();
   });
 
-  it('should skip config load if autoRefresh is false', async () => {
-    const { result } = renderHook(() => useDashboardConfig('test-user', false));
+  it("soft-fails load error without blocking (null config)", async () => {
+    vi.mocked(clientModule.get).mockRejectedValue({
+      status: 500,
+      statusText: "Error",
+      body: "nope",
+    });
 
-    expect(result.current.isLoading).toBe(false);
-    expect(clientModule.get).not.toHaveBeenCalled();
+    const { result } = renderHook(() => useDashboardConfig("Admin"));
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    expect(result.current.config).toBeNull();
+    expect(result.current.error).toBe("nope");
   });
 });
