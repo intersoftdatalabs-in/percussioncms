@@ -26,13 +26,21 @@ import java.util.List;
  * @author adamgent
  */
 public enum PSPropertyDataType {
+  /** Single-line text property. */
   STRING("string", String.class),
+  /** Enumerated text property backed by a list of {@code EnumValue} choices. */
   ENUM("enum", String.class),
+  /** Numeric property backed by {@link Number}. */
   NUMBER("number", Number.class),
+  /** Boolean flag property. */
   BOOL("bool", Boolean.class),
+  /** Hidden property whose value is not user-editable. */
   HIDDEN("hidden", Object.class),
+  /** Date/time property. */
   DATE("date", Date.class),
+  /** List-of-values property. */
   LIST("list", List.class),
+  /** Password property; values are not echoed back to the client. */
   PASSWORD("password", String.class);
 
   private String name;
@@ -62,20 +70,24 @@ public enum PSPropertyDataType {
   }
 
   /**
-   * Gets the data type from widget property definition.
+   * Gets the data type for the supplied property definition by reading its {@code datatype}
+   * attribute.
    *
-   * @param userPref never <code>null</code>.
-   * @return never <code>null</code>.
+   * @param prop the property definition whose datatype should be resolved, never <code>null
+   *     </code>.
+   * @return the matching {@link PSPropertyDataType}, never <code>null</code>.
    */
   public static PSPropertyDataType fromDefinition(PSPropertyDefinition prop) {
     return parseType(prop.getDatatype());
   }
 
   /**
-   * Parse the {@link #getName()} property definition type.
+   * Parses the {@link #getName()} property definition type into a {@link PSPropertyDataType}
+   * constant.
    *
-   * @param name
-   * @return never <code>null</code>.
+   * @param name the data type name to look up; matched case-insensitively. Cannot be <code>null
+   *     </code>.
+   * @return the matching {@link PSPropertyDataType}, never <code>null</code>.
    */
   public static PSPropertyDataType parseType(String name) {
     String n = name.toUpperCase();

@@ -26,24 +26,36 @@ import org.apache.commons.lang3.Validate;
  */
 public class PSLicenseStatus {
 
+  /** The textual license status returned by the licensing service. */
   private String licenseStatus = "";
+
+  /** The company name associated with the license. */
   private String company = "";
+
+  /** The license type description (for example, evaluation, production). */
   private String licenseType = "";
+
+  /** The activation status of the license. */
   private String activationStatus = "";
+
+  /** The maximum number of sites allowed under the license. */
   private String maxSites = "";
+
+  /** The maximum number of pages allowed under the license. */
   private String maxPages = "";
+
+  /** The maximum number of API calls per period allowed under the license. */
   private String maxApiCalls = "";
 
-  /***
-   * Ctor
-   */
+  /** Default constructor. */
   public PSLicenseStatus() {}
   ;
 
-  /***
-   * Returns the status code for a given license status.
+  /**
+   * Returns the status code for the current license status string.
    *
-   *
+   * @return the {@link Status} constant that matches the stored {@link #licenseStatus}, never
+   *     <code>null</code>.
    */
   public Status getStatusCode() {
 
@@ -60,14 +72,18 @@ public class PSLicenseStatus {
   }
 
   /**
-   * @return the licenseStatus
+   * Returns the license status string returned by the licensing service.
+   *
+   * @return the license status string, never <code>null</code>.
    */
   public String getLicenseStatus() {
     return licenseStatus;
   }
 
   /**
-   * @param licenseStatus the licenseStatus to set
+   * Sets the license status string returned by the licensing service.
+   *
+   * @param licenseStatus the license status string, never <code>null</code>.
    */
   public void setLicenseStatus(String licenseStatus) {
     Validate.notNull(licenseStatus);
@@ -76,7 +92,9 @@ public class PSLicenseStatus {
   }
 
   /**
-   * @return the company
+   * Returns the company name associated with the license.
+   *
+   * @return the company name, never <code>null</code>.
    */
   public String getCompany() {
 
@@ -84,7 +102,9 @@ public class PSLicenseStatus {
   }
 
   /**
-   * @param company the company to set
+   * Sets the company name associated with the license.
+   *
+   * @param company the company name, never <code>null</code>.
    */
   public void setCompany(String company) {
 
@@ -94,14 +114,18 @@ public class PSLicenseStatus {
   }
 
   /**
-   * @return the licenseType
+   * Returns the license type description.
+   *
+   * @return the license type, never <code>null</code>.
    */
   public String getLicenseType() {
     return licenseType;
   }
 
   /**
-   * @param licenseType the licenseType to set
+   * Sets the license type description.
+   *
+   * @param licenseType the license type, never <code>null</code>.
    */
   public void setLicenseType(String licenseType) {
 
@@ -111,14 +135,18 @@ public class PSLicenseStatus {
   }
 
   /**
-   * @return the activationStatus
+   * Returns the activation status of the license.
+   *
+   * @return the activation status, never <code>null</code>.
    */
   public String getActivationStatus() {
     return activationStatus;
   }
 
   /**
-   * @param activationStatus the activationStatus to set
+   * Sets the activation status of the license.
+   *
+   * @param activationStatus the activation status, never <code>null</code>.
    */
   public void setActivationStatus(String activationStatus) {
 
@@ -128,14 +156,18 @@ public class PSLicenseStatus {
   }
 
   /**
-   * @return the maxSites
+   * Returns the maximum number of sites allowed under the license.
+   *
+   * @return the maximum sites, never <code>null</code>.
    */
   public String getMaxSites() {
     return maxSites;
   }
 
   /**
-   * @param maxSites the maxSites to set
+   * Sets the maximum number of sites allowed under the license.
+   *
+   * @param maxSites the maximum sites, never <code>null</code>.
    */
   public void setMaxSites(String maxSites) {
     Validate.notNull(maxSites);
@@ -144,14 +176,18 @@ public class PSLicenseStatus {
   }
 
   /**
-   * @return the maxPages
+   * Returns the maximum number of pages allowed under the license.
+   *
+   * @return the maximum pages, never <code>null</code>.
    */
   public String getMaxPages() {
     return maxPages;
   }
 
   /**
-   * @param maxPages the maxPages to set
+   * Sets the maximum number of pages allowed under the license.
+   *
+   * @param maxPages the maximum pages, never <code>null</code>.
    */
   public void setMaxPages(String maxPages) {
 
@@ -161,14 +197,18 @@ public class PSLicenseStatus {
   }
 
   /**
-   * @return the maxApiCalls
+   * Returns the maximum number of API calls per period allowed under the license.
+   *
+   * @return the maximum API calls, never <code>null</code>.
    */
   public String getMaxApiCalls() {
     return maxApiCalls;
   }
 
   /**
-   * @param maxApiCalls the maxApiCalls to set
+   * Sets the maximum number of API calls per period allowed under the license.
+   *
+   * @param maxApiCalls the maximum API calls, never <code>null</code>.
    */
   public void setMaxApiCalls(String maxApiCalls) {
 

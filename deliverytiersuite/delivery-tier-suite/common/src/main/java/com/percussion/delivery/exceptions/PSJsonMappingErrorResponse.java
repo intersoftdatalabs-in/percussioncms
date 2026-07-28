@@ -26,9 +26,16 @@ import jakarta.ws.rs.ext.Provider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Maps Jackson {@link JsonMappingException}s into a generic 500 plain-text response, logging the
+ * original error for diagnostics.
+ */
 @Provider
 @Priority(1)
 public class PSJsonMappingErrorResponse implements ExceptionMapper<JsonMappingException> {
+
+  /** Default constructor. */
+  public PSJsonMappingErrorResponse() {}
 
   private static Logger log = LogManager.getLogger(PSJsonMappingErrorResponse.class);
 

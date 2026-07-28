@@ -33,14 +33,13 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSSimpleTenantCache implements IPSTenantCache {
 
-  /***
-   * Thread safe Hash map to hold the cache
-   */
+  /** Default constructor. */
+  public PSSimpleTenantCache() {}
+
+  /** Thread-safe map that holds the cached tenant entries keyed by tenant id. */
   private ConcurrentHashMap<String, IPSTenantInfo> cache = new ConcurrentHashMap<>();
 
-  /***
-   * Minutes cache entries have before needing re-authorization
-   */
+  /** Minutes cache entries have before needing re-authorization. */
   private long ttl;
 
   /** Log for this class. */
@@ -50,15 +49,21 @@ public class PSSimpleTenantCache implements IPSTenantCache {
   private IPSTenantAuthorization auth;
 
   /**
-   * @see com.percussion.delivery.multitenant.IPSTenantCache#setMaxTTL(int)
+   * Sets the maximum time to live that cached tenant entries may remain in the cache before
+   * being re-authorized.
+   *
+   * @param minutes the cache TTL in minutes.
    */
   @Override
   public void setMaxTTL(long minutes) {
     this.ttl = minutes;
   }
 
-  /***
-   * @see com.percussion.delivery.multitenant.IPSTenantCache#getMaxTTL()
+  /**
+   * Returns the maximum time to live that cached tenant entries may remain in the cache before
+   * being re-authorized.
+   *
+   * @return the cache TTL in minutes.
    */
   @Override
   public long getMaxTTL() {
@@ -66,7 +71,13 @@ public class PSSimpleTenantCache implements IPSTenantCache {
   }
 
   /**
-   * @see com.percussion.delivery.multitenant.IPSTenantCache#get(java.lang.String)
+   * Returns the cached tenant information for the given id, incrementing its API usage count on
+   * each call. If the cache entry's TTL has expired and {@link #getAuthorizeExpiredTTL()} returns
+   * <code>true</code>, the tenant is re-authorized before being returned.
+   *
+   * @param id the tenant id, never <code>null</code>.
+   * @param req the current servlet request, may be <code>null</code>.
+   * @return the cached tenant info, or <code>null</code> if no tenant is cached for the given id.
    */
   @Override
   public IPSTenantInfo get(String id, ServletRequest req) {
@@ -91,8 +102,10 @@ public class PSSimpleTenantCache implements IPSTenantCache {
   }
 
   /**
-   * @see
-   *     com.percussion.delivery.multitenant.IPSTenantCache#put(com.percussion.delivery.multitenant.IPSTenantInfo)
+   * Puts the supplied tenant information into the cache, replacing any existing entry for the
+   * same tenant id.
+   *
+   * @param tenant the tenant information to cache, never <code>null</code>.
    */
   @Override
   public void put(IPSTenantInfo tenant) {
@@ -101,23 +114,25 @@ public class PSSimpleTenantCache implements IPSTenantCache {
   }
 
   /**
-   * @see com.percussion.delivery.multitenant.IPSTenantCache#remove(java.lang.String)
+   * Removes the specified tenant from the cache.
+   *
+   * @param id the tenant id of the entry to remove, never <code>null</code>.
    */
   @Override
   public void remove(String id) {
     cache.remove(id);
   }
 
-  /**
-   * @see com.percussion.delivery.multitenant.IPSTenantCache#clear()
-   */
+  /** Clears all tenants from the cache. */
   @Override
   public void clear() {
     cache.clear();
   }
 
   /**
-   * @see com.percussion.delivery.multitenant.IPSTenantCache#scavenge()
+   * Scans the cache and re-authorizes any tenants whose TTL has expired.
+   *
+   * @param req the current servlet request, may be <code>null</code>.
    */
   @Override
   public void scavenge(ServletRequest req) {
@@ -130,7 +145,7 @@ public class PSSimpleTenantCache implements IPSTenantCache {
     while (it.hasNext()) {
       Map.Entry<String, IPSTenantInfo> pairs = it.next();
 
-      t = (IPSTenantInfo) pairs.getValue();
+      t = pairs.getValue();
 
       if (ttl < checkTTLAge(t.getLastAuthorizationCheckDate())) {
         log.debug("Authorization expired for tenant " + t.getTenantId() + " reauthorizing");
@@ -139,18 +154,21 @@ public class PSSimpleTenantCache implements IPSTenantCache {
     }
   }
 
-  /***
-   * Helper method to determine if a TTL date has expired.
+  /**
+   * Determines how long ago a TTL reference date occurred, in minutes.
    *
-   * @param last
-   *
+   * @param last the reference date to compare against now, never <code>null</code>.
+   * @return the number of full minutes between {@code last} and the current time.
    */
   private long checkTTLAge(Date last) {
     return ((new Date().getTime() - last.getTime()) / 1000) / 60;
   }
 
   /**
-   * @see com.percussion.delivery.multitenant.IPSTenantCache#getAuthorizeExpiredTTL()
+   * Returns whether the cache re-authorizes tenants whose TTL has expired.
+   *
+   * @return <code>true</code> if expired entries are re-authorized, <code>false</code> if they
+   *     are evicted without re-authorization.
    */
   @Override
   public boolean getAuthorizeExpiredTTL() {
@@ -158,7 +176,10 @@ public class PSSimpleTenantCache implements IPSTenantCache {
   }
 
   /**
-   * @see com.percussion.delivery.multitenant.IPSTenantCache#setAuthorizeExpiredTTL(boolean)
+   * Configures whether the cache re-authorizes tenants whose TTL has expired.
+   *
+   * @param ret <code>true</code> to re-authorize expired entries, <code>false</code> to evict
+   *     them.
    */
   @Override
   public void setAuthorizeExpiredTTL(boolean ret) {
@@ -166,27 +187,32 @@ public class PSSimpleTenantCache implements IPSTenantCache {
   }
 
   /**
-   * @see com.percussion.delivery.multitenant.IPSTenantCache#getAuthorizationProvider()
+   * Returns the authorization provider used to re-authorize tenants.
+   *
+   * @return the active {@link IPSTenantAuthorization}, or <code>null</code> if none is set.
    */
   @Override
   public IPSTenantAuthorization getAuthorizationProvider() {
     return this.auth;
   }
 
-  /***
-   * @see com.percussion.delivery.multitenant.IPSTenantCache#setAuthorizationProvider(com.percussion.delivery.multitenant.IPSTenantAuthorization)
+  /**
+   * Sets the authorization provider used to re-authorize tenants.
+   *
+   * @param auth the authorization provider to use, may be <code>null</code>.
    */
   @Override
   public void setAuthorizationProvider(IPSTenantAuthorization auth) {
     this.auth = auth;
   }
 
-  /***
-   * Re-authorizes the specified tenant with the authorization provider
-   * if configured.
+  /**
+   * Re-authorizes the specified tenant with the authorization provider if one is configured.
    *
-   * @param t
-   * @return true if the tenant has been authorized and refreshed, false if not.
+   * @param t the tenant to re-authorize, never <code>null</code>.
+   * @param req the current servlet request, may be <code>null</code>.
+   * @return <code>true</code> if the tenant has been authorized and refreshed, <code>false</code>
+   *     if authorization did not succeed.
    */
   private boolean reauthorize(IPSTenantInfo t, ServletRequest req) {
     boolean ret = false;

@@ -28,24 +28,24 @@ import org.apache.commons.lang3.Validate;
  */
 public class PSVersionHelper {
 
-  /***
-   * Given the specified class will look for a build.properties file
-   * in the root of it's resources that contains version information.
+  /** Default constructor; this is a utility class. */
+  private PSVersionHelper() {}
+
+  /**
+   * Given the specified class will look for a build.properties file in the root of its resources
+   * that contains version information.
    *
-   * If an error occurs will return 'undefined' for the version string.
+   * <p>If an error occurs will return {@code undefined} for the version string.</p>
    *
-   * If Successful version will be returned in the format of:
+   * <p>If successful the version will be returned in the form {@code version-tag_buildtime}, for
+   * example {@code 2.8.153-CM1DEVBuild-153_2005-08-22_23-59-59}.</p>
    *
-   * version-tag_buildtime
-   *
-   * for example:
-   *
-   * 2.8.153-CM1DEVBuild-153_2005-08-22_23-59-59
-   *
-   * @param clazz
-   *
+   * @param clazz the class whose package should be searched for the {@code build.properties}
+   *     resource, never <code>null</code>.
+   * @return the version string in the form {@code version-tag_buildtime}, or {@code undefined} if
+   *     the version cannot be determined.
    */
-  public static String getVersion(Class clazz) {
+  public static String getVersion(Class<?> clazz) {
     String version = "";
 
     Validate.notNull(clazz);

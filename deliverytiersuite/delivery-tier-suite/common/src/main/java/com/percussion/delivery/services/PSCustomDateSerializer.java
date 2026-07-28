@@ -32,9 +32,19 @@ public class PSCustomDateSerializer extends JsonSerializer<Object> {
 
   private final FastDateFormat formatter = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
-  /* (non-Javadoc)
-   * @see org.codehaus.jackson.map.JsonSerializer#serialize(
-   *    java.lang.Object, org.codehaus.jackson.JsonGenerator, org.codehaus.jackson.map.SerializerProvider)
+  /**
+   * Default constructor. The {@link SerializerProvider} argument is not currently used by this
+   * implementation; it is a placeholder for future enhancements such as locale-aware formatting.
+   */
+  public PSCustomDateSerializer() {}
+
+  /**
+   * Serializes the supplied date value as a string using {@code yyyy-MM-dd'T'HH:mm:ss.SSSZ}.
+   *
+   * @param value the value to serialize; expected to be a {@link java.util.Date}.
+   * @param gen the Jackson generator to write to, never <code>null</code>.
+   * @param provider the serializer provider, reserved for future use.
+   * @throws IOException if writing to the generator fails.
    */
   @Override
   public void serialize(

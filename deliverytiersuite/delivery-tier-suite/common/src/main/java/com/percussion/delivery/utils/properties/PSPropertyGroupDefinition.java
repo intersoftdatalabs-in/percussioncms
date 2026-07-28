@@ -33,82 +33,105 @@ import java.util.List;
 @XmlType(name = "propertygroup")
 public class PSPropertyGroupDefinition {
 
+  /** Default constructor. */
+  public PSPropertyGroupDefinition() {}
+
+  /** The XML attribute name identifying this property group. */
   @XmlAttribute(required = true)
   private String name;
 
+  /** The display label of this property group in the UI. */
   @XmlAttribute(name = "display_name")
   private String displayName;
 
+  /** Whether the property group should be initially expanded in the UI. */
   @XmlAttribute private boolean expanded;
 
+  /** The help text shown alongside the property group in the UI. */
   @XmlAttribute(name = "help_text")
   private String helpText;
 
+  /** The ordered list of properties contained in this group. */
   @XmlElement private List<PSPropertyDefinition> properties;
 
   /**
    * When true, the last known state for this property group is expanded.
    *
-   * @return the expanded
+   * @return <code>true</code> when the group is expanded by default.
    */
   public boolean isExpanded() {
     return expanded;
   }
 
   /**
-   * When true, indicates that this property group should be displayed expaned. When false
+   * When true, indicates that this property group should be displayed expanded. When false
    * collapsed.
    *
-   * @param expanded the expanded to set
+   * @param expanded <code>true</code> to render the group expanded, <code>false</code> to render
+   *     it collapsed.
    */
   public void setExpanded(boolean expanded) {
     this.expanded = expanded;
   }
 
   /**
-   * @return the name
+   * Returns the XML attribute name of this property group.
+   *
+   * @return the group name, never <code>null</code>.
    */
   public String getName() {
     return name;
   }
 
   /**
-   * @param name the name to set
+   * Sets the XML attribute name of this property group.
+   *
+   * @param name the group name.
    */
   public void setName(String name) {
     this.name = name;
   }
 
   /**
-   * @return the helpText
+   * Returns the help text shown alongside the property group in the UI.
+   *
+   * @return the help text, may be <code>null</code>.
    */
   public String getHelpText() {
     return helpText;
   }
 
   /**
-   * @param helpText the helpText to set
+   * Sets the help text shown alongside the property group in the UI.
+   *
+   * @param helpText the help text.
    */
   public void setHelpText(String helpText) {
     this.helpText = helpText;
   }
 
   /**
-   * @return the displayName
+   * Returns the display label for this property group.
+   *
+   * @return the display name, may be <code>null</code>.
    */
   public String getDisplayName() {
     return displayName;
   }
 
   /**
-   * @param displayName the displayName to set
+   * Sets the display label for this property group.
+   *
+   * @param displayName the display name.
    */
   public void setDisplayName(String displayName) {
     this.displayName = displayName;
   }
 
   /**
-   * @return the properties
+   * Returns the ordered list of properties contained in this group.
+   *
+   * @return the live property list; never <code>null</code>, may be empty.
    */
   public List<PSPropertyDefinition> getProperties() {
     if (properties == null) properties = new ArrayList<>();
@@ -116,7 +139,10 @@ public class PSPropertyGroupDefinition {
   }
 
   /**
-   * @param properties the properties to set
+   * Sets the ordered list of properties contained in this group.
+   *
+   * @param properties the property list; may be <code>null</code> in which case an empty list is
+   *     substituted on the next call to {@link #getProperties()}.
    */
   public void setProperties(List<PSPropertyDefinition> properties) {
     this.properties = properties;

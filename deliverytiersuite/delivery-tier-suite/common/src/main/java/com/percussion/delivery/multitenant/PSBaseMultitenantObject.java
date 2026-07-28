@@ -26,10 +26,19 @@ import jakarta.xml.bind.annotation.XmlElement;
  */
 public abstract class PSBaseMultitenantObject {
 
+  /** Default constructor. */
+  public PSBaseMultitenantObject() {}
+
+  /**
+   * The tenant identifier for this multi-tenant aware POJO. May be <code>null</code> when the
+   * object is used in non multi-tenant mode.
+   */
   protected String tenantId;
 
   /**
-   * @return may be <code>null</code> if the pojo is being used in non multi tenant mode.
+   * Returns the tenant id for this multi-tenant aware POJO.
+   *
+   * @return the tenant id; may be <code>null</code> when used in non multi-tenant mode.
    */
   @XmlElement(name = "tenantid")
   public String getTenantId() {
@@ -37,7 +46,9 @@ public abstract class PSBaseMultitenantObject {
   }
 
   /**
-   * @param tenantId may be <code>null</code> if the pojo is being used in non multi tenant mode.
+   * Sets the tenant id for this multi-tenant aware POJO.
+   *
+   * @param tenantId the tenant id; may be <code>null</code> when used in non multi-tenant mode.
    */
   public void setTenantId(String tenantId) {
     this.tenantId = tenantId;

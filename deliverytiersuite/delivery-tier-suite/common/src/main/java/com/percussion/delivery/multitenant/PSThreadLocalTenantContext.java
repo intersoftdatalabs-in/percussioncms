@@ -24,18 +24,25 @@ package com.percussion.delivery.multitenant;
  */
 public class PSThreadLocalTenantContext implements IPSTenantContext {
 
+  /** Default constructor. */
+  public PSThreadLocalTenantContext() {}
+
   private static ThreadLocal<String> userLocal = new ThreadLocal<>();
 
-  /*
-   * (non-Javadoc)
-   * @see com.percussion.delivery.multitenant.IPSTenantContext#getTenantId()
+  /**
+   * Returns the current tenant id from the calling thread's local context.
+   *
+   * @return the current tenant id, or <code>null</code> if no tenant id is set.
+   * @see IPSTenantContext#getTenantId()
    */
   public String getTenantId() {
     return userLocal.get();
   }
 
   /**
-   * @param tenantId may be <code>null</code>, but should not be <code>empty</code>.
+   * Sets the current thread's tenant id.
+   *
+   * @param tenantId the tenant id; may be <code>null</code>, but should not be empty.
    */
   public static void setTenantId(String tenantId) {
     userLocal.set(tenantId);
@@ -47,6 +54,8 @@ public class PSThreadLocalTenantContext implements IPSTenantContext {
   }
 
   /**
+   * Indicates whether the calling thread's tenant context currently has a tenant id set.
+   *
    * @return <code>true</code> if the context has a tenant id set.
    */
   public static boolean hasTenantId() {

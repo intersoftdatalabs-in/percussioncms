@@ -27,25 +27,60 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
+/**
+ * Pre-authenticated processing filter used by the delivery tier Spring Security integration.
+ * Always populates the principal as {@code ANONYMOUS}; real principal data is loaded by
+ * {@link PSAuthenticationDetailsSource} from the Tomcat session user.
+ */
 public class PSPreAuthenticatedProcessingFilter extends AbstractPreAuthenticatedProcessingFilter {
 
+  /** Default constructor; installs the {@link PSAuthenticationDetailsSource} so that real
+   * principal data is loaded from the Tomcat session user. */
+  @SuppressWarnings("this-escape")
   public PSPreAuthenticatedProcessingFilter() {
     setAuthenticationDetailsSource(new PSAuthenticationDetailsSource());
   }
 
+  /**
+   * Always returns {@code ANONYMOUS} as the pre-authenticated principal; real principal data is
+   * populated later by the authentication details source.
+   *
+   * @param request the current servlet request, never <code>null</code>.
+   * @return the literal string {@code "ANONYMOUS"}.
+   */
   @Override
   protected Object getPreAuthenticatedPrincipal(final HttpServletRequest request) {
     return "ANONYMOUS";
   }
 
+  /**
+   * Returns {@code N/A} as the pre-authenticated credentials placeholder.
+   *
+   * @param request the current servlet request, never <code>null</code>.
+   * @return the literal string {@code "N/A"}.
+   */
   @Override
   protected Object getPreAuthenticatedCredentials(final HttpServletRequest request) {
     return "N/A";
   }
 
+  /**
+   * Builds a {@link PreAuthenticatedAuthenticationToken} from the Tomcat
+   * {@code GenericPrincipal} attached to the current request, copying any granted roles into
+   * Spring Security {@link SimpleGrantedAuthority} instances.
+   */
   public static class PSAuthenticationDetailsSource
       implements AuthenticationDetailsSource<
           HttpServletRequest, PreAuthenticatedAuthenticationToken> {
+    /** Default constructor. */
+    public PSAuthenticationDetailsSource() {}
+
+    /**
+     * Builds the pre-authenticated token for the supplied servlet request.
+     *
+     * @param request the current servlet request, never <code>null</code>.
+     * @return the pre-authenticated token, never <code>null</code>.
+     */
     @Override
     public PreAuthenticatedAuthenticationToken buildDetails(HttpServletRequest request) {
       // create container for pre-auth data

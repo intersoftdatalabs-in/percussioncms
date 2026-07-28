@@ -25,8 +25,18 @@ import org.springframework.util.StringValueResolver;
 /**
  * @author erikserating
  */
+/**
+ * Placeholder configurer that resolves any property value wrapped in {@code ENC(...)} by
+ * delegating to {@link PSSecureProperty} to decrypt it before Spring uses the value.
+ *
+ * @author erikserating
+ */
 public class PSPropertyPlaceholderConfigurer extends PropertySourcesPlaceholderConfigurer {
 
+  /** Default constructor. */
+  public PSPropertyPlaceholderConfigurer() {}
+
+  /** The decryption key; when <code>null</code>, the default key is used. */
   protected String key = null;
 
   /* (non-Javadoc)
@@ -56,14 +66,18 @@ public class PSPropertyPlaceholderConfigurer extends PropertySourcesPlaceholderC
   }
 
   /**
-   * @return the key
+   * Returns the decryption key used when resolving encrypted property values.
+   *
+   * @return the configured key, or <code>null</code> when the default key should be used.
    */
   public String getKey() {
     return key;
   }
 
   /**
-   * @param key the key to set
+   * Sets the decryption key used when resolving encrypted property values.
+   *
+   * @param key the key to set; pass <code>null</code> to use the default key.
    */
   public void setKey(String key) {
     this.key = key;

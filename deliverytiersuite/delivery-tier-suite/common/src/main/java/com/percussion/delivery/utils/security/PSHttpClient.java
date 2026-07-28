@@ -32,6 +32,7 @@ import javax.net.ssl.TrustManager;
 @ToDoVulnerability
 @Deprecated
 public class PSHttpClient {
+  /** Default constructor. */
   public PSHttpClient() {}
 
   /**

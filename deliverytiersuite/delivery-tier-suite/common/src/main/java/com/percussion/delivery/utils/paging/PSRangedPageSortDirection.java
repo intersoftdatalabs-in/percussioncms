@@ -22,6 +22,8 @@ package com.percussion.delivery.utils.paging;
  * @author natechadwick
  */
 public enum PSRangedPageSortDirection {
+  /** Sort in ascending order. */
   ASCENDING,
+  /** Sort in descending order. */
   DESCENDING
 }

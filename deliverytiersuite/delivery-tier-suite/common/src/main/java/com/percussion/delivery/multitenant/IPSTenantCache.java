@@ -26,17 +26,18 @@ import jakarta.servlet.ServletRequest;
  */
 public interface IPSTenantCache {
 
-  /***
-   * Tha maximum time to live that a tenants info can be cached
-   * before it must be re-authorized
-   * @param minutes
+  /**
+   * Sets the maximum time to live that a tenant's info can be cached before it must be
+   * re-authorized.
+   *
+   * @param minutes the TTL expressed in minutes.
    */
   public void setMaxTTL(long minutes);
 
-  /***
-   * Returns the number of minutes before and entry in cach must be re-authorized.
+  /**
+   * Returns the number of minutes before an entry in the cache must be re-authorized.
    *
-   *
+   * @return the cache TTL in minutes.
    */
   public long getMaxTTL();
 
@@ -45,59 +46,64 @@ public interface IPSTenantCache {
    *
    * <p>When false, the cache will simply return null for missing tenants and remove tenants from
    * cache when their TTL expires.
+   *
+   * @return <code>true</code> if expired tenants are re-authorized, <code>false</code> otherwise.
    */
   public boolean getAuthorizeExpiredTTL();
 
-  /***
-   * When set to true, the service will attempt to autorize expiring urls using the
-   * provider set in the AuthorizationProvider property.
+  /**
+   * When set to true, the service will attempt to authorize expiring urls using the provider set
+   * in the AuthorizationProvider property.
    *
-   * @param ret
+   * @param ret <code>true</code> to authorize expired tenants, <code>false</code> to evict them.
    */
   public void setAuthorizeExpiredTTL(boolean ret);
 
-  /***
-   * Returns the Authorization Provider to use when authorizing expired tenants;
+  /**
+   * Returns the authorization provider used when authorizing expired tenants.
    *
+   * @return the active {@link IPSTenantAuthorization}, or <code>null</code> if none is set.
    */
   public IPSTenantAuthorization getAuthorizationProvider();
 
-  /***
+  /**
    * Sets the authorization provider to use.
    *
-   * @param auth
+   * @param auth the authorization provider, may be <code>null</code>.
    */
   public void setAuthorizationProvider(IPSTenantAuthorization auth);
 
-  /***
+  /**
    * Returns the specified tenant from the cache.
    *
-   * @param id
-   *
+   * @param id the tenant id to look up, never <code>null</code>.
+   * @param req the current servlet request, may be <code>null</code>.
+   * @return the cached tenant info, or <code>null</code> if no entry exists.
    */
   public IPSTenantInfo get(String id, ServletRequest req);
 
-  /***
+  /**
    * Puts the specified tenant into the cache.
    *
-   * @param tenant Tenant Information
+   * @param tenant the tenant information to cache; the existing entry will be replaced, never
+   *     <code>null</code>.
    */
   public void put(IPSTenantInfo tenant);
 
-  /***
+  /**
    * Removes the specified tenant from the cache.
    *
-   * @param id  The tenant ID of the tenant being removed.
+   * @param id the tenant id of the entry to remove, never <code>null</code>.
    */
   public void remove(String id);
 
-  /***
-   * Clears all tenants from the cache
-   */
+  /** Clears all tenants from the cache. */
   public void clear();
 
-  /***
-   * Scans the cache and removes any expired tenants.
+  /**
+   * Scans the cache and re-authorizes any expired tenant entries.
+   *
+   * @param req the current servlet request, may be <code>null</code>.
    */
   public void scavenge(ServletRequest req);
 }

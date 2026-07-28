@@ -35,10 +35,10 @@ import jakarta.ws.rs.core.Response;
  */
 public interface IPSRestService {
 
-  /***
+  /**
    * Returns the currently deployed version of the service.
    *
-   *
+   * @return the deployed version string, never <code>null</code>.
    */
   @GET
   @Path("/version")
@@ -51,8 +51,6 @@ public interface IPSRestService {
    *
    * @param prevSiteName the old name for the site
    * @param newSiteName the new name for the site
-   * @see com.percussion.services.siterename.IPSSiteRenameService#deleteDTSEntries
-   *     IPSSiteRenameService
    * @return <code>204</code> if the process was successful. Return error code otherwise.
    */
   @DELETE

@@ -66,7 +66,8 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-            <!-- Used by PSPreAuthenticatedProcessingFilter parent class -->
+            <!-- Required at compile time so PSPreAuthenticatedProcessingFilter's transitive
+                 GenericFilterBean superclass is on the classpath. -->
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
