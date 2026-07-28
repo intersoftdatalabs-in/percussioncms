@@ -17,6 +17,7 @@
 
 package com.percussion.workflow;
 
+import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.extension.IPSExtension;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSExtensionErrors;
@@ -29,8 +30,6 @@ import com.percussion.server.IPSRequestContext;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import java.io.File;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
@@ -105,21 +104,10 @@ public class PSExitDisallowUpdatePublished implements IPSRequestPreProcessor {
 
     int contentid = Integer.parseInt(params[0].toString());
 
-    PSConnectionMgr connectionMgr = null;
-
     try {
-      // Get the connection
-      connectionMgr = new PSConnectionMgr();
-      Connection connection = connectionMgr.getConnection();
-      disallowUpdatePublished(contentid, connection, lang);
+      disallowUpdatePublished(contentid, lang);
     } catch (Exception e) {
       throw new PSExtensionProcessingException(ms_exitName, e);
-    } finally {
-      try {
-        if (null != connectionMgr) connectionMgr.releaseConnection();
-      } catch (SQLException sqe) {
-        // Ignore, we are done.
-      }
     }
 
     return;
@@ -130,37 +118,32 @@ public class PSExitDisallowUpdatePublished implements IPSRequestPreProcessor {
    * public state.
    *
    * @param contentid the id of the item in question.
-   * @param connection the connection used to get the status of the specified item; assumed not
-   *     <code>null</code>.
    * @param lang the locale that is used to fetch the error message should error occurs.
    * @throws PSExtensionProcessingException if the specified item is in publishable state.
    */
-  private void disallowUpdatePublished(int contentid, Connection connection, String lang)
-      throws SQLException, PSExtensionProcessingException {
-    try {
-      PSContentStatusContext csc = new PSContentStatusContext(connection, contentid);
-      csc.close(); // release the JDBC resources
-
-      int nWorkFlowAppID = csc.getWorkflowID();
-      int nStateID = csc.getContentStateID();
-      IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
-      Optional<? extends IPSStatesContext> scOpt = cms.loadWorkflowState(nWorkFlowAppID, nStateID);
-
-      if (scOpt.isEmpty()) {
-        ms_log.error("Failure loading state information");
-      } else {
-        IPSStatesContext sc = scOpt.get();
-        if (sc.getIsValid()) {
-          String key = Integer.toString(IPSExtensionErrors.PUBDOC_UPDATE_ERROR);
-          String msg = PSI18nUtils.getString(key, lang);
-          throw new PSExtensionProcessingException(lang, ms_exitName, new Exception(msg));
-        }
-      }
-    } catch (PSEntryNotFoundException e) {
+  private void disallowUpdatePublished(int contentid, String lang)
+      throws PSExtensionProcessingException {
+    IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
+    PSComponentSummary csc = cms.loadComponentSummary(contentid);
+    if (csc == null) {
       // no entry for this content so proceed with peace!
+      return;
     }
 
-    return;
+    int nWorkFlowAppID = csc.getWorkflowAppId();
+    int nStateID = csc.getContentStateId();
+    Optional<? extends IPSStatesContext> scOpt = cms.loadWorkflowState(nWorkFlowAppID, nStateID);
+
+    if (scOpt.isEmpty()) {
+      ms_log.error("Failure loading state information");
+    } else {
+      IPSStatesContext sc = scOpt.get();
+      if (sc.getIsValid()) {
+        String key = Integer.toString(IPSExtensionErrors.PUBDOC_UPDATE_ERROR);
+        String msg = PSI18nUtils.getString(key, lang);
+        throw new PSExtensionProcessingException(lang, ms_exitName, new Exception(msg));
+      }
+    }
   }
 
   private static String ms_exitName = "PSExitDisallowUpdatePublished";

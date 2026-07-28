@@ -18,17 +18,16 @@
 package com.percussion.workflow;
 
 import com.percussion.cms.IPSConstants;
+import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.data.PSConversionException;
 import com.percussion.data.PSDataExtractionException;
-import com.percussion.error.PSException;
 import com.percussion.extension.IPSUdfProcessor;
 import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.IPSServerErrors;
-import java.sql.Connection;
-import java.sql.SQLException;
-import javax.naming.NamingException;
+import com.percussion.services.legacy.IPSCmsObjectMgr;
+import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -83,33 +82,20 @@ public class PSGetCheckoutStatus extends PSSimpleJavaUdfExtension implements IPS
     String contentid = params[0].toString().trim();
     String result = "Default";
 
-    PSConnectionMgr connectionMgr = null;
-    PSContentStatusContext csc = null;
-
     try {
-      connectionMgr = new PSConnectionMgr();
-    } catch (SQLException e) {
-      log.error(
-          "Error getting JDBC Connection Manager. Error: {}", PSExceptionUtils.getMessageForLog(e));
-      throw new PSConversionException(e);
-    }
-
-    try (Connection conn = connectionMgr.getConnection()) {
       int iContentId = Integer.parseInt(contentid);
-
-      csc = new PSContentStatusContext(conn, iContentId);
-      String checkoutuser = csc.getContentCheckedOutUserName();
+      IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
+      PSComponentSummary csc = cms.loadComponentSummary(iContentId);
+      if (csc == null) {
+        // No row; default image.
+        return "Default";
+      }
+      String checkoutuser = csc.getCheckoutUserName();
       result = getCheckoutStatus(checkoutuser, params, request);
-    } catch (PSException e) {
-      log.error(PSExceptionUtils.getMessageForLog(e));
-      throw new PSConversionException(e.getErrorCode(), e.getErrorArguments());
-    } catch (SQLException e) {
+    } catch (RuntimeException | com.percussion.data.PSDataExtractionException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       throw new PSConversionException(
           IPSServerErrors.SQL_PROBLEM, PSExceptionUtils.getMessageForLog(e));
-    } catch (NamingException e) {
-      log.error(PSExceptionUtils.getMessageForLog(e));
-      throw new PSConversionException(e);
     }
 
     return result;
