@@ -16,8 +16,13 @@
  */
 package com.percussion.generickey.services;
 
-/** Generic key service, to generate unique keys with duration. */
+/**
+ * Service for generating and validating time-limited generic keys (such as password-reset tokens).
+ *
+ * @author leonardohildt
+ */
 public interface IPSGenericKeyService {
+  /** Number of milliseconds in a single day. */
   public static final long DAY_IN_MILLISECONDS = 86400000;
 
   /**
@@ -26,6 +31,7 @@ public interface IPSGenericKeyService {
    *
    * @param duration in milliseconds.
    * @return The generated key, never blank.
+   * @throws Exception If there are any unexpected errors.
    */
   public String generateKey(long duration) throws Exception;
 
@@ -35,6 +41,7 @@ public interface IPSGenericKeyService {
    *
    * @param key may be blank.
    * @return <code>true</code> if the key is still valid otherwise <code>false</code>.
+   * @throws Exception If there are any unexpected errors.
    */
   public boolean isValidKey(String key) throws Exception;
 
@@ -42,6 +49,7 @@ public interface IPSGenericKeyService {
    * Deletes the supplied key if exists.
    *
    * @param key the key to delete
+   * @throws Exception If there are any unexpected errors.
    */
   public void deleteKey(String key) throws Exception;
 }

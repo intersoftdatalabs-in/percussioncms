@@ -49,6 +49,7 @@ public class PSMembershipApplication extends ResourceConfig {
    * Initialize the JAX-RS application with required components. Sets up Spring integration, REST
    * services, and exception handling using modern Java patterns.
    */
+  @SuppressWarnings("this-escape")
   public PSMembershipApplication() {
     registerSpringComponents();
     registerRestServices();

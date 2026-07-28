@@ -16,9 +16,19 @@
  */
 package com.percussion.membership.services;
 
+/**
+ * Thrown when an attempt is made to create a user account that already exists.
+ *
+ * @author Percussion Software
+ */
 public class PSMemberExistsException extends Exception {
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Constructs a new exception referencing the user that already exists.
+   *
+   * @param userId the user id that already exists, may not be {@code null}.
+   */
   public PSMemberExistsException(String userId) {
     super("User already exists: " + userId);
   }

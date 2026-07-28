@@ -17,14 +17,33 @@
 
 package com.percussion.membership.data;
 
+/**
+ * Wraps a session id returned by the membership service.
+ *
+ * @author Percussion Software
+ */
 public class PSUserSession {
 
+  /** The session id, may be {@code null} if no session has been issued yet. */
   private String sessionId;
 
+  /** Default constructor for use by serialization frameworks. */
+  public PSUserSession() {}
+
+  /**
+   * Sets the session id.
+   *
+   * @param sessionId the session id to set, may not be {@code null}.
+   */
   public void setSessionId(String sessionId) {
     this.sessionId = sessionId;
   }
 
+  /**
+   * Gets the session id.
+   *
+   * @return the session id, may be {@code null} if no session has been issued yet.
+   */
   public String getSessionId() {
     return sessionId;
   }

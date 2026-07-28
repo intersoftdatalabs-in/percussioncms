@@ -29,11 +29,23 @@ import org.apache.commons.lang3.Validate;
  * @author JaySeletz
  */
 public class PSUserSummary {
+  /** The user's email address, may be {@code null} before construction from a member. */
   private String email;
+
+  /** The date the user's account was created. */
   private Date createdDate;
+
+  /** The user's status. */
   private PSMemberStatus status;
+
+  /** The comma-separated groups the user belongs to. */
   private String groups;
 
+  /**
+   * Constructs a user summary from a {@link IPSMembership}.
+   *
+   * @param member the source membership, may not be {@code null}.
+   */
   public PSUserSummary(IPSMembership member) {
     Validate.notNull(member);
 
@@ -52,20 +64,29 @@ public class PSUserSummary {
     return email;
   }
 
+  /**
+   * Gets the date the user's account was created.
+   *
+   * @return the created date, may be {@code null}.
+   */
   @JsonSerialize(using = PSCustomDateSerializer.class)
   public Date getCreatedDate() {
     return createdDate;
   }
 
   /**
-   * @return The status, a {@link PSMemberStatus} object, never or <code>null</code>.
+   * Gets the user's status.
+   *
+   * @return the status, a {@link PSMemberStatus} object, may be <code>null</code>.
    */
   public PSMemberStatus getStatus() {
     return status;
   }
 
   /**
-   * @return a comma separated list of groups
+   * Gets the comma-separated list of groups the user belongs to.
+   *
+   * @return a comma separated list of groups, never <code>null</code>.
    */
   public String getGroups() {
     return groups;

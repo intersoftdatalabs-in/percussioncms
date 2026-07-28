@@ -42,7 +42,7 @@ public interface IPSGenericKey {
   /**
    * Set the date-time the password reset was last requested.
    *
-   * @param pwdResetDate The date, may be <code>null</code> to clear the date
+   * @param expirationDate The date, may be <code>null</code> to clear the date
    */
   public abstract void setExpirationDate(Date expirationDate);
 
@@ -63,7 +63,7 @@ public interface IPSGenericKey {
   /**
    * Set the key used to identify a password reset request for this membership account.
    *
-   * @param pwdResetKey The key, never empty, may be <code>null</code> to clear the key.
+   * @param resetKey The key, never empty, may be <code>null</code> to clear the key.
    */
   public void setGenericKey(String resetKey);
 }

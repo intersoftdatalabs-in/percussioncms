@@ -31,6 +31,10 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
+ * Persistent representation of a generic key (e.g. password-reset token) stored in the {@code
+ * PERC_GENERIC_KEY} table. Fields here are mapped via JPA annotations; getters and setters are
+ * inherited from the {@link IPSGenericKey} contract.
+ *
  * @author leonardohildt
  */
 @Entity
@@ -54,6 +58,7 @@ public class PSGenericKey implements IPSGenericKey {
 
   @Basic private Date expirationDate;
 
+  /** Default constructor required by JPA. */
   public PSGenericKey() {}
 
   /**

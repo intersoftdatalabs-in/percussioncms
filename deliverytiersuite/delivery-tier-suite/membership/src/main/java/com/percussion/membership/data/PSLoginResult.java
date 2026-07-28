@@ -16,14 +16,31 @@
  */
 package com.percussion.membership.data;
 
+/**
+ * Represents the result of a member login attempt.
+ *
+ * @author JaySeletz
+ */
 public class PSLoginResult extends PSMembershipResult {
   private String sessionId;
 
+  /**
+   * Constructs a new login result.
+   *
+   * @param status the status of the login operation, never {@code null}.
+   * @param message the detail message associated with the status, may be {@code null}.
+   * @param sessionId the session id issued for the login, may be {@code null} when login failed.
+   */
   public PSLoginResult(STATUS status, String message, String sessionId) {
     super(status, message);
     this.sessionId = sessionId;
   }
 
+  /**
+   * Gets the session id issued for the login.
+   *
+   * @return the session id, may be {@code null} when login failed.
+   */
   public String getSessionId() {
     return sessionId;
   }

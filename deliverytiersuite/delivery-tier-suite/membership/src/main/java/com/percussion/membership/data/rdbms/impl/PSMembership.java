@@ -35,6 +35,10 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
+ * Persistent representation of a {@link IPSMembership} backed by the {@code PERC_MEMBERSHIP} table.
+ * Fields here are mapped via JPA annotations; getters and setters are inherited from the {@link
+ * IPSMembership} contract.
+ *
  * @author jayseletz
  */
 @Entity
@@ -84,6 +88,7 @@ public class PSMembership implements IPSMembership {
   @Column(length = 4000)
   private String groups;
 
+  /** Default constructor required by JPA. */
   public PSMembership() {}
 
   /**

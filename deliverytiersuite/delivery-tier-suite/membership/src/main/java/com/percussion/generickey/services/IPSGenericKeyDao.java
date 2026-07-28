@@ -35,8 +35,8 @@ public interface IPSGenericKeyDao {
   /**
    * Search for a reset key matching the supplied password reset key.
    *
-   * @param pwdResetKey The key to use, may not be <code>null</code> or empty.
-   * @return The member, or <code>null</code> if not found.
+   * @param resetKey The key to use, may not be <code>null</code> or empty.
+   * @return The key, or <code>null</code> if not found.
    */
   public IPSGenericKey findByResetKey(String resetKey);
 
@@ -44,7 +44,6 @@ public interface IPSGenericKeyDao {
    * Save the supplied reset key.
    *
    * @param resetKey The reset key to save, may not be <code>null</code>.
-   * @throws PSMemberExistsException if a member with that user name already exists.
    * @throws Exception if there are any errors.
    */
   public void saveKey(IPSGenericKey resetKey) throws Exception;
@@ -53,7 +52,6 @@ public interface IPSGenericKeyDao {
    * Delete the supplied reset key.
    *
    * @param resetKey The reset key to delete, may not be <code>null</code>.
-   * @throws PSMemberExistsException if a member with that user name already exists.
    * @throws Exception if there are any errors.
    */
   public void deleteKey(IPSGenericKey resetKey) throws Exception;

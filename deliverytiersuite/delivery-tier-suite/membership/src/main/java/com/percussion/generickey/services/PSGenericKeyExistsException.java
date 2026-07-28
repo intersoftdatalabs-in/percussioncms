@@ -16,10 +16,19 @@
  */
 package com.percussion.generickey.services;
 
+/**
+ * Thrown when an attempt is made to create a generic key that already exists.
+ *
+ * @author leonardohildt
+ */
 public class PSGenericKeyExistsException extends Exception {
-  /** */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Constructs a new exception referencing the key that already exists.
+   *
+   * @param resetKey the key value that already exists, may not be {@code null}.
+   */
   public PSGenericKeyExistsException(String resetKey) {
     super("Key already exists: " + resetKey);
   }

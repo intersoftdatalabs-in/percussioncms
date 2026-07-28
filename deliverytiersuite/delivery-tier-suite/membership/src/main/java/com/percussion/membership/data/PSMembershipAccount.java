@@ -16,6 +16,11 @@
  */
 package com.percussion.membership.data;
 
+/**
+ * Carries the data required to create a new membership account.
+ *
+ * @author nischalraghavendra
+ */
 public class PSMembershipAccount {
   /** The email for the account to create. Never <code>null</code> or empty. */
   private String email;
@@ -29,54 +34,77 @@ public class PSMembershipAccount {
   /** The confirmation page to redirect the user. Never <code>null</code> or empty. */
   private String confirmationPage;
 
+  /** Default constructor for use by serialization frameworks. */
+  public PSMembershipAccount() {}
+
   /**
-   * @return the email
+   * Gets the email address for the account to create.
+   *
+   * @return the email address, never <code>null</code> or empty.
    */
   public String getEmail() {
     return email;
   }
 
+  /**
+   * Sets the email address for the account to create.
+   *
+   * @param email the email address, may not be <code>null</code>.
+   */
   public void setEmail(String email) {
     this.email = email;
   }
 
   /**
-   * @return the password
+   * Gets the password for the account to create.
+   *
+   * @return the password, never <code>null</code> or empty.
    */
   public String getPassword() {
     return password;
   }
 
   /**
-   * @param password the activation password to set
+   * Sets the password used to activate the account.
+   *
+   * @param password the password to set, may not be <code>null</code>.
    */
   public void setPassword(String password) {
     this.password = password;
   }
 
   /**
-   * @return the confirmationRequired
+   * Indicates whether the account requires a confirmation step before activation.
+   *
+   * @return {@code true} when confirmation is required, {@code false} otherwise.
    */
   public Boolean isConfirmationRequired() {
     return confirmationRequired == null ? Boolean.FALSE : confirmationRequired;
   }
 
   /**
-   * @param confirmationRequired the confirmation required to set
+   * Sets whether the account requires a confirmation step before activation.
+   *
+   * @param confirmationRequired {@code true} when confirmation is required, {@code false}
+   *     otherwise.
    */
   public void setConfirmationRequired(Boolean confirmationRequired) {
     this.confirmationRequired = confirmationRequired;
   }
 
   /**
-   * @return the confirmation page
+   * Gets the confirmation page to redirect the user to once the account is confirmed.
+   *
+   * @return the confirmation page, never <code>null</code> or empty.
    */
   public String getConfirmationPage() {
     return confirmationPage;
   }
 
   /**
-   * @param confirmationPage the confirmation page to set
+   * Sets the confirmation page to redirect the user to once the account is confirmed.
+   *
+   * @param confirmationPage the confirmation page, may not be <code>null</code>.
    */
   public void setConfirmationPage(String confirmationPage) {
     this.confirmationPage = confirmationPage;

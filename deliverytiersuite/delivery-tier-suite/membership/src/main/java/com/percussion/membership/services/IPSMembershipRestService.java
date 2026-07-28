@@ -31,6 +31,9 @@ import jakarta.ws.rs.core.MediaType;
 import java.util.List;
 
 /**
+ * REST service for the membership service. Exposes user account lifecycle and authentication
+ * operations under {@code /membership}.
+ *
  * @author natechadwick
  */
 @Path("/membership")
@@ -40,6 +43,7 @@ public interface IPSMembershipRestService extends IPSRestService {
    * Rest service method to create a membership account.
    *
    * @param membership Object containing the account info to create, may not be <code>null</code>.
+   * @param header the current request's HTTP headers, injected by the JAX-RS runtime.
    * @return A result object, never <code>null</code>.
    */
   @POST
@@ -60,27 +64,52 @@ public interface IPSMembershipRestService extends IPSRestService {
   /**
    * Rest service method to delete an user account.
    *
-   * @param account a {@link PSAccountSummary} object with the data to process.
+   * @param email the email relative to the account to delete, never empty or <code>null</code>.
    */
   @DELETE
   @Path("/admin/account/{email:.*}")
   public abstract void deleteAccount(@PathParam("email") String email);
 
+  /**
+   * Rest service method to look up the user for the supplied session.
+   *
+   * @param psUserSession session the user session to look up, may not be {@code null}.
+   * @return the look-up result, never {@code null}.
+   */
   @POST
   @Path("/session")
   @Produces(MediaType.APPLICATION_JSON)
   public abstract PSGetUserResult getUser(PSUserSession psUserSession);
 
+  /**
+   * Rest service method to log in the supplied credentials.
+   *
+   * @param loginRequest the login request carrying email and password, may not be {@code null}.
+   * @return the login result carrying the new session, never {@code null}.
+   */
   @POST
   @Path("/login")
   @Produces(MediaType.APPLICATION_JSON)
   public abstract PSLoginResult login(PSLoginRequest loginRequest);
 
+  /**
+   * Rest service method to destroy the session for the supplied user session.
+   *
+   * @param psUserSession the session to destroy, may not be {@code null}.
+   * @return the membership result, never {@code null}.
+   */
   @POST
   @Path("/logout")
   @Produces(MediaType.APPLICATION_JSON)
   public abstract PSMembershipResult logout(PSUserSession psUserSession);
 
+  /**
+   * Rest service method to request a password reset for the supplied email.
+   *
+   * @param resetRequest the reset request, may not be {@code null}.
+   * @param header the current request's HTTP headers, injected by the JAX-RS runtime.
+   * @return the membership result, never {@code null}.
+   */
   @POST
   @Path("/pwd/requestReset")
   @Produces(MediaType.APPLICATION_JSON)
@@ -91,8 +120,6 @@ public interface IPSMembershipRestService extends IPSRestService {
    * Rest service method to validate the reset key.
    *
    * @param resetKey String containing the token key, may not be <code>null</code>.
-   * @param resetRequest An {@link PSMembershipAccount} object with the parameters to associate the
-   *     new password to the user.
    * @return An {@link PSGetUserResult} object containing the email, may be empty but never <code>
    *     null</code>.
    */
@@ -117,11 +144,9 @@ public interface IPSMembershipRestService extends IPSRestService {
       @PathParam("resetKey") String resetKey, PSMembershipAccount resetRequest);
 
   /**
-   * Rest service method to reset the user password.
+   * Rest service method to confirm a user account via the supplied confirm key.
    *
-   * @param resetKey String containing the token key, may not be <code>null</code>.
-   * @param resetRequest An {@link PSMembershipAccount} object with the parameters to associate the
-   *     new password to the user.
+   * @param confirmKey String containing the token key, may not be <code>null</code>.
    * @return An {@link PSLoginResult} object containing the session, may be empty but never <code>
    *     null</code>.
    */
@@ -130,11 +155,21 @@ public interface IPSMembershipRestService extends IPSRestService {
   @Produces("application/json")
   public abstract PSLoginResult confirmAccount(@PathParam("rvkey") String confirmKey);
 
+  /**
+   * Rest service method to enumerate all registered users.
+   *
+   * @return a list of user summaries, never {@code null}, may be empty.
+   */
   @GET
   @Path("/admin/users")
   @Produces(MediaType.APPLICATION_JSON)
   public abstract List<PSUserSummary> findUserGroups();
 
+  /**
+   * Rest service method to update the groups for a given user.
+   *
+   * @param userSummary the user groups payload, may not be {@code null}.
+   */
   @PUT
   @Path("/admin/user/group/{siteName}")
   @Produces(MediaType.APPLICATION_JSON)
