@@ -1,163 +1,72 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 1999-2026 Percussion Software, Inc.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
-import { ActivityWidget } from '@/dashboard';
-import * as clientModule from '@/api/client';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
+import { ActivityWidget } from "@/dashboard/ActivityWidget";
+import * as gadgetApi from "@/api/dashboard/gadgetApi";
 
-// Mock the API client
-vi.mock('@/api/client', () => ({
-  get: vi.fn(),
-}));
+vi.mock("@/api/dashboard/gadgetApi", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("@/api/dashboard/gadgetApi")>();
+  return {
+    ...actual,
+    fetchContentActivity: vi.fn(),
+    resolveDefaultActivityPath: vi.fn().mockResolvedValue("/Sites/Demo"),
+  };
+});
 
-describe('ActivityWidget', () => {
+describe("ActivityWidget", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.mocked(gadgetApi.fetchContentActivity).mockReset();
+    vi.mocked(gadgetApi.resolveDefaultActivityPath)
+      .mockReset()
+      .mockResolvedValue("/Sites/Demo");
   });
 
-  it('should render loading state initially', () => {
-    vi.mocked(clientModule.get).mockImplementation(
-      () =>
-        new Promise((resolve) => {
-          // Never resolve to keep loading state
-          setTimeout(() => resolve({ entries: [], totalCount: 0 }), 10000);
-        })
+  it("shows empty state when no activity rows", async () => {
+    vi.mocked(gadgetApi.fetchContentActivity).mockResolvedValue([]);
+    render(<ActivityWidget refreshInterval={0} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("activity-widget-empty")).toBeDefined();
+    });
+  });
+
+  it("renders content activity metrics", async () => {
+    vi.mocked(gadgetApi.fetchContentActivity).mockResolvedValue([
+      {
+        name: "Demo",
+        siteName: "Demo",
+        publishedItems: 5,
+        pendingItems: 2,
+        newItems: 1,
+        updatedItems: 3,
+        archivedItems: 0,
+      },
+    ]);
+    render(<ActivityWidget refreshInterval={0} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("activity-widget-list")).toBeDefined();
+    });
+    expect(screen.getByText("Demo")).toBeDefined();
+    expect(screen.getByText(/Published:\s*5/)).toBeDefined();
+    expect(screen.getByText(/Pending:\s*2/)).toBeDefined();
+    expect(gadgetApi.fetchContentActivity).toHaveBeenCalledWith(
+      "/Sites/Demo",
+      "days",
+      30,
     );
-
-    render(<ActivityWidget />);
-    expect(screen.getByText(/loading activity/i)).toBeInTheDocument();
   });
 
-  it('should render activity entries from API response', async () => {
-    const mockData = {
-      entries: [
-        {
-          id: '1',
-          timestamp: new Date().toISOString(),
-          type: 'publish',
-          description: 'Published content',
-          user: 'admin',
-          contentName: 'Homepage',
-        },
-        {
-          id: '2',
-          timestamp: new Date(Date.now() - 3600000).toISOString(),
-          type: 'revise',
-          description: 'Revised content',
-          user: 'editor',
-          contentName: 'About Page',
-        },
-      ],
-      totalCount: 2,
-    };
-
-    vi.mocked(clientModule.get).mockResolvedValue(mockData);
-
-    render(<ActivityWidget />);
-
+  it("shows error on API failure", async () => {
+    vi.mocked(gadgetApi.fetchContentActivity).mockRejectedValue(
+      new Error("boom"),
+    );
+    render(<ActivityWidget refreshInterval={0} />);
     await waitFor(() => {
-      expect(screen.getByText('Published content')).toBeInTheDocument();
-      expect(screen.getByText('Revised content')).toBeInTheDocument();
-      expect(screen.getByText('Homepage')).toBeInTheDocument();
-      expect(screen.getByText('About Page')).toBeInTheDocument();
+      expect(screen.getByTestId("activity-widget-error")).toBeDefined();
     });
-  });
-
-  it('should render error message on API failure', async () => {
-    const error = new Error('Failed to load activity');
-    vi.mocked(clientModule.get).mockRejectedValue(error);
-
-    render(<ActivityWidget />);
-
-    await waitFor(() => {
-      expect(screen.getByText(/failed to load activity/i)).toBeInTheDocument();
-    });
-  });
-
-  it('should render no recent activity message when list is empty', async () => {
-    const mockData = {
-      entries: [],
-      totalCount: 0,
-    };
-
-    vi.mocked(clientModule.get).mockResolvedValue(mockData);
-
-    render(<ActivityWidget />);
-
-    await waitFor(() => {
-      expect(screen.getByText(/no recent activity/i)).toBeInTheDocument();
-    });
-  });
-
-  it('should call API with max entries parameter', async () => {
-    const mockData = {
-      entries: [],
-      totalCount: 0,
-    };
-
-    vi.mocked(clientModule.get).mockResolvedValue(mockData);
-
-    render(<ActivityWidget maxEntries={20} />);
-
-    await waitFor(() => {
-      expect(clientModule.get).toHaveBeenCalledWith(
-        '/services/activity/contentactivity?limit=20'
-      );
-    });
-  });
-
-  it('should render custom title', async () => {
-    const mockData = {
-      entries: [],
-      totalCount: 0,
-    };
-
-    vi.mocked(clientModule.get).mockResolvedValue(mockData);
-
-    render(<ActivityWidget title="System Activity" />);
-
-    await waitFor(() => {
-      expect(screen.getByText('System Activity')).toBeInTheDocument();
-    });
-  });
-
-  it('should format time correctly', async () => {
-    const now = new Date();
-    const oneHourAgo = new Date(now.getTime() - 3600000);
-
-    const mockData = {
-      entries: [
-        {
-          id: '1',
-          timestamp: oneHourAgo.toISOString(),
-          type: 'publish',
-          description: 'Published content',
-        },
-      ],
-      totalCount: 1,
-    };
-
-    vi.mocked(clientModule.get).mockResolvedValue(mockData);
-
-    render(<ActivityWidget />);
-
-    await waitFor(() => {
-      expect(screen.getByText(/1h ago/)).toBeInTheDocument();
-    });
+    expect(screen.getByText(/boom/)).toBeDefined();
   });
 });

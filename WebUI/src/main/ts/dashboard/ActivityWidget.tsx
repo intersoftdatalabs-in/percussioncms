@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,112 +15,78 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from 'react';
-import { get } from '../api/client';
-import { styles } from './dashboard.styles';
-
-interface ActivityEntry {
-  id: string;
-  timestamp: string;
-  type: string;
-  description: string;
-  user?: string;
-  contentName?: string;
-}
-
-interface ActivityData {
-  entries: ActivityEntry[];
-  totalCount: number;
-}
+import React, { useCallback, useEffect, useState } from "react";
+import { isSessionRedirectError } from "../api/client";
+import {
+  fetchContentActivity,
+  resolveDefaultActivityPath,
+  type ActivityDurationType,
+  type ContentActivityRow,
+} from "../api/dashboard/gadgetApi";
+import { formatApiError } from "../api/home/homeApi";
+import { styles } from "./dashboard.styles";
 
 export interface ActivityWidgetProps {
   title?: string;
-  maxEntries?: number;
+  /** CMS path (default: first site or /Sites/). */
+  path?: string;
+  durationType?: ActivityDurationType;
+  /** Duration length (default 30). */
+  duration?: number;
   refreshInterval?: number;
 }
 
 /**
- * ActivityWidget displays recent content activity and user actions.
- * Fetches data from the activity REST endpoint and shows a timeline of recent changes.
+ * Classic **Activity** gadget — content activity metrics by path/duration.
+ *
+ * <p>Server: {@code POST /services/activitymanagement/activity/contentactivity}
+ * with {@code ContentActivityRequest}. Not a user-action timeline.</p>
  */
 export const ActivityWidget: React.FC<ActivityWidgetProps> = ({
-  title = 'Recent Activity',
-  maxEntries = 10,
+  title = "Activity",
+  path: pathProp,
+  durationType = "days",
+  duration = 30,
   refreshInterval = 60000,
 }) => {
-  const [data, setData] = useState<ActivityData | null>(null);
+  const [rows, setRows] = useState<ContentActivityRow[]>([]);
+  const [resolvedPath, setResolvedPath] = useState<string>(pathProp ?? "");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchActivity = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        // Call activity REST endpoint
-        const response = await get<ActivityData>(
-          `/services/activity/contentactivity?limit=${maxEntries}`
-        );
-
-        setData(response);
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : 'Failed to load activity';
-        setError(errorMessage);
-        console.error('ActivityWidget error:', err);
-      } finally {
-        setIsLoading(false);
+  const load = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const path =
+        pathProp?.trim() || (await resolveDefaultActivityPath());
+      setResolvedPath(path);
+      const data = await fetchContentActivity(path, durationType, duration);
+      setRows(data);
+    } catch (err: unknown) {
+      if (isSessionRedirectError(err)) {
+        return;
       }
-    };
+      setError(formatApiError(err, "Failed to load content activity"));
+      setRows([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [pathProp, durationType, duration]);
 
-    // Fetch immediately
-    fetchActivity();
-
-    // Set up refresh interval if specified
-    const interval =
-      refreshInterval > 0
-        ? setInterval(fetchActivity, refreshInterval)
-        : undefined;
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [maxEntries, refreshInterval]);
-
-  const getActivityIcon = (type: string): string => {
-    const iconMap: Record<string, string> = {
-      publish: '📤',
-      revise: '✏️',
-      create: '📝',
-      delete: '🗑️',
-      update: '🔄',
-      approve: '✅',
-      reject: '❌',
-      comment: '💬',
-    };
-    return iconMap[type.toLowerCase()] || '📌';
-  };
-
-  const formatTime = (timestamp: string): string => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 1) return 'just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
-    return date.toLocaleDateString();
-  };
+  useEffect(() => {
+    void load();
+    if (refreshInterval <= 0) {
+      return;
+    }
+    const id = window.setInterval(() => void load(), refreshInterval);
+    return () => window.clearInterval(id);
+  }, [load, refreshInterval]);
 
   const renderContent = () => {
     if (isLoading) {
       return (
-        <div style={styles.widgetLoading}>
+        <div style={styles.widgetLoading} data-testid="activity-widget-loading">
           <p>Loading activity...</p>
         </div>
       );
@@ -128,66 +94,70 @@ export const ActivityWidget: React.FC<ActivityWidgetProps> = ({
 
     if (error) {
       return (
-        <div style={styles.widgetError}>
+        <div style={styles.widgetError} data-testid="activity-widget-error">
           <p>Error: {error}</p>
         </div>
       );
     }
 
-    if (!data || !data.entries || data.entries.length === 0) {
+    if (rows.length === 0) {
       return (
-        <div style={styles.widgetContent}>
-          <p>No recent activity</p>
+        <div style={styles.widgetContent} data-testid="activity-widget-empty">
+          <p>No content activity for this path and duration.</p>
+          {resolvedPath ? (
+            <p style={{ fontSize: "0.85em", color: "#666" }}>
+              Path: {resolvedPath} · last {duration} {durationType}
+            </p>
+          ) : null}
         </div>
       );
     }
 
     return (
-      <div style={styles.widgetContent}>
-        <div style={{ listStyle: 'none', padding: 0, margin: 0 } as React.CSSProperties}>
-          {data.entries.map((entry, index) => (
-            <div
-              key={entry.id || index}
+      <div style={styles.widgetContent} data-testid="activity-widget-list">
+        <p style={{ fontSize: "0.85em", color: "#666", marginTop: 0 }}>
+          {resolvedPath} · last {duration} {durationType}
+        </p>
+        <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+          {rows.map((row, index) => (
+            <li
+              key={`${row.path ?? row.name}-${index}`}
               style={{
-                padding: '10px 0',
-                borderBottom: '1px solid #e0e0e0',
-                display: 'flex',
-                gap: '10px',
-                alignItems: 'flex-start',
-              } as React.CSSProperties}
+                padding: "10px 0",
+                borderBottom: "1px solid #e0e0e0",
+              }}
             >
-              <div style={{ fontSize: '1.2em', minWidth: '24px' }}>
-                {getActivityIcon(entry.type)}
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 500, color: '#333', fontSize: '0.95em' }}>
-                  {entry.description}
+              <div style={{ fontWeight: 600, color: "#333" }}>{row.name}</div>
+              {row.siteName && row.siteName !== row.name ? (
+                <div style={{ fontSize: "0.8em", color: "#666" }}>
+                  Site: {row.siteName}
                 </div>
-                <div
-                  style={{
-                    fontSize: '0.8em',
-                    color: '#666',
-                    marginTop: '2px',
-                  } as React.CSSProperties}
-                >
-                  {entry.contentName && (
-                    <div>{entry.contentName}</div>
-                  )}
-                  <div style={{ color: '#999' }}>
-                    {entry.user && `by ${entry.user} • `}
-                    {formatTime(entry.timestamp)}
-                  </div>
-                </div>
+              ) : null}
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "8px 12px",
+                  marginTop: "6px",
+                  fontSize: "0.85em",
+                  color: "#444",
+                }}
+              >
+                <span>Published: {row.publishedItems}</span>
+                <span>Pending: {row.pendingItems}</span>
+                <span>New: {row.newItems}</span>
+                <span>Updated: {row.updatedItems}</span>
+                <span>Archived: {row.archivedItems}</span>
               </div>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     );
   };
 
   return (
-    <div style={styles.widget}>
+    <div style={styles.widget} data-testid="activity-widget">
       <div style={styles.widgetTitle}>{title}</div>
       {renderContent()}
     </div>

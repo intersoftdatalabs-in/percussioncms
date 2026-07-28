@@ -75,16 +75,16 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
   },
   {
     id: "workflow",
-    name: "Workflow Status",
+    name: "Pages By Status",
     component: WorkflowStatusWidget,
-    description: "Page workflow status overview",
+    description: "Pages grouped by workflow state (classic Pages By Status)",
     category: "Content Management",
   },
   {
     id: "activity",
     name: "Activity",
     component: ActivityWidget,
-    description: "Recent content activity timeline",
+    description: "Content activity metrics by path and duration",
     // GadgetRegistry.xml group "Deprecated" (v8.1.7 #722 / #885)
     category: "Deprecated",
   },
@@ -219,6 +219,11 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
   },
 ];
 
+/**
+ * Default Home Gadgets layout — only widgets with verified sitemanage APIs.
+ * Assets By Status and other invented-endpoint shells stay in AVAILABLE_GADGETS
+ * for optional add, but are not auto-mounted (they still 500/404).
+ */
 const DEFAULT_GADGETS: DashboardWidget[] = [
   {
     id: "welcome",
@@ -236,7 +241,7 @@ const DEFAULT_GADGETS: DashboardWidget[] = [
   },
   {
     id: "workflow",
-    name: "Workflow Status",
+    name: "Pages By Status",
     component: WorkflowStatusWidget,
     props: {},
     position: { column: "left", order: 2 },
@@ -247,13 +252,6 @@ const DEFAULT_GADGETS: DashboardWidget[] = [
     component: ActivityWidget,
     props: {},
     position: { column: "right", order: 0 },
-  },
-  {
-    id: "assets-status",
-    name: "Assets By Status",
-    component: AssetsStatusWidget,
-    props: {},
-    position: { column: "right", order: 1 },
   },
 ];
 
