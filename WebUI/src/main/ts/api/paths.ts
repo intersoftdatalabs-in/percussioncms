@@ -182,6 +182,28 @@ export const PATHS = {
   get COOKIE_CONSENT_TOTALS() {
     return `${SERVICES_ROOT}/delivery/consent/log/totals`;
   },
+  get COOKIE_CONSENT_TOTALS_SITE() {
+    return `${SERVICES_ROOT}/delivery/consent/log/totals`;
+  },
+  /** Pages with comments (proxies DTS comments service). */
+  get COMMENTS_PAGES_WITH_COMMENTS() {
+    return `${SERVICES_ROOT}/delivery/comment/pageswithcomments`;
+  },
+  /** Membership users for a site (proxies DTS membership). */
+  get MEMBERSHIP_USERS() {
+    return `${SERVICES_ROOT}/delivery/membership/admin/users`;
+  },
+  /** Non-SEO pages (classic SEO Audit gadget). POST NonSEOPagesRequest. */
+  get PAGE_NON_SEO() {
+    return `${SERVICES_ROOT}/pagemanagement/page/nonSEOPages`;
+  },
+  /** Siteimprove integration (token / publish config). */
+  get SITEIMPROVE_TOKEN() {
+    return `${SERVICES_ROOT}/integrations/siteimprove/token`;
+  },
+  get SITEIMPROVE_PUBLISH_CONFIG() {
+    return `${SERVICES_ROOT}/integrations/siteimprove/publish/config`;
+  },
   /**
    * Google Analytics provider config (classic Google Setup gadget).
    * GET/POST/DELETE {@code /analytics/provider/config}

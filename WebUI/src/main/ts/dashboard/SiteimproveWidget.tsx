@@ -15,36 +15,14 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from 'react';
-import { get } from '../api/client';
-import { styles } from './dashboard.styles';
-
-interface AccessibilityMetric {
-  level?: string;
-  score?: number;
-  status?: string;
-}
-
-interface QualityMetric {
-  level?: string;
-  score?: number;
-  status?: string;
-}
-
-interface SiteimproveData {
-  accessibility?: AccessibilityMetric;
-  quality?: QualityMetric;
-  integrated?: boolean;
-  accountId?: string;
-  lastChecked?: string;
-}
-
-interface SiteimproveResponse {
-  siteimprove?: SiteimproveData;
-  data?: SiteimproveData;
-  analytics?: SiteimproveData;
-  [key: string]: unknown;
-}
+import React, { useCallback, useEffect, useState } from "react";
+import { isSessionRedirectError } from "../api/client";
+import {
+  fetchSiteimproveStatus,
+  type SiteimproveStatus,
+} from "../api/dashboard/deliveryGadgetsApi";
+import { formatApiError } from "../api/home/homeApi";
+import { styles } from "./dashboard.styles";
 
 export interface SiteimproveWidgetProps {
   title?: string;
@@ -52,187 +30,94 @@ export interface SiteimproveWidgetProps {
 }
 
 /**
- * SiteimproveWidget displays accessibility and quality metrics from Siteimprove.
- * Shows accessibility levels, quality scores, and integration status.
+ * Classic **Siteimprove** gadget — integration status (token + site config).
+ *
+ * <p>Real APIs under {@code /services/integrations/siteimprove/*}.
+ * Invented {@code /services/siteimprove/metrics} does not exist.</p>
  */
 export const SiteimproveWidget: React.FC<SiteimproveWidgetProps> = ({
-  title = 'Siteimprove',
-  refreshInterval,
+  title = "Siteimprove",
+  refreshInterval = 120000,
 }) => {
-  const [data, setData] = useState<SiteimproveData | null>(null);
+  const [status, setStatus] = useState<SiteimproveStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
+  const load = useCallback(async () => {
+    try {
       setIsLoading(true);
-      try {
-        const response = await get<SiteimproveResponse>('/services/siteimprove/metrics');
-        let siteimproveData: SiteimproveData | null = null;
-
-        if (response.siteimprove) {
-          siteimproveData = response.siteimprove;
-        } else if (response.data) {
-          siteimproveData = response.data;
-        } else if (response.analytics) {
-          siteimproveData = response.analytics;
-        } else if (typeof response === 'object' && ('accessibility' in response || 'quality' in response)) {
-          siteimproveData = {
-            accessibility: (response as Record<string, unknown>).accessibility as AccessibilityMetric | undefined,
-            quality: (response as Record<string, unknown>).quality as QualityMetric | undefined,
-            integrated: (response as Record<string, unknown>).integrated as boolean | undefined,
-            accountId: (response as Record<string, unknown>).accountId as string | undefined,
-            lastChecked: (response as Record<string, unknown>).lastChecked as string | undefined,
-          };
-        }
-
-        setData(siteimproveData);
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load Siteimprove data';
-        setError(errorMessage);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-    if (refreshInterval) {
-      const interval = setInterval(fetchData, refreshInterval * 1000);
-      return () => clearInterval(interval);
+      setError(null);
+      setStatus(await fetchSiteimproveStatus());
+    } catch (err: unknown) {
+      if (isSessionRedirectError(err)) return;
+      setError(formatApiError(err, "Failed to load Siteimprove status"));
+      setStatus(null);
+    } finally {
+      setIsLoading(false);
     }
-  }, [refreshInterval]);
+  }, []);
+
+  useEffect(() => {
+    void load();
+    if (refreshInterval <= 0) return;
+    const id = window.setInterval(() => void load(), refreshInterval);
+    return () => window.clearInterval(id);
+  }, [load, refreshInterval]);
 
   if (isLoading) {
     return (
-      <div style={styles.widget}>
+      <div style={styles.widget} data-testid="siteimprove-widget">
         <div style={styles.widgetTitle}>{title}</div>
-        <div style={styles.widgetLoading}>Loading Siteimprove data...</div>
+        <div style={styles.widgetLoading}>Loading Siteimprove...</div>
       </div>
     );
   }
-
   if (error) {
     return (
-      <div style={styles.widget}>
+      <div style={styles.widget} data-testid="siteimprove-widget">
         <div style={styles.widgetTitle}>{title}</div>
-        <div style={styles.widgetError}>{error}</div>
+        <div style={styles.widgetError} data-testid="siteimprove-error">
+          {error}
+        </div>
       </div>
     );
   }
 
-  if (!data) {
-    return (
-      <div style={styles.widget}>
-        <div style={styles.widgetTitle}>{title}</div>
-        <div style={styles.widgetContent}>No Siteimprove data available</div>
-      </div>
-    );
-  }
-
-  const getAccessibilityColor = (level?: string): string => {
-    if (!level) return '#999';
-    const normalized = level.toUpperCase();
-    return { 'AAA': '#107c10', 'AA': '#0f7938', 'A': '#f7630c', 'FAIL': '#d13438' }[normalized] || '#999';
-  };
-
-  const getQualityColor = (score?: number): string => {
-    if (score === undefined) return '#999';
-    if (score >= 90) return '#107c10';
-    if (score >= 80) return '#0f7938';
-    if (score >= 70) return '#f7630c';
-    return '#d13438';
-  };
-
+  const ok = status?.hasToken;
   return (
-    <div style={styles.widget}>
+    <div style={styles.widget} data-testid="siteimprove-widget">
       <div style={styles.widgetTitle}>{title}</div>
-      <div style={styles.widgetContent}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' } as React.CSSProperties}>
-          {/* Integration Status */}
-          <div
-            style={{
-              padding: '8px',
-              backgroundColor: data.integrated ? '#d4f4dd' : '#fff3cd',
-              color: data.integrated ? '#0f5132' : '#664d03',
-              borderRadius: '3px',
-              fontSize: '0.8em',
-              fontWeight: '600',
-              textAlign: 'center',
-            }}
-          >
-            {data.integrated ? '✓ Connected' : '✕ Not Connected'}
-          </div>
-
-          {/* Accessibility Score */}
-          {data.accessibility && (
-            <div style={{ borderTop: '1px solid #eee', paddingTop: '8px' }}>
-              <div style={{ fontSize: '0.85em', fontWeight: '600', marginBottom: '4px', color: '#333' }}>
-                Accessibility Level
-              </div>
-              <div
-                style={{
-                  padding: '8px',
-                  backgroundColor: getAccessibilityColor(data.accessibility.level),
-                  color: '#fff',
-                  borderRadius: '3px',
-                  fontSize: '1.1em',
-                  fontWeight: '700',
-                  textAlign: 'center',
-                  letterSpacing: '1px',
-                }}
-              >
-                {data.accessibility.level || 'N/A'}
-              </div>
-              {data.accessibility.status && (
-                <div style={{ fontSize: '0.7em', color: '#666', marginTop: '4px', textAlign: 'center' }}>
-                  Status: {data.accessibility.status}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Quality Score */}
-          {data.quality && (
-            <div style={{ borderTop: '1px solid #eee', paddingTop: '8px' }}>
-              <div style={{ fontSize: '0.85em', fontWeight: '600', marginBottom: '4px', color: '#333' }}>
-                Quality Score
-              </div>
-              <div
-                style={{
-                  padding: '8px',
-                  backgroundColor: getQualityColor(data.quality.score),
-                  color: '#fff',
-                  borderRadius: '3px',
-                  fontSize: '1.1em',
-                  fontWeight: '700',
-                  textAlign: 'center',
-                }}
-              >
-                {data.quality.score !== undefined ? `${data.quality.score}%` : 'N/A'}
-              </div>
-              {data.quality.status && (
-                <div style={{ fontSize: '0.7em', color: '#666', marginTop: '4px', textAlign: 'center' }}>
-                  Status: {data.quality.status}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Account ID */}
-          {data.accountId && (
-            <div style={{ fontSize: '0.7em', color: '#999', marginTop: '4px', paddingTop: '8px', borderTop: '1px solid #eee' }}>
-              Account: {data.accountId}
-            </div>
-          )}
-
-          {/* Last Checked */}
-          {data.lastChecked && (
-            <div style={{ fontSize: '0.7em', color: '#999', marginTop: '2px' }}>
-              Last checked: {data.lastChecked}
-            </div>
+      <div style={styles.widgetContent} data-testid="siteimprove-status">
+        <div style={{ marginBottom: "8px" }}>
+          <strong>API token:</strong>{" "}
+          {ok ? (
+            <span style={{ color: "#28a745" }}>
+              Configured
+              {status?.tokenPreview ? ` (${status.tokenPreview})` : ""}
+            </span>
+          ) : (
+            <span style={{ color: "#dc3545" }}>Not configured</span>
           )}
         </div>
+        <div style={{ marginBottom: "8px", fontSize: "0.9em" }}>
+          <strong>Site:</strong> {status?.siteName || "—"}
+        </div>
+        <div style={{ fontSize: "0.9em" }}>
+          <strong>Publish config:</strong>{" "}
+          {status?.siteConfigPresent ? (
+            <span style={{ color: "#28a745" }}>Present</span>
+          ) : (
+            <span style={{ color: "#999" }}>None for this site</span>
+          )}
+        </div>
+        <p style={{ fontSize: "0.8em", color: "#666", marginTop: "12px" }}>
+          Live accessibility/quality scores are not exposed by a CMS metrics
+          REST endpoint. Configure Siteimprove token and per-site publish
+          settings in Admin / classic integration UI.
+        </p>
       </div>
     </div>
   );
 };
+
+export default SiteimproveWidget;

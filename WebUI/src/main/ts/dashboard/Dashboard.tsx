@@ -223,9 +223,10 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
 ];
 
 /**
- * Default Home Gadgets layout — widgets with verified sitemanage APIs.
- * Remaining catalog entries (Traffic, Effectiveness, SEO, etc.) stay optional
- * until rewritten off invented endpoints.
+ * Default Home Gadgets layout — verified CMS/DTS APIs only.
+ * Delivery-backed gadgets (Comments, Cookie Consent, Membership) and SEO /
+ * Siteimprove are available via Add Gadget; shells without REST peers stay
+ * honest “not available” placeholders.
  */
 const DEFAULT_GADGETS: DashboardWidget[] = [
   {
@@ -290,6 +291,20 @@ const DEFAULT_GADGETS: DashboardWidget[] = [
     component: EffectivenessWidget,
     props: {},
     position: { column: "right", order: 4 },
+  },
+  {
+    id: "forms-tracker",
+    name: "Form Tracker",
+    component: FormsTrackerWidget,
+    props: {},
+    position: { column: "left", order: 4 },
+  },
+  {
+    id: "comments",
+    name: "Comments",
+    component: CommentsWidget,
+    props: {},
+    position: { column: "right", order: 5 },
   },
 ];
 
