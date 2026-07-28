@@ -99,7 +99,7 @@ See **[gaps-from-home.md](./gaps-from-home.md)** for the living list. Summary:
 |------|----------------|
 | Home Recent / Bookmarks / Library / Search / Create page | Largely landed (#1568–#1574) |
 | Gadgets host + Blogs gadget + blog template **filter** | #1577 |
-| FTS body HTML extract (assembly connection null) | #1561 residual — Engineering, not Design SPA |
+| FTS body HTML extract (assembly connection null) | [issue #1561](https://github.com/intersoftdatalabs-in/percussioncms/issues/1561) residual — Engineering, not Design SPA |
 | Publish SPA | Wave 2 after Home acceptance policy |
 
 ## 6. Open questions (capture answers here later)

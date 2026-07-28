@@ -30,6 +30,6 @@ Keep descriptions factual; link PR/issue when fixed.
 
 ## Non-goals for this file
 
-- FTS HTML body extract / Hibernate connection null (#1561) — engineering residual, not Design SPA
+- FTS HTML body extract / Hibernate connection null ([issue #1561](https://github.com/intersoftdatalabs-in/percussioncms/issues/1561)) — engineering residual, not Design SPA
 - Publish editions/contexts — Publish wave
 - Full Active Assembly page editor — separate mega-track
