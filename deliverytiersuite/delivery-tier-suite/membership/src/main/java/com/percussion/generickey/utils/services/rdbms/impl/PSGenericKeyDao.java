@@ -30,20 +30,37 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * JPA-backed implementation of {@link IPSGenericKeyDao}. Maps {@link PSGenericKey} rows to {@link
+ * IPSGenericKey} via Hibernate criteria queries on the injected {@link SessionFactory}.
+ *
+ * @author leonardohildt
+ */
 @Transactional
 public class PSGenericKeyDao implements IPSGenericKeyDao {
 
+  /** The Hibernate session factory, may be {@code null} before Spring wires it. */
   private SessionFactory sessionFactory;
 
+  /**
+   * Constructs a new DAO with the supplied session factory.
+   *
+   * @param sessionFactory the Hibernate session factory, may not be <code>null</code>.
+   */
   @Autowired
   public PSGenericKeyDao(SessionFactory sessionFactory) {
     this.sessionFactory = sessionFactory;
   }
 
-  // Default constructor for Spring property injection (backward compatibility)
+  /** Default constructor for Spring property injection (backward compatibility). */
   public PSGenericKeyDao() {}
 
-  // Setter retained for legacy bean definitions using property injection
+  /**
+   * Sets the Hibernate session factory. Retained for legacy bean definitions using property
+   * injection.
+   *
+   * @param sessionFactory the Hibernate session factory, may not be <code>null</code>.
+   */
   public void setSessionFactory(SessionFactory sessionFactory) {
     this.sessionFactory = sessionFactory;
   }

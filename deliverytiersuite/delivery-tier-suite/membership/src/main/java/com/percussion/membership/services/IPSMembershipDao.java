@@ -57,6 +57,7 @@ public interface IPSMembershipDao {
    *
    * @param userId The member's user id, may not be <code>null</code> or empty.
    * @param password The member's password, may not be <code>null</code> or empty.
+   * @param status The member's initial status, may not be <code>null</code>.
    * @return The member, never <code>null</code>.
    * @throws PSMemberExistsException if a member with that user name already exists.
    * @throws Exception if there are any errors.
@@ -74,10 +75,9 @@ public interface IPSMembershipDao {
   public void saveMember(IPSMembership member) throws Exception;
 
   /**
-   * Get all membership accounts
+   * Get all membership accounts.
    *
-   * <p>Deprecated for performance reasons: @see {@link
-   * IPSMembershipDao.findMembers(PSDefaultRangedPage pager)}
+   * <p>Deprecated for performance reasons: prefer {@link IPSMembershipDao#findMembers()}.
    *
    * @return A list of all members, sorted ascending by userId, never <code>null</code>, may be
    *     empty.

@@ -30,8 +30,11 @@ public interface IPSMembership {
    * @author rafaelsalis
    */
   public static enum PSMemberStatus {
+    /** The member is blocked from using the system. */
     Blocked,
+    /** The member is active and may use the system. */
     Active,
+    /** The member has registered but not yet confirmed the account. */
     Unconfirmed;
   }
 

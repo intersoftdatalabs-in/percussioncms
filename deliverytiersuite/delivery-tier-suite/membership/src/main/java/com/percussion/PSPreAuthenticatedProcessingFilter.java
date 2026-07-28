@@ -50,6 +50,11 @@ public class PSPreAuthenticatedProcessingFilter extends AbstractPreAuthenticated
   private static final String DELIVERY_MANAGER_ROLE = "deliverymanager";
   private static final String ANONYMOUS_ROLE = "ANONYMOUS";
 
+  /**
+   * Default constructor for the filter. Wires up a {@link PSAuthenticationDetailsSource} so the
+   * filter can build authentication tokens on each request.
+   */
+  @SuppressWarnings("this-escape")
   public PSPreAuthenticatedProcessingFilter() {
     setAuthenticationDetailsSource(new PSAuthenticationDetailsSource());
   }
@@ -74,6 +79,9 @@ public class PSPreAuthenticatedProcessingFilter extends AbstractPreAuthenticated
   public static class PSAuthenticationDetailsSource
       implements AuthenticationDetailsSource<
           HttpServletRequest, PreAuthenticatedAuthenticationToken> {
+
+    /** Default constructor for the static nested class. */
+    public PSAuthenticationDetailsSource() {}
 
     @Override
     public PreAuthenticatedAuthenticationToken buildDetails(HttpServletRequest request) {

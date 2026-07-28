@@ -40,13 +40,19 @@ import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
+ * JPA-backed implementation of {@link IPSMembershipDao}. Maps {@link PSMembership} rows to {@link
+ * IPSMembership} via criteria queries on the Hibernate {@link SessionFactory}.
+ *
  * @author jayseletz
  */
 public class PSMembershipDao implements IPSMembershipDao {
 
   private static final Logger log = LogManager.getLogger(PSMembershipDao.class);
 
+  /** Status action that activates an account. */
   private static final String ACTION_ACTIVATE = "Activate";
+
+  /** Status action that blocks an account. */
   private static final String ACTION_BLOCK = "Block";
 
   @Override
@@ -79,6 +85,11 @@ public class PSMembershipDao implements IPSMembershipDao {
 
   private final SessionFactory sessionFactory;
 
+  /**
+   * Constructs a new DAO.
+   *
+   * @param sessionFactory the Hibernate session factory to use, may not be <code>null</code>.
+   */
   public PSMembershipDao(SessionFactory sessionFactory) {
     this.sessionFactory = sessionFactory;
   }

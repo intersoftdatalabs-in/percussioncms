@@ -16,11 +16,21 @@
  */
 package com.percussion.membership.services;
 
+/**
+ * Thrown when a password reset request cannot be processed (for example, expired or invalid
+ * confirmation key, or other validation failure).
+ *
+ * @author Percussion Software
+ */
 public class PSResetPwdException extends Exception {
 
-  /** */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Constructs a new exception with the given detail message.
+   *
+   * @param message the detail message, may not be {@code null}.
+   */
   public PSResetPwdException(String message) {
     super(message);
   }

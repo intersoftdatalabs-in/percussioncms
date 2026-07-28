@@ -33,8 +33,14 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class PSGenericKeyService implements IPSGenericKeyService {
 
+  /** The DAO used to persist and query keys. Never <code>null</code> after construction. */
   private IPSGenericKeyDao dao;
 
+  /**
+   * Constructs a new generic key service.
+   *
+   * @param dao the generic key DAO to use, may not be <code>null</code>.
+   */
   @Autowired
   public PSGenericKeyService(IPSGenericKeyDao dao) {
     Validate.notNull(dao);

@@ -18,10 +18,26 @@ package com.percussion.membership.data;
 
 import org.apache.commons.lang3.Validate;
 
+/**
+ * Carries the groups associated with a user account.
+ *
+ * @author Percussion Software
+ */
 public class PSUserGroup {
+  /** The user's email address. */
   private String email;
+
+  /** The user's groups, may be empty or {@code null}. */
   private String groups;
 
+  /** Default constructor for use by serialization frameworks. */
+  public PSUserGroup() {}
+
+  /**
+   * Sets the user's email.
+   *
+   * @param email the email, may not be empty or {@code null}.
+   */
   public void setEmail(String email) {
     Validate.notEmpty(email);
     this.email = email;
@@ -37,6 +53,8 @@ public class PSUserGroup {
   }
 
   /**
+   * Sets the groups the user belongs to.
+   *
    * @param groups the groups to set, may be empty or <code>null</code>.
    */
   public void setGroups(String groups) {
@@ -44,6 +62,8 @@ public class PSUserGroup {
   }
 
   /**
+   * Gets the groups the user belongs to.
+   *
    * @return the groups, may be empty or <code>null</code>.
    */
   public String getGroups() {

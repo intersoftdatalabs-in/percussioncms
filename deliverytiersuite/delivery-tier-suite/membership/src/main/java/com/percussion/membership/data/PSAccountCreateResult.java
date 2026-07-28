@@ -24,11 +24,23 @@ package com.percussion.membership.data;
 public class PSAccountCreateResult extends PSMembershipResult {
   private String sessionId;
 
+  /**
+   * Constructs a new account creation result.
+   *
+   * @param status the status of the create operation, never {@code null}.
+   * @param message the detail message associated with the status, may be {@code null}.
+   * @param sessionId the session id of the newly created account, may be {@code null}.
+   */
   public PSAccountCreateResult(STATUS status, String message, String sessionId) {
     super(status, message);
     this.sessionId = sessionId;
   }
 
+  /**
+   * Gets the session id of the newly created account.
+   *
+   * @return the session id, may be {@code null} when no session has been created.
+   */
   public String getSessionId() {
     return sessionId;
   }

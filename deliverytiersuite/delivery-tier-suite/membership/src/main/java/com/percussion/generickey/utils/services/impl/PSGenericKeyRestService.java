@@ -29,12 +29,23 @@ import org.apache.commons.lang3.Validate;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+/**
+ * REST/Webservice layer that exposes {@link IPSGenericKeyService} under {@code /key}. Creates,
+ * validates and deletes time-limited generic keys.
+ *
+ * @author leonardohildt
+ */
 @Path("/key")
 @Component
 @Scope("singleton")
 public class PSGenericKeyRestService {
 
   private IPSGenericKeyService genericKeyService;
+
+  /**
+   * Default constructor for frameworks that require it (e.g. Jersey).
+   */
+  public PSGenericKeyRestService() {}
 
   /**
    * Ctor, autowired by spring.
@@ -49,10 +60,8 @@ public class PSGenericKeyRestService {
   /**
    * Creates a reset key.
    *
-   * <p>
-   *
    * @return the reset key value generated.
-   * @throws WebApplicationException
+   * @throws WebApplicationException if the underlying service fails.
    */
   @POST
   @Path("/requestKey")
@@ -71,11 +80,9 @@ public class PSGenericKeyRestService {
    * Processes the reset key provided, and if exists, compare the reset date against with the
    * current date, to determine if the key is still valid.
    *
-   * <p>
-   *
-   * @param key the reset key to delete. Never <code>null</code>, or empty.
+   * @param key the reset key to validate. Never <code>null</code>, or empty.
    * @return true if the key is valid, otherwise false.
-   * @throws WebApplicationException
+   * @throws WebApplicationException if the underlying service fails.
    */
   @POST
   @Path("/isvalid/{key}")
@@ -95,7 +102,7 @@ public class PSGenericKeyRestService {
    * Exception.
    *
    * @param key The reset key to delete. Never <code>null</code>, or empty.
-   * @throws WebApplicationException
+   * @throws WebApplicationException if the underlying service fails or the key is unknown.
    */
   @DELETE
   @Path("/{key}")

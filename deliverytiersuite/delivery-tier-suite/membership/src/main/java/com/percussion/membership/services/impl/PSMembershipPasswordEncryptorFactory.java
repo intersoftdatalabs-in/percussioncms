@@ -25,6 +25,17 @@ import org.jasypt.util.password.PasswordEncryptor;
  * @author JaySeletz
  */
 public class PSMembershipPasswordEncryptorFactory {
+
+  /**
+   * Default constructor. The factory methods are all static; this class cannot be instantiated.
+   */
+  public PSMembershipPasswordEncryptorFactory() {}
+
+  /**
+   * Returns a configured {@link PasswordEncryptor} using SHA-256 as the digest algorithm.
+   *
+   * @return a configured password encryptor, never {@code null}.
+   */
   public static PasswordEncryptor getPasswordEncryptor() {
     ConfigurablePasswordEncryptor passwordEncryptor = new ConfigurablePasswordEncryptor();
     passwordEncryptor.setAlgorithm("SHA-256");

@@ -16,9 +16,19 @@
  */
 package com.percussion.membership.services;
 
+/**
+ * Thrown when membership authentication fails for the supplied credentials.
+ *
+ * @author Percussion Software
+ */
 public class PSAuthenticationFailedException extends Exception {
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Constructs a new exception with the given detail message.
+   *
+   * @param string the detail message, may not be {@code null}.
+   */
   public PSAuthenticationFailedException(String string) {
     super(string);
   }

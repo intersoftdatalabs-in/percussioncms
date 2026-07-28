@@ -77,6 +77,7 @@ public interface IPSMembershipService {
    * Destroys the session for the supplied session id
    *
    * @param sessionId The id, if not valid then method silently returns
+   * @throws Exception If there are any unexpected errors.
    */
   public void logout(String sessionId) throws Exception;
 
@@ -107,10 +108,11 @@ public interface IPSMembershipService {
    * @param resetKey The reset key to validate, not <code>null</code> or empty.
    * @return The summary for the user, not <code>null</code>.
    * @throws PSResetPwdException if the reset key is invalid.
+   * @throws PSAuthenticationFailedException if the member cannot be authenticated.
    * @throws Exception If there are any unexpected errors.
    */
   public PSUserSummary validatePwdResetKey(String resetKey)
-      throws PSAuthenticationFailedException, Exception;
+      throws PSResetPwdException, PSAuthenticationFailedException, Exception;
 
   /**
    * Find the user account given the supplied parameters, and set the new password.
@@ -119,17 +121,18 @@ public interface IPSMembershipService {
    * @param email Used as the user id for the account, may not be <code>null</code> or empty.
    * @param password The password for the account, may not be <code>null</code> or empty.
    * @return The session id for the user, not <code>null</code> or empty.
-   * @throws PSMemberExistsException if a member with that user name already exists.
+   * @throws PSResetPwdException if the supplied reset key is invalid or expired.
    * @throws PSAuthenticationFailedException if the member cannot be authenticated.
-   * @throws Exceptions If there are any unexpected errors.
+   * @throws Exception If there are any unexpected errors.
    */
   public String resetPwd(String resetKey, String email, String password)
-      throws PSAuthenticationFailedException, Exception;
+      throws PSResetPwdException, PSAuthenticationFailedException, Exception;
 
   /**
    * Changes the state of an account.
    *
    * @param account a {@link PSAccountSummary} object with the data to process.
+   * @throws Exception If there are any unexpected errors.
    */
   public void changeStateAccount(PSAccountSummary account) throws Exception;
 
@@ -137,6 +140,7 @@ public interface IPSMembershipService {
    * Deletes an account.
    *
    * @param email the email relative to the account to delete, never empty or <code>null</code>.
+   * @throws Exception If there are any unexpected errors.
    */
   public void deleteAccount(String email) throws Exception;
 
@@ -145,16 +149,21 @@ public interface IPSMembershipService {
    *
    * @param confirmKey String containing the token key, may not be <code>null</code>.
    * @return The id for the user, not <code>null</code> may be empty.
+   * @throws PSResetPwdException if the confirm key is invalid, expired, or the user is already
+   *     confirmed.
    * @throws PSAuthenticationFailedException if the member cannot be authenticated.
-   * @throws Exceptions If there are any unexpected errors.
+   * @throws Exception If there are any unexpected errors.
    */
-  public String confirmAccount(String confirmKey) throws PSAuthenticationFailedException, Exception;
+  public String confirmAccount(String confirmKey)
+      throws PSAuthenticationFailedException, PSResetPwdException, Exception;
 
   /**
-   * Set the groups for a given user
+   * Set the groups for a given user.
    *
-   * @param email the user email to update.
-   * @param groups the user groups to set.
+   * @param email the user email to update, may not be {@code null}.
+   * @param groups the user groups to set, may not be {@code null}.
+   * @throws PSAuthenticationFailedException if the member cannot be authenticated.
+   * @throws Exception if there are any unexpected errors.
    */
   public void setUserGroups(String email, String groups)
       throws PSAuthenticationFailedException, Exception;

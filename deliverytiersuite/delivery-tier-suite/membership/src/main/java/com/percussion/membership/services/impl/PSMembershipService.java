@@ -52,29 +52,49 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class PSMembershipService implements IPSMembershipService {
 
+  /** The auth provider, may be {@code null} until setAuthProvider has been called. */
   private IPSAuthProvider authProvider;
+
+  /** The membership DAO, never {@code null} after construction. */
   private IPSMembershipDao dao;
+
+  /** The session timeout in minutes, may be 0 if not configured. */
   private int sessionTimeOut;
+
+  /** The HTTP client for email helpers, may be {@code null} before Spring wires it. */
   private PSHttpClient client;
+
+  /** The email helper, may be {@code null} before Spring wires it. */
   private IPSEmailHelper emailHelper;
+
+  /** The generic key service used for confirm and reset flows, may be {@code null} before Spring wires it. */
   private IPSGenericKeyService genericKeyService;
 
   @Context HttpServletRequest request;
 
   /**
-   * @return the genericKeyService
+   * Gets the generic key service.
+   *
+   * @return the genericKeyService, may be {@code null} before Spring wires it.
    */
   public IPSGenericKeyService getGenericKeyService() {
     return genericKeyService;
   }
 
   /**
-   * @param genericKeyService the genericKeyService to set
+   * Sets the generic key service.
+   *
+   * @param genericKeyService the generic key service, may not be {@code null}.
    */
   public void setGenericKeyService(IPSGenericKeyService genericKeyService) {
     this.genericKeyService = genericKeyService;
   }
 
+  /**
+   * Constructs a new membership service.
+   *
+   * @param dao the membership DAO to use, may not be {@code null}.
+   */
   @Autowired
   public PSMembershipService(IPSMembershipDao dao) {
     Validate.notNull(dao);
@@ -342,6 +362,11 @@ public class PSMembershipService implements IPSMembershipService {
     return login(email, password);
   }
 
+  /**
+   * Sets the auth provider.
+   *
+   * @param authProvider the auth provider to use, may not be {@code null}.
+   */
   public void setAuthProvider(IPSAuthProvider authProvider) {
     Validate.notNull(authProvider);
     this.authProvider = authProvider;
@@ -349,7 +374,7 @@ public class PSMembershipService implements IPSMembershipService {
 
   @Override
   public String confirmAccount(String confirmKey)
-      throws PSAuthenticationFailedException, Exception {
+      throws PSAuthenticationFailedException, PSResetPwdException, Exception {
     Validate.notEmpty(confirmKey);
     String memberEmail = StringUtils.EMPTY;
 
@@ -447,16 +472,16 @@ public class PSMembershipService implements IPSMembershipService {
   /**
    * Internal accessor method to get the http client
    *
-   * @return The currently configured http client, never <code>null</code>.
+   * @return The currently configured http client, may be <code>null</code>.
    */
   private PSHttpClient getClient() {
     return client;
   }
 
   /**
-   * Sets http client
+   * Sets the http client.
    *
-   * @param client
+   * @param client the http client to use, may not be {@code null}.
    */
   public void setClient(PSHttpClient client) {
     this.client = client;
@@ -465,16 +490,16 @@ public class PSMembershipService implements IPSMembershipService {
   /**
    * Internal accessor method to the email helper
    *
-   * @return The currently configured email helper client, never <code>null</code>.
+   * @return The currently configured email helper client, may be <code>null</code>.
    */
   public IPSEmailHelper getEmailHelper() {
     return emailHelper;
   }
 
   /**
-   * Sets the email helper
+   * Sets the email helper.
    *
-   * @param emailHelper
+   * @param emailHelper the email helper to use, may not be {@code null}.
    */
   public void setEmailHelper(IPSEmailHelper emailHelper) {
     this.emailHelper = emailHelper;

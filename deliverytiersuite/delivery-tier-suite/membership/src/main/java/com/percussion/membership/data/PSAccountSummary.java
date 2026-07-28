@@ -19,17 +19,23 @@ package com.percussion.membership.data;
 import org.apache.commons.lang3.Validate;
 
 /**
- * Object to change the state about of an account.
+ * Carries the summary data for changing the state of a member account.
  *
  * @author rafaelsalis
  */
 public class PSAccountSummary {
+  /** The email of the account. Never empty or <code>null</code>. */
   private String email;
+
+  /** The action to perform over the account. Never empty or <code>null</code>. */
   private String action;
 
+  /** Default constructor for use by serialization frameworks. */
   public PSAccountSummary() {}
 
   /**
+   * Gets the email of the account.
+   *
    * @return the email of the account, never empty or <code>null</code>.
    */
   public String getEmail() {
@@ -37,6 +43,8 @@ public class PSAccountSummary {
   }
 
   /**
+   * Sets the email of the account.
+   *
    * @param email the email of the account, never empty or <code>null</code>.
    */
   public void setEmail(String email) {
@@ -45,6 +53,8 @@ public class PSAccountSummary {
   }
 
   /**
+   * Gets the action to perform over the account.
+   *
    * @return the action of the account, never empty or <code>null</code>.
    */
   public String getAction() {
@@ -52,6 +62,8 @@ public class PSAccountSummary {
   }
 
   /**
+   * Sets the action to perform over the account.
+   *
    * @param action set the action to perform over the account, never empty or <code>null</code>.
    */
   public void setAction(String action) {

@@ -32,10 +32,18 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author JaySeletz
  */
 public class PSMembershipAuthProvider implements IPSAuthProvider {
+  /** The DAO used to look up members. Never <code>null</code> after construction. */
   private IPSMembershipDao dao;
+
+  /** Message used for failed authentication. Never empty or <code>null</code>. */
   public static final String LOGIN_ERROR_MESSAGE =
       "Authentication failed, invalid username or password";
 
+  /**
+   * Constructs a new auth provider.
+   *
+   * @param dao the membership DAO to use, may not be <code>null</code>.
+   */
   @Autowired
   public PSMembershipAuthProvider(IPSMembershipDao dao) {
     this.dao = dao;

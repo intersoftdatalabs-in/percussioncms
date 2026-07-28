@@ -75,6 +75,7 @@ public class PSMembershipRestService extends PSAbstractRestService
 
   private static final Logger log = LogManager.getLogger(PSMembershipRestService.class);
 
+  /** Default constructor for frameworks that require it (e.g. Jersey). */
   public PSMembershipRestService() {}
 
   /**
@@ -87,6 +88,13 @@ public class PSMembershipRestService extends PSAbstractRestService
     membershipService = service;
   }
 
+  /**
+   * Sets up CSRF-related headers by echoing the XSRF-TOKEN cookie value as the X-XSRF-TOKEN header
+   * for CSRF-aware callers.
+   *
+   * @param request the current request, supplied by the JAX-RS runtime.
+   * @param response the current response, supplied by the JAX-RS runtime.
+   */
   @HEAD
   @Path("/csrf")
   public void csrf(@Context HttpServletRequest request, @Context HttpServletResponse response) {
