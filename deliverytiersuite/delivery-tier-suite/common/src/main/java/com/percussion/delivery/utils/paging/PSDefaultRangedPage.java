@@ -18,6 +18,7 @@ package com.percussion.delivery.utils.paging;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.commons.lang3.Validate;
 
 /**
  * Provides a generic implementation of a Ranged Page object.
@@ -133,8 +134,10 @@ public class PSDefaultRangedPage implements IPSRangedPage {
    * Copy-constructs a ranged page from the supplied source.
    *
    * @param page the source ranged page whose state is copied, never <code>null</code>.
+   * @throws IllegalArgumentException if {@code page} is <code>null</code>.
    */
   public PSDefaultRangedPage(IPSRangedPage page) {
+    Validate.notNull(page);
     this.direction = page.getDirection();
     this.pageFields = (ConcurrentHashMap<String, Object>) page.getPageFields();
     this.pageSize = page.getPageSize();
