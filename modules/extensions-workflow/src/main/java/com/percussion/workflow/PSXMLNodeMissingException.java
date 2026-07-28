@@ -18,6 +18,9 @@ package com.percussion.workflow;
 
 import com.percussion.error.PSException;
 
+/**
+ * Exception thrown when a required XML node is missing while processing workflow data.
+ */
 public class PSXMLNodeMissingException extends PSException {
   private static final long serialVersionUID = 1L;
 

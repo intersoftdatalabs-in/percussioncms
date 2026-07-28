@@ -30,7 +30,14 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+/**
+ * Builds a visual representation of a workflow's states and transitions, used to preview the
+ * workflow. This class extends {@link PSPostExitHandler} so it can be wired as a result document
+ * post exit.
+ */
 public class PreviewWorkflow extends PSPostExitHandler {
+
+  /** Default constructor. */
   public PreviewWorkflow() {}
 
   /**

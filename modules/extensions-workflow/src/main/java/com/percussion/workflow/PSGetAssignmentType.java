@@ -37,7 +37,7 @@ import org.w3c.dom.Element;
  * <p>This UDF evaluates the assignment type to an image given the contentid of the item and image
  * url options. Assignment value (which is a number) is evaluated based on the current state of the
  * workflow of the item. Currently supported assignment types are defined in {@link
- * com.percussion.workflow.PSWorkflowUtils}. The UDF takes the content id as the first parameter and
+ * PSWorkFlowUtils}. The UDF takes the content id as the first parameter and
  * the rest are the image url options for each possible assignmenttype in asending order by value.
  *
  * <p>The image urls can either be standard Applet Url in the syntax of "../app/resource.gif" or the
@@ -47,6 +47,9 @@ import org.w3c.dom.Element;
  * images match the normal icon images in the content explorer.
  */
 public class PSGetAssignmentType extends PSSimpleJavaUdfExtension implements IPSUdfProcessor {
+
+  /** Default constructor for the extension framework. */
+  public PSGetAssignmentType() {}
 
   private static final Logger log = LogManager.getLogger(PSGetAssignmentType.class);
 

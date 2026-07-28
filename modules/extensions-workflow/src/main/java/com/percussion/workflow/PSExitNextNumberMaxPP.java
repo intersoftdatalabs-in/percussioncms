@@ -36,6 +36,10 @@ import org.apache.logging.log4j.Logger;
 @Deprecated
 public class PSExitNextNumberMaxPP implements IPSRequestPreProcessor {
 
+  /** Default constructor for the extension framework. */
+  public PSExitNextNumberMaxPP() {}
+
+
   private static PSExitNextNumber newNextNumberExt = new PSExitNextNumber();
   private static final Logger log = LogManager.getLogger(IPSConstants.WORKFLOW_LOG);
 

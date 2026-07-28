@@ -52,12 +52,13 @@ public interface IPSTransitionNotificationsContext {
    * Return value indicating which state role recipients should receive notification: none,
    * from-state, to-state or both (for the current notification data set).
    *
-   * <ul>
-   *   <li>NO_STATE_ROLE_RECIPIENTS for No State Role recipients
-   *   <li>ONLY_NEW_STATE_ROLE_RECIPIENTS for To State Role recipients only
-   *   <li>ONLY_OLD_STATE_ROLE_RECIPIENTS for From State Role recipients only
-   *   <li>OLD_AND_NEW_STATE_ROLE_RECIPIENTS for Both To and From State Role recipients
-   * </ul>
+   * @return one of:
+   *     <ul>
+   *       <li>{@link #NO_STATE_ROLE_RECIPIENTS} for No State Role recipients
+   *       <li>{@link #ONLY_NEW_STATE_ROLE_RECIPIENTS} for To State Role recipients only
+   *       <li>{@link #ONLY_OLD_STATE_ROLE_RECIPIENTS} for From State Role recipients only
+   *       <li>{@link #OLD_AND_NEW_STATE_ROLE_RECIPIENTS} for Both To and From State Role recipients
+   *     </ul>
    */
   public int getStateRoleRecipientTypes();
 

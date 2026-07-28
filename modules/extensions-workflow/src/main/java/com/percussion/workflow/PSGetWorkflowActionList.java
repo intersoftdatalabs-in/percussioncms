@@ -35,6 +35,10 @@ import org.w3c.dom.Element;
 
 /** Adds a list of all installed workflow action extensions to the result XML document. */
 public class PSGetWorkflowActionList implements IPSResultDocumentProcessor {
+
+  /** Default constructor for the extension framework. */
+  public PSGetWorkflowActionList() {}
+
   /*
    * Flag to indicate indicating that this exit has not been initialized yet.
    */

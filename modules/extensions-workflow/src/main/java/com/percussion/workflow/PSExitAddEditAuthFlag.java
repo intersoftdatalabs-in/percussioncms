@@ -49,6 +49,10 @@ import org.w3c.dom.Element;
  */
 public class PSExitAddEditAuthFlag implements IPSResultDocumentProcessor {
 
+  /** Default constructor for the extension framework. */
+  public PSExitAddEditAuthFlag() {}
+
+
   private static final Logger log = LogManager.getLogger(PSExitAddEditAuthFlag.class);
 
   /*

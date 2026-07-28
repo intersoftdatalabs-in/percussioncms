@@ -26,6 +26,10 @@ import com.percussion.server.IPSRequestContext;
  * first param is the checked out user name, not the content id of the item.
  */
 public class PSGetUserCheckoutStatus extends PSGetCheckoutStatus {
+
+  /** Default constructor for the extension framework. */
+  public PSGetUserCheckoutStatus() {}
+
   /**
    * See base class for more info. The only difference is that this method expects the first
    * parameter to be the checkedout user name. May be <code>null</code> or empty.

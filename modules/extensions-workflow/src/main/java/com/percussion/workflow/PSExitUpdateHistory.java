@@ -53,6 +53,10 @@ import org.w3c.dom.Element;
 
 /** Updates the status history context for this transition or checkout or checkin action. */
 public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
+
+  /** Default constructor for the extension framework. */
+  public PSExitUpdateHistory() {}
+
   /** The fully qualified name of this extension. */
   private String m_fullExtensionName = "";
 

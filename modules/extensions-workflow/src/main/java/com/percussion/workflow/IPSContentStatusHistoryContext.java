@@ -165,18 +165,13 @@ public interface IPSContentStatusHistoryContext {
 
   /**
    * Closes the transition context freeing all JDBC resources.
-   *
-   * @author Ram
-   * @version 1.0
    */
   public void close();
 
   /**
    * Indicates whether the set of history records for this content item is empty.
    *
-   * @author Ram
-   * @version 1.0
-   * @return <CODE>true</CODE> if no history records for this content item else <CODE>false</CODE>
+   * @return <CODE>true</CODE> if no history records for this content item else <CODE>false</CODE>.
    */
   public boolean isEmpty();
 
@@ -184,9 +179,8 @@ public interface IPSContentStatusHistoryContext {
    * Moves the database cursor to the next transition in the list, making data available, trimming
    * whitespace around string data.
    *
-   * @author Ram
-   * @version 1.0
    * @return <CODE>true</CODE> if cursor movement is successful, else <CODE>false</CODE>.
+   * @throws SQLException if an SQL error occurs while advancing the cursor.
    */
   public boolean moveNext() throws SQLException;
 }

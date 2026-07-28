@@ -34,6 +34,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
+/**
+ * Base class for result document post-exit handlers used by the workflow debugging extension. Logs
+ * details of the request, its input XML document and the result document for debugging purposes.
+ */
 public class PSPostExitHandler implements IPSResultDocumentProcessor {
   private static final Logger log = LogManager.getLogger(PSPostExitHandler.class);
 
@@ -50,7 +54,16 @@ public class PSPostExitHandler implements IPSResultDocumentProcessor {
     // nothing to initialize
   }
 
-  /** This is the main request processing handler */
+  /**
+   * This is the main request processing handler. It logs details of the request, its input XML
+   * document and the result document to the workflow log for debugging purposes, and returns the
+   * supplied result document unchanged.
+   *
+   * @param params the parameters for this extension, unused.
+   * @param request the current request context, may be <code>null</code>.
+   * @param resDoc the result XML document, may be <code>null</code>.
+   * @return the supplied result document, possibly <code>null</code>.
+   */
   public Document processResultDocument(Object[] params, IPSRequestContext request, Document resDoc)
       throws PSParameterMismatchException, PSExtensionProcessingException {
     log.info("");
@@ -104,6 +117,12 @@ public class PSPostExitHandler implements IPSResultDocumentProcessor {
     return resDoc;
   }
 
+  /**
+   * Logs the contents of the supplied request context (application name, request URL, CGI
+   * variables, HTML parameters and response cookies) to the workflow log for debugging.
+   *
+   * @param request the request context to log, must not be <code>null</code>.
+   */
   public static void printRequestContext(IPSRequestContext request) {
     log.info("");
     log.info("Contents of the Request Context...");
@@ -132,6 +151,11 @@ public class PSPostExitHandler implements IPSResultDocumentProcessor {
     printMap(request.getResponseCookies());
   }
 
+  /**
+   * Logs the contents of the supplied map to the workflow log for debugging.
+   *
+   * @param map the map to log, may be <code>null</code>.
+   */
   public static void printMap(Map map) {
     if (null == map) {
       log.info("Map containing the list is null");
@@ -151,6 +175,12 @@ public class PSPostExitHandler implements IPSResultDocumentProcessor {
     }
   }
 
+  /**
+   * Logs a single name/value pair to the workflow log for debugging.
+   *
+   * @param value the value to log, may be <code>null</code>.
+   * @param name the name to associate with the value, may be <code>null</code>.
+   */
   public static void printString(String value, String name) {
     log.info("{} = {}", name, value);
     log.info("");

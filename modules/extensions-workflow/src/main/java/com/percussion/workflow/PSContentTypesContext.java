@@ -23,6 +23,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Concrete implementation of {@link IPSContentTypesContext} that loads content type metadata from
+ * the database.
+ */
 @Deprecated
 public class PSContentTypesContext implements IPSContentTypesContext {
   private boolean invokedStandalone = false;
@@ -38,6 +42,15 @@ public class PSContentTypesContext implements IPSContentTypesContext {
   String m_sContentTypeQueryRequest = "";
   String m_sContentTypeUpdateRequest = "";
 
+  /**
+   * Constructs a content types context for the supplied content type by loading its row from the
+   * database.
+   *
+   * @param connection the database connection to use, must not be <code>null</code>.
+   * @param contentTypeID the ID of the content type to load.
+   * @throws SQLException if an SQL error occurs while loading the row.
+   * @throws PSEntryNotFoundException if no row exists for the supplied content type ID.
+   */
   public PSContentTypesContext(Connection connection, int contentTypeID)
       throws SQLException, PSEntryNotFoundException {
     this.contentTypeID = contentTypeID;

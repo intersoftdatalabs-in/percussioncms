@@ -145,6 +145,12 @@ public class PSStateRolesContext implements IPSStateRolesContext {
     return m_StateRoleIDs;
   }
 
+  /**
+   * Gets a list of state role names corresponding to the state role IDs in {@link
+   * #getStateRoleIDs()}.
+   *
+   * @return a new list of role names, never <code>null</code>.
+   */
   public List<String> getStateRoleNames() {
     return new ArrayList<>(m_stateRoleNameMap.values());
   }

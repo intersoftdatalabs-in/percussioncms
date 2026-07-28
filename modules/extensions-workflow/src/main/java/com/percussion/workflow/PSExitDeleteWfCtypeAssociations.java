@@ -54,6 +54,9 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSExitDeleteWfCtypeAssociations implements IPSRequestPreProcessor {
 
+  /** Default constructor for the extension framework. */
+  public PSExitDeleteWfCtypeAssociations() {}
+
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSAuthorizationException,
           PSRequestValidationException,

@@ -56,6 +56,10 @@ import org.w3c.dom.*;
  * @author RammohanVangapalli
  */
 public class PSCreateTranslations implements IPSWorkflowAction {
+
+  /** Default constructor for the extension framework. */
+  public PSCreateTranslations() {}
+
   /* (non-Javadoc)
    * @see com.percussion.extension.IPSWorkflowAction#performAction(
    * com.percussion.extension.IPSWorkFlowContext,

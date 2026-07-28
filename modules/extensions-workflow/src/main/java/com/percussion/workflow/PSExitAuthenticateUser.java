@@ -43,7 +43,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Pre-processor exit that authenticates the current user against the workflow role requirements of
+ * the request, populating authorization flags used by downstream processing.
+ */
 public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
+
+  /** Default constructor for the extension framework. */
+  public PSExitAuthenticateUser() {}
+
   Logger log = LogManager.getLogger(IPSConstants.WORKFLOW_LOG);
 
   /**

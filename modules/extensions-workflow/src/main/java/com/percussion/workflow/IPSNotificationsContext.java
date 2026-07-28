@@ -29,20 +29,14 @@ public interface IPSNotificationsContext {
   /**
    * Gets the subject field for the current entry in the context.
    *
-   * @author Ram
-   * @version 1.0
-   * @param none
-   * @return subject
+   * @return the subject for the current entry in the context.
    */
   public String getSubject();
 
   /**
    * Gets Body field for the current entry in the context.
    *
-   * @author Ram
-   * @version 1.0
-   * @param none
-   * @return Body
+   * @return the body for the current entry in the context.
    */
   public String getBody();
 }

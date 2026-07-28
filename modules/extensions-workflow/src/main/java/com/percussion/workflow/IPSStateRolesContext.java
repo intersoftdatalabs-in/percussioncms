@@ -17,6 +17,9 @@
 
 package com.percussion.workflow;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * An interface that defines methods for State-Roles Context. The table joins are hidden from the
  * user.
@@ -24,10 +27,8 @@ package com.percussion.workflow;
  * @author Rammohan Vangapalli
  * @version 1.0
  * @since 2.0
+ * @deprecated
  */
-import java.util.List;
-import java.util.Map;
-
 @Deprecated
 public interface IPSStateRolesContext {
   /**
@@ -106,20 +107,14 @@ public interface IPSStateRolesContext {
    * Gets the number of roles assgined for the current state. This is more than 1 formultiple
    * assignments.
    *
-   * @author Ram
-   * @version 1.0
-   * @param none
-   * @return role count as int
+   * @return the role count as an int.
    */
   public int getStateRoleCount();
 
   /**
    * Indicates whether the context has any entries.
    *
-   * @author Ram
-   * @version 1.0
-   * @param none
-   * @return <CODE>true</CODE> if empty, else <CODE>false</CODE>
+   * @return <CODE>true</CODE> if empty, else <CODE>false</CODE>.
    */
   public boolean isEmpty();
 }

@@ -55,6 +55,10 @@ import org.apache.logging.log4j.Logger;
  * #WORKFLOW_ROLE_INFO_PRIVATE_OBJECT }
  */
 public class PSWorkflowRoleInfoStatic {
+
+  /** Default constructor. */
+  public PSWorkflowRoleInfoStatic() {}
+
   /* Manipulate state role information */
 
   /**
@@ -72,29 +76,23 @@ public class PSWorkflowRoleInfoStatic {
 
   /* Obtain actor and role information */
 
-  /*
-   * Get list of state roles in which a user is acting, including adhoc roles
+  /**
+   * Get list of state roles in which a user is acting, including adhoc roles.
    *
-   * @param contentID          ID of the content item
-   * @param src                context of state roles meeting the minimum
-   *                           assignment types, may not be <CODE>null</CODE>
-   *                           or empty
-   * @param userName           The user's name, cannot be <CODE>null</CODE>
-   * @param userRoleNameList   A comma-delimited list of the user's roles,
-   *                           may not be <CODE>null</CODE> or empty
-   * @param connection         database connection, may be not be
-   *                           <CODE>null</CODE>
-   * @param authUser           if true indicates that PSExitAuthenticateUser
-   *                           is the caller, false otherwise
-   *
-   * @return                   list of state roles in which a user is acting
-   *                           <CODE>null</CODE> if the user has no roles
-   *
-   * @throws                   SQLException if a SQL error occurs
-   * @throws                   IllegalArgumentException if any of the input
-   *                           parameters is not valid.
-   * @throws                   PSRoleException if the content adhoc user
-   *                           records contain invalid data
+   * @param contentID ID of the content item
+   * @param src context of state roles meeting the minimum assignment types, may not be <code>null
+   *     </code> or empty
+   * @param userName the user's name, cannot be <code>null</code>
+   * @param userRoleNames a comma-delimited list of the user's roles, may not be <code>null</code>
+   *     or empty
+   * @param connection database connection, may be not be <code>null</code>
+   * @param authUser if true indicates that {@link PSExitAuthenticateUser} is the caller, false
+   *     otherwise
+   * @return list of state roles in which a user is acting, <code>null</code> if the user has no
+   *     roles
+   * @throws SQLException if a SQL error occurs
+   * @throws IllegalArgumentException if any of the input parameters is not valid.
+   * @throws PSRoleException if the content adhoc user records contain invalid data
    */
   public static List<Integer> getActorRoles(
       int contentID,
@@ -139,23 +137,20 @@ public class PSWorkflowRoleInfoStatic {
     return actorRoles;
   }
 
-  /*
-   * Get list of state roles in which a user is acting, including adhoc roles
+  /**
+   * Get list of state roles in which a user is acting, including adhoc roles.
    *
-   * @param userName           The user's name, cannot be <CODE>null</CODE>
-   *                           or empty
-   * @param userRoleNames      A comma-delimited list of the user's roles.
-   *                           may be <CODE>null</CODE> or empty
-   * @param src                context of state roles meeting the minimum
-   *                           assignment types, cannot be <CODE>null</CODE>
-   * @param cauc               ad hoc user context for the content item
-   *                           not <CODE>null</CODE>
-   * @param authUser           if true indicates that PSExitAuthenticateUser
-   *                           is the caller, false otherwise
-   * @return                   list of state roles in which a user is acting,
-   *                           <CODE>null</CODE> if the user has no roles
-   * @throws                   IllegalArgumentException if any of the input
-   *                           parameters is not valid.
+   * @param userName the user's name, cannot be <code>null</code> or empty
+   * @param userRoleNames a comma-delimited list of the user's roles, may be <code>null</code> or
+   *     empty
+   * @param src context of state roles meeting the minimum assignment types, cannot be <code>null
+   *     </code>
+   * @param cauc ad hoc user context for the content item, not <code>null</code>
+   * @param authUser if true indicates that {@link PSExitAuthenticateUser} is the caller, false
+   *     otherwise
+   * @return list of state roles in which a user is acting, <code>null</code> if the user has no
+   *     roles
+   * @throws IllegalArgumentException if any of the input parameters is not valid.
    */
   public static List<Integer> getActorRoles(
       String userName,
@@ -1088,7 +1083,7 @@ public class PSWorkflowRoleInfoStatic {
    *     are sent, may be <code>null</code> to ignore the community filter.
    * @return a list (never <CODE>null</CODE> may be empty) containing for each role subject, either
    *     <ul>
-   *       <li>their email address(es) given by the system global email address attribute, or </
+   *       <li>their email address(es) given by the system global email address attribute, or
    *       <li>
    *       <li>their subject name
    *     </ul>
@@ -1146,7 +1141,7 @@ public class PSWorkflowRoleInfoStatic {
    *     are sent, may be <code>null</code> to ignore the community filter.
    * @return a list containing for each role subject, either
    *     <ul>
-   *       <li>their email address(es) given by the system global email address attribute, or </
+   *       <li>their email address(es) given by the system global email address attribute, or
    *       <li>
    *       <li>their subject name
    *     </ul>
@@ -1198,10 +1193,14 @@ public class PSWorkflowRoleInfoStatic {
   }
 
   /**
-   * @param princes
-   * @param contentid
-   * @param revisionid
-   * @throws Exception
+   * Filters the supplied collection of principals by the community of the supplied content item and
+   * by folder security if folder security overrides workflow security.
+   *
+   * @param princes the principals to filter, may be <code>null</code>.
+   * @param contentid the content id whose community is used as the filter.
+   * @param revisionid the revision id of the content item.
+   * @return the filtered set of principals, never <code>null</code>.
+   * @throws Exception if an error occurs while accessing role manager state.
    */
   protected static Set<IPSTypedPrincipal> filterPrincipalsByCommunityAndFolderSecurity(
       final Collection<IPSTypedPrincipal> princes, final int contentid, int revisionid)
@@ -1299,7 +1298,7 @@ public class PSWorkflowRoleInfoStatic {
    *     are sent, may be <code>null</code> to ignore the ccommunity filter.
    * @return a list (never <CODE>null</CODE> may be empty) containing for each subject, either
    *     <ul>
-   *       <li>their email address(es) given by the system global email address attribute, or </
+   *       <li>their email address(es) given by the system global email address attribute, or
    *       <li>
    *       <li>their subject name
    *     </ul>
@@ -1354,7 +1353,7 @@ public class PSWorkflowRoleInfoStatic {
    *     are sent, may be <code>null</code> to ignore the community filter.
    * @return a list either
    *     <ul>
-   *       <li>the email address(es) given by the system global email address attribute, or </
+   *       <li>the email address(es) given by the system global email address attribute, or
    *       <li>
    *       <li>the subject name
    *     </ul>

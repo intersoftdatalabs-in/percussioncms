@@ -17,6 +17,8 @@
 
 package com.percussion.workflow;
 
+import java.sql.SQLException;
+
 /**
  * An interface that defines methods for content types context.
  *
@@ -25,61 +27,50 @@ package com.percussion.workflow;
  * @since 2.0
  * @deprecated
  */
-import java.sql.SQLException;
-
 @Deprecated
 public interface IPSContentTypesContext {
   /**
    * Gets Query Request for the current entry in the context.
    *
-   * @author Ram
-   * @version 1.0
-   * @param quesry request
+   * @return the query request string for the current entry in the context.
+   * @throws SQLException if an SQL error occurs while building the request.
    */
   public String getContentTypeQueryRequest() throws SQLException;
 
   /**
    * Gets Update Request for the current entry in the context.
    *
-   * @author Ram
-   * @version 1.0
-   * @param update request
+   * @return the update request string for the current entry in the context.
+   * @throws SQLException if an SQL error occurs while building the request.
    */
   public String getContentTypeUpdateRequest() throws SQLException;
 
   /**
    * Gets New Request for the current entry in the context.
    *
-   * @author Ram
-   * @version 1.0
-   * @param new request
+   * @return the new request string for the current entry in the context.
+   * @throws SQLException if an SQL error occurs while building the request.
    */
   public String getContentTypeNewRequest() throws SQLException;
 
   /**
    * Gets content type name for the current entry in the context.
    *
-   * @author Ram
-   * @version 1.0
-   * @param content type name
+   * @return the content type name for the current entry in the context.
+   * @throws SQLException if an SQL error occurs while accessing the data.
    */
   public String getContentTypeName() throws SQLException;
 
   /**
    * Gets content type description for the current entry in the context.
    *
-   * @author Ram
-   * @version 1.0
-   * @param content type description
+   * @return the content type description for the current entry in the context.
+   * @throws SQLException if an SQL error occurs while accessing the data.
    */
   public String getContentTypeDescription() throws SQLException;
 
   /**
    * Closes the context freeing all JDBC resources.
-   *
-   * @author Ram
-   * @version 1.0
-   * @param none
    */
   public void close();
 }
