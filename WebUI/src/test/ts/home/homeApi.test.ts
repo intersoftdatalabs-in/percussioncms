@@ -202,25 +202,21 @@ describe("homeApi", () => {
     expect(init.method).toBe("DELETE");
   });
 
-  it("isMyPage parses text/plain boolean and prefers Accept text/plain", async () => {
+  it("isMyPage parses JSON boolean body with standard Accept", async () => {
     const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>;
-    fetchMock.mockResolvedValue({
-      ok: true,
-      status: 200,
-      statusText: "OK",
-      headers: {
-        get: (name: string) =>
-          name.toLowerCase() === "content-type" ? "text/plain" : null,
-      },
-      text: async () => "true",
-      json: async () => {
-        throw new Error("not json");
-      },
-    });
+    fetchMock.mockResolvedValue(mockJsonResponse(true));
     await expect(isMyPage("p1")).resolves.toBe(true);
-    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toContain("/itemmanagement/item/ismypage/");
+    expect(url).toContain("p1");
     const headers = new Headers(init.headers as HeadersInit);
-    expect(headers.get("Accept") ?? "").toMatch(/text\/plain/i);
+    expect(headers.get("Accept") ?? "").toMatch(/application\/json/i);
+  });
+
+  it("isMyPage treats JSON false as not bookmarked", async () => {
+    const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>;
+    fetchMock.mockResolvedValue(mockJsonResponse(false));
+    await expect(isMyPage("p2")).resolves.toBe(false);
   });
 
   it("contentItemId and isBookmarkableItem helpers", () => {
