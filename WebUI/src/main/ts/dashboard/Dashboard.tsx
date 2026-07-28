@@ -267,6 +267,13 @@ const DEFAULT_GADGETS: DashboardWidget[] = [
     props: {},
     position: { column: "right", order: 2 },
   },
+  {
+    id: "google-setup",
+    name: "Google Setup",
+    component: GoogleSetupWidget,
+    props: {},
+    position: { column: "left", order: 3 },
+  },
 ];
 
 export interface DashboardProps {
