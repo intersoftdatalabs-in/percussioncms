@@ -192,6 +192,124 @@ export async function fetchTemplatesForSite(
 }
 
 /**
+ * Widget definition ids for blog templates.
+ * Blog List (index) → percBlogIndexPage; Blog Post → percBlogPost.
+ */
+export const BLOG_LIST_WIDGET_ID = "percBlogIndexPage";
+export const BLOG_POST_WIDGET_ID = "percBlogPost";
+
+/** Load full template (includes region → widget associations). */
+export async function fetchTemplate(templateId: string): Promise<unknown> {
+  return get<unknown>(
+    `${PATHS.TEMPLATE_LOAD}/${encodeURIComponent(templateId)}`,
+  );
+}
+
+/** Max walk depth for template JSON (guards pathological nesting / cycles). */
+const TEMPLATE_WIDGET_WALK_MAX_DEPTH = 32;
+
+/**
+ * Collect widget definitionIds from a loaded template JSON (Template.regionTree).
+ * Uses iterative DFS with a depth limit to avoid stack overflow on deep trees.
+ */
+export function extractTemplateWidgetDefinitionIds(raw: unknown): string[] {
+  const ids = new Set<string>();
+  const root =
+    raw && typeof raw === "object" && "Template" in (raw as object)
+      ? (raw as { Template: unknown }).Template
+      : raw;
+
+  type Frame = { node: unknown; depth: number };
+  const stack: Frame[] = [];
+  if (root && typeof root === "object") {
+    const t = root as Record<string, unknown>;
+    stack.push({ node: t.regionTree, depth: 0 });
+    stack.push({ node: t.regionWidgetAssociations, depth: 0 });
+    stack.push({ node: t.widgets, depth: 0 });
+  } else {
+    stack.push({ node: root, depth: 0 });
+  }
+
+  while (stack.length > 0) {
+    const frame = stack.pop();
+    if (!frame) break;
+    const { node, depth } = frame;
+    if (node == null || depth > TEMPLATE_WIDGET_WALK_MAX_DEPTH) continue;
+    if (Array.isArray(node)) {
+      for (const n of node) {
+        stack.push({ node: n, depth: depth + 1 });
+      }
+      continue;
+    }
+    if (typeof node !== "object") continue;
+    const o = node as Record<string, unknown>;
+    if (o.definitionId != null && String(o.definitionId).trim()) {
+      ids.add(String(o.definitionId).trim());
+    }
+    // Also check common alternate keys
+    if (o.widgetDefinitionId != null && String(o.widgetDefinitionId).trim()) {
+      ids.add(String(o.widgetDefinitionId).trim());
+    }
+    for (const v of Object.values(o)) {
+      stack.push({ node: v, depth: depth + 1 });
+    }
+  }
+  return Array.from(ids);
+}
+
+export function templateHasWidget(
+  rawTemplate: unknown,
+  widgetDefinitionId: string,
+): boolean {
+  const target = widgetDefinitionId.toLowerCase();
+  return extractTemplateWidgetDefinitionIds(rawTemplate).some(
+    (id) => id.toLowerCase() === target,
+  );
+}
+
+/**
+ * Site templates that contain the given widget definition (e.g. Blog List or Blog Post).
+ * Loads each template fully — suitable for small site template catalogs.
+ */
+export async function fetchTemplatesWithWidget(
+  siteName: string,
+  widgetDefinitionId: string,
+): Promise<TemplateSummary[]> {
+  const summaries = await fetchTemplatesForSite(siteName);
+  const out: TemplateSummary[] = [];
+  for (const s of summaries) {
+    if (!s.id) continue;
+    try {
+      const full = await fetchTemplate(s.id);
+      if (templateHasWidget(full, widgetDefinitionId)) {
+        out.push(s);
+      }
+    } catch (err: unknown) {
+      // Skip templates that fail to load; log so network/500 failures are visible.
+      console.warn(
+        `fetchTemplatesWithWidget: failed to load template ${s.id}`,
+        err,
+      );
+    }
+  }
+  return out;
+}
+
+/** Blog list (index) templates: must include Blog List widget. */
+export async function fetchBlogListTemplates(
+  siteName: string,
+): Promise<TemplateSummary[]> {
+  return fetchTemplatesWithWidget(siteName, BLOG_LIST_WIDGET_ID);
+}
+
+/** Blog post templates: must include Blog Post widget. */
+export async function fetchBlogPostTemplates(
+  siteName: string,
+): Promise<TemplateSummary[]> {
+  return fetchTemplatesWithWidget(siteName, BLOG_POST_WIDGET_ID);
+}
+
+/**
  * Map a WidgetContentType wire row to {@link AssetTypeSummary}.
  * Classic createAsset / editAsset require the string {@code widgetId}
  * (e.g. percImage), not the numeric contentTypeId.

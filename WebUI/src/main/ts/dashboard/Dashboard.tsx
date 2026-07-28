@@ -228,11 +228,18 @@ const DEFAULT_GADGETS: DashboardWidget[] = [
     position: { column: "left", order: 0 },
   },
   {
+    id: "blogs",
+    name: "Blogs",
+    component: BlogsWidget,
+    props: {},
+    position: { column: "left", order: 1 },
+  },
+  {
     id: "workflow",
     name: "Workflow Status",
     component: WorkflowStatusWidget,
     props: {},
-    position: { column: "left", order: 1 },
+    position: { column: "left", order: 2 },
   },
   {
     id: "activity",
@@ -418,27 +425,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     }
   };
 
-  // Show error if configuration failed to load
-  if (configError && userId) {
-    return (
-      <div
-        style={{
-          padding: "20px",
-          color: "#c33",
-          backgroundColor: "#fee",
-          borderRadius: "4px",
-          margin: "20px",
-        }}
-      >
-        <strong>Error loading dashboard:</strong> {configError}
-        <p>
-          <a href={legacyDashboardUrl}>Fall back to legacy dashboard</a>
-        </p>
-      </div>
-    );
-  }
-
-  // Show loading state while fetching configuration
+  // Show loading state while fetching configuration (never block forever on error)
   if (isLoading && userId) {
     return (
       <div
@@ -458,6 +445,23 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   return (
     <div style={{ width: "100%" }} data-testid="dashboard-root" data-embedded={embedded ? "1" : "0"}>
+      {/* Soft config warning — still show default gadgets */}
+      {configError && userId ? (
+        <div
+          data-testid="dashboard-config-warning"
+          style={{
+            padding: "10px 16px",
+            color: "#664d03",
+            backgroundColor: "#fff3cd",
+            borderBottom: "1px solid #ffecb5",
+            fontSize: "0.9rem",
+          }}
+        >
+          Could not load saved gadget layout ({configError}). Showing defaults.{" "}
+          <a href={legacyDashboardUrl}>Legacy dashboard</a>
+        </div>
+      ) : null}
+
       {/* Dashboard Header */}
       <div
         style={{
@@ -469,8 +473,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
           alignItems: "center",
         }}
       >
-        <h1 style={{ margin: 0, fontSize: "1.5em", color: "#333" }}>Dashboard</h1>
+        <h1 style={{ margin: 0, fontSize: embedded ? "1.15em" : "1.5em", color: "#333" }}>
+          {embedded ? "Gadgets" : "Dashboard"}
+        </h1>
         <button
+          type="button"
+          data-testid="dashboard-add-gadget"
           onClick={() => setIsModalOpen(true)}
           style={{
             backgroundColor: "#2196f3",

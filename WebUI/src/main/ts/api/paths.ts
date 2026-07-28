@@ -84,12 +84,20 @@ export const PATHS = {
   get TEMPLATES_BY_SITE() {
     return `${SERVICES_ROOT}/sitemanage/sitetemplates/templates`;
   },
+  /** Full template load (widgets / region associations). */
+  get TEMPLATE_LOAD() {
+    return `${SERVICES_ROOT}/pagemanagement/template`;
+  },
   get BLOGS_FOR_SITE() {
     return `${SERVICES_ROOT}/sitemanage/section/blogs`;
   },
   /** All blogs across sites (PSSiteSectionRestService#getAllBlogs). */
   get ALL_BLOGS() {
     return `${SERVICES_ROOT}/sitemanage/section/allBlogs`;
+  },
+  /** Create site section (including sectionType=blog). */
+  get SECTION_CREATE() {
+    return `${SERVICES_ROOT}/sitemanage/section`;
   },
   get ASSET_TYPES() {
     return `${SERVICES_ROOT}/assetmanagement/asset/assetTypes`;
