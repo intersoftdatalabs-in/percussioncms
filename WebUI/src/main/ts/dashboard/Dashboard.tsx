@@ -169,8 +169,9 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
     id: "google-setup",
     name: "Google Setup",
     component: GoogleSetupWidget,
-    description: "Google integration and account configuration status",
-    category: "Integration",
+    description:
+      "Google Analytics provider status (required for Traffic / What's Working)",
+    category: "Analytics",
   },
   {
     id: "membership",
