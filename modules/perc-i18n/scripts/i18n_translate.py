@@ -233,9 +233,12 @@ class TmxFile:
             tu_text = m.group(0)
             if re.search(rf'<tuv\s+xml:lang="{re.escape(target)}"', tu_text):
                 continue
-            # Build the new TUV. Escape XML characters in seg text.
-            seg = xml_escape(translations[tuid], {'"': '&quot;'})
-            new_tuv = f'<tuv xml:lang="{target}"><seg>{seg}</seg></tuv>'
+            # Build the new TUV. Escape XML element-content characters in seg
+            # text only (no `"` -> `&quot;` mapping here: double quotes never
+            # need escaping in element content, and pre-escaping breaks
+            # round-trip fidelity for translations that contain `&quot;`).
+            seg = xml_escape(translations[tuid])
+            new_tuv = f'<tuv xml:lang="{xml_escape(target)}"><seg>{seg}</seg></tuv>'
             # Insert before </tu>.
             replacement = tu_text[:-len('</tu>')] + new_tuv + '</tu>'
             out.append(self.text[pos:m.start()])
@@ -273,7 +276,14 @@ def main(argv: list[str] | None = None) -> int:
                         help='Skip the upfront Docker availability check.')
     args = parser.parse_args(argv)
 
-    files = [I18N_DIR / f for f in (args.files or DEFAULT_FILES)]
+    files: list[Path] = []
+    for name in (args.files or list(DEFAULT_FILES)):
+        candidate = Path(name)
+        if candidate.is_absolute():
+            print(f'error: --file path must be relative to {I18N_DIR}: {name}',
+                  file=sys.stderr)
+            return 2
+        files.append(I18N_DIR / candidate)
     for f in files:
         if not f.exists():
             print(f'error: {f} not found', file=sys.stderr)

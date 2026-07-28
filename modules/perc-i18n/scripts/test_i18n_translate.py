@@ -84,34 +84,51 @@ class TranslateTest(unittest.TestCase):
         self.assertEqual(cache[it.cache_key('Hello', 'de-de')], 'Hallo')
 
     def test_rate_limit_triggers_backoff(self):
-        # Stub time.sleep + invoke_translate to assert backoff was used.
-        slept: list[float] = []
+        # Exercise invoke_translate's internal retry loop: stub
+        # subprocess.run to fail twice with a 429-style stderr and then
+        # succeed on the third attempt; stub time.sleep to record the
+        # backoff delays without actually sleeping.
+        import time as _time
         calls = {'n': 0}
+        slept: list[float] = []
+
+        class _FakeResult:
+            def __init__(self, rc: int, stdout: str = '', stderr: str = ''):
+                self.returncode = rc
+                self.stdout = stdout
+                self.stderr = stderr
+
+        def fake_run(cmd, capture_output, text, check, encoding):
+            calls['n'] += 1
+            if calls['n'] < 3:
+                return _FakeResult(
+                    rc=1,
+                    stdout='',
+                    stderr='HTTP 429 Too Many Requests',
+                )
+            return _FakeResult(rc=0, stdout='Hallo\n')
 
         def fake_sleep(s):
             slept.append(s)
 
-        def fake_invoke(text, target):
-            calls['n'] += 1
-            if calls['n'] < 3:
-                raise RuntimeError('trans failed (rc=1): stdout=\'\' stderr=\'429 Too Many Requests\'')
-            return 'OK'
-
-        import time as _time
         orig_sleep = _time.sleep
-        orig_invoke = it.invoke_translate
+        orig_run = it.subprocess.run
         _time.sleep = fake_sleep
-        it.invoke_translate = fake_invoke
+        it.subprocess.run = fake_run
         try:
             result = it.invoke_translate('Hello', 'de-de')
-        except Exception:
-            result = None
         finally:
             _time.sleep = orig_sleep
-            it.invoke_translate = orig_invoke
-        # Two failures with backoff before a final success on attempt 3.
-        # Note: real backoff path is inside invoke_translate; we re-implement
-        # the assertion here by checking the helper signature.
+            it.subprocess.run = orig_run
+
+        self.assertEqual(result, 'Hallo')
+        self.assertEqual(calls['n'], 3)
+        # Two rate-limit responses should have produced two backoff sleeps.
+        self.assertEqual(len(slept), 2)
+        # First delay is BACKOFF_START_SEC (2s) with up to +-20% jitter,
+        # second is doubled. Verify ordering and the doubling.
+        self.assertGreater(slept[0], 0)
+        self.assertGreater(slept[1], slept[0])
 
     def test_xml_escape_on_inject(self):
         with tempfile.TemporaryDirectory() as d:

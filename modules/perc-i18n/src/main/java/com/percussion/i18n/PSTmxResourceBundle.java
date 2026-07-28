@@ -246,7 +246,10 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
     String normalized = normalizeLang(language);
     Map<String, PSTmxUnit> map = ms_ResourceBundles.get(normalized);
     if (map == null) {
-      // Fall back to language-only (strip the -<region> suffix).
+      // Fall back to the language-only bucket (e.g. "en-gb" -> "en").
+      // If that bucket is also missing, the next branch falls back to
+      // ms_DefaultLanguage (e.g. "en-us"), so "en-gb" reaches English
+      // content only because ms_DefaultLanguage is itself English.
       int dash = normalized.indexOf('-');
       if (dash > 0) {
         map = ms_ResourceBundles.get(normalized.substring(0, dash));
@@ -280,6 +283,8 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
     String normalized = normalizeLang(language);
     Map<String, PSTmxUnit> map = ms_ResourceBundles.get(normalized);
     if (map == null) {
+      // Fall back to the language-only bucket (e.g. "en-gb" -> "en"),
+      // then to ms_DefaultLanguage (e.g. "en-us") if even that is absent.
       int dash = normalized.indexOf('-');
       if (dash > 0) {
         map = ms_ResourceBundles.get(normalized.substring(0, dash));
