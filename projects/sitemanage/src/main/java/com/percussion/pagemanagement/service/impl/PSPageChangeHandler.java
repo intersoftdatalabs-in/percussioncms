@@ -269,11 +269,14 @@ public class PSPageChangeHandler implements IPSPageChangeListener {
       var newSummary = generatePageSummary(page.getId());
       if (pageFields.containsKey(PAGE_SUMMARY_FIELD_NAME)) {
         var intg = (new Guid(page.getId())).getUuid();
+        // getFirstPublishDate returns Optional — never put Optional.toString()
+        // ("Optional.empty") into date fields; PSDateValue rejects that format.
         var postDate = cmsObjectMgr.getFirstPublishDate(intg);
         if (page.getFields() != null
             && page.getFields().get("sys_contentpostdate") == null
-            && postDate != null) {
-          page.getFields().put("sys_contentpostdate", postDate.toString());
+            && postDate != null
+            && postDate.isPresent()) {
+          page.getFields().put("sys_contentpostdate", postDate.get().toString());
         }
         pageFields.put(PAGE_SUMMARY_FIELD_NAME, newSummary);
         contentItemDao.save(page);

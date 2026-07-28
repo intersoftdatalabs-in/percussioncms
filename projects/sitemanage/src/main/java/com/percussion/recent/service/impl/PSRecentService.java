@@ -48,8 +48,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * Service implementation for managing recent items, templates, folders, and asset types. Provides
@@ -74,9 +77,24 @@ public class PSRecentService implements IPSRecentService {
 
   @Autowired private IPSSiteTemplateService siteTemplateService;
 
+  private TransactionTemplate requiresNewReadOnly;
+
   private static final Logger log = LogManager.getLogger(IPSConstants.CONTENTREPOSITORY_LOG);
 
-  /** Finds recent items for the current user, optionally ignoring archived items. */
+  @Autowired
+  public void setTransactionManager(PlatformTransactionManager transactionManager) {
+    requiresNewReadOnly = new TransactionTemplate(transactionManager);
+    requiresNewReadOnly.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+    requiresNewReadOnly.setReadOnly(true);
+  }
+
+  /**
+   * Finds recent items for the current user, optionally ignoring archived items.
+   *
+   * <p>Lookups run in {@link Propagation#REQUIRES_NEW} so a Hibernate failure on one stale
+   * recent id cannot mark this transaction rollback-only (which previously caused
+   * {@code UnexpectedRollbackException} on Home Recent even after the failure was caught).
+   */
   @Override
   public List<PSItemProperties> findRecentItem(boolean ignoreArchivedItems) {
     var user = PSWebserviceUtils.getUserName();
@@ -84,34 +102,89 @@ public class PSRecentService implements IPSRecentService {
     var items = new ArrayList<PSItemProperties>();
     var toDelete = new ArrayList<String>();
     for (var entry : recentEntries) {
-      PSItemProperties itemProps = null;
-      try {
-        itemProps = folderHelper.findItemPropertiesById(entry);
-        if (itemProps != null) {
-          // Don't return archived items and items with no path on home page.
-          if (ignoreArchivedItems
-              && (PSWorkflowHelper.WF_STATE_ARCHIVE.equals(itemProps.getStatus())
-                  || itemProps.getPath() == null)) {
-            continue;
-          }
-          items.add(itemProps);
-        } else {
-          log.debug("Removing recent item find returned null : {}", entry);
+      ItemLookupResult lookup = findItemPropertiesIsolated(entry);
+      if (lookup.properties != null) {
+        var itemProps = lookup.properties;
+        // Don't return archived items and items with no path on home page.
+        if (ignoreArchivedItems
+            && (PSWorkflowHelper.WF_STATE_ARCHIVE.equals(itemProps.getStatus())
+                || itemProps.getPath() == null)) {
+          continue;
         }
-      } catch (Exception e) {
-        log.debug(
-            "Removing error entry from recent item list {}, Error: {}",
-            entry,
-            PSExceptionUtils.getMessageForLog(e));
-      }
-      if (itemProps == null) {
+        items.add(itemProps);
+      } else if (lookup.missing) {
+        // Only drop entries that are confirmed gone — not load failures
+        // (those used to mark the list empty and wipe recent on every Home load).
+        log.debug("Removing recent item find returned null : {}", entry);
         toDelete.add(entry);
+      } else {
+        log.debug("Keeping recent item after lookup failure : {}", entry);
       }
     }
     if (!toDelete.isEmpty()) {
       recentService.deleteRecent(user, null, RecentType.ITEM, toDelete);
     }
     return items;
+  }
+
+  /** Result of an isolated recent-item lookup. */
+  private static final class ItemLookupResult {
+    final PSItemProperties properties;
+    /** True when the item is known missing (null without exception). */
+    final boolean missing;
+
+    ItemLookupResult(PSItemProperties properties, boolean missing) {
+      this.properties = properties;
+      this.missing = missing;
+    }
+
+    static ItemLookupResult found(PSItemProperties props) {
+      return new ItemLookupResult(props, false);
+    }
+
+    static ItemLookupResult notFound() {
+      return new ItemLookupResult(null, true);
+    }
+
+    static ItemLookupResult failed() {
+      return new ItemLookupResult(null, false);
+    }
+  }
+
+  /**
+   * Load item properties in a nested transaction so failures do not poison the outer TX.
+   *
+   * @param entry content id / guid string from recent storage
+   * @return lookup result distinguishing missing items from load failures
+   */
+  private ItemLookupResult findItemPropertiesIsolated(String entry) {
+    if (requiresNewReadOnly == null) {
+      // Fallback when no TX manager (unit tests): same-thread lookup.
+      try {
+        PSItemProperties props = folderHelper.findItemPropertiesById(entry);
+        return props != null ? ItemLookupResult.found(props) : ItemLookupResult.notFound();
+      } catch (Exception e) {
+        log.debug(
+            "Recent item lookup failed for {}, Error: {}",
+            entry,
+            PSExceptionUtils.getMessageForLog(e));
+        return ItemLookupResult.failed();
+      }
+    }
+    return requiresNewReadOnly.execute(
+        status -> {
+          try {
+            PSItemProperties props = folderHelper.findItemPropertiesById(entry);
+            return props != null ? ItemLookupResult.found(props) : ItemLookupResult.notFound();
+          } catch (Exception e) {
+            log.debug(
+                "Recent item lookup failed for {}, Error: {}",
+                entry,
+                PSExceptionUtils.getMessageForLog(e));
+            status.setRollbackOnly();
+            return ItemLookupResult.failed();
+          }
+        });
   }
 
   /** Finds recent templates for the current user and site. */

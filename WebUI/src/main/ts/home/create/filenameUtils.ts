@@ -39,7 +39,12 @@ export function sanitizeFileNameInput(fileName: string): string {
     .replace(/[\\/:*?"<>|#;%']/g, "");
 }
 
-/** Ensure CMS path uses a single leading slash (classic getNormalizedPath). */
+/**
+ * Ensure CMS path uses a single leading slash (classic CUI getNormalizedPath).
+ * Used for UI navigation, path REST URLs under {@code /path/folder/...}, and
+ * editor open links — not for page-create POST bodies (see
+ * {@link toRepositoryCmsPath}).
+ */
 export function normalizeCmsPath(path: string): string {
   let p = path.trim();
   if (!p) {
@@ -52,6 +57,22 @@ export function normalizeCmsPath(path: string): string {
     p = `/${p}`;
   }
   return p.replace(/\/+/g, "/");
+}
+
+/**
+ * Repository folder form required by content WS / page create
+ * ({@code getIdByPath} rejects paths that do not start with {@code //}).
+ *
+ * <p>Classic CUI does the same: normalize to {@code /Sites/...} then
+ * re-prefix as {@code "/" + folderPath} → {@code //Sites/...} before
+ * {@code perc_page_manager.createPage}.
+ */
+export function toRepositoryCmsPath(path: string): string {
+  const normalized = normalizeCmsPath(path);
+  if (!normalized) {
+    return normalized;
+  }
+  return normalized.startsWith("//") ? normalized : `/${normalized}`;
 }
 
 export function joinFolderAndName(folderPath: string, name: string): string {

@@ -26,9 +26,24 @@ import com.percussion.utils.jexl.PSJexlEvaluator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.velocity.tools.ToolManager;
+import org.apache.velocity.tools.config.ConfigurationUtils;
+import org.apache.velocity.tools.config.EasyFactoryConfiguration;
+import org.apache.velocity.tools.config.FactoryConfiguration;
+import org.apache.velocity.tools.generic.CollectionTool;
+import org.apache.velocity.tools.generic.ComparisonDateTool;
+import org.apache.velocity.tools.generic.ContextTool;
+import org.apache.velocity.tools.generic.DisplayTool;
+import org.apache.velocity.tools.generic.EscapeTool;
+import org.apache.velocity.tools.generic.LinkTool;
+import org.apache.velocity.tools.generic.LoopTool;
+import org.apache.velocity.tools.generic.MathTool;
+import org.apache.velocity.tools.generic.NumberTool;
+import org.apache.velocity.tools.generic.RenderTool;
+import org.apache.velocity.tools.generic.SortTool;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -157,13 +172,80 @@ public class PSServiceJexlEvaluatorBase extends PSJexlEvaluator implements IPSEx
             throw new FileNotFoundException("Velocity tools configuration not found: " + toolsPath);
         }
 
-        var manager = new ToolManager();
-        // ToolManager has differing overloads across versions; prefer String path to avoid
-        // ambiguous conversion problems during compilation.
-        manager.configure(toolsPath.toString());
+        var manager = new ToolManager(false, false);
+        FactoryConfiguration config = loadVelocityToolsConfig(toolsPath);
+        manager.configure(config);
 
         ms_log.info("Successfully configured ToolManager with tools from: {}", toolsPath);
         return manager;
+    }
+
+    /**
+     * Load Velocity Tools 3.x factory config from product tools.xml.
+     *
+     * <p>Velocity Tools 3 XML config uses Commons Digester3. On Jetty the digester SAX parser
+     * may be null ({@code Digester.getParser() == null}), so {@code ConfigurationUtils.read}
+     * and {@code getDefaultTools()} both fail. Prefer product tools.xml when digester works;
+     * otherwise build a programmatic toolbox (no digester) so assembly/preview/search indexing
+     * can still run.
+     */
+    private FactoryConfiguration loadVelocityToolsConfig(Path toolsPath) {
+        ClassLoader previous = Thread.currentThread().getContextClassLoader();
+        ClassLoader webappLoader = PSServiceJexlEvaluatorBase.class.getClassLoader();
+        try {
+            if (webappLoader != null) {
+                Thread.currentThread().setContextClassLoader(webappLoader);
+            }
+            try {
+                URL toolsUrl = toolsPath.toUri().toURL();
+                FactoryConfiguration productConfig = ConfigurationUtils.read(toolsUrl);
+                if (productConfig != null) {
+                    return productConfig;
+                }
+                ms_log.warn(
+                    "Velocity tools.xml at {} could not be parsed (null config); "
+                        + "using programmatic tool defaults.",
+                    toolsPath);
+            } catch (Exception e) {
+                ms_log.warn(
+                    "Failed to load Velocity tools.xml at {}: {}. Using programmatic tool defaults.",
+                    toolsPath,
+                    e.toString());
+            }
+            return createProgrammaticVelocityToolsConfig();
+        } finally {
+            Thread.currentThread().setContextClassLoader(previous);
+        }
+    }
+
+    /**
+     * Digester-free Velocity Tools config used when tools.xml cannot be parsed under Jetty.
+     * Covers the common generic tools referenced by product templates.
+     */
+    private static FactoryConfiguration createProgrammaticVelocityToolsConfig() {
+        EasyFactoryConfiguration config = new EasyFactoryConfiguration(false);
+        config.number("TOOLS_VERSION", "3.1");
+        config.toolbox("application")
+            .tool(MathTool.class)
+            .tool(NumberTool.class)
+            .tool(ComparisonDateTool.class)
+            .tool(DisplayTool.class)
+            .tool(EscapeTool.class)
+            .tool(CollectionTool.class)
+            .tool(SortTool.class);
+        config.toolbox("request")
+            .tool(ContextTool.class)
+            .tool(LinkTool.class)
+            .tool(LoopTool.class)
+            .tool(RenderTool.class);
+        // Product list helper (replacement for dropped ListTool) when on classpath
+        try {
+            Class<?> listTool = Class.forName("com.percussion.extension.PSVelocityListTool");
+            config.toolbox("application").tool("list", listTool);
+        } catch (ClassNotFoundException ignored) {
+            // optional
+        }
+        return config;
     }
 
     /**

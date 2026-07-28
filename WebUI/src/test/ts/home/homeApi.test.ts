@@ -17,6 +17,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
+  createPage,
   fetchMyContent,
   fetchRecentItems,
   fetchSites,
@@ -145,6 +146,25 @@ describe("homeApi", () => {
       String((fetchMock.mock.calls[0] as [string, RequestInit])[1].body),
     );
     expect(body.SearchCriteria.query).toBe("legacy");
+  });
+
+  it("createPage posts repository // folderPath (getIdByPath requires it)", async () => {
+    const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>;
+    fetchMock.mockResolvedValue(
+      mockJsonResponse({ Page: { id: "1", name: "p" } }),
+    );
+    await createPage({
+      name: "about.html",
+      title: "About",
+      linkTitle: "About",
+      templateId: "t1",
+      folderPath: "/Sites/Demo",
+    });
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toContain("/pagemanagement/page");
+    const body = JSON.parse(String(init.body));
+    expect(body.Page.folderPath).toBe("//Sites/Demo");
+    expect(body.Page.addToRecent).toBe(true);
   });
 
   it("normalizeContentItem fills name/path from alternate fields", () => {
