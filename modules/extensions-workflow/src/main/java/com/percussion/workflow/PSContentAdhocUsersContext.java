@@ -565,43 +565,24 @@ public class PSContentAdhocUsersContext implements IPSContentAdhocUsersContext {
   /** static constant string that represents the unqualified table name. */
   private static final String CONTENTADHOCUSERS = "CONTENTADHOCUSERS";
 
-  /** static constant string that represents the qualified table name. */
+  /**
+   * Qualified table name only. Do not use as a column qualifier — {@code schema.table.column} fails
+   * on H2 ({@code Column "PUBLIC" not found}).
+   */
   private static final String TABLE_CAU = PSConnectionMgr.getQualifiedIdentifier(CONTENTADHOCUSERS);
 
-  /** SQL query string is constructed based on fully qualified table name(s). */
+  /** SQL query — unqualified column names for H2-safe schema-qualified table names. */
   private static final String QRYSTRING =
-      "SELECT "
-          + TABLE_CAU
-          + ".USERNAME, "
-          + TABLE_CAU
-          + ".ADHOCTYPE, "
-          + TABLE_CAU
-          + ".ROLEID "
-          + "FROM "
-          + TABLE_CAU
-          + " WHERE ("
-          + TABLE_CAU
-          + ".CONTENTID=?)";
+      "SELECT USERNAME, ADHOCTYPE, ROLEID FROM " + TABLE_CAU + " WHERE (CONTENTID=?)";
 
-  /** SQL string to insert a data base record for a new approval. */
+  /** SQL insert — unqualified column names for H2-safe schema-qualified table names. */
   private static final String INSERTSTRING =
-      "INSERT INTO "
-          + TABLE_CAU
-          + "( "
-          + TABLE_CAU
-          + ".CONTENTID, "
-          + TABLE_CAU
-          + ".USERNAME, "
-          + TABLE_CAU
-          + ".ADHOCTYPE ,"
-          + TABLE_CAU
-          + ".ROLEID) "
-          + "VALUES(?,?,?,?)";
+      "INSERT INTO " + TABLE_CAU + " (CONTENTID, USERNAME, ADHOCTYPE, ROLEID) VALUES(?,?,?,?)";
 
   /**
    * SQL string to delete all data base record for approvals for given content item with a given
    * initial state.
    */
   private static final String DELETESTRING =
-      "DELETE FROM " + TABLE_CAU + " WHERE ( " + TABLE_CAU + ".CONTENTID=?)";
+      "DELETE FROM " + TABLE_CAU + " WHERE (CONTENTID=?)";
 }

@@ -42,10 +42,14 @@ import com.percussion.services.filter.PSFilterServiceLocator;
 import com.percussion.services.filter.data.PSItemFilter;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.utils.guid.IPSGuid;
+import com.percussion.utils.jdbc.PSConnectionHelper;
+import com.percussion.utils.jdbc.PSJdbcConnectionDiagnostics;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
@@ -62,6 +66,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 public class PSDeployService implements IPSDeployService {
+  private static final Logger log = LogManager.getLogger(PSDeployService.class);
+
   private SessionFactory sessionFactory;
 
   public SessionFactory getSessionFactory() {
@@ -152,6 +158,7 @@ public class PSDeployService implements IPSDeployService {
     Objects.requireNonNull(depHandler, "dependency handler may not be null");
 
     var dh = (PSFilterDefDependencyHandler) depHandler;
+    String filterName = null;
     try {
       // Always deserialize package payload into a fresh (non-managed) object.
       var packageFilter = dh.generateFilterFromFile(tok, archive, dep, depFile, ctx, null);
@@ -165,7 +172,7 @@ public class PSDeployService implements IPSDeployService {
       // Only FILTER_MISSING means first install; blank names and other PSFilterException
       // codes must not be swallowed (Kilo review / unique-constraint mask).
       com.percussion.services.filter.IPSItemFilter existingByName = null;
-      String filterName = packageFilter.getName();
+      filterName = packageFilter.getName();
       try {
         existingByName = filterSvc.findFilterByName(filterName);
       } catch (IllegalArgumentException e) {
@@ -214,7 +221,30 @@ public class PSDeployService implements IPSDeployService {
         dh.saveFilter(packageFilter, null);
       }
     } catch (PSDeployException e) {
+      logJdbcDiagnosticsOnFilterFailure(dep, filterName, e);
       throw new PSDeployServiceException(e);
+    } catch (RuntimeException e) {
+      // Hibernate/H2 VALUE keyword failures surface here (Baseline perc_public filter).
+      logJdbcDiagnosticsOnFilterFailure(dep, filterName, e);
+      throw e;
+    }
+  }
+
+  private void logJdbcDiagnosticsOnFilterFailure(
+      PSDependency dep, String filterName, Exception cause) {
+    try (var conn = PSConnectionHelper.getDbConnection()) {
+      log.error(
+          "Filter dependency install failed (depId={}, filterName={}): {} | JDBC: {}",
+          dep != null ? dep.getDependencyId() : null,
+          filterName,
+          cause != null ? cause.toString() : null,
+          PSJdbcConnectionDiagnostics.describeConnection(conn));
+    } catch (Exception diagEx) {
+      log.error(
+          "Filter dependency install failed (depId={}): {}; JDBC diagnostics unavailable: {}",
+          dep != null ? dep.getDependencyId() : null,
+          cause != null ? cause.toString() : null,
+          diagEx.toString());
     }
   }
 

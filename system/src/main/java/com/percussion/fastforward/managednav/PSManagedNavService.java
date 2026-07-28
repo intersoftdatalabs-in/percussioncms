@@ -430,6 +430,14 @@ public class PSManagedNavService implements IPSManagedNavService {
         ne = new PSNavException(ex);
       }
 
+      // Surface nested error map from multi-object save (otherwise only the exception class name)
+      if (ex instanceof com.percussion.webservices.PSErrorResultsException ere) {
+        log.error(
+            "Error adding NavTree to folder path={} name={}: errors={}",
+            path,
+            navTreeName,
+            ere.getErrors());
+      }
       log.error(PSExceptionUtils.getMessageForLog(ex));
       log.debug(PSExceptionUtils.getDebugMessageForLog(ex));
       throw ne;

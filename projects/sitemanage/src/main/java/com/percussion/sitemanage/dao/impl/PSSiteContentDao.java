@@ -161,6 +161,8 @@ public class PSSiteContentDao implements com.percussion.sitemanage.dao.IPSSiteCo
               pageDaoHelper.getWorkflowIdForPath(folderRoot));
       createHomePageAndTemplate(site, folderRoot, navtreeId, null);
     } catch (Exception e) {
+      // Log nested cause — outer Spring tx often only surfaces UnexpectedRollbackException
+      log.error("Error creating site items for site={}: {}", site.getName(), e.toString(), e);
       throw new RuntimeException("Error creating site items", e);
     }
   }
@@ -253,9 +255,12 @@ public class PSSiteContentDao implements com.percussion.sitemanage.dao.IPSSiteCo
       // Template doesn't exist, will create below
     }
     if (tempId == null) {
+      // siteMgr.findSite accepts site name; getId() may be null on a just-created site model
+      var siteKey =
+          (site.getId() != null && !site.getId().isBlank()) ? site.getId() : site.getName();
       templateSummary =
           templateService.createTemplate(
-              site.getTemplateName(), idMapper.getString(baseTemplate.getGUID()), site.getId());
+              site.getTemplateName(), idMapper.getString(baseTemplate.getGUID()), siteKey);
     } else {
       templateSummary = templateService.find(tempId.toString());
     }

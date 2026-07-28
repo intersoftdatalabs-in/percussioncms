@@ -19,10 +19,12 @@ package com.percussion.log;
 import com.percussion.server.PSServer;
 import com.percussion.util.PSDoubleList;
 import com.percussion.utils.jdbc.PSConnectionHelper;
+import com.percussion.utils.jdbc.PSJdbcConnectionDiagnostics;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.util.Locale;
@@ -220,6 +222,15 @@ public class PSLogManager {
         conOut(
             "Using CMS Repository datasource: "
                 + PSConnectionHelper.getConnectionDetail(null).getDetailString());
+        // H2 DatabaseMetaData.getURL() strips NON_KEYWORDS — log live SETTINGS + VALUE probe.
+        try (Connection diagConn = PSConnectionHelper.getDbConnection()) {
+          conOut(
+              "CMS Repository connection diagnostics: "
+                  + PSJdbcConnectionDiagnostics.describeConnection(diagConn));
+        } catch (Exception diagEx) {
+          conOut(
+              "CMS Repository connection diagnostics unavailable: " + diagEx.getMessage());
+        }
         m_logWriter = new PSBackEndLogWriter();
         m_logReader = new PSBackEndLogReader();
       } catch (SQLWarning w) {

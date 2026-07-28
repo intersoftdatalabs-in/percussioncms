@@ -684,94 +684,31 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
   /** Number of database records found */
   private int m_nCount = 0;
 
-  /** static constant string that represents the qualified table name. */
+  /**
+   * Qualified table name only (e.g. {@code PUBLIC.CONTENTSTATUSHISTORY} on H2). Do <strong>not</strong>
+   * use this as a column qualifier — {@code schema.table.column} is rejected by H2 as {@code Column
+   * "PUBLIC" not found}. Columns in the statements below are unqualified.
+   */
   private static String TABLE_CSHC = PSConnectionMgr.getQualifiedIdentifier("CONTENTSTATUSHISTORY");
 
   /** SQL query string to get data base records for the content status history. */
   private static final String QRYSTRING =
-      "SELECT "
-          + TABLE_CSHC
-          + ".SESSIONID , "
-          + TABLE_CSHC
-          + ".CONTENTSTATUSHISTORYID , "
-          + TABLE_CSHC
-          + ".CONTENTID , "
-          + TABLE_CSHC
-          + ".STATEID , "
-          + TABLE_CSHC
-          + ".ACTOR , "
-          + TABLE_CSHC
-          + ".TRANSITIONID , "
-          + TABLE_CSHC
-          + ".VALID , "
-          + TABLE_CSHC
-          + ".ROLENAME , "
-          + TABLE_CSHC
-          + ".CHECKOUTUSERNAME , "
-          + TABLE_CSHC
-          + ".LASTMODIFIERNAME , "
-          + TABLE_CSHC
-          + ".LASTMODIFIEDDATE , "
-          + TABLE_CSHC
-          + ".EVENTTIME , "
-          + TABLE_CSHC
-          + ".TRANSITIONCOMMENT , "
-          + TABLE_CSHC
-          + ".REVISIONID , "
-          + TABLE_CSHC
-          + ".TITLE , "
-          + TABLE_CSHC
-          + ".TRANSITIONLABEL , "
-          + TABLE_CSHC
-          + ".STATENAME "
+      "SELECT SESSIONID, CONTENTSTATUSHISTORYID, CONTENTID, STATEID, ACTOR, TRANSITIONID, VALID, "
+          + "ROLENAME, CHECKOUTUSERNAME, LASTMODIFIERNAME, LASTMODIFIEDDATE, EVENTTIME, "
+          + "TRANSITIONCOMMENT, REVISIONID, TITLE, TRANSITIONLABEL, STATENAME "
           + "FROM "
           + TABLE_CSHC
-          + " WHERE ("
-          + TABLE_CSHC
-          + ".WORKFLOWAPPID=? AND "
-          + TABLE_CSHC
-          + ".CONTENTID=?)";
+          + " WHERE (WORKFLOWAPPID=? AND CONTENTID=?)";
 
-  /** SQL insert string to insert a new data base record for the content status history. */
+  /**
+   * SQL insert for a new content status history row. Columns are unqualified so schema-qualified
+   * table names (H2 {@code PUBLIC.CONTENTSTATUSHISTORY}) remain valid.
+   */
   private static final String INSERTSTRING =
       "INSERT INTO "
           + TABLE_CSHC
-          + " ("
-          + TABLE_CSHC
-          + ".WORKFLOWAPPID , "
-          + TABLE_CSHC
-          + ".SESSIONID , "
-          + TABLE_CSHC
-          + ".CONTENTSTATUSHISTORYID , "
-          + TABLE_CSHC
-          + ".CONTENTID , "
-          + TABLE_CSHC
-          + ".STATEID , "
-          + TABLE_CSHC
-          + ".ACTOR , "
-          + TABLE_CSHC
-          + ".TRANSITIONID , "
-          + TABLE_CSHC
-          + ".VALID , "
-          + TABLE_CSHC
-          + ".ROLENAME , "
-          + TABLE_CSHC
-          + ".CHECKOUTUSERNAME , "
-          + TABLE_CSHC
-          + ".LASTMODIFIERNAME , "
-          + TABLE_CSHC
-          + ".TRANSITIONCOMMENT , "
-          + TABLE_CSHC
-          + ".REVISIONID , "
-          + TABLE_CSHC
-          + ".TITLE , "
-          + TABLE_CSHC
-          + ".TRANSITIONLABEL , "
-          + TABLE_CSHC
-          + ".STATENAME , "
-          + TABLE_CSHC
-          + ".LASTMODIFIEDDATE , "
-          + TABLE_CSHC
-          + ".EVENTTIME )"
-          + " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )";
+          + " (WORKFLOWAPPID, SESSIONID, CONTENTSTATUSHISTORYID, CONTENTID, STATEID, ACTOR, "
+          + "TRANSITIONID, VALID, ROLENAME, CHECKOUTUSERNAME, LASTMODIFIERNAME, TRANSITIONCOMMENT, "
+          + "REVISIONID, TITLE, TRANSITIONLABEL, STATENAME, LASTMODIFIEDDATE, EVENTTIME)"
+          + " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 }

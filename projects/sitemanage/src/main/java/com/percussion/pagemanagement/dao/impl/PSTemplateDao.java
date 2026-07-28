@@ -367,10 +367,13 @@ public class PSTemplateDao implements IPSTemplateDao, ApplicationContextAware {
     }
 
     contentItem = contentItemDao.save(contentItem);
+    template.setId(contentItem.getId());
     var notifyEvent = new PSNotificationEvent(EventType.TEMPLATE_CHANGED, contentItem.getId());
     var srv = PSNotificationServiceLocator.getNotificationService();
     srv.notifyEvent(notifyEvent);
-    return find(contentItem.getId());
+    // Same as PSAbstractContentItemDao#save: never re-find after save. Nested @Transactional
+    // loadBodies NPE marks the outer tx rollback-only even when caught (see site create).
+    return template;
   }
 
   private String processTemplateNameForSpecialCharacters(String templateName, String path) {
