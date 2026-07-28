@@ -22,7 +22,8 @@
       "react-dom": ["node_modules/@types/react-dom"],
       "react/jsx-runtime": ["node_modules/@types/react/jsx-runtime"],
       "react-dom/*": ["node_modules/@types/react-dom/*"],
-      "*": ["node_modules/*"]
+      "*": ["node_modules/*"],
+      "react-router": ["node_modules/react-router/dist/production/index.d.ts"]
     },
     "typeRoots": ["./node_modules/@types"]
   },

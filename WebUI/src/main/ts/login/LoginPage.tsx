@@ -19,6 +19,9 @@ import React, { useEffect, useState } from "react";
 import { BrandBar, BrandFooter } from "../ui-themes/components";
 import { ThemeProvider } from "../ui-themes/ThemeProvider";
 import { useTheme } from "../ui-themes/ThemeProvider";
+import { LOGIN_KEYS, t } from "./i18n";
+import { localeLabel } from "./localeLabels";
+import { ensureTmxLoaded } from "./tmxLoader";
 import type { LoginBootstrap } from "./types";
 import styles from "./LoginPage.module.css";
 
@@ -36,6 +39,7 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
     bootstrap.selectedLocale || bootstrap.locales[0]?.name || "en-us",
   );
   const [selectUi, setSelectUi] = useState(false);
+  const [tmxReady, setTmxReady] = useState(0);
 
   useEffect(() => {
     try {
@@ -61,8 +65,24 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
     }
   };
 
+  const onLocaleChange = (next: string): void => {
+    setLocale(next);
+    ensureTmxLoaded(next)
+      .then(() => {
+        document.documentElement.lang = next;
+        setTmxReady((n) => n + 1);
+      })
+      .catch(() => {
+        // Bundle unavailable; t() resolves to English fallback text after @.
+      });
+  };
+
   return (
-    <div className={styles.page} data-testid="perc-login-page">
+    <div
+      className={styles.page}
+      data-testid="perc-login-page"
+      data-tmx-ready={tmxReady}
+    >
       <BrandBar />
       <main className={styles.main}>
         <div className={styles.card}>
@@ -77,7 +97,7 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
             />
           </div>
           <h1 className={styles.title} data-testid="perc-login-title">
-            Sign in
+            {t(LOGIN_KEYS.TITLE)}
           </h1>
           <p className={styles.subtitle}>{theme.brand.productName}</p>
 
@@ -109,7 +129,7 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
 
             <div className={styles.formGroup}>
               <label className={styles.label} htmlFor="perc-login-username">
-                User name
+                {t(LOGIN_KEYS.USERNAME)}
               </label>
               <input
                 className={styles.input}
@@ -126,7 +146,7 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
 
             <div className={styles.formGroup}>
               <label className={styles.label} htmlFor="perc-login-password">
-                Password
+                {t(LOGIN_KEYS.PASSWORD)}
               </label>
               <input
                 className={styles.input}
@@ -145,19 +165,19 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
 
             <div className={styles.formGroup}>
               <label className={styles.label} htmlFor="perc-login-locale">
-                Locale
+                {t(LOGIN_KEYS.LOCALE)}
               </label>
               <select
                 className={styles.select}
                 id="perc-login-locale"
                 name="j_locale"
                 value={locale}
-                onChange={(e) => setLocale(e.target.value)}
+                onChange={(e) => onLocaleChange(e.target.value)}
                 data-testid="perc-login-locale"
               >
                 {bootstrap.locales.map((loc) => (
                   <option key={loc.name} value={loc.name}>
-                    {loc.displayName}
+                    {localeLabel(loc.name, locale, loc.displayName)}
                   </option>
                 ))}
               </select>
@@ -172,7 +192,9 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
                 onChange={(e) => onSelectUiChange(e.target.checked)}
                 data-testid="perc-login-select-ui"
               />
-              <label htmlFor="perc-login-select-ui">Use legacy UI</label>
+              <label htmlFor="perc-login-select-ui">
+                {t(LOGIN_KEYS.USE_LEGACY)}
+              </label>
             </div>
 
             <button
@@ -181,7 +203,7 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
               className={styles.submit}
               data-testid="perc-login-submit"
             >
-              Login
+              {t(LOGIN_KEYS.SUBMIT)}
             </button>
           </form>
 
