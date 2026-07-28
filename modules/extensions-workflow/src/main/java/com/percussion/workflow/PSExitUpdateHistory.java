@@ -21,6 +21,7 @@ import com.percussion.cms.IPSCmsErrors;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSApplicationBuilder;
 import com.percussion.cms.PSCmsException;
+import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.error.PSException;
 import com.percussion.extension.IPSExtension;
 import com.percussion.extension.IPSExtensionDef;
@@ -40,10 +41,12 @@ import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.services.system.IPSSystemService;
 import com.percussion.services.system.PSSystemServiceLocator;
 import com.percussion.services.system.data.PSContentStatusHistory;
+import com.percussion.services.workflow.IPSWorkflowService;
+import com.percussion.services.workflow.PSWorkflowServiceLocator;
+import com.percussion.services.workflow.data.PSTransition;
 import com.percussion.utils.exceptions.PSORMException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.File;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
@@ -123,7 +126,6 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
   public Document processResultDocument(Object[] params, IPSRequestContext request, Document resDoc)
       throws PSParameterMismatchException, PSExtensionProcessingException {
     PSWorkFlowUtils.printWorkflowMessage(request, "\nUpdate History: enter processResultDocument");
-    PSConnectionMgr connectionMgr = null;
     PSWorkflowRoleInfo wfRoleInfo = null;
     PSWorkFlowContext wfContext = null;
     Map<String, Object> htmlParams;
@@ -234,23 +236,12 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
             request, "update history: - no state roles found - history" + "will be written");
       }
 
-      // Get the connection
-      //
-      // PHASE 2 NOTE: The connection obtained here is only used for read-only
-      // PSContentStatusContext / PSTransitionsContext lookups inside
-      // updateHistory. The CONTENTSTATUSHISTORY write that used to ride on this
-      // connection has been moved to PSSystemServiceLocator.getSystemService()
-      // .saveContentStatusHistory(...) so it joins the shared Hibernate session
-      // of the surrounding request rather than opening a second pool connection.
-      // Migrating the read paths to the ORM stack is tracked as PHASE 3 in
-      // docs/ai-generated/migrations/workflow-orm/00-inventory.md.
-      Connection connection = null;
-      try {
-        connectionMgr = new PSConnectionMgr();
-        connection = connectionMgr.getConnection();
-      } catch (Exception e) {
-        throw new PSExtensionProcessingException(m_fullExtensionName, e);
-      }
+      // PHASE 3 (#1561): updateHistory now uses the Spring-managed datasource via
+      // PSCmsObjectMgr#loadComponentSummary and PSWorkflowService#loadWorkflowTransition.
+      // The legacy new PSConnectionMgr() / second pool connection that used to be
+      // acquired here is gone — all writes and reads now share the same Hibernate
+      // session as the surrounding request. See
+      // docs/ai-generated/migrations/workflow-orm/00-inventory.md §5.2.
 
       try {
         contentstatushistoryid =
@@ -262,8 +253,7 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
                 transitionID,
                 stateAssignedRoles,
                 transitionComment,
-                request,
-                connection);
+                request);
 
         wfContext.setHistoryid(contentstatushistoryid);
         if (0 == contentstatushistoryid) {
@@ -277,11 +267,6 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
         except = e;
       }
     } finally {
-      try {
-        if (null != connectionMgr) connectionMgr.releaseConnection();
-      } catch (SQLException sqe) {
-        // Ignore since this is cleanup
-      }
       if (null != except) {
         PSWorkFlowUtils.printWorkflowException(request, except);
         if (except instanceof PSException) {
@@ -340,32 +325,34 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
       int transitionID,
       List stateAssignedRoles,
       String transitionComment,
-      IPSRequestContext request,
-      Connection connection)
+      IPSRequestContext request)
       throws SQLException, PSEntryNotFoundException, PSExtensionProcessingException {
     PSWorkFlowUtils.printWorkflowMessage(request, "  Entering updateHistory");
     int contentstatushistoryid = 0;
-    PSContentStatusContext csc = null;
+    PSComponentSummary csc = null;
     int workflowID = 0;
     String stateAssignedRole = "None";
-    PSTransitionsContext tc = null;
+    PSTransition transition = null;
     IPSStatesContext sc = null;
     String lang =
         (String) request.getSessionPrivateObject(PSI18nUtils.USER_SESSION_OBJECT_SYS_LANG);
     if (lang == null) lang = PSI18nUtils.DEFAULT_LANG;
 
-    try {
-      csc = new PSContentStatusContext(connection, contentID);
-    } catch (SQLException e) {
+    // PHASE 3 (#1561): load CONTENTSTATUS via the Spring-managed datasource.
+    // The legacy raw-JDBC PSContentStatusContext(connection, contentID) call opened
+    // a second pool connection inside a request already running on the Hibernate
+    // session; that was the second half of the dual-connection bug fixed across
+    // #1561 Phase 2 (write) and Phase 3 (read).
+    IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
+    csc = cms.loadComponentSummary(contentID);
+    if (csc == null) {
       PSWorkFlowUtils.printWorkflowMessage(
           request,
           "  No entry for this content item so no update history.\n" + "Exiting updateHistory");
       return 0; // no entry for this content item so no update history
-    } finally {
-      if (csc != null) csc.close(); // release the JDBC resources
     }
 
-    workflowID = csc.getWorkflowID();
+    workflowID = csc.getWorkflowAppId();
 
     stateAssignedRole = "None";
 
@@ -377,21 +364,22 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
         stateAssignedRole = stateAssignedRole.substring(0, 1024);
       }
     }
-    IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
     Optional<? extends IPSStatesContext> scOpt =
-        cms.loadWorkflowState(workflowID, csc.getContentStateID());
+        cms.loadWorkflowState(workflowID, csc.getContentStateId());
     sc = scOpt.orElse(null);
 
-    // if it's not a checkin or checkout, get the transition context
-
+    // if it's not a checkin or checkout, get the transition row
     if (IPSConstants.TRANSITIONID_CHECKINOUT != transitionID) {
-      try {
-        tc = new PSTransitionsContext(transitionID, workflowID, connection);
-        tc.close();
-      } catch (PSEntryNotFoundException e) {
-        String language = e.getLanguageString();
-        if (language == null) e.setLanguageString(lang);
-        throw new PSExtensionProcessingException(language, m_fullExtensionName, e);
+      IPSWorkflowService wfSvc = PSWorkflowServiceLocator.getWorkflowService();
+      transition = wfSvc.loadWorkflowTransition(workflowID, transitionID);
+      if (transition == null) {
+        throw new PSExtensionProcessingException(
+            m_fullExtensionName,
+            new PSEntryNotFoundException(
+                "Workflow transition "
+                    + transitionID
+                    + " not found in workflow "
+                    + workflowID));
       }
     }
 
@@ -399,42 +387,28 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
     // session. The legacy PSExitNextNumber.getNextNumber(...) pre-allocation step
     // is gone — saveContentStatusHistory allocates a new CONTENTSTATUSHISTORYID
     // via m_guidMgr.createGuid(PSTypeEnum.ITEM_HISTORY) when entity.getId() < 0L.
-    PSContentStatusHistory entity = new PSContentStatusHistory();
-    entity.setId(-1L);
-    entity.setWorkflowId(workflowID);
-    entity.setContentId(contentID);
-    entity.setSessionId(sessionID);
-    entity.setActor(userName);
-    entity.setRevision(baseRevisionNum);
-    entity.setRoleName(stateAssignedRole);
-    entity.setTransitionComment(transitionComment);
-    Date eventTime = new Date();
-    entity.setEventTime(eventTime);
-    entity.setIsValidValue(sc.getIsValid() ? "Y" : "N");
-    entity.setStateId(csc.getContentStateID());
-    entity.setStateName(sc.getStateName());
-    entity.setTitle(csc.getTitle());
-    entity.setCheckoutUserName(csc.getContentCheckedOutUserName());
-    entity.setLastModifierName(csc.getContentLastModifierName());
-    entity.setLastModifiedDate(csc.getContentLastModifiedDate());
-
-    if (null == tc) {
-      // Check-in / check-out — no transition row.
-      entity.setTransitionId(IPSConstants.TRANSITIONID_CHECKINOUT);
-      if (null == csc.getContentCheckedOutUserName()) {
-        entity.setTransitionLabel("CheckIn");
-      } else {
-        entity.setTransitionLabel("CheckOut");
-      }
-    } else {
-      entity.setTransitionId(tc.getTransitionID());
-      entity.setTransitionLabel(tc.getTransitionLabel());
-    }
+    // Field-by-field mapping lives in PSContentStatusHistoryEntityBuilder so the
+    // deprecated write constructor and this exit produce identical entities from
+    // the same inputs. The PSComponentSummary is wrapped in the read-only adapter
+    // because the builder's legacy signature still uses IPSContentStatusContext.
+    PSContentStatusHistory entity =
+        PSContentStatusHistoryEntityBuilder.build(
+            -1,
+            workflowID,
+            contentID,
+            sessionID,
+            userName,
+            baseRevisionNum,
+            stateAssignedRole,
+            transitionComment,
+            new PSComponentSummaryAdapter(csc),
+            sc,
+            transition);
 
     try {
       // If restoring revision, a new history is created for old revision
       // thus making this check to avoid that. Only create history for current revision
-      if (baseRevisionNum == csc.getCurrentRevision()) {
+      if (baseRevisionNum == csc.getCurrRevision()) {
         IPSSystemService svc = PSSystemServiceLocator.getSystemService();
         svc.saveContentStatusHistory(entity);
         contentstatushistoryid = (int) entity.getId();
@@ -460,7 +434,7 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
       PSContentStatusHistory entity,
       IPSStatesContext sc,
       IPSRequestContext request,
-      PSContentStatusContext csc)
+      PSComponentSummary csc)
       throws PSException {
     int revision;
     if (entity.isValid()) {
@@ -498,7 +472,7 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
     ir.performUpdate();
   }
 
-  private boolean needToUpdatePublicRevision(PSContentStatusContext csc) {
+  private boolean needToUpdatePublicRevision(PSComponentSummary csc) {
     Date startDate = csc.getContentStartDate();
 
     if (startDate == null) return true;

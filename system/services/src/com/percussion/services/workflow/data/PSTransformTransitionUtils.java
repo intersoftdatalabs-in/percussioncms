@@ -37,7 +37,7 @@ import static org.apache.commons.lang3.Validate.notNull;
  * @author YuBingChen
  */
 @Transactional
-class PSTransformTransitionUtils
+public class PSTransformTransitionUtils
 {
    /**
     * Merging the non-persisted (and non-aging) transitions to persisted transitions. 
@@ -82,7 +82,7 @@ class PSTransformTransitionUtils
          if (type == hib.getTransitionType())
          {
             if (type == TransitionType.TRANSITION)
-               result.add(getTransition(hib));
+               result.add(convertTransition(hib));
             else
                result.add(getAgingTransition(hib));
          }
@@ -114,20 +114,20 @@ class PSTransformTransitionUtils
       merger.copyList(src, tgt);
    }
    
-   /**
-    * Converts the non-persisted aging-transition object to the persisted transition object.
-    * 
-    * @param ageTrans the aging-transition object, assumed not <code>null</code>.
-    * 
-    * @return the converted transition, not <code>null</code>.
+/**
+     * Converts the given persisted transition to a non-persisted transition object.
+    *
+    * @param hib the persisted transition, assumed not <code>null</code>.
+    *
+    * @return the converted non-persisted transition, not <code>null</code>.
     */
-   private static PSTransitionHib getTransitionHib(PSAgingTransition ageTrans)
+   public static PSTransition convertTransition(PSTransitionHib hib)
    {
-      PSTransitionHib hib = new PSTransitionHib();
-      hib.setTransitionType(TransitionType.AGING);
-      copyBaseProperties(ageTrans, hib, true);
-      copyAgingProperties(ageTrans, hib);
-      return hib;
+      PSTransition trans = new PSTransition();
+      copyBaseProperties(hib, trans, true);
+      copyTransitionProperties(hib, trans);
+
+      return trans;
    }
 
    /**
@@ -140,7 +140,16 @@ class PSTransformTransitionUtils
       PSTransitionHib hib = new PSTransitionHib();
       hib.setTransitionType(TransitionType.TRANSITION);
       copyTransition(trans, hib, true);
-      
+
+      return hib;
+   }
+
+   private static PSTransitionHib getTransitionHib(PSAgingTransition ageTrans)
+   {
+      PSTransitionHib hib = new PSTransitionHib();
+      hib.setTransitionType(TransitionType.AGING);
+      copyAgingTransition(ageTrans, hib, true);
+
       return hib;
    }
    

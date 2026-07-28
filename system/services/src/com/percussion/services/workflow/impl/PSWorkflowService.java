@@ -46,6 +46,9 @@ import com.percussion.services.workflow.data.PSNotificationDef;
 import com.percussion.services.workflow.data.PSState;
 import com.percussion.services.workflow.data.PSTransition;
 import com.percussion.services.workflow.data.PSTransitionBase;
+import com.percussion.services.workflow.data.PSTransformTransitionUtils;
+import com.percussion.services.workflow.data.PSTransitionHib;
+import com.percussion.services.workflow.data.PSTransitionPK;
 import com.percussion.services.workflow.data.PSTransitionRole;
 import com.percussion.services.workflow.data.PSWorkflow;
 import com.percussion.services.workflow.data.PSWorkflowRole;
@@ -773,6 +776,39 @@ public class PSWorkflowService
       }
 
       return null;
+   }
+
+   /**
+    * Loads a single workflow transition by (workflowId, transitionId) via the Hibernate session,
+    * so callers running under a Spring transaction do not open a second pool connection. Returns
+    * {@code null} when no row matches.
+    *
+    * <p>Added for #1561 Phase 3 to replace the raw-JDBC
+    * {@code PSTransitionsContext(transitionId, workflowId, Connection)} read path inside
+    * {@code modules/extensions-workflow/.../PSExitUpdateHistory}.
+    *
+    * @param workflowAppId the workflow id; must be {@code > 0}.
+    * @param transitionId the transition id; must be {@code > 0}.
+    * @return the non-aging transition (as a {@link PSTransition} DTO), or {@code null} when no
+    *     matching row exists.
+    */
+   @Transactional
+   public PSTransition loadWorkflowTransition(long workflowAppId, long transitionId)
+   {
+      if (workflowAppId <= 0)
+         throw new IllegalArgumentException("workflowAppId must be > 0");
+      if (transitionId <= 0)
+         throw new IllegalArgumentException("transitionId must be > 0");
+
+      PSTransitionHib hib =
+            getSession().get(
+                PSTransitionHib.class,
+                new PSTransitionPK(workflowAppId, transitionId));
+      if (hib == null)
+         return null;
+      if (hib.getTransitionType() != PSTransitionHib.TransitionType.TRANSITION)
+         return null;
+      return PSTransformTransitionUtils.convertTransition(hib);
    }
 
    /**

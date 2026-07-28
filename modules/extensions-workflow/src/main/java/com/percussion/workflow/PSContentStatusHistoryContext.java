@@ -18,16 +18,17 @@ package com.percussion.workflow;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.extension.IPSExtensionErrors;
+import com.percussion.services.catalog.PSTypeEnum;
+import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.system.IPSSystemService;
 import com.percussion.services.system.PSSystemServiceLocator;
 import com.percussion.services.system.data.PSContentStatusHistory;
-import com.percussion.util.PSPreparedStatement;
+import com.percussion.utils.guid.IPSGuid;
 import java.sql.Connection;
 import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.List;
 
 /**
  * A class that provides methods for creating new content status history records and accessing
@@ -44,52 +45,32 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
    * Constructor specifying the workFlowID, connection, and contentID, used for read-only access to
    * content status history records.
    *
+   * <p><strong>Deprecated.</strong> Since #1561 Phase 3 the rows are loaded via the
+   * {@link PSSystemServiceLocator#getSystemService()#findContentStatusHistory(IPSGuid)} service
+   * (Hibernate) rather than the legacy raw-JDBC context. The {@code connection} parameter is
+   * accepted for binary compatibility but is no longer used.
+   *
    * @param workFlowID ID of the workflow for this item
-   * @param connection data base connection
+   * @param connection data base connection (ignored; preserved for binary compatibility)
    * @param contentID ID of the content item
-   * @throws SQLException if a SQL error occurs
+   * @throws SQLException if a service-level SQL error occurs
    * @throws PSEntryNotFoundException if no records were returned
    */
   public PSContentStatusHistoryContext(int workFlowID, Connection connection, int contentID)
       throws SQLException, PSEntryNotFoundException {
     m_nWorkflowID = workFlowID;
     m_nContentID = contentID;
-    m_Connection = connection;
 
-    try {
-      m_Statement = PSPreparedStatement.getPreparedStatement(m_Connection, QRYSTRING);
-      m_Statement.clearParameters();
-      m_Statement.setInt(1, workFlowID);
-      m_Statement.setInt(2, contentID);
-      m_Rs = m_Statement.executeQuery();
-
-      while (m_Rs.next()) {
-        m_nCount++;
-      }
-      if (0 == m_nCount) {
-        close();
-        throw new PSEntryNotFoundException(IPSExtensionErrors.NO_RECORDS);
-      }
-
-      try {
-        m_Rs.close();
-        m_Statement.close();
-      } catch (Exception e) {
-      }
-
-      // redo the whole thing!!!
-      m_Statement = PSPreparedStatement.getPreparedStatement(m_Connection, QRYSTRING);
-      m_Statement.clearParameters();
-      m_Statement.setInt(1, workFlowID);
-      m_Statement.setInt(2, contentID);
-      m_Rs = m_Statement.executeQuery();
-      moveNext();
-    } finally {
-      try {
-        close();
-      } catch (Exception e) {
-      }
+    IPSSystemService svc = PSSystemServiceLocator.getSystemService();
+    IPSGuid id = new PSGuid(PSTypeEnum.LEGACY_CONTENT, contentID);
+    m_rows = svc.findContentStatusHistory(id);
+    if (m_rows == null || m_rows.isEmpty()) {
+      m_nCount = 0;
+      throw new PSEntryNotFoundException(IPSExtensionErrors.NO_RECORDS);
     }
+    m_nCount = m_rows.size();
+    m_rowIndex = 0;
+    moveNext();
   }
 
   /**
@@ -156,38 +137,20 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
           "statesContext is null in " + "PSContentStatusHistoryContext.");
     }
 
-    PSContentStatusHistory entity = new PSContentStatusHistory();
-    // -1 (or any non-positive value) lets saveContentStatusHistory allocate a new ID.
-    entity.setId(contentStatusHistoryID <= 0 ? -1L : contentStatusHistoryID);
-    entity.setWorkflowId(workFlowID);
-    entity.setContentId(contentID);
-    entity.setSessionId(sessionID);
-    entity.setActor(actorName);
-    entity.setRevision(baseRevisionNum);
-    entity.setRoleName(roleName);
-    entity.setTransitionComment(transitionComment);
-    entity.setIsValidValue(statesContext.getIsValid() ? "Y" : "N");
-    entity.setStateId(contentStatusContext.getContentStateID());
-    entity.setStateName(statesContext.getStateName());
-    entity.setTitle(contentStatusContext.getTitle());
-    entity.setCheckoutUserName(contentStatusContext.getContentCheckedOutUserName());
-    entity.setLastModifierName(contentStatusContext.getContentLastModifierName());
-    Date lastModifiedDate = contentStatusContext.getContentLastModifiedDate();
-    entity.setLastModifiedDate(lastModifiedDate);
-    Date eventTime = new Date(new java.util.Date().getTime());
-    entity.setEventTime(eventTime);
-
-    if (null == transitionContext) {
-      entity.setTransitionId(IPSConstants.TRANSITIONID_CHECKINOUT);
-      if (null == contentStatusContext.getContentCheckedOutUserName()) {
-        entity.setTransitionLabel("CheckIn");
-      } else {
-        entity.setTransitionLabel("CheckOut");
-      }
-    } else {
-      entity.setTransitionId(transitionContext.getTransitionID());
-      entity.setTransitionLabel(transitionContext.getTransitionLabel());
-    }
+    PSContentStatusHistory entity =
+        PSContentStatusHistoryEntityBuilder.build(
+            contentStatusHistoryID,
+            workFlowID,
+            contentID,
+            sessionID,
+            actorName,
+            baseRevisionNum,
+            roleName,
+            transitionComment,
+            contentStatusContext,
+            statesContext,
+            transitionContext);
+    java.util.Date eventTime = entity.getEventTime();
 
     IPSSystemService svc = PSSystemServiceLocator.getSystemService();
     svc.saveContentStatusHistory(entity);
@@ -204,7 +167,10 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
     setContentStateID(contentStatusContext.getContentStateID());
     setContentCheckoutUserName(contentStatusContext.getContentCheckedOutUserName());
     setContentLastModifierName(contentStatusContext.getContentLastModifierName());
-    setContentLastModifiedDate(lastModifiedDate);
+    setContentLastModifiedDate(
+        entity.getLastModifiedDate() == null
+            ? null
+            : new java.sql.Date(entity.getLastModifiedDate().getTime()));
     setTransitionID(entity.getTransitionId());
     setTransitionLabel(entity.getTransitionLabel());
     setTransitionComment(transitionComment);
@@ -212,7 +178,8 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
     setSessionID(sessionID);
     setContentStateRoleName(roleName);
     setRevision(baseRevisionNum);
-    m_EventTime = eventTime;
+    m_EventTime =
+        eventTime == null ? null : new java.sql.Date(eventTime.getTime());
   }
 
   /**
@@ -474,67 +441,54 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
    * if necessary.
    */
   public void close() {
-    try {
-      if (null != m_Connection && false == m_Connection.getAutoCommit())
-        m_Connection.setAutoCommit(true);
-    } catch (SQLException e) {
-    }
-    // release resouces
-    try {
-      if (null != m_Rs) {
-        m_Rs.close();
-        m_Rs = null;
-      }
-
-      if (null != m_Statement) {
-        m_Statement.close();
-        m_Statement = null;
-      }
-    } catch (SQLException e) {
-    }
+    // Phase 3 (#1561): rows are loaded into memory by Hibernate; nothing to free here.
+    // We keep the signature for binary compatibility with legacy callers.
+    m_rows = null;
   }
 
   /*
-   * Gets the next JDBC result set, and moves the data into member variables;
-   * strings are trimmed.
+   * Advances the in-memory cursor over the list returned by Hibernate and copies the next row's
+   * columns into member variables. Strings are trimmed; nulls are mapped to empty (or
+   * {@code null} for the checkout user, which the legacy interface uses to signal "not checked
+   * out"). Throws {@link SQLException} only for the rare case where {@link Date#getTime()} on a
+   * non-null date fails (kept in the signature for binary compatibility with the legacy cursor
+   * pattern).
    */
   public boolean moveNext() throws SQLException {
-    String valid = "";
-    boolean bSuccess = m_Rs.next();
-    if (false == bSuccess) {
-      return bSuccess;
+    if (m_rows == null || m_rowIndex >= m_rows.size()) {
+      return false;
     }
-    m_sSessionID = PSWorkFlowUtils.trimmedOrEmptyString(m_Rs.getString("SESSIONID"));
-    m_nContentStatusHistoryID = m_Rs.getInt("CONTENTSTATUSHISTORYID");
-    m_nContentID = m_Rs.getInt("CONTENTID");
-    m_nStateID = m_Rs.getInt("STATEID");
-    m_sActor = PSWorkFlowUtils.trimmedOrEmptyString(m_Rs.getString("ACTOR"));
-    m_nTransitionID = m_Rs.getInt("TRANSITIONID");
-    valid = PSWorkFlowUtils.trimmedOrEmptyString(m_Rs.getString("VALID"));
+    PSContentStatusHistory row = m_rows.get(m_rowIndex++);
+    String valid = row.getIsValidValue();
+    m_sSessionID = PSWorkFlowUtils.trimmedOrEmptyString(row.getSessionId());
+    m_nContentStatusHistoryID = (int) row.getId();
+    m_nContentID = row.getContentId();
+    m_nStateID = row.getStateId();
+    m_sActor = PSWorkFlowUtils.trimmedOrEmptyString(row.getActor());
+    m_nTransitionID = row.getTransitionId();
+    valid = PSWorkFlowUtils.trimmedOrEmptyString(row.getIsValidValue());
     m_bValid = (null != valid && valid.equalsIgnoreCase("Y"));
-    m_sRoleName = PSWorkFlowUtils.trimmedOrEmptyString(m_Rs.getString("ROLENAME"));
+    m_sRoleName = PSWorkFlowUtils.trimmedOrEmptyString(row.getRoleName());
     // A null string is used to indicate an item is not checked out.
-    m_sCheckOutUserName = PSWorkFlowUtils.trimmedOrNullString(m_Rs.getString("CHECKOUTUSERNAME"));
-    m_sLastModifierName = PSWorkFlowUtils.trimmedOrEmptyString(m_Rs.getString("LASTMODIFIERNAME"));
+    m_sCheckOutUserName = PSWorkFlowUtils.trimmedOrNullString(row.getCheckoutUserName());
+    m_sLastModifierName = PSWorkFlowUtils.trimmedOrEmptyString(row.getLastModifierName());
     /*
-     * Use getTimestamp because the JDBC-ODBC bridge for SQL Server does
-     * not return minutes and seconds.
+     * The Hibernate entity returns java.util.Date; the legacy fields are java.sql.Date
+     * (because the old PSContentStatusContext used getTimestamp). Narrow via getTime().
      */
-    Timestamp tmpTimestamp = null;
+    m_LastModifiedDate =
+        row.getLastModifiedDate() == null
+            ? null
+            : new Date(row.getLastModifiedDate().getTime());
+    m_EventTime = row.getEventTime() == null ? null : new Date(row.getEventTime().getTime());
 
-    tmpTimestamp = m_Rs.getTimestamp("LASTMODIFIEDDATE");
-    m_LastModifiedDate = new Date(tmpTimestamp.getTime());
-    tmpTimestamp = m_Rs.getTimestamp("EVENTTIME");
-    m_EventTime = new Date(tmpTimestamp.getTime());
+    m_sTransitionComment = PSWorkFlowUtils.trimmedOrEmptyString(row.getTransitionComment());
+    m_nRevision = row.getRevision();
+    m_sTitle = PSWorkFlowUtils.trimmedOrEmptyString(row.getTitle());
+    m_sTransitionLabel = PSWorkFlowUtils.trimmedOrEmptyString(row.getTransitionLabel());
+    m_sStateName = PSWorkFlowUtils.trimmedOrEmptyString(row.getStateName());
 
-    m_sTransitionComment =
-        PSWorkFlowUtils.trimmedOrEmptyString(m_Rs.getString("TRANSITIONCOMMENT"));
-    m_nRevision = m_Rs.getInt("REVISIONID");
-    m_sTitle = PSWorkFlowUtils.trimmedOrEmptyString(m_Rs.getString("TITLE"));
-    m_sTransitionLabel = PSWorkFlowUtils.trimmedOrEmptyString(m_Rs.getString("TRANSITIONLABEL"));
-    m_sStateName = PSWorkFlowUtils.trimmedOrEmptyString(m_Rs.getString("STATENAME"));
-
-    return bSuccess;
+    return true;
   }
 
   public boolean isEmpty() {
@@ -679,14 +633,14 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
 
   /******** Database Related Variables ********/
 
-  /** Connection to the database */
-  private Connection m_Connection = null;
+  /**
+   * Rows loaded into memory by Hibernate via {@code IPSSystemService#findContentStatusHistory}.
+   * The cursor pattern ({@link #moveNext()}) now iterates this list. Null after {@link #close()}.
+   */
+  private List<PSContentStatusHistory> m_rows = null;
 
-  /** JDBC version of SQL statement to be executed. */
-  private PreparedStatement m_Statement = null;
-
-  /** Result of database query */
-  private ResultSet m_Rs = null;
+  /** Zero-based cursor position over {@link #m_rows}. */
+  private int m_rowIndex = 0;
 
   /** Number of database records found */
   private int m_nCount = 0;
