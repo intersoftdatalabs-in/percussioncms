@@ -18,6 +18,7 @@ package com.percussion.workflow;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.services.system.data.PSContentStatusHistory;
+import com.percussion.services.workflow.data.PSTransition;
 import java.util.Date;
 
 /**
@@ -31,14 +32,14 @@ import java.util.Date;
  * live database. Keeping the mapping helper in a separate class lets unit tests exercise the
  * mapping without booting a real DB.
  *
- * <p>Used by both the migrated {@code PSExitUpdateHistory} write path (#1561 Phase 2) and the
- * deprecated {@code PSContentStatusHistoryContext} write constructor so they produce identical
+ * <p>Used by both the migrated {@code PSExitUpdateHistory} write path (#1561 Phases 2 and 3) and
+ * the deprecated {@code PSContentStatusHistoryContext} write constructor so they produce identical
  * entities from identical inputs.
  *
- * <p>Transition-id / label rules: when {@code transitionContext} is {@code null} the helper
- * behaves as a check-in or check-out. It uses {@link IPSConstants#TRANSITIONID_CHECKINOUT} as the
- * transition id and labels the row {@code "CheckIn"} when no checkout user is set, or {@code
- * "CheckOut"} otherwise. When {@code transitionContext} is non-null the helper copies the
+ * <p>Transition-id / label rules: when the transition argument is {@code null} the helper
+ * behaves as a check-in or check-out. It uses {@link IPSConstants#TRANSITIONID_CHECKINOUT} as
+ * the transition id and labels the row {@code "CheckIn"} when no checkout user is set, or
+ * {@code "CheckOut"} otherwise. When the transition argument is non-null the helper copies the
  * transition id and label from it.
  *
  * @see <a href="https://github.com/intersoftdatalabs-in/percussioncms/issues/1561">Issue #1561</a>
@@ -50,26 +51,10 @@ public final class PSContentStatusHistoryEntityBuilder {
   }
 
   /**
-   * Builds a {@link PSContentStatusHistory} entity from the supplied inputs. The caller hands the
-   * returned entity to {@code IPSSystemService#saveContentStatusHistory}.
-   *
-   * @param contentStatusHistoryID the desired id; pass a non-positive value to let
-   *     {@code saveContentStatusHistory} allocate a new id via the global GUID manager.
-   * @param workFlowID id of the workflow for this entry, written to {@code WORKFLOWAPPID}.
-   * @param contentID id of the content item acted on, written to {@code CONTENTID}.
-   * @param sessionID session id of the actor.
-   * @param actorName user name that performed the action, written to {@code ACTOR}.
-   * @param baseRevisionNum revision number of the content item for the action.
-   * @param roleName comma-separated role names of assignees for the post-action state.
-   * @param transitionComment descriptive comment for the action.
-   * @param contentStatusContext the source of {@code TITLE}, {@code STATEID}, {@code CHECKOUTUSERNAME},
-   *     {@code LASTMODIFIERNAME} and {@code LASTMODIFIEDDATE}. Must not be {@code null}.
-   * @param statesContext the source of {@code STATENAME} and {@code VALID}. Must not be {@code null}.
-   * @param transitionContext the transition context; pass {@code null} for check-in / check-out.
-   * @return a populated entity with {@code EVENTTIME} set to the current time and {@code ID} set to
-   *     the supplied value when positive, otherwise {@code -1L}.
-   * @throws IllegalArgumentException if {@code contentStatusContext} or {@code statesContext} is
-   *     {@code null}.
+   * Legacy overload kept for binary compatibility with the deprecated
+   * {@code PSContentStatusHistoryContext} write constructor (passes a raw
+   * {@link IPSTransitionsContext} cursor). Delegates to the
+   * {@link PSTransition} overload by extracting id and label from the cursor.
    */
   public static PSContentStatusHistory build(
       int contentStatusHistoryID,
@@ -83,6 +68,46 @@ public final class PSContentStatusHistoryEntityBuilder {
       IPSContentStatusContext contentStatusContext,
       IPSStatesContext statesContext,
       IPSTransitionsContext transitionContext) {
+    PSTransition transition = null;
+    if (transitionContext != null) {
+      transition = new PSTransition();
+      transition.setGUID(
+          new com.percussion.services.guidmgr.data.PSGuid(
+              com.percussion.services.catalog.PSTypeEnum.WORKFLOW_TRANSITION,
+              transitionContext.getTransitionID()));
+      transition.setLabel(transitionContext.getTransitionLabel());
+    }
+    return build(
+        contentStatusHistoryID,
+        workFlowID,
+        contentID,
+        sessionID,
+        actorName,
+        baseRevisionNum,
+        roleName,
+        transitionComment,
+        contentStatusContext,
+        statesContext,
+        transition);
+  }
+
+  /**
+   * Overload that accepts the Hibernate-managed {@link PSTransition} DTO returned by
+   * {@code PSWorkflowService#loadWorkflowTransition(...)}. Used by {@code PSExitUpdateHistory}
+   * since #1561 Phase 3.
+   */
+  public static PSContentStatusHistory build(
+      int contentStatusHistoryID,
+      int workFlowID,
+      int contentID,
+      String sessionID,
+      String actorName,
+      int baseRevisionNum,
+      String roleName,
+      String transitionComment,
+      IPSContentStatusContext contentStatusContext,
+      IPSStatesContext statesContext,
+      PSTransition transition) {
     if (null == contentStatusContext) {
       throw new IllegalArgumentException(
           "contentStatusContext is null in PSContentStatusHistoryEntityBuilder.");
@@ -111,16 +136,17 @@ public final class PSContentStatusHistoryEntityBuilder {
     entity.setLastModifiedDate(contentStatusContext.getContentLastModifiedDate());
     entity.setEventTime(new Date());
 
-    if (null == transitionContext) {
+    if (null == transition) {
+      // Check-in / check-out — no transition row.
       entity.setTransitionId(IPSConstants.TRANSITIONID_CHECKINOUT);
-      if (null == contentStatusContext.getContentCheckedOutUserName()) {
-        entity.setTransitionLabel("CheckIn");
-      } else {
-        entity.setTransitionLabel("CheckOut");
-      }
+      entity.setTransitionLabel(
+          contentStatusContext.getContentCheckedOutUserName() == null ? "CheckIn" : "CheckOut");
     } else {
-      entity.setTransitionId(transitionContext.getTransitionID());
-      entity.setTransitionLabel(transitionContext.getTransitionLabel());
+      // PSTransition exposes the transition id via its GUID (workflow GUID type) and the
+      // TRANSITIONLABEL via getLabel(). The legacy IPSTransitionsContext cursor exposed
+      // them directly, which the overload above translates.
+      entity.setTransitionId((int) transition.getGUID().longValue());
+      entity.setTransitionLabel(transition.getLabel());
     }
 
     return entity;

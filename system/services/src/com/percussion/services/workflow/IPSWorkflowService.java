@@ -388,6 +388,21 @@ public interface IPSWorkflowService {
     }
 
     /**
+     * Loads a single workflow transition by its (workflowId, transitionId) key, joining the same
+     * Hibernate session as the rest of the CMS so callers running under a Spring transaction do not
+     * open a second pool connection.
+     *
+     * <p>Added for #1561 Phase 3 to replace the raw-JDBC
+     * {@code PSTransitionsContext(transitionId, workflowId, Connection)} read path inside
+     * {@code modules/extensions-workflow/.../PSExitUpdateHistory}.
+     *
+     * @param workflowAppId the workflow id, must be {@code > 0}.
+     * @param transitionId the transition id, must be {@code > 0}.
+     * @return the transition, or {@code null} when no row matches the supplied key.
+     */
+    PSTransition loadWorkflowTransition(long workflowAppId, long transitionId);
+
+    /**
      * Loads a specified workflow state by name. This is a fast call, but will
      * return a shared instance that must not be modified.
      *

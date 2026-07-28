@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.services.system.data.PSContentStatusHistory;
+import com.percussion.services.workflow.data.PSTransition;
 import java.sql.Date;
 import java.util.Calendar;
 import org.junit.jupiter.api.Test;
@@ -173,7 +174,7 @@ public class PSContentStatusHistoryEntityBuilderTest {
             TRANSITION_COMMENT,
             mockContentStatusContext(TITLE, CONTENT_STATE_ID, null, LAST_MODIFIER, yesterday()),
             mockStatesContext(false, STATE_NAME),
-            null);
+            (PSTransition) null);
 
     assertEquals(IPSConstants.TRANSITIONID_CHECKINOUT, entity.getTransitionId());
     assertEquals("CheckIn", entity.getTransitionLabel());
@@ -200,7 +201,7 @@ public class PSContentStatusHistoryEntityBuilderTest {
             TRANSITION_COMMENT,
             mockContentStatusContext(TITLE, CONTENT_STATE_ID, checkOutUser, LAST_MODIFIER, yesterday()),
             mockStatesContext(false, STATE_NAME),
-            null);
+            (PSTransition) null);
 
     assertEquals(IPSConstants.TRANSITIONID_CHECKINOUT, entity.getTransitionId());
     assertEquals("CheckOut", entity.getTransitionLabel());

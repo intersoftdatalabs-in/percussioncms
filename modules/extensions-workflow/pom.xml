@@ -34,6 +34,21 @@
             <artifactId>junit-jupiter-api</artifactId>
             <scope>test</scope>
         </dependency>
+        <!--
+            junit-jupiter aggregator pulls in junit-jupiter-engine so Surefire can
+            discover and run @Test methods. Without this, only the API is on the
+            test classpath and tests are silently skipped (Tests run: 0).
+        -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>saxon</groupId>
             <artifactId>saxon</artifactId>

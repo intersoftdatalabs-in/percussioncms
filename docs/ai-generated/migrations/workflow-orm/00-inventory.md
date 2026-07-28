@@ -1,11 +1,14 @@
 # Issue #1561 — Workflow JDBC → Hibernate (Phase 0 Inventory)
 
-> **Status:** Phase 0 + Phase 1 + Phase 2 — inventory, H2 column-qualifier fix
-> on the remaining four contexts, and ORM migration of `CONTENTSTATUSHISTORY`
-> writes. No commit / push / PR per agreed scope. Phase 3 (migrate the
-> remaining exit-class reads, the read constructor, the inner
-> `putLastPublicRev` request, and the other contexts) and Phase 4 (delete
-> `PSConnectionMgr`) are still open and tracked under this issue.
+> **Status:** Phase 0 + Phase 1 + Phase 2 + Phase 3 — inventory, H2
+> column-qualifier fix on all six contexts, ORM migration of `CONTENTSTATUSHISTORY`
+> writes, AND the surviving `new PSConnectionMgr()` exits inside `PSExitUpdateHistory`
+> are gone. The read constructor on `PSContentStatusHistoryContext` is now an
+> in-memory cursor backed by Hibernate. `PSExitUpdateHistory` reads `CONTENTSTATUS`
+> via `PSCmsObjectMgr.loadComponentSummary` and `TRANSITIONS` via the new
+> `IPSWorkflowService.loadWorkflowTransition(long, long)` method. No commit / push / PR
+> per agreed scope. Phase 4 (delete `PSConnectionMgr`) is still open and tracked
+> under this issue.
 >
 > **Last refreshed:** after PR **#1563** (`a1497cc82d`) merged into
 > `origin/development`. That PR delivered a partial Phase 1 (H2 column-qualifier
@@ -149,28 +152,27 @@ This is the **`processResultDocument` / `performTransition` chain** that the
 migration has rewired. Traced from `processResultDocument(Object[], IPSRequestContext, Document)`
 entry points into the wrapper contexts that own the actual SQL.
 
-### 5.1 After this branch's Phase 1 + Phase 2 changes
+### 5.1 After this branch's Phase 1 + Phase 2 + Phase 3 changes
 
 ```
 sys_wfUpdateHistory (XML app)
   └─ PSExitUpdateHistory#processResultDocument
-     └─ new PSConnectionMgr()                                  ── line 249 (kept for reads only; see PHASE 2 NOTE in source)
+     └─ (REMOVED: new PSConnectionMgr())                        ── Phase 3 delete
         └─ updateHistory(...)
-           ├─ new PSContentStatusContext(connection, id)       ── reads CONTENTSTATUS  (Phase 3 candidate)
-           ├─ new PSTransitionsContext(...)                    ── reads TRANSITIONS    (Phase 3 candidate)
-           ├─ (REMOVED: PSExitNextNumber.getNextNumber("CONTENTSTATUSHISTORY") — Hibernate now allocates)
-           ├─ new PSContentStatusHistory(entity)              ── writes CONTENTSTATUSHISTORY
+           ├─ PSCmsObjectMgr#loadComponentSummary(contentID)     ── reads CONTENTSTATUS  (Hibernate, shared session)
+           ├─ (REMOVED: PSExitNextNumber.getNextNumber)          ── Hibernate now allocates
+           ├─ IPSWorkflowService#loadWorkflowTransition(wfId, transId)  ── reads TRANSITIONS (Hibernate, shared session)
+           ├─ new PSContentStatusHistory(entity)                ── writes CONTENTSTATUSHISTORY
            │    └─ PSSystemServiceLocator.getSystemService()
-           │         .saveContentStatusHistory(entity)         ── Hibernate-managed, single datasource
-           └─ (REMOVED: new PSContentStatusHistoryContext(...)) 
-              then optionally calls
+           │         .saveContentStatusHistory(entity)           ── Hibernate-managed, single datasource
+           └─ then optionally calls
                  updateLastPublicRevision(entity, sc, request, csc)
-                 └─ PSInternalRequest("sys_ceSupport/putLastPublicRev")            ── internal request still uses legacy pool; Phase 3 candidate
+                 └─ PSInternalRequest("sys_ceSupport/putLastPublicRev")   ── inner request still uses legacy pool; Phase 3 candidate
 ```
 
 ```
 PSExitPerformTransition#performTransition (entry)
-  └─ new PSConnectionMgr()                                     ── line 404 (Phase 3 candidate)
+  └─ new PSConnectionMgr()                                     ── line 404 (Phase 3 candidate — next branch)
      ├─ reads state roles, transitions, adhoc users
      ├─ transitions state on CONTENTSTATUS
      └─ new PSContentAdhocUsersContext(...)                    ── uses CONTENTADHOCUSERS via PSConnectionMgr.getQualifiedIdentifier line 572 (H2-safe)
@@ -178,20 +180,20 @@ PSExitPerformTransition#performTransition (entry)
 
 ```
 PSExitNotifyAssignees#processResultDocument
-  └─ new PSConnectionMgr()                                     ── line 252 (Phase 3 candidate)
+  └─ new PSConnectionMgr()                                     ── line 252 (Phase 3 candidate — next branch)
      ├─ PSTransitionsContext / PSNotificationsContext         ── uses TRANSITIONNOTIFICATIONS (H2-safe) / NOTIFICATIONS (H2-safe)
      └─ mails assignees
 ```
 
-### 5.2 Phase 2 deliverable
+### 5.2 Phase 2 + Phase 3 deliverable
 
 The CONTENTSTATUSHISTORY write that used to ride on a second pool connection
 now goes through `PSSystemServiceLocator.getSystemService().saveContentStatusHistory(...)`
-(`PSExitUpdateHistory.java` lines 398–432). That call:
+(`PSExitUpdateHistory.java`). That call:
 
 1. Constructs a `com.percussion.services.system.data.PSContentStatusHistory` entity
-   directly from the inputs that the legacy `PSContentStatusHistoryContext` write
-   constructor used to assemble.
+   via `PSContentStatusHistoryEntityBuilder.build(...)` so the deprecated write
+   constructor and this exit produce identical entities from the same inputs.
 2. Calls Hibernate's `Session.persist(...)` (via the `@Transactional` service),
    which joins the surrounding Spring transaction if one is active on the request.
 3. Allocates a new `CONTENTSTATUSHISTORYID` via the global GUID manager when the
@@ -200,12 +202,23 @@ now goes through `PSSystemServiceLocator.getSystemService().saveContentStatusHis
 4. Returns synchronously with the assigned id, which `PSExitUpdateHistory` then
    pushes back into the workflow context via `wfContext.setHistoryid(...)`.
 
+The read paths inside `updateHistory` (CONTENTSTATUS + TRANSITIONS) are now on the
+same Hibernate session as the write — `PSCmsObjectMgr#loadComponentSummary(int)`
+for `CONTENTSTATUS` (already used elsewhere for non-write paths), and the new
+`IPSWorkflowService#loadWorkflowTransition(long, long)` for `TRANSITIONS` (added
+in this branch). Both reads share the surrounding Spring transaction so the
+dual-connection pattern that broke site-create is gone end-to-end for the
+`sys_wfUpdateHistory` flow.
+
 The legacy `PSContentStatusHistoryContext` write constructor is preserved for
 binary compatibility (it is `@Deprecated` and the `connection` argument is now
 ignored). Its body routes through the same `PSSystemServiceLocator.getSystemService()`
-call so that any caller — most notably the legacy `PSContentStatusHistoryContextTest`
-harness — that still invokes it ends up on the shared pool. The dead `INSERTSTRING`
-and `prepareInsertStatement()` were removed.
+call. The read constructor (`int workFlowID, Connection, int contentID`) was
+rewritten as an in-memory cursor backed by `IPSSystemService#findContentStatusHistory(IPSGuid)`
+so the legacy `IPSContentStatusContext`-style interface getters keep returning
+correct values for the legacy `PSContentStatusHistoryContextTest` harness. The
+dead `INSERTSTRING` field, `prepareInsertStatement()` method, `m_Connection`,
+`m_Statement`, and `m_Rs` fields were removed.
 
 ---
 
@@ -257,26 +270,42 @@ Phase 0 callouts from the issue:
   `BooleanToTFCharConverter`) so subsequent phases don't re-do it — **§3, §4.2
   H2 status column**.
 
-Acceptance criteria that remain for later phases (not satisfied here):
+Acceptance criteria satisfied in this branch's Phase 1, Phase 2, and Phase 3
+passes:
 
+- [x] ~~H2 column-qualifier fix for the remaining four contexts~~
+  (`PSContentTypesContext`, `PSNotificationsContext`, `PSStateRolesContext`,
+  `PSTransitionNotificationsContext`) — **Phase 1.** All six contexts that use
+  `PSConnectionMgr.getQualifiedIdentifier` are now H2-safe; only
+  `getQualifiedIdentifier` for *table-name assembly* remains, as the new
+  module AGENTS.md requires.
 - [x] ~~Single connection pool / tx model for in-product workflow writes~~ —
-  **Phase 2 (this branch).** The `sys_wfUpdateHistory` CONTENTSTATUSHISTORY
-  write now goes through
-  `PSSystemServiceLocator.getSystemService().saveContentStatusHistory(...)`,
-  sharing the same Spring-managed datasource as the surrounding Hibernate
-  work. The legacy `PSContentStatusHistoryContext` write constructor was
-  rewired to the same path; its `Connection` argument is now ignored.
-- [x] ~~H2 column-qualifier fix for the remaining four contexts~~ (`PSContentTypesContext`,
-  `PSNotificationsContext`, `PSStateRolesContext`,
-  `PSTransitionNotificationsContext`) — **Fixed in this branch's Phase 1 PR
-  pass.** All six contexts that use `PSConnectionMgr.getQualifiedIdentifier`
-  are now H2-safe; only `getQualifiedIdentifier` for *table-name assembly*
-  remains, as the new module AGENTS.md requires.
+  **Phase 2.** The `sys_wfUpdateHistory` `CONTENTSTATUSHISTORY` write now goes
+  through `PSSystemServiceLocator.getSystemService().saveContentStatusHistory(...)`,
+  sharing the same Spring-managed datasource as the surrounding Hibernate work.
+  The legacy `PSContentStatusHistoryContext` write constructor was rewired to
+  the same path; its `Connection` argument is now ignored.
 - [x] ~~No hand-built multi-dialect SQL for `CONTENTSTATUSHISTORY` writes~~ —
-  **Phase 2 (this branch).** `PSContentStatusHistoryContext.INSERTSTRING` was
-  deleted. The only remaining raw SQL for that table is the read constructor's
-  `QRYSTRING` (H2-safe) and the `tablefactory` schema/installer tooling, which
-  is out of scope.
+  **Phase 2.** `PSContentStatusHistoryContext.INSERTSTRING` was deleted; only
+  the read constructor's `QRYSTRING` and tablefactory tooling remain.
+- [x] ~~Finish exit-class reads~~ — **Phase 3.** The `new PSConnectionMgr()`
+  inside `PSExitUpdateHistory` is gone. `CONTENTSTATUS` is read via
+  `PSCmsObjectMgr#loadComponentSummary(int)` and `TRANSITIONS` via the new
+  `IPSWorkflowService#loadWorkflowTransition(long, long)` service method. Both
+  share the surrounding Spring transaction.
+- [x] ~~Read constructors on the moved contexts~~ — **Phase 3.** The read
+  constructor on `PSContentStatusHistoryContext` is now an in-memory cursor
+  backed by `IPSSystemService#findContentStatusHistory(IPSGuid)`; the dead raw
+  `ResultSet` / `PreparedStatement` / `Connection` fields and the `INSERTSTRING`
+  `QRYSTRING` prep helpers are gone from the read path.
+- [x] ~~Restore the Phase 2 `pom.xml` omission from PR #1567~~ — **Phase 3
+  foundation.** The junit-jupiter aggregator + mockito-core that PR #1567 should
+  have shipped are now in `extensions-workflow/pom.xml` so the existing
+  `PSContentStatusHistoryEntityBuilderTest` runs in CI (it was silently
+  producing `Tests run: 0` after #1567).
+
+Acceptance criteria that remain for later branches (not satisfied here):
+
 - [ ] **Site-create / NavTree regression test on H2** — Phase 2 acceptance
   criterion. PR #1563 already provides a working `POST /services/sitemanage/site/`
   smoke test on `/opt/Percussion` H2. **Gap:** this module has no Spring-aware
@@ -288,8 +317,7 @@ Acceptance criteria that remain for later phases (not satisfied here):
   GitHub issue TBD.
 - [ ] **Cross-DB smoke (H2 + one server DB)** — Phase 2 acceptance criterion.
   Same infrastructure gap as the site-create test.
-- [ ] Removal of `PSConnectionMgr` from in-product paths — Phase 4 (and from
-  reads inside `PSExitUpdateHistory` itself — Phase 3).
+- [ ] Removal of `PSConnectionMgr` from in-product paths — Phase 4.
 
 ---
 
@@ -297,20 +325,21 @@ Acceptance criteria that remain for later phases (not satisfied here):
 
 1. **`PSExitUpdateHistory#updateLastPublicRevision` (now ~line 459).** Issues an
    internal request `sys_ceSupport/putLastPublicRev`. That internal request may
-   itself open a second pool connection. Phase 3 must verify the inner call
+   itself open a second pool connection. Phase 4 must verify the inner call
    does not re-introduce the dual-connection break.
-2. **`PSContentStatusHistoryContext` read constructor.** Still uses raw JDBC.
-   Its only in-tree caller is the legacy `PSContentStatusHistoryContextTest`
-   `main(String[])` harness; no production code uses it. Phase 3 candidate:
-   reimplement as an in-memory cursor backed by
-   `PSSystemServiceLocator.getSystemService().findContentStatusHistory(...)`.
+2. **`PSContentStatusHistoryContext` read constructor.** **Done in this
+   branch's Phase 3 pass** — reimplemented as an in-memory cursor backed by
+   `IPSSystemService#findContentStatusHistory(IPSGuid)`. The only in-tree
+   caller is the legacy `PSContentStatusHistoryContextTest` `main(String[])`
+   harness; it still works because the interface getters return the same
+   values from the in-memory list.
 3. **Tx propagation.** `saveContentStatusHistory` is `@Transactional`. If the
    surrounding request runs under `@Transactional`, the history write joins it
    (good). If the request is not transactional (e.g. cleanup steps), the service
    still opens its own short tx — verify with the H2 integration test that this
    does not mark the outer scope rollback-only (the regression PR #1563 fixed
    was exactly this pattern). **Must be verified with an integration test
-   before Phase 3 deletes the legacy write path entirely.**
+   before Phase 4 deletes `PSConnectionMgr` entirely.**
 4. **Hibernate 6 column-qualifier behaviour.** Verify with a JUnit on H2 that
    `PSContentStatusHistory` insert still produces a unique `CONTENTSTATUSHISTORYID`
    after the legacy `PSExitNextNumber` pre-allocation is removed. (The
@@ -319,16 +348,16 @@ Acceptance criteria that remain for later phases (not satisfied here):
    it explicit.)
 5. **Backwards-compat for entity surfaces.** Per `system/AGENTS.md` "Backward
    Compatibility" rule, the deprecated `PSContentStatusHistoryContext` write
-   constructor must keep its public signature. **Done in this branch:** the
-   12-arg constructor still compiles, accepts `Connection` for binary compat,
+   constructor must keep its public signature. **Done in Phase 2 / Phase 3:**
+   the 12-arg constructor still compiles, accepts `Connection` for binary compat,
    and forwards through `PSSystemServiceLocator`.
 6. **`PSContentTypesContext` callers.** Confirmed: it is invoked from
    `PSExitUpdateHistory` only through the `PSContentStatusContext` chain, which
-   itself is still on raw JDBC. Phase 3 candidate — at that point
+   itself is still on raw JDBC. **Phase 4 candidate** — at that point
    `PSContentTypesContext` collapses entirely.
 7. **`PSStateRolesContext` join complexity.** **Fixed in this branch's Phase 1
-   pass** — alias-based SQL (`SELECT sr.ROLEID, ..., r.ROLENAME FROM ... sr, ...
-   r WHERE ...`) is the new form. The `sr` / `r` aliases make unqualified columns
+   pass** — alias-based SQL (`SELECT sr.ROLEID, ..., r.ROLENAME FROM ... sr, ... r
+   WHERE ...`) is the new form. The `sr` / `r` aliases make unqualified columns
    unambiguous.
 8. **Module-level Spring test infrastructure.** Both the Site-create regression
    test and the Cross-DB smoke test require a Spring test context + H2 that
@@ -336,11 +365,16 @@ Acceptance criteria that remain for later phases (not satisfied here):
    `system/src/test/java/com/percussion/services/workflow/` (already has Spring
    test context per `PSWorkflowService` tests). Tracking GitHub issue TBD —
    should be opened as part of the Phase 2 acceptance follow-up.
-9. **`PSExitUpdateHistory` still calls `new PSConnectionMgr()`.** That
-   `Connection` is now used only for the `PSContentStatusContext` /
-   `PSTransitionsContext` reads. Phase 3 must close the remaining dual-connection
-   gap by routing those reads through Hibernate too (the `PSComponentSummary`
-   / `PSTransitionHib` entities are already in `system/services`).
+9. **Surviving `new PSConnectionMgr()` calls.** **Done in this branch's
+   Phase 3 pass** for the `sys_wfUpdateHistory` exit. **Remaining:** 7 exit
+   classes (`PSExitAddEditAuthFlag`, `PSExitAddPossibleTransitions{,Ex}`,
+   `PSExitAuthenticateUser`, `PSExitDisallowUpdatePublished`,
+   `PSExitNotifyAssignees`, `PSExitPerformTransition`, `PSGetCheckoutStatus`).
+   Phase 4 candidate.
+10. **CONTENTADHOCUSERS writes.** `PSExitPerformTransition` still uses
+    `PSContentAdhocUsersContext` (read+write) on raw JDBC. The Hibernate
+    entity `PSContentAdhocUser` exists; the writes should be migrated next.
+    Phase 4 candidate.
 
 ---
 
