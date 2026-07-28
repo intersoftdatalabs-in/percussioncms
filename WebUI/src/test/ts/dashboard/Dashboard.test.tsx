@@ -30,33 +30,23 @@ describe("Dashboard Component", () => {
     window.history.pushState({}, "", "/");
   });
 
-  it("should render the dashboard", () => {
+  it("should render the dashboard root", () => {
     render(<Dashboard />);
-
-    // Check that the dashboard renders
-    expect(screen.getByText(/Welcome/i)).toBeDefined();
+    expect(screen.getByTestId("dashboard-root")).toBeDefined();
+    expect(screen.getByTestId("dashboard-add-gadget")).toBeDefined();
   });
 
-  it("should render the Welcome widget", () => {
+  it("should render default gadgets including Welcome and Blogs", () => {
     render(<Dashboard />);
-
-    expect(screen.getByText(/Good morning|Good afternoon|Good evening/)).toBeDefined();
-    expect(screen.getByText(/User!/)).toBeDefined();
-  });
-
-  it("should render quick action links", () => {
-    render(<Dashboard />);
-
-    expect(screen.getByText("Site Management")).toBeDefined();
-    expect(screen.getByText("Web Management")).toBeDefined();
-    expect(screen.getByText("Administration")).toBeDefined();
-    expect(screen.getByText("Admin Console")).toBeDefined();
+    // Welcome greeting + Blogs gadget (default layout for Home)
+    expect(
+      screen.getByText(/Good morning|Good afternoon|Good evening/),
+    ).toBeDefined();
+    expect(screen.getByTestId("blogs-widget")).toBeDefined();
   });
 
   it("should render two-column layout", () => {
     const { container } = render(<Dashboard />);
-
-    // Check for grid layout with 2 columns
     const gridContainer = container.querySelector("div[style*='grid']");
     expect(gridContainer).toBeDefined();
   });

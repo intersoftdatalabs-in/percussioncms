@@ -402,6 +402,33 @@ public interface IPSWorkflowService {
      */
     PSTransition loadWorkflowTransition(long workflowAppId, long transitionId);
 
+   /**
+    * Loads the assigned state roles for a (workflow, state) pair, filtered by minimum assignment
+    * type. Added for #1561 Phase 4b so {@code modules/extensions-workflow/.../PSStateRolesContext}
+    * can load its data from the shared Hibernate session instead of opening a second pool connection.
+    *
+    * @param workflowAppId the workflow id, must be {@code > 0}.
+    * @param stateId the state id, must be {@code > 0}.
+    * @param minAssignmentType the minimum assignment type; passed through unchanged to
+    *     {@code PSAssignedRole.assignmentType}.
+    * @return the matching rows, never {@code null}, may be empty.
+    */
+   java.util.List<com.percussion.services.workflow.data.PSAssignedRole>
+       findStateRoles(long workflowAppId, long stateId, int minAssignmentType);
+
+   /**
+    * Loads the workflow roles for the supplied workflow id, restricted to those whose ids appear
+    * in the supplied role-id set. Used by Phase 4b to hydrate role names for the result of
+    * {@link #findStateRoles}.
+    *
+    * @param workflowAppId the workflow id, must be {@code > 0}.
+    * @param roleIds the role ids to load names for, must not be {@code null}.
+    * @return the matching rows, never {@code null}, may be empty if none of the supplied ids
+    *     exist in this workflow.
+    */
+   java.util.List<com.percussion.services.workflow.data.PSWorkflowRole>
+       findWorkflowRoles(long workflowAppId, java.util.Set<Long> roleIds);
+
     /**
      * Loads a specified workflow state by name. This is a fast call, but will
      * return a shared instance that must not be modified.

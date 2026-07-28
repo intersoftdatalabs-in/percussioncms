@@ -18,6 +18,8 @@ package com.percussion.workflow;
 
 import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.services.system.PSSystemServiceLocator;
+import com.percussion.services.workflow.data.PSContentAdhocUser;
 import com.percussion.util.PSPreparedStatement;
 import com.percussion.util.PSSqlHelper;
 import java.sql.Connection;
@@ -33,23 +35,99 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * PSContentAdhocUsersContext class is a wrapper class providing access to the records and fields of
- * the backend table 'CONTENTADHOCUSERS'.
- */
-@Deprecated
-public class PSContentAdhocUsersContext implements IPSContentAdhocUsersContext {
-
-  private static final Logger log = LogManager.getLogger(PSContentAdhocUsersContext.class);
-
-  /**
-   * Constructor specifying content ID, used to create a context with no content adhoc user
-   * information in its local variables.
-   *
-   * @param contentID content ID of the item/document
+   * PSContentAdhocUsersContext class is a wrapper class providing access to the records and fields of
+   * the backend table 'CONTENTADHOCUSERS'.
    */
-  public PSContentAdhocUsersContext(int contentID) {
-    m_nContentID = contentID;
-  }
+  @Deprecated
+  public class PSContentAdhocUsersContext implements IPSContentAdhocUsersContext {
+
+    private static final Logger log = LogManager.getLogger(PSContentAdhocUsersContext.class);
+
+    /**
+     * Constructor specifying content ID, used to create a context with no content adhoc user
+     * information in its local variables.
+     *
+     * @param contentID content ID of the item/document
+     */
+    public PSContentAdhocUsersContext(int contentID) {
+      m_nContentID = contentID;
+    }
+
+    /**
+     * Hibernate-backed factory added for #1561 Phase 4b. Loads the adhoc-user data for the
+     * specified content id via the shared Hibernate session (no second pool connection).
+     *
+     * <p>Equivalent to the raw-JDBC constructor {@link #PSContentAdhocUsersContext(int, Connection)}
+     * but participates in the surrounding Spring transaction so the dual-connection defect fixed
+     * in Phase 2/3 does not re-emerge for this code path.
+     *
+     * @param contentID the content id of the item, must be {@code > 0}.
+     * @return a context populated with the rows for {@code contentID}; never {@code null}.
+     */
+    public static PSContentAdhocUsersContext loadFromHibernate(int contentID) {
+      if (contentID <= 0) {
+        throw new IllegalArgumentException("contentID must be > 0");
+      }
+      PSContentAdhocUsersContext ctx = new PSContentAdhocUsersContext(contentID);
+      List<PSContentAdhocUser> rows =
+          PSSystemServiceLocator.getSystemService().findContentAdhocUsers(contentID);
+      ctx.populateFromHibernate(rows);
+      return ctx;
+    }
+
+    /**
+     * Populates the in-memory state from a list of {@link PSContentAdhocUser} rows. Mirrors the
+     * raw-JDBC constructor's classification into {@code m_userNameToAdhocNormalRoleIDMap} /
+     * {@code m_adhocAnonymousRoleIDs} / {@code m_adhocAnonymousUserNames} / etc. so the legacy
+     * {@link PSWorkflowRoleInfoStatic#getActorRoles(String, String, PSStateRolesContext,
+     * PSContentAdhocUsersContext, boolean)} no-connection overload works the same way it does
+     * against the raw-JDBC-populated state.
+     *
+     * @param rows the Hibernate rows, may be empty but never {@code null}.
+     */
+    private void populateFromHibernate(List<PSContentAdhocUser> rows) {
+      if (rows == null) return;
+      for (PSContentAdhocUser row : rows) {
+        int roleID = (int) row.getRoleId();
+        int adhocType = row.getAdhocType();
+        String userName = row.getUser();
+        if (userName == null || userName.isEmpty()) {
+          throw new IllegalStateException("Content adhoc user has empty username for content "
+              + m_nContentID);
+        }
+        String lowerCaseUserName = userName.toLowerCase();
+        m_nCount++;
+
+        if (!m_adhocRoleIDtoAdhocTypeMap.containsKey(roleID)) {
+          m_adhocRoleIDtoAdhocTypeMap.put(roleID, adhocType);
+        }
+
+        if (adhocType == PSWorkFlowUtils.ADHOC_ENABLED) {
+          List<Integer> workingList;
+          if (!m_userNameToAdhocNormalRoleIDMap.containsKey(lowerCaseUserName)) {
+            m_adhocNormalUserNames.add(userName);
+            workingList = new ArrayList<>();
+          } else {
+            workingList = m_userNameToAdhocNormalRoleIDMap.get(lowerCaseUserName);
+          }
+          workingList.add(roleID);
+          m_userNameToAdhocNormalRoleIDMap.put(lowerCaseUserName, workingList);
+        } else if (adhocType == PSWorkFlowUtils.ADHOC_ANONYMOUS) {
+          if (!m_lowerCaseUserNameToUserNameMap.containsKey(lowerCaseUserName)) {
+            m_adhocAnonymousUserNames.add(userName);
+            m_lowerCaseUserNameToUserNameMap.put(lowerCaseUserName, userName);
+          }
+          if (!m_adhocAnonymousRoleIDs.contains(roleID)) {
+            m_adhocAnonymousRoleIDs.add(roleID);
+          }
+        } else {
+          // ADHOC_DISABLED rows are not present in CONTENTADHOCUSERS by definition;
+          // throw to mirror the raw-JDBC behaviour if the schema is ever extended.
+          throw new IllegalStateException("Invalid adhoc type " + adhocType
+              + " for role " + roleID + " in content " + m_nContentID);
+        }
+      }
+    }
 
   /**
    * Get the content id supplied during construction.

@@ -17,6 +17,8 @@
 
 package com.percussion.workflow;
 
+import com.percussion.cms.objectstore.PSComponentSummary;
+import com.percussion.cms.IPSConstants;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSResultDocumentProcessor;
@@ -30,8 +32,6 @@ import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.system.utils.PSCms;
 import java.io.File;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
@@ -91,7 +91,6 @@ public class PSExitAddEditAuthFlag implements IPSResultDocumentProcessor {
     AuthParams localParams = new AuthParams();
     localParams.m_request = request;
 
-    PSConnectionMgr connectionMgr = null;
     Element activeItemElem;
 
     try {
@@ -124,19 +123,10 @@ public class PSExitAddEditAuthFlag implements IPSResultDocumentProcessor {
       }
       localParams.m_roleNameList = params[1].toString();
 
-      Connection connection;
-      // Get the connection
-      try {
-        connectionMgr = new PSConnectionMgr();
-        connection = connectionMgr.getConnection();
-      } catch (SQLException e) {
-        throw new PSExtensionProcessingException(ms_fullExtensionName, e);
-      }
-
       try {
         boolean canEdit =
             PSCms.canReadInFolders(localParams.m_contentID)
-                && canUserEditContent(connection, localParams);
+                && canUserEditContent(localParams);
         String strCanEdit = canEdit ? "yes" : "no";
         // Set the edit authorization flag attribute
         activeItemElem.setAttribute(XML_ATTRIB_EDIT_AUTH, strCanEdit);
@@ -150,7 +140,7 @@ public class PSExitAddEditAuthFlag implements IPSResultDocumentProcessor {
           return resDoc;
         }
         // Set the edit authorization flag attribute for parent
-        strCanEdit = canUserEditContent(connection, localParams) ? "yes" : "no";
+        strCanEdit = canUserEditContent(localParams) ? "yes" : "no";
         activeItemElem.setAttribute(XML_ATTRIB_PARENT_EDIT_AUTH, strCanEdit);
 
       } catch (Exception e) {
@@ -162,11 +152,6 @@ public class PSExitAddEditAuthFlag implements IPSResultDocumentProcessor {
       log.error(t.getMessage());
       log.debug(t.getMessage(), t);
     } finally {
-      try {
-        if (null != connectionMgr) connectionMgr.releaseConnection();
-      } catch (SQLException sqe) {
-        // Ignore since this is cleanup
-      }
       PSWorkFlowUtils.printWorkflowMessage(request, "Exiting PSExitAddEditAuthFlag....");
     }
 
@@ -177,19 +162,20 @@ public class PSExitAddEditAuthFlag implements IPSResultDocumentProcessor {
    * This method verifies if the current user is allowed to edit the specified content item. It uses
    * the same authorization checks used in PSExitAuthenticateUser.
    *
-   * @param connection JDBC connection passed in
+   * <p>Phase 4b: the {@code Connection} argument is gone — this method now reads {@code CONTENTSTATUS}
+   * via {@code PSCmsObjectMgr#loadComponentSummary(int)} and the {@code STATEROLES} +
+   * {@code CONTENTADHOCUSERS} data via the new {@code loadFromHibernate} factories on
+   * {@link PSStateRolesContext} and {@link PSContentAdhocUsersContext}, so the exit no longer opens
+   * a second pool connection.
+   *
    * @param localParams object containing parameters that will be used to authorize the user.
    * @return <code>true</code> if the user is allowed to edit this content item, else <code>false
    *     </code>.
-   * @throws SQLException if there is an error with the SQL query.
-   * @throws PSRoleException role not found
-   * @throws Exception catches all other exceptions
+   * @throws Exception catches all errors from the Hibernate lookup / role helpers.
    */
-  private boolean canUserEditContent(Connection connection, AuthParams localParams)
-      throws SQLException, PSRoleException, Exception {
+  private boolean canUserEditContent(AuthParams localParams) throws Exception {
     PSWorkFlowUtils.printWorkflowMessage(localParams.m_request, "  Entering canUserEditContent");
 
-    PSContentStatusContext csc;
     int contentID = localParams.m_contentID;
     String userName = localParams.m_userName;
     String roleNameList = localParams.m_roleNameList;
@@ -197,23 +183,21 @@ public class PSExitAddEditAuthFlag implements IPSResultDocumentProcessor {
     int assignmentType;
     List<Integer> actorRoles;
 
-    try {
-      csc = new PSContentStatusContext(connection, contentID);
-    } catch (PSEntryNotFoundException e) {
+    IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
+    PSComponentSummary csc = cms.loadComponentSummary(contentID);
+    if (csc == null) {
       PSWorkFlowUtils.printWorkflowMessage(
           localParams.m_request, "  No entry for this content. Exiting canUserEditContent");
       return true; // no entry for this content so proceed to transition
     }
-    csc.close(); // release the JDBC resources
 
-    int nWorkFlowAppID = csc.getWorkflowID();
-    int itemCommunityID = csc.getCommunityID();
+    int nWorkFlowAppID = csc.getWorkflowAppId();
+    int itemCommunityID = csc.getCommunityId();
     int userCommunityID = -1;
     String usercomm =
         (String) localParams.m_request.getSessionPrivateObject(IPSHtmlParameters.SYS_COMMUNITY);
     if (usercomm != null) userCommunityID = Integer.parseInt(usercomm);
 
-    IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
     Optional<IPSWorkflowAppsContext> wacOpt = cms.loadWorkflowAppContext(nWorkFlowAppID);
     String sAdminName;
     if (wacOpt.isPresent()) {
@@ -235,7 +219,7 @@ public class PSExitAddEditAuthFlag implements IPSResultDocumentProcessor {
     // and return false if the content is checked out
     // by another user or not checked out.
 
-    String checkedOutUser = csc.getContentCheckedOutUserName();
+    String checkedOutUser = csc.getCheckoutUserName();
     if (null == checkedOutUser || checkedOutUser.trim().length() < 1) {
       // content item not checked out
       return false;
@@ -255,18 +239,18 @@ public class PSExitAddEditAuthFlag implements IPSResultDocumentProcessor {
     }
 
     PSStateRolesContext src;
-
     try {
-      src =
-          new PSStateRolesContext(
-              nWorkFlowAppID, connection, csc.getContentStateID(), requiredAccessLevel);
-    } catch (PSRoleException | PSEntryNotFoundException e) {
+      src = PSStateRolesContext.loadFromHibernate(
+          nWorkFlowAppID, csc.getContentStateId(), requiredAccessLevel);
+    } catch (PSEntryNotFoundException | PSRoleException | IllegalArgumentException e) {
       return false;
     }
 
+    PSContentAdhocUsersContext cauc =
+        PSContentAdhocUsersContext.loadFromHibernate(contentID);
+
     actorRoles =
-        PSWorkflowRoleInfoStatic.getActorRoles(
-            contentID, src, userName, roleNameList, connection, true);
+        PSWorkflowRoleInfoStatic.getActorRoles(userName, roleNameList, src, cauc, true);
 
     if (null == actorRoles || actorRoles.isEmpty()) {
       return false;

@@ -20,6 +20,7 @@ package com.percussion.workflow;
 import com.percussion.cms.IPSCmsErrors;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSCmsException;
+import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.PSCmsObject;
 import com.percussion.cms.objectstore.PSObjectPermissions;
 import com.percussion.cms.objectstore.server.PSFolderSecurityManager;
@@ -36,7 +37,6 @@ import com.percussion.services.system.PSAssignmentTypeHelper;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.system.utils.PSCms;
 import java.io.File;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
@@ -108,7 +108,6 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
         (String) request.getSessionPrivateObject(PSI18nUtils.USER_SESSION_OBJECT_SYS_LANG);
     if (lang == null) lang = PSI18nUtils.DEFAULT_LANG;
 
-    PSConnectionMgr connectionMgr = null;
     try {
       Map<String, Object> htmlParams = request.getParameters();
       if (null == htmlParams) {
@@ -228,18 +227,8 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
         return;
       }
 
-      Connection connection;
-      // Get the connection
       try {
-        connectionMgr = new PSConnectionMgr();
-        connection = connectionMgr.getConnection();
-      } catch (Exception e) {
-        log.error(PSExceptionUtils.getMessageForLog(e));
-        throw new PSExtensionProcessingException(m_fullExtensionName, e);
-      }
-
-      try {
-        authenticateUser(lang, connection, localParams);
+        authenticateUser(lang, localParams);
 
         // add all required HTML Params to the list
         request.setParameter(
@@ -266,11 +255,6 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
         throw new PSExtensionProcessingException(language, m_fullExtensionName, e);
       }
     } finally {
-      try {
-        if (null != connectionMgr) connectionMgr.releaseConnection();
-      } catch (SQLException sqe) {
-        // Ignore since this is cleanup
-      }
       PSWorkFlowUtils.printWorkflowMessage(request, "Authenticate User : exit preProcessRequest ");
     }
   }
@@ -305,83 +289,81 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
    * @throws PSEntryNotFoundException if a database record is not found
    * @throws PSRoleException if any role-related error occurs
    */
-  private void authenticateUser(String lang, Connection connection, AuthParams localParams)
-      throws SQLException,
-          PSAuthorizationException,
-          PSEntryNotFoundException,
-          PSRoleException,
-          PSCmsException {
+private void authenticateUser(String lang, AuthParams localParams)
+       throws SQLException,
+           PSAuthorizationException,
+           PSEntryNotFoundException,
+           PSRoleException,
+           PSCmsException {
 
-    PSWorkFlowUtils.printWorkflowMessage(localParams.m_request, "  Entering authenticateUser");
+     PSWorkFlowUtils.printWorkflowMessage(localParams.m_request, "  Entering authenticateUser");
 
-    PSContentStatusContext csc;
-    int contentID = localParams.m_contentID;
-    String userName = localParams.m_userName;
-    String roleNameList = localParams.m_roleNameList;
-    String checkInOutCondition = localParams.m_checkInOutCondition;
-    int requiredAccessLevel = localParams.m_requiredAccessLevel;
-    int assignmentType = localParams.m_assignmentType;
-    List<Integer> actorRoles;
-    List<String> actorRoleNames = new ArrayList<>();
-    IWorkflowRoleInfo wfRoleInfo = new PSWorkflowRoleInfo();
+     int contentID = localParams.m_contentID;
+     String userName = localParams.m_userName;
+     String roleNameList = localParams.m_roleNameList;
+     String checkInOutCondition = localParams.m_checkInOutCondition;
+     int requiredAccessLevel = localParams.m_requiredAccessLevel;
+     int assignmentType = localParams.m_assignmentType;
+     List<Integer> actorRoles;
+     List<String> actorRoleNames = new ArrayList<>();
+     IWorkflowRoleInfo wfRoleInfo = new PSWorkflowRoleInfo();
 
-    if (localParams.m_isNewItem) {
-      // validate user is able to create doc in initial state
-      if (!canUserCreate(connection, localParams)) {
-        throw new PSAuthorizationException(lang, IPSExtensionErrors.ILLEGAL_CONTENTTYPE, null);
-      }
+     if (localParams.m_isNewItem) {
+       // validate user is able to create doc in initial state
+       if (!canUserCreate(localParams)) {
+         throw new PSAuthorizationException(lang, IPSExtensionErrors.ILLEGAL_CONTENTTYPE, null);
+       }
 
-      // if a new item, we're all done
-      PSWorkFlowUtils.printWorkflowMessage(
-          localParams.m_request, "  New Item. Exiting authenticateUser");
-      return;
-    }
+       // if a new item, we're all done
+       PSWorkFlowUtils.printWorkflowMessage(
+           localParams.m_request, "  New Item. Exiting authenticateUser");
+       return;
+     }
 
-    try {
-      csc = new PSContentStatusContext(connection, contentID);
-    } catch (PSEntryNotFoundException e) {
-      PSWorkFlowUtils.printWorkflowMessage(
-          localParams.m_request, "  No entry for this content. Exiting authenticateUser");
-      return; // no entry for this content so proceed to transition
-    }
-    csc.close(); // release the JDBC resources
+     IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
+     PSComponentSummary csc = cms.loadComponentSummary(contentID);
+     if (csc == null) {
+       PSWorkFlowUtils.printWorkflowMessage(
+           localParams.m_request, "  No entry for this content. Exiting authenticateUser");
+       return; // no entry for this content so proceed to transition
+     }
 
-    String command = localParams.m_request.getParameter(IPSHtmlParameters.SYS_COMMAND);
-    if (command == null) {
-      command = "";
-    }
+     String command = localParams.m_request.getParameter(IPSHtmlParameters.SYS_COMMAND);
+     if (command == null) {
+       command = "";
+     }
 
-    /*
-     * [Vitaly: Oct 27 2003]: DO NOT compare the user community and
-     * the item community. Communities were never designed to work
-     * as a server security feature. Filtering by community, if desired,
-     * should be done at the action visibility level (already in place). Filtering here
-     * makes it impossible to perform such relationships operation as
-     * a Translation of an item with new copies going into another community.
-     * For more info see bug Rx-03-10-0057.
-     */
+     /*
+      * [Vitaly: Oct 27 2003]: DO NOT compare the user community and
+      * the item community. Communities were never designed to work
+      * as a server security feature. Filtering by community, if desired,
+      * should be done at the action visibility level (already in place). Filtering here
+      * makes it impossible to perform such relationships operation as
+      * a Translation of an item with new copies going into another community.
+      * For more info see bug Rx-03-10-0057.
+      */
 
-    PSCmsObject cmsObject = PSServer.getCmsObjectRequired(csc.getObjectType());
+     PSCmsObject cmsObject = PSServer.getCmsObjectRequired((int) csc.getContentTypeId());
 
-    if (csc.getObjectType() == PSCmsObject.TYPE_FOLDER) {
+if ((int) csc.getContentTypeId() == PSCmsObject.TYPE_FOLDER) {
       if (!PSFolderSecurityManager.verifyFolderPermissions(
           contentID, PSObjectPermissions.ACCESS_READ)) {
         throw new PSAuthorizationException(IPSExtensionErrors.AUTHENTICATION_FAILED2, null);
       }
       return;
     }
-    if (!cmsObject
-        .isWorkflowable()) { // There is no way to authenticate the user if not workflowable.
-      // For example folder is not workflowable. This needs to be updated
-      // after folder permission has been implemented.
-      return;
-    }
+     if (!cmsObject
+         .isWorkflowable()) { // There is no way to authenticate the user if not workflowable.
+       // For example folder is not workflowable. This needs to be updated
+       // after folder permission has been implemented.
+       return;
+     }
 
-    int nWorkFlowAppID = csc.getWorkflowID();
+     int nWorkFlowAppID = csc.getWorkflowAppId();
 
     // Determine the checkout status and checkedout user
 
-    String checkedOutUser = csc.getContentCheckedOutUserName();
+    String checkedOutUser = csc.getCheckoutUserName();
     int checkoutstatus = PSWorkFlowUtils.CHECKOUT_STATUS_NONE;
     if (null == checkedOutUser || checkedOutUser.trim().length() < 1) {
       checkedOutUser = null;
@@ -394,7 +376,6 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
       }
     }
 
-    IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
     localParams.m_checkoutStatus = checkoutstatus;
     localParams.m_checkedOutUser = checkedOutUser;
 
@@ -471,11 +452,10 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
     }
 
     PSStateRolesContext src;
-
     try {
       src =
-          new PSStateRolesContext(
-              nWorkFlowAppID, connection, csc.getContentStateID(), requiredAccessLevel);
+          PSStateRolesContext.loadFromHibernate(
+              nWorkFlowAppID, csc.getContentStateId(), requiredAccessLevel);
     } catch (PSRoleException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
 
@@ -485,7 +465,7 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
           language,
           IPSExtensionErrors.ROLE_ERROR_STATEID_WORKFLOWID,
           new Object[] {
-            Integer.toString(csc.getContentStateID()),
+            Integer.toString(csc.getContentStateId()),
             Integer.toString(nWorkFlowAppID),
             e.toString()
           });
@@ -497,14 +477,26 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
           IPSExtensionErrors.ROLES_NOT_ASSIGNED,
           new Object[] {
             Integer.toString(requiredAccessLevel),
-            Integer.toString(csc.getContentStateID()),
+            Integer.toString(csc.getContentStateId()),
+            Integer.toString(nWorkFlowAppID)
+          });
+    } catch (IllegalArgumentException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      throw new PSAuthorizationException(
+          lang,
+          IPSExtensionErrors.ROLES_NOT_ASSIGNED,
+          new Object[] {
+            Integer.toString(requiredAccessLevel),
+            Integer.toString(csc.getContentStateId()),
             Integer.toString(nWorkFlowAppID)
           });
     }
 
+    PSContentAdhocUsersContext cauc =
+        PSContentAdhocUsersContext.loadFromHibernate(contentID);
+
     actorRoles =
-        PSWorkflowRoleInfoStatic.getActorRoles(
-            contentID, src, userName, roleNameList, connection, true);
+        PSWorkflowRoleInfoStatic.getActorRoles(userName, roleNameList, src, cauc, true);
 
     if (null == actorRoles || actorRoles.isEmpty()) {
       throw new PSAuthorizationException(lang, IPSExtensionErrors.AUTHENTICATION_FAILED1, null);
@@ -538,12 +530,12 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
    * @throws SQLException if there are any errors retrieving backend data.
    * @throws PSEntryNotFoundException if there is no state information found.
    */
-  private boolean canUserCreate(Connection connection, AuthParams localParams)
-      throws SQLException,
-          PSEntryNotFoundException,
-          PSRoleException,
-          PSAuthorizationException,
-          PSCmsException {
+private boolean canUserCreate(AuthParams localParams)
+       throws SQLException,
+           PSEntryNotFoundException,
+           PSRoleException,
+           PSAuthorizationException,
+           PSCmsException {
     log.debug("Entering canUserCreate...");
 
     boolean canCreate = false;
@@ -577,12 +569,38 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
     List<String> stateRoleList = new ArrayList<>();
     PSStateRolesContext src;
 
-    src =
-        new PSStateRolesContext(
-            localParams.m_workflowAppID,
-            connection,
-            wcxt.getWorkFlowInitialStateID(),
-            localParams.m_requiredAccessLevel);
+    try {
+      src =
+          PSStateRolesContext.loadFromHibernate(
+              localParams.m_workflowAppID,
+              wcxt.getWorkFlowInitialStateID(),
+              localParams.m_requiredAccessLevel);
+    } catch (PSEntryNotFoundException e) {
+      // No state roles for the initial state — user cannot create.
+      PSWorkFlowUtils.printWorkflowMessage(localParams.m_request,
+          "    No state roles for initial state. Exiting canUserCreate");
+      return false;
+    } catch (PSRoleException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      throw new PSAuthorizationException(
+          lang,
+          IPSExtensionErrors.ROLE_ERROR_STATEID_WORKFLOWID,
+          new Object[] {
+            Integer.toString(wcxt.getWorkFlowInitialStateID()),
+            Integer.toString(localParams.m_workflowAppID),
+            e.toString()
+          });
+    } catch (IllegalArgumentException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      throw new PSAuthorizationException(
+          lang,
+          IPSExtensionErrors.ROLE_ERROR_STATEID_WORKFLOWID,
+          new Object[] {
+            Integer.toString(wcxt.getWorkFlowInitialStateID()),
+            Integer.toString(localParams.m_workflowAppID),
+            e.toString()
+          });
+    }
 
     stateRoleList = src.getStateRoleNames();
 
