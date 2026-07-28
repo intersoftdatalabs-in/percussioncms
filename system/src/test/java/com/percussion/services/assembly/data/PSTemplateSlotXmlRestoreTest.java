@@ -84,6 +84,51 @@ class PSTemplateSlotXmlRestoreTest {
     }
   }
 
+  /**
+   * toXML / modern payloads already use hyphenated association field names. fromXML must restore
+   * those without depending on the package unhyphenated rewrite.
+   */
+  @Test
+  void fromXmlRestoresHyphenatedAssociationIds() throws Exception {
+    String hyphenated =
+        """
+        <?xml version="1.0" encoding="utf-8"?>
+        <template-slot id="1">
+          <guid>0-5-513</guid>
+          <description>navigation image for rollovers</description>
+          <finder-arguments/>
+          <finder-name>Java/global/percussion/slotcontentfinder/sys_RelationshipContentFinder</finder-name>
+          <label>Nav Image</label>
+          <name>perc.nav.image</name>
+          <relationship-name>ActiveAssembly</relationship-name>
+          <slot-type-associations>
+            <slot-type-association id="2">
+              <slot-id>513</slot-id>
+              <template-id>550</template-id>
+              <content-type-id>313</content-type-id>
+            </slot-type-association>
+          </slot-type-associations>
+          <slottype>0</slottype>
+          <system-slot>false</system-slot>
+          <version>2</version>
+        </template-slot>
+        """;
+    PSTemplateSlot slot = new PSTemplateSlot();
+    slot.fromXML(hyphenated);
+    PSTemplateTypeSlotAssociation[] assocs = slot.getSlotTypeAssociations();
+    assertTrue(assocs != null && assocs.length >= 1, "expected at least one association");
+    boolean found = false;
+    for (PSTemplateTypeSlotAssociation a : assocs) {
+      if (a.getContentTypeId() == 313L && a.getTemplateId() == 550L) {
+        found = true;
+        break;
+      }
+    }
+    assertTrue(
+        found,
+        "expected association contentTypeId=313 templateId=550; got: " + describe(assocs));
+  }
+
   @Test
   void normalizePackageAssociationElementNamesRewritesTags() {
     String in =
@@ -101,6 +146,14 @@ class PSTemplateSlotXmlRestoreTest {
     assertTrue(out.contains("name=\"contenttypeid\""), out);
     assertTrue(out.contains("templateid=\"keep\""), out);
     assertTrue(out.contains("<content-type-id>9</content-type-id>"), out);
+  }
+
+  @Test
+  void normalizePackageAssociationElementNamesLeavesHyphenatedTagsAlone() {
+    String in =
+        "<slot-type-association><slot-id>1</slot-id><template-id>2</template-id><content-type-id>3</content-type-id></slot-type-association>";
+    String out = PSTemplateSlot.normalizePackageAssociationElementNames(in);
+    assertEquals(in, out);
   }
 
   private static String describe(PSTemplateTypeSlotAssociation[] assocs) {
