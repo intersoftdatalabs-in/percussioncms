@@ -30,6 +30,12 @@ public interface ICommunityAdaptor {
 
   CommunityList findCommunities(String name);
 
+  /**
+   * Load one community by numeric id, GUID string, or exact name. Includes role associations when
+   * available. Returns {@code null} when not found.
+   */
+  Community getCommunity(String idOrName);
+
   CommunityList loadCommunities(GuidList ids, boolean lock, boolean overrideLock)
       throws PSErrorResultsException;
 
