@@ -69,6 +69,19 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   ]),
 }));
 
+vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
+  listApplications: vi.fn().mockResolvedValue([
+    {
+      id: 1,
+      name: "sys_cmpDocuments",
+      description: "System content editor app",
+      enabled: true,
+      appType: "CONTENT_EDITOR",
+      appRoot: "sys_cmpDocuments",
+    },
+  ]),
+}));
+
 describe("DeveloperShell", () => {
   beforeEach(() => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
@@ -90,12 +103,16 @@ describe("DeveloperShell", () => {
     expect(screen.getByText("Page")).toBeTruthy();
   });
 
-  it("shows placeholder for pipelines section", async () => {
+  it("loads pipelines catalog section", async () => {
     render(<DeveloperShell initialSection="pipelines" embedded />);
     expect(screen.getByTestId("tab-developer-pipelines").getAttribute("aria-selected")).toBe(
       "true",
     );
-    expect(screen.getByTestId("developer-placeholder")).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-table")).toBeTruthy();
+    });
+    expect(screen.getAllByText("sys_cmpDocuments").length).toBeGreaterThan(0);
+    expect(screen.getByText("CONTENT_EDITOR")).toBeTruthy();
 
     fireEvent.click(screen.getByTestId("tab-developer-content-types"));
     await waitFor(() => {

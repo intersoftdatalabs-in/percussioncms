@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | **In progress** — shell + CT list + read-only field detail |
+| **Status** | **P0 read catalogs complete** — editors / pipeline IR next |
 | **FR source** | [`docs/developer-module/workbench-functional-inventory.md`](../../developer-module/workbench-functional-inventory.md) §15 P0 |
 | **Pipeline track** | [`docs/developer-module/data-pipeline-engine-inventory.md`](../../developer-module/data-pipeline-engine-inventory.md) (parallel; not blocking P0) |
 | **Related** | [design-templates-item-types](../design-templates-item-types/README.md) (CM1 template library — complementary, not a substitute) |
@@ -26,21 +26,22 @@
 - [x] SPA route `/developer` (+ section) for Admin or Designer  
 - [x] Top nav **Developer** (replaces legacy Design full-page exit for designers)  
 - [x] Deep-link entry `developer` (query + path fallback filter)  
-- [x] Module shell with sections: Content Types, Templates, Slots, Keywords, Communities, Pipelines (placeholder)  
+- [x] Module shell with sections: Content Types, Templates, Slots, Keywords, Communities, Pipelines  
 - [x] **Content Types** panel: list from `GET /services/contenttypes`  
 - [x] **P0.2** `GET /services/contenttypes/{idOrName}` field catalog + SPA detail view  
 - [x] **P0.2b** Allowed workflows + default workflow + allowed templates on CT detail  
 - [x] **P0.3** Keywords list `GET /services/keywords` + SPA Keywords panel (read-only)  
 - [x] **P0.4** Templates `GET /services/templates` + Slots `GET /services/slots` + SPA panels  
 - [x] **P0.5** Communities list via `GET /services/communities/find?name=*` + SPA panel  
+- [x] **P0.6** Pipelines list `GET /services/pipelines` — classic **XML Application** summaries (not Slice A IR) + SPA panel; optional `?name=` / `?limit=` / `?offset=`  
 - [x] Gap map: [content-type-api-gaps.md](./content-type-api-gaps.md)  
 - [x] Vitest coverage for shell + catalogs  
 
-## Next slices
+## Next slices (separate PRs)
 
 1. Template/slot/CT detail editors (write + field rules)  
 2. Keyword create/edit; community roles + ACL dialogs  
-3. Pipelines track (Slice A IR)  
+3. Pipelines track Slice A (IR + SQL runtime + JSON I/O + classic import)  
 4. Server runtime map for data pipelines
 
 ## Product locks
