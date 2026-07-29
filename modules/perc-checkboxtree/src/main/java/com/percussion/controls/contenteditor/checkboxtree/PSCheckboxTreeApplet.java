@@ -47,9 +47,7 @@ import javax.swing.tree.TreeSelectionModel;
  */
 public class PSCheckboxTreeApplet extends JApplet implements Runnable {
   /** Default no-argument constructor for the applet. */
-  public PSCheckboxTreeApplet() {
-    // Default constructor for the applet.
-  }
+  public PSCheckboxTreeApplet() {}
 
   /** Initialize the applet and load the tree. */
   @Override

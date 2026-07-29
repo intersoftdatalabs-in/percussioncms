@@ -28,9 +28,7 @@ import org.w3c.dom.NodeList;
  */
 public class PSCheckboxTreeRootNode extends DefaultMutableTreeNode implements MutableTreeNode {
   /** Default no-argument constructor for the root node. */
-  public PSCheckboxTreeRootNode() {
-    // Default constructor for the root node.
-  }
+  public PSCheckboxTreeRootNode() {}
 
   /**
    * Load the xml document and populate the tree. The expected xml format is: &lt;!ELEMENT Tree
