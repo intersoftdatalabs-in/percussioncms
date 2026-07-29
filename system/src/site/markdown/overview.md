@@ -303,11 +303,9 @@ The system module depends on:
 ### Code Quality
 
 ```bash
-# Check code style
-./mvnw -pl system spotless:check
-
-# Auto-format code
+# Spotless: apply first, then check (mandatory order)
 ./mvnw spotless:apply
+./mvnw spotless:check
 
 # Run all checks and tests
 ./mvnw -pl system clean verify

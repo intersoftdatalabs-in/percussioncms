@@ -96,9 +96,10 @@ com.percussion
 # From repo root
 ./mvnw -pl system clean install
 
-# Format (see root AGENTS.md Spotless hard gate)
+# Format: apply first, then check (see root AGENTS.md Spotless hard gate)
 ./mvnw spotless:apply
-./mvnw -pl system spotless:check
+./mvnw spotless:check
+# (module-scoped mid-work: ./mvnw -pl system spotless:apply && ./mvnw -pl system spotless:check)
 ```
 
 Windows: `mvnw.cmd` with the same goals.

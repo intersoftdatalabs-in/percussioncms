@@ -28,6 +28,7 @@ Read the root [@AGENTS.md](../AGENTS.md) for general guidelines. This file conta
 5. **Shell ≠ done.** A screen is incomplete until features work (data, actions, navigation, errors, roles) on a real CMS.
 6. **Screen-by-screen.** Prove one surface fully before treating it as accepted. **Current focus: Home.**
 7. **Server deep links / login return:** query `spa.jsp?entry=…` only (never `#` in `Location`). Client may use path URLs after handoff.
+8. **Playwright is mandatory for UI screen changes.** Any change that alters user-visible UI behavior on a product screen must create or update Playwright specs in `modules/perc-qa-automation/` (see **Playwright (HARD GATE)** below). Vitest alone is not enough.
 
 ### Current status (honest)
 
@@ -137,7 +138,8 @@ cp WebUI/target/generated-webui/cm/modern/assets/perc-modern-ui.css \
 - REST via `api/client.ts` + feature APIs; CSRF from bootstrap / `OWASP_CSRFTOKEN`
 - i18n via TMX `message()` helpers — no raw keys in primary chrome
 - Styles: CSS modules preferred; theme tokens via `ui-themes`
-- Tests: Vitest for non-trivial logic; update tests with every behavior change
+- Tests: **two layers** — Vitest for unit/component logic **and** Playwright for live-CMS screen behavior (see **Playwright (HARD GATE)**)
+- Prefer stable `data-testid` on interactive chrome so Playwright selectors stay reliable
 - SPA routing: `app/routes.tsx` + deep-link allowlists; server entry allowlists stay in lockstep
 - **No jQuery** — see product lock #2. If a legacy page used `$('…')` or FancyTree, reimplement in React or use a non-jQuery primitive.
 
@@ -165,15 +167,58 @@ cd WebUI/src/main/frontend
 npm run test
 ```
 
+Vitest covers pure logic, component contracts, and mocked API paths under `WebUI/src/test/ts/`. It does **not** replace live-CMS UI verification.
+
+### Playwright (HARD GATE) — UI screens
+
+**When modifying a product UI screen, agents MUST create or update Playwright automation** in [`modules/perc-qa-automation/`](../modules/perc-qa-automation/) so the changed user-visible behavior is covered against a running CMS.
+
+| Must add/update Playwright when… | Examples |
+|----------------------------------|----------|
+| User-visible chrome or copy changes | Labels, buttons, titles, empty states, i18n after locale change |
+| Interaction / navigation changes | Form submit, dropdown selection, routing, dialogs, menus |
+| New or changed screen flows | Login, Home sections, Publish, Explorer, Admin, Workflow, WB |
+| Bug fixes that alter what the user sees or can do | GH-style UI bugs (#1608, #1609, …) |
+
+| Playwright not required (still need Vitest/Java tests as applicable) | Examples |
+|----------------------------------------------------------------------|----------|
+| Pure refactors with no UI behavior change | Rename internal helper, type-only cleanup |
+| CSS-only polish with no behavioral selector/flow change | Spacing tweak with no layout/logic impact |
+| Non-UI WebUI Java (filters, servlets) with no screen change | SPA fallback allowlist unit tests only |
+
+#### Requirements
+
+1. **Module:** `modules/perc-qa-automation/frontend/tests/` (see that module’s [`AGENTS.md`](../modules/perc-qa-automation/AGENTS.md)).
+2. **Create or extend** a spec that asserts the **new/changed behavior** (not only “page loads”).
+3. Prefer **`data-testid`** (and existing helpers in `tests/helpers/`) over brittle CSS/XPath.
+4. Run against a live CMS when validating (e.g. `/opt/Percussion` or docker dev):
+
+   ```bash
+   cd modules/perc-qa-automation/frontend
+   npm test -- tests/<relevant-spec>.spec.js
+   ```
+
+5. **Same PR** as the WebUI change when practical (or a tightly stacked follow-up PR linked from the feature PR). Do not treat the feature as done with Vitest-only coverage.
+6. **PR evidence:** name the Playwright file(s), command(s) run, and pass/fail. If Playwright could not be run (no CMS), say so explicitly and still land the test code so CI/dev can execute it.
+
+Naming conventions (perc-qa-automation):
+
+- Screen / feature: `tests/<area>.spec.js` or `tests/workflows/<feature>.spec.js`
+- Bug regression: `tests/bugs/bug-<issue-id>.spec.js` (e.g. `bug-1608-1609-login-locale.spec.js`)
+
+Root monorepo rule still applies: **unit tests for every logic change**. Playwright is **additional** for UI screens, not a substitute for Vitest.
+
 ### Acceptance (product)
 
-Follow the **screen checklist** in the unified UI plan. Home must pass on a **real CMS** (not only unit tests) before Home is marked accepted.
+Follow the **screen checklist** in the unified UI plan. Home must pass on a **real CMS** (not only unit tests) before Home is marked accepted. Playwright specs are the automated record of that acceptance loop.
 
 ### Pre-PR
 
 - `cd WebUI && ../mvnw clean install` — BUILD SUCCESS, tests pass, no new warnings
+- Vitest for touched React/TS behavior
+- **Playwright create/update** for any product screen UI change (HARD GATE above)
 - Erlang review on authored diffs
-- PR body: commands run + test counts + which checklist items were verified
+- PR body: commands run + test counts + Playwright specs + which checklist items were verified
 
 ---
 
@@ -187,6 +232,7 @@ Follow the **screen checklist** in the unified UI plan. Home must pass on a **re
 | Align allowlists (TS + JSP/filter) | **jQuery / `$` / jQuery plugins in `src/main/ts` or modern bundle** |
 | Document acceptance evidence | New Dojo / Knockout product code |
 | Typed `api/*` + React UI | Wrap jQuery widgets in React “for speed” |
+| **Create/update Playwright for UI screen changes** | Ship UI behavior with Vitest-only coverage |
 
 ---
 
@@ -195,4 +241,5 @@ Follow the **screen checklist** in the unified UI plan. Home must pass on a **re
 - [Unified UI Plan rev 4.0](../docs/ai-generated/tasks/#000-unified-ui-plan/unified-ui-plan.md) — **direction of record**
 - [Pure React SPA design](../docs/ai-generated/tasks/#000-pure-react-spa/design.md) — entry contract, bootstrap, PR 1–9
 - [Residual bridge embeds](../docs/ai-generated/tasks/#000-pure-react-spa/residual-bridge-embeds.md) — delete list
+- [perc-qa-automation AGENTS](../modules/perc-qa-automation/AGENTS.md) — Playwright module, helpers, run commands
 - Root [AGENTS.md](../AGENTS.md) — monorepo, Maven, cross-platform, Erlang

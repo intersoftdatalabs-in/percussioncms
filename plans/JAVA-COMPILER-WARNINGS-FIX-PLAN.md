@@ -272,7 +272,7 @@ After each phase, run:
 
 - Internal deprecation warnings for `com.percussion` code should be left suppressed via `@SuppressWarnings("deprecation")` annotations
 - All changes should maintain backward compatibility
-- Run `./mvnw spotless:check` after changes per project guidelines
+- Run `./mvnw spotless:apply` then `./mvnw spotless:check` after changes (apply first, check second — per project guidelines)
 - Unit tests must continue to pass
 
 ---

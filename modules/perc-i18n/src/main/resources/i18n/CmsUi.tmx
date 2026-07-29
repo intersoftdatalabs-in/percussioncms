@@ -18406,5 +18406,49 @@ Documentación' href='https://percussioncmshelp.intsof.com/'&gt;percussioncmshel
     <tuv xml:lang="es"><seg>¿Eliminar este objeto de diseño? Esta acción no se puede deshacer.</seg></tuv>
     <tuv xml:lang="hi"><seg>Delete this design object? This cannot be undone.</seg></tuv>
 </tu>
+
+    <!-- React login page chrome (GH-1609). Keys match WebUI LOGIN_KEYS. -->
+    <tu tuid="perc.ui.login.modern@Sign in">
+        <prop type="sectionname" xml:lang="en-us">Login</prop>
+        <note xml:lang="en-us">Modern login page title / document title</note>
+        <tuv xml:lang="en-us"><seg>Sign in</seg></tuv>
+        <tuv xml:lang="es"><seg>Iniciar sesión</seg></tuv>
+        <tuv xml:lang="hi"><seg>साइन इन</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.login.modern@User name">
+        <prop type="sectionname" xml:lang="en-us">Login</prop>
+        <note xml:lang="en-us">Modern login username field label</note>
+        <tuv xml:lang="en-us"><seg>User name</seg></tuv>
+        <tuv xml:lang="es"><seg>Nombre de usuario</seg></tuv>
+        <tuv xml:lang="hi"><seg>उपयोगकर्ता नाम</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.login.modern@Password">
+        <prop type="sectionname" xml:lang="en-us">Login</prop>
+        <note xml:lang="en-us">Modern login password field label</note>
+        <tuv xml:lang="en-us"><seg>Password</seg></tuv>
+        <tuv xml:lang="es"><seg>Contraseña</seg></tuv>
+        <tuv xml:lang="hi"><seg>पासवर्ड</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.login.modern@Locale">
+        <prop type="sectionname" xml:lang="en-us">Login</prop>
+        <note xml:lang="en-us">Modern login locale field label</note>
+        <tuv xml:lang="en-us"><seg>Locale</seg></tuv>
+        <tuv xml:lang="es"><seg>Idioma</seg></tuv>
+        <tuv xml:lang="hi"><seg>स्थान</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.login.modern@Use legacy UI">
+        <prop type="sectionname" xml:lang="en-us">Login</prop>
+        <note xml:lang="en-us">Modern login legacy UI checkbox label</note>
+        <tuv xml:lang="en-us"><seg>Use legacy UI</seg></tuv>
+        <tuv xml:lang="es"><seg>Usar IU heredada</seg></tuv>
+        <tuv xml:lang="hi"><seg>विरासत यूआई का उपयोग करें</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.login.modern@Login">
+        <prop type="sectionname" xml:lang="en-us">Login</prop>
+        <note xml:lang="en-us">Modern login submit button label</note>
+        <tuv xml:lang="en-us"><seg>Login</seg></tuv>
+        <tuv xml:lang="es"><seg>Iniciar sesión</seg></tuv>
+        <tuv xml:lang="hi"><seg>लॉग इन करें</seg></tuv>
+    </tu>
     </body>
 </tmx>
