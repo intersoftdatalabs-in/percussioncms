@@ -25,7 +25,20 @@ import jakarta.servlet.http.HttpServlet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Servlet that logs a hard error during initialization when the Percussion secure-key file is
+ * missing from the server. The check delegates to {@link
+ * com.percussion.security.PSEncryptor#checkSecureKeyPresent(String)}; if it returns {@code false}
+ * the servlet writes the failure to both the logger and standard out so that operators notice a
+ * missing key on startup even when standard logging is misconfigured.
+ */
 public class SecureKeyServlet extends HttpServlet {
+
+  /** Default no-argument constructor for the secure key servlet. */
+  public SecureKeyServlet() {
+    // Default constructor for the secure key servlet.
+  }
+
   private static final long serialVersionUID = 1L;
   private static final Logger logger = LogManager.getLogger(SecureKeyServlet.class);
 

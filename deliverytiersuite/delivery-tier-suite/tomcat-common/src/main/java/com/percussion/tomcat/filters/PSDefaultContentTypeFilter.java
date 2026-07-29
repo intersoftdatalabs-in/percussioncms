@@ -34,6 +34,11 @@ import java.io.IOException;
  */
 public class PSDefaultContentTypeFilter implements Filter {
 
+  /** Default no-argument constructor for the default content type filter. */
+  public PSDefaultContentTypeFilter() {
+    // Default constructor for the default content type filter.
+  }
+
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws ServletException, IOException {

@@ -53,6 +53,11 @@ import org.apache.logging.log4j.Logger;
  * </ol>
  */
 public class PSSimpleRedirectorValve extends ValveBase {
+  /** Default no-argument constructor for the redirector valve. */
+  public PSSimpleRedirectorValve() {
+    // Default constructor for the redirector valve.
+  }
+
   private static final Logger log = LogManager.getLogger(PSSimpleRedirectorValve.class);
 
   /** See class description. */
@@ -72,6 +77,11 @@ public class PSSimpleRedirectorValve extends ValveBase {
 
   private boolean started;
 
+  /**
+   * Indicates whether the valve has been started successfully.
+   *
+   * @return {@code true} when {@link #startInternal()} has finished initializing the valve.
+   */
   public boolean isStarted() {
     return started;
   }

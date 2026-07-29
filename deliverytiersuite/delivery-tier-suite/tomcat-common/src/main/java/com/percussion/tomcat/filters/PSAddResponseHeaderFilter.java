@@ -35,7 +35,19 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.CacheControl;
 
+/**
+ * Servlet filter that adds a {@code Cache-Control} header to responses served from a Percussion web
+ * application. The maximum-age value and time unit are read from {@code
+ * WEB-INF/perc-security.properties} when present, falling back to the {@code
+ * catalina.base/conf/perc/perc-security.properties} override, and ultimately to a default of {@code
+ * 60} seconds when neither file supplies a value.
+ */
 public class PSAddResponseHeaderFilter implements Filter {
+
+  /** Default no-argument constructor for the response-header filter. */
+  public PSAddResponseHeaderFilter() {
+    // Default constructor for the response-header filter.
+  }
 
   private static final Logger log = LogManager.getLogger(PSAddResponseHeaderFilter.class);
 

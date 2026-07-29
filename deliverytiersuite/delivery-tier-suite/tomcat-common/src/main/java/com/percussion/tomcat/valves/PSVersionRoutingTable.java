@@ -31,10 +31,17 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSVersionRoutingTable {
 
+  /** Default no-argument constructor for the routing table. */
+  public PSVersionRoutingTable() {
+    // Default constructor for the routing table.
+  }
+
   private Map<String, Map<String, String>> serviceContexts;
   private static final Logger log = LogManager.getLogger(PSVersionRoutingTable.class);
 
   /**
+   * Returns the service-context map keyed by context path.
+   *
    * @return the serviceContexts
    */
   public Map<String, Map<String, String>> getServiceContexts() {
@@ -42,6 +49,8 @@ public class PSVersionRoutingTable {
   }
 
   /**
+   * Replaces the service-context map keyed by context path.
+   *
    * @param serviceContexts the serviceContexts to set
    */
   public void setServiceContexts(Map<String, Map<String, String>> serviceContexts) {
