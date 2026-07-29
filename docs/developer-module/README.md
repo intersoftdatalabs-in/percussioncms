@@ -28,7 +28,6 @@ Tool-agnostic reverse engineering of the Rhythmyx 7.3.2 **Workbench** (Eclipse D
 2. **Server runtime map** — [data-pipeline-server-runtime-map.md](./data-pipeline-server-runtime-map.md) (done as docs; use before estimating engine reuse)  
 3. **Pipeline Slice A (parallel or next)** — pipeline IR + SQL runtime + JSON I/O + hooks + classic app import  
 
-
 Implementation task tracking and **PR review deferrals / tech debt** live under  
 [`docs/ai-generated/tasks/developer-module-p0/`](../ai-generated/tasks/developer-module-p0/)  
 (especially [review-followups-tech-debt.md](../ai-generated/tasks/developer-module-p0/review-followups-tech-debt.md)).
