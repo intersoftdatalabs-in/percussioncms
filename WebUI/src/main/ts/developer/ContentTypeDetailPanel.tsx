@@ -144,6 +144,73 @@ export function ContentTypeDetailPanel({
             </section>
           ) : null}
 
+          <section
+            style={{ marginBottom: "16px" }}
+            data-testid="developer-ct-workflows"
+          >
+            <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_WORKFLOWS}</h3>
+            {detail.defaultWorkflow ? (
+              <p style={{ fontSize: "0.9rem", marginTop: 0 }}>
+                <strong>{DEV_MSG.CT_DEFAULT_WF}:</strong>{" "}
+                {detail.defaultWorkflow.label || detail.defaultWorkflow.name}
+              </p>
+            ) : null}
+            {(detail.allowedWorkflows || []).length === 0 ? (
+              <p style={{ color: "#718096" }}>{DEV_MSG.CT_NONE}</p>
+            ) : (
+              <ul>
+                {(detail.allowedWorkflows || []).map((w) => (
+                  <li key={w.name || w.guid?.stringValue || w.label}>
+                    {w.label || w.name}
+                    {w.isDefault ? " (default)" : ""}
+                    {w.name ? (
+                      <span
+                        style={{
+                          fontFamily: "monospace",
+                          color: "#718096",
+                          marginLeft: "8px",
+                          fontSize: "0.85rem",
+                        }}
+                      >
+                        {w.name}
+                      </span>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <section
+            style={{ marginBottom: "16px" }}
+            data-testid="developer-ct-templates"
+          >
+            <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_TEMPLATES}</h3>
+            {(detail.allowedTemplates || []).length === 0 ? (
+              <p style={{ color: "#718096" }}>{DEV_MSG.CT_NONE}</p>
+            ) : (
+              <ul>
+                {(detail.allowedTemplates || []).map((t) => (
+                  <li key={t.name || t.guid?.stringValue || t.label}>
+                    {t.label || t.name}
+                    {t.name ? (
+                      <span
+                        style={{
+                          fontFamily: "monospace",
+                          color: "#718096",
+                          marginLeft: "8px",
+                          fontSize: "0.85rem",
+                        }}
+                      >
+                        {t.name}
+                      </span>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
           <section style={{ marginBottom: "16px" }}>
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_FIELDS}</h3>
             <div style={{ overflowX: "auto" }}>

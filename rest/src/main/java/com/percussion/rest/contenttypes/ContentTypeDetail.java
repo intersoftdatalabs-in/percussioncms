@@ -45,6 +45,9 @@ public class ContentTypeDetail {
   private String editorUrl;
   private List<ContentTypeField> fields = new ArrayList<>();
   private List<String> childFieldSets = new ArrayList<>();
+  private List<NamedObjectRef> allowedWorkflows = new ArrayList<>();
+  private NamedObjectRef defaultWorkflow;
+  private List<NamedObjectRef> allowedTemplates = new ArrayList<>();
 
   @Schema(
       description =
@@ -131,6 +134,30 @@ public class ContentTypeDetail {
 
   public void setChildFieldSets(List<String> childFieldSets) {
     this.childFieldSets = childFieldSets != null ? childFieldSets : new ArrayList<>();
+  }
+
+  public List<NamedObjectRef> getAllowedWorkflows() {
+    return allowedWorkflows;
+  }
+
+  public void setAllowedWorkflows(List<NamedObjectRef> allowedWorkflows) {
+    this.allowedWorkflows = allowedWorkflows != null ? allowedWorkflows : new ArrayList<>();
+  }
+
+  public NamedObjectRef getDefaultWorkflow() {
+    return defaultWorkflow;
+  }
+
+  public void setDefaultWorkflow(NamedObjectRef defaultWorkflow) {
+    this.defaultWorkflow = defaultWorkflow;
+  }
+
+  public List<NamedObjectRef> getAllowedTemplates() {
+    return allowedTemplates;
+  }
+
+  public void setAllowedTemplates(List<NamedObjectRef> allowedTemplates) {
+    this.allowedTemplates = allowedTemplates != null ? allowedTemplates : new ArrayList<>();
   }
 
   public List<String> getDesignGaps() {

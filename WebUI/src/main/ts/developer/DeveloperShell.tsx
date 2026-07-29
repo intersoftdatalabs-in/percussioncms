@@ -17,6 +17,7 @@
 
 import React, { useState } from "react";
 import { ContentTypesPanel } from "./ContentTypesPanel";
+import { KeywordsPanel } from "./KeywordsPanel";
 import { DEV_MSG } from "./messages";
 import { PlaceholderPanel } from "./PlaceholderPanel";
 
@@ -149,6 +150,8 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
       >
         {active === "content-types" ? (
           <ContentTypesPanel />
+        ) : active === "keywords" ? (
+          <KeywordsPanel />
         ) : (
           <PlaceholderPanel sectionLabel={SECTION_LABEL[active]} />
         )}

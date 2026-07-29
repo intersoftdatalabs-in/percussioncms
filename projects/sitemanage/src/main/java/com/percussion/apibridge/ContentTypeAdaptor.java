@@ -32,13 +32,25 @@ import com.percussion.rest.contenttypes.ContentTypeDetail;
 import com.percussion.rest.contenttypes.ContentTypeField;
 import com.percussion.rest.contenttypes.ContentTypeFilter;
 import com.percussion.rest.contenttypes.IContentTypesAdaptor;
+import com.percussion.rest.contenttypes.NamedObjectRef;
+import com.percussion.services.assembly.IPSAssemblyService;
+import com.percussion.services.assembly.IPSAssemblyTemplate;
+import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.services.catalog.PSTypeEnum;
+import com.percussion.services.contentmgr.IPSContentMgr;
+import com.percussion.services.contentmgr.PSContentMgrLocator;
+import com.percussion.services.contentmgr.data.PSContentTypeWorkflow;
 import com.percussion.services.guidmgr.data.PSGuid;
+import com.percussion.services.workflow.IPSWorkflowService;
+import com.percussion.services.workflow.PSWorkflowServiceLocator;
+import com.percussion.services.workflow.data.PSWorkflow;
 import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -167,15 +179,96 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     detail.setFields(fields);
     detail.setChildFieldSets(childSets);
 
+    IPSGuid ctGuid = new PSGuid(PSTypeEnum.NODEDEF, def.getTypeId());
+    int defaultWfId = def.getContentEditor() != null ? def.getContentEditor().getWorkflowId() : -1;
+    detail.setAllowedWorkflows(loadWorkflows(ctGuid, defaultWfId));
+    if (defaultWfId > 0) {
+      detail.setDefaultWorkflow(toWorkflowRef(defaultWfId, true));
+    }
+    detail.setAllowedTemplates(loadTemplates(ctGuid));
+
     List<String> gaps = new ArrayList<>();
     gaps.add("Field validation, visibility, editability, and transform rules not exposed");
     gaps.add("Item-level pre/post exits not exposed");
-    gaps.add("Allowed workflows / default workflow not exposed on this endpoint");
-    gaps.add("Allowed templates association not exposed on this endpoint");
     gaps.add("Create / update / delete / lock not supported (read-only)");
     gaps.add("Shared/system field inclusion editing not supported");
+    gaps.add("Workflow/template associations are read-only (no add/remove via this API)");
     detail.setDesignGaps(gaps);
     return detail;
+  }
+
+  private List<NamedObjectRef> loadWorkflows(IPSGuid ctGuid, int defaultWfId) {
+    List<NamedObjectRef> out = new ArrayList<>();
+    try {
+      IPSContentMgr mgr = PSContentMgrLocator.getContentMgr();
+      List<PSContentTypeWorkflow> rels = mgr.findContentTypeWorkflowAssociations(ctGuid);
+      if (rels != null) {
+        for (PSContentTypeWorkflow rel : rels) {
+          if (rel == null || rel.getWorkflowId() == null) continue;
+          int wfUuid = (int) rel.getWorkflowId().getUUID();
+          out.add(toWorkflowRef(wfUuid, wfUuid == defaultWfId));
+        }
+      }
+    } catch (Exception e) {
+      log.debug("Could not load workflows for content type {}: {}", ctGuid, e.getMessage());
+    }
+    out.sort(
+        Comparator.comparing(
+            r -> r.getLabel() != null ? r.getLabel() : "", String.CASE_INSENSITIVE_ORDER));
+    return out;
+  }
+
+  private NamedObjectRef toWorkflowRef(int workflowUuid, boolean isDefault) {
+    NamedObjectRef ref = new NamedObjectRef();
+    IPSGuid g = new PSGuid(PSTypeEnum.WORKFLOW, workflowUuid);
+    ref.setGuid(ApiUtils.convertGuid(g));
+    ref.setIsDefault(isDefault);
+    try {
+      IPSWorkflowService wfSvc = PSWorkflowServiceLocator.getWorkflowService();
+      PSWorkflow wf =
+          wfSvc.findWorkflow(g).orElse(null);
+      if (wf != null) {
+        ref.setName(wf.getName());
+        ref.setLabel(StringUtils.defaultIfBlank(wf.getLabel(), wf.getName()));
+      } else {
+        ref.setName(String.valueOf(workflowUuid));
+        ref.setLabel(String.valueOf(workflowUuid));
+      }
+    } catch (Exception e) {
+      ref.setName(String.valueOf(workflowUuid));
+      ref.setLabel(String.valueOf(workflowUuid));
+    }
+    return ref;
+  }
+
+  private List<NamedObjectRef> loadTemplates(IPSGuid ctGuid) {
+    List<NamedObjectRef> out = new ArrayList<>();
+    try {
+      IPSAssemblyService asm = PSAssemblyServiceLocator.getAssemblyService();
+      List<IPSAssemblyTemplate> templates = asm.findTemplatesByContentType(ctGuid);
+      if (templates != null) {
+        for (IPSAssemblyTemplate t : templates) {
+          if (t == null) continue;
+          NamedObjectRef ref = new NamedObjectRef();
+          try {
+            if (t.getGUID() != null) {
+              ref.setGuid(ApiUtils.convertGuid(t.getGUID()));
+            }
+          } catch (Exception ignore) {
+            // optional
+          }
+          ref.setName(t.getName());
+          ref.setLabel(StringUtils.defaultIfBlank(t.getLabel(), t.getName()));
+          out.add(ref);
+        }
+      }
+    } catch (Exception e) {
+      log.debug("Could not load templates for content type {}: {}", ctGuid, e.getMessage());
+    }
+    out.sort(
+        Comparator.comparing(
+            r -> r.getLabel() != null ? r.getLabel() : "", String.CASE_INSENSITIVE_ORDER));
+    return out;
   }
 
   private void addFieldsFromSet(

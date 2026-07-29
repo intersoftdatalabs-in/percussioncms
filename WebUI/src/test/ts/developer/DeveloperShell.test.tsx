@@ -31,8 +31,25 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
         searchable: true,
       },
     ],
+    allowedWorkflows: [{ name: "Simple Workflow", label: "Simple Workflow", isDefault: true }],
+    defaultWorkflow: { name: "Simple Workflow", label: "Simple Workflow", isDefault: true },
+    allowedTemplates: [{ name: "perc.page", label: "Page" }],
     designGaps: ["Field validation rules not exposed"],
   }),
+}));
+
+vi.mock("../../../main/ts/api/developer/keywordsApi", () => ({
+  listKeywords: vi.fn().mockResolvedValue([
+    {
+      label: "Status",
+      value: "status",
+      description: "Status keyword",
+      choices: [
+        { label: "Open", value: "open" },
+        { label: "Closed", value: "closed" },
+      ],
+    },
+  ]),
 }));
 
 describe("DeveloperShell", () => {
@@ -80,10 +97,21 @@ describe("DeveloperShell", () => {
     });
     expect(screen.getByTestId("developer-ct-fields-table")).toBeTruthy();
     expect(screen.getByText("sys_title")).toBeTruthy();
+    expect(screen.getByTestId("developer-ct-workflows")).toBeTruthy();
+    expect(screen.getByTestId("developer-ct-templates")).toBeTruthy();
     expect(screen.getByTestId("developer-ct-gaps")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-ct-back"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
     });
+  });
+
+  it("loads keywords section", async () => {
+    render(<DeveloperShell initialSection="keywords" embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-kw-table")).toBeTruthy();
+    });
+    expect(screen.getByText("Status")).toBeTruthy();
+    expect(screen.getByText("2")).toBeTruthy();
   });
 });

@@ -55,6 +55,14 @@ export interface ContentTypeFieldSummary {
   fieldSet?: string | null;
 }
 
+/** Workflow / template association row. */
+export interface NamedObjectRef {
+  guid?: RestGuid;
+  name?: string;
+  label?: string;
+  isDefault?: boolean;
+}
+
 /** Read-only design detail for one content type. */
 export interface ContentTypeDetail {
   guid?: RestGuid;
@@ -67,5 +75,24 @@ export interface ContentTypeDetail {
   editorUrl?: string;
   fields?: ContentTypeFieldSummary[];
   childFieldSets?: string[];
+  allowedWorkflows?: NamedObjectRef[];
+  defaultWorkflow?: NamedObjectRef | null;
+  allowedTemplates?: NamedObjectRef[];
   designGaps?: string[];
+}
+
+export interface KeywordChoiceSummary {
+  label?: string;
+  value?: string;
+  description?: string;
+  sequence?: number;
+}
+
+export interface KeywordSummary {
+  guid?: RestGuid;
+  label?: string;
+  value?: string;
+  description?: string;
+  sequence?: number;
+  choices?: KeywordChoiceSummary[];
 }

@@ -269,6 +269,10 @@ export const PATHS = {
   get TEMPLATES() {
     return `${SERVICES_ROOT}/templates`;
   },
+  /** Keyword design catalog. */
+  get KEYWORDS() {
+    return `${SERVICES_ROOT}/keywords`;
+  },
   /** Workflow management (workflowmanagement) — Feature 993 */
   get WORKFLOWS() {
     return `${SERVICES_ROOT}/workflowmanagement/workflows/`;
