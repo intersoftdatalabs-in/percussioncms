@@ -1,0 +1,158 @@
+/*
+ * Copyright 1999-2026 Percussion Software, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import React, { useState } from "react";
+import { ContentTypesPanel } from "./ContentTypesPanel";
+import { DEV_MSG } from "./messages";
+import { PlaceholderPanel } from "./PlaceholderPanel";
+
+export type DeveloperSection =
+  | "content-types"
+  | "templates"
+  | "slots"
+  | "keywords"
+  | "communities"
+  | "pipelines";
+
+const DEVELOPER_SECTIONS: readonly DeveloperSection[] = [
+  "content-types",
+  "templates",
+  "slots",
+  "keywords",
+  "communities",
+  "pipelines",
+];
+
+const SECTION_LABEL: Record<DeveloperSection, string> = {
+  "content-types": DEV_MSG.TAB_CONTENT_TYPES,
+  templates: DEV_MSG.TAB_TEMPLATES,
+  slots: DEV_MSG.TAB_SLOTS,
+  keywords: DEV_MSG.TAB_KEYWORDS,
+  communities: DEV_MSG.TAB_COMMUNITIES,
+  pipelines: DEV_MSG.TAB_PIPELINES,
+};
+
+export function normalizeDeveloperSection(
+  raw: string | null | undefined,
+): DeveloperSection {
+  if (raw == null || !raw.trim()) {
+    return "content-types";
+  }
+  const n = raw.trim().toLowerCase().replace(/_/g, "-");
+  // aliases
+  if (n === "contenttypes" || n === "ctypes" || n === "content") {
+    return "content-types";
+  }
+  if (n === "pipeline" || n === "xml-apps" || n === "applications") {
+    return "pipelines";
+  }
+  return (DEVELOPER_SECTIONS as readonly string[]).includes(n)
+    ? (n as DeveloperSection)
+    : "content-types";
+}
+
+export interface DeveloperShellProps {
+  initialSection?: DeveloperSection | string;
+  /**
+   * When true (SPA AppLayout), shell is under product chrome.
+   */
+  embedded?: boolean;
+}
+
+const tabStyle = (active: boolean): React.CSSProperties => ({
+  padding: "10px 16px",
+  border: "none",
+  borderBottom: active ? "3px solid #007ea8" : "3px solid transparent",
+  fontWeight: active ? 600 : 400,
+  background: "transparent",
+  cursor: "pointer",
+  color: active ? "#007ea8" : "#2d3748",
+});
+
+/**
+ * Developer module shell — P0 CMS design tools entry point.
+ */
+export const DeveloperShell: React.FC<DeveloperShellProps> = ({
+  initialSection = "content-types",
+  embedded: _embedded = false,
+}) => {
+  const [active, setActive] = useState<DeveloperSection>(() =>
+    normalizeDeveloperSection(initialSection),
+  );
+
+  return (
+    <div
+      className="perc-developer-shell"
+      data-testid="perc-developer-shell"
+      style={{
+        fontFamily: "var(--perc-font-family, sans-serif)",
+        padding: "20px",
+        maxWidth: "1200px",
+        margin: "0 auto",
+      }}
+    >
+      <header style={{ marginBottom: "12px" }}>
+        <h1 style={{ marginBottom: "8px" }}>{DEV_MSG.TITLE}</h1>
+        <p style={{ margin: 0, color: "#4a5568", maxWidth: "48rem" }}>
+          {DEV_MSG.INTRO}
+        </p>
+      </header>
+
+      <nav
+        className="perc-tab-nav"
+        role="tablist"
+        aria-label="Developer sections"
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          borderBottom: "1px solid #e2e8f0",
+          marginBottom: "20px",
+          gap: "4px",
+        }}
+      >
+        {DEVELOPER_SECTIONS.map((section) => (
+          <button
+            key={section}
+            type="button"
+            role="tab"
+            id={`tab-developer-${section}`}
+            aria-selected={active === section}
+            aria-controls={`panel-developer-${section}`}
+            onClick={() => setActive(section)}
+            style={tabStyle(active === section)}
+            data-testid={`tab-developer-${section}`}
+          >
+            {SECTION_LABEL[section]}
+          </button>
+        ))}
+      </nav>
+
+      <div
+        role="tabpanel"
+        id={`panel-developer-${active}`}
+        aria-labelledby={`tab-developer-${active}`}
+        data-testid={`panel-developer-${active}`}
+      >
+        {active === "content-types" ? (
+          <ContentTypesPanel />
+        ) : (
+          <PlaceholderPanel sectionLabel={SECTION_LABEL[active]} />
+        )}
+      </div>
+    </div>
+  );
+};

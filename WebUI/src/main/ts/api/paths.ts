@@ -258,6 +258,17 @@ export const PATHS = {
   get ACTIONS_ROOT() {
     return `${SERVICES_ROOT}/actions`;
   },
+  /**
+   * Public REST content type catalog ({@code rest} module ContentTypesResource).
+   * List only — design-time field editor APIs are a P0 gap survey.
+   */
+  get CONTENT_TYPES() {
+    return `${SERVICES_ROOT}/contenttypes`;
+  },
+  /** Public REST template summaries (assembly design list). */
+  get TEMPLATES() {
+    return `${SERVICES_ROOT}/templates`;
+  },
   /** Workflow management (workflowmanagement) — Feature 993 */
   get WORKFLOWS() {
     return `${SERVICES_ROOT}/workflowmanagement/workflows/`;

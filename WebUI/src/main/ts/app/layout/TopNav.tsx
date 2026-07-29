@@ -77,13 +77,14 @@ export function TopNav(): React.ReactElement {
               </a>
             </li>
             <li>
-              <a
-                className={styles.navLink}
-                href="/cm/app/?view=design"
-                data-testid="nav-design"
+              <NavLink
+                to="/developer"
+                className={linkClass}
+                data-testid="nav-developer"
+                title="CMS design tools (content types, templates, …)"
               >
-                Design
-              </a>
+                Developer
+              </NavLink>
             </li>
             <li>
               <NavLink to="/publish" className={linkClass} data-testid="nav-publish">
