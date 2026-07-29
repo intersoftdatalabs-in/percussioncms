@@ -215,6 +215,33 @@ class PipelinesAdaptorTest {
     assertFalse(PipelinesAdaptor.matchesNameFilter(dto, "missing"));
   }
 
+  @Test
+  void isSafeApplicationName_rejectsPathTraversal() {
+    assertTrue(PipelinesAdaptor.isSafeApplicationName("sys_cmpDocuments"));
+    assertTrue(PipelinesAdaptor.isSafeApplicationName("42"));
+    assertFalse(PipelinesAdaptor.isSafeApplicationName("../etc/passwd"));
+    assertFalse(PipelinesAdaptor.isSafeApplicationName("foo/bar"));
+    assertFalse(PipelinesAdaptor.isSafeApplicationName("foo\\bar"));
+    assertFalse(PipelinesAdaptor.isSafeApplicationName(""));
+    assertFalse(PipelinesAdaptor.isSafeApplicationName(null));
+  }
+
+  @Test
+  void resolveApplicationName_returnsTrustedCatalogNameOnly() {
+    PSApplicationSummary a = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PSApplicationSummary[] sums = {a};
+
+    // by name (case-insensitive) → catalog name, not raw user casing
+    assertEquals("sys_cmpDocuments", PipelinesAdaptor.resolveApplicationName("SYS_CMPDOCUMENTS", sums));
+    // by id
+    assertEquals("sys_cmpDocuments", PipelinesAdaptor.resolveApplicationName("7", sums));
+    // unknown / path injection attempts
+    assertNull(PipelinesAdaptor.resolveApplicationName("missing", sums));
+    assertNull(PipelinesAdaptor.resolveApplicationName("../sys_cmpDocuments", sums));
+    assertNull(PipelinesAdaptor.resolveApplicationName("sys_cmpDocuments/../other", sums));
+    assertNull(PipelinesAdaptor.resolveApplicationName("99", sums));
+  }
+
   private static PSApplicationSummary summary(
       int id,
       String name,

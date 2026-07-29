@@ -96,7 +96,9 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
       throw new IllegalStateException("No current request for application detail");
     }
     PSSecurityToken tok = req.getSecurityToken();
-    String name = resolveApplicationName(idOrName.trim(), tok);
+    // Resolve only against the object-store catalog so the name passed to
+    // getApplicationObject is never the raw path param (java/path-injection).
+    String name = resolveApplicationName(idOrName.trim(), summaryLoader.apply(tok));
     if (name == null) {
       return null;
     }
@@ -115,22 +117,49 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   }
 
   /**
-   * Resolve numeric id via summary list, otherwise treat idOrName as application name.
+   * Application names become object-store directory names. Reject path traversal and
+   * separators so a user-supplied {@code idOrName} cannot escape the apps root
+   * ({@code java/path-injection}).
    */
-  private String resolveApplicationName(String idOrName, PSSecurityToken tok) {
+  static boolean isSafeApplicationName(String name) {
+    if (StringUtils.isBlank(name)) {
+      return false;
+    }
+    // Single path component only — matches CodeQL path-injection sanitizer patterns.
+    return !name.contains("..")
+        && name.indexOf('/') < 0
+        && name.indexOf('\\') < 0
+        && name.indexOf('\0') < 0;
+  }
+
+  /**
+   * Resolve numeric id or application name against the catalog summary list.
+   *
+   * <p>Always returns {@link PSApplicationSummary#getName()} from a matching summary (trusted
+   * object-store catalog value), never the raw user string. Unknown / unsafe input yields
+   * {@code null}.
+   */
+  static String resolveApplicationName(String idOrName, PSApplicationSummary[] sums) {
+    if (!isSafeApplicationName(idOrName) || sums == null) {
+      return null;
+    }
     if (StringUtils.isNumeric(idOrName)) {
       int id = Integer.parseInt(idOrName);
-      PSApplicationSummary[] sums = summaryLoader.apply(tok);
-      if (sums != null) {
-        for (PSApplicationSummary sum : sums) {
-          if (sum != null && sum.getId() == id) {
-            return sum.getName();
-          }
+      for (PSApplicationSummary sum : sums) {
+        if (sum != null && sum.getId() == id) {
+          String trusted = sum.getName();
+          return isSafeApplicationName(trusted) ? trusted : null;
         }
       }
       return null;
     }
-    return idOrName;
+    for (PSApplicationSummary sum : sums) {
+      if (sum != null && idOrName.equalsIgnoreCase(sum.getName())) {
+        String trusted = sum.getName();
+        return isSafeApplicationName(trusted) ? trusted : null;
+      }
+    }
+    return null;
   }
 
   /** Package-visible for unit tests. */
