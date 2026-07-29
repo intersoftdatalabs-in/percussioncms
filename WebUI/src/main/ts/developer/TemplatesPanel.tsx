@@ -78,8 +78,8 @@ export function TemplatesPanel(): React.ReactElement {
           DEV_MSG.TPL_COL_ID,
           DEV_MSG.TPL_COL_DESCRIPTION,
         ]}
-        rows={sorted.map((t) => ({
-          key: String(t.templateId ?? t.templateName ?? Math.random()),
+        rows={sorted.map((t, index) => ({
+          key: String(t.templateId ?? t.templateName ?? `tpl-${index}`),
           cells: [
             t.templateLabel || "—",
             <span key="n" style={{ fontFamily: "monospace" }}>

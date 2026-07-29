@@ -28,14 +28,19 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @PSSiteManageBean
 public class SlotsAdaptor implements ISlotsAdaptor {
+
+  private static final Logger log = LogManager.getLogger(SlotsAdaptor.class);
 
   private final IPSAssemblyService asmSvc = PSAssemblyServiceLocator.getAssemblyService();
 
   @Override
   public List<SlotSummary> listSlots(URI baseUri) {
+    // baseUri reserved for HATEOAS link building (interface contract)
     // null name = all slots (see findSlotsByName implementation)
     List<IPSTemplateSlot> slots = asmSvc.findSlotsByName(null);
     List<SlotSummary> out = new ArrayList<>();
@@ -47,8 +52,10 @@ public class SlotsAdaptor implements ISlotsAdaptor {
           if (slot.getGUID() != null) {
             s.setGuid(ApiUtils.convertGuid(slot.getGUID()));
           }
-        } catch (Exception ignore) {
-          // optional
+        } catch (Exception e) {
+          // GUID is optional on the summary; keep the slot row
+          log.debug(
+              "Could not convert GUID for slot {}: {}", slot.getName(), e.getMessage());
         }
         s.setName(slot.getName());
         s.setLabel(StringUtils.defaultIfBlank(slot.getLabel(), slot.getName()));

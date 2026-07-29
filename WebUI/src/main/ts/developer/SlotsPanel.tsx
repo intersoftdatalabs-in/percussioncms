@@ -69,8 +69,8 @@ export function SlotsPanel(): React.ReactElement {
           DEV_MSG.SLOT_COL_NAME,
           DEV_MSG.SLOT_COL_DESCRIPTION,
         ]}
-        rows={items.map((s) => ({
-          key: s.guid?.stringValue || s.name || Math.random().toString(),
+        rows={items.map((s, index) => ({
+          key: s.guid?.stringValue || s.name || `slot-${index}`,
           cells: [
             s.label || "—",
             <span key="n" style={{ fontFamily: "monospace" }}>

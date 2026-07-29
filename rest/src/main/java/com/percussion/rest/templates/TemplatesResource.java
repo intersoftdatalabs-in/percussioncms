@@ -83,7 +83,8 @@ public class TemplatesResource {
     } catch (WebApplicationException e) {
       throw e;
     } catch (Exception e) {
-      throw new WebApplicationException(e.getMessage(), 500);
+      // Preserve cause so log analysis retains the original stack/type
+      throw new WebApplicationException(e, 500);
     }
   }
 
@@ -163,8 +164,11 @@ public class TemplatesResource {
         throw new WebApplicationException("Not Found.", 404);
       }
       return new TemplateSummaryList(summaries);
+    } catch (WebApplicationException e) {
+      throw e;
     } catch (Exception e) {
-      throw new WebApplicationException(e.getMessage(), 500);
+      // Preserve cause so log analysis retains the original stack/type
+      throw new WebApplicationException(e, 500);
     }
   }
 }

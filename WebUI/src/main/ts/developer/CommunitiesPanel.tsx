@@ -76,8 +76,8 @@ export function CommunitiesPanel(): React.ReactElement {
           DEV_MSG.COMM_COL_ID,
           DEV_MSG.COMM_COL_DESCRIPTION,
         ]}
-        rows={sorted.map((c) => ({
-          key: String(c.id ?? c.guid?.stringValue ?? c.name ?? Math.random()),
+        rows={sorted.map((c, index) => ({
+          key: String(c.id ?? c.guid?.stringValue ?? c.name ?? `comm-${index}`),
           cells: [
             c.label || "—",
             <span key="n" style={{ fontFamily: "monospace" }}>

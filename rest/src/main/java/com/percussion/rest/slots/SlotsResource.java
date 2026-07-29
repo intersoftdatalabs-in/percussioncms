@@ -66,7 +66,8 @@ public class SlotsResource {
     try {
       return adaptor.listSlots(uriInfo.getBaseUri());
     } catch (Exception e) {
-      throw new WebApplicationException(e.getMessage(), 500);
+      // Preserve cause so log analysis retains the original stack/type
+      throw new WebApplicationException(e, 500);
     }
   }
 }
