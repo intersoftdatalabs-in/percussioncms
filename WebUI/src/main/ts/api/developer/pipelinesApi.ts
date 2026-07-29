@@ -19,26 +19,35 @@ import { get } from "../client";
 import { PATHS } from "../paths";
 import type { ApplicationSummary } from "./types";
 
-function asArray<T>(payload: unknown, keys: string[]): T[] {
+export interface ListApplicationsOptions {
+  name?: string;
+  limit?: number;
+  offset?: number;
+}
+
+function asArray<T>(payload: unknown): T[] {
   if (payload == null) return [];
   if (Array.isArray(payload)) return payload as T[];
+  // Defensive: some CXF/XML-bridge shapes wrap a single element
   if (typeof payload === "object") {
     const obj = payload as Record<string, unknown>;
-    for (const k of keys) {
-      const raw = obj[k];
-      if (raw == null) continue;
-      return Array.isArray(raw) ? (raw as T[]) : [raw as T];
-    }
+    const raw = obj.Application ?? obj.application;
+    if (raw == null) return [];
+    return Array.isArray(raw) ? (raw as T[]) : [raw as T];
   }
   return [];
 }
 
-/** GET /services/pipelines */
-export async function listApplications(): Promise<ApplicationSummary[]> {
-  const payload = await get<unknown>(PATHS.PIPELINES);
-  return asArray<ApplicationSummary>(payload, [
-    "Application",
-    "ApplicationList",
-    "applicationList",
-  ]);
+/** GET /services/pipelines?name=&limit=&offset= */
+export async function listApplications(
+  options: ListApplicationsOptions = {},
+): Promise<ApplicationSummary[]> {
+  const params = new URLSearchParams();
+  if (options.name) params.set("name", options.name);
+  if (options.limit != null) params.set("limit", String(options.limit));
+  if (options.offset != null) params.set("offset", String(options.offset));
+  const q = params.toString();
+  const url = q ? `${PATHS.PIPELINES}?${q}` : PATHS.PIPELINES;
+  const payload = await get<unknown>(url);
+  return asArray<ApplicationSummary>(payload);
 }

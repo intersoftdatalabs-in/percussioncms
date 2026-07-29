@@ -33,7 +33,7 @@
 - [x] **P0.3** Keywords list `GET /services/keywords` + SPA Keywords panel (read-only)  
 - [x] **P0.4** Templates `GET /services/templates` + Slots `GET /services/slots` + SPA panels  
 - [x] **P0.5** Communities list via `GET /services/communities/find?name=*` + SPA panel  
-- [x] **P0.6** Pipelines list `GET /services/pipelines` (XML application summaries) + SPA panel  
+- [x] **P0.6** Pipelines list `GET /services/pipelines` — classic **XML Application** summaries (not Slice A IR) + SPA panel; optional `?name=` / `?limit=` / `?offset=`  
 - [x] Gap map: [content-type-api-gaps.md](./content-type-api-gaps.md)  
 - [x] Vitest coverage for shell + catalogs  
 

@@ -24,9 +24,11 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -35,6 +37,12 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * Read-only catalog of classic XML Applications (pipeline packages) for the Developer module.
+ *
+ * <p>Registered via {@link PSSiteManageBean} like sibling catalog resources ({@code Keywords},
+ * {@code Slots}).
+ */
 @PSSiteManageBean(value = "restPipelinesResource")
 @Path("/pipelines")
 @XmlRootElement
@@ -43,20 +51,27 @@ import org.springframework.beans.factory.annotation.Autowired;
     description = "Data pipeline / XML application design catalog (read-only)")
 public class PipelinesResource {
 
-  @Autowired private IPipelinesAdaptor adaptor;
+  private final IPipelinesAdaptor adaptor;
 
   @Context private UriInfo uriInfo;
 
-  public PipelinesResource() {}
+  public PipelinesResource() {
+    this.adaptor = null;
+  }
+
+  @Autowired
+  public PipelinesResource(IPipelinesAdaptor adaptor) {
+    this.adaptor = adaptor;
+  }
 
   @GET
-  @Path("/")
   @Produces({MediaType.APPLICATION_JSON})
   @Operation(
       summary = "List pipeline applications",
       description =
           "Lists non-hidden server applications (classic XML Applications) visible to the"
-              + " current user. Editor / start-stop / IR import are later slices.",
+              + " current user. Supports optional name filter and limit/offset. Editor /"
+              + " start-stop / IR import are later slices.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -68,11 +83,14 @@ public class PipelinesResource {
                             schema = @Schema(implementation = ApplicationSummary.class)))),
         @ApiResponse(responseCode = "500", description = "Error")
       })
-  public List<ApplicationSummary> listApplications() {
+  public List<ApplicationSummary> listApplications(
+      @QueryParam("name") String name,
+      @QueryParam("limit") @DefaultValue("500") int limit,
+      @QueryParam("offset") @DefaultValue("0") int offset) {
     try {
-      return adaptor.listApplications(uriInfo.getBaseUri());
+      return adaptor.listApplications(uriInfo.getBaseUri(), name, limit, offset);
     } catch (Exception e) {
-      // Preserve cause so log analysis retains the original stack/type
+      // Preserve cause; matches Keywords/Slots catalog resources
       throw new WebApplicationException(e, 500);
     }
   }

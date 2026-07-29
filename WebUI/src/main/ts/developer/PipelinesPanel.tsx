@@ -15,23 +15,16 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from "react";
-import { isSessionRedirectError, type ApiError } from "../api/client";
+import React, { useEffect, useMemo, useState } from "react";
 import { listApplications } from "../api/developer/pipelinesApi";
 import type { ApplicationSummary } from "../api/developer/types";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { monoCell, mutedCell, mutedMonoCell } from "./catalogStyles";
+import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
-function errMsg(err: unknown, fallback: string): string {
-  if (isSessionRedirectError(err)) return DEV_MSG.SESSION_REDIRECT;
-  const api = err as ApiError;
-  if (api && typeof api.status === "number") return `${fallback} (${api.status})`;
-  if (err instanceof Error && err.message) return `${fallback} ${err.message}`;
-  return fallback;
-}
-
 /**
- * P0.6 — pipeline / XML application catalog (read-only).
+ * P0.6 — classic XML Application / pipeline package catalog (read-only).
  */
 export function PipelinesPanel(): React.ReactElement {
   const [items, setItems] = useState<ApplicationSummary[] | null>(null);
@@ -45,15 +38,21 @@ export function PipelinesPanel(): React.ReactElement {
       })
       .catch((e: unknown) => {
         if (cancelled) return;
-        // Session redirect navigates away; still leave loading so UI does not hang
-        // if navigation is delayed or blocked.
-        setError(errMsg(e, DEV_MSG.PIPE_ERROR));
+        // Exit loading and show an error (including session-redirect copy if redirect is delayed).
+        setError(panelErrMsg(e, DEV_MSG.PIPE_ERROR));
         setItems([]);
       });
     return () => {
       cancelled = true;
     };
   }, []);
+
+  const sorted = useMemo(() => {
+    if (!items) return [];
+    return [...items].sort((a, b) =>
+      (a.name || "").localeCompare(b.name || "", undefined, { sensitivity: "base" }),
+    );
+  }, [items]);
 
   if (error)
     return (
@@ -67,10 +66,6 @@ export function PipelinesPanel(): React.ReactElement {
     );
   if (items.length === 0)
     return <CatalogStatus testId="developer-pipe-empty">{DEV_MSG.PIPE_EMPTY}</CatalogStatus>;
-
-  const sorted = [...items].sort((a, b) =>
-    (a.name || "").localeCompare(b.name || "", undefined, { sensitivity: "base" }),
-  );
 
   return (
     <div data-testid="developer-pipe-panel">
@@ -89,18 +84,18 @@ export function PipelinesPanel(): React.ReactElement {
         rows={sorted.map((app, index) => ({
           key: String(app.id ?? app.name ?? `pipe-${index}`),
           cells: [
-            <span key="n" style={{ fontFamily: "monospace" }}>
+            <span key="n" style={monoCell}>
               {app.name || "—"}
             </span>,
-            <span key="i" style={{ fontFamily: "monospace" }}>
+            <span key="i" style={monoCell}>
               {app.id != null ? String(app.id) : "—"}
             </span>,
             app.appType || "—",
             app.enabled == null ? "—" : app.enabled ? DEV_MSG.YES : DEV_MSG.NO,
-            <span key="r" style={{ fontFamily: "monospace", color: "#4a5568" }}>
+            <span key="r" style={mutedMonoCell}>
               {app.appRoot || ""}
             </span>,
-            <span key="d" style={{ color: "#4a5568" }}>
+            <span key="d" style={mutedCell}>
               {app.description || ""}
             </span>,
           ],

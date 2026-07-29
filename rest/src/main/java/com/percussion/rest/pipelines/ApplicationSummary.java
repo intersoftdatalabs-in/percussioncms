@@ -37,6 +37,7 @@ public class ApplicationSummary {
   private String appType;
   private String version;
   private Boolean empty;
+  private Boolean hidden;
 
   public ApplicationSummary() {}
 
@@ -102,5 +103,13 @@ public class ApplicationSummary {
 
   public void setEmpty(Boolean empty) {
     this.empty = empty;
+  }
+
+  public Boolean getHidden() {
+    return hidden;
+  }
+
+  public void setHidden(Boolean hidden) {
+    this.hidden = hidden;
   }
 }

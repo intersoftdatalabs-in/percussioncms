@@ -23,10 +23,14 @@ import java.util.List;
 public interface IPipelinesAdaptor {
 
   /**
-   * List server applications visible to the current security token (non-hidden by default).
+   * List server applications visible to the current security token.
    *
    * @param baseUri request base URI (reserved for HATEOAS)
+   * @param nameFilter optional case-insensitive name/description substring; blank = no filter
+   * @param limit max rows to return (clamped by implementation)
+   * @param offset zero-based offset into the sorted result
    * @return application summaries, never {@code null}
    */
-  List<ApplicationSummary> listApplications(URI baseUri);
+  List<ApplicationSummary> listApplications(
+      URI baseUri, String nameFilter, int limit, int offset);
 }

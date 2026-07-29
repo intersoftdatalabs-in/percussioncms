@@ -129,4 +129,5 @@ export interface ApplicationSummary {
   appType?: string;
   version?: string;
   empty?: boolean;
+  hidden?: boolean;
 }

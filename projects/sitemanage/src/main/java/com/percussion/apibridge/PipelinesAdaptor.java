@@ -29,24 +29,65 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
+import java.util.function.Function;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Lists classic XML Applications (pipeline packages) visible to the current security token.
+ *
+ * <p>Uses {@link PSServerXmlObjectStore} for summaries; mapping/filter/limit are pure helpers so
+ * they can be unit-tested without the object-store singleton.
+ */
 @PSSiteManageBean
 public class PipelinesAdaptor implements IPipelinesAdaptor {
 
   private static final Logger log = LogManager.getLogger(PipelinesAdaptor.class);
 
+  /** Default page size when callers pass non-positive limit. */
+  public static final int DEFAULT_LIMIT = 500;
+
+  /** Hard cap to avoid unbounded payloads on large servers. */
+  public static final int MAX_LIMIT = 1000;
+
+  private final Function<PSSecurityToken, PSApplicationSummary[]> summaryLoader;
+
+  public PipelinesAdaptor() {
+    this(
+        tok ->
+            PSServerXmlObjectStore.getInstance().getApplicationSummaryObjects(tok, false));
+  }
+
+  /** Package-visible for unit tests that inject a fake summary source. */
+  PipelinesAdaptor(Function<PSSecurityToken, PSApplicationSummary[]> summaryLoader) {
+    this.summaryLoader = summaryLoader;
+  }
+
   @Override
-  public List<ApplicationSummary> listApplications(URI baseUri) {
+  public List<ApplicationSummary> listApplications(
+      URI baseUri, String nameFilter, int limit, int offset) {
     // baseUri reserved for HATEOAS link building (interface contract)
     PSRequest req = PSSecurityFilter.getCurrentRequest();
     if (req == null) {
       throw new IllegalStateException("No current request for application catalog");
     }
     PSSecurityToken tok = req.getSecurityToken();
-    PSApplicationSummary[] sums =
-        PSServerXmlObjectStore.getInstance().getApplicationSummaryObjects(tok, false);
+    PSApplicationSummary[] sums = summaryLoader.apply(tok);
+    return mapFilterSortLimit(sums, nameFilter, limit, offset);
+  }
+
+  /**
+   * Pure mapping path used by production and unit tests (no object-store singleton).
+   */
+  static List<ApplicationSummary> mapFilterSortLimit(
+      PSApplicationSummary[] sums, String nameFilter, int limit, int offset) {
+    int safeLimit = limit <= 0 ? DEFAULT_LIMIT : Math.min(limit, MAX_LIMIT);
+    int safeOffset = Math.max(0, offset);
+    String q =
+        StringUtils.isBlank(nameFilter) ? null : nameFilter.trim().toLowerCase(Locale.ROOT);
+
     List<ApplicationSummary> out = new ArrayList<>();
     if (sums != null) {
       for (PSApplicationSummary sum : sums) {
@@ -54,20 +95,35 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
           continue;
         }
         try {
-          out.add(toSummary(sum));
+          ApplicationSummary dto = toSummary(sum);
+          if (q != null && !matchesNameFilter(dto, q)) {
+            continue;
+          }
+          out.add(dto);
         } catch (Exception e) {
-          log.debug(
-              "Skipping application summary {}: {}", sum.getName(), e.getMessage());
+          log.debug("Skipping application summary {}: {}", sum.getName(), e.getMessage());
         }
       }
     }
     out.sort(
         Comparator.comparing(
-            a -> a.getName() != null ? a.getName() : "", String.CASE_INSENSITIVE_ORDER));
-    return out;
+            ApplicationSummary::getName,
+            Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+    if (safeOffset >= out.size()) {
+      return List.of();
+    }
+    int end = Math.min(out.size(), safeOffset + safeLimit);
+    return new ArrayList<>(out.subList(safeOffset, end));
   }
 
-  private static ApplicationSummary toSummary(PSApplicationSummary sum) {
+  static boolean matchesNameFilter(ApplicationSummary dto, String qLower) {
+    String name = dto.getName() != null ? dto.getName().toLowerCase(Locale.ROOT) : "";
+    String desc =
+        dto.getDescription() != null ? dto.getDescription().toLowerCase(Locale.ROOT) : "";
+    return name.contains(qLower) || desc.contains(qLower);
+  }
+
+  static ApplicationSummary toSummary(PSApplicationSummary sum) {
     ApplicationSummary dto = new ApplicationSummary();
     dto.setId(sum.getId());
     dto.setName(sum.getName());
@@ -79,6 +135,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     }
     dto.setVersion(sum.getVersion());
     dto.setEmpty(sum.isEmpty());
+    dto.setHidden(sum.isHidden());
     return dto;
   }
 }
