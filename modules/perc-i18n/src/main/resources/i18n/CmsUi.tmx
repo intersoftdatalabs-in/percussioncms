@@ -28,9 +28,10 @@
 
 -->
     <header>
-        <prop type="supportedlanguage">en-us</prop>
-        <prop type="supportedlanguage">en-gb</prop>
+        <prop type="supportedlanguage">ar</prop>
         <prop type="supportedlanguage">de-de</prop>
+        <prop type="supportedlanguage">en-gb</prop>
+        <prop type="supportedlanguage">en-us</prop>
         <prop type="supportedlanguage">es</prop>
         <prop type="supportedlanguage">es-cl</prop>
         <prop type="supportedlanguage">es-es</prop>

@@ -80,8 +80,10 @@ test.describe("Login locale (GH-1608 / GH-1609)", () => {
     const target = await pickHindiTag(select);
     expect(
       target,
-      "install must expose hi-in or hi in the login locale dropdown",
+      // Base hi is hidden when hi-in is active (PSLocaleLoginSelection).
+      "install must expose hi-in in the login locale dropdown",
     ).toBeTruthy();
+    expect(target).toBe("hi-in");
 
     const readyBefore = await page
       .getByTestId("perc-login-page")

@@ -4,6 +4,7 @@
 <%@ page import="com.percussion.i18n.PSI18nUtils" %>
 <%@ page import="com.percussion.i18n.PSLocaleManager" %>
 <%@ page import="com.percussion.i18n.PSLocale" %>
+<%@ page import="com.percussion.i18n.PSLocaleLoginSelection" %>
 <%@ taglib uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" prefix="csrf" %>
 <%--
   React Login SPA host (product front door).
@@ -46,17 +47,11 @@
 %>
 <%
     String username = request.getParameter("j_username");
-    String locale = request.getParameter("j_locale");
+    String requestedLocale = request.getParameter("j_locale");
     String error = request.getParameter("j_error");
 
     if (username == null) {
         username = "";
-    }
-    if (locale == null) {
-        locale = PSI18nUtils.getSystemLanguage();
-    }
-    if (locale == null) {
-        locale = "en-us";
     }
 
     String loginComplete = PSServer.getServerProps().getProperty("loginAutoComplete");
@@ -77,13 +72,21 @@
         defaultRedirect = returnParam;
     }
 
+    // Login list: hide base locales when an active regional sibling exists; default en-us.
     PSLocaleManager locManager = PSLocaleManager.getInstance();
+    List<PSLocale> allLocales = new ArrayList<>();
+    Iterator<PSLocale> allIt = locManager.getLocales();
+    while (allIt.hasNext()) {
+        allLocales.add(allIt.next());
+    }
+    List<PSLocale> loginLocales = PSLocaleLoginSelection.forLoginDropdown(allLocales);
+    String locale = PSLocaleLoginSelection.resolveSelectedLocale(
+            requestedLocale, PSI18nUtils.getSystemLanguage(), loginLocales);
+
     StringBuilder localesJson = new StringBuilder();
     localesJson.append('[');
     boolean first = true;
-    Iterator<PSLocale> locales = locManager.getLocales();
-    while (locales.hasNext()) {
-        PSLocale loc = locales.next();
+    for (PSLocale loc : loginLocales) {
         if (!first) {
             localesJson.append(',');
         }

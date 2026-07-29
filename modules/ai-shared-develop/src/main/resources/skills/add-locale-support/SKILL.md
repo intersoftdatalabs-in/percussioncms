@@ -37,11 +37,12 @@ removing an existing locale (different playbook — see §7).
    `hi-in`, `pt-br`. Tags like `de_DE`, `EN_us`, `ja-JP` all normalize at
    runtime via `PSTmxResourceBundle.normalizeLang(...)`, but every new
    piece of content must use the canonical form.
-2. **Is it a generic code (`es`, `hi`) or a regional variant?** Generic
-   codes catch-fall any untagged region; regional variants (`es-mx`)
-   override only that region. Decide which matrix slots it occupies; do
-   not introduce a code outside the canonical 17-locale matrix without
-   first updating the `RXLOCALE` table.
+2. **Is it a generic / base code (`es`, `hi`, `ar`) or a regional
+   variant?** Base codes (`RXLOCALE.ISBASE=1`) hold shared translations;
+   regionals hold dialect overrides only. Login hides a base when any
+   active regional sibling exists (`PSLocaleLoginSelection`). Do not
+   introduce a code outside the canonical 18-locale matrix without first
+   updating the `RXLOCALE` table (including `ISBASE`).
 3. **Is Docker on PATH?** The translation pipeline (`i18n_translate.py`)
    shells out to `docker run --rm soimort/translate-shell`. Confirm
    `docker info` exits 0 before starting; failure is a tooling issue, not
@@ -84,11 +85,12 @@ line 12054). Schema:
     <column name="SORTORDER"><gaps-of-10></column>
     <column name="DESCRIPTION"><English sentence describing region/scope></column>
     <column name="STATUS">1</column>
+    <column name="ISBASE"><1 for language-only base; 0 for regional></column>
     <column name="VERSION">0</column>
 </row>
 ```
 
-Conventions observed in the existing 17-row block:
+Conventions observed in the existing seed block:
 
 - `SORTORDER` increments by 10 per family (`10`, `20`, `30`…) and by 1
   inside regional variants (`40`, `41`, `42`, `43` for `es*`).
@@ -96,6 +98,8 @@ Conventions observed in the existing 17-row block:
   reused.
 - `STATUS=1` makes the locale visible by default. Use `0` only when the
   locale must ship seeded but hidden.
+- `ISBASE=1` for language-only base codes (`ar`, `es`, `hi`); `0` for
+  regionals. Schema: `cmsTableDef.xml` column `ISBASE`.
 - Avoid backslashes / special XML characters in `DISPLAYNAME` /
   `DESCRIPTION`.
 
@@ -224,9 +228,9 @@ Pipeline invariants:
 Per `perc-i18n/AGENTS.md` rule 8:
 
 1. `modules/perc-i18n/AGENTS.md` — append to the **Quick Reference**
-   17-locale matrix (keep alphabetical order; preserve the `es` / `hi`
-   generic-and-regional commentary).
-2. `modules/perc-i18n/README.md` — update the **Canonical 17-Locale
+   18-locale matrix (keep alphabetical order; preserve base vs regional
+   and login-filter commentary).
+2. `modules/perc-i18n/README.md` — update the **Canonical 18-Locale
    Matrix** table; add the new code to the right family row.
 3. If you added a Lucene branch or a calendar widget entry, link to the
    relevant file from the PR description (no separate docs file needed
