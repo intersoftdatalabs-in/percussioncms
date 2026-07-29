@@ -100,18 +100,35 @@ import org.springframework.stereotype.Component;
 @Scope("singleton")
 public class PSFeedService extends PSAbstractRestService implements IPSFeedsRestService {
 
+  /** Default no-arg constructor required by Spring. */
   public PSFeedService() {}
 
+  /**
+   * Gets the configured IP address used to access the feeds service.
+   *
+   * @return the RSS feeds IP, may be <code>null</code>
+   */
   public String getRssFeedsIP() {
     return this.rssFeedsIP;
   }
 
+  /**
+   * Sets the IP address used to access the feeds service.
+   *
+   * @param rssFeedsIP the RSS feeds IP to set
+   */
   public void setRssFeedsIP(String rssFeedsIP) {
     this.rssFeedsIP = rssFeedsIP;
   }
 
   private String rssFeedsIP;
 
+  /**
+   * Sets the CSRF token response headers from the {@code XSRF-TOKEN} cookie, if present.
+   *
+   * @param request the current HTTP servlet request, never <code>null</code>
+   * @param response the current HTTP servlet response, never <code>null</code>
+   */
   @HEAD
   @Path("/csrf")
   public void csrf(@Context HttpServletRequest request, @Context HttpServletResponse response) {
@@ -165,6 +182,12 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
   /** 2011-01-21T09:36:05 */
   FastDateFormat dateFormat = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss");
 
+  /**
+   * Spring constructor that wires the feed DAO and HTTP client.
+   *
+   * @param dao the feed DAO, never <code>null</code>
+   * @param httpClient the HTTP client, never <code>null</code>
+   */
   @Autowired
   public PSFeedService(@Qualifier("feedsDao") IPSFeedDao dao, PSHttpClient httpClient) {
     this.feedDao = Objects.requireNonNull(dao, "dao cannot be null");

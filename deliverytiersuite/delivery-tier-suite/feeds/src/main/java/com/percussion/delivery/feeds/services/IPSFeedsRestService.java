@@ -34,6 +34,9 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 /**
+ * REST service contract for the feeds module. Exposes feed generation, external feed proxying, feed
+ * descriptor persistence, and metadata listener management.
+ *
  * @author natechadwick
  */
 public interface IPSFeedsRestService extends IPSRestService {
@@ -46,6 +49,8 @@ public interface IPSFeedsRestService extends IPSRestService {
    *     a page not found will be sent in response.
    * @param feedname may be <code>null</code> or empty in which case a page not found will be sent
    *     in response.
+   * @param hostname the host name used to build the feed's links, never <code>null</code>
+   * @param httpRequest the current HTTP servlet request, never <code>null</code>
    * @return response with the feed xml or a page not found or server error, depending on the
    *     situation.
    */
@@ -61,7 +66,8 @@ public interface IPSFeedsRestService extends IPSRestService {
   /**
    * Acts as a proxy getting a list of feeds from an external URL. Returns the xml as a string.
    *
-   * @param psFeedDTO the url, assumed to not be <code>null</code>.
+   * @param psFeedDTO the feed DTO containing the target URL, assumed to not be <code>null</code>.
+   * @return the external feed XML as a string, never <code>null</code>
    */
   @POST
   @Path("/readExternalFeed")
@@ -74,31 +80,32 @@ public interface IPSFeedsRestService extends IPSRestService {
    * list sent and currently stored descriptors. Any stored descriptors not on the list sent will be
    * deleted. Notifies listeners of changes so that cache regions can be flushed.
    *
-   * @param descriptors
+   * @param descriptors the feed descriptors and connection info to save, never <code>null</code>
    */
   @PUT
   @Path("/descriptors")
   @RolesAllowed("deliverymanager")
   public abstract void saveDescriptors(PSFeedDescriptors descriptors);
 
-  /*
-   * (non-Javadoc)
+  /**
+   * Adds a metadata change listener.
    *
-   * @see
-   * com.percussion.metadata.IPSMetadataIndexerService#addMetadataListener
-   * (com.percussion.metadata.event.IPSMetadataListener)
+   * @param listener the listener to register, never <code>null</code>
    */
   public abstract void addMetadataListener(IPSServiceDataChangeListener listener);
 
-  /*
-   * (non-Javadoc)
+  /**
+   * Removes a previously registered metadata change listener.
    *
-   * @see
-   * com.percussion.metadata.IPSMetadataIndexerService#removeMetadataListener
-   * (com.percussion.metadata.event.IPSMetadataListener)
+   * @param listener the listener to remove, never <code>null</code>
    */
   public abstract void removeMetadataListener(IPSServiceDataChangeListener listener);
 
+  /**
+   * Rotates the encryption key used to protect stored credentials.
+   *
+   * @param key the new key supplied by the caller, never <code>null</code>
+   */
   @PUT
   @Path("/rotateKey")
   @RolesAllowed("deliverymanager")
@@ -106,8 +113,15 @@ public interface IPSFeedsRestService extends IPSRestService {
   public abstract void rotateKey(String key);
 
   // Property key constants
+  /** Property key for the feed item description (Dublin Core: abstract). */
   public static final String PROP_DESCRIPTION = "dcterms:abstract";
+
+  /** Property key for the feed item title (Dublin Core: title). */
   public static final String PROP_TITLE = "dcterms:title";
+
+  /** Property key for the feed item publish date (Dublin Core: created). */
   public static final String PROP_PUBDATE = "dcterms:created";
+
+  /** Property key for the feed item content post date timezone. */
   public static final String PROP_CONTENTPOSTDATETZ = "dcterms:contentpostdatetz";
 }

@@ -19,6 +19,8 @@ package com.percussion.delivery.data;
 import java.util.Date;
 
 /**
+ * Transfer object representing a single feed item (entry) within an RSS/Atom feed.
+ *
  * @author erikserating
  */
 public class PSFeedItem {
@@ -27,7 +29,14 @@ public class PSFeedItem {
   private Date publishDate;
   private String link;
 
+  /** Default no-arg constructor required by Jackson serialization. */
+  public PSFeedItem() {
+    super();
+  }
+
   /**
+   * Gets the title of the feed item.
+   *
    * @return the title
    */
   public String getTitle() {
@@ -35,6 +44,8 @@ public class PSFeedItem {
   }
 
   /**
+   * Sets the title of the feed item.
+   *
    * @param title the title to set
    */
   public void setTitle(String title) {
@@ -42,6 +53,8 @@ public class PSFeedItem {
   }
 
   /**
+   * Gets the description of the feed item.
+   *
    * @return the description
    */
   public String getDescription() {
@@ -49,6 +62,8 @@ public class PSFeedItem {
   }
 
   /**
+   * Sets the description of the feed item.
+   *
    * @param description the description to set
    */
   public void setDescription(String description) {
@@ -56,6 +71,8 @@ public class PSFeedItem {
   }
 
   /**
+   * Gets the publish date of the feed item.
+   *
    * @return the publishDate
    */
   public Date getPublishDate() {
@@ -63,6 +80,8 @@ public class PSFeedItem {
   }
 
   /**
+   * Sets the publish date of the feed item.
+   *
    * @param publishDate the publishDate to set
    */
   public void setPublishDate(Date publishDate) {
@@ -70,6 +89,8 @@ public class PSFeedItem {
   }
 
   /**
+   * Gets the link associated with the feed item.
+   *
    * @return the link
    */
   public String getLink() {
@@ -77,6 +98,8 @@ public class PSFeedItem {
   }
 
   /**
+   * Sets the link associated with the feed item.
+   *
    * @param link the link to set
    */
   public void setLink(String link) {

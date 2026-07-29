@@ -31,11 +31,14 @@ public class PSFeedDescriptors {
   private boolean servicePassEncrypted;
   private String site;
 
+  /** Default no-arg constructor required by Jackson serialization. */
   public PSFeedDescriptors() {
     super();
   }
 
   /**
+   * Gets the list of feed descriptors.
+   *
    * @return the descriptors
    */
   public List<IPSFeedDescriptor> getDescriptors() {
@@ -43,6 +46,8 @@ public class PSFeedDescriptors {
   }
 
   /**
+   * Sets the list of feed descriptors.
+   *
    * @param descriptors the descriptors to set
    */
   public void setDescriptors(List<IPSFeedDescriptor> descriptors) {
@@ -50,6 +55,8 @@ public class PSFeedDescriptors {
   }
 
   /**
+   * Gets the metadata service URL.
+   *
    * @return the serviceUrl
    */
   public String getServiceUrl() {
@@ -57,6 +64,8 @@ public class PSFeedDescriptors {
   }
 
   /**
+   * Sets the metadata service URL.
+   *
    * @param serviceUrl the serviceUrl to set
    */
   public void setServiceUrl(String serviceUrl) {
@@ -64,6 +73,8 @@ public class PSFeedDescriptors {
   }
 
   /**
+   * Gets the metadata service user name.
+   *
    * @return the serviceUser
    */
   public String getServiceUser() {
@@ -71,6 +82,8 @@ public class PSFeedDescriptors {
   }
 
   /**
+   * Sets the metadata service user name.
+   *
    * @param serviceUser the serviceUser to set
    */
   public void setServiceUser(String serviceUser) {
@@ -78,6 +91,8 @@ public class PSFeedDescriptors {
   }
 
   /**
+   * Gets the metadata service password.
+   *
    * @return the servicePass
    */
   public String getServicePass() {
@@ -85,6 +100,8 @@ public class PSFeedDescriptors {
   }
 
   /**
+   * Sets the metadata service password.
+   *
    * @param servicePass the servicePass to set
    */
   public void setServicePass(String servicePass) {
@@ -92,6 +109,8 @@ public class PSFeedDescriptors {
   }
 
   /**
+   * Indicates whether the metadata service password is encrypted.
+   *
    * @return the servicePassEncrypted
    */
   public boolean isServicePassEncrypted() {
@@ -99,6 +118,8 @@ public class PSFeedDescriptors {
   }
 
   /**
+   * Sets whether the metadata service password is encrypted.
+   *
    * @param servicePassEncrypted the servicePassEncrypted to set
    */
   public void setServicePassEncrypted(boolean servicePassEncrypted) {
@@ -106,6 +127,8 @@ public class PSFeedDescriptors {
   }
 
   /**
+   * Gets the site this container is associated with.
+   *
    * @return the site
    */
   public String getSite() {
@@ -113,6 +136,8 @@ public class PSFeedDescriptors {
   }
 
   /**
+   * Sets the site this container is associated with.
+   *
    * @param site the site to set
    */
   public void setSite(String site) {

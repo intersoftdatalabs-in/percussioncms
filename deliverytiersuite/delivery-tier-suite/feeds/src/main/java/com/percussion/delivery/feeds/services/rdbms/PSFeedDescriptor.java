@@ -26,45 +26,61 @@ import jakarta.persistence.Table;
 import java.io.Serializable;
 
 /**
+ * JPA entity backing a row in the {@code PERC_FEED_DESCRIPTORS} table that stores a single feed
+ * descriptor for a particular site.
+ *
  * @author erikserating
  */
 @Entity
 @Table(name = "PERC_FEED_DESCRIPTORS")
 public class PSFeedDescriptor implements IPSFeedDescriptor, Serializable {
 
-  /** */
+  /** Serialization version. */
   private static final long serialVersionUID = 2756156009184830398L;
 
+  /** Site portion of the composite key, may be <code>null</code> before persistence. */
   @Id
   @Column(length = 255)
   private String site;
 
+  /** Feed name portion of the composite key, may be <code>null</code> before persistence. */
   @Id
   @Column(length = 255)
   private String name;
 
+  /** Feed title, may be <code>null</code>. */
   @Basic
   @Column(length = 2000)
   private String title;
 
+  /** Feed description, may be <code>null</code>. */
   @Basic
   @Column(length = 4000)
   private String description;
 
+  /** Link to the page the feed represents, may be <code>null</code>. */
   @Basic
   @Column(length = 2000)
   private String link;
 
+  /** Feed output type, may be <code>null</code>. */
   @Basic
   @Column(length = 2000)
   private String type;
 
+  /** Query used to retrieve the feed data from the metadata service, may be <code>null</code>. */
   @Basic
   @Column(length = 4000)
   private String query;
 
+  /** Default no-arg constructor required by JPA. */
   public PSFeedDescriptor() {}
 
+  /**
+   * Copies the values from the supplied descriptor into a new JPA entity.
+   *
+   * @param descriptor the descriptor to copy, never <code>null</code>
+   */
   public PSFeedDescriptor(IPSFeedDescriptor descriptor) {
     this.name = descriptor.getName();
     this.site = descriptor.getSite();
@@ -75,56 +91,72 @@ public class PSFeedDescriptor implements IPSFeedDescriptor, Serializable {
     this.query = descriptor.getQuery();
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.feeds.data.IPSFeedDescriptor#getDescription()
+  /**
+   * Gets the feed description.
+   *
+   * @return the feed description, may be <code>null</code>
    */
   public String getDescription() {
     return description;
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.feeds.data.IPSFeedDescriptor#getFeedType()
+  /**
+   * Gets the feed type as an enum.
+   *
+   * @return the parsed {@link FeedType}, never <code>null</code>
    */
   public FeedType getFeedType() {
     return FeedType.valueOf(type);
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.feeds.data.IPSFeedDescriptor#getLink()
+  /**
+   * Gets the link to the page the feed represents.
+   *
+   * @return the link, may be <code>null</code>
    */
   public String getLink() {
     return link;
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.feeds.data.IPSFeedDescriptor#getName()
+  /**
+   * Gets the feed name.
+   *
+   * @return the feed name, may be <code>null</code>
    */
   public String getName() {
     return name;
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.feeds.data.IPSFeedDescriptor#getQuery()
+  /**
+   * Gets the query used to retrieve the feed data from the metadata service.
+   *
+   * @return the query, may be <code>null</code>
    */
   public String getQuery() {
     return query;
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.feeds.data.IPSFeedDescriptor#getSite()
+  /**
+   * Gets the name of the site this feed belongs to.
+   *
+   * @return the site name, may be <code>null</code>
    */
   public String getSite() {
     return site;
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.feeds.data.IPSFeedDescriptor#getTitle()
+  /**
+   * Gets the feed title.
+   *
+   * @return the title, may be <code>null</code>
    */
   public String getTitle() {
     return title;
   }
 
   /**
+   * Gets the feed output type.
+   *
    * @return the type
    */
   public String getType() {
@@ -132,6 +164,8 @@ public class PSFeedDescriptor implements IPSFeedDescriptor, Serializable {
   }
 
   /**
+   * Sets the feed output type.
+   *
    * @param type the type to set
    */
   public void setType(String type) {
@@ -139,6 +173,8 @@ public class PSFeedDescriptor implements IPSFeedDescriptor, Serializable {
   }
 
   /**
+   * Sets the name of the site this feed belongs to.
+   *
    * @param site the site to set
    */
   public void setSite(String site) {
@@ -146,6 +182,8 @@ public class PSFeedDescriptor implements IPSFeedDescriptor, Serializable {
   }
 
   /**
+   * Sets the feed name.
+   *
    * @param name the name to set
    */
   public void setName(String name) {
@@ -153,6 +191,8 @@ public class PSFeedDescriptor implements IPSFeedDescriptor, Serializable {
   }
 
   /**
+   * Sets the feed title.
+   *
    * @param title the title to set
    */
   public void setTitle(String title) {
@@ -160,6 +200,8 @@ public class PSFeedDescriptor implements IPSFeedDescriptor, Serializable {
   }
 
   /**
+   * Sets the feed description.
+   *
    * @param description the description to set
    */
   public void setDescription(String description) {
@@ -167,6 +209,8 @@ public class PSFeedDescriptor implements IPSFeedDescriptor, Serializable {
   }
 
   /**
+   * Sets the link to the page the feed represents.
+   *
    * @param link the link to set
    */
   public void setLink(String link) {
@@ -174,6 +218,8 @@ public class PSFeedDescriptor implements IPSFeedDescriptor, Serializable {
   }
 
   /**
+   * Sets the query used to retrieve the feed data from the metadata service.
+   *
    * @param query the query to set
    */
   public void setQuery(String query) {

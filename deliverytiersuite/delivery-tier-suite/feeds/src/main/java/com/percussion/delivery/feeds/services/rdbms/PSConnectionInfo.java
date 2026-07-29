@@ -24,6 +24,9 @@ import jakarta.persistence.Table;
 import java.util.Objects;
 
 /**
+ * JPA entity backing the singleton row in the {@code PERC_CONNECTION_INFO} table that stores
+ * credentials for the feeds metadata service.
+ *
  * @author erikserating
  */
 @Entity
@@ -39,13 +42,16 @@ public class PSConnectionInfo implements IPSConnectionInfo {
 
   @Basic private String encrypted;
 
+  /** Default no-arg constructor required by JPA. */
   public PSConnectionInfo() {}
 
   /**
-   * @param url
-   * @param user
-   * @param password
-   * @param encrypted
+   * Constructs a connection info entity with the supplied values.
+   *
+   * @param url the metadata service URL, may be <code>null</code>
+   * @param user the metadata service user name, may be <code>null</code>
+   * @param password the metadata service password, may be <code>null</code>
+   * @param encrypted <code>true</code> if the password is stored encrypted
    */
   public PSConnectionInfo(String url, String user, String password, boolean encrypted) {
     this.url = url;
@@ -55,70 +61,90 @@ public class PSConnectionInfo implements IPSConnectionInfo {
   }
 
   /**
+   * Gets the metadata service URL.
+   *
    * @return the url
    */
   public String getUrl() {
     return url;
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.feeds.services.rdbms.IPSConnectionInfo#setUrl(java.lang.String)
+  /**
+   * Sets the metadata service URL.
+   *
+   * @param url the metadata service URL, may be <code>null</code>
    */
   public void setUrl(String url) {
     this.url = url;
   }
 
   /**
+   * Gets the metadata service user name.
+   *
    * @return the user
    */
   public String getUsername() {
     return username;
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.feeds.services.rdbms.IPSConnectionInfo#setUser(java.lang.String)
+  /**
+   * Sets the metadata service user name.
+   *
+   * @param user the metadata service user name, may be <code>null</code>
    */
   public void setUsername(String user) {
     this.username = user;
   }
 
   /**
+   * Gets the metadata service password.
+   *
    * @return the password
    */
   public String getPassword() {
     return password;
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.feeds.services.rdbms.IPSConnectionInfo#setPassword(java.lang.String)
+  /**
+   * Sets the metadata service password.
+   *
+   * @param password the metadata service password, may be <code>null</code>
    */
   public void setPassword(String password) {
     this.password = password;
   }
 
   /**
+   * Gets the encrypted form of the password, as stored in the database.
+   *
    * @return the encrypted
    */
   public String getEncrypted() {
     return encrypted;
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.feeds.services.rdbms.IPSConnectionInfo#setEncrypted(java.lang.String)
+  /**
+   * Sets the encrypted form of the password, as stored in the database.
+   *
+   * @param encrypted the encrypted password string, may be <code>null</code>
    */
   public void setEncrypted(String encrypted) {
     this.encrypted = encrypted;
   }
 
   /**
+   * Gets the connection record id. Always <code>1</code> since the table holds a singleton row.
+   *
    * @return the id
    */
   public long getId() {
     return id;
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.feeds.services.rdbms.IPSConnectionInfo#setId(long)
+  /**
+   * Sets the connection record id.
+   *
+   * @param id the connection record id
    */
   public void setId(long id) {
     this.id = id;

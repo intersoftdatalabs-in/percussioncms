@@ -17,23 +17,49 @@
 
 package com.percussion.delivery.feeds.data;
 
+/** Transfer object for an external feed URL and the host that issued the request. */
 public class PSFeedDTO {
 
   private String feedsUrl;
   private String hostName;
 
+  /** Default no-arg constructor required by Jackson serialization. */
+  public PSFeedDTO() {
+    super();
+  }
+
+  /**
+   * Gets the URL of the external feed.
+   *
+   * @return the feedsUrl, may be <code>null</code>
+   */
   public String getFeedsUrl() {
     return feedsUrl;
   }
 
+  /**
+   * Sets the URL of the external feed.
+   *
+   * @param feedsUrl the feedsUrl to set
+   */
   public void setFeedsUrl(String feedsUrl) {
     this.feedsUrl = feedsUrl;
   }
 
+  /**
+   * Gets the host name that issued the request.
+   *
+   * @return the hostName, may be <code>null</code>
+   */
   public String getHostName() {
     return hostName;
   }
 
+  /**
+   * Sets the host name that issued the request.
+   *
+   * @param hostName the hostName to set
+   */
   public void setHostName(String hostName) {
     this.hostName = hostName;
   }
