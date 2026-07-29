@@ -6,10 +6,12 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   extractExtraParamsMap,
   normalizeAnalyticsProviderStatus,
+  normalizeAnalyticsProfiles,
   parseSiteProfileMapping,
   unwrapProviderConfig,
   fetchAnalyticsProviderStatus,
   isSiteAnalyticsProfileConfigured,
+  storeAnalyticsProviderConfig,
 } from "@/api/dashboard/analyticsApi";
 import * as client from "@/api/client";
 import { PATHS } from "@/api/paths";
@@ -20,6 +22,7 @@ vi.mock("@/api/client", async (importOriginal) => {
     ...actual,
     get: vi.fn(),
     del: vi.fn(),
+    post: vi.fn(),
   };
 });
 
@@ -57,6 +60,7 @@ describe("analyticsApi", () => {
     expect(parseSiteProfileMapping("Demo", "prof|G-123|k")).toEqual({
       siteName: "Demo",
       mapped: true,
+      rawValue: "prof|G-123|k",
       profileId: "prof",
       webPropertyId: "G-123",
     });
@@ -110,4 +114,48 @@ describe("analyticsApi", () => {
       `${PATHS.ANALYTICS_IS_PROFILE_CONFIGURED}/Demo`,
     );
   });
+
+  it("normalizeAnalyticsProfiles reads psmap entries", () => {
+    const opts = normalizeAnalyticsProfiles({
+      psmap: {
+        entries: {
+          entry: [
+            { key: "1|UA-1", value: "All Web Site Data" },
+            { key: "2|UA-2", value: "Other" },
+          ],
+        },
+      },
+    });
+    expect(opts).toHaveLength(2);
+    expect(opts[0]).toEqual({
+      key: "1|UA-1",
+      label: "All Web Site Data",
+    });
+  });
+
+  it("storeAnalyticsProviderConfig POSTs providerConfig without secret when retaining", async () => {
+    vi.mocked(client.post).mockResolvedValue(undefined);
+    await storeAnalyticsProviderConfig({
+      userId: "svc@x.com",
+      password: null,
+      siteMappings: { Demo: "p1|G-1" },
+    });
+    expect(client.post).toHaveBeenCalledWith(
+      PATHS.ANALYTICS_CONFIG,
+      expect.objectContaining({
+        providerConfig: expect.objectContaining({
+          userid: "svc@x.com",
+          encrypted: true,
+          extraParams: {
+            entry: [{ key: "Demo", value: "p1|G-1" }],
+          },
+        }),
+      }),
+    );
+    const body = vi.mocked(client.post).mock.calls[0][1] as {
+      providerConfig: Record<string, unknown>;
+    };
+    expect(body.providerConfig).not.toHaveProperty("password");
+  });
 });
+

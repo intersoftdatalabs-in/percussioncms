@@ -219,6 +219,13 @@ export const PATHS = {
   get ANALYTICS_PROFILES() {
     return `${SERVICES_ROOT}/analytics/provider/profiles`;
   },
+  /**
+   * Test connection + store keyfile.
+   * {@code POST multipart /analytics/provider/testConnection/{uid}} field {@code file}.
+   */
+  get ANALYTICS_TEST_CONNECTION() {
+    return `${SERVICES_ROOT}/analytics/provider/testConnection`;
+  },
   get PATH_ADD_NEW_FOLDER() {
     return `${SERVICES_ROOT}/pathmanagement/path/addNewFolder`;
   },

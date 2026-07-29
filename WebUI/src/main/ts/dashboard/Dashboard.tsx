@@ -306,6 +306,20 @@ const DEFAULT_GADGETS: DashboardWidget[] = [
     props: {},
     position: { column: "right", order: 5 },
   },
+  {
+    id: "global-variables",
+    name: "Global Variables",
+    component: GlobalVariablesWidget,
+    props: {},
+    position: { column: "left", order: 5 },
+  },
+  {
+    id: "cookie-consent",
+    name: "Cookie Consent",
+    component: CookieConsentWidget,
+    props: {},
+    position: { column: "right", order: 6 },
+  },
 ];
 
 export interface DashboardProps {
