@@ -53,7 +53,7 @@ When addressing `[this-escape]` warnings:
 
 - **Use `var` only when the type is clearly obvious** from the right-hand side of the assignment (e.g., `var list = new ArrayList<String>();`).
 - **Avoid `var` for method return values** where the type is not immediately apparent (e.g., `var data = getMetadata();`).
-- **Legacy Compatibility:** Ensure the module's `pom.xml` targets Java 11 or higher before using `var`.
+- **Toolchain:** On `development`, modules inherit **JDK 21** (`release=21`). Use `var` freely where the type is obvious. On `development-8.1.x` (JDK 8), do **not** use `var` or other post-8 language features.
 - **Consistency:** Do not mix `var` and explicit types within the same block of code; choose the most readable option for that specific context.
 
 ### Control Flow Standards

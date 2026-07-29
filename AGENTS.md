@@ -256,7 +256,7 @@ Percussion CMS is built, tested, installed, and deployed on **Windows, Linux, an
 
 1. **Never hardcode OS path separators in filesystem paths.** Do not concatenate paths with `"/"`, `"\\"`, or mixed literals for local files. Hardcoded `/` is correct only for **URL, URI, classpath, and ZIP entry** paths (those always use `/`).
 2. **Prefer portable Java NIO path APIs** for all filesystem work:
-   * `java.nio.file.Path`, `Paths.get(...)`, `Path.of(...)` (JDK 11+)
+   * `java.nio.file.Path`, `Paths.get(...)`, `Path.of(...)` (JDK 21 baseline; prefer NIO over legacy `File` string ops)
    * `path.resolve("child")`, `path.resolveSibling(...)`, `path.getParent()`, `path.normalize()`, `path.toAbsolutePath()`
    * `Files.*` (`Files.readString`, `Files.write`, `Files.createDirectories`, `Files.exists`, `Files.walk`, etc.) instead of ad-hoc `File` + string ops when practical
 3. **When a separator character is required**, use the platform constants — do not invent them:
@@ -386,12 +386,15 @@ Disposition ladder: **runtime fix + test → model pack barrier → sink-line `/
 
 ## Git Branch & Maven Wrapper Information
 
-* Base Branch Name: development
-  * All code changes in this branch must be compatible with JDK 21
-  * Use `./mvnw` or `./mvnw.cmd` maven wrapper to ensure JDK compliance.
-* Base Branch Name: development-8.1.x
-  * All code changes on this branch must be compatible with JDK 8.
-  * Use `./mvnw` or `./mvnw.cmd` maven wrapper to ensure JDK compliance.
+* **Toolchain today (do not target older JDKs on `development`):** parent `pom.xml` uses **`java.version` / compiler `release` = 21**. Agent instructions, Spotless (`google-java-format`), and local builds assume **JDK 21** via `JAVA_HOME` + `./mvnw` / `mvnw.cmd`. Do **not** follow stale “Java 11” or “Java 17” modernization checklists as the current baseline—those were intermediate migrations; **current product line is Java 21**.
+* Base Branch Name: **`development`**
+  * All code changes on this branch must be compatible with **JDK 21**.
+  * Prefer modern language features that compile on 21 (records, sealed types, pattern matching, virtual threads where appropriate, `var`, `Optional`, Streams, NIO `Path`).
+  * Use `./mvnw` or `./mvnw.cmd` with `JAVA_HOME` pointing at JDK 21.
+* Base Branch Name: **`development-8.1.x`**
+  * Maintenance line: all code changes must remain compatible with **JDK 8**.
+  * Do not introduce JDK 9+ APIs or language features on this branch.
+  * Use `./mvnw` or `./mvnw.cmd` with a JDK 8-compatible toolchain as required by that line.
 
 ## Project & Dependency Management
 

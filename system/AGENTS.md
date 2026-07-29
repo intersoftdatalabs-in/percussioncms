@@ -15,14 +15,13 @@ Before starting ANY task on the system module, you MUST:
    - [overview.md](src/site/markdown/overview.md) – Complete structural details (IMPORTANT)
    - [services.md](src/site/markdown/services.md) – Service architecture (if working on services)
    - [building.md](src/site/markdown/building.md) – Build and development workflow
-3. ✅ **Check Refactoring Status**
-   - Review `refactored-java11-packages.txt` – Lists modernized packages
-   - Review `refactored-soap-packages.txt` – SOAP/web service packages
-   - Avoid duplicating refactoring work
+3. ✅ **Check Refactoring Status** (historical only)
+   - `refactored-java11-packages.txt` / `refactored-soap-packages.txt` list packages modernized in earlier waves — avoid redoing finished work
+   - Do **not** treat “Java 11” in those filenames as the current toolchain
 4. ✅ **Understand Java Version Requirements**
-   - Module requires JDK 21 minimum
-   - Spotless (code formatting) requires JDK 21
-   - Use `./mvnw` wrapper scripts to ensure correct JDK
+   - **`development` baseline is JDK 21** (parent `release=21`)
+   - Spotless requires JDK 21 at runtime
+   - Use `./mvnw` / `mvnw.cmd` with `JAVA_HOME` → JDK 21
 
 ## Rule Discovery Protocol
 
@@ -58,10 +57,10 @@ Before starting ANY task on the system module, you MUST:
 **MUST DO:**
 - ✅ Run `./mvnw spotless:apply` before committing
 - ✅ Run `./mvnw spotless:check` to verify formatting
-- ✅ Use Java 17 features (var, Optional, Streams, try-with-resources)
-- ✅ Follow Google Java Style (enforced by Spotless)
+- ✅ Target **JDK 21** (parent POM `release=21`); use modern Java features that compile on 21 (`var`, `Optional`, Streams, try-with-resources, records/pattern matching where they fit)
+- ✅ Follow Google Java Style (enforced by Spotless; Spotless runs under JDK 21)
 - ✅ Add comprehensive unit tests (use JUnit 5, not JUnit 4 for new code)
-- ✅ Add `// REFACTORED: CP-JAVA11` marker when modernizing legacy code
+- ✅ When modernizing legacy code, prefer clear commits over historical markers; existing `// REFACTORED: CP-JAVA11` comments are legacy labels only (code is now on the Java 21 line)
 - ✅ Handle specific exceptions, not generic Exception
 - ✅ Update documentation when adding new subsystems
 
@@ -300,17 +299,15 @@ public NewDataType newMethod() {
 
 ### Task: Refactor Legacy Code
 
-1. Check `refactored-java11-packages.txt` – is it already done?
-2. If not, modernize:
+1. Check historical tracking files (`refactored-java11-packages.txt`, etc.) — is this package already done?
+2. If not, modernize for **JDK 21**:
    - Replace raw types with generics
-   - Use `var` for local variables
-   - Use `Optional` for null safety
-   - Use Streams API where appropriate
-   - Apply Google Java Style
-3. Add `// REFACTORED: CP-JAVA11` marker to class
-4. Add/update unit tests
-5. Update tracking file
-6. Build and verify: `./mvnw clean verify`
+   - Use `var` / `Optional` / Streams where they improve clarity
+   - Prefer modern APIs available on 21; avoid deprecated APIs
+   - Apply Google Java Style (`spotless:apply`)
+3. Add/update unit tests (JUnit 5)
+4. Optionally note the package in tracking docs if the team still maintains them
+5. Build and verify: `./mvnw -pl system clean verify`
 
 ### Task: Improve Performance
 
@@ -363,7 +360,7 @@ public NewDataType newMethod() {
 
 - [ ] Read README.md in full
 - [ ] Read relevant documentation (overview.md, services.md, or building.md)
-- [ ] Code uses Java 17 features and Google Java Style
+- [ ] Code targets JDK 21 and follows Google Java Style
 - [ ] All unit tests written (85%+ coverage)
 - [ ] `./mvnw spotless:apply` ran successfully
 - [ ] `./mvnw spotless:check` passes

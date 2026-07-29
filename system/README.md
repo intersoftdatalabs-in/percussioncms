@@ -9,7 +9,7 @@ The **system** module is the foundational core of Percussion CMS, containing ess
 - [Key Components](#key-components)
 - [Java Code Organization](#java-code-organization)
 - [Building the Module](#building-the-module)
-- [Java 17 Modernization](#java-17-modernization)
+- [Java modernization (now JDK 21)](#java-modernization-now-jdk-21)
 - [Guidelines for Agents](#guidelines-for-agents)
 
 ## Module Overview
@@ -152,7 +152,7 @@ com.percussion
 
 ### Refactoring Status
 
-See `refactored-java11-packages.txt` and `refactored-soap-packages.txt` for lists of modernized packages. Classes marked with `// REFACTORED: CP-JAVA11` have been updated to Java 17 standards while maintaining backward compatibility.
+See `refactored-java11-packages.txt` and `refactored-soap-packages.txt` for historical lists of packages modernized during the Java 11/17 waves. The module **builds on JDK 21** today (`release=21`). Existing `// REFACTORED: CP-JAVA11` markers are historical labels only.
 
 ## Building the Module
 
@@ -192,25 +192,23 @@ See `refactored-java11-packages.txt` and `refactored-soap-packages.txt` for list
 
 - `target/perc-system-8.2.0-SNAPSHOT.jar` – Packaged module JAR containing all compiled classes and resources
 
-## Java 17 Modernization
+## Java modernization (now JDK 21)
 
-### Completed in This Module
+### Current baseline
 
-- ✅ Migrated all active code to Java 17 (var, Optional, Streams, enhanced generics)
-- ✅ Replaced Log4j 1.x with Log4j 2.x
-- ✅ Refactored JUnit 4 tests to JUnit 5 (where applicable)
-- ✅ Replaced CGLib with ByteBuddy for dynamic bean generation (JDK 21 compatible)
-- ✅ Applied Google Java Style formatting
-- ✅ Enhanced immutability and null safety throughout active code
+- ✅ Parent / module toolchain: **JDK 21** (`maven.compiler.release` / `java.version`)
+- ✅ Active code uses modern Java idioms (`var`, `Optional`, Streams, NIO, etc.) that compile on 21
+- ✅ Log4j 2.x; JUnit 5 for new tests; ByteBuddy for dynamic beans; Google Java Style via Spotless
+- Intermediate **Java 11 / Java 17** migration notes elsewhere in this tree are **historical** (completed waves), not the target for new work
 
-### Key Migrations
+### Key historical migrations (already landed)
 
 |         Component          |                            Migration Notes                             |
 |----------------------------|------------------------------------------------------------------------|
 | Dynamic Bean Generation    | Replaced CGLib `BeanGenerator` with ByteBuddy in `PSTypeConfiguration` |
 | Data Package               | See `business/refactored-soap-packages.txt`                            |
-| Delivery/Metadata Services | All classes use Java 17 features; see `refactored-java11-packages.txt` |
-| Admin UI Beans             | JSF compatibility maintained; Java 17 modernized                       |
+| Delivery/Metadata Services | Modernized in earlier waves; see `refactored-java11-packages.txt`      |
+| Admin UI Beans             | JSF compatibility maintained; modernized for current JDK line          |
 
 ### Backward Compatibility
 
@@ -224,17 +222,17 @@ Before working on this module, agents **MUST**:
 
 1. **Read this README thoroughly** to understand the module structure and organization
 2. **Review relevant documentation** – See [Maven Site Documentation](../../docs/modules/system.html) (when available)
-3. **Check Java modernization status** – Review `refactored-java11-packages.txt` and `refactored-soap-packages.txt`
+3. **Check historical modernization lists** – `refactored-java11-packages.txt` / `refactored-soap-packages.txt` (filenames are historical; toolchain is JDK 21)
 4. **Identify the right directory** – Use the table above to find the correct package/directory for your task
 5. **Understand legacy vs. active code** – Legacy directories (Testing, Tools, etc.) have minimal updates
 
 ### When Modifying Java Code
 
-- **Ensure Java 17 compatibility** – Use modern language features and avoid deprecated APIs
-- **Use Google Java Style** – Run `spotless:check` and `spotless:apply` before committing
+- **Ensure JDK 21 compatibility** – Code must compile with `release=21`; prefer modern APIs; avoid deprecated APIs
+- **Use Google Java Style** – Run `spotless:check` and `spotless:apply` before committing (JDK 21 + `./mvnw`)
 - **Add unit tests** – Use JUnit 5; maintain high code coverage
 - **Update this README** – If you discover structural issues or add new subsystems
-- **Mark refactored classes** – Add `// REFACTORED: CP-JAVA11` and update tracking files if modernizing legacy code
+- **Legacy markers** – Do not require new `// REFACTORED: CP-JAVA11` markers; historical tracking files are optional reference only
 
 ### Building & Testing
 
@@ -256,7 +254,12 @@ For changes to service implementations, also test integration with dependent mod
 
 mvn clean install
 
+## Historical package notes (Java 11/17 waves)
+
+The following subsections are a **completed modernization log**. New work targets **JDK 21**. Do not treat “Java 17 Refactoring” headings as the current required baseline.
+
 ## Java 17 Refactoring
+
 
 ### Package: com.percussion.rx.delivery.impl
 

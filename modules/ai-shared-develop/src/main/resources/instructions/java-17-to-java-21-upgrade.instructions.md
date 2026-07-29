@@ -1,14 +1,18 @@
 ---
 
 applyTo: "**/*.java"
-description: "Comprehensive best practices for adopting new Java 21 features since the release of Java 17."
+description: "Java 21 language and API practices for Percussion CMS on development (release=21). Intermediate Java 11/17 baselines are historical only."
 ---
 
-# Java 17 to Java 21 Upgrade Guide
+# Java 21 language practices (development baseline)
 
-These instructions help GitHub Copilot assist developers in upgrading Java projects from JDK 17 to JDK 21, focusing on new language features, API changes, and best practices.
+The monorepo **`development`** branch already targets **JDK 21** (parent `java.version` / compiler `release`). Do **not** treat Java 11 or Java 17 as the current product baseline.
 
-## Major Language Features in JDK 18-21
+These notes help agents and developers **prefer Java 21-era language features and APIs** when writing or modernizing code on `development`. Comparisons to older idioms (e.g. pre-pattern-matching switch) are for migration clarity only.
+
+**Out of scope here:** `development-8.1.x` remains **JDK 8** — do not apply these features on that branch.
+
+## Major Language Features in JDK 18-21 (use on development)
 
 ### Pattern Matching for switch (JEP 441 - Standard in 21)
 
