@@ -39,6 +39,15 @@ vi.mock("../../../main/ts/api/widgetbuilder/widgetBuilderApi", () => ({
   validateDefinition: vi.fn(),
 }));
 
+vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
+  listContentTypes: vi.fn().mockResolvedValue([]),
+  getContentTypeDetail: vi.fn().mockResolvedValue({
+    name: "x",
+    fields: [],
+    designGaps: [],
+  }),
+}));
+
 const bootstrap: SpaBootstrap = {
   userName: "demo",
   locale: "en-us",
@@ -91,6 +100,23 @@ describe("App shell", () => {
     await waitFor(() => {
       expect(screen.getByTestId("publishing-shell")).toBeTruthy();
     });
+  });
+
+  it("shows developer nav for designer and loads DeveloperShell", async () => {
+    render(
+      <App
+        bootstrap={bootstrap}
+        entrySearch="?entry=developer&section=templates"
+        basename="/cm/app"
+      />,
+    );
+    expect(screen.getByTestId("nav-developer")).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-developer-shell")).toBeTruthy();
+    });
+    expect(
+      screen.getByTestId("tab-developer-templates").getAttribute("aria-selected"),
+    ).toBe("true");
   });
 
   it("hides admin tools for non-admin", () => {

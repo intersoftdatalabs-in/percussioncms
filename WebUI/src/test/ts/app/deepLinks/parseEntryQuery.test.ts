@@ -54,6 +54,18 @@ describe("parseEntryQuery", () => {
     );
   });
 
+  it("maps developer entry and section aliases", () => {
+    expect(parseEntryQuery("?entry=developer").clientPath).toBe("/developer");
+    expect(
+      parseEntryQuery("?entry=developer&section=content-types").clientPath,
+    ).toBe("/developer/content-types");
+    expect(parseEntryQuery("?entry=developer&section=contenttypes").section).toBe(
+      "content-types",
+    );
+    expect(parseClientPath("/developer/pipelines").entry).toBe("developer");
+    expect(parseClientPath("/developer/pipelines").section).toBe("pipelines");
+  });
+
   it("unknown entry falls back to home", () => {
     expect(parseEntryQuery("?entry=nope").entry).toBe("home");
   });

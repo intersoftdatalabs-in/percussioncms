@@ -56,4 +56,9 @@ public class ContentTypesTestAdaptor implements IContentTypesAdaptor {
   public List<ContentType> listContentTypesByFilter(URI baseUri, ContentTypeFilter filter) {
     return null;
   }
+
+  @Override
+  public ContentTypeDetail getContentType(URI baseUri, String idOrName) {
+    return null;
+  }
 }

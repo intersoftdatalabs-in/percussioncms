@@ -20,6 +20,7 @@
 package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.contenttypes.ContentType;
+import com.percussion.rest.contenttypes.ContentTypeDetail;
 import com.percussion.rest.contenttypes.ContentTypeFilter;
 import com.percussion.rest.contenttypes.IContentTypesAdaptor;
 import java.net.URI;
@@ -66,6 +67,11 @@ public class TestContentTypeAdaptor implements IContentTypesAdaptor {
    */
   @Override
   public List<ContentType> listContentTypesByFilter(URI baseUri, ContentTypeFilter filter) {
+    return null;
+  }
+
+  @Override
+  public ContentTypeDetail getContentType(URI baseUri, String idOrName) {
     return null;
   }
 }

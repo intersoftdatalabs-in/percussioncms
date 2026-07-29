@@ -103,6 +103,8 @@ const loaders: Record<string, Loader> = {
     })),
   AdminShell: () =>
     import("./admin/AdminShell").then((m) => ({ default: m.AdminShell })),
+  DeveloperShell: () =>
+    import("./developer").then((m) => ({ default: m.DeveloperShell })),
 };
 
 const cache = new Map<string, Promise<ComponentType<any>>>();

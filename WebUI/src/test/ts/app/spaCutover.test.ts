@@ -113,6 +113,8 @@ describe("PR-5 aggressive index.jsp SPA cutover (retained)", () => {
     expect(text).toContain("WORKFLOW_TABS");
     expect(text).toContain("ADMIN_TABS");
     expect(text).toContain('"widget-builder"');
+    expect(text).toContain('"developer"');
+    expect(text).toContain("DEVELOPER_SECTIONS");
     // PR-7: dash maps to Home gadgets, not legacy dashboard.jsp
     expect(text).toContain('"gadgets"');
     expect(text).toMatch(/"dash"/);

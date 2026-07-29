@@ -54,6 +54,41 @@ public class TemplatesResource {
   }
 
   /**
+   * Lists all template summaries for design-time catalog.
+   *
+   * @return TemplateSummaryList of all templates
+   */
+  @GET
+  @Path("/")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "List all templates",
+      description = "Lists all assembly templates as summaries (design catalog).",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content =
+                @Content(
+                    array =
+                        @ArraySchema(schema = @Schema(implementation = TemplateSummary.class)))),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public TemplateSummaryList listAllTemplates() {
+    try {
+      var summaries =
+          Optional.ofNullable(adaptor.listAllTemplateSummaries(uriInfo.getBaseUri()))
+              .orElse(List.of());
+      return new TemplateSummaryList(summaries);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      // Preserve cause so log analysis retains the original stack/type
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
    * Lists available Templates by Filter.
    *
    * @param filter TemplateFilter to use for listing TemplateSummaries.
@@ -129,8 +164,11 @@ public class TemplatesResource {
         throw new WebApplicationException("Not Found.", 404);
       }
       return new TemplateSummaryList(summaries);
+    } catch (WebApplicationException e) {
+      throw e;
     } catch (Exception e) {
-      throw new WebApplicationException(e.getMessage(), 500);
+      // Preserve cause so log analysis retains the original stack/type
+      throw new WebApplicationException(e, 500);
     }
   }
 }

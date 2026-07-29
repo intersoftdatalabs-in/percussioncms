@@ -31,6 +31,11 @@ import org.springframework.stereotype.Component;
 public class TestTemplatesAdaptor implements ITemplatesAdaptor {
 
   @Override
+  public List<TemplateSummary> listAllTemplateSummaries(URI baseUri) {
+    return List.of();
+  }
+
+  @Override
   public List<TemplateSummary> listTemplateSummaries(URI baseUri, TemplateFilter filter) {
     return null;
   }

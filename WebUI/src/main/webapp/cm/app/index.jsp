@@ -75,6 +75,7 @@
             "workflow",
             "admin",
             "widgetbuilder",
+            "developer",
             "dash"
     };
 
@@ -85,6 +86,7 @@
             "publish",
             "workflow",
             "widgetbuilder",
+            "developer",
             "admin"
     };
 
@@ -93,7 +95,8 @@
             "design",
             "arch",
             "publish",
-            "widgetbuilder"
+            "widgetbuilder",
+            "developer"
     };
 
     boolean isAdminView = (view != null && ArrayUtils.contains(adminViews, view));
@@ -224,7 +227,8 @@
             // PR-7: former peer dashboard → Home gadgets (not spa entry=dashboard)
             entry = "home";
         else if ("home".equals(view) || "publish".equals(view)
-                || "workflow".equals(view) || "admin".equals(view))
+                || "workflow".equals(view) || "admin".equals(view)
+                || "developer".equals(view))
             entry = view;
         else
             entry = "home";
@@ -281,6 +285,16 @@
                     null);
             if (tab != null)
                 qs.append("&tab=").append(URLEncoder.encode(tab, "UTF-8"));
+        }
+        else if ("developer".equals(view))
+        {
+            String section = firstAllowlisted(
+                    request.getParameter("section"),
+                    request.getParameter("tab"),
+                    DEVELOPER_SECTIONS,
+                    DEVELOPER_SECTION_ALIASES);
+            if (section != null)
+                qs.append("&section=").append(URLEncoder.encode(section, "UTF-8"));
         }
 
         // Canonical SPA document lives under /cm/app/ (both trees redirect here)
@@ -651,6 +665,16 @@
     private static final String[] ADMIN_TABS = new String[]{
             "tasks", "logs", "notifications", "tools"
     };
+    private static final String[] DEVELOPER_SECTIONS = new String[]{
+            "content-types", "templates", "slots", "keywords", "communities", "pipelines"
+    };
+    private static final Map<String, String> DEVELOPER_SECTION_ALIASES = Map.of(
+            "contenttypes", "content-types",
+            "content", "content-types",
+            "ctypes", "content-types",
+            "pipeline", "pipelines",
+            "applications", "pipelines"
+    );
 
     //Bad Developers ... NO Coffee for you....
     //Don't ever do this again... calling HTTP internally causes port exhaustion

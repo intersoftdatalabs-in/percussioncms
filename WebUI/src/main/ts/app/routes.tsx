@@ -20,6 +20,7 @@ import { Navigate, Route, Routes } from "react-router";
 import { FeaturePlaceholder } from "./FeaturePlaceholder";
 import { AppLayout } from "./layout/AppLayout";
 import { AdminRoute } from "./routes/AdminRoute";
+import { DeveloperRoute } from "./routes/DeveloperRoute";
 import { ExplorerRoute } from "./routes/ExplorerRoute";
 import { HomeRoute } from "./routes/HomeRoute";
 import { PublishRoute } from "./routes/PublishRoute";
@@ -45,6 +46,8 @@ export function AppRoutes(): React.ReactElement {
         <Route path="admin" element={<AdminRoute />} />
         <Route path="admin/:tab" element={<AdminRoute />} />
         <Route path="widget-builder" element={<WidgetBuilderRoute />} />
+        <Route path="developer" element={<DeveloperRoute />} />
+        <Route path="developer/:section" element={<DeveloperRoute />} />
         <Route path="explorer" element={<ExplorerRoute />} />
         <Route
           path="unavailable"

@@ -22,6 +22,7 @@ export const SPA_ENTRIES = [
   "workflow",
   "admin",
   "widget-builder",
+  "developer",
   "explorer",
   "unavailable",
 ] as const;
@@ -80,6 +81,27 @@ export const ADMIN_TABS = ["tasks", "logs", "notifications", "tools"] as const;
 
 export type AdminTab = (typeof ADMIN_TABS)[number];
 
+/** Developer module sections (lockstep with DeveloperShell). */
+export const DEVELOPER_SECTIONS = [
+  "content-types",
+  "templates",
+  "slots",
+  "keywords",
+  "communities",
+  "pipelines",
+] as const;
+
+export type DeveloperSection = (typeof DEVELOPER_SECTIONS)[number];
+
+const DEVELOPER_SECTION_ALIASES: Record<string, DeveloperSection> = {
+  contenttypes: "content-types",
+  content: "content-types",
+  ctypes: "content-types",
+  pipeline: "pipelines",
+  applications: "pipelines",
+  "xml-apps": "pipelines",
+};
+
 const ID_RE = /^[A-Za-z0-9_-]{1,128}$/;
 
 /**
@@ -124,6 +146,17 @@ export function normalizeAdminTab(raw: string | null | undefined): AdminTab | un
   if (raw == null || !raw.trim()) return undefined;
   const n = raw.trim().toLowerCase();
   return (ADMIN_TABS as readonly string[]).includes(n) ? (n as AdminTab) : undefined;
+}
+
+export function normalizeDeveloperSection(
+  raw: string | null | undefined,
+): DeveloperSection | undefined {
+  if (raw == null || !raw.trim()) return undefined;
+  const n = raw.trim().toLowerCase().replace(/_/g, "-");
+  if ((DEVELOPER_SECTIONS as readonly string[]).includes(n)) {
+    return n as DeveloperSection;
+  }
+  return DEVELOPER_SECTION_ALIASES[n];
 }
 
 export function normalizeId(raw: string | null | undefined): string | undefined {
