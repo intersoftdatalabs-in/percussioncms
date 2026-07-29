@@ -38,6 +38,8 @@
 - [x] **P0.4b** Template detail `GET /services/templates/{idOrName}` — bindings, slots, source, designGaps + SPA detail  
 - [x] **P0.4c** Slot detail `GET /services/slots/{idOrName}` (finder + associations) + SPA detail  
 - [x] **P0.5** Communities list via `GET /services/communities/find?name=*` + SPA panel  
+- [x] **P0.5b** Community detail `GET /services/communities/{idOrName}` — roles + SPA detail (role/ACL edit later)  
+
 - [x] **P0.6** Pipelines list `GET /services/pipelines` — classic **XML Application** summaries (not Slice A IR) + SPA panel; optional `?name=` / `?limit=` / `?offset=`  
 - [x] Gap map: [content-type-api-gaps.md](./content-type-api-gaps.md)  
 - [x] Vitest coverage for shell + catalogs  
@@ -45,11 +47,10 @@
 
 ## Next slices (separate PRs)
 
-1. Community roles + ACL dialogs  
+1. Community role membership edit + object ACL dialogs  
 2. Pipelines track Slice A (IR + SQL runtime + JSON I/O + classic import)  
 3. Template/slot **editors** (write)  
-4. Server runtime map for data pipelines  
-5. CT field write/lock (rules projection already shipped as P0.2c)  
+4. CT field write/lock (rules projection already shipped as P0.2c)  
 
 Cross-cutting review debt (typed JSON errors, structured designGaps, source viewer, panel migration) is **not** listed above — see [review-followups-tech-debt.md](./review-followups-tech-debt.md).
 
