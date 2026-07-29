@@ -31,7 +31,7 @@ import java.util.List;
  */
 @XmlRootElement(name = "TemplateDetail")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description = "Template detail with bindings and slots (read-only)")
+@Schema(description = "Template detail with bindings, slots, and partial write support")
 public class TemplateDetail {
 
   private Guid guid;

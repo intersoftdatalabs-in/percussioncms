@@ -55,8 +55,9 @@ public interface ITemplatesAdaptor {
   TemplateDetail getTemplate(URI baseUri, String idOrName);
 
   /**
-   * Update mutable template design fields (label, description, source). Name/id are not changed.
-   * Bindings/slots/create-delete remain out of scope.
+   * Update mutable template design fields (label, description, source) and optionally bindings /
+   * contained slots. When {@code body.bindings} or {@code body.slots} is non-null, that collection
+   * is fully replaced (empty list clears). Name/id and create/delete remain out of scope.
    *
    * @return updated detail, or {@code null} if not found
    */

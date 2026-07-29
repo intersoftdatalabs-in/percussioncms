@@ -45,7 +45,9 @@ import jakarta.ws.rs.WebApplicationException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -61,7 +63,6 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
   static final List<String> TEMPLATE_DESIGN_GAPS =
       List.of(
           "Create / delete / lock not supported via this API",
-          "Binding/slot association edits not supported",
           "Content-type associations not listed on this payload");
 
   private final IPSAssemblyService asmSvc;
@@ -142,6 +143,13 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
       if (body.getTemplateSource() != null) {
         t.setTemplate(body.getTemplateSource());
       }
+      // null = leave unchanged; non-null list (including empty) = full replace
+      if (body.getBindings() != null) {
+        t.setBindings(toBindings(body.getBindings()));
+      }
+      if (body.getSlots() != null) {
+        t.setSlots(toSlots(body.getSlots()));
+      }
       asmSvc.saveTemplate(t);
       IPSAssemblyTemplate reloaded = resolveTemplate(idOrName.trim());
       return reloaded != null ? toDetail(reloaded) : toDetail(t);
@@ -159,6 +167,79 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
           e);
       throw new IllegalStateException("Failed to update template", e);
     }
+  }
+
+  private List<PSTemplateBinding> toBindings(List<TemplateBindingSummary> summaries) {
+    List<PSTemplateBinding> out = new ArrayList<>();
+    if (summaries == null) {
+      return out;
+    }
+    int i = 0;
+    for (TemplateBindingSummary s : summaries) {
+      i++;
+      if (s == null) {
+        throw new IllegalArgumentException("bindings[" + (i - 1) + "] is null");
+      }
+      if (StringUtils.isBlank(s.getVariable())) {
+        throw new IllegalArgumentException("bindings[" + (i - 1) + "].variable is required");
+      }
+      if (StringUtils.isBlank(s.getExpression())) {
+        throw new IllegalArgumentException("bindings[" + (i - 1) + "].expression is required");
+      }
+      int order = s.getExecutionOrder() != null && s.getExecutionOrder() > 0
+          ? s.getExecutionOrder()
+          : i;
+      out.add(new PSTemplateBinding(order, s.getVariable().trim(), s.getExpression().trim()));
+    }
+    return out;
+  }
+
+  private Set<IPSTemplateSlot> toSlots(List<TemplateSlotSummary> summaries)
+      throws PSAssemblyException {
+    Set<IPSTemplateSlot> out = new HashSet<>();
+    if (summaries == null) {
+      return out;
+    }
+    int i = 0;
+    for (TemplateSlotSummary s : summaries) {
+      i++;
+      if (s == null) {
+        throw new IllegalArgumentException("slots[" + (i - 1) + "] is null");
+      }
+      IPSTemplateSlot slot = resolveSlotRef(s);
+      if (slot == null) {
+        String key =
+            s.getName() != null
+                ? s.getName()
+                : (s.getGuid() != null && s.getGuid().getStringValue().isPresent()
+                    ? s.getGuid().getStringValue().get()
+                    : "?");
+        throw new IllegalArgumentException("slots[" + (i - 1) + "] not found: " + key);
+      }
+      out.add(slot);
+    }
+    return out;
+  }
+
+  private IPSTemplateSlot resolveSlotRef(TemplateSlotSummary s) throws PSAssemblyException {
+    if (s.getGuid() != null && s.getGuid().getStringValue().isPresent()) {
+      String sv = s.getGuid().getStringValue().get();
+      if (StringUtils.isNotBlank(sv)) {
+        try {
+          return asmSvc.loadSlot(ApiUtils.convertGuid(s.getGuid()));
+        } catch (Exception e) {
+          log.debug("Slot GUID load failed for {}: {}", sv, e.getMessage());
+        }
+      }
+    }
+    if (StringUtils.isNotBlank(s.getName())) {
+      try {
+        return asmSvc.findSlotByName(s.getName().trim());
+      } catch (PSAssemblyException e) {
+        return null;
+      }
+    }
+    return null;
   }
 
   /**

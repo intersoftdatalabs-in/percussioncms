@@ -64,10 +64,13 @@ export async function getTemplateDetail(
   return get<TemplateDetail>(`${PATHS.TEMPLATES}/${key}`);
 }
 
-/** PUT /services/templates/{idOrName} — label, description, source */
+/** PUT /services/templates/{idOrName} — label, description, source, optional bindings/slots */
 export async function updateTemplateDetail(
   idOrName: string,
-  body: Pick<TemplateDetail, "label" | "description" | "templateSource">,
+  body: Pick<
+    TemplateDetail,
+    "label" | "description" | "templateSource" | "bindings" | "slots"
+  >,
 ): Promise<TemplateDetail> {
   const key = encodeURIComponent(idOrName);
   return put<TemplateDetail>(`${PATHS.TEMPLATES}/${key}`, body);
