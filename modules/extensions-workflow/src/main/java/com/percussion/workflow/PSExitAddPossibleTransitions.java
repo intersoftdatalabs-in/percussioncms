@@ -17,6 +17,7 @@
 
 package com.percussion.workflow;
 
+import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSResultDocumentProcessor;
@@ -56,6 +57,7 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
    * by server) and pass around the methods. This is meant for convenience only.
    */
   private class Params {
+    /** Always {@code null} after Phase 4d-1a — retained for legacy {@code Params} API parity. */
     public Connection m_connection = null;
     public String m_userName = null;
     public String m_checkoutUserName = null;
@@ -74,7 +76,6 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
 
   public Document processResultDocument(Object[] params, IPSRequestContext request, Document resDoc)
       throws PSParameterMismatchException, PSExtensionProcessingException {
-    PSConnectionMgr connectionMgr = null;
     try {
       if (null == request) {
         throw new PSExtensionProcessingException(
@@ -134,13 +135,9 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
         localParams.m_roleNameList = "";
       }
 
-      // Get the connection
-      try {
-        connectionMgr = new PSConnectionMgr();
-        localParams.m_connection = connectionMgr.getConnection();
-      } catch (Exception e) {
-        throw new PSExtensionProcessingException(m_fullExtensionName, e);
-      }
+      // Phase 4d-1a: no longer opens a second pool connection — all reads below
+      // (CONTENTSTATUS, STATEROLES, CONTENTTYPES, TRANSITIONS) route through Hibernate
+      // factories on the shared session.
 
       Element element = null;
       NodeList nodes = resDoc.getElementsByTagName(localParams.m_statusDocElementName);
@@ -158,10 +155,7 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
         }
       }
     } finally {
-      try {
-        if (null != connectionMgr) connectionMgr.releaseConnection();
-      } catch (SQLException sqe) {
-      }
+      // Phase 4d-1a: no connection to release.
     }
     return resDoc;
   }
@@ -201,19 +195,24 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
     sContentID = Integer.toString(contentID);
 
     Optional<IPSWorkflowAppsContext> wacOpt;
-    PSContentStatusContext csc = null;
+    PSComponentSummary summary;
     int nWorkFlowAppID = -1;
+    int nContentStateID;
+    String sContentCheckedOutUserName;
     IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
-    try {
-      csc = new PSContentStatusContext(localParams.m_connection, contentID);
-      nWorkFlowAppID = csc.getWorkflowID();
-      csc.close();
-
-      wacOpt = cms.loadWorkflowAppContext(nWorkFlowAppID);
-    } catch (PSEntryNotFoundException e) {
+    // Phase 4d-1a: CONTENTSTATUS read via Hibernate (Phase 4b loadComponentSummary).
+    summary = cms.loadComponentSummary(contentID);
+    if (summary == null) {
       return;
     }
-    csc.close(); // release the JDBC resources
+    nWorkFlowAppID = summary.getWorkflowAppId();
+    nContentStateID = summary.getContentStateId();
+    sContentCheckedOutUserName = summary.getCheckoutUserName();
+
+    wacOpt = cms.loadWorkflowAppContext(nWorkFlowAppID);
+    if (wacOpt.isEmpty()) {
+      return;
+    }
 
     if (wacOpt.isEmpty()) {
       return; // no workflow, nothing to add
@@ -231,10 +230,10 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
     // Add state information element and attributes
     Element elemState = doc.createElement(this.ELEMENT_CURRENTSTATE);
     elemState = (Element) elemWorkflowInfo.appendChild(elemState);
-    elemState.setAttribute(this.ATTRIB_STATEID, Integer.toString(csc.getContentStateID()));
+    elemState.setAttribute(this.ATTRIB_STATEID, Integer.toString(nContentStateID));
 
     Optional<? extends IPSStatesContext> scOpt =
-        cms.loadWorkflowState(nWorkFlowAppID, csc.getContentStateID());
+        cms.loadWorkflowState(nWorkFlowAppID, nContentStateID);
     if (scOpt.isEmpty()) {
       return; // can't determine state
     }
@@ -248,7 +247,7 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
     //
 
     // Add checkout status information element and attributes
-    localParams.m_checkoutUserName = csc.getContentCheckedOutUserName();
+    localParams.m_checkoutUserName = sContentCheckedOutUserName;
     if (null == localParams.m_checkoutUserName) localParams.m_checkoutUserName = "";
     else localParams.m_checkoutUserName = localParams.m_checkoutUserName.trim();
 
@@ -279,8 +278,7 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
         PSExitAddPossibleTransitionsEx.getAssignmentType(
             nWorkFlowAppID,
             contentID,
-            localParams.m_connection,
-            csc.getContentStateID(),
+            nContentStateID,
             localParams.m_userName,
             localParams.m_roleNameList,
             req);
@@ -293,17 +291,16 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
     //
 
     // Add assigned roles information
-    addAssignedRolesInfo(
-        doc, elemWorkflowInfo, nWorkFlowAppID, csc.getContentStateID(), localParams.m_connection);
+    addAssignedRolesInfo(doc, elemWorkflowInfo, nWorkFlowAppID, nContentStateID);
     //
 
     // Add action list
-    addActions(doc, elemWorkflowInfo, contentID, csc, localParams);
+    addActions(doc, elemWorkflowInfo, contentID, nContentStateID, nWorkFlowAppID, localParams);
     //
   }
 
   private void addAssignedRolesInfo(
-      Document doc, Element elemParent, int nWorkflowAppID, int stateid, Connection connection)
+      Document doc, Element elemParent, int nWorkflowAppID, int stateid)
       throws SQLException, PSRoleException {
     Element elemAssignedRoles = doc.createElement(this.ELEMENT_ASSIGNEDROLES);
     elemAssignedRoles = (Element) elemParent.appendChild(elemAssignedRoles);
@@ -312,12 +309,11 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
     PSStateRolesContext src = null;
 
     try {
-      src =
-          new PSStateRolesContext(
-              nWorkflowAppID, connection, stateid, PSWorkFlowUtils.ASSIGNMENT_TYPE_NONE);
-    }
-    // No info is added if the context does not exist
-    catch (PSEntryNotFoundException enfe) {
+      // Phase 4d-1a: STATEROLES read via Hibernate factory (Phase 4b).
+      src = PSStateRolesContext.loadFromHibernate(
+          nWorkflowAppID, stateid, PSWorkFlowUtils.ASSIGNMENT_TYPE_NONE);
+    } catch (PSEntryNotFoundException enfe) {
+      // No info is added if the context does not exist
       return;
     }
 
@@ -357,7 +353,8 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
       Document doc,
       Element elemParent,
       int contentID,
-      PSContentStatusContext csc,
+      int contentStateID,
+      int workflowAppID,
       Params localParams)
       throws SQLException {
     String sContentID = Integer.toString(contentID);
@@ -366,11 +363,13 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
     String sUpdateRequest = null;
     String sQueryRequest = null;
     try {
-      ctc = new PSContentTypesContext(localParams.m_connection, csc.getContentTypeID());
+      // Phase 4d-1a: CONTENTTYPES read via Hibernate factory.
+      ctc = PSContentTypesContext.loadFromHibernate(contentTypeIDFromSummary(contentID));
       sUpdateRequest = ctc.getContentTypeUpdateRequest();
       sQueryRequest = ctc.getContentTypeQueryRequest();
       ctc.close();
-    } catch (PSEntryNotFoundException e) {
+    } catch (SQLException e) {
+      ctc = null;
     }
 
     Element elemActionList = doc.createElement(ms_actionListElementName);
@@ -384,7 +383,7 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
 
     String sParamSeparator = "?";
 
-    if (null != sQueryRequest) {
+    if (null != sQueryRequest && sQueryRequest.length() > 0) {
       elemAction = doc.createElement(PSWorkFlowUtils.VIEW_ACTION_ELEMENT_NAME);
       elemAction.setAttribute(ms_actionTriggerName, "view");
       sParamSeparator = (-1 == sQueryRequest.indexOf("?")) ? "?" : "&";
@@ -398,7 +397,7 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
       elemAction.appendChild(text);
       elemActionList.appendChild(elemAction);
     }
-    if (null != sUpdateRequest) {
+    if (null != sUpdateRequest && sUpdateRequest.length() > 0) {
       elemAction = doc.createElement(PSWorkFlowUtils.EDIT_ACTION_ELEMENT_NAME);
       elemAction.setAttribute(ms_actionTriggerName, "edit");
       sParamSeparator = (-1 == sUpdateRequest.indexOf("?")) ? "?" : "&";
@@ -442,11 +441,9 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
 
     PSTransitionsContext tc = null;
 
-    try {
-      tc =
-          new PSTransitionsContext(
-              csc.getWorkflowID(), localParams.m_connection, csc.getContentStateID());
-    } catch (PSEntryNotFoundException e) {
+    // Phase 4d-1a: TRANSITIONS read via Hibernate factory (no Connection).
+    tc = PSTransitionsContext.loadAllFromHibernate(workflowAppID, contentStateID);
+    if (tc.isEmpty()) {
       return;
     }
 
@@ -464,11 +461,30 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
         elemActionList.appendChild(elemAction);
       }
 
-      if (false == tc.moveNext()) break;
+      try {
+        if (false == tc.moveNext()) break;
+      } catch (SQLException e) {
+        break;
+      }
     }
     tc.close();
 
     return;
+  }
+
+  /**
+   * Looks up the content-type id for the supplied content id via the Spring-managed
+   * {@link com.percussion.services.legacy.IPSCmsObjectMgr} (no second pool connection). Added
+   * for #1561 Phase 4d-1a so {@code PSContentTypesContext.loadFromHibernate} can be invoked
+   * after {@code PSContentStatusContext} has been removed from the call chain.
+   *
+   * @param contentID the content id, must be {@code > 0}.
+   * @return the content-type id; {@code 0} when no row matches.
+   */
+  private int contentTypeIDFromSummary(int contentID) {
+    IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
+    PSComponentSummary summary = cms.loadComponentSummary(contentID);
+    return summary == null ? 0 : (int) summary.getContentTypeId();
   }
 
   public boolean canModifyStyleSheet() {

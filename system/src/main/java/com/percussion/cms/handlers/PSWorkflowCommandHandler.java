@@ -74,6 +74,9 @@ import com.percussion.server.PSUserSession;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
+import com.percussion.services.workflow.IPSWorkflowService;
+import com.percussion.services.workflow.PSWorkflowServiceLocator;
+import com.percussion.services.workflow.data.PSTransition;
 import com.percussion.services.workflow.data.PSState;
 import com.percussion.services.workflow.data.PSWorkflow;
 import com.percussion.system.utils.IPSHtmlParameters;
@@ -81,7 +84,6 @@ import com.percussion.system.utils.PSCms;
 import com.percussion.system.utils.PSUniqueObjectGenerator;
 import com.percussion.system.utils.PSUrlUtils;
 import com.percussion.webservices.PSWebserviceUtils;
-import com.percussion.workflow.PSConnectionMgr;
 import com.percussion.workflow.PSTransitionsContext;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.IOException;
@@ -288,30 +290,21 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
       try {
         transition_id = Integer.parseInt(wfaction);
       } catch (NumberFormatException nfe) {
-        Connection connection = null;
-        PSConnectionMgr connectionMgr = null;
         try {
           // get the name of the item
           IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
           String contentid = req.getParameter(IPSHtmlParameters.SYS_CONTENTID);
           PSComponentSummary summary = cms.loadComponentSummary(Integer.parseInt(contentid));
 
-          connectionMgr = new PSConnectionMgr();
-          connection = connectionMgr.getConnection();
-
-          // Now try and translate the name to a transition name
-          PSTransitionsContext ctx =
-              new PSTransitionsContext(
-                  summary.getWorkflowAppId(), connection, wfaction, summary.getContentStateId());
-          transition_id = ctx.getTransitionID();
-        } finally {
-          if (connectionMgr != null && connection != null) {
-            try {
-              connectionMgr.releaseConnection(connection);
-            } catch (SQLException e) {
-              ms_logger.error("Couldn't release connection", e);
-            }
-          }
+          // Phase 4d-1a: TRANSITIONS-by-trigger via the Hibernate service — no second
+          // pool connection.
+          IPSWorkflowService wfSvc = PSWorkflowServiceLocator.getWorkflowService();
+          PSTransition row =
+              wfSvc.findTransitionByTrigger(
+                  summary.getWorkflowAppId(), wfaction, summary.getContentStateId());
+          transition_id = row == null ? 0 : (int) row.getGUID().longValue();
+        } catch (Exception e) {
+          ms_logger.error("Could not resolve transition id for trigger " + wfaction, e);
         }
       }
 

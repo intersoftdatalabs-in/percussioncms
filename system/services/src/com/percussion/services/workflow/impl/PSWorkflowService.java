@@ -891,6 +891,88 @@ public class PSWorkflowService
    }
 
    /**
+    * Phase 4d-1a: Hibernate-backed equivalent of the raw-JDBC
+    * {@code PSTransitionsContext(workflowId, Connection, transitionFromStateID)} read path.
+    *
+    * <p>Returns the list of non-aging {@link PSTransition} (TRANSITIONS table) rows whose
+    * {@code TRANSITIONFROMSTATEID} matches the supplied state. The cursor order matches the
+    * legacy raw-JDBC context so {@code PSTransitionsContext.moveNext()} consumers iterate in
+    * the same sequence.
+    *
+    * @param workflowAppId the workflow id, must be {@code > 0}.
+    * @param fromStateId the source state id, must be {@code > 0}.
+    * @return the matching transitions, never {@code null}, may be empty.
+    */
+   @Transactional
+   public java.util.List<PSTransition> findTransitionsByState(
+       long workflowAppId, long fromStateId)
+   {
+      if (workflowAppId <= 0)
+         throw new IllegalArgumentException("workflowAppId must be > 0");
+      if (fromStateId <= 0)
+         throw new IllegalArgumentException("fromStateId must be > 0");
+
+      java.util.List<PSTransitionHib> hibs = getSession()
+          .createQuery(
+              "from PSTransitionHib "
+                  + "where workflowId = :wf and stateId = :sid and transitionType = :tt "
+                  + "order by transitionId",
+              PSTransitionHib.class)
+          .setParameter("wf", workflowAppId)
+          .setParameter("sid", fromStateId)
+          .setParameter("tt", PSTransitionHib.TransitionType.TRANSITION.getValue())
+          .getResultList();
+      java.util.List<PSTransition> result = new java.util.ArrayList<>(hibs.size());
+      for (PSTransitionHib hib : hibs) {
+         result.add(PSTransformTransitionUtils.convertTransition(hib));
+      }
+      return result;
+   }
+
+   /**
+    * Phase 4d-1a: Hibernate-backed equivalent of the raw-JDBC
+    * {@code PSTransitionsContext(workflowId, Connection, trigger, fromStateId)} read path.
+    *
+    * @param workflowAppId the workflow id, must be {@code > 0}.
+    * @param trigger the action trigger name, must not be {@code null} or empty.
+    * @param fromStateId the source state id, must be {@code > 0}.
+    * @return the matching transition, or {@code null} when no row matches.
+    */
+   @Transactional
+   public PSTransition findTransitionByTrigger(
+       long workflowAppId, String trigger, long fromStateId)
+   {
+      if (workflowAppId <= 0)
+         throw new IllegalArgumentException("workflowAppId must be > 0");
+      if (StringUtils.isBlank(trigger))
+         throw new IllegalArgumentException("trigger may not be null or empty");
+      if (fromStateId <= 0)
+         throw new IllegalArgumentException("fromStateId must be > 0");
+
+      java.util.List<PSTransitionHib> hibs = getSession()
+          .createQuery(
+              "from PSTransitionHib "
+                  + "where workflowId = :wf and stateId = :sid and trigger = :trig "
+                  + "and transitionType = :tt",
+              PSTransitionHib.class)
+          .setParameter("wf", workflowAppId)
+          .setParameter("sid", fromStateId)
+          .setParameter("trig", trigger)
+          .setParameter("tt", PSTransitionHib.TransitionType.TRANSITION.getValue())
+          .getResultList();
+      if (hibs.isEmpty()) {
+         return null;
+      }
+      if (hibs.size() > 1) {
+         throw new IllegalStateException(
+             "Multiple TRANSITIONS rows match (workflowId=" + workflowAppId
+                 + ", fromStateId=" + fromStateId + ", trigger='" + trigger
+                 + "'); expected at most 1 but found " + hibs.size());
+      }
+      return PSTransformTransitionUtils.convertTransition(hibs.get(0));
+   }
+
+   /**
     * Forces lazy load of members.
     *
     * @param workflow the workflow to load members, assumed not

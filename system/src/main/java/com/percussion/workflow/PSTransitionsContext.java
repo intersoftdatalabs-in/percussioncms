@@ -19,6 +19,10 @@ package com.percussion.workflow;
 import com.percussion.cms.IPSConstants;
 import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.services.workflow.IPSWorkflowService;
+import com.percussion.services.workflow.PSWorkflowServiceLocator;
+import com.percussion.services.workflow.data.PSTransition;
+import com.percussion.services.workflow.data.PSTransitionRole;
 import com.percussion.util.PSPreparedStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -67,6 +71,21 @@ public class PSTransitionsContext implements IPSTransitionsContext {
   private int m_nAgingInterval = 0;
   private String m_sSystemField = "";
   private boolean m_bIsAgingTransition = false;
+
+  /**
+   * Pre-loaded rows used by the Hibernate-backed factory methods
+   * ({@link #loadFromHibernate(int, int)}, {@link #loadFromHibernate(int, String, int)}, and
+   * {@link #loadAllFromHibernate(int, int)}). Remains {@code null} when the context was created
+   * via the raw-JDBC constructors. Added for #1561 Phase 4d-1a.
+   */
+  private List<PSTransition> m_hRows = null;
+
+  /**
+   * Current cursor position into {@link #m_hRows}; {@code -1} before the first
+   * {@link #moveNext()} call. Only used by the Hibernate-backed factories. Added for #1561
+   * Phase 4d-1a.
+   */
+  private int m_hCursorIndex = -1;
 
   private static final Logger log = LogManager.getLogger(IPSConstants.WORKFLOW_LOG);
 
@@ -183,6 +202,137 @@ public class PSTransitionsContext implements IPSTransitionsContext {
       close();
       throw e;
     }
+  }
+
+  /**
+   * Hibernate-backed factory added for #1561 Phase 4d-1a. Loads a single non-aging transition
+   * by its (workflowId, transitionId) tuple via the shared Hibernate session — no second pool
+   * connection.
+   *
+   * <p>Equivalent to the raw-JDBC constructor
+   * {@link #PSTransitionsContext(int, int, Connection)} but participates in the surrounding
+   * Spring transaction so the dual-connection defect fixed in Phase 2/3 does not re-emerge for
+   * this code path.
+   *
+   * @param workflowId the workflow id; must be {@code > 0}.
+   * @param transitionId the transition id; must be {@code > 0}.
+   * @return the populated context, never {@code null}; may have count 0 if no transition matches.
+   */
+  public static PSTransitionsContext loadFromHibernate(int workflowId, int transitionId) {
+    if (workflowId <= 0) {
+      throw new IllegalArgumentException("workflowId must be > 0");
+    }
+    if (transitionId <= 0) {
+      throw new IllegalArgumentException("transitionId must be > 0");
+    }
+
+    IPSWorkflowService wfSvc = PSWorkflowServiceLocator.getWorkflowService();
+    PSTransition row = wfSvc.loadWorkflowTransition(workflowId, transitionId);
+
+    PSTransitionsContext ctx = new PSTransitionsContext();
+    if (row == null) {
+      ctx.m_nCount = 0;
+      return ctx;
+    }
+    java.util.List<PSTransition> rows = new ArrayList<>(1);
+    rows.add(row);
+    ctx.populateFromHibernate(workflowId, rows);
+    return ctx;
+  }
+
+  /**
+   * Hibernate-backed factory added for #1561 Phase 4d-1a. Loads a single non-aging transition
+   * by its (workflowId, trigger, fromStateId) tuple via the shared Hibernate session — no second
+   * pool connection. Used by {@code PSWorkflowCommandHandler.normalizeTransitionIdParameter}.
+   *
+   * <p>Equivalent to the raw-JDBC constructor
+   * {@link #PSTransitionsContext(int, Connection, String, int)} but participates in the
+   * surrounding Spring transaction.
+   *
+   * @param workflowId the workflow id; must be {@code > 0}.
+   * @param trigger the action trigger name; must not be {@code null} or empty.
+   * @param fromStateId the source state id; must be {@code > 0}.
+   * @return the populated context, never {@code null}; may have count 0 if no transition matches.
+   */
+  public static PSTransitionsContext loadFromHibernate(int workflowId, String trigger, int fromStateId) {
+    if (workflowId <= 0) {
+      throw new IllegalArgumentException("workflowId must be > 0");
+    }
+    if (trigger == null || trigger.trim().isEmpty()) {
+      throw new IllegalArgumentException("trigger must not be null or empty");
+    }
+    if (fromStateId <= 0) {
+      throw new IllegalArgumentException("fromStateId must be > 0");
+    }
+
+    IPSWorkflowService wfSvc = PSWorkflowServiceLocator.getWorkflowService();
+    PSTransition row = wfSvc.findTransitionByTrigger(workflowId, trigger, fromStateId);
+
+    PSTransitionsContext ctx = new PSTransitionsContext();
+    if (row == null) {
+      ctx.m_nCount = 0;
+      return ctx;
+    }
+    java.util.List<PSTransition> rows = new ArrayList<>(1);
+    rows.add(row);
+    ctx.populateFromHibernate(workflowId, rows);
+    return ctx;
+  }
+
+  /**
+   * Hibernate-backed factory added for #1561 Phase 4d-1a. Loads all non-aging transitions for the
+   * supplied (workflowId, fromStateId) tuple via the shared Hibernate session — no second pool
+   * connection. Used by {@code PSExitAddPossibleTransitions} and {@code PSExitPerformTransition}.
+   *
+   * <p>Equivalent to the raw-JDBC constructor
+   * {@link #PSTransitionsContext(int, Connection, int)} but participates in the surrounding
+   * Spring transaction so the cursor iteration via {@link #moveNext()} sees the same transition
+   * sequence in the same order.
+   *
+   * @param workflowId the workflow id; must be {@code > 0}.
+   * @param fromStateId the source state id; must be {@code > 0}.
+   * @return the populated context, never {@code null}; may be empty if no transitions are
+   *     configured for the state. Move the cursor with {@link #moveNext()} to inspect each row.
+   */
+  public static PSTransitionsContext loadAllFromHibernate(int workflowId, int fromStateId) {
+    if (workflowId <= 0) {
+      throw new IllegalArgumentException("workflowId must be > 0");
+    }
+    if (fromStateId <= 0) {
+      throw new IllegalArgumentException("fromStateId must be > 0");
+    }
+
+    IPSWorkflowService wfSvc = PSWorkflowServiceLocator.getWorkflowService();
+    java.util.List<PSTransition> rows = wfSvc.findTransitionsByState(workflowId, fromStateId);
+
+    PSTransitionsContext ctx = new PSTransitionsContext();
+    ctx.populateFromHibernate(workflowId, rows);
+    return ctx;
+  }
+
+  /**
+   * Package-private default constructor used by the Hibernate {@code loadFromHibernate*} and
+   * {@link #loadAllFromHibernate} factories. Field initialization is performed by
+   * {@link #populateFromHibernate}.
+   */
+  PSTransitionsContext() {}
+
+  /**
+   * Populates the in-memory state from a list of {@link PSTransition} ({@code TRANSITIONS}) rows.
+   * Mirrors the cursor accumulated in the raw-JDBC constructors so consumers iterating via
+   * {@link #moveNext()} see the same
+   * {@code transitionId / label / trigger / toState / approvals / comments / roles / actions}
+   * sequence. Added for #1561 Phase 4d-1a.
+   *
+   * @param workflowId the workflow id.
+   * @param rows the Hibernate rows; may be empty but never {@code null}.
+   */
+  void populateFromHibernate(int workflowId, java.util.List<PSTransition> rows) {
+    this.workflowID = workflowId;
+    this.m_hRows = rows;
+    this.m_nCount = rows.size();
+    this.m_hCursorIndex = -1;
+    // moveNext() will populate the row fields on first call.
   }
 
   /**
@@ -348,6 +498,16 @@ public class PSTransitionsContext implements IPSTransitionsContext {
   }
 
   public boolean moveNext() throws SQLException {
+    // Hibernate-backed cursor path — added for #1561 Phase 4d-1a.
+    if (m_hRows != null) {
+      m_hCursorIndex++;
+      if (m_hCursorIndex >= m_hRows.size()) {
+        return false;
+      }
+      populateRowFromHibernate(m_hRows.get(m_hCursorIndex));
+      return true;
+    }
+
     boolean bSuccess = m_Rs.next();
     if (!bSuccess) {
       return bSuccess;
@@ -392,6 +552,90 @@ public class PSTransitionsContext implements IPSTransitionsContext {
     }
 
     return bSuccess;
+  }
+
+  /**
+   * Populates the in-memory state fields from a single Hibernate {@link PSTransition} DTO row.
+   * Mirrors the population logic performed by the legacy {@link #moveNext()} when reading from
+   * the raw {@code ResultSet}. Phase 4d-1a only supports non-aging transitions (the
+   * {@code findTransitionsByState} service query filters by {@code transitionType = TRANSITION}).
+   *
+   * @param row the Hibernate row, never {@code null}.
+   */
+  private void populateRowFromHibernate(PSTransition row) {
+    m_nTransitionID = (int) row.getGUID().longValue();
+    m_sTransitionLabel = row.getLabel() == null ? "" : row.getLabel();
+    m_sTransitionPrompt = ""; // not persisted on the Hibernate entity — legacy default
+    m_sTransitionDesc = row.getDescription() == null ? "" : row.getDescription();
+    m_nTransitionFromStateID = (int) row.getStateId();
+    m_nTransitionToStateID = (int) row.getToState();
+    m_sTransitionTrigger = row.getTrigger() == null ? "" : row.getTrigger();
+    m_nTransitionType = IPSTransitionsContext.NORMAL_TRANSITION;
+    m_nAgingType = 0;
+    m_nAgingInterval = 0;
+    m_sSystemField = "";
+    m_bIsAgingTransition = false;
+    m_nTransitionApprovalsRequired = row.getApprovals();
+    m_sTransitionComment = row.getRequiresComment().getTypeValue();
+    m_sTransitionActions = row.getTransitionAction() == null ? "" : row.getTransitionAction();
+
+    if (m_sTransitionActions.trim().length() == 0) {
+      m_TransitionActions_List = null;
+    } else {
+      m_TransitionActions_List =
+          PSWorkFlowUtils.tokenizeString(m_sTransitionActions, PSWorkFlowUtils.ROLE_DELIMITER);
+    }
+
+    // Determine the transition-role column value. The Hibernate entity exposes both:
+    //   - a string column (transitions_roles) which carries *ALL* vs SPECIFIED marker
+    //   - a List<PSTransitionRole> (the actual role IDs)
+    // The legacy raw-JDBC code keys off the column string; mirror that.
+    boolean isAllowAllRoles = row.isAllowAllRoles();
+    m_sTransitionRoles =
+        isAllowAllRoles
+            ? IPSTransitionsContext.NO_TRANSITION_ROLE_RESTRICTION
+            : IPSTransitionsContext.SPECIFIED_ROLE_TRANSITION_RESTRICTION;
+
+    if (isAllowAllRoles) {
+      m_TransitionRoleNames_List = null;
+      m_TransitionRoleIds_List = null;
+      m_transitionRoleNamesIdMap = new HashMap<>();
+    } else {
+      java.util.List<PSTransitionRole> roles = row.getTransitionRoles();
+      m_TransitionRoleIds_List = new ArrayList<>(roles.size());
+      for (PSTransitionRole tr : roles) {
+        m_TransitionRoleIds_List.add((int) tr.getRoleId());
+      }
+      // Resolve role names via the workflow service (uses ROLES table).
+      java.util.Set<Long> roleIds = new java.util.HashSet<>();
+      for (PSTransitionRole tr : roles) {
+        roleIds.add(tr.getRoleId());
+      }
+      m_TransitionRoleNames_List = new ArrayList<>(roles.size());
+      m_transitionRoleNamesIdMap = new HashMap<>();
+      if (!roleIds.isEmpty()) {
+        IPSWorkflowService wfSvc = PSWorkflowServiceLocator.getWorkflowService();
+        java.util.List<com.percussion.services.workflow.data.PSWorkflowRole> namedRoles =
+            wfSvc.findWorkflowRoles(workflowID, roleIds);
+        java.util.Map<Long, String> nameById = new HashMap<>();
+        for (com.percussion.services.workflow.data.PSWorkflowRole nr : namedRoles) {
+          nameById.put(nr.getGUID().longValue(), nr.getName());
+        }
+        for (PSTransitionRole tr : roles) {
+          long rid = tr.getRoleId();
+          String rname = nameById.get(rid);
+          if (rname == null) {
+            throw new IllegalStateException(
+                "Workflow role name not found for workflowId="
+                    + workflowID
+                    + ", roleId="
+                    + rid);
+          }
+          m_TransitionRoleNames_List.add(rname);
+          m_transitionRoleNamesIdMap.put((int) rid, rname);
+        }
+      }
+    }
   }
 
   public boolean isEmpty() {
