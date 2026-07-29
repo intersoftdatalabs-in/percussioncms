@@ -2,11 +2,25 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | **In progress** — read catalogs + keyword CRUD + template/slot detail + pipelines catalog |
+| **Status** | **In progress** — track slices on the GitHub issue (not this file) |
+| **Progress tracker** | **[#1622](https://github.com/intersoftdatalabs-in/percussioncms/issues/1622)** — living todo list (shipped / open / next) |
 | **FR source** | [`docs/developer-module/workbench-functional-inventory.md`](../../developer-module/workbench-functional-inventory.md) §15 P0 |
 | **Pipeline track** | [`docs/developer-module/data-pipeline-engine-inventory.md`](../../developer-module/data-pipeline-engine-inventory.md) (parallel; not blocking P0) |
+| **Server runtime map** | [`docs/developer-module/data-pipeline-server-runtime-map.md`](../../developer-module/data-pipeline-server-runtime-map.md) |
 | **Related** | [design-templates-item-types](../design-templates-item-types/README.md) (CM1 template library — complementary, not a substitute) |
 | **Review follow-ups** | [review-followups-tech-debt.md](./review-followups-tech-debt.md) — deferred PR-review items (not FR roadmap) |
+| **API gaps** | [content-type-api-gaps.md](./content-type-api-gaps.md) |
+
+## Why progress lives on the issue
+
+Updating "done / next" checklists in this markdown on **every** feature PR caused constant merge conflicts across parallel slices.
+
+**Convention:**
+
+1. Track slice progress **only** on [#1622](https://github.com/intersoftdatalabs-in/percussioncms/issues/1622) (GitHub task list).
+2. Feature PRs should **not** edit the shipped/next lists in this file.
+3. Link PRs to the issue (`Refs #1622` / "Part of #1622").
+4. Cross-cutting review debt still goes in [review-followups-tech-debt.md](./review-followups-tech-debt.md).
 
 ## P0 scope (from FR)
 
@@ -21,39 +35,6 @@
 | Slots | AS-01–AS-02 | P0.4 |
 | Communities + object ACL | SE-01, SE-04, §5.4 | P0.5 |
 | Locking / save / problems | §5.2–5.3 | Cross-cutting as editors land |
-
-## Done in this branch
-
-- [x] SPA route `/developer` (+ section) for Admin or Designer  
-- [x] Top nav **Developer** (replaces legacy Design full-page exit for designers)  
-- [x] Deep-link entry `developer` (query + path fallback filter)  
-- [x] Module shell with sections: Content Types, Templates, Slots, Keywords, Communities, Pipelines  
-- [x] **Content Types** panel: list from `GET /services/contenttypes`  
-- [x] **P0.2** `GET /services/contenttypes/{idOrName}` field catalog + SPA detail view  
-- [x] **P0.2b** Allowed workflows + default workflow + allowed templates on CT detail  
-- [x] **P0.2c** Field rule flags (readOnly, occurrence, hasValidation/visibility/transforms) + SPA columns  
-- [x] **P0.3** Keywords list `GET /services/keywords` + SPA Keywords panel (read-only)  
-- [x] **P0.3b** Keyword create/update/delete + SPA editor  
-- [x] **P0.4** Templates `GET /services/templates` + Slots `GET /services/slots` + SPA panels  
-- [x] **P0.4b** Template detail `GET /services/templates/{idOrName}` — bindings, slots, source, designGaps + SPA detail  
-- [x] **P0.4c** Slot detail `GET /services/slots/{idOrName}` (finder + associations) + SPA detail  
-- [x] **P0.5** Communities list via `GET /services/communities/find?name=*` + SPA panel  
-- [x] **P0.5b** Community detail `GET /services/communities/{idOrName}` — roles + SPA detail  
-- [x] **P0.5c** Community role membership edit `GET /roles` + `PUT /{id}/roles` + SPA checkboxes  
-- [x] **P0.5d** Object ACL **read** view on CT + template detail via existing `GET /services/acls/object/{guid}`  
-- [x] **P0.6** Pipelines list `GET /services/pipelines` — classic **XML Application** summaries (not Slice A IR) + SPA panel; optional `?name=` / `?limit=` / `?offset=`  
-- [x] Gap map: [content-type-api-gaps.md](./content-type-api-gaps.md)  
-- [x] Vitest coverage for shell + catalogs  
-- [x] Review-deferral backlog: [review-followups-tech-debt.md](./review-followups-tech-debt.md)  
-
-## Next slices (separate PRs)
-
-1. Community object ACL dialogs  
-2. Pipelines track Slice A (IR + SQL runtime + JSON I/O + classic import)  
-3. Template/slot **editors** (write)  
-4. CT field write/lock (rules projection already shipped as P0.2c)  
-
-Cross-cutting review debt (typed JSON errors, structured designGaps, source viewer, panel migration) is **not** listed above — see [review-followups-tech-debt.md](./review-followups-tech-debt.md).
 
 ## Product locks
 
