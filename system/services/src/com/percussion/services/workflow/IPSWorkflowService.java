@@ -24,7 +24,10 @@ import com.percussion.services.workflow.data.PSNotification;
 import com.percussion.services.workflow.data.PSState;
 import com.percussion.services.workflow.data.PSTransition;
 import com.percussion.services.workflow.data.PSWorkflow;
+import com.percussion.utils.exceptions.PSORMException;
 import com.percussion.utils.guid.IPSGuid;
+import com.percussion.workflow.PSEntryNotFoundException;
+import com.percussion.workflow.PSTransitionInfo;
 
 import java.util.List;
 import java.util.Optional;
@@ -280,6 +283,34 @@ public interface IPSWorkflowService {
      * @return a list of approvals for the item, never {@code null}
      */
     java.util.List<com.percussion.services.workflow.data.PSContentApproval> findApprovalsByItem(IPSGuid contentId);
+
+    /**
+     * Get the allowed transitions for the specified user/content/roles/community, mirroring the
+     * legacy {@code com.percussion.workflow.PSWorkFlowUtils.getAllowedTransitions(int, String,
+     * List, int)} behaviour on the shared Hibernate session. #1561 Phase 4d-1c PR-C1.
+     *
+     * <p>The legacy 4-arg {@code PSWorkFlowUtils.getAllowedTransitions} overload opens its own pool
+     * connection via {@code PSConnectionHelper.getDbConnection(null)} and walks raw-JDBC
+     * {@code PSContentStatusContext} / {@code PSTransitionsContext} / {@code
+     * PSContentApprovalsContext} cursors. This implementation reuses the Hibernate-backed
+     * factories that #1561 Phases 4a-4d introduced ({@code PSContentStatusContext.loadFromHibernate},
+     * {@code PSTransitionsContext.loadAllFromHibernate}, {@link #findApprovalsByItem}) so the call
+     * participates in the surrounding Spring transaction instead of opening a second pool
+     * connection. PR-C2 migrates {@code PSSystemWs} to this method, then deletes the legacy
+     * overloads.
+     *
+     * @param contentId the content id; must be {@code > 0}.
+     * @param userName the authenticated user name; must not be {@code null} or blank.
+     * @param roles the user's roles; must not be {@code null}, may be empty.
+     * @param commId the community id, or {@code -1} to skip the community match.
+     * @return the list of allowed transitions, never {@code null}, may be empty.
+     * @throws IllegalArgumentException if {@code userName} is blank or {@code roles} is {@code null}.
+     * @throws PSEntryNotFoundException if no {@code CONTENTSTATUS} row exists for {@code contentId}.
+     * @throws PSORMException on Hibernate errors.
+     */
+    List<PSTransitionInfo> getAllowedTransitions(
+            int contentId, String userName, List<String> roles, int commId)
+            throws PSEntryNotFoundException, PSORMException;
 
     /**
      * Add a role to a workflow instance.
