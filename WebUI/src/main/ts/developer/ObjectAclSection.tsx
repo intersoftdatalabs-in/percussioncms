@@ -31,6 +31,29 @@ import { isSessionRedirectError, type ApiError } from "../api/client";
 import { errorAlert } from "./catalogStyles";
 import { DEV_MSG } from "./messages";
 
+/** Principal types supported when adding an ACL entry (REST TypedPrincipal / PrincipalTypes). */
+export const ACL_ENTRY_TYPES = ["ROLE", "USER", "COMMUNITY", "GROUP"] as const;
+export type AclEntryTypeName = (typeof ACL_ENTRY_TYPES)[number];
+
+type DraftEntry = ObjectAclEntry & { clientKey: string };
+
+const inputStyle: React.CSSProperties = {
+  padding: "8px",
+  border: "1px solid #cbd5e0",
+  borderRadius: "4px",
+  font: "inherit",
+  width: "100%",
+  boxSizing: "border-box",
+};
+
+const smallBtnStyle: React.CSSProperties = {
+  background: "transparent",
+  border: "1px solid #cbd5e0",
+  borderRadius: "4px",
+  padding: "4px 8px",
+  cursor: "pointer",
+};
+
 function asEntries(acl: ObjectAcl | null): ObjectAclEntry[] {
   if (!acl?.aclEntries) return [];
   if (Array.isArray(acl.aclEntries)) return acl.aclEntries;
@@ -60,7 +83,6 @@ function asPermissions(entry: ObjectAclEntry): string[] {
   return out.length ? [...new Set(out)] : [];
 }
 
-/** Map permission name → existing UserAccessLevel id (preserve on save). */
 function permissionIdMap(entry: ObjectAclEntry): Map<string, number> {
   const map = new Map<string, number>();
   const raw = entry.permissions;
@@ -78,6 +100,25 @@ function permissionIdMap(entry: ObjectAclEntry): Map<string, number> {
   return map;
 }
 
+function stableServerKey(e: ObjectAclEntry, index: number): string {
+  if (e.id != null) return `id:${e.id}`;
+  if (e.name) return `name:${e.name}`;
+  if (e.principal?.name) return `principal:${e.principal.name}`;
+  return `idx:${index}`;
+}
+
+function toDraftEntries(list: ObjectAclEntry[]): DraftEntry[] {
+  return list.map((e, i) => ({
+    ...e,
+    principal: e.principal ? { ...e.principal } : undefined,
+    type: e.type ? { ...e.type } : undefined,
+    permissions: Array.isArray(e.permissions)
+      ? e.permissions.map((p) => ({ ...p }))
+      : e.permissions,
+    clientKey: stableServerKey(e, i),
+  }));
+}
+
 function entryLabel(e: ObjectAclEntry): string {
   return (
     e.name ||
@@ -87,15 +128,8 @@ function entryLabel(e: ObjectAclEntry): string {
   );
 }
 
-function entryKey(e: ObjectAclEntry, index: number): string {
-  if (e.id != null) return `id:${e.id}`;
-  if (e.name) return `name:${e.name}`;
-  if (e.principal?.name) return `principal:${e.principal.name}`;
-  return `idx:${index}`;
-}
-
 function entryTypeLabel(e: ObjectAclEntry): string {
-  return e.type?.type || e.type?.name || e.principal?.type || "—";
+  return e.type?.type || e.principal?.type || "—";
 }
 
 function permsEqual(a: Set<string>, b: Set<string>): boolean {
@@ -106,10 +140,25 @@ function permsEqual(a: Set<string>, b: Set<string>): boolean {
   return true;
 }
 
+function buildSelectedMap(entries: DraftEntry[]): Record<string, Set<string>> {
+  const next: Record<string, Set<string>> = {};
+  for (const e of entries) {
+    next[e.clientKey] = new Set(asPermissions(e));
+  }
+  return next;
+}
+
+function structureEqual(a: DraftEntry[], b: DraftEntry[]): boolean {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i].clientKey !== b[i].clientKey) return false;
+  }
+  return true;
+}
+
 /**
  * Object ACL viewer/editor for Developer detail panels (SE-04).
- * Toggles design-time permissions on existing entries and saves via PUT /acls/bulk.
- * Add/remove entries remains a later slice.
+ * Toggle permissions, add/remove entries, save via PUT /acls/bulk.
  */
 export function ObjectAclSection({
   objectGuid,
@@ -119,17 +168,21 @@ export function ObjectAclSection({
   testIdPrefix?: string;
 }): React.ReactElement {
   const [acl, setAcl] = useState<ObjectAcl | null>(null);
+  const [draftEntries, setDraftEntries] = useState<DraftEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [missing, setMissing] = useState(false);
   const [busy, setBusy] = useState(false);
-  /** entryKey → selected permission names */
   const [selected, setSelected] = useState<Record<string, Set<string>>>({});
+  const [newName, setNewName] = useState("");
+  const [newType, setNewType] = useState<AclEntryTypeName>("ROLE");
+  const [newSeq, setNewSeq] = useState(0);
 
   useEffect(() => {
     if (!objectGuid) {
       setAcl(null);
+      setDraftEntries([]);
       setError(null);
       setNotice(null);
       setMissing(false);
@@ -143,16 +196,15 @@ export function ObjectAclSection({
     setNotice(null);
     setMissing(false);
     setAcl(null);
+    setDraftEntries([]);
     setSelected({});
     getAclForObject(objectGuid)
       .then((a) => {
         if (cancelled) return;
         setAcl(a);
-        const next: Record<string, Set<string>> = {};
-        asEntries(a).forEach((e, i) => {
-          next[entryKey(e, i)] = new Set(asPermissions(e));
-        });
-        setSelected(next);
+        const entries = toDraftEntries(asEntries(a));
+        setDraftEntries(entries);
+        setSelected(buildSelectedMap(entries));
         setLoading(false);
       })
       .catch((err: unknown) => {
@@ -177,24 +229,17 @@ export function ObjectAclSection({
     };
   }, [objectGuid]);
 
-  const entries = asEntries(acl);
+  const initialEntries = useMemo(() => toDraftEntries(asEntries(acl)), [acl]);
+  const initialSelected = useMemo(() => buildSelectedMap(initialEntries), [initialEntries]);
 
-  const initialSelected = useMemo(() => {
-    const next: Record<string, Set<string>> = {};
-    asEntries(acl).forEach((e, i) => {
-      next[entryKey(e, i)] = new Set(asPermissions(e));
-    });
-    return next;
-  }, [acl]);
-
-  const dirty =
-    entries.length > 0 &&
-    entries.some((e, i) => {
-      const key = entryKey(e, i);
-      const cur = selected[key] ?? new Set<string>();
-      const init = initialSelected[key] ?? new Set<string>();
-      return !permsEqual(cur, init);
-    });
+  const structureDirty = !structureEqual(draftEntries, initialEntries);
+  const permsDirty = draftEntries.some((e) => {
+    if (e.clientKey.startsWith("__new:")) return true;
+    const cur = selected[e.clientKey] ?? new Set<string>();
+    const init = initialSelected[e.clientKey] ?? new Set<string>();
+    return !permsEqual(cur, init);
+  });
+  const dirty = acl != null && (structureDirty || permsDirty);
 
   function togglePerm(key: string, perm: AclPermissionName) {
     setSelected((prev) => {
@@ -203,6 +248,46 @@ export function ObjectAclSection({
       else cur.add(perm);
       return { ...prev, [key]: cur };
     });
+    setNotice(null);
+  }
+
+  function removeEntry(clientKey: string) {
+    setDraftEntries((prev) => prev.filter((e) => e.clientKey !== clientKey));
+    setSelected((prev) => {
+      const copy = { ...prev };
+      delete copy[clientKey];
+      return copy;
+    });
+    setNotice(null);
+  }
+
+  function addEntry() {
+    const name = newName.trim();
+    if (!name) return;
+    const dup = draftEntries.some(
+      (e) =>
+        (e.name || e.principal?.name || "").toLowerCase() === name.toLowerCase() &&
+        (e.type?.type || "").toUpperCase() === newType,
+    );
+    if (dup) {
+      setError(DEV_MSG.ACL_ENTRY_DUP);
+      return;
+    }
+    const seq = newSeq + 1;
+    setNewSeq(seq);
+    const clientKey = `__new:${seq}`;
+    const entry: DraftEntry = {
+      clientKey,
+      name,
+      principal: { name },
+      type: { type: newType, name },
+      permissions: [{ permission: "READ" }],
+      aclId: acl?.id,
+    };
+    setDraftEntries((prev) => [...prev, entry]);
+    setSelected((prev) => ({ ...prev, [clientKey]: new Set<string>(["READ"]) }));
+    setNewName("");
+    setError(null);
     setNotice(null);
   }
 
@@ -215,10 +300,6 @@ export function ObjectAclSection({
     return `${fallback}${status}${msg}`;
   }
 
-  /**
-   * Build permission list for save: known ACL_PERMISSIONS toggles + any unknown
-   * permission names already present on the entry (preserve on save).
-   */
   function buildPermissionsForSave(
     entry: ObjectAclEntry,
     chosen: Set<string>,
@@ -231,14 +312,11 @@ export function ObjectAclSection({
       const id = idByPerm.get(p);
       out.push(id != null ? { id, permission: p } : { permission: p });
     }
-    // Preserve unknown/custom permissions still selected (or never shown as checkbox)
     for (const p of chosen) {
       if (known.has(p)) continue;
       const id = idByPerm.get(p);
       out.push(id != null ? { id, permission: p } : { permission: p });
     }
-    // Also keep unknown permissions that were loaded but are not in chosen —
-    // only if they never appear as toggles (cannot uncheck). Treat as sticky.
     for (const p of asPermissions(entry)) {
       if (known.has(p)) continue;
       if (out.some((x) => x.permission === p)) continue;
@@ -248,24 +326,32 @@ export function ObjectAclSection({
     return out;
   }
 
+  function rebuildEntriesForSave(): ObjectAclEntry[] {
+    return draftEntries.map((e) => {
+      const chosen = selected[e.clientKey] ?? new Set<string>();
+      const principalName = e.name || e.principal?.name || "";
+      const typeName = e.type?.type || "ROLE";
+      return {
+        id: e.id,
+        name: principalName || undefined,
+        aclId: e.aclId ?? acl?.id,
+        principal: principalName ? { name: principalName } : undefined,
+        type: {
+          type: typeName,
+          name: principalName || undefined,
+        },
+        permissions: buildPermissionsForSave(e, chosen),
+      };
+    });
+  }
+
   async function handleSave() {
     if (!acl || !objectGuid) return;
     setBusy(true);
     setError(null);
     setNotice(null);
 
-    const rebuiltEntries: ObjectAclEntry[] = entries.map((e, i) => {
-      const key = entryKey(e, i);
-      const chosen = selected[key] ?? new Set<string>();
-      return {
-        id: e.id,
-        name: e.name || e.principal?.name || e.type?.name,
-        aclId: e.aclId ?? acl.id,
-        principal: e.principal || (e.name ? { name: e.name } : undefined),
-        type: e.type,
-        permissions: buildPermissionsForSave(e, chosen),
-      };
-    });
+    const rebuiltEntries = rebuildEntriesForSave();
 
     try {
       await saveObjectAcl({ ...acl, aclEntries: rebuiltEntries });
@@ -275,24 +361,18 @@ export function ObjectAclSection({
       return;
     }
 
-    // Save succeeded — refresh independently so reload failure is not reported as save failure
     try {
       const refreshed = await getAclForObject(objectGuid);
       setAcl(refreshed);
-      const next: Record<string, Set<string>> = {};
-      asEntries(refreshed).forEach((e, i) => {
-        next[entryKey(e, i)] = new Set(asPermissions(e));
-      });
-      setSelected(next);
+      const entries = toDraftEntries(asEntries(refreshed));
+      setDraftEntries(entries);
+      setSelected(buildSelectedMap(entries));
       setNotice(DEV_MSG.ACL_SAVED);
     } catch (err: unknown) {
-      // Local state already matches what we saved; still surface reload issue
       setAcl({ ...acl, aclEntries: rebuiltEntries });
-      const next: Record<string, Set<string>> = {};
-      rebuiltEntries.forEach((e, i) => {
-        next[entryKey(e, i)] = new Set(asPermissions(e));
-      });
-      setSelected(next);
+      const entries = toDraftEntries(rebuiltEntries);
+      setDraftEntries(entries);
+      setSelected(buildSelectedMap(entries));
       setNotice(DEV_MSG.ACL_SAVED);
       setError(formatApiErr(DEV_MSG.ACL_RELOAD_ERROR, err));
     } finally {
@@ -346,8 +426,10 @@ export function ObjectAclSection({
             {acl.id != null ? ` · id ${acl.id}` : ""}
             {acl.guid?.stringValue ? ` · ${acl.guid.stringValue}` : ""}
           </div>
-          {entries.length === 0 ? (
-            <p style={{ color: "#718096" }}>{DEV_MSG.ACL_NO_ENTRIES}</p>
+          {draftEntries.length === 0 ? (
+            <p style={{ color: "#718096" }} data-testid={`${testIdPrefix}-no-entries`}>
+              {DEV_MSG.ACL_NO_ENTRIES}
+            </p>
           ) : (
             <div style={{ overflowX: "auto", marginTop: "8px" }}>
               <table
@@ -370,19 +452,21 @@ export function ObjectAclSection({
                         {p.replace("_", " ")}
                       </th>
                     ))}
+                    <th style={{ padding: "8px" }}>{DEV_MSG.ACL_COL_ACTIONS}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {entries.map((e, i) => {
-                    const key = entryKey(e, i);
+                  {draftEntries.map((e) => {
+                    const key = e.clientKey;
                     const chosen = selected[key] ?? new Set<string>();
+                    const label = entryLabel(e);
                     return (
                       <tr
                         key={key}
                         style={{ borderBottom: "1px solid #edf2f7" }}
                         data-testid={`${testIdPrefix}-row-${key}`}
                       >
-                        <td style={{ padding: "8px" }}>{entryLabel(e)}</td>
+                        <td style={{ padding: "8px" }}>{label}</td>
                         <td style={{ padding: "8px", fontFamily: "monospace" }}>
                           {entryTypeLabel(e)}
                         </td>
@@ -394,10 +478,25 @@ export function ObjectAclSection({
                               checked={chosen.has(p)}
                               disabled={busy}
                               onChange={() => togglePerm(key, p)}
-                              aria-label={`${p} for ${entryLabel(e)}`}
+                              aria-label={`${p} for ${label}`}
                             />
                           </td>
                         ))}
+                        <td style={{ padding: "8px" }}>
+                          <button
+                            type="button"
+                            data-testid={`${testIdPrefix}-remove-${key}`}
+                            aria-label={`Remove ACL entry ${label}`}
+                            disabled={busy}
+                            onClick={() => removeEntry(key)}
+                            style={{
+                              ...smallBtnStyle,
+                              cursor: busy ? "not-allowed" : "pointer",
+                            }}
+                          >
+                            {DEV_MSG.ACL_ENTRY_REMOVE}
+                          </button>
+                        </td>
                       </tr>
                     );
                   })}
@@ -405,27 +504,96 @@ export function ObjectAclSection({
               </table>
             </div>
           )}
-          {entries.length > 0 ? (
-            <div style={{ marginTop: "12px", display: "flex", gap: "8px" }}>
-              <button
-                type="button"
-                data-testid={`${testIdPrefix}-save`}
-                aria-label="Save object ACL"
-                disabled={busy || !dirty}
-                onClick={() => void handleSave()}
-                style={{
-                  padding: "8px 16px",
-                  background: dirty ? "#007ea8" : "#a0aec0",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: busy || !dirty ? "not-allowed" : "pointer",
-                }}
+
+          <div
+            style={{
+              marginTop: "12px",
+              display: "grid",
+              gridTemplateColumns: "1fr auto auto",
+              gap: "8px",
+              alignItems: "end",
+            }}
+            data-testid={`${testIdPrefix}-add-form`}
+          >
+            <div>
+              <label
+                htmlFor={`${testIdPrefix}-add-name`}
+                style={{ display: "block", marginBottom: 4 }}
               >
-                {busy ? DEV_MSG.ACL_SAVING : DEV_MSG.ACL_SAVE}
-              </button>
+                {DEV_MSG.ACL_ENTRY_NAME}
+              </label>
+              <input
+                id={`${testIdPrefix}-add-name`}
+                data-testid={`${testIdPrefix}-add-name`}
+                style={inputStyle}
+                placeholder={DEV_MSG.ACL_ENTRY_NAME_PLACEHOLDER}
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                disabled={busy}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addEntry();
+                  }
+                }}
+              />
             </div>
-          ) : null}
+            <div>
+              <label
+                htmlFor={`${testIdPrefix}-add-type`}
+                style={{ display: "block", marginBottom: 4 }}
+              >
+                {DEV_MSG.ACL_COL_TYPE}
+              </label>
+              <select
+                id={`${testIdPrefix}-add-type`}
+                data-testid={`${testIdPrefix}-add-type`}
+                style={{ ...inputStyle, width: "auto", minWidth: 120 }}
+                value={newType}
+                onChange={(e) => setNewType(e.target.value as AclEntryTypeName)}
+                disabled={busy}
+              >
+                {ACL_ENTRY_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button
+              type="button"
+              data-testid={`${testIdPrefix}-add`}
+              disabled={busy || !newName.trim()}
+              onClick={addEntry}
+              style={{
+                ...smallBtnStyle,
+                padding: "8px 12px",
+                cursor: busy || !newName.trim() ? "not-allowed" : "pointer",
+              }}
+            >
+              {DEV_MSG.ACL_ENTRY_ADD}
+            </button>
+          </div>
+
+          <div style={{ marginTop: "12px", display: "flex", gap: "8px" }}>
+            <button
+              type="button"
+              data-testid={`${testIdPrefix}-save`}
+              aria-label="Save object ACL"
+              disabled={busy || !dirty}
+              onClick={() => void handleSave()}
+              style={{
+                padding: "8px 16px",
+                background: dirty ? "#007ea8" : "#a0aec0",
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: busy || !dirty ? "not-allowed" : "pointer",
+              }}
+            >
+              {busy ? DEV_MSG.ACL_SAVING : DEV_MSG.ACL_SAVE}
+            </button>
+          </div>
         </>
       ) : null}
     </section>
