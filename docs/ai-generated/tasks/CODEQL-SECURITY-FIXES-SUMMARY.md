@@ -289,6 +289,7 @@ Rather than standalone test files, integration tests leverage existing test infr
 ✅ **Code Style**: Spotless compliance verified (Google Java Format)
 
 ```
+./mvnw spotless:apply
 ./mvnw spotless:check
 ```
 

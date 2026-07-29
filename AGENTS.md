@@ -69,22 +69,28 @@ Spotless in this monorepo is **not Java-only**. It formats / checks **Java, Mark
 
 ### Required sequence
 
+**Order is mandatory: `spotless:apply` first, then `spotless:check` second.** Never run `check` alone as the pre-PR gate and “fix later if it fails” — apply rewrites the tree; check only verifies. Agents that reverse the order leave dirty formatting unapplied or waste cycles on a failing check that apply would have fixed.
+
 1. Ensure `JAVA_HOME` is JDK 21; use the repo Maven wrapper (`./mvnw` / `mvnw.cmd`).
 2. From **repo root** (preferred for a final PR commit so docs/JS/TS outside a single module are included):
 
    ```bash
+   # 1) FIRST — rewrite in-place to Spotless style
    ./mvnw spotless:apply
+   # 2) SECOND — verify nothing still fails (must exit 0)
    ./mvnw spotless:check
    ```
 
    Windows:
 
    ```bat
+   rem 1) FIRST — rewrite in-place to Spotless style
    mvnw.cmd spotless:apply
+   rem 2) SECOND — verify nothing still fails (must exit 0)
    mvnw.cmd spotless:check
    ```
 
-   Module-scoped apply is OK for mid-work iteration; the **final** PR commit must still end with a clean `spotless:check` for everything that will land on the PR (root apply/check when unsure).
+   Module-scoped apply is OK for mid-work iteration; the **final** PR commit must still end with a clean `spotless:check` for everything that will land on the PR (root apply then check when unsure).
 3. Immediately inspect what Spotless rewrote:
 
    ```bash
@@ -136,7 +142,7 @@ If the out-of-scope set is huge, still open the cleanup PR rather than folding i
 
 In the feature PR body (or a short comment before “ready for review”), record:
 
-* That `./mvnw spotless:apply` and `./mvnw spotless:check` were run (exact commands).
+* That `./mvnw spotless:apply` ran **first**, then `./mvnw spotless:check` **second** (exact commands, that order).
 * That the feature PR contains **only in-scope** files (or “Spotless rewrote no out-of-scope files”).
 * If a cleanup PR was opened: its URL/number, e.g. “Unrelated Spotless hits → #NNNN”.
 
@@ -241,7 +247,7 @@ Failing this section is a **hard gate** equal to a failing Erlang review: fix, r
 * ALWAYS update relevant script dir `README.md` files with doc on script purpose and usage scanrios when creating/editing scripts.
 * ALWAYS document your work in comments, README, or maven site documentation.
 * **IMPORTANT** you must ALWAYS update or create unit tests for any code change that you make, new or edited. And the tests must pass. No exceptions.
-* **IMPORTANT — Pre-PR Spotless:** Before every final PR commit, run `./mvnw spotless:apply` then `./mvnw spotless:check` (JDK 21 + Maven wrapper). Spotless covers **Java, docs/Markdown, JS, and TS** (and other configured globs)—not Java only. If Spotless rewrites files **outside** your task scope, **do not** fold them into the feature PR: commit only in-scope files there, and open a second **`chore: Spotless cleanup`** PR for the unrelated formatting. Do not panic or abandon the feature work. See **Pre-PR Spotless formatting (HARD GATE)** above.
+* **IMPORTANT — Pre-PR Spotless:** Before every final PR commit, run `./mvnw spotless:apply` **first**, then `./mvnw spotless:check` **second** (JDK 21 + Maven wrapper). Do not check-only first. Spotless covers **Java, docs/Markdown, JS, and TS** (and other configured globs)—not Java only. If Spotless rewrites files **outside** your task scope, **do not** fold them into the feature PR: commit only in-scope files there, and open a second **`chore: Spotless cleanup`** PR for the unrelated formatting. Do not panic or abandon the feature work. See **Pre-PR Spotless formatting (HARD GATE)** above.
 * **IMPORTANT — Pre-PR build:** Before opening or updating a GitHub PR, **`cd` into each module you changed** and run repo-root `mvnw` / `mvnw.cmd` **`clean install` standalone** (not default root `-pl -am` reactor builds). Code must compile, tests must pass, and there must be **no new warnings**. Use a full/partial reactor only when the change requires it. See **Pre-PR Maven verification (HARD GATE)** above. CI is not a substitute for this local gate.
 * Always use the #codebase or root `./` context when resolving missing interfaces or classes.
 * You MUST respect rate limits when calling 3rd party API's. All 3rd party API integrations must be implemented with rate limit detection and exponential backoff logic.

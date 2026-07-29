@@ -71,9 +71,9 @@ cd modules/extensions-main
 # Full install (for hot-deploy testing)
 ../../mvnw clean install
 
-# Code style check (must pass before committing)
-../../mvnw spotless:check
-../../mvnw spotless:apply  # auto-fix
+# Code style: apply first, then check (must pass before committing)
+../../mvnw spotless:apply  # rewrite to Spotless style
+../../mvnw spotless:check  # verify clean
 ```
 
 ## Refactoring notes
