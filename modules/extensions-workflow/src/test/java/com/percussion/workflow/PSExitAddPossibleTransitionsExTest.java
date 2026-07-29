@@ -116,14 +116,28 @@ public class PSExitAddPossibleTransitionsExTest {
   }
 
   /**
-   * Migration contract: when the Hibernate factory throws {@link PSEntryNotFoundException}, the
-   * legacy public overload must catch it and return the legacy default {@link
-   * PSWorkFlowUtils#ASSIGNMENT_TYPE_NOT_IN_WORKFLOW}. This matches the pre-migration behaviour
-   * where the raw-JDBC {@code new PSStateRolesContext(..., connection, stateid, ...)} constructor
-   * threw {@code PSEntryNotFoundException} when no rows matched.
+   * Placeholder for the post-migration contract pin:
+   * <pre>
+   * when the Hibernate factory throws {@link PSEntryNotFoundException},
+   * the legacy public overload must catch it and return the legacy default
+   * {@link PSWorkFlowUtils#ASSIGNMENT_TYPE_NOT_IN_WORKFLOW}.
+   * </pre>
+   * This matches the pre-migration behaviour where the raw-JDBC {@code new
+   * PSStateRolesContext(..., connection, stateid, ...)} constructor threw {@code
+   * PSEntryNotFoundException} when no rows matched.
+   *
+   * <p>The test body cannot exercise the {@link PSEntryNotFoundException} path until
+   * Spring+H2 test infrastructure lands in this module (tracked in
+   * {@code docs/ai-generated/migrations/workflow-orm/00-inventory.md} §7); with {@code
+   * connection == null} the first guard in {@code getAssignmentType} ("connection may not be
+   * null") fires before the factory is reached, so the only reachable assertion is the
+   * connection guard itself — which {@link #legacyGetAssignmentType_guardOrdering()} already
+   * covers. The body below documents the contract; the actual future pin lives in the commented
+   * block. Rename or merge once Spring+H2 infra lands and the body can exercise the real path.
    */
   @Test
-  void legacyGetAssignmentType_returnsDefaultOnEntryNotFound() throws SQLException {
+  void legacyGetAssignmentType_contractPlaceholder_returnsDefaultOnEntryNotFound()
+      throws SQLException {
     IPSRequestContext request = null;
     Connection connection = null;
 
