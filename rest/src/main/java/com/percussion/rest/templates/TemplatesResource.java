@@ -45,12 +45,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Tag(name = "Templates", description = "Template operations")
 public class TemplatesResource {
 
-  @Autowired private ITemplatesAdaptor adaptor;
+  private final ITemplatesAdaptor adaptor;
 
   @Context private UriInfo uriInfo;
 
   public TemplatesResource() {
-    // NOOP
+    this.adaptor = null;
+  }
+
+  @Autowired
+  public TemplatesResource(ITemplatesAdaptor adaptor) {
+    this.adaptor = adaptor;
   }
 
   /**
@@ -59,7 +64,6 @@ public class TemplatesResource {
    * @return TemplateSummaryList of all templates
    */
   @GET
-  @Path("/")
   @Produces({MediaType.APPLICATION_JSON})
   @Operation(
       summary = "List all templates",

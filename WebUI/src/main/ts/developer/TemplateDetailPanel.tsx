@@ -16,24 +16,10 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { isSessionRedirectError, type ApiError } from "../api/client";
 import { getTemplateDetail } from "../api/developer/assemblyApi";
 import type { TemplateDetail } from "../api/developer/types";
+import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
-
-function errorMessage(err: unknown): string {
-  if (isSessionRedirectError(err)) {
-    return DEV_MSG.SESSION_REDIRECT;
-  }
-  const api = err as ApiError;
-  if (api && typeof api.status === "number") {
-    return `${DEV_MSG.TPL_DETAIL_ERROR} (${api.status})`;
-  }
-  if (err instanceof Error && err.message) {
-    return `${DEV_MSG.TPL_DETAIL_ERROR} ${err.message}`;
-  }
-  return DEV_MSG.TPL_DETAIL_ERROR;
-}
 
 const metaGrid: React.CSSProperties = {
   display: "grid",
@@ -63,7 +49,7 @@ export function TemplateDetailPanel({
       })
       .catch((err: unknown) => {
         if (cancelled) return;
-        setError(errorMessage(err));
+        setError(panelErrMsg(err, DEV_MSG.TPL_DETAIL_ERROR));
       });
     return () => {
       cancelled = true;
