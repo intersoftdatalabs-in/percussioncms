@@ -139,6 +139,106 @@ public class PSTmxResourceBundleTest {
         "perc.ui.common.label@Ok", "es"));
   }
 
+  /**
+   * When a regional locale is registered (empty header bucket) but TUs only
+   * exist under the language-only tag, getString must still resolve the
+   * language-only content (GH-1609 / hi-in vs hi).
+   */
+  @Test
+  public void getString_keyLevelFallbackFromSparseRegionalBucket() throws Exception {
+    Document doc = parse(
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+            + "<tmx version=\"1.4\"><header>"
+            + "<prop type=\"supportedlanguage\">en-us</prop>"
+            + "<prop type=\"supportedlanguage\">hi</prop>"
+            + "<prop type=\"supportedlanguage\">hi-in</prop>"
+            + "</header><body>"
+            + "<tu tuid=\"perc.ui.login.modern@Sign in\">"
+            + "<tuv xml:lang=\"en-us\"><seg>Sign in</seg></tuv>"
+            + "<tuv xml:lang=\"hi\"><seg>sain-in-hi</seg></tuv>"
+            + "</tu>"
+            + "</body></tmx>");
+    PSTmxResourceBundle.getInstance().addResourcesToCacheForTest(doc);
+
+    Map<String, Map<String, PSTmxUnit>> bundles =
+        PSTmxResourceBundle.getInstance().getResourceBundlesForTest();
+    assertNotNull(bundles.get("hi-in"), "header must create sparse hi-in bucket");
+    assertTrue(
+        bundles.get("hi-in").isEmpty() || !bundles.get("hi-in").containsKey(
+            "perc.ui.login.modern@Sign in"),
+        "hi-in must not own the key");
+
+    assertEquals(
+        "sain-in-hi",
+        PSTmxResourceBundle.getInstance()
+            .getString("perc.ui.login.modern@Sign in", "hi-in"));
+    assertEquals(
+        "sain-in-hi",
+        PSTmxResourceBundle.getInstance()
+            .getString("perc.ui.login.modern@Sign in", "hi"));
+  }
+
+  /**
+   * getKeys for a regional tag must union keys from the language-only and
+   * default buckets so tmx.jsp can emit a complete JS catalog (GH-1609).
+   */
+  @Test
+  public void getKeys_unionsLookupChainForSparseRegional() throws Exception {
+    Document doc = parse(
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+            + "<tmx version=\"1.4\"><header>"
+            + "<prop type=\"supportedlanguage\">en-us</prop>"
+            + "<prop type=\"supportedlanguage\">hi</prop>"
+            + "<prop type=\"supportedlanguage\">hi-in</prop>"
+            + "</header><body>"
+            + "<tu tuid=\"perc.ui.login.modern@Sign in\">"
+            + "<tuv xml:lang=\"en-us\"><seg>Sign in</seg></tuv>"
+            + "<tuv xml:lang=\"hi\"><seg>sain-in-hi</seg></tuv>"
+            + "</tu>"
+            + "<tu tuid=\"perc.ui.login.modern@Locale\">"
+            + "<tuv xml:lang=\"en-us\"><seg>Locale</seg></tuv>"
+            + "<tuv xml:lang=\"hi\"><seg>sthaan</seg></tuv>"
+            + "</tu>"
+            + "</body></tmx>");
+    PSTmxResourceBundle.getInstance().addResourcesToCacheForTest(doc);
+
+    java.util.Set<String> keys = new java.util.HashSet<>();
+    java.util.Iterator<String> it =
+        PSTmxResourceBundle.getInstance().getKeys("hi-in");
+    assertNotNull(it);
+    it.forEachRemaining(keys::add);
+    assertTrue(keys.contains("perc.ui.login.modern@Sign in"));
+    assertTrue(keys.contains("perc.ui.login.modern@Locale"));
+  }
+
+  /** Regional override wins over language-only when both define the key. */
+  @Test
+  public void getString_prefersExactRegionalOverLanguageOnly() throws Exception {
+    Document doc = parse(
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+            + "<tmx version=\"1.4\"><header>"
+            + "<prop type=\"supportedlanguage\">en-us</prop>"
+            + "<prop type=\"supportedlanguage\">es</prop>"
+            + "<prop type=\"supportedlanguage\">es-mx</prop>"
+            + "</header><body>"
+            + "<tu tuid=\"k@hello\">"
+            + "<tuv xml:lang=\"en-us\"><seg>Hello</seg></tuv>"
+            + "<tuv xml:lang=\"es\"><seg>Hola</seg></tuv>"
+            + "<tuv xml:lang=\"es-mx\"><seg>Hola-MX</seg></tuv>"
+            + "</tu>"
+            + "</body></tmx>");
+    PSTmxResourceBundle.getInstance().addResourcesToCacheForTest(doc);
+
+    assertEquals(
+        "Hola-MX",
+        PSTmxResourceBundle.getInstance().getString("k@hello", "es-mx"));
+    assertEquals(
+        "Hola", PSTmxResourceBundle.getInstance().getString("k@hello", "es"));
+    // es-es has no bucket content; falls back to language-only es
+    assertEquals(
+        "Hola", PSTmxResourceBundle.getInstance().getString("k@hello", "es-es"));
+  }
+
   private static Document parse(String xml) throws Exception {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     factory.setNamespaceAware(true);
