@@ -226,6 +226,10 @@ export const PATHS = {
   get ANALYTICS_TEST_CONNECTION() {
     return `${SERVICES_ROOT}/analytics/provider/testConnection`;
   },
+  /** Theme summaries (Sitewide Framework / Design themes). */
+  get THEME_SUMMARY_ALL() {
+    return `${SERVICES_ROOT}/pagemanagement/theme/summary/all`;
+  },
   get PATH_ADD_NEW_FOLDER() {
     return `${SERVICES_ROOT}/pathmanagement/path/addNewFolder`;
   },

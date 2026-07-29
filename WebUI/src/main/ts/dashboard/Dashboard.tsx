@@ -30,6 +30,10 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { DashboardLayout, type DashboardWidget } from "./DashboardLayout";
 import { AddGadgetModal, type AddGadgetModalProps } from "./AddGadgetModal";
 import { useDashboardConfig, type WidgetConfig } from "./hooks/useDashboardConfig";
+import {
+  loadPreferredGadgetIds,
+  PREFERRED_GADGETS_EVENT,
+} from "./gadgetsCatalog";
 import { WelcomeWidget } from "./WelcomeWidget";
 import { ActivityWidget } from "./ActivityWidget";
 import { WorkflowStatusWidget } from "./WorkflowStatusWidget";
@@ -114,14 +118,14 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
     id: "bulk-upload",
     name: "Bulk Upload",
     component: BulkUploadWidget,
-    description: "Bulk file upload job tracking",
+    description: "Upload files into Assets/uploads",
     category: "Content Management",
   },
   {
     id: "reports",
     name: "Reports",
     component: ReportsWidget,
-    description: "Available reports list",
+    description: "Quick CMS reports hub (SEO, forms, comments, activity)",
     category: "Analytics",
   },
   {
@@ -322,6 +326,34 @@ const DEFAULT_GADGETS: DashboardWidget[] = [
   },
 ];
 
+/** Build layout tiles from preferred catalog ids (session layout prefs). */
+function buildGadgetsFromIds(ids: string[]): DashboardWidget[] {
+  const out: DashboardWidget[] = [];
+  ids.forEach((id, index) => {
+    const info = AVAILABLE_GADGETS.find((g) => g.id === id);
+    if (!info) return;
+    out.push({
+      id: info.id,
+      name: info.name,
+      component: info.component,
+      props: {},
+      position: {
+        column: index % 2 === 0 ? "left" : "right",
+        order: Math.floor(index / 2),
+      },
+    });
+  });
+  return out.length > 0 ? out : DEFAULT_GADGETS;
+}
+
+function initialGadgets(): DashboardWidget[] {
+  const preferred = loadPreferredGadgetIds();
+  if (preferred && preferred.length > 0) {
+    return buildGadgetsFromIds(preferred);
+  }
+  return DEFAULT_GADGETS;
+}
+
 export interface DashboardProps {
   legacyDashboardUrl?: string;
   userId?: string;
@@ -345,7 +377,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   userId,
   embedded = false,
 }) => {
-  const [gadgets, setGadgets] = useState<DashboardWidget[]>(DEFAULT_GADGETS);
+  const [gadgets, setGadgets] = useState<DashboardWidget[]>(() => initialGadgets());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -354,6 +386,19 @@ export const Dashboard: React.FC<DashboardProps> = ({
     userId,
     true // autoRefresh
   );
+
+  // Session layout prefs from Widget Configuration gadget
+  useEffect(() => {
+    const onPreferred = (ev: Event) => {
+      const detail = (ev as CustomEvent<{ ids?: string[] }>).detail;
+      const ids = detail?.ids ?? loadPreferredGadgetIds();
+      if (ids && ids.length > 0) {
+        setGadgets(buildGadgetsFromIds(ids));
+      }
+    };
+    window.addEventListener(PREFERRED_GADGETS_EVENT, onPreferred);
+    return () => window.removeEventListener(PREFERRED_GADGETS_EVENT, onPreferred);
+  }, []);
 
   // Convert WidgetConfig to DashboardWidget format
   const convertToDashboardWidget = useCallback(
@@ -396,8 +441,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
         setGadgets(DEFAULT_GADGETS);
       }
     } else if (!userId) {
-      // No user ID, use defaults (offline mode or fallback)
-      setGadgets(DEFAULT_GADGETS);
+      // No user ID — preferred session layout or product defaults
+      setGadgets(initialGadgets());
     }
   }, [config, userId, convertToDashboardWidget]);
 

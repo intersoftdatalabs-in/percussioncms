@@ -1,22 +1,11 @@
 /*
  * Copyright 1999-2026 Percussion Software, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 import React, { useCallback, useEffect, useState } from "react";
 import { isSessionRedirectError } from "../api/client";
+import { put } from "../api/client";
+import { PATHS } from "../api/paths";
 import {
   fetchSiteimproveStatus,
   type SiteimproveStatus,
@@ -30,10 +19,7 @@ export interface SiteimproveWidgetProps {
 }
 
 /**
- * Classic **Siteimprove** gadget — integration status (token + site config).
- *
- * <p>Real APIs under {@code /services/integrations/siteimprove/*}.
- * Invented {@code /services/siteimprove/metrics} does not exist.</p>
+ * Classic **Siteimprove** gadget — view/store token + site config status.
  */
 export const SiteimproveWidget: React.FC<SiteimproveWidgetProps> = ({
   title = "Siteimprove",
@@ -42,12 +28,18 @@ export const SiteimproveWidget: React.FC<SiteimproveWidgetProps> = ({
   const [status, setStatus] = useState<SiteimproveStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [token, setToken] = useState("");
+  const [siteName, setSiteName] = useState("");
 
   const load = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
-      setStatus(await fetchSiteimproveStatus());
+      const s = await fetchSiteimproveStatus();
+      setStatus(s);
+      if (s.siteName) setSiteName(s.siteName);
     } catch (err: unknown) {
       if (isSessionRedirectError(err)) return;
       setError(formatApiError(err, "Failed to load Siteimprove status"));
@@ -64,6 +56,36 @@ export const SiteimproveWidget: React.FC<SiteimproveWidgetProps> = ({
     return () => window.clearInterval(id);
   }, [load, refreshInterval]);
 
+  const onSaveToken = async () => {
+    if (!token.trim() || !siteName.trim()) {
+      setError("Site name and token are required.");
+      return;
+    }
+    try {
+      setBusy(true);
+      setError(null);
+      setMessage(null);
+      // PSSiteImproveCredentials — Jackson may accept flat or rooted body
+      await put(PATHS.SITEIMPROVE_TOKEN, {
+        SiteimproveCredentials: {
+          token: token.trim(),
+          siteName: siteName.trim(),
+        },
+        token: token.trim(),
+        siteName: siteName.trim(),
+      });
+      setMessage("Token saved (validated by server).");
+      setToken("");
+      await load();
+    } catch (err: unknown) {
+      if (!isSessionRedirectError(err)) {
+        setError(formatApiError(err, "Failed to store Siteimprove token"));
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div style={styles.widget} data-testid="siteimprove-widget">
@@ -72,25 +94,31 @@ export const SiteimproveWidget: React.FC<SiteimproveWidgetProps> = ({
       </div>
     );
   }
-  if (error) {
-    return (
-      <div style={styles.widget} data-testid="siteimprove-widget">
-        <div style={styles.widgetTitle}>{title}</div>
-        <div style={styles.widgetError} data-testid="siteimprove-error">
-          {error}
-        </div>
-      </div>
-    );
-  }
 
-  const ok = status?.hasToken;
   return (
     <div style={styles.widget} data-testid="siteimprove-widget">
       <div style={styles.widgetTitle}>{title}</div>
       <div style={styles.widgetContent} data-testid="siteimprove-status">
+        {error ? (
+          <div style={{ ...styles.widgetError, marginBottom: 8 }}>{error}</div>
+        ) : null}
+        {message ? (
+          <div
+            style={{
+              background: "#e8f5e9",
+              color: "#2e7d32",
+              padding: 8,
+              borderRadius: 4,
+              marginBottom: 8,
+              fontSize: "0.85em",
+            }}
+          >
+            {message}
+          </div>
+        ) : null}
         <div style={{ marginBottom: "8px" }}>
-          <strong>API token:</strong>{" "}
-          {ok ? (
+          <strong>Token on server:</strong>{" "}
+          {status?.hasToken ? (
             <span style={{ color: "#28a745" }}>
               Configured
               {status?.tokenPreview ? ` (${status.tokenPreview})` : ""}
@@ -99,22 +127,50 @@ export const SiteimproveWidget: React.FC<SiteimproveWidgetProps> = ({
             <span style={{ color: "#dc3545" }}>Not configured</span>
           )}
         </div>
-        <div style={{ marginBottom: "8px", fontSize: "0.9em" }}>
-          <strong>Site:</strong> {status?.siteName || "—"}
-        </div>
-        <div style={{ fontSize: "0.9em" }}>
-          <strong>Publish config:</strong>{" "}
+        <div style={{ fontSize: "0.9em", marginBottom: 8 }}>
+          <strong>Publish config for {status?.siteName || siteName || "—"}:</strong>{" "}
           {status?.siteConfigPresent ? (
             <span style={{ color: "#28a745" }}>Present</span>
           ) : (
-            <span style={{ color: "#999" }}>None for this site</span>
+            <span style={{ color: "#999" }}>None</span>
           )}
         </div>
-        <p style={{ fontSize: "0.8em", color: "#666", marginTop: "12px" }}>
-          Live accessibility/quality scores are not exposed by a CMS metrics
-          REST endpoint. Configure Siteimprove token and per-site publish
-          settings in Admin / classic integration UI.
-        </p>
+        <div style={{ borderTop: "1px solid #eee", paddingTop: 10, marginTop: 8 }}>
+          <div style={{ fontWeight: 600, fontSize: "0.85em", marginBottom: 6 }}>
+            Store credentials
+          </div>
+          <label style={{ display: "block", fontSize: "0.8em", marginBottom: 6 }}>
+            Site name
+            <input
+              value={siteName}
+              onChange={(e) => setSiteName(e.target.value)}
+              disabled={busy}
+              data-testid="siteimprove-site"
+              style={{ display: "block", width: "100%", marginTop: 4, padding: 6, boxSizing: "border-box" }}
+            />
+          </label>
+          <label style={{ display: "block", fontSize: "0.8em", marginBottom: 6 }}>
+            API token
+            <input
+              type="password"
+              value={token}
+              onChange={(e) => setToken(e.target.value)}
+              disabled={busy}
+              data-testid="siteimprove-token"
+              autoComplete="off"
+              style={{ display: "block", width: "100%", marginTop: 4, padding: 6, boxSizing: "border-box" }}
+            />
+          </label>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => void onSaveToken()}
+            data-testid="siteimprove-save"
+            style={{ padding: "6px 12px" }}
+          >
+            {busy ? "Saving…" : "Validate & save token"}
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -2,8 +2,13 @@
  * Copyright 1999-2026 Percussion Software, Inc.
  */
 
-import React from "react";
-import { UnavailableGadgetShell } from "./UnavailableGadgetShell";
+import React, { useMemo, useState } from "react";
+import {
+  GADGET_CATALOG,
+  loadPreferredGadgetIds,
+  savePreferredGadgetIds,
+} from "./gadgetsCatalog";
+import { styles } from "./dashboard.styles";
 
 export interface WidgetConfigurationWidgetProps {
   title?: string;
@@ -11,17 +16,129 @@ export interface WidgetConfigurationWidgetProps {
 }
 
 /**
- * Deprecated dashboard configuration gadget.
- * React layout persist is session-local via useDashboardConfig (not this path).
+ * Classic **Widget Configuration** / dashboard configuration gadget.
+ * Session-local preferred gadget set; Dashboard listens and rebuilds layout.
  */
 export const WidgetConfigurationWidget: React.FC<
   WidgetConfigurationWidgetProps
-> = ({ title = "Dashboard Configuration" }) => (
-  <UnavailableGadgetShell
-    title={title}
-    testId="widget-configuration-widget"
-    reason="Use Add / Remove Gadget on the Home Gadgets host. Invented /services/dashboard/config is not a product API; classic dashboard persist remains Shindig-oriented."
-  />
-);
+> = ({ title = "Dashboard Configuration" }) => {
+  const initial = useMemo(() => {
+    const saved = loadPreferredGadgetIds();
+    if (saved && saved.length > 0) return new Set(saved);
+    // Sensible default if nothing saved yet
+    return new Set(
+      GADGET_CATALOG.filter((g) =>
+        [
+          "welcome",
+          "blogs",
+          "workflow",
+          "activity",
+          "assets-status",
+          "process-monitor",
+          "google-setup",
+          "traffic",
+          "effectiveness",
+        ].includes(g.id),
+      ).map((g) => g.id),
+    );
+  }, []);
+
+  const [selected, setSelected] = useState<Set<string>>(initial);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const toggle = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const apply = () => {
+    const ids = GADGET_CATALOG.map((g) => g.id).filter((id) => selected.has(id));
+    if (ids.length === 0) {
+      setMessage("Select at least one gadget.");
+      return;
+    }
+    savePreferredGadgetIds(ids);
+    setMessage("Layout applied for this browser session. Refresh if tiles did not update.");
+  };
+
+  const byCategory = useMemo(() => {
+    const map = new Map<string, typeof GADGET_CATALOG>();
+    for (const g of GADGET_CATALOG) {
+      const list = map.get(g.category) || [];
+      list.push(g);
+      map.set(g.category, list);
+    }
+    return map;
+  }, []);
+
+  return (
+    <div style={styles.widget} data-testid="widget-configuration-widget">
+      <div style={styles.widgetTitle}>{title}</div>
+      <div style={styles.widgetContent}>
+        <p style={{ fontSize: "0.85em", color: "#666", marginTop: 0 }}>
+          Choose which gadgets appear on Home for this session. You can also use
+          Add Gadget on the dashboard toolbar.
+        </p>
+        {message ? (
+          <p
+            data-testid="widget-configuration-message"
+            style={{ fontSize: "0.85em", color: "#2e7d32" }}
+          >
+            {message}
+          </p>
+        ) : null}
+        <div
+          style={{ maxHeight: 320, overflowY: "auto" }}
+          data-testid="widget-configuration-list"
+        >
+          {[...byCategory.entries()].map(([cat, items]) => (
+            <div key={cat} style={{ marginBottom: 12 }}>
+              <div style={{ fontWeight: 600, fontSize: "0.85em", marginBottom: 6 }}>
+                {cat}
+              </div>
+              {items.map((g) => (
+                <label
+                  key={g.id}
+                  style={{
+                    display: "flex",
+                    gap: 8,
+                    alignItems: "flex-start",
+                    fontSize: "0.85em",
+                    marginBottom: 6,
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selected.has(g.id)}
+                    onChange={() => toggle(g.id)}
+                    data-testid={`widget-config-cb-${g.id}`}
+                  />
+                  <span>
+                    <strong>{g.name}</strong>
+                    <div style={{ color: "#666", fontSize: "0.9em" }}>
+                      {g.description}
+                    </div>
+                  </span>
+                </label>
+              ))}
+            </div>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={apply}
+          data-testid="widget-configuration-apply"
+          style={{ padding: "8px 14px", marginTop: 8 }}
+        >
+          Apply layout
+        </button>
+      </div>
+    </div>
+  );
+};
 
 export default WidgetConfigurationWidget;

@@ -13,12 +13,17 @@ vi.mock("@/api/dashboard/deliveryGadgetsApi", async (importOriginal) => {
   return { ...actual, fetchSiteimproveStatus: vi.fn() };
 });
 
+vi.mock("@/api/client", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/api/client")>();
+  return { ...actual, put: vi.fn() };
+});
+
 describe("SiteimproveWidget", () => {
   beforeEach(() => {
     vi.mocked(api.fetchSiteimproveStatus).mockReset();
   });
 
-  it("shows token status", async () => {
+  it("shows token status and save form", async () => {
     vi.mocked(api.fetchSiteimproveStatus).mockResolvedValue({
       hasToken: true,
       tokenPreview: "abc…",
@@ -30,5 +35,7 @@ describe("SiteimproveWidget", () => {
       expect(screen.getByTestId("siteimprove-status")).toBeDefined();
     });
     expect(screen.getByText(/Configured/i)).toBeDefined();
+    expect(screen.getByTestId("siteimprove-token")).toBeDefined();
+    expect(screen.getByTestId("siteimprove-save")).toBeDefined();
   });
 });
