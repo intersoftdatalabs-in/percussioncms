@@ -25,6 +25,7 @@ import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.design.objectstore.PSConfig;
 import com.percussion.design.objectstore.PSRole;
 import com.percussion.i18n.PSLocale;
+import com.percussion.i18n.PSLocaleFormat;
 import com.percussion.server.PSPersistentPropertyMeta;
 import com.percussion.server.PSPersistentProperty;
 import com.percussion.server.PSUserSession;
@@ -181,6 +182,29 @@ public interface IPSCmsObjectMgr extends IPSCmsContentSummaries {
      * @return Stream of all locales, never null
      */
     Stream<PSLocale> findAllLocales();
+
+    /**
+     * Finds a locale format profile by BCP-47 language string.
+     *
+     * @param lang language string, never null or empty
+     * @return Optional containing the format row if present
+     */
+    Optional<PSLocaleFormat> findLocaleFormatByLanguageString(String lang);
+
+    /**
+     * Finds all locale format profiles.
+     *
+     * @return Stream of all format rows, never null
+     */
+    Stream<PSLocaleFormat> findAllLocaleFormats();
+
+    /**
+     * Saves or updates a locale format profile.
+     *
+     * @param format never null
+     * @throws PSORMException if persistence fails
+     */
+    void saveLocaleFormat(PSLocaleFormat format) throws PSORMException;
 
     /**
      * Saves or updates a locale object with enhanced error handling.

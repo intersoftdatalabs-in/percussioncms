@@ -46,6 +46,26 @@ describe("LoginPage", () => {
     __resetTmxLoaderCache();
   });
 
+  it("applies text direction from localeFormat bootstrap", () => {
+    render(
+      <LoginPage
+        bootstrap={{
+          ...baseBootstrap,
+          selectedLocale: "ar",
+          localeFormat: {
+            languageString: "ar",
+            textDir: "rtl",
+            datePattern: "dd/MM/yyyy",
+          },
+        }}
+      />,
+    );
+    expect(document.documentElement.dir).toBe("rtl");
+    expect(screen.getByTestId("perc-login-page").getAttribute("data-text-dir")).toBe(
+      "rtl",
+    );
+  });
+
   it("renders front-door form fields and posts to /login", () => {
     render(<LoginPage bootstrap={baseBootstrap} />);
 

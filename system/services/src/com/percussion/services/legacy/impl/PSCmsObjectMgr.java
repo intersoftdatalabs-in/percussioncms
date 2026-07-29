@@ -44,6 +44,7 @@ import java.util.stream.Stream;
 import com.percussion.error.PSException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.i18n.PSLocale;
+import com.percussion.i18n.PSLocaleFormat;
 import com.percussion.search.PSSearchIndexEventQueue;
 import com.percussion.server.IPSHandlerInitListener;
 import com.percussion.server.IPSRequestHandler;
@@ -187,11 +188,11 @@ public class PSCmsObjectMgr
    public PSCmsObjectMgr()
    {
       String[] tables =
-      {"CONTENTSTATUS", "RXLOCALE"};
+      {"CONTENTSTATUS", "RXLOCALE", "RXLOCALEFORMAT"};
       String[] pks =
-      {"CONTENTID", "LOCALEID"};
+      {"CONTENTID", "LOCALEID", "LANGUAGESTRING"};
       Class clazz[] =
-      {PSComponentSummary.class, PSLocale.class};
+      {PSComponentSummary.class, PSLocale.class, PSLocaleFormat.class};
 
       PSServer.addInitListener(new PSHibernateEvictionTableUpdateHandler(tables, pks, clazz));
    }
@@ -667,6 +668,50 @@ public class PSCmsObjectMgr
    public void deleteLocale(PSLocale locale)
    {
       getSession().remove(locale);
+   }
+
+   @Override
+   public Optional<PSLocaleFormat> findLocaleFormatByLanguageString(String lang)
+   {
+      if (lang == null || lang.trim().isEmpty())
+      {
+         throw new IllegalArgumentException("lang may not be null or empty");
+      }
+      String normalized = lang.trim().toLowerCase().replace('_', '-');
+      Query<PSLocaleFormat> q =
+            getSession()
+                  .createQuery(
+                        "from PSLocaleFormat where m_languageString = :lang",
+                        PSLocaleFormat.class)
+                  .setParameter("lang", normalized);
+      List<PSLocaleFormat> rows = q.list();
+      if (rows != null && !rows.isEmpty())
+      {
+         return Optional.of(rows.get(0));
+      }
+      return Optional.empty();
+   }
+
+   @Override
+   public Stream<PSLocaleFormat> findAllLocaleFormats()
+   {
+      Query<PSLocaleFormat> q =
+            getSession()
+                  .createQuery(
+                        "from PSLocaleFormat order by m_languageString asc",
+                        PSLocaleFormat.class);
+      List<PSLocaleFormat> rows = q.list();
+      return rows == null ? Stream.empty() : rows.stream();
+   }
+
+   @Override
+   public void saveLocaleFormat(PSLocaleFormat format)
+   {
+      if (format == null)
+      {
+         throw new IllegalArgumentException("format may not be null");
+      }
+      getSession().merge(format);
    }
 
 

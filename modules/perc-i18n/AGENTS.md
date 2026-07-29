@@ -23,6 +23,21 @@ All TMX files are centralized in `src/main/resources/i18n/`:
 - ~~Per-locale sibling `en_US.tmx`, `de_DE.tmx`, `hi_IN.tmx`, etc.~~ (forbidden; inline only)
 - ~~`backup/*.tmx` snapshots~~ (forbidden; inline only)
 
+### 1b. Locale format profiles (`RXLOCALEFORMAT`)
+
+Format metadata (text direction, date/time patterns, currency, separators,
+measurement, default TZ) lives in **`RXLOCALEFORMAT`**, keyed by
+**`LANGUAGESTRING`** (BCP-47 code) — not `LOCALEID` — so customer-added
+locales stay stable across installs.
+
+- Schema: `modules/perc-distribution-tree/.../cmsTableDef.xml`
+- Seed: `cmsTableData.xml` table `RXLOCALEFORMAT`
+- Entity / resolver: `system` module — `PSLocaleFormat`,
+  `PSLocaleFormatResolver`, `PSLocaleFormatDefaults`, `PSLocaleFormatCatalog`
+- Lookup chain: exact → language-only → `en-us`, merging non-null fields
+- Missing row for a customer locale is fine (inherits)
+- Login bootstrap exposes `localeFormat` + `<html dir="…">` for UI work
+
 ### 1a. Canonical TMX Layout Rules
 
 - **Inline `<tuv>` is the only supported TMX layout.** Every translation for a

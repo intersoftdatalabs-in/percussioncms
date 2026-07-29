@@ -95,7 +95,39 @@ export function readLoginBootstrap(): LoginBootstrap {
       typeof raw?.formAction === "string" && raw.formAction
         ? raw.formAction
         : "login",
+    localeFormat: parseLocaleFormat(raw?.localeFormat),
   };
+}
+
+function parseLocaleFormat(raw: unknown): LoginBootstrap["localeFormat"] {
+  if (!raw || typeof raw !== "object") {
+    return null;
+  }
+  const o = raw as Record<string, unknown>;
+  const languageString =
+    typeof o.languageString === "string" ? o.languageString : "";
+  if (!languageString) {
+    return null;
+  }
+  const out: NonNullable<LoginBootstrap["localeFormat"]> = { languageString };
+  const str = (k: string): string | undefined =>
+    typeof o[k] === "string" ? (o[k] as string) : undefined;
+  const num = (k: string): number | undefined =>
+    typeof o[k] === "number" ? (o[k] as number) : undefined;
+  out.textDir = str("textDir");
+  out.datePattern = str("datePattern");
+  out.timePattern = str("timePattern");
+  out.dateTimePattern = str("dateTimePattern");
+  out.decimalSep = str("decimalSep");
+  out.groupingSep = str("groupingSep");
+  out.currencyCode = str("currencyCode");
+  out.currencyPattern = str("currencyPattern");
+  out.firstDayOfWeek = num("firstDayOfWeek");
+  out.measurementSystem = str("measurementSystem");
+  out.defaultTz = str("defaultTz");
+  out.numberingSystem = str("numberingSystem");
+  out.calendar = str("calendar");
+  return out;
 }
 
 /**

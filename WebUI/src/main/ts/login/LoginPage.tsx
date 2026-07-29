@@ -22,10 +22,35 @@ import { useTheme } from "../ui-themes/ThemeProvider";
 import { LOGIN_KEYS, t } from "./i18n";
 import { localeLabel } from "./localeLabels";
 import { ensureTmxLoaded } from "./tmxLoader";
-import type { LoginBootstrap } from "./types";
+import type { LocaleFormatBootstrap, LoginBootstrap } from "./types";
 import styles from "./LoginPage.module.css";
 
 const SELECT_UI_STORAGE_KEY = "perc-login-select-ui-checked";
+
+/** Well-known RTL primary language subtags (bootstrap may refine for selected locale). */
+const RTL_PRIMARY = new Set(["ar", "he", "fa", "ur"]);
+
+function textDirForLocale(
+  code: string,
+  bootstrapFormat?: LocaleFormatBootstrap | null,
+): string {
+  if (
+    bootstrapFormat?.languageString === code &&
+    bootstrapFormat.textDir
+  ) {
+    return bootstrapFormat.textDir;
+  }
+  const primary = code.split("-")[0]?.toLowerCase() ?? "";
+  return RTL_PRIMARY.has(primary) ? "rtl" : "ltr";
+}
+
+function applyDocumentLocale(
+  code: string,
+  bootstrapFormat?: LocaleFormatBootstrap | null,
+): void {
+  document.documentElement.lang = code;
+  document.documentElement.dir = textDirForLocale(code, bootstrapFormat);
+}
 
 export interface LoginPageProps {
   bootstrap: LoginBootstrap;
@@ -67,6 +92,7 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
 
   const onLocaleChange = (next: string): void => {
     setLocale(next);
+    applyDocumentLocale(next, bootstrap.localeFormat);
     ensureTmxLoaded(next)
       .then(() => {
         document.documentElement.lang = next;
@@ -78,6 +104,11 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
       });
   };
 
+  // Apply server-resolved format (dir, lang) on mount and when locale changes.
+  useEffect(() => {
+    applyDocumentLocale(locale, bootstrap.localeFormat);
+  }, [locale, bootstrap.localeFormat]);
+
   // Keep the browser tab title in sync with the selected locale chrome.
   useEffect(() => {
     document.title = `${t(LOGIN_KEYS.TITLE)} — Percussion CMS`;
@@ -88,6 +119,11 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
       className={styles.page}
       data-testid="perc-login-page"
       data-tmx-ready={tmxReady}
+      data-text-dir={
+        bootstrap.localeFormat?.languageString === locale
+          ? bootstrap.localeFormat?.textDir ?? "ltr"
+          : textDirForLocale(locale)
+      }
     >
       <BrandBar />
       <main className={styles.main}>
