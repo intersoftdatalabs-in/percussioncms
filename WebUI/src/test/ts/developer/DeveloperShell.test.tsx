@@ -129,6 +129,19 @@ vi.mock("../../../main/ts/api/developer/aclApi", async () => {
     ...actual,
     getAclForObject: vi.fn().mockResolvedValue(defaultAclPayload),
     saveObjectAcl: vi.fn().mockResolvedValue(undefined),
+    createObjectAcl: vi.fn().mockImplementation(async (_guid, owner) => ({
+      id: 99,
+      name: "new-object-acl",
+      guid: { stringValue: "0-4-99", uuid: 99 },
+      aclEntries: [
+        {
+          id: 100,
+          name: owner.name,
+          type: { type: owner.type, name: owner.name },
+          permissions: [{ permission: "OWNER" }],
+        },
+      ],
+    })),
   };
 });
 
@@ -762,6 +775,132 @@ describe("DeveloperShell", () => {
       const err = screen.getByTestId("developer-ct-acl-error").textContent || "";
       expect(err).toMatch(/could not reload/i);
       expect(err).not.toMatch(/^Could not save object ACL/);
+    });
+  });
+
+  it("adds and removes ACL entries then saves full entry list", async () => {
+    const { saveObjectAcl, getAclForObject } = await import(
+      "../../../main/ts/api/developer/aclApi"
+    );
+    (saveObjectAcl as ReturnType<typeof vi.fn>).mockClear();
+    (getAclForObject as ReturnType<typeof vi.fn>).mockResolvedValue(defaultAclPayload);
+
+    render(<DeveloperShell embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-row"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-acl-table")).toBeTruthy();
+    });
+
+    // Remove Admin entry (id 11)
+    fireEvent.click(screen.getByTestId("developer-ct-acl-remove-id:11"));
+    expect(screen.queryByTestId("developer-ct-acl-row-id:11")).toBeNull();
+
+    // Add Editor role
+    fireEvent.change(screen.getByTestId("developer-ct-acl-add-name"), {
+      target: { value: "Editor" },
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-acl-add-type"), {
+      target: { value: "ROLE" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-acl-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-acl-row-__new:1")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByTestId("developer-ct-acl-save"));
+    await waitFor(() => {
+      expect(saveObjectAcl).toHaveBeenCalled();
+    });
+    const payload = (saveObjectAcl as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[0];
+    const names = payload.aclEntries.map(
+      (e: { name?: string; principal?: { name?: string } }) =>
+        e.name || e.principal?.name,
+    );
+    expect(names).toEqual(expect.arrayContaining(["Default", "Editor"]));
+    expect(names).not.toEqual(expect.arrayContaining(["Admin"]));
+    const editor = payload.aclEntries.find(
+      (e: { name?: string }) => e.name === "Editor",
+    );
+    expect(editor.type.type).toBe("ROLE");
+    expect(editor.permissions.map((p: { permission: string }) => p.permission)).toEqual(
+      expect.arrayContaining(["READ"]),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-acl-notice").textContent).toMatch(/saved/i);
+    });
+  });
+
+  it("rejects duplicate ACL entry name+type without adding a row", async () => {
+    const { getAclForObject } = await import("../../../main/ts/api/developer/aclApi");
+    (getAclForObject as ReturnType<typeof vi.fn>).mockResolvedValue(defaultAclPayload);
+
+    render(<DeveloperShell embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-row"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-acl-table")).toBeTruthy();
+    });
+
+    fireEvent.change(screen.getByTestId("developer-ct-acl-add-name"), {
+      target: { value: "Default" },
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-acl-add-type"), {
+      target: { value: "ROLE" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-acl-add"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-acl-error").textContent).toMatch(
+        /already exists/i,
+      );
+    });
+    expect(screen.queryByTestId("developer-ct-acl-row-__new:1")).toBeNull();
+  });
+
+  it("creates an ACL when object has none (404)", async () => {
+    const { getAclForObject, createObjectAcl } = await import(
+      "../../../main/ts/api/developer/aclApi"
+    );
+    (getAclForObject as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
+      Object.assign(new Error("not found"), { status: 404 }),
+    );
+    (createObjectAcl as ReturnType<typeof vi.fn>).mockClear();
+
+    render(<DeveloperShell embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-row"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-acl-empty")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ct-acl-create-form")).toBeTruthy();
+
+    fireEvent.change(screen.getByTestId("developer-ct-acl-owner-name"), {
+      target: { value: "admin" },
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-acl-owner-type"), {
+      target: { value: "USER" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-acl-create"));
+
+    await waitFor(() => {
+      expect(createObjectAcl).toHaveBeenCalledWith(
+        "0-2-301",
+        expect.objectContaining({ name: "admin", type: "USER" }),
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-acl-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ct-acl-row-id:100")).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-acl-notice").textContent).toMatch(/saved/i);
     });
   });
 });
