@@ -192,7 +192,7 @@ describe("DeveloperShell", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-tpl-table")).toBeTruthy();
     });
-    fireEvent.click(screen.getByTestId("developer-tpl-row"));
+    fireEvent.click(screen.getByRole("button", { name: /Open Page/i }));
     await waitFor(() => {
       expect(screen.getByTestId("developer-tpl-detail")).toBeTruthy();
     });

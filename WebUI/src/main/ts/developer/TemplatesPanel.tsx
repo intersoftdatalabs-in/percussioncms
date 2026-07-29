@@ -15,26 +15,20 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from "react";
-import { isSessionRedirectError, type ApiError } from "../api/client";
+import React, { useEffect, useMemo, useState } from "react";
 import { listTemplates } from "../api/developer/assemblyApi";
 import type { TemplateSummary } from "../api/developer/types";
-import { CatalogHint, CatalogStatus } from "./CatalogTable";
+import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { monoCell, mutedCell } from "./catalogStyles";
+import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { TemplateDetailPanel } from "./TemplateDetailPanel";
 
-function errMsg(err: unknown, fallback: string): string {
-  if (isSessionRedirectError(err)) return DEV_MSG.SESSION_REDIRECT;
-  const api = err as ApiError;
-  if (api && typeof api.status === "number") return `${fallback} (${api.status})`;
-  if (err instanceof Error && err.message) return `${fallback} ${err.message}`;
-  return fallback;
-}
-
-function selectionKey(t: TemplateSummary): string {
+/** Open-key for detail route; null when the row is not selectable. */
+function selectionKey(t: TemplateSummary): string | null {
   if (t.templateName) return t.templateName;
   if (t.templateId != null) return String(t.templateId);
-  return "—";
+  return null;
 }
 
 const openButtonStyle: React.CSSProperties = {
@@ -61,13 +55,24 @@ export function TemplatesPanel(): React.ReactElement {
       })
       .catch((e: unknown) => {
         if (cancelled) return;
-        setError(errMsg(e, DEV_MSG.TPL_ERROR));
+        setError(panelErrMsg(e, DEV_MSG.TPL_ERROR));
         setItems([]);
       });
     return () => {
       cancelled = true;
     };
   }, []);
+
+  const sorted = useMemo(() => {
+    if (!items) return [];
+    return [...items].sort((a, b) =>
+      (a.templateLabel || a.templateName || "").localeCompare(
+        b.templateLabel || b.templateName || "",
+        undefined,
+        { sensitivity: "base" },
+      ),
+    );
+  }, [items]);
 
   if (selected) {
     return (
@@ -81,83 +86,49 @@ export function TemplatesPanel(): React.ReactElement {
   if (items.length === 0)
     return <CatalogStatus testId="developer-tpl-empty">{DEV_MSG.TPL_EMPTY}</CatalogStatus>;
 
-  const sorted = [...items].sort((a, b) =>
-    (a.templateLabel || a.templateName || "").localeCompare(
-      b.templateLabel || b.templateName || "",
-      undefined,
-      { sensitivity: "base" },
-    ),
-  );
-
   return (
     <div data-testid="developer-tpl-panel">
       <CatalogHint>{DEV_MSG.TPL_HINT}</CatalogHint>
-      <div style={{ overflowX: "auto" }}>
-        <table
-          data-testid="developer-tpl-table"
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            fontSize: "0.95rem",
-          }}
-        >
-          <thead>
-            <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
-              <th style={{ padding: "8px" }}>{DEV_MSG.TPL_COL_LABEL}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.TPL_COL_NAME}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.TPL_COL_ID}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.TPL_COL_DESCRIPTION}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.map((t, index) => {
-              const openKey = selectionKey(t);
-              const interactive = openKey !== "—";
-              const key = String(t.templateId ?? t.templateName ?? `tpl-${index}`);
-              return (
-                <tr
-                  key={key}
-                  data-testid="developer-tpl-row"
-                  style={{
-                    borderBottom: "1px solid #edf2f7",
-                    cursor: interactive ? "pointer" : "default",
-                  }}
-                  onClick={() => {
-                    if (interactive) setSelected(openKey);
-                  }}
+      <SimpleCatalogTable
+        tableTestId="developer-tpl-table"
+        rowTestId="developer-tpl-row"
+        columns={[
+          DEV_MSG.TPL_COL_LABEL,
+          DEV_MSG.TPL_COL_NAME,
+          DEV_MSG.TPL_COL_ID,
+          DEV_MSG.TPL_COL_DESCRIPTION,
+        ]}
+        rows={sorted.map((t, index) => {
+          const openKey = selectionKey(t);
+          return {
+            key: String(t.templateId ?? t.templateName ?? `tpl-${index}`),
+            cells: [
+              openKey ? (
+                <button
+                  key="open"
+                  type="button"
+                  style={openButtonStyle}
+                  aria-label={`Open ${t.templateLabel || t.templateName || openKey}`}
+                  onClick={() => setSelected(openKey)}
                 >
-                  <td style={{ padding: "8px" }}>
-                    {interactive ? (
-                      <button
-                        type="button"
-                        style={openButtonStyle}
-                        aria-label={`Open ${t.templateLabel || t.templateName || openKey}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelected(openKey);
-                        }}
-                      >
-                        {t.templateLabel || "—"}
-                      </button>
-                    ) : (
-                      t.templateLabel || "—"
-                    )}
-                  </td>
-                  <td style={{ padding: "8px", fontFamily: "monospace" }}>
-                    {t.templateName || "—"}
-                  </td>
-                  <td style={{ padding: "8px", fontFamily: "monospace" }}>
-                    {t.templateId != null ? String(t.templateId) : "—"}
-                  </td>
-                  <td style={{ padding: "8px", color: "#4a5568" }}>
-                    {t.templateDescription || ""}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                  {t.templateLabel || "—"}
+                </button>
+              ) : (
+                t.templateLabel || "—"
+              ),
+              <span key="n" style={monoCell}>
+                {t.templateName || "—"}
+              </span>,
+              <span key="i" style={monoCell}>
+                {t.templateId != null ? String(t.templateId) : "—"}
+              </span>,
+              <span key="d" style={mutedCell}>
+                {t.templateDescription || ""}
+              </span>,
+            ],
+          };
+        })}
+      />
     </div>
   );
 }

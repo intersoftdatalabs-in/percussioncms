@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,11 +57,27 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
 
   private static final Logger log = LogManager.getLogger(TemplateAdaptor.class);
 
-  private final IPSAssemblyService asmSvc = PSAssemblyServiceLocator.getAssemblyService();
-  private final IPSContentWs contentwsService = PSContentWsLocator.getContentWebservice();
+  /** API capability notes shared by every detail payload (not per-template data). */
+  static final List<String> TEMPLATE_DESIGN_GAPS =
+      List.of(
+          "Create / update / delete / lock not supported (read-only)",
+          "Template source editing not supported via this API",
+          "Binding/slot association edits not supported",
+          "Content-type associations not listed on this payload");
+
+  private final IPSAssemblyService asmSvc;
+  private final IPSContentWs contentwsService;
 
   public TemplateAdaptor() {
-    // No-op constructor for dependency injection.
+    this(
+        PSAssemblyServiceLocator.getAssemblyService(),
+        PSContentWsLocator.getContentWebservice());
+  }
+
+  /** Package-visible for unit tests that inject a fake assembly service. */
+  TemplateAdaptor(IPSAssemblyService asmSvc, IPSContentWs contentwsService) {
+    this.asmSvc = asmSvc;
+    this.contentwsService = contentwsService;
   }
 
   @Override
@@ -90,6 +106,10 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
       return toDetail(t);
     } catch (PSNotFoundException e) {
       return null;
+    } catch (IllegalArgumentException e) {
+      // Bad id form — surface as 400 via resource mapping if desired; treat as not found for now
+      log.debug("Invalid template idOrName {}: {}", idOrName, e.getMessage());
+      return null;
     } catch (Exception e) {
       log.error(
           "Failed to load template {} ({}): {}",
@@ -97,26 +117,36 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
           e.getClass().getName(),
           e.getMessage(),
           e);
-      throw new RuntimeException(
-          "Failed to load template (" + e.getClass().getName() + "): " + e.getMessage(), e);
+      throw new WebApplicationException(e, 500);
     }
   }
 
+  /**
+   * Resolve by: pure numeric uuid → typed GUID string (digits and dashes only) → name. Names that
+   * contain dashes but are not pure GUID digit/dash forms fall through to name lookup.
+   */
   private IPSAssemblyTemplate resolveTemplate(String idOrName) throws Exception {
     if (StringUtils.isNumeric(idOrName)) {
       long uuid = Long.parseLong(idOrName);
       IPSGuid g = new PSGuid(PSTypeEnum.TEMPLATE, uuid);
-      return asmSvc.loadTemplate(g, true);
+      try {
+        return asmSvc.loadTemplate(g, true);
+      } catch (PSNotFoundException e) {
+        return null;
+      }
     }
-    if (idOrName.contains("-")) {
+    // GUID-shaped only (e.g. 0-10-347), not arbitrary names with dashes
+    if (idOrName.matches("\\d+-\\d+(-\\d+)?")) {
       try {
         PSGuid g = new PSGuid(idOrName);
         if (g.getType() == 0) {
           g = new PSGuid(PSTypeEnum.TEMPLATE, g.getUUID());
         }
         return asmSvc.loadTemplate(g, true);
-      } catch (Exception ignore) {
-        // fall through to name
+      } catch (PSNotFoundException e) {
+        return null;
+      } catch (IllegalArgumentException e) {
+        log.debug("Not a template GUID, trying name: {}", idOrName);
       }
     }
     try {
@@ -188,7 +218,7 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
             s.setGuid(ApiUtils.convertGuid(slot.getGUID()));
           }
         } catch (Exception e) {
-          log.debug("Could not convert slot GUID for {}: {}", slot.getName(), e.getMessage());
+          log.warn("Could not convert slot GUID for {}: {}", slot.getName(), e.getMessage(), e);
         }
         s.setName(slot.getName());
         s.setLabel(StringUtils.defaultIfBlank(slot.getLabel(), slot.getName()));
@@ -197,16 +227,11 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
       }
       slots.sort(
           Comparator.comparing(
-              x -> x.getLabel() != null ? x.getLabel() : "", String.CASE_INSENSITIVE_ORDER));
+              TemplateSlotSummary::getLabel,
+              Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
     }
     d.setSlots(slots);
-
-    List<String> gaps = new ArrayList<>();
-    gaps.add("Create / update / delete / lock not supported (read-only)");
-    gaps.add("Template source editing not supported via this API");
-    gaps.add("Binding/slot association edits not supported");
-    gaps.add("Content-type associations not listed on this payload");
-    d.setDesignGaps(gaps);
+    d.setDesignGaps(new ArrayList<>(TEMPLATE_DESIGN_GAPS));
     return d;
   }
 
@@ -240,7 +265,7 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
         throw new PSNotFoundException("Content Id: " + contentID + " not found.");
       }
     } catch (PSAssemblyException | PSErrorResultsException e) {
-      throw new WebApplicationException(e.getMessage(), 500);
+      throw new WebApplicationException(e, 500);
     } catch (PSNotFoundException e) {
       throw new WebApplicationException("Not Found", 404);
     }

@@ -18,6 +18,7 @@
 import React, { useEffect, useState } from "react";
 import { getTemplateDetail } from "../api/developer/assemblyApi";
 import type { TemplateDetail } from "../api/developer/types";
+import { monoCell, mutedCell } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -29,6 +30,25 @@ const metaGrid: React.CSSProperties = {
   fontSize: "0.9rem",
 };
 
+const expressionCell: React.CSSProperties = {
+  padding: "8px",
+  fontFamily: "monospace",
+  whiteSpace: "pre-wrap",
+  wordBreak: "break-word",
+  maxWidth: 320,
+  overflowWrap: "anywhere",
+};
+
+const sourcePre: React.CSSProperties = {
+  background: "#f7fafc",
+  border: "1px solid #e2e8f0",
+  borderRadius: "4px",
+  padding: "12px",
+  overflow: "auto",
+  maxHeight: "320px",
+  fontSize: "0.85rem",
+};
+
 export function TemplateDetailPanel({
   idOrName,
   onBack,
@@ -38,18 +58,23 @@ export function TemplateDetailPanel({
 }): React.ReactElement {
   const [detail, setDetail] = useState<TemplateDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
-    setDetail(null);
+    setLoading(true);
     setError(null);
     getTemplateDetail(idOrName)
       .then((d) => {
-        if (!cancelled) setDetail(d);
+        if (cancelled) return;
+        setDetail(d);
+        setLoading(false);
       })
       .catch((err: unknown) => {
         if (cancelled) return;
+        // Keep prior detail visible when a subsequent load fails
         setError(panelErrMsg(err, DEV_MSG.TPL_DETAIL_ERROR));
+        setLoading(false);
       });
     return () => {
       cancelled = true;
@@ -62,6 +87,7 @@ export function TemplateDetailPanel({
         type="button"
         onClick={onBack}
         data-testid="developer-tpl-back"
+        aria-label="Back to templates list"
         style={{
           marginBottom: "12px",
           background: "transparent",
@@ -84,7 +110,7 @@ export function TemplateDetailPanel({
         </div>
       ) : null}
 
-      {!error && detail == null ? (
+      {loading && detail == null ? (
         <div data-testid="developer-tpl-detail-loading">
           {DEV_MSG.TPL_DETAIL_LOADING}
         </div>
@@ -96,19 +122,19 @@ export function TemplateDetailPanel({
             <h2 style={{ margin: "0 0 4px" }} data-testid="developer-tpl-detail-title">
               {detail.label || detail.name || idOrName}
             </h2>
-            <div style={{ fontFamily: "monospace", color: "#4a5568" }}>
-              {detail.name}
-              {detail.templateId != null ? ` · ${detail.templateId}` : ""}
-              {detail.guid?.stringValue ? ` · ${detail.guid.stringValue}` : ""}
+            <div style={mutedCell}>
+              <span style={monoCell}>
+                {detail.name}
+                {detail.templateId != null ? ` · ${detail.templateId}` : ""}
+                {detail.guid?.stringValue ? ` · ${detail.guid.stringValue}` : ""}
+              </span>
             </div>
             {detail.description ? (
               <p style={{ marginTop: "8px", color: "#2d3748" }}>{detail.description}</p>
             ) : null}
             <dl style={metaGrid}>
               <dt>{DEV_MSG.TPL_META_ASSEMBLER}</dt>
-              <dd style={{ margin: 0, fontFamily: "monospace" }}>
-                {detail.assembler || "—"}
-              </dd>
+              <dd style={{ margin: 0, ...monoCell }}>{detail.assembler || "—"}</dd>
               <dt>{DEV_MSG.TPL_META_OUTPUT}</dt>
               <dd style={{ margin: 0 }}>{detail.outputFormat || "—"}</dd>
               <dt>{DEV_MSG.TPL_META_TYPE}</dt>
@@ -116,9 +142,7 @@ export function TemplateDetailPanel({
               <dt>{DEV_MSG.TPL_META_AA}</dt>
               <dd style={{ margin: 0 }}>{detail.aaType || "—"}</dd>
               <dt>{DEV_MSG.TPL_META_MIME}</dt>
-              <dd style={{ margin: 0, fontFamily: "monospace" }}>
-                {detail.mimeType || "—"}
-              </dd>
+              <dd style={{ margin: 0, ...monoCell }}>{detail.mimeType || "—"}</dd>
               <dt>{DEV_MSG.TPL_META_VARIANT}</dt>
               <dd style={{ margin: 0 }}>
                 {detail.variant ? DEV_MSG.YES : DEV_MSG.NO}
@@ -153,21 +177,14 @@ export function TemplateDetailPanel({
                         style={{ borderBottom: "1px solid #edf2f7" }}
                       >
                         <td style={{ padding: "8px" }}>
-                          {b.executionOrder != null ? b.executionOrder : "—"}
+                          {b.executionOrder != null
+                            ? Number(b.executionOrder)
+                            : "—"}
                         </td>
-                        <td style={{ padding: "8px", fontFamily: "monospace" }}>
+                        <td style={{ padding: "8px", ...monoCell }}>
                           {b.variable || "—"}
                         </td>
-                        <td
-                          style={{
-                            padding: "8px",
-                            fontFamily: "monospace",
-                            whiteSpace: "pre-wrap",
-                            wordBreak: "break-word",
-                          }}
-                        >
-                          {b.expression || ""}
-                        </td>
+                        <td style={expressionCell}>{b.expression || ""}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -188,7 +205,7 @@ export function TemplateDetailPanel({
                     {s.name ? (
                       <span
                         style={{
-                          fontFamily: "monospace",
+                          ...monoCell,
                           color: "#718096",
                           marginLeft: "8px",
                           fontSize: "0.85rem",
@@ -206,17 +223,7 @@ export function TemplateDetailPanel({
           {detail.templateSource ? (
             <section style={{ marginBottom: "16px" }} data-testid="developer-tpl-source">
               <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.TPL_SOURCE}</h3>
-              <pre
-                style={{
-                  background: "#f7fafc",
-                  border: "1px solid #e2e8f0",
-                  borderRadius: "4px",
-                  padding: "12px",
-                  overflow: "auto",
-                  maxHeight: "320px",
-                  fontSize: "0.85rem",
-                }}
-              >
+              <pre style={sourcePre} lang="xml">
                 {detail.templateSource}
               </pre>
             </section>

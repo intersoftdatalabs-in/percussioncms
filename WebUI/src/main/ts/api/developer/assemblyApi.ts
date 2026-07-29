@@ -48,7 +48,12 @@ export async function listTemplates(): Promise<TemplateSummary[]> {
   ]);
 }
 
-/** GET /services/templates/{idOrName} */
+/**
+ * GET /services/templates/{idOrName}
+ *
+ * <p>Throws {@link ApiError} / {@link SessionRedirectError} on non-2xx (including 404).
+ * Callers should not treat a successful response as nullable.
+ */
 export async function getTemplateDetail(
   idOrName: string,
 ): Promise<TemplateDetail> {
