@@ -27,9 +27,13 @@ import java.util.List;
 /**
  * Content type design summary for the Developer module (read + partial write).
  *
- * <p>Full field rule expressions and control properties remain Workbench / SOAP parity
- * work. Partial update supports label, description, enabled, and field searchable /
- * occurrence under a design-session lock.
+ * <p>Full field rule expressions and control properties remain Workbench / SOAP parity work.
+ * Partial update supports label, description, enabled, field searchable / occurrence, allowed
+ * workflows (+ default), and allowed templates under a design-session lock.
+ *
+ * <p>For {@code PUT}: {@code allowedWorkflows} / {@code allowedTemplates} {@code null} (omitted)
+ * leaves associations unchanged; a non-null list (including empty) is a full replace. Field
+ * patches use a different convention — empty/omitted {@code fields} means no field changes.
  */
 @XmlRootElement(name = "ContentTypeDetail")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -46,9 +50,11 @@ public class ContentTypeDetail {
   private String editorUrl;
   private List<ContentTypeField> fields = new ArrayList<>();
   private List<String> childFieldSets = new ArrayList<>();
-  private List<NamedObjectRef> allowedWorkflows = new ArrayList<>();
+  /** Null on PUT means leave unchanged; non-null is full replace. */
+  private List<NamedObjectRef> allowedWorkflows;
   private NamedObjectRef defaultWorkflow;
-  private List<NamedObjectRef> allowedTemplates = new ArrayList<>();
+  /** Null on PUT means leave unchanged; non-null is full replace. */
+  private List<NamedObjectRef> allowedTemplates;
 
   @Schema(
       description =
@@ -142,7 +148,7 @@ public class ContentTypeDetail {
   }
 
   public void setAllowedWorkflows(List<NamedObjectRef> allowedWorkflows) {
-    this.allowedWorkflows = allowedWorkflows != null ? allowedWorkflows : new ArrayList<>();
+    this.allowedWorkflows = allowedWorkflows;
   }
 
   public NamedObjectRef getDefaultWorkflow() {
@@ -158,7 +164,7 @@ public class ContentTypeDetail {
   }
 
   public void setAllowedTemplates(List<NamedObjectRef> allowedTemplates) {
-    this.allowedTemplates = allowedTemplates != null ? allowedTemplates : new ArrayList<>();
+    this.allowedTemplates = allowedTemplates;
   }
 
   public List<String> getDesignGaps() {

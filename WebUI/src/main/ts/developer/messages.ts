@@ -46,7 +46,7 @@ export const DEV_MSG = {
   CT_COL_DESCRIPTION: "Description",
   CT_COL_ID: "Id",
   CT_HINT:
-    "Select a content type to view fields and edit label, description, enabled, and field search/required flags.",
+    "Select a content type to view fields and edit label, description, enabled, field flags, workflows, and templates.",
   CT_BACK: "Back to list",
   CT_DETAIL_LOADING: "Loading content type…",
   CT_DETAIL_ERROR: "Could not load content type detail.",
@@ -79,8 +79,17 @@ export const DEV_MSG = {
   CT_RULE_IN_XFORM: "in-xform",
   CT_RULE_OUT_XFORM: "out-xform",
   CT_WORKFLOWS: "Allowed workflows",
+  CT_WORKFLOWS_HINT:
+    "Full replace on save when changed. Add by workflow name; set default with the radio.",
   CT_DEFAULT_WF: "Default workflow",
   CT_TEMPLATES: "Allowed templates",
+  CT_TEMPLATES_HINT:
+    "Full replace on save when changed. Add by template name or GUID string.",
+  CT_ASSOC_ADD: "Add",
+  CT_ASSOC_REMOVE: "Remove",
+  CT_WF_NAME_PLACEHOLDER: "Workflow name",
+  CT_TPL_NAME_PLACEHOLDER: "Template name or GUID",
+  CT_SET_DEFAULT: "Default",
   CT_NONE: "None",
   YES: "Yes",
   NO: "No",

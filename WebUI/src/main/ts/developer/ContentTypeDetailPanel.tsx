@@ -19,10 +19,12 @@ import React, { useEffect, useState } from "react";
 import {
   getContentTypeDetail,
   updateContentTypeDetail,
+  type ContentTypeUpdateBody,
 } from "../api/developer/contentTypesApi";
 import type {
   ContentTypeDetail,
   ContentTypeFieldSummary,
+  NamedObjectRef,
 } from "../api/developer/types";
 import { ObjectAclSection } from "./ObjectAclSection";
 import { panelErrMsg } from "./errors";
@@ -35,6 +37,14 @@ const inputStyle: React.CSSProperties = {
   font: "inherit",
   width: "100%",
   boxSizing: "border-box",
+};
+
+const smallBtnStyle: React.CSSProperties = {
+  background: "transparent",
+  border: "1px solid #cbd5e0",
+  borderRadius: "4px",
+  padding: "4px 8px",
+  cursor: "pointer",
 };
 
 type FieldDraft = {
@@ -60,6 +70,45 @@ function toDrafts(fields: ContentTypeFieldSummary[] | undefined): Record<string,
   return out;
 }
 
+function cloneRefs(list: NamedObjectRef[] | undefined): NamedObjectRef[] {
+  return (list || []).map((r) => ({
+    name: r.name,
+    label: r.label,
+    isDefault: r.isDefault,
+    guid: r.guid ? { ...r.guid } : undefined,
+  }));
+}
+
+function refKey(r: NamedObjectRef, index: number): string {
+  if (r.name) return `name:${r.name}`;
+  if (r.guid?.stringValue) return `guid:${r.guid.stringValue}`;
+  if (r.guid?.uuid != null) return `uuid:${r.guid.uuid}`;
+  return `idx:${index}`;
+}
+
+function refsEqual(a: NamedObjectRef[], b: NamedObjectRef[]): boolean {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (refKey(a[i], i) !== refKey(b[i], i)) return false;
+    if (!!a[i].isDefault !== !!b[i].isDefault) return false;
+  }
+  return true;
+}
+
+function toRefPayload(list: NamedObjectRef[]): NamedObjectRef[] {
+  return list.map((r) => {
+    const out: NamedObjectRef = {};
+    if (r.name) out.name = r.name;
+    if (r.guid?.stringValue || r.guid?.uuid != null) {
+      out.guid = {};
+      if (r.guid.stringValue) out.guid.stringValue = r.guid.stringValue;
+      if (r.guid.uuid != null) out.guid.uuid = r.guid.uuid;
+    }
+    if (r.isDefault) out.isDefault = true;
+    return out;
+  });
+}
+
 export function ContentTypeDetailPanel({
   idOrName,
   onBack,
@@ -75,6 +124,10 @@ export function ContentTypeDetailPanel({
   const [description, setDescription] = useState("");
   const [enabled, setEnabled] = useState(true);
   const [fieldDrafts, setFieldDrafts] = useState<Record<string, FieldDraft>>({});
+  const [workflows, setWorkflows] = useState<NamedObjectRef[]>([]);
+  const [templates, setTemplates] = useState<NamedObjectRef[]>([]);
+  const [newWfName, setNewWfName] = useState("");
+  const [newTplName, setNewTplName] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -89,6 +142,21 @@ export function ContentTypeDetailPanel({
         setDescription(d.description || "");
         setEnabled(d.enabled !== false);
         setFieldDrafts(toDrafts(d.fields));
+        const wfs = cloneRefs(d.allowedWorkflows);
+        // Ensure default flag matches defaultWorkflow when server omits isDefault
+        if (d.defaultWorkflow) {
+          const defKey = refKey(d.defaultWorkflow, -1);
+          for (const w of wfs) {
+            w.isDefault = refKey(w, -1) === defKey || w.name === d.defaultWorkflow.name;
+          }
+          if (wfs.length > 0 && !wfs.some((w) => w.isDefault)) {
+            wfs[0].isDefault = true;
+          }
+        }
+        setWorkflows(wfs);
+        setTemplates(cloneRefs(d.allowedTemplates));
+        setNewWfName("");
+        setNewTplName("");
       })
       .catch((err: unknown) => {
         if (cancelled) return;
@@ -110,22 +178,97 @@ export function ContentTypeDetailPanel({
       if (!d || !i) return false;
       return d.searchable !== i.searchable || d.required !== i.required;
     });
+
+  const initialWorkflows = (() => {
+    const wfs = cloneRefs(detail?.allowedWorkflows);
+    if (detail?.defaultWorkflow) {
+      const defKey = refKey(detail.defaultWorkflow, -1);
+      for (const w of wfs) {
+        w.isDefault = refKey(w, -1) === defKey || w.name === detail.defaultWorkflow.name;
+      }
+      if (wfs.length > 0 && !wfs.some((w) => w.isDefault)) {
+        wfs[0].isDefault = true;
+      }
+    }
+    return wfs;
+  })();
+  const initialTemplates = cloneRefs(detail?.allowedTemplates);
+  const workflowsDirty = detail != null && !refsEqual(workflows, initialWorkflows);
+  const templatesDirty = detail != null && !refsEqual(templates, initialTemplates);
+
   const dirty =
     detail != null &&
     (label !== (detail.label || "") ||
       description !== (detail.description || "") ||
       enabled !== (detail.enabled !== false) ||
-      fieldsDirty);
+      fieldsDirty ||
+      workflowsDirty ||
+      templatesDirty);
 
-  function toggleField(
-    key: string,
-    prop: "searchable" | "required",
-  ) {
+  function toggleField(key: string, prop: "searchable" | "required") {
     setFieldDrafts((prev) => {
       const cur = prev[key];
       if (!cur) return prev;
       return { ...prev, [key]: { ...cur, [prop]: !cur[prop] } };
     });
+    setNotice(null);
+  }
+
+  function removeWorkflow(index: number) {
+    setWorkflows((prev) => {
+      const next = prev.filter((_, i) => i !== index);
+      if (next.length > 0 && !next.some((w) => w.isDefault)) {
+        next[0] = { ...next[0], isDefault: true };
+      }
+      return next;
+    });
+    setNotice(null);
+  }
+
+  function addWorkflow() {
+    const name = newWfName.trim();
+    if (!name) return;
+    if (workflows.some((w) => (w.name || "").toLowerCase() === name.toLowerCase())) {
+      setNewWfName("");
+      return;
+    }
+    setWorkflows((prev) => [
+      ...prev,
+      { name, label: name, isDefault: prev.length === 0 },
+    ]);
+    setNewWfName("");
+    setNotice(null);
+  }
+
+  function setDefaultWorkflow(index: number) {
+    setWorkflows((prev) => prev.map((w, i) => ({ ...w, isDefault: i === index })));
+    setNotice(null);
+  }
+
+  function removeTemplate(index: number) {
+    setTemplates((prev) => prev.filter((_, i) => i !== index));
+    setNotice(null);
+  }
+
+  function addTemplate() {
+    const raw = newTplName.trim();
+    if (!raw) return;
+    const looksLikeGuid = /^\d+-\d+(-\d+)?$/.test(raw);
+    const exists = templates.some((t) => {
+      if (looksLikeGuid) return t.guid?.stringValue === raw;
+      return (t.name || "").toLowerCase() === raw.toLowerCase();
+    });
+    if (exists) {
+      setNewTplName("");
+      return;
+    }
+    setTemplates((prev) => [
+      ...prev,
+      looksLikeGuid
+        ? { guid: { stringValue: raw }, name: raw, label: raw }
+        : { name: raw, label: raw },
+    ]);
+    setNewTplName("");
     setNotice(null);
   }
 
@@ -148,17 +291,42 @@ export function ContentTypeDetailPanel({
           searchable: d.searchable,
           required: d.required,
         }));
-      const saved = await updateContentTypeDetail(idOrName, {
+
+      const body: ContentTypeUpdateBody = {
         label,
         description,
         enabled,
         fields: fieldPatches,
-      });
+      };
+      if (workflowsDirty) {
+        body.allowedWorkflows = toRefPayload(workflows);
+        const def = workflows.find((w) => w.isDefault) || workflows[0];
+        if (def) {
+          body.defaultWorkflow = toRefPayload([def])[0];
+        }
+      }
+      if (templatesDirty) {
+        body.allowedTemplates = toRefPayload(templates);
+      }
+
+      const saved = await updateContentTypeDetail(idOrName, body);
       setDetail(saved);
       setLabel(saved.label || "");
       setDescription(saved.description || "");
       setEnabled(saved.enabled !== false);
       setFieldDrafts(toDrafts(saved.fields));
+      const wfs = cloneRefs(saved.allowedWorkflows);
+      if (saved.defaultWorkflow) {
+        const defKey = refKey(saved.defaultWorkflow, -1);
+        for (const w of wfs) {
+          w.isDefault = refKey(w, -1) === defKey || w.name === saved.defaultWorkflow.name;
+        }
+        if (wfs.length > 0 && !wfs.some((w) => w.isDefault)) {
+          wfs[0].isDefault = true;
+        }
+      }
+      setWorkflows(wfs);
+      setTemplates(cloneRefs(saved.allowedTemplates));
       setNotice(DEV_MSG.CT_SAVED);
     } catch (err: unknown) {
       setError(panelErrMsg(err, DEV_MSG.CT_SAVE_ERROR));
@@ -281,71 +449,208 @@ export function ContentTypeDetailPanel({
             </section>
           ) : null}
 
-          <section
-            style={{ marginBottom: "16px" }}
-            data-testid="developer-ct-workflows"
-          >
+          <section style={{ marginBottom: "16px" }} data-testid="developer-ct-workflows">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_WORKFLOWS}</h3>
-            {detail.defaultWorkflow ? (
-              <p style={{ fontSize: "0.9rem", marginTop: 0 }}>
-                <strong>{DEV_MSG.CT_DEFAULT_WF}:</strong>{" "}
-                {detail.defaultWorkflow.label || detail.defaultWorkflow.name}
+            <p style={{ color: "#4a5568", fontSize: "0.9rem" }}>{DEV_MSG.CT_WORKFLOWS_HINT}</p>
+            {workflows.length === 0 ? (
+              <p style={{ color: "#718096" }} data-testid="developer-ct-wf-empty">
+                {DEV_MSG.CT_NONE}
               </p>
-            ) : null}
-            {(detail.allowedWorkflows || []).length === 0 ? (
-              <p style={{ color: "#718096" }}>{DEV_MSG.CT_NONE}</p>
             ) : (
-              <ul>
-                {(detail.allowedWorkflows || []).map((w) => (
-                  <li key={w.name || w.guid?.stringValue || w.label}>
-                    {w.label || w.name}
-                    {w.isDefault ? " (default)" : ""}
-                    {w.name ? (
-                      <span
-                        style={{
-                          fontFamily: "monospace",
-                          color: "#718096",
-                          marginLeft: "8px",
-                          fontSize: "0.85rem",
-                        }}
-                      >
-                        {w.name}
+              <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                {workflows.map((w, i) => (
+                  <li
+                    key={refKey(w, i)}
+                    data-testid={`developer-ct-wf-row-${i}`}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12,
+                      padding: "6px 0",
+                      borderBottom: "1px solid #edf2f7",
+                    }}
+                  >
+                    <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <input
+                        type="radio"
+                        name="ct-default-wf"
+                        data-testid={`developer-ct-wf-default-${i}`}
+                        checked={!!w.isDefault}
+                        disabled={busy}
+                        onChange={() => setDefaultWorkflow(i)}
+                        aria-label={`${DEV_MSG.CT_SET_DEFAULT} ${w.label || w.name}`}
+                      />
+                      <span style={{ fontSize: "0.85rem", color: "#4a5568" }}>
+                        {DEV_MSG.CT_SET_DEFAULT}
                       </span>
-                    ) : null}
+                    </label>
+                    <span>
+                      {w.label || w.name}
+                      {w.name ? (
+                        <span
+                          style={{
+                            fontFamily: "monospace",
+                            color: "#718096",
+                            marginLeft: "8px",
+                            fontSize: "0.85rem",
+                          }}
+                        >
+                          {w.name}
+                        </span>
+                      ) : null}
+                    </span>
+                    <button
+                      type="button"
+                      data-testid={`developer-ct-wf-remove-${i}`}
+                      aria-label={`Remove workflow ${w.name || w.label}`}
+                      disabled={busy}
+                      onClick={() => removeWorkflow(i)}
+                      style={{ ...smallBtnStyle, marginLeft: "auto", cursor: busy ? "not-allowed" : "pointer" }}
+                    >
+                      {DEV_MSG.CT_ASSOC_REMOVE}
+                    </button>
                   </li>
                 ))}
               </ul>
             )}
+            <div
+              style={{
+                marginTop: "12px",
+                display: "grid",
+                gridTemplateColumns: "1fr auto",
+                gap: "8px",
+                alignItems: "end",
+              }}
+            >
+              <div>
+                <label htmlFor="ct-wf-add" style={{ display: "block", marginBottom: 4 }}>
+                  {DEV_MSG.CT_WORKFLOWS}
+                </label>
+                <input
+                  id="ct-wf-add"
+                  data-testid="developer-ct-wf-add-name"
+                  style={inputStyle}
+                  placeholder={DEV_MSG.CT_WF_NAME_PLACEHOLDER}
+                  value={newWfName}
+                  onChange={(e) => setNewWfName(e.target.value)}
+                  disabled={busy}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addWorkflow();
+                    }
+                  }}
+                />
+              </div>
+              <button
+                type="button"
+                data-testid="developer-ct-wf-add"
+                disabled={busy || !newWfName.trim()}
+                onClick={addWorkflow}
+                style={{
+                  ...smallBtnStyle,
+                  padding: "8px 12px",
+                  cursor: busy || !newWfName.trim() ? "not-allowed" : "pointer",
+                }}
+              >
+                {DEV_MSG.CT_ASSOC_ADD}
+              </button>
+            </div>
           </section>
 
-          <section
-            style={{ marginBottom: "16px" }}
-            data-testid="developer-ct-templates"
-          >
+          <section style={{ marginBottom: "16px" }} data-testid="developer-ct-templates">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_TEMPLATES}</h3>
-            {(detail.allowedTemplates || []).length === 0 ? (
-              <p style={{ color: "#718096" }}>{DEV_MSG.CT_NONE}</p>
+            <p style={{ color: "#4a5568", fontSize: "0.9rem" }}>{DEV_MSG.CT_TEMPLATES_HINT}</p>
+            {templates.length === 0 ? (
+              <p style={{ color: "#718096" }} data-testid="developer-ct-tpl-empty">
+                {DEV_MSG.CT_NONE}
+              </p>
             ) : (
-              <ul>
-                {(detail.allowedTemplates || []).map((t) => (
-                  <li key={t.name || t.guid?.stringValue || t.label}>
-                    {t.label || t.name}
-                    {t.name ? (
-                      <span
-                        style={{
-                          fontFamily: "monospace",
-                          color: "#718096",
-                          marginLeft: "8px",
-                          fontSize: "0.85rem",
-                        }}
-                      >
-                        {t.name}
-                      </span>
-                    ) : null}
+              <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                {templates.map((t, i) => (
+                  <li
+                    key={refKey(t, i)}
+                    data-testid={`developer-ct-tpl-row-${i}`}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12,
+                      padding: "6px 0",
+                      borderBottom: "1px solid #edf2f7",
+                    }}
+                  >
+                    <span>
+                      {t.label || t.name}
+                      {t.name ? (
+                        <span
+                          style={{
+                            fontFamily: "monospace",
+                            color: "#718096",
+                            marginLeft: "8px",
+                            fontSize: "0.85rem",
+                          }}
+                        >
+                          {t.name}
+                        </span>
+                      ) : null}
+                    </span>
+                    <button
+                      type="button"
+                      data-testid={`developer-ct-tpl-remove-${i}`}
+                      aria-label={`Remove template ${t.name || t.label}`}
+                      disabled={busy}
+                      onClick={() => removeTemplate(i)}
+                      style={{ ...smallBtnStyle, marginLeft: "auto", cursor: busy ? "not-allowed" : "pointer" }}
+                    >
+                      {DEV_MSG.CT_ASSOC_REMOVE}
+                    </button>
                   </li>
                 ))}
               </ul>
             )}
+            <div
+              style={{
+                marginTop: "12px",
+                display: "grid",
+                gridTemplateColumns: "1fr auto",
+                gap: "8px",
+                alignItems: "end",
+              }}
+            >
+              <div>
+                <label htmlFor="ct-tpl-add" style={{ display: "block", marginBottom: 4 }}>
+                  {DEV_MSG.CT_TEMPLATES}
+                </label>
+                <input
+                  id="ct-tpl-add"
+                  data-testid="developer-ct-tpl-add-name"
+                  style={inputStyle}
+                  placeholder={DEV_MSG.CT_TPL_NAME_PLACEHOLDER}
+                  value={newTplName}
+                  onChange={(e) => setNewTplName(e.target.value)}
+                  disabled={busy}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addTemplate();
+                    }
+                  }}
+                />
+              </div>
+              <button
+                type="button"
+                data-testid="developer-ct-tpl-add"
+                disabled={busy || !newTplName.trim()}
+                onClick={addTemplate}
+                style={{
+                  ...smallBtnStyle,
+                  padding: "8px 12px",
+                  cursor: busy || !newTplName.trim() ? "not-allowed" : "pointer",
+                }}
+              >
+                {DEV_MSG.CT_ASSOC_ADD}
+              </button>
+            </div>
           </section>
 
           <section style={{ marginBottom: "16px" }}>

@@ -22,6 +22,7 @@ import type {
   ContentTypeFieldSummary,
   ContentTypeListEnvelope,
   ContentTypeSummary,
+  NamedObjectRef,
 } from "./types";
 
 /**
@@ -76,12 +77,18 @@ export type ContentTypeUpdateBody = {
   description?: string;
   enabled?: boolean;
   fields?: Pick<ContentTypeFieldSummary, "name" | "searchable" | "required" | "occurrence">[];
+  /** Omit to leave unchanged; non-null list is a full replace. */
+  allowedWorkflows?: NamedObjectRef[];
+  defaultWorkflow?: NamedObjectRef | null;
+  /** Omit to leave unchanged; non-null list is a full replace. */
+  allowedTemplates?: NamedObjectRef[];
 };
 
 /**
  * PUT /services/contenttypes/{idOrName} — design lock + save + release.
  *
- * <p>Server locks for the current session user, applies mutable fields, saves, and releases.
+ * <p>Server locks for the current session user, applies mutable fields (meta, field flags,
+ * optional workflow/template association full-replace), saves, and releases.
  */
 export async function updateContentTypeDetail(
   idOrName: string,

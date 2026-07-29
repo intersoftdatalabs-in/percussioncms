@@ -83,6 +83,13 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
         occurrence: "optional",
       },
     ],
+    allowedWorkflows:
+      body.allowedWorkflows ??
+      [{ name: "Simple Workflow", label: "Simple Workflow", isDefault: true }],
+    defaultWorkflow:
+      body.defaultWorkflow ??
+      { name: "Simple Workflow", label: "Simple Workflow", isDefault: true },
+    allowedTemplates: body.allowedTemplates ?? [{ name: "perc.page", label: "Page" }],
     designGaps: [],
   })),
 }));
@@ -334,6 +341,61 @@ describe("DeveloperShell", () => {
     expect(body.fields).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ name: "page_title", searchable: true }),
+      ]),
+    );
+    // Field-only save must not wipe associations
+    expect(body.allowedWorkflows).toBeUndefined();
+    expect(body.allowedTemplates).toBeUndefined();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-notice").textContent).toMatch(/saved/i);
+    });
+  });
+
+  it("edits content type workflow and template associations on save", async () => {
+    const { updateContentTypeDetail } = await import(
+      "../../../main/ts/api/developer/contentTypesApi"
+    );
+    (updateContentTypeDetail as ReturnType<typeof vi.fn>).mockClear();
+    render(<DeveloperShell embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-row"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-wf-row-0")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-wf-add-name"), {
+      target: { value: "Standard Workflow" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-wf-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-wf-row-1")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-tpl-add-name"), {
+      target: { value: "perc.page.summary" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-tpl-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-tpl-row-1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(updateContentTypeDetail).toHaveBeenCalled();
+    });
+    const body = (updateContentTypeDetail as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1];
+    expect(body.allowedWorkflows).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: "Simple Workflow" }),
+        expect.objectContaining({ name: "Standard Workflow" }),
+      ]),
+    );
+    expect(body.defaultWorkflow).toEqual(
+      expect.objectContaining({ name: "Simple Workflow" }),
+    );
+    expect(body.allowedTemplates).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: "perc.page" }),
+        expect.objectContaining({ name: "perc.page.summary" }),
       ]),
     );
     await waitFor(() => {

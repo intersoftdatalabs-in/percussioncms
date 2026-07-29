@@ -853,9 +853,11 @@ public class ContentTypesResource {
       summary = "Update content type design fields",
       description =
           "Locks the content type for the current session user, applies mutable fields (label,"
-              + " description, enabled, per-field searchable/occurrence), saves, and releases the"
-              + " lock. Name/id and system field structure are not changed. Full rule expressions"
-              + " and create/delete remain unsupported (see designGaps).",
+              + " description, enabled, per-field searchable/occurrence, allowedWorkflows +"
+              + " defaultWorkflow, allowedTemplates), saves, and releases the lock. Association"
+              + " lists: omit/null = leave unchanged; non-null list = full replace. Name/id and"
+              + " system field structure are not changed. Full rule expressions and create/delete"
+              + " remain unsupported (see designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",
