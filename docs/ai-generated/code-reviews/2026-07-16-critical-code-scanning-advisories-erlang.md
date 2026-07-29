@@ -60,7 +60,7 @@ This change closes the six remaining critical CodeQL advisories on `development`
 - LDAP: escape-then-`%`→`*` order in `getFilterString` is correct and well tested.
 - SSRF: sinks now consume validated return values / server-built URIs, not raw request strings.
 - Suppressions index rows match config excludes per contracts/C3.
-- Focused unit tests pass under `./mvn-env.sh` for system, feeds, and extensions-main.
+- Focused unit tests pass under `./mvnw` for system, feeds, and extensions-main.
 
 ## Handoff
 

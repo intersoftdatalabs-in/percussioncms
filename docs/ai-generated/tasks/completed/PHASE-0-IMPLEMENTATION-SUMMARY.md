@@ -105,7 +105,7 @@ The build now generates the following files in the WAR:
 
 ```bash
 # Standard Maven build (runs both modern React and legacy bundles)
-./mvn-env.sh -f WebUI/pom.xml package -DskipTests
+./mvnw -f WebUI/pom.xml package -DskipTests
 
 # Or just the bundle script for testing
 cd WebUI && node scripts/build-legacy-bundles.js

@@ -20,7 +20,7 @@
 - Security tests: `modules/perc-security-utils/src/test/java/com/percussion/security/validation/`
 - Default templates (source for install): place under the distribution config tree used by `modules/perc-distribution-tree` for `rxconfig/Server` (see `installDistributionFiles.xml` / `${configdir}`)
 - Installer: `modules/perc-distribution-tree/src/main/resources/installDistributionFiles.xml`
-- Build/test: `./mvn-env.sh -pl modules/perc-security-utils -am test`
+- Build/test: `./mvnw -pl modules/perc-security-utils -am test`
 
 ---
 
@@ -28,8 +28,8 @@
 
 **Purpose**: Confirm environment and baselines before code changes.
 
-- [x] T001 Read root `AGENTS.md` and confirm no `modules/perc-security-utils/AGENTS.md` override; note JDK 21 via `./mvn-env.sh --version`
-- [x] T002 [P] Run baseline `./mvn-env.sh -pl modules/perc-security-utils -am test -Dtest=URLValidationTest` and record pass
+- [x] T001 Read root `AGENTS.md` and confirm no `modules/perc-security-utils/AGENTS.md` override; note JDK 21 via `./mvnw --version`
+- [x] T002 [P] Run baseline `./mvnw -pl modules/perc-security-utils -am test -Dtest=URLValidationTest` and record pass
 - [x] T003 [P] Inventory current hard-coded blocks and system-property knobs in `modules/perc-security-utils/src/main/java/com/percussion/security/validation/URLValidation.java` and `URLValidationConfig.java` (list for migration into defaults)
 
 ---
@@ -69,7 +69,7 @@
 
 - [x] T015 [US1] Ensure allow-list match path in `URLValidation.java` permits private-range and nonstandard-port URLs when pattern matches (FR-006a); cover via T014
 - [x] T016 [US1] Confirm empty allow file still permits baseline public standard-port URLs in tests (US1 scenario 5)
-- [x] T017 [US1] Run `./mvn-env.sh -pl modules/perc-security-utils -am test` for allow-list suites
+- [x] T017 [US1] Run `./mvnw -pl modules/perc-security-utils -am test` for allow-list suites
 - [x] T018 [US1] Commit story-ready changes and open/update PR for US1 scope; pause for review before treating US1 done
 - [x] T019 [US1] Address review feedback; reply inline + `resolveReviewThread` per AGENTS.md; verify merge or human approval gate before next story if stacking
 
@@ -92,7 +92,7 @@
 - [x] T021 [US2] Finalize active default entries in classpath `blockedUrls.properties` under `modules/perc-security-utils/src/main/resources/com/percussion/security/validation/blockedUrls.properties` from inventory T003
 - [x] T022 [US2] Keep defense-in-depth hard-coded metadata/reserved host deny in `URLValidation.java` even when block file emptied (research R8)
 - [x] T023 [US2] Implement block-wins-over-allow in decision order (already T011; assert with allow+block same URL in T020)
-- [x] T024 [US2] Run `./mvn-env.sh -pl modules/perc-security-utils -am test`
+- [x] T024 [US2] Run `./mvnw -pl modules/perc-security-utils -am test`
 - [x] T025 [US2] Commit/PR gate for US2; resolve review threads before continuing
 
 **Checkpoint**: SC-002 style denials pass; block-over-allow proven.
@@ -136,7 +136,7 @@
 
 - [x] T034 [US4] Ensure seed writes allow template with **no active** allows and block template with **active** dangerous targets (FR-003/FR-003a)
 - [x] T035 [US4] Invoke seed on first config load when install-root Server dir is resolvable (`URLValidationConfig` / loader) without overwriting
-- [x] T036 [US4] Run full `./mvn-env.sh -pl modules/perc-security-utils -am test`
+- [x] T036 [US4] Run full `./mvnw -pl modules/perc-security-utils -am test`
 - [x] T037 [US4] Commit/PR gate for US4 seeding behavior
 
 **Checkpoint**: SC-001 seed behaviors automated.
@@ -145,9 +145,9 @@
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [x] T038 [P] Run consumer SSRF regression: `./mvn-env.sh -pl modules/extensions-main -Dtest=PSProxyQueryResourceTest test` and `./mvn-env.sh -pl system -Dtest=PSDocumentUtilsSsrfTest,PSDtdTreeSsrfTest test`; fix any breakage from decision-order changes
+- [x] T038 [P] Run consumer SSRF regression: `./mvnw -pl modules/extensions-main -Dtest=PSProxyQueryResourceTest test` and `./mvnw -pl system -Dtest=PSDocumentUtilsSsrfTest,PSDtdTreeSsrfTest test`; fix any breakage from decision-order changes
 - [x] T039 [P] Grep for removed system property names under `modules/perc-security-utils` and docs; eliminate stale references
-- [x] T040 Spotless/format on touched modules via project standard (`./mvn-env.sh -pl modules/perc-security-utils,modules/perc-distribution-tree spotless:apply` or equivalent)
+- [x] T040 Spotless/format on touched modules via project standard (`./mvnw -pl modules/perc-security-utils,modules/perc-distribution-tree spotless:apply` or equivalent)
 - [x] T041 Security review pass: confirm secrets not logged; block wins; lone `*` ignored; metadata hard deny
 - [x] T042 Update `specs/986-url-allowlist-config/quickstart.md` with final test class names if they differ from placeholders
 - [x] T043 Final PR: link issue #1205; ensure all review threads resolved; green checks before merge

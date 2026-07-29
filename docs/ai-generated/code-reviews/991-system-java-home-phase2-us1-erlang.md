@@ -125,10 +125,10 @@ is the shebang itself.
 - `InstallJettyServiceJavaHomeTest` — 2 tests for the install-jetty-service
   sh/bat wiring.
 
-`./mvn-env.sh` was unavailable during review because the developer wrapper
+`./mvnw` was unavailable during review because the developer wrapper
 cache had a permission issue; `mvn` ran directly with `JAVA_HOME` set to
 JDK 21 and `-Dai.integrity.skip=true` for local test execution. CI on
-GitHub Actions will run the full `./mvn-env.sh` flow including the
+GitHub Actions will run the full `./mvnw` flow including the
 integrity-enforcing verify phase.
 
 ## Author is also reviewer (disclosed)

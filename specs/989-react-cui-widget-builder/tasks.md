@@ -21,7 +21,7 @@
 **Purpose**: Orient and baseline the WebUI Track B toolchain.
 
 - [x] T001 Identify owning modules and read AGENTS hierarchy: root `AGENTS.md`, `WebUI/AGENTS.md`
-- [x] T002 Confirm JDK 21 branch baseline and that WebUI modern tests run via `./mvn-env.sh -pl WebUI` (and/or `WebUI/src/main/frontend` npm test per module docs)
+- [x] T002 Confirm JDK 21 branch baseline and that WebUI modern tests run via `./mvnw -pl WebUI` (and/or `WebUI/src/main/frontend` npm test per module docs)
 - [x] T003 [P] Confirm removal inventory scaffold exists and is the sign-off target in `specs/989-react-cui-widget-builder/checklists/removal-inventory.md`
 - [x] T003a [P] Confirm i18n key-presence checklist scaffold exists in `specs/989-react-cui-widget-builder/checklists/i18n-key-checklist.md` (SC-008 / FR-024)
 - [x] T004 [P] Skim contracts: `specs/989-react-cui-widget-builder/contracts/home-deep-links.md` and `contracts/widget-builder-api.md`

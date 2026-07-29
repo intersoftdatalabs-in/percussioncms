@@ -38,7 +38,7 @@ Structural fixes were correct; **PR gating used the wrong analyzer**. That cause
 
 **Prefer requiring the gate check `CodeQL`** in branch protection rather than the individual `Analyze (…)` names, so a docs-only PR is not blocked by a missing Java check.
 
-Java-relevant paths (summary): `**/*.{java,kt,kts}`, `**/pom.xml`, `**/.mvn/**`, `mvn-env.*`, `.github/codeql/**`, `.github/workflows/codeql.yml`.
+Java-relevant paths (summary): `**/*.{java,kt,kts}`, `**/pom.xml`, `**/.mvn/**`, `Maven wrapper.*`, `.github/codeql/**`, `.github/workflows/codeql.yml`.
 
 JS/TS-relevant paths (summary): `**/*.{js,jsx,ts,tsx,mjs,cjs}`, package/lock files, `tsconfig*`, Vite/Vitest/esbuild/webpack configs, same CodeQL workflow/config paths.
 
@@ -202,7 +202,7 @@ Prefer converting long-lived path excludes into model-pack barriers so new call 
 
 Copy into the PR body or agent task list:
 
-- [ ] Runtime fix + regression test(s) green under `./mvn-env.sh`
+- [ ] Runtime fix + regression test(s) green under `./mvnw`
 - [ ] Custom sanitizer covered by `.github/codeql/models` (or justified why not)
 - [ ] Any `// codeql[...]` is on the **sink line** (not three lines above a multi-line builder)
 - [ ] `suppressions.md` updated for path excludes / dismissals / new models

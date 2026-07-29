@@ -25,7 +25,7 @@ description: "Task list for v8.1.7 → 8.2 migration audit pipeline"
 - **Spec / plan / research**: `specs/005-migrate-8.1.7-changes/`
 - **Constitution**: `.specify/memory/constitution.md`
 - **No Maven module is added** — the audit is a bash tool, not compiled code
-- No `./mvn-env.sh` invocation required for the audit itself; porting PRs (US4) follow the standard `./mvn-env.sh` flow
+- No `./mvnw` invocation required for the audit itself; porting PRs (US4) follow the standard `./mvnw` flow
 
 ---
 
@@ -130,14 +130,14 @@ description: "Task list for v8.1.7 → 8.2 migration audit pipeline"
 
 ### Tests for User Story 4 (REQUIRED) ⚠️
 
-- [x] T032 [P] [US4] Write shell-driven assertion in `scripts/release-audit/tests/test_porting_workflow.sh` that exercises the workflow steps for one backlog item (e.g. PR #894) against a local mock branch and asserts: (a) cherry-pick produces a non-empty diff, (b) `./mvn-env.sh -pl rest -am compile` exits 0, (c) the diff includes at least one `*Test.java` modification
-- [x] T033 [P] [US4] Write a regression-test verification script in `scripts/release-audit/lib/port.sh`: `verify_tests <module>` invokes `./mvn-env.sh -pl <module> -am test -Dtest=<test-class-from-v817>` and asserts exit 0
+- [x] T032 [P] [US4] Write shell-driven assertion in `scripts/release-audit/tests/test_porting_workflow.sh` that exercises the workflow steps for one backlog item (e.g. PR #894) against a local mock branch and asserts: (a) cherry-pick produces a non-empty diff, (b) `./mvnw -pl rest -am compile` exits 0, (c) the diff includes at least one `*Test.java` modification
+- [x] T033 [P] [US4] Write a regression-test verification script in `scripts/release-audit/lib/port.sh`: `verify_tests <module>` invokes `./mvnw -pl <module> -am test -Dtest=<test-class-from-v817>` and asserts exit 0
 
 ### Implementation for User Story 4
 
 - [x] T034 [P] [US4] Implement port workflow in `scripts/release-audit/lib/port.sh`: `cherry_pick_pr <pr_number> <target_branch>` creates a feature branch from `<target_branch>`, cherry-picks the v8.1.7 merge commit with `-x` annotation, returns the branch name on success and the conflict list on partial failure (exit 2)
 - [x] T035 [US4] Implement JDK 21 translation helper in `scripts/release-audit/lib/port.sh`: `flag_jdk8_idioms <diff>` scans the cherry-picked diff for `javax.ws.rs.|javax.persistence.|javax.xml/bind.|sun.misc.|com.sun.` and emits a warning file with each match's file:line for the porter to translate manually
-- [x] T036 [US4] Document the per-porting-PR pattern in `scripts/release-audit/PORTING.md`: pre-flight (resolve dev path, check AGENTS.md per module), branch creation, cherry-pick with `-x`, JDK 8 translation if flagged, test execution via `./mvn-env.sh`, Spotless check, PR body template that cites both the v8.1.7 PR and the backlog item
+- [x] T036 [US4] Document the per-porting-PR pattern in `scripts/release-audit/PORTING.md`: pre-flight (resolve dev path, check AGENTS.md per module), branch creation, cherry-pick with `-x`, JDK 8 translation if flagged, test execution via `./mvnw`, Spotless check, PR body template that cites both the v8.1.7 PR and the backlog item
 - [x] T037 [US4](representative port deferred to porter — see PORTING.md for the documented workflow; actual cherry-pick of PR #894 requires porter judgment on JDK 21 translation and is downstream work, not part of this audit deliverable per Clarifications Q2)
 
 **Checkpoint**: User Story 4's workflow is documented and validated on one representative item. Porting of remaining backlog items is downstream work.

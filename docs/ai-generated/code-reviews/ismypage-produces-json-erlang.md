@@ -24,6 +24,6 @@ N/A — no filesystem path work.
 
 ## Verification
 
-- `cd projects/sitemanage && ../../mvn-env.sh test -Dtest=PSItemServiceIsMyPageTest` — 3 tests, 0 failures
+- `cd projects/sitemanage && ../../mvnw test -Dtest=PSItemServiceIsMyPageTest` — 3 tests, 0 failures
 - `cd WebUI && npm test -- --run src/test/ts/home/homeApi.test.ts` — 16 pass
 - Module clean installs (sitemanage, WebUI) required before PR

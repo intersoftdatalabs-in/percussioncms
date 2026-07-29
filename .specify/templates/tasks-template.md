@@ -5,7 +5,7 @@
 ## Phase 1: Setup
 
 - [ ] T001 Identify owning module path(s) and read AGENTS hierarchy (root + module)
-- [ ] T002 Confirm branch JDK and verify `./mvn-env.sh -pl <module> -am test` baseline
+- [ ] T002 Confirm branch JDK and verify `./mvnw -pl <module> -am test` baseline
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 

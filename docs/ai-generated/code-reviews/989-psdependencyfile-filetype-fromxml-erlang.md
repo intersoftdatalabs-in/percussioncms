@@ -29,7 +29,7 @@ No hard-gate bugs found. Cross-platform path checklist: clean for this change (u
 
 ## Verification (author)
 
-- `./mvn-env.sh -pl deployer -Dtest=PSDependencyFileTest -Dai.integrity.skip=true test` → 21 tests, 0 failures, BUILD SUCCESS
+- `./mvnw -pl deployer -Dtest=PSDependencyFileTest -Dai.integrity.skip=true test` → 21 tests, 0 failures, BUILD SUCCESS
 
 ## Issues
 

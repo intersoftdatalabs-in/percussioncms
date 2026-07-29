@@ -20,7 +20,7 @@
 ## Phase 1: Setup
 
 - [x] T001 Identify owning module path(s) and read AGENTS hierarchy: root `AGENTS.md`, `modules/perc-jetty/AGENTS.md`, `modules/perc-distribution-tree/AGENTS.md` (if present), delivery-tier-distribution README
-- [x] T002 Confirm branch JDK 21 and verify baseline tests: `./mvn-env.sh -pl modules/perc-jetty -am test` (structural harness already present for service scripts)
+- [x] T002 Confirm branch JDK 21 and verify baseline tests: `./mvnw -pl modules/perc-jetty -am test` (structural harness already present for service scripts)
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
@@ -163,7 +163,7 @@ historical task ID sequence; the work is documented on T049 below.
 
 ## Phase 9: Polish & Cross-Cutting Concerns
 
-- [x] T050 [P] Run full related module tests via `./mvn-env.sh` for `modules/perc-jetty`, `modules/perc-distribution-tree`, and delivery-tier-distribution test modules touched — 95/95 tests pass on JDK 21 across the three modules (`./mvn-env.sh` wrapper has a Windows cache permission issue during local execution; `mvn` with `JAVA_HOME` set to the project JDK 21 runs the equivalent suite; CI runs the wrapper)
+- [x] T050 [P] Run full related module tests via `./mvnw` for `modules/perc-jetty`, `modules/perc-distribution-tree`, and delivery-tier-distribution test modules touched — 95/95 tests pass on JDK 21 across the three modules (`./mvnw` wrapper has a Windows cache permission issue during local execution; `mvn` with `JAVA_HOME` set to the project JDK 21 runs the equivalent suite; CI runs the wrapper)
 - [x] T051 [P] Cross-check `specs/991-system-java-home/quickstart.md` command names match final script filenames — quickstart uses descriptive prose (\"the product start script\") rather than literal paths; no script-name drift to fix
 - [x] T052 [P] Update `modules/perc-jetty/AGENTS.md` with Java home resolution note (alongside systemd notes) — done in Phase 2
 - [x] T053 Verify Windows and Unix scripts both present for every surface changed (no Unix-only required path) — every script in `src/main/jetty/`, `src/main/jetty/service/`, `src/main/rootFiles/` has both a `.sh` and a `.bat`; DTS copies are paired
@@ -231,7 +231,7 @@ T028 discovery tests  ||  T029 selection tests
   - PR #1476 — DTS preinstall fixes (#1473 + #1475). ✅ Shipped.
   - **Phase 10 (T057–T063) — FR-013 layer-3 behavioral script-invocation tests**. ⏳ Pending. Must land before issue #1340 closes.
 
-Each story PR: implement → tests pass via `./mvn-env.sh` → commit → PR → resolve review threads → merge before next story (constitution workflow). Stories may be combined only when the PR remains reviewable. Phase 10 is a single-PR follow-up that closes SC-006 and #1340.
+Each story PR: implement → tests pass via `./mvnw` → commit → PR → resolve review threads → merge before next story (constitution workflow). Stories may be combined only when the PR remains reviewable. Phase 10 is a single-PR follow-up that closes SC-006 and #1340.
 
 ## Task count summary
 
@@ -253,7 +253,7 @@ Each story PR: implement → tests pass via `./mvn-env.sh` → commit → PR →
 
 **Goal**: Add the FR-013 layer-3 behavioral script-invocation test class (with fake-`java` fixture) so SC-006 has a measurable, CI-enforced gate (~36 behavioral scenarios × Linux + Windows). The original implementation (Phases 1–9, PR #1466 + PR #1476) satisfies layer-1 (unit) and layer-2 (structural) only. This phase closes the loop per the Session 2026-07-23 clarifications.
 
-**Independent Test**: `./mvn-env.sh -pl modules/perc-jetty,modules/perc-distribution-tree,deliverytiersuite/delivery-tier-suite/delivery-tier-distribution -am test -Dtest='ResolveJavaHomeBehaviorTest,...'` runs the comprehensive matrix in CI on both Linux (`ubuntu-latest`) and Windows (`windows-latest`) runners. SC-006 passes only when all three FR-013 layers are green.
+**Independent Test**: `./mvnw -pl modules/perc-jetty,modules/perc-distribution-tree,deliverytiersuite/delivery-tier-suite/delivery-tier-distribution -am test -Dtest='ResolveJavaHomeBehaviorTest,...'` runs the comprehensive matrix in CI on both Linux (`ubuntu-latest`) and Windows (`windows-latest`) runners. SC-006 passes only when all three FR-013 layers are green.
 
 ### Test infrastructure
 
@@ -290,9 +290,9 @@ Each scenario runs on Linux and Windows (fixtures parameterized by `OSUtil` / JU
 
 ### Implementation
 
-- [ ] T060 Run the new test class locally on this Windows host with `./mvn-env.bat` and verify all 36 scenarios pass (or fail-fast if fixture issues surface). Commit with the new test class + fixtures and open a dedicated PR against `development` titled `GH-991: add FR-013 layer-3 behavioral script-invocation tests`.
+- [ ] T060 Run the new test class locally on this Windows host with `./mvnw.cmd` and verify all 36 scenarios pass (or fail-fast if fixture issues surface). Commit with the new test class + fixtures and open a dedicated PR against `development` titled `GH-991: add FR-013 layer-3 behavioral script-invocation tests`.
 - [ ] T061 Update `specs/991-system-java-home/quickstart.md` "Automated checks" section to reference `ResolveJavaHomeBehaviorTest` (it already does post-plan-update); confirm the test count and platform split on PR description.
-- [ ] T062 Verify SC-006 closes when the new PR merges: re-run the full `./mvn-env.sh -pl modules/perc-jetty,modules/perc-distribution-tree,deliverytiersuite/delivery-tier-suite/delivery-tier-distribution -am test` matrix locally; all three FR-013 layers (1: unit, 2: structural, 3: behavioral) must be green for SC-006 to pass.
+- [ ] T062 Verify SC-006 closes when the new PR merges: re-run the full `./mvnw -pl modules/perc-jetty,modules/perc-distribution-tree,deliverytiersuite/delivery-tier-suite/delivery-tier-distribution -am test` matrix locally; all three FR-013 layers (1: unit, 2: structural, 3: behavioral) must be green for SC-006 to pass.
 
 ### Closing
 

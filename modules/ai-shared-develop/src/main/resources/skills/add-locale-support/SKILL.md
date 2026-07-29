@@ -196,14 +196,14 @@ python3 -c "import xml.etree.ElementTree as ET; ET.parse('modules/perc-i18n/src/
 # Standalone module builds (per root AGENTS.md "Pre-PR Maven verification"
 # hard gate; do **not** use root reactor for this change).
 cd modules/perc-i18n
-../../mvn-env.sh clean install
+../../mvnw clean install
 
 cd ../perc-distribution-tree
-../../mvn-env.sh clean install
+../../mvnw clean install
 
 # i18n unit tests
 cd ../perc-i18n
-../../mvn-env.sh test
+../../mvnw test
 
 # Pure-Python tests for the translation tool (no Docker needed).
 python3 modules/perc-i18n/scripts/test_i18n_translate.py

@@ -338,7 +338,7 @@ Dynatree (v1.1.0) is heavily used (~80+ references in code) but unmaintained sin
 
 ```bash
 cd /path/to/percussioncms
-./mvn-env.sh -f WebUI/pom.xml clean package -DskipTests
+./mvnw -f WebUI/pom.xml clean package -DskipTests
 ```
 
 Expected output:

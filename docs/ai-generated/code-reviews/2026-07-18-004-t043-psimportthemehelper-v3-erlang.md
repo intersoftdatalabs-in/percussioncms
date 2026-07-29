@@ -154,7 +154,7 @@ here because it's literally the same file the review just touched**)
 
 ## Spotless / build
 
-- `./mvn-env.bat -Dai.integrity.skip=true -pl projects/sitemanage spotless:check` —
+- `./mvnw.cmd -Dai.integrity.skip=true -pl projects/sitemanage spotless:check` —
   the two files I touched (`PSImportThemeHelper.java`,
   `PSImportThemeHelperPathInjectionTest.java`) are **not** in the violation
   list. Spotless reports only pre-existing violations in unrelated XML files

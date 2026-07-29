@@ -6,7 +6,7 @@
 ## Prerequisites
 
 - Branch: `548-derby-embedded-migration` (or implementation PR branch)
-- JDK 21 via repo `./mvn-env.sh` / `mvn-env.bat`
+- JDK 21 via repo `./mvnw` / `mvnw.cmd`
 - Ability to run standalone module `clean install` for touched modules
 - Optional: local CMS/DTS install trees for end-to-end upgrade dry-runs
 
@@ -34,7 +34,7 @@ For each changed Maven module (standalone):
 ```bash
 cd <module>
 # depth-adjusted path to repo root:
-../mvn-env.sh clean install          # or ../../mvn-env.sh etc.
+../mvnw clean install          # or ../../mvnw etc.
 ```
 
 Record BUILD SUCCESS and test counts in PR body (AGENTS hard gate).

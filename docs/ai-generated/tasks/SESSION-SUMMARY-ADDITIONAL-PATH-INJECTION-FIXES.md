@@ -166,7 +166,7 @@ Each test suite covers a systematic attack progression:
 All refactored files compile without introduced errors:
 
 ```bash
-./mvn-env.sh -f projects/sitemanage/pom.xml clean compile -q
+./mvnw -f projects/sitemanage/pom.xml clean compile -q
 # Result: No new compilation errors
 ```
 
@@ -202,7 +202,7 @@ This session's work integrates with:
 Run CodeQL analysis to confirm alerts have been resolved:
 
 ```bash
-./mvn-env.sh clean compile -Pcodeql-local
+./mvnw clean compile -Pcodeql-local
 ```
 
 Expected outcome: Significant reduction in CWE-22 path injection alerts.

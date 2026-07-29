@@ -11,13 +11,13 @@ The audit pipeline is the deliverable for User Stories 1–3 and 5; User Story 4
 
 ## Technical Context
 
-**Language/Version**: Bash 4+ for the audit driver; output files are JSON/Markdown only (no runtime code on the audit path). Porting PRs produced downstream use Java 21 on `development` (per `./mvn-env.sh`); no Java 8 source is added.
+**Language/Version**: Bash 4+ for the audit driver; output files are JSON/Markdown only (no runtime code on the audit path). Porting PRs produced downstream use Java 21 on `development` (per `./mvnw`); no Java 8 source is added.
 
 **Primary Dependencies**:
 - `gh` CLI v2.x (authenticated against github.com) — for PR metadata (`gh pr view`, `gh api repos/.../pulls/N/files`)
 - `git` with `origin` reachable — for tag resolution, diff inspection, file-existence checks against `development`
 - `jq` — for parsing JSON output of `gh` and the audit's own intermediate files
-- `bash` — script interpreter (no POSIX-only constraint; the script targets `bash` because the repo's `./mvn-env.sh` and many other scripts already use bash)
+- `bash` — script interpreter (no POSIX-only constraint; the script targets `bash` because the repo's `./mvnw` and many other scripts already use bash)
 
 **Storage**: None for the audit itself; audit outputs are plain files on disk (per contracts/audit-output-schemas.md). No database, no remote storage.
 

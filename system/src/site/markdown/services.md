@@ -519,7 +519,7 @@ mgr.bulkUpdate(items);
 
 - [Package Reference](packages.html) – Detailed package documentation
 - [Building & Development](building.html) – Build and test guidelines
-- [Modernization Status](modernization.html) – Java 17 compatibility
+- [Modernization Status](modernization.html) – JDK 21 baseline and modernization notes
 
 ---
 

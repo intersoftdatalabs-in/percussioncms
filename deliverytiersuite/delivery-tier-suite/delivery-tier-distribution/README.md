@@ -41,8 +41,8 @@ Residual checklist: `docs/ai-generated/tasks/667-jakarta-ee11-residual-checklist
 ## Build
 
 ```bash
-./mvn-env.sh -pl deliverytiersuite/delivery-tier-suite/delivery-tier-distribution -am clean install
-# Windows: mvn-env.bat -pl deliverytiersuite/delivery-tier-suite/delivery-tier-distribution -am clean install
+./mvnw -pl deliverytiersuite/delivery-tier-suite/delivery-tier-distribution -am clean install
+# Windows: mvnw.cmd -pl deliverytiersuite/delivery-tier-suite/delivery-tier-distribution -am clean install
 
 ## Interactive installer mode (issue #1513)
 

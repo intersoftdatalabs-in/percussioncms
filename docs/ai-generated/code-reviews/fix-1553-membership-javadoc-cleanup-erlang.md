@@ -28,7 +28,7 @@ None.
 ## Review notes
 
 ### Build before fix
-- `cd deliverytiersuite/delivery-tier-suite/membership && ..\..\..\mvn-env.bat clean install -B -Dai.integrity.skip=true` → **BUILD SUCCESS**, but `attach-javadocs` step had 2 errors + 12 Javadoc source warnings + 1 plugin warning, and `compile` step emitted 3 `javac` `this-escape` warnings (PSPreAuthenticatedProcessingFilter + PSMembershipApplication).
+- `cd deliverytiersuite/delivery-tier-suite/membership && ..\..\..\mvnw.cmd clean install -B -Dai.integrity.skip=true` → **BUILD SUCCESS**, but `attach-javadocs` step had 2 errors + 12 Javadoc source warnings + 1 plugin warning, and `compile` step emitted 3 `javac` `this-escape` warnings (PSPreAuthenticatedProcessingFilter + PSMembershipApplication).
 
 ### Build after fix
 - Same command → **BUILD SUCCESS**.
@@ -77,7 +77,7 @@ None.
 ### Build evidence (standalone module, from `deliverytiersuite/delivery-tier-suite/membership`)
 
 ```bash
-..\..\..\mvn-env.bat clean install -B -Dai.integrity.skip=true
+..\..\..\mvnw.cmd clean install -B -Dai.integrity.skip=true
 ```
 
 Result: **BUILD SUCCESS**. 0 Javadoc errors, 0 Javadoc plugin warnings, 0 Javadoc source warnings, 0 javac warnings on the module. 20/20 tests pass. No new warnings on changed files.

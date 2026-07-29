@@ -37,7 +37,7 @@ pdc = _load()
 
 def _stub_repo_root(td_path: Path) -> Path:
     """Build a synthetic repo layout: docker/scripts/, docker/logs/,
-    scripts/install-cms-dev.py, mvn-env.sh.
+    scripts/install-cms-dev.py, mvnw.
     """
     repo = td_path / "repo"
     (repo / "docker" / "scripts").mkdir(parents=True)
@@ -46,8 +46,8 @@ def _stub_repo_root(td_path: Path) -> Path:
     (repo / "scripts" / "install-cms-dev.py").write_text(
         "#!/usr/bin/env python3\n# stub installer\n", encoding="utf-8"
     )
-    (repo / "mvn-env.sh").write_text(
-        "#!/bin/sh\necho mvn-env stub\n", encoding="utf-8"
+    (repo / "mvnw").write_text(
+        "#!/bin/sh\necho Maven wrapper stub\n", encoding="utf-8"
     )
     return repo
 

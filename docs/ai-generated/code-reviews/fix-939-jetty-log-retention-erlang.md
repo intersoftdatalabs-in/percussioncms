@@ -44,7 +44,7 @@ property, structural JUnit coverage, and docs.
 
 ## Verification
 
-- `./mvn-env.sh -pl modules/perc-jetty test -Dai.integrity.skip=true` → **4/4 pass**
+- `./mvnw -pl modules/perc-jetty test -Dai.integrity.skip=true` → **4/4 pass**
 
 ## Files
 

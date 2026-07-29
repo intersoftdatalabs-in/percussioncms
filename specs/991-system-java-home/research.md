@@ -107,7 +107,7 @@ Unattended: `-Dperc.java.home=...` (already known) and/or response-file / env ma
 
 **Secondary**: util scripts still calling `../JRE/bin/java` — update if still shipped; else document out of scope in tasks.
 
-**Out of scope**: `./mvn-env.sh` / developer `JAVA_HOME_21` (build toolchain).
+**Out of scope**: `./mvnw` / developer `JAVA_HOME_21` (build toolchain).
 
 ## R8 — Relationship to systemd feature (988)
 

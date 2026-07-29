@@ -7,7 +7,7 @@
 
 - Branch `992-react-content-explorer` (or merge target with this feature).
 - **Product release target: 8.2** — full functional parity (SC-012) is required before labeling/shipping 8.2 GA.
-- JDK 21 via `./mvn-env.sh` / `./mvn-env.bat`.
+- JDK 21 via `./mvnw` / `./mvnw.cmd`.
 - **Docker dev runtime operational** (see [Docker dev runtime](#docker-dev-runtime) below). The Playwright suite runs against this CMS.
 - Node/npm 22+ for Playwright (`modules/perc-qa-automation/frontend/package.json`).
 - Contracts: [path-api.md](./contracts/path-api.md), [content-browser-host.md](./contracts/content-browser-host.md), [action-menu-api.md](./contracts/action-menu-api.md), [capability-matrix.md](./contracts/capability-matrix.md).
@@ -39,7 +39,7 @@ The CMS is reachable at `http://localhost:9992/Rhythmyx/login` with Basic auth v
 
 ```bash
 # Vitest — component-level tests with mocked API
-./mvn-env.sh -pl WebUI -am test
+./mvnw -pl WebUI -am test
 cd WebUI && npx vitest run src/test/ts/contentExplorer src/test/ts/contentBrowser
 
 # Playwright — E2E against the live CMS (requires docker runtime)

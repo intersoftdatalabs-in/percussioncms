@@ -21,7 +21,7 @@ When a command fails, open the referenced log file for full diagnostics.
 Use project wrappers to build artifacts:
 
 ```bash
-./mvn-env.sh clean install -DskipTests=true
+./mvnw clean install -DskipTests=true
 ```
 
 ## Configure environment
@@ -113,7 +113,7 @@ Agent-friendly equivalent:
 Maven lifecycle equivalent (profile-driven):
 
 ```bash
-./mvn-env.sh -P docker-compose pre-integration-test
+./mvnw -P docker-compose pre-integration-test
 ```
 
 Services:
@@ -209,7 +209,7 @@ Agent-friendly equivalent:
 Maven lifecycle equivalent:
 
 ```bash
-./mvn-env.sh -P docker-compose post-integration-test
+./mvnw -P docker-compose post-integration-test
 ```
 
 To also remove MySQL data volume:
@@ -229,7 +229,7 @@ Agent-friendly with volume cleanup:
 Use profile-driven lifecycle to start stack, run integration tests, and teardown automatically:
 
 ```bash
-./mvn-env.sh -P integration-test,docker-compose verify
+./mvnw -P integration-test,docker-compose verify
 ```
 
 Agent-friendly equivalent:
@@ -256,7 +256,7 @@ This flow performs:
 - Use Maven flow:
 
   ```bash
-  ./mvn-env.sh -P integration-test,docker-compose verify
+  ./mvnw -P integration-test,docker-compose verify
   ```
 - Keep `PERC_INSTALL_MODE=install-if-missing` for speed, or use `install-always` if test isolation requires full reinstall.
 
@@ -270,7 +270,7 @@ This flow performs:
 Build just the module jar, then deploy into running container:
 
 ```bash
-./mvn-env.sh -pl modules/utils -am package -DskipTests
+./mvnw -pl modules/utils -am package -DskipTests
 ./docker/scripts/hot-deploy-jar.py --jar modules/utils/target/<your-jar>.jar --target both --restart
 ```
 

@@ -38,7 +38,7 @@ Deliver **feature parity** with progressive disclosure for ease of use (ops firs
 - [x] **IV. Contract & Integration Integrity** — Prefer existing REST shapes; new design REST is additive thin façade over existing services (backward compatible)
 - [x] **V. Safe Modernization** — Track B React only; no Spring Boot; incremental surface cutover
 - [x] **VI. Security by Default** — CSRF; AuthZ via existing publish/design roles; secrets handling FR-016
-- [x] **VII. Build & Dependency Hygiene** — Vite + Maven; JDK 21 via `mvn-env`
+- [x] **VII. Build & Dependency Hygiene** — Vite + Maven; JDK 21 via `Maven wrapper`
 - [x] **VIII. Documentation & Operability** — Feature docs, retirement inventory, TMX, diagnosable status/logs (SC-008)
 - [x] **IX. PR Review Comment Resolution** — Per story PR
 - [x] **Complexity Budget** — Optional new sitemanage REST package for design/runtime **only if** JSF-only operations lack JSON APIs; justified below

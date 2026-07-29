@@ -5,7 +5,7 @@
 
 ## Summary
 
-Replace all in-scope build-time `.sh`/`.bat` scripts with cross-platform Python 3.9+ scripts and remove the original shell files. The migration is delivered as per-directory PRs (one PR per top-level in-scope scope: `scripts/`, `docker/`, `modules/perc-distribution-tree/scripts/`, `modules/ai-shared-develop/scripts/`, `docs/ai-generated/tasks/#000-webui-src-layout/`). A new top-level `scripts/requirements-dev.txt` pins pytest; new `scripts/run-python-tests.{sh,cmd}` runners install deps and execute pytest; a new `.github/workflows/python-build-scripts.yml` runs the Python-script tests on `ubuntu-latest` + `windows-latest` matrix (Python only, no Maven). Runtime scripts (installer, server start/stop, jetty, Derby DB, patch-tools, TableFactory admin, deployed test fixtures) are explicitly OUT OF SCOPE; `mvn-env.{sh,bat}` are also excluded (already cross-platform, per Clarification Q2).
+Replace all in-scope build-time `.sh`/`.bat` scripts with cross-platform Python 3.9+ scripts and remove the original shell files. The migration is delivered as per-directory PRs (one PR per top-level in-scope scope: `scripts/`, `docker/`, `modules/perc-distribution-tree/scripts/`, `modules/ai-shared-develop/scripts/`, `docs/ai-generated/tasks/#000-webui-src-layout/`). A new top-level `scripts/requirements-dev.txt` pins pytest; new `scripts/run-python-tests.{sh,cmd}` runners install deps and execute pytest; a new `.github/workflows/python-build-scripts.yml` runs the Python-script tests on `ubuntu-latest` + `windows-latest` matrix (Python only, no Maven). Runtime scripts (installer, server start/stop, jetty, Derby DB, patch-tools, TableFactory admin, deployed test fixtures) are explicitly OUT OF SCOPE; `mvnw / mvnw.cmd` are also excluded (already cross-platform, per Clarification Q2).
 
 ## Technical Context
 
@@ -44,8 +44,8 @@ Replace all in-scope build-time `.sh`/`.bat` scripts with cross-platform Python 
 - [x] **III. Test Discipline** — FR-009/FR-010 mandate pytest per script; SC-002/SC-003 enforce passing on Linux + Windows CI
 - [x] **IV. Contract & Integration Integrity** — CLI contracts documented in `contracts/cli-schemas.md`; FR-002 enforces parity with replaced `.sh`/`.bat` CLIs; FR-013 protects all deployed/installer `.bat` files
 - [x] **V. Safe Modernization** — No Spring Boot, no new frameworks; minimal blast radius; per-directory PR phasing (Clarification Q1)
-- [x] **VI. Security by Default** — No new attack surface (no network code added; existing `gh` / `curl` / `docker compose` invocations are wrapped, not extended); secrets handling unchanged (e.g. Sigstore OIDC token cache lives only in `mvn-env.sh`, which is OUT of scope)
-- [x] **VII. Build & Dependency Hygiene** — Python is a build/dev dep only, declared in `scripts/requirements-dev.txt`; not added to `pom.xml` or `package.json`; no JDK impact; per-module `./mvn-env.sh clean install` must remain green (SC-007)
+- [x] **VI. Security by Default** — No new attack surface (no network code added; existing `gh` / `curl` / `docker compose` invocations are wrapped, not extended); secrets handling unchanged (e.g. Sigstore OIDC token cache lives only in `mvnw`, which is OUT of scope)
+- [x] **VII. Build & Dependency Hygiene** — Python is a build/dev dep only, declared in `scripts/requirements-dev.txt`; not added to `pom.xml` or `package.json`; no JDK impact; per-module `./mvnw clean install` must remain green (SC-007)
 - [x] **VIII. Documentation & Operability** — FR-011/FR-014 mandate README + AGENTS updates; per-script docstring with `## Behavioral Notes` (FR-009b); `quickstart.md` provides end-to-end validation
 - [x] **IX. PR Review Comment Resolution** — Each per-directory PR follows the standard inline-reply + `resolveReviewThread` discipline per root `AGENTS.md`
 - [x] **Complexity Budget** — No constitution violations; the per-directory phasing is the explicit simplification strategy (vs. a big-bang PR)
@@ -118,7 +118,7 @@ docs/ai-generated/tasks/#000-webui-src-layout/
 └── python-build-scripts.yml  (new — FR-012a, SC-003)
 
 # Touched AGENTS.md / README.md for cross-references
-AGENTS.md                 (no change to mvn-env mention; only scripts/README references)
+AGENTS.md                 (no change to Maven wrapper mention; only scripts/README references)
 docker/README.md          (updated)
 modules/perc-distribution-tree/AGENTS.md  (updated)
 modules/ai-shared-develop/AGENTS.md       (updated)
@@ -126,7 +126,7 @@ modules/ai-shared-develop/AGENTS.md       (updated)
 
 ### OUT OF SCOPE — must NOT be touched
 
-- `mvn-env.sh`, `mvn-env.bat` (Clarification Q2)
+- `mvnw`, `mvnw.cmd` (Clarification Q2)
 - `system/release/installer/**`, `system/release/ShellScripts/**`, `system/installResources/**`, `system/Tools/**`
 - `system/Testing/install.bat`, `system/Testing/beprovider/**`, `system/Testing/becredentials/**`
 - `system/cms/content/applications/word_prj/signocx.bat`

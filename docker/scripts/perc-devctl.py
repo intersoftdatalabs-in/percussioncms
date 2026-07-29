@@ -459,10 +459,12 @@ def cmd_verify(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
 def cmd_it_verify(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     repo_root, env_file, compose_file = paths
     log_dir = _log_dir(repo_root)
+    # Windows: Maven wrapper is mvnw.cmd; Unix: mvnw (shell script).
+    mvnw = repo_root / ("mvnw.cmd" if sys.platform.startswith("win") else "mvnw")
     rc, _log_path = _run_logged(
         "it-verify",
         [
-            str(repo_root / "mvn-env.sh"),
+            str(mvnw),
             "-P", "integration-test,docker-compose",
             "verify",
         ],

@@ -25,7 +25,7 @@ Stop requiring operators to **manually copy or symlink** a JRE into `<InstallDir
 - [x] **IV. Contract & Integration Integrity** — no public REST/schema/package API changes; ops contract only
 - [x] **V. Safe Modernization** — scripts + preinstall; no Spring Boot
 - [x] **VI. Security by Default** — no secrets in java.properties; only filesystem paths; validate path existence before exec
-- [x] **VII. Build & Dependency Hygiene** — no new deps; JDK 21 via `./mvn-env.sh` for tests; build toolchain out of scope
+- [x] **VII. Build & Dependency Hygiene** — no new deps; JDK 21 via `./mvnw` for tests; build toolchain out of scope
 - [x] **VIII. Documentation & Operability** — README/installer messages; migration off manual JRE copy; update stale “1.8” text
 - [x] **IX. PR Review Comment Resolution** — apply on PR reviews
 - [x] **Complexity Budget** — no constitution exceptions (dual sh/bat implementations justified by platform, not a new framework)
@@ -123,6 +123,6 @@ system/release/installer/**     # replace hard-coded ./JRE; update 1.8 messages
 ## Out of scope (confirmed)
 
 - Shipping a JRE inside the product archive
-- Build machine JDK selection (`mvn-env` / `JAVA_HOME_21`)
+- Build machine JDK selection (`Maven wrapper` / `JAVA_HOME_21`)
 - Supporting Java majors other than 21 on 8.2
 

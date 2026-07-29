@@ -73,7 +73,7 @@ has a `--help` exit-0 path (FR-009 / R4).
 
 ## Build verification (T075 / SC-007)
 
-- `cd modules/perc-distribution-tree && ../../mvn-env.sh clean install` → **BUILD SUCCESS** (exit 0)
+- `cd modules/perc-distribution-tree && ../../mvnw clean install` → **BUILD SUCCESS** (exit 0)
 - Tests: **75 run, 0 failures, 0 errors, 0 skipped** (across `MainInstallExitCodeTest`, `DbInstallConfigResolverTest`, `RepositoryPropertiesInstallGuardTest`, `StagingCleanupAntScriptTest`, `InstallXmlDeleteSetTest`, `CheckNoGlobDeletesTest`, `VerifyJdbcDriversTest`, `ObsoleteWebInfArtifactsCleanupTest`, `WebUiServletUtilsPackagingTest`)
 - New warnings: **0** — the 329 warnings in the build log are pre-existing baseline (mostly `dependency:analyze-only` flagging `Unused declared dependencies found:` for the JDBC driver set + the `stax:stax-api` non-test scope; all are unrelated to this PR). The Python ports and the Javadoc-only edit to `BundledJdbcDrivers.java` introduce no new warning categories.
 - Verify-phase gate: `OK: 10 JDBC driver JAR(s) verified under jetty/base/lib/jdbc/` — the Java main's exit code matches the Python port's exit code for the same input (both exit 0 on a clean distribution).

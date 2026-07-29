@@ -149,7 +149,7 @@ def install(
     if not jar.is_file():
         LOG.error(
             "ERROR: Distribution JAR not found at %s. "
-            "Run `./mvn-env.sh clean install` first, or provide a release JAR via --jar.",
+            "Run `./mvnw clean install` first, or provide a release JAR via --jar.",
             jar,
         )
         return EXIT_PREREQ_MISSING

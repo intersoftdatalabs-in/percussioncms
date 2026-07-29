@@ -573,23 +573,23 @@ public String getPreviousName() {
 
 ```bash
 cd /home/nate/projects/percussioncms
-./mvn-env.sh -pl system compile -DskipTests
+./mvnw -pl system compile -DskipTests
 ```
 
 ### After All Phases:
 
 ```bash
 # Full compile
-./mvn-env.sh -pl system clean compile
+./mvnw -pl system clean compile
 
 # Run tests
-./mvn-env.sh -pl system test
+./mvnw -pl system test
 
 # Check for spotless violations
-./mvn-env.sh -pl system spotless:check
+./mvnw -pl system spotless:check
 
 # If violations, apply fixes
-./mvn-env.sh -pl system spotless:apply
+./mvnw -pl system spotless:apply
 ```
 
 ---
@@ -635,9 +635,9 @@ Ensure these modules compile first:
 
 ## Success Criteria
 
-- [ ] `./mvn-env.sh -pl system clean compile` succeeds with 0 errors
-- [ ] `./mvn-env.sh -pl system spotless:check` passes
-- [ ] `./mvn-env.sh -pl system test` runs (may have test failures to address separately)
+- [ ] `./mvnw -pl system clean compile` succeeds with 0 errors
+- [ ] `./mvnw -pl system spotless:check` passes
+- [ ] `./mvnw -pl system test` runs (may have test failures to address separately)
 - [ ] No new compiler warnings introduced
 - [ ] All deprecated API usages documented or replaced
 

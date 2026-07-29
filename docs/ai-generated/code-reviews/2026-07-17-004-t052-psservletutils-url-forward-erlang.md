@@ -13,7 +13,7 @@ container call so a null/uninitialized context cannot bypass it. Control chars (
 0x7F), backslash, `..` traversal (start/mid/end, with `?` and `#`), and WEB-INF/META-INF
 as complete segments are all rejected; look-alikes (`/web-info/notes`, `/WEB_INF/file`,
 `/meta-info/file`) pass. 28 new behavioral tests + the existing 13 tests in the module
-all pass on JDK 21 via `./mvn-env.bat -pl modules/servletutils test`.
+all pass on JDK 21 via `./mvnw.cmd -pl modules/servletutils test`.
 
 ## Findings
 
@@ -112,7 +112,7 @@ references); post-fix compile and 28/28 pass.
 - **Post-fix**:
 
   ```
-  mvn-env.bat -Dai.integrity.skip=true -pl modules/servletutils \
+  mvnw.cmd -Dai.integrity.skip=true -pl modules/servletutils \
       test -Dtest=PSServletUtilsTest -Dsurefire.failIfNoSpecifiedTests=false
   ```
 

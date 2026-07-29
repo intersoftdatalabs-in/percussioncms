@@ -11,7 +11,7 @@ For the data shape of every artifact produced, see [data-model.md](./data-model.
 ## Prerequisites
 
 - Repository working tree clean, on the `8.2` release branch (per `./AGENTS.md`).
-- JDK 21 active via `./mvn-env.sh` (per Constitution VII).
+- JDK 21 active via `./mvnw` (per Constitution VII).
 - GitHub CLI (`gh`) authenticated (`gh auth login`) with `security_events:read` scope for the target repository.
 - `jq` installed (used by the fetch script).
 - Permissions: ability to push branches and open PRs against the target repo.
@@ -65,11 +65,11 @@ git rm <file_path>
 # also update the owning packaging descriptor (modules/perc-ant/install.xml,
 # modules/perc-distribution-tree, or module-level pom <resources>).
 # Rebuild and verify the artifact does NOT contain the file:
-./mvn-env.sh -pl modules/perc-distribution-tree -am clean package
+./mvnw -pl modules/perc-distribution-tree -am clean package
 unzip -l modules/perc-distribution-tree/target/*.jar | grep <file_path-basename> || echo "OK: absent"
 
 # Run the owning module's tests
-./mvn-env.sh -pl <module_owner> -am test
+./mvnw -pl <module_owner> -am test
 ```
 
 PR body MUST follow [contracts/C5](./contracts/README.md#c5-pr-closing-comment).
@@ -85,7 +85,7 @@ For each `disposition == valid` row:
 3. Run the module's full test suite:
 
 ```bash
-./mvn-env.sh -pl <module_owner> -am test
+./mvnw -pl <module_owner> -am test
 ```
 
 4. If the fix is a Maven dependency upgrade and the upgrade exceeds a Dependabot exclusion, append a justified entry to `.github/dependabot.yml` (see Constitution VI).

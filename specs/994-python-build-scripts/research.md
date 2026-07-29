@@ -45,7 +45,7 @@ This document captures the research findings that resolve the "NEEDS CLARIFICATI
 
 **Decision**: Do NOT migrate these to Python. Two acceptable outcomes:
 - (Preferred) Delete the directory outright — the migration is complete; the scripts have no future callers.
-- (Fallback) Leave the directory untouched — out-of-spec; covered by the existing `mvn-env.{sh,bat}` exemption-style carve-out.
+- (Fallback) Leave the directory untouched — out-of-spec; covered by the existing `mvnw / mvnw.cmd` exemption-style carve-out.
 
 This decision must be confirmed with the maintainer during implementation (the spec lists the directory in-scope; this research note is the implementer's exception request).
 
@@ -82,7 +82,7 @@ This decision must be confirmed with the maintainer during implementation (the s
 - Python version on runners: `python-version: '3.11'` (matches the GitHub-hosted runner default as of 2026; matches the project's `erlang-harvest-review-patterns.py` requirement of 3.9+ with headroom).
 - Path filter (under `on.pull_request.paths` and `on.push.paths`): union of in-scope script directories from FR-013 + the workflow file itself + `scripts/requirements-dev.txt` + `scripts/run-python-tests.{sh,cmd}`.
 - Steps: `actions/checkout@v4` → `actions/setup-python@v5` with `cache: 'pip'` and `cache-dependency-path: scripts/requirements-dev.txt` → `python -m pip install -r scripts/requirements-dev.txt` → `bash scripts/run-python-tests.sh` on ubuntu / `scripts\run-python-tests.cmd` on windows.
-- NO `actions/setup-java`. NO Maven invocation. NO `mvn-env` reference (per Clarification Q2).
+- NO `actions/setup-java`. NO Maven invocation. NO `Maven wrapper` reference (per Clarification Q2).
 
 **Rationale**: `actions/setup-python@v5`'s built-in pip cache eliminates the need for `actions/cache@v4`. Pinning Python 3.11 (vs `3.x`) avoids surprise breakages when a new runner default ships.
 

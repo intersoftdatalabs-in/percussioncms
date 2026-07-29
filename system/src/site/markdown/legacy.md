@@ -6,8 +6,8 @@ Guidance for working with legacy code in the system module, including backward c
 
 In the context of the system module, legacy code refers to:
 
-- Code written before Java 17 modernization efforts
-- Code using pre-Java 11 language features
+- Code written before the Java 11/17 modernization waves (module now targets JDK 21)
+- Code using pre-modern language features (raw types, etc.)
 - Code not yet marked with `// REFACTORED: CP-JAVA11`
 - Internal packages maintained purely for backward compatibility
 
@@ -17,7 +17,7 @@ In the context of the system module, legacy code refers to:
 |--------------|-------------------------------------|-------------------------------------------------------|
 | Location     | services/, business/, src/main/java | Testing/, Tools/, Docs/, Samples/ or unmarked classes |
 | Maintenance  | Regular updates, modern patterns    | Minimal changes, backward-compatible fixes            |
-| Java Version | 17+ features                        | Pre-Java 17 (often Java 8/11 patterns)                |
+| Java Version | Modern (JDK 21 line)                | Legacy (pre-modernization patterns)                   |
 | Status       | Actively developed                  | Maintained for compatibility                          |
 | Testing      | JUnit 5 preferred                   | May use JUnit 4                                       |
 
@@ -199,7 +199,7 @@ If you decide to refactor legacy code:
    - Update `refactored-java11-packages.txt`
    - Update README and site docs if appropriate
 6. **Test thoroughly**
-   - Run all tests: `./mvn-env.sh clean verify`
+   - Run all tests: `./mvnw clean verify`
    - Write new test cases for edge cases
    - Aim for 85%+ coverage
 
@@ -445,7 +445,7 @@ public void oldMethod() {
 
 ## Resources
 
-- [Modernization Status](modernization.html) – Java 17 modernization progress
+- [Modernization Status](modernization.html) – Modernization history (JDK 21 baseline today)
 - [Building & Development](building.html) – Testing and refactoring guidelines
 - [Services Architecture](services.html) – Service patterns and evolving APIs
 

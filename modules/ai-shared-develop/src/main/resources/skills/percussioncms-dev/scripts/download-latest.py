@@ -235,7 +235,7 @@ def run(
     cms_url = _find_asset_url(release_body, "perc-distribution-tree")
     if not cms_url:
         LOG.error("ERROR: CMS distribution JAR not found in release %s assets.", tag)
-        LOG.error("Build from source: ./mvn-env.sh clean install")
+        LOG.error("Build from source: ./mvnw clean install")
         return EXIT_NO_ASSET
 
     cms_target = target_dir / "perc-distribution-tree.jar"
@@ -249,7 +249,7 @@ def run(
         dts_url = _find_asset_url(release_body, "delivery-tier-distribution")
         if not dts_url:
             LOG.warning("DTS distribution JAR not found in release %s assets.", tag)
-            LOG.warning("Build from source: ./mvn-env.sh clean install")
+            LOG.warning("Build from source: ./mvnw clean install")
         else:
             dts_target = target_dir / "delivery-tier-distribution.jar"
             LOG.info("Downloading DTS distribution JAR to %s", dts_target)

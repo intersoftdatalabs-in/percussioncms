@@ -11,7 +11,7 @@
 
 This branch implements Phase 1 (H2 column-qualifier fix on the remaining four workflow contexts) and Phase 2 (ORM migration of `CONTENTSTATUSHISTORY` writes) of issue #1561. Phase 2 routes the `sys_wfUpdateHistory` write path through `PSSystemServiceLocator.getSystemService().saveContentStatusHistory(...)` so the write joins the shared Hibernate session of the surrounding request rather than opening a second pool connection. The legacy `PSContentStatusHistoryContext` write constructor is preserved for binary compatibility but now also forwards to the ORM service; the dead `INSERTSTRING` + `prepareInsertStatement()` are deleted.
 
-The initial Erlang review flagged one **bug** — missing behavioral tests for the new entity-build logic. The author fixed it by extracting `PSContentStatusHistoryEntityBuilder.build(...)` into a separate class (so the test can run without triggering `PSContentStatusHistoryContext`'s `<clinit>` DB call) and added a 9-test JUnit 5 suite with Mockito that exercises happy path, transition branches, id allocation rules, `VALID` mapping, and null validation. `mvn-env.bat -N clean install` is **green**.
+The initial Erlang review flagged one **bug** — missing behavioral tests for the new entity-build logic. The author fixed it by extracting `PSContentStatusHistoryEntityBuilder.build(...)` into a separate class (so the test can run without triggering `PSContentStatusHistoryContext`'s `<clinit>` DB call) and added a 9-test JUnit 5 suite with Mockito that exercises happy path, transition branches, id allocation rules, `VALID` mapping, and null validation. `mvnw.cmd -N clean install` is **green**.
 
 The dominant residual risk is that the read paths inside `PSExitUpdateHistory.updateHistory` (`PSContentStatusContext`, `PSTransitionsContext`) still open a `new PSConnectionMgr()` for the `CONTENTSTATUS` + `TRANSITIONS` reads — tracked as Phase 3 in the inventory doc.
 
@@ -70,7 +70,7 @@ The dominant residual risk is that the read paths inside `PSExitUpdateHistory.up
   - `null` states context → `IllegalArgumentException`
   - `VALID` flag mirrors `IPSStatesContext.getIsValid()`
   - `CHECKOUTUSERNAME` stored verbatim (null and non-null cases)
-- **Verification:** `mvn-env.bat -N clean install` → **BUILD SUCCESS**, `Tests run: 9, Failures: 0, Errors: 0, Skipped: 0`.
+- **Verification:** `mvnw.cmd -N clean install` → **BUILD SUCCESS**, `Tests run: 9, Failures: 0, Errors: 0, Skipped: 0`.
 - **Status:** **resolved**.
 
 ### Issue 2 (initial review) — Severity: suggestion — **ACCEPTED**
@@ -100,7 +100,7 @@ No issues.
 | Bug: missing behavioural test for new entity-build logic | **resolved** | `PSContentStatusHistoryEntityBuilderTest` (9 tests), `BUILD SUCCESS`, all green. |
 | Suggestion: inventory doc doesn't reference PR #1563 helpers | **resolved** | `00-inventory.md` §3 references `PSJdbcConnectionDiagnostics` and `BooleanToTFCharConverter`. |
 | Phase 1 remaining H2 column-qualifier work on 4 contexts | **resolved** | All four contexts (`PSContentTypesContext`, `PSNotificationsContext`, `PSStateRolesContext`, `PSTransitionNotificationsContext`) now use bare columns + aliases; documented in inventory §4.2. |
-| Phase 2 single-pool/tx for in-product workflow writes | **resolved** | `PSExitUpdateHistory.updateHistory` calls `IPSSystemService.saveContentStatusHistory(entity)`; verified by `mvn-env.bat -N clean install` BUILD SUCCESS. |
+| Phase 2 single-pool/tx for in-product workflow writes | **resolved** | `PSExitUpdateHistory.updateHistory` calls `IPSSystemService.saveContentStatusHistory(entity)`; verified by `mvnw.cmd -N clean install` BUILD SUCCESS. |
 
 ---
 
@@ -118,7 +118,7 @@ No issues.
 | `validFlagReflectsStatesContext` | `VALID` field correctly mirrors `IPSStatesContext.getIsValid()`. |
 | `checkoutUserNameIsStoredVerbatim` | Null and non-null checkout user names are stored exactly. |
 
-`mvn-env.bat -N clean install` → **BUILD SUCCESS**, `Tests run: 9, Failures: 0, Errors: 0, Skipped: 0`.
+`mvnw.cmd -N clean install` → **BUILD SUCCESS**, `Tests run: 9, Failures: 0, Errors: 0, Skipped: 0`.
 
 ---
 

@@ -10,7 +10,7 @@
 ## Phase 1: Setup
 
 - [x] T001 Identify owning module and read AGENTS hierarchy: root `AGENTS.md`, `modules/perc-distribution-tree/AGENTS.md`
-- [x] T002 Confirm branch `985-clean-install-dir` (or current) is JDK 21 and note baseline for `./mvn-env.sh -pl modules/perc-distribution-tree test` (use `-Dai.integrity.skip=true` if integrity hashes block locally)
+- [x] T002 Confirm branch `985-clean-install-dir` (or current) is JDK 21 and note baseline for `./mvnw -pl modules/perc-distribution-tree test` (use `-Dai.integrity.skip=true` if integrity hashes block locally)
 - [x] T003 [P] Re-read research D1–D8 and contracts in `specs/007-clean-install-dir/contracts/` (CLI + obsolete path list + JBoss bak eligibility)
 
 ## Phase 2: Foundational (Blocking Prerequisites)
@@ -22,7 +22,7 @@
 - [x] T005 Assess security surface: recursive delete under install root only; symlink escape; no logging of unrelated secrets; large-tree IO cost
 - [x] T006 Create `modules/perc-distribution-tree/src/main/java/com/percussion/preinstall/ObsoleteInstallDirCleaner.java` with package-visible/public API: candidate record(s), `listEligibleCandidates(installRoot, major, minor)`, `estimateSizeBytes(path)`, `isUnderInstallRoot(root, path)`, empty-result safe defaults
 - [x] T007 [P] Add foundational unit tests in `modules/perc-distribution-tree/src/test/java/com/percussion/preinstall/ObsoleteInstallDirCleanerTest.java` for: path confinement rejects escape; empty root → no candidates; size of known fixture files sums correctly
-- [x] T008 Run `./mvn-env.sh -pl modules/perc-distribution-tree test -Dtest=ObsoleteInstallDirCleanerTest -Dai.integrity.skip=true` and fix foundational regressions
+- [x] T008 Run `./mvnw -pl modules/perc-distribution-tree test -Dtest=ObsoleteInstallDirCleanerTest -Dai.integrity.skip=true` and fix foundational regressions
 
 ## Phase 3: User Story 1 — Interactive upgrade offers cleanup (Priority: P1)
 
@@ -40,7 +40,7 @@
 - [x] T012 [US1] Implement console prompt via injectable `Console` / `LineReader` abstraction (or package-visible method taking `Supplier<String>` / `Function`) so tests do not need a real TTY
 - [x] T013 [US1] Implement best-effort recursive delete with per-path failure capture (warn-and-continue) in `ObsoleteInstallDirCleaner.java`
 - [x] T014 [US1] Wire upgrade early cleanup orchestration in `modules/perc-distribution-tree/src/main/java/com/percussion/preinstall/Main.java`: detect upgrade, list candidates, if prompt required then prompt, else skip when no candidates; log outcomes; never abort Main solely on cleanup failure
-- [x] T015 [US1] Run cleaner unit tests + `MainExtractExecutableTest` (if still applicable) via `./mvn-env.sh -pl modules/perc-distribution-tree test -Dtest=ObsoleteInstallDirCleanerTest,MainExtractExecutableTest -Dai.integrity.skip=true`
+- [x] T015 [US1] Run cleaner unit tests + `MainExtractExecutableTest` (if still applicable) via `./mvnw -pl modules/perc-distribution-tree test -Dtest=ObsoleteInstallDirCleanerTest,MainExtractExecutableTest -Dai.integrity.skip=true`
 - [ ] T016 [US1] Commit US1 changes and open PR; pause for review
 - [ ] T017 [US1] Monitor CI/Kilo; address feedback; reply+resolve review threads per `AGENTS.md`
 - [ ] T018 [US1] Verify merge before US2 (or continue on same PR stack if team prefers single PR — still complete review gates)
@@ -100,7 +100,7 @@
 - [x] T036 [P] Document flag, prompt, MVP paths, and JBoss eligibility in `modules/perc-distribution-tree/README.md`
 - [x] T037 [P] Security pass: symlink escape, path confinement, refuse delete outside install root (tests already cover; re-read cleaner)
 - [x] T038 Walk [quickstart.md](quickstart.md) scenarios 1–5 against implementation; fix gaps
-- [x] T039 Full module test: `./mvn-env.sh -pl modules/perc-distribution-tree test -Dtest=ObsoleteInstallDirCleanerTest,MainExtractExecutableTest,MainInstallExitCodeTest -Dai.integrity.skip=true`
+- [x] T039 Full module test: `./mvnw -pl modules/perc-distribution-tree test -Dtest=ObsoleteInstallDirCleanerTest,MainExtractExecutableTest,MainInstallExitCodeTest -Dai.integrity.skip=true`
 - [ ] T040 Final PR polish commits if needed; resolve all review threads before merge
 
 ---

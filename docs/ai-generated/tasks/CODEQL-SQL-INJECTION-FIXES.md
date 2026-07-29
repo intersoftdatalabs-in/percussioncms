@@ -180,13 +180,13 @@ query.list();
 ### 1. Compile the Code
 
 ```bash
-./mvn-env.sh -f projects/sitemanage/pom.xml clean compile
+./mvnw -f projects/sitemanage/pom.xml clean compile
 ```
 
 ### 2. Run Unit Tests
 
 ```bash
-./mvn-env.sh -f projects/sitemanage/pom.xml clean test -Dtest=PSPageDaoHelperTest
+./mvnw -f projects/sitemanage/pom.xml clean test -Dtest=PSPageDaoHelperTest
 ```
 
 ### 3. Verify CodeQL Alerts Resolved

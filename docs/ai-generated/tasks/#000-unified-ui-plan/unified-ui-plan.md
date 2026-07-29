@@ -198,7 +198,7 @@ Infra PRs (login shell, cutover, path URLs) stay; **value is measured by accepte
 |-------|----------|
 | Manual | Checklist on real CMS (docker/dev) |
 | Automated | Vitest for logic; Playwright where already used for the surface |
-| Build | `cd WebUI && ../mvn-env.sh clean install` before PR |
+| Build | `cd WebUI && ../mvnw clean install` before PR |
 | Review | Erlang pre-commit on authored code |
 | Legacy | Explicit “delete / keep temporary” note in PR |
 

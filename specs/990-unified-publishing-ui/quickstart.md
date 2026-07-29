@@ -5,7 +5,7 @@
 
 ## Prerequisites
 
-- Branch `990-unified-publishing-ui` (or stacked PR branch) built with JDK 21: `./mvn-env.sh` / `mvn-env.bat`
+- Branch `990-unified-publishing-ui` (or stacked PR branch) built with JDK 21: `./mvnw` / `mvnw.cmd`
 - Running CMS with at least one site and one publish server (Local file is enough for smoke)
 - User with publish rights; separate admin for design if roles differ
 - Modern UI bundle built (WebUI frontend / Maven module that produces `/cm/modern/`)
@@ -14,12 +14,12 @@
 
 ```bash
 # From repo root — adjust module goals to project norms
-./mvn-env.sh -pl WebUI -am test -Dtest=none   # or WebUI frontend test goal
+./mvnw -pl WebUI -am test -Dtest=none   # or WebUI frontend test goal
 # TypeScript unit tests (typical)
 cd WebUI && npm test -- --run src/test/ts/publishing   # path when tests exist
 ```
 
-Cross-platform: same flows on Windows with `mvn-env.bat` and `npm test`.
+Cross-platform: same flows on Windows with `mvnw.cmd` and `npm test`.
 
 ## Scenario A — Ops full publish (US1–US2)
 

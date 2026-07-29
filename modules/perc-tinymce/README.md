@@ -12,7 +12,7 @@ This module contains the support for tinymce editor plugin.
 ### Linux/macOS
 
 ```bash
-./mvn-env.sh clean install
+./mvnw clean install
 ```
 
 ### Windows
@@ -20,7 +20,7 @@ This module contains the support for tinymce editor plugin.
 ⚠️ **Important:** See [WINDOWS-BUILD-GUIDE.md](../../WINDOWS-BUILD-GUIDE.md) for Windows-specific setup, especially the critical "Enable Long Path Support" section.
 
 ```cmd
-mvn-env.bat clean install
+mvnw.cmd clean install
 ```
 
 ## How It Works
@@ -51,13 +51,13 @@ If you see `[ERROR] Failed to execute goal com.github.eirslett:frontend-maven-pl
 
 ```cmd
 npm cache clean --force
-mvn-env.bat clean install
+mvnw.cmd clean install
 ```
 
 3. **Get more details** with verbose logging:
 
 ```cmd
-mvn-env.bat clean install -X > build-debug.log 2>&1
+mvnw.cmd clean install -X > build-debug.log 2>&1
 ```
 
 ### Node.js Download Fails
@@ -69,7 +69,7 @@ REM Clear the cached Node.js
 rmdir /s %USERPROFILE%\.m2\frontend
 
 REM Retry the build
-mvn-env.bat clean install
+mvnw.cmd clean install
 ```
 
 ## Building Without Node.js Download

@@ -163,9 +163,9 @@ Pending next steps:
 
 ## Phase 9: Testing & Validation
 
-1. `./mvn-env.sh clean compile -DskipTests` — fix all compilation errors. *Depends on all prior phases*
-2. `./mvn-env.sh test` — run full test suite, focus on `rest`, `projects/sitemanage`, `deliverytiersuite`, `system`. *Depends on step 1*
-3. `./mvn-env.sh spotless:check` (and `spotless:apply` if needed). *Parallel with step 2*
+1. `./mvnw clean compile -DskipTests` — fix all compilation errors. *Depends on all prior phases*
+2. `./mvnw test` — run full test suite, focus on `rest`, `projects/sitemanage`, `deliverytiersuite`, `system`. *Depends on step 1*
+3. `./mvnw spotless:check` (and `spotless:apply` if needed). *Parallel with step 2*
 4. Manual REST API smoke test — verify JSON serialization, date formatting, root wrapping/unwrapping
 5. Runtime classpath verification in deployed webapp (`WEB-INF/lib`) — ensure exactly one Jackson major line is present and no `jackson-module-jaxb-annotations` remains unless intentionally pinned for a non-migrated path
 
@@ -216,12 +216,12 @@ Pending next steps:
 
 ## Verification
 
-1. `./mvn-env.sh clean compile -DskipTests` — zero compilation errors
-2. `./mvn-env.sh test` — all existing tests pass
-3. `./mvn-env.sh spotless:check` — passes
+1. `./mvnw clean compile -DskipTests` — zero compilation errors
+2. `./mvnw test` — all existing tests pass
+3. `./mvnw spotless:check` — passes
 4. `grep -r "com.fasterxml.jackson" --include="*.java" | grep -v annotation` — only annotation imports remain
 5. `grep -r "new ObjectMapper()" --include="*.java"` — zero results
-6. `./mvn-env.sh dependency:tree | grep com.fasterxml.jackson` — only annotations artifact
+6. `./mvnw dependency:tree | grep com.fasterxml.jackson` — only annotations artifact
 7. Deployed runtime `WEB-INF/lib` contains no mixed Jackson major versions
 8. Manual REST API smoke test for JSON correctness
 

@@ -27,7 +27,7 @@ static assets.
 | Bugs (logic / security) | None found — allowlisted entries only; traversal rejected; no open redirect |
 | Behavioral tests | Java `PSWebUiSpaFallbackFilterTest` (7); Vitest App/deepLinks/session/spaCutover |
 | Cross-platform path/file I/O | N/A for filter path math (URL paths use `/`); no OS filesystem |
-| Build | `cd WebUI && ../mvn-env.sh clean install` → **BUILD SUCCESS**; Surefire 11 tests |
+| Build | `cd WebUI && ../mvnw clean install` → **BUILD SUCCESS**; Surefire 11 tests |
 
 ## Issues
 

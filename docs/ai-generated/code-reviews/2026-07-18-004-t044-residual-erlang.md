@@ -152,11 +152,11 @@ file-level statement suppression.
 
 ## Spotless / build
 
-* `mvn-env.bat -Dai.integrity.skip=true -pl projects/sitemanage spotless:check -DspotlessFiles=src/main/java/com/percussion/assetmanagement/service/impl/PSAssetRestService.java`
+* `mvnw.cmd -Dai.integrity.skip=true -pl projects/sitemanage spotless:check -DspotlessFiles=src/main/java/com/percussion/assetmanagement/service/impl/PSAssetRestService.java`
   → BUILD SUCCESS (16.8 s).
-* `mvn-env.bat -Dai.integrity.skip=true -pl modules/perc-toolkit spotless:check -DspotlessFiles=src/main/java/com/percussion/pso/restservice/impl/ItemRestServiceImpl.java`
+* `mvnw.cmd -Dai.integrity.skip=true -pl modules/perc-toolkit spotless:check -DspotlessFiles=src/main/java/com/percussion/pso/restservice/impl/ItemRestServiceImpl.java`
   → BUILD SUCCESS (9.6 s).
-* `mvn-env.bat -Dai.integrity.skip=true -pl projects/sitemanage test -Dtest=PSSiteDataRestServiceXssTest -Dsurefire.failIfNoSpecifiedTests=false`
+* `mvnw.cmd -Dai.integrity.skip=true -pl projects/sitemanage test -Dtest=PSSiteDataRestServiceXssTest -Dsurefire.failIfNoSpecifiedTests=false`
   → BUILD SUCCESS, **Tests run: 16, Failures: 0, Errors: 0, Skipped: 0**
   (covering safe path parameters, SecureStringUtils HTML
   sanitization, and XSS payload rejection with 400). The

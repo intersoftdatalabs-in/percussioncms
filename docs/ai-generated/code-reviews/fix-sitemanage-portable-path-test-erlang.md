@@ -26,7 +26,7 @@ short-name aliases, symlinks, and case-insensitive filesystems) and that the
 parent directory actually exists on disk.
 
 No production code is touched. Validation already run by the author on the
-changed module (JDK 21, `mvn-env.bat -pl projects/sitemanage test`) reports
+changed module (JDK 21, `mvnw.cmd -pl projects/sitemanage test`) reports
 533 tests / 0 failures / 0 errors / 129 skipped; the changed file passes
 Spotless and Checkstyle; `git diff --check` is clean. The pre-existing
 `WidgetRegistry.xml` Spotless violation is unrelated to the diff.

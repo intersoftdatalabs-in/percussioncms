@@ -20,4 +20,4 @@ None (bugs). Cross-platform path checklist: N/A (CMS logical paths, not OS files
 ## Verification
 
 - Vitest: filenameUtils, LibrarySection, SearchSection, HomeShell — pass
-- `cd WebUI && ../mvn-env.sh clean install` — required before PR
+- `cd WebUI && ../mvnw clean install` — required before PR

@@ -180,13 +180,13 @@ sanity-only and would pass pre-fix as well.
 
 ## Spotless / build
 
-- `mvn-env.bat -Dai.integrity.skip=true -pl projects/sitemanage spotless:check`:
+- `mvnw.cmd -Dai.integrity.skip=true -pl projects/sitemanage spotless:check`:
   Spotless reports a single pre-existing violation in
   `src/main/resources/com/percussion/pagemanagement/service/impl/WidgetRegistry.xml`
   (XML formatting). **Neither of the touched files
   (`PSSiteDataService.java`, `PSSiteDataServicePathInjectionTest.java`)
   appears in the violations list** — formatting on the change is clean.
-- `mvn-env.bat -Dai.integrity.skip=true -pl projects/sitemanage test -Dtest=PSSiteDataServicePathInjectionTest -Dsurefire.failIfNoSpecifiedTests=false`:
+- `mvnw.cmd -Dai.integrity.skip=true -pl projects/sitemanage test -Dtest=PSSiteDataServicePathInjectionTest -Dsurefire.failIfNoSpecifiedTests=false`:
   **9/9 tests pass**, 0 failures, 0 errors, 0 skipped. Three
   `sun.misc.Unsafe` API warnings emitted by `javac` (expected and
   acceptable).

@@ -6,7 +6,7 @@
 ## Prerequisites
 
 - Branch with this feature implemented
-- JDK 21 via `./mvn-env.sh`
+- JDK 21 via `./mvnw`
 - Unit tests under `modules/perc-distribution-tree` (cleaner class)
 
 ## Scenario 1 — Unit: candidate listing
@@ -14,7 +14,7 @@
 **Expect**: Given a temp install root with `PreInstall/` and `jetty/`, only `PreInstall` (and other MVP paths if present) appears as candidate; `jetty` never does.
 
 ```bash
-./mvn-env.sh -pl modules/perc-distribution-tree test \
+./mvnw -pl modules/perc-distribution-tree test \
   -Dtest=ObsoleteInstallDirCleanerTest -Dai.integrity.skip=true
 ```
 

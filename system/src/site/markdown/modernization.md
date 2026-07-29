@@ -1,10 +1,10 @@
 # Modernization Status
 
-Track of Java 17 modernization across the system module. This documents completed refactoring work and compatibility status.
+Track of completed Java modernization across the system module (historical Java 11/17 waves). **Current build baseline is JDK 21.** This page documents finished refactoring and compatibility notes—not a requirement to stay on Java 17.
 
 ## Modernization Overview
 
-The system module is undergoing a phased Java 17 modernization to leverage modern language features while maintaining full backward compatibility with existing APIs.
+The system module completed phased modernization (through Java 11/17 waves) and now builds on **JDK 21**. Maintain full backward compatibility of public APIs while using modern language features valid on 21.
 
 ### Current Status: 85% Complete
 
@@ -289,7 +289,7 @@ If you extend classes from the system module:
 - ✅ Use `@Override` annotation
 - ✅ Use generic types in your code (`List<Item>` not `List`)
 - ✅ Rely on Optional returns instead of null checks
-- ✅ Use Java 17 features in your extensions
+- ✅ Use JDK 21–compatible modern features in your extensions
 
 ### Example: Extending a Service
 
@@ -304,7 +304,7 @@ public class MyCustomAssemblyService extends PSAssemblyService {
 }
 ```
 
-**New pattern (Java 17):**
+**New pattern (modern / JDK 21 line):**
 
 ```java
 public class MyCustomAssemblyService extends PSAssemblyService {
@@ -316,19 +316,19 @@ public class MyCustomAssemblyService extends PSAssemblyService {
 }
 ```
 
-## Testing Java 17 Compatibility
+## Testing JDK 21 compatibility
 
 **Verify your extensions work with modernized code:**
 
 ```bash
 # Build and test
-./mvn-env.sh -pl system clean verify
+./mvnw -pl system clean verify
 
 # Run specific test
-./mvn-env.sh -pl system test -Dtest=YourTest
+./mvnw -pl system test -Dtest=YourTest
 
 # Check compatibility with modern generics
-./mvn-env.sh -pl system compile
+./mvnw -pl system compile
 ```
 
 ## Troubleshooting Modernization

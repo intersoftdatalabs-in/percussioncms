@@ -16,7 +16,7 @@ This plan **completes** that path for issue #949 by: (1) adding `-Ddbprops` / `-
 - **Owning Module(s)**: `modules/perc-distribution-tree` (primary — preinstall `Main`, distribution installer XML, samples, README); `modules/perc-ant` (secondary — optional connect-validation action if not kept inside distribution-only ANT/Java)
 - **AGENTS Hierarchy**: root `AGENTS.md`; `modules/perc-distribution-tree/AGENTS.md`
 - **Dependencies & Storage**: Existing JDBC drivers in distribution (`jetty/base/lib/jdbc` — see `001-fix-jdbc-drivers`); no new third-party libraries; no TableFactory schema format change; uses existing `rxrepository.properties` keys and `PSJdbcUtils` backend labels
-- **Testing**: JUnit 5 (+ Mockito as needed) under `modules/perc-distribution-tree` (and `perc-ant` if new action lives there); `./mvn-env.sh`; no new test framework
+- **Testing**: JUnit 5 (+ Mockito as needed) under `modules/perc-distribution-tree` (and `perc-ant` if new action lives there); `./mvnw`; no new test framework
 - **Scale/Impact**: Install-time only; integrators/automation; new-install config write + validation; upgrades must not regress; DTS full write-through out of scope
 
 ## Constitution Check
@@ -30,7 +30,7 @@ This plan **completes** that path for issue #949 by: (1) adding `-Ddbprops` / `-
 - [x] **IV. Contract & Integration Integrity**: No REST/SOAP/XML-app/`.ppkg` breaks; repository property **key names** preserved; upgrade backend identity preserved; additive CLI contract only.
 - [x] **V. Safe Modernization**: No Spring Boot; no drive-by rewrite of extract/upgrade helpers; extract only DB resolution for testability.
 - [x] **VI. Security by Default**: No password logging; path validation remains for zip extract (existing); dbprops path handled as file read with clear errors; no secret leakage in messages.
-- [x] **VII. Build & Dependency Hygiene**: JDK 21 via `./mvn-env.sh`; no naked new dependency versions; scripts/docs under module conventions.
+- [x] **VII. Build & Dependency Hygiene**: JDK 21 via `./mvnw`; no naked new dependency versions; scripts/docs under module conventions.
 - [x] **VIII. Documentation & Operability**: README + shipped samples; fail-fast messages actionable; note new vs upgrade.
 - [x] **IX. PR Review Comment Resolution**: Apply when PRs land (process obligation).
 - [x] **Complexity Budget**: No constitution violations. Optional residual: password via `-D` special-character risk mitigated per research D6/D10 notes (temp props or tests).

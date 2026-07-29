@@ -78,8 +78,8 @@ jobs:
               - '**/*.kts'
               - '**/pom.xml'
               - '**/.mvn/**'
-              - 'mvn-env.sh'
-              - 'mvn-env.bat'
+              - 'mvnw'
+              - 'mvnw.cmd'
               - '.github/codeql/**'
               - '.github/workflows/codeql.yml'
             js:

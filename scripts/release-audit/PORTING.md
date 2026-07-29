@@ -56,10 +56,10 @@ flag_jdk8_idioms /tmp/cherry-picked.diff /tmp/jdk8-warnings.txt
 
 ```bash
 # Run the v8.1.7 test class on JDK 21
-./mvn-env.sh -pl rest -am test -Dtest=PagesTest
+./mvnw -pl rest -am test -Dtest=PagesTest
 
 # Run Spotless
-./mvn-env.sh -pl rest -am spotless:check
+./mvnw -pl rest -am spotless:check
 ```
 
 If `PagesTest` does not exist in the dev branch, port the test class from the v8.1.7 PR's diff:

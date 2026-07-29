@@ -538,7 +538,7 @@ No iframe default for webmgt.
 | Entry | SPA-first `index.ts`; lazy registry/routes |
 | Assets | `/cm/modern/assets/perc-modern-ui.js` |
 | Cache | Deploy cache-buster query or short-cache headers on stable entry name |
-| Pre-PR | `cd WebUI && ../mvn-env.sh clean install` |
+| Pre-PR | `cd WebUI && ../mvnw clean install` |
 
 ---
 

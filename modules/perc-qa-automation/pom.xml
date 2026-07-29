@@ -71,11 +71,11 @@
 
       Default ``mvn test`` / reactor builds do NOT run this (Docker + long installs).
 
-      Examples (from modules/perc-qa-automation, with repo-root mvn-env wrapper):
+      Examples (from modules/perc-qa-automation, with repo-root Maven wrapper):
 
-        ../../mvn-env.sh -Pmatrix-smoke test
-        ../../mvn-env.sh -Pmatrix-smoke -Dmatrix.db=postgresql test
-        ../../mvn-env.sh -Pmatrix-smoke -Dmatrix.product=cms -Dmatrix.db=h2,postgresql,mysql,sqlserver test
+        ../../mvnw -Pmatrix-smoke test
+        ../../mvnw -Pmatrix-smoke -Dmatrix.db=postgresql test
+        ../../mvnw -Pmatrix-smoke -Dmatrix.product=cms -Dmatrix.db=h2,postgresql,mysql,sqlserver test
 
       Requires: Docker, docker compose, and a built perc-distribution-tree.jar
       (or set installer path via env the harness understands). See README.

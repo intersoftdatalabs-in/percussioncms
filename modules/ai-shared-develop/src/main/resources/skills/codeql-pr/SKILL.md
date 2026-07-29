@@ -49,7 +49,7 @@ Edit `.github/codeql/models/models/*.model.yml`, bump pack `version` in `codeql-
 
 ## PR body checklist
 
-- [ ] Runtime fix + `./mvn-env.sh` tests green
+- [ ] Runtime fix + `./mvnw` tests green
 - [ ] Model pack updated (or path exclude + suppressions.md row justified)
 - [ ] Sink-line suppressions only
 - [ ] Default setup still `not-configured`

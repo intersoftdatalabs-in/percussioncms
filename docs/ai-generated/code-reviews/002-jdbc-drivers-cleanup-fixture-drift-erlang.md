@@ -20,7 +20,7 @@ the source of truth.
 The fix is targeted, behavior-preserving for production runtime (the ANT
 script and `pom.xml` `provided`-scope deps already had `derbyshared` and
 `derbytools`), and removes the test-vs-spec-vs-XML drift. After
-`./mvn-env.sh test -rf :perc-distribution-tree ... -Dskip.ai.integrity=true`,
+`./mvnw test -rf :perc-distribution-tree ... -Dskip.ai.integrity=true`,
 both `StagingCleanupAntScriptTest` (4/4) and `InstallXmlDeleteSetTest`
 (4/4) pass on the rebased branch; the previously failing test is green.
 
@@ -105,7 +105,7 @@ justification comment).
 
 ## Behavioral evidence
 
-`./mvn-env.sh test -rf :perc-distribution-tree
+`./mvnw test -rf :perc-distribution-tree
 -Dtest='StagingCleanupAntScriptTest,InstallXmlDeleteSetTest'
 -Dsurefire.failIfNoSpecifiedTests=false -Dskip.ai.integrity=true`
 
@@ -119,7 +119,7 @@ Result:
 with no matching `-Dtest=` pattern when `--fail-if-no-specified` is on
 in the surefire config — not a regression caused by this fix; reconcile
 by passing `-Dsurefire.failIfNoSpecifiedTests=false` at the parent
-invocation, or by running `./mvn-env.sh -pl
+invocation, or by running `./mvnw -pl
 modules/perc-distribution-tree test ...` for fixture-only runs).
 
 ## Cross-platform path review
@@ -160,7 +160,7 @@ AGENTS.md.
   derbyshared/derbytools are new in this release — no upgrade-from-N-1
   scenario that needs to purge a stale prior-version copy.
 
-  After ./mvn-env.sh test -rf :perc-distribution-tree ... -Dskip.ai.integrity=true:
+  After ./mvnw test -rf :perc-distribution-tree ... -Dskip.ai.integrity=true:
     StagingCleanupAntScriptTest  4/4 pass
     InstallXmlDeleteSetTest      4/4 pass
 

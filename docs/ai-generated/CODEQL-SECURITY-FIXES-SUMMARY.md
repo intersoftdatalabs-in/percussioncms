@@ -298,8 +298,8 @@ BUILD SUCCESS
 
 |       Module        |                           Command                            |  Status   | Time  |
 |---------------------|--------------------------------------------------------------|-----------|-------|
-| perc-security-utils | `./mvn-env.sh -pl modules/perc-security-utils clean install` | ✅ SUCCESS | 12.5s |
-| sitemanage          | `./mvn-env.sh -pl projects/sitemanage clean compile test`    | ✅ SUCCESS | 18.7s |
+| perc-security-utils | `./mvnw -pl modules/perc-security-utils clean install` | ✅ SUCCESS | 12.5s |
+| sitemanage          | `./mvnw -pl projects/sitemanage clean compile test`    | ✅ SUCCESS | 18.7s |
 
 ---
 

@@ -52,9 +52,9 @@ Closes the three open `java/zipslip` code-scanning alerts (#720, #722, #723) by 
 
 ## Tests run
 
-- `./mvn-env.sh -pl system -am -Dtest=PSArchiveFilesZipSlipTest -Dsurefire.failIfNoSpecifiedTests=false test` — 4 tests GREEN
-- `./mvn-env.sh -pl modules/perc-ant -Dtest=PSExtractJarFilesZipSlipTest test` — 1 test GREEN
-- `./mvn-env.sh -pl projects/sitemanage -am -Dtest=PSWidgetPackageBuilderZipSlipTest -Dsurefire.failIfNoSpecifiedTests=false test` — 1 test GREEN
+- `./mvnw -pl system -am -Dtest=PSArchiveFilesZipSlipTest -Dsurefire.failIfNoSpecifiedTests=false test` — 4 tests GREEN
+- `./mvnw -pl modules/perc-ant -Dtest=PSExtractJarFilesZipSlipTest test` — 1 test GREEN
+- `./mvnw -pl projects/sitemanage -am -Dtest=PSWidgetPackageBuilderZipSlipTest -Dsurefire.failIfNoSpecifiedTests=false test` — 1 test GREEN
 
 ## Handoff
 

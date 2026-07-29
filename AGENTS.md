@@ -61,6 +61,87 @@ Before `git commit`, `git push`, or opening/updating a GitHub PR for changes you
 
 Tool-agnostic one-shot prompt: `modules/ai-shared-develop/src/main/resources/prompts/erlang-review-uncommitted.md`.
 
+## Pre-PR Spotless formatting (HARD GATE)
+
+**Before every final commit** that will ship on a GitHub PR (and before `git push` / open / update that PR), agents **MUST** run Spotless when the change set can include Spotless-covered files.
+
+Spotless in this monorepo is **not Java-only**. It formats / checks **Java, Markdown/docs, JavaScript, TypeScript**, and other configured globs. Skipping it “because this is not Java” is a common agent failure mode.
+
+### Required sequence
+
+1. Ensure `JAVA_HOME` is JDK 21; use the repo Maven wrapper (`./mvnw` / `mvnw.cmd`).
+2. From **repo root** (preferred for a final PR commit so docs/JS/TS outside a single module are included):
+
+   ```bash
+   ./mvnw spotless:apply
+   ./mvnw spotless:check
+   ```
+
+   Windows:
+
+   ```bat
+   mvnw.cmd spotless:apply
+   mvnw.cmd spotless:check
+   ```
+
+   Module-scoped apply is OK for mid-work iteration; the **final** PR commit must still end with a clean `spotless:check` for everything that will land on the PR (root apply/check when unsure).
+3. Immediately inspect what Spotless rewrote:
+
+   ```bash
+   git status
+   git diff --name-only
+   ```
+
+4. **Partition the working tree** into:
+   - **In-scope** — files that are part of the agent’s intentional task (feature/fix/docs you meant to ship on *this* PR).
+   - **Out-of-scope** — files Spotless rewrote that the agent did **not** intentionally change for this task (baseline formatting debt, unrelated modules, “100 files I never touched”).
+
+### Out-of-scope Spotless hits — mandatory split (do not freak out)
+
+If Spotless touches files **outside** the agent’s task scope:
+
+| Do | Do **not** |
+|----|------------|
+| Keep **only in-scope** files on the feature branch / feature PR | Stuff dozens or hundreds of unrelated Spotless files into the feature PR |
+| Leave out-of-scope Spotless changes **uncommitted** (or stash them) while finishing the feature commit | Panic, discard the whole worktree, or “fix everything Spotless touched” as part of the feature story |
+| Open a **second PR** whose sole purpose is baseline formatting | Expand the feature PR description to claim ownership of unrelated modules |
+| Title that second PR clearly, e.g. **`chore: Spotless cleanup`** (branch e.g. `chore/spotless-cleanup-<short-date-or-topic>`) | Skip Spotless entirely because “too many files” |
+| Commit **only** the Spotless-only diffs on that cleanup branch | Mix product logic and repo-wide reformat in one review |
+
+Concrete workflow when `git status` shows a sea of unrelated Spotless files:
+
+```bash
+# 1) Stage and commit ONLY the intentional task files on the feature branch
+git add <in-scope paths...>
+git commit   # feature commit — no drive-by formatting of the monorepo
+
+# 2) Move remaining Spotless-only changes onto a cleanup branch
+git switch -c chore/spotless-cleanup-<topic> origin/development   # or current base
+# re-apply / keep the out-of-scope Spotless diffs (stash pop, cherry-pick, etc.)
+git add <spotless-only paths...>
+git commit -m "chore: Spotless cleanup (unrelated baseline formatting)"
+# push + open PR titled "Spotless Cleanup" (or "chore: Spotless cleanup") against the same base
+```
+
+If the out-of-scope set is huge, still open the cleanup PR rather than folding it into the feature PR. Reviewers must be able to approve product work without auditing a monorepo reformat.
+
+### Hard bans
+
+* **Do not** open or update a product/feature PR that silently includes large unrelated Spotless diffs.
+* **Do not** skip `spotless:apply` / `spotless:check` on the final PR commit for Spotless-covered work because apply rewrote files outside your scope — **split** instead.
+* **Do not** treat Spotless noise as a reason to abandon the feature branch or rewrite history of unrelated modules.
+* **Do not** claim “formatting only” inside a feature PR when the diff is mostly baseline debt; that is a **Spotless Cleanup** PR.
+
+### Evidence in the PR
+
+In the feature PR body (or a short comment before “ready for review”), record:
+
+* That `./mvnw spotless:apply` and `./mvnw spotless:check` were run (exact commands).
+* That the feature PR contains **only in-scope** files (or “Spotless rewrote no out-of-scope files”).
+* If a cleanup PR was opened: its URL/number, e.g. “Unrelated Spotless hits → #NNNN”.
+
+Failing this section is a **hard gate** equal to a failing Erlang review or failed clean install: fix partitioning / formatting, then open/update the PR.
+
 ## Pre-PR Maven verification (HARD GATE)
 
 **Before** opening or updating a GitHub PR (and before treating a change set as “done”), agents **MUST** run a real Maven **clean install** against every module whose sources, tests, resources, or `pom.xml` they changed. Partial compiles, IDE “make project”, or “tests only on one class” are **not** a substitute.
@@ -70,40 +151,40 @@ Tool-agnostic one-shot prompt: `modules/ai-shared-develop/src/main/resources/pro
 1. **Compile** — every changed module builds successfully **standalone** (see below).
 2. **Tests** — unit/integration tests that Maven runs for those modules **pass**. No exceptions for “known flaky” without fixing or an explicit, documented skip approved in the PR body.
 3. **No new warnings** — the clean install must not introduce **new** compiler, surefire, enforcer, Spotless, or plugin warnings attributable to the change. Prefer zero warnings on the modules you own; if the baseline already warns, do not add more (diff against a clean build of the base branch when unsure).
-4. **Use the env wrapper** — always invoke `mvn-env.sh` / `mvn-env.bat` from the **module directory** (path to the wrapper is relative to depth) so the correct JDK is used.
+4. **Use the Maven wrapper + JDK 21** — always invoke repo-root `mvnw` / `mvnw.cmd` from the **module directory** (path is relative to depth). Ensure `JAVA_HOME` points at **JDK 21** (this monorepo’s supported toolchain on `development`).
 
 ### How to run (default: per-module standalone — NOT full reactor)
 
-This monorepo is large. **Do not** default to root `./mvn-env.sh -pl … -am clean install` — that often rebuilds dozens of upstream modules and wastes time. Prefer **standalone** builds: change into each changed module’s directory and clean-install **only that module**, resolving dependencies from the local repo / already-installed SNAPSHOTs.
+This monorepo is large. **Do not** default to root `./mvnw -pl … -am clean install` — that often rebuilds dozens of upstream modules and wastes time. Prefer **standalone** builds: change into each changed module’s directory and clean-install **only that module**, resolving dependencies from the local repo / already-installed SNAPSHOTs.
 
 Identify changed Maven modules from the diff (e.g. `rest`, `projects/sitemanage`, `system`). Then, for **each** changed module:
 
 ```bash
 # Example: only rest changed
 cd rest
-../mvn-env.sh clean install
+../mvnw clean install
 
 # Example: only sitemanage changed (two levels down)
 cd projects/sitemanage
-../../mvn-env.sh clean install
+../../mvnw clean install
 
 # Example: two modules changed — build each standalone, producer first if one depends on the other
-cd rest && ../mvn-env.sh clean install && cd ..
-cd projects/sitemanage && ../../mvn-env.sh clean install && cd ../..
+cd rest && ../mvnw clean install && cd ..
+cd projects/sitemanage && ../../mvnw clean install && cd ../..
 ```
 
 Windows (from the module directory):
 
 ```bat
 cd rest
-..\mvn-env.bat clean install
+..\mvnw.cmd clean install
 ```
 
-Adjust `../` vs `../../` (etc.) so the path points at the **repo-root** `mvn-env.sh` / `mvn-env.bat`. Maven uses the **current working directory**’s `pom.xml`, so only that module is built.
+Adjust `../` vs `../../` (etc.) so the path points at the **repo-root** `mvnw` / `mvnw.cmd`. Maven uses the **current working directory**’s `pom.xml`, so only that module is built.
 
 |                         Situation                         |                                                                                                Command guidance                                                                                                 |
 |-----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| One or more leaf modules’ sources/tests/resources changed | **`cd` into each module** → `…/mvn-env.sh clean install` (standalone). If module B depends on module A and you changed both, build **A first**, then B (each still standalone after A is installed to `~/.m2`). |
+| One or more leaf modules’ sources/tests/resources changed | **`cd` into each module** → `…/mvnw clean install` (standalone). If module B depends on module A and you changed both, build **A first**, then B (each still standalone after A is installed to `~/.m2`). |
 | Only docs / AGENTS.md / non-Maven files                   | No Maven clean install required; say so in the PR body.                                                                                                                                                         |
 | Change **requires** a multi-module reactor (see below)    | Only then use a root reactor command — and scope it as tightly as possible.                                                                                                                                     |
 
@@ -120,13 +201,13 @@ When reactor is justified:
 
 ```bash
 # From repo root — prefer the smallest set of modules; avoid -am unless you truly need upstreams rebuilt
-./mvn-env.sh -pl rest,projects/sitemanage clean install
+./mvnw -pl rest,projects/sitemanage clean install
 
 # Only if upstream reactor modules must be rebuilt for this change (expensive — justify in PR body)
-./mvn-env.sh -pl projects/sitemanage -am clean install
+./mvnw -pl projects/sitemanage -am clean install
 ```
 
-**Do not** use `-am` “just in case.” Prefer standalone `cd module && …/mvn-env.sh clean install` first.
+**Do not** use `-am` “just in case.” Prefer standalone `cd module && …/mvnw clean install` first.
 
 ### Hard bans
 
@@ -160,7 +241,8 @@ Failing this section is a **hard gate** equal to a failing Erlang review: fix, r
 * ALWAYS update relevant script dir `README.md` files with doc on script purpose and usage scanrios when creating/editing scripts.
 * ALWAYS document your work in comments, README, or maven site documentation.
 * **IMPORTANT** you must ALWAYS update or create unit tests for any code change that you make, new or edited. And the tests must pass. No exceptions.
-* **IMPORTANT — Pre-PR build:** Before opening or updating a GitHub PR, **`cd` into each module you changed** and run repo-root `mvn-env.sh` / `mvn-env.bat` **`clean install` standalone** (not default root `-pl -am` reactor builds). Code must compile, tests must pass, and there must be **no new warnings**. Use a full/partial reactor only when the change requires it. See **Pre-PR Maven verification (HARD GATE)** above. CI is not a substitute for this local gate.
+* **IMPORTANT — Pre-PR Spotless:** Before every final PR commit, run `./mvnw spotless:apply` then `./mvnw spotless:check` (JDK 21 + Maven wrapper). Spotless covers **Java, docs/Markdown, JS, and TS** (and other configured globs)—not Java only. If Spotless rewrites files **outside** your task scope, **do not** fold them into the feature PR: commit only in-scope files there, and open a second **`chore: Spotless cleanup`** PR for the unrelated formatting. Do not panic or abandon the feature work. See **Pre-PR Spotless formatting (HARD GATE)** above.
+* **IMPORTANT — Pre-PR build:** Before opening or updating a GitHub PR, **`cd` into each module you changed** and run repo-root `mvnw` / `mvnw.cmd` **`clean install` standalone** (not default root `-pl -am` reactor builds). Code must compile, tests must pass, and there must be **no new warnings**. Use a full/partial reactor only when the change requires it. See **Pre-PR Maven verification (HARD GATE)** above. CI is not a substitute for this local gate.
 * Always use the #codebase or root `./` context when resolving missing interfaces or classes.
 * You MUST respect rate limits when calling 3rd party API's. All 3rd party API integrations must be implemented with rate limit detection and exponential backoff logic.
 * You MUST NOT share or leak secrets, tokens, or keys over the wire, in logs, or in LLM sessions.  If you see MKD-REDACTED in a session, that means you leaked a secret.
@@ -174,7 +256,7 @@ Percussion CMS is built, tested, installed, and deployed on **Windows, Linux, an
 
 1. **Never hardcode OS path separators in filesystem paths.** Do not concatenate paths with `"/"`, `"\\"`, or mixed literals for local files. Hardcoded `/` is correct only for **URL, URI, classpath, and ZIP entry** paths (those always use `/`).
 2. **Prefer portable Java NIO path APIs** for all filesystem work:
-   * `java.nio.file.Path`, `Paths.get(...)`, `Path.of(...)` (JDK 11+)
+   * `java.nio.file.Path`, `Paths.get(...)`, `Path.of(...)` (JDK 21 baseline; prefer NIO over legacy `File` string ops)
    * `path.resolve("child")`, `path.resolveSibling(...)`, `path.getParent()`, `path.normalize()`, `path.toAbsolutePath()`
    * `Files.*` (`Files.readString`, `Files.write`, `Files.createDirectories`, `Files.exists`, `Files.walk`, etc.) instead of ad-hoc `File` + string ops when practical
 3. **When a separator character is required**, use the platform constants — do not invent them:
@@ -185,7 +267,7 @@ Percussion CMS is built, tested, installed, and deployed on **Windows, Linux, an
 5. **Do not assume Unix-only roots or temp locations.** Avoid hardcoding `/tmp`, `/var`, `/home`, or drive-letter-free absolute paths. Use `System.getProperty("java.io.tmpdir")`, `Files.createTempFile` / `Files.createTempDirectory`, or the repo temp dir (`./tmp`) as appropriate. On Windows, absolute paths include a drive letter or UNC prefix (`C:\...`, `\\server\share\...`).
 6. **Normalize before comparing paths as strings.** Prefer `Path` equality (`path1.normalize().toAbsolutePath().equals(...)`) or `Files.isSameFile` over string equality of raw path text. If string form is unavoidable, normalize separators first (e.g. via `Path` then `toString()`, or consistent use of `File.separator`).
 7. **Line endings differ by platform.** Do not assert exact multi-line file contents with only `\n` when the runtime or Git may produce `\r\n` on Windows. Normalize line endings in tests (`replace("\r\n", "\n")`) or compare logical lines / use platform-agnostic matchers.
-8. **Shell scripts are not portable by themselves.** Repo automation that must run on Windows needs a `.bat`/`.cmd` counterpart (or a documented Java/Maven entry point). Existing pattern: `./mvn-env.sh` and `./mvn-env.bat`. Do not land Unix-only scripts as the sole way to run a required workflow.
+8. **Shell scripts are not portable by themselves.** Repo automation that must run on Windows needs a `.bat`/`.cmd` counterpart (or a documented Java/Maven entry point). Existing pattern: `./mvnw` and `./mvnw.cmd`. Do not land Unix-only scripts as the sole way to run a required workflow.
 9. **Unit and integration tests must be cross-platform.** Tests that construct paths, write files, parse absolute paths, or assert path strings MUST pass on Windows. Common failure modes to avoid:
    * Expected path strings built with `/` when the OS returns `\`
    * Splitting `PATH` / classpath with `:` only
@@ -304,12 +386,15 @@ Disposition ladder: **runtime fix + test → model pack barrier → sink-line `/
 
 ## Git Branch & Maven Wrapper Information
 
-* Base Branch Name: development
-  * All code changes in this branch must be compatible with JDK 21
-  * Use `./mvn-env.sh` or `./mvn-env.bat` maven wrapper to ensure JDK compliance.
-* Base Branch Name: development-8.1.x
-  * All code changes on this branch must be compatible with JDK 8.
-  * Use `./mvn-env.sh` or `./mvn-env.bat` maven wrapper to ensure JDK compliance.
+* **Toolchain today (do not target older JDKs on `development`):** parent `pom.xml` uses **`java.version` / compiler `release` = 21**. Agent instructions, Spotless (`google-java-format`), and local builds assume **JDK 21** via `JAVA_HOME` + `./mvnw` / `mvnw.cmd`. Do **not** follow stale “Java 11” or “Java 17” modernization checklists as the current baseline—those were intermediate migrations; **current product line is Java 21**.
+* Base Branch Name: **`development`**
+  * All code changes on this branch must be compatible with **JDK 21**.
+  * Prefer modern language features that compile on 21 (records, sealed types, pattern matching, virtual threads where appropriate, `var`, `Optional`, Streams, NIO `Path`).
+  * Use `./mvnw` or `./mvnw.cmd` with `JAVA_HOME` pointing at JDK 21.
+* Base Branch Name: **`development-8.1.x`**
+  * Maintenance line: all code changes must remain compatible with **JDK 8**.
+  * Do not introduce JDK 9+ APIs or language features on this branch.
+  * Use `./mvnw` or `./mvnw.cmd` with a JDK 8-compatible toolchain as required by that line.
 
 ## Project & Dependency Management
 

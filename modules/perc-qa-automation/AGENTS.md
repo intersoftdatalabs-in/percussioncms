@@ -268,7 +268,7 @@ This avoids the browser caching the previous bundle across spec reruns.
 | TS / TSX in `helpers/`        | `npm run build:modern` (~3 s) + copy            | none                     | ~3 s     |
 | CSS / styles                  | `npm run build:modern` + copy                   | none                     | ~3 s     |
 | JSP (e.g. modern entry point) | none (copy)                                     | none                     | ~1 s     |
-| WebUI backend Java            | `./mvn-env.sh -pl WebUI -am install` (~30–60 s) | `docker compose restart` | ~1–2 min |
+| WebUI backend Java            | `./mvnw -pl WebUI -am install` (~30–60 s) | `docker compose restart` | ~1–2 min |
 
 When iterating, prefer the cheap paths first (spec → helpers → CSS → JSP → Java).
 

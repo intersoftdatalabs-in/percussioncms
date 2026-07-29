@@ -203,7 +203,7 @@ These overlap with broader Phase 1d error handling improvements and general item
 ### Compilation Success
 
 ```bash
-$ ./mvn-env.sh -pl modules/perc-toolkit clean compile -DskipTests=true
+$ ./mvnw -pl modules/perc-toolkit clean compile -DskipTests=true
 ...
 [INFO] BUILD SUCCESS
 [INFO] Total time: 8.490 s
@@ -216,7 +216,7 @@ $ ./mvn-env.sh -pl modules/perc-toolkit clean compile -DskipTests=true
 ### Dependency Resolution
 
 ```bash
-$ ./mvn-env.sh -pl modules/perc-security-utils install -DskipTests=true
+$ ./mvnw -pl modules/perc-security-utils install -DskipTests=true
 ...
 [INFO] BUILD SUCCESS
 ```

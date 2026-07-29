@@ -156,7 +156,7 @@ JSP files continue to reference these paths; the build infrastructure now ensure
 
 ### Phase 3: Full Integration Test (30 minutes)
 
-- Run `./mvn-env.sh clean package` for WebUI module
+- Run `./mvnw clean package` for WebUI module
 - Extract WAR and verify both source and generated files are present
 - Deploy to test environment
 - Verify all JSPs load without 404s
@@ -209,7 +209,7 @@ The Phase 1 migration created `src/main/webapp/cm/` but didn't fully reorganize 
 - ✅ Vite React build outputs to `target/generated-webui/cm/modern/`
 - ✅ Vite legacy build outputs to `target/generated-webui/cm/` (jslibMin/, cssMin/)
 - ✅ Legacy bundle script correctly builds all 16 JS + 8 CSS bundles
-- ✅ Maven build succeeds with `./mvn-env.sh -f WebUI/pom.xml clean compile`
+- ✅ Maven build succeeds with `./mvnw -f WebUI/pom.xml clean compile`
 - ✅ No generated files remain in source tree
 - ✅ .gitignore prevents accidental commits of generated folder
 - ✅ npm build completes without errors: `npm run build:modern && npm run build:legacy`
@@ -221,7 +221,7 @@ The Phase 1 migration created `src/main/webapp/cm/` but didn't fully reorganize 
 cd /home/nate/projects/percussioncms
 
 # Maven build (includes npm build via frontend-maven-plugin)
-./mvn-env.sh -f WebUI/pom.xml clean compile
+./mvnw -f WebUI/pom.xml clean compile
 
 # Direct npm build (from WebUI/src/main/frontend/)
 cd WebUI/src/main/frontend

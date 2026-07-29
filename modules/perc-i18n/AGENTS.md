@@ -70,8 +70,8 @@ When modifying i18n resources:
 **Important**: Always rebuild both perc-i18n AND perc-distribution-tree when changing TMX files:
 
 ```bash
-./mvn-env.sh -pl modules/perc-i18n clean install
-./mvn-env.sh -pl modules/perc-distribution-tree clean install
+./mvnw -pl modules/perc-i18n clean install
+./mvnw -pl modules/perc-distribution-tree clean install
 ```
 
 The runtime loader (`PSTmxResourceBundle`) scans BOTH `rxconfig/I18n/`
@@ -120,7 +120,7 @@ and cross-platform guarantees.
      if a new analyzer branch is required.
 4. Run `python3 modules/perc-i18n/scripts/i18n_translate.py --target <code>`
    to back-fill translations for the existing keys.
-5. Run `./mvn-env.sh -pl modules/perc-i18n clean install` and the
+5. Run `./mvnw -pl modules/perc-i18n clean install` and the
    matching `perc-distribution-tree` build.
 6. Update the Quick Reference table at the bottom of this file and
    the Supported Languages section in `README.md`.
@@ -190,7 +190,7 @@ Examples:
 Run i18n tests before committing:
 
 ```bash
-./mvn-env.sh -pl modules/perc-i18n test
+./mvnw -pl modules/perc-i18n test
 ```
 
 Tests verify:
@@ -228,8 +228,8 @@ Update README.md if:
    to fill the missing `<tuv>` from the canonical source. Pass `--dry-run`
    first to confirm the key set.
 2. Validate the diff: `xmllint --noout CmsUi.tmx`
-3. Rebuild: `./mvn-env.sh -pl modules/perc-i18n clean install`
-4. Test: `./mvn-env.sh -pl modules/perc-i18n test`
+3. Rebuild: `./mvnw -pl modules/perc-i18n clean install`
+4. Test: `./mvnw -pl modules/perc-i18n test`
 
 Hand-editing a single `<tuv>` is allowed for review fixes but should be
 followed by a re-run of `i18n_translate.py --force` for the affected

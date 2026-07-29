@@ -9,13 +9,13 @@
 - Branch `991-system-java-home` built/installed (or scripts patched in a test install tree)
 - Host with **JDK/JRE 21** available (system package, Temurin, etc.)
 - **Do not** create `<InstallDir>/JRE` for positive path tests
-- JDK 21 for unit tests via `./mvn-env.sh` / `mvn-env.bat` (build only; not product runtime)
+- JDK 21 for unit tests via `./mvnw` / `mvnw.cmd` (build only; not product runtime)
 
 ## Automated checks (CI / local)
 
 ```bash
 # From repo root — full FR-013 layer-1 + layer-2 + layer-3 matrix
-./mvn-env.sh -pl modules/perc-jetty,modules/perc-distribution-tree,deliverytiersuite/delivery-tier-suite/delivery-tier-distribution -am test -Dtest='JavaHomeResolverTest,JavaPropertiesSupportTest,JavaCandidateDiscoveryTest,JavaInstallSelectionTest,ResolveJavaHomeScriptTest,DtsJavaHomeScriptTest,InstallJettyServiceJavaHomeTest,ResolveJavaHomeBehaviorTest'
+./mvnw -pl modules/perc-jetty,modules/perc-distribution-tree,deliverytiersuite/delivery-tier-suite/delivery-tier-distribution -am test -Dtest='JavaHomeResolverTest,JavaPropertiesSupportTest,JavaCandidateDiscoveryTest,JavaInstallSelectionTest,ResolveJavaHomeScriptTest,DtsJavaHomeScriptTest,InstallJettyServiceJavaHomeTest,ResolveJavaHomeBehaviorTest'
 # DTS module tests similarly once added under delivery-tier-distribution
 ```
 

@@ -15,7 +15,7 @@ The development line already pins **`javax.jcr:jcr:2.0`**. This plan restores **
 - **Secondary modules**: `modules/perc-toolkit`, `projects/sitemanage`, `modules/segmentation-rx`, `modules/p13n-api`, `deployer`, selected `modules/extensions-*`, `modules/ContentUI`, limited DTS touchpoints
 - **AGENTS Hierarchy**: Root `./AGENTS.md`; apply module AGENTS if present under touched paths
 - **Dependencies & Storage**: Parent BOM `javax.jcr:jcr:2.0`; `jackrabbit-jcr-commons` 2.22.x; existing CMS RDBMS content store (no schema migration)
-- **Testing**: JUnit 5, Mockito; module tests via `./mvn-env.sh`; feature-complete scripted smoke (manual/recorded)
+- **Testing**: JUnit 5, Mockito; module tests via `./mvnw`; feature-complete scripted smoke (manual/recorded)
 - **Scale/Impact**: ~200 files import `javax.jcr`; **compile risk concentrated in ~15 implementor types**; editors/publishers see no intentional UX change; ops security posture; integrators rebuild extensions
 - **Delivery**: Phase 1 compile PR first (FR-014); then deprecation PRs; smoke at feature-complete only
 

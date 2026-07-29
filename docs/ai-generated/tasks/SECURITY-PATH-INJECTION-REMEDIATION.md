@@ -252,7 +252,7 @@ String safePath = PathValidation.combineSafePaths(baseFolder, relativePath);
 - Run CodeQL with command:
 
   ```bash
-  ./mvn-env.sh clean compile -Pcodeql-local
+  ./mvnw clean compile -Pcodeql-local
   ```
 - Expected result: Alert count 58 → ~23-29 (depending on cascade effects)
 

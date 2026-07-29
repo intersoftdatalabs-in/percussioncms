@@ -13,7 +13,7 @@
 - ✅ Generated bundles with both `.min` and non-`.min` filenames for compatibility (PercProcessMonitor.jsp uses non-.min)
 
 **Test results:**
-- ✅ Build pipeline works end-to-end: `./mvn-env.sh package` successfully builds WAR with all bundles
+- ✅ Build pipeline works end-to-end: `./mvnw package` successfully builds WAR with all bundles
 - ✅ WAR contains 16 JS bundles (8 × .min.js + 8 × .js aliases) + 16 CSS bundles
 - ✅ Bundles are at correct paths: `cm/jslibMin/perc_*.packed.min.js`, `cm/cssMin/perc_*.packed.min.css`, plus non-.min aliases
 

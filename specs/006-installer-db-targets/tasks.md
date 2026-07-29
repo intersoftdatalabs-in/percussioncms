@@ -10,7 +10,7 @@
 ## Phase 1: Setup
 
 - [x] T001 Identify owning modules and read AGENTS hierarchy: root `AGENTS.md`, `modules/perc-distribution-tree/AGENTS.md`, and skim `modules/perc-ant` for Ant action patterns used by install
-- [x] T002 Confirm JDK 21 on branch `984-installer-db-targets` and run baseline `./mvn-env.sh -pl modules/perc-distribution-tree -am test` (note failures unrelated to this feature)
+- [x] T002 Confirm JDK 21 on branch `984-installer-db-targets` and run baseline `./mvnw -pl modules/perc-distribution-tree -am test` (note failures unrelated to this feature)
 - [x] T003 [P] Re-read research decisions D1–D10 in `specs/006-installer-db-targets/research.md` and contracts in `specs/006-installer-db-targets/contracts/` before coding
 
 ## Phase 2: Foundational (Blocking Prerequisites)
@@ -23,7 +23,7 @@
 - [x] T006 Create package-visible/testable resolver class `modules/perc-distribution-tree/src/main/java/com/percussion/preinstall/DbInstallConfigResolver.java` by moving/extracting `resolveDbConfig`, `loadEnvFile`, `getConfigValue`, `parseArgs` DB-related helpers, and `ResolvedDbConfig` / `ParsedArgs` records from `Main.java` without behavior change yet
 - [x] T007 Refactor `modules/perc-distribution-tree/src/main/java/com/percussion/preinstall/Main.java` to call `DbInstallConfigResolver`; on `IllegalArgumentException` (and equivalent resolve failures) print a clear message and `System.exit` with non-zero code (do not swallow as soft “install likely failed” success path)
 - [x] T008 [P] Add foundational unit tests in `modules/perc-distribution-tree/src/test/java/com/percussion/preinstall/DbInstallConfigResolverTest.java` covering: default Derby when no options; structured `--db.type=mysql` with required fields maps to `perc.db.cms.*`; missing required mysql fields throws; existing sqlserver mapping still works
-- [x] T009 Run `./mvn-env.sh -pl modules/perc-distribution-tree -am test -Dtest=DbInstallConfigResolverTest,MainExtractExecutableTest` and fix regressions from the extract
+- [x] T009 Run `./mvnw -pl modules/perc-distribution-tree -am test -Dtest=DbInstallConfigResolverTest,MainExtractExecutableTest` and fix regressions from the extract
 
 ## Phase 3: User Story 1 — Fresh install to enterprise RDBMS via property file (Priority: P1)
 
@@ -43,7 +43,7 @@
 - [x] T015 [US1] Align composed (non-dbprops) mysql defaults to shipped MariaDB driver class/name in `modules/perc-distribution-tree/src/main/java/com/percussion/preinstall/DbInstallConfigResolver.java` (research D5); keep dbprops free to override class/name
 - [x] T016 [US1] Add Oracle branch to `modules/perc-distribution-tree/src/main/resources/distribution/rxconfig/Installer/installRepository.xml` in target `repository_properties` (mirror mysql/sqlserver `propertyfile` entries for `DB_*` / `UID` / `PWD` / SSL keys when `perc.db.type=oracle`)
 - [x] T017 [US1] Verify mysql/sqlserver `propertyfile` blocks in `installRepository.xml` still write when `perc.db.*` is supplied via JVM `-D` (ANT property semantics); fix only if a regression is found
-- [x] T018 [US1] Run `./mvn-env.sh -pl modules/perc-distribution-tree -am test -Dtest=DbInstallConfigResolverTest` and ensure US1 tests pass
+- [x] T018 [US1] Run `./mvnw -pl modules/perc-distribution-tree -am test -Dtest=DbInstallConfigResolverTest` and ensure US1 tests pass
 - [ ] T019 [US1] Commit US1 changes and open a PR scoped to enterprise dbprops + Oracle write-through; pause downstream stories until PR is ready for review
 - [ ] T020 [US1] Monitor CI/Kilo checks on the US1 PR; address feedback; reply+resolve review threads per `AGENTS.md` PR Review Comment Resolution
 - [ ] T021 [US1] Verify human approval and merge of US1 PR before starting User Story 2
@@ -61,7 +61,7 @@
 
 - [x] T023 [US2] Confirm `modules/perc-distribution-tree/src/main/resources/distribution/rxconfig/Installer/rxrepository.properties` remains Derby defaults and derby branch in `installRepository.xml` only stamps SSL keys (no accidental backend overwrite)
 - [x] T024 [US2] If any US1 change altered default path, fix `DbInstallConfigResolver` / `Main` so omit-override behavior matches pre-feature Derby default
-- [x] T025 [US2] Run targeted tests `./mvn-env.sh -pl modules/perc-distribution-tree -am test -Dtest=DbInstallConfigResolverTest`
+- [x] T025 [US2] Run targeted tests `./mvnw -pl modules/perc-distribution-tree -am test -Dtest=DbInstallConfigResolverTest`
 - [ ] T026 [US2] Commit US2 changes (or no-op confirmation commit note) and open/update PR; pause for review
 - [ ] T027 [US2] Monitor checks, resolve review threads, verify merge before User Story 5
 
@@ -79,7 +79,7 @@
 
 - [x] T030 [US5] Audit `modules/perc-distribution-tree/src/main/resources/distribution/rxconfig/Installer/installRepository.xml` and `install.xml` to ensure no new targets write `DB_BACKEND` outside `${do.install}`; fix if any US1 Oracle/mysql work leaked into upgrade path
 - [x] T031 [US5] Ensure preinstall `Main` / resolver does not overwrite install-root repository files before ANT mode detection (resolution only produces JVM props; ANT still owns write under `do.install`)
-- [x] T032 [US5] Run `./mvn-env.sh -pl modules/perc-distribution-tree -am test` for affected tests
+- [x] T032 [US5] Run `./mvnw -pl modules/perc-distribution-tree -am test` for affected tests
 - [ ] T033 [US5] Commit US5 changes and open PR; pause for review/merge before P2 stories
 
 ## Phase 6: User Story 3 — Invalid or incomplete database target fails fast (Priority: P2)
@@ -99,7 +99,7 @@
 - [x] T038 [US3] Wire validation into `modules/perc-distribution-tree/src/main/resources/distribution/rxconfig/Installer/installRepository.xml` for **new install only** after `repository_properties` / password lasagna steps and before heavy schema work that depends on a live connection (pick the earliest safe dependency point consistent with existing target order)
 - [x] T039 [US3] Handle missing JDBC driver with actionable fail message (FR-012) in the validate action under `modules/perc-ant/src/main/java/com/percussion/ant/install/PSValidateRepositoryConnection.java`
 - [x] T040 [US3] Register/discover the new Ant task the same way sibling `PS*` install tasks are registered (update taskdef/typedef resources under `modules/perc-ant` if required by existing packaging)
-- [x] T041 [US3] Run `./mvn-env.sh -pl modules/perc-ant,modules/perc-distribution-tree -am test -Dtest=DbInstallConfigResolverTest,PSValidateRepositoryConnectionTest`
+- [x] T041 [US3] Run `./mvnw -pl modules/perc-ant,modules/perc-distribution-tree -am test -Dtest=DbInstallConfigResolverTest,PSValidateRepositoryConnectionTest`
 - [ ] T042 [US3] Commit US3 changes and open PR; pause for review/merge
 
 ## Phase 7: User Story 4 — Documented property-file contract and samples (Priority: P2)
@@ -124,8 +124,8 @@
 
 - [x] T050 [P] Walk [quickstart.md](quickstart.md) scenarios 1–5 against the implementation; fix gaps or update quickstart if commands drifted
 - [x] T051 [P] Security pass: grep install/preinstall/validate code paths for password logging (`PWD`, `db.password`, `perc.db.password`) under `modules/perc-distribution-tree` and `modules/perc-ant`; remediate any clear-text leak
-- [x] T052 Spotless / format check on touched modules via `./mvn-env.sh -pl modules/perc-distribution-tree,modules/perc-ant -am spotless:check` (or module-equivalent if Spotless not configured — then skip with note)
-- [x] T053 Full module test pass: `./mvn-env.sh -pl modules/perc-distribution-tree,modules/perc-ant -am test`
+- [x] T052 Spotless / format check on touched modules via `./mvnw -pl modules/perc-distribution-tree,modules/perc-ant -am spotless:check` (or module-equivalent if Spotless not configured — then skip with note)
+- [x] T053 Full module test pass: `./mvnw -pl modules/perc-distribution-tree,modules/perc-ant -am test`
 - [x] T054 Update `specs/006-installer-db-targets/plan.md` / this `tasks.md` checkboxes as work completes; ensure issue #949 acceptance criteria are traceable to completed tasks
 - [ ] T055 Final PR (or stack restack) for any polish-only commits; resolve all review threads before merge
 

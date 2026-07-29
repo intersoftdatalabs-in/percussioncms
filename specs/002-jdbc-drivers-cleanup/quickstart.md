@@ -11,7 +11,7 @@ A runnable validation guide that proves the change works end-to-end on a local c
 
 ## Prerequisites
 
-- JDK 21 (per root `AGENTS.md`; the project uses `./mvn-env.sh` / `mvn-env.bat` to enforce this).
+- JDK 21 (per root `AGENTS.md`; the project uses `./mvnw` / `mvnw.cmd` to enforce this).
 - POSIX shell (`sh`) with `unzip`, `stat`, `find`, `grep`, `sed` on PATH (for the new shell assertion and the existing `verify-jdbc-drivers.sh`).
 - Working tree on branch `002-jdbc-drivers-cleanup`.
 
@@ -21,7 +21,7 @@ After implementing the `<delete dir="${assembly-directory}/_jdbc-stage"/>` step 
 
 ```bash
 cd modules/perc-distribution-tree
-../../mvn-env.sh clean package
+../../mvnw clean package
 
 # Expect: zero matches.
 unzip -l target/perc-distribution-tree.jar | grep '_jdbc-stage' && echo "FAIL: _jdbc-stage leaked" || echo "OK: no _jdbc-stage in jar"
@@ -54,7 +54,7 @@ jetty/base/lib/jdbc/ojdbc17-23.26.0.0.0.jar
 
 ```bash
 cd modules/perc-distribution-tree
-../../mvn-env.sh verify
+../../mvnw verify
 ```
 
 Expected: BUILD SUCCESS, with `verify-jdbc-drivers.sh` running and exiting 0. The expected output includes:
@@ -76,7 +76,7 @@ After adding the JUnit 5 test class `src/test/java/com/percussion/distribution/j
 
 ```bash
 cd modules/perc-distribution-tree
-../../mvn-env.sh test
+../../mvnw test
 ```
 
 Expected: the new test class runs and passes. Test asserts:
@@ -90,7 +90,7 @@ After adding `scripts/check-no-glob-deletes.sh` and wiring it into the Maven `ve
 
 ```bash
 cd modules/perc-distribution-tree
-../../mvn-env.sh verify
+../../mvnw verify
 ```
 
 Expected: the new shell assertion runs and exits 0. The assertion extracts the `<delete>` block under the `install_jdbc_drivers` target from `install.xml` and asserts no `<include name="...">` line contains a glob character. If a glob is reintroduced in a future change, the assertion fails the build with a clear single-line error.
@@ -101,7 +101,7 @@ After replacing the README's `--expected-driver-set` example with the `--expecte
 
 ```bash
 cd modules/perc-distribution-tree
-../../mvn-env.sh clean package
+../../mvnw clean package
 
 # Copy the example from scripts/README.md verbatim:
 ./scripts/verify-jdbc-drivers.sh --artifact target/perc-distribution-tree.jar \
@@ -123,7 +123,7 @@ For manual verification outside CI:
 # Build a fresh distribution, unpack it, simulate an upgrade with an integrator driver,
 # then run install.xml's install_jdbc_drivers target via ant directly.
 cd modules/perc-distribution-tree
-../../mvn-env.sh clean package
+../../mvnw clean package
 mkdir -p /tmp/sim-install/jetty/base/lib/jdbc
 unzip -j target/perc-distribution-tree.jar 'jetty/base/lib/jdbc/*' -d /tmp/sim-install/jetty/base/lib/jdbc/
 # Drop an integrator-supplied driver whose name would match a bundled glob:

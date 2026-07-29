@@ -7,7 +7,7 @@ End-to-end validation guide for the fix. This is a **run guide**, not implementa
 ## Prerequisites
 
 - JDK 21 (per root `AGENTS.md` for the `development` branch).
-- Maven build wrapper: `./mvn-env.sh` (or `mvn-env.bat` on Windows).
+- Maven build wrapper: `./mvnw` (or `mvnw.cmd` on Windows).
 - A clean working tree on the `001-fix-jdbc-drivers` branch.
 - POSIX utilities available: `unzip`, `stat`, `find` (the verification script uses them).
 
@@ -20,7 +20,7 @@ git rev-parse --abbrev-ref HEAD   # confirm branch
 
 # Build the module that produces the distribution artifact
 cd modules/perc-distribution-tree
-../../mvn-env.sh clean install
+../../mvnw clean install
 ```
 
 Expected: a successful Maven build that produces `modules/perc-distribution-tree/target/perc-distribution-tree.jar`.
@@ -81,7 +81,7 @@ Simulate by temporarily misnaming a driver coordinate in `modules/perc-distribut
 ```sh
 # After intentionally breaking a coordinate, e.g.:
 #   <artifactId>mariadb-java-client</artifactId>  →  <artifactId>mariadb-java-client-BROKEN</artifactId>
-../../mvn-env.sh clean install
+../../mvnw clean install
 ```
 
 Expected outcome: Maven build fails during `maven-dependency-plugin:copy-dependencies` (configured `failOnAnyMissingDependency=true`) with a message identifying the missing artifact coordinate. The build does NOT silently produce an empty `jetty/base/lib/jdbc/`.
@@ -91,7 +91,7 @@ Revert the breaking change before continuing.
 ### Scenario 5 — Legacy `DEVELOPMENT=true` behavior preserved (FR-004)
 
 ```sh
-DEVELOPMENT=true ../../mvn-env.sh clean install
+DEVELOPMENT=true ../../mvnw clean install
 TMP=$(mktemp -d)
 unzip -q modules/perc-distribution-tree/target/perc-distribution-tree.jar -d "$TMP/dist"
 ls "$TMP/dist/jetty/base/lib/jdbc/"
@@ -107,7 +107,7 @@ Expected outcome:
 Run:
 
 ```sh
-../../mvn-env.sh -pl modules/perc-distribution-tree verify
+../../mvnw -pl modules/perc-distribution-tree verify
 ```
 
 Expected outcome: the Maven build runs the verification script as part of the `verify` phase and exits non-zero if the driver set is wrong (wires in via a future Maven `exec` execution; see `tasks.md` for the exact plugin invocation).

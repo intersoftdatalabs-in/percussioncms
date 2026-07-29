@@ -4,14 +4,14 @@
 
 ## Prerequisites
 
-- JDK 21 via `./mvn-env.sh`
+- JDK 21 via `./mvnw`
 - Checkout feature branch `986-url-allowlist-config`
 - Module `modules/perc-security-utils` builds
 
 ## 1. Unit tests (primary gate)
 
 ```bash
-./mvn-env.sh -pl modules/perc-security-utils -am test \
+./mvnw -pl modules/perc-security-utils -am test \
   -Dtest=URLValidationTest,URLGlobMatcherTest,URLListFileLoaderTest
 ```
 
@@ -39,8 +39,8 @@
 ## 3. Consumer regression (smoke)
 
 ```bash
-./mvn-env.sh -pl modules/extensions-main -Dtest=PSProxyQueryResourceTest test
-./mvn-env.sh -pl system -Dtest=PSDocumentUtilsSsrfTest,PSDtdTreeSsrfTest test
+./mvnw -pl modules/extensions-main -Dtest=PSProxyQueryResourceTest test
+./mvnw -pl system -Dtest=PSDocumentUtilsSsrfTest,PSDtdTreeSsrfTest test
 ```
 
 Existing SSRF denials must remain green.

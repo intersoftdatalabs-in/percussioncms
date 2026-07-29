@@ -97,7 +97,7 @@ export const [Widget]Widget: React.FC<Props> = ({ title, refreshInterval, ... })
 3. Update Dashboard.tsx: Add import + AVAILABLE_GADGETS entry
 4. Update index.ts: Add export statement
 5. Run: `npm test -- [Widget].test.tsx`
-6. Build: `./mvn-env.sh clean package -DskipTests -pl WebUI`
+6. Build: `./mvnw clean package -DskipTests -pl WebUI`
 7. Commit
 
 ### REST Endpoint Mapping (Verify)

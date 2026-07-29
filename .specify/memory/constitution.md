@@ -17,7 +17,7 @@ Conflicts are resolved in favor of this constitution and applicable `AGENTS.md` 
 
 ### III. Test Discipline (NON-NEGOTIABLE)
 
-- Every behavioral code change MUST have passing tests runnable via `./mvn-env.sh` / `mvn-env.bat` on the target JDK.
+- Every behavioral code change MUST have passing tests runnable via `./mvnw` / `mvnw.cmd` on the target JDK.
 - Integration/contract tests are required for REST/SOAP changes, schema migrations, and authentication updates.
 
 ### IV. Contract & Integration Integrity
@@ -37,7 +37,7 @@ Conflicts are resolved in favor of this constitution and applicable `AGENTS.md` 
 
 ### VII. Build & Dependency Hygiene
 
-- Target correct JDK (JDK 21 for `development`, JDK 8 for `development-8.1.x`) via `./mvn-env.sh`.
+- Target correct JDK (JDK 21 for `development`, JDK 8 for `development-8.1.x`) via `./mvnw`.
 - Manage dependencies in Maven parent/module POMs. Format Java with Spotless.
 
 ### VIII. Documentation & Operability

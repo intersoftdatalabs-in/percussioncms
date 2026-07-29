@@ -62,12 +62,12 @@ None (blocking).
 
 |              Module              |                      Command                      |                                                     Result                                                      |
 |----------------------------------|---------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
-| `modules/perc-packages`          | `../../mvn-env.sh clean install`                  | BUILD SUCCESS                                                                                                   |
-| `projects/sitemanage`            | `../../mvn-env.sh clean install`                  | BUILD SUCCESS — Tests run: 552, Failures: 0; `EmsEventListRemovalTest` 3/0; `PSWidgetServiceValidationTest` 1/0 |
-| `rest`                           | `../mvn-env.sh clean install`                     | BUILD SUCCESS                                                                                                   |
-| `deployer`                       | `../mvn-env.sh clean install`                     | BUILD SUCCESS                                                                                                   |
-| `modules/perc-common-ui-bundle`  | `../../mvn-env.sh clean install`                  | BUILD SUCCESS                                                                                                   |
-| `delivery-tier-distribution`     | `../../../mvn-env.sh clean install`               | BUILD SUCCESS                                                                                                   |
-| `modules/perc-distribution-tree` | `../../mvn-env.sh clean install`                  | BUILD SUCCESS                                                                                                   |
-| `system`                         | `../mvn-env.sh clean install -Djavadoc.skip=true` | BUILD SUCCESS                                                                                                   |
+| `modules/perc-packages`          | `../../mvnw clean install`                  | BUILD SUCCESS                                                                                                   |
+| `projects/sitemanage`            | `../../mvnw clean install`                  | BUILD SUCCESS — Tests run: 552, Failures: 0; `EmsEventListRemovalTest` 3/0; `PSWidgetServiceValidationTest` 1/0 |
+| `rest`                           | `../mvnw clean install`                     | BUILD SUCCESS                                                                                                   |
+| `deployer`                       | `../mvnw clean install`                     | BUILD SUCCESS                                                                                                   |
+| `modules/perc-common-ui-bundle`  | `../../mvnw clean install`                  | BUILD SUCCESS                                                                                                   |
+| `delivery-tier-distribution`     | `../../../mvnw clean install`               | BUILD SUCCESS                                                                                                   |
+| `modules/perc-distribution-tree` | `../../mvnw clean install`                  | BUILD SUCCESS                                                                                                   |
+| `system`                         | `../mvnw clean install -Djavadoc.skip=true` | BUILD SUCCESS                                                                                                   |
 

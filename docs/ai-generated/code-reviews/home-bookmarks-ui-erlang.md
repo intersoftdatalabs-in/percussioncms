@@ -31,7 +31,7 @@ None (bugs). No missing behavioral tests for new non-trivial logic.
 ## Verification
 
 - `cd WebUI && npm test -- --run` (homeApi, BookmarksSection, RecentSection.bookmarks, HomeShell, App) — pass
-- `cd WebUI && ../mvn-env.sh clean install` — BUILD SUCCESS
+- `cd WebUI && ../mvnw clean install` — BUILD SUCCESS
 - Live REST: add/remove My Pages for `HomeSmokeB66513` — pass
 
 ## Memory patterns hit

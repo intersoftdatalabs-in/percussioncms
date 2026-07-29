@@ -94,7 +94,7 @@ Operators who previously installed via init.d/chkconfig/update-rc.d can uninstal
 - **SC-002**: In a simulated slow-start scenario (startup work longer than 90 seconds but within the product max), the unit does not enter failed solely due to a short default start timeout.
 - **SC-003**: After a successful start, `journalctl -u <service>` (or documented log path) contains start-related messages or an explicit pointer to Jetty/CMS logs usable for diagnosis.
 - **SC-004**: Uninstall removes boot registration; a subsequent reboot does not auto-start the removed service (verified by checklist or automated dry-run assertions).
-- **SC-005**: Structural/automated tests for unit template and installer selection logic pass in CI via `./mvn-env.sh` / module test or script harness.
+- **SC-005**: Structural/automated tests for unit template and installer selection logic pass in CI via `./mvnw` / module test or script harness.
 - **SC-006**: Existing init.d-only install path still documented and selectable; Windows service install path unchanged in behavior.
 
 ## Assumptions

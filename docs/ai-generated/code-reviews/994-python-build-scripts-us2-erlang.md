@@ -20,7 +20,7 @@ handling, `subprocess.run([...], shell=False, ...)` external calls, and a
 `## Behavioral Notes` section enumerating shell-isms that were dropped (per
 FR-009b). Every script has a colocated `test_<name>.py` with at minimum a
 happy / help / failure case (FR-009). The foundation US1 sentinel
-(`test_mvn_env_untouched.py`) still passes — `mvn-env.{sh,bat}` are untouched.
+(`test_mvn_env_untouched.py`) still passes — `mvnw / mvnw.cmd` are untouched.
 
 ## Scope
 
@@ -131,7 +131,7 @@ __init__.py  __pycache__  test_release_audit.py
 ```
 
 The US1 sentinel (`scripts/test_mvn_env_untouched.py`) and the existing
-`test_erlang_harvest_review_patterns.py` continue to pass — US1 (mvn-env
+`test_erlang_harvest_review_patterns.py` continue to pass — US1 (Maven wrapper
 untouched) is unchanged per Clarification Q2, and US3 (erlang-harvest
 phase-3 work) is out of scope for US2.
 

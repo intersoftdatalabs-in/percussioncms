@@ -13,12 +13,20 @@ from __future__ import annotations
 import logging
 import re
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
 import common
 
 LOGGER = logging.getLogger("release_audit.port")
+
+
+def _mvnw_argv(repo_root: Path) -> list[str]:
+    """Repo Maven wrapper path for the current OS (``mvnw`` / ``mvnw.cmd``)."""
+    name = "mvnw.cmd" if sys.platform.startswith("win") else "mvnw"
+    wrapper = repo_root / name
+    return [str(wrapper)]
 
 
 def cherry_pick_pr(
@@ -140,10 +148,13 @@ def flag_jdk8_idioms(diff_path: Path, warnings_path: Path) -> int:
 
 def verify_tests(repo_root: Path, module: str, test_class: str) -> int:
     """Run ``mvn -pl <module> -am test -Dtest=<test_class>``. Returns the exit code."""
-    common.log_info(f"running tests: ./mvn-env.sh -pl {module} -am test -Dtest={test_class}")
+    mvnw = _mvnw_argv(repo_root)
+    common.log_info(
+        f"running tests: {mvnw[0]} -pl {module} -am test -Dtest={test_class}"
+    )
     return subprocess.run(
         [
-            "./mvn-env.sh",
+            *mvnw,
             "-pl",
             module,
             "-am",
@@ -161,7 +172,7 @@ def spotless_check(repo_root: Path, module: str) -> int:
     """Run Spotless on a single module. Returns non-zero if formatting needs fix."""
     common.log_info(f"running spotless:check on {module}")
     return subprocess.run(
-        ["./mvn-env.sh", "-pl", module, "-am", "spotless:check"],
+        [*_mvnw_argv(repo_root), "-pl", module, "-am", "spotless:check"],
         shell=False,
         check=False,
         cwd=str(repo_root),

@@ -61,7 +61,7 @@ This is executed in `installDistributionFiles.xml` after MySQL connector setup a
 
 ```bash
 cd modules/perc-distribution-tree
-../../mvn-env.sh clean install
+../../mvnw clean install
 ```
 
 ### Verifying the JDBC driver set
@@ -75,7 +75,7 @@ The Maven `verify` phase invokes the canonical Java main `com.percussion.distrib
 Changes to `installDistributionFiles.xml` affect how all distributions are built. Always:
 
 1. Understand the entire assembly flow in the ANT script
-2. Test with `./mvn-env.sh clean install` in this module directory
+2. Test with `./mvnw clean install` in this module directory
 3. Verify the generated distribution in `target/` has expected structure
 
 ### Enabling Additional Jetty Modules

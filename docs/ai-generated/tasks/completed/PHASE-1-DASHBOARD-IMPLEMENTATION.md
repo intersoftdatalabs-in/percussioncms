@@ -126,7 +126,7 @@ All requests automatically include OWASP CSRFGuard token via the typed API clien
 ### Manual Testing
 
 - Local dev: `npm run dev`
-- Build: `./mvn-env.sh clean install -pl WebUI`
+- Build: `./mvnw clean install -pl WebUI`
 - Browser: Load `/cm/app/dashboard.jsp` (feature flag to toggle old/new)
 
 ## Success Criteria

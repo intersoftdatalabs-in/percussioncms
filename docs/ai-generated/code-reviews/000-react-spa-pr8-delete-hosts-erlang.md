@@ -46,5 +46,5 @@ None (blocking).
 
 ## Evidence
 
-- `cd WebUI && ../mvn-env.sh clean install` → **BUILD SUCCESS**
+- `cd WebUI && ../mvnw clean install` → **BUILD SUCCESS**
 - `npx vitest run …/spaCutover.test.ts …/publishNavRewire.test.ts` → **14 passed**

@@ -118,7 +118,7 @@ To build the perc-i18n module:
 
 ```bash
 cd modules/perc-i18n
-../../mvn-env.sh clean install
+../../mvnw clean install
 ```
 
 The module will:
@@ -198,7 +198,7 @@ The module includes unit tests for:
 Run tests with:
 
 ```bash
-../../mvn-env.sh -pl modules/perc-i18n test
+../../mvnw -pl modules/perc-i18n test
 ```
 
 ## Related Modules

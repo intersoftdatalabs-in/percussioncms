@@ -151,7 +151,7 @@ try {
 **Build Command**:
 
 ```bash
-./mvn-env.sh -pl projects/sitemanage clean compile -DskipTests=true
+./mvnw -pl projects/sitemanage clean compile -DskipTests=true
 ```
 
 **Build Output**:

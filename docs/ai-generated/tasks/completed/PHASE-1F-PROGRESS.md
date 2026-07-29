@@ -118,10 +118,10 @@ Each widget needs:
 npm test -- [Widget].test.tsx
 
 # Full build (WebUI only)
-./mvn-env.sh clean package -DskipTests -pl WebUI
+./mvnw clean package -DskipTests -pl WebUI
 
 # Full build (all modules, runs tests)
-./mvn-env.sh clean package
+./mvnw clean package
 ```
 
 ---

@@ -9,7 +9,7 @@ This guide is a **validation runbook** for implementers and reviewers. It is not
 ## Prerequisites
 
 - Branch: `984-installer-db-targets` (or equivalent with this feature)
-- JDK 21 via `./mvn-env.sh`
+- JDK 21 via `./mvnw`
 - Built modules: at minimum `modules/perc-distribution-tree` (and test dependencies)
 - For live non-Derby scenarios: a reachable empty database and credentials
 - For unit-only scenarios: no external DB required
@@ -19,7 +19,7 @@ This guide is a **validation runbook** for implementers and reviewers. It is not
 **Goal**: SC-002 / FR-005
 
 ```bash
-./mvn-env.sh -pl modules/perc-distribution-tree -am test \
+./mvnw -pl modules/perc-distribution-tree -am test \
   -Dtest=DbInstallConfigResolverTest,Main*Test
 ```
 

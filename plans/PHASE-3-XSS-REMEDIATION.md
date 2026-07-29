@@ -370,11 +370,11 @@ void testCreateItemWithXSSPayload() {
    - Tests cover XSS payload injection scenarios
    - All tests pass (expected: ~15-20 new tests)
 3. **CodeQL Re-scan**:
-   - Run: `/mvn-env.sh codeql database create --language=java --source-root=/home/nate/projects/percussioncms database`
+   - Run: `/mvnw codeql database create --language=java --source-root=/home/nate/projects/percussioncms database`
    - Verify CWE-79 (XSS) alerts reduced from 23 to 0
    - Check for any new alerts introduced
 4. **Build Verification**:
-   - `./mvn-env.sh clean test -DskipITs=true`
+   - `./mvnw clean test -DskipITs=true`
    - All tests pass
    - No new compiler warnings
 

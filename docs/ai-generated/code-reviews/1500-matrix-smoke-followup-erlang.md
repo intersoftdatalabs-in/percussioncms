@@ -86,7 +86,7 @@ Touched: `PSJdbcUtils.resolveEmbeddedFileServer`, `InstallUtil.ensureH2Repositor
 ## Required before push / PR
 
 1. ~~Add behavioral unit test for empty (and ideally non-empty) Jetty DS password save flags.~~ **Done**
-2. Run `cd modules/utils && ../../mvn-env.sh clean install` (tests on) before PR evidence.
+2. Run `cd modules/utils && ../../mvnw clean install` (tests on) before PR evidence.
 3. ~~Erlang re-review~~ — **approve** (this section).
 4. Push + open PR; cite smoke JSON + module clean install in PR body.
 

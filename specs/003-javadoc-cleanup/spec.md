@@ -28,7 +28,7 @@ User stories prioritized as journeys. Each story independently testable.
 ### User Story 1 - CI Build Succeeds for Content Explorer Module (Priority: P1)
 
 A CI pipeline runs the full Maven build for the mono-repo. Before this change, the
-`mvn-env.sh` invocation of the javadoc goal on the `perc-content-explorer` module either
+`mvnw` invocation of the javadoc goal on the `perc-content-explorer` module either
 fails outright (errors) or emits many warnings that pollute logs and, under stricter
 configurations, fail the build. After this change, the javadoc generation for the content
 explorer module completes with zero errors and the warning count is at or near zero, so
@@ -36,7 +36,7 @@ the build pipeline no longer reports a javadoc failure attributable to this modu
 
 **Why this priority**: This is the explicit user-visible problem in the request — the build is "slowing down" because of javadoc issues. Without a green javadoc step the build is unreliable, which blocks every other contributor's work.
 
-**Independent Test**: Run `./mvn-env.sh -pl modules/DesktopContentExplorer -am javadoc:javadoc` (and the module's normal build goal) on JDK 21 and observe exit code 0, zero javadoc errors, and the documented reduced warning count.
+**Independent Test**: Run `./mvnw -pl modules/DesktopContentExplorer -am javadoc:javadoc` (and the module's normal build goal) on JDK 21 and observe exit code 0, zero javadoc errors, and the documented reduced warning count.
 
 **Acceptance Scenarios**:
 
@@ -95,7 +95,7 @@ real warnings from other modules.
 
 ### Functional Requirements
 
-- **FR-001**: The Maven javadoc goal for `modules/DesktopContentExplorer` (artifact `perc-content-explorer`) MUST exit 0 with zero javadoc errors on JDK 21 using `./mvn-env.sh`.
+- **FR-001**: The Maven javadoc goal for `modules/DesktopContentExplorer` (artifact `perc-content-explorer`) MUST exit 0 with zero javadoc errors on JDK 21 using `./mvnw`.
 - **FR-002**: The total number of javadoc warnings emitted for `modules/DesktopContentExplorer` MUST be reduced from the pre-cleanup baseline by at least 80% (Success Criteria SC-001). The remaining warnings, if any, MUST be documented in the plan with a justified reason per warning.
 - **FR-003**: The cleanup MUST fix root causes (missing/incorrect Javadoc comments, malformed HTML tags, broken `{@link}` references, wrong parameter/return descriptions) before resorting to suppression annotations. `@SuppressWarnings("javadoc")` is allowed only where the module already uses such suppressions or where an established project pattern justifies it; each instance MUST carry a brief justification comment.
 - **FR-004**: The cleanup MUST NOT change any public type signature, method signature, runtime behavior, or visibility of any class or member in `modules/DesktopContentExplorer`. Pure documentation changes only.
@@ -116,9 +116,9 @@ not a runtime concept.
 
 ### Measurable Outcomes
 
-- **SC-001**: Javadoc warnings for `modules/DesktopContentExplorer` are reduced by at least 80% versus the captured baseline, measured by `mvn-env.sh` javadoc output on a clean checkout on `development` (JDK 21). Baseline and post-cleanup counts are stored as artifacts referenced from `checklists/requirements.md`.
+- **SC-001**: Javadoc warnings for `modules/DesktopContentExplorer` are reduced by at least 80% versus the captured baseline, measured by `mvnw` javadoc output on a clean checkout on `development` (JDK 21). Baseline and post-cleanup counts are stored as artifacts referenced from `checklists/requirements.md`.
 - **SC-002**: Javadoc errors for `modules/DesktopContentExplorer` are reduced to zero; running the javadoc goal on the module exits 0 (build no longer "slowed down" by this module's javadoc issues).
-- **SC-003**: The full module build (`./mvn-env.sh -pl modules/DesktopContentExplorer -am verify` or the closest equivalent used by CI) succeeds for this module without javadoc-related failures.
+- **SC-003**: The full module build (`./mvnw -pl modules/DesktopContentExplorer -am verify` or the closest equivalent used by CI) succeeds for this module without javadoc-related failures.
 - **SC-004**: Zero public type or method signatures in `modules/DesktopContentExplorer` are changed (verifiable by `git diff --stat` on non-comment, non-whitespace lines matching zero non-javadoc files modified).
 
 ## Assumptions

@@ -157,7 +157,7 @@ Total files modified: 67
 Total line changes: 284
 
 Next steps:
-1. Run: ./mvn-env.sh -f WebUI/pom.xml clean compile
+1. Run: ./mvnw -f WebUI/pom.xml clean compile
 2. Check that JSPs resolve without errors
 3. Load one page in browser and verify CSS/JS load
 4. If all looks good, proceed to Phase 1 Part 2
@@ -329,8 +329,8 @@ STEP 8: Test Build
 Purpose: Verify that Maven build works with new structure
 
 Commands:
-./mvn-env.sh -f WebUI/pom.xml clean compile
-./mvn-env.sh -f WebUI/pom.xml clean package
+./mvnw -f WebUI/pom.xml clean compile
+./mvnw -f WebUI/pom.xml clean package
 
 Expected output:
 - No compilation errors
@@ -389,7 +389,7 @@ SUCCESS CRITERIA (Phase 1 Complete)
 ✓ All source files moved to src/main/webapp/cm/
 ✓ Build configuration moved to src/main/frontend/
 ✓ pom.xml updated to point to new locations
-✓ Maven build succeeds: ./mvn-env.sh -f WebUI/pom.xml clean package
+✓ Maven build succeeds: ./mvnw -f WebUI/pom.xml clean package
 ✓ Browser test confirms pages load with CSS/JS intact
 ✓ No 404 errors in browser console
 

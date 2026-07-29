@@ -127,7 +127,7 @@ Some existing installs already have a **manually** copied tree or **symlink** at
 - **FR-012**: Install and ops documentation MUST describe resolution order, interactive vs unattended selection, post-install re-point, migration from the **current** “manual copy or symlink into `<InstallDir>/JRE`” practice, and clear failure messages. Docs MUST NOT claim the product ships a JRE.
 - **FR-013**: Automated tests MUST cover resolution precedence and version rejection (unit/script tests with fixtures or mocks where live multi-JDK hosts are impractical), runnable in CI via project-supported build wrappers.
 - **FR-014**: New path handling MUST be cross-platform (Windows, Linux, macOS); no Unix-only absolute path assumptions in product logic or tests for this feature.
-- **FR-015**: Build-machine / developer toolchain selection (`mvn-env` / developer `JAVA_HOME_21`) remains out of scope and MUST NOT be broken by this feature’s runtime changes.
+- **FR-015**: Build-machine / developer toolchain selection (`Maven wrapper` / developer `JAVA_HOME_21`) remains out of scope and MUST NOT be broken by this feature’s runtime changes.
 - **FR-016**: Product MUST NOT introduce a new requirement to ship or re-bundle a full JRE inside the distribution archive; the goal is to stop depending on a **manually operator-provided** install-dir JRE layout, not to start distributing Java again.
 
 ### Key Entities

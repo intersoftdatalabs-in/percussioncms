@@ -317,10 +317,10 @@ void testSSLVerifiesHostname() {
 
 ```bash
 # Compile all affected modules
-./mvn-env.sh clean compile
+./mvnw clean compile
 
 # Run Phase 4 affected module tests
-./mvn-env.sh test
+./mvnw test
 
 # Search for remaining weak algorithms
 grep -r "MD5\|SHA-1\|DES" --include="*.java" src/

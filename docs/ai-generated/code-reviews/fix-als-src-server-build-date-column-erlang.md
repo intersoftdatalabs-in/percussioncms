@@ -34,6 +34,6 @@ None.
 
 ## Verification noted
 
-- `cd deployer && ../mvn-env.sh -o test -Dtest=PSLogHandlerTest` — Tests run: 2, Failures: 0
-- Pre-PR: `cd deployer && ../mvn-env.sh -o clean install` (standalone)
+- `cd deployer && ../mvnw -o test -Dtest=PSLogHandlerTest` — Tests run: 2, Failures: 0
+- Pre-PR: `cd deployer && ../mvnw -o clean install` (standalone)
 

@@ -34,7 +34,7 @@ None blocking.
 ## Tests run
 
 ```text
-./mvn-env.sh -pl projects/sitemanage -Dtest=PSSiteDataRestServiceXssTest -Dai.integrity.skip=true test
+./mvnw -pl projects/sitemanage -Dtest=PSSiteDataRestServiceXssTest -Dai.integrity.skip=true test
 # Tests run: 17, Failures: 0
 ```
 

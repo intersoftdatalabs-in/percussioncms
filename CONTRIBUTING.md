@@ -119,11 +119,11 @@ git pull
 
 ## Pre-Requisites for Building
 
-- Apache Maven > 3.6
-- JDK 21 (set `JAVA_HOME_21` to your JDK 21 installation)
-- Use the provided environment setup scripts to run Maven so it uses JDK 21:
-  - Linux/macOS: `./mvn-env.sh <maven-args>`
-  - Windows: `mvn-env.bat <maven-args>`
+- Apache Maven > 3.6 (or just use the repo wrapper)
+- JDK 21 — set `JAVA_HOME` to your JDK 21 installation
+- Use the repo Maven wrapper (not a random system `mvn`):
+  - Linux/macOS: `./mvnw <maven-args>`
+  - Windows: `mvnw.cmd <maven-args>`
 
 Editor / IDE note: To avoid IDEs (e.g., VS Code) writing build outputs into Maven's `target/` directory and conflicting with command-line builds, add the recommended workspace settings shown below to your local `.vscode/settings.json` (the repo ignores `.vscode/`, so the file is not committed).
 
@@ -181,13 +181,13 @@ Global signing of artifacts is disabled by default for developer convenience. To
 
 ```bash
 # Option 1: If you've already authenticated this session, just run:
-./mvn-env.sh clean install -Psign
+./mvnw clean install -Psign
 
 # Option 2: If you haven't authenticated yet, authenticate first (one-time per session):
 ./scripts/authenticate-sigstore.sh
 # Follow the browser prompt to authenticate with your OIDC provider (Google, GitHub, Microsoft)
 # Then run your build:
-./mvn-env.sh clean install -Psign
+./mvnw clean install -Psign
 ```
 
 * **PGP:** Requires a GPG key to be present on your machine.
@@ -200,7 +200,7 @@ Global signing of artifacts is disabled by default for developer convenience. To
 
     This caches your OIDC token to `~/.sigstore-token`.
 
-  * **Token reuse:** `mvn-env.sh` automatically reads the cached token, so you won't be prompted again during the same session.
+  * **Token reuse:** `mvnw` automatically reads the cached token, so you won't be prompted again during the same session.
 
   * **Long builds:** If your build takes more than 15 minutes, re-run `./scripts/authenticate-sigstore.sh` to get a fresh token.
 
@@ -239,10 +239,10 @@ Instructions, prompts, and skills must be signed to be executed by AI agents.
 
 ```
 # Use the project wrapper so Maven runs with JDK 21:
-./mvn-env.sh clean install
+./mvnw clean install
 
 # One-off: Exclude delivery-tier-suite from the reactor (quote the leading ! to avoid shell history expansion):
-./mvn-env.sh -pl '!deliverytiersuite/delivery-tier-suite' -am clean install
+./mvnw -pl '!deliverytiersuite/delivery-tier-suite' -am clean install
 ```
 
 ## Local CodeQL Scanning
@@ -252,17 +252,17 @@ If CodeQL CLI is installed locally and available in `PATH`, you can run scans fr
 * Create CodeQL databases only:
 
   ```bash
-  ./mvn-env.sh -N -Pcodeql-local exec:exec@codeql-create-db
+  ./mvnw -N -Pcodeql-local exec:exec@codeql-create-db
   ```
 * Analyze existing databases only (faster for re-runs):
 
   ```bash
-  ./mvn-env.sh -N -Pcodeql-local exec:exec@codeql-analyze
+  ./mvnw -N -Pcodeql-local exec:exec@codeql-analyze
   ```
 * Full create + analyze scan:
 
   ```bash
-  ./mvn-env.sh -N -Pcodeql-local exec:exec@codeql-scan
+  ./mvnw -N -Pcodeql-local exec:exec@codeql-scan
   ```
 
 Output is written to `.codeql-results/` as SARIF files.
@@ -287,10 +287,10 @@ When starting work, create a new feature branch.
 
 **Before committing**
 
-- Use the project wrapper scripts so Maven runs with JDK 21: `./mvn-env.sh <maven-args>` (Linux/macOS) or `mvn-env.bat <maven-args>` (Windows).
-- Run `./mvn-env.sh spotless:check` (Spotless enforces code formatting/style). If the check fails, run `./mvn-env.sh spotless:apply` to auto-fix formatting and re-run `spotless:check` until it passes.
+- Use the project wrapper scripts so Maven runs with JDK 21: `./mvnw <maven-args>` (Linux/macOS) or `mvnw.cmd <maven-args>` (Windows).
+- Run `./mvnw spotless:check` (Spotless enforces code formatting/style). If the check fails, run `./mvnw spotless:apply` to auto-fix formatting and re-run `spotless:check` until it passes.
   - Note: the `google-java-format` implementation used by Spotless needs JDK 21 at runtime; run Spotless via the wrapper scripts so the formatter runs under JDK 21.
-- Run `./mvn-env.sh -DskipTests validate` or `./mvn-env.sh clean verify` to ensure the module builds before pushing your commit.
+- Run `./mvnw -DskipTests validate` or `./mvnw clean verify` to ensure the module builds before pushing your commit.
 
 IntelliJ makes some of this a lot easier, especially when searching for specific error messages across modules in the code base.
 

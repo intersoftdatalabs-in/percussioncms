@@ -1,2 +1,0 @@
-com.percussion.webservices.security
-com.percussion.webservices.content

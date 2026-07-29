@@ -27,7 +27,7 @@ Long-lived CMS installs retain obsolete directories (especially multi-GB `PreIns
 - [x] **IV. Contract & Integration Integrity**: CLI additive; no REST/schema breaks; upgrade still runs if cleanup fails
 - [x] **V. Safe Modernization**: No Spring Boot; localized to preinstall
 - [x] **VI. Security by Default**: Path confinement under install root; no symlink escape deletes
-- [x] **VII. Build & Dependency Hygiene**: JDK 21 / `./mvn-env.sh`; no new deps
+- [x] **VII. Build & Dependency Hygiene**: JDK 21 / `./mvnw`; no new deps
 - [x] **VIII. Documentation & Operability**: README + installer output
 - [x] **IX. PR Review Comment Resolution**: Process when PR opens
 - [x] **Complexity Budget**: No violations

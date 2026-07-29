@@ -79,14 +79,14 @@ small enough that a per-module standalone build is the default:
 
 ```bash
 cd modules/extensions-workflow
-../mvn-env.sh clean install
+../mvnw clean install
 ```
 
 Plus Spotless (configured upstream):
 
 ```bash
-../mvn-env.sh -pl modules/extensions-workflow spotless:apply
-../mvn-env.sh -pl modules/extensions-workflow spotless:check
+../mvnw -pl modules/extensions-workflow spotless:apply
+../mvnw -pl modules/extensions-workflow spotless:check
 ```
 
 Standalone builds must succeed with **no new warnings** and all tests green

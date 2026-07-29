@@ -9,7 +9,7 @@
 ## Structural (CI / dev workstation)
 
 ```bash
-./mvn-env.sh -pl modules/perc-jetty test -Dai.integrity.skip=true
+./mvnw -pl modules/perc-jetty test -Dai.integrity.skip=true
 ```
 
 Expect tests covering unit template contract keys (see `contracts/systemd-unit-contract.md`).

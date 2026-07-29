@@ -33,7 +33,7 @@ Quality gates: [checklists/quality-gates.md](checklists/quality-gates.md) (QC-00
   - Add: H2 (coordinates pinned at implement time; JDK 21 + Hibernate 7.2 compatible)
   - Retain Derby artifacts for **migration-only** through FR-021 window
   - External: MySQL / SQL Server unchanged
-- **Testing**: JUnit 5, Mockito; module standalone `./mvn-env.sh clean install`; migration IT + concurrency harness (≥10 editors); failure injection
+- **Testing**: JUnit 5, Mockito; module standalone `./mvnw clean install`; migration IT + concurrency harness (≥10 editors); failure injection
 - **Scale/Impact**: Major 8.2 non-UI lift — install defaults, upgrade path, CMS+DTS runtime, docs, packaging; multiuser floor 10 concurrent CMS editors; offline ops model
 
 ## Constitution Check
@@ -47,7 +47,7 @@ Quality gates: [checklists/quality-gates.md](checklists/quality-gates.md) (QC-00
 - [x] **IV. Contract & Integration Integrity**: TableFactory for schema/data; repository property **key names** preserved for external DBs; no REST/SOAP contract break required; `.ppkg` formats untouched unless a package embeds Derby-only config (audit in tasks).
 - [x] **V. Safe Modernization**: No Spring Boot; no full persistence rewrite; additive backend + migrator.
 - [x] **VI. Security by Default**: No secret logging; backup artifacts sensitive; path handling portable.
-- [x] **VII. Build & Dependency Hygiene**: Parent POM dependencyManagement for H2; JDK 21 via `mvn-env`; Spotless as existing.
+- [x] **VII. Build & Dependency Hygiene**: Parent POM dependencyManagement for H2; JDK 21 via `Maven wrapper`; Spotless as existing.
 - [x] **VIII. Documentation & Operability**: Migration, offline backup/restore, cleanup, release notes (FR-011/012).
 - [x] **IX. PR Review Comment Resolution**: Process obligation on feature PRs.
 - [x] **Complexity Budget**: Large multi-module scope is inherent to replacing default repository — not a constitution violation; staged work packages (see below). No unjustified new frameworks.

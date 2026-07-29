@@ -27,13 +27,13 @@ wrapper script to ensure JDK‑21 is used:
 
 ```bash
 # compile & run unit tests only
-./mvn-env.sh -pl deployer test -DskipITs
+./mvnw -pl deployer test -DskipITs
 
 # compile & package the module
-./mvn-env.sh clean install -pl deployer -DskipITs
+./mvnw clean install -pl deployer -DskipITs
 ```
 
-A full top‑level `./mvn-env.sh clean install` will build all modules including
+A full top‑level `./mvnw clean install` will build all modules including
 `deployer`.
 
 ### Running
@@ -44,7 +44,7 @@ full CMS server.  Example:
 
 ```bash
 cd deployer
-./mvn-env.sh exec:java \
+./mvnw exec:java \
     -Dexec.mainClass=com.percussion.deployer.Packager \
     -Dexec.args="-pack -src <src> -out <archive>.zip"
 ```
@@ -77,7 +77,7 @@ and in some cases temporarily disabled.  Attention areas:
 Re‑run the full deployer test suite regularly with:
 
 ```bash
-./mvn-env.sh -pl deployer test -DskipITs
+./mvnw -pl deployer test -DskipITs
 ```
 
 This will catch regressions early.  When re‑enabling disabled tests, make sure

@@ -15,14 +15,11 @@ Before starting ANY task on the system module, you MUST:
    - [overview.md](src/site/markdown/overview.md) – Complete structural details (IMPORTANT)
    - [services.md](src/site/markdown/services.md) – Service architecture (if working on services)
    - [building.md](src/site/markdown/building.md) – Build and development workflow
-3. ✅ **Check Refactoring Status**
-   - Review `refactored-java11-packages.txt` – Lists modernized packages
-   - Review `refactored-soap-packages.txt` – SOAP/web service packages
-   - Avoid duplicating refactoring work
-4. ✅ **Understand Java Version Requirements**
-   - Module requires JDK 21 minimum
-   - Spotless (code formatting) requires JDK 21
-   - Use `./mvn-env.sh` wrapper scripts to ensure correct JDK
+3. ✅ **Understand Java Version Requirements**
+   - **`development` baseline is JDK 21** (parent `release=21`)
+   - Spotless requires JDK 21 at runtime
+   - Use `./mvnw` / `mvnw.cmd` with `JAVA_HOME` → JDK 21
+   - Do **not** recreate or consult deleted Java 11/17 package modernization logs
 
 ## Rule Discovery Protocol
 
@@ -56,12 +53,12 @@ Before starting ANY task on the system module, you MUST:
 ### Code Quality
 
 **MUST DO:**
-- ✅ Run `./mvn-env.sh spotless:apply` before committing
-- ✅ Run `./mvn-env.sh spotless:check` to verify formatting
-- ✅ Use Java 17 features (var, Optional, Streams, try-with-resources)
-- ✅ Follow Google Java Style (enforced by Spotless)
+- ✅ Run `./mvnw spotless:apply` before committing
+- ✅ Run `./mvnw spotless:check` to verify formatting
+- ✅ Target **JDK 21** (parent POM `release=21`); use modern Java features that compile on 21 (`var`, `Optional`, Streams, try-with-resources, records/pattern matching where they fit)
+- ✅ Follow Google Java Style (enforced by Spotless; Spotless runs under JDK 21)
 - ✅ Add comprehensive unit tests (use JUnit 5, not JUnit 4 for new code)
-- ✅ Add `// REFACTORED: CP-JAVA11` marker when modernizing legacy code
+- ✅ Prefer clear commits when modernizing legacy code; ignore historical `// REFACTORED: CP-JAVA11` markers in source (labels only)
 - ✅ Handle specific exceptions, not generic Exception
 - ✅ Update documentation when adding new subsystems
 
@@ -112,7 +109,7 @@ try {
 4. Implement service locator pattern (see services.md: Architecture Overview)
 5. Add comprehensive unit tests
 6. Update README.md and service architecture documentation
-7. Build and verify: `./mvn-env.sh clean verify`
+7. Build and verify: `./mvnw clean verify`
 
 **Service Exception Handling:**
 
@@ -179,16 +176,16 @@ class PSXxxServiceTest {
 
 ```bash
 # 1. Format code
-./mvn-env.sh spotless:apply
+./mvnw spotless:apply
 
 # 2. Verify formatting
-./mvn-env.sh -pl system spotless:check
+./mvnw -pl system spotless:check
 
 # 3. Build and test
-./mvn-env.sh -pl system clean verify
+./mvnw -pl system clean verify
 
 # 4. Optional: Run specific tests
-./mvn-env.sh -pl system test -Dtest=YourTestClass
+./mvnw -pl system test -Dtest=YourTestClass
 ```
 
 **If any checks fail, do not commit.** Fix the issues and re-run.
@@ -287,30 +284,27 @@ public NewDataType newMethod() {
    - Locator: `services/src/main/java/com/percussion/services/xxx/PSXxxServiceLocator.java`
 3. Add tests in `services/src/test/java/com/percussion/services/xxx/PSXxxServiceTest.java`
 4. Update `README.md` and `src/site/markdown/services.md`
-5. Build and verify: `./mvn-env.sh clean verify`
+5. Build and verify: `./mvnw clean verify`
 
 ### Task: Fix Bug in Service
 
 1. Identify the service (use grep or IDE navigation)
 2. Create/update test case to reproduce the bug
 3. Fix the implementation
-4. Verify test passes: `./mvn-env.sh test -Dtest=PSXxxServiceTest`
-5. Run full build: `./mvn-env.sh clean verify`
-6. Format code: `./mvn-env.sh spotless:apply`
+4. Verify test passes: `./mvnw test -Dtest=PSXxxServiceTest`
+5. Run full build: `./mvnw clean verify`
+6. Format code: `./mvnw spotless:apply`
 
 ### Task: Refactor Legacy Code
 
-1. Check `refactored-java11-packages.txt` – is it already done?
-2. If not, modernize:
+1. Confirm the package is still on pre-modern patterns (read the code; there is no package tracking list).
+2. Modernize for **JDK 21**:
    - Replace raw types with generics
-   - Use `var` for local variables
-   - Use `Optional` for null safety
-   - Use Streams API where appropriate
-   - Apply Google Java Style
-3. Add `// REFACTORED: CP-JAVA11` marker to class
-4. Add/update unit tests
-5. Update tracking file
-6. Build and verify: `./mvn-env.sh clean verify`
+   - Use `var` / `Optional` / Streams where they improve clarity
+   - Prefer modern APIs available on 21; avoid deprecated APIs
+   - Apply Google Java Style (`spotless:apply`)
+3. Add/update unit tests (JUnit 5)
+4. Build and verify: `./mvnw -pl system clean verify`
 
 ### Task: Improve Performance
 
@@ -327,10 +321,10 @@ public NewDataType newMethod() {
 
 **If you encounter issues:**
 
-1. **Build fails** → Run `./mvn-env.sh -X clean compile` for detailed output
-2. **Test fails** → Run test with `-e` flag: `./mvn-env.sh test -Dtest=Xyz -e`
-3. **Formatting issues** → Run `./mvn-env.sh spotless:apply`
-4. **Dependency conflicts** → Check tree: `./mvn-env.sh dependency:tree`
+1. **Build fails** → Run `./mvnw -X clean compile` for detailed output
+2. **Test fails** → Run test with `-e` flag: `./mvnw test -Dtest=Xyz -e`
+3. **Formatting issues** → Run `./mvnw spotless:apply`
+4. **Dependency conflicts** → Check tree: `./mvnw dependency:tree`
 5. **Documentation unclear** → Update it and submit PR with improvements
 
 **Then check:**
@@ -352,22 +346,22 @@ public NewDataType newMethod() {
 
 |       Task        |                  Command                  |
 |-------------------|-------------------------------------------|
-| Build module      | `./mvn-env.sh -pl system compile`         |
-| Run tests         | `./mvn-env.sh -pl system test`            |
-| Format code       | `./mvn-env.sh spotless:apply`             |
-| Check formatting  | `./mvn-env.sh spotless:check`             |
-| Full build        | `./mvn-env.sh -pl system clean verify`    |
-| View dependencies | `./mvn-env.sh -pl system dependency:tree` |
+| Build module      | `./mvnw -pl system compile`         |
+| Run tests         | `./mvnw -pl system test`            |
+| Format code       | `./mvnw spotless:apply`             |
+| Check formatting  | `./mvnw spotless:check`             |
+| Full build        | `./mvnw -pl system clean verify`    |
+| View dependencies | `./mvnw -pl system dependency:tree` |
 
 ## Checklist Before Submitting Work
 
 - [ ] Read README.md in full
 - [ ] Read relevant documentation (overview.md, services.md, or building.md)
-- [ ] Code uses Java 17 features and Google Java Style
+- [ ] Code targets JDK 21 and follows Google Java Style
 - [ ] All unit tests written (85%+ coverage)
-- [ ] `./mvn-env.sh spotless:apply` ran successfully
-- [ ] `./mvn-env.sh spotless:check` passes
-- [ ] `./mvn-env.sh -pl system clean verify` passes all builds and tests
+- [ ] `./mvnw spotless:apply` ran successfully
+- [ ] `./mvnw spotless:check` passes
+- [ ] `./mvnw -pl system clean verify` passes all builds and tests
 - [ ] Documentation updated (README, site docs, Javadoc)
 - [ ] Backward compatibility maintained or documented
 - [ ] Tracking files updated (if refactoring legacy code)

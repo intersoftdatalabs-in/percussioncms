@@ -289,7 +289,7 @@ Rather than standalone test files, integration tests leverage existing test infr
 ✅ **Code Style**: Spotless compliance verified (Google Java Format)
 
 ```
-./mvn-env.sh spotless:check
+./mvnw spotless:check
 ```
 
 ✅ **No New Warnings**: Only pre-existing deprecation warnings remain
@@ -354,5 +354,5 @@ This document is part of the Percussion CMS security hardening initiative. All f
 
 **Status**: 🟢 **Actively In Development**
 **Last Verified**: 2026-03-02
-**Compiler**: Java 21 (via mvn-env.sh wrapper)
+**Compiler**: Java 21 (via mvnw wrapper)
 **Build Tool**: Maven (with Java 21 enforcement)

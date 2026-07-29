@@ -180,7 +180,7 @@ Supports late upgraders without forever-shipping a retired engine as a live defa
 | DTS                    | Per-service default install smoke + one multi-service migration fixture (SC-001, SC-003)                  |
 | Docs dry-run           | Offline backup/restore walkthrough (SC-007)                                                               |
 
-Maven: standalone `./mvn-env.sh clean install` per changed module (AGENTS pre-PR gate).
+Maven: standalone `./mvnw clean install` per changed module (AGENTS pre-PR gate).
 
 ### Rationale
 

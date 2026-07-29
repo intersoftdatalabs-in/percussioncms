@@ -39,8 +39,8 @@ mvn --version
 
 The project uses Maven with wrapper scripts to ensure correct JDK versions:
 
-- **Linux/macOS:** `./mvn-env.sh [maven-args]`
-- **Windows:** `mvn-env.bat [maven-args]`
+- **Linux/macOS:** `./mvnw [maven-args]`
+- **Windows:** `mvnw.cmd [maven-args]`
 - **Direct Maven:** `mvn [args]` (use wrapper scripts for Spotless)
 
 ### Basic Build Commands
@@ -48,25 +48,25 @@ The project uses Maven with wrapper scripts to ensure correct JDK versions:
 **Compile only (no tests):**
 
 ```bash
-./mvn-env.sh -pl system compile
+./mvnw -pl system compile
 ```
 
 **Compile and package:**
 
 ```bash
-./mvn-env.sh -pl system package -DskipTests
+./mvnw -pl system package -DskipTests
 ```
 
 **Full build with tests:**
 
 ```bash
-./mvn-env.sh -pl system clean verify
+./mvnw -pl system clean verify
 ```
 
 **Build specific module:**
 
 ```bash
-./mvn-env.sh -pl system:services compile
+./mvnw -pl system:services compile
 ```
 
 ### Module Organization
@@ -85,7 +85,7 @@ The system module contains multiple sub-modules:
 To build a specific module:
 
 ```bash
-./mvn-env.sh -pl system/services compile
+./mvnw -pl system/services compile
 ```
 
 ## Testing
@@ -95,37 +95,37 @@ To build a specific module:
 **Run all tests in system module:**
 
 ```bash
-./mvn-env.sh -pl system test
+./mvnw -pl system test
 ```
 
 **Run tests for specific submodule:**
 
 ```bash
-./mvn-env.sh -pl system/services test
+./mvnw -pl system/services test
 ```
 
 **Run single test class:**
 
 ```bash
-./mvn-env.sh -pl system test -Dtest=PSBeanGeneratorTest
+./mvnw -pl system test -Dtest=PSBeanGeneratorTest
 ```
 
 **Run single test method:**
 
 ```bash
-./mvn-env.sh -pl system test -Dtest=PSBeanGeneratorTest#testCreateClass_generatesClassWithProperties
+./mvnw -pl system test -Dtest=PSBeanGeneratorTest#testCreateClass_generatesClassWithProperties
 ```
 
 **Run tests matching pattern:**
 
 ```bash
-./mvn-env.sh -pl system test -Dtest=*ServiceTest
+./mvnw -pl system test -Dtest=*ServiceTest
 ```
 
 **Skip tests during build:**
 
 ```bash
-./mvn-env.sh -pl system clean install -DskipTests
+./mvnw -pl system clean install -DskipTests
 ```
 
 ### Test Framework
@@ -210,7 +210,7 @@ Aim for high test coverage:
 Run coverage report:
 
 ```bash
-./mvn-env.sh -pl system test jacoco:report
+./mvnw -pl system test jacoco:report
 ```
 
 View report in `target/site/jacoco/index.html`
@@ -224,20 +224,20 @@ The project uses Spotless with Google Java Format for consistent code style:
 **Check code style:**
 
 ```bash
-./mvn-env.sh -pl system spotless:check
+./mvnw -pl system spotless:check
 ```
 
 **Auto-format code:**
 
 ```bash
-./mvn-env.sh spotless:apply
+./mvnw spotless:apply
 ```
 
 **Before committing code, always run:**
 
 ```bash
-./mvn-env.sh spotless:apply
-./mvn-env.sh spotless:check
+./mvnw spotless:apply
+./mvnw spotless:check
 ```
 
 ### Code Style Rules
@@ -247,7 +247,7 @@ The project uses Spotless with Google Java Format for consistent code style:
 - Line length: 100 characters (where practical)
 - One statement per line
 - Use `@Override` annotation for overridden methods
-- Use modern Java 17 features (var, Optional, Streams, etc.)
+- Use modern Java features valid on JDK 21 (var, Optional, Streams, etc.)
 
 ### Example: Preferred Style
 
@@ -280,7 +280,7 @@ Edit Java source files in your IDE.
 ### 2. Build locally
 
 ```bash
-./mvn-env.sh -pl system clean verify
+./mvnw -pl system clean verify
 ```
 
 This runs:
@@ -292,7 +292,7 @@ This runs:
 ### 3. Run tests
 
 ```bash
-./mvn-env.sh -pl system test -Dtest=YourTestClass
+./mvnw -pl system test -Dtest=YourTestClass
 ```
 
 Ensure all tests pass before proceeding.
@@ -300,7 +300,7 @@ Ensure all tests pass before proceeding.
 ### 4. Check code style
 
 ```bash
-./mvn-env.sh -pl system spotless:check
+./mvnw -pl system spotless:check
 ```
 
 If formatting issues found, proceed to step 5.
@@ -308,8 +308,8 @@ If formatting issues found, proceed to step 5.
 ### 5. Apply formatting (if needed)
 
 ```bash
-./mvn-env.sh spotless:apply
-./mvn-env.sh -pl system spotless:check
+./mvnw spotless:apply
+./mvnw -pl system spotless:check
 ```
 
 Verify formatting is applied.
@@ -317,7 +317,7 @@ Verify formatting is applied.
 ### 6. Rebuild and verify
 
 ```bash
-./mvn-env.sh -pl system clean verify
+./mvnw -pl system clean verify
 ```
 
 ### 7. Commit your changes
@@ -341,32 +341,32 @@ Create pull request against `development` branch.
 3. Create locator: `com.percussion.services.xxx.PSXxxServiceLocator`
 4. Add comprehensive unit tests in `src/test/java/`
 5. Document in this README and service architecture docs
-6. Build and test: `./mvn-env.sh -pl system clean verify`
+6. Build and test: `./mvnw -pl system clean verify`
 
 ### Refactoring Legacy Code
 
 1. Identify the package in `refactored-java11-packages.txt`
 2. If not yet refactored:
-   - Modernize to Java 17 (var, Optional, Streams)
+   - Modernize for JDK 21 (var, Optional, Streams, and newer APIs as appropriate)
    - Apply Google Java Style
    - Add/update unit tests
    - Add `// REFACTORED: CP-JAVA11` marker to class
    - Update tracking file
-3. Build and verify: `./mvn-env.sh clean verify`
+3. Build and verify: `./mvnw clean verify`
 
 ### Adding a Test
 
 1. Create test class in `src/test/java/` mirroring source package structure
 2. Use JUnit 5 (`org.junit.jupiter.api.*`)
 3. Name test class: `<ClassName>Test`
-4. Run test: `./mvn-env.sh -pl system test -Dtest=YourTestClass`
+4. Run test: `./mvnw -pl system test -Dtest=YourTestClass`
 
 ### Debugging
 
 **Enable debug output:**
 
 ```bash
-./mvn-env.sh -pl system -X clean compile
+./mvnw -pl system -X clean compile
 ```
 
 **Debug a test:**
@@ -376,7 +376,7 @@ Create pull request against `development` branch.
 3. OR use Maven with debug agent:
 
 ```bash
-./mvn-env.sh -pl system -Ddebug test
+./mvnw -pl system -Ddebug test
 ```
 
 ## Troubleshooting
@@ -399,7 +399,7 @@ export JAVA_HOME=/path/to/jdk21
 **Solution:** This is a pre-existing issue with legacy test resources. Use:
 
 ```bash
-./mvn-env.sh -pl system/services spotless:apply  # Submodule to avoid problematic files
+./mvnw -pl system/services spotless:apply  # Submodule to avoid problematic files
 ```
 
 ### Test Failures
@@ -407,7 +407,7 @@ export JAVA_HOME=/path/to/jdk21
 **Check test output:**
 
 ```bash
-./mvn-env.sh -pl system test -Dtest=YourTestClass -e
+./mvnw -pl system test -Dtest=YourTestClass -e
 ```
 
 The `-e` flag shows full stack traces.
@@ -417,8 +417,8 @@ The `-e` flag shows full stack traces.
 **Resolve dependency conflicts:**
 
 ```bash
-./mvn-env.sh -pl system dependency:tree
-./mvn-env.sh -pl system dependency:analyze
+./mvnw -pl system dependency:tree
+./mvnw -pl system dependency:analyze
 ```
 
 View dependency tree to identify version conflicts.
@@ -458,7 +458,7 @@ View dependency tree to identify version conflicts.
    - Command Palette → Java: Configure Java Runtime
    - Set to JDK 21
 3. **Build** via integrated terminal:
-   - `./mvn-env.sh clean verify`
+   - `./mvnw clean verify`
 
 ## Continuous Integration
 
@@ -473,8 +473,8 @@ When you push to GitHub, the following checks run automatically:
 **Ensure all local checks pass before pushing:**
 
 ```bash
-./mvn-env.sh -pl system spotless:check
-./mvn-env.sh -pl system clean verify
+./mvnw -pl system spotless:check
+./mvnw -pl system clean verify
 ```
 
 ## Performance Tips
@@ -483,23 +483,23 @@ When you push to GitHub, the following checks run automatically:
 
 ```bash
 # Skip tests
-./mvn-env.sh -pl system clean install -DskipTests
+./mvnw -pl system clean install -DskipTests
 
 # Parallel build
-./mvn-env.sh -T 1C -pl system clean install
+./mvnw -T 1C -pl system clean install
 
 # Offline mode (after first full build)
-./mvn-env.sh -o -pl system compile
+./mvnw -o -pl system compile
 ```
 
 ### Faster Tests
 
 ```bash
 # Run tests in parallel
-./mvn-env.sh -pl system test -P parallel-tests
+./mvnw -pl system test -P parallel-tests
 
 # Skip integration tests (run only unit tests)
-./mvn-env.sh -pl system test -DskipITs
+./mvnw -pl system test -DskipITs
 ```
 
 ## Documentation

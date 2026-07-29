@@ -42,7 +42,7 @@ server's extension registry under `Extensions/Handlers/`.
 
 ```bash
 cd modules/extensions-main
-../../mvn-env.sh clean install
+../../mvnw clean install
 ```
 
 See the project [README](https://github.com/percussion/percussioncms/blob/development/modules/extensions-main/README.md) for full build and contribution instructions.

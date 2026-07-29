@@ -37,7 +37,7 @@
 | IV (service-contract tests)          | ✅ — T099 adds `rest/src/test/java/com/percussion/share/relationship/RelationshipSummaryResourceTest.java` with happy path + AuthZ negative + JSON wire envelope.                                                  |
 | V (Plan / Complexity)                | ✅ — Plan recorded in T104 description (~18 new files: sitemanage 2 + rest 11 + WebUI 5 + 3 modified). No new DB; no CSRF surface; no path traversal.                                                              |
 | VI (threat-model note)               | ✅ — updated `security-review-992.md` table covers US8 GETs.                                                                                                                                                       |
-| VII (format checks)                  | ✅ — `./mvn-env.sh -pl projects/sitemanage,rest -am verify` + `npx vitest run` + `npm test -- tests/us8-dependency.spec.js` (no Java / npm file changes in this commit; documented for the upcoming US8 PR train). |
+| VII (format checks)                  | ✅ — `./mvnw -pl projects/sitemanage,rest -am verify` + `npx vitest run` + `npm test -- tests/us8-dependency.spec.js` (no Java / npm file changes in this commit; documented for the upcoming US8 PR train). |
 | IX (review-thread resolution per PR) | ✅ — each US8 sub-PR carries inline reply + `resolveReviewThread` per thread; T104 mandates this.                                                                                                                  |
 | E (no residuals out of spec phases)  | ✅ — the amendment itself is the resolution to the residual. US8 is in scope; no out-of-spec work remains.                                                                                                         |
 

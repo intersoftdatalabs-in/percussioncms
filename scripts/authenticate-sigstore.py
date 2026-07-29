@@ -22,7 +22,7 @@ Notes
   if a cached token already exists at ``--cache-path`` AND ``SIGSTORE_IDENTITY_TOKEN``
   is unset in the environment, the script exits 0 immediately without invoking
   Maven (idempotent re-run).
-- The Maven invocation is preserved (``mvn-env.sh -pl modules/ai-shared-develop -q
+- The Maven invocation is preserved (``mvnw -pl modules/ai-shared-develop -q
   exec:java -Dexec.mainClass=...``); on Windows the bash wrapper is not invoked;
   the Python port invokes ``mvn`` directly (the same rationale used by
   ``verify-distribution-archive.sh``).
@@ -72,7 +72,7 @@ def _build_parser() -> argparse.ArgumentParser:
 def _resolve_mvn() -> list[str]:
     """Return the argv prefix that invokes Maven on the current OS.
 
-    Linux/macOS prefer the repo ``mvn-env.sh`` wrapper (matches the bash original);
+    Linux/macOS prefer the repo ``mvnw`` wrapper (matches the bash original);
     Windows falls back to ``mvn`` directly. ``shutil.which`` guards against PATH gaps.
     """
     if sys.platform.startswith("win"):
@@ -81,7 +81,7 @@ def _resolve_mvn() -> list[str]:
             return [mvn]
         # Fall back to the conventional name even if not on PATH (let subprocess raise).
         return ["mvn.cmd"]
-    wrapper = REPO_ROOT / "mvn-env.sh"
+    wrapper = REPO_ROOT / "mvnw"
     if wrapper.is_file():
         return [str(wrapper)]
     mvn = shutil.which("mvn")

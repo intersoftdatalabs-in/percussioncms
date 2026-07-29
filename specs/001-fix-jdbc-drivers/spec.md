@@ -99,7 +99,7 @@ A build engineer or CI pipeline builds `modules/perc-distribution-tree` and need
 ## Assumptions
 
 - The default repository for a fresh install is the bundled database (MySQL/MariaDB family), and shipping at least one matching JDBC driver is sufficient to satisfy the "bootstrap the default repository" requirement. Drivers for additional enterprise databases (Oracle, MS SQL Server, DB2, etc.) are expected to be supplied by the integrator if needed and do not have to ship with the default distribution.
-- The `modules/perc-distribution-tree/AGENTS.md` guidance (build via `../../mvn-env.sh clean install`) applies; no changes are required to the wrapper itself.
+- The `modules/perc-distribution-tree/AGENTS.md` guidance (build via `../../mvnw clean install`) applies; no changes are required to the wrapper itself.
 - The legacy `DEVELOPMENT=true` override and the path it currently references are kept for backward compatibility; the fix layers production-mode driver inclusion on top of the existing logic rather than removing the override.
 - The `installDistributionFiles.xml` ANT script remains the assembly orchestrator; the fix updates or augments that script (and its referenced source locations) rather than introducing a parallel packaging system.
 - A reusable JDBC driver JAR is available somewhere in the repository or as a curated Maven dependency in the parent POM, so the assembly can reference a known-good path without inventing a new third-party download.

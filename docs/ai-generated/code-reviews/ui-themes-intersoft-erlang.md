@@ -31,7 +31,7 @@ Recommendation: **approve** (post-fix).
   - Modified: `WebUI/src/main/ts/home/HomeShell.tsx`,
     `WebUI/src/test/ts/home/HomeShell.test.tsx`, `WebUI/README.md`
 - Pre-PR gate: `npx tsc --noEmit` clean, `npx vite build` succeeds
-  (CSS 2.01 kB, JS 887 kB), `cd WebUI && ..\mvn-env.bat clean install`
+  (CSS 2.01 kB, JS 887 kB), `cd WebUI && ..\mvnw.cmd clean install`
   **BUILD SUCCESS** (4 Java tests, 0 failures, no new warnings).
 - Prior report: none (new topic).
 - Memory patterns hit:
@@ -195,7 +195,7 @@ npx vite build            # 1012 modules transformed, CSS 2.01 kB, JS 887 kB, 0 
 
 # 3. Standalone Maven clean install (per root AGENTS.md "Pre-PR Maven verification")
 cd WebUI
-..\mvn-env.bat clean install -DskipTests
+..\mvnw.cmd clean install -DskipTests
 # [INFO] BUILD SUCCESS, 4 Java tests, 0 failures, 0 new warnings
 ```
 

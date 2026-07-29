@@ -265,7 +265,7 @@ After implementing tests, verify:
 - [ ] Setup/Teardown properly manages test data
 - [ ] SQL parameterization verified structurally
 - [ ] Tests compile without warnings
-- [ ] Tests pass locally with `./mvn-env.sh test`
+- [ ] Tests pass locally with `./mvnw test`
 - [ ] No performance regression in data access operations
 
 ## Example Full Test Class

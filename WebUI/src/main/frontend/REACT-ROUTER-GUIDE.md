@@ -372,7 +372,7 @@ npm run build
 
 # Test with Maven build
 cd /path/to/percussioncms
-./mvn-env.sh -f WebUI/pom.xml clean package
+./mvnw -f WebUI/pom.xml clean package
 
 # Or run dev server
 cd WebUI/src/main/frontend

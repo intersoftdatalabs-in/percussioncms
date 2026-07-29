@@ -104,7 +104,7 @@ WebUI/
 
 ```bash
 cd WebUI
-../mvn-env.sh clean install
+../mvnw clean install
 ```
 
 ### Frontend-only iteration
@@ -171,7 +171,7 @@ Follow the **screen checklist** in the unified UI plan. Home must pass on a **re
 
 ### Pre-PR
 
-- `cd WebUI && ../mvn-env.sh clean install` — BUILD SUCCESS, tests pass, no new warnings
+- `cd WebUI && ../mvnw clean install` — BUILD SUCCESS, tests pass, no new warnings
 - Erlang review on authored diffs
 - PR body: commands run + test counts + which checklist items were verified
 

@@ -128,12 +128,12 @@ on a missing in-root file, demonstrating that the validator passes and the
 FileInputStream is what fails. `fileExists` returns `false` for a missing in-root
 file, demonstrating that the validator passes and `.exists()` is what runs.
 
-Verified by `mvn-env.bat … test -Dtest=PSCSSParserPathInjectionTest`: **11 run, 0
+Verified by `mvnw.cmd … test -Dtest=PSCSSParserPathInjectionTest`: **11 run, 0
 failures, 0 errors, 0 skipped**.
 
 ## Spotless / build
 
-`mvn-env.bat -Dai.integrity.skip=true -pl projects/sitemanage spotless:check`
+`mvnw.cmd -Dai.integrity.skip=true -pl projects/sitemanage spotless:check`
 reports `Spotless.Format is keeping 7 files clean - 1 needs changes to be clean, 0
 were already clean, 6 were skipped because caching determined they were already
 clean`. The single failing file is

@@ -10,7 +10,7 @@
 Command used:
 
 ```bash
-./mvn-env.sh -pl modules/DesktopContentExplorer javadoc:javadoc -q -DskipTests
+./mvnw -pl modules/DesktopContentExplorer javadoc:javadoc -q -DskipTests
 ```
 
 Raw output archived at `specs/003-javadoc-cleanup/baseline-raw.txt`.
@@ -132,8 +132,8 @@ Two commands, both documented in `quickstart.md`:
 
 |                              Goal                              |                                                                 Command                                                                 |
 |----------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
-| Standard javadoc generation (CI will run something equivalent) | `./mvn-env.sh -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests`                                                           |
-| Per-class javadoc generation (debugging)                       | `./mvn-env.sh -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests -Dsourcepath=modules/DesktopContentExplorer/src/main/java` |
+| Standard javadoc generation (CI will run something equivalent) | `./mvnw -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests`                                                           |
+| Per-class javadoc generation (debugging)                       | `./mvnw -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests -Dsourcepath=modules/DesktopContentExplorer/src/main/java` |
 
 Exit code 0, "0 errors", and "0 warnings" are the targets. The tool prints a final
 summary line `N errors` / `N warnings`; we key off that.

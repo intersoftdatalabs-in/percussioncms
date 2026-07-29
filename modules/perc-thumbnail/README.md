@@ -48,10 +48,10 @@ root of the workspace or from within the module directory:
 
 ```bash
 # from project root:
-./mvn-env.sh -pl modules/perc-thumbnail clean install
+./mvnw -pl modules/perc-thumbnail clean install
 
 # or from inside modules/perc-thumbnail:
-./../../mvn-env.sh clean install
+./../../mvnw clean install
 ```
 
 Unit tests are written in JUnit 5 and require no additional setup – they create
@@ -60,7 +60,7 @@ a temporary `rxconfig/Server` directory and an innocuous
 this module with:
 
 ```bash
-./mvn-env.sh -pl modules/perc-thumbnail test
+./mvnw -pl modules/perc-thumbnail test
 ```
 
 You may skip tests using `-DskipTests` if you're iterating on unrelated code.

@@ -17,7 +17,7 @@
 **Project Type**: Multi-module CMS mono-repo; this change is scoped to `modules/perc-distribution-tree` (build/POM + ANT script + new verification script).
 **Performance Goals**: N/A — build-time change; no runtime perf impact.
 **Constraints**:
-- Build with `./mvn-env.sh` on JDK 21 (Constitution VII).
+- Build with `./mvnw` on JDK 21 (Constitution VII).
 - No Spring Boot, no new frameworks (Constitution V).
 - Preserve `DEVELOPMENT=true` legacy path verbatim (FR-004).
 - Driver versions MUST come from parent-POM `<dependencyManagement>` — no naked version strings (Constitution VII).
