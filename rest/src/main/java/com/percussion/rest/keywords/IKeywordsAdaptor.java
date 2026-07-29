@@ -24,4 +24,16 @@ public interface IKeywordsAdaptor {
 
   /** List keyword definitions (type KEYWORD), optionally including choices. */
   List<KeywordSummary> listKeywords(URI baseUri, boolean includeChoices);
+
+  /** Load one keyword by uuid or value string. */
+  KeywordSummary getKeyword(URI baseUri, String idOrValue);
+
+  /** Create a new keyword (+ optional choices). */
+  KeywordSummary createKeyword(URI baseUri, KeywordSummary body);
+
+  /** Update an existing keyword by uuid. */
+  KeywordSummary updateKeyword(URI baseUri, String id, KeywordSummary body);
+
+  /** Delete a keyword by uuid. */
+  void deleteKeyword(URI baseUri, String id);
 }

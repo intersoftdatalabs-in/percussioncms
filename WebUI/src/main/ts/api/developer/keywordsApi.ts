@@ -15,20 +15,11 @@
  * limitations under the License.
  */
 
-import { get } from "../client";
+import { del, get, post, put } from "../client";
 import { PATHS } from "../paths";
 import type { KeywordSummary } from "./types";
 
-/**
- * List keyword definitions.
- *
- * <p>Server: {@code GET /services/keywords?includeChoices=true|false}
- */
-export async function listKeywords(
-  includeChoices = true,
-): Promise<KeywordSummary[]> {
-  const q = includeChoices ? "?includeChoices=true" : "?includeChoices=false";
-  const payload = await get<unknown>(`${PATHS.KEYWORDS}${q}`);
+function asKeywordList(payload: unknown): KeywordSummary[] {
   if (Array.isArray(payload)) {
     return payload as KeywordSummary[];
   }
@@ -42,4 +33,43 @@ export async function listKeywords(
     return Array.isArray(raw) ? raw : [raw];
   }
   return [];
+}
+
+/** GET /services/keywords?includeChoices= */
+export async function listKeywords(
+  includeChoices = true,
+): Promise<KeywordSummary[]> {
+  const q = includeChoices ? "?includeChoices=true" : "?includeChoices=false";
+  const payload = await get<unknown>(`${PATHS.KEYWORDS}${q}`);
+  return asKeywordList(payload);
+}
+
+/** GET /services/keywords/{idOrValue} */
+export async function getKeyword(idOrValue: string): Promise<KeywordSummary> {
+  return get<KeywordSummary>(
+    `${PATHS.KEYWORDS}/${encodeURIComponent(idOrValue)}`,
+  );
+}
+
+/** POST /services/keywords */
+export async function createKeyword(
+  body: KeywordSummary,
+): Promise<KeywordSummary> {
+  return post<KeywordSummary>(PATHS.KEYWORDS, body);
+}
+
+/** PUT /services/keywords/{id} */
+export async function updateKeyword(
+  id: string,
+  body: KeywordSummary,
+): Promise<KeywordSummary> {
+  return put<KeywordSummary>(
+    `${PATHS.KEYWORDS}/${encodeURIComponent(id)}`,
+    body,
+  );
+}
+
+/** DELETE /services/keywords/{id} */
+export async function deleteKeyword(id: string): Promise<void> {
+  await del(`${PATHS.KEYWORDS}/${encodeURIComponent(id)}`);
 }

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | **In progress** — read catalogs + template/slot detail + pipelines catalog |
+| **Status** | **In progress** — read catalogs + keyword CRUD + template/slot detail + pipelines catalog |
 | **FR source** | [`docs/developer-module/workbench-functional-inventory.md`](../../developer-module/workbench-functional-inventory.md) §15 P0 |
 | **Pipeline track** | [`docs/developer-module/data-pipeline-engine-inventory.md`](../../developer-module/data-pipeline-engine-inventory.md) (parallel; not blocking P0) |
 | **Related** | [design-templates-item-types](../design-templates-item-types/README.md) (CM1 template library — complementary, not a substitute) |
@@ -33,6 +33,7 @@
 - [x] **P0.2b** Allowed workflows + default workflow + allowed templates on CT detail  
 - [x] **P0.2c** Field rule flags (readOnly, occurrence, hasValidation/visibility/transforms) + SPA columns  
 - [x] **P0.3** Keywords list `GET /services/keywords` + SPA Keywords panel (read-only)  
+- [x] **P0.3b** Keyword create/update/delete + SPA editor  
 - [x] **P0.4** Templates `GET /services/templates` + Slots `GET /services/slots` + SPA panels  
 - [x] **P0.4b** Template detail `GET /services/templates/{idOrName}` — bindings, slots, source, designGaps + SPA detail  
 - [x] **P0.4c** Slot detail `GET /services/slots/{idOrName}` (finder + associations) + SPA detail  
@@ -44,11 +45,11 @@
 
 ## Next slices (separate PRs)
 
-1. CT field rules projection (read-only) then write/lock  
-2. Keyword create/edit; community roles + ACL dialogs  
-3. Pipelines track Slice A (IR + SQL runtime + JSON I/O + classic import)  
-4. Template/slot **editors** (write)  
-5. Server runtime map for data pipelines  
+1. Community roles + ACL dialogs  
+2. Pipelines track Slice A (IR + SQL runtime + JSON I/O + classic import)  
+3. Template/slot **editors** (write)  
+4. Server runtime map for data pipelines  
+5. CT field write/lock (rules projection already shipped as P0.2c)  
 
 Cross-cutting review debt (typed JSON errors, structured designGaps, source viewer, panel migration) is **not** listed above — see [review-followups-tech-debt.md](./review-followups-tech-debt.md).
 
