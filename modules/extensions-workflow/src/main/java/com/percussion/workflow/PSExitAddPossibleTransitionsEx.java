@@ -482,8 +482,14 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
 
     if (nCommunityID == localParams.m_userCommunity) {
       addActions(
-          doc, elemWorkflowInfo, contentID, nContentStateID, nContentTypeID, sCheckoutUserName,
-          localParams, req);
+          doc,
+          elemWorkflowInfo,
+          contentID,
+          nContentStateID,
+          nContentTypeID,
+          sCheckoutUserName,
+          localParams,
+          req);
     }
 
     PSWorkFlowUtils.printWorkflowMessage(req, "  Exiting method addWorkflowInfo");
@@ -526,28 +532,26 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
    * The the content info for the supplied content-id. The returned info is in the <code>localParams
    * </code> parameters.
    *
-   * @param contentID ID of the content item
-   * @param connection open data base connection, assume not <code>null</code>.
+   * @param contentID ID of the content item. Pre-Phase-4d-1c callers passed the value the XML app
+   *     supplied; the contract does not enforce {@code > 0} (the underlying Hibernate factory
+   *     {@code PSContentStatusContext.loadFromHibernate(int)} throws {@code
+   *     PSEntryNotFoundException} for unknown ids, which the caller handles).
    * @param userName The user's name, assume not <CODE>null</CODE>
    * @param roleNameList A comma-delimited list of the user's roles, assume not <code>null</code>,
    *     but may be empty.
    * @param localParams Class used to contain the returned values, which are <code>
    *     m_contentStatusCtx</code>, <code>m_isAdministrator</code>, <code>m_checkoutUserName</code>
    * @return <code>true</code> if successful get the content info; <code>false</code> otherwise.
-   * @throws SQLException if an sql error occurs.
    */
   private static boolean getContentInfo(
-      int contentID,
-      Connection connection,
-      String userName,
-      String roleNameList,
-      Params localParams)
-      throws SQLException {
+      int contentID, String userName, String roleNameList, Params localParams) throws SQLException {
     boolean success = true;
     PSContentStatusContext csc = null;
     try {
-      csc = new PSContentStatusContext(connection, contentID);
-      csc.close(); // must close it before opening another context
+      // Phase 4d-1c: read CONTENTSTATUS via the Hibernate factory (Phase 4d-1b
+      // PSContentStatusContext.loadFromHibernate) on the shared session -- no
+      // second pool connection.
+      csc = PSContentStatusContext.loadFromHibernate(contentID);
       if (csc.getObjectType() == PSCmsObject.TYPE_FOLDER) {
         return false;
       }
@@ -559,8 +563,6 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
       localParams.m_isAdministrator = isAdmin;
     } catch (PSEntryNotFoundException e) {
       success = false;
-    } finally {
-      if (csc != null) csc.close(); // must close it before opening another context
     }
 
     return success;
@@ -615,11 +617,7 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
    * STATEROLES row via the shared Hibernate session — no second pool connection.
    */
   private void addAssignedRolesInfo(
-      Document doc,
-      Element elemParent,
-      int nWorkflowAppID,
-      int stateid,
-      int contentId) {
+      Document doc, Element elemParent, int nWorkflowAppID, int stateid, int contentId) {
     Element elemAssignedRoles = doc.createElement(ELEMENT_ASSIGNEDROLES);
     elemAssignedRoles = (Element) elemParent.appendChild(elemAssignedRoles);
     Element elemAssignedRole = null;
@@ -749,7 +747,8 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
     String buttonLabel = null;
     String buttonName = null; // the internal name of the button
 
-    int nWorkflowAppID = localParams.m_contentStatusCtx == null ? 0 : localParams.m_contentStatusCtx.getWorkflowID();
+    int nWorkflowAppID =
+        localParams.m_contentStatusCtx == null ? 0 : localParams.m_contentStatusCtx.getWorkflowID();
     IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
     boolean isPublic =
         cms.loadWorkflowState(nWorkflowAppID, contentStateID)
@@ -854,14 +853,14 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
           if (!isDisabled) {
             List transitionRequiredRoles = tc.getTransitionRoles();
             if (null != transitionRequiredRoles && transitionRequiredRoles.size() > 0) {
-              isDisabled = !PSWorkFlowUtils.compareRoleList(
-                  transitionRequiredRoles, localParams.m_actorRoleNames);
+              isDisabled =
+                  !PSWorkFlowUtils.compareRoleList(
+                      transitionRequiredRoles, localParams.m_actorRoleNames);
             }
           }
           params.clear();
           params.put(ms_actionTriggerName, tc.getTransitionActionTrigger());
-          params.put(IPSHtmlParameters.SYS_TRANSITIONID,
-              Integer.toString(tc.getTransitionID()));
+          params.put(IPSHtmlParameters.SYS_TRANSITIONID, Integer.toString(tc.getTransitionID()));
           params.put(commandParam, WORKFLOW_COMMAND);
 
           String transName =
@@ -1025,9 +1024,14 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
         src = (PSStateRolesContext) cache.get(key);
       }
       if (src == null) {
+        // Phase 4d-1c: read STATEROLES via the Hibernate factory (Phase 4b
+        // PSStateRolesContext.loadFromHibernate) on the shared session -- no
+        // second pool connection. The legacy `Connection connection` parameter
+        // is still required by the downstream `getActorRoles(..., connection,
+        // ...)` overload which performs the CONTENTADHOCUSERS read.
         src =
-            new PSStateRolesContext(
-                workflowID, connection, stateid, PSWorkFlowUtils.ASSIGNMENT_TYPE_NONE);
+            PSStateRolesContext.loadFromHibernate(
+                workflowID, stateid, PSWorkFlowUtils.ASSIGNMENT_TYPE_NONE);
         if (cache != null) cache.put(key, src);
       }
 
@@ -1099,9 +1103,14 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
     PSStateRolesContext src = null;
 
     try {
+      // Phase 4d-1c: read STATEROLES via the Hibernate factory (Phase 4b
+      // PSStateRolesContext.loadFromHibernate) on the shared session -- no
+      // second pool connection. The legacy `Connection connection` parameter
+      // is still required by the downstream `getActorRoles(..., connection,
+      // ...)` overload which performs the CONTENTADHOCUSERS read.
       src =
-          new PSStateRolesContext(
-              workflowID, connection, stateid, PSWorkFlowUtils.ASSIGNMENT_TYPE_NONE);
+          PSStateRolesContext.loadFromHibernate(
+              workflowID, stateid, PSWorkFlowUtils.ASSIGNMENT_TYPE_NONE);
       // By sending true for authUser we are imposing the same rule as authenticateuser
       actorRoles =
           PSWorkflowRoleInfoStatic.getActorRoles(
@@ -1120,10 +1129,10 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
   }
 
   /**
-   * Hibernate-backed #1561 Phase 4d-1a overload of the assignment-type lookup. Loads the
-   * {@code STATEROLES} row and the {@code CONTENTADHOCUSERS} rows from the shared Hibernate
-   * session and delegates to the no-connection {@code PSWorkflowRoleInfoStatic.getActorRoles}
-   * overload. No second pool connection is opened.
+   * Hibernate-backed #1561 Phase 4d-1a overload of the assignment-type lookup. Loads the {@code
+   * STATEROLES} row and the {@code CONTENTADHOCUSERS} rows from the shared Hibernate session and
+   * delegates to the no-connection {@code PSWorkflowRoleInfoStatic.getActorRoles} overload. No
+   * second pool connection is opened.
    *
    * @param workflowID ID of the workflow, must be {@code > 0}.
    * @param contentID ID of the content item, must be {@code > 0}.
@@ -1168,8 +1177,7 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
       cauc = PSContentAdhocUsersContext.loadFromHibernate(contentID);
 
       // By sending true for authUser we are imposing the same rule as authenticateuser.
-      actorRoles =
-          PSWorkflowRoleInfoStatic.getActorRoles(userName, roleNameList, src, cauc, true);
+      actorRoles = PSWorkflowRoleInfoStatic.getActorRoles(userName, roleNameList, src, cauc, true);
 
       if (null == actorRoles || actorRoles.isEmpty()) {
         return assignmentType;
