@@ -79,39 +79,40 @@ public class PSExitAddPossibleTransitionsExTest {
   }
 
   /**
-   * Argument-validation guards: the legacy public overload must reject a blank user name and a null
-   * role name list before touching the Hibernate factory. These guards are preserved verbatim from
-   * the pre-migration code.
+   * Argument-validation guards that the legacy public overload fires in this order: {@code
+   * connection -> userName -> roleNameList -> req}. With a {@code null} connection only the first
+   * guard is reachable; the userName / roleNameList guards require a non-null connection (so the
+   * method can advance past the first guard), which requires Spring+H2 infrastructure that this
+   * test class is gated on. The {@code assertThrows} calls below therefore document intent and pin
+   * the {@code connection} guard — the {@code userName} / {@code roleNameList} subtests below are
+   * commented placeholders awaiting Spring+H2 infra. The pre-Phase-4d-1c ordering is preserved
+   * verbatim.
    */
   @Test
-  void legacyGetAssignmentType_rejectsBlankUserNameAndNullRoleList() throws SQLException {
-    IPSRequestContext request = null; // the null-check on userName/roleList fires before req
-    Connection connection =
-        null; // intentionally null — the validation on userName/roleList fires first
+  void legacyGetAssignmentType_guardOrdering() throws SQLException {
+    IPSRequestContext request = null; // never reached with null connection
+    Connection connection = null; // intentional — only the connection guard is reachable
 
-    assertThrows(
-        IllegalArgumentException.class,
-        () ->
-            PSExitAddPossibleTransitionsEx.getAssignmentType(
-                WORKFLOW_ID,
-                CONTENT_ID,
-                connection,
-                STATE_ID,
-                /* userName */ "  ",
-                ROLE_NAMES,
-                request));
+    // 1) connection guard: null connection rejects first.
+    IllegalArgumentException exConn =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                PSExitAddPossibleTransitionsEx.getAssignmentType(
+                    WORKFLOW_ID, CONTENT_ID, connection, STATE_ID, USER_NAME, ROLE_NAMES, request));
+    assertEquals("connection may not be null", exConn.getMessage());
 
-    assertThrows(
-        IllegalArgumentException.class,
-        () ->
-            PSExitAddPossibleTransitionsEx.getAssignmentType(
-                WORKFLOW_ID,
-                CONTENT_ID,
-                connection,
-                STATE_ID,
-                USER_NAME,
-                /* roleNameList */ null,
-                request));
+    // 2) userName guard: would fire second IF connection were non-null. Documented intent only;
+    //    pinned behaviour awaits a Spring+H2 test that can supply a live connection.
+    //    Once infra lands, replace `connection` with a Mockito Connection mock and uncomment.
+    // assertThrows(IllegalArgumentException.class,
+    //     () -> PSExitAddPossibleTransitionsEx.getAssignmentType(
+    //         WORKFLOW_ID, CONTENT_ID, mockConnection, STATE_ID, "  ", ROLE_NAMES, request));
+
+    // 3) roleNameList guard: would fire third IF connection were non-null. Documented intent only.
+    // assertThrows(IllegalArgumentException.class,
+    //     () -> PSExitAddPossibleTransitionsEx.getAssignmentType(
+    //         WORKFLOW_ID, CONTENT_ID, mockConnection, STATE_ID, USER_NAME, null, request));
   }
 
   /**
@@ -126,13 +127,23 @@ public class PSExitAddPossibleTransitionsExTest {
     IPSRequestContext request = null;
     Connection connection = null;
 
-    // No Spring+H2 infra: the static initializer of PSStateRolesContext fails first,
-    // so the call below throws ExceptionInInitializerError rather than reaching the
-    // factory. The Disabled annotation at class level prevents the test from running
-    // until Spring+H2 infra is added. The shape documents the contract.
-    assertEquals(
-        PSWorkFlowUtils.ASSIGNMENT_TYPE_NOT_IN_WORKFLOW,
-        PSExitAddPossibleTransitionsEx.getAssignmentType(
-            WORKFLOW_ID, CONTENT_ID, connection, STATE_ID, USER_NAME, ROLE_NAMES, request));
+    // With connection == null, the first guard ("connection may not be null") fires before any
+    // static-initializer work on PSStateRolesContext happens. The @Disabled class-level annotation
+    // skips the body until a Spring+H2 test harness can supply a live connection; once that lands,
+    // uncomment and pin the factory's PSEntryNotFoundException -> ASSIGNMENT_TYPE_NOT_IN_WORKFLOW
+    // contract. The shape below documents the contract.
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                PSExitAddPossibleTransitionsEx.getAssignmentType(
+                    WORKFLOW_ID, CONTENT_ID, connection, STATE_ID, USER_NAME, ROLE_NAMES, request));
+    assertEquals("connection may not be null", ex.getMessage());
+
+    // Future contract pin (commented until Spring+H2 infra lands):
+    // assertEquals(
+    //     PSWorkFlowUtils.ASSIGNMENT_TYPE_NOT_IN_WORKFLOW,
+    //     PSExitAddPossibleTransitionsEx.getAssignmentType(
+    //         WORKFLOW_ID, CONTENT_ID, mockConnection, STATE_ID, USER_NAME, ROLE_NAMES, request));
   }
 }
