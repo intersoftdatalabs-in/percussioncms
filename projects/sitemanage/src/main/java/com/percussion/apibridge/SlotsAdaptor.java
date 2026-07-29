@@ -47,13 +47,12 @@ public class SlotsAdaptor implements ISlotsAdaptor {
   private static final Logger log = LogManager.getLogger(SlotsAdaptor.class);
 
   /**
-   * Known read-only API limitations (API-level, not per-slot). Exposed once as a shared constant
-   * for tests/docs; detail responses still include a copy so the SPA needs no second source.
+   * Known API limitations (API-level, not per-slot). Exposed once as a shared constant for
+   * tests/docs; detail responses still include a copy so the SPA needs no second source.
    */
   public static final List<String> SLOT_DESIGN_GAPS =
       List.of(
-          "Create / update / delete / lock not supported (read-only API limitation)",
-          "Association editing not supported via this API",
+          "Create / delete / lock not supported via this API",
           "Content-type and template names not resolved (GUIDs only)");
 
   private final IPSAssemblyService asmSvc;
@@ -114,6 +113,126 @@ public class SlotsAdaptor implements ISlotsAdaptor {
       log.error("Failed to load slot {}: {}", idOrName, e.getMessage(), e);
       // Sanitized client message — class name stays in logs only
       throw new IllegalStateException("Failed to load slot", e);
+    }
+  }
+
+  @Override
+  public SlotDetail updateSlot(URI baseUri, String idOrName, SlotDetail body) {
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    if (body == null) {
+      throw new IllegalArgumentException("body is required");
+    }
+    try {
+      IPSTemplateSlot slot = resolveSlotModifiable(idOrName.trim());
+      if (slot == null) {
+        return null;
+      }
+      if (body.getLabel() != null) {
+        slot.setLabel(body.getLabel());
+      }
+      if (body.getDescription() != null) {
+        slot.setDescription(body.getDescription());
+      }
+      // null associations = leave unchanged; empty/non-null list = full replace
+      if (body.getAssociations() != null) {
+        slot.setSlotAssociations(toAssociationPairs(body.getAssociations()));
+      }
+      asmSvc.saveSlot(slot);
+      IPSTemplateSlot reloaded = resolveSlot(idOrName.trim());
+      return reloaded != null ? toDetail(reloaded) : toDetail(slot);
+    } catch (IllegalArgumentException e) {
+      throw e;
+    } catch (PSAssemblyException e) {
+      log.error("Failed to save slot {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to save slot", e);
+    } catch (Exception e) {
+      log.error("Failed to update slot {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to update slot", e);
+    }
+  }
+
+  /**
+   * Convert REST association summaries to IPSGuid pairs. Requires stringValue (or parseable
+   * longValue) on each guid.
+   */
+  private List<PSPair<IPSGuid, IPSGuid>> toAssociationPairs(
+      List<SlotAssociationSummary> associations) {
+    List<PSPair<IPSGuid, IPSGuid>> pairs = new ArrayList<>();
+    if (associations == null) {
+      return pairs;
+    }
+    int i = 0;
+    for (SlotAssociationSummary a : associations) {
+      i++;
+      if (a == null) {
+        throw new IllegalArgumentException("association[" + (i - 1) + "] is null");
+      }
+      IPSGuid ct = toIpsGuid(a.getContentTypeGuid(), "contentTypeGuid", i - 1);
+      IPSGuid tpl = toIpsGuid(a.getTemplateGuid(), "templateGuid", i - 1);
+      pairs.add(new PSPair<>(ct, tpl));
+    }
+    return pairs;
+  }
+
+  private IPSGuid toIpsGuid(com.percussion.rest.Guid g, String field, int index) {
+    if (g == null) {
+      throw new IllegalArgumentException(
+          "association[" + index + "]." + field + " is required");
+    }
+    String sv = g.getStringValue().orElse(null);
+    if (StringUtils.isNotBlank(sv)) {
+      try {
+        return ApiUtils.convertGuid(g);
+      } catch (Exception e) {
+        throw new IllegalArgumentException(
+            "association[" + index + "]." + field + " is not a valid GUID: " + sv, e);
+      }
+    }
+    if (g.getUuid() > 0 && g.getType() > 0) {
+      return new PSGuid(PSTypeEnum.valueOf(g.getType()), g.getUuid());
+    }
+    if (g.getLongValue() != 0) {
+      return new PSGuid(g.getLongValue());
+    }
+    throw new IllegalArgumentException(
+        "association[" + index + "]." + field + " requires stringValue");
+  }
+
+  /** Prefer modifiable load for updates; fall back to normal resolve. */
+  private IPSTemplateSlot resolveSlotModifiable(String idOrName) throws PSAssemblyException {
+    if (StringUtils.isNumeric(idOrName)) {
+      long uuid = Long.parseLong(idOrName);
+      IPSGuid g = new PSGuid(PSTypeEnum.SLOT, uuid);
+      try {
+        return asmSvc.loadSlotModifiable(g);
+      } catch (PSAssemblyException e) {
+        return null;
+      }
+    }
+    if (idOrName.matches("\\d+-\\d+(-\\d+)?")) {
+      try {
+        PSGuid g = new PSGuid(idOrName);
+        if (g.getType() == 0) {
+          g = new PSGuid(PSTypeEnum.SLOT, g.getUUID());
+        }
+        return asmSvc.loadSlotModifiable(g);
+      } catch (PSAssemblyException e) {
+        return null;
+      } catch (Exception e) {
+        log.debug("Not a slot GUID for update: {}", idOrName);
+      }
+    }
+    // Name path: load then re-open modifiable by GUID if available
+    IPSTemplateSlot byName = resolveSlot(idOrName);
+    if (byName == null || byName.getGUID() == null) {
+      return byName;
+    }
+    try {
+      return asmSvc.loadSlotModifiable(byName.getGUID());
+    } catch (PSAssemblyException e) {
+      return byName;
     }
   }
 

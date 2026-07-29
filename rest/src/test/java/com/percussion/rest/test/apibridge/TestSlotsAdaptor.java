@@ -42,4 +42,9 @@ public class TestSlotsAdaptor implements ISlotsAdaptor {
   public SlotDetail getSlot(URI baseUri, String idOrName) {
     return null;
   }
+
+  @Override
+  public SlotDetail updateSlot(URI baseUri, String idOrName, SlotDetail body) {
+    return null;
+  }
 }
