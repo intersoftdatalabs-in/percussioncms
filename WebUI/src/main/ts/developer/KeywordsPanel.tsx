@@ -15,55 +15,52 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from "react";
-import {
-  isSessionRedirectError,
-  type ApiError,
-} from "../api/client";
+import React, { useCallback, useEffect, useState } from "react";
 import { listKeywords } from "../api/developer/keywordsApi";
 import type { KeywordSummary } from "../api/developer/types";
+import { panelErrMsg } from "./errors";
+import { KeywordEditorPanel } from "./KeywordEditorPanel";
 import { DEV_MSG } from "./messages";
 
-function errorMessage(err: unknown): string {
-  if (isSessionRedirectError(err)) {
-    return DEV_MSG.SESSION_REDIRECT;
-  }
-  const api = err as ApiError;
-  if (api && typeof api.status === "number") {
-    return `${DEV_MSG.KW_ERROR} (${api.status})`;
-  }
-  if (err instanceof Error && err.message) {
-    return `${DEV_MSG.KW_ERROR} ${err.message}`;
-  }
-  return DEV_MSG.KW_ERROR;
-}
-
 /**
- * P0.3 — keyword catalog (read-only).
+ * P0.3b — keyword catalog with create / edit / delete.
  */
 export function KeywordsPanel(): React.ReactElement {
   const [items, setItems] = useState<KeywordSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [editing, setEditing] = useState<KeywordSummary | null | "new">(null);
 
-  useEffect(() => {
-    let cancelled = false;
+  const reload = useCallback(() => {
     setError(null);
     setItems(null);
-    listKeywords(true)
-      .then((list) => {
-        if (!cancelled) setItems(list);
-      })
+    return listKeywords(true)
+      .then((list) => setItems(list))
       .catch((err: unknown) => {
-        if (cancelled) return;
-        // Session redirect navigates away; still leave loading so UI does not hang
-        // if navigation is delayed or blocked.
-        setError(errorMessage(err));
+        setError(panelErrMsg(err, DEV_MSG.KW_ERROR));
         setItems([]);
       });
-    return () => {
-      cancelled = true;
-    };
   }, []);
+
+  useEffect(() => {
+    void reload();
+  }, [reload]);
+
+  if (editing !== null) {
+    return (
+      <KeywordEditorPanel
+        initial={editing === "new" ? null : editing}
+        onBack={() => setEditing(null)}
+        onSaved={() => {
+          setEditing(null);
+          void reload();
+        }}
+        onDeleted={() => {
+          setEditing(null);
+          void reload();
+        }}
+      />
+    );
+  }
 
   if (error) {
     return (
@@ -81,64 +78,107 @@ export function KeywordsPanel(): React.ReactElement {
     );
   }
 
-  if (items.length === 0) {
-    return (
-      <div data-testid="developer-kw-empty" style={{ padding: "0.5rem 0" }}>
-        {DEV_MSG.KW_EMPTY}
-      </div>
-    );
-  }
-
   return (
     <div data-testid="developer-kw-panel">
-      <p style={{ color: "#4a5568", marginBottom: "12px", fontSize: "0.9rem" }}>
-        {DEV_MSG.KW_HINT}
-      </p>
-      <div style={{ overflowX: "auto" }}>
-        <table
-          data-testid="developer-kw-table"
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "12px",
+          gap: "12px",
+          flexWrap: "wrap",
+        }}
+      >
+        <p style={{ color: "#4a5568", margin: 0, fontSize: "0.9rem" }}>{DEV_MSG.KW_HINT}</p>
+        <button
+          type="button"
+          data-testid="developer-kw-new"
+          onClick={() => setEditing("new")}
           style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            fontSize: "0.95rem",
+            padding: "8px 14px",
+            background: "#007ea8",
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
           }}
         >
-          <thead>
-            <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
-              <th style={{ padding: "8px" }}>{DEV_MSG.KW_COL_LABEL}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.KW_COL_VALUE}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.KW_COL_CHOICES}</th>
-              <th style={{ padding: "8px" }}>{DEV_MSG.KW_COL_DESCRIPTION}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((kw, index) => {
-              const key =
-                kw.guid?.stringValue ||
-                kw.value ||
-                kw.label ||
-                `kw-${index}`;
-              const choiceCount = kw.choices?.length ?? 0;
-              return (
-                <tr
-                  key={key}
-                  data-testid="developer-kw-row"
-                  style={{ borderBottom: "1px solid #edf2f7" }}
-                >
-                  <td style={{ padding: "8px" }}>{kw.label || "—"}</td>
-                  <td style={{ padding: "8px", fontFamily: "monospace" }}>
-                    {kw.value || "—"}
-                  </td>
-                  <td style={{ padding: "8px" }}>{choiceCount}</td>
-                  <td style={{ padding: "8px", color: "#4a5568" }}>
-                    {kw.description || ""}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+          {DEV_MSG.KW_NEW}
+        </button>
       </div>
+
+      {items.length === 0 ? (
+        <div data-testid="developer-kw-empty" style={{ padding: "0.5rem 0" }}>
+          {DEV_MSG.KW_EMPTY}
+        </div>
+      ) : (
+        <div style={{ overflowX: "auto" }}>
+          <table
+            data-testid="developer-kw-table"
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              fontSize: "0.95rem",
+            }}
+          >
+            <thead>
+              <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+                <th style={{ padding: "8px" }}>{DEV_MSG.KW_COL_LABEL}</th>
+                <th style={{ padding: "8px" }}>{DEV_MSG.KW_COL_VALUE}</th>
+                <th style={{ padding: "8px" }}>{DEV_MSG.KW_COL_CHOICES}</th>
+                <th style={{ padding: "8px" }}>{DEV_MSG.KW_COL_DESCRIPTION}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((kw, index) => {
+                const key =
+                  kw.guid?.stringValue || kw.value || kw.label || `kw-${index}`;
+                const choiceCount = kw.choices?.length ?? 0;
+                return (
+                  <tr
+                    key={key}
+                    data-testid="developer-kw-row"
+                    style={{
+                      borderBottom: "1px solid #edf2f7",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => setEditing(kw)}
+                  >
+                    <td style={{ padding: "8px" }}>
+                      <button
+                        type="button"
+                        style={{
+                          background: "none",
+                          border: "none",
+                          padding: 0,
+                          color: "#007ea8",
+                          cursor: "pointer",
+                          font: "inherit",
+                          textDecoration: "underline",
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditing(kw);
+                        }}
+                      >
+                        {kw.label || "—"}
+                      </button>
+                    </td>
+                    <td style={{ padding: "8px", fontFamily: "monospace" }}>
+                      {kw.value || "—"}
+                    </td>
+                    <td style={{ padding: "8px" }}>{choiceCount}</td>
+                    <td style={{ padding: "8px", color: "#4a5568" }}>
+                      {kw.description || ""}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

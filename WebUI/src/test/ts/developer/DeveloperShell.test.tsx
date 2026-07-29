@@ -53,12 +53,23 @@ vi.mock("../../../main/ts/api/developer/keywordsApi", () => ({
       label: "Status",
       value: "status",
       description: "Status keyword",
+      guid: { uuid: 42, stringValue: "0-37-42" },
       choices: [
         { label: "Open", value: "open" },
         { label: "Closed", value: "closed" },
       ],
     },
   ]),
+  getKeyword: vi.fn().mockResolvedValue({
+    label: "Status",
+    value: "status",
+    description: "Status keyword",
+    guid: { uuid: 42, stringValue: "0-37-42" },
+    choices: [{ label: "Open", value: "open" }],
+  }),
+  createKeyword: vi.fn(),
+  updateKeyword: vi.fn(),
+  deleteKeyword: vi.fn(),
 }));
 
 vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
@@ -184,13 +195,22 @@ describe("DeveloperShell", () => {
     });
   });
 
-  it("loads keywords section", async () => {
+  it("loads keywords section and opens editor", async () => {
     render(<DeveloperShell initialSection="keywords" embedded />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-kw-table")).toBeTruthy();
     });
     expect(screen.getByText("Status")).toBeTruthy();
     expect(screen.getByText("2")).toBeTruthy();
+    expect(screen.getByTestId("developer-kw-new")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("developer-kw-new"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-kw-editor")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-back"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-kw-table")).toBeTruthy();
+    });
   });
 
   it("loads templates slots and communities catalogs", async () => {
