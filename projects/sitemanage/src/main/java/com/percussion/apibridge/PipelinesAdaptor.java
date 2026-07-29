@@ -23,10 +23,12 @@ import com.percussion.design.objectstore.PSDataSet;
 import com.percussion.design.objectstore.PSRequestor;
 import com.percussion.design.objectstore.server.PSApplicationSummary;
 import com.percussion.design.objectstore.server.PSServerXmlObjectStore;
+import com.percussion.error.PSNotFoundException;
 import com.percussion.rest.pipelines.ApplicationDataSetSummary;
 import com.percussion.rest.pipelines.ApplicationDetail;
 import com.percussion.rest.pipelines.ApplicationSummary;
 import com.percussion.rest.pipelines.IPipelinesAdaptor;
+import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSRequest;
 import com.percussion.servlets.PSSecurityFilter;
@@ -35,7 +37,6 @@ import com.percussion.util.PSCollection;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
@@ -110,9 +111,17 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
         return null;
       }
       return toDetail(app);
-    } catch (Exception e) {
-      log.debug("Application not found or not visible {}: {}", idOrName, e.getMessage());
+    } catch (PSNotFoundException | PSAuthorizationException e) {
+      // Expected miss / no design access → resource maps null to generic 404
+      log.debug("Application not found or not visible {}: {}", name, e.toString());
       return null;
+    } catch (RuntimeException e) {
+      log.warn("Unexpected failure loading application detail for {}", name, e);
+      throw e;
+    } catch (Exception e) {
+      // Checked object-store failures (e.g. PSServerException) surface as 500 via resource
+      log.warn("Failed to load application detail for {}", name, e);
+      throw new IllegalStateException("Failed to load application detail", e);
     }
   }
 
@@ -179,8 +188,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     List<ApplicationDataSetSummary> sets = new ArrayList<>();
     PSCollection dataSets = app.getDataSets();
     if (dataSets != null) {
-      for (Iterator<?> it = dataSets.iterator(); it.hasNext(); ) {
-        Object o = it.next();
+      for (Object o : dataSets) {
         if (!(o instanceof PSDataSet ds)) {
           continue;
         }

@@ -123,7 +123,8 @@ public class PipelinesResource {
       ApplicationDetail detail =
           requireAdaptor().getApplication(uriInfo.getBaseUri(), idOrName);
       if (detail == null) {
-        throw new WebApplicationException("Application not found: " + idOrName, 404);
+        // Generic body: do not echo raw idOrName (path-injection / name probing).
+        throw new WebApplicationException("Application not found", 404);
       }
       return detail;
     } catch (WebApplicationException e) {

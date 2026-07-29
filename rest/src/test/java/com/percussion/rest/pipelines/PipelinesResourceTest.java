@@ -117,5 +117,18 @@ public class PipelinesResourceTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.getApplication("missing"));
     assertEquals(404, ex.getResponse().getStatus());
+    // Do not echo raw path param (name probing / log injection)
+    assertEquals("Application not found", ex.getMessage());
+  }
+
+  @Test
+  public void getApplicationWrapsUnexpectedFailuresAs500() {
+    IllegalStateException boom = new IllegalStateException("object store down");
+    when(adaptor.getApplication(any(), eq("sys_foo"))).thenThrow(boom);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getApplication("sys_foo"));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause(), "cause chain must preserve the original failure");
   }
 }
