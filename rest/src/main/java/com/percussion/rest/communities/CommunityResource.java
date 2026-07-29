@@ -287,4 +287,105 @@ public class CommunityResource implements ICommunityResource {
     }
     return ret;
   }
+
+  @GET
+  @Path("/roles")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "List available roles",
+      description =
+          "Lists security roles that can be associated with a community (for membership editing).",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content =
+                @Content(
+                    array =
+                        @ArraySchema(schema = @Schema(implementation = CommunityRole.class)))),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public CommunityRoleList listAvailableRoles() {
+    try {
+      return adaptor.listAvailableRoles();
+    } catch (Exception e) {
+      log.error("An error occurred calling listAvailableRoles", e);
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @GET
+  @Path("/{idOrName}")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Get community detail",
+      description =
+          "Community detail including associated roles (role id/name when resolvable)."
+              + " Lookup by numeric id, GUID string, or exact name."
+              + " Object ACL dialogs are not supported yet.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = Community.class))),
+        @ApiResponse(responseCode = "404", description = "Not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Community getCommunity(
+      @Parameter(description = "Community id, GUID string, or exact name", required = true)
+          @PathParam("idOrName")
+          String idOrName) {
+    Community community;
+    try {
+      community = adaptor.getCommunity(idOrName);
+    } catch (Exception e) {
+      // Do not leak internal exception text to API clients
+      log.error("An error occurred calling getCommunity for {}", idOrName, e);
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+    if (community == null) {
+      throw new WebApplicationException("Community not found: " + idOrName, 404);
+    }
+    return community;
+  }
+
+  @PUT
+  @Path("/{idOrName}/roles")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Update community role membership",
+      description =
+          "Replaces the set of roles associated with the community. Body is a"
+              + " CommunityRoleList (or array of CommunityRole). Role guid or roleId required"
+              + " per entry. Object ACL editing is not supported.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated community with roles",
+            content = @Content(schema = @Schema(implementation = Community.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid input"),
+        @ApiResponse(responseCode = "404", description = "Community not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Community updateCommunityRoles(
+      @Parameter(description = "Community id, GUID string, or exact name", required = true)
+          @PathParam("idOrName")
+          String idOrName,
+      CommunityRoleList roles) {
+    Community community;
+    try {
+      community = adaptor.updateCommunityRoles(idOrName, roles);
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      // Do not leak internal exception text to API clients
+      log.error("An error occurred calling updateCommunityRoles for {}", idOrName, e);
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+    if (community == null) {
+      throw new WebApplicationException("Community not found: " + idOrName, 404);
+    }
+    return community;
+  }
 }

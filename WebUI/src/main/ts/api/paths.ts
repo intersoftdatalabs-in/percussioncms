@@ -285,6 +285,10 @@ export const PATHS = {
   get PIPELINES() {
     return `${SERVICES_ROOT}/pipelines`;
   },
+  /** Object ACL catalog (design-time security). */
+  get ACLS() {
+    return `${SERVICES_ROOT}/acls`;
+  },
   /** Workflow management (workflowmanagement) — Feature 993 */
   get WORKFLOWS() {
     return `${SERVICES_ROOT}/workflowmanagement/workflows/`;

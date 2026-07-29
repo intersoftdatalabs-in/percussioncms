@@ -22,6 +22,7 @@ import {
 } from "../api/client";
 import { getContentTypeDetail } from "../api/developer/contentTypesApi";
 import type { ContentTypeDetail } from "../api/developer/types";
+import { ObjectAclSection } from "./ObjectAclSection";
 import { DEV_MSG } from "./messages";
 
 function errorMessage(err: unknown): string {
@@ -300,6 +301,11 @@ export function ContentTypeDetailPanel({
               </table>
             </div>
           </section>
+
+          <ObjectAclSection
+            objectGuid={detail.guid?.stringValue}
+            testIdPrefix="developer-ct-acl"
+          />
 
           {detail.designGaps && detail.designGaps.length > 0 ? (
             <section data-testid="developer-ct-gaps">

@@ -21,6 +21,7 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
     label: "Page",
     description: "A page",
     enabled: true,
+    guid: { stringValue: "0-2-301", uuid: 301 },
     fields: [
       {
         name: "sys_title",
@@ -43,6 +44,28 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
     allowedTemplates: [{ name: "perc.page", label: "Page" }],
     designGaps: [
       "Field rule flags are exposed (validation/visibility/transforms present); full rule expressions and control properties are not",
+    ],
+  }),
+}));
+
+vi.mock("../../../main/ts/api/developer/aclApi", () => ({
+  getAclForObject: vi.fn().mockResolvedValue({
+    id: 1,
+    name: "object-acl",
+    guid: { stringValue: "0-4-1", uuid: 1 },
+    aclEntries: [
+      {
+        id: 10,
+        name: "Default",
+        type: { type: "ROLE", name: "Default" },
+        permissions: [{ permission: "READ" }, { permission: "UPDATE" }],
+      },
+      {
+        id: 11,
+        name: "Admin",
+        type: { type: "ROLE", name: "Admin" },
+        permissions: [{ permission: "OWNER" }],
+      },
     ],
   }),
 }));
@@ -86,6 +109,7 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
     name: "perc.page",
     label: "Page",
     description: "Default page",
+    guid: { stringValue: "0-10-1", uuid: 1 },
     assembler: "Java/JEXL",
     outputFormat: "Page",
     templateType: "Shared",
@@ -129,6 +153,31 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   listCommunities: vi.fn().mockResolvedValue([
     { id: 10, name: "Default", label: "Default", description: "Default Community" },
   ]),
+  getCommunityDetail: vi.fn().mockResolvedValue({
+    id: 10,
+    name: "Default",
+    label: "Default",
+    description: "Default Community",
+    guid: { stringValue: "0-13-10", uuid: 10 },
+    roleList: [
+      { roleId: 1, roleName: "Admin", roleGuid: { stringValue: "0-14-1", uuid: 1 } },
+      { roleId: 2, roleName: "Author", roleGuid: { stringValue: "0-14-2", uuid: 2 } },
+    ],
+  }),
+  listAvailableRoles: vi.fn().mockResolvedValue([
+    { roleId: 1, roleName: "Admin", roleGuid: { stringValue: "0-14-1", uuid: 1 } },
+    { roleId: 2, roleName: "Author", roleGuid: { stringValue: "0-14-2", uuid: 2 } },
+    { roleId: 3, roleName: "Editor", roleGuid: { stringValue: "0-14-3", uuid: 3 } },
+  ]),
+  updateCommunityRoles: vi.fn().mockResolvedValue({
+    id: 10,
+    name: "Default",
+    label: "Default",
+    roleList: [
+      { roleId: 1, roleName: "Admin", roleGuid: { stringValue: "0-14-1", uuid: 1 } },
+      { roleId: 3, roleName: "Editor", roleGuid: { stringValue: "0-14-3", uuid: 3 } },
+    ],
+  }),
 }));
 
 vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
@@ -198,6 +247,9 @@ describe("DeveloperShell", () => {
     expect(screen.getByTestId("developer-ct-field-occurrence").textContent).toBe("required");
     expect(screen.getByTestId("developer-ct-workflows")).toBeTruthy();
     expect(screen.getByTestId("developer-ct-templates")).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-acl-table")).toBeTruthy();
+    });
     expect(screen.getByTestId("developer-ct-gaps")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-ct-back"));
     await waitFor(() => {
@@ -254,6 +306,26 @@ describe("DeveloperShell", () => {
       expect(screen.getByTestId("developer-comm-table")).toBeTruthy();
     });
     expect(screen.getByText("Default Community")).toBeTruthy();
+  });
+
+  it("opens community detail from list row", async () => {
+    render(<DeveloperShell initialSection="communities" embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Open Default/i }));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-detail")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-comm-roles")).toBeTruthy();
+    expect(screen.getByText("Admin")).toBeTruthy();
+    expect(screen.getByText("Editor")).toBeTruthy();
+    expect(screen.getByTestId("developer-comm-roles-save")).toBeTruthy();
+    expect(screen.getByTestId("developer-comm-gaps")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("developer-comm-back"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-table")).toBeTruthy();
+    });
   });
 
   it("opens template detail from list row", async () => {
