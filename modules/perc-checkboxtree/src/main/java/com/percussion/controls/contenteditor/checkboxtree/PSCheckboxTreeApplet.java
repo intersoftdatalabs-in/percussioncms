@@ -46,6 +46,9 @@ import javax.swing.tree.TreeSelectionModel;
  * </ol>
  */
 public class PSCheckboxTreeApplet extends JApplet implements Runnable {
+  /** Default no-argument constructor for the applet. */
+  public PSCheckboxTreeApplet() {}
+
   /** Initialize the applet and load the tree. */
   @Override
   public void init() {
@@ -103,6 +106,8 @@ public class PSCheckboxTreeApplet extends JApplet implements Runnable {
    * @param key name of the system property, not <code>null</code> or empty.
    * @param def the default value is returned if the specified key is not found, may be <code>null
    *     </code> or empty.
+   * @return the parameter value or the default when the parameter is not found; may be <code>null
+   *     </code> if <code>def</code> is <code>null</code> and the parameter is missing.
    */
   protected String getParameter(String key, String def) {
     if (key == null || key.trim().length() == 0)
