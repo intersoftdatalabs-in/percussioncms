@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-import { get } from "../client";
+import { get, put } from "../client";
 import { PATHS } from "../paths";
 import type {
   ContentTypeDetail,
+  ContentTypeFieldSummary,
   ContentTypeListEnvelope,
   ContentTypeSummary,
 } from "./types";
@@ -58,7 +59,7 @@ export async function listContentTypes(): Promise<ContentTypeSummary[]> {
 }
 
 /**
- * Load read-only design summary (fields) for one content type.
+ * Load design summary (fields) for one content type.
  *
  * <p>Server: {@code GET /services/contenttypes/{idOrName}} where idOrName is
  * uuid, guid string, or internal name.
@@ -68,4 +69,24 @@ export async function getContentTypeDetail(
 ): Promise<ContentTypeDetail> {
   const key = encodeURIComponent(idOrName);
   return get<ContentTypeDetail>(`${PATHS.CONTENT_TYPES}/${key}`);
+}
+
+export type ContentTypeUpdateBody = {
+  label?: string;
+  description?: string;
+  enabled?: boolean;
+  fields?: Pick<ContentTypeFieldSummary, "name" | "searchable" | "required" | "occurrence">[];
+};
+
+/**
+ * PUT /services/contenttypes/{idOrName} — design lock + save + release.
+ *
+ * <p>Server locks for the current session user, applies mutable fields, saves, and releases.
+ */
+export async function updateContentTypeDetail(
+  idOrName: string,
+  body: ContentTypeUpdateBody,
+): Promise<ContentTypeDetail> {
+  const key = encodeURIComponent(idOrName);
+  return put<ContentTypeDetail>(`${PATHS.CONTENT_TYPES}/${key}`, body);
 }

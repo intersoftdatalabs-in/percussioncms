@@ -47,10 +47,14 @@ import com.percussion.services.workflow.PSWorkflowServiceLocator;
 import com.percussion.services.workflow.data.PSWorkflow;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.guid.IPSGuid;
+import com.percussion.utils.request.PSRequestInfo;
+import com.percussion.webservices.PSErrorResultsException;
+import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -199,14 +203,142 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         "Field rule flags are exposed (validation/visibility/transforms present); full rule"
             + " expressions and control properties are not");
     gaps.add("Item-level pre/post exits not exposed");
-    gaps.add("Create / update / delete / lock not supported (read-only)");
+    gaps.add(
+        "Create / delete not supported; update uses design lock for label/description/enabled"
+            + " and field searchable/occurrence");
     gaps.add("Shared/system field inclusion editing not supported");
     gaps.add("Workflow/template associations are read-only (no add/remove via this API)");
+    gaps.add("Field display labels and control properties are not writable via this API");
     if (!controlsResolved) {
       gaps.add("Display control/label resolution failed for this content type");
     }
     detail.setDesignGaps(gaps);
     return detail;
+  }
+
+  @Override
+  public ContentTypeDetail updateContentType(URI baseUri, String idOrName, ContentTypeDetail body) {
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    if (body == null) {
+      throw new IllegalArgumentException("body is required");
+    }
+    String session = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+    String user = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
+    if (StringUtils.isBlank(session) || StringUtils.isBlank(user)) {
+      throw new IllegalStateException("Request session/user required to lock content type");
+    }
+
+    try {
+      PSItemDefinition current = resolveItemDef(idOrName.trim());
+      if (current == null) {
+        return null;
+      }
+      IPSGuid ctGuid = new PSGuid(PSTypeEnum.NODEDEF, current.getTypeId());
+      List<PSItemDefinition> locked;
+      try {
+        locked =
+            designSvc.loadContentTypes(
+                Collections.singletonList(ctGuid), true, false, session, user);
+      } catch (PSErrorResultsException e) {
+        log.error("Failed to lock content type {}: {}", idOrName, e.getMessage(), e);
+        throw new IllegalStateException("Could not acquire design lock for content type", e);
+      }
+      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
+        return null;
+      }
+      PSItemDefinition def = locked.get(0);
+      applyMetaUpdates(def, body);
+      applyFieldUpdates(def, body.getFields());
+      try {
+        designSvc.saveContentTypes(Collections.singletonList(def), true, session, user);
+      } catch (PSErrorsException e) {
+        log.error("Failed to save content type {}: {}", idOrName, e.getMessage(), e);
+        throw new IllegalStateException("Failed to save content type", e);
+      }
+      // Prefer re-read via item def cache after save
+      PSItemDefinition reloaded = resolveItemDef(idOrName.trim());
+      return reloaded != null ? toDetail(reloaded) : toDetail(def);
+    } catch (IllegalArgumentException | IllegalStateException e) {
+      throw e;
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for update: {}", idOrName);
+      return null;
+    } catch (Exception e) {
+      log.error("Failed to update content type {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to update content type", e);
+    }
+  }
+
+  private void applyMetaUpdates(PSItemDefinition def, ContentTypeDetail body) {
+    if (body.getLabel() != null) {
+      def.setLabel(body.getLabel());
+    }
+    if (body.getDescription() != null) {
+      def.setDescription(body.getDescription());
+    }
+    if (body.getEnabled() != null) {
+      def.setEnabled(body.getEnabled());
+    }
+  }
+
+  private void applyFieldUpdates(PSItemDefinition def, List<ContentTypeField> fields) {
+    if (fields == null || fields.isEmpty()) {
+      return;
+    }
+    PSFieldSet parentFs = def.getFieldSet();
+    if (parentFs == null) {
+      return;
+    }
+    for (ContentTypeField patch : fields) {
+      if (patch == null || StringUtils.isBlank(patch.getName())) {
+        continue;
+      }
+      // systemModOnly=false includes classic + extended fields
+      PSField field = parentFs.findFieldByName(patch.getName(), false);
+      if (field == null) {
+        // also search complex children
+        for (PSFieldSet child : def.getComplexChildren()) {
+          if (child == null) continue;
+          field = child.findFieldByName(patch.getName(), false);
+          if (field != null) break;
+        }
+      }
+      if (field == null) {
+        throw new IllegalArgumentException("Unknown field: " + patch.getName());
+      }
+      if (patch.getSearchable() != null) {
+        field.setUserSearchable(patch.getSearchable());
+      }
+      if (StringUtils.isNotBlank(patch.getOccurrence())) {
+        Integer dim = occurrenceFromApi(patch.getOccurrence());
+        if (dim == null) {
+          throw new IllegalArgumentException(
+              "Invalid occurrence for field " + patch.getName() + ": " + patch.getOccurrence());
+        }
+        field.setOccurrenceDimension(dim, null);
+      } else if (patch.getRequired() != null) {
+        int dim =
+            Boolean.TRUE.equals(patch.getRequired())
+                ? PSField.OCCURRENCE_DIMENSION_REQUIRED
+                : PSField.OCCURRENCE_DIMENSION_OPTIONAL;
+        field.setOccurrenceDimension(dim, null);
+      }
+    }
+  }
+
+  /** Map API occurrence string back to PSField dimension, or null if unknown. */
+  static Integer occurrenceFromApi(String occurrence) {
+    if (occurrence == null) return null;
+    return switch (occurrence) {
+      case "optional" -> PSField.OCCURRENCE_DIMENSION_OPTIONAL;
+      case "required" -> PSField.OCCURRENCE_DIMENSION_REQUIRED;
+      case "oneOrMore" -> PSField.OCCURRENCE_DIMENSION_ONE_OR_MORE;
+      case "zeroOrMore" -> PSField.OCCURRENCE_DIMENSION_ZERO_OR_MORE;
+      case "count" -> PSField.OCCURRENCE_DIMENSION_COUNT;
+      default -> null;
+    };
   }
 
   private List<NamedObjectRef> loadWorkflows(IPSGuid ctGuid, int defaultWfId) {

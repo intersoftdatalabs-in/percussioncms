@@ -17,26 +17,47 @@
 
 import React, { useEffect, useState } from "react";
 import {
-  isSessionRedirectError,
-  type ApiError,
-} from "../api/client";
-import { getContentTypeDetail } from "../api/developer/contentTypesApi";
-import type { ContentTypeDetail } from "../api/developer/types";
+  getContentTypeDetail,
+  updateContentTypeDetail,
+} from "../api/developer/contentTypesApi";
+import type {
+  ContentTypeDetail,
+  ContentTypeFieldSummary,
+} from "../api/developer/types";
 import { ObjectAclSection } from "./ObjectAclSection";
+import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
-function errorMessage(err: unknown): string {
-  if (isSessionRedirectError(err)) {
-    return DEV_MSG.SESSION_REDIRECT;
+const inputStyle: React.CSSProperties = {
+  padding: "8px",
+  border: "1px solid #cbd5e0",
+  borderRadius: "4px",
+  font: "inherit",
+  width: "100%",
+  boxSizing: "border-box",
+};
+
+type FieldDraft = {
+  name: string;
+  searchable: boolean;
+  required: boolean;
+};
+
+function fieldKey(f: ContentTypeFieldSummary): string {
+  return `${f.fieldSet || "parent"}:${f.name || ""}`;
+}
+
+function toDrafts(fields: ContentTypeFieldSummary[] | undefined): Record<string, FieldDraft> {
+  const out: Record<string, FieldDraft> = {};
+  for (const f of fields || []) {
+    if (!f.name) continue;
+    out[fieldKey(f)] = {
+      name: f.name,
+      searchable: !!f.searchable,
+      required: !!f.required,
+    };
   }
-  const api = err as ApiError;
-  if (api && typeof api.status === "number") {
-    return `${DEV_MSG.CT_DETAIL_ERROR} (${api.status})`;
-  }
-  if (err instanceof Error && err.message) {
-    return `${DEV_MSG.CT_DETAIL_ERROR} ${err.message}`;
-  }
-  return DEV_MSG.CT_DETAIL_ERROR;
+  return out;
 }
 
 export function ContentTypeDetailPanel({
@@ -48,25 +69,103 @@ export function ContentTypeDetailPanel({
 }): React.ReactElement {
   const [detail, setDetail] = useState<ContentTypeDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [label, setLabel] = useState("");
+  const [description, setDescription] = useState("");
+  const [enabled, setEnabled] = useState(true);
+  const [fieldDrafts, setFieldDrafts] = useState<Record<string, FieldDraft>>({});
 
   useEffect(() => {
     let cancelled = false;
     setDetail(null);
     setError(null);
+    setNotice(null);
     getContentTypeDetail(idOrName)
       .then((d) => {
-        if (!cancelled) setDetail(d);
+        if (cancelled) return;
+        setDetail(d);
+        setLabel(d.label || "");
+        setDescription(d.description || "");
+        setEnabled(d.enabled !== false);
+        setFieldDrafts(toDrafts(d.fields));
       })
       .catch((err: unknown) => {
         if (cancelled) return;
-        // Session redirect navigates away; still leave loading so UI does not hang
-        // if navigation is delayed or blocked.
-        setError(errorMessage(err));
+        setError(panelErrMsg(err, DEV_MSG.CT_DETAIL_ERROR));
       });
     return () => {
       cancelled = true;
     };
   }, [idOrName]);
+
+  const initialDrafts = toDrafts(detail?.fields);
+  const fieldsDirty =
+    detail != null &&
+    (detail.fields || []).some((f) => {
+      if (!f.name) return false;
+      const k = fieldKey(f);
+      const d = fieldDrafts[k];
+      const i = initialDrafts[k];
+      if (!d || !i) return false;
+      return d.searchable !== i.searchable || d.required !== i.required;
+    });
+  const dirty =
+    detail != null &&
+    (label !== (detail.label || "") ||
+      description !== (detail.description || "") ||
+      enabled !== (detail.enabled !== false) ||
+      fieldsDirty);
+
+  function toggleField(
+    key: string,
+    prop: "searchable" | "required",
+  ) {
+    setFieldDrafts((prev) => {
+      const cur = prev[key];
+      if (!cur) return prev;
+      return { ...prev, [key]: { ...cur, [prop]: !cur[prop] } };
+    });
+    setNotice(null);
+  }
+
+  async function handleSave() {
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const fieldPatches = Object.values(fieldDrafts)
+        .filter((d) => {
+          const initial = Object.values(initialDrafts).find((i) => i.name === d.name);
+          return (
+            !initial ||
+            initial.searchable !== d.searchable ||
+            initial.required !== d.required
+          );
+        })
+        .map((d) => ({
+          name: d.name,
+          searchable: d.searchable,
+          required: d.required,
+        }));
+      const saved = await updateContentTypeDetail(idOrName, {
+        label,
+        description,
+        enabled,
+        fields: fieldPatches,
+      });
+      setDetail(saved);
+      setLabel(saved.label || "");
+      setDescription(saved.description || "");
+      setEnabled(saved.enabled !== false);
+      setFieldDrafts(toDrafts(saved.fields));
+      setNotice(DEV_MSG.CT_SAVED);
+    } catch (err: unknown) {
+      setError(panelErrMsg(err, DEV_MSG.CT_SAVE_ERROR));
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <div data-testid="developer-ct-detail">
@@ -91,6 +190,11 @@ export function ContentTypeDetailPanel({
           {error}
         </div>
       ) : null}
+      {notice ? (
+        <div data-testid="developer-ct-detail-notice" style={{ color: "#276749" }}>
+          {notice}
+        </div>
+      ) : null}
 
       {!error && detail == null ? (
         <div data-testid="developer-ct-detail-loading">{DEV_MSG.CT_DETAIL_LOADING}</div>
@@ -100,15 +204,50 @@ export function ContentTypeDetailPanel({
         <>
           <header style={{ marginBottom: "16px" }}>
             <h2 style={{ margin: "0 0 4px" }} data-testid="developer-ct-detail-title">
-              {detail.label || detail.name || idOrName}
+              {label || detail.name || idOrName}
             </h2>
             <div style={{ fontFamily: "monospace", color: "#4a5568" }}>
               {detail.name}
               {detail.guid?.stringValue ? ` · ${detail.guid.stringValue}` : ""}
             </div>
-            {detail.description ? (
-              <p style={{ marginTop: "8px", color: "#2d3748" }}>{detail.description}</p>
-            ) : null}
+            <div style={{ marginTop: "12px" }}>
+              <label htmlFor="ct-label" style={{ display: "block", marginBottom: 4 }}>
+                {DEV_MSG.CT_FORM_LABEL}
+              </label>
+              <input
+                id="ct-label"
+                data-testid="developer-ct-label"
+                style={inputStyle}
+                value={label}
+                onChange={(e) => setLabel(e.target.value)}
+                disabled={busy}
+              />
+            </div>
+            <div style={{ marginTop: "12px" }}>
+              <label htmlFor="ct-desc" style={{ display: "block", marginBottom: 4 }}>
+                {DEV_MSG.CT_FORM_DESCRIPTION}
+              </label>
+              <input
+                id="ct-desc"
+                data-testid="developer-ct-description"
+                style={inputStyle}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                disabled={busy}
+              />
+            </div>
+            <div style={{ marginTop: "12px" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <input
+                  type="checkbox"
+                  data-testid="developer-ct-enabled"
+                  checked={enabled}
+                  onChange={() => setEnabled((v) => !v)}
+                  disabled={busy}
+                />
+                {DEV_MSG.CT_FORM_ENABLED}
+              </label>
+            </div>
             <dl
               style={{
                 display: "grid",
@@ -118,10 +257,6 @@ export function ContentTypeDetailPanel({
                 fontSize: "0.9rem",
               }}
             >
-              <dt>{DEV_MSG.CT_META_ENABLED}</dt>
-              <dd style={{ margin: 0 }}>
-                {detail.enabled === false ? DEV_MSG.NO : DEV_MSG.YES}
-              </dd>
               <dt>{DEV_MSG.CT_META_HIDDEN}</dt>
               <dd style={{ margin: 0 }}>
                 {detail.hideFromMenu ? DEV_MSG.YES : DEV_MSG.NO}
@@ -215,6 +350,7 @@ export function ContentTypeDetailPanel({
 
           <section style={{ marginBottom: "16px" }}>
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_FIELDS}</h3>
+            <p style={{ color: "#4a5568", fontSize: "0.9rem" }}>{DEV_MSG.CT_FIELDS_HINT}</p>
             <div style={{ overflowX: "auto" }}>
               <table
                 data-testid="developer-ct-fields-table"
@@ -245,9 +381,12 @@ export function ContentTypeDetailPanel({
                     if (f.hasVisibilityRules) rules.push(DEV_MSG.CT_RULE_VISIBILITY);
                     if (f.hasInputTranslation) rules.push(DEV_MSG.CT_RULE_IN_XFORM);
                     if (f.hasOutputTranslation) rules.push(DEV_MSG.CT_RULE_OUT_XFORM);
+                    const k = fieldKey(f);
+                    const draft = fieldDrafts[k];
+                    const isLocal = (f.fieldType || "").toLowerCase() === "local";
                     return (
                       <tr
-                        key={`${f.fieldSet || "parent"}:${f.name}`}
+                        key={k}
                         data-testid="developer-ct-field-row"
                         style={{ borderBottom: "1px solid #edf2f7" }}
                       >
@@ -271,7 +410,20 @@ export function ContentTypeDetailPanel({
                           {f.control || "—"}
                         </td>
                         <td style={{ padding: "8px" }}>
-                          {f.required ? DEV_MSG.YES : DEV_MSG.NO}
+                          {draft && isLocal ? (
+                            <input
+                              type="checkbox"
+                              data-testid={`developer-ct-field-required-${f.name}`}
+                              checked={draft.required}
+                              disabled={busy}
+                              onChange={() => toggleField(k, "required")}
+                              aria-label={`Required ${f.name}`}
+                            />
+                          ) : f.required ? (
+                            DEV_MSG.YES
+                          ) : (
+                            DEV_MSG.NO
+                          )}
                         </td>
                         <td style={{ padding: "8px" }}>
                           {f.readOnly ? DEV_MSG.YES : DEV_MSG.NO}
@@ -289,7 +441,20 @@ export function ContentTypeDetailPanel({
                           {rules.length > 0 ? rules.join(", ") : "—"}
                         </td>
                         <td style={{ padding: "8px" }}>
-                          {f.searchable ? DEV_MSG.YES : DEV_MSG.NO}
+                          {draft ? (
+                            <input
+                              type="checkbox"
+                              data-testid={`developer-ct-field-search-${f.name}`}
+                              checked={draft.searchable}
+                              disabled={busy}
+                              onChange={() => toggleField(k, "searchable")}
+                              aria-label={`Searchable ${f.name}`}
+                            />
+                          ) : f.searchable ? (
+                            DEV_MSG.YES
+                          ) : (
+                            DEV_MSG.NO
+                          )}
                         </td>
                         <td style={{ padding: "8px", fontFamily: "monospace" }}>
                           {f.fieldSet || "—"}
@@ -301,6 +466,26 @@ export function ContentTypeDetailPanel({
               </table>
             </div>
           </section>
+
+          <div style={{ marginBottom: "16px" }}>
+            <button
+              type="button"
+              data-testid="developer-ct-save"
+              aria-label="Save content type"
+              disabled={busy || !dirty}
+              onClick={() => void handleSave()}
+              style={{
+                padding: "8px 16px",
+                background: dirty ? "#007ea8" : "#a0aec0",
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: busy || !dirty ? "not-allowed" : "pointer",
+              }}
+            >
+              {DEV_MSG.CT_SAVE}
+            </button>
+          </div>
 
           <ObjectAclSection
             objectGuid={detail.guid?.stringValue}

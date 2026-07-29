@@ -25,14 +25,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Read-only content type design summary for the Developer module.
+ * Content type design summary for the Developer module (read + partial write).
  *
- * <p>Does not yet expose full field rules (validation/visibility/transforms) or
- * save/lock semantics — those remain SOAP design webservice / Workbench parity work.
+ * <p>Full field rule expressions and control properties remain Workbench / SOAP parity
+ * work. Partial update supports label, description, enabled, and field searchable /
+ * occurrence under a design-session lock.
  */
 @XmlRootElement(name = "ContentTypeDetail")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description = "Content type detail with field catalog (read-only)")
+@Schema(description = "Content type detail with field catalog")
 public class ContentTypeDetail {
 
   private Guid guid;
