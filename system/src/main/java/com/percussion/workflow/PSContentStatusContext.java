@@ -371,11 +371,10 @@ public class PSContentStatusContext implements IPSContentStatusContext {
   }
 
   /**
-   * Hibernate-backed factory added for #1561 Phase 4d-1b. Loads the {@code CONTENTSTATUS} row
-   * for the supplied content id via the shared Hibernate session — no second pool connection.
-   * Mirrors the field set populated by the raw-JDBC
-   * {@link #PSContentStatusContext(Connection, int)} constructor (the 14 columns the legacy
-   * {@code commit(Connection)} write path touches).
+   * Hibernate-backed factory added for #1561 Phase 4d-1b. Loads the {@code CONTENTSTATUS} row for
+   * the supplied content id via the shared Hibernate session — no second pool connection. Mirrors
+   * the field set populated by the raw-JDBC {@link #PSContentStatusContext(Connection, int)}
+   * constructor (the 14 columns the legacy {@code commit(Connection)} write path touches).
    *
    * @param contentID the content id; must be {@code > 0}.
    * @return the populated context, never {@code null}.
@@ -422,7 +421,8 @@ public class PSContentStatusContext implements IPSContentStatusContext {
     ctx.m_nContentTypeID = (int) summary.getContentTypeId();
     ctx.m_nObjectType = summary.getObjectType();
     ctx.m_sTitle = "";
-    ctx.m_sCreatedByName = summary.getContentCreatedBy() == null ? "" : summary.getContentCreatedBy();
+    ctx.m_sCreatedByName =
+        summary.getContentCreatedBy() == null ? "" : summary.getContentCreatedBy();
     ctx.m_sLastModifierName =
         summary.getContentLastModifier() == null ? "" : summary.getContentLastModifier();
     return ctx;
@@ -436,28 +436,26 @@ public class PSContentStatusContext implements IPSContentStatusContext {
 
   /**
    * Converts a {@link java.util.Date} (which is what {@code PSComponentSummary} returns) to a
-   * {@link java.sql.Date} (which is what the legacy {@code PSContentStatusContext} fields
-   * use). Returns {@code null} for a {@code null} input.
+   * {@link java.sql.Date} (which is what the legacy {@code PSContentStatusContext} fields use).
+   * Returns {@code null} for a {@code null} input.
    */
   private static java.sql.Date toSqlDate(java.util.Date in) {
     return in == null ? null : new java.sql.Date(in.getTime());
   }
 
   /**
-   * Hibernate-backed #1561 Phase 4d-1b write path for {@code PSExitPerformTransition}.
-    * Replaces the legacy raw-JDBC UPDATE on {@code CONTENTSTATUS} with a single
-    * JPQL UPDATE through {@code IPSSystemService}. All 15 columns the legacy
-    * {@code commit(Connection)} wrote are written here.
+   * Hibernate-backed #1561 Phase 4d-1b write path for {@code PSExitPerformTransition}. Replaces the
+   * legacy raw-JDBC UPDATE on {@code CONTENTSTATUS} with a single JPQL UPDATE through {@code
+   * IPSSystemService}. All 15 columns the legacy {@code commit(Connection)} wrote are written here.
    *
-   * <p>Phase 4d-1b hot-fix: after a successful UPDATE, fires
-   * {@link PSItemSummaryCache#tableChanged(PSTableChangeEvent)} to mirror the legacy
-   * {@code commit(Connection)} {@code notifyUpdateItem(columns)} behavior. Without this
-   * event, the item-summary cache shows stale state / checkout user / revision after
-   * check-in / check-out / transition until an unrelated refresh. See PR #1589 review
-   * thread databaseId 3670378976.
+   * <p>Phase 4d-1b hot-fix: after a successful UPDATE, fires {@link
+   * PSItemSummaryCache#tableChanged(PSTableChangeEvent)} to mirror the legacy {@code
+   * commit(Connection)} {@code notifyUpdateItem(columns)} behavior. Without this event, the
+   * item-summary cache shows stale state / checkout user / revision after check-in / check-out /
+   * transition until an unrelated refresh. See PR #1589 review thread databaseId 3670378976.
    *
-   * <p>The legacy raw-JDBC {@code commit(Connection)} overload above remains for any
-   * external caller that still passes a JDBC {@code Connection}.
+   * <p>The legacy raw-JDBC {@code commit(Connection)} overload above remains for any external
+   * caller that still passes a JDBC {@code Connection}.
    */
   public void commit() {
     if (m_nContentID <= 0) {
@@ -497,8 +495,8 @@ public class PSContentStatusContext implements IPSContentStatusContext {
   }
 
   /**
-   * Builds the same 15-column change map that the legacy {@code commit(Connection)}
-   * path populated via setInt/setString/setDate for item-summary cache notify.
+   * Builds the same 15-column change map that the legacy {@code commit(Connection)} path populated
+   * via setInt/setString/setDate for item-summary cache notify.
    */
   private java.util.Map<String, String> buildLegacyColumnMap() {
     return PSContentStatusNotifyMap.build(
@@ -938,21 +936,27 @@ public class PSContentStatusContext implements IPSContentStatusContext {
   /** Portion of SQL update string specifying which status record fields to update. */
   private static final String WHERESTRING = " WHERE " + TABLE_CSC + ".CONTENTID=?";
 
-  /** Column names for CONTENTSTATUS table */
-  private static final String CONTENTID = "CONTENTID";
+  /**
+   * Column names for CONTENTSTATUS table. Canonical string literals live on {@link
+   * PSContentStatusNotifyMap}; aliases here keep the legacy setInt/setString/setDate call sites
+   * readable without duplicating the literals.
+   */
+  private static final String CONTENTID = PSContentStatusNotifyMap.CONTENTID;
 
-  private static final String CONTENTSTATEID = "CONTENTSTATEID";
-  private static final String CONTENTCHECKOUTUSERNAME = "CONTENTCHECKOUTUSERNAME";
-  private static final String CURRENTREVISION = "CURRENTREVISION";
-  private static final String EDITREVISION = "EDITREVISION";
-  private static final String TIPREVISION = "TIPREVISION";
-  private static final String REVISIONLOCK = "REVISIONLOCK";
-  private static final String LASTTRANSITIONDATE = "LASTTRANSITIONDATE";
-  private static final String STATEENTEREDDATE = "STATEENTEREDDATE";
-  private static final String NEXTAGINGTRANSITION = "NEXTAGINGTRANSITION";
-  private static final String NEXTAGINGDATE = "NEXTAGINGDATE";
-  private static final String CONTENTSTARTDATE = "CONTENTSTARTDATE";
-  private static final String CONTENTEXPIRYDATE = "CONTENTEXPIRYDATE";
-  private static final String REMINDERDATE = "REMINDERDATE";
-  private static final String REPEATEDAGINGTRANSSTARTDATE = "REPEATEDAGINGTRANSSTARTDATE";
+  private static final String CONTENTSTATEID = PSContentStatusNotifyMap.CONTENTSTATEID;
+  private static final String CONTENTCHECKOUTUSERNAME =
+      PSContentStatusNotifyMap.CONTENTCHECKOUTUSERNAME;
+  private static final String CURRENTREVISION = PSContentStatusNotifyMap.CURRENTREVISION;
+  private static final String EDITREVISION = PSContentStatusNotifyMap.EDITREVISION;
+  private static final String TIPREVISION = PSContentStatusNotifyMap.TIPREVISION;
+  private static final String REVISIONLOCK = PSContentStatusNotifyMap.REVISIONLOCK;
+  private static final String LASTTRANSITIONDATE = PSContentStatusNotifyMap.LASTTRANSITIONDATE;
+  private static final String STATEENTEREDDATE = PSContentStatusNotifyMap.STATEENTEREDDATE;
+  private static final String NEXTAGINGTRANSITION = PSContentStatusNotifyMap.NEXTAGINGTRANSITION;
+  private static final String NEXTAGINGDATE = PSContentStatusNotifyMap.NEXTAGINGDATE;
+  private static final String CONTENTSTARTDATE = PSContentStatusNotifyMap.CONTENTSTARTDATE;
+  private static final String CONTENTEXPIRYDATE = PSContentStatusNotifyMap.CONTENTEXPIRYDATE;
+  private static final String REMINDERDATE = PSContentStatusNotifyMap.REMINDERDATE;
+  private static final String REPEATEDAGINGTRANSSTARTDATE =
+      PSContentStatusNotifyMap.REPEATEDAGINGTRANSSTARTDATE;
 }

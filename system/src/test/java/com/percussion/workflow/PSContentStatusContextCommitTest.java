@@ -34,10 +34,9 @@ import org.junit.jupiter.api.Test;
  * PSContentStatusContext.commit()} must populate all 15 legacy CONTENTSTATUS columns for
  * item-summary cache invalidation (not CONTENTID-only).
  *
- * <p>Tests {@link PSContentStatusNotifyMap} only — pure map building with no JDBC, Spring,
- * {@code PSConnectionMgr}, or {@code PSWorkFlowUtils} static initializers — so the suite
- * does not hit {@code ExceptionInInitializerError} when other tests have already poisoned
- * those class statics.
+ * <p>Tests {@link PSContentStatusNotifyMap} only — pure map building with no JDBC, Spring, {@code
+ * PSConnectionMgr}, or {@code PSWorkFlowUtils} static initializers — so the suite does not hit
+ * {@code ExceptionInInitializerError} when other tests have already poisoned those class statics.
  */
 public class PSContentStatusContextCommitTest {
 
@@ -103,6 +102,8 @@ public class PSContentStatusContextCommitTest {
 
   @Test
   void buildLegacyColumnMap_handlesNullDatesAndEmptyUser() {
+    // Null date inputs must remain null map values (legacy setDate / PSItemSummaryCache
+    // contract) — never coerced to "".
     Map<String, String> columns =
         PSContentStatusNotifyMap.build(
             7, 11, "", 1, 1, 1, false, null, null, 0, null, null, null, null, null);
@@ -121,11 +122,13 @@ public class PSContentStatusContextCommitTest {
 
   @Test
   void formatDate_nullSafeAndNonEmptyForInstant() {
+    // Intentional: null → null (not ""), distinct from PSWorkFlowUtils.DateString(null) → "".
     assertNull(PSContentStatusNotifyMap.formatDate(null));
-    String s = PSContentStatusNotifyMap.formatDate(toSqlDate(Instant.parse("2026-07-28T12:00:00Z")));
+    String s =
+        PSContentStatusNotifyMap.formatDate(toSqlDate(Instant.parse("2026-07-28T12:00:00Z")));
     assertNotNull(s);
     assertFalse(s.isEmpty());
-    // mm/dd/yyyy … shape
+    // mm/dd/yyyy … shape (Calendar.HOUR 0–11, same as PSWorkFlowUtils.DateString)
     assertTrue(s.contains("/"));
   }
 

@@ -23,11 +23,15 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Builds the 15-column CONTENTSTATUS change map used by {@link
- * PSContentStatusContext#commit()} for item-summary cache notify events.
+ * Builds the 15-column CONTENTSTATUS change map used by {@link PSContentStatusContext#commit()} for
+ * item-summary cache notify events.
  *
- * <p>Kept free of JDBC / Spring / {@link PSWorkFlowUtils} static initializers so unit
- * tests can pin the map shape without a live server or rxdeploydir.
+ * <p>Kept free of JDBC / Spring / {@link PSWorkFlowUtils} static initializers so unit tests can pin
+ * the map shape without a live server or rxdeploydir.
+ *
+ * <p>Canonical home for the 15 CONTENTSTATUS notify column-name constants. Callers such as {@link
+ * PSContentStatusContext} must reference these rather than re-declaring string literals so a future
+ * schema change touches a single file.
  */
 final class PSContentStatusNotifyMap {
 
@@ -50,8 +54,21 @@ final class PSContentStatusNotifyMap {
   private PSContentStatusNotifyMap() {}
 
   /**
-   * Same 15 columns the legacy {@code PSContentStatusContext.commit(Connection)} path put
-   * into {@code notifyUpdateItem} via setInt/setString/setDate.
+   * Same 15 columns the legacy {@code PSContentStatusContext.commit(Connection)} path put into
+   * {@code notifyUpdateItem} via setInt/setString/setDate.
+   *
+   * <p><strong>Argument order</strong> mirrors the legacy {@code setInt}/{@code setString}/ {@code
+   * setDate} call sequence in {@link PSContentStatusContext#commit(java.sql.Connection)} (state,
+   * checkout user, current/edit/tip revision, revision lock, last-transition date, state-entered
+   * date, next-aging transition/date, start/expiry/reminder/repeated-aging dates, then content id
+   * last). Keep that order greppable against the JDBC path; swapping positional ints (e.g. edit vs
+   * tip revision) fails silently.
+   *
+   * <p><strong>Null date values are intentional:</strong> date columns whose input is {@code null}
+   * are stored as map values of {@code null} (not {@code ""}), matching legacy {@code setDate(...)}
+   * which puts {@code null} into the notify map when the column date is unset. Do not "fix" null
+   * map values to empty string — that would change the notify contract for {@link
+   * com.percussion.server.cache.PSItemSummaryCache}.
    *
    * @return unmodifiable ordered map, never {@code null}
    */
@@ -92,9 +109,19 @@ final class PSContentStatusNotifyMap {
   }
 
   /**
-   * Legacy {@code mm/dd/yyyy hh:mm:ss:milli} shape (same as {@link
-   * PSWorkFlowUtils#DateString(Date)} for non-null dates). Null dates stay {@code null} so
-   * the map matches legacy {@code setDate} (which does not call DateString for null).
+   * Legacy {@code mm/dd/yyyy H:MM:SS:milli} shape using {@link Calendar#HOUR} (0–11), matching
+   * {@link PSWorkFlowUtils#DateString(Date)} for non-null dates.
+   *
+   * <p><strong>Intentional duplication:</strong> this method deliberately does <em>not</em> call
+   * {@code PSWorkFlowUtils.DateString} so this class stays free of {@code PSWorkFlowUtils}'s
+   * static-initializer chain (JDBC / Spring / rxdeploydir). Keep both implementations in lockstep
+   * if the format ever changes; do not "dedupe" by calling {@code DateString} from here without
+   * re-evaluating the ExceptionInInitializerError isolation that motivated this helper (see PR
+   * #1589 / #1595).
+   *
+   * <p>Null dates stay {@code null} (not {@code ""}) so the map matches legacy {@code setDate}
+   * which does not call {@code DateString} for null inputs — distinct from {@link
+   * PSWorkFlowUtils#DateString(Date)}, which returns {@code ""} for null.
    */
   static String formatDate(Date date) {
     if (date == null) {
