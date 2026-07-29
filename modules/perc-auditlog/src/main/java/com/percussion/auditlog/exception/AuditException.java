@@ -17,18 +17,39 @@
 
 package com.percussion.auditlog.exception;
 
+/**
+ * Checked exception raised by the audit-log subsystem to signal that an audit event could not be
+ * recorded or delivered to the configured sink. Carries either a message, a cause, or both,
+ * mirroring the standard {@link Exception} triad.
+ */
 public class AuditException extends Exception {
 
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Constructs an audit exception with both a message and an underlying cause.
+   *
+   * @param message human-readable description of the failure, may be {@code null}.
+   * @param e the underlying cause, may be {@code null}.
+   */
   public AuditException(String message, Throwable e) {
     super(message, e);
   }
 
+  /**
+   * Constructs an audit exception with the given message.
+   *
+   * @param message human-readable description of the failure, may be {@code null}.
+   */
   public AuditException(String message) {
     super(message);
   }
 
+  /**
+   * Constructs an audit exception wrapping an underlying cause.
+   *
+   * @param e the underlying cause, may be {@code null}.
+   */
   public AuditException(Throwable e) {
     super(e);
   }

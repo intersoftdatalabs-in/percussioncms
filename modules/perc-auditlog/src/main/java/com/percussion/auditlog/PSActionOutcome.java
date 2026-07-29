@@ -17,8 +17,15 @@
 
 package com.percussion.auditlog;
 
+/** Standard outcome categories recorded alongside every Percussion audit event. */
 public enum PSActionOutcome {
+  /** The audited action completed without an observable error. */
   SUCCESS,
+  /** The audited action did not complete as intended; consult other event details for cause. */
   FAILURE,
+  /**
+   * Default outcome used when neither success nor failure has been determined yet, e.g., during
+   * event construction before {@code setOutcome(...)} is invoked.
+   */
   UNKNOWN
 }

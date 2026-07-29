@@ -19,19 +19,37 @@ package com.percussion.auditlog;
 
 import com.ibm.cadf.middleware.AuditContext;
 
+/**
+ * Base {@link AuditContext} shared by every Percussion audit event. Pre-populates the observer and
+ * target resource URIs with the {@code service/bss/cms} system observer and defaults the action
+ * outcome to {@link PSActionOutcome#UNKNOWN}. Sub-classes typically mutate the action and the
+ * outcome in their own constructors before passing the event to {@link PSAuditLogService}.
+ */
 public class AbstractEvent extends AuditContext {
 
   private static final String SYSTEM_OBSERVER = "service/bss/cms";
   private String outcome;
 
+  /**
+   * Returns the action outcome recorded for this audit event.
+   *
+   * @return the outcome value, typically one of {@link PSActionOutcome}, never {@code null} after
+   *     construction.
+   */
   public String getOutcome() {
     return outcome;
   }
 
+  /**
+   * Sets the action outcome for this audit event.
+   *
+   * @param outcome the outcome value, typically one of {@link PSActionOutcome}, never {@code null}.
+   */
   public void setOutcome(String outcome) {
     this.outcome = outcome;
   }
 
+  /** Constructs an event pre-populated with the system observer and an {@code UNKNOWN} outcome. */
   public AbstractEvent() {
 
     // Set some defaults
