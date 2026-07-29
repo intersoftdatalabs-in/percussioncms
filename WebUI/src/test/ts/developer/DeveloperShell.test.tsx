@@ -148,8 +148,14 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
         templateGuid: { stringValue: "0-10-1", uuid: 1 },
       },
     ],
-    designGaps: ["Create / update / delete / lock not supported (read-only)"],
+    designGaps: ["Create / delete / lock not supported via this API"],
   }),
+  updateSlotDetail: vi.fn().mockImplementation(async (_id, body) => ({
+    name: "target",
+    label: body.label ?? "Target",
+    description: body.description ?? "Main slot",
+    designGaps: ["Create / delete / lock not supported via this API"],
+  })),
   listCommunities: vi.fn().mockResolvedValue([
     { id: 10, name: "Default", label: "Default", description: "Default Community" },
   ]),
@@ -295,6 +301,8 @@ describe("DeveloperShell", () => {
     });
     expect(screen.getByTestId("developer-slot-args")).toBeTruthy();
     expect(screen.getByTestId("developer-slot-associations")).toBeTruthy();
+    expect(screen.getByTestId("developer-slot-label")).toBeTruthy();
+    expect(screen.getByTestId("developer-slot-save")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-slot-back"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-slot-table")).toBeTruthy();

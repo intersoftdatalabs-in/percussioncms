@@ -98,4 +98,34 @@ public class SlotsResourceDetailTest {
     assertEquals(500, ex.getResponse().getStatus());
     assertSame(cause, ex.getCause());
   }
+
+  @Test
+  public void updateSlotSuccess() {
+    SlotDetail body = new SlotDetail();
+    body.setLabel("New Label");
+    SlotDetail updated = new SlotDetail();
+    updated.setName("target");
+    updated.setLabel("New Label");
+    when(adaptor.updateSlot(any(), eq("target"), any())).thenReturn(updated);
+    assertEquals("New Label", resource.updateSlot("target", body).getLabel());
+  }
+
+  @Test
+  public void updateSlotNotFound() {
+    when(adaptor.updateSlot(any(), eq("missing"), any())).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateSlot("missing", new SlotDetail()));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateSlotBadRequest() {
+    when(adaptor.updateSlot(any(), eq("target"), any()))
+        .thenThrow(new IllegalArgumentException("body is required"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.updateSlot("target", null));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
 }

@@ -16,11 +16,20 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { getSlotDetail } from "../api/developer/assemblyApi";
+import { getSlotDetail, updateSlotDetail } from "../api/developer/assemblyApi";
 import type { SlotDetail } from "../api/developer/types";
 import { backButton, errorAlert, metaGrid, monoCell } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
+
+const inputStyle: React.CSSProperties = {
+  padding: "8px",
+  border: "1px solid #cbd5e0",
+  borderRadius: "4px",
+  font: "inherit",
+  width: "100%",
+  boxSizing: "border-box",
+};
 
 export function SlotDetailPanel({
   idOrName,
@@ -31,14 +40,22 @@ export function SlotDetailPanel({
 }): React.ReactElement {
   const [detail, setDetail] = useState<SlotDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [label, setLabel] = useState("");
+  const [description, setDescription] = useState("");
 
   useEffect(() => {
     let cancelled = false;
     setDetail(null);
     setError(null);
+    setNotice(null);
     getSlotDetail(idOrName)
       .then((d) => {
-        if (!cancelled) setDetail(d);
+        if (cancelled) return;
+        setDetail(d);
+        setLabel(d.label || "");
+        setDescription(d.description || "");
       })
       .catch((err: unknown) => {
         if (cancelled) return;
@@ -48,6 +65,27 @@ export function SlotDetailPanel({
       cancelled = true;
     };
   }, [idOrName]);
+
+  const dirty =
+    detail != null &&
+    (label !== (detail.label || "") || description !== (detail.description || ""));
+
+  async function handleSave() {
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const saved = await updateSlotDetail(idOrName, { label, description });
+      setDetail(saved);
+      setLabel(saved.label || "");
+      setDescription(saved.description || "");
+      setNotice(DEV_MSG.SLOT_SAVED);
+    } catch (err: unknown) {
+      setError(panelErrMsg(err, DEV_MSG.SLOT_SAVE_ERROR));
+    } finally {
+      setBusy(false);
+    }
+  }
 
   const argEntries = Object.entries(detail?.finderArguments || {});
 
@@ -68,6 +106,11 @@ export function SlotDetailPanel({
           {error}
         </div>
       ) : null}
+      {notice ? (
+        <div data-testid="developer-slot-detail-notice" style={{ color: "#276749" }}>
+          {notice}
+        </div>
+      ) : null}
 
       {!error && detail == null ? (
         <div data-testid="developer-slot-detail-loading">{DEV_MSG.SLOT_DETAIL_LOADING}</div>
@@ -77,15 +120,36 @@ export function SlotDetailPanel({
         <>
           <header style={{ marginBottom: "16px" }}>
             <h2 style={{ margin: "0 0 4px" }} data-testid="developer-slot-detail-title">
-              {detail.label || detail.name || idOrName}
+              {label || detail.name || idOrName}
             </h2>
             <div style={{ fontFamily: "monospace", color: "#4a5568" }}>
               {detail.name}
               {detail.guid?.stringValue ? ` · ${detail.guid.stringValue}` : ""}
             </div>
-            {detail.description ? (
-              <p style={{ marginTop: "8px", color: "#2d3748" }}>{detail.description}</p>
-            ) : null}
+            <div style={{ marginTop: "12px" }}>
+              <label htmlFor="slot-label" style={{ display: "block", marginBottom: 4 }}>
+                {DEV_MSG.SLOT_FORM_LABEL}
+              </label>
+              <input
+                id="slot-label"
+                data-testid="developer-slot-label"
+                style={inputStyle}
+                value={label}
+                onChange={(e) => setLabel(e.target.value)}
+              />
+            </div>
+            <div style={{ marginTop: "12px" }}>
+              <label htmlFor="slot-desc" style={{ display: "block", marginBottom: 4 }}>
+                {DEV_MSG.SLOT_FORM_DESCRIPTION}
+              </label>
+              <input
+                id="slot-desc"
+                data-testid="developer-slot-description"
+                style={inputStyle}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </div>
             <dl style={metaGrid}>
               <dt>{DEV_MSG.SLOT_META_TYPE}</dt>
               <dd style={{ margin: 0 }}>{detail.slotType || "—"}</dd>
@@ -153,30 +217,50 @@ export function SlotDetailPanel({
                           ? String(a.templateGuid.uuid)
                           : "tpl");
                       return (
-                      <tr
-                        key={`${ctKey}:${tplKey}:${i}`}
-                        style={{ borderBottom: "1px solid #edf2f7" }}
-                      >
-                        <td style={{ padding: "8px", fontFamily: "monospace" }}>
-                          {a.contentTypeGuid?.stringValue ||
-                            (a.contentTypeGuid?.uuid != null
-                              ? String(a.contentTypeGuid.uuid)
-                              : "—")}
-                        </td>
-                        <td style={{ padding: "8px", fontFamily: "monospace" }}>
-                          {a.templateGuid?.stringValue ||
-                            (a.templateGuid?.uuid != null
-                              ? String(a.templateGuid.uuid)
-                              : "—")}
-                        </td>
-                      </tr>
-                    );
+                        <tr
+                          key={`${ctKey}:${tplKey}:${i}`}
+                          style={{ borderBottom: "1px solid #edf2f7" }}
+                        >
+                          <td style={{ padding: "8px", fontFamily: "monospace" }}>
+                            {a.contentTypeGuid?.stringValue ||
+                              (a.contentTypeGuid?.uuid != null
+                                ? String(a.contentTypeGuid.uuid)
+                                : "—")}
+                          </td>
+                          <td style={{ padding: "8px", fontFamily: "monospace" }}>
+                            {a.templateGuid?.stringValue ||
+                              (a.templateGuid?.uuid != null
+                                ? String(a.templateGuid.uuid)
+                                : "—")}
+                          </td>
+                        </tr>
+                      );
                     })}
                   </tbody>
                 </table>
               </div>
             )}
           </section>
+
+          <div style={{ marginBottom: "16px" }}>
+            <button
+              type="button"
+              data-testid="developer-slot-save"
+              aria-label="Save slot"
+              disabled={busy || !dirty}
+              onClick={() => void handleSave()}
+              style={{
+                padding: "8px 16px",
+                background: dirty ? "#007ea8" : "#a0aec0",
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: busy || !dirty ? "not-allowed" : "pointer",
+              }}
+            >
+              {DEV_MSG.SLOT_SAVE}
+            </button>
+          </div>
 
           {(detail.designGaps || []).length > 0 ? (
             <section data-testid="developer-slot-gaps">

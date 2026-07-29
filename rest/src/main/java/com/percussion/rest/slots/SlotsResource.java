@@ -24,7 +24,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -123,6 +125,42 @@ public class SlotsResource {
       throw new WebApplicationException("Slot not found: " + idOrName, 404);
     }
     return detail;
+  }
+
+  @PUT
+  @Path("/{idOrName}")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Update slot design fields",
+      description =
+          "Updates mutable slot fields: label and/or description. Name and associations are"
+              + " immutable via this path. Create/delete/lock remain unsupported (see designGaps).",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated",
+            content = @Content(schema = @Schema(implementation = SlotDetail.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid input"),
+        @ApiResponse(responseCode = "404", description = "Slot not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public SlotDetail updateSlot(@PathParam("idOrName") String idOrName, SlotDetail body) {
+    try {
+      SlotDetail detail = requireAdaptor().updateSlot(uriInfo.getBaseUri(), idOrName, body);
+      if (detail == null) {
+        throw new WebApplicationException("Slot not found: " + idOrName, 404);
+      }
+      return detail;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      log.error(
+          "Failed to update slot {} ({}): {}", idOrName, e.getClass().getName(), e.getMessage(), e);
+      throw new WebApplicationException(e, 500);
+    }
   }
 
   private ISlotsAdaptor requireAdaptor() {
