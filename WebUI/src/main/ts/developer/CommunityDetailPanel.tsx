@@ -18,12 +18,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   getCommunityDetail,
+  getCommunityVisibility,
   listAvailableRoles,
   updateCommunityRoles,
 } from "../api/developer/assemblyApi";
 import type {
   CommunityDetail,
   CommunityRoleSummary,
+  CommunityVisibleObject,
 } from "../api/developer/types";
 import { backButton, errorAlert, metaGrid, monoCell } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
@@ -58,12 +60,17 @@ export function CommunityDetailPanel({
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [visibleObjects, setVisibleObjects] = useState<CommunityVisibleObject[]>([]);
+  const [visibilityLoading, setVisibilityLoading] = useState(false);
+  const [visibilityError, setVisibilityError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     setDetail(null);
     setError(null);
     setNotice(null);
+    setVisibleObjects([]);
+    setVisibilityError(null);
     Promise.all([getCommunityDetail(idOrName), listAvailableRoles()])
       .then(([d, roles]) => {
         if (cancelled) return;
@@ -72,6 +79,23 @@ export function CommunityDetailPanel({
         setSelectedKeys(
           new Set(asRoles(d).map((r, i) => roleKey(r, i)).filter((k) => k.length > 0)),
         );
+        const g = d.guid;
+        if (g?.stringValue || g?.uuid != null) {
+          setVisibilityLoading(true);
+          getCommunityVisibility(g)
+            .then((objs) => {
+              if (cancelled) return;
+              setVisibleObjects(objs);
+              setVisibilityLoading(false);
+            })
+            .catch((err: unknown) => {
+              if (cancelled) return;
+              setVisibilityLoading(false);
+              setVisibilityError(panelErrMsg(err, DEV_MSG.COMM_VISIBILITY_ERROR));
+            });
+        } else {
+          setVisibilityError(DEV_MSG.COMM_VISIBILITY_NO_GUID);
+        }
       })
       .catch((err: unknown) => {
         if (cancelled) return;
@@ -254,6 +278,74 @@ export function CommunityDetailPanel({
                 {DEV_MSG.COMM_ROLES_SAVE}
               </button>
             </div>
+          </section>
+
+          <section style={{ marginBottom: "16px" }} data-testid="developer-comm-visibility">
+            <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.COMM_VISIBILITY}</h3>
+            <p style={{ color: "#4a5568", fontSize: "0.9rem" }}>{DEV_MSG.COMM_VISIBILITY_HINT}</p>
+            {visibilityLoading ? (
+              <div data-testid="developer-comm-visibility-loading">
+                {DEV_MSG.COMM_VISIBILITY_LOADING}
+              </div>
+            ) : null}
+            {visibilityError ? (
+              <div
+                role="alert"
+                data-testid="developer-comm-visibility-error"
+                style={errorAlert}
+              >
+                {visibilityError}
+              </div>
+            ) : null}
+            {!visibilityLoading && !visibilityError && visibleObjects.length === 0 ? (
+              <p data-testid="developer-comm-visibility-empty" style={{ color: "#718096" }}>
+                {DEV_MSG.COMM_VISIBILITY_EMPTY}
+              </p>
+            ) : null}
+            {visibleObjects.length > 0 ? (
+              <div style={{ overflowX: "auto" }}>
+                <table
+                  data-testid="developer-comm-visibility-table"
+                  style={{
+                    width: "100%",
+                    borderCollapse: "collapse",
+                    fontSize: "0.95rem",
+                  }}
+                >
+                  <thead>
+                    <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.COMM_COL_OBJ_TYPE}</th>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.COMM_COL_OBJ_NAME}</th>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.COMM_COL_OBJ_LABEL}</th>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.COMM_COL_OBJ_GUID}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {visibleObjects.map((o, i) => (
+                      <tr
+                        key={
+                          o.guid?.stringValue ||
+                          `${o.type || "obj"}:${o.name || o.id || i}`
+                        }
+                        style={{ borderBottom: "1px solid #edf2f7" }}
+                      >
+                        <td style={{ padding: "8px", fontFamily: "monospace" }}>
+                          {o.type || "—"}
+                        </td>
+                        <td style={{ padding: "8px", fontFamily: "monospace" }}>
+                          {o.name || "—"}
+                        </td>
+                        <td style={{ padding: "8px" }}>{o.label || "—"}</td>
+                        <td style={{ padding: "8px", fontFamily: "monospace", fontSize: "0.85rem" }}>
+                          {o.guid?.stringValue ||
+                            (o.id != null ? String(o.id) : "—")}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : null}
           </section>
 
           <section data-testid="developer-comm-gaps">
