@@ -204,16 +204,6 @@
             <note xml:lang="en-us">DEV_MSG.CT_DETAIL_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load content type detail.</seg></tuv>
         </tu>
-        <tu tuid="perc.ui.developer@Label">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.CT_FORM_LABEL</note>
-            <tuv xml:lang="en-us"><seg>Label</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Description">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.CT_FORM_DESCRIPTION</note>
-            <tuv xml:lang="en-us"><seg>Description</seg></tuv>
-        </tu>
         <tu tuid="perc.ui.developer@Enabled">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_FORM_ENABLED</note>
@@ -253,11 +243,6 @@
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_GAPS</note>
             <tuv xml:lang="en-us"><seg>Design gaps (not in this API yet)</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Enabled">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.CT_META_ENABLED</note>
-            <tuv xml:lang="en-us"><seg>Enabled</seg></tuv>
         </tu>
         <tu tuid="perc.ui.developer@Hidden from menu">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
@@ -424,11 +409,6 @@
             <note xml:lang="en-us">DEV_MSG.KW_HINT</note>
             <tuv xml:lang="en-us"><seg>Create, edit, or delete keyword definitions and their choices.</seg></tuv>
         </tu>
-        <tu tuid="perc.ui.developer@Label">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.KW_COL_LABEL</note>
-            <tuv xml:lang="en-us"><seg>Label</seg></tuv>
-        </tu>
         <tu tuid="perc.ui.developer@Value">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.KW_COL_VALUE</note>
@@ -438,11 +418,6 @@
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.KW_COL_CHOICES</note>
             <tuv xml:lang="en-us"><seg>Choices</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Description">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.KW_COL_DESCRIPTION</note>
-            <tuv xml:lang="en-us"><seg>Description</seg></tuv>
         </tu>
         <tu tuid="perc.ui.developer@New keyword">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
@@ -468,21 +443,6 @@
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.KW_EDIT</note>
             <tuv xml:lang="en-us"><seg>Edit</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Back to list">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.KW_BACK</note>
-            <tuv xml:lang="en-us"><seg>Back to list</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Label">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.KW_FORM_LABEL</note>
-            <tuv xml:lang="en-us"><seg>Label</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Description">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.KW_FORM_DESCRIPTION</note>
-            <tuv xml:lang="en-us"><seg>Description</seg></tuv>
         </tu>
         <tu tuid="perc.ui.developer@Sequence">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
@@ -539,31 +499,6 @@
             <note xml:lang="en-us">DEV_MSG.TPL_HINT</note>
             <tuv xml:lang="en-us"><seg>Select a template to edit label, description, source, bindings, and contained slots.</seg></tuv>
         </tu>
-        <tu tuid="perc.ui.developer@Label">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.TPL_COL_LABEL</note>
-            <tuv xml:lang="en-us"><seg>Label</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Name">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.TPL_COL_NAME</note>
-            <tuv xml:lang="en-us"><seg>Name</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Id">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.TPL_COL_ID</note>
-            <tuv xml:lang="en-us"><seg>Id</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Description">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.TPL_COL_DESCRIPTION</note>
-            <tuv xml:lang="en-us"><seg>Description</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Back to list">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.TPL_BACK</note>
-            <tuv xml:lang="en-us"><seg>Back to list</seg></tuv>
-        </tu>
         <tu tuid="perc.ui.developer@Loading template…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_DETAIL_LOADING</note>
@@ -619,16 +554,6 @@
             <note xml:lang="en-us">DEV_MSG.TPL_BINDING_ADD</note>
             <tuv xml:lang="en-us"><seg>Add binding</seg></tuv>
         </tu>
-        <tu tuid="perc.ui.developer@Remove">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.TPL_BINDING_REMOVE</note>
-            <tuv xml:lang="en-us"><seg>Remove</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Slots">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.TPL_SLOTS</note>
-            <tuv xml:lang="en-us"><seg>Slots</seg></tuv>
-        </tu>
         <tu tuid="perc.ui.developer@Check slots contained by this template, then save (full replace).">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_SLOTS_HINT</note>
@@ -638,16 +563,6 @@
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_SOURCE</note>
             <tuv xml:lang="en-us"><seg>Template source</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Label">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.TPL_FORM_LABEL</note>
-            <tuv xml:lang="en-us"><seg>Label</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Description">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.TPL_FORM_DESCRIPTION</note>
-            <tuv xml:lang="en-us"><seg>Description</seg></tuv>
         </tu>
         <tu tuid="perc.ui.developer@Save template">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
@@ -663,11 +578,6 @@
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_SAVE_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not save template.</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Design gaps (not in this API yet)">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.TPL_GAPS</note>
-            <tuv xml:lang="en-us"><seg>Design gaps (not in this API yet)</seg></tuv>
         </tu>
         <tu tuid="perc.ui.developer@Variable">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
@@ -694,11 +604,6 @@
             <note xml:lang="en-us">DEV_MSG.TPL_COL_MEMBER</note>
             <tuv xml:lang="en-us"><seg>Member</seg></tuv>
         </tu>
-        <tu tuid="perc.ui.developer@None">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.TPL_NONE</note>
-            <tuv xml:lang="en-us"><seg>None</seg></tuv>
-        </tu>
         <tu tuid="perc.ui.developer@Loading slots…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_LOADING</note>
@@ -719,26 +624,6 @@
             <note xml:lang="en-us">DEV_MSG.SLOT_HINT</note>
             <tuv xml:lang="en-us"><seg>Select a slot to edit label, description, and content-type/template associations.</seg></tuv>
         </tu>
-        <tu tuid="perc.ui.developer@Label">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.SLOT_COL_LABEL</note>
-            <tuv xml:lang="en-us"><seg>Label</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Name">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.SLOT_COL_NAME</note>
-            <tuv xml:lang="en-us"><seg>Name</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Description">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.SLOT_COL_DESCRIPTION</note>
-            <tuv xml:lang="en-us"><seg>Description</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Back to list">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.SLOT_BACK</note>
-            <tuv xml:lang="en-us"><seg>Back to list</seg></tuv>
-        </tu>
         <tu tuid="perc.ui.developer@Loading slot…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_DETAIL_LOADING</note>
@@ -748,16 +633,6 @@
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_DETAIL_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load slot detail.</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Label">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.SLOT_FORM_LABEL</note>
-            <tuv xml:lang="en-us"><seg>Label</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Description">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.SLOT_FORM_DESCRIPTION</note>
-            <tuv xml:lang="en-us"><seg>Description</seg></tuv>
         </tu>
         <tu tuid="perc.ui.developer@Save slot">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
@@ -814,11 +689,6 @@
             <note xml:lang="en-us">DEV_MSG.SLOT_ASSOC_ADD</note>
             <tuv xml:lang="en-us"><seg>Add association</seg></tuv>
         </tu>
-        <tu tuid="perc.ui.developer@Remove">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.SLOT_ASSOC_REMOVE</note>
-            <tuv xml:lang="en-us"><seg>Remove</seg></tuv>
-        </tu>
         <tu tuid="perc.ui.developer@Content type GUID (e.g. 0-2-301)">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_ASSOC_CT_PLACEHOLDER</note>
@@ -834,11 +704,6 @@
             <note xml:lang="en-us">DEV_MSG.SLOT_GAPS</note>
             <tuv xml:lang="en-us"><seg>Known limitations of this endpoint</seg></tuv>
         </tu>
-        <tu tuid="perc.ui.developer@None">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.SLOT_NONE</note>
-            <tuv xml:lang="en-us"><seg>None</seg></tuv>
-        </tu>
         <tu tuid="perc.ui.developer@Content type GUID">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_COL_CT</note>
@@ -848,11 +713,6 @@
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_COL_TPL</note>
             <tuv xml:lang="en-us"><seg>Template GUID</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Actions">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.SLOT_COL_ACTIONS</note>
-            <tuv xml:lang="en-us"><seg>Actions</seg></tuv>
         </tu>
         <tu tuid="perc.ui.developer@Loading communities…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
@@ -874,31 +734,6 @@
             <note xml:lang="en-us">DEV_MSG.COMM_HINT</note>
             <tuv xml:lang="en-us"><seg>Select a community to view and edit role membership. Object ACL dialogs are not available yet.</seg></tuv>
         </tu>
-        <tu tuid="perc.ui.developer@Label">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.COMM_COL_LABEL</note>
-            <tuv xml:lang="en-us"><seg>Label</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Name">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.COMM_COL_NAME</note>
-            <tuv xml:lang="en-us"><seg>Name</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Id">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.COMM_COL_ID</note>
-            <tuv xml:lang="en-us"><seg>Id</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Description">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.COMM_COL_DESCRIPTION</note>
-            <tuv xml:lang="en-us"><seg>Description</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Back to list">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.COMM_BACK</note>
-            <tuv xml:lang="en-us"><seg>Back to list</seg></tuv>
-        </tu>
         <tu tuid="perc.ui.developer@Loading community…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_DETAIL_LOADING</note>
@@ -908,11 +743,6 @@
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_DETAIL_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load community detail.</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Id">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.COMM_META_ID</note>
-            <tuv xml:lang="en-us"><seg>Id</seg></tuv>
         </tu>
         <tu tuid="perc.ui.developer@GUID">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
@@ -938,11 +768,6 @@
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_NO_ROLES_SYSTEM</note>
             <tuv xml:lang="en-us"><seg>No security roles are defined in the system.</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Member">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.COMM_COL_MEMBER</note>
-            <tuv xml:lang="en-us"><seg>Member</seg></tuv>
         </tu>
         <tu tuid="perc.ui.developer@Role name">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
@@ -1004,26 +829,6 @@
             <note xml:lang="en-us">DEV_MSG.COMM_VISIBILITY_NO_GUID</note>
             <tuv xml:lang="en-us"><seg>Community GUID not available — cannot load visibility.</seg></tuv>
         </tu>
-        <tu tuid="perc.ui.developer@Type">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.COMM_COL_OBJ_TYPE</note>
-            <tuv xml:lang="en-us"><seg>Type</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Name">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.COMM_COL_OBJ_NAME</note>
-            <tuv xml:lang="en-us"><seg>Name</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Label">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.COMM_COL_OBJ_LABEL</note>
-            <tuv xml:lang="en-us"><seg>Label</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@GUID">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.COMM_COL_OBJ_GUID</note>
-            <tuv xml:lang="en-us"><seg>GUID</seg></tuv>
-        </tu>
         <tu tuid="perc.ui.developer@Known gaps">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_GAPS</note>
@@ -1049,40 +854,15 @@
             <note xml:lang="en-us">DEV_MSG.PIPE_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load pipelines.</seg></tuv>
         </tu>
-        <tu tuid="perc.ui.developer@Server applications (classic XML Applications). Read-only catalog — editor, start/stop, and IR import are later slices.">
+        <tu tuid="perc.ui.developer@Server applications (classic XML Applications). Open a row for read-only detail and data sets. Editor, start/stop, and IR import are later slices.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PIPE_HINT</note>
-            <tuv xml:lang="en-us"><seg>Server applications (classic XML Applications). Read-only catalog — editor, start/stop, and IR import are later slices.</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Name">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.PIPE_COL_NAME</note>
-            <tuv xml:lang="en-us"><seg>Name</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Id">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.PIPE_COL_ID</note>
-            <tuv xml:lang="en-us"><seg>Id</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Type">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.PIPE_COL_TYPE</note>
-            <tuv xml:lang="en-us"><seg>Type</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Enabled">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.PIPE_COL_ENABLED</note>
-            <tuv xml:lang="en-us"><seg>Enabled</seg></tuv>
+            <tuv xml:lang="en-us"><seg>Server applications (classic XML Applications). Open a row for read-only detail and data sets. Editor, start/stop, and IR import are later slices.</seg></tuv>
         </tu>
         <tu tuid="perc.ui.developer@App root">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PIPE_COL_ROOT</note>
             <tuv xml:lang="en-us"><seg>App root</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Description">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.PIPE_COL_DESCRIPTION</note>
-            <tuv xml:lang="en-us"><seg>Description</seg></tuv>
         </tu>
         <tu tuid="perc.ui.developer@Design-time access control for this object. Toggle permissions, add or remove entries, then save (full entry list replace via bulk ACL API).">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
@@ -1143,6 +923,45 @@
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_NO_ENTRIES</note>
             <tuv xml:lang="en-us"><seg>No ACL entries yet — add a principal below.</seg></tuv>
+        <tu tuid="perc.ui.developer@Loading pipeline application…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.PIPE_DETAIL_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading pipeline application…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load pipeline application.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.PIPE_DETAIL_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load pipeline application.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Hidden">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.PIPE_META_HIDDEN</note>
+            <tuv xml:lang="en-us"><seg>Hidden</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Version">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.PIPE_META_VERSION</note>
+            <tuv xml:lang="en-us"><seg>Version</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Data sets">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.PIPE_DATASETS</note>
+            <tuv xml:lang="en-us"><seg>Data sets</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Request pages and content editors defined in this application. Pipe IR and mappers are not exposed yet.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.PIPE_DATASETS_HINT</note>
+            <tuv xml:lang="en-us"><seg>Request pages and content editors defined in this application. Pipe IR and mappers are not exposed yet.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Kind">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.PIPE_COL_DS_KIND</note>
+            <tuv xml:lang="en-us"><seg>Kind</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Request page">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.PIPE_COL_DS_REQUEST</note>
+            <tuv xml:lang="en-us"><seg>Request page</seg></tuv>
         </tu>
         <tu tuid="perc.ui.developer@Not implemented yet">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
@@ -1154,5 +973,10 @@
             <note xml:lang="en-us">DEV_MSG.PLACEHOLDER_BODY</note>
             <tuv xml:lang="en-us"><seg>This section is planned for Developer P0. See docs/ai-generated/tasks/developer-module-p0 and docs/developer-module.</seg></tuv>
         </tu>
-    </body>
+        <tu tuid="perc.ui.developer@Loading pipeline application…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.PIPE_DETAIL_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading pipeline application…</seg></tuv>
+        </tu>
+</body>
 </tmx>

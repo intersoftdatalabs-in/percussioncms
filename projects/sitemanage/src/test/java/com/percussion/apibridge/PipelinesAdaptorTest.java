@@ -23,9 +23,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import com.percussion.design.objectstore.PSApplication;
 import com.percussion.design.objectstore.PSApplicationType;
+import com.percussion.design.objectstore.PSDataSet;
+import com.percussion.design.objectstore.PSRequestor;
 import com.percussion.design.objectstore.server.PSApplicationSummary;
+import com.percussion.rest.pipelines.ApplicationDetail;
 import com.percussion.rest.pipelines.ApplicationSummary;
+import com.percussion.util.PSCollection;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -134,6 +142,41 @@ class PipelinesAdaptorTest {
     List<ApplicationSummary> out =
         PipelinesAdaptor.mapFilterSortLimit(new PSApplicationSummary[] {only}, null, 10, 5);
     assertTrue(out.isEmpty());
+  }
+
+  @Test
+  void toDetail_mapsAppMetaAndDataSets() {
+    PSApplication app = mock(PSApplication.class);
+    when(app.getId()).thenReturn(42);
+    when(app.getName()).thenReturn("sys_cmpDocuments");
+    when(app.getDescription()).thenReturn("Docs app");
+    when(app.isEnabled()).thenReturn(true);
+    when(app.isHidden()).thenReturn(false);
+    when(app.getRequestRoot()).thenReturn("sys_cmpDocuments");
+    when(app.getApplicationType()).thenReturn(PSApplicationType.CONTENT_EDITOR);
+    when(app.getVersion()).thenReturn("8.2");
+
+    PSDataSet ds = mock(PSDataSet.class);
+    when(ds.getName()).thenReturn("contenteditor");
+    when(ds.getDescription()).thenReturn("CE");
+    PSRequestor req = mock(PSRequestor.class);
+    when(req.getRequestPage()).thenReturn("contenteditor.html");
+    when(ds.getRequestor()).thenReturn(req);
+
+    PSCollection coll = new PSCollection(PSDataSet.class);
+    coll.add(ds);
+    when(app.getDataSets()).thenReturn(coll);
+
+    ApplicationDetail detail = PipelinesAdaptor.toDetail(app);
+    assertEquals(42, detail.getId());
+    assertEquals("sys_cmpDocuments", detail.getName());
+    assertEquals("CONTENT_EDITOR", detail.getAppType());
+    assertEquals(1, detail.getDataSets().size());
+    assertEquals("contenteditor", detail.getDataSets().get(0).getName());
+    assertEquals("contenteditor.html", detail.getDataSets().get(0).getRequestPage());
+    assertEquals("DATASET", detail.getDataSets().get(0).getKind());
+    assertNotNull(detail.getDesignGaps());
+    assertFalse(detail.getDesignGaps().isEmpty());
   }
 
   @Test

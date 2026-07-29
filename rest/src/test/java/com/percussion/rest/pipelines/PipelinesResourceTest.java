@@ -99,4 +99,23 @@ public class PipelinesResourceTest {
         "Pipelines adaptor not configured (resource constructed without injection)",
         ex.getCause().getMessage());
   }
+
+  @Test
+  public void getApplicationDelegatesToAdaptor() {
+    ApplicationDetail d = new ApplicationDetail();
+    d.setName("sys_foo");
+    when(adaptor.getApplication(any(), eq("sys_foo"))).thenReturn(d);
+
+    assertEquals("sys_foo", resource.getApplication("sys_foo").getName());
+    verify(adaptor).getApplication(any(), eq("sys_foo"));
+  }
+
+  @Test
+  public void getApplicationNotFound() {
+    when(adaptor.getApplication(any(), eq("missing"))).thenReturn(null);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getApplication("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
 }

@@ -17,17 +17,25 @@
 
 package com.percussion.apibridge;
 
+import com.percussion.design.objectstore.PSApplication;
+import com.percussion.design.objectstore.PSContentEditor;
+import com.percussion.design.objectstore.PSDataSet;
+import com.percussion.design.objectstore.PSRequestor;
 import com.percussion.design.objectstore.server.PSApplicationSummary;
 import com.percussion.design.objectstore.server.PSServerXmlObjectStore;
+import com.percussion.rest.pipelines.ApplicationDataSetSummary;
+import com.percussion.rest.pipelines.ApplicationDetail;
 import com.percussion.rest.pipelines.ApplicationSummary;
 import com.percussion.rest.pipelines.IPipelinesAdaptor;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSRequest;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.util.PSCollection;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
@@ -76,6 +84,100 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     PSSecurityToken tok = req.getSecurityToken();
     PSApplicationSummary[] sums = summaryLoader.apply(tok);
     return mapFilterSortLimit(sums, nameFilter, limit, offset);
+  }
+
+  @Override
+  public ApplicationDetail getApplication(URI baseUri, String idOrName) {
+    if (StringUtils.isBlank(idOrName)) {
+      return null;
+    }
+    PSRequest req = PSSecurityFilter.getCurrentRequest();
+    if (req == null) {
+      throw new IllegalStateException("No current request for application detail");
+    }
+    PSSecurityToken tok = req.getSecurityToken();
+    String name = resolveApplicationName(idOrName.trim(), tok);
+    if (name == null) {
+      return null;
+    }
+    try {
+      // fixupCeFields=false: catalog/detail only; avoid CE field rewrite cost
+      PSApplication app =
+          PSServerXmlObjectStore.getInstance().getApplicationObject(name, tok, false);
+      if (app == null) {
+        return null;
+      }
+      return toDetail(app);
+    } catch (Exception e) {
+      log.debug("Application not found or not visible {}: {}", idOrName, e.getMessage());
+      return null;
+    }
+  }
+
+  /**
+   * Resolve numeric id via summary list, otherwise treat idOrName as application name.
+   */
+  private String resolveApplicationName(String idOrName, PSSecurityToken tok) {
+    if (StringUtils.isNumeric(idOrName)) {
+      int id = Integer.parseInt(idOrName);
+      PSApplicationSummary[] sums = summaryLoader.apply(tok);
+      if (sums != null) {
+        for (PSApplicationSummary sum : sums) {
+          if (sum != null && sum.getId() == id) {
+            return sum.getName();
+          }
+        }
+      }
+      return null;
+    }
+    return idOrName;
+  }
+
+  /** Package-visible for unit tests. */
+  static ApplicationDetail toDetail(PSApplication app) {
+    ApplicationDetail d = new ApplicationDetail();
+    d.setId(app.getId());
+    d.setName(app.getName());
+    d.setDescription(app.getDescription());
+    d.setEnabled(app.isEnabled());
+    d.setHidden(app.isHidden());
+    d.setAppRoot(app.getRequestRoot());
+    if (app.getApplicationType() != null) {
+      d.setAppType(app.getApplicationType().name());
+    }
+    d.setVersion(app.getVersion());
+
+    List<ApplicationDataSetSummary> sets = new ArrayList<>();
+    PSCollection dataSets = app.getDataSets();
+    if (dataSets != null) {
+      for (Iterator<?> it = dataSets.iterator(); it.hasNext(); ) {
+        Object o = it.next();
+        if (!(o instanceof PSDataSet ds)) {
+          continue;
+        }
+        ApplicationDataSetSummary s = new ApplicationDataSetSummary();
+        s.setName(ds.getName());
+        s.setDescription(ds.getDescription());
+        PSRequestor req = ds.getRequestor();
+        if (req != null) {
+          s.setRequestPage(req.getRequestPage());
+        }
+        s.setKind(ds instanceof PSContentEditor ? "CONTENT_EDITOR" : "DATASET");
+        sets.add(s);
+      }
+    }
+    sets.sort(
+        Comparator.comparing(
+            ApplicationDataSetSummary::getName,
+            Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+    d.setDataSets(sets);
+
+    List<String> gaps = new ArrayList<>();
+    gaps.add("Pipe IR / SQL mapper / resource tanks not exposed (Pipelines Slice A+)");
+    gaps.add("Start / stop / enable application not supported via this API");
+    gaps.add("Classic application import/export not supported via this API");
+    d.setDesignGaps(gaps);
+    return d;
   }
 
   /**

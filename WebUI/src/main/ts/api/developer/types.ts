@@ -251,3 +251,17 @@ export interface ApplicationSummary {
   empty?: boolean;
   hidden?: boolean;
 }
+
+/** Data set row from GET /services/pipelines/{idOrName}. */
+export interface ApplicationDataSetSummary {
+  name?: string;
+  description?: string;
+  requestPage?: string;
+  kind?: string;
+}
+
+/** Read-only application detail with data set catalog. */
+export interface ApplicationDetail extends ApplicationSummary {
+  dataSets?: ApplicationDataSetSummary[];
+  designGaps?: string[];
+}

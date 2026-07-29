@@ -295,6 +295,16 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
       appRoot: "sys_cmpDocuments",
     },
   ]),
+  getApplicationDetail: vi.fn().mockResolvedValue({
+    id: 1,
+    name: "sys_cmpDocuments",
+    description: "System content editor app",
+    enabled: true,
+    appType: "CONTENT_EDITOR",
+    appRoot: "sys_cmpDocuments",
+    dataSets: [],
+    designGaps: [],
+  }),
 }));
 
 describe("DeveloperShell", () => {
