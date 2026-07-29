@@ -104,7 +104,19 @@ public class PSCategoryLockInfo {
   }
 
   /**
-   * Returns true when the lock's sessionId no longer maps to a live user session.
+   * Returns true when the lock entry is invalid and should be cleared. A lock is stale when any of
+   * the following holds:
+   *
+   * <ul>
+   *   <li>the JSON object is a malformed record (missing or non-string {@code sessionId});
+   *   <li>the {@code sessionId} is blank (no live session can be matched against it);
+   *   <li>the {@code sessionId} is non-blank but no longer maps to a live user session.
+   * </ul>
+   *
+   * <p>Blank/missing sessionId entries could previously only be cleared by an explicit overwrite
+   * via {@code lockCategoryTab}, which is fragile when a lock is held but the underlying session
+   * never had a usable id. Treating those entries as stale lets {@link #getLockInfo()} clean them
+   * up automatically on the next read. GH-1566.
    *
    * <p>Package-visible for unit tests.
    */
@@ -112,17 +124,26 @@ public class PSCategoryLockInfo {
     if (jsonObject == null) {
       return false;
     }
+    String sessionId;
     try {
-      var sessionId = jsonObject.getString("sessionId");
-      if (StringUtils.isNotBlank(sessionId) && !PSUserSessionManager.doesSessionExist(sessionId)) {
-        log.debug(
-            "Removing stale category tab lock for sessionId: {} - session no longer exists",
-            sessionId);
+      if (!jsonObject.has("sessionId")) {
+        log.debug("Removing category tab lock with missing sessionId");
         return true;
       }
+      sessionId = jsonObject.getString("sessionId");
     } catch (JSONException e) {
-      log.error(
-          "JSON Exception occurred while validating lock - PSCategoryLockInfo.isLockStale()", e);
+      log.debug("Removing category tab lock with malformed sessionId: {}", e.getMessage());
+      return true;
+    }
+    if (StringUtils.isBlank(sessionId)) {
+      log.debug("Removing category tab lock with blank sessionId");
+      return true;
+    }
+    if (!PSUserSessionManager.doesSessionExist(sessionId)) {
+      log.debug(
+          "Removing stale category tab lock for sessionId: {} - session no longer exists",
+          sessionId);
+      return true;
     }
     return false;
   }
