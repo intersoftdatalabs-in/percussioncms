@@ -19,6 +19,7 @@ package com.percussion.rest.communities;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -82,6 +83,59 @@ public class CommunityResourceDetailTest {
     when(adaptor.getCommunity(eq("boom"))).thenThrow(new RuntimeException("db down"));
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.getCommunity("boom"));
+    assertEquals(500, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void listAvailableRoles() {
+    CommunityRoleList list = new CommunityRoleList();
+    CommunityRole r = new CommunityRole();
+    r.setRoleName("Admin");
+    list.add(r);
+    when(adaptor.listAvailableRoles()).thenReturn(list);
+    assertEquals(1, resource.listAvailableRoles().size());
+    assertEquals("Admin", resource.listAvailableRoles().get(0).getRoleName().orElse(null));
+  }
+
+  @Test
+  public void updateCommunityRolesSuccess() {
+    CommunityRoleList body = new CommunityRoleList();
+    Community updated = new Community();
+    updated.setName("Default");
+    updated.setRoleList(body);
+    when(adaptor.updateCommunityRoles(eq("Default"), any())).thenReturn(updated);
+    assertEquals("Default", resource.updateCommunityRoles("Default", body).getName().orElse(null));
+  }
+
+  @Test
+  public void updateCommunityRolesNotFound() {
+    when(adaptor.updateCommunityRoles(eq("missing"), any())).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateCommunityRoles("missing", new CommunityRoleList()));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateCommunityRolesBadRequest() {
+    when(adaptor.updateCommunityRoles(eq("Default"), any()))
+        .thenThrow(new IllegalArgumentException("idOrName is required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateCommunityRoles("Default", new CommunityRoleList()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateCommunityRolesServerError() {
+    when(adaptor.updateCommunityRoles(eq("Default"), any()))
+        .thenThrow(new RuntimeException("db down"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateCommunityRoles("Default", new CommunityRoleList()));
     assertEquals(500, ex.getResponse().getStatus());
   }
 }

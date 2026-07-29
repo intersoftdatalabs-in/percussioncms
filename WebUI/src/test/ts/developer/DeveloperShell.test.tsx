@@ -130,6 +130,20 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
       { roleId: 2, roleName: "Author", roleGuid: { stringValue: "0-14-2", uuid: 2 } },
     ],
   }),
+  listAvailableRoles: vi.fn().mockResolvedValue([
+    { roleId: 1, roleName: "Admin", roleGuid: { stringValue: "0-14-1", uuid: 1 } },
+    { roleId: 2, roleName: "Author", roleGuid: { stringValue: "0-14-2", uuid: 2 } },
+    { roleId: 3, roleName: "Editor", roleGuid: { stringValue: "0-14-3", uuid: 3 } },
+  ]),
+  updateCommunityRoles: vi.fn().mockResolvedValue({
+    id: 10,
+    name: "Default",
+    label: "Default",
+    roleList: [
+      { roleId: 1, roleName: "Admin", roleGuid: { stringValue: "0-14-1", uuid: 1 } },
+      { roleId: 3, roleName: "Editor", roleGuid: { stringValue: "0-14-3", uuid: 3 } },
+    ],
+  }),
 }));
 
 vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
@@ -268,6 +282,8 @@ describe("DeveloperShell", () => {
     });
     expect(screen.getByTestId("developer-comm-roles")).toBeTruthy();
     expect(screen.getByText("Admin")).toBeTruthy();
+    expect(screen.getByText("Editor")).toBeTruthy();
+    expect(screen.getByTestId("developer-comm-roles-save")).toBeTruthy();
     expect(screen.getByTestId("developer-comm-gaps")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-comm-back"));
     await waitFor(() => {

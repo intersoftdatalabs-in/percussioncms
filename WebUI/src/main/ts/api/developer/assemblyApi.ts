@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-import { get } from "../client";
+import { get, put } from "../client";
 import { PATHS } from "../paths";
 import type {
   CommunityDetail,
+  CommunityRoleSummary,
   CommunitySummary,
   SlotDetail,
   SlotSummary,
@@ -94,4 +95,23 @@ export async function getCommunityDetail(
 ): Promise<CommunityDetail> {
   const key = encodeURIComponent(idOrName);
   return get<CommunityDetail>(`${PATHS.COMMUNITIES}/${key}`);
+}
+
+/** GET /services/communities/roles — all roles for membership picker */
+export async function listAvailableRoles(): Promise<CommunityRoleSummary[]> {
+  const payload = await get<unknown>(`${PATHS.COMMUNITIES}/roles`);
+  return asArray<CommunityRoleSummary>(payload, [
+    "CommunityRoleList",
+    "CommunityRole",
+    "roleList",
+  ]);
+}
+
+/** PUT /services/communities/{idOrName}/roles — replace memberships */
+export async function updateCommunityRoles(
+  idOrName: string,
+  roles: CommunityRoleSummary[],
+): Promise<CommunityDetail> {
+  const key = encodeURIComponent(idOrName);
+  return put<CommunityDetail>(`${PATHS.COMMUNITIES}/${key}/roles`, roles);
 }
