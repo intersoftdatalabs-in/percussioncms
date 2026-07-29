@@ -93,6 +93,8 @@ public class KeywordsResource {
       @QueryParam("includeChoices") @DefaultValue("false") boolean includeChoices) {
     try {
       return requireAdaptor().listKeywords(uriInfo.getBaseUri(), includeChoices);
+    } catch (WebApplicationException e) {
+      throw e;
     } catch (Exception e) {
       log.error("Failed to list keywords ({}): {}", e.getClass().getName(), e.getMessage(), e);
       throw new WebApplicationException(e, 500);
@@ -117,6 +119,8 @@ public class KeywordsResource {
     KeywordSummary kw;
     try {
       kw = requireAdaptor().getKeyword(uriInfo.getBaseUri(), idOrValue);
+    } catch (WebApplicationException e) {
+      throw e;
     } catch (Exception e) {
       log.error(
           "Failed to load keyword {} ({}): {}",
@@ -149,6 +153,8 @@ public class KeywordsResource {
   public KeywordSummary createKeyword(KeywordSummary body) {
     try {
       return requireAdaptor().createKeyword(uriInfo.getBaseUri(), body);
+    } catch (WebApplicationException e) {
+      throw e;
     } catch (IllegalArgumentException e) {
       throw new WebApplicationException(e.getMessage(), 400);
     } catch (Exception e) {
@@ -177,6 +183,8 @@ public class KeywordsResource {
     KeywordSummary kw;
     try {
       kw = requireAdaptor().updateKeyword(uriInfo.getBaseUri(), id, body);
+    } catch (WebApplicationException e) {
+      throw e;
     } catch (IllegalArgumentException e) {
       throw new WebApplicationException(e.getMessage(), 400);
     } catch (Exception e) {
@@ -205,11 +213,13 @@ public class KeywordsResource {
     try {
       requireAdaptor().deleteKeyword(uriInfo.getBaseUri(), id);
       return Response.noContent().build();
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (KeywordNotFoundException e) {
+      throw new WebApplicationException(e.getMessage(), 404);
     } catch (IllegalArgumentException e) {
-      // Adaptor uses IllegalArgumentException for invalid id and not-found
-      String msg = e.getMessage() != null ? e.getMessage() : "Invalid keyword id";
-      int status = msg.toLowerCase().contains("not found") ? 404 : 400;
-      throw new WebApplicationException(msg, status);
+      throw new WebApplicationException(
+          e.getMessage() != null ? e.getMessage() : "Invalid keyword id", 400);
     } catch (Exception e) {
       log.error(
           "Failed to delete keyword {} ({}): {}", id, e.getClass().getName(), e.getMessage(), e);
@@ -219,8 +229,9 @@ public class KeywordsResource {
 
   private IKeywordsAdaptor requireAdaptor() {
     if (adaptor == null) {
-      throw new IllegalStateException(
-          "Keywords adaptor not configured (resource constructed without injection)");
+      // Misconfiguration — not a transient handler failure
+      throw new WebApplicationException(
+          "Keywords adaptor not configured", Response.Status.SERVICE_UNAVAILABLE);
     }
     return adaptor;
   }

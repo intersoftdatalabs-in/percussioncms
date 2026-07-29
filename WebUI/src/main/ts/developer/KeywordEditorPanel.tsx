@@ -45,10 +45,11 @@ function textToChoices(text: string): KeywordChoiceSummary[] {
     .filter(Boolean)
     .map((line, index) => {
       const [label, value, seq] = line.split("|").map((s) => s.trim());
+      const parsed = seq != null && seq !== "" ? Number(seq) : NaN;
       return {
         label: label || `choice-${index + 1}`,
         value: value || label || "",
-        sequence: seq != null && seq !== "" ? Number(seq) : index,
+        sequence: Number.isFinite(parsed) ? parsed : index,
       };
     });
 }
@@ -146,6 +147,7 @@ export function KeywordEditorPanel({
     if (!window.confirm(DEV_MSG.KW_DELETE_CONFIRM)) return;
     setBusy(true);
     setError(null);
+    setNotice(null);
     try {
       await deleteKeyword(id);
       setNotice(DEV_MSG.KW_DELETED);
@@ -229,6 +231,7 @@ export function KeywordEditorPanel({
         <button
           type="button"
           data-testid="developer-kw-save"
+          aria-label="Save keyword"
           disabled={busy || !label.trim()}
           onClick={() => void handleSave()}
           style={{
@@ -261,6 +264,7 @@ export function KeywordEditorPanel({
           <button
             type="button"
             data-testid="developer-kw-delete"
+            aria-label="Delete keyword"
             disabled={busy}
             onClick={() => void handleDelete()}
             style={{

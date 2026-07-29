@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -62,11 +61,27 @@ public class KeywordsResourceCrudTest {
   }
 
   @Test
+  public void listKeywordsWrapsUnexpectedFailures() {
+    when(adaptor.listKeywords(any(), eq(false))).thenThrow(new RuntimeException("boom"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.listKeywords(false));
+    assertEquals(500, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void getKeywordByValue() {
     KeywordSummary kw = new KeywordSummary();
     kw.setValue("status");
     when(adaptor.getKeyword(any(), eq("status"))).thenReturn(kw);
     assertEquals("status", resource.getKeyword("status").getValue());
+  }
+
+  @Test
+  public void getKeywordByUuidString() {
+    KeywordSummary kw = new KeywordSummary();
+    kw.setLabel("ByUuid");
+    when(adaptor.getKeyword(any(), eq("0-37-42"))).thenReturn(kw);
+    assertEquals("ByUuid", resource.getKeyword("0-37-42").getLabel());
   }
 
   @Test
@@ -78,12 +93,21 @@ public class KeywordsResourceCrudTest {
   }
 
   @Test
+  public void getKeywordBlankTreatedAsNotFound() {
+    when(adaptor.getKeyword(any(), eq("   "))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getKeyword("   "));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void createKeywordRequiresLabel() {
     when(adaptor.createKeyword(any(), any()))
         .thenThrow(new IllegalArgumentException("label is required"));
+    KeywordSummary blank = new KeywordSummary();
+    blank.setLabel("   ");
     WebApplicationException ex =
-        assertThrows(
-            WebApplicationException.class, () -> resource.createKeyword(new KeywordSummary()));
+        assertThrows(WebApplicationException.class, () -> resource.createKeyword(blank));
     assertEquals(400, ex.getResponse().getStatus());
   }
 
@@ -108,6 +132,15 @@ public class KeywordsResourceCrudTest {
   }
 
   @Test
+  public void updateKeywordNullBody() {
+    when(adaptor.updateKeyword(any(), eq("9"), any()))
+        .thenThrow(new IllegalArgumentException("body is required"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.updateKeyword("9", null));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void deleteKeywordNoContent() {
     Response r = resource.deleteKeyword("42");
     assertEquals(204, r.getStatus());
@@ -116,7 +149,7 @@ public class KeywordsResourceCrudTest {
 
   @Test
   public void deleteKeywordNotFound() {
-    doThrow(new IllegalArgumentException("Keyword not found: 99"))
+    doThrow(new KeywordNotFoundException("Keyword not found: 99"))
         .when(adaptor)
         .deleteKeyword(any(), eq("99"));
     WebApplicationException ex =
@@ -135,11 +168,13 @@ public class KeywordsResourceCrudTest {
   }
 
   @Test
-  public void getKeywordBlankTreatedAsNotFound() {
-    when(adaptor.getKeyword(any(), isNull())).thenReturn(null);
-    when(adaptor.getKeyword(any(), eq("   "))).thenReturn(null);
+  public void missingAdaptorReturnsServiceUnavailable() {
+    KeywordsResource bare = new KeywordsResource();
+    UriInfo uriInfo = mock(UriInfo.class);
+    when(uriInfo.getBaseUri()).thenReturn(URI.create("http://localhost/services/"));
+    bare.setUriInfo(uriInfo);
     WebApplicationException ex =
-        assertThrows(WebApplicationException.class, () -> resource.getKeyword("   "));
-    assertEquals(404, ex.getResponse().getStatus());
+        assertThrows(WebApplicationException.class, () -> bare.listKeywords(false));
+    assertEquals(503, ex.getResponse().getStatus());
   }
 }

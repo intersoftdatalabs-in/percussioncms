@@ -19,6 +19,7 @@ package com.percussion.apibridge;
 
 import com.percussion.rest.keywords.IKeywordsAdaptor;
 import com.percussion.rest.keywords.KeywordChoiceSummary;
+import com.percussion.rest.keywords.KeywordNotFoundException;
 import com.percussion.rest.keywords.KeywordSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.content.IPSContentService;
@@ -91,18 +92,25 @@ public class KeywordsAdaptor implements IKeywordsAdaptor {
       throw new IllegalArgumentException("label is required");
     }
     IPSContentService svc = svc();
-    PSKeyword kw = svc.createKeyword(body.getLabel().trim(), body.getDescription());
-    if (body.getSequence() != null) {
-      kw.setSequence(body.getSequence());
-    }
-    applyChoices(kw, body.getChoices());
-    svc.saveKeyword(kw);
+    String label = body.getLabel().trim();
+    assertLabelUnique(svc, label, null);
     try {
-      PSKeyword reloaded = svc.loadKeyword(kw.getGUID(), "sequence");
-      return toSummary(reloaded, true);
-    } catch (PSContentException e) {
-      log.debug("Could not reload keyword after create: {}", e.getMessage());
-      return toSummary(kw, true);
+      PSKeyword kw = svc.createKeyword(label, body.getDescription());
+      if (body.getSequence() != null) {
+        kw.setSequence(body.getSequence());
+      }
+      applyChoices(kw, body.getChoices());
+      svc.saveKeyword(kw);
+      try {
+        PSKeyword reloaded = svc.loadKeyword(kw.getGUID(), "sequence");
+        return toSummary(reloaded, true);
+      } catch (PSContentException e) {
+        log.debug("Could not reload keyword after create: {}", e.getMessage());
+        return toSummary(kw, true);
+      }
+    } catch (IllegalArgumentException e) {
+      // Surface service uniqueness/validation as 400
+      throw e;
     }
   }
 
@@ -120,7 +128,9 @@ public class KeywordsAdaptor implements IKeywordsAdaptor {
       return null;
     }
     if (StringUtils.isNotBlank(body.getLabel())) {
-      kw.setLabel(body.getLabel().trim());
+      String newLabel = body.getLabel().trim();
+      assertLabelUnique(svc, newLabel, kw.getGUID());
+      kw.setLabel(newLabel);
     }
     if (body.getDescription() != null) {
       kw.setDescription(body.getDescription());
@@ -153,9 +163,36 @@ public class KeywordsAdaptor implements IKeywordsAdaptor {
     try {
       svc.loadKeyword(g, null);
     } catch (PSContentException e) {
-      throw new IllegalArgumentException("Keyword not found: " + id);
+      throw new KeywordNotFoundException("Keyword not found: " + id);
     }
     svc.deleteKeyword(g);
+  }
+
+  /**
+   * Ensure no other keyword definition uses the same label (case-insensitive).
+   *
+   * @param excludeGuid when updating, the current keyword GUID to ignore
+   */
+  private static void assertLabelUnique(
+      IPSContentService svc, String label, IPSGuid excludeGuid) {
+    List<PSKeyword> matches = svc.findKeywordsByLabel(label, null);
+    if (matches == null) {
+      return;
+    }
+    for (PSKeyword existing : matches) {
+      if (existing == null || !isKeywordDef(existing)) {
+        continue;
+      }
+      if (!label.equalsIgnoreCase(StringUtils.defaultString(existing.getLabel()))) {
+        continue;
+      }
+      if (excludeGuid != null
+          && existing.getGUID() != null
+          && excludeGuid.equals(existing.getGUID())) {
+        continue;
+      }
+      throw new IllegalArgumentException("label already in use: " + label);
+    }
   }
 
   private static boolean isKeywordDef(PSKeyword kw) {
