@@ -124,14 +124,19 @@ public class PSContentStatusContextCommitTest {
   void formatDate_nullSafeAndNonEmptyForInstant() {
     // Intentional: null → null (not ""), distinct from PSWorkFlowUtils.DateString(null) → "".
     assertNull(PSContentStatusNotifyMap.formatDate(null));
+    // 14:05 UTC → Calendar.HOUR is 2 (0–11 clock, same as PSWorkFlowUtils.DateString — not HOUR_OF_DAY).
     String s =
-        PSContentStatusNotifyMap.formatDate(toSqlDate(Instant.parse("2026-07-28T12:00:00Z")));
+        PSContentStatusNotifyMap.formatDate(toSqlDate(Instant.parse("2026-07-28T14:05:00Z")));
     assertNotNull(s);
-    assertFalse(s.isEmpty());
-    // mm/dd/yyyy … shape (Calendar.HOUR 0–11, same as PSWorkFlowUtils.DateString)
-    assertTrue(s.contains("/"));
+    assertTrue(
+        s.startsWith("7/28/2026 2:"),
+        "expected mm/dd/yyyy H:… with Calendar.HOUR 0–11 for 14:05 UTC, got: " + s);
   }
 
+  /**
+   * Epoch millis → {@link Date}; format assertions rely on {@code TimeZone.setDefault(UTC)} in
+   * {@link #beforeAll} (and reset in {@link #afterAll}). Do not change only one of those pieces.
+   */
   private static Date toSqlDate(Instant instant) {
     return new Date(instant.toEpochMilli());
   }

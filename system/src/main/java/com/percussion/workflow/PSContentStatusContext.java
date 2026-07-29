@@ -495,8 +495,9 @@ public class PSContentStatusContext implements IPSContentStatusContext {
   }
 
   /**
-   * Builds the same 15-column change map that the legacy {@code commit(Connection)} path populated
-   * via setInt/setString/setDate for item-summary cache notify.
+   * Single seam from Hibernate {@link #commit()} to {@link PSContentStatusNotifyMap}: maps
+   * instance CONTENTSTATUS fields into the 15-column notify map (legacy setInt/setString/setDate
+   * order). Kept as a private method so commit() stays readable; not used outside this class.
    */
   private java.util.Map<String, String> buildLegacyColumnMap() {
     return PSContentStatusNotifyMap.build(
