@@ -16,6 +16,23 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
       guid: { stringValue: "0-2-301", uuid: 301 },
     },
   ]),
+  getContentTypeDetail: vi.fn().mockResolvedValue({
+    name: "percPage",
+    label: "Page",
+    description: "A page",
+    enabled: true,
+    fields: [
+      {
+        name: "sys_title",
+        label: "Title",
+        fieldType: "system",
+        dataType: "text",
+        control: "sys_EditBox",
+        searchable: true,
+      },
+    ],
+    designGaps: ["Field validation rules not exposed"],
+  }),
 }));
 
 describe("DeveloperShell", () => {
@@ -49,6 +66,24 @@ describe("DeveloperShell", () => {
     fireEvent.click(screen.getByTestId("tab-developer-content-types"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-panel")).toBeTruthy();
+    });
+  });
+
+  it("opens content type detail from list row", async () => {
+    render(<DeveloperShell embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-row"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ct-fields-table")).toBeTruthy();
+    expect(screen.getByText("sys_title")).toBeTruthy();
+    expect(screen.getByTestId("developer-ct-gaps")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("developer-ct-back"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
     });
   });
 });

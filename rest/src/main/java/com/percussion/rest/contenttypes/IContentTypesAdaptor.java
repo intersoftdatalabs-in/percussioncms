@@ -48,4 +48,13 @@ public interface IContentTypesAdaptor {
    * @return An array of ContentTypes
    */
   List<ContentType> listContentTypesByFilter(URI baseUri, ContentTypeFilter filter);
+
+  /**
+   * Load a read-only design summary for one content type (fields catalog).
+   *
+   * @param baseUri requesting URI
+   * @param idOrName content type uuid (numeric) or internal name
+   * @return detail or {@code null} when not found
+   */
+  ContentTypeDetail getContentType(URI baseUri, String idOrName);
 }

@@ -17,7 +17,11 @@
 
 import { get } from "../client";
 import { PATHS } from "../paths";
-import type { ContentTypeListEnvelope, ContentTypeSummary } from "./types";
+import type {
+  ContentTypeDetail,
+  ContentTypeListEnvelope,
+  ContentTypeSummary,
+} from "./types";
 
 /**
  * Normalize list responses that may be a bare array or a JAXB envelope.
@@ -51,4 +55,17 @@ export function unwrapContentTypeList(payload: unknown): ContentTypeSummary[] {
 export async function listContentTypes(): Promise<ContentTypeSummary[]> {
   const payload = await get<unknown>(PATHS.CONTENT_TYPES);
   return unwrapContentTypeList(payload);
+}
+
+/**
+ * Load read-only design summary (fields) for one content type.
+ *
+ * <p>Server: {@code GET /services/contenttypes/{idOrName}} where idOrName is
+ * uuid, guid string, or internal name.
+ */
+export async function getContentTypeDetail(
+  idOrName: string,
+): Promise<ContentTypeDetail> {
+  const key = encodeURIComponent(idOrName);
+  return get<ContentTypeDetail>(`${PATHS.CONTENT_TYPES}/${key}`);
 }

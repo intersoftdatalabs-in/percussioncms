@@ -790,4 +790,35 @@ public class ContentTypesResource {
       throw new WebApplicationException(e.getMessage(), 500);
     }
   }
+
+  @GET
+  @Path("/{idOrName}")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Get content type design summary",
+      description =
+          "Read-only content type detail including field catalog. Does not include full"
+              + " validation/visibility/transform rules or save/lock (see designGaps).",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content =
+                @Content(schema = @Schema(implementation = ContentTypeDetail.class))),
+        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ContentTypeDetail getContentType(@PathParam("idOrName") String idOrName) {
+    try {
+      ContentTypeDetail detail = adaptor.getContentType(uriInfo.getBaseUri(), idOrName);
+      if (detail == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return detail;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new WebApplicationException(e.getMessage(), 500);
+    }
+  }
 }

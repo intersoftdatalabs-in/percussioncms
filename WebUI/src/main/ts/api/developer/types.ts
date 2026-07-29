@@ -42,3 +42,30 @@ export interface ContentTypeSummary {
 export interface ContentTypeListEnvelope {
   ContentType?: ContentTypeSummary[] | ContentTypeSummary;
 }
+
+/** Field row from {@code GET /services/contenttypes/{idOrName}}. */
+export interface ContentTypeFieldSummary {
+  name?: string;
+  label?: string;
+  fieldType?: string;
+  dataType?: string;
+  searchable?: boolean;
+  required?: boolean;
+  control?: string;
+  fieldSet?: string | null;
+}
+
+/** Read-only design detail for one content type. */
+export interface ContentTypeDetail {
+  guid?: RestGuid;
+  name?: string;
+  label?: string;
+  description?: string;
+  enabled?: boolean;
+  hideFromMenu?: boolean;
+  appName?: string;
+  editorUrl?: string;
+  fields?: ContentTypeFieldSummary[];
+  childFieldSets?: string[];
+  designGaps?: string[];
+}

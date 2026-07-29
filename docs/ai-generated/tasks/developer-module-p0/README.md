@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | **In progress** — shell + content type catalog landed |
+| **Status** | **In progress** — shell + CT list + read-only field detail |
 | **FR source** | [`docs/developer-module/workbench-functional-inventory.md`](../../developer-module/workbench-functional-inventory.md) §15 P0 |
 | **Pipeline track** | [`docs/developer-module/data-pipeline-engine-inventory.md`](../../developer-module/data-pipeline-engine-inventory.md) (parallel; not blocking P0) |
 | **Related** | [design-templates-item-types](../design-templates-item-types/README.md) (CM1 template library — complementary, not a substitute) |
@@ -28,11 +28,13 @@
 - [x] Deep-link entry `developer` (query + path fallback filter)  
 - [x] Module shell with sections: Content Types, Templates, Slots, Keywords, Communities, Pipelines (placeholder)  
 - [x] **Content Types** panel: list from `GET /services/contenttypes`  
-- [x] Vitest coverage for shell + API unwrap  
+- [x] **P0.2** `GET /services/contenttypes/{idOrName}` field catalog + SPA detail view  
+- [x] Gap map: [content-type-api-gaps.md](./content-type-api-gaps.md)  
+- [x] Vitest coverage for shell + API unwrap + detail panel  
 
 ## Next slices
 
-1. **P0.2** Content type detail — survey design/objectstore vs public REST gaps; field editor  
+1. **P0.2b** Workflows + template associations on CT detail; optional field-rule projection  
 2. **P0.3** Keywords + shared fields catalog  
 3. **P0.4** Templates/slots list from `rest/templates` (+ assembly gaps)  
 4. **P0.5** Communities + ACL dialogs  

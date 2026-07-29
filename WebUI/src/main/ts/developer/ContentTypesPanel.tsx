@@ -22,6 +22,7 @@ import {
 } from "../api/client";
 import { listContentTypes } from "../api/developer/contentTypesApi";
 import type { ContentTypeSummary } from "../api/developer/types";
+import { ContentTypeDetailPanel } from "./ContentTypeDetailPanel";
 import { DEV_MSG } from "./messages";
 
 function displayId(ct: ContentTypeSummary): string {
@@ -47,12 +48,17 @@ function errorMessage(err: unknown): string {
   return DEV_MSG.CT_ERROR;
 }
 
+function selectionKey(ct: ContentTypeSummary): string {
+  return ct.name || ct.guid?.stringValue || displayId(ct);
+}
+
 /**
- * P0.1 — catalog content types from public REST.
+ * P0.1 list + P0.2 read-only field catalog detail.
  */
 export function ContentTypesPanel(): React.ReactElement {
   const [items, setItems] = useState<ContentTypeSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -74,6 +80,15 @@ export function ContentTypesPanel(): React.ReactElement {
       cancelled = true;
     };
   }, []);
+
+  if (selected) {
+    return (
+      <ContentTypeDetailPanel
+        idOrName={selected}
+        onBack={() => setSelected(null)}
+      />
+    );
+  }
 
   if (error) {
     return (
@@ -133,13 +148,31 @@ export function ContentTypesPanel(): React.ReactElement {
                 ct.guid?.stringValue ||
                 ct.name ||
                 `${ct.label ?? "ct"}-${displayId(ct)}`;
+              const openKey = selectionKey(ct);
               return (
                 <tr
                   key={key}
                   data-testid="developer-ct-row"
-                  style={{ borderBottom: "1px solid #edf2f7" }}
+                  style={{
+                    borderBottom: "1px solid #edf2f7",
+                    cursor: openKey !== "—" ? "pointer" : "default",
+                  }}
+                  onClick={() => {
+                    if (openKey !== "—") setSelected(openKey);
+                  }}
+                  onKeyDown={(e) => {
+                    if ((e.key === "Enter" || e.key === " ") && openKey !== "—") {
+                      e.preventDefault();
+                      setSelected(openKey);
+                    }
+                  }}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`Open ${ct.label || ct.name || openKey}`}
                 >
-                  <td style={{ padding: "8px" }}>{ct.label || "—"}</td>
+                  <td style={{ padding: "8px", color: "#007ea8" }}>
+                    {ct.label || "—"}
+                  </td>
                   <td style={{ padding: "8px", fontFamily: "monospace" }}>
                     {ct.name || "—"}
                   </td>

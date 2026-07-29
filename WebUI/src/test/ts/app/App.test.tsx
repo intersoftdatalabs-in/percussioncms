@@ -41,6 +41,11 @@ vi.mock("../../../main/ts/api/widgetbuilder/widgetBuilderApi", () => ({
 
 vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
   listContentTypes: vi.fn().mockResolvedValue([]),
+  getContentTypeDetail: vi.fn().mockResolvedValue({
+    name: "x",
+    fields: [],
+    designGaps: [],
+  }),
 }));
 
 const bootstrap: SpaBootstrap = {
