@@ -229,6 +229,20 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
       { roleId: 3, roleName: "Editor", roleGuid: { stringValue: "0-14-3", uuid: 3 } },
     ],
   }),
+  getCommunityVisibility: vi.fn().mockResolvedValue([
+    {
+      name: "percPage",
+      label: "Page",
+      type: "NODEDEF",
+      guid: { stringValue: "0-2-301", uuid: 301 },
+    },
+    {
+      name: "perc.page",
+      label: "Page template",
+      type: "TEMPLATE",
+      guid: { stringValue: "0-10-1", uuid: 1 },
+    },
+  ]),
 }));
 
 vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
@@ -407,6 +421,10 @@ describe("DeveloperShell", () => {
     expect(screen.getByText("Admin")).toBeTruthy();
     expect(screen.getByText("Editor")).toBeTruthy();
     expect(screen.getByTestId("developer-comm-roles-save")).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-visibility-table")).toBeTruthy();
+    });
+    expect(screen.getByText("NODEDEF")).toBeTruthy();
     expect(screen.getByTestId("developer-comm-gaps")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-comm-back"));
     await waitFor(() => {

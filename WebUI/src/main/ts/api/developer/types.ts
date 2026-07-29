@@ -195,6 +195,23 @@ export interface CommunityDetail extends CommunitySummary {
   roleList?: CommunityRoleSummary[] | { CommunityRole?: CommunityRoleSummary[] };
 }
 
+/** Object visible to a community (from POST /services/communities/visibility). */
+export interface CommunityVisibleObject {
+  id?: number;
+  name?: string;
+  label?: string;
+  description?: string;
+  type?: string;
+  guid?: RestGuid;
+  objectLocked?: boolean;
+}
+
+export interface CommunityVisibility {
+  id?: number;
+  guid?: RestGuid;
+  visibleObjects?: CommunityVisibleObject[] | { ObjectSummary?: CommunityVisibleObject[] };
+}
+
 /** Design-time object ACL entry (from `/services/acls/object/{guid}`). */
 export interface ObjectAclPermission {
   id?: number;

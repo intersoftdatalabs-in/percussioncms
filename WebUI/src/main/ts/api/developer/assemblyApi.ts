@@ -15,12 +15,15 @@
  * limitations under the License.
  */
 
-import { get, put } from "../client";
+import { get, post, put } from "../client";
 import { PATHS } from "../paths";
 import type {
   CommunityDetail,
   CommunityRoleSummary,
   CommunitySummary,
+  CommunityVisibility,
+  CommunityVisibleObject,
+  RestGuid,
   SlotDetail,
   SlotSummary,
   TemplateDetail,
@@ -132,4 +135,33 @@ export async function updateCommunityRoles(
 ): Promise<CommunityDetail> {
   const key = encodeURIComponent(idOrName);
   return put<CommunityDetail>(`${PATHS.COMMUNITIES}/${key}/roles`, roles);
+}
+
+/**
+ * POST /services/communities/visibility — objects visible to the given community GUID.
+ *
+ * <p>Body is a GuidList (JSON array of Guid). Optional object-type header filters by type.
+ */
+export async function getCommunityVisibility(
+  communityGuid: RestGuid,
+  objectType?: string,
+): Promise<CommunityVisibleObject[]> {
+  const headers: HeadersInit | undefined = objectType
+    ? { type: objectType }
+    : undefined;
+  const payload = await post<unknown>(
+    `${PATHS.COMMUNITIES}/visibility`,
+    [communityGuid],
+    headers,
+  );
+  // Response: CommunityVisibilityList array or envelope
+  const list = asArray<CommunityVisibility>(payload, [
+    "CommunityVisibilityList",
+    "CommunityVisibility",
+  ]);
+  const first = list[0];
+  if (!first?.visibleObjects) return [];
+  if (Array.isArray(first.visibleObjects)) return first.visibleObjects;
+  const env = first.visibleObjects as { ObjectSummary?: CommunityVisibleObject[] };
+  return Array.isArray(env.ObjectSummary) ? env.ObjectSummary : [];
 }
