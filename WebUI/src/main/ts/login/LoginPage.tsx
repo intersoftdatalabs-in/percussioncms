@@ -70,12 +70,18 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
     ensureTmxLoaded(next)
       .then(() => {
         document.documentElement.lang = next;
+        // Bump so labels re-read window.I18N after the new TMX bundle loads.
         setTmxReady((n) => n + 1);
       })
       .catch(() => {
         // Bundle unavailable; t() resolves to English fallback text after @.
       });
   };
+
+  // Keep the browser tab title in sync with the selected locale chrome.
+  useEffect(() => {
+    document.title = `${t(LOGIN_KEYS.TITLE)} — Percussion CMS`;
+  }, [locale, tmxReady]);
 
   return (
     <div
@@ -139,7 +145,9 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 tabIndex={1}
-                autoComplete={bootstrap.autocomplete === "off" ? "off" : "username"}
+                autoComplete={
+                  bootstrap.autocomplete === "off" ? "off" : "username"
+                }
                 data-testid="perc-login-username"
               />
             </div>
@@ -177,7 +185,11 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
               >
                 {bootstrap.locales.map((loc) => (
                   <option key={loc.name} value={loc.name}>
-                    {localeLabel(loc.name, locale, loc.displayName)}
+                    {/*
+                      Endonym labels are stable across UI locale changes
+                      (GH-1608). Second arg is unused; pass option code.
+                    */}
+                    {localeLabel(loc.name, loc.name, loc.displayName)}
                   </option>
                 ))}
               </select>

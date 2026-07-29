@@ -16,14 +16,19 @@
  */
 
 /**
- * Native-language locale names for the login locale dropdown.
+ * Stable locale option labels for the login locale dropdown.
  *
- * <p>For an option code like {@code fr-fr} the rendered label is
- * {@code "fr-fr - Français (France)"} when the dropdown's selected viewer
- * is a French locale; the native names come from {@link Intl.DisplayNames}
- * in the viewer locale. When the browser does not provide
- * {@link Intl.DisplayNames} (older runtimes / jsdom without it), the
- * caller-supplied English fallback is used verbatim.</p>
+ * <p>Each option is labeled with its own <em>endonym</em> (native-language
+ * name), e.g. {@code "fr-fr - français (France)"}, {@code "de-de - Deutsch
+ * (Deutschland)"}, {@code "es - español"}. Labels do <strong>not</strong>
+ * re-translate into the currently selected UI locale — changing the
+ * dropdown only changes application chrome, not the names of every locale
+ * option (see GH-1608).</p>
+ *
+ * <p>Native names come from {@link Intl.DisplayNames} using the option's own
+ * language tag as the viewer. When the browser does not provide
+ * {@link Intl.DisplayNames}, the server-supplied English fallback is used
+ * verbatim.</p>
  */
 
 const viewerCache: Map<string, Intl.DisplayNames | null> = new Map();
@@ -39,7 +44,10 @@ export function normalizeTag(code: string): string {
   return code.trim().toLowerCase().replace(/_/g, "-");
 }
 
-function getViewer(viewer: string): Intl.DisplayNames | null {
+function getDisplayNames(
+  viewer: string,
+  type: "language" | "region",
+): Intl.DisplayNames | null {
   if (typeof Intl === "undefined" || typeof Intl.DisplayNames !== "function") {
     return null;
   }
@@ -47,36 +55,14 @@ function getViewer(viewer: string): Intl.DisplayNames | null {
   if (!tag) {
     return null;
   }
-  const cached = viewerCache.get(tag);
-  if (cached !== undefined) {
-    return cached;
-  }
-  let dn: Intl.DisplayNames | null;
-  try {
-    dn = new Intl.DisplayNames([tag], { type: "language" });
-  } catch {
-    dn = null;
-  }
-  viewerCache.set(tag, dn);
-  return dn;
-}
-
-function getRegionViewer(viewer: string): Intl.DisplayNames | null {
-  if (typeof Intl === "undefined" || typeof Intl.DisplayNames !== "function") {
-    return null;
-  }
-  const tag = normalizeTag(viewer);
-  if (!tag) {
-    return null;
-  }
-  const cacheKey = `${tag}::region`;
+  const cacheKey = type === "language" ? tag : `${tag}::region`;
   const cached = viewerCache.get(cacheKey);
   if (cached !== undefined) {
     return cached;
   }
   let dn: Intl.DisplayNames | null;
   try {
-    dn = new Intl.DisplayNames([tag], { type: "region" });
+    dn = new Intl.DisplayNames([tag], { type });
   } catch {
     dn = null;
   }
@@ -109,34 +95,40 @@ function safeOf(
 
 /**
  * Render the dropdown label for a locale option:
- * {@code "<code> - <Native Name>"}.
+ * {@code "<code> - <Endonym>"}.
+ *
+ * <p>Endonyms are resolved with {@link Intl.DisplayNames} in the option's
+ * own language so the list stays stable when the selected UI locale
+ * changes. The optional {@code viewer} argument is retained for call-site
+ * compatibility and is intentionally unused.</p>
  *
  * @param code     the option's locale tag (e.g. {@code "fr-fr"} or {@code "es"})
- * @param viewer   the currently selected dropdown locale (the viewer locale)
+ * @param _viewer  unused; kept so existing call sites keep compiling
  * @param fallback server-provided English display name; used when
  *                 {@link Intl.DisplayNames} is unavailable or the code is unknown
  */
 export function localeLabel(
   code: string,
-  viewer: string,
+  _viewer: string,
   fallback: string,
 ): string {
   const norm = normalizeTag(code);
   const codeOut = norm || code;
   const fallbackOut = fallback || codeOut;
 
-  const langDN = getViewer(viewer);
   const parts = norm.split("-");
   const langCode = parts[0] || norm;
   const regionCode = parts.length > 1 ? parts[parts.length - 1] : "";
 
+  // Endonym: name the language in its own language, not the UI locale.
+  const langDN = getDisplayNames(langCode, "language");
   const langName = safeOf(langDN, langCode);
   if (!langName) {
     return `${codeOut} - ${fallbackOut}`;
   }
 
   if (regionCode) {
-    const regionDN = getRegionViewer(viewer);
+    const regionDN = getDisplayNames(langCode, "region");
     const regionName = safeOf(regionDN, regionCode.toUpperCase());
     if (regionName) {
       return `${codeOut} - ${langName} (${regionName})`;
