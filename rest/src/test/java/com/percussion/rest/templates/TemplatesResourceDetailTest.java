@@ -106,4 +106,19 @@ public class TemplatesResourceDetailTest {
             WebApplicationException.class, () -> resource.updateTemplate("perc.page", null));
     assertEquals(400, ex.getResponse().getStatus());
   }
+
+  @Test
+  public void updateTemplateWithBindings() {
+    TemplateDetail body = new TemplateDetail();
+    TemplateBindingSummary b = new TemplateBindingSummary();
+    b.setExecutionOrder(1);
+    b.setVariable("$sys.item");
+    b.setExpression("$sys.item");
+    body.setBindings(java.util.List.of(b));
+    TemplateDetail updated = new TemplateDetail();
+    updated.setName("perc.page");
+    updated.setBindings(java.util.List.of(b));
+    when(adaptor.updateTemplate(any(), eq("perc.page"), any())).thenReturn(updated);
+    assertEquals(1, resource.updateTemplate("perc.page", body).getBindings().size());
+  }
 }

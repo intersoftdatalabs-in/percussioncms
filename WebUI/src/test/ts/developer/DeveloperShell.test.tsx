@@ -166,12 +166,15 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
     label: body.label ?? "Page",
     description: body.description ?? "Default page",
     templateSource: body.templateSource ?? "<html/>",
-    bindings: [],
-    slots: [],
+    bindings: body.bindings ?? [
+      { executionOrder: 1, variable: "$sys.item", expression: "$sys.item" },
+    ],
+    slots: body.slots ?? [{ name: "target", label: "Target" }],
     designGaps: ["Create / delete / lock not supported via this API"],
   })),
   listSlots: vi.fn().mockResolvedValue([
     { name: "target", label: "Target", description: "Main slot" },
+    { name: "sidebar", label: "Sidebar", description: "Side slot" },
   ]),
   getSlotDetail: vi.fn().mockResolvedValue({
     name: "target",
@@ -424,14 +427,50 @@ describe("DeveloperShell", () => {
       expect(screen.getByTestId("developer-tpl-detail")).toBeTruthy();
     });
     expect(screen.getByTestId("developer-tpl-bindings")).toBeTruthy();
+    expect(screen.getByTestId("developer-tpl-bindings-table")).toBeTruthy();
     expect(screen.getByTestId("developer-tpl-slots")).toBeTruthy();
+    expect(screen.getByTestId("developer-tpl-slots-table")).toBeTruthy();
     expect(screen.getByTestId("developer-tpl-source")).toBeTruthy();
     expect(screen.getByTestId("developer-tpl-source-edit")).toBeTruthy();
     expect(screen.getByTestId("developer-tpl-save")).toBeTruthy();
+    expect(screen.getByTestId("developer-tpl-binding-add")).toBeTruthy();
     expect(screen.getByTestId("developer-tpl-gaps")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-tpl-back"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-tpl-table")).toBeTruthy();
+    });
+  });
+
+  it("edits template bindings and slot membership and saves", async () => {
+    const { updateTemplateDetail } = await import("../../../main/ts/api/developer/assemblyApi");
+    render(<DeveloperShell initialSection="templates" embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Open Page/i }));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-binding-var-0")).toBeTruthy();
+    });
+    const saveBtn = screen.getByTestId("developer-tpl-save");
+    expect((saveBtn as HTMLButtonElement).disabled).toBe(true);
+
+    fireEvent.change(screen.getByTestId("developer-tpl-binding-expr-0"), {
+      target: { value: "$sys.item.fields.title" },
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-slot-check-name:sidebar"));
+    expect((saveBtn as HTMLButtonElement).disabled).toBe(false);
+
+    fireEvent.click(saveBtn);
+    await waitFor(() => {
+      expect(updateTemplateDetail).toHaveBeenCalled();
+    });
+    const body = (updateTemplateDetail as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1];
+    expect(body.bindings[0].expression).toBe("$sys.item.fields.title");
+    expect(body.slots.map((s: { name?: string }) => s.name)).toEqual(
+      expect.arrayContaining(["target", "sidebar"]),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-detail-notice").textContent).toMatch(/saved/i);
     });
   });
 

@@ -215,8 +215,9 @@ public class TemplatesResource {
       summary = "Update template design fields",
       description =
           "Updates mutable template fields: label, description, and/or templateSource."
-              + " Name and identity are immutable. Bindings, slots, create/delete/lock remain"
-              + " unsupported (see designGaps).",
+              + " When bindings or slots is present (including empty), replaces that collection."
+              + " Omit to leave unchanged. Name/id and create/delete remain unsupported"
+              + " (see designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",

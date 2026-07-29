@@ -18,9 +18,15 @@
 import React, { useEffect, useState } from "react";
 import {
   getTemplateDetail,
+  listSlots,
   updateTemplateDetail,
 } from "../api/developer/assemblyApi";
-import type { TemplateDetail } from "../api/developer/types";
+import type {
+  SlotSummary,
+  TemplateBindingSummary,
+  TemplateDetail,
+  TemplateSlotSummary,
+} from "../api/developer/types";
 import { monoCell, mutedCell } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
@@ -34,15 +40,6 @@ const metaGrid: React.CSSProperties = {
   fontSize: "0.9rem",
 };
 
-const expressionCell: React.CSSProperties = {
-  padding: "8px",
-  fontFamily: "monospace",
-  whiteSpace: "pre-wrap",
-  wordBreak: "break-word",
-  maxWidth: 320,
-  overflowWrap: "anywhere",
-};
-
 const sourcePre: React.CSSProperties = {
   background: "#f7fafc",
   border: "1px solid #e2e8f0",
@@ -52,6 +49,52 @@ const sourcePre: React.CSSProperties = {
   maxHeight: "320px",
   fontSize: "0.85rem",
 };
+
+const inputStyle: React.CSSProperties = {
+  padding: "8px",
+  border: "1px solid #cbd5e0",
+  borderRadius: "4px",
+  font: "inherit",
+  width: "100%",
+  boxSizing: "border-box",
+};
+
+function cloneBindings(list: TemplateBindingSummary[] | undefined): TemplateBindingSummary[] {
+  return (list || []).map((b) => ({
+    executionOrder: b.executionOrder,
+    variable: b.variable || "",
+    expression: b.expression || "",
+  }));
+}
+
+function bindingsEqual(a: TemplateBindingSummary[], b: TemplateBindingSummary[]): boolean {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (
+      (a[i].executionOrder ?? null) !== (b[i].executionOrder ?? null) ||
+      (a[i].variable || "") !== (b[i].variable || "") ||
+      (a[i].expression || "") !== (b[i].expression || "")
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function slotKey(s: { name?: string; guid?: { stringValue?: string; uuid?: number } }): string {
+  if (s.name) return `name:${s.name}`;
+  if (s.guid?.stringValue) return `guid:${s.guid.stringValue}`;
+  if (s.guid?.uuid != null) return `uuid:${s.guid.uuid}`;
+  return "";
+}
+
+function slotsEqual(a: Set<string>, b: Set<string>): boolean {
+  if (a.size !== b.size) return false;
+  for (const k of a) {
+    if (!b.has(k)) return false;
+  }
+  return true;
+}
 
 export function TemplateDetailPanel({
   idOrName,
@@ -68,24 +111,35 @@ export function TemplateDetailPanel({
   const [label, setLabel] = useState("");
   const [description, setDescription] = useState("");
   const [source, setSource] = useState("");
+  const [bindings, setBindings] = useState<TemplateBindingSummary[]>([]);
+  const [slotKeys, setSlotKeys] = useState<Set<string>>(new Set());
+  const [allSlots, setAllSlots] = useState<SlotSummary[]>([]);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     setError(null);
     setNotice(null);
-    getTemplateDetail(idOrName)
-      .then((d) => {
+    Promise.all([getTemplateDetail(idOrName), listSlots().catch(() => [] as SlotSummary[])])
+      .then(([d, slots]) => {
         if (cancelled) return;
         setDetail(d);
         setLabel(d.label || "");
         setDescription(d.description || "");
         setSource(d.templateSource || "");
+        setBindings(cloneBindings(d.bindings));
+        setSlotKeys(
+          new Set(
+            (d.slots || [])
+              .map((s) => slotKey(s))
+              .filter((k) => k.length > 0),
+          ),
+        );
+        setAllSlots(slots);
         setLoading(false);
       })
       .catch((err: unknown) => {
         if (cancelled) return;
-        // Keep prior detail visible when a subsequent load fails
         setError(panelErrMsg(err, DEV_MSG.TPL_DETAIL_ERROR));
         setLoading(false);
       });
@@ -94,26 +148,101 @@ export function TemplateDetailPanel({
     };
   }, [idOrName]);
 
+  const initialBindings = cloneBindings(detail?.bindings);
+  const initialSlotKeys = new Set(
+    (detail?.slots || []).map((s) => slotKey(s)).filter((k) => k.length > 0),
+  );
+
   const dirty =
     detail != null &&
     (label !== (detail.label || "") ||
       description !== (detail.description || "") ||
-      source !== (detail.templateSource || ""));
+      source !== (detail.templateSource || "") ||
+      !bindingsEqual(bindings, initialBindings) ||
+      !slotsEqual(slotKeys, initialSlotKeys));
+
+  function updateBinding(index: number, patch: Partial<TemplateBindingSummary>) {
+    setBindings((prev) => prev.map((b, i) => (i === index ? { ...b, ...patch } : b)));
+    setNotice(null);
+  }
+
+  function removeBinding(index: number) {
+    setBindings((prev) => prev.filter((_, i) => i !== index));
+    setNotice(null);
+  }
+
+  function addBinding() {
+    setBindings((prev) => [
+      ...prev,
+      {
+        executionOrder: prev.length + 1,
+        variable: "",
+        expression: "",
+      },
+    ]);
+    setNotice(null);
+  }
+
+  function toggleSlot(key: string) {
+    setSlotKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+    setNotice(null);
+  }
 
   async function handleSave() {
     setBusy(true);
     setError(null);
     setNotice(null);
     try {
+      const slotPayload: TemplateSlotSummary[] = [];
+      const seen = new Set<string>();
+      for (const s of allSlots) {
+        const k = slotKey(s);
+        if (!k || !slotKeys.has(k) || seen.has(k)) continue;
+        seen.add(k);
+        slotPayload.push({
+          name: s.name,
+          label: s.label,
+          guid: s.guid,
+        });
+      }
+      // Keep any selected keys not in catalog (orphan names)
+      for (const k of slotKeys) {
+        if (seen.has(k)) continue;
+        if (k.startsWith("name:")) {
+          slotPayload.push({ name: k.slice(5) });
+        } else if (k.startsWith("guid:")) {
+          slotPayload.push({ guid: { stringValue: k.slice(5) } });
+        }
+      }
+
       const saved = await updateTemplateDetail(idOrName, {
         label,
         description,
         templateSource: source,
+        bindings: bindings.map((b, i) => ({
+          executionOrder: b.executionOrder != null && b.executionOrder > 0 ? b.executionOrder : i + 1,
+          variable: (b.variable || "").trim(),
+          expression: (b.expression || "").trim(),
+        })),
+        slots: slotPayload,
       });
       setDetail(saved);
       setLabel(saved.label || "");
       setDescription(saved.description || "");
       setSource(saved.templateSource || "");
+      setBindings(cloneBindings(saved.bindings));
+      setSlotKeys(
+        new Set(
+          (saved.slots || [])
+            .map((s) => slotKey(s))
+            .filter((x) => x.length > 0),
+        ),
+      );
       setNotice(DEV_MSG.TPL_SAVED);
     } catch (err: unknown) {
       setError(panelErrMsg(err, DEV_MSG.TPL_SAVE_ERROR));
@@ -122,14 +251,15 @@ export function TemplateDetailPanel({
     }
   }
 
-  const inputStyle: React.CSSProperties = {
-    padding: "8px",
-    border: "1px solid #cbd5e0",
-    borderRadius: "4px",
-    font: "inherit",
-    width: "100%",
-    boxSizing: "border-box",
-  };
+  const slotsForTable =
+    allSlots.length > 0
+      ? allSlots
+      : (detail?.slots || []).map((s) => ({
+          name: s.name,
+          label: s.label,
+          guid: s.guid,
+          description: s.description,
+        }));
 
   return (
     <div data-testid="developer-tpl-detail">
@@ -228,11 +358,13 @@ export function TemplateDetailPanel({
 
           <section style={{ marginBottom: "16px" }} data-testid="developer-tpl-bindings">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.TPL_BINDINGS}</h3>
-            {(detail.bindings || []).length === 0 ? (
+            <p style={{ color: "#4a5568", fontSize: "0.9rem" }}>{DEV_MSG.TPL_BINDINGS_HINT}</p>
+            {bindings.length === 0 ? (
               <p style={{ color: "#718096" }}>{DEV_MSG.TPL_NONE}</p>
             ) : (
               <div style={{ overflowX: "auto" }}>
                 <table
+                  data-testid="developer-tpl-bindings-table"
                   style={{
                     width: "100%",
                     borderCollapse: "collapse",
@@ -244,55 +376,142 @@ export function TemplateDetailPanel({
                       <th style={{ padding: "8px" }}>{DEV_MSG.TPL_COL_ORDER}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.TPL_COL_VARIABLE}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.TPL_COL_EXPRESSION}</th>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.TPL_COL_ACTIONS}</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {(detail.bindings || []).map((b, i) => (
+                    {bindings.map((b, i) => (
                       <tr
-                        key={`${b.variable ?? "b"}-${i}`}
+                        key={`binding-${i}`}
                         style={{ borderBottom: "1px solid #edf2f7" }}
+                        data-testid={`developer-tpl-binding-row-${i}`}
                       >
+                        <td style={{ padding: "8px", width: 72 }}>
+                          <input
+                            type="number"
+                            data-testid={`developer-tpl-binding-order-${i}`}
+                            style={{ ...inputStyle, width: 64 }}
+                            value={b.executionOrder ?? i + 1}
+                            min={1}
+                            disabled={busy}
+                            onChange={(e) =>
+                              updateBinding(i, {
+                                executionOrder: Number(e.target.value) || i + 1,
+                              })
+                            }
+                          />
+                        </td>
                         <td style={{ padding: "8px" }}>
-                          {b.executionOrder != null
-                            ? Number(b.executionOrder)
-                            : "—"}
+                          <input
+                            data-testid={`developer-tpl-binding-var-${i}`}
+                            style={{ ...inputStyle, fontFamily: "monospace" }}
+                            value={b.variable || ""}
+                            disabled={busy}
+                            onChange={(e) => updateBinding(i, { variable: e.target.value })}
+                          />
                         </td>
-                        <td style={{ padding: "8px", ...monoCell }}>
-                          {b.variable || "—"}
+                        <td style={{ padding: "8px" }}>
+                          <input
+                            data-testid={`developer-tpl-binding-expr-${i}`}
+                            style={{ ...inputStyle, fontFamily: "monospace" }}
+                            value={b.expression || ""}
+                            disabled={busy}
+                            onChange={(e) => updateBinding(i, { expression: e.target.value })}
+                          />
                         </td>
-                        <td style={expressionCell}>{b.expression || ""}</td>
+                        <td style={{ padding: "8px" }}>
+                          <button
+                            type="button"
+                            data-testid={`developer-tpl-binding-remove-${i}`}
+                            disabled={busy}
+                            onClick={() => removeBinding(i)}
+                            style={{
+                              background: "transparent",
+                              border: "1px solid #cbd5e0",
+                              borderRadius: "4px",
+                              padding: "4px 8px",
+                              cursor: busy ? "not-allowed" : "pointer",
+                            }}
+                          >
+                            {DEV_MSG.TPL_BINDING_REMOVE}
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             )}
+            <button
+              type="button"
+              data-testid="developer-tpl-binding-add"
+              disabled={busy}
+              onClick={addBinding}
+              style={{
+                marginTop: 8,
+                padding: "6px 12px",
+                background: "#007ea8",
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: busy ? "not-allowed" : "pointer",
+              }}
+            >
+              {DEV_MSG.TPL_BINDING_ADD}
+            </button>
           </section>
 
           <section style={{ marginBottom: "16px" }} data-testid="developer-tpl-slots">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.TPL_SLOTS}</h3>
-            {(detail.slots || []).length === 0 ? (
+            <p style={{ color: "#4a5568", fontSize: "0.9rem" }}>{DEV_MSG.TPL_SLOTS_HINT}</p>
+            {slotsForTable.length === 0 ? (
               <p style={{ color: "#718096" }}>{DEV_MSG.TPL_NONE}</p>
             ) : (
-              <ul>
-                {(detail.slots || []).map((s) => (
-                  <li key={s.name || s.guid?.stringValue || s.label}>
-                    {s.label || s.name}
-                    {s.name ? (
-                      <span
-                        style={{
-                          ...monoCell,
-                          color: "#718096",
-                          marginLeft: "8px",
-                          fontSize: "0.85rem",
-                        }}
-                      >
-                        {s.name}
-                      </span>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
+              <div style={{ overflowX: "auto" }}>
+                <table
+                  data-testid="developer-tpl-slots-table"
+                  style={{
+                    width: "100%",
+                    borderCollapse: "collapse",
+                    fontSize: "0.95rem",
+                  }}
+                >
+                  <thead>
+                    <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.TPL_COL_MEMBER}</th>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.TPL_COL_LABEL}</th>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.TPL_COL_NAME}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {slotsForTable.map((s, i) => {
+                      const key = slotKey(s) || `idx:${i}`;
+                      const checked = slotKeys.has(key);
+                      return (
+                        <tr
+                          key={key}
+                          style={{ borderBottom: "1px solid #edf2f7" }}
+                        >
+                          <td style={{ padding: "8px" }}>
+                            <input
+                              type="checkbox"
+                              data-testid={`developer-tpl-slot-check-${key}`}
+                              checked={checked}
+                              disabled={busy}
+                              onChange={() => toggleSlot(key)}
+                              aria-label={`Include slot ${s.label || s.name || key}`}
+                            />
+                          </td>
+                          <td style={{ padding: "8px" }}>{s.label || "—"}</td>
+                          <td style={{ padding: "8px", fontFamily: "monospace" }}>
+                            {s.name || "—"}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             )}
           </section>
 
