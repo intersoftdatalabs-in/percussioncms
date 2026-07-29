@@ -786,8 +786,11 @@ public class ContentTypesResource {
         throw new WebApplicationException("Not Found.", 404);
       }
       return results;
+    } catch (WebApplicationException e) {
+      throw e;
     } catch (Exception e) {
-      throw new WebApplicationException(e.getMessage(), 500);
+      // Preserve cause so log analysis retains the original stack/type
+      throw new WebApplicationException(e, 500);
     }
   }
 
@@ -818,7 +821,8 @@ public class ContentTypesResource {
     } catch (WebApplicationException e) {
       throw e;
     } catch (Exception e) {
-      throw new WebApplicationException(e.getMessage(), 500);
+      // Preserve cause so log analysis retains the original stack/type
+      throw new WebApplicationException(e, 500);
     }
   }
 }

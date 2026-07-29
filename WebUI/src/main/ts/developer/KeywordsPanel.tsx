@@ -26,7 +26,7 @@ import { DEV_MSG } from "./messages";
 
 function errorMessage(err: unknown): string {
   if (isSessionRedirectError(err)) {
-    return DEV_MSG.KW_ERROR;
+    return DEV_MSG.SESSION_REDIRECT;
   }
   const api = err as ApiError;
   if (api && typeof api.status === "number") {
@@ -54,10 +54,11 @@ export function KeywordsPanel(): React.ReactElement {
         if (!cancelled) setItems(list);
       })
       .catch((err: unknown) => {
-        if (!cancelled && !isSessionRedirectError(err)) {
-          setError(errorMessage(err));
-          setItems([]);
-        }
+        if (cancelled) return;
+        // Session redirect navigates away; still leave loading so UI does not hang
+        // if navigation is delayed or blocked.
+        setError(errorMessage(err));
+        setItems([]);
       });
     return () => {
       cancelled = true;
@@ -111,9 +112,12 @@ export function KeywordsPanel(): React.ReactElement {
             </tr>
           </thead>
           <tbody>
-            {items.map((kw) => {
+            {items.map((kw, index) => {
               const key =
-                kw.guid?.stringValue || kw.value || kw.label || Math.random().toString();
+                kw.guid?.stringValue ||
+                kw.value ||
+                kw.label ||
+                `kw-${index}`;
               const choiceCount = kw.choices?.length ?? 0;
               return (
                 <tr

@@ -69,7 +69,8 @@ public class KeywordsResource {
     try {
       return adaptor.listKeywords(uriInfo.getBaseUri(), includeChoices);
     } catch (Exception e) {
-      throw new WebApplicationException(e.getMessage(), 500);
+      // Preserve cause so log analysis retains the original stack/type
+      throw new WebApplicationException(e, 500);
     }
   }
 }

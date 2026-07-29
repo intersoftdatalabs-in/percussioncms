@@ -36,7 +36,7 @@ function displayId(ct: ContentTypeSummary): string {
 
 function errorMessage(err: unknown): string {
   if (isSessionRedirectError(err)) {
-    return DEV_MSG.CT_ERROR;
+    return DEV_MSG.SESSION_REDIRECT;
   }
   const api = err as ApiError;
   if (api && typeof api.status === "number") {
@@ -51,6 +51,17 @@ function errorMessage(err: unknown): string {
 function selectionKey(ct: ContentTypeSummary): string {
   return ct.name || ct.guid?.stringValue || displayId(ct);
 }
+
+const openButtonStyle: React.CSSProperties = {
+  background: "none",
+  border: "none",
+  padding: 0,
+  color: "#007ea8",
+  cursor: "pointer",
+  font: "inherit",
+  textAlign: "left",
+  textDecoration: "underline",
+};
 
 /**
  * P0.1 list + P0.2 read-only field catalog detail.
@@ -71,10 +82,11 @@ export function ContentTypesPanel(): React.ReactElement {
         }
       })
       .catch((err: unknown) => {
-        if (!cancelled && !isSessionRedirectError(err)) {
-          setError(errorMessage(err));
-          setItems([]);
-        }
+        if (cancelled) return;
+        // Session redirect navigates away; still leave loading so UI does not hang
+        // if navigation is delayed or blocked.
+        setError(errorMessage(err));
+        setItems([]);
       });
     return () => {
       cancelled = true;
@@ -149,29 +161,35 @@ export function ContentTypesPanel(): React.ReactElement {
                 ct.name ||
                 `${ct.label ?? "ct"}-${displayId(ct)}`;
               const openKey = selectionKey(ct);
+              const interactive = openKey !== "—";
               return (
                 <tr
                   key={key}
                   data-testid="developer-ct-row"
                   style={{
                     borderBottom: "1px solid #edf2f7",
-                    cursor: openKey !== "—" ? "pointer" : "default",
+                    cursor: interactive ? "pointer" : "default",
                   }}
                   onClick={() => {
-                    if (openKey !== "—") setSelected(openKey);
+                    if (interactive) setSelected(openKey);
                   }}
-                  onKeyDown={(e) => {
-                    if ((e.key === "Enter" || e.key === " ") && openKey !== "—") {
-                      e.preventDefault();
-                      setSelected(openKey);
-                    }
-                  }}
-                  tabIndex={0}
-                  role="button"
-                  aria-label={`Open ${ct.label || ct.name || openKey}`}
                 >
-                  <td style={{ padding: "8px", color: "#007ea8" }}>
-                    {ct.label || "—"}
+                  <td style={{ padding: "8px" }}>
+                    {interactive ? (
+                      <button
+                        type="button"
+                        style={openButtonStyle}
+                        aria-label={`Open ${ct.label || ct.name || openKey}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelected(openKey);
+                        }}
+                      >
+                        {ct.label || "—"}
+                      </button>
+                    ) : (
+                      <span style={{ color: "#4a5568" }}>{ct.label || "—"}</span>
+                    )}
                   </td>
                   <td style={{ padding: "8px", fontFamily: "monospace" }}>
                     {ct.name || "—"}

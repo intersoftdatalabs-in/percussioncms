@@ -39,6 +39,7 @@ public class KeywordsAdaptor implements IKeywordsAdaptor {
 
   @Override
   public List<KeywordSummary> listKeywords(URI baseUri, boolean includeChoices) {
+    // baseUri reserved for HATEOAS link building (interface contract)
     IPSContentService svc = PSContentServiceLocator.getContentService();
     // null label + sort by label — all keywords of type KEYWORD
     List<PSKeyword> keywords = svc.findKeywordsByLabel(null, "label");

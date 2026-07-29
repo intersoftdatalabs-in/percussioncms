@@ -26,7 +26,7 @@ import { DEV_MSG } from "./messages";
 
 function errorMessage(err: unknown): string {
   if (isSessionRedirectError(err)) {
-    return DEV_MSG.CT_DETAIL_ERROR;
+    return DEV_MSG.SESSION_REDIRECT;
   }
   const api = err as ApiError;
   if (api && typeof api.status === "number") {
@@ -57,9 +57,10 @@ export function ContentTypeDetailPanel({
         if (!cancelled) setDetail(d);
       })
       .catch((err: unknown) => {
-        if (!cancelled && !isSessionRedirectError(err)) {
-          setError(errorMessage(err));
-        }
+        if (cancelled) return;
+        // Session redirect navigates away; still leave loading so UI does not hang
+        // if navigation is delayed or blocked.
+        setError(errorMessage(err));
       });
     return () => {
       cancelled = true;

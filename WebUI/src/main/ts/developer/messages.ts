@@ -20,6 +20,7 @@ export const DEV_MSG = {
   TITLE: "Developer",
   INTRO:
     "Design-time tools for content types, assembly, and related CMS objects. Replaces the classic Workbench / Design surfaces.",
+  SESSION_REDIRECT: "Session expired — redirecting to login…",
   TAB_CONTENT_TYPES: "Content Types",
   TAB_TEMPLATES: "Templates",
   TAB_SLOTS: "Slots",

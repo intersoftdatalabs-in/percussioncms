@@ -125,7 +125,12 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       return null;
     } catch (Exception e) {
       log.error("Failed to load content type {}: {}", idOrName, e.getMessage(), e);
-      throw new RuntimeException("Failed to load content type: " + e.getMessage(), e);
+      throw new RuntimeException(
+          "Failed to load content type ("
+              + e.getClass().getName()
+              + "): "
+              + e.getMessage(),
+          e);
     }
   }
 
@@ -162,7 +167,8 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     detail.setEditorUrl(def.getEditorUrl());
     detail.setGuid(ApiUtils.convertGuid(new PSGuid(PSTypeEnum.NODEDEF, def.getTypeId())));
 
-    Map<String, String> controlByField = mapControls(def);
+    Map<String, String> controlByField = new HashMap<>();
+    boolean controlsResolved = mapControls(def, controlByField);
     List<ContentTypeField> fields = new ArrayList<>();
     List<String> childSets = new ArrayList<>();
 
@@ -193,6 +199,9 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     gaps.add("Create / update / delete / lock not supported (read-only)");
     gaps.add("Shared/system field inclusion editing not supported");
     gaps.add("Workflow/template associations are read-only (no add/remove via this API)");
+    if (!controlsResolved) {
+      gaps.add("Display control/label resolution failed for this content type");
+    }
     detail.setDesignGaps(gaps);
     return detail;
   }
@@ -205,7 +214,8 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       if (rels != null) {
         for (PSContentTypeWorkflow rel : rels) {
           if (rel == null || rel.getWorkflowId() == null) continue;
-          int wfUuid = (int) rel.getWorkflowId().getUUID();
+          // IPSGuid.getUUID() is the 32-bit object id (int); do not cast longValue()
+          int wfUuid = rel.getWorkflowId().getUUID();
           out.add(toWorkflowRef(wfUuid, wfUuid == defaultWfId));
         }
       }
@@ -298,6 +308,10 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       f.setLabel(controlByField.containsKey(field.getSubmitName() + ":label")
           ? controlByField.get(field.getSubmitName() + ":label")
           : field.getSubmitName());
+      int occurrence = field.getOccurrenceDimension(null);
+      f.setRequired(
+          occurrence == PSField.OCCURRENCE_DIMENSION_REQUIRED
+              || occurrence == PSField.OCCURRENCE_DIMENSION_ONE_OR_MORE);
       out.add(f);
     }
   }
@@ -313,17 +327,21 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
 
   /**
    * Walk parent display mapper for control names and labels keyed by field ref.
+   *
+   * @return {@code true} when the display mapper was walked successfully; {@code false} when
+   *     resolution failed (caller should surface a design gap).
    */
-  private Map<String, String> mapControls(PSItemDefinition def) {
-    Map<String, String> map = new HashMap<>();
+  private boolean mapControls(PSItemDefinition def, Map<String, String> map) {
     try {
       PSContentEditorPipe pipe = (PSContentEditorPipe) def.getContentEditor().getPipe();
       PSDisplayMapper dmapper = pipe.getMapper().getUIDefinition().getDisplayMapper();
       walkDisplayMapper(dmapper, map);
+      return true;
     } catch (Exception e) {
-      log.debug("Could not resolve display controls for {}: {}", def.getName(), e.getMessage());
+      log.warn(
+          "Could not resolve display controls for {}: {}", def.getName(), e.getMessage(), e);
+      return false;
     }
-    return map;
   }
 
   private void walkDisplayMapper(PSDisplayMapper dmapper, Map<String, String> map) {

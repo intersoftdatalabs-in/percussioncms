@@ -23,7 +23,7 @@ import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
 import { DEV_MSG } from "./messages";
 
 function errMsg(err: unknown, fallback: string): string {
-  if (isSessionRedirectError(err)) return fallback;
+  if (isSessionRedirectError(err)) return DEV_MSG.SESSION_REDIRECT;
   const api = err as ApiError;
   if (api && typeof api.status === "number") return `${fallback} (${api.status})`;
   if (err instanceof Error && err.message) return `${fallback} ${err.message}`;
@@ -41,10 +41,11 @@ export function TemplatesPanel(): React.ReactElement {
         if (!cancelled) setItems(list);
       })
       .catch((e: unknown) => {
-        if (!cancelled && !isSessionRedirectError(e)) {
-          setError(errMsg(e, DEV_MSG.TPL_ERROR));
-          setItems([]);
-        }
+        if (cancelled) return;
+        // Session redirect navigates away; still leave loading so UI does not hang
+        // if navigation is delayed or blocked.
+        setError(errMsg(e, DEV_MSG.TPL_ERROR));
+        setItems([]);
       });
     return () => {
       cancelled = true;

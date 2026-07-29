@@ -16,6 +16,11 @@
  */
 
 import React, { useState } from "react";
+import {
+  DEVELOPER_SECTIONS,
+  normalizeDeveloperSection as normalizeFromAllowlist,
+  type DeveloperSection,
+} from "../app/deepLinks/allowlists";
 import { CommunitiesPanel } from "./CommunitiesPanel";
 import { ContentTypesPanel } from "./ContentTypesPanel";
 import { KeywordsPanel } from "./KeywordsPanel";
@@ -24,22 +29,7 @@ import { PlaceholderPanel } from "./PlaceholderPanel";
 import { SlotsPanel } from "./SlotsPanel";
 import { TemplatesPanel } from "./TemplatesPanel";
 
-export type DeveloperSection =
-  | "content-types"
-  | "templates"
-  | "slots"
-  | "keywords"
-  | "communities"
-  | "pipelines";
-
-const DEVELOPER_SECTIONS: readonly DeveloperSection[] = [
-  "content-types",
-  "templates",
-  "slots",
-  "keywords",
-  "communities",
-  "pipelines",
-];
+export type { DeveloperSection };
 
 const SECTION_LABEL: Record<DeveloperSection, string> = {
   "content-types": DEV_MSG.TAB_CONTENT_TYPES,
@@ -50,29 +40,17 @@ const SECTION_LABEL: Record<DeveloperSection, string> = {
   pipelines: DEV_MSG.TAB_PIPELINES,
 };
 
+/** Shell default when raw section is missing/unknown (allowlist returns undefined). */
 export function normalizeDeveloperSection(
   raw: string | null | undefined,
 ): DeveloperSection {
-  if (raw == null || !raw.trim()) {
-    return "content-types";
-  }
-  const n = raw.trim().toLowerCase().replace(/_/g, "-");
-  // aliases
-  if (n === "contenttypes" || n === "ctypes" || n === "content") {
-    return "content-types";
-  }
-  if (n === "pipeline" || n === "xml-apps" || n === "applications") {
-    return "pipelines";
-  }
-  return (DEVELOPER_SECTIONS as readonly string[]).includes(n)
-    ? (n as DeveloperSection)
-    : "content-types";
+  return normalizeFromAllowlist(raw) ?? "content-types";
 }
 
 export interface DeveloperShellProps {
   initialSection?: DeveloperSection | string;
   /**
-   * When true (SPA AppLayout), shell is under product chrome.
+   * When true (SPA AppLayout), shell is under product chrome — tighter padding.
    */
   embedded?: boolean;
 }
@@ -92,7 +70,7 @@ const tabStyle = (active: boolean): React.CSSProperties => ({
  */
 export const DeveloperShell: React.FC<DeveloperShellProps> = ({
   initialSection = "content-types",
-  embedded: _embedded = false,
+  embedded = false,
 }) => {
   const [active, setActive] = useState<DeveloperSection>(() =>
     normalizeDeveloperSection(initialSection),
@@ -102,9 +80,10 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
     <div
       className="perc-developer-shell"
       data-testid="perc-developer-shell"
+      data-embedded={embedded ? "true" : "false"}
       style={{
         fontFamily: "var(--perc-font-family, sans-serif)",
-        padding: "20px",
+        padding: embedded ? "8px 12px 20px" : "20px",
         maxWidth: "1200px",
         margin: "0 auto",
       }}
