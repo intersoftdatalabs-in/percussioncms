@@ -29,6 +29,14 @@ import java.util.List;
 public interface ITemplatesAdaptor {
 
   /**
+   * Lists all template summaries (design catalog).
+   *
+   * @param baseUri the base URI
+   * @return list of template summaries
+   */
+  List<TemplateSummary> listAllTemplateSummaries(URI baseUri);
+
+  /**
    * Lists template summaries for the given filter.
    *
    * @param baseUri the base URI

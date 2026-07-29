@@ -16,10 +16,13 @@
  */
 
 import React, { useState } from "react";
+import { CommunitiesPanel } from "./CommunitiesPanel";
 import { ContentTypesPanel } from "./ContentTypesPanel";
 import { KeywordsPanel } from "./KeywordsPanel";
 import { DEV_MSG } from "./messages";
 import { PlaceholderPanel } from "./PlaceholderPanel";
+import { SlotsPanel } from "./SlotsPanel";
+import { TemplatesPanel } from "./TemplatesPanel";
 
 export type DeveloperSection =
   | "content-types"
@@ -150,8 +153,14 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
       >
         {active === "content-types" ? (
           <ContentTypesPanel />
+        ) : active === "templates" ? (
+          <TemplatesPanel />
+        ) : active === "slots" ? (
+          <SlotsPanel />
         ) : active === "keywords" ? (
           <KeywordsPanel />
+        ) : active === "communities" ? (
+          <CommunitiesPanel />
         ) : (
           <PlaceholderPanel sectionLabel={SECTION_LABEL[active]} />
         )}

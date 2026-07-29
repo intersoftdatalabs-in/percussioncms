@@ -31,15 +31,17 @@
 - [x] **P0.2** `GET /services/contenttypes/{idOrName}` field catalog + SPA detail view  
 - [x] **P0.2b** Allowed workflows + default workflow + allowed templates on CT detail  
 - [x] **P0.3** Keywords list `GET /services/keywords` + SPA Keywords panel (read-only)  
+- [x] **P0.4** Templates `GET /services/templates` + Slots `GET /services/slots` + SPA panels  
+- [x] **P0.5** Communities list via `GET /services/communities/find?name=*` + SPA panel  
 - [x] Gap map: [content-type-api-gaps.md](./content-type-api-gaps.md)  
-- [x] Vitest coverage for shell + API unwrap + detail panel  
+- [x] Vitest coverage for shell + catalogs  
 
 ## Next slices
 
-1. **P0.3b** Keyword detail (choices) + create/edit when product wants write  
-2. **P0.4** Templates/slots list from `rest/templates` (+ assembly gaps)  
-3. **P0.5** Communities + ACL dialogs  
-4. Server runtime map for data pipelines (Slice A prep)
+1. Template/slot/CT detail editors (write + field rules)  
+2. Keyword create/edit; community roles + ACL dialogs  
+3. Pipelines track (Slice A IR)  
+4. Server runtime map for data pipelines
 
 ## Product locks
 

@@ -273,6 +273,14 @@ export const PATHS = {
   get KEYWORDS() {
     return `${SERVICES_ROOT}/keywords`;
   },
+  /** Assembly slots design catalog. */
+  get SLOTS() {
+    return `${SERVICES_ROOT}/slots`;
+  },
+  /** Communities design catalog. */
+  get COMMUNITIES() {
+    return `${SERVICES_ROOT}/communities`;
+  },
   /** Workflow management (workflowmanagement) — Feature 993 */
   get WORKFLOWS() {
     return `${SERVICES_ROOT}/workflowmanagement/workflows/`;

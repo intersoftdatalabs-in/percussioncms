@@ -51,6 +51,7 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
     // No-op constructor for dependency injection.
   }
 
+  @Override
   public List<TemplateSummary> listAllTemplateSummaries(URI baseUri) {
     try {
       var summaries = asmSvc.getSummaries(PSTypeEnum.TEMPLATE);

@@ -52,6 +52,23 @@ vi.mock("../../../main/ts/api/developer/keywordsApi", () => ({
   ]),
 }));
 
+vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
+  listTemplates: vi.fn().mockResolvedValue([
+    {
+      templateId: 1,
+      templateName: "perc.page",
+      templateLabel: "Page",
+      templateDescription: "Default page",
+    },
+  ]),
+  listSlots: vi.fn().mockResolvedValue([
+    { name: "target", label: "Target", description: "Main slot" },
+  ]),
+  listCommunities: vi.fn().mockResolvedValue([
+    { id: 10, name: "Default", label: "Default", description: "Default Community" },
+  ]),
+}));
+
 describe("DeveloperShell", () => {
   beforeEach(() => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
@@ -73,9 +90,9 @@ describe("DeveloperShell", () => {
     expect(screen.getByText("Page")).toBeTruthy();
   });
 
-  it("shows placeholder for unimplemented sections", async () => {
-    render(<DeveloperShell initialSection="templates" embedded />);
-    expect(screen.getByTestId("tab-developer-templates").getAttribute("aria-selected")).toBe(
+  it("shows placeholder for pipelines section", async () => {
+    render(<DeveloperShell initialSection="pipelines" embedded />);
+    expect(screen.getByTestId("tab-developer-pipelines").getAttribute("aria-selected")).toBe(
       "true",
     );
     expect(screen.getByTestId("developer-placeholder")).toBeTruthy();
@@ -113,5 +130,27 @@ describe("DeveloperShell", () => {
     });
     expect(screen.getByText("Status")).toBeTruthy();
     expect(screen.getByText("2")).toBeTruthy();
+  });
+
+  it("loads templates slots and communities catalogs", async () => {
+    const { unmount } = render(<DeveloperShell initialSection="templates" embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-table")).toBeTruthy();
+    });
+    expect(screen.getByText("perc.page")).toBeTruthy();
+    unmount();
+
+    const r2 = render(<DeveloperShell initialSection="slots" embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-table")).toBeTruthy();
+    });
+    expect(screen.getByText("target")).toBeTruthy();
+    r2.unmount();
+
+    render(<DeveloperShell initialSection="communities" embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-table")).toBeTruthy();
+    });
+    expect(screen.getByText("Default Community")).toBeTruthy();
   });
 });

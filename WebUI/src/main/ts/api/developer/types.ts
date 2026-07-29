@@ -96,3 +96,25 @@ export interface KeywordSummary {
   sequence?: number;
   choices?: KeywordChoiceSummary[];
 }
+
+export interface TemplateSummary {
+  templateId?: number;
+  templateName?: string;
+  templateLabel?: string;
+  templateDescription?: string;
+}
+
+export interface SlotSummary {
+  guid?: RestGuid;
+  name?: string;
+  label?: string;
+  description?: string;
+}
+
+export interface CommunitySummary {
+  id?: number;
+  guid?: RestGuid;
+  name?: string;
+  label?: string;
+  description?: string;
+}
