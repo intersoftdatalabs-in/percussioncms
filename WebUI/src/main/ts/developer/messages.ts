@@ -27,6 +27,13 @@ export const DEV_MSG = {
   ACL_LOADING: "Loading ACL…",
   ACL_ERROR: "Could not load object ACL.",
   ACL_EMPTY: "No ACL defined for this object.",
+  ACL_EMPTY_HINT:
+    "Create a design-time ACL with an owner principal. You can add more entries after it is created.",
+  ACL_CREATE: "Create ACL",
+  ACL_CREATING: "Creating…",
+  ACL_CREATE_ERROR: "Could not create object ACL.",
+  ACL_OWNER_NAME: "Owner principal",
+  ACL_OWNER_NAME_PLACEHOLDER: "User or role that owns the ACL",
   ACL_NO_GUID: "Object GUID not available — cannot load ACL.",
   ACL_NO_ENTRIES: "No ACL entries yet — add a principal below.",
   ACL_COL_ENTRY: "Principal / name",

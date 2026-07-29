@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-import { get, put } from "../client";
+import { get, post, put } from "../client";
 import { PATHS } from "../paths";
-import type { ObjectAcl, ObjectAclEntry, ObjectAclPermission } from "./types";
+import type { ObjectAcl, ObjectAclEntry, ObjectAclPermission, RestGuid } from "./types";
 
 /** Design-time ACL permission names (matches REST Permissions enum). */
 export const ACL_PERMISSIONS = [
@@ -30,6 +30,12 @@ export const ACL_PERMISSIONS = [
 
 export type AclPermissionName = (typeof ACL_PERMISSIONS)[number];
 
+/** Owner principal for POST /services/acls/ (CreateAclRequest). */
+export type CreateAclOwner = {
+  name: string;
+  type: string;
+};
+
 /**
  * GET /services/acls/object/{objectGuid}
  *
@@ -38,6 +44,27 @@ export type AclPermissionName = (typeof ACL_PERMISSIONS)[number];
 export async function getAclForObject(objectGuid: string): Promise<ObjectAcl> {
   const key = encodeURIComponent(objectGuid);
   return get<ObjectAcl>(`${PATHS.ACLS}/object/${key}`);
+}
+
+/**
+ * POST /services/acls/ — create a design-time ACL for an object that has none.
+ *
+ * <p>Body is CreateAclRequest: objectGuid + owner TypedPrincipal. Server creates
+ * an ACL with a single OWNER entry for the owner.
+ */
+export async function createObjectAcl(
+  objectGuid: string | RestGuid,
+  owner: CreateAclOwner,
+): Promise<ObjectAcl> {
+  const guid: RestGuid =
+    typeof objectGuid === "string" ? { stringValue: objectGuid } : objectGuid;
+  return post<ObjectAcl>(PATHS.ACLS, {
+    objectGuid: guid,
+    owner: {
+      name: owner.name,
+      type: owner.type,
+    },
+  });
 }
 
 /**

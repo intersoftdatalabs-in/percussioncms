@@ -18,6 +18,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ACL_PERMISSIONS,
+  createObjectAcl,
   getAclForObject,
   saveObjectAcl,
   type AclPermissionName,
@@ -129,7 +130,8 @@ function entryLabel(e: ObjectAclEntry): string {
 }
 
 function entryTypeLabel(e: ObjectAclEntry): string {
-  return e.type?.type || e.principal?.type || "—";
+  // Prefer PrincipalTypes enum on type.type; fall back to type.name / principal.type
+  return e.type?.type || e.type?.name || e.principal?.type || "—";
 }
 
 function permsEqual(a: Set<string>, b: Set<string>): boolean {
@@ -178,6 +180,8 @@ export function ObjectAclSection({
   const [newName, setNewName] = useState("");
   const [newType, setNewType] = useState<AclEntryTypeName>("ROLE");
   const [newSeq, setNewSeq] = useState(0);
+  const [ownerName, setOwnerName] = useState("");
+  const [ownerType, setOwnerType] = useState<AclEntryTypeName>("USER");
 
   useEffect(() => {
     if (!objectGuid) {
@@ -258,6 +262,7 @@ export function ObjectAclSection({
       delete copy[clientKey];
       return copy;
     });
+    setError(null);
     setNotice(null);
   }
 
@@ -329,17 +334,35 @@ export function ObjectAclSection({
   function rebuildEntriesForSave(): ObjectAclEntry[] {
     return draftEntries.map((e) => {
       const chosen = selected[e.clientKey] ?? new Set<string>();
-      const principalName = e.name || e.principal?.name || "";
+      // Preserve name fallbacks used by the pre-add/remove save path
+      const principalName =
+        e.name || e.principal?.name || e.type?.name || "";
       const typeName = e.type?.type || "ROLE";
+      // Preserve extra fields from server principal/type objects when present
+      const principal = e.principal
+        ? {
+            ...e.principal,
+            name: principalName || e.principal.name,
+          }
+        : principalName
+          ? { name: principalName }
+          : undefined;
+      const type = e.type
+        ? {
+            ...e.type,
+            type: e.type.type || typeName,
+            name: principalName || e.type.name,
+          }
+        : {
+            type: typeName,
+            name: principalName || undefined,
+          };
       return {
         id: e.id,
         name: principalName || undefined,
         aclId: e.aclId ?? acl?.id,
-        principal: principalName ? { name: principalName } : undefined,
-        type: {
-          type: typeName,
-          name: principalName || undefined,
-        },
+        principal,
+        type,
         permissions: buildPermissionsForSave(e, chosen),
       };
     });
@@ -380,6 +403,31 @@ export function ObjectAclSection({
     }
   }
 
+  async function handleCreate() {
+    if (!objectGuid) return;
+    const name = ownerName.trim();
+    if (!name) return;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const created = await createObjectAcl(objectGuid, {
+        name,
+        type: ownerType,
+      });
+      setMissing(false);
+      setAcl(created);
+      const entries = toDraftEntries(asEntries(created));
+      setDraftEntries(entries);
+      setSelected(buildSelectedMap(entries));
+      setNotice(DEV_MSG.ACL_SAVED);
+    } catch (err: unknown) {
+      setError(formatApiErr(DEV_MSG.ACL_CREATE_ERROR, err));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   if (!objectGuid) {
     return (
       <section style={{ marginBottom: "16px" }} data-testid={`${testIdPrefix}-section`}>
@@ -411,9 +459,76 @@ export function ObjectAclSection({
       ) : null}
 
       {missing && !loading ? (
-        <p data-testid={`${testIdPrefix}-empty`} style={{ color: "#718096" }}>
-          {DEV_MSG.ACL_EMPTY}
-        </p>
+        <div data-testid={`${testIdPrefix}-empty`}>
+          <p style={{ color: "#718096" }}>{DEV_MSG.ACL_EMPTY}</p>
+          <p style={{ color: "#4a5568", fontSize: "0.9rem" }}>{DEV_MSG.ACL_EMPTY_HINT}</p>
+          <div
+            style={{
+              marginTop: "12px",
+              display: "grid",
+              gridTemplateColumns: "1fr auto auto",
+              gap: "8px",
+              alignItems: "end",
+            }}
+            data-testid={`${testIdPrefix}-create-form`}
+          >
+            <div>
+              <label
+                htmlFor={`${testIdPrefix}-owner-name`}
+                style={{ display: "block", marginBottom: 4 }}
+              >
+                {DEV_MSG.ACL_OWNER_NAME}
+              </label>
+              <input
+                id={`${testIdPrefix}-owner-name`}
+                data-testid={`${testIdPrefix}-owner-name`}
+                style={inputStyle}
+                placeholder={DEV_MSG.ACL_OWNER_NAME_PLACEHOLDER}
+                value={ownerName}
+                onChange={(e) => setOwnerName(e.target.value)}
+                disabled={busy}
+              />
+            </div>
+            <div>
+              <label
+                htmlFor={`${testIdPrefix}-owner-type`}
+                style={{ display: "block", marginBottom: 4 }}
+              >
+                {DEV_MSG.ACL_COL_TYPE}
+              </label>
+              <select
+                id={`${testIdPrefix}-owner-type`}
+                data-testid={`${testIdPrefix}-owner-type`}
+                style={{ ...inputStyle, width: "auto", minWidth: 120 }}
+                value={ownerType}
+                onChange={(e) => setOwnerType(e.target.value as AclEntryTypeName)}
+                disabled={busy}
+              >
+                {ACL_ENTRY_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button
+              type="button"
+              data-testid={`${testIdPrefix}-create`}
+              disabled={busy || !ownerName.trim()}
+              onClick={() => void handleCreate()}
+              style={{
+                padding: "8px 16px",
+                background: ownerName.trim() ? "#007ea8" : "#a0aec0",
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: busy || !ownerName.trim() ? "not-allowed" : "pointer",
+              }}
+            >
+              {busy ? DEV_MSG.ACL_CREATING : DEV_MSG.ACL_CREATE}
+            </button>
+          </div>
+        </div>
       ) : null}
 
       {acl && !loading ? (
