@@ -287,4 +287,39 @@ public class CommunityResource implements ICommunityResource {
     }
     return ret;
   }
+
+  @GET
+  @Path("/{idOrName}")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Get community detail",
+      description =
+          "Read-only community detail including associated roles (role id/name when"
+              + " resolvable). Lookup by numeric id, GUID string, or exact name."
+              + " Role membership editing and object ACL dialogs are not supported yet.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = Community.class))),
+        @ApiResponse(responseCode = "404", description = "Not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Community getCommunity(
+      @Parameter(description = "Community id, GUID string, or exact name", required = true)
+          @PathParam("idOrName")
+          String idOrName) {
+    Community community;
+    try {
+      community = adaptor.getCommunity(idOrName);
+    } catch (Exception e) {
+      // Do not leak internal exception text to API clients
+      log.error("An error occurred calling getCommunity for {}", idOrName, e);
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+    if (community == null) {
+      throw new WebApplicationException("Community not found: " + idOrName, 404);
+    }
+    return community;
+  }
 }

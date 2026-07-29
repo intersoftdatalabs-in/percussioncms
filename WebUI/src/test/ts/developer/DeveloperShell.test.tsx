@@ -119,6 +119,17 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   listCommunities: vi.fn().mockResolvedValue([
     { id: 10, name: "Default", label: "Default", description: "Default Community" },
   ]),
+  getCommunityDetail: vi.fn().mockResolvedValue({
+    id: 10,
+    name: "Default",
+    label: "Default",
+    description: "Default Community",
+    guid: { stringValue: "0-13-10", uuid: 10 },
+    roleList: [
+      { roleId: 1, roleName: "Admin", roleGuid: { stringValue: "0-14-1", uuid: 1 } },
+      { roleId: 2, roleName: "Author", roleGuid: { stringValue: "0-14-2", uuid: 2 } },
+    ],
+  }),
 }));
 
 vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
@@ -244,6 +255,24 @@ describe("DeveloperShell", () => {
       expect(screen.getByTestId("developer-comm-table")).toBeTruthy();
     });
     expect(screen.getByText("Default Community")).toBeTruthy();
+  });
+
+  it("opens community detail from list row", async () => {
+    render(<DeveloperShell initialSection="communities" embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Open Default/i }));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-detail")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-comm-roles")).toBeTruthy();
+    expect(screen.getByText("Admin")).toBeTruthy();
+    expect(screen.getByTestId("developer-comm-gaps")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("developer-comm-back"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-table")).toBeTruthy();
+    });
   });
 
   it("opens template detail from list row", async () => {

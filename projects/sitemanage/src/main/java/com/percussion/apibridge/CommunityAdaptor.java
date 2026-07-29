@@ -17,12 +17,18 @@
 
 package com.percussion.apibridge;
 
+import com.percussion.rest.Guid;
 import com.percussion.rest.GuidList;
 import com.percussion.rest.ObjectTypeEnum;
 import com.percussion.rest.communities.Community;
 import com.percussion.rest.communities.CommunityList;
+import com.percussion.rest.communities.CommunityRole;
+import com.percussion.rest.communities.CommunityRoleList;
 import com.percussion.rest.communities.CommunityVisibilityList;
 import com.percussion.rest.communities.ICommunityAdaptor;
+import com.percussion.services.catalog.IPSCatalogSummary;
+import com.percussion.services.catalog.PSTypeEnum;
+import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSErrorResultsException;
@@ -30,11 +36,18 @@ import com.percussion.webservices.security.IPSSecurityDesignWs;
 import com.percussion.webservices.system.IPSSystemWs;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @PSSiteManageBean
 public class CommunityAdaptor implements ICommunityAdaptor {
+
+  private static final Logger log = LogManager.getLogger(CommunityAdaptor.class);
 
   @Autowired private IPSSecurityDesignWs securityDesignWs;
 
@@ -78,6 +91,124 @@ public class CommunityAdaptor implements ICommunityAdaptor {
               s.getLabel()));
     }
     return new CommunityList(communities);
+  }
+
+  @Override
+  public Community getCommunity(String idOrName) {
+    if (StringUtils.isBlank(idOrName)) {
+      return null;
+    }
+    String key = idOrName.trim();
+    Community summary = resolveSummary(key);
+    if (summary == null || summary.getGuid().isEmpty()) {
+      return null;
+    }
+    Guid g = summary.getGuid().get();
+    GuidList ids = new GuidList();
+    ids.add(g);
+    try {
+      CommunityList loaded = loadCommunities(ids, false, false);
+      if (loaded == null || loaded.isEmpty()) {
+        return summary;
+      }
+      Community detail = loaded.get(0);
+      enrichRoleNames(detail);
+      return detail;
+    } catch (Exception e) {
+      log.warn("Could not load community detail for {}: {}", key, e.getMessage());
+      return summary;
+    }
+  }
+
+  private Community resolveSummary(String key) {
+    // Prefer direct GUID / numeric load — avoid findCommunities("*") catalog scan
+    Community byGuid = tryLoadByGuidKey(key);
+    if (byGuid != null) {
+      return byGuid;
+    }
+    // Exact name match only (find may support wildcards — do not accept sole non-exact hit)
+    CommunityList byName = findCommunities(key);
+    if (byName != null) {
+      for (Community c : byName) {
+        if (c != null && key.equalsIgnoreCase(c.getName().orElse(null))) {
+          return c;
+        }
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Resolve a community summary via {@link #loadCommunities} when {@code key} is a numeric uuid
+   * or GUID-shaped string. Returns null when the key is not id-like or load fails.
+   */
+  private Community tryLoadByGuidKey(String key) {
+    Guid g = parseCommunityGuid(key);
+    if (g == null) {
+      return null;
+    }
+    GuidList ids = new GuidList();
+    ids.add(g);
+    try {
+      CommunityList loaded = loadCommunities(ids, false, false);
+      if (loaded != null && !loaded.isEmpty() && loaded.get(0) != null) {
+        return loaded.get(0);
+      }
+    } catch (Exception e) {
+      log.debug("Could not load community by guid {}: {}", key, e.getMessage());
+    }
+    return null;
+  }
+
+  private static Guid parseCommunityGuid(String key) {
+    try {
+      if (StringUtils.isNumeric(key)) {
+        return ApiUtils.convertGuid(new PSGuid(PSTypeEnum.COMMUNITY_DEF, Long.parseLong(key)));
+      }
+      if (key.matches("\\d+-\\d+(-\\d+)?")) {
+        PSGuid ps = new PSGuid(key);
+        if (ps.getType() == 0) {
+          ps = new PSGuid(PSTypeEnum.COMMUNITY_DEF, ps.getUUID());
+        }
+        return ApiUtils.convertGuid(ps);
+      }
+    } catch (Exception e) {
+      // not a community guid key
+    }
+    return null;
+  }
+
+  private void enrichRoleNames(Community detail) {
+    if (detail == null || detail.getRoleList().isEmpty()) {
+      return;
+    }
+    CommunityRoleList roles = detail.getRoleList().get();
+    if (roles == null || roles.isEmpty()) {
+      return;
+    }
+    Map<Long, String> namesByUuid = new HashMap<>();
+    try {
+      List<IPSCatalogSummary> roleSums = securityDesignWs.findRoles(null);
+      if (roleSums != null) {
+        for (IPSCatalogSummary s : roleSums) {
+          if (s != null && s.getGUID() != null) {
+            namesByUuid.put(s.getGUID().longValue(), s.getName());
+          }
+        }
+      }
+    } catch (Exception e) {
+      log.debug("Could not resolve role names: {}", e.getMessage());
+      return;
+    }
+    for (CommunityRole r : roles) {
+      if (r == null) continue;
+      if (StringUtils.isBlank(r.getRoleName().orElse(null))) {
+        String n = namesByUuid.get(r.getRoleId());
+        if (n != null) {
+          r.setRoleName(n);
+        }
+      }
+    }
   }
 
   @Override

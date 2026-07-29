@@ -182,6 +182,19 @@ export interface CommunitySummary {
   description?: string;
 }
 
+export interface CommunityRoleSummary {
+  communityId?: number;
+  roleId?: number;
+  roleName?: string;
+  communityGuid?: RestGuid;
+  roleGuid?: RestGuid;
+}
+
+/** Community detail including associated roles (read-only for this slice). */
+export interface CommunityDetail extends CommunitySummary {
+  roleList?: CommunityRoleSummary[] | { CommunityRole?: CommunityRoleSummary[] };
+}
+
 /** Classic XML Application / pipeline package summary. */
 export interface ApplicationSummary {
   id?: number;
