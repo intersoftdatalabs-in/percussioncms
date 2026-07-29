@@ -28,7 +28,7 @@ This review covers the fix for GitHub issue [#1388](https://github.com/intersoft
 
 ### 2.3 Maven Verification & Tests — PASS
 
-- Standalone build (`cd modules/perc-distribution-tree && ../../mvn-env.sh clean install`) passes all 75 unit tests with zero failures or errors, including `StagingCleanupAntScriptTest`, `InstallXmlDeleteSetTest`, and `VerifyJdbcDrivers`.
+- Standalone build (`cd modules/perc-distribution-tree && ../../mvnw clean install`) passes all 75 unit tests with zero failures or errors, including `StagingCleanupAntScriptTest`, `InstallXmlDeleteSetTest`, and `VerifyJdbcDrivers`.
 
 ---
 

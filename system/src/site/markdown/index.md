@@ -71,7 +71,7 @@ If you're maintaining or refactoring legacy code:
 ## Important Notes
 
 - **Java Version:** JDK 21 (required for spotless formatting)
-- **Build Tool:** Maven 3.8+ with `./mvn-env.sh` wrapper script
+- **Build Tool:** Maven 3.8+ with `./mvnw` wrapper script
 - **Testing:** JUnit 5 (JUnit 4 support available for legacy tests)
 - **Code Style:** Google Java Style with spotless auto-formatting
 

@@ -322,13 +322,13 @@ public class MyCustomAssemblyService extends PSAssemblyService {
 
 ```bash
 # Build and test
-./mvn-env.sh -pl system clean verify
+./mvnw -pl system clean verify
 
 # Run specific test
-./mvn-env.sh -pl system test -Dtest=YourTest
+./mvnw -pl system test -Dtest=YourTest
 
 # Check compatibility with modern generics
-./mvn-env.sh -pl system compile
+./mvnw -pl system compile
 ```
 
 ## Troubleshooting Modernization

@@ -125,14 +125,14 @@ non-capturing is a no-op for callers.
 
 ## Spotless / build
 
-- `./mvn-env.bat -Dai.integrity.skip=true -pl modules/extensions-main spotless:check`
+- `./mvnw.cmd -Dai.integrity.skip=true -pl modules/extensions-main spotless:check`
   on the two touched files (`PSFormEncodeDecodeHelper.java`,
   `PSFormEncodeDecodeHelperTest.java`): **no violations**. (The run does
   report pre-existing violations in two unrelated test files in this module;
   they predate this commit and are out of scope.)
-- `./mvn-env.bat -Dai.integrity.skip=true -pl modules/extensions-main test -Dtest=PSFormEncodeDecodeHelperTest`:
+- `./mvnw.cmd -Dai.integrity.skip=true -pl modules/extensions-main test -Dtest=PSFormEncodeDecodeHelperTest`:
   **9 tests, 0 failures.**
-- `./mvn-env.bat -Dai.integrity.skip=true -pl modules/extensions-main test -Dtest=PSTranslationTest`:
+- `./mvnw.cmd -Dai.integrity.skip=true -pl modules/extensions-main test -Dtest=PSTranslationTest`:
   **4 tests, 0 failures** (regression check on the pre-existing test
   suite — passes unchanged).
 

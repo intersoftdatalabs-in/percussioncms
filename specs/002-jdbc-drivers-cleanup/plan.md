@@ -14,12 +14,12 @@ The technical approach, locked in by the spec's clarification session, is: (1) a
 **Language/Version**: Java 21 on `development`; ANT 1.10.x for the build script; POSIX shell for verification scripts
 **Primary Dependencies**: Maven multi-module; `maven-dependency-plugin` (driver staging); `maven-antrun-plugin` (assembly orchestration); `maven-assembly-plugin` (jar-with-dependencies packaging); `exec-maven-plugin` (verify-phase JDBC driver check)
 **Storage**: N/A — no schema or persistent data; this is build-time and install-script behavior
-**Testing**: JUnit 5 (per module convention); Mockito where useful; shell-based assertions in POSIX `sh`; module run via `./mvn-env.sh` on the target branch JDK
+**Testing**: JUnit 5 (per module convention); Mockito where useful; shell-based assertions in POSIX `sh`; module run via `./mvnw` on the target branch JDK
 **Target Platform**: CMS distribution on Jetty (install tree) — installer payload is the artifact under change
 **Project Type**: Multi-module CMS mono-repo; this change is scoped to one module: `modules/perc-distribution-tree/`
 **Performance Goals**: N/A — no runtime path is affected; the installer is a one-shot operation
 **Constraints**:
-- Branch JDK 21 via `./mvn-env.sh` (per root `AGENTS.md` and `modules/perc-distribution-tree/AGENTS.md`)
+- Branch JDK 21 via `./mvnw` (per root `AGENTS.md` and `modules/perc-distribution-tree/AGENTS.md`)
 - No Spring Boot (Constitution V)
 - AGENTS hierarchy: root → module; module `AGENTS.md` requires README updates when build/ANT logic changes
 - Idempotency for the staging cleanup (FR-007)
@@ -42,7 +42,7 @@ The technical approach, locked in by the spec's clarification session, is: (1) a
 - [x] **IV. Contract & Integration Integrity**: The installer payload is a public surface for CMS customers on upgrade. The change preserves backward compatibility for integrator-supplied drivers (the install script stops purging them). No REST/SOAP/schema changes. No `.ppkg` change. The change is a behavior correction on the install script that aligns the implementation with the long-standing documentation promise in `README.md:80`.
 - [x] **V. Safe Modernization**: No new framework. No Spring Boot. The change is a surgical correction to the install script, build XML, and docs. No drive-by refactor of unrelated code.
 - [x] **VI. Security by Default**: No auth/authZ/XML/upload/crypto/redirect/logging surface is touched. No security-relevant code paths are added. The install script is the only privileged path affected, and the change makes it *less* destructive (fewer silent deletes).
-- [x] **VII. Build, Platform & Dependency Hygiene**: Build on `development` JDK 21 via `./mvn-env.sh`. No new Maven or npm dependencies introduced. Driver coordinates remain as declared in the parent POM (single source of truth). Spotless is not configured for this module (no `spotless` plugin in `pom.xml`); no formatting change required.
+- [x] **VII. Build, Platform & Dependency Hygiene**: Build on `development` JDK 21 via `./mvnw`. No new Maven or npm dependencies introduced. Driver coordinates remain as declared in the parent POM (single source of truth). Spotless is not configured for this module (no `spotless` plugin in `pom.xml`); no formatting change required.
 - [x] **VIII. Documentation & Operability**: `README.md`, `scripts/README.md`, and the ANT comment are updated. Failures during the new shell assertion produce a clear single-line error message (per the existing pattern in `verify-jdbc-drivers.sh`). No i18n impact (installer is server-side only).
 - [x] **Complexity Budget**: No principle violations. No new top-level modules, no new frameworks, no breaking contracts, no parallel implementations.
 - [x] **Governance**: Plan will re-check this list after Phase 1 design. AGENTS.md remains the runtime guide.

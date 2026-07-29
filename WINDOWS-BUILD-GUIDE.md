@@ -56,17 +56,18 @@ Set `JAVA_HOME_21` as a **permanent** environment variable:
 
 ```cmd
 echo %JAVA_HOME_21%
-mvn-env.bat -version
+mvnw.cmd -version
 ```
 
 ## Building on Windows
 
 ### Standard Build
 
-Use the provided `mvn-env.bat` script instead of `mvn` directly. This script automatically sets `JAVA_HOME` to `JAVA_HOME_21`:
+Use the repo Maven wrapper (`mvnw.cmd`) instead of a random system `mvn`. Point `JAVA_HOME` at JDK 21 first (for example set `JAVA_HOME=%JAVA_HOME_21%` in the shell if you keep both side by side):
 
 ```cmd
-mvn-env.bat clean install
+set JAVA_HOME=%JAVA_HOME_21%
+mvnw.cmd clean install
 ```
 
 ### Build Specific Modules
@@ -74,7 +75,7 @@ mvn-env.bat clean install
 For modules with Node.js dependencies (like `perc-tinymce`):
 
 ```cmd
-mvn-env.bat clean install -pl modules/perc-tinymce -am
+mvnw.cmd clean install -pl modules/perc-tinymce -am
 ```
 
 Parameters:
@@ -107,7 +108,7 @@ npm cache clean --force
 Then retry the build:
 
 ```cmd
-mvn-env.bat clean install -pl modules/perc-tinymce -am
+mvnw.cmd clean install -pl modules/perc-tinymce -am
 ```
 
 #### Solution C: Run Build with More Verbose Output
@@ -115,7 +116,7 @@ mvn-env.bat clean install -pl modules/perc-tinymce -am
 Get detailed error information:
 
 ```cmd
-mvn-env.bat clean install -pl modules/perc-tinymce -am -X > build-debug.log 2>&1
+mvnw.cmd clean install -pl modules/perc-tinymce -am -X > build-debug.log 2>&1
 ```
 
 Search the log for the actual npm error near these markers:
@@ -161,7 +162,7 @@ rmdir /s %USERPROFILE%\.m2\frontend
 Then retry:
 
 ```cmd
-mvn-env.bat clean install -pl modules/perc-tinymce -am
+mvnw.cmd clean install -pl modules/perc-tinymce -am
 ```
 
 #### Manual Node.js Installation (Fallback)
@@ -190,7 +191,7 @@ Verify the registry setting was applied and was successful:
 3. Retry the build:
 
    ```cmd
-   mvn-env.bat clean install -pl modules/perc-tinymce -am
+   mvnw.cmd clean install -pl modules/perc-tinymce -am
    ```
 
 ### Issue 4: Port Already in Use (If Running Tests)
@@ -212,7 +213,7 @@ Then retry the build.
 2. **Use parallel builds** to speed up compilation:
 
    ```cmd
-   mvn-env.bat clean install -T 1C
+   mvnw.cmd clean install -T 1C
    ```
 
    (builds with 1 thread per CPU core)
@@ -220,22 +221,22 @@ Then retry the build.
 3. **Build only what you need**:
 
    ```cmd
-   mvn-env.bat clean install -pl modules/perc-tinymce -am -DskipTests
+   mvnw.cmd clean install -pl modules/perc-tinymce -am -DskipTests
    ```
 
 ## Windows PowerShell vs Command Prompt
 
-The `mvn-env.bat` script works best with **Command Prompt (cmd.exe)**. If using PowerShell:
+The `mvnw.cmd` script works best with **Command Prompt (cmd.exe)**. If using PowerShell:
 
 ```powershell
-cmd /c mvn-env.bat clean install
+cmd /c mvnw.cmd clean install
 ```
 
 Or enter a command prompt session first:
 
 ```powershell
 cmd
-mvn-env.bat clean install
+mvnw.cmd clean install
 exit
 ```
 

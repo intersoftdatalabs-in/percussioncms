@@ -192,7 +192,7 @@ projects/sitemanage/src/main/java/com/percussion/
 After each phase, run:
 
 ```bash
-./mvn-env.sh clean compile -pl projects/sitemanage -am
+./mvnw clean compile -pl projects/sitemanage -am
 ```
 
 Expected progression:

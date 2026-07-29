@@ -18,7 +18,7 @@ Maven repository under JDK 21):
 
 ```powershell
 cd deliverytiersuite\delivery-tier-suite\common
-..\..\..\mvn-env.bat clean install -B
+..\..\..\mvnw.cmd clean install -B
 ```
 
 | Metric                                       | Before | After |

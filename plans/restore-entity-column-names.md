@@ -29,7 +29,7 @@
 7. **After each file is modified, compile the `system` module** to verify no errors:
 
    ```bash
-   ./mvn-env.sh -pl system -am compile -DskipTests -q
+   ./mvnw -pl system -am compile -DskipTests -q
    ```
 
    If compilation fails, **STOP and investigate** — do NOT proceed to the next file.
@@ -339,7 +339,7 @@ Apply changes 2a, 2b, and 2c from FILE 2 above.
 ### Step 3: Compile and verify after PSLocationScheme fix
 
 ```bash
-./mvn-env.sh -pl system -am compile -DskipTests -q
+./mvnw -pl system -am compile -DskipTests -q
 ```
 
 **If compilation fails, STOP.** Check error messages, fix, and retry compilation before proceeding.
@@ -351,7 +351,7 @@ Apply changes 3a and 3b from FILE 3 above. This requires comparing method implem
 ### Step 5: Compile and verify after PSAssemblyTemplate fix
 
 ```bash
-./mvn-env.sh -pl system -am compile -DskipTests -q
+./mvnw -pl system -am compile -DskipTests -q
 ```
 
 **If compilation fails, STOP.** This file is the most complex — any method change errors must be resolved.
@@ -359,7 +359,7 @@ Apply changes 3a and 3b from FILE 3 above. This requires comparing method implem
 ### Step 6: Run unit tests
 
 ```bash
-./mvn-env.sh -pl system test -DfailIfNoTests=false -q 2>&1 | tail -20
+./mvnw -pl system test -DfailIfNoTests=false -q 2>&1 | tail -20
 ```
 
 Check for any test failures related to the changed entities.

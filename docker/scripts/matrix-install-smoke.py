@@ -273,7 +273,7 @@ def resolve_installer_jar(repo_root: Path, product: str) -> Path:
             / CMS_INSTALLER_JAR_NAME
         )
         build_hint = (
-            "cd modules/perc-distribution-tree && ../../mvn-env.sh package "
+            "cd modules/perc-distribution-tree && ../../mvnw package "
             f"(produces target/{CMS_INSTALLER_JAR_NAME})"
         )
     elif product == "dts":
@@ -287,7 +287,7 @@ def resolve_installer_jar(repo_root: Path, product: str) -> Path:
         )
         build_hint = (
             "cd deliverytiersuite/delivery-tier-suite/delivery-tier-distribution "
-            f"&& ../../../../mvn-env.sh package (produces target/{DTS_INSTALLER_JAR_NAME})"
+            f"&& ../../../../mvnw package (produces target/{DTS_INSTALLER_JAR_NAME})"
         )
     else:
         raise ValueError(f"Unknown product: {product}")

@@ -143,7 +143,7 @@ Repo rules that are **findings when violated**:
    section **Cross-Platform File I/O & Paths** in production code, tests, or
    required scripts → **bug** (hard gate). See dedicated checklist below.
 3. **JDK / branch** — `development` = JDK 21 / Jakarta; `development-8.1.x` = JDK 8.
-   Use `./mvn-env.sh` / `./mvn-env.bat` awareness; do not mix assumptions.
+   Use `./mvnw` / `./mvnw.cmd` awareness; do not mix assumptions.
 4. **No invented APIs** — Flag use of non-existent library methods/APIs.
 5. **Secrets** — No tokens/keys/passwords in code, tests, or logs.
 6. **Silent failures** — Empty catch blocks or swallowed exceptions without log
@@ -309,7 +309,7 @@ Read full files for non-trivial hunks; do not review only the patch lines.
 | Agent file I/O | **Yes**   | Read/write repo files (Kilo, Copilot, Cursor, etc.)            |
 
 When suggesting product build/test commands in findings, mention both
-`./mvn-env.sh` and `./mvn-env.bat` (or a Maven/Java entry that works on all
+`./mvnw` and `./mvnw.cmd` (or a Maven/Java entry that works on all
 platforms).
 
 ## Behavioral rules

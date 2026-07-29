@@ -35,7 +35,7 @@ full module) match the review.
 - Author-side validation (informational, not re-run by Erlang):
   - Before fix: `ObsoleteInstallDirCleanerTest` 1 failure (`percussionInstallationAltCasing` on Windows case-insensitive FS)
   - After fix: `ObsoleteInstallDirCleanerTest` 22 pass; module 59 tests / 0 failures / 0 errors / 1 skipped (`MainExtractExecutableTest` unconditional skip)
-  - Integrity hash ledger refreshed via `mvn-env.bat validate`
+  - Integrity hash ledger refreshed via `mvnw.cmd validate`
   - Module has no explicit Spotless/Checkstyle invocation — test-only delta is low formatting surface
 
 ## Recommendation

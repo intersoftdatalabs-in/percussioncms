@@ -152,7 +152,7 @@ class PSSimpleJavaUdf_truncateTest {
 ```bash
 # Build and run tests
 cd modules/extensions-main
-../../mvn-env.sh clean install
+../../mvnw clean install
 
 # Hot-deploy to a local installation
 cd /path/to/percussioncms

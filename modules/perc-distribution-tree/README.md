@@ -45,14 +45,14 @@ This happens automatically during the distribution build process. Refer to `src/
 ## Building
 
 ```bash
-Use ./mvn-env.sh clean install (or mvn-env.bat clean install on Windows) so Maven runs with JDK 21.
+Use ./mvnw clean install (or mvnw.cmd clean install on Windows) so Maven runs with JDK 21.
 ```
 
 To build only this module:
 
 ```bash
 cd modules/perc-distribution-tree
-../../mvn-env.sh clean install
+../../mvnw clean install
 ```
 
 ## Key Files

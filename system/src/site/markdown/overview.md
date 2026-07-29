@@ -290,27 +290,27 @@ The system module depends on:
 
 ```bash
 # Build only (compile and package)
-./mvn-env.sh -pl system compile
-./mvn-env.sh -pl system package
+./mvnw -pl system compile
+./mvnw -pl system package
 
 # Full build with tests
-./mvn-env.sh -pl system clean verify
+./mvnw -pl system clean verify
 
 # Run specific test
-./mvn-env.sh -pl system test -Dtest=PSBeanGeneratorTest
+./mvnw -pl system test -Dtest=PSBeanGeneratorTest
 ```
 
 ### Code Quality
 
 ```bash
 # Check code style
-./mvn-env.sh -pl system spotless:check
+./mvnw -pl system spotless:check
 
 # Auto-format code
-./mvn-env.sh spotless:apply
+./mvnw spotless:apply
 
 # Run all checks and tests
-./mvn-env.sh -pl system clean verify
+./mvnw -pl system clean verify
 ```
 
 ### Test Coverage

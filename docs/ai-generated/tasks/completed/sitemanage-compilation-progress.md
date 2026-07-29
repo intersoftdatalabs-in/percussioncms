@@ -171,21 +171,21 @@ sed -i 's/\(variable\)\.get\([A-Z]\)/.map(\1 -> \1.get\2()).orElse(null)/g' file
 
 ```bash
 # Full clean rebuild
-./mvn-env.sh clean -DskipTests
+./mvnw clean -DskipTests
 
 # Compile only (faster)
-./mvn-env.sh -pl projects/sitemanage compile -DskipTests -q
+./mvnw -pl projects/sitemanage compile -DskipTests -q
 
 # Count errors
-./mvn-env.sh -pl projects/sitemanage compile -DskipTests 2>&1 | grep -c "error:"
+./mvnw -pl projects/sitemanage compile -DskipTests 2>&1 | grep -c "error:"
 
 # See specific error types
-./mvn-env.sh -pl projects/sitemanage compile -DskipTests 2>&1 | grep "incompatible types" | wc -l
-./mvn-env.sh -pl projects/sitemanage compile -DskipTests 2>&1 | grep "cannot find symbol" | wc -l
-./mvn-env.sh -pl projects/sitemanage compile -DskipTests 2>&1 | grep "does not override" | wc -l
+./mvnw -pl projects/sitemanage compile -DskipTests 2>&1 | grep "incompatible types" | wc -l
+./mvnw -pl projects/sitemanage compile -DskipTests 2>&1 | grep "cannot find symbol" | wc -l
+./mvnw -pl projects/sitemanage compile -DskipTests 2>&1 | grep "does not override" | wc -l
 
 # Export errors to file
-./mvn-env.sh -pl projects/sitemanage compile -DskipTests 2>&1 > /tmp/sitemanage-errors.txt
+./mvnw -pl projects/sitemanage compile -DskipTests 2>&1 > /tmp/sitemanage-errors.txt
 ```
 
 ---
@@ -197,7 +197,7 @@ sed -i 's/\(variable\)\.get\([A-Z]\)/.map(\1 -> \1.get\2()).orElse(null)/g' file
 - [ ] Apply Phase 2 Medium fixes
 - [ ] Verify error count drops below 100
 - [ ] Review Phase 3 complex fixes
-- [ ] Final compile verification with `./mvn-env.sh -pl projects/sitemanage package`
+- [ ] Final compile verification with `./mvnw -pl projects/sitemanage package`
 
 ---
 

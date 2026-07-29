@@ -331,7 +331,7 @@ See Git Ignore Configuration section above.
 6. **Validation:**
 
    ```bash
-   ./mvn-env.sh -f WebUI/pom.xml clean compile
+   ./mvnw -f WebUI/pom.xml clean compile
    # Check: no compilation errors
    # Check: JSP files resolve to new paths
 
@@ -379,7 +379,7 @@ See Git Ignore Configuration section above.
 6. **Validation:**
 
    ```bash
-   ./mvn-env.sh -f WebUI/pom.xml clean package
+   ./mvnw -f WebUI/pom.xml clean package
    # Check: WebUI-*.war is created
    # Check: target/generated-webui/cm/modern/ exists (React build)
    # Check: target/generated-webui/cm/jslibMin/ exists (legacy bundles)
@@ -395,7 +395,7 @@ See Git Ignore Configuration section above.
 1. Run full integration test:
 
    ```bash
-   ./mvn-env.sh clean install
+   ./mvnw clean install
    ```
 2. Extract and inspect WAR:
 

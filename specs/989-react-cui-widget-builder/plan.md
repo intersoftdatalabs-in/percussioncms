@@ -14,7 +14,7 @@ Replace the legacy **Home / Contributor UI** (CUI iframe + Knockout/RequireJS un
 - **AGENTS Hierarchy**: root `AGENTS.md`, `WebUI/AGENTS.md` (Track B bridge, Vite, test discipline)
 - **Dependencies & Storage**: Existing REST/JSON (Fetch + CSRF via `WebUI/src/main/ts/api/client.ts`); session cookies same-origin; no new DB schema; Widget Builder enablement remains `WidgetBuilderActive` / `PSWidgetBuilderService.isWidgetBuilderEnabled()`
 - **i18n**: Product **TMX** tables (FR-021–024). Runtime: shell loads `/Rhythmyx/tmx/tmx.jsp?mode=js&prefix=perc.ui.&sys_lang=…`; React resolves via `I18N.message` or thin TS wrapper. New keys: structural locale parity (en-us + peer langs). Proof: **SC-008** manual key-presence checklist (`checklists/i18n-key-checklist.md`)—not required multi-locale Vitest.
-- **Testing**: Vitest + Testing Library for React (`WebUI/src/test/ts`); replace `WebUI/src/test/js/percWidget*.test.js` legacy WB tests; optional service contract tests in sitemanage only if API surface changes (not expected); `./mvn-env.sh` / WebUI frontend test goals
+- **Testing**: Vitest + Testing Library for React (`WebUI/src/test/ts`); replace `WebUI/src/test/js/percWidget*.test.js` legacy WB tests; optional service contract tests in sitemanage only if API surface changes (not expected); `./mvnw` / WebUI frontend test goals
 - **Target Platform**: Windows, Linux, macOS product builds (portable paths in any new Java/scripts)
 - **Project Type**: Hybrid J2EE WAR + modern frontend monorepo module
 - **Performance Goals**: Home primary sections interactive under typical admin LAN; no new NFR beyond “parity with modern Dashboard patterns”
@@ -31,7 +31,7 @@ Replace the legacy **Home / Contributor UI** (CUI iframe + Knockout/RequireJS un
 - [x] **IV. Contract & Integration Integrity** — Reuse existing widgetbuilder REST shapes; no `.ppkg`/schema break
 - [x] **V. Safe Modernization** — Track B React only; no Spring Boot; localized UI swap
 - [x] **VI. Security by Default** — CSRF via existing client; AuthZ via existing nav/admin views and WB enablement
-- [x] **VII. Build & Dependency Hygiene** — Vite + Maven frontend plugin; JDK 21 via mvn-env
+- [x] **VII. Build & Dependency Hygiene** — Vite + Maven frontend plugin; JDK 21 via Maven wrapper
 - [x] **VIII. Documentation & Operability** — Feature docs + removal inventory; **TMX-backed** Home/WB strings (reuse/add keys in `CmsUi.tmx`, `tmx.jsp` + `I18N.message`, SC-008 checklist)
 - [x] **IX. PR Review Comment Resolution** — Applies to each story PR
 - [x] **Complexity Budget** — No new top-level modules; no unjustified contract breaks

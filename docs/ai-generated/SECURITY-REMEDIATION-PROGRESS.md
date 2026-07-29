@@ -240,7 +240,7 @@ import com.percussion.security.validation.XSSValidation;
 Run all security utility tests:
 
 ```bash
-./mvn-env.sh -pl modules/perc-security-utils test
+./mvnw -pl modules/perc-security-utils test
 ```
 
 Expected output:
@@ -255,7 +255,7 @@ Tests run: 49, Failures: 0, Errors: 0, Skipped: 0
 
 ### Build Environment
 
-- **JDK**: Java 21 (viaOVAL `./mvn-env.sh` wrapper)
+- **JDK**: Java 21 (viaOVAL `./mvnw` wrapper)
 - **Build Tool**: Maven 3.8.9+
 - **Code Style**: Google Java Style Guide (via `maven-spotless-plugin`)
 - **Testing**: JUnit 5 with Mockito
@@ -264,23 +264,23 @@ Tests run: 49, Failures: 0, Errors: 0, Skipped: 0
 
 ```bash
 # Build and test entire project
-./mvn-env.sh clean test
+./mvnw clean test
 
 # Build specific module
-./mvn-env.sh -pl modules/perc-security-utils test
+./mvnw -pl modules/perc-security-utils test
 
 # Run specific test class
-./mvn-env.sh -pl modules/perc-security-utils test -Dtest=URLValidationTest
+./mvnw -pl modules/perc-security-utils test -Dtest=URLValidationTest
 ```
 
 ### Style Verification
 
 ```bash
 # Check formatting
-./mvn-env.sh spotless:check
+./mvnw spotless:check
 
 # Apply formatting
-./mvn-env.sh spotless:apply
+./mvnw spotless:apply
 ```
 
 ---

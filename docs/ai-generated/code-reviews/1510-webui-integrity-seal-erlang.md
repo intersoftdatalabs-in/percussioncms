@@ -65,7 +65,7 @@ None.
 
 - `cd WebUI/src/main/frontend && npm test -- src/test/js/buildLegacyBundles.test.js`
   → 8/8 passed
-- `cd WebUI && ../mvn-env.sh clean install` → BUILD SUCCESS;
+- `cd WebUI && ../mvnw clean install` → BUILD SUCCESS;
   `Hash verification complete: … verified, 0 failed`
 - WAR contains overlay `cm/jslib/profiles/3x/jquery/jquery.min.js` (+ migrate)
   and allowlisted bootstrap/fancytree/api mins

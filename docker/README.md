@@ -81,8 +81,8 @@ Do **not** use `*-SNAPSHOT.jar` — those are plain module jars without the runn
 
 ```bash
 # Prereq: package installers (CMS required; DTS if --product includes dts)
-cd modules/perc-distribution-tree && ../../mvn-env.sh package -DskipTests
-cd deliverytiersuite/delivery-tier-suite/delivery-tier-distribution && ../../../../mvn-env.sh package -DskipTests
+cd modules/perc-distribution-tree && ../../mvnw package -DskipTests
+cd deliverytiersuite/delivery-tier-suite/delivery-tier-distribution && ../../../../mvnw package -DskipTests
 
 # CMS + H2 (no external DB container)
 python3 docker/scripts/matrix-install-smoke.py --product cms --db h2

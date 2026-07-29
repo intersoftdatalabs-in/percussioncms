@@ -85,7 +85,7 @@ Build was previously red on the branch tip due to a pre-existing `react-router` 
 - `tsconfig.json` one-line change matches the approach in PR #1548 (commit `1acc75c191`) that was rejected on authorization grounds, not technical ones — the line is the minimal viable fix (path entry bypassing the catch-all `*` which was bypassing the `exports` walk).
 - All 40 vitest cases pass on Windows with the `vite.config.ts` glob fix.
 - Build evidence:
-  - `cd WebUI && ../mvn-env.bat clean install` → **BUILD SUCCESS** (32 s, 11 surefire tests, 0 failures, 0 new warnings on changed code).
+  - `cd WebUI && ../mvnw.cmd clean install` → **BUILD SUCCESS** (32 s, 11 surefire tests, 0 failures, 0 new warnings on changed code).
   - `npx tsc --noEmit` → exit 0.
   - `npx vitest run ../../test/ts/login` → 5 files, 40 tests pass.
 
@@ -110,7 +110,7 @@ All assertions exercise behaviour, not string presence (the one string-presence 
 
 ```bash
 cd WebUI
-../mvn-env.bat clean install
+../mvnw.cmd clean install
 # → BUILD SUCCESS, 11 surefire tests pass, 0 new warnings on changed code
 cd WebUI/src/main/frontend
 npx vitest run ../../test/ts/login
@@ -133,7 +133,7 @@ If the planning doc for this task is re-used, please consider:
 
 ```bash
 cd WebUI
-../mvn-env.bat clean install
+../mvnw.cmd clean install
 ```
 
 Result: **BUILD SUCCESS** in 32 s. `tsc --noEmit` exit 0. `vite build` emitted `target/generated-webui/cm/modern/assets/perc-modern-ui.js` (215.92 kB). Surefire: `Tests run: 11, Failures: 0, Errors: 0, Skipped: 0`. No new compiler, surefire, enforcer, or Spotless warnings on the changed modules (existing dependency-relocation warnings are pre-existing and unrelated).

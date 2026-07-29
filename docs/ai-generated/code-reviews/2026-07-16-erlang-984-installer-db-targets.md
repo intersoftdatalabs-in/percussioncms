@@ -126,7 +126,7 @@ Re-run after fixes required.
 1. Fix **BUG-1** (Class.forName).
 2. Fix **BUG-2** (Main exit code).
 3. Strengthen **SUGGESTION-3** test if cheap.
-4. Re-run unit tests via `./mvn-env.sh`.
+4. Re-run unit tests via `./mvnw`.
 5. Re-request Erlang review; only then commit/push/PR.
 
 **May commit/push: no**

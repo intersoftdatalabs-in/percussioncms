@@ -13,7 +13,7 @@ End-to-end validation guide. The scenarios below prove the feature works: from a
 | Git    | any 2.x+                      | any 2.x+                       | Clone the repo                                                                                      |
 | Python | 3.9+ (3.11 recommended)       | 3.9+ (3.11 recommended)        | `python3 --version` / `python --version`                                                            |
 | pip    | bundled with Python           | bundled with Python            | `python3 -m pip --version`                                                                          |
-| JDK 21 | required by `mvn-env.sh` only | required by `mvn-env.bat` only | NOT required for this feature — `python-build-scripts.yml` does not invoke Maven (Clarification Q4) |
+| JDK 21 | required by `mvnw` only | required by `mvnw.cmd` only | NOT required for this feature — `python-build-scripts.yml` does not invoke Maven (Clarification Q4) |
 
 No Docker, no `gh`, no Maven, no `jq`. The Python-script test suite is self-contained; only scripts that themselves call out to `gh`/`docker` are gated behind `pytest.importorskip` / network markers (FR-010).
 
@@ -241,7 +241,7 @@ python3 -m pytest modules/ai-shared-develop/scripts/ modules/ai-shared-develop/s
 Once every per-directory PR has landed on `development`, the following checks prove all success criteria:
 
 ```bash
-# SC-001: zero in-scope .sh/.bat remain (mvn-env.{sh,bat} exempt)
+# SC-001: zero in-scope .sh/.bat remain (mvnw / mvnw.cmd exempt)
 git ls-files | grep -E '\.(sh|bat)$' \
   | grep -v 'system/release/installer/' \
   | grep -v 'system/release/ShellScripts/' \
@@ -257,7 +257,7 @@ git ls-files | grep -E '\.(sh|bat)$' \
   | grep -v 'deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/src/main/rootFiles/' \
   | grep -v 'deliverytiersuite/delivery-tier-suite/p13n-ds/resource/derby/' \
   | grep -v 'projects/sitemanage/src/test/resources/service/importSites.bat' \
-  | grep -v 'mvn-env\.\(sh\|bat\)' \
+  | grep -v 'Maven wrapper\.\(sh\|bat\)' \
   | grep -v 'docs/ai-generated/tasks/#000-webui-src-layout/' \
   | grep -v '\.specify/scripts/bash/' \
   | grep -v 'modules/ai-shared-develop/src/main/resources/skills/.*/scripts/'  # per R3 archived
@@ -280,8 +280,8 @@ gh run list --workflow=python-build-scripts.yml --limit=5 --json conclusion,stat
 **Expected**: most recent run on `development` is `success` for both `ubuntu-latest` and `windows-latest`.
 
 ```bash
-# SC-004: mvn-env.{sh,bat} still exist and unchanged
-test -x mvn-env.sh && test -f mvn-env.bat && head -5 mvn-env.sh && head -3 mvn-env.bat
+# SC-004: mvnw / mvnw.cmd still exist and unchanged
+test -x mvnw && test -f mvnw.cmd && head -5 mvnw && head -3 mvnw.cmd
 ```
 
 **Expected**: both files present; first 3-5 lines unchanged from the pre-spec SHA.
@@ -305,11 +305,11 @@ git grep -E 'scripts/verify-[a-z-]+\.(sh|bat)' -- ':!*.ppkg' ':!docs/ai-generate
 
 ```bash
 # SC-007: no new Maven warnings
-cd rest && ../mvn-env.sh clean install && cd ..
-cd projects/sitemanage && ../../mvn-env.sh clean install && cd ../..
-cd modules/perc-distribution-tree && ../../mvn-env.sh clean install && cd ../..
-cd modules/perc-jetty && ../../mvn-env.sh clean install && cd ../..
-cd modules/ai-shared-develop && ../../mvn-env.sh clean install && cd ../..
+cd rest && ../mvnw clean install && cd ..
+cd projects/sitemanage && ../../mvnw clean install && cd ../..
+cd modules/perc-distribution-tree && ../../mvnw clean install && cd ../..
+cd modules/perc-jetty && ../../mvnw clean install && cd ../..
+cd modules/ai-shared-develop && ../../mvnw clean install && cd ../..
 ```
 
 **Expected**: each module's `BUILD SUCCESS` with `Tests run: N, Failures: 0`; no NEW warnings vs the pre-spec baseline.

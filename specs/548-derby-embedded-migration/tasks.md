@@ -20,7 +20,7 @@
 ## Phase 1: Setup
 
 - [x] T001 Identify owning modules and read AGENTS hierarchy: root `AGENTS.md`, `modules/utils`, `modules/TableFactory`, `system/`, `modules/perc-jetty`, `modules/perc-distribution-tree`, `deliverytiersuite/delivery-tier-suite/**`, and any module-local `AGENTS.md` / `AGENTS.local.md`
-- [x] T002 Confirm branch `548-derby-embedded-migration` is based on current `development`, JDK 21 via `./mvn-env.sh -version` (or equivalent), and note baseline health for `modules/utils`, `modules/TableFactory` with standalone `cd <module> && ../../mvn-env.sh test` (or correct depth)
+- [x] T002 Confirm branch `548-derby-embedded-migration` is based on current `development`, JDK 21 via `./mvnw -version` (or equivalent), and note baseline health for `modules/utils`, `modules/TableFactory` with standalone `cd <module> && ../../mvnw test` (or correct depth)
 - [x] T003 [P] Re-read design package: `specs/548-derby-embedded-migration/{spec,plan,research,data-model,quickstart}.md`, `contracts/*`, `checklists/quality-gates.md`, Sherlock review — especially R2 CMS/DTS split and R11 installer multi-process
 
 ---
@@ -55,7 +55,7 @@
 - [x] T020 Generalize LOB materialization beyond Derby-only checks in `system/services/src/com/percussion/services/contentmgr/impl/legacy/PSContentRepository.java` and `PSTypeConfiguration.java` (predicate covering H2) — **QC-005** start
 - [x] T021 Extend `IPSSystemService` / `PSSystemService` database-type API for H2 (add `isH2` or `getDatabaseType`; update call sites like `PSSearchService` SecureStringUtils branching from inventory) without breaking external backends
 - [x] T022 [P] Unit tests for dialect/session/LOB/type detection under `system/src/test/java/com/percussion/services/`
-- [x] T023 Run standalone clean tests: `cd modules/utils && ../../mvn-env.sh clean test`, `cd modules/TableFactory && ../../mvn-env.sh clean test`, and targeted `system` tests for new classes — **QC-018** practice
+- [x] T023 Run standalone clean tests: `cd modules/utils && ../../mvnw clean test`, `cd modules/TableFactory && ../../mvnw clean test`, and targeted `system` tests for new classes — **QC-018** practice
 - [x] T024 **Seed strategy decision (R11)**: choose and record in `specs/548-derby-embedded-migration/research.md` R11 and `contracts/repository-config.md` exactly one of: (A) empty H2 + TableFactory/load, or (B) prebuilt H2 seed tree replacing `Derby/Repository.zip`; no dual “or” left open — blocks US1 T029
 - [x] T025 Commit foundational platform + inventory + bake-off + seed decision; open PR “548 WP0–WP1 foundation”; pause user-story PRs until this merges (or stack deliberately)
 
@@ -86,7 +86,7 @@
 - [x] T037 [US1] Replace DTS Hibernate `DerbyDialect` hardcodes with H2 dialect class names in beans/xml configs (inventory-driven)
 - [ ] T038 [US1] **OS matrix smoke (SC-001)**: document and execute new default CMS login + DTS health smoke on **Windows, Linux, and macOS** (skip only with product-owner waiver recorded on #548 for unsupported component/OS); capture commands/results in `specs/548-derby-embedded-migration/checklists/os-smoke-matrix.md` — checklist + packaging unit evidence PASS 2026-07-24; **full install smoke still pending** distribution artifact
 - [x] T039 [US1] **FR-010 copy audit**: grep installer/distribution docs and default templates for contradictory “Derby default” new-install guidance; fix remaining new-install messaging to H2/new default — see `checklists/fr010-copy-audit.md`
-- [x] T040 [US1] Standalone `mvn-env.sh clean install` for each changed module in this story; record evidence for PR body — **QC-018** — completed via PR #1495 and stacked successors
+- [x] T040 [US1] Standalone `mvnw clean install` for each changed module in this story; record evidence for PR body — **QC-018** — completed via PR #1495 and stacked successors
 - [x] T041 [US1] Commit US1 changes; open PR “548 US1 new-install H2 defaults”; pause for review — **merged** [#1495](https://github.com/intersoftdatalabs-in/percussioncms/pull/1495)
 - [x] T042 [US1] Monitor CI/Kilo; fix feedback; reply+resolve review threads per AGENTS; merge before US2 — **done** (#1495)
 
@@ -224,7 +224,7 @@
 - [x] T097 Verify Windows service/Procrun and shell start scripts use H2 home after upgrade; document service reinstall/update steps — **QC-024** — `checklists/windows-service-h2-notes.md`
 - [x] T098 Walk [checklists/quality-gates.md](checklists/quality-gates.md) and mark every hard QC `[x]` or record product-owner waiver on #548 with rationale; **confirm T050/QC-029 and T038 OS matrix** before close — QC checklist updated 2026-07-24; T050/QC-029 met; T038 full install still open (called out in QC doc)
 - [x] T099 Update [checklists/derby-surface-inventory.md](checklists/derby-surface-inventory.md) so disposition has zero `unknown` rows — **QC-001** freeze — 0 unknown after heuristic disposition upgrade (`--fail-on-unknown`)
-- [x] T100 [P] Spotless / formatting on all touched Java modules via module `mvn-env.sh` spotless goals as project standard — **N/A** this closeout slice (docs/script only; Java landed in prior PRs)
+- [x] T100 [P] Spotless / formatting on all touched Java modules via module `mvnw` spotless goals as project standard — **N/A** this closeout slice (docs/script only; Java landed in prior PRs)
 - [x] T101 Security pass: no password logging; backup dir permission notes in docs; redaction tests still green — **QC-022** — `checklists/security-pass.md`
 - [x] T102 Final standalone `clean install` on every module changed across the feature; attach command list + BUILD SUCCESS to #548 and final PR — **QC-018** — satisfied on implementation PRs #1494–#1499; docs/script PR N/A
 - [x] T103 Erlang pre-commit review for last code PR per AGENTS; fix hard-gate findings before merge — **N/A** docs/script closeout (no product Java in this PR); prior code PRs used Kilo/Erlang gates

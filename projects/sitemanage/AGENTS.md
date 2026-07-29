@@ -115,15 +115,15 @@ Use this as the template for any new public REST feature that needs sitemanage d
 ## Building & testing
 
 ```bash
-# From repo root — always use the env wrapper (JDK 21)
-./mvn-env.sh -pl projects/sitemanage -am test
+# From repo root — always use the Maven wrapper (JDK 21)
+./mvnw -pl projects/sitemanage -am test
 
 # Focused tests
-./mvn-env.sh -pl projects/sitemanage -Dtest=PSRelationshipSummaryServiceTest,RelationshipSummaryAdaptorTest test
-./mvn-env.sh -pl rest -Dtest=RelationshipSummaryResourceTest test
+./mvnw -pl projects/sitemanage -Dtest=PSRelationshipSummaryServiceTest,RelationshipSummaryAdaptorTest test
+./mvnw -pl rest -Dtest=RelationshipSummaryResourceTest test
 ```
 
-Windows: `mvn-env.bat` with the same `-pl` arguments.
+Windows: `mvnw.cmd` with the same `-pl` arguments.
 
 If Maven reports a **cyclic reference** between `rest` and `sitemanage`, inspect `rest/pom.xml` first —
 a sitemanage dependency there is almost always the cause.

@@ -30,7 +30,7 @@ from the base branch, never from the feature branch under review.
   3. The `<delete>` block in
      `modules/perc-distribution-tree/src/main/resources/distribution/rxconfig/Installer/install.xml`.
   `InstallXmlDeleteSetTest` enforces strict set equality; a clean
-  per-module `mvn-env clean install` in `modules/perc-distribution-tree`
+  per-module `Maven wrapper clean install` in `modules/perc-distribution-tree`
   is the proof of correctness.
 
 - **H2 is intentionally absent from the bundled delete list.** Do not
@@ -79,7 +79,7 @@ from the base branch, never from the feature branch under review.
 
 - **Pre-PR per-module clean install is a HARD GATE.** Before any PR push,
   the implementer must `cd` into each changed module and run the
-  repo-root `mvn-env.sh` / `mvn-env.bat clean install` standalone (not
+  repo-root `mvnw` / `mvnw.cmd clean install` standalone (not
   root reactor `-pl … -am` unless justified). BUILD SUCCESS, all
   Surefire tests pass, zero new compiler / warning / enforcer / Spotless
   warnings on the changed modules.

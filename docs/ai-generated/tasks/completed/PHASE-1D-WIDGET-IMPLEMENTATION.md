@@ -197,10 +197,10 @@ export default MyWidget;
 
 ```bash
 # Build WebUI module
-./mvn-env.sh clean package -DskipTests -pl WebUI
+./mvnw clean package -DskipTests -pl WebUI
 
 # Run all tests
-./mvn-env.sh test -pl WebUI
+./mvnw test -pl WebUI
 
 # Run specific test file
 npm test WebUI/src/test/ts/dashboard/ProcessMonitorWidget.test.tsx

@@ -25,7 +25,7 @@ Each user story MUST include test tasks. Prefer fail-then-pass (write/adjust tes
   - Secondary (POM hygiene promotion): `pom.xml` (root)
   - No runtime modules touched (no `system/`, `rest/`, `projects/sitemanage/`, `WebUI/`, DTS)
 - Paths in tasks below are real paths to be edited
-- Run builds with `./mvn-env.sh` (or `mvn-env.bat`) against the branch JDK (21 on `development`)
+- Run builds with `./mvnw` (or `mvnw.cmd`) against the branch JDK (21 on `development`)
 
 ---
 
@@ -34,7 +34,7 @@ Each user story MUST include test tasks. Prefer fail-then-pass (write/adjust tes
 **Purpose**: Confirm ownership, AGENTS rules, and build baseline for touched modules
 
 - [x] T001 Identify owning module path(s) and read AGENTS hierarchy in `AGENTS.md`, `modules/perc-distribution-tree/AGENTS.md`, and `modules/perc-jetty/AGENTS.md`
-- [x] T002 Confirm branch JDK 21 and verify `./mvn-env.sh -pl modules/perc-distribution-tree -am test-compile` baseline succeeds on `001-fix-jdbc-drivers`
+- [x] T002 Confirm branch JDK 21 and verify `./mvnw -pl modules/perc-distribution-tree -am test-compile` baseline succeeds on `001-fix-jdbc-drivers`
 - [x] T003 [P] Note that `modules/perc-distribution-tree/pom.xml` has no Spotless plugin (verified during planning); no Spotless gate required for this change
 - [x] T004 [P] Re-read `modules/perc-distribution-tree/src/main/resources/installDistributionFiles.xml:695-704` to confirm current JDBC copy block content before editing
 
@@ -60,7 +60,7 @@ Each user story MUST include test tasks. Prefer fail-then-pass (write/adjust tes
 
 **Goal**: A production build of `modules/perc-distribution-tree` ships a non-empty, valid `jetty/base/lib/jdbc/` directory containing the MariaDB/MySQL driver so the CMS can bootstrap its default repository connection on first start.
 
-**Independent Test**: Run `./mvn-env.sh -pl modules/perc-distribution-tree -am clean install` with no `DEVELOPMENT` override; unpack `modules/perc-distribution-tree/target/perc-distribution-tree.jar`; assert `jetty/base/lib/jdbc/` exists and contains a non-empty `mariadb-connector.jar` (or `mariadb-java-client-*.jar`).
+**Independent Test**: Run `./mvnw -pl modules/perc-distribution-tree -am clean install` with no `DEVELOPMENT` override; unpack `modules/perc-distribution-tree/target/perc-distribution-tree.jar`; assert `jetty/base/lib/jdbc/` exists and contains a non-empty `mariadb-connector.jar` (or `mariadb-java-client-*.jar`).
 
 ### Tests for User Story 1 (REQUIRED) ⚠️
 
@@ -74,7 +74,7 @@ Each user story MUST include test tasks. Prefer fail-then-pass (write/adjust tes
 - [x] T012 [US1] Edit `modules/perc-distribution-tree/src/main/resources/installDistributionFiles.xml` to replace the lines 695–704 `DEVELOPMENT=true`-gated `<copy>` with an *unconditional* production copy block: always run `<mkdir dir="${assembly-directory}/jetty/base/lib/jdbc/"/>` and `<copy todir="${assembly-directory}/jetty/base/lib/jdbc/">` of every file in `${assembly-directory}/_jdbc-stage/` (use `<fileset>`); ANT `<copy>` will fail by default if a source file is missing, which combined with `failOnAnyMissingDependency=true` (T008) gives loud failure (FR-001, FR-002, FR-003)
 - [x] T013 [US1] Edit `modules/perc-distribution-tree/src/main/resources/installDistributionFiles.xml` to preserve the legacy `DEVELOPMENT=true` block (now retitled in a comment as a legacy override that adds an extra development driver on top of the production set); ensure it does NOT remove the production copy added in T012 (FR-004)
 - [x] T014 [US1] Wire the verification script into Maven `verify` phase in `modules/perc-distribution-tree/pom.xml` via `exec-maven-plugin` (id `verify-jdbc-drivers`, phase `verify`, executable `./scripts/verify-jdbc-drivers.sh`, argument `--artifact ${project.build.directory}/perc-distribution-tree.jar`) — satisfies FR-007 / SC-005
-- [x] T015 [US1] Run `./mvn-env.sh -pl modules/perc-distribution-tree -am clean verify` end-to-end and confirm US1 acceptance criteria pass (SC-001, SC-002, SC-005)
+- [x] T015 [US1] Run `./mvnw -pl modules/perc-distribution-tree -am clean verify` end-to-end and confirm US1 acceptance criteria pass (SC-001, SC-002, SC-005)
 - [x] T016 [US1] Update `modules/perc-distribution-tree/README.md` to document the JDBC driver set that ships in `jetty/base/lib/jdbc/` (MariaDB, Derby, MSSQL, jTDS, Oracle) and explain the integrator extension point — satisfies FR-006
 - [x] T017 [US1] Update `modules/perc-distribution-tree/AGENTS.md` to reference the new verification script and the new driver source location (`_jdbc-stage/` populated by `maven-dependency-plugin:copy-dependencies`)
 
@@ -97,7 +97,7 @@ Each user story MUST include test tasks. Prefer fail-then-pass (write/adjust tes
 
 - [x] T020 [US2] Confirm (read-only, no edit expected) that `modules/perc-distribution-tree/src/main/resources/distribution/rxconfig/Installer/install.xml`, `installServer.xml`, and `installRepository.xml` do not delete files under `jetty/base/lib/jdbc/` during install; if they do, document the behavior in the new README section and call it out in the PR description
 - [x] T021 [US2] Run `specs/001-fix-jdbc-drivers/quickstart.md` Scenario 3 (no zero-byte stubs) and Scenario 4 (loud failure when a coordinate is broken) end-to-end against the US1 build to demonstrate the bundled drivers are real and the failure path works
-- [x] T022 [US2] Run `./mvn-env.sh -pl modules/perc-distribution-tree -am verify` and confirm US2 acceptance criteria pass (SC-002)
+- [x] T022 [US2] Run `./mvnw -pl modules/perc-distribution-tree -am verify` and confirm US2 acceptance criteria pass (SC-002)
 
 **Checkpoint**: US1 and US2 are independently functional — bundled drivers are valid and the `jdbc/` folder is a documented extension point.
 
@@ -107,7 +107,7 @@ Each user story MUST include test tasks. Prefer fail-then-pass (write/adjust tes
 
 **Goal**: An automated check in the build fails the build when the assembled distribution does not ship the expected non-empty JDBC driver set, preventing silent regression.
 
-**Independent Test**: Temporarily break a driver coordinate (rename in pom); run `./mvn-env.sh -pl modules/perc-distribution-tree -am verify`; confirm the build exits non-zero with a clear message naming the missing driver; revert and confirm green.
+**Independent Test**: Temporarily break a driver coordinate (rename in pom); run `./mvnw -pl modules/perc-distribution-tree -am verify`; confirm the build exits non-zero with a clear message naming the missing driver; revert and confirm green.
 
 ### Tests for User Story 3 (REQUIRED) ⚠️
 
@@ -117,7 +117,7 @@ Each user story MUST include test tasks. Prefer fail-then-pass (write/adjust tes
 
 - [x] T024 [US3] In `modules/perc-distribution-tree/pom.xml`, hard-code the expected driver set in the `exec-maven-plugin` invocation from T014 by passing `--expected-driver-set mariadb-connector.jar,derby.jar,derby-client.jar,derbynet.jar,mssql-connector.jar,jtds.jar,ojdbc17.jar` (matches `contracts/README.md` Contract 3 staged filenames)
 - [x] T025 [US3] Run `specs/001-fix-jdbc-drivers/quickstart.md` Scenario 4 end-to-end (intentional coordinate break → expected non-zero exit with actionable message) and Scenario 6 (CI integration); record outcomes in PR description
-- [x] T026 [US3] Confirm `./mvn-env.sh -pl modules/perc-distribution-tree -am clean verify` is green on the un-modified source tree (SC-005)
+- [x] T026 [US3] Confirm `./mvnw -pl modules/perc-distribution-tree -am clean verify` is green on the un-modified source tree (SC-005)
 
 **Checkpoint**: All three user stories are independently functional; CI fails loudly on regression.
 
@@ -129,7 +129,7 @@ Each user story MUST include test tasks. Prefer fail-then-pass (write/adjust tes
 
 - [x] T027 [P] Update `modules/perc-distribution-tree/scripts/README.md` to also list the expected driver set and the exit-code table from `contracts/README.md` Contract 2 (script consumer documentation)
 - [x] T028 [P] Add a single-line `scripts/README.md` pointer from `modules/perc-distribution-tree/README.md` "Verifying the build" section (linkability)
-- [x] T029 Re-run `./mvn-env.sh -pl modules/perc-distribution-tree -am clean verify` from a clean tree to confirm the full pipeline (Phases 1–5) passes end-to-end and all SC-001 through SC-005 success criteria are observable in the output
+- [x] T029 Re-run `./mvnw -pl modules/perc-distribution-tree -am clean verify` from a clean tree to confirm the full pipeline (Phases 1–5) passes end-to-end and all SC-001 through SC-005 success criteria are observable in the output
 - [x] T030 Run `specs/001-fix-jdbc-drivers/quickstart.md` Scenarios 1–6 in order and capture results for the PR description
 - [x] T031 Run `git diff` review of touched files (`modules/perc-distribution-tree/pom.xml`, `modules/perc-distribution-tree/src/main/resources/installDistributionFiles.xml`, `pom.xml`, `modules/perc-distribution-tree/README.md`, `modules/perc-distribution-tree/AGENTS.md`, `modules/perc-distribution-tree/scripts/verify-jdbc-drivers.sh`, `modules/perc-distribution-tree/scripts/README.md`) and confirm no drive-by changes outside scope (Constitution V)
 
@@ -194,7 +194,7 @@ Task: "Edit modules/perc-distribution-tree/src/main/resources/installDistributio
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL — blocks all stories)
 3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Run `./mvn-env.sh -pl modules/perc-distribution-tree -am clean verify`, unpack the jar, confirm `jetty/base/lib/jdbc/` contains the MariaDB driver
+4. **STOP and VALIDATE**: Run `./mvnw -pl modules/perc-distribution-tree -am clean verify`, unpack the jar, confirm `jetty/base/lib/jdbc/` contains the MariaDB driver
 5. Ship the PR if US1 is green
 
 ### Incremental Delivery

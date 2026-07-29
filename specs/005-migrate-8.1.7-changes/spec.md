@@ -77,7 +77,7 @@ A developer takes one item from the backlog and produces a `development`-branch 
 
 **Why this priority**: The backlog is the input to actual porting work; without a repeatable porting workflow, the audit findings sit idle.
 
-**Independent Test**: Pick a backlog item, follow the workflow, and verify (a) the v8.1.7 fix is functionally present on the 8.2 branch, (b) the change compiles on JDK 21, (c) tests pass via `./mvn-env.sh`, (d) any JDK-8-isms in the original fix have been translated to JDK 21 equivalents.
+**Independent Test**: Pick a backlog item, follow the workflow, and verify (a) the v8.1.7 fix is functionally present on the 8.2 branch, (b) the change compiles on JDK 21, (c) tests pass via `./mvnw`, (d) any JDK-8-isms in the original fix have been translated to JDK 21 equivalents.
 
 **Acceptance Scenarios**:
 

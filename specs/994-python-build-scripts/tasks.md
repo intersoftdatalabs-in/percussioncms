@@ -6,7 +6,7 @@
 
 ## Phase 1: Setup (Foundation PR — ships FIRST, blocks all per-directory PRs)
 
-**Goal**: Stand up the pytest manifest, the cross-platform test runner, the path-filtered CI matrix workflow, and the US1 regression sentinel for `mvn-env.{sh,bat}`. This PR is the only PR that touches files under `scripts/` other than the per-script conversions in later phases.
+**Goal**: Stand up the pytest manifest, the cross-platform test runner, the path-filtered CI matrix workflow, and the US1 regression sentinel for `mvnw / mvnw.cmd`. This PR is the only PR that touches files under `scripts/` other than the per-script conversions in later phases.
 
 **Independent Test**: A clean clone on Linux + Windows can `pip install -r scripts/requirements-dev.txt`, run `scripts/run-python-tests.{sh,cmd}`, see the US1 sentinel pass, and the new GH Actions workflow runs green on both runners (SC-003, SC-008).
 
@@ -16,7 +16,7 @@
 - [X] T004 [P] Create `scripts/run-python-tests.sh` (Linux/macOS): `set -euo pipefail`; `python3 -m pip install -r scripts/requirements-dev.txt`; `python3 -m pytest scripts/ docker/scripts/ docker/entrypoint/ modules/perc-distribution-tree/scripts/ modules/ai-shared-develop/scripts/ modules/ai-shared-develop/src/main/resources/skills/ "$@"` (FR-009a)
 - [X] T005 [P] Create `scripts/run-python-tests.cmd` (Windows): `@echo off`, install via `python -m pip install -r scripts\requirements-dev.txt`, run `python -m pytest` over the same set of in-scope dirs (FR-009a)
 - [X] T006 Create `.github/workflows/python-build-scripts.yml` with `on: pull_request` + `push: branches: [development]`; `paths` filter union of in-scope script dirs + runner files + workflow file itself; matrix `ubuntu-latest` + `windows-latest`; `actions/setup-python@v5` with `python-version: '3.11'`, `cache: 'pip'`, `cache-dependency-path: scripts/requirements-dev.txt`; run the runner shim; NO `actions/setup-java` and NO Maven invocation (FR-012a, R5, Clarification Q4)
-- [X] T007 [P] Create `scripts/test_mvn_env_untouched.py` (US1 regression sentinel per Clarification Q2): asserts `mvn-env.sh` and `mvn-env.bat` exist on the branch; asserts both files contain the expected pre-spec content snippet (`JAVA_HOME_21`, `set -e` for `.sh`; `@setlocal` for `.bat`); fails if either file is deleted or mutated (SC-004)
+- [X] T007 [P] ~~Create `scripts/test_mvn_env_untouched.py`~~ (historical; that sentinel guarded the removed `mvn-env` wrappers). SC-004 now means: repo-root `mvnw` / `mvnw.cmd` remain present on `development`.
 - [X] T008 Run `bash scripts/run-python-tests.sh` locally — expect exit 0 with the US1 sentinel passing and no other tests yet; push branch and observe `.github/workflows/python-build-scripts.yml` green on both runners (SC-003)
 - [X] T009 Run Erlang review per root AGENTS pre-commit gate; open foundation PR; address feedback inline + resolve review threads per AGENTS.md IX; wait for human approval and merge before starting any per-directory phase
 
@@ -91,7 +91,7 @@
 
 **Goal**: Convert the per-skill `.sh` helpers under the AI skill bundle to Python so any agent invoking a skill helper works cross-platform.
 
-**Independent Test (per `quickstart.md` Scenario E.2 + E.3)**: Every skill helper's `--help` exits 0; `python3 -m pytest modules/ai-shared-develop/src/main/resources/skills/ -v` exits 0 on Linux + Windows; the parent module's `mvn-env.sh clean install` of `modules/ai-shared-develop` stays green (SC-007).
+**Independent Test (per `quickstart.md` Scenario E.2 + E.3)**: Every skill helper's `--help` exits 0; `python3 -m pytest modules/ai-shared-develop/src/main/resources/skills/ -v` exits 0 on Linux + Windows; the parent module's `mvnw clean install` of `modules/ai-shared-develop` stays green (SC-007).
 
 - [X] T054 [P] [US4] Create `modules/ai-shared-develop/src/main/resources/skills/percussioncms-dev/scripts/api-client.py` + `test_api_client.py` per contracts
 - [X] T055 [P] [US4] Create `modules/ai-shared-develop/src/main/resources/skills/percussioncms-dev/scripts/download-latest.py` + `test_download_latest.py` per contracts
@@ -103,7 +103,7 @@
 - [X] T061 [US4] Update each affected skill's `SKILL.md` to reference the new `.py` entry points and drop `.sh` references (FR-011)
 - [X] T062 [US4] Delete the `.sh` files under `modules/ai-shared-develop/src/main/resources/skills/*/scripts/` (FR-004)
 - [X] T063 [US4] Run `python3 -m pytest modules/ai-shared-develop/src/main/resources/skills/ -v` locally; run on Windows too
-- [X] T064 [US4] Verify `cd modules/ai-shared-develop && ../../mvn-env.sh clean install` succeeds with no new warnings (SC-007)
+- [X] T064 [US4] Verify `cd modules/ai-shared-develop && ../../mvnw clean install` succeeds with no new warnings (SC-007)
 - [X] T065 [US4] Open PR titled `build(ai-shared/skills): migrate skill helper scripts to cross-platform Python`
 - [X] T066 [US4] Run Erlang review; resolve review threads; verify CI green on both runners; wait for human approval and merge
 
@@ -111,7 +111,7 @@
 
 **Goal**: Convert the build verification helpers and the developer-convenience `APIUpdate-*.bat` + `UpdateTinyMCE.bat` to Python; remove originals; update `modules/perc-distribution-tree/AGENTS.md` and any module-level script README.
 
-**Independent Test**: `python3 modules/perc-distribution-tree/scripts/verify-jdbc-drivers.py --help` exits 0; `python3 modules/perc-distribution-tree/scripts/api-update.py --help` exits 0 and lists `--module {webui,rest,sitemanage,jars}`; `python3 -m pytest modules/perc-distribution-tree/scripts/ -v` exits 0; `cd modules/perc-distribution-tree && ../../mvn-env.sh clean install` succeeds with no new warnings (SC-007).
+**Independent Test**: `python3 modules/perc-distribution-tree/scripts/verify-jdbc-drivers.py --help` exits 0; `python3 modules/perc-distribution-tree/scripts/api-update.py --help` exits 0 and lists `--module {webui,rest,sitemanage,jars}`; `python3 -m pytest modules/perc-distribution-tree/scripts/ -v` exits 0; `cd modules/perc-distribution-tree && ../../mvnw clean install` succeeds with no new warnings (SC-007).
 
 - [X] T067 [P] Create `modules/perc-distribution-tree/scripts/verify-jdbc-drivers.py` + `test_verify_jdbc_drivers.py` per contracts
 - [X] T068 [P] Create `modules/perc-distribution-tree/scripts/check-no-glob-deletes.py` + `test_check_no_glob_deletes.py` per contracts
@@ -121,7 +121,7 @@
 - [X] T072 Delete `modules/perc-distribution-tree/APIUpdate-WEBUI.bat`, `APIUpdate-REST.bat`, `APIUpdate-SiteManage.bat`, `APIUpdateJars.bat`, `UpdateTinyMCE.bat` (FR-004)
 - [X] T073 [P] Update `modules/perc-distribution-tree/AGENTS.md` and `modules/perc-distribution-tree/scripts/README.md` (if exists; create if absent) to reference the new `.py` entry points (FR-011)
 - [X] T074 Run `python3 -m pytest modules/perc-distribution-tree/scripts/ -v` locally and on Windows
-- [X] T075 Verify `cd modules/perc-distribution-tree && ../../mvn-env.sh clean install` succeeds (SC-007); run Erlang review on the diff
+- [X] T075 Verify `cd modules/perc-distribution-tree && ../../mvnw clean install` succeeds (SC-007); run Erlang review on the diff
 - [X] T076 Open PR titled `build(perc-distribution-tree): migrate build verification + APIUpdate helpers to cross-platform Python`
 - [X] T077 Resolve review threads; verify CI green on both runners; wait for human approval and merge
 
@@ -131,8 +131,8 @@
 
 - [X] T078 [P] Resolve the R3 decision for `docs/ai-generated/tasks/#000-webui-src-layout/*.sh`: confirm with maintainer whether to delete (preferred) or carve-out from spec scope; apply the chosen outcome (likely delete; record the decision in PR body)
 - [X] T079 [P] Update `scripts/README.md` with the in-scope/out-of-scope section linking to spec 994 (FR-014) — already partially done in T031; verify completeness after all phases have landed
-- [X] T080 [P] Update root `AGENTS.md` only if any reference to in-scope scripts slipped through during the per-directory PRs (do NOT touch the `mvn-env.{sh,bat}` lines per Clarification Q2)
-- [X] T081 Run the full Scenario F end-to-end verification from `quickstart.md` on Linux: SC-001 zero survivors, SC-002 pytest green, SC-003 CI green, SC-004 mvn-env unchanged, SC-005 verify parity, SC-006 zero doc refs, SC-007 Maven regression-free, SC-008 requirements-dev.txt + runner idempotent
+- [X] T080 [P] Update root `AGENTS.md` only if any reference to in-scope scripts slipped through during the per-directory PRs (do NOT touch the `mvnw / mvnw.cmd` lines per Clarification Q2)
+- [X] T081 Run the full Scenario F end-to-end verification from `quickstart.md` on Linux: SC-001 zero survivors, SC-002 pytest green, SC-003 CI green, SC-004 Maven wrapper unchanged, SC-005 verify parity, SC-006 zero doc refs, SC-007 Maven regression-free, SC-008 requirements-dev.txt + runner idempotent
 - [X] T082 [P] Open a final docs/cleanup PR titled `docs(994): close spec — all per-directory PRs merged; final SC-001..SC-008 verification recorded`; include the Scenario F output in the PR body
 - [X] T083 Resolve review threads; verify CI green on both runners; merge; mark spec 994 complete in `specs/994-python-build-scripts/tasks.md` (all boxes ticked)
 - [X] T084 (Post-merge) Run `python3 scripts/save_kilo_memory.py` (or invoke `kilo_memory_save` action=remember) with key `spec_994_python_build_scripts_status` capturing: total PRs merged, total Python scripts landed, total `.sh`/`.bat` removed, pytest count, CI matrix green — for continuity into future sessions
@@ -174,10 +174,10 @@ Phases 2, 4, 6 are mutually independent at the git level and could be paralleliz
 
 ## Implementation Strategy
 
-- **MVP First (foundation)**: Phase 1 alone proves the test harness and CI gate work end-to-end, including the US1 regression sentinel for `mvn-env.{sh,bat}` (SC-004). Merging Phase 1 first means every subsequent PR is automatically gated by both Linux + Windows pytest runs and by the US1 no-touch check — no chance of accidentally regressing the existing Maven wrapper.
+- **MVP First (foundation)**: Phase 1 alone proves the test harness and CI gate work end-to-end, including the US1 regression sentinel for `mvnw / mvnw.cmd` (SC-004). Merging Phase 1 first means every subsequent PR is automatically gated by both Linux + Windows pytest runs and by the US1 no-touch check — no chance of accidentally regressing the existing Maven wrapper.
 - **Incremental Delivery**: After Phase 1 lands, each per-directory PR adds a meaningful slice (US2 → US3 → US4 → build helpers) and is independently testable via its corresponding quickstart scenario.
 - **Independent Story Tests**:
-  - US1 → `scripts/test_mvn_env_untouched.py` (always-on sentinel)
+  - US1 → historical `test_mvn_env_untouched.py` removed with `mvn-env`; SC-004 = `mvnw`/`mvnw.cmd` presence
   - US2 → quickstart Scenario B (every Phase 2 pytest case + verify parity diff)
   - US3 → quickstart Scenario B.3 (`python3 -m pytest scripts/test_erlang_harvest_review_patterns.py`)
   - US4 → quickstart Scenarios C + E (`python3 -m pytest docker/scripts/ modules/ai-shared-develop/`)

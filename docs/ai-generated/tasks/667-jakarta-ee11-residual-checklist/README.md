@@ -50,7 +50,7 @@
 ### Build evidence (2026-07-23)
 
 ```bash
-cd deliverytiersuite/delivery-tier-suite && ../../mvn-env.sh clean install -DskipITs
+cd deliverytiersuite/delivery-tier-suite && ../../mvnw clean install -DskipITs
 # BUILD SUCCESS — all 12 modules
 # delivery-tier-distribution: Tests run: 68, Failures: 0
 # Includes DtsTomcat11WindowsServiceAlignmentTest, DtsInstallerJarContainsTomcatTreeTest

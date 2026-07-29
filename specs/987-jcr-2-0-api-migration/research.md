@@ -185,7 +185,7 @@ Clarifications Q3, Q5; constitution story-checkpoint PRs.
 
 ### Decision
 
-- **Phase 1**: Unit tests for new methods on implementors (identifier, Binary, Query limit/offset no-ops or behavior, PropertyDefinition flags). Update `modules/utils` `PSValuesTest` / contentmgr tests as needed. Module compiles via `./mvn-env.sh`.
+- **Phase 1**: Unit tests for new methods on implementors (identifier, Binary, Query limit/offset no-ops or behavior, PropertyDefinition flags). Update `modules/utils` `PSValuesTest` / contentmgr tests as needed. Module compiles via `./mvnw`.
 - **Phase 2**: Existing query/finder tests; add focused tests where deprecation changes behavior.
 - **Feature-complete**: Designated module test suites + documented smoke (create/save, open, preview, one publish).
 - **Not required**: Full multi-site UAT as merge gate.

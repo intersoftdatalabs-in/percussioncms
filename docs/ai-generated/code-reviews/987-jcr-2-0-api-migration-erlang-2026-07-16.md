@@ -9,9 +9,9 @@
 Product types that implement `javax.jcr.*` interfaces were extended for JSR-283 methods (Binary/Decimal, Node identifier APIs, Query bind/limit/offset, QueryResult selectors, NodeType/NodeDefinition 2.0 surface, NodeTypeManager registration stubs). Unsupported optional capabilities generally throw `UnsupportedRepositoryOperationException` or return empty structures, consistent with existing read-only / not-supported patterns on `PSContentNode`.
 
 **Evidence run**:
-- `./mvn-env.sh -pl modules/utils,system,projects/sitemanage,modules/perc-toolkit,deployer -am compile -DskipTests` → SUCCESS
+- `./mvnw -pl modules/utils,system,projects/sitemanage,modules/perc-toolkit,deployer -am compile -DskipTests` → SUCCESS
 - Full reactor compile fails at `delivery-tier-distribution` on **rdf4j DependencyConvergence** (unrelated to JCR)
-- `./mvn-env.sh -pl modules/utils -Dtest=PSValuesTest,PSBinaryTest test` (after hash regen) — values/binary tests green
+- `./mvnw -pl modules/utils -Dtest=PSValuesTest,PSBinaryTest test` (after hash regen) — values/binary tests green
 - `PSQueryJcr20Test` added for bind/limit/offset
 
 ## Recommendation

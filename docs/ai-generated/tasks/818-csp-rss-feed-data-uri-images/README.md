@@ -22,6 +22,6 @@
 
 ## Validation
 
-- Ran spotless check (`./mvn-env.sh spotless:check`) and spotless formatting (`./mvn-env.sh spotless:apply`) successfully.
-- Re-built the `feeds` module and its dependencies via `./mvn-env.sh clean install -pl deliverytiersuite/delivery-tier-suite/feeds -am -DskipTests` successfully.
+- Ran spotless check (`./mvnw spotless:check`) and spotless formatting (`./mvnw spotless:apply`) successfully.
+- Re-built the `feeds` module and its dependencies via `./mvnw clean install -pl deliverytiersuite/delivery-tier-suite/feeds -am -DskipTests` successfully.
 

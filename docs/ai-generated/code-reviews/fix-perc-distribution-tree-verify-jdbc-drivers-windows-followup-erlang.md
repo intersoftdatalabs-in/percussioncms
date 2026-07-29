@@ -4,7 +4,7 @@
 
 Reviewed only the tracked uncommitted delta in `CheckNoGlobDeletesTest.java`. The change removes the false-green path: a missing shipped `install.xml` now fails the JUnit 5 test with the absolute expected path and the current working directory. No production code or other tests are changed, and no blocking issues were found.
 
-The author reports `mvn-env.bat -pl modules/perc-distribution-tree verify` completed with `BUILD SUCCESS`, 75 tests, 0 failures, 0 errors, 1 skipped, and all 9 JDBC driver JARs verified. After committing, review comment database ID `3617315403` still requires an inline mitigation reply citing the commit and explicit thread resolution per root `AGENTS.md`.
+The author reports `mvnw.cmd -pl modules/perc-distribution-tree verify` completed with `BUILD SUCCESS`, 75 tests, 0 failures, 0 errors, 1 skipped, and all 9 JDBC driver JARs verified. After committing, review comment database ID `3617315403` still requires an inline mitigation reply citing the commit and explicit thread resolution per root `AGENTS.md`.
 
 ## Scope
 

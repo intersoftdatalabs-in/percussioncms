@@ -281,13 +281,13 @@ def main(argv: list[str] | None = None) -> int:
     )
     if not cms_jar.is_file():
         LOGGER.error(
-            "CMS distribution jar not found: %s. Run ./mvn-env.sh clean install -DskipTests=true.",
+            "CMS distribution jar not found: %s. Run ./mvnw clean install -DskipTests=true.",
             cms_jar,
         )
         return 1
     if not dts_jar.is_file():
         LOGGER.error(
-            "DTS distribution jar not found: %s. Run ./mvn-env.sh clean install -DskipTests=true.",
+            "DTS distribution jar not found: %s. Run ./mvnw clean install -DskipTests=true.",
             dts_jar,
         )
         return 1

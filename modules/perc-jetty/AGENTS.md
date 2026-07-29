@@ -78,7 +78,7 @@ The `perc.mod` file MUST use `ee11-*` modules because the project requires Jakar
 3. Update `perc.mod` if EE modules change (e.g., ee10 → ee11):
    - modules/perc-jetty/src/main/jetty/defaults/modules/perc.mod
 4. Rebuild perc-jetty to refresh the assembled distribution:
-   - ./mvn-env.sh clean install -pl modules/perc-jetty -DskipTests
+   - ./mvnw clean install -pl modules/perc-jetty -DskipTests
 5. Validate module names and dependencies under:
    - modules/perc-jetty/src/main/jetty/defaults/modules/
 
@@ -94,7 +94,7 @@ The `perc.mod` file MUST use `ee11-*` modules because the project requires Jakar
 4. If the perc module depends on it, add to:
    - modules/perc-jetty/src/main/jetty/defaults/modules/perc.mod
 5. Build to verify:
-   - ./mvn-env.sh clean install -pl modules/perc-jetty -DskipTests
+   - ./mvnw clean install -pl modules/perc-jetty -DskipTests
 
 ## AI-Generated Worklogs and Change Logs
 

@@ -86,7 +86,7 @@ Per AGENTS.md "you must ALWAYS update or create unit tests for any code change t
 
 Status: **acceptable for Tier 1**. Erlang reviewer would prefer a focused Mockito test for `PSExitDisallowUpdatePublished.disallowUpdatePublished` covering the missing-row and `sc.isPresent()` paths. Recommended for the **next** Phase 4 PR.
 
-`mvn-env.bat -N clean test -Dmaven.javadoc.skip=true` → **BUILD SUCCESS**, `Tests run: 16, Failures: 0, Errors: 0, Skipped: 0`.
+`mvnw.cmd -N clean test -Dmaven.javadoc.skip=true` → **BUILD SUCCESS**, `Tests run: 16, Failures: 0, Errors: 0, Skipped: 0`.
 
 ---
 

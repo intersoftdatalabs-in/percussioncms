@@ -462,7 +462,7 @@ def cmd_it_verify(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
     rc, _log_path = _run_logged(
         "it-verify",
         [
-            str(repo_root / "mvn-env.sh"),
+            str(repo_root / "mvnw"),
             "-P", "integration-test,docker-compose",
             "verify",
         ],

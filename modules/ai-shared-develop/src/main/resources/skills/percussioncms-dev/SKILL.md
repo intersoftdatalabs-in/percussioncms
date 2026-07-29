@@ -47,7 +47,7 @@ Database and credential verification commands:
 1. Build CMS + DTS artifacts:
 
    ```bash
-   ./mvn-env.sh clean install -DskipTests=true
+   ./mvnw clean install -DskipTests=true
    ```
 2. Configure compose environment:
 
@@ -60,22 +60,22 @@ Database and credential verification commands:
 - Start stack (MySQL 8 + CMS-DTS) and wait for readiness:
 
   ```bash
-  ./mvn-env.sh -P docker-compose pre-integration-test
+  ./mvnw -P docker-compose pre-integration-test
   ```
 - Run integration tests only (against running stack):
 
   ```bash
-  ./mvn-env.sh -P integration-test verify
+  ./mvnw -P integration-test verify
   ```
 - Stop and remove stack (+ volumes):
 
   ```bash
-  ./mvn-env.sh -P docker-compose post-integration-test
+  ./mvnw -P docker-compose post-integration-test
   ```
 - One-command flow (up + wait + integration tests + teardown):
 
   ```bash
-  ./mvn-env.sh -P integration-test,docker-compose verify
+  ./mvnw -P integration-test,docker-compose verify
   ```
 
 ### Startup modes
@@ -91,7 +91,7 @@ Set `PERC_INSTALL_MODE` in `.env.compose` to select behavior:
 For fast module-level validation (e.g., `utils`, `perc-system`), build the module and copy the jar into the running container:
 
 ```bash
-./mvn-env.sh -pl modules/utils -am package -DskipTests
+./mvnw -pl modules/utils -am package -DskipTests
 ./docker/scripts/hot-deploy-jar.py --jar modules/utils/target/<your-jar>.jar --target both --restart
 ```
 
@@ -317,7 +317,7 @@ Pages are returned as part of folder responses. Use `/pages/by-path/MySite/MyPag
 
 - **CMS won't start:** Ensure `JRE` points at a JDK 21 installation (`JAVA_HOME`).
 - **API returns 401/403:** Re-run `api-client.py --login-form --user ... --password ...` to refresh the cookie jar, then retry the call.
-  -- **Local build JAR missing:** Run `./mvn-env.sh clean install` to produce the artifacts.
+  -- **Local build JAR missing:** Run `./mvnw clean install` to produce the artifacts.
 - **Port conflict:** CMS defaults to 9992. Check `lsof` (Linux/macOS) or `netstat` (Windows) for other services.
 - **Windows symlinks fail:** Run PowerShell as Administrator so `New-Item -ItemType SymbolicLink` succeeds.
 

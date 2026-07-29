@@ -130,7 +130,7 @@ def install(
     if not jar.is_file():
         LOG.error(
             "ERROR: DTS distribution JAR not found at %s. "
-            "Run `./mvn-env.sh clean install` first.",
+            "Run `./mvnw clean install` first.",
             jar,
         )
         return EXIT_PREREQ_MISSING

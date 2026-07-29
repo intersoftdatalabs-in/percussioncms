@@ -70,40 +70,40 @@ Tool-agnostic one-shot prompt: `modules/ai-shared-develop/src/main/resources/pro
 1. **Compile** — every changed module builds successfully **standalone** (see below).
 2. **Tests** — unit/integration tests that Maven runs for those modules **pass**. No exceptions for “known flaky” without fixing or an explicit, documented skip approved in the PR body.
 3. **No new warnings** — the clean install must not introduce **new** compiler, surefire, enforcer, Spotless, or plugin warnings attributable to the change. Prefer zero warnings on the modules you own; if the baseline already warns, do not add more (diff against a clean build of the base branch when unsure).
-4. **Use the env wrapper** — always invoke `mvn-env.sh` / `mvn-env.bat` from the **module directory** (path to the wrapper is relative to depth) so the correct JDK is used.
+4. **Use the Maven wrapper + JDK 21** — always invoke repo-root `mvnw` / `mvnw.cmd` from the **module directory** (path is relative to depth). Ensure `JAVA_HOME` points at **JDK 21** (this monorepo’s supported toolchain on `development`).
 
 ### How to run (default: per-module standalone — NOT full reactor)
 
-This monorepo is large. **Do not** default to root `./mvn-env.sh -pl … -am clean install` — that often rebuilds dozens of upstream modules and wastes time. Prefer **standalone** builds: change into each changed module’s directory and clean-install **only that module**, resolving dependencies from the local repo / already-installed SNAPSHOTs.
+This monorepo is large. **Do not** default to root `./mvnw -pl … -am clean install` — that often rebuilds dozens of upstream modules and wastes time. Prefer **standalone** builds: change into each changed module’s directory and clean-install **only that module**, resolving dependencies from the local repo / already-installed SNAPSHOTs.
 
 Identify changed Maven modules from the diff (e.g. `rest`, `projects/sitemanage`, `system`). Then, for **each** changed module:
 
 ```bash
 # Example: only rest changed
 cd rest
-../mvn-env.sh clean install
+../mvnw clean install
 
 # Example: only sitemanage changed (two levels down)
 cd projects/sitemanage
-../../mvn-env.sh clean install
+../../mvnw clean install
 
 # Example: two modules changed — build each standalone, producer first if one depends on the other
-cd rest && ../mvn-env.sh clean install && cd ..
-cd projects/sitemanage && ../../mvn-env.sh clean install && cd ../..
+cd rest && ../mvnw clean install && cd ..
+cd projects/sitemanage && ../../mvnw clean install && cd ../..
 ```
 
 Windows (from the module directory):
 
 ```bat
 cd rest
-..\mvn-env.bat clean install
+..\mvnw.cmd clean install
 ```
 
-Adjust `../` vs `../../` (etc.) so the path points at the **repo-root** `mvn-env.sh` / `mvn-env.bat`. Maven uses the **current working directory**’s `pom.xml`, so only that module is built.
+Adjust `../` vs `../../` (etc.) so the path points at the **repo-root** `mvnw` / `mvnw.cmd`. Maven uses the **current working directory**’s `pom.xml`, so only that module is built.
 
 |                         Situation                         |                                                                                                Command guidance                                                                                                 |
 |-----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| One or more leaf modules’ sources/tests/resources changed | **`cd` into each module** → `…/mvn-env.sh clean install` (standalone). If module B depends on module A and you changed both, build **A first**, then B (each still standalone after A is installed to `~/.m2`). |
+| One or more leaf modules’ sources/tests/resources changed | **`cd` into each module** → `…/mvnw clean install` (standalone). If module B depends on module A and you changed both, build **A first**, then B (each still standalone after A is installed to `~/.m2`). |
 | Only docs / AGENTS.md / non-Maven files                   | No Maven clean install required; say so in the PR body.                                                                                                                                                         |
 | Change **requires** a multi-module reactor (see below)    | Only then use a root reactor command — and scope it as tightly as possible.                                                                                                                                     |
 
@@ -120,13 +120,13 @@ When reactor is justified:
 
 ```bash
 # From repo root — prefer the smallest set of modules; avoid -am unless you truly need upstreams rebuilt
-./mvn-env.sh -pl rest,projects/sitemanage clean install
+./mvnw -pl rest,projects/sitemanage clean install
 
 # Only if upstream reactor modules must be rebuilt for this change (expensive — justify in PR body)
-./mvn-env.sh -pl projects/sitemanage -am clean install
+./mvnw -pl projects/sitemanage -am clean install
 ```
 
-**Do not** use `-am` “just in case.” Prefer standalone `cd module && …/mvn-env.sh clean install` first.
+**Do not** use `-am` “just in case.” Prefer standalone `cd module && …/mvnw clean install` first.
 
 ### Hard bans
 
@@ -160,7 +160,7 @@ Failing this section is a **hard gate** equal to a failing Erlang review: fix, r
 * ALWAYS update relevant script dir `README.md` files with doc on script purpose and usage scanrios when creating/editing scripts.
 * ALWAYS document your work in comments, README, or maven site documentation.
 * **IMPORTANT** you must ALWAYS update or create unit tests for any code change that you make, new or edited. And the tests must pass. No exceptions.
-* **IMPORTANT — Pre-PR build:** Before opening or updating a GitHub PR, **`cd` into each module you changed** and run repo-root `mvn-env.sh` / `mvn-env.bat` **`clean install` standalone** (not default root `-pl -am` reactor builds). Code must compile, tests must pass, and there must be **no new warnings**. Use a full/partial reactor only when the change requires it. See **Pre-PR Maven verification (HARD GATE)** above. CI is not a substitute for this local gate.
+* **IMPORTANT — Pre-PR build:** Before opening or updating a GitHub PR, **`cd` into each module you changed** and run repo-root `mvnw` / `mvnw.cmd` **`clean install` standalone** (not default root `-pl -am` reactor builds). Code must compile, tests must pass, and there must be **no new warnings**. Use a full/partial reactor only when the change requires it. See **Pre-PR Maven verification (HARD GATE)** above. CI is not a substitute for this local gate.
 * Always use the #codebase or root `./` context when resolving missing interfaces or classes.
 * You MUST respect rate limits when calling 3rd party API's. All 3rd party API integrations must be implemented with rate limit detection and exponential backoff logic.
 * You MUST NOT share or leak secrets, tokens, or keys over the wire, in logs, or in LLM sessions.  If you see MKD-REDACTED in a session, that means you leaked a secret.
@@ -185,7 +185,7 @@ Percussion CMS is built, tested, installed, and deployed on **Windows, Linux, an
 5. **Do not assume Unix-only roots or temp locations.** Avoid hardcoding `/tmp`, `/var`, `/home`, or drive-letter-free absolute paths. Use `System.getProperty("java.io.tmpdir")`, `Files.createTempFile` / `Files.createTempDirectory`, or the repo temp dir (`./tmp`) as appropriate. On Windows, absolute paths include a drive letter or UNC prefix (`C:\...`, `\\server\share\...`).
 6. **Normalize before comparing paths as strings.** Prefer `Path` equality (`path1.normalize().toAbsolutePath().equals(...)`) or `Files.isSameFile` over string equality of raw path text. If string form is unavoidable, normalize separators first (e.g. via `Path` then `toString()`, or consistent use of `File.separator`).
 7. **Line endings differ by platform.** Do not assert exact multi-line file contents with only `\n` when the runtime or Git may produce `\r\n` on Windows. Normalize line endings in tests (`replace("\r\n", "\n")`) or compare logical lines / use platform-agnostic matchers.
-8. **Shell scripts are not portable by themselves.** Repo automation that must run on Windows needs a `.bat`/`.cmd` counterpart (or a documented Java/Maven entry point). Existing pattern: `./mvn-env.sh` and `./mvn-env.bat`. Do not land Unix-only scripts as the sole way to run a required workflow.
+8. **Shell scripts are not portable by themselves.** Repo automation that must run on Windows needs a `.bat`/`.cmd` counterpart (or a documented Java/Maven entry point). Existing pattern: `./mvnw` and `./mvnw.cmd`. Do not land Unix-only scripts as the sole way to run a required workflow.
 9. **Unit and integration tests must be cross-platform.** Tests that construct paths, write files, parse absolute paths, or assert path strings MUST pass on Windows. Common failure modes to avoid:
    * Expected path strings built with `/` when the OS returns `\`
    * Splitting `PATH` / classpath with `:` only
@@ -306,10 +306,10 @@ Disposition ladder: **runtime fix + test → model pack barrier → sink-line `/
 
 * Base Branch Name: development
   * All code changes in this branch must be compatible with JDK 21
-  * Use `./mvn-env.sh` or `./mvn-env.bat` maven wrapper to ensure JDK compliance.
+  * Use `./mvnw` or `./mvnw.cmd` maven wrapper to ensure JDK compliance.
 * Base Branch Name: development-8.1.x
   * All code changes on this branch must be compatible with JDK 8.
-  * Use `./mvn-env.sh` or `./mvn-env.bat` maven wrapper to ensure JDK compliance.
+  * Use `./mvnw` or `./mvnw.cmd` maven wrapper to ensure JDK compliance.
 
 ## Project & Dependency Management
 

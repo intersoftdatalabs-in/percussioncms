@@ -140,10 +140,10 @@ def flag_jdk8_idioms(diff_path: Path, warnings_path: Path) -> int:
 
 def verify_tests(repo_root: Path, module: str, test_class: str) -> int:
     """Run ``mvn -pl <module> -am test -Dtest=<test_class>``. Returns the exit code."""
-    common.log_info(f"running tests: ./mvn-env.sh -pl {module} -am test -Dtest={test_class}")
+    common.log_info(f"running tests: ./mvnw -pl {module} -am test -Dtest={test_class}")
     return subprocess.run(
         [
-            "./mvn-env.sh",
+            "./mvnw",
             "-pl",
             module,
             "-am",
@@ -161,7 +161,7 @@ def spotless_check(repo_root: Path, module: str) -> int:
     """Run Spotless on a single module. Returns non-zero if formatting needs fix."""
     common.log_info(f"running spotless:check on {module}")
     return subprocess.run(
-        ["./mvn-env.sh", "-pl", module, "-am", "spotless:check"],
+        ["./mvnw", "-pl", module, "-am", "spotless:check"],
         shell=False,
         check=False,
         cwd=str(repo_root),

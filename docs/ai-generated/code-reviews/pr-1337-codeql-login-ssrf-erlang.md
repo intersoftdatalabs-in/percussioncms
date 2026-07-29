@@ -42,7 +42,7 @@ None blocking.
 ## Tests run
 
 ```text
-./mvn-env.sh -pl system -Dtest=PSLoginServletTest -Dai.integrity.skip=true test
+./mvnw -pl system -Dtest=PSLoginServletTest -Dai.integrity.skip=true test
 # Tests run: 5, Failures: 0, Errors: 0
 ```
 

@@ -9,7 +9,7 @@ Use this guide to prove Phase 1 (compile) and feature-complete (behavior) withou
 
 ## Prerequisites
 
-- JDK 21 via project wrapper (`./mvn-env.sh`)
+- JDK 21 via project wrapper (`./mvnw`)
 - Git branch based on current `development` (so parent BOM has `javax.jcr:jcr:2.0`)
 - Local Maven cache can resolve `javax.jcr:jcr:2.0` and Jackrabbit commons
 
@@ -34,7 +34,7 @@ If still 1.0: merge/rebase `origin/development` (includes #531) before compile w
 ### 1. Inventory compile failures (after pin is 2.0)
 
 ```bash
-./mvn-env.sh -pl modules/utils,system -am compile -DskipTests 2>&1 | tee tmp/jcr-compile-phase1.log
+./mvnw -pl modules/utils,system -am compile -DskipTests 2>&1 | tee tmp/jcr-compile-phase1.log
 ```
 
 Expand module list as errors appear (toolkit, sitemanage, extensions, deployer).
@@ -44,7 +44,7 @@ Expand module list as errors appear (toolkit, sitemanage, extensions, deployer).
 ### 2. After implementor stubs/methods land
 
 ```bash
-./mvn-env.sh -DskipTests compile 2>&1 | tee tmp/jcr-compile-full.log
+./mvnw -DskipTests compile 2>&1 | tee tmp/jcr-compile-full.log
 ```
 
 **Expected**: BUILD SUCCESS (or only pre-existing unrelated failures — none from `javax.jcr` implementors).
@@ -52,7 +52,7 @@ Expand module list as errors appear (toolkit, sitemanage, extensions, deployer).
 ### 3. Focused unit tests (touched helpers)
 
 ```bash
-./mvn-env.sh -pl modules/utils -Dtest=PSValuesTest,PSPathTest test
+./mvnw -pl modules/utils -Dtest=PSValuesTest,PSPathTest test
 # Plus any new tests added for Binary / getIdentifier / Query bind-limit
 ```
 
@@ -84,7 +84,7 @@ rg -n '\.getUUID\(\)' --type java -g '!**/target/**' system/services modules/uti
 Run designated repository-backed module tests (adjust list during implementation if suites move):
 
 ```bash
-./mvn-env.sh -pl modules/utils,system,projects/sitemanage -am test
+./mvnw -pl modules/utils,system,projects/sitemanage -am test
 ```
 
 **Expected**: Green (or documented intentional expectation changes).
@@ -108,7 +108,7 @@ Record: date, build id/commit, pass/fail per step (PR comment or checklist attac
 ## Dependency / security spot-check
 
 ```bash
-./mvn-env.sh -pl system -am dependency:tree -Dincludes=javax.jcr:jcr
+./mvnw -pl system -am dependency:tree -Dincludes=javax.jcr:jcr
 ```
 
 **Expected**: Only version **2.0**; no 1.0 leaves on shipping modules.

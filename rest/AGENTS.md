@@ -237,7 +237,7 @@ For building, code style, and Spotless formatting details, see README.md.
 Build the module with:
 
 ```bash
-./mvn-env.sh -pl rest clean install
+./mvnw -pl rest clean install
 ```
 
 ## Hot Deployment

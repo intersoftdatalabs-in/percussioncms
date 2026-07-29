@@ -105,7 +105,7 @@ no tests that assert path strings. **No issues.**
 
 ## Build verification
 
-- `cd projects/sitemanage && ../../mvn-env.sh clean install` → **BUILD SUCCESS**
+- `cd projects/sitemanage && ../../mvnw clean install` → **BUILD SUCCESS**
 - 6 new tests pass (`Tests run: 6, Failures: 0, Errors: 0, Skipped: 0`)
 - No new javac warnings attributable to the changed files (verified via
   `grep "PSUserService.java|PSUserServiceMockTest.java"` against the warning

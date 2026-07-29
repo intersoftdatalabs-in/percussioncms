@@ -156,7 +156,7 @@ Exit criteria:
   - CMS API auth and key endpoints return expected responses.
   - DTS endpoint(s) reachable and healthy.
 - Build:
-  - `./mvn-env.sh` wrapper used for all Maven actions.
+  - `./mvnw` wrapper used for all Maven actions.
   - Module/profile combinations run without affecting default build behavior.
 - Failure handling:
   - Clear errors when Docker is missing/not running.

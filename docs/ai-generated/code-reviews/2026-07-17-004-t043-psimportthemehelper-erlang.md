@@ -70,8 +70,8 @@ The change is not merge-ready. `getLinkPaths()` also returns off-site HTTP(S) UR
 
 ## Spotless / build
 
-- Required focused test command via the Windows wrapper: `mvn-env.bat -Dai.integrity.skip=true -pl projects/sitemanage test -Dtest=PSImportThemeHelperPathInjectionTest -Dsurefire.failIfNoSpecifiedTests=false` — **BUILD SUCCESS**, 6/6 passed.
-- Required module Spotless command: `mvn-env.bat -Dai.integrity.skip=true -pl projects/sitemanage spotless:check` — **BUILD FAILURE** only for pre-existing `src/main/resources/com/percussion/pagemanagement/service/impl/WidgetRegistry.xml`; neither touched Java file was identified.
+- Required focused test command via the Windows wrapper: `mvnw.cmd -Dai.integrity.skip=true -pl projects/sitemanage test -Dtest=PSImportThemeHelperPathInjectionTest -Dsurefire.failIfNoSpecifiedTests=false` — **BUILD SUCCESS**, 6/6 passed.
+- Required module Spotless command: `mvnw.cmd -Dai.integrity.skip=true -pl projects/sitemanage spotless:check` — **BUILD FAILURE** only for pre-existing `src/main/resources/com/percussion/pagemanagement/service/impl/WidgetRegistry.xml`; neither touched Java file was identified.
 - Touched-file-only Spotless check using `-DspotlessFiles=src/main/java/com/percussion/sitemanage/importer/helpers/impl/PSImportThemeHelper.java,src/test/java/com/percussion/sitemanage/importer/helpers/impl/PSImportThemeHelperPathInjectionTest.java` — **BUILD SUCCESS**.
 - `git diff --check development...74f9a2e658aff3756caa9fc1664b2c40124a8f69` — clean.
 - Compilation adds proprietary-API warnings for `sun.misc.Unsafe` in the new test.
@@ -98,7 +98,7 @@ Fix the external-URL regression and eliminate mutable per-import security state 
 
 5. **Cross-platform paths in production** — **Resolved.** `removeIfExists` uses `Path`-equivalent `File` with `File.separator`-agnostic operations (the guard canonicalizes internally). The `themeRoot` is constructed via `new File(themeRootDirectory)` and the rest is delegated to `PSPathInjectionGuard`, which uses platform-portable canonical-path resolution.
 
-6. **Tests hardcode `/` in filesystem paths** — **Resolved.** Every new test builds paths with `themeRoot.resolve("..").resolve("etc").resolve("passwd")` style chains. No `/` literals in path joins. The one remaining `File.separator` use (`PSImportThemeHelperPathInjectionTest.java:157`) is exactly the platform-portable helper. Path portability confirmed on Windows (this reviewer ran the suite via `mvn-env.bat`).
+6. **Tests hardcode `/` in filesystem paths** — **Resolved.** Every new test builds paths with `themeRoot.resolve("..").resolve("etc").resolve("passwd")` style chains. No `/` literals in path joins. The one remaining `File.separator` use (`PSImportThemeHelperPathInjectionTest.java:157`) is exactly the platform-portable helper. Path portability confirmed on Windows (this reviewer ran the suite via `mvnw.cmd`).
 
 ### New findings (if any)
 
@@ -127,12 +127,12 @@ Fix the external-URL regression and eliminate mutable per-import security state 
 
 ### Fail-then-pass verification (v2)
 
-- **Post-fix (commit `5718536b6`):** `mvn-env.bat -Dai.integrity.skip=true -pl projects/sitemanage test -Dtest=PSImportThemeHelperPathInjectionTest -Dsurefire.failIfNoSpecifiedTests=false` → **10 tests, 0 failures, 0 errors, 0 skipped** (BUILD SUCCESS, 2.092s).
+- **Post-fix (commit `5718536b6`):** `mvnw.cmd -Dai.integrity.skip=true -pl projects/sitemanage test -Dtest=PSImportThemeHelperPathInjectionTest -Dsurefire.failIfNoSpecifiedTests=false` → **10 tests, 0 failures, 0 errors, 0 skipped** (BUILD SUCCESS, 2.092s).
 - **Pre-fix (parent commit `74f9a2e65` for `PSImportThemeHelper.java` only, with the new test file):** same command → **10 tests, 8 failures, 1 error, 0 skipped** (BUILD FAILURE). 9 of 10 surface `NoSuchMethodException: removeIfExists(Map, String)` — the pre-fix signature is gone, which IS the fix. The single passing test is `testSanityHelperConstruction` (constructor smoke test only). Fail-then-pass is established by the signature change; the new signature is the security-relevant change to the contract.
 
 ### Spotless / build (v2)
 
-- `mvn-env.bat -Dai.integrity.skip=true -pl projects/sitemanage spotless:check -DspotlessFiles=projects/sitemanage/src/main/java/com/percussion/sitemanage/importer/helpers/impl/PSImportThemeHelper.java,projects/sitemanage/src/test/java/com/percussion/sitemanage/importer/helpers/impl/PSImportThemeHelperPathInjectionTest.java` → **BUILD SUCCESS**. Touched-file spotless is clean.
+- `mvnw.cmd -Dai.integrity.skip=true -pl projects/sitemanage spotless:check -DspotlessFiles=projects/sitemanage/src/main/java/com/percussion/sitemanage/importer/helpers/impl/PSImportThemeHelper.java,projects/sitemanage/src/test/java/com/percussion/sitemanage/importer/helpers/impl/PSImportThemeHelperPathInjectionTest.java` → **BUILD SUCCESS**. Touched-file spotless is clean.
 - `git diff --check development...5718536b6` → clean (no whitespace/line-ending issues).
 - Compilation: no `sun.misc.Unsafe` warnings remain in the test file (replaced with Mockito). No new warnings introduced.
 

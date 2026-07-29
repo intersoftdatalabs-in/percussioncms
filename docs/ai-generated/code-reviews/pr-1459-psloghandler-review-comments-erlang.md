@@ -76,9 +76,9 @@ agnostic. **Clean.**
 
 ## Verification
 
-- `cd deployer && ../mvn-env.sh -o clean install`: BUILD SUCCESS,
+- `cd deployer && ../mvnw -o clean install`: BUILD SUCCESS,
   157 / 0 / 0 / 19 skipped.
-- `cd deployer && ../mvn-env.sh -o -Dtest=PSLogHandlerTest test`:
+- `cd deployer && ../mvnw -o -Dtest=PSLogHandlerTest test`:
   2 passed.
 
 ## Handoff

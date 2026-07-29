@@ -8,7 +8,7 @@
 
 |              Step              |                            Linux / macOS                            |           Windows            |
 |--------------------------------|---------------------------------------------------------------------|------------------------------|
-| Build installer artifacts      | Per product release pipeline / local `mvn-env` distribution modules | Same via `mvn-env.bat`       |
+| Build installer artifacts      | Per product release pipeline / local `Maven wrapper` distribution modules | Same via `mvnw.cmd`       |
 | Install CMS accepting defaults | Installer CLI with no `--db.type` (defaults `h2`)                   | Same                         |
 | Start CMS                      | Product start script under install root                             | Product `.bat` service/start |
 | CMS smoke                      | Browser/curl login to `/Rhythmyx/login`                             | Same URL                     |

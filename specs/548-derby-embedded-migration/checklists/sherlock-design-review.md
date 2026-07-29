@@ -322,7 +322,7 @@ These are **not** adequately specified as hard gates before GA of #548. Map to F
   - **Gate**: hard
 - **QC-018**: Pre-PR Maven standalone clean install per touched module
   - **Maps to**: AGENTS pre-PR hard gate; constitution III/VII
-  - **How to verify**: PR body lists `cd <module> && …/mvn-env.sh clean install`, BUILD SUCCESS, test counts, no new warnings
+  - **How to verify**: PR body lists `cd <module> && …/mvnw clean install`, BUILD SUCCESS, test counts, no new warnings
   - **Gate**: hard (per implementation PR)
 - **QC-019**: Concurrent migration lock
   - **Maps to**: Edge case concurrent upgrades; Issue 10

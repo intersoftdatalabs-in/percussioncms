@@ -109,4 +109,4 @@ Decision pending — picked option 1 by default for 4d-1b unless the Erlang revi
 
 - Branch: `fix/1561-workflow-orm-phase4d-1a` off `origin/development` (`fe32dfdd8a`)
 - Working tree: clean (prior review-modified WINDOWS-BUILD-GUIDE.md untouched)
-- `mvn-env.bat -N clean install -DskipTests` to be run before first commit
+- `mvnw.cmd -N clean install -DskipTests` to be run before first commit

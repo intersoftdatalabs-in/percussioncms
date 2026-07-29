@@ -31,7 +31,7 @@ None blocking.
 
 ## Verification
 
-- `cd WebUI && ../mvn-env.sh clean install` → **BUILD SUCCESS** (Surefire Tests run: 4, Failures: 0)
+- `cd WebUI && ../mvnw clean install` → **BUILD SUCCESS** (Surefire Tests run: 4, Failures: 0)
 - Vitest: `spaCutover`, `publishNavRewire`, `UnavailableView` → **10 passed**
 
 ## Memory patterns hit

@@ -5,7 +5,7 @@
 
 ## Prerequisites
 
-- JDK 21 toolchain via `./mvn-env.sh` (or `.bat` on Windows)
+- JDK 21 toolchain via `./mvnw` (or `.bat` on Windows)
 - Node/npm for WebUI frontend (module already uses Vite)
 - Running CMS instance with at least one site (for Library/Recent) and Widget Builder enabled when testing US2 (`WidgetBuilderActive`)
 - Auth: contributor for Home; admin/designer for Widget Builder
@@ -14,7 +14,7 @@
 
 ```bash
 # From repo root — WebUI modern unit tests (exact Maven goal may vary; use module docs)
-./mvn-env.sh -pl WebUI -am test
+./mvnw -pl WebUI -am test
 
 # Frontend-focused (from WebUI or frontend package as documented in WebUI/AGENTS.md)
 cd WebUI/src/main/frontend && npm test

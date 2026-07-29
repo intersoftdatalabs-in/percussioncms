@@ -79,7 +79,7 @@ delegation to the Python script (`exec "$PY" "$ROOT/scripts/erlang-harvest-revie
 
 - **File**: `scripts/README.md:11`
 - **Description**: Line 11 listed `release-audit/erlang-harvest-review-patterns.{sh,bat}` as out-of-scope-for-Phase-3 (preserved-until-US3 note). Two latent defects: (a) wrong directory prefix — the wrappers live at `scripts/`, not `scripts/release-audit/`; (b) the line is now obsolete — the wrappers are being deleted in this PR, so a "do NOT touch" reminder is meaningless.
-- **Suggestion**: Delete the line; the remaining "Out of scope" section still covers `mvn-env.{sh,bat}` and runtime scripts.
+- **Suggestion**: Delete the line; the remaining "Out of scope" section still covers `mvnw / mvnw.cmd` and runtime scripts.
 - **Status**: **resolved** in this PR.
 - **Pattern-id**: docs.obsolete-scope-note
 

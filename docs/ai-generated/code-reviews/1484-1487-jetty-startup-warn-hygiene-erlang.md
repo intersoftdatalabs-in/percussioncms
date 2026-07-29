@@ -58,7 +58,7 @@ _None (hard gate)._
 
 ## Evidence
 
-- `cd modules/perc-jetty && ../../mvn-env.bat clean install`
+- `cd modules/perc-jetty && ../../mvnw.cmd clean install`
 - **BUILD SUCCESS** — Tests run: 39, Failures: 0, Errors: 0, Skipped: 0
 
 ## Re-review (PR #1518 kilo-code-bot WARNING)

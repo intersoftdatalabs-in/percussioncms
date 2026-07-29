@@ -36,4 +36,4 @@ None (hard gate).
 ## Test evidence
 
 - `cd WebUI && npm test -- --run src/test/ts/login src/test/ts/app` → 10 tests, 0 failures  
-- `cd system && ../mvn-env.sh test -Dtest=PSLoginServletTest` + clean install (see PR body)  
+- `cd system && ../mvnw test -Dtest=PSLoginServletTest` + clean install (see PR body)  

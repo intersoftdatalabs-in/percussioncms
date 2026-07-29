@@ -105,7 +105,7 @@ None.
 
 - Post-fix: `mvn ... test -Dtest=PSFileSystemPathItemServicePathInjectionTest`
   → `Tests run: 7, Failures: 0, Errors: 0, Skipped: 0` — BUILD SUCCESS
-  (verified at 2026-07-17 23:56 with `mvn-env.bat` and JDK 21).
+  (verified at 2026-07-17 23:56 with `mvnw.cmd` and JDK 21).
 - Pre-fix empirical verification: skipped to avoid PowerShell UTF-8 BOM corruption
   when restoring the previous file via `git show > file`; the code-flow analysis
   in the commit message is sound (the path `findChildren → listFiles → child →

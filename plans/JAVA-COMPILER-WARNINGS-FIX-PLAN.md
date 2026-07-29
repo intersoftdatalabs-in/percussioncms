@@ -224,7 +224,7 @@ logger.error("Failed to process", exception);
 After each phase, run:
 
 ```bash
-./mvn-env.sh clean compile 2>&1 | grep -E "(WARNING|ERROR)" | head -50
+./mvnw clean compile 2>&1 | grep -E "(WARNING|ERROR)" | head -50
 ```
 
 ### 6.2 Expected Outcome
@@ -272,7 +272,7 @@ After each phase, run:
 
 - Internal deprecation warnings for `com.percussion` code should be left suppressed via `@SuppressWarnings("deprecation")` annotations
 - All changes should maintain backward compatibility
-- Run `./mvn-env.sh spotless:check` after changes per project guidelines
+- Run `./mvnw spotless:check` after changes per project guidelines
 - Unit tests must continue to pass
 
 ---

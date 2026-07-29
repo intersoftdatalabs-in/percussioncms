@@ -183,7 +183,7 @@ Avoid large refactor of extract/zip/upgrade helpers in the same change set.
 - **Single write path** to effective repository config (ANT `propertyfile` on install-root file) — avoids dual sources of truth.
 - **Fail-fast validation** before expensive schema work.
 - **No secret logging** (Constitution VI).
-- **JDK 21** / `./mvn-env.sh` for tests (Constitution VII).
+- **JDK 21** / `./mvnw` for tests (Constitution VII).
 - **Reuse** `PSJdbcUtils` backend constants and existing property key names (Constitution II).
 
 ## Open risks (accepted, mitigated in plan)

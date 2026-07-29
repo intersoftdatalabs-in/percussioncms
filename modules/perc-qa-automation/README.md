@@ -106,22 +106,22 @@ Layer 1 CMS/DTS install matrix (silent install → start → login/health probe 
 lives in `docker/scripts/matrix-install-smoke.py`. It is **not** part of the default
 reactor / `mvn test` (Docker + multi-minute installs).
 
-Enable with profile **`matrix-smoke`** from this module (use the repo-root `mvn-env`
+Enable with profile **`matrix-smoke`** from this module (use the repo-root `Maven wrapper`
 wrapper so JDK is correct):
 
 ```bash
 # From modules/perc-qa-automation
 # CMS + H2 (default)
-../../mvn-env.sh -Pmatrix-smoke test
+../../mvnw -Pmatrix-smoke test
 
 # CMS + PostgreSQL (requires Docker compose profile postgres; host port 5433 by default)
-../../mvn-env.sh -Pmatrix-smoke -Dmatrix.db=postgresql test
+../../mvnw -Pmatrix-smoke -Dmatrix.db=postgresql test
 
 # Multiple backends (sequential cells)
-../../mvn-env.sh -Pmatrix-smoke -Dmatrix.db=h2,postgresql,mysql,sqlserver test
+../../mvnw -Pmatrix-smoke -Dmatrix.db=h2,postgresql,mysql,sqlserver test
 
 # Product list
-../../mvn-env.sh -Pmatrix-smoke -Dmatrix.product=cms,dts -Dmatrix.db=h2 test
+../../mvnw -Pmatrix-smoke -Dmatrix.product=cms,dts -Dmatrix.db=h2 test
 ```
 
 | Property | Default | Description |

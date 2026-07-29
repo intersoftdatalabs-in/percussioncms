@@ -104,9 +104,9 @@ The other 6 in-product exits still use `new PSConnectionMgr()` and are tracked i
 | `PSWorkflowServiceStateRolesTest` | **7** | rejects non-positive ids for `findStateRoles` and `findWorkflowRoles`; happy-path verifies JPQL `from PSAssignedRole where workflowId = :wf and stateId = :sid and assignmentType >= :at` and `from PSWorkflowRole where workflowId = :wf and roleId in :ids`; empty-row / empty-set returns empty list without touching Hibernate; null role-id set rejected |
 | `PSLoadFromHibernateTest` | **8** (`@Disabled`) | arg validation, empty-rows → `PSEntryNotFoundException`, role-id classification by adhoc type (DISABLED/ENABLED/ANONYMOUS), missing role-name → `PSRoleException`, adhoc-user classification by adhoc type, empty-username → `IllegalStateException`. Re-enabled when Spring+H2 infrastructure ships. |
 
-`mvn-env.bat -N clean install -Dmaven.javadoc.skip=true` in `modules/extensions-workflow` → **BUILD SUCCESS**, `Tests run: 24, Failures: 0, Errors: 0, Skipped: 8`.
+`mvnw.cmd -N clean install -Dmaven.javadoc.skip=true` in `modules/extensions-workflow` → **BUILD SUCCESS**, `Tests run: 24, Failures: 0, Errors: 0, Skipped: 8`.
 
-`mvn-env.bat -N test -Dtest=PSWorkflowServiceStateRolesTest,PSWorkflowServiceLoadWorkflowTransitionTest` in `system` → **BUILD SUCCESS**, `Tests run: 13, Failures: 0, Errors: 0, Skipped: 0`.
+`mvnw.cmd -N test -Dtest=PSWorkflowServiceStateRolesTest,PSWorkflowServiceLoadWorkflowTransitionTest` in `system` → **BUILD SUCCESS**, `Tests run: 13, Failures: 0, Errors: 0, Skipped: 0`.
 
 ---
 

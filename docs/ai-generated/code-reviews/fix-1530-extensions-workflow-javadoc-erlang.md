@@ -48,7 +48,7 @@ None.
 - Imports in `IPSStateRolesContext.java` and `IPSContentTypesContext.java` were reordered to place them before the type-level Javadoc so the comment binds to the declaration (fixed a "no comment" warning and is also the more conventional layout).
 
 ### Build evidence
-- `mvn-env.bat clean install -B` from `modules/extensions-workflow/` → BUILD SUCCESS
+- `mvnw.cmd clean install -B` from `modules/extensions-workflow/` → BUILD SUCCESS
 - Pre-PR build summary: 0 Javadoc errors, 0 Javadoc plugin warnings, 0 Javadoc source warnings.
 - Remaining 121 compiler warnings (`raw type`, `this escape`, `static qualified`, `serialVersionUID`, `unchecked`) are all pre-existing on the base branch baseline (verified by stashing changes and rebuilding baseline). They are out of scope for the Javadoc cleanup task in #1530.
 
@@ -59,7 +59,7 @@ None.
 
 ```
 cd modules/extensions-workflow
-..\..\mvn-env.bat clean install -B
+..\..\mvnw.cmd clean install -B
 ```
 
 Result: `BUILD SUCCESS`. Javadoc plugin ran with zero warnings. Tests: 0 run, 0 failures (pre-existing — surefire test selection unchanged).

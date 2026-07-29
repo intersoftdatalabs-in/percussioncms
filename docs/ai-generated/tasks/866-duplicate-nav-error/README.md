@@ -14,6 +14,6 @@ Fix a bug where attempting to create/convert a Section from a folder that does n
 
 ## Verification
 
-- Formatted the codebase using `./mvn-env.sh spotless:apply`.
-- Built the `sitemanage` module along with its dependencies via `./mvn-env.sh clean install -pl projects/sitemanage -am -DskipTests` successfully.
+- Formatted the codebase using `./mvnw spotless:apply`.
+- Built the `sitemanage` module along with its dependencies via `./mvnw clean install -pl projects/sitemanage -am -DskipTests` successfully.
 

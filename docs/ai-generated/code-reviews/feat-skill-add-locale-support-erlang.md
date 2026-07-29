@@ -33,7 +33,7 @@ None.
 - **Cross-platform path review** — N/A; the diff is a markdown skill, no filesystem path or I/O logic introduced.
 - **Behavioral test analogue** — Skills are agent-prompt documents and don't compile; Erlang's "missing behavioral test" gate does not apply here. The hard path / non-portable-I-O gate also does not apply (no code touched).
 - **Style** — Markdown renders correctly in current `CommonMark`; frontmatter ends with `---` block; no emojis; `description` is the same multi-line `>-` style as the other developer skills. Two minor nits that do not block:
-  - §5 references `mvn-env.sh` while the development working tree currently uses `.bat` (`mvn-env.bat`). Per root `AGENTS.md` the wrapper has both entry points and the `.sh` form is documented as canonical in the helpers repo; this skill matches the convention used by `perc-i18n/AGENTS.md` itself. Leaving as-is.
+  - §5 references `mvnw` while the development working tree currently uses `.bat` (`mvnw.cmd`). Per root `AGENTS.md` the wrapper has both entry points and the `.sh` form is documented as canonical in the helpers repo; this skill matches the convention used by `perc-i18n/AGENTS.md` itself. Leaving as-is.
   - §2 step b says "calendar widget picker — only if you are adding a calendar regional variant or your code needs a visible widget entry". The "code needs" branch is vague; an implementer might over-extend. Consider tightening to "only if the new code is itself a calendar region or your UI team confirms a picker entry is required". Suggestion, not blocking.
 
 ## Re-review

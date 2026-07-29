@@ -142,7 +142,7 @@ Each remaining file can be tackled using the established pattern:
 
 ### Next Steps
 
-1. Run CodeQL again: `./mvn-env.sh clean compile -Pcodeql-local`
+1. Run CodeQL again: `./mvnw clean compile -Pcodeql-local`
    - Verify path injection alerts decreased
    - Identify residual alerts in refactored files
 2. Continue with remaining 23+ path injection alerts

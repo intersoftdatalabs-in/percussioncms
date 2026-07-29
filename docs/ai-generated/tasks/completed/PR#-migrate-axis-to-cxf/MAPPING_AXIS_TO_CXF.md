@@ -119,7 +119,7 @@ Below are the concrete Axis hits and recommended mapping actions.
 
 - Replace `axistools` / `axis:wsdl2java` plugin usage with `org.apache.cxf:cxf-codegen-plugin` in relevant module POMs.
 - Add module-level exclusions for transitive Axis dependencies if any third-party artifacts still transitively bring Axis.
-- Run `./mvn-env.sh -pl <module> -am test` for each migrated module; verify tests and integration tests.
+- Run `./mvnw -pl <module> -am test` for each migrated module; verify tests and integration tests.
 
 ---
 

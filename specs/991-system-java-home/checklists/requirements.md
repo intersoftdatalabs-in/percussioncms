@@ -39,7 +39,7 @@
 | Stakeholder language                | Pass   | Stories framed for ops install/start/stop and migration off manual JRE placement.                                                                                                     |
 | Clarifications                      | Pass   | Zero `[NEEDS CLARIFICATION]` markers.                                                                                                                                                 |
 | Success criteria                    | Pass   | SC-001–SC-008 smoke/UAT/CI without prescribing shell/bat structure.                                                                                                                   |
-| Scope boundary                      | Pass   | Out: re-bundling a JRE in the archive, build `mvn-env` toolchain, non-21 Java. In: CMS+DTS runtime resolution, install selection, post-install re-point, legacy install-dir fallback. |
+| Scope boundary                      | Pass   | Out: re-bundling a JRE in the archive, build `Maven wrapper` toolchain, non-21 Java. In: CMS+DTS runtime resolution, install selection, post-install re-point, legacy install-dir fallback. |
 
 ## Notes
 

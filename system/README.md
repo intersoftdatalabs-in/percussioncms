@@ -166,26 +166,26 @@ See `refactored-java11-packages.txt` and `refactored-soap-packages.txt` for list
 **Compile only:**
 
 ```bash
-./mvn-env.sh -pl system compile
+./mvnw -pl system compile
 ```
 
 **Run tests:**
 
 ```bash
-./mvn-env.sh -pl system test
+./mvnw -pl system test
 ```
 
 **Full build with packaging:**
 
 ```bash
-./mvn-env.sh -pl system clean install
+./mvnw -pl system clean install
 ```
 
 **Code style check & formatting:**
 
 ```bash
-./mvn-env.sh -pl system spotless:check
-./mvn-env.sh spotless:apply  # If formatting is needed
+./mvnw -pl system spotless:check
+./mvnw spotless:apply  # If formatting is needed
 ```
 
 ### Build Output
@@ -241,9 +241,9 @@ Before working on this module, agents **MUST**:
 Always test locally before pushing:
 
 ```bash
-./mvn-env.sh -pl system clean verify
-./mvn-env.sh spotless:apply
-./mvn-env.sh -pl system test
+./mvnw -pl system clean verify
+./mvnw spotless:apply
+./mvnw -pl system test
 ```
 
 For changes to service implementations, also test integration with dependent modules.

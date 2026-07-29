@@ -7,7 +7,7 @@ Repository-wide operational and helper scripts. Per the project's AGENTS.md, gen
 All build-time scripts in this directory are cross-platform Python 3.9+ (FR-001). The migration delivers per-directory PRs (FR-001a); the `scripts/` directory is **Scope 1** and landed in **US2**. See [`specs/994-python-build-scripts/spec.md`](../../specs/994-python-build-scripts/spec.md) for the full in-scope/out-of-scope split and [`specs/994-python-build-scripts/contracts/cli-schemas.md`](../../specs/994-python-build-scripts/contracts/cli-schemas.md) for the CLI contract of each script.
 
 Out of scope for spec 994 (must NOT be touched):
-- `../mvn-env.{sh,bat}` — already cross-platform, per Clarification Q2.
+- Repo-root Maven wrapper (`./mvnw` / `mvnw.cmd`) — already cross-platform; use it for builds.
 - Anything under `system/release/`, `system/installResources/`, `system/Tools/`, etc. — runtime scripts deployed with customer installations (FR-013).
 
 ## Scripts
@@ -68,7 +68,7 @@ Run the Percussion CMS installer ONCE on the host into a persistent `install_roo
   ```
 - **Prereqs**:
   - JDK 21 on the host.
-  - Built artifacts: `modules/perc-distribution-tree/target/perc-distribution-tree.jar` and `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/target/delivery-tier-distribution.jar` (run `./mvn-env.sh clean install -DskipTests=true`).
+  - Built artifacts: `modules/perc-distribution-tree/target/perc-distribution-tree.jar` and `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/target/delivery-tier-distribution.jar` (run `./mvnw clean install -DskipTests=true`).
   - For MySQL installs: the `mysql` compose service must be running and reachable on `localhost:3306`.
 - **Output**: `RESULT:OK STEP:install LOG:<path>` or `RESULT:FAIL STEP:install LOG:<path>`.
 - **Tests**: `python3 -m pytest scripts/test_install_cms_dev.py -v`

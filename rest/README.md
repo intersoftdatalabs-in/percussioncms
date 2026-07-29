@@ -118,13 +118,13 @@ Use the provided environment script to ensure Maven uses JDK 21:
 
 ```bash
 # Build only the rest module
-./mvn-env.sh -pl rest clean install
+./mvnw -pl rest clean install
 
 # Build with full testing
-./mvn-env.sh clean install
+./mvnw clean install
 
 # Skip tests for faster builds
-./mvn-env.sh -pl rest clean install -DskipTests
+./mvnw -pl rest clean install -DskipTests
 ```
 
 ### Code Style
@@ -140,10 +140,10 @@ Unit tests use JUnit 5 with Mockito:
 
 ```bash
 # Run tests for this module
-./mvn-env.sh -pl rest test
+./mvnw -pl rest test
 
 # Run specific test class
-./mvn-env.sh -pl rest test -Dtest=ClassName
+./mvnw -pl rest test -Dtest=ClassName
 ```
 
 Key testing guidelines:

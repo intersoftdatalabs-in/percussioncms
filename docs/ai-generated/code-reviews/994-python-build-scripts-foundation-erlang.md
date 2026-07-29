@@ -13,7 +13,7 @@ per FR-001a / Clarification Q1.
 
 Smoke-tested locally on Linux (Python 3.12.3, pytest 8.3.5): all 18 sentinel
 cases pass; runner `--help` works; `bash -n` clean; `py_compile` clean. Every
-sentinel fingerprint was grep-verified against the real `mvn-env.{sh,bat}` on
+sentinel fingerprint was grep-verified against the real `mvnw / mvnw.cmd` on
 the working tree. Cross-platform path checklist: clean. Constitution gates II,
 III, VIII verified.
 
@@ -75,12 +75,12 @@ III, VIII verified.
 
 - File: `scripts/test_mvn_env_untouched.py:135-147`
 - Description: The `.bat` balance heuristic counts standalone `)` lines as
-  close-parens. If a future `mvn-env.bat` revision adds an unrelated `)`
+  close-parens. If a future `mvnw.cmd` revision adds an unrelated `)`
   (e.g. in an `echo` or `for` body), the count drifts and the sentinel
   fires a false positive. Documented in the docstring as a "Heuristic".
 - Suggestion: optional. The two if-blocks in the current file are stable and
   the heuristic is bounded by the file's narrow scope; future
-  `mvn-env.bat` changes that add `for /f (...)` etc. would require updating
+  `mvnw.cmd` changes that add `for /f (...)` etc. would require updating
   the regex. Acceptable for a regression sentinel. No action required.
 - Status: open (non-blocking)
 
@@ -100,7 +100,7 @@ III, VIII verified.
 
 |                          Smell                           |                                                                                                                                                                  Result                                                                                                                                                                  |
 |----------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Hardcoded `/` or `\\` in filesystem paths                | **None.** Sentinel uses `pathlib.Path.resolve().parent.parent` and `Path("mvn-env.sh")` joins only. `scripts/run-python-tests.sh` uses `$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)` (POSIX-portable). `scripts/run-python-tests.cmd` uses `%~dp0..` (Windows-portable). Workflow paths are GH Actions glob patterns, not OS paths. |
+| Hardcoded `/` or `\\` in filesystem paths                | **None.** Sentinel uses `pathlib.Path.resolve().parent.parent` and `Path("mvnw")` joins only. `scripts/run-python-tests.sh` uses `$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)` (POSIX-portable). `scripts/run-python-tests.cmd` uses `%~dp0..` (Windows-portable). Workflow paths are GH Actions glob patterns, not OS paths. |
 | Unix-only absolute roots (`/tmp`, `/var`, `/home`)       | **None.**                                                                                                                                                                                                                                                                                                                                |
 | Windows-only roots (`C:\…`)                              | **None** in Python or YAML. `.cmd` references are relative.                                                                                                                                                                                                                                                                              |
 | Multi-path list joined with `:` or `;`                   | **N/A** (no multi-path lists in this PR).                                                                                                                                                                                                                                                                                                |
@@ -130,9 +130,9 @@ III, VIII verified.
 - `python3 scripts/test_mvn_env_untouched.py -v` (via pytest 8.3.5) →
   **18 passed in 0.23s**
 - All 12 snippet fingerprints grep-verified against the live
-  `mvn-env.{sh,bat}` on this working tree
-- `if`/`fi` counts on `mvn-env.sh` balanced (3/3); `if … (` / `)` on
-  `mvn-env.bat` balanced (2/2)
+  `mvnw / mvnw.cmd` on this working tree
+- `if`/`fi` counts on `mvnw` balanced (3/3); `if … (` / `)` on
+  `mvnw.cmd` balanced (2/2)
 - All 6 in-scope script dirs (`scripts/`, `docker/scripts/`, `docker/entrypoint/`,
   `modules/perc-distribution-tree/scripts/`, `modules/ai-shared-develop/scripts/`,
   `modules/ai-shared-develop/src/main/resources/skills/`) exist

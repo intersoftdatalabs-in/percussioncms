@@ -52,13 +52,13 @@ Ensure you have the following installed:
 cd modules/tlsutils
 
 # Clean and compile the project (use wrapper so Maven runs with JDK 21)
-./mvn-env.sh clean compile
+./mvnw clean compile
 
 # Package the module (creates JAR file)
-./mvn-env.sh clean package
+./mvnw clean package
 
 # Install to local Maven repository
-./mvn-env.sh clean install
+./mvnw clean install
 ```
 
 ### Build from Parent Project

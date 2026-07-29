@@ -28,7 +28,7 @@
 **Purpose**: Orient modules, toolchain, and feature docs.
 
 - [X] T001 Identify owning modules and read AGENTS hierarchy: root `AGENTS.md`, `WebUI/AGENTS.md`
-- [X] T002 Confirm JDK 21 branch baseline and that WebUI modern tests can run via `./mvn-env.sh -pl WebUI` and/or `WebUI/src/main/frontend` npm/vitest per module docs
+- [X] T002 Confirm JDK 21 branch baseline and that WebUI modern tests can run via `./mvnw -pl WebUI` and/or `WebUI/src/main/frontend` npm/vitest per module docs
 - [X] T003 [P] Confirm feature docs present under `specs/990-unified-publishing-ui/` (`spec.md`, `plan.md`, `research.md`, `research/inventory.md`, `data-model.md`, `contracts/*`, `quickstart.md`)
 - [X] T004 [P] Confirm checklist scaffolds exist: `specs/990-unified-publishing-ui/checklists/removal-inventory.md` and `checklists/i18n-key-checklist.md`
 - [X] T005 [P] Skim contracts: `specs/990-unified-publishing-ui/contracts/ops-publish-api.md`, `design-runtime-api.md`, `deep-links.md`, `capability-matrix.md`
@@ -274,7 +274,7 @@
 **Purpose**: Docs, hygiene, security sweep after stories.
 
 - [X] T111 [P] Update nearest WebUI README or feature notes documenting Publishing modern entry (`publishModern.jsp`, section query params) under `WebUI/` or `specs/990-unified-publishing-ui/`
-- [X] T112 [P] Spotless / format check on touched Java modules via `./mvn-env.sh` as required by project norms
+- [X] T112 [P] Spotless / format check on touched Java modules via `./mvnw` as required by project norms
 - [X] T113 Security review: AuthZ on design façade, CSRF on all mutations, no secrets in logs (FR-011, FR-016)—record in PR or `specs/990-unified-publishing-ui/checklists/`
 - [X] T114 Cross-platform path review for any new Java file I/O/tests (constitution Cross-Platform rules)
 - [X] T115 Final capability matrix audit: all in-scope rows Done or explicitly N/A with reason in `contracts/capability-matrix.md`

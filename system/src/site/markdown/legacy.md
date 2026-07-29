@@ -199,7 +199,7 @@ If you decide to refactor legacy code:
    - Update `refactored-java11-packages.txt`
    - Update README and site docs if appropriate
 6. **Test thoroughly**
-   - Run all tests: `./mvn-env.sh clean verify`
+   - Run all tests: `./mvnw clean verify`
    - Write new test cases for edge cases
    - Aim for 85%+ coverage
 

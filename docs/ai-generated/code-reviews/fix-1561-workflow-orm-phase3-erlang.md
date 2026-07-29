@@ -13,7 +13,7 @@ This branch finishes **Phase 3** of #1561: it kills the last surviving `new PSCo
 
 The dominant residual risk is that the same dual-connection pattern still exists in 7 other exit classes (`PSExitPerformTransition`, `PSExitNotifyAssignees`, `PSExitAddPossibleTransitions{,Ex}`, `PSExitAddEditAuthFlag`, `PSExitAuthenticateUser`, `PSExitDisallowUpdatePublished`, `PSGetCheckoutStatus`) and in `PSWorkflowCommandHandler` — explicitly deferred to Phase 4. The new `IPSWorkflowService#loadWorkflowTransition(long, long)` method is narrowly scoped to non-aging transitions (returns `null` for aging ones), which matches `PSExitUpdateHistory`'s call pattern but should be flagged if other callers ever land here.
 
-Build: `mvn-env.bat -N clean test -Dmaven.javadoc.skip=true` → **BUILD SUCCESS**, 9 tests pass, no new warnings on changed files.
+Build: `mvnw.cmd -N clean test -Dmaven.javadoc.skip=true` → **BUILD SUCCESS**, 9 tests pass, no new warnings on changed files.
 
 ---
 
@@ -57,7 +57,7 @@ Build: `mvn-env.bat -N clean test -Dmaven.javadoc.skip=true` → **BUILD SUCCESS
 ### Issue 1 — Severity: bug — **RESOLVED** (caught + fixed during build)
 - **File:** `system/services/src/com/percussion/services/workflow/data/PSTransformTransitionUtils.java:170–184`
 - **Description (caught during build):** the rename of `getTransition` → `convertTransition` left only one `getTransitionHib(PSTransition)` overload, but the caller at line 179 (`getTransitionHib((PSAgingTransition) trans)`) needs the `getTransitionHib(PSAgingTransition)` overload from `HEAD`. This would have failed `perc-system` compilation, blocking the whole PR. Fixed by adding the missing `private static PSTransitionHib getTransitionHib(PSAgingTransition ageTrans)` overload alongside the `PSTransition` one, calling `copyAgingTransition(ageTrans, hib, true)` and setting `TransitionType.AGING`.
-- **Verification:** `mvn-env.bat -N install -DskipTests -Dmaven.javadoc.skip=true` from `system/` → BUILD SUCCESS. `mvn-env.bat -N clean test` from `modules/extensions-workflow/` → BUILD SUCCESS, 9 tests pass.
+- **Verification:** `mvnw.cmd -N install -DskipTests -Dmaven.javadoc.skip=true` from `system/` → BUILD SUCCESS. `mvnw.cmd -N clean test` from `modules/extensions-workflow/` → BUILD SUCCESS, 9 tests pass.
 - **Status:** resolved.
 
 ### Issue 2 — Severity: suggestion — **RESOLVED**
@@ -94,7 +94,7 @@ Build: `mvn-env.bat -N clean test -Dmaven.javadoc.skip=true` → **BUILD SUCCESS
 
 | Initial finding | Status | Evidence |
 |---|---|---|
-| Suggestion: restore `junit-jupiter` + `mockito-core` deps to `extensions-workflow/pom.xml` | **resolved** | staged pom change; `mvn-env.bat -N clean test` runs 9 tests |
+| Suggestion: restore `junit-jupiter` + `mockito-core` deps to `extensions-workflow/pom.xml` | **resolved** | staged pom change; `mvnw.cmd -N clean test` runs 9 tests |
 | Bug (caught at build): `getTransitionHib(PSAgingTransition)` overload missing after rename | **resolved** | added the missing overload |
 | Bug (caught at build): orphan `bSuccess` reference in new `moveNext()` | **resolved** | dropped; logic returns `true`/`false` directly |
 | Bug (caught at build): `transitionContext` vs `transition` variable mismatch in new builder overload | **resolved** | renamed + used `transition.getGUID().longValue()` / `getLabel()` |
@@ -125,7 +125,7 @@ in the same branch, on a follow-up commit):
 
 The `PSContentStatusHistoryEntityBuilderTest` suite still passes **9 / 9**; this branch makes no new tests but does add test-classpath deps that exercise the existing suite in CI (it was previously running `Tests run: 0`).
 
-`mvn-env.bat -N clean test -Dmaven.javadoc.skip=true` → **BUILD SUCCESS**, `Tests run: 9, Failures: 0, Errors: 0, Skipped: 0`.
+`mvnw.cmd -N clean test -Dmaven.javadoc.skip=true` → **BUILD SUCCESS**, `Tests run: 9, Failures: 0, Errors: 0, Skipped: 0`.
 
 ### Tests added in the PR #1570 review-comment fix pack
 
@@ -134,8 +134,8 @@ The `PSContentStatusHistoryEntityBuilderTest` suite still passes **9 / 9**; this
 | `PSComponentSummaryAdapterTest` | **7** | happy-path getter mapping + date narrowing; null dates stay null (not synthetic defaults); documented fallback values for fields `PSComponentSummary` does not expose (`""` for creator, `false` for `isRevisionLocked` / `neverAged`, `null` for `reminderDate`); boxed-Integer fields (`CURRENTREVISION`, `EDITREVISION`, `TIPREVISION`) null-coerce to zero; null checkout user stays null; null summary is rejected by the constructor; mutators throw `UnsupportedOperationException`; `close()` is a no-op (Phase 3 in-memory cursor). |
 | `PSWorkflowServiceLoadWorkflowTransitionTest` | **6** | rejects non-positive `workflowAppId` (0, -1) and `transitionId` (0, -3); aging-transition row → returns `null` (the new safety branch); missing row → returns `null`; happy path returns a converted `PSTransition` with the right `GUID`, `workflowId`, `label`; composite-key verification — `Session.get` is called with a `PSTransitionPK(7L, 11L)` exactly. |
 
-`mvn-env.bat -N clean install -Dmaven.javadoc.skip=true` in `modules/extensions-workflow` → **BUILD SUCCESS**, `Tests run: 16, Failures: 0, Errors: 0, Skipped: 0` (7 new + 9 existing).
-`mvn-env.bat -N clean install -Dmaven.javadoc.skip=true -Dtest=PSWorkflowServiceLoadWorkflowTransitionTest` in `system` → **BUILD SUCCESS**, `Tests run: 6, Failures: 0, Errors: 0, Skipped: 0`.
+`mvnw.cmd -N clean install -Dmaven.javadoc.skip=true` in `modules/extensions-workflow` → **BUILD SUCCESS**, `Tests run: 16, Failures: 0, Errors: 0, Skipped: 0` (7 new + 9 existing).
+`mvnw.cmd -N clean install -Dmaven.javadoc.skip=true -Dtest=PSWorkflowServiceLoadWorkflowTransitionTest` in `system` → **BUILD SUCCESS**, `Tests run: 6, Failures: 0, Errors: 0, Skipped: 0`.
 
 ---
 

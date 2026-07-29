@@ -57,8 +57,8 @@ _None._
 ## Maven (standalone)
 
 ```text
-cd deliverytiersuite/delivery-tier-suite/tomcat-common && ../../../mvn-env.sh clean install
-cd deliverytiersuite/delivery-tier-suite/delivery-tier-distribution && ../../../mvn-env.sh clean install
+cd deliverytiersuite/delivery-tier-suite/tomcat-common && ../../../mvnw clean install
+cd deliverytiersuite/delivery-tier-suite/delivery-tier-distribution && ../../../mvnw clean install
 ```
 
 BUILD SUCCESS both modules; surefire green on packaging tests.

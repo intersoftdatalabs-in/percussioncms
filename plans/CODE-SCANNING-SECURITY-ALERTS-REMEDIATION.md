@@ -288,7 +288,7 @@ const clean = sanitizeHtml(dirtyHtml, {
 ## Dependencies & Prerequisites
 
 - [ ] Java 21 development environment configured
-- [ ] Maven build working (`./mvn-env.sh clean test`)
+- [ ] Maven build working (`./mvnw clean test`)
 - [ ] CodeQL analysis enabled and passing (except for known open alerts)
 - [ ] Git branches configured for feature development
 - [ ] Team code review process established

@@ -220,7 +220,7 @@ phrases admins/agents use: "where do I configure…", "which file controls…",
 ## Validation (executed before merge)
 
 1. **Per-module standalone build** (root `AGENTS.md` *Pre-PR Maven
-   verification — HARD GATE*): `cd modules/ai-shared-release && ../mvn-env.sh
+   verification — HARD GATE*): `cd modules/ai-shared-release && ../mvnw
    clean install`. BUILD SUCCESS required. Record in PR body.
 2. **Distribution check**: unpack `target/distribution/ai/` and confirm
    `skills/percussioncms.config/SKILL.md` is present alongside the existing
@@ -265,7 +265,7 @@ None. All design decisions were answered by the user:
    entry).
 4. Self-review: frontmatter parses, links resolve, no hardcoded `/`/`\` in
    filesystem-path examples.
-5. Per-module build: `cd modules/ai-shared-release && ../mvn-env.sh
+5. Per-module build: `cd modules/ai-shared-release && ../mvnw
    clean install`. Confirm BUILD SUCCESS and that
    `target/distribution/ai/skills/percussioncms.config/SKILL.md` exists.
 6. Open PR on `development` with command + BUILD SUCCESS evidence in the

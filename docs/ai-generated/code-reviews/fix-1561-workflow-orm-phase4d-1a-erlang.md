@@ -48,10 +48,10 @@
 
 | Module | Command | Result |
 |---|---|---|
-| `modules/extensions-workflow` | `mvn-env.bat -N clean install -DskipTests` | **BUILD SUCCESS** |
-| `system` | `mvn-env.bat -N clean install -DskipTests` | **BUILD SUCCESS** |
-| `modules/extensions-workflow` | `mvn-env.bat -N test` | **49 tests** (16 active, 33 @Disabled), Failures: 0, Errors: 0 |
-| `system` | `mvn-env.bat -N test` | **904 tests** (659 active, 1 pre-existing failure in `PSObjectSerializerTest` noted in root `AGENTS.md` as unrelated, 244 @Disabled), Failures: 1 (pre-existing), Errors: 0 |
+| `modules/extensions-workflow` | `mvnw.cmd -N clean install -DskipTests` | **BUILD SUCCESS** |
+| `system` | `mvnw.cmd -N clean install -DskipTests` | **BUILD SUCCESS** |
+| `modules/extensions-workflow` | `mvnw.cmd -N test` | **49 tests** (16 active, 33 @Disabled), Failures: 0, Errors: 0 |
+| `system` | `mvnw.cmd -N test` | **904 tests** (659 active, 1 pre-existing failure in `PSObjectSerializerTest` noted in root `AGENTS.md` as unrelated, 244 @Disabled), Failures: 1 (pre-existing), Errors: 0 |
 
 No new warnings introduced on the changed modules (raw-type warnings on legacy
 `IPSStateRolesContext` are pre-existing and untouched).

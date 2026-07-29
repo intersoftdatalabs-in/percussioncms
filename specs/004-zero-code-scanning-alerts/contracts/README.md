@@ -117,7 +117,7 @@ Disposition(s): obsolete | valid | false-positive | accepted-risk
 Module(s): <module-owner-1>, <module-owner-2>
 Verification:
 - [ ] Scanner re-scan no longer reports the alert(s) above.
-- [ ] Module test suite (`./mvn-env.sh -pl <module> test`) passes.
+- [ ] Module test suite (`./mvnw -pl <module> test`) passes.
 - [ ] If disposition == valid: regression test that fails on the pre-fix code is referenced.
 - [ ] If obsolete file was previously bundled: rebuilt distribution archive listing does not contain it.
 ```

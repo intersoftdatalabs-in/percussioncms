@@ -216,7 +216,7 @@ Applied to all structural I/O changes and the fix-pack tests:
 2. ~~Add behavioral tests for `PSCloudService.generateThumbUrl` (Issue 2).~~ **done**
 3. ~~Add behavioral tests for theme cache / clearCache structural rewrite (Issue 3).~~ **done** (clearCache + session helper; cache File composition residual noted)
 4. ~~Add behavioral tests for `PSRenderLinkService` requireUnderBase resolution (Issue 4).~~ **done** (call-site contract tests)
-5. Re-run affected tests via `./mvn-env.sh` / `./mvn-env.bat` (sitemanage module security tests at minimum) — **author/CI responsibility**; not re-run in this read-only review.
+5. Re-run affected tests via `./mvnw` / `./mvnw.cmd` (sitemanage module security tests at minimum) — **author/CI responsibility**; not re-run in this read-only review.
 6. ~~Request Erlang re-review; update this file with `## Re-review` and issue statuses.~~ **done** (this section)
 
 ## Re-review

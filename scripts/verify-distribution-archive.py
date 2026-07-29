@@ -19,7 +19,7 @@ Usage
 
 Behavioral Notes
 ----------------
-- The bash version invokes Maven (``mvn``) directly to avoid ``mvn-env.sh``'s
+- The bash version invokes Maven (``mvn``) directly to avoid ``mvnw``'s
   cross-filesystem ``mv`` issues on Windows. The Python port does the same
   (FR-008: subprocess.run with argv list, shell=False).
 - ``unzip -l`` is replaced by ``zipfile.ZipFile.namelist()`` (stdlib only).

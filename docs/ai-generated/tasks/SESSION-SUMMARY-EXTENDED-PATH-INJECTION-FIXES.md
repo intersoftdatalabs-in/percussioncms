@@ -218,7 +218,7 @@ Each test suite covers a systematic attack progression with **106 total test cas
 All refactored files compile without introduced errors:
 
 ```bash
-./mvn-env.sh -f projects/sitemanage/pom.xml clean compile -q
+./mvnw -f projects/sitemanage/pom.xml clean compile -q
 # Result: No new compilation errors
 ```
 
@@ -259,7 +259,7 @@ This extended session's work integrates with:
 ### 1. **CodeQL Verification** (HIGH PRIORITY)
 
 ```bash
-./mvn-env.sh clean compile -Pcodeql-local
+./mvnw clean compile -Pcodeql-local
 ```
 
 Verify that alerts have been resolved from CodeQL scans.
@@ -314,4 +314,4 @@ Based on earlier search, remaining files to address:
 **Quality Assurance:** All tests passing, zero regressions, comprehensive coverage
 **Ready for:** CodeQL verification and continuation with remaining vulnerable files
 
-**Next Immediate Action:** Run `./mvn-env.sh clean compile -Pcodeql-local` to verify alert reduction.
+**Next Immediate Action:** Run `./mvnw clean compile -Pcodeql-local` to verify alert reduction.

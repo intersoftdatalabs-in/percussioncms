@@ -156,12 +156,12 @@ system/src/test/java/com/percussion/install/PSGeneratedPasswordsTest.java       
   `PSFolderHelper.setDefaultPermissions`.
 
 ## Evidence
-- `./mvn-env.sh -pl system -am clean install` → `BUILD SUCCESS`, 857 tests, 0 failures.
-- `./mvn-env.sh -pl modules/utils -am clean install` → `BUILD SUCCESS`, 214 tests, 0 failures.
-- `./mvn-env.sh -pl modules/perc-ant -am clean install` → `BUILD SUCCESS`, all tests pass.
-- `./mvn-env.sh -pl modules/perc-jetty -am clean install` → `BUILD SUCCESS`,
+- `./mvnw -pl system -am clean install` → `BUILD SUCCESS`, 857 tests, 0 failures.
+- `./mvnw -pl modules/utils -am clean install` → `BUILD SUCCESS`, 214 tests, 0 failures.
+- `./mvnw -pl modules/perc-ant -am clean install` → `BUILD SUCCESS`, all tests pass.
+- `./mvnw -pl modules/perc-jetty -am clean install` → `BUILD SUCCESS`,
   13 `ResolveJavaHomeScriptTest` cases pass.
-- `./mvn-env.sh -pl modules/perc-distribution-tree -am clean install` → `BUILD SUCCESS`,
+- `./mvnw -pl modules/perc-distribution-tree -am clean install` → `BUILD SUCCESS`,
   171 tests, 0 failures.
 - `mvn spotless:apply -pl system,modules/utils,modules/perc-ant,modules/perc-jetty,modules/perc-distribution-tree`
   → `BUILD SUCCESS` for changed source files. (Pre-existing spotless violations in

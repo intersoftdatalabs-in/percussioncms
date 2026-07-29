@@ -63,17 +63,17 @@ These will be refactored into this module in a future phase per [Planned Refacto
 cd modules/extensions-main
 
 # Compile
-../../mvn-env.sh clean compile
+../../mvnw clean compile
 
 # Run unit tests
-../../mvn-env.sh test
+../../mvnw test
 
 # Full install (for hot-deploy testing)
-../../mvn-env.sh clean install
+../../mvnw clean install
 
 # Code style check (must pass before committing)
-../../mvn-env.sh spotless:check
-../../mvn-env.sh spotless:apply  # auto-fix
+../../mvnw spotless:check
+../../mvnw spotless:apply  # auto-fix
 ```
 
 ## Refactoring notes

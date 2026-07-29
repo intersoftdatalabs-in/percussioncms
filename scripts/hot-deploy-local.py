@@ -139,12 +139,15 @@ def _newest_war(target_dir: Path) -> Path | None:
 
 
 def _run_maven(module_path: str, run_tests: bool, timeout: int) -> int:
-    wrapper = REPO_ROOT / "mvn-env.sh"
+    if sys.platform.startswith("win"):
+        wrapper = REPO_ROOT / "mvnw.cmd"
+    else:
+        wrapper = REPO_ROOT / "mvnw"
     argv: list[str]
-    if wrapper.is_file() and not sys.platform.startswith("win"):
+    if wrapper.is_file():
         argv = [str(wrapper), "-pl", module_path, "clean", "install"]
     else:
-        mvn = shutil.which("mvn") or "mvn"
+        mvn = shutil.which("mvn") or ("mvn.cmd" if sys.platform.startswith("win") else "mvn")
         argv = [mvn, "-pl", module_path, "clean", "install"]
     if not run_tests:
         argv.append("-DskipTests")

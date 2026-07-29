@@ -31,14 +31,14 @@ Yes.  The latest release will be featured in the [Releases page](https://github.
 
 ## Building from Source
 
-This project requires JDK 21. Use the provided environment scripts to build:
+This project requires JDK 21 (`JAVA_HOME` must point at a JDK 21 install). Use the repo Maven wrapper to build:
 
 ```bash
 # Linux/macOS
-./mvn-env.sh clean install
+./mvnw clean install
 
 # Windows
-mvn-env.bat clean install
+mvnw.cmd clean install
 ```
 
 For detailed build instructions, environment setup, CodeQL scanning, and development guides, see the [Contributor Page](https://github.com/intersoftdatalabs-in/percussioncms/blob/development/CONTRIBUTING.md).

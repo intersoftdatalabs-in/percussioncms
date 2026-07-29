@@ -21,7 +21,7 @@ The most significant contract change is **api-client**: the original `.sh` was a
 - **Files changed**: 23 (7 new `.py` + 3 new `test_*.py` + 2 SKILL.md updates + 13 originals deleted)
 - **Tests added**: 81 (19 api-client + 14 download-latest + 13 install-cms + 35 install-dts + start-cms + start-dts + generate-javadoc-stubs combined)
 - **Test runtime**: ~5s for the full in-scope pytest collection; 342/342 pass on Linux
-- **Maven build**: `cd modules/ai-shared-develop && ../../mvn-env.sh clean install -DskipTests` → **BUILD SUCCESS** (20s)
+- **Maven build**: `cd modules/ai-shared-develop && ../../mvnw clean install -DskipTests` → **BUILD SUCCESS** (20s)
 
 ## Recommendation
 
@@ -42,7 +42,7 @@ The most significant contract change is **api-client**: the original `.sh` was a
 | No third-party deps beyond pytest                                 | **PASS** — runtime imports are stdlib only: `argparse`, `base64`, `getpass`, `hashlib`, `http.client` (via `urllib`), `json`, `logging`, `os`, `pathlib`, `re`, `shutil`, `subprocess`, `sys`, `tempfile`, `urllib`, `pathlib`. No new third-party packages.                                                                                                                                                        |
 | `pathlib.Path` for repo-root resolution (R7)                      | **PASS** — `install-cms.py` and `install-dts.py` use `script_path.resolve().parents[3]` to find the repo root from the skill bundle path.                                                                                                                                                                                                                                                                           |
 | Maven `exec-maven-plugin` continues to invoke Java mains (FR-014) | **N/A** — no Java code changed; only Python scripts and docs.                                                                                                                                                                                                                                                                                                                                                       |
-| `mvn clean install` succeeds with no new warnings (SC-007)        | **PASS** — `cd modules/ai-shared-develop && ../../mvn-env.sh clean install -DskipTests` → BUILD SUCCESS, 20s, no new warnings (existing baseline warnings, if any, are pre-existing and unrelated to this PR).                                                                                                                                                                                                      |
+| `mvn clean install` succeeds with no new warnings (SC-007)        | **PASS** — `cd modules/ai-shared-develop && ../../mvnw clean install -DskipTests` → BUILD SUCCESS, 20s, no new warnings (existing baseline warnings, if any, are pre-existing and unrelated to this PR).                                                                                                                                                                                                      |
 
 ## Behavioral parity matrix
 
@@ -132,7 +132,7 @@ Full in-scope pytest: **342 passed in 4.76s** (US2+US3+US6+US4+US5 combined).
 ## Build verification
 
 - `bash scripts/run-python-tests.sh --skip-install` → **342 passed, 1 skipped in 4.76s** (1 skipped = Windows-only skipTest path)
-- `cd modules/ai-shared-develop && ../../mvn-env.sh clean install -DskipTests` → **BUILD SUCCESS** (20s), 0 errors, no new warnings
+- `cd modules/ai-shared-develop && ../../mvnw clean install -DskipTests` → **BUILD SUCCESS** (20s), 0 errors, no new warnings
 - The skill zip assembly correctly excludes the deleted `.sh`/`.ps1` files (Maven includes all files in the resources tree by default; the `assembly.xml` doesn't filter — files are simply gone)
 
 ## Re-review trigger

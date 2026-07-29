@@ -320,7 +320,7 @@ your implementation class.
 
 ```bash
 cd modules/extensions-main
-../../mvn-env.sh clean install
+../../mvnw clean install
 ```
 
 Then hot-deploy and restart the local server:
@@ -343,28 +343,28 @@ correctly.
 ```bash
 # Compile only
 cd modules/extensions-main
-../../mvn-env.sh clean compile
+../../mvnw clean compile
 
 # Run unit tests
-../../mvn-env.sh test
+../../mvnw test
 
 # Full install (produces JAR for deployment)
-../../mvn-env.sh clean install
+../../mvnw clean install
 
 # Skip tests for speed
-../../mvn-env.sh clean install -DskipTests
+../../mvnw clean install -DskipTests
 
 # Code style check (must pass before committing)
-../../mvn-env.sh spotless:check
+../../mvnw spotless:check
 # Auto-fix style issues
-../../mvn-env.sh spotless:apply
+../../mvnw spotless:apply
 ```
 
 For cross-module changes that touch `perc-system` or other upstream modules,
 build from the workspace root:
 
 ```bash
-./mvn-env.sh clean install -DskipTests
+./mvnw clean install -DskipTests
 ```
 
 ---
@@ -380,7 +380,7 @@ build from the workspace root:
 - The `categorystring` attribute in `Extensions.xml` is informational and
   does **not** affect runtime lookup. The FQN (`handler/context/name`) is
   the authoritative identity used as the map key.
-- Run `../../mvn-env.sh spotless:check` before committing; apply fixes with
+- Run `../../mvnw spotless:check` before committing; apply fixes with
   `spotless:apply` if needed.
 - Follow the [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html).
 

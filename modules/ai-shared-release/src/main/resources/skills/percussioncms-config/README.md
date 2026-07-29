@@ -77,7 +77,7 @@ Verify the catalog ships by running the per-module build:
 
 ```bash
 cd modules/ai-shared-release
-../mvn-env.sh clean install
+../mvnw clean install
 ```
 
 After a successful build, the catalog should be present at:

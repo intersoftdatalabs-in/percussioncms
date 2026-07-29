@@ -27,8 +27,8 @@ already depends on `com.percussion:perc-system`, `com.percussion:utils`,
 **Testing**: JUnit 5 / Mockito already configured at the parent POM level. Per FR-009,
 **no new tests** are added for this docs-only feature; existing module tests must
 continue to pass. Verification is performed via the javadoc build itself plus
-`./mvn-env.sh -pl modules/DesktopContentExplorer test`.
-**Target Platform**: CMS desktop client (Swing + JavaFX). Built via `./mvn-env.sh`
+`./mvnw -pl modules/DesktopContentExplorer test`.
+**Target Platform**: CMS desktop client (Swing + JavaFX). Built via `./mvnw`
 (jdk21 env). No runtime platform change.
 **Project Type**: Multi-module CMS mono-repo; this work is scoped to a single legacy
 desktop client module (`perc-content-explorer`).
@@ -36,7 +36,7 @@ desktop client module (`perc-content-explorer`).
 down" wording in the user request refers to javadoc-induced build noise, not to wall
 time.
 **Constraints**:
-- Branch is `development`; JDK 21 via `./mvn-env.sh`. Never run plain `mvn`.
+- Branch is `development`; JDK 21 via `./mvnw`. Never run plain `mvn`.
 - No Spring Boot (Constitution V). No new modules / new plugins (Constitution VII).
 - No public-type-signature or visibility changes anywhere in the module (FR-004).
 - No new dependencies, no parent POM edits (FR-005).
@@ -77,7 +77,7 @@ rules apply directly.
   `{@link}` references are corrected within the existing module's comments only.
 - [x] **VI. Security by Default**: no authn/authz, XML parsing, file upload,
   cryptography, redirect, or sensitive logging surfaces touched.
-- [x] **VII. Build, Platform & Dependency Hygiene**: JDK 21 via `./mvn-env.sh` on
+- [x] **VII. Build, Platform & Dependency Hygiene**: JDK 21 via `./mvnw` on
   `development`; no new Maven or npm dependencies; no plugin overrides; Spotless is not
   configured at the parent level for this module, so no Spotless step is required.
 - [x] **VIII. Documentation & Operability**: this is itself a documentation-quality

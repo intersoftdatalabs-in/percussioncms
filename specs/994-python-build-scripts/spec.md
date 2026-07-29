@@ -10,10 +10,10 @@
 ## Module Scope
 
 - **Primary module(s)**: repo-root `scripts/`, `docker/scripts/`, `docker/entrypoint/`, `modules/perc-distribution-tree/scripts/`, `modules/ai-shared-develop/scripts/`, `modules/ai-shared-develop/src/main/resources/skills/*/scripts/`, `docs/ai-generated/tasks/#000-webui-src-layout/*.sh`
-- **Explicitly EXCLUDED from this spec**: repo-root `mvn-env.{sh,bat}` — already works cross-platform and is left untouched (Q2 clarification)
+- **Explicitly EXCLUDED from this spec**: repo-root `mvnw / mvnw.cmd` — already works cross-platform and is left untouched (Q2 clarification)
 - **Secondary / integration modules**: `modules/perc-distribution-tree/` (developer convenience `APIUpdate-*.bat`, `UpdateTinyMCE.bat`); documentation under `scripts/README.md`, module `AGENTS.md`, root `AGENTS.md`, `docker/README.md`, `.specify/**` only as it relates to commands the spec touches
 - **AGENTS files to apply**: root `AGENTS.md` (cross-platform file I/O & paths, pre-PR Maven gate, `scripts/` convention, `-euo pipefail`-equivalent rule); `scripts/AGENTS.md` if present; `modules/perc-distribution-tree/AGENTS.md` (build verification helpers); `modules/ai-shared-develop/AGENTS.md`; `docker/AGENTS.md` if present
-- **User roles affected**: developers (run `mvn-env.sh`, `install-cms-dev.sh`, `hot-deploy-local.sh`), release/CI engineers (run verify/audit scripts in `scripts/release-audit/` and `scripts/verify-*.sh`), Erlang review maintainers (`scripts/erlang-harvest-review-patterns.{sh,bat}`), AI agent users (skill scripts under `modules/ai-shared-develop/src/main/resources/skills/`), docker dev users
+- **User roles affected**: developers (run `mvnw`, `install-cms-dev.sh`, `hot-deploy-local.sh`), release/CI engineers (run verify/audit scripts in `scripts/release-audit/` and `scripts/verify-*.sh`), Erlang review maintainers (`scripts/erlang-harvest-review-patterns.{sh,bat}`), AI agent users (skill scripts under `modules/ai-shared-develop/src/main/resources/skills/`), docker dev users
 - **Install / upgrade impact**: none (build/dev tooling only — no installer payload, no `.ppkg` content, no runtime deployable). Runtime scripts (installer, console, server start/stop, jetty, Derby DB, patch-tools, TableFactory admin, test resources) are explicitly OUT OF SCOPE
 
 ## User Scenarios & Testing
@@ -22,12 +22,12 @@ Each story must be independently testable.
 
 ### User Story 1 - Developer runs the unchanged Maven wrapper on any OS (Priority: P1)
 
-A developer clones the repo on Windows, Linux, or macOS, sets `JAVA_HOME_21`, and runs the build from a module directory. The existing `mvn-env.sh` (Linux/macOS) and `mvn-env.bat` (Windows) keep working exactly as today; this spec does NOT migrate them.
+A developer clones the repo on Windows, Linux, or macOS, sets `JAVA_HOME_21`, and runs the build from a module directory. The existing `mvnw` (Linux/macOS) and `mvnw.cmd` (Windows) keep working exactly as today; this spec does NOT migrate them.
 
 **Acceptance Scenarios**:
-1. **Given** a developer on Linux with `JAVA_HOME_21` set, **When** they run `./mvn-env.sh clean install -pl rest -am` from `rest/`, **Then** the build proceeds exactly as before (no behavioral drift introduced by this spec)
-2. **Given** a developer on Windows with `JAVA_HOME_21` set, **When** they run `mvn-env.bat clean install -pl rest -am` from `rest/`, **Then** the build proceeds exactly as before
-3. **Given** `mvn-env.sh` and `mvn-env.bat` exist on `development`, **When** `git grep -E 'mvn-env\.(sh|bat)' -- ':!*.ppkg' ':!docs/ai-generated/code-reviews/*'` runs, **Then** all references to those files remain (none deleted) and all references in `AGENTS.md` etc. still describe the existing two-file UX
+1. **Given** a developer on Linux with `JAVA_HOME_21` set, **When** they run `./mvnw clean install -pl rest -am` from `rest/`, **Then** the build proceeds exactly as before (no behavioral drift introduced by this spec)
+2. **Given** a developer on Windows with `JAVA_HOME_21` set, **When** they run `mvnw.cmd clean install -pl rest -am` from `rest/`, **Then** the build proceeds exactly as before
+3. **Given** `mvnw` and `mvnw.cmd` exist on `development`, **When** `git grep -E 'Maven wrapper\.(sh|bat)' -- ':!*.ppkg' ':!docs/ai-generated/code-reviews/*'` runs, **Then** all references to those files remain (none deleted) and all references in `AGENTS.md` etc. still describe the existing two-file UX
 
 ### User Story 2 - CI/release verify scripts run identically on every OS (Priority: P1)
 
@@ -66,7 +66,7 @@ An AI agent invokes a skill helper (`api-client.sh`, `install-cms.sh`, `start-cm
 ### Session 2026-07-21
 
 - Q1: Migration phasing → A: Incremental per-directory PRs (one PR per top-level in-scope scope; each PR removes its in-scope `.sh`/`.bat` on landing)
-- Q2: Windows launcher UX for `mvn-env.py` → A: Exclude `mvn-env.{sh,bat}` from this migration entirely — both files stay as-is (already cross-platform)
+- Q2: Windows launcher UX for `Maven wrapper.py` → A: Exclude `mvnw / mvnw.cmd` from this migration entirely — both files stay as-is (already cross-platform)
 - Q3: pytest declaration location → A: New top-level `scripts/requirements-dev.txt` (pytest pinned) + `scripts/run-python-tests.{sh,cmd}` runner that installs + runs pytest over all in-scope script dirs
 - Q4: Windows CI verification for SC-003 → A: New scoped workflow `.github/workflows/python-build-scripts.yml` with `ubuntu-latest` + `windows-latest` matrix, path-filtered to in-scope script paths; Python-script tests ONLY (no Maven / full build)
 - Q5: Behavioral fidelity for shell-isms → A: Best-effort functional equivalence + a `## Behavioral Notes` section per script that calls out any deviation from the shell original
@@ -75,7 +75,7 @@ An AI agent invokes a skill helper (`api-client.sh`, `install-cms.sh`, `start-cm
 
 ### Functional Requirements
 
-- **FR-001**: Every build-time `.sh` and `.bat` script listed in the in-scope paths above MUST be replaced by a single Python 3.9+ script (`.py`) at the same directory, named after the original script without the extension. `mvn-env.{sh,bat}` are NOT in scope (per Clarification Q2)
+- **FR-001**: Every build-time `.sh` and `.bat` script listed in the in-scope paths above MUST be replaced by a single Python 3.9+ script (`.py`) at the same directory, named after the original script without the extension. `mvnw / mvnw.cmd` are NOT in scope (per Clarification Q2)
 - **FR-001a**: Migration MUST be delivered as per-directory PRs (one PR per top-level in-scope scope, e.g. `scripts/`, `docker/`, `perc-distribution-tree/scripts/`, `ai-shared-develop/scripts/`). Each PR removes only its own in-scope `.sh`/`.bat` files on landing (per Clarification Q1)
 - **FR-002**: Each Python script MUST accept the same CLI arguments as the original `.sh`/`.bat` (same flags, same positional args, same env var inputs)
 - **FR-003**: Each Python script MUST be executable directly (`python3 <name>.py [args]`) and via the standard `python <name>.py [args]` invocation on Windows; a `#!/usr/bin/env python3` shebang MUST be present so `chmod +x` works on Unix-likes
@@ -116,13 +116,13 @@ An AI agent invokes a skill helper (`api-client.sh`, `install-cms.sh`, `start-cm
 
 ### Measurable Outcomes
 
-- **SC-001**: After all per-directory PRs land, `git ls-files | grep -E '\.(sh|bat)$' | grep -v '<runtime-paths-from-FR-013>' | grep -v 'mvn-env\.(sh|bat)'` returns zero results on the development branch (mvn-env.{sh,bat} are out of scope per Clarification Q2)
+- **SC-001**: After all per-directory PRs land, `git ls-files | grep -E '\.(sh|bat)$' | grep -v '<runtime-paths-from-FR-013>' | grep -v 'Maven wrapper\.(sh|bat)'` returns zero results on the development branch (mvnw / mvnw.cmd are out of scope per Clarification Q2)
 - **SC-002**: 100% of in-scope build-time scripts have a Python equivalent whose pytest tests pass on Linux
 - **SC-003**: The new `.github/workflows/python-build-scripts.yml` runs successfully on both `ubuntu-latest` and `windows-latest` runners, executing `scripts/run-python-tests.{sh,cmd}` (Python-script tests only — no Maven / full build), path-filtered to in-scope paths
-- **SC-004**: `mvn-env.sh` and `mvn-env.bat` continue to exist on `development` and continue to behave exactly as before (regression check via existing `mvn-env.*` test surface if any; otherwise documented "no-change" assertion)
+- **SC-004**: `mvnw` and `mvnw.cmd` continue to exist on `development` and continue to behave exactly as before (regression check via existing `Maven wrapper.*` test surface if any; otherwise documented "no-change" assertion)
 - **SC-005**: All in-scope `verify-*.{sh,bat}` scripts removed; their Python replacements emit byte-identical (modulo line endings) PASS/FAIL verdicts on the same inputs as documented in `scripts/README.md`
-- **SC-006**: `git grep -E 'scripts/verify-[a-z-]+\.(sh|bat)' -- ':!*.ppkg' ':!docs/ai-generated/code-reviews/*' ':!docs/ai-generated/tasks/*/phase-*.sh'` returns zero matches (no surviving references in non-runtime code paths) — `mvn-env\.(sh|bat)` is explicitly exempt
-- **SC-007**: No new warnings or failures introduced in the per-module `./mvn-env.sh clean install` runs against the touched modules (`rest`, `projects/sitemanage`, `modules/perc-distribution-tree`, `modules/perc-jetty`, `modules/ai-shared-develop`) — per root `AGENTS.md` Pre-PR Maven verification hard gate
+- **SC-006**: `git grep -E 'scripts/verify-[a-z-]+\.(sh|bat)' -- ':!*.ppkg' ':!docs/ai-generated/code-reviews/*' ':!docs/ai-generated/tasks/*/phase-*.sh'` returns zero matches (no surviving references in non-runtime code paths) — `Maven wrapper\.(sh|bat)` is explicitly exempt
+- **SC-007**: No new warnings or failures introduced in the per-module `./mvnw clean install` runs against the touched modules (`rest`, `projects/sitemanage`, `modules/perc-distribution-tree`, `modules/perc-jetty`, `modules/ai-shared-develop`) — per root `AGENTS.md` Pre-PR Maven verification hard gate
 - **SC-008**: `scripts/requirements-dev.txt` declares pytest with a pinned version; `scripts/run-python-tests.sh` and `scripts/run-python-tests.cmd` both run successfully from a clean clone (idempotent install + run)
 
 ## Assumptions
@@ -131,7 +131,7 @@ An AI agent invokes a skill helper (`api-client.sh`, `install-cms.sh`, `start-cm
 - pytest is available or installable via `python3 -m pip install pytest`; the migration will vendor a `scripts/requirements-dev.txt` if pytest is not already present in a sibling lock file (per Clarification Q3)
 - The Erlang review skill pattern memory (under `docs/ai-generated/code-reviews/`) does not need migration; only the executable scripts change
 - The `.specify/scripts/bash/**` self-hosted tooling used by the speckit workflow is also a candidate for migration but is owned by the speckit install; the spec defers that to a follow-up rather than scope-creep here
-- `mvn-env.sh` and `mvn-env.bat` are NOT in scope of this spec; this spec does not touch them in any way (per Clarification Q2)
+- `mvnw` and `mvnw.cmd` are NOT in scope of this spec; this spec does not touch them in any way (per Clarification Q2)
 
 ## Open Questions
 

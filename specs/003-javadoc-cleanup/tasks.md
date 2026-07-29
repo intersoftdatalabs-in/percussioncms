@@ -13,7 +13,7 @@
 - **[P]**: Can run in parallel (different files, no dependencies)
 - **[Story]**: User story this task belongs to (US1, US2, US3)
 - Exact mono-repo file paths are included in every task
-- All builds/tests use `./mvn-env.sh` (JDK 21); never plain `mvn`
+- All builds/tests use `./mvnw` (JDK 21); never plain `mvn`
 
 > **Fixing strategy (from research.md)** — applied in priority order on every touched file:
 > 1. Write real Javadoc for missing comments on public classes/methods
@@ -30,7 +30,7 @@
 **Purpose**: Confirm ownership, AGENTS governance, and the pre-cleanup javadoc baseline for the module
 
 - [ ] T001 Identify owning module `modules/DesktopContentExplorer/` and apply the AGENTS hierarchy — run the Rule Discovery Protocol: confirm NO `AGENTS.md`/`AGENTS.local.md` exists under `modules/DesktopContentExplorer/`, so root `AGENTS.md` is the operative governance (per plan.md Technical Context)
-- [ ] T002 Verify JDK 21 via `./mvn-env.sh` and reproduce the baseline: run `./mvn-env.sh -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests 2> specs/003-javadoc-cleanup/baseline-raw.txt` and confirm it captures the documented `44 errors` / `100 warnings` tool summary (FR-006, SC-001)
+- [ ] T002 Verify JDK 21 via `./mvnw` and reproduce the baseline: run `./mvnw -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests 2> specs/003-javadoc-cleanup/baseline-raw.txt` and confirm it captures the documented `44 errors` / `100 warnings` tool summary (FR-006, SC-001)
 - [ ] T003 Record the baseline metrics (errors/warnings counts, capture date, JDK 21, `maven-javadoc-plugin` 3.12.0) into `specs/003-javadoc-cleanup/checklists/requirements.md` as the referenced pre-cleanup artifact (FR-006, SC-001)
 
 ---
@@ -51,7 +51,7 @@
 
 **Goal**: Eliminate all javadoc ERRORS and repair the structurally malformed Javadoc/HTML in the module so the javadoc step no longer fails or emits error-level noise attributable to `modules/DesktopContentExplorer`.
 
-**Independent Test**: Run `./mvn-env.sh -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests` and confirm the tool's final summary reads `0 errors` (FR-001, SC-002). Warning count drops substantially (cumulative ≥80% reduction confirmed after US2/US3).
+**Independent Test**: Run `./mvnw -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests` and confirm the tool's final summary reads `0 errors` (FR-001, SC-002). Warning count drops substantially (cumulative ≥80% reduction confirmed after US2/US3).
 
 ### Implementation for User Story 1
 
@@ -59,13 +59,13 @@
 
 - [ ] T007 [P] [US1] Fix broken `{@link}` reference ERRORS in `modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerMenu.java`, `.../cx/PSContentExplorerStatusDialog.java`, `.../cx/PSExecutableSearch.java`, `.../cx/PSMainDisplayPanel.java` (resolve targets to correct FQN/overload, or replace stale links with prose per research.md heuristic 2/5)
 - [ ] T008 [P] [US1] Fix broken `{@link}` reference ERRORS in `modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSMenuManager.java`, `.../cx/PSWizardDialog.java`, `.../wizard/PSWizardDialog.java`, `.../wizard/PSWizardPanel.java`
-- [ ] T009 [US1] Re-run `./mvn-env.sh -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests` and confirm summary reads `0 errors`; iterate on any remaining cross-module `{@link}` resolution until all 44 errors are cleared (FR-001, SC-002)
+- [ ] T009 [US1] Re-run `./mvnw -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests` and confirm summary reads `0 errors`; iterate on any remaining cross-module `{@link}` resolution until all 44 errors are cleared (FR-001, SC-002)
 - [ ] T010 [P] [US1] Repair malformed/bad HTML (close `<code>`, escape `<` `>` `&`, fix nested-tag / invalid-HTML / semicolon-missing / empty-comment) in `modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSColumnWidthsOption.java`, `.../cx/PSContentExplorerApplet.java`, `.../cx/PSContentExplorerUtils.java`, `.../cx/PSDisplayFormatOption.java`, `.../cx/PSDisplayFormatTableModel.java`, `.../cx/PSExpandedOption.java`, `.../cx/PSImageIconLoader.java`, `.../cx/PSItemAssemblyManager.java`, `.../cx/PSOptionManager.java`, `.../cx/PSProcessMonitor.java`, `.../cx/PSSearchDialog.java`
 - [ ] T011 [P] [US1] Fix unknown Javadoc/HTML tags, `@param name not found` typos (correct name to match signature), `exception not thrown` declarations (remove or correct `@throws`), and `use of default constructor` warnings in `modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java`, `.../cx/PSDisplayFormatOption.java`, `.../cx/PSExpandedOption.java`, `.../cx/PSContentExplorerApplet.java`, `.../cx/PSContentExplorerUtils.java`
 - [ ] T012 [P] [US1] Repair malformed/bad HTML and broken `{@link}` in `modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSCESessionManager.java`, `.../cx/PSContentExplorerStatusDialog.java`, `.../cx/PSExecutableSearch.java`, `.../cx/PSMainDisplayPanel.java`, `.../cx/PSSearchViewActionManager.java`, `.../cx/PSSearchDialog.java`
 - [ ] T013 [P] [US1] Repair malformed/bad HTML, unknown tags, and `@param` typos in `modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/BrowserProps.java`, `.../cx/javafx/PSBrowserUtils.java`, `.../cx/javafx/PSCallBack.java`, `.../cx/javafx/PSFileSaver.java`, `.../cx/guitools/UTMnemonicLabel.java`, `.../cx/catalogers/PSCommunityCataloger.java`, `.../cx/wizards/PSCopySiteNamePage.java`
 - [ ] T014 [P] [US1] Repair malformed/bad HTML and broken `{@link}` in `modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipDataBridge.java`, `.../cx/JSClipEventBridge.java`, `.../cx/PSACLNewUserDialog.java`, `.../cx/PSAjaxSwingWrapperLocator.java`, `.../cx/PSFolderGeneralPanel.java`, `.../com/percussion/ServerConnection.java`, `.../wizard/PSWizardDialog.java`, `.../wizard/PSWizardPanel.java`
-- [ ] T015 [US1] Re-run `./mvn-env.sh -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests` and confirm `0 errors` and a reduced warning summary versus `baseline-raw.txt`; capture the partial count toward SC-001
+- [ ] T015 [US1] Re-run `./mvnw -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests` and confirm `0 errors` and a reduced warning summary versus `baseline-raw.txt`; capture the partial count toward SC-001
 
 **Checkpoint**: User Story 1 done when javadoc summary reads `0 errors`
 
@@ -86,7 +86,7 @@
 - [ ] T018 [P] [US2] Add `@param`, `@return`, and `@throws` descriptions to clear `no @param` / `no @return` / `no main description` warnings in `modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/BrowserProps.java`, `.../cx/javafx/PSCallBack.java`, `.../cx/javafx/PSFileSaver.java`, `.../cx/PSACLNewUserDialog.java`, `.../cx/PSFolderGeneralPanel.java`, `.../cx/PSOptionManager.java`, `.../cx/PSProcessMonitor.java`, `.../cx/wizards/PSCopySiteNamePage.java`
 - [ ] T019 [P] [US2] Add missing `@throws` tags with descriptions (e.g., `PSContentExplorerException`, `PSCmsException`, `PSException`, `IOException`, `SAXException`, `ParserConfigurationException`, `MalformedURLException`) to clear `no @throws for ...` warnings in `modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java`, `.../cx/PSSearchViewActionManager.java`, `.../cx/PSActionManager.java`
 - [ ] T020 [P] [US2] Add substantive Javadoc to remaining `no comment` / `no @param` / `no @return` / `no main description` symbols in `modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerStatusDialog.java`, `.../cx/PSSearchDialog.java`, `.../cx/PSContentExplorerMenu.java`, `.../cx/PSMainDisplayPanel.java`, `.../cx/PSMenuManager.java`, `.../cx/PSWizardDialog.java`, `.../wizard/PSWizardPanel.java`, `.../com/percussion/ServerConnection.java`
-- [ ] T021 [US2] Re-run `./mvn-env.sh -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests`; confirm the `no comment` / `no @param` / `no @return` / `no @throws` warning classes are resolved for the symbols addressed above
+- [ ] T021 [US2] Re-run `./mvnw -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests`; confirm the `no comment` / `no @param` / `no @return` / `no @throws` warning classes are resolved for the symbols addressed above
 
 **Checkpoint**: User Stories 1 AND 2 done — errors gone, descriptions present
 
@@ -102,9 +102,9 @@
 
 - [ ] T022 [P] [US3] For cross-module `{@link}` references pointing into `system/`, `rest/`, etc. that cannot be resolved, replace with a prose mention plus a `// TODO: re-link after consolidating docs in SPEC-NNN` comment (no invented APIs, research.md "scope discipline") in the affected `modules/DesktopContentExplorer/src/main/java/com/percussion/cx/**` files
 - [ ] T023 [P] [US3] Apply last-resort `@SuppressWarnings("javadoc")` WITH an inline justification comment (per T006 convention) only to private/generated/internal symbols still emitting warnings in `modules/DesktopContentExplorer/src/main/java/com/percussion/cx/**` and `.../wizard/**`
-- [ ] T024 [US3] Re-run `./mvn-env.sh -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests 2> specs/003-javadoc-cleanup/post-cleanup.txt` and confirm summary shows `0 errors` and warnings reduced ≥80% versus `baseline-raw.txt` (FR-002, SC-001, SC-002)
+- [ ] T024 [US3] Re-run `./mvnw -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests 2> specs/003-javadoc-cleanup/post-cleanup.txt` and confirm summary shows `0 errors` and warnings reduced ≥80% versus `baseline-raw.txt` (FR-002, SC-001, SC-002)
 - [ ] T025 [US3] Update `specs/003-javadoc-cleanup/checklists/requirements.md` (and create `specs/003-javadoc-cleanup/post-cleanup.txt` delta) recording the post-cleanup counts and, for any remaining warnings, a justified reason per warning (FR-002, FR-007)
-- [ ] T026 [US3] Run the full module build `./mvn-env.sh -pl modules/DesktopContentExplorer -am verify -DskipTests` and confirm it exits 0 with no javadoc-related failures (SC-003)
+- [ ] T026 [US3] Run the full module build `./mvnw -pl modules/DesktopContentExplorer -am verify -DskipTests` and confirm it exits 0 with no javadoc-related failures (SC-003)
 
 **Checkpoint**: All user stories done — warnings reduced ≥80%, artifacts captured
 
@@ -115,10 +115,10 @@
 **Purpose**: Final verification, signature-integrity check, and optional doc updates
 
 - [ ] T027 [P] Validate SC-004: run `git diff --stat -- ':!*.md' modules/DesktopContentExplorer/` and confirm only comment/whitespace edits in tracked `.java` files — no signature, visibility, or behavior changes (FR-004)
-- [ ] T028 [P] Run the existing module test suite `./mvn-env.sh -pl modules/DesktopContentExplorer test` and confirm all pre-existing tests still pass unchanged (FR-009; no test code modified)
+- [ ] T028 [P] Run the existing module test suite `./mvnw -pl modules/DesktopContentExplorer test` and confirm all pre-existing tests still pass unchanged (FR-009; no test code modified)
 - [ ] T029 Update `modules/DesktopContentExplorer/README.md` with javadoc conventions ONLY if the module already documents them; otherwise do NOT create a new doc file (FR-008, Constitution VIII / YAGNI)
 - [ ] T030 [P] Spot-check that no `@SuppressWarnings("javadoc")` lacks its required justification comment (T006 convention) and that no suppression was applied to a public symbol (FR-003, FR-004)
-- [ ] T031 Final confirmation: `./mvn-env.sh -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests` prints `0 errors` and warnings reduced ≥80% vs `baseline-raw.txt`; record final delta in `specs/003-javadoc-cleanup/checklists/requirements.md`
+- [ ] T031 Final confirmation: `./mvnw -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests` prints `0 errors` and warnings reduced ≥80% vs `baseline-raw.txt`; record final delta in `specs/003-javadoc-cleanup/checklists/requirements.md`
 
 ---
 
@@ -143,7 +143,7 @@
 
 - Edit only `modules/DesktopContentExplorer/src/main/java/**` comments/HTML/tags
 - No signature/visibility/behavior change (FR-004); no new deps/plugins (FR-005)
-- Run `./mvn-env.sh -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests` after each cluster to keep the build green
+- Run `./mvnw -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests` after each cluster to keep the build green
 - Commit after each task or logical group
 
 ### Parallel Opportunities
@@ -166,7 +166,7 @@ Task: "Fix broken {@link} errors in cx/PSContentExplorerMenu.java, PSContentExpl
 Task: "Fix broken {@link} errors in cx/PSMenuManager.java, cx/PSWizardDialog.java, wizard/PSWizardDialog.java, wizard/PSWizardPanel.java"
 Task: "Repair malformed HTML in cx/PSColumnWidthsOption.java, PSContentExplorerApplet.java, PSContentExplorerUtils.java, ..."
 # After edits: single verification gate
-Task: "Re-run ./mvn-env.sh -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests → confirm 0 errors"
+Task: "Re-run ./mvnw -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests → confirm 0 errors"
 ```
 
 ---

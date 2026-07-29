@@ -7,7 +7,7 @@ This is the validation guide for the audit pipeline. It does not include impleme
 - Repository checked out on the `development` branch (JDK 21).
 - `gh` CLI authenticated: `gh auth status` returns `Logged in to github.com`.
 - `git` has `origin` reachable: `git ls-remote origin v8.1.7 v8.1.6` returns commit SHAs.
-- Java 21 on PATH (per `./mvn-env.sh`).
+- Java 21 on PATH (per `./mvnw`).
 - Working directory: `/home/nate/workspaces/intersoft-workspace/percussioncms`.
 
 The audit script lives at `./scripts/release-audit/release-audit.sh` once promoted; during development it lives at `./tmp/release-audit/release-audit.sh`. It writes outputs under `./tmp/release-audit/v8.1.6..v8.1.7/`.
@@ -114,13 +114,13 @@ git switch -c 005-migrate-891-rest-leading-sites development
 git cherry-pick -x 0a4e8cd8a2b9133089530323966cca52eda4b940
 
 # 3. Verify the change compiles on JDK 21
-./mvn-env.sh -pl rest -am compile
+./mvnw -pl rest -am compile
 
 # 4. Run the v8.1.7 test class on JDK 21
-./mvn-env.sh -pl rest test -Dtest=PagesTest
+./mvnw -pl rest test -Dtest=PagesTest
 
 # 5. Run Spotless if the module requires it
-./mvn-env.sh -pl rest spotless:check
+./mvnw -pl rest spotless:check
 
 # 6. Open a PR against `development` referencing #894 and the v8.1.7 PR
 gh pr create --base development --head 005-migrate-891-rest-leading-sites \
@@ -130,8 +130,8 @@ gh pr create --base development --head 005-migrate-891-rest-leading-sites \
 
 **Expected outcomes**:
 - Cherry-pick applies cleanly (or with one trivial conflict to resolve).
-- `./mvn-env.sh -pl rest test -Dtest=PagesTest` passes.
-- `./mvn-env.sh -pl rest spotless:check` passes.
+- `./mvnw -pl rest test -Dtest=PagesTest` passes.
+- `./mvnw -pl rest spotless:check` passes.
 - The opened PR has at least one new/changed test in its diff.
 - Per Constitution Principle IX, when review comments arrive, the agent replies inline AND resolves each review thread (see root `AGENTS.md` "PR Review Comment Resolution").
 

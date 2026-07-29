@@ -19,7 +19,7 @@ The module descriptor at src/main/jetty/defaults/modules/perc.mod is the source 
 
 ## Building
 
-Run: ../../mvn-env.sh -pl modules/perc-jetty clean install -DskipTests
+Run: ../../mvnw -pl modules/perc-jetty clean install -DskipTests
 
 ## Linux service (systemd) — GH-962
 
