@@ -19,8 +19,17 @@ package com.percussion.rest.slots;
 
 import java.net.URI;
 import java.util.List;
+import org.springframework.lang.Nullable;
 
 public interface ISlotsAdaptor {
 
   List<SlotSummary> listSlots(URI baseUri);
+
+  /**
+   * Load slot design detail by numeric uuid or unique name.
+   *
+   * @return detail, or {@code null} if not found
+   */
+  @Nullable
+  SlotDetail getSlot(URI baseUri, String idOrName);
 }

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | **In progress** — read catalogs + template detail + pipelines catalog |
+| **Status** | **In progress** — read catalogs + template/slot detail + pipelines catalog |
 | **FR source** | [`docs/developer-module/workbench-functional-inventory.md`](../../developer-module/workbench-functional-inventory.md) §15 P0 |
 | **Pipeline track** | [`docs/developer-module/data-pipeline-engine-inventory.md`](../../developer-module/data-pipeline-engine-inventory.md) (parallel; not blocking P0) |
 | **Related** | [design-templates-item-types](../design-templates-item-types/README.md) (CM1 template library — complementary, not a substitute) |
@@ -35,6 +35,7 @@
 - [x] **P0.3** Keywords list `GET /services/keywords` + SPA Keywords panel (read-only)  
 - [x] **P0.4** Templates `GET /services/templates` + Slots `GET /services/slots` + SPA panels  
 - [x] **P0.4b** Template detail `GET /services/templates/{idOrName}` — bindings, slots, source, designGaps + SPA detail  
+- [x] **P0.4c** Slot detail `GET /services/slots/{idOrName}` (finder + associations) + SPA detail  
 - [x] **P0.5** Communities list via `GET /services/communities/find?name=*` + SPA panel  
 - [x] **P0.6** Pipelines list `GET /services/pipelines` — classic **XML Application** summaries (not Slice A IR) + SPA panel; optional `?name=` / `?limit=` / `?offset=`  
 - [x] Gap map: [content-type-api-gaps.md](./content-type-api-gaps.md)  

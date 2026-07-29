@@ -155,6 +155,25 @@ export interface SlotSummary {
   description?: string;
 }
 
+export interface SlotAssociationSummary {
+  contentTypeGuid?: RestGuid;
+  templateGuid?: RestGuid;
+}
+
+export interface SlotDetail {
+  guid?: RestGuid;
+  name?: string;
+  label?: string;
+  description?: string;
+  slotType?: string;
+  systemSlot?: boolean;
+  finderName?: string;
+  relationshipName?: string;
+  finderArguments?: Record<string, string>;
+  associations?: SlotAssociationSummary[];
+  designGaps?: string[];
+}
+
 export interface CommunitySummary {
   id?: number;
   guid?: RestGuid;
