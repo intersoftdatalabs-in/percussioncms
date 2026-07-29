@@ -28,12 +28,23 @@ import java.io.FileWriter;
 import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * {@link AuditLogger} implementation that appends each event as a single CSV row to {@link
+ * Constants#CSV_AUDIT_FILES_NAME} (or the path configured via {@link #setOutputFilePath(String)}).
+ * The header row is written automatically when the file is created; subsequent appends skip it.
+ * Process-wide singleton accessed through {@link #getInstance()}.
+ */
 public class CSVAuditLogger extends AuditLogger {
 
   private static CSVAuditLogger instance;
 
   private CSVAuditLogger() {}
 
+  /**
+   * Returns the singleton CSV audit logger, constructing it on first call.
+   *
+   * @return the shared logger, never {@code null}.
+   */
   public static CSVAuditLogger getInstance() {
 
     if (instance == null) {
@@ -43,6 +54,12 @@ public class CSVAuditLogger extends AuditLogger {
     return instance;
   }
 
+  /**
+   * Returns the destination file path, defaulting to {@link Constants#CSV_AUDIT_FILES_NAME} when no
+   * path has been explicitly configured.
+   *
+   * @return the absolute or classpath-relative file path, never {@code null}.
+   */
   public String getOutputFilePath() {
     String outputFilePath = super.getOutputFilePath();
     return outputFilePath == null ? Constants.CSV_AUDIT_FILES_NAME : outputFilePath;

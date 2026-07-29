@@ -17,8 +17,22 @@
 
 package com.ibm.cadf.util;
 
+/**
+ * Lightweight string-emptiness helper. Non-instantiable; callers use the static {@link
+ * #isEmpty(String)} method.
+ */
 public final class StringUtil {
 
+  /** Default no-argument constructor for {@link StringUtil}. */
+  public StringUtil() {}
+
+  /**
+   * Returns {@code true} when the supplied string is {@code null}, empty, or contains only
+   * whitespace.
+   *
+   * @param s the string to test, may be {@code null}.
+   * @return {@code true} when {@code s} is {@code null} or whitespace-only.
+   */
   public static boolean isEmpty(String s) {
     return s == null || s.trim().length() == 0;
   }

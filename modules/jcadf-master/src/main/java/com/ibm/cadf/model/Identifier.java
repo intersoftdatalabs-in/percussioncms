@@ -21,14 +21,22 @@ import com.ibm.cadf.cfg.Config;
 import java.io.Serializable;
 import java.util.UUID;
 
+/**
+ * Utility for producing unique CADF identifiers. The id is a random {@link UUID} with an optional
+ * namespace prefix sourced from {@link Config#getInstance()}. Non-instantiable; callers use the
+ * static {@link #generateUniqueId()} methods.
+ */
 public class Identifier implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
+  /** Default no-argument constructor for {@link Identifier}. */
+  public Identifier() {}
+
   /**
-   * Generate the unique ID
+   * Generates a fresh UUID prefixed with the configured namespace (if any).
    *
-   * @return String newly generated unique ID
+   * @return the newly generated unique id, never {@code null}.
    */
   public static String generateUniqueId() {
     UUID uid = UUID.randomUUID();
@@ -37,10 +45,10 @@ public class Identifier implements Serializable {
   }
 
   /**
-   * Generate the unique ID and prefix that with given prefix string
+   * Returns the supplied seed prefixed with the configured namespace (if any).
    *
-   * @param strId
-   * @return String newly generated unique ID
+   * @param strId the seed identifier, never {@code null}.
+   * @return the seed prefixed with the configured namespace, never {@code null}.
    */
   public static String generateUniqueId(String strId) {
     String prefix = Config.getInstance().getProperty("namespace");

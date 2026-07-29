@@ -35,30 +35,75 @@ import com.ibm.cadf.util.Constants;
 import com.ibm.cadf.util.StringUtil;
 import java.util.Properties;
 
+/**
+ * Thin facade that wires the singleton {@link Config}, an {@link AuditLogger} resolved through
+ * {@link AuditLoggerFactory}, and {@link EventFactory} into a single entry point. Callers supply a
+ * coarse-grained {@link AuditContext}, and this class materializes the fully populated CADF {@link
+ * Event} (initiator, target, observer, outcome) before forwarding it to the configured logger.
+ */
 public class AuditMiddleware {
 
   private Config config;
 
   private AuditLogger auditLogger;
 
+  /**
+   * Constructs a middleware bound to the singleton {@link Config} and the audit logger for the
+   * requested output format.
+   *
+   * @param type the audit format identifier (e.g., {@link Constants#AUDIT_FORMAT_TYPE_JSON} or
+   *     {@link Constants#AUDIT_FORMAT_TYPE_CSV}); an unrecognized value falls back to CSV.
+   */
   public AuditMiddleware(String type) {
     config = Config.getInstance();
     auditLogger = AuditLoggerFactory.getAuditLogger(type);
   }
 
+  /**
+   * Replaces the configuration properties used to resolve type URIs and action labels.
+   *
+   * @param properties the new properties to merge into the existing configuration, never {@code
+   *     null}.
+   */
   public void setProperties(Properties properties) {
     config.setProperties(properties);
   }
 
+  /**
+   * Sets the destination file path on the underlying audit logger.
+   *
+   * @param filePath absolute path of the file the logger should write to, never {@code null}.
+   */
   public void setOutputFilePath(String filePath) {
     auditLogger.setOutputFilePath(filePath);
   }
 
+  /**
+   * Forwards an already-built CADF event to the underlying audit logger.
+   *
+   * @param event the event to record, never {@code null}.
+   * @throws CADFException when the logger cannot persist the event.
+   */
   public void audit(Event event) throws CADFException {
 
     auditLogger.audit(event);
   }
 
+  /**
+   * Builds a fully-populated CADF event from a coarse-grained {@link AuditContext}, the action
+   * label, and an outcome string. Falls back to {@link CADFTaxonomy#UNKNOWN} when the action cannot
+   * be resolved and to {@code UNKNOWN} when the outcome string is not a known {@link
+   * CADFTaxonomy.OUTCOME} name.
+   *
+   * @param action the action label whose property value identifies the action in CADF taxonomy,
+   *     never {@code null}.
+   * @param status the desired outcome name (e.g., {@code "SUCCESS"}); may be unrecognized.
+   * @param ctx the audit context carrying initiator, target, and observer metadata, never {@code
+   *     null}.
+   * @return a new {@link Event} populated with initiator / target / observer resources, never
+   *     {@code null}.
+   * @throws CADFException when the event cannot be assembled.
+   */
   public Event createEvent(String action, String status, com.ibm.cadf.middleware.AuditContext ctx)
       throws CADFException {
     String actionVal = config.getProperty(action);

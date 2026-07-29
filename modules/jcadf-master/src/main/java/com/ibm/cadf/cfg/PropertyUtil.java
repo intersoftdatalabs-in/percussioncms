@@ -21,7 +21,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+/**
+ * Static utility that loads {@link Properties} from a classpath resource. Non-instantiable; all
+ * callers use {@link #loadProperties(String)}.
+ */
 public final class PropertyUtil {
+  /** Default no-argument constructor for {@link PropertyUtil}. */
+  public PropertyUtil() {}
+
+  /**
+   * Loads a Java {@link Properties} bundle from the supplied classpath resource path.
+   *
+   * @param fileName the classpath-relative resource path, never {@code null}.
+   * @return the loaded properties, never {@code null}.
+   * @throws IOException when the resource is not found or cannot be read.
+   */
   public static Properties loadProperties(String fileName) throws IOException {
     Properties props = new Properties();
     try (InputStream is = PropertyUtil.class.getResourceAsStream(fileName)) {
