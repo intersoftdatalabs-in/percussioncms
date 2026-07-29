@@ -1,65 +1,85 @@
-<%@ page 
-   import="com.percussion.i18n.PSI18nUtils" 
-   import="java.net.URLEncoder"
-   import="java.text.MessageFormat"
-   import="java.util.*"
-   %>
-<%@ taglib uri="http://rhythmyx.percussion.com/components"
-    prefix="rxcomp"%>
-<%@ taglib uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" prefix="csrf" %>
-
-
-
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="com.percussion.i18n.PSI18nUtils" %>
+<%--
+  React Logout SPA host (post-logout confirmation).
+  Server /logout endpoint is unchanged — this page is the UI only.
+  Mirrors rxlogin.jsp host contract: modern CSS/JS, TMX, XSS-safe bootstrap.
+--%>
+<%!
+    private static String jsonString(String s) {
+        if (s == null) {
+            return "null";
+        }
+        StringBuilder sb = new StringBuilder(s.length() + 16);
+        sb.append('"');
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            switch (c) {
+                case '\\': sb.append("\\\\"); break;
+                case '"': sb.append("\\\""); break;
+                case '\b': sb.append("\\b"); break;
+                case '\f': sb.append("\\f"); break;
+                case '\n': sb.append("\\n"); break;
+                case '\r': sb.append("\\r"); break;
+                case '\t': sb.append("\\t"); break;
+                case '<': sb.append("\\u003c"); break;
+                case '>': sb.append("\\u003e"); break;
+                case '&': sb.append("\\u0026"); break;
+                case '\u2028': sb.append("\\u2028"); break;
+                case '\u2029': sb.append("\\u2029"); break;
+                default:
+                    if (c < 0x20) {
+                        sb.append(String.format("\\u%04x", (int) c));
+                    } else {
+                        sb.append(c);
+                    }
+            }
+        }
+        sb.append('"');
+        return sb.toString();
+    }
+%>
 <%
     String locale = PSI18nUtils.getSystemLanguage();
-    pageContext.setAttribute("locale",locale);
-    String redirect = "../cm";
-    String pattern = PSI18nUtils.getString("jsp_logout@click here", locale);
-    String[] args = {redirect};
-    String msg = MessageFormat.format(pattern, args);
-%>  
+    if (locale == null || locale.isEmpty()) {
+        locale = "en-us";
+    }
+    // Product login front door (same relative action as classic login form).
+    String loginHref = "login";
+%>
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>Logout Page</title> 
-        <style type="text/css">
-        body { font-family: Verdana; margin: 0; padding: 0; }
-        .perc-login-logo {color: #121212; margin-top: 160px; margin-bottom: 100px;}
-        #loginform .perc-form    { }
-        #perc-forgot {color: #fff;}
-        #perc-forgot:hover   {cursor:pointer;}
-        input { padding: 0; }
-        table { border: 0; border-spacing: 0; }
-        td { border: 0; margin: 0; padding: 0 4px 0 4px ;}
-        img:hover    {cursor: pointer;}
-        .error { font-weight:bold; margin-top:10px; }
-        .perc-form .windowName a, .perc-form .windowName a:visited { color: #444444; text-decoration: none; font-weight: bold; }
-        </style>
-    <script
-            src="/Rhythmyx/tmx/tmx.jsp?mode=js&amp;prefix=perc.ui.&amp;sys_lang=en-us"></script>
-        <script src="/JavaScriptServlet"></script>
-        <script src="/cm/cui/components/jquery/jquery.min.js"></script>
-    <script src="/cm/cui/components/jquery-migrate/jquery-migrate.min.js"></script>
-    </head>
-    <body>
-        <table align="center">
-            <tr>
-                <td align="center">
-                    <div class='perc-login'>
-                        <form id="loginform" name="loginform" method="post" enctype="multipart/form-data">
-                            <div class='perc-login-logo'><img src="/sys_resources/images/percussion-logo.png" alt="${rxcomp:i18ntext('general@Percussion Logo Alt',locale)}" title="${rxcomp:i18ntext('general@Percussion Logo Title',locale)}"/></div>
-                            <table class='perc-form'> 
-                                <tr>
-                                    <td> 
-                                        <p class="windowName" align=center>${rxcomp:i18ntext('jsp_logout@logged out',locale)}</p>
-                                        <p class="windowName" align=center><%= msg %></p>
-                                    </td>
-                                </tr>   
-                            </table>
-                        </form>
-                    </div>
-                </td>
-            </tr>
-        </table>
-    </body>
+<html lang="<%= locale %>">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Percussion CMS — Signed out</title>
+    <%-- TMX catalog for React message() (required for logout chrome) --%>
+    <script src="<%= request.getContextPath() %>/tmx/tmx.jsp?mode=js&amp;prefix=perc.ui.&amp;sys_lang=<%= locale %>"></script>
+    <%-- Stable CSS entry (Vite cssCodeSplit:false). JS also injects if this is missing. --%>
+    <link rel="stylesheet" href="/cm/modern/assets/perc-modern-ui.css"/>
+    <script type="module" src="/cm/modern/assets/perc-modern-ui.js"></script>
+    <style>
+        html, body { margin: 0; padding: 0; }
+        /* Defensive: if CSS fails to load, logo must not paint at intrinsic 1477×720 */
+        img[data-testid="perc-logout-logo"],
+        img[data-testid="perc-brand-logo"] {
+            max-height: 48px;
+            max-width: 220px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+        }
+        img[data-testid="perc-brand-logo"] {
+            max-height: 32px;
+            max-width: 160px;
+        }
+    </style>
+</head>
+<body>
+<script type="application/json" id="perc-logout-bootstrap">{
+  "locale":<%= jsonString(locale) %>,
+  "loginHref":<%= jsonString(loginHref) %>
+}</script>
+<div id="perc-logout-root" data-testid="perc-logout-root"></div>
+</body>
 </html>
