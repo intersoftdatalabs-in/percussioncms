@@ -14,25 +14,22 @@
  * limitations under the License.
  */
 
-package com.percussion.category.data;
+package com.percussion.server;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
-import com.percussion.server.PSUserSession;
-import com.percussion.server.PSUserSessionManager;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.codehaus.jettison.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class PSCategoryLockInfoStaleTest {
+class PSUserSessionManagerTest {
 
   private Map<String, PSUserSession> originalSessions;
   private ConcurrentHashMap<String, PSUserSession> sessions;
@@ -54,32 +51,14 @@ class PSCategoryLockInfoStaleTest {
   }
 
   @Test
-  void isLockStaleWhenSessionMissing() throws Exception {
-    var json = new JSONObject();
-    json.put("sessionId", "missing-session");
-    json.put("userName", "tester");
-
-    assertTrue(PSCategoryLockInfo.isLockStale(json));
-  }
-
-  @Test
-  void isLockActiveWithoutRefreshingSession() throws Exception {
+  void doesSessionExistDoesNotRefreshIdleTimeout() {
     String sessionId = "active-session";
     PSUserSession session = mock(PSUserSession.class);
     sessions.put(sessionId, session);
-    var json = new JSONObject();
-    json.put("sessionId", sessionId);
-    json.put("userName", "tester");
 
-    assertFalse(PSCategoryLockInfo.isLockStale(json));
+    assertTrue(PSUserSessionManager.doesSessionExist(sessionId));
+    assertFalse(PSUserSessionManager.doesSessionExist("missing-session"));
+    assertFalse(PSUserSessionManager.doesSessionExist((String) null));
     verifyNoInteractions(session);
-  }
-
-  @Test
-  void isLockStaleFalseForNullOrBlankSession() throws Exception {
-    assertFalse(PSCategoryLockInfo.isLockStale(null));
-    var json = new JSONObject();
-    json.put("sessionId", "");
-    assertFalse(PSCategoryLockInfo.isLockStale(json));
   }
 }

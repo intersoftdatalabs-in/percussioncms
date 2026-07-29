@@ -114,8 +114,7 @@ public class PSCategoryLockInfo {
     }
     try {
       var sessionId = jsonObject.getString("sessionId");
-      if (StringUtils.isNotBlank(sessionId)
-          && PSUserSessionManager.getUserSession(sessionId) == null) {
+      if (StringUtils.isNotBlank(sessionId) && !PSUserSessionManager.doesSessionExist(sessionId)) {
         log.debug(
             "Removing stale category tab lock for sessionId: {} - session no longer exists",
             sessionId);

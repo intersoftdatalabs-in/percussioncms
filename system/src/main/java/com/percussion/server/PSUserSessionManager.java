@@ -301,6 +301,16 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
   }
 
   /**
+   * Determines whether a session id is currently registered without refreshing its idle timeout.
+   *
+   * @param sessionId the session id to check
+   * @return {@code true} if the session is registered, otherwise {@code false}
+   */
+  public static boolean doesSessionExist(String sessionId) {
+    return sessionId != null && ms_Sessions.containsKey(sessionId);
+  }
+
+  /**
    * Is the provided request a designer (or admin) request.
    *
    * @param request the request to test, if <code>null</code> is provided, <code>false</code> is
