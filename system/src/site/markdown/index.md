@@ -10,7 +10,7 @@ Welcome to the technical documentation for the Percussion CMS **system** module.
 - [Request Handling Flow](request-handling-flow.html) – Architecture of request routing and handler dispatch
 - [Building & Development](building.html) – Build instructions, testing, and development guidelines
 - [Package Reference](packages.html) – Detailed package-by-package reference documentation
-- [Modernization Status](modernization.html) – Java 17 migration status and compatibility notes
+- [Modernization Status](modernization.html) – Java modernization history (module is now on JDK 21)
 - [Legacy Code](legacy.html) – Information about legacy components and backward compatibility
 
 ## Module At A Glance

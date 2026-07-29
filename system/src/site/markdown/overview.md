@@ -340,7 +340,7 @@ The system module depends on:
 ### Refactoring Legacy Code
 
 1. Check `refactored-java11-packages.txt` to avoid duplicate work
-2. Modernize to Java 17 (var, Optional, Streams, etc.)
+2. Modernize for JDK 21 (var, Optional, Streams, etc.)
 3. Add `// REFACTORED: CP-JAVA11` marker to class
 4. Maintain backward compatibility for public APIs
 5. Update tracking files and documentation

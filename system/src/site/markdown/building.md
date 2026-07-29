@@ -247,7 +247,7 @@ The project uses Spotless with Google Java Format for consistent code style:
 - Line length: 100 characters (where practical)
 - One statement per line
 - Use `@Override` annotation for overridden methods
-- Use modern Java 17 features (var, Optional, Streams, etc.)
+- Use modern Java features valid on JDK 21 (var, Optional, Streams, etc.)
 
 ### Example: Preferred Style
 
@@ -347,7 +347,7 @@ Create pull request against `development` branch.
 
 1. Identify the package in `refactored-java11-packages.txt`
 2. If not yet refactored:
-   - Modernize to Java 17 (var, Optional, Streams)
+   - Modernize for JDK 21 (var, Optional, Streams, and newer APIs as appropriate)
    - Apply Google Java Style
    - Add/update unit tests
    - Add `// REFACTORED: CP-JAVA11` marker to class
