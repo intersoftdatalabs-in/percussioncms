@@ -36,6 +36,18 @@ public interface ICommunityAdaptor {
    */
   Community getCommunity(String idOrName);
 
+  /**
+   * List all security roles available for community membership (id/name/guid). Used by the
+   * Developer module role picker.
+   */
+  CommunityRoleList listAvailableRoles();
+
+  /**
+   * Replace the role associations for a community. Returns the reloaded community detail, or
+   * {@code null} if the community was not found.
+   */
+  Community updateCommunityRoles(String idOrName, CommunityRoleList roles);
+
   CommunityList loadCommunities(GuidList ids, boolean lock, boolean overrideLock)
       throws PSErrorResultsException;
 

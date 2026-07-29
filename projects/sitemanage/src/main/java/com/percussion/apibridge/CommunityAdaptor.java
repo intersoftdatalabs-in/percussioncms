@@ -120,6 +120,75 @@ public class CommunityAdaptor implements ICommunityAdaptor {
     }
   }
 
+  @Override
+  public CommunityRoleList listAvailableRoles() {
+    CommunityRoleList out = new CommunityRoleList();
+    List<IPSCatalogSummary> roleSums = securityDesignWs.findRoles(null);
+    if (roleSums == null) {
+      return out;
+    }
+    for (IPSCatalogSummary s : roleSums) {
+      if (s == null || s.getGUID() == null) {
+        continue;
+      }
+      CommunityRole r = new CommunityRole();
+      Guid g = ApiUtils.convertGuid(s.getGUID());
+      r.setRoleGuid(g);
+      r.setRoleId(s.getGUID().longValue());
+      r.setRoleName(s.getName());
+      out.add(r);
+    }
+    out.sort(
+        (a, b) ->
+            String.CASE_INSENSITIVE_ORDER.compare(
+                a.getRoleName().orElse(""), b.getRoleName().orElse("")));
+    return out;
+  }
+
+  @Override
+  public Community updateCommunityRoles(String idOrName, CommunityRoleList roles) {
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    Community current = getCommunity(idOrName.trim());
+    if (current == null || current.getGuid().isEmpty()) {
+      return null;
+    }
+    // Replace memberships on the REST DTO then save via design WS
+    CommunityRoleList next = roles != null ? roles : new CommunityRoleList();
+    Guid communityGuid = current.getGuid().get();
+    for (CommunityRole r : next) {
+      if (r == null) {
+        continue;
+      }
+      r.setCommunityGuid(communityGuid);
+      r.setCommunityId(current.getId());
+    }
+    current.setRoleList(next);
+
+    CommunityList toSave = new CommunityList();
+    toSave.add(current);
+    // lock, apply, release
+    GuidList ids = new GuidList();
+    ids.add(communityGuid);
+    try {
+      CommunityList locked = loadCommunities(ids, true, true);
+      if (locked != null && !locked.isEmpty()) {
+        Community lockedComm = locked.get(0);
+        lockedComm.setRoleList(next);
+        CommunityList saveList = new CommunityList();
+        saveList.add(lockedComm);
+        saveCommunities(saveList, true);
+      } else {
+        saveCommunities(toSave, true);
+      }
+    } catch (Exception e) {
+      log.error("Failed to update community roles for {}", idOrName, e);
+      throw new IllegalStateException("Failed to update community roles", e);
+    }
+    return getCommunity(idOrName.trim());
+  }
+
   private Community resolveSummary(String key) {
     // Prefer direct GUID / numeric load — avoid findCommunities("*") catalog scan
     Community byGuid = tryLoadByGuidKey(key);

@@ -15,8 +15,12 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from "react";
-import { getCommunityDetail } from "../api/developer/assemblyApi";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  getCommunityDetail,
+  listAvailableRoles,
+  updateCommunityRoles,
+} from "../api/developer/assemblyApi";
 import type {
   CommunityDetail,
   CommunityRoleSummary,
@@ -33,6 +37,14 @@ function asRoles(detail: CommunityDetail | null): CommunityRoleSummary[] {
   return [];
 }
 
+function roleKey(r: CommunityRoleSummary, index = 0): string {
+  if (r.roleGuid?.stringValue) return r.roleGuid.stringValue;
+  if (r.roleId != null) return `id:${r.roleId}`;
+  if (r.roleName) return `name:${r.roleName}`;
+  // Stable synthetic key so checkbox rows remain selectable even without ids
+  return `role-idx:${index}`;
+}
+
 export function CommunityDetailPanel({
   idOrName,
   onBack,
@@ -41,15 +53,25 @@ export function CommunityDetailPanel({
   onBack: () => void;
 }): React.ReactElement {
   const [detail, setDetail] = useState<CommunityDetail | null>(null);
+  const [allRoles, setAllRoles] = useState<CommunityRoleSummary[]>([]);
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     setDetail(null);
     setError(null);
-    getCommunityDetail(idOrName)
-      .then((d) => {
-        if (!cancelled) setDetail(d);
+    setNotice(null);
+    Promise.all([getCommunityDetail(idOrName), listAvailableRoles()])
+      .then(([d, roles]) => {
+        if (cancelled) return;
+        setDetail(d);
+        setAllRoles(roles);
+        setSelectedKeys(
+          new Set(asRoles(d).map((r, i) => roleKey(r, i)).filter((k) => k.length > 0)),
+        );
       })
       .catch((err: unknown) => {
         if (cancelled) return;
@@ -60,7 +82,48 @@ export function CommunityDetailPanel({
     };
   }, [idOrName]);
 
-  const roles = asRoles(detail);
+  const initialKeys = useMemo(
+    () =>
+      new Set(
+        asRoles(detail)
+          .map((r, i) => roleKey(r, i))
+          .filter((k) => k.length > 0),
+      ),
+    [detail],
+  );
+  const dirty =
+    selectedKeys.size !== initialKeys.size ||
+    [...selectedKeys].some((k) => !initialKeys.has(k));
+
+  function toggle(key: string) {
+    setSelectedKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
+
+  async function handleSave() {
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    const body = allRoles.filter((r, i) => selectedKeys.has(roleKey(r, i)));
+    try {
+      const saved = await updateCommunityRoles(idOrName, body);
+      setDetail(saved);
+      setSelectedKeys(
+        new Set(asRoles(saved).map((r, i) => roleKey(r, i)).filter((k) => k.length > 0)),
+      );
+      setNotice(DEV_MSG.COMM_ROLES_SAVED);
+    } catch (err: unknown) {
+      setError(panelErrMsg(err, DEV_MSG.COMM_ROLES_SAVE_ERROR));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const rolesForTable = allRoles.length > 0 ? allRoles : asRoles(detail);
 
   return (
     <div data-testid="developer-comm-detail">
@@ -77,6 +140,11 @@ export function CommunityDetailPanel({
       {error ? (
         <div role="alert" data-testid="developer-comm-detail-error" style={errorAlert}>
           {error}
+        </div>
+      ) : null}
+      {notice ? (
+        <div data-testid="developer-comm-detail-notice" style={{ color: "#276749" }}>
+          {notice}
         </div>
       ) : null}
 
@@ -114,11 +182,17 @@ export function CommunityDetailPanel({
 
           <section style={{ marginBottom: "16px" }} data-testid="developer-comm-roles">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.COMM_ROLES}</h3>
-            {roles.length === 0 ? (
-              <p style={{ color: "#718096" }}>{DEV_MSG.COMM_NO_ROLES}</p>
+            <p style={{ color: "#4a5568", fontSize: "0.9rem" }}>{DEV_MSG.COMM_ROLES_HINT}</p>
+            {rolesForTable.length === 0 ? (
+              <p style={{ color: "#718096" }}>
+                {allRoles.length === 0 && asRoles(detail).length === 0
+                  ? DEV_MSG.COMM_NO_ROLES_SYSTEM
+                  : DEV_MSG.COMM_NO_ROLES}
+              </p>
             ) : (
               <div style={{ overflowX: "auto" }}>
                 <table
+                  data-testid="developer-comm-roles-table"
                   style={{
                     width: "100%",
                     borderCollapse: "collapse",
@@ -127,39 +201,64 @@ export function CommunityDetailPanel({
                 >
                   <thead>
                     <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.COMM_COL_MEMBER}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.COMM_COL_ROLE_NAME}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.COMM_COL_ROLE_ID}</th>
-                      <th style={{ padding: "8px" }}>{DEV_MSG.COMM_COL_ROLE_GUID}</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {roles.map((r, i) => (
-                      <tr
-                        key={
-                          r.roleGuid?.stringValue ||
-                          (r.roleId != null ? `role-${r.roleId}` : `role-idx-${i}`)
-                        }
-                        style={{ borderBottom: "1px solid #edf2f7" }}
-                      >
-                        <td style={{ padding: "8px" }}>{r.roleName || "—"}</td>
-                        <td style={{ padding: "8px", fontFamily: "monospace" }}>
-                          {r.roleId != null ? String(r.roleId) : "—"}
-                        </td>
-                        <td style={{ padding: "8px", fontFamily: "monospace" }}>
-                          {r.roleGuid?.stringValue || "—"}
-                        </td>
-                      </tr>
-                    ))}
+                    {rolesForTable.map((r, i) => {
+                      const key = roleKey(r, i);
+                      const checked = selectedKeys.has(key);
+                      return (
+                        <tr
+                          key={key}
+                          style={{ borderBottom: "1px solid #edf2f7" }}
+                        >
+                          <td style={{ padding: "8px" }}>
+                            <input
+                              type="checkbox"
+                              data-testid={`developer-comm-role-check-${key}`}
+                              checked={checked}
+                              onChange={() => toggle(key)}
+                              aria-label={`Include role ${r.roleName || key}`}
+                            />
+                          </td>
+                          <td style={{ padding: "8px" }}>{r.roleName || "—"}</td>
+                          <td style={{ padding: "8px", fontFamily: "monospace" }}>
+                            {r.roleId != null ? String(r.roleId) : "—"}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
             )}
+            <div style={{ marginTop: "12px", display: "flex", gap: "8px" }}>
+              <button
+                type="button"
+                data-testid="developer-comm-roles-save"
+                aria-label="Save community roles"
+                disabled={busy || !dirty}
+                onClick={() => void handleSave()}
+                style={{
+                  padding: "8px 16px",
+                  background: dirty ? "#007ea8" : "#a0aec0",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: busy || !dirty ? "not-allowed" : "pointer",
+                }}
+              >
+                {DEV_MSG.COMM_ROLES_SAVE}
+              </button>
+            </div>
           </section>
 
           <section data-testid="developer-comm-gaps">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.COMM_GAPS}</h3>
             <ul style={{ color: "#4a5568", fontSize: "0.9rem" }}>
-              <li>{DEV_MSG.COMM_GAP_ROLES_EDIT}</li>
               <li>{DEV_MSG.COMM_GAP_ACL}</li>
             </ul>
           </section>
