@@ -34,6 +34,8 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.UriInfo;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @PSSiteManageBean(value = "restSlotsResource")
@@ -42,10 +44,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Tag(name = "Slots", description = "Assembly slot design catalog")
 public class SlotsResource {
 
+  private static final Logger log = LogManager.getLogger(SlotsResource.class);
+
   private final ISlotsAdaptor adaptor;
 
   @Context private UriInfo uriInfo;
 
+  /**
+   * No-arg constructor for bean-discovery edge cases. Production uses {@link
+   * #SlotsResource(ISlotsAdaptor)}; list/detail methods call {@link #requireAdaptor()}.
+   */
   public SlotsResource() {
     this.adaptor = null;
   }
@@ -71,9 +79,11 @@ public class SlotsResource {
       })
   public List<SlotSummary> listSlots() {
     try {
-      return adaptor.listSlots(uriInfo.getBaseUri());
+      return requireAdaptor().listSlots(uriInfo.getBaseUri());
+    } catch (WebApplicationException e) {
+      throw e;
     } catch (Exception e) {
-      // Preserve cause so log analysis retains the original stack/type
+      log.error("Failed to list slots ({}): {}", e.getClass().getName(), e.getMessage(), e);
       throw new WebApplicationException(e, 500);
     }
   }
@@ -96,15 +106,30 @@ public class SlotsResource {
       })
   public SlotDetail getSlot(@PathParam("idOrName") String idOrName) {
     try {
-      SlotDetail detail = adaptor.getSlot(uriInfo.getBaseUri(), idOrName);
+      SlotDetail detail = requireAdaptor().getSlot(uriInfo.getBaseUri(), idOrName);
       if (detail == null) {
         throw new WebApplicationException("Slot not found: " + idOrName, 404);
       }
       return detail;
     } catch (WebApplicationException e) {
+      // Re-throw 404 and other mapped HTTP errors without wrapping as 500
       throw e;
     } catch (Exception e) {
+      log.error(
+          "Failed to load slot {} ({}): {}",
+          idOrName,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
       throw new WebApplicationException(e, 500);
     }
+  }
+
+  private ISlotsAdaptor requireAdaptor() {
+    if (adaptor == null) {
+      throw new IllegalStateException(
+          "Slots adaptor not configured (resource constructed without injection)");
+    }
+    return adaptor;
   }
 }

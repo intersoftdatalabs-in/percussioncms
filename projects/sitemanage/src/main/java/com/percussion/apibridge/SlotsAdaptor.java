@@ -46,6 +46,13 @@ public class SlotsAdaptor implements ISlotsAdaptor {
 
   private static final Logger log = LogManager.getLogger(SlotsAdaptor.class);
 
+  /** Known read-only API limitations (same for every slot; not per-slot configuration). */
+  static final List<String> SLOT_DESIGN_GAPS =
+      List.of(
+          "Create / update / delete / lock not supported (read-only API limitation)",
+          "Association editing not supported via this API",
+          "Content-type and template names not resolved (GUIDs only)");
+
   private final IPSAssemblyService asmSvc = PSAssemblyServiceLocator.getAssemblyService();
 
   @Override
@@ -109,15 +116,23 @@ public class SlotsAdaptor implements ISlotsAdaptor {
       IPSGuid g = new PSGuid(PSTypeEnum.SLOT, uuid);
       return asmSvc.loadSlot(g);
     }
-    if (idOrName.contains("-")) {
+    // GUID-shaped only (digits and dashes), not arbitrary names containing "-"
+    if (idOrName.matches("\\d+-\\d+(-\\d+)?")) {
       try {
         PSGuid g = new PSGuid(idOrName);
         if (g.getType() == 0) {
           g = new PSGuid(PSTypeEnum.SLOT, g.getUUID());
         }
         return asmSvc.loadSlot(g);
-      } catch (Exception ignore) {
-        // fall through to name
+      } catch (PSAssemblyException e) {
+        log.debug("Slot GUID load not found for {}: {}", idOrName, e.getMessage());
+        return null;
+      } catch (Exception e) {
+        log.warn(
+            "Failed to parse/load slot GUID {}, falling back to name: {}",
+            idOrName,
+            e.getMessage(),
+            e);
       }
     }
     try {
@@ -170,12 +185,7 @@ public class SlotsAdaptor implements ISlotsAdaptor {
       }
     }
     d.setAssociations(associations);
-
-    List<String> gaps = new ArrayList<>();
-    gaps.add("Create / update / delete / lock not supported (read-only)");
-    gaps.add("Association editing not supported via this API");
-    gaps.add("Content-type and template names not resolved (GUIDs only)");
-    d.setDesignGaps(gaps);
+    d.setDesignGaps(new ArrayList<>(SLOT_DESIGN_GAPS));
     return d;
   }
 }

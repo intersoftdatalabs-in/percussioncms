@@ -117,7 +117,7 @@ export const DEV_MSG = {
   SLOT_META_RELATIONSHIP: "Relationship",
   SLOT_ARGS: "Finder arguments",
   SLOT_ASSOCIATIONS: "Content type / template associations",
-  SLOT_GAPS: "Design gaps (not in this API yet)",
+  SLOT_GAPS: "Known limitations of this read-only endpoint",
   SLOT_NONE: "None",
   SLOT_COL_CT: "Content type GUID",
   SLOT_COL_TPL: "Template GUID",

@@ -154,9 +154,20 @@ export function SlotDetailPanel({
                     </tr>
                   </thead>
                   <tbody>
-                    {(detail.associations || []).map((a, i) => (
+                    {(detail.associations || []).map((a, i) => {
+                      const ctKey =
+                        a.contentTypeGuid?.stringValue ||
+                        (a.contentTypeGuid?.uuid != null
+                          ? String(a.contentTypeGuid.uuid)
+                          : "ct");
+                      const tplKey =
+                        a.templateGuid?.stringValue ||
+                        (a.templateGuid?.uuid != null
+                          ? String(a.templateGuid.uuid)
+                          : "tpl");
+                      return (
                       <tr
-                        key={i}
+                        key={`${ctKey}:${tplKey}:${i}`}
                         style={{ borderBottom: "1px solid #edf2f7" }}
                       >
                         <td style={{ padding: "8px", fontFamily: "monospace" }}>
@@ -172,7 +183,8 @@ export function SlotDetailPanel({
                               : "—")}
                         </td>
                       </tr>
-                    ))}
+                    );
+                    })}
                   </tbody>
                 </table>
               </div>
