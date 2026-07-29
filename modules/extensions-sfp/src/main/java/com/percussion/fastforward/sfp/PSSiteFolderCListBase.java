@@ -279,9 +279,10 @@ public abstract class PSSiteFolderCListBase {
    *     not be <code>null</code> or empty.
    * @return A content list XML document. Never <code>null</code> but will be empty if member
    *     variables are not initialized.
-   * @throws PSUnknownNodeTypeException
-   * @throws PSCmsException
-   * @throws PSExtensionProcessingException
+   * @throws PSUnknownNodeTypeException if an unknown node type is encountered while building the
+   *     content list
+   * @throws PSCmsException if an error occurs while accessing CMS data
+   * @throws PSExtensionProcessingException if an error occurs while processing the extension
    */
   public synchronized Document buildContentList(
       final String siteFolderPath,
@@ -512,9 +513,10 @@ public abstract class PSSiteFolderCListBase {
    * @param appendFolderName determines if the folder name will be appended to the path used in
    *     location schemes: true to add the name, false to ignore the name. Generally, only false on
    *     the first call to this method.
-   * @throws PSUnknownNodeTypeException
-   * @throws PSCmsException
-   * @throws PSExtensionProcessingException
+   * @throws PSUnknownNodeTypeException if an unknown node type is encountered while generating
+   *     content items
+   * @throws PSCmsException if an error occurs while accessing CMS data
+   * @throws PSExtensionProcessingException if an error occurs while processing the extension
    */
   protected abstract void generateContentItems(
       String parentFolderPath,
@@ -656,6 +658,7 @@ public abstract class PSSiteFolderCListBase {
   /** Resource for looking up content and/or variants for this site. */
   protected String m_contentResourceName;
 
+  /** The log instance for this class, never <code>null</code>. */
   protected final Logger log = LogManager.getLogger(PSSiteFolderCListBase.class);
 
   /** Caches the sys_casGeneratePubLocation UDF used to build pub locations */
@@ -697,6 +700,10 @@ public abstract class PSSiteFolderCListBase {
    */
   protected int m_maxDisplayedPageLinks;
 
+  /**
+   * Folder include mode controlling which sub-folders are included in the generated content list,
+   * defaults to <code>all</code>. Never <code>null</code>.
+   */
   protected String m_folderIncludeMode = "all";
 
   /**

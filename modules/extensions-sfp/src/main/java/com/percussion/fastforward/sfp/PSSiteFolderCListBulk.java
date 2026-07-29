@@ -95,8 +95,6 @@ public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
    * <p>Construct a site folder content list builder that will use the specified request for
    * obtaining request parameters, logging, and making internal requests.
    *
-   * <p>
-   *
    * @param request the current request context, used to obtain request parameters, logging, and
    *     making internal requests. Not <code>null</code>.
    * @param isIncremental <code>true</code> to generate an incremental publishing content list,

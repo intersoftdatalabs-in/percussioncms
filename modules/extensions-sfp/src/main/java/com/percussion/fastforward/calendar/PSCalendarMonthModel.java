@@ -44,6 +44,17 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSCalendarMonthModel extends PSJexlUtilBase {
 
+  /** Default constructor required by Jexl utility framework. */
+  public PSCalendarMonthModel() {
+    // default constructor
+  }
+
+  /**
+   * Assigns the calendar to the month containing the specified date.
+   *
+   * @param date date within month to assign
+   * @return this calendar month model, never {@code null}
+   */
   @IPSJexlMethod(
       description = "Assigns the calendar to the month containing the specified date.",
       params = {
@@ -58,6 +69,12 @@ public class PSCalendarMonthModel extends PSJexlUtilBase {
     return model;
   }
 
+  /**
+   * Assigns the specified calendar for computing month information.
+   *
+   * @param cal calendar to use for computing month information
+   * @return this calendar month model, never {@code null}
+   */
   @IPSJexlMethod(
       description = "Assigns the specified calendar for computing month information.",
       params = {
@@ -75,6 +92,13 @@ public class PSCalendarMonthModel extends PSJexlUtilBase {
     return model;
   }
 
+  /**
+   * Assigns the calendar to the month containing the specified date.
+   *
+   * @param format format of date to assign
+   * @param date date within month to assign
+   * @return this calendar month model, never {@code null}
+   */
   @IPSJexlMethod(
       description = "Assigns the calendar to the month containing the specified date.",
       params = {
@@ -99,6 +123,8 @@ public class PSCalendarMonthModel extends PSJexlUtilBase {
   }
 
   /**
+   * Gets the number of weeks in the assigned month.
+   *
    * @return the number of weeks in the assigned month
    */
   public int getWeeks() {
@@ -107,6 +133,8 @@ public class PSCalendarMonthModel extends PSJexlUtilBase {
   }
 
   /**
+   * Gets the last day of the assigned month.
+   *
    * @return the last day of the assigned month
    */
   public int getLastDay() {
@@ -114,6 +142,8 @@ public class PSCalendarMonthModel extends PSJexlUtilBase {
   }
 
   /**
+   * Gets the day of the week for the first day of the assigned month.
+   *
    * @return the day of the week for the first day of the assigned month
    */
   public int getFirstDayOfWeek() {
@@ -122,6 +152,8 @@ public class PSCalendarMonthModel extends PSJexlUtilBase {
   }
 
   /**
+   * Gets the day of the week for the last day of the assigned month.
+   *
    * @return the day of the week for the last day of the assigned month
    */
   public int getLastDayOfWeek() {
@@ -130,8 +162,9 @@ public class PSCalendarMonthModel extends PSJexlUtilBase {
   }
 
   /**
-   * @return a calendar set to midnight on the first day of the assigned month, never <code>null
-   *     </code>
+   * Gets a calendar set to midnight on the first day of the assigned month.
+   *
+   * @return a calendar set to midnight on the first day of the assigned month, never {@code null}
    */
   public Calendar getStartDate() {
     PSCalendarMonthModel model = getModel();
@@ -144,15 +177,19 @@ public class PSCalendarMonthModel extends PSJexlUtilBase {
   }
 
   /**
-   * @return the date of the first day of the assigned month, formatted as <code>yyyy-MM-dd</code>
+   * Gets the date of the first day of the assigned month.
+   *
+   * @return the date of the first day of the assigned month, formatted as {@code yyyy-MM-dd}
    */
   public String getStart() {
     return getModel().m_formatter.format(getStartDate().getTime());
   }
 
   /**
+   * Gets a calendar set to the final millisecond of the last day of the assigned month.
+   *
    * @return a calendar set to the final millisecond of the last day of the assigned month, never
-   *     <code>null</code>
+   *     {@code null}
    */
   public Calendar getEndDate() {
     PSCalendarMonthModel model = getModel();
@@ -164,7 +201,9 @@ public class PSCalendarMonthModel extends PSJexlUtilBase {
   }
 
   /**
-   * @return the date of the last day of the assigned month, formatted as <code>yyyy-MM-dd</code>
+   * Gets the date of the last day of the assigned month.
+   *
+   * @return the date of the last day of the assigned month, formatted as {@code yyyy-MM-dd}
    */
   public String getEnd() {
     return getModel().m_formatter.format(getEndDate().getTime());

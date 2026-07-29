@@ -43,8 +43,6 @@ import org.apache.logging.log4j.Logger;
  * that is from the same site as the current site or a different one. Three site combinations exist
  * and the generated location for each combination follows the following pattern:
  *
- * <p>
- *
  * <ol>
  *   <li><i>Single Site with Multiple Sections: </i>An item has link to an item from a different
  *       section of the same site folder tree (originating siteid and current siteid are the same)
@@ -63,6 +61,12 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSSiteFolderAssembly extends PSDefaultExtension
     implements IPSAssemblyLocation, IPSUdfProcessor {
+
+  /** Default constructor for PSSiteFolderAssembly. */
+  public PSSiteFolderAssembly() {
+    // default constructor
+  }
+
   /**
    * Implementation of the UDF interface method. Generates a publishing location as described in the
    * class description. The request context must have valid {@link IPSHtmlParameters#SYS_CONTENTID
@@ -72,7 +76,7 @@ public class PSSiteFolderAssembly extends PSDefaultExtension
    * @param params parameters for the extension as registered by teh extension.
    * @param request request context object, must not be <code>null</code>.
    * @return location path for the item in the request context, not <code>null</code>, may be empty.
-   * @throws PSConversionException
+   * @throws PSConversionException if an error occurs while converting parameter values
    */
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {

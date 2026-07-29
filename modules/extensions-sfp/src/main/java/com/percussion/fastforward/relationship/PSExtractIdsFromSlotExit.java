@@ -40,6 +40,11 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSExtractIdsFromSlotExit extends PSDefaultExtension implements IPSUdfProcessor {
 
+  /** Default constructor for PSExtractIdsFromSlotExit. */
+  public PSExtractIdsFromSlotExit() {
+    // default constructor
+  }
+
   /**
    * Returns a list of the owner content ids from the relationships in the slot identified by the
    * "slotname" parameter that have the request's content item as their dependent.

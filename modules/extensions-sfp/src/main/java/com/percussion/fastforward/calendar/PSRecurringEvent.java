@@ -292,7 +292,8 @@ public class PSRecurringEvent {
   /**
    * Set the day of wee occurrence.
    *
-   * @param dayOfWeekOccurrence
+   * @param dayOfWeekOccurrence the week-of-month occurrence of the day of week (1 to 5), where 5
+   *     represents the last occurrence of that day-of-week in the month.
    */
   public void setDayOfWeekOccurrence(int dayOfWeekOccurrence) {
     // todo validation of dayOfWeekOccurrence
@@ -302,7 +303,7 @@ public class PSRecurringEvent {
   /**
    * Set day of month.
    *
-   * @param dayOfMonth
+   * @param dayOfMonth the day of the month (1 to 31) on which the event recurs
    */
   public void setDayOfMonth(int dayOfMonth) {
     // todo validation of dayOfMonth
@@ -312,7 +313,7 @@ public class PSRecurringEvent {
   /**
    * Gets the date of the specified recurrence of this event.
    *
-   * @param recurrence
+   * @param recurrence the zero-based recurrence index to compute the date for
    * @return a calendar (with the default time zone and locale) set to the date of the specified
    *     recurrence of this event, or <code>null</code> if the date of the recurrence is greater
    *     than the end date of this event.
@@ -383,6 +384,8 @@ public class PSRecurringEvent {
   }
 
   /**
+   * Gets the start date of the event.
+   *
    * @return start date of the event.
    */
   public Date getStartDate() {
@@ -474,7 +477,7 @@ public class PSRecurringEvent {
     /**
      * Just calls the super class version.
      *
-     * @param s
+     * @param s the detail message describing the unknown node type
      */
     public UnknownNodeTypeException(String s) {
       super(s);
@@ -491,7 +494,7 @@ public class PSRecurringEvent {
     /**
      * Just calls the super class version.
      *
-     * @param s
+     * @param s the detail message describing the illegal value
      */
     public IllegalValueException(String s) {
       super(s);

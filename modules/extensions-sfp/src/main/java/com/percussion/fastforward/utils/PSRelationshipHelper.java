@@ -194,9 +194,9 @@ public class PSRelationshipHelper {
   /**
    * Gets a folder summary by path.
    *
-   * @param pathname
+   * @param pathname the folder path, never <code>null</code> or empty
    * @return the folder summary or <code>null</code>
-   * @throws PSCmsException
+   * @throws PSCmsException if an error occurs while loading the folder summary
    */
   public PSComponentSummary getSummaryByPath(String pathname) throws PSCmsException {
     getRelationshipProcessor();
@@ -233,9 +233,9 @@ public class PSRelationshipHelper {
    *
    * @param pathname the full path. Must not be empty or <code>null</code>.
    * @return the specified folder, or <code>null</code> if the folder cannot be found.
-   * @throws PSUnknownNodeTypeException
-   * @throws PSCmsException
-   * @throws PSExtensionProcessingException
+   * @throws PSUnknownNodeTypeException if the folder definition is not a recognized node type
+   * @throws PSCmsException if an error occurs while loading the folder
+   * @throws PSExtensionProcessingException if an error occurs while processing the extension
    */
   public PSFolder getFolderByPath(String pathname)
       throws PSUnknownNodeTypeException, PSCmsException, PSExtensionProcessingException {
@@ -278,9 +278,9 @@ public class PSRelationshipHelper {
    *
    * @param locator locator of the folder to get, must not be <code>null</code>.
    * @return the folder, or <code>null</code> if the folder cannot be found.
-   * @throws PSUnknownNodeTypeException
-   * @throws PSCmsException
-   * @throws PSExtensionProcessingException
+   * @throws PSUnknownNodeTypeException if the folder definition is not a recognized node type
+   * @throws PSCmsException if an error occurs while loading the folder
+   * @throws PSExtensionProcessingException if an error occurs while processing the extension
    */
   public PSFolder getFolder(PSLocator locator)
       throws PSUnknownNodeTypeException, PSCmsException, PSExtensionProcessingException {
@@ -318,9 +318,9 @@ public class PSRelationshipHelper {
    *
    * @param loc the locator to check, must not be <code>null</code>.
    * @return the locator with current revision filled if missing, never <code>null</code>.
-   * @throws PSCmsException
-   * @throws PSUnknownNodeTypeException
-   * @throws PSExtensionProcessingException
+   * @throws PSCmsException if an error occurs while resolving the current revision
+   * @throws PSUnknownNodeTypeException if the supplied locator is not a recognized node type
+   * @throws PSExtensionProcessingException if an error occurs while processing the extension
    */
   public PSLocator validateLocator(PSLocator loc)
       throws PSCmsException, PSUnknownNodeTypeException, PSExtensionProcessingException {
@@ -411,7 +411,7 @@ public class PSRelationshipHelper {
    * @param folder Locator of the descendent folder to check, must not be <code>null</code>.
    * @return <code>true</code> if the folder descends from the specified root, <code>false</code>
    *     otherwise.
-   * @throws PSCmsException
+   * @throws PSCmsException if an error occurs while querying the folder relationships
    */
   public boolean isFolderDescendent(PSLocator root, PSLocator folder) throws PSCmsException {
     getRelationshipProcessor();
@@ -452,9 +452,9 @@ public class PSRelationshipHelper {
    *
    * @param locator the content item or folder, must not be <code>null</code>.
    * @return a Set of PSFolders objects. Never <code>null</code> may be <code>empty</code>
-   * @throws PSCmsException
-   * @throws PSUnknownNodeTypeException
-   * @throws PSExtensionProcessingException
+   * @throws PSCmsException if an error occurs while loading the site folders
+   * @throws PSUnknownNodeTypeException if the folder definition is not a recognized node type
+   * @throws PSExtensionProcessingException if an error occurs while processing the extension
    */
   public Set getSiteFolders(PSLocator locator)
       throws PSUnknownNodeTypeException, PSCmsException, PSExtensionProcessingException {
@@ -469,9 +469,9 @@ public class PSRelationshipHelper {
    *
    * @param locator the content item or folder to search, must not be <code>null</code>.
    * @return a Set of PSFolder objects that contain this item.
-   * @throws PSUnknownNodeTypeException
-   * @throws PSCmsException
-   * @throws PSExtensionProcessingException
+   * @throws PSUnknownNodeTypeException if the folder definition is not a recognized node type
+   * @throws PSCmsException if an error occurs while loading the folders
+   * @throws PSExtensionProcessingException if an error occurs while processing the extension
    */
   public Set getFolders(PSLocator locator)
       throws PSUnknownNodeTypeException, PSCmsException, PSExtensionProcessingException {
@@ -487,9 +487,9 @@ public class PSRelationshipHelper {
    * @param locator the item or folder to search for, must not be <code>null</code>.
    * @param allFolders if <code>true</code> return all folders. Otherwise only return site folders.
    * @return a Set of PSFolder objects.
-   * @throws PSUnknownNodeTypeException
-   * @throws PSCmsException
-   * @throws PSExtensionProcessingException
+   * @throws PSUnknownNodeTypeException if the folder definition is not a recognized node type
+   * @throws PSCmsException if an error occurs while loading the folders
+   * @throws PSExtensionProcessingException if an error occurs while processing the extension
    */
   private Set getFoldersCommon(PSLocator locator, boolean allFolders)
       throws PSUnknownNodeTypeException, PSCmsException, PSExtensionProcessingException {
@@ -524,9 +524,9 @@ public class PSRelationshipHelper {
    * @param slotName the specified slot name, must not be <code>null</code> or empty.
    * @return a List of PSComponentSummary objects representing the slot contents. May be <code>empty
    *     </code> but never <code>null</code>
-   * @throws PSCmsException
+   * @throws PSCmsException if an error occurs while loading the slot contents
    * @throws PSExtensionProcessingException when the slot cannot be found.
-   * @throws PSUnknownNodeTypeException
+   * @throws PSUnknownNodeTypeException if the slot definition is not a recognized node type
    */
   public List getSlotContents(PSLocator item, String slotName)
       throws PSExtensionProcessingException, PSCmsException, PSUnknownNodeTypeException {
@@ -554,9 +554,9 @@ public class PSRelationshipHelper {
    * @param slot the specified slot, must not be <code>null</code>.
    * @return a List of PSComponentSummary objects representing the slot contents. May be <code>empty
    *     </code> but never <code>null</code>
-   * @throws PSCmsException
-   * @throws PSUnknownNodeTypeException
-   * @throws PSExtensionProcessingException
+   * @throws PSCmsException if an error occurs while loading the slot contents
+   * @throws PSUnknownNodeTypeException if the slot definition is not a recognized node type
+   * @throws PSExtensionProcessingException if an error occurs while processing the extension
    */
   public List getSlotContents(PSLocator item, PSSlotType slot)
       throws PSCmsException, PSUnknownNodeTypeException, PSExtensionProcessingException {
@@ -585,7 +585,7 @@ public class PSRelationshipHelper {
    * @param category the relationship category, may be <code>null</code> or empty.
    * @param relationship the name of the relationship, may be <code>null</code> or empty.
    * @return the parent items. May be <code>empty</code> but never <code>null</code>
-   * @throws PSCmsException
+   * @throws PSCmsException if an error occurs while loading the parent items
    */
   public PSComponentSummaries getParentItems(PSLocator item, String category, String relationship)
       throws PSCmsException {

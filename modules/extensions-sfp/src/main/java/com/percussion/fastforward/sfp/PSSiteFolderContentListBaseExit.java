@@ -38,9 +38,18 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 /**
+ * Base class for site folder content list exits that produce a content list XML document for a
+ * given site. Concrete subclasses assemble content items for delivery based on parameters passed to
+ * the exit.
+ *
  * @author James Schultz
  */
 public abstract class PSSiteFolderContentListBaseExit implements IPSResultDocumentProcessor {
+
+  /** Default constructor for PSSiteFolderContentListBaseExit. */
+  public PSSiteFolderContentListBaseExit() {
+    // default constructor
+  }
 
   private static final Logger log = LogManager.getLogger(PSSiteFolderContentListBaseExit.class);
 
@@ -54,8 +63,10 @@ public abstract class PSSiteFolderContentListBaseExit implements IPSResultDocume
   }
 
   /**
-   * @param params values passed by the application invoking the exit
-   *     <ol start="0">
+   * Builds the site folder content list XML for the request's current site.
+   *
+   * @param params values passed by the application invoking the exit. Indexes (zero based):
+   *     <ul>
    *       <li>filenameContext: id of the context used to generate content items delivery locations.
    *           Defaults to the context of the current request.
    *       <li>deliveryType: determines the value of the deliverytype attribute of the contentlist
@@ -67,17 +78,17 @@ public abstract class PSSiteFolderContentListBaseExit implements IPSResultDocume
    *           pagination mode; unlimited number of items)
    *       <li>contentResourceName: Content items and its variants lookup resource name, default
    *           resource will be provided by the derived classes
-   *     </ul>
-   *     <li>NonStandardParamsToPass: Comma separated list of all non standard HTML parameters to
-   *         pass on from request to the content URL for each item in the content list
+   *       <li>NonStandardParamsToPass: Comma separated list of all non standard HTML parameters to
+   *           pass on from request to the content URL for each item in the content list
    *     </ul>
    *
-   * @param request
-   * @param resultDoc
-   * @throws com.percussion.extension.PSParameterMismatchException if the current request does not
-   *     contain a sys_siteid parameter, if no site folder root is registered to that site, or if
-   *     the filenameContext parameter is mot provided.
-   * @throws PSExtensionProcessingException
+   * @param request the current request context, must not be {@code null}
+   * @param resultDoc the result document being processed; must not be {@code null}
+   * @return the result document, populated with the site folder content list
+   * @throws PSParameterMismatchException if the current request does not contain a sys_siteid
+   *     parameter, if no site folder root is registered to that site, or if the filenameContext
+   *     parameter is not provided.
+   * @throws PSExtensionProcessingException if an error occurs while processing the extension
    */
   public Document processResultDocument(
       Object[] params, IPSRequestContext request, Document resultDoc)

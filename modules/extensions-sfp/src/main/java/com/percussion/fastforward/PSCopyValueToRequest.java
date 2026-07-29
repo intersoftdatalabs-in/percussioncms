@@ -24,6 +24,11 @@ import com.percussion.server.IPSRequestContext;
 /** UDF to set the supplied parameter (name-value pair) into the request as HTML paramater. */
 public class PSCopyValueToRequest extends PSDefaultExtension implements IPSUdfProcessor {
 
+  /** Default constructor for PSCopyValueToRequest. */
+  public PSCopyValueToRequest() {
+    // default constructor
+  }
+
   /**
    * Implementation of the interface method. A new HTML parameter is set in the request context. The
    * name of the parameter is the first member of the parameter array and the value is the second
@@ -33,7 +38,8 @@ public class PSCopyValueToRequest extends PSDefaultExtension implements IPSUdfPr
    *     non-empty members.
    * @param request - IPSRequestContext request object, must not be <code>null</code>.
    * @return Object always "0" to be ignored.
-   * @throws PSConversionException
+   * @throws PSConversionException if fewer than two parameters are supplied, or if either parameter
+   *     is null or empty
    */
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {
