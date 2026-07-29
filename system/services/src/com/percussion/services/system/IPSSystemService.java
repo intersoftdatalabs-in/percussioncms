@@ -265,13 +265,129 @@ public interface IPSSystemService
     * can load its data from the shared Hibernate session instead of opening a second pool
     * connection.
     *
-    * @param workflowId the workflow id; must be {@code > 0}.
-    * @param notificationId the notification id; must be {@code > 0}.
+    * @param workflowId the workflow id, must be {@code > 0}.
+    * @param notificationId the notification id, must be {@code > 0}.
     * @return the notification definition, or {@code null} when no row matches.
     */
    public com.percussion.services.workflow.data.PSNotificationDef findNotificationDef(
        long workflowId, long notificationId);
-   
+
+   /**
+    * Hibernate-backed equivalent of the raw-JDBC
+    * {@code PSContentStatusContext.commit(Connection)} write path. Updates the
+    * {@code CONTENTSTATUS} row for the supplied content id with the supplied state
+    * transition fields. Added for #1561 Phase 4d-1b so
+    * {@code PSExitPerformTransition} no longer opens a second pool connection.
+    *
+    * <p>All parameters map to the same column the legacy raw-JDBC UPDATE writes:
+    * {@code CONTENTSTATEID}, {@code CONTENTCHECKOUTUSERNAME}, {@code CURRENTREVISION},
+    * {@code EDITREVISION}, {@code TIPREVISION}, {@code REVISIONLOCK},
+    * {@code LASTTRANSITIONDATE}, {@code STATEENTEREDDATE}, {@code NEXTAGINGTRANSITION},
+    * {@code NEXTAGINGDATE}, {@code CONTENTSTARTDATE}, {@code CONTENTEXPIRYDATE},
+    * {@code REMINDERDATE}, {@code REPEATEDAGINGTRANSSTARTDATE}.
+    *
+    * @param contentId the content id; must be {@code > 0}.
+    * @param stateId the new state id; must be {@code > 0}.
+    * @param checkOutUserName the new checkout user name; may be {@code null} (stored as "").
+    * @param currentRevision the new current revision; may be {@code 0}.
+    * @param editRevision the new edit revision; may be {@code 0}.
+    * @param tipRevision the new tip revision; may be {@code 0}.
+    * @param revisionLock {@code true} to lock the revision (set {@code REVISIONLOCK = 'Y'}),
+    *     {@code false} to unlock it.
+    * @param lastTransitionDate the new last-transition date; may be {@code null}.
+    * @param stateEnteredDate the new state-entered date; may be {@code null}.
+    * @param nextAgingTransition the new next-aging transition id; may be {@code 0}.
+    * @param nextAgingDate the new next-aging date; may be {@code null}.
+    * @param startDate the new content start date; may be {@code null}.
+    * @param expiryDate the new content expiry date; may be {@code null}.
+    * @param reminderDate the new reminder date; may be {@code null}.
+    * @param repeatedAgingStartDate the new repeated-aging transition start date; may be
+    *     {@code null}.
+    * @return the number of {@code CONTENTSTATUS} rows updated; {@code 0} when no row
+    *     matches the supplied {@code contentId}.
+    */
+   public int updateContentStatusState(
+       int contentId,
+       int stateId,
+       String checkOutUserName,
+       int currentRevision,
+       int editRevision,
+       int tipRevision,
+       boolean revisionLock,
+       java.util.Date lastTransitionDate,
+       java.util.Date stateEnteredDate,
+       int nextAgingTransition,
+       java.util.Date nextAgingDate,
+       java.util.Date startDate,
+       java.util.Date expiryDate,
+       java.util.Date reminderDate,
+       java.util.Date repeatedAgingStartDate);
+
+   /**
+    * Hibernate-backed INSERT into {@code CONTENTADHOCUSERS} for the supplied rows.
+    * Added for #1561 Phase 4d-1b so {@code PSContentAdhocUsersContext.commit(Connection)}
+    * can write through the shared Hibernate session instead of opening a second pool
+    * connection.
+    *
+    * @param adhocUsers the rows to insert, never {@code null}, may be empty.
+    */
+   public void saveContentAdhocUsers(
+       java.util.List<com.percussion.services.workflow.data.PSContentAdhocUser> adhocUsers);
+
+   /**
+    * Hibernate-backed DELETE from {@code CONTENTADHOCUSERS} for the supplied content id.
+    * Added for #1561 Phase 4d-1b so {@code PSContentAdhocUsersContext.emptyAdhocUserEntries}
+    * can write through the shared Hibernate session instead of opening a second pool
+    * connection.
+    *
+    * @param contentId the content id; must be {@code > 0}.
+    * @return the number of rows deleted.
+    */
+   public int deleteContentAdhocUsers(int contentId);
+
+   /**
+    * Hibernate-backed INSERT into {@code CONTENTAPPROVALS} for the supplied approval row.
+    * Added for #1561 Phase 4d-1b so {@code PSContentApprovalsContext.addContentApproval}
+    * can write through the shared Hibernate session instead of opening a second pool
+    * connection.
+    *
+    * @param approval the row to insert, never {@code null}.
+    */
+   public void saveContentApproval(
+       com.percussion.services.workflow.data.PSContentApproval approval);
+
+   /**
+    * Hibernate-backed DELETE from {@code CONTENTAPPROVALS} for the supplied
+    * (contentId, workflowId, transitionId, stateId) tuple. Added for #1561 Phase 4d-1b so
+    * {@code PSContentApprovalsContext.emptyApprovals} can write through the shared
+    * Hibernate session instead of opening a second pool connection.
+    *
+    * @param contentId the content id; must be {@code > 0}.
+    * @param workflowId the workflow id; must be {@code > 0}.
+    * @param transitionId the transition id; must be {@code > 0}.
+    * @param stateId the state id; must be {@code > 0}.
+    * @return the number of rows deleted.
+    */
+   public int deleteContentApprovals(
+       int contentId, int workflowId, int transitionId, int stateId);
+
+   /**
+    * Hibernate-backed DELETE from {@code CONTENTAPPROVALS} for the supplied
+    * {@code contentId} only. Added for #1561 Phase 4d-1b hot-fix (PR #1589 review
+    * thread databaseId 3670307327) to match the legacy
+    * {@code PSContentApprovalsContext.emptyApprovals()} semantics
+    * ({@code DELETE FROM CONTENTAPPROVALS WHERE CONTENTID = ?}), which is content-scoped
+    * and removes all approval rows for the item — not the narrower
+    * (contentId, workflowId, transitionId, stateId) tuple.
+    *
+    * <p>Use this overload from the transition-completion path; use the 4-key overload
+    * only when the caller actually intends to filter by the full tuple.
+    *
+    * @param contentId the content id; must be {@code > 0}.
+    * @return the number of rows deleted.
+    */
+   public int deleteContentApprovals(int contentId);
+
    /**
     * Deletes the specified content history entry.
     * 

@@ -17,9 +17,13 @@
 package com.percussion.workflow;
 
 import com.percussion.cms.IPSConstants;
+import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.data.PSTableChangeEvent;
 import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.server.cache.PSItemSummaryCache;
+import com.percussion.services.legacy.PSCmsObjectMgrLocator;
+import com.percussion.services.system.IPSSystemService;
+import com.percussion.services.system.PSSystemServiceLocator;
 import com.percussion.util.PSPreparedStatement;
 import com.percussion.util.PSSqlHelper;
 import java.sql.Connection;
@@ -364,6 +368,181 @@ public class PSContentStatusContext implements IPSContentStatusContext {
       } catch (SQLException e) {
       }
     }
+  }
+
+  /**
+   * Hibernate-backed factory added for #1561 Phase 4d-1b. Loads the {@code CONTENTSTATUS} row
+   * for the supplied content id via the shared Hibernate session — no second pool connection.
+   * Mirrors the field set populated by the raw-JDBC
+   * {@link #PSContentStatusContext(Connection, int)} constructor (the 14 columns the legacy
+   * {@code commit(Connection)} write path touches).
+   *
+   * @param contentID the content id; must be {@code > 0}.
+   * @return the populated context, never {@code null}.
+   * @throws PSEntryNotFoundException if no row matches the supplied content id.
+   */
+  public static PSContentStatusContext loadFromHibernate(int contentID)
+      throws PSEntryNotFoundException {
+    if (contentID <= 0) {
+      throw new IllegalArgumentException("contentID must be > 0");
+    }
+    PSComponentSummary summary =
+        PSCmsObjectMgrLocator.getObjectManager().loadComponentSummary(contentID);
+    if (summary == null) {
+      throw new PSEntryNotFoundException(IPSExtensionErrors.NO_RECORDS);
+    }
+    PSContentStatusContext ctx = new PSContentStatusContext();
+    ctx.m_nContentID = contentID;
+    ctx.m_nStateID = summary.getContentStateId();
+    ctx.m_sCheckOutUserName = summary.getCheckoutUserName();
+    Integer currRev = summary.getCurrRevision();
+    ctx.m_nCurrentRevision = currRev == null ? 0 : currRev;
+    Integer editRev = summary.getEditRevision();
+    ctx.m_nEditRevision = editRev == null ? 0 : editRev;
+    Integer tipRev = summary.getTipRevision();
+    ctx.m_nTipRevision = tipRev == null ? 0 : tipRev;
+    ctx.m_bRevisionLocked = summary.isRevisionLock();
+    java.sql.Date lastTransition = toSqlDate(summary.getLastTransitionDate());
+    ctx.m_LastTransitionDate = lastTransition;
+    java.sql.Date stateEntered = toSqlDate(summary.getStateEnteredDate());
+    ctx.m_StateEnteredDate = stateEntered;
+    ctx.m_nNextAgingTransition = summary.getNextAgingTransition();
+    java.sql.Date nextAging = toSqlDate(summary.getNextAgingDate());
+    ctx.m_NextAgingDate = nextAging;
+    java.sql.Date start = toSqlDate(summary.getContentStartDate());
+    ctx.m_StartDate = start;
+    java.sql.Date expiry = toSqlDate(summary.getContentExpiryDate());
+    ctx.m_ExpiryDate = expiry;
+    java.sql.Date reminder = toSqlDate(summary.getReminderDate());
+    ctx.m_ReminderDate = reminder;
+    java.sql.Date repeatedAging = toSqlDate(summary.getRepeatedAgingTransStartDate());
+    ctx.m_RepeatedAgingTransitionStartDate = repeatedAging;
+    ctx.m_nWorkflowID = summary.getWorkflowAppId();
+    ctx.m_nCommunityId = summary.getCommunityId();
+    ctx.m_nContentTypeID = (int) summary.getContentTypeId();
+    ctx.m_nObjectType = summary.getObjectType();
+    ctx.m_sTitle = "";
+    ctx.m_sCreatedByName = summary.getContentCreatedBy() == null ? "" : summary.getContentCreatedBy();
+    ctx.m_sLastModifierName =
+        summary.getContentLastModifier() == null ? "" : summary.getContentLastModifier();
+    return ctx;
+  }
+
+  /**
+   * Package-private default constructor used by the Hibernate {@link #loadFromHibernate(int)}
+   * factory. Field initialization is performed by the factory.
+   */
+  PSContentStatusContext() {}
+
+  /**
+   * Converts a {@link java.util.Date} (which is what {@code PSComponentSummary} returns) to a
+   * {@link java.sql.Date} (which is what the legacy {@code PSContentStatusContext} fields
+   * use). Returns {@code null} for a {@code null} input.
+   */
+  private static java.sql.Date toSqlDate(java.util.Date in) {
+    return in == null ? null : new java.sql.Date(in.getTime());
+  }
+
+  /**
+   * Hibernate-backed #1561 Phase 4d-1b write path for {@code PSExitPerformTransition}.
+    * Replaces the legacy raw-JDBC UPDATE on {@code CONTENTSTATUS} with a single
+    * JPQL UPDATE through {@code IPSSystemService}. All 15 columns the legacy
+    * {@code commit(Connection)} wrote are written here.
+   *
+   * <p>Phase 4d-1b hot-fix: after a successful UPDATE, fires
+   * {@link PSItemSummaryCache#tableChanged(PSTableChangeEvent)} to mirror the legacy
+   * {@code commit(Connection)} {@code notifyUpdateItem(columns)} behavior. Without this
+   * event, the item-summary cache shows stale state / checkout user / revision after
+   * check-in / check-out / transition until an unrelated refresh. See PR #1589 review
+   * thread databaseId 3670378976.
+   *
+   * <p>The legacy raw-JDBC {@code commit(Connection)} overload above remains for any
+   * external caller that still passes a JDBC {@code Connection}.
+   */
+  public void commit() {
+    if (m_nContentID <= 0) {
+      throw new IllegalStateException("Content id has not been set");
+    }
+    String checkOutUserName = m_sCheckOutUserName == null ? "" : m_sCheckOutUserName;
+    java.sql.Date lastTransitionDate = m_LastTransitionDate;
+    java.sql.Date stateEnteredDate = m_StateEnteredDate;
+    java.sql.Date nextAgingDate = m_NextAgingDate;
+    java.sql.Date startDate = m_StartDate;
+    java.sql.Date expiryDate = m_ExpiryDate;
+    java.sql.Date reminderDate = m_ReminderDate;
+    java.sql.Date repeatedAgingStartDate = m_RepeatedAgingTransitionStartDate;
+    int nextAgingTransition = m_nNextAgingTransition;
+
+    IPSSystemService sysSvc = PSSystemServiceLocator.getSystemService();
+    int updated =
+        sysSvc.updateContentStatusState(
+            m_nContentID,
+            m_nStateID,
+            checkOutUserName,
+            m_nCurrentRevision,
+            m_nEditRevision,
+            m_nTipRevision,
+            m_bRevisionLocked,
+            lastTransitionDate,
+            stateEnteredDate,
+            nextAgingTransition,
+            nextAgingDate,
+            startDate,
+            expiryDate,
+            reminderDate,
+            repeatedAgingStartDate);
+    if (updated > 0) {
+      java.util.Map<String, String> columns = buildLegacyColumnMap();
+      notifyUpdateItem(columns);
+    }
+  }
+
+  /**
+   * Builds the same 15-column change map that the legacy {@code commit(Connection)}
+   * path populated via {@link #setInt}, {@link #setString}, and {@link #setDate}.
+   * The item-summary cache (PSItemSummaryCache) relies on these keys to invalidate
+   * stale entries after a CONTENTSTATUS update.
+   *
+   * @return an unmodifiable ordered map of column-name to string-value,
+   *     never {@code null}.
+   */
+  private java.util.Map<String, String> buildLegacyColumnMap() {
+    java.util.Map<String, String> columns = new java.util.LinkedHashMap<>();
+    String checkOutUserName = m_sCheckOutUserName == null ? "" : m_sCheckOutUserName;
+    java.sql.Date lastTransitionDate = m_LastTransitionDate;
+    java.sql.Date stateEnteredDate = m_StateEnteredDate;
+    java.sql.Date nextAgingDate = m_NextAgingDate;
+    java.sql.Date startDate = m_StartDate;
+    java.sql.Date expiryDate = m_ExpiryDate;
+    java.sql.Date reminderDate = m_ReminderDate;
+    java.sql.Date repeatedAgingStartDate = m_RepeatedAgingTransitionStartDate;
+    int nextAgingTransition = m_nNextAgingTransition;
+    columns.put(CONTENTSTATEID, Integer.toString(m_nStateID));
+    columns.put(CONTENTCHECKOUTUSERNAME, checkOutUserName);
+    columns.put(CURRENTREVISION, Integer.toString(m_nCurrentRevision));
+    columns.put(EDITREVISION, Integer.toString(m_nEditRevision));
+    columns.put(TIPREVISION, Integer.toString(m_nTipRevision));
+    columns.put(REVISIONLOCK, m_bRevisionLocked ? "Y" : "N");
+    columns.put(LASTTRANSITIONDATE, formatDate(lastTransitionDate));
+    columns.put(STATEENTEREDDATE, formatDate(stateEnteredDate));
+    columns.put(NEXTAGINGTRANSITION, Integer.toString(nextAgingTransition));
+    columns.put(NEXTAGINGDATE, formatDate(nextAgingDate));
+    columns.put(CONTENTSTARTDATE, formatDate(startDate));
+    columns.put(CONTENTEXPIRYDATE, formatDate(expiryDate));
+    columns.put(REMINDERDATE, formatDate(reminderDate));
+    columns.put(REPEATEDAGINGTRANSSTARTDATE, formatDate(repeatedAgingStartDate));
+    columns.put(CONTENTID, Integer.toString(m_nContentID));
+    return java.util.Collections.unmodifiableMap(columns);
+  }
+
+  /**
+   * Converts a {@link java.sql.Date} to the legacy "mm/dd/yyyy hh:mm:ss:milli"
+   * string emitted by {@link PSWorkFlowUtils#DateString(java.util.Date)}. The
+   * item-summary cache only needs a stable string representation; null dates
+   * become {@code null} map values.
+   */
+  private static String formatDate(java.sql.Date date) {
+    return date == null ? null : PSWorkFlowUtils.DateString(date);
   }
 
   /*

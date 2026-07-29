@@ -343,9 +343,9 @@ private void authenticateUser(String lang, AuthParams localParams)
       * For more info see bug Rx-03-10-0057.
       */
 
-     PSCmsObject cmsObject = PSServer.getCmsObjectRequired((int) csc.getContentTypeId());
+      PSCmsObject cmsObject = PSServer.getCmsObjectRequired(csc.getObjectType());
 
-if ((int) csc.getContentTypeId() == PSCmsObject.TYPE_FOLDER) {
+if (csc.getObjectType() == PSCmsObject.TYPE_FOLDER) {
       if (!PSFolderSecurityManager.verifyFolderPermissions(
           contentID, PSObjectPermissions.ACCESS_READ)) {
         throw new PSAuthorizationException(IPSExtensionErrors.AUTHENTICATION_FAILED2, null);

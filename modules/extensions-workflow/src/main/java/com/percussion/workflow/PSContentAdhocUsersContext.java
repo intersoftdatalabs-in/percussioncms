@@ -404,6 +404,52 @@ import org.apache.logging.log4j.Logger;
     }
   }
 
+  /**
+   * Hibernate-backed #1561 Phase 4d-1b write path. Inserts the in-memory adhoc user rows
+   * ({@code m_adhocNormalUserNames} + {@code m_adhocAnonymousUserNames}) into
+   * {@code CONTENTADHOCUSERS} via {@code IPSSystemService.saveContentAdhocUsers} on the
+   * shared Hibernate session — no second pool connection. The legacy raw-JDBC
+   * {@code commit(Connection)} overload above is preserved for any external caller that
+   * still passes a JDBC {@code Connection}.
+   *
+   * @return the number of rows inserted.
+   */
+  public int commit() {
+    if (m_dataOutOfSync) {
+      throw new IllegalStateException("Cannot call commit if data is out of sync");
+    }
+    List<PSContentAdhocUser> rows = new ArrayList<>();
+    // Adhoc-normal users: one row per (user, role) pair.
+    int adhocTypeNormal = PSWorkFlowUtils.ADHOC_ENABLED;
+    for (String userName : m_adhocNormalUserNames) {
+      List<Integer> roleIDs = m_userNameToAdhocNormalRoleIDMap.get(userName.toLowerCase());
+      if (roleIDs == null) continue;
+      for (Integer roleId : roleIDs) {
+        PSContentAdhocUser row = new PSContentAdhocUser();
+        row.setContentId(m_nContentID);
+        row.setUser(userName);
+        row.setRoleId(roleId);
+        row.setAdhocType(adhocTypeNormal);
+        rows.add(row);
+      }
+    }
+    // Adhoc-anonymous users: one row per (user, role) pair.
+    int adhocTypeAnon = PSWorkFlowUtils.ADHOC_ANONYMOUS;
+    for (String userName : m_adhocAnonymousUserNames) {
+      for (Integer roleId : m_adhocAnonymousRoleIDs) {
+        PSContentAdhocUser row = new PSContentAdhocUser();
+        row.setContentId(m_nContentID);
+        row.setUser(userName);
+        row.setRoleId(roleId);
+        row.setAdhocType(adhocTypeAnon);
+        rows.add(row);
+      }
+    }
+    PSSystemServiceLocator.getSystemService().saveContentAdhocUsers(rows);
+    m_nCount = rows.size();
+    return m_nCount;
+  }
+
   @Override
   public void addUserAdhocNormalRoleIDs(String userName, List<Integer> roleIDs) {
     String lowerCaseUserName;
@@ -539,6 +585,35 @@ import org.apache.logging.log4j.Logger;
     m_dataOutOfSync = !clearState;
 
     return result;
+  }
+
+  /**
+   * Hibernate-backed #1561 Phase 4d-1b write path. Deletes all {@code CONTENTADHOCUSERS}
+   * rows for the current {@code contentID} via {@code IPSSystemService.deleteContentAdhocUsers}
+   * on the shared Hibernate session — no second pool connection. The legacy raw-JDBC
+   * {@code emptyAdhocUserEntries(Connection, boolean)} overload above is preserved for
+   * any external caller that still passes a JDBC {@code Connection}.
+   *
+   * @param clearState <CODE>true</CODE> if context variables should be cleared, else
+   *     <CODE>false</CODE>.
+   * @return number of entries deleted.
+   */
+  public int emptyAdhocUserEntriesViaHibernate(boolean clearState) {
+    int result = PSSystemServiceLocator.getSystemService().deleteContentAdhocUsers(m_nContentID);
+    if (clearState) {
+      clearStateVariables();
+    } else {
+      m_dataOutOfSync = true;
+    }
+    return result;
+  }
+
+  private void clearStateVariables() {
+    m_adhocNormalUserNames.clear();
+    m_adhocAnonymousUserNames.clear();
+    m_adhocAnonymousRoleIDs.clear();
+    m_userNameToAdhocNormalRoleIDMap.clear();
+    m_dataOutOfSync = false;
   }
 
   /* ** End Implementation of the IPSContentAdhocUsersContext interface ** */

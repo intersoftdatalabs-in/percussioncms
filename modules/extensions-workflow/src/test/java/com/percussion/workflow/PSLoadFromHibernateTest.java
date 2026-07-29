@@ -60,7 +60,6 @@ import org.junit.jupiter.api.Test;
  * {@code EntityManager}; that infrastructure is tracked in the Phase 4 scope survey
  * (Phase 4+) and is out of scope for this PR.</p>
  */
-@Disabled("Requires Spring+H2 test infrastructure; see phase4-scope-survey.md")
 public class PSLoadFromHibernateTest {
 
   private IPSWorkflowService service;
@@ -74,6 +73,7 @@ public class PSLoadFromHibernateTest {
 
   // ---------- PSStateRolesContext.loadFromHibernate ----------
 
+  @Disabled("Requires Spring+H2 test infrastructure; see phase4-scope-survey.md")
   @Test
   void stateRoles_loadFromHibernate_argValidation() {
     assertThrows(
@@ -82,6 +82,7 @@ public class PSLoadFromHibernateTest {
         IllegalArgumentException.class, () -> PSStateRolesContext.loadFromHibernate(7, 0, 1));
   }
 
+  @Disabled("Requires Spring+H2 test infrastructure; see phase4-scope-survey.md")
   @Test
   void stateRoles_loadFromHibernate_emptyRowsThrowsNotFound() {
     when(service.findStateRoles(7L, 11L, 1)).thenReturn(new ArrayList<>());
@@ -91,6 +92,7 @@ public class PSLoadFromHibernateTest {
         () -> PSStateRolesContext.loadFromHibernate(7, 11, 1));
   }
 
+  @Disabled("Requires Spring+H2 test infrastructure; see phase4-scope-survey.md")
   @Test
   void stateRoles_loadFromHibernate_classifiesRolesByAdhocType() throws Exception {
     long wfId = 7L, stId = 11L;
@@ -135,6 +137,7 @@ public class PSLoadFromHibernateTest {
     assertEquals("Anon", nameMap.get(103));
   }
 
+  @Disabled("Requires Spring+H2 test infrastructure; see phase4-scope-survey.md")
   @Test
   void stateRoles_loadFromHibernate_missingRoleNameThrowsRoleException() {
     long wfId = 7L, stId = 11L;
@@ -148,12 +151,14 @@ public class PSLoadFromHibernateTest {
 
   // ---------- PSContentAdhocUsersContext.loadFromHibernate ----------
 
+  @Disabled("Requires Spring+H2 test infrastructure; see phase4-scope-survey.md")
   @Test
   void adhocUsers_loadFromHibernate_argValidation() {
     assertThrows(
         IllegalArgumentException.class, () -> PSContentAdhocUsersContext.loadFromHibernate(0));
   }
 
+  @Disabled("Requires Spring+H2 test infrastructure; see phase4-scope-survey.md")
   @Test
   void adhocUsers_loadFromHibernate_emptyRowsEmptyContext() {
     when(systemService.findContentAdhocUsers(1042)).thenReturn(new ArrayList<>());
@@ -167,6 +172,7 @@ public class PSLoadFromHibernateTest {
     assertEquals(0, ctx.getContentAdhocAnonymousUserCount());
   }
 
+  @Disabled("Requires Spring+H2 test infrastructure; see phase4-scope-survey.md")
   @Test
   void adhocUsers_loadFromHibernate_classifiesRowsByAdhocType() {
     PSContentAdhocUser adhocNormal = mockAdhocRow(1042, "Alice", 201L, PSAdhocTypeEnum.ENABLED);
@@ -187,6 +193,7 @@ public class PSLoadFromHibernateTest {
     assertTrue(ctx.getAdhocAnonymousRoleIDs().contains(202));
   }
 
+  @Disabled("Requires Spring+H2 test infrastructure; see phase4-scope-survey.md")
   @Test
   void adhocUsers_loadFromHibernate_emptyUserNameThrows() {
     PSContentAdhocUser bad = mock(PSContentAdhocUser.class);
