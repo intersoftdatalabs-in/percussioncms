@@ -44,6 +44,11 @@ import org.springframework.test.util.ReflectionTestUtils;
 /**
  * Mockito-only tests for the #1561 Phase 4d-1b write methods on {@link IPSSystemService}.
  * Verifies the JPQL is well-formed and that the parameters are forwarded correctly.
+ *
+ * <p>The companion behavioral test for the {@code buildLegacyColumnMap} hot-fix #2
+ * in {@link PSContentStatusContext#commit()} lives in
+ * {@code com.percussion.workflow.PSContentStatusContextCommitTest} (same package,
+ * so it pins the 15-column map directly).</p>
  */
 public class PSSystemServicePhase4d1bWritesTest {
 

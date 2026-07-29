@@ -445,16 +445,16 @@ public class PSContentStatusContext implements IPSContentStatusContext {
 
   /**
    * Hibernate-backed #1561 Phase 4d-1b write path for {@code PSExitPerformTransition}.
-   * Replaces the legacy 14-column raw-JDBC UPDATE on {@code CONTENTSTATUS} with a single
-   * JPQL UPDATE through {@code IPSSystemService}. All 14 columns the legacy
-   * {@code commit(Connection)} wrote are written here.
+    * Replaces the legacy raw-JDBC UPDATE on {@code CONTENTSTATUS} with a single
+    * JPQL UPDATE through {@code IPSSystemService}. All 15 columns the legacy
+    * {@code commit(Connection)} wrote are written here.
    *
    * <p>Phase 4d-1b hot-fix: after a successful UPDATE, fires
    * {@link PSItemSummaryCache#tableChanged(PSTableChangeEvent)} to mirror the legacy
    * {@code commit(Connection)} {@code notifyUpdateItem(columns)} behavior. Without this
    * event, the item-summary cache shows stale state / checkout user / revision after
    * check-in / check-out / transition until an unrelated refresh. See PR #1589 review
-   * thread databaseId 3670307332.
+   * thread databaseId 3670378976.
    *
    * <p>The legacy raw-JDBC {@code commit(Connection)} overload above remains for any
    * external caller that still passes a JDBC {@code Connection}.
@@ -492,14 +492,57 @@ public class PSContentStatusContext implements IPSContentStatusContext {
             reminderDate,
             repeatedAgingStartDate);
     if (updated > 0) {
-      // Build a column-change map sufficient for PSItemSummaryCache to invalidate
-      // the entry. We don't have per-column values, so we just stamp the affected
-      // content id and a single representative column key — the cache consumer only
-      // needs the event signal to evict the entry.
-      java.util.Map<String, String> columns = new java.util.HashMap<>();
-      columns.put(CONTENTID, Integer.toString(m_nContentID));
+      java.util.Map<String, String> columns = buildLegacyColumnMap();
       notifyUpdateItem(columns);
     }
+  }
+
+  /**
+   * Builds the same 15-column change map that the legacy {@code commit(Connection)}
+   * path populated via {@link #setInt}, {@link #setString}, and {@link #setDate}.
+   * The item-summary cache (PSItemSummaryCache) relies on these keys to invalidate
+   * stale entries after a CONTENTSTATUS update.
+   *
+   * @return an unmodifiable ordered map of column-name to string-value,
+   *     never {@code null}.
+   */
+  private java.util.Map<String, String> buildLegacyColumnMap() {
+    java.util.Map<String, String> columns = new java.util.LinkedHashMap<>();
+    String checkOutUserName = m_sCheckOutUserName == null ? "" : m_sCheckOutUserName;
+    java.sql.Date lastTransitionDate = m_LastTransitionDate;
+    java.sql.Date stateEnteredDate = m_StateEnteredDate;
+    java.sql.Date nextAgingDate = m_NextAgingDate;
+    java.sql.Date startDate = m_StartDate;
+    java.sql.Date expiryDate = m_ExpiryDate;
+    java.sql.Date reminderDate = m_ReminderDate;
+    java.sql.Date repeatedAgingStartDate = m_RepeatedAgingTransitionStartDate;
+    int nextAgingTransition = m_nNextAgingTransition;
+    columns.put(CONTENTSTATEID, Integer.toString(m_nStateID));
+    columns.put(CONTENTCHECKOUTUSERNAME, checkOutUserName);
+    columns.put(CURRENTREVISION, Integer.toString(m_nCurrentRevision));
+    columns.put(EDITREVISION, Integer.toString(m_nEditRevision));
+    columns.put(TIPREVISION, Integer.toString(m_nTipRevision));
+    columns.put(REVISIONLOCK, m_bRevisionLocked ? "Y" : "N");
+    columns.put(LASTTRANSITIONDATE, formatDate(lastTransitionDate));
+    columns.put(STATEENTEREDDATE, formatDate(stateEnteredDate));
+    columns.put(NEXTAGINGTRANSITION, Integer.toString(nextAgingTransition));
+    columns.put(NEXTAGINGDATE, formatDate(nextAgingDate));
+    columns.put(CONTENTSTARTDATE, formatDate(startDate));
+    columns.put(CONTENTEXPIRYDATE, formatDate(expiryDate));
+    columns.put(REMINDERDATE, formatDate(reminderDate));
+    columns.put(REPEATEDAGINGTRANSSTARTDATE, formatDate(repeatedAgingStartDate));
+    columns.put(CONTENTID, Integer.toString(m_nContentID));
+    return java.util.Collections.unmodifiableMap(columns);
+  }
+
+  /**
+   * Converts a {@link java.sql.Date} to the legacy "mm/dd/yyyy hh:mm:ss:milli"
+   * string emitted by {@link PSWorkFlowUtils#DateString(java.util.Date)}. The
+   * item-summary cache only needs a stable string representation; null dates
+   * become {@code null} map values.
+   */
+  private static String formatDate(java.sql.Date date) {
+    return date == null ? null : PSWorkFlowUtils.DateString(date);
   }
 
   /*
