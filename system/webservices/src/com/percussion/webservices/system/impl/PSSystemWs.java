@@ -62,7 +62,6 @@ import com.percussion.webservices.system.IPSSystemWs;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import com.percussion.workflow.PSTransitionInfo;
-import com.percussion.workflow.PSWorkFlowUtils;
 import com.percussion.workflow.PSEntryNotFoundException;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -602,9 +601,12 @@ public class PSSystemWs extends PSSystemBaseWs implements IPSSystemWs
          for (IPSGuid id : ids)
          {
             PSLegacyGuid guid = (PSLegacyGuid) id;
-            List<PSTransitionInfo> transInfos = PSWorkFlowUtils
-               .getAllowedTransitions(guid.getContentId(), userName, roles,
-                  commId);
+            // #1561 Phase 4d-1c PR-C2: migrated to the Hibernate-backed
+            // IPSWorkflowService.getAllowedTransitions(int, String, List, int) (PR #1640); the
+            // legacy PSWorkFlowUtils.getAllowedTransitions overloads are deleted in this PR.
+            List<PSTransitionInfo> transInfos = PSWorkflowServiceLocator
+               .getWorkflowService()
+               .getAllowedTransitions(guid.getContentId(), userName, roles, commId);
 
             Map<String, String> transMap = new HashMap<String, String>();
             for (PSTransitionInfo transInfo : transInfos)
