@@ -134,8 +134,10 @@ public class SlotsResource {
   @Operation(
       summary = "Update slot design fields",
       description =
-          "Updates mutable slot fields: label and/or description. Name and associations are"
-              + " immutable via this path. Create/delete/lock remain unsupported (see designGaps).",
+          "Updates mutable slot fields: label and/or description. When associations is present"
+              + " (including empty), replaces the full content-type/template association set."
+              + " Omit associations to leave them unchanged. Name/id is immutable."
+              + " Create/delete/lock remain unsupported (see designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",

@@ -154,6 +154,12 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
     name: "target",
     label: body.label ?? "Target",
     description: body.description ?? "Main slot",
+    associations: body.associations ?? [
+      {
+        contentTypeGuid: { stringValue: "0-2-301", uuid: 301 },
+        templateGuid: { stringValue: "0-10-1", uuid: 1 },
+      },
+    ],
     designGaps: ["Create / delete / lock not supported via this API"],
   })),
   listCommunities: vi.fn().mockResolvedValue([
@@ -354,6 +360,41 @@ describe("DeveloperShell", () => {
     fireEvent.click(screen.getByTestId("developer-tpl-back"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-tpl-table")).toBeTruthy();
+    });
+  });
+
+  it("edits slot associations and saves", async () => {
+    const { updateSlotDetail } = await import("../../../main/ts/api/developer/assemblyApi");
+    render(<DeveloperShell initialSection="slots" embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Open Target/i }));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-assoc-table")).toBeTruthy();
+    });
+    const saveBtn = screen.getByTestId("developer-slot-save");
+    expect((saveBtn as HTMLButtonElement).disabled).toBe(true);
+
+    fireEvent.change(screen.getByTestId("developer-slot-assoc-ct"), {
+      target: { value: "0-2-999" },
+    });
+    fireEvent.change(screen.getByTestId("developer-slot-assoc-tpl"), {
+      target: { value: "0-10-99" },
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-assoc-add"));
+    expect((saveBtn as HTMLButtonElement).disabled).toBe(false);
+
+    fireEvent.click(saveBtn);
+    await waitFor(() => {
+      expect(updateSlotDetail).toHaveBeenCalled();
+    });
+    const body = (updateSlotDetail as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1];
+    expect(body.associations).toHaveLength(2);
+    expect(body.associations[1].contentTypeGuid.stringValue).toBe("0-2-999");
+    expect(body.associations[1].templateGuid.stringValue).toBe("0-10-99");
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-detail-notice").textContent).toMatch(/saved/i);
     });
   });
 });

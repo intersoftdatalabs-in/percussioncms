@@ -85,10 +85,10 @@ export async function getSlotDetail(idOrName: string): Promise<SlotDetail> {
   return get<SlotDetail>(`${PATHS.SLOTS}/${key}`);
 }
 
-/** PUT /services/slots/{idOrName} — label, description */
+/** PUT /services/slots/{idOrName} — label, description, optional associations replace */
 export async function updateSlotDetail(
   idOrName: string,
-  body: Pick<SlotDetail, "label" | "description">,
+  body: Pick<SlotDetail, "label" | "description" | "associations">,
 ): Promise<SlotDetail> {
   const key = encodeURIComponent(idOrName);
   return put<SlotDetail>(`${PATHS.SLOTS}/${key}`, body);

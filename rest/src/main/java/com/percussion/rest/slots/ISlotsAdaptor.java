@@ -34,7 +34,9 @@ public interface ISlotsAdaptor {
   SlotDetail getSlot(URI baseUri, String idOrName);
 
   /**
-   * Update mutable slot design fields (label, description). Name/id and associations are not
+   * Update mutable slot design fields (label, description) and optionally replace content-type /
+   * template associations. When {@code body.associations} is {@code null}, associations are left
+   * unchanged; a non-null list (including empty) replaces the full association set. Name/id is not
    * changed via this path.
    *
    * @return updated detail, or {@code null} if not found

@@ -24,10 +24,10 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.Map;
 
-/** Read-only assembly slot design detail for the Developer module. */
+/** Assembly slot design detail for the Developer module (read + partial write). */
 @XmlRootElement(name = "SlotDetail")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description = "Slot detail with finder and associations (read-only)")
+@Schema(description = "Slot detail with finder and content-type/template associations")
 public class SlotDetail {
 
   private Guid guid;
