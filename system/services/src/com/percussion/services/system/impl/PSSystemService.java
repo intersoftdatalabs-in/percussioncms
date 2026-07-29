@@ -505,9 +505,13 @@ public class PSSystemService
     * {@code PSContentStatusContext.commit(Connection)} write path. Updates the
     * {@code CONTENTSTATUS} row for the supplied content id with the supplied state
     * transition fields.
+    *
+    * <p>Returns the number of rows updated so callers can fire the
+    * {@code PSItemSummaryCache} event (mirroring legacy
+    * {@code notifyUpdateItem(columns)}).
     */
    @Transactional
-   public void updateContentStatusState(
+   public int updateContentStatusState(
        int contentId,
        int stateId,
        String checkOutUserName,
@@ -573,6 +577,7 @@ public class PSSystemService
          getSession().getSessionFactory().getCache()
              .evictEntityData(com.percussion.cms.objectstore.PSComponentSummary.class, contentId);
       }
+      return updated;
    }
 
    /**
@@ -654,6 +659,26 @@ public class PSSystemService
               .setParameter("wf", workflowId)
               .setParameter("tid", transitionId)
               .setParameter("sid", stateId)
+              .executeUpdate();
+      return n;
+   }
+
+   /**
+    * Phase 4d-1b hot-fix: contentId-only DELETE from {@code CONTENTAPPROVALS}. Matches
+    * the legacy {@code PSContentApprovalsContext.emptyApprovals()} semantics — removes
+    * all approval rows for the supplied content id, regardless of (workflowId,
+    * transitionId, stateId). This is the path used by the transition-completion flow.
+    */
+   @Transactional
+   public int deleteContentApprovals(int contentId)
+   {
+      if (contentId <= 0)
+         throw new IllegalArgumentException("contentId must be > 0");
+
+      int n =
+          getSession()
+              .createQuery("delete from PSContentApproval where contentId = :cid")
+              .setParameter("cid", contentId)
               .executeUpdate();
       return n;
    }

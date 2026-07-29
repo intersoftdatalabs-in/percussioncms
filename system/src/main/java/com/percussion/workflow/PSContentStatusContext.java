@@ -449,6 +449,13 @@ public class PSContentStatusContext implements IPSContentStatusContext {
    * JPQL UPDATE through {@code IPSSystemService}. All 14 columns the legacy
    * {@code commit(Connection)} wrote are written here.
    *
+   * <p>Phase 4d-1b hot-fix: after a successful UPDATE, fires
+   * {@link PSItemSummaryCache#tableChanged(PSTableChangeEvent)} to mirror the legacy
+   * {@code commit(Connection)} {@code notifyUpdateItem(columns)} behavior. Without this
+   * event, the item-summary cache shows stale state / checkout user / revision after
+   * check-in / check-out / transition until an unrelated refresh. See PR #1589 review
+   * thread databaseId 3670307332.
+   *
    * <p>The legacy raw-JDBC {@code commit(Connection)} overload above remains for any
    * external caller that still passes a JDBC {@code Connection}.
    */
@@ -467,22 +474,32 @@ public class PSContentStatusContext implements IPSContentStatusContext {
     int nextAgingTransition = m_nNextAgingTransition;
 
     IPSSystemService sysSvc = PSSystemServiceLocator.getSystemService();
-    sysSvc.updateContentStatusState(
-        m_nContentID,
-        m_nStateID,
-        checkOutUserName,
-        m_nCurrentRevision,
-        m_nEditRevision,
-        m_nTipRevision,
-        m_bRevisionLocked,
-        lastTransitionDate,
-        stateEnteredDate,
-        nextAgingTransition,
-        nextAgingDate,
-        startDate,
-        expiryDate,
-        reminderDate,
-        repeatedAgingStartDate);
+    int updated =
+        sysSvc.updateContentStatusState(
+            m_nContentID,
+            m_nStateID,
+            checkOutUserName,
+            m_nCurrentRevision,
+            m_nEditRevision,
+            m_nTipRevision,
+            m_bRevisionLocked,
+            lastTransitionDate,
+            stateEnteredDate,
+            nextAgingTransition,
+            nextAgingDate,
+            startDate,
+            expiryDate,
+            reminderDate,
+            repeatedAgingStartDate);
+    if (updated > 0) {
+      // Build a column-change map sufficient for PSItemSummaryCache to invalidate
+      // the entry. We don't have per-column values, so we just stamp the affected
+      // content id and a single representative column key — the cache consumer only
+      // needs the event signal to evict the entry.
+      java.util.Map<String, String> columns = new java.util.HashMap<>();
+      columns.put(CONTENTID, Integer.toString(m_nContentID));
+      notifyUpdateItem(columns);
+    }
   }
 
   /*

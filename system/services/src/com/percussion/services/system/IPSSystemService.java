@@ -303,8 +303,10 @@ public interface IPSSystemService
     * @param reminderDate the new reminder date; may be {@code null}.
     * @param repeatedAgingStartDate the new repeated-aging transition start date; may be
     *     {@code null}.
+    * @return the number of {@code CONTENTSTATUS} rows updated; {@code 0} when no row
+    *     matches the supplied {@code contentId}.
     */
-   public void updateContentStatusState(
+   public int updateContentStatusState(
        int contentId,
        int stateId,
        String checkOutUserName,
@@ -368,6 +370,23 @@ public interface IPSSystemService
     */
    public int deleteContentApprovals(
        int contentId, int workflowId, int transitionId, int stateId);
+
+   /**
+    * Hibernate-backed DELETE from {@code CONTENTAPPROVALS} for the supplied
+    * {@code contentId} only. Added for #1561 Phase 4d-1b hot-fix (PR #1589 review
+    * thread databaseId 3670307327) to match the legacy
+    * {@code PSContentApprovalsContext.emptyApprovals()} semantics
+    * ({@code DELETE FROM CONTENTAPPROVALS WHERE CONTENTID = ?}), which is content-scoped
+    * and removes all approval rows for the item — not the narrower
+    * (contentId, workflowId, transitionId, stateId) tuple.
+    *
+    * <p>Use this overload from the transition-completion path; use the 4-key overload
+    * only when the caller actually intends to filter by the full tuple.
+    *
+    * @param contentId the content id; must be {@code > 0}.
+    * @return the number of rows deleted.
+    */
+   public int deleteContentApprovals(int contentId);
 
    /**
     * Deletes the specified content history entry.

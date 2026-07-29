@@ -365,15 +365,22 @@ public class PSContentApprovalsContext implements IPSContentApprovalsContext {
 
   /**
    * Hibernate-backed #1561 Phase 4d-1b write path. Deletes all approval rows for the
-   * current (contentId, workflowId, transitionId, stateId) tuple via
-   * {@code IPSSystemService.deleteContentApprovals} on the shared Hibernate session — no
-   * second pool connection. The legacy raw-JDBC {@code emptyApprovals()} overload above
-   * is preserved for any external caller that still passes a JDBC {@code Connection}.
+   * current {@code contentId} via {@code IPSSystemService.deleteContentApprovals(int)} on
+   * the shared Hibernate session — no second pool connection.
+   *
+   * <p>Phase 4d-1b hot-fix: the previous overload used the narrower
+   * (contentId, workflowId, transitionId, stateId) tuple filter, which differs from the
+   * legacy {@code emptyApprovals()} semantics
+   * ({@code DELETE FROM CONTENTAPPROVALS WHERE CONTENTID = ?}) and could leave orphan
+   * approval rows for other transition/state combinations on the same item after a
+   * transition. This overload restores the legacy contentId-only delete. See PR #1589
+   * review thread databaseId 3670307327.
+   *
+   * <p>The legacy raw-JDBC {@code emptyApprovals()} overload above is preserved for any
+   * external caller that still passes a JDBC {@code Connection}.
    */
   public int emptyApprovalsViaHibernate() {
-    int n =
-        PSSystemServiceLocator.getSystemService()
-            .deleteContentApprovals(m_nContentID, m_nWorkflowID, m_nTransitionID, m_nStateID);
+    int n = PSSystemServiceLocator.getSystemService().deleteContentApprovals(m_nContentID);
     m_nCount = 0;
     m_UserList.clear();
     return n;

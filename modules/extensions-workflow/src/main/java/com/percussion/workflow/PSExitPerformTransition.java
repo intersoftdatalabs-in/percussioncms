@@ -258,6 +258,9 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
     // Phase 4d-1b: no longer opens a second pool connection — all reads/writes below
     // (CONTENTSTATUS, STATEROLES, CONTENTADHOCUSERS, CONTENTAPPROVALS, TRANSITIONS) route
     // through Hibernate service methods or Hibernate-backed factories on the shared session.
+    // The residual JDBC reads in performTransition() (aging transitions cursor, approvals
+    // context) use the connection acquired below; the connection is released in the
+    // outer finally block.
     Map<String, Object> htmlParams = null;
     int nParamCount = 0;
     Params localParams = new Params();
@@ -270,6 +273,7 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
     int nAssignmentType = 0;
     String adhocUserList = "";
     Exception except = null;
+    Connection connection = null;
     try {
       if (null == request) {
         throw new PSExtensionProcessingException(
@@ -404,8 +408,8 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
       // PSConnectionHelper. The dual-connection defect documented in the #1561 inventory
       // is mitigated by routing the WRITES through Hibernate (single shared transaction);
       // the raw-JDBC reads in performTransition() use this fresh connection but are
-      // acknowledged as a Phase 5 cleanup target.
-      Connection connection = null;
+      // acknowledged as a Phase 5 cleanup target. The connection is released in
+      // the outer finally block below.
       try {
         connection = com.percussion.utils.jdbc.PSConnectionHelper.getDbConnection();
       } catch (Exception e) {
@@ -518,7 +522,18 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
         except = e;
       }
     } finally {
-      // Phase 4d-1b: no connection to release.
+      // Phase 4d-1b hot-fix: release the pool connection acquired above. The connection
+      // is used by residual JDBC reads in performTransition() (aging transitions cursor,
+      // approvals context); without this close every check-in / check-out / transition
+      // leaked a pool connection under load. See PR #1589 review thread databaseId
+      // 3670307324.
+      if (connection != null) {
+        try {
+          connection.close();
+        } catch (SQLException ignore) {
+          // cleanup — pool will reclaim on next validate
+        }
+      }
       if (null != except) {
         PSWorkFlowUtils.printWorkflowException(request, except);
         if (except instanceof PSException) {

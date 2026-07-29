@@ -84,6 +84,47 @@ public class PSSystemServicePhase4d1bWritesTest {
 
   @Test
   @SuppressWarnings("unchecked")
+  void updateContentStatusState_returnsRowsUpdated() {
+    org.hibernate.query.Query<Integer> mockQuery = mock(org.hibernate.query.Query.class);
+    when(session.createQuery(anyString())).thenReturn(mockQuery);
+    when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
+    when(mockQuery.executeUpdate()).thenReturn(1);
+    // Stub the SessionFactory → Cache chain that updateContentStatusState touches when
+    // updated > 0, so the cache.evictEntityData call doesn't NPE.
+    org.hibernate.SessionFactory mockFactory = mock(org.hibernate.SessionFactory.class);
+    org.hibernate.Cache mockCache = mock(org.hibernate.Cache.class);
+    when(mockFactory.getCache()).thenReturn(mockCache);
+    when(session.getSessionFactory()).thenReturn(mockFactory);
+
+    int updated =
+        service.updateContentStatusState(
+            7, 11, "alice", 5, 6, 7, true, new java.util.Date(), new java.util.Date(),
+            3, new java.util.Date(), new java.util.Date(), new java.util.Date(),
+            new java.util.Date(), new java.util.Date());
+    assertEquals(1, updated,
+        "Phase 4d-1b hot-fix: updateContentStatusState must return the rows-updated"
+            + " count so PSContentStatusContext.commit() can fire PSItemSummaryCache");
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void updateContentStatusState_returnsZeroWhenNoRowMatches() {
+    org.hibernate.query.Query<Integer> mockQuery = mock(org.hibernate.query.Query.class);
+    when(session.createQuery(anyString())).thenReturn(mockQuery);
+    when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
+    when(mockQuery.executeUpdate()).thenReturn(0);
+    // No SessionFactory stub — updated = 0 must short-circuit before the cache.evictEntityData call.
+
+    int updated =
+        service.updateContentStatusState(
+            7, 11, "alice", 5, 6, 7, true, new java.util.Date(), new java.util.Date(),
+            3, new java.util.Date(), new java.util.Date(), new java.util.Date(),
+            new java.util.Date(), new java.util.Date());
+    assertEquals(0, updated);
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
   void updateContentStatusState_jpqlAndParameters() {
     org.hibernate.query.Query<Integer> mockQuery = mock(org.hibernate.query.Query.class);
     when(session.createQuery(anyString())).thenReturn(mockQuery);
@@ -237,5 +278,42 @@ public class PSSystemServicePhase4d1bWritesTest {
     verify(mockQuery).setParameter("wf", 4);
     verify(mockQuery).setParameter("tid", 5);
     verify(mockQuery).setParameter("sid", 13);
+  }
+
+  // --- deleteContentApprovals(int contentId) — Phase 4d-1b hot-fix -------------
+
+  @Test
+  void deleteContentApprovalsByContentId_rejectsNonPositiveContentId() {
+    assertThrows(IllegalArgumentException.class, () -> service.deleteContentApprovals(0));
+    assertThrows(
+        IllegalArgumentException.class, () -> service.deleteContentApprovals(-1));
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void deleteContentApprovalsByContentId_jpqlIsContentIdOnly() {
+    // PR #1589 review thread databaseId 3670307327 / 3670307331: the transition-
+    // completion path must delete by contentId only (legacy semantics) — not the
+    // narrower 4-tuple filter. This test pins the JPQL string so the regression
+    // cannot re-emerge.
+    org.hibernate.query.Query<Integer> mockQuery = mock(org.hibernate.query.Query.class);
+    when(session.createQuery(anyString())).thenReturn(mockQuery);
+    when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
+    when(mockQuery.executeUpdate()).thenReturn(5);
+
+    int n = service.deleteContentApprovals(7);
+
+    assertEquals(5, n);
+    ArgumentCaptor<String> jpql = ArgumentCaptor.forClass(String.class);
+    verify(session).createQuery(jpql.capture());
+    String q = jpql.getValue();
+    assertContains(q, "delete from PSContentApproval");
+    assertContains(q, "where contentId = :cid");
+    // Anti-regression: must NOT filter by workflowId/transitionId/stateId.
+    if (q.contains("workflowId") || q.contains("transitionId") || q.contains("stateId")) {
+      throw new AssertionError(
+          "deleteContentApprovals(int) JPQL must be contentId-only, got: " + q);
+    }
+    verify(mockQuery).setParameter("cid", 7);
   }
 }
