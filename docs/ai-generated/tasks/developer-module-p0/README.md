@@ -31,6 +31,7 @@
 - [x] **Content Types** panel: list from `GET /services/contenttypes`  
 - [x] **P0.2** `GET /services/contenttypes/{idOrName}` field catalog + SPA detail view  
 - [x] **P0.2b** Allowed workflows + default workflow + allowed templates on CT detail  
+- [x] **P0.2c** Field rule flags (readOnly, occurrence, hasValidation/visibility/transforms) + SPA columns  
 - [x] **P0.3** Keywords list `GET /services/keywords` + SPA Keywords panel (read-only)  
 - [x] **P0.4** Templates `GET /services/templates` + Slots `GET /services/slots` + SPA panels  
 - [x] **P0.4b** Template detail `GET /services/templates/{idOrName}` — bindings, slots, source, designGaps + SPA detail  

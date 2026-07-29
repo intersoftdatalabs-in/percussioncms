@@ -26,6 +26,7 @@ import com.percussion.design.objectstore.PSDisplayMapper;
 import com.percussion.design.objectstore.PSDisplayMapping;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
+import com.percussion.design.objectstore.PSFieldTranslation;
 import com.percussion.design.objectstore.PSUISet;
 import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
@@ -194,7 +195,9 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     detail.setAllowedTemplates(loadTemplates(ctGuid));
 
     List<String> gaps = new ArrayList<>();
-    gaps.add("Field validation, visibility, editability, and transform rules not exposed");
+    gaps.add(
+        "Field rule flags are exposed (validation/visibility/transforms present); full rule"
+            + " expressions and control properties are not");
     gaps.add("Item-level pre/post exits not exposed");
     gaps.add("Create / update / delete / lock not supported (read-only)");
     gaps.add("Shared/system field inclusion editing not supported");
@@ -312,6 +315,13 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       f.setRequired(
           occurrence == PSField.OCCURRENCE_DIMENSION_REQUIRED
               || occurrence == PSField.OCCURRENCE_DIMENSION_ONE_OR_MORE);
+      f.setOccurrence(mapOccurrence(occurrence));
+      f.setReadOnly(field.isReadOnly());
+      f.setHasValidation(field.hasValidationRules());
+      f.setHasVisibilityRules(
+          field.getVisibilityRules() != null && !field.getVisibilityRules().isEmpty());
+      f.setHasInputTranslation(hasTranslation(field.getInputTranslation()));
+      f.setHasOutputTranslation(hasTranslation(field.getOutputTranslation()));
       out.add(f);
     }
   }
@@ -323,6 +333,27 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       case PSField.TYPE_LOCAL -> "local";
       default -> "unknown";
     };
+  }
+
+  /** Package-visible for unit tests. Maps PSField occurrence dimension to API string. */
+  static String mapOccurrence(int dimension) {
+    return switch (dimension) {
+      case PSField.OCCURRENCE_DIMENSION_OPTIONAL -> "optional";
+      case PSField.OCCURRENCE_DIMENSION_REQUIRED -> "required";
+      case PSField.OCCURRENCE_DIMENSION_ONE_OR_MORE -> "oneOrMore";
+      case PSField.OCCURRENCE_DIMENSION_ZERO_OR_MORE -> "zeroOrMore";
+      case PSField.OCCURRENCE_DIMENSION_COUNT -> "count";
+      default -> "unknown";
+    };
+  }
+
+  /**
+   * Package-visible for unit tests. True when a field translation has a non-empty call set.
+   */
+  static boolean hasTranslation(PSFieldTranslation translation) {
+    return translation != null
+        && translation.getTranslations() != null
+        && !translation.getTranslations().isEmpty();
   }
 
   /**

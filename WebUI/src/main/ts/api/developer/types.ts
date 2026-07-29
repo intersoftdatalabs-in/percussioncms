@@ -51,6 +51,12 @@ export interface ContentTypeFieldSummary {
   dataType?: string;
   searchable?: boolean;
   required?: boolean;
+  readOnly?: boolean;
+  occurrence?: string;
+  hasValidation?: boolean;
+  hasVisibilityRules?: boolean;
+  hasInputTranslation?: boolean;
+  hasOutputTranslation?: boolean;
   control?: string;
   fieldSet?: string | null;
 }

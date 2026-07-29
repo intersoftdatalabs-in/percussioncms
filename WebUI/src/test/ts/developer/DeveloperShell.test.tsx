@@ -29,12 +29,21 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
         dataType: "text",
         control: "sys_EditBox",
         searchable: true,
+        required: true,
+        readOnly: false,
+        occurrence: "required",
+        hasValidation: true,
+        hasVisibilityRules: false,
+        hasInputTranslation: false,
+        hasOutputTranslation: false,
       },
     ],
     allowedWorkflows: [{ name: "Simple Workflow", label: "Simple Workflow", isDefault: true }],
     defaultWorkflow: { name: "Simple Workflow", label: "Simple Workflow", isDefault: true },
     allowedTemplates: [{ name: "perc.page", label: "Page" }],
-    designGaps: ["Field validation rules not exposed"],
+    designGaps: [
+      "Field rule flags are exposed (validation/visibility/transforms present); full rule expressions and control properties are not",
+    ],
   }),
 }));
 
@@ -147,6 +156,9 @@ describe("DeveloperShell", () => {
     });
     expect(screen.getByTestId("developer-ct-fields-table")).toBeTruthy();
     expect(screen.getByText("sys_title")).toBeTruthy();
+    expect(screen.getByTestId("developer-ct-field-rules").textContent).toMatch(/validation/);
+    // Occurrence cell value is lowercase "required" (distinct from "Required" header)
+    expect(screen.getByTestId("developer-ct-field-occurrence").textContent).toBe("required");
     expect(screen.getByTestId("developer-ct-workflows")).toBeTruthy();
     expect(screen.getByTestId("developer-ct-templates")).toBeTruthy();
     expect(screen.getByTestId("developer-ct-gaps")).toBeTruthy();
