@@ -45,4 +45,9 @@ public class TestTemplatesAdaptor implements ITemplatesAdaptor {
   public TemplateDetail getTemplate(URI baseUri, String idOrName) {
     return null;
   }
+
+  @Override
+  public TemplateDetail updateTemplate(URI baseUri, String idOrName, TemplateDetail body) {
+    return null;
+  }
 }

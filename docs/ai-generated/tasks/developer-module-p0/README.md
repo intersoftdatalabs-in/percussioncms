@@ -37,6 +37,7 @@
 - [x] **P0.4** Templates `GET /services/templates` + Slots `GET /services/slots` + SPA panels  
 - [x] **P0.4b** Template detail `GET /services/templates/{idOrName}` — bindings, slots, source, designGaps + SPA detail  
 - [x] **P0.4c** Slot detail `GET /services/slots/{idOrName}` (finder + associations) + SPA detail  
+- [x] **P0.4d** Template update `PUT /services/templates/{idOrName}` (label/description/source) + SPA edit  
 - [x] **P0.5** Communities list via `GET /services/communities/find?name=*` + SPA panel  
 - [x] **P0.6** Pipelines list `GET /services/pipelines` — classic **XML Application** summaries (not Slice A IR) + SPA panel; optional `?name=` / `?limit=` / `?offset=`  
 - [x] Gap map: [content-type-api-gaps.md](./content-type-api-gaps.md)  
@@ -47,7 +48,7 @@
 
 1. Community roles + ACL dialogs  
 2. Pipelines track Slice A (IR + SQL runtime + JSON I/O + classic import)  
-3. Template/slot **editors** (write)  
+3. Slot **editors** (write); template label/source write shipped as P0.4d  
 4. Server runtime map for data pipelines  
 5. CT field write/lock (rules projection already shipped as P0.2c)  
 

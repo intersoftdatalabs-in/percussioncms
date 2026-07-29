@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { get } from "../client";
+import { get, put } from "../client";
 import { PATHS } from "../paths";
 import type {
   CommunitySummary,
@@ -60,6 +60,15 @@ export async function getTemplateDetail(
 ): Promise<TemplateDetail> {
   const key = encodeURIComponent(idOrName);
   return get<TemplateDetail>(`${PATHS.TEMPLATES}/${key}`);
+}
+
+/** PUT /services/templates/{idOrName} — label, description, source */
+export async function updateTemplateDetail(
+  idOrName: string,
+  body: Pick<TemplateDetail, "label" | "description" | "templateSource">,
+): Promise<TemplateDetail> {
+  const key = encodeURIComponent(idOrName);
+  return put<TemplateDetail>(`${PATHS.TEMPLATES}/${key}`, body);
 }
 
 /** GET /services/slots */
