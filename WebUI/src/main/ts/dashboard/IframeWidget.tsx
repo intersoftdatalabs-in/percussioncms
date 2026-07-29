@@ -15,29 +15,73 @@ export interface IframeWidgetProps {
 }
 
 /**
+ * Allow only absolute http(s) URLs for iframe src.
+ * Blocks javascript:/data:/etc. and rejects unparseable values (CodeQL js/xss-through-dom).
+ */
+export function sanitizeEmbedUrl(raw: string): string | null {
+  const trimmed = (raw ?? "").trim();
+  if (!trimmed) {
+    return null;
+  }
+  try {
+    // Absolute URL only — no relative resolution from page origin.
+    const u = new URL(trimmed);
+    if (u.protocol !== "http:" && u.protocol !== "https:") {
+      return null;
+    }
+    // Normalize; never return the raw DOM/session string to the sink.
+    return u.toString();
+  } catch {
+    return null;
+  }
+}
+
+function readStoredUrl(): string {
+  try {
+    if (typeof sessionStorage === "undefined") {
+      return "";
+    }
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      return "";
+    }
+    return sanitizeEmbedUrl(raw) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+/**
  * Classic iframe gadget embeds a configured URL.
  * URL can be passed as prop or saved in sessionStorage (no CMS embed API).
+ * Only http(s) URLs are accepted for the iframe {@code src} attribute.
  */
 export const IframeWidget: React.FC<IframeWidgetProps> = ({
   title = "Iframe",
   src: srcProp,
 }) => {
-  const stored =
-    typeof sessionStorage !== "undefined"
-      ? sessionStorage.getItem(STORAGE_KEY) || ""
-      : "";
-  const [draft, setDraft] = useState(srcProp?.trim() || stored);
-  const [active, setActive] = useState(srcProp?.trim() || stored);
+  const initialSafe =
+    sanitizeEmbedUrl(srcProp ?? "") || readStoredUrl() || "";
+  const [draft, setDraft] = useState(initialSafe);
+  const [active, setActive] = useState(initialSafe);
+  const [error, setError] = useState<string | null>(null);
 
   const apply = () => {
-    const next = draft.trim();
-    setActive(next);
-    try {
-      if (next) {
-        sessionStorage.setItem(STORAGE_KEY, next);
-      } else {
+    const safe = sanitizeEmbedUrl(draft);
+    if (!safe) {
+      setError("Enter a valid http(s) URL (javascript: and data: are blocked).");
+      setActive("");
+      try {
         sessionStorage.removeItem(STORAGE_KEY);
+      } catch {
+        /* ignore */
       }
+      return;
+    }
+    setError(null);
+    setActive(safe);
+    try {
+      sessionStorage.setItem(STORAGE_KEY, safe);
     } catch {
       /* ignore quota / private mode */
     }
@@ -78,16 +122,27 @@ export const IframeWidget: React.FC<IframeWidgetProps> = ({
             Load
           </button>
         </div>
+        {error ? (
+          <p
+            data-testid="iframe-src-error"
+            style={{ fontSize: "0.85em", color: "#c62828", margin: "0 0 8px" }}
+          >
+            {error}
+          </p>
+        ) : null}
         {active ? (
           <iframe
             title={title}
             src={active}
+            // Restrictive sandbox: no same-origin + scripts combo.
+            sandbox="allow-scripts allow-popups allow-forms"
+            referrerPolicy="no-referrer"
             style={{ width: "100%", height: 320, border: "1px solid #eee" }}
           />
         ) : (
           <p style={{ fontSize: "0.9em", color: "#666", margin: 0 }}>
-            Enter a URL to embed. Saved for this browser session only (no CMS
-            embed API).
+            Enter an https URL to embed. Saved for this browser session only
+            (http/https only; no CMS embed API).
           </p>
         )}
       </div>
