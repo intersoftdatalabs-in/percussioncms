@@ -31,6 +31,5 @@ public interface IPipelinesAdaptor {
    * @param offset zero-based offset into the sorted result
    * @return application summaries, never {@code null}
    */
-  List<ApplicationSummary> listApplications(
-      URI baseUri, String nameFilter, int limit, int offset);
+  List<ApplicationSummary> listApplications(URI baseUri, String nameFilter, int limit, int offset);
 }

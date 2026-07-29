@@ -21,9 +21,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
-/**
- * Read-only summary of a server application (classic XML Application / pipeline package).
- */
+/** Read-only summary of a server application (classic XML Application / pipeline package). */
 @XmlRootElement(name = "Application")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Pipeline / XML application summary for design catalog")

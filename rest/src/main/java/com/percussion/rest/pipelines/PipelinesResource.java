@@ -46,15 +46,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 @PSSiteManageBean(value = "restPipelinesResource")
 @Path("/pipelines")
 @XmlRootElement
-@Tag(
-    name = "Pipelines",
-    description = "Data pipeline / XML application design catalog (read-only)")
+@Tag(name = "Pipelines", description = "Data pipeline / XML application design catalog (read-only)")
 public class PipelinesResource {
 
   private final IPipelinesAdaptor adaptor;
 
   @Context private UriInfo uriInfo;
 
+  /**
+   * No-arg constructor for bean-discovery edge cases. Production uses {@link
+   * #PipelinesResource(IPipelinesAdaptor)}; invoking list methods without injection fails with a
+   * clear diagnostic rather than a bare NPE.
+   */
   public PipelinesResource() {
     this.adaptor = null;
   }
@@ -79,8 +82,7 @@ public class PipelinesResource {
             content =
                 @Content(
                     array =
-                        @ArraySchema(
-                            schema = @Schema(implementation = ApplicationSummary.class)))),
+                        @ArraySchema(schema = @Schema(implementation = ApplicationSummary.class)))),
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public List<ApplicationSummary> listApplications(
@@ -88,10 +90,21 @@ public class PipelinesResource {
       @QueryParam("limit") @DefaultValue("500") int limit,
       @QueryParam("offset") @DefaultValue("0") int offset) {
     try {
-      return adaptor.listApplications(uriInfo.getBaseUri(), name, limit, offset);
+      IPipelinesAdaptor bridge = requireAdaptor();
+      return bridge.listApplications(uriInfo.getBaseUri(), name, limit, offset);
+    } catch (WebApplicationException e) {
+      throw e;
     } catch (Exception e) {
       // Preserve cause; matches Keywords/Slots catalog resources
       throw new WebApplicationException(e, 500);
     }
+  }
+
+  private IPipelinesAdaptor requireAdaptor() {
+    if (adaptor == null) {
+      throw new IllegalStateException(
+          "Pipelines adaptor not configured (resource constructed without injection)");
+    }
+    return adaptor;
   }
 }

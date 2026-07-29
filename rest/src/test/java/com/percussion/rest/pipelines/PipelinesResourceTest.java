@@ -18,6 +18,8 @@
 package com.percussion.rest.pipelines;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -77,12 +79,24 @@ public class PipelinesResourceTest {
 
   @Test
   public void listApplicationsWrapsFailures() {
-    when(adaptor.listApplications(any(), any(), anyInt(), anyInt()))
-        .thenThrow(new IllegalStateException("boom"));
+    IllegalStateException boom = new IllegalStateException("boom");
+    when(adaptor.listApplications(any(), any(), anyInt(), anyInt())).thenThrow(boom);
 
     WebApplicationException ex =
-        assertThrows(
-            WebApplicationException.class, () -> resource.listApplications(null, 500, 0));
+        assertThrows(WebApplicationException.class, () -> resource.listApplications(null, 500, 0));
     assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause(), "cause chain must preserve the original failure");
+  }
+
+  @Test
+  public void listApplicationsWithoutInjectionFailsWithDiagnostic() {
+    PipelinesResource bare = new PipelinesResource();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.listApplications(null, 500, 0));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertInstanceOf(IllegalStateException.class, ex.getCause());
+    assertEquals(
+        "Pipelines adaptor not configured (resource constructed without injection)",
+        ex.getCause().getMessage());
   }
 }
