@@ -43,6 +43,15 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSMultiAppVersionRedirectorValve extends ValveBase {
 
+  /** Default no-argument constructor for the redirector valve. */
+  public PSMultiAppVersionRedirectorValve() {
+    // Default constructor for the redirector valve.
+  }
+
+  /**
+   * HTTP request header carrying the requested application version used by the routing table.
+   * Expected to contain a version identifier such as {@code "8.2"}.
+   */
   public static final String PERC_VERSION_HEADER = "perc-version";
 
   private static final Logger log = LogManager.getLogger(PSMultiAppVersionRedirectorValve.class);
@@ -53,12 +62,23 @@ public class PSMultiAppVersionRedirectorValve extends ValveBase {
   // Contains the mapping properties.
   private final Properties properties = new Properties();
 
-  // When true routing logic is attempted, when false it is skipped.
+  /**
+   * Per-thread re-entrancy guard used to avoid recursing into {@link #invoke(Request, Response)}
+   * while this valve is in the middle of forwarding a request. When {@code Boolean.TRUE}, routing
+   * logic is skipped and the next valve in the pipeline is invoked; the flag is cleared before
+   * returning.
+   */
   protected final ThreadLocal<Boolean> pipelining = ThreadLocal.withInitial(() -> Boolean.FALSE);
+
   private final PSVersionRoutingTable routingTable = new PSVersionRoutingTable();
 
   private boolean started;
 
+  /**
+   * Indicates whether the valve has been started successfully and the routing table loaded.
+   *
+   * @return {@code true} when {@link #startInternal()} has finished initializing the valve.
+   */
   public boolean isStarted() {
     return started;
   }
@@ -73,10 +93,9 @@ public class PSMultiAppVersionRedirectorValve extends ValveBase {
   }
 
   /**
-   * Specifies the mapping file for this release.
-   *
-   * <p><Valve className="com.percussion.tomcat.valves.PSMultiAppVersionRedirectorValve"
-   * mappingFile="${catalina.base}/conf/perc/version-mappings.properties" />
+   * Specifies the mapping file for this release. The expected server.xml entry is {@code <Valve
+   * className="com.percussion.tomcat.valves.PSMultiAppVersionRedirectorValve"
+   * mappingFile="${catalina.base}/conf/perc/version-mappings.properties"/>}.
    *
    * @param mappingFile the mappingFile to set
    */

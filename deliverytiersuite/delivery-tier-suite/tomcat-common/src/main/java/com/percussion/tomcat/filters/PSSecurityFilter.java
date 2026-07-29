@@ -32,8 +32,19 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 
+/**
+ * Servlet filter that supplies response headers used by the Percussion delivery tier security
+ * configuration. Currently adds the {@code Content-Security-Policy} header to every response,
+ * sourcing its value from {@code catalina.base/conf/perc/perc-security.properties} when available
+ * and falling back to {@code default-src 'self'}.
+ */
 @Component
 public class PSSecurityFilter extends GenericFilterBean {
+
+  /** Default no-argument constructor for the security filter. */
+  public PSSecurityFilter() {
+    // Default constructor for the security filter.
+  }
 
   private static final Logger log = LogManager.getLogger(PSSecurityFilter.class);
 

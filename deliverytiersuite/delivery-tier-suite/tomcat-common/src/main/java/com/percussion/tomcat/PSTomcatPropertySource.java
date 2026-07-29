@@ -26,6 +26,11 @@ import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Tomcat {@link org.apache.tomcat.util.IntrospectionUtils.PropertySource} implementation that reads
+ * Percussion-specific properties from {@code ${catalina.home}/conf/perc/perc-catalina.properties}
+ * and exposes them by name. Lookups that miss in the loaded file return {@code null}.
+ */
 public class PSTomcatPropertySource
     implements org.apache.tomcat.util.IntrospectionUtils.PropertySource {
 
