@@ -461,15 +461,37 @@ public class ApiUtils {
 
       p_entry.setId(entry.getId());
       p_entry.setName(orNull(entry.getName()));
-      p_entry.setPrincipal(convertPrincipal(orNull(entry.getPrincipal())));
-      p_entry.setType(
-          entry.getType().isPresent()
-              ? IPSTypedPrincipal.PrincipalTypes.valueOf(entry.getType().get().getName())
-              : null);
-      for (UserAccessLevel p : orEmpty(entry.getPermissions())) {
-        p_entry.addPermission(convertPermissions(p));
-      }
       p_entry.setAclId(entry.getAclId());
+
+      var principal = orNull(entry.getPrincipal());
+      if (principal != null && principal.getName() != null) {
+        p_entry.setPrincipal(convertPrincipal(principal));
+      } else if (p_entry.getName() == null
+          && entry.getType().isPresent()
+          && entry.getType().get().getName() != null) {
+        // Load path historically stored principal name on TypedPrincipal.name
+        p_entry.setName(entry.getType().get().getName());
+      }
+
+      if (entry.getType().isPresent()) {
+        TypedPrincipal tp = entry.getType().get();
+        if (tp.getType() != null) {
+          p_entry.setType(tp.getType());
+        } else if (tp.getName() != null) {
+          // Legacy clients sometimes put PrincipalTypes on type.name
+          try {
+            p_entry.setType(IPSTypedPrincipal.PrincipalTypes.valueOf(tp.getName()));
+          } catch (IllegalArgumentException ignored) {
+            // type.name is a principal name, not a PrincipalTypes enum constant
+          }
+        }
+      }
+
+      for (UserAccessLevel p : orEmpty(entry.getPermissions())) {
+        if (p.getPermission().isPresent()) {
+          p_entry.addPermission(convertPermissions(p));
+        }
+      }
 
       ret.add(p_entry);
     }
@@ -480,7 +502,10 @@ public class ApiUtils {
   public static PSAccessLevelImpl convertPermissions(UserAccessLevel p) {
     PSAccessLevelImpl p_a = new PSAccessLevelImpl();
 
-    p_a.setPermission(PSPermissions.valueOf(orNull(p.getPermission()).name()));
+    Permissions perm = orNull(p.getPermission());
+    if (perm != null) {
+      p_a.setPermission(PSPermissions.valueOf(perm.name()));
+    }
     p_a.setId(p.getId());
     return p_a;
   }
@@ -545,6 +570,9 @@ public class ApiUtils {
     ret.setPermissions(convertPermissions(p_e.getPermissions()));
 
     ret.setType(convertPrincipalType(p_e.getTypedPrincipal()));
+    if (p_e.getName() != null) {
+      ret.setPrincipal(new com.percussion.rest.acls.Principal(p_e.getName()));
+    }
 
     return ret;
   }
@@ -563,9 +591,11 @@ public class ApiUtils {
 
   public static TypedPrincipal convertPrincipalType(IPSTypedPrincipal typedPrincipal) {
     TypedPrincipal ret = new TypedPrincipal();
-
+    if (typedPrincipal == null) {
+      return ret;
+    }
     ret.setName(typedPrincipal.getName());
-
+    ret.setType(typedPrincipal.getPrincipalType());
     return ret;
   }
 

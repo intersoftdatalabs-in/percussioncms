@@ -87,27 +87,34 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
   })),
 }));
 
-vi.mock("../../../main/ts/api/developer/aclApi", () => ({
-  getAclForObject: vi.fn().mockResolvedValue({
-    id: 1,
-    name: "object-acl",
-    guid: { stringValue: "0-4-1", uuid: 1 },
-    aclEntries: [
-      {
-        id: 10,
-        name: "Default",
-        type: { type: "ROLE", name: "Default" },
-        permissions: [{ permission: "READ" }, { permission: "UPDATE" }],
-      },
-      {
-        id: 11,
-        name: "Admin",
-        type: { type: "ROLE", name: "Admin" },
-        permissions: [{ permission: "OWNER" }],
-      },
-    ],
-  }),
-}));
+vi.mock("../../../main/ts/api/developer/aclApi", async () => {
+  const actual = await vi.importActual<
+    typeof import("../../../main/ts/api/developer/aclApi")
+  >("../../../main/ts/api/developer/aclApi");
+  return {
+    ...actual,
+    getAclForObject: vi.fn().mockResolvedValue({
+      id: 1,
+      name: "object-acl",
+      guid: { stringValue: "0-4-1", uuid: 1 },
+      aclEntries: [
+        {
+          id: 10,
+          name: "Default",
+          type: { type: "ROLE", name: "Default" },
+          permissions: [{ permission: "READ" }, { permission: "UPDATE" }],
+        },
+        {
+          id: 11,
+          name: "Admin",
+          type: { type: "ROLE", name: "Admin" },
+          permissions: [{ permission: "OWNER" }],
+        },
+      ],
+    }),
+    saveObjectAcl: vi.fn().mockResolvedValue(undefined),
+  };
+});
 
 vi.mock("../../../main/ts/api/developer/keywordsApi", () => ({
   listKeywords: vi.fn().mockResolvedValue([
@@ -467,6 +474,39 @@ describe("DeveloperShell", () => {
     expect(body.associations[1].templateGuid.stringValue).toBe("0-10-99");
     await waitFor(() => {
       expect(screen.getByTestId("developer-slot-detail-notice").textContent).toMatch(/saved/i);
+    });
+  });
+
+  it("edits object ACL permissions on content type detail and saves", async () => {
+    const { saveObjectAcl } = await import("../../../main/ts/api/developer/aclApi");
+    render(<DeveloperShell embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-row"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-acl-table")).toBeTruthy();
+    });
+    const saveBtn = screen.getByTestId("developer-ct-acl-save");
+    expect((saveBtn as HTMLButtonElement).disabled).toBe(true);
+
+    const deleteCheck = screen.getByTestId("developer-ct-acl-perm-id:10-DELETE");
+    expect((deleteCheck as HTMLInputElement).checked).toBe(false);
+    fireEvent.click(deleteCheck);
+    expect((deleteCheck as HTMLInputElement).checked).toBe(true);
+    expect((saveBtn as HTMLButtonElement).disabled).toBe(false);
+
+    fireEvent.click(saveBtn);
+    await waitFor(() => {
+      expect(saveObjectAcl).toHaveBeenCalled();
+    });
+    const payload = (saveObjectAcl as ReturnType<typeof vi.fn>).mock.calls[0][0];
+    const defaultEntry = payload.aclEntries.find((e: { id?: number }) => e.id === 10);
+    expect(defaultEntry.permissions.map((p: { permission: string }) => p.permission)).toEqual(
+      expect.arrayContaining(["READ", "UPDATE", "DELETE"]),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-acl-notice").textContent).toMatch(/saved/i);
     });
   });
 });
