@@ -275,7 +275,10 @@ export function ContentTypeDetailPanel({
                         <td style={{ padding: "8px" }}>
                           {f.readOnly ? DEV_MSG.YES : DEV_MSG.NO}
                         </td>
-                        <td style={{ padding: "8px", fontFamily: "monospace" }}>
+                        <td
+                          style={{ padding: "8px", fontFamily: "monospace" }}
+                          data-testid="developer-ct-field-occurrence"
+                        >
                           {f.occurrence || "—"}
                         </td>
                         <td

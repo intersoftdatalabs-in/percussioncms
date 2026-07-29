@@ -124,7 +124,8 @@ describe("DeveloperShell", () => {
     expect(screen.getByTestId("developer-ct-fields-table")).toBeTruthy();
     expect(screen.getByText("sys_title")).toBeTruthy();
     expect(screen.getByTestId("developer-ct-field-rules").textContent).toMatch(/validation/);
-    expect(screen.getByText("required")).toBeTruthy();
+    // Occurrence cell value is lowercase "required" (distinct from "Required" header)
+    expect(screen.getByTestId("developer-ct-field-occurrence").textContent).toBe("required");
     expect(screen.getByTestId("developer-ct-workflows")).toBeTruthy();
     expect(screen.getByTestId("developer-ct-templates")).toBeTruthy();
     expect(screen.getByTestId("developer-ct-gaps")).toBeTruthy();
