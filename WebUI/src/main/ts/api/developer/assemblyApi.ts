@@ -19,6 +19,7 @@ import { get } from "../client";
 import { PATHS } from "../paths";
 import type {
   CommunitySummary,
+  SlotDetail,
   SlotSummary,
   TemplateDetail,
   TemplateSummary,
@@ -65,6 +66,12 @@ export async function getTemplateDetail(
 export async function listSlots(): Promise<SlotSummary[]> {
   const payload = await get<unknown>(PATHS.SLOTS);
   return asArray<SlotSummary>(payload, ["Slot", "slot", "SlotList"]);
+}
+
+/** GET /services/slots/{idOrName} */
+export async function getSlotDetail(idOrName: string): Promise<SlotDetail> {
+  const key = encodeURIComponent(idOrName);
+  return get<SlotDetail>(`${PATHS.SLOTS}/${key}`);
 }
 
 /** GET /services/communities/find?name=* */

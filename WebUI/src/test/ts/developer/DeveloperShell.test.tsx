@@ -89,6 +89,22 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   listSlots: vi.fn().mockResolvedValue([
     { name: "target", label: "Target", description: "Main slot" },
   ]),
+  getSlotDetail: vi.fn().mockResolvedValue({
+    name: "target",
+    label: "Target",
+    description: "Main slot",
+    slotType: "REGULAR",
+    systemSlot: false,
+    finderName: "sys_SlotContentFinder",
+    finderArguments: { template: "rffSnTitleLink" },
+    associations: [
+      {
+        contentTypeGuid: { stringValue: "0-2-301", uuid: 301 },
+        templateGuid: { stringValue: "0-10-1", uuid: 1 },
+      },
+    ],
+    designGaps: ["Create / update / delete / lock not supported (read-only)"],
+  }),
   listCommunities: vi.fn().mockResolvedValue([
     { id: 10, name: "Default", label: "Default", description: "Default Community" },
   ]),
@@ -190,6 +206,16 @@ describe("DeveloperShell", () => {
       expect(screen.getByTestId("developer-slot-table")).toBeTruthy();
     });
     expect(screen.getByText("target")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("developer-slot-row"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-detail")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-slot-args")).toBeTruthy();
+    expect(screen.getByTestId("developer-slot-associations")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("developer-slot-back"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-table")).toBeTruthy();
+    });
     r2.unmount();
 
     render(<DeveloperShell initialSection="communities" embedded />);

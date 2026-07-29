@@ -23,4 +23,11 @@ import java.util.List;
 public interface ISlotsAdaptor {
 
   List<SlotSummary> listSlots(URI baseUri);
+
+  /**
+   * Load slot design detail by numeric uuid or unique name.
+   *
+   * @return detail or {@code null} if not found
+   */
+  SlotDetail getSlot(URI baseUri, String idOrName);
 }

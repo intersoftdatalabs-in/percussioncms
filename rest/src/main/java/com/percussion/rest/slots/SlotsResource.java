@@ -26,6 +26,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Context;
@@ -41,14 +42,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Tag(name = "Slots", description = "Assembly slot design catalog")
 public class SlotsResource {
 
-  @Autowired private ISlotsAdaptor adaptor;
+  private final ISlotsAdaptor adaptor;
 
   @Context private UriInfo uriInfo;
 
-  public SlotsResource() {}
+  public SlotsResource() {
+    this.adaptor = null;
+  }
+
+  @Autowired
+  public SlotsResource(ISlotsAdaptor adaptor) {
+    this.adaptor = adaptor;
+  }
 
   @GET
-  @Path("/")
   @Produces({MediaType.APPLICATION_JSON})
   @Operation(
       summary = "List slots",
@@ -67,6 +74,36 @@ public class SlotsResource {
       return adaptor.listSlots(uriInfo.getBaseUri());
     } catch (Exception e) {
       // Preserve cause so log analysis retains the original stack/type
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @GET
+  @Path("/{idOrName}")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Get slot design detail",
+      description =
+          "Read-only slot detail including finder metadata and content-type/template"
+              + " associations. Create/update/delete not supported (see designGaps).",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = SlotDetail.class))),
+        @ApiResponse(responseCode = "404", description = "Slot not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public SlotDetail getSlot(@PathParam("idOrName") String idOrName) {
+    try {
+      SlotDetail detail = adaptor.getSlot(uriInfo.getBaseUri(), idOrName);
+      if (detail == null) {
+        throw new WebApplicationException("Slot not found: " + idOrName, 404);
+      }
+      return detail;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
       throw new WebApplicationException(e, 500);
     }
   }

@@ -18,19 +18,29 @@
 package com.percussion.apibridge;
 
 import com.percussion.rest.slots.ISlotsAdaptor;
+import com.percussion.rest.slots.SlotAssociationSummary;
+import com.percussion.rest.slots.SlotDetail;
 import com.percussion.rest.slots.SlotSummary;
 import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.IPSTemplateSlot;
+import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
+import com.percussion.services.catalog.PSTypeEnum;
+import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.utils.guid.IPSGuid;
+import com.percussion.utils.types.PSPair;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/** Lists and loads assembly slots for the Developer module design catalog. */
 @PSSiteManageBean
 public class SlotsAdaptor implements ISlotsAdaptor {
 
@@ -53,9 +63,7 @@ public class SlotsAdaptor implements ISlotsAdaptor {
             s.setGuid(ApiUtils.convertGuid(slot.getGUID()));
           }
         } catch (Exception e) {
-          // GUID is optional on the summary; keep the slot row
-          log.debug(
-              "Could not convert GUID for slot {}: {}", slot.getName(), e.getMessage());
+          log.debug("Could not convert GUID for slot {}: {}", slot.getName(), e.getMessage());
         }
         s.setName(slot.getName());
         s.setLabel(StringUtils.defaultIfBlank(slot.getLabel(), slot.getName()));
@@ -65,7 +73,109 @@ public class SlotsAdaptor implements ISlotsAdaptor {
     }
     out.sort(
         Comparator.comparing(
-            x -> x.getLabel() != null ? x.getLabel() : "", String.CASE_INSENSITIVE_ORDER));
+            SlotSummary::getLabel, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
     return out;
+  }
+
+  @Override
+  public SlotDetail getSlot(URI baseUri, String idOrName) {
+    if (StringUtils.isBlank(idOrName)) {
+      return null;
+    }
+    try {
+      IPSTemplateSlot slot = resolveSlot(idOrName.trim());
+      if (slot == null) {
+        return null;
+      }
+      return toDetail(slot);
+    } catch (PSAssemblyException e) {
+      log.debug("Slot not found {}: {}", idOrName, e.getMessage());
+      return null;
+    } catch (Exception e) {
+      log.error(
+          "Failed to load slot {} ({}): {}",
+          idOrName,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new RuntimeException(
+          "Failed to load slot (" + e.getClass().getName() + "): " + e.getMessage(), e);
+    }
+  }
+
+  private IPSTemplateSlot resolveSlot(String idOrName) throws PSAssemblyException {
+    if (StringUtils.isNumeric(idOrName)) {
+      long uuid = Long.parseLong(idOrName);
+      IPSGuid g = new PSGuid(PSTypeEnum.SLOT, uuid);
+      return asmSvc.loadSlot(g);
+    }
+    if (idOrName.contains("-")) {
+      try {
+        PSGuid g = new PSGuid(idOrName);
+        if (g.getType() == 0) {
+          g = new PSGuid(PSTypeEnum.SLOT, g.getUUID());
+        }
+        return asmSvc.loadSlot(g);
+      } catch (Exception ignore) {
+        // fall through to name
+      }
+    }
+    try {
+      return asmSvc.findSlotByName(idOrName);
+    } catch (PSAssemblyException e) {
+      return null;
+    }
+  }
+
+  private SlotDetail toDetail(IPSTemplateSlot slot) {
+    SlotDetail d = new SlotDetail();
+    try {
+      if (slot.getGUID() != null) {
+        d.setGuid(ApiUtils.convertGuid(slot.getGUID()));
+      }
+    } catch (Exception e) {
+      log.debug("Could not convert slot GUID for {}: {}", slot.getName(), e.getMessage());
+    }
+    d.setName(slot.getName());
+    d.setLabel(StringUtils.defaultIfBlank(slot.getLabel(), slot.getName()));
+    d.setDescription(slot.getDescription());
+    if (slot.getSlottypeEnum() != null) {
+      d.setSlotType(slot.getSlottypeEnum().name());
+    }
+    d.setSystemSlot(slot.isSystemSlot());
+    d.setFinderName(slot.getFinderName());
+    d.setRelationshipName(slot.getRelationshipName());
+    Map<String, String> args = slot.getFinderArguments();
+    d.setFinderArguments(args != null ? new HashMap<>(args) : new HashMap<>());
+
+    List<SlotAssociationSummary> associations = new ArrayList<>();
+    if (slot.getSlotAssociations() != null) {
+      for (PSPair<IPSGuid, IPSGuid> pair : slot.getSlotAssociations()) {
+        if (pair == null) continue;
+        SlotAssociationSummary a = new SlotAssociationSummary();
+        try {
+          if (pair.getFirst() != null) {
+            a.setContentTypeGuid(ApiUtils.convertGuid(pair.getFirst()));
+          }
+          if (pair.getSecond() != null) {
+            a.setTemplateGuid(ApiUtils.convertGuid(pair.getSecond()));
+          }
+        } catch (Exception e) {
+          log.debug(
+              "Could not convert association GUID for slot {}: {}",
+              slot.getName(),
+              e.getMessage());
+        }
+        associations.add(a);
+      }
+    }
+    d.setAssociations(associations);
+
+    List<String> gaps = new ArrayList<>();
+    gaps.add("Create / update / delete / lock not supported (read-only)");
+    gaps.add("Association editing not supported via this API");
+    gaps.add("Content-type and template names not resolved (GUIDs only)");
+    d.setDesignGaps(gaps);
+    return d;
   }
 }
