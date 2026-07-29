@@ -171,4 +171,35 @@ public class TemplatesResource {
       throw new WebApplicationException(e, 500);
     }
   }
+
+  @GET
+  @Path("/{idOrName}")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Get template design detail",
+      description =
+          "Read-only template detail including bindings and slots. Source is included when"
+              + " present. Create/update/delete/lock not supported (see designGaps).",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = TemplateDetail.class))),
+        @ApiResponse(responseCode = "404", description = "Template not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public TemplateDetail getTemplate(@PathParam("idOrName") String idOrName) {
+    try {
+      TemplateDetail detail = adaptor.getTemplate(uriInfo.getBaseUri(), idOrName);
+      if (detail == null) {
+        throw new WebApplicationException("Template not found: " + idOrName, 404);
+      }
+      return detail;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      // Preserve cause so log analysis retains the original stack/type
+      throw new WebApplicationException(e, 500);
+    }
+  }
 }

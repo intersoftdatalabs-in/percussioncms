@@ -17,7 +17,12 @@
 
 import { get } from "../client";
 import { PATHS } from "../paths";
-import type { CommunitySummary, SlotSummary, TemplateSummary } from "./types";
+import type {
+  CommunitySummary,
+  SlotSummary,
+  TemplateDetail,
+  TemplateSummary,
+} from "./types";
 
 function asArray<T>(payload: unknown, keys: string[]): T[] {
   if (payload == null) return [];
@@ -41,6 +46,14 @@ export async function listTemplates(): Promise<TemplateSummary[]> {
     "TemplateSummary",
     "templateSummaryList",
   ]);
+}
+
+/** GET /services/templates/{idOrName} */
+export async function getTemplateDetail(
+  idOrName: string,
+): Promise<TemplateDetail> {
+  const key = encodeURIComponent(idOrName);
+  return get<TemplateDetail>(`${PATHS.TEMPLATES}/${key}`);
 }
 
 /** GET /services/slots */

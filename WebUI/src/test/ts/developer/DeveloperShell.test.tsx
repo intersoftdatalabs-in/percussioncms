@@ -61,6 +61,22 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
       templateDescription: "Default page",
     },
   ]),
+  getTemplateDetail: vi.fn().mockResolvedValue({
+    templateId: 1,
+    name: "perc.page",
+    label: "Page",
+    description: "Default page",
+    assembler: "Java/JEXL",
+    outputFormat: "Page",
+    templateType: "Shared",
+    aaType: "Normal",
+    mimeType: "text/html",
+    variant: false,
+    bindings: [{ executionOrder: 1, variable: "$sys.item", expression: "$sys.item" }],
+    slots: [{ name: "target", label: "Target" }],
+    templateSource: "<html/>",
+    designGaps: ["Create / update / delete / lock not supported (read-only)"],
+  }),
   listSlots: vi.fn().mockResolvedValue([
     { name: "target", label: "Target", description: "Main slot" },
   ]),
@@ -169,5 +185,24 @@ describe("DeveloperShell", () => {
       expect(screen.getByTestId("developer-comm-table")).toBeTruthy();
     });
     expect(screen.getByText("Default Community")).toBeTruthy();
+  });
+
+  it("opens template detail from list row", async () => {
+    render(<DeveloperShell initialSection="templates" embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-row"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-detail")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-tpl-bindings")).toBeTruthy();
+    expect(screen.getByTestId("developer-tpl-slots")).toBeTruthy();
+    expect(screen.getByTestId("developer-tpl-source")).toBeTruthy();
+    expect(screen.getByTestId("developer-tpl-gaps")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("developer-tpl-back"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-table")).toBeTruthy();
+    });
   });
 });

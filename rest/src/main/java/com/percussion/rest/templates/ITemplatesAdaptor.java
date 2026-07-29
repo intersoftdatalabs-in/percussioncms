@@ -44,4 +44,13 @@ public interface ITemplatesAdaptor {
    * @return list of template summaries
    */
   List<TemplateSummary> listTemplateSummaries(URI baseUri, TemplateFilter filter);
+
+  /**
+   * Load a single template design detail by numeric id or unique name.
+   *
+   * @param baseUri the base URI (reserved for HATEOAS)
+   * @param idOrName template uuid or name
+   * @return detail or {@code null} if not found
+   */
+  TemplateDetail getTemplate(URI baseUri, String idOrName);
 }
