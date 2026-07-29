@@ -50,6 +50,13 @@ public class PSCategoryLockInfo {
   static volatile Path legacyLockInfoOverride;
 
   /**
+   * Test-only override for {@link #currentSessionId()}. Returns {@code null} when unset, meaning
+   * the production code path ({@link PSRequest#getContextForRequest()}) is used. Tests inject a
+   * concrete session id to avoid wiring a full servlet request into a unit test.
+   */
+  static volatile String currentSessionIdOverride;
+
+  /**
    * Resolves the canonical lock-info path under the CMS installation directory. The lock file lives
    * under {@code $rxDir/lock_info.json} so that its location is independent of the JVM current
    * working directory (e.g. when running as a Windows service with a non-default cwd). GH-1565.
@@ -71,6 +78,19 @@ public class PSCategoryLockInfo {
   }
 
   /**
+   * Returns the current request's session ID, or {@code ""} when no request is bound (matches
+   * {@link PSRequest#getUserSessionId()} semantics). Tests override via
+   * {@link #currentSessionIdOverride}.
+   */
+  static String currentSessionId() {
+    var override = currentSessionIdOverride;
+    if (override != null) {
+      return override;
+    }
+    return PSRequest.getContextForRequest().getUserSessionId();
+  }
+
+  /**
    * Writes lock info to file for the current user/session.
    *
    * @param userService user service, not null
@@ -83,7 +103,7 @@ public class PSCategoryLockInfo {
     var file = resolveLockInfoFile();
 
     var userName = userService.getCurrentUser().getName();
-    var sessionId = PSRequest.getContextForRequest().getUserSessionId();
+    var sessionId = currentSessionId();
     try {
       var parent = file.getParent();
       if (parent != null) {
@@ -173,8 +193,9 @@ public class PSCategoryLockInfo {
   public static void removeLockInfo() {
     for (var path : new Path[] {resolveLockInfoFile(), resolveLegacyLockInfoFile()}) {
       try {
-        Files.deleteIfExists(path);
-        log.debug("Lock info file deleted successfully.");
+        if (Files.deleteIfExists(path)) {
+          log.debug("Lock info file deleted successfully.");
+        }
       } catch (IOException e) {
         log.warn("Unable to delete lock info file at {} - {}", path, e.getMessage());
       }

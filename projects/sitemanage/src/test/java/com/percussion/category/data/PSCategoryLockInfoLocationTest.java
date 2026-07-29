@@ -24,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.server.PSServer;
+import com.percussion.user.data.PSCurrentUser;
+import com.percussion.user.service.IPSUserService;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -33,6 +35,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.Mockito;
 
 /**
  * Verifies GH-1565: the lock file is written under the CMS installation directory
@@ -45,13 +48,16 @@ class PSCategoryLockInfoLocationTest {
 
   private File previousRxDir;
   private Path previousLegacyOverride;
+  private String previousSessionIdOverride;
 
   @BeforeEach
   void setRxRoot() {
     previousRxDir = PSServer.getRxDir();
     previousLegacyOverride = PSCategoryLockInfo.legacyLockInfoOverride;
+    previousSessionIdOverride = PSCategoryLockInfo.currentSessionIdOverride;
     PSServer.setRxDir(tempDir.toFile());
     PSCategoryLockInfo.legacyLockInfoOverride = null;
+    PSCategoryLockInfo.currentSessionIdOverride = null;
   }
 
   @AfterEach
@@ -60,6 +66,7 @@ class PSCategoryLockInfoLocationTest {
       PSServer.setRxDir(previousRxDir);
     }
     PSCategoryLockInfo.legacyLockInfoOverride = previousLegacyOverride;
+    PSCategoryLockInfo.currentSessionIdOverride = previousSessionIdOverride;
   }
 
   @Test
@@ -146,5 +153,51 @@ class PSCategoryLockInfoLocationTest {
     var result = PSCategoryLockInfo.getLockInfo();
     assertNotNull(result);
     assertEquals("canonical-tester", result.getString("userName"));
+  }
+
+  @Test
+  void writeLockInfoToFileWritesUnderRxDirWithCorrectJson() throws Exception {
+    // rxDir is the JUnit @TempDir — definitely exists. The write must
+    // place lock_info.json at $rxDir/lock_info.json with the expected JSON
+    // payload, and the public read API must report the lock as held.
+    PSServer.setRxDir(tempDir.toFile());
+    PSCategoryLockInfo.currentSessionIdOverride = "test-session-id";
+
+    var userService = Mockito.mock(IPSUserService.class);
+    var user = new PSCurrentUser();
+    user.setName("writer-tester");
+    Mockito.when(userService.getCurrentUser()).thenReturn(user);
+
+    PSCategoryLockInfo.writeLockInfoToFile(userService, "2026-07-29T00:00:00Z");
+
+    var written = tempDir.resolve("lock_info.json");
+    assertTrue(Files.isRegularFile(written), "lock file must be written under rxDir");
+    // File must live under rxDir, not under the JVM cwd.
+    assertTrue(written.startsWith(tempDir), "lock file must be under the CMS installation dir");
+
+    var json = new JSONObject(Files.readString(written, StandardCharsets.UTF_8));
+    assertEquals("writer-tester", json.getString("userName"));
+    assertEquals("test-session-id", json.getString("sessionId"));
+    assertEquals("2026-07-29T00:00:00Z", json.getString("creationDate"));
+
+    // The written sessionId is not a live session, so getLockInfo() will correctly
+    // treat it as stale (per GH-1182 semantics) and delete the file. To verify the
+    // round-trip through the public read API without re-inventing session plumbing,
+    // re-write with a blank sessionId which is ignored by isLockStale.
+    PSCategoryLockInfo.currentSessionIdOverride = "";
+    PSCategoryLockInfo.writeLockInfoToFile(userService, "2026-07-29T00:00:00Z");
+    var readBack = PSCategoryLockInfo.getLockInfo();
+    assertNotNull(readBack, "public read API must observe the lock");
+    assertEquals("writer-tester", readBack.getString("userName"));
+    assertTrue(PSCategoryLockInfo.isFileLocked());
+  }
+
+  @Test
+  void removeLockInfoSkipsLogWhenFileAbsent() throws Exception {
+    // Neither canonical nor legacy file exists.
+    assertFalse(Files.exists(PSCategoryLockInfo.resolveLockInfoFile()));
+    PSCategoryLockInfo.removeLockInfo();
+    // No exception, no log; the canonical path still does not exist.
+    assertFalse(Files.exists(PSCategoryLockInfo.resolveLockInfoFile()));
   }
 }
