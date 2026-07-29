@@ -86,6 +86,9 @@ function refKey(r: NamedObjectRef, index: number): string {
   return `idx:${index}`;
 }
 
+/** Canonical Percussion GUID shape: type-host-uuid (three numeric groups). */
+const PERC_GUID_RE = /^\d+-\d+-\d+$/;
+
 function refsEqual(a: NamedObjectRef[], b: NamedObjectRef[]): boolean {
   if (a.length !== b.length) return false;
   for (let i = 0; i < a.length; i++) {
@@ -93,6 +96,26 @@ function refsEqual(a: NamedObjectRef[], b: NamedObjectRef[]): boolean {
     if (!!a[i].isDefault !== !!b[i].isDefault) return false;
   }
   return true;
+}
+
+/**
+ * Align isDefault flags with server defaultWorkflow (or first row when missing).
+ */
+function withDefaultFlags(
+  list: NamedObjectRef[] | undefined,
+  defaultWorkflow?: NamedObjectRef | null,
+): NamedObjectRef[] {
+  const wfs = cloneRefs(list);
+  if (defaultWorkflow) {
+    const defKey = refKey(defaultWorkflow, -1);
+    for (const w of wfs) {
+      w.isDefault = refKey(w, -1) === defKey || w.name === defaultWorkflow.name;
+    }
+  }
+  if (wfs.length > 0 && !wfs.some((w) => w.isDefault)) {
+    wfs[0] = { ...wfs[0], isDefault: true };
+  }
+  return wfs;
 }
 
 function toRefPayload(list: NamedObjectRef[]): NamedObjectRef[] {
@@ -142,18 +165,7 @@ export function ContentTypeDetailPanel({
         setDescription(d.description || "");
         setEnabled(d.enabled !== false);
         setFieldDrafts(toDrafts(d.fields));
-        const wfs = cloneRefs(d.allowedWorkflows);
-        // Ensure default flag matches defaultWorkflow when server omits isDefault
-        if (d.defaultWorkflow) {
-          const defKey = refKey(d.defaultWorkflow, -1);
-          for (const w of wfs) {
-            w.isDefault = refKey(w, -1) === defKey || w.name === d.defaultWorkflow.name;
-          }
-          if (wfs.length > 0 && !wfs.some((w) => w.isDefault)) {
-            wfs[0].isDefault = true;
-          }
-        }
-        setWorkflows(wfs);
+        setWorkflows(withDefaultFlags(d.allowedWorkflows, d.defaultWorkflow));
         setTemplates(cloneRefs(d.allowedTemplates));
         setNewWfName("");
         setNewTplName("");
@@ -179,19 +191,7 @@ export function ContentTypeDetailPanel({
       return d.searchable !== i.searchable || d.required !== i.required;
     });
 
-  const initialWorkflows = (() => {
-    const wfs = cloneRefs(detail?.allowedWorkflows);
-    if (detail?.defaultWorkflow) {
-      const defKey = refKey(detail.defaultWorkflow, -1);
-      for (const w of wfs) {
-        w.isDefault = refKey(w, -1) === defKey || w.name === detail.defaultWorkflow.name;
-      }
-      if (wfs.length > 0 && !wfs.some((w) => w.isDefault)) {
-        wfs[0].isDefault = true;
-      }
-    }
-    return wfs;
-  })();
+  const initialWorkflows = withDefaultFlags(detail?.allowedWorkflows, detail?.defaultWorkflow);
   const initialTemplates = cloneRefs(detail?.allowedTemplates);
   const workflowsDirty = detail != null && !refsEqual(workflows, initialWorkflows);
   const templatesDirty = detail != null && !refsEqual(templates, initialTemplates);
@@ -253,7 +253,7 @@ export function ContentTypeDetailPanel({
   function addTemplate() {
     const raw = newTplName.trim();
     if (!raw) return;
-    const looksLikeGuid = /^\d+-\d+(-\d+)?$/.test(raw);
+    const looksLikeGuid = PERC_GUID_RE.test(raw);
     const exists = templates.some((t) => {
       if (looksLikeGuid) return t.guid?.stringValue === raw;
       return (t.name || "").toLowerCase() === raw.toLowerCase();
@@ -315,17 +315,7 @@ export function ContentTypeDetailPanel({
       setDescription(saved.description || "");
       setEnabled(saved.enabled !== false);
       setFieldDrafts(toDrafts(saved.fields));
-      const wfs = cloneRefs(saved.allowedWorkflows);
-      if (saved.defaultWorkflow) {
-        const defKey = refKey(saved.defaultWorkflow, -1);
-        for (const w of wfs) {
-          w.isDefault = refKey(w, -1) === defKey || w.name === saved.defaultWorkflow.name;
-        }
-        if (wfs.length > 0 && !wfs.some((w) => w.isDefault)) {
-          wfs[0].isDefault = true;
-        }
-      }
-      setWorkflows(wfs);
+      setWorkflows(withDefaultFlags(saved.allowedWorkflows, saved.defaultWorkflow));
       setTemplates(cloneRefs(saved.allowedTemplates));
       setNotice(DEV_MSG.CT_SAVED);
     } catch (err: unknown) {

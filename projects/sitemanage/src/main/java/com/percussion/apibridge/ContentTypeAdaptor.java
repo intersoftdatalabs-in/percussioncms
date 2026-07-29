@@ -27,6 +27,7 @@ import com.percussion.design.objectstore.PSDisplayMapping;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
 import com.percussion.design.objectstore.PSFieldTranslation;
+import com.percussion.design.objectstore.PSSystemValidationException;
 import com.percussion.design.objectstore.PSUISet;
 import com.percussion.design.objectstore.PSWorkflowInfo;
 import com.percussion.rest.Guid;
@@ -195,6 +196,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
 
     IPSGuid ctGuid = new PSGuid(PSTypeEnum.NODEDEF, def.getTypeId());
     int defaultWfId = def.getContentEditor() != null ? def.getContentEditor().getWorkflowId() : -1;
+    // Always set non-null lists on GET so wire shape stays [] not omitted (NON_NULL include).
     detail.setAllowedWorkflows(loadWorkflows(ctGuid, defaultWfId));
     if (defaultWfId > 0) {
       detail.setDefaultWorkflow(toWorkflowRef(defaultWfId, true));
@@ -212,7 +214,10 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     gaps.add("Shared/system field inclusion editing not supported");
     gaps.add(
         "Workflow/template associations: full replace when lists are supplied on PUT; omit lists"
-            + " to leave unchanged");
+            + " to leave unchanged; empty allowedWorkflows clears associations");
+    gaps.add(
+        "Template association save is a separate design write after content-type save; if it"
+            + " fails, meta/field/workflow changes may already be committed");
     gaps.add("Field display labels and control properties are not writable via this API");
     if (!controlsResolved) {
       gaps.add("Display control/label resolution failed for this content type");
@@ -260,6 +265,8 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       boolean needTemplates = body.getAllowedTemplates() != null;
       try {
         // Keep design lock when template associations still need a separate save.
+        // Note: content-type save and template association save are sequential design writes
+        // without a shared rollback — template failure after CT save is partial success.
         designSvc.saveContentTypes(
             Collections.singletonList(def), !needTemplates, session, user);
       } catch (PSErrorsException e) {
@@ -272,8 +279,14 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
           designSvc.saveAssociatedTemplates(ctGuid, templateGuids, true, session, user);
         } catch (PSErrorsException e) {
           log.error(
-              "Failed to save template associations for {}: {}", idOrName, e.getMessage(), e);
-          throw new IllegalStateException("Failed to save template associations", e);
+              "Failed to save template associations for {} (content type already saved): {}",
+              idOrName,
+              e.getMessage(),
+              e);
+          throw new IllegalStateException(
+              "Content type meta/fields/workflows saved, but template associations failed —"
+                  + " retry template update",
+              e);
         }
       }
       // Prefer re-read via item def cache after save
@@ -294,7 +307,9 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
    * Apply default workflow id and/or allowed-workflow inclusion list.
    *
    * <p>{@code allowedWorkflows == null} leaves associations unchanged. Non-null list is a full
-   * replace (empty clears). When a default is set, it is forced into the allowed list.
+   * replace — empty list clears associations (does not re-inject the previous default). When both
+   * {@code defaultWorkflow} and a non-empty allowed list are supplied, the default is ensured to
+   * appear in the inclusion list.
    */
   private void applyWorkflowUpdates(PSItemDefinition def, ContentTypeDetail body) {
     if (body.getDefaultWorkflow() != null) {
@@ -316,9 +331,19 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       }
       i++;
     }
-    int defaultId = def.getContentEditor().getWorkflowId();
-    if (defaultId > 0 && !wfIds.contains(defaultId)) {
-      wfIds.add(defaultId);
+    // Only force-include default when the client also set defaultWorkflow this request.
+    // Empty list = true clear (do not re-inject prior default).
+    if (body.getDefaultWorkflow() != null && !wfIds.isEmpty()) {
+      int defaultId = def.getContentEditor().getWorkflowId();
+      if (defaultId > 0 && !wfIds.contains(defaultId)) {
+        wfIds.add(defaultId);
+      }
+    } else if (!wfIds.isEmpty()) {
+      // Non-empty replace without explicit default: retarget default if orphaned
+      int defaultId = def.getContentEditor().getWorkflowId();
+      if (defaultId <= 0 || !wfIds.contains(defaultId)) {
+        def.getContentEditor().setWorkflowId(wfIds.get(0));
+      }
     }
     def.getContentEditor()
         .setWorkflowInfo(
@@ -477,13 +502,23 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
           throw new IllegalArgumentException(
               "Invalid occurrence for field " + patch.getName() + ": " + patch.getOccurrence());
         }
-        field.setOccurrenceDimension(dim, null);
+        try {
+          field.setOccurrenceDimension(dim, null);
+        } catch (PSSystemValidationException e) {
+          throw new IllegalArgumentException(
+              "Invalid occurrence for field " + patch.getName() + ": " + patch.getOccurrence(), e);
+        }
       } else if (patch.getRequired() != null) {
         int dim =
             Boolean.TRUE.equals(patch.getRequired())
                 ? PSField.OCCURRENCE_DIMENSION_REQUIRED
                 : PSField.OCCURRENCE_DIMENSION_OPTIONAL;
-        field.setOccurrenceDimension(dim, null);
+        try {
+          field.setOccurrenceDimension(dim, null);
+        } catch (PSSystemValidationException e) {
+          throw new IllegalArgumentException(
+              "Invalid required flag for field " + patch.getName(), e);
+        }
       }
     }
   }

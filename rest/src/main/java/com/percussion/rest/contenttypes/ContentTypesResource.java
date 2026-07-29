@@ -855,9 +855,13 @@ public class ContentTypesResource {
           "Locks the content type for the current session user, applies mutable fields (label,"
               + " description, enabled, per-field searchable/occurrence, allowedWorkflows +"
               + " defaultWorkflow, allowedTemplates), saves, and releases the lock. Association"
-              + " lists: omit/null = leave unchanged; non-null list = full replace. Name/id and"
-              + " system field structure are not changed. Full rule expressions and create/delete"
-              + " remain unsupported (see designGaps).",
+              + " lists: omit/null = leave unchanged; non-null list = full replace (empty clears"
+              + " workflows/templates). GET responses always include association arrays (may be"
+              + " empty). Template associations are written after content-type save in a separate"
+              + " design call — if that fails, meta/field/workflow changes may already be"
+              + " committed (error message indicates partial success). Name/id and system field"
+              + " structure are not changed. Full rule expressions and create/delete remain"
+              + " unsupported (see designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -867,7 +871,11 @@ public class ContentTypesResource {
         @ApiResponse(responseCode = "400", description = "Invalid input"),
         @ApiResponse(responseCode = "404", description = "Content type not found"),
         @ApiResponse(responseCode = "409", description = "Could not acquire design lock"),
-        @ApiResponse(responseCode = "500", description = "Error")
+        @ApiResponse(
+            responseCode = "500",
+            description =
+                "Error — may indicate partial success when template association save fails after"
+                    + " content type was already saved"),
       })
   public ContentTypeDetail updateContentType(
       @PathParam("idOrName") String idOrName, ContentTypeDetail body) {

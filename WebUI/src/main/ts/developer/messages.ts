@@ -84,11 +84,11 @@ export const DEV_MSG = {
   CT_DEFAULT_WF: "Default workflow",
   CT_TEMPLATES: "Allowed templates",
   CT_TEMPLATES_HINT:
-    "Full replace on save when changed. Add by template name or GUID string.",
+    "Full replace on save when changed. Add by template name or GUID (type-host-uuid, e.g. 0-10-347).",
   CT_ASSOC_ADD: "Add",
   CT_ASSOC_REMOVE: "Remove",
   CT_WF_NAME_PLACEHOLDER: "Workflow name",
-  CT_TPL_NAME_PLACEHOLDER: "Template name or GUID",
+  CT_TPL_NAME_PLACEHOLDER: "Template name or GUID (0-10-347)",
   CT_SET_DEFAULT: "Default",
   CT_NONE: "None",
   YES: "Yes",

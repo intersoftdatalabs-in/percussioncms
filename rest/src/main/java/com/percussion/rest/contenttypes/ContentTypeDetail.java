@@ -31,9 +31,12 @@ import java.util.List;
  * Partial update supports label, description, enabled, field searchable / occurrence, allowed
  * workflows (+ default), and allowed templates under a design-session lock.
  *
- * <p>For {@code PUT}: {@code allowedWorkflows} / {@code allowedTemplates} {@code null} (omitted)
- * leaves associations unchanged; a non-null list (including empty) is a full replace. Field
- * patches use a different convention — empty/omitted {@code fields} means no field changes.
+ * <p><strong>GET:</strong> adaptors always populate {@code allowedWorkflows} and {@code
+ * allowedTemplates} (empty arrays when none) so clients see stable wire shape.
+ *
+ * <p><strong>PUT:</strong> {@code allowedWorkflows} / {@code allowedTemplates} {@code null}
+ * (omitted) leaves associations unchanged; a non-null list (including empty) is a full replace.
+ * Field patches use a different convention — empty/omitted {@code fields} means no field changes.
  */
 @XmlRootElement(name = "ContentTypeDetail")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -50,10 +53,27 @@ public class ContentTypeDetail {
   private String editorUrl;
   private List<ContentTypeField> fields = new ArrayList<>();
   private List<String> childFieldSets = new ArrayList<>();
-  /** Null on PUT means leave unchanged; non-null is full replace. */
+
+  /**
+   * Workflow associations. On GET always non-null (may be empty). On PUT request body: null/omitted
+   * = leave unchanged; non-null = full replace.
+   */
+  @Schema(
+      description =
+          "Allowed workflows. GET: always present (may be []). PUT: omit/null leave unchanged;"
+              + " non-null list full replace (empty clears).")
   private List<NamedObjectRef> allowedWorkflows;
+
   private NamedObjectRef defaultWorkflow;
-  /** Null on PUT means leave unchanged; non-null is full replace. */
+
+  /**
+   * Template associations. On GET always non-null (may be empty). On PUT request body: null/omitted
+   * = leave unchanged; non-null = full replace.
+   */
+  @Schema(
+      description =
+          "Allowed templates. GET: always present (may be []). PUT: omit/null leave unchanged;"
+              + " non-null list full replace (empty clears).")
   private List<NamedObjectRef> allowedTemplates;
 
   @Schema(
