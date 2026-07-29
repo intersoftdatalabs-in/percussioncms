@@ -171,7 +171,15 @@ public class AclResource {
   @Path("/object/{objectGuid}")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
-  public Acl loadAclForObject(@PathParam("objectGuid") String objectGuid) {
+  @Operation(
+      summary = "Load ACL for object",
+      description =
+          "Returns the design-time ACL for a securable object GUID (template, content type,"
+              + " etc.). Used by the Developer module ACL viewer.")
+  public Acl loadAclForObject(
+      @Parameter(description = "Object GUID stringValue", required = true)
+          @PathParam("objectGuid")
+          String objectGuid) {
     try {
       return adaptor.loadAclForObject(new Guid(objectGuid));
     } catch (NotFoundException n) {

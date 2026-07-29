@@ -38,9 +38,9 @@
 - [x] **P0.4b** Template detail `GET /services/templates/{idOrName}` — bindings, slots, source, designGaps + SPA detail  
 - [x] **P0.4c** Slot detail `GET /services/slots/{idOrName}` (finder + associations) + SPA detail  
 - [x] **P0.5** Communities list via `GET /services/communities/find?name=*` + SPA panel  
-- [x] **P0.5b** Community detail `GET /services/communities/{idOrName}` — roles + SPA detail (role/ACL edit later)  
+- [x] **P0.5b** Community detail `GET /services/communities/{idOrName}` — roles + SPA detail  
 - [x] **P0.5c** Community role membership edit `GET /roles` + `PUT /{id}/roles` + SPA checkboxes  
-
+- [x] **P0.5d** Object ACL **read** view on CT + template detail via existing `GET /services/acls/object/{guid}`  
 - [x] **P0.6** Pipelines list `GET /services/pipelines` — classic **XML Application** summaries (not Slice A IR) + SPA panel; optional `?name=` / `?limit=` / `?offset=`  
 - [x] Gap map: [content-type-api-gaps.md](./content-type-api-gaps.md)  
 - [x] Vitest coverage for shell + catalogs  
