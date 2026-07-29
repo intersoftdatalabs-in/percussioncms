@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Fill missing translations in the perc-i18n canonical TMX files.
 
 Walks ``modules/perc-i18n/src/main/resources/i18n/{CmsUi,SystemResources}.tmx``
@@ -49,7 +49,7 @@ I18N_DIR = REPO_ROOT / 'modules' / 'perc-i18n' / 'src' / 'main' / 'resources' / 
 CACHE_FILE = Path(__file__).resolve().parent / '.cache' / 'i18n_translate.json'
 
 # Canonical TMX files this script edits.
-DEFAULT_FILES = ('CmsUi.tmx', 'SystemResources.tmx')
+DEFAULT_FILES = ('CmsUi.tmx', 'SystemResources.tmx', 'DeveloperUi.tmx')
 
 # Placeholder-only segment pattern (e.g. '{0}', '{1,2,3}'). Matches the
 # existing translate_tmx.py rule from update_tmx_limited.py:40.
