@@ -680,10 +680,10 @@
 		<antcall target="deleteOldJdbcDrivers" inheritall="true"
 			inheritrefs="true" />
 		<!-- deleteOldJdbcDrivers removes the bundled set (including h2/derby)
-			from install.dir. Re-install current drivers before Derby→H2 migration
-			so jetty/base/lib/jdbc and ant.deps install.dir entries stay loadable
-			if the process is interrupted mid-upgrade. H2 must also be on the
-			perc-ant shade classpath (see perc-ant pom) for Class.forName. -->
+			from install.dir. Re-install current drivers before Derby→H2 migration so
+			jetty/base/lib/jdbc and ant.deps install.dir entries stay loadable if the
+			process is interrupted mid-upgrade. H2 must also be on the perc-ant shade
+			classpath (see perc-ant pom) for Class.forName. -->
 		<antcall target="install_jdbc_drivers" inheritall="true"
 			inheritrefs="true" />
 		<!-- #548: Derby→H2 before file overwrite / DB setup plugins use repository -->

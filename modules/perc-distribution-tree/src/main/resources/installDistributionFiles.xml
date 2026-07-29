@@ -146,10 +146,10 @@
 			</fileset>
 		</copy>
 
-		<!-- AI tools (skills, prompts, instructions, future plugins) staged into the install.
-		     sys_resources/ai-tools/ is replaced on every upgrade.
-		     rx_resources/ai-tools/ is created empty as the customer overlay — files added
-		     there by an operator survive upgrades and take precedence at runtime. -->
+		<!-- AI tools (skills, prompts, instructions, future plugins) staged into
+			the install. sys_resources/ai-tools/ is replaced on every upgrade. rx_resources/ai-tools/
+			is created empty as the customer overlay — files added there by an operator
+			survive upgrades and take precedence at runtime. -->
 		<echo>Staging AI tools into sys_resources/ai-tools/...</echo>
 		<copy todir="${assembly-directory}/sys_resources/ai-tools"
 			overwrite="true" verbose="true" force="true">
