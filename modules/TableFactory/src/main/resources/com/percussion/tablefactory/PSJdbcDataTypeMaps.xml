@@ -201,7 +201,8 @@
 		<DataType jdbc="LONGVARBINARY" native="BLOB" />
 		<DataType jdbc="BLOB" native="BLOB" />
 	</DataTypeMap>
-	<!-- PostgreSQL: external CMS repository backend (GitHub #1500). Prefer BOOLEAN / TEXT / BYTEA. -->
+	<!-- PostgreSQL: external CMS repository backend (GitHub #1500). Prefer
+		BOOLEAN / TEXT / BYTEA. -->
 	<DataTypeMap for="POSTGRES" os="" driver="postgresql">
 		<DataType jdbc="BIT" native="BOOLEAN" />
 		<DataType jdbc="BOOLEAN" native="BOOLEAN" />
