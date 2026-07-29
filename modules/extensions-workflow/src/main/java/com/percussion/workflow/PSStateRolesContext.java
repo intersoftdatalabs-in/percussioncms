@@ -17,7 +17,6 @@
 package com.percussion.workflow;
 
 import com.percussion.extension.IPSExtensionErrors;
-import com.percussion.services.system.data.PSContentStatusHistory;
 import com.percussion.services.workflow.IPSWorkflowService;
 import com.percussion.services.workflow.PSWorkflowServiceLocator;
 import com.percussion.services.workflow.data.PSAssignedRole;
@@ -35,125 +34,126 @@ import java.util.Map;
 import java.util.Set;
 
 /**
-   * The PSStateRolesContext class is a wrapper class providing access to the records and fields of
-   * the backend tables 'STATEROLES' and the state name from the 'ROLES' table.
+ * The PSStateRolesContext class is a wrapper class providing access to the records and fields of
+ * the backend tables 'STATEROLES' and the state name from the 'ROLES' table.
+ */
+@Deprecated // TODO: This entire class needs refactored to use hibernate / spring
+public class PSStateRolesContext implements IPSStateRolesContext {
+  /**
+   * Hibernate-backed factory added for #1561 Phase 4b. Loads the assigned state roles for the
+   * supplied (workflowId, stateId, minAssignmentType) tuple via the shared Hibernate session — no
+   * second pool connection.
+   *
+   * <p>Equivalent to the raw-JDBC constructor {@link #PSStateRolesContext(int, Connection, int,
+   * int)} but participates in the surrounding Spring transaction so the dual-connection defect
+   * fixed in Phase 2/3 does not re-emerge for this code path.
+   *
+   * @param workflowId the workflow id, must be {@code > 0}.
+   * @param stateId the state id, must be {@code > 0}.
+   * @param assignmentType the minimum assignment type; passed through to {@code
+   *     PSAssignedRole.assignmentType}.
+   * @return the populated context, never {@code null}; throws {@link PSEntryNotFoundException} if
+   *     no rows match.
+   * @throws PSRoleException if any role id fails to hydrate.
+   * @throws PSEntryNotFoundException if no records were returned.
    */
-  @Deprecated // TODO: This entire class needs refactored to use hibernate / spring
-  public class PSStateRolesContext implements IPSStateRolesContext {
-    /**
-     * Hibernate-backed factory added for #1561 Phase 4b. Loads the assigned state roles for the
-     * supplied (workflowId, stateId, minAssignmentType) tuple via the shared Hibernate session
-     * — no second pool connection.
-     *
-     * <p>Equivalent to the raw-JDBC constructor {@link #PSStateRolesContext(int, Connection, int,
-     * int)} but participates in the surrounding Spring transaction so the dual-connection defect
-     * fixed in Phase 2/3 does not re-emerge for this code path.
-     *
-     * @param workflowId the workflow id, must be {@code > 0}.
-     * @param stateId the state id, must be {@code > 0}.
-     * @param assignmentType the minimum assignment type; passed through to
-     *     {@code PSAssignedRole.assignmentType}.
-     * @return the populated context, never {@code null}; throws {@link PSEntryNotFoundException}
-     *     if no rows match.
-     * @throws PSRoleException if any role id fails to hydrate.
-     * @throws PSEntryNotFoundException if no records were returned.
-     */
-    public static PSStateRolesContext loadFromHibernate(int workflowId, int stateId, int assignmentType)
-        throws PSRoleException, PSEntryNotFoundException {
-      if (workflowId <= 0) {
-        throw new IllegalArgumentException("workflowId must be > 0");
-      }
-      if (stateId <= 0) {
-        throw new IllegalArgumentException("stateId must be > 0");
-      }
-
-      IPSWorkflowService wfSvc = PSWorkflowServiceLocator.getWorkflowService();
-      List<PSAssignedRole> rows = wfSvc.findStateRoles(workflowId, stateId, assignmentType);
-      if (rows.isEmpty()) {
-        throw new PSEntryNotFoundException(IPSExtensionErrors.NO_RECORDS);
-      }
-
-      Set<Long> roleIds = new HashSet<>();
-      for (PSAssignedRole row : rows) {
-        roleIds.add(row.getGUID().longValue());
-      }
-      List<PSWorkflowRole> roles = wfSvc.findWorkflowRoles(workflowId, roleIds);
-      Map<Long, String> roleNameById = new HashMap<>();
-      for (PSWorkflowRole role : roles) {
-        roleNameById.put(role.getGUID().longValue(), role.getName());
-      }
-
-      PSStateRolesContext ctx = new PSStateRolesContext();
-      ctx.populateFromHibernate(rows, roleNameById);
-      return ctx;
+  public static PSStateRolesContext loadFromHibernate(
+      int workflowId, int stateId, int assignmentType)
+      throws PSRoleException, PSEntryNotFoundException {
+    if (workflowId <= 0) {
+      throw new IllegalArgumentException("workflowId must be > 0");
+    }
+    if (stateId <= 0) {
+      throw new IllegalArgumentException("stateId must be > 0");
     }
 
-    /** Package-private default constructor used by {@link #loadFromHibernate}. */
-    PSStateRolesContext() {}
-
-    /**
-     * Populates the in-memory state from {@link PSAssignedRole} rows + a role-id → role-name
-     * lookup. Mirrors the classification done by the raw-JDBC constructor
-     * ({@link #PSStateRolesContext(int, Connection, int, int)}): adhoc type buckets, lower-case
-     * role-name maps, role-id → assignment-type map, role-id → role-name map.
-     *
-     * @param rows the assigned-role rows from {@code STATEROLES}; must not be {@code null}.
-     * @param roleNameById the role-id → role-name lookup from {@code ROLES}; must not be {@code null}.
-     * @throws PSRoleException if any row has an invalid adhoc type.
-     */
-    private void populateFromHibernate(
-        List<PSAssignedRole> rows, Map<Long, String> roleNameById) throws PSRoleException {
-      m_nCount = 0;
-      for (PSAssignedRole row : rows) {
-        long roleIdLong = row.getGUID().longValue();
-        if (roleIdLong > Integer.MAX_VALUE) {
-          throw new IllegalStateException(
-              "Role id " + roleIdLong + " does not fit in int");
-        }
-        int roleID = (int) roleIdLong;
-        int adhocType = row.getAdhocType().getValue();
-        int assignmentType = row.getAssignmentType().getValue();
-        String roleName = roleNameById.get(roleIdLong);
-        if (roleName == null || roleName.isEmpty()) {
-          throw new PSRoleException(IPSExtensionErrors.STATEROLE_NULL_EMPTY_TRIM);
-        }
-
-        m_nCount++;
-        m_StateRoleIDs.add(roleID);
-        String lowerCaseRoleName = roleName.toLowerCase();
-
-        m_isNotificationOnMap.put(roleID, row.isDoNotify());
-        m_stateRoleNameMap.put(roleID, roleName);
-        m_stateRoleAssignmentTypeMap.put(roleID, assignmentType);
-        m_lowerCaseRoleNameToIDMap.put(lowerCaseRoleName, roleID);
-
-        if (adhocType == PSWorkFlowUtils.ADHOC_DISABLED) {
-          m_nonAdhocStateRoleIDs.add(roleID);
-          m_nonAdhocStateRoleNameToRoleIDMap.put(lowerCaseRoleName, roleID);
-        } else if (adhocType == PSWorkFlowUtils.ADHOC_ENABLED) {
-          m_adhocNormalStateRoleNameToRoleIDMap.put(lowerCaseRoleName, roleID);
-          m_adhocNormalStateRoleIDs.add(roleID);
-        } else if (adhocType == PSWorkFlowUtils.ADHOC_ANONYMOUS) {
-          m_adhocAnonymousStateRoleIDs.add(roleID);
-        } else {
-          throw new PSRoleException(IPSExtensionErrors.INVALID_ADHOC);
-        }
-      }
+    IPSWorkflowService wfSvc = PSWorkflowServiceLocator.getWorkflowService();
+    List<PSAssignedRole> rows = wfSvc.findStateRoles(workflowId, stateId, assignmentType);
+    if (rows.isEmpty()) {
+      throw new PSEntryNotFoundException(IPSExtensionErrors.NO_RECORDS);
     }
 
-    /**
-     * Constructor specifying connection, state ID, workflow ID and minimum assignment type.
-     *
-     * @param workFlowID ID of the workflow
-     * @param connection database connection
-     * @param stateID ID of the state
-     * @param assignmentType minimum assignment type
-     * @throws SQLException if an SQL error occurs
-     * @throws PSRoleException if an error occurs
-     * @throws PSEntryNotFoundException if no records were returned corresponding to this set of data.
-     */
-    public PSStateRolesContext(int workFlowID, Connection connection, int stateID, int assignmentType)
-        throws SQLException, PSRoleException, PSEntryNotFoundException {
+    Set<Long> roleIds = new HashSet<>();
+    for (PSAssignedRole row : rows) {
+      roleIds.add(row.getGUID().longValue());
+    }
+    List<PSWorkflowRole> roles = wfSvc.findWorkflowRoles(workflowId, roleIds);
+    Map<Long, String> roleNameById = new HashMap<>();
+    for (PSWorkflowRole role : roles) {
+      roleNameById.put(role.getGUID().longValue(), role.getName());
+    }
+
+    PSStateRolesContext ctx = new PSStateRolesContext();
+    ctx.populateFromHibernate(rows, roleNameById);
+    return ctx;
+  }
+
+  /** Package-private default constructor used by {@link #loadFromHibernate}. */
+  PSStateRolesContext() {}
+
+  /**
+   * Populates the in-memory state from {@link PSAssignedRole} rows + a role-id → role-name lookup.
+   * Mirrors the classification done by the raw-JDBC constructor ({@link #PSStateRolesContext(int,
+   * Connection, int, int)}): adhoc type buckets, lower-case role-name maps, role-id →
+   * assignment-type map, role-id → role-name map.
+   *
+   * @param rows the assigned-role rows from {@code STATEROLES}; must not be {@code null}.
+   * @param roleNameById the role-id → role-name lookup from {@code ROLES}; must not be {@code
+   *     null}.
+   * @throws PSRoleException if any row has an invalid adhoc type.
+   */
+  private void populateFromHibernate(List<PSAssignedRole> rows, Map<Long, String> roleNameById)
+      throws PSRoleException {
+    m_nCount = 0;
+    for (PSAssignedRole row : rows) {
+      long roleIdLong = row.getGUID().longValue();
+      if (roleIdLong > Integer.MAX_VALUE) {
+        throw new IllegalStateException("Role id " + roleIdLong + " does not fit in int");
+      }
+      int roleID = (int) roleIdLong;
+      int adhocType = row.getAdhocType().getValue();
+      int assignmentType = row.getAssignmentType().getValue();
+      String roleName = roleNameById.get(roleIdLong);
+      if (roleName == null || roleName.isEmpty()) {
+        throw new PSRoleException(IPSExtensionErrors.STATEROLE_NULL_EMPTY_TRIM);
+      }
+
+      m_nCount++;
+      m_StateRoleIDs.add(roleID);
+      String lowerCaseRoleName = roleName.toLowerCase();
+
+      m_isNotificationOnMap.put(roleID, row.isDoNotify());
+      m_stateRoleNameMap.put(roleID, roleName);
+      m_stateRoleAssignmentTypeMap.put(roleID, assignmentType);
+      m_lowerCaseRoleNameToIDMap.put(lowerCaseRoleName, roleID);
+
+      if (adhocType == PSWorkFlowUtils.ADHOC_DISABLED) {
+        m_nonAdhocStateRoleIDs.add(roleID);
+        m_nonAdhocStateRoleNameToRoleIDMap.put(lowerCaseRoleName, roleID);
+      } else if (adhocType == PSWorkFlowUtils.ADHOC_ENABLED) {
+        m_adhocNormalStateRoleNameToRoleIDMap.put(lowerCaseRoleName, roleID);
+        m_adhocNormalStateRoleIDs.add(roleID);
+      } else if (adhocType == PSWorkFlowUtils.ADHOC_ANONYMOUS) {
+        m_adhocAnonymousStateRoleIDs.add(roleID);
+      } else {
+        throw new PSRoleException(IPSExtensionErrors.INVALID_ADHOC);
+      }
+    }
+  }
+
+  /**
+   * Constructor specifying connection, state ID, workflow ID and minimum assignment type.
+   *
+   * @param workFlowID ID of the workflow
+   * @param connection database connection
+   * @param stateID ID of the state
+   * @param assignmentType minimum assignment type
+   * @throws SQLException if an SQL error occurs
+   * @throws PSRoleException if an error occurs
+   * @throws PSEntryNotFoundException if no records were returned corresponding to this set of data.
+   */
+  public PSStateRolesContext(int workFlowID, Connection connection, int stateID, int assignmentType)
+      throws SQLException, PSRoleException, PSEntryNotFoundException {
     String lowerCaseRoleName;
     Integer roleID;
     /* ID of the workflow for this state. */
@@ -472,8 +472,8 @@ import java.util.Set;
    * use {@code schema.table.column} as a column qualifier — H2 rejects it as
    * {@code Column "PUBLIC" not found}.
    */
-  private static String SR = PSConnectionMgr.getQualifiedIdentifier("STATEROLES");
-  private static String R = PSConnectionMgr.getQualifiedIdentifier("ROLES");
+  private static final String SR = "STATEROLES";
+  private static final String R = "ROLES";
   private static String QRYSTRING =
       "SELECT "
           + "sr.ROLEID, "

@@ -1,20 +1,19 @@
 # Issue #1561 — Workflow JDBC → Hibernate (Phase 0 Inventory)
 
-> **Status:** Phase 0 + Phase 1 + Phase 2 + Phase 3 — inventory, H2
-> column-qualifier fix on all six contexts, ORM migration of `CONTENTSTATUSHISTORY`
-> writes, AND the surviving `new PSConnectionMgr()` exits inside `PSExitUpdateHistory`
-> are gone. The read constructor on `PSContentStatusHistoryContext` is now an
-> in-memory cursor backed by Hibernate. `PSExitUpdateHistory` reads `CONTENTSTATUS`
-> via `PSCmsObjectMgr.loadComponentSummary` and `TRANSITIONS` via the new
-> `IPSWorkflowService.loadWorkflowTransition(long, long)` method. No commit / push / PR
-> per agreed scope. Phase 4 (delete `PSConnectionMgr`) is still open and tracked
-> under this issue.
+> **Status:** Phase 0 + Phase 1 + Phase 2 + Phase 3 + Phase 4 (4a, 4b, 4c, 4d-1a, 4d-1b,
+> 4d-1c) complete. **Phase 4d-1d (delete `PSConnectionMgr` entirely) is in progress.** All
+> surviving `new PSConnectionMgr()` exits are gone. The read constructors on the legacy
+> workflow context classes (`PSContentStatusContext`, `PSTransitionsContext`,
+> `PSContentApprovalsContext`, `PSContentStatusHistoryContext`, `PSContentAdhocUsersContext`,
+> `PSNotificationsContext`, `PSContentTypesContext`, `PSStateRolesContext`,
+> `PSTransitionNotificationsContext`) now use inlined uppercase table-name constants; the
+> class-load-time static init no longer touches `PSConnectionHelper.getConnectionDetail(null)`.
+> `PSAbstractWorkflowContext` and `PSAbstractWorkflowTest` route their connection calls
+> through `PSConnectionHelper.getDbConnection()` and the new `PSConnectionHelper.releaseDbConnection(...)`.
 >
-> **Last refreshed:** after PR **#1563** (`a1497cc82d`) merged into
-> `origin/development`. That PR delivered a partial Phase 1 (H2 column-qualifier
-> fix for two of the six workflow contexts, plus connection diagnostics and the
-> `BooleanToTFCharConverter` for site flags). This branch finishes Phase 1 on
-> the remaining four contexts and implements Phase 2 for `CONTENTSTATUSHISTORY`.
+> **Last refreshed:** after PR **#1645** (4d-1c — `PSSystemWs` + legacy overload deletion) merged
+> into `origin/development` (commit `54422dd759`). This branch (Phase 4d-1d) deletes the
+> `PSConnectionMgr` class entirely.
 
 ---
 
@@ -317,7 +316,7 @@ Acceptance criteria that remain for later branches (not satisfied here):
   GitHub issue TBD.
 - [ ] **Cross-DB smoke (H2 + one server DB)** — Phase 2 acceptance criterion.
   Same infrastructure gap as the site-create test.
-- [ ] Removal of `PSConnectionMgr` from in-product paths — Phase 4.
+- [x] Removal of `PSConnectionMgr` from in-product paths — **Phase 4 (4a/4b/4c/4d-1a/4d-1b/4d-1c) complete. Phase 4d-1d (full class deletion) is the final step — see PR-D.**
 
 ---
 
@@ -365,12 +364,10 @@ Acceptance criteria that remain for later branches (not satisfied here):
    `system/src/test/java/com/percussion/services/workflow/` (already has Spring
    test context per `PSWorkflowService` tests). Tracking GitHub issue TBD —
    should be opened as part of the Phase 2 acceptance follow-up.
-9. **Surviving `new PSConnectionMgr()` calls.** **Done in this branch's
-   Phase 3 pass** for the `sys_wfUpdateHistory` exit. **Remaining:** 7 exit
-   classes (`PSExitAddEditAuthFlag`, `PSExitAddPossibleTransitions{,Ex}`,
-   `PSExitAuthenticateUser`, `PSExitDisallowUpdatePublished`,
-   `PSExitNotifyAssignees`, `PSExitPerformTransition`, `PSGetCheckoutStatus`).
-   Phase 4 candidate.
+9. **Surviving `new PSConnectionMgr()` calls.** **Done** in Phases 4a, 4b, 4c, 4d-1a, and 4d-1b
+   (PRs #1575, #1578, #1583, #1630, #1632, #1645). All 7 exit classes listed below were
+   migrated off `new PSConnectionMgr()` onto Hibernate session reads / writes. The
+   `PSConnectionMgr` class itself is deleted in Phase 4d-1d (this branch).
 10. **CONTENTADHOCUSERS writes.** `PSExitPerformTransition` still uses
     `PSContentAdhocUsersContext` (read+write) on raw JDBC. The Hibernate
     entity `PSContentAdhocUser` exists; the writes should be migrated next.

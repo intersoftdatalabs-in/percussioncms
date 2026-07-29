@@ -34,9 +34,9 @@ import org.junit.jupiter.api.Test;
  * PSContentStatusContext.commit()} must populate all 15 legacy CONTENTSTATUS columns for
  * item-summary cache invalidation (not CONTENTID-only).
  *
- * <p>Tests {@link PSContentStatusNotifyMap} only — pure map building with no JDBC, Spring, {@code
- * PSConnectionMgr}, or {@code PSWorkFlowUtils} static initializers — so the suite does not hit
- * {@code ExceptionInInitializerError} when other tests have already poisoned those class statics.
+ * <p>Tests {@link PSContentStatusNotifyMap} only — pure map building with no JDBC or Spring static
+ * initializers — so the suite does not hit {@code ExceptionInInitializerError} when other tests
+ * have already poisoned class statics.
  */
 public class PSContentStatusContextCommitTest {
 
@@ -124,7 +124,8 @@ public class PSContentStatusContextCommitTest {
   void formatDate_nullSafeAndNonEmptyForInstant() {
     // Intentional: null → null (not ""), distinct from PSWorkFlowUtils.DateString(null) → "".
     assertNull(PSContentStatusNotifyMap.formatDate(null));
-    // 14:05 UTC → Calendar.HOUR is 2 (0–11 clock, same as PSWorkFlowUtils.DateString — not HOUR_OF_DAY).
+    // 14:05 UTC → Calendar.HOUR is 2 (0–11 clock, same as PSWorkFlowUtils.DateString — not
+    // HOUR_OF_DAY).
     String s =
         PSContentStatusNotifyMap.formatDate(toSqlDate(Instant.parse("2026-07-28T14:05:00Z")));
     assertNotNull(s);

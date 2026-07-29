@@ -495,9 +495,9 @@ public class PSContentStatusContext implements IPSContentStatusContext {
   }
 
   /**
-   * Single seam from Hibernate {@link #commit()} to {@link PSContentStatusNotifyMap}: maps
-   * instance CONTENTSTATUS fields into the 15-column notify map (legacy setInt/setString/setDate
-   * order). Kept as a private method so commit() stays readable; not used outside this class.
+   * Single seam from Hibernate {@link #commit()} to {@link PSContentStatusNotifyMap}: maps instance
+   * CONTENTSTATUS fields into the 15-column notify map (legacy setInt/setString/setDate order).
+   * Kept as a private method so commit() stays readable; not used outside this class.
    */
   private java.util.Map<String, String> buildLegacyColumnMap() {
     return PSContentStatusNotifyMap.build(
@@ -842,8 +842,8 @@ public class PSContentStatusContext implements IPSContentStatusContext {
   /** Result of database query */
   private ResultSet m_Rs = null;
 
-  /** static constant string that represents the qualified table name. */
-  private static String TABLE_CSC = PSConnectionMgr.getQualifiedIdentifier("CONTENTSTATUS");
+  /** static constant string that represents the table name. */
+  private static final String TABLE_CSC = "CONTENTSTATUS";
 
   /** SQL query string to get data base record for the content status */
   private static String QRYSTRING =

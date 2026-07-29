@@ -73,17 +73,16 @@ public class PSTransitionsContext implements IPSTransitionsContext {
   private boolean m_bIsAgingTransition = false;
 
   /**
-   * Pre-loaded rows used by the Hibernate-backed factory methods
-   * ({@link #loadFromHibernate(int, int)}, {@link #loadFromHibernate(int, String, int)}, and
-   * {@link #loadAllFromHibernate(int, int)}). Remains {@code null} when the context was created
-   * via the raw-JDBC constructors. Added for #1561 Phase 4d-1a.
+   * Pre-loaded rows used by the Hibernate-backed factory methods ({@link #loadFromHibernate(int,
+   * int)}, {@link #loadFromHibernate(int, String, int)}, and {@link #loadAllFromHibernate(int,
+   * int)}). Remains {@code null} when the context was created via the raw-JDBC constructors. Added
+   * for #1561 Phase 4d-1a.
    */
   private List<PSTransition> m_hRows = null;
 
   /**
-   * Current cursor position into {@link #m_hRows}; {@code -1} before the first
-   * {@link #moveNext()} call. Only used by the Hibernate-backed factories. Added for #1561
-   * Phase 4d-1a.
+   * Current cursor position into {@link #m_hRows}; {@code -1} before the first {@link #moveNext()}
+   * call. Only used by the Hibernate-backed factories. Added for #1561 Phase 4d-1a.
    */
   private int m_hCursorIndex = -1;
 
@@ -205,14 +204,13 @@ public class PSTransitionsContext implements IPSTransitionsContext {
   }
 
   /**
-   * Hibernate-backed factory added for #1561 Phase 4d-1a. Loads a single non-aging transition
-   * by its (workflowId, transitionId) tuple via the shared Hibernate session — no second pool
+   * Hibernate-backed factory added for #1561 Phase 4d-1a. Loads a single non-aging transition by
+   * its (workflowId, transitionId) tuple via the shared Hibernate session — no second pool
    * connection.
    *
-   * <p>Equivalent to the raw-JDBC constructor
-   * {@link #PSTransitionsContext(int, int, Connection)} but participates in the surrounding
-   * Spring transaction so the dual-connection defect fixed in Phase 2/3 does not re-emerge for
-   * this code path.
+   * <p>Equivalent to the raw-JDBC constructor {@link #PSTransitionsContext(int, int, Connection)}
+   * but participates in the surrounding Spring transaction so the dual-connection defect fixed in
+   * Phase 2/3 does not re-emerge for this code path.
    *
    * @param workflowId the workflow id; must be {@code > 0}.
    * @param transitionId the transition id; must be {@code > 0}.
@@ -241,20 +239,20 @@ public class PSTransitionsContext implements IPSTransitionsContext {
   }
 
   /**
-   * Hibernate-backed factory added for #1561 Phase 4d-1a. Loads a single non-aging transition
-   * by its (workflowId, trigger, fromStateId) tuple via the shared Hibernate session — no second
-   * pool connection. Used by {@code PSWorkflowCommandHandler.normalizeTransitionIdParameter}.
+   * Hibernate-backed factory added for #1561 Phase 4d-1a. Loads a single non-aging transition by
+   * its (workflowId, trigger, fromStateId) tuple via the shared Hibernate session — no second pool
+   * connection. Used by {@code PSWorkflowCommandHandler.normalizeTransitionIdParameter}.
    *
-   * <p>Equivalent to the raw-JDBC constructor
-   * {@link #PSTransitionsContext(int, Connection, String, int)} but participates in the
-   * surrounding Spring transaction.
+   * <p>Equivalent to the raw-JDBC constructor {@link #PSTransitionsContext(int, Connection, String,
+   * int)} but participates in the surrounding Spring transaction.
    *
    * @param workflowId the workflow id; must be {@code > 0}.
    * @param trigger the action trigger name; must not be {@code null} or empty.
    * @param fromStateId the source state id; must be {@code > 0}.
    * @return the populated context, never {@code null}; may have count 0 if no transition matches.
    */
-  public static PSTransitionsContext loadFromHibernate(int workflowId, String trigger, int fromStateId) {
+  public static PSTransitionsContext loadFromHibernate(
+      int workflowId, String trigger, int fromStateId) {
     if (workflowId <= 0) {
       throw new IllegalArgumentException("workflowId must be > 0");
     }
@@ -284,10 +282,9 @@ public class PSTransitionsContext implements IPSTransitionsContext {
    * supplied (workflowId, fromStateId) tuple via the shared Hibernate session — no second pool
    * connection. Used by {@code PSExitAddPossibleTransitions} and {@code PSExitPerformTransition}.
    *
-   * <p>Equivalent to the raw-JDBC constructor
-   * {@link #PSTransitionsContext(int, Connection, int)} but participates in the surrounding
-   * Spring transaction so the cursor iteration via {@link #moveNext()} sees the same transition
-   * sequence in the same order.
+   * <p>Equivalent to the raw-JDBC constructor {@link #PSTransitionsContext(int, Connection, int)}
+   * but participates in the surrounding Spring transaction so the cursor iteration via {@link
+   * #moveNext()} sees the same transition sequence in the same order.
    *
    * @param workflowId the workflow id; must be {@code > 0}.
    * @param fromStateId the source state id; must be {@code > 0}.
@@ -311,18 +308,17 @@ public class PSTransitionsContext implements IPSTransitionsContext {
   }
 
   /**
-   * Package-private default constructor used by the Hibernate {@code loadFromHibernate*} and
-   * {@link #loadAllFromHibernate} factories. Field initialization is performed by
-   * {@link #populateFromHibernate}.
+   * Package-private default constructor used by the Hibernate {@code loadFromHibernate*} and {@link
+   * #loadAllFromHibernate} factories. Field initialization is performed by {@link
+   * #populateFromHibernate}.
    */
   PSTransitionsContext() {}
 
   /**
    * Populates the in-memory state from a list of {@link PSTransition} ({@code TRANSITIONS}) rows.
-   * Mirrors the cursor accumulated in the raw-JDBC constructors so consumers iterating via
-   * {@link #moveNext()} see the same
-   * {@code transitionId / label / trigger / toState / approvals / comments / roles / actions}
-   * sequence. Added for #1561 Phase 4d-1a.
+   * Mirrors the cursor accumulated in the raw-JDBC constructors so consumers iterating via {@link
+   * #moveNext()} see the same {@code transitionId / label / trigger / toState / approvals /
+   * comments / roles / actions} sequence. Added for #1561 Phase 4d-1a.
    *
    * @param workflowId the workflow id.
    * @param rows the Hibernate rows; may be empty but never {@code null}.
@@ -556,9 +552,9 @@ public class PSTransitionsContext implements IPSTransitionsContext {
 
   /**
    * Populates the in-memory state fields from a single Hibernate {@link PSTransition} DTO row.
-   * Mirrors the population logic performed by the legacy {@link #moveNext()} when reading from
-   * the raw {@code ResultSet}. Phase 4d-1a only supports non-aging transitions (the
-   * {@code findTransitionsByState} service query filters by {@code transitionType = TRANSITION}).
+   * Mirrors the population logic performed by the legacy {@link #moveNext()} when reading from the
+   * raw {@code ResultSet}. Phase 4d-1a only supports non-aging transitions (the {@code
+   * findTransitionsByState} service query filters by {@code transitionType = TRANSITION}).
    *
    * @param row the Hibernate row, never {@code null}.
    */
@@ -626,10 +622,7 @@ public class PSTransitionsContext implements IPSTransitionsContext {
           String rname = nameById.get(rid);
           if (rname == null) {
             throw new IllegalStateException(
-                "Workflow role name not found for workflowId="
-                    + workflowID
-                    + ", roleId="
-                    + rid);
+                "Workflow role name not found for workflowId=" + workflowID + ", roleId=" + rid);
           }
           m_TransitionRoleNames_List.add(rname);
           m_transitionRoleNamesIdMap.put((int) rid, rname);
@@ -749,7 +742,7 @@ public class PSTransitionsContext implements IPSTransitionsContext {
   }
 
   /** static constant string that represents the qualified table name. */
-  private static String TABLE_TC = PSConnectionMgr.getQualifiedIdentifier("TRANSITIONS");
+  private static final String TABLE_TC = "TRANSITIONS";
 
   private static final String TRANSITIONS_SELECT =
       "SELECT "

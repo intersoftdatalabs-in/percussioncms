@@ -82,7 +82,7 @@ public class PSWorkflowServiceGetAllowedTransitionsTest {
     // only check that runs without that infrastructure.
     List<String> empty = new ArrayList<>();
     // The call below fails with ExceptionInInitializerError because
-    // PSContentStatusContext.loadFromHibernate triggers PSConnectionMgr.getQualifiedIdentifier's
+    // PSContentStatusContext.loadFromHibernate triggers the legacy raw-JDBC read constructor's
     // static initializer which throws RuntimeException outside a Spring context. The point of this
     // test is to assert that the EMPTY-ROLES argument is accepted by the validator; if the
     // validator rejected empty lists, this would throw IllegalArgumentException instead. We assert

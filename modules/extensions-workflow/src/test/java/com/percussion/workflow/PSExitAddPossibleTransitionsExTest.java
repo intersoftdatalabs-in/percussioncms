@@ -36,13 +36,12 @@ import org.junit.jupiter.api.Test;
  * PSExitAddPossibleTransitionsEx.getAssignmentType(Connection)} overload (preserved for binary
  * compatibility — see {@code modules/extensions-workflow/AGENTS.md} rule #6).
  *
- * <p><strong>Disabled</strong> because loading {@code PSStateRolesContext} triggers its static
- * initializer which calls {@link com.percussion.workflow.PSConnectionMgr#getQualifiedIdentifier}
- * (and the same for {@code PSContentStatusContext}); both require a live DB connection detail and
- * therefore fail with {@code ExceptionInInitializerError} outside a Spring context. The
- * recommendation is a Spring+H2 integration test that boots a real {@code EntityManager}; that
- * infrastructure is tracked in the Phase 4 scope survey (Phase 4+) and is out of scope for this PR.
- * The same pattern is followed by {@code PSLoadFromHibernateTest} in this module.
+ * <p><strong>Disabled</strong> because loading {@code PSStateRolesContext} (and {@code
+ * PSContentStatusContext}) triggers its legacy raw-JDBC read constructor; both require a live DB
+ * connection and therefore fail with {@code ExceptionInInitializerError} outside a Spring context.
+ * The recommendation is a Spring+H2 integration test that boots a real {@code EntityManager}; that
+ * infrastructure is tracked in the Phase 4 scope survey (Phase 4d-1d) and is out of scope for this
+ * PR. The same pattern is followed by {@code PSLoadFromHibernateTest} in this module.
  */
 @Disabled("Requires Spring+H2 test infrastructure; see phase4-scope-survey.md")
 public class PSExitAddPossibleTransitionsExTest {
@@ -117,23 +116,25 @@ public class PSExitAddPossibleTransitionsExTest {
 
   /**
    * Placeholder for the post-migration contract pin:
+   *
    * <pre>
    * when the Hibernate factory throws {@link PSEntryNotFoundException},
    * the legacy public overload must catch it and return the legacy default
    * {@link PSWorkFlowUtils#ASSIGNMENT_TYPE_NOT_IN_WORKFLOW}.
    * </pre>
-   * This matches the pre-migration behaviour where the raw-JDBC {@code new
-   * PSStateRolesContext(..., connection, stateid, ...)} constructor threw {@code
-   * PSEntryNotFoundException} when no rows matched.
    *
-   * <p>The test body cannot exercise the {@link PSEntryNotFoundException} path until
-   * Spring+H2 test infrastructure lands in this module (tracked in
-   * {@code docs/ai-generated/migrations/workflow-orm/00-inventory.md} §7); with {@code
-   * connection == null} the first guard in {@code getAssignmentType} ("connection may not be
-   * null") fires before the factory is reached, so the only reachable assertion is the
-   * connection guard itself — which {@link #legacyGetAssignmentType_guardOrdering()} already
-   * covers. The body below documents the contract; the actual future pin lives in the commented
-   * block. Rename or merge once Spring+H2 infra lands and the body can exercise the real path.
+   * This matches the pre-migration behaviour where the raw-JDBC {@code new PSStateRolesContext(...,
+   * connection, stateid, ...)} constructor threw {@code PSEntryNotFoundException} when no rows
+   * matched.
+   *
+   * <p>The test body cannot exercise the {@link PSEntryNotFoundException} path until Spring+H2 test
+   * infrastructure lands in this module (tracked in {@code
+   * docs/ai-generated/migrations/workflow-orm/00-inventory.md} §7); with {@code connection == null}
+   * the first guard in {@code getAssignmentType} ("connection may not be null") fires before the
+   * factory is reached, so the only reachable assertion is the connection guard itself — which
+   * {@link #legacyGetAssignmentType_guardOrdering()} already covers. The body below documents the
+   * contract; the actual future pin lives in the commented block. Rename or merge once Spring+H2
+   * infra lands and the body can exercise the real path.
    */
   @Test
   void legacyGetAssignmentType_contractPlaceholder_returnsDefaultOnEntryNotFound()

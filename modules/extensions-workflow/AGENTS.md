@@ -29,18 +29,28 @@ remain H2-vulnerable and are tracked in the inventory at
 
 ## Hard rules for any change touching this module
 
-1. **No new direct `PSConnectionMgr` use in in-product paths.**
-   - `new PSConnectionMgr()` (or any constructor of
-     `com.percussion.workflow.PSConnectionMgr`) is forbidden in code that runs
-     inside a CMS request transaction (check-in / check-out / transition /
-     site create / NavTree).
-   - `PSConnectionMgr.getQualifiedIdentifier(...)` is still acceptable for
-     **table-name assembly only**; **column identifiers must stay unqualified**.
-     Do not reintroduce `schema.table.column` strings; H2 does not accept them
-     and the original "Column PUBLIC not found" defect was traced to that.
-   - Justification if absolutely required: add an audit comment with the
-     specific ticket number and an explanation of why the request is not on a
-     Spring transaction.
+1. **No `PSConnectionMgr` use — the class is deleted (Phase 4d-1d, #1561).**
+   - The `com.percussion.workflow.PSConnectionMgr` class no longer exists. Any
+     reference to it (in imports, comments, tests, or new code) is a defect and
+     must be replaced with the canonical helper below.
+   - For JDBC connections in code that runs outside a Spring-managed request
+     transaction, use `com.percussion.utils.jdbc.PSConnectionHelper.getDbConnection()`
+     and pair it with `PSConnectionHelper.releaseDbConnection(connection)` (added
+     in Phase 4d-1d). The `releaseDbConnection` helper swallows `SQLException`
+     on close to match the legacy semantics; do not bypass it with a raw
+     `connection.close()` in a `finally` block unless you also add the swallow.
+   - For table-name resolution in any remaining raw-JDBC paths, use an inline
+     uppercase constant (e.g. `private static final String TABLE_FOO = "FOO";`).
+     Do not reintroduce a qualified-identifier API — the previous
+     `getQualifiedIdentifier(...)` was a no-op (all catalog/schema flags were
+     hardcoded `false`) and existed only to support a fragile static-init
+     pattern at class-load time. The legacy context classes now use inlined
+     constants (see Phase 4d-1d PR for the per-class mapping).
+   - **Column identifiers must stay unqualified.** Do not reintroduce
+     `schema.table.column` strings; H2 does not accept them and the original
+     "Column PUBLIC not found" defect was traced to that. This rule is
+     unchanged from the prior `PSConnectionMgr.getQualifiedIdentifier(...)`
+     guidance.
 2. **New writes against workflow tables go through the ORM service.**
    - For `CONTENTSTATUSHISTORY`, use
      `com.percussion.services.system.PSSystemServiceLocator.getSystemService().saveContentStatusHistory(...)`
@@ -100,3 +110,4 @@ before a PR is opened.
 - Root repo rules: `AGENTS.md`
 - `system` module rules (services, locators, JDK 21, Spotless):
   `system/AGENTS.md`
+

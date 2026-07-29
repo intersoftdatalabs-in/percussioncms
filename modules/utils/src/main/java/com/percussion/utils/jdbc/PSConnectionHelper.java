@@ -58,6 +58,25 @@ public class PSConnectionHelper {
   }
 
   /**
+   * Releases a connection obtained from {@link #getDbConnection()} back to the pool. The connection
+   * was originally opened via the JNDI datasource; closing it returns it to the pool managed by the
+   * container. Any {@link SQLException} raised by the close is swallowed so callers that release in
+   * a {@code finally} block do not mask the primary exception.
+   *
+   * @param connection the connection to release, may be {@code null} (no-op).
+   */
+  public static void releaseDbConnection(Connection connection) {
+    if (connection == null) {
+      return;
+    }
+    try {
+      connection.close();
+    } catch (SQLException e) {
+      // ignore — release failures are not actionable in a finally block
+    }
+  }
+
+  /**
    * Get the connection detail for a datasource configuration.
    *
    * @param info Specifies the datasource configuration to use, may be <code>null</code> to use the

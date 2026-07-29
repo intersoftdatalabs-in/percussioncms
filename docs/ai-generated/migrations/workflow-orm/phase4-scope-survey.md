@@ -1,6 +1,6 @@
 # Phase 4 scope survey — what's actually involved
 
-> Status: **Phase 4a (Tier 1) shipped in PR #1575.** **Phase 4b (Tier 2 — state-roles + auth-flag + authenticate-user exits) shipped in PR #1578.** **Phase 4c (Tier 3a — `PSExitNotifyAssignees` + NOTIFICATIONS + TRANSITIONNOTIFICATIONS) shipped in PR #1583.** **Phase 4d (Tier 3b — read exits + write exit + `PSConnectionMgr` deletion) split into 4d-1a (reads) + 4d-1b (writes + delete).** 4d-1a is in progress.
+> Status: **Phase 4a (Tier 1) shipped in PR #1575.** **Phase 4b (Tier 2 — state-roles + auth-flag + authenticate-user exits) shipped in PR #1578.** **Phase 4c (Tier 3a — `PSExitNotifyAssignees` + NOTIFICATIONS + TRANSITIONNOTIFICATIONS) shipped in PR #1583.** **Phase 4d (Tier 3b — read exits + write exit + `PSConnectionMgr` deletion) split into 4d-1a (reads), 4d-1b (writes), 4d-1c (PSSystemWs + legacy overloads) and 4d-1d (delete PSConnectionMgr entirely).** 4d-1a, 4d-1b, 4d-1c are merged (#1630, #1632, #1640, #1645). 4d-1d is in progress.
 
 ## What ships in Phase 4a (PR #1575, merged)
 
@@ -85,20 +85,31 @@ both `src` and `cauc` are populated from Hibernate (no second pool connection).
 - `PSContentAdhocUsersContext.loadFromHibernate(int contentId)` (already added in Phase 4b) + `commit()` + `emptyAdhocUserEntries(...)` (new) — Hibernate-backed `INSERT INTO CONTENTADHOCUSERS` and `DELETE FROM CONTENTADHOCUSERS`
 - `PSContentApprovalsContext.loadFromHibernate(int workflowId, int contentId, PSTransitionsContext)` (new) + `commit()` + `addContentApproval(...)` + `emptyApprovals()` (new) — Hibernate-backed `INSERT INTO CONTENTAPPROVALS` and `DELETE FROM CONTENTAPPROVALS`
 
-### `PSConnectionMgr` deletion path (4d-1b)
+### `PSConnectionMgr` deletion path (4d-1d, in progress)
 
-`PSConnectionMgr.getQualifiedIdentifier(...)` is a static method that reads
-`PSConnectionHelper.getConnectionDetail(null)` once and caches DB metadata. It does
-NOT require a JDBC connection. The 9 legacy context classes have static-init lines
-that call `PSConnectionMgr.getQualifiedIdentifier("X")` to resolve table names.
+`PSConnectionMgr.getQualifiedIdentifier(...)` was a static method that read
+`PSConnectionHelper.getConnectionDetail(null)` once and cached DB metadata, but with all
+catalog/schema flags hardcoded to `false` it only ever returned the input upper-cased —
+i.e., the qualifier was effectively a no-op for the workflow tables. The 9 legacy context
+classes have static-init lines that called `PSConnectionMgr.getQualifiedIdentifier("X")`
+to resolve table names.
 
-After 4d-1a + 4d-1b, no in-product caller of `new PSConnectionMgr()` remains. The
-class can be reduced to:
+After 4d-1a + 4d-1b + 4d-1c, no in-product caller of `new PSConnectionMgr()` remains.
+Decision taken in 4d-1d:
 
-1. Keep `PSConnectionMgr` as a 1-class utility stub with only the static `getQualifiedIdentifier` method (no `<init>` methods declared). This satisfies the 9 legacy static inits and is the smallest-blast-radius deletion.
-2. OR delete `PSConnectionMgr` entirely and migrate the 9 static-inits to call `PSConnectionHelper.getConnectionDetail(null)` directly. This is a larger churn but eliminates the dependency on `PSConnectionMgr`.
+- **Delete `PSConnectionMgr` entirely.** Replace the 9 static-init lines with inlined
+  `private static final String TABLE_X = "X";` constants (behaviour-preserving: upper-cased
+  table names were the actual returned values). Replace `PSAbstractWorkflowContext` /
+  `PSAbstractWorkflowTest` pool-connection call sites with `PSConnectionHelper.getDbConnection()`
+  / `PSConnectionHelper.releaseDbConnection(...)`. The new `releaseDbConnection` helper is
+  added to `PSConnectionHelper` and swallows `SQLException` on close (matching the legacy
+  semantics). No static-init fragility remains — the legacy contexts' class initializers
+  no longer touch the JDBC layer.
 
-Decision pending — picked option 1 by default for 4d-1b unless the Erlang review flags it.
+This is the path Phase 4d-1d is taking. The previous "keep as 1-method utility stub"
+fallback (option 1) was rejected as a half-measure — it leaves a thin static-init
+coupling that still drags in the connection-detail lookup at class-load time, which is
+the original "Spring init order" / "hard to test" complaint the user flagged.
 
 ## Out of scope (issue #1561 "Non-goals")
 

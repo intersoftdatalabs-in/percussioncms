@@ -39,9 +39,8 @@ import org.junit.jupiter.api.Test;
  */
 @DisplayName("PSExitPerformTransition Phase 4d-1c approvals helpers")
 @org.junit.jupiter.api.Disabled(
-    "Static initializer of PSExitPerformTransition extends PSWorkflowContext which calls"
-        + " PSConnectionMgr.getQualifiedIdentifier; re-enabled when Spring+H2 test"
-        + " infrastructure ships (Phase 4+ follow-up).")
+    "PSExitPerformTransition extends PSWorkflowContext which still uses the legacy raw-JDBC path;"
+        + " re-enabled when Spring+H2 test infrastructure ships (Phase 4d-1d follow-up).")
 public class PSExitPerformTransitionApprovalsHelpersTest {
 
   private static PSContentApproval approval(

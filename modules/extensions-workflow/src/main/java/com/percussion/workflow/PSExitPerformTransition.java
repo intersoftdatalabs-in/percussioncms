@@ -410,8 +410,8 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
         localParams.m_htmlRevision = getRevisionFromHTMLParams(htmlParams);
       }
 
-      // Phase 4d-1b: no `new PSConnectionMgr()` — get a fresh pool connection via
-      // PSConnectionHelper. The dual-connection defect documented in the #1561 inventory
+      // Phase 4d-1b: a fresh pool connection is acquired via PSConnectionHelper.
+      // The dual-connection defect documented in the #1561 inventory
       // is mitigated by routing the WRITES through Hibernate (single shared transaction);
       // the raw-JDBC reads in performTransition() use this fresh connection but are
       // acknowledged as a Phase 5 cleanup target. The connection is released in
