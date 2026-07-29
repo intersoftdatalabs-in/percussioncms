@@ -71,7 +71,7 @@
 
       Default ``mvn test`` / reactor builds do NOT run this (Docker + long installs).
 
-      Examples (from modules/perc-qa-automation, with repo-root mvn-Maven wrapper):
+      Examples (from modules/perc-qa-automation, with repo-root Maven wrapper):
 
         ../../mvnw -Pmatrix-smoke test
         ../../mvnw -Pmatrix-smoke -Dmatrix.db=postgresql test
