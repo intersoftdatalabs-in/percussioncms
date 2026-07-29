@@ -23,6 +23,27 @@ export interface LoginLocaleOption {
   displayName: string;
 }
 
+/**
+ * Server-resolved locale format profile (RXLOCALEFORMAT + inheritance).
+ * Keyed by language string; used for dir, date/currency patterns in the UI.
+ */
+export interface LocaleFormatBootstrap {
+  languageString: string;
+  textDir?: "ltr" | "rtl" | string;
+  datePattern?: string;
+  timePattern?: string;
+  dateTimePattern?: string;
+  decimalSep?: string;
+  groupingSep?: string;
+  currencyCode?: string;
+  currencyPattern?: string;
+  firstDayOfWeek?: number;
+  measurementSystem?: string;
+  defaultTz?: string;
+  numberingSystem?: string;
+  calendar?: string;
+}
+
 export interface LoginBootstrap {
   /** Available CMS locales for the login form */
   locales: LoginLocaleOption[];
@@ -34,7 +55,7 @@ export interface LoginBootstrap {
   error?: string | null;
   /** HTML autocomplete attribute value for username/password */
   autocomplete?: "on" | "off";
-  /** Post-login path-absolute redirect (query entry contract) */
+  /** Post-login path-absolute redirect (query contract) */
   defaultRedirect: string;
   /** CSRF token field name (OWASP CSRFGuard) */
   csrfTokenName: string;
@@ -42,6 +63,8 @@ export interface LoginBootstrap {
   csrfTokenValue: string;
   /** Form action path (default /login) */
   formAction?: string;
+  /** Resolved format for selected locale (dir, date, currency, …) */
+  localeFormat?: LocaleFormatBootstrap | null;
 }
 
 /** Minimal authenticated SPA landing bootstrap */
@@ -49,4 +72,5 @@ export interface SpaLandingBootstrap {
   userName?: string;
   locale?: string;
   entry?: string;
+  localeFormat?: LocaleFormatBootstrap | null;
 }

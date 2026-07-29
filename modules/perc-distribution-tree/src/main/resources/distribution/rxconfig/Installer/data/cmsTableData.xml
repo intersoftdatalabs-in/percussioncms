@@ -12255,6 +12255,315 @@
         </row>
     </table>
     <table name="RXLOCALEPROPERTY"/>
+    <table name="RXLOCALEFORMAT" onCreateOnly="no">
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">en-us</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">MM/dd/yyyy</column>
+            <column name="TIMEPATTERN">h:mm a</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">.</column>
+            <column name="GROUPINGSEP">,</column>
+            <column name="CURRENCYCODE">USD</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">7</column>
+            <column name="MEASUREMENTSYSTEM">us</column>
+            <column name="DEFAULTTZ">America/New_York</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">en-gb</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">.</column>
+            <column name="GROUPINGSEP">,</column>
+            <column name="CURRENCYCODE">GBP</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">uk</column>
+            <column name="DEFAULTTZ">Europe/London</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">de-de</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd.MM.yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP">.</column>
+            <column name="CURRENCYCODE">EUR</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">Europe/Berlin</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">es</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP">.</column>
+            <column name="CURRENCYCODE">EUR</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ"></column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">es-es</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP">.</column>
+            <column name="CURRENCYCODE">EUR</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">Europe/Madrid</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">es-mx</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">h:mm a</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">.</column>
+            <column name="GROUPINGSEP">,</column>
+            <column name="CURRENCYCODE">MXN</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">America/Mexico_City</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">es-cl</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd-MM-yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP">.</column>
+            <column name="CURRENCYCODE">CLP</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">America/Santiago</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">fr-fr</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP"> </column>
+            <column name="CURRENCYCODE">EUR</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">Europe/Paris</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">fr-ca</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">yyyy-MM-dd</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP"> </column>
+            <column name="CURRENCYCODE">CAD</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">America/Toronto</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">hi</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">h:mm a</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">.</column>
+            <column name="GROUPINGSEP">,</column>
+            <column name="CURRENCYCODE">INR</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ"></column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">hi-in</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">h:mm a</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">.</column>
+            <column name="GROUPINGSEP">,</column>
+            <column name="CURRENCYCODE">INR</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">Asia/Kolkata</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">it-it</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP">.</column>
+            <column name="CURRENCYCODE">EUR</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">Europe/Rome</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">ja-jp</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">yyyy/MM/dd</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">.</column>
+            <column name="GROUPINGSEP">,</column>
+            <column name="CURRENCYCODE">JPY</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">Asia/Tokyo</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">nl-nl</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd-MM-yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP">.</column>
+            <column name="CURRENCYCODE">EUR</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">Europe/Amsterdam</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">pt-br</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP">.</column>
+            <column name="CURRENCYCODE">BRL</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">America/Sao_Paulo</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">pt-pt</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP">.</column>
+            <column name="CURRENCYCODE">EUR</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">Europe/Lisbon</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">tr-tr</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd.MM.yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP">.</column>
+            <column name="CURRENCYCODE">TRY</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">Europe/Istanbul</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">ar</column>
+            <column name="TEXTDIR">rtl</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">.</column>
+            <column name="GROUPINGSEP">,</column>
+            <column name="CURRENCYCODE"></column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">6</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ"></column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+    </table>
+
     <table name="PSX_PERSISTEDPROPERTYMETA">
             <row action="i" onTableCreateOnly="no">
             <column name="PROPERTYID">1</column>

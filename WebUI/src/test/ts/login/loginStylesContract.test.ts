@@ -22,6 +22,10 @@ describe("login / modern CSS host contract", () => {
     expect(text).toContain("PSLocaleLoginSelection");
     expect(text).toContain("forLoginDropdown");
     expect(text).toContain("resolveSelectedLocale");
+    // Locale format profile for UI (dir / date / currency)
+    expect(text).toContain("PSLocaleFormatCatalog");
+    expect(text).toContain("localeFormat");
+    expect(text).toContain('dir="');
   });
 
   it("spa.jsp hosts link stable perc-modern-ui.css and TMX (both trees)", () => {
