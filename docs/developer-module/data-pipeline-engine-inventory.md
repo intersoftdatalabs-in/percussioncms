@@ -768,6 +768,8 @@ Content Editor historically shares DNA (pipes/mappers/exits for item transforms)
 - Pre/post hooks (Java)  
 - Import subset of classic applications  
 
+**Server code map (this repo):** see [data-pipeline-server-runtime-map.md](./data-pipeline-server-runtime-map.md) for where query/update handlers live today (`PSApplicationHandler` → `PSQueryHandler` / `PSUpdateHandler`).
+
 ### Slice B — Developer UI (structured editor)
 
 - Form/graph editor for tanks, mapper grid, selector builder  

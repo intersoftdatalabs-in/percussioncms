@@ -45,11 +45,10 @@
 
 ## Next slices (separate PRs)
 
-1. Community roles + ACL dialogs  
-2. Pipelines track Slice A (IR + SQL runtime + JSON I/O + classic import)  
+1. Community roles detail/edit + object ACL dialogs  
+2. Pipelines track Slice A (IR + SQL runtime + JSON I/O + classic import) — see [data-pipeline-server-runtime-map.md](../../../developer-module/data-pipeline-server-runtime-map.md)  
 3. Template/slot **editors** (write)  
-4. Server runtime map for data pipelines  
-5. CT field write/lock (rules projection already shipped as P0.2c)  
+4. CT field write/lock (rules projection already shipped as P0.2c)  
 
 Cross-cutting review debt (typed JSON errors, structured designGaps, source viewer, panel migration) is **not** listed above — see [review-followups-tech-debt.md](./review-followups-tech-debt.md).
 
