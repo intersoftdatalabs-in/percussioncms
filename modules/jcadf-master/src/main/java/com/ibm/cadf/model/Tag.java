@@ -20,8 +20,23 @@ package com.ibm.cadf.model;
 import com.ibm.cadf.exception.CADFException;
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Helper that assembles CADF {@code name?value=&lt;value&gt;} tag strings. Non-instantiable by
+ * callers; methods are static.
+ */
 public class Tag {
 
+  /** Default no-argument constructor for {@link Tag}. */
+  public Tag() {}
+
+  /**
+   * Builds a CADF tag string of the form {@code name?value=value}.
+   *
+   * @param name the tag name, never {@code null} or empty.
+   * @param value the tag value, never {@code null} or empty.
+   * @return the assembled {@code name?value=&lt;value&gt;} string.
+   * @throws CADFException when either {@code name} or {@code value} is blank.
+   */
   public String generate_name_value_tag(String name, String value) throws CADFException {
     // Generate a CADF tag in the format name?value=<value>
     // param name: name of tag
@@ -34,6 +49,12 @@ public class Tag {
     return tag;
   }
 
+  /**
+   * Returns {@code true} when the supplied string is non-empty (not {@code null} and not blank).
+   *
+   * @param value the string to validate, may be {@code null}.
+   * @return {@code true} when {@code value} is non-empty.
+   */
   public boolean isValid(String value) {
     return StringUtils.isNotEmpty(value);
   }

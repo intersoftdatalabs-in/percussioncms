@@ -17,8 +17,16 @@
 
 package com.ibm.cadf;
 
+/**
+ * Catalog of localized message templates used throughout the CADF audit middleware. Values are
+ * looked up by {@link java.text.MessageFormat} so each {@code {0}} placeholder is replaced with the
+ * supplied argument at call time.
+ */
 public interface Messages {
 
+  /**
+   * Message template raised when a CADF type fails validation because a required field is blank.
+   */
   public static String MISSING_MANDATORY_FIELDS =
       "Mandatory fields are missing, pass [{0}] the required fields";
 }

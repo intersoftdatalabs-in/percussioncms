@@ -17,18 +17,39 @@
 
 package com.ibm.cadf.exception;
 
+/**
+ * Unchecked exception raised by the CADF audit middleware whenever an audit event cannot be
+ * processed, serialized, or written to its configured sink. Carries either a message, a cause, or
+ * both, mirroring the standard {@link RuntimeException} triad.
+ */
 public class CADFException extends RuntimeException {
 
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Constructs a CADF exception with both a message and an underlying cause.
+   *
+   * @param message human-readable description of the failure, may be {@code null}.
+   * @param e the underlying cause, may be {@code null}.
+   */
   public CADFException(String message, Throwable e) {
     super(message, e);
   }
 
+  /**
+   * Constructs a CADF exception with the given message.
+   *
+   * @param message human-readable description of the failure, may be {@code null}.
+   */
   public CADFException(String message) {
     super(message);
   }
 
+  /**
+   * Constructs a CADF exception wrapping an underlying cause.
+   *
+   * @param e the underlying cause, may be {@code null}.
+   */
   public CADFException(Throwable e) {
     super(e);
   }
