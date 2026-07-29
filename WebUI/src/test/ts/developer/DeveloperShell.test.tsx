@@ -87,31 +87,40 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
   })),
 }));
 
+const { defaultAclPayload } = vi.hoisted(() => ({
+  defaultAclPayload: {
+    id: 1,
+    name: "object-acl",
+    guid: { stringValue: "0-4-1", uuid: 1 },
+    aclEntries: [
+      {
+        id: 10,
+        name: "Default",
+        type: { type: "ROLE", name: "Default" },
+        permissions: [
+          { permission: "READ" },
+          { permission: "UPDATE" },
+          // Unknown/custom permission must be sticky on save (not dropped)
+          { permission: "CUSTOM_LEGACY" },
+        ],
+      },
+      {
+        id: 11,
+        name: "Admin",
+        type: { type: "ROLE", name: "Admin" },
+        permissions: [{ permission: "OWNER" }],
+      },
+    ],
+  },
+}));
+
 vi.mock("../../../main/ts/api/developer/aclApi", async () => {
   const actual = await vi.importActual<
     typeof import("../../../main/ts/api/developer/aclApi")
   >("../../../main/ts/api/developer/aclApi");
   return {
     ...actual,
-    getAclForObject: vi.fn().mockResolvedValue({
-      id: 1,
-      name: "object-acl",
-      guid: { stringValue: "0-4-1", uuid: 1 },
-      aclEntries: [
-        {
-          id: 10,
-          name: "Default",
-          type: { type: "ROLE", name: "Default" },
-          permissions: [{ permission: "READ" }, { permission: "UPDATE" }],
-        },
-        {
-          id: 11,
-          name: "Admin",
-          type: { type: "ROLE", name: "Admin" },
-          permissions: [{ permission: "OWNER" }],
-        },
-      ],
-    }),
+    getAclForObject: vi.fn().mockResolvedValue(defaultAclPayload),
     saveObjectAcl: vi.fn().mockResolvedValue(undefined),
   };
 });
@@ -478,7 +487,11 @@ describe("DeveloperShell", () => {
   });
 
   it("edits object ACL permissions on content type detail and saves", async () => {
-    const { saveObjectAcl } = await import("../../../main/ts/api/developer/aclApi");
+    const { saveObjectAcl, getAclForObject } = await import(
+      "../../../main/ts/api/developer/aclApi"
+    );
+    (saveObjectAcl as ReturnType<typeof vi.fn>).mockClear();
+    (getAclForObject as ReturnType<typeof vi.fn>).mockResolvedValue(defaultAclPayload);
     render(<DeveloperShell embedded />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
@@ -502,11 +515,54 @@ describe("DeveloperShell", () => {
     });
     const payload = (saveObjectAcl as ReturnType<typeof vi.fn>).mock.calls[0][0];
     const defaultEntry = payload.aclEntries.find((e: { id?: number }) => e.id === 10);
-    expect(defaultEntry.permissions.map((p: { permission: string }) => p.permission)).toEqual(
-      expect.arrayContaining(["READ", "UPDATE", "DELETE"]),
+    const perms = defaultEntry.permissions.map((p: { permission: string }) => p.permission);
+    expect(perms).toEqual(
+      expect.arrayContaining(["READ", "UPDATE", "DELETE", "CUSTOM_LEGACY"]),
     );
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-acl-notice").textContent).toMatch(/saved/i);
+    });
+  });
+
+  it("reports ACL reload error separately when save succeeds but reload fails", async () => {
+    const { saveObjectAcl, getAclForObject } = await import(
+      "../../../main/ts/api/developer/aclApi"
+    );
+    (saveObjectAcl as ReturnType<typeof vi.fn>).mockClear();
+    (saveObjectAcl as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
+    let getCalls = 0;
+    (getAclForObject as ReturnType<typeof vi.fn>).mockImplementation(async () => {
+      getCalls += 1;
+      if (getCalls === 1) {
+        return defaultAclPayload;
+      }
+      const err = new Error("reload boom") as Error & { status?: number };
+      err.status = 500;
+      throw err;
+    });
+
+    render(<DeveloperShell embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-row"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-acl-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-acl-perm-id:10-DELETE"));
+    fireEvent.click(screen.getByTestId("developer-ct-acl-save"));
+
+    await waitFor(() => {
+      expect(saveObjectAcl).toHaveBeenCalled();
+    });
+    await waitFor(() => {
+      const notice = screen.getByTestId("developer-ct-acl-notice").textContent || "";
+      expect(notice).toMatch(/saved/i);
+    });
+    await waitFor(() => {
+      const err = screen.getByTestId("developer-ct-acl-error").textContent || "";
+      expect(err).toMatch(/could not reload/i);
+      expect(err).not.toMatch(/^Could not save object ACL/);
     });
   });
 });
