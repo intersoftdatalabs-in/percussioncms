@@ -19,27 +19,55 @@ package com.percussion.auditlog;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+/**
+ * Audit event emitted for user-management administrative actions (create, update, delete, disable,
+ * revoke) initiated through the CMS console. Subclasses or callers may attach additional tags at
+ * the time the event is constructed.
+ */
 public class PSUserManagementEvent extends AbstractEvent {
   // Add any user specific tags here that would be useful to an auditor
 
+  /** Enumerates the user-management lifecycle actions recorded by {@link PSUserManagementEvent}. */
   public enum UserEventActions {
+    /** A new user account was created. */
     create,
+    /** An existing user account was updated. */
     update,
+    /** An existing user account was removed. */
     delete,
+    /** An existing user account was disabled. */
     disable,
+    /** Permissions previously granted to a user were revoked. */
     revoke
   }
 
   private UserEventActions action;
 
+  /**
+   * Returns the action recorded for this event.
+   *
+   * @return the action, may be {@code null} when not yet set.
+   */
   public UserEventActions getAction() {
     return action;
   }
 
+  /**
+   * Sets the action recorded for this event.
+   *
+   * @param action the action to record, never {@code null}.
+   */
   public void setAction(UserEventActions action) {
     this.action = action;
   }
 
+  /**
+   * Constructs a user-management event populated from the originating servlet request.
+   *
+   * @param request the HTTP request that triggered the event, never {@code null}.
+   * @param action the user-management action being recorded, never {@code null}.
+   * @param outcome the outcome of the action, never {@code null}.
+   */
   public PSUserManagementEvent(
       HttpServletRequest request, UserEventActions action, PSActionOutcome outcome) {
     super();

@@ -31,6 +31,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Process-wide singleton that bridges the {@link IPSAuditEvent} domain events with the IBM CADF
+ * {@link AuditMiddleware} used by the rest of the platform. Reads {@code
+ * rxconfig/Server/audit-log.properties} on first use to determine whether to emit a JSON audit log
+ * to disk via {@link FileCreator} in addition to forwarding events to the middleware.
+ */
 public class PSAuditLogService implements IPSAuditLogService {
 
   private static final Logger log = LogManager.getLogger(PSAuditLogService.class);
@@ -40,7 +46,7 @@ public class PSAuditLogService implements IPSAuditLogService {
   private static final String CONFIG_FILE_BASE = "rxconfig/Server/audit-log.properties";
   private static Boolean isGenerateLog = false;
 
-  /***
+  /**
    * Creates an Audit Log Entry for a ContentEvent
    *
    * @param event A fully populated ContentEvent
@@ -59,9 +65,10 @@ public class PSAuditLogService implements IPSAuditLogService {
     auditLog(ae);
   }
 
-  /***
-   * Logs a Workflow Event
-   * @param event
+  /**
+   * Logs a Workflow Event.
+   *
+   * @param event the fully-populated workflow event to log, never {@code null}.
    */
   public void logWorkflowEvent(PSWorkflowEvent event) {
     Event ae = createEvent((AuditContext) event, event.getAction().name(), event.getOutcome());
@@ -82,9 +89,10 @@ public class PSAuditLogService implements IPSAuditLogService {
     auditLog(ae);
   }
 
-  /***
-   * Logs an Authentication Event
-   * @param event
+  /**
+   * Logs an Authentication Event.
+   *
+   * @param event the fully-populated authentication event to log, never {@code null}.
    */
   public void logAuthenticationEvent(PSAuthenticationEvent event) {
 
@@ -92,9 +100,10 @@ public class PSAuditLogService implements IPSAuditLogService {
     auditLog(ae);
   }
 
-  /***
-   * Logs an event for User Management
-   * @param event
+  /**
+   * Logs an event for User Management.
+   *
+   * @param event the fully-populated user-management event to log, never {@code null}.
    */
   public void logUserManagementEvent(PSUserManagementEvent event) {
 
@@ -102,6 +111,12 @@ public class PSAuditLogService implements IPSAuditLogService {
     auditLog(ae);
   }
 
+  /**
+   * Forwards the given CADF event to the configured middleware sink and, when audit-log file
+   * generation is enabled, ensures the dated log file exists for the configured output directory.
+   *
+   * @param ae the CADF event to record, never {@code null}.
+   */
   public void auditLog(Event ae) {
     try {
       if (isGenerateLog() && properties != null && properties.size() > 0) {
@@ -114,6 +129,15 @@ public class PSAuditLogService implements IPSAuditLogService {
     }
   }
 
+  /**
+   * Delegates to the underlying {@link AuditMiddleware} to build a CADF {@link Event} from the
+   * supplied context, action, and outcome.
+   *
+   * @param event the source audit context, never {@code null}.
+   * @param action the action name, never {@code null}.
+   * @param outcome the outcome name, never {@code null}.
+   * @return the constructed CADF event, never {@code null}.
+   */
   public Event createEvent(AuditContext event, String action, String outcome) {
     return middleware.createEvent(action, outcome, event);
   }
@@ -134,6 +158,11 @@ public class PSAuditLogService implements IPSAuditLogService {
 
   private static PSAuditLogService instance;
 
+  /**
+   * Returns the process-wide singleton instance, constructing it on first access.
+   *
+   * @return the shared {@link PSAuditLogService} instance, never {@code null}.
+   */
   public static synchronized PSAuditLogService getInstance() {
     if (instance == null) {
       // if instance is null, initialize
@@ -144,6 +173,12 @@ public class PSAuditLogService implements IPSAuditLogService {
     return instance;
   }
 
+  /**
+   * Creates (or reuses) the dated audit-log file under the directory configured by the supplied
+   * properties and forwards the resolved file path to the underlying middleware.
+   *
+   * @param properties the audit-log configuration bundle, never {@code null}.
+   */
   public static void generateLogFile(Properties properties) {
 
     String fileName =
@@ -156,6 +191,12 @@ public class PSAuditLogService implements IPSAuditLogService {
     middleware.setOutputFilePath(fileName);
   }
 
+  /**
+   * Indicates whether the configured properties request a file-based audit log to be generated.
+   *
+   * @return {@code true} when {@code generateLog} is set to {@code true} in the loaded properties,
+   *     {@code false} otherwise.
+   */
   public static Boolean isGenerateLog() {
     if ("true".equalsIgnoreCase(properties.getProperty("generateLog"))) {
       isGenerateLog = true;
