@@ -27,6 +27,7 @@ import com.percussion.design.objectstore.PSDisplayMapping;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
 import com.percussion.design.objectstore.PSFieldTranslation;
+import com.percussion.design.objectstore.PSSystemValidationException;
 import com.percussion.design.objectstore.PSUISet;
 import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
@@ -317,13 +318,23 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
           throw new IllegalArgumentException(
               "Invalid occurrence for field " + patch.getName() + ": " + patch.getOccurrence());
         }
-        field.setOccurrenceDimension(dim, null);
+        try {
+          field.setOccurrenceDimension(dim, null);
+        } catch (PSSystemValidationException e) {
+          throw new IllegalArgumentException(
+              "Invalid occurrence for field " + patch.getName() + ": " + patch.getOccurrence(), e);
+        }
       } else if (patch.getRequired() != null) {
         int dim =
             Boolean.TRUE.equals(patch.getRequired())
                 ? PSField.OCCURRENCE_DIMENSION_REQUIRED
                 : PSField.OCCURRENCE_DIMENSION_OPTIONAL;
-        field.setOccurrenceDimension(dim, null);
+        try {
+          field.setOccurrenceDimension(dim, null);
+        } catch (PSSystemValidationException e) {
+          throw new IllegalArgumentException(
+              "Invalid required flag for field " + patch.getName(), e);
+        }
       }
     }
   }

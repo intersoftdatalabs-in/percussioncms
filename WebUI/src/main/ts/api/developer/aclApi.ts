@@ -15,9 +15,20 @@
  * limitations under the License.
  */
 
-import { get } from "../client";
+import { get, put } from "../client";
 import { PATHS } from "../paths";
-import type { ObjectAcl } from "./types";
+import type { ObjectAcl, ObjectAclEntry, ObjectAclPermission } from "./types";
+
+/** Design-time ACL permission names (matches REST Permissions enum). */
+export const ACL_PERMISSIONS = [
+  "READ",
+  "UPDATE",
+  "DELETE",
+  "RUNTIME_VISIBLE",
+  "OWNER",
+] as const;
+
+export type AclPermissionName = (typeof ACL_PERMISSIONS)[number];
 
 /**
  * GET /services/acls/object/{objectGuid}
@@ -27,4 +38,56 @@ import type { ObjectAcl } from "./types";
 export async function getAclForObject(objectGuid: string): Promise<ObjectAcl> {
   const key = encodeURIComponent(objectGuid);
   return get<ObjectAcl>(`${PATHS.ACLS}/object/${key}`);
+}
+
+/**
+ * Normalize entries / permissions to plain arrays for PUT payload.
+ * Jackson maps AclList as a JSON array of Acl.
+ */
+function normalizeAclForSave(acl: ObjectAcl): ObjectAcl {
+  const entries = Array.isArray(acl.aclEntries)
+    ? acl.aclEntries
+    : Array.isArray((acl.aclEntries as { AclEntry?: ObjectAclEntry[] } | undefined)?.AclEntry)
+      ? (acl.aclEntries as { AclEntry: ObjectAclEntry[] }).AclEntry
+      : [];
+
+  const aclEntries: ObjectAclEntry[] = entries.map((e) => {
+    const raw = e.permissions;
+    let perms: ObjectAclPermission[] = [];
+    if (Array.isArray(raw)) perms = raw;
+    else if (Array.isArray((raw as { UserAccessLevel?: ObjectAclPermission[] } | undefined)?.UserAccessLevel)) {
+      perms = (raw as { UserAccessLevel: ObjectAclPermission[] }).UserAccessLevel;
+    }
+    return {
+      id: e.id,
+      name: e.name,
+      aclId: e.aclId,
+      principal: e.principal || (e.name ? { name: e.name } : undefined),
+      type: e.type,
+      permissions: perms.map((p) => ({
+        id: p.id,
+        permission: p.permission,
+      })),
+    };
+  });
+
+  return {
+    id: acl.id,
+    name: acl.name,
+    description: acl.description,
+    objectId: acl.objectId,
+    objectType: acl.objectType,
+    guid: acl.guid,
+    objectGuid: acl.objectGuid,
+    aclEntries,
+  };
+}
+
+/**
+ * PUT /services/acls/bulk
+ *
+ * <p>Persists one or more design-time ACLs (full entry + permission replace via merge).
+ */
+export async function saveObjectAcl(acl: ObjectAcl): Promise<void> {
+  await put<unknown>(`${PATHS.ACLS}/bulk`, [normalizeAclForSave(acl)]);
 }
