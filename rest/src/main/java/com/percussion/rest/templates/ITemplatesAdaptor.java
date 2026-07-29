@@ -53,4 +53,12 @@ public interface ITemplatesAdaptor {
    * @return detail or {@code null} if not found
    */
   TemplateDetail getTemplate(URI baseUri, String idOrName);
+
+  /**
+   * Update mutable template design fields (label, description, source). Name/id are not changed.
+   * Bindings/slots/create-delete remain out of scope.
+   *
+   * @return updated detail, or {@code null} if not found
+   */
+  TemplateDetail updateTemplate(URI baseUri, String idOrName, TemplateDetail body);
 }

@@ -64,6 +64,15 @@ export async function getTemplateDetail(
   return get<TemplateDetail>(`${PATHS.TEMPLATES}/${key}`);
 }
 
+/** PUT /services/templates/{idOrName} — label, description, source */
+export async function updateTemplateDetail(
+  idOrName: string,
+  body: Pick<TemplateDetail, "label" | "description" | "templateSource">,
+): Promise<TemplateDetail> {
+  const key = encodeURIComponent(idOrName);
+  return put<TemplateDetail>(`${PATHS.TEMPLATES}/${key}`, body);
+}
+
 /** GET /services/slots */
 export async function listSlots(): Promise<SlotSummary[]> {
   const payload = await get<unknown>(PATHS.SLOTS);

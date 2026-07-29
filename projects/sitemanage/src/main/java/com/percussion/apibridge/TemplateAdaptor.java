@@ -60,8 +60,7 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
   /** API capability notes shared by every detail payload (not per-template data). */
   static final List<String> TEMPLATE_DESIGN_GAPS =
       List.of(
-          "Create / update / delete / lock not supported (read-only)",
-          "Template source editing not supported via this API",
+          "Create / delete / lock not supported via this API",
           "Binding/slot association edits not supported",
           "Content-type associations not listed on this payload");
 
@@ -118,6 +117,47 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
           e.getMessage(),
           e);
       throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @Override
+  public TemplateDetail updateTemplate(URI baseUri, String idOrName, TemplateDetail body) {
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    if (body == null) {
+      throw new IllegalArgumentException("body is required");
+    }
+    try {
+      IPSAssemblyTemplate t = resolveTemplate(idOrName.trim());
+      if (t == null) {
+        return null;
+      }
+      if (body.getLabel() != null) {
+        t.setLabel(body.getLabel());
+      }
+      if (body.getDescription() != null) {
+        t.setDescription(body.getDescription());
+      }
+      if (body.getTemplateSource() != null) {
+        t.setTemplate(body.getTemplateSource());
+      }
+      asmSvc.saveTemplate(t);
+      IPSAssemblyTemplate reloaded = resolveTemplate(idOrName.trim());
+      return reloaded != null ? toDetail(reloaded) : toDetail(t);
+    } catch (IllegalArgumentException e) {
+      throw e;
+    } catch (PSAssemblyException e) {
+      log.error("Failed to save template {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to save template", e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to update template {} ({}): {}",
+          idOrName,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new IllegalStateException("Failed to update template", e);
     }
   }
 

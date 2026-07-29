@@ -119,8 +119,18 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
     bindings: [{ executionOrder: 1, variable: "$sys.item", expression: "$sys.item" }],
     slots: [{ name: "target", label: "Target" }],
     templateSource: "<html/>",
-    designGaps: ["Create / update / delete / lock not supported (read-only)"],
+    designGaps: ["Create / delete / lock not supported via this API"],
   }),
+  updateTemplateDetail: vi.fn().mockImplementation(async (_id, body) => ({
+    templateId: 1,
+    name: "perc.page",
+    label: body.label ?? "Page",
+    description: body.description ?? "Default page",
+    templateSource: body.templateSource ?? "<html/>",
+    bindings: [],
+    slots: [],
+    designGaps: ["Create / delete / lock not supported via this API"],
+  })),
   listSlots: vi.fn().mockResolvedValue([
     { name: "target", label: "Target", description: "Main slot" },
   ]),
@@ -330,9 +340,8 @@ describe("DeveloperShell", () => {
     expect(screen.getByTestId("developer-tpl-bindings")).toBeTruthy();
     expect(screen.getByTestId("developer-tpl-slots")).toBeTruthy();
     expect(screen.getByTestId("developer-tpl-source")).toBeTruthy();
-    await waitFor(() => {
-      expect(screen.getByTestId("developer-tpl-acl-table")).toBeTruthy();
-    });
+    expect(screen.getByTestId("developer-tpl-source-edit")).toBeTruthy();
+    expect(screen.getByTestId("developer-tpl-save")).toBeTruthy();
     expect(screen.getByTestId("developer-tpl-gaps")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-tpl-back"));
     await waitFor(() => {

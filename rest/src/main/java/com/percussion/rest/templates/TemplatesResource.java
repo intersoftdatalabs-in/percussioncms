@@ -206,4 +206,40 @@ public class TemplatesResource {
       throw new WebApplicationException(e, 500);
     }
   }
+
+  @PUT
+  @Path("/{idOrName}")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Update template design fields",
+      description =
+          "Updates mutable template fields: label, description, and/or templateSource."
+              + " Name and identity are immutable. Bindings, slots, create/delete/lock remain"
+              + " unsupported (see designGaps).",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated",
+            content = @Content(schema = @Schema(implementation = TemplateDetail.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid input"),
+        @ApiResponse(responseCode = "404", description = "Template not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public TemplateDetail updateTemplate(
+      @PathParam("idOrName") String idOrName, TemplateDetail body) {
+    try {
+      TemplateDetail detail = adaptor.updateTemplate(uriInfo.getBaseUri(), idOrName, body);
+      if (detail == null) {
+        throw new WebApplicationException("Template not found: " + idOrName, 404);
+      }
+      return detail;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
 }

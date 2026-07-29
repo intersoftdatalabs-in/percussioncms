@@ -75,4 +75,35 @@ public class TemplatesResourceDetailTest {
         assertThrows(WebApplicationException.class, () -> resource.getTemplate("boom"));
     assertEquals(500, ex.getResponse().getStatus());
   }
+
+  @Test
+  public void updateTemplateSuccess() {
+    TemplateDetail body = new TemplateDetail();
+    body.setLabel("New Label");
+    TemplateDetail updated = new TemplateDetail();
+    updated.setName("perc.page");
+    updated.setLabel("New Label");
+    when(adaptor.updateTemplate(any(), eq("perc.page"), any())).thenReturn(updated);
+    assertEquals("New Label", resource.updateTemplate("perc.page", body).getLabel());
+  }
+
+  @Test
+  public void updateTemplateNotFound() {
+    when(adaptor.updateTemplate(any(), eq("missing"), any())).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateTemplate("missing", new TemplateDetail()));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateTemplateBadRequest() {
+    when(adaptor.updateTemplate(any(), eq("perc.page"), any()))
+        .thenThrow(new IllegalArgumentException("body is required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.updateTemplate("perc.page", null));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
 }

@@ -16,7 +16,10 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { getTemplateDetail } from "../api/developer/assemblyApi";
+import {
+  getTemplateDetail,
+  updateTemplateDetail,
+} from "../api/developer/assemblyApi";
 import type { TemplateDetail } from "../api/developer/types";
 import { monoCell, mutedCell } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
@@ -59,16 +62,25 @@ export function TemplateDetailPanel({
 }): React.ReactElement {
   const [detail, setDetail] = useState<TemplateDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [label, setLabel] = useState("");
+  const [description, setDescription] = useState("");
+  const [source, setSource] = useState("");
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     setError(null);
+    setNotice(null);
     getTemplateDetail(idOrName)
       .then((d) => {
         if (cancelled) return;
         setDetail(d);
+        setLabel(d.label || "");
+        setDescription(d.description || "");
+        setSource(d.templateSource || "");
         setLoading(false);
       })
       .catch((err: unknown) => {
@@ -81,6 +93,43 @@ export function TemplateDetailPanel({
       cancelled = true;
     };
   }, [idOrName]);
+
+  const dirty =
+    detail != null &&
+    (label !== (detail.label || "") ||
+      description !== (detail.description || "") ||
+      source !== (detail.templateSource || ""));
+
+  async function handleSave() {
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const saved = await updateTemplateDetail(idOrName, {
+        label,
+        description,
+        templateSource: source,
+      });
+      setDetail(saved);
+      setLabel(saved.label || "");
+      setDescription(saved.description || "");
+      setSource(saved.templateSource || "");
+      setNotice(DEV_MSG.TPL_SAVED);
+    } catch (err: unknown) {
+      setError(panelErrMsg(err, DEV_MSG.TPL_SAVE_ERROR));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const inputStyle: React.CSSProperties = {
+    padding: "8px",
+    border: "1px solid #cbd5e0",
+    borderRadius: "4px",
+    font: "inherit",
+    width: "100%",
+    boxSizing: "border-box",
+  };
 
   return (
     <div data-testid="developer-tpl-detail">
@@ -110,6 +159,11 @@ export function TemplateDetailPanel({
           {error}
         </div>
       ) : null}
+      {notice ? (
+        <div data-testid="developer-tpl-detail-notice" style={{ color: "#276749" }}>
+          {notice}
+        </div>
+      ) : null}
 
       {loading && detail == null ? (
         <div data-testid="developer-tpl-detail-loading">
@@ -121,7 +175,7 @@ export function TemplateDetailPanel({
         <>
           <header style={{ marginBottom: "16px" }}>
             <h2 style={{ margin: "0 0 4px" }} data-testid="developer-tpl-detail-title">
-              {detail.label || detail.name || idOrName}
+              {label || detail.name || idOrName}
             </h2>
             <div style={mutedCell}>
               <span style={monoCell}>
@@ -130,9 +184,30 @@ export function TemplateDetailPanel({
                 {detail.guid?.stringValue ? ` · ${detail.guid.stringValue}` : ""}
               </span>
             </div>
-            {detail.description ? (
-              <p style={{ marginTop: "8px", color: "#2d3748" }}>{detail.description}</p>
-            ) : null}
+            <div style={{ marginTop: "12px" }}>
+              <label htmlFor="tpl-label" style={{ display: "block", marginBottom: 4 }}>
+                {DEV_MSG.TPL_FORM_LABEL}
+              </label>
+              <input
+                id="tpl-label"
+                data-testid="developer-tpl-label"
+                style={inputStyle}
+                value={label}
+                onChange={(e) => setLabel(e.target.value)}
+              />
+            </div>
+            <div style={{ marginTop: "12px" }}>
+              <label htmlFor="tpl-desc" style={{ display: "block", marginBottom: 4 }}>
+                {DEV_MSG.TPL_FORM_DESCRIPTION}
+              </label>
+              <input
+                id="tpl-desc"
+                data-testid="developer-tpl-description"
+                style={inputStyle}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </div>
             <dl style={metaGrid}>
               <dt>{DEV_MSG.TPL_META_ASSEMBLER}</dt>
               <dd style={{ margin: 0, ...monoCell }}>{detail.assembler || "—"}</dd>
@@ -221,14 +296,36 @@ export function TemplateDetailPanel({
             )}
           </section>
 
-          {detail.templateSource ? (
-            <section style={{ marginBottom: "16px" }} data-testid="developer-tpl-source">
-              <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.TPL_SOURCE}</h3>
-              <pre style={sourcePre} lang="xml">
-                {detail.templateSource}
-              </pre>
-            </section>
-          ) : null}
+          <section style={{ marginBottom: "16px" }} data-testid="developer-tpl-source">
+            <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.TPL_SOURCE}</h3>
+            <textarea
+              data-testid="developer-tpl-source-edit"
+              style={{ ...sourcePre, width: "100%", boxSizing: "border-box", minHeight: 200 }}
+              value={source}
+              onChange={(e) => setSource(e.target.value)}
+              spellCheck={false}
+            />
+          </section>
+
+          <div style={{ marginBottom: "16px" }}>
+            <button
+              type="button"
+              data-testid="developer-tpl-save"
+              aria-label="Save template"
+              disabled={busy || !dirty}
+              onClick={() => void handleSave()}
+              style={{
+                padding: "8px 16px",
+                background: dirty ? "#007ea8" : "#a0aec0",
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: busy || !dirty ? "not-allowed" : "pointer",
+              }}
+            >
+              {DEV_MSG.TPL_SAVE}
+            </button>
+          </div>
 
           <ObjectAclSection
             objectGuid={detail.guid?.stringValue}
