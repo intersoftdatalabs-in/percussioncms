@@ -15,30 +15,14 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from 'react';
-import { get } from '../api/client';
-import { styles } from './dashboard.styles';
-
-interface Comment {
-  id: string;
-  author?: string;
-  content?: string;
-  text?: string;
-  email?: string;
-  status?: string;
-  createdAt?: string;
-  timestamp?: string;
-  page?: string;
-  post?: string;
-  approved?: boolean;
-}
-
-interface CommentsData {
-  comments?: Comment[];
-  items?: Comment[];
-  data?: Comment[];
-  [key: string]: unknown;
-}
+import React, { useCallback, useEffect, useState } from "react";
+import { isSessionRedirectError } from "../api/client";
+import {
+  fetchDefaultPagesWithComments,
+  type PageCommentsSummary,
+} from "../api/dashboard/deliveryGadgetsApi";
+import { formatApiError } from "../api/home/homeApi";
+import { styles } from "./dashboard.styles";
 
 export interface CommentsWidgetProps {
   title?: string;
@@ -47,193 +31,108 @@ export interface CommentsWidgetProps {
 }
 
 /**
- * CommentsWidget displays the latest comments from site visitors.
- * Shows comment author, content excerpt, page reference, and status.
- * Fetches data from the comments REST endpoint and updates periodically.
+ * Classic **Comments** gadget — pages with comments (DTS-backed).
+ *
+ * <p>{@code GET /services/delivery/comment/pageswithcomments/{site}}.
+ * Invented {@code /services/comments/latest} does not exist.</p>
  */
 export const CommentsWidget: React.FC<CommentsWidgetProps> = ({
-  title = 'Latest Comments',
-  refreshInterval = 20000,
-  maxComments = 8,
+  title = "Comments",
+  refreshInterval = 60000,
+  maxComments = 12,
 }) => {
-  const [comments, setComments] = useState<Comment[]>([]);
+  const [site, setSite] = useState<string | null>(null);
+  const [pages, setPages] = useState<PageCommentsSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchComments = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        // Fetch latest comments
-        const response = await get<CommentsData>('/services/comments/latest');
-
-        // Handle response format
-        let commentArray: Comment[] = [];
-        if (response.comments && Array.isArray(response.comments)) {
-          commentArray = response.comments;
-        } else if (response.items && Array.isArray(response.items)) {
-          commentArray = response.items;
-        } else if (response.data && Array.isArray(response.data)) {
-          commentArray = response.data;
-        } else if (Array.isArray(response)) {
-          commentArray = response as Comment[];
-        }
-
-        // Limit to maxComments
-        setComments(commentArray.slice(0, maxComments));
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : 'Failed to load comments';
-        setError(errorMessage);
-        console.error('CommentsWidget error:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    // Fetch immediately
-    fetchComments();
-
-    // Set up refresh interval if specified
-    const interval =
-      refreshInterval > 0 ? setInterval(fetchComments, refreshInterval) : undefined;
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [refreshInterval, maxComments]);
-
-  const getStatusIcon = (comment: Comment): string => {
-    if (comment.approved === false || comment.status?.toLowerCase() === 'pending') {
-      return '⏳';
-    }
-    if (comment.status?.toLowerCase() === 'spam') {
-      return '🚫';
-    }
-    return '💬';
-  };
-
-  const getStatusDisplay = (comment: Comment): string => {
-    if (comment.approved === false || comment.status?.toLowerCase() === 'pending') {
-      return 'Pending';
-    }
-    if (comment.status?.toLowerCase() === 'spam') {
-      return 'Spam';
-    }
-    return 'Approved';
-  };
-
-  const truncateText = (text: string | undefined, length: number = 80): string => {
-    if (!text) return '';
-    return text.length > length ? text.substring(0, length) + '...' : text;
-  };
-
-  const formatDate = (timestamp: string | undefined): string => {
-    if (!timestamp) return '';
+  const load = useCallback(async () => {
     try {
-      const date = new Date(timestamp);
-      const now = new Date();
-      const diffMs = now.getTime() - date.getTime();
-      const diffMins = Math.floor(diffMs / 60000);
-      const diffHours = Math.floor(diffMs / 3600000);
-      const diffDays = Math.floor(diffMs / 86400000);
-
-      if (diffMins < 1) return 'just now';
-      if (diffMins < 60) return `${diffMins}m ago`;
-      if (diffHours < 24) return `${diffHours}h ago`;
-      if (diffDays < 7) return `${diffDays}d ago`;
-      return date.toLocaleDateString();
-    } catch {
-      return timestamp;
+      setIsLoading(true);
+      setError(null);
+      const result = await fetchDefaultPagesWithComments(maxComments);
+      setSite(result.site);
+      setPages(result.pages.slice(0, maxComments));
+    } catch (err: unknown) {
+      if (isSessionRedirectError(err)) return;
+      setError(
+        formatApiError(
+          err,
+          "Failed to load comments (delivery tier may be offline)",
+        ),
+      );
+      setPages([]);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [maxComments]);
+
+  useEffect(() => {
+    void load();
+    if (refreshInterval <= 0) return;
+    const id = window.setInterval(() => void load(), refreshInterval);
+    return () => window.clearInterval(id);
+  }, [load, refreshInterval]);
 
   const renderContent = () => {
     if (isLoading) {
       return (
-        <div style={styles.widgetLoading}>
+        <div style={styles.widgetLoading} data-testid="comments-widget-loading">
           <p>Loading comments...</p>
         </div>
       );
     }
-
     if (error) {
       return (
-        <div style={styles.widgetError}>
+        <div style={styles.widgetError} data-testid="comments-widget-error">
           <p>Error: {error}</p>
         </div>
       );
     }
-
-    if (!comments || comments.length === 0) {
+    if (!site) {
       return (
-        <div style={styles.widgetContent}>
-          <p>No comments yet</p>
+        <div style={styles.widgetContent} data-testid="comments-widget-empty">
+          <p>No sites available.</p>
         </div>
       );
     }
-
+    if (pages.length === 0) {
+      return (
+        <div style={styles.widgetContent} data-testid="comments-widget-empty">
+          <p>No pages with comments for {site}.</p>
+        </div>
+      );
+    }
     return (
-      <div style={styles.widgetContent}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' } as React.CSSProperties}>
-          {comments.map((comment, index) => (
-            <div
-              key={comment.id || index}
+      <div style={styles.widgetContent} data-testid="comments-widget-list">
+        <p style={{ fontSize: "0.85em", color: "#666", marginTop: 0 }}>
+          Site: {site}
+        </p>
+        <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+          {pages.map((p) => (
+            <li
+              key={p.id ?? p.path ?? p.pagePath}
               style={{
-                padding: '10px',
-                backgroundColor: '#fafafa',
-                border: '1px solid #e8e8e8',
-                borderRadius: '3px',
-                transition: 'all 0.2s ease',
-              } as React.CSSProperties}
-              onMouseEnter={(e) => {
-                const el = e.currentTarget as HTMLDivElement;
-                el.style.backgroundColor = '#f0f7ff';
-                el.style.borderColor = '#2196f3';
-              }}
-              onMouseLeave={(e) => {
-                const el = e.currentTarget as HTMLDivElement;
-                el.style.backgroundColor = '#fafafa';
-                el.style.borderColor = '#e8e8e8';
+                padding: "8px 0",
+                borderBottom: "1px solid #e0e0e0",
               }}
             >
-              <div style={{ display: 'flex', gap: '8px', marginBottom: '4px', alignItems: 'flex-start' } as React.CSSProperties}>
-                <div style={{ fontSize: '1.2em', flexShrink: 0 }}>
-                  {getStatusIcon(comment)}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '8px' } as React.CSSProperties}>
-                    <div style={{ fontWeight: '600', fontSize: '0.9em', color: '#333' }}>
-                      {comment.author || comment.email || 'Anonymous'}
-                    </div>
-                    <div style={{ fontSize: '0.7em', color: getStatusDisplay(comment) === 'Approved' ? '#4caf50' : getStatusDisplay(comment) === 'Pending' ? '#ff9800' : '#c33', whiteSpace: 'nowrap' }}>
-                      {getStatusDisplay(comment)}
-                    </div>
-                  </div>
-                  {(comment.page || comment.post) && (
-                    <div style={{ fontSize: '0.75em', color: '#999', marginTop: '2px', marginBottom: '4px' }}>
-                      📄 {comment.page || comment.post}
-                    </div>
-                  )}
-                  <div style={{ fontSize: '0.8em', color: '#666', lineHeight: '1.3', marginBottom: '4px' }}>
-                    {truncateText(comment.content || comment.text, 80)}
-                  </div>
-                  <div style={{ fontSize: '0.7em', color: '#999' }}>
-                    {formatDate(comment.createdAt || comment.timestamp)}
-                  </div>
-                </div>
+              <div style={{ fontWeight: 500 }}>
+                {p.pageLinkTitle || p.path || p.pagePath || "Page"}
               </div>
-            </div>
+              <div style={{ fontSize: "0.8em", color: "#666" }}>
+                {p.commentCount} comments · {p.newCount} new · {p.approvedCount}{" "}
+                approved
+              </div>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     );
   };
 
   return (
-    <div style={styles.widget}>
+    <div style={styles.widget} data-testid="comments-widget">
       <div style={styles.widgetTitle}>{title}</div>
       {renderContent()}
     </div>

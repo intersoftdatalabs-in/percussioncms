@@ -15,32 +15,14 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from 'react';
-import { get } from '../api/client';
-import { styles } from './dashboard.styles';
-
-interface Member {
-  id: string;
-  name: string;
-  email: string;
-  role?: string;
-  status?: string;
-  joinDate?: string;
-}
-
-interface Membership {
-  totalMembers: number;
-  activeMembers?: number;
-  members?: Member[];
-  lastUpdated?: string;
-}
-
-interface MembershipData {
-  membership?: Membership;
-  data?: Membership;
-  members?: Membership;
-  [key: string]: unknown;
-}
+import React, { useCallback, useEffect, useState } from "react";
+import { isSessionRedirectError } from "../api/client";
+import {
+  fetchDefaultMembershipUsers,
+  type MembershipUser,
+} from "../api/dashboard/deliveryGadgetsApi";
+import { formatApiError } from "../api/home/homeApi";
+import { styles } from "./dashboard.styles";
 
 export interface MembershipWidgetProps {
   title?: string;
@@ -48,141 +30,106 @@ export interface MembershipWidgetProps {
 }
 
 /**
- * MembershipWidget displays user membership information and statistics.
- * Shows member counts, member list, roles, and status information.
+ * Classic **Membership** gadget (deprecated registry group).
+ *
+ * <p>{@code GET /services/delivery/membership/admin/users/{site}}.
+ * Invented {@code /services/membership/list} does not exist.</p>
  */
 export const MembershipWidget: React.FC<MembershipWidgetProps> = ({
-  title = 'Membership',
-  refreshInterval,
+  title = "Membership",
+  refreshInterval = 60000,
 }) => {
-  const [membership, setMembership] = useState<Membership | null>(null);
+  const [site, setSite] = useState<string | null>(null);
+  const [users, setUsers] = useState<MembershipUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchMembership = async () => {
+  const load = useCallback(async () => {
+    try {
       setIsLoading(true);
-      try {
-        const response = await get<MembershipData>('/services/membership/list');
-        let membershipData: Membership | null = null;
-
-        if (response.membership) {
-          membershipData = response.membership;
-        } else if (response.data) {
-          membershipData = response.data;
-        } else if (response.members) {
-          membershipData = response.members;
-        } else if (typeof response === 'object' && 'totalMembers' in response) {
-          membershipData = {
-            totalMembers: (response as Record<string, unknown>).totalMembers as number,
-            activeMembers: (response as Record<string, unknown>).activeMembers as number | undefined,
-            members: (response as Record<string, unknown>).members as Member[] | undefined,
-            lastUpdated: (response as Record<string, unknown>).lastUpdated as string | undefined,
-          };
-        }
-
-        setMembership(membershipData);
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : 'Failed to load membership data';
-        setError(errorMessage);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchMembership();
-    if (refreshInterval) {
-      const interval = setInterval(fetchMembership, refreshInterval * 1000);
-      return () => clearInterval(interval);
+      setError(null);
+      const result = await fetchDefaultMembershipUsers();
+      setSite(result.site);
+      setUsers(result.users);
+    } catch (err: unknown) {
+      if (isSessionRedirectError(err)) return;
+      setError(
+        formatApiError(
+          err,
+          "Failed to load membership (delivery membership service may be offline)",
+        ),
+      );
+      setUsers([]);
+    } finally {
+      setIsLoading(false);
     }
-  }, [refreshInterval]);
+  }, []);
+
+  useEffect(() => {
+    void load();
+    if (refreshInterval <= 0) return;
+    const id = window.setInterval(() => void load(), refreshInterval);
+    return () => window.clearInterval(id);
+  }, [load, refreshInterval]);
 
   if (isLoading) {
     return (
-      <div style={styles.widget}>
+      <div style={styles.widget} data-testid="membership-widget">
         <div style={styles.widgetTitle}>{title}</div>
-        <div style={styles.widgetLoading}>Loading membership data...</div>
+        <div style={styles.widgetLoading}>Loading membership...</div>
       </div>
     );
   }
-
   if (error) {
     return (
-      <div style={styles.widget}>
+      <div style={styles.widget} data-testid="membership-widget">
         <div style={styles.widgetTitle}>{title}</div>
-        <div style={styles.widgetError}>{error}</div>
+        <div style={styles.widgetError} data-testid="membership-error">
+          {error}
+        </div>
       </div>
     );
   }
-
-  if (!membership) {
+  if (!site) {
     return (
-      <div style={styles.widget}>
+      <div style={styles.widget} data-testid="membership-widget">
         <div style={styles.widgetTitle}>{title}</div>
-        <div style={styles.widgetContent}>No membership data available</div>
+        <div style={styles.widgetContent}>No sites available.</div>
       </div>
     );
   }
 
   return (
-    <div style={styles.widget}>
+    <div style={styles.widget} data-testid="membership-widget">
       <div style={styles.widgetTitle}>{title}</div>
-      <div style={styles.widgetContent}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' } as React.CSSProperties}>
-          {/* Member Statistics */}
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'space-between' } as React.CSSProperties}>
-            <div style={{ flex: 1, padding: '8px', backgroundColor: '#f0f8f0', borderRadius: '3px' }}>
-              <div style={{ fontSize: '0.75em', color: '#666', marginBottom: '2px' }}>Total Members</div>
-              <div style={{ fontSize: '1.2em', fontWeight: '600', color: '#333' }}>
-                {membership.totalMembers}
-              </div>
-            </div>
-            {membership.activeMembers !== undefined && (
-              <div style={{ flex: 1, padding: '8px', backgroundColor: '#f0f8ff', borderRadius: '3px' }}>
-                <div style={{ fontSize: '0.75em', color: '#666', marginBottom: '2px' }}>Active</div>
-                <div style={{ fontSize: '1.2em', fontWeight: '600', color: '#007ea8' }}>
-                  {membership.activeMembers}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Members List */}
-          {membership.members && membership.members.length > 0 && (
-            <div style={{ borderTop: '1px solid #eee', paddingTop: '8px' }}>
-              <div style={{ fontSize: '0.85em', fontWeight: '600', marginBottom: '6px', color: '#333' }}>
-                Recently Joined
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' } as React.CSSProperties}>
-                {membership.members.slice(0, 5).map((member) => (
-                  <div key={member.id} style={{ fontSize: '0.75em', padding: '4px', backgroundColor: '#f9f9f9', borderRadius: '2px' }}>
-                    <div style={{ fontWeight: '600', color: '#333' }}>{member.name}</div>
-                    <div style={{ fontSize: '0.9em', color: '#666' }}>{member.email}</div>
-                    {member.role && (
-                      <div style={{ fontSize: '0.8em', color: '#999' }}>
-                        Role: {member.role}
-                      </div>
-                    )}
-                  </div>
-                ))}
-                {membership.members.length > 5 && (
-                  <div style={{ fontSize: '0.75em', color: '#999', fontStyle: 'italic', textAlign: 'center' }}>
-                    +{membership.members.length - 5} more members
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Last Updated */}
-          {membership.lastUpdated && (
-            <div style={{ fontSize: '0.7em', color: '#999', marginTop: '4px', paddingTop: '8px', borderTop: '1px solid #eee' }}>
-              Last updated: {membership.lastUpdated}
-            </div>
-          )}
+      <div style={styles.widgetContent} data-testid="membership-list">
+        <div style={{ fontSize: "0.85em", color: "#666", marginBottom: "8px" }}>
+          Site: {site} · {users.length} member{users.length === 1 ? "" : "s"}
         </div>
+        {users.length === 0 ? (
+          <p data-testid="membership-empty">No members for this site.</p>
+        ) : (
+          <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+            {users.slice(0, 20).map((u) => (
+              <li
+                key={u.email}
+                style={{
+                  padding: "6px 0",
+                  borderBottom: "1px solid #eee",
+                  fontSize: "0.9em",
+                }}
+              >
+                <div style={{ fontWeight: 500 }}>{u.email}</div>
+                <div style={{ fontSize: "0.8em", color: "#666" }}>
+                  {[u.status, u.groups].filter(Boolean).join(" · ") || "—"}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
 };
+
+export default MembershipWidget;

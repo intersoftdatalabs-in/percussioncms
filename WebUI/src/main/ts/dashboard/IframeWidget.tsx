@@ -1,159 +1,153 @@
 /*
  * Copyright 1999-2026 Percussion Software, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
-import React, { useEffect, useState } from 'react';
-import { get } from '../api/client';
-import { styles } from './dashboard.styles';
+import React, { useState } from "react";
+import { styles } from "./dashboard.styles";
 
-interface IframeConfig {
-  url?: string;
-  title?: string;
-  height?: number;
-  sandbox?: string;
-  allowFullscreen?: boolean;
-}
-
-interface IframeData {
-  iframe?: IframeConfig;
-  data?: IframeConfig;
-  config?: IframeConfig;
-  [key: string]: unknown;
-}
+const STORAGE_KEY = "perc.home.gadget.iframe.src";
 
 export interface IframeWidgetProps {
   title?: string;
-  iframeUrl?: string;
-  iframeHeight?: number;
   refreshInterval?: number;
+  /** Optional embed URL from props; otherwise sessionStorage. */
+  src?: string;
 }
 
 /**
- * IframeWidget displays external content via iframe.
- * Supports customizable URL and height with security attributes.
+ * Allow only absolute http(s) URLs for iframe src.
+ * Blocks javascript:/data:/etc. and rejects unparseable values (CodeQL js/xss-through-dom).
+ */
+export function sanitizeEmbedUrl(raw: string): string | null {
+  const trimmed = (raw ?? "").trim();
+  if (!trimmed) {
+    return null;
+  }
+  try {
+    // Absolute URL only — no relative resolution from page origin.
+    const u = new URL(trimmed);
+    if (u.protocol !== "http:" && u.protocol !== "https:") {
+      return null;
+    }
+    // Normalize; never return the raw DOM/session string to the sink.
+    return u.toString();
+  } catch {
+    return null;
+  }
+}
+
+function readStoredUrl(): string {
+  try {
+    if (typeof sessionStorage === "undefined") {
+      return "";
+    }
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      return "";
+    }
+    return sanitizeEmbedUrl(raw) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Classic iframe gadget embeds a configured URL.
+ * URL can be passed as prop or saved in sessionStorage (no CMS embed API).
+ * Only http(s) URLs are accepted for the iframe {@code src} attribute.
  */
 export const IframeWidget: React.FC<IframeWidgetProps> = ({
-  title = 'External Content',
-  iframeUrl,
-  iframeHeight = 400,
-  refreshInterval,
+  title = "Iframe",
+  src: srcProp,
 }) => {
-  const [config, setConfig] = useState<IframeConfig | null>(null);
-  const [isLoading, setIsLoading] = useState(!iframeUrl);
+  const initialSafe =
+    sanitizeEmbedUrl(srcProp ?? "") || readStoredUrl() || "";
+  const [draft, setDraft] = useState(initialSafe);
+  const [active, setActive] = useState(initialSafe);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    // If iframeUrl is provided directly, use it
-    if (iframeUrl) {
-      setConfig({
-        url: iframeUrl,
-        title: title,
-        height: iframeHeight,
-      });
-      setIsLoading(false);
+  const apply = () => {
+    const safe = sanitizeEmbedUrl(draft);
+    if (!safe) {
+      setError("Enter a valid http(s) URL (javascript: and data: are blocked).");
+      setActive("");
+      try {
+        sessionStorage.removeItem(STORAGE_KEY);
+      } catch {
+        /* ignore */
+      }
       return;
     }
-
-    // Otherwise fetch from API
-    const fetchConfig = async () => {
-      setIsLoading(true);
-      try {
-        const response = await get<IframeData>('/services/embed/iframe');
-        let iframeConfig: IframeConfig | null = null;
-
-        if (response.iframe) {
-          iframeConfig = response.iframe;
-        } else if (response.data) {
-          iframeConfig = response.data;
-        } else if (response.config) {
-          iframeConfig = response.config;
-        } else if (typeof response === 'object' && 'url' in response) {
-          iframeConfig = {
-            url: (response as Record<string, unknown>).url as string | undefined,
-            title: (response as Record<string, unknown>).title as string | undefined,
-            height: (response as Record<string, unknown>).height as number | undefined,
-            sandbox: (response as Record<string, unknown>).sandbox as string | undefined,
-            allowFullscreen: (response as Record<string, unknown>).allowFullscreen as boolean | undefined,
-          };
-        }
-
-        setConfig(iframeConfig);
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load iframe configuration';
-        setError(errorMessage);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchConfig();
-    if (refreshInterval) {
-      const interval = setInterval(fetchConfig, refreshInterval * 1000);
-      return () => clearInterval(interval);
+    setError(null);
+    setActive(safe);
+    try {
+      sessionStorage.setItem(STORAGE_KEY, safe);
+    } catch {
+      /* ignore quota / private mode */
     }
-  }, [iframeUrl, title, iframeHeight, refreshInterval]);
-
-  if (isLoading) {
-    return (
-      <div style={styles.widget}>
-        <div style={styles.widgetTitle}>{title}</div>
-        <div style={styles.widgetLoading}>Loading external content...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div style={styles.widget}>
-        <div style={styles.widgetTitle}>{title}</div>
-        <div style={styles.widgetError}>{error}</div>
-      </div>
-    );
-  }
-
-  if (!config || !config.url) {
-    return (
-      <div style={styles.widget}>
-        <div style={styles.widgetTitle}>{title}</div>
-        <div style={styles.widgetContent}>No iframe URL configured</div>
-      </div>
-    );
-  }
-
-  const height = config.height || iframeHeight || 400;
-  const sandbox = config.sandbox || 'allow-scripts allow-same-origin allow-popups';
-  const allowFullscreen = config.allowFullscreen !== false;
+  };
 
   return (
-    <div style={styles.widget}>
-      <div style={styles.widgetTitle}>{config.title || title}</div>
-      <div style={{ width: '100%', overflow: 'hidden' }}>
-        <iframe
-          src={config.url}
-          title={config.title || title}
-          height={height}
-          width="100%"
-          sandbox={sandbox}
-          allowFullScreen={allowFullscreen}
+    <div style={styles.widget} data-testid="iframe-widget">
+      <div style={styles.widgetTitle}>{title}</div>
+      <div style={styles.widgetContent}>
+        <div
           style={{
-            border: 'none',
-            borderRadius: '3px',
+            display: "flex",
+            gap: 8,
+            marginBottom: 8,
+            flexWrap: "wrap",
           }}
-        />
+        >
+          <input
+            type="url"
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            placeholder="https://…"
+            data-testid="iframe-src-input"
+            style={{
+              flex: 1,
+              minWidth: 160,
+              padding: "6px 8px",
+              border: "1px solid #ccc",
+              borderRadius: 4,
+            }}
+          />
+          <button
+            type="button"
+            onClick={apply}
+            data-testid="iframe-src-apply"
+            style={{ padding: "6px 12px" }}
+          >
+            Load
+          </button>
+        </div>
+        {error ? (
+          <p
+            data-testid="iframe-src-error"
+            style={{ fontSize: "0.85em", color: "#c62828", margin: "0 0 8px" }}
+          >
+            {error}
+          </p>
+        ) : null}
+        {active ? (
+          <iframe
+            title={title}
+            src={active}
+            // Restrictive sandbox: no same-origin + scripts combo.
+            sandbox="allow-scripts allow-popups allow-forms"
+            referrerPolicy="no-referrer"
+            style={{ width: "100%", height: 320, border: "1px solid #eee" }}
+          />
+        ) : (
+          <p style={{ fontSize: "0.9em", color: "#666", margin: 0 }}>
+            Enter an https URL to embed. Saved for this browser session only
+            (http/https only; no CMS embed API).
+          </p>
+        )}
       </div>
     </div>
   );
 };
+
+export default IframeWidget;

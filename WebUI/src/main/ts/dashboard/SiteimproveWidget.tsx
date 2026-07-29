@@ -1,50 +1,17 @@
 /*
  * Copyright 1999-2026 Percussion Software, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
-import React, { useEffect, useState } from 'react';
-import { get } from '../api/client';
-import { styles } from './dashboard.styles';
-
-interface AccessibilityMetric {
-  level?: string;
-  score?: number;
-  status?: string;
-}
-
-interface QualityMetric {
-  level?: string;
-  score?: number;
-  status?: string;
-}
-
-interface SiteimproveData {
-  accessibility?: AccessibilityMetric;
-  quality?: QualityMetric;
-  integrated?: boolean;
-  accountId?: string;
-  lastChecked?: string;
-}
-
-interface SiteimproveResponse {
-  siteimprove?: SiteimproveData;
-  data?: SiteimproveData;
-  analytics?: SiteimproveData;
-  [key: string]: unknown;
-}
+import React, { useCallback, useEffect, useState } from "react";
+import { isSessionRedirectError } from "../api/client";
+import { put } from "../api/client";
+import { PATHS } from "../api/paths";
+import {
+  fetchSiteimproveStatus,
+  type SiteimproveStatus,
+} from "../api/dashboard/deliveryGadgetsApi";
+import { formatApiError } from "../api/home/homeApi";
+import { styles } from "./dashboard.styles";
 
 export interface SiteimproveWidgetProps {
   title?: string;
@@ -52,187 +19,161 @@ export interface SiteimproveWidgetProps {
 }
 
 /**
- * SiteimproveWidget displays accessibility and quality metrics from Siteimprove.
- * Shows accessibility levels, quality scores, and integration status.
+ * Classic **Siteimprove** gadget — view/store token + site config status.
  */
 export const SiteimproveWidget: React.FC<SiteimproveWidgetProps> = ({
-  title = 'Siteimprove',
-  refreshInterval,
+  title = "Siteimprove",
+  refreshInterval = 120000,
 }) => {
-  const [data, setData] = useState<SiteimproveData | null>(null);
+  const [status, setStatus] = useState<SiteimproveStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [token, setToken] = useState("");
+  const [siteName, setSiteName] = useState("");
+
+  const load = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const s = await fetchSiteimproveStatus();
+      setStatus(s);
+      if (s.siteName) setSiteName(s.siteName);
+    } catch (err: unknown) {
+      if (isSessionRedirectError(err)) return;
+      setError(formatApiError(err, "Failed to load Siteimprove status"));
+      setStatus(null);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        const response = await get<SiteimproveResponse>('/services/siteimprove/metrics');
-        let siteimproveData: SiteimproveData | null = null;
+    void load();
+    if (refreshInterval <= 0) return;
+    const id = window.setInterval(() => void load(), refreshInterval);
+    return () => window.clearInterval(id);
+  }, [load, refreshInterval]);
 
-        if (response.siteimprove) {
-          siteimproveData = response.siteimprove;
-        } else if (response.data) {
-          siteimproveData = response.data;
-        } else if (response.analytics) {
-          siteimproveData = response.analytics;
-        } else if (typeof response === 'object' && ('accessibility' in response || 'quality' in response)) {
-          siteimproveData = {
-            accessibility: (response as Record<string, unknown>).accessibility as AccessibilityMetric | undefined,
-            quality: (response as Record<string, unknown>).quality as QualityMetric | undefined,
-            integrated: (response as Record<string, unknown>).integrated as boolean | undefined,
-            accountId: (response as Record<string, unknown>).accountId as string | undefined,
-            lastChecked: (response as Record<string, unknown>).lastChecked as string | undefined,
-          };
-        }
-
-        setData(siteimproveData);
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load Siteimprove data';
-        setError(errorMessage);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-    if (refreshInterval) {
-      const interval = setInterval(fetchData, refreshInterval * 1000);
-      return () => clearInterval(interval);
+  const onSaveToken = async () => {
+    if (!token.trim() || !siteName.trim()) {
+      setError("Site name and token are required.");
+      return;
     }
-  }, [refreshInterval]);
+    try {
+      setBusy(true);
+      setError(null);
+      setMessage(null);
+      // PSSiteImproveCredentials — Jackson may accept flat or rooted body
+      await put(PATHS.SITEIMPROVE_TOKEN, {
+        SiteimproveCredentials: {
+          token: token.trim(),
+          siteName: siteName.trim(),
+        },
+        token: token.trim(),
+        siteName: siteName.trim(),
+      });
+      setMessage("Token saved (validated by server).");
+      setToken("");
+      await load();
+    } catch (err: unknown) {
+      if (!isSessionRedirectError(err)) {
+        setError(formatApiError(err, "Failed to store Siteimprove token"));
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
 
   if (isLoading) {
     return (
-      <div style={styles.widget}>
+      <div style={styles.widget} data-testid="siteimprove-widget">
         <div style={styles.widgetTitle}>{title}</div>
-        <div style={styles.widgetLoading}>Loading Siteimprove data...</div>
+        <div style={styles.widgetLoading}>Loading Siteimprove...</div>
       </div>
     );
   }
-
-  if (error) {
-    return (
-      <div style={styles.widget}>
-        <div style={styles.widgetTitle}>{title}</div>
-        <div style={styles.widgetError}>{error}</div>
-      </div>
-    );
-  }
-
-  if (!data) {
-    return (
-      <div style={styles.widget}>
-        <div style={styles.widgetTitle}>{title}</div>
-        <div style={styles.widgetContent}>No Siteimprove data available</div>
-      </div>
-    );
-  }
-
-  const getAccessibilityColor = (level?: string): string => {
-    if (!level) return '#999';
-    const normalized = level.toUpperCase();
-    return { 'AAA': '#107c10', 'AA': '#0f7938', 'A': '#f7630c', 'FAIL': '#d13438' }[normalized] || '#999';
-  };
-
-  const getQualityColor = (score?: number): string => {
-    if (score === undefined) return '#999';
-    if (score >= 90) return '#107c10';
-    if (score >= 80) return '#0f7938';
-    if (score >= 70) return '#f7630c';
-    return '#d13438';
-  };
 
   return (
-    <div style={styles.widget}>
+    <div style={styles.widget} data-testid="siteimprove-widget">
       <div style={styles.widgetTitle}>{title}</div>
-      <div style={styles.widgetContent}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' } as React.CSSProperties}>
-          {/* Integration Status */}
+      <div style={styles.widgetContent} data-testid="siteimprove-status">
+        {error ? (
+          <div style={{ ...styles.widgetError, marginBottom: 8 }}>{error}</div>
+        ) : null}
+        {message ? (
           <div
             style={{
-              padding: '8px',
-              backgroundColor: data.integrated ? '#d4f4dd' : '#fff3cd',
-              color: data.integrated ? '#0f5132' : '#664d03',
-              borderRadius: '3px',
-              fontSize: '0.8em',
-              fontWeight: '600',
-              textAlign: 'center',
+              background: "#e8f5e9",
+              color: "#2e7d32",
+              padding: 8,
+              borderRadius: 4,
+              marginBottom: 8,
+              fontSize: "0.85em",
             }}
           >
-            {data.integrated ? '✓ Connected' : '✕ Not Connected'}
+            {message}
           </div>
-
-          {/* Accessibility Score */}
-          {data.accessibility && (
-            <div style={{ borderTop: '1px solid #eee', paddingTop: '8px' }}>
-              <div style={{ fontSize: '0.85em', fontWeight: '600', marginBottom: '4px', color: '#333' }}>
-                Accessibility Level
-              </div>
-              <div
-                style={{
-                  padding: '8px',
-                  backgroundColor: getAccessibilityColor(data.accessibility.level),
-                  color: '#fff',
-                  borderRadius: '3px',
-                  fontSize: '1.1em',
-                  fontWeight: '700',
-                  textAlign: 'center',
-                  letterSpacing: '1px',
-                }}
-              >
-                {data.accessibility.level || 'N/A'}
-              </div>
-              {data.accessibility.status && (
-                <div style={{ fontSize: '0.7em', color: '#666', marginTop: '4px', textAlign: 'center' }}>
-                  Status: {data.accessibility.status}
-                </div>
-              )}
-            </div>
+        ) : null}
+        <div style={{ marginBottom: "8px" }}>
+          <strong>Token on server:</strong>{" "}
+          {status?.hasToken ? (
+            <span style={{ color: "#28a745" }}>
+              Configured
+              {status?.tokenPreview ? ` (${status.tokenPreview})` : ""}
+            </span>
+          ) : (
+            <span style={{ color: "#dc3545" }}>Not configured</span>
           )}
-
-          {/* Quality Score */}
-          {data.quality && (
-            <div style={{ borderTop: '1px solid #eee', paddingTop: '8px' }}>
-              <div style={{ fontSize: '0.85em', fontWeight: '600', marginBottom: '4px', color: '#333' }}>
-                Quality Score
-              </div>
-              <div
-                style={{
-                  padding: '8px',
-                  backgroundColor: getQualityColor(data.quality.score),
-                  color: '#fff',
-                  borderRadius: '3px',
-                  fontSize: '1.1em',
-                  fontWeight: '700',
-                  textAlign: 'center',
-                }}
-              >
-                {data.quality.score !== undefined ? `${data.quality.score}%` : 'N/A'}
-              </div>
-              {data.quality.status && (
-                <div style={{ fontSize: '0.7em', color: '#666', marginTop: '4px', textAlign: 'center' }}>
-                  Status: {data.quality.status}
-                </div>
-              )}
-            </div>
+        </div>
+        <div style={{ fontSize: "0.9em", marginBottom: 8 }}>
+          <strong>Publish config for {status?.siteName || siteName || "—"}:</strong>{" "}
+          {status?.siteConfigPresent ? (
+            <span style={{ color: "#28a745" }}>Present</span>
+          ) : (
+            <span style={{ color: "#999" }}>None</span>
           )}
-
-          {/* Account ID */}
-          {data.accountId && (
-            <div style={{ fontSize: '0.7em', color: '#999', marginTop: '4px', paddingTop: '8px', borderTop: '1px solid #eee' }}>
-              Account: {data.accountId}
-            </div>
-          )}
-
-          {/* Last Checked */}
-          {data.lastChecked && (
-            <div style={{ fontSize: '0.7em', color: '#999', marginTop: '2px' }}>
-              Last checked: {data.lastChecked}
-            </div>
-          )}
+        </div>
+        <div style={{ borderTop: "1px solid #eee", paddingTop: 10, marginTop: 8 }}>
+          <div style={{ fontWeight: 600, fontSize: "0.85em", marginBottom: 6 }}>
+            Store credentials
+          </div>
+          <label style={{ display: "block", fontSize: "0.8em", marginBottom: 6 }}>
+            Site name
+            <input
+              value={siteName}
+              onChange={(e) => setSiteName(e.target.value)}
+              disabled={busy}
+              data-testid="siteimprove-site"
+              style={{ display: "block", width: "100%", marginTop: 4, padding: 6, boxSizing: "border-box" }}
+            />
+          </label>
+          <label style={{ display: "block", fontSize: "0.8em", marginBottom: 6 }}>
+            API token
+            <input
+              type="password"
+              value={token}
+              onChange={(e) => setToken(e.target.value)}
+              disabled={busy}
+              data-testid="siteimprove-token"
+              autoComplete="off"
+              style={{ display: "block", width: "100%", marginTop: 4, padding: 6, boxSizing: "border-box" }}
+            />
+          </label>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => void onSaveToken()}
+            data-testid="siteimprove-save"
+            style={{ padding: "6px 12px" }}
+          >
+            {busy ? "Saving…" : "Validate & save token"}
+          </button>
         </div>
       </div>
     </div>
   );
 };
+
+export default SiteimproveWidget;

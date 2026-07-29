@@ -182,6 +182,28 @@ export const PATHS = {
   get COOKIE_CONSENT_TOTALS() {
     return `${SERVICES_ROOT}/delivery/consent/log/totals`;
   },
+  get COOKIE_CONSENT_TOTALS_SITE() {
+    return `${SERVICES_ROOT}/delivery/consent/log/totals`;
+  },
+  /** Pages with comments (proxies DTS comments service). */
+  get COMMENTS_PAGES_WITH_COMMENTS() {
+    return `${SERVICES_ROOT}/delivery/comment/pageswithcomments`;
+  },
+  /** Membership users for a site (proxies DTS membership). */
+  get MEMBERSHIP_USERS() {
+    return `${SERVICES_ROOT}/delivery/membership/admin/users`;
+  },
+  /** Non-SEO pages (classic SEO Audit gadget). POST NonSEOPagesRequest. */
+  get PAGE_NON_SEO() {
+    return `${SERVICES_ROOT}/pagemanagement/page/nonSEOPages`;
+  },
+  /** Siteimprove integration (token / publish config). */
+  get SITEIMPROVE_TOKEN() {
+    return `${SERVICES_ROOT}/integrations/siteimprove/token`;
+  },
+  get SITEIMPROVE_PUBLISH_CONFIG() {
+    return `${SERVICES_ROOT}/integrations/siteimprove/publish/config`;
+  },
   /**
    * Google Analytics provider config (classic Google Setup gadget).
    * GET/POST/DELETE {@code /analytics/provider/config}
@@ -196,6 +218,17 @@ export const PATHS = {
   /** List GA profiles (requires stored credentials). */
   get ANALYTICS_PROFILES() {
     return `${SERVICES_ROOT}/analytics/provider/profiles`;
+  },
+  /**
+   * Test connection + store keyfile.
+   * {@code POST multipart /analytics/provider/testConnection/{uid}} field {@code file}.
+   */
+  get ANALYTICS_TEST_CONNECTION() {
+    return `${SERVICES_ROOT}/analytics/provider/testConnection`;
+  },
+  /** Theme summaries (Sitewide Framework / Design themes). */
+  get THEME_SUMMARY_ALL() {
+    return `${SERVICES_ROOT}/pagemanagement/theme/summary/all`;
   },
   get PATH_ADD_NEW_FOLDER() {
     return `${SERVICES_ROOT}/pathmanagement/path/addNewFolder`;
