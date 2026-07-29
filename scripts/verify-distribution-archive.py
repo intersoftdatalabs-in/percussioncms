@@ -19,9 +19,11 @@ Usage
 
 Behavioral Notes
 ----------------
-- The bash version invokes Maven (``mvn``) directly to avoid ``mvnw``'s
-  cross-filesystem ``mv`` issues on Windows. The Python port does the same
-  (FR-008: subprocess.run with argv list, shell=False).
+- The bash original invoked Maven (``mvn``) directly rather than the old
+  ``mvn-env.sh`` helper (a bash wrapper with cross-filesystem ``mv`` issues on
+  Windows). The Python port also invokes ``mvn`` directly for this one-off
+  rebuild — the Maven wrapper is not required here (FR-008: subprocess.run
+  with argv list, shell=False).
 - ``unzip -l`` is replaced by ``zipfile.ZipFile.namelist()`` (stdlib only).
 - The script honors ``JAVA_HOME_21`` / ``MAVEN`` overrides (matching the bash
   original) via environment variables; tests pass ``--skip-mvn`` to bypass the
