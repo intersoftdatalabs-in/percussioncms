@@ -27,6 +27,10 @@ Tool-agnostic reverse engineering of the Rhythmyx 7.3.2 **Workbench** (Eclipse D
 2. **Pipeline Slice A (parallel or next)** — pipeline IR + SQL runtime + JSON I/O + hooks + classic app import  
 3. **Server runtime map** — locate query/update pipe request handlers in this repo before estimating engine reuse vs reimplement  
 
+Implementation task tracking and **PR review deferrals / tech debt** live under  
+[`docs/ai-generated/tasks/developer-module-p0/`](../ai-generated/tasks/developer-module-p0/)  
+(especially [review-followups-tech-debt.md](../ai-generated/tasks/developer-module-p0/review-followups-tech-debt.md)).
+
 ## How to use these docs
 
 1. Treat `workbench-functional-inventory.md` as the **parity checklist**, not a React design.  
