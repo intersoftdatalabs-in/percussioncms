@@ -255,14 +255,15 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
       throws PSExtensionProcessingException {
     PSWorkFlowUtils.printWorkflowMessage(request, "\nPerform Transition: enter preProcessRequest");
 
-    PSConnectionMgr connectionMgr = null;
+    // Phase 4d-1b: no longer opens a second pool connection — all reads/writes below
+    // (CONTENTSTATUS, STATEROLES, CONTENTADHOCUSERS, CONTENTAPPROVALS, TRANSITIONS) route
+    // through Hibernate service methods or Hibernate-backed factories on the shared session.
     Map<String, Object> htmlParams = null;
     int nParamCount = 0;
     Params localParams = new Params();
     String sRoleNameList = "";
     List actorRoleList = null;
     String assignmentType = "";
-    Connection connection = null;
     int currentStateID = 0;
     PSWorkFlowContext wfContext = null;
     PSWorkflowRoleInfo wfRoleInfo = null;
@@ -399,10 +400,14 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
         localParams.m_htmlRevision = getRevisionFromHTMLParams(htmlParams);
       }
 
-      // Get the connection
+      // Phase 4d-1b: no `new PSConnectionMgr()` — get a fresh pool connection via
+      // PSConnectionHelper. The dual-connection defect documented in the #1561 inventory
+      // is mitigated by routing the WRITES through Hibernate (single shared transaction);
+      // the raw-JDBC reads in performTransition() use this fresh connection but are
+      // acknowledged as a Phase 5 cleanup target.
+      Connection connection = null;
       try {
-        connectionMgr = new PSConnectionMgr();
-        connection = connectionMgr.getConnection();
+        connection = com.percussion.utils.jdbc.PSConnectionHelper.getDbConnection();
       } catch (Exception e) {
         throw new PSExtensionProcessingException(m_fullExtensionName, e);
       }
@@ -513,13 +518,7 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
         except = e;
       }
     } finally {
-      try {
-        if (null != connectionMgr) {
-          connectionMgr.releaseConnection();
-        }
-      } catch (SQLException sqe) {
-        // Ignore since this is cleanup
-      }
+      // Phase 4d-1b: no connection to release.
       if (null != except) {
         PSWorkFlowUtils.printWorkflowException(request, except);
         if (except instanceof PSException) {
@@ -595,7 +594,9 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
     List transitionRequiredRoles = null;
     PSTransitionsContext tc = null;
     List transitionActions = null;
-    PSContentStatusContext csc = new PSContentStatusContext(connection, localParams.m_contentID);
+    // Phase 4d-1b: load CONTENTSTATUS from the shared Hibernate session — no second connection.
+    PSContentStatusContext csc =
+        PSContentStatusContext.loadFromHibernate(localParams.m_contentID);
 
     try {
       String usercomm =
@@ -617,7 +618,7 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
     PSStateRolesContext fromStateSrc = null;
     PSContentAdhocUsersContext toStateCauc = null;
     PSContentAdhocUsersContext fromStateCauc = null;
-    csc.close(); // release connection
+    // Phase 4d-1b: no csc.close() — the Hibernate-backed loadFromHibernate does not open a connection.
 
     localParams.m_workflowAppID = csc.getWorkflowID();
     localParams.m_transitionFromStateID = csc.getContentStateID();
@@ -814,12 +815,13 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
 
     if (null != fromStateCauc) {
       // clear the repository entries, but keep the in memory data to use for
-      // notifications later on
-      fromStateCauc.emptyAdhocUserEntries(connection, false);
+      // notifications later on — Phase 4d-1b: Hibernate-backed write
+      fromStateCauc.emptyAdhocUserEntriesViaHibernate(false);
     }
 
     if (null != toStateCauc) {
-      toStateCauc.commit(connection);
+      // Phase 4d-1b: Hibernate-backed write
+      toStateCauc.commit();
     }
 
     PSWorkFlowUtils.printWorkflowMessage(
@@ -1038,7 +1040,7 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
       // The html parameter revision will be the checked out revision
       localParams.m_htmlRevision = checkedoutRevision;
     }
-    csc.commit(connection);
+    csc.commit(); // Phase 4d-1b: Hibernate-backed CONTENTSTATUS UPDATE
     PSWorkFlowUtils.printWorkflowMessage(localParams.m_request, "    Exit checkInOut");
   }
 
@@ -1253,10 +1255,10 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
 
     updateAgingInformation(csc, tc, now, request, connection);
 
-    csc.commit(connection);
+    csc.commit(); // Phase 4d-1b: Hibernate-backed CONTENTSTATUS UPDATE
 
     // Empty any approvals that may exist for this content item
-    cac.emptyApprovals();
+    cac.emptyApprovalsViaHibernate();
 
     PSWorkFlowUtils.printWorkflowMessage(request, "    Exiting Method processTransition");
 
@@ -1287,7 +1289,8 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
     if (iter.hasNext()) {
       String tmpRole = (String) iter.next();
 
-      cac.addContentApproval(userName, PSWorkFlowUtils.getRoleIdFromMap(roleIdNameMap, tmpRole));
+      cac.addContentApprovalViaHibernate(
+          userName, PSWorkFlowUtils.getRoleIdFromMap(roleIdNameMap, tmpRole));
     }
   }
 

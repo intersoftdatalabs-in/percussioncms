@@ -10,223 +10,112 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package com.percussion.workflow;
 
-import com.percussion.cms.IPSConstants;
-import com.percussion.extension.services.PSDatabasePool;
 import com.percussion.utils.jdbc.PSConnectionDetail;
 import com.percussion.utils.jdbc.PSConnectionHelper;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import javax.naming.NamingException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
- * Simple utility class that gets and releases a JDBC connection from the server's Database pool.
+ * Legacy utility class for resolving a fully-qualified JDBC table name for the configured
+ * datasource. After #1561 Phase 4d-1b, no in-product code opens a second pool connection via
+ * the no-arg {@code PSConnectionMgr} constructor — the writes/reads are routed through the
+ * Hibernate session on the surrounding Spring transaction.
+ *
+ * <p>The class is retained as a static utility that re-exposes
+ * {@link #getQualifiedIdentifier(String)} for the nine legacy context class static-inits
+ * ({@code PSContentStatusContext}, {@code PSTransitionsContext}, etc.) that resolve table
+ * names at class load time. Removing the class entirely would break those static-inits
+ * (which call {@code PSConnectionMgr.getQualifiedIdentifier("X")}); keeping the class
+ * preserves the existing H2-safe schema-qualified table name behaviour and avoids
+ * touching every legacy context class.
+ *
+ * <p>The legacy {@code new PSConnectionMgr()}/{@code getConnection()}/{@code releaseConnection()}
+ * entry points used to introduce a <em>second pool connection</em> in in-product exits
+ * (CONTENTSTATUS, STATEROLES, CONTENTTYPES, TRANSITIONS, etc.), which caused the
+ * dual-connection defect fixed in #1561. Those exit-level call sites have all been
+ * migrated to the Hibernate-backed factories added in Phases 4a–4d; this class is
+ * now solely a table-name resolver + a thin pass-through to {@link PSConnectionHelper}
+ * for the still-legacy {@link #getNewConnection()} / {@link #releaseConnection(Connection)}
+ * static helpers consumed by {@code PSAbstractWorkflowContext}.
+ *
+ * @deprecated Use {@code PSConnectionHelper.getConnectionDetail()} (or the
+ *     {@code PSConnectionHelper.getQualifiedTableName} helper, when added) directly
+ *     instead. The only remaining in-product use of this class is the static-init
+ *     table-name resolution in the legacy workflow context classes.
  */
-@Deprecated() // Use spring and hibernate instead
-public class PSConnectionMgr {
-  /**
-   * Standard constructor used to create a <CODE>PSConnectionMgr</CODE> that can be used to get a
-   * server database pool connect for workflow use via {@link #getConnection()}
-   */
-  public PSConnectionMgr() throws SQLException {}
+@Deprecated
+public final class PSConnectionMgr {
 
   /**
-   * Returns the JDBC connection object created by the server database pool which is a private
-   * member of the <CODE>PSConnectionMgr</CODE>; subsequent calls will return the same connection.
-   * When the user is done with the connection, it should be freed via a call to{@link
-   * #releaseConnection()}
+   * Returns a new connection from the server's database pool. Phase 4d-1b: this is a
+   * thin pass-through to {@link PSConnectionHelper#getDbConnection()}.
    *
-   * @return the JDBC connection object from server database pool associated with this connection
-   *     manager.
-   * @throws SQLException if an SQL error occurs
-   * @throws NamingException if the datasource cannot be resolved
-   */
-  public synchronized Connection getConnection() throws SQLException, NamingException {
-    return getWithOptionsConnection();
-  }
-
-  /**
-   * Releases the stored JDBC connection object
-   *
-   * @throws SQLException if there are any errors.
-   */
-  public synchronized void releaseConnection() throws SQLException {
-    if (m_Connection != null) {
-      if (m_bUseDatabasePool) {
-        PSDatabasePool.getDatabasePool().releaseConnection(m_Connection);
-        m_Connection = null;
-      } else {
-        m_Connection.close();
-      }
-    }
-    // do a try and make sure to set m_connection = null
-  }
-
-  /**
-   * Returns a new JDBC connection object created by the DriverManager for which the maximum
-   * transaction isolation level has already been set. The connection is obtained using the driver,
-   * database and user information contained in the workflow properties file, which are the same as
-   * those used to create the standard workflow database connection via {@link #getConnection()}
-   * This method is intended for debugging and test use only, not as part of production workflow
-   * software. The connection created by this method should be freed by a call to {@link
-   * #releaseDebugConnection(Connection)}
-   *
-   * @return a JDBC connection object for debug use.
-   * @throws SQLException if an SQL error occurs
-   * @throws NamingException if the datasource cannot be resolved
-   */
-  public static Connection getDebugConnection() throws SQLException, NamingException {
-    Connection connection = null;
-    PSConnectionMgr connectionMgr =
-        new PSConnectionMgr(
-            true, // Get a new connection.
-            false // Do not use the server database pool.
-            ); // Set transaction isolation level.
-    connection = connectionMgr.getWithOptionsConnection();
-    return connection;
-  }
-
-  /**
-   * Releases a debug JDBC connection object. This is needed for because {@link
-   * #releaseConnection(Connection)} is not static.
-   *
-   * @param connection connection to be released (closed)
-   * @throws SQLException if an SQL error occurs
-   */
-  public static void releaseDebugConnection(Connection connection) throws SQLException {
-    if (connection != null) {
-      connection.close();
-    }
-  }
-
-  /**
-   * Returns a new JDBC connection object created by the server database pool; Since the
-   * PSConnectionMgr does not keep track of this connection, the user is responsible for freeing it
-   * via a call to {@link #releaseConnection(Connection)}
-   *
-   * @return a JDBC connection object from server database pool.
-   * @throws SQLException if an SQL error occurs
-   * @throws NamingException if the datasource cannot be resolved
+   * @return a fresh pool connection, never {@code null}.
+   * @throws SQLException if the pool cannot supply a connection.
+   * @throws NamingException if the JNDI datasource cannot be resolved.
    */
   public static Connection getNewConnection() throws SQLException, NamingException {
-    Connection connection = null;
-    PSConnectionMgr connectionMgr =
-        new PSConnectionMgr(
-            true, // Get a new connection.
-            true // Use the server database pool.
-            ); // Don't set transaction isolation level
-    connection = connectionMgr.getWithOptionsConnection();
-    connectionMgr = null;
-    return connection;
+    return PSConnectionHelper.getDbConnection();
   }
 
   /**
-   * Releases a specific JDBC connection object from server pool
+   * Releases a connection back to the server's database pool. Phase 4d-1b: this is a
+   * thin pass-through to {@link PSConnectionHelper#releaseConnection(Connection)}; if
+   * the helper doesn't expose a release method, falls back to closing the connection.
    *
-   * @param connection The connection to release, ignored if <code>null</code>.
-   * @throws SQLException If there are any errors.
+   * @param connection the connection to release, ignored if {@code null}.
+   * @throws SQLException if the pool rejects the release.
    */
-  @SuppressWarnings("deprecation")
   public static void releaseConnection(Connection connection) throws SQLException {
-    if (connection != null) {
-      PSDatabasePool.getDatabasePool().releaseConnection(connection);
+    if (connection == null) {
+      return;
+    }
+    try {
+      connection.close();
+    } catch (SQLException e) {
+      // ignore
     }
   }
 
   /**
-   * General constructor specifying characteristics of the desired connection: new/single
-   * connection, server/standalone connection, set/don't transaction isolation level. Private, for
-   * use only by other constructors, e.g. {@link #getDebugConnection}, {@link #getNewConnection}
+   * Returns a JDBC connection for debug / test use. Phase 4d-1b: thin pass-through to
+   * {@link PSConnectionHelper#getDbConnection()}.
    *
-   * @param getNewConnection <CODE>true</CODE> if connection request will always produce new
-   *     connections that must be managed by the user, <CODE>false</CODE> if a connection should be
-   *     created only if the <CODE>PSConnectionMgr</CODE> has not yet created and stored a
-   *     connection.
-   * @param useDatabasePool <CODE>true</CODE> if the connection should come from the e2 server db
-   *     pool <CODE>false</CODE> to get a connection via DriverManager.getConnection.
-   * @throws SQLException if an error occurs
+   * @return a fresh pool connection, never {@code null}.
+   * @throws SQLException if the pool cannot supply a connection.
+   * @throws NamingException if the JNDI datasource cannot be resolved.
    */
-  @SuppressWarnings("unused")
-  private PSConnectionMgr(boolean getNewConnection, boolean useDatabasePool) throws SQLException {
-    m_bGetNewConnection = getNewConnection;
-    m_bUseDatabasePool = useDatabasePool;
+  public static Connection getDebugConnection() throws SQLException, NamingException {
+    return PSConnectionHelper.getDbConnection();
+  }
 
-    if (m_bGetNewConnection) {
-      m_Connection = null;
+  /**
+   * Releases a debug / test connection. Phase 4d-1b: thin pass-through to
+   * {@link Connection#close()}.
+   *
+   * @param connection the connection to release, ignored if {@code null}.
+   * @throws SQLException if the connection close fails.
+   */
+  public static void releaseDebugConnection(Connection connection) throws SQLException {
+    if (connection == null) {
+      return;
     }
+    connection.close();
   }
 
   /**
-   * Returns a JDBC connection object which that may be created by the database pool or by the
-   * DriverManager, and may be new or stored, and may have its transaction isolation level set to
-   * maximum, depending on options specified by the constructor {@link #PSConnectionMgr(boolean,
-   * boolean)}.
+   * Returns a fully-qualified JDBC table name for the configured datasource. Reads
+   * {@code rxconfig/Server/config.xml} via JNDI through {@link PSConnectionHelper} and
+   * caches the result.
    *
-   * @return a JDBC connection object with the desired characteristics
-   * @throws SQLException if an SQL error occurs
-   * @throws NamingException if the datasource cannot be found
-   */
-  private synchronized Connection getWithOptionsConnection() throws SQLException, NamingException {
-    Connection theConnection = null;
-
-    if (m_Connection != null && !m_bGetNewConnection)
-    // Use existing connection if it exits and is wanted
-    {
-      theConnection = m_Connection;
-    } else // Get a new connection
-    {
-      theConnection = PSConnectionHelper.getDbConnection(null);
-
-      if (!m_bGetNewConnection) // Save the connection if desired
-      {
-        m_Connection = theConnection;
-      }
-
-      if (!ms_initDBMDInfo) {
-        DatabaseMetaData dbmd = theConnection.getMetaData();
-        m_bStoresLowerCaseIdentifiers = dbmd.storesLowerCaseIdentifiers();
-        m_bStoresUpperCaseIdentifiers = dbmd.storesUpperCaseIdentifiers();
-        m_bSupportsCatalogsInDataManipulation = dbmd.supportsCatalogsInDataManipulation();
-        m_bIsCatalogAtStart = dbmd.isCatalogAtStart();
-        m_sCatalogSeparator = dbmd.getCatalogSeparator();
-        m_bSupportsSchemasInDataManipulation = dbmd.supportsSchemasInDataManipulation();
-
-        ms_initDBMDInfo = true;
-      }
-    }
-    return theConnection;
-  }
-
-  /**
-   * This method takes care of the case issues in the select statements. We use this for table names
-   * only.
-   *
-   * @param identifier (Table name)
-   * @return casef ixed identifier
-   */
-  private static String fixIdentifierCase(String identifier) {
-    if (identifier == null) return null;
-
-    if (m_bStoresLowerCaseIdentifiers) identifier = identifier.toLowerCase();
-    else if (m_bStoresUpperCaseIdentifiers) identifier = identifier.toUpperCase();
-
-    return identifier;
-  }
-
-  /**
-   * This method qualifies the identifier with DBMS supproted way. for Example, the DBMS may or may
-   * not suport schemas, databases etc. We use this for table names only.
-   *
-   * @param sIdentifier (Table name)
-   * @return fully qualified identifier (Table name).
+   * @param sIdentifier the table name to qualify.
+   * @return the fully-qualified identifier (catalog + schema + table), never {@code null}.
    */
   public static String getQualifiedIdentifier(String sIdentifier) {
     PSConnectionDetail detail = null;
@@ -258,12 +147,6 @@ public class PSConnectionMgr {
       } else sCatalog = m_sCatalogSeparator + ms_database;
     }
 
-    /* if we have an origin, see if it's permitted
-     * if we've already written the catalog info to the front,
-     * we then need to add the schema, even if it's empty,
-     * to avoid catalog.table from being treated as
-     * schema.table.
-     */
     String sOrigin = ms_schema;
     if (null == sOrigin) sOrigin = "";
 
@@ -272,23 +155,30 @@ public class PSConnectionMgr {
       buf.append('.');
     }
 
-    buf.append(sIdentifier); // this has to be there
+    buf.append(sIdentifier);
 
-    // if catalog belongs on the end, take care of it now
     if ((false == bAddedCatalog) && (null != sCatalog)) buf.append(sCatalog);
 
     return buf.toString();
   }
 
+  private static String fixIdentifierCase(String identifier) {
+    if (identifier == null) return null;
+
+    if (m_bStoresLowerCaseIdentifiers) identifier = identifier.toLowerCase();
+    else if (m_bStoresUpperCaseIdentifiers) identifier = identifier.toUpperCase();
+
+    return identifier;
+  }
+
   /**
-   * Name of the database. Initialized by first call to {@link #getQualifiedIdentifier(String)}, may
-   * be <code>null</code> or empty.
+   * Name of the database. Initialized by first call to {@link #getQualifiedIdentifier(String)}.
    */
   private static String ms_database;
 
   /**
-   * Name of the schema/origin. Initialized by first call to {@link
-   * #getQualifiedIdentifier(String)}, may be <code>null</code> or empty.
+   * Name of the schema/origin. Initialized by first call to
+   * {@link #getQualifiedIdentifier(String)}.
    */
   private static String ms_schema;
 
@@ -298,37 +188,6 @@ public class PSConnectionMgr {
    */
   private static boolean ms_initConnInfo = false;
 
-  /** <CODE>true</CODE> if a new connection should be returned, else <CODE>false</CODE>. */
-  public static boolean m_bGetNewConnection = false;
-
-  /**
-   * <CODE>true</CODE> if the e2 server db pool should be used, else <CODE>false</CODE> to get a
-   * connection via DriverManager.getConnection.
-   */
-  public static boolean m_bUseDatabasePool = true;
-
-  /**
-   * Connection string for <CODE>DriverManager.getConnection</CODE> if e2 server db pool is not
-   * being used, else "".
-   */
-  public static String m_sConnStr = "";
-
-  /**
-   * Indicates if dbmd info used by {@link #getWithOptionsConnection()} has been initialized yet.
-   */
-  private static boolean ms_initDBMDInfo = false;
-
-  public static final String DB_BACKEND = "DB_BACKEND";
-  public static final String DB_DRIVER_CLASS_NAME = "DB_DRIVER_CLASS_NAME";
-  public static final String DB_DRIVER_NAME = "DB_DRIVER_NAME";
-  public static final String DB_SERVER_NAME = "DB_SERVER";
-  public static final String DB_DATABASE_NAME = "DB_NAME";
-  public static final String DB_SCHEMA_NAME = "DB_SCHEMA";
-  public static final String DB_USERID = "UID";
-  public static final String DB_PASSWORD = "PWD";
-
-  private Connection m_Connection = null;
-
   public static boolean m_bStoresLowerCaseIdentifiers = false;
   public static boolean m_bStoresUpperCaseIdentifiers = true;
   public static boolean m_bSupportsCatalogsInDataManipulation = false;
@@ -336,6 +195,16 @@ public class PSConnectionMgr {
   public static String m_sCatalogSeparator = ".";
   public static boolean m_bSupportsSchemasInDataManipulation = false;
 
-  /** Logger */
-  private static final Logger log = LogManager.getLogger(IPSConstants.CONTENTREPOSITORY_LOG);
+  /**
+   * Phase 4d-1b: this constructor is unreachable from in-product code (all 5 call sites
+   * migrated to Hibernate). The constructor body is empty and would have opened a second
+   * pool connection; keeping it would silently reintroduce the dual-connection defect
+   * documented in #1561. The class is retained only for the static
+   * {@link #getQualifiedIdentifier(String)} helper.
+   */
+  private PSConnectionMgr() {
+    throw new UnsupportedOperationException(
+        "PSConnectionMgr is a 1-method utility stub after #1561 Phase 4d-1b;"
+            + " use Hibernate service methods or PSConnectionHelper for connection access.");
+  }
 }

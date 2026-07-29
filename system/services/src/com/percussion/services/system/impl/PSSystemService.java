@@ -484,20 +484,178 @@ public class PSSystemService
     * @param notificationId the notification id; must be {@code > 0}.
     * @return the notification definition, or {@code null} when no row matches.
     */
+    @Transactional
+    public com.percussion.services.workflow.data.PSNotificationDef findNotificationDef(
+        long workflowId, long notificationId)
+    {
+       if (workflowId <= 0)
+          throw new IllegalArgumentException("workflowId must be > 0");
+       if (notificationId <= 0)
+          throw new IllegalArgumentException("notificationId must be > 0");
+
+       return getSession()
+           .get(
+               com.percussion.services.workflow.data.PSNotificationDef.class,
+               new com.percussion.services.workflow.data.PSNotificationDefPK(
+                   workflowId, notificationId));
+    }
+
+   /**
+    * Phase 4d-1b: Hibernate-backed equivalent of the raw-JDBC
+    * {@code PSContentStatusContext.commit(Connection)} write path. Updates the
+    * {@code CONTENTSTATUS} row for the supplied content id with the supplied state
+    * transition fields.
+    */
    @Transactional
-   public com.percussion.services.workflow.data.PSNotificationDef findNotificationDef(
-       long workflowId, long notificationId)
+   public void updateContentStatusState(
+       int contentId,
+       int stateId,
+       String checkOutUserName,
+       int currentRevision,
+       int editRevision,
+       int tipRevision,
+       boolean revisionLock,
+       java.util.Date lastTransitionDate,
+       java.util.Date stateEnteredDate,
+       int nextAgingTransition,
+       java.util.Date nextAgingDate,
+       java.util.Date startDate,
+       java.util.Date expiryDate,
+       java.util.Date reminderDate,
+       java.util.Date repeatedAgingStartDate)
    {
+      if (contentId <= 0)
+         throw new IllegalArgumentException("contentId must be > 0");
+      if (stateId <= 0)
+         throw new IllegalArgumentException("stateId must be > 0");
+
+      // Build the JPQL update statement. We use a single UPDATE rather than loading and
+      // merging the entity so we don't disturb any other session-cached PSComponentSummary
+      // instance for this content id.
+      String jpql =
+          "update PSComponentSummary "
+              + "set m_contentStateId = :stateId, "
+              + "    m_checkoutUserName = :checkOutUserName, "
+              + "    m_currRevision = :currentRevision, "
+              + "    m_editRevision = :editRevision, "
+              + "    m_tipRevision = :tipRevision, "
+              + "    m_revisionLock = :revisionLock, "
+              + "    m_lastTransitionDate = :lastTransitionDate, "
+              + "    m_stateEnteredDate = :stateEnteredDate, "
+              + "    m_nextAgingTransition = :nextAgingTransition, "
+              + "    m_nextAgingDate = :nextAgingDate, "
+              + "    m_contentStartDate = :startDate, "
+              + "    m_contentExpiryDate = :expiryDate, "
+              + "    m_reminderDate = :reminderDate, "
+              + "    m_repeatedAgingTransStartDate = :repeatedAgingStartDate "
+              + "where m_contentId = :contentId";
+      int updated =
+          getSession()
+              .createQuery(jpql)
+              .setParameter("stateId", stateId)
+              .setParameter("checkOutUserName", checkOutUserName == null ? "" : checkOutUserName)
+              .setParameter("currentRevision", currentRevision)
+              .setParameter("editRevision", editRevision)
+              .setParameter("tipRevision", tipRevision)
+              .setParameter("revisionLock", revisionLock ? 'Y' : 'N')
+              .setParameter("lastTransitionDate", lastTransitionDate)
+              .setParameter("stateEnteredDate", stateEnteredDate)
+              .setParameter("nextAgingTransition", nextAgingTransition)
+              .setParameter("nextAgingDate", nextAgingDate)
+              .setParameter("startDate", startDate)
+              .setParameter("expiryDate", expiryDate)
+              .setParameter("reminderDate", reminderDate)
+              .setParameter("repeatedAgingStartDate", repeatedAgingStartDate)
+              .setParameter("contentId", contentId)
+              .executeUpdate();
+      // Force a refresh of any cached PSComponentSummary for this content id.
+      if (updated > 0) {
+         getSession().getSessionFactory().getCache()
+             .evictEntityData(com.percussion.cms.objectstore.PSComponentSummary.class, contentId);
+      }
+   }
+
+   /**
+    * Phase 4d-1b: Hibernate-backed INSERT into {@code CONTENTADHOCUSERS} for the supplied
+    * rows. Each row's composite key is computed from (contentId, userName, roleId).
+    */
+   @Transactional
+   public void saveContentAdhocUsers(
+       java.util.List<com.percussion.services.workflow.data.PSContentAdhocUser> adhocUsers)
+   {
+      if (adhocUsers == null)
+         throw new IllegalArgumentException("adhocUsers may not be null");
+      if (adhocUsers.isEmpty())
+         return;
+      org.hibernate.Session session = getSession();
+      for (com.percussion.services.workflow.data.PSContentAdhocUser u : adhocUsers) {
+         if (u == null) continue;
+         // Use merge so that re-inserts on a re-attempted transaction don't fail with
+         // a duplicate-key error.
+         session.merge(u);
+      }
+   }
+
+   /**
+    * Phase 4d-1b: Hibernate-backed DELETE from {@code CONTENTADHOCUSERS} for the supplied
+    * content id. Returns the number of rows deleted.
+    */
+   @Transactional
+   public int deleteContentAdhocUsers(int contentId)
+   {
+      if (contentId <= 0)
+         throw new IllegalArgumentException("contentId must be > 0");
+
+      int n =
+          getSession()
+              .createQuery("delete from PSContentAdhocUser where contentId = :cid")
+              .setParameter("cid", contentId)
+              .executeUpdate();
+      return n;
+   }
+
+   /**
+    * Phase 4d-1b: Hibernate-backed INSERT into {@code CONTENTAPPROVALS} for the supplied
+    * approval row.
+    */
+   @Transactional
+   public void saveContentApproval(
+       com.percussion.services.workflow.data.PSContentApproval approval)
+   {
+      if (approval == null)
+         throw new IllegalArgumentException("approval may not be null");
+      getSession().merge(approval);
+   }
+
+   /**
+    * Phase 4d-1b: Hibernate-backed DELETE from {@code CONTENTAPPROVALS} for the supplied
+    * (contentId, workflowId, transitionId, stateId) tuple.
+    */
+   @Transactional
+   public int deleteContentApprovals(
+       int contentId, int workflowId, int transitionId, int stateId)
+   {
+      if (contentId <= 0)
+         throw new IllegalArgumentException("contentId must be > 0");
       if (workflowId <= 0)
          throw new IllegalArgumentException("workflowId must be > 0");
-      if (notificationId <= 0)
-         throw new IllegalArgumentException("notificationId must be > 0");
+      if (transitionId <= 0)
+         throw new IllegalArgumentException("transitionId must be > 0");
+      if (stateId <= 0)
+         throw new IllegalArgumentException("stateId must be > 0");
 
-      return getSession()
-          .get(
-              com.percussion.services.workflow.data.PSNotificationDef.class,
-              new com.percussion.services.workflow.data.PSNotificationDefPK(
-                  workflowId, notificationId));
+      int n =
+          getSession()
+              .createQuery(
+                  "delete from PSContentApproval "
+                      + "where contentId = :cid and workflowId = :wf "
+                      + "and transitionId = :tid and stateId = :sid")
+              .setParameter("cid", contentId)
+              .setParameter("wf", workflowId)
+              .setParameter("tid", transitionId)
+              .setParameter("sid", stateId)
+              .executeUpdate();
+      return n;
    }
 
    /**

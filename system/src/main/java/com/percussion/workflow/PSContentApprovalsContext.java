@@ -16,6 +16,9 @@
  */
 package com.percussion.workflow;
 
+import com.percussion.services.system.IPSSystemService;
+import com.percussion.services.system.PSSystemServiceLocator;
+import com.percussion.services.workflow.data.PSContentApproval;
 import com.percussion.util.PSPreparedStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -209,6 +212,29 @@ public class PSContentApprovalsContext implements IPSContentApprovalsContext {
     }
   }
 
+  /**
+   * Hibernate-backed #1561 Phase 4d-1b write path. Inserts a new approval row via
+   * {@code IPSSystemService.saveContentApproval} on the shared Hibernate session — no second
+   * pool connection. The legacy raw-JDBC {@link #addContentApproval(String, int)} overload
+   * above is preserved for any external caller that still passes a JDBC {@code Connection}.
+   */
+  public void addContentApprovalViaHibernate(String userName, int roleId) {
+    String trimmed = PSWorkFlowUtils.trimmedOrNullString(userName);
+    if (trimmed == null) {
+      throw new IllegalArgumentException(
+          "The user name for an approval may not be null or empty");
+    }
+    PSContentApproval approval =
+        new PSContentApproval(
+            m_nContentID, roleId, trimmed, m_nWorkflowID, m_nStateID, m_nTransitionID);
+    PSSystemServiceLocator.getSystemService().saveContentApproval(approval);
+    // Mirror the legacy side-effect: track the user in m_UserList.
+    if (!m_UserList.contains(trimmed)) {
+      m_UserList.add(trimmed);
+      m_nCount++;
+    }
+  }
+
   /** Closes the result set and statement if necessary */
   private void close() {
     // release resources
@@ -335,6 +361,22 @@ public class PSContentApprovalsContext implements IPSContentApprovalsContext {
       } catch (Exception ignore) {
       }
     }
+  }
+
+  /**
+   * Hibernate-backed #1561 Phase 4d-1b write path. Deletes all approval rows for the
+   * current (contentId, workflowId, transitionId, stateId) tuple via
+   * {@code IPSSystemService.deleteContentApprovals} on the shared Hibernate session — no
+   * second pool connection. The legacy raw-JDBC {@code emptyApprovals()} overload above
+   * is preserved for any external caller that still passes a JDBC {@code Connection}.
+   */
+  public int emptyApprovalsViaHibernate() {
+    int n =
+        PSSystemServiceLocator.getSystemService()
+            .deleteContentApprovals(m_nContentID, m_nWorkflowID, m_nTransitionID, m_nStateID);
+    m_nCount = 0;
+    m_UserList.clear();
+    return n;
   }
 
   /******** Database Related Members ********/
