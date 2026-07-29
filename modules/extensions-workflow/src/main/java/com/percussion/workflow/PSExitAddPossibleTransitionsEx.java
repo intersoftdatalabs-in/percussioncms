@@ -1024,11 +1024,11 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
         src = (PSStateRolesContext) cache.get(key);
       }
       if (src == null) {
-        // Phase 4d-1c: read STATEROLES via the Hibernate factory (Phase 4b
-        // PSStateRolesContext.loadFromHibernate) on the shared session -- no
-        // second pool connection. The legacy `Connection connection` parameter
-        // is still required by the downstream `getActorRoles(..., connection,
-        // ...)` overload which performs the CONTENTADHOCUSERS read.
+        // #1561 Phase 4d-1c PR-C2: read STATEROLES via the Hibernate factory
+        // (Phase 4b PSStateRolesContext.loadFromHibernate) on the shared session.
+        // The Connection-arg `getActorRoles` overload was deleted in this PR;
+        // we use the no-Connection overload which delegates to
+        // PSContentAdhocUsersContext.loadFromHibernate for the CONTENTADHOCUSERS read.
         src =
             PSStateRolesContext.loadFromHibernate(
                 workflowID, stateid, PSWorkFlowUtils.ASSIGNMENT_TYPE_NONE);
@@ -1036,9 +1036,10 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
       }
 
       // By sending true for authUser we are imposing the same rule as authenticateuser
+      PSContentAdhocUsersContext cauc =
+          PSContentAdhocUsersContext.loadFromHibernate(contentID);
       actorRoles =
-          PSWorkflowRoleInfoStatic.getActorRoles(
-              contentID, src, userName, roleNameList, connection, true);
+          PSWorkflowRoleInfoStatic.getActorRoles(userName, roleNameList, src, cauc, true);
 
       if (null == actorRoles || actorRoles.isEmpty()) {
         /* local params keep their default value */
@@ -1103,18 +1104,20 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
     PSStateRolesContext src = null;
 
     try {
-      // Phase 4d-1c: read STATEROLES via the Hibernate factory (Phase 4b
-      // PSStateRolesContext.loadFromHibernate) on the shared session -- no
-      // second pool connection. The legacy `Connection connection` parameter
-      // is still required by the downstream `getActorRoles(..., connection,
-      // ...)` overload which performs the CONTENTADHOCUSERS read.
+      // #1561 Phase 4d-1c PR-C2: read STATEROLES via the Hibernate factory
+      // (Phase 4b PSStateRolesContext.loadFromHibernate) on the shared session.
+      // The Connection parameter is preserved for binary compatibility with
+      // pre-#1561 callers but is no longer used internally; the no-Connection
+      // getActorRoles overload delegates the CONTENTADHOCUSERS read to
+      // PSContentAdhocUsersContext.loadFromHibernate.
       src =
           PSStateRolesContext.loadFromHibernate(
               workflowID, stateid, PSWorkFlowUtils.ASSIGNMENT_TYPE_NONE);
       // By sending true for authUser we are imposing the same rule as authenticateuser
+      PSContentAdhocUsersContext cauc =
+          PSContentAdhocUsersContext.loadFromHibernate(contentID);
       actorRoles =
-          PSWorkflowRoleInfoStatic.getActorRoles(
-              contentID, src, userName, roleNameList, connection, true);
+          PSWorkflowRoleInfoStatic.getActorRoles(userName, roleNameList, src, cauc, true);
 
       if (null == actorRoles || actorRoles.isEmpty()) {
         return assignmentType;

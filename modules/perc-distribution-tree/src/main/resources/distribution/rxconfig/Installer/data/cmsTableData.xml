@@ -12059,6 +12059,7 @@
             <column name="SORTORDER">10</column>
             <column name="DESCRIPTION">English language used in United States of America</column>
             <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12068,6 +12069,7 @@
             <column name="SORTORDER">20</column>
             <column name="DESCRIPTION">English language used in United Kingdom</column>
             <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12077,6 +12079,7 @@
             <column name="SORTORDER">30</column>
             <column name="DESCRIPTION">German language used in Germany</column>
             <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12086,6 +12089,7 @@
             <column name="SORTORDER">40</column>
             <column name="DESCRIPTION">General Spanish language locale (covers all es-* variants)</column>
             <column name="STATUS">1</column>
+            <column name="ISBASE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12095,6 +12099,7 @@
             <column name="SORTORDER">41</column>
             <column name="DESCRIPTION">Spanish language used in Chile</column>
             <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12104,6 +12109,7 @@
             <column name="SORTORDER">42</column>
             <column name="DESCRIPTION">Spanish language used in Spain (canonical Castilian)</column>
             <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12113,6 +12119,7 @@
             <column name="SORTORDER">43</column>
             <column name="DESCRIPTION">Spanish language used in Mexico</column>
             <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12122,6 +12129,7 @@
             <column name="SORTORDER">50</column>
             <column name="DESCRIPTION">French language used in Canada</column>
             <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12131,6 +12139,7 @@
             <column name="SORTORDER">51</column>
             <column name="DESCRIPTION">French language used in France</column>
             <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12140,6 +12149,7 @@
             <column name="SORTORDER">60</column>
             <column name="DESCRIPTION">Hindi language (generic, no region)</column>
             <column name="STATUS">1</column>
+            <column name="ISBASE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12149,6 +12159,7 @@
             <column name="SORTORDER">61</column>
             <column name="DESCRIPTION">Hindi language used in India (canonical regional form)</column>
             <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12158,6 +12169,7 @@
             <column name="SORTORDER">70</column>
             <column name="DESCRIPTION">Italian language used in Italy</column>
             <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12167,6 +12179,7 @@
             <column name="SORTORDER">80</column>
             <column name="DESCRIPTION">Japanese language used in Japan</column>
             <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12176,6 +12189,7 @@
             <column name="SORTORDER">90</column>
             <column name="DESCRIPTION">Dutch language used in Netherlands</column>
             <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12185,6 +12199,7 @@
             <column name="SORTORDER">100</column>
             <column name="DESCRIPTION">Portuguese language used in Brazil</column>
             <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12194,6 +12209,7 @@
             <column name="SORTORDER">101</column>
             <column name="DESCRIPTION">Portuguese language used in Portugal</column>
             <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12203,6 +12219,38 @@
             <column name="SORTORDER">110</column>
             <column name="DESCRIPTION">Turkish language used in Turkey</column>
             <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">18</column>
+            <column name="LANGUAGESTRING">ar</column>
+            <column name="DISPLAYNAME">Arabic</column>
+            <column name="SORTORDER">5</column>
+            <column name="DESCRIPTION">Arabic language (generic base locale)</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <!-- Upgrade existing installs: set base flags and ensure Arabic row -->
+        <row action="u" onTableCreateOnly="no">
+            <column name="LOCALEID">4</column>
+            <column name="LANGUAGESTRING">es</column>
+            <column name="DISPLAYNAME">Spanish</column>
+            <column name="SORTORDER">40</column>
+            <column name="DESCRIPTION">General Spanish language locale (covers all es-* variants)</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row action="u" onTableCreateOnly="no">
+            <column name="LOCALEID">10</column>
+            <column name="LANGUAGESTRING">hi</column>
+            <column name="DISPLAYNAME">Hindi</column>
+            <column name="SORTORDER">60</column>
+            <column name="DESCRIPTION">Hindi language (generic, no region)</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">1</column>
             <column name="VERSION">0</column>
         </row>
     </table>

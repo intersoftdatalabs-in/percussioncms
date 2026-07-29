@@ -39,10 +39,9 @@ public class PSTransitionNotificationsContext extends PSAbstractMultipleRecordWo
    * rows for the supplied (workflowId, transitionId) via the shared Hibernate session — no second
    * pool connection.
    *
-   * <p>Equivalent to the raw-JDBC constructor
-   * {@link #PSTransitionNotificationsContext(int, int, Connection)} but participates in the
-   * surrounding Spring transaction so the dual-connection defect fixed in Phase 2/3 does not
-   * re-emerge for this code path.
+   * <p>Equivalent to the raw-JDBC constructor {@link #PSTransitionNotificationsContext(int, int,
+   * Connection)} but participates in the surrounding Spring transaction so the dual-connection
+   * defect fixed in Phase 2/3 does not re-emerge for this code path.
    *
    * @param workflowId the workflow id; must be {@code > 0}.
    * @param transitionId the transition id; must be {@code > 0}.
@@ -70,8 +69,8 @@ public class PSTransitionNotificationsContext extends PSAbstractMultipleRecordWo
   PSTransitionNotificationsContext() {}
 
   /**
-   * Populates the in-memory state from a list of {@link PSNotification} ({@code TRANSITIONNOTIFICATIONS})
-   * rows. Mirrors the cursor accumulated in the raw-JDBC constructor's
+   * Populates the in-memory state from a list of {@link PSNotification} ({@code
+   * TRANSITIONNOTIFICATIONS}) rows. Mirrors the cursor accumulated in the raw-JDBC constructor's
    * {@link #AccumulateCurrentDataSet()} / {@link #MoveAccumulatedDataSet(int)} pattern so consumers
    * iterating via {@link #moveNext()} see the same { @code notificationId / recipientType /
    * additionalRecipientList / ccList } sequence.
@@ -80,8 +79,7 @@ public class PSTransitionNotificationsContext extends PSAbstractMultipleRecordWo
    * @param transitionId the transition id.
    * @param rows the Hibernate rows; may be empty but never {@code null}.
    */
-  private void populateFromHibernate(
-      int workflowId, int transitionId, List<PSNotification> rows) {
+  private void populateFromHibernate(int workflowId, int transitionId, List<PSNotification> rows) {
     m_nWorkflowID = workflowId;
     m_nTransitionID = transitionId;
     m_nCount = 0;
@@ -91,7 +89,8 @@ public class PSTransitionNotificationsContext extends PSAbstractMultipleRecordWo
     for (PSNotification row : rows) {
       m_nNotificationID = (int) row.getNotificationId();
       m_nStateRoleRecipientTypes = row.getStateRoleRecipientType().getValue();
-      m_sAdditionalRecipientList = row.getRecipients().isEmpty() ? "" : String.join(",", row.getRecipients());
+      m_sAdditionalRecipientList =
+          row.getRecipients().isEmpty() ? "" : String.join(",", row.getRecipients());
       m_sCCList = row.getCCRecipients().isEmpty() ? "" : String.join(",", row.getCCRecipients());
       AccumulateCurrentDataSet();
       m_nCount++;
@@ -291,11 +290,10 @@ public class PSTransitionNotificationsContext extends PSAbstractMultipleRecordWo
 
   /**
    * Qualified table name only (e.g. {@code PUBLIC.TRANSITIONNOTIFICATIONS} on H2). Do
-   * <strong>not</strong> use this as a column qualifier — {@code schema.table.column} is rejected by
-   * H2 as {@code Column "PUBLIC" not found}. Columns in the statement below are unqualified.
+   * <strong>not</strong> use this as a column qualifier — {@code schema.table.column} is rejected
+   * by H2 as {@code Column "PUBLIC" not found}. Columns in the statement below are unqualified.
    */
-  private static String TABLE_TNC =
-      PSConnectionMgr.getQualifiedIdentifier("TRANSITIONNOTIFICATIONS");
+  private static final String TABLE_TNC = "TRANSITIONNOTIFICATIONS";
 
   /** SQL query — unqualified column names for H2-safe schema-qualified table names. */
   private static final String QRYSTRING =

@@ -18,6 +18,10 @@ describe("login / modern CSS host contract", () => {
     expect(text).toContain("sys_lang=");
     // Defensive logo cap if CSS fails
     expect(text).toMatch(/max-height:\s*48px/);
+    // Server-side base-locale filter + default en-us
+    expect(text).toContain("PSLocaleLoginSelection");
+    expect(text).toContain("forLoginDropdown");
+    expect(text).toContain("resolveSelectedLocale");
     // Locale format profile for UI (dir / date / currency)
     expect(text).toContain("PSLocaleFormatCatalog");
     expect(text).toContain("localeFormat");

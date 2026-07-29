@@ -19,6 +19,7 @@ package com.percussion.workflow;
 import com.percussion.error.PSSqlException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.util.PSPreparedStatement;
+import com.percussion.utils.jdbc.PSConnectionHelper;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -49,7 +50,7 @@ public abstract class PSAbstractWorkflowTest {
     try {
       if (m_bNeedConnection) {
         try {
-          connection = PSConnectionMgr.getDebugConnection();
+          connection = PSConnectionHelper.getDbConnection();
         } catch (Exception e) {
           throw new PSWorkflowTestException("Error getting the connection ", e);
         }
@@ -91,11 +92,8 @@ public abstract class PSAbstractWorkflowTest {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(e.getMessage(), throwable);
     } finally {
-      try {
-        if (null != connection) {
-          PSConnectionMgr.releaseDebugConnection(connection);
-        }
-      } catch (SQLException sqe) {
+      if (null != connection) {
+        PSConnectionHelper.releaseDbConnection(connection);
       }
     }
   }
@@ -221,7 +219,7 @@ public abstract class PSAbstractWorkflowTest {
 
       /*
        * Don't need to set transaction isolation, since its done in
-       * getDebugConnection.
+       * PSConnectionHelper.getDbConnection.
        */
 
       stmt = PSPreparedStatement.getPreparedStatement(conn, QUERY_REQUEST);

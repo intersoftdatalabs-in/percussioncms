@@ -25,8 +25,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.catalog.PSTypeEnum;
+import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.system.IPSSystemService;
 import com.percussion.services.workflow.IPSWorkflowService;
 import com.percussion.services.workflow.data.PSAdhocTypeEnum;
@@ -43,22 +43,19 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
- * Pure mapping tests for the Hibernate-backed loaders added in #1561 Phase 4b:
- * {@link PSStateRolesContext#loadFromHibernate(int, int, int)} and
- * {@link PSContentAdhocUsersContext#loadFromHibernate(int)}.
+ * Pure mapping tests for the Hibernate-backed loaders added in #1561 Phase 4b: {@link
+ * PSStateRolesContext#loadFromHibernate(int, int, int)} and {@link
+ * PSContentAdhocUsersContext#loadFromHibernate(int)}.
  *
- * <p>These tests are pure mapping — no Spring context, no Hibernate session. The
- * service is mocked and the in-memory state shape is asserted after each load. A future
- * Spring+H2 integration test will exercise the full path end-to-end.</p>
+ * <p>These tests are pure mapping — no Spring context, no Hibernate session. The service is mocked
+ * and the in-memory state shape is asserted after each load. A future Spring+H2 integration test
+ * will exercise the full path end-to-end.
  *
- * <p><strong>Disabled</strong> because {@link PSContentAdhocUsersContext}'s static
- * initializer calls {@link com.percussion.workflow.PSConnectionMgr#getQualifiedIdentifier}
- * (which requires a live DB connection detail) and the same is true for
- * {@code PSStateRolesContext}'s static {@code SR}/{@code R} fields. Loading these
- * classes therefore throws {@code ExceptionInInitializerError} outside a Spring context.
- * The recommendation is a Spring+H2 integration test that boots a real
- * {@code EntityManager}; that infrastructure is tracked in the Phase 4 scope survey
- * (Phase 4+) and is out of scope for this PR.</p>
+ * <p><strong>Disabled</strong> because {@link PSContentAdhocUsersContext} and {@code
+ * PSStateRolesContext} still expose only legacy raw-JDBC read constructors that build a JDBC
+ * prepared statement at construction time. The recommendation is a Spring+H2 integration test that
+ * boots a real {@code EntityManager}; that infrastructure is tracked in the Phase 4 scope survey
+ * (Phase 4d-1d) and is out of scope for this PR.
  */
 public class PSLoadFromHibernateTest {
 
@@ -88,8 +85,7 @@ public class PSLoadFromHibernateTest {
     when(service.findStateRoles(7L, 11L, 1)).thenReturn(new ArrayList<>());
 
     assertThrows(
-        PSEntryNotFoundException.class,
-        () -> PSStateRolesContext.loadFromHibernate(7, 11, 1));
+        PSEntryNotFoundException.class, () -> PSStateRolesContext.loadFromHibernate(7, 11, 1));
   }
 
   @Disabled("Requires Spring+H2 test infrastructure; see phase4-scope-survey.md")
@@ -97,15 +93,21 @@ public class PSLoadFromHibernateTest {
   void stateRoles_loadFromHibernate_classifiesRolesByAdhocType() throws Exception {
     long wfId = 7L, stId = 11L;
 
-    PSAssignedRole nonAdhoc = mockRole(101L, PSAdhocTypeEnum.DISABLED, PSAssignmentTypeEnum.READER, "Reader");
-    PSAssignedRole adhocNormal = mockRole(102L, PSAdhocTypeEnum.ENABLED, PSAssignmentTypeEnum.ASSIGNEE, "Author");
-    PSAssignedRole adhocAnon = mockRole(103L, PSAdhocTypeEnum.ANONYMOUS, PSAssignmentTypeEnum.ASSIGNEE, "Anon");
+    PSAssignedRole nonAdhoc =
+        mockRole(101L, PSAdhocTypeEnum.DISABLED, PSAssignmentTypeEnum.READER, "Reader");
+    PSAssignedRole adhocNormal =
+        mockRole(102L, PSAdhocTypeEnum.ENABLED, PSAssignmentTypeEnum.ASSIGNEE, "Author");
+    PSAssignedRole adhocAnon =
+        mockRole(103L, PSAdhocTypeEnum.ANONYMOUS, PSAssignmentTypeEnum.ASSIGNEE, "Anon");
 
-    when(service.findStateRoles(wfId, stId, 1)).thenReturn(List.of(nonAdhoc, adhocNormal, adhocAnon));
-    when(service.findWorkflowRoles(eq(wfId), any(java.util.Set.class))).thenReturn(List.of(
-        mockWorkflowRole(101L, "Reader"),
-        mockWorkflowRole(102L, "Author"),
-        mockWorkflowRole(103L, "Anon")));
+    when(service.findStateRoles(wfId, stId, 1))
+        .thenReturn(List.of(nonAdhoc, adhocNormal, adhocAnon));
+    when(service.findWorkflowRoles(eq(wfId), any(java.util.Set.class)))
+        .thenReturn(
+            List.of(
+                mockWorkflowRole(101L, "Reader"),
+                mockWorkflowRole(102L, "Author"),
+                mockWorkflowRole(103L, "Anon")));
 
     PSStateRolesContext ctx = PSStateRolesContext.loadFromHibernate(7, 11, 1);
 
@@ -141,7 +143,8 @@ public class PSLoadFromHibernateTest {
   @Test
   void stateRoles_loadFromHibernate_missingRoleNameThrowsRoleException() {
     long wfId = 7L, stId = 11L;
-    PSAssignedRole row = mockRole(101L, PSAdhocTypeEnum.DISABLED, PSAssignmentTypeEnum.READER, "Reader");
+    PSAssignedRole row =
+        mockRole(101L, PSAdhocTypeEnum.DISABLED, PSAssignmentTypeEnum.READER, "Reader");
     when(service.findStateRoles(wfId, stId, 1)).thenReturn(List.of(row));
     // no role-name row for 101 — simulate a schema mismatch
     when(service.findWorkflowRoles(eq(wfId), any(java.util.Set.class))).thenReturn(List.of());

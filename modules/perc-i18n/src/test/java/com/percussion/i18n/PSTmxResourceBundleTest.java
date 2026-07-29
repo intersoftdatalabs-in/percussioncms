@@ -239,6 +239,36 @@ public class PSTmxResourceBundleTest {
         "Hola", PSTmxResourceBundle.getInstance().getString("k@hello", "es-es"));
   }
 
+  /**
+   * Arabic base locale: exact hit, then missing key falls back to en-us (product default).
+   */
+  @Test
+  public void getString_arabicBaseAndDefaultFallback() throws Exception {
+    Document doc = parse(
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+            + "<tmx version=\"1.4\"><header>"
+            + "<prop type=\"supportedlanguage\">ar</prop>"
+            + "<prop type=\"supportedlanguage\">en-us</prop>"
+            + "</header><body>"
+            + "<tu tuid=\"perc.ui.login.modern@Sign in\">"
+            + "<tuv xml:lang=\"en-us\"><seg>Sign in</seg></tuv>"
+            + "<tuv xml:lang=\"ar\"><seg>تسجيل الدخول</seg></tuv>"
+            + "</tu>"
+            + "<tu tuid=\"k@only-en\">"
+            + "<tuv xml:lang=\"en-us\"><seg>EnglishOnly</seg></tuv>"
+            + "</tu>"
+            + "</body></tmx>");
+    PSTmxResourceBundle.getInstance().addResourcesToCacheForTest(doc);
+
+    assertEquals(
+        "تسجيل الدخول",
+        PSTmxResourceBundle.getInstance()
+            .getString("perc.ui.login.modern@Sign in", "ar"));
+    assertEquals(
+        "EnglishOnly",
+        PSTmxResourceBundle.getInstance().getString("k@only-en", "ar"));
+  }
+
   private static Document parse(String xml) throws Exception {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     factory.setNamespaceAware(true);
