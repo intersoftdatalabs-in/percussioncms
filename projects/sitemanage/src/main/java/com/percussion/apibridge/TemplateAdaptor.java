@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,15 +20,22 @@
 package com.percussion.apibridge;
 
 import com.percussion.rest.templates.ITemplatesAdaptor;
+import com.percussion.rest.templates.TemplateBindingSummary;
+import com.percussion.rest.templates.TemplateDetail;
 import com.percussion.rest.templates.TemplateFilter;
+import com.percussion.rest.templates.TemplateSlotSummary;
 import com.percussion.rest.templates.TemplateSummary;
 import com.percussion.services.assembly.IPSAssemblyService;
+import com.percussion.services.assembly.IPSAssemblyTemplate;
+import com.percussion.services.assembly.IPSTemplateSlot;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
+import com.percussion.services.assembly.data.PSTemplateBinding;
 import com.percussion.services.catalog.PSCatalogException;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
+import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.PSErrorResultsException;
@@ -37,18 +44,40 @@ import com.percussion.webservices.content.PSContentWsLocator;
 import jakarta.ws.rs.WebApplicationException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /** Adaptor for managing templates in Percussion CMS. */
 @PSSiteManageBean
 public class TemplateAdaptor implements ITemplatesAdaptor {
 
-  private final IPSAssemblyService asmSvc = PSAssemblyServiceLocator.getAssemblyService();
-  private final IPSContentWs contentwsService = PSContentWsLocator.getContentWebservice();
+  private static final Logger log = LogManager.getLogger(TemplateAdaptor.class);
+
+  /** API capability notes shared by every detail payload (not per-template data). */
+  static final List<String> TEMPLATE_DESIGN_GAPS =
+      List.of(
+          "Create / update / delete / lock not supported (read-only)",
+          "Template source editing not supported via this API",
+          "Binding/slot association edits not supported",
+          "Content-type associations not listed on this payload");
+
+  private final IPSAssemblyService asmSvc;
+  private final IPSContentWs contentwsService;
 
   public TemplateAdaptor() {
-    // No-op constructor for dependency injection.
+    this(
+        PSAssemblyServiceLocator.getAssemblyService(),
+        PSContentWsLocator.getContentWebservice());
+  }
+
+  /** Package-visible for unit tests that inject a fake assembly service. */
+  TemplateAdaptor(IPSAssemblyService asmSvc, IPSContentWs contentwsService) {
+    this.asmSvc = asmSvc;
+    this.contentwsService = contentwsService;
   }
 
   @Override
@@ -57,10 +86,153 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
       var summaries = asmSvc.getSummaries(PSTypeEnum.TEMPLATE);
       return summaries.stream().map(ApiUtils::convertTemplateSummary).collect(Collectors.toList());
     } catch (PSCatalogException e) {
-      throw new WebApplicationException(e.getMessage(), 500);
+      throw new WebApplicationException(e, 500);
     } catch (PSNotFoundException e) {
       throw new WebApplicationException("Not Found", 404);
     }
+  }
+
+  @Override
+  public TemplateDetail getTemplate(URI baseUri, String idOrName) {
+    // baseUri reserved for HATEOAS link building
+    if (StringUtils.isBlank(idOrName)) {
+      return null;
+    }
+    try {
+      IPSAssemblyTemplate t = resolveTemplate(idOrName.trim());
+      if (t == null) {
+        return null;
+      }
+      return toDetail(t);
+    } catch (PSNotFoundException e) {
+      return null;
+    } catch (IllegalArgumentException e) {
+      // Bad id form — surface as 400 via resource mapping if desired; treat as not found for now
+      log.debug("Invalid template idOrName {}: {}", idOrName, e.getMessage());
+      return null;
+    } catch (Exception e) {
+      log.error(
+          "Failed to load template {} ({}): {}",
+          idOrName,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Resolve by: pure numeric uuid → typed GUID string (digits and dashes only) → name. Names that
+   * contain dashes but are not pure GUID digit/dash forms fall through to name lookup.
+   */
+  private IPSAssemblyTemplate resolveTemplate(String idOrName) throws Exception {
+    if (StringUtils.isNumeric(idOrName)) {
+      long uuid = Long.parseLong(idOrName);
+      IPSGuid g = new PSGuid(PSTypeEnum.TEMPLATE, uuid);
+      try {
+        return asmSvc.loadTemplate(g, true);
+      } catch (PSNotFoundException e) {
+        return null;
+      }
+    }
+    // GUID-shaped only (e.g. 0-10-347), not arbitrary names with dashes
+    if (idOrName.matches("\\d+-\\d+(-\\d+)?")) {
+      try {
+        PSGuid g = new PSGuid(idOrName);
+        if (g.getType() == 0) {
+          g = new PSGuid(PSTypeEnum.TEMPLATE, g.getUUID());
+        }
+        return asmSvc.loadTemplate(g, true);
+      } catch (PSNotFoundException e) {
+        return null;
+      } catch (IllegalArgumentException e) {
+        log.debug("Not a template GUID, trying name: {}", idOrName);
+      }
+    }
+    try {
+      return asmSvc.findTemplateByName(idOrName);
+    } catch (PSNotFoundException e) {
+      return null;
+    }
+  }
+
+  private TemplateDetail toDetail(IPSAssemblyTemplate t) {
+    TemplateDetail d = new TemplateDetail();
+    if (t.getGUID() != null) {
+      d.setGuid(ApiUtils.convertGuid(t.getGUID()));
+      d.setTemplateId(t.getGUID().getUUID());
+    }
+    d.setName(t.getName());
+    d.setLabel(t.getLabel());
+    d.setDescription(t.getDescription());
+    d.setAssembler(t.getAssembler());
+    d.setAssemblyUrl(t.getAssemblyUrl());
+    d.setStyleSheet(t.getStyleSheetPath());
+    d.setMimeType(t.getMimeType());
+    d.setCharset(t.getCharset());
+    d.setLocationPrefix(t.getLocationPrefix());
+    d.setLocationSuffix(t.getLocationSuffix());
+    if (t.getOutputFormat() != null) {
+      d.setOutputFormat(t.getOutputFormat().name());
+    }
+    if (t.getActiveAssemblyType() != null) {
+      d.setAaType(t.getActiveAssemblyType().name());
+    }
+    if (t.getPublishWhen() != null) {
+      d.setPublishWhen(t.getPublishWhen().name());
+    }
+    if (t.getTemplateType() != null) {
+      d.setTemplateType(t.getTemplateType().name());
+    }
+    if (t.getGlobalTemplateUsage() != null) {
+      d.setGlobalTemplateUsage(t.getGlobalTemplateUsage().name());
+    }
+    d.setVariant(t.isVariant());
+    d.setTemplateSource(t.getTemplate());
+
+    List<TemplateBindingSummary> bindings = new ArrayList<>();
+    List<PSTemplateBinding> rawBindings = t.getBindings();
+    if (rawBindings != null) {
+      for (PSTemplateBinding b : rawBindings) {
+        if (b == null) continue;
+        TemplateBindingSummary s = new TemplateBindingSummary();
+        s.setExecutionOrder(b.getExecutionOrder());
+        s.setVariable(b.getVariable());
+        s.setExpression(b.getExpression());
+        bindings.add(s);
+      }
+      bindings.sort(
+          Comparator.comparing(
+              TemplateBindingSummary::getExecutionOrder,
+              Comparator.nullsLast(Integer::compareTo)));
+    }
+    d.setBindings(bindings);
+
+    List<TemplateSlotSummary> slots = new ArrayList<>();
+    if (t.getSlots() != null) {
+      for (IPSTemplateSlot slot : t.getSlots()) {
+        if (slot == null) continue;
+        TemplateSlotSummary s = new TemplateSlotSummary();
+        try {
+          if (slot.getGUID() != null) {
+            s.setGuid(ApiUtils.convertGuid(slot.getGUID()));
+          }
+        } catch (Exception e) {
+          log.warn("Could not convert slot GUID for {}: {}", slot.getName(), e.getMessage(), e);
+        }
+        s.setName(slot.getName());
+        s.setLabel(StringUtils.defaultIfBlank(slot.getLabel(), slot.getName()));
+        s.setDescription(slot.getDescription());
+        slots.add(s);
+      }
+      slots.sort(
+          Comparator.comparing(
+              TemplateSlotSummary::getLabel,
+              Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+    }
+    d.setSlots(slots);
+    d.setDesignGaps(new ArrayList<>(TEMPLATE_DESIGN_GAPS));
+    return d;
   }
 
   /**
@@ -93,7 +265,7 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
         throw new PSNotFoundException("Content Id: " + contentID + " not found.");
       }
     } catch (PSAssemblyException | PSErrorResultsException e) {
-      throw new WebApplicationException(e.getMessage(), 500);
+      throw new WebApplicationException(e, 500);
     } catch (PSNotFoundException e) {
       throw new WebApplicationException("Not Found", 404);
     }

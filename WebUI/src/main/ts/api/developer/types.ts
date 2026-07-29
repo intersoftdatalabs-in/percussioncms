@@ -104,6 +104,44 @@ export interface TemplateSummary {
   templateDescription?: string;
 }
 
+export interface TemplateBindingSummary {
+  executionOrder?: number;
+  variable?: string;
+  expression?: string;
+}
+
+export interface TemplateSlotSummary {
+  guid?: RestGuid;
+  name?: string;
+  label?: string;
+  description?: string;
+}
+
+export interface TemplateDetail {
+  guid?: RestGuid;
+  templateId?: number;
+  name?: string;
+  label?: string;
+  description?: string;
+  assembler?: string;
+  assemblyUrl?: string;
+  styleSheet?: string;
+  mimeType?: string;
+  charset?: string;
+  locationPrefix?: string;
+  locationSuffix?: string;
+  outputFormat?: string;
+  aaType?: string;
+  publishWhen?: string;
+  templateType?: string;
+  globalTemplateUsage?: string;
+  variant?: boolean;
+  templateSource?: string;
+  bindings?: TemplateBindingSummary[];
+  slots?: TemplateSlotSummary[];
+  designGaps?: string[];
+}
+
 export interface SlotSummary {
   guid?: RestGuid;
   name?: string;

@@ -15,24 +15,37 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from "react";
-import { isSessionRedirectError, type ApiError } from "../api/client";
+import React, { useEffect, useMemo, useState } from "react";
 import { listTemplates } from "../api/developer/assemblyApi";
 import type { TemplateSummary } from "../api/developer/types";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { monoCell, mutedCell } from "./catalogStyles";
+import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
+import { TemplateDetailPanel } from "./TemplateDetailPanel";
 
-function errMsg(err: unknown, fallback: string): string {
-  if (isSessionRedirectError(err)) return DEV_MSG.SESSION_REDIRECT;
-  const api = err as ApiError;
-  if (api && typeof api.status === "number") return `${fallback} (${api.status})`;
-  if (err instanceof Error && err.message) return `${fallback} ${err.message}`;
-  return fallback;
+/** Open-key for detail route; null when the row is not selectable. */
+function selectionKey(t: TemplateSummary): string | null {
+  if (t.templateName) return t.templateName;
+  if (t.templateId != null) return String(t.templateId);
+  return null;
 }
+
+const openButtonStyle: React.CSSProperties = {
+  background: "none",
+  border: "none",
+  padding: 0,
+  color: "#007ea8",
+  cursor: "pointer",
+  font: "inherit",
+  textAlign: "left",
+  textDecoration: "underline",
+};
 
 export function TemplatesPanel(): React.ReactElement {
   const [items, setItems] = useState<TemplateSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -42,9 +55,7 @@ export function TemplatesPanel(): React.ReactElement {
       })
       .catch((e: unknown) => {
         if (cancelled) return;
-        // Session redirect navigates away; still leave loading so UI does not hang
-        // if navigation is delayed or blocked.
-        setError(errMsg(e, DEV_MSG.TPL_ERROR));
+        setError(panelErrMsg(e, DEV_MSG.TPL_ERROR));
         setItems([]);
       });
     return () => {
@@ -52,19 +63,28 @@ export function TemplatesPanel(): React.ReactElement {
     };
   }, []);
 
+  const sorted = useMemo(() => {
+    if (!items) return [];
+    return [...items].sort((a, b) =>
+      (a.templateLabel || a.templateName || "").localeCompare(
+        b.templateLabel || b.templateName || "",
+        undefined,
+        { sensitivity: "base" },
+      ),
+    );
+  }, [items]);
+
+  if (selected) {
+    return (
+      <TemplateDetailPanel idOrName={selected} onBack={() => setSelected(null)} />
+    );
+  }
+
   if (error) return <CatalogStatus testId="developer-tpl-error" error>{error}</CatalogStatus>;
   if (items == null)
     return <CatalogStatus testId="developer-tpl-loading">{DEV_MSG.TPL_LOADING}</CatalogStatus>;
   if (items.length === 0)
     return <CatalogStatus testId="developer-tpl-empty">{DEV_MSG.TPL_EMPTY}</CatalogStatus>;
-
-  const sorted = [...items].sort((a, b) =>
-    (a.templateLabel || a.templateName || "").localeCompare(
-      b.templateLabel || b.templateName || "",
-      undefined,
-      { sensitivity: "base" },
-    ),
-  );
 
   return (
     <div data-testid="developer-tpl-panel">
@@ -78,21 +98,36 @@ export function TemplatesPanel(): React.ReactElement {
           DEV_MSG.TPL_COL_ID,
           DEV_MSG.TPL_COL_DESCRIPTION,
         ]}
-        rows={sorted.map((t, index) => ({
-          key: String(t.templateId ?? t.templateName ?? `tpl-${index}`),
-          cells: [
-            t.templateLabel || "—",
-            <span key="n" style={{ fontFamily: "monospace" }}>
-              {t.templateName || "—"}
-            </span>,
-            <span key="i" style={{ fontFamily: "monospace" }}>
-              {t.templateId != null ? String(t.templateId) : "—"}
-            </span>,
-            <span key="d" style={{ color: "#4a5568" }}>
-              {t.templateDescription || ""}
-            </span>,
-          ],
-        }))}
+        rows={sorted.map((t, index) => {
+          const openKey = selectionKey(t);
+          return {
+            key: String(t.templateId ?? t.templateName ?? `tpl-${index}`),
+            cells: [
+              openKey ? (
+                <button
+                  key="open"
+                  type="button"
+                  style={openButtonStyle}
+                  aria-label={`Open ${t.templateLabel || t.templateName || openKey}`}
+                  onClick={() => setSelected(openKey)}
+                >
+                  {t.templateLabel || "—"}
+                </button>
+              ) : (
+                t.templateLabel || "—"
+              ),
+              <span key="n" style={monoCell}>
+                {t.templateName || "—"}
+              </span>,
+              <span key="i" style={monoCell}>
+                {t.templateId != null ? String(t.templateId) : "—"}
+              </span>,
+              <span key="d" style={mutedCell}>
+                {t.templateDescription || ""}
+              </span>,
+            ],
+          };
+        })}
       />
     </div>
   );
