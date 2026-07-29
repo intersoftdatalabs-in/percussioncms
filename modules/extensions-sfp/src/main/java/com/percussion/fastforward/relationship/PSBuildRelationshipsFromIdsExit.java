@@ -45,6 +45,12 @@ import org.w3c.dom.Document;
  */
 public class PSBuildRelationshipsFromIdsExit extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
+
+  /** Default constructor for PSBuildRelationshipsFromIdsExit. */
+  public PSBuildRelationshipsFromIdsExit() {
+    // default constructor
+  }
+
   /**
    * @return <code>false</code> always.
    */

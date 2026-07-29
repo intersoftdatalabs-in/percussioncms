@@ -55,8 +55,6 @@ import org.apache.logging.log4j.Logger;
  * <p>This class makes no attempt to handle complex datatypes. Longs, CLOBs, Blobs, etc. are not
  * handled.
  *
- * <p>
- *
  * @author DavidBenua
  */
 public class PSSimpleSqlQuery {
@@ -70,7 +68,7 @@ public class PSSimpleSqlQuery {
    * @param params a list of Objects that represent the placeholders in the SQL. Never <code>null
    *     </code>. May be <code>empty</code>.
    * @return a List of Object[] representing the rows of the result set.
-   * @throws SQLException
+   * @throws SQLException if an error occurs executing the query
    */
   public static List doQuery(String query, List params) throws SQLException {
     List resultList = new ArrayList();
@@ -104,8 +102,8 @@ public class PSSimpleSqlQuery {
    *
    * @param ir the internal request.
    * @return a List of Object[] representing the rows of the result set.
-   * @throws PSInternalRequestCallException
-   * @throws SQLException
+   * @throws PSInternalRequestCallException if the internal request fails
+   * @throws SQLException if an error occurs executing the query
    */
   public static List doQuery(IPSInternalRequest ir)
       throws PSInternalRequestCallException, SQLException {
@@ -140,7 +138,7 @@ public class PSSimpleSqlQuery {
    * @param params a List of Objects that represent the parameters.
    * @return an Object[] that represents the first row returned from the query. May be <code>null
    *     </code>.
-   * @throws SQLException
+   * @throws SQLException if an error occurs executing the query
    */
   public static Object[] doSingleRowQuery(String query, List params) throws SQLException {
     Connection conn = null;
@@ -171,8 +169,8 @@ public class PSSimpleSqlQuery {
    *
    * @param ir the Internal Request.
    * @return an Object[] representing the columns returned by the query. May be <code>null</code>
-   * @throws SQLException
-   * @throws PSInternalRequestCallException
+   * @throws SQLException if an error occurs executing the query
+   * @throws PSInternalRequestCallException if the internal request fails
    */
   public static Object[] doSingleRowQuery(IPSInternalRequest ir)
       throws SQLException, PSInternalRequestCallException {

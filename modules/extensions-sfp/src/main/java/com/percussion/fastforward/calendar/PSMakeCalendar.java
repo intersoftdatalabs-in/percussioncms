@@ -44,6 +44,12 @@ import org.w3c.dom.NodeList;
  *     com.percussion.fastforward.calendar.PSCalendarMonthModel PSCalendarMonthModel} instead.
  */
 public class PSMakeCalendar implements IPSResultDocumentProcessor {
+
+  /** Default constructor for PSMakeCalendar. */
+  public PSMakeCalendar() {
+    // default constructor
+  }
+
   /*
    * (non-Javadoc)
    *

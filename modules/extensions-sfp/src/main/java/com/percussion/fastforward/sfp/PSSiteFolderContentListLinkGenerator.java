@@ -37,19 +37,26 @@ import org.apache.logging.log4j.Logger;
 
 /** Defines methods to generate various types of assembly locations. */
 public class PSSiteFolderContentListLinkGenerator {
+
+  /** Default constructor for PSSiteFolderContentListLinkGenerator. */
+  public PSSiteFolderContentListLinkGenerator() {
+    // default constructor
+  }
+
   /**
    * Generates an absolute URL to the assembler resource for the specified variant, using the
    * Rhythmyx server's external name and port. The URL will contain request parameters for
    * sys_contentid, sys_revision, sys_authtype, sys_context, sys_variantid, sys_siteid, and
    * rx_folder (containing the content id of the site folder of the item being assembled).
    *
-   * @param contentId
-   * @param revision
-   * @param variantId
-   * @param variantAssemblerBase
+   * @param contentId the id of the content item being assembled, never <code>null</code>
+   * @param revision the revision of the content item being assembled, never <code>null</code>
+   * @param variantId the id of the variant to assemble, never <code>null</code>
+   * @param variantAssemblerBase the base path of the assembler resource for the variant, never
+   *     <code>null</code>
    * @param folderId the ID of the site folder than contains the item. If provided, this value will
    *     be included in the URL as "sys_folderid"
-   * @param request
+   * @param request the current request context, never <code>null</code>
    * @param protocol the URL protocol to use when creating content URLs, never <code>null</code> or
    *     empty
    * @param host the host name or ip address to use when creating content URLs, never <code>null
@@ -134,12 +141,12 @@ public class PSSiteFolderContentListLinkGenerator {
    * Generates the publishing location for the specified content item's variant in the specified
    * context. Calls the sys_casGeneratePubLocation exit to do the heavy lifting.
    *
-   * @param contentId
-   * @param revision
-   * @param variantId
-   * @param context
-   * @param folderPath
-   * @param request
+   * @param contentId the id of the content item being published, never <code>null</code>
+   * @param revision the revision of the content item being published, never <code>null</code>
+   * @param variantId the id of the variant to publish, never <code>null</code>
+   * @param context the publishing context, never <code>null</code>
+   * @param folderPath the publishing folder path, never <code>null</code>
+   * @param request the current request context, never <code>null</code>
    * @return the publishing location produced by the scheme generator registered for the specified
    *     variant/context. Never <code>null</code>, will be empty if an error occurs while calling
    *     the generator (or if no generator is registered for the variant/context).
@@ -161,13 +168,13 @@ public class PSSiteFolderContentListLinkGenerator {
    * Generates the publishing location for the specified content item's variant in the specified
    * context. Calls the sys_casGeneratePubLocation exit to do the heavy lifting.
    *
-   * @param contentId
-   * @param revision
-   * @param variantId
-   * @param context
-   * @param folderPath
-   * @param folderId
-   * @param request
+   * @param contentId the id of the content item being published, never <code>null</code>
+   * @param revision the revision of the content item being published, never <code>null</code>
+   * @param variantId the id of the variant to publish, never <code>null</code>
+   * @param context the publishing context, never <code>null</code>
+   * @param folderPath the publishing folder path, never <code>null</code>
+   * @param folderId the id of the site folder that contains the item, may be <code>null</code>
+   * @param request the current request context, never <code>null</code>
    * @return the publishing location produced by the scheme generator registered for the specified
    *     variant/context. Never <code>null</code>, will be empty if an error occurs while calling
    *     the generator (or if no generator is registered for the variant/context).
@@ -206,7 +213,7 @@ public class PSSiteFolderContentListLinkGenerator {
    * return a trivial XML document; the URL is used as the assembly URL when an item has no
    * publishable variants because the publisher requires a valid content URL.
    *
-   * @param request
+   * @param request the current request context, never <code>null</code>
    * @return a URL to a resource named "null.xml" in the same application as the origining request,
    *     never null.
    */

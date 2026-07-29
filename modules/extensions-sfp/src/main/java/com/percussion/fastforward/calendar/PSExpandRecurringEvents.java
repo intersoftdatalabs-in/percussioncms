@@ -45,6 +45,11 @@ import org.w3c.dom.NodeList;
 public class PSExpandRecurringEvents extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
 
+  /** Default constructor for PSExpandRecurringEvents. */
+  public PSExpandRecurringEvents() {
+    // default constructor
+  }
+
   private static final Logger log = LogManager.getLogger(PSExpandRecurringEvents.class);
 
   /**
@@ -62,9 +67,9 @@ public class PSExpandRecurringEvents extends PSDefaultExtension
    * end date string. Both will be parsed as Date objects and return as a new object array.
    *
    * @param params parameter array as explained above, must not be <code>null</code> or empty.
-   * @return @throws PSParameterMismatchException
-   * @throws PSParameterMismatchException
-   * @throws PSExtensionProcessingException
+   * @return object array containing the parsed calendar start and end {@link Date} objects
+   * @throws PSParameterMismatchException if a required parameter is missing
+   * @throws PSExtensionProcessingException if fewer than two parameters are supplied
    */
   private static Object[] parseParameters(Object[] params)
       throws PSParameterMismatchException, PSExtensionProcessingException {
@@ -125,11 +130,11 @@ public class PSExpandRecurringEvents extends PSDefaultExtension
    *     </ol>
    *
    * @param request the current request context, never <code>null</code>.
-   * @param resultDoc
-   * @return @throws com.percussion.extension.PSParameterMismatchException if either required
-   *     parameter is not supplied, or cannot be parsed as a Date.
-   * @throws PSParameterMismatchException
-   * @throws com.percussion.extension.PSExtensionProcessingException
+   * @param resultDoc the result document being processed, never <code>null</code>
+   * @return the modified result document with the expanded recurring event instances
+   * @throws PSParameterMismatchException if either required parameter is not supplied, or cannot be
+   *     parsed as a Date.
+   * @throws PSExtensionProcessingException if an error occurs while processing the extension
    */
   public Document processResultDocument(
       Object[] params, IPSRequestContext request, Document resultDoc)
@@ -237,7 +242,7 @@ public class PSExpandRecurringEvents extends PSDefaultExtension
    * <p>This method is protected so it can be overridden by the test framework, to allow testing the
    * rest of the class without a running Rhythmyx server.
    *
-   * @param request
+   * @param request the current request context, never <code>null</code>
    * @return a newly constructed <code>Holidays</code> object, never <code>null</code>
    */
   protected PSHolidays loadHolidays(IPSRequestContext request) {

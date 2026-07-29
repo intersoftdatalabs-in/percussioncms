@@ -46,6 +46,11 @@ import org.w3c.dom.Node;
  */
 public class PSAutoSiteItemFilter extends PSDefaultExtension implements IPSResultDocumentProcessor {
 
+  /** Default constructor for PSAutoSiteItemFilter. */
+  public PSAutoSiteItemFilter() {
+    // default constructor
+  }
+
   /**
    * Implements the interface method. Modifies the result document to filter out items that are not
    * in the site with specified siteid. The request context must have the HTML parameter {@link
@@ -57,8 +62,8 @@ public class PSAutoSiteItemFilter extends PSDefaultExtension implements IPSResul
    * @param resultDoc if <code>null</code> returned as it is.
    * @return Document result document filtered for the items that are not in the site specified,
    *     <code>null</code> only if the original document is <code>null</code>.
-   * @throws PSParameterMismatchException
-   * @throws PSExtensionProcessingException
+   * @throws PSParameterMismatchException if the parameters are invalid
+   * @throws PSExtensionProcessingException if an error occurs while processing the extension
    */
   public Document processResultDocument(
       Object[] params, IPSRequestContext request, Document resultDoc)
@@ -160,7 +165,7 @@ public class PSAutoSiteItemFilter extends PSDefaultExtension implements IPSResul
    * @param parentFolderPath paranet folder path, must not be <code>null</code>
    * @return <code>true</code> if test based on the above description succeeds, <code>false</code>
    *     otherwise.
-   * @throws PSCmsException
+   * @throws PSCmsException if an error occurs while resolving folder relationships
    */
   private boolean isValid(Element currElement, IPSRequestContext request, String parentFolderPath)
       throws PSCmsException {

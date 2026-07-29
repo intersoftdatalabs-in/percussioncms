@@ -389,6 +389,8 @@ public class PSContentListItem implements Comparable {
   }
 
   /**
+   * Gets the content id of the item.
+   *
    * @return contentid of the item, never <code>null</code> or empty.
    */
   public String getContentId() {
@@ -410,6 +412,8 @@ public class PSContentListItem implements Comparable {
   }
 
   /**
+   * Gets the variant id of the item.
+   *
    * @return variantid of the item, never <code>null</code> or empty.
    */
   public String getVariantId() {
@@ -417,6 +421,8 @@ public class PSContentListItem implements Comparable {
   }
 
   /**
+   * Gets the last modified date of the item.
+   *
    * @return Last modified date of the item, may be <code>null</code>.
    */
   public Date getLastModifiedDate() {
@@ -424,6 +430,8 @@ public class PSContentListItem implements Comparable {
   }
 
   /**
+   * Gets the unpublish attribute of the item.
+   *
    * @return Unpublish attribute of the item, may be <code>null</code> or empty.
    */
   public String getUnpublishValue() {
@@ -431,6 +439,8 @@ public class PSContentListItem implements Comparable {
   }
 
   /**
+   * Indicates whether the content URL has been recorded as a null link.
+   *
    * @return If the Url is null then return <code>true</code> otherwise <code>false</code>.
    */
   public boolean isContentUrlNull() {

@@ -47,6 +47,11 @@ public class PSAutoGenerateFileName extends PSDefaultExtension
 
   private static final Logger log = LogManager.getLogger(PSAutoGenerateFileName.class);
 
+  /** Default constructor for PSAutoGenerateFileName. */
+  public PSAutoGenerateFileName() {
+    // default constructor
+  }
+
   /**
    * Required by the interface. Always return <code>false</code>.
    *
@@ -69,8 +74,9 @@ public class PSAutoGenerateFileName extends PSDefaultExtension
    *     </code>.
    * @param doc The input document that is passed, never used.
    * @return The result document same as the input result document.
-   * @throws PSParameterMismatchException
-   * @throws PSExtensionProcessingException
+   * @throws PSParameterMismatchException if fewer than three parameters are supplied, or if any
+   *     required parameter is empty
+   * @throws PSExtensionProcessingException if an error occurs while processing the extension
    */
   public Document processResultDocument(Object[] params, IPSRequestContext request, Document doc)
       throws PSParameterMismatchException, PSExtensionProcessingException {

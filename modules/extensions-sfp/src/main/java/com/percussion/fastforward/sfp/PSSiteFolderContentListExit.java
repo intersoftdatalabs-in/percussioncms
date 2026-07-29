@@ -26,6 +26,12 @@ import java.util.Set;
  *     PSSiteFolderContentListBulkExit} instead.
  */
 public class PSSiteFolderContentListExit extends PSSiteFolderContentListBaseExit {
+
+  /** Default constructor for PSSiteFolderContentListExit. */
+  public PSSiteFolderContentListExit() {
+    // default constructor
+  }
+
   // implements the abstract method getSiteFolderCListObject()
   protected PSSiteFolderCListBase getSiteFolderCListInstance(
       IPSRequestContext request,

@@ -83,6 +83,12 @@ import org.w3c.dom.NodeList;
  */
 public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
+
+  /** Default constructor for PSAppendPurgedOrMovedItems. */
+  public PSAppendPurgedOrMovedItems() {
+    // default constructor
+  }
+
   // see IPSResultDocumentProcessor
   public boolean canModifyStyleSheet() {
     return false;
