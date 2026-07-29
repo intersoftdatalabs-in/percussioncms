@@ -18,8 +18,6 @@ package com.percussion.workflow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -38,15 +36,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * Pure mapping tests for {@link PSContentTypesContext#loadFromHibernate(int)} added in #1561
- * Phase 4d-1a. The legacy class's static initializer calls
- * {@code PSConnectionMgr.getQualifiedIdentifier} which requires a live DB connection detail, so
- * the suite is {@code @Disabled} until the Spring+H2 test infrastructure ships. The mock wiring
- * is in place so the tests will pass as soon as the static-initializer blocker is removed.
+ * Pure mapping tests for {@link PSContentTypesContext#loadFromHibernate(int)} added in #1561 Phase
+ * 4d-1a. The legacy class has only legacy raw-JDBC read constructors; the suite is
+ * {@code @Disabled} until the Spring+H2 test infrastructure ships. The mock wiring is in place so
+ * the tests will pass as soon as the raw-JDBC read path is replaced.
  */
 @org.junit.jupiter.api.Disabled(
-    "Static initializer of PSContentTypesContext calls PSConnectionMgr.getQualifiedIdentifier;"
-        + " will be re-enabled when Spring+H2 test infrastructure ships (Phase 4+ follow-up).")
+    "PSContentTypesContext read constructors still use the legacy raw-JDBC path;"
+        + " will be re-enabled when Spring+H2 test infrastructure ships (Phase 4d-1d follow-up).")
 public class PSContentTypesContextLoadFromHibernateTest {
 
   private IPSContentMgr savedContentMgr;
@@ -73,8 +70,7 @@ public class PSContentTypesContextLoadFromHibernateTest {
   @Test
   void loadFromHibernate_rejectsNonPositiveContentTypeId() {
     assertThrows(IllegalArgumentException.class, () -> PSContentTypesContext.loadFromHibernate(0));
-    assertThrows(
-        IllegalArgumentException.class, () -> PSContentTypesContext.loadFromHibernate(-1));
+    assertThrows(IllegalArgumentException.class, () -> PSContentTypesContext.loadFromHibernate(-1));
   }
 
   @Test

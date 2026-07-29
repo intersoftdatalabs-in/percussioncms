@@ -17,6 +17,7 @@
 package com.percussion.workflow;
 
 import com.percussion.util.PSPreparedStatement;
+import com.percussion.utils.jdbc.PSConnectionHelper;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -141,7 +142,7 @@ public abstract class PSAbstractWorkflowContext {
   protected void getBackEndData(boolean bReinitializeDataMembers)
       throws SQLException, NamingException {
     if (m_bManageOwnConnection) {
-      m_Connection = PSConnectionMgr.getNewConnection();
+      m_Connection = PSConnectionHelper.getDbConnection();
     }
     try {
       if (bReinitializeDataMembers) {
@@ -153,7 +154,7 @@ public abstract class PSAbstractWorkflowContext {
         close();
         // Release connection if context is managing it
         if (m_bManageOwnConnection) {
-          PSConnectionMgr.releaseConnection(m_Connection);
+          PSConnectionHelper.releaseDbConnection(m_Connection);
           m_Connection = null;
         }
       } catch (Exception e) {

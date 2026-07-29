@@ -43,15 +43,14 @@ public class PSNotificationsContext extends PSAbstractWorkflowContext
    * the supplied (workflowId, notificationId) via the shared Hibernate session — no second pool
    * connection.
    *
-   * <p>Equivalent to the raw-JDBC constructor
-   * {@link #PSNotificationsContext(int, int, Connection)} but participates in the surrounding
-   * Spring transaction so the dual-connection defect fixed in Phase 2/3 does not re-emerge for
-   * this code path.
+   * <p>Equivalent to the raw-JDBC constructor {@link #PSNotificationsContext(int, int, Connection)}
+   * but participates in the surrounding Spring transaction so the dual-connection defect fixed in
+   * Phase 2/3 does not re-emerge for this code path.
    *
    * @param workflowId the workflow id; must be {@code > 0}.
    * @param notificationId the notification id; must be {@code > 0}.
-   * @return the populated context, never {@code null}; throws {@link PSEntryNotFoundException}
-   *     when no row matches.
+   * @return the populated context, never {@code null}; throws {@link PSEntryNotFoundException} when
+   *     no row matches.
    */
   public static PSNotificationsContext loadFromHibernate(int workflowId, int notificationId)
       throws PSEntryNotFoundException {
@@ -188,7 +187,7 @@ public class PSNotificationsContext extends PSAbstractWorkflowContext
    * use this as a column qualifier — {@code schema.table.column} is rejected by H2 as {@code Column
    * "PUBLIC" not found}. Columns in the statement below are unqualified.
    */
-  private static String TABLE_NC = PSConnectionMgr.getQualifiedIdentifier("NOTIFICATIONS");
+  private static final String TABLE_NC = "NOTIFICATIONS";
 
   /** SQL query — unqualified column names for H2-safe schema-qualified table names. */
   private static final String QRYSTRING =

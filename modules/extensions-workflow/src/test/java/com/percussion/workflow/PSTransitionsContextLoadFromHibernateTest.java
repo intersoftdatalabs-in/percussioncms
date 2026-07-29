@@ -17,43 +17,32 @@ package com.percussion.workflow;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.workflow.IPSWorkflowService;
 import com.percussion.services.workflow.PSWorkflowServiceLocator;
-import com.percussion.services.workflow.data.PSAssignedRole;
 import com.percussion.services.workflow.data.PSTransition;
 import com.percussion.services.workflow.data.PSTransitionHib;
-import com.percussion.services.workflow.data.PSTransitionPK;
-import com.percussion.utils.guid.IPSGuid;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
  * Pure mapping tests for {@link PSTransitionsContext#loadAllFromHibernate(int, int)} and the
- * related single-row factories added in #1561 Phase 4d-1a. The legacy class's static initializer
- * calls {@code PSConnectionMgr.getQualifiedIdentifier} which requires a live DB connection detail,
- * so the suite is {@code @Disabled} until the Spring+H2 test infrastructure ships. The mock
- * wiring is in place so the tests will pass as soon as the static-initializer blocker is removed.
+ * related single-row factories added in #1561 Phase 4d-1a. The legacy class still exposes only
+ * raw-JDBC read constructors, so the suite is {@code @Disabled} until the Spring+H2 test
+ * infrastructure ships. The mock wiring is in place so the tests will pass as soon as the raw-JDBC
+ * read path is replaced.
  */
 @org.junit.jupiter.api.Disabled(
-    "Static initializer of PSTransitionsContext calls PSConnectionMgr.getQualifiedIdentifier;"
-        + " will be re-enabled when Spring+H2 test infrastructure ships (Phase 4+ follow-up).")
+    "PSTransitionsContext read constructors still use the legacy raw-JDBC path;"
+        + " will be re-enabled when Spring+H2 test infrastructure ships (Phase 4d-1d follow-up).")
 public class PSTransitionsContextLoadFromHibernateTest {
 
   private IPSWorkflowService mockWf;
@@ -122,7 +111,8 @@ public class PSTransitionsContextLoadFromHibernateTest {
     when(t.getTrigger()).thenReturn("approve");
     when(t.getApprovals()).thenReturn(1);
     when(t.getRequiresComment())
-        .thenReturn(com.percussion.services.workflow.data.PSTransition.PSWorkflowCommentEnum.OPTIONAL);
+        .thenReturn(
+            com.percussion.services.workflow.data.PSTransition.PSWorkflowCommentEnum.OPTIONAL);
     when(t.getTransitionAction()).thenReturn("");
     when(t.isAllowAllRoles()).thenReturn(true);
     when(t.getTransitionRoles()).thenReturn(Collections.emptyList());
@@ -155,12 +145,14 @@ public class PSTransitionsContextLoadFromHibernateTest {
 
   @Test
   void loadFromHibernateById_rejectsNonPositiveWorkflowId() {
-    assertThrows(IllegalArgumentException.class, () -> PSTransitionsContext.loadFromHibernate(0, 101));
+    assertThrows(
+        IllegalArgumentException.class, () -> PSTransitionsContext.loadFromHibernate(0, 101));
   }
 
   @Test
   void loadFromHibernateById_rejectsNonPositiveTransitionId() {
-    assertThrows(IllegalArgumentException.class, () -> PSTransitionsContext.loadFromHibernate(7, 0));
+    assertThrows(
+        IllegalArgumentException.class, () -> PSTransitionsContext.loadFromHibernate(7, 0));
   }
 
   // --- loadFromHibernate(int, String, int) ---------------------------------
@@ -178,11 +170,9 @@ public class PSTransitionsContextLoadFromHibernateTest {
   @Test
   void loadFromHibernateByTrigger_rejectsBlankTrigger() {
     assertThrows(
-        IllegalArgumentException.class,
-        () -> PSTransitionsContext.loadFromHibernate(7, "", 11));
+        IllegalArgumentException.class, () -> PSTransitionsContext.loadFromHibernate(7, "", 11));
     assertThrows(
-        IllegalArgumentException.class,
-        () -> PSTransitionsContext.loadFromHibernate(7, null, 11));
+        IllegalArgumentException.class, () -> PSTransitionsContext.loadFromHibernate(7, null, 11));
   }
 
   @Test
@@ -195,9 +185,9 @@ public class PSTransitionsContextLoadFromHibernateTest {
   // --- helpers -------------------------------------------------------------
 
   /**
-   * The legacy raw-JDBC {@code moveNext()} throws {@code SQLException}; the Hibernate-backed
-   * branch doesn't, but the public signature still declares it. We invoke via reflection so the
-   * test compiles whether the signature changes or not.
+   * The legacy raw-JDBC {@code moveNext()} throws {@code SQLException}; the Hibernate-backed branch
+   * doesn't, but the public signature still declares it. We invoke via reflection so the test
+   * compiles whether the signature changes or not.
    */
   private static boolean invokeMoveNext(PSTransitionsContext ctx) {
     try {

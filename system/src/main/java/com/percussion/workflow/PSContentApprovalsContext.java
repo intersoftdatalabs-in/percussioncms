@@ -16,7 +16,6 @@
  */
 package com.percussion.workflow;
 
-import com.percussion.services.system.IPSSystemService;
 import com.percussion.services.system.PSSystemServiceLocator;
 import com.percussion.services.workflow.data.PSContentApproval;
 import com.percussion.util.PSPreparedStatement;
@@ -213,16 +212,15 @@ public class PSContentApprovalsContext implements IPSContentApprovalsContext {
   }
 
   /**
-   * Hibernate-backed #1561 Phase 4d-1b write path. Inserts a new approval row via
-   * {@code IPSSystemService.saveContentApproval} on the shared Hibernate session — no second
-   * pool connection. The legacy raw-JDBC {@link #addContentApproval(String, int)} overload
-   * above is preserved for any external caller that still passes a JDBC {@code Connection}.
+   * Hibernate-backed #1561 Phase 4d-1b write path. Inserts a new approval row via {@code
+   * IPSSystemService.saveContentApproval} on the shared Hibernate session — no second pool
+   * connection. The legacy raw-JDBC {@link #addContentApproval(String, int)} overload above is
+   * preserved for any external caller that still passes a JDBC {@code Connection}.
    */
   public void addContentApprovalViaHibernate(String userName, int roleId) {
     String trimmed = PSWorkFlowUtils.trimmedOrNullString(userName);
     if (trimmed == null) {
-      throw new IllegalArgumentException(
-          "The user name for an approval may not be null or empty");
+      throw new IllegalArgumentException("The user name for an approval may not be null or empty");
     }
     PSContentApproval approval =
         new PSContentApproval(
@@ -364,20 +362,19 @@ public class PSContentApprovalsContext implements IPSContentApprovalsContext {
   }
 
   /**
-   * Hibernate-backed #1561 Phase 4d-1b write path. Deletes all approval rows for the
-   * current {@code contentId} via {@code IPSSystemService.deleteContentApprovals(int)} on
-   * the shared Hibernate session — no second pool connection.
+   * Hibernate-backed #1561 Phase 4d-1b write path. Deletes all approval rows for the current {@code
+   * contentId} via {@code IPSSystemService.deleteContentApprovals(int)} on the shared Hibernate
+   * session — no second pool connection.
    *
-   * <p>Phase 4d-1b hot-fix: the previous overload used the narrower
-   * (contentId, workflowId, transitionId, stateId) tuple filter, which differs from the
-   * legacy {@code emptyApprovals()} semantics
-   * ({@code DELETE FROM CONTENTAPPROVALS WHERE CONTENTID = ?}) and could leave orphan
-   * approval rows for other transition/state combinations on the same item after a
-   * transition. This overload restores the legacy contentId-only delete. See PR #1589
-   * review thread databaseId 3670307327.
+   * <p>Phase 4d-1b hot-fix: the previous overload used the narrower (contentId, workflowId,
+   * transitionId, stateId) tuple filter, which differs from the legacy {@code emptyApprovals()}
+   * semantics ({@code DELETE FROM CONTENTAPPROVALS WHERE CONTENTID = ?}) and could leave orphan
+   * approval rows for other transition/state combinations on the same item after a transition. This
+   * overload restores the legacy contentId-only delete. See PR #1589 review thread databaseId
+   * 3670307327.
    *
-   * <p>The legacy raw-JDBC {@code emptyApprovals()} overload above is preserved for any
-   * external caller that still passes a JDBC {@code Connection}.
+   * <p>The legacy raw-JDBC {@code emptyApprovals()} overload above is preserved for any external
+   * caller that still passes a JDBC {@code Connection}.
    */
   public int emptyApprovalsViaHibernate() {
     int n = PSSystemServiceLocator.getSystemService().deleteContentApprovals(m_nContentID);
@@ -426,7 +423,7 @@ public class PSContentApprovalsContext implements IPSContentApprovalsContext {
   private ArrayList m_roleIdList = new ArrayList();
 
   /** static constant string that represents the qualified table name. */
-  private static String TABLE_CAC = PSConnectionMgr.getQualifiedIdentifier("CONTENTAPPROVALS");
+  private static final String TABLE_CAC = "CONTENTAPPROVALS";
 
   /** SQL query string to get data base records for the approvals. */
   private static String QRYSTRING =

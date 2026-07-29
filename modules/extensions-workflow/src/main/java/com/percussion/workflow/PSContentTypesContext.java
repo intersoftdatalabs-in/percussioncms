@@ -49,16 +49,15 @@ public class PSContentTypesContext implements IPSContentTypesContext {
   String m_sContentTypeUpdateRequest = "";
 
   /**
-   * Hibernate-backed factory added for #1561 Phase 4d-1a. Loads a single content type's
-   * metadata from the shared Hibernate session — no second pool connection.
+   * Hibernate-backed factory added for #1561 Phase 4d-1a. Loads a single content type's metadata
+   * from the shared Hibernate session — no second pool connection.
    *
-   * <p>Equivalent to the raw-JDBC constructor
-   * {@link #PSContentTypesContext(Connection, int)} but participates in the surrounding Spring
-   * transaction.
+   * <p>Equivalent to the raw-JDBC constructor {@link #PSContentTypesContext(Connection, int)} but
+   * participates in the surrounding Spring transaction.
    *
    * @param contentTypeID the ID of the content type to load; must be {@code > 0}.
-   * @return the populated context, never {@code null}; empty (all fields {@code ""}) when no
-   *     row matches — use {@link #isEmpty()} to detect missing rows.
+   * @return the populated context, never {@code null}; empty (all fields {@code ""}) when no row
+   *     matches — use {@link #isEmpty()} to detect missing rows.
    */
   public static PSContentTypesContext loadFromHibernate(int contentTypeID) {
     if (contentTypeID <= 0) {
@@ -87,10 +86,8 @@ public class PSContentTypesContext implements IPSContentTypesContext {
     }
     if (found != null) {
       ctx.m_sContentTypeName = found.getName() == null ? "" : found.getName();
-      ctx.m_sContentTypeDescrition =
-          found.getDescription() == null ? "" : found.getDescription();
-      ctx.m_sContentTypeNewRequest =
-          found.getNewRequest() == null ? "" : found.getNewRequest();
+      ctx.m_sContentTypeDescrition = found.getDescription() == null ? "" : found.getDescription();
+      ctx.m_sContentTypeNewRequest = found.getNewRequest() == null ? "" : found.getNewRequest();
       ctx.m_sContentTypeQueryRequest =
           found.getQueryRequest() == null ? "" : found.getQueryRequest();
       ctx.m_sContentTypeUpdateRequest =
@@ -177,11 +174,11 @@ public class PSContentTypesContext implements IPSContentTypesContext {
   }
 
   /**
-   * Qualified table name only (e.g. {@code PUBLIC.CONTENTTYPES} on H2). Do <strong>not</strong>
-   * use this as a column qualifier — {@code schema.table.column} is rejected by H2 as {@code Column
+   * Qualified table name only (e.g. {@code PUBLIC.CONTENTTYPES} on H2). Do <strong>not</strong> use
+   * this as a column qualifier — {@code schema.table.column} is rejected by H2 as {@code Column
    * "PUBLIC" not found}. Columns in the statement below are unqualified.
    */
-  private static String TABLE_CTC = PSConnectionMgr.getQualifiedIdentifier("CONTENTTYPES");
+  private static final String TABLE_CTC = "CONTENTTYPES";
 
   /** SQL query — unqualified column names for H2-safe schema-qualified table names. */
   private static final String QRYSTRING =
