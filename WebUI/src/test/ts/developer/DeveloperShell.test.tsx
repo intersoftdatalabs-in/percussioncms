@@ -409,6 +409,23 @@ describe("DeveloperShell", () => {
   });
 
   it("opens community detail from list row", async () => {
+    const { getCommunityVisibility } = await import(
+      "../../../main/ts/api/developer/assemblyApi"
+    );
+    (getCommunityVisibility as ReturnType<typeof vi.fn>).mockResolvedValue([
+      {
+        name: "percPage",
+        label: "Page",
+        type: "NODEDEF",
+        guid: { stringValue: "0-2-301", uuid: 301 },
+      },
+      {
+        name: "perc.page",
+        label: "Page template",
+        type: "TEMPLATE",
+        guid: { stringValue: "0-10-1", uuid: 1 },
+      },
+    ]);
     render(<DeveloperShell initialSection="communities" embedded />);
     await waitFor(() => {
       expect(screen.getByTestId("developer-comm-table")).toBeTruthy();
@@ -425,11 +442,74 @@ describe("DeveloperShell", () => {
       expect(screen.getByTestId("developer-comm-visibility-table")).toBeTruthy();
     });
     expect(screen.getByText("NODEDEF")).toBeTruthy();
+    expect(getCommunityVisibility).toHaveBeenCalled();
     expect(screen.getByTestId("developer-comm-gaps")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-comm-back"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-comm-table")).toBeTruthy();
     });
+  });
+
+  it("shows empty community visibility state", async () => {
+    const { getCommunityVisibility } = await import(
+      "../../../main/ts/api/developer/assemblyApi"
+    );
+    (getCommunityVisibility as ReturnType<typeof vi.fn>).mockResolvedValueOnce([]);
+    render(<DeveloperShell initialSection="communities" embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Open Default/i }));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-visibility-empty")).toBeTruthy();
+    });
+  });
+
+  it("shows community visibility error state", async () => {
+    const { getCommunityVisibility } = await import(
+      "../../../main/ts/api/developer/assemblyApi"
+    );
+    (getCommunityVisibility as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
+      Object.assign(new Error("vis fail"), { status: 500 }),
+    );
+    render(<DeveloperShell initialSection="communities" embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Open Default/i }));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-visibility-error").textContent).toMatch(
+        /visibility|fail|error/i,
+      );
+    });
+  });
+
+  it("shows no-guid message when community detail lacks guid", async () => {
+    const { getCommunityDetail, getCommunityVisibility } = await import(
+      "../../../main/ts/api/developer/assemblyApi"
+    );
+    (getCommunityVisibility as ReturnType<typeof vi.fn>).mockClear();
+    (getCommunityDetail as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      id: 10,
+      name: "Default",
+      label: "Default",
+      description: "Default Community",
+      // no guid
+      roleList: [
+        { roleId: 1, roleName: "Admin", roleGuid: { stringValue: "0-14-1", uuid: 1 } },
+      ],
+    });
+    render(<DeveloperShell initialSection="communities" embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Open Default/i }));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-visibility-error").textContent).toMatch(
+        /GUID not available/i,
+      );
+    });
+    expect(getCommunityVisibility).not.toHaveBeenCalled();
   });
 
   it("opens template detail from list row", async () => {

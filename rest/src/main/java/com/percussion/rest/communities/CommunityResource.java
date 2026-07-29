@@ -215,7 +215,24 @@ public class CommunityResource implements ICommunityResource {
     }
   }
 
+  /**
+   * Programmatic / interface entry — object-type filter already resolved.
+   *
+   * <p>HTTP entry point is the three-argument overload that accepts {@code X-Object-Type} and
+   * legacy {@code type} headers.
+   */
   @Override
+  public CommunityVisibilityList getVisibilityByCommunity(GuidList ids, ObjectTypeEnum type) {
+    try {
+      return adaptor.getVisibilityByCommunity(ids, type);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error("An error occurred calling getVisibilityByCommunity", e);
+      throw new WebApplicationException(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   @Path("/visibility")
   @POST
   @Consumes({MediaType.APPLICATION_JSON})
@@ -223,12 +240,13 @@ public class CommunityResource implements ICommunityResource {
   @ApiResponses(
       value = {
         @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid object type header"),
         @ApiResponse(responseCode = "500", description = "ERROR")
       })
   @Operation(
       summary =
-          "Returns the Community visibility list for the specified communities. If the type header"
-              + " is null or missing, visibility for all object types will be returned.")
+          "Returns the Community visibility list for the specified communities. Optional filter via"
+              + " X-Object-Type (preferred) or legacy type header; omit for all object types.")
   public CommunityVisibilityList getVisibilityByCommunity(
       @Parameter(
               description = "List of GUID",
@@ -252,13 +270,19 @@ public class CommunityResource implements ICommunityResource {
                       + "      }\n"
                       + "]}")
           GuidList ids,
-      @Parameter(name = "type") @HeaderParam("type") ObjectTypeEnum type) {
-    try {
-      return adaptor.getVisibilityByCommunity(ids, type);
-    } catch (Exception e) {
-      log.error("An error occurred calling getVisibilityByCommunity", e);
-      throw new WebApplicationException(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
-    }
+      @Parameter(
+              name = "X-Object-Type",
+              description =
+                  "Preferred ObjectTypeEnum name filter (e.g. NODEDEF, TEMPLATE). Takes precedence"
+                      + " over legacy type header.")
+          @HeaderParam("X-Object-Type")
+          ObjectTypeEnum objectType,
+      @Parameter(
+              name = "type",
+              description = "Legacy ObjectTypeEnum filter; used when X-Object-Type is absent.")
+          @HeaderParam("type")
+          ObjectTypeEnum legacyType) {
+    return getVisibilityByCommunity(ids, objectType != null ? objectType : legacyType);
   }
 
   @POST
