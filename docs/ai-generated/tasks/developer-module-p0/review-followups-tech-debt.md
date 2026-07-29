@@ -46,15 +46,9 @@ Capture rule: when a review finding is **intentionally not fixed in that PR**, a
 
 ---
 
-## Product slices (already in README — do not duplicate as “deferred review”)
+## Product slices (not deferred review)
 
-Tracked under [README.md § Next slices](./README.md):
-
-- CT field rules (read) → write/lock  
-- Keyword create/edit; community roles + ACL  
-- Pipelines Slice A (IR + SQL + JSON + import)  
-- Template/slot **editors**  
-- Server runtime map for data pipelines  
+Tracked on **[issue #1622](https://github.com/intersoftdatalabs-in/percussioncms/issues/1622)** (living todo list). Do not maintain a parallel “next slices” checklist in README.md on every PR.
 
 API surface gaps for content types: [content-type-api-gaps.md](./content-type-api-gaps.md).
 
