@@ -21,6 +21,17 @@ export const DEV_MSG = {
   INTRO:
     "Design-time tools for content types, assembly, and related CMS objects. Replaces the classic Workbench / Design surfaces.",
   SESSION_REDIRECT: "Session expired — redirecting to login…",
+  ACL_TITLE: "Object ACL",
+  ACL_HINT:
+    "Design-time access control entries for this object (read-only). Add/edit ACL remains a later slice.",
+  ACL_LOADING: "Loading ACL…",
+  ACL_ERROR: "Could not load object ACL.",
+  ACL_EMPTY: "No ACL defined for this object.",
+  ACL_NO_GUID: "Object GUID not available — cannot load ACL.",
+  ACL_NO_ENTRIES: "ACL has no entries.",
+  ACL_COL_ENTRY: "Principal / name",
+  ACL_COL_TYPE: "Type",
+  ACL_COL_PERMS: "Permissions",
   TAB_CONTENT_TYPES: "Content Types",
   TAB_TEMPLATES: "Templates",
   TAB_SLOTS: "Slots",

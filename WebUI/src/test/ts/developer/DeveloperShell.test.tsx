@@ -21,6 +21,7 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
     label: "Page",
     description: "A page",
     enabled: true,
+    guid: { stringValue: "0-2-301", uuid: 301 },
     fields: [
       {
         name: "sys_title",
@@ -43,6 +44,28 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
     allowedTemplates: [{ name: "perc.page", label: "Page" }],
     designGaps: [
       "Field rule flags are exposed (validation/visibility/transforms present); full rule expressions and control properties are not",
+    ],
+  }),
+}));
+
+vi.mock("../../../main/ts/api/developer/aclApi", () => ({
+  getAclForObject: vi.fn().mockResolvedValue({
+    id: 1,
+    name: "object-acl",
+    guid: { stringValue: "0-4-1", uuid: 1 },
+    aclEntries: [
+      {
+        id: 10,
+        name: "Default",
+        type: { type: "ROLE", name: "Default" },
+        permissions: [{ permission: "READ" }, { permission: "UPDATE" }],
+      },
+      {
+        id: 11,
+        name: "Admin",
+        type: { type: "ROLE", name: "Admin" },
+        permissions: [{ permission: "OWNER" }],
+      },
     ],
   }),
 }));
@@ -86,6 +109,7 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
     name: "perc.page",
     label: "Page",
     description: "Default page",
+    guid: { stringValue: "0-10-1", uuid: 1 },
     assembler: "Java/JEXL",
     outputFormat: "Page",
     templateType: "Shared",
@@ -213,6 +237,9 @@ describe("DeveloperShell", () => {
     expect(screen.getByTestId("developer-ct-field-occurrence").textContent).toBe("required");
     expect(screen.getByTestId("developer-ct-workflows")).toBeTruthy();
     expect(screen.getByTestId("developer-ct-templates")).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-acl-table")).toBeTruthy();
+    });
     expect(screen.getByTestId("developer-ct-gaps")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-ct-back"));
     await waitFor(() => {
@@ -303,6 +330,9 @@ describe("DeveloperShell", () => {
     expect(screen.getByTestId("developer-tpl-bindings")).toBeTruthy();
     expect(screen.getByTestId("developer-tpl-slots")).toBeTruthy();
     expect(screen.getByTestId("developer-tpl-source")).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-acl-table")).toBeTruthy();
+    });
     expect(screen.getByTestId("developer-tpl-gaps")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-tpl-back"));
     await waitFor(() => {

@@ -21,6 +21,7 @@ import type { TemplateDetail } from "../api/developer/types";
 import { monoCell, mutedCell } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
+import { ObjectAclSection } from "./ObjectAclSection";
 
 const metaGrid: React.CSSProperties = {
   display: "grid",
@@ -228,6 +229,11 @@ export function TemplateDetailPanel({
               </pre>
             </section>
           ) : null}
+
+          <ObjectAclSection
+            objectGuid={detail.guid?.stringValue}
+            testIdPrefix="developer-tpl-acl"
+          />
 
           {(detail.designGaps || []).length > 0 ? (
             <section data-testid="developer-tpl-gaps">

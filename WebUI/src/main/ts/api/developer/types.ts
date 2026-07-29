@@ -190,9 +190,36 @@ export interface CommunityRoleSummary {
   roleGuid?: RestGuid;
 }
 
-/** Community detail including associated roles (read-only for this slice). */
+/** Community detail including associated roles. */
 export interface CommunityDetail extends CommunitySummary {
   roleList?: CommunityRoleSummary[] | { CommunityRole?: CommunityRoleSummary[] };
+}
+
+/** Design-time object ACL entry (from `/services/acls/object/{guid}`). */
+export interface ObjectAclPermission {
+  id?: number;
+  permission?: string;
+  permissions?: string[] | { Permission?: string[] };
+}
+
+export interface ObjectAclEntry {
+  id?: number;
+  name?: string;
+  aclId?: number;
+  principal?: { name?: string; type?: string };
+  type?: { name?: string; type?: string };
+  permissions?: ObjectAclPermission[] | { UserAccessLevel?: ObjectAclPermission[] };
+}
+
+export interface ObjectAcl {
+  id?: number;
+  name?: string;
+  description?: string;
+  objectId?: number;
+  objectType?: number;
+  guid?: RestGuid;
+  objectGuid?: RestGuid;
+  aclEntries?: ObjectAclEntry[] | { AclEntry?: ObjectAclEntry[] };
 }
 
 /** Classic XML Application / pipeline package summary. */
