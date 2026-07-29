@@ -15,13 +15,11 @@ Before starting ANY task on the system module, you MUST:
    - [overview.md](src/site/markdown/overview.md) – Complete structural details (IMPORTANT)
    - [services.md](src/site/markdown/services.md) – Service architecture (if working on services)
    - [building.md](src/site/markdown/building.md) – Build and development workflow
-3. ✅ **Check Refactoring Status** (historical only)
-   - `refactored-java11-packages.txt` / `refactored-soap-packages.txt` list packages modernized in earlier waves — avoid redoing finished work
-   - Do **not** treat “Java 11” in those filenames as the current toolchain
-4. ✅ **Understand Java Version Requirements**
+3. ✅ **Understand Java Version Requirements**
    - **`development` baseline is JDK 21** (parent `release=21`)
    - Spotless requires JDK 21 at runtime
    - Use `./mvnw` / `mvnw.cmd` with `JAVA_HOME` → JDK 21
+   - Do **not** recreate or consult deleted Java 11/17 package modernization logs
 
 ## Rule Discovery Protocol
 
@@ -60,7 +58,7 @@ Before starting ANY task on the system module, you MUST:
 - ✅ Target **JDK 21** (parent POM `release=21`); use modern Java features that compile on 21 (`var`, `Optional`, Streams, try-with-resources, records/pattern matching where they fit)
 - ✅ Follow Google Java Style (enforced by Spotless; Spotless runs under JDK 21)
 - ✅ Add comprehensive unit tests (use JUnit 5, not JUnit 4 for new code)
-- ✅ When modernizing legacy code, prefer clear commits over historical markers; existing `// REFACTORED: CP-JAVA11` comments are legacy labels only (code is now on the Java 21 line)
+- ✅ Prefer clear commits when modernizing legacy code; ignore historical `// REFACTORED: CP-JAVA11` markers in source (labels only)
 - ✅ Handle specific exceptions, not generic Exception
 - ✅ Update documentation when adding new subsystems
 
@@ -299,15 +297,14 @@ public NewDataType newMethod() {
 
 ### Task: Refactor Legacy Code
 
-1. Check historical tracking files (`refactored-java11-packages.txt`, etc.) — is this package already done?
-2. If not, modernize for **JDK 21**:
+1. Confirm the package is still on pre-modern patterns (read the code; there is no package tracking list).
+2. Modernize for **JDK 21**:
    - Replace raw types with generics
    - Use `var` / `Optional` / Streams where they improve clarity
    - Prefer modern APIs available on 21; avoid deprecated APIs
    - Apply Google Java Style (`spotless:apply`)
 3. Add/update unit tests (JUnit 5)
-4. Optionally note the package in tracking docs if the team still maintains them
-5. Build and verify: `./mvnw -pl system clean verify`
+4. Build and verify: `./mvnw -pl system clean verify`
 
 ### Task: Improve Performance
 

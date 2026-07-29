@@ -1,6 +1,8 @@
 # System Module - Percussion CMS Core
 
-The **system** module is the foundational core of Percussion CMS, containing essential content management, service infrastructure, business logic, and deployment resources. This is a large, historically-layered module with a mix of active Java code, configuration, legacy artifacts, and deployment resources.
+The **system** module is the foundational core of Percussion CMS: content management, service infrastructure, business logic, configuration, and deployment resources. It is large and historically layered—prefer the layout below and root / module `AGENTS.md` over old modernization logs.
+
+**Toolchain:** JDK **21** (`release=21`), Maven wrapper `./mvnw` / `mvnw.cmd`, Spotless under JDK 21.
 
 ## Table of Contents
 
@@ -9,404 +11,113 @@ The **system** module is the foundational core of Percussion CMS, containing ess
 - [Key Components](#key-components)
 - [Java Code Organization](#java-code-organization)
 - [Building the Module](#building-the-module)
-- [Java modernization (now JDK 21)](#java-modernization-now-jdk-21)
 - [Guidelines for Agents](#guidelines-for-agents)
 
 ## Module Overview
 
-The system module provides:
-
-- **Core CMS functionality** – Content management, assembly, catalog, and workflow services
-- **Service infrastructure** – GUID management, data access, error handling, change tracking
-- **Business logic** – Delivery services, proxy configuration, authentication, metadata extraction
-- **Configuration** – Application configurations, content editors, workflow definitions, databases
-- **Deployment resources** – Installation scripts, ear/war packaging, Jetty configuration, sample content
-- **Legacy components** – Historical code, deprecated APIs, support packages maintained for backward compatibility
+- **Core CMS** – Content, assembly, catalog, workflow
+- **Service infrastructure** – GUID, data access, error handling, change tracking
+- **Business logic** – Delivery, proxy config, auth clients, metadata
+- **Configuration** – Editors, workflows, applications, install resources
+- **Deployment** – EAR/WAR, Jetty release assets
+- **Legacy** – Older Tools/Docs/Samples trees; touch only when required
 
 ## Directory Structure
 
-### Active Development (Java Code)
+### Active Development (Java)
 
-|     Directory      |                                     Purpose                                     |    Status    |
-|--------------------|---------------------------------------------------------------------------------|--------------|
-| `services/src`     | Service interfaces and implementations (catalog, assembly, content, GUID, etc.) | **Active** ✅ |
-| `business/src`     | Business logic for delivery, proxy config, authentication, metadata             | **Active** ✅ |
-| `servlet/src`      | Servlet implementations and HTTP handlers                                       | **Active** ✅ |
-| `src/main/java`    | Core CMS classes, utilities, object store implementations                       | **Active** ✅ |
-| `src/test/java`    | Unit and integration tests                                                      | **Active** ✅ |
-| `beans/src`        | Bean definitions and factories                                                  | **Active** ✅ |
-| `uploader/src`     | File upload handling                                                            | **Active** ✅ |
-| `agenthandler/src` | Agent-related functionality                                                     | **Active** ✅ |
+| Directory | Purpose | Status |
+|-----------|---------|--------|
+| `services/src` | Service interfaces and implementations | Active |
+| `business/src` | Delivery, proxy, auth client, metadata, admin beans | Active |
+| `servlet/src` | Servlet / HTTP handlers | Active |
+| `src/main/java` | Core CMS, object store, utilities | Active |
+| `src/test/java` | Unit and integration tests | Active |
+| `beans/src` | Bean definitions and factories | Active |
+| `uploader/src` | File upload handling | Active |
+| `agenthandler/src` | Agent-related functionality | Active |
+| `webservices/src` | SOAP / web service endpoints (in-tree) | Active |
 
 ### Configuration & Resources
 
-|           Directory            |                          Contents                           |   Status   |
-|--------------------------------|-------------------------------------------------------------|------------|
-| `config/`                      | Server configuration, content editors, workflow, categories | **Active** |
-| `applications/`                | Application XML definitions and resources                   | **Active** |
-| `installResources/`            | Installation scripts and resource templates                 | **Active** |
-| `design/dtd`, `design/schemas` | DTD and XML schema definitions                              | **Active** |
+| Directory | Contents |
+|-----------|----------|
+| `config/` | Server config, content editors, workflow, categories |
+| `applications/` | Application XML definitions |
+| `installResources/` | Install scripts and templates |
+| `design/dtd`, `design/schemas` | DTDs and schemas |
 
 ### Deployment & Packaging
 
-|     Directory     |                     Purpose                     |   Status   |
-|-------------------|-------------------------------------------------|------------|
-| `ear/`            | Enterprise Archive (EAR) assembly configuration | **Active** |
-| `webservices/src` | Web service implementations                     | **Active** |
-| `release/`        | Release packaging for Jetty, JBoss, Tomcat      | **Active** |
+| Directory | Purpose |
+|-----------|---------|
+| `ear/` | EAR assembly |
+| `release/` | Jetty / packaging assets |
 
-### Legacy & Historical (Minimal Activity)
+### Legacy (minimal activity)
 
-|      Directory       |                        Contents                        | Status |
-|----------------------|--------------------------------------------------------|--------|
-| `Testing/`           | Legacy test applications and test data                 | Legacy |
-| `Docs/`              | Historical documentation (check for active content)    | Legacy |
-| `FastForward/`       | Legacy sample content and templates                    | Legacy |
-| `Designer/`          | Admin UI templates and resources                       | Legacy |
-| `Defaults/`          | Error pages and default stylesheets                    | Legacy |
-| `VersionControl/`    | Version tracking files                                 | Legacy |
-| `Tools/`             | Legacy conversion and utility tools (HTTPClient, etc.) | Legacy |
-| `Samples/`           | Sample applications and content                        | Legacy |
-| `lib/`               | Legacy JAR libraries and binaries                      | Legacy |
-| `DTD/`               | Legacy DTD files                                       | Legacy |
-| `databases/`         | Tutorial/sample databases                              | Legacy |
-| `ReleasedDocuments/` | Old documentation archives                             | Legacy |
-
-### Configuration Management
-
-|           Directory           |                  Purpose                  |
-|-------------------------------|-------------------------------------------|
-| `configmgr/`, `dtsconfigmgr/` | Legacy configuration management utilities |
-| `cms/content/`                | Content type configurations               |
+`Testing/`, `Docs/`, `FastForward/`, `Designer/`, `Defaults/`, `VersionControl/`, `Tools/`, `Samples/`, `lib/`, `DTD/`, `databases/`, `ReleasedDocuments/`, `configmgr/`, `dtsconfigmgr/` — treat as legacy unless the task explicitly targets them.
 
 ## Key Components
 
-### Service Infrastructure (`services/src`)
+### Services (`services/src`)
 
-Provides critical services for content and system management:
+Catalog, assembly, content, content manager, GUID, data, error, change tracking, security utilities, general info.
 
-- **Catalog Service** – Object enumeration, type discovery, XML serialization
-- **Assembly Service** – Template processing, variable binding, content rendering
-- **Content Service** – Keyword management, auto-translations, folder properties
-- **Content Manager** – High-level content operations
-- **GUID Manager** – Unique identifier generation and management
-- **Data Service** – Data access and persistence patterns
-- **Error Service** – Error handling and logging
-- **Change Tracking** – Content modification notifications
-- **General Info** – System information and configuration access
+### Business (`business/src`)
 
-### Business Logic (`business/src`)
+Delivery / publishing, metadata (including Solr paths), SSL/client trust helpers, proxy configuration, JSF/admin beans, design-time helpers.
 
-Implements domain-specific functionality:
+### Core (`src/main/java`)
 
-- **Delivery Services** – Content delivery, publishing, and rendering
-- **Metadata Services** – Metadata extraction, processing, Solr integration
-- **Authentication & Client** – SSL, trust management, client communication
-- **Proxy Configuration** – Proxy management for external integrations
-- **JSF/Admin Beans** – Admin UI controller logic
-- **Design Implementation** – Design-time behaviors and configurations
-
-### Core CMS (`src/main/java`, `src/test/java`)
-
-Foundation classes and utilities:
-
-- Object store implementations (PSItemDefinition, PSContentType, etc.)
-- Data types and content models
-- Backend utilities and helpers
-- Database connectivity (JDBC)
-- Caching and performance optimization
-
-### Legacy Content Management
-
-- **Content/Type Configuration** – Dynamic content type definitions and bean generation
-- **Workflow** – Workflow definitions, transitions, and actions
-- **Servlet Infrastructure** – HTTP request handling and routing
+Object store, content models, JDBC helpers, caching, workflow-related core types.
 
 ## Java Code Organization
 
-### Package Structure
-
 ```
 com.percussion
-├── services/
-│   ├── assembly/          # Template and content assembly
-│   ├── catalog/           # Object cataloging and discovery
-│   ├── contentchange/      # Change tracking
-│   ├── contentmgr/        # Content management (includes legacy PSTypeConfiguration)
-│   ├── content/           # Content operations (keywords, translations, folders)
-│   ├── data/              # Data access and persistence
-│   ├── error/             # Error handling
-│   ├── general/           # General utilities
-│   ├── guidmgr/           # GUID generation
-│   └── security/          # Security and ACL utilities
-├── business/
-│   ├── delivery/          # Content delivery services
-│   ├── metadata/          # Metadata extraction
-│   ├── rx.admin.jsf.*     # Admin UI beans
-│   ├── rx.design.*        # Design services
-│   └── proxyconfig/       # Proxy configuration
-├── cms/objectstore/       # Object store implementations
-├── utils/                 # Utility classes
-└── [legacy packages]      # Internal packages maintained for backward compatibility
+├── services/          # assembly, catalog, content, guidmgr, data, …
+├── business areas     # delivery, metadata, proxyconfig, rx.admin.jsf.*, …
+├── cms/objectstore/   # object store implementations
+├── utils/             # shared utilities
+└── [legacy packages]  # backward-compatibility surfaces
 ```
-
-### Refactoring Status
-
-See `refactored-java11-packages.txt` and `refactored-soap-packages.txt` for historical lists of packages modernized during the Java 11/17 waves. The module **builds on JDK 21** today (`release=21`). Existing `// REFACTORED: CP-JAVA11` markers are historical labels only.
 
 ## Building the Module
 
 ### Prerequisites
 
-- JDK 21 (for `spotless` formatting)
-- Maven 3.8+
+- JDK 21 (`JAVA_HOME`)
+- Repo Maven wrapper from repo root or via relative path
 
-### Build Commands
-
-**Compile only:**
+### Commands
 
 ```bash
-./mvnw -pl system compile
-```
-
-**Run tests:**
-
-```bash
-./mvnw -pl system test
-```
-
-**Full build with packaging:**
-
-```bash
+# From repo root
 ./mvnw -pl system clean install
-```
 
-**Code style check & formatting:**
-
-```bash
+# Format (see root AGENTS.md Spotless hard gate)
+./mvnw spotless:apply
 ./mvnw -pl system spotless:check
-./mvnw spotless:apply  # If formatting is needed
 ```
 
-### Build Output
+Windows: `mvnw.cmd` with the same goals.
 
-- `target/perc-system-8.2.0-SNAPSHOT.jar` – Packaged module JAR containing all compiled classes and resources
+### Output
 
-## Java modernization (now JDK 21)
-
-### Current baseline
-
-- ✅ Parent / module toolchain: **JDK 21** (`maven.compiler.release` / `java.version`)
-- ✅ Active code uses modern Java idioms (`var`, `Optional`, Streams, NIO, etc.) that compile on 21
-- ✅ Log4j 2.x; JUnit 5 for new tests; ByteBuddy for dynamic beans; Google Java Style via Spotless
-- Intermediate **Java 11 / Java 17** migration notes elsewhere in this tree are **historical** (completed waves), not the target for new work
-
-### Key historical migrations (already landed)
-
-|         Component          |                            Migration Notes                             |
-|----------------------------|------------------------------------------------------------------------|
-| Dynamic Bean Generation    | Replaced CGLib `BeanGenerator` with ByteBuddy in `PSTypeConfiguration` |
-| Data Package               | See `business/refactored-soap-packages.txt`                            |
-| Delivery/Metadata Services | Modernized in earlier waves; see `refactored-java11-packages.txt`      |
-| Admin UI Beans             | JSF compatibility maintained; modernized for current JDK line          |
-
-### Backward Compatibility
-
-- **All public APIs remain backward compatible** – No breaking changes
-- Existing code using these classes requires no modifications
-- Internal refactoring improves maintainability, performance, and security
+- `target/perc-system-*-SNAPSHOT.jar` (version follows the reactor)
 
 ## Guidelines for Agents
 
-Before working on this module, agents **MUST**:
-
-1. **Read this README thoroughly** to understand the module structure and organization
-2. **Review relevant documentation** – See [Maven Site Documentation](../../docs/modules/system.html) (when available)
-3. **Check historical modernization lists** – `refactored-java11-packages.txt` / `refactored-soap-packages.txt` (filenames are historical; toolchain is JDK 21)
-4. **Identify the right directory** – Use the table above to find the correct package/directory for your task
-5. **Understand legacy vs. active code** – Legacy directories (Testing, Tools, etc.) have minimal updates
-
-### When Modifying Java Code
-
-- **Ensure JDK 21 compatibility** – Code must compile with `release=21`; prefer modern APIs; avoid deprecated APIs
-- **Use Google Java Style** – Run `spotless:check` and `spotless:apply` before committing (JDK 21 + `./mvnw`)
-- **Add unit tests** – Use JUnit 5; maintain high code coverage
-- **Update this README** – If you discover structural issues or add new subsystems
-- **Legacy markers** – Do not require new `// REFACTORED: CP-JAVA11` markers; historical tracking files are optional reference only
-
-### Building & Testing
-
-Always test locally before pushing:
-
-```bash
-./mvnw -pl system clean verify
-./mvnw spotless:apply
-./mvnw -pl system test
-```
-
-For changes to service implementations, also test integration with dependent modules.
-
----
-
-**Last Updated:** March 2026 | **Module Version:** 8.2.0-SNAPSHOT
-
-## Building
-
-mvn clean install
-
-## Historical package notes (Java 11/17 waves)
-
-The following subsections are a **completed modernization log**. New work targets **JDK 21**. Do not treat “Java 17 Refactoring” headings as the current required baseline.
-
-## Java 17 Refactoring
-
-
-### Package: com.percussion.rx.delivery.impl
-
-- All delivery handler classes in this package have been refactored to use Java 17 features (var, Optional, Streams, try-with-resources, etc.).
-- Improved type safety, immutability, and error handling.
-- All public APIs remain backward compatible.
-- Logging is now fully Log4j 2.x and OWASP compliant.
-- See code for // REFACTORED: CP-JAVA11 markers.
-
-#### Migration Notes
-
-- If you extend or use these handlers, ensure your code is Java 17 compatible.
-- Optional is now used for some return types (see getPubServerDao().findPubServer and getPropertyValue).
-- No breaking changes to public interfaces.
-
-### Package: com.percussion.rx.audit
-
-- All audit logging and design object auditing classes in this package have been refactored to use Java 17 features (var, Optional, Streams, Google Java Style).
-- Deprecated methods (e.g., setDate(Date)) are still used for backward compatibility; see inline comments for details.
-- All public APIs remain backward compatible.
-- Logging and exception handling improved for maintainability and security.
-- See code for // REFACTORED: CP-JAVA11 markers.
-
-#### Migration Notes
-
-- If you extend or use these audit classes, ensure your code is Java 17 compatible.
-- Deprecated methods are retained for legacy integration; review comments for migration guidance.
-- No breaking changes to public interfaces.
-
-### Package: com.percussion.EditableListBox
-
-- All EditableListBox UI components in this package have been refactored to use Java 17 features (generics, Google Java Style, removal of legacy/unused code).
-- Improved type safety and maintainability.
-- All public APIs remain backward compatible.
-- See code for // REFACTORED: CP-JAVA11 markers.
-
-#### Migration Notes
-
-- If you extend or use these UI components, ensure your code is Java 17 compatible.
-- No breaking changes to public interfaces.
-
-### Package: com.percussion.validation
-
-- All validation constraints and framework classes in this package have been refactored to use Java 17 features (var, Optional, Streams, Google Java Style).
-- Improved type safety, immutability, and error handling.
-- All public APIs remain backward compatible.
-- See code for // REFACTORED: CP-JAVA11 markers.
-
-#### Migration Notes
-
-- If you extend or use these validation classes, ensure your code is Java 17 compatible.
-- No breaking changes to public interfaces.
-
-### Package: com.percussion.layout
-
-- All grid and box layout manager classes in this package have been refactored to use Java 17 features (generics, Google Java Style).
-- Improved type safety and maintainability.
-- All public APIs remain backward compatible.
-- See code for // REFACTORED: CP-JAVA11 markers.
-
-#### Migration Notes
-
-- If you extend or use these layout classes, ensure your code is Java 17 compatible.
-- No breaking changes to public interfaces.
-
-### Package: com.percussion.error
-
-- All error handling and string bundle classes in this package have been refactored to use Java 17 features (Google Java Style, improved exception handling).
-- All public APIs remain backward compatible.
-- See code for // REFACTORED: CP-JAVA11 markers.
-
-#### Migration Notes
-
-- If you extend or use these error classes, ensure your code is Java 17 compatible.
-- No breaking changes to public interfaces.
-
-### Package: com.percussion.ImageListControl
-
-- All image list UI components in this package have been refactored to use Java 17 features (generics, Google Java Style, removal of legacy/unused code).
-- Improved type safety and maintainability.
-- All public APIs remain backward compatible.
-- See code for // REFACTORED: CP-JAVA11 markers.
-
-#### Migration Notes
-
-- If you extend or use these UI components, ensure your code is Java 17 compatible.
-- No breaking changes to public interfaces.
-
-### Package: com.percussion.integration
-
-- All integration utility and helper classes in this package have been refactored to use Java 17 features (var, Optional, Streams, Google Java Style).
-- Improved type safety, immutability, and error handling.
-- All public APIs remain backward compatible.
-- See code for // REFACTORED: CP-JAVA11 markers.
-
-#### Migration Notes
-
-- If you extend or use these integration classes, ensure your code is Java 17 compatible.
-- No breaking changes to public interfaces.
-
-### Package: com.percussion.webdav
-
-- All WebDAV servlet and constants classes in this package have been refactored to use Java 17 features (generics, Google Java Style, improved type safety).
-- Improved maintainability and compliance with Google Java Style.
-- All public APIs remain backward compatible.
-- See code for // REFACTORED: CP-JAVA11 markers.
-
-#### Migration Notes
-
-- If you extend or use these WebDAV classes, ensure your code is Java 17 compatible.
-- No breaking changes to public interfaces.
-
-### Package: com.percussion.hooks
-
-- All core servlet hooks and utility classes in this package have been refactored to use Java 17 features (generics, Google Java Style, improved type safety).
-- Improved maintainability and compliance with Google Java Style.
-- All public APIs remain backward compatible.
-- See code for // REFACTORED: CP-JAVA11 markers.
-
-#### Migration Notes
-
-- If you extend or use these hooks classes, ensure your code is Java 17 compatible.
-- No breaking changes to public interfaces.
-
-### Package: com.percussion.hooks.webservices
-
-- All SOAP webservices servlet endpoint classes in this package have been refactored to use Java 17 features (generics, Google Java Style, improved type safety).
-- Deprecated HTTP client APIs are retained for backward compatibility; see TODO comments for future migration.
-- All public APIs remain backward compatible.
-- See code for // REFACTORED: CP-JAVA11 markers.
-
-#### Migration Notes
-
-- If you extend or use these webservices classes, ensure your code is Java 17 compatible.
-- No breaking changes to public interfaces.
-- Review TODO comments for future HTTP client migration.
-
-### Package: com.percussion.util.servlet
-
-- All servlet utility, HTTP request/response, and multipart handling classes in this package have been refactored to use Java 17 features (var, Optional, Streams, generics, Google Java Style).
-- Improved type safety, immutability, and error handling.
-- All public APIs remain backward compatible.
-- Logging is now fully Log4j 2.x and OWASP compliant.
-- See code for // REFACTORED: CP-JAVA11 markers.
-
-#### Migration Notes
-
-- If you extend or use these servlet utility classes, ensure your code is Java 17 compatible.
-- No breaking changes to public interfaces.
-
+1. Read **this README** and **`system/AGENTS.md`** before large changes.
+2. Prefer **`src/site/markdown/`** for deeper architecture (`overview.md`, `services.md`, `building.md`).
+3. Put new code in **active** trees; do not grow legacy directories without a clear reason.
+4. **JDK 21** only on `development`; Google Java Style via Spotless; JUnit 5 for new tests.
+5. Do **not** look for or maintain Java 11/17 package modernization logs — those were removed; work is already on the current line.
+
+### When modifying code
+
+- Compile with `release=21`; avoid deprecated APIs
+- Run Spotless apply/check before the final PR commit (root AGENTS.md)
+- Add or update unit tests for non-trivial behavior
+- Update this README only when structure or agent workflow actually changes
