@@ -52,7 +52,7 @@ public class SlotsAdaptor implements ISlotsAdaptor {
    */
   public static final List<String> SLOT_DESIGN_GAPS =
       List.of(
-          "Create / update / delete / lock not supported (read-only API limitation)",
+          "Create / delete / lock not supported via this API",
           "Association editing not supported via this API",
           "Content-type and template names not resolved (GUIDs only)");
 
@@ -114,6 +114,75 @@ public class SlotsAdaptor implements ISlotsAdaptor {
       log.error("Failed to load slot {}: {}", idOrName, e.getMessage(), e);
       // Sanitized client message — class name stays in logs only
       throw new IllegalStateException("Failed to load slot", e);
+    }
+  }
+
+  @Override
+  public SlotDetail updateSlot(URI baseUri, String idOrName, SlotDetail body) {
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    if (body == null) {
+      throw new IllegalArgumentException("body is required");
+    }
+    try {
+      IPSTemplateSlot slot = resolveSlotModifiable(idOrName.trim());
+      if (slot == null) {
+        return null;
+      }
+      if (body.getLabel() != null) {
+        slot.setLabel(body.getLabel());
+      }
+      if (body.getDescription() != null) {
+        slot.setDescription(body.getDescription());
+      }
+      asmSvc.saveSlot(slot);
+      IPSTemplateSlot reloaded = resolveSlot(idOrName.trim());
+      return reloaded != null ? toDetail(reloaded) : toDetail(slot);
+    } catch (IllegalArgumentException e) {
+      throw e;
+    } catch (PSAssemblyException e) {
+      log.error("Failed to save slot {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to save slot", e);
+    } catch (Exception e) {
+      log.error("Failed to update slot {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to update slot", e);
+    }
+  }
+
+  /** Prefer modifiable load for updates; fall back to normal resolve. */
+  private IPSTemplateSlot resolveSlotModifiable(String idOrName) throws PSAssemblyException {
+    if (StringUtils.isNumeric(idOrName)) {
+      long uuid = Long.parseLong(idOrName);
+      IPSGuid g = new PSGuid(PSTypeEnum.SLOT, uuid);
+      try {
+        return asmSvc.loadSlotModifiable(g);
+      } catch (PSAssemblyException e) {
+        return null;
+      }
+    }
+    if (idOrName.matches("\\d+-\\d+(-\\d+)?")) {
+      try {
+        PSGuid g = new PSGuid(idOrName);
+        if (g.getType() == 0) {
+          g = new PSGuid(PSTypeEnum.SLOT, g.getUUID());
+        }
+        return asmSvc.loadSlotModifiable(g);
+      } catch (PSAssemblyException e) {
+        return null;
+      } catch (Exception e) {
+        log.debug("Not a slot GUID for update: {}", idOrName);
+      }
+    }
+    // Name path: load then re-open modifiable by GUID if available
+    IPSTemplateSlot byName = resolveSlot(idOrName);
+    if (byName == null || byName.getGUID() == null) {
+      return byName;
+    }
+    try {
+      return asmSvc.loadSlotModifiable(byName.getGUID());
+    } catch (PSAssemblyException e) {
+      return byName;
     }
   }
 

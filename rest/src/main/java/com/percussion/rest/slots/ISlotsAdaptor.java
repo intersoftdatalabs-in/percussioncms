@@ -32,4 +32,13 @@ public interface ISlotsAdaptor {
    */
   @Nullable
   SlotDetail getSlot(URI baseUri, String idOrName);
+
+  /**
+   * Update mutable slot design fields (label, description). Name/id and associations are not
+   * changed via this path.
+   *
+   * @return updated detail, or {@code null} if not found
+   */
+  @Nullable
+  SlotDetail updateSlot(URI baseUri, String idOrName, SlotDetail body);
 }

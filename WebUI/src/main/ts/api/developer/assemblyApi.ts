@@ -85,6 +85,15 @@ export async function getSlotDetail(idOrName: string): Promise<SlotDetail> {
   return get<SlotDetail>(`${PATHS.SLOTS}/${key}`);
 }
 
+/** PUT /services/slots/{idOrName} — label, description */
+export async function updateSlotDetail(
+  idOrName: string,
+  body: Pick<SlotDetail, "label" | "description">,
+): Promise<SlotDetail> {
+  const key = encodeURIComponent(idOrName);
+  return put<SlotDetail>(`${PATHS.SLOTS}/${key}`, body);
+}
+
 /** GET /services/communities/find?name=* */
 export async function listCommunities(): Promise<CommunitySummary[]> {
   const payload = await get<unknown>(
