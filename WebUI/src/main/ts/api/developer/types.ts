@@ -118,3 +118,15 @@ export interface CommunitySummary {
   label?: string;
   description?: string;
 }
+
+/** Classic XML Application / pipeline package summary. */
+export interface ApplicationSummary {
+  id?: number;
+  name?: string;
+  description?: string;
+  enabled?: boolean;
+  appRoot?: string;
+  appType?: string;
+  version?: string;
+  empty?: boolean;
+}

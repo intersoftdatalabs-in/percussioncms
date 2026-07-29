@@ -281,6 +281,10 @@ export const PATHS = {
   get COMMUNITIES() {
     return `${SERVICES_ROOT}/communities`;
   },
+  /** Pipeline / XML application design catalog. */
+  get PIPELINES() {
+    return `${SERVICES_ROOT}/pipelines`;
+  },
   /** Workflow management (workflowmanagement) — Feature 993 */
   get WORKFLOWS() {
     return `${SERVICES_ROOT}/workflowmanagement/workflows/`;

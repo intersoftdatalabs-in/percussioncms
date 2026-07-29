@@ -25,7 +25,7 @@ import { CommunitiesPanel } from "./CommunitiesPanel";
 import { ContentTypesPanel } from "./ContentTypesPanel";
 import { KeywordsPanel } from "./KeywordsPanel";
 import { DEV_MSG } from "./messages";
-import { PlaceholderPanel } from "./PlaceholderPanel";
+import { PipelinesPanel } from "./PipelinesPanel";
 import { SlotsPanel } from "./SlotsPanel";
 import { TemplatesPanel } from "./TemplatesPanel";
 
@@ -141,7 +141,7 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
         ) : active === "communities" ? (
           <CommunitiesPanel />
         ) : (
-          <PlaceholderPanel sectionLabel={SECTION_LABEL[active]} />
+          <PipelinesPanel />
         )}
       </div>
     </div>

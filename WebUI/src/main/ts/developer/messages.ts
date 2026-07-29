@@ -89,6 +89,17 @@ export const DEV_MSG = {
   COMM_COL_NAME: "Name",
   COMM_COL_ID: "Id",
   COMM_COL_DESCRIPTION: "Description",
+  PIPE_LOADING: "Loading pipelines…",
+  PIPE_EMPTY: "No pipeline applications returned.",
+  PIPE_ERROR: "Could not load pipelines.",
+  PIPE_HINT:
+    "Server applications (classic XML Applications). Read-only catalog — editor, start/stop, and IR import are later slices.",
+  PIPE_COL_NAME: "Name",
+  PIPE_COL_ID: "Id",
+  PIPE_COL_TYPE: "Type",
+  PIPE_COL_ENABLED: "Enabled",
+  PIPE_COL_ROOT: "App root",
+  PIPE_COL_DESCRIPTION: "Description",
   PLACEHOLDER_TITLE: "Not implemented yet",
   PLACEHOLDER_BODY:
     "This section is planned for Developer P0. See docs/ai-generated/tasks/developer-module-p0 and docs/developer-module.",
