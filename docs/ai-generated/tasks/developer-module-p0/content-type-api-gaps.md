@@ -17,7 +17,8 @@
 ## Detail payload includes
 
 - name, label, description, enabled, hideFromMenu, appName, editorUrl, guid  
-- fields: name, label (display), origin (local/system/shared), dataType, control, searchable, fieldSet  
+- fields: name, label (display), origin (local/system/shared), dataType, control, searchable, fieldSet, required  
+- fields **P0.2c rule flags**: readOnly, occurrence, hasValidation, hasVisibilityRules, hasInputTranslation, hasOutputTranslation  
 - child field set names  
 - **allowedWorkflows[]** + **defaultWorkflow** (P0.2b)  
 - **allowedTemplates[]** (P0.2b)  
@@ -35,7 +36,7 @@ Write (create/edit/delete keyword) not exposed yet.
 
 | Gap | FR IDs | Notes |
 |-----|--------|-------|
-| Field validation / visibility / editability / transforms | CD-05–CD-07 | On `PSField` + rule collections; not serialized |
+| Full field rule **expressions** / control properties | CD-05–CD-07 | Flags present (P0.2c); expressions not serialized |
 | Control property + choice configuration | CD-07 | Only control **name** today |
 | Item-level pre/post exits & validations | CD-09 | Properties tab |
 | Edit workflow/template associations | CD-08, CD-12 | **Read-only lists available** |
@@ -49,10 +50,11 @@ Write (create/edit/delete keyword) not exposed yet.
 
 ## Recommended next API work
 
-1. Optional JSON projection of field rules (read-only) from `PSItemDefinition`  
+1. ~~Optional JSON projection of field rules (read-only)~~ **Done P0.2c (flags only)**  
 2. Design-session lock + `PUT` save via thin REST over `IPSContentDesignWs`  
 3. Keyword create/update/delete  
-4. Templates/slots design list UI (public REST partially exists)
+4. Full rule-expression serialization + control property catalogs  
+5. Templates/slots design editors
 
 ## Client behavior
 

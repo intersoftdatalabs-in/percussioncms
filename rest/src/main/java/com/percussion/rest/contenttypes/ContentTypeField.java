@@ -45,6 +45,26 @@ public class ContentTypeField {
   @Schema(description = "True for required fields when known")
   private Boolean required;
 
+  @Schema(description = "True when the field is read-only in the content editor")
+  private Boolean readOnly;
+
+  @Schema(
+      description =
+          "Occurrence dimension: optional | required | oneOrMore | zeroOrMore | count | unknown")
+  private String occurrence;
+
+  @Schema(description = "True when field validation rules are defined")
+  private Boolean hasValidation;
+
+  @Schema(description = "True when visibility rules are defined")
+  private Boolean hasVisibilityRules;
+
+  @Schema(description = "True when an input translation is defined")
+  private Boolean hasInputTranslation;
+
+  @Schema(description = "True when an output translation is defined")
+  private Boolean hasOutputTranslation;
+
   @Schema(description = "Control name when resolved from display mapping")
   private String control;
 
@@ -99,6 +119,54 @@ public class ContentTypeField {
 
   public void setRequired(Boolean required) {
     this.required = required;
+  }
+
+  public Boolean getReadOnly() {
+    return readOnly;
+  }
+
+  public void setReadOnly(Boolean readOnly) {
+    this.readOnly = readOnly;
+  }
+
+  public String getOccurrence() {
+    return occurrence;
+  }
+
+  public void setOccurrence(String occurrence) {
+    this.occurrence = occurrence;
+  }
+
+  public Boolean getHasValidation() {
+    return hasValidation;
+  }
+
+  public void setHasValidation(Boolean hasValidation) {
+    this.hasValidation = hasValidation;
+  }
+
+  public Boolean getHasVisibilityRules() {
+    return hasVisibilityRules;
+  }
+
+  public void setHasVisibilityRules(Boolean hasVisibilityRules) {
+    this.hasVisibilityRules = hasVisibilityRules;
+  }
+
+  public Boolean getHasInputTranslation() {
+    return hasInputTranslation;
+  }
+
+  public void setHasInputTranslation(Boolean hasInputTranslation) {
+    this.hasInputTranslation = hasInputTranslation;
+  }
+
+  public Boolean getHasOutputTranslation() {
+    return hasOutputTranslation;
+  }
+
+  public void setHasOutputTranslation(Boolean hasOutputTranslation) {
+    this.hasOutputTranslation = hasOutputTranslation;
   }
 
   public String getControl() {

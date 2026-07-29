@@ -229,38 +229,70 @@ export function ContentTypeDetailPanel({
                     <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_ORIGIN}</th>
                     <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_DATATYPE}</th>
                     <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_CONTROL}</th>
+                    <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_REQUIRED}</th>
+                    <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_READONLY}</th>
+                    <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_OCCURRENCE}</th>
+                    <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_RULES}</th>
                     <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_SEARCH}</th>
                     <th style={{ padding: "8px" }}>{DEV_MSG.CT_COL_FIELDSET}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {(detail.fields || []).map((f) => (
-                    <tr
-                      key={`${f.fieldSet || "parent"}:${f.name}`}
-                      data-testid="developer-ct-field-row"
-                      style={{ borderBottom: "1px solid #edf2f7" }}
-                    >
-                      <td style={{ padding: "8px" }}>
-                        <div>{f.label || f.name}</div>
-                        <div style={{ fontFamily: "monospace", color: "#718096", fontSize: "0.85rem" }}>
-                          {f.name}
-                        </div>
-                      </td>
-                      <td style={{ padding: "8px" }}>{f.fieldType || "—"}</td>
-                      <td style={{ padding: "8px", fontFamily: "monospace" }}>
-                        {f.dataType || "—"}
-                      </td>
-                      <td style={{ padding: "8px", fontFamily: "monospace" }}>
-                        {f.control || "—"}
-                      </td>
-                      <td style={{ padding: "8px" }}>
-                        {f.searchable ? DEV_MSG.YES : DEV_MSG.NO}
-                      </td>
-                      <td style={{ padding: "8px", fontFamily: "monospace" }}>
-                        {f.fieldSet || "—"}
-                      </td>
-                    </tr>
-                  ))}
+                  {(detail.fields || []).map((f) => {
+                    const rules: string[] = [];
+                    if (f.hasValidation) rules.push(DEV_MSG.CT_RULE_VALIDATION);
+                    if (f.hasVisibilityRules) rules.push(DEV_MSG.CT_RULE_VISIBILITY);
+                    if (f.hasInputTranslation) rules.push(DEV_MSG.CT_RULE_IN_XFORM);
+                    if (f.hasOutputTranslation) rules.push(DEV_MSG.CT_RULE_OUT_XFORM);
+                    return (
+                      <tr
+                        key={`${f.fieldSet || "parent"}:${f.name}`}
+                        data-testid="developer-ct-field-row"
+                        style={{ borderBottom: "1px solid #edf2f7" }}
+                      >
+                        <td style={{ padding: "8px" }}>
+                          <div>{f.label || f.name}</div>
+                          <div
+                            style={{
+                              fontFamily: "monospace",
+                              color: "#718096",
+                              fontSize: "0.85rem",
+                            }}
+                          >
+                            {f.name}
+                          </div>
+                        </td>
+                        <td style={{ padding: "8px" }}>{f.fieldType || "—"}</td>
+                        <td style={{ padding: "8px", fontFamily: "monospace" }}>
+                          {f.dataType || "—"}
+                        </td>
+                        <td style={{ padding: "8px", fontFamily: "monospace" }}>
+                          {f.control || "—"}
+                        </td>
+                        <td style={{ padding: "8px" }}>
+                          {f.required ? DEV_MSG.YES : DEV_MSG.NO}
+                        </td>
+                        <td style={{ padding: "8px" }}>
+                          {f.readOnly ? DEV_MSG.YES : DEV_MSG.NO}
+                        </td>
+                        <td style={{ padding: "8px", fontFamily: "monospace" }}>
+                          {f.occurrence || "—"}
+                        </td>
+                        <td
+                          style={{ padding: "8px", fontSize: "0.85rem", color: "#4a5568" }}
+                          data-testid="developer-ct-field-rules"
+                        >
+                          {rules.length > 0 ? rules.join(", ") : "—"}
+                        </td>
+                        <td style={{ padding: "8px" }}>
+                          {f.searchable ? DEV_MSG.YES : DEV_MSG.NO}
+                        </td>
+                        <td style={{ padding: "8px", fontFamily: "monospace" }}>
+                          {f.fieldSet || "—"}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
