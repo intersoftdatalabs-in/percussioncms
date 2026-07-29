@@ -17,11 +17,17 @@
 package com.percussion.workflow;
 
 import com.percussion.extension.IPSExtensionErrors;
+import com.percussion.services.catalog.PSTypeEnum;
+import com.percussion.services.contentmgr.IPSNodeDefinition;
+import com.percussion.services.contentmgr.PSContentMgrLocator;
+import com.percussion.services.contentmgr.data.PSNodeDefinition;
+import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.util.PSPreparedStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 
 /**
  * Concrete implementation of {@link IPSContentTypesContext} that loads content type metadata from
@@ -41,6 +47,63 @@ public class PSContentTypesContext implements IPSContentTypesContext {
   String m_sContentTypeNewRequest = "";
   String m_sContentTypeQueryRequest = "";
   String m_sContentTypeUpdateRequest = "";
+
+  /**
+   * Hibernate-backed factory added for #1561 Phase 4d-1a. Loads a single content type's
+   * metadata from the shared Hibernate session — no second pool connection.
+   *
+   * <p>Equivalent to the raw-JDBC constructor
+   * {@link #PSContentTypesContext(Connection, int)} but participates in the surrounding Spring
+   * transaction.
+   *
+   * @param contentTypeID the ID of the content type to load; must be {@code > 0}.
+   * @return the populated context, never {@code null}; empty (all fields {@code ""}) when no
+   *     row matches — use {@link #isEmpty()} to detect missing rows.
+   */
+  public static PSContentTypesContext loadFromHibernate(int contentTypeID) {
+    if (contentTypeID <= 0) {
+      throw new IllegalArgumentException("contentTypeID must be > 0");
+    }
+
+    PSContentTypesContext ctx = new PSContentTypesContext();
+    ctx.contentTypeID = contentTypeID;
+    PSNodeDefinition found = null;
+    try {
+      java.util.List<com.percussion.utils.guid.IPSGuid> ids =
+          Collections.singletonList(
+              (com.percussion.utils.guid.IPSGuid)
+                  PSGuidManagerLocator.getGuidMgr().makeGuid(contentTypeID, PSTypeEnum.NODEDEF));
+      java.util.List<IPSNodeDefinition> defs =
+          PSContentMgrLocator.getContentMgr().loadNodeDefinitions(ids);
+      found =
+          defs.stream()
+              .filter(nd -> nd instanceof PSNodeDefinition)
+              .map(nd -> (PSNodeDefinition) nd)
+              .findFirst()
+              .orElse(null);
+    } catch (Exception ignore) {
+      // loadNodeDefinitions throws NoSuchNodeTypeException when no row matches; treat as
+      // "no content type with this id" and return an empty context.
+    }
+    if (found != null) {
+      ctx.m_sContentTypeName = found.getName() == null ? "" : found.getName();
+      ctx.m_sContentTypeDescrition =
+          found.getDescription() == null ? "" : found.getDescription();
+      ctx.m_sContentTypeNewRequest =
+          found.getNewRequest() == null ? "" : found.getNewRequest();
+      ctx.m_sContentTypeQueryRequest =
+          found.getQueryRequest() == null ? "" : found.getQueryRequest();
+      ctx.m_sContentTypeUpdateRequest =
+          found.getUpdateRequest() == null ? "" : found.getUpdateRequest();
+    }
+    return ctx;
+  }
+
+  /**
+   * Package-private default constructor used by the Hibernate {@link #loadFromHibernate(int)}
+   * factory. Field initialization is performed by the factory.
+   */
+  PSContentTypesContext() {}
 
   /**
    * Constructs a content types context for the supplied content type by loading its row from the

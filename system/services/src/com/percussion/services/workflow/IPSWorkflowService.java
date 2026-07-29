@@ -442,6 +442,37 @@ public interface IPSWorkflowService {
    java.util.List<com.percussion.services.workflow.data.PSWorkflowRole>
        findWorkflowRoles(long workflowAppId, java.util.Set<Long> roleIds);
 
+   /**
+    * Loads all {@code TRANSITIONS} rows whose {@code TRANSITIONFROMSTATEID} matches the supplied
+    * (workflowId, stateId) tuple. Added for #1561 Phase 4d-1a so
+    * {@code modules/extensions-workflow/.../PSTransitionsContext} can load its cursor data from
+    * the shared Hibernate session instead of opening a second pool connection.
+    *
+    * <p>The result list mirrors the cursor order produced by the legacy raw-JDBC
+    * {@code PSTransitionsContext(workFlowID, Connection, transitionFromStateID)} read path so
+    * that {@code moveNext()} consumers see the same iteration order.
+    *
+    * @param workflowAppId the workflow id, must be {@code > 0}.
+    * @param fromStateId the source state id, must be {@code > 0}.
+    * @return the matching transitions, never {@code null}, may be empty if no transitions are
+    *     configured for the state.
+    */
+   java.util.List<PSTransition> findTransitionsByState(long workflowAppId, long fromStateId);
+
+   /**
+    * Loads a single non-aging transition by its (workflowId, trigger, fromStateId) tuple.
+    * Added for #1561 Phase 4d-1a so {@code modules/extensions-workflow/.../PSTransitionsContext}
+    * can load its data from the shared Hibernate session instead of opening a second pool
+    * connection (used by {@code PSWorkflowCommandHandler.normalizeTransitionIdParameter}).
+    *
+    * @param workflowAppId the workflow id, must be {@code > 0}.
+    * @param trigger the action trigger name, must not be {@code null} or empty.
+    * @param fromStateId the source state id, must be {@code > 0}.
+    * @return the matching transition, or {@code null} when no row matches.
+    */
+   PSTransition findTransitionByTrigger(
+       long workflowAppId, String trigger, long fromStateId);
+
     /**
      * Loads a specified workflow state by name. This is a fast call, but will
      * return a shared instance that must not be modified.

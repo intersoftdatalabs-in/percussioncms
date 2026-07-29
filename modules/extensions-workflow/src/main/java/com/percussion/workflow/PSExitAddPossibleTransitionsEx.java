@@ -199,7 +199,6 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
       throws PSParameterMismatchException, PSExtensionProcessingException {
     PSWorkFlowUtils.printWorkflowMessage(
         request, "\nAdd Possible Transitions: enter processResultDocument");
-    PSConnectionMgr connectionMgr = null;
 
     try {
       if (null == request) {
@@ -256,13 +255,9 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
 
       getUserInfo(request, localParams);
 
-      // Get the connection
-      try {
-        connectionMgr = new PSConnectionMgr();
-        localParams.m_connection = connectionMgr.getConnection();
-      } catch (Exception e) {
-        throw new PSExtensionProcessingException(m_fullExtensionName, e);
-      }
+      // Phase 4d-1a: no longer opens a second pool connection — all reads below
+      // (CONTENTSTATUS, STATEROLES, CONTENTTYPES, TRANSITIONS) route through Hibernate
+      // factories on the shared session.
 
       Element element = null;
       NodeList nodes = resDoc.getElementsByTagName(localParams.m_statusDocElementName);
@@ -282,11 +277,6 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
         }
       }
     } finally {
-      try {
-        if (null != connectionMgr) connectionMgr.releaseConnection();
-      } catch (SQLException sqe) {
-      }
-
       PSWorkFlowUtils.printWorkflowMessage(
           request, "Add Possible Transitions: exit processResultDocument");
     }
@@ -305,7 +295,6 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
       throws PSExtensionProcessingException {
     PSWorkFlowUtils.printWorkflowMessage(
         request, "\nAdd Possible Transitions: enter getAssignmentType");
-    PSConnectionMgr connectionMgr = null;
     int assignmentType = PSWorkFlowUtils.ASSIGNMENT_TYPE_NOT_IN_WORKFLOW;
 
     try {
@@ -320,7 +309,12 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
             new IllegalArgumentException("The contentid must not be null or empty"));
       }
 
-      String userName = request.getUserContextInformation("User/name", "unknown").toString();
+      String userName;
+      try {
+        userName = request.getUserContextInformation("User/name", "unknown").toString();
+      } catch (PSDataExtractionException e) {
+        throw new PSExtensionProcessingException(m_fullExtensionName, e);
+      }
 
       String lang =
           (String) request.getSessionPrivateObject(PSI18nUtils.USER_SESSION_OBJECT_SYS_LANG);
@@ -335,48 +329,33 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
       Params localParams = new Params();
       getUserInfo(request, localParams);
 
-      // Get the connection
-      connectionMgr = new PSConnectionMgr();
-      Connection connection;
       try {
-        connection = connectionMgr.getConnection();
-
+        // Phase 4d-1a: CONTENTSTATUS read via Hibernate (Phase 4b loadComponentSummary).
         int contentID = Integer.parseInt(contentid);
-
-        if (!getContentInfo(
-            contentID, connection, userName, localParams.m_roleNameList, localParams)) {
+        com.percussion.services.legacy.IPSCmsObjectMgr cms =
+            com.percussion.services.legacy.PSCmsObjectMgrLocator.getObjectManager();
+        com.percussion.cms.objectstore.PSComponentSummary summary =
+            cms.loadComponentSummary(contentID);
+        if (summary == null) {
           return assignmentType;
         }
+        int nWorkFlowAppID = summary.getWorkflowAppId();
+        int nContentStateID = summary.getContentStateId();
 
-        PSContentStatusContext csc = localParams.m_contentStatusCtx;
         assignmentType =
-            getAssignmentInfo(
-                csc.getWorkflowID(),
+            getAssignmentType(
+                nWorkFlowAppID,
                 contentID,
-                csc.getCommunityID(),
-                connection,
-                csc.getContentStateID(),
+                nContentStateID,
                 userName,
-                localParams.m_userCommunity,
                 localParams.m_roleNameList,
-                localParams.m_isAdministrator,
-                null,
                 request);
       } catch (Exception e) {
         log.error(PSExceptionUtils.getMessageForLog(e));
         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
         throw new PSExtensionProcessingException(m_fullExtensionName, e);
       }
-    } catch (PSDataExtractionException ex) {
-      throw new PSExtensionProcessingException(m_fullExtensionName, ex);
-    } catch (SQLException se) {
-      throw new PSExtensionProcessingException(m_fullExtensionName, se);
     } finally {
-      try {
-        if (null != connectionMgr) connectionMgr.releaseConnection();
-      } catch (SQLException sqe) {
-      }
-
       PSWorkFlowUtils.printWorkflowMessage(
           request, "Add Possible Transitions: exit getAssignmentType");
     }
@@ -421,16 +400,26 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
     if (contentID < 1)
       throw new PSXMLNodeMissingException(lang, IPSExtensionErrors.CONTENTID_NODE_MISSING);
 
-    if (!getContentInfo(
-        contentID,
-        localParams.m_connection,
-        localParams.m_userName,
-        localParams.m_roleNameList,
-        localParams)) {
+    // Phase 4d-1a: CONTENTSTATUS read via Hibernate (Phase 4b loadComponentSummary).
+    com.percussion.cms.objectstore.PSComponentSummary summary =
+        com.percussion.services.legacy.PSCmsObjectMgrLocator.getObjectManager()
+            .loadComponentSummary(contentID);
+    if (summary == null) {
       return;
     }
+    if (summary.getObjectType() == PSCmsObject.TYPE_FOLDER) {
+      // Phase 4d-1a parity with the legacy getContentInfo: folders do not participate in
+      // workflow — do not emit workflow info elements for them.
+      return;
+    }
+    int nWorkflowAppID = summary.getWorkflowAppId();
+    int nContentStateID = summary.getContentStateId();
+    int nContentTypeID = (int) summary.getContentTypeId();
+    String sCheckoutUserName = summary.getCheckoutUserName();
+    int nCommunityID = summary.getCommunityId();
 
-    PSContentStatusContext contentStatusCtx = localParams.m_contentStatusCtx;
+    PSContentStatusContext legacyCsc = localParams.m_contentStatusCtx;
+    localParams.m_contentStatusCtx = legacyCsc; // keep for compatibility
 
     // Add workflow info element and set required attributes
     Element elemWorkflowInfo = doc.createElement(ELEMENT_WORKFLOWINFO);
@@ -442,26 +431,20 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
     }
 
     // Add checkout user name as an attribute of the workflow info element
-    elemWorkflowInfo.setAttribute(
-        ATTRIB_CHECKOUTUSERNAME, contentStatusCtx.getContentCheckedOutUserName());
+    elemWorkflowInfo.setAttribute(ATTRIB_CHECKOUTUSERNAME, sCheckoutUserName);
 
     // Add user info element and attributes
     Element elemUserName = doc.createElement(ELEMENT_USERNAME);
     elemUserName = (Element) elemWorkflowInfo.appendChild(elemUserName);
 
-    int nAssignmentType;
-    nAssignmentType =
-        getAssignmentInfo(
-            contentStatusCtx.getWorkflowID(),
+    // Phase 4d-1a: assignment-type via Hibernate-backed loadFromHibernate.
+    int nAssignmentType =
+        getAssignmentType(
+            nWorkflowAppID,
             contentID,
-            contentStatusCtx.getCommunityID(),
-            localParams.m_connection,
-            contentStatusCtx.getContentStateID(),
+            nContentStateID,
             localParams.m_userName,
-            localParams.m_userCommunity,
             localParams.m_roleNameList,
-            localParams.m_isAdministrator,
-            localParams,
             req);
 
     elemUserName.setAttribute(ATTRIB_ASSIGNMENTTYPE, Integer.toString(nAssignmentType));
@@ -470,14 +453,7 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
     elemUserName.appendChild(text);
 
     // Add assigned roles information
-    addAssignedRolesInfo(
-        doc,
-        elemWorkflowInfo,
-        contentStatusCtx.getWorkflowID(),
-        contentStatusCtx.getContentStateID(),
-        contentID,
-        localParams.m_connection,
-        req);
+    addAssignedRolesInfo(doc, elemWorkflowInfo, nWorkflowAppID, nContentStateID, contentID);
 
     if (localParams.m_addAssignmentInfoOnly) return;
 
@@ -504,9 +480,10 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
     // if the user is not logged into the same community as the item
     // do not add the actions.
 
-    if (contentStatusCtx.getCommunityID() == localParams.m_userCommunity) {
+    if (nCommunityID == localParams.m_userCommunity) {
       addActions(
-          doc, elemWorkflowInfo, contentID, localParams.m_contentStatusCtx, localParams, req);
+          doc, elemWorkflowInfo, contentID, nContentStateID, nContentTypeID, sCheckoutUserName,
+          localParams, req);
     }
 
     PSWorkFlowUtils.printWorkflowMessage(req, "  Exiting method addWorkflowInfo");
@@ -629,6 +606,20 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
       Connection connection,
       IPSRequestContext request)
       throws SQLException {
+    // Phase 4d-1a: ignore the legacy Connection; delegate to the no-Connection overload.
+    addAssignedRolesInfo(doc, elemParent, nWorkflowAppID, stateid, contentId);
+  }
+
+  /**
+   * Hibernate-backed #1561 Phase 4d-1a overload of {@code addAssignedRolesInfo}. Loads the
+   * STATEROLES row via the shared Hibernate session — no second pool connection.
+   */
+  private void addAssignedRolesInfo(
+      Document doc,
+      Element elemParent,
+      int nWorkflowAppID,
+      int stateid,
+      int contentId) {
     Element elemAssignedRoles = doc.createElement(ELEMENT_ASSIGNEDROLES);
     elemAssignedRoles = (Element) elemParent.appendChild(elemAssignedRoles);
     Element elemAssignedRole = null;
@@ -636,9 +627,10 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
     PSStateRolesContext src = null;
 
     try {
+      // Phase 4d-1a: STATEROLES read via Hibernate factory (Phase 4b).
       src =
-          new PSStateRolesContext(
-              nWorkflowAppID, connection, stateid, PSWorkFlowUtils.ASSIGNMENT_TYPE_NONE);
+          PSStateRolesContext.loadFromHibernate(
+              nWorkflowAppID, stateid, PSWorkFlowUtils.ASSIGNMENT_TYPE_NONE);
 
       if (null == src) {
         return;
@@ -687,9 +679,9 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
         }
       }
     } catch (PSEntryNotFoundException e) {
-      PSWorkFlowUtils.printWorkflowException(request, e);
+      // No state-roles for this state — ignore.
     } catch (PSRoleException e) {
-      PSWorkFlowUtils.printWorkflowException(request, e);
+      // No state-roles for this state — ignore.
     }
   }
 
@@ -702,11 +694,38 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
       Params localParams,
       IPSRequestContext req)
       throws SQLException, PSXMLNodeMissingException, PSEntryNotFoundException, PSORMException {
+    // Phase 4d-1a: ignore the legacy Connection and the legacy csc; delegate to the
+    // no-Connection overload.
+    addActions(
+        doc,
+        elemParent,
+        contentID,
+        csc.getContentStateID(),
+        csc.getContentTypeID(),
+        csc.getContentCheckedOutUserName(),
+        localParams,
+        req);
+  }
+
+  /**
+   * Hibernate-backed #1561 Phase 4d-1a overload of {@code addActions}. Reads CONTENTTYPES and
+   * TRANSITIONS from the shared Hibernate session — no second pool connection.
+   */
+  @SuppressWarnings({"unchecked", "unused"})
+  private void addActions(
+      Document doc,
+      Element elemParent,
+      int contentID,
+      int contentStateID,
+      int contentTypeID,
+      String sCheckoutUserNameFromSummary,
+      Params localParams,
+      IPSRequestContext req)
+      throws SQLException, PSORMException {
     PSContentTypesContext ctc = null;
     try {
-      ctc = new PSContentTypesContext(localParams.m_connection, csc.getContentTypeID());
-    } catch (PSEntryNotFoundException e) {
-      // ignore
+      // Phase 4d-1a: CONTENTTYPES read via Hibernate factory.
+      ctc = PSContentTypesContext.loadFromHibernate(contentTypeID);
     } finally {
       if (null != ctc) ctc.close();
     }
@@ -714,7 +733,7 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
     Element elemActionList = doc.createElement(ACTIONLINKSET_NAME);
     elemActionList = (Element) elemParent.appendChild(elemActionList);
 
-    String checkoutUserName = localParams.m_contentStatusCtx.getContentCheckedOutUserName();
+    String checkoutUserName = sCheckoutUserNameFromSummary;
     boolean bCheckedOut = ((null != checkoutUserName) && (checkoutUserName.trim().length() > 0));
 
     // get the dynamic names  for the HTML system params
@@ -730,9 +749,10 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
     String buttonLabel = null;
     String buttonName = null; // the internal name of the button
 
+    int nWorkflowAppID = localParams.m_contentStatusCtx == null ? 0 : localParams.m_contentStatusCtx.getWorkflowID();
     IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
     boolean isPublic =
-        cms.loadWorkflowState(csc.getWorkflowID(), csc.getContentStateID())
+        cms.loadWorkflowState(nWorkflowAppID, contentStateID)
             .map(IPSStatesContext::getIsValid)
             .orElse(false);
 
@@ -815,54 +835,67 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
         createActionLink(
             doc, tmpLabel, EDIT_BUTTON_NAME, params.entrySet().iterator(), false, false, ""));
 
-    // transition actions
-    List<PSTransitionInfo> transitions =
-        PSWorkFlowUtils.getAllowedTransitions(
-            csc,
-            localParams.m_connection,
-            localParams.m_userName,
-            localParams.m_isAdministrator,
-            localParams.m_actorRoleNames);
+    // Phase 4d-1a: transition actions via Hibernate-backed loadAllFromHibernate.
+    // The legacy PSWorkFlowUtils.getAllowedTransitions overload still requires a raw
+    // second-connection read of CONTENTAPPROVALS, so we walk the cursor directly here.
+    PSTransitionsContext tc =
+        PSTransitionsContext.loadAllFromHibernate(nWorkflowAppID, contentStateID);
+    if (!tc.isEmpty()) {
+      while (true) {
+        try {
+          if (tc.isAgingTransition()) {
+            if (!tc.moveNext() && tc.isEmpty()) break;
+            if (tc.isEmpty()) break;
+            continue;
+          }
+          // Mirror the legacy getAllowedTransitions isDisabled logic: if the user is admin,
+          // the transition is always enabled. Otherwise consult the role list.
+          boolean isDisabled = !localParams.m_isAdministrator;
+          if (!isDisabled) {
+            List transitionRequiredRoles = tc.getTransitionRoles();
+            if (null != transitionRequiredRoles && transitionRequiredRoles.size() > 0) {
+              isDisabled = !PSWorkFlowUtils.compareRoleList(
+                  transitionRequiredRoles, localParams.m_actorRoleNames);
+            }
+          }
+          params.clear();
+          params.put(ms_actionTriggerName, tc.getTransitionActionTrigger());
+          params.put(IPSHtmlParameters.SYS_TRANSITIONID,
+              Integer.toString(tc.getTransitionID()));
+          params.put(commandParam, WORKFLOW_COMMAND);
 
-    for (PSTransitionInfo info : transitions) {
-      params.clear();
-      params.put(ms_actionTriggerName, info.getTrigger());
-      params.put(IPSHtmlParameters.SYS_TRANSITIONID, Integer.toString(info.getId()));
-      params.put(commandParam, WORKFLOW_COMMAND);
+          String transName =
+              PSI18nUtils.getString(
+                  PSI18nUtils.PSX_WORKFLOW_TRANSITION
+                      + PSI18nUtils.LOOKUP_KEY_SEPARATOR
+                      + String.valueOf(nWorkflowAppID)
+                      + PSI18nUtils.LOOKUP_KEY_SEPARATOR
+                      + String.valueOf(tc.getTransitionID())
+                      + PSI18nUtils.LOOKUP_KEY_SEPARATOR_LAST
+                      + tc.getTransitionLabel(),
+                  lang);
 
-      Element actionLink = null;
-      String transName =
-          PSI18nUtils.getString(
-              PSI18nUtils.PSX_WORKFLOW_TRANSITION
-                  + PSI18nUtils.LOOKUP_KEY_SEPARATOR
-                  + String.valueOf(csc.getWorkflowID())
-                  + PSI18nUtils.LOOKUP_KEY_SEPARATOR
-                  + String.valueOf(info.getId())
-                  + PSI18nUtils.LOOKUP_KEY_SEPARATOR_LAST
-                  + info.getLabel(),
-              lang);
-
-      actionLink =
-          (Element)
-              elemActionList.appendChild(
-                  createActionLink(
-                      doc,
-                      transName,
-                      null, // name
-                      params.entrySet().iterator(),
-                      true, // is transition
-                      info.isDisabled(), // is disabled
-                      info.getComment()));
-      if (actionLink != null) {
-        addAssignedRolesInfo(
-            doc,
-            actionLink,
-            csc.getWorkflowID(),
-            info.getToStateId(),
-            contentID,
-            localParams.m_connection,
-            req);
+          Element actionLink =
+              (Element)
+                  elemActionList.appendChild(
+                      createActionLink(
+                          doc,
+                          transName,
+                          null,
+                          params.entrySet().iterator(),
+                          true,
+                          isDisabled,
+                          tc.getTransitionComment()));
+          if (actionLink != null) {
+            addAssignedRolesInfo(
+                doc, actionLink, nWorkflowAppID, tc.getTransitionToStateID(), contentID);
+          }
+          if (!tc.moveNext()) break;
+        } catch (SQLException e) {
+          break;
+        }
       }
+      tc.close();
     }
 
     return;
@@ -1073,6 +1106,70 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
       actorRoles =
           PSWorkflowRoleInfoStatic.getActorRoles(
               contentID, src, userName, roleNameList, connection, true);
+
+      if (null == actorRoles || actorRoles.isEmpty()) {
+        return assignmentType;
+      }
+      assignmentType = PSWorkflowRoleInfoStatic.getAssignmentType(src, actorRoles);
+    } catch (PSEntryNotFoundException e) {
+      // fall thru
+    } catch (PSRoleException e) {
+      // fall thru
+    }
+    return assignmentType;
+  }
+
+  /**
+   * Hibernate-backed #1561 Phase 4d-1a overload of the assignment-type lookup. Loads the
+   * {@code STATEROLES} row and the {@code CONTENTADHOCUSERS} rows from the shared Hibernate
+   * session and delegates to the no-connection {@code PSWorkflowRoleInfoStatic.getActorRoles}
+   * overload. No second pool connection is opened.
+   *
+   * @param workflowID ID of the workflow, must be {@code > 0}.
+   * @param contentID ID of the content item, must be {@code > 0}.
+   * @param stateid ID of the state, must be {@code > 0}.
+   * @param userName The user's name, must not be {@code null} or empty.
+   * @param roleNameList A comma-delimited list of the user's roles, may not be {@code null}.
+   * @param req The current request, must not be {@code null}.
+   * @return highest assignment type for the user, based on the roles in which they are acting.
+   */
+  public static int getAssignmentType(
+      int workflowID,
+      int contentID,
+      int stateid,
+      String userName,
+      String roleNameList,
+      IPSRequestContext req) {
+    if (workflowID <= 0) throw new IllegalArgumentException("workflowID must be > 0");
+    if (contentID <= 0) throw new IllegalArgumentException("contentID must be > 0");
+    if (stateid <= 0) throw new IllegalArgumentException("stateid must be > 0");
+    if (StringUtils.isBlank(userName))
+      throw new IllegalArgumentException("userName may not be null");
+    if (roleNameList == null) throw new IllegalArgumentException("roleNameList may not be null");
+    if (req == null) throw new IllegalArgumentException("req may not be null");
+
+    try {
+      if (!PSCms.canReadInFolders(contentID)) return PSWorkFlowUtils.ASSIGNMENT_TYPE_NONE;
+    } catch (java.sql.SQLException e) {
+      return PSWorkFlowUtils.ASSIGNMENT_TYPE_NOT_IN_WORKFLOW;
+    }
+
+    List actorRoles = null;
+    int assignmentType = PSWorkFlowUtils.ASSIGNMENT_TYPE_NOT_IN_WORKFLOW;
+    PSStateRolesContext src = null;
+    PSContentAdhocUsersContext cauc = null;
+
+    try {
+      // Phase 4d-1a: STATEROLES read via Hibernate factory (Phase 4b).
+      src =
+          PSStateRolesContext.loadFromHibernate(
+              workflowID, stateid, PSWorkFlowUtils.ASSIGNMENT_TYPE_NONE);
+      // Phase 4d-1a: CONTENTADHOCUSERS read via Hibernate factory (Phase 4b).
+      cauc = PSContentAdhocUsersContext.loadFromHibernate(contentID);
+
+      // By sending true for authUser we are imposing the same rule as authenticateuser.
+      actorRoles =
+          PSWorkflowRoleInfoStatic.getActorRoles(userName, roleNameList, src, cauc, true);
 
       if (null == actorRoles || actorRoles.isEmpty()) {
         return assignmentType;
