@@ -19,11 +19,17 @@ package com.percussion.delivery.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/** Enumeration of the supported feed types. */
 public enum FeedType {
+  /** Atom feed format. */
   @JsonProperty("ATOM")
   ATOM,
+
+  /** RSS 1.0 (RDF Site Summary) feed format. */
   @JsonProperty("RSS1")
   RSS1,
+
+  /** RSS 2.0 (Really Simple Syndication) feed format. */
   @JsonProperty("RSS2")
   RSS2
 }

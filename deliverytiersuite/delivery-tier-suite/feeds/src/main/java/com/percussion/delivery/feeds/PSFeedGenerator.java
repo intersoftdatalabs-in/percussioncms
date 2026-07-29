@@ -35,9 +35,27 @@ import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 /**
+ * Generates Atom/RSS feed XML for a feed descriptor and a list of feed items, using the configured
+ * host name as the feed link host.
+ *
  * @author erikserating
  */
 public class PSFeedGenerator {
+
+  /** Default constructor. */
+  public PSFeedGenerator() {
+    // default constructor
+  }
+
+  /**
+   * Renders the supplied descriptor and items as feed XML using the given host.
+   *
+   * @param desc the feed descriptor, never <code>null</code>
+   * @param host the host name used to build the feed's links, never <code>null</code>
+   * @param items the feed items to include, never <code>null</code>
+   * @return the feed XML as a string, never <code>null</code>
+   * @throws FeedException if the feed XML cannot be produced
+   */
   public String makeFeedContent(IPSFeedDescriptor desc, String host, List<PSFeedItem> items)
       throws FeedException {
     Objects.requireNonNull(desc, "desc cannot be null");
@@ -75,18 +93,25 @@ public class PSFeedGenerator {
   }
 
   /**
-   * Replaces the host name in the link with the supplied host
+   * Replaces the host name in the link with the supplied host.
    *
-   * @param link
-   * @param host
-   * @return The link
-   * @throws FeedException
+   * @param link the original link, never <code>null</code>
+   * @param host the replacement host, never <code>null</code>
+   * @return the link with the host replaced, never <code>null</code>
+   * @throws FeedException if the link cannot be parsed
    */
   private String fixupHost(String link, String host) throws FeedException {
     String curHost = getHost(link);
     return StringUtils.replace(link, curHost, host, 1);
   }
 
+  /**
+   * Extracts the host (and port, if present) from the supplied link.
+   *
+   * @param link the link to parse, never <code>null</code>
+   * @return the host portion of the link (with port if present), never <code>null</code>
+   * @throws FeedException if the link cannot be parsed
+   */
   public static String getHost(String link) throws FeedException {
     try {
       URI uri = new URI(link);

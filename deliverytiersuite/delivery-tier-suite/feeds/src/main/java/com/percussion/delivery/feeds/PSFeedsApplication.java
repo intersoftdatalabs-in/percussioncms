@@ -31,8 +31,18 @@ import org.glassfish.jersey.server.spring.SpringLifecycleListener;
 import org.glassfish.jersey.server.spring.SpringWebApplicationInitializer;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 
+/**
+ * Jersey application configuration for the feeds REST endpoints. Mounted at the application root
+ * and registers the Spring/Jersey integration, JSON providers, exception mappers, and the {@link
+ * PSFeedService} resource.
+ */
 @ApplicationPath("/")
 public class PSFeedsApplication extends ResourceConfig {
+
+  /**
+   * Registers the request-scoped filter, Spring component provider, lifecycle listeners, the feed
+   * REST service, JSON binding provider, and exception mappers used by the feeds application.
+   */
   public PSFeedsApplication() {
     register(RequestContextFilter.class);
     register(SpringComponentProvider.class);
