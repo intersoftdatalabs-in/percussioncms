@@ -47,18 +47,26 @@ function associationsEqual(
 ): boolean {
   if (a.length !== b.length) return false;
   for (let i = 0; i < a.length; i++) {
+    // Indexed access may be undefined under noUncheckedIndexedAccess.
+    const left = a[i];
+    const right = b[i];
+    if (!left || !right) return false;
     const as =
-      a[i].contentTypeGuid?.stringValue ||
-      (a[i].contentTypeGuid?.uuid != null ? String(a[i].contentTypeGuid.uuid) : "");
+      left.contentTypeGuid?.stringValue ||
+      (left.contentTypeGuid?.uuid != null
+        ? String(left.contentTypeGuid.uuid)
+        : "");
     const at =
-      a[i].templateGuid?.stringValue ||
-      (a[i].templateGuid?.uuid != null ? String(a[i].templateGuid.uuid) : "");
+      left.templateGuid?.stringValue ||
+      (left.templateGuid?.uuid != null ? String(left.templateGuid.uuid) : "");
     const bs =
-      b[i].contentTypeGuid?.stringValue ||
-      (b[i].contentTypeGuid?.uuid != null ? String(b[i].contentTypeGuid.uuid) : "");
+      right.contentTypeGuid?.stringValue ||
+      (right.contentTypeGuid?.uuid != null
+        ? String(right.contentTypeGuid.uuid)
+        : "");
     const bt =
-      b[i].templateGuid?.stringValue ||
-      (b[i].templateGuid?.uuid != null ? String(b[i].templateGuid.uuid) : "");
+      right.templateGuid?.stringValue ||
+      (right.templateGuid?.uuid != null ? String(right.templateGuid.uuid) : "");
     if (as !== bs || at !== bt) return false;
   }
   return true;

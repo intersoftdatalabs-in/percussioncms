@@ -18450,5 +18450,26 @@ Documentación' href='https://percussioncmshelp.intsof.com/'&gt;percussioncmshel
         <tuv xml:lang="es"><seg>Iniciar sesión</seg></tuv>
         <tuv xml:lang="hi"><seg>लॉग इन करें</seg></tuv>
     </tu>
+    <tu tuid="perc.ui.logout.modern@Signed out">
+        <prop type="sectionname" xml:lang="en-us">Logout</prop>
+        <note xml:lang="en-us">Modern logout page title</note>
+        <tuv xml:lang="en-us"><seg>Signed out</seg></tuv>
+        <tuv xml:lang="es"><seg>Sesión cerrada</seg></tuv>
+        <tuv xml:lang="hi"><seg>साइन आउट</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.logout.modern@You have been logged out.">
+        <prop type="sectionname" xml:lang="en-us">Logout</prop>
+        <note xml:lang="en-us">Modern logout confirmation message</note>
+        <tuv xml:lang="en-us"><seg>You have been logged out.</seg></tuv>
+        <tuv xml:lang="es"><seg>Se te ha cerrado la sesión.</seg></tuv>
+        <tuv xml:lang="hi"><seg>आप लॉग आउट हो चुके हैं।</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.logout.modern@Sign in again">
+        <prop type="sectionname" xml:lang="en-us">Logout</prop>
+        <note xml:lang="en-us">Modern logout CTA to return to login</note>
+        <tuv xml:lang="en-us"><seg>Sign in again</seg></tuv>
+        <tuv xml:lang="es"><seg>Iniciar sesión de nuevo</seg></tuv>
+        <tuv xml:lang="hi"><seg>फिर से साइन इन करें</seg></tuv>
+    </tu>
     </body>
 </tmx>

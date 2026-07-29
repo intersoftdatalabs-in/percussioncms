@@ -1,0 +1,44 @@
+/*
+ * Logout page — layout matches LoginPage.module.css; only logout-specific
+ * elements live here. Shared chrome (page/main/card/logo) is imported from
+ * the login CSS module so the two screens stay visually aligned.
+ */
+
+.message {
+  margin: 0 0 1.5rem;
+  text-align: center;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--color-text, #181c2c);
+}
+
+.actions {
+  margin-top: 0.25rem;
+}
+
+/* Anchor styled like LoginPage .submit (button look, link behavior). */
+.loginLink {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  border: none;
+  border-radius: 6px;
+  padding: 0.7rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  background: var(--color-primary, #4a6aa3);
+  color: var(--color-text-inverse, #ffffff);
+}
+
+.loginLink:hover {
+  background: var(--color-primary-hover, #2f456e);
+  color: var(--color-text-inverse, #ffffff);
+}
+
+.loginLink:focus {
+  outline: 2px solid var(--color-accent, #fbb03b);
+  outline-offset: 2px;
+}
