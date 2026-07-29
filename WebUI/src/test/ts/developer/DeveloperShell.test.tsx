@@ -38,6 +38,17 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
         hasInputTranslation: false,
         hasOutputTranslation: false,
       },
+      {
+        name: "page_title",
+        label: "Page title",
+        fieldType: "local",
+        dataType: "text",
+        control: "sys_EditBox",
+        searchable: false,
+        required: false,
+        readOnly: false,
+        occurrence: "optional",
+      },
     ],
     allowedWorkflows: [{ name: "Simple Workflow", label: "Simple Workflow", isDefault: true }],
     defaultWorkflow: { name: "Simple Workflow", label: "Simple Workflow", isDefault: true },
@@ -46,6 +57,34 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
       "Field rule flags are exposed (validation/visibility/transforms present); full rule expressions and control properties are not",
     ],
   }),
+  updateContentTypeDetail: vi.fn().mockImplementation(async (_id, body) => ({
+    name: "percPage",
+    label: body.label ?? "Page",
+    description: body.description ?? "A page",
+    enabled: body.enabled ?? true,
+    guid: { stringValue: "0-2-301", uuid: 301 },
+    fields: [
+      {
+        name: "sys_title",
+        label: "Title",
+        fieldType: "system",
+        searchable: true,
+        required: true,
+        occurrence: "required",
+      },
+      {
+        name: "page_title",
+        label: "Page title",
+        fieldType: "local",
+        searchable: body.fields?.find((f: { name?: string }) => f.name === "page_title")
+          ?.searchable ?? false,
+        required: body.fields?.find((f: { name?: string }) => f.name === "page_title")
+          ?.required ?? false,
+        occurrence: "optional",
+      },
+    ],
+    designGaps: [],
+  })),
 }));
 
 vi.mock("../../../main/ts/api/developer/aclApi", () => ({
@@ -254,11 +293,13 @@ describe("DeveloperShell", () => {
     });
     expect(screen.getByTestId("developer-ct-fields-table")).toBeTruthy();
     expect(screen.getByText("sys_title")).toBeTruthy();
-    expect(screen.getByTestId("developer-ct-field-rules").textContent).toMatch(/validation/);
+    expect(screen.getAllByTestId("developer-ct-field-rules")[0].textContent).toMatch(/validation/);
     // Occurrence cell value is lowercase "required" (distinct from "Required" header)
-    expect(screen.getByTestId("developer-ct-field-occurrence").textContent).toBe("required");
+    expect(screen.getAllByTestId("developer-ct-field-occurrence")[0].textContent).toBe("required");
     expect(screen.getByTestId("developer-ct-workflows")).toBeTruthy();
     expect(screen.getByTestId("developer-ct-templates")).toBeTruthy();
+    expect(screen.getByTestId("developer-ct-label")).toBeTruthy();
+    expect(screen.getByTestId("developer-ct-save")).toBeTruthy();
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-acl-table")).toBeTruthy();
     });
@@ -266,6 +307,37 @@ describe("DeveloperShell", () => {
     fireEvent.click(screen.getByTestId("developer-ct-back"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
+    });
+  });
+
+  it("edits content type field searchable and saves with design lock path", async () => {
+    const { updateContentTypeDetail } = await import(
+      "../../../main/ts/api/developer/contentTypesApi"
+    );
+    render(<DeveloperShell embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-row"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-field-search-page_title")).toBeTruthy();
+    });
+    const saveBtn = screen.getByTestId("developer-ct-save");
+    expect((saveBtn as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(screen.getByTestId("developer-ct-field-search-page_title"));
+    expect((saveBtn as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(saveBtn);
+    await waitFor(() => {
+      expect(updateContentTypeDetail).toHaveBeenCalled();
+    });
+    const body = (updateContentTypeDetail as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1];
+    expect(body.fields).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: "page_title", searchable: true }),
+      ]),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-notice").textContent).toMatch(/saved/i);
     });
   });
 

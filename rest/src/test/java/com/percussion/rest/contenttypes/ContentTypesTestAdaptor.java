@@ -61,4 +61,9 @@ public class ContentTypesTestAdaptor implements IContentTypesAdaptor {
   public ContentTypeDetail getContentType(URI baseUri, String idOrName) {
     return null;
   }
+
+  @Override
+  public ContentTypeDetail updateContentType(URI baseUri, String idOrName, ContentTypeDetail body) {
+    return null;
+  }
 }
