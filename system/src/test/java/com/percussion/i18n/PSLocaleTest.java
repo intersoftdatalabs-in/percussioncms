@@ -128,11 +128,45 @@ public class PSLocaleTest {
     System.out.println(PSXmlDocumentBuilder.toString(el));
     localeXml = new PSLocale(el);
     assertEquals(locale1, localeXml);
+    assertTrue(!localeXml.isBaseLocale());
 
     doc = PSXmlDocumentBuilder.createXmlDocument();
     el = locale2.toXml(doc);
     localeXml = new PSLocale(el);
     assertEquals(locale2, localeXml);
+  }
+
+  @Test
+  public void testIsBaseLocaleXmlAndRow() throws Exception {
+    PSLocale ar = new PSLocale("ar", "Arabic", "Arabic base", PSLocale.STATUS_ACTIVE);
+    ar.setBaseLocale(true);
+    assertTrue(ar.isBaseLocale());
+
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element el = ar.toXml(doc);
+    PSLocale fromXml = new PSLocale(el);
+    assertTrue(fromXml.isBaseLocale());
+    assertEquals("ar", fromXml.getLanguageString());
+
+    List cols = new ArrayList();
+    cols.add(new PSJdbcColumnData("LANGUAGESTRING", "es"));
+    cols.add(new PSJdbcColumnData("DISPLAYNAME", "Spanish"));
+    cols.add(new PSJdbcColumnData("DESCRIPTION", "base"));
+    cols.add(new PSJdbcColumnData("STATUS", "1"));
+    cols.add(new PSJdbcColumnData("ISBASE", "1"));
+    PSLocale fromRow =
+        new PSLocale(new PSJdbcRowData(cols.iterator(), PSJdbcRowData.ACTION_INSERT));
+    assertTrue(fromRow.isBaseLocale());
+
+    // Missing ISBASE column defaults to false
+    List colsNoBase = new ArrayList();
+    colsNoBase.add(new PSJdbcColumnData("LANGUAGESTRING", "en-us"));
+    colsNoBase.add(new PSJdbcColumnData("DISPLAYNAME", "English"));
+    colsNoBase.add(new PSJdbcColumnData("DESCRIPTION", null));
+    colsNoBase.add(new PSJdbcColumnData("STATUS", "1"));
+    PSLocale noBase =
+        new PSLocale(new PSJdbcRowData(colsNoBase.iterator(), PSJdbcRowData.ACTION_INSERT));
+    assertTrue(!noBase.isBaseLocale());
   }
 
   /**

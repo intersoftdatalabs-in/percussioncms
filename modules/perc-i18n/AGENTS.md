@@ -14,8 +14,8 @@ The `perc-i18n` module is the **canonical source for all i18n resources** in Per
 
 All TMX files are centralized in `src/main/resources/i18n/`:
 - **ResourceBundle.tmx** - Master resource bundle
-- **CmsUi.tmx** - UI translations (17-locale matrix, see Quick Reference)
-- **SystemResources.tmx** - System/editor resources (same 17-locale matrix)
+- **CmsUi.tmx** - UI translations (18-locale matrix, see Quick Reference)
+- **SystemResources.tmx** - System/editor resources (same 18-locale matrix)
 
 **Legacy locations are deprecated:**
 - ~~`system/config/I18n/`~~ (TMX files removed)
@@ -39,16 +39,23 @@ All TMX files are centralized in `src/main/resources/i18n/`:
   line and the inline `<tuv xml:lang="...">` attribute still work
   because both are normalized on read, but new content must use the
   canonical form.
-- **Canonical 17-locale set**: `en-us`, `en-gb`, `de-de`, `es`,
+- **Canonical 18-locale set**: `ar`, `de-de`, `en-gb`, `en-us`, `es`,
   `es-cl`, `es-es`, `es-mx`, `fr-ca`, `fr-fr`, `hi`, `hi-in`,
-  `it-it`, `ja-jp`, `nl-nl`, `pt-br`, `pt-pt`, `tr-tr`. `es` is the
-  generic Spanish catch-all; `hi` is generic Hindi; both stay in the
-  matrix alongside their regional siblings. Do not introduce a code
-  outside this set without updating `RXLOCALE` in
-  `modules/perc-distribution-tree/.../cmsTableData.xml` first.
-- **Header `<prop type="supportedlanguage">` lines must match the 17
+  `it-it`, `ja-jp`, `nl-nl`, `pt-br`, `pt-pt`, `tr-tr`. Base /
+  language-only codes (`ar`, `es`, `hi`) have `RXLOCALE.ISBASE=1`.
+  Product string fallback when no locale is set is always **`en-us`**.
+  Do not introduce a code outside this set without updating `RXLOCALE`
+  in `modules/perc-distribution-tree/.../cmsTableData.xml` first.
+- **Header `<prop type="supportedlanguage">` lines must match the 18
   codes above in alphabetical order.** The header is the source of
   truth for "what languages ship out of the box".
+- **Base vs regional TMX storage:** store shared translations under the
+  base language tag (`es`, `hi`, `ar`). Regional tags store **only
+  dialect overrides**. Lookup is `regional → base → en-us` via
+  `PSTmxResourceBundle.languageLookupChain`.
+- **Login dropdown:** server-side `PSLocaleLoginSelection` hides a base
+  locale when any active regional sibling exists (e.g. hide `es` when
+  `es-es` is active; show `ar` when no `ar-*` exists).
 - **Per-key translations are owned by `i18n_translate.py`.** Do not
   hand-edit translated `<seg>` text in a TMX file; re-run the script
   (see section 1b). Hand-edits are only acceptable for English source
@@ -111,7 +118,9 @@ and cross-platform guarantees.
    `CmsUi.tmx` and `SystemResources.tmx` (alphabetical position).
 2. Add a new row in `RXLOCALE` in
    `modules/perc-distribution-tree/src/main/resources/distribution/rxconfig/Installer/data/cmsTableData.xml`
-   with `STATUS=1` (visible by default) and a sensible `SORTORDER`.
+   with `STATUS=1` (visible by default), a sensible `SORTORDER`, and
+   `ISBASE=1` for language-only / base codes (no region) or `ISBASE=0`
+   for regionals. Schema column is defined in `cmsTableDef.xml`.
 3. If the new code is a regional variant (e.g. `xx-yy` where `xx`
    already exists), update locale-aware consumers:
    - `modules/perc-packages/.../perc.widget.calendar/percCalendarTwo.xml`
@@ -277,19 +286,22 @@ If seeing `PSTmxResourceBundle` errors:
 |        File         |         Purpose         |   Languages   |          Location          |
 |---------------------|-------------------------|---------------|----------------------------|
 | ResourceBundle.tmx  | Master bundle (seed)    | en-us         | `src/main/resources/i18n/` |
-| CmsUi.tmx           | UI labels/strings       | 17-locale matrix (see below) | `src/main/resources/i18n/` |
-| SystemResources.tmx | System/editor resources | 17-locale matrix (see below) | `src/main/resources/i18n/` |
+| CmsUi.tmx           | UI labels/strings       | 18-locale matrix (see below) | `src/main/resources/i18n/` |
+| SystemResources.tmx | System/editor resources | 18-locale matrix (see below) | `src/main/resources/i18n/` |
 
-**17-locale matrix** (alphabetical, BCP-47 lowercase hyphen):
+**18-locale matrix** (alphabetical, BCP-47 lowercase hyphen):
 
-`en-us`, `en-gb`, `de-de`, `es`, `es-cl`, `es-es`, `es-mx`,
+`ar`, `de-de`, `en-gb`, `en-us`, `es`, `es-cl`, `es-es`, `es-mx`,
 `fr-ca`, `fr-fr`, `hi`, `hi-in`, `it-it`, `ja-jp`, `nl-nl`,
 `pt-br`, `pt-pt`, `tr-tr`.
 
-`es` and `hi` are the generic (language-only) catch-alls;
-`es-es` / `hi-in` are the canonical regional variants. The runtime
-loader normalizes incoming tags so `EN_US`, `en-US`, `es_ES`,
-`ja-JP`, etc. all resolve to their canonical bucket.
+**Base locales** (`RXLOCALE.ISBASE=1`): `ar`, `es`, `hi`. Regionals
+store dialect overrides; TMX lookup is `regional → base → en-us`.
+Login hides a base locale when any active regional sibling exists
+(`PSLocaleLoginSelection`). Default login/string fallback: **`en-us`**.
+
+The runtime loader normalizes incoming tags so `EN_US`, `en-US`,
+`es_ES`, `ja-JP`, etc. all resolve to their canonical bucket.
 
 **Developer tooling** (outside the JAR; in `scripts/`):
 

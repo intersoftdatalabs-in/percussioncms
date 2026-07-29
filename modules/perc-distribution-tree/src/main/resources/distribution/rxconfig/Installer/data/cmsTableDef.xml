@@ -3059,6 +3059,13 @@
                 <size/>
                 <allowsnull>yes</allowsnull>
             </column>
+            <!-- 1 = language-only / base locale (e.g. es, hi, ar); 0 = regional or non-base -->
+            <column name="ISBASE">
+                <jdbctype>INTEGER</jdbctype>
+                <size/>
+                <allowsnull>yes</allowsnull>
+                <defaultvalue>0</defaultvalue>
+            </column>
             <column name="VERSION">
                 <jdbctype>INTEGER</jdbctype>
                 <size/>
