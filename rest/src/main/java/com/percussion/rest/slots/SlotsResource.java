@@ -63,6 +63,11 @@ public class SlotsResource {
     this.adaptor = adaptor;
   }
 
+  /** Package-private test hook so unit tests need not reflect on {@code uriInfo}. */
+  void setUriInfo(UriInfo uriInfo) {
+    this.uriInfo = uriInfo;
+  }
+
   @GET
   @Produces({MediaType.APPLICATION_JSON})
   @Operation(
@@ -105,24 +110,19 @@ public class SlotsResource {
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public SlotDetail getSlot(@PathParam("idOrName") String idOrName) {
+    SlotDetail detail;
     try {
-      SlotDetail detail = requireAdaptor().getSlot(uriInfo.getBaseUri(), idOrName);
-      if (detail == null) {
-        throw new WebApplicationException("Slot not found: " + idOrName, 404);
-      }
-      return detail;
-    } catch (WebApplicationException e) {
-      // Re-throw 404 and other mapped HTTP errors without wrapping as 500
-      throw e;
+      detail = requireAdaptor().getSlot(uriInfo.getBaseUri(), idOrName);
     } catch (Exception e) {
+      // 404 is thrown outside this try; do not re-wrap mapped HTTP errors here
       log.error(
-          "Failed to load slot {} ({}): {}",
-          idOrName,
-          e.getClass().getName(),
-          e.getMessage(),
-          e);
+          "Failed to load slot {} ({}): {}", idOrName, e.getClass().getName(), e.getMessage(), e);
       throw new WebApplicationException(e, 500);
     }
+    if (detail == null) {
+      throw new WebApplicationException("Slot not found: " + idOrName, 404);
+    }
+    return detail;
   }
 
   private ISlotsAdaptor requireAdaptor() {

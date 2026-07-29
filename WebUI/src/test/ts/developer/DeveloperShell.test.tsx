@@ -206,7 +206,8 @@ describe("DeveloperShell", () => {
       expect(screen.getByTestId("developer-slot-table")).toBeTruthy();
     });
     expect(screen.getByText("target")).toBeTruthy();
-    fireEvent.click(screen.getByTestId("developer-slot-row"));
+    // Open is button-only (row click removed for a11y / selectionKey null safety)
+    fireEvent.click(screen.getByRole("button", { name: /Open Target/i }));
     await waitFor(() => {
       expect(screen.getByTestId("developer-slot-detail")).toBeTruthy();
     });

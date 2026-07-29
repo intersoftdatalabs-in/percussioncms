@@ -18,16 +18,9 @@
 import React, { useEffect, useState } from "react";
 import { getSlotDetail } from "../api/developer/assemblyApi";
 import type { SlotDetail } from "../api/developer/types";
+import { backButton, errorAlert, metaGrid, monoCell } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
-
-const metaGrid: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "auto 1fr",
-  gap: "4px 16px",
-  marginTop: "12px",
-  fontSize: "0.9rem",
-};
 
 export function SlotDetailPanel({
   idOrName,
@@ -64,20 +57,14 @@ export function SlotDetailPanel({
         type="button"
         onClick={onBack}
         data-testid="developer-slot-back"
-        style={{
-          marginBottom: "12px",
-          background: "transparent",
-          border: "1px solid #cbd5e0",
-          borderRadius: "4px",
-          padding: "6px 12px",
-          cursor: "pointer",
-        }}
+        aria-label="Back to slots list"
+        style={backButton}
       >
         ← {DEV_MSG.SLOT_BACK}
       </button>
 
       {error ? (
-        <div role="alert" data-testid="developer-slot-detail-error" style={{ color: "#b00020" }}>
+        <div role="alert" data-testid="developer-slot-detail-error" style={errorAlert}>
           {error}
         </div>
       ) : null}
@@ -107,11 +94,11 @@ export function SlotDetailPanel({
                 {detail.systemSlot ? DEV_MSG.YES : DEV_MSG.NO}
               </dd>
               <dt>{DEV_MSG.SLOT_META_FINDER}</dt>
-              <dd style={{ margin: 0, fontFamily: "monospace" }}>
+              <dd style={{ margin: 0, ...monoCell }}>
                 {detail.finderName || "—"}
               </dd>
               <dt>{DEV_MSG.SLOT_META_RELATIONSHIP}</dt>
-              <dd style={{ margin: 0, fontFamily: "monospace" }}>
+              <dd style={{ margin: 0, ...monoCell }}>
                 {detail.relationshipName || "—"}
               </dd>
             </dl>

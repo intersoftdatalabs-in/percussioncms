@@ -46,19 +46,30 @@ public class SlotsAdaptor implements ISlotsAdaptor {
 
   private static final Logger log = LogManager.getLogger(SlotsAdaptor.class);
 
-  /** Known read-only API limitations (same for every slot; not per-slot configuration). */
-  static final List<String> SLOT_DESIGN_GAPS =
+  /**
+   * Known read-only API limitations (API-level, not per-slot). Exposed once as a shared constant
+   * for tests/docs; detail responses still include a copy so the SPA needs no second source.
+   */
+  public static final List<String> SLOT_DESIGN_GAPS =
       List.of(
           "Create / update / delete / lock not supported (read-only API limitation)",
           "Association editing not supported via this API",
           "Content-type and template names not resolved (GUIDs only)");
 
-  private final IPSAssemblyService asmSvc = PSAssemblyServiceLocator.getAssemblyService();
+  private final IPSAssemblyService asmSvc;
+
+  public SlotsAdaptor() {
+    this(PSAssemblyServiceLocator.getAssemblyService());
+  }
+
+  /** Package-visible for unit tests that inject a fake assembly service. */
+  SlotsAdaptor(IPSAssemblyService asmSvc) {
+    this.asmSvc = asmSvc;
+  }
 
   @Override
   public List<SlotSummary> listSlots(URI baseUri) {
     // baseUri reserved for HATEOAS link building (interface contract)
-    // null name = all slots (see findSlotsByName implementation)
     List<IPSTemplateSlot> slots = asmSvc.findSlotsByName(null);
     List<SlotSummary> out = new ArrayList<>();
     if (slots != null) {
@@ -73,7 +84,7 @@ public class SlotsAdaptor implements ISlotsAdaptor {
           log.debug("Could not convert GUID for slot {}: {}", slot.getName(), e.getMessage());
         }
         s.setName(slot.getName());
-        s.setLabel(StringUtils.defaultIfBlank(slot.getLabel(), slot.getName()));
+        s.setLabel(labelOrName(slot));
         s.setDescription(slot.getDescription());
         out.add(s);
       }
@@ -86,6 +97,7 @@ public class SlotsAdaptor implements ISlotsAdaptor {
 
   @Override
   public SlotDetail getSlot(URI baseUri, String idOrName) {
+    // baseUri reserved for HATEOAS link building (interface contract)
     if (StringUtils.isBlank(idOrName)) {
       return null;
     }
@@ -99,14 +111,9 @@ public class SlotsAdaptor implements ISlotsAdaptor {
       log.debug("Slot not found {}: {}", idOrName, e.getMessage());
       return null;
     } catch (Exception e) {
-      log.error(
-          "Failed to load slot {} ({}): {}",
-          idOrName,
-          e.getClass().getName(),
-          e.getMessage(),
-          e);
-      throw new RuntimeException(
-          "Failed to load slot (" + e.getClass().getName() + "): " + e.getMessage(), e);
+      log.error("Failed to load slot {}: {}", idOrName, e.getMessage(), e);
+      // Sanitized client message — class name stays in logs only
+      throw new IllegalStateException("Failed to load slot", e);
     }
   }
 
@@ -114,7 +121,11 @@ public class SlotsAdaptor implements ISlotsAdaptor {
     if (StringUtils.isNumeric(idOrName)) {
       long uuid = Long.parseLong(idOrName);
       IPSGuid g = new PSGuid(PSTypeEnum.SLOT, uuid);
-      return asmSvc.loadSlot(g);
+      try {
+        return asmSvc.loadSlot(g);
+      } catch (PSAssemblyException e) {
+        return null;
+      }
     }
     // GUID-shaped only (digits and dashes), not arbitrary names containing "-"
     if (idOrName.matches("\\d+-\\d+(-\\d+)?")) {
@@ -129,7 +140,7 @@ public class SlotsAdaptor implements ISlotsAdaptor {
         return null;
       } catch (Exception e) {
         log.warn(
-            "Failed to parse/load slot GUID {}, falling back to name: {}",
+            "Could not parse '{}' as slot GUID, falling through to name lookup: {}",
             idOrName,
             e.getMessage(),
             e);
@@ -149,10 +160,10 @@ public class SlotsAdaptor implements ISlotsAdaptor {
         d.setGuid(ApiUtils.convertGuid(slot.getGUID()));
       }
     } catch (Exception e) {
-      log.debug("Could not convert slot GUID for {}: {}", slot.getName(), e.getMessage());
+      log.warn("Could not convert slot GUID for {}: {}", slot.getName(), e.getMessage(), e);
     }
     d.setName(slot.getName());
-    d.setLabel(StringUtils.defaultIfBlank(slot.getLabel(), slot.getName()));
+    d.setLabel(labelOrName(slot));
     d.setDescription(slot.getDescription());
     if (slot.getSlottypeEnum() != null) {
       d.setSlotType(slot.getSlottypeEnum().name());
@@ -161,7 +172,11 @@ public class SlotsAdaptor implements ISlotsAdaptor {
     d.setFinderName(slot.getFinderName());
     d.setRelationshipName(slot.getRelationshipName());
     Map<String, String> args = slot.getFinderArguments();
-    d.setFinderArguments(args != null ? new HashMap<>(args) : new HashMap<>());
+    if (args != null && !args.isEmpty()) {
+      d.setFinderArguments(new HashMap<>(args));
+    } else {
+      d.setFinderArguments(null);
+    }
 
     List<SlotAssociationSummary> associations = new ArrayList<>();
     if (slot.getSlotAssociations() != null) {
@@ -176,16 +191,26 @@ public class SlotsAdaptor implements ISlotsAdaptor {
             a.setTemplateGuid(ApiUtils.convertGuid(pair.getSecond()));
           }
         } catch (Exception e) {
-          log.debug(
+          log.warn(
               "Could not convert association GUID for slot {}: {}",
               slot.getName(),
-              e.getMessage());
+              e.getMessage(),
+              e);
         }
         associations.add(a);
       }
     }
-    d.setAssociations(associations);
+    d.setAssociations(associations.isEmpty() ? null : associations);
+    // API-level limitations (shared constant) — SPA can also reference SLOT_DESIGN_GAPS
     d.setDesignGaps(new ArrayList<>(SLOT_DESIGN_GAPS));
     return d;
+  }
+
+  static String labelOrName(IPSTemplateSlot slot) {
+    String label = slot.getLabel();
+    if (StringUtils.isNotBlank(label)) {
+      return label;
+    }
+    return StringUtils.defaultString(slot.getName());
   }
 }

@@ -19,24 +19,17 @@ import React, { useEffect, useState } from "react";
 import { listSlots } from "../api/developer/assemblyApi";
 import type { SlotSummary } from "../api/developer/types";
 import { CatalogHint, CatalogStatus } from "./CatalogTable";
+import { openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { SlotDetailPanel } from "./SlotDetailPanel";
 
-function selectionKey(s: SlotSummary): string {
-  return s.name || s.guid?.stringValue || "—";
+/** Open-key for detail; null when the row is not selectable. */
+function selectionKey(s: SlotSummary): string | null {
+  if (s.name) return s.name;
+  if (s.guid?.stringValue) return s.guid.stringValue;
+  return null;
 }
-
-const openButtonStyle: React.CSSProperties = {
-  background: "none",
-  border: "none",
-  padding: 0,
-  color: "#007ea8",
-  cursor: "pointer",
-  font: "inherit",
-  textAlign: "left",
-  textDecoration: "underline",
-};
 
 export function SlotsPanel(): React.ReactElement {
   const [items, setItems] = useState<SlotSummary[] | null>(null);
@@ -93,7 +86,6 @@ export function SlotsPanel(): React.ReactElement {
           <tbody>
             {sorted.map((s, index) => {
               const openKey = selectionKey(s);
-              const interactive = openKey !== "—";
               const key = s.guid?.stringValue || s.name || `slot-${index}`;
               return (
                 <tr
@@ -101,22 +93,15 @@ export function SlotsPanel(): React.ReactElement {
                   data-testid="developer-slot-row"
                   style={{
                     borderBottom: "1px solid #edf2f7",
-                    cursor: interactive ? "pointer" : "default",
-                  }}
-                  onClick={() => {
-                    if (interactive) setSelected(openKey);
                   }}
                 >
                   <td style={{ padding: "8px" }}>
-                    {interactive ? (
+                    {openKey ? (
                       <button
                         type="button"
                         style={openButtonStyle}
                         aria-label={`Open ${s.label || s.name || openKey}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelected(openKey);
-                        }}
+                        onClick={() => setSelected(openKey)}
                       >
                         {s.label || "—"}
                       </button>

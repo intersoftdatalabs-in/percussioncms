@@ -30,3 +30,36 @@ export const mutedMonoCell: React.CSSProperties = {
 export const mutedCell: React.CSSProperties = {
   color: "#4a5568",
 };
+
+export const errorAlert: React.CSSProperties = {
+  color: "#b00020",
+};
+
+export const backButton: React.CSSProperties = {
+  marginBottom: "12px",
+  background: "transparent",
+  border: "1px solid #cbd5e0",
+  borderRadius: "4px",
+  padding: "6px 12px",
+  cursor: "pointer",
+};
+
+export const metaGrid: React.CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "auto 1fr",
+  gap: "4px 16px",
+  marginTop: "12px",
+  fontSize: "0.9rem",
+};
+
+/** Text-button style for opening a catalog row detail. */
+export const openButtonStyle: React.CSSProperties = {
+  background: "none",
+  border: "none",
+  padding: 0,
+  color: "#007ea8",
+  cursor: "pointer",
+  font: "inherit",
+  textAlign: "left",
+  textDecoration: "underline",
+};

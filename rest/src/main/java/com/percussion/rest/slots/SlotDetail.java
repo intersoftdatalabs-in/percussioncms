@@ -21,8 +21,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,9 +38,15 @@ public class SlotDetail {
   private Boolean systemSlot;
   private String finderName;
   private String relationshipName;
-  private Map<String, String> finderArguments = new HashMap<>();
-  private List<SlotAssociationSummary> associations = new ArrayList<>();
-  private List<String> designGaps = new ArrayList<>();
+
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  private Map<String, String> finderArguments;
+
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  private List<SlotAssociationSummary> associations;
+
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  private List<String> designGaps;
 
   public SlotDetail() {}
 
@@ -115,7 +119,7 @@ public class SlotDetail {
   }
 
   public void setFinderArguments(Map<String, String> finderArguments) {
-    this.finderArguments = finderArguments != null ? finderArguments : new HashMap<>();
+    this.finderArguments = finderArguments;
   }
 
   public List<SlotAssociationSummary> getAssociations() {
@@ -123,7 +127,7 @@ public class SlotDetail {
   }
 
   public void setAssociations(List<SlotAssociationSummary> associations) {
-    this.associations = associations != null ? associations : new ArrayList<>();
+    this.associations = associations;
   }
 
   public List<String> getDesignGaps() {
@@ -131,6 +135,6 @@ public class SlotDetail {
   }
 
   public void setDesignGaps(List<String> designGaps) {
-    this.designGaps = designGaps != null ? designGaps : new ArrayList<>();
+    this.designGaps = designGaps;
   }
 }
