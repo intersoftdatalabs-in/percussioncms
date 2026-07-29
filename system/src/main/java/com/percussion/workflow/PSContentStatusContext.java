@@ -492,57 +492,31 @@ public class PSContentStatusContext implements IPSContentStatusContext {
             reminderDate,
             repeatedAgingStartDate);
     if (updated > 0) {
-      java.util.Map<String, String> columns = buildLegacyColumnMap();
-      notifyUpdateItem(columns);
+      notifyUpdateItem(buildLegacyColumnMap());
     }
   }
 
   /**
    * Builds the same 15-column change map that the legacy {@code commit(Connection)}
-   * path populated via {@link #setInt}, {@link #setString}, and {@link #setDate}.
-   * The item-summary cache (PSItemSummaryCache) relies on these keys to invalidate
-   * stale entries after a CONTENTSTATUS update.
-   *
-   * @return an unmodifiable ordered map of column-name to string-value,
-   *     never {@code null}.
+   * path populated via setInt/setString/setDate for item-summary cache notify.
    */
   private java.util.Map<String, String> buildLegacyColumnMap() {
-    java.util.Map<String, String> columns = new java.util.LinkedHashMap<>();
-    String checkOutUserName = m_sCheckOutUserName == null ? "" : m_sCheckOutUserName;
-    java.sql.Date lastTransitionDate = m_LastTransitionDate;
-    java.sql.Date stateEnteredDate = m_StateEnteredDate;
-    java.sql.Date nextAgingDate = m_NextAgingDate;
-    java.sql.Date startDate = m_StartDate;
-    java.sql.Date expiryDate = m_ExpiryDate;
-    java.sql.Date reminderDate = m_ReminderDate;
-    java.sql.Date repeatedAgingStartDate = m_RepeatedAgingTransitionStartDate;
-    int nextAgingTransition = m_nNextAgingTransition;
-    columns.put(CONTENTSTATEID, Integer.toString(m_nStateID));
-    columns.put(CONTENTCHECKOUTUSERNAME, checkOutUserName);
-    columns.put(CURRENTREVISION, Integer.toString(m_nCurrentRevision));
-    columns.put(EDITREVISION, Integer.toString(m_nEditRevision));
-    columns.put(TIPREVISION, Integer.toString(m_nTipRevision));
-    columns.put(REVISIONLOCK, m_bRevisionLocked ? "Y" : "N");
-    columns.put(LASTTRANSITIONDATE, formatDate(lastTransitionDate));
-    columns.put(STATEENTEREDDATE, formatDate(stateEnteredDate));
-    columns.put(NEXTAGINGTRANSITION, Integer.toString(nextAgingTransition));
-    columns.put(NEXTAGINGDATE, formatDate(nextAgingDate));
-    columns.put(CONTENTSTARTDATE, formatDate(startDate));
-    columns.put(CONTENTEXPIRYDATE, formatDate(expiryDate));
-    columns.put(REMINDERDATE, formatDate(reminderDate));
-    columns.put(REPEATEDAGINGTRANSSTARTDATE, formatDate(repeatedAgingStartDate));
-    columns.put(CONTENTID, Integer.toString(m_nContentID));
-    return java.util.Collections.unmodifiableMap(columns);
-  }
-
-  /**
-   * Converts a {@link java.sql.Date} to the legacy "mm/dd/yyyy hh:mm:ss:milli"
-   * string emitted by {@link PSWorkFlowUtils#DateString(java.util.Date)}. The
-   * item-summary cache only needs a stable string representation; null dates
-   * become {@code null} map values.
-   */
-  private static String formatDate(java.sql.Date date) {
-    return date == null ? null : PSWorkFlowUtils.DateString(date);
+    return PSContentStatusNotifyMap.build(
+        m_nContentID,
+        m_nStateID,
+        m_sCheckOutUserName,
+        m_nCurrentRevision,
+        m_nEditRevision,
+        m_nTipRevision,
+        m_bRevisionLocked,
+        m_LastTransitionDate,
+        m_StateEnteredDate,
+        m_nNextAgingTransition,
+        m_NextAgingDate,
+        m_StartDate,
+        m_ExpiryDate,
+        m_ReminderDate,
+        m_RepeatedAgingTransitionStartDate);
   }
 
   /*
