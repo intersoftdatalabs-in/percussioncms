@@ -52,8 +52,7 @@ public class PSCheckboxTreeNode extends DefaultMutableTreeNode {
   /**
    * Determines if this node is selecable or not.
    *
-   * @return <code>true<code> if the node can be selected, <code>false</code>
-   *    otherwise.
+   * @return <code>true</code> if the node can be selected, <code>false</code> otherwise.
    */
   public boolean isSelectable() {
     return m_selectable;
