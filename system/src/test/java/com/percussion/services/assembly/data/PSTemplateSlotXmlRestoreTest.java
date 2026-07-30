@@ -68,8 +68,7 @@ class PSTemplateSlotXmlRestoreTest {
       }
     }
     assertTrue(
-        found,
-        "expected association contentTypeId=313 templateId=550; got: " + describe(assocs));
+        found, "expected association contentTypeId=313 templateId=550; got: " + describe(assocs));
   }
 
   @Test
@@ -125,8 +124,7 @@ class PSTemplateSlotXmlRestoreTest {
       }
     }
     assertTrue(
-        found,
-        "expected association contentTypeId=313 templateId=550; got: " + describe(assocs));
+        found, "expected association contentTypeId=313 templateId=550; got: " + describe(assocs));
   }
 
   @Test
@@ -141,7 +139,8 @@ class PSTemplateSlotXmlRestoreTest {
 
   @Test
   void normalizePackageAssociationElementNamesDoesNotTouchAttributeValues() {
-    String in = "<x name=\"contenttypeid\" templateid=\"keep\"><contenttypeid>9</contenttypeid></x>";
+    String in =
+        "<x name=\"contenttypeid\" templateid=\"keep\"><contenttypeid>9</contenttypeid></x>";
     String out = PSTemplateSlot.normalizePackageAssociationElementNames(in);
     assertTrue(out.contains("name=\"contenttypeid\""), out);
     assertTrue(out.contains("templateid=\"keep\""), out);

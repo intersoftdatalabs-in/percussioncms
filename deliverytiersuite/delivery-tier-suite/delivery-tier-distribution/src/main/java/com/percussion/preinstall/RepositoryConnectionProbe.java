@@ -38,8 +38,7 @@ public final class RepositoryConnectionProbe {
   /** Default login timeout seconds for the probe. */
   public static final int DEFAULT_LOGIN_TIMEOUT_SECONDS = 10;
 
-  private static final Pattern SAFE_HOST =
-      Pattern.compile("^[A-Za-z0-9._\\-:\\[\\]]{1,253}$");
+  private static final Pattern SAFE_HOST = Pattern.compile("^[A-Za-z0-9._\\-:\\[\\]]{1,253}$");
   private static final Pattern SAFE_NAME = Pattern.compile("^[A-Za-z0-9._\\-]{1,128}$");
   private static final Object LOGIN_TIMEOUT_LOCK = new Object();
 
@@ -230,8 +229,7 @@ public final class RepositoryConnectionProbe {
     if (msg == null) {
       return e.getClass().getSimpleName();
     }
-    String redacted =
-        msg.replaceAll("(?i)(password|passwd|pwd)\\s*[=:]\\s*[^;\\s,]+", "$1=***");
+    String redacted = msg.replaceAll("(?i)(password|passwd|pwd)\\s*[=:]\\s*[^;\\s,]+", "$1=***");
     redacted = redacted.replaceAll("(?i)(://[^:/\\s]+):([^@/\\s]+)@", "$1:***@");
     return redacted;
   }

@@ -26,8 +26,8 @@ import org.springframework.util.StringValueResolver;
  * @author erikserating
  */
 /**
- * Placeholder configurer that resolves any property value wrapped in {@code ENC(...)} by
- * delegating to {@link PSSecureProperty} to decrypt it before Spring uses the value.
+ * Placeholder configurer that resolves any property value wrapped in {@code ENC(...)} by delegating
+ * to {@link PSSecureProperty} to decrypt it before Spring uses the value.
  *
  * @author erikserating
  */

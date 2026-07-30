@@ -55,8 +55,7 @@ class LocalesAdaptorTest {
     when(ar.getStatus()).thenReturn(PSLocale.STATUS_ACTIVE);
     when(ar.isBaseLocale()).thenReturn(true);
 
-    List<LocaleSummary> out =
-        LocalesAdaptor.mapSummaries(List.of(en, ar), Set.of("en-us"));
+    List<LocaleSummary> out = LocalesAdaptor.mapSummaries(List.of(en, ar), Set.of("en-us"));
     assertEquals(2, out.size());
     assertEquals("ar", out.get(0).getLanguageString());
     assertEquals(Boolean.TRUE, out.get(0).getBaseLocale());

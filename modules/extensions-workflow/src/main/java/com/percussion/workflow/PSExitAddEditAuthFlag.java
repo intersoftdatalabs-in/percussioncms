@@ -18,7 +18,6 @@
 package com.percussion.workflow;
 
 import com.percussion.cms.objectstore.PSComponentSummary;
-import com.percussion.cms.IPSConstants;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.IPSResultDocumentProcessor;
@@ -51,7 +50,6 @@ public class PSExitAddEditAuthFlag implements IPSResultDocumentProcessor {
 
   /** Default constructor for the extension framework. */
   public PSExitAddEditAuthFlag() {}
-
 
   private static final Logger log = LogManager.getLogger(PSExitAddEditAuthFlag.class);
 
@@ -125,8 +123,7 @@ public class PSExitAddEditAuthFlag implements IPSResultDocumentProcessor {
 
       try {
         boolean canEdit =
-            PSCms.canReadInFolders(localParams.m_contentID)
-                && canUserEditContent(localParams);
+            PSCms.canReadInFolders(localParams.m_contentID) && canUserEditContent(localParams);
         String strCanEdit = canEdit ? "yes" : "no";
         // Set the edit authorization flag attribute
         activeItemElem.setAttribute(XML_ATTRIB_EDIT_AUTH, strCanEdit);
@@ -162,11 +159,11 @@ public class PSExitAddEditAuthFlag implements IPSResultDocumentProcessor {
    * This method verifies if the current user is allowed to edit the specified content item. It uses
    * the same authorization checks used in PSExitAuthenticateUser.
    *
-   * <p>Phase 4b: the {@code Connection} argument is gone — this method now reads {@code CONTENTSTATUS}
-   * via {@code PSCmsObjectMgr#loadComponentSummary(int)} and the {@code STATEROLES} +
-   * {@code CONTENTADHOCUSERS} data via the new {@code loadFromHibernate} factories on
-   * {@link PSStateRolesContext} and {@link PSContentAdhocUsersContext}, so the exit no longer opens
-   * a second pool connection.
+   * <p>Phase 4b: the {@code Connection} argument is gone — this method now reads {@code
+   * CONTENTSTATUS} via {@code PSCmsObjectMgr#loadComponentSummary(int)} and the {@code STATEROLES}
+   * + {@code CONTENTADHOCUSERS} data via the new {@code loadFromHibernate} factories on {@link
+   * PSStateRolesContext} and {@link PSContentAdhocUsersContext}, so the exit no longer opens a
+   * second pool connection.
    *
    * @param localParams object containing parameters that will be used to authorize the user.
    * @return <code>true</code> if the user is allowed to edit this content item, else <code>false
@@ -240,17 +237,16 @@ public class PSExitAddEditAuthFlag implements IPSResultDocumentProcessor {
 
     PSStateRolesContext src;
     try {
-      src = PSStateRolesContext.loadFromHibernate(
-          nWorkFlowAppID, csc.getContentStateId(), requiredAccessLevel);
+      src =
+          PSStateRolesContext.loadFromHibernate(
+              nWorkFlowAppID, csc.getContentStateId(), requiredAccessLevel);
     } catch (PSEntryNotFoundException | PSRoleException | IllegalArgumentException e) {
       return false;
     }
 
-    PSContentAdhocUsersContext cauc =
-        PSContentAdhocUsersContext.loadFromHibernate(contentID);
+    PSContentAdhocUsersContext cauc = PSContentAdhocUsersContext.loadFromHibernate(contentID);
 
-    actorRoles =
-        PSWorkflowRoleInfoStatic.getActorRoles(userName, roleNameList, src, cauc, true);
+    actorRoles = PSWorkflowRoleInfoStatic.getActorRoles(userName, roleNameList, src, cauc, true);
 
     if (null == actorRoles || actorRoles.isEmpty()) {
       return false;

@@ -40,8 +40,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 /**
  * Mockito-only tests for {@link PSSystemService#findNotificationDef(long, long)} added for #1561
- * Phase 4c. Verifies the {@link Session#get(Class, Object)} call targets the
- * {@link PSNotificationDef} entity with the correct composite key.
+ * Phase 4c. Verifies the {@link Session#get(Class, Object)} call targets the {@link
+ * PSNotificationDef} entity with the correct composite key.
  */
 public class PSSystemServiceFindNotificationDefTest {
 

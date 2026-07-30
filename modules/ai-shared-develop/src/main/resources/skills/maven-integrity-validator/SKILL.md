@@ -51,11 +51,11 @@ Wired in the root `pom.xml` (v0.13.3, `pluginManagement` + active `<plugins>`):
 </plugin>
 ```
 
-| Phase       | Goal               | `executionRootOnly` | Effect                                                                 |
-|-------------|--------------------|---------------------|------------------------------------------------------------------------|
-| `validate`  | `generate-hashes`  | `true`              | Walks the **entire repo** once at the start of the reactor, writes one **central** ledger `${maven.multiModuleProjectDirectory}/target/ai-integrity.sha256`. |
-| `test`      | `verify-hashes`    | `false`             | Runs **every module**: re-reads the central ledger and re-hashes every tracked file. If any file changed, fails the build. |
-| `clean`     | `clean-hashes`     | `true`              | Deletes the central ledger plus any sidecar `.sha256` files.            |
+|   Phase    |       Goal        | `executionRootOnly` |                                                                            Effect                                                                            |
+|------------|-------------------|---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `validate` | `generate-hashes` | `true`              | Walks the **entire repo** once at the start of the reactor, writes one **central** ledger `${maven.multiModuleProjectDirectory}/target/ai-integrity.sha256`. |
+| `test`     | `verify-hashes`   | `false`             | Runs **every module**: re-reads the central ledger and re-hashes every tracked file. If any file changed, fails the build.                                   |
+| `clean`    | `clean-hashes`    | `true`              | Deletes the central ledger plus any sidecar `.sha256` files.                                                                                                 |
 
 Audit report is written to `target/ai-integrity-report.json` after verification.
 
@@ -91,12 +91,12 @@ The plugin also exposes a finer-grained `failOnError=false` parameter on `verify
 
 ### When to skip vs. when to regenerate
 
-| Situation                                                                | Action                                  |
-|--------------------------------------------------------------------------|-----------------------------------------|
-| Local debug of a single test class on a module you're not changing       | `-Dai.integrity.skip=true`              |
+|                                Situation                                 |                             Action                              |
+|--------------------------------------------------------------------------|-----------------------------------------------------------------|
+| Local debug of a single test class on a module you're not changing       | `-Dai.integrity.skip=true`                                      |
 | Local debug where you've **temporarily** edited a tracked file to test   | `-Dai.integrity.skip=true` **then** undo the edit before commit |
-| You **intentionally** changed a tracked file (new skill, new test, etc.) | **Regenerate the ledger** (see §4)      |
-| CI / full reactor build / pre-PR                                         | **Never skip.** Let it run.             |
+| You **intentionally** changed a tracked file (new skill, new test, etc.) | **Regenerate the ledger** (see §4)                              |
+| CI / full reactor build / pre-PR                                         | **Never skip.** Let it run.                                     |
 
 > **Rule of thumb**: if your change is destined for a commit, the ledger must be regenerated **as part of that commit**. Skipping locally is for debugging only.
 
@@ -368,17 +368,17 @@ git config core.autocrlf false
 
 ## 10. Common pitfalls (and the one-line fix)
 
-| Symptom                                                            | Fix                                                              |
-|--------------------------------------------------------------------|------------------------------------------------------------------|
-| `mvn validate` from a sub-module does not create the ledger        | Run from repo root, or pass `-pl <root>` so the `executionRootOnly` goal fires. |
-| `HASH MISMATCH` on a file you edited intentionally                 | `./mvnw validate` (regenerate).                            |
-| `HASH MISMATCH` on a file you did not touch                        | CRLF drift or stray test write — see §5.                         |
-| `Source file missing for hash:` after a `git rm`                   | `./mvnw validate` to drop the entry from the ledger.       |
-| `Central hash file not found` after `mvn clean`                    | Run `mvn validate` first; `clean` deletes the ledger.            |
-| `Central hash file is empty.`                                     | The root execution didn't run. Use `-N` from repo root or include the root in `-pl`. |
-| Partial reactor `-pl foo -am` keeps re-sealing the whole repo      | That is intentional — `generate-hashes` walks the whole `baseDir`. Use `reactorScope=REACTOR` only if you really need module-scoped. |
-| Spotless reformatted a file after `validate` ran                   | Re-run `validate` after the format pass.                         |
-| Test fails with `Files.writeString` writing into `src/`            | Move the write to `target/` or use `@TempDir`. See §5.            |
+|                            Symptom                            |                                                                 Fix                                                                  |
+|---------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
+| `mvn validate` from a sub-module does not create the ledger   | Run from repo root, or pass `-pl <root>` so the `executionRootOnly` goal fires.                                                      |
+| `HASH MISMATCH` on a file you edited intentionally            | `./mvnw validate` (regenerate).                                                                                                      |
+| `HASH MISMATCH` on a file you did not touch                   | CRLF drift or stray test write — see §5.                                                                                             |
+| `Source file missing for hash:` after a `git rm`              | `./mvnw validate` to drop the entry from the ledger.                                                                                 |
+| `Central hash file not found` after `mvn clean`               | Run `mvn validate` first; `clean` deletes the ledger.                                                                                |
+| `Central hash file is empty.`                                 | The root execution didn't run. Use `-N` from repo root or include the root in `-pl`.                                                 |
+| Partial reactor `-pl foo -am` keeps re-sealing the whole repo | That is intentional — `generate-hashes` walks the whole `baseDir`. Use `reactorScope=REACTOR` only if you really need module-scoped. |
+| Spotless reformatted a file after `validate` ran              | Re-run `validate` after the format pass.                                                                                             |
+| Test fails with `Files.writeString` writing into `src/`       | Move the write to `target/` or use `@TempDir`. See §5.                                                                               |
 
 ## 11. Re-seal workflow after a tracked-file change
 
@@ -402,3 +402,4 @@ git config core.autocrlf false
 - Pre-commit review: `docs/ai-generated/code-reviews/` (use `/erlang-review` in Kilo).
 - Cross-platform rules: repo-root `AGENTS.md` → "Cross-Platform File I/O & Paths".
 - Test write-target convention: `system/src/test/java/com/percussion/install/PSMigrationScaleFixtureTest.java:155`.
+

@@ -37,11 +37,11 @@ import org.apache.tools.ant.BuildException;
 /**
  * PSExecSQLStmt is an Installshield wizard bean which executes specified sql statement during
  * install. It has a general sql statement <code>sql</code> and a sql statement for each database
- * that is supported, <code>sqlSqlServer</code>, <code>sqlOracle</code>, <code>sqlUDB</code>,
- * <code>sqlDerby</code>, <code>sqlMysql</code>, <code>sqlH2</code> (#548), and
- * <code>sqlPostgresql</code> (#1500). Database specific sql statement takes preference over the
- * general sql statement. However if the database specific sql statement is <code>null</code> or
- * empty, then general sql statement is used. For H2, if <code>sqlH2</code> is empty, <code>
+ * that is supported, <code>sqlSqlServer</code>, <code>sqlOracle</code>, <code>sqlUDB</code>, <code>
+ * sqlDerby</code>, <code>sqlMysql</code>, <code>sqlH2</code> (#548), and <code>sqlPostgresql</code>
+ * (#1500). Database specific sql statement takes preference over the general sql statement. However
+ * if the database specific sql statement is <code>null</code> or empty, then general sql statement
+ * is used. For H2, if <code>sqlH2</code> is empty, <code>
  * sqlDerby</code> is used when present (H2 is the default embedded replacement for Derby). The
  * <code>objectNames</code> contains the names of tables or views which should be replaced by fully
  * qualified table or view name before executing the sql statement. For example, if the sql
@@ -598,8 +598,8 @@ public class PSExecSQLStmt extends PSAction {
   private String sqlMysql = "";
 
   /**
-   * sql statement to use for H2 database (#548), never <code>null</code>, may be empty. If empty
-   * at execute time, {@link #sqlDerby} is used when non-empty.
+   * sql statement to use for H2 database (#548), never <code>null</code>, may be empty. If empty at
+   * execute time, {@link #sqlDerby} is used when non-empty.
    */
   private String sqlH2 = "";
 

@@ -22,18 +22,18 @@ import java.sql.Date;
 import java.sql.SQLException;
 
 /**
- * Read-only adapter that wraps a Hibernate-managed {@link PSComponentSummary} (the
- * {@code CONTENTSTATUS} row) so it can be passed to legacy code that still uses the
- * {@link IPSContentStatusContext} interface.
+ * Read-only adapter that wraps a Hibernate-managed {@link PSComponentSummary} (the {@code
+ * CONTENTSTATUS} row) so it can be passed to legacy code that still uses the {@link
+ * IPSContentStatusContext} interface.
  *
- * <p>Added for #1561 Phase 3 so {@code PSExitUpdateHistory} can read {@code CONTENTSTATUS}
- * via {@code PSCmsObjectMgr#loadComponentSummary(...)} without keeping the legacy
- * {@code PSContentStatusContext} JDBC context alive. Only the read accessors are real;
- * setters and the {@code commit}/{@code close} hooks throw
- * {@link UnsupportedOperationException} so misuse fails loudly.
+ * <p>Added for #1561 Phase 3 so {@code PSExitUpdateHistory} can read {@code CONTENTSTATUS} via
+ * {@code PSCmsObjectMgr#loadComponentSummary(...)} without keeping the legacy {@code
+ * PSContentStatusContext} JDBC context alive. Only the read accessors are real; setters and the
+ * {@code commit}/{@code close} hooks throw {@link UnsupportedOperationException} so misuse fails
+ * loudly.
  *
- * <p>The class is package-private and intended for use only by {@code PSExitUpdateHistory}
- * and its tests. Public callers should keep consuming {@code PSComponentSummary} directly.
+ * <p>The class is package-private and intended for use only by {@code PSExitUpdateHistory} and its
+ * tests. Public callers should keep consuming {@code PSComponentSummary} directly.
  */
 final class PSComponentSummaryAdapter implements IPSContentStatusContext {
 
@@ -238,8 +238,8 @@ final class PSComponentSummaryAdapter implements IPSContentStatusContext {
 
   /**
    * Narrows a {@link java.util.Date} (the type returned by {@link PSComponentSummary} getters) to
-   * the {@link java.sql.Date} that the legacy {@link IPSContentStatusContext} interface
-   * declares. Returns {@code null} when the source is {@code null}.
+   * the {@link java.sql.Date} that the legacy {@link IPSContentStatusContext} interface declares.
+   * Returns {@code null} when the source is {@code null}.
    */
   private static Date toSqlDate(java.util.Date source) {
     return source == null ? null : new Date(source.getTime());

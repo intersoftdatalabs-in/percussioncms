@@ -42,9 +42,9 @@ import org.w3c.dom.Text;
 
 /**
  * Result-document processor exit that augments the supplied result document with the workflow
- * transitions that are permitted for the current item. See the {@link
- * IPSResultDocumentProcessor} contract for the parameters and return value of {@link
- * #processResultDocument(Object[], IPSRequestContext, Document)}.
+ * transitions that are permitted for the current item. See the {@link IPSResultDocumentProcessor}
+ * contract for the parameters and return value of {@link #processResultDocument(Object[],
+ * IPSRequestContext, Document)}.
  */
 public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor {
 
@@ -59,6 +59,7 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
   private class Params {
     /** Always {@code null} after Phase 4d-1a — retained for legacy {@code Params} API parity. */
     public Connection m_connection = null;
+
     public String m_userName = null;
     public String m_checkoutUserName = null;
     public String m_statusDocElementName = null;
@@ -310,8 +311,9 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
 
     try {
       // Phase 4d-1a: STATEROLES read via Hibernate factory (Phase 4b).
-      src = PSStateRolesContext.loadFromHibernate(
-          nWorkflowAppID, stateid, PSWorkFlowUtils.ASSIGNMENT_TYPE_NONE);
+      src =
+          PSStateRolesContext.loadFromHibernate(
+              nWorkflowAppID, stateid, PSWorkFlowUtils.ASSIGNMENT_TYPE_NONE);
     } catch (PSEntryNotFoundException enfe) {
       // No info is added if the context does not exist
       return;
@@ -473,10 +475,10 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
   }
 
   /**
-   * Looks up the content-type id for the supplied content id via the Spring-managed
-   * {@link com.percussion.services.legacy.IPSCmsObjectMgr} (no second pool connection). Added
-   * for #1561 Phase 4d-1a so {@code PSContentTypesContext.loadFromHibernate} can be invoked
-   * after {@code PSContentStatusContext} has been removed from the call chain.
+   * Looks up the content-type id for the supplied content id via the Spring-managed {@link
+   * com.percussion.services.legacy.IPSCmsObjectMgr} (no second pool connection). Added for #1561
+   * Phase 4d-1a so {@code PSContentTypesContext.loadFromHibernate} can be invoked after {@code
+   * PSContentStatusContext} has been removed from the call chain.
    *
    * @param contentID the content id, must be {@code > 0}.
    * @return the content-type id; {@code 0} when no row matches.

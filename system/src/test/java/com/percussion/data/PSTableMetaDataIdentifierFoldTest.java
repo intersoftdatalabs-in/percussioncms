@@ -30,8 +30,8 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Identifier / column name folding for backends that store unquoted names in lower (PostgreSQL,
- * typical MySQL) or upper case. Prevents empty {@code DatabaseMetaData#getColumns} results and
- * "no such column COMMUNITYID" on matrix smoke.
+ * typical MySQL) or upper case. Prevents empty {@code DatabaseMetaData#getColumns} results and "no
+ * such column COMMUNITYID" on matrix smoke.
  */
 @Tag("UnitTest")
 class PSTableMetaDataIdentifierFoldTest {

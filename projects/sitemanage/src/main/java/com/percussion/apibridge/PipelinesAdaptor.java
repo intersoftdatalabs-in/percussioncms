@@ -64,9 +64,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   private final Function<PSSecurityToken, PSApplicationSummary[]> summaryLoader;
 
   public PipelinesAdaptor() {
-    this(
-        tok ->
-            PSServerXmlObjectStore.getInstance().getApplicationSummaryObjects(tok, false));
+    this(tok -> PSServerXmlObjectStore.getInstance().getApplicationSummaryObjects(tok, false));
   }
 
   /** Package-visible for unit tests that inject a fake summary source. */
@@ -126,9 +124,8 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   }
 
   /**
-   * Application names become object-store directory names. Reject path traversal and
-   * separators so a user-supplied {@code idOrName} cannot escape the apps root
-   * ({@code java/path-injection}).
+   * Application names become object-store directory names. Reject path traversal and separators so
+   * a user-supplied {@code idOrName} cannot escape the apps root ({@code java/path-injection}).
    */
   static boolean isSafeApplicationName(String name) {
     if (StringUtils.isBlank(name)) {
@@ -145,8 +142,8 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
    * Resolve numeric id or application name against the catalog summary list.
    *
    * <p>Always returns {@link PSApplicationSummary#getName()} from a matching summary (trusted
-   * object-store catalog value), never the raw user string. Unknown / unsafe input yields
-   * {@code null}.
+   * object-store catalog value), never the raw user string. Unknown / unsafe input yields {@code
+   * null}.
    */
   static String resolveApplicationName(String idOrName, PSApplicationSummary[] sums) {
     if (!isSafeApplicationName(idOrName) || sums == null) {
@@ -217,15 +214,12 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     return d;
   }
 
-  /**
-   * Pure mapping path used by production and unit tests (no object-store singleton).
-   */
+  /** Pure mapping path used by production and unit tests (no object-store singleton). */
   static List<ApplicationSummary> mapFilterSortLimit(
       PSApplicationSummary[] sums, String nameFilter, int limit, int offset) {
     int safeLimit = limit <= 0 ? DEFAULT_LIMIT : Math.min(limit, MAX_LIMIT);
     int safeOffset = Math.max(0, offset);
-    String q =
-        StringUtils.isBlank(nameFilter) ? null : nameFilter.trim().toLowerCase(Locale.ROOT);
+    String q = StringUtils.isBlank(nameFilter) ? null : nameFilter.trim().toLowerCase(Locale.ROOT);
 
     List<ApplicationSummary> out = new ArrayList<>();
     if (sums != null) {
@@ -246,8 +240,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     }
     out.sort(
         Comparator.comparing(
-            ApplicationSummary::getName,
-            Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+            ApplicationSummary::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
     if (safeOffset >= out.size()) {
       return List.of();
     }
@@ -257,8 +250,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
 
   static boolean matchesNameFilter(ApplicationSummary dto, String qLower) {
     String name = dto.getName() != null ? dto.getName().toLowerCase(Locale.ROOT) : "";
-    String desc =
-        dto.getDescription() != null ? dto.getDescription().toLowerCase(Locale.ROOT) : "";
+    String desc = dto.getDescription() != null ? dto.getDescription().toLowerCase(Locale.ROOT) : "";
     return name.contains(qLower) || desc.contains(qLower);
   }
 

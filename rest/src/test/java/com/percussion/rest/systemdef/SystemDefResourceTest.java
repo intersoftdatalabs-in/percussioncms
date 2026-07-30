@@ -75,8 +75,7 @@ public class SystemDefResourceTest {
   @Test
   public void getSystemDefWithoutInjectionFailsWithDiagnostic() {
     SystemDefResource bare = new SystemDefResource();
-    WebApplicationException ex =
-        assertThrows(WebApplicationException.class, bare::getSystemDef);
+    WebApplicationException ex = assertThrows(WebApplicationException.class, bare::getSystemDef);
     assertEquals(500, ex.getResponse().getStatus());
     assertInstanceOf(IllegalStateException.class, ex.getCause());
   }

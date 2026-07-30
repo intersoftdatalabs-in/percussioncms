@@ -29,8 +29,8 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 /**
  * Locale format profile keyed by BCP-47 language string (not {@code LOCALEID}).
  *
- * <p>Customers may invent locales; format rows are optional. Resolution falls back
- * regional → language-only → {@code en-us} via {@link PSLocaleFormatResolver}.
+ * <p>Customers may invent locales; format rows are optional. Resolution falls back regional →
+ * language-only → {@code en-us} via {@link PSLocaleFormatResolver}.
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSLocaleFormat")
@@ -122,9 +122,7 @@ public class PSLocaleFormat {
 
   public void setLanguageString(String languageString) {
     m_languageString =
-        languageString == null
-            ? null
-            : languageString.trim().toLowerCase().replace('_', '-');
+        languageString == null ? null : languageString.trim().toLowerCase().replace('_', '-');
   }
 
   public String getTextDir() {
@@ -239,9 +237,7 @@ public class PSLocaleFormat {
     m_version = version;
   }
 
-  /**
-   * Copy into a JSON-friendly map of non-null fields (for login / SPA bootstrap).
-   */
+  /** Copy into a JSON-friendly map of non-null fields (for login / SPA bootstrap). */
   public java.util.Map<String, Object> toBootstrapMap() {
     java.util.LinkedHashMap<String, Object> m = new java.util.LinkedHashMap<>();
     m.put("languageString", m_languageString);

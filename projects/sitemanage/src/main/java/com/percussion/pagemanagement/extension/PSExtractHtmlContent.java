@@ -112,7 +112,8 @@ public class PSExtractHtmlContent implements IPSUdfProcessor {
       }
     } catch (Exception e) {
       log.warn(
-          "Failed to extract HTML content for search index (item will still index other fields): {}",
+          "Failed to extract HTML content for search index (item will still index other fields):"
+              + " {}",
           e.getLocalizedMessage());
       log.debug("Search HTML extract failure", e);
     }

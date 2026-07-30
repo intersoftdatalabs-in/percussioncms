@@ -195,9 +195,7 @@ public final class InteractiveDtsInstallWizard {
       return true;
     }
     String type =
-        dbConfig
-            .systemProperties()
-            .getOrDefault("perc.db.type", MainDTSPreInstall.DB_TYPE_DEFAULT);
+        dbConfig.systemProperties().getOrDefault("perc.db.type", MainDTSPreInstall.DB_TYPE_DEFAULT);
     String normalized = type == null ? "" : type.trim().toLowerCase(Locale.ROOT);
     return "h2".equals(normalized) || "derby".equals(normalized);
   }
@@ -215,8 +213,7 @@ public final class InteractiveDtsInstallWizard {
     lines.add("Install path : " + installPath.toAbsolutePath().normalize());
     lines.add("Mode         : " + (isUpgradeInstall(installPath) ? "Upgrade" : "New install"));
     lines.add(
-        "Server type  : "
-            + ("true".equalsIgnoreCase(isProduction) ? "Production" : "Staging"));
+        "Server type  : " + ("true".equalsIgnoreCase(isProduction) ? "Production" : "Staging"));
     lines.add("Database     : " + formatDbSummary(dbConfig));
     lines.add(
         "Java home    : "
@@ -285,8 +282,7 @@ public final class InteractiveDtsInstallWizard {
 
       Boolean retry =
           parseYesNo(
-              prompt.readLine("Connection test failed. Re-enter database settings? [Y/n] "),
-              true);
+              prompt.readLine("Connection test failed. Re-enter database settings? [Y/n] "), true);
       if (retry == null || !retry) {
         throw new IllegalArgumentException(
             "Database connection test failed and operator chose not to re-enter settings.");
@@ -307,7 +303,8 @@ public final class InteractiveDtsInstallWizard {
       options.remove("db.ssl.keyStorePath");
       options.remove("db.ssl.keyStorePassword");
     }
-    throw new IllegalArgumentException("Too many failed database configuration attempts. Aborting.");
+    throw new IllegalArgumentException(
+        "Too many failed database configuration attempts. Aborting.");
   }
 
   /**

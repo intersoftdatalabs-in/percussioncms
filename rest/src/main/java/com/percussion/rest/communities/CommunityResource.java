@@ -325,8 +325,7 @@ public class CommunityResource implements ICommunityResource {
             description = "OK",
             content =
                 @Content(
-                    array =
-                        @ArraySchema(schema = @Schema(implementation = CommunityRole.class)))),
+                    array = @ArraySchema(schema = @Schema(implementation = CommunityRole.class)))),
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public CommunityRoleList listAvailableRoles() {

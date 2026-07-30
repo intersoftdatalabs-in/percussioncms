@@ -208,8 +208,8 @@ public class CommunityAdaptor implements ICommunityAdaptor {
   }
 
   /**
-   * Resolve a community summary via {@link #loadCommunities} when {@code key} is a numeric uuid
-   * or GUID-shaped string. Returns null when the key is not id-like or load fails.
+   * Resolve a community summary via {@link #loadCommunities} when {@code key} is a numeric uuid or
+   * GUID-shaped string. Returns null when the key is not id-like or load fails.
    */
   private Community tryLoadByGuidKey(String key) {
     Guid g = parseCommunityGuid(key);

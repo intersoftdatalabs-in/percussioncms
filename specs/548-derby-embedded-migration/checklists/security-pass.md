@@ -1,7 +1,7 @@
 # Security / secrets pass (T101 / QC-022)
 
 **Date:** 2026-07-24  
-**Feature:** #548 Derby → H2  
+**Feature:** #548 Derby → H2
 
 ## Scope
 
@@ -9,13 +9,13 @@ Migration and backup paths must never log passwords, JDBC userinfo secrets, or r
 
 ## Controls
 
-| Control | Location | Status |
-|---------|----------|--------|
-| Redactor utility | `system/.../PSMigrationSecretsRedactor.java` | Present |
-| Unit coverage | `PSEmbeddedRepositoryMigratorTest.redactorRemovesPasswordTokens` | Present |
-| Durable report | report writer uses redacted failure/outcome text | Covered by migrator tests |
-| Backup gate flag | `perc.migration.externalBackupConfirmed` is not a secret | OK |
-| Offline backup dirs | Operator docs note stop-first + filesystem permissions | `operator-backup-restore.md` |
+|       Control       |                             Location                             |            Status            |
+|---------------------|------------------------------------------------------------------|------------------------------|
+| Redactor utility    | `system/.../PSMigrationSecretsRedactor.java`                     | Present                      |
+| Unit coverage       | `PSEmbeddedRepositoryMigratorTest.redactorRemovesPasswordTokens` | Present                      |
+| Durable report      | report writer uses redacted failure/outcome text                 | Covered by migrator tests    |
+| Backup gate flag    | `perc.migration.externalBackupConfirmed` is not a secret         | OK                           |
+| Offline backup dirs | Operator docs note stop-first + filesystem permissions           | `operator-backup-restore.md` |
 
 ## Verification notes
 
@@ -29,6 +29,7 @@ Migration and backup paths must never log passwords, JDBC userinfo secrets, or r
 
 ## Sign-off
 
-| QC | Status |
-|----|--------|
+|   QC   |                       Status                       |
+|--------|----------------------------------------------------|
 | QC-022 | **Met** for product migrator paths (unit evidence) |
+

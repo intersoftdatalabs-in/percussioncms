@@ -26,13 +26,13 @@ import java.util.Set;
 /**
  * Server-side helpers for the login locale dropdown and default selection.
  *
- * <p>Login shows active regional locales always. A base / language-only locale
- * ({@link PSLocale#isBaseLocale()}) is shown only when no active regional sibling
- * exists for the same language family (e.g. hide {@code es} when {@code es-es}
- * is active; show {@code ar} when no {@code ar-*} regionals exist).
+ * <p>Login shows active regional locales always. A base / language-only locale ({@link
+ * PSLocale#isBaseLocale()}) is shown only when no active regional sibling exists for the same
+ * language family (e.g. hide {@code es} when {@code es-es} is active; show {@code ar} when no
+ * {@code ar-*} regionals exist).
  *
- * <p>When no locale is requested, the product default is {@link
- * PSI18nUtils#DEFAULT_LANG} ({@code en-us}).
+ * <p>When no locale is requested, the product default is {@link PSI18nUtils#DEFAULT_LANG} ({@code
+ * en-us}).
  */
 public final class PSLocaleLoginSelection {
 

@@ -42,10 +42,7 @@ class PSDatabaseFunctionDefsPostgresTest {
   @Test
   void charToIntAndDaysFromDateDefinedForPostgresql() throws Exception {
     Path defs = resolveFunctionDefs();
-    Document doc =
-        DocumentBuilderFactory.newInstance()
-            .newDocumentBuilder()
-            .parse(defs.toFile());
+    Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(defs.toFile());
 
     assertTrue(
         hasDriverBody(doc, "CHAR_TO_INT", "postgresql"),

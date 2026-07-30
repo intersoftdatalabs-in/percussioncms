@@ -147,10 +147,7 @@ public class PSSiteDao implements IPSiteDao {
     } catch (Exception e) {
       // Log nested cause — outer Spring tx often only surfaces UnexpectedRollbackException
       log.error(
-          "Error saving site name={}: {}",
-          site != null ? site.getName() : null,
-          e.toString(),
-          e);
+          "Error saving site name={}: {}", site != null ? site.getName() : null, e.toString(), e);
       throw new SaveException("Error saving site", e);
     }
   }

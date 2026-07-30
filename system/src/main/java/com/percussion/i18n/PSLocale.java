@@ -231,9 +231,9 @@ public class PSLocale implements IPSCatalogSummary {
   }
 
   /**
-   * Whether this locale is a language-only / base locale (e.g. {@code es}, {@code ar}).
-   * Base locales may be omitted from the login dropdown when active regional
-   * siblings exist; see {@link PSLocaleLoginSelection}.
+   * Whether this locale is a language-only / base locale (e.g. {@code es}, {@code ar}). Base
+   * locales may be omitted from the login dropdown when active regional siblings exist; see {@link
+   * PSLocaleLoginSelection}.
    *
    * @return <code>true</code> if this is a base locale.
    */

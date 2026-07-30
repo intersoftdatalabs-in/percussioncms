@@ -39,8 +39,8 @@ import org.junit.jupiter.api.Test;
 /**
  * Behavioral unit tests for {@link ApiUtils} ACL entry/permission conversion (P0.5e).
  *
- * <p>Covers null-safe permission filtering so malformed {@link UserAccessLevel} values do not
- * break ACL save round-trips.
+ * <p>Covers null-safe permission filtering so malformed {@link UserAccessLevel} values do not break
+ * ACL save round-trips.
  */
 @Tag("UnitTest")
 public class ApiUtilsAclConvertTest {

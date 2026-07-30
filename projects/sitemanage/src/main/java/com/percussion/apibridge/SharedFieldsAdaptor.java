@@ -128,8 +128,7 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
     }
     out.sort(
         Comparator.comparing(
-            SharedFieldGroupSummary::getName,
-            Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+            SharedFieldGroupSummary::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
     return out;
   }
 
@@ -139,8 +138,7 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
     }
     for (Iterator<?> it = def.getFieldGroups(); it.hasNext(); ) {
       Object o = it.next();
-      if (o instanceof PSSharedFieldGroup group
-          && name.equalsIgnoreCase(group.getName())) {
+      if (o instanceof PSSharedFieldGroup group && name.equalsIgnoreCase(group.getName())) {
         return group;
       }
     }
@@ -208,8 +206,7 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
     }
     out.sort(
         Comparator.comparing(
-            SharedFieldSummary::getName,
-            Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+            SharedFieldSummary::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
     return out;
   }
 

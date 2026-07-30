@@ -124,12 +124,12 @@ wrapper so JDK is correct):
 ../../mvnw -Pmatrix-smoke -Dmatrix.product=cms,dts -Dmatrix.db=h2 test
 ```
 
-| Property | Default | Description |
-|----------|---------|-------------|
-| `matrix.product` | `cms` | Comma list: `cms`, `dts` |
-| `matrix.db` | `h2` | Comma list: `h2`, `postgresql`, `mysql`, `sqlserver` |
-| `matrix.probe.timeout` | `1200` | Seconds to wait for login/health HTTP |
-| `matrix.skip.image.build` | `true` | Passed as `--skip-image-build` when true |
+|         Property          | Default |                     Description                      |
+|---------------------------|---------|------------------------------------------------------|
+| `matrix.product`          | `cms`   | Comma list: `cms`, `dts`                             |
+| `matrix.db`               | `h2`    | Comma list: `h2`, `postgresql`, `mysql`, `sqlserver` |
+| `matrix.probe.timeout`    | `1200`  | Seconds to wait for login/health HTTP                |
+| `matrix.skip.image.build` | `true`  | Passed as `--skip-image-build` when true             |
 
 **Prerequisites**
 

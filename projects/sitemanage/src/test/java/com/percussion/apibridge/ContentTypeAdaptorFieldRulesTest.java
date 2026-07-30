@@ -29,16 +29,16 @@ import com.percussion.design.objectstore.PSFieldTranslation;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-/**
- * Behavioral unit tests for ContentTypeAdaptor field-rule mapping helpers (P0.2c).
- */
+/** Behavioral unit tests for ContentTypeAdaptor field-rule mapping helpers (P0.2c). */
 @Tag("UnitTest")
 public class ContentTypeAdaptorFieldRulesTest {
 
   @Test
   public void mapOccurrenceCoversAllKnownDimensions() {
-    assertEquals("optional", ContentTypeAdaptor.mapOccurrence(PSField.OCCURRENCE_DIMENSION_OPTIONAL));
-    assertEquals("required", ContentTypeAdaptor.mapOccurrence(PSField.OCCURRENCE_DIMENSION_REQUIRED));
+    assertEquals(
+        "optional", ContentTypeAdaptor.mapOccurrence(PSField.OCCURRENCE_DIMENSION_OPTIONAL));
+    assertEquals(
+        "required", ContentTypeAdaptor.mapOccurrence(PSField.OCCURRENCE_DIMENSION_REQUIRED));
     assertEquals(
         "oneOrMore", ContentTypeAdaptor.mapOccurrence(PSField.OCCURRENCE_DIMENSION_ONE_OR_MORE));
     assertEquals(

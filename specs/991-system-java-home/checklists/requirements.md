@@ -32,13 +32,13 @@
 
 ## Validation notes
 
-|                Item                 | Result |                                                                                         Notes                                                                                         |
-|-------------------------------------|--------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Problem framing (2026-07-19 revise) | Pass   | Spec corrected: product **does not ship** a JRE; current ops pain is **manual copy or symlink** into `<InstallDir>/JRE` after install.                                                |
-| Implementation details              | Pass   | Module Scope lists modules (project convention); FRs describe outcomes and precedence.                                                                                                |
-| Stakeholder language                | Pass   | Stories framed for ops install/start/stop and migration off manual JRE placement.                                                                                                     |
-| Clarifications                      | Pass   | Zero `[NEEDS CLARIFICATION]` markers.                                                                                                                                                 |
-| Success criteria                    | Pass   | SC-001–SC-008 smoke/UAT/CI without prescribing shell/bat structure.                                                                                                                   |
+|                Item                 | Result |                                                                                            Notes                                                                                            |
+|-------------------------------------|--------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Problem framing (2026-07-19 revise) | Pass   | Spec corrected: product **does not ship** a JRE; current ops pain is **manual copy or symlink** into `<InstallDir>/JRE` after install.                                                      |
+| Implementation details              | Pass   | Module Scope lists modules (project convention); FRs describe outcomes and precedence.                                                                                                      |
+| Stakeholder language                | Pass   | Stories framed for ops install/start/stop and migration off manual JRE placement.                                                                                                           |
+| Clarifications                      | Pass   | Zero `[NEEDS CLARIFICATION]` markers.                                                                                                                                                       |
+| Success criteria                    | Pass   | SC-001–SC-008 smoke/UAT/CI without prescribing shell/bat structure.                                                                                                                         |
 | Scope boundary                      | Pass   | Out: re-bundling a JRE in the archive, build `Maven wrapper` toolchain, non-21 Java. In: CMS+DTS runtime resolution, install selection, post-install re-point, legacy install-dir fallback. |
 
 ## Notes

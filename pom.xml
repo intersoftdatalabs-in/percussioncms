@@ -126,8 +126,6 @@
         <gwt.maven.plugin.version>2.10.0</gwt.maven.plugin.version>
         <!-- #548 default embedded replacement (bake-off primary); Derby retained for migration window -->
         <h2.version>2.3.232</h2.version>
-        <!-- #1500 external PostgreSQL repository backend (org.postgresql:postgresql, Java 21) -->
-        <postgresql.version>42.7.12</postgresql.version>
         <hibernate.validator.version>8.0.1.Final</hibernate.validator.version>
         <hibernate.version>7.2.6.Final</hibernate.version>
         <hikaricp.version>7.0.2</hikaricp.version>
@@ -224,6 +222,8 @@
         <pdfbox.version>3.0.6</pdfbox.version>
         <plexus.component.metadata.version>2.2.0</plexus.component.metadata.version>
         <poi.version>5.4.0</poi.version>
+        <!-- #1500 external PostgreSQL repository backend (org.postgresql:postgresql, Java 21) -->
+        <postgresql.version>42.7.12</postgresql.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quartz.version>2.5.2</quartz.version>

@@ -50,7 +50,6 @@ public class PSExecuteWorkflowActions implements IPSResultDocumentProcessor {
   /** Default constructor for the extension framework. */
   public PSExecuteWorkflowActions() {}
 
-
   /** The fully qualified name of this extension. */
   private String m_fullExtensionName = "";
 
@@ -99,11 +98,9 @@ public class PSExecuteWorkflowActions implements IPSResultDocumentProcessor {
    *       <li>workflow context - key <CODE>
    *                         IPSWorkFlowContext.WORKFLOW_CONTEXT_PRIVATE_OBJECT
    *                         </CODE>
-   *       </li>
    *       <li>workflow action extensions list - key <CODE>
    *                         IPSWorkflowAction.WORKFLOW_ACTIONS_PRIVATE_OBJECT
    *                         </CODE>
-   *       </li>
    *     </ul>
    *
    * @param resultDoc the result XML document (may be <CODE>null</CODE> because it will be ignored)

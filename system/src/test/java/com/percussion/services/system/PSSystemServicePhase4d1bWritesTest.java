@@ -16,18 +16,14 @@
 package com.percussion.services.system;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.percussion.services.guidmgr.IPSGuidManager;
-import com.percussion.services.memory.IPSCacheAccess;
 import com.percussion.services.system.impl.PSSystemService;
 import com.percussion.services.workflow.data.PSContentAdhocUser;
 import com.percussion.services.workflow.data.PSContentApproval;
@@ -35,20 +31,19 @@ import jakarta.persistence.EntityManager;
 import java.util.Arrays;
 import java.util.Collections;
 import org.hibernate.Session;
-import org.hibernate.query.Query;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.test.util.ReflectionTestUtils;
 
 /**
- * Mockito-only tests for the #1561 Phase 4d-1b write methods on {@link IPSSystemService}.
- * Verifies the JPQL is well-formed and that the parameters are forwarded correctly.
+ * Mockito-only tests for the #1561 Phase 4d-1b write methods on {@link IPSSystemService}. Verifies
+ * the JPQL is well-formed and that the parameters are forwarded correctly.
  *
- * <p>The companion behavioral test for the {@code buildLegacyColumnMap} hot-fix #2
- * in {@link PSContentStatusContext#commit()} lives in
- * {@code com.percussion.workflow.PSContentStatusContextCommitTest} (same package,
- * so it pins the 15-column map directly).</p>
+ * <p>The companion behavioral test for the {@code buildLegacyColumnMap} hot-fix #2 in {@link
+ * PSContentStatusContext#commit()} lives in {@code
+ * com.percussion.workflow.PSContentStatusContextCommitTest} (same package, so it pins the 15-column
+ * map directly).
  */
 public class PSSystemServicePhase4d1bWritesTest {
 
@@ -77,14 +72,18 @@ public class PSSystemServicePhase4d1bWritesTest {
   void updateContentStatusState_rejectsNonPositiveContentId() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> service.updateContentStatusState(0, 1, "", 1, 1, 1, false, null, null, 0, null, null, null, null, null));
+        () ->
+            service.updateContentStatusState(
+                0, 1, "", 1, 1, 1, false, null, null, 0, null, null, null, null, null));
   }
 
   @Test
   void updateContentStatusState_rejectsNonPositiveStateId() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> service.updateContentStatusState(1, 0, "", 1, 1, 1, false, null, null, 0, null, null, null, null, null));
+        () ->
+            service.updateContentStatusState(
+                1, 0, "", 1, 1, 1, false, null, null, 0, null, null, null, null, null));
   }
 
   @Test
@@ -103,10 +102,24 @@ public class PSSystemServicePhase4d1bWritesTest {
 
     int updated =
         service.updateContentStatusState(
-            7, 11, "alice", 5, 6, 7, true, new java.util.Date(), new java.util.Date(),
-            3, new java.util.Date(), new java.util.Date(), new java.util.Date(),
-            new java.util.Date(), new java.util.Date());
-    assertEquals(1, updated,
+            7,
+            11,
+            "alice",
+            5,
+            6,
+            7,
+            true,
+            new java.util.Date(),
+            new java.util.Date(),
+            3,
+            new java.util.Date(),
+            new java.util.Date(),
+            new java.util.Date(),
+            new java.util.Date(),
+            new java.util.Date());
+    assertEquals(
+        1,
+        updated,
         "Phase 4d-1b hot-fix: updateContentStatusState must return the rows-updated"
             + " count so PSContentStatusContext.commit() can fire PSItemSummaryCache");
   }
@@ -118,13 +131,26 @@ public class PSSystemServicePhase4d1bWritesTest {
     when(session.createQuery(anyString())).thenReturn(mockQuery);
     when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
     when(mockQuery.executeUpdate()).thenReturn(0);
-    // No SessionFactory stub — updated = 0 must short-circuit before the cache.evictEntityData call.
+    // No SessionFactory stub — updated = 0 must short-circuit before the cache.evictEntityData
+    // call.
 
     int updated =
         service.updateContentStatusState(
-            7, 11, "alice", 5, 6, 7, true, new java.util.Date(), new java.util.Date(),
-            3, new java.util.Date(), new java.util.Date(), new java.util.Date(),
-            new java.util.Date(), new java.util.Date());
+            7,
+            11,
+            "alice",
+            5,
+            6,
+            7,
+            true,
+            new java.util.Date(),
+            new java.util.Date(),
+            3,
+            new java.util.Date(),
+            new java.util.Date(),
+            new java.util.Date(),
+            new java.util.Date(),
+            new java.util.Date());
     assertEquals(0, updated);
   }
 
@@ -143,8 +169,20 @@ public class PSSystemServicePhase4d1bWritesTest {
     when(session.getSessionFactory()).thenReturn(mockFactory);
 
     service.updateContentStatusState(
-        7, 11, "alice", 5, 6, 7, true, new java.util.Date(), new java.util.Date(),
-        3, new java.util.Date(), new java.util.Date(), new java.util.Date(), new java.util.Date(),
+        7,
+        11,
+        "alice",
+        5,
+        6,
+        7,
+        true,
+        new java.util.Date(),
+        new java.util.Date(),
+        3,
+        new java.util.Date(),
+        new java.util.Date(),
+        new java.util.Date(),
+        new java.util.Date(),
         new java.util.Date());
 
     ArgumentCaptor<String> jpql = ArgumentCaptor.forClass(String.class);
@@ -252,14 +290,10 @@ public class PSSystemServicePhase4d1bWritesTest {
 
   @Test
   void deleteContentApprovals_rejectsNonPositiveArgs() {
-    assertThrows(
-        IllegalArgumentException.class, () -> service.deleteContentApprovals(0, 1, 1, 1));
-    assertThrows(
-        IllegalArgumentException.class, () -> service.deleteContentApprovals(1, 0, 1, 1));
-    assertThrows(
-        IllegalArgumentException.class, () -> service.deleteContentApprovals(1, 1, 0, 1));
-    assertThrows(
-        IllegalArgumentException.class, () -> service.deleteContentApprovals(1, 1, 1, 0));
+    assertThrows(IllegalArgumentException.class, () -> service.deleteContentApprovals(0, 1, 1, 1));
+    assertThrows(IllegalArgumentException.class, () -> service.deleteContentApprovals(1, 0, 1, 1));
+    assertThrows(IllegalArgumentException.class, () -> service.deleteContentApprovals(1, 1, 0, 1));
+    assertThrows(IllegalArgumentException.class, () -> service.deleteContentApprovals(1, 1, 1, 0));
   }
 
   @Test
@@ -290,8 +324,7 @@ public class PSSystemServicePhase4d1bWritesTest {
   @Test
   void deleteContentApprovalsByContentId_rejectsNonPositiveContentId() {
     assertThrows(IllegalArgumentException.class, () -> service.deleteContentApprovals(0));
-    assertThrows(
-        IllegalArgumentException.class, () -> service.deleteContentApprovals(-1));
+    assertThrows(IllegalArgumentException.class, () -> service.deleteContentApprovals(-1));
   }
 
   @Test

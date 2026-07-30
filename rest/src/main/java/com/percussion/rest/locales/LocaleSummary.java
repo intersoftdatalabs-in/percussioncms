@@ -32,8 +32,12 @@ public class LocaleSummary {
   private String label;
   private String description;
   private String status;
-  /** True when RXLOCALE.ISBASE marks a language-only / base locale (e.g. {@code ar}, {@code es}). */
+
+  /**
+   * True when RXLOCALE.ISBASE marks a language-only / base locale (e.g. {@code ar}, {@code es}).
+   */
   private Boolean baseLocale;
+
   /**
    * True when an RXLOCALEFORMAT row exists for this language string (exact key). Format resolution
    * may still fall back without a row.

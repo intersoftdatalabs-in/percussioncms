@@ -337,23 +337,15 @@
                                   WARN Ignored arg [[]] three times. Named Args match Jetty's
                                   @Name annotations (threadpool / scheduler / bufferPool).
                                 -->
-                                <replace file="${assembly-directory}/upstream/etc/jetty.xml"
-                                         token="&lt;Arg&gt;&lt;Ref refid=&quot;threadPool&quot;/&gt;&lt;/Arg&gt;"
-                                         value="&lt;Arg name=&quot;threadpool&quot;&gt;&lt;Ref refid=&quot;threadPool&quot;/&gt;&lt;/Arg&gt;"/>
-                                <replace file="${assembly-directory}/upstream/etc/jetty.xml"
-                                         token="&lt;Arg&gt;&lt;Ref refid=&quot;scheduler&quot;/&gt;&lt;/Arg&gt;"
-                                         value="&lt;Arg name=&quot;scheduler&quot;&gt;&lt;Ref refid=&quot;scheduler&quot;/&gt;&lt;/Arg&gt;"/>
-                                <replace file="${assembly-directory}/upstream/etc/jetty.xml"
-                                         token="&lt;Arg&gt;&lt;Ref refid=&quot;byteBufferPool&quot;/&gt;&lt;/Arg&gt;"
-                                         value="&lt;Arg name=&quot;bufferPool&quot;&gt;&lt;Ref refid=&quot;byteBufferPool&quot;/&gt;&lt;/Arg&gt;"/>
+                                <replace file="${assembly-directory}/upstream/etc/jetty.xml" token="&lt;Arg&gt;&lt;Ref refid=&quot;threadPool&quot;/&gt;&lt;/Arg&gt;" value="&lt;Arg name=&quot;threadpool&quot;&gt;&lt;Ref refid=&quot;threadPool&quot;/&gt;&lt;/Arg&gt;"/>
+                                <replace file="${assembly-directory}/upstream/etc/jetty.xml" token="&lt;Arg&gt;&lt;Ref refid=&quot;scheduler&quot;/&gt;&lt;/Arg&gt;" value="&lt;Arg name=&quot;scheduler&quot;&gt;&lt;Ref refid=&quot;scheduler&quot;/&gt;&lt;/Arg&gt;"/>
+                                <replace file="${assembly-directory}/upstream/etc/jetty.xml" token="&lt;Arg&gt;&lt;Ref refid=&quot;byteBufferPool&quot;/&gt;&lt;/Arg&gt;" value="&lt;Arg name=&quot;bufferPool&quot;&gt;&lt;Ref refid=&quot;byteBufferPool&quot;/&gt;&lt;/Arg&gt;"/>
                                 <!--
                                   GH-1487: package W3C schema DTDs for DigesterFactory
                                   (org/apache/tomcat/util/descriptor/*) as a small classpath jar.
                                 -->
                                 <mkdir dir="${assembly-directory}/defaults/lib/perc"/>
-                                <jar destfile="${assembly-directory}/defaults/lib/perc/perc-xml-schemas.jar"
-                                     basedir="${basedir}/src/build/perc-xml-schemas"
-                                     includes="org/**"/>
+                                <jar basedir="${basedir}/src/build/perc-xml-schemas" destfile="${assembly-directory}/defaults/lib/perc/perc-xml-schemas.jar" includes="org/**"/>
                                 <!--
                                   Jetty 12 DeploymentScanner rejects both Name and Name.war as
                                   directories for the same deployable. Source keeps exploded

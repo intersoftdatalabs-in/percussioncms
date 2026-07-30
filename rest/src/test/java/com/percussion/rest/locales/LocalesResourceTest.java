@@ -82,8 +82,7 @@ public class LocalesResourceTest {
   @Test
   public void listLocalesWithoutInjectionFailsWithDiagnostic() {
     LocalesResource bare = new LocalesResource();
-    WebApplicationException ex =
-        assertThrows(WebApplicationException.class, bare::listLocales);
+    WebApplicationException ex = assertThrows(WebApplicationException.class, bare::listLocales);
     assertEquals(500, ex.getResponse().getStatus());
     assertInstanceOf(IllegalStateException.class, ex.getCause());
   }

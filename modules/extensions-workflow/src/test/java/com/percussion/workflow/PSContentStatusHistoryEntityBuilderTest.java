@@ -35,16 +35,14 @@ import org.junit.jupiter.api.Test;
  * int, String, String, IPSContentStatusContext, IPSStatesContext, IPSTransitionsContext)}.
  *
  * <p>This helper is the single source of truth for the field-by-field mapping used by both the
- * deprecated {@code PSContentStatusHistoryContext} write constructor and the migrated
- * {@code PSExitUpdateHistory} write path (#1561 Phase 2). Keeping the mapping in one place
- * prevents the two write paths from drifting apart and lets the mapping be unit-tested without a
- * Spring context.
+ * deprecated {@code PSContentStatusHistoryContext} write constructor and the migrated {@code
+ * PSExitUpdateHistory} write path (#1561 Phase 2). Keeping the mapping in one place prevents the
+ * two write paths from drifting apart and lets the mapping be unit-tested without a Spring context.
  *
- * <p>The tests deliberately avoid the Spring context: they do not exercise
- * {@code IPSSystemService#saveContentStatusHistory} (that needs a full integration test, tracked
- * in {@code docs/ai-generated/migrations/workflow-orm/00-inventory.md}). They focus on the field
- * mapping, branch behaviour (transition present vs. null, content published vs. not), and
- * validation.
+ * <p>The tests deliberately avoid the Spring context: they do not exercise {@code
+ * IPSSystemService#saveContentStatusHistory} (that needs a full integration test, tracked in {@code
+ * docs/ai-generated/migrations/workflow-orm/00-inventory.md}). They focus on the field mapping,
+ * branch behaviour (transition present vs. null, content published vs. not), and validation.
  */
 public class PSContentStatusHistoryEntityBuilderTest {
 
@@ -70,7 +68,9 @@ public class PSContentStatusHistoryEntityBuilderTest {
     Date lastModified = yesterday();
     Date eventTimeFloor = nowMinusOneMs();
 
-    IPSContentStatusContext csc = mockContentStatusContext(TITLE, CONTENT_STATE_ID, CHECKOUT_USER, LAST_MODIFIER, lastModified);
+    IPSContentStatusContext csc =
+        mockContentStatusContext(
+            TITLE, CONTENT_STATE_ID, CHECKOUT_USER, LAST_MODIFIER, lastModified);
     IPSStatesContext sc = mockStatesContext(true, STATE_NAME);
     IPSTransitionsContext tc = mockTransitionsContext(11, "Approve");
 
@@ -111,9 +111,7 @@ public class PSContentStatusHistoryEntityBuilderTest {
     assertEquals("Approve", entity.getTransitionLabel());
   }
 
-  /**
-   * Passing a positive id should preserve it (callers may want to upsert an existing row).
-   */
+  /** Passing a positive id should preserve it (callers may want to upsert an existing row). */
   @Test
   void positiveIdIsPreserved() {
     PSContentStatusHistory entity =
@@ -126,16 +124,15 @@ public class PSContentStatusHistoryEntityBuilderTest {
             BASE_REVISION,
             ROLE_NAME,
             TRANSITION_COMMENT,
-            mockContentStatusContext(TITLE, CONTENT_STATE_ID, CHECKOUT_USER, LAST_MODIFIER, yesterday()),
+            mockContentStatusContext(
+                TITLE, CONTENT_STATE_ID, CHECKOUT_USER, LAST_MODIFIER, yesterday()),
             mockStatesContext(true, STATE_NAME),
             mockTransitionsContext(11, "Approve"));
 
     assertEquals(9999L, entity.getId());
   }
 
-  /**
-   * A zero id is also treated as "auto-allocate" — only strictly positive ids are preserved.
-   */
+  /** A zero id is also treated as "auto-allocate" — only strictly positive ids are preserved. */
   @Test
   void zeroIdIsTreatedAsAutoAllocate() {
     PSContentStatusHistory entity =
@@ -148,7 +145,8 @@ public class PSContentStatusHistoryEntityBuilderTest {
             BASE_REVISION,
             ROLE_NAME,
             TRANSITION_COMMENT,
-            mockContentStatusContext(TITLE, CONTENT_STATE_ID, CHECKOUT_USER, LAST_MODIFIER, yesterday()),
+            mockContentStatusContext(
+                TITLE, CONTENT_STATE_ID, CHECKOUT_USER, LAST_MODIFIER, yesterday()),
             mockStatesContext(true, STATE_NAME),
             mockTransitionsContext(11, "Approve"));
 
@@ -156,9 +154,8 @@ public class PSContentStatusHistoryEntityBuilderTest {
   }
 
   /**
-   * When {@code transitionContext} is {@code null} and {@code contentCheckedOutUserName} is
-   * {@code null} the row should be marked {@code TRANSITIONID_CHECKINOUT} with label
-   * {@code "CheckIn"}.
+   * When {@code transitionContext} is {@code null} and {@code contentCheckedOutUserName} is {@code
+   * null} the row should be marked {@code TRANSITIONID_CHECKINOUT} with label {@code "CheckIn"}.
    */
   @Test
   void checkInBranch_nullTransitionAndNullCheckout() {
@@ -199,7 +196,8 @@ public class PSContentStatusHistoryEntityBuilderTest {
             BASE_REVISION,
             ROLE_NAME,
             TRANSITION_COMMENT,
-            mockContentStatusContext(TITLE, CONTENT_STATE_ID, checkOutUser, LAST_MODIFIER, yesterday()),
+            mockContentStatusContext(
+                TITLE, CONTENT_STATE_ID, checkOutUser, LAST_MODIFIER, yesterday()),
             mockStatesContext(false, STATE_NAME),
             (PSTransition) null);
 
@@ -209,8 +207,8 @@ public class PSContentStatusHistoryEntityBuilderTest {
   }
 
   /**
-   * A null content status context must be rejected up front — the resulting entity would
-   * otherwise have null fields and {@code saveContentStatusHistory} would persist nonsense.
+   * A null content status context must be rejected up front — the resulting entity would otherwise
+   * have null fields and {@code saveContentStatusHistory} would persist nonsense.
    */
   @Test
   void nullContentStatusContextIsRejected() {
@@ -234,8 +232,8 @@ public class PSContentStatusHistoryEntityBuilderTest {
   }
 
   /**
-   * A null states context must be rejected up front — without it we cannot derive the
-   * {@code STATENAME} or the {@code VALID} flag.
+   * A null states context must be rejected up front — without it we cannot derive the {@code
+   * STATENAME} or the {@code VALID} flag.
    */
   @Test
   void nullStatesContextIsRejected() {
@@ -252,16 +250,17 @@ public class PSContentStatusHistoryEntityBuilderTest {
                     BASE_REVISION,
                     ROLE_NAME,
                     TRANSITION_COMMENT,
-                    mockContentStatusContext(TITLE, CONTENT_STATE_ID, CHECKOUT_USER, LAST_MODIFIER, yesterday()),
+                    mockContentStatusContext(
+                        TITLE, CONTENT_STATE_ID, CHECKOUT_USER, LAST_MODIFIER, yesterday()),
                     null,
                     mockTransitionsContext(11, "Approve")));
     assertTrue(ex.getMessage().contains("statesContext"));
   }
 
   /**
-   * Sanity: the helper sets {@code VALID} to {@code "N"} when the state reports
-   * {@code getIsValid() == false}. This is the unpublish / archive path; without it
-   * {@code updateLastPublicRevision} would mistakenly advance the public revision.
+   * Sanity: the helper sets {@code VALID} to {@code "N"} when the state reports {@code getIsValid()
+   * == false}. This is the unpublish / archive path; without it {@code updateLastPublicRevision}
+   * would mistakenly advance the public revision.
    */
   @Test
   void validFlagReflectsStatesContext() {
@@ -275,7 +274,8 @@ public class PSContentStatusHistoryEntityBuilderTest {
             BASE_REVISION,
             ROLE_NAME,
             TRANSITION_COMMENT,
-            mockContentStatusContext(TITLE, CONTENT_STATE_ID, CHECKOUT_USER, LAST_MODIFIER, yesterday()),
+            mockContentStatusContext(
+                TITLE, CONTENT_STATE_ID, CHECKOUT_USER, LAST_MODIFIER, yesterday()),
             mockStatesContext(false, "Archive"),
             mockTransitionsContext(11, "Approve"));
 
@@ -285,8 +285,8 @@ public class PSContentStatusHistoryEntityBuilderTest {
 
   /**
    * Sanity: the helper stores {@code CHECKOUTUSERNAME} verbatim (including the {@code null} case)
-   * so the legacy {@link PSContentStatusHistoryContext} interface getters keep returning the
-   * same values after the Phase 2 migration.
+   * so the legacy {@link PSContentStatusHistoryContext} interface getters keep returning the same
+   * values after the Phase 2 migration.
    */
   @Test
   void checkoutUserNameIsStoredVerbatim() {

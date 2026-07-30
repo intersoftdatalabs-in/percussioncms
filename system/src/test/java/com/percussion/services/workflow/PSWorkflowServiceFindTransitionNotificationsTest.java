@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -45,9 +44,9 @@ import org.springframework.test.util.ReflectionTestUtils;
 /**
  * Mockito-only tests for {@link IPSWorkflowService#findTransitionNotifications(long, long)} added
  * for #1561 Phase 4c. Verifies the JPQL is well-formed and that the parameters are forwarded
- * correctly. Behavioural assertions about the result set are out of scope here — see
- * {@code com.percussion.workflow.PSTransitionNotificationsContextLoadFromHibernateTest} for the
- * mapping tests.
+ * correctly. Behavioural assertions about the result set are out of scope here — see {@code
+ * com.percussion.workflow.PSTransitionNotificationsContextLoadFromHibernateTest} for the mapping
+ * tests.
  */
 public class PSWorkflowServiceFindTransitionNotificationsTest {
 
@@ -67,14 +66,12 @@ public class PSWorkflowServiceFindTransitionNotificationsTest {
 
   @Test
   void rejectsNonPositiveWorkflowId() {
-    assertThrows(
-        IllegalArgumentException.class, () -> service.findTransitionNotifications(0L, 7L));
+    assertThrows(IllegalArgumentException.class, () -> service.findTransitionNotifications(0L, 7L));
   }
 
   @Test
   void rejectsNonPositiveTransitionId() {
-    assertThrows(
-        IllegalArgumentException.class, () -> service.findTransitionNotifications(7L, 0L));
+    assertThrows(IllegalArgumentException.class, () -> service.findTransitionNotifications(7L, 0L));
   }
 
   @Test
@@ -97,7 +94,8 @@ public class PSWorkflowServiceFindTransitionNotificationsTest {
     assertTrue(q.contains("from PSNotification"), "JPQL must target the entity: " + q);
     assertTrue(q.contains("workflowId = :wf"), "JPQL must filter on workflowId: " + q);
     assertTrue(q.contains("transitionId = :tid"), "JPQL must filter on transitionId: " + q);
-    assertTrue(q.contains("order by transitionNotificationId"),
+    assertTrue(
+        q.contains("order by transitionNotificationId"),
         "JPQL must order by transitionNotificationId for cursor compatibility: " + q);
 
     verify(mockQuery).setParameter("wf", 7L);

@@ -105,8 +105,7 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
     }
     out.sort(
         Comparator.comparing(
-            SystemDefFieldSummary::getName,
-            Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+            SystemDefFieldSummary::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
     return out;
   }
 

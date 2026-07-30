@@ -37,10 +37,10 @@ import java.io.IOException;
 import org.glassfish.jersey.server.ContainerRequest;
 
 /**
- * REST/Webservice interface for the forms delivery-tier service. Endpoints cover collecting
- * form submissions from the published site and managing persisted form data for the CMS UI.
+ * REST/Webservice interface for the forms delivery-tier service. Endpoints cover collecting form
+ * submissions from the published site and managing persisted form data for the CMS UI.
  *
- * <p>All endpoints are secured with SSL and HTTP Basic Authentication.</p>
+ * <p>All endpoints are secured with SSL and HTTP Basic Authentication.
  */
 @Path("/forms")
 public interface IPSFormRestService extends IPSRestService {
@@ -59,11 +59,10 @@ public interface IPSFormRestService extends IPSRestService {
    * Processes an entry form and adds a new form to the form service. Upon form addition the form
    * redirects back to the referer.
    *
-   * @param containerRequest the Jersey container request providing access to the decoded form
-   *     body and Jersey-specific properties.
+   * @param containerRequest the Jersey container request providing access to the decoded form body
+   *     and Jersey-specific properties.
    * @param action the form action value supplied by the published site, may be <code>null</code>.
-   * @param header the HTTP headers associated with the incoming request, never
-   *     <code>null</code>.
+   * @param header the HTTP headers associated with the incoming request, never <code>null</code>.
    * @param request the servlet request, never <code>null</code>.
    * @param resp the servlet response used to deliver the redirect, never <code>null</code>.
    * @throws IOException if an I/O error occurs while writing the redirect response.

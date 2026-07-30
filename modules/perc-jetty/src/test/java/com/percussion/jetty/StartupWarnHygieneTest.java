@@ -31,9 +31,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /**
- * GH-1484 / GH-1485 / GH-1486 / GH-1487: Jetty startup WARN hygiene — config-level
- * guards so SLF4J dual-provider, module forking, deprecated APIs, and DigesterFactory
- * noise do not regress in the shipped module/ini/XML overlays.
+ * GH-1484 / GH-1485 / GH-1486 / GH-1487: Jetty startup WARN hygiene — config-level guards so SLF4J
+ * dual-provider, module forking, deprecated APIs, and DigesterFactory noise do not regress in the
+ * shipped module/ini/XML overlays.
  *
  * <p>Resolves files whether surefire CWD is the module directory or the monorepo root.
  */
@@ -75,7 +75,11 @@ class StartupWarnHygieneTest {
     return Files.readString(path, StandardCharsets.UTF_8);
   }
 
-  /** Strip `#` line comments and XML `<!-- ... -->` comments for structural assertions. */
+  /**
+   * Strip `#` line comments and XML `
+   * <!-- ... -->
+   * ` comments for structural assertions.
+   */
   private static String stripComments(String text) {
     String noXmlComments = text.replaceAll("(?s)<!--.*?-->", "");
     return Stream.of(noXmlComments.replace("\r\n", "\n").split("\n"))
@@ -91,16 +95,16 @@ class StartupWarnHygieneTest {
     String mod = stripComments(read(file("defaults", "modules", "perc-logging.mod")));
     assertTrue(
         mod.contains("logging|default"),
-        "perc-logging.mod must [provides] logging|default so jetty-slf4j-impl is not also selected");
+        "perc-logging.mod must [provides] logging|default so jetty-slf4j-impl is not also"
+            + " selected");
     assertFalse(
-        mod.contains("[exec]"),
-        "perc-logging.mod must not declare [exec] (GH-1485 fork hygiene)");
+        mod.contains("[exec]"), "perc-logging.mod must not declare [exec] (GH-1485 fork hygiene)");
   }
 
   /**
-   * Log4j2 is server-owned (WEB-INF excludes log4j-* jars). Packages must be
-   * {@code addProtectedClasses} so webapps can load {@code IoBuilder} etc. Hiding them
-   * (addHiddenClasses) caused NoClassDefFoundError for org.apache.logging.log4j.io.IoBuilder.
+   * Log4j2 is server-owned (WEB-INF excludes log4j-* jars). Packages must be {@code
+   * addProtectedClasses} so webapps can load {@code IoBuilder} etc. Hiding them (addHiddenClasses)
+   * caused NoClassDefFoundError for org.apache.logging.log4j.io.IoBuilder.
    */
   @Test
   void percLoggingExposesLog4jToWebappsAsProtected() throws Exception {
@@ -120,7 +124,8 @@ class StartupWarnHygieneTest {
   @Test
   void percModHasNoExecSection() throws Exception {
     String mod = stripComments(read(file("defaults", "modules", "perc.mod")));
-    assertFalse(mod.contains("[exec]"), "perc.mod must not declare [exec] (consolidate in jvm.ini)");
+    assertFalse(
+        mod.contains("[exec]"), "perc.mod must not declare [exec] (consolidate in jvm.ini)");
     assertTrue(
         mod.contains("shutdown"),
         "perc.mod must depend on Jetty shutdown module (GH-1486 ShutdownService)");
@@ -130,7 +135,8 @@ class StartupWarnHygieneTest {
   @Test
   void jvmIniOwnsForkedJvmArgs() throws Exception {
     String jvm = read(file("defaults", "start.d", "jvm.ini"));
-    assertTrue(jvm.contains("--exec"), "jvm.ini should retain --exec for consolidated CMS JVM args");
+    assertTrue(
+        jvm.contains("--exec"), "jvm.ini should retain --exec for consolidated CMS JVM args");
     assertTrue(
         jvm.contains("PSSaxParserFactoryImpl"),
         "jvm.ini must set Percussion SAXParserFactory (moved from perc.mod [exec])");
@@ -153,8 +159,10 @@ class StartupWarnHygieneTest {
   void shutdownIniConfiguresShutdownService() throws Exception {
     String ini = read(file("defaults", "start.d", "shutdown.ini"));
     assertTrue(ini.contains("--module=shutdown"), "shutdown.ini must enable shutdown module");
-    assertTrue(ini.contains("jetty.shutdown.port=50011"), "shutdown port must match StopJetty default");
-    assertTrue(ini.contains("jetty.shutdown.key=SHUTDOWN"), "shutdown key must match StopJetty default");
+    assertTrue(
+        ini.contains("jetty.shutdown.port=50011"), "shutdown port must match StopJetty default");
+    assertTrue(
+        ini.contains("jetty.shutdown.key=SHUTDOWN"), "shutdown key must match StopJetty default");
   }
 
   /** GH-1486: StartJetty must not activate deprecated ShutdownMonitor via STOP.PORT. */
@@ -185,8 +193,8 @@ class StartupWarnHygieneTest {
   }
 
   /**
-   * GH-1486 / PR #1518 review: Windows service install must still wire operator
-   * STOPPORT/STOPKEY into the server start path without using -DSTOP.PORT.
+   * GH-1486 / PR #1518 review: Windows service install must still wire operator STOPPORT/STOPKEY
+   * into the server start path without using -DSTOP.PORT.
    */
   @Test
   void installJettyServiceBatPreservesCustomStopPortViaShutdownProperties() throws Exception {

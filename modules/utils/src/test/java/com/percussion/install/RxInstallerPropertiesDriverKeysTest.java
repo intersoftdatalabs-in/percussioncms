@@ -33,8 +33,7 @@ class RxInstallerPropertiesDriverKeysTest {
 
   @Test
   void h2AndPostgresqlDriverKeysResolveToJdbcClasses() {
-    assertEquals(
-        PSJdbcUtils.H2_DRIVER_CLASS, RxInstallerProperties.getResources().getString("h2"));
+    assertEquals(PSJdbcUtils.H2_DRIVER_CLASS, RxInstallerProperties.getResources().getString("h2"));
     assertEquals(
         PSJdbcUtils.POSTGRES_DRIVER_CLASS,
         RxInstallerProperties.getResources().getString("postgresql"));

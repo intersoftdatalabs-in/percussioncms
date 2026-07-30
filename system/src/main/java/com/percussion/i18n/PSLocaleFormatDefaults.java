@@ -21,8 +21,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Product-shipped locale format profiles. Mirrors {@code RXLOCALEFORMAT} seed data so UI and
- * unit tests can resolve formats even when the DB catalog is unavailable.
+ * Product-shipped locale format profiles. Mirrors {@code RXLOCALEFORMAT} seed data so UI and unit
+ * tests can resolve formats even when the DB catalog is unavailable.
  */
 public final class PSLocaleFormatDefaults {
 

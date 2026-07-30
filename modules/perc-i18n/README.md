@@ -59,19 +59,19 @@ All translation memory exchange (TMX) files are maintained in this module:
 Both `CmsUi.tmx` and `SystemResources.tmx` declare the same set of
 languages in their `<header>` `<prop type="supportedlanguage">` lines:
 
-| Family    | Codes                                              |
-|-----------|----------------------------------------------------|
-| Arabic    | `ar` (base)                                        |
-| English   | `en-us` (default fallback), `en-gb`                |
-| Spanish   | `es` (base), `es-cl`, `es-es`, `es-mx`             |
-| French    | `fr-ca`, `fr-fr`                                   |
-| German    | `de-de`                                            |
-| Hindi     | `hi` (base), `hi-in`                               |
-| Italian   | `it-it`                                            |
-| Japanese  | `ja-jp`                                            |
-| Dutch     | `nl-nl`                                            |
-| Portuguese| `pt-br`, `pt-pt`                                   |
-| Turkish   | `tr-tr`                                            |
+|   Family   |                 Codes                  |
+|------------|----------------------------------------|
+| Arabic     | `ar` (base)                            |
+| English    | `en-us` (default fallback), `en-gb`    |
+| Spanish    | `es` (base), `es-cl`, `es-es`, `es-mx` |
+| French     | `fr-ca`, `fr-fr`                       |
+| German     | `de-de`                                |
+| Hindi      | `hi` (base), `hi-in`                   |
+| Italian    | `it-it`                                |
+| Japanese   | `ja-jp`                                |
+| Dutch      | `nl-nl`                                |
+| Portuguese | `pt-br`, `pt-pt`                       |
+| Turkish    | `tr-tr`                                |
 
 **Base locales** (`RXLOCALE.ISBASE=1`): `ar`, `es`, `hi`. Prefer storing
 shared translations under the base tag; regionals hold dialect

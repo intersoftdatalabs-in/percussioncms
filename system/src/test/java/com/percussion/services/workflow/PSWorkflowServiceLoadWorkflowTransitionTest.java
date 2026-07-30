@@ -24,8 +24,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.percussion.services.memory.IPSCacheAccess;
 import com.percussion.services.guidmgr.IPSGuidManager;
+import com.percussion.services.memory.IPSCacheAccess;
 import com.percussion.services.workflow.data.PSTransition;
 import com.percussion.services.workflow.data.PSTransitionHib;
 import com.percussion.services.workflow.data.PSTransitionHib.TransitionType;
@@ -39,13 +39,12 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 /**
  * Unit tests for {@link PSWorkflowService#loadWorkflowTransition(long, long)} — the
- * Hibernate-backed transition lookup added for #1561 Phase 3 to replace the raw-JDBC
- * {@code PSTransitionsContext} read inside {@code PSExitUpdateHistory}.
+ * Hibernate-backed transition lookup added for #1561 Phase 3 to replace the raw-JDBC {@code
+ * PSTransitionsContext} read inside {@code PSExitUpdateHistory}.
  *
- * <p>The service uses {@code @PersistenceContext EntityManager} + a private
- * {@code Session getSession()} helper. We mock both via Mockito (and inject the
- * {@code EntityManager} field via {@link ReflectionTestUtils}) so these tests run
- * without a Spring context or a live database.
+ * <p>The service uses {@code @PersistenceContext EntityManager} + a private {@code Session
+ * getSession()} helper. We mock both via Mockito (and inject the {@code EntityManager} field via
+ * {@link ReflectionTestUtils}) so these tests run without a Spring context or a live database.
  */
 public class PSWorkflowServiceLoadWorkflowTransitionTest {
 
@@ -65,10 +64,10 @@ public class PSWorkflowServiceLoadWorkflowTransitionTest {
   }
 
   /**
-   * Builds a minimally-valid {@link PSTransitionHib} mock for the tests that exercise the
-   * happy path. {@code PSTransformTransitionUtils.convertTransition(hib)} reads the
-   * following getters; returning non-null / sane values for each keeps the test focused on
-   * the service's own logic rather than on Hibernate's mapping.
+   * Builds a minimally-valid {@link PSTransitionHib} mock for the tests that exercise the happy
+   * path. {@code PSTransformTransitionUtils.convertTransition(hib)} reads the following getters;
+   * returning non-null / sane values for each keeps the test focused on the service's own logic
+   * rather than on Hibernate's mapping.
    */
   private static PSTransitionHib fullyStubbedHib() {
     PSTransitionHib hib = mock(PSTransitionHib.class);
@@ -89,37 +88,32 @@ public class PSWorkflowServiceLoadWorkflowTransitionTest {
     when(hib.getApprovals()).thenReturn(1);
     when(hib.isDefaultTransition()).thenReturn(false);
     when(hib.getRequiresComment())
-        .thenReturn(com.percussion.services.workflow.data.PSTransition.PSWorkflowCommentEnum.OPTIONAL);
+        .thenReturn(
+            com.percussion.services.workflow.data.PSTransition.PSWorkflowCommentEnum.OPTIONAL);
     when(hib.getTransitionRoles()).thenReturn(new java.util.ArrayList<>());
     return hib;
   }
 
   /**
-   * Argument validation: non-positive {@code workflowAppId} and
-   * {@code transitionId} must fail fast with {@link IllegalArgumentException}
-   * before any Hibernate call.
+   * Argument validation: non-positive {@code workflowAppId} and {@code transitionId} must fail fast
+   * with {@link IllegalArgumentException} before any Hibernate call.
    */
   @Test
   void rejectsNonPositiveWorkflowAppId() {
-    assertThrows(
-        IllegalArgumentException.class, () -> service.loadWorkflowTransition(0L, 11L));
-    assertThrows(
-        IllegalArgumentException.class, () -> service.loadWorkflowTransition(-1L, 11L));
+    assertThrows(IllegalArgumentException.class, () -> service.loadWorkflowTransition(0L, 11L));
+    assertThrows(IllegalArgumentException.class, () -> service.loadWorkflowTransition(-1L, 11L));
   }
 
   @Test
   void rejectsNonPositiveTransitionId() {
-    assertThrows(
-        IllegalArgumentException.class, () -> service.loadWorkflowTransition(7L, 0L));
-    assertThrows(
-        IllegalArgumentException.class, () -> service.loadWorkflowTransition(7L, -3L));
+    assertThrows(IllegalArgumentException.class, () -> service.loadWorkflowTransition(7L, 0L));
+    assertThrows(IllegalArgumentException.class, () -> service.loadWorkflowTransition(7L, -3L));
   }
 
   /**
-   * Aging transitions ({@code TransitionType.AGING}) are intentionally ignored:
-   * the exit that calls this only cares about non-aging transitions. The
-   * service must return {@code null} for them rather than silently returning a
-   * converted aging transition.
+   * Aging transitions ({@code TransitionType.AGING}) are intentionally ignored: the exit that calls
+   * this only cares about non-aging transitions. The service must return {@code null} for them
+   * rather than silently returning a converted aging transition.
    */
   @Test
   void agingTransitionReturnsNull() {
@@ -131,8 +125,8 @@ public class PSWorkflowServiceLoadWorkflowTransitionTest {
   }
 
   /**
-   * If Hibernate returns no row for the supplied key, the service returns
-   * {@code null}. The exit treats that as "transition not found".
+   * If Hibernate returns no row for the supplied key, the service returns {@code null}. The exit
+   * treats that as "transition not found".
    */
   @Test
   void missingRowReturnsNull() {
@@ -142,11 +136,10 @@ public class PSWorkflowServiceLoadWorkflowTransitionTest {
   }
 
   /**
-   * Happy path: a non-aging row in {@code TRANSITIONS} is fetched and converted
-   * into a {@link PSTransition} DTO via
-   * {@code PSTransformTransitionUtils.convertTransition}. The returned DTO is
-   * non-null and the Hibernate {@code Session.get} is called with a
-   * {@link PSTransitionPK} matching the supplied id pair.
+   * Happy path: a non-aging row in {@code TRANSITIONS} is fetched and converted into a {@link
+   * PSTransition} DTO via {@code PSTransformTransitionUtils.convertTransition}. The returned DTO is
+   * non-null and the Hibernate {@code Session.get} is called with a {@link PSTransitionPK} matching
+   * the supplied id pair.
    */
   @Test
   void happyPathReturnsConvertedTransition() {
@@ -163,9 +156,9 @@ public class PSWorkflowServiceLoadWorkflowTransitionTest {
   }
 
   /**
-   * The service must build the {@link PSTransitionPK} from the supplied
-   * (workflowAppId, transitionId) pair exactly. This guards against future
-   * refactors that might accidentally swap or coalesce the key.
+   * The service must build the {@link PSTransitionPK} from the supplied (workflowAppId,
+   * transitionId) pair exactly. This guards against future refactors that might accidentally swap
+   * or coalesce the key.
    */
   @Test
   void usesCompositeKey() {
@@ -178,8 +171,9 @@ public class PSWorkflowServiceLoadWorkflowTransitionTest {
         .get(
             eq(PSTransitionHib.class),
             org.mockito.ArgumentMatchers.argThat(
-                pk -> pk instanceof PSTransitionPK
-                    && ((PSTransitionPK) pk).getWorkflowId() == 7L
-                    && ((PSTransitionPK) pk).getTransitionId() == 11L));
+                pk ->
+                    pk instanceof PSTransitionPK
+                        && ((PSTransitionPK) pk).getWorkflowId() == 7L
+                        && ((PSTransitionPK) pk).getTransitionId() == 11L));
   }
 }
