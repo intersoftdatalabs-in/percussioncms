@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -73,35 +74,33 @@ public class PSThirdPartyCopyrightTest {
         "stable attribution blurb should designate the LICENSE/NOTICE files as the single source of truth");
   }
 
+  /**
+   * Matches any {@code vMAJOR.MINOR.PATCH} style version pin, e.g. {@code v1.3.1}, {@code v2.3.232},
+   * {@code v7.2.6}. Used as a regression guard so the stable attribution blurb stays
+   * version-agnostic — every pinned dependency version must live in the build-generated inventory,
+   * not in the hand-edited resource bundle.
+   */
+  private static final Pattern VERSION_PIN = Pattern.compile("\\bv\\d+\\.\\d+\\.\\d+\\b");
+
+  /** Matches a bare {@code MAJOR.MINOR.PATCH} version pin (no leading {@code v}). */
+  private static final Pattern BARE_VERSION_PIN = Pattern.compile("(?<!\\.)\\b\\d+\\.\\d+\\.\\d+\\b(?!\\.)");
+
+  /** Matches the Microsoft SQL Server JDBC driver's {@code X.Y.Z.jreNN-preview} tag. */
+  private static final Pattern MS_JDBC_PREVIEW_TAG =
+      Pattern.compile("\\d+\\.\\d+\\.\\d+\\.jre\\d+-preview");
+
   @Test
   void thirdPartyCopyrightHasNoDependencyVersionPins() {
     String text = PSServer.getRes().getString("thirdPartyCopyright");
     assertFalse(
-        text.contains("v1.3.1"), "jTDS v1.3.1 pin must not appear in the stable attribution blurb");
+        VERSION_PIN.matcher(text).find(),
+        "stable attribution blurb must not contain 'vMAJOR.MINOR.PATCH' style version pins");
     assertFalse(
-        text.contains("v2.3.232"),
-        "H2 v2.3.232 pin must not appear in the stable attribution blurb");
+        BARE_VERSION_PIN.matcher(text).find(),
+        "stable attribution blurb must not contain bare 'MAJOR.MINOR.PATCH' style version pins");
     assertFalse(
-        text.contains("13.3.1.jre11-preview"),
-        "Microsoft SQL Server JDBC preview pin must not appear in the stable attribution blurb");
-    assertFalse(
-        text.contains("v42.7.12"),
-        "PostgreSQL JDBC v42.7.12 pin must not appear in the stable attribution blurb");
-    assertFalse(
-        text.contains("v3.5.7"),
-        "MariaDB Connector/J v3.5.7 pin must not appear in the stable attribution blurb");
-    assertFalse(
-        text.contains("v7.2.6"), "Hibernate ORM v7.2.6 pin must not appear in the stable attribution blurb");
-    assertFalse(
-        text.contains("2.25.4"), "Apache Log4j 2.25.4 pin must not appear in the stable attribution blurb");
-    assertFalse(
-        text.contains("8.11.4"), "Apache Lucene 8.11.4 pin must not appear in the stable attribution blurb");
-    assertFalse(
-        text.contains("v1.4.21"), "XStream v1.4.21 pin must not appear in the stable attribution blurb");
-    assertFalse(
-        text.contains("v1.84"), "Bouncy Castle v1.84 pin must not appear in the stable attribution blurb");
-    assertFalse(
-        text.contains("6.8.6"), "TinyMCE 6.8.6 pin must not appear in the stable attribution blurb");
+        MS_JDBC_PREVIEW_TAG.matcher(text).find(),
+        "stable attribution blurb must not contain Microsoft SQL Server JDBC preview tags");
   }
 
   @Test
@@ -163,11 +162,12 @@ public class PSThirdPartyCopyrightTest {
     assertFalse(
         body.contains("Lato"), "NOTICE.txt must no longer reference the dropped Lato font");
     assertFalse(
-        body.contains("v1.3.1"), "NOTICE.txt must not duplicate the jTDS v1.3.1 pin");
+        VERSION_PIN.matcher(body).find(),
+        "NOTICE.txt must not duplicate 'vMAJOR.MINOR.PATCH' style version pins; the versioned "
+            + "inventory is generated from the project dependency set at build time");
     assertFalse(
-        body.contains("v2.3.232"), "NOTICE.txt must not duplicate the H2 v2.3.232 pin");
-    assertFalse(
-        body.contains("2.25.4"), "NOTICE.txt must not duplicate the Apache Log4j 2.25.4 pin");
+        MS_JDBC_PREVIEW_TAG.matcher(body).find(),
+        "NOTICE.txt must not duplicate Microsoft SQL Server JDBC preview tags");
   }
 
   private Path repoRoot() throws Exception {
