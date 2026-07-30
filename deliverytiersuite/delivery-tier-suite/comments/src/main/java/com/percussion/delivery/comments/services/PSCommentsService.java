@@ -89,11 +89,11 @@ public class PSCommentsService implements IPSCommentsService {
   private static PSProfanityFilter profanityFilter = new PSProfanityFilter();
 
   /**
-   * Adds a new comment in the database.
-   * Notifies listeners of changes in comments so that cache regions can be flushed.
+   * Adds a new comment in the database. Notifies listeners of changes in comments so that cache
+   * regions can be flushed.
    *
-   * @param comment Comment to add. Must not be {@code null}.
-   * May be any implementation of IPSComment interface.
+   * @param comment Comment to add. Must not be {@code null}. May be any implementation of
+   *     IPSComment interface.
    */
   public IPSComment addComment(IPSComment comment) {
     String siteName = comment.getSite();

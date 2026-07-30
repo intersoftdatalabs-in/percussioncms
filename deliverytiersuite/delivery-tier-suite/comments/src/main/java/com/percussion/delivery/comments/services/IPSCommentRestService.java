@@ -166,20 +166,28 @@ public interface IPSCommentRestService extends IPSRestService {
   // Form field param constants
   /** Form field name for the comment author's user name. */
   String FORM_PARAM_USERNAME = "username";
+
   /** Form field name for the site the comment belongs to. */
   String FORM_PARAM_SITE = "site";
+
   /** Form field name for the relative path of the page being commented on. */
   String FORM_PARAM_PAGEPATH = "pagepath";
+
   /** Form field name for the comment author's email address. */
   String FORM_PARAM_EMAIL = "email";
+
   /** Form field name for the comment body text. */
   String FORM_PARAM_TEXT = "text";
+
   /** Form field name for the comment title. */
   String FORM_PARAM_TITLE = "title";
+
   /** Form field name for the comma or pipe separated list of comment tags. */
   String FORM_PARAM_TAGS = "tags";
+
   /** Form field name for a URL supplied by the comment author. */
   String FORM_PARAM_URL = "url";
+
   // Honeypot spelled backwards.
   /** Honeypot form field name (spelled backwards). Bots fill this in; humans do not. */
   String FORM_PARAM_HONEYPOT = "topyenoh";

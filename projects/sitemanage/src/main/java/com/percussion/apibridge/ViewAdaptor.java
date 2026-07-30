@@ -4,9 +4,9 @@
 
 package com.percussion.apibridge;
 
+import com.percussion.cms.objectstore.PSSFields;
 import com.percussion.cms.objectstore.PSSearch;
 import com.percussion.cms.objectstore.PSSearchField;
-import com.percussion.cms.objectstore.PSSFields;
 import com.percussion.rest.Guid;
 import com.percussion.rest.views.IViewAdaptor;
 import com.percussion.rest.views.ViewDef;
@@ -61,10 +61,8 @@ public class ViewAdaptor implements IViewAdaptor {
         return List.of();
       }
       String currentUser = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
-      String currentSession =
-          (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
-      List<PSSearch> loaded =
-          designWs.loadViews(guids, false, false, currentSession, currentUser);
+      String currentSession = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+      List<PSSearch> loaded = designWs.loadViews(guids, false, false, currentSession, currentUser);
       List<ViewDef> out = new ArrayList<>();
       if (loaded != null) {
         for (PSSearch s : loaded) {

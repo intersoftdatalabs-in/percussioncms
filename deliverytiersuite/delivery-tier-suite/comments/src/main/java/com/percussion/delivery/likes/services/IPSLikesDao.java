@@ -22,9 +22,7 @@ import com.percussion.delivery.likes.data.IPSLikes;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * Data access interface for likes.
- */
+/** Data access interface for likes. */
 public interface IPSLikesDao {
   /**
    * Finds likes for the specified site, like id and type.
