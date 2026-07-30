@@ -58,4 +58,12 @@ public interface IItemFilterAdaptor {
    * @throws PSNotFoundException if the filter is not found.
    */
   ItemFilter getItemFilter(Guid itemFilterId) throws PSNotFoundException;
+
+  /**
+   * Resolve one filter by name or GUID string for the Developer REST surface.
+   *
+   * @param idOrName name or {@code type-host-uuid} string; blank/unsafe → {@code null}
+   * @return filter, or {@code null} when not found
+   */
+  ItemFilter findItemFilter(String idOrName);
 }

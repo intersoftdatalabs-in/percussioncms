@@ -345,3 +345,26 @@ export interface SystemDefDetail {
   fields?: SystemDefFieldSummary[];
   designGaps?: string[];
 }
+
+/** Item filter rule param from GET /services/itemfilters. */
+export interface ItemFilterRuleParam {
+  name?: string;
+  value?: string;
+}
+
+/** Item filter rule definition. */
+export interface ItemFilterRule {
+  name?: string;
+  ruleId?: RestGuid;
+  params?: ItemFilterRuleParam[];
+}
+
+/** Assembly item filter (AS-07). */
+export interface ItemFilter {
+  filterId?: RestGuid;
+  name?: string;
+  description?: string;
+  legacyAuthtype?: number;
+  rules?: ItemFilterRule[];
+  parentFilter?: ItemFilter | null;
+}

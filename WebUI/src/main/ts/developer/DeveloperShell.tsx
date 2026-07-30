@@ -23,6 +23,7 @@ import {
 } from "../app/deepLinks/allowlists";
 import { CommunitiesPanel } from "./CommunitiesPanel";
 import { ContentTypesPanel } from "./ContentTypesPanel";
+import { ItemFiltersPanel } from "./ItemFiltersPanel";
 import { KeywordsPanel } from "./KeywordsPanel";
 import { LocalesPanel } from "./LocalesPanel";
 import { DEV_MSG } from "./messages";
@@ -42,6 +43,7 @@ const SECTION_LABEL: Record<DeveloperSection, string> = {
   locales: DEV_MSG.TAB_LOCALES,
   "shared-fields": DEV_MSG.TAB_SHARED_FIELDS,
   "system-def": DEV_MSG.TAB_SYSTEM_DEF,
+  "item-filters": DEV_MSG.TAB_ITEM_FILTERS,
   communities: DEV_MSG.TAB_COMMUNITIES,
   pipelines: DEV_MSG.TAB_PIPELINES,
 };
@@ -150,6 +152,8 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
           <SharedFieldsPanel />
         ) : active === "system-def" ? (
           <SystemDefPanel />
+        ) : active === "item-filters" ? (
+          <ItemFiltersPanel />
         ) : active === "communities" ? (
           <CommunitiesPanel />
         ) : (

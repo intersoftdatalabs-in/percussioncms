@@ -359,6 +359,16 @@ vi.mock("../../../main/ts/api/developer/systemDefApi", () => ({
   }),
 }));
 
+vi.mock("../../../main/ts/api/developer/itemFiltersApi", () => ({
+  listItemFilters: vi.fn().mockResolvedValue([
+    { name: "public", description: "Public", rules: [] },
+  ]),
+  getItemFilterDetail: vi.fn().mockResolvedValue({
+    name: "public",
+    rules: [],
+  }),
+}));
+
 describe("DeveloperShell", () => {
   beforeEach(() => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
@@ -429,6 +439,17 @@ describe("DeveloperShell", () => {
       expect(screen.getByTestId("developer-sys-fields-table")).toBeTruthy();
     });
     expect(screen.getByText("sys_title")).toBeTruthy();
+  });
+
+  it("loads item filters catalog section", async () => {
+    render(<DeveloperShell initialSection="item-filters" embedded />);
+    expect(screen.getByTestId("tab-developer-item-filters").getAttribute("aria-selected")).toBe(
+      "true",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-if-table")).toBeTruthy();
+    });
+    expect(screen.getByText("public")).toBeTruthy();
   });
 
   it("opens content type detail from list row", async () => {

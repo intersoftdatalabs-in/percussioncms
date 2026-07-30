@@ -297,6 +297,10 @@ export const PATHS = {
   get SYSTEM_DEF() {
     return `${SERVICES_ROOT}/systemdef`;
   },
+  /** Assembly item filter design catalog. */
+  get ITEM_FILTERS() {
+    return `${SERVICES_ROOT}/itemfilters`;
+  },
   /** Object ACL catalog (design-time security). */
   get ACLS() {
     return `${SERVICES_ROOT}/acls`;

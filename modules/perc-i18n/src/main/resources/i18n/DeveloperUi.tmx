@@ -1419,6 +1419,76 @@
             <note xml:lang="en-us">DEV_MSG.SYS_FIELDS_HINT</note>
             <tuv xml:lang="en-us"><seg>Fields available to all content types as system fields. Property and control write are not exposed yet.</seg></tuv>
         </tu>
+        <tu tuid="perc.ui.developer@Item Filters">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.TAB_ITEM_FILTERS</note>
+            <tuv xml:lang="en-us"><seg>Item Filters</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading item filters…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.IF_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading item filters…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@No item filters returned.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.IF_EMPTY</note>
+            <tuv xml:lang="en-us"><seg>No item filters returned.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load item filters.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.IF_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load item filters.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Assembly item filters (rules applied when resolving related content). Open a row for rules and parent linkage. Create/edit is a later slice.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.IF_HINT</note>
+            <tuv xml:lang="en-us"><seg>Assembly item filters (rules applied when resolving related content). Open a row for rules and parent linkage. Create/edit is a later slice.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Parent filter">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.IF_COL_PARENT</note>
+            <tuv xml:lang="en-us"><seg>Parent filter</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading item filter…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.IF_DETAIL_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading item filter…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load item filter.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.IF_DETAIL_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load item filter.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Legacy authtype">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.IF_COL_AUTHTYPE</note>
+            <tuv xml:lang="en-us"><seg>Legacy authtype</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Filter rule definitions and parameters. Rule editing is not exposed yet.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.IF_RULES_HINT</note>
+            <tuv xml:lang="en-us"><seg>Filter rule definitions and parameters. Rule editing is not exposed yet.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Rule">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.IF_COL_RULE</note>
+            <tuv xml:lang="en-us"><seg>Rule</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Parameters">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.IF_COL_PARAMS</note>
+            <tuv xml:lang="en-us"><seg>Parameters</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Item filter create / update / delete not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.IF_GAP_WRITE</note>
+            <tuv xml:lang="en-us"><seg>Item filter create / update / delete not supported via this API</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Rule and parameter editing not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.IF_GAP_RULE_EDIT</note>
+            <tuv xml:lang="en-us"><seg>Rule and parameter editing not supported via this API</seg></tuv>
+        </tu>
         <tu tuid="perc.ui.developer@Not implemented yet">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PLACEHOLDER_TITLE</note>
