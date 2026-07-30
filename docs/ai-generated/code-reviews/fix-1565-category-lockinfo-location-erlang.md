@@ -29,10 +29,10 @@ does not re-read on most platforms).
 
 ## Files
 
-| File | Status |
-|---|---|
-| `projects/sitemanage/src/main/java/com/percussion/category/data/PSCategoryLockInfo.java` | modified |
-| `projects/sitemanage/src/test/java/com/percussion/category/data/PSCategoryLockInfoLocationTest.java` | added |
+|                                                 File                                                 |  Status  |
+|------------------------------------------------------------------------------------------------------|----------|
+| `projects/sitemanage/src/main/java/com/percussion/category/data/PSCategoryLockInfo.java`             | modified |
+| `projects/sitemanage/src/test/java/com/percussion/category/data/PSCategoryLockInfoLocationTest.java` | added    |
 
 ## Recommendation
 
@@ -40,15 +40,15 @@ does not re-read on most platforms).
 
 ## Gate
 
-| Check | Result |
-|---|---|
-| Bugs (correctness, data loss, silent failure) | none |
-| Behavioral tests for new/changed non-trivial logic | yes — 7 new tests, observable-state assertions |
-| Non-portable file I/O / paths (Windows vs Unix) | clean — NIO `Path`/`Files`, `File.separator`-free, no hardcoded `/` or `\`, no Unix-only roots or Windows drive letters in shared code or tests |
-| Security / secrets / tokens | n/a |
-| Maintainability / convention breaks | none blocking |
-| Spotless | clean on the in-scope files (out-of-scope baseline debt is stashed on a separate `spotless-baseline-debt-sitemanage` stash per the AGENTS.md split rule) |
-| Pre-PR clean install (sitemanage standalone, JDK 21, root `mvnw.cmd`) | BUILD SUCCESS, Tests run: 579, Failures: 0, Errors: 0, Skipped: 128 (pre-existing) |
+|                                 Check                                 |                                                                          Result                                                                          |
+|-----------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Bugs (correctness, data loss, silent failure)                         | none                                                                                                                                                     |
+| Behavioral tests for new/changed non-trivial logic                    | yes — 7 new tests, observable-state assertions                                                                                                           |
+| Non-portable file I/O / paths (Windows vs Unix)                       | clean — NIO `Path`/`Files`, `File.separator`-free, no hardcoded `/` or `\`, no Unix-only roots or Windows drive letters in shared code or tests          |
+| Security / secrets / tokens                                           | n/a                                                                                                                                                      |
+| Maintainability / convention breaks                                   | none blocking                                                                                                                                            |
+| Spotless                                                              | clean on the in-scope files (out-of-scope baseline debt is stashed on a separate `spotless-baseline-debt-sitemanage` stash per the AGENTS.md split rule) |
+| Pre-PR clean install (sitemanage standalone, JDK 21, root `mvnw.cmd`) | BUILD SUCCESS, Tests run: 579, Failures: 0, Errors: 0, Skipped: 128 (pre-existing)                                                                       |
 
 ## Cross-platform path checklist (per root `AGENTS.md`)
 
@@ -91,12 +91,12 @@ _none_
 
 ## Pre-PR verification performed by the implementer
 
-| Command | Result |
-|---|---|
-| `mvnw.cmd clean install -Dai.integrity.skip=true` (sitemanage, standalone) | BUILD SUCCESS — Tests run: 579, Failures: 0, Errors: 0, Skipped: 128 (pre-existing) |
-| `mvnw.cmd -Dtest=PSCategoryLockInfoLocationTest,PSCategoryLockInfoStaleTest,PSCategoryMarshallerLockTest test` (sitemanage) | 11/11 pass |
-| `mvnw.cmd spotless:apply -pl projects/sitemanage` then `spotless:check` | in-scope files clean; out-of-scope Spotless hits (16 unrelated files) split into a stash per AGENTS.md — see "Spotless partition" below |
-| AI build integrity hash check | pre-existing mismatches in `deliverytiersuite/.../common/src/main/java/com/percussion/delivery/utils/{lookup/PSXEntry,properties/PSPropertyDefinition}.java` (not in this PR's scope); `-Dai.integrity.skip=true` used to allow the build |
+|                                                           Command                                                           |                                                                                                                  Result                                                                                                                   |
+|-----------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `mvnw.cmd clean install -Dai.integrity.skip=true` (sitemanage, standalone)                                                  | BUILD SUCCESS — Tests run: 579, Failures: 0, Errors: 0, Skipped: 128 (pre-existing)                                                                                                                                                       |
+| `mvnw.cmd -Dtest=PSCategoryLockInfoLocationTest,PSCategoryLockInfoStaleTest,PSCategoryMarshallerLockTest test` (sitemanage) | 11/11 pass                                                                                                                                                                                                                                |
+| `mvnw.cmd spotless:apply -pl projects/sitemanage` then `spotless:check`                                                     | in-scope files clean; out-of-scope Spotless hits (16 unrelated files) split into a stash per AGENTS.md — see "Spotless partition" below                                                                                                   |
+| AI build integrity hash check                                                                                               | pre-existing mismatches in `deliverytiersuite/.../common/src/main/java/com/percussion/delivery/utils/{lookup/PSXEntry,properties/PSPropertyDefinition}.java` (not in this PR's scope); `-Dai.integrity.skip=true` used to allow the build |
 
 ## Spotless partition
 
