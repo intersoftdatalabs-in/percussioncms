@@ -2643,15 +2643,15 @@
                         </execution>
                     </executions>
                 </plugin>
-                <plugin>
+       <!-- re-enable when maven central publishing issue is resolved  - til then it breaks dependabot
+
+            <plugin>
                     <groupId>com.intsof</groupId>
                     <artifactId>ai-build-integrity-maven-plugin</artifactId>
                     <version>0.13.3</version>
                     <configuration>
                         <hashFileMode>CENTRAL</hashFileMode>
-                        <!-- Scan the entire repo, not just the current module's basedir -->
                         <baseDir>${maven.multiModuleProjectDirectory}</baseDir>
-                        <!-- All modules share one ledger written to root target/ -->
                         <centralHashFile>${maven.multiModuleProjectDirectory}/target/ai-integrity.sha256</centralHashFile>
                         <gitignoreAutoExclude>true</gitignoreAutoExclude>
                         <forceIncludes>.env</forceIncludes>
@@ -2671,14 +2671,12 @@
                             <goals>
                                 <goal>generate-hashes</goal>
                             </goals>
-                            <!-- Seal once at reactor start -->
                             <configuration>
                                 <executionRootOnly>true</executionRootOnly>
                             </configuration>
                         </execution>
                         <execution>
                             <id>verify</id>
-                            <!-- No executionRootOnly — fires in every module before it is packaged -->
                             <goals>
                                 <goal>verify-hashes</goal>
                             </goals>
@@ -2688,21 +2686,21 @@
                             <goals>
                                 <goal>clean-hashes</goal>
                             </goals>
-                            <!-- Delete ledger once -->
                             <configuration>
                                 <executionRootOnly>true</executionRootOnly>
                             </configuration>
                         </execution>
                     </executions>
-                </plugin>
+                </plugin> -->
             </plugins>
         </pluginManagement>
         <plugins>
-            <plugin>
+     <!--       <plugin>
                 <groupId>com.intsof</groupId>
                 <artifactId>ai-build-integrity-maven-plugin</artifactId>
                 <version>0.13.3</version>
             </plugin>
+    -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>

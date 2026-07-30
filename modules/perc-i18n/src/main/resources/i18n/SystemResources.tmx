@@ -4369,7 +4369,7 @@ You have selected to copy the source Site Subfolder with the following options:
 			<tuv xml:lang="en-us">
 				<seg>You are not authorized to access the resource.</seg>
 			</tuv>
-		<tuv xml:lang="es"><seg>No está autorizado a acceder al recurso.</seg></tuv><tuv xml:lang="fr-fr"><seg>Vous n'êtes pas autorisé à accéder à la ressource.</seg></tuv></tu>	
+		<tuv xml:lang="es"><seg>No está autorizado a acceder al recurso.</seg></tuv><tuv xml:lang="fr-fr"><seg>Vous n'êtes pas autorisé à accéder à la ressource.</seg></tuv><tuv xml:lang="hi"><seg>आप संसाधन तक पहुँचने के लिए अधिकृत नहीं हैं।</seg></tuv></tu>	
 			
 		</tu>
         	<tu tuid="jsp_addressbarpanel@path">

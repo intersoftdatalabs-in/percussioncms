@@ -1,17 +1,17 @@
 # Design: Pure React / TypeScript WebUI — Eliminate JSP Shells
 
-| Field | Value |
-|-------|-------|
-| **Status** | Infra PRs 1–9 landed or in flight; **product acceptance** is screen-by-screen per unified-ui-plan **rev 4.0** (Home first) |
-| **Module** | `WebUI/` |
-| **Branch base** | `development` |
-| **Stack (verified)** | React 19.1, TypeScript 5.8, Vite 8, Jetty WAR under `/cm/` |
-| **Canonical frontend** | `WebUI/src/main/frontend/` (Maven `frontend-maven-plugin` `workingDirectory`). Root `WebUI/package.json` / `WebUI/vite.config.ts` are **not** product build paths. |
-| **Product direction of record** | [`#000-unified-ui-plan/unified-ui-plan.md`](../#000-unified-ui-plan/unified-ui-plan.md) **rev 4.1** — React/TS only; **no jQuery in SPA**; no dual mode; no new bridges; shell ≠ done |
-| **Supersedes** | Dual-mode / soft-flag strategies; Track A Dojo→jQuery as product strategy; bridge-first product pages; “shell = done” milestones |
-| **Cutover stance** | **Aggressive SPA-first.** The SPA is the product UI. No dual-mode production path. Residual hosts are **delete debt**, not peers. |
-| **Functional sequencing (locked)** | **Home first** (must be fully functional), then Publish → Explorer → Admin → Workflow → WB. Infra login/shell already shipped. |
-| **Out of scope until later waves** | Full editor/AA rewrite, Package Manager GWT, Desktop CE, Eclipse; inventing a parallel auth API (reuse existing `/login` POST) |
+|               Field                |                                                                                         Value                                                                                         |
+|------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Status**                         | Infra PRs 1–9 landed or in flight; **product acceptance** is screen-by-screen per unified-ui-plan **rev 4.0** (Home first)                                                            |
+| **Module**                         | `WebUI/`                                                                                                                                                                              |
+| **Branch base**                    | `development`                                                                                                                                                                         |
+| **Stack (verified)**               | React 19.1, TypeScript 5.8, Vite 8, Jetty WAR under `/cm/`                                                                                                                            |
+| **Canonical frontend**             | `WebUI/src/main/frontend/` (Maven `frontend-maven-plugin` `workingDirectory`). Root `WebUI/package.json` / `WebUI/vite.config.ts` are **not** product build paths.                    |
+| **Product direction of record**    | [`#000-unified-ui-plan/unified-ui-plan.md`](../#000-unified-ui-plan/unified-ui-plan.md) **rev 4.1** — React/TS only; **no jQuery in SPA**; no dual mode; no new bridges; shell ≠ done |
+| **Supersedes**                     | Dual-mode / soft-flag strategies; Track A Dojo→jQuery as product strategy; bridge-first product pages; “shell = done” milestones                                                      |
+| **Cutover stance**                 | **Aggressive SPA-first.** The SPA is the product UI. No dual-mode production path. Residual hosts are **delete debt**, not peers.                                                     |
+| **Functional sequencing (locked)** | **Home first** (must be fully functional), then Publish → Explorer → Admin → Workflow → WB. Infra login/shell already shipped.                                                        |
+| **Out of scope until later waves** | Full editor/AA rewrite, Package Manager GWT, Desktop CE, Eclipse; inventing a parallel auth API (reuse existing `/login` POST)                                                        |
 
 ---
 
@@ -33,63 +33,63 @@ Pain of the current hybrid:
 
 ### 1.2 Verified hybrid architecture (code baseline)
 
-| Layer | Path / fact |
-|-------|-------------|
-| TS sources | `WebUI/src/main/ts/` (~95 `.tsx`, ~70 `.ts`) |
+|      Layer      |                                                             Path / fact                                                              |
+|-----------------|--------------------------------------------------------------------------------------------------------------------------------------|
+| TS sources      | `WebUI/src/main/ts/` (~95 `.tsx`, ~70 `.ts`)                                                                                         |
 | Canonical build | `WebUI/src/main/frontend/` → Vite `base: "/cm/modern/"`, outDir `target/generated-webui/cm/modern`, entry `assets/perc-modern-ui.js` |
-| Entry today | `index.ts` → `bridge.ts` only |
-| Bridge | `window.PercModernUI.mount(elementId, componentName, props)` |
-| Registry | Static imports of all shells (no code-split) |
-| Dispatcher | `cm/app/index.jsp` (diverging `cm/pages/app/index.jsp`) |
-| REST | `api/client.ts` + feature APIs; CSRF from `window.OWASP_CSRFTOKEN` |
-| i18n | `i18n/message.ts` → TMX `window.I18N` |
-| Themes | `ui-themes/ThemeProvider.tsx` (often per-shell) |
+| Entry today     | `index.ts` → `bridge.ts` only                                                                                                        |
+| Bridge          | `window.PercModernUI.mount(elementId, componentName, props)`                                                                         |
+| Registry        | Static imports of all shells (no code-split)                                                                                         |
+| Dispatcher      | `cm/app/index.jsp` (diverging `cm/pages/app/index.jsp`)                                                                              |
+| REST            | `api/client.ts` + feature APIs; CSRF from `window.OWASP_CSRFTOKEN`                                                                   |
+| i18n            | `i18n/message.ts` → TMX `window.I18N`                                                                                                |
+| Themes          | `ui-themes/ThemeProvider.tsx` (often per-shell)                                                                                      |
 
 ### 1.3 Inventory: what becomes SPA routes vs temporary legacy exit
 
 #### A. SPA-owned product surfaces (compose existing shells — no rewrite)
 
-| Registry / shell | Source | Today host | SPA role |
-|------------------|--------|------------|----------|
-| `HomeShell` | `home/HomeShell.tsx` | `homeModern.jsp` | SPA route; server entry `?entry=home` |
-| `PublishingShell` | `publishing/…` | `publishModern.jsp` | Route publish |
-| `WorkflowAdminShell` | `workflowAdmin/…` | `adminWorkflowModern.jsp` | Route workflow |
-| `AdminShell` | `admin/…` | `adminModern.jsp` | Route admin |
-| `WidgetBuilderApp` | `widgetbuilder/…` | `widgetBuilderModern.jsp` | Route widget-builder |
-| `UnavailableView` | `home/UnavailableView.tsx` | `unavailableModern.jsp` | SPA 404 / unknown |
-| `ContentExplorerShell` | `contentExplorer/…` | explorerModern + embeds | Product route **and** optional bridge mount only inside **still-legacy** jQuery pages |
-| `ContentBrowser`, `SearchPanel`, `FolderSecurityPanel`, `ActionToolbar`, `ContextMenu` | contentExplorer / contentBrowser | host dialog JSPs | Prefer SPA dialog routes when openers allow; else keep thin host until openers updated |
-| `Dashboard` + widgets | `dashboard/*` | Registered; product `dashboard.jsp` still jQuery PercDashboard | **Gadgets stay valuable** — long-term target is **compose on Home** (not a peer SPA `/dashboard`). Until then: legacy exit `?view=dash` only |
+|                                    Registry / shell                                    |              Source              |                           Today host                           |                                                                   SPA role                                                                   |
+|----------------------------------------------------------------------------------------|----------------------------------|----------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| `HomeShell`                                                                            | `home/HomeShell.tsx`             | `homeModern.jsp`                                               | SPA route; server entry `?entry=home`                                                                                                        |
+| `PublishingShell`                                                                      | `publishing/…`                   | `publishModern.jsp`                                            | Route publish                                                                                                                                |
+| `WorkflowAdminShell`                                                                   | `workflowAdmin/…`                | `adminWorkflowModern.jsp`                                      | Route workflow                                                                                                                               |
+| `AdminShell`                                                                           | `admin/…`                        | `adminModern.jsp`                                              | Route admin                                                                                                                                  |
+| `WidgetBuilderApp`                                                                     | `widgetbuilder/…`                | `widgetBuilderModern.jsp`                                      | Route widget-builder                                                                                                                         |
+| `UnavailableView`                                                                      | `home/UnavailableView.tsx`       | `unavailableModern.jsp`                                        | SPA 404 / unknown                                                                                                                            |
+| `ContentExplorerShell`                                                                 | `contentExplorer/…`              | explorerModern + embeds                                        | Product route **and** optional bridge mount only inside **still-legacy** jQuery pages                                                        |
+| `ContentBrowser`, `SearchPanel`, `FolderSecurityPanel`, `ActionToolbar`, `ContextMenu` | contentExplorer / contentBrowser | host dialog JSPs                                               | Prefer SPA dialog routes when openers allow; else keep thin host until openers updated                                                       |
+| `Dashboard` + widgets                                                                  | `dashboard/*`                    | Registered; product `dashboard.jsp` still jQuery PercDashboard | **Gadgets stay valuable** — long-term target is **compose on Home** (not a peer SPA `/dashboard`). Until then: legacy exit `?view=dash` only |
 
 #### B. `index.jsp` modern views → SPA immediately (aggressive)
 
-| `?view=` | Old target | Aggressive target |
-|----------|------------|-------------------|
-| `home` | `homeModern.jsp` | **SPA shell** |
-| `publish` | `publishModern.jsp` | **SPA shell** |
-| `workflow` | `adminWorkflowModern.jsp` | **SPA shell** |
-| `widgetbuilder` | `widgetBuilderModern.jsp` | **SPA shell** |
-| `admin` | `adminModern.jsp` | **SPA shell** |
-| unknown | `unavailableModern.jsp` | **SPA** unavailable route |
+|    `?view=`     |        Old target         |     Aggressive target     |
+|-----------------|---------------------------|---------------------------|
+| `home`          | `homeModern.jsp`          | **SPA shell**             |
+| `publish`       | `publishModern.jsp`       | **SPA shell**             |
+| `workflow`      | `adminWorkflowModern.jsp` | **SPA shell**             |
+| `widgetbuilder` | `widgetBuilderModern.jsp` | **SPA shell**             |
+| `admin`         | `adminModern.jsp`         | **SPA shell**             |
+| unknown         | `unavailableModern.jsp`   | **SPA** unavailable route |
 
 #### C. Temporary hybrid **exits** (full page leave SPA — not dual-mode)
 
-| `?view=` | JSP | Notes |
-|----------|-----|-------|
-| `dash` | `dashboard.jsp` | Until gadgets live on Home; then remove peer dash surface |
-| `editor` | `webmgt.jsp` | Long-lived until editor migration |
-| `design` | `admin.jsp` | Temporary exit |
-| `arch` | `siteArchitecture.jsp` | Temporary exit |
-| `editAsset` / `editTemplate` | legacy JSPs | Temporary exit |
+|           `?view=`           |          JSP           |                           Notes                           |
+|------------------------------|------------------------|-----------------------------------------------------------|
+| `dash`                       | `dashboard.jsp`        | Until gadgets live on Home; then remove peer dash surface |
+| `editor`                     | `webmgt.jsp`           | Long-lived until editor migration                         |
+| `design`                     | `admin.jsp`            | Temporary exit                                            |
+| `arch`                       | `siteArchitecture.jsp` | Temporary exit                                            |
+| `editAsset` / `editTemplate` | legacy JSPs            | Temporary exit                                            |
 
 Returning to modern work = navigate back into SPA entry (not a second product UI for the same feature).
 
 #### D. Dual-tree drift (must fix while shipping SPA)
 
-| Item | `cm/app` | `cm/pages/app` |
-|------|----------|----------------|
+|    Item    |         `cm/app`          |         `cm/pages/app`         |
+|------------|---------------------------|--------------------------------|
 | `workflow` | `adminWorkflowModern.jsp` | **legacy** `adminWorkflow.jsp` |
-| `admin` | `adminModern.jsp` | **missing** |
+| `admin`    | `adminModern.jsp`         | **missing**                    |
 
 **Policy:** `cm/app` is canonical. Align or redirect `cm/pages/app` in the same PRs that cut over modern views — not a late cleanup afterthought.
 
@@ -197,16 +197,16 @@ Vite entry remains one bundle path (`perc-modern-ui.js`) for simplicity; registr
 
 Canonical SPA document: **`/cm/app/spa.jsp`** (or same params on the URL that `index.jsp` ultimately serves as the SPA shell).
 
-| Server entry (examples) | Meaning |
-|-------------------------|---------|
-| `/cm/app/spa.jsp?entry=home` | Home (default section) |
-| `/cm/app/spa.jsp?entry=home&section=library` | Home section |
-| `/cm/app/spa.jsp?entry=publish&section=logs&siteId=…` | Publish deep link |
-| `/cm/app/spa.jsp?entry=workflow&tab=users` | Workflow admin tab |
-| `/cm/app/spa.jsp?entry=admin&tab=tools` | Admin tab (includes `tools`) |
-| `/cm/app/spa.jsp?entry=widget-builder` | Widget Builder |
-| `/cm/app/spa.jsp?entry=explorer&path=/…` | Content explorer |
-| `/cm/app/spa.jsp?entry=unavailable` | Unknown / retired |
+|                Server entry (examples)                |           Meaning            |
+|-------------------------------------------------------|------------------------------|
+| `/cm/app/spa.jsp?entry=home`                          | Home (default section)       |
+| `/cm/app/spa.jsp?entry=home&section=library`          | Home section                 |
+| `/cm/app/spa.jsp?entry=publish&section=logs&siteId=…` | Publish deep link            |
+| `/cm/app/spa.jsp?entry=workflow&tab=users`            | Workflow admin tab           |
+| `/cm/app/spa.jsp?entry=admin&tab=tools`               | Admin tab (includes `tools`) |
+| `/cm/app/spa.jsp?entry=widget-builder`                | Widget Builder               |
+| `/cm/app/spa.jsp?entry=explorer&path=/…`              | Content explorer             |
+| `/cm/app/spa.jsp?entry=unavailable`                   | Unknown / retired            |
 
 **`entry` allowlist (server + client):**  
 `home` | `publish` | `workflow` | `admin` | `widget-builder` | `explorer` | `unavailable`  
@@ -231,52 +231,52 @@ Canonical SPA document: **`/cm/app/spa.jsp`** (or same params on the URL that `i
 
 #### Client routes (after entry applied)
 
-| Client path (basename `/cm/app` if BrowserRouter; or hash `#/…`) | Module | Server gate on `entry` |
-|-----------------------------------------------------------------|--------|-------------------------|
-| `/` or `/home` | HomeShell | Auth |
-| `/home/:section?` | HomeShell | Auth |
-| `/publish` / `/publish/:section` | PublishingShell | Admin or Designer |
-| `/workflow` / `/workflow/:tab` | WorkflowAdminShell | Admin |
-| `/admin` / `/admin/:tab` | AdminShell | Admin |
-| `/widget-builder` | WidgetBuilderApp | Admin or Designer + WB active |
-| `/explorer` | ContentExplorerShell | Auth |
-| `/unavailable` | UnavailableView | Auth |
-| *(do not target)* `/dashboard` | — | Prefer **Home section / widgets**; avoid peer SPA dashboard |
+| Client path (basename `/cm/app` if BrowserRouter; or hash `#/…`) |        Module        |                   Server gate on `entry`                    |
+|------------------------------------------------------------------|----------------------|-------------------------------------------------------------|
+| `/` or `/home`                                                   | HomeShell            | Auth                                                        |
+| `/home/:section?`                                                | HomeShell            | Auth                                                        |
+| `/publish` / `/publish/:section`                                 | PublishingShell      | Admin or Designer                                           |
+| `/workflow` / `/workflow/:tab`                                   | WorkflowAdminShell   | Admin                                                       |
+| `/admin` / `/admin/:tab`                                         | AdminShell           | Admin                                                       |
+| `/widget-builder`                                                | WidgetBuilderApp     | Admin or Designer + WB active                               |
+| `/explorer`                                                      | ContentExplorerShell | Auth                                                        |
+| `/unavailable`                                                   | UnavailableView      | Auth                                                        |
+| *(do not target)* `/dashboard`                                   | —                    | Prefer **Home section / widgets**; avoid peer SPA dashboard |
 
 #### Router choice (client-only; still one product UI)
 
-| Item | Choice |
-|------|--------|
-| Product shell URL | `index.jsp` maps modern views → **`spa.jsp?entry=…`** (query contract) |
-| Server redirects / login return | **Query only** — never `#` fragments |
-| Client router first ship | **HashRouter** OK so *in-SPA* refresh of client routes does not 404 under Jetty |
-| Client router end-state | BrowserRouter + optional rewrite — polish only |
-| `*Modern.jsp` | Not product path; optional 302 → `spa.jsp?entry=…` (query) |
+|              Item               |                                     Choice                                      |
+|---------------------------------|---------------------------------------------------------------------------------|
+| Product shell URL               | `index.jsp` maps modern views → **`spa.jsp?entry=…`** (query contract)          |
+| Server redirects / login return | **Query only** — never `#` fragments                                            |
+| Client router first ship        | **HashRouter** OK so *in-SPA* refresh of client routes does not 404 under Jetty |
+| Client router end-state         | BrowserRouter + optional rewrite — polish only                                  |
+| `*Modern.jsp`                   | Not product path; optional 302 → `spa.jsp?entry=…` (query)                      |
 
 Do **not** keep serving `homeModern.jsp` as a working product alternative.
 
 #### Frozen deep-link allowlists (TS source of truth)
 
-| Area | Canonical | Aliases |
-|------|-----------|---------|
-| Home section | `recent`, `bookmarks`, `library`, `search`, `create` | `list`→`recent`, `newitem`→`create`, `bookmark`→`bookmarks` |
+|      Area       |                         Canonical                          |                                      Aliases                                      |
+|-----------------|------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| Home section    | `recent`, `bookmarks`, `library`, `search`, `create`       | `list`→`recent`, `newitem`→`create`, `bookmark`→`bookmarks`                       |
 | Publish section | `sites`, `status`, `logs`, `design`, `runtime`, `editions` | `site`→`sites`, `log`→`logs`, `edition`→`editions`; non-designer `design`→`sites` |
-| Workflow tab | `workflow`, `roles`, `users`, `categories` | — |
-| Admin tab | `tasks`, `logs`, `notifications`, **`tools`** | `tools` is intentional (shell has ToolsSection) |
-| IDs | `siteId`, `serverId` | `^[A-Za-z0-9_-]{1,128}$` |
-| Explorer path | leading `/`, length &lt; 2048, `[/A-Za-z0-9._-]+` | — |
+| Workflow tab    | `workflow`, `roles`, `users`, `categories`                 | —                                                                                 |
+| Admin tab       | `tasks`, `logs`, `notifications`, **`tools`**              | `tools` is intentional (shell has ToolsSection)                                   |
+| IDs             | `siteId`, `serverId`                                       | `^[A-Za-z0-9_-]{1,128}$`                                                          |
+| Explorer path   | leading `/`, length &lt; 2048, `[/A-Za-z0-9._-]+`          | —                                                                                 |
 
 #### `?view=` → SPA query entry map (aggressive)
 
-| Incoming | Server target (use `proxyURL` + path; **no hash**) |
-|----------|-----------------------------------------------------|
-| `view=home` (+ `initialScreen`) | `spa.jsp?entry=home&section={mapped}` |
-| `view=publish` (+ section/ids) | `spa.jsp?entry=publish&section=…&siteId=…&serverId=…` |
-| `view=workflow` (+ section) | `spa.jsp?entry=workflow&tab=…` |
-| `view=admin` (+ tab) | `spa.jsp?entry=admin&tab=…` |
-| `view=widgetbuilder` | `spa.jsp?entry=widget-builder` |
-| unknown modern | `spa.jsp?entry=unavailable` |
-| `dash` / `editor` / `design` / `arch` / edit* | **Legacy JSP exit** (full page, existing forwards) |
+|                   Incoming                    |  Server target (use `proxyURL` + path; **no hash**)   |
+|-----------------------------------------------|-------------------------------------------------------|
+| `view=home` (+ `initialScreen`)               | `spa.jsp?entry=home&section={mapped}`                 |
+| `view=publish` (+ section/ids)                | `spa.jsp?entry=publish&section=…&siteId=…&serverId=…` |
+| `view=workflow` (+ section)                   | `spa.jsp?entry=workflow&tab=…`                        |
+| `view=admin` (+ tab)                          | `spa.jsp?entry=admin&tab=…`                           |
+| `view=widgetbuilder`                          | `spa.jsp?entry=widget-builder`                        |
+| unknown modern                                | `spa.jsp?entry=unavailable`                           |
+| `dash` / `editor` / `design` / `arch` / edit* | **Legacy JSP exit** (full page, existing forwards)    |
 
 ### 2.5 Layout & navigation
 
@@ -323,17 +323,17 @@ Product modern views **always** include the SPA root.
 
 Today `PercModernUI.mount` is **synchronous** `void` and JSPs call it after a short poll for `window.PercModernUI`. Lazy `import()` must not break that call shape.
 
-| Rule | Spec |
-|------|------|
-| **Public API** | `mount(elementId, componentName, props?): void` and `unmount(elementId): void` remain **sync** (no Promise return to hosts). |
-| **Load** | Internally `void loadComponent(componentName).then(…)` — shared with SPA routes. |
-| **Generation token** | Per `elementId`, increment a generation (or store `AbortController` / nonce) on each `mount`/`unmount`. When a load resolves, apply only if generation still matches; **ignore stale** resolutions. |
-| **unmount** | Sync: unmount active React root if any; **cancel/invalidate** pending load for that id (bump generation) so a late import does not remount. |
-| **Unknown name** | `console.error` with name; do not throw into host page. |
-| **Load failure** | `console.error`; optional `data-perc-mount-error="1"` (or similar) on the container; **no throw** to JSP. |
-| **Missing container** | `console.error`; return (existing behavior). |
-| **Shared loader** | `export function loadComponent(name: string): Promise<ComponentType<any>>` in `registry.ts` (or `componentLoader.ts`); bridge + SPA both use it. |
-| **Main chunk** | Must not static-import all shell modules; only the loader map of dynamic `import()` factories. |
+|         Rule          |                                                                                                Spec                                                                                                 |
+|-----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Public API**        | `mount(elementId, componentName, props?): void` and `unmount(elementId): void` remain **sync** (no Promise return to hosts).                                                                        |
+| **Load**              | Internally `void loadComponent(componentName).then(…)` — shared with SPA routes.                                                                                                                    |
+| **Generation token**  | Per `elementId`, increment a generation (or store `AbortController` / nonce) on each `mount`/`unmount`. When a load resolves, apply only if generation still matches; **ignore stale** resolutions. |
+| **unmount**           | Sync: unmount active React root if any; **cancel/invalidate** pending load for that id (bump generation) so a late import does not remount.                                                         |
+| **Unknown name**      | `console.error` with name; do not throw into host page.                                                                                                                                             |
+| **Load failure**      | `console.error`; optional `data-perc-mount-error="1"` (or similar) on the container; **no throw** to JSP.                                                                                           |
+| **Missing container** | `console.error`; return (existing behavior).                                                                                                                                                        |
+| **Shared loader**     | `export function loadComponent(name: string): Promise<ComponentType<any>>` in `registry.ts` (or `componentLoader.ts`); bridge + SPA both use it.                                                    |
+| **Main chunk**        | Must not static-import all shell modules; only the loader map of dynamic `import()` factories.                                                                                                      |
 
 **Vitest (PR-1 hard exit criteria):**
 
@@ -401,9 +401,9 @@ else:
 
 Default homepage:
 
-- User homepage Home → `spa.jsp?entry=home`  
-- Dashboard → legacy dash exit only (until gadgets on Home)  
-- Editor → legacy editor  
+- User homepage Home → `spa.jsp?entry=home`
+- Dashboard → legacy dash exit only (until gadgets on Home)
+- Editor → legacy editor
 
 **Stop forwarding modern views to `*Modern.jsp`.** Those files become reference-only (or 302 to `spa.jsp?entry=…` with **query** params and **proxyURL**).
 
@@ -421,12 +421,12 @@ Do **not** implement `perc.webui.spa.enabled` as the delivery model. Ops rollbac
 
 ### 3.7 Query entry vs client hash (summary)
 
-| Actor | Mechanism |
-|-------|-----------|
+|                        Actor                         |                        Mechanism                        |
+|------------------------------------------------------|---------------------------------------------------------|
 | `index.jsp` / login return / 302 from old Modern JSP | `proxyURL` + `/cm/app/spa.jsp?entry=…` (**query only**) |
-| SPA first paint | Parse query → router `navigate(..., { replace: true })` |
-| In-SPA TopNav / links | Client router (hash or path) |
-| Forbidden | Server `Location: …#/…` as primary deep link |
+| SPA first paint                                      | Parse query → router `navigate(..., { replace: true })` |
+| In-SPA TopNav / links                                | Client router (hash or path)                            |
+| Forbidden                                            | Server `Location: …#/…` as primary deep link            |
 
 ---
 
@@ -503,12 +503,12 @@ See §2.4 tables (canonical paths/hashes, aliases, `?view=` map). That is the im
 
 ## 6. Hybrid strategy (exits only)
 
-| Kind | Behavior |
-|------|----------|
-| **SPA product** | Home (+ gadgets when folded in), Publish, Workflow, Admin, Widget Builder, (Explorer) |
-| **Legacy exit** | Full `window.location` to remaining JSPs |
-| **Legacy embed** | Bridge mount of explorer (etc.) **inside** those JSPs until page deleted |
-| **Not allowed** | Shipping the same feature as both live JSP shell and SPA “optional mode” |
+|       Kind       |                                       Behavior                                        |
+|------------------|---------------------------------------------------------------------------------------|
+| **SPA product**  | Home (+ gadgets when folded in), Publish, Workflow, Admin, Widget Builder, (Explorer) |
+| **Legacy exit**  | Full `window.location` to remaining JSPs                                              |
+| **Legacy embed** | Bridge mount of explorer (etc.) **inside** those JSPs until page deleted              |
+| **Not allowed**  | Shipping the same feature as both live JSP shell and SPA “optional mode”              |
 
 No iframe default for webmgt.
 
@@ -516,129 +516,129 @@ No iframe default for webmgt.
 
 ## 7. Security model
 
-| Concern | Target |
-|---------|--------|
-| First paint auth | `PSSecurityFilter` on `/*` — unchanged |
-| Mid-session | Global SPA 401 → login with **query entry return URL** (e.g. `/cm/app/spa.jsp?entry=home` or current entry reconstructed from allowlisted state — **never** `#/…`); optional sessionCheck on focus |
-| CSRF | Blocking `/JavaScriptServlet` before module; SPA waits for token or shows error |
-| Role gates | **Server** on index/spa for modern views; client `RequireRole` UX only; REST 403 |
-| Bootstrap XSS | Mandatory script-context encoding + tests |
-| Deep links | Server + TS allowlists on `entry`/`section`/`tab`/ids/`path`; no raw query echo into JS; server redirects use query entry contract only |
-| TMX | Prefer `/tmx/tmx.jsp?...`; `/Rhythmyx/tmx/...` only when context path requires (same idea as `api/paths.ts`) |
-| CSP | External scripts + JSON text; no feature inline mount scripts on SPA |
+|     Concern      |                                                                                               Target                                                                                               |
+|------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| First paint auth | `PSSecurityFilter` on `/*` — unchanged                                                                                                                                                             |
+| Mid-session      | Global SPA 401 → login with **query entry return URL** (e.g. `/cm/app/spa.jsp?entry=home` or current entry reconstructed from allowlisted state — **never** `#/…`); optional sessionCheck on focus |
+| CSRF             | Blocking `/JavaScriptServlet` before module; SPA waits for token or shows error                                                                                                                    |
+| Role gates       | **Server** on index/spa for modern views; client `RequireRole` UX only; REST 403                                                                                                                   |
+| Bootstrap XSS    | Mandatory script-context encoding + tests                                                                                                                                                          |
+| Deep links       | Server + TS allowlists on `entry`/`section`/`tab`/ids/`path`; no raw query echo into JS; server redirects use query entry contract only                                                            |
+| TMX              | Prefer `/tmx/tmx.jsp?...`; `/Rhythmyx/tmx/...` only when context path requires (same idea as `api/paths.ts`)                                                                                       |
+| CSP              | External scripts + JSON text; no feature inline mount scripts on SPA                                                                                                                               |
 
 ---
 
 ## 8. Build / deploy
 
-| Item | Spec |
-|------|------|
-| package.json / vite | **Only** `WebUI/src/main/frontend/` |
-| Deps | `react-router-dom` (+ types if needed) |
-| Entry | SPA-first `index.ts`; lazy registry/routes |
-| Assets | `/cm/modern/assets/perc-modern-ui.js` |
-| Cache | Deploy cache-buster query or short-cache headers on stable entry name |
-| Pre-PR | `cd WebUI && ../mvnw clean install` |
+|        Item         |                                 Spec                                  |
+|---------------------|-----------------------------------------------------------------------|
+| package.json / vite | **Only** `WebUI/src/main/frontend/`                                   |
+| Deps                | `react-router-dom` (+ types if needed)                                |
+| Entry               | SPA-first `index.ts`; lazy registry/routes                            |
+| Assets              | `/cm/modern/assets/perc-modern-ui.js`                                 |
+| Cache               | Deploy cache-buster query or short-cache headers on stable entry name |
+| Pre-PR              | `cd WebUI && ../mvnw clean install`                                   |
 
 ---
 
 ## 9. Testing strategy
 
-| Layer | Cases |
-|-------|-------|
-| Unit | Allowlists + **parseEntryQuery**; bootstrap parse + **`</script>` XSS payloads**; role UX guards; **bridge mount async races** (§2.9); shared `loadComponent`; routes render shells; 401 handler with query return URL; CSRF missing token |
-| Integration / QA | Login → each modern SPA route → deep link refresh → designer vs admin → WB off → legacy exit editor → return SPA |
-| Cutover | `?view=…` modern maps to `spa.jsp?entry=…` (query, proxyURL); never serves feature mount JSP as product UI; no server redirects with `#` |
-| Dual-tree | Both trees SPA for modern views or pages→app redirect |
-| Embed residual | Legacy pages that still embed explorer still mount via bridge until removed |
-| Bundle | Main chunk must not static-import all shells; loadComponent dynamic graph |
+|      Layer       |                                                                                                                   Cases                                                                                                                    |
+|------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Unit             | Allowlists + **parseEntryQuery**; bootstrap parse + **`</script>` XSS payloads**; role UX guards; **bridge mount async races** (§2.9); shared `loadComponent`; routes render shells; 401 handler with query return URL; CSRF missing token |
+| Integration / QA | Login → each modern SPA route → deep link refresh → designer vs admin → WB off → legacy exit editor → return SPA                                                                                                                           |
+| Cutover          | `?view=…` modern maps to `spa.jsp?entry=…` (query, proxyURL); never serves feature mount JSP as product UI; no server redirects with `#`                                                                                                   |
+| Dual-tree        | Both trees SPA for modern views or pages→app redirect                                                                                                                                                                                      |
+| Embed residual   | Legacy pages that still embed explorer still mount via bridge until removed                                                                                                                                                                |
+| Bundle           | Main chunk must not static-import all shells; loadComponent dynamic graph                                                                                                                                                                  |
 
 Manual QA (short):
 
-1. Admin: SPA home → publish → workflow → admin → widget-builder without full multipage JSP shells.  
-2. Deep publish via `spa.jsp?entry=publish&section=logs` then refresh (client route stable).  
-3. Designer: publish OK; workflow denied server-side.  
-4. Editor exit works; return Home SPA.  
-5. Home as landing; gadgets on Home when ready (legacy dash exit until then).  
+1. Admin: SPA home → publish → workflow → admin → widget-builder without full multipage JSP shells.
+2. Deep publish via `spa.jsp?entry=publish&section=logs` then refresh (client route stable).
+3. Designer: publish OK; workflow denied server-side.
+4. Editor exit works; return Home SPA.
+5. Home as landing; gadgets on Home when ready (legacy dash exit until then).
 6. Bootstrap XSS test fixtures green.
 
 ---
 
 ## 10. Risks & mitigations
 
-| Risk | Mitigation |
-|------|------------|
-| Jetty path 404 on in-SPA refresh | HashRouter for client routes short-term; server deep links always query `entry` |
-| Aggressive cutover bugs | Fast PR feedback; fix-forward; reference JSPs still in git for comparison (not runtime dual product) |
-| Double chrome | `embedded` required on routed shells |
-| Bundle size on legacy embeds | Lazy `loadComponent` + §2.9 race-safe mount |
-| Dual-tree drift | Cutover both trees together |
-| Bootstrap XSS | Encoder + tests |
-| Missing server role gates | index/spa enforce before HTML |
-| Mid-session expiry | Global 401 handler |
-| Deleting JSPs too early | Phase 3 stop **using**; Phase 4 delete after tests |
+|               Risk               |                                              Mitigation                                              |
+|----------------------------------|------------------------------------------------------------------------------------------------------|
+| Jetty path 404 on in-SPA refresh | HashRouter for client routes short-term; server deep links always query `entry`                      |
+| Aggressive cutover bugs          | Fast PR feedback; fix-forward; reference JSPs still in git for comparison (not runtime dual product) |
+| Double chrome                    | `embedded` required on routed shells                                                                 |
+| Bundle size on legacy embeds     | Lazy `loadComponent` + §2.9 race-safe mount                                                          |
+| Dual-tree drift                  | Cutover both trees together                                                                          |
+| Bootstrap XSS                    | Encoder + tests                                                                                      |
+| Missing server role gates        | index/spa enforce before HTML                                                                        |
+| Mid-session expiry               | Global 401 handler                                                                                   |
+| Deleting JSPs too early          | Phase 3 stop **using**; Phase 4 delete after tests                                                   |
 
 ---
 
 ## 11. Alternatives considered
 
-| Alternative | Verdict |
-|-------------|---------|
-| Dual-mode bridge product + SPA optional | **Rejected by product owner** — do not design this |
-| Soft cutover flag default false | **Rejected** as delivery story — SPA is product now |
-| Keep `*Modern.jsp` as production peers | **Rejected** |
-| Big-bang rewrite shells | Reject — compose existing shells |
-| Permanent multi-JSP + shared includes | Reject for modern features |
-| Redux default | Reject |
-| Next.js / SSR | Reject (Jetty WAR) |
-| HashRouter short-term (client only) | **Accept** for in-SPA refresh convenience |
-| BrowserRouter + rewrite | Accept as URL polish, single UI |
-| Server deep links via `#` fragment | **Reject** — use query `entry` contract |
-| Query-only client router forever | Acceptable if hash/path both blocked |
-| iframe legacy editors | Reject default |
+|               Alternative               |                       Verdict                       |
+|-----------------------------------------|-----------------------------------------------------|
+| Dual-mode bridge product + SPA optional | **Rejected by product owner** — do not design this  |
+| Soft cutover flag default false         | **Rejected** as delivery story — SPA is product now |
+| Keep `*Modern.jsp` as production peers  | **Rejected**                                        |
+| Big-bang rewrite shells                 | Reject — compose existing shells                    |
+| Permanent multi-JSP + shared includes   | Reject for modern features                          |
+| Redux default                           | Reject                                              |
+| Next.js / SSR                           | Reject (Jetty WAR)                                  |
+| HashRouter short-term (client only)     | **Accept** for in-SPA refresh convenience           |
+| BrowserRouter + rewrite                 | Accept as URL polish, single UI                     |
+| Server deep links via `#` fragment      | **Reject** — use query `entry` contract             |
+| Query-only client router forever        | Acceptable if hash/path both blocked                |
+| iframe legacy editors                   | Reject default                                      |
 
 ---
 
 ## 12. Open questions
 
-| ID | Question | Status |
-|----|----------|--------|
-| OQ-1 | Client hash vs path URLs | **Pragmatic lock:** client Hash first OK; **server always query `entry`**. Path client later. |
-| OQ-2 | Dashboard SPA vs Home | **Resolved:** gadgets → **Home**; no long-term peer SPA dashboard |
-| OQ-3 | Dialog hosts → SPA routes timing | Keep thin hosts until openers updated; not dual product for main nav |
-| OQ-4 | Feature flag soft cutover | **Closed — not used** |
-| OQ-5 | Administration → workflow | **Locked** (preserve mainnav) |
+|  ID  |             Question             |                                            Status                                             |
+|------|----------------------------------|-----------------------------------------------------------------------------------------------|
+| OQ-1 | Client hash vs path URLs         | **Pragmatic lock:** client Hash first OK; **server always query `entry`**. Path client later. |
+| OQ-2 | Dashboard SPA vs Home            | **Resolved:** gadgets → **Home**; no long-term peer SPA dashboard                             |
+| OQ-3 | Dialog hosts → SPA routes timing | Keep thin hosts until openers updated; not dual product for main nav                          |
+| OQ-4 | Feature flag soft cutover        | **Closed — not used**                                                                         |
+| OQ-5 | Administration → workflow        | **Locked** (preserve mainnav)                                                                 |
 
 ---
 
 ## 13. Key Decisions
 
-| ID | Decision | Rationale |
-|----|----------|-----------|
-| **KD-1** | **SPA-first entry**: product modern UI boots App/Router on `#root`; bridge is secondary for residual embeds only | Product owner: aggressive new UI now; no dual-mode centerpiece |
-| **KD-2** | Compose existing shells as route modules | 989/990/992/993 done |
-| **KD-3** | Single SPA server document (`spa.jsp` / index forward) with XSS-safe bootstrap | One host, security + simplicity |
-| **KD-4** | `react-router-dom`; no Redux default | Router load-bearing |
-| **KD-5** | Server deep links = **query `entry` contract**; client HashRouter OK short-term; BrowserRouter later polish | Fragments unreliable on redirects/login return; still one product UI |
-| **KD-6** | **Aggressive cutover**: modern `?view=` → SPA only; no flag dual path | Owner override of soft cutover |
-| **KD-7** | Unmigrated jQuery = full-page **exits** only | Temporary hybrid boundary |
-| **KD-8** | Deep-link allowlists in TS | XSS hygiene |
-| **KD-9** | **React Login is the first product slice** (front door for demos); posts to existing `/login` | Stakeholder demo from the door; no parallel auth API |
-| **KD-10** | One Vite bundle name; lazy chunks underneath | Hosts + embeds |
-| **KD-11** | Server role gates + REST authoritative; client guards UX | Defense in depth |
-| **KD-12** | PR-1 = Login SPA + post-login SPA landing; PR-2 = full app shell | Demo path first, then depth |
-| **KD-13** | `cm/app` canonical; dual-tree fixed with cutover | Stop drift |
-| **KD-14** | Lazy `loadComponent` + sync mount API with generation tokens (§2.9) | Embed payload + JSP-compatible bridge |
-| **KD-15** | Optional rewrite filter in WebUI module when path URLs wanted | Ownership |
-| **KD-16** | No `spaEnabled` kill-switch product story | Aggressive SPA |
-| **KD-17** | Maven `src/main/frontend` is package.json source of truth | Avoid wrong tree |
-| **KD-18** | `embedded` required for routed shells | No double chrome |
-| **KD-19** | Retain old JSP files as **reference** until cleanup PR deletes them | Not runtime dual UI |
-| **KD-20** | `*Modern.jsp` not production path after Phase 3 | SPA owns modern features |
-| **KD-21** | All server SPA redirects use **proxyURL** parity with existing `index.jsp` | Behind-proxy deployments |
-| **KD-22** | Login posts to existing `/login` form action; success → `spa.jsp?entry=…` (query) | Preserve auth security; SPA owns UI only |
-| **KD-23** | 401 mid-session returns to **React Login**, not `rxlogin.jsp` | Consistent front door |
-| **KD-24** | Logout UI may follow Login (same PR or PR-1b); server logout endpoint unchanged | Demo completeness |
+|    ID     |                                                     Decision                                                     |                              Rationale                               |
+|-----------|------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
+| **KD-1**  | **SPA-first entry**: product modern UI boots App/Router on `#root`; bridge is secondary for residual embeds only | Product owner: aggressive new UI now; no dual-mode centerpiece       |
+| **KD-2**  | Compose existing shells as route modules                                                                         | 989/990/992/993 done                                                 |
+| **KD-3**  | Single SPA server document (`spa.jsp` / index forward) with XSS-safe bootstrap                                   | One host, security + simplicity                                      |
+| **KD-4**  | `react-router-dom`; no Redux default                                                                             | Router load-bearing                                                  |
+| **KD-5**  | Server deep links = **query `entry` contract**; client HashRouter OK short-term; BrowserRouter later polish      | Fragments unreliable on redirects/login return; still one product UI |
+| **KD-6**  | **Aggressive cutover**: modern `?view=` → SPA only; no flag dual path                                            | Owner override of soft cutover                                       |
+| **KD-7**  | Unmigrated jQuery = full-page **exits** only                                                                     | Temporary hybrid boundary                                            |
+| **KD-8**  | Deep-link allowlists in TS                                                                                       | XSS hygiene                                                          |
+| **KD-9**  | **React Login is the first product slice** (front door for demos); posts to existing `/login`                    | Stakeholder demo from the door; no parallel auth API                 |
+| **KD-10** | One Vite bundle name; lazy chunks underneath                                                                     | Hosts + embeds                                                       |
+| **KD-11** | Server role gates + REST authoritative; client guards UX                                                         | Defense in depth                                                     |
+| **KD-12** | PR-1 = Login SPA + post-login SPA landing; PR-2 = full app shell                                                 | Demo path first, then depth                                          |
+| **KD-13** | `cm/app` canonical; dual-tree fixed with cutover                                                                 | Stop drift                                                           |
+| **KD-14** | Lazy `loadComponent` + sync mount API with generation tokens (§2.9)                                              | Embed payload + JSP-compatible bridge                                |
+| **KD-15** | Optional rewrite filter in WebUI module when path URLs wanted                                                    | Ownership                                                            |
+| **KD-16** | No `spaEnabled` kill-switch product story                                                                        | Aggressive SPA                                                       |
+| **KD-17** | Maven `src/main/frontend` is package.json source of truth                                                        | Avoid wrong tree                                                     |
+| **KD-18** | `embedded` required for routed shells                                                                            | No double chrome                                                     |
+| **KD-19** | Retain old JSP files as **reference** until cleanup PR deletes them                                              | Not runtime dual UI                                                  |
+| **KD-20** | `*Modern.jsp` not production path after Phase 3                                                                  | SPA owns modern features                                             |
+| **KD-21** | All server SPA redirects use **proxyURL** parity with existing `index.jsp`                                       | Behind-proxy deployments                                             |
+| **KD-22** | Login posts to existing `/login` form action; success → `spa.jsp?entry=…` (query)                                | Preserve auth security; SPA owns UI only                             |
+| **KD-23** | 401 mid-session returns to **React Login**, not `rxlogin.jsp`                                                    | Consistent front door                                                |
+| **KD-24** | Logout UI may follow Login (same PR or PR-1b); server logout endpoint unchanged                                  | Demo completeness                                                    |
 
 ---
 
@@ -666,13 +666,13 @@ Manual QA (short):
 
 ## 15. Handoff
 
-| Audience | Notes |
-|----------|--------|
-| **Hephaestus** | **Login first**; then SPA shell, query entry, shells, cutover |
-| **DevOps** | Anonymous path still `rxlogin` / login; assets under `/cm/modern/`; proxyURL unchanged |
-| **Sherlock** | Login XSS/error handling; CSRF on form; bootstrap XSS; no password in logs; 401 → React Login |
-| **Patton** | Demo script: Login → SPA → feature routes as they land |
-| **Orchestrator** | login → app shell → routes → index cutover → cleanup |
+|     Audience     |                                             Notes                                             |
+|------------------|-----------------------------------------------------------------------------------------------|
+| **Hephaestus**   | **Login first**; then SPA shell, query entry, shells, cutover                                 |
+| **DevOps**       | Anonymous path still `rxlogin` / login; assets under `/cm/modern/`; proxyURL unchanged        |
+| **Sherlock**     | Login XSS/error handling; CSRF on form; bootstrap XSS; no password in logs; 401 → React Login |
+| **Patton**       | Demo script: Login → SPA → feature routes as they land                                        |
+| **Orchestrator** | login → app shell → routes → index cutover → cleanup                                          |
 
 ### Explicitly deferred
 
@@ -684,27 +684,27 @@ Editor/template/arch React; Track A; GWT/Desktop; Redux; dual-mode infrastructur
 
 ### 16.1 Current baseline (verified)
 
-| Item | Fact |
-|------|------|
-| Page | `WebUI/src/main/webapp/rxlogin.jsp` (~165 lines) |
-| Form | `<csrf:form … action="login" enctype="multipart/form-data">` |
-| Fields | `j_username`, `j_password`, `j_locale`, `j_selectUI` |
-| Error | `j_error` request param rendered into page |
-| Locales | Server `PSLocaleManager.getLocales()` in JSP |
+|   Item   |                              Fact                              |
+|----------|----------------------------------------------------------------|
+| Page     | `WebUI/src/main/webapp/rxlogin.jsp` (~165 lines)               |
+| Form     | `<csrf:form … action="login" enctype="multipart/form-data">`   |
+| Fields   | `j_username`, `j_password`, `j_locale`, `j_selectUI`           |
+| Error    | `j_error` request param rendered into page                     |
+| Locales  | Server `PSLocaleManager.getLocales()` in JSP                   |
 | Security | `system-security-conf.xml`: `/rxlogin.jsp`, `/login` anonymous |
-| CSRF | `/JavaScriptServlet` + csrf form tag |
+| CSRF     | `/JavaScriptServlet` + csrf form tag                           |
 
 ### 16.2 Target
 
-| Item | Spec |
-|------|------|
-| UI | React `LoginPage` in modern bundle |
-| Host | Public HTML document with `#root` (thin JSP or equivalent) — **product path is React** |
-| POST | Unchanged `/login` multipart form + CSRF |
-| Bootstrap (login) | `{ locales: {name, displayName}[], autocomplete, error?, returnUrl? }` XSS-safe |
-| Success | Existing server login success → SPA entry query URL |
-| Failure | Stay on React Login with error message (allowlist/encode error text) |
-| Mid-session | SPA 401 → React Login + allowlisted return |
+|       Item        |                                          Spec                                          |
+|-------------------|----------------------------------------------------------------------------------------|
+| UI                | React `LoginPage` in modern bundle                                                     |
+| Host              | Public HTML document with `#root` (thin JSP or equivalent) — **product path is React** |
+| POST              | Unchanged `/login` multipart form + CSRF                                               |
+| Bootstrap (login) | `{ locales: {name, displayName}[], autocomplete, error?, returnUrl? }` XSS-safe        |
+| Success           | Existing server login success → SPA entry query URL                                    |
+| Failure           | Stay on React Login with error message (allowlist/encode error text)                   |
+| Mid-session       | SPA 401 → React Login + allowlisted return                                             |
 
 ### 16.3 What Login is *not*
 
@@ -811,24 +811,24 @@ Each PR advances **SPA product UI**, starting at the **front door**. No soft-fla
 
 ## Appendix B — Shell embedded contract
 
-| Shell | JSP header today | Internal brand | Props | Routed `embedded` |
-|-------|------------------|----------------|-------|-------------------|
-| HomeShell | yes | BrandBar/Theme | section, isAdmin | hide brand; app Theme only |
-| PublishingShell | yes | shell chrome | section, ids, showDesign | no duplicate top chrome |
-| WorkflowAdminShell | minimal | shell header | tab | same |
-| AdminShell | no shared header | title/tabs | tab (+ tools) | same |
-| WidgetBuilderApp | yes | app chrome | — | same |
-| ContentExplorerShell | host-dependent | panel | path | route or legacy embed |
-| Dashboard gadgets (React) | Home | widgets/section | reuse `dashboard/*` | Compose into Home; no peer SPA |
+|           Shell           | JSP header today | Internal brand  |          Props           |       Routed `embedded`        |
+|---------------------------|------------------|-----------------|--------------------------|--------------------------------|
+| HomeShell                 | yes              | BrandBar/Theme  | section, isAdmin         | hide brand; app Theme only     |
+| PublishingShell           | yes              | shell chrome    | section, ids, showDesign | no duplicate top chrome        |
+| WorkflowAdminShell        | minimal          | shell header    | tab                      | same                           |
+| AdminShell                | no shared header | title/tabs      | tab (+ tools)            | same                           |
+| WidgetBuilderApp          | yes              | app chrome      | —                        | same                           |
+| ContentExplorerShell      | host-dependent   | panel           | path                     | route or legacy embed          |
+| Dashboard gadgets (React) | Home             | widgets/section | reuse `dashboard/*`      | Compose into Home; no peer SPA |
 
 ## Appendix C — What “aggressive” is not
 
-- Not rewriting shell business logic  
-- Not deleting git history  
-- Not forcing editor into SPA this program  
-- Not dual production modes “just in case”  
-- Not waiting for perfect path rewrite before shipping SPA product  
-- Not using `Location: …#/…` for server or login deep links  
+- Not rewriting shell business logic
+- Not deleting git history
+- Not forcing editor into SPA this program
+- Not dual production modes “just in case”
+- Not waiting for perfect path rewrite before shipping SPA product
+- Not using `Location: …#/…` for server or login deep links
 
 ## Appendix D — Server entry query cheat sheet
 
@@ -856,12 +856,12 @@ Each PR advances **SPA product UI**, starting at the **front door**. No soft-fla
 
 ## Revision history
 
-| Rev | Notes |
-|-----|--------|
-| 1 | Initial hybrid→SPA design |
-| 2 | Review fixes: XSS bootstrap, Hash interim, dual-tree, lazy registry, soft cutover flags |
-| 3 | **Product owner override:** aggressive SPA-first; remove dual-mode / soft-flag delivery story |
-| **3.1** | Query-based **server entry contract** (`?entry=`); no fragment redirects; bridge **async load + sync mount** race contract; **proxyURL** parity on all SPA redirects |
+|   Rev   |                                                                                 Notes                                                                                 |
+|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1       | Initial hybrid→SPA design                                                                                                                                             |
+| 2       | Review fixes: XSS bootstrap, Hash interim, dual-tree, lazy registry, soft cutover flags                                                                               |
+| 3       | **Product owner override:** aggressive SPA-first; remove dual-mode / soft-flag delivery story                                                                         |
+| **3.1** | Query-based **server entry contract** (`?entry=`); no fragment redirects; bridge **async load + sync mount** race contract; **proxyURL** parity on all SPA redirects  |
 | **3.2** | **Login-first sequencing** (product owner): React Login is PR-1 / Phase 0 for stakeholder demos; POST remains existing `/login`; 401 → React Login; PR plan reordered |
 
 *End of design document.*

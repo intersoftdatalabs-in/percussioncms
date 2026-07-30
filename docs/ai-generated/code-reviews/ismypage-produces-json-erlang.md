@@ -1,14 +1,14 @@
 # Erlang review — fix/ismypage-produces-json
 
-| Field | Value |
-|-------|--------|
-| **Date** | 2026-07-28 |
-| **Branch** | `fix/ismypage-produces-json` |
-| **Scope** | Internal `isMyPage` media type + SPA client cleanup |
-| **Base** | `origin/development` (post #1570/#1571) |
-| **Recommendation** | **approve** |
-| **May commit/push** | **yes** |
-| **Gate** | pass |
+|        Field        |                        Value                        |
+|---------------------|-----------------------------------------------------|
+| **Date**            | 2026-07-28                                          |
+| **Branch**          | `fix/ismypage-produces-json`                        |
+| **Scope**           | Internal `isMyPage` media type + SPA client cleanup |
+| **Base**            | `origin/development` (post #1570/#1571)             |
+| **Recommendation**  | **approve**                                         |
+| **May commit/push** | **yes**                                             |
+| **Gate**            | pass                                                |
 
 ## Summary
 
@@ -27,3 +27,4 @@ N/A — no filesystem path work.
 - `cd projects/sitemanage && ../../mvnw test -Dtest=PSItemServiceIsMyPageTest` — 3 tests, 0 failures
 - `cd WebUI && npm test -- --run src/test/ts/home/homeApi.test.ts` — 16 pass
 - Module clean installs (sitemanage, WebUI) required before PR
+

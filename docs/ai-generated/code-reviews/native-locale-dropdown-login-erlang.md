@@ -39,12 +39,17 @@ Build was previously red on the branch tip due to a pre-existing `react-router` 
 
 - File: `WebUI/src/main/webapp/rxlogin.jsp:107`
 - Description: The new TMX script tag interpolates `request.getParameter("j_locale")` (or `PSI18nUtils.getSystemLanguage()`) into an HTML attribute value without escaping. The current code is:
+
   ```jsp
   <script src="<%= request.getContextPath() %>/tmx/tmx.jsp?mode=js&amp;prefix=perc.ui.&amp;sys_lang=<%= locale %>"></script>
   ```
+
   An attacker who controls the request URL (the login page is anonymous and reachable) can supply `?j_locale="><script>alert(1)</script>` and inject markup. BCP-47 tags themselves are safe characters, but the value is taken directly from a query parameter that the product does not validate.
+
 - Note: **the same pattern exists pre-existing at `WebUI/src/main/webapp/cm/app/spa.jsp:123`** (which the plan explicitly tells us to mirror), so this PR is not the first occurrence. Both JSPs need a single defensive fix.
+
 - Suggestion: HTML-escape the value (a tiny `esc()` JSP function, or use a `<c:out>` EL escaper) and apply to both `spa.jsp:123` and `rxlogin.jsp:107` in one follow-up PR. Quick patch form:
+
   ```jsp
   <script src="<%= request.getContextPath() %>/tmx/tmx.jsp?mode=js&amp;prefix=perc.ui.&amp;sys_lang=<%= esc(locale) %>"></script>
   ```
@@ -56,6 +61,7 @@ Build was previously red on the branch tip due to a pre-existing `react-router` 
 
 - File: `WebUI/src/main/ts/login/LoginPage.tsx:74-77`
 - Description:
+
   ```ts
   ensureTmxLoaded(next)
     .then(() => { ... })
@@ -63,10 +69,15 @@ Build was previously red on the branch tip due to a pre-existing `react-router` 
       // Bundle unavailable; t() resolves to English fallback text after @.
     });
   ```
+
   Empty `catch` swallows the TMX load failure with no `console.warn` / telemetry. When the bundle endpoint is unreachable or returns 5xx, the user sees chrome stay in English with no actionable signal; engineering has no breadcrumb.
+
 - Suggestion: at minimum `console.warn('tmxLoader: failed to load', next, err)`. Better, mirror what `i18n/message.ts` does elsewhere for fail-quiet paths.
+
 - Why I'm not blocking: the plan (`rfc/.../1785205973970-native-locale-dropdown-login.md` step 5) explicitly mandates the empty-catch shape with the rationale that `t()` resolves the fallback anyway. In scope to fix; out of scope to deviate from the plan without sign-off. Flagging for a follow-up iteration.
+
 - Status: open (flagged for follow-up; do not block this PR)
+
 - Pattern-id: swallowed-exceptions
 
 ### Issue 3 — Severity: suggestion (deliberate deviation from plan: no `key` re-mount on inner card body)
@@ -91,18 +102,18 @@ Build was previously red on the branch tip due to a pre-existing `react-router` 
 
 ## Behavioral tests added / verified
 
-| Behaviour | Coverage |
-|---|---|
-| Option labels update live as the viewer changes | `LoginPage.test.tsx` "renders locale option labels in the selected viewer's native language" + "re-renders option labels in the new viewer's language on change" |
-| TMX bundle injected on dropdown change | `"injects a TMX script tag on dropdown change"` |
-| Stubbed `window.I18N.message` updates chrome | `"resolves chrome via stubbed window.I18N when present"` |
-| Form/CSRF preserved across re-render | `"preserves CSRF hidden inputs and username across dropdown change"` |
-| Fallback when `Intl.DisplayNames` absent | `"falls back to server displayName when Intl.DisplayNames is unavailable"` |
-| `/Sign in/` regression preserved | `"keeps the existing toMatch(/Sign in/i) assertion via fallback when I18N absent"` |
-| No jQuery added (product lock #2) | `"does not introduce jQuery (product lock #2)"` |
-| `normalizeTag` edge cases (empty, `EN_US`, generic) | `localeLabels.test.ts` (12 cases) |
-| TMX loader dedup / onerror cleanup / baseHref override | `tmxLoader.test.ts` (6 cases) |
-| JSP host-page contract: TMX + `prefix=perc.ui.` + `sys_lang=` | `loginStylesContract.test.ts` |
+|                           Behaviour                           |                                                                             Coverage                                                                             |
+|---------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Option labels update live as the viewer changes               | `LoginPage.test.tsx` "renders locale option labels in the selected viewer's native language" + "re-renders option labels in the new viewer's language on change" |
+| TMX bundle injected on dropdown change                        | `"injects a TMX script tag on dropdown change"`                                                                                                                  |
+| Stubbed `window.I18N.message` updates chrome                  | `"resolves chrome via stubbed window.I18N when present"`                                                                                                         |
+| Form/CSRF preserved across re-render                          | `"preserves CSRF hidden inputs and username across dropdown change"`                                                                                             |
+| Fallback when `Intl.DisplayNames` absent                      | `"falls back to server displayName when Intl.DisplayNames is unavailable"`                                                                                       |
+| `/Sign in/` regression preserved                              | `"keeps the existing toMatch(/Sign in/i) assertion via fallback when I18N absent"`                                                                               |
+| No jQuery added (product lock #2)                             | `"does not introduce jQuery (product lock #2)"`                                                                                                                  |
+| `normalizeTag` edge cases (empty, `EN_US`, generic)           | `localeLabels.test.ts` (12 cases)                                                                                                                                |
+| TMX loader dedup / onerror cleanup / baseHref override        | `tmxLoader.test.ts` (6 cases)                                                                                                                                    |
+| JSP host-page contract: TMX + `prefix=perc.ui.` + `sys_lang=` | `loginStylesContract.test.ts`                                                                                                                                    |
 
 All assertions exercise behaviour, not string presence (the one string-presence assertion in `loginStylesContract` is a deliberate regression check for the JSP contract, with behavioural coverage in the runtime tests).
 

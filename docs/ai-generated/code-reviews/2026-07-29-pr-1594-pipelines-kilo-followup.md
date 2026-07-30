@@ -5,12 +5,12 @@
 
 ## Findings
 
-| Severity | Finding | Disposition |
-|----------|---------|-------------|
-| none | `requireAdaptor()` guards no-arg constructor path; wraps as 500 with cause | OK |
-| none | `PipelinesAdaptorTest` covers limit clamp, offset, name filter, hidden map, sort | OK |
-| none | `listApplicationsWrapsFailures` asserts `assertSame` on cause | OK |
-| none | Cross-platform / file I/O | N/A (no path work) |
+| Severity |                                     Finding                                      |    Disposition     |
+|----------|----------------------------------------------------------------------------------|--------------------|
+| none     | `requireAdaptor()` guards no-arg constructor path; wraps as 500 with cause       | OK                 |
+| none     | `PipelinesAdaptorTest` covers limit clamp, offset, name filter, hidden map, sort | OK                 |
+| none     | `listApplicationsWrapsFailures` asserts `assertSame` on cause                    | OK                 |
+| none     | Cross-platform / file I/O                                                        | N/A (no path work) |
 
 ## Tests run
 

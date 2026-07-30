@@ -12,12 +12,12 @@ Modern product views (`home`, `publish`, `workflow`, `admin`, `widgetbuilder`) n
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs / behavioral regressions | None found |
+|                     Check                      |                                                                Result                                                                |
+|------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
+| Bugs / behavioral regressions                  | None found                                                                                                                           |
 | Missing behavioral tests for non-trivial logic | OK — JSP allowlist + map covered by `spaCutover.test.ts` + updated `publishNavRewire.test.ts` (same style as prior US8 rewire tests) |
-| Cross-platform path/file I/O | N/A (URL paths only; `/` correct for HTTP) |
-| Security (open redirect / reflected param) | OK — sections/tabs/ids allowlisted + `URLEncoder`; never emit `#` |
+| Cross-platform path/file I/O                   | N/A (URL paths only; `/` correct for HTTP)                                                                                           |
+| Security (open redirect / reflected param)     | OK — sections/tabs/ids allowlisted + `URLEncoder`; never emit `#`                                                                    |
 
 ## Issues
 
@@ -36,6 +36,7 @@ None blocking.
 
 ## Memory patterns hit
 
-- Dual-tree lockstep for SPA hosts  
-- proxyURL parity on redirects  
+- Dual-tree lockstep for SPA hosts
+- proxyURL parity on redirects
 - Query-only SPA entry contract (never hash Location)
+

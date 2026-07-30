@@ -12,12 +12,12 @@ Exactly one of:
 
 When the CMS/DTS is **stopped**, the supported upgrade path **automatically** takes a full-directory offline copy under `PreInstall/migration-backup/` (CMS) or `PreInstall/dts-migration-backup/` (DTS) before the Derby→H2 pump. Operators do **not** need to set `perc.migration.externalBackupConfirmed` for a normal offline upgrade.
 
-| Rule | Detail |
-|------|--------|
-| Service running | **Install/upgrade fails hard** for CMS (`PSCheckRunningServer` + migrate task) and DTS (`PSCheckRunningDtsServer` Production/Staging + migrate task) — stop instances first |
-| Service stopped | Product offline backup runs automatically (FR-018a) |
+|       Rule        |                                                                                                                               Detail                                                                                                                               |
+|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Service running   | **Install/upgrade fails hard** for CMS (`PSCheckRunningServer` + migrate task) and DTS (`PSCheckRunningDtsServer` Production/Staging + migrate task) — stop instances first                                                                                        |
+| Service stopped   | Product offline backup runs automatically (FR-018a)                                                                                                                                                                                                                |
 | Stale Derby locks | After offline confirmation, upgrade **removes** leftover `db.lck` / `dbex.lck` (and similar engine lock markers) from the live repository tree, and **never archives** them into the product backup — so restore cannot reintroduce files that block clean startup |
-| Online/hot backup | Unsupported — stop first (FR-020) |
+| Online/hot backup | Unsupported — stop first (FR-020)                                                                                                                                                                                                                                  |
 
 ### B. External backup confirmation (FR-018b) — primary non-product UX
 

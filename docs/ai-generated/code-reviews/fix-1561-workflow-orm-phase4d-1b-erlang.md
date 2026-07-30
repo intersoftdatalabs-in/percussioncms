@@ -6,13 +6,13 @@
 
 **Result:** **Approve** — no **bug** findings.
 
-| | |
-|---|---|
-| Bug findings | 0 |
-| Test-coverage findings | 0 (12 new behavioural tests; @Disabled blocker documented) |
-| Cross-platform path / I/O findings | 0 (no file I/O in this PR) |
-| Security / data-loss findings | 0 |
-| Convention / maintainability findings | 2 (nits, not blocking) |
+|                                       |                                                            |
+|---------------------------------------|------------------------------------------------------------|
+| Bug findings                          | 0                                                          |
+| Test-coverage findings                | 0 (12 new behavioural tests; @Disabled blocker documented) |
+| Cross-platform path / I/O findings    | 0 (no file I/O in this PR)                                 |
+| Security / data-loss findings         | 0                                                          |
+| Convention / maintainability findings | 2 (nits, not blocking)                                     |
 
 ## Diff size
 
@@ -47,13 +47,13 @@
 
 ## Build & test evidence
 
-| Module | Command | Result |
-|---|---|---|
-| `modules/extensions-workflow` | `mvn-env.bat -N clean install -DskipTests` | **BUILD SUCCESS** |
-| `system` | `mvn-env.bat -N clean install -DskipTests` | **BUILD SUCCESS** |
-| `modules/extensions-workflow` | `mvn-env.bat -N test` | **49 tests** (16 active, 33 @Disabled), Failures: 0, Errors: 0 |
-| `system` | `mvn-env.bat -N test` (full suite) | **904 tests** (659 active, 1 pre-existing failure in `PSObjectSerializerTest` noted in root `AGENTS.md` as unrelated, 244 @Disabled), Failures: 1 (pre-existing), Errors: 0 |
-| `system` | `mvn-env.bat -N test -Dtest=PSSystemServicePhase4d1bWritesTest` | **12 tests** all green |
+|            Module             |                             Command                             |                                                                                   Result                                                                                    |
+|-------------------------------|-----------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `modules/extensions-workflow` | `mvn-env.bat -N clean install -DskipTests`                      | **BUILD SUCCESS**                                                                                                                                                           |
+| `system`                      | `mvn-env.bat -N clean install -DskipTests`                      | **BUILD SUCCESS**                                                                                                                                                           |
+| `modules/extensions-workflow` | `mvn-env.bat -N test`                                           | **49 tests** (16 active, 33 @Disabled), Failures: 0, Errors: 0                                                                                                              |
+| `system`                      | `mvn-env.bat -N test` (full suite)                              | **904 tests** (659 active, 1 pre-existing failure in `PSObjectSerializerTest` noted in root `AGENTS.md` as unrelated, 244 @Disabled), Failures: 1 (pre-existing), Errors: 0 |
+| `system`                      | `mvn-env.bat -N test -Dtest=PSSystemServicePhase4d1bWritesTest` | **12 tests** all green                                                                                                                                                      |
 
 No new compiler, surefire, enforcer, or Spotless warnings introduced on the changed
 modules. Raw-type warnings on legacy `IPSStateRolesContext` are pre-existing and untouched.
@@ -71,15 +71,15 @@ The legacy `new PSConnectionMgr()` constructor is gone. The 5 active in-product 
 (4 in extensions-workflow + 1 in `PSWorkflowCommandHandler`) were all migrated in Phases
 4a-4d. The class still exposes:
 - `getQualifiedIdentifier(String)` — used by 9 legacy static-inits (CONTENTTYPES,
-  CONTENTSTATUS, TRANSITIONS, STATEROLES, ROLES, NOTIFICATIONS, TRANSITIONNOTIFICATIONS,
-  CONTENTADHOCUSERS, CONTENTSTATUSHISTORY, CONTENTAPPROVALS) at class load time. Keeping
-  this method preserves the H2-safe schema-qualified table-name behaviour without touching
-  every legacy context class.
+CONTENTSTATUS, TRANSITIONS, STATEROLES, ROLES, NOTIFICATIONS, TRANSITIONNOTIFICATIONS,
+CONTENTADHOCUSERS, CONTENTSTATUSHISTORY, CONTENTAPPROVALS) at class load time. Keeping
+this method preserves the H2-safe schema-qualified table-name behaviour without touching
+every legacy context class.
 - `getNewConnection()` / `releaseConnection(Connection)` — pass-throughs to
-  `PSConnectionHelper.getDbConnection()`. Consumed by `PSAbstractWorkflowContext` (one
-  in-tree callsite) and other in-tree legacy context classes.
+`PSConnectionHelper.getDbConnection()`. Consumed by `PSAbstractWorkflowContext` (one
+in-tree callsite) and other in-tree legacy context classes.
 - `getDebugConnection()` / `releaseDebugConnection(Connection)` — pass-throughs.
-  Consumed by `PSAbstractWorkflowTest`.
+Consumed by `PSAbstractWorkflowTest`.
 
 The class is marked `@Deprecated` and `final`. The constructor body throws
 `UnsupportedOperationException` so any future accidental `new PSConnectionMgr()` is
@@ -151,14 +151,14 @@ The legacy raw-JDBC `emptyApprovals() throws SQLException` is preserved.
 The `new PSConnectionMgr()` call site is removed. The connection is now acquired via
 `PSConnectionHelper.getDbConnection()`. The 5 write call sites route through Hibernate:
 
-| Site | Legacy | New |
-|---|---|---|
-| Line 819 | `fromStateCauc.emptyAdhocUserEntries(connection, false)` | `fromStateCauc.emptyAdhocUserEntriesViaHibernate(false)` |
-| Line 824 | `toStateCauc.commit(connection)` | `toStateCauc.commit()` |
-| Line 1043 | `csc.commit(connection)` | `csc.commit()` |
-| Line 1258 | `csc.commit(connection)` | `csc.commit()` |
-| Line 1261 | `cac.emptyApprovals()` | `cac.emptyApprovalsViaHibernate()` |
-| Line 1292 | `cac.addContentApproval(userName, roleId)` | `cac.addContentApprovalViaHibernate(userName, roleId)` |
+|   Site    |                          Legacy                          |                           New                            |
+|-----------|----------------------------------------------------------|----------------------------------------------------------|
+| Line 819  | `fromStateCauc.emptyAdhocUserEntries(connection, false)` | `fromStateCauc.emptyAdhocUserEntriesViaHibernate(false)` |
+| Line 824  | `toStateCauc.commit(connection)`                         | `toStateCauc.commit()`                                   |
+| Line 1043 | `csc.commit(connection)`                                 | `csc.commit()`                                           |
+| Line 1258 | `csc.commit(connection)`                                 | `csc.commit()`                                           |
+| Line 1261 | `cac.emptyApprovals()`                                   | `cac.emptyApprovalsViaHibernate()`                       |
+| Line 1292 | `cac.addContentApproval(userName, roleId)`               | `cac.addContentApprovalViaHibernate(userName, roleId)`   |
 
 The `csc = new PSContentStatusContext(connection, contentID)` is replaced with
 `csc = PSContentStatusContext.loadFromHibernate(contentID)` (Hibernate, no connection).
@@ -181,9 +181,9 @@ method is the next step in that direction.
 
 ### 7. Tests
 
-| Test class | Active | Disabled | Notes |
-|---|---|---|---|
-| `PSSystemServicePhase4d1bWritesTest` | 12 | 0 | Mockito-only; JPQL + parameter forwards + null-arg rejects for all 5 new write service methods |
+|              Test class              | Active | Disabled |                                             Notes                                              |
+|--------------------------------------|--------|----------|------------------------------------------------------------------------------------------------|
+| `PSSystemServicePhase4d1bWritesTest` | 12     | 0        | Mockito-only; JPQL + parameter forwards + null-arg rejects for all 5 new write service methods |
 
 The existing 49 tests in `extensions-workflow` (16 active, 33 @Disabled) all pass.
 The existing 904 tests in `system` (659 active, 1 pre-existing failure, 244 @Disabled)
@@ -219,14 +219,15 @@ root `AGENTS.md`.
 
 ## Gate
 
-| Check | Status |
-|---|---|
-| Bug findings | ✅ 0 |
-| Missing behavioural tests | ✅ 0 (12 new active tests; existing 33 @Disabled tests in extensions-workflow still pass) |
-| Cross-platform portability | ✅ N/A |
-| Security / data-loss | ✅ 0 |
-| Erlang pre-commit (strict) | ✅ **Approve** — may commit / push / open PR |
+|           Check            |                                          Status                                          |
+|----------------------------|------------------------------------------------------------------------------------------|
+| Bug findings               | ✅ 0                                                                                      |
+| Missing behavioural tests  | ✅ 0 (12 new active tests; existing 33 @Disabled tests in extensions-workflow still pass) |
+| Cross-platform portability | ✅ N/A                                                                                    |
+| Security / data-loss       | ✅ 0                                                                                      |
+| Erlang pre-commit (strict) | ✅ **Approve** — may commit / push / open PR                                              |
 
 > The pre-existing `com.percussion.xml.serialization.junit.PSObjectSerializerTest
 > .test02DeSerialization` failure in `system/` is documented in the root `AGENTS.md` as
 > unrelated to this work and is not in the diff for this PR.
+

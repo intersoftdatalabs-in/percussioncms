@@ -115,3 +115,4 @@ string with `FileWriter`/`FileReader`; no changes were made to that logic.
 - `spotless:apply` was used once mid-iteration to format google-java-format
   whitespace. All 30 in-scope files remain in scope; no out-of-scope files
   were introduced.
+

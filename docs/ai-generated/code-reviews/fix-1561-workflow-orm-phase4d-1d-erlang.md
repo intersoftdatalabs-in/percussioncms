@@ -72,6 +72,7 @@ So `PSConnectionMgr.getQualifiedIdentifier("CONTENTSTATUS")` evaluated to `"CONT
 ### `PSAbstractWorkflowContext.getBackEndData(boolean)` connection lifecycle
 
 Before:
+
 ```java
 m_Connection = PSConnectionMgr.getNewConnection();
 // ... do work ...
@@ -82,6 +83,7 @@ if (m_bManageOwnConnection) {
 ```
 
 After:
+
 ```java
 m_Connection = PSConnectionHelper.getDbConnection();
 // ... do work ...
@@ -164,3 +166,4 @@ Follow-ups:
 
 - **Phase 4d-1d** is the last step of the #1561 epic. Future PRs may add Spring+H2 test infrastructure to re-enable the ~50 disabled `@Test` methods across the 8 `LoadFromHibernateTest` classes (tracked in `00-inventory.md` §7 + `phase4-scope-survey.md` §6).
 - A separate **`chore: Spotless cleanup`** PR should land the ~50 out-of-scope Spotless hits this PR had to revert (per root AGENTS.md "Pre-PR Spotless formatting (HARD GATE)" rule).
+

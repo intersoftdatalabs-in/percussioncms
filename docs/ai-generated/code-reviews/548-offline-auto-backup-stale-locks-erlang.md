@@ -15,13 +15,13 @@
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs (logic / security) | None found after DTS placeholder fix |
+|                Check                |                         Result                          |
+|-------------------------------------|---------------------------------------------------------|
+| Bugs (logic / security)             | None found after DTS placeholder fix                    |
 | Behavioral unit tests for new logic | Present (offline backup + InstallUtilRunningServerTest) |
-| Cross-platform path/file I/O | Clean (`Path` / `Files` for new DTS layout joins) |
-| Secrets in logs/fixtures | Clean |
-| May commit/push | **yes** |
+| Cross-platform path/file I/O        | Clean (`Path` / `Files` for new DTS layout joins)       |
+| Secrets in logs/fixtures            | Clean                                                   |
+| May commit/push                     | **yes**                                                 |
 
 ## Cross-platform path checklist
 
@@ -44,3 +44,4 @@ None (hard gate).
 - `modules/utils`: `InstallUtilRunningServerTest` — pass
 - `system`: migration unit suite (`PSEmbeddedRepositoryMigratorTest`, `PSRepositoryOfflineBackupTest`, related) — pass
 - Standalone `clean install` / `install` on changed modules: `utils`, `perc-ant`, `system` (integrity skip only for local seal drift)
+

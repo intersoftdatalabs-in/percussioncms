@@ -32,11 +32,11 @@ Playwright covers the product screen (HARD GATE for WebUI screens).
 
 ## Issues
 
-| Severity | Finding | Status |
-|----------|---------|--------|
-| nit | `jsonString` duplicated from `rxlogin.jsp` — acceptable parity with login host | open (non-blocking) |
-| nit | New TMX keys only have en-us / es / hi (same as `perc.ui.login.modern@*`) — remaining locales can be filled via `i18n_translate.py` later | open (non-blocking) |
-| nit | Absolute `/cm/modern/assets/*` asset URLs match login; context-path-only installs rely on reverse-proxy norms already assumed by login | open (non-blocking) |
+| Severity |                                                                  Finding                                                                  |       Status        |
+|----------|-------------------------------------------------------------------------------------------------------------------------------------------|---------------------|
+| nit      | `jsonString` duplicated from `rxlogin.jsp` — acceptable parity with login host                                                            | open (non-blocking) |
+| nit      | New TMX keys only have en-us / es / hi (same as `perc.ui.login.modern@*`) — remaining locales can be filled via `i18n_translate.py` later | open (non-blocking) |
+| nit      | Absolute `/cm/modern/assets/*` asset URLs match login; context-path-only installs rely on reverse-proxy norms already assumed by login    | open (non-blocking) |
 
 ## Memory patterns hit
 

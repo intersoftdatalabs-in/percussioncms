@@ -1,12 +1,12 @@
 # Design, templates & item types — placeholder plan
 
-| Field | Value |
-|-------|--------|
-| **Status** | **Placeholder** — planning only; not started as product surface |
-| **Created** | 2026-07-28 |
-| **Depends on** | Home Wave 1 (in progress); blog create partially blocked by template prerequisites |
-| **Related** | [unified-ui-plan](../#000-unified-ui-plan/unified-ui-plan.md) Wave 3 “Design / Architecture”; [home-acceptance-status](../home-acceptance-status.md) (when present); PR #1577 Gadgets/Blogs |
-| **Out of wave** | Full Active Assembly / page editor rewrite (larger than this track) |
+|      Field      |                                                                                            Value                                                                                            |
+|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Status**      | **Placeholder** — planning only; not started as product surface                                                                                                                             |
+| **Created**     | 2026-07-28                                                                                                                                                                                  |
+| **Depends on**  | Home Wave 1 (in progress); blog create partially blocked by template prerequisites                                                                                                          |
+| **Related**     | [unified-ui-plan](../#000-unified-ui-plan/unified-ui-plan.md) Wave 3 “Design / Architecture”; [home-acceptance-status](../home-acceptance-status.md) (when present); PR #1577 Gadgets/Blogs |
+| **Out of wave** | Full Active Assembly / page editor rewrite (larger than this track)                                                                                                                         |
 
 ## 1. Why this track exists
 
@@ -14,19 +14,19 @@ Home functional recovery exposed a hard dependency: **blogs (and several content
 
 Classic CM1-oriented WebUI effectively centered on:
 
-| Classic focus | Examples |
-|---------------|----------|
-| **Pages** | Site folder pages, landing pages |
-| **Page templates** | Layout + region widgets for pages |
-| **Assets** | Shared assets driven by creatable widgets + content types |
+|   Classic focus    |                         Examples                          |
+|--------------------|-----------------------------------------------------------|
+| **Pages**          | Site folder pages, landing pages                          |
+| **Page templates** | Layout + region widgets for pages                         |
+| **Assets**         | Shared assets driven by creatable widgets + content types |
 
 The **new SPA** must also support, honestly and first-class:
 
-| New / expanded | Notes |
-|----------------|--------|
-| **Non-page items** | Rhythmyx-style content items that are not CM1 “pages” |
-| **Non-page templates** | Templates that are not only page-layout templates |
-| **Non-asset items** | Items that are not shared assets under `/Assets` |
+|            New / expanded            |                                 Notes                                  |
+|--------------------------------------|------------------------------------------------------------------------|
+| **Non-page items**                   | Rhythmyx-style content items that are not CM1 “pages”                  |
+| **Non-page templates**               | Templates that are not only page-layout templates                      |
+| **Non-asset items**                  | Items that are not shared assets under `/Assets`                       |
 | **Rhythmyx-style items & templates** | Broader content type / template model beyond CM1 page+asset vocabulary |
 
 This is **not** a Home subtask. It is a **separate product surface** (Design + template library + item-type awareness) that Home will *call into*. Capture gaps here so Home can stay focused while Design gains a head start.
@@ -84,23 +84,23 @@ Refine into specs/issues when the track is activated.
 
 See **[gaps-from-home.md](./gaps-from-home.md)** for the living list. Summary:
 
-| Gap | Home impact | Design track |
-|-----|-------------|--------------|
-| No SPA Design surface | Nav still legacy exit | D1 |
-| Blog templates need Blog List / Blog Post widgets | Cannot create blog section on bare Demo | D2 |
-| Create Blog Post needs existing blog section | Home Create empty until gadget/section create | D1/D2 + Gadgets |
-| Gadgets host was broken (dashboard URL); many gadgets still fake APIs | Home Gadgets incomplete | Gadgets wave (separate) + Design only where gadgets need templates |
-| Template open = full editor complexity | Risk of under-scoping | D4 deferred |
-| Classic WebUI mental model = Pages + Assets + Page templates only | SPA must not hardcode that trio | D3 |
+|                                  Gap                                  |                  Home impact                  |                            Design track                            |
+|-----------------------------------------------------------------------|-----------------------------------------------|--------------------------------------------------------------------|
+| No SPA Design surface                                                 | Nav still legacy exit                         | D1                                                                 |
+| Blog templates need Blog List / Blog Post widgets                     | Cannot create blog section on bare Demo       | D2                                                                 |
+| Create Blog Post needs existing blog section                          | Home Create empty until gadget/section create | D1/D2 + Gadgets                                                    |
+| Gadgets host was broken (dashboard URL); many gadgets still fake APIs | Home Gadgets incomplete                       | Gadgets wave (separate) + Design only where gadgets need templates |
+| Template open = full editor complexity                                | Risk of under-scoping                         | D4 deferred                                                        |
+| Classic WebUI mental model = Pages + Assets + Page templates only     | SPA must not hardcode that trio               | D3                                                                 |
 
 ## 5. Related Home work (do not fold into this track)
 
-| Work | Status / note |
-|------|----------------|
-| Home Recent / Bookmarks / Library / Search / Create page | Largely landed (#1568–#1574) |
-| Gadgets host + Blogs gadget + blog template **filter** | #1577 |
-| FTS body HTML extract (assembly connection null) | [issue #1561](https://github.com/intersoftdatalabs-in/percussioncms/issues/1561) residual — Engineering, not Design SPA |
-| Publish SPA | Wave 2 after Home acceptance policy |
+|                           Work                           |                                                      Status / note                                                      |
+|----------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
+| Home Recent / Bookmarks / Library / Search / Create page | Largely landed (#1568–#1574)                                                                                            |
+| Gadgets host + Blogs gadget + blog template **filter**   | #1577                                                                                                                   |
+| FTS body HTML extract (assembly connection null)         | [issue #1561](https://github.com/intersoftdatalabs-in/percussioncms/issues/1561) residual — Engineering, not Design SPA |
+| Publish SPA                                              | Wave 2 after Home acceptance policy                                                                                     |
 
 ## 6. Open questions (capture answers here later)
 
@@ -118,14 +118,14 @@ See **[gaps-from-home.md](./gaps-from-home.md)** for the living list. Summary:
 
 ## 8. Entry points (legacy — for D0 inventory)
 
-| Entry | Path / note |
-|-------|-------------|
-| Design nav | `/cm/app/?view=design` (TopNav designer) |
-| Architecture | `/cm/app/?view=arch` |
-| Template edit | classic `editTemplate` / webmgt design flows |
-| Template REST | `/services/pagemanagement/template/{id}`, site template summaries |
+|        Entry        |                                  Path / note                                  |
+|---------------------|-------------------------------------------------------------------------------|
+| Design nav          | `/cm/app/?view=design` (TopNav designer)                                      |
+| Architecture        | `/cm/app/?view=arch`                                                          |
+| Template edit       | classic `editTemplate` / webmgt design flows                                  |
+| Template REST       | `/services/pagemanagement/template/{id}`, site template summaries             |
 | Section/blog create | `/services/sitemanage/section` (`sectionType=blog`, list + post template ids) |
-| Widget defs | e.g. packages `percBlogIndexPage`, `percBlogPost` |
+| Widget defs         | e.g. packages `percBlogIndexPage`, `percBlogPost`                             |
 
 ---
 

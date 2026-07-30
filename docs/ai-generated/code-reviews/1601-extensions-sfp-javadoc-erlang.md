@@ -82,3 +82,4 @@ construction.
 - Per AGENTS.md "Pre-PR Maven verification (HARD GATE)", the build was run
   module-standalone (`cd modules/extensions-sfp && ../mvnw.cmd clean
   install`), not as a full reactor build.
+

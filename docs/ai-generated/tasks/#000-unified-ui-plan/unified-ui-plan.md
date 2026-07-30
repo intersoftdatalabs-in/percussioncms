@@ -1,23 +1,23 @@
 # Unified UI Plan — React / TypeScript Only (Aggressive)
 
-| Field | Value |
-|-------|--------|
-| **Status** | **Active — product direction (rev 4.1, 2026-07-27)** |
-| **Supersedes** | Track A (Dojo→jQuery as product strategy), Track B dual-mode / soft cutover, bridge-first hybrid, dual production modes, “carry jQuery into React” |
-| **Canonical SPA design** | [`#000-pure-react-spa/design.md`](../#000-pure-react-spa/design.md) (infra PRs 1–9) |
-| **Module** | `WebUI/` (React + TypeScript + Vite) |
-| **Stack** | React 19, TypeScript 5.8, Vite, Jetty WAR under `/cm/` |
+|          Field           |                                                                       Value                                                                        |
+|--------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Status**               | **Active — product direction (rev 4.1, 2026-07-27)**                                                                                               |
+| **Supersedes**           | Track A (Dojo→jQuery as product strategy), Track B dual-mode / soft cutover, bridge-first hybrid, dual production modes, “carry jQuery into React” |
+| **Canonical SPA design** | [`#000-pure-react-spa/design.md`](../#000-pure-react-spa/design.md) (infra PRs 1–9)                                                                |
+| **Module**               | `WebUI/` (React + TypeScript + Vite)                                                                                                               |
+| **Stack**                | React 19, TypeScript 5.8, Vite, Jetty WAR under `/cm/`                                                                                             |
 
 ---
 
 ## 1. Product locks (non-negotiable)
 
 1. **The product UI is React + TypeScript.** New user-facing work ships in `WebUI/src/main/ts/` inside the SPA (`spa.jsp` / path routes). Not jQuery, not Knockout, not Dojo, not a new bridge island for a product page.
-2. **Do not carry jQuery forward into the new UI.**  
-   - SPA / modern bundle (`perc-modern-ui.js`) and all of `src/main/ts/**` are **jQuery-free**.  
-   - No `import` of jQuery, no `window.$`, no jQuery UI / FancyTree / plugins from React.  
-   - Reimplement needed behavior with React + typed REST (`api/*`).  
-   - jQuery remaining in the WAR or in `frontend/package.json` is **only** for packing residual legacy pages (`build:legacy`) until those pages are deleted after SPA acceptance.  
+2. **Do not carry jQuery forward into the new UI.**
+   - SPA / modern bundle (`perc-modern-ui.js`) and all of `src/main/ts/**` are **jQuery-free**.
+   - No `import` of jQuery, no `window.$`, no jQuery UI / FancyTree / plugins from React.
+   - Reimplement needed behavior with React + typed REST (`api/*`).
+   - jQuery remaining in the WAR or in `frontend/package.json` is **only** for packing residual legacy pages (`build:legacy`) until those pages are deleted after SPA acceptance.
    - **Forbidden:** wrapping jQuery widgets in React, calling legacy `$.perc_*` from TS, or loading jQuery on `spa.jsp` / login for “convenience.”
 3. **No dual mode.** No feature flag that keeps classic and modern as peer production UIs for the same feature. Rollback = git revert / redeploy.
 4. **No new bridges.** `PercModernUI.mount` is **legacy debt**, not a pattern for new work. Do not add mounts for product navigation. Prefer SPA routes (and SPA dialogs when openers are ready).
@@ -31,13 +31,13 @@
 
 SPA program PR-1…PR-9 built the **front door and shell**:
 
-| Wave | What landed | Honest status |
-|------|-------------|----------------|
-| Login | React `LoginPage` on `rxlogin.jsp` | **Product path** — verify CSRF/errors/return on real CMS |
-| App shell | TopNav, bootstrap, 401→login, BrowserRouter + filter | **Chrome only** |
-| Routes | Home, Publish, Workflow, Admin, WB, Explorer mounted | **Embedded shells** — functional depth varies; many not product-ready |
-| Cutover | `index.jsp` → SPA for modern views; obsolete `*Modern.jsp` product hosts deleted | **Routing done** |
-| Gadgets | React gadgets section on Home | **Compose done** — verify widgets work |
+|   Wave    |                                   What landed                                    |                             Honest status                             |
+|-----------|----------------------------------------------------------------------------------|-----------------------------------------------------------------------|
+| Login     | React `LoginPage` on `rxlogin.jsp`                                               | **Product path** — verify CSRF/errors/return on real CMS              |
+| App shell | TopNav, bootstrap, 401→login, BrowserRouter + filter                             | **Chrome only**                                                       |
+| Routes    | Home, Publish, Workflow, Admin, WB, Explorer mounted                             | **Embedded shells** — functional depth varies; many not product-ready |
+| Cutover   | `index.jsp` → SPA for modern views; obsolete `*Modern.jsp` product hosts deleted | **Routing done**                                                      |
+| Gadgets   | React gadgets section on Home                                                    | **Compose done** — verify widgets work                                |
 
 **Vendor Dojo library** was removed from the tree (security). Residual `ps.*` Active Assembly code and jQuery/JSF/GWT layers still exist as **legacy debt to eliminate or replace in React**, not as a long-lived second product UI.
 
@@ -56,13 +56,13 @@ Browser
               → REST (typed api/*) + CSRF + TMX
 ```
 
-| Concern | Rule |
-|---------|------|
-| Product navigation | SPA only |
-| Feature code | `WebUI/src/main/ts/**` |
-| New pages | SPA route (+ server allowlist if deep-linked) |
-| Legacy full-page exits | Temporary only until that feature is React; then delete exit |
-| Residual `PercModernUI.mount` | Only until that host is rewritten or deleted — **no new hosts** |
+|                           Concern                           |                                                   Rule                                                   |
+|-------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
+| Product navigation                                          | SPA only                                                                                                 |
+| Feature code                                                | `WebUI/src/main/ts/**`                                                                                   |
+| New pages                                                   | SPA route (+ server allowlist if deep-linked)                                                            |
+| Legacy full-page exits                                      | Temporary only until that feature is React; then delete exit                                             |
+| Residual `PercModernUI.mount`                               | Only until that host is rewritten or deleted — **no new hosts**                                          |
 | jQuery / Knockout / JSF / GWT / residual Dojo-shaped `ps.*` | **Debt only.** Never import into SPA. Touch only to fix blockers or to **delete** after React acceptance |
 
 ---
@@ -71,36 +71,36 @@ Browser
 
 Status meanings:
 
-| Status | Meaning |
-|--------|---------|
-| **Shell** | Route/chrome exists; features incomplete or broken |
-| **Partial** | Some features work; gaps known |
-| **Accepted** | Passes acceptance checklist on a real CMS; legacy peer removed or explicitly N/A |
-| **Legacy exit** | Still full-page leave SPA (must become SPA or be retired) |
+|     Status      |                                     Meaning                                      |
+|-----------------|----------------------------------------------------------------------------------|
+| **Shell**       | Route/chrome exists; features incomplete or broken                               |
+| **Partial**     | Some features work; gaps known                                                   |
+| **Accepted**    | Passes acceptance checklist on a real CMS; legacy peer removed or explicitly N/A |
+| **Legacy exit** | Still full-page leave SPA (must become SPA or be retired)                        |
 
 ### Wave 0 — Front door (keep green)
 
-| Surface | Entry | Status | Notes |
-|---------|-------|--------|-------|
-| Login | `/rxlogin.jsp` | Partial → prove | CSRF, locales, errors, return to SPA |
-| App chrome | TopNav / user menu / 401 | Partial → prove | Roles hide/show; logout |
+|  Surface   |          Entry           |     Status      |                Notes                 |
+|------------|--------------------------|-----------------|--------------------------------------|
+| Login      | `/rxlogin.jsp`           | Partial → prove | CSRF, locales, errors, return to SPA |
+| App chrome | TopNav / user menu / 401 | Partial → prove | Roles hide/show; logout              |
 
 ### Wave 1 — **Home first (current focus)**
 
-| Surface | Entry | Status | Notes |
-|---------|-------|--------|-------|
+| Surface  |             Entry             |          Status          |                       Notes                        |
+|----------|-------------------------------|--------------------------|----------------------------------------------------|
 | **Home** | `/cm/app/home`, `?entry=home` | **Shell — not accepted** | User report: shell visible, **nothing functional** |
 
 **Home sections (each must work):**
 
-| Section | Route | Must work |
-|---------|-------|-----------|
-| Recent | `/home` / `/home/recent` | List loads; open item → editor (or agreed SPA path); empty/error states |
-| Bookmarks | `/home/bookmarks` | List; open; empty/error |
-| Library | `/home/library` | Browse/list; open; empty/error |
-| Search | `/home/search` | Query; results; open; empty/error |
-| Create | `/home/create` | Page/asset/blog wizards complete successfully |
-| Gadgets | `/home/gadgets` | Widgets load/configure/persist as product requires |
+|  Section  |          Route           |                                Must work                                |
+|-----------|--------------------------|-------------------------------------------------------------------------|
+| Recent    | `/home` / `/home/recent` | List loads; open item → editor (or agreed SPA path); empty/error states |
+| Bookmarks | `/home/bookmarks`        | List; open; empty/error                                                 |
+| Library   | `/home/library`          | Browse/list; open; empty/error                                          |
+| Search    | `/home/search`           | Query; results; open; empty/error                                       |
+| Create    | `/home/create`           | Page/asset/blog wizards complete successfully                           |
+| Gadgets   | `/home/gadgets`          | Widgets load/configure/persist as product requires                      |
 
 **Home acceptance checklist (all required):**
 
@@ -121,24 +121,24 @@ Status meanings:
 
 Order (adjust only with product reason):
 
-1. **Publish** (`PublishingShell`) — sites, status, logs, design, runtime  
-2. **Explorer** (`ContentExplorerShell`) — tree, list, open, core actions  
-3. **Admin tools** (`AdminShell`) — tasks, logs, notifications, tools  
-4. **Workflow admin** (`WorkflowAdminShell`) — workflows, roles, users, categories  
-5. **Widget Builder** (`WidgetBuilderApp`) — if still product-enabled  
+1. **Publish** (`PublishingShell`) — sites, status, logs, design, runtime
+2. **Explorer** (`ContentExplorerShell`) — tree, list, open, core actions
+3. **Admin tools** (`AdminShell`) — tasks, logs, notifications, tools
+4. **Workflow admin** (`WorkflowAdminShell`) — workflows, roles, users, categories
+5. **Widget Builder** (`WidgetBuilderApp`) — if still product-enabled
 
 Same rule: **feature checklist per screen**, then delete legacy peer.
 
 ### Wave 3 — Remaining product surfaces (SPA or retire)
 
-| Surface | Today | Direction |
-|---------|--------|-----------|
-| Editor (webmgt / AA) | Legacy exit | React rewrite (large); interim: fix critical bugs only |
-| Design / Architecture | Legacy exit | React or retire paths — **placeholder track:** [`design-templates-item-types/`](../design-templates-item-types/README.md) (page + non-page templates, Non-asset items; gaps from Home) |
-| Residual dialog hosts (pickers, search panel, US7 tools) | Bridge mounts | SPA dialogs / explorer actions; then **delete** hosts |
-| Package Manager (GWT) | Legacy | React when scheduled |
-| JSF admin/publishing residual | Packaging | Prefer SPA Admin/Publish; delete dead JSF |
-| Desktop CE / Eclipse | Out of band | Not SPA; do not block Home |
+|                         Surface                          |     Today     |                                                                                       Direction                                                                                        |
+|----------------------------------------------------------|---------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Editor (webmgt / AA)                                     | Legacy exit   | React rewrite (large); interim: fix critical bugs only                                                                                                                                 |
+| Design / Architecture                                    | Legacy exit   | React or retire paths — **placeholder track:** [`design-templates-item-types/`](../design-templates-item-types/README.md) (page + non-page templates, Non-asset items; gaps from Home) |
+| Residual dialog hosts (pickers, search panel, US7 tools) | Bridge mounts | SPA dialogs / explorer actions; then **delete** hosts                                                                                                                                  |
+| Package Manager (GWT)                                    | Legacy        | React when scheduled                                                                                                                                                                   |
+| JSF admin/publishing residual                            | Packaging     | Prefer SPA Admin/Publish; delete dead JSF                                                                                                                                              |
+| Desktop CE / Eclipse                                     | Out of band   | Not SPA; do not block Home                                                                                                                                                             |
 
 ---
 
@@ -174,18 +174,18 @@ Same rule: **feature checklist per screen**, then delete legacy peer.
 
 Earlier plans used **Track A = Dojo→jQuery** and **Track B = React**. That split is **retired as product strategy**.
 
-| Fact | Status |
-|------|--------|
-| Vendored Dojo 0.4.3 under ApplicationFiles | **Removed** (security; e.g. #1197) |
-| Residual `ps.*` AA code / compat shims | **Debt** — replace with React or delete when AA is rewritten; **not** a jQuery product investment track |
-| install-dojo.xml / residual `dojo.*` call sites | Cleanup when safe; not a parallel roadmap |
+|                      Fact                       |                                                 Status                                                  |
+|-------------------------------------------------|---------------------------------------------------------------------------------------------------------|
+| Vendored Dojo 0.4.3 under ApplicationFiles      | **Removed** (security; e.g. #1197)                                                                      |
+| Residual `ps.*` AA code / compat shims          | **Debt** — replace with React or delete when AA is rewritten; **not** a jQuery product investment track |
+| install-dojo.xml / residual `dojo.*` call sites | Cleanup when safe; not a parallel roadmap                                                               |
 
 ---
 
 ## 7. Immediate next work (execution)
 
-1. **Home functional recovery (Wave 1)** — diagnose why shell is empty/non-functional (API paths, CSRF, bootstrap, section routing, open-item, create wizards, gadgets). Fix until Home checklist is green.  
-2. Update residual docs/AGENTS as Home acceptance lands.  
+1. **Home functional recovery (Wave 1)** — diagnose why shell is empty/non-functional (API paths, CSRF, bootstrap, section routing, open-item, create wizards, gadgets). Fix until Home checklist is green.
+2. Update residual docs/AGENTS as Home acceptance lands.
 3. Then Wave 2 screen by screen with the same bar.
 
 Infra PRs (login shell, cutover, path URLs) stay; **value is measured by accepted screens**, starting with Home.
@@ -194,36 +194,37 @@ Infra PRs (login shell, cutover, path URLs) stay; **value is measured by accepte
 
 ## 8. Verification standard (every screen)
 
-| Layer | Required |
-|-------|----------|
-| Manual | Checklist on real CMS (docker/dev) |
+|   Layer   |                            Required                             |
+|-----------|-----------------------------------------------------------------|
+| Manual    | Checklist on real CMS (docker/dev)                              |
 | Automated | Vitest for logic; Playwright where already used for the surface |
-| Build | `cd WebUI && ../mvnw clean install` before PR |
-| Review | Erlang pre-commit on authored code |
-| Legacy | Explicit “delete / keep temporary” note in PR |
+| Build     | `cd WebUI && ../mvnw clean install` before PR                   |
+| Review    | Erlang pre-commit on authored code                              |
+| Legacy    | Explicit “delete / keep temporary” note in PR                   |
 
 ---
 
 ## 9. Related artifacts
 
-| Artifact | Role |
-|----------|------|
-| [`#000-pure-react-spa/design.md`](../#000-pure-react-spa/design.md) | SPA entry, bootstrap, router, PR 1–9 history |
-| [`#000-pure-react-spa/residual-bridge-embeds.md`](../#000-pure-react-spa/residual-bridge-embeds.md) | Residual mounts to eliminate |
-| [`WebUI/AGENTS.md`](../../../WebUI/AGENTS.md) | Module agent rules (React-only product) |
-| [`ui-layer-inventory.md`](ui-layer-inventory.md) | Historical inventory (may lag; this plan wins on direction) |
+|                                              Artifact                                               |                            Role                             |
+|-----------------------------------------------------------------------------------------------------|-------------------------------------------------------------|
+| [`#000-pure-react-spa/design.md`](../#000-pure-react-spa/design.md)                                 | SPA entry, bootstrap, router, PR 1–9 history                |
+| [`#000-pure-react-spa/residual-bridge-embeds.md`](../#000-pure-react-spa/residual-bridge-embeds.md) | Residual mounts to eliminate                                |
+| [`WebUI/AGENTS.md`](../../../WebUI/AGENTS.md)                                                       | Module agent rules (React-only product)                     |
+| [`ui-layer-inventory.md`](ui-layer-inventory.md)                                                    | Historical inventory (may lag; this plan wins on direction) |
 
 ---
 
 ## 10. Key decisions (rev 4.0)
 
-| ID | Decision |
-|----|----------|
-| KD-R1 | Product UI = React + TypeScript SPA only |
+|  ID   |                                            Decision                                             |
+|-------|-------------------------------------------------------------------------------------------------|
+| KD-R1 | Product UI = React + TypeScript SPA only                                                        |
 | KD-R2 | **No jQuery in the new UI** (modern bundle / `src/main/ts`); jQuery is delete-bound legacy only |
-| KD-R3 | No dual mode / no soft feature-flag cutover |
-| KD-R4 | No new PercModernUI product hosts |
-| KD-R5 | Shell ≠ done; feature acceptance required |
-| KD-R6 | Home first, then Publish → Explorer → Admin → Workflow → WB |
-| KD-R7 | Track A Dojo→jQuery as product strategy is retired; vendor Dojo already gone |
-| KD-R8 | Server redirects stay query `entry` contract; client uses path URLs |
+| KD-R3 | No dual mode / no soft feature-flag cutover                                                     |
+| KD-R4 | No new PercModernUI product hosts                                                               |
+| KD-R5 | Shell ≠ done; feature acceptance required                                                       |
+| KD-R6 | Home first, then Publish → Explorer → Admin → Workflow → WB                                     |
+| KD-R7 | Track A Dojo→jQuery as product strategy is retired; vendor Dojo already gone                    |
+| KD-R8 | Server redirects stay query `entry` contract; client uses path URLs                             |
+

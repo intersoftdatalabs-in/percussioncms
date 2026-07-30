@@ -6,6 +6,7 @@ Invoke from the repository root::
 """
 from __future__ import annotations
 
+import shutil
 import sys
 import tempfile
 import time as _time
@@ -52,13 +53,41 @@ class TranslateTest(unittest.TestCase):
 
     def test_invokes_on_cache_miss(self):
         orig = itd.invoke_translate
+        orig_sleep = itd.time.sleep
+        slept: list[float] = []
         itd.invoke_translate = lambda text, target: "مرحبا"
+        itd.time.sleep = lambda s: slept.append(s)
         cache: dict[str, str] = {}
         try:
             self.assertEqual(itd.translate("Hello", "ar", cache=cache), "مرحبا")
         finally:
             itd.invoke_translate = orig
+            itd.time.sleep = orig_sleep
         self.assertEqual(cache[itd.cache_key("Hello", "ar")], "مرحبا")
+        self.assertEqual(len(slept), 1)
+        self.assertGreaterEqual(slept[0], itd.THROTTLE_MIN_SEC)
+        self.assertLessEqual(slept[0], itd.THROTTLE_MAX_SEC)
+
+    def test_throttle_not_applied_on_cache_hit(self):
+        cache = {itd.cache_key("Hello", "ar"): "مرحبا"}
+        orig_sleep = itd.time.sleep
+        slept: list[float] = []
+        itd.time.sleep = lambda s: slept.append(s)
+        try:
+            self.assertEqual(itd.translate("Hello", "ar", cache=cache), "مرحبا")
+        finally:
+            itd.time.sleep = orig_sleep
+        self.assertEqual(slept, [])
+
+    def test_throttle_not_applied_on_placeholder(self):
+        orig_sleep = itd.time.sleep
+        slept: list[float] = []
+        itd.time.sleep = lambda s: slept.append(s)
+        try:
+            self.assertEqual(itd.translate("{0}", "ar", cache={}), "{0}")
+        finally:
+            itd.time.sleep = orig_sleep
+        self.assertEqual(slept, [])
 
 
 class BackoffTest(unittest.TestCase):
@@ -112,6 +141,53 @@ class BackoffTest(unittest.TestCase):
             _time.sleep = orig_sleep
             itd.subprocess.run = orig_run
         self.assertEqual(slept, [])
+
+
+class DockerFallbackTest(unittest.TestCase):
+    def test_falls_back_to_docker_when_trans_missing(self):
+        calls: list[list[str]] = []
+
+        class _FakeResult:
+            def __init__(self, rc: int, stdout: str = "", stderr: str = ""):
+                self.returncode = rc
+                self.stdout = stdout
+                self.stderr = stderr
+
+        def fake_run(cmd, *a, **k):
+            calls.append(cmd[:2])
+            if cmd[0] == 'trans':
+                raise FileNotFoundError('trans not found')
+            return _FakeResult(rc=0, stdout='مرحبا\n')
+
+        orig_run = itd.subprocess.run
+        orig_which = itd.shutil.which
+        itd.subprocess.run = fake_run
+        itd.shutil.which = lambda name: '/usr/bin/docker' if name == 'docker' else None
+        try:
+            result = itd.invoke_translate('Hello', 'ar')
+        finally:
+            itd.subprocess.run = orig_run
+            itd.shutil.which = orig_which
+
+        self.assertEqual(result, 'مرحبا')
+        self.assertEqual(calls, [['trans', '--brief'], ['docker', 'run']])
+
+    def test_raises_when_trans_and_docker_unavailable(self):
+        def fake_run(cmd, *a, **k):
+            raise FileNotFoundError('trans not found')
+
+        orig_run = itd.subprocess.run
+        orig_which = itd.shutil.which
+        itd.subprocess.run = fake_run
+        itd.shutil.which = lambda name: None
+        try:
+            with self.assertRaises(RuntimeError) as ctx:
+                itd.invoke_translate('Hello', 'ar')
+            self.assertIn('trans', str(ctx.exception))
+            self.assertIn('Docker', str(ctx.exception))
+        finally:
+            itd.subprocess.run = orig_run
+            itd.shutil.which = orig_which
 
 
 class TmxInjectTest(unittest.TestCase):

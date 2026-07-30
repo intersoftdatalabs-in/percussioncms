@@ -21,14 +21,14 @@ cd deliverytiersuite\delivery-tier-suite\common
 ..\..\..\mvnw.cmd clean install -B
 ```
 
-| Metric                                       | Before | After |
-| -------------------------------------------- | -----: | ----: |
-| Javadoc plugin errors (`error:` lines)       |      7 |     0 |
-| Javadoc plugin warnings (`MavenReportException`/`[WARNING]` in javadoc report) |    201 |     0 |
-| `javac`/compiler lint warnings (`[WARNING] /...`) |     14 |     0 |
-| Javadoc source warnings (`sourceFile.java:N: warning:`) | 200 |     0 |
-| Tests run / failures / errors                 | 18/0/0 | 18/0/0 |
-| Build result                                 |  SUCCESS | BUILD SUCCESS |
+|                                     Metric                                     |  Before |         After |
+|--------------------------------------------------------------------------------|--------:|--------------:|
+| Javadoc plugin errors (`error:` lines)                                         |       7 |             0 |
+| Javadoc plugin warnings (`MavenReportException`/`[WARNING]` in javadoc report) |     201 |             0 |
+| `javac`/compiler lint warnings (`[WARNING] /...`)                              |      14 |             0 |
+| Javadoc source warnings (`sourceFile.java:N: warning:`)                        |     200 |             0 |
+| Tests run / failures / errors                                                  |  18/0/0 |        18/0/0 |
+| Build result                                                                   | SUCCESS | BUILD SUCCESS |
 
 The two remaining `[WARNING]` lines are dependency-analyzer informationals about
 `spring-web:7.0.7` ("Non-test scoped test only dependencies found:"). The analyzer does not

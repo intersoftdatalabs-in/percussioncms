@@ -18,12 +18,12 @@ Args, ship DigesterFactory W3C schema resources.
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs (functional / security) | None found |
+|                   Check                    |                                                            Result                                                            |
+|--------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
+| Bugs (functional / security)               | None found                                                                                                                   |
 | Behavioral tests for new non-trivial logic | Pass — config/packaging contracts covered by `StartupWarnHygieneTest` (same style as existing `PercLoggingLog4j2ConfigTest`) |
-| Cross-platform path / file I/O | Pass — tests use `Path.of` / `Files`; line endings normalized; no OS-only path joins in product code |
-| May commit/push | **yes** |
+| Cross-platform path / file I/O             | Pass — tests use `Path.of` / `Files`; line endings normalized; no OS-only path joins in product code                         |
+| May commit/push                            | **yes**                                                                                                                      |
 
 ## Cross-platform path checklist
 

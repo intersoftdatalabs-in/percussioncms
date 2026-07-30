@@ -1,13 +1,13 @@
 # Erlang review — PR-8 delete obsolete SPA product hosts
 
-| Field | Value |
-|-------|-------|
-| **Branch** | `feat/000-react-spa-pr8-delete-obsolete-hosts` |
-| **Base** | `development` @ `84a140eb4f` (PR-7) |
-| **Date** | 2026-07-27 |
-| **Scope** | Uncommitted PR-8 cleanup: delete retired `*Modern.jsp` product hosts, classic login, retarget residual links, tests, docs, QA URLs |
-| **Recommendation** | **approve** |
-| **May commit/push** | **yes** |
+|        Field        |                                                               Value                                                                |
+|---------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| **Branch**          | `feat/000-react-spa-pr8-delete-obsolete-hosts`                                                                                     |
+| **Base**            | `development` @ `84a140eb4f` (PR-7)                                                                                                |
+| **Date**            | 2026-07-27                                                                                                                         |
+| **Scope**           | Uncommitted PR-8 cleanup: delete retired `*Modern.jsp` product hosts, classic login, retarget residual links, tests, docs, QA URLs |
+| **Recommendation**  | **approve**                                                                                                                        |
+| **May commit/push** | **yes**                                                                                                                            |
 
 ## Summary
 
@@ -20,12 +20,12 @@ deleted files and presence of residual hosts; QA automation targets
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs (logic / security) | None found |
-| Behavioral tests for non-trivial change | Pass — Vitest `spaCutover` + `publishNavRewire` (14 tests) |
-| Cross-platform path/file I/O | N/A — no production path I/O; tests use `node:path` `resolve` |
-| New warnings on module build | None attributable (WebUI `clean install` BUILD SUCCESS) |
+|                  Check                  |                            Result                             |
+|-----------------------------------------|---------------------------------------------------------------|
+| Bugs (logic / security)                 | None found                                                    |
+| Behavioral tests for non-trivial change | Pass — Vitest `spaCutover` + `publishNavRewire` (14 tests)    |
+| Cross-platform path/file I/O            | N/A — no production path I/O; tests use `node:path` `resolve` |
+| New warnings on module build            | None attributable (WebUI `clean install` BUILD SUCCESS)       |
 
 ## Issues
 
@@ -48,3 +48,4 @@ None (blocking).
 
 - `cd WebUI && ../mvnw clean install` → **BUILD SUCCESS**
 - `npx vitest run …/spaCutover.test.ts …/publishNavRewire.test.ts` → **14 passed**
+

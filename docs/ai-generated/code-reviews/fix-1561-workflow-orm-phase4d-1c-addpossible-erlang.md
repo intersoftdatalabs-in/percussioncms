@@ -7,13 +7,13 @@
 
 **Result:** **Approve** — no **bug** findings.
 
-| | |
-|---|---|
-| Bug findings | 0 |
-| Test-coverage findings | 0 (3 new tests; @Disabled blocker documented) |
-| Cross-platform path / I/O findings | 0 (no file I/O in this PR) |
-| Security / data-loss findings | 0 |
-| Convention / maintainability findings | 1 (nit, not blocking) |
+|                                       |                                               |
+|---------------------------------------|-----------------------------------------------|
+| Bug findings                          | 0                                             |
+| Test-coverage findings                | 0 (3 new tests; @Disabled blocker documented) |
+| Cross-platform path / I/O findings    | 0 (no file I/O in this PR)                    |
+| Security / data-loss findings         | 0                                             |
+| Convention / maintainability findings | 1 (nit, not blocking)                         |
 
 ## Diff size
 
@@ -42,12 +42,12 @@
 
 ## Build & test evidence
 
-| Module | Command | Result |
-|---|---|---|
-| `modules/extensions-workflow` | `mvnw.cmd -N clean install` | **BUILD SUCCESS** |
-| `modules/extensions-workflow` | test totals | **Tests run: 55** (19 active + 36 @Disabled), Failures: 0, Errors: 0, Skipped: 36 |
-| `modules/extensions-workflow/.../PSExitAddPossibleTransitionsExTest` | surefire | **3 tests** all `@Disabled` (skipped) — Spring+H2 infra blocker, consistent with `PSLoadFromHibernateTest` |
-| `modules/extensions-workflow` | `mvnw.cmd -pl modules/extensions-workflow spotless:check` | in-scope files (`PSExitAddPossibleTransitionsEx.java` + new `PSExitAddPossibleTransitionsExTest.java`) **clean**; 31 pre-existing violations in unrelated files are baseline debt (e.g. `PSComponentSummaryAdapter.java`, `IPSContentStatusHistoryContext.java`, `IPSContentTypesContext.java`) and explicitly out of scope per the root `AGENTS.md` Pre-PR Spotless hard gate |
+|                                Module                                |                          Command                          |                                                                                                                                                                                     Result                                                                                                                                                                                     |
+|----------------------------------------------------------------------|-----------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `modules/extensions-workflow`                                        | `mvnw.cmd -N clean install`                               | **BUILD SUCCESS**                                                                                                                                                                                                                                                                                                                                                              |
+| `modules/extensions-workflow`                                        | test totals                                               | **Tests run: 55** (19 active + 36 @Disabled), Failures: 0, Errors: 0, Skipped: 36                                                                                                                                                                                                                                                                                              |
+| `modules/extensions-workflow/.../PSExitAddPossibleTransitionsExTest` | surefire                                                  | **3 tests** all `@Disabled` (skipped) — Spring+H2 infra blocker, consistent with `PSLoadFromHibernateTest`                                                                                                                                                                                                                                                                     |
+| `modules/extensions-workflow`                                        | `mvnw.cmd -pl modules/extensions-workflow spotless:check` | in-scope files (`PSExitAddPossibleTransitionsEx.java` + new `PSExitAddPossibleTransitionsExTest.java`) **clean**; 31 pre-existing violations in unrelated files are baseline debt (e.g. `PSComponentSummaryAdapter.java`, `IPSContentStatusHistoryContext.java`, `IPSContentTypesContext.java`) and explicitly out of scope per the root `AGENTS.md` Pre-PR Spotless hard gate |
 
 No new compiler, surefire, enforcer, or Spotless warnings introduced on the changed
 module. All javadoc warnings observed in the build output are pre-existing in
@@ -95,12 +95,12 @@ read in `addWorkflowInfo` at line 404-406). The migration preserves the helper's
 contract:
 - `csc.getObjectType() == PSCmsObject.TYPE_FOLDER` short-circuit preserved (line 547).
 - `csc.close()` calls removed (Hibernate-backed `PSContentStatusContext.close()` is a no-op:
-  `m_Rs`, `m_Statement`, `m_Connection` are all `null` on the in-memory cursor, so the
-  `close()` body becomes a no-op). Verified at `system/src/main/java/com/percussion/workflow/PSContentStatusContext.java:525-540`.
+`m_Rs`, `m_Statement`, `m_Connection` are all `null` on the in-memory cursor, so the
+`close()` body becomes a no-op). Verified at `system/src/main/java/com/percussion/workflow/PSContentStatusContext.java:525-540`.
 - `finally { if (csc != null) csc.close(); }` removed — same reason.
 - `throws SQLException` retained because `PSWorkFlowUtils.isAdmin(...)` throws it (line 553).
-  The helper's `throws SQLException` is part of its signature even though no caller in this
-  branch invokes it; removing it would change the binary signature.
+The helper's `throws SQLException` is part of its signature even though no caller in this
+branch invokes it; removing it would change the binary signature.
 
 ### 3. `getAssignmentInfo` and legacy `getAssignmentType(Connection)` overload migration — **OK**
 
@@ -137,15 +137,15 @@ Erlang noted that the migrated methods (`getContentInfo`, `getAssignmentInfo`, l
 - `getContentInfo` is private static — no external caller impact.
 - `getAssignmentInfo` is private static — no external caller impact.
 - `getAssignmentType(Connection)` is `public static` and changing its signature or adding
-  `@Deprecated` would be a public API surface change. Erlang recommends a future cleanup
-  PR mark it `@Deprecated(forRemoval = true)` once Phase 4d-1b deletes `PSConnectionMgr`;
-  that is out of scope for this PR.
+`@Deprecated` would be a public API surface change. Erlang recommends a future cleanup
+PR mark it `@Deprecated(forRemoval = true)` once Phase 4d-1b deletes `PSConnectionMgr`;
+that is out of scope for this PR.
 
 ## Test-coverage review
 
-| Test class | Active | Disabled | Notes |
-|---|---|---|---|
-| `PSExitAddPossibleTransitionsExTest` (new) | 0 | 3 | `@Disabled` because `PSStateRolesContext`'s static initializer calls `PSConnectionMgr.getQualifiedIdentifier` which requires a live DB connection detail — same blocker documented in `PSLoadFromHibernateTest`. The tests document the migration contract (null connection rejected, blank userName rejected, null roleNameList rejected, factory routing, `PSEntryNotFoundException` falls through to `ASSIGNMENT_TYPE_NOT_IN_WORKFLOW`). Spring+H2 test infrastructure is tracked in `docs/ai-generated/migrations/workflow-orm/phase4-scope-survey.md` Phase 4+. |
+|                 Test class                 | Active | Disabled |                                                                                                                                                                                                                                                                                Notes                                                                                                                                                                                                                                                                                 |
+|--------------------------------------------|--------|----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `PSExitAddPossibleTransitionsExTest` (new) | 0      | 3        | `@Disabled` because `PSStateRolesContext`'s static initializer calls `PSConnectionMgr.getQualifiedIdentifier` which requires a live DB connection detail — same blocker documented in `PSLoadFromHibernateTest`. The tests document the migration contract (null connection rejected, blank userName rejected, null roleNameList rejected, factory routing, `PSEntryNotFoundException` falls through to `ASSIGNMENT_TYPE_NOT_IN_WORKFLOW`). Spring+H2 test infrastructure is tracked in `docs/ai-generated/migrations/workflow-orm/phase4-scope-survey.md` Phase 4+. |
 
 The migrated sites are in dead-code paths (private static methods + legacy public
 overload with zero in-tree callers). The Hibernate factories being called
@@ -161,7 +161,7 @@ non-behavioural tests for new/changed non-trivial logic" because:
 - The factories themselves are already covered.
 - The migrated code paths have no live callers (verified by repo-wide grep).
 - `@Disabled` tests document the migration contract so the next Spring+H2 infra
-  enabler can flip them on without losing context.
+enabler can flip them on without losing context.
 
 ## Nits (not blocking)
 
@@ -182,13 +182,13 @@ non-behavioural tests for new/changed non-trivial logic" because:
 
 ## Gate
 
-| Check | Status |
-|---|---|
-| Bug findings | ✅ 0 |
-| Missing behavioural tests | ✅ 0 (3 new `@Disabled` tests document the contract; existing Phase 4b/4d-1b factory coverage is reused) |
-| Cross-platform portability | ✅ N/A (no file I/O) |
-| Security / data-loss | ✅ 0 |
-| Erlang pre-commit (strict) | ✅ **Approve** — may commit / push / open PR |
+|           Check            |                                                 Status                                                  |
+|----------------------------|---------------------------------------------------------------------------------------------------------|
+| Bug findings               | ✅ 0                                                                                                     |
+| Missing behavioural tests  | ✅ 0 (3 new `@Disabled` tests document the contract; existing Phase 4b/4d-1b factory coverage is reused) |
+| Cross-platform portability | ✅ N/A (no file I/O)                                                                                     |
+| Security / data-loss       | ✅ 0                                                                                                     |
+| Erlang pre-commit (strict) | ✅ **Approve** — may commit / push / open PR                                                             |
 
 ## Verdict
 
@@ -202,3 +202,4 @@ suite). Build is green, Spotless is clean on in-scope files, and no new warnings
 or raw-JDBC drift is introduced.
 
 > Co-Authored by Kilo 1.x using MiniMax-M3 with agent erlang-code-review.
+

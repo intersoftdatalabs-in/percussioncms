@@ -12,12 +12,12 @@
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs | None |
-| Behavioral tests | App explorer entry; spaCutover explorer redirect; ensureModernStyles; login styles contract |
-| Cross-platform paths | N/A (URL only) |
-| Security | Explorer path allowlist + encode; redirect query only |
+|        Check         |                                           Result                                            |
+|----------------------|---------------------------------------------------------------------------------------------|
+| Bugs                 | None                                                                                        |
+| Behavioral tests     | App explorer entry; spaCutover explorer redirect; ensureModernStyles; login styles contract |
+| Cross-platform paths | N/A (URL only)                                                                              |
+| Security             | Explorer path allowlist + encode; redirect query only                                       |
 
 ## Issues
 

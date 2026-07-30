@@ -14,11 +14,11 @@ logic is unit-tested; docker CLI remains subprocess argv lists (spec 994 style).
 
 ## Scope
 
-| Path | Change |
-|------|--------|
-| `docker/scripts/matrix-install-smoke.py` | Ownership, `select_dbs_to_stop`, `stop_external_dbs`, CLI, `main` finally |
-| `docker/scripts/test_matrix_install_smoke.py` | Policy + dry-run + mutex tests |
-| `docker/README.md` | Teardown policy table and examples |
+|                     Path                      |                                  Change                                   |
+|-----------------------------------------------|---------------------------------------------------------------------------|
+| `docker/scripts/matrix-install-smoke.py`      | Ownership, `select_dbs_to_stop`, `stop_external_dbs`, CLI, `main` finally |
+| `docker/scripts/test_matrix_install_smoke.py` | Policy + dry-run + mutex tests                                            |
+| `docker/README.md`                            | Teardown policy table and examples                                        |
 
 - Uncommitted diff vs `HEAD` (no prior commits on branch).
 - Prior reports: `1500-matrix-smoke-*.md` (parent harness); no prior #1516 report.
@@ -31,12 +31,12 @@ logic is unit-tested; docker CLI remains subprocess argv lists (spec 994 style).
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs | None found |
-| Behavioral unit tests for new logic | Present (`select_dbs_to_stop`, ownership mapping, CLI mutex, dry-run PG path) |
-| Cross-platform path / file I/O | Clean — `pathlib.Path`, `str(compose_file)` to docker only; no hardcoded FS separators |
-| May commit/push | **yes** |
+|                Check                |                                         Result                                         |
+|-------------------------------------|----------------------------------------------------------------------------------------|
+| Bugs                                | None found                                                                             |
+| Behavioral unit tests for new logic | Present (`select_dbs_to_stop`, ownership mapping, CLI mutex, dry-run PG path)          |
+| Cross-platform path / file I/O      | Clean — `pathlib.Path`, `str(compose_file)` to docker only; no hardcoded FS separators |
+| May commit/push                     | **yes**                                                                                |
 
 Cross-platform path review: no new filesystem path string joins; temp dirs in
 tests use `tempfile` + `Path`; docker network/compose args are logical names.
