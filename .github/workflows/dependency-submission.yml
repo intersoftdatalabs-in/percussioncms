@@ -3,6 +3,10 @@ name: Dependency Submission
 on:
   push:
     branches: ["development", "development-8.1.x"]
+  schedule:
+    # Once a day per branch. Schedule events default to the repo's default
+    # branch; each job hardcodes `ref:` on checkout so it picks its own line.
+    - cron: '0 6 * * *'
   workflow_dispatch:
 
 permissions:
@@ -18,10 +22,15 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
       (github.event_name == 'push' && github.ref == 'refs/heads/development')
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # For schedule/workflow_dispatch, force-checkout the right branch.
+          # On push events this matches github.ref anyway.
+          ref: development
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -66,10 +75,14 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
       (github.event_name == 'push' && github.ref == 'refs/heads/development-8.1.x')
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # See dep-submit-21 comment.
+          ref: development-8.1.x
 
       - name: Set up JDK 8
         uses: actions/setup-java@v4
