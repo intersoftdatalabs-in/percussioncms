@@ -50,9 +50,7 @@
         <!-- Jakarta EE 11 / Tomcat 11 — align with parent jakarta.servlet.api.version (#667) -->
         <servlet.api.version>6.1.0</servlet.api.version>
         <servlet.spec>6.1.0</servlet.spec>
-        <spring.security.version>7.0.5</spring.security.version>
-        <!-- Overrides Parent-->
-        <spring.version>7.0.7</spring.version>
+        <spring.security.version>7.0.6</spring.security.version>
         <sqlserver.version>13.3.1.jre11-preview</sqlserver.version>
         <supercsv.version>2.4.0</supercsv.version>
         <timestamp>${maven.build.timestamp}</timestamp>
@@ -230,6 +228,11 @@
                         <artifactId>micrometer-commons</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.ldap</groupId>
+                <artifactId>spring-ldap-core</artifactId>
+                <version>4.0.4</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
