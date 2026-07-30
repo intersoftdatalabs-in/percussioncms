@@ -60,7 +60,6 @@ class PSRoleServiceHomepageTest {
   void dashboardBeatsEditorWhenHomeAbsent() {
     assertEquals(
         HOMEPAGE_TYPE_DASHBOARD,
-        PSRoleService.resolveUserHomepage(
-            Set.of(HOMEPAGE_TYPE_DASHBOARD, HOMEPAGE_TYPE_EDITOR)));
+        PSRoleService.resolveUserHomepage(Set.of(HOMEPAGE_TYPE_DASHBOARD, HOMEPAGE_TYPE_EDITOR)));
   }
 }

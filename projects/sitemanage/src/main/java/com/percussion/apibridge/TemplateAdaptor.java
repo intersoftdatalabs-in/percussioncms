@@ -69,9 +69,7 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
   private final IPSContentWs contentwsService;
 
   public TemplateAdaptor() {
-    this(
-        PSAssemblyServiceLocator.getAssemblyService(),
-        PSContentWsLocator.getContentWebservice());
+    this(PSAssemblyServiceLocator.getAssemblyService(), PSContentWsLocator.getContentWebservice());
   }
 
   /** Package-visible for unit tests that inject a fake assembly service. */
@@ -186,9 +184,8 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
       if (StringUtils.isBlank(s.getExpression())) {
         throw new IllegalArgumentException("bindings[" + (i - 1) + "].expression is required");
       }
-      int order = s.getExecutionOrder() != null && s.getExecutionOrder() > 0
-          ? s.getExecutionOrder()
-          : i;
+      int order =
+          s.getExecutionOrder() != null && s.getExecutionOrder() > 0 ? s.getExecutionOrder() : i;
       out.add(new PSTemplateBinding(order, s.getVariable().trim(), s.getExpression().trim()));
     }
     return out;
@@ -324,8 +321,7 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
       }
       bindings.sort(
           Comparator.comparing(
-              TemplateBindingSummary::getExecutionOrder,
-              Comparator.nullsLast(Integer::compareTo)));
+              TemplateBindingSummary::getExecutionOrder, Comparator.nullsLast(Integer::compareTo)));
     }
     d.setBindings(bindings);
 
@@ -348,8 +344,7 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
       }
       slots.sort(
           Comparator.comparing(
-              TemplateSlotSummary::getLabel,
-              Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+              TemplateSlotSummary::getLabel, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
     }
     d.setSlots(slots);
     d.setDesignGaps(new ArrayList<>(TEMPLATE_DESIGN_GAPS));

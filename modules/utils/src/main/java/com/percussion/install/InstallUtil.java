@@ -841,8 +841,7 @@ public class InstallUtil {
     if (dirName == null || dirName.length() == 0)
       throw new IllegalArgumentException("install location may not be " + "null or empty");
 
-    Path confDir =
-        Path.of(dirName).resolve("Deployment").resolve("Server").resolve("conf");
+    Path confDir = Path.of(dirName).resolve("Deployment").resolve("Server").resolve("conf");
     Path pathToServerConf = confDir.resolve("server.xml");
     if (!Files.isRegularFile(pathToServerConf)) {
       return false;

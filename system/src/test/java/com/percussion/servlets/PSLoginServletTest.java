@@ -65,11 +65,9 @@ public class PSLoginServletTest {
         PSLoginServlet.resolveSafePostLoginRedirect(request, "/cm/app/spa.jsp?entry=home"));
     // Default CMS index when blank / null — modern SPA landing
     assertEquals(
-        "/cm/app/spa.jsp?entry=home",
-        PSLoginServlet.resolveSafePostLoginRedirect(request, null));
+        "/cm/app/spa.jsp?entry=home", PSLoginServlet.resolveSafePostLoginRedirect(request, null));
     assertEquals(
-        "/cm/app/spa.jsp?entry=home",
-        PSLoginServlet.resolveSafePostLoginRedirect(request, "   "));
+        "/cm/app/spa.jsp?entry=home", PSLoginServlet.resolveSafePostLoginRedirect(request, "   "));
     // App-relative entry points still allowed
     assertEquals("index.jsp", PSLoginServlet.resolveSafePostLoginRedirect(request, "index.jsp"));
     assertEquals(

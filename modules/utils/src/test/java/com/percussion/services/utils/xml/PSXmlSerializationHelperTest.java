@@ -144,7 +144,8 @@ class PSXmlSerializationHelperTest {
 
   @Test
   void rewriteLegacyNullRootLeavesNonNullRootUnchanged() {
-    String xml = "<?xml version=\"1.0\"?><sample-keyword id=\"1\"><label>X</label></sample-keyword>";
+    String xml =
+        "<?xml version=\"1.0\"?><sample-keyword id=\"1\"><label>X</label></sample-keyword>";
     assertEquals(xml, PSXmlSerializationHelper.rewriteLegacyNullRoot(xml, SampleKeyword.class));
   }
 

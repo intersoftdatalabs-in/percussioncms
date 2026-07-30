@@ -25,60 +25,60 @@ import java.util.List;
  *
  * @author natechadwick
  */
-  @XmlAccessorType(XmlAccessType.FIELD)
-  @XmlType(
-      name = "property",
-      propOrder = {"enumValue"})
-  public class PSPropertyDefinition {
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(
+    name = "property",
+    propOrder = {"enumValue"})
+public class PSPropertyDefinition {
 
-    /** Default constructor. */
-    public PSPropertyDefinition() {}
+  /** Default constructor. */
+  public PSPropertyDefinition() {}
 
-    /** The allowed enumerated values when {@link #datatype} is {@code enum}. */
-    @XmlElement(name = "EnumValue")
-    private List<EnumValue> enumValue;
+  /** The allowed enumerated values when {@link #datatype} is {@code enum}. */
+  @XmlElement(name = "EnumValue")
+  private List<EnumValue> enumValue;
 
-    /** The XML attribute name for this property. */
-    @XmlAttribute(required = true)
-    private String name;
+  /** The XML attribute name for this property. */
+  @XmlAttribute(required = true)
+  private String name;
 
-    /** The display label shown in the UI. */
-    @XmlAttribute(name = "display_name")
-    private String displayName;
+  /** The display label shown in the UI. */
+  @XmlAttribute(name = "display_name")
+  private String displayName;
 
-    /** The default value applied when no explicit value is supplied. */
-    @XmlAttribute(name = "default_value")
-    private String defaultValue;
+  /** The default value applied when no explicit value is supplied. */
+  @XmlAttribute(name = "default_value")
+  private String defaultValue;
 
-    /** Flag indicating whether the property is required. */
-    @XmlAttribute private String required;
+  /** Flag indicating whether the property is required. */
+  @XmlAttribute private String required;
 
-    /** The data type of this property; matches one of {@link PSPropertyDataType}. */
-    @XmlAttribute private String datatype;
+  /** The data type of this property; matches one of {@link PSPropertyDataType}. */
+  @XmlAttribute private String datatype;
 
-    /** Maximum length of the property value (string fields). */
-    @XmlAttribute(name = "max_length")
-    private int maxLength;
+  /** Maximum length of the property value (string fields). */
+  @XmlAttribute(name = "max_length")
+  private int maxLength;
 
-    /** Regular expression used to validate the property value. */
-    @XmlAttribute(name = "validation_regex")
-    private String validationRegEx;
+  /** Regular expression used to validate the property value. */
+  @XmlAttribute(name = "validation_regex")
+  private String validationRegEx;
 
-    /** User-facing message displayed when validation fails. */
-    @XmlAttribute(name = "validation_message")
-    private String validationMessage;
+  /** User-facing message displayed when validation fails. */
+  @XmlAttribute(name = "validation_message")
+  private String validationMessage;
 
-    /** Help text displayed alongside the property in the UI. */
-    @XmlAttribute(name = "help_text")
-    private String helpText;
+  /** Help text displayed alongside the property in the UI. */
+  @XmlAttribute(name = "help_text")
+  private String helpText;
 
-    /** Regular expression used to format the display of the property value. */
-    @XmlAttribute(name = "display_regex")
-    private String displayRegEx;
+  /** Regular expression used to format the display of the property value. */
+  @XmlAttribute(name = "display_regex")
+  private String displayRegEx;
 
-    /** The current value of the property, if any. */
-    @XmlAttribute(name = "property_value")
-    private Object propertyValue;
+  /** The current value of the property, if any. */
+  @XmlAttribute(name = "property_value")
+  private Object propertyValue;
 
   /**
    * Gets the value of the enumValue property.

@@ -126,7 +126,9 @@ public class PSJdbcUtilsTest {
     assertEquals(
         "file:../../Repository/CMDB",
         PSJdbcUtils.resolveEmbeddedFileServer("file:../../Repository/CMDB", null));
-    assertEquals("//localhost:5432/cms", PSJdbcUtils.resolveEmbeddedFileServer("//localhost:5432/cms", tempDir));
+    assertEquals(
+        "//localhost:5432/cms",
+        PSJdbcUtils.resolveEmbeddedFileServer("//localhost:5432/cms", tempDir));
   }
 
   @Test

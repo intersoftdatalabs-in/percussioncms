@@ -31,14 +31,12 @@ import org.junit.jupiter.api.Test;
 /**
  * Behavioural tests for {@link PSComponentSummaryAdapter}.
  *
- * <p>The adapter wraps a Hibernate-managed {@link PSComponentSummary} (the
- * {@code CONTENTSTATUS} row) so it can satisfy the legacy
- * {@link IPSContentStatusContext} interface that
- * {@link PSContentStatusHistoryEntityBuilder} still consumes. These tests pin the
- * adapter's field-mapping behaviour, including the fallback values for fields
- * {@link PSComponentSummary} does not expose (e.g. {@code CONTENTCREATEDBY},
- * {@code ISREVISIONLOCKED}, {@code NEVERAGED}, {@code REMINDERDATE}) so a future
- * change to {@link PSComponentSummary} can't silently break callers.
+ * <p>The adapter wraps a Hibernate-managed {@link PSComponentSummary} (the {@code CONTENTSTATUS}
+ * row) so it can satisfy the legacy {@link IPSContentStatusContext} interface that {@link
+ * PSContentStatusHistoryEntityBuilder} still consumes. These tests pin the adapter's field-mapping
+ * behaviour, including the fallback values for fields {@link PSComponentSummary} does not expose
+ * (e.g. {@code CONTENTCREATEDBY}, {@code ISREVISIONLOCKED}, {@code NEVERAGED}, {@code
+ * REMINDERDATE}) so a future change to {@link PSComponentSummary} can't silently break callers.
  */
 public class PSComponentSummaryAdapterTest {
 
@@ -50,10 +48,9 @@ public class PSComponentSummaryAdapterTest {
   private static final String LAST_MODIFIER = "Beth";
 
   /**
-   * Happy-path mapping: every getter returns the corresponding value from the
-   * wrapped summary. Date fields are narrowed from {@link java.util.Date} to
-   * {@link java.sql.Date} via {@link PSComponentSummaryAdapter}'s private
-   * helper.
+   * Happy-path mapping: every getter returns the corresponding value from the wrapped summary. Date
+   * fields are narrowed from {@link java.util.Date} to {@link java.sql.Date} via {@link
+   * PSComponentSummaryAdapter}'s private helper.
    */
   @Test
   void happyPath_delegatesAndNarrowsDates() {
@@ -82,14 +79,14 @@ public class PSComponentSummaryAdapterTest {
   }
 
   /**
-   * Date narrowing: a null {@code lastModifiedDate} on the wrapped summary must
-   * come out as null on the adapter side, not a synthetic default. Same for
-   * {@code contentCreatedDate}.
+   * Date narrowing: a null {@code lastModifiedDate} on the wrapped summary must come out as null on
+   * the adapter side, not a synthetic default. Same for {@code contentCreatedDate}.
    */
   @Test
   void nullDatesAreNullNotSyntheticDefaults() {
     PSComponentSummary summary =
-        mockSummary(CHECKOUT_USER, LAST_MODIFIER, /* lastModified */ null, /* contentCreatedDate */ null);
+        mockSummary(
+            CHECKOUT_USER, LAST_MODIFIER, /* lastModified */ null, /* contentCreatedDate */ null);
 
     PSComponentSummaryAdapter adapter = new PSComponentSummaryAdapter(summary);
 
@@ -98,10 +95,9 @@ public class PSComponentSummaryAdapterTest {
   }
 
   /**
-   * Fields {@link PSComponentSummary} does not expose (or that legacy callers
-   * tolerate as empty / false / null) fall back to documented defaults. These
-   * are observable by callers of the legacy interface, so pinning them in a
-   * test is what protects against silent regressions.
+   * Fields {@link PSComponentSummary} does not expose (or that legacy callers tolerate as empty /
+   * false / null) fall back to documented defaults. These are observable by callers of the legacy
+   * interface, so pinning them in a test is what protects against silent regressions.
    */
   @Test
   void fallbackValues_matchLegacyContract() {
@@ -134,10 +130,9 @@ public class PSComponentSummaryAdapterTest {
   }
 
   /**
-   * Integer-typed getters that the wrapped summary holds as boxed
-   * {@link Integer} must come out as {@code int} with null-coerced zero. The
-   * adapter does this with explicit null checks; this test pins the contract
-   * for {@code CURRENTREVISION}, {@code EDITREVISION}, and {@code TIPREVISION}.
+   * Integer-typed getters that the wrapped summary holds as boxed {@link Integer} must come out as
+   * {@code int} with null-coerced zero. The adapter does this with explicit null checks; this test
+   * pins the contract for {@code CURRENTREVISION}, {@code EDITREVISION}, and {@code TIPREVISION}.
    */
   @Test
   void boxedIntegerFields_nullCoerceToZero() {
@@ -160,10 +155,10 @@ public class PSComponentSummaryAdapterTest {
   }
 
   /**
-   * Sanity: a content item with no checkout user (i.e. not checked out) must
-   * surface as {@code null} on the adapter side. The legacy cursor pattern
-   * distinguished between "checked out by Alice" and "not checked out" via
-   * {@code null} vs {@code "Alice"}; the adapter must preserve that.
+   * Sanity: a content item with no checkout user (i.e. not checked out) must surface as {@code
+   * null} on the adapter side. The legacy cursor pattern distinguished between "checked out by
+   * Alice" and "not checked out" via {@code null} vs {@code "Alice"}; the adapter must preserve
+   * that.
    */
   @Test
   void nullCheckoutUserIsNullNotEmpty() {
@@ -175,20 +170,19 @@ public class PSComponentSummaryAdapterTest {
   }
 
   /**
-   * The adapter is a defensive wrapper around a {@link PSComponentSummary}. A
-   * null summary is a programmer error and must fail loudly, not NPE later.
+   * The adapter is a defensive wrapper around a {@link PSComponentSummary}. A null summary is a
+   * programmer error and must fail loudly, not NPE later.
    */
   @Test
   void nullSummaryIsRejected() {
     IllegalArgumentException ex =
-        assertThrows(
-            IllegalArgumentException.class, () -> new PSComponentSummaryAdapter(null));
+        assertThrows(IllegalArgumentException.class, () -> new PSComponentSummaryAdapter(null));
     assertTrue(ex.getMessage().contains("summary"));
   }
 
   /**
-   * Mutators on the adapter must throw {@link UnsupportedOperationException}
-   * so misuse fails loudly. The adapter is read-only by design.
+   * Mutators on the adapter must throw {@link UnsupportedOperationException} so misuse fails
+   * loudly. The adapter is read-only by design.
    */
   @Test
   void mutatorsThrowUnsupportedOperationException() {
@@ -196,7 +190,8 @@ public class PSComponentSummaryAdapterTest {
         new PSComponentSummaryAdapter(mockSummary("", "", null, null));
 
     assertThrows(UnsupportedOperationException.class, () -> adapter.setCurrentRevision(5));
-    assertThrows(UnsupportedOperationException.class, () -> adapter.setContentCheckedOutUserName("x"));
+    assertThrows(
+        UnsupportedOperationException.class, () -> adapter.setContentCheckedOutUserName("x"));
     assertThrows(UnsupportedOperationException.class, () -> adapter.lockRevision());
     // close() is a no-op (Phase 3 migration): no JDBC resources to free.
     adapter.close(); // does not throw
@@ -207,9 +202,8 @@ public class PSComponentSummaryAdapterTest {
   // ---------------------------------------------------------------------
 
   /**
-   * Builds a mocked {@link PSComponentSummary} with the most common getter
-   * values populated. Returns a fresh mock per call so tests can also override
-   * individual stubs.
+   * Builds a mocked {@link PSComponentSummary} with the most common getter values populated.
+   * Returns a fresh mock per call so tests can also override individual stubs.
    */
   private static PSComponentSummary mockSummary(
       String checkoutUser,

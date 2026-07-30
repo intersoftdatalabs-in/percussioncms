@@ -8,11 +8,11 @@ End-to-end validation guide. The scenarios below prove the feature works: from a
 
 ## Prerequisites
 
-| Prereq |          Linux/macOS          |            Windows             |                                                Notes                                                |
-|--------|-------------------------------|--------------------------------|-----------------------------------------------------------------------------------------------------|
-| Git    | any 2.x+                      | any 2.x+                       | Clone the repo                                                                                      |
-| Python | 3.9+ (3.11 recommended)       | 3.9+ (3.11 recommended)        | `python3 --version` / `python --version`                                                            |
-| pip    | bundled with Python           | bundled with Python            | `python3 -m pip --version`                                                                          |
+| Prereq |       Linux/macOS       |           Windows           |                                                Notes                                                |
+|--------|-------------------------|-----------------------------|-----------------------------------------------------------------------------------------------------|
+| Git    | any 2.x+                | any 2.x+                    | Clone the repo                                                                                      |
+| Python | 3.9+ (3.11 recommended) | 3.9+ (3.11 recommended)     | `python3 --version` / `python --version`                                                            |
+| pip    | bundled with Python     | bundled with Python         | `python3 -m pip --version`                                                                          |
 | JDK 21 | required by `mvnw` only | required by `mvnw.cmd` only | NOT required for this feature — `python-build-scripts.yml` does not invoke Maven (Clarification Q4) |
 
 No Docker, no `gh`, no Maven, no `jq`. The Python-script test suite is self-contained; only scripts that themselves call out to `gh`/`docker` are gated behind `pytest.importorskip` / network markers (FR-010).

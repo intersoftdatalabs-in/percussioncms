@@ -37,9 +37,9 @@ import java.util.regex.Pattern;
  * host/port/name components (no operator-controlled query/parameter injection via {@code ;} /
  * {@code ?} in host or name).
  *
- * <p><strong>Threading:</strong> not safe for concurrent use. {@link DriverManager} login timeout is
- * process-global; this class serializes timeout set/restore on an internal lock and is intended for
- * the single-threaded preinstall path only.
+ * <p><strong>Threading:</strong> not safe for concurrent use. {@link DriverManager} login timeout
+ * is process-global; this class serializes timeout set/restore on an internal lock and is intended
+ * for the single-threaded preinstall path only.
  */
 public final class RepositoryConnectionProbe {
 
@@ -50,8 +50,7 @@ public final class RepositoryConnectionProbe {
    * Host allowlist: letters, digits, dots, hyphens, underscores, colons/brackets (IPv6), no JDBC
    * separators.
    */
-  private static final Pattern SAFE_HOST =
-      Pattern.compile("^[A-Za-z0-9._\\-:\\[\\]]{1,253}$");
+  private static final Pattern SAFE_HOST = Pattern.compile("^[A-Za-z0-9._\\-:\\[\\]]{1,253}$");
 
   /** Database / service name allowlist (no JDBC parameter separators). */
   private static final Pattern SAFE_NAME = Pattern.compile("^[A-Za-z0-9._\\-]{1,128}$");
@@ -92,7 +91,8 @@ public final class RepositoryConnectionProbe {
   /**
    * Probe connectivity using resolved installer system properties ({@code perc.db.*}).
    *
-   * @param systemProperties from {@link DbInstallConfigResolver.ResolvedDbConfig#systemProperties()}
+   * @param systemProperties from {@link
+   *     DbInstallConfigResolver.ResolvedDbConfig#systemProperties()}
    * @param loginTimeoutSeconds login timeout; use {@link #DEFAULT_LOGIN_TIMEOUT_SECONDS} when
    *     unsure
    * @return probe result
@@ -163,10 +163,7 @@ public final class RepositoryConnectionProbe {
           }
           return new ProbeResult(
               ProbeStatus.SUCCESS,
-              "Connection succeeded for "
-                  + jdbcUrl
-                  + (user != null ? " user=" + user : "")
-                  + ".");
+              "Connection succeeded for " + jdbcUrl + (user != null ? " user=" + user : "") + ".");
         }
       } catch (SQLException e) {
         return new ProbeResult(
@@ -222,8 +219,7 @@ public final class RepositoryConnectionProbe {
       ValidatedEndpoint ep = validateHostPortName(host, port, name);
       return switch (type) {
         case "mysql" -> "jdbc:mysql://" + ep.host() + ":" + ep.port() + "/" + ep.name();
-        case "postgresql" ->
-            "jdbc:postgresql://" + ep.host() + ":" + ep.port() + "/" + ep.name();
+        case "postgresql" -> "jdbc:postgresql://" + ep.host() + ":" + ep.port() + "/" + ep.name();
         case "sqlserver" ->
             "jdbc:sqlserver://" + ep.host() + ":" + ep.port() + ";databaseName=" + ep.name();
         case "oracle" -> "jdbc:oracle:thin:@" + ep.host() + ":" + ep.port() + ":" + ep.name();
@@ -297,12 +293,10 @@ public final class RepositoryConnectionProbe {
       throw new IllegalArgumentException(
           "Unable to parse DB_SERVER into safe host/port/name for connection probe.");
     }
-    ValidatedEndpoint ep =
-        validateHostPortName(parsed.host(), parsed.port(), parsed.name());
+    ValidatedEndpoint ep = validateHostPortName(parsed.host(), parsed.port(), parsed.name());
     return switch (parsed.type()) {
       case "mysql" -> "jdbc:mysql://" + ep.host() + ":" + ep.port() + "/" + ep.name();
-      case "postgresql" ->
-          "jdbc:postgresql://" + ep.host() + ":" + ep.port() + "/" + ep.name();
+      case "postgresql" -> "jdbc:postgresql://" + ep.host() + ":" + ep.port() + "/" + ep.name();
       case "sqlserver" ->
           "jdbc:sqlserver://" + ep.host() + ":" + ep.port() + ";databaseName=" + ep.name();
       case "oracle" -> "jdbc:oracle:thin:@" + ep.host() + ":" + ep.port() + ":" + ep.name();
@@ -402,9 +396,7 @@ public final class RepositoryConnectionProbe {
     }
     String redacted = msg;
     // password= / password: / pwd= / passwd=
-    redacted =
-        redacted.replaceAll(
-            "(?i)(password|passwd|pwd)\\s*[=:]\\s*[^;\\s,]+", "$1=***");
+    redacted = redacted.replaceAll("(?i)(password|passwd|pwd)\\s*[=:]\\s*[^;\\s,]+", "$1=***");
     // user:secret@host in URL-like fragments
     redacted = redacted.replaceAll("(?i)(://[^:/\\s]+):([^@/\\s]+)@", "$1:***@");
     return redacted;

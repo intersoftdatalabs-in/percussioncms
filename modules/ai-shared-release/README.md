@@ -52,13 +52,13 @@ To add a brand-new skill without modifying the shipped set, the operator creates
 
 ## Layout under `src/main/resources/`
 
-| Path                      | Purpose                                                  |
-|---------------------------|----------------------------------------------------------|
-| `src/main/resources/skills/`     | Discoverable skills (Claude / Kilo / etc.) with a `SKILL.md` per skill.    |
-| `src/main/resources/agents/`     | Named agent personas (always-on style guides).                            |
-| `src/main/resources/instructions/` | Always-on style review checklists.                                      |
-| `src/main/resources/prompts/`    | Copy-paste one-shot prompts.                                              |
-| `src/main/resources/plugins/`    | Per-agent-tool shims (e.g. `plugins/claude/`, `plugins/kilo/`). Reserved for future use. |
+|                Path                |                                         Purpose                                          |
+|------------------------------------|------------------------------------------------------------------------------------------|
+| `src/main/resources/skills/`       | Discoverable skills (Claude / Kilo / etc.) with a `SKILL.md` per skill.                  |
+| `src/main/resources/agents/`       | Named agent personas (always-on style guides).                                           |
+| `src/main/resources/instructions/` | Always-on style review checklists.                                                       |
+| `src/main/resources/prompts/`      | Copy-paste one-shot prompts.                                                             |
+| `src/main/resources/plugins/`      | Per-agent-tool shims (e.g. `plugins/claude/`, `plugins/kilo/`). Reserved for future use. |
 
 The three non-`skills` directories ship as placeholders with a `.gitkeeep` so the directory structure is preserved in git. The installer excludes `.gitkeeep` files when staging.
 
@@ -82,3 +82,4 @@ The three non-`skills` directories ship as placeholders with a `.gitkeeep` so th
 - `modules/ai-shared-develop/` — developer-only AI resources (skills, prompts, agents) used by AI coding agents while working on the Percussion CMS source tree. Built into a JAR; not shipped to end users.
 - `modules/perc-distribution-tree/` — the installer that copies this module's resources into `<InstallDir>/sys_resources/ai-tools/`.
 - `modules/perc-tinymce/` — the only other module currently using the `sys_resources` / `rx_resources` overlay pattern; reference it for additional conventions.
+

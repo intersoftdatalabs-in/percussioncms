@@ -72,8 +72,7 @@ class RepositoryPropertiesInstallGuardTest {
   void installChainAppliesRepositoryBeforeConfigureJetty() throws Exception {
     String xml =
         java.nio.file.Files.readString(
-            java.nio.file.Path.of(
-                "src/main/resources/distribution/rxconfig/Installer/install.xml"),
+            java.nio.file.Path.of("src/main/resources/distribution/rxconfig/Installer/install.xml"),
             StandardCharsets.UTF_8);
     int chain = xml.indexOf("<target name=\"install.chain\"");
     assertTrue(chain >= 0, "install.chain target required");

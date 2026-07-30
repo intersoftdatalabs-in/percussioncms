@@ -48,8 +48,7 @@ class PSSitePathItemServiceTmxMessagesTest {
     assertTrue(java.contains("perc.ui.pathmanagement@Oops.  We can't find the site "));
     assertTrue(java.contains("perc.ui.pathmanagement@.  It may have been deleted."));
     assertTrue(
-        java.contains(
-            "perc.ui.pathmanagement@Oops. We're sorry. The requested page is no longer"));
+        java.contains("perc.ui.pathmanagement@Oops. We're sorry. The requested page is no longer"));
     assertTrue(java.contains("available."));
     // no hardcoded English user strings left in findItem orphan path
     assertFalse(java.contains("? \"Oops.  We can"));

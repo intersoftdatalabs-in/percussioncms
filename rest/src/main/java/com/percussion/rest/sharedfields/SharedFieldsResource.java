@@ -44,9 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @PSSiteManageBean(value = "restSharedFieldsResource")
 @Path("/sharedfields")
 @XmlRootElement
-@Tag(
-    name = "SharedFields",
-    description = "Shared field group design catalog (read-only)")
+@Tag(name = "SharedFields", description = "Shared field group design catalog (read-only)")
 public class SharedFieldsResource {
 
   private final ISharedFieldsAdaptor adaptor;
@@ -77,8 +75,7 @@ public class SharedFieldsResource {
                 @Content(
                     array =
                         @ArraySchema(
-                            schema =
-                                @Schema(implementation = SharedFieldGroupSummary.class)))),
+                            schema = @Schema(implementation = SharedFieldGroupSummary.class)))),
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public List<SharedFieldGroupSummary> listGroups() {
@@ -103,8 +100,7 @@ public class SharedFieldsResource {
         @ApiResponse(
             responseCode = "200",
             description = "OK",
-            content =
-                @Content(schema = @Schema(implementation = SharedFieldGroupDetail.class))),
+            content = @Content(schema = @Schema(implementation = SharedFieldGroupDetail.class))),
         @ApiResponse(responseCode = "404", description = "Group not found"),
         @ApiResponse(responseCode = "500", description = "Error")
       })

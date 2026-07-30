@@ -67,7 +67,10 @@ public class PSMembershipService implements IPSMembershipService {
   /** The email helper, may be {@code null} before Spring wires it. */
   private IPSEmailHelper emailHelper;
 
-  /** The generic key service used for confirm and reset flows, may be {@code null} before Spring wires it. */
+  /**
+   * The generic key service used for confirm and reset flows, may be {@code null} before Spring
+   * wires it.
+   */
   private IPSGenericKeyService genericKeyService;
 
   @Context HttpServletRequest request;

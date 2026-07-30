@@ -369,8 +369,7 @@ public class PSContentItemDao implements IPSContentItemDao {
               if (value != null) {
                 // Coerce non-String (e.g. Optional) and skip blank / unparseable date noise
                 // such as "Optional.empty" that would abort the entire save.
-                String text =
-                    value instanceof String ? (String) value : String.valueOf(value);
+                String text = value instanceof String ? (String) value : String.valueOf(value);
                 if (text.isBlank()
                     || "Optional.empty".equals(text)
                     || text.startsWith("Optional[")) {

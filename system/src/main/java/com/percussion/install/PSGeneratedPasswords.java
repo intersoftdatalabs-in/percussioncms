@@ -43,17 +43,17 @@ import java.util.Properties;
  * Jetty {@code perc-ds.properties} (encrypted), not here. Concrete entries owned by the system:
  *
  * <ul>
- *   <li>{@code cmdb}: cryptographically random CMS repository password for the embedded H2
- *       backend (silent / unattended installs only). Random generation avoids the "Wrong user
- *       name or password" class of failures when the JDBC driver and the on-disk
- *       {@code Repository/CMDB.mv.db} disagree about credentials (issue #548 / #1500).
- *   <li>{@code Admin}, {@code Editor}, {@code Contributor} (and other demo users): random
- *       passwords for the built-in accounts managed by {@code PSUserService}.
+ *   <li>{@code cmdb}: cryptographically random CMS repository password for the embedded H2 backend
+ *       (silent / unattended installs only). Random generation avoids the "Wrong user name or
+ *       password" class of failures when the JDBC driver and the on-disk {@code
+ *       Repository/CMDB.mv.db} disagree about credentials (issue #548 / #1500).
+ *   <li>{@code Admin}, {@code Editor}, {@code Contributor} (and other demo users): random passwords
+ *       for the built-in accounts managed by {@code PSUserService}.
  * </ul>
  *
- * <p>Reads tolerate a missing or partially written file: callers get {@code null} / empty values
- * so upgrade paths that pre-date this helper continue to read the password they already have on
- * disk in {@code rxrepository.properties}.
+ * <p>Reads tolerate a missing or partially written file: callers get {@code null} / empty values so
+ * upgrade paths that pre-date this helper continue to read the password they already have on disk
+ * in {@code rxrepository.properties}.
  *
  * <p><strong>Security:</strong> the generated passwords file is installer-managed; treat its
  * contents as confidential and never log it.
@@ -218,9 +218,9 @@ public final class PSGeneratedPasswords {
     return props;
   }
 
-/**
-   * Convenience: write a freshly generated random password under {@link #KEY_CMDB} and return
-   * both the file path and the generated value.
+  /**
+   * Convenience: write a freshly generated random password under {@link #KEY_CMDB} and return both
+   * the file path and the generated value.
    *
    * @param installRoot CMS install root directory; must not be {@code null}.
    * @return a record with the generated password and the absolute file path it was written to.

@@ -92,8 +92,7 @@ public class PSLocaleLoginSelectionTest {
         Arrays.asList(
             locale("en-us", false, PSLocale.STATUS_ACTIVE),
             locale("ar", true, PSLocale.STATUS_ACTIVE));
-    assertEquals(
-        "ar", PSLocaleLoginSelection.resolveSelectedLocale("ar", "en-us", login));
+    assertEquals("ar", PSLocaleLoginSelection.resolveSelectedLocale("ar", "en-us", login));
   }
 
   @Test
@@ -102,12 +101,8 @@ public class PSLocaleLoginSelectionTest {
         Arrays.asList(
             locale("en-us", false, PSLocale.STATUS_ACTIVE),
             locale("de-de", false, PSLocale.STATUS_ACTIVE));
-    assertEquals(
-        "en-us",
-        PSLocaleLoginSelection.resolveSelectedLocale(null, null, login));
-    assertEquals(
-        "en-us",
-        PSLocaleLoginSelection.resolveSelectedLocale("xx-yy", "yy-zz", login));
+    assertEquals("en-us", PSLocaleLoginSelection.resolveSelectedLocale(null, null, login));
+    assertEquals("en-us", PSLocaleLoginSelection.resolveSelectedLocale("xx-yy", "yy-zz", login));
   }
 
   @Test
@@ -116,9 +111,7 @@ public class PSLocaleLoginSelectionTest {
         Arrays.asList(
             locale("en-us", false, PSLocale.STATUS_ACTIVE),
             locale("de-de", false, PSLocale.STATUS_ACTIVE));
-    assertEquals(
-        "de-de",
-        PSLocaleLoginSelection.resolveSelectedLocale(null, "de-de", login));
+    assertEquals("de-de", PSLocaleLoginSelection.resolveSelectedLocale(null, "de-de", login));
   }
 
   private static PSLocale locale(String code, boolean base, int status) {

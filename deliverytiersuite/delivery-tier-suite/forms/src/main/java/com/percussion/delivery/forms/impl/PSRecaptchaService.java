@@ -16,12 +16,12 @@
  */
 
 /**
- * Provides the helper that integrates the delivery-tier forms service with Google reCAPTCHA.
- * The service stores the configured secret / URL / user agent and exposes a single
- * {@link #verify(String)} entry point used by the REST layer after each submission.
+ * Provides the helper that integrates the delivery-tier forms service with Google reCAPTCHA. The
+ * service stores the configured secret / URL / user agent and exposes a single {@link
+ * #verify(String)} entry point used by the REST layer after each submission.
  *
- * <p>The class also enumerates the error codes returned by the reCAPTCHA verify endpoint so
- * that callers can distinguish configuration problems from genuine spam.</p>
+ * <p>The class also enumerates the error codes returned by the reCAPTCHA verify endpoint so that
+ * callers can distinguish configuration problems from genuine spam.
  */
 package com.percussion.delivery.forms.impl;
 
@@ -46,25 +46,32 @@ public class PSRecaptchaService {
 
   /** Name of the request parameter / field that carries the reCAPTCHA token from the browser. */
   public static final String RECAPTCHA_RESPONSE = "g-recaptcha-response";
+
   // Possible errors
   /** Error code returned when the reCAPTCHA secret parameter is missing from the request. */
   public static final String RECAPTCHA_ERR_MISSING_SECRET =
       "missing-input-secret"; //	The secret parameter is missing.
+
   /** Error code returned when the reCAPTCHA secret parameter is invalid or malformed. */
   public static final String RECAPTCHA_ERR_INVALID_SECRET =
       "invalid-input-secret"; //	The secret parameter is invalid or malformed.
+
   /** Error code returned when the response parameter is missing from the request. */
   public static final String RECAPTCHA_ERR_MISSING_INPUT =
       "missing-input-response"; // The response parameter is missing.
+
   /** Error code returned when the response parameter is invalid or malformed. */
   public static final String RECAPTCHA_ERR_INVALID_INPUT =
       "invalid-input-response"; //	The response parameter is invalid or malformed.
+
   /** Error code returned when the reCAPTCHA request is invalid or malformed. */
   public static final String RECAPTCHA_ERR_BAD_REQUEST =
       "bad-request"; // The request is invalid or malformed.
+
   /** Error code returned when the response token is too old or has been used previously. */
   public static final String RECAPTCHA_ERR_TIMEOUT =
       "timeout-or-duplicate"; // The response is no longer valid: either is too old or has been used
+
   // previously.
 
   private String url = "https://www.google.com/recaptcha/api/siteverify";
@@ -78,10 +85,10 @@ public class PSRecaptchaService {
    *
    * @param captchaOn whether reCAPTCHA validation is currently active.
    * @param captchaUrl the URL of the reCAPTCHA verify endpoint, never <code>null</code>.
-   * @param secret the shared secret issued by Google for the configured site, may be
-   *     <code>null</code> only when validation is disabled.
-   * @param userAgent the HTTP User-Agent header to send to the verify endpoint, never
-   *     <code>null</code>.
+   * @param secret the shared secret issued by Google for the configured site, may be <code>null
+   *     </code> only when validation is disabled.
+   * @param userAgent the HTTP User-Agent header to send to the verify endpoint, never <code>null
+   *     </code>.
    */
   public PSRecaptchaService(boolean captchaOn, String captchaUrl, String secret, String userAgent) {
     this.captchaOn = captchaOn;
@@ -154,8 +161,7 @@ public class PSRecaptchaService {
   }
 
   /**
-   * Enables or disables reCAPTCHA validation for subsequent calls to
-   * {@link #verify(String)}.
+   * Enables or disables reCAPTCHA validation for subsequent calls to {@link #verify(String)}.
    *
    * @param captchaOn {@code true} to enable validation, {@code false} to bypass it.
    */
@@ -164,12 +170,11 @@ public class PSRecaptchaService {
   }
 
   /**
-   * Validates the supplied reCAPTCHA response token against the configured verify endpoint.
-   * A {@code null} or empty token is rejected immediately. Any I/O or parsing error causes
-   * the validation to fail closed and is logged.
+   * Validates the supplied reCAPTCHA response token against the configured verify endpoint. A
+   * {@code null} or empty token is rejected immediately. Any I/O or parsing error causes the
+   * validation to fail closed and is logged.
    *
-   * @param gRecaptchaResponse the token posted by the browser, may be <code>null</code> or
-   *     empty.
+   * @param gRecaptchaResponse the token posted by the browser, may be <code>null</code> or empty.
    * @return {@code true} if Google reports a successful validation, {@code false} otherwise.
    * @throws IOException never thrown by the current implementation, declared for backward
    *     compatibility.

@@ -57,8 +57,7 @@ public class PSLocaleFormatResolverTest {
 
   @Test
   public void resolve_arabicUsesRtlFromDefaults() {
-    PSLocaleFormat ar =
-        PSLocaleFormatResolver.resolve("ar", PSLocaleFormatDefaults.shipped());
+    PSLocaleFormat ar = PSLocaleFormatResolver.resolve("ar", PSLocaleFormatDefaults.shipped());
     assertEquals(PSLocaleFormat.TEXT_DIR_RTL, ar.getTextDir());
     assertEquals("dd/MM/yyyy", ar.getDatePattern());
   }
@@ -98,7 +97,6 @@ public class PSLocaleFormatResolverTest {
     assertTrue(shipped.containsKey("en-us"));
     assertTrue(shipped.containsKey("fr-fr"));
     assertTrue(shipped.containsKey("ar"));
-    assertEquals(
-        PSLocaleFormat.TEXT_DIR_RTL, shipped.get("ar").getTextDir());
+    assertEquals(PSLocaleFormat.TEXT_DIR_RTL, shipped.get("ar").getTextDir());
   }
 }

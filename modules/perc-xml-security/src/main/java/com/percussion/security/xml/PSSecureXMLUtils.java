@@ -56,9 +56,9 @@ public class PSSecureXMLUtils {
       "http://xml.org/sax/features/external-general-entities";
 
   /**
-   * Xerces / JDK feature IDs for external entities. Note: these are the real
-   * Apache feature URIs — not the xerces.apache.org documentation page URLs that
-   * were previously used and always produced "feature is not recognized" noise.
+   * Xerces / JDK feature IDs for external entities. Note: these are the real Apache feature URIs —
+   * not the xerces.apache.org documentation page URLs that were previously used and always produced
+   * "feature is not recognized" noise.
    */
   public static final String X1_GENERAL_EXTERNAL_ENTITIES_FEATURE =
       "http://apache.org/xml/features/external-general-entities";

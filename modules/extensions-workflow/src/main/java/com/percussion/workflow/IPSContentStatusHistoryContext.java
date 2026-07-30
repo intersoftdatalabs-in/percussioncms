@@ -163,9 +163,7 @@ public interface IPSContentStatusHistoryContext {
    */
   public String getTransitionComment();
 
-  /**
-   * Closes the transition context freeing all JDBC resources.
-   */
+  /** Closes the transition context freeing all JDBC resources. */
   public void close();
 
   /**

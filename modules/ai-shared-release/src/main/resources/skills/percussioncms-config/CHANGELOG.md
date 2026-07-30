@@ -32,3 +32,4 @@ version-pinned to the product release; bump the `version:` field in
 - Help site & version pin section linked to
   <https://percussioncmshelp.intsf.com>.
 - Created `README.md` curator handbook.
+

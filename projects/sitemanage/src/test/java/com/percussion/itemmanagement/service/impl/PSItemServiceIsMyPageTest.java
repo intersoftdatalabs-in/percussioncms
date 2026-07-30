@@ -22,8 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
-import jakarta.ws.rs.WebApplicationException;
-
 import com.percussion.assetmanagement.dao.IPSAssetDao;
 import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
@@ -42,6 +40,7 @@ import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.utils.request.PSRequestInfoBase;
 import com.percussion.webservices.content.IPSContentWs;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -56,9 +55,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
- * isMyPage is an internal sitemanage endpoint. It must produce JSON/XML like
- * sibling item APIs so SPA clients that send {@code Accept: application/json}
- * do not receive HTTP 406. Public, versioned bookmark APIs belong in {@code rest}.
+ * isMyPage is an internal sitemanage endpoint. It must produce JSON/XML like sibling item APIs so
+ * SPA clients that send {@code Accept: application/json} do not receive HTTP 406. Public, versioned
+ * bookmark APIs belong in {@code rest}.
  */
 @ExtendWith(MockitoExtension.class)
 class PSItemServiceIsMyPageTest {
