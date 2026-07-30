@@ -52,8 +52,8 @@ public interface IPSTenantCache {
   public boolean getAuthorizeExpiredTTL();
 
   /**
-   * When set to true, the service will attempt to authorize expiring urls using the provider set
-   * in the AuthorizationProvider property.
+   * When set to true, the service will attempt to authorize expiring urls using the provider set in
+   * the AuthorizationProvider property.
    *
    * @param ret <code>true</code> to authorize expired tenants, <code>false</code> to evict them.
    */

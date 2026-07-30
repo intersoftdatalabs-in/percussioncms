@@ -128,14 +128,16 @@ public class ControlAdaptor implements IControlAdaptor {
     return out;
   }
 
-  /** Single path segment name only — reject traversal and separators. */
+  /**
+   * Single path segment name only — ASCII identifier characters used by CE
+   * control names ({@code sys_EditBox}, {@code myCustomControl}). Rejects
+   * traversal, separators, and any non-identifier Unicode.
+   */
   static boolean isSafeControlKey(String key) {
     if (key == null || key.isBlank()) {
       return false;
     }
-    return !key.contains("..")
-        && key.indexOf('/') < 0
-        && key.indexOf('\\') < 0
-        && key.indexOf('\0') < 0;
+    // Control names are conventional ASCII identifiers with _ . - only.
+    return key.matches("[A-Za-z0-9_.-]+");
   }
 }

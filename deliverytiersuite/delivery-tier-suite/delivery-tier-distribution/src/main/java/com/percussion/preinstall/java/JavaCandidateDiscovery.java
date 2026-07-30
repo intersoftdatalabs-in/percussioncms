@@ -49,7 +49,11 @@ public final class JavaCandidateDiscovery {
     // Static-only.
   }
 
-  /** Returns the ordered, deduplicated list of Java home candidates on this host. */
+  /**
+   * Returns the ordered, deduplicated list of Java home candidates on this host.
+   *
+   * @return the candidate list, deduplicated by absolute path; never {@code null}
+   */
   public static List<Candidate> discover() {
     return discover(System.getenv(), System.getProperty("java.home"), System.getProperty("PATH"));
   }
@@ -68,6 +72,9 @@ public final class JavaCandidateDiscovery {
   /**
    * Filters {@link #discover()} results to eligible (major {@code >=} {@link
    * JavaHomeResolver#REQUIRED_MAJOR}, executable launcher).
+   *
+   * @param rawCandidates the candidate list to filter; {@code null} yields an empty list
+   * @return the eligible candidates preserving input order; never {@code null}
    */
   public static List<Candidate> eligible(List<Candidate> rawCandidates) {
     if (rawCandidates == null) {
@@ -82,7 +89,12 @@ public final class JavaCandidateDiscovery {
     return List.copyOf(eligible);
   }
 
-  /** Convenience overload: discovers and filters to eligible in one pass. */
+  /**
+   * Convenience overload: discovers and filters to eligible in one pass.
+   *
+   * @return the eligible candidates (see {@link #discover()} and {@link #eligible(List)}); never
+   *     {@code null}
+   */
   public static List<Candidate> discoverEligible() {
     return eligible(discover());
   }
@@ -211,6 +223,15 @@ public final class JavaCandidateDiscovery {
     private final String versionDisplay;
     private final boolean eligible;
 
+    /**
+     * Build a candidate from the discovered path, parsed version display, and launcher
+     * executability.
+     *
+     * @param path absolute or relative home directory discovered on the host; never {@code null}
+     * @param versionDisplay major-version display string (typically from the sibling {@code
+     *     release} file); {@code null} or blank is treated as "version unknown"
+     * @param executable whether the home's launcher is executable on the current platform
+     */
     public Candidate(Path path, String versionDisplay, boolean executable) {
       this.path = path;
       this.versionDisplay = versionDisplay == null ? "" : versionDisplay;
@@ -231,14 +252,29 @@ public final class JavaCandidateDiscovery {
       return JavaHomeResolver.isSupportedMajor(major);
     }
 
+    /**
+     * Returns the discovered home path.
+     *
+     * @return the {@link Path} as supplied at construction; never {@code null}
+     */
     public Path path() {
       return path;
     }
 
+    /**
+     * Returns the parsed major-version display string (e.g. {@code "21"}).
+     *
+     * @return the display string; empty if the candidate has no sibling {@code release} file
+     */
     public String versionDisplay() {
       return versionDisplay;
     }
 
+    /**
+     * Returns whether this candidate meets the minimum-major + executable launcher criteria.
+     *
+     * @return {@code true} when eligible for selection by the install wizard
+     */
     public boolean eligible() {
       return eligible;
     }

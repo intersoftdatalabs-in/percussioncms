@@ -23,10 +23,7 @@ const BUNDLE_CONFIG_DIR = path.join(WEBUI_DIR, "src/main/resources/minify");
 // Prefer generated overlay (matches canonical frontend builder). Reading still
 // uses war/ when present for this stale entry point's intermediate paths.
 const OUTPUT_DIR = path.join(WEBUI_DIR, "target/generated-webui/cm");
-const NODE_MODULES_DIR = path.join(
-  WEBUI_DIR,
-  "src/main/frontend/node_modules"
-);
+const NODE_MODULES_DIR = path.join(WEBUI_DIR, "src/main/frontend/node_modules");
 
 // Mapping of jslib paths to npm package names for npm-managed libraries
 const NPM_LIBRARY_MAPPINGS = {

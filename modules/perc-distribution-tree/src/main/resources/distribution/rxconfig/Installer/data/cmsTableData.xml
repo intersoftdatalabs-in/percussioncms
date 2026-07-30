@@ -12223,6 +12223,16 @@
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">19</column>
+            <column name="LANGUAGESTRING">te</column>
+            <column name="DISPLAYNAME">Telugu</column>
+            <column name="SORTORDER">115</column>
+            <column name="DESCRIPTION">Telugu language (generic base locale)</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
             <column name="LOCALEID">18</column>
             <column name="LANGUAGESTRING">ar</column>
             <column name="DISPLAYNAME">Arabic</column>

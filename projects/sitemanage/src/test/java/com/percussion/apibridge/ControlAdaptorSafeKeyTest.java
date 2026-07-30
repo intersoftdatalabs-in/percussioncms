@@ -17,6 +17,7 @@ class ControlAdaptorSafeKeyTest {
   void isSafeControlKey_allowsNameRejectsTraversal() {
     assertTrue(ControlAdaptor.isSafeControlKey("sys_EditBox"));
     assertTrue(ControlAdaptor.isSafeControlKey("myCustomControl"));
+    assertTrue(ControlAdaptor.isSafeControlKey("sys.foo-bar"));
     assertFalse(ControlAdaptor.isSafeControlKey("../x"));
     assertFalse(ControlAdaptor.isSafeControlKey("a/b"));
     assertFalse(ControlAdaptor.isSafeControlKey("a\\b"));
@@ -24,5 +25,7 @@ class ControlAdaptorSafeKeyTest {
     assertFalse(ControlAdaptor.isSafeControlKey("   "));
     assertFalse(ControlAdaptor.isSafeControlKey("a\u0000b"));
     assertFalse(ControlAdaptor.isSafeControlKey(null));
+    assertFalse(ControlAdaptor.isSafeControlKey("has space"));
+    assertFalse(ControlAdaptor.isSafeControlKey("ctrl\u00e9"));
   }
 }

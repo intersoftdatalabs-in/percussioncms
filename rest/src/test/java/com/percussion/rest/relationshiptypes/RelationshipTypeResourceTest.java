@@ -77,8 +77,7 @@ public class RelationshipTypeResourceTest {
     when(adaptor.findRelationshipType(eq("missing"))).thenReturn(null);
 
     WebApplicationException ex =
-        assertThrows(
-            WebApplicationException.class, () -> resource.getRelationshipType("missing"));
+        assertThrows(WebApplicationException.class, () -> resource.getRelationshipType("missing"));
     assertEquals(404, ex.getResponse().getStatus());
     assertEquals("Relationship type not found", ex.getMessage());
   }

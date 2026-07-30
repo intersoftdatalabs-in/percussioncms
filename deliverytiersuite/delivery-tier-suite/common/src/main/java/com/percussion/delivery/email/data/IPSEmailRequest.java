@@ -20,7 +20,7 @@ package com.percussion.delivery.email.data;
  * Defines the contract for an email request payload used by the delivery tier email services.
  *
  * <p>Implementations carry the sender subject, body and recipient lists required to dispatch an
- * email message.</p>
+ * email message.
  */
 public interface IPSEmailRequest {
   /**

@@ -77,8 +77,7 @@ public class ViewResourceTest {
   @Test
   public void withoutInjectionFailsWithDiagnostic() {
     ViewResource bare = new ViewResource();
-    WebApplicationException listEx =
-        assertThrows(WebApplicationException.class, bare::listViews);
+    WebApplicationException listEx = assertThrows(WebApplicationException.class, bare::listViews);
     assertEquals(500, listEx.getResponse().getStatus());
     assertInstanceOf(IllegalStateException.class, listEx.getCause());
     WebApplicationException getEx =

@@ -15,16 +15,27 @@ const LIST_WRAPPER_KEYS = [
   "entries",
 ] as const;
 
+function isControlDefShape(raw: unknown): raw is ControlDef {
+  return (
+    typeof raw === "object" &&
+    raw != null &&
+    "name" in raw &&
+    typeof (raw as ControlDef).name === "string"
+  );
+}
+
 function parseControlList(payload: unknown): ControlDef[] {
   if (payload == null) return [];
-  if (Array.isArray(payload)) return payload as ControlDef[];
+  if (Array.isArray(payload)) {
+    return payload.filter(isControlDefShape);
+  }
   if (typeof payload === "object") {
     const obj = payload as Record<string, unknown>;
     for (const key of LIST_WRAPPER_KEYS) {
       const raw = obj[key];
       if (raw == null) continue;
-      if (Array.isArray(raw)) return raw as ControlDef[];
-      if (typeof raw === "object") return [raw as ControlDef];
+      if (Array.isArray(raw)) return raw.filter(isControlDefShape);
+      if (isControlDefShape(raw)) return [raw];
     }
     throw new Error("Unexpected control list payload");
   }

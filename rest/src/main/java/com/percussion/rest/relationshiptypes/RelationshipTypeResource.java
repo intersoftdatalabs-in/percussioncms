@@ -70,8 +70,7 @@ public class RelationshipTypeResource {
             content =
                 @Content(
                     array =
-                        @ArraySchema(
-                            schema = @Schema(implementation = RelationshipType.class)))),
+                        @ArraySchema(schema = @Schema(implementation = RelationshipType.class)))),
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public List<RelationshipType> listRelationshipTypes() {

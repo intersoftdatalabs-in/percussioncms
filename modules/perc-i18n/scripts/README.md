@@ -7,12 +7,12 @@ hand-maintained Python/shell scripts.
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `i18n_translate.py` | CLI: walks canonical TMX files, fills missing `<tuv>` blocks via **Docker** `soimort/translate-shell`. |
-| `i18n_translate_direct.py` | Same job as `i18n_translate.py`, but prefers **`trans` on PATH** (translate-shell) and falls back to Docker if `trans` is unavailable. |
-| `test_i18n_translate.py` | Unit tests for the Docker variant (no Docker required). |
-| `test_i18n_translate_direct.py` | Unit tests for the direct `trans` variant (no `trans` required). |
+|              File               |                                                                Purpose                                                                 |
+|---------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
+| `i18n_translate.py`             | CLI: walks canonical TMX files, fills missing `<tuv>` blocks via **Docker** `soimort/translate-shell`.                                 |
+| `i18n_translate_direct.py`      | Same job as `i18n_translate.py`, but prefers **`trans` on PATH** (translate-shell) and falls back to Docker if `trans` is unavailable. |
+| `test_i18n_translate.py`        | Unit tests for the Docker variant (no Docker required).                                                                                |
+| `test_i18n_translate_direct.py` | Unit tests for the direct `trans` variant (no `trans` required).                                                                       |
 
 ## Quick start
 
@@ -52,8 +52,6 @@ python3 modules/perc-i18n/scripts/i18n_translate.py \
   `&` / `"` in translations cannot corrupt the TMX file.
 - **Atomicity**: the cache is written to a sibling `.tmp` file and
   renamed, so a SIGKILL mid-write does not corrupt the cache.
-
-
 
 ## Direct variant (`i18n_translate_direct.py`)
 
@@ -144,3 +142,4 @@ end-to-end smoke test, but the build gate does not depend on it.
   (Windows defaults to cp1252 otherwise).
 - **Line endings**: the script preserves whatever line endings are in
   the source TMX; it does not rewrite `\r\n` ↔ `\n`.
+

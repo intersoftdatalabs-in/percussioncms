@@ -29,11 +29,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.UriInfo;
@@ -92,9 +92,7 @@ public class ExtensionsResource {
     }
   }
 
-  /**
-   * Detail by FQN or extension short name. Query param avoids path issues with FQN slashes.
-   */
+  /** Detail by FQN or extension short name. Query param avoids path issues with FQN slashes. */
   @GET
   @Path("/catalog/item")
   @Produces(MediaType.APPLICATION_JSON)
@@ -135,7 +133,6 @@ public class ExtensionsResource {
     }
     return adaptor;
   }
-
 
   /**
    * Lists Extensions available on the system.

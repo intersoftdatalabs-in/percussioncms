@@ -43,10 +43,27 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
+ * JEXL utility that resolves the default assembly template (variant) for an assembly item, used by
+ * the FastForward default-template selection flow on legacy Rhythmyx sites. Exposes a few {@link
+ * IPSJexlMethod}-annotated entry points that the assembly pipeline can call from velocity or JEXL
+ * expressions, plus a programmatic lookup helper.
+ *
  * @author adamgent
  */
 public class PSDefaultTemplateLookup extends PSJexlUtilBase {
 
+  /** Default no-op constructor. */
+  public PSDefaultTemplateLookup() {
+    // JEXL-instantiated utility; no initialization required.
+  }
+
+  /**
+   * Round-trip test helper exposed to JEXL scripts. Returns a string that echoes the supplied
+   * argument so callers can verify parameter binding.
+   *
+   * @param first the value to echo back to the caller
+   * @return a string of the form {@code "testing param = <first>"}; never {@code null}
+   */
   @IPSJexlMethod(
       description = "A test method",
       params = {@IPSJexlParam(name = "first", type = "String", description = "first parameter")})
@@ -54,6 +71,13 @@ public class PSDefaultTemplateLookup extends PSJexlUtilBase {
     return "testing param = " + first;
   }
 
+  /**
+   * Round-trip numeric test helper exposed to JEXL scripts. Increments the supplied integer so
+   * callers can verify numeric coercion of JEXL parameters.
+   *
+   * @param i the value to increment
+   * @return {@code i + 1}
+   */
   @IPSJexlMethod(
       description = "A test method",
       params = {@IPSJexlParam(name = "first", type = "int", description = "first parameter")})
@@ -61,6 +85,13 @@ public class PSDefaultTemplateLookup extends PSJexlUtilBase {
     return i + 1;
   }
 
+  /**
+   * Looks up the name of the default variant (template) for the supplied assembly item.
+   *
+   * @param item the item to find the default variant for; never {@code null}
+   * @return the template name when at least one default variant exists; {@code null} when no
+   *     defaults are registered (a warning is logged in that case)
+   */
   @IPSJexlMethod(
       description = "Looks up the default variant for an assembly item",
       params = {

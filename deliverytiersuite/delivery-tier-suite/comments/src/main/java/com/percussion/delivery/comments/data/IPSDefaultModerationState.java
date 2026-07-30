@@ -18,9 +18,7 @@
 
 package com.percussion.delivery.comments.data;
 
-/**
- * Represents the default moderation state configured for a site.
- */
+/** Represents the default moderation state configured for a site. */
 public interface IPSDefaultModerationState {
 
   /**

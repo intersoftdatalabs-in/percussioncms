@@ -16,9 +16,7 @@
  */
 package com.percussion.delivery.email.data;
 
-/**
- * Default JAXB-bound implementation of {@link IPSEmailRequest}.
- */
+/** Default JAXB-bound implementation of {@link IPSEmailRequest}. */
 public class PSEmailRequest implements IPSEmailRequest {
 
   /** Default constructor. */
