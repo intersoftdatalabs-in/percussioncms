@@ -510,3 +510,37 @@ export interface ExtensionDef {
   methods?: Record<string, { name?: string; description?: string }>;
 }
 
+/** Effect row on a relationship type. */
+export interface RelationshipTypeEffectSummary {
+  name?: string;
+  extensionRef?: string;
+  activationEndPoint?: string;
+}
+
+/** Property row on a relationship type. */
+export interface RelationshipTypePropertySummary {
+  name?: string;
+  value?: string;
+}
+
+/** System relationship type from GET /services/relationshiptypes (SY-03). */
+export interface RelationshipTypeDef {
+  guid?: RestGuid;
+  name?: string;
+  label?: string;
+  description?: string;
+  type?: string;
+  category?: string;
+  categoryLabel?: string;
+  systemType?: boolean;
+  userType?: boolean;
+  allowCloning?: boolean;
+  useOwnerRevision?: boolean;
+  useDependentRevision?: boolean;
+  effects?: RelationshipTypeEffectSummary[];
+  systemProperties?: RelationshipTypePropertySummary[];
+  userProperties?: RelationshipTypePropertySummary[];
+  designGaps?: string[];
+}
+
+
