@@ -115,3 +115,4 @@ switch themes. Unknown ids fall back to the default theme (no error).
 - CSS-module styles use `var(--token, fallback)` so a JSP host that
   has not yet loaded the React bundle degrades to sensible inline
   fallbacks rather than an unstyled flash.
+

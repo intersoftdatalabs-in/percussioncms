@@ -55,8 +55,7 @@ public class PSWebUiSpaFallbackFilterTest {
   public void forwardsExplorerAndWidgetBuilder() {
     assertEquals(
         "/cm/app/spa.jsp?entry=explorer&path=%2FSites%2Ffoo",
-        PSWebUiSpaFallbackFilter.buildSpaForwardPath(
-            "/cm/app/explorer", "path=%2FSites%2Ffoo"));
+        PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/explorer", "path=%2FSites%2Ffoo"));
     assertEquals(
         "/cm/app/spa.jsp?entry=widget-builder",
         PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/widget-builder", null));
@@ -72,8 +71,7 @@ public class PSWebUiSpaFallbackFilterTest {
         PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/developer", null));
     assertEquals(
         "/cm/app/spa.jsp?entry=developer&section=content-types",
-        PSWebUiSpaFallbackFilter.buildSpaForwardPath(
-            "/cm/app/developer/content-types", null));
+        PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/developer/content-types", null));
   }
 
   @Test
@@ -94,7 +92,8 @@ public class PSWebUiSpaFallbackFilterTest {
     assertNull(PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/", null));
     assertNull(PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app", null));
     assertNull(PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/css/styles.css", null));
-    assertNull(PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/modern/assets/perc-modern-ui.js", null));
+    assertNull(
+        PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/modern/assets/perc-modern-ui.js", null));
     // Unknown first segment (legacy page name without .jsp would be odd — still pass through)
     assertNull(PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/dialogs/foo", null));
   }
@@ -117,7 +116,8 @@ public class PSWebUiSpaFallbackFilterTest {
   @Test
   public void dropsDuplicateEntryFromQuery() {
     String forward =
-        PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/home", "entry=publish&section=library");
+        PSWebUiSpaFallbackFilter.buildSpaForwardPath(
+            "/cm/app/home", "entry=publish&section=library");
     assertTrue(forward.startsWith("/cm/app/spa.jsp?entry=home"));
     assertTrue(forward.contains("section=library"));
     // Only one entry= and it is home (from path)

@@ -2643,7 +2643,7 @@
                         </execution>
                     </executions>
                 </plugin>
-       <!-- re-enable when maven central publishing issue is resolved  - til then it breaks dependabot
+                <!-- re-enable when maven central publishing issue is resolved  - til then it breaks dependabot
 
             <plugin>
                     <groupId>com.intsof</groupId>
@@ -2695,7 +2695,7 @@
             </plugins>
         </pluginManagement>
         <plugins>
-     <!--       <plugin>
+            <!--       <plugin>
                 <groupId>com.intsof</groupId>
                 <artifactId>ai-build-integrity-maven-plugin</artifactId>
                 <version>0.13.3</version>

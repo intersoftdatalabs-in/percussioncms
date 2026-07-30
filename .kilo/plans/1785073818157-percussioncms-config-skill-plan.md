@@ -114,6 +114,7 @@ phrases admins/agents use: "where do I configure…", "which file controls…",
    template (e.g. `com.percussion.cx.PSPropertiesLoader`,
    `com.percussion.utils.container.PSContainerUtils`) so curators can refresh
    the row when upstream changes.
+
 4. **DTS Catalog** — same table shape, anchored at `${DTS_HOME}`. Cover:
 
    - `Delivery/Server/conf/catalina.properties`, `server.xml`,
@@ -127,7 +128,6 @@ phrases admins/agents use: "where do I configure…", "which file controls…",
    - Mark microservice-specific files with `service: <name>` (forms / polls /
      comments / metadata / membership / feeds / secure-membership).
 5. **Resolution & override order** — fixed precedence table:
-
    1. JVM `-D` system property (`-Drhythmyx.<key>=…`, `-Dperc.<svc>.<key>=…`).
    2. `<file>.local` or `<file>.properties` override on the classpath /
       filesystem if supported by the loader.
@@ -136,16 +136,18 @@ phrases admins/agents use: "where do I configure…", "which file controls…",
 
    Note that the loader class is config-specific; link the relevant Java class
    per row when the override hook is non-obvious.
+
 6. **Hot-edit / restart policy** — short canonical table:
 
-   | Change kind | Restart needed | Notes |
-   | --- | --- | --- |
-   | Email / SMTP | No for most loaders | Some require `perc-system.properties` reload. |
-   | Datasource (JDBC URL / creds) | Yes (CMS + Jetty/Tomcat) | Re-encrypt secret with install tool. |
-   | Workflow / security XML | Yes | `rxconfig` loaders cache at boot. |
-   | Hibernate / search index | Yes | … |
+   |          Change kind          |      Restart needed      |                     Notes                     |
+   |-------------------------------|--------------------------|-----------------------------------------------|
+   | Email / SMTP                  | No for most loaders      | Some require `perc-system.properties` reload. |
+   | Datasource (JDBC URL / creds) | Yes (CMS + Jetty/Tomcat) | Re-encrypt secret with install tool.          |
+   | Workflow / security XML       | Yes                      | `rxconfig` loaders cache at boot.             |
+   | Hibernate / search index      | Yes                      | …                                             |
 
    This is the section AI agents actually quote to admins.
+
 7. **Security & secrets** — callouts:
 
    - Never commit plain-text passwords. Use `var/config/generated/passwords`.
@@ -209,13 +211,13 @@ phrases admins/agents use: "where do I configure…", "which file controls…",
 
 ## Risks & mitigations
 
-| Risk | Mitigation |
-| --- | --- |
-| Catalog drifts from installed reality | Each row cites a Java class or installer template — curators can grep the repo to verify. |
-| Portable path bug sneaks in | Catalog has a hard "no hardcoded `/` or `\\` in file paths" review checklist; Erlang pre-commit review catches regressions. |
-| Conflict with existing `kilo-config` description frontmatter style | Mirror the existing `cosign-validate` frontmatter (`name`, `description`, `version`); keep prose terse. |
-| Help-site links rot | Pin to product version in the frontmatter; CHANGELOG records URL + retrieval date. |
-| Bundle size growth | Catalog is markdown only; <50 KB. Acceptable. |
+|                                Risk                                |                                                         Mitigation                                                          |
+|--------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| Catalog drifts from installed reality                              | Each row cites a Java class or installer template — curators can grep the repo to verify.                                   |
+| Portable path bug sneaks in                                        | Catalog has a hard "no hardcoded `/` or `\\` in file paths" review checklist; Erlang pre-commit review catches regressions. |
+| Conflict with existing `kilo-config` description frontmatter style | Mirror the existing `cosign-validate` frontmatter (`name`, `description`, `version`); keep prose terse.                     |
+| Help-site links rot                                                | Pin to product version in the frontmatter; CHANGELOG records URL + retrieval date.                                          |
+| Bundle size growth                                                 | Catalog is markdown only; <50 KB. Acceptable.                                                                               |
 
 ## Validation (executed before merge)
 
@@ -270,3 +272,4 @@ None. All design decisions were answered by the user:
    `target/distribution/ai/skills/percussioncms.config/SKILL.md` exists.
 6. Open PR on `development` with command + BUILD SUCCESS evidence in the
    body. Do not commit/push until Erlang review passes.
+

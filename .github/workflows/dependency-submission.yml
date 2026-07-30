@@ -7,7 +7,7 @@ on:
     # Weekly cadence for both lines. Each job hardcodes `ref:` on checkout
     # so schedule events (which default to the repo's default branch) land
     # on the right branch.
-    - cron: '0 6 * * 1'   # Monday 06:00 UTC
+    - cron: "0 6 * * 1" # Monday 06:00 UTC
   workflow_dispatch:
 
 permissions:

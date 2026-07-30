@@ -41,8 +41,8 @@ public interface IDisplayFormatAdaptor {
   DisplayFormat findDisplayFormat(String name) throws PSCmsException, PSUnknownNodeTypeException;
 
   /**
-   * Resolve by internal name or GUID string. Returns {@code null} if missing or unsafe key.
-   * Does not throw for not-found (resource maps null → generic 404).
+   * Resolve by internal name or GUID string. Returns {@code null} if missing or unsafe key. Does
+   * not throw for not-found (resource maps null → generic 404).
    */
   DisplayFormat findDisplayFormatByKey(String idOrName);
 

@@ -4,9 +4,9 @@
 
 package com.percussion.apibridge;
 
+import com.percussion.cms.objectstore.PSSFields;
 import com.percussion.cms.objectstore.PSSearch;
 import com.percussion.cms.objectstore.PSSearchField;
-import com.percussion.cms.objectstore.PSSFields;
 import com.percussion.rest.Guid;
 import com.percussion.rest.searches.ISearchAdaptor;
 import com.percussion.rest.searches.SearchDef;
@@ -61,8 +61,7 @@ public class SearchAdaptor implements ISearchAdaptor {
         return List.of();
       }
       String currentUser = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
-      String currentSession =
-          (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+      String currentSession = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
       List<PSSearch> loaded =
           designWs.loadSearches(guids, false, false, currentSession, currentUser);
       List<SearchDef> out = new ArrayList<>();

@@ -80,11 +80,11 @@ export function ServerConfigsPanel(): React.ReactElement {
             </tr>
           </thead>
           <tbody>
-            {sorted.map((c, index) => {
+            {sorted.map((c) => {
               const openKey = (c.name || "").trim();
               return (
                 <tr
-                  key={`${openKey}-${index}`}
+                  key={openKey}
                   data-testid="developer-cfg-row"
                   style={{ borderBottom: "1px solid #edf2f7", cursor: "pointer" }}
                   onClick={() => setSelected(openKey)}

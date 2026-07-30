@@ -46,7 +46,15 @@ public final class JavaInstallSelection {
   private final Path unattendedHome;
   private final InteractivePrompt interactivePrompt;
 
-  /** Construct a selector with the supplied optional overrides. */
+  /**
+   * Construct a selector with the supplied optional overrides.
+   *
+   * @param installRoot the install directory; must not be {@code null}
+   * @param unattendedHome an explicit Java home supplied via {@code -Dperc.java.home}; {@code null}
+   *     or blank means "auto-select"
+   * @param prompt operator I/O used during interactive selection; {@code null} selects
+   *     non-interactively
+   */
   public JavaInstallSelection(Path installRoot, Path unattendedHome, InteractivePrompt prompt) {
     if (installRoot == null) {
       throw new IllegalArgumentException("installRoot must not be null");
@@ -60,6 +68,11 @@ public final class JavaInstallSelection {
    * Selects and persists the chosen Java home. On success, returns the absolute launcher path of
    * the chosen home; on failure throws {@link JavaSelectionException} with a clear operator message
    * that mentions the minimum major version (21 or later).
+   *
+   * @return the resolved home, absolute launcher path, and source label; never {@code null}
+   * @throws IOException when writing {@code java.properties} fails
+   * @throws JavaSelectionException when no eligible candidate is found, the operator cancels, or
+   *     the supplied unattended home is not a valid Java install
    */
   public SelectionOutcome selectAndPersist() throws IOException, JavaSelectionException {
     Path chosen;
@@ -166,8 +179,19 @@ public final class JavaInstallSelection {
     return os.toLowerCase(Locale.ROOT).contains("win") ? "java.exe" : "java";
   }
 
-  /** Result of a successful selection. */
+  /**
+   * Result of a successful selection.
+   *
+   * @param javaHome absolute path to the selected Java home
+   * @param launcher absolute path to the launcher under that home (e.g. {@code bin/java})
+   * @param source short label describing why this home was chosen
+   */
   public record SelectionOutcome(Path javaHome, Path launcher, String source) {
+    /**
+     * Renders a single-line summary suitable for shell logs.
+     *
+     * @return the summary string; never {@code null}
+     */
     public String summary() {
       return "JAVA_HOME=" + javaHome + " source=" + source;
     }
@@ -175,10 +199,23 @@ public final class JavaInstallSelection {
 
   /** Thrown when no candidate is found or selection is invalid. */
   public static final class JavaSelectionException extends Exception {
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Build an exception with the supplied operator-facing message.
+     *
+     * @param message description of the selection failure; never {@code null}
+     */
     public JavaSelectionException(String message) {
       super(message);
     }
 
+    /**
+     * Build an exception with the supplied operator-facing message and underlying cause.
+     *
+     * @param message description of the selection failure; never {@code null}
+     * @param cause the underlying failure; may be {@code null}
+     */
     public JavaSelectionException(String message, Throwable cause) {
       super(message, cause);
     }
@@ -187,6 +224,12 @@ public final class JavaInstallSelection {
   /** Strategy for reading a line of operator input during interactive selection. */
   @FunctionalInterface
   public interface InteractivePrompt {
+    /**
+     * Prompts and reads a single line of operator input.
+     *
+     * @param prompt text shown before reading; never {@code null}
+     * @return the line without terminator; never {@code null} (empty string on EOF)
+     */
     String readLine(String prompt);
   }
 }

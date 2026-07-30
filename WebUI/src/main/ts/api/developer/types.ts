@@ -578,4 +578,21 @@ export interface ServerConfigDef {
   designGaps?: string[];
 }
 
+/**
+ * Site catalog row from GET /services/sites (SY-04 association browse).
+ * Optional fields may arrive as plain strings from Jackson.
+ */
+export interface SiteDef {
+  name?: string;
+  description?: string;
+  baseUrl?: string;
+  siteProtocol?: string;
+  defaultDocument?: string;
+  defaultFileExtention?: string;
+  pageBasedSite?: boolean;
+  isCanonical?: boolean;
+  canonical?: boolean;
+  guid?: RestGuid;
+  designGaps?: string[];
+}
 

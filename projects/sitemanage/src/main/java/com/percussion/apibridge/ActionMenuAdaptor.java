@@ -83,6 +83,7 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
     return ApiUtils.convertPSActionMenuList(
         PSTemplateActionMenuHelper.getInstance().getTemplateMenus(contentId, isAA, null));
   }
+
   @Override
   public ActionMenu findMenuByKey(String idOrName) {
     if (!isSafeMenuKey(idOrName)) {
@@ -125,7 +126,6 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
         && key.indexOf('\\') < 0
         && key.indexOf('\0') < 0;
   }
-
 
   private ActionMenuVisibilityContext[] copyVisibilityContexts(
       PSActionVisibilityContexts visibilityContexts) {

@@ -12,6 +12,7 @@ import com.percussion.services.system.data.PSConfigurationTypes;
 import com.percussion.services.system.data.PSMimeContentAdapter;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.util.IOTools;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -104,16 +105,17 @@ public class ServerConfigAdaptor implements IServerConfigAdaptor {
       }
       s.setMimeType(content.getMimeType());
       s.setCharacterEncoding(content.getCharacterEncoding());
-      if (content.getContentLength() >= 0) {
-        s.setContentLength(content.getContentLength());
+      Long len = content.getContentLength();
+      if (len != null && len >= 0) {
+        s.setContentLength(len);
       }
       InputStream in = content.getContent();
       if (in != null) {
         s.setContent(IOTools.getContent(in));
       }
-    } catch (Exception e) {
+    } catch (IOException e) {
       log.warn("Failed to load configuration content for {}: {}", type.name(), e.getMessage());
-      log.debug(e);
+      log.debug("Configuration content I/O failure for {}", type.name(), e);
       // Still return meta; SPA can show gaps/error for empty content
     }
   }

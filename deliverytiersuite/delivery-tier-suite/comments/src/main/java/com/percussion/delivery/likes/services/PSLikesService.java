@@ -31,9 +31,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * Default implementation of {@link IPSLikesService} backed by a {@link IPSLikesDao}.
- */
+/** Default implementation of {@link IPSLikesService} backed by a {@link IPSLikesDao}. */
 public class PSLikesService implements IPSLikesService {
 
   /** DAO used to read and write likes. */
@@ -66,9 +64,7 @@ public class PSLikesService implements IPSLikesService {
    *
    * @param site Must not be {@code null}.
    * @param likeId Must not be {@code null}.
-   * @param type Must not be {@code null}. May be any implementation of
-   *            IPSLikes interface.
-   *
+   * @param type Must not be {@code null}. May be any implementation of IPSLikes interface.
    */
   public int getTotalLikes(String site, String likeId, String type) {
     Validate.notEmpty(site);
@@ -91,9 +87,7 @@ public class PSLikesService implements IPSLikesService {
    *
    * @param site Must not be {@code null}.
    * @param likeId Must not be {@code null}.
-   * @param type Must not be {@code null}. May be any implementation of
-   *            IPSLikes interface.
-   *
+   * @param type Must not be {@code null}. May be any implementation of IPSLikes interface.
    * @return int total of likes after of last like.
    */
   public int like(String site, String likeId, String type) {
@@ -105,8 +99,7 @@ public class PSLikesService implements IPSLikesService {
    *
    * @param site Must not be {@code null}.
    * @param likeId Must not be {@code null}.
-   * @param type Must not be {@code null}. May be any implementation of
-   *            IPSLikes interface.
+   * @param type Must not be {@code null}. May be any implementation of IPSLikes interface.
    * @return updated count.
    */
   public int unlike(String site, String likeId, String type) {
@@ -115,10 +108,10 @@ public class PSLikesService implements IPSLikesService {
 
   /**
    * Method to do the work of liking or unliking an object.
+   *
    * @param site . Must not be {@code null}.
    * @param likeId . Must not be {@code null}.
-   * @param type . Must not be {@code null}. May be any implementation of
-   *            IPSLikes interface.
+   * @param type . Must not be {@code null}. May be any implementation of IPSLikes interface.
    * @param isLike if {@code true} then this is a like operation.
    * @return updated count.
    */

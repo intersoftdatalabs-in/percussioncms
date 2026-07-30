@@ -14,9 +14,9 @@ The non-blank, missing-session branch (the original GH-1182 fix) is preserved un
 
 ## Files
 
-| File | Status |
-|---|---|
-| `projects/sitemanage/src/main/java/com/percussion/category/data/PSCategoryLockInfo.java` | modified |
+|                                               File                                                |  Status  |
+|---------------------------------------------------------------------------------------------------|----------|
+| `projects/sitemanage/src/main/java/com/percussion/category/data/PSCategoryLockInfo.java`          | modified |
 | `projects/sitemanage/src/test/java/com/percussion/category/data/PSCategoryLockInfoStaleTest.java` | modified |
 
 ## Recommendation
@@ -25,15 +25,15 @@ The non-blank, missing-session branch (the original GH-1182 fix) is preserved un
 
 ## Gate
 
-| Check | Result |
-|---|---|
-| Bugs (correctness, data loss, silent failure) | none |
-| Behavioral tests for new/changed non-trivial logic | yes — 5 new unit tests in `PSCategoryLockInfoStaleTest` (`isLockStaleFalseForNullInput`, `isLockStaleWhenSessionIdIsBlank`, `isLockStaleWhenSessionIdIsWhitespace`, `isLockStaleWhenSessionIdMissing`, `isLockStaleWhenSessionIdIsWrongType`) |
-| Non-portable file I/O / paths (Windows vs Unix) | clean — no file I/O or paths touched |
-| Security / secrets / tokens | n/a |
-| Maintainability / convention breaks | none blocking |
-| Spotless | clean on in-scope files; out-of-scope baseline debt stashed on `spotless-baseline-debt-sitemanage-1566` |
-| Pre-PR clean install (sitemanage standalone, JDK 21, root `mvnw.cmd`) | BUILD SUCCESS, Tests run: 586, Failures: 0, Errors: 0, Skipped: 128 (pre-existing) |
+|                                 Check                                 |                                                                                                                    Result                                                                                                                     |
+|-----------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Bugs (correctness, data loss, silent failure)                         | none                                                                                                                                                                                                                                          |
+| Behavioral tests for new/changed non-trivial logic                    | yes — 5 new unit tests in `PSCategoryLockInfoStaleTest` (`isLockStaleFalseForNullInput`, `isLockStaleWhenSessionIdIsBlank`, `isLockStaleWhenSessionIdIsWhitespace`, `isLockStaleWhenSessionIdMissing`, `isLockStaleWhenSessionIdIsWrongType`) |
+| Non-portable file I/O / paths (Windows vs Unix)                       | clean — no file I/O or paths touched                                                                                                                                                                                                          |
+| Security / secrets / tokens                                           | n/a                                                                                                                                                                                                                                           |
+| Maintainability / convention breaks                                   | none blocking                                                                                                                                                                                                                                 |
+| Spotless                                                              | clean on in-scope files; out-of-scope baseline debt stashed on `spotless-baseline-debt-sitemanage-1566`                                                                                                                                       |
+| Pre-PR clean install (sitemanage standalone, JDK 21, root `mvnw.cmd`) | BUILD SUCCESS, Tests run: 586, Failures: 0, Errors: 0, Skipped: 128 (pre-existing)                                                                                                                                                            |
 
 ## Cross-platform path checklist
 

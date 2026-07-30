@@ -404,13 +404,15 @@ public final class InteractiveDtsInstallWizard {
    * Outcome of the DTS wizard.
    *
    * @param proceed true when install may continue
-   * @param installPath resolved absolute install path when proceed
-   * @param options CLI options map
-   * @param dbConfig resolved DB config when proceed
-   * @param javaOutcome selected Java home when proceed
-   * @param isProduction {@code "true"} or {@code "false"} for install.prod.dts
-   * @param exitCode process exit code when !proceed
-   * @param message operator-facing message when !proceed
+   * @param installPath resolved absolute install path when proceed; may be {@code null} when {@code
+   *     !proceed}
+   * @param options CLI options map (possibly empty)
+   * @param dbConfig resolved DB config when proceed; {@code null} when {@code !proceed}
+   * @param javaOutcome selected Java home when proceed; {@code null} when {@code !proceed}
+   * @param isProduction {@code "true"} or {@code "false"} for {@code install.prod.dts}; {@code
+   *     null} when {@code !proceed}
+   * @param exitCode process exit code when {@code !proceed}; {@code 0} when {@code proceed}
+   * @param message operator-facing message when {@code !proceed}; {@code null} when {@code proceed}
    */
   public record WizardResult(
       boolean proceed,
@@ -422,6 +424,16 @@ public final class InteractiveDtsInstallWizard {
       int exitCode,
       String message) {
 
+    /**
+     * Build a "proceed" result carrying the resolved install configuration.
+     *
+     * @param installPath resolved absolute install path
+     * @param options CLI options map (must be non-null)
+     * @param dbConfig resolved DB config
+     * @param javaOutcome selected Java home outcome
+     * @param isProduction {@code "true"} or {@code "false"}
+     * @return a successful wizard result
+     */
     static WizardResult proceed(
         Path installPath,
         Map<String, String> options,
@@ -432,6 +444,13 @@ public final class InteractiveDtsInstallWizard {
           true, installPath, options, dbConfig, javaOutcome, isProduction, 0, null);
     }
 
+    /**
+     * Build an "abort" result carrying the operator-facing message and exit code.
+     *
+     * @param exitCode sysexits-style exit code for the wrapper
+     * @param message operator-facing explanation; never {@code null}
+     * @return an aborted wizard result
+     */
     static WizardResult abort(int exitCode, String message) {
       return new WizardResult(false, null, Map.of(), null, null, null, exitCode, message);
     }
