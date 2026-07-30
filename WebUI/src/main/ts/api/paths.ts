@@ -313,6 +313,10 @@ export const PATHS = {
   get VIEWS() {
     return `${SERVICES_ROOT}/views`;
   },
+  /** Server extension design catalog. */
+  get EXTENSIONS() {
+    return `${SERVICES_ROOT}/extensions/catalog`;
+  },
   /** Object ACL catalog (design-time security). */
   get ACLS() {
     return `${SERVICES_ROOT}/acls`;

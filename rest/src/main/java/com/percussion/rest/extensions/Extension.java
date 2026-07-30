@@ -24,7 +24,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /** Represents an Extension in Percussion CMS. Sunny Sal: "Extension ka hero ban gaya tu!" */
 @XmlRootElement(name = "Extension")
@@ -105,40 +104,40 @@ public class Extension {
     // Default constructor
   }
 
-  public Optional<String> getHandlerName() {
-    return Optional.ofNullable(handlerName);
+  public String getHandlerName() {
+    return handlerName;
   }
 
   public void setHandlerName(String handlerName) {
     this.handlerName = handlerName;
   }
 
-  public Optional<String> getContext() {
-    return Optional.ofNullable(context);
+  public String getContext() {
+    return context;
   }
 
   public void setContext(String context) {
     this.context = context;
   }
 
-  public Optional<String> getExtensionName() {
-    return Optional.ofNullable(extensionName);
+  public String getExtensionName() {
+    return extensionName;
   }
 
   public void setExtensionName(String extensionName) {
     this.extensionName = extensionName;
   }
 
-  public Optional<String> getCategory() {
-    return Optional.ofNullable(category);
+  public String getCategory() {
+    return category;
   }
 
   public void setCategory(String category) {
     this.category = category;
   }
 
-  public Optional<String> getFqn() {
-    return Optional.ofNullable(fqn);
+  public String getFqn() {
+    return fqn;
   }
 
   public void setFqn(String fqn) {
@@ -177,56 +176,56 @@ public class Extension {
     this.jexlExtension = jexlExtension;
   }
 
-  public Optional<List<String>> getSuppliedResources() {
-    return Optional.ofNullable(suppliedResources);
+  public List<String> getSuppliedResources() {
+    return suppliedResources;
   }
 
   public void setSuppliedResources(List<String> suppliedResources) {
     this.suppliedResources = suppliedResources;
   }
 
-  public Optional<List<String>> getResourceLocations() {
-    return Optional.ofNullable(resourceLocations);
+  public List<String> getResourceLocations() {
+    return resourceLocations;
   }
 
   public void setResourceLocations(List<String> resourceLocations) {
     this.resourceLocations = resourceLocations;
   }
 
-  public Optional<List<String>> getSupportedInterfaces() {
-    return Optional.ofNullable(supportedInterfaces);
+  public List<String> getSupportedInterfaces() {
+    return supportedInterfaces;
   }
 
   public void setSupportedInterfaces(List<String> supportedInterfaces) {
     this.supportedInterfaces = supportedInterfaces;
   }
 
-  public Optional<List<ExtensionParameter>> getRuntimeParameters() {
-    return Optional.ofNullable(runtimeParameters);
+  public List<ExtensionParameter> getRuntimeParameters() {
+    return runtimeParameters;
   }
 
   public void setRuntimeParameters(List<ExtensionParameter> runtimeParameters) {
     this.runtimeParameters = runtimeParameters;
   }
 
-  public Optional<Map<String, String>> getInitParameters() {
-    return Optional.ofNullable(initParameters);
+  public Map<String, String> getInitParameters() {
+    return initParameters;
   }
 
   public void setInitParameters(Map<String, String> initParameters) {
     this.initParameters = initParameters;
   }
 
-  public Optional<List<String>> getRequiredApplications() {
-    return Optional.ofNullable(requiredApplications);
+  public List<String> getRequiredApplications() {
+    return requiredApplications;
   }
 
   public void setRequiredApplications(List<String> requiredApplications) {
     this.requiredApplications = requiredApplications;
   }
 
-  public Optional<Map<String, ExtensionMethod>> getMethods() {
-    return Optional.ofNullable(methods);
+  public Map<String, ExtensionMethod> getMethods() {
+    return methods;
   }
 
   public void setMethods(Map<String, ExtensionMethod> methods) {

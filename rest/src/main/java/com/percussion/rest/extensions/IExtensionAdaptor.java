@@ -33,4 +33,10 @@ public interface IExtensionAdaptor {
    * @return A list of Extensions.
    */
   List<Extension> getExtensions(URI baseURI, ExtensionFilterOptions filter);
+
+  /** List all extensions (empty filter). */
+  List<Extension> listExtensions(URI baseURI);
+
+  /** Resolve by FQN or extension name; null if missing/unsafe. */
+  Extension findExtensionByKey(URI baseURI, String idOrName);
 }
