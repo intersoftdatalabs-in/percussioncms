@@ -564,4 +564,28 @@ export interface WorkflowDef {
   designGaps?: string[];
 }
 
+/** CE control parameter from GET /services/cecontrols. */
+export interface ControlParameterSummary {
+  name?: string;
+  description?: string;
+  dataType?: string;
+  paramType?: string;
+  defaultValue?: string;
+  required?: boolean;
+}
+
+/** Content editor control from GET /services/cecontrols (UI-01). */
+export interface ControlDef {
+  name?: string;
+  displayName?: string;
+  description?: string;
+  dimension?: string;
+  choiceSet?: string;
+  scope?: string;
+  deprecated?: boolean;
+  deprecatedReplacement?: string;
+  parameters?: ControlParameterSummary[];
+  designGaps?: string[];
+}
+
 

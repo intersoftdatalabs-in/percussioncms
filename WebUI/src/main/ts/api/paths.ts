@@ -325,10 +325,15 @@ export const PATHS = {
   get RELATIONSHIP_TYPES() {
     return `${SERVICES_ROOT}/relationshiptypes`;
   },
+  /** Content editor control catalog (UI-01). */
+  get CE_CONTROLS() {
+    return `${SERVICES_ROOT}/cecontrols`;
+  },
   /** Object ACL catalog (design-time security). */
   get ACLS() {
     return `${SERVICES_ROOT}/acls`;
   },
+
 
   /** Workflow management (workflowmanagement) — Feature 993 */
   get WORKFLOWS() {
