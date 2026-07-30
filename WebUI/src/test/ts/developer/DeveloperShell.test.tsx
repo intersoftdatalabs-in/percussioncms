@@ -430,17 +430,34 @@ vi.mock("../../../main/ts/api/developer/relationshipTypesApi", () => ({
     {
       name: "ActiveAssembly",
       label: "Active Assembly",
+      category: "rs_activeassembly",
       categoryLabel: "Active Assembly",
       type: "system",
       systemType: true,
+      userType: false,
+      allowCloning: true,
+      guid: { stringValue: "0-11-1", uuid: 1 },
     },
   ]),
   getRelationshipTypeDetail: vi.fn().mockResolvedValue({
     name: "ActiveAssembly",
-    effects: [],
-    systemProperties: [],
+    label: "Active Assembly",
+    category: "rs_activeassembly",
+    categoryLabel: "Active Assembly",
+    type: "system",
+    systemType: true,
+    userType: false,
+    allowCloning: true,
+    effects: [
+      {
+        name: "sys_aaEffect",
+        activationEndPoint: "owner",
+        extensionRef: "Java/global/percussion/sys_aaEffect",
+      },
+    ],
+    systemProperties: [{ name: "rs_allowcloning", value: "yes" }],
     userProperties: [],
-    designGaps: [],
+    designGaps: ["Relationship type create / update / delete not supported via this API"],
   }),
 }));
 

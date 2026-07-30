@@ -106,7 +106,12 @@ public class RelationshipTypeAdaptor implements IRelationshipTypeAdaptor {
       return null;
     }
     String key = idOrName.trim();
-    for (RelationshipType t : listRelationshipTypes()) {
+    // Single catalog load — avoid N+1 find/load round-trips on detail.
+    List<RelationshipType> all = listRelationshipTypes();
+    if (all == null || all.isEmpty()) {
+      return null;
+    }
+    for (RelationshipType t : all) {
       if (t == null) {
         continue;
       }
@@ -120,13 +125,17 @@ public class RelationshipTypeAdaptor implements IRelationshipTypeAdaptor {
         }
       }
     }
+    // Fallback: parse as type-host-uuid. Guid.getUuid()/IPSGuid.getUUID() are ints (not
+    // java.util.UUID), so value equality uses == on the primitive fields.
     try {
-      var guid = new com.percussion.services.guidmgr.data.PSGuid(key);
-      for (RelationshipType t : listRelationshipTypes()) {
+      var parsed = new com.percussion.services.guidmgr.data.PSGuid(key);
+      int uuid = parsed.getUUID();
+      short type = parsed.getType();
+      for (RelationshipType t : all) {
         if (t != null
             && t.getGuid() != null
-            && t.getGuid().getUuid() == guid.getUUID()
-            && t.getGuid().getType() == guid.getType()) {
+            && t.getGuid().getUuid() == uuid
+            && t.getGuid().getType() == type) {
           return t;
         }
       }
