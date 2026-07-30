@@ -4,11 +4,9 @@ on:
   push:
     branches: ["development", "development-8.1.x"]
   schedule:
-    # Weekly cadence is enough for Dependabot / the dependency graph on the
-    # active `development` line. Schedule events default to the repo's default
-    # branch; the JDK 21 job hardcodes `ref:` on checkout so it lands on
-    # development. The JDK 8 job skips schedule events - it stays push-only
-    # for the maintenance `development-8.1.x` line.
+    # Weekly cadence for both lines. Each job hardcodes `ref:` on checkout
+    # so schedule events (which default to the repo's default branch) land
+    # on the right branch.
     - cron: '0 6 * * 1'   # Monday 06:00 UTC
   workflow_dispatch:
 
@@ -78,6 +76,7 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
       (github.event_name == 'push' && github.ref == 'refs/heads/development-8.1.x')
 
     steps:
