@@ -96,6 +96,7 @@ export const DEVELOPER_SECTIONS = [
   "searches",
   "views",
   "extensions",
+  "relationship-types",
   "communities",
   "pipelines",
 ] as const;
@@ -129,6 +130,10 @@ const DEVELOPER_SECTION_ALIASES: Record<string, DeveloperSection> = {
   extensions: "extensions",
   extension: "extensions",
   exits: "extensions",
+  "relationship-types": "relationship-types",
+  relationshiptypes: "relationship-types",
+  relationships: "relationship-types",
+  "rel-types": "relationship-types",
   cxviews: "views",
   pipeline: "pipelines",
   applications: "pipelines",
