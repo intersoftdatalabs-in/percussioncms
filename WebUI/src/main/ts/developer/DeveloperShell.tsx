@@ -26,6 +26,7 @@ import { ContentTypesPanel } from "./ContentTypesPanel";
 import { KeywordsPanel } from "./KeywordsPanel";
 import { DEV_MSG } from "./messages";
 import { PipelinesPanel } from "./PipelinesPanel";
+import { SystemDefPanel } from "./SystemDefPanel";
 import { SlotsPanel } from "./SlotsPanel";
 import { TemplatesPanel } from "./TemplatesPanel";
 
@@ -36,6 +37,7 @@ const SECTION_LABEL: Record<DeveloperSection, string> = {
   templates: DEV_MSG.TAB_TEMPLATES,
   slots: DEV_MSG.TAB_SLOTS,
   keywords: DEV_MSG.TAB_KEYWORDS,
+  "system-def": DEV_MSG.TAB_SYSTEM_DEF,
   communities: DEV_MSG.TAB_COMMUNITIES,
   pipelines: DEV_MSG.TAB_PIPELINES,
 };
@@ -138,6 +140,8 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
           <SlotsPanel />
         ) : active === "keywords" ? (
           <KeywordsPanel />
+        ) : active === "system-def" ? (
+          <SystemDefPanel />
         ) : active === "communities" ? (
           <CommunitiesPanel />
         ) : (

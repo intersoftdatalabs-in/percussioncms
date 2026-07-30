@@ -1189,6 +1189,61 @@
             <note xml:lang="en-us">DEV_MSG.PIPE_COL_DS_REQUEST</note>
             <tuv xml:lang="en-us"><seg>Request page</seg></tuv>
         </tu>
+        <tu tuid="perc.ui.developer@System Def">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.TAB_SYSTEM_DEF</note>
+            <tuv xml:lang="en-us"><seg>System Def</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading system definition…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SYS_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading system definition…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load system definition.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SYS_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load system definition.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@No system fields returned.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SYS_EMPTY</note>
+            <tuv xml:lang="en-us"><seg>No system fields returned.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Global system fields from the content-editor system definition. Read-only catalog — write and control configuration are later slices.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SYS_HINT</note>
+            <tuv xml:lang="en-us"><seg>Global system fields from the content-editor system definition. Read-only catalog — write and control configuration are later slices.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Content editor system definition">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SYS_TITLE</note>
+            <tuv xml:lang="en-us"><seg>Content editor system definition</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Field count">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SYS_META_FIELD_COUNT</note>
+            <tuv xml:lang="en-us"><seg>Field count</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Error cache timeout">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SYS_META_CACHE</note>
+            <tuv xml:lang="en-us"><seg>Error cache timeout</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@minutes">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SYS_META_CACHE_UNIT</note>
+            <tuv xml:lang="en-us"><seg>minutes</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@System fields">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SYS_FIELDS</note>
+            <tuv xml:lang="en-us"><seg>System fields</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Fields available to all content types as system fields. Property and control write are not exposed yet.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SYS_FIELDS_HINT</note>
+            <tuv xml:lang="en-us"><seg>Fields available to all content types as system fields. Property and control write are not exposed yet.</seg></tuv>
+        </tu>
         <tu tuid="perc.ui.developer@Not implemented yet">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PLACEHOLDER_TITLE</note>

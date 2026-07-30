@@ -285,6 +285,10 @@ export const PATHS = {
   get PIPELINES() {
     return `${SERVICES_ROOT}/pipelines`;
   },
+  /** Content-editor system definition field catalog. */
+  get SYSTEM_DEF() {
+    return `${SERVICES_ROOT}/systemdef`;
+  },
   /** Object ACL catalog (design-time security). */
   get ACLS() {
     return `${SERVICES_ROOT}/acls`;

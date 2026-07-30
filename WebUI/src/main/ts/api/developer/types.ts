@@ -265,3 +265,21 @@ export interface ApplicationDetail extends ApplicationSummary {
   dataSets?: ApplicationDataSetSummary[];
   designGaps?: string[];
 }
+
+/** Field row from GET /services/systemdef. */
+export interface SystemDefFieldSummary {
+  name?: string;
+  dataType?: string;
+  searchable?: boolean;
+  required?: boolean;
+  readOnly?: boolean;
+  occurrence?: string;
+}
+
+/** Read-only content-editor system definition. */
+export interface SystemDefDetail {
+  fieldCount?: number;
+  cacheTimeoutMinutes?: number;
+  fields?: SystemDefFieldSummary[];
+  designGaps?: string[];
+}

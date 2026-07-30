@@ -307,6 +307,24 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
   }),
 }));
 
+vi.mock("../../../main/ts/api/developer/systemDefApi", () => ({
+  getSystemDef: vi.fn().mockResolvedValue({
+    fieldCount: 1,
+    cacheTimeoutMinutes: 10,
+    fields: [
+      {
+        name: "sys_title",
+        dataType: "text",
+        required: true,
+        searchable: true,
+        readOnly: false,
+        occurrence: "required",
+      },
+    ],
+    designGaps: [],
+  }),
+}));
+
 describe("DeveloperShell", () => {
   beforeEach(() => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
@@ -343,6 +361,17 @@ describe("DeveloperShell", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-panel")).toBeTruthy();
     });
+  });
+
+  it("loads system def catalog section", async () => {
+    render(<DeveloperShell initialSection="system-def" embedded />);
+    expect(screen.getByTestId("tab-developer-system-def").getAttribute("aria-selected")).toBe(
+      "true",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sys-fields-table")).toBeTruthy();
+    });
+    expect(screen.getByText("sys_title")).toBeTruthy();
   });
 
   it("opens content type detail from list row", async () => {
