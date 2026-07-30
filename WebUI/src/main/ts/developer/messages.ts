@@ -69,6 +69,7 @@ export const DEV_MSG_KEYS = {
   TAB_VIEWS: "perc.ui.developer@Views",
   TAB_EXTENSIONS: "perc.ui.developer@Extensions",
   TAB_RELATIONSHIP_TYPES: "perc.ui.developer@Relationship Types",
+  TAB_WORKFLOWS: "perc.ui.developer@Workflows",
   TAB_COMMUNITIES: "perc.ui.developer@Communities",
   TAB_PIPELINES: "perc.ui.developer@Pipelines",
   CT_LOADING: "perc.ui.developer@Loading content types…",
@@ -545,6 +546,33 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Cloning field override editor not supported via this API",
   RT_GAP_EFFECTS:
     "perc.ui.developer@Effect condition and execution-context edit not supported via this API",
+  WF_LOADING: "perc.ui.developer@Loading workflows…",
+  WF_EMPTY: "perc.ui.developer@No workflows returned.",
+  WF_ERROR: "perc.ui.developer@Could not load workflows.",
+  WF_HINT:
+    "perc.ui.developer@Workflow definitions for association and step browse (SY-04). Full graph design stays on the workflow management surface.",
+  WF_COL_NAME: "perc.ui.developer@Name",
+  WF_COL_DESC: "perc.ui.developer@Description",
+  WF_COL_DEFAULT: "perc.ui.developer@Default",
+  WF_COL_STEPS: "perc.ui.developer@Steps",
+  WF_COL_STAGING: "perc.ui.developer@Staging roles",
+  WF_COL_STEP: "perc.ui.developer@Step",
+  WF_COL_PERMS: "perc.ui.developer@Permissions",
+  WF_COL_ROLES: "perc.ui.developer@Roles",
+  WF_YES: "perc.ui.developer@Yes",
+  WF_NO: "perc.ui.developer@No",
+  WF_BACK: "perc.ui.developer@Back to list",
+  WF_DETAIL_LOADING: "perc.ui.developer@Loading workflow…",
+  WF_DETAIL_ERROR: "perc.ui.developer@Could not load workflow.",
+  WF_STEPS: "perc.ui.developer@Steps",
+  WF_NONE: "perc.ui.developer@None",
+  WF_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
+  WF_GAP_GRAPH:
+    "perc.ui.developer@Full workflow graph design is not exposed in the Developer catalog",
+  WF_GAP_WRITE:
+    "perc.ui.developer@Workflow create / update / delete is not supported from this Developer surface",
+  WF_GAP_CT:
+    "perc.ui.developer@Content type workflow association is edited on the content type detail panel",
   PLACEHOLDER_TITLE: "perc.ui.developer@Not implemented yet",
   PLACEHOLDER_BODY: "perc.ui.developer@This section is planned for Developer P0. See docs/ai-generated/tasks/developer-module-p0 and docs/developer-module.",
 } as const;

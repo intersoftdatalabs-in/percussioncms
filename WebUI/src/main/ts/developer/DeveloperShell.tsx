@@ -38,6 +38,7 @@ import { SystemDefPanel } from "./SystemDefPanel";
 import { SlotsPanel } from "./SlotsPanel";
 import { TemplatesPanel } from "./TemplatesPanel";
 import { ViewsPanel } from "./ViewsPanel";
+import { WorkflowsPanel } from "./WorkflowsPanel";
 
 export type { DeveloperSection };
 
@@ -56,6 +57,7 @@ const SECTION_LABEL: Record<DeveloperSection, string> = {
   views: DEV_MSG.TAB_VIEWS,
   extensions: DEV_MSG.TAB_EXTENSIONS,
   "relationship-types": DEV_MSG.TAB_RELATIONSHIP_TYPES,
+  workflows: DEV_MSG.TAB_WORKFLOWS,
   communities: DEV_MSG.TAB_COMMUNITIES,
   pipelines: DEV_MSG.TAB_PIPELINES,
 };
@@ -178,6 +180,8 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
           <ExtensionsPanel />
         ) : active === "relationship-types" ? (
           <RelationshipTypesPanel />
+        ) : active === "workflows" ? (
+          <WorkflowsPanel />
         ) : active === "communities" ? (
           <CommunitiesPanel />
         ) : (

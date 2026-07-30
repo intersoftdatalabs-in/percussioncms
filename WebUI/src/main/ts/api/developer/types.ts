@@ -543,4 +543,25 @@ export interface RelationshipTypeDef {
   designGaps?: string[];
 }
 
+/** Workflow step from workflowmanagement PSUiWorkflow. */
+export interface WorkflowStepSummary {
+  stepName?: string;
+  permissionNames?: string[];
+  stepRoles?: { roleName?: string; roleId?: number }[];
+}
+
+/**
+ * Workflow catalog row from GET /services/workflowmanagement/workflows
+ * (PSUiWorkflow — SY-04 association browse).
+ */
+export interface WorkflowDef {
+  workflowName?: string;
+  workflowDescription?: string;
+  stagingRoleNames?: string;
+  defaultWorkflow?: boolean;
+  workflowSteps?: WorkflowStepSummary[];
+  /** Developer surface honesty; defaults filled by workflowsApi when absent. */
+  designGaps?: string[];
+}
+
 

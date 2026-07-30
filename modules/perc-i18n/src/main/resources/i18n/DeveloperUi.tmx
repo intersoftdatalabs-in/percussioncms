@@ -2021,6 +2021,77 @@
             <note xml:lang="en-us">DEV_MSG.RT_GAP_EFFECTS</note>
             <tuv xml:lang="en-us"><seg>Effect condition and execution-context edit not supported via this API</seg></tuv>
         </tu>
+        <tu tuid="perc.ui.developer@Workflows">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.TAB_WORKFLOWS</note>
+            <tuv xml:lang="en-us"><seg>Workflows</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading workflows…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.WF_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading workflows…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@No workflows returned.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.WF_EMPTY</note>
+            <tuv xml:lang="en-us"><seg>No workflows returned.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load workflows.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.WF_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load workflows.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Workflow definitions for association and step browse (SY-04). Full graph design stays on the workflow management surface.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.WF_HINT</note>
+            <tuv xml:lang="en-us"><seg>Workflow definitions for association and step browse (SY-04). Full graph design stays on the workflow management surface.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Steps">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.WF_COL_STEPS</note>
+            <note xml:lang="en-us">DEV_MSG.WF_STEPS</note>
+            <tuv xml:lang="en-us"><seg>Steps</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Staging roles">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.WF_COL_STAGING</note>
+            <tuv xml:lang="en-us"><seg>Staging roles</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Step">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.WF_COL_STEP</note>
+            <tuv xml:lang="en-us"><seg>Step</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Roles">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.WF_COL_ROLES</note>
+            <tuv xml:lang="en-us"><seg>Roles</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading workflow…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.WF_DETAIL_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading workflow…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load workflow.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.WF_DETAIL_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load workflow.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Full workflow graph design is not exposed in the Developer catalog">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.WF_GAP_GRAPH</note>
+            <tuv xml:lang="en-us"><seg>Full workflow graph design is not exposed in the Developer catalog</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Workflow create / update / delete is not supported from this Developer surface">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.WF_GAP_WRITE</note>
+            <tuv xml:lang="en-us"><seg>Workflow create / update / delete is not supported from this Developer surface</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Content type workflow association is edited on the content type detail panel">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.WF_GAP_CT</note>
+            <tuv xml:lang="en-us"><seg>Content type workflow association is edited on the content type detail panel</seg></tuv>
+        </tu>
         <tu tuid="perc.ui.developer@Not implemented yet">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PLACEHOLDER_TITLE</note>

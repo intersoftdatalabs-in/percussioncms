@@ -461,6 +461,21 @@ vi.mock("../../../main/ts/api/developer/relationshipTypesApi", () => ({
   }),
 }));
 
+vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
+  listWorkflows: vi.fn().mockResolvedValue([
+    {
+      workflowName: "Simple Workflow",
+      workflowDescription: "Default",
+      defaultWorkflow: true,
+      workflowSteps: [{ stepName: "Draft" }],
+    },
+  ]),
+  getWorkflowDetail: vi.fn().mockResolvedValue({
+    workflowName: "Simple Workflow",
+    workflowSteps: [{ stepName: "Draft", permissionNames: ["Read"], stepRoles: [] }],
+  }),
+}));
+
 describe("DeveloperShell", () => {
   beforeEach(() => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
@@ -672,6 +687,35 @@ it("loads views catalog section", async () => {
       expect(screen.getByTestId("developer-rt-table")).toBeTruthy();
     });
     expect(screen.getByTestId("developer-rt-table").textContent).toContain("ActiveAssembly");
+  });
+
+  it("loads workflows catalog section", async () => {
+    render(<DeveloperShell initialSection="workflows" embedded />);
+    expect(screen.getByTestId("tab-developer-workflows").getAttribute("aria-selected")).toBe(
+      "true",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-wf-table").textContent).toContain("Simple Workflow");
+  });
+
+  it("workflows tab surfaces empty and error panel states", async () => {
+    const wfApi = await import("../../../main/ts/api/developer/workflowsApi");
+    (wfApi.listWorkflows as ReturnType<typeof vi.fn>).mockResolvedValueOnce([]);
+    const { unmount } = render(<DeveloperShell initialSection="workflows" embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-empty")).toBeTruthy();
+    });
+    unmount();
+
+    (wfApi.listWorkflows as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
+      new Error("workflow service down"),
+    );
+    render(<DeveloperShell initialSection="workflows" embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-error")).toBeTruthy();
+    });
   });
 
   it("edits content type workflow and template associations on save", async () => {
