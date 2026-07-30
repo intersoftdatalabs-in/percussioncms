@@ -96,9 +96,14 @@ public class ItemFilterResourceTest {
   @Test
   public void withoutInjectionFailsWithDiagnostic() {
     ItemFilterResource bare = new ItemFilterResource();
-    WebApplicationException ex =
+    WebApplicationException listEx =
         assertThrows(WebApplicationException.class, bare::listItemFilters);
-    assertEquals(500, ex.getResponse().getStatus());
-    assertInstanceOf(IllegalStateException.class, ex.getCause());
+    assertEquals(500, listEx.getResponse().getStatus());
+    assertInstanceOf(IllegalStateException.class, listEx.getCause());
+
+    WebApplicationException getEx =
+        assertThrows(WebApplicationException.class, () -> bare.getItemFilter("x"));
+    assertEquals(500, getEx.getResponse().getStatus());
+    assertInstanceOf(IllegalStateException.class, getEx.getCause());
   }
 }

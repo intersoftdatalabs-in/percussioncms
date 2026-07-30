@@ -155,8 +155,12 @@ public class ItemFilterAdaptor implements IItemFilterAdaptor {
       // type-host-uuid or long form accepted by PSGuid
       var guid = new com.percussion.services.guidmgr.data.PSGuid(key);
       return getItemFilter(ApiUtils.convertGuid((com.percussion.utils.guid.IPSGuid) guid));
-    } catch (Exception e) {
-      log.debug("Item filter not found for key: {}", e.getMessage());
+    } catch (IllegalArgumentException e) {
+      // Invalid GUID syntax (incl. NumberFormatException from parse) → generic 404
+      log.debug("Invalid item filter GUID syntax: {}", e.getMessage());
+      return null;
+    } catch (PSNotFoundException e) {
+      log.debug("Item filter not found for GUID key: {}", e.getMessage());
       return null;
     }
   }

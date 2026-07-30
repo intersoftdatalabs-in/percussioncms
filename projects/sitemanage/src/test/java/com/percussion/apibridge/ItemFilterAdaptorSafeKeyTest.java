@@ -19,6 +19,10 @@ class ItemFilterAdaptorSafeKeyTest {
     assertTrue(ItemFilterAdaptor.isSafeFilterKey("0-11-301"));
     assertFalse(ItemFilterAdaptor.isSafeFilterKey("../x"));
     assertFalse(ItemFilterAdaptor.isSafeFilterKey("a/b"));
+    assertFalse(ItemFilterAdaptor.isSafeFilterKey("a\\b"));
+    assertFalse(ItemFilterAdaptor.isSafeFilterKey(""));
+    assertFalse(ItemFilterAdaptor.isSafeFilterKey("   "));
+    assertFalse(ItemFilterAdaptor.isSafeFilterKey("a\u0000b"));
     assertFalse(ItemFilterAdaptor.isSafeFilterKey(null));
   }
 }

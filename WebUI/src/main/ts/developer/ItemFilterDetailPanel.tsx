@@ -55,8 +55,8 @@ export function ItemFilterDetailPanel({
     };
   }, [idOrName]);
 
-  // rules may arrive as array from JSON
-  const ruleList = Array.isArray(detail?.rules) ? detail!.rules! : [];
+  // rules may arrive as array from JSON; narrow without non-null assertions
+  const ruleList = detail != null && Array.isArray(detail.rules) ? detail.rules : [];
 
   return (
     <div data-testid="developer-if-detail">
@@ -137,7 +137,7 @@ export function ItemFilterDetailPanel({
                         .join("; ");
                       return (
                         <tr
-                          key={r.name || `r-${i}`}
+                          key={r.ruleId?.stringValue || `${r.name ?? "rule"}-${i}`}
                           data-testid={`developer-if-rule-row-${i}`}
                           style={{ borderBottom: "1px solid #edf2f7" }}
                         >
