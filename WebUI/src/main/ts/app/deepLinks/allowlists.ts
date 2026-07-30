@@ -98,6 +98,7 @@ export const DEVELOPER_SECTIONS = [
   "extensions",
   "relationship-types",
   "workflows",
+  "server-configs",
   "communities",
   "pipelines",
 ] as const;
@@ -138,6 +139,10 @@ const DEVELOPER_SECTION_ALIASES: Record<string, DeveloperSection> = {
   workflows: "workflows",
   workflow: "workflows",
   wfs: "workflows",
+  "server-configs": "server-configs",
+  serverconfigs: "server-configs",
+  configs: "server-configs",
+  configurations: "server-configs",
   cxviews: "views",
   pipeline: "pipelines",
   applications: "pipelines",

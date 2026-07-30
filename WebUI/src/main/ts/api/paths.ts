@@ -325,10 +325,15 @@ export const PATHS = {
   get RELATIONSHIP_TYPES() {
     return `${SERVICES_ROOT}/relationshiptypes`;
   },
+  /** Server configuration files catalog (SY-02). */
+  get SERVER_CONFIGS() {
+    return `${SERVICES_ROOT}/serverconfigs`;
+  },
   /** Object ACL catalog (design-time security). */
   get ACLS() {
     return `${SERVICES_ROOT}/acls`;
   },
+
 
   /** Workflow management (workflowmanagement) — Feature 993 */
   get WORKFLOWS() {

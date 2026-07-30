@@ -70,6 +70,7 @@ export const DEV_MSG_KEYS = {
   TAB_EXTENSIONS: "perc.ui.developer@Extensions",
   TAB_RELATIONSHIP_TYPES: "perc.ui.developer@Relationship Types",
   TAB_WORKFLOWS: "perc.ui.developer@Workflows",
+  TAB_SERVER_CONFIGS: "perc.ui.developer@Server Configs",
   TAB_COMMUNITIES: "perc.ui.developer@Communities",
   TAB_PIPELINES: "perc.ui.developer@Pipelines",
   CT_LOADING: "perc.ui.developer@Loading content types…",
@@ -573,6 +574,26 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Workflow create / update / delete is not supported from this Developer surface",
   WF_GAP_CT:
     "perc.ui.developer@Content type workflow association is edited on the content type detail panel",
+  CFG_LOADING: "perc.ui.developer@Loading server configs…",
+  CFG_EMPTY: "perc.ui.developer@No server configs returned.",
+  CFG_ERROR: "perc.ui.developer@Could not load server configs.",
+  CFG_HINT:
+    "perc.ui.developer@Server configuration files (logging, tidy, navigation, velocity macros). Open a row to view content. Save is a later slice.",
+  CFG_COL_DISPLAY: "perc.ui.developer@Name",
+  CFG_COL_KEY: "perc.ui.developer@Key",
+  CFG_COL_FILE: "perc.ui.developer@File",
+  CFG_COL_MIME: "perc.ui.developer@MIME type",
+  CFG_COL_ENC: "perc.ui.developer@Encoding",
+  CFG_BACK: "perc.ui.developer@Back to list",
+  CFG_DETAIL_LOADING: "perc.ui.developer@Loading configuration…",
+  CFG_DETAIL_ERROR: "perc.ui.developer@Could not load configuration.",
+  CFG_CONTENT: "perc.ui.developer@Content",
+  CFG_CONTENT_EMPTY: "perc.ui.developer@No content loaded for this configuration.",
+  CFG_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
+  CFG_GAP_SAVE:
+    "perc.ui.developer@Configuration create / update / save not supported via this API",
+  CFG_GAP_LOCK:
+    "perc.ui.developer@Locking and concurrent edit are not exposed on this Developer surface",
   PLACEHOLDER_TITLE: "perc.ui.developer@Not implemented yet",
   PLACEHOLDER_BODY: "perc.ui.developer@This section is planned for Developer P0. See docs/ai-generated/tasks/developer-module-p0 and docs/developer-module.",
 } as const;

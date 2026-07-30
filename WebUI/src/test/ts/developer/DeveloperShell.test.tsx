@@ -476,6 +476,21 @@ vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   }),
 }));
 
+vi.mock("../../../main/ts/api/developer/serverConfigsApi", () => ({
+  listServerConfigs: vi.fn().mockResolvedValue([
+    {
+      name: "LOG_CONFIG",
+      displayName: "Logging configuration",
+      fileName: "log4j.xml",
+    },
+  ]),
+  getServerConfigDetail: vi.fn().mockResolvedValue({
+    name: "LOG_CONFIG",
+    content: "<Configuration/>",
+    designGaps: [],
+  }),
+}));
+
 describe("DeveloperShell", () => {
   beforeEach(() => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
@@ -716,6 +731,19 @@ it("loads views catalog section", async () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-wf-error")).toBeTruthy();
     });
+  });
+
+  it("loads server configs catalog section", async () => {
+    render(<DeveloperShell initialSection="server-configs" embedded />);
+    expect(
+      screen.getByTestId("tab-developer-server-configs").getAttribute("aria-selected"),
+    ).toBe("true");
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-cfg-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-cfg-table").textContent).toContain(
+      "Logging configuration",
+    );
   });
 
   it("edits content type workflow and template associations on save", async () => {
