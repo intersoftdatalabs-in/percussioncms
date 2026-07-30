@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -146,5 +146,43 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
     } finally {
       return response;
     }
+  }
+  @Override
+  public List<Extension> listExtensions(URI baseURI) {
+    return getExtensions(baseURI, new ExtensionFilterOptions());
+  }
+
+  @Override
+  public Extension findExtensionByKey(URI baseURI, String idOrName) {
+    if (!isSafeExtensionKey(idOrName)) {
+      return null;
+    }
+    String key = idOrName.trim();
+    List<Extension> all = listExtensions(baseURI);
+    if (all == null) {
+      return null;
+    }
+    for (Extension e : all) {
+      if (e == null) {
+        continue;
+      }
+      if (key.equalsIgnoreCase(e.getFqn()) || key.equalsIgnoreCase(e.getExtensionName())) {
+        return e;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Allow FQN-style keys (may contain '/'). Reject traversal and backslash/null.
+   */
+  static boolean isSafeExtensionKey(String key) {
+    if (key == null || key.isBlank()) {
+      return false;
+    }
+    if (key.contains("..")) {
+      return false;
+    }
+    return key.indexOf('\\') < 0 && key.indexOf('\0') < 0;
   }
 }

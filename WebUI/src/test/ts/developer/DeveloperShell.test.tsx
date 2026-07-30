@@ -410,6 +410,18 @@ vi.mock("../../../main/ts/api/developer/viewsApi", () => ({
   }),
 }));
 
+vi.mock("../../../main/ts/api/developer/extensionsApi", () => ({
+  listExtensions: vi.fn().mockResolvedValue([
+    { extensionName: "sys_add", handlerName: "Java", fqn: "Java/global/percussion/sys_add" },
+  ]),
+  getExtensionDetail: vi.fn().mockResolvedValue({
+    extensionName: "sys_add",
+    supportedInterfaces: [],
+    runtimeParameters: [],
+  }),
+}));
+
+
 
 describe("DeveloperShell", () => {
   beforeEach(() => {
@@ -601,6 +613,18 @@ it("loads views catalog section", async () => {
       expect(screen.getByTestId("developer-ct-detail-notice").textContent).toMatch(/saved/i);
     });
   });
+
+  it("loads extensions catalog section", async () => {
+    render(<DeveloperShell initialSection="extensions" embedded />);
+    expect(screen.getByTestId("tab-developer-extensions").getAttribute("aria-selected")).toBe(
+      "true",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ex-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ex-table").textContent).toContain("sys_add");
+  });
+
 
   it("edits content type workflow and template associations on save", async () => {
     const { updateContentTypeDetail } = await import(

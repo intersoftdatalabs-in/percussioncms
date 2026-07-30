@@ -24,6 +24,7 @@ import {
 import { ActionMenusPanel } from "./ActionMenusPanel";
 import { CommunitiesPanel } from "./CommunitiesPanel";
 import { ContentTypesPanel } from "./ContentTypesPanel";
+import { ExtensionsPanel } from "./ExtensionsPanel";
 import { DisplayFormatsPanel } from "./DisplayFormatsPanel";
 import { ItemFiltersPanel } from "./ItemFiltersPanel";
 import { KeywordsPanel } from "./KeywordsPanel";
@@ -52,6 +53,7 @@ const SECTION_LABEL: Record<DeveloperSection, string> = {
   "action-menus": DEV_MSG.TAB_ACTION_MENUS,
   searches: DEV_MSG.TAB_SEARCHES,
   views: DEV_MSG.TAB_VIEWS,
+  extensions: DEV_MSG.TAB_EXTENSIONS,
   communities: DEV_MSG.TAB_COMMUNITIES,
   pipelines: DEV_MSG.TAB_PIPELINES,
 };
@@ -170,6 +172,8 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
           <SearchesPanel />
         ) : active === "views" ? (
           <ViewsPanel />
+        ) : active === "extensions" ? (
+          <ExtensionsPanel />
         ) : active === "communities" ? (
           <CommunitiesPanel />
         ) : (

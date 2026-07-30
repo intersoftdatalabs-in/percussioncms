@@ -1856,6 +1856,91 @@
             <note xml:lang="en-us">DEV_MSG.VW_GAP_SEARCHES</note>
             <tuv xml:lang="en-us"><seg>Searches are a separate catalog (Developer Searches / UI-06)</seg></tuv>
         </tu>
+        <tu tuid="perc.ui.developer@Extensions">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.TAB_EXTENSIONS</note>
+            <tuv xml:lang="en-us"><seg>Extensions</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading extensions…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading extensions…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@No extensions returned.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_EMPTY</note>
+            <tuv xml:lang="en-us"><seg>No extensions returned.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load extensions.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load extensions.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Registered server extensions (handlers, contexts, interfaces). Open a row for parameters. Install/remove is a later slice.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_HINT</note>
+            <tuv xml:lang="en-us"><seg>Registered server extensions (handlers, contexts, interfaces). Open a row for parameters. Install/remove is a later slice.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Context">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_COL_CONTEXT</note>
+            <tuv xml:lang="en-us"><seg>Context</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Category">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_COL_CATEGORY</note>
+            <tuv xml:lang="en-us"><seg>Category</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Flags">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_COL_FLAGS</note>
+            <tuv xml:lang="en-us"><seg>Flags</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@FQN">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_COL_FQN</note>
+            <tuv xml:lang="en-us"><seg>FQN</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@JEXL">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_FLAG_JEXL</note>
+            <tuv xml:lang="en-us"><seg>JEXL</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Deprecated">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_FLAG_DEPRECATED</note>
+            <tuv xml:lang="en-us"><seg>Deprecated</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading extension…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_DETAIL_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading extension…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load extension.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_DETAIL_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load extension.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Interfaces">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_IFACES</note>
+            <tuv xml:lang="en-us"><seg>Interfaces</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Runtime parameters">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_PARAMS</note>
+            <tuv xml:lang="en-us"><seg>Runtime parameters</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Extension install / remove not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_GAP_INSTALL</note>
+            <tuv xml:lang="en-us"><seg>Extension install / remove not supported via this API</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Extension parameter and method edit not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_GAP_EDIT</note>
+            <tuv xml:lang="en-us"><seg>Extension parameter and method edit not supported via this API</seg></tuv>
+        </tu>
         <tu tuid="perc.ui.developer@Not implemented yet">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PLACEHOLDER_TITLE</note>

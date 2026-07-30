@@ -494,3 +494,19 @@ export interface ViewDef {
   designGaps?: string[];
 }
 
+/** Server extension from GET /services/extensions/catalog. */
+export interface ExtensionDef {
+  handlerName?: string;
+  context?: string;
+  extensionName?: string;
+  category?: string;
+  fqn?: string;
+  version?: number;
+  deprecated?: boolean;
+  jexlExtension?: boolean;
+  supportedInterfaces?: string[];
+  runtimeParameters?: { name?: string; dataType?: string; description?: string }[];
+  initParameters?: Record<string, string>;
+  methods?: Record<string, { name?: string; description?: string }>;
+}
+
