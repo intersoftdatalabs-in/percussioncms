@@ -431,3 +431,35 @@ export interface ActionMenu {
   parameters?: ActionMenuParameter[];
   properties?: ActionMenuProperty[];
 }
+
+/** View field criterion from GET /services/views. */
+export interface ViewFieldSummary {
+  fieldName?: string;
+  displayName?: string;
+  operator?: string;
+  fieldValue?: string;
+  fieldType?: string;
+  position?: number;
+}
+
+/** CX view definition (UI-07). */
+export interface ViewDef {
+  guid?: RestGuid;
+  id?: number;
+  name?: string;
+  label?: string;
+  description?: string;
+  type?: string;
+  displayFormatId?: string;
+  url?: string;
+  parentCategory?: number;
+  maximumResultSize?: number;
+  standardView?: boolean;
+  customView?: boolean;
+  view?: boolean;
+  userCustomizable?: boolean;
+  caseSensitive?: boolean;
+  fields?: ViewFieldSummary[];
+  designGaps?: string[];
+}
+

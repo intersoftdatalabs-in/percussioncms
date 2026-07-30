@@ -392,6 +392,18 @@ vi.mock("../../../main/ts/api/developer/actionMenusApi", () => ({
   }),
 }));
 
+vi.mock("../../../main/ts/api/developer/viewsApi", () => ({
+  listViews: vi.fn().mockResolvedValue([
+    { name: "My View", label: "My View", standardView: true, fields: [] },
+  ]),
+  getViewDetail: vi.fn().mockResolvedValue({
+    name: "My View",
+    fields: [],
+    designGaps: [],
+  }),
+}));
+
+
 describe("DeveloperShell", () => {
   beforeEach(() => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
@@ -527,6 +539,16 @@ describe("DeveloperShell", () => {
       expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
     });
   });
+
+  it("loads views catalog section", async () => {
+    render(<DeveloperShell initialSection="views" embedded />);
+    expect(screen.getByTestId("tab-developer-views").getAttribute("aria-selected")).toBe("true");
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-vw-table").textContent).toContain("My View");
+  });
+
 
   it("edits content type field searchable and saves with design lock path", async () => {
     const { updateContentTypeDetail } = await import(
