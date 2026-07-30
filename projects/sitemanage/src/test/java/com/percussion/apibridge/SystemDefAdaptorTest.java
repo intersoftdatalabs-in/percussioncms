@@ -73,6 +73,11 @@ class SystemDefAdaptorTest {
   void mapOccurrence_mapsKnownDimensions() {
     assertEquals("optional", SystemDefAdaptor.mapOccurrence(PSField.OCCURRENCE_DIMENSION_OPTIONAL));
     assertEquals("required", SystemDefAdaptor.mapOccurrence(PSField.OCCURRENCE_DIMENSION_REQUIRED));
+    assertEquals(
+        "oneOrMore", SystemDefAdaptor.mapOccurrence(PSField.OCCURRENCE_DIMENSION_ONE_OR_MORE));
+    assertEquals(
+        "zeroOrMore", SystemDefAdaptor.mapOccurrence(PSField.OCCURRENCE_DIMENSION_ZERO_OR_MORE));
+    assertEquals("count", SystemDefAdaptor.mapOccurrence(PSField.OCCURRENCE_DIMENSION_COUNT));
     assertEquals("unknown", SystemDefAdaptor.mapOccurrence(-1));
   }
 }

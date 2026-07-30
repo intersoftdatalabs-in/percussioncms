@@ -31,8 +31,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * Read-only content-editor system definition field catalog ({@link PSContentEditorSystemDef}).
@@ -42,8 +40,6 @@ import org.apache.logging.log4j.Logger;
  */
 @PSSiteManageBean
 public class SystemDefAdaptor implements ISystemDefAdaptor {
-
-  private static final Logger log = LogManager.getLogger(SystemDefAdaptor.class);
 
   private static final List<String> DESIGN_GAPS =
       List.of(
@@ -64,14 +60,8 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
 
   @Override
   public SystemDefDetail getSystemDef(URI baseUri) {
-    // baseUri reserved for HATEOAS
-    try {
-      PSContentEditorSystemDef def = systemDefLoader.get();
-      return toDetail(def);
-    } catch (RuntimeException e) {
-      log.warn("Failed to load content editor system def", e);
-      throw e;
-    }
+    // baseUri reserved for HATEOAS; exceptions propagate to JAX-RS mappers
+    return toDetail(systemDefLoader.get());
   }
 
   /** Package-visible for unit tests. */

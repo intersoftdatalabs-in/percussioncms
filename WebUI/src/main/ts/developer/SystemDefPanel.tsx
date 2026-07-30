@@ -19,7 +19,7 @@ import React, { useEffect, useState } from "react";
 import { getSystemDef } from "../api/developer/systemDefApi";
 import type { SystemDefDetail } from "../api/developer/types";
 import { CatalogHint, CatalogStatus } from "./CatalogTable";
-import { errorAlert, metaGrid, monoCell } from "./catalogStyles";
+import { metaGrid, monoCell } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -62,12 +62,6 @@ export function SystemDefPanel(): React.ReactElement {
   return (
     <div data-testid="developer-sys-panel">
       <CatalogHint>{DEV_MSG.SYS_HINT}</CatalogHint>
-
-      {error ? (
-        <div role="alert" data-testid="developer-sys-error-inline" style={errorAlert}>
-          {error}
-        </div>
-      ) : null}
 
       <header style={{ marginBottom: "16px" }}>
         <h2 style={{ margin: "0 0 8px" }} data-testid="developer-sys-title">
