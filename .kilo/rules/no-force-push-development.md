@@ -10,6 +10,7 @@ When the user asks to push, create a PR, or share changes for review:
    - Branch name: `fix/<issue>-<short-slug>` for fixes, `feat/<issue>-<short-slug>` for features, `chore/<short-slug>` for tooling.
    - Base off the current `origin/development` tip (fetch first).
    - Example:
+
      ```bash
      git fetch origin
      git checkout -b fix/548-1500-h2-password-and-startjetty-launcher origin/development
@@ -34,3 +35,4 @@ If `git push origin <branch>` is rejected (e.g., branch protection, stale local)
 2. Inspect `git log HEAD..origin/<branch>` to see what is incoming.
 3. Decide: rebase vs merge. **Default to `git pull --rebase` for a feature branch you own.** Do **not** attempt to force-push back over the remote.
 4. If the branch is `development` itself, you have a direct-commit error — back out, create a feature branch, retry.
+

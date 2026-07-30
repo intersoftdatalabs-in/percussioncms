@@ -11,8 +11,6 @@ public interface ISearchAdaptor {
 
   List<SearchDef> listSearches();
 
-  /**
-   * Resolve by name or GUID string. Returns null if missing/unsafe.
-   */
+  /** Resolve by name or GUID string. Returns null if missing/unsafe. */
   SearchDef findSearchByKey(String idOrName);
 }

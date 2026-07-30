@@ -64,6 +64,17 @@ public final class JavaHomeResolver {
   /**
    * Attempts to resolve a Java home from the supplied inputs. Each {@code attempts} entry added
    * during evaluation contains the source, candidate path and reason text.
+   *
+   * @param installRoot the install directory; used to read {@code java.properties} and the legacy
+   *     {@code JRE} / {@code JRE64} folders. Must not be {@code null}.
+   * @param env the process environment map (typically {@link System#getenv()}); {@code null} is
+   *     treated as an empty environment.
+   * @param pathEntries the {@code PATH}-derived launcher directories to consult as a final
+   *     fallback; {@code null} is treated as empty.
+   * @param probe the filesystem probe used to validate candidates; {@code null} selects {@link
+   *     DefaultProbe}.
+   * @return the resolution result; never {@code null}. Use {@link ResolutionResult#success()} to
+   *     discriminate.
    */
   public static ResolutionResult resolve(
       Path installRoot, Map<String, String> env, List<Path> pathEntries, JavaHomeProbe probe) {
@@ -166,6 +177,11 @@ public final class JavaHomeResolver {
    * Infers a JDK/JRE home directory from a launcher path like {@code <home>/bin/java}. Returns
    * {@code null} if the launcher has fewer than two path elements (the launcher itself must live
    * under a {@code bin} directory).
+   *
+   * @param launcher the launcher {@link Path} (e.g. {@code <home>/bin/java}); {@code null} yields
+   *     {@code null}
+   * @return the inferred home directory, or {@code null} when the launcher does not sit directly
+   *     under a {@code bin} folder
    */
   public static Path inferHomeFromLauncher(Path launcher) {
     if (launcher == null) {
@@ -190,6 +206,10 @@ public final class JavaHomeResolver {
    * openjdk version "21.0.2" 2024-01-16
    * java version "21+36" 2024-06-04
    * }</pre>
+   *
+   * @param versionOutput captured stdout/stderr text from {@code java -version}; {@code null} or an
+   *     empty string yields {@code -1}
+   * @return the parsed major version, or {@code -1} when the version segment cannot be parsed
    */
   public static int parseMajorVersion(String versionOutput) {
     if (versionOutput == null) {
@@ -229,12 +249,19 @@ public final class JavaHomeResolver {
   /**
    * Returns {@code true} when {@code major} meets the product minimum ({@link #REQUIRED_MAJOR} or
    * later). Negative / unparseable majors fail.
+   *
+   * @param major the parsed major version; negative or {@link Integer#MIN_VALUE} values fail
+   * @return {@code true} when {@code major >= }{@link #REQUIRED_MAJOR}
    */
   public static boolean isSupportedMajor(int major) {
     return major >= REQUIRED_MAJOR;
   }
 
-  /** Returns the launcher name for the current host platform. */
+  /**
+   * Returns the launcher name for the current host platform.
+   *
+   * @return {@code "java.exe"} on Windows, {@code "java"} elsewhere; never {@code null}
+   */
   public static String launcherName() {
     String os = System.getProperty("os.name", "");
     return os.toLowerCase(Locale.ROOT).contains("win") ? "java.exe" : "java";
@@ -259,15 +286,27 @@ public final class JavaHomeResolver {
 
   /** Source of a resolved Java home in the precedence order. */
   public enum ResolutionSource {
+    /** Resolved from {@code <installRoot>/java.properties} (product config). */
     PRODUCT_CONFIG,
+    /** Resolved from the {@code JAVA_HOME} environment variable. */
     PROCESS_ENV,
+    /** Resolved from the legacy {@code <installRoot>/JRE} directory. */
     INSTALL_DIR_JRE,
+    /** Resolved from the legacy {@code <installRoot>/JRE64} directory. */
     INSTALL_DIR_JRE64,
+    /** Resolved from a launcher found on the {@code PATH}. */
     PATH,
+    /** No source resolved successfully. */
     NONE
   }
 
-  /** One attempted source during resolution — used to build failure messages. */
+  /**
+   * One attempted source during resolution — used to build failure messages.
+   *
+   * @param source which source this attempt represents
+   * @param candidate the path or launcher that was inspected (raw string)
+   * @param reason short explanation of why this candidate did (or did not) succeed
+   */
   public record Attempt(ResolutionSource source, String candidate, String reason) {}
 
   /**
@@ -275,13 +314,33 @@ public final class JavaHomeResolver {
    * resolver so tests can inject a fixture-only probe.
    */
   public interface JavaHomeProbe {
+    /**
+     * Whether {@code path} points to a usable Java home with a launcher reporting major version
+     * {@code >= requiredMajor}.
+     *
+     * @param path candidate home directory; never {@code null}
+     * @param requiredMajor minimum supported major version (typically {@link #REQUIRED_MAJOR})
+     * @return {@code true} when the home is acceptable
+     */
     boolean isValidJavaHome(Path path, int requiredMajor);
 
+    /**
+     * Whether {@code launcher} is a runnable executable on the current host platform.
+     *
+     * @param launcher candidate launcher path; never {@code null}
+     * @return {@code true} when the launcher exists and (on Unix) has the executable bit set
+     */
     boolean isExecutableLauncher(Path launcher);
   }
 
   /** Default probe that inspects the live filesystem. */
   public static final class DefaultProbe implements JavaHomeProbe {
+
+    /** Construct a probe backed by the live filesystem. */
+    public DefaultProbe() {
+      // Default filesystem-backed probe.
+    }
+
     @Override
     public boolean isValidJavaHome(Path path, int requiredMajor) {
       if (path == null || !Files.isDirectory(path)) {
@@ -349,27 +408,63 @@ public final class JavaHomeResolver {
       this.attempts = List.copyOf(attempts);
     }
 
+    /**
+     * Construct a successful resolution result.
+     *
+     * @param home the resolved Java home; never {@code null}
+     * @param source the source that resolved; never {@code null}
+     * @param attempts a read-only copy of the inspection log so far
+     * @return a successful {@link ResolutionResult}
+     */
     public static ResolutionResult success(
         Path home, ResolutionSource source, List<Attempt> attempts) {
       return new ResolutionResult(true, home, source, attempts);
     }
 
+    /**
+     * Construct a failed resolution result.
+     *
+     * @param attempts a read-only copy of the inspection log so far
+     * @return a failed {@link ResolutionResult}
+     */
     public static ResolutionResult failure(List<Attempt> attempts) {
       return new ResolutionResult(false, null, ResolutionSource.NONE, attempts);
     }
 
+    /**
+     * Whether this result represents a successful resolution.
+     *
+     * @return {@code true} when {@link #javaHome()} is non-null and {@link #source()} is not {@link
+     *     ResolutionSource#NONE}
+     */
     public boolean success() {
       return success;
     }
 
+    /**
+     * Returns the resolved Java home, or {@code null} on failure.
+     *
+     * @return the home {@link Path} when successful; {@code null} otherwise
+     */
     public Path javaHome() {
       return javaHome;
     }
 
+    /**
+     * Returns the source that resolved the home.
+     *
+     * @return the {@link ResolutionSource}; never {@code null}, {@link ResolutionSource#NONE} on
+     *     failure
+     */
     public ResolutionSource source() {
       return source;
     }
 
+    /**
+     * Returns the cumulative inspection log.
+     *
+     * @return an immutable list of {@link Attempt} entries; never {@code null}, possibly empty
+     */
     public List<Attempt> attempts() {
       return attempts;
     }
@@ -377,6 +472,10 @@ public final class JavaHomeResolver {
     /**
      * Renders an error suitable for surfacing in shell/bat failure messages. Includes the required
      * major version and a per-source summary.
+     *
+     * @param header short banner prepended to the rendered failure (e.g. "Could not resolve Java
+     *     home"); may be {@code null} or blank to omit
+     * @return a multi-line, human-readable error report
      */
     public String renderFailure(String header) {
       StringBuilder sb = new StringBuilder();

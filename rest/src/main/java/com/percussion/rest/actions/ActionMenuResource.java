@@ -127,7 +127,6 @@ public class ActionMenuResource {
     return adaptor;
   }
 
-
   @GET
   @Path("/find")
   @Consumes(MediaType.APPLICATION_JSON)

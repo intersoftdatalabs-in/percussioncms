@@ -47,8 +47,7 @@ public class ViewResource {
   @Produces({MediaType.APPLICATION_JSON})
   @Operation(
       summary = "List view definitions",
-      description =
-          "Lists Content Explorer view definitions. Create/edit/delete are later slices.",
+      description = "Lists Content Explorer view definitions. Create/edit/delete are later slices.",
       responses = {
         @ApiResponse(
             responseCode = "200",

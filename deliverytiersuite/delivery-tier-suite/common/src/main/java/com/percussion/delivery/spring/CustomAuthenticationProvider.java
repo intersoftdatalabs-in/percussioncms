@@ -39,8 +39,8 @@ public class CustomAuthenticationProvider
   public CustomAuthenticationProvider() {}
 
   /**
-   * Loads user details from the supplied pre-authenticated authentication token by unwrapping
-   * the underlying Tomcat {@code GenericPrincipal}.
+   * Loads user details from the supplied pre-authenticated authentication token by unwrapping the
+   * underlying Tomcat {@code GenericPrincipal}.
    *
    * @param token the pre-authenticated authentication token, never <code>null</code>.
    * @return the loaded user details, never <code>null</code>.

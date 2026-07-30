@@ -178,6 +178,7 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
       List<DisplayFormat> displayFormats, boolean release, String session, String user) {
     throw new UnsupportedOperationException("Not yet implemented");
   }
+
   @Override
   public DisplayFormat findDisplayFormatByKey(String idOrName) {
     if (!isSafeDisplayFormatKey(idOrName)) {
@@ -215,5 +216,4 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
         && key.indexOf('\\') < 0
         && key.indexOf('\0') < 0;
   }
-
 }

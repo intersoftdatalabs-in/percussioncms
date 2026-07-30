@@ -36,9 +36,9 @@ import java.util.Set;
  * PR-9: internal forward for path-based SPA client routes so BrowserRouter refresh does not 404
  * under Jetty.
  *
- * <p>GET {@code /cm/app/{entry}[/**]} and {@code /cm/pages/app/{entry}[/**]} → forward to the tree's
- * {@code spa.jsp} with an allowlisted {@code entry} (and section/tab when present). Real JSPs,
- * static assets, and non-SPA first segments pass through unchanged.
+ * <p>GET {@code /cm/app/{entry}[/**]} and {@code /cm/pages/app/{entry}[/**]} → forward to the
+ * tree's {@code spa.jsp} with an allowlisted {@code entry} (and section/tab when present). Real
+ * JSPs, static assets, and non-SPA first segments pass through unchanged.
  *
  * <p>Server deep links and login return remain the query contract ({@code spa.jsp?entry=…}); this
  * filter only supports clean client path URLs after first paint.
@@ -102,7 +102,8 @@ public class PSWebUiSpaFallbackFilter implements Filter {
   }
 
   /**
-   * Path inside the webapp (context path stripped). Never null; starts with {@code /} when non-empty.
+   * Path inside the webapp (context path stripped). Never null; starts with {@code /} when
+   * non-empty.
    */
   static String pathWithinContext(HttpServletRequest request) {
     String uri = request.getRequestURI();
@@ -247,10 +248,9 @@ public class PSWebUiSpaFallbackFilter implements Filter {
   }
 
   /**
-   * True when a path segment must not be forwarded as an SPA route segment.
-   * Rejects empty segments, {@code ..}, backslashes, embedded slashes after
-   * decode, and URL-encoded dot sequences ({@code %2e%2e}) for defense-in-depth
-   * when the container leaves encoding in {@code getRequestURI()}.
+   * True when a path segment must not be forwarded as an SPA route segment. Rejects empty segments,
+   * {@code ..}, backslashes, embedded slashes after decode, and URL-encoded dot sequences ({@code
+   * %2e%2e}) for defense-in-depth when the container leaves encoding in {@code getRequestURI()}.
    */
   static boolean isUnsafePathSegment(String segment) {
     if (segment == null || segment.isEmpty()) {

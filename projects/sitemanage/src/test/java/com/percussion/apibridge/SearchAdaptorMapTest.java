@@ -10,9 +10,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.percussion.cms.objectstore.PSSFields;
 import com.percussion.cms.objectstore.PSSearch;
 import com.percussion.cms.objectstore.PSSearchField;
-import com.percussion.cms.objectstore.PSSFields;
 import com.percussion.rest.searches.SearchDef;
 import com.percussion.utils.guid.IPSGuid;
 import org.junit.jupiter.api.Tag;
