@@ -293,6 +293,10 @@ export const PATHS = {
   get SHARED_FIELDS() {
     return `${SERVICES_ROOT}/sharedfields`;
   },
+  /** Content-editor system definition field catalog. */
+  get SYSTEM_DEF() {
+    return `${SERVICES_ROOT}/systemdef`;
+  },
   /** Object ACL catalog (design-time security). */
   get ACLS() {
     return `${SERVICES_ROOT}/acls`;

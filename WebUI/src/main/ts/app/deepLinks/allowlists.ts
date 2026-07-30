@@ -89,6 +89,7 @@ export const DEVELOPER_SECTIONS = [
   "keywords",
   "locales",
   "shared-fields",
+  "system-def",
   "communities",
   "pipelines",
 ] as const;
@@ -104,6 +105,9 @@ const DEVELOPER_SECTION_ALIASES: Record<string, DeveloperSection> = {
   sharedfields: "shared-fields",
   shared: "shared-fields",
   "shared-field": "shared-fields",
+  systemdef: "system-def",
+  system: "system-def",
+  "sys-def": "system-def",
   pipeline: "pipelines",
   applications: "pipelines",
   "xml-apps": "pipelines",
