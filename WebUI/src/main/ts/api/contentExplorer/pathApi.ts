@@ -87,11 +87,17 @@ interface PSPathItemResponse {
  * JAX-RS serializes ArrayList subclasses as a JSON object with a key
  * matching the DTO's local element name).</p>
  */
-export async function findChildren(path: string): Promise<PSPathItem[]> {
+/** Join a pathmanagement base URL with an encodePath suffix (no double slash). */
+function joinPathUrl(base: string, path: string): string {
   const safe = encodePath(path);
-  const res = await get<PSPathItemListResponse>(
-    `${PATHS.PATH_FOLDER}/${safe}`,
+  return safe ? `${base}/${safe}` : `${base}/`;
+}
+
+export async function findChildren(path: string): Promise<PSPathItem[]> {
+  const res = await get<PSPathItemListResponse | PSPathItem[]>(
+    joinPathUrl(PATHS.PATH_FOLDER, path),
   );
+  if (Array.isArray(res)) return res;
   return res?.PathItem ?? [];
 }
 
@@ -109,7 +115,6 @@ export async function paginatedFolder(
   path: string,
   params: PaginatedFolderParams,
 ): Promise<PSPagedResult> {
-  const safe = encodePath(path);
   const q = new URLSearchParams();
   q.set("startIndex", String(params.startIndex));
   q.set("maxResults", String(params.maxResults));
@@ -120,7 +125,7 @@ export async function paginatedFolder(
   if (params.category) q.set("category", params.category);
   if (params.type) q.set("type", params.type);
   const res = await get<PSPagedItemListResponse>(
-    `${PATHS.PATH_PAGINATED_FOLDER}/${safe}?${q.toString()}`,
+    `${joinPathUrl(PATHS.PATH_PAGINATED_FOLDER, path)}?${q.toString()}`,
   );
   // Normalize wire shape (childrenInPage + childrenCount + startIndex
   // under "PagedItemList") into the client-facing shape (children +
@@ -137,8 +142,7 @@ export async function paginatedFolder(
 }
 
 export async function findItemByPath(path: string): Promise<PSPathItem> {
-  const safe = encodePath(path);
-  const res = await get<PSPathItemResponse>(`${PATHS.PATH_ITEM}/${safe}`);
+  const res = await get<PSPathItemResponse>(joinPathUrl(PATHS.PATH_ITEM, path));
   return res?.PathItem ?? ({} as PSPathItem);
 }
 
@@ -153,9 +157,8 @@ export async function addNewFolder(
   path: string,
   name: string,
 ): Promise<PSPathItem> {
-  const safe = encodePath(path);
   const res = await get<PSPathItemResponse>(
-    `${PATHS.PATH_ADD_NEW_FOLDER}/${safe}?name=${encodeURIComponent(name)}`,
+    `${joinPathUrl(PATHS.PATH_ADD_NEW_FOLDER, path)}?name=${encodeURIComponent(name)}`,
   );
   return res?.PathItem ?? ({} as PSPathItem);
 }
@@ -172,8 +175,7 @@ export async function moveItem(body: PSMoveFolderItem): Promise<void> {
 }
 
 export async function deleteItem(path: string): Promise<void> {
-  const safe = encodePath(path);
-  await post<PSPathItemResponse>(`${PATHS.PATH_DELETE_ITEM}/${safe}`);
+  await post<PSPathItemResponse>(joinPathUrl(PATHS.PATH_DELETE_ITEM, path));
 }
 
 export async function folderProperties(
@@ -191,23 +193,30 @@ export async function saveFolderProperties(
 }
 
 export async function validatePath(path: string): Promise<string> {
-  const safe = encodePath(path);
-  return get<string>(`${PATHS.PATH_VALIDATE}/${safe}`);
+  return get<string>(joinPathUrl(PATHS.PATH_VALIDATE, path));
 }
 
 export async function lastExisting(path: string): Promise<string> {
-  const safe = encodePath(path);
-  return get<string>(`${PATHS.PATH_LAST_EXISTING}/${safe}`);
+  return get<string>(joinPathUrl(PATHS.PATH_LAST_EXISTING, path));
 }
 
 /**
- * Encode each `/`-separated path segment with {@link encodeURIComponent}.
- * The `/` separator is preserved by joining — server JAX-RS expects the
- * multi-segment `{path:.*}` pattern to remain readable.
+ * Encode each `/`-separated path segment with {@link encodeURIComponent} for
+ * use as the JAX-RS `{path:.*}` suffix under `/pathmanagement/path/folder/…`.
+ *
+ * <p><strong>Leading/trailing slashes are stripped.</strong> Callers pass CMS
+ * paths like {@code /Sites/} or {@code /} (from {@code PSPathItem.path}); the
+ * server endpoint is mounted as {@code /folder/{path:.*}} and rejects a path
+ * that starts with {@code /} (HTTP 400 "Invalid path") — so the wire form must
+ * be {@code folder/Sites} or {@code folder/} (empty), never {@code folder//Sites}.
  */
 export function encodePath(path: string): string {
+  if (path == null || path === "") {
+    return "";
+  }
   return path
     .split("/")
+    .filter((seg) => seg.length > 0)
     .map((seg) => encodeURIComponent(seg))
     .join("/");
 }

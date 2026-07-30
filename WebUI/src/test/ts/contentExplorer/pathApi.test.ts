@@ -19,21 +19,24 @@ import { encodePath, paginatedFolder } from "../../../main/ts/api/contentExplore
 import { mockFetch } from "./setup";
 
 describe("encodePath", () => {
-  it("preserves the multi-segment shape for CMS paths", () => {
-    expect(encodePath("/Sites/Foo/Bar")).toBe("/Sites/Foo/Bar");
+  it("strips leading/trailing slashes for the folder/{path:.*} URL suffix", () => {
+    // Wire form must be "Sites/Foo/Bar", never "/Sites/…" (that becomes folder//Sites → 400).
+    expect(encodePath("/Sites/Foo/Bar")).toBe("Sites/Foo/Bar");
     expect(encodePath("Sites/Foo/Bar")).toBe("Sites/Foo/Bar");
+    expect(encodePath("/Sites/")).toBe("Sites");
   });
 
   it("encodes spaces and special characters per segment", () => {
     expect(encodePath("/Folder With Space/Child")).toBe(
-      "/Folder%20With%20Space/Child",
+      "Folder%20With%20Space/Child",
     );
-    expect(encodePath("/A&B/C D")).toBe("/A%26B/C%20D");
+    expect(encodePath("/A&B/C D")).toBe("A%26B/C%20D");
   });
 
-  it("handles the empty / root path", () => {
-    expect(encodePath("/")).toBe("/");
+  it("handles the empty / root path as empty suffix (folder/)", () => {
+    expect(encodePath("/")).toBe("");
     expect(encodePath("")).toBe("");
+    expect(encodePath("///")).toBe("");
   });
 
   it("encodes each segment independently so the slash separator is preserved", () => {
@@ -43,6 +46,7 @@ describe("encodePath", () => {
     expect(out).toBe("a/b/c");
   });
 });
+
 
 describe("paginatedFolder", () => {
   it("builds the paginated URL with required pagination params", async () => {
