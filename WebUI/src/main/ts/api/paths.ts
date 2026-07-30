@@ -325,6 +325,10 @@ export const PATHS = {
   get RELATIONSHIP_TYPES() {
     return `${SERVICES_ROOT}/relationshiptypes`;
   },
+  /** Content editor control catalog (UI-01). */
+  get CE_CONTROLS() {
+    return `${SERVICES_ROOT}/cecontrols`;
+  },
   /** Site design catalog (SY-04 association browse) — rest SitesResource. */
   get SITES() {
     return `${SERVICES_ROOT}/sites`;

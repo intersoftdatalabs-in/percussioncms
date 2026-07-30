@@ -476,6 +476,17 @@ vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   }),
 }));
 
+vi.mock("../../../main/ts/api/developer/controlsApi", () => ({
+  listControls: vi.fn().mockResolvedValue([
+    { name: "sys_EditBox", displayName: "Edit Box", scope: "system", dimension: "single" },
+  ]),
+  getControlDetail: vi.fn().mockResolvedValue({
+    name: "sys_EditBox",
+    parameters: [],
+    designGaps: [],
+  }),
+}));
+
 vi.mock("../../../main/ts/api/developer/sitesApi", () => ({
   listSites: vi.fn().mockResolvedValue([
     {
@@ -728,6 +739,17 @@ it("loads views catalog section", async () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-wf-error")).toBeTruthy();
     });
+  });
+
+  it("loads CE controls catalog section", async () => {
+    render(<DeveloperShell initialSection="ce-controls" embedded />);
+    expect(screen.getByTestId("tab-developer-ce-controls").getAttribute("aria-selected")).toBe(
+      "true",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ctl-table").textContent).toContain("sys_EditBox");
   });
 
   it("loads sites catalog section", async () => {
