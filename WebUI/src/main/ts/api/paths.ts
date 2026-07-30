@@ -301,6 +301,10 @@ export const PATHS = {
   get ITEM_FILTERS() {
     return `${SERVICES_ROOT}/itemfilters`;
   },
+  /** Content Explorer display format design catalog. */
+  get DISPLAY_FORMATS() {
+    return `${SERVICES_ROOT}/displayformats`;
+  },
   /** Object ACL catalog (design-time security). */
   get ACLS() {
     return `${SERVICES_ROOT}/acls`;

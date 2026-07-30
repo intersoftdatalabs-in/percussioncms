@@ -22,7 +22,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 /** Represents a Display Format in Percussion CMS. */
 @XmlRootElement(name = "DisplayFormat")
@@ -53,40 +52,40 @@ public class DisplayFormat {
 
   public DisplayFormat() {}
 
-  public Optional<String> getDescription() {
-    return Optional.ofNullable(description);
+  public String getDescription() {
+    return description;
   }
 
   public void setDescription(String description) {
     this.description = description;
   }
 
-  public Optional<String> getDisplayName() {
-    return Optional.ofNullable(displayName);
+  public String getDisplayName() {
+    return displayName;
   }
 
   public void setDisplayName(String displayName) {
     this.displayName = displayName;
   }
 
-  public Optional<Guid> getGuid() {
-    return Optional.ofNullable(guid);
+  public Guid getGuid() {
+    return guid;
   }
 
   public void setGuid(Guid guid) {
     this.guid = guid;
   }
 
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   public void setName(String name) {
     this.name = name;
   }
 
-  public Optional<String> getLabel() {
-    return Optional.ofNullable(label);
+  public String getLabel() {
+    return label;
   }
 
   public void setLabel(String label) {
@@ -101,8 +100,8 @@ public class DisplayFormat {
     this.validForRelatedContent = validForRelatedContent;
   }
 
-  public Optional<String> getSortedColumnNames() {
-    return Optional.ofNullable(sortedColumnNames);
+  public String getSortedColumnNames() {
+    return sortedColumnNames;
   }
 
   public void setSortedColumnNames(String sortedColumnNames) {
@@ -141,8 +140,8 @@ public class DisplayFormat {
     this.validForFolder = validForFolder;
   }
 
-  public Optional<String> getInvalidFolderFieldNames() {
-    return Optional.ofNullable(invalidFolderFieldNames);
+  public String getInvalidFolderFieldNames() {
+    return invalidFolderFieldNames;
   }
 
   public void setInvalidFolderFieldNames(String invalidFolderFieldNames) {
@@ -157,32 +156,32 @@ public class DisplayFormat {
     this.displayId = displayId;
   }
 
-  public Optional<DisplayFormatPropertyList> getProperties() {
-    return Optional.ofNullable(properties);
+  public DisplayFormatPropertyList getProperties() {
+    return properties;
   }
 
   public void setProperties(DisplayFormatPropertyList properties) {
     this.properties = properties;
   }
 
-  public Optional<DisplayFormatColumnList> getColumns() {
-    return Optional.ofNullable(columns);
+  public DisplayFormatColumnList getColumns() {
+    return columns;
   }
 
   public void setColumns(DisplayFormatColumnList columns) {
     this.columns = columns;
   }
 
-  public Optional<String> getInternalName() {
-    return Optional.ofNullable(internalName);
+  public String getInternalName() {
+    return internalName;
   }
 
   public void setInternalName(String internalName) {
     this.internalName = internalName;
   }
 
-  public Optional<Map<Guid, String>> getAllowedCommunities() {
-    return Optional.ofNullable(allowedCommunities);
+  public Map<Guid, String> getAllowedCommunities() {
+    return allowedCommunities;
   }
 
   public void setAllowedCommunities(Map<Guid, String> allowedCommunities) {
