@@ -25,13 +25,15 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ResourceBundle;
 import org.junit.jupiter.api.Test;
 
 /**
  * Verifies the third-party component copyright message emitted at server startup and rendered in
  * the UI About dialog. The message is sourced from the {@code thirdPartyCopyright} entry in the
- * server {@link ResourceBundle}. See issue #1529.
+ * server {@link java.util.ResourceBundle}. The stable attribution blurb is intentionally
+ * version-agnostic: the hand-edited bundle key and {@code NOTICE.txt} are the single source of
+ * truth for the prose, and the versioned inventory is generated from the project dependency set at
+ * build time. See issues #1529 and #1552.
  */
 public class PSThirdPartyCopyrightTest {
 
@@ -43,43 +45,63 @@ public class PSThirdPartyCopyrightTest {
   }
 
   @Test
-  void thirdPartyCopyrightMentionsCurrentBundledComponentVersions() {
+  void thirdPartyCopyrightCarriesStableAttribution() {
     String text = PSServer.getRes().getString("thirdPartyCopyright");
-    assertTrue(text.contains("Apache Software Foundation"), "should mention Apache Foundation");
     assertTrue(
-        text.contains("Apache License, Version 2.0"), "should reference the Apache 2.0 license");
+        text.contains("Apache Software Foundation"),
+        "stable attribution blurb should credit the Apache Software Foundation");
     assertTrue(
-        text.contains("jTDS JDBC Driver v1.3.1"), "should mention current jTDS driver version");
-    assertTrue(text.contains("H2 Database Engine v2.3.232"), "should mention current H2 version");
+        text.contains("Apache License, Version 2.0"),
+        "stable attribution blurb should reference the Apache 2.0 license");
     assertTrue(
-        text.contains("PostgreSQL JDBC Driver v42.7.12"),
-        "should mention current PostgreSQL version");
-    assertTrue(text.contains("MariaDB Connector/J v3.5.7"), "should mention current MariaDB version");
+        text.contains("Intersoft Data Labs"),
+        "stable attribution blurb should credit Intersoft Data Labs for ongoing maintenance");
     assertTrue(
-        text.contains("Microsoft JDBC Driver for SQL Server v13.3.1.jre11-preview"),
-        "should mention current Microsoft SQL Server JDBC version");
+        text.contains("Bundled Apache and Apache-licensed components"),
+        "stable attribution blurb should describe the Apache-licensed component category");
     assertTrue(
-        text.contains("Oracle JDBC Driver ojdbc17"), "should mention current Oracle JDBC driver");
+        text.contains("Bundled JDBC drivers and relational persistence"),
+        "stable attribution blurb should give JDBC drivers their own section header");
     assertTrue(
-        text.contains("Hibernate ORM v7.2.6"), "should mention current Hibernate ORM version");
+        text.contains("Bundled JavaScript libraries"),
+        "stable attribution blurb should describe the bundled JavaScript libraries");
     assertTrue(
-        text.contains("Hibernate Validator v8.0.1"),
-        "should mention current Hibernate Validator version");
-    assertTrue(text.contains("Apache Log4j 2.25.4"), "should mention current Log4j version");
-    assertTrue(text.contains("Apache Lucene 8.11.4"), "should mention current Lucene version");
-    assertTrue(text.contains("Apache Tika 3.2.3"), "should mention current Tika version");
-    assertTrue(text.contains("Apache PDFBox 3.0.6"), "should mention current PDFBox version");
-    assertTrue(text.contains("Apache POI 5.4.0"), "should mention current POI version");
-    assertTrue(text.contains("Apache CXF 4.1.4"), "should mention current CXF version");
-    assertTrue(text.contains("Apache Derby 10.17.1.0"), "should mention current Derby version");
+        text.contains("generated from the project dependency set at build time"),
+        "stable attribution blurb should state that the versioned inventory is build-generated");
     assertTrue(
-        text.contains("Apache ActiveMQ Artemis 2.50.0"), "should mention current Artemis version");
-    assertTrue(text.contains("XStream v1.4.21"), "should mention current XStream version");
-    assertTrue(text.contains("ASM v9"), "should mention current ASM major version");
-    assertTrue(
-        text.contains("Bouncy Castle v1.84"), "should mention current Bouncy Castle version");
-    assertTrue(text.contains("TinyMCE 6.8.6"), "should mention current TinyMCE version");
-    assertTrue(text.contains("react-router 8.3.0"), "should mention current react-router version");
+        text.contains("single source of truth"),
+        "stable attribution blurb should designate the LICENSE/NOTICE files as the single source of truth");
+  }
+
+  @Test
+  void thirdPartyCopyrightHasNoDependencyVersionPins() {
+    String text = PSServer.getRes().getString("thirdPartyCopyright");
+    assertFalse(
+        text.contains("v1.3.1"), "jTDS v1.3.1 pin must not appear in the stable attribution blurb");
+    assertFalse(
+        text.contains("v2.3.232"),
+        "H2 v2.3.232 pin must not appear in the stable attribution blurb");
+    assertFalse(
+        text.contains("13.3.1.jre11-preview"),
+        "Microsoft SQL Server JDBC preview pin must not appear in the stable attribution blurb");
+    assertFalse(
+        text.contains("v42.7.12"),
+        "PostgreSQL JDBC v42.7.12 pin must not appear in the stable attribution blurb");
+    assertFalse(
+        text.contains("v3.5.7"),
+        "MariaDB Connector/J v3.5.7 pin must not appear in the stable attribution blurb");
+    assertFalse(
+        text.contains("v7.2.6"), "Hibernate ORM v7.2.6 pin must not appear in the stable attribution blurb");
+    assertFalse(
+        text.contains("2.25.4"), "Apache Log4j 2.25.4 pin must not appear in the stable attribution blurb");
+    assertFalse(
+        text.contains("8.11.4"), "Apache Lucene 8.11.4 pin must not appear in the stable attribution blurb");
+    assertFalse(
+        text.contains("v1.4.21"), "XStream v1.4.21 pin must not appear in the stable attribution blurb");
+    assertFalse(
+        text.contains("v1.84"), "Bouncy Castle v1.84 pin must not appear in the stable attribution blurb");
+    assertFalse(
+        text.contains("6.8.6"), "TinyMCE 6.8.6 pin must not appear in the stable attribution blurb");
   }
 
   @Test
@@ -121,34 +143,31 @@ public class PSThirdPartyCopyrightTest {
   }
 
   @Test
-  void noticeFileMirrorsCurrentThirdPartyCopyright() throws Exception {
+  void noticeFileMirrorsStableThirdPartyCopyright() throws Exception {
     Path repoRoot = repoRoot();
     Path notice = repoRoot.resolve("NOTICE.txt");
     assertTrue(Files.exists(notice), "NOTICE.txt missing from repo root");
     String body = new String(Files.readAllBytes(notice), StandardCharsets.UTF_8);
 
-    assertTrue(body.contains("Intersoft Data Labs"), "NOTICE.txt must credit Intersoft Data Labs");
+    assertTrue(
+        body.contains("Intersoft Data Labs"), "NOTICE.txt must credit Intersoft Data Labs");
     assertTrue(
         body.contains("Bundled JDBC drivers and relational persistence"),
         "NOTICE.txt must have a dedicated JDBC drivers section");
-    assertTrue(body.contains("ojdbc17"), "NOTICE.txt must list Oracle JDBC (ojdbc17)");
     assertTrue(
-        body.contains("Microsoft JDBC Driver for SQL Server"),
-        "NOTICE.txt must list Microsoft SQL Server JDBC");
-    assertTrue(body.contains("jTDS JDBC Driver v1.3.1"), "NOTICE.txt must reflect current jTDS version");
+        body.contains("generated from the project dependency set at build time"),
+        "NOTICE.txt must state that the versioned inventory is build-generated");
     assertTrue(
-        body.contains("Apache ActiveMQ Artemis 2.50.0"),
-        "NOTICE.txt must reflect current Artemis version");
-    assertTrue(
-        body.contains("Apache Log4j 2.25.4"), "NOTICE.txt must reflect current Log4j version");
-    assertTrue(
-        body.contains("Bouncy Castle v1.84"),
-        "NOTICE.txt must reflect current Bouncy Castle version");
-    assertFalse(body.contains("Lato"), "NOTICE.txt must no longer reference dropped Lato font");
-    assertFalse(body.contains("v1.2.2"), "NOTICE.txt must no longer reference outdated jTDS 1.2.2");
+        body.contains("single source of truth"),
+        "NOTICE.txt must designate the LICENSE/NOTICE files as the single source of truth");
     assertFalse(
-        body.contains("2003-2005, Joe Walnes"),
-        "NOTICE.txt must reflect updated XStream copyright range");
+        body.contains("Lato"), "NOTICE.txt must no longer reference the dropped Lato font");
+    assertFalse(
+        body.contains("v1.3.1"), "NOTICE.txt must not duplicate the jTDS v1.3.1 pin");
+    assertFalse(
+        body.contains("v2.3.232"), "NOTICE.txt must not duplicate the H2 v2.3.232 pin");
+    assertFalse(
+        body.contains("2.25.4"), "NOTICE.txt must not duplicate the Apache Log4j 2.25.4 pin");
   }
 
   private Path repoRoot() throws Exception {
