@@ -49,6 +49,36 @@ export function isSessionRedirectError(err: unknown): boolean {
   return err instanceof SessionRedirectError;
 }
 
+/** True when {@code err} is a thrown {@link ApiError} (plain object, not Error). */
+export function isApiError(err: unknown): err is ApiError {
+  return (
+    !!err &&
+    typeof err === "object" &&
+    typeof (err as ApiError).status === "number"
+  );
+}
+
+/**
+ * Human-readable message for SPA error chrome.
+ *
+ * <p>{@link handleResponse} throws a plain {@link ApiError} object (not an
+ * {@code Error}). {@code String(err)} therefore becomes {@code "[object Object]"}
+ * — always use this helper (or equivalent) before displaying API failures.</p>
+ */
+export function formatApiError(err: unknown, fallback = "Request failed"): string {
+  if (isSessionRedirectError(err)) {
+    return fallback;
+  }
+  if (err instanceof Error && err.message) {
+    return err.message;
+  }
+  if (isApiError(err)) {
+    const st = err.statusText ? ` ${err.statusText}` : "";
+    return `${fallback} (HTTP ${err.status}${st})`.trim();
+  }
+  return fallback;
+}
+
 function buildHeaders(extra: HeadersInit = {}, preferJson = true): Headers {
   const headers = new Headers(extra);
   if (!headers.has("Content-Type") && preferJson) {

@@ -201,6 +201,34 @@ async function loginAsContributor(page) {
   await login(page, USERNAME_CONTRIBUTOR, CONTRIBUTOR_PASSWORD);
 }
 
+/**
+ * Headers for CMS REST calls that opt into Basic auth.
+ *
+ * <p>{@code RX_USEBASICAUTH: true} alone is <strong>not</strong> enough — the
+ * server still expects an {@code Authorization: Basic …} header. Specs that
+ * only set the RX flag get HTTP 401 against a stock 8.2 install.</p>
+ *
+ * @param {string} username
+ * @param {string} password
+ * @returns {Record<string, string>}
+ */
+function basicAuthHeaders(username, password) {
+  if (!password) {
+    throw new Error(
+      `basicAuthHeaders: password for ${username} is missing (set .env or DEV_PERCUSSION_INSTALL)`
+    );
+  }
+  const token = Buffer.from(`${username}:${password}`, "utf8").toString("base64");
+  return {
+    RX_USEBASICAUTH: "true",
+    Authorization: `Basic ${token}`,
+  };
+}
+
+function adminBasicAuthHeaders() {
+  return basicAuthHeaders(ADMIN_USERNAME, ADMIN_PASSWORD);
+}
+
 module.exports = {
   BASE_URL: PERCUSSION_URL,
   DTS_URL,
@@ -213,4 +241,6 @@ module.exports = {
   loginAsAdmin,
   loginAsEditor,
   loginAsContributor,
+  basicAuthHeaders,
+  adminBasicAuthHeaders,
 };
