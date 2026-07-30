@@ -159,7 +159,10 @@ class PSCategoryLockInfoLocationTest {
   void writeLockInfoToFileWritesUnderRxDirWithCorrectJson() throws Exception {
     // rxDir is the JUnit @TempDir — definitely exists. The write must
     // place lock_info.json at $rxDir/lock_info.json with the expected JSON
-    // payload, and the public read API must report the lock as held.
+    // payload. We assert the on-disk write directly because exercising
+    // getLockInfo()/isFileLocked() after a stale sessionId would depend on
+    // isLockStale semantics (#1600 treats blank/missing sessionId as stale)
+    // and on PSUserSessionManager — both out of scope for a location test.
     PSServer.setRxDir(tempDir.toFile());
     PSCategoryLockInfo.currentSessionIdOverride = "test-session-id";
 
@@ -179,17 +182,6 @@ class PSCategoryLockInfoLocationTest {
     assertEquals("writer-tester", json.getString("userName"));
     assertEquals("test-session-id", json.getString("sessionId"));
     assertEquals("2026-07-29T00:00:00Z", json.getString("creationDate"));
-
-    // The written sessionId is not a live session, so getLockInfo() will correctly
-    // treat it as stale (per GH-1182 semantics) and delete the file. To verify the
-    // round-trip through the public read API without re-inventing session plumbing,
-    // re-write with a blank sessionId which is ignored by isLockStale.
-    PSCategoryLockInfo.currentSessionIdOverride = "";
-    PSCategoryLockInfo.writeLockInfoToFile(userService, "2026-07-29T00:00:00Z");
-    var readBack = PSCategoryLockInfo.getLockInfo();
-    assertNotNull(readBack, "public read API must observe the lock");
-    assertEquals("writer-tester", readBack.getString("userName"));
-    assertTrue(PSCategoryLockInfo.isFileLocked());
   }
 
   @Test
