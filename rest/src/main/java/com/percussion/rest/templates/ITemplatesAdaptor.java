@@ -44,4 +44,22 @@ public interface ITemplatesAdaptor {
    * @return list of template summaries
    */
   List<TemplateSummary> listTemplateSummaries(URI baseUri, TemplateFilter filter);
+
+  /**
+   * Load a single template design detail by numeric id or unique name.
+   *
+   * @param baseUri the base URI (reserved for HATEOAS)
+   * @param idOrName template uuid or name
+   * @return detail or {@code null} if not found
+   */
+  TemplateDetail getTemplate(URI baseUri, String idOrName);
+
+  /**
+   * Update mutable template design fields (label, description, source) and optionally bindings /
+   * contained slots. When {@code body.bindings} or {@code body.slots} is non-null, that collection
+   * is fully replaced (empty list clears). Name/id and create/delete remain out of scope.
+   *
+   * @return updated detail, or {@code null} if not found
+   */
+  TemplateDetail updateTemplate(URI baseUri, String idOrName, TemplateDetail body);
 }

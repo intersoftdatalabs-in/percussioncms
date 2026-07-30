@@ -2,15 +2,15 @@
 
 This folder holds **operator-facing** notes for the default embedded repository migration from product-managed Apache Derby to multiuser H2.
 
-| Doc | Audience | Contents |
-|-----|----------|----------|
-| [am-i-affected.md](./am-i-affected.md) | Operators / support | Yes/no decision tree (SC-008) |
-| [release-notes-8.2-derby-migration.md](./release-notes-8.2-derby-migration.md) | Release / docs | Draft release notes (FR-012) |
-| [fr-021-migration-window.md](./fr-021-migration-window.md) | Product / release | GA +1 migration support window checklist |
-| [operator-backup-restore.md](./operator-backup-restore.md) | Operators | Offline backup/restore (CMS + DTS), stop/start, paths |
-| [operator-migration-gate.md](./operator-migration-gate.md) | Operators | Pre-migration gate, external confirm, Derby residue cleanup |
-| [operator-upgrade-sequence.md](./operator-upgrade-sequence.md) | Operators | CMS+DTS sequence, mixed estate (MySQL/MSSQL + Derby DTS) |
-| [migration-sizing.md](./migration-sizing.md) | Operators / capacity | Duration and disk sizing guidance |
+|                                      Doc                                       |       Audience       |                          Contents                           |
+|--------------------------------------------------------------------------------|----------------------|-------------------------------------------------------------|
+| [am-i-affected.md](./am-i-affected.md)                                         | Operators / support  | Yes/no decision tree (SC-008)                               |
+| [release-notes-8.2-derby-migration.md](./release-notes-8.2-derby-migration.md) | Release / docs       | Draft release notes (FR-012)                                |
+| [fr-021-migration-window.md](./fr-021-migration-window.md)                     | Product / release    | GA +1 migration support window checklist                    |
+| [operator-backup-restore.md](./operator-backup-restore.md)                     | Operators            | Offline backup/restore (CMS + DTS), stop/start, paths       |
+| [operator-migration-gate.md](./operator-migration-gate.md)                     | Operators            | Pre-migration gate, external confirm, Derby residue cleanup |
+| [operator-upgrade-sequence.md](./operator-upgrade-sequence.md)                 | Operators            | CMS+DTS sequence, mixed estate (MySQL/MSSQL + Derby DTS)    |
+| [migration-sizing.md](./migration-sizing.md)                                   | Operators / capacity | Duration and disk sizing guidance                           |
 
 **Spec / contracts (engineering):** `specs/548-derby-embedded-migration/`
 

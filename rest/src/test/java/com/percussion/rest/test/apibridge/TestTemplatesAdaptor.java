@@ -20,6 +20,7 @@
 package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.templates.ITemplatesAdaptor;
+import com.percussion.rest.templates.TemplateDetail;
 import com.percussion.rest.templates.TemplateFilter;
 import com.percussion.rest.templates.TemplateSummary;
 import java.net.URI;
@@ -37,6 +38,16 @@ public class TestTemplatesAdaptor implements ITemplatesAdaptor {
 
   @Override
   public List<TemplateSummary> listTemplateSummaries(URI baseUri, TemplateFilter filter) {
+    return null;
+  }
+
+  @Override
+  public TemplateDetail getTemplate(URI baseUri, String idOrName) {
+    return null;
+  }
+
+  @Override
+  public TemplateDetail updateTemplate(URI baseUri, String idOrName, TemplateDetail body) {
     return null;
   }
 }

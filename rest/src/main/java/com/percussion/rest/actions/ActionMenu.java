@@ -23,7 +23,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.Optional;
 
 /** Represents an Action Menu in Percussion CMS. */
 @XmlRootElement(name = "ActionMenu")
@@ -101,7 +100,7 @@ public class ActionMenu {
     // Default constructor for JAXB
   }
 
-  // --- Getters and Setters with Optional and JavaDoc ---
+  // --- Getters and Setters ---
 
   public int getId() {
     return id;
@@ -111,40 +110,40 @@ public class ActionMenu {
     this.id = id;
   }
 
-  public Optional<Guid> getGuid() {
-    return Optional.ofNullable(guid);
+  public Guid getGuid() {
+    return guid;
   }
 
   public void setGuid(Guid guid) {
     this.guid = guid;
   }
 
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   public void setName(String name) {
     this.name = name;
   }
 
-  public Optional<String> getLabel() {
-    return Optional.ofNullable(label);
+  public String getLabel() {
+    return label;
   }
 
   public void setLabel(String label) {
     this.label = label;
   }
 
-  public Optional<String> getDescription() {
-    return Optional.ofNullable(description);
+  public String getDescription() {
+    return description;
   }
 
   public void setDescription(String description) {
     this.description = description;
   }
 
-  public Optional<String> getUrl() {
-    return Optional.ofNullable(url);
+  public String getUrl() {
+    return url;
   }
 
   public void setUrl(String url) {
@@ -159,56 +158,56 @@ public class ActionMenu {
     this.sortRank = sortRank;
   }
 
-  public Optional<String> getMenuType() {
-    return Optional.ofNullable(menuType);
+  public String getMenuType() {
+    return menuType;
   }
 
   public void setMenuType(String menuType) {
     this.menuType = menuType;
   }
 
-  public Optional<String> getHandler() {
-    return Optional.ofNullable(handler);
+  public String getHandler() {
+    return handler;
   }
 
   public void setHandler(String handler) {
     this.handler = handler;
   }
 
-  public Optional<ActionMenuList> getChildren() {
-    return Optional.ofNullable(children);
+  public ActionMenuList getChildren() {
+    return children;
   }
 
   public void setChildren(ActionMenuList children) {
     this.children = children;
   }
 
-  public Optional<ActionMenuParameter[]> getParameters() {
-    return Optional.ofNullable(parameters);
+  public ActionMenuParameter[] getParameters() {
+    return parameters;
   }
 
   public void setParameters(ActionMenuParameter[] parameters) {
     this.parameters = parameters;
   }
 
-  public Optional<ActionMenuVisibilityContext[]> getVisibilityContexts() {
-    return Optional.ofNullable(visibilityContexts);
+  public ActionMenuVisibilityContext[] getVisibilityContexts() {
+    return visibilityContexts;
   }
 
   public void setVisibilityContexts(ActionMenuVisibilityContext[] visibilityContexts) {
     this.visibilityContexts = visibilityContexts;
   }
 
-  public Optional<ActionMenuModeUIContext[]> getUiContexts() {
-    return Optional.ofNullable(uiContexts);
+  public ActionMenuModeUIContext[] getUiContexts() {
+    return uiContexts;
   }
 
   public void setUiContexts(ActionMenuModeUIContext[] uiContexts) {
     this.uiContexts = uiContexts;
   }
 
-  public Optional<ActionMenuProperty[]> getProperties() {
-    return Optional.ofNullable(properties);
+  public ActionMenuProperty[] getProperties() {
+    return properties;
   }
 
   public void setProperties(ActionMenuProperty[] properties) {

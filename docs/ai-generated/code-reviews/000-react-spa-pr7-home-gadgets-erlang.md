@@ -11,12 +11,12 @@ PR-7 product lock: gadget utility stays; placement is **Home → gadgets**, not 
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs | None found |
+|      Check       |                                 Result                                  |
+|------------------|-------------------------------------------------------------------------|
+| Bugs             | None found                                                              |
 | Behavioral tests | HomeShell gadgets section; deepLinkMap aliases; spaCutover dash mapping |
-| Cross-platform | N/A (URL / React only) |
-| Security | Section allowlisted; no new sinks |
+| Cross-platform   | N/A (URL / React only)                                                  |
+| Security         | Section allowlisted; no new sinks                                       |
 
 ## Issues
 

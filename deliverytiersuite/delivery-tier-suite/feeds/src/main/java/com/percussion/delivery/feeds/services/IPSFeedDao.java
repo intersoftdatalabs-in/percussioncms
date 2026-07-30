@@ -46,7 +46,7 @@ public interface IPSFeedDao {
    *
    * @param name the feed name, cannot be <code>null</code> or empty.
    * @param site the feed site, cannot be <code>null</code> or empty.
-   * @return the retrieved descriptor or </code>empty Optional</code> if not found.
+   * @return the retrieved descriptor or <code>empty Optional</code> if not found.
    */
   public IPSFeedDescriptor find(String name, String site);
 
@@ -69,14 +69,16 @@ public interface IPSFeedDao {
   /**
    * Save the connection info to access the meta data service.
    *
-   * @param url
-   * @param user
-   * @param pass
-   * @param encrypted
+   * @param url the URL of the metadata service, never <code>null</code> or empty
+   * @param user the user name used to authenticate, never <code>null</code> or empty
+   * @param pass the password used to authenticate, may be <code>null</code>
+   * @param encrypted <code>true</code> if the password is encrypted, <code>false</code> otherwise
    */
   public void saveConnectionInfo(String url, String user, String pass, boolean encrypted);
 
   /**
+   * Gets the connection info used to access the meta data service.
+   *
    * @return the connection info, may be <code>empty Optional</code>.
    */
   public IPSConnectionInfo getConnectionInfo();

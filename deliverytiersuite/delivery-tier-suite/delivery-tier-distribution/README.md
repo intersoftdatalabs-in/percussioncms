@@ -89,15 +89,16 @@ root. Both consoles and both service installers **hard-fail** if resolve fails
 before writing Procrun `--JavaHome` or `/etc/default/<service>`. See
 `specs/991-system-java-home/quickstart.md` for re-point steps (edit
 `java.properties`, restart — no JRE folder required).
+
 ## Linux services (systemd) — GH-962
 
 Production and Staging installers under `src/main/rootFiles/` prefer **native systemd**
 when available:
 
-| Script | Default unit |
-|--------|----------------|
+|          Script           |       Default unit        |
+|---------------------------|---------------------------|
 | `DTSProductionService.sh` | `PercussionProductionDTS` |
-| `DTSStagingService.sh` | `PercussionStagingDTS` |
+| `DTSStagingService.sh`    | `PercussionStagingDTS`    |
 
 Shared unit template: `dts-tomcat.service.in` (`Type=forking`, `TimeoutStartSec=1800`, journal).  
 Ops notes: `README-systemd.md`. Flags: `--systemd`, `--initd`. Windows `.bat` unchanged.

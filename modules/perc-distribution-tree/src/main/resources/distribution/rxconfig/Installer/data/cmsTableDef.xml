@@ -3059,6 +3059,13 @@
                 <size/>
                 <allowsnull>yes</allowsnull>
             </column>
+            <!-- 1 = language-only / base locale (e.g. es, hi, ar); 0 = regional or non-base -->
+            <column name="ISBASE">
+                <jdbctype>INTEGER</jdbctype>
+                <size/>
+                <allowsnull>yes</allowsnull>
+                <defaultvalue>0</defaultvalue>
+            </column>
             <column name="VERSION">
                 <jdbctype>INTEGER</jdbctype>
                 <size/>
@@ -3096,6 +3103,91 @@
         <primarykey name="PK_LOCALEPROPERTY">
             <name>LOCALEID</name>
             <name>PROPERTYNAME</name>
+        </primarykey>
+    </table>
+    <!-- Locale format profile keyed by BCP-47 language string (not LOCALEID).
+         Customer-defined locales inherit via regional → language-only → en-us. -->
+    <table name="RXLOCALEFORMAT" allowSchemaChanges="y" alter="y"  delolddata="n" isView="n">
+        <row>
+            <column name="LANGUAGESTRING">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>16</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="TEXTDIR">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>8</size>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="DATEPATTERN">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>64</size>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="TIMEPATTERN">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>64</size>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="DATETIMEPATTERN">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>128</size>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="DECIMALSEP">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>4</size>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="GROUPINGSEP">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>4</size>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="CURRENCYCODE">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>3</size>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="CURRENCYPATTERN">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>32</size>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="FIRSTDAYOFWEEK">
+                <jdbctype>INTEGER</jdbctype>
+                <size/>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="MEASUREMENTSYSTEM">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>16</size>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="DEFAULTTZ">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>64</size>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="NUMBERINGSYSTEM">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>16</size>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="CALENDAR">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>32</size>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="VERSION">
+                <jdbctype>INTEGER</jdbctype>
+                <size/>
+                <allowsnull>no</allowsnull>
+                <defaultvalue>0</defaultvalue>
+            </column>
+        </row>
+        <primarykey name="PK_RXLOCALEFORMAT">
+            <name>LANGUAGESTRING</name>
         </primarykey>
     </table>
     <table name="PSX_PERSISTEDPROPERTYMETA" allowSchemaChanges="y" alter="y"  delolddata="n" isView="n">

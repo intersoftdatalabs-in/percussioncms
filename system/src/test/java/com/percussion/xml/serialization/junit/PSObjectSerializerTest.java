@@ -19,31 +19,23 @@ package com.percussion.xml.serialization.junit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.xml.serialization.PSObjectSerializer;
-import java.beans.IntrospectionException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer.MethodName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.xml.sax.SAXException;
 
 /**
  * @author RammohanVangapalli
  */
 @TestMethodOrder(MethodName.class)
 public class PSObjectSerializerTest {
-
-  private static final Logger log = LogManager.getLogger(PSObjectSerializerTest.class);
 
   public static class PersonList {
     private final List<Person> mi_people = new ArrayList<>();
@@ -81,47 +73,19 @@ public class PSObjectSerializerTest {
   private static final PSObjectSerializer serializer = PSObjectSerializer.getInstance();
 
   /**
-   * Input data for deserialization in case required. Do not indent this for clarity. It is not
-   * declared final so that it can be reinitialized by testSerialization() depending on which test
-   * executed first.
+   * XML representation of {@link #person} produced by {@link #setUp()}. Pre-populated by
+   * {@code @BeforeAll} so the round-trip test does not depend on test execution order or on {@link
+   * #test01Serialization()} having populated this field. Reassigned by {@code
+   * test01Serialization()} for that test's own assertion.
    */
-  private static String serializedString =
-      "<person>"
-          + "<name>"
-          + "<first>Rammohan</first>"
-          + "<last>Vangapalli</last>"
-          + "</name>"
-          + "<address>"
-          + "<street>10 Germano Way</street>"
-          + "<addressline2/>"
-          + "<town>Andover</town>"
-          + "<state>MA</state>"
-          + "<zip>01810</zip>"
-          + "</address>"
-          + "<books>"
-          + "<book>"
-          + "<title>Life without God1</title>"
-          + "<pubdate>09052010</pubdate>"
-          + "</book>"
-          + "<book>"
-          + "<title>Life without God2</title>"
-          + "<pubdate>09052011</pubdate>"
-          + "</book>"
-          + "<book>"
-          + "<title>Life without God3</title>"
-          + "<pubdate>09052012</pubdate>"
-          + "</book>"
-          + "<book>"
-          + "<title>Life without God4</title>"
-          + "<pubdate>09052013</pubdate>"
-          + "</book>"
-          + "</books>"
-          + "</person>";
+  private static String serializedString;
 
   public PSObjectSerializerTest() {}
 
   /**
-   * Over ride this method to initialize the person object to be used by tests.
+   * Initializes the {@link Person} under test and produces its canonical XML representation so
+   * {@link #test02DeSerialization()} can deserialize from a known-good payload without depending on
+   * test execution order.
    *
    * @throws Exception error
    */
@@ -136,23 +100,19 @@ public class PSObjectSerializerTest {
     person.addBook(new Book("Life without God2", "09052011"));
     person.addBook(new Book("Life without God3", "09052012"));
     person.addBook(new Book("Life without God4", "09052013"));
+    serializedString = serializer.toXmlString(person);
   }
 
-  /** Serialization test case. Serializes the object created in the ctor to XML string. */
+  /** Serialization test case. Verifies that the object created in the ctor serializes to XML. */
   @Test
-  public void test01Serialization() {
-    try {
-      serializedString = serializer.toXmlString(person);
-      assertTrue(serializedString.length() > 0);
-    } catch (IOException | SAXException | IntrospectionException e) {
-      log.error(PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-    }
+  public void test01Serialization() throws Exception {
+    String xml = serializer.toXmlString(person);
+    assertTrue(xml.length() > 0);
   }
 
   /**
-   * Test case de-serialization. Restores the object from XML string and compares this with th one
-   * created directly.
+   * Test case de-serialization. Restores the object from the XML produced in {@link #setUp()} and
+   * compares it with the one created directly.
    */
   @Test
   public void test02DeSerialization() throws Exception {

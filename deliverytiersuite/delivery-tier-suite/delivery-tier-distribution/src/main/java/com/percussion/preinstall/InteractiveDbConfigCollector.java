@@ -65,9 +65,7 @@ public final class InteractiveDbConfigCollector {
       Map<String, String> existingOptions, boolean upgrade, InstallPrompt prompt) {
     Objects.requireNonNull(prompt, "prompt");
     Map<String, String> options =
-        existingOptions != null
-            ? new LinkedHashMap<>(existingOptions)
-            : new LinkedHashMap<>();
+        existingOptions != null ? new LinkedHashMap<>(existingOptions) : new LinkedHashMap<>();
 
     if (upgrade) {
       prompt.println(
@@ -165,8 +163,7 @@ public final class InteractiveDbConfigCollector {
       String defaultName) {
     options.put("db.host", promptWithDefault(prompt, "Database host", "localhost"));
     options.put("db.port", promptWithDefault(prompt, "Database port", defaultPort));
-    options.put(
-        "db.name", promptWithDefault(prompt, "Database name", defaultName));
+    options.put("db.name", promptWithDefault(prompt, "Database name", defaultName));
     if (defaultSchema != null && !defaultSchema.isEmpty()) {
       options.put("db.schema", promptWithDefault(prompt, "Schema", defaultSchema));
     } else {
@@ -181,8 +178,10 @@ public final class InteractiveDbConfigCollector {
     options.put("db.password", readPasswordToString(prompt));
 
     String sslEnabled =
-        promptWithDefault(prompt, "SSL enabled (true/false)", MainDTSPreInstall.DB_SSL_ENABLED_DEFAULT);
-    options.put("db.ssl.enabled", normalizeBool(sslEnabled, MainDTSPreInstall.DB_SSL_ENABLED_DEFAULT));
+        promptWithDefault(
+            prompt, "SSL enabled (true/false)", MainDTSPreInstall.DB_SSL_ENABLED_DEFAULT);
+    options.put(
+        "db.ssl.enabled", normalizeBool(sslEnabled, MainDTSPreInstall.DB_SSL_ENABLED_DEFAULT));
     String sslVerify =
         promptWithDefault(
             prompt, "SSL verify server cert (true/false)", MainDTSPreInstall.DB_SSL_VERIFY_DEFAULT);

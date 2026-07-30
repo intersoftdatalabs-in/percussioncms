@@ -25,6 +25,10 @@ import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Utility for loading {@code audit-log.properties} from disk into an in-memory {@link Properties}
+ * bundle. Non-instantiable; all callers use the {@link #loadProperties(String)} static method.
+ */
 public class AuditPropertyLoader {
 
   private static final Logger log = LogManager.getLogger(AuditPropertyLoader.class);
@@ -33,6 +37,14 @@ public class AuditPropertyLoader {
     // Don't allow new instances
   }
 
+  /**
+   * Loads a Java {@link Properties} bundle from the given filesystem path. If the file cannot be
+   * read, a warning is logged and an empty {@link Properties} instance is returned.
+   *
+   * @param filePath absolute or classpath-relative path to the properties file, never {@code null}.
+   * @return the loaded properties; an empty (but never {@code null}) instance if the file could not
+   *     be read.
+   */
   public static Properties loadProperties(String filePath) {
     Properties prop = new Properties();
     try (InputStream input = new FileInputStream(filePath)) {

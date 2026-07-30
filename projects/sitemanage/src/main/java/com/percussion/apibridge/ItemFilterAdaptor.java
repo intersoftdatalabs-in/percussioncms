@@ -138,4 +138,44 @@ public class ItemFilterAdaptor implements IItemFilterAdaptor {
     var filter = filterService.loadFilter(ApiUtils.convertGuid(itemFilterId));
     return copyFilter(filter);
   }
+
+  @Override
+  public ItemFilter findItemFilter(String idOrName) {
+    if (!isSafeFilterKey(idOrName)) {
+      return null;
+    }
+    String key = idOrName.trim();
+    // Prefer name match (common Developer UX); fall back to GUID string.
+    for (ItemFilter f : getItemFilters()) {
+      if (f != null && key.equalsIgnoreCase(f.getName())) {
+        return f;
+      }
+    }
+    try {
+      // type-host-uuid or long form accepted by PSGuid
+      var guid = new com.percussion.services.guidmgr.data.PSGuid(key);
+      return getItemFilter(ApiUtils.convertGuid((com.percussion.utils.guid.IPSGuid) guid));
+    } catch (IllegalArgumentException e) {
+      // Invalid GUID syntax (incl. NumberFormatException from parse) → generic 404
+      log.debug("Invalid item filter GUID syntax: {}", e.getMessage());
+      return null;
+    } catch (PSNotFoundException e) {
+      log.debug("Item filter not found for GUID key: {}", e.getMessage());
+      return null;
+    }
+  }
+
+  /**
+   * Single path component / guid token only — reject traversal and separators ({@code
+   * java/path-injection}).
+   */
+  static boolean isSafeFilterKey(String key) {
+    if (key == null || key.isBlank()) {
+      return false;
+    }
+    return !key.contains("..")
+        && key.indexOf('/') < 0
+        && key.indexOf('\\') < 0
+        && key.indexOf('\0') < 0;
+  }
 }

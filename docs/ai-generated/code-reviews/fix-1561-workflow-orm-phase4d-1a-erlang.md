@@ -6,13 +6,13 @@
 
 **Result:** **Approve** — no **bug** findings.
 
-| | |
-|---|---|
-| Bug findings | 0 |
-| Test-coverage findings | 0 (all behavioural mapping tests added; @Disabled blocker documented) |
-| Cross-platform path / I/O findings | 0 (no file I/O in this PR) |
-| Security / data-loss findings | 0 |
-| Convention / maintainability findings | 2 (nits, not blocking) |
+|                                       |                                                                       |
+|---------------------------------------|-----------------------------------------------------------------------|
+| Bug findings                          | 0                                                                     |
+| Test-coverage findings                | 0 (all behavioural mapping tests added; @Disabled blocker documented) |
+| Cross-platform path / I/O findings    | 0 (no file I/O in this PR)                                            |
+| Security / data-loss findings         | 0                                                                     |
+| Convention / maintainability findings | 2 (nits, not blocking)                                                |
 
 ## Diff size
 
@@ -26,7 +26,7 @@
 - `system/src/main/.../PSTransitionsContext.java`: 3 new static factories
   (`loadFromHibernate(int,int)`, `loadFromHibernate(int,String,int)`, `loadAllFromHibernate(int,int)`)
   + new `populateRowFromHibernate(PSTransition)` private helper + new cursor fields
-  (`m_hRows`, `m_hCursorIndex`).
+    (`m_hRows`, `m_hCursorIndex`).
 - `modules/extensions-workflow/.../PSContentTypesContext.java`: new
   `loadFromHibernate(int)` static factory backed by `IPSContentMgr.loadNodeDefinitions`.
 - `modules/extensions-workflow/.../PSExitAddPossibleTransitions.java`: all
@@ -46,12 +46,12 @@
 
 ## Build & test evidence
 
-| Module | Command | Result |
-|---|---|---|
-| `modules/extensions-workflow` | `mvnw.cmd -N clean install -DskipTests` | **BUILD SUCCESS** |
-| `system` | `mvnw.cmd -N clean install -DskipTests` | **BUILD SUCCESS** |
-| `modules/extensions-workflow` | `mvnw.cmd -N test` | **49 tests** (16 active, 33 @Disabled), Failures: 0, Errors: 0 |
-| `system` | `mvnw.cmd -N test` | **904 tests** (659 active, 1 pre-existing failure in `PSObjectSerializerTest` noted in root `AGENTS.md` as unrelated, 244 @Disabled), Failures: 1 (pre-existing), Errors: 0 |
+|            Module             |                 Command                 |                                                                                   Result                                                                                    |
+|-------------------------------|-----------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `modules/extensions-workflow` | `mvnw.cmd -N clean install -DskipTests` | **BUILD SUCCESS**                                                                                                                                                           |
+| `system`                      | `mvnw.cmd -N clean install -DskipTests` | **BUILD SUCCESS**                                                                                                                                                           |
+| `modules/extensions-workflow` | `mvnw.cmd -N test`                      | **49 tests** (16 active, 33 @Disabled), Failures: 0, Errors: 0                                                                                                              |
+| `system`                      | `mvnw.cmd -N test`                      | **904 tests** (659 active, 1 pre-existing failure in `PSObjectSerializerTest` noted in root `AGENTS.md` as unrelated, 244 @Disabled), Failures: 1 (pre-existing), Errors: 0 |
 
 No new warnings introduced on the changed modules (raw-type warnings on legacy
 `IPSStateRolesContext` are pre-existing and untouched).
@@ -80,18 +80,18 @@ explicitly out of scope for Phase 4d-1a (it's in the Phase 4d-1b write-exit migr
 `populateRowFromHibernate` correctly maps:
 - `transitionId` via `row.getGUID().longValue()` (Phase 4c pattern).
 - `label` / `description` / `trigger` / `toState` / `stateId` via the `IPSTransitionBase` /
-  `IPSCatalogSummary` accessors (null-safe).
+`IPSCatalogSummary` accessors (null-safe).
 - `approvals` / `requiresComment` / `transitionAction` via `IPSTransition` accessors; the
-  `PSWorkflowCommentEnum` is rendered back to its underlying "y" / "n" / "d" string via
-  `getTypeValue()` — identical to the column value the legacy code stored.
+`PSWorkflowCommentEnum` is rendered back to its underlying "y" / "n" / "d" string via
+`getTypeValue()` — identical to the column value the legacy code stored.
 - `transitionRoles` column synthesised from `row.isAllowAllRoles()` (sets
-  `NO_TRANSITION_ROLE_RESTRICTION` / `SPECIFIED_ROLE_TRANSITION_RESTRICTION`).
+`NO_TRANSITION_ROLE_RESTRICTION` / `SPECIFIED_ROLE_TRANSITION_RESTRICTION`).
 - `m_TransitionRoleIds_List` populated from the eager-loaded `PSTransitionRole` collection
-  (`fetch = EAGER` on `PSTransitionHib.roles`).
+(`fetch = EAGER` on `PSTransitionHib.roles`).
 - `m_TransitionRoleNames_List` / `m_transitionRoleNamesIdMap` resolved via the Phase 4b
-  `IPSWorkflowService#findWorkflowRoles(workflowId, roleIds)` helper. Missing role names
-  throw `IllegalStateException` — same fatal-failure mode as the legacy `buildRolesList`
-  query returning a null `getString("ROLENAME")`.
+`IPSWorkflowService#findWorkflowRoles(workflowId, roleIds)` helper. Missing role names
+throw `IllegalStateException` — same fatal-failure mode as the legacy `buildRolesList`
+query returning a null `getString("ROLENAME")`.
 
 ### 2. `PSExitAddPossibleTransitions` migration — **OK**
 
@@ -164,12 +164,12 @@ exception — the same risk as any other `PSNodeDefinition` cast in the codebase
 
 ### 6. Tests
 
-| Test class | Active | Disabled | Notes |
-|---|---|---|---|
-| `PSWorkflowServiceFindTransitionsByStateTest` | 3 | 0 | Mockito-only; JPQL + parameters + empty branch |
-| `PSWorkflowServiceFindTransitionByTriggerTest` | 5 | 0 | Mockito-only; JPQL + parameters + null + multi-match |
-| `PSTransitionsContextLoadFromHibernateTest` | 0 | 10 | Hibernate factory mapping; @Disabled due to `PSConnectionMgr.getQualifiedIdentifier` static-init blocker (same blocker as Phase 4b/4c) |
-| `PSContentTypesContextLoadFromHibernateTest` | 0 | 4 | Same @Disabled pattern |
+|                   Test class                   | Active | Disabled |                                                                 Notes                                                                  |
+|------------------------------------------------|--------|----------|----------------------------------------------------------------------------------------------------------------------------------------|
+| `PSWorkflowServiceFindTransitionsByStateTest`  | 3      | 0        | Mockito-only; JPQL + parameters + empty branch                                                                                         |
+| `PSWorkflowServiceFindTransitionByTriggerTest` | 5      | 0        | Mockito-only; JPQL + parameters + null + multi-match                                                                                   |
+| `PSTransitionsContextLoadFromHibernateTest`    | 0      | 10       | Hibernate factory mapping; @Disabled due to `PSConnectionMgr.getQualifiedIdentifier` static-init blocker (same blocker as Phase 4b/4c) |
+| `PSContentTypesContextLoadFromHibernateTest`   | 0      | 4        | Same @Disabled pattern                                                                                                                 |
 
 `PSTransitionsContextLoadFromHibernateTest.loadAllFromHibernate_singleRow_firstMoveNextReadsRowZero`
 is the regression test for the cursor invariant (N=1 case). It verifies that after
@@ -213,14 +213,15 @@ documented in `phase4-scope-survey.md` as a Phase 4+ follow-up.
 
 ## Gate
 
-| Check | Status |
-|---|---|
-| Bug findings | ✅ 0 |
-| Missing behavioural tests | ✅ 0 (4 new test classes; @Disabled blockers documented) |
-| Cross-platform portability | ✅ N/A |
-| Security / data-loss | ✅ 0 |
-| Erlang pre-commit (strict) | ✅ **Approve** — may commit / push / open PR |
+|           Check            |                         Status                          |
+|----------------------------|---------------------------------------------------------|
+| Bug findings               | ✅ 0                                                     |
+| Missing behavioural tests  | ✅ 0 (4 new test classes; @Disabled blockers documented) |
+| Cross-platform portability | ✅ N/A                                                   |
+| Security / data-loss       | ✅ 0                                                     |
+| Erlang pre-commit (strict) | ✅ **Approve** — may commit / push / open PR             |
 
 > The pre-existing `com.percussion.xml.serialization.junit.PSObjectSerializerTest
 > .test02DeSerialization` failure in `system/` is documented in the root `AGENTS.md` as
 > unrelated to this work and is not in the diff for this PR.
+

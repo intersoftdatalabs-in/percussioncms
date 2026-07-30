@@ -17,17 +17,44 @@
 package com.percussion.delivery.feeds.services;
 
 /**
+ * Represents connection information used to access the metadata service.
+ *
  * @author erikserating
  */
 public interface IPSConnectionInfo {
 
+  /**
+   * Gets the connection URL.
+   *
+   * @return the connection URL, never <code>null</code>
+   */
   public String getUrl();
 
+  /**
+   * Gets the connection user name.
+   *
+   * @return the connection user name, never <code>null</code>
+   */
   public String getUsername();
 
+  /**
+   * Gets the connection password.
+   *
+   * @return the connection password, may be <code>null</code> when unused
+   */
   public String getPassword();
 
+  /**
+   * Gets the encrypted form of the connection password.
+   *
+   * @return the encrypted password, may be <code>null</code> when no password is set
+   */
   public String getEncrypted();
 
+  /**
+   * Gets the unique identifier of this connection record.
+   *
+   * @return the connection record id
+   */
   public long getId();
 }

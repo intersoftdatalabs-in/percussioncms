@@ -45,12 +45,18 @@ import org.w3c.dom.NodeList;
  * @author James Schultz
  */
 public class PSSite {
+
+  /** Default constructor for PSSite. */
+  public PSSite() {
+    // default constructor
+  }
+
   /**
    * Uses the site id parameter to lookup the site folder root path stored in the RXSITES table.
    *
    * @param siteid Id of the site whose site folder root will be returned. if provided null, null
    *     will be returned
-   * @param request
+   * @param request the current request context, never <code>null</code>
    * @return the site folder root of the supplied site, may be null or empty.
    */
   public static String lookupFolderRootForSite(String siteid, IPSRequestContext request) {

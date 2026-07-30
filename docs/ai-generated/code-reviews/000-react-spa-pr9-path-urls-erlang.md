@@ -1,13 +1,13 @@
 # Erlang review — PR-9 path-based SPA URLs
 
-| Field | Value |
-|-------|-------|
-| **Branch** | `feat/000-react-spa-pr9-path-urls` |
-| **Base** | `development` @ PR-8 merge |
-| **Date** | 2026-07-27 |
-| **Scope** | BrowserRouter + `PSWebUiSpaFallbackFilter` + path↔entry helpers + tests/docs |
-| **Recommendation** | **approve** |
-| **May commit/push** | **yes** |
+|        Field        |                                    Value                                     |
+|---------------------|------------------------------------------------------------------------------|
+| **Branch**          | `feat/000-react-spa-pr9-path-urls`                                           |
+| **Base**            | `development` @ PR-8 merge                                                   |
+| **Date**            | 2026-07-27                                                                   |
+| **Scope**           | BrowserRouter + `PSWebUiSpaFallbackFilter` + path↔entry helpers + tests/docs |
+| **Recommendation**  | **approve**                                                                  |
+| **May commit/push** | **yes**                                                                      |
 
 ## Summary
 
@@ -22,12 +22,12 @@ static assets.
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs (logic / security) | None found — allowlisted entries only; traversal rejected; no open redirect |
-| Behavioral tests | Java `PSWebUiSpaFallbackFilterTest` (7); Vitest App/deepLinks/session/spaCutover |
-| Cross-platform path/file I/O | N/A for filter path math (URL paths use `/`); no OS filesystem |
-| Build | `cd WebUI && ../mvnw clean install` → **BUILD SUCCESS**; Surefire 11 tests |
+|            Check             |                                      Result                                      |
+|------------------------------|----------------------------------------------------------------------------------|
+| Bugs (logic / security)      | None found — allowlisted entries only; traversal rejected; no open redirect      |
+| Behavioral tests             | Java `PSWebUiSpaFallbackFilterTest` (7); Vitest App/deepLinks/session/spaCutover |
+| Cross-platform path/file I/O | N/A for filter path math (URL paths use `/`); no OS filesystem                   |
+| Build                        | `cd WebUI && ../mvnw clean install` → **BUILD SUCCESS**; Surefire 11 tests       |
 
 ## Issues
 
@@ -44,3 +44,4 @@ None blocking.
 
 - Java: Tests run: 11 (filter 7 + gadget 4), Failures: 0
 - Vitest: App + deepLinks + auth + spaCutover green after basename handoff fix
+

@@ -43,10 +43,10 @@ public class PSCsrfSecurityRequestMatcher implements RequestMatcher {
    *
    * @param allowedMethodsPattern regular expression listing excluded HTTP methods; matches the
    *     request method against this pattern.
-   * @param unprotectedPaths comma separated list of URI fragments to ignore; a request is exempt
-   *     if its URI contains any of these substrings.
-   * @param caseInsensitive when <code>true</code>, the comparison against {@code
-   *     unprotectedPaths} and the URI is performed case-insensitively.
+   * @param unprotectedPaths comma separated list of URI fragments to ignore; a request is exempt if
+   *     its URI contains any of these substrings.
+   * @param caseInsensitive when <code>true</code>, the comparison against {@code unprotectedPaths}
+   *     and the URI is performed case-insensitively.
    */
   public PSCsrfSecurityRequestMatcher(
       String allowedMethodsPattern, String unprotectedPaths, boolean caseInsensitive) {

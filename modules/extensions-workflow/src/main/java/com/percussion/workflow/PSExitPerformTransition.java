@@ -29,8 +29,14 @@ import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.i18n.PSI18nUtils;
 import com.percussion.server.IPSRequestContext;
+import com.percussion.services.catalog.PSTypeEnum;
+import com.percussion.services.guidmgr.PSGuidUtils;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
+import com.percussion.services.system.IPSSystemService;
+import com.percussion.services.system.PSSystemServiceLocator;
+import com.percussion.services.workflow.PSWorkflowServiceLocator;
+import com.percussion.services.workflow.data.PSContentApproval;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.exceptions.PSORMException;
 import java.io.File;
@@ -45,6 +51,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Performs the requested workflow transition (such as approval, check-in or check-out) based on the
@@ -248,7 +255,6 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
    *             <li>a PSEntryNotFoundException is caught because an expected data base entry does
    *                 not exist
    *           </ul>
-   *         </li>
    *     </ul>
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
@@ -404,8 +410,8 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
         localParams.m_htmlRevision = getRevisionFromHTMLParams(htmlParams);
       }
 
-      // Phase 4d-1b: no `new PSConnectionMgr()` — get a fresh pool connection via
-      // PSConnectionHelper. The dual-connection defect documented in the #1561 inventory
+      // Phase 4d-1b: a fresh pool connection is acquired via PSConnectionHelper.
+      // The dual-connection defect documented in the #1561 inventory
       // is mitigated by routing the WRITES through Hibernate (single shared transaction);
       // the raw-JDBC reads in performTransition() use this fresh connection but are
       // acknowledged as a Phase 5 cleanup target. The connection is released in
@@ -610,8 +616,7 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
     PSTransitionsContext tc = null;
     List transitionActions = null;
     // Phase 4d-1b: load CONTENTSTATUS from the shared Hibernate session — no second connection.
-    PSContentStatusContext csc =
-        PSContentStatusContext.loadFromHibernate(localParams.m_contentID);
+    PSContentStatusContext csc = PSContentStatusContext.loadFromHibernate(localParams.m_contentID);
 
     try {
       String usercomm =
@@ -633,7 +638,8 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
     PSStateRolesContext fromStateSrc = null;
     PSContentAdhocUsersContext toStateCauc = null;
     PSContentAdhocUsersContext fromStateCauc = null;
-    // Phase 4d-1b: no csc.close() — the Hibernate-backed loadFromHibernate does not open a connection.
+    // Phase 4d-1b: no csc.close() — the Hibernate-backed loadFromHibernate does not open a
+    // connection.
 
     localParams.m_workflowAppID = csc.getWorkflowID();
     localParams.m_transitionFromStateID = csc.getContentStateID();
@@ -675,17 +681,27 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
         isId = false;
       }
 
+      // Phase 4d-1c: route user-transition lookups through the Hibernate-backed
+      // PSTransitionsContext factories on the shared session — no raw JDBC, no second pool
+      // connection. Legacy raw-JDBC constructors remain only for the aging-transitions cursor
+      // in updateAgingInformation() (no Hibernate factory exists for aging transitions yet —
+      // tracked as Phase 5 follow-up).
       if (isId && transitionId != -1) {
-        tc = new PSTransitionsContext(transitionId, localParams.m_workflowAppID, connection);
+        tc = PSTransitionsContext.loadFromHibernate(localParams.m_workflowAppID, transitionId);
       } else {
         tc =
-            new PSTransitionsContext(
+            PSTransitionsContext.loadFromHibernate(
                 localParams.m_workflowAppID,
-                connection,
                 localParams.m_actionTrigger,
                 localParams.m_transitionFromStateID);
+        if (tc.getTransitionCount() == 0) {
+          // Factory returns an empty context (matching the legacy constructor's
+          // PSEntryNotFoundException
+          // path) — surface it so the existing MISSING_TRANSITION handler runs.
+          throw new PSEntryNotFoundException(IPSExtensionErrors.NO_RECORDS);
+        }
       }
-      tc.close(); // release JDBC objects
+      // No JDBC resources to release — Hibernate-backed factory manages its own session.
     } catch (PSEntryNotFoundException e) {
       Object[] args = {
         localParams.m_contentID,
@@ -752,10 +768,10 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
       throw new PSTransitionException(lang, IPSExtensionErrors.TRANSITION_COMMENT_NOT_SPECIFIED);
     }
 
+    // Phase 4d-1c: Hibernate-backed read of STATEROLES for the to-state.
     toStateSrc =
-        new PSStateRolesContext(
+        PSStateRolesContext.loadFromHibernate(
             localParams.m_workflowAppID,
-            connection,
             localParams.m_transitionToStateID,
             PSWorkFlowUtils.ASSIGNMENT_TYPE_READER);
 
@@ -786,10 +802,10 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
      * then delete adhoc context from the data base, and update it with the
      * new 'to state' adhoc context info
      */
+    // Phase 4d-1c: Hibernate-backed read of STATEROLES for the from-state.
     fromStateSrc =
-        new PSStateRolesContext(
+        PSStateRolesContext.loadFromHibernate(
             localParams.m_workflowAppID,
-            connection,
             localParams.m_transitionFromStateID,
             PSWorkFlowUtils.ASSIGNMENT_TYPE_READER);
 
@@ -821,7 +837,8 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
           IPSWorkflowAction.WORKFLOW_ACTIONS_PRIVATE_OBJECT, transitionActions);
     }
 
-    fromStateCauc = new PSContentAdhocUsersContext(localParams.m_contentID, connection);
+    // Phase 4d-1c: Hibernate-backed read of CONTENTADHOCUSERS for the from-state.
+    fromStateCauc = PSContentAdhocUsersContext.loadFromHibernate(localParams.m_contentID);
 
     localParams.m_wfRoleInfo.setFromStateCauc(fromStateCauc);
     localParams.m_wfRoleInfo.setToStateCauc(toStateCauc);
@@ -1103,7 +1120,8 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
     int workflowID = csc.getWorkflowID();
     int contentID = csc.getContentID();
     int transitionToStateID = tc.getTransitionToStateID();
-    PSContentApprovalsContext cac = null;
+    int transitionFromStateID = tc.getTransitionFromStateID();
+    int transitionID = tc.getTransitionID();
     IPSStatesContext sc = null;
     boolean bHasActed = false;
     boolean eachRoleNeeded = false;
@@ -1131,25 +1149,49 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
     }
 
     /**
-     * Determine if there are sufficient approvals to perform the transition. Always create the
-     * approvals context. Some approvals may exist and need to be cleared. They may exist because
-     * the number of required approvals may have changed, or they may be from a different
-     * transition.
+     * Determine if there are sufficient approvals to perform the transition. Always load the
+     * approvals for the content item. Some approvals may exist and need to be cleared. They may
+     * exist because the number of required approvals may have changed, or they may be from a
+     * different transition.
+     *
+     * <p>Phase 4d-1c: replaces the raw-JDBC {@code new PSContentApprovalsContext(...)} read with
+     * the inline Hibernate-backed {@code IPSWorkflowService.findApprovalsByItem} call, and inlines
+     * the previously raw-JDBC {@code hasUserActed / hasRoleActed / getApprovedUserCount /
+     * roleIdList} checks against the in-memory list. The {@code
+     * PSContentApprovalsContext.loadFromHibernate} factory is deferred to PR 4d-1d.
      */
-    cac = new PSContentApprovalsContext(workflowID, connection, contentID, tc);
+    List<PSContentApproval> allApprovals =
+        PSWorkflowServiceLocator.getWorkflowService()
+            .findApprovalsByItem(PSGuidUtils.makeGuid(contentID, PSTypeEnum.LEGACY_CONTENT));
+    // Approvals tied to the current transition — matches the legacy QRYSTRING filter
+    // (workflow, content, transition) — used for counts and role-id list.
+    List<PSContentApproval> transitionApprovals =
+        allApprovals.stream()
+            .filter(a -> a.getWorkflowId() == workflowID && a.getTransitionId() == transitionID)
+            .collect(Collectors.toList());
+    // Approvals for the current state — matches the legacy USER_QUERYSTRING / ROLEID_QRYSTRING
+    // (workflow, content, state) — used for user/role acted checks.
+    List<PSContentApproval> stateApprovals =
+        allApprovals.stream()
+            .filter(a -> a.getWorkflowId() == workflowID && a.getStateId() == transitionFromStateID)
+            .collect(Collectors.toList());
+
     if (!localParams.m_isAdministrator) {
       /*
        * Decrement the number of required approvals by the number of
        * existing approvals for this transition.
        */
-      nApproved = cac.getApprovedUserCount();
+      // Preserve the legacy PSContentApprovalsContext.getApprovedUserCount() semantics —
+      // counts rows returned by the QRYSTRING (workflow, content, transition), not distinct
+      // users.
+      nApproved = transitionApprovals.size();
       approvalsNeeded -= nApproved;
 
       /**
        * If more approvals are needed and the current user has already acted on this document, it is
        * an error; otherwise, decrement the required approvals by 1
        */
-      bHasActed = cac.hasUserActed(userName);
+      bHasActed = hasUserActed(stateApprovals, userName);
       if (bHasActed) {
         throw new PSDuplicateApprovalException(
             lang, IPSExtensionErrors.TRANSITION_ATTEMPT, userName);
@@ -1179,7 +1221,7 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
         int roleId = PSWorkFlowUtils.getRoleIdFromMap(roleIdNameMap, tmpRole);
 
         // if the role has been found and it has not been acted upon keep it
-        if (roleId != -1 && !cac.hasRoleActed(roleId)) {
+        if (roleId != -1 && !hasRoleActed(stateApprovals, roleId)) {
           keepRoles.add(tmpRole);
         }
       }
@@ -1211,14 +1253,21 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
           }
           if (found) continue;
 
-          if (!cac.roleIdList().contains(roleId)) {
+          if (!transitionRoleIds(transitionApprovals).contains(roleId)) {
             doTransition = false;
             break;
           }
         }
 
         if (!doTransition) {
-          addRoleApproval(cac, roleIdNameMap, userRoles, userName);
+          addRoleApproval(
+              workflowID,
+              transitionFromStateID,
+              transitionID,
+              contentID,
+              roleIdNameMap,
+              userRoles,
+              userName);
 
           return false; // no transition
         }
@@ -1229,11 +1278,19 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
 
       //  If there are not enough approvals, add the new one(s) and exit.
       if (approvalsNeeded > 0) {
-        addRoleApproval(cac, roleIdNameMap, userRoles, userName);
+        addRoleApproval(
+            workflowID,
+            transitionFromStateID,
+            transitionID,
+            contentID,
+            roleIdNameMap,
+            userRoles,
+            userName);
 
-        // after the role approvals above, recalculate the amount
-        // of approvals still to be done
-        int count = tc.getTransitionApprovalsRequired() - cac.getApprovedUserCount();
+        // after the role approvals above, recalculate the amount of approvals still to be done
+        // (counts rows, matching the legacy PSContentApprovalsContext.getApprovedUserCount()
+        // semantics).
+        int count = tc.getTransitionApprovalsRequired() - transitionApprovals.size();
 
         PSWorkFlowUtils.printWorkflowMessage(
             request, "    " + count + " are still needed for this transition.");
@@ -1272,8 +1329,9 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
 
     csc.commit(); // Phase 4d-1b: Hibernate-backed CONTENTSTATUS UPDATE
 
-    // Empty any approvals that may exist for this content item
-    cac.emptyApprovalsViaHibernate();
+    // Empty any approvals that may exist for this content item — Hibernate-backed write
+    // (mirrors the legacy PSContentApprovalsContext.emptyApprovals() semantics).
+    PSSystemServiceLocator.getSystemService().deleteContentApprovals(contentID);
 
     PSWorkFlowUtils.printWorkflowMessage(request, "    Exiting Method processTransition");
 
@@ -1284,9 +1342,15 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
    * Private helper method to add an approval for the first role assigned to the specified user. See
    * RX-15731 for details.
    *
-   * @param cac The content approval context, used to actually set the state of the approval for
-   *     each of the specified roles, assumed not <code>
-   *    null</code>
+   * <p>Phase 4d-1c: replaced the pre-existing raw-JDBC {@code PSContentApprovalsContext} read with
+   * an inline Hibernate-backed save via {@code IPSSystemService.saveContentApproval(...)}, matching
+   * the legacy {@code PSContentApprovalsContext.addContentApprovalViaHibernate(...)} entity shape
+   * (workflowId, contentId, transitionId, stateId, user, roleId).
+   *
+   * @param workflowID the workflow id of the transition.
+   * @param transitionFromStateID the source state id of the transition.
+   * @param transitionID the transition id.
+   * @param contentID the content id being transitioned.
    * @param roleIdNameMap A map of role id as key and role name as value to be used in determining
    *     if this transition can proceed, assumed not <code>
    *    null</code>.
@@ -1294,19 +1358,92 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
    *    null</code>.
    * @param userName The specific user used to execute the transition, assumed not <code>null</code>
    *     .
-   * @throws SQLException if an SQL error occurs
    */
   private static void addRoleApproval(
-      PSContentApprovalsContext cac, Map roleIdNameMap, HashSet userRoles, String userName)
-      throws SQLException {
+      int workflowID,
+      int transitionFromStateID,
+      int transitionID,
+      int contentID,
+      Map roleIdNameMap,
+      HashSet userRoles,
+      String userName) {
     Iterator iter = userRoles.iterator();
 
     if (iter.hasNext()) {
       String tmpRole = (String) iter.next();
-
-      cac.addContentApprovalViaHibernate(
-          userName, PSWorkFlowUtils.getRoleIdFromMap(roleIdNameMap, tmpRole));
+      int roleId = PSWorkFlowUtils.getRoleIdFromMap(roleIdNameMap, tmpRole);
+      String trimmed = PSWorkFlowUtils.trimmedOrNullString(userName);
+      if (trimmed == null) {
+        throw new IllegalArgumentException(
+            "The user name for an approval may not be null or empty");
+      }
+      PSContentApproval approval =
+          new PSContentApproval(
+              contentID, roleId, trimmed, workflowID, transitionFromStateID, transitionID);
+      IPSSystemService system = PSSystemServiceLocator.getSystemService();
+      system.saveContentApproval(approval);
     }
+  }
+
+  /**
+   * Inline Phase 4d-1c replacement for the legacy raw-JDBC {@code
+   * PSContentApprovalsContext.hasUserActed(String)} check. Returns {@code true} if any approval row
+   * in {@code stateApprovals} matches the supplied user.
+   *
+   * @param stateApprovals the approvals for the current state (workflow, content, state); must not
+   *     be {@code null}.
+   * @param userName the user name to test; may be {@code null} or empty (returns {@code false}).
+   * @return {@code true} if the user has already acted on this state.
+   */
+  private static boolean hasUserActed(List<PSContentApproval> stateApprovals, String userName) {
+    String trimmed = PSWorkFlowUtils.trimmedOrNullString(userName);
+    if (trimmed == null || trimmed.isEmpty()) {
+      return false;
+    }
+    for (PSContentApproval a : stateApprovals) {
+      if (trimmed.equalsIgnoreCase(a.getUser())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Inline Phase 4d-1c replacement for the legacy raw-JDBC {@code
+   * PSContentApprovalsContext.hasRoleActed(int)} check. Returns {@code true} if any approval row in
+   * {@code stateApprovals} matches the supplied role id.
+   *
+   * @param stateApprovals the approvals for the current state (workflow, content, state); must not
+   *     be {@code null}.
+   * @param roleId the role id to test.
+   * @return {@code true} if the role has already acted on this state.
+   */
+  private static boolean hasRoleActed(List<PSContentApproval> stateApprovals, int roleId) {
+    if (roleId < 0) {
+      return false;
+    }
+    for (PSContentApproval a : stateApprovals) {
+      if (a.getRoleId() == roleId) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Inline Phase 4d-1c replacement for the legacy raw-JDBC {@code
+   * PSContentApprovalsContext.roleIdList()} accessor. Returns the distinct role ids of the supplied
+   * approvals.
+   *
+   * @param transitionApprovals the approvals for the current transition (workflow, content,
+   *     transition); must not be {@code null}.
+   * @return a distinct list of role ids, never {@code null}.
+   */
+  private static List<Integer> transitionRoleIds(List<PSContentApproval> transitionApprovals) {
+    return transitionApprovals.stream()
+        .map(PSContentApproval::getRoleId)
+        .distinct()
+        .collect(Collectors.toList());
   }
 
   /**
@@ -1472,6 +1609,15 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
      * aging transition time.
      */
     try {
+      // Phase 4d-1c DEFERRED: the aging transitions cursor in updateAgingInformation() still
+      // uses the raw-JDBC `new PSTransitionsContext(workflowId, connection, agingStateID)`
+      // constructor. The existing `PSTransitionsContext.loadAllFromHibernate(workflowId,
+      // fromStateId)` factory (Phase 4d-1a) filters by `transitionType = TRANSITION` and
+      // excludes aging transitions (see `PSWorkflowService.findTransitionsByState`), so it
+      // cannot be used here — the loop below discards non-aging rows and only retains aging
+      // ones. Migrating this site requires a new `findAgingTransitionsByState` service
+      // method + a Hibernate-backed `loadAgingFromHibernate` factory, both of which are
+      // tracked as Phase 5 follow-up.
       candidateTC = new PSTransitionsContext(csc.getWorkflowID(), connection, agingStateID);
 
       do {

@@ -36,20 +36,20 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
- * Pure mapping tests for {@link PSTransitionNotificationsContext#loadFromHibernate(int, int)}
- * added in #1561 Phase 4c. Mirrors {@code PSLoadFromHibernateTest} (Phase 4b) — these tests are
- * placed alongside the legacy classes they exercise, but the legacy classes' static initializers
- * call {@code PSConnectionMgr.getQualifiedIdentifier} which requires a live DB connection detail,
- * so the suite is {@link Disabled} until the Phase 4+ Spring+H2 infrastructure ships.
+ * Pure mapping tests for {@link PSTransitionNotificationsContext#loadFromHibernate(int, int)} added
+ * in #1561 Phase 4c. Mirrors {@code PSLoadFromHibernateTest} (Phase 4b) — these tests are placed
+ * alongside the legacy classes they exercise, but the legacy classes still expose only raw-JDBC
+ * read constructors, so the suite is {@link Disabled} until the Phase 4d-1d Spring+H2
+ * infrastructure ships.
  *
- * <p>The mock service is wired into {@link PSWorkflowServiceLocator} via reflection on the
- * private static {@code AtomicReference} field so the disabled tests will pass as soon as the
- * static-initializer blocker is removed (Phase 4+ follow-up).
+ * <p>The mock service is wired into {@link PSWorkflowServiceLocator} via reflection on the private
+ * static {@code AtomicReference} field so the disabled tests will pass as soon as the raw-JDBC read
+ * path is replaced (Phase 4d-1d follow-up).
  */
 @Disabled(
-    "Static initializer of PSTransitionNotificationsContext calls"
-        + " PSConnectionMgr.getQualifiedIdentifier; will be re-enabled when Spring+H2 test"
-        + " infrastructure ships (Phase 4+ follow-up).")
+    "PSTransitionNotificationsContext read constructors still use the legacy raw-JDBC path;"
+        + " will be re-enabled when Spring+H2 test"
+        + " infrastructure ships (Phase 4d-1d follow-up).")
 public class PSTransitionNotificationsContextLoadFromHibernateTest {
 
   private IPSWorkflowService mockWf;
@@ -109,12 +109,17 @@ public class PSTransitionNotificationsContextLoadFromHibernateTest {
 
   @Test
   void rowsArePopulatedInOrder() {
-    PSNotification n1 = makeRow(101L, PSStateRoleRecipientTypeEnum.TO_STATE_RECIPIENTS,
-        "user1@example.com", "cc1@example.com");
-    PSNotification n2 = makeRow(102L, PSStateRoleRecipientTypeEnum.FROM_STATE_RECIPIENTS,
-        "user2@example.com", "");
-    PSNotification n3 = makeRow(103L,
-        PSStateRoleRecipientTypeEnum.TO_AND_FROM_STATE_RECIPIENTS, "", "cc3@example.com");
+    PSNotification n1 =
+        makeRow(
+            101L,
+            PSStateRoleRecipientTypeEnum.TO_STATE_RECIPIENTS,
+            "user1@example.com",
+            "cc1@example.com");
+    PSNotification n2 =
+        makeRow(102L, PSStateRoleRecipientTypeEnum.FROM_STATE_RECIPIENTS, "user2@example.com", "");
+    PSNotification n3 =
+        makeRow(
+            103L, PSStateRoleRecipientTypeEnum.TO_AND_FROM_STATE_RECIPIENTS, "", "cc3@example.com");
     List<PSNotification> rows = new ArrayList<>();
     rows.add(n1);
     rows.add(n2);
@@ -147,8 +152,7 @@ public class PSTransitionNotificationsContextLoadFromHibernateTest {
 
   @Test
   void aggregateRecipientFlagsAcrossRows() {
-    PSNotification onlyTo = makeRow(1L, PSStateRoleRecipientTypeEnum.TO_STATE_RECIPIENTS,
-        "", "");
+    PSNotification onlyTo = makeRow(1L, PSStateRoleRecipientTypeEnum.TO_STATE_RECIPIENTS, "", "");
     when(mockWf.findTransitionNotifications(7L, 11L)).thenReturn(Collections.singletonList(onlyTo));
 
     PSTransitionNotificationsContext ctx =
@@ -166,14 +170,16 @@ public class PSTransitionNotificationsContextLoadFromHibernateTest {
     PSNotification row = mock(PSNotification.class);
     when(row.getNotificationId()).thenReturn(notificationId);
     when(row.getStateRoleRecipientType()).thenReturn(recipientType);
-    when(row.getRecipients()).thenReturn(
-        recipientList == null || recipientList.isEmpty()
-            ? Collections.emptyList()
-            : Collections.singletonList(recipientList));
-    when(row.getCCRecipients()).thenReturn(
-        ccList == null || ccList.isEmpty()
-            ? Collections.emptyList()
-            : Collections.singletonList(ccList));
+    when(row.getRecipients())
+        .thenReturn(
+            recipientList == null || recipientList.isEmpty()
+                ? Collections.emptyList()
+                : Collections.singletonList(recipientList));
+    when(row.getCCRecipients())
+        .thenReturn(
+            ccList == null || ccList.isEmpty()
+                ? Collections.emptyList()
+                : Collections.singletonList(ccList));
     return row;
   }
 }

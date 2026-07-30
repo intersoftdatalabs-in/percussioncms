@@ -17,7 +17,17 @@
 
 package com.percussion.auditlog;
 
+/**
+ * Common contract for Percussion audit event objects. Allows callers to retrieve the strongly-typed
+ * action associated with an event without knowing the concrete subtype.
+ */
 public interface IPSAuditEvent {
 
+  /**
+   * Returns the action recorded for this event.
+   *
+   * @param <T> the concrete action enum type declared by an implementing event class.
+   * @return the action, never {@code null}.
+   */
   public <T> T getAction();
 }

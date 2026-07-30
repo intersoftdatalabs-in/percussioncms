@@ -276,11 +276,9 @@ Tests run: 49, Failures: 0, Errors: 0, Skipped: 0
 ### Style Verification
 
 ```bash
-# Check formatting
-./mvnw spotless:check
-
-# Apply formatting
+# Apply first, then check (mandatory order — see root AGENTS.md)
 ./mvnw spotless:apply
+./mvnw spotless:check
 ```
 
 ---

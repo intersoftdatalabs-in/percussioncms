@@ -25,11 +25,11 @@ A new scope-survey document at `docs/ai-generated/migrations/workflow-orm/phase4
 - **Prior report:** `fix-1561-workflow-orm-phase3-erlang.md` (gate `approve`).
 - **Memory patterns hit:** "Hard gates (always scan)" — checking for non-portable path/I/O, missing behavioural tests, and Hibernate-managed vs raw-JDBC split.
 
-| File | Status | Purpose |
-|---|---|---|
+|                                                  File                                                  |  Status  |                                                                                                 Purpose                                                                                                  |
+|--------------------------------------------------------------------------------------------------------|----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `modules/extensions-workflow/src/main/java/com/percussion/workflow/PSExitDisallowUpdatePublished.java` | modified | Migrated `CONTENTSTATUS` read from `new PSContentStatusContext(connection, contentid)` to `PSCmsObjectMgr#loadComponentSummary(contentid)`. Connection / `new PSConnectionMgr()` removed from this exit. |
-| `modules/extensions-workflow/src/main/java/com/percussion/workflow/PSGetCheckoutStatus.java` | modified | Same migration. `csc.getContentCheckedOutUserName()` → `csc.getCheckoutUserName()`; null check for missing row preserves the default `"Default"` image response. |
-| `docs/ai-generated/migrations/workflow-orm/phase4-scope-survey.md` | **new** | Captures Tier 2 / Tier 3 blockers and the recommended PR split. |
+| `modules/extensions-workflow/src/main/java/com/percussion/workflow/PSGetCheckoutStatus.java`           | modified | Same migration. `csc.getContentCheckedOutUserName()` → `csc.getCheckoutUserName()`; null check for missing row preserves the default `"Default"` image response.                                         |
+| `docs/ai-generated/migrations/workflow-orm/phase4-scope-survey.md`                                     | **new**  | Captures Tier 2 / Tier 3 blockers and the recommended PR split.                                                                                                                                          |
 
 ---
 
@@ -49,11 +49,13 @@ A new scope-survey document at `docs/ai-generated/migrations/workflow-orm/phase4
 ## Issues
 
 ### Issue 1 — Severity: bug — **N/A** (informational only)
+
 - **Description:** The Tier 2 / Tier 3 exits still use `new PSConnectionMgr()`. None of those calls are touched in this PR.
 - **Why not blocking:** the `phase4-scope-survey.md` document explicitly captures each remaining `new PSConnectionMgr()` site and proposes a 4-PR split. Tier 2 + Tier 3 work is intentionally deferred so each PR stays focused and bisect-able.
 - **Status:** documented; deferred to Phase 4b–4d.
 
 ### Issue 2 — Severity: suggestion — **NOTED**
+
 - **Description:** `PSGetCheckoutStatus` now returns the literal string `"Default"` when the `CONTENTSTATUS` row is missing. The original code initialized `result = "Default"` but threw if `PSContentStatusContext` construction failed. The new code path returns `"Default"` silently instead.
 - **Why not blocking:** the legacy behaviour in this code path also fell back to `"Default"` (the `csc.getContentCheckedOutUserName()` was never reached when the row was missing; the throw would happen in the same code branch that produced "Default" in practice). The new behaviour is `null`-safe via `cms.loadComponentSummary()` returning `null`. Net: callers see the same string in the same scenarios. Worth a follow-up test pinning both paths (missing row → "Default"; present row → CHECKOUT_STATUS_SOMEONEELSE / NOBODY / MYSELF).
 - **Status:** flagged; test coverage for `PSGetCheckoutStatus` is the existing pre-PR gap and is out of scope for this small change.
@@ -92,12 +94,12 @@ Status: **acceptable for Tier 1**. Erlang reviewer would prefer a focused Mockit
 
 ## Acceptance criteria mapping (#1561 §7, Phase 4)
 
-| Item | Status |
-|---|---|
+|                                  Item                                  |                                                                               Status                                                                                |
+|------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Finish the remaining `new PSConnectionMgr()` sites in in-product paths | **partially**: 2 / 8 exits in this PR; remaining 6 (plus `PSExitPerformTransition`'s `CONTENTADHOCUSERS` writes) tracked in `phase4-scope-survey.md` as Phase 4b–4d |
-| Delete `PSConnectionMgr` from in-product paths | **deferred** — `PSConnectionMgr` still has callers (state-roles + transitions-for-state + adhoc-users + `PSWorkflowCommandHandler`); see Phase 4d scope |
-| Single connection pool / tx model for in-product workflow writes | landed in #1567 (Phase 2) |
-| Site-create / NavTree regression test on H2 | still a gap; recommended home is `system/src/test/java/com/percussion/services/workflow/`; recommended follow-up |
+| Delete `PSConnectionMgr` from in-product paths                         | **deferred** — `PSConnectionMgr` still has callers (state-roles + transitions-for-state + adhoc-users + `PSWorkflowCommandHandler`); see Phase 4d scope             |
+| Single connection pool / tx model for in-product workflow writes       | landed in #1567 (Phase 2)                                                                                                                                           |
+| Site-create / NavTree regression test on H2                            | still a gap; recommended home is `system/src/test/java/com/percussion/services/workflow/`; recommended follow-up                                                    |
 
 ---
 

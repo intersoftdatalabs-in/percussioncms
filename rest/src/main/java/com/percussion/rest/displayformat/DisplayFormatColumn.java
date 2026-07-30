@@ -21,7 +21,6 @@ import com.percussion.cms.objectstore.PSDisplayColumn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
-import java.util.Optional;
 
 /** Represents a column configured in a Display Format. */
 @XmlRootElement(name = "DisplayFormatColumn")
@@ -111,8 +110,8 @@ public class DisplayFormatColumn {
 
   public DisplayFormatColumn() {}
 
-  public Optional<String> getRenderType() {
-    return Optional.ofNullable(renderType);
+  public String getRenderType() {
+    return renderType;
   }
 
   public void setRenderType(String renderType) {
@@ -151,32 +150,32 @@ public class DisplayFormatColumn {
     this.imageType = imageType;
   }
 
-  public Optional<String> getDisplayId() {
-    return Optional.ofNullable(displayId);
+  public String getDisplayId() {
+    return displayId;
   }
 
   public void setDisplayId(String displayId) {
     this.displayId = displayId;
   }
 
-  public Optional<String> getSource() {
-    return Optional.ofNullable(source);
+  public String getSource() {
+    return source;
   }
 
   public void setSource(String source) {
     this.source = source;
   }
 
-  public Optional<String> getDisplayName() {
-    return Optional.ofNullable(displayName);
+  public String getDisplayName() {
+    return displayName;
   }
 
   public void setDisplayName(String displayName) {
     this.displayName = displayName;
   }
 
-  public Optional<String> getDescription() {
-    return Optional.ofNullable(description);
+  public String getDescription() {
+    return description;
   }
 
   public void setDescription(String description) {

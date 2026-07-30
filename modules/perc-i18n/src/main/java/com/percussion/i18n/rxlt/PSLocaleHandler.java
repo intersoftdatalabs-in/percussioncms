@@ -572,6 +572,24 @@ public class PSLocaleHandler implements IPSActionHandler {
     colList.add(new PSJdbcColumnData(COL_DESCRIPTION, desc));
     colList.add(new PSJdbcColumnData(COL_SORT_ORDER, sortOrder));
     colList.add(new PSJdbcColumnData(COL_STATUS, String.valueOf(status)));
+    // Preserve base flag on replace when the row already exists; new rows default to non-base.
+    // Integer 1 = base / language-only (see RXLOCALE.ISBASE). Avoid referencing system.PSLocale
+    // here (would create a module cycle).
+    String isBase = "0";
+    if (exists && rowData != null) {
+      PSJdbcColumnData existingBase = rowData.getColumn(COL_IS_BASE);
+      if (existingBase != null
+          && existingBase.getValue() != null
+          && !existingBase.getValue().isEmpty()) {
+        isBase = existingBase.getValue();
+      }
+    } else if (languageString != null
+        && !languageString.contains("-")
+        && !languageString.contains("_")) {
+      // Language-only codes (es, hi, ar) default to base when newly created.
+      isBase = "1";
+    }
+    colList.add(new PSJdbcColumnData(COL_IS_BASE, isBase));
     rowList.add(new PSJdbcRowData(colList.iterator(), PSJdbcRowData.ACTION_REPLACE));
 
     // save it
@@ -738,6 +756,9 @@ public class PSLocaleHandler implements IPSActionHandler {
    * definitions.
    */
   public static final String COL_STATUS = "STATUS";
+
+  /** Constant for the name of the ISBASE column (1 = language-only / base locale). */
+  public static final String COL_IS_BASE = "ISBASE";
 
   /**
    * Constant for the name of the LOCALEID column in the repository table containing locale

@@ -1,13 +1,13 @@
 # Phase 4 scope survey — what's actually involved
 
-> Status: **Phase 4a (Tier 1) shipped in PR #1575.** **Phase 4b (Tier 2 — state-roles + auth-flag + authenticate-user exits) shipped in PR #1578.** **Phase 4c (Tier 3a — `PSExitNotifyAssignees` + NOTIFICATIONS + TRANSITIONNOTIFICATIONS) shipped in PR #1583.** **Phase 4d (Tier 3b — read exits + write exit + `PSConnectionMgr` deletion) split into 4d-1a (reads) + 4d-1b (writes + delete).** 4d-1a is in progress.
+> Status: **Phase 4a (Tier 1) shipped in PR #1575.** **Phase 4b (Tier 2 — state-roles + auth-flag + authenticate-user exits) shipped in PR #1578.** **Phase 4c (Tier 3a — `PSExitNotifyAssignees` + NOTIFICATIONS + TRANSITIONNOTIFICATIONS) shipped in PR #1583.** **Phase 4d (Tier 3b — read exits + write exit + `PSConnectionMgr` deletion) split into 4d-1a (reads), 4d-1b (writes), 4d-1c (PSSystemWs + legacy overloads) and 4d-1d (delete PSConnectionMgr entirely).** 4d-1a, 4d-1b, 4d-1c are merged (#1630, #1632, #1640, #1645). 4d-1d is in progress.
 
 ## What ships in Phase 4a (PR #1575, merged)
 
-| Exit | Reads | Writes | Done |
-|---|---|---|---|
-| `PSExitDisallowUpdatePublished` | `CONTENTSTATUS` + state via `cms.loadWorkflowState` | — | ✅ |
-| `PSGetCheckoutStatus` | `CONTENTSTATUS.checkoutUserName` only | — | ✅ |
+|              Exit               |                        Reads                        | Writes | Done |
+|---------------------------------|-----------------------------------------------------|--------|------|
+| `PSExitDisallowUpdatePublished` | `CONTENTSTATUS` + state via `cms.loadWorkflowState` | —      | ✅    |
+| `PSGetCheckoutStatus`           | `CONTENTSTATUS.checkoutUserName` only               | —      | ✅    |
 
 Both exits no longer call `new PSConnectionMgr()` for the `CONTENTSTATUS` read — they use
 `PSCmsObjectMgr#loadComponentSummary(int)` which returns a Hibernate `PSComponentSummary` on
@@ -40,10 +40,10 @@ the same Spring-managed datasource as the surrounding request.
 
 ### Exits migrated off `new PSConnectionMgr()`
 
-| Exit | Reads | Writes | Done |
-|---|---|---|---|
-| `PSExitAddEditAuthFlag` | `CONTENTSTATUS` (Hibernate) + `STATEROLES` + `CONTENTADHOCUSERS` (Hibernate) | — | ✅ |
-| `PSExitAuthenticateUser` | `CONTENTSTATUS` (Hibernate) + `STATEROLES` + `CONTENTADHOCUSERS` (Hibernate) | — | ✅ |
+|           Exit           |                                    Reads                                     | Writes | Done |
+|--------------------------|------------------------------------------------------------------------------|--------|------|
+| `PSExitAddEditAuthFlag`  | `CONTENTSTATUS` (Hibernate) + `STATEROLES` + `CONTENTADHOCUSERS` (Hibernate) | —      | ✅    |
+| `PSExitAuthenticateUser` | `CONTENTSTATUS` (Hibernate) + `STATEROLES` + `CONTENTADHOCUSERS` (Hibernate) | —      | ✅    |
 
 Both exits now use the no-connection overload of
 `PSWorkflowRoleInfoStatic.getActorRoles(userName, roleNameList, src, cauc, authUser)` since
@@ -53,18 +53,18 @@ both `src` and `cauc` are populated from Hibernate (no second pool connection).
 
 ### Phase 4d-1a — reads only (in progress)
 
-| Exit / site | Read paths | Status |
-|---|---|---|
-| `PSExitAddPossibleTransitions` | `CONTENTSTATUS` (Hibernate) + `STATEROLES` (Hibernate) + `CONTENTTYPES` (Hibernate) + `TRANSITIONS` for state (Hibernate) | migrating |
-| `PSExitAddPossibleTransitionsEx` | `CONTENTSTATUS` + `STATEROLES` + `CONTENTTYPES` + `TRANSITIONS` for state + `PSWorkflowRoleInfoStatic.getActorRoles(contentId, src, ...)` Connection-arg overload | migrating |
-| `PSWorkflowCommandHandler.normalizeTransitionIdParameter` | `TRANSITIONS` by trigger name (in `system/cms/handlers`) | migrating |
+|                        Exit / site                        |                                                                            Read paths                                                                             |  Status   |
+|-----------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| `PSExitAddPossibleTransitions`                            | `CONTENTSTATUS` (Hibernate) + `STATEROLES` (Hibernate) + `CONTENTTYPES` (Hibernate) + `TRANSITIONS` for state (Hibernate)                                         | migrating |
+| `PSExitAddPossibleTransitionsEx`                          | `CONTENTSTATUS` + `STATEROLES` + `CONTENTTYPES` + `TRANSITIONS` for state + `PSWorkflowRoleInfoStatic.getActorRoles(contentId, src, ...)` Connection-arg overload | migrating |
+| `PSWorkflowCommandHandler.normalizeTransitionIdParameter` | `TRANSITIONS` by trigger name (in `system/cms/handlers`)                                                                                                          | migrating |
 
 ### Phase 4d-1b — writes + `PSConnectionMgr` deletion (next)
 
-| Exit / site | Write paths | Notes |
-|---|---|---|
-| `PSExitPerformTransition` | `CONTENTSTATUS.STATEID` + `CONTENTADHOCUSERS` (insert + delete) + `CONTENTAPPROVALS` (insert + delete) | The only exit with writes; needs new `IPSSystemService.updateContentStatusState`, `IPSWorkflowService.saveContentAdhocUsers`, `IPSWorkflowService.deleteContentAdhocUsers` services |
-| `PSConnectionMgr` deletion | — | After 4d-1a + 4d-1b land, no in-product callers of `new PSConnectionMgr()` remain. The class still needs `getQualifiedIdentifier` static for the 9 legacy class static inits — either keep the class as a 1-method utility stub or migrate the static inits to use `PSConnectionHelper` directly. |
+|        Exit / site         |                                              Write paths                                               |                                                                                                                                               Notes                                                                                                                                               |
+|----------------------------|--------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `PSExitPerformTransition`  | `CONTENTSTATUS.STATEID` + `CONTENTADHOCUSERS` (insert + delete) + `CONTENTAPPROVALS` (insert + delete) | The only exit with writes; needs new `IPSSystemService.updateContentStatusState`, `IPSWorkflowService.saveContentAdhocUsers`, `IPSWorkflowService.deleteContentAdhocUsers` services                                                                                                               |
+| `PSConnectionMgr` deletion | —                                                                                                      | After 4d-1a + 4d-1b land, no in-product callers of `new PSConnectionMgr()` remain. The class still needs `getQualifiedIdentifier` static for the 9 legacy class static inits — either keep the class as a 1-method utility stub or migrate the static inits to use `PSConnectionHelper` directly. |
 
 ### In-scope Hibernate service methods for 4d-1a
 
@@ -85,20 +85,31 @@ both `src` and `cauc` are populated from Hibernate (no second pool connection).
 - `PSContentAdhocUsersContext.loadFromHibernate(int contentId)` (already added in Phase 4b) + `commit()` + `emptyAdhocUserEntries(...)` (new) — Hibernate-backed `INSERT INTO CONTENTADHOCUSERS` and `DELETE FROM CONTENTADHOCUSERS`
 - `PSContentApprovalsContext.loadFromHibernate(int workflowId, int contentId, PSTransitionsContext)` (new) + `commit()` + `addContentApproval(...)` + `emptyApprovals()` (new) — Hibernate-backed `INSERT INTO CONTENTAPPROVALS` and `DELETE FROM CONTENTAPPROVALS`
 
-### `PSConnectionMgr` deletion path (4d-1b)
+### `PSConnectionMgr` deletion path (4d-1d, in progress)
 
-`PSConnectionMgr.getQualifiedIdentifier(...)` is a static method that reads
-`PSConnectionHelper.getConnectionDetail(null)` once and caches DB metadata. It does
-NOT require a JDBC connection. The 9 legacy context classes have static-init lines
-that call `PSConnectionMgr.getQualifiedIdentifier("X")` to resolve table names.
+`PSConnectionMgr.getQualifiedIdentifier(...)` was a static method that read
+`PSConnectionHelper.getConnectionDetail(null)` once and cached DB metadata, but with all
+catalog/schema flags hardcoded to `false` it only ever returned the input upper-cased —
+i.e., the qualifier was effectively a no-op for the workflow tables. The 9 legacy context
+classes have static-init lines that called `PSConnectionMgr.getQualifiedIdentifier("X")`
+to resolve table names.
 
-After 4d-1a + 4d-1b, no in-product caller of `new PSConnectionMgr()` remains. The
-class can be reduced to:
+After 4d-1a + 4d-1b + 4d-1c, no in-product caller of `new PSConnectionMgr()` remains.
+Decision taken in 4d-1d:
 
-1. Keep `PSConnectionMgr` as a 1-class utility stub with only the static `getQualifiedIdentifier` method (no `<init>` methods declared). This satisfies the 9 legacy static inits and is the smallest-blast-radius deletion.
-2. OR delete `PSConnectionMgr` entirely and migrate the 9 static-inits to call `PSConnectionHelper.getConnectionDetail(null)` directly. This is a larger churn but eliminates the dependency on `PSConnectionMgr`.
+- **Delete `PSConnectionMgr` entirely.** Replace the 9 static-init lines with inlined
+  `private static final String TABLE_X = "X";` constants (behaviour-preserving: upper-cased
+  table names were the actual returned values). Replace `PSAbstractWorkflowContext` /
+  `PSAbstractWorkflowTest` pool-connection call sites with `PSConnectionHelper.getDbConnection()`
+  / `PSConnectionHelper.releaseDbConnection(...)`. The new `releaseDbConnection` helper is
+  added to `PSConnectionHelper` and swallows `SQLException` on close (matching the legacy
+  semantics). No static-init fragility remains — the legacy contexts' class initializers
+  no longer touch the JDBC layer.
 
-Decision pending — picked option 1 by default for 4d-1b unless the Erlang review flags it.
+This is the path Phase 4d-1d is taking. The previous "keep as 1-method utility stub"
+fallback (option 1) was rejected as a half-measure — it leaves a thin static-init
+coupling that still drags in the connection-detail lookup at class-load time, which is
+the original "Spring init order" / "hard to test" complaint the user flagged.
 
 ## Out of scope (issue #1561 "Non-goals")
 
@@ -110,3 +121,4 @@ Decision pending — picked option 1 by default for 4d-1b unless the Erlang revi
 - Branch: `fix/1561-workflow-orm-phase4d-1a` off `origin/development` (`fe32dfdd8a`)
 - Working tree: clean (prior review-modified WINDOWS-BUILD-GUIDE.md untouched)
 - `mvnw.cmd -N clean install -DskipTests` to be run before first commit
+

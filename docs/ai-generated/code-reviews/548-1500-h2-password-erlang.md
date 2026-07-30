@@ -61,6 +61,7 @@ system/src/test/java/com/percussion/install/PSGeneratedPasswordsTest.java       
 ## Findings
 
 ### Bugs
+
 - **None blocking.** Cross-platform path handling uses `java.nio.file.Path.resolve` /
   `toAbsolutePath().normalize()` throughout — no hardcoded `File.separator` literals in
   filesystem path construction. Tests assert the file is written under `var/config/generated`
@@ -75,6 +76,7 @@ system/src/test/java/com/percussion/install/PSGeneratedPasswordsTest.java       
   colon; the parsed `JAVA_HOME` is the literal `C:\Program Files\Microsoft\jdk-21.0.12.8-hotspot`.
 
 ### Behavioral coverage
+
 - **Random generation uniqueness** — `generateRandomPasswordProducesUniqueValues` checks 256
   unique values; would catch a regression that swaps to a non-cryptographic PRNG.
 - **Round-trip preserves unrelated keys** — `writePreservesUnrelatedKeys` and
@@ -104,6 +106,7 @@ system/src/test/java/com/percussion/install/PSGeneratedPasswordsTest.java       
   block (still present elsewhere) plus `PWD_ENCRYPTED` is written explicitly as `N`.
 
 ### Cross-platform / file I/O
+
 - All filesystem path construction uses `java.nio.file.Path` APIs.
 - The `var/config/generated` literal uses forward slashes (asserted by
   `varConfigGeneratedConstantUsesForwardSlashes`).
@@ -117,6 +120,7 @@ system/src/test/java/com/percussion/install/PSGeneratedPasswordsTest.java       
 - `batScriptIsAsciiSafe` already enforces non-ASCII-safe constraints for cmd.exe OEM code pages.
 
 ### Security
+
 - `SecureRandom` for password generation.
 - No password is logged: `PSLogger.logInfo` only prints the file path; ANT property exposure
   is intentional for downstream targets.
@@ -126,6 +130,7 @@ system/src/test/java/com/percussion/install/PSGeneratedPasswordsTest.java       
   cwd-mismatch class of failures.
 
 ### Backward compatibility
+
 - **Upgrade path is unaffected.** `PSJdbcDbmsDef.loadRxRepositoryProperties` still reads
   `PWD=` from `rxrepository.properties`; if `var/config/generated/passwords` has no `cmdb`
   key (legacy install), nothing changes.
@@ -137,6 +142,7 @@ system/src/test/java/com/percussion/install/PSGeneratedPasswordsTest.java       
   Linux/macOS `resolve-java-home.sh` did not contain the marker.
 
 ### Risks / notes
+
 - **CMS DB password must be supplied by every interactive H2 install.** The wizard prompts
   and confirms; if the operator cancels after 5 confirmation failures, the wizard exits with
   `EXIT_DB_CONFIG` (1). Operators should back up `rxconfig/Installer/rxrepository.properties`
@@ -156,6 +162,7 @@ system/src/test/java/com/percussion/install/PSGeneratedPasswordsTest.java       
   `PSFolderHelper.setDefaultPermissions`.
 
 ## Evidence
+
 - `./mvnw -pl system -am clean install` → `BUILD SUCCESS`, 857 tests, 0 failures.
 - `./mvnw -pl modules/utils -am clean install` → `BUILD SUCCESS`, 214 tests, 0 failures.
 - `./mvnw -pl modules/perc-ant -am clean install` → `BUILD SUCCESS`, all tests pass.
@@ -174,3 +181,4 @@ system/src/test/java/com/percussion/install/PSGeneratedPasswordsTest.java       
 - Manual cmd.exe reproduction of the SHIFT fix: `SHIFT REM comments are bad` in a bat
   file produces `Invalid parameter to SHIFT command`. Removed from
   `resolve-java-home.bat`.
+

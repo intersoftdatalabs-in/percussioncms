@@ -175,11 +175,11 @@ class PSXxxServiceTest {
 **Before committing ANY change:**
 
 ```bash
-# 1. Format code
+# 1. Format code (apply FIRST)
 ./mvnw spotless:apply
 
-# 2. Verify formatting
-./mvnw -pl system spotless:check
+# 2. Verify formatting (check SECOND — must exit 0)
+./mvnw spotless:check
 
 # 3. Build and test
 ./mvnw -pl system clean verify
@@ -344,8 +344,8 @@ public NewDataType newMethod() {
 
 ## Quick Reference
 
-|       Task        |                  Command                  |
-|-------------------|-------------------------------------------|
+|       Task        |               Command               |
+|-------------------|-------------------------------------|
 | Build module      | `./mvnw -pl system compile`         |
 | Run tests         | `./mvnw -pl system test`            |
 | Format code       | `./mvnw spotless:apply`             |

@@ -23,4 +23,9 @@ export {
   sanitizeLoginRedirect,
   DEFAULT_SPA_ENTRY_REDIRECT,
 } from "./redirect";
-export type { LoginBootstrap, LoginLocaleOption, SpaLandingBootstrap } from "./types";
+export type {
+  LoginBootstrap,
+  LoginLocaleOption,
+  LocaleFormatBootstrap,
+  SpaLandingBootstrap,
+} from "./types";

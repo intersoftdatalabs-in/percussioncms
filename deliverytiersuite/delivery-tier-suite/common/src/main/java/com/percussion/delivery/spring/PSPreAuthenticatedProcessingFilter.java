@@ -28,14 +28,16 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 /**
- * Pre-authenticated processing filter used by the delivery tier Spring Security integration.
- * Always populates the principal as {@code ANONYMOUS}; real principal data is loaded by
- * {@link PSAuthenticationDetailsSource} from the Tomcat session user.
+ * Pre-authenticated processing filter used by the delivery tier Spring Security integration. Always
+ * populates the principal as {@code ANONYMOUS}; real principal data is loaded by {@link
+ * PSAuthenticationDetailsSource} from the Tomcat session user.
  */
 public class PSPreAuthenticatedProcessingFilter extends AbstractPreAuthenticatedProcessingFilter {
 
-  /** Default constructor; installs the {@link PSAuthenticationDetailsSource} so that real
-   * principal data is loaded from the Tomcat session user. */
+  /**
+   * Default constructor; installs the {@link PSAuthenticationDetailsSource} so that real principal
+   * data is loaded from the Tomcat session user.
+   */
   @SuppressWarnings("this-escape")
   public PSPreAuthenticatedProcessingFilter() {
     setAuthenticationDetailsSource(new PSAuthenticationDetailsSource());
@@ -65,9 +67,9 @@ public class PSPreAuthenticatedProcessingFilter extends AbstractPreAuthenticated
   }
 
   /**
-   * Builds a {@link PreAuthenticatedAuthenticationToken} from the Tomcat
-   * {@code GenericPrincipal} attached to the current request, copying any granted roles into
-   * Spring Security {@link SimpleGrantedAuthority} instances.
+   * Builds a {@link PreAuthenticatedAuthenticationToken} from the Tomcat {@code GenericPrincipal}
+   * attached to the current request, copying any granted roles into Spring Security {@link
+   * SimpleGrantedAuthority} instances.
    */
   public static class PSAuthenticationDetailsSource
       implements AuthenticationDetailsSource<

@@ -26,7 +26,11 @@ import com.percussion.design.objectstore.PSDisplayMapper;
 import com.percussion.design.objectstore.PSDisplayMapping;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSFieldSet;
+import com.percussion.design.objectstore.PSFieldTranslation;
+import com.percussion.design.objectstore.PSSystemValidationException;
 import com.percussion.design.objectstore.PSUISet;
+import com.percussion.design.objectstore.PSWorkflowInfo;
+import com.percussion.rest.Guid;
 import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
 import com.percussion.rest.contenttypes.ContentTypeField;
@@ -35,6 +39,7 @@ import com.percussion.rest.contenttypes.IContentTypesAdaptor;
 import com.percussion.rest.contenttypes.NamedObjectRef;
 import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
+import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.contentmgr.IPSContentMgr;
@@ -46,10 +51,14 @@ import com.percussion.services.workflow.PSWorkflowServiceLocator;
 import com.percussion.services.workflow.data.PSWorkflow;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.guid.IPSGuid;
+import com.percussion.utils.request.PSRequestInfo;
+import com.percussion.webservices.PSErrorResultsException;
+import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -126,16 +135,11 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     } catch (Exception e) {
       log.error("Failed to load content type {}: {}", idOrName, e.getMessage(), e);
       throw new RuntimeException(
-          "Failed to load content type ("
-              + e.getClass().getName()
-              + "): "
-              + e.getMessage(),
-          e);
+          "Failed to load content type (" + e.getClass().getName() + "): " + e.getMessage(), e);
     }
   }
 
-  private PSItemDefinition resolveItemDef(String idOrName)
-      throws PSInvalidContentTypeException {
+  private PSItemDefinition resolveItemDef(String idOrName) throws PSInvalidContentTypeException {
     // Prefer numeric uuid
     if (StringUtils.isNumeric(idOrName)) {
       long uuid = Long.parseLong(idOrName);
@@ -187,6 +191,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
 
     IPSGuid ctGuid = new PSGuid(PSTypeEnum.NODEDEF, def.getTypeId());
     int defaultWfId = def.getContentEditor() != null ? def.getContentEditor().getWorkflowId() : -1;
+    // Always set non-null lists on GET so wire shape stays [] not omitted (NON_NULL include).
     detail.setAllowedWorkflows(loadWorkflows(ctGuid, defaultWfId));
     if (defaultWfId > 0) {
       detail.setDefaultWorkflow(toWorkflowRef(defaultWfId, true));
@@ -194,16 +199,335 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     detail.setAllowedTemplates(loadTemplates(ctGuid));
 
     List<String> gaps = new ArrayList<>();
-    gaps.add("Field validation, visibility, editability, and transform rules not exposed");
+    gaps.add(
+        "Field rule flags are exposed (validation/visibility/transforms present); full rule"
+            + " expressions and control properties are not");
     gaps.add("Item-level pre/post exits not exposed");
-    gaps.add("Create / update / delete / lock not supported (read-only)");
+    gaps.add(
+        "Create / delete not supported; update uses design lock for label/description/enabled,"
+            + " field searchable/occurrence, workflows (+ default), and templates");
     gaps.add("Shared/system field inclusion editing not supported");
-    gaps.add("Workflow/template associations are read-only (no add/remove via this API)");
+    gaps.add(
+        "Workflow/template associations: full replace when lists are supplied on PUT; omit lists"
+            + " to leave unchanged; empty allowedWorkflows clears associations");
+    gaps.add(
+        "Template association save is a separate design write after content-type save; if it"
+            + " fails, meta/field/workflow changes may already be committed");
+    gaps.add("Field display labels and control properties are not writable via this API");
     if (!controlsResolved) {
       gaps.add("Display control/label resolution failed for this content type");
     }
     detail.setDesignGaps(gaps);
     return detail;
+  }
+
+  @Override
+  public ContentTypeDetail updateContentType(URI baseUri, String idOrName, ContentTypeDetail body) {
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    if (body == null) {
+      throw new IllegalArgumentException("body is required");
+    }
+    String session = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+    String user = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
+    if (StringUtils.isBlank(session) || StringUtils.isBlank(user)) {
+      throw new IllegalStateException("Request session/user required to lock content type");
+    }
+
+    try {
+      PSItemDefinition current = resolveItemDef(idOrName.trim());
+      if (current == null) {
+        return null;
+      }
+      IPSGuid ctGuid = new PSGuid(PSTypeEnum.NODEDEF, current.getTypeId());
+      List<PSItemDefinition> locked;
+      try {
+        locked =
+            designSvc.loadContentTypes(
+                Collections.singletonList(ctGuid), true, false, session, user);
+      } catch (PSErrorResultsException e) {
+        log.error("Failed to lock content type {}: {}", idOrName, e.getMessage(), e);
+        throw new IllegalStateException("Could not acquire design lock for content type", e);
+      }
+      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
+        return null;
+      }
+      PSItemDefinition def = locked.get(0);
+      applyMetaUpdates(def, body);
+      applyFieldUpdates(def, body.getFields());
+      applyWorkflowUpdates(def, body);
+      boolean needTemplates = body.getAllowedTemplates() != null;
+      try {
+        // Keep design lock when template associations still need a separate save.
+        // Note: content-type save and template association save are sequential design writes
+        // without a shared rollback — template failure after CT save is partial success.
+        designSvc.saveContentTypes(Collections.singletonList(def), !needTemplates, session, user);
+      } catch (PSErrorsException e) {
+        log.error("Failed to save content type {}: {}", idOrName, e.getMessage(), e);
+        throw new IllegalStateException("Failed to save content type", e);
+      }
+      if (needTemplates) {
+        try {
+          List<IPSGuid> templateGuids = resolveTemplateGuids(body.getAllowedTemplates());
+          designSvc.saveAssociatedTemplates(ctGuid, templateGuids, true, session, user);
+        } catch (PSErrorsException e) {
+          log.error(
+              "Failed to save template associations for {} (content type already saved): {}",
+              idOrName,
+              e.getMessage(),
+              e);
+          throw new IllegalStateException(
+              "Content type meta/fields/workflows saved, but template associations failed —"
+                  + " retry template update",
+              e);
+        }
+      }
+      // Prefer re-read via item def cache after save
+      PSItemDefinition reloaded = resolveItemDef(idOrName.trim());
+      return reloaded != null ? toDetail(reloaded) : toDetail(def);
+    } catch (IllegalArgumentException | IllegalStateException e) {
+      throw e;
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for update: {}", idOrName);
+      return null;
+    } catch (Exception e) {
+      log.error("Failed to update content type {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to update content type", e);
+    }
+  }
+
+  /**
+   * Apply default workflow id and/or allowed-workflow inclusion list.
+   *
+   * <p>{@code allowedWorkflows == null} leaves associations unchanged. Non-null list is a full
+   * replace — empty list clears associations (does not re-inject the previous default). When both
+   * {@code defaultWorkflow} and a non-empty allowed list are supplied, the default is ensured to
+   * appear in the inclusion list.
+   */
+  private void applyWorkflowUpdates(PSItemDefinition def, ContentTypeDetail body) {
+    if (body.getDefaultWorkflow() != null) {
+      int wfId = resolveWorkflowUuid(body.getDefaultWorkflow(), "defaultWorkflow");
+      def.getContentEditor().setWorkflowId(wfId);
+    }
+    if (body.getAllowedWorkflows() == null) {
+      return;
+    }
+    List<Integer> wfIds = new ArrayList<>();
+    int i = 0;
+    for (NamedObjectRef ref : body.getAllowedWorkflows()) {
+      if (ref == null) {
+        throw new IllegalArgumentException("allowedWorkflows[" + i + "] is null");
+      }
+      int id = resolveWorkflowUuid(ref, "allowedWorkflows[" + i + "]");
+      if (!wfIds.contains(id)) {
+        wfIds.add(id);
+      }
+      i++;
+    }
+    // Only force-include default when the client also set defaultWorkflow this request.
+    // Empty list = true clear (do not re-inject prior default).
+    if (body.getDefaultWorkflow() != null && !wfIds.isEmpty()) {
+      int defaultId = def.getContentEditor().getWorkflowId();
+      if (defaultId > 0 && !wfIds.contains(defaultId)) {
+        wfIds.add(defaultId);
+      }
+    } else if (!wfIds.isEmpty()) {
+      // Non-empty replace without explicit default: retarget default if orphaned
+      int defaultId = def.getContentEditor().getWorkflowId();
+      if (defaultId <= 0 || !wfIds.contains(defaultId)) {
+        def.getContentEditor().setWorkflowId(wfIds.get(0));
+      }
+    }
+    def.getContentEditor()
+        .setWorkflowInfo(
+            new PSWorkflowInfo(PSWorkflowInfo.TYPE_INCLUSIONARY, new ArrayList<>(wfIds)));
+  }
+
+  private int resolveWorkflowUuid(NamedObjectRef ref, String field) {
+    if (ref.getGuid() != null) {
+      int fromGuid = uuidFromRestGuid(ref.getGuid(), PSTypeEnum.WORKFLOW, field);
+      if (fromGuid > 0) {
+        return fromGuid;
+      }
+    }
+    if (StringUtils.isNotBlank(ref.getName())) {
+      IPSWorkflowService wfSvc = PSWorkflowServiceLocator.getWorkflowService();
+      List<PSWorkflow> found = wfSvc.findWorkflowsByName(ref.getName().trim());
+      if (found == null || found.isEmpty()) {
+        throw new IllegalArgumentException(field + " workflow not found: " + ref.getName());
+      }
+      return found.get(0).getGUID().getUUID();
+    }
+    throw new IllegalArgumentException(field + " requires name or guid");
+  }
+
+  private List<IPSGuid> resolveTemplateGuids(List<NamedObjectRef> refs) {
+    List<IPSGuid> out = new ArrayList<>();
+    if (refs == null) {
+      return out;
+    }
+    int i = 0;
+    for (NamedObjectRef ref : refs) {
+      if (ref == null) {
+        throw new IllegalArgumentException("allowedTemplates[" + i + "] is null");
+      }
+      out.add(resolveTemplateGuid(ref, "allowedTemplates[" + i + "]"));
+      i++;
+    }
+    return out;
+  }
+
+  private IPSGuid resolveTemplateGuid(NamedObjectRef ref, String field) {
+    IPSAssemblyService asm = PSAssemblyServiceLocator.getAssemblyService();
+    if (ref.getGuid() != null) {
+      String sv = ref.getGuid().getStringValue().orElse(null);
+      if (StringUtils.isNotBlank(sv)) {
+        try {
+          IPSGuid g = ApiUtils.convertGuid(ref.getGuid());
+          // Normalize type if untyped numeric guid
+          if (g.getType() == 0) {
+            g = new PSGuid(PSTypeEnum.TEMPLATE, g.getUUID());
+          }
+          try {
+            asm.loadTemplate(g, false);
+          } catch (PSAssemblyException e) {
+            throw new IllegalArgumentException(field + " template not found: " + sv, e);
+          }
+          return g;
+        } catch (IllegalArgumentException e) {
+          throw e;
+        } catch (Exception e) {
+          throw new IllegalArgumentException(field + " invalid template guid: " + sv, e);
+        }
+      }
+      int uuid = ref.getGuid().getUuid();
+      if (uuid > 0) {
+        IPSGuid g = new PSGuid(PSTypeEnum.TEMPLATE, uuid);
+        try {
+          asm.loadTemplate(g, false);
+        } catch (PSAssemblyException e) {
+          throw new IllegalArgumentException(field + " template not found uuid=" + uuid, e);
+        }
+        return g;
+      }
+    }
+    if (StringUtils.isNotBlank(ref.getName())) {
+      try {
+        IPSAssemblyTemplate t = asm.findTemplateByName(ref.getName().trim());
+        if (t == null || t.getGUID() == null) {
+          throw new IllegalArgumentException(field + " template not found: " + ref.getName());
+        }
+        return t.getGUID();
+      } catch (PSAssemblyException e) {
+        throw new IllegalArgumentException(field + " template not found: " + ref.getName(), e);
+      }
+    }
+    throw new IllegalArgumentException(field + " requires name or guid");
+  }
+
+  /**
+   * Prefer stringValue guid form, then uuid field. Returns 0 when guid cannot contribute a positive
+   * uuid (caller may fall through to name).
+   */
+  private int uuidFromRestGuid(Guid guid, PSTypeEnum expectedType, String field) {
+    if (guid == null) {
+      return 0;
+    }
+    String sv = guid.getStringValue().orElse(null);
+    if (StringUtils.isNotBlank(sv)) {
+      try {
+        IPSGuid g = ApiUtils.convertGuid(guid);
+        if (g.getType() == 0) {
+          g = new PSGuid(expectedType, g.getUUID());
+        }
+        return g.getUUID();
+      } catch (Exception e) {
+        throw new IllegalArgumentException(field + " invalid guid: " + sv, e);
+      }
+    }
+    int uuid = guid.getUuid();
+    return uuid > 0 ? uuid : 0;
+  }
+
+  private void applyMetaUpdates(PSItemDefinition def, ContentTypeDetail body) {
+    if (body.getLabel() != null) {
+      def.setLabel(body.getLabel());
+    }
+    if (body.getDescription() != null) {
+      def.setDescription(body.getDescription());
+    }
+    if (body.getEnabled() != null) {
+      def.setEnabled(body.getEnabled());
+    }
+  }
+
+  private void applyFieldUpdates(PSItemDefinition def, List<ContentTypeField> fields) {
+    if (fields == null || fields.isEmpty()) {
+      return;
+    }
+    PSFieldSet parentFs = def.getFieldSet();
+    if (parentFs == null) {
+      return;
+    }
+    for (ContentTypeField patch : fields) {
+      if (patch == null || StringUtils.isBlank(patch.getName())) {
+        continue;
+      }
+      // systemModOnly=false includes classic + extended fields
+      PSField field = parentFs.findFieldByName(patch.getName(), false);
+      if (field == null) {
+        // also search complex children
+        for (PSFieldSet child : def.getComplexChildren()) {
+          if (child == null) continue;
+          field = child.findFieldByName(patch.getName(), false);
+          if (field != null) break;
+        }
+      }
+      if (field == null) {
+        throw new IllegalArgumentException("Unknown field: " + patch.getName());
+      }
+      if (patch.getSearchable() != null) {
+        field.setUserSearchable(patch.getSearchable());
+      }
+      if (StringUtils.isNotBlank(patch.getOccurrence())) {
+        Integer dim = occurrenceFromApi(patch.getOccurrence());
+        if (dim == null) {
+          throw new IllegalArgumentException(
+              "Invalid occurrence for field " + patch.getName() + ": " + patch.getOccurrence());
+        }
+        try {
+          field.setOccurrenceDimension(dim, null);
+        } catch (PSSystemValidationException e) {
+          throw new IllegalArgumentException(
+              "Invalid occurrence for field " + patch.getName() + ": " + patch.getOccurrence(), e);
+        }
+      } else if (patch.getRequired() != null) {
+        int dim =
+            Boolean.TRUE.equals(patch.getRequired())
+                ? PSField.OCCURRENCE_DIMENSION_REQUIRED
+                : PSField.OCCURRENCE_DIMENSION_OPTIONAL;
+        try {
+          field.setOccurrenceDimension(dim, null);
+        } catch (PSSystemValidationException e) {
+          throw new IllegalArgumentException(
+              "Invalid required flag for field " + patch.getName(), e);
+        }
+      }
+    }
+  }
+
+  /** Map API occurrence string back to PSField dimension, or null if unknown. */
+  static Integer occurrenceFromApi(String occurrence) {
+    if (occurrence == null) return null;
+    return switch (occurrence) {
+      case "optional" -> PSField.OCCURRENCE_DIMENSION_OPTIONAL;
+      case "required" -> PSField.OCCURRENCE_DIMENSION_REQUIRED;
+      case "oneOrMore" -> PSField.OCCURRENCE_DIMENSION_ONE_OR_MORE;
+      case "zeroOrMore" -> PSField.OCCURRENCE_DIMENSION_ZERO_OR_MORE;
+      case "count" -> PSField.OCCURRENCE_DIMENSION_COUNT;
+      default -> null;
+    };
   }
 
   private List<NamedObjectRef> loadWorkflows(IPSGuid ctGuid, int defaultWfId) {
@@ -235,8 +559,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     ref.setIsDefault(isDefault);
     try {
       IPSWorkflowService wfSvc = PSWorkflowServiceLocator.getWorkflowService();
-      PSWorkflow wf =
-          wfSvc.findWorkflow(g).orElse(null);
+      PSWorkflow wf = wfSvc.findWorkflow(g).orElse(null);
       if (wf != null) {
         ref.setName(wf.getName());
         ref.setLabel(StringUtils.defaultIfBlank(wf.getLabel(), wf.getName()));
@@ -305,13 +628,21 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       f.setFieldSet(fieldSetName);
       f.setControl(controlByField.get(field.getSubmitName()));
       // label: fall back to name when display mapping label not resolved
-      f.setLabel(controlByField.containsKey(field.getSubmitName() + ":label")
-          ? controlByField.get(field.getSubmitName() + ":label")
-          : field.getSubmitName());
+      f.setLabel(
+          controlByField.containsKey(field.getSubmitName() + ":label")
+              ? controlByField.get(field.getSubmitName() + ":label")
+              : field.getSubmitName());
       int occurrence = field.getOccurrenceDimension(null);
       f.setRequired(
           occurrence == PSField.OCCURRENCE_DIMENSION_REQUIRED
               || occurrence == PSField.OCCURRENCE_DIMENSION_ONE_OR_MORE);
+      f.setOccurrence(mapOccurrence(occurrence));
+      f.setReadOnly(field.isReadOnly());
+      f.setHasValidation(field.hasValidationRules());
+      f.setHasVisibilityRules(
+          field.getVisibilityRules() != null && !field.getVisibilityRules().isEmpty());
+      f.setHasInputTranslation(hasTranslation(field.getInputTranslation()));
+      f.setHasOutputTranslation(hasTranslation(field.getOutputTranslation()));
       out.add(f);
     }
   }
@@ -323,6 +654,25 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       case PSField.TYPE_LOCAL -> "local";
       default -> "unknown";
     };
+  }
+
+  /** Package-visible for unit tests. Maps PSField occurrence dimension to API string. */
+  static String mapOccurrence(int dimension) {
+    return switch (dimension) {
+      case PSField.OCCURRENCE_DIMENSION_OPTIONAL -> "optional";
+      case PSField.OCCURRENCE_DIMENSION_REQUIRED -> "required";
+      case PSField.OCCURRENCE_DIMENSION_ONE_OR_MORE -> "oneOrMore";
+      case PSField.OCCURRENCE_DIMENSION_ZERO_OR_MORE -> "zeroOrMore";
+      case PSField.OCCURRENCE_DIMENSION_COUNT -> "count";
+      default -> "unknown";
+    };
+  }
+
+  /** Package-visible for unit tests. True when a field translation has a non-empty call set. */
+  static boolean hasTranslation(PSFieldTranslation translation) {
+    return translation != null
+        && translation.getTranslations() != null
+        && !translation.getTranslations().isEmpty();
   }
 
   /**
@@ -338,8 +688,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       walkDisplayMapper(dmapper, map);
       return true;
     } catch (Exception e) {
-      log.warn(
-          "Could not resolve display controls for {}: {}", def.getName(), e.getMessage(), e);
+      log.warn("Could not resolve display controls for {}: {}", def.getName(), e.getMessage(), e);
       return false;
     }
   }

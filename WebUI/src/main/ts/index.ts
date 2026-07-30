@@ -21,6 +21,7 @@
  * <ul>
  *   <li>Always registers {@code window.PercModernUI} for residual bridge embeds.</li>
  *   <li>If {@code #perc-login-root} is present, boots the React Login front door.</li>
+ *   <li>If {@code #perc-logout-root} is present, boots the React Logout confirmation.</li>
  *   <li>If SPA root is present ({@code #perc-spa-root}, {@code #root}, {@code #perc-app-root}),
  *       boots the authenticated App shell.</li>
  * </ul>
@@ -31,6 +32,7 @@ import { createRoot } from "react-dom/client";
 import "./bridge";
 import { ensureModernStyles } from "./ensureModernStyles";
 import { LoginPage, readLoginBootstrap } from "./login";
+import { LogoutPage, readLogoutBootstrap } from "./logout";
 
 // Entry CSS is not auto-linked without an HTML entry — inject before any boot.
 ensureModernStyles();
@@ -43,6 +45,16 @@ function bootLogin(): void {
   const bootstrap = readLoginBootstrap();
   createRoot(el).render(React.createElement(LoginPage, { bootstrap }));
   console.info("[PercModernUI] Login SPA mounted.");
+}
+
+function bootLogout(): void {
+  const el = document.getElementById("perc-logout-root");
+  if (!el) {
+    return;
+  }
+  const bootstrap = readLogoutBootstrap();
+  createRoot(el).render(React.createElement(LogoutPage, { bootstrap }));
+  console.info("[PercModernUI] Logout SPA mounted.");
 }
 
 function findSpaRoot(): HTMLElement | null {
@@ -73,6 +85,10 @@ function bootSpa(): void {
 function boot(): void {
   if (document.getElementById("perc-login-root")) {
     bootLogin();
+    return;
+  }
+  if (document.getElementById("perc-logout-root")) {
+    bootLogout();
     return;
   }
   if (findSpaRoot()) {

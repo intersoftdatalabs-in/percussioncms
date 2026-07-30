@@ -45,12 +45,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Tag(name = "Templates", description = "Template operations")
 public class TemplatesResource {
 
-  @Autowired private ITemplatesAdaptor adaptor;
+  private final ITemplatesAdaptor adaptor;
 
   @Context private UriInfo uriInfo;
 
   public TemplatesResource() {
-    // NOOP
+    this.adaptor = null;
+  }
+
+  @Autowired
+  public TemplatesResource(ITemplatesAdaptor adaptor) {
+    this.adaptor = adaptor;
   }
 
   /**
@@ -59,7 +64,6 @@ public class TemplatesResource {
    * @return TemplateSummaryList of all templates
    */
   @GET
-  @Path("/")
   @Produces({MediaType.APPLICATION_JSON})
   @Operation(
       summary = "List all templates",
@@ -168,6 +172,74 @@ public class TemplatesResource {
       throw e;
     } catch (Exception e) {
       // Preserve cause so log analysis retains the original stack/type
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @GET
+  @Path("/{idOrName}")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Get template design detail",
+      description =
+          "Read-only template detail including bindings and slots. Source is included when"
+              + " present. Create/update/delete/lock not supported (see designGaps).",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = TemplateDetail.class))),
+        @ApiResponse(responseCode = "404", description = "Template not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public TemplateDetail getTemplate(@PathParam("idOrName") String idOrName) {
+    try {
+      TemplateDetail detail = adaptor.getTemplate(uriInfo.getBaseUri(), idOrName);
+      if (detail == null) {
+        throw new WebApplicationException("Template not found: " + idOrName, 404);
+      }
+      return detail;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      // Preserve cause so log analysis retains the original stack/type
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @PUT
+  @Path("/{idOrName}")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Update template design fields",
+      description =
+          "Updates mutable template fields: label, description, and/or templateSource."
+              + " When bindings or slots is present (including empty), replaces that collection."
+              + " Omit to leave unchanged. Name/id and create/delete remain unsupported"
+              + " (see designGaps).",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated",
+            content = @Content(schema = @Schema(implementation = TemplateDetail.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid input"),
+        @ApiResponse(responseCode = "404", description = "Template not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public TemplateDetail updateTemplate(
+      @PathParam("idOrName") String idOrName, TemplateDetail body) {
+    try {
+      TemplateDetail detail = adaptor.updateTemplate(uriInfo.getBaseUri(), idOrName, body);
+      if (detail == null) {
+        throw new WebApplicationException("Template not found: " + idOrName, 404);
+      }
+      return detail;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
       throw new WebApplicationException(e, 500);
     }
   }

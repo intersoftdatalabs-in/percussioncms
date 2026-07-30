@@ -1,12 +1,12 @@
 # Erlang review — issue #1510 WebUI integrity seal / unused min prune
 
-| Field | Value |
-|-------|--------|
-| **Scope** | Uncommitted changes on `development` (Option C + min prune) |
-| **Date** | 2026-07-26 |
-| **Recommendation** | **approve** |
-| **May commit/push** | **yes** |
-| **Gate** | pass |
+|        Field        |                            Value                            |
+|---------------------|-------------------------------------------------------------|
+| **Scope**           | Uncommitted changes on `development` (Option C + min prune) |
+| **Date**            | 2026-07-26                                                  |
+| **Recommendation**  | **approve**                                                 |
+| **May commit/push** | **yes**                                                     |
+| **Gate**            | pass                                                        |
 
 ## Summary
 

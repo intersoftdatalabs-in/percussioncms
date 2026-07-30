@@ -72,6 +72,7 @@ public class PSLocale implements IPSCatalogSummary {
     m_displayName = displayName;
     m_description = description;
     m_status = status;
+    m_isBase = IS_BASE_FALSE;
   }
 
   /** No arg constructor used for Hibernate */
@@ -132,6 +133,20 @@ public class PSLocale implements IPSCatalogSummary {
     if (!validateStatus(m_status)) {
       Object[] args = {COL_STATUS, status == null ? "null" : status};
       throw new PSDataExtractionException(IPSLocaleErrors.INVALID_COLUMN_VALUE, args);
+    }
+
+    // Optional for backward-compatible row shapes; missing / invalid => not base.
+    m_isBase = IS_BASE_FALSE;
+    PSJdbcColumnData isBaseCol = rowData.getColumn(PSLocaleHandler.COL_IS_BASE);
+    if (isBaseCol != null && isBaseCol.getValue() != null && !isBaseCol.getValue().isEmpty()) {
+      try {
+        m_isBase =
+            Integer.parseInt(isBaseCol.getValue().trim()) == IS_BASE_TRUE
+                ? IS_BASE_TRUE
+                : IS_BASE_FALSE;
+      } catch (NumberFormatException e) {
+        m_isBase = IS_BASE_FALSE;
+      }
     }
   }
 
@@ -216,6 +231,24 @@ public class PSLocale implements IPSCatalogSummary {
   }
 
   /**
+   * Whether this locale is a language-only / base locale (e.g. {@code es}, {@code ar}). Base
+   * locales may be omitted from the login dropdown when active regional siblings exist; see {@link
+   * PSLocaleLoginSelection}.
+   *
+   * @return <code>true</code> if this is a base locale.
+   */
+  public boolean isBaseLocale() {
+    return m_isBase != null && m_isBase.intValue() == IS_BASE_TRUE;
+  }
+
+  /**
+   * @param isBase <code>true</code> to mark as base / language-only locale.
+   */
+  public void setBaseLocale(boolean isBase) {
+    m_isBase = isBase ? IS_BASE_TRUE : IS_BASE_FALSE;
+  }
+
+  /**
    * Serializes this object's state to its XML representation. Format is:
    *
    * <pre><code>
@@ -224,6 +257,7 @@ public class PSLocale implements IPSCatalogSummary {
    *       languageString CDATA #REQUIRED
    *       displayName CDATA #REQUIRED
    *       status CDATA #REQUIRED
+   *       isBase CDATA #IMPLIED
    *    >
    *    &lt;ELEMENT Description (#PCDATA)>
    * </code></pre>
@@ -239,6 +273,7 @@ public class PSLocale implements IPSCatalogSummary {
     root.setAttribute(ATTR_LANGUAGE_STRING, m_languageString);
     root.setAttribute(ATTR_DISPLAY_NAME, m_displayName);
     root.setAttribute(ATTR_STATUS, STATUS_ENUM[m_status]);
+    root.setAttribute(ATTR_IS_BASE, isBaseLocale() ? "true" : "false");
     if (m_version != null) root.setAttribute(ATTR_VERSION, m_version.toString());
 
     if (m_description != null)
@@ -289,6 +324,15 @@ public class PSLocale implements IPSCatalogSummary {
     if (descEl != null) {
       m_description = PSXmlTreeWalker.getElementData(descEl);
     }
+
+    // Optional attribute for backward-compatible XML; default false.
+    String isBase = source.getAttribute(ATTR_IS_BASE);
+    boolean base =
+        isBase != null
+            && (isBase.equalsIgnoreCase("true")
+                || isBase.equals("1")
+                || isBase.equalsIgnoreCase("yes"));
+    m_isBase = base ? IS_BASE_TRUE : IS_BASE_FALSE;
   }
 
   /**
@@ -421,6 +465,12 @@ public class PSLocale implements IPSCatalogSummary {
   /** Constant to indicate locale's status is active. */
   public static final int STATUS_ACTIVE = 1;
 
+  /** Integer column value meaning this row is a base / language-only locale. */
+  public static final int IS_BASE_TRUE = 1;
+
+  /** Integer column value meaning this row is not a base locale. */
+  public static final int IS_BASE_FALSE = 0;
+
   /**
    * Enumeration of status strings, uses the <code>STATUS_xxx</code> constant value as an index into
    * the array to retrieve its corresponding string representation. This must be maintained if a new
@@ -471,6 +521,15 @@ public class PSLocale implements IPSCatalogSummary {
   @Column(name = "STATUS")
   private int m_status = STATUS_UNDEFINED;
 
+  /**
+   * Whether this is a base / language-only locale ({@link #IS_BASE_TRUE} / {@link #IS_BASE_FALSE}).
+   * Defaults to non-base. Not part of {@link #equals(Object)} — language string remains identity
+   * for catalog equality.
+   */
+  @Basic
+  @Column(name = "ISBASE")
+  private Integer m_isBase = IS_BASE_FALSE;
+
   @Version
   @Column(name = "VERSION")
   private Integer m_version = null;
@@ -485,6 +544,7 @@ public class PSLocale implements IPSCatalogSummary {
   private static final String EL_DESCRIPTION = "Description";
   private static final String ATTR_STATUS = "status";
   private static final String ATTR_VERSION = "version";
+  private static final String ATTR_IS_BASE = "isBase";
 
   // private constants to specify column names expected in the row data when
   // constructing from the repository

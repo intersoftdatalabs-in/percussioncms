@@ -26,9 +26,7 @@ import org.jasypt.util.password.PasswordEncryptor;
  */
 public class PSMembershipPasswordEncryptorFactory {
 
-  /**
-   * Default constructor. The factory methods are all static; this class cannot be instantiated.
-   */
+  /** Default constructor. The factory methods are all static; this class cannot be instantiated. */
   public PSMembershipPasswordEncryptorFactory() {}
 
   /**

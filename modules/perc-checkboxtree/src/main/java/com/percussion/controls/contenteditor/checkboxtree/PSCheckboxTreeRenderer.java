@@ -27,6 +27,9 @@ import javax.swing.tree.DefaultTreeCellRenderer;
  */
 public class PSCheckboxTreeRenderer extends DefaultTreeCellRenderer
     implements IPSCheckboxTreeRenderer {
+  /** Default no-argument constructor for the renderer. */
+  public PSCheckboxTreeRenderer() {}
+
   /* (non-Javadoc)
    * @see javax.swing.tree.TreeCellRenderer#getTreeCellRendererComponent(
    *    javax.swing.JTree, java.lang.Object, boolean, boolean, boolean, int,

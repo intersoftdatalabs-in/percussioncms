@@ -25,8 +25,17 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Static helper that creates timestamped audit log files on disk. The {@link #generateFile} method
+ * is the sole entry point; the class itself is non-instantiable and exposes no state.
+ */
 public class FileCreator {
   private static final Logger log = LogManager.getLogger(FileCreator.class);
+
+  /** Default no-argument constructor for {@link FileCreator}. */
+  public FileCreator() {
+    // Default constructor for FileCreator.
+  }
 
   /**
    * Generates a file with the specified parameters.

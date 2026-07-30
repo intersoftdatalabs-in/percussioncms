@@ -32,18 +32,18 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
- * Pure mapping tests for {@link PSNotificationsContext#loadFromHibernate(int, int)} added in
- * #1561 Phase 4c. Mirrors {@code PSLoadFromHibernateTest} (Phase 4b) — these tests are placed
- * alongside the legacy classes they exercise, but the legacy classes' static initializers call
- * {@code PSConnectionMgr.getQualifiedIdentifier} which requires a live DB connection detail,
- * so the suite is {@link Disabled} until the Phase 4+ Spring+H2 infrastructure ships.
+ * Pure mapping tests for {@link PSNotificationsContext#loadFromHibernate(int, int)} added in #1561
+ * Phase 4c. Mirrors {@code PSLoadFromHibernateTest} (Phase 4b) — these tests are placed alongside
+ * the legacy classes they exercise, but the legacy classes still expose only raw-JDBC read
+ * constructors, so the suite is {@link Disabled} until the Phase 4d-1d Spring+H2 infrastructure
+ * ships.
  *
- * <p>The mock service is wired into {@link PSSystemServiceLocator} via reflection on the
- * private static field so the disabled tests will pass as soon as the static-initializer
- * blocker is removed (Phase 4+ follow-up).
+ * <p>The mock service is wired into {@link PSSystemServiceLocator} via reflection on the private
+ * static field so the disabled tests will pass as soon as the raw-JDBC read path is replaced (Phase
+ * 4d-1d follow-up).
  */
 @Disabled(
-    "Static initializer of PSNotificationsContext calls PSConnectionMgr.getQualifiedIdentifier;"
+    "PSNotificationsContext read constructors still use the legacy raw-JDBC path;"
         + " will be re-enabled when Spring+H2 test infrastructure ships (Phase 4+ follow-up).")
 public class PSNotificationsContextLoadFromHibernateTest {
 
@@ -59,12 +59,14 @@ public class PSNotificationsContextLoadFromHibernateTest {
 
   @Test
   void rejectsNonPositiveWorkflowId() {
-    assertThrows(IllegalArgumentException.class, () -> PSNotificationsContext.loadFromHibernate(0, 7));
+    assertThrows(
+        IllegalArgumentException.class, () -> PSNotificationsContext.loadFromHibernate(0, 7));
   }
 
   @Test
   void rejectsNonPositiveNotificationId() {
-    assertThrows(IllegalArgumentException.class, () -> PSNotificationsContext.loadFromHibernate(7, 0));
+    assertThrows(
+        IllegalArgumentException.class, () -> PSNotificationsContext.loadFromHibernate(7, 0));
   }
 
   @Test
@@ -90,7 +92,8 @@ public class PSNotificationsContextLoadFromHibernateTest {
   @Test
   void throwsWhenNotificationDefMissingAndNoConnection() {
     when(mockSystem.findNotificationDef(7L, 11L)).thenReturn(null);
-    assertThrows(PSEntryNotFoundException.class, () -> PSNotificationsContext.loadFromHibernate(7, 11));
+    assertThrows(
+        PSEntryNotFoundException.class, () -> PSNotificationsContext.loadFromHibernate(7, 11));
   }
 
   @Test

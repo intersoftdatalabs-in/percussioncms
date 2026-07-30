@@ -36,16 +36,16 @@ import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
  * classes, providers, and Jersey features required to expose the {@link PSFormRestService}
  * endpoints, including Spring integration, JSON marshalling, CSRF support, and exception mapping.
  *
- * <p>The application is mounted at the root context path so all form-related URIs are served by
- * the same Jersey container.</p>
+ * <p>The application is mounted at the root context path so all form-related URIs are served by the
+ * same Jersey container.
  */
 @ApplicationPath("/")
 public class PSFormsApplication extends ResourceConfig {
   /**
    * Registers the Jersey features and resource / provider classes that make up the Forms
-   * delivery-tier service. The {@code register} invocations follow the Jersey-initializer
-   * pattern documented by the {@code ResourceConfig} API; they intentionally run before the
-   * subclass is fully constructed.
+   * delivery-tier service. The {@code register} invocations follow the Jersey-initializer pattern
+   * documented by the {@code ResourceConfig} API; they intentionally run before the subclass is
+   * fully constructed.
    */
   @SuppressWarnings("this-escape")
   public PSFormsApplication() {

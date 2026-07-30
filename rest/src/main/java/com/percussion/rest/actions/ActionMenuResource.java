@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,82 @@ public class ActionMenuResource {
   @Context private UriInfo uriInfo;
 
   public ActionMenuResource() {}
+
+  /**
+   * Developer P0 catalog: all design-time action menus (UI-02 read).
+   *
+   * <p>Prefer this over {@code /find} when no filter criteria are needed; failures surface as 500
+   * rather than empty lists.
+   */
+  @GET
+  @Path("/catalog")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "List action menus (catalog)",
+      description =
+          "Lists CX action menus for the Developer module. Create/edit/delete and entry"
+              + " composition remain later slices.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content =
+                @Content(
+                    array = @ArraySchema(schema = @Schema(implementation = ActionMenu.class)))),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public List<ActionMenu> listActionMenus() {
+    try {
+      List<ActionMenu> list = requireAdaptor().findMenus(null, null, null, null, null);
+      return list != null ? list : Collections.emptyList();
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error("Error listing action menus", e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @GET
+  @Path("/catalog/{idOrName}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Get action menu detail",
+      description =
+          "Loads one action menu by name or numeric id. Write and cascading entry edit remain"
+              + " unsupported.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = ActionMenu.class))),
+        @ApiResponse(responseCode = "404", description = "Menu not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ActionMenu getActionMenu(@PathParam("idOrName") String idOrName) {
+    try {
+      ActionMenu menu = requireAdaptor().findMenuByKey(idOrName);
+      if (menu == null) {
+        // Generic body: do not echo raw idOrName (path probing).
+        throw new WebApplicationException("Action menu not found", 404);
+      }
+      return menu;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error("Error loading action menu", e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  private IActionMenuAdaptor requireAdaptor() {
+    if (adaptor == null) {
+      throw new IllegalStateException(
+          "Action menu adaptor not configured (resource constructed without injection)");
+    }
+    return adaptor;
+  }
+
 
   @GET
   @Path("/find")

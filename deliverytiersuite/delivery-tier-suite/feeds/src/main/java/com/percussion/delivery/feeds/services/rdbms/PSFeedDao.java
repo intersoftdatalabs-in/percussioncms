@@ -34,6 +34,9 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
+ * RDBMS-backed implementation of {@link IPSFeedDao} using JPA/Hibernate to manage feed descriptors
+ * and connection info in the feeds schema.
+ *
  * @author erikserating
  */
 @Repository
@@ -41,20 +44,27 @@ public class PSFeedDao implements IPSFeedDao {
 
   private static final Logger log = LogManager.getLogger(PSFeedDao.class);
 
+  /** Default no-arg constructor required by Spring. */
   public PSFeedDao() {}
 
   private SessionFactory sessionFactory;
 
+  /**
+   * Spring constructor that wires the Hibernate session factory.
+   *
+   * @param sessionFactory the Hibernate session factory, never <code>null</code>
+   */
   @Autowired
   public PSFeedDao(SessionFactory sessionFactory) {
     this.sessionFactory = sessionFactory;
   }
 
-  /*
-   * (non-Javadoc)
+  /**
+   * Finds a single feed descriptor by feed name and site.
    *
-   * @see com.percussion.feeds.services.IPSFeedDao#find(java.lang.String,
-   * java.lang.String)
+   * @param name the feed name, never <code>null</code>
+   * @param site the feed site, never <code>null</code>
+   * @return the matching descriptor, or <code>null</code> if not found
    */
   @Override
   @Transactional
@@ -81,11 +91,11 @@ public class PSFeedDao implements IPSFeedDao {
     return sessionFactory.getCurrentSession();
   }
 
-  /*
-   * (non-Javadoc)
+  /**
+   * Finds all feed descriptors belonging to the specified site.
    *
-   * @see
-   * com.percussion.feeds.services.IPSFeedDao#findBySite(java.lang.String)
+   * @param site the feed site, never <code>null</code>
+   * @return the list of descriptors for the site, never <code>null</code>, may be empty
    */
   @Override
   @Transactional
@@ -101,10 +111,10 @@ public class PSFeedDao implements IPSFeedDao {
     return session.createQuery(criteriaQuery).getResultList();
   }
 
-  /*
-   * (non-Javadoc)
+  /**
+   * Gets the singleton metadata service connection info record.
    *
-   * @see com.percussion.feeds.services.IPSFeedDao#getConnectionInfo()
+   * @return the connection info, or <code>null</code> if no row exists
    */
   @Override
   @Transactional
@@ -121,12 +131,13 @@ public class PSFeedDao implements IPSFeedDao {
     return results.stream().findFirst().orElse(null);
   }
 
-  /*
-   * (non-Javadoc)
+  /**
+   * Saves (merges) the singleton metadata service connection info row.
    *
-   * @see
-   * com.percussion.feeds.services.IPSFeedDao#saveConnectionInfo(java.lang.
-   * String, java.lang.String, java.lang.String, boolean)
+   * @param url the metadata service URL, may be <code>null</code>
+   * @param user the metadata service user name, may be <code>null</code>
+   * @param pass the metadata service password, may be <code>null</code>
+   * @param encrypted <code>true</code> if the password is stored encrypted
    */
   @Override
   @Transactional
@@ -137,11 +148,10 @@ public class PSFeedDao implements IPSFeedDao {
     session.merge(info);
   }
 
-  /*
-   * (non-Javadoc)
+  /**
+   * Saves (merges) the supplied feed descriptors. Per-descriptor errors are logged and skipped.
    *
-   * @see
-   * com.percussion.feeds.services.IPSFeedDao#saveDescriptors(java.util.List)
+   * @param descriptors the descriptors to save, never <code>null</code>, may be empty
    */
   @Transactional
   public void saveDescriptors(List<IPSFeedDescriptor> descriptors) {
@@ -162,12 +172,10 @@ public class PSFeedDao implements IPSFeedDao {
     }
   }
 
-  /*
-   * (non-Javadoc)
+  /**
+   * Removes the supplied feed descriptors from storage.
    *
-   * @see
-   * com.percussion.feeds.services.IPSFeedDao#deleteDescriptors(java.util.
-   * List)
+   * @param descriptors the descriptors to remove, never <code>null</code>, may be empty
    */
   @Override
   @Transactional
@@ -180,10 +188,10 @@ public class PSFeedDao implements IPSFeedDao {
     }
   }
 
-  /*
-   * (non-Javadoc)
+  /**
+   * Retrieves all feed descriptors.
    *
-   * @see com.percussion.feeds.services.IPSFeedDao#findAll()
+   * @return the list of all descriptors, never <code>null</code>, may be empty
    */
   @Override
   @Transactional

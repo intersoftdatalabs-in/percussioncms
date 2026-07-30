@@ -215,7 +215,24 @@ public class CommunityResource implements ICommunityResource {
     }
   }
 
+  /**
+   * Programmatic / interface entry — object-type filter already resolved.
+   *
+   * <p>HTTP entry point is the three-argument overload that accepts {@code X-Object-Type} and
+   * legacy {@code type} headers.
+   */
   @Override
+  public CommunityVisibilityList getVisibilityByCommunity(GuidList ids, ObjectTypeEnum type) {
+    try {
+      return adaptor.getVisibilityByCommunity(ids, type);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error("An error occurred calling getVisibilityByCommunity", e);
+      throw new WebApplicationException(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   @Path("/visibility")
   @POST
   @Consumes({MediaType.APPLICATION_JSON})
@@ -223,12 +240,13 @@ public class CommunityResource implements ICommunityResource {
   @ApiResponses(
       value = {
         @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid object type header"),
         @ApiResponse(responseCode = "500", description = "ERROR")
       })
   @Operation(
       summary =
-          "Returns the Community visibility list for the specified communities. If the type header"
-              + " is null or missing, visibility for all object types will be returned.")
+          "Returns the Community visibility list for the specified communities. Optional filter via"
+              + " X-Object-Type (preferred) or legacy type header; omit for all object types.")
   public CommunityVisibilityList getVisibilityByCommunity(
       @Parameter(
               description = "List of GUID",
@@ -252,13 +270,19 @@ public class CommunityResource implements ICommunityResource {
                       + "      }\n"
                       + "]}")
           GuidList ids,
-      @Parameter(name = "type") @HeaderParam("type") ObjectTypeEnum type) {
-    try {
-      return adaptor.getVisibilityByCommunity(ids, type);
-    } catch (Exception e) {
-      log.error("An error occurred calling getVisibilityByCommunity", e);
-      throw new WebApplicationException(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
-    }
+      @Parameter(
+              name = "X-Object-Type",
+              description =
+                  "Preferred ObjectTypeEnum name filter (e.g. NODEDEF, TEMPLATE). Takes precedence"
+                      + " over legacy type header.")
+          @HeaderParam("X-Object-Type")
+          ObjectTypeEnum objectType,
+      @Parameter(
+              name = "type",
+              description = "Legacy ObjectTypeEnum filter; used when X-Object-Type is absent.")
+          @HeaderParam("type")
+          ObjectTypeEnum legacyType) {
+    return getVisibilityByCommunity(ids, objectType != null ? objectType : legacyType);
   }
 
   @POST
@@ -286,5 +310,105 @@ public class CommunityResource implements ICommunityResource {
       throw new WebApplicationException(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
     }
     return ret;
+  }
+
+  @GET
+  @Path("/roles")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "List available roles",
+      description =
+          "Lists security roles that can be associated with a community (for membership editing).",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content =
+                @Content(
+                    array = @ArraySchema(schema = @Schema(implementation = CommunityRole.class)))),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public CommunityRoleList listAvailableRoles() {
+    try {
+      return adaptor.listAvailableRoles();
+    } catch (Exception e) {
+      log.error("An error occurred calling listAvailableRoles", e);
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @GET
+  @Path("/{idOrName}")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Get community detail",
+      description =
+          "Community detail including associated roles (role id/name when resolvable)."
+              + " Lookup by numeric id, GUID string, or exact name."
+              + " Object ACL dialogs are not supported yet.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = Community.class))),
+        @ApiResponse(responseCode = "404", description = "Not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Community getCommunity(
+      @Parameter(description = "Community id, GUID string, or exact name", required = true)
+          @PathParam("idOrName")
+          String idOrName) {
+    Community community;
+    try {
+      community = adaptor.getCommunity(idOrName);
+    } catch (Exception e) {
+      // Do not leak internal exception text to API clients
+      log.error("An error occurred calling getCommunity for {}", idOrName, e);
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+    if (community == null) {
+      throw new WebApplicationException("Community not found: " + idOrName, 404);
+    }
+    return community;
+  }
+
+  @PUT
+  @Path("/{idOrName}/roles")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Update community role membership",
+      description =
+          "Replaces the set of roles associated with the community. Body is a"
+              + " CommunityRoleList (or array of CommunityRole). Role guid or roleId required"
+              + " per entry. Object ACL editing is not supported.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated community with roles",
+            content = @Content(schema = @Schema(implementation = Community.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid input"),
+        @ApiResponse(responseCode = "404", description = "Community not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Community updateCommunityRoles(
+      @Parameter(description = "Community id, GUID string, or exact name", required = true)
+          @PathParam("idOrName")
+          String idOrName,
+      CommunityRoleList roles) {
+    Community community;
+    try {
+      community = adaptor.updateCommunityRoles(idOrName, roles);
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      // Do not leak internal exception text to API clients
+      log.error("An error occurred calling updateCommunityRoles for {}", idOrName, e);
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+    if (community == null) {
+      throw new WebApplicationException("Community not found: " + idOrName, 404);
+    }
+    return community;
   }
 }

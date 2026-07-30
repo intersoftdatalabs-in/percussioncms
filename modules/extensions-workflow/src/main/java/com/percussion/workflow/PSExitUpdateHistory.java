@@ -238,10 +238,9 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
 
       // PHASE 3 (#1561): updateHistory now uses the Spring-managed datasource via
       // PSCmsObjectMgr#loadComponentSummary and PSWorkflowService#loadWorkflowTransition.
-      // The legacy new PSConnectionMgr() / second pool connection that used to be
-      // acquired here is gone — all writes and reads now share the same Hibernate
-      // session as the surrounding request. See
-      // docs/ai-generated/migrations/workflow-orm/00-inventory.md §5.2.
+      // The legacy second pool connection that used to be acquired here is gone —
+      // all writes and reads now share the same Hibernate session as the surrounding
+      // request. See docs/ai-generated/migrations/workflow-orm/00-inventory.md §5.2.
 
       try {
         contentstatushistoryid =
@@ -376,10 +375,7 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
         throw new PSExtensionProcessingException(
             m_fullExtensionName,
             new PSEntryNotFoundException(
-                "Workflow transition "
-                    + transitionID
-                    + " not found in workflow "
-                    + workflowID));
+                "Workflow transition " + transitionID + " not found in workflow " + workflowID));
       }
     }
 

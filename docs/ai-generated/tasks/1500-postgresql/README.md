@@ -5,18 +5,18 @@
 
 ## Locked labels (foundation)
 
-| Surface | Value |
-|---------|--------|
-| `DB_BACKEND` | `POSTGRES` |
-| Installer `db.type` | `postgresql` (alias: `postgres`) |
-| JDBC driver name | `postgresql` |
-| JDBC driver class | `org.postgresql.Driver` |
-| Maven coordinates | `org.postgresql:postgresql:${postgresql.version}` (parent POM; **42.7.7** at foundation) |
-| Hibernate dialect key | `postgresql` → `org.hibernate.dialect.PostgreSQLDialect` |
-| Default TCP port | **5432** |
-| Default schema | **`public`** when omitted |
-| Product `DB_SERVER` form | `//host:port/database` (same shape as MySQL-style server field) |
-| Full JDBC URL | `jdbc:postgresql://host:port/database` |
+|         Surface          |                                          Value                                           |
+|--------------------------|------------------------------------------------------------------------------------------|
+| `DB_BACKEND`             | `POSTGRES`                                                                               |
+| Installer `db.type`      | `postgresql` (alias: `postgres`)                                                         |
+| JDBC driver name         | `postgresql`                                                                             |
+| JDBC driver class        | `org.postgresql.Driver`                                                                  |
+| Maven coordinates        | `org.postgresql:postgresql:${postgresql.version}` (parent POM; **42.7.7** at foundation) |
+| Hibernate dialect key    | `postgresql` → `org.hibernate.dialect.PostgreSQLDialect`                                 |
+| Default TCP port         | **5432**                                                                                 |
+| Default schema           | **`public`** when omitted                                                                |
+| Product `DB_SERVER` form | `//host:port/database` (same shape as MySQL-style server field)                          |
+| Full JDBC URL            | `jdbc:postgresql://host:port/database`                                                   |
 
 ## Foundation PR scope (this work)
 
@@ -54,3 +54,4 @@ Playwright gate (Layer 2, after `--keep`): `modules/perc-qa-automation/frontend/
 
 - Replacing H2 embedded default
 - Certifying Aurora / forks as separate products (document compatibility later)
+

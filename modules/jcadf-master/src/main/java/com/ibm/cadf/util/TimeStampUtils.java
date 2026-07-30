@@ -23,8 +23,23 @@ import java.util.TimeZone;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 
+/**
+ * Timestamp utilities for CADF events — formats the current time using {@link
+ * Constants#DEFAULT_TIME_FORMAT} and validates whether a string is non-empty. All methods are
+ * static.
+ */
 public class TimeStampUtils {
 
+  /** Default no-argument constructor for {@link TimeStampUtils}. */
+  public TimeStampUtils() {}
+
+  /**
+   * Returns the current time formatted using {@link Constants#DEFAULT_TIME_FORMAT} in the supplied
+   * timezone.
+   *
+   * @param timeZone the Java {@link TimeZone} id (e.g., {@code "UTC"}), never {@code null}.
+   * @return the formatted timestamp string.
+   */
   public static String getCurrentTime(String timeZone) {
 
     FastDateFormat format =
@@ -34,10 +49,21 @@ public class TimeStampUtils {
     return format.format(new Date());
   }
 
+  /**
+   * Returns the current time formatted as UTC using {@link Constants#DEFAULT_TIME_FORMAT}.
+   *
+   * @return the formatted UTC timestamp string.
+   */
   public static String getCurrentTime() {
     return getCurrentTime("UTC");
   }
 
+  /**
+   * Returns {@code true} when the supplied timestamp string is non-empty.
+   *
+   * @param timesmap the timestamp string to validate, may be {@code null}.
+   * @return {@code true} when {@code timesmap} is non-empty.
+   */
   public static boolean isValid(String timesmap) {
     return StringUtils.isNotEmpty(timesmap);
   }

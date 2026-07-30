@@ -14,11 +14,11 @@ Lazy-embedded WorkflowAdminShell, AdminShell, WidgetBuilderApp under AppLayout w
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs | None |
-| Tests | App tests cover load + non-admin redirect |
-| May commit/push | **yes** |
+|      Check      |                  Result                   |
+|-----------------|-------------------------------------------|
+| Bugs            | None                                      |
+| Tests           | App tests cover load + non-admin redirect |
+| May commit/push | **yes**                                   |
 
 ## Issues
 

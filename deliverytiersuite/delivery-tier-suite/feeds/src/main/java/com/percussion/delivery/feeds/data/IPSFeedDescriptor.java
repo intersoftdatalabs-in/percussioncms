@@ -22,36 +22,50 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonDeserialize(as = PSFeedDescriptor.class)
 public interface IPSFeedDescriptor {
   /**
+   * Gets the name of the feed.
+   *
    * @return the name of the feed.
    */
   public String getName();
 
   /**
+   * Gets the name of the site the feed belongs to.
+   *
    * @return the name of the site the feed belongs to.
    */
   public String getSite();
 
   /**
+   * Gets the feed title.
+   *
    * @return the feed title.
    */
   public String getTitle();
 
   /**
+   * Gets the feed description.
+   *
    * @return the feed description.
    */
   public String getDescription();
 
   /**
+   * Gets the link to the page the feed represents.
+   *
    * @return the link to the page the feed represents.
    */
   public String getLink();
 
   /**
+   * Gets the query to get the feed data from the meta-data service.
+   *
    * @return the query to get the feed data from the meta-data service.
    */
   public String getQuery();
 
   /**
+   * Gets the feed output type.
+   *
    * @return the feed output type. Never <code>null</code>.
    */
   public String getType();

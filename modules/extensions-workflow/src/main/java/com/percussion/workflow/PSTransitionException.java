@@ -18,9 +18,7 @@ package com.percussion.workflow;
 
 import com.percussion.error.PSException;
 
-/**
- * Exception thrown when an error occurs while performing a workflow transition.
- */
+/** Exception thrown when an error occurs while performing a workflow transition. */
 public class PSTransitionException extends PSException {
   /**
    * Construct an exception for messages taking locale and msgCode arguments.

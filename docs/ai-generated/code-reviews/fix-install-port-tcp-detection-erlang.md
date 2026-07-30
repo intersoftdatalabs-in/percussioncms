@@ -37,3 +37,4 @@ None.
 - **Build evidence** — `cd modules/utils && ../../mvnw.cmd clean install` reports **BUILD SUCCESS**, 229 tests, 0 failures/errors, 9 skipped (pre-existing skips); no new compiler or javadoc warnings introduced on the touched files.
 - **Cross-platform path review** — N/A; the patch does not touch filesystem paths, installers, packaging, or path assertions.
 - **Silent failure smell** — None added; the existing `catch (IOException e)` block still logs via `logError`.
+

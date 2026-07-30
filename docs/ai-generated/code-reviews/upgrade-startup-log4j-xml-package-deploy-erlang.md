@@ -5,11 +5,11 @@
 
 ## Hard gates
 
-| Gate | Result |
-|------|--------|
-| Behavioral bugs in new logic | Pass after install retest (server starts; packages install) |
+|               Gate               |                                                                         Result                                                                          |
+|----------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Behavioral bugs in new logic     | Pass after install retest (server starts; packages install)                                                                                             |
 | Unit tests for non-trivial logic | Present: PSXmlSerializationHelperTest, PSCatalogResolverTest, PSSecureXMLUtilsCallSiteOptionsTest, PSTemplateSlotXmlRestoreTest, StartupWarnHygieneTest |
-| Cross-platform paths | Pass — no new OS-hardcoded path construction; rewrite uses string element names only |
+| Cross-platform paths             | Pass — no new OS-hardcoded path construction; rewrite uses string element names only                                                                    |
 
 ## Findings
 
@@ -22,3 +22,4 @@
 
 - Full Betwixt→Jackson remains #505; this PR is tactical compat only.
 - Other design-object XML using unhyphenated names outside slots may need similar normalizers if found.
+

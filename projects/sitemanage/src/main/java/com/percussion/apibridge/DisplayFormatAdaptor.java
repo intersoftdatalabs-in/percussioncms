@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,13 +36,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
 /** Provides the API implementation for the Display Format Resource. */
-@PSSiteManageBean("restDisplayFormatResource")
+@PSSiteManageBean
 @Lazy
 public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
+
+  private static final Logger log = LogManager.getLogger(DisplayFormatAdaptor.class);
 
   private final IPSUiDesignWs designWs;
 
@@ -100,6 +104,9 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
     }
     ret.setAscendingSort(f.isAscendingSort());
     ret.setDescendingSort(f.isDescendingSort());
+    ret.setValidForRelatedContent(f.isValidForRelatedContent());
+    ret.setValidForViewsAndSearches(f.isValidForViewsAndSearches());
+    ret.setValidForFolder(f.isValidForFolder());
     ret.setInvalidFolderFieldNames(f.getInvalidFolderFieldNames());
     ret.setDisplayId(f.getDisplayId());
     ret.setName(f.getName());
@@ -171,4 +178,42 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
       List<DisplayFormat> displayFormats, boolean release, String session, String user) {
     throw new UnsupportedOperationException("Not yet implemented");
   }
+  @Override
+  public DisplayFormat findDisplayFormatByKey(String idOrName) {
+    if (!isSafeDisplayFormatKey(idOrName)) {
+      return null;
+    }
+    String key = idOrName.trim();
+    try {
+      return findDisplayFormat(key);
+    } catch (PSCmsException | PSUnknownNodeTypeException e) {
+      // Expected miss → fall through to GUID parse / null
+      log.debug("Display format not found by name {}: {}", key, e.toString());
+    }
+    try {
+      var guid = new com.percussion.services.guidmgr.data.PSGuid(key);
+      return findDisplayFormat((IPSGuid) guid);
+    } catch (IllegalArgumentException e) {
+      log.debug("Invalid display format GUID syntax: {}", e.getMessage());
+      return null;
+    } catch (PSCmsException | PSUnknownNodeTypeException e) {
+      log.debug("Display format not found by GUID {}: {}", key, e.toString());
+      return null;
+    }
+  }
+
+  /**
+   * Single path component / guid token only — reject traversal and separators ({@code
+   * java/path-injection}).
+   */
+  static boolean isSafeDisplayFormatKey(String key) {
+    if (key == null || key.isBlank()) {
+      return false;
+    }
+    return !key.contains("..")
+        && key.indexOf('/') < 0
+        && key.indexOf('\\') < 0
+        && key.indexOf('\0') < 0;
+  }
+
 }

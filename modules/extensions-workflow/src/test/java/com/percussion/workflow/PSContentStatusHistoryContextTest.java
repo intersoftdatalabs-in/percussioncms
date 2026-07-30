@@ -31,19 +31,17 @@ import org.apache.logging.log4j.Logger;
  * The PSContentStatusHistoryContextTest class is a test class for the class
  * PSContentStatusHistoryContext.
  *
- * <p>PHASE 2 NOTE (#1561): the write constructor used to commit a raw JDBC INSERT
- * against the connection passed in. As of #1561 Phase 2 it routes through
- * {@link com.percussion.services.system.IPSSystemService#saveContentStatusHistory}
- * via {@link com.percussion.services.system.PSSystemServiceLocator}, so the
- * write participates in the same Hibernate session / Spring transaction as the
- * rest of the request. The {@code connection} argument is preserved in the
- * signature but is intentionally ignored.
+ * <p>PHASE 2 NOTE (#1561): the write constructor used to commit a raw JDBC INSERT against the
+ * connection passed in. As of #1561 Phase 2 it routes through {@link
+ * com.percussion.services.system.IPSSystemService#saveContentStatusHistory} via {@link
+ * com.percussion.services.system.PSSystemServiceLocator}, so the write participates in the same
+ * Hibernate session / Spring transaction as the rest of the request. The {@code connection}
+ * argument is preserved in the signature but is intentionally ignored.
  *
- * <p>The read constructor still uses raw JDBC (the SQL is H2-safe — qualified
- * table only, bare columns — after the #1563 fix). It is exercised here only as
- * a smoke test; a Spring-aware integration test on H2 is tracked in
- * {@code docs/ai-generated/migrations/workflow-orm/00-inventory.md} as a Phase 2
- * follow-up.
+ * <p>The read constructor still uses raw JDBC (the SQL is H2-safe — qualified table only, bare
+ * columns — after the #1563 fix). It is exercised here only as a smoke test; a Spring-aware
+ * integration test on H2 is tracked in {@code
+ * docs/ai-generated/migrations/workflow-orm/00-inventory.md} as a Phase 2 follow-up.
  */
 public class PSContentStatusHistoryContextTest extends PSAbstractWorkflowTest {
 

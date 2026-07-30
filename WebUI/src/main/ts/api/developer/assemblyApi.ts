@@ -15,9 +15,20 @@
  * limitations under the License.
  */
 
-import { get } from "../client";
+import { get, post, put } from "../client";
 import { PATHS } from "../paths";
-import type { CommunitySummary, SlotSummary, TemplateSummary } from "./types";
+import type {
+  CommunityDetail,
+  CommunityRoleSummary,
+  CommunitySummary,
+  CommunityVisibility,
+  CommunityVisibleObject,
+  RestGuid,
+  SlotDetail,
+  SlotSummary,
+  TemplateDetail,
+  TemplateSummary,
+} from "./types";
 
 function asArray<T>(payload: unknown, keys: string[]): T[] {
   if (payload == null) return [];
@@ -43,10 +54,50 @@ export async function listTemplates(): Promise<TemplateSummary[]> {
   ]);
 }
 
+/**
+ * GET /services/templates/{idOrName}
+ *
+ * <p>Throws {@link ApiError} / {@link SessionRedirectError} on non-2xx (including 404).
+ * Callers should not treat a successful response as nullable.
+ */
+export async function getTemplateDetail(
+  idOrName: string,
+): Promise<TemplateDetail> {
+  const key = encodeURIComponent(idOrName);
+  return get<TemplateDetail>(`${PATHS.TEMPLATES}/${key}`);
+}
+
+/** PUT /services/templates/{idOrName} — label, description, source, optional bindings/slots */
+export async function updateTemplateDetail(
+  idOrName: string,
+  body: Pick<
+    TemplateDetail,
+    "label" | "description" | "templateSource" | "bindings" | "slots"
+  >,
+): Promise<TemplateDetail> {
+  const key = encodeURIComponent(idOrName);
+  return put<TemplateDetail>(`${PATHS.TEMPLATES}/${key}`, body);
+}
+
 /** GET /services/slots */
 export async function listSlots(): Promise<SlotSummary[]> {
   const payload = await get<unknown>(PATHS.SLOTS);
   return asArray<SlotSummary>(payload, ["Slot", "slot", "SlotList"]);
+}
+
+/** GET /services/slots/{idOrName} */
+export async function getSlotDetail(idOrName: string): Promise<SlotDetail> {
+  const key = encodeURIComponent(idOrName);
+  return get<SlotDetail>(`${PATHS.SLOTS}/${key}`);
+}
+
+/** PUT /services/slots/{idOrName} — label, description, optional associations replace */
+export async function updateSlotDetail(
+  idOrName: string,
+  body: Pick<SlotDetail, "label" | "description" | "associations">,
+): Promise<SlotDetail> {
+  const key = encodeURIComponent(idOrName);
+  return put<SlotDetail>(`${PATHS.SLOTS}/${key}`, body);
 }
 
 /** GET /services/communities/find?name=* */
@@ -60,4 +111,66 @@ export async function listCommunities(): Promise<CommunitySummary[]> {
     "Community",
     "communityList",
   ]);
+}
+
+/** GET /services/communities/{idOrName} — detail with roles */
+export async function getCommunityDetail(
+  idOrName: string,
+): Promise<CommunityDetail> {
+  const key = encodeURIComponent(idOrName);
+  return get<CommunityDetail>(`${PATHS.COMMUNITIES}/${key}`);
+}
+
+/** GET /services/communities/roles — all roles for membership picker */
+export async function listAvailableRoles(): Promise<CommunityRoleSummary[]> {
+  const payload = await get<unknown>(`${PATHS.COMMUNITIES}/roles`);
+  return asArray<CommunityRoleSummary>(payload, [
+    "CommunityRoleList",
+    "CommunityRole",
+    "roleList",
+  ]);
+}
+
+/** PUT /services/communities/{idOrName}/roles — replace memberships */
+export async function updateCommunityRoles(
+  idOrName: string,
+  roles: CommunityRoleSummary[],
+): Promise<CommunityDetail> {
+  const key = encodeURIComponent(idOrName);
+  return put<CommunityDetail>(`${PATHS.COMMUNITIES}/${key}/roles`, roles);
+}
+
+/** Preferred filter header for community visibility (server also accepts legacy {@code type}). */
+export const COMMUNITY_VISIBILITY_TYPE_HEADER = "X-Object-Type";
+
+/**
+ * POST /services/communities/visibility — objects visible to the given community GUID.
+ *
+ * <p>Body is a GuidList (JSON array of Guid). Optional object-type filter is sent as
+ * {@link COMMUNITY_VISIBILITY_TYPE_HEADER} (trimmed non-empty only).
+ */
+export async function getCommunityVisibility(
+  communityGuid: RestGuid,
+  objectType?: string,
+): Promise<CommunityVisibleObject[]> {
+  const trimmedType = objectType?.trim();
+  const headers: HeadersInit | undefined =
+    trimmedType && trimmedType.length > 0
+      ? { [COMMUNITY_VISIBILITY_TYPE_HEADER]: trimmedType }
+      : undefined;
+  const payload = await post<unknown>(
+    `${PATHS.COMMUNITIES}/visibility`,
+    [communityGuid],
+    headers,
+  );
+  // Response: CommunityVisibilityList array or envelope
+  const list = asArray<CommunityVisibility>(payload, [
+    "CommunityVisibilityList",
+    "CommunityVisibility",
+  ]);
+  const first = list[0];
+  if (!first?.visibleObjects) return [];
+  if (Array.isArray(first.visibleObjects)) return first.visibleObjects;
+  const env = first.visibleObjects as { ObjectSummary?: CommunityVisibleObject[] };
+  return Array.isArray(env.ObjectSummary) ? env.ObjectSummary : [];
 }

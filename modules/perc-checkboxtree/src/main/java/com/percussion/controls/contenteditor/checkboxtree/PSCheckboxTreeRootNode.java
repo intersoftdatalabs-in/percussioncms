@@ -27,6 +27,9 @@ import org.w3c.dom.NodeList;
  * to load the entire tree from an xml document.
  */
 public class PSCheckboxTreeRootNode extends DefaultMutableTreeNode implements MutableTreeNode {
+  /** Default no-argument constructor for the root node. */
+  public PSCheckboxTreeRootNode() {}
+
   /**
    * Load the xml document and populate the tree. The expected xml format is: &lt;!ELEMENT Tree
    * (Node*)&gt; &lt;!ATTLIST Tree label CDATA #REQUIRED &gt; &lt;!ELEMENT Node (Node*)&gt;

@@ -41,12 +41,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Tag(name = "Content Types", description = "Content Type operations")
 public class ContentTypesResource {
 
-  @Autowired private IContentTypesAdaptor adaptor;
+  private final IContentTypesAdaptor adaptor;
 
   @Context private UriInfo uriInfo;
 
   public ContentTypesResource() {
-    // noop
+    this.adaptor = null;
+  }
+
+  @Autowired
+  public ContentTypesResource(IContentTypesAdaptor adaptor) {
+    this.adaptor = adaptor;
+  }
+
+  /** Package-private test hook so unit tests need not reflect on {@code uriInfo}. */
+  void setUriInfo(UriInfo uriInfo) {
+    this.uriInfo = uriInfo;
+  }
+
+  private IContentTypesAdaptor requireAdaptor() {
+    if (adaptor == null) {
+      throw new IllegalStateException(
+          "ContentTypes adaptor not configured (resource constructed without injection)");
+    }
+    return adaptor;
   }
 
   @GET
@@ -733,7 +751,7 @@ public class ContentTypesResource {
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public List<ContentType> listContentTypes() {
-    return new ContentTypeList(adaptor.listContentTypes(uriInfo.getBaseUri()));
+    return new ContentTypeList(requireAdaptor().listContentTypes(uriInfo.getBaseUri()));
   }
 
   @GET
@@ -753,7 +771,7 @@ public class ContentTypesResource {
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public List<ContentType> getContentTypesBySite(@PathParam("id") int siteId) {
-    return new ContentTypeList(adaptor.listContentTypes(uriInfo.getBaseUri(), siteId));
+    return new ContentTypeList(requireAdaptor().listContentTypes(uriInfo.getBaseUri(), siteId));
   }
 
   @GET
@@ -781,7 +799,8 @@ public class ContentTypesResource {
           @Valid
           ContentTypeFilter filter) {
     try {
-      List<ContentType> results = adaptor.listContentTypesByFilter(uriInfo.getBaseUri(), filter);
+      List<ContentType> results =
+          requireAdaptor().listContentTypesByFilter(uriInfo.getBaseUri(), filter);
       if (results == null || results.isEmpty()) {
         throw new WebApplicationException("Not Found.", 404);
       }
@@ -800,20 +819,19 @@ public class ContentTypesResource {
   @Operation(
       summary = "Get content type design summary",
       description =
-          "Read-only content type detail including field catalog. Does not include full"
-              + " validation/visibility/transform rules or save/lock (see designGaps).",
+          "Content type detail including field catalog. Full rule expressions and control"
+              + " properties are not exposed (see designGaps).",
       responses = {
         @ApiResponse(
             responseCode = "200",
             description = "OK",
-            content =
-                @Content(schema = @Schema(implementation = ContentTypeDetail.class))),
+            content = @Content(schema = @Schema(implementation = ContentTypeDetail.class))),
         @ApiResponse(responseCode = "404", description = "Content type not found"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public ContentTypeDetail getContentType(@PathParam("idOrName") String idOrName) {
     try {
-      ContentTypeDetail detail = adaptor.getContentType(uriInfo.getBaseUri(), idOrName);
+      ContentTypeDetail detail = requireAdaptor().getContentType(uriInfo.getBaseUri(), idOrName);
       if (detail == null) {
         throw new WebApplicationException("Content type not found: " + idOrName, 404);
       }
@@ -822,6 +840,62 @@ public class ContentTypesResource {
       throw e;
     } catch (Exception e) {
       // Preserve cause so log analysis retains the original stack/type
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @PUT
+  @Path("/{idOrName}")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Update content type design fields",
+      description =
+          "Locks the content type for the current session user, applies mutable fields (label,"
+              + " description, enabled, per-field searchable/occurrence, allowedWorkflows +"
+              + " defaultWorkflow, allowedTemplates), saves, and releases the lock. Association"
+              + " lists: omit/null = leave unchanged; non-null list = full replace (empty clears"
+              + " workflows/templates). GET responses always include association arrays (may be"
+              + " empty). Template associations are written after content-type save in a separate"
+              + " design call — if that fails, meta/field/workflow changes may already be"
+              + " committed (error message indicates partial success). Name/id and system field"
+              + " structure are not changed. Full rule expressions and create/delete remain"
+              + " unsupported (see designGaps).",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated",
+            content = @Content(schema = @Schema(implementation = ContentTypeDetail.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid input"),
+        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(responseCode = "409", description = "Could not acquire design lock"),
+        @ApiResponse(
+            responseCode = "500",
+            description =
+                "Error — may indicate partial success when template association save fails after"
+                    + " content type was already saved"),
+      })
+  public ContentTypeDetail updateContentType(
+      @PathParam("idOrName") String idOrName, ContentTypeDetail body) {
+    try {
+      ContentTypeDetail detail =
+          requireAdaptor().updateContentType(uriInfo.getBaseUri(), idOrName, body);
+      if (detail == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return detail;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (IllegalStateException e) {
+      // lock / session problems surface as 409 when message indicates lock
+      String msg = e.getMessage() != null ? e.getMessage() : "Conflict";
+      if (msg.toLowerCase().contains("lock")) {
+        throw new WebApplicationException(msg, 409);
+      }
+      throw new WebApplicationException(e, 500);
+    } catch (Exception e) {
       throw new WebApplicationException(e, 500);
     }
   }

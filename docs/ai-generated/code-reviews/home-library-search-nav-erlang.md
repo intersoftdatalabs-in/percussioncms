@@ -1,13 +1,13 @@
 # Erlang review — fix/home-library-search-nav
 
-| Field | Value |
-|-------|--------|
-| **Date** | 2026-07-28 |
-| **Branch** | `fix/home-library-search-nav` |
-| **Scope** | Home Library parent/breadcrumb navigation + Search result count UX |
-| **Recommendation** | **approve** |
-| **May commit/push** | **yes** |
-| **Gate** | pass |
+|        Field        |                               Value                                |
+|---------------------|--------------------------------------------------------------------|
+| **Date**            | 2026-07-28                                                         |
+| **Branch**          | `fix/home-library-search-nav`                                      |
+| **Scope**           | Home Library parent/breadcrumb navigation + Search result count UX |
+| **Recommendation**  | **approve**                                                        |
+| **May commit/push** | **yes**                                                            |
+| **Gate**            | pass                                                               |
 
 ## Summary
 
@@ -21,3 +21,4 @@ None (bugs). Cross-platform path checklist: N/A (CMS logical paths, not OS files
 
 - Vitest: filenameUtils, LibrarySection, SearchSection, HomeShell — pass
 - `cd WebUI && ../mvnw clean install` — required before PR
+

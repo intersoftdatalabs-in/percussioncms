@@ -57,4 +57,16 @@ public interface IContentTypesAdaptor {
    * @return detail or {@code null} when not found
    */
   ContentTypeDetail getContentType(URI baseUri, String idOrName);
+
+  /**
+   * Update content type design fields under a design-session lock.
+   *
+   * <p>Supports label, description, enabled, per-field {@code searchable} (and optional
+   * occurrence), allowed workflows (+ default workflow id), and allowed templates. Association
+   * lists use full-replace semantics when non-null; omit them to leave associations unchanged.
+   * Locks for the current request user, saves, and releases the lock.
+   *
+   * @return updated detail, or {@code null} when not found
+   */
+  ContentTypeDetail updateContentType(URI baseUri, String idOrName, ContentTypeDetail body);
 }

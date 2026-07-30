@@ -39,15 +39,7 @@ class PSExecSQLStmtDialectTest {
   void h2UsesExplicitSqlH2() {
     String resolved =
         PSExecSQLStmt.resolveDialectSql(
-            PSJdbcUtils.H2_DRIVER,
-            DEFAULT_SQL,
-            "",
-            "",
-            "",
-            DERBY_SQL,
-            MYSQL_SQL,
-            H2_SQL,
-            PG_SQL);
+            PSJdbcUtils.H2_DRIVER, DEFAULT_SQL, "", "", "", DERBY_SQL, MYSQL_SQL, H2_SQL, PG_SQL);
     assertEquals(H2_SQL, resolved);
   }
 

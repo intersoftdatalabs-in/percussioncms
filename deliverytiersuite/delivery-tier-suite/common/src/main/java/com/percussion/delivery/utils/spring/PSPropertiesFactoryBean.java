@@ -82,15 +82,19 @@ public class PSPropertiesFactoryBean extends PropertiesFactoryBean {
 
   private static final Logger log = LogManager.getLogger(PSPropertiesFactoryBean.class);
 
-  /** All resources that have been assigned to this factory bean via {@link #setLocation} or
-   * {@link #setLocations}. */
+  /**
+   * All resources that have been assigned to this factory bean via {@link #setLocation} or {@link
+   * #setLocations}.
+   */
   private final List<Resource> resList = new ArrayList<>();
 
   /** Names of properties whose values should be encrypted when {@link #autoSecure} is enabled. */
   private String[] securedProperties;
 
-  /** When <code>true</code>, the factory bean will encrypt the configured
-   * {@link #securedProperties} on load. */
+  /**
+   * When <code>true</code>, the factory bean will encrypt the configured {@link #securedProperties}
+   * on load.
+   */
   private boolean autoSecure;
 
   /** Decryption key used when securing properties. */
@@ -159,8 +163,8 @@ public class PSPropertiesFactoryBean extends PropertiesFactoryBean {
   }
 
   /**
-   * Configures whether the factory bean should automatically encrypt the configured
-   * {@link #setSecuredProperties secured properties} on load.
+   * Configures whether the factory bean should automatically encrypt the configured {@link
+   * #setSecuredProperties secured properties} on load.
    *
    * @param autoSecure <code>true</code> to enable auto-secure, <code>false</code> to disable.
    */

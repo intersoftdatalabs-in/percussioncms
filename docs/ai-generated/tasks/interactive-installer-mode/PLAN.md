@@ -8,14 +8,14 @@
 **Primary modules:** `modules/perc-distribution-tree` (CMS preinstall), `deliverytiersuite/.../delivery-tier-distribution` (DTS preinstall)  
 **Related work already landed:**
 
-| Area | What exists today | Gap for interactive UX |
-|------|-------------------|------------------------|
-| Install path | Required first CLI positional arg | No prompt if omitted |
-| Java home | Discovery + multi-candidate prompt (`JavaInstallSelection`, issue #1340 / specs/991) | Only when path already known; not step 1 of a wizard |
-| DB target | Fully parameter-driven: `--dbprops`, `--db.*`, env file, env vars, default H2 (`DbInstallConfigResolver`, specs/006) | No guided multi-step capture |
-| DB test | ANT task `PSValidateRepositoryConnection` **after** files are written (new install) | No optional **pre-install** test in the wizard |
-| Summary / confirm | None — install proceeds once args parse | No review/confirm step |
-| Silent mode | `--silent` / `--no-tty` | Keep as hard non-interactive path |
+|       Area        |                                                  What exists today                                                   |                Gap for interactive UX                |
+|-------------------|----------------------------------------------------------------------------------------------------------------------|------------------------------------------------------|
+| Install path      | Required first CLI positional arg                                                                                    | No prompt if omitted                                 |
+| Java home         | Discovery + multi-candidate prompt (`JavaInstallSelection`, issue #1340 / specs/991)                                 | Only when path already known; not step 1 of a wizard |
+| DB target         | Fully parameter-driven: `--dbprops`, `--db.*`, env file, env vars, default H2 (`DbInstallConfigResolver`, specs/006) | No guided multi-step capture                         |
+| DB test           | ANT task `PSValidateRepositoryConnection` **after** files are written (new install)                                  | No optional **pre-install** test in the wizard       |
+| Summary / confirm | None — install proceeds once args parse                                                                              | No review/confirm step                               |
+| Silent mode       | `--silent` / `--no-tty`                                                                                              | Keep as hard non-interactive path                    |
 
 ---
 
@@ -119,14 +119,14 @@ When silent / no TTY / fully parameterized automation runs: **behavior unchanged
 
 ## Proposed code shape (CMS first)
 
-| Piece | Responsibility |
-|-------|----------------|
-| `InteractiveInstallWizard` (new, preinstall package) | Orchestrates steps 1–5; returns `WizardResult` (installPath, options map / ResolvedDbConfig, java selection already persisted or deferred) |
-| `ConsolePrompts` (new, thin) | Defaults, yes/no, menu, masked password, path validation |
-| `DbInstallConfigResolver` | Keep pure resolution/validation; add package-visible helpers if needed for “build options from answers” |
-| `JavaInstallSelection` | Already step 2; call from wizard after path known |
-| `RepositoryConnectionTester` (new pure helper, or extract from perc-ant) | Pre-install connectivity test without ANT; share logic with `PSValidateRepositoryConnection` |
-| `Main.main` | If interactive mode and incomplete required inputs → run wizard; else current path |
+|                                  Piece                                   |                                                               Responsibility                                                               |
+|--------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| `InteractiveInstallWizard` (new, preinstall package)                     | Orchestrates steps 1–5; returns `WizardResult` (installPath, options map / ResolvedDbConfig, java selection already persisted or deferred) |
+| `ConsolePrompts` (new, thin)                                             | Defaults, yes/no, menu, masked password, path validation                                                                                   |
+| `DbInstallConfigResolver`                                                | Keep pure resolution/validation; add package-visible helpers if needed for “build options from answers”                                    |
+| `JavaInstallSelection`                                                   | Already step 2; call from wizard after path known                                                                                          |
+| `RepositoryConnectionTester` (new pure helper, or extract from perc-ant) | Pre-install connectivity test without ANT; share logic with `PSValidateRepositoryConnection`                                               |
+| `Main.main`                                                              | If interactive mode and incomplete required inputs → run wizard; else current path                                                         |
 
 DTS (`MainDTSPreInstall`) should get a **parallel** wizard (same UX language, DTS field set / production vs staging where relevant), reusing shared prompt helpers if we extract a tiny common module—or duplicate thin wizard code initially to avoid a new shared artifact (prefer extract only if duplication hurts).
 
@@ -136,20 +136,20 @@ DTS (`MainDTSPreInstall`) should get a **parallel** wizard (same UX language, DT
 
 Recommended order for each field:
 
-1. Explicit CLI / system property already supplied  
-2. Env file / environment (existing `DbInstallConfigResolver` precedence)  
-3. Interactive answer  
+1. Explicit CLI / system property already supplied
+2. Env file / environment (existing `DbInstallConfigResolver` precedence)
+3. Interactive answer
 4. Product default (e.g. `h2`, SSL defaults)
 
 ---
 
 ## Non-goals (this plan)
 
-- GUI / web-based installer  
-- Changing silent/automation contracts or sample `rxrepository.*.properties` format  
-- Replacing ANT install steps  
-- Shipping a bundled JRE  
-- Full Speckit constitution/spec unless product prioritizes a tracked feature branch  
+- GUI / web-based installer
+- Changing silent/automation contracts or sample `rxrepository.*.properties` format
+- Replacing ANT install steps
+- Shipping a bundled JRE
+- Full Speckit constitution/spec unless product prioritizes a tracked feature branch
 
 ---
 
@@ -157,65 +157,65 @@ Recommended order for each field:
 
 ### Phase 0 — Spec spike (short)
 
-- Capture UX copy defaults (menus, defaults, cancel keys).  
-- Confirm DTS parity scope (same 5 steps vs DTS-specific production/staging).  
+- Capture UX copy defaults (menus, defaults, cancel keys).
+- Confirm DTS parity scope (same 5 steps vs DTS-specific production/staging).
 - Confirm whether typed custom Java path is in MVP.
 
 ### Phase 1 — CMS wizard skeleton ✅
 
-- Detect interactive mode in `Main`.  
-- Step 1: install directory prompt when missing.  
-- Step 5: summary + confirm (even if DB/Java still from CLI defaults).  
-- Unit tests with fake prompt.  
+- Detect interactive mode in `Main`.
+- Step 1: install directory prompt when missing.
+- Step 5: summary + confirm (even if DB/Java still from CLI defaults).
+- Unit tests with fake prompt.
 - **Landed:** `InteractiveInstallWizard`, `InstallPrompt`, `SystemConsoleInstallPrompt`, wired from `Main`; tests in `InteractiveInstallWizardTest`.
 
 ### Phase 2 — Java step integration ✅
 
-- Run `JavaInstallSelection` as wizard step 2 (before summary).  
+- Run `JavaInstallSelection` as wizard step 2 (before summary).
 - Optional custom path entry (deferred — discovery + `-Dperc.java.home` covers MVP).
 
 ### Phase 3 — Database multi-step + optional test ✅
 
-- `InteractiveDbConfigCollector` menu + structured fields (incl. SQL Server Express copy).  
-- `RepositoryConnectionProbe` best-effort preinstall probe (SKIPPED when driver not on classpath).  
+- `InteractiveDbConfigCollector` menu + structured fields (incl. SQL Server Express copy).
+- `RepositoryConnectionProbe` best-effort preinstall probe (SKIPPED when driver not on classpath).
 - ANT `PSValidateRepositoryConnection` remains authoritative after files are written.
 
 ### Phase 4 — DTS parity + docs ✅
 
-- `InteractiveDtsInstallWizard` + collectors/probe in `delivery-tier-distribution`.  
-- Production vs staging wizard step.  
-- CMS + DTS READMEs document interactive mode.  
+- `InteractiveDtsInstallWizard` + collectors/probe in `delivery-tier-distribution`.
+- Production vs staging wizard step.
+- CMS + DTS READMEs document interactive mode.
 - Matrix/Docker remain on `--silent` + flags.
 
 ### Phase 5 — Polish
 
-- “Back” navigation between steps (nice-to-have).  
-- Upgrade-specific messaging.  
+- “Back” navigation between steps (nice-to-have).
+- Upgrade-specific messaging.
 - Help text when launched with zero args (print “interactive mode available” vs usage-only exit).
 
 ---
 
 ## Acceptance criteria (MVP)
 
-1. **TTY + no install path:** operator is prompted for install directory; install can complete without any prior CLI args for a default H2 install.  
-2. **TTY + new install + external DB:** multi-step prompts produce a valid `ResolvedDbConfig` equivalent to `--db.type=... --db.host=...` etc.  
-3. **Optional DB test:** operator can test connectivity before extract/ANT; failure does not leave a half-written install.  
-4. **Summary:** operator sees non-secret options and must confirm before install work begins.  
-5. **Silent / no TTY / full CLI:** no new prompts; existing automation green.  
-6. **Passwords:** never printed in prompts (echo off), summary, or logs.  
+1. **TTY + no install path:** operator is prompted for install directory; install can complete without any prior CLI args for a default H2 install.
+2. **TTY + new install + external DB:** multi-step prompts produce a valid `ResolvedDbConfig` equivalent to `--db.type=... --db.host=...` etc.
+3. **Optional DB test:** operator can test connectivity before extract/ANT; failure does not leave a half-written install.
+4. **Summary:** operator sees non-secret options and must confirm before install work begins.
+5. **Silent / no TTY / full CLI:** no new prompts; existing automation green.
+6. **Passwords:** never printed in prompts (echo off), summary, or logs.
 7. **Unit tests** cover wizard branching (defaults, skip-when-CLI-supplied, test-fail re-edit, confirm-no abort).
 
 ---
 
 ## Decisions (resolved)
 
-| # | Question | Decision |
-|---|----------|----------|
-| 1 | Zero-arg + TTY | **Enter wizard** (do not only print usage and exit). Usage still printed for `--help` / silent-missing-path cases as appropriate. |
-| 2 | Final confirm default | **Default Y for embedded H2**; **require explicit Y** for external / SQL Server Express (or any non-default backend). |
-| 3 | DTS production vs staging | **Include as a wizard step** on DTS interactive path (parity with knowing server type up front). |
-| 4 | dbprops vs fields | **Offer menu:** “Enter fields” / “Load properties file”. |
-| 5 | Tracking | **GitHub issue + feature branch**; no Speckit constitution/spec/tasks set for this feature. |
+| # |         Question          |                                                             Decision                                                              |
+|---|---------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
+| 1 | Zero-arg + TTY            | **Enter wizard** (do not only print usage and exit). Usage still printed for `--help` / silent-missing-path cases as appropriate. |
+| 2 | Final confirm default     | **Default Y for embedded H2**; **require explicit Y** for external / SQL Server Express (or any non-default backend).             |
+| 3 | DTS production vs staging | **Include as a wizard step** on DTS interactive path (parity with knowing server type up front).                                  |
+| 4 | dbprops vs fields         | **Offer menu:** “Enter fields” / “Load properties file”.                                                                          |
+| 5 | Tracking                  | **GitHub issue + feature branch**; no Speckit constitution/spec/tasks set for this feature.                                       |
 
 ---
 
@@ -247,6 +247,7 @@ Recommended order for each field:
 
 ## Suggested next step
 
-1. Implement on `feat/1513-interactive-installer` against [#1513](https://github.com/intersoftdatalabs-in/percussioncms/issues/1513) (CMS Phase 1–3 first).  
-2. DTS parity (Phase 4) in a follow-up PR on the same branch or stacked PR.  
+1. Implement on `feat/1513-interactive-installer` against [#1513](https://github.com/intersoftdatalabs-in/percussioncms/issues/1513) (CMS Phase 1–3 first).
+2. DTS parity (Phase 4) in a follow-up PR on the same branch or stacked PR.
 3. Express menu copy + defaults can land with Phase 3 DB step; deeper Express packaging stays optional.
+

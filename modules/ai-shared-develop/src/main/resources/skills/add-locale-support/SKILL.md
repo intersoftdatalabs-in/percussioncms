@@ -37,11 +37,12 @@ removing an existing locale (different playbook — see §7).
    `hi-in`, `pt-br`. Tags like `de_DE`, `EN_us`, `ja-JP` all normalize at
    runtime via `PSTmxResourceBundle.normalizeLang(...)`, but every new
    piece of content must use the canonical form.
-2. **Is it a generic code (`es`, `hi`) or a regional variant?** Generic
-   codes catch-fall any untagged region; regional variants (`es-mx`)
-   override only that region. Decide which matrix slots it occupies; do
-   not introduce a code outside the canonical 17-locale matrix without
-   first updating the `RXLOCALE` table.
+2. **Is it a generic / base code (`es`, `hi`, `ar`) or a regional
+   variant?** Base codes (`RXLOCALE.ISBASE=1`) hold shared translations;
+   regionals hold dialect overrides only. Login hides a base when any
+   active regional sibling exists (`PSLocaleLoginSelection`). Do not
+   introduce a code outside the canonical 18-locale matrix without first
+   updating the `RXLOCALE` table (including `ISBASE`).
 3. **Is Docker on PATH?** The translation pipeline (`i18n_translate.py`)
    shells out to `docker run --rm soimort/translate-shell`. Confirm
    `docker info` exits 0 before starting; failure is a tooling issue, not
@@ -84,11 +85,12 @@ line 12054). Schema:
     <column name="SORTORDER"><gaps-of-10></column>
     <column name="DESCRIPTION"><English sentence describing region/scope></column>
     <column name="STATUS">1</column>
+    <column name="ISBASE"><1 for language-only base; 0 for regional></column>
     <column name="VERSION">0</column>
 </row>
 ```
 
-Conventions observed in the existing 17-row block:
+Conventions observed in the existing seed block:
 
 - `SORTORDER` increments by 10 per family (`10`, `20`, `30`…) and by 1
   inside regional variants (`40`, `41`, `42`, `43` for `es*`).
@@ -96,6 +98,8 @@ Conventions observed in the existing 17-row block:
   reused.
 - `STATUS=1` makes the locale visible by default. Use `0` only when the
   locale must ship seeded but hidden.
+- `ISBASE=1` for language-only base codes (`ar`, `es`, `hi`); `0` for
+  regionals. Schema: `cmsTableDef.xml` column `ISBASE`.
 - Avoid backslashes / special XML characters in `DISPLAYNAME` /
   `DESCRIPTION`.
 
@@ -108,46 +112,46 @@ cataloger; no other seeding point is required.
 Skip this whole step for a generic code (`es`, `hi`).
 
 a. **Calendar widget picker** — only if the new locale is itself a
-   calendar region, **or** your UI team has confirmed that a picker
-   entry is required for this locale:
+calendar region, **or** your UI team has confirmed that a picker
+entry is required for this locale:
 
-   `modules/perc-packages/src/main/resources/Packages/perc.widget.calendar/sys__UserDependency--rxconfig/Widgets/percCalendarTwo.xml`
+`modules/perc-packages/src/main/resources/Packages/perc.widget.calendar/sys__UserDependency--rxconfig/Widgets/percCalendarTwo.xml`
 
-   Add an `<EnumValue value="<code>" display_value="<endonym (Locale)>" />`
-   inside the `<Enum>` block. The existing `hi-in` row (line 130) is a
-   good template.
+Add an `<EnumValue value="<code>" display_value="<endonym (Locale)>" />`
+inside the `<Enum>` block. The existing `hi-in` row (line 130) is a
+good template.
 
-   The file under
-   `…/Resources/percCalendarTwo.xml` is the **user-resources copy**
-   (legacy / hand-edited classic UI); the canonical source of truth is
-   the `Widgets/` file. Decide which copy to update based on
-   `Widgets/` ⇄ `Resources/` lockstep:
+The file under
+`…/Resources/percCalendarTwo.xml` is the **user-resources copy**
+(legacy / hand-edited classic UI); the canonical source of truth is
+the `Widgets/` file. Decide which copy to update based on
+`Widgets/` ⇄ `Resources/` lockstep:
 
-   - **(a) Lockstep confirmed** — the two copies are still kept in
-     sync by the package consumer team. Update **both** so the modern
-     widget and the legacy UI stay visually aligned.
-   - **(b) Not in lockstep** — the legacy `Resources/` copy is
-     considered canonical for the classic UI and is no longer
-     mirrored into the modern package. Update **only `Widgets/`**
-     (the source of truth) and leave `Resources/` untouched. Do
-     **not** edit `Resources/` from this skill; that copy is
-     maintained by the package / classic-UI team on its own cadence.
+- **(a) Lockstep confirmed** — the two copies are still kept in
+  sync by the package consumer team. Update **both** so the modern
+  widget and the legacy UI stay visually aligned.
+- **(b) Not in lockstep** — the legacy `Resources/` copy is
+  considered canonical for the classic UI and is no longer
+  mirrored into the modern package. Update **only `Widgets/`**
+  (the source of truth) and leave `Resources/` untouched. Do
+  **not** edit `Resources/` from this skill; that copy is
+  maintained by the package / classic-UI team on its own cadence.
 
 b. **Lucene analyzer** — only if the new language is not already covered
-   by the analyzer's language branch table:
+by the analyzer's language branch table:
 
-   `system/src/main/java/com/percussion/search/lucene/analyzer/PSLocaleSpecificLuceneAnalyzer.java`
+`system/src/main/java/com/percussion/search/lucene/analyzer/PSLocaleSpecificLuceneAnalyzer.java`
 
-   The switch (around lines 115-181) maps the **primary sub-tag** to a
-   Lucene `Analyzer`. If your code's primary sub-tag is not yet
-   present, add a new `case "<primary>":` with the appropriate analyzer
-   constant. Note: the consumer reads the **primary sub-tag**, not the
-   full BCP-47 code, so `es-mx` falls through the `case "es":` branch.
+The switch (around lines 115-181) maps the **primary sub-tag** to a
+Lucene `Analyzer`. If your code's primary sub-tag is not yet
+present, add a new `case "<primary>":` with the appropriate analyzer
+constant. Note: the consumer reads the **primary sub-tag**, not the
+full BCP-47 code, so `es-mx` falls through the `case "es":` branch.
 
 c. **Anything new?** Grep for the new code before opening the PR — if a
-   `case "<primary>":` or `<EnumValue>` is already missing for a brand
-   new primary tag, you have likely identified another touch-point.
-   Document in the PR description.
+`case "<primary>":` or `<EnumValue>` is already missing for a brand
+new primary tag, you have likely identified another touch-point.
+Document in the PR description.
 
 ### 4. Back-fill translations via the canonical script
 
@@ -224,9 +228,9 @@ Pipeline invariants:
 Per `perc-i18n/AGENTS.md` rule 8:
 
 1. `modules/perc-i18n/AGENTS.md` — append to the **Quick Reference**
-   17-locale matrix (keep alphabetical order; preserve the `es` / `hi`
-   generic-and-regional commentary).
-2. `modules/perc-i18n/README.md` — update the **Canonical 17-Locale
+   18-locale matrix (keep alphabetical order; preserve base vs regional
+   and login-filter commentary).
+2. `modules/perc-i18n/README.md` — update the **Canonical 18-Locale
    Matrix** table; add the new code to the right family row.
 3. If you added a Lucene branch or a calendar widget entry, link to the
    relevant file from the PR description (no separate docs file needed
@@ -327,3 +331,4 @@ will block if string-by-key fall-through to English is not documented.
 6. If you added a Lucene `case`, include the test that exercises a
    sample analyzer for the primary sub-tag (Erlang will flag a missing
    behavioral test as a bug).
+

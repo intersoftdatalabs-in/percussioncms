@@ -14,14 +14,14 @@ PR-1 ships React Login as the product front door (`rxlogin.jsp` host), preserves
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs | None found |
-| Behavioral unit tests | Vitest 10/10 login+landing; `PSLoginServletTest` updated for SPA default |
-| Open redirect | Client sanitize + server resolveSafePostLoginRedirect; fragments/schemes rejected |
-| Bootstrap XSS | JSP `jsonString` escapes HTML-sensitive chars into JSON script block |
-| Cross-platform paths | N/A (URL paths use `/` correctly) |
-| May commit/push | **yes** |
+|         Check         |                                      Result                                       |
+|-----------------------|-----------------------------------------------------------------------------------|
+| Bugs                  | None found                                                                        |
+| Behavioral unit tests | Vitest 10/10 login+landing; `PSLoginServletTest` updated for SPA default          |
+| Open redirect         | Client sanitize + server resolveSafePostLoginRedirect; fragments/schemes rejected |
+| Bootstrap XSS         | JSP `jsonString` escapes HTML-sensitive chars into JSON script block              |
+| Cross-platform paths  | N/A (URL paths use `/` correctly)                                                 |
+| May commit/push       | **yes**                                                                           |
 
 ## Issues
 
@@ -35,5 +35,6 @@ None (hard gate).
 
 ## Test evidence
 
-- `cd WebUI && npm test -- --run src/test/ts/login src/test/ts/app` → 10 tests, 0 failures  
-- `cd system && ../mvnw test -Dtest=PSLoginServletTest` + clean install (see PR body)  
+- `cd WebUI && npm test -- --run src/test/ts/login src/test/ts/app` → 10 tests, 0 failures
+- `cd system && ../mvnw test -Dtest=PSLoginServletTest` + clean install (see PR body)
+

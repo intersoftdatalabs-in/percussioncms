@@ -99,47 +99,124 @@ public interface IPSDTDPublisherEdition {
   /*
    * Element names
    */
+  /** The name of the root element of the publisher edition XML document. */
   public static final String ELEM_ROOT = "psxpub:pubdata";
+
+  /** The name of the destination site element. */
   public static final String ELEM_SITE = "destsite";
+
+  /** The name of the content list element. */
   public static final String ELEM_CONTENTLIST = "contentlist";
+
+  /** The name of the content item element. */
   public static final String ELEM_CONTENTITEM = "contentitem";
+
+  /** The name of the content title element. */
   public static final String ELEM_CONTENTTITLE = "title";
+
+  /** The name of the content URL element. */
   public static final String ELEM_CONTENTURL = "contenturl";
+
+  /** The name of the delivery element. */
   public static final String ELEM_DELIVERY = "delivery";
+
+  /** The name of the location element. */
   public static final String ELEM_LOCATION = "location";
+
+  /** The name of the modify date element. */
   public static final String ELEM_MODIFYDATE = "modifydate";
+
+  /** The name of the modify user element. */
   public static final String ELEM_MODIFYUSER = "modifyuser";
+
+  /** The name of the expire date element. */
   public static final String ELEM_EXPIREDATE = "expiredate";
+
+  /** The name of the content type element. */
   public static final String ELEM_CONTENTTYPE = "contenttype";
+
+  /** The name of the publisher configuration element. */
   public static final String ELEM_CONFIG = "publisherconfig";
+
+  /** The name of a publisher configuration parameter element. */
   public static final String ELEM_PARAM = "param";
+
+  /** The name of the custom properties container element. */
   public static final String ELEM_CUSTOMPROPERTIES = "customproperties";
+
   /*
    * Attribute names
    */
+  /** The XML namespace attribute name used by the publisher edition document. */
   public static final String ATTR_NS = "xmlns:psxpub";
+
+  /** The user identifier attribute name on the destination site element. */
   public static final String ATTR_USERID = "userid";
+
+  /** The password attribute name on the destination site element. */
   public static final String ATTR_PASSWORD = "password";
+
+  /** The IP address attribute name on the destination site element. */
   public static final String ATTR_IPADDRESS = "ipaddress";
+
+  /** The port attribute name on the destination site element. */
   public static final String ATTR_PORT = "port";
+
+  /** The root directory attribute name on the destination site element. */
   public static final String ATTR_ROOTDIR = "rootdir";
+
+  /** The name attribute name on the destination site element. */
   public static final String ATTR_NAME = "name";
+
+  /** The edition identifier attribute name on the content list element. */
   public static final String ATTR_EDITIONID = "editionid";
+
+  /** The source site identifier attribute name. */
   public static final String ATTR_SRCSITEID = "srcsiteid";
+
+  /** The recovery publication status identifier attribute name. */
   public static final String ATTR_RECOVERYPUBSTATUSID = "recoverypubstatusid";
+
+  /** The site identifier attribute name on the destination site element. */
   public static final String ATTR_SITEID = "siteid";
+
+  /** The publisher identifier attribute name on the content list element. */
   public static final String ATTR_PUBLISHERID = "publisherid";
+
+  /** The publication identifier attribute name on the content list element. */
   public static final String ATTR_PUBLICATIONID = "publicationid";
+
+  /** The publication status identifier attribute name on the content list element. */
   public static final String ATTR_PUBSTATUSID = "pubstatusid";
+
+  /** The delivery type attribute name on the content list element. */
   public static final String ATTR_DELIVERYTYPE = "deliverytype";
+
+  /** The unpublish attribute name on the content item element. */
   public static final String ATTR_UNPUBLISH = "unpublish";
+
+  /** The content identifier attribute name on the content item element. */
   public static final String ATTR_CONTENTID = "contentid";
+
+  /** The revision attribute name on the content item element. */
   public static final String ATTR_REVISION = "revision";
+
+  /** The context attribute name on the content list element. */
   public static final String ATTR_CONTEXT = "context";
+
+  /** The variant identifier attribute name on the content item element. */
   public static final String ATTR_VARIANTID = "variantid";
+
+  /** The content list identifier attribute name on the content list element. */
   public static final String ATTR_CLISTID = "clistid";
+
+  /** The page index attribute name on the content list element. */
   public static final String ATTR_PAGEINDEX = "pageindex";
+
+  /** The is-last-page attribute name on the content list element. */
   public static final String ATTR_ISLASTPAGE = "islastpage";
+
+  /** The elapsed time attribute name on the content list element. */
   public static final String ATTR_ELAPSETIME = "elapsetime";
 
   /**

@@ -41,23 +41,18 @@ import com.percussion.system.utils.PSRelationshipUtils;
 import com.percussion.system.utils.PSUrlUtils;
 import com.percussion.tools.PSURIEncoder;
 import com.percussion.util.PSProperties;
-import com.percussion.utils.exceptions.PSORMException;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.io.PathUtils;
-import com.percussion.utils.jdbc.PSConnectionHelper;
-import com.percussion.utils.string.PSStringUtils;
 import com.percussion.workflow.mail.IPSMailMessageContext;
 import java.io.*;
 import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.*;
-import javax.naming.NamingException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.EmailConstants;
@@ -1975,120 +1970,6 @@ public class PSWorkFlowUtils {
         workflowProps,
         props,
         PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR));
-  }
-
-  /**
-   * Get allowed transitions for the specified user and item.
-   *
-   * @param contentId The id of the item to get transitions for.
-   * @param userName The name of the user to check for, may not be <code>null</code> or empty.
-   * @param roles A list of the user's roles, not <code>null</code>, may be empty.
-   * @param commId The user's current community.
-   * @return A list of allowed transition objects, never <code>null</code>, may be empty.
-   * @throws NamingException If there is a problem obtaining a database connection.
-   * @throws PSEntryNotFoundException If the content status entry for the specified item cannot be
-   *     located.
-   * @throws PSORMException If there are errors loading the workflow definition.
-   * @throws SQLException If there are any other errors accessing the database.
-   */
-  public static List<PSTransitionInfo> getAllowedTransitions(
-      int contentId, String userName, List<String> roles, int commId)
-      throws NamingException, SQLException, PSEntryNotFoundException, PSORMException {
-    if (StringUtils.isBlank(userName))
-      throw new IllegalArgumentException("userName may not be null or empty");
-    if (roles == null) throw new IllegalArgumentException("roles may not be null");
-
-    PSContentStatusContext csc;
-    try (Connection conn = PSConnectionHelper.getDbConnection(null)) {
-      csc = new PSContentStatusContext(conn, contentId);
-      csc.close();
-
-      if (csc.getCommunityID() != commId) return new ArrayList<PSTransitionInfo>();
-
-      String roleNames = PSStringUtils.listToString(roles, ",");
-      return getAllowedTransitions(
-          csc, conn, userName, isAdmin(csc, userName, roleNames), roleNames);
-    }
-  }
-
-  /**
-   * Get allowed transitions for the specified user and item.
-   *
-   * @param csc The content status context of the item, assumed not <code>null</code>.
-   * @param conn The connection to use, assumed not <code>null</code>.
-   * @param userName The name of the user, assumed not <code>null</code> or empty.
-   * @param isAdmin <code>true</code> if the user has workflow administrator privileges, <code>false
-   *     </code> otherwise.
-   * @param actorRoles A comma-delimited list of the user's roles, assumed not <code>null</code>,
-   *     may be empty.
-   * @return A list of allowed transition objects, never <code>null</code>, may be empty.
-   * @throws SQLException If there are errors accessing the database.
-   */
-  public static List<PSTransitionInfo> getAllowedTransitions(
-      PSContentStatusContext csc,
-      Connection conn,
-      String userName,
-      boolean isAdmin,
-      String actorRoles)
-      throws SQLException {
-    PSTransitionsContext tc = null;
-    List<PSTransitionInfo> results = new ArrayList<PSTransitionInfo>();
-
-    try {
-      tc = new PSTransitionsContext(csc.getWorkflowID(), conn, csc.getContentStateID());
-
-      // before going further... should we?
-      // first check if the user has acted, if so just return
-      PSContentApprovalsContext cac =
-          new PSContentApprovalsContext(csc.getWorkflowID(), conn, csc.getContentID(), tc);
-
-      if (cac.hasUserActed(userName)) return results;
-
-      while (true) {
-        boolean isDisabled = false;
-        // Don't show buttons for aging transitions
-        if (!tc.isAgingTransition()) {
-          /*
-           * Transition required roles are ignored for an administrator,
-           * otherwise check whether user acts in one of them
-           */
-          if (!isAdmin) {
-            List transitionRequiredRoles = tc.getTransitionRoles();
-
-            if (null != transitionRequiredRoles && transitionRequiredRoles.size() > 0) {
-              isDisabled = !PSWorkFlowUtils.compareRoleList(transitionRequiredRoles, actorRoles);
-
-              // check to see if we have acted in all available roles
-              if (isDisabled || hasRolesActed(cac, tc, actorRoles)) {
-                // if we have already acted in all the available roles
-                // for this user, don't add the transitions that are
-                // not available for this user, move to the next trans
-                if (!tc.moveNext()) break;
-
-                continue;
-              }
-            }
-          }
-
-          results.add(
-              new PSTransitionInfo(
-                  tc.getTransitionID(),
-                  tc.getTransitionLabel(),
-                  tc.getTransitionActionTrigger(),
-                  tc.getTransitionToStateID(),
-                  tc.getTransitionComment(),
-                  isDisabled));
-        }
-
-        if (!tc.moveNext()) break;
-      }
-    } catch (PSEntryNotFoundException e) {
-      // ignore
-    } finally {
-      if (tc != null) tc.close();
-    }
-
-    return results;
   }
 
   /**

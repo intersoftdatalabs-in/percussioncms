@@ -93,15 +93,15 @@ Record the `BUILD SUCCESS` line in the PR body as evidence (per root
 
 The catalog uses a fixed schema:
 
-| Column | Allowed values |
-| --- | --- |
-| File (relative) | Path relative to `${PERCUSSION_HOME}` or `${DTS_HOME}`; portable joins only. |
-| Purpose | One sentence. |
-| Subsystem | One of: Server, Core, Repository, Security, Workflow, Mail, Logging, Scheduler, Jetty, Jetty JDBC, Messaging, Search, Content Editor, I18n, Search, Proxy, Content Connector, Package Installer, UI, Audit, Installer, ObjectStore, Runtime, Catalog, Catalog. |
-| Hot? | `Yes`, `No`, `Partial`. |
-| Restart? | `Yes`, `No`, `n/a`, `Rebuild required`. |
-| Overridable via | JVM `-D` flag, `<file>.local` sidecar, JNDI, or `n/a`. |
-| Source-of-truth | Fully-qualified Java class or installer template path. |
+|     Column      |                                                                                                                         Allowed values                                                                                                                         |
+|-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| File (relative) | Path relative to `${PERCUSSION_HOME}` or `${DTS_HOME}`; portable joins only.                                                                                                                                                                                   |
+| Purpose         | One sentence.                                                                                                                                                                                                                                                  |
+| Subsystem       | One of: Server, Core, Repository, Security, Workflow, Mail, Logging, Scheduler, Jetty, Jetty JDBC, Messaging, Search, Content Editor, I18n, Search, Proxy, Content Connector, Package Installer, UI, Audit, Installer, ObjectStore, Runtime, Catalog, Catalog. |
+| Hot?            | `Yes`, `No`, `Partial`.                                                                                                                                                                                                                                        |
+| Restart?        | `Yes`, `No`, `n/a`, `Rebuild required`.                                                                                                                                                                                                                        |
+| Overridable via | JVM `-D` flag, `<file>.local` sidecar, JNDI, or `n/a`.                                                                                                                                                                                                         |
+| Source-of-truth | Fully-qualified Java class or installer template path.                                                                                                                                                                                                         |
 
 ## Link policy
 
@@ -120,3 +120,4 @@ The catalog uses a fixed schema:
   "do not edit" row each.
 - Per-service Helm / Kubernetes overlays.
 - Translations of the catalog itself (English-only v1).
+

@@ -281,6 +281,55 @@ export const PATHS = {
   get COMMUNITIES() {
     return `${SERVICES_ROOT}/communities`;
   },
+  /** Pipeline / XML application design catalog. */
+  get PIPELINES() {
+    return `${SERVICES_ROOT}/pipelines`;
+  },
+  /** CMS locale design catalog (RXLOCALE + format profile flag). */
+  get LOCALES() {
+    return `${SERVICES_ROOT}/locales`;
+  },
+  /** Shared field groups design catalog (content-editor shared def). */
+  get SHARED_FIELDS() {
+    return `${SERVICES_ROOT}/sharedfields`;
+  },
+  /** Content-editor system definition field catalog. */
+  get SYSTEM_DEF() {
+    return `${SERVICES_ROOT}/systemdef`;
+  },
+  /** Assembly item filter design catalog. */
+  get ITEM_FILTERS() {
+    return `${SERVICES_ROOT}/itemfilters`;
+  },
+  /** Content Explorer display format design catalog. */
+  get DISPLAY_FORMATS() {
+    return `${SERVICES_ROOT}/displayformats`;
+  },
+  /** CX action menu design catalog. */
+  get ACTION_MENUS() {
+    return `${SERVICES_ROOT}/actions/catalog`;
+  },
+  /** CX search design catalog. */
+  get SEARCHES() {
+    return `${SERVICES_ROOT}/searches`;
+  },
+  /** CX view design catalog. */
+  get VIEWS() {
+    return `${SERVICES_ROOT}/views`;
+  },
+  /** Server extension design catalog. */
+  get EXTENSIONS() {
+    return `${SERVICES_ROOT}/extensions/catalog`;
+  },
+  /** System relationship type design catalog (SY-03). */
+  get RELATIONSHIP_TYPES() {
+    return `${SERVICES_ROOT}/relationshiptypes`;
+  },
+  /** Object ACL catalog (design-time security). */
+  get ACLS() {
+    return `${SERVICES_ROOT}/acls`;
+  },
+
   /** Workflow management (workflowmanagement) — Feature 993 */
   get WORKFLOWS() {
     return `${SERVICES_ROOT}/workflowmanagement/workflows/`;

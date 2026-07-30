@@ -16,23 +16,25 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { isSessionRedirectError, type ApiError } from "../api/client";
 import { listCommunities } from "../api/developer/assemblyApi";
 import type { CommunitySummary } from "../api/developer/types";
-import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { CatalogHint, CatalogStatus } from "./CatalogTable";
+import { openButtonStyle } from "./catalogStyles";
+import { CommunityDetailPanel } from "./CommunityDetailPanel";
+import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
-function errMsg(err: unknown, fallback: string): string {
-  if (isSessionRedirectError(err)) return DEV_MSG.SESSION_REDIRECT;
-  const api = err as ApiError;
-  if (api && typeof api.status === "number") return `${fallback} (${api.status})`;
-  if (err instanceof Error && err.message) return `${fallback} ${err.message}`;
-  return fallback;
+function openKey(c: CommunitySummary): string | null {
+  if (c.name) return c.name;
+  if (c.id != null) return String(c.id);
+  if (c.guid?.stringValue) return c.guid.stringValue;
+  return null;
 }
 
 export function CommunitiesPanel(): React.ReactElement {
   const [items, setItems] = useState<CommunitySummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -42,9 +44,7 @@ export function CommunitiesPanel(): React.ReactElement {
       })
       .catch((e: unknown) => {
         if (cancelled) return;
-        // Session redirect navigates away; still leave loading so UI does not hang
-        // if navigation is delayed or blocked.
-        setError(errMsg(e, DEV_MSG.COMM_ERROR));
+        setError(panelErrMsg(e, DEV_MSG.COMM_ERROR));
         setItems([]);
       });
     return () => {
@@ -52,7 +52,18 @@ export function CommunitiesPanel(): React.ReactElement {
     };
   }, []);
 
-  if (error) return <CatalogStatus testId="developer-comm-error" error>{error}</CatalogStatus>;
+  if (selected) {
+    return (
+      <CommunityDetailPanel idOrName={selected} onBack={() => setSelected(null)} />
+    );
+  }
+
+  if (error)
+    return (
+      <CatalogStatus testId="developer-comm-error" error>
+        {error}
+      </CatalogStatus>
+    );
   if (items == null)
     return <CatalogStatus testId="developer-comm-loading">{DEV_MSG.COMM_LOADING}</CatalogStatus>;
   if (items.length === 0)
@@ -67,31 +78,58 @@ export function CommunitiesPanel(): React.ReactElement {
   return (
     <div data-testid="developer-comm-panel">
       <CatalogHint>{DEV_MSG.COMM_HINT}</CatalogHint>
-      <SimpleCatalogTable
-        tableTestId="developer-comm-table"
-        rowTestId="developer-comm-row"
-        columns={[
-          DEV_MSG.COMM_COL_LABEL,
-          DEV_MSG.COMM_COL_NAME,
-          DEV_MSG.COMM_COL_ID,
-          DEV_MSG.COMM_COL_DESCRIPTION,
-        ]}
-        rows={sorted.map((c, index) => ({
-          key: String(c.id ?? c.guid?.stringValue ?? c.name ?? `comm-${index}`),
-          cells: [
-            c.label || "—",
-            <span key="n" style={{ fontFamily: "monospace" }}>
-              {c.name || "—"}
-            </span>,
-            <span key="i" style={{ fontFamily: "monospace" }}>
-              {c.id != null ? String(c.id) : c.guid?.stringValue || "—"}
-            </span>,
-            <span key="d" style={{ color: "#4a5568" }}>
-              {c.description || ""}
-            </span>,
-          ],
-        }))}
-      />
+      <div style={{ overflowX: "auto" }}>
+        <table
+          data-testid="developer-comm-table"
+          style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}
+        >
+          <thead>
+            <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+              <th style={{ padding: "8px" }}>{DEV_MSG.COMM_COL_LABEL}</th>
+              <th style={{ padding: "8px" }}>{DEV_MSG.COMM_COL_NAME}</th>
+              <th style={{ padding: "8px" }}>{DEV_MSG.COMM_COL_ID}</th>
+              <th style={{ padding: "8px" }}>{DEV_MSG.COMM_COL_DESCRIPTION}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sorted.map((c, index) => {
+              const key = openKey(c);
+              const rowKey = String(c.id ?? c.guid?.stringValue ?? c.name ?? `comm-${index}`);
+              return (
+                <tr
+                  key={rowKey}
+                  data-testid="developer-comm-row"
+                  style={{ borderBottom: "1px solid #edf2f7" }}
+                >
+                  <td style={{ padding: "8px" }}>
+                    {key ? (
+                      <button
+                        type="button"
+                        style={openButtonStyle}
+                        aria-label={`Open ${c.label || c.name || key}`}
+                        onClick={() => setSelected(key)}
+                      >
+                        {c.label || c.name || "—"}
+                      </button>
+                    ) : (
+                      c.label || "—"
+                    )}
+                  </td>
+                  <td style={{ padding: "8px", fontFamily: "monospace" }}>
+                    {c.name || "—"}
+                  </td>
+                  <td style={{ padding: "8px", fontFamily: "monospace" }}>
+                    {c.id != null ? String(c.id) : c.guid?.stringValue || "—"}
+                  </td>
+                  <td style={{ padding: "8px", color: "#4a5568" }}>
+                    {c.description || ""}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

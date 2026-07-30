@@ -28,10 +28,24 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+/**
+ * {@link AuditLogger} implementation that serializes each CADF event to JSON and appends it as a
+ * single line to {@link Constants#JSON_AUDIT_FILES_NAME} (or the configured path). The output is an
+ * array of JSON objects — writes are separated by commas when the file already contains data.
+ * Process-wide singleton accessed via {@link #getInstance()}.
+ */
 public class JsonAuditLogger extends AuditLogger {
 
   private static JsonAuditLogger instance;
 
+  /** Default no-argument constructor for {@link JsonAuditLogger}. */
+  public JsonAuditLogger() {}
+
+  /**
+   * Returns the singleton JSON audit logger, constructing it on first call.
+   *
+   * @return the shared logger, never {@code null}.
+   */
   public static JsonAuditLogger getInstance() {
 
     if (instance == null) {
@@ -41,12 +55,26 @@ public class JsonAuditLogger extends AuditLogger {
     return instance;
   }
 
+  /**
+   * Returns the destination file path, defaulting to {@link Constants#JSON_AUDIT_FILES_NAME} when
+   * no path has been explicitly configured.
+   *
+   * @return the absolute or classpath-relative file path, never {@code null}.
+   */
   @Override
   public String getOutputFilePath() {
     String outputFilePath = super.getOutputFilePath();
     return outputFilePath == null ? Constants.JSON_AUDIT_FILES_NAME : outputFilePath;
   }
 
+  /**
+   * Serializes the event to JSON and appends it to the configured output file. When the file
+   * already contains data, a leading comma separator is written to keep the output a valid JSON
+   * array.
+   *
+   * @param auditEvent the event to persist, never {@code null}.
+   * @throws CADFException when the output file cannot be written.
+   */
   @Override
   public void writeLog(Event auditEvent) throws CADFException {
 

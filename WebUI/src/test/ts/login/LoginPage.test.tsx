@@ -16,7 +16,7 @@
  */
 
 import { afterEach, describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { act, render, screen, fireEvent } from "@testing-library/react";
 import { LoginPage } from "@/login/LoginPage";
 import { __resetTmxLoaderCache } from "@/login/tmxLoader";
 import type { LoginBootstrap } from "@/login/types";
@@ -46,11 +46,33 @@ describe("LoginPage", () => {
     __resetTmxLoaderCache();
   });
 
+  it("applies text direction from localeFormat bootstrap", () => {
+    render(
+      <LoginPage
+        bootstrap={{
+          ...baseBootstrap,
+          selectedLocale: "ar",
+          localeFormat: {
+            languageString: "ar",
+            textDir: "rtl",
+            datePattern: "dd/MM/yyyy",
+          },
+        }}
+      />,
+    );
+    expect(document.documentElement.dir).toBe("rtl");
+    expect(screen.getByTestId("perc-login-page").getAttribute("data-text-dir")).toBe(
+      "rtl",
+    );
+  });
+
   it("renders front-door form fields and posts to /login", () => {
     render(<LoginPage bootstrap={baseBootstrap} />);
 
     expect(screen.getByTestId("perc-login-page")).toBeDefined();
-    expect(screen.getByTestId("perc-login-title").textContent).toMatch(/Sign in/i);
+    expect(screen.getByTestId("perc-login-title").textContent).toMatch(
+      /Sign in/i,
+    );
 
     const form = screen.getByTestId("perc-login-form") as HTMLFormElement;
     expect(form.method.toLowerCase()).toBe("post");
@@ -67,7 +89,9 @@ describe("LoginPage", () => {
     expect(csrf.name).toBe("OWASP_CSRFTOKEN");
     expect(csrf.value).toBe("test-csrf-token");
 
-    const redirect = screen.getByTestId("perc-login-redirect") as HTMLInputElement;
+    const redirect = screen.getByTestId(
+      "perc-login-redirect",
+    ) as HTMLInputElement;
     expect(redirect.name).toBe("sys_redirect");
     expect(redirect.value).toBe("/cm/app/spa.jsp?entry=home");
   });
@@ -100,28 +124,31 @@ describe("LoginPage", () => {
     expect(screen.getByTestId("perc-brand-footer")).toBeDefined();
   });
 
-  it("renders locale option labels in the selected viewer's native language", () => {
+  it("renders locale option labels as stable endonyms (native language names)", () => {
     render(<LoginPage bootstrap={baseBootstrap} />);
     const select = screen.getByTestId("perc-login-locale") as HTMLSelectElement;
     const options = Array.from(select.options).map((o) => o.textContent ?? "");
-    // English viewer sees English names; fr-fr label is regional so includes region.
-    expect(options.some((t) => /English/.test(t))).toBe(true);
-    expect(options.some((t) => /French/.test(t))).toBe(true);
-    expect(options.some((t) => /^es - Spanish/.test(t))).toBe(true);
-    expect(options.some((t) => /^fr-fr - French/.test(t))).toBe(true);
-  });
-
-  it("re-renders option labels in the new viewer's language on change", () => {
-    render(<LoginPage bootstrap={baseBootstrap} />);
-    const select = screen.getByTestId("perc-login-locale") as HTMLSelectElement;
-    fireEvent.change(select, { target: { value: "fr-fr" } });
-    const options = Array.from(select.options).map((o) => o.textContent ?? "");
-    // French viewer now sees French native names.
+    // Endonyms: each option named in its own language (GH-1608).
+    expect(options.some((t) => /^en-us - English/.test(t))).toBe(true);
     expect(options.some((t) => /^fr-fr - français/.test(t))).toBe(true);
-    expect(options.some((t) => /^es - espagnol/.test(t))).toBe(true);
+    expect(options.some((t) => /^es - español/.test(t))).toBe(true);
   });
 
-  it("falls back to server displayName when Intl.DisplayNames is unavailable", () => {
+  it("keeps locale option labels stable when the UI locale changes (GH-1608)", () => {
+    render(<LoginPage bootstrap={baseBootstrap} />);
+    const select = screen.getByTestId("perc-login-locale") as HTMLSelectElement;
+    const before = Array.from(select.options).map((o) => o.textContent ?? "");
+    fireEvent.change(select, { target: { value: "fr-fr" } });
+    const after = Array.from(select.options).map((o) => o.textContent ?? "");
+    // Selecting French must not re-translate German/Spanish/etc. into French.
+    expect(after).toEqual(before);
+    expect(after.some((t) => /^es - español/.test(t))).toBe(true);
+    expect(after.some((t) => /^fr-fr - français/.test(t))).toBe(true);
+    // Must not show viewer-localized exonyms (e.g. "espagnol" for Spanish).
+    expect(after.some((t) => /espagnol/.test(t))).toBe(false);
+  });
+
+  it("keeps ship endonyms when Intl.DisplayNames is unavailable", () => {
     const original = (Intl as unknown as { DisplayNames?: unknown })
       .DisplayNames;
     // @ts-expect-error simulate runtime without DisplayNames
@@ -131,10 +158,13 @@ describe("LoginPage", () => {
       const select = screen.getByTestId(
         "perc-login-locale",
       ) as HTMLSelectElement;
-      const options = Array.from(select.options).map((o) => o.textContent ?? "");
+      const options = Array.from(select.options).map(
+        (o) => o.textContent ?? "",
+      );
+      // Curated SHIP_LOCALE_ENDONYMS — not English server displayName.
       expect(options).toContain("en-us - English (United States)");
-      expect(options).toContain("fr-fr - French (France)");
-      expect(options).toContain("es - Spanish");
+      expect(options).toContain("fr-fr - français (France)");
+      expect(options).toContain("es - español");
     } finally {
       (Intl as unknown as { DisplayNames?: unknown }).DisplayNames = original;
     }
@@ -154,16 +184,15 @@ describe("LoginPage", () => {
   });
 
   it("resolves chrome via stubbed window.I18N when present", () => {
-    (window as unknown as { I18N: { message: (k: string) => string } }).I18N =
-      {
-        message: (k: string) => {
-          if (k === "perc.ui.login.modern@Sign in") return "Connexion";
-          if (k === "perc.ui.login.modern@User name") return "Nom d'utilisateur";
-          if (k === "perc.ui.login.modern@Password") return "Mot de passe";
-          if (k === "perc.ui.login.modern@Login") return "Se connecter";
-          return k;
-        },
-      };
+    (window as unknown as { I18N: { message: (k: string) => string } }).I18N = {
+      message: (k: string) => {
+        if (k === "perc.ui.login.modern@Sign in") return "Connexion";
+        if (k === "perc.ui.login.modern@User name") return "Nom d'utilisateur";
+        if (k === "perc.ui.login.modern@Password") return "Mot de passe";
+        if (k === "perc.ui.login.modern@Login") return "Se connecter";
+        return k;
+      },
+    };
     render(<LoginPage bootstrap={baseBootstrap} />);
     expect(screen.getByTestId("perc-login-title").textContent).toBe(
       "Connexion",
@@ -171,6 +200,54 @@ describe("LoginPage", () => {
     expect(screen.getByTestId("perc-login-submit").textContent).toBe(
       "Se connecter",
     );
+  });
+
+  it("re-reads I18N chrome after locale change once TMX load resolves (GH-1609)", async () => {
+    // Start with English fallbacks (no I18N). After dropdown change, simulate
+    // the loaded Hindi TMX by installing window.I18N before the script load
+    // handler fires — ensureTmxLoaded resolves on the script load event.
+    delete (window as { I18N?: unknown }).I18N;
+    render(<LoginPage bootstrap={baseBootstrap} />);
+    expect(screen.getByTestId("perc-login-title").textContent).toMatch(
+      /Sign in/i,
+    );
+
+    const select = screen.getByTestId("perc-login-locale") as HTMLSelectElement;
+    fireEvent.change(select, { target: { value: "fr-fr" } });
+
+    // Install translated catalog and fire the injected script's load event.
+    (window as unknown as { I18N: { message: (k: string) => string } }).I18N = {
+      message: (k: string) => {
+        const map: Record<string, string> = {
+          "perc.ui.login.modern@Sign in": "Iniciar sesión",
+          "perc.ui.login.modern@User name": "Nombre de usuario",
+          "perc.ui.login.modern@Password": "Contraseña",
+          "perc.ui.login.modern@Locale": "Idioma",
+          "perc.ui.login.modern@Use legacy UI": "Usar IU heredada",
+          "perc.ui.login.modern@Login": "Iniciar sesión",
+        };
+        return map[k] ?? k;
+      },
+    };
+    const tag = document.querySelector(
+      'script[data-perc-tmx-locale="fr-fr"]',
+    ) as HTMLScriptElement | null;
+    expect(tag).not.toBeNull();
+    await act(async () => {
+      tag!.dispatchEvent(new Event("load"));
+    });
+
+    // Wait for setTmxReady re-render after ensureTmxLoaded resolves.
+    await vi.waitFor(() => {
+      expect(screen.getByTestId("perc-login-title").textContent).toBe(
+        "Iniciar sesión",
+      );
+    });
+    expect(screen.getByTestId("perc-login-submit").textContent).toBe(
+      "Iniciar sesión",
+    );
+    expect(document.documentElement.lang).toBe("fr-fr");
+    expect(document.title).toContain("Iniciar sesión");
   });
 
   it("preserves CSRF hidden inputs and username across dropdown change", () => {

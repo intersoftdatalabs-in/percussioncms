@@ -288,7 +288,14 @@ When starting work, create a new feature branch.
 **Before committing**
 
 - Use the project wrapper scripts so Maven runs with JDK 21: `./mvnw <maven-args>` (Linux/macOS) or `mvnw.cmd <maven-args>` (Windows).
-- Run `./mvnw spotless:check` (Spotless enforces code formatting/style). If the check fails, run `./mvnw spotless:apply` to auto-fix formatting and re-run `spotless:check` until it passes.
+- Run Spotless in this order (**apply first, check second** — same as root `AGENTS.md`):
+
+  ```bash
+  ./mvnw spotless:apply   # rewrite files to project style
+  ./mvnw spotless:check   # must exit 0 before commit / PR
+  ```
+
+  Windows: `mvnw.cmd spotless:apply` then `mvnw.cmd spotless:check`. Do not run `check` alone as the gate and only apply if it fails.
   - Note: the `google-java-format` implementation used by Spotless needs JDK 21 at runtime; run Spotless via the wrapper scripts so the formatter runs under JDK 21.
 - Run `./mvnw -DskipTests validate` or `./mvnw clean verify` to ensure the module builds before pushing your commit.
 

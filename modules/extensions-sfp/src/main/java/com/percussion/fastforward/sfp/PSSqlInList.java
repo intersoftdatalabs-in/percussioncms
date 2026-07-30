@@ -32,7 +32,7 @@ public class PSSqlInList extends ArrayList implements List {
   /**
    * Creates a list with a specificied capacity. The created object is {@link #TYPE_LITERAL}.
    *
-   * @param initialCapacity
+   * @param initialCapacity the initial capacity of the underlying list
    */
   public PSSqlInList(int initialCapacity) {
     super(initialCapacity);
@@ -47,7 +47,7 @@ public class PSSqlInList extends ArrayList implements List {
    * Creates a list containing the members of the specified collection. The created object is {@link
    * #TYPE_LITERAL}.
    *
-   * @param c
+   * @param c the collection whose members will populate this list, never <code>null</code>
    */
   public PSSqlInList(Collection c) {
     super(c);

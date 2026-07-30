@@ -40,8 +40,8 @@ public class PSContentList {
    * Ctor that takes the publish context and delivery type. Calls {@link #PSContentList(String,
    * String, int, int, int)}with default values (-1) for the last three parameters.
    *
-   * @param context
-   * @param deliveryType
+   * @param context publish context, allows <code>null</code> or empty
+   * @param deliveryType delivery type string, may be <code>null</code> or empty
    */
   public PSContentList(String context, String deliveryType) {
     m_context = context;
@@ -222,6 +222,8 @@ public class PSContentList {
   }
 
   /**
+   * Gets the number of content items in this content list.
+   *
    * @return the size of the content list.
    */
   public int size() {

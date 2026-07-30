@@ -1,0 +1,102 @@
+/*
+ * Copyright 1999-2026 Percussion Software, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.percussion.i18n;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+/** Unit tests for {@link PSLocaleFormatResolver}. */
+@Tag("UnitTest")
+public class PSLocaleFormatResolverTest {
+
+  @Test
+  public void lookupChain_regionalThenBaseThenDefault() {
+    List<String> chain = PSLocaleFormatResolver.lookupChain("es-mx");
+    assertEquals(List.of("es-mx", "es", "en-us"), chain);
+  }
+
+  @Test
+  public void resolve_customerLocaleInheritsBaseAndFloor() {
+    Map<String, PSLocaleFormat> catalog = new HashMap<>();
+    PSLocaleFormat es = new PSLocaleFormat("es");
+    es.setTextDir(PSLocaleFormat.TEXT_DIR_LTR);
+    es.setCurrencyCode("EUR");
+    es.setDatePattern("dd/MM/yyyy");
+    catalog.put("es", es);
+
+    // Customer-invented locale with no format row
+    PSLocaleFormat resolved = PSLocaleFormatResolver.resolve("es-ar", catalog);
+    assertEquals("es-ar", resolved.getLanguageString());
+    assertEquals("EUR", resolved.getCurrencyCode());
+    assertEquals("dd/MM/yyyy", resolved.getDatePattern());
+    // floor fills remaining (e.g. time pattern from en-us)
+    assertNotNull(resolved.getTimePattern());
+    assertEquals(PSLocaleFormat.TEXT_DIR_LTR, resolved.getTextDir());
+  }
+
+  @Test
+  public void resolve_arabicUsesRtlFromDefaults() {
+    PSLocaleFormat ar = PSLocaleFormatResolver.resolve("ar", PSLocaleFormatDefaults.shipped());
+    assertEquals(PSLocaleFormat.TEXT_DIR_RTL, ar.getTextDir());
+    assertEquals("dd/MM/yyyy", ar.getDatePattern());
+  }
+
+  @Test
+  public void resolve_exactRegionalOverridesBase() {
+    Map<String, PSLocaleFormat> catalog = new HashMap<>();
+    PSLocaleFormat es = new PSLocaleFormat("es");
+    es.setCurrencyCode("EUR");
+    catalog.put("es", es);
+
+    PSLocaleFormat esMx = new PSLocaleFormat("es-mx");
+    esMx.setCurrencyCode("MXN");
+    catalog.put("es-mx", esMx);
+
+    PSLocaleFormat resolved = PSLocaleFormatResolver.resolve("es-mx", catalog);
+    assertEquals("MXN", resolved.getCurrencyCode());
+  }
+
+  @Test
+  public void resolve_blankFallsBackToEnUsFloor() {
+    PSLocaleFormat resolved = PSLocaleFormatResolver.resolve(null, Map.of());
+    assertEquals("en-us", resolved.getLanguageString());
+    assertEquals("USD", resolved.getCurrencyCode());
+    assertEquals(PSLocaleFormat.TEXT_DIR_LTR, resolved.getTextDir());
+  }
+
+  @Test
+  public void normalize_collapsesUnderscoreAndCase() {
+    assertEquals("en-us", PSLocaleFormatResolver.normalize("EN_US"));
+    assertTrue(PSLocaleFormatResolver.lookupChain("FR_FR").contains("fr-fr"));
+  }
+
+  @Test
+  public void productDefaults_coverShipMatrix() {
+    Map<String, PSLocaleFormat> shipped = PSLocaleFormatDefaults.shipped();
+    assertTrue(shipped.containsKey("en-us"));
+    assertTrue(shipped.containsKey("fr-fr"));
+    assertTrue(shipped.containsKey("ar"));
+    assertEquals(PSLocaleFormat.TEXT_DIR_RTL, shipped.get("ar").getTextDir());
+  }
+}

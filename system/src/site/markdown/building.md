@@ -219,25 +219,22 @@ View report in `target/site/jacoco/index.html`
 
 ### Spotless (Automatic Formatting)
 
-The project uses Spotless with Google Java Format for consistent code style:
-
-**Check code style:**
-
-```bash
-./mvnw -pl system spotless:check
-```
-
-**Auto-format code:**
-
-```bash
-./mvnw spotless:apply
-```
+The project uses Spotless with Google Java Format for consistent code style.
+**Order is mandatory: `spotless:apply` first, then `spotless:check` second**
+(same as root `AGENTS.md` / `CONTRIBUTING.md`).
 
 **Before committing code, always run:**
 
 ```bash
-./mvnw spotless:apply
-./mvnw spotless:check
+./mvnw spotless:apply    # 1) FIRST — rewrite to project style
+./mvnw spotless:check    # 2) SECOND — verify clean (must exit 0)
+```
+
+Module-scoped mid-work iteration (optional):
+
+```bash
+./mvnw -pl system spotless:apply
+./mvnw -pl system spotless:check
 ```
 
 ### Code Style Rules

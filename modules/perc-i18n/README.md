@@ -44,7 +44,7 @@ All translation memory exchange (TMX) files are maintained in this module:
 
 - **Purpose**: UI-specific translations for the CMS interface
 - **Scope**: Content Manager UI components, dialogs, and labels
-- **Supported Languages**: the 17-locale matrix below
+- **Supported Languages**: the 18-locale matrix below
 - **Naming Convention**: Keys follow pattern `perc.ui.(IDENTIFIER).(TYPE)@(MESSAGE/KEY)`
 
 ### SystemResources.tmx
@@ -52,25 +52,34 @@ All translation memory exchange (TMX) files are maintained in this module:
 - **Purpose**: System and content editor resources
 - **Scope**: Content editor actions, system messages, and resource definitions
 - **Key Examples**: `psx.ce.action@Check-in`, `psx.ce.action@Update`
-- **Supported Languages**: the 17-locale matrix below
+- **Supported Languages**: the 18-locale matrix below
 
-### Canonical 17-Locale Matrix
+### Canonical 18-Locale Matrix
 
 Both `CmsUi.tmx` and `SystemResources.tmx` declare the same set of
 languages in their `<header>` `<prop type="supportedlanguage">` lines:
 
-| Family    | Codes                                              |
-|-----------|----------------------------------------------------|
-| English   | `en-us`, `en-gb`                                   |
-| Spanish   | `es` (generic), `es-cl`, `es-es`, `es-mx`          |
-| French    | `fr-ca`, `fr-fr`                                   |
-| German    | `de-de`                                            |
-| Hindi     | `hi` (generic), `hi-in`                            |
-| Italian   | `it-it`                                            |
-| Japanese  | `ja-jp`                                            |
-| Dutch     | `nl-nl`                                            |
-| Portuguese| `pt-br`, `pt-pt`                                   |
-| Turkish   | `tr-tr`                                            |
+|   Family   |                 Codes                  |
+|------------|----------------------------------------|
+| Arabic     | `ar` (base)                            |
+| English    | `en-us` (default fallback), `en-gb`    |
+| Spanish    | `es` (base), `es-cl`, `es-es`, `es-mx` |
+| French     | `fr-ca`, `fr-fr`                       |
+| German     | `de-de`                                |
+| Hindi      | `hi` (base), `hi-in`                   |
+| Italian    | `it-it`                                |
+| Japanese   | `ja-jp`                                |
+| Dutch      | `nl-nl`                                |
+| Portuguese | `pt-br`, `pt-pt`                       |
+| Turkish    | `tr-tr`                                |
+
+**Base locales** (`RXLOCALE.ISBASE=1`): `ar`, `es`, `hi`. Prefer storing
+shared translations under the base tag; regionals hold dialect
+overrides only. Lookup chain: regional → base → `en-us`.
+
+**Login:** `PSLocaleLoginSelection` hides a base locale when an active
+regional sibling exists (e.g. `es` is hidden while `es-es` is active;
+`ar` is shown while no `ar-*` exists). Default when unset: **`en-us`**.
 
 Locale tags are normalized to BCP-47 lowercase hyphen form by
 `PSTmxResourceBundle.normalizeLang(...)`. Per-locale sibling TMX

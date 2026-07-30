@@ -9,8 +9,10 @@ hand-maintained Python/shell scripts.
 
 | File | Purpose |
 |------|---------|
-| `i18n_translate.py` | CLI: walks `CmsUi.tmx` and `SystemResources.tmx`, fills missing `<tuv>` blocks via `soimort/translate-shell`. |
-| `test_i18n_translate.py` | Pytest-compatible unit tests (run without Docker). |
+| `i18n_translate.py` | CLI: walks canonical TMX files, fills missing `<tuv>` blocks via **Docker** `soimort/translate-shell`. |
+| `i18n_translate_direct.py` | Same job as `i18n_translate.py`, but prefers **`trans` on PATH** (translate-shell) and falls back to Docker if `trans` is unavailable. |
+| `test_i18n_translate.py` | Unit tests for the Docker variant (no Docker required). |
+| `test_i18n_translate_direct.py` | Unit tests for the direct `trans` variant (no `trans` required). |
 
 ## Quick start
 
@@ -41,14 +43,50 @@ python3 modules/perc-i18n/scripts/i18n_translate.py \
   stored at `scripts/.cache/i18n_translate.json`. Re-running resumes
   exactly where the previous run stopped. Pass `--force` to bypass the
   cache.
-- **Rate limits**: when `soimort/translate-shell` exits with a 429-like
+- **Rate limits / throttling**: when `soimort/translate-shell` exits with a 429-like
   message, the script sleeps with exponential backoff (2s base, 60s cap,
-  ±20% jitter) and retries up to 5 attempts before failing the run.
+  ±20% jitter, 5 attempts) before failing the run. In addition, every successful
+  translation sleeps for a random 1–10 seconds to avoid provider rate-limiting.
 - **XML safety**: every translated segment is XML-escaped via
   `xml.sax.saxutils.escape` before being written back, so `<` / `>` /
   `&` / `"` in translations cannot corrupt the TMX file.
 - **Atomicity**: the cache is written to a sibling `.tmp` file and
   renamed, so a SIGKILL mid-write does not corrupt the cache.
+
+
+
+## Direct variant (`i18n_translate_direct.py`)
+
+Use this when you have translate-shell installed locally, or when Docker is
+available but `trans` is not on PATH. The script tries `trans --brief` first;
+if `trans` is missing it automatically falls back to
+`docker run --rm soimort/translate-shell --brief ...`.
+
+```bash
+# Fill missing Hindi TUVs (same files / cache / inject semantics as the Docker tool)
+python3 modules/perc-i18n/scripts/i18n_translate_direct.py --target hi
+
+# Arabic base locale fill
+python3 modules/perc-i18n/scripts/i18n_translate_direct.py --target ar
+
+# Fix rows where the target still equals English
+python3 modules/perc-i18n/scripts/i18n_translate_direct.py --target es --fix-matching-en
+
+# Variant locale (only store differences from base when using --variant-base)
+python3 modules/perc-i18n/scripts/i18n_translate_direct.py --target hi-in --variant-base hi
+```
+
+Differences from `i18n_translate.py`:
+
+| | Docker (`i18n_translate.py`) | Direct (`i18n_translate_direct.py`) |
+|--|------------------------------|--------------------------------------|
+| Binary | `docker run … soimort/translate-shell` | `trans --brief` (preferred); `docker run … soimort/translate-shell` (fallback) |
+| Cache file | `scripts/.cache/i18n_translate.json` | `scripts/.cache/i18n_translate_direct.json` |
+| Rate limits | Exponential backoff on 429-like errors (2s base, 60s cap, ±20% jitter, 5 attempts) | **Same backoff** + random 1–10s throttle after each successful translation |
+| Extra flags | (see Quick start) | `--fix-matching-en`, `--variant-base` |
+
+Both scripts cache translations atomically (write `.tmp` then rename) and
+XML-escape every inserted segment.
 
 ## Requirements
 

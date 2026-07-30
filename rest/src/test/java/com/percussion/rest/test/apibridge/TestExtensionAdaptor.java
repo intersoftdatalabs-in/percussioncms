@@ -31,6 +31,16 @@ import org.springframework.stereotype.Component;
 public class TestExtensionAdaptor implements IExtensionAdaptor {
 
   @Override
+  public List<Extension> listExtensions(URI baseURI) {
+    return getExtensions(baseURI, new ExtensionFilterOptions());
+  }
+
+  @Override
+  public Extension findExtensionByKey(URI baseURI, String idOrName) {
+    return null;
+  }
+
+  @Override
   public List<Extension> getExtensions(URI baseURI, ExtensionFilterOptions filter) {
     return null;
   }

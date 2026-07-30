@@ -4,6 +4,9 @@
 <%@ page import="com.percussion.i18n.PSI18nUtils" %>
 <%@ page import="com.percussion.i18n.PSLocaleManager" %>
 <%@ page import="com.percussion.i18n.PSLocale" %>
+<%@ page import="com.percussion.i18n.PSLocaleLoginSelection" %>
+<%@ page import="com.percussion.i18n.PSLocaleFormat" %>
+<%@ page import="com.percussion.i18n.PSLocaleFormatCatalog" %>
 <%@ taglib uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" prefix="csrf" %>
 <%--
   React Login SPA host (product front door).
@@ -46,17 +49,11 @@
 %>
 <%
     String username = request.getParameter("j_username");
-    String locale = request.getParameter("j_locale");
+    String requestedLocale = request.getParameter("j_locale");
     String error = request.getParameter("j_error");
 
     if (username == null) {
         username = "";
-    }
-    if (locale == null) {
-        locale = PSI18nUtils.getSystemLanguage();
-    }
-    if (locale == null) {
-        locale = "en-us";
     }
 
     String loginComplete = PSServer.getServerProps().getProperty("loginAutoComplete");
@@ -77,13 +74,21 @@
         defaultRedirect = returnParam;
     }
 
+    // Login list: hide base locales when an active regional sibling exists; default en-us.
     PSLocaleManager locManager = PSLocaleManager.getInstance();
+    List<PSLocale> allLocales = new ArrayList<>();
+    Iterator<PSLocale> allIt = locManager.getLocales();
+    while (allIt.hasNext()) {
+        allLocales.add(allIt.next());
+    }
+    List<PSLocale> loginLocales = PSLocaleLoginSelection.forLoginDropdown(allLocales);
+    String locale = PSLocaleLoginSelection.resolveSelectedLocale(
+            requestedLocale, PSI18nUtils.getSystemLanguage(), loginLocales);
+
     StringBuilder localesJson = new StringBuilder();
     localesJson.append('[');
     boolean first = true;
-    Iterator<PSLocale> locales = locManager.getLocales();
-    while (locales.hasNext()) {
-        PSLocale loc = locales.next();
+    for (PSLocale loc : loginLocales) {
         if (!first) {
             localesJson.append(',');
         }
@@ -94,9 +99,31 @@
                 .append('}');
     }
     localesJson.append(']');
+
+    // Locale format profile for UI (dir, date/currency patterns). Keyed by language string;
+    // customer locales inherit regional → language-only → en-us.
+    PSLocaleFormat localeFormat = PSLocaleFormatCatalog.resolve(locale);
+    String textDir = localeFormat.getTextDir() != null ? localeFormat.getTextDir() : "ltr";
+    StringBuilder formatJson = new StringBuilder();
+    formatJson.append('{');
+    boolean fFirst = true;
+    for (Map.Entry<String, Object> e : localeFormat.toBootstrapMap().entrySet()) {
+        if (!fFirst) {
+            formatJson.append(',');
+        }
+        fFirst = false;
+        formatJson.append(jsonString(e.getKey())).append(':');
+        Object v = e.getValue();
+        if (v instanceof Number) {
+            formatJson.append(v.toString());
+        } else {
+            formatJson.append(jsonString(String.valueOf(v)));
+        }
+    }
+    formatJson.append('}');
 %>
 <!DOCTYPE html>
-<html lang="<%= locale %>">
+<html lang="<%= locale %>" dir="<%= textDir %>">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -142,7 +169,8 @@
   "defaultRedirect":<%= jsonString(defaultRedirect) %>,
   "csrfTokenName":"OWASP_CSRFTOKEN",
   "csrfTokenValue":"",
-  "formAction":"login"
+  "formAction":"login",
+  "localeFormat":<%= formatJson.toString() %>
 }</script>
 <div id="perc-login-root" data-testid="perc-login-root"></div>
 <script>

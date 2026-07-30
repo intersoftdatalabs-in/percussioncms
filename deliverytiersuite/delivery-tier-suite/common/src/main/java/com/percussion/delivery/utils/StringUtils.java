@@ -17,9 +17,7 @@
 
 package com.percussion.delivery.utils;
 
-/**
- * Utility helpers for working with {@link String} values used throughout the delivery tier.
- */
+/** Utility helpers for working with {@link String} values used throughout the delivery tier. */
 public class StringUtils {
 
   /** Default constructor; this is a utility class and is not meant to be instantiated. */

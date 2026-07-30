@@ -16,23 +16,25 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { isSessionRedirectError, type ApiError } from "../api/client";
 import { listSlots } from "../api/developer/assemblyApi";
 import type { SlotSummary } from "../api/developer/types";
-import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { CatalogHint, CatalogStatus } from "./CatalogTable";
+import { openButtonStyle } from "./catalogStyles";
+import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
+import { SlotDetailPanel } from "./SlotDetailPanel";
 
-function errMsg(err: unknown, fallback: string): string {
-  if (isSessionRedirectError(err)) return DEV_MSG.SESSION_REDIRECT;
-  const api = err as ApiError;
-  if (api && typeof api.status === "number") return `${fallback} (${api.status})`;
-  if (err instanceof Error && err.message) return `${fallback} ${err.message}`;
-  return fallback;
+/** Open-key for detail; null when the row is not selectable. */
+function selectionKey(s: SlotSummary): string | null {
+  if (s.name) return s.name;
+  if (s.guid?.stringValue) return s.guid.stringValue;
+  return null;
 }
 
 export function SlotsPanel(): React.ReactElement {
   const [items, setItems] = useState<SlotSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -42,9 +44,7 @@ export function SlotsPanel(): React.ReactElement {
       })
       .catch((e: unknown) => {
         if (cancelled) return;
-        // Session redirect navigates away; still leave loading so UI does not hang
-        // if navigation is delayed or blocked.
-        setError(errMsg(e, DEV_MSG.SLOT_ERROR));
+        setError(panelErrMsg(e, DEV_MSG.SLOT_ERROR));
         setItems([]);
       });
     return () => {
@@ -52,36 +52,75 @@ export function SlotsPanel(): React.ReactElement {
     };
   }, []);
 
+  if (selected) {
+    return <SlotDetailPanel idOrName={selected} onBack={() => setSelected(null)} />;
+  }
+
   if (error) return <CatalogStatus testId="developer-slot-error" error>{error}</CatalogStatus>;
   if (items == null)
     return <CatalogStatus testId="developer-slot-loading">{DEV_MSG.SLOT_LOADING}</CatalogStatus>;
   if (items.length === 0)
     return <CatalogStatus testId="developer-slot-empty">{DEV_MSG.SLOT_EMPTY}</CatalogStatus>;
 
+  const sorted = [...items].sort((a, b) =>
+    (a.label || a.name || "").localeCompare(b.label || b.name || "", undefined, {
+      sensitivity: "base",
+    }),
+  );
+
   return (
     <div data-testid="developer-slot-panel">
       <CatalogHint>{DEV_MSG.SLOT_HINT}</CatalogHint>
-      <SimpleCatalogTable
-        tableTestId="developer-slot-table"
-        rowTestId="developer-slot-row"
-        columns={[
-          DEV_MSG.SLOT_COL_LABEL,
-          DEV_MSG.SLOT_COL_NAME,
-          DEV_MSG.SLOT_COL_DESCRIPTION,
-        ]}
-        rows={items.map((s, index) => ({
-          key: s.guid?.stringValue || s.name || `slot-${index}`,
-          cells: [
-            s.label || "—",
-            <span key="n" style={{ fontFamily: "monospace" }}>
-              {s.name || "—"}
-            </span>,
-            <span key="d" style={{ color: "#4a5568" }}>
-              {s.description || ""}
-            </span>,
-          ],
-        }))}
-      />
+      <div style={{ overflowX: "auto" }}>
+        <table
+          data-testid="developer-slot-table"
+          style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}
+        >
+          <thead>
+            <tr style={{ textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+              <th style={{ padding: "8px" }}>{DEV_MSG.SLOT_COL_LABEL}</th>
+              <th style={{ padding: "8px" }}>{DEV_MSG.SLOT_COL_NAME}</th>
+              <th style={{ padding: "8px" }}>{DEV_MSG.SLOT_COL_DESCRIPTION}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sorted.map((s, index) => {
+              const openKey = selectionKey(s);
+              const key = s.guid?.stringValue || s.name || `slot-${index}`;
+              return (
+                <tr
+                  key={key}
+                  data-testid="developer-slot-row"
+                  style={{
+                    borderBottom: "1px solid #edf2f7",
+                  }}
+                >
+                  <td style={{ padding: "8px" }}>
+                    {openKey ? (
+                      <button
+                        type="button"
+                        style={openButtonStyle}
+                        aria-label={`Open ${s.label || s.name || openKey}`}
+                        onClick={() => setSelected(openKey)}
+                      >
+                        {s.label || "—"}
+                      </button>
+                    ) : (
+                      s.label || "—"
+                    )}
+                  </td>
+                  <td style={{ padding: "8px", fontFamily: "monospace" }}>
+                    {s.name || "—"}
+                  </td>
+                  <td style={{ padding: "8px", color: "#4a5568" }}>
+                    {s.description || ""}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

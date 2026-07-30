@@ -36,14 +36,14 @@ calls, no test fixtures, no script changes. Cross-platform path review: no issue
 
 ## Functional change audit
 
-| File | Constructor / API impact | Behaviour change |
-|------|--------------------------|------------------|
-| `PSFormsApplication.java` | None — `@SuppressWarnings("this-escape")` on the existing constructor that calls Jersey's documented `ResourceConfig.register(...)` initializer hook. | No |
-| `PSFormDataJoiner.java` | Added a `public PSFormDataJoiner() {}` with Javadoc. Functionally identical to the implicit default constructor; suppresses the `default-constructor-no-comment` Javadoc warning. | No |
-| `PSFormDao.java` | Added a `public PSFormDao() {}` with Javadoc. Functionally identical to the implicit default constructor; required / compatible with the JPA / Spring reflection-based wiring already in place. | No |
-| `PSFormSummaries.java` | Added a `public PSFormSummaries() {}` with Javadoc. Already required by JAXB (`@XmlAccessorType` / `@XmlType` bean). | No |
-| `IPSFormService.java` | Removed the unused `org.apache.commons.mail.EmailException` import (was referenced only by the now-corrected `@throws PSEmailException`). Public method signature unchanged. | No |
-| All other files | Javadoc-only edits: add / extend `/** ... */` comments, repair nested `<code>` / `<code/>` HTML, correct `@throws` clauses, remove stale `/* (non-Javadoc) ... */` blocks in favour of real Javadoc. | No |
+|           File            |                                                                                       Constructor / API impact                                                                                       | Behaviour change |
+|---------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------|
+| `PSFormsApplication.java` | None — `@SuppressWarnings("this-escape")` on the existing constructor that calls Jersey's documented `ResourceConfig.register(...)` initializer hook.                                                | No               |
+| `PSFormDataJoiner.java`   | Added a `public PSFormDataJoiner() {}` with Javadoc. Functionally identical to the implicit default constructor; suppresses the `default-constructor-no-comment` Javadoc warning.                    | No               |
+| `PSFormDao.java`          | Added a `public PSFormDao() {}` with Javadoc. Functionally identical to the implicit default constructor; required / compatible with the JPA / Spring reflection-based wiring already in place.      | No               |
+| `PSFormSummaries.java`    | Added a `public PSFormSummaries() {}` with Javadoc. Already required by JAXB (`@XmlAccessorType` / `@XmlType` bean).                                                                                 | No               |
+| `IPSFormService.java`     | Removed the unused `org.apache.commons.mail.EmailException` import (was referenced only by the now-corrected `@throws PSEmailException`). Public method signature unchanged.                         | No               |
+| All other files           | Javadoc-only edits: add / extend `/** ... */` comments, repair nested `<code>` / `<code/>` HTML, correct `@throws` clauses, remove stale `/* (non-Javadoc) ... */` blocks in favour of real Javadoc. | No               |
 
 No public API contract or method signature changes; no code deleted; no CodeQL
 suppressions altered; no security-sensitive control flow altered.
@@ -60,12 +60,12 @@ suppressions altered; no security-sensitive control flow altered.
 
 Compared to baseline (pre-fix):
 
-| Counter | Baseline | After fix |
-|---------|---------:|----------:|
-| Javadoc tool errors | 8  | 0 |
-| Javadoc tool warnings | 84 | 0 |
-| Java compiler `this-escape` warnings | 1 | 0 |
-| Tests passed (form-processor) | 49 | 49 |
+|               Counter                | Baseline | After fix |
+|--------------------------------------|---------:|----------:|
+| Javadoc tool errors                  |        8 |         0 |
+| Javadoc tool warnings                |       84 |         0 |
+| Java compiler `this-escape` warnings |        1 |         0 |
+| Tests passed (form-processor)        |       49 |        49 |
 
 The remaining `[WARNING]` lines on `Parameter 'systemProperties' is deprecated` and
 `Parameter 'warName' is read-only` live in `forms/pom.xml` and were present before the

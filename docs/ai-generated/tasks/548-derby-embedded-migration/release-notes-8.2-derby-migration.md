@@ -14,12 +14,12 @@ Apache Derby has been **retired upstream** (project read-only; no further releas
 
 Starting with the 8.2 line that ships this change:
 
-| Area | Behavior |
-|------|----------|
-| **New installs (defaults)** | CMS and DTS provision **multiuser H2**, not Derby. No Derby Network Server / port **1527** required for the default path. |
-| **Upgrades from product-managed Derby** | Automatic **Derby → H2** migration on the supported upgrade path after a **backup gate**. |
-| **MySQL / SQL Server** | **Unchanged.** No embedded migration; connection identity is not rewritten. |
-| **Steady-state backup** | **Offline only** for the default embedded repository. |
+|                  Area                   |                                                         Behavior                                                          |
+|-----------------------------------------|---------------------------------------------------------------------------------------------------------------------------|
+| **New installs (defaults)**             | CMS and DTS provision **multiuser H2**, not Derby. No Derby Network Server / port **1527** required for the default path. |
+| **Upgrades from product-managed Derby** | Automatic **Derby → H2** migration on the supported upgrade path after a **backup gate**.                                 |
+| **MySQL / SQL Server**                  | **Unchanged.** No embedded migration; connection identity is not rewritten.                                               |
+| **Steady-state backup**                 | **Offline only** for the default embedded repository.                                                                     |
 
 ---
 
@@ -27,12 +27,12 @@ Starting with the 8.2 line that ships this change:
 
 See the decision tree: **[am-i-affected.md](./am-i-affected.md)** (SC-008).
 
-| Estate | Affected? | Action |
-|--------|-----------|--------|
-| CMS/DTS on **default Derby** (embedded or product-managed networked ClientDriver) | **Yes** | Plan a maintenance window; satisfy backup gate; run supported upgrade. |
-| CMS/DTS already on **H2** after a prior migration | No re-migration | Outcome `ALREADY_MIGRATED`. |
-| CMS/DTS on **MySQL** or **Microsoft SQL Server** | **No** | Upgrade as usual; no Derby migrator pump/cutover. |
-| Custom non-product Derby schemas | Best-effort only | Product guarantees cover product-owned schemas. |
+|                                      Estate                                       |    Affected?     |                                 Action                                 |
+|-----------------------------------------------------------------------------------|------------------|------------------------------------------------------------------------|
+| CMS/DTS on **default Derby** (embedded or product-managed networked ClientDriver) | **Yes**          | Plan a maintenance window; satisfy backup gate; run supported upgrade. |
+| CMS/DTS already on **H2** after a prior migration                                 | No re-migration  | Outcome `ALREADY_MIGRATED`.                                            |
+| CMS/DTS on **MySQL** or **Microsoft SQL Server**                                  | **No**           | Upgrade as usual; no Derby migrator pump/cutover.                      |
+| Custom non-product Derby schemas                                                  | Best-effort only | Product guarantees cover product-owned schemas.                        |
 
 ---
 
@@ -58,11 +58,11 @@ Default H2 installs are positioned for multiuser editorial and service workloads
 
 ## Intentional breaks / no longer promised
 
-| Topic | Detail |
-|-------|--------|
+|              Topic              |                                                                                                                                        Detail                                                                                                                                        |
+|---------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Derby Network Server / DRDA** | New defaults **do not** promise remote DRDA access on port **1527**. Default H2 is in-process file-mode multiuser (`AUTO_SERVER` as designed for single deployment unit). Remote multi-host shared-file clustering remains out of product scope (same class as prior Derby default). |
-| **Online/hot full backup** | Not supported for the default embedded repository. Stop the instance for consistent full backup and restore. |
-| **Downgrade to live Derby** | Not supported after successful cutover. Recovery from failed migration uses preserved Derby + backups before cutover. |
+| **Online/hot full backup**      | Not supported for the default embedded repository. Stop the instance for consistent full backup and restore.                                                                                                                                                                         |
+| **Downgrade to live Derby**     | Not supported after successful cutover. Recovery from failed migration uses preserved Derby + backups before cutover.                                                                                                                                                                |
 
 ---
 
@@ -70,12 +70,12 @@ Default H2 installs are positioned for multiuser editorial and service workloads
 
 Automatic migration from product-managed Derby is supported for:
 
-1. The **GA product line** that introduces H2 as the default embedded repository, and  
+1. The **GA product line** that introduces H2 as the default embedded repository, and
 2. **One subsequent product line** after that GA.
 
 Before removal of Derby migration:
 
-- Release notes **must** carry a **deprecation notice** for at least one product line.  
+- Release notes **must** carry a **deprecation notice** for at least one product line.
 - Customers still on Derby must upgrade **while migration is still supported**.
 
 Tracking checklist on issue **#548** (and [fr-021-migration-window.md](./fr-021-migration-window.md)). After the window, Derby jars and migration entry points are removed from the product.
@@ -92,12 +92,13 @@ Remaining GA hardening (packaging audit freeze, OS full-install smoke matrix, in
 
 ## Document map
 
-| Doc | Purpose |
-|-----|---------|
-| [am-i-affected.md](./am-i-affected.md) | Support FAQ decision tree |
-| [operator-upgrade-sequence.md](./operator-upgrade-sequence.md) | CMS then DTS order; mixed estate |
-| [operator-migration-gate.md](./operator-migration-gate.md) | Backup gate and residue cleanup |
-| [operator-backup-restore.md](./operator-backup-restore.md) | Offline backup/restore |
-| [migration-sizing.md](./migration-sizing.md) | Disk and duration guidance |
-| [fr-021-migration-window.md](./fr-021-migration-window.md) | Support window checklist |
-| Spec / contracts | `specs/548-derby-embedded-migration/` |
+|                              Doc                               |                Purpose                |
+|----------------------------------------------------------------|---------------------------------------|
+| [am-i-affected.md](./am-i-affected.md)                         | Support FAQ decision tree             |
+| [operator-upgrade-sequence.md](./operator-upgrade-sequence.md) | CMS then DTS order; mixed estate      |
+| [operator-migration-gate.md](./operator-migration-gate.md)     | Backup gate and residue cleanup       |
+| [operator-backup-restore.md](./operator-backup-restore.md)     | Offline backup/restore                |
+| [migration-sizing.md](./migration-sizing.md)                   | Disk and duration guidance            |
+| [fr-021-migration-window.md](./fr-021-migration-window.md)     | Support window checklist              |
+| Spec / contracts                                               | `specs/548-derby-embedded-migration/` |
+

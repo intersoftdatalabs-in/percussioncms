@@ -36,4 +36,9 @@ public interface IActionMenuAdaptor {
 
   /** Finds allowed templates for the given content ID. */
   List<ActionMenu> findAllowedTemplates(Integer contentId, boolean isAA);
+
+  /**
+   * Resolve one menu by name or numeric id string. Returns null if missing/unsafe.
+   */
+  ActionMenu findMenuByKey(String idOrName);
 }

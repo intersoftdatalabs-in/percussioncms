@@ -40,8 +40,6 @@ import com.percussion.services.security.PSRoleMgrLocator;
 import com.percussion.services.security.PSTypedPrincipal;
 import com.percussion.services.system.PSAssignmentTypeHelper;
 import com.percussion.system.utils.PSCms;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -75,67 +73,6 @@ public class PSWorkflowRoleInfoStatic {
   }
 
   /* Obtain actor and role information */
-
-  /**
-   * Get list of state roles in which a user is acting, including adhoc roles.
-   *
-   * @param contentID ID of the content item
-   * @param src context of state roles meeting the minimum assignment types, may not be <code>null
-   *     </code> or empty
-   * @param userName the user's name, cannot be <code>null</code>
-   * @param userRoleNames a comma-delimited list of the user's roles, may not be <code>null</code>
-   *     or empty
-   * @param connection database connection, may be not be <code>null</code>
-   * @param authUser if true indicates that {@link PSExitAuthenticateUser} is the caller, false
-   *     otherwise
-   * @return list of state roles in which a user is acting, <code>null</code> if the user has no
-   *     roles
-   * @throws SQLException if a SQL error occurs
-   * @throws IllegalArgumentException if any of the input parameters is not valid.
-   * @throws PSRoleException if the content adhoc user records contain invalid data
-   */
-  public static List<Integer> getActorRoles(
-      int contentID,
-      PSStateRolesContext src,
-      String userName,
-      String userRoleNames,
-      Connection connection,
-      boolean authUser)
-      throws SQLException, PSRoleException {
-    List<Integer> actorRoles;
-    if (null == src) {
-      throw new IllegalArgumentException("State roles context may not be null.");
-    }
-    if (null == connection) {
-      throw new IllegalArgumentException("Connection may not be null.");
-    }
-    if (null == userName || 0 == userName.length()) {
-      throw new IllegalArgumentException("User name may not be null or empty.");
-    }
-
-    userName = userName.trim();
-
-    if (0 == userName.length()) {
-      throw new IllegalArgumentException("User name may not be empty after trimming.");
-    }
-
-    if (null == userRoleNames) {
-      throw new IllegalArgumentException("User role names string may not be null.");
-    }
-
-    userRoleNames = userRoleNames.trim();
-    if (0 == userRoleNames.length()) {
-      throw new IllegalArgumentException(
-          "User role names string  may not be empty after trimming " + "in getActorRoles.");
-    }
-    PSContentAdhocUsersContext cauc;
-
-    cauc = new PSContentAdhocUsersContext(contentID, connection);
-
-    actorRoles = getActorRoles(userName, userRoleNames, src, cauc, authUser);
-
-    return actorRoles;
-  }
 
   /**
    * Get list of state roles in which a user is acting, including adhoc roles.

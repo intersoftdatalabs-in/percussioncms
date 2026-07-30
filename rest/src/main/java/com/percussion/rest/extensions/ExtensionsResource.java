@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -55,6 +58,84 @@ public class ExtensionsResource {
   public ExtensionsResource() {
     // Default constructor
   }
+
+  /**
+   * Developer P0 catalog: list all extensions (UI/exit design inventory).
+   *
+   * <p>Uses an empty filter. Failures surface as 500 rather than empty lists when the adaptor
+   * throws.
+   */
+  @GET
+  @Path("/catalog")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "List extensions (catalog)",
+      description =
+          "Lists registered server extensions for the Developer module. Install/remove remain"
+              + " later slices.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content =
+                @Content(array = @ArraySchema(schema = @Schema(implementation = Extension.class)))),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public List<Extension> listExtensionsCatalog() {
+    try {
+      List<Extension> list = requireAdaptor().listExtensions(uriInfo.getBaseUri());
+      return list != null ? list : List.of();
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Detail by FQN or extension short name. Query param avoids path issues with FQN slashes.
+   */
+  @GET
+  @Path("/catalog/item")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Get extension detail",
+      description =
+          "Loads one extension by FQN or extension name (query param key). Write remains"
+              + " unsupported.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = Extension.class))),
+        @ApiResponse(responseCode = "404", description = "Extension not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Extension getExtensionCatalogItem(
+      @Parameter(name = "key", required = true, description = "FQN or extension name")
+          @QueryParam("key")
+          String key) {
+    try {
+      Extension ext = requireAdaptor().findExtensionByKey(uriInfo.getBaseUri(), key);
+      if (ext == null) {
+        throw new WebApplicationException("Extension not found", 404);
+      }
+      return ext;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  private IExtensionAdaptor requireAdaptor() {
+    if (adaptor == null) {
+      throw new IllegalStateException(
+          "Extension adaptor not configured (resource constructed without injection)");
+    }
+    return adaptor;
+  }
+
 
   /**
    * Lists Extensions available on the system.

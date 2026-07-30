@@ -18,6 +18,7 @@
 import React, { lazy } from "react";
 import { useParams } from "react-router";
 import { loadComponent } from "../../registry";
+import { DEV_MSG } from "../../developer/messages";
 import { LazyRouteFrame } from "./RouteErrorBoundary";
 import { RequireRole } from "./RequireRole";
 
@@ -34,10 +35,10 @@ export function DeveloperRoute(): React.ReactElement {
   return (
     <RequireRole gate="adminOrDesigner">
       <LazyRouteFrame
-        label="Developer"
+        label={DEV_MSG.TITLE}
         fallback={
           <div data-testid="route-developer-loading" style={{ padding: "1.5rem" }}>
-            Loading Developer…
+            {DEV_MSG.SHELL_LOADING}
           </div>
         }
       >

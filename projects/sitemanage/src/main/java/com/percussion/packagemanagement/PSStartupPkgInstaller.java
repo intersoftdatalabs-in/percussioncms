@@ -30,13 +30,13 @@ import com.percussion.rx.services.deployer.PSPackageUninstall;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSServer;
 import com.percussion.services.error.PSNotFoundException;
-import com.percussion.utils.jdbc.PSConnectionHelper;
-import com.percussion.utils.jdbc.PSJdbcConnectionDiagnostics;
 import com.percussion.services.notification.IPSNotificationListener;
 import com.percussion.services.notification.IPSNotificationService;
 import com.percussion.services.notification.PSNotificationEvent;
 import com.percussion.services.notification.PSNotificationEvent.EventType;
 import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.utils.jdbc.PSConnectionHelper;
+import com.percussion.utils.jdbc.PSJdbcConnectionDiagnostics;
 import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -216,8 +216,7 @@ public class PSStartupPkgInstaller implements IPSNotificationListener, IPSMainte
           null,
           true);
     } catch (Exception e) {
-      appendLogEntry(
-          "Package install JDBC diagnostics unavailable: " + e.getMessage(), null, true);
+      appendLogEntry("Package install JDBC diagnostics unavailable: " + e.getMessage(), null, true);
     }
 
     try {

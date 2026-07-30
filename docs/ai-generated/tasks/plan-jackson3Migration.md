@@ -165,7 +165,7 @@ Pending next steps:
 
 1. `./mvnw clean compile -DskipTests` — fix all compilation errors. *Depends on all prior phases*
 2. `./mvnw test` — run full test suite, focus on `rest`, `projects/sitemanage`, `deliverytiersuite`, `system`. *Depends on step 1*
-3. `./mvnw spotless:check` (and `spotless:apply` if needed). *Parallel with step 2*
+3. `./mvnw spotless:apply` then `./mvnw spotless:check` (apply first, check second). *Parallel with step 2*
 4. Manual REST API smoke test — verify JSON serialization, date formatting, root wrapping/unwrapping
 5. Runtime classpath verification in deployed webapp (`WEB-INF/lib`) — ensure exactly one Jackson major line is present and no `jackson-module-jaxb-annotations` remains unless intentionally pinned for a non-migrated path
 

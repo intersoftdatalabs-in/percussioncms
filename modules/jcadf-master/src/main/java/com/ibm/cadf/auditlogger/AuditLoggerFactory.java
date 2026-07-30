@@ -21,12 +21,27 @@ import com.ibm.cadf.auditlogger.csv.CSVAuditLogger;
 import com.ibm.cadf.auditlogger.json.JsonAuditLogger;
 import com.ibm.cadf.util.Constants;
 
+/**
+ * Static factory that returns the {@link AuditLogger} singleton appropriate for a given output
+ * format. Supported format identifiers are {@link Constants#AUDIT_FORMAT_TYPE_CSV} and {@link
+ * Constants#AUDIT_FORMAT_TYPE_JSON}; any other (or {@code null}) value falls back to the CSV
+ * logger.
+ */
 public class AuditLoggerFactory {
 
+  /** Default no-argument constructor for {@link AuditLoggerFactory}. */
+  public AuditLoggerFactory() {
+    // Default constructor for AuditLoggerFactory.
+  }
+
   /**
-   * The default file format is csv
+   * Returns the singleton {@link AuditLogger} for the requested output format. The default file
+   * format is CSV; known JSON requests return the JSON logger; any other value falls back to CSV.
    *
-   * @param auditorType
+   * @param auditorType the audit format identifier (e.g., {@link Constants#AUDIT_FORMAT_TYPE_CSV}
+   *     or {@link Constants#AUDIT_FORMAT_TYPE_JSON}); may be {@code null} or unrecognized, in which
+   *     case CSV is used.
+   * @return the shared audit logger for the resolved format, never {@code null}.
    */
   public static AuditLogger getAuditLogger(String auditorType) {
 

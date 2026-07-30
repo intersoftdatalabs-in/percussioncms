@@ -28,6 +28,8 @@ import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidUtils;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
+import com.percussion.services.legacy.IPSCmsObjectMgr;
+import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.services.memory.IPSCacheAccess;
 import com.percussion.services.workflow.IPSWorkflowErrors;
 import com.percussion.services.workflow.IPSWorkflowService;
@@ -53,7 +55,14 @@ import com.percussion.services.workflow.data.PSTransitionRole;
 import com.percussion.services.workflow.data.PSWorkflow;
 import com.percussion.services.workflow.data.PSWorkflowRole;
 import com.percussion.system.utils.PSBaseBean;
+import com.percussion.utils.exceptions.PSORMException;
 import com.percussion.utils.guid.IPSGuid;
+import com.percussion.utils.string.PSStringUtils;
+import com.percussion.workflow.IPSWorkflowAppsContext;
+import com.percussion.workflow.PSContentStatusContext;
+import com.percussion.workflow.PSEntryNotFoundException;
+import com.percussion.workflow.PSTransitionInfo;
+import com.percussion.workflow.PSTransitionsContext;
 import com.percussion.workflow.PSWorkFlowUtils;
 import org.apache.commons.lang3.StringUtils;
 import java.util.Objects;
@@ -1233,6 +1242,186 @@ public class PSWorkflowService
 
          return q.list();
 
+   }
+
+   /**
+    * Hibernate-backed implementation of {@link IPSWorkflowService#getAllowedTransitions(int, String,
+    * List, int)} (#1561 Phase 4d-1c PR-C1). Mirrors the legacy
+    * {@code com.percussion.workflow.PSWorkFlowUtils.getAllowedTransitions(int, String, List, int)}
+    * behaviour on the shared Hibernate session so the call participates in the surrounding Spring
+    * transaction instead of opening a second pool connection via
+    * {@code PSConnectionHelper.getDbConnection(null)}.
+    *
+    * <p>See {@link IPSWorkflowService#getAllowedTransitions(int, String, List, int)} for the
+    * migration rationale and follow-up plan (PR-C2 migrates {@code PSSystemWs} to this method,
+    * then deletes the legacy overloads).
+    */
+   @Override
+   public List<PSTransitionInfo> getAllowedTransitions(
+         int contentId, String userName, List<String> roles, int commId)
+         throws PSEntryNotFoundException, PSORMException {
+      // 1. Argument validation
+      if (StringUtils.isBlank(userName)) {
+         throw new IllegalArgumentException("userName may not be null or empty");
+      }
+      if (roles == null) {
+         throw new IllegalArgumentException("roles may not be null");
+      }
+
+      // 2. Load content status via Hibernate factory (Phase 4b). Throws PSEntryNotFoundException
+      //    when the row does not exist; that is the contract callers expect.
+      PSContentStatusContext csc = PSContentStatusContext.loadFromHibernate(contentId);
+
+      // 3. Community match — return empty list when the item's community differs from the user's
+      int itemCommId = csc.getCommunityID();
+      if (itemCommId != commId) {
+         return new ArrayList<>();
+      }
+
+      // 4. Workflow admin check (mirrors legacy PSWorkFlowUtils.isAdmin(csc, userName, roleNames)).
+      //    PSCmsObjectMgr.loadWorkflowAppContext already uses the Spring-managed datasource.
+      int workflowId = csc.getWorkflowID();
+      String roleNames = PSStringUtils.listToString(roles, ",");
+      boolean isAdmin;
+      try {
+         IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
+         java.util.Optional<IPSWorkflowAppsContext> wacOpt =
+            cms.loadWorkflowAppContext(workflowId);
+         String sAdminName = wacOpt.isPresent() ? wacOpt.get().getWorkFlowAdministrator() : null;
+         isAdmin = PSWorkFlowUtils.isAdmin(sAdminName, userName, roleNames);
+      } catch (java.sql.SQLException | RuntimeException e) {
+         throw new PSORMException("Failed to resolve workflow admin for workflow " + workflowId, e);
+      }
+
+      // 5. Pre-load approvals so we can answer hasUserActed / hasRoleActed without a second pass
+      IPSGuid contentGuid = PSGuidUtils.makeGuid(contentId, PSTypeEnum.LEGACY_CONTENT);
+      List<PSContentApproval> approvals = findApprovalsByItem(contentGuid);
+
+      // 6. Short-circuit when the user has already acted on the item in any role
+      //    (mirrors PSContentApprovalsContext.hasUserActed(userName))
+      if (userHasActed(approvals, userName)) {
+         return new ArrayList<>();
+      }
+
+      // 7. Load transitions via Hibernate factory (Phase 4d-1a; excludes aging transitions).
+      int contentStateId = csc.getContentStateID();
+      PSTransitionsContext tc =
+         PSTransitionsContext.loadAllFromHibernate(workflowId, contentStateId);
+
+      // 8. Walk the cursor; mirrors PSWorkFlowUtils.getAllowedTransitions(PSContentStatusContext,
+      //    Connection, String, boolean, String) lines 2047-2084.
+      List<PSTransitionInfo> results = new ArrayList<>();
+      try {
+         while (tc.moveNext()) {
+            boolean isDisabled = false;
+            // Aging transitions are filtered out by loadAllFromHibernate; the isAgingTransition
+            // guard remains as defence-in-depth and a no-op signal.
+            if (!tc.isAgingTransition()) {
+               if (!isAdmin) {
+                  List<String> transitionRequiredRoles = tc.getTransitionRoles();
+                  if (transitionRequiredRoles != null && !transitionRequiredRoles.isEmpty()) {
+                     isDisabled = !PSWorkFlowUtils.compareRoleList(
+                        transitionRequiredRoles, roleNames);
+                     // Skip transition if the user has acted in every required role
+                     if (isDisabled || hasRolesActed(approvals, tc, roles, userName)) {
+                        continue;
+                     }
+                  }
+               }
+               results.add(
+                  new PSTransitionInfo(
+                     tc.getTransitionID(),
+                     tc.getTransitionLabel(),
+                     tc.getTransitionActionTrigger(),
+                     tc.getTransitionToStateID(),
+                     tc.getTransitionComment(),
+                     isDisabled));
+            }
+         }
+      } catch (java.sql.SQLException e) {
+         // Hibernate-backed moveNext() does not throw on the no-ResultSet path; this catch is
+         // required only for the legacy-JDBC branch which is unreachable from the factory call
+         // above. Wrap defensively to keep the signature clean.
+         throw new PSORMException("Failed to iterate transitions for workflow " + workflowId
+            + " state " + contentStateId, e);
+      }
+
+      return results;
+   }
+
+   /**
+    * Mirrors {@code PSContentApprovalsContext.hasUserActed(String)} on the Hibernate-backed
+    * approval list returned by {@link #findApprovalsByItem(IPSGuid)}.
+    */
+   private static boolean userHasActed(List<PSContentApproval> approvals, String userName) {
+      for (PSContentApproval a : approvals) {
+         if (userName.equals(a.getUser())) {
+            return true;
+         }
+      }
+      return false;
+   }
+
+   /**
+    * Mirrors {@code PSContentApprovalsContext.hasRoleActed(int)} on the Hibernate-backed approval
+    * list returned by {@link #findApprovalsByItem(IPSGuid)}.
+    */
+   private static boolean roleHasBeenActed(
+         List<PSContentApproval> approvals, String userName, int roleId) {
+      for (PSContentApproval a : approvals) {
+         if (a.getRoleId() == roleId && userName.equals(a.getUser())) {
+            return true;
+         }
+      }
+      return false;
+   }
+
+   /**
+    * Mirrors {@code PSWorkFlowUtils.hasRolesActed(PSContentApprovalsContext, PSTransitionsContext,
+    * String)} (lines 2105-2122) on the Hibernate-backed approval list. Returns {@code true} when
+    * every role required by the transition has an approval row for the user.
+    */
+   private static boolean hasRolesActed(
+         List<PSContentApproval> approvals, PSTransitionsContext tc,
+         List<String> roles, String userName) {
+      if (roles == null || roles.isEmpty()) {
+         return false;
+      }
+      Map<Integer, String> roleNameToIdMap = tc.getTransitionRoleNameIdMap();
+      for (String role : roles) {
+         if (role == null) {
+            continue;
+         }
+         String trimmed = role.trim();
+         if (trimmed.isEmpty()) {
+            continue;
+         }
+         int roleId = findRoleId(roleNameToIdMap, trimmed);
+         if (roleId == -1) {
+            // Role not in the transition's required-role list — ignore per legacy semantics.
+            continue;
+         }
+         if (!roleHasBeenActed(approvals, userName, roleId)) {
+            return false;
+         }
+      }
+      return true;
+   }
+
+   /**
+    * Resolves a role name to its id via the supplied map (case-insensitive). Returns {@code -1}
+    * when the role is not present, matching {@code PSWorkFlowUtils.getRoleIdFromMap}.
+    */
+   private static int findRoleId(Map<Integer, String> roleNameToIdMap, String roleName) {
+      if (roleNameToIdMap == null || roleNameToIdMap.isEmpty()) {
+         return -1;
+      }
+      for (Map.Entry<Integer, String> e : roleNameToIdMap.entrySet()) {
+         if (e.getValue() != null && e.getValue().equalsIgnoreCase(roleName)) {
+            return e.getKey();
+         }
+      }
+      return -1;
    }
 
    @Transactional

@@ -6,15 +6,15 @@ Active service layer for Percussion CMS: interfaces and implementations under `s
 
 ## Layout
 
-| Area | Package (typical) | Role |
-|------|-------------------|------|
-| Assembly | `com.percussion.services.assembly` | Templates, binding, rendering |
-| Catalog | `com.percussion.services.catalog` | Type/object discovery |
-| Content | `com.percussion.services.content` | Keywords, translations, folder props |
-| Content mgr | `com.percussion.services.contentmgr` | Higher-level content ops |
-| GUID | `com.percussion.services.guidmgr` | ID generation |
-| Data / error / security | `…data`, `…error`, `…security` | Persistence helpers, errors, ACL-related |
-| Change tracking | `com.percussion.services.contentchange` | Modification notifications |
+|          Area           |            Package (typical)            |                   Role                   |
+|-------------------------|-----------------------------------------|------------------------------------------|
+| Assembly                | `com.percussion.services.assembly`      | Templates, binding, rendering            |
+| Catalog                 | `com.percussion.services.catalog`       | Type/object discovery                    |
+| Content                 | `com.percussion.services.content`       | Keywords, translations, folder props     |
+| Content mgr             | `com.percussion.services.contentmgr`    | Higher-level content ops                 |
+| GUID                    | `com.percussion.services.guidmgr`       | ID generation                            |
+| Data / error / security | `…data`, `…error`, `…security`          | Persistence helpers, errors, ACL-related |
+| Change tracking         | `com.percussion.services.contentchange` | Modification notifications               |
 
 ## Build & test
 
@@ -32,3 +32,4 @@ See parent [system/README.md](../README.md) and [system/AGENTS.md](../AGENTS.md)
 - Prefer interfaces + locators / existing patterns in this tree; do not invent Spring-Boot-style wiring.
 - New tests: JUnit 5. Match existing package test layout under `services` test roots as used by the module.
 - There is **no** active “Java 11/17 package log” for this tree; do not recreate tracking files.
+

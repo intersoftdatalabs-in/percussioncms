@@ -19,8 +19,28 @@ package com.percussion.rest.slots;
 
 import java.net.URI;
 import java.util.List;
+import org.springframework.lang.Nullable;
 
 public interface ISlotsAdaptor {
 
   List<SlotSummary> listSlots(URI baseUri);
+
+  /**
+   * Load slot design detail by numeric uuid or unique name.
+   *
+   * @return detail, or {@code null} if not found
+   */
+  @Nullable
+  SlotDetail getSlot(URI baseUri, String idOrName);
+
+  /**
+   * Update mutable slot design fields (label, description) and optionally replace content-type /
+   * template associations. When {@code body.associations} is {@code null}, associations are left
+   * unchanged; a non-null list (including empty) replaces the full association set. Name/id is not
+   * changed via this path.
+   *
+   * @return updated detail, or {@code null} if not found
+   */
+  @Nullable
+  SlotDetail updateSlot(URI baseUri, String idOrName, SlotDetail body);
 }

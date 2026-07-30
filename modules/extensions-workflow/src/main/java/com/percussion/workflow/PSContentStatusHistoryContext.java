@@ -16,7 +16,6 @@
  */
 package com.percussion.workflow;
 
-import com.percussion.cms.IPSConstants;
 import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
@@ -45,8 +44,8 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
    * Constructor specifying the workFlowID, connection, and contentID, used for read-only access to
    * content status history records.
    *
-   * <p><strong>Deprecated.</strong> Since #1561 Phase 3 the rows are loaded via the
-   * {@link PSSystemServiceLocator#getSystemService()#findContentStatusHistory(IPSGuid)} service
+   * <p><strong>Deprecated.</strong> Since #1561 Phase 3 the rows are loaded via the {@link
+   * PSSystemServiceLocator#getSystemService()#findContentStatusHistory(IPSGuid)} service
    * (Hibernate) rather than the legacy raw-JDBC context. The {@code connection} parameter is
    * accepted for binary compatibility but is no longer used.
    *
@@ -178,8 +177,7 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
     setSessionID(sessionID);
     setContentStateRoleName(roleName);
     setRevision(baseRevisionNum);
-    m_EventTime =
-        eventTime == null ? null : new java.sql.Date(eventTime.getTime());
+    m_EventTime = eventTime == null ? null : new java.sql.Date(eventTime.getTime());
   }
 
   /**
@@ -477,9 +475,7 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
      * (because the old PSContentStatusContext used getTimestamp). Narrow via getTime().
      */
     m_LastModifiedDate =
-        row.getLastModifiedDate() == null
-            ? null
-            : new Date(row.getLastModifiedDate().getTime());
+        row.getLastModifiedDate() == null ? null : new Date(row.getLastModifiedDate().getTime());
     m_EventTime = row.getEventTime() == null ? null : new Date(row.getEventTime().getTime());
 
     m_sTransitionComment = PSWorkFlowUtils.trimmedOrEmptyString(row.getTransitionComment());
@@ -634,8 +630,8 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
   /******** Database Related Variables ********/
 
   /**
-   * Rows loaded into memory by Hibernate via {@code IPSSystemService#findContentStatusHistory}.
-   * The cursor pattern ({@link #moveNext()}) now iterates this list. Null after {@link #close()}.
+   * Rows loaded into memory by Hibernate via {@code IPSSystemService#findContentStatusHistory}. The
+   * cursor pattern ({@link #moveNext()}) now iterates this list. Null after {@link #close()}.
    */
   private List<PSContentStatusHistory> m_rows = null;
 
@@ -646,11 +642,11 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
   private int m_nCount = 0;
 
   /**
-   * Qualified table name only (e.g. {@code PUBLIC.CONTENTSTATUSHISTORY} on H2). Do <strong>not</strong>
-   * use this as a column qualifier — {@code schema.table.column} is rejected by H2 as {@code Column
-   * "PUBLIC" not found}. Columns in the statements below are unqualified.
+   * Qualified table name only (e.g. {@code PUBLIC.CONTENTSTATUSHISTORY} on H2). Do
+   * <strong>not</strong> use this as a column qualifier — {@code schema.table.column} is rejected
+   * by H2 as {@code Column "PUBLIC" not found}. Columns in the statements below are unqualified.
    */
-  private static String TABLE_CSHC = PSConnectionMgr.getQualifiedIdentifier("CONTENTSTATUSHISTORY");
+  private static final String TABLE_CSHC = "CONTENTSTATUSHISTORY";
 
   /** SQL query string to get data base records for the content status history. */
   private static final String QRYSTRING =

@@ -25,22 +25,22 @@ import java.util.Date;
  * Pure field-by-field mapping from the workflow action inputs to a {@link PSContentStatusHistory}
  * entity. No DB access, no Spring calls, no service lookup.
  *
- * <p>This helper exists as a separate class (rather than a static method on
- * {@link PSContentStatusHistoryContext}) because loading {@code PSContentStatusHistoryContext}
- * triggers its {@code <clinit>} which calls
- * {@code PSConnectionMgr.getQualifiedIdentifier("CONTENTSTATUSHISTORY")} and therefore requires a
- * live database. Keeping the mapping helper in a separate class lets unit tests exercise the
- * mapping without booting a real DB.
+ * <p>This helper exists as a separate class (rather than a static method on {@link
+ * PSContentStatusHistoryContext}) so that unit tests can exercise the mapping without dragging in
+ * the legacy context class. As of #1561 Phase 4d-1d the context's class initializer no longer
+ * touches the database (table name is inlined as an uppercase constant), but the helper is still
+ * kept separate so test classes can load it without the rest of the legacy workflow context
+ * surface.
  *
  * <p>Used by both the migrated {@code PSExitUpdateHistory} write path (#1561 Phases 2 and 3) and
  * the deprecated {@code PSContentStatusHistoryContext} write constructor so they produce identical
  * entities from identical inputs.
  *
- * <p>Transition-id / label rules: when the transition argument is {@code null} the helper
- * behaves as a check-in or check-out. It uses {@link IPSConstants#TRANSITIONID_CHECKINOUT} as
- * the transition id and labels the row {@code "CheckIn"} when no checkout user is set, or
- * {@code "CheckOut"} otherwise. When the transition argument is non-null the helper copies the
- * transition id and label from it.
+ * <p>Transition-id / label rules: when the transition argument is {@code null} the helper behaves
+ * as a check-in or check-out. It uses {@link IPSConstants#TRANSITIONID_CHECKINOUT} as the
+ * transition id and labels the row {@code "CheckIn"} when no checkout user is set, or {@code
+ * "CheckOut"} otherwise. When the transition argument is non-null the helper copies the transition
+ * id and label from it.
  *
  * @see <a href="https://github.com/intersoftdatalabs-in/percussioncms/issues/1561">Issue #1561</a>
  */
@@ -51,10 +51,10 @@ public final class PSContentStatusHistoryEntityBuilder {
   }
 
   /**
-   * Legacy overload kept for binary compatibility with the deprecated
-   * {@code PSContentStatusHistoryContext} write constructor (passes a raw
-   * {@link IPSTransitionsContext} cursor). Delegates to the
-   * {@link PSTransition} overload by extracting id and label from the cursor.
+   * Legacy overload kept for binary compatibility with the deprecated {@code
+   * PSContentStatusHistoryContext} write constructor (passes a raw {@link IPSTransitionsContext}
+   * cursor). Delegates to the {@link PSTransition} overload by extracting id and label from the
+   * cursor.
    */
   public static PSContentStatusHistory build(
       int contentStatusHistoryID,
@@ -92,9 +92,9 @@ public final class PSContentStatusHistoryEntityBuilder {
   }
 
   /**
-   * Overload that accepts the Hibernate-managed {@link PSTransition} DTO returned by
-   * {@code PSWorkflowService#loadWorkflowTransition(...)}. Used by {@code PSExitUpdateHistory}
-   * since #1561 Phase 3.
+   * Overload that accepts the Hibernate-managed {@link PSTransition} DTO returned by {@code
+   * PSWorkflowService#loadWorkflowTransition(...)}. Used by {@code PSExitUpdateHistory} since #1561
+   * Phase 3.
    */
   public static PSContentStatusHistory build(
       int contentStatusHistoryID,

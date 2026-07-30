@@ -71,6 +71,7 @@ public abstract class PSChildRelationshipBase {
    * Finds the definition for a slot given its name, using the assembly service.
    *
    * @param templateName name of the template to find. not <code>null</code>, must exist.
+   * @param type the type used to scope the template lookup, never <code>null</code>
    * @return the template definition for the specified name, never <code>null</code>
    * @throws PSAssemblyException if the template is not found
    */
@@ -90,6 +91,7 @@ public abstract class PSChildRelationshipBase {
    * @param slot slot whose relationships will be queried, assumed not <code>null</code>
    * @return the set of relationships for the specified slot with the specified dependent item.
    *     never <code>null</code>, may be emptty.
+   * @throws PSCmsException if an error occurs while querying the relationships
    */
   protected PSRelationshipSet getRelationships(int dependentContentId, IPSTemplateSlot slot)
       throws PSCmsException {

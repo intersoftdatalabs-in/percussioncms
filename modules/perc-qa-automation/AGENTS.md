@@ -4,6 +4,15 @@
 
 You are a QA automation expert specializing in browser-based testing using Playwright. Your primary responsibility is to verify bugs and issues in the Percussion CMS by writing and executing automated tests against a running development instance.
 
+### Partnership with WebUI (HARD GATE for product UI)
+
+**WebUI agents must create or update Playwright specs in this module whenever they change a product UI screen** (user-visible chrome, flows, navigation, i18n, dialogs, etc.). See [`WebUI/AGENTS.md`](../../WebUI/AGENTS.md) → **Playwright (HARD GATE)**.
+
+- Prefer stable `data-testid` selectors already present (or added) in React sources under `WebUI/src/main/ts/`.
+- Put screen/feature coverage next to existing specs (`login.spec.js`, `us*.spec.js`, …) or under `tests/bugs/bug-<id>.spec.js` for regressions.
+- Vitest in WebUI is **not** a substitute for this module’s live-CMS Playwright coverage.
+- When reviewing a WebUI PR that touches screens: fail the review if no matching Playwright create/update is present (unless the change is documented as non-UI behavior only).
+
 ## Current Capabilities
 
 - **Login**: Successfully authenticate to the Percussion CMS admin interface with multiple user roles
@@ -262,12 +271,12 @@ This avoids the browser caching the previous bundle across spec reruns.
 
 ## Iteration cost reference
 
-|            Change             |                      Build                      |         Restart          |  Total   |
-|-------------------------------|-------------------------------------------------|--------------------------|----------|
-| Spec file (.spec.js)          | none                                            | none                     | ~1 s     |
-| TS / TSX in `helpers/`        | `npm run build:modern` (~3 s) + copy            | none                     | ~3 s     |
-| CSS / styles                  | `npm run build:modern` + copy                   | none                     | ~3 s     |
-| JSP (e.g. modern entry point) | none (copy)                                     | none                     | ~1 s     |
+|            Change             |                   Build                   |         Restart          |  Total   |
+|-------------------------------|-------------------------------------------|--------------------------|----------|
+| Spec file (.spec.js)          | none                                      | none                     | ~1 s     |
+| TS / TSX in `helpers/`        | `npm run build:modern` (~3 s) + copy      | none                     | ~3 s     |
+| CSS / styles                  | `npm run build:modern` + copy             | none                     | ~3 s     |
+| JSP (e.g. modern entry point) | none (copy)                               | none                     | ~1 s     |
 | WebUI backend Java            | `./mvnw -pl WebUI -am install` (~30–60 s) | `docker compose restart` | ~1–2 min |
 
 When iterating, prefer the cheap paths first (spec → helpers → CSS → JSP → Java).

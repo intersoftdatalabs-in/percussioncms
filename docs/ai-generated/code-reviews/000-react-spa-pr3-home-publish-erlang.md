@@ -14,11 +14,11 @@ Home and Publish are real SPA routes (lazy `loadComponent`). `HomeShell` support
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs | None |
+|      Check       |                     Result                      |
+|------------------|-------------------------------------------------|
+| Bugs             | None                                            |
 | Behavioral tests | App + HomeShell embedded + existing shell tests |
-| May commit/push | **yes** |
+| May commit/push  | **yes**                                         |
 
 ## Issues
 

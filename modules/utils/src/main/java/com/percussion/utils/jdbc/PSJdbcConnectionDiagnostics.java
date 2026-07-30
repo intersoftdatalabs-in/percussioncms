@@ -62,8 +62,7 @@ public final class PSJdbcConnectionDiagnostics {
     }
     sb.append("product=").append(nullToDash(product));
     sb.append(" metaUrl=").append(nullToDash(metaUrl));
-    sb.append(" metaUrlHasNON_KEYWORDS=")
-        .append(urlContainsNonKeywords(metaUrl));
+    sb.append(" metaUrlHasNON_KEYWORDS=").append(urlContainsNonKeywords(metaUrl));
 
     if (isH2(product, metaUrl)) {
       String nonKeywords = queryH2Setting(conn, "NON_KEYWORDS");
@@ -104,8 +103,7 @@ public final class PSJdbcConnectionDiagnostics {
 
   /** True if the URL string (case-insensitive) contains {@code NON_KEYWORDS}. */
   public static boolean urlContainsNonKeywords(String jdbcUrl) {
-    return jdbcUrl != null
-        && jdbcUrl.toUpperCase(Locale.ROOT).contains("NON_KEYWORDS");
+    return jdbcUrl != null && jdbcUrl.toUpperCase(Locale.ROOT).contains("NON_KEYWORDS");
   }
 
   /**
@@ -147,8 +145,7 @@ public final class PSJdbcConnectionDiagnostics {
     if (conn == null || settingName == null || settingName.isBlank()) {
       return null;
     }
-    final String sql =
-        "SELECT SETTING_VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE SETTING_NAME=?";
+    final String sql = "SELECT SETTING_VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE SETTING_NAME=?";
     try (var ps = conn.prepareStatement(sql)) {
       ps.setString(1, settingName);
       try (ResultSet rs = ps.executeQuery()) {

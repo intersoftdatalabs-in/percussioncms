@@ -20,6 +20,7 @@ import {
   __resetLocaleLabelsCache,
   localeLabel,
   normalizeTag,
+  SHIP_LOCALE_ENDONYMS,
 } from "../../../main/ts/login/localeLabels";
 
 describe("login/localeLabels", () => {
@@ -50,22 +51,24 @@ describe("login/localeLabels", () => {
   });
 
   describe("localeLabel", () => {
-    it("uses fallback when Intl.DisplayNames is unavailable", () => {
+    it("ship endonyms still work when Intl.DisplayNames is unavailable", () => {
       const original = (Intl as unknown as { DisplayNames?: unknown })
         .DisplayNames;
       // @ts-expect-error simulate runtime without DisplayNames
       delete Intl.DisplayNames;
       try {
+        // Curated map does not depend on Intl.
         expect(localeLabel("fr-fr", "en-us", "French (France)")).toBe(
-          "fr-fr - French (France)",
+          "fr-fr - français (France)",
         );
+        // Unknown codes still use the English server fallback.
+        expect(localeLabel("zz", "en-us", "Made Up")).toBe("zz - Made Up");
       } finally {
-        (Intl as unknown as { DisplayNames?: unknown }).DisplayNames =
-          original;
+        (Intl as unknown as { DisplayNames?: unknown }).DisplayNames = original;
       }
     });
 
-    it("uses fallback when Intl.DisplayNames.of throws", () => {
+    it("ship endonyms still work when Intl.DisplayNames.of throws", () => {
       const original = Intl.DisplayNames;
       // @ts-expect-error stub ctor that throws
       Intl.DisplayNames = function () {
@@ -73,30 +76,63 @@ describe("login/localeLabels", () => {
       };
       try {
         expect(localeLabel("ja-jp", "en-us", "Japanese (Japan)")).toBe(
-          "ja-jp - Japanese (Japan)",
+          "ja-jp - 日本語 (日本)",
         );
       } finally {
         Intl.DisplayNames = original;
       }
     });
 
-    it("renders regional code as 'code - Language (Region)' in viewer locale", () => {
-      expect(localeLabel("fr-fr", "fr-fr", "French (France)")).toBe(
+    it("renders regional code as endonym 'code - Language (Region)'", () => {
+      // French endonym: language name in French regardless of UI locale.
+      expect(localeLabel("fr-fr", "en-us", "French (France)")).toBe(
         "fr-fr - français (France)",
       );
     });
 
-    it("renders generic code as 'code - Language' (no region)", () => {
-      // viewer en-us → English names
-      expect(localeLabel("es", "en-us", "Spanish")).toBe("es - Spanish");
-      expect(localeLabel("hi", "en-us", "Hindi")).toBe("hi - Hindi");
+    it("renders generic code as endonym 'code - Language' (no region)", () => {
+      expect(localeLabel("es", "en-us", "Spanish")).toBe("es - español");
+      expect(localeLabel("hi", "en-us", "Hindi")).toMatch(/^hi - /);
     });
 
-    it("re-renders labels in the new viewer when viewer changes", () => {
-      // English viewer sees generic Spanish as "Spanish".
-      expect(localeLabel("es", "en-us", "Spanish")).toBe("es - Spanish");
-      // French viewer sees generic Spanish as "espagnol".
-      expect(localeLabel("es", "fr-fr", "Spanish")).toBe("es - espagnol");
+    it("keeps endonyms stable when the UI viewer locale changes (GH-1608)", () => {
+      // Same option, different "viewer" — labels must not re-translate.
+      const asEnglishUi = localeLabel("es", "en-us", "Spanish");
+      const asFrenchUi = localeLabel("es", "fr-fr", "Spanish");
+      const asHindiUi = localeLabel("es", "hi-in", "Spanish");
+      expect(asEnglishUi).toBe("es - español");
+      expect(asFrenchUi).toBe(asEnglishUi);
+      expect(asHindiUi).toBe(asEnglishUi);
+
+      const deEn = localeLabel("de-de", "en-us", "German (Germany)");
+      const deHi = localeLabel("de-de", "hi-in", "German (Germany)");
+      expect(deEn).toMatch(/^de-de - Deutsch/);
+      expect(deHi).toBe(deEn);
+    });
+
+    it("uses curated ship endonyms for the product locale matrix", () => {
+      expect(localeLabel("ar", "en-us", "Arabic")).toBe("ar - العربية");
+      expect(localeLabel("ja-jp", "en-us", "Japanese (Japan)")).toBe(
+        "ja-jp - 日本語 (日本)",
+      );
+      expect(localeLabel("tr-tr", "en-us", "Turkish (Turkey)")).toBe(
+        "tr-tr - Türkçe (Türkiye)",
+      );
+      expect(localeLabel("hi-in", "en-us", "Hindi (India)")).toBe(
+        "hi-in - हिन्दी (भारत)",
+      );
+      // Server English fallback is ignored when a ship endonym exists.
+      expect(localeLabel("de-de", "en-us", "German (Germany)")).toBe(
+        "de-de - Deutsch (Deutschland)",
+      );
+    });
+
+    it("covers every key in SHIP_LOCALE_ENDONYMS", () => {
+      for (const [code, endonym] of Object.entries(SHIP_LOCALE_ENDONYMS)) {
+        expect(localeLabel(code, "en-us", "EnglishFallback")).toBe(
+          `${code} - ${endonym}`,
+        );
+      }
     });
 
     it("falls back to server displayName for unknown codes", () => {
@@ -105,22 +141,12 @@ describe("login/localeLabels", () => {
     });
 
     it("uses supplied fallback when language display name is empty/missing", () => {
-      expect(localeLabel("xx-yy", "en-us", "Mystery")).toBe(
-        "xx-yy - Mystery",
-      );
+      expect(localeLabel("xx-yy", "en-us", "Mystery")).toBe("xx-yy - Mystery");
     });
 
-    it("does not append region when region code equals language code", () => {
-      // For "fr-fr" the language part is "fr" and region is "fr" — region equals language,
-      // so the rendered label should be "fr-fr - français" only.
-      expect(localeLabel("fr-fr", "fr-fr", "French (France)")).toBe(
-        "fr-fr - français (France)",
-      );
-      // For "es-es" similar logic — region equals language, but the language part is "es".
-      // Intl may or may not know "ES" as a region distinct from language; assert it does
-      // not crash and that language is at least present.
+    it("does not crash for regional tags and includes language endonym", () => {
       const out = localeLabel("es-es", "en-us", "Spanish (Spain)");
-      expect(out.startsWith("es-es - Spanish")).toBe(true);
+      expect(out.startsWith("es-es - español")).toBe(true);
     });
 
     it("caches Intl.DisplayNames across calls (returns same instance)", () => {
