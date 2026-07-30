@@ -41,8 +41,11 @@ import java.util.zip.ZipFile;
  * underlying Ant {@code installDts.xml} target with the resolved Java home and database
  * configuration.
  *
- * <p>The interactive path is delegated to {@link InteractiveDtsInstallWizard}; this class owns the
- * unzipped layout, the JVM selection step, and the final {@code java -jar} invocation.
+ * <p>This class owns the unzipped layout, the final {@code java -jar} invocation, and the silent
+ * (non-interactive) bypass path. The interactive path is delegated to {@link
+ * InteractiveDtsInstallWizard} / {@code JavaInstallSelection}, which performs JVM selection and
+ * returns the chosen Java home; this class consumes that outcome rather than selecting the JVM
+ * itself.
  */
 public class MainDTSPreInstall {
 

@@ -59,16 +59,16 @@ public final class JavaPropertiesSupport {
 
   /**
    * Loads properties from {@code <installRoot>/java.properties} if present. Returns an empty map
-   * when the file does not exist so callers can treat absent-file as "no product config". Malformed
-   * entries are surfaced via {@link JavaLoadResult} to allow callers to log without throwing.
+   * when the file does not exist so callers can treat absent-file as "no product config". Any I/O
+   * error encountered while reading the file is surfaced via {@link JavaLoadResult#error()} so
+   * callers can log without throwing.
    *
    * @param installRoot the install directory; must not be {@code null}
    * @return the load result carrying the file location, parsed keys, presence flag, and any I/O
    *     error encountered; never {@code null}
-   * @throws IOException when the file path is invalid (defensive — most errors surface via the
-   *     returned {@link JavaLoadResult#error()} instead)
+   * @throws IllegalArgumentException when {@code installRoot} is {@code null}
    */
-  public static JavaLoadResult load(Path installRoot) throws IOException {
+  public static JavaLoadResult load(Path installRoot) {
     if (installRoot == null) {
       throw new IllegalArgumentException("installRoot must not be null");
     }
@@ -91,28 +91,30 @@ public final class JavaPropertiesSupport {
 
   /**
    * Returns the persisted {@code JAVA_HOME} value as a string, or {@code null} when not set or
-   * blank. Callers must validate the path before treating it as resolved.
+   * blank. Callers must validate the path before treating it as resolved. Read errors are not
+   * thrown — callers needing diagnostics should call {@link #load(Path)} directly.
    *
    * @param installRoot the install directory; must not be {@code null}
    * @return the trimmed {@code JAVA_HOME} value, or {@code null} when not set or blank
-   * @throws IOException when the underlying {@link #load(Path)} call fails to read the file
+   * @throws IllegalArgumentException when {@code installRoot} is {@code null}
    */
-  public static String readJavaHome(Path installRoot) throws IOException {
+  public static String readJavaHome(Path installRoot) {
     return readString(installRoot, KEY_JAVA_HOME);
   }
 
   /**
-   * Returns the persisted {@code JAVA} (launcher) value, or {@code null} when not set.
+   * Returns the persisted {@code JAVA} (launcher) value, or {@code null} when not set. Read errors
+   * are not thrown — callers needing diagnostics should call {@link #load(Path)} directly.
    *
    * @param installRoot the install directory; must not be {@code null}
    * @return the trimmed {@code JAVA} value, or {@code null} when not set or blank
-   * @throws IOException when the underlying {@link #load(Path)} call fails to read the file
+   * @throws IllegalArgumentException when {@code installRoot} is {@code null}
    */
-  public static String readJava(Path installRoot) throws IOException {
+  public static String readJava(Path installRoot) {
     return readString(installRoot, KEY_JAVA);
   }
 
-  private static String readString(Path installRoot, String key) throws IOException {
+  private static String readString(Path installRoot, String key) {
     JavaLoadResult loaded = load(installRoot);
     String value = loaded.properties().get(key);
     if (value == null) {
@@ -174,15 +176,16 @@ public final class JavaPropertiesSupport {
   /**
    * Returns a map consisting of existing properties in the install-root {@code java.properties}
    * file, merged with {@code additional}. Existing values take precedence — only keys absent on
-   * disk are added from {@code additional}. The file on disk is not modified by this call.
+   * disk are added from {@code additional}. The file on disk is not modified by this call. Read
+   * errors are not thrown — callers needing diagnostics should call {@link #load(Path)} directly.
    *
    * @param installRoot the install directory; must not be {@code null}
    * @param additional keys to add when absent on disk; {@code null} is treated as empty
    * @return an immutable map of merged properties; never {@code null}
-   * @throws IOException when reading the {@code java.properties} file fails
+   * @throws IllegalArgumentException when {@code installRoot} is {@code null}
    */
   public static Map<String, String> mergePreserving(
-      Path installRoot, Map<String, String> additional) throws IOException {
+      Path installRoot, Map<String, String> additional) {
     JavaLoadResult existing = load(installRoot);
     Map<String, String> merged = new LinkedHashMap<>(existing.properties());
     if (additional != null) {
