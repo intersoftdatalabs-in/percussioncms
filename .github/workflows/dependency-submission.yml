@@ -2,7 +2,9 @@ name: Dependency Submission
 
 on:
   push:
-    branches: ["development-8.1.x"]
+    branches: ["development", "development-8.1.x"]
+  pull_request:
+    branches: ["development", "development-8.1.x"]
   workflow_dispatch:
 
 permissions:
@@ -12,8 +14,63 @@ permissions:
   actions: read
 
 jobs:
-  dependency-submission:
+  # JDK 21 build: covers the active `development` line.
+  dependency-submission-21:
+    name: dep-submit (jdk21)
     runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/development') ||
+      (github.event_name == 'pull_request' && github.base_ref == 'development')
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: maven
+
+      - name: Create Maven Toolchains (jdk21)
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/toolchains.xml <<'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <toolchains>
+            <toolchain>
+              <type>jdk</type>
+              <provides>
+                <version>21</version>
+                <vendor>temurin</vendor>
+              </provides>
+              <configuration>
+                <jdkHome>${{ env.JAVA_HOME }}</jdkHome>
+              </configuration>
+            </toolchain>
+          </toolchains>
+          EOF
+
+      - name: Build project to install dependencies
+        run: mvn clean install -DskipTests=true -pl !modules/perc-distribution-tree
+        continue-on-error: true
+
+      - name: Submit Dependency Snapshot
+        uses: advanced-security/maven-dependency-submission-action@v4
+        with:
+          ignore-maven-wrapper: true
+          # The action will now pick up the toolchain from ~/.m2/toolchains.xml automatically
+          maven-args: "-B -DskipTests -fn -pl !modules/perc-distribution-tree"
+
+  # JDK 8 build: covers the maintenance `development-8.1.x` line.
+  dependency-submission-8:
+    name: dep-submit (jdk8)
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/development-8.1.x') ||
+      (github.event_name == 'pull_request' && github.base_ref == 'development-8.1.x')
 
     steps:
       - uses: actions/checkout@v4
@@ -26,7 +83,7 @@ jobs:
           cache: maven
 
       # NEW STEP: Create the toolchains.xml file
-      - name: Create Maven Toolchains
+      - name: Create Maven Toolchains (jdk8)
         run: |
           mkdir -p ~/.m2
           echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
