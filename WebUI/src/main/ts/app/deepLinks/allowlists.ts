@@ -91,6 +91,7 @@ export const DEVELOPER_SECTIONS = [
   "shared-fields",
   "system-def",
   "item-filters",
+  "display-formats",
   "communities",
   "pipelines",
 ] as const;
@@ -111,6 +112,9 @@ const DEVELOPER_SECTION_ALIASES: Record<string, DeveloperSection> = {
   "sys-def": "system-def",
   itemfilters: "item-filters",
   filters: "item-filters",
+  displayformats: "display-formats",
+  "display-format": "display-formats",
+  df: "display-formats",
   pipeline: "pipelines",
   applications: "pipelines",
   "xml-apps": "pipelines",

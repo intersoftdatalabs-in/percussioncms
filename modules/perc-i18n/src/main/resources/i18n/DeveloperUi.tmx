@@ -1489,6 +1489,121 @@
             <note xml:lang="en-us">DEV_MSG.IF_GAP_RULE_EDIT</note>
             <tuv xml:lang="en-us"><seg>Rule and parameter editing not supported via this API</seg></tuv>
         </tu>
+        <tu tuid="perc.ui.developer@Display Formats">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.TAB_DISPLAY_FORMATS</note>
+            <tuv xml:lang="en-us"><seg>Display Formats</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Display Formats">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.TAB_DISPLAY_FORMATS</note>
+            <tuv xml:lang="en-us"><seg>Display Formats</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading display formats…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading display formats…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@No display formats returned.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_EMPTY</note>
+            <tuv xml:lang="en-us"><seg>No display formats returned.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load display formats.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load display formats.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Content Explorer display formats (columns, folder/view/search usage). Open a row for the column catalog. Create/edit is a later slice.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_HINT</note>
+            <tuv xml:lang="en-us"><seg>Content Explorer display formats (columns, folder/view/search usage). Open a row for the column catalog. Create/edit is a later slice.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Columns">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_COL_COLUMNS</note>
+            <tuv xml:lang="en-us"><seg>Columns</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Usage">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_COL_USAGE</note>
+            <tuv xml:lang="en-us"><seg>Usage</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Folders">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_USAGE_FOLDER</note>
+            <tuv xml:lang="en-us"><seg>Folders</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Views & searches">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_USAGE_VIEWS</note>
+            <tuv xml:lang="en-us"><seg>Views & searches</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Related content">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_USAGE_RELATED</note>
+            <tuv xml:lang="en-us"><seg>Related content</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading display format…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_DETAIL_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading display format…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load display format.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_DETAIL_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load display format.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Columns">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_COLUMNS</note>
+            <tuv xml:lang="en-us"><seg>Columns</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Column definitions for this display format. Column create/edit is not exposed yet.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_COLUMNS_HINT</note>
+            <tuv xml:lang="en-us"><seg>Column definitions for this display format. Column create/edit is not exposed yet.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Pos">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_COL_POS</note>
+            <tuv xml:lang="en-us"><seg>Pos</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Source field">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_COL_SOURCE</note>
+            <tuv xml:lang="en-us"><seg>Source field</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Column label">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_COL_COL_LABEL</note>
+            <tuv xml:lang="en-us"><seg>Column label</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Render type">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_COL_RENDER</note>
+            <tuv xml:lang="en-us"><seg>Render type</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Width">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_COL_WIDTH</note>
+            <tuv xml:lang="en-us"><seg>Width</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Display format create / update / delete not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_GAP_WRITE</note>
+            <tuv xml:lang="en-us"><seg>Display format create / update / delete not supported via this API</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Column and sort configuration write not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_GAP_COLUMNS_EDIT</note>
+            <tuv xml:lang="en-us"><seg>Column and sort configuration write not supported via this API</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Allowed-community editing not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_GAP_COMMUNITIES</note>
+            <tuv xml:lang="en-us"><seg>Allowed-community editing not supported via this API</seg></tuv>
+        </tu>
         <tu tuid="perc.ui.developer@Not implemented yet">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PLACEHOLDER_TITLE</note>

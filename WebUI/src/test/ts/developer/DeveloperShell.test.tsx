@@ -369,6 +369,18 @@ vi.mock("../../../main/ts/api/developer/itemFiltersApi", () => ({
   }),
 }));
 
+vi.mock("../../../main/ts/api/developer/displayFormatsApi", () => ({
+  listDisplayFormats: vi.fn().mockResolvedValue([
+    { name: "Default", label: "Default View", columns: [] },
+  ]),
+  getDisplayFormatDetail: vi.fn().mockResolvedValue({
+    name: "Default",
+    columns: [],
+  }),
+  normalizeColumns: () => [],
+}));
+
+
 describe("DeveloperShell", () => {
   beforeEach(() => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
@@ -451,6 +463,18 @@ describe("DeveloperShell", () => {
     });
     expect(screen.getByText("public")).toBeTruthy();
   });
+
+  it("loads display formats catalog section", async () => {
+    render(<DeveloperShell initialSection="display-formats" embedded />);
+    expect(screen.getByTestId("tab-developer-display-formats").getAttribute("aria-selected")).toBe(
+      "true",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-table")).toBeTruthy();
+    });
+    expect(screen.getAllByText("Default").length).toBeGreaterThan(0);
+  });
+
 
   it("opens content type detail from list row", async () => {
     render(<DeveloperShell embedded />);
