@@ -307,6 +307,18 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
   }),
 }));
 
+vi.mock("../../../main/ts/api/developer/sharedFieldsApi", () => ({
+  listSharedFieldGroups: vi.fn().mockResolvedValue([
+    { name: "shared", filename: "shared.xml", fieldCount: 2 },
+  ]),
+  getSharedFieldGroupDetail: vi.fn().mockResolvedValue({
+    name: "shared",
+    filename: "shared.xml",
+    fields: [],
+    designGaps: [],
+  }),
+}));
+
 describe("DeveloperShell", () => {
   beforeEach(() => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
@@ -343,6 +355,18 @@ describe("DeveloperShell", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-panel")).toBeTruthy();
     });
+  });
+
+  it("loads shared fields catalog section", async () => {
+    render(<DeveloperShell initialSection="shared-fields" embedded />);
+    expect(screen.getByTestId("tab-developer-shared-fields").getAttribute("aria-selected")).toBe(
+      "true",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sf-table")).toBeTruthy();
+    });
+    expect(screen.getByText("shared")).toBeTruthy();
+    expect(screen.getByText("shared.xml")).toBeTruthy();
   });
 
   it("opens content type detail from list row", async () => {

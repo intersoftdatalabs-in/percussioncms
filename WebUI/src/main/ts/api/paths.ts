@@ -285,6 +285,10 @@ export const PATHS = {
   get PIPELINES() {
     return `${SERVICES_ROOT}/pipelines`;
   },
+  /** Shared field groups design catalog (content-editor shared def). */
+  get SHARED_FIELDS() {
+    return `${SERVICES_ROOT}/sharedfields`;
+  },
   /** Object ACL catalog (design-time security). */
   get ACLS() {
     return `${SERVICES_ROOT}/acls`;
