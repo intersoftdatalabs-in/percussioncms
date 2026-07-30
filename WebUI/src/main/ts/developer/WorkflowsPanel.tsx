@@ -6,7 +6,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { listWorkflows } from "../api/developer/workflowsApi";
 import type { WorkflowDef } from "../api/developer/types";
 import { CatalogHint, CatalogStatus } from "./CatalogTable";
-import { monoCell, mutedCell } from "./catalogStyles";
+import { mutedCell } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { WorkflowDetailPanel } from "./WorkflowDetailPanel";
@@ -28,7 +28,7 @@ export function WorkflowsPanel(): React.ReactElement {
       .catch((e: unknown) => {
         if (cancelled) return;
         setError(panelErrMsg(e, DEV_MSG.WF_ERROR));
-        setItems([]);
+        // Leave items null so error ≠ empty catalog (and retry can show loading).
       });
     return () => {
       cancelled = true;
@@ -37,11 +37,13 @@ export function WorkflowsPanel(): React.ReactElement {
 
   const sorted = useMemo(() => {
     if (!items) return [];
-    return [...items].sort((a, b) =>
-      (a.workflowName || "").localeCompare(b.workflowName || "", undefined, {
-        sensitivity: "base",
-      }),
-    );
+    return [...items]
+      .filter((w) => (w.workflowName || "").trim().length > 0)
+      .sort((a, b) =>
+        (a.workflowName || "").localeCompare(b.workflowName || "", undefined, {
+          sensitivity: "base",
+        }),
+      );
   }, [items]);
 
   if (selected) {
@@ -76,47 +78,40 @@ export function WorkflowsPanel(): React.ReactElement {
             </tr>
           </thead>
           <tbody>
-            {sorted.map((w, index) => {
-              const openKey = w.workflowName || "";
-              const interactive = openKey.length > 0;
+            {sorted.map((w) => {
+              const openKey = (w.workflowName || "").trim();
               const stepCount = Array.isArray(w.workflowSteps) ? w.workflowSteps.length : 0;
               return (
                 <tr
-                  key={w.workflowName || `wf-${index}`}
+                  key={openKey}
                   data-testid="developer-wf-row"
                   style={{
                     borderBottom: "1px solid #edf2f7",
-                    cursor: interactive ? "pointer" : "default",
+                    cursor: "pointer",
                   }}
-                  onClick={() => {
-                    if (interactive) setSelected(openKey);
-                  }}
+                  onClick={() => setSelected(openKey)}
                 >
                   <td style={{ padding: "8px" }}>
-                    {interactive ? (
-                      <button
-                        type="button"
-                        data-testid="developer-wf-open"
-                        aria-label={`Open ${openKey}`}
-                        onClick={(ev) => {
-                          ev.stopPropagation();
-                          setSelected(openKey);
-                        }}
-                        style={{
-                          background: "transparent",
-                          border: "none",
-                          color: "#007ea8",
-                          cursor: "pointer",
-                          font: "inherit",
-                          padding: 0,
-                          fontFamily: "monospace",
-                        }}
-                      >
-                        {w.workflowName || "—"}
-                      </button>
-                    ) : (
-                      <span style={monoCell}>{w.workflowName || "—"}</span>
-                    )}
+                    <button
+                      type="button"
+                      data-testid="developer-wf-open"
+                      aria-label={`Open ${openKey}`}
+                      onClick={(ev) => {
+                        ev.stopPropagation();
+                        setSelected(openKey);
+                      }}
+                      style={{
+                        background: "transparent",
+                        border: "none",
+                        color: "#007ea8",
+                        cursor: "pointer",
+                        font: "inherit",
+                        padding: 0,
+                        fontFamily: "monospace",
+                      }}
+                    >
+                      {openKey}
+                    </button>
                   </td>
                   <td style={{ padding: "8px", ...mutedCell }}>
                     {w.workflowDescription || ""}

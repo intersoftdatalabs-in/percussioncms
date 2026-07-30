@@ -700,6 +700,24 @@ it("loads views catalog section", async () => {
     expect(screen.getByTestId("developer-wf-table").textContent).toContain("Simple Workflow");
   });
 
+  it("workflows tab surfaces empty and error panel states", async () => {
+    const wfApi = await import("../../../main/ts/api/developer/workflowsApi");
+    (wfApi.listWorkflows as ReturnType<typeof vi.fn>).mockResolvedValueOnce([]);
+    const { unmount } = render(<DeveloperShell initialSection="workflows" embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-empty")).toBeTruthy();
+    });
+    unmount();
+
+    (wfApi.listWorkflows as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
+      new Error("workflow service down"),
+    );
+    render(<DeveloperShell initialSection="workflows" embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-error")).toBeTruthy();
+    });
+  });
+
   it("edits content type workflow and template associations on save", async () => {
     const { updateContentTypeDetail } = await import(
       "../../../main/ts/api/developer/contentTypesApi"

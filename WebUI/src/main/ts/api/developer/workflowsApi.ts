@@ -6,23 +6,47 @@ import { get } from "../client";
 import { PATHS } from "../paths";
 import type { WorkflowDef } from "./types";
 
-function asArray<T>(payload: unknown): T[] {
-  if (payload == null) return [];
-  if (Array.isArray(payload)) return payload as T[];
+/** Honest design gaps for the Developer SY-04 browse surface (not full workflow admin). */
+export const WORKFLOW_DESIGN_GAPS: string[] = [
+  "Full workflow graph design is not exposed in the Developer catalog",
+  "Workflow create / update / delete is not supported from this Developer surface",
+  "Content type workflow association is edited on the content type detail panel",
+];
+
+/**
+ * Parse workflowmanagement metadata list.
+ * Production payload is either a bare JSON array or a root object with a
+ * {@code Workflow} property (PSUiWorkflowList / @JsonRootName("Workflow")).
+ */
+function parseWorkflowList(payload: unknown): WorkflowDef[] {
+  if (payload == null) {
+    return [];
+  }
+  if (Array.isArray(payload)) {
+    return payload as WorkflowDef[];
+  }
   if (typeof payload === "object") {
     const obj = payload as Record<string, unknown>;
-    const raw =
-      obj.Workflow ??
-      obj.workflow ??
-      obj.WorkflowList ??
-      obj.PSUiWorkflowList ??
-      obj.entries ??
-      obj.EnumVals ??
-      obj.enumVals;
-    if (raw == null) return [];
-    return Array.isArray(raw) ? (raw as T[]) : [raw as T];
+    const raw = obj.Workflow ?? obj.workflow;
+    if (Array.isArray(raw)) {
+      return raw as WorkflowDef[];
+    }
+    if (raw != null && typeof raw === "object") {
+      return [raw as WorkflowDef];
+    }
+    throw new Error(
+      "Unexpected workflow list payload (expected array or Workflow wrapper)",
+    );
   }
-  return [];
+  throw new Error("Unexpected workflow list payload type");
+}
+
+function withGaps(w: WorkflowDef): WorkflowDef {
+  return {
+    ...w,
+    designGaps:
+      w.designGaps && w.designGaps.length > 0 ? w.designGaps : [...WORKFLOW_DESIGN_GAPS],
+  };
 }
 
 /**
@@ -31,7 +55,7 @@ function asArray<T>(payload: unknown): T[] {
  */
 export async function listWorkflows(): Promise<WorkflowDef[]> {
   const payload = await get<unknown>(PATHS.WORKFLOW_METADATA);
-  return asArray<WorkflowDef>(payload);
+  return parseWorkflowList(payload).map(withGaps);
 }
 
 /**
@@ -40,5 +64,6 @@ export async function listWorkflows(): Promise<WorkflowDef[]> {
 export async function getWorkflowDetail(name: string): Promise<WorkflowDef> {
   const key = encodeURIComponent(name);
   // PATHS.WORKFLOWS already ends with '/'
-  return get<WorkflowDef>(`${PATHS.WORKFLOWS}${key}`);
+  const detail = await get<WorkflowDef>(`${PATHS.WORKFLOWS}${key}`);
+  return withGaps(detail ?? {});
 }

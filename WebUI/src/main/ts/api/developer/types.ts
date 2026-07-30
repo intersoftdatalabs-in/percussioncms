@@ -560,6 +560,8 @@ export interface WorkflowDef {
   stagingRoleNames?: string;
   defaultWorkflow?: boolean;
   workflowSteps?: WorkflowStepSummary[];
+  /** Developer surface honesty; defaults filled by workflowsApi when absent. */
+  designGaps?: string[];
 }
 
 

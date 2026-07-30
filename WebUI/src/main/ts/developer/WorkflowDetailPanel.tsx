@@ -124,9 +124,12 @@ export function WorkflowDetailPanel({
           <section style={{ marginTop: "16px" }} data-testid="developer-wf-gaps">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.WF_GAPS}</h3>
             <ul style={{ color: "#4a5568", fontSize: "0.9rem" }}>
-              <li>{DEV_MSG.WF_GAP_GRAPH}</li>
-              <li>{DEV_MSG.WF_GAP_WRITE}</li>
-              <li>{DEV_MSG.WF_GAP_CT}</li>
+              {(detail.designGaps && detail.designGaps.length
+                ? detail.designGaps
+                : [DEV_MSG.WF_GAP_GRAPH, DEV_MSG.WF_GAP_WRITE, DEV_MSG.WF_GAP_CT]
+              ).map((g) => (
+                <li key={g}>{g}</li>
+              ))}
             </ul>
           </section>
         </>
