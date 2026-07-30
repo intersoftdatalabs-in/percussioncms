@@ -564,6 +564,44 @@ export interface WorkflowDef {
   designGaps?: string[];
 }
 
+/** Server configuration from GET /services/serverconfigs (SY-02). */
+export interface ServerConfigDef {
+  name?: string;
+  displayName?: string;
+  fileName?: string;
+  description?: string;
+  typeId?: number;
+  content?: string;
+  mimeType?: string;
+  characterEncoding?: string;
+  contentLength?: number;
+  designGaps?: string[];
+}
+
+/** CE control parameter from GET /services/cecontrols. */
+export interface ControlParameterSummary {
+  name?: string;
+  description?: string;
+  dataType?: string;
+  paramType?: string;
+  defaultValue?: string;
+  required?: boolean;
+}
+
+/** Content editor control from GET /services/cecontrols (UI-01). */
+export interface ControlDef {
+  name?: string;
+  displayName?: string;
+  description?: string;
+  dimension?: string;
+  choiceSet?: string;
+  scope?: string;
+  deprecated?: boolean;
+  deprecatedReplacement?: string;
+  parameters?: ControlParameterSummary[];
+  designGaps?: string[];
+}
+
 /**
  * Site catalog row from GET /services/sites (SY-04 association browse).
  * Optional fields may arrive as plain strings from Jackson.
@@ -581,6 +619,4 @@ export interface SiteDef {
   guid?: RestGuid;
   designGaps?: string[];
 }
-
-
 

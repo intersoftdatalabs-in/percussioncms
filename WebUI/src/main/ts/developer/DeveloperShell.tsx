@@ -24,6 +24,7 @@ import {
 import { ActionMenusPanel } from "./ActionMenusPanel";
 import { CommunitiesPanel } from "./CommunitiesPanel";
 import { ContentTypesPanel } from "./ContentTypesPanel";
+import { ControlsPanel } from "./ControlsPanel";
 import { ExtensionsPanel } from "./ExtensionsPanel";
 import { DisplayFormatsPanel } from "./DisplayFormatsPanel";
 import { ItemFiltersPanel } from "./ItemFiltersPanel";
@@ -33,6 +34,7 @@ import { DEV_MSG } from "./messages";
 import { PipelinesPanel } from "./PipelinesPanel";
 import { RelationshipTypesPanel } from "./RelationshipTypesPanel";
 import { SearchesPanel } from "./SearchesPanel";
+import { ServerConfigsPanel } from "./ServerConfigsPanel";
 import { SharedFieldsPanel } from "./SharedFieldsPanel";
 import { SitesPanel } from "./SitesPanel";
 import { SystemDefPanel } from "./SystemDefPanel";
@@ -59,6 +61,8 @@ const SECTION_LABEL: Record<DeveloperSection, string> = {
   extensions: DEV_MSG.TAB_EXTENSIONS,
   "relationship-types": DEV_MSG.TAB_RELATIONSHIP_TYPES,
   workflows: DEV_MSG.TAB_WORKFLOWS,
+  "server-configs": DEV_MSG.TAB_SERVER_CONFIGS,
+  "ce-controls": DEV_MSG.TAB_CE_CONTROLS,
   sites: DEV_MSG.TAB_SITES,
   communities: DEV_MSG.TAB_COMMUNITIES,
   pipelines: DEV_MSG.TAB_PIPELINES,
@@ -184,6 +188,10 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
           <RelationshipTypesPanel />
         ) : active === "workflows" ? (
           <WorkflowsPanel />
+        ) : active === "server-configs" ? (
+          <ServerConfigsPanel />
+        ) : active === "ce-controls" ? (
+          <ControlsPanel />
         ) : active === "sites" ? (
           <SitesPanel />
         ) : active === "communities" ? (

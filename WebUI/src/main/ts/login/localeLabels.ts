@@ -56,6 +56,7 @@ export const SHIP_LOCALE_ENDONYMS: Readonly<Record<string, string>> = {
   "nl-nl": "Nederlands (Nederland)",
   "pt-br": "português (Brasil)",
   "pt-pt": "português (Portugal)",
+  te: "తెలుగు",
   "tr-tr": "Türkçe (Türkiye)",
 };
 

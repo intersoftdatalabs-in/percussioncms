@@ -7,13 +7,13 @@ hand-maintained Python/shell scripts.
 
 ## Files
 
-|              File               |                                                                Purpose                                                                 |
-|---------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
-| `i18n_translate.py`             | CLI: walks canonical TMX files, fills missing `<tuv>` blocks via **Docker** `soimort/translate-shell`.                                 |
-| `i18n_translate_direct.py`      | Same job as `i18n_translate.py`, but prefers **`trans` on PATH** (translate-shell) and falls back to Docker if `trans` is unavailable. |
+|              File               |                                                                      Purpose                                                                       |
+|---------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| `i18n_translate.py`             | CLI: walks canonical TMX files, fills missing `<tuv>` blocks via **Docker** `soimort/translate-shell`.                                             |
+| `i18n_translate_direct.py`      | Same job as `i18n_translate.py`, but prefers **`trans` on PATH** (translate-shell) and falls back to Docker if `trans` is unavailable.             |
 | `resolve_tmx_conflicts.py`      | One-shot helper that auto-resolves git merge conflict markers in the canonical TMX files (union of `<tuv>` blocks; stops on structural conflicts). |
-| `test_i18n_translate.py`        | Unit tests for the Docker variant (no Docker required).                                                                                |
-| `test_i18n_translate_direct.py` | Unit tests for the direct `trans` variant (no `trans` required).                                                                       |
+| `test_i18n_translate.py`        | Unit tests for the Docker variant (no Docker required).                                                                                            |
+| `test_i18n_translate_direct.py` | Unit tests for the direct `trans` variant (no `trans` required).                                                                                   |
 
 ## Quick start
 
