@@ -265,3 +265,28 @@ export interface ApplicationDetail extends ApplicationSummary {
   dataSets?: ApplicationDataSetSummary[];
   designGaps?: string[];
 }
+
+/** Shared field group summary from GET /services/sharedfields. */
+export interface SharedFieldGroupSummary {
+  name?: string;
+  filename?: string;
+  fieldCount?: number;
+}
+
+/** Field row from GET /services/sharedfields/{name}. */
+export interface SharedFieldSummary {
+  name?: string;
+  dataType?: string;
+  searchable?: boolean;
+  required?: boolean;
+  readOnly?: boolean;
+  occurrence?: string;
+}
+
+/** Read-only shared field group detail. */
+export interface SharedFieldGroupDetail {
+  name?: string;
+  filename?: string;
+  fields?: SharedFieldSummary[];
+  designGaps?: string[];
+}
