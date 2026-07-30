@@ -79,25 +79,35 @@ interface PSPathItemResponse {
 }
 
 /**
+ * Join a pathmanagement base URL with an {@link encodePath} suffix.
+ *
+ * <p>{@code base} must already be the resource root <em>without</em> a
+ * trailing slash (e.g. {@code …/path/folder}); this helper appends exactly
+ * one {@code /} then the encoded suffix. An empty suffix (CMS root {@code /})
+ * yields {@code base/} so the server sees {@code folder/}, never
+ * {@code folder//} or {@code folder//Sites}.</p>
+ *
+ * <p>Exported for unit tests that lock the double-slash regression.</p>
+ */
+export function joinPathUrl(base: string, path: string): string {
+  const safe = encodePath(path);
+  return safe ? `${base}/${safe}` : `${base}/`;
+}
+
+/**
  * List folder children (small folders). For large folders use
  * {@link paginatedFolder}.
  *
  * <p>Server response shape: {@code {"PathItem": [...]}} (the
  * {@code PSPathItemList} DTO is an {@code ArrayList<PSPathItem>} subclass;
  * JAX-RS serializes ArrayList subclasses as a JSON object with a key
- * matching the DTO's local element name).</p>
+ * matching the DTO's local element name — Evidence Over Invention: do not
+ * invent alternate bare-array wire shapes).</p>
  */
-/** Join a pathmanagement base URL with an encodePath suffix (no double slash). */
-function joinPathUrl(base: string, path: string): string {
-  const safe = encodePath(path);
-  return safe ? `${base}/${safe}` : `${base}/`;
-}
-
 export async function findChildren(path: string): Promise<PSPathItem[]> {
-  const res = await get<PSPathItemListResponse | PSPathItem[]>(
+  const res = await get<PSPathItemListResponse>(
     joinPathUrl(PATHS.PATH_FOLDER, path),
   );
-  if (Array.isArray(res)) return res;
   return res?.PathItem ?? [];
 }
 
@@ -211,7 +221,7 @@ export async function lastExisting(path: string): Promise<string> {
  * be {@code folder/Sites} or {@code folder/} (empty), never {@code folder//Sites}.
  */
 export function encodePath(path: string): string {
-  if (path == null || path === "") {
+  if (path === "") {
     return "";
   }
   return path
