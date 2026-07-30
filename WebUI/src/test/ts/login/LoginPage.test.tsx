@@ -148,7 +148,7 @@ describe("LoginPage", () => {
     expect(after.some((t) => /espagnol/.test(t))).toBe(false);
   });
 
-  it("falls back to server displayName when Intl.DisplayNames is unavailable", () => {
+  it("keeps ship endonyms when Intl.DisplayNames is unavailable", () => {
     const original = (Intl as unknown as { DisplayNames?: unknown })
       .DisplayNames;
     // @ts-expect-error simulate runtime without DisplayNames
@@ -161,9 +161,10 @@ describe("LoginPage", () => {
       const options = Array.from(select.options).map(
         (o) => o.textContent ?? "",
       );
+      // Curated SHIP_LOCALE_ENDONYMS — not English server displayName.
       expect(options).toContain("en-us - English (United States)");
-      expect(options).toContain("fr-fr - French (France)");
-      expect(options).toContain("es - Spanish");
+      expect(options).toContain("fr-fr - français (France)");
+      expect(options).toContain("es - español");
     } finally {
       (Intl as unknown as { DisplayNames?: unknown }).DisplayNames = original;
     }

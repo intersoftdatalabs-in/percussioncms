@@ -307,6 +307,58 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
   }),
 }));
 
+vi.mock("../../../main/ts/api/developer/localesApi", () => ({
+  listLocales: vi.fn().mockResolvedValue([
+    {
+      id: 1,
+      languageString: "en-us",
+      label: "English",
+      status: "active",
+      baseLocale: false,
+      hasFormatProfile: true,
+    },
+  ]),
+  getLocaleDetail: vi.fn().mockResolvedValue({
+    languageString: "en-us",
+    label: "English",
+    status: "active",
+    baseLocale: false,
+    hasFormatProfile: true,
+    format: { languageString: "en-us", textDir: "ltr" },
+    designGaps: [],
+  }),
+}));
+
+vi.mock("../../../main/ts/api/developer/sharedFieldsApi", () => ({
+  listSharedFieldGroups: vi.fn().mockResolvedValue([
+    { name: "shared", filename: "shared.xml", fieldCount: 2 },
+  ]),
+  getSharedFieldGroupDetail: vi.fn().mockResolvedValue({
+    name: "shared",
+    filename: "shared.xml",
+    fields: [],
+    designGaps: [],
+  }),
+}));
+
+vi.mock("../../../main/ts/api/developer/systemDefApi", () => ({
+  getSystemDef: vi.fn().mockResolvedValue({
+    fieldCount: 1,
+    cacheTimeoutMinutes: 10,
+    fields: [
+      {
+        name: "sys_title",
+        dataType: "text",
+        required: true,
+        searchable: true,
+        readOnly: false,
+        occurrence: "required",
+      },
+    ],
+    designGaps: [],
+  }),
+}));
+
 vi.mock("../../../main/ts/api/developer/itemFiltersApi", () => ({
   listItemFilters: vi.fn().mockResolvedValue([
     { name: "public", description: "Public", rules: [] },
@@ -353,6 +405,40 @@ describe("DeveloperShell", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-panel")).toBeTruthy();
     });
+  });
+
+  it("loads locales catalog section", async () => {
+    render(<DeveloperShell initialSection="locales" embedded />);
+    expect(screen.getByTestId("tab-developer-locales").getAttribute("aria-selected")).toBe(
+      "true",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-table")).toBeTruthy();
+    });
+    expect(screen.getByText("en-us")).toBeTruthy();
+  });
+
+  it("loads shared fields catalog section", async () => {
+    render(<DeveloperShell initialSection="shared-fields" embedded />);
+    expect(screen.getByTestId("tab-developer-shared-fields").getAttribute("aria-selected")).toBe(
+      "true",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sf-table")).toBeTruthy();
+    });
+    expect(screen.getByText("shared")).toBeTruthy();
+    expect(screen.getByText("shared.xml")).toBeTruthy();
+  });
+
+  it("loads system def catalog section", async () => {
+    render(<DeveloperShell initialSection="system-def" embedded />);
+    expect(screen.getByTestId("tab-developer-system-def").getAttribute("aria-selected")).toBe(
+      "true",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sys-fields-table")).toBeTruthy();
+    });
+    expect(screen.getByText("sys_title")).toBeTruthy();
   });
 
   it("loads item filters catalog section", async () => {

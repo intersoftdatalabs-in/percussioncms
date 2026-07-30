@@ -25,8 +25,11 @@ import { CommunitiesPanel } from "./CommunitiesPanel";
 import { ContentTypesPanel } from "./ContentTypesPanel";
 import { ItemFiltersPanel } from "./ItemFiltersPanel";
 import { KeywordsPanel } from "./KeywordsPanel";
+import { LocalesPanel } from "./LocalesPanel";
 import { DEV_MSG } from "./messages";
 import { PipelinesPanel } from "./PipelinesPanel";
+import { SharedFieldsPanel } from "./SharedFieldsPanel";
+import { SystemDefPanel } from "./SystemDefPanel";
 import { SlotsPanel } from "./SlotsPanel";
 import { TemplatesPanel } from "./TemplatesPanel";
 
@@ -37,6 +40,9 @@ const SECTION_LABEL: Record<DeveloperSection, string> = {
   templates: DEV_MSG.TAB_TEMPLATES,
   slots: DEV_MSG.TAB_SLOTS,
   keywords: DEV_MSG.TAB_KEYWORDS,
+  locales: DEV_MSG.TAB_LOCALES,
+  "shared-fields": DEV_MSG.TAB_SHARED_FIELDS,
+  "system-def": DEV_MSG.TAB_SYSTEM_DEF,
   "item-filters": DEV_MSG.TAB_ITEM_FILTERS,
   communities: DEV_MSG.TAB_COMMUNITIES,
   pipelines: DEV_MSG.TAB_PIPELINES,
@@ -140,6 +146,12 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
           <SlotsPanel />
         ) : active === "keywords" ? (
           <KeywordsPanel />
+        ) : active === "locales" ? (
+          <LocalesPanel />
+        ) : active === "shared-fields" ? (
+          <SharedFieldsPanel />
+        ) : active === "system-def" ? (
+          <SystemDefPanel />
         ) : active === "item-filters" ? (
           <ItemFiltersPanel />
         ) : active === "communities" ? (
