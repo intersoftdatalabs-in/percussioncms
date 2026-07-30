@@ -285,6 +285,10 @@ export const PATHS = {
   get PIPELINES() {
     return `${SERVICES_ROOT}/pipelines`;
   },
+  /** Assembly item filter design catalog. */
+  get ITEM_FILTERS() {
+    return `${SERVICES_ROOT}/itemfilters`;
+  },
   /** Object ACL catalog (design-time security). */
   get ACLS() {
     return `${SERVICES_ROOT}/acls`;

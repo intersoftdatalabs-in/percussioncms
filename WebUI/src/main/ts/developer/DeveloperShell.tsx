@@ -23,6 +23,7 @@ import {
 } from "../app/deepLinks/allowlists";
 import { CommunitiesPanel } from "./CommunitiesPanel";
 import { ContentTypesPanel } from "./ContentTypesPanel";
+import { ItemFiltersPanel } from "./ItemFiltersPanel";
 import { KeywordsPanel } from "./KeywordsPanel";
 import { DEV_MSG } from "./messages";
 import { PipelinesPanel } from "./PipelinesPanel";
@@ -36,6 +37,7 @@ const SECTION_LABEL: Record<DeveloperSection, string> = {
   templates: DEV_MSG.TAB_TEMPLATES,
   slots: DEV_MSG.TAB_SLOTS,
   keywords: DEV_MSG.TAB_KEYWORDS,
+  "item-filters": DEV_MSG.TAB_ITEM_FILTERS,
   communities: DEV_MSG.TAB_COMMUNITIES,
   pipelines: DEV_MSG.TAB_PIPELINES,
 };
@@ -138,6 +140,8 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
           <SlotsPanel />
         ) : active === "keywords" ? (
           <KeywordsPanel />
+        ) : active === "item-filters" ? (
+          <ItemFiltersPanel />
         ) : active === "communities" ? (
           <CommunitiesPanel />
         ) : (
