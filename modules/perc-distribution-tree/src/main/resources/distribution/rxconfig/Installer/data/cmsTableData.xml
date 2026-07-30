@@ -12539,6 +12539,23 @@
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">te</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">.</column>
+            <column name="GROUPINGSEP">,</column>
+            <column name="CURRENCYCODE">INR</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">Asia/Kolkata</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
             <column name="LANGUAGESTRING">tr-tr</column>
             <column name="TEXTDIR">ltr</column>
             <column name="DATEPATTERN">dd.MM.yyyy</column>

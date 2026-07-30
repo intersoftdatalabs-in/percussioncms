@@ -121,6 +121,7 @@ describe("login/localeLabels", () => {
       expect(localeLabel("hi-in", "en-us", "Hindi (India)")).toBe(
         "hi-in - हिन्दी (भारत)",
       );
+      expect(localeLabel("te", "en-us", "Telugu")).toBe("te - తెలుగు");
       // Server English fallback is ignored when a ship endonym exists.
       expect(localeLabel("de-de", "en-us", "German (Germany)")).toBe(
         "de-de - Deutsch (Deutschland)",

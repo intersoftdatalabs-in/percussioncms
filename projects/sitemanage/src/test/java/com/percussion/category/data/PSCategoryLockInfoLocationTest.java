@@ -87,8 +87,7 @@ class PSCategoryLockInfoLocationTest {
     Field sessionsField = PSUserSessionManager.class.getDeclaredField("ms_Sessions");
     sessionsField.setAccessible(true);
     @SuppressWarnings("unchecked")
-    var liveSessions =
-        (ConcurrentHashMap<String, PSUserSession>) sessionsField.get(null);
+    var liveSessions = (ConcurrentHashMap<String, PSUserSession>) sessionsField.get(null);
     sessions = liveSessions;
     originalSessions = new HashMap<>(sessions);
     sessions.clear();
@@ -258,15 +257,16 @@ class PSCategoryLockInfoLocationTest {
             .noneMatch(
                 event ->
                     event.getLevel() == Level.DEBUG
-                        && event.getMessage()
+                        && event
+                            .getMessage()
                             .getFormattedMessage()
                             .contains("Lock info file deleted successfully")),
         "removeLockInfo must not log 'deleted successfully' when no file was removed");
   }
 
   /**
-   * Minimal log4j2 appender that captures emitted {@link LogEvent}s into an in-memory list. We
-   * need a custom appender (rather than {@code log4j-core-test}'s {@code ListAppender}) because
+   * Minimal log4j2 appender that captures emitted {@link LogEvent}s into an in-memory list. We need
+   * a custom appender (rather than {@code log4j-core-test}'s {@code ListAppender}) because
    * sitemanage does not depend on the {@code log4j-core-test} test artifact.
    */
   static final class CapturingAppender extends AbstractAppender {
