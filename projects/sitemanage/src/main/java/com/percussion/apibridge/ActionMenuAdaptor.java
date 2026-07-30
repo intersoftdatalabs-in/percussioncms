@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,12 +40,16 @@ import com.percussion.webservices.ui.IPSUiDesignWs;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
 @PSSiteManageBean
 @Lazy
 public class ActionMenuAdaptor implements IActionMenuAdaptor {
+
+  private static final Logger log = LogManager.getLogger(ActionMenuAdaptor.class);
 
   private IPSUiDesignWs service;
 
@@ -79,6 +83,49 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
     return ApiUtils.convertPSActionMenuList(
         PSTemplateActionMenuHelper.getInstance().getTemplateMenus(contentId, isAA, null));
   }
+  @Override
+  public ActionMenu findMenuByKey(String idOrName) {
+    if (!isSafeMenuKey(idOrName)) {
+      return null;
+    }
+    String key = idOrName.trim();
+    try {
+      List<ActionMenu> all = findMenus(null, null, null, null, null);
+      if (all == null) {
+        return null;
+      }
+      for (ActionMenu m : all) {
+        if (m == null) {
+          continue;
+        }
+        if (key.equalsIgnoreCase(m.getName())) {
+          return m;
+        }
+        if (String.valueOf(m.getId()).equals(key)) {
+          return m;
+        }
+      }
+      return null;
+    } catch (PSErrorResultsException e) {
+      log.debug("Action menu lookup failed for {}: {}", key, e.toString());
+      return null;
+    }
+  }
+
+  /**
+   * Single path component / id token only — reject traversal and separators ({@code
+   * java/path-injection}).
+   */
+  static boolean isSafeMenuKey(String key) {
+    if (key == null || key.isBlank()) {
+      return false;
+    }
+    return !key.contains("..")
+        && key.indexOf('/') < 0
+        && key.indexOf('\\') < 0
+        && key.indexOf('\0') < 0;
+  }
+
 
   private ActionMenuVisibilityContext[] copyVisibilityContexts(
       PSActionVisibilityContexts visibilityContexts) {

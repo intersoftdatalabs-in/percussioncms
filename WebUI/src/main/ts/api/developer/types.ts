@@ -402,3 +402,32 @@ export interface DisplayFormat {
   columns?: DisplayFormatColumn[] | { DisplayFormatColumn?: DisplayFormatColumn[] };
 }
 
+/** Action menu parameter. */
+export interface ActionMenuParameter {
+  name?: string;
+  value?: string;
+  description?: string;
+}
+
+/** Action menu property. */
+export interface ActionMenuProperty {
+  name?: string;
+  value?: string;
+  description?: string;
+  actionId?: number;
+}
+
+/** CX action menu (UI-02). */
+export interface ActionMenu {
+  id?: number;
+  guid?: RestGuid;
+  name?: string;
+  label?: string;
+  description?: string;
+  url?: string;
+  sortRank?: number;
+  menuType?: string;
+  handler?: string;
+  parameters?: ActionMenuParameter[];
+  properties?: ActionMenuProperty[];
+}

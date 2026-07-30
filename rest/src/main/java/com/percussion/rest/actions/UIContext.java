@@ -18,7 +18,6 @@
 package com.percussion.rest.actions;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /** Represents a UI context for an action menu. */
 public class UIContext {
@@ -38,24 +37,24 @@ public class UIContext {
     this.id = id;
   }
 
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   public void setName(String name) {
     this.name = name;
   }
 
-  public Optional<String> getDisplayName() {
-    return Optional.ofNullable(displayName);
+  public String getDisplayName() {
+    return displayName;
   }
 
   public void setDisplayName(String displayName) {
     this.displayName = displayName;
   }
 
-  public Optional<String> getDescription() {
-    return Optional.ofNullable(description);
+  public String getDescription() {
+    return description;
   }
 
   public void setDescription(String description) {

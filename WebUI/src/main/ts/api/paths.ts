@@ -305,6 +305,10 @@ export const PATHS = {
   get DISPLAY_FORMATS() {
     return `${SERVICES_ROOT}/displayformats`;
   },
+  /** CX action menu design catalog. */
+  get ACTION_MENUS() {
+    return `${SERVICES_ROOT}/actions/catalog`;
+  },
   /** Object ACL catalog (design-time security). */
   get ACLS() {
     return `${SERVICES_ROOT}/acls`;

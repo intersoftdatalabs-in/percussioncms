@@ -20,7 +20,6 @@ package com.percussion.rest.actions;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
-import java.util.Optional;
 
 /** Represents a Visibility Context for an Action Menu. */
 @XmlRootElement(name = "ActionMenuVisibilityContext")
@@ -34,32 +33,32 @@ public class ActionMenuVisibilityContext {
 
   public ActionMenuVisibilityContext() {}
 
-  public Optional<UIContext> getUiContext() {
-    return Optional.ofNullable(uiContext);
+  public UIContext getUiContext() {
+    return uiContext;
   }
 
   public void setUiContext(UIContext uiContext) {
     this.uiContext = uiContext;
   }
 
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   public void setName(String name) {
     this.name = name;
   }
 
-  public Optional<String> getDescription() {
-    return Optional.ofNullable(description);
+  public String getDescription() {
+    return description;
   }
 
   public void setDescription(String description) {
     this.description = description;
   }
 
-  public Optional<String> getValue() {
-    return Optional.ofNullable(values);
+  public String getValue() {
+    return values;
   }
 
   public void setValue(String values) {
