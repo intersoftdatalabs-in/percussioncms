@@ -33,7 +33,26 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+/**
+ * Entry point for the DTS preinstall flow invoked by the installer JAR.
+ *
+ * <p>Pulls the install JAR's bundled {@code distribution/} payload to a temp directory, locates the
+ * {@code perc-ant-*.jar} launcher inside the staged {@code rxconfig/Installer} tree, and execs the
+ * underlying Ant {@code installDts.xml} target with the resolved Java home and database
+ * configuration.
+ *
+ * <p>This class owns the unzipped layout, the final {@code java -jar} invocation, and the silent
+ * (non-interactive) bypass path. The interactive path is delegated to {@link
+ * InteractiveDtsInstallWizard} / {@code JavaInstallSelection}, which performs JVM selection and
+ * returns the chosen Java home; this class consumes that outcome rather than selecting the JVM
+ * itself.
+ */
 public class MainDTSPreInstall {
+
+  private MainDTSPreInstall() {
+    // Static-only utility.
+  }
+
   private static final String DISTRIBUTION_DIR = "distribution";
   private static final String PERC_JAVA_HOME = "perc.java.home";
   private static final String JAVA_HOME = "java.home";
@@ -89,6 +108,13 @@ public class MainDTSPreInstall {
 
   private static File tmpFolder;
 
+  /**
+   * Process entry point. Honors {@code --silent}/{@code --no-tty}, drives the interactive wizard
+   * when a console is attached, then stages the install payload and execs the embedded Ant install.
+   * Non-zero Ant exit codes and unexpected failures surface as {@link AntJobFailedException}.
+   *
+   * @param args CLI arguments; the first non-flag token is treated as the install path
+   */
   public static void main(String[] args) {
     int exitCode = 0;
     try {
@@ -190,6 +216,17 @@ public class MainDTSPreInstall {
     }
   }
 
+  /**
+   * Extract the {@code distribution/} (or any prefix-matching) entries from {@code archiveFile}
+   * into {@code destPath}, validating each entry path against ZipSlip before writing (CWE-22).
+   * Shell-script entries ({@code .sh}) have the executable bit set on POSIX-y hosts so the
+   * installer can invoke them later.
+   *
+   * @param archiveFile the install JAR or ZIP to read; must be a readable archive
+   * @param destPath the directory to receive the extracted files; created if missing
+   * @param folderPrefix the entry-name prefix to extract (e.g. {@code "distribution"})
+   * @throws IOException when the archive cannot be read or a file write fails
+   */
   public static void extractArchive(Path archiveFile, Path destPath, String folderPrefix)
       throws IOException {
     Files.createDirectories(destPath); // create dest path folder(s)
@@ -242,6 +279,19 @@ public class MainDTSPreInstall {
     }
   }
 
+  /**
+   * Spawn a child JVM that runs the embedded {@code installDts.xml} target via {@code perc-ant}.
+   * Inherits the parent's I/O so the install output streams straight to the operator console.
+   *
+   * @param jar absolute path to the {@code perc-ant-*.jar} to invoke
+   * @param execPath working directory for the child JVM (typically {@code rxconfig/Installer})
+   * @param installDir absolute path to the installation root passed as {@code -Drxdeploydir}
+   * @param isProduction {@code "true"} or {@code "false"} mapped to {@code -Dinstall.prod.dts}
+   * @param resolvedDbConfig the {@code perc.db.*} system properties to forward to the child JVM
+   * @return the child JVM's exit code; {@code 0} indicates success
+   * @throws IOException if the child process cannot be started
+   * @throws InterruptedException if the calling thread is interrupted while waiting
+   */
   public static int execJar(
       Path jar,
       Path execPath,
@@ -617,7 +667,13 @@ public class MainDTSPreInstall {
     }
   }
 
-  /** CLI arguments parsed from the DTS preinstall invocation. */
+  /**
+   * CLI arguments parsed from the DTS preinstall invocation.
+   *
+   * @param installPath absolute or relative install path (may be {@code null} for fully interactive
+   *     mode)
+   * @param options map of {@code --key[=value]} CLI options (e.g. {@code silent}, {@code db.*})
+   */
   public record ParsedArgs(Path installPath, Map<String, String> options) {}
 
   /**

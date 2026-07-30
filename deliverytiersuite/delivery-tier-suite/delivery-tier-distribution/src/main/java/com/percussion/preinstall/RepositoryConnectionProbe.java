@@ -46,19 +46,29 @@ public final class RepositoryConnectionProbe {
 
   /** Probe outcome status. */
   public enum ProbeStatus {
+    /** Probe was skipped because the target is an embedded engine (H2 / Derby). */
     SKIPPED_EMBEDDED,
+    /** Probe was skipped because the JDBC driver class is not on the preinstall classpath. */
     SKIPPED,
+    /** Probe successfully opened a JDBC connection. */
     SUCCESS,
+    /** Probe attempted to open a JDBC connection and failed. */
     FAILED
   }
 
   /**
    * Result of a connectivity probe.
    *
-   * @param status outcome
-   * @param message operator-facing detail (never contains password)
+   * @param status outcome category; never {@code null}
+   * @param message operator-facing detail (never contains password); never {@code null}
    */
   public record ProbeResult(ProbeStatus status, String message) {
+    /**
+     * Whether the probe result is treated as a successful outcome (real success or embedded skip).
+     *
+     * @return {@code true} when {@link #status()} is {@link ProbeStatus#SUCCESS} or {@link
+     *     ProbeStatus#SKIPPED_EMBEDDED}
+     */
     public boolean isSuccess() {
       return status == ProbeStatus.SUCCESS || status == ProbeStatus.SKIPPED_EMBEDDED;
     }
