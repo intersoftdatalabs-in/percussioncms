@@ -30,6 +30,7 @@ import { KeywordsPanel } from "./KeywordsPanel";
 import { LocalesPanel } from "./LocalesPanel";
 import { DEV_MSG } from "./messages";
 import { PipelinesPanel } from "./PipelinesPanel";
+import { SearchesPanel } from "./SearchesPanel";
 import { SharedFieldsPanel } from "./SharedFieldsPanel";
 import { SystemDefPanel } from "./SystemDefPanel";
 import { SlotsPanel } from "./SlotsPanel";
@@ -48,6 +49,7 @@ const SECTION_LABEL: Record<DeveloperSection, string> = {
   "item-filters": DEV_MSG.TAB_ITEM_FILTERS,
   "display-formats": DEV_MSG.TAB_DISPLAY_FORMATS,
   "action-menus": DEV_MSG.TAB_ACTION_MENUS,
+  searches: DEV_MSG.TAB_SEARCHES,
   communities: DEV_MSG.TAB_COMMUNITIES,
   pipelines: DEV_MSG.TAB_PIPELINES,
 };
@@ -162,6 +164,8 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
           <DisplayFormatsPanel />
         ) : active === "action-menus" ? (
           <ActionMenusPanel />
+        ) : active === "searches" ? (
+          <SearchesPanel />
         ) : active === "communities" ? (
           <CommunitiesPanel />
         ) : (

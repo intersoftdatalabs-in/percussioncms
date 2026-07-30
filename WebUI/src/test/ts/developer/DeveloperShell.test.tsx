@@ -392,6 +392,18 @@ vi.mock("../../../main/ts/api/developer/actionMenusApi", () => ({
   }),
 }));
 
+vi.mock("../../../main/ts/api/developer/searchesApi", () => ({
+  listSearches: vi.fn().mockResolvedValue([
+    { name: "All Content", label: "All Content", standardSearch: true, fields: [] },
+  ]),
+  getSearchDetail: vi.fn().mockResolvedValue({
+    name: "All Content",
+    fields: [],
+    designGaps: [],
+  }),
+}));
+
+
 describe("DeveloperShell", () => {
   beforeEach(() => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
@@ -527,6 +539,18 @@ describe("DeveloperShell", () => {
       expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
     });
   });
+
+  it("loads searches catalog section", async () => {
+    render(<DeveloperShell initialSection="searches" embedded />);
+    expect(screen.getByTestId("tab-developer-searches").getAttribute("aria-selected")).toBe(
+      "true",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sr-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-sr-table").textContent).toContain("All Content");
+  });
+
 
   it("edits content type field searchable and saves with design lock path", async () => {
     const { updateContentTypeDetail } = await import(
