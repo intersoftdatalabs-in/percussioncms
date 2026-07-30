@@ -1711,22 +1711,26 @@
         </tu>
         <tu tuid="perc.ui.developer@Display format id">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.SR_COL_DF / DEV_MSG.VW_COL_DF</note>
+            <note xml:lang="en-us">DEV_MSG.SR_COL_DF</note>
+            <note xml:lang="en-us">DEV_MSG.VW_COL_DF</note>
             <tuv xml:lang="en-us"><seg>Display format id</seg></tuv>
         </tu>
         <tu tuid="perc.ui.developer@Max results">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.SR_COL_MAX / DEV_MSG.VW_COL_MAX</note>
+            <note xml:lang="en-us">DEV_MSG.SR_COL_MAX</note>
+            <note xml:lang="en-us">DEV_MSG.VW_COL_MAX</note>
             <tuv xml:lang="en-us"><seg>Max results</seg></tuv>
         </tu>
         <tu tuid="perc.ui.developer@Case sensitive">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.SR_COL_CASE / DEV_MSG.VW_COL_CASE</note>
+            <note xml:lang="en-us">DEV_MSG.SR_COL_CASE</note>
+            <note xml:lang="en-us">DEV_MSG.VW_COL_CASE</note>
             <tuv xml:lang="en-us"><seg>Case sensitive</seg></tuv>
         </tu>
         <tu tuid="perc.ui.developer@Custom">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.SR_KIND_CUSTOM / DEV_MSG.VW_KIND_CUSTOM</note>
+            <note xml:lang="en-us">DEV_MSG.SR_KIND_CUSTOM</note>
+            <note xml:lang="en-us">DEV_MSG.VW_KIND_CUSTOM</note>
             <tuv xml:lang="en-us"><seg>Custom</seg></tuv>
         </tu>
         <tu tuid="perc.ui.developer@User">
@@ -1736,7 +1740,8 @@
         </tu>
         <tu tuid="perc.ui.developer@Standard">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.SR_KIND_STANDARD / DEV_MSG.VW_KIND_STANDARD</note>
+            <note xml:lang="en-us">DEV_MSG.SR_KIND_STANDARD</note>
+            <note xml:lang="en-us">DEV_MSG.VW_KIND_STANDARD</note>
             <tuv xml:lang="en-us"><seg>Standard</seg></tuv>
         </tu>
         <tu tuid="perc.ui.developer@Loading search…">
@@ -1751,7 +1756,8 @@
         </tu>
         <tu tuid="perc.ui.developer@Field criteria">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.SR_FIELDS / DEV_MSG.VW_FIELDS</note>
+            <note xml:lang="en-us">DEV_MSG.SR_FIELDS</note>
+            <note xml:lang="en-us">DEV_MSG.VW_FIELDS</note>
             <tuv xml:lang="en-us"><seg>Field criteria</seg></tuv>
         </tu>
         <tu tuid="perc.ui.developer@Search field conditions. Criterion editing is not exposed yet.">
@@ -1761,7 +1767,8 @@
         </tu>
         <tu tuid="perc.ui.developer@Operator">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.SR_COL_OP / DEV_MSG.VW_COL_OP</note>
+            <note xml:lang="en-us">DEV_MSG.SR_COL_OP</note>
+            <note xml:lang="en-us">DEV_MSG.VW_COL_OP</note>
             <tuv xml:lang="en-us"><seg>Operator</seg></tuv>
         </tu>
         <tu tuid="perc.ui.developer@Search create / update / delete not supported via this API">
