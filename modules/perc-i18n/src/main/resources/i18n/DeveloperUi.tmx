@@ -1494,11 +1494,6 @@
             <note xml:lang="en-us">DEV_MSG.TAB_DISPLAY_FORMATS</note>
             <tuv xml:lang="en-us"><seg>Display Formats</seg></tuv>
         </tu>
-        <tu tuid="perc.ui.developer@Display Formats">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.TAB_DISPLAY_FORMATS</note>
-            <tuv xml:lang="en-us"><seg>Display Formats</seg></tuv>
-        </tu>
         <tu tuid="perc.ui.developer@Loading display formats…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.DF_LOADING</note>
@@ -1534,10 +1529,10 @@
             <note xml:lang="en-us">DEV_MSG.DF_USAGE_FOLDER</note>
             <tuv xml:lang="en-us"><seg>Folders</seg></tuv>
         </tu>
-        <tu tuid="perc.ui.developer@Views & searches">
+        <tu tuid="perc.ui.developer@Views &amp; searches">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.DF_USAGE_VIEWS</note>
-            <tuv xml:lang="en-us"><seg>Views & searches</seg></tuv>
+            <tuv xml:lang="en-us"><seg>Views &amp; searches</seg></tuv>
         </tu>
         <tu tuid="perc.ui.developer@Related content">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
@@ -1553,11 +1548,6 @@
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.DF_DETAIL_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load display format.</seg></tuv>
-        </tu>
-        <tu tuid="perc.ui.developer@Columns">
-            <prop type="sectionname" xml:lang="en-us">Developer</prop>
-            <note xml:lang="en-us">DEV_MSG.DF_COLUMNS</note>
-            <tuv xml:lang="en-us"><seg>Columns</seg></tuv>
         </tu>
         <tu tuid="perc.ui.developer@Column definitions for this display format. Column create/edit is not exposed yet.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>

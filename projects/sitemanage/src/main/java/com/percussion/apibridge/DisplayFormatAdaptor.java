@@ -187,10 +187,8 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
     try {
       return findDisplayFormat(key);
     } catch (PSCmsException | PSUnknownNodeTypeException e) {
+      // Expected miss → fall through to GUID parse / null
       log.debug("Display format not found by name {}: {}", key, e.toString());
-    } catch (RuntimeException e) {
-      // name miss may surface as runtime from design WS
-      log.debug("Display format name lookup failed for {}: {}", key, e.toString());
     }
     try {
       var guid = new com.percussion.services.guidmgr.data.PSGuid(key);

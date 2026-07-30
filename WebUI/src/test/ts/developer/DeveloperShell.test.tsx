@@ -380,7 +380,6 @@ vi.mock("../../../main/ts/api/developer/displayFormatsApi", () => ({
   normalizeColumns: () => [],
 }));
 
-
 describe("DeveloperShell", () => {
   beforeEach(() => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
@@ -472,7 +471,8 @@ describe("DeveloperShell", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-df-table")).toBeTruthy();
     });
-    expect(screen.getAllByText("Default").length).toBeGreaterThan(0);
+    const table = screen.getByTestId("developer-df-table");
+    expect(table.textContent).toContain("Default");
   });
 
 
