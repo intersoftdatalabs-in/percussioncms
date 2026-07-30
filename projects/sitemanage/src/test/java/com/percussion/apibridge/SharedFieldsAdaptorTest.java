@@ -115,8 +115,10 @@ class SharedFieldsAdaptorTest {
 
   @Test
   void mapOccurrence_mapsKnownDimensions() {
-    assertEquals("optional", SharedFieldsAdaptor.mapOccurrence(PSField.OCCURRENCE_DIMENSION_OPTIONAL));
-    assertEquals("required", SharedFieldsAdaptor.mapOccurrence(PSField.OCCURRENCE_DIMENSION_REQUIRED));
+    assertEquals(
+        "optional", SharedFieldsAdaptor.mapOccurrence(PSField.OCCURRENCE_DIMENSION_OPTIONAL));
+    assertEquals(
+        "required", SharedFieldsAdaptor.mapOccurrence(PSField.OCCURRENCE_DIMENSION_REQUIRED));
     assertEquals("unknown", SharedFieldsAdaptor.mapOccurrence(-99));
   }
 }

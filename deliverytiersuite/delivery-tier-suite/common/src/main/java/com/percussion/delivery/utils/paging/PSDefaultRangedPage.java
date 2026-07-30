@@ -35,9 +35,7 @@ import org.apache.commons.lang3.Validate;
  * @author natechadwick
  */
 public class PSDefaultRangedPage implements IPSRangedPage {
-  /**
-   * Default used when page size is not set. Target is roughly 3 UX screens of data.
-   */
+  /** Default used when page size is not set. Target is roughly 3 UX screens of data. */
   public static final int DEFAULT_PAGE_SIZE = 75;
 
   /** The direction of the paging operation. */

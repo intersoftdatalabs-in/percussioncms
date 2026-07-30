@@ -23,9 +23,9 @@ import java.nio.file.Path;
 import org.apache.tools.ant.BuildException;
 
 /**
- * ANT task that persists a CMS repository database password to
- * {@code <installRoot>/var/config/generated/passwords} under the {@link
- * PSGeneratedPasswords#KEY_CMDB cmdb} key.
+ * ANT task that persists a CMS repository database password to {@code
+ * <installRoot>/var/config/generated/passwords} under the {@link PSGeneratedPasswords#KEY_CMDB
+ * cmdb} key.
  *
  * <p>The task has two modes:
  *
@@ -34,26 +34,26 @@ import org.apache.tools.ant.BuildException;
  *       silent / unattended installs where there is no operator to prompt.
  *   <li>{@code random="false"}: store an explicit value supplied via {@code value}. Reserved for
  *       system-supplied credentials (CI / automation / upstream secret manager). Operator-typed
- *       secrets must NOT flow through this task — they belong in
- *       {@code rxconfig/Installer/rxrepository.properties} only.
+ *       secrets must NOT flow through this task — they belong in {@code
+ *       rxconfig/Installer/rxrepository.properties} only.
  * </ul>
  *
- * <p>The task exposes the resulting password via ANT properties so downstream targets (notably
- * the H2 branch of {@code installRepository.xml}) can reference it without re-reading the file:
+ * <p>The task exposes the resulting password via ANT properties so downstream targets (notably the
+ * H2 branch of {@code installRepository.xml}) can reference it without re-reading the file:
  *
  * <pre>{@code
- *   <PSGenerateRepositoryPassword rootDir="${install.dir}"/>
- *   <property name="cmdb.password" value="${cmdb.password}"/>
+ * <PSGenerateRepositoryPassword rootDir="${install.dir}"/>
+ * <property name="cmdb.password" value="${cmdb.password}"/>
  * }</pre>
  *
  * <p>Example Usage:
  *
  * <pre>{@code
- *   <taskdef name="generateRepositoryPassword"
- *            class="com.percussion.ant.PSGenerateRepositoryPassword"
- *            classpathref="INSTALL.CLASSPATH"/>
+ * <taskdef name="generateRepositoryPassword"
+ *          class="com.percussion.ant.PSGenerateRepositoryPassword"
+ *          classpathref="INSTALL.CLASSPATH"/>
  *
- *   <generateRepositoryPassword rootDir="${install.dir}" random="true"/>
+ * <generateRepositoryPassword rootDir="${install.dir}" random="true"/>
  * }</pre>
  */
 public class PSGenerateRepositoryPassword extends PSAction {
@@ -106,9 +106,7 @@ public class PSGenerateRepositoryPassword extends PSAction {
         if (m_value == null) {
           throw new BuildException("value must be set when random=\"false\"");
         }
-        Path file =
-            PSGeneratedPasswords.write(
-                installRoot, PSGeneratedPasswords.KEY_CMDB, m_value);
+        Path file = PSGeneratedPasswords.write(installRoot, PSGeneratedPasswords.KEY_CMDB, m_value);
         entry = new GeneratedEntry(m_value, file);
       }
       getProject().setProperty(CMDB_PASSWORD_PROPERTY, entry.password());

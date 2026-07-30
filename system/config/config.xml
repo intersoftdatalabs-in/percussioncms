@@ -51,8 +51,7 @@
 			className="org.h2.Driver" containerTypeMapping="H2" />
 		<!-- #1500 PostgreSQL external repository -->
 		<PSXJdbcDriverConfig driverName="postgresql"
-			className="org.postgresql.Driver"
-			containerTypeMapping="POSTGRES" />
+			className="org.postgresql.Driver" containerTypeMapping="POSTGRES" />
 	</JdbcDriverConfigs>
 	<SecurityProviders>
 		<!-- Disable old security providers <PSXSecurityProviderInstance id="0"

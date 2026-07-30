@@ -309,9 +309,14 @@ export const PATHS = {
   get ACTION_MENUS() {
     return `${SERVICES_ROOT}/actions/catalog`;
   },
+  },
   /** CX search design catalog. */
   get SEARCHES() {
-    return `${SERVICES_ROOT}/searches`;
+    return ${SERVICES_ROOT}/searches;
+  },
+  /** CX view design catalog. */
+  get VIEWS() {
+    return ${SERVICES_ROOT}/views;
   },
   /** Object ACL catalog (design-time security). */
   get ACLS() {

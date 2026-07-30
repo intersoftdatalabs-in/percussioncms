@@ -20,8 +20,8 @@ package com.percussion.workflow;
 import com.percussion.cms.IPSCmsErrors;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSCmsException;
-import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.PSCmsObject;
+import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.PSObjectPermissions;
 import com.percussion.cms.objectstore.server.PSFolderSecurityManager;
 import com.percussion.error.PSException;
@@ -289,77 +289,77 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
    * @throws PSEntryNotFoundException if a database record is not found
    * @throws PSRoleException if any role-related error occurs
    */
-private void authenticateUser(String lang, AuthParams localParams)
-       throws SQLException,
-           PSAuthorizationException,
-           PSEntryNotFoundException,
-           PSRoleException,
-           PSCmsException {
+  private void authenticateUser(String lang, AuthParams localParams)
+      throws SQLException,
+          PSAuthorizationException,
+          PSEntryNotFoundException,
+          PSRoleException,
+          PSCmsException {
 
-     PSWorkFlowUtils.printWorkflowMessage(localParams.m_request, "  Entering authenticateUser");
+    PSWorkFlowUtils.printWorkflowMessage(localParams.m_request, "  Entering authenticateUser");
 
-     int contentID = localParams.m_contentID;
-     String userName = localParams.m_userName;
-     String roleNameList = localParams.m_roleNameList;
-     String checkInOutCondition = localParams.m_checkInOutCondition;
-     int requiredAccessLevel = localParams.m_requiredAccessLevel;
-     int assignmentType = localParams.m_assignmentType;
-     List<Integer> actorRoles;
-     List<String> actorRoleNames = new ArrayList<>();
-     IWorkflowRoleInfo wfRoleInfo = new PSWorkflowRoleInfo();
+    int contentID = localParams.m_contentID;
+    String userName = localParams.m_userName;
+    String roleNameList = localParams.m_roleNameList;
+    String checkInOutCondition = localParams.m_checkInOutCondition;
+    int requiredAccessLevel = localParams.m_requiredAccessLevel;
+    int assignmentType = localParams.m_assignmentType;
+    List<Integer> actorRoles;
+    List<String> actorRoleNames = new ArrayList<>();
+    IWorkflowRoleInfo wfRoleInfo = new PSWorkflowRoleInfo();
 
-     if (localParams.m_isNewItem) {
-       // validate user is able to create doc in initial state
-       if (!canUserCreate(localParams)) {
-         throw new PSAuthorizationException(lang, IPSExtensionErrors.ILLEGAL_CONTENTTYPE, null);
-       }
+    if (localParams.m_isNewItem) {
+      // validate user is able to create doc in initial state
+      if (!canUserCreate(localParams)) {
+        throw new PSAuthorizationException(lang, IPSExtensionErrors.ILLEGAL_CONTENTTYPE, null);
+      }
 
-       // if a new item, we're all done
-       PSWorkFlowUtils.printWorkflowMessage(
-           localParams.m_request, "  New Item. Exiting authenticateUser");
-       return;
-     }
+      // if a new item, we're all done
+      PSWorkFlowUtils.printWorkflowMessage(
+          localParams.m_request, "  New Item. Exiting authenticateUser");
+      return;
+    }
 
-     IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
-     PSComponentSummary csc = cms.loadComponentSummary(contentID);
-     if (csc == null) {
-       PSWorkFlowUtils.printWorkflowMessage(
-           localParams.m_request, "  No entry for this content. Exiting authenticateUser");
-       return; // no entry for this content so proceed to transition
-     }
+    IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
+    PSComponentSummary csc = cms.loadComponentSummary(contentID);
+    if (csc == null) {
+      PSWorkFlowUtils.printWorkflowMessage(
+          localParams.m_request, "  No entry for this content. Exiting authenticateUser");
+      return; // no entry for this content so proceed to transition
+    }
 
-     String command = localParams.m_request.getParameter(IPSHtmlParameters.SYS_COMMAND);
-     if (command == null) {
-       command = "";
-     }
+    String command = localParams.m_request.getParameter(IPSHtmlParameters.SYS_COMMAND);
+    if (command == null) {
+      command = "";
+    }
 
-     /*
-      * [Vitaly: Oct 27 2003]: DO NOT compare the user community and
-      * the item community. Communities were never designed to work
-      * as a server security feature. Filtering by community, if desired,
-      * should be done at the action visibility level (already in place). Filtering here
-      * makes it impossible to perform such relationships operation as
-      * a Translation of an item with new copies going into another community.
-      * For more info see bug Rx-03-10-0057.
-      */
+    /*
+     * [Vitaly: Oct 27 2003]: DO NOT compare the user community and
+     * the item community. Communities were never designed to work
+     * as a server security feature. Filtering by community, if desired,
+     * should be done at the action visibility level (already in place). Filtering here
+     * makes it impossible to perform such relationships operation as
+     * a Translation of an item with new copies going into another community.
+     * For more info see bug Rx-03-10-0057.
+     */
 
-      PSCmsObject cmsObject = PSServer.getCmsObjectRequired(csc.getObjectType());
+    PSCmsObject cmsObject = PSServer.getCmsObjectRequired(csc.getObjectType());
 
-if (csc.getObjectType() == PSCmsObject.TYPE_FOLDER) {
+    if (csc.getObjectType() == PSCmsObject.TYPE_FOLDER) {
       if (!PSFolderSecurityManager.verifyFolderPermissions(
           contentID, PSObjectPermissions.ACCESS_READ)) {
         throw new PSAuthorizationException(IPSExtensionErrors.AUTHENTICATION_FAILED2, null);
       }
       return;
     }
-     if (!cmsObject
-         .isWorkflowable()) { // There is no way to authenticate the user if not workflowable.
-       // For example folder is not workflowable. This needs to be updated
-       // after folder permission has been implemented.
-       return;
-     }
+    if (!cmsObject
+        .isWorkflowable()) { // There is no way to authenticate the user if not workflowable.
+      // For example folder is not workflowable. This needs to be updated
+      // after folder permission has been implemented.
+      return;
+    }
 
-     int nWorkFlowAppID = csc.getWorkflowAppId();
+    int nWorkFlowAppID = csc.getWorkflowAppId();
 
     // Determine the checkout status and checkedout user
 
@@ -492,11 +492,9 @@ if (csc.getObjectType() == PSCmsObject.TYPE_FOLDER) {
           });
     }
 
-    PSContentAdhocUsersContext cauc =
-        PSContentAdhocUsersContext.loadFromHibernate(contentID);
+    PSContentAdhocUsersContext cauc = PSContentAdhocUsersContext.loadFromHibernate(contentID);
 
-    actorRoles =
-        PSWorkflowRoleInfoStatic.getActorRoles(userName, roleNameList, src, cauc, true);
+    actorRoles = PSWorkflowRoleInfoStatic.getActorRoles(userName, roleNameList, src, cauc, true);
 
     if (null == actorRoles || actorRoles.isEmpty()) {
       throw new PSAuthorizationException(lang, IPSExtensionErrors.AUTHENTICATION_FAILED1, null);
@@ -530,12 +528,12 @@ if (csc.getObjectType() == PSCmsObject.TYPE_FOLDER) {
    * @throws SQLException if there are any errors retrieving backend data.
    * @throws PSEntryNotFoundException if there is no state information found.
    */
-private boolean canUserCreate(AuthParams localParams)
-       throws SQLException,
-           PSEntryNotFoundException,
-           PSRoleException,
-           PSAuthorizationException,
-           PSCmsException {
+  private boolean canUserCreate(AuthParams localParams)
+      throws SQLException,
+          PSEntryNotFoundException,
+          PSRoleException,
+          PSAuthorizationException,
+          PSCmsException {
     log.debug("Entering canUserCreate...");
 
     boolean canCreate = false;
@@ -577,8 +575,8 @@ private boolean canUserCreate(AuthParams localParams)
               localParams.m_requiredAccessLevel);
     } catch (PSEntryNotFoundException e) {
       // No state roles for the initial state — user cannot create.
-      PSWorkFlowUtils.printWorkflowMessage(localParams.m_request,
-          "    No state roles for initial state. Exiting canUserCreate");
+      PSWorkFlowUtils.printWorkflowMessage(
+          localParams.m_request, "    No state roles for initial state. Exiting canUserCreate");
       return false;
     } catch (PSRoleException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));

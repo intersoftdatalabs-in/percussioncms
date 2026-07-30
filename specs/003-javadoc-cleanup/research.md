@@ -130,8 +130,8 @@ as content explorer issues (they appear in this module's sources). Fix those by 
 
 Two commands, both documented in `quickstart.md`:
 
-|                              Goal                              |                                                                 Command                                                                 |
-|----------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+|                              Goal                              |                                                              Command                                                              |
+|----------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
 | Standard javadoc generation (CI will run something equivalent) | `./mvnw -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests`                                                           |
 | Per-class javadoc generation (debugging)                       | `./mvnw -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests -Dsourcepath=modules/DesktopContentExplorer/src/main/java` |
 

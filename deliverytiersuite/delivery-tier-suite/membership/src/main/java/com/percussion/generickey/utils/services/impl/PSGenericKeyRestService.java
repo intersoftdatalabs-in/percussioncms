@@ -42,9 +42,7 @@ public class PSGenericKeyRestService {
 
   private IPSGenericKeyService genericKeyService;
 
-  /**
-   * Default constructor for frameworks that require it (e.g. Jersey).
-   */
+  /** Default constructor for frameworks that require it (e.g. Jersey). */
   public PSGenericKeyRestService() {}
 
   /**

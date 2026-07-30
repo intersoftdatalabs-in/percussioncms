@@ -32,11 +32,11 @@ import java.util.Map;
 import org.apache.commons.lang3.Validate;
 
 /**
- * Default implementation of {@link IPSFormService}. Delegates persistence to a JPA-backed
- * {@link IPSFormDao} and forwards notification emails through {@link IPSEmailHelper}.
+ * Default implementation of {@link IPSFormService}. Delegates persistence to a JPA-backed {@link
+ * IPSFormDao} and forwards notification emails through {@link IPSEmailHelper}.
  *
- * <p>Instances are configured by Spring; collaborators are injected by the container or
- * through the setters and constructors documented below.</p>
+ * <p>Instances are configured by Spring; collaborators are injected by the container or through the
+ * setters and constructors documented below.
  */
 public class PSFormService implements IPSFormService {
 
@@ -56,8 +56,8 @@ public class PSFormService implements IPSFormService {
    * Constructs a service with the supplied DAO. The email helper and recaptcha service are
    * configured separately via the corresponding setters.
    *
-   * @param dao the persistence DAO used to read and write form submissions, never
-   *     <code>null</code>.
+   * @param dao the persistence DAO used to read and write form submissions, never <code>null</code>
+   *     .
    */
   public PSFormService(IPSFormDao dao) {
     this.dao = dao;

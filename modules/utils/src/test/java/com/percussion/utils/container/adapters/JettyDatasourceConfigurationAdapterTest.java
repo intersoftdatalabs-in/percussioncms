@@ -27,7 +27,6 @@ import com.percussion.security.PSEncryptor;
 import com.percussion.utils.container.DefaultConfigurationContextImpl;
 import com.percussion.utils.container.IPSJndiDatasource;
 import com.percussion.utils.container.PSJettyConnectorsTest;
-import com.percussion.utils.container.config.model.impl.BaseContainerUtils;
 import com.percussion.utils.io.PathUtils;
 import java.io.IOException;
 import java.io.InputStream;
@@ -112,15 +111,14 @@ public class JettyDatasourceConfigurationAdapterTest {
   }
 
   /**
-   * Non-empty passwords should still be stored encrypted when encrypt succeeds (pwd.encrypted=Y
-   * and ciphertext differs from plaintext).
+   * Non-empty passwords should still be stored encrypted when encrypt succeeds (pwd.encrypted=Y and
+   * ciphertext differs from plaintext).
    */
   @Test
   public void save_nonEmptyPassword_encryptsWhenPossible() throws Exception {
     Path root = seedJettyEtc(temporaryFolder);
     // Secure dir under install root so PSEncryptor can materialize keys
-    Files.createDirectories(
-        root.resolve(PSEncryptor.SECURE_DIR.replaceFirst("^[/\\\\]+", "")));
+    Files.createDirectories(root.resolve(PSEncryptor.SECURE_DIR.replaceFirst("^[/\\\\]+", "")));
 
     JettyDatasourceConfigurationAdapter adapter = new JettyDatasourceConfigurationAdapter();
     DefaultConfigurationContextImpl ctx = newContext(root);
@@ -179,7 +177,8 @@ public class JettyDatasourceConfigurationAdapterTest {
   }
 
   private static Properties loadPercDsProperties(Path root) throws IOException {
-    Path propsPath = root.resolve("jetty").resolve("base").resolve("etc").resolve("perc-ds.properties");
+    Path propsPath =
+        root.resolve("jetty").resolve("base").resolve("etc").resolve("perc-ds.properties");
     assertTrue(Files.isRegularFile(propsPath), "perc-ds.properties must exist after save");
     Properties props = new Properties();
     try (InputStream in = Files.newInputStream(propsPath)) {

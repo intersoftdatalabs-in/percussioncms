@@ -280,10 +280,10 @@ public class PSRenderService implements IPSRenderService {
    * legacy content-load session (null JDBC connection under nested Hibernate work).
    *
    * <p>Uses a programmatic {@code REQUIRES_NEW} TX rather than {@code @Transactional}: assembly
-   * swallows plugin failures into a failure payload while nested Hibernate work may still mark
-   * the TX rollback-only. Committing that TX raises {@code UnexpectedRollbackException}; we detect
-   * rollback-only and throw a clear RuntimeException so {@code PSExtractHtmlContent} soft-fails
-   * and other FTS fields still index.
+   * swallows plugin failures into a failure payload while nested Hibernate work may still mark the
+   * TX rollback-only. Committing that TX raises {@code UnexpectedRollbackException}; we detect
+   * rollback-only and throw a clear RuntimeException so {@code PSExtractHtmlContent} soft-fails and
+   * other FTS fields still index.
    */
   @Override
   public String renderPageForSearchIndex(String id) {

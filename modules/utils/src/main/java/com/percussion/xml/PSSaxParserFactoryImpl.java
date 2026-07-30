@@ -62,9 +62,7 @@ public class PSSaxParserFactoryImpl extends SAXParserFactory {
     try {
       SAXParserFactory factory =
           PSSecureXMLUtils.getSecuredSaxParserFactory(
-              XERCES_SAX_FACTORY,
-              null,
-              PSXmlSecurityOptions.secureWithDtd());
+              XERCES_SAX_FACTORY, null, PSXmlSecurityOptions.secureWithDtd());
       configureDefaults(factory);
       return factory;
     } catch (Exception e) {
@@ -119,7 +117,9 @@ public class PSSaxParserFactoryImpl extends SAXParserFactory {
     try {
       factory.setFeature("http://xml.org/sax/features/namespaces", true);
       factory.setFeature("http://xml.org/sax/features/namespace-prefixes", false);
-    } catch (SAXNotRecognizedException | SAXNotSupportedException | ParserConfigurationException e) {
+    } catch (SAXNotRecognizedException
+        | SAXNotSupportedException
+        | ParserConfigurationException e) {
       log.debug("Optional SAX feature not supported: {}", e.toString());
     }
   }

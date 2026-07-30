@@ -757,9 +757,7 @@ public class PSLocaleHandler implements IPSActionHandler {
    */
   public static final String COL_STATUS = "STATUS";
 
-  /**
-   * Constant for the name of the ISBASE column (1 = language-only / base locale).
-   */
+  /** Constant for the name of the ISBASE column (1 = language-only / base locale). */
   public static final String COL_IS_BASE = "ISBASE";
 
   /**

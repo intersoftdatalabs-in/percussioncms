@@ -57,8 +57,7 @@ class PSRenderServiceSearchIndexTest {
     status = mock(TransactionStatus.class);
     when(tm.getTransaction(any(TransactionDefinition.class))).thenReturn(status);
     service =
-        new PSRenderService(
-            mock(IPSPageService.class), bridge, mock(IPSTemplateService.class), tm);
+        new PSRenderService(mock(IPSPageService.class), bridge, mock(IPSTemplateService.class), tm);
   }
 
   @Test

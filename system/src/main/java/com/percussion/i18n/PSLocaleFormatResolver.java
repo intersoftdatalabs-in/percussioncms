@@ -25,9 +25,9 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Resolves a {@link PSLocaleFormat} for a language tag by walking
- * exact → language-only → {@code en-us}, merging non-null fields from each
- * step, then filling remaining gaps from product floor defaults.
+ * Resolves a {@link PSLocaleFormat} for a language tag by walking exact → language-only → {@code
+ * en-us}, merging non-null fields from each step, then filling remaining gaps from product floor
+ * defaults.
  *
  * <p>Does not require a format row for customer-invented locales.
  */
@@ -51,8 +51,7 @@ public final class PSLocaleFormatResolver {
       normalized = "en-us";
     }
 
-    Map<String, PSLocaleFormat> catalog =
-        byCode != null ? byCode : Map.of();
+    Map<String, PSLocaleFormat> catalog = byCode != null ? byCode : Map.of();
     PSLocaleFormat result = new PSLocaleFormat(normalized);
 
     for (String tag : lookupChain(normalized)) {
@@ -81,8 +80,8 @@ public final class PSLocaleFormatResolver {
   }
 
   /**
-   * Lookup chain: exact tag, then language-only (if regional), then {@code en-us}.
-   * Duplicates omitted.
+   * Lookup chain: exact tag, then language-only (if regional), then {@code en-us}. Duplicates
+   * omitted.
    */
   public static List<String> lookupChain(String language) {
     LinkedHashSet<String> chain = new LinkedHashSet<>();
@@ -112,8 +111,8 @@ public final class PSLocaleFormatResolver {
   }
 
   /**
-   * Copy any null/empty field on {@code target} from {@code source}. Does not overwrite
-   * already-set fields on target.
+   * Copy any null/empty field on {@code target} from {@code source}. Does not overwrite already-set
+   * fields on target.
    */
   static void mergeMissing(PSLocaleFormat target, PSLocaleFormat source) {
     if (target == null || source == null) {

@@ -78,7 +78,8 @@ public class ContentTypeDetail {
 
   @Schema(
       description =
-          "Capability notes for clients — what this payload includes vs full Workbench design object")
+          "Capability notes for clients — what this payload includes vs full Workbench design"
+              + " object")
   private List<String> designGaps = new ArrayList<>();
 
   public ContentTypeDetail() {}

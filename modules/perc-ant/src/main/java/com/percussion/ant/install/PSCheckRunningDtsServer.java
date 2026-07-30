@@ -23,8 +23,8 @@ import org.apache.tools.ant.BuildException;
  * Install action that aborts when a DTS Tomcat instance is still running under the target root
  * (connector ports from {@code Deployment/Server/conf/server.xml} are bound).
  *
- * <p>Use for Production ({@code rootDir} = DTS install root) and Staging ({@code rootDir} =
- * {@code <install>/Staging}). Pair with {@link PSCheckRunningServer} for CMS.
+ * <p>Use for Production ({@code rootDir} = DTS install root) and Staging ({@code rootDir} = {@code
+ * <install>/Staging}). Pair with {@link PSCheckRunningServer} for CMS.
  *
  * <pre>{@code
  * <PSCheckRunningDtsServer rootDir="${install.dir}"/>

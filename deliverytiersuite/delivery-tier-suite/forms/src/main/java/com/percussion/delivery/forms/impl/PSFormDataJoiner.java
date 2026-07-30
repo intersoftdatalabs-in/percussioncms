@@ -69,11 +69,10 @@ public class PSFormDataJoiner {
   /**
    * Prepares the final header to be finally written to a CSV file.
    *
-   * @param headerColumns The header with all the fields of every form, except
-   * the 'form name' and 'create date'. Assumed not <code>null</code>.
-   * @return A CaselessString list with all the header columns given in the
-   * argument, plus the 'form name' and 'create date' fields. Never
-   * <code>null</code>, never empty.
+   * @param headerColumns The header with all the fields of every form, except the 'form name' and
+   *     'create date'. Assumed not <code>null</code>.
+   * @return A CaselessString list with all the header columns given in the argument, plus the 'form
+   *     name' and 'create date' fields. Never <code>null</code>, never empty.
    */
   private List<CaselessString> prepareHeader(SortedSet<CaselessString> headerColumns) {
     List<CaselessString> finalHeader = new ArrayList<>(headerColumns);

@@ -35,10 +35,10 @@ public class PSVersionHelper {
    * Given the specified class will look for a build.properties file in the root of its resources
    * that contains version information.
    *
-   * <p>If an error occurs will return {@code undefined} for the version string.</p>
+   * <p>If an error occurs will return {@code undefined} for the version string.
    *
    * <p>If successful the version will be returned in the form {@code version-tag_buildtime}, for
-   * example {@code 2.8.153-CM1DEVBuild-153_2005-08-22_23-59-59}.</p>
+   * example {@code 2.8.153-CM1DEVBuild-153_2005-08-22_23-59-59}.
    *
    * @param clazz the class whose package should be searched for the {@code build.properties}
    *     resource, never <code>null</code>.

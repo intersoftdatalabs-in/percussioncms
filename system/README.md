@@ -26,32 +26,32 @@ The **system** module is the foundational core of Percussion CMS: content manage
 
 ### Active Development (Java)
 
-| Directory | Purpose | Status |
-|-----------|---------|--------|
-| `services/src` | Service interfaces and implementations | Active |
-| `business/src` | Delivery, proxy, auth client, metadata, admin beans | Active |
-| `servlet/src` | Servlet / HTTP handlers | Active |
-| `src/main/java` | Core CMS, object store, utilities | Active |
-| `src/test/java` | Unit and integration tests | Active |
-| `beans/src` | Bean definitions and factories | Active |
-| `uploader/src` | File upload handling | Active |
-| `agenthandler/src` | Agent-related functionality | Active |
-| `webservices/src` | SOAP / web service endpoints (in-tree) | Active |
+|     Directory      |                       Purpose                       | Status |
+|--------------------|-----------------------------------------------------|--------|
+| `services/src`     | Service interfaces and implementations              | Active |
+| `business/src`     | Delivery, proxy, auth client, metadata, admin beans | Active |
+| `servlet/src`      | Servlet / HTTP handlers                             | Active |
+| `src/main/java`    | Core CMS, object store, utilities                   | Active |
+| `src/test/java`    | Unit and integration tests                          | Active |
+| `beans/src`        | Bean definitions and factories                      | Active |
+| `uploader/src`     | File upload handling                                | Active |
+| `agenthandler/src` | Agent-related functionality                         | Active |
+| `webservices/src`  | SOAP / web service endpoints (in-tree)              | Active |
 
 ### Configuration & Resources
 
-| Directory | Contents |
-|-----------|----------|
-| `config/` | Server config, content editors, workflow, categories |
-| `applications/` | Application XML definitions |
-| `installResources/` | Install scripts and templates |
-| `design/dtd`, `design/schemas` | DTDs and schemas |
+|           Directory            |                       Contents                       |
+|--------------------------------|------------------------------------------------------|
+| `config/`                      | Server config, content editors, workflow, categories |
+| `applications/`                | Application XML definitions                          |
+| `installResources/`            | Install scripts and templates                        |
+| `design/dtd`, `design/schemas` | DTDs and schemas                                     |
 
 ### Deployment & Packaging
 
-| Directory | Purpose |
-|-----------|---------|
-| `ear/` | EAR assembly |
+| Directory  |         Purpose          |
+|------------|--------------------------|
+| `ear/`     | EAR assembly             |
 | `release/` | Jetty / packaging assets |
 
 ### Legacy (minimal activity)
@@ -122,3 +122,4 @@ Windows: `mvnw.cmd` with the same goals.
 - Run Spotless apply/check before the final PR commit (root AGENTS.md)
 - Add or update unit tests for non-trivial behavior
 - Update this README only when structure or agent workflow actually changes
+

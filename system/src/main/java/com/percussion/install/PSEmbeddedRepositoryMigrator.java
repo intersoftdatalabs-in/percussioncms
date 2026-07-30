@@ -299,7 +299,8 @@ public class PSEmbeddedRepositoryMigrator {
     Path companion = installRoot.resolve(RXREPOSITORY_RELATIVE);
     if (sourceDir != null && Files.isDirectory(sourceDir)) {
       // Upgrade callers (Ant task / pre-upgrade plugin) already refuse when the CMS is running.
-      // Clear stale Derby/H2 lock markers so: (1) product backup is restorable without reintroducing
+      // Clear stale Derby/H2 lock markers so: (1) product backup is restorable without
+      // reintroducing
       // locks, (2) subsequent TableFactory open of the live source is not blocked by leftover
       // db.lck after unclean stop.
       List<Path> cleared = PSRepositoryOfflineBackup.clearStaleLiveMarkers(sourceDir);

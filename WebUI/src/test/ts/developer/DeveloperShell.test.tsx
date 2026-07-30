@@ -398,6 +398,13 @@ vi.mock("../../../main/ts/api/developer/searchesApi", () => ({
   ]),
   getSearchDetail: vi.fn().mockResolvedValue({
     name: "All Content",
+
+vi.mock("../../../main/ts/api/developer/viewsApi", () => ({
+  listViews: vi.fn().mockResolvedValue([
+    { name: "My View", label: "My View", standardView: true, fields: [] },
+  ]),
+  getViewDetail: vi.fn().mockResolvedValue({
+    name: "My View",
     fields: [],
     designGaps: [],
   }),
@@ -549,6 +556,15 @@ describe("DeveloperShell", () => {
       expect(screen.getByTestId("developer-sr-table")).toBeTruthy();
     });
     expect(screen.getByTestId("developer-sr-table").textContent).toContain("All Content");
+  });
+
+it("loads views catalog section", async () => {
+    render(<DeveloperShell initialSection="views" embedded />);
+    expect(screen.getByTestId("tab-developer-views").getAttribute("aria-selected")).toBe("true");
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-vw-table").textContent).toContain("My View");
   });
 
 

@@ -54,8 +54,7 @@ class InteractiveDtsInstallWizardTest {
   @Test
   void nonInteractiveWithPathProceedsDefaultH2Production() {
     Path install = tempDir.resolve("dts");
-    MainDTSPreInstall.ParsedArgs parsed =
-        new MainDTSPreInstall.ParsedArgs(install, Map.of());
+    MainDTSPreInstall.ParsedArgs parsed = new MainDTSPreInstall.ParsedArgs(install, Map.of());
     InteractiveDtsInstallWizard.WizardResult result =
         InteractiveDtsInstallWizard.run(parsed, false, null, runningJavaHome(), null);
     assertTrue(result.proceed());
@@ -98,8 +97,7 @@ class InteractiveDtsInstallWizardTest {
             "true",
             "n",
             "y");
-    MainDTSPreInstall.ParsedArgs parsed =
-        new MainDTSPreInstall.ParsedArgs(install, Map.of());
+    MainDTSPreInstall.ParsedArgs parsed = new MainDTSPreInstall.ParsedArgs(install, Map.of());
     InteractiveDtsInstallWizard.WizardResult result =
         InteractiveDtsInstallWizard.run(parsed, true, prompt, runningJavaHome(), null);
     assertTrue(result.proceed());
@@ -114,8 +112,7 @@ class InteractiveDtsInstallWizardTest {
   void interactiveConfirmNoAborts() {
     Path install = tempDir.resolve("dts-abort");
     ScriptedPrompt prompt = new ScriptedPrompt("1", "1", "n");
-    MainDTSPreInstall.ParsedArgs parsed =
-        new MainDTSPreInstall.ParsedArgs(install, Map.of());
+    MainDTSPreInstall.ParsedArgs parsed = new MainDTSPreInstall.ParsedArgs(install, Map.of());
     InteractiveDtsInstallWizard.WizardResult result =
         InteractiveDtsInstallWizard.run(parsed, true, prompt, runningJavaHome(), null);
     assertFalse(result.proceed());
@@ -127,8 +124,7 @@ class InteractiveDtsInstallWizardTest {
     Path install = tempDir.resolve("dts-upg");
     Files.createDirectories(install.resolve("Deployment"));
     ScriptedPrompt prompt = new ScriptedPrompt("y");
-    MainDTSPreInstall.ParsedArgs parsed =
-        new MainDTSPreInstall.ParsedArgs(install, Map.of());
+    MainDTSPreInstall.ParsedArgs parsed = new MainDTSPreInstall.ParsedArgs(install, Map.of());
     InteractiveDtsInstallWizard.WizardResult result =
         InteractiveDtsInstallWizard.run(parsed, true, prompt, runningJavaHome(), "true");
     assertTrue(result.proceed());
@@ -140,8 +136,7 @@ class InteractiveDtsInstallWizardTest {
   void invalidJavaAborts() {
     Path install = tempDir.resolve("dts-bad-java");
     Path invalid = tempDir.resolve("no-jdk");
-    MainDTSPreInstall.ParsedArgs parsed =
-        new MainDTSPreInstall.ParsedArgs(install, Map.of());
+    MainDTSPreInstall.ParsedArgs parsed = new MainDTSPreInstall.ParsedArgs(install, Map.of());
     InteractiveDtsInstallWizard.WizardResult result =
         InteractiveDtsInstallWizard.run(parsed, false, null, invalid, null);
     assertFalse(result.proceed());
@@ -160,8 +155,7 @@ class InteractiveDtsInstallWizardTest {
     opts.put("db.password", "p-secret");
     // test connection n, confirm yes
     ScriptedPrompt prompt = new ScriptedPrompt("n", "yes");
-    MainDTSPreInstall.ParsedArgs parsed =
-        new MainDTSPreInstall.ParsedArgs(install, opts);
+    MainDTSPreInstall.ParsedArgs parsed = new MainDTSPreInstall.ParsedArgs(install, opts);
     InteractiveDtsInstallWizard.WizardResult result =
         InteractiveDtsInstallWizard.run(parsed, true, prompt, runningJavaHome(), "true");
     assertTrue(result.proceed());

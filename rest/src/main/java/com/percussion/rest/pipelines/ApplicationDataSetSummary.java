@@ -30,6 +30,7 @@ public class ApplicationDataSetSummary {
   private String name;
   private String description;
   private String requestPage;
+
   /** e.g. CONTENT_EDITOR when the dataset is a PSContentEditor, otherwise DATASET */
   private String kind;
 

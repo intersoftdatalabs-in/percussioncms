@@ -42,9 +42,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/**
- * Soft-fail contract for FTS HTML extract: render failures must not abort item indexing.
- */
+/** Soft-fail contract for FTS HTML extract: render failures must not abort item indexing. */
 @DisplayName("PSExtractHtmlContent FTS soft-fail")
 class PSExtractHtmlContentTest {
 

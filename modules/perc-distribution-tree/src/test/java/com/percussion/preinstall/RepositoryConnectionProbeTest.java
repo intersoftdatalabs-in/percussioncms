@@ -59,16 +59,14 @@ class RepositoryConnectionProbeTest {
     mysql.put("perc.db.host", "h");
     mysql.put("perc.db.port", "3306");
     mysql.put("perc.db.name", "db");
-    assertEquals(
-        "jdbc:mysql://h:3306/db", RepositoryConnectionProbe.buildJdbcUrl("mysql", mysql));
+    assertEquals("jdbc:mysql://h:3306/db", RepositoryConnectionProbe.buildJdbcUrl("mysql", mysql));
 
     Map<String, String> pg = new HashMap<>();
     pg.put("perc.db.host", "h");
     pg.put("perc.db.port", "5432");
     pg.put("perc.db.name", "db");
     assertEquals(
-        "jdbc:postgresql://h:5432/db",
-        RepositoryConnectionProbe.buildJdbcUrl("postgresql", pg));
+        "jdbc:postgresql://h:5432/db", RepositoryConnectionProbe.buildJdbcUrl("postgresql", pg));
 
     Map<String, String> mssql = new HashMap<>();
     mssql.put("perc.db.host", "h");
@@ -97,8 +95,7 @@ class RepositoryConnectionProbeTest {
     props.put("perc.db.port", " 3306 ");
     props.put("perc.db.name", "  db  ");
     assertEquals(
-        "jdbc:mysql://myhost:3306/db",
-        RepositoryConnectionProbe.buildJdbcUrl("mysql", props));
+        "jdbc:mysql://myhost:3306/db", RepositoryConnectionProbe.buildJdbcUrl("mysql", props));
   }
 
   @Test

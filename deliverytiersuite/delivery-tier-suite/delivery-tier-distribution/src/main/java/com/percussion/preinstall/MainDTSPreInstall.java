@@ -17,7 +17,6 @@
 
 package com.percussion.preinstall;
 
-import com.percussion.preinstall.java.JavaInstallSelection;
 import com.percussion.security.validation.PathValidation;
 import java.io.File;
 import java.io.IOException;
@@ -524,13 +523,7 @@ public class MainDTSPreInstall {
           "com.percussion.delivery.rdbms.PSUnicodeSQLServerDialect");
       systemProperties.put("perc.db.dts.schema", firstNonBlank(schema, "DBO"));
     } else if ("postgresql".equals(dbTypeNormalized) || "postgres".equals(dbTypeNormalized)) {
-      String dtsJdbcUrl =
-          "jdbc:postgresql://"
-              + host
-              + ":"
-              + port
-              + "/"
-              + name;
+      String dtsJdbcUrl = "jdbc:postgresql://" + host + ":" + port + "/" + name;
       systemProperties.put("perc.db.dts.jdbcUrl", dtsJdbcUrl);
       systemProperties.put("perc.db.dts.jdbcDriver", "org.postgresql.Driver");
       systemProperties.put(

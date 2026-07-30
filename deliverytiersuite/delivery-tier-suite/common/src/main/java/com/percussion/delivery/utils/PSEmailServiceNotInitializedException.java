@@ -17,8 +17,8 @@
 package com.percussion.delivery.utils;
 
 /**
- * Signals that the delivery tier email service has not been successfully initialized and
- * therefore cannot send mail.
+ * Signals that the delivery tier email service has not been successfully initialized and therefore
+ * cannot send mail.
  */
 public class PSEmailServiceNotInitializedException extends Exception {
   private static final long serialVersionUID = 1L;

@@ -107,27 +107,25 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
   }
 
   /**
-   * Test-only entry point. Clears the static cache without touching the
-   * singleton instance. Used by {@code PSTmxResourceBundleTest} to isolate
-   * tests; production code must never call this.
+   * Test-only entry point. Clears the static cache without touching the singleton instance. Used by
+   * {@code PSTmxResourceBundleTest} to isolate tests; production code must never call this.
    */
   void flushCacheForTest() {
     flushCache();
   }
 
   /**
-   * Test-only entry point. Exposes {@link #addResourcesToCache(Document)}
-   * to JUnit tests in the same package so they can drive the cache with
-   * synthetic DOM documents without depending on filesystem state.
+   * Test-only entry point. Exposes {@link #addResourcesToCache(Document)} to JUnit tests in the
+   * same package so they can drive the cache with synthetic DOM documents without depending on
+   * filesystem state.
    */
   void addResourcesToCacheForTest(Document doc) {
     addResourcesToCache(doc);
   }
 
   /**
-   * Test-only entry point. Returns the populated cache so tests can assert
-   * that the loader normalized language tags correctly. Production code
-   * must never call this.
+   * Test-only entry point. Returns the populated cache so tests can assert that the loader
+   * normalized language tags correctly. Production code must never call this.
    */
   Map<String, Map<String, PSTmxUnit>> getResourceBundlesForTest() {
     return ms_ResourceBundles;
@@ -235,17 +233,16 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
   }
 
   /**
-   * Ordered language tags to consult for a requested locale: exact BCP-47 tag,
-   * then language-only (e.g. {@code hi-in} → {@code hi}), then the system
-   * default. Duplicates are omitted while preserving order.
+   * Ordered language tags to consult for a requested locale: exact BCP-47 tag, then language-only
+   * (e.g. {@code hi-in} → {@code hi}), then the system default. Duplicates are omitted while
+   * preserving order.
    *
-   * <p>Key-level cascade (not map-null-only) is required because TMX headers
-   * create empty buckets via {@code computeIfAbsent} for every
-   * {@code supportedlanguage}. A registered regional tag such as {@code hi-in}
-   * therefore has a map even when no {@code <tuv xml:lang="hi-in">} segments
-   * exist; without key-level fallback, {@code getString}/{@code getKeys} for
-   * {@code hi-in} never reach the {@code hi} content (GH-1609 / related to
-   * #1545 locale matrix and #1547 migration toward regional codes).
+   * <p>Key-level cascade (not map-null-only) is required because TMX headers create empty buckets
+   * via {@code computeIfAbsent} for every {@code supportedlanguage}. A registered regional tag such
+   * as {@code hi-in} therefore has a map even when no {@code <tuv xml:lang="hi-in">} segments
+   * exist; without key-level fallback, {@code getString}/{@code getKeys} for {@code hi-in} never
+   * reach the {@code hi} content (GH-1609 / related to #1545 locale matrix and #1547 migration
+   * toward regional codes).
    */
   private static List<String> languageLookupChain(String language) {
     LinkedHashSet<String> chain = new LinkedHashSet<>();
@@ -270,10 +267,9 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
    * language string. Unit objects with a null or empty value are invalid and are added to a missing
    * resource list.
    *
-   * <p>Lookup walks {@link #languageLookupChain(String)} and returns the first
-   * <em>valid</em> unit. If only invalid units exist in the chain, the first
-   * non-null unit is returned so debug / missing-resource handling still sees
-   * it.
+   * <p>Lookup walks {@link #languageLookupChain(String)} and returns the first <em>valid</em> unit.
+   * If only invalid units exist in the chain, the first non-null unit is returned so debug /
+   * missing-resource handling still sees it.
    *
    * @return the lookup value for the given key and language. It may be <code>null</code> if cannot
    *     find the specified unit.
@@ -308,10 +304,9 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
   }
 
   /**
-   * Gets the set of message keys available for the provided language, including
-   * keys that resolve only via language-only or default fallback (union of the
-   * lookup chain). Used by {@code tmx.jsp} to emit the JS catalog for a
-   * session locale such as {@code hi-in}.
+   * Gets the set of message keys available for the provided language, including keys that resolve
+   * only via language-only or default fallback (union of the lookup chain). Used by {@code tmx.jsp}
+   * to emit the JS catalog for a session locale such as {@code hi-in}.
    *
    * @param language string, if <code>null</code> or <code>empty</code>, default language is
    *     assumed.
@@ -342,18 +337,16 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
   }
 
   /**
-   * Normalize a language tag to canonical BCP-47 lowercase-hyphen form. This
-   * collapses per-locale files that registered tags like {@code "DE"},
-   * {@code "en_US"}, or {@code "es_ES"} into the canonical {@code "de"},
-   * {@code "en-us"}, or {@code "es-es"} form. Returns the input unchanged
+   * Normalize a language tag to canonical BCP-47 lowercase-hyphen form. This collapses per-locale
+   * files that registered tags like {@code "DE"}, {@code "en_US"}, or {@code "es_ES"} into the
+   * canonical {@code "de"}, {@code "en-us"}, or {@code "es-es"} form. Returns the input unchanged
    * if it is {@code null} or empty.
    *
-   * <p>Locale-tag normalization is header-only: the runtime already accepts
-   * whatever {@code <tuv xml:lang="...">} value the TU carries, so this
-   * method only affects keys derived from the header's
-   * {@code <prop type="supportedlanguage">} props. Inline {@code <tuv>}
-   * attributes in the canonical files are written in canonical form by the
-   * {@code i18n_translate.py} CLI and never need re-normalization.
+   * <p>Locale-tag normalization is header-only: the runtime already accepts whatever {@code <tuv
+   * xml:lang="...">} value the TU carries, so this method only affects keys derived from the
+   * header's {@code <prop type="supportedlanguage">} props. Inline {@code <tuv>} attributes in the
+   * canonical files are written in canonical form by the {@code i18n_translate.py} CLI and never
+   * need re-normalization.
    */
   static String normalizeLang(String lang) {
     if (lang == null || lang.isEmpty()) return lang;
@@ -408,11 +401,10 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
   public static final String SYS_RESOURCES_I18NPATH = "sys_resources" + File.separator + "I18n";
 
   /**
-   * Lowercase {@code rxconfig/i18n/} sibling of {@link #RX_RESOURCES_I18NPATH}.
-   * The Maven build extracts the canonical {@code CmsUi.tmx} and {@code
-   * SystemResources.tmx} files here (see {@code
-   * modules/perc-distribution-tree/pom.xml:507-525}), so the loader must
-   * scan this directory in addition to the uppercase paths above.
+   * Lowercase {@code rxconfig/i18n/} sibling of {@link #RX_RESOURCES_I18NPATH}. The Maven build
+   * extracts the canonical {@code CmsUi.tmx} and {@code SystemResources.tmx} files here (see {@code
+   * modules/perc-distribution-tree/pom.xml:507-525}), so the loader must scan this directory in
+   * addition to the uppercase paths above.
    */
   public static final String RXCONFIG_I18NPATH = "rxconfig" + File.separator + "i18n";
 

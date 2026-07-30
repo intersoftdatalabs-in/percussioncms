@@ -102,12 +102,12 @@ class ResolveJavaHomeScriptTest {
   }
 
   /**
-   * Regression for SHIFT-command parsing trap: the bat was originally edited with a comment
-   * marker that began with the literal token {@code SHIFT } followed by another keyword. cmd.exe
-   * parses {@code SHIFT /n} and {@code SHIFT REM ...} as commands (not comments), which prints
-   * "Invalid parameter to SHIFT command" on startup before the script reaches the launcher. The
-   * bat must not contain a {@code SHIFT} keyword anywhere outside a true SHIFT command (which
-   * the bat does not need).
+   * Regression for SHIFT-command parsing trap: the bat was originally edited with a comment marker
+   * that began with the literal token {@code SHIFT } followed by another keyword. cmd.exe parses
+   * {@code SHIFT /n} and {@code SHIFT REM ...} as commands (not comments), which prints "Invalid
+   * parameter to SHIFT command" on startup before the script reaches the launcher. The bat must not
+   * contain a {@code SHIFT} keyword anywhere outside a true SHIFT command (which the bat does not
+   * need).
    */
   @Test
   void batScriptDoesNotInvokeShiftCommand() throws Exception {
@@ -222,8 +222,8 @@ class ResolveJavaHomeScriptTest {
   /**
    * Regression: Properties.store() escapes {@code \} as {@code \\} and {@code :} as {@code \:} in
    * values. The bat script reads values with {@code for /f "tokens=1,2 delims=="} which preserves
-   * those escapes verbatim, so a Windows path like {@code C:\Program Files\jdk-21} round-trips
-   * as {@code C\:\\Program Files\\jdk-21}. Jetty's start.jar then treats the {@code C:} colon as a
+   * those escapes verbatim, so a Windows path like {@code C:\Program Files\jdk-21} round-trips as
+   * {@code C\:\\Program Files\\jdk-21}. Jetty's start.jar then treats the {@code C:} colon as a
    * {@code --module} arg separator and refuses to launch ("launcher missing: C\:\..."). The bat
    * must unescape {@code \\}, {@code \:} and {@code \=} before validating the path. See issue
    * surfaced during interactive-install smoke test (cmd.exe + Microsoft JDK in {@code Program
@@ -254,8 +254,6 @@ class ResolveJavaHomeScriptTest {
     assertTrue(
         valBlock.contains("VAL:\\^:=:") || valBlock.contains("VAL:\\:=:"),
         "bat must unescape \\: in property values");
-    assertTrue(
-        valBlock.contains("VAL:\\^=="),
-        "bat must unescape \\= in property values");
+    assertTrue(valBlock.contains("VAL:\\^=="), "bat must unescape \\= in property values");
   }
 }

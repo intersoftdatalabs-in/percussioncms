@@ -135,16 +135,11 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     } catch (Exception e) {
       log.error("Failed to load content type {}: {}", idOrName, e.getMessage(), e);
       throw new RuntimeException(
-          "Failed to load content type ("
-              + e.getClass().getName()
-              + "): "
-              + e.getMessage(),
-          e);
+          "Failed to load content type (" + e.getClass().getName() + "): " + e.getMessage(), e);
     }
   }
 
-  private PSItemDefinition resolveItemDef(String idOrName)
-      throws PSInvalidContentTypeException {
+  private PSItemDefinition resolveItemDef(String idOrName) throws PSInvalidContentTypeException {
     // Prefer numeric uuid
     if (StringUtils.isNumeric(idOrName)) {
       long uuid = Long.parseLong(idOrName);
@@ -267,8 +262,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         // Keep design lock when template associations still need a separate save.
         // Note: content-type save and template association save are sequential design writes
         // without a shared rollback — template failure after CT save is partial success.
-        designSvc.saveContentTypes(
-            Collections.singletonList(def), !needTemplates, session, user);
+        designSvc.saveContentTypes(Collections.singletonList(def), !needTemplates, session, user);
       } catch (PSErrorsException e) {
         log.error("Failed to save content type {}: {}", idOrName, e.getMessage(), e);
         throw new IllegalStateException("Failed to save content type", e);
@@ -433,8 +427,8 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   /**
-   * Prefer stringValue guid form, then uuid field. Returns 0 when guid cannot contribute a
-   * positive uuid (caller may fall through to name).
+   * Prefer stringValue guid form, then uuid field. Returns 0 when guid cannot contribute a positive
+   * uuid (caller may fall through to name).
    */
   private int uuidFromRestGuid(Guid guid, PSTypeEnum expectedType, String field) {
     if (guid == null) {
@@ -565,8 +559,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     ref.setIsDefault(isDefault);
     try {
       IPSWorkflowService wfSvc = PSWorkflowServiceLocator.getWorkflowService();
-      PSWorkflow wf =
-          wfSvc.findWorkflow(g).orElse(null);
+      PSWorkflow wf = wfSvc.findWorkflow(g).orElse(null);
       if (wf != null) {
         ref.setName(wf.getName());
         ref.setLabel(StringUtils.defaultIfBlank(wf.getLabel(), wf.getName()));
@@ -635,9 +628,10 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       f.setFieldSet(fieldSetName);
       f.setControl(controlByField.get(field.getSubmitName()));
       // label: fall back to name when display mapping label not resolved
-      f.setLabel(controlByField.containsKey(field.getSubmitName() + ":label")
-          ? controlByField.get(field.getSubmitName() + ":label")
-          : field.getSubmitName());
+      f.setLabel(
+          controlByField.containsKey(field.getSubmitName() + ":label")
+              ? controlByField.get(field.getSubmitName() + ":label")
+              : field.getSubmitName());
       int occurrence = field.getOccurrenceDimension(null);
       f.setRequired(
           occurrence == PSField.OCCURRENCE_DIMENSION_REQUIRED
@@ -674,9 +668,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     };
   }
 
-  /**
-   * Package-visible for unit tests. True when a field translation has a non-empty call set.
-   */
+  /** Package-visible for unit tests. True when a field translation has a non-empty call set. */
   static boolean hasTranslation(PSFieldTranslation translation) {
     return translation != null
         && translation.getTranslations() != null
@@ -696,8 +688,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       walkDisplayMapper(dmapper, map);
       return true;
     } catch (Exception e) {
-      log.warn(
-          "Could not resolve display controls for {}: {}", def.getName(), e.getMessage(), e);
+      log.warn("Could not resolve display controls for {}: {}", def.getName(), e.getMessage(), e);
       return false;
     }
   }

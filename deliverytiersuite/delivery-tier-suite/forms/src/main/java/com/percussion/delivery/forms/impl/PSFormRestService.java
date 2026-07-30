@@ -118,8 +118,8 @@ public class PSFormRestService extends PSAbstractRestService implements IPSFormR
   private static final Logger log = LogManager.getLogger(PSFormRestService.class);
 
   /**
-   * Default constructor used by the Jersey/Spring runtime. Initializes the form data joiner
-   * and leaves the form service to be injected by the container.
+   * Default constructor used by the Jersey/Spring runtime. Initializes the form data joiner and
+   * leaves the form service to be injected by the container.
    */
   public PSFormRestService() { // NOOP
     formDataJoiner = new PSFormDataJoiner();
@@ -129,8 +129,7 @@ public class PSFormRestService extends PSAbstractRestService implements IPSFormR
    * Programmatic constructor that pre-wires the collaborators for unit tests and other
    * non-container driven call sites.
    *
-   * @param service the form service used to persist and read submissions, never
-   *     <code>null</code>.
+   * @param service the form service used to persist and read submissions, never <code>null</code>.
    * @param enabledCiphers optional comma-separated list of TLS cipher suites to enable when
    *     proxying to a remote form processor, may be <code>null</code> or empty.
    */
@@ -144,10 +143,9 @@ public class PSFormRestService extends PSAbstractRestService implements IPSFormR
    * Echoes the {@code XSRF-TOKEN} cookie value back as response headers so that client-side
    * JavaScript can read it and echo it on the next state-changing request.
    *
-   * @param request the servlet request providing the incoming cookies, never
-   *     <code>null</code>.
-   * @param response the servlet response that will receive the CSRF headers, never
-   *     <code>null</code>.
+   * @param request the servlet request providing the incoming cookies, never <code>null</code>.
+   * @param response the servlet response that will receive the CSRF headers, never <code>null
+   *     </code>.
    */
   @HEAD
   @Path("/csrf")

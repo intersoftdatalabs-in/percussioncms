@@ -173,8 +173,7 @@ public class KeywordsAdaptor implements IKeywordsAdaptor {
    *
    * @param excludeGuid when updating, the current keyword GUID to ignore
    */
-  private static void assertLabelUnique(
-      IPSContentService svc, String label, IPSGuid excludeGuid) {
+  private static void assertLabelUnique(IPSContentService svc, String label, IPSGuid excludeGuid) {
     List<PSKeyword> matches = svc.findKeywordsByLabel(label, null);
     if (matches == null) {
       return;

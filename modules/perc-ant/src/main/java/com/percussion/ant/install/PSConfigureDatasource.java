@@ -34,7 +34,6 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -61,9 +60,7 @@ import org.w3c.dom.NodeList;
  * <p>On upgrade, {@code rxconfig/Server/config.xml} is preserved (not overwritten) and may predate
  * product drivers such as H2 (#548) and PostgreSQL (#1500). Before configuring the datasource this
  * task merges any missing product {@code PSXJdbcDriverConfig} entries so the selected repository
- * driver can always be resolved.
- *
- * <br>
+ * driver can always be resolved. <br>
  * Example Usage: <br>
  *
  * <pre>
@@ -204,8 +201,8 @@ public class PSConfigureDatasource extends PSAction {
    *
    * @param configXml path to {@code rxconfig/Server/config.xml}
    * @param driverName repository {@code DB_DRIVER_NAME} (e.g. {@code h2})
-   * @param preferredClassName optional {@code DB_DRIVER_CLASS_NAME} from repository props; used when
-   *     creating a missing product entry for this driver
+   * @param preferredClassName optional {@code DB_DRIVER_CLASS_NAME} from repository props; used
+   *     when creating a missing product entry for this driver
    * @return resolved class name and container type mapping
    * @throws Exception if the config cannot be read/written or the driver is unknown
    */

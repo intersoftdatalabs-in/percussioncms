@@ -41,8 +41,8 @@ class PSSearchRestServiceTest {
   }
 
   /**
-   * getSearchFields() returns an unmodifiable view; sanitize must not call
-   * replaceAll on that view (UnsupportedOperationException → Home Search 500).
+   * getSearchFields() returns an unmodifiable view; sanitize must not call replaceAll on that view
+   * (UnsupportedOperationException → Home Search 500).
    */
   @Test
   void sanitizeCriteriaDoesNotMutateUnmodifiableSearchFields() {

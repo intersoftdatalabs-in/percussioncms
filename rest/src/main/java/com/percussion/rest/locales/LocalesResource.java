@@ -73,8 +73,7 @@ public class LocalesResource {
             description = "OK",
             content =
                 @Content(
-                    array =
-                        @ArraySchema(schema = @Schema(implementation = LocaleSummary.class)))),
+                    array = @ArraySchema(schema = @Schema(implementation = LocaleSummary.class)))),
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public List<LocaleSummary> listLocales() {

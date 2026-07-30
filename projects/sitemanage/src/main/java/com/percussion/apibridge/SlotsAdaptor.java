@@ -178,8 +178,7 @@ public class SlotsAdaptor implements ISlotsAdaptor {
 
   private IPSGuid toIpsGuid(com.percussion.rest.Guid g, String field, int index) {
     if (g == null) {
-      throw new IllegalArgumentException(
-          "association[" + index + "]." + field + " is required");
+      throw new IllegalArgumentException("association[" + index + "]." + field + " is required");
     }
     String sv = g.getStringValue().orElse(null);
     if (StringUtils.isNotBlank(sv)) {

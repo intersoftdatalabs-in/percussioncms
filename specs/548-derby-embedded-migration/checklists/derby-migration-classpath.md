@@ -10,13 +10,13 @@
 
 ## Module notes
 
-|         Module         |                 Derby scope                  |                            Notes                            |
-|------------------------|----------------------------------------------|-------------------------------------------------------------|
-| Parent `pom.xml`       | `dependencyManagement` keeps `derby.version` | Coordinates for migration classpath                         |
-| `modules/TableFactory` | test + tools                                 | Export from Derby fixtures                                  |
+|         Module         |                 Derby scope                  |                                                                                                                                                      Notes                                                                                                                                                      |
+|------------------------|----------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Parent `pom.xml`       | `dependencyManagement` keeps `derby.version` | Coordinates for migration classpath                                                                                                                                                                                                                                                                             |
+| `modules/TableFactory` | test + tools                                 | Export from Derby fixtures                                                                                                                                                                                                                                                                                      |
 | `modules/perc-ant`     | compile (`PSUpgradeDerby`, migration)        | **Must shade both Derby and H2** — installer is `java -jar perc-ant`; TableFactory `Class.forName` uses the system classloader, not Ant `ant.deps` child loaders (`jetty/base/lib/jdbc`). Missing H2 → import fails with `Unable to connect to database server: org.h2.Driver` after a successful Derby export. |
-| `system`               | test (migration IT)                          | Runtime upgrade uses installer classpath                    |
-| DTS services           | no live default                              | Defaults are H2; Derby only if customer still has derbydata |
+| `system`               | test (migration IT)                          | Runtime upgrade uses installer classpath                                                                                                                                                                                                                                                                        |
+| DTS services           | no live default                              | Defaults are H2; Derby only if customer still has derbydata                                                                                                                                                                                                                                                     |
 
 ## Field failure (2026-07-27 /opt/Percussion)
 

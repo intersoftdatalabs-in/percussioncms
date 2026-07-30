@@ -35,6 +35,7 @@ import { SharedFieldsPanel } from "./SharedFieldsPanel";
 import { SystemDefPanel } from "./SystemDefPanel";
 import { SlotsPanel } from "./SlotsPanel";
 import { TemplatesPanel } from "./TemplatesPanel";
+import { ViewsPanel } from "./ViewsPanel";
 
 export type { DeveloperSection };
 
@@ -50,6 +51,7 @@ const SECTION_LABEL: Record<DeveloperSection, string> = {
   "display-formats": DEV_MSG.TAB_DISPLAY_FORMATS,
   "action-menus": DEV_MSG.TAB_ACTION_MENUS,
   searches: DEV_MSG.TAB_SEARCHES,
+  views: DEV_MSG.TAB_VIEWS,
   communities: DEV_MSG.TAB_COMMUNITIES,
   pipelines: DEV_MSG.TAB_PIPELINES,
 };
@@ -166,6 +168,8 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
           <ActionMenusPanel />
         ) : active === "searches" ? (
           <SearchesPanel />
+        ) : active === "views" ? (
+          <ViewsPanel />
         ) : active === "communities" ? (
           <CommunitiesPanel />
         ) : (

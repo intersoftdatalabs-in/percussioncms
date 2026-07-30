@@ -94,6 +94,7 @@ export const DEVELOPER_SECTIONS = [
   "display-formats",
   "action-menus",
   "searches",
+  "views",
   "communities",
   "pipelines",
 ] as const;
@@ -122,6 +123,9 @@ const DEVELOPER_SECTION_ALIASES: Record<string, DeveloperSection> = {
   actions: "action-menus",
   search: "searches",
   searches: "searches",
+  view: "views",
+  views: "views",
+  cxviews: "views",
   pipeline: "pipelines",
   applications: "pipelines",
   "xml-apps": "pipelines",

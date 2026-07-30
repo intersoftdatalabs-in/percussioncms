@@ -70,9 +70,7 @@ public class LocalesAdaptor implements ILocalesAdaptor {
   public LocalesAdaptor() {
     this(
         () ->
-            PSCmsObjectMgrLocator.getObjectManager()
-                .findAllLocales()
-                .collect(Collectors.toList()),
+            PSCmsObjectMgrLocator.getObjectManager().findAllLocales().collect(Collectors.toList()),
         lang -> {
           IPSCmsObjectMgr mgr = PSCmsObjectMgrLocator.getObjectManager();
           return mgr.findLocaleFormatByLanguageString(lang);
@@ -120,8 +118,7 @@ public class LocalesAdaptor implements ILocalesAdaptor {
         return null;
       }
       String lang = normalizeLanguageString(found.getLanguageString());
-      PSLocaleFormat format =
-          lang == null ? null : formatByLang.apply(lang).orElse(null);
+      PSLocaleFormat format = lang == null ? null : formatByLang.apply(lang).orElse(null);
       return toDetail(found, format);
     } catch (RuntimeException e) {
       log.warn("Failed to load CMS locale", e);
@@ -129,9 +126,7 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     }
   }
 
-  /**
-   * Language strings (BCP-47 style) or numeric locale ids. Reject path separators / traversal.
-   */
+  /** Language strings (BCP-47 style) or numeric locale ids. Reject path separators / traversal. */
   static boolean isSafeLocaleKey(String key) {
     if (StringUtils.isBlank(key)) {
       return false;
@@ -142,9 +137,7 @@ public class LocalesAdaptor implements ILocalesAdaptor {
         && key.indexOf('\0') < 0;
   }
 
-  /**
-   * Normalize like {@link PSLocaleFormat#setLanguageString}: lower-case, {@code _} → {@code -}.
-   */
+  /** Normalize like {@link PSLocaleFormat#setLanguageString}: lower-case, {@code _} → {@code -}. */
   static String normalizeLanguageString(String lang) {
     if (lang == null) {
       return null;
@@ -172,8 +165,7 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     }
     out.sort(
         Comparator.comparing(
-            LocaleSummary::getLanguageString,
-            Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+            LocaleSummary::getLanguageString, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
     return out;
   }
 

@@ -91,9 +91,9 @@ public class PSRecentService implements IPSRecentService {
   /**
    * Finds recent items for the current user, optionally ignoring archived items.
    *
-   * <p>Lookups run in {@link Propagation#REQUIRES_NEW} so a Hibernate failure on one stale
-   * recent id cannot mark this transaction rollback-only (which previously caused
-   * {@code UnexpectedRollbackException} on Home Recent even after the failure was caught).
+   * <p>Lookups run in {@link Propagation#REQUIRES_NEW} so a Hibernate failure on one stale recent
+   * id cannot mark this transaction rollback-only (which previously caused {@code
+   * UnexpectedRollbackException} on Home Recent even after the failure was caught).
    */
   @Override
   public List<PSItemProperties> findRecentItem(boolean ignoreArchivedItems) {
@@ -125,8 +125,7 @@ public class PSRecentService implements IPSRecentService {
         log.debug("Removing recent item find returned null : {}", entry);
         toDelete.add(entry);
       } else {
-        log.warn(
-            "Keeping recent item after lookup failure (entry will not display): {}", entry);
+        log.warn("Keeping recent item after lookup failure (entry will not display): {}", entry);
       }
     }
     if (!toDelete.isEmpty()) {
@@ -144,6 +143,7 @@ public class PSRecentService implements IPSRecentService {
   /** Result of an isolated recent-item lookup. */
   private static final class ItemLookupResult {
     final PSItemProperties properties;
+
     /** True when the item is known missing (null without exception). */
     final boolean missing;
 

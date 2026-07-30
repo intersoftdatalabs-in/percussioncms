@@ -30,7 +30,7 @@ import java.util.Objects;
 public class Person {
   private Name name;
 
-  Address address;
+  private Address address;
 
   private List<Book> books = new ArrayList<Book>();
 
@@ -66,7 +66,7 @@ public class Person {
   }
 
   public void setBooks(Collection<Book> books) {
-    this.books.addAll(books);
+    this.books = new ArrayList<Book>(books);
   }
 
   @Override

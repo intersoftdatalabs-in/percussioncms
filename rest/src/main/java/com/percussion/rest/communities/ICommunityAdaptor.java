@@ -43,8 +43,8 @@ public interface ICommunityAdaptor {
   CommunityRoleList listAvailableRoles();
 
   /**
-   * Replace the role associations for a community. Returns the reloaded community detail, or
-   * {@code null} if the community was not found.
+   * Replace the role associations for a community. Returns the reloaded community detail, or {@code
+   * null} if the community was not found.
    */
   Community updateCommunityRoles(String idOrName, CommunityRoleList roles);
 

@@ -344,8 +344,8 @@ public NewDataType newMethod() {
 
 ## Quick Reference
 
-|       Task        |                  Command                  |
-|-------------------|-------------------------------------------|
+|       Task        |               Command               |
+|-------------------|-------------------------------------|
 | Build module      | `./mvnw -pl system compile`         |
 | Run tests         | `./mvnw -pl system test`            |
 | Format code       | `./mvnw spotless:apply`             |
