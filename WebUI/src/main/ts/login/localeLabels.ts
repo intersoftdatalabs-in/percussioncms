@@ -25,13 +25,39 @@
  * dropdown only changes application chrome, not the names of every locale
  * option (see GH-1608).</p>
  *
- * <p>Native names come from {@link Intl.DisplayNames} using the option's own
- * language tag as the viewer. When the browser does not provide
- * {@link Intl.DisplayNames}, the server-supplied English fallback is used
- * verbatim.</p>
+ * <p>Ship locales use a static endonym map so the list looks clean even when
+ * {@link Intl.DisplayNames} is missing, incomplete, or returns the English
+ * server {@code displayName}. Other / customer locales still prefer
+ * {@link Intl.DisplayNames}, then the server fallback.</p>
  */
 
 const viewerCache: Map<string, Intl.DisplayNames | null> = new Map();
+
+/**
+ * Endonym text after the {@code "code - "} prefix for product-shipped locales.
+ * Keys are normalized BCP-47 (lowercase hyphen). Keep in sync with RXLOCALE
+ * seed + login filter matrix.
+ */
+export const SHIP_LOCALE_ENDONYMS: Readonly<Record<string, string>> = {
+  ar: "العربية",
+  "de-de": "Deutsch (Deutschland)",
+  "en-gb": "English (United Kingdom)",
+  "en-us": "English (United States)",
+  es: "español",
+  "es-cl": "español (Chile)",
+  "es-es": "español (España)",
+  "es-mx": "español (México)",
+  "fr-ca": "français (Canada)",
+  "fr-fr": "français (France)",
+  hi: "हिन्दी",
+  "hi-in": "हिन्दी (भारत)",
+  "it-it": "italiano (Italia)",
+  "ja-jp": "日本語 (日本)",
+  "nl-nl": "Nederlands (Nederland)",
+  "pt-br": "português (Brasil)",
+  "pt-pt": "português (Portugal)",
+  "tr-tr": "Türkçe (Türkiye)",
+};
 
 /**
  * Normalize a locale tag to lowercase BCP-47 with hyphen separator.
@@ -116,11 +142,18 @@ export function localeLabel(
   const codeOut = norm || code;
   const fallbackOut = fallback || codeOut;
 
+  // Prefer curated ship-matrix endonyms so the login list is complete and
+  // stable across browsers / incomplete ICU data.
+  const ship = SHIP_LOCALE_ENDONYMS[norm];
+  if (ship) {
+    return `${codeOut} - ${ship}`;
+  }
+
   const parts = norm.split("-");
   const langCode = parts[0] || norm;
   const regionCode = parts.length > 1 ? parts[parts.length - 1] : "";
 
-  // Endonym: name the language in its own language, not the UI locale.
+  // Customer / unknown codes: endonym via Intl when available.
   const langDN = getDisplayNames(langCode, "language");
   const langName = safeOf(langDN, langCode);
   if (!langName) {
