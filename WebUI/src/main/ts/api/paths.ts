@@ -285,6 +285,10 @@ export const PATHS = {
   get PIPELINES() {
     return `${SERVICES_ROOT}/pipelines`;
   },
+  /** CMS locale design catalog (RXLOCALE + format profile flag). */
+  get LOCALES() {
+    return `${SERVICES_ROOT}/locales`;
+  },
   /** Shared field groups design catalog (content-editor shared def). */
   get SHARED_FIELDS() {
     return `${SERVICES_ROOT}/sharedfields`;
