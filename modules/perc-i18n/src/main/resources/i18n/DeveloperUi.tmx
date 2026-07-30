@@ -2092,6 +2092,76 @@
             <note xml:lang="en-us">DEV_MSG.WF_GAP_CT</note>
             <tuv xml:lang="en-us"><seg>Content type workflow association is edited on the content type detail panel</seg></tuv>
         </tu>
+        <tu tuid="perc.ui.developer@Server Configs">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.TAB_SERVER_CONFIGS</note>
+            <tuv xml:lang="en-us"><seg>Server Configs</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading server configs…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.CFG_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading server configs…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@No server configs returned.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.CFG_EMPTY</note>
+            <tuv xml:lang="en-us"><seg>No server configs returned.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load server configs.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.CFG_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load server configs.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Server configuration files (logging, tidy, navigation, velocity macros). Open a row to view content. Save is a later slice.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.CFG_HINT</note>
+            <tuv xml:lang="en-us"><seg>Server configuration files (logging, tidy, navigation, velocity macros). Open a row to view content. Save is a later slice.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Key">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.CFG_COL_KEY</note>
+            <tuv xml:lang="en-us"><seg>Key</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@File">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.CFG_COL_FILE</note>
+            <tuv xml:lang="en-us"><seg>File</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Encoding">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.CFG_COL_ENC</note>
+            <tuv xml:lang="en-us"><seg>Encoding</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading configuration…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.CFG_DETAIL_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading configuration…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load configuration.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.CFG_DETAIL_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load configuration.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Content">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.CFG_CONTENT</note>
+            <tuv xml:lang="en-us"><seg>Content</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@No content loaded for this configuration.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.CFG_CONTENT_EMPTY</note>
+            <tuv xml:lang="en-us"><seg>No content loaded for this configuration.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Configuration create / update / save not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.CFG_GAP_SAVE</note>
+            <tuv xml:lang="en-us"><seg>Configuration create / update / save not supported via this API</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Locking and concurrent edit are not exposed on this Developer surface">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.CFG_GAP_LOCK</note>
+            <tuv xml:lang="en-us"><seg>Locking and concurrent edit are not exposed on this Developer surface</seg></tuv>
+        </tu>
         <tu tuid="perc.ui.developer@CE Controls">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TAB_CE_CONTROLS</note>

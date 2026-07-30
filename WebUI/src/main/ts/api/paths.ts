@@ -325,6 +325,10 @@ export const PATHS = {
   get RELATIONSHIP_TYPES() {
     return `${SERVICES_ROOT}/relationshiptypes`;
   },
+  /** Server configuration files catalog (SY-02). */
+  get SERVER_CONFIGS() {
+    return `${SERVICES_ROOT}/serverconfigs`;
+  },
   /** Content editor control catalog (UI-01). */
   get CE_CONTROLS() {
     return `${SERVICES_ROOT}/cecontrols`;
@@ -337,7 +341,6 @@ export const PATHS = {
   get ACLS() {
     return `${SERVICES_ROOT}/acls`;
   },
-
 
   /** Workflow management (workflowmanagement) — Feature 993 */
   get WORKFLOWS() {
