@@ -369,6 +369,17 @@ vi.mock("../../../main/ts/api/developer/itemFiltersApi", () => ({
   }),
 }));
 
+vi.mock("../../../main/ts/api/developer/displayFormatsApi", () => ({
+  listDisplayFormats: vi.fn().mockResolvedValue([
+    { name: "Default", label: "Default View", columns: [] },
+  ]),
+  getDisplayFormatDetail: vi.fn().mockResolvedValue({
+    name: "Default",
+    columns: [],
+  }),
+  normalizeColumns: () => [],
+}));
+
 vi.mock("../../../main/ts/api/developer/actionMenusApi", () => ({
   listActionMenus: vi.fn().mockResolvedValue([
     { id: 1, name: "Edit", label: "Edit", menuType: "MENUITEM" },
@@ -380,7 +391,6 @@ vi.mock("../../../main/ts/api/developer/actionMenusApi", () => ({
     properties: [],
   }),
 }));
-
 
 describe("DeveloperShell", () => {
   beforeEach(() => {
@@ -463,6 +473,18 @@ describe("DeveloperShell", () => {
       expect(screen.getByTestId("developer-if-table")).toBeTruthy();
     });
     expect(screen.getByText("public")).toBeTruthy();
+  });
+
+  it("loads display formats catalog section", async () => {
+    render(<DeveloperShell initialSection="display-formats" embedded />);
+    expect(screen.getByTestId("tab-developer-display-formats").getAttribute("aria-selected")).toBe(
+      "true",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-table")).toBeTruthy();
+    });
+    const table = screen.getByTestId("developer-df-table");
+    expect(table.textContent).toContain("Default");
   });
 
   it("loads action menus catalog section", async () => {

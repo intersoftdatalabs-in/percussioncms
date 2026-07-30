@@ -369,6 +369,39 @@ export interface ItemFilter {
   parentFilter?: ItemFilter | null;
 }
 
+/** Display format column from GET /services/displayformats. */
+export interface DisplayFormatColumn {
+  source?: string;
+  displayName?: string;
+  description?: string;
+  renderType?: string;
+  position?: number;
+  width?: number;
+  categorized?: boolean;
+  ascendingSort?: boolean;
+  textType?: boolean;
+  numberType?: boolean;
+  dateType?: boolean;
+  imageType?: boolean;
+}
+
+/** CX display format (UI-05). */
+export interface DisplayFormat {
+  guid?: RestGuid;
+  name?: string;
+  label?: string;
+  displayName?: string;
+  description?: string;
+  internalName?: string;
+  displayId?: number;
+  validForRelatedContent?: boolean;
+  validForViewsAndSearches?: boolean;
+  validForFolder?: boolean;
+  ascendingSort?: boolean;
+  descendingSort?: boolean;
+  columns?: DisplayFormatColumn[] | { DisplayFormatColumn?: DisplayFormatColumn[] };
+}
+
 /** Action menu parameter. */
 export interface ActionMenuParameter {
   name?: string;
@@ -398,4 +431,3 @@ export interface ActionMenu {
   parameters?: ActionMenuParameter[];
   properties?: ActionMenuProperty[];
 }
-

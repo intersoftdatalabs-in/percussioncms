@@ -24,6 +24,7 @@ import {
 import { ActionMenusPanel } from "./ActionMenusPanel";
 import { CommunitiesPanel } from "./CommunitiesPanel";
 import { ContentTypesPanel } from "./ContentTypesPanel";
+import { DisplayFormatsPanel } from "./DisplayFormatsPanel";
 import { ItemFiltersPanel } from "./ItemFiltersPanel";
 import { KeywordsPanel } from "./KeywordsPanel";
 import { LocalesPanel } from "./LocalesPanel";
@@ -45,6 +46,7 @@ const SECTION_LABEL: Record<DeveloperSection, string> = {
   "shared-fields": DEV_MSG.TAB_SHARED_FIELDS,
   "system-def": DEV_MSG.TAB_SYSTEM_DEF,
   "item-filters": DEV_MSG.TAB_ITEM_FILTERS,
+  "display-formats": DEV_MSG.TAB_DISPLAY_FORMATS,
   "action-menus": DEV_MSG.TAB_ACTION_MENUS,
   communities: DEV_MSG.TAB_COMMUNITIES,
   pipelines: DEV_MSG.TAB_PIPELINES,
@@ -156,6 +158,8 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
           <SystemDefPanel />
         ) : active === "item-filters" ? (
           <ItemFiltersPanel />
+        ) : active === "display-formats" ? (
+          <DisplayFormatsPanel />
         ) : active === "action-menus" ? (
           <ActionMenusPanel />
         ) : active === "communities" ? (
