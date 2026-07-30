@@ -21,6 +21,7 @@ import {
   normalizeDeveloperSection as normalizeFromAllowlist,
   type DeveloperSection,
 } from "../app/deepLinks/allowlists";
+import { ActionMenusPanel } from "./ActionMenusPanel";
 import { CommunitiesPanel } from "./CommunitiesPanel";
 import { ContentTypesPanel } from "./ContentTypesPanel";
 import { ItemFiltersPanel } from "./ItemFiltersPanel";
@@ -44,6 +45,7 @@ const SECTION_LABEL: Record<DeveloperSection, string> = {
   "shared-fields": DEV_MSG.TAB_SHARED_FIELDS,
   "system-def": DEV_MSG.TAB_SYSTEM_DEF,
   "item-filters": DEV_MSG.TAB_ITEM_FILTERS,
+  "action-menus": DEV_MSG.TAB_ACTION_MENUS,
   communities: DEV_MSG.TAB_COMMUNITIES,
   pipelines: DEV_MSG.TAB_PIPELINES,
 };
@@ -154,6 +156,8 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
           <SystemDefPanel />
         ) : active === "item-filters" ? (
           <ItemFiltersPanel />
+        ) : active === "action-menus" ? (
+          <ActionMenusPanel />
         ) : active === "communities" ? (
           <CommunitiesPanel />
         ) : (

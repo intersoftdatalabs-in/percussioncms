@@ -20,7 +20,6 @@ package com.percussion.rest.actions;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
-import java.util.Optional;
 
 /** Represents an ActionMenu parameter. */
 @XmlRootElement(name = "ActionMenuParameter")
@@ -33,24 +32,24 @@ public class ActionMenuParameter {
 
   public ActionMenuParameter() {}
 
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   public void setName(String name) {
     this.name = name;
   }
 
-  public Optional<String> getValue() {
-    return Optional.ofNullable(value);
+  public String getValue() {
+    return value;
   }
 
   public void setValue(String value) {
     this.value = value;
   }
 
-  public Optional<String> getDescription() {
-    return Optional.ofNullable(description);
+  public String getDescription() {
+    return description;
   }
 
   public void setDescription(String description) {

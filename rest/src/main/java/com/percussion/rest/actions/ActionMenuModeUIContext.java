@@ -20,7 +20,6 @@ package com.percussion.rest.actions;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
-import java.util.Optional;
 
 /** Represents a UI Context that can be used to scope a Menu. */
 @XmlRootElement(name = "ActionMenuModeUIContext")
@@ -35,40 +34,40 @@ public class ActionMenuModeUIContext {
 
   public ActionMenuModeUIContext() {}
 
-  public Optional<String> getModeId() {
-    return Optional.ofNullable(modeId);
+  public String getModeId() {
+    return modeId;
   }
 
   public void setModeId(String modeId) {
     this.modeId = modeId;
   }
 
-  public Optional<String> getModeName() {
-    return Optional.ofNullable(modeName);
+  public String getModeName() {
+    return modeName;
   }
 
   public void setModeName(String modeName) {
     this.modeName = modeName;
   }
 
-  public Optional<String> getContextId() {
-    return Optional.ofNullable(contextId);
+  public String getContextId() {
+    return contextId;
   }
 
   public void setContextId(String contextId) {
     this.contextId = contextId;
   }
 
-  public Optional<String> getContextName() {
-    return Optional.ofNullable(contextName);
+  public String getContextName() {
+    return contextName;
   }
 
   public void setContextName(String contextName) {
     this.contextName = contextName;
   }
 
-  public Optional<String> getDescription() {
-    return Optional.ofNullable(description);
+  public String getDescription() {
+    return description;
   }
 
   public void setDescription(String description) {

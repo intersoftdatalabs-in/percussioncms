@@ -301,6 +301,10 @@ export const PATHS = {
   get ITEM_FILTERS() {
     return `${SERVICES_ROOT}/itemfilters`;
   },
+  /** CX action menu design catalog. */
+  get ACTION_MENUS() {
+    return `${SERVICES_ROOT}/actions/catalog`;
+  },
   /** Object ACL catalog (design-time security). */
   get ACLS() {
     return `${SERVICES_ROOT}/acls`;

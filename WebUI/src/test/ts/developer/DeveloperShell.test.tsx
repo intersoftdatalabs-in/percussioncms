@@ -369,6 +369,19 @@ vi.mock("../../../main/ts/api/developer/itemFiltersApi", () => ({
   }),
 }));
 
+vi.mock("../../../main/ts/api/developer/actionMenusApi", () => ({
+  listActionMenus: vi.fn().mockResolvedValue([
+    { id: 1, name: "Edit", label: "Edit", menuType: "MENUITEM" },
+  ]),
+  getActionMenuDetail: vi.fn().mockResolvedValue({
+    id: 1,
+    name: "Edit",
+    parameters: [],
+    properties: [],
+  }),
+}));
+
+
 describe("DeveloperShell", () => {
   beforeEach(() => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
@@ -451,6 +464,19 @@ describe("DeveloperShell", () => {
     });
     expect(screen.getByText("public")).toBeTruthy();
   });
+
+  it("loads action menus catalog section", async () => {
+    render(<DeveloperShell initialSection="action-menus" embedded />);
+    expect(screen.getByTestId("tab-developer-action-menus").getAttribute("aria-selected")).toBe(
+      "true",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-table")).toBeTruthy();
+    });
+    const table = screen.getByTestId("developer-am-table");
+    expect(table.textContent).toContain("Edit");
+  });
+
 
   it("opens content type detail from list row", async () => {
     render(<DeveloperShell embedded />);
