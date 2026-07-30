@@ -113,15 +113,13 @@ public class PipelinesResource {
         @ApiResponse(
             responseCode = "200",
             description = "OK",
-            content =
-                @Content(schema = @Schema(implementation = ApplicationDetail.class))),
+            content = @Content(schema = @Schema(implementation = ApplicationDetail.class))),
         @ApiResponse(responseCode = "404", description = "Application not found"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public ApplicationDetail getApplication(@PathParam("idOrName") String idOrName) {
     try {
-      ApplicationDetail detail =
-          requireAdaptor().getApplication(uriInfo.getBaseUri(), idOrName);
+      ApplicationDetail detail = requireAdaptor().getApplication(uriInfo.getBaseUri(), idOrName);
       if (detail == null) {
         // Generic body: do not echo raw idOrName (path-injection / name probing).
         throw new WebApplicationException("Application not found", 404);

@@ -56,17 +56,17 @@ None.
 
 ### Root causes and fixes
 
-| File | Line(s) | Diagnostic | Fix |
-|------|---------|-----------|------|
-| `PSMultiAppVersionRedirectorValve.java` | 78 | `error: unknown tag: Valve` + `warning: empty <p> tag` | The `<Valve className="..." mappingFile="..." />` HTML example in `setMappingFile` was being parsed as a real HTML tag by `-Xdoclint:all`. Wrapped the literal in `{@code ...}` so the doclint parser sees code text, not markup. |
-| `PSMultiAppVersionRedirectorValve.java` | 44 / 46 / 57 / 62 | `use of default constructor` + `no comment` | Added an explicit no-arg constructor with Javadoc; documented `PERC_VERSION_HEADER`, the `pipelining` `ThreadLocal`, and `isStarted()`. |
-| `PSVersionRoutingTable.java` | 32 / 38 / 45 | `use of default constructor` + `no main description` (×2) | Added an explicit no-arg constructor with Javadoc; added a leading description to `getServiceContexts`/`setServiceContexts`. |
-| `PSSimpleRedirectorValve.java` | 55 / 75 | `use of default constructor` + `no comment` | Added an explicit no-arg constructor with Javadoc; documented `isStarted()`. |
-| `PSAddResponseHeaderFilter.java` | 38 | `no comment` + `use of default constructor` | Added class-level Javadoc (sourced from the file's existing behaviour notes — Cache-Control header sourcing and 60-second default) plus an explicit no-arg constructor. |
-| `PSSecurityFilter.java` | 36 | `no comment` + `use of default constructor` | Moved the class Javadoc above the `@Component` annotation (Javadoc must precede annotations); added explicit no-arg constructor. |
-| `PSDefaultContentTypeFilter.java` | 35 | `use of default constructor` | Added explicit no-arg constructor with Javadoc (class already had a class-level Javadoc). |
-| `SecureKeyServlet.java` | 28 | `no comment` + `use of default constructor` | Added class-level Javadoc describing the secure-key startup check; added explicit no-arg constructor. |
-| `PSTomcatPropertySource.java` | 29 | `no comment` | Added class-level Javadoc describing the property source / `catalina.home` path. The existing explicit constructor was fine. |
+|                  File                   |      Line(s)      |                        Diagnostic                         |                                                                                                                Fix                                                                                                                |
+|-----------------------------------------|-------------------|-----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `PSMultiAppVersionRedirectorValve.java` | 78                | `error: unknown tag: Valve` + `warning: empty <p> tag`    | The `<Valve className="..." mappingFile="..." />` HTML example in `setMappingFile` was being parsed as a real HTML tag by `-Xdoclint:all`. Wrapped the literal in `{@code ...}` so the doclint parser sees code text, not markup. |
+| `PSMultiAppVersionRedirectorValve.java` | 44 / 46 / 57 / 62 | `use of default constructor` + `no comment`               | Added an explicit no-arg constructor with Javadoc; documented `PERC_VERSION_HEADER`, the `pipelining` `ThreadLocal`, and `isStarted()`.                                                                                           |
+| `PSVersionRoutingTable.java`            | 32 / 38 / 45      | `use of default constructor` + `no main description` (×2) | Added an explicit no-arg constructor with Javadoc; added a leading description to `getServiceContexts`/`setServiceContexts`.                                                                                                      |
+| `PSSimpleRedirectorValve.java`          | 55 / 75           | `use of default constructor` + `no comment`               | Added an explicit no-arg constructor with Javadoc; documented `isStarted()`.                                                                                                                                                      |
+| `PSAddResponseHeaderFilter.java`        | 38                | `no comment` + `use of default constructor`               | Added class-level Javadoc (sourced from the file's existing behaviour notes — Cache-Control header sourcing and 60-second default) plus an explicit no-arg constructor.                                                           |
+| `PSSecurityFilter.java`                 | 36                | `no comment` + `use of default constructor`               | Moved the class Javadoc above the `@Component` annotation (Javadoc must precede annotations); added explicit no-arg constructor.                                                                                                  |
+| `PSDefaultContentTypeFilter.java`       | 35                | `use of default constructor`                              | Added explicit no-arg constructor with Javadoc (class already had a class-level Javadoc).                                                                                                                                         |
+| `SecureKeyServlet.java`                 | 28                | `no comment` + `use of default constructor`               | Added class-level Javadoc describing the secure-key startup check; added explicit no-arg constructor.                                                                                                                             |
+| `PSTomcatPropertySource.java`           | 29                | `no comment`                                              | Added class-level Javadoc describing the property source / `catalina.home` path. The existing explicit constructor was fine.                                                                                                      |
 
 ### Behaviour preservation
 
@@ -105,3 +105,4 @@ a runtime path).
   to honour google-java-format's column rule — the diff stat reflects only the
   in-scope files (8 files, 89 insertions, 5 deletions), and `spotless:check` is
   now clean.
+

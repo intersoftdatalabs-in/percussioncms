@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Fill missing translations using trans (translate-shell) directly.
+"""Fill missing translations using translate-shell.
 
-This script is a variant of i18n_translate.py that uses trans directly
-instead of Docker, with random 1-10 second sleep between calls to avoid
-rate limiting.
+This script is a variant of i18n_translate.py that prefers ``trans``
+(translate-shell) on PATH, falling back to the ``soimort/translate-shell``
+Docker image when ``trans`` is not available. Rate limits use the same
+exponential backoff contract as ``i18n_translate.py`` (2s base, 60s cap,
+±20% jitter, up to 5 attempts). Successful calls do not sleep.
 
 Usage:
     python3 modules/perc-i18n/scripts/i18n_translate_direct.py --target hi
@@ -17,21 +19,47 @@ import hashlib
 import json
 import random
 import re
+import shutil
 import subprocess
 import sys
 import time
 from pathlib import Path
 from xml.sax.saxutils import escape as xml_escape
 
+# Windows terminals default to cp1252; force UTF-8 so translated text and
+# TMX content can be printed without encoding errors.
+if sys.stdout.encoding.lower() != 'utf-8':
+    sys.stdout.reconfigure(encoding='utf-8')
+if sys.stderr.encoding.lower() != 'utf-8':
+    sys.stderr.reconfigure(encoding='utf-8')
+
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 I18N_DIR = REPO_ROOT / 'modules' / 'perc-i18n' / 'src' / 'main' / 'resources' / 'i18n'
 CACHE_FILE = Path(__file__).resolve().parent / '.cache' / 'i18n_translate_direct.json'
 
-DEFAULT_FILES = ('CmsUi.tmx', 'SystemResources.tmx')
+DEFAULT_FILES = ('CmsUi.tmx', 'SystemResources.tmx', 'DeveloperUi.tmx')
 
 PLACEHOLDER_RE = re.compile(r'^\s*\{[0-9]+(,[0-9]+)*\}\s*$')
 
 SOURCE_LANG = 'en-us'
+
+# Exponential-backoff parameters (shared contract with i18n_translate.py).
+BACKOFF_START_SEC = 2.0
+BACKOFF_MAX_SEC = 60.0
+BACKOFF_JITTER = 0.2
+BACKOFF_MAX_ATTEMPTS = 5
+
+# Docker fallback. soimort/translate-shell accepts the form
+# `docker run --rm soimort/translate-shell --brief "<text>" :<target>`.
+DOCKER_IMAGE = 'soimort/translate-shell'
+DOCKER_BRIEF_FLAG = '--brief'
+
+# Whether the trans -> Docker fallback notice has already been emitted.
+_warned_trans_fallback = False
+
+# Throttle new translations to avoid provider rate-limiting.
+THROTTLE_MIN_SEC = 1.0
+THROTTLE_MAX_SEC = 10.0
 
 # Variant locale mapping: variant -> base
 VARIANT_BASES = {
@@ -72,24 +100,75 @@ def save_cache(cache: dict[str, str]) -> None:
     tmp.replace(CACHE_FILE)
 
 
-def invoke_translate(text: str, target: str) -> str:
-    """Run trans directly to translate text."""
-    # Sleep random 1-10 seconds to avoid rate limiting
-    sleep_time = random.randint(1, 10)
-    print(f"  sleeping {sleep_time}s before trans...")
-    time.sleep(sleep_time)
-    
-    cmd = ['trans', '--brief', f':{target}', text]
-    result = subprocess.run(
-        cmd,
-        capture_output=True,
-        text=True,
-        check=False,
-        encoding='utf-8',
-    )
-    if result.returncode != 0:
-        raise RuntimeError(f'trans failed: {result.stderr}')
-    return result.stdout.rstrip('\n')
+def invoke_translate(text: str, target: str, *,
+                     trans_cmd: list[str] | None = None) -> str:
+    """Run translate-shell, preferring ``trans`` on PATH, falling back to Docker.
+
+    Returns the translated string. Raises :class:`RuntimeError` if neither
+    ``trans`` nor Docker is available, or if the translation could not be
+    obtained after exhausting retries. Rate-limit responses (429 / "too many
+    requests") trigger exponential backoff; successful calls do not sleep.
+    """
+    cmd = trans_cmd if trans_cmd is not None else [
+        'trans', '--brief', f':{target}', text,
+    ]
+    delay = BACKOFF_START_SEC
+    attempt = 0
+    while True:
+        attempt += 1
+        try:
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                check=False,
+                encoding='utf-8',
+            )
+        except FileNotFoundError as e:
+            # If this is the default trans command and docker is available,
+            # fall back to the Docker image once.
+            if trans_cmd is None and cmd[0] == 'trans' and shutil.which('docker') is not None:
+                global _warned_trans_fallback
+                if not _warned_trans_fallback:
+                    print(
+                        'trans not found on PATH; falling back to Docker translate-shell',
+                        file=sys.stderr,
+                    )
+                    _warned_trans_fallback = True
+                cmd = [
+                    'docker', 'run', '--rm', DOCKER_IMAGE, DOCKER_BRIEF_FLAG, text, f':{target}',
+                ]
+                attempt = 0
+                delay = BACKOFF_START_SEC
+                continue
+            raise RuntimeError(
+                'trans (translate-shell) is not on PATH and Docker is unavailable. '
+                'Install translate-shell (https://github.com/soimort/translate-shell) '
+                'or install Docker and pull the soimort/translate-shell image. '
+                f'Underlying error: {e}',
+            ) from e
+        if result.returncode == 0:
+            return result.stdout.rstrip('\n')
+        lowered = (result.stderr + result.stdout).lower()
+        is_rate_limit = (
+            '429' in lowered
+            or 'rate limit' in lowered
+            or 'too many requests' in lowered
+        )
+        if is_rate_limit and attempt < BACKOFF_MAX_ATTEMPTS:
+            jitter = 1.0 + random.uniform(-BACKOFF_JITTER, BACKOFF_JITTER)
+            sleep_s = min(BACKOFF_MAX_SEC, delay) * jitter
+            print(
+                f'  rate limit; sleeping {sleep_s:.1f}s (attempt {attempt})',
+                file=sys.stderr,
+            )
+            time.sleep(sleep_s)
+            delay *= 2
+            continue
+        raise RuntimeError(
+            f'translate-shell failed (rc={result.returncode}): '
+            f'stdout={result.stdout!r} stderr={result.stderr!r}',
+        )
 
 
 def translate(text: str, target: str, *, cache: dict[str, str] | None = None, force: bool = False) -> str:
@@ -104,7 +183,11 @@ def translate(text: str, target: str, *, cache: dict[str, str] | None = None, fo
         return cache[key]
     print(f"  [trans] {text[:30]}... -> {target}")
     translated = invoke_translate(text, target)
+    print(f"  [trans] {text[:30]}... -> {target} = {translated[:50]}")
     cache[key] = translated
+    throttle_s = random.uniform(THROTTLE_MIN_SEC, THROTTLE_MAX_SEC)
+    print(f"  sleeping {throttle_s:.1f}s", file=sys.stderr)
+    time.sleep(throttle_s)
     return translated
 
 

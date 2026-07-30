@@ -1,14 +1,14 @@
 # Erlang review — fix/home-bookmarks-ui
 
-| Field | Value |
-|-------|--------|
-| **Date** | 2026-07-28 |
-| **Branch** | `fix/home-bookmarks-ui` |
-| **Scope** | WebUI Home SPA bookmarks add/remove + list polish |
-| **Base** | `origin/development` (post #1569) |
-| **Recommendation** | **approve** |
-| **May commit/push** | **yes** |
-| **Gate** | pass |
+|        Field        |                       Value                       |
+|---------------------|---------------------------------------------------|
+| **Date**            | 2026-07-28                                        |
+| **Branch**          | `fix/home-bookmarks-ui`                           |
+| **Scope**           | WebUI Home SPA bookmarks add/remove + list polish |
+| **Base**            | `origin/development` (post #1569)                 |
+| **Recommendation**  | **approve**                                       |
+| **May commit/push** | **yes**                                           |
+| **Gate**            | pass                                              |
 
 ## Summary
 
@@ -38,3 +38,4 @@ None (bugs). No missing behavioral tests for new non-trivial logic.
 
 - Prefer real REST contracts from classic CUI (PercPageService) rather than inventing endpoints
 - Partial `vi.mock` of homeApi must spread `importOriginal` so helpers (`isBookmarkableItem`) remain defined
+

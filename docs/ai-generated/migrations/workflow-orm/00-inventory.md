@@ -32,14 +32,14 @@ production code.
 
 ## 2. Repository context (verified)
 
-| Item                                | Value                                                                     | Verified at                                            |
-|-------------------------------------|---------------------------------------------------------------------------|--------------------------------------------------------|
-| Branch / version                    | `origin/development`, 8.2.0-SNAPSHOT, JDK 21                              | `git log origin/development -1` → `a1497cc82d fix(h2): enable Demo site create — JDBC/ORM and post-save reload (#1563)` |
-| Module analysed                     | `modules/extensions-workflow` (legacy Java/XML-extension module)           | `modules/extensions-workflow/pom.xml`                  |
-| Module's Maven dependencies         | `perc-security-utils`, `perc-legacy`, `perc-system`, `utils`, `tablefactory` | `modules/extensions-workflow/pom.xml` lines 12–54    |
-| Existing module `AGENTS.md`         | Present (added in this branch) — enforces the migration direction locally | `modules/extensions-workflow/AGENTS.md`                |
-| Spring/Hibernate config in module   | **None.** No `applicationContext*.xml`, no `hibernate*.xml` under the module. | `glob 'modules/extensions-workflow/src/**/applicationContext*.xml'` and `...hibernate*.xml` |
-| `@Transactional` / `@Repository` / `@Service` usage in module | **None** in the workflow exit/context classes (a few hits in unrelated test infra only). | `grep` for those annotations in `modules/extensions-workflow` |
+|                             Item                              |                                          Value                                           |                                                       Verified at                                                       |
+|---------------------------------------------------------------|------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
+| Branch / version                                              | `origin/development`, 8.2.0-SNAPSHOT, JDK 21                                             | `git log origin/development -1` → `a1497cc82d fix(h2): enable Demo site create — JDBC/ORM and post-save reload (#1563)` |
+| Module analysed                                               | `modules/extensions-workflow` (legacy Java/XML-extension module)                         | `modules/extensions-workflow/pom.xml`                                                                                   |
+| Module's Maven dependencies                                   | `perc-security-utils`, `perc-legacy`, `perc-system`, `utils`, `tablefactory`             | `modules/extensions-workflow/pom.xml` lines 12–54                                                                       |
+| Existing module `AGENTS.md`                                   | Present (added in this branch) — enforces the migration direction locally                | `modules/extensions-workflow/AGENTS.md`                                                                                 |
+| Spring/Hibernate config in module                             | **None.** No `applicationContext*.xml`, no `hibernate*.xml` under the module.            | `glob 'modules/extensions-workflow/src/**/applicationContext*.xml'` and `...hibernate*.xml`                             |
+| `@Transactional` / `@Repository` / `@Service` usage in module | **None** in the workflow exit/context classes (a few hits in unrelated test infra only). | `grep` for those annotations in `modules/extensions-workflow`                                                           |
 
 **Implication:** `extensions-workflow` is a legacy XML-extension module. It must
 inherit the Spring tx context that the rest of the request already runs under; it
@@ -54,15 +54,15 @@ artifact (`perc-system`) that `extensions-workflow` depends on. The migration in
 Phase 2 does **not** introduce a new ORM stack; it routes legacy raw-JDBC writers
 onto the existing service.
 
-| Layer             | Class                                                                                              | Notes                                                                                  |
-|-------------------|----------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
-| Entity (`CONTENTSTATUSHISTORY`) | `com.percussion.services.system.data.PSContentStatusHistory` | `system/services/src/.../system/data/PSContentStatusHistory.java` — `@Entity @Cache(READ_WRITE, region="PSContentStatusHistory") @Table(name="CONTENTSTATUSHISTORY")`. Jakarta persistence. |
-| Entity (`CONTENTADHOCUSERS`)    | `com.percussion.services.workflow.data.PSContentAdhocUser`     | `@Entity @IdClass(PSContentAdhocUserPK.class) @Table(name="CONTENTADHOCUSERS")`         |
-| Entity (`TRANSITIONNOTIFICATIONS`) | `com.percussion.services.workflow.data.PSNotification`       | `@Entity @IdClass(PSNotificationPK.class) @Table(name="TRANSITIONNOTIFICATIONS")`       |
-| Read/Write façade | `com.percussion.services.system.IPSSystemService`             | `saveContentStatusHistory(PSContentStatusHistory)` (interface line 249).                |
-| Service locator   | `com.percussion.services.system.PSSystemServiceLocator`        | `getSystemService()` resolves bean `sys_systemService` from the global ctx.             |
-| Implementation    | `com.percussion.services.system.impl.PSSystemService`          | `saveContentStatusHistory(...)` at file line 439.                                       |
-| Proven in-flight user (today) | `com.percussion.services.legacy.impl.PSCmsObjectMgr`     | Already calls `PSSystemServiceLocator.getSystemService().saveContentStatusHistory(...)` in `convertToInt` (line ~1872) and `updateWorkflowAndState` (line ~2147). |
+|               Layer                |                            Class                             |                                                                                            Notes                                                                                            |
+|------------------------------------|--------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Entity (`CONTENTSTATUSHISTORY`)    | `com.percussion.services.system.data.PSContentStatusHistory` | `system/services/src/.../system/data/PSContentStatusHistory.java` — `@Entity @Cache(READ_WRITE, region="PSContentStatusHistory") @Table(name="CONTENTSTATUSHISTORY")`. Jakarta persistence. |
+| Entity (`CONTENTADHOCUSERS`)       | `com.percussion.services.workflow.data.PSContentAdhocUser`   | `@Entity @IdClass(PSContentAdhocUserPK.class) @Table(name="CONTENTADHOCUSERS")`                                                                                                             |
+| Entity (`TRANSITIONNOTIFICATIONS`) | `com.percussion.services.workflow.data.PSNotification`       | `@Entity @IdClass(PSNotificationPK.class) @Table(name="TRANSITIONNOTIFICATIONS")`                                                                                                           |
+| Read/Write façade                  | `com.percussion.services.system.IPSSystemService`            | `saveContentStatusHistory(PSContentStatusHistory)` (interface line 249).                                                                                                                    |
+| Service locator                    | `com.percussion.services.system.PSSystemServiceLocator`      | `getSystemService()` resolves bean `sys_systemService` from the global ctx.                                                                                                                 |
+| Implementation                     | `com.percussion.services.system.impl.PSSystemService`        | `saveContentStatusHistory(...)` at file line 439.                                                                                                                                           |
+| Proven in-flight user (today)      | `com.percussion.services.legacy.impl.PSCmsObjectMgr`         | Already calls `PSSystemServiceLocator.getSystemService().saveContentStatusHistory(...)` in `convertToInt` (line ~1872) and `updateWorkflowAndState` (line ~2147).                           |
 
 **Conclusion for Phase 2**: the target API is **`PSSystemServiceLocator.getSystemService().saveContentStatusHistory(new PSContentStatusHistory(...))`**, not a new entity or new service.
 
@@ -107,31 +107,31 @@ breakage) are now H2-safe: PR #1563 rewrote `PSContentStatusHistoryContext` /
 
 ### 4.1 Exit classes that **open their own connection** (`new PSConnectionMgr()`)
 
-| File                                                                                      | Line(s)  | Runtime trigger (where this exit is invoked)                                            | Reads / writes                          | Hot path? |
-|-------------------------------------------------------------------------------------------|----------|------------------------------------------------------------------------------------------|----------------------------------------|-----------|
-| `PSExitUpdateHistory.java`                                                                | 237      | XML app `sys_wfUpdateHistory` (registered in `Extensions.xml`); runs after content actions | `CONTENTSTATUSHISTORY` (INSERT)         | **Yes** — runs on every check-in / check-out / transition. Same path the issue cites as the dual-connection break for site-create. |
-| `PSExitPerformTransition.java`                                                            | 404      | Content editor transition (perform step)                                                 | Workflow transition rows                | **Yes** — every transition. |
-| `PSExitNotifyAssignees.java`                                                              | 252      | After a successful transition                                                            | Notification dispatch                   | Hot during publish/triage flows. |
-| `PSExitAddPossibleTransitionsEx.java`                                                     | 261, 339 | List/run the "allowed" transitions for an item                                            | Transition + adhoc users                | Hot.                                                            |
-| `PSExitAddPossibleTransitions.java`                                                       | 139      | Legacy variant of the above                                                                | Transition + adhoc users                | Hot.                                                            |
-| `PSExitAddEditAuthFlag.java`                                                              | 130      | Pre-check permission flag                                                                  | State roles                             | Hot (every edit attempt).                                       |
-| `PSExitAuthenticateUser.java`                                                             | 234      | User authentication during login                                                          | State roles / roles                     | Hot (login).                                                    |
-| `PSExitDisallowUpdatePublished.java`                                                      | 112      | Guards updates to already-published items                                                | (read-only)                             | Hot.                                                            |
-| `PSGetCheckoutStatus.java`                                                                | 90       | Read-only checkout status query                                                           | (read-only)                             | Read, called on many UI pages.                                 |
+|                 File                  | Line(s)  |                        Runtime trigger (where this exit is invoked)                        |         Reads / writes          |                                                             Hot path?                                                              |
+|---------------------------------------|----------|--------------------------------------------------------------------------------------------|---------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| `PSExitUpdateHistory.java`            | 237      | XML app `sys_wfUpdateHistory` (registered in `Extensions.xml`); runs after content actions | `CONTENTSTATUSHISTORY` (INSERT) | **Yes** — runs on every check-in / check-out / transition. Same path the issue cites as the dual-connection break for site-create. |
+| `PSExitPerformTransition.java`        | 404      | Content editor transition (perform step)                                                   | Workflow transition rows        | **Yes** — every transition.                                                                                                        |
+| `PSExitNotifyAssignees.java`          | 252      | After a successful transition                                                              | Notification dispatch           | Hot during publish/triage flows.                                                                                                   |
+| `PSExitAddPossibleTransitionsEx.java` | 261, 339 | List/run the "allowed" transitions for an item                                             | Transition + adhoc users        | Hot.                                                                                                                               |
+| `PSExitAddPossibleTransitions.java`   | 139      | Legacy variant of the above                                                                | Transition + adhoc users        | Hot.                                                                                                                               |
+| `PSExitAddEditAuthFlag.java`          | 130      | Pre-check permission flag                                                                  | State roles                     | Hot (every edit attempt).                                                                                                          |
+| `PSExitAuthenticateUser.java`         | 234      | User authentication during login                                                           | State roles / roles             | Hot (login).                                                                                                                       |
+| `PSExitDisallowUpdatePublished.java`  | 112      | Guards updates to already-published items                                                  | (read-only)                     | Hot.                                                                                                                               |
+| `PSGetCheckoutStatus.java`            | 90       | Read-only checkout status query                                                            | (read-only)                     | Read, called on many UI pages.                                                                                                     |
 
 ### 4.2 Context classes that **hardcode the qualified table name** (`PSConnectionMgr.getQualifiedIdentifier(...)`)
 
 **H2 safety status** — whether each context's SQL strings still concatenate
 `<TABLE>.<COLUMN>` (the pattern H2 rejects as `Column "PUBLIC" not found`).
 
-| File                                                                                       | Line of `getQualifiedIdentifier`  | H2 column-qualifier status (post-#1563)                                                                                                  |
-|--------------------------------------------------------------------------------------------|------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
-| `PSContentStatusHistoryContext.java`                                                       | 692 (`TABLE_CSHC`)                 | ✅ **Fixed by #1563.** `QRYSTRING` and `INSERTSTRING` now use bare column names. Comment on line 686–691 documents the rule.              |
-| `PSContentAdhocUsersContext.java`                                                          | 572 (`TABLE_CAU`)                  | ✅ **Fixed by #1563.** `QRYSTRING`, `INSERTSTRING`, `DELETESTRING` now use bare columns. Comment on line 568–572 documents the rule.       |
-| `PSContentTypesContext.java`                                                               | 117 (`TABLE_CTC`)                  | ✅ **Fixed.** `QRYSTRING` (now lines 124–129) uses bare column names; the qualified table name is preserved as the `FROM` target only. Comment on lines 116–120 documents the rule. |
-| `PSNotificationsContext.java`                                                              | 130 (`TABLE_NC`)                   | ✅ **Fixed.** `QRYSTRING` (now line 137–138) uses bare column names. Comment on lines 129–133 documents the rule.                            |
-| `PSStateRolesContext.java`                                                                 | 361 (`SR`), 362 (`R`)              | ✅ **Fixed.** `QRYSTRING` (now lines 369–386) was a two-table join; rewritten with `sr` / `r` aliases so unqualified columns remain unambiguous across `STATEROLES` and `ROLES`. Comment on lines 360–366 documents the rule. |
-| `PSTransitionNotificationsContext.java`                                                    | 223 (`TABLE_TNC`)                  | ✅ **Fixed.** `QRYSTRING` (now lines 230–234) uses bare column names. Comment on lines 221–225 documents the rule.                          |
+|                  File                   | Line of `getQualifiedIdentifier` |                                                                                           H2 column-qualifier status (post-#1563)                                                                                            |
+|-----------------------------------------|----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `PSContentStatusHistoryContext.java`    | 692 (`TABLE_CSHC`)               | ✅ **Fixed by #1563.** `QRYSTRING` and `INSERTSTRING` now use bare column names. Comment on line 686–691 documents the rule.                                                                                                  |
+| `PSContentAdhocUsersContext.java`       | 572 (`TABLE_CAU`)                | ✅ **Fixed by #1563.** `QRYSTRING`, `INSERTSTRING`, `DELETESTRING` now use bare columns. Comment on line 568–572 documents the rule.                                                                                          |
+| `PSContentTypesContext.java`            | 117 (`TABLE_CTC`)                | ✅ **Fixed.** `QRYSTRING` (now lines 124–129) uses bare column names; the qualified table name is preserved as the `FROM` target only. Comment on lines 116–120 documents the rule.                                           |
+| `PSNotificationsContext.java`           | 130 (`TABLE_NC`)                 | ✅ **Fixed.** `QRYSTRING` (now line 137–138) uses bare column names. Comment on lines 129–133 documents the rule.                                                                                                             |
+| `PSStateRolesContext.java`              | 361 (`SR`), 362 (`R`)            | ✅ **Fixed.** `QRYSTRING` (now lines 369–386) was a two-table join; rewritten with `sr` / `r` aliases so unqualified columns remain unambiguous across `STATEROLES` and `ROLES`. Comment on lines 360–366 documents the rule. |
+| `PSTransitionNotificationsContext.java` | 223 (`TABLE_TNC`)                | ✅ **Fixed.** `QRYSTRING` (now lines 230–234) uses bare column names. Comment on lines 221–225 documents the rule.                                                                                                            |
 
 > The class-level `@Deprecated` markers on `PSStateRolesContext` and `PSContentAdhocUsersContext`
 > predate this issue and confirm the team direction.
@@ -235,16 +235,22 @@ scope creep and unreviewed behavioural change:
 - `PSContentAdhocUsersContext` — Phase 1 column-qualifier fix landed in PR #1563;
   Phase 3 will migrate its writes through Hibernate.
 - `PSContentStatusHistoryContext` — Phase 1 column-qualifier fix landed in PR
-  #1563; Phase 2 (this branch) rewrote the write constructor to route through
+
+  # 1563; Phase 2 (this branch) rewrote the write constructor to route through
+
   `PSSystemServiceLocator.getSystemService().saveContentStatusHistory(...)` and
   removed the dead `INSERTSTRING` + `prepareInsertStatement()`. The read
   constructor still uses raw JDBC (H2-safe) — Phase 3 candidate.
+
 - `system/src/main/java/com/percussion/workflow/PSConnectionMgr.java` — the pool
   façade. Removal is a Phase 4 cleanup after all callers are migrated.
+
 - `system/src/main/java/com/percussion/cms/handlers/PSWorkflowCommandHandler.java:299`
   — yet another `new PSConnectionMgr()` caller (legacy command handler).
+
 - All in-tool / installer paths under `system/Tools/RxFix/...` that use
   `{schema}.CONTENTSTATUSHISTORY` — different audit/fix tools, separate concern.
+
 - `modules/TableFactory/...` — explicitly out of scope per the issue's "Non-goals".
 
 ---
@@ -392,3 +398,4 @@ Acceptance criteria that remain for later branches (not satisfied here):
   → `saveContentStatusHistory(PSContentStatusHistory)` (interface line 249,
   impl `PSSystemService.java:439`).
 - Future work items: tracked on the issue, not in this branch.
+

@@ -15,8 +15,6 @@
  */
 package com.percussion.services.workflow;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -36,8 +34,6 @@ import com.percussion.services.workflow.data.PSTransitionHib;
 import com.percussion.services.workflow.impl.PSWorkflowService;
 import jakarta.persistence.EntityManager;
 import java.util.Collections;
-import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -68,8 +64,7 @@ public class PSWorkflowServiceFindTransitionByTriggerTest {
   @Test
   void rejectsNonPositiveWorkflowId() {
     assertThrows(
-        IllegalArgumentException.class,
-        () -> service.findTransitionByTrigger(0L, "approve", 11L));
+        IllegalArgumentException.class, () -> service.findTransitionByTrigger(0L, "approve", 11L));
   }
 
   @Test
@@ -85,15 +80,13 @@ public class PSWorkflowServiceFindTransitionByTriggerTest {
   @Test
   void rejectsNonPositiveStateId() {
     assertThrows(
-        IllegalArgumentException.class,
-        () -> service.findTransitionByTrigger(7L, "approve", 0L));
+        IllegalArgumentException.class, () -> service.findTransitionByTrigger(7L, "approve", 0L));
   }
 
   @Test
   @SuppressWarnings("unchecked")
   void happyPath_noMatchReturnsNull() {
-    org.hibernate.query.Query<PSTransitionHib> mockQuery =
-        mock(org.hibernate.query.Query.class);
+    org.hibernate.query.Query<PSTransitionHib> mockQuery = mock(org.hibernate.query.Query.class);
     when(session.createQuery(anyString(), eq(PSTransitionHib.class))).thenReturn(mockQuery);
     when(mockQuery.setParameter(eq("wf"), anyLong())).thenReturn(mockQuery);
     when(mockQuery.setParameter(eq("sid"), anyLong())).thenReturn(mockQuery);
@@ -112,8 +105,7 @@ public class PSWorkflowServiceFindTransitionByTriggerTest {
     assertTrue(q.contains("workflowId = :wf"), "JPQL must filter on workflowId: " + q);
     assertTrue(q.contains("stateId = :sid"), "JPQL must filter on stateId: " + q);
     assertTrue(q.contains("trigger = :trig"), "JPQL must filter on trigger: " + q);
-    assertTrue(q.contains("transitionType = :tt"),
-        "JPQL must filter on transitionType: " + q);
+    assertTrue(q.contains("transitionType = :tt"), "JPQL must filter on transitionType: " + q);
 
     verify(mockQuery).setParameter("wf", 7L);
     verify(mockQuery).setParameter("sid", 11L);
@@ -126,14 +118,12 @@ public class PSWorkflowServiceFindTransitionByTriggerTest {
   void multipleMatches_throws() {
     PSTransitionHib hib1 = mock(PSTransitionHib.class);
     PSTransitionHib hib2 = mock(PSTransitionHib.class);
-    org.hibernate.query.Query<PSTransitionHib> mockQuery =
-        mock(org.hibernate.query.Query.class);
+    org.hibernate.query.Query<PSTransitionHib> mockQuery = mock(org.hibernate.query.Query.class);
     when(session.createQuery(anyString(), eq(PSTransitionHib.class))).thenReturn(mockQuery);
     when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
     when(mockQuery.getResultList()).thenReturn(java.util.Arrays.asList(hib1, hib2));
 
     assertThrows(
-        IllegalStateException.class,
-        () -> service.findTransitionByTrigger(7L, "approve", 11L));
+        IllegalStateException.class, () -> service.findTransitionByTrigger(7L, "approve", 11L));
   }
 }

@@ -1478,9 +1478,9 @@ public class PSItemService implements IPSItemService {
   /**
    * Whether the given page is in the current user's My Pages / bookmarks.
    *
-   * <p>Internal sitemanage surface (not the public OpenAPI {@code rest} module).
-   * Produces JSON/XML like sibling item endpoints so SPA clients that send
-   * {@code Accept: application/json} do not receive HTTP 406.
+   * <p>Internal sitemanage surface (not the public OpenAPI {@code rest} module). Produces JSON/XML
+   * like sibling item endpoints so SPA clients that send {@code Accept: application/json} do not
+   * receive HTTP 406.
    */
   @GET
   @Path("/ismypage/{pageId}")

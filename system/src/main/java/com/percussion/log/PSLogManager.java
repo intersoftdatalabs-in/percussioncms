@@ -228,8 +228,7 @@ public class PSLogManager {
               "CMS Repository connection diagnostics: "
                   + PSJdbcConnectionDiagnostics.describeConnection(diagConn));
         } catch (Exception diagEx) {
-          conOut(
-              "CMS Repository connection diagnostics unavailable: " + diagEx.getMessage());
+          conOut("CMS Repository connection diagnostics unavailable: " + diagEx.getMessage());
         }
         m_logWriter = new PSBackEndLogWriter();
         m_logReader = new PSBackEndLogReader();

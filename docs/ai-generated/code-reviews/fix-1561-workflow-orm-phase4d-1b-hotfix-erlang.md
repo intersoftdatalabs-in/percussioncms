@@ -6,13 +6,13 @@
 
 **Result:** **Approve** — all 5 blocking findings addressed.
 
-| | |
-|---|---|
-| Bug findings | 0 (all 5 blocking findings from PR review fixed) |
-| Test-coverage findings | 0 (3 new active regression tests; all 16 PSSystemServicePhase4d1bWritesTest cases green) |
-| Cross-platform path / I/O findings | 0 |
-| Security / data-loss findings | 0 (the connection-release fix prevents pool-connection leaks under load) |
-| Convention / maintainability findings | 0 |
+|                                       |                                                                                          |
+|---------------------------------------|------------------------------------------------------------------------------------------|
+| Bug findings                          | 0 (all 5 blocking findings from PR review fixed)                                         |
+| Test-coverage findings                | 0 (3 new active regression tests; all 16 PSSystemServicePhase4d1bWritesTest cases green) |
+| Cross-platform path / I/O findings    | 0                                                                                        |
+| Security / data-loss findings         | 0 (the connection-release fix prevents pool-connection leaks under load)                 |
+| Convention / maintainability findings | 0                                                                                        |
 
 ## Diff size
 
@@ -49,13 +49,13 @@
 
 ## Build & test evidence
 
-| Module | Command | Result |
-|---|---|---|
-| `system` | `mvn-env.bat -N clean install -DskipTests` | **BUILD SUCCESS** |
-| `modules/extensions-workflow` | `mvn-env.bat -N clean install -DskipTests` | **BUILD SUCCESS** |
-| `modules/extensions-workflow` | `mvn-env.bat -N test` | **52 tests** (19 active + 33 @Disabled), Failures: 0, Errors: 0 |
-| `system` | `mvn-env.bat -N test -Dtest=PSSystemServicePhase4d1bWritesTest` | **16 tests** all green |
-| `system` | `mvn-env.bat -N test` (full suite) | **916 tests** (659 active + 1 pre-existing `PSObjectSerializerTest` failure + 244 @Disabled), Failures: 1 (pre-existing), Errors: 0 |
+|            Module             |                             Command                             |                                                               Result                                                                |
+|-------------------------------|-----------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| `system`                      | `mvn-env.bat -N clean install -DskipTests`                      | **BUILD SUCCESS**                                                                                                                   |
+| `modules/extensions-workflow` | `mvn-env.bat -N clean install -DskipTests`                      | **BUILD SUCCESS**                                                                                                                   |
+| `modules/extensions-workflow` | `mvn-env.bat -N test`                                           | **52 tests** (19 active + 33 @Disabled), Failures: 0, Errors: 0                                                                     |
+| `system`                      | `mvn-env.bat -N test -Dtest=PSSystemServicePhase4d1bWritesTest` | **16 tests** all green                                                                                                              |
+| `system`                      | `mvn-env.bat -N test` (full suite)                              | **916 tests** (659 active + 1 pre-existing `PSObjectSerializerTest` failure + 244 @Disabled), Failures: 1 (pre-existing), Errors: 0 |
 
 ## Blocking review findings — all addressed
 
@@ -106,14 +106,14 @@ explorers could show stale state, checkout user, or revision.
 
 **Fix:**
 1. `IPSSystemService.updateContentStatusState(...)` now returns `int` (the
-   `executeUpdate()` count) so the caller can know whether the UPDATE succeeded.
+`executeUpdate()` count) so the caller can know whether the UPDATE succeeded.
 2. `PSContentStatusContext.commit()` checks the return value and calls
-   `notifyUpdateItem(columns)` when `updated > 0`. The `columns` map carries the
-   affected content id and a representative column key (CONTENTID); the cache
-   consumer only needs the event signal to evict the entry, not the per-column
-   values. The same `notifyUpdateItem` method that the legacy `commit(Connection)`
-   used is the same method called here, so the existing `PSItemSummaryCache`
-   consumer-side logic does not need to change.
+`notifyUpdateItem(columns)` when `updated > 0`. The `columns` map carries the
+affected content id and a representative column key (CONTENTID); the cache
+consumer only needs the event signal to evict the entry, not the per-column
+values. The same `notifyUpdateItem` method that the legacy `commit(Connection)`
+used is the same method called here, so the existing `PSItemSummaryCache`
+consumer-side logic does not need to change.
 
 ## Cross-platform portability
 
@@ -135,14 +135,15 @@ None.
 
 ## Gate
 
-| Check | Status |
-|---|---|
-| Bug findings | ✅ 0 (5 blocking findings all addressed) |
-| Missing behavioural tests | ✅ 0 (4 new active tests; 1 anti-regression test pins the JPQL) |
-| Cross-platform portability | ✅ N/A |
-| Security / data-loss | ✅ 0 (the connection-release fix prevents pool leaks) |
+|           Check            |                                        Status                                        |
+|----------------------------|--------------------------------------------------------------------------------------|
+| Bug findings               | ✅ 0 (5 blocking findings all addressed)                                              |
+| Missing behavioural tests  | ✅ 0 (4 new active tests; 1 anti-regression test pins the JPQL)                       |
+| Cross-platform portability | ✅ N/A                                                                                |
+| Security / data-loss       | ✅ 0 (the connection-release fix prevents pool leaks)                                 |
 | Erlang pre-commit (strict) | ✅ **Approve** — may commit / push / reply + resolve the 5 review threads on PR #1589 |
 
 > The pre-existing `com.percussion.xml.serialization.junit.PSObjectSerializerTest
 > .test02DeSerialization` failure in `system/` is documented in the root `AGENTS.md` as
 > unrelated to this work and is not in the diff for this PR.
+

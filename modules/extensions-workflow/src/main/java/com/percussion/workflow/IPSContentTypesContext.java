@@ -69,8 +69,6 @@ public interface IPSContentTypesContext {
    */
   public String getContentTypeDescription() throws SQLException;
 
-  /**
-   * Closes the context freeing all JDBC resources.
-   */
+  /** Closes the context freeing all JDBC resources. */
   public void close();
 }

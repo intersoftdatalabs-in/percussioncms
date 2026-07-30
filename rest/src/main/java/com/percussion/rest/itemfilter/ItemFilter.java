@@ -22,7 +22,6 @@ package com.percussion.rest.itemfilter;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 import java.util.Set;
 
 /** Represents an ItemFilter. Sunny Sal: "Filter ka hero, rules ka zero!" */
@@ -57,54 +56,48 @@ public class ItemFilter {
     // Default constructor
   }
 
-  /** Gets the filter GUID. */
-  public Optional<Guid> getFilterId() {
-    return Optional.ofNullable(filterId);
+  public Guid getFilterId() {
+    return filterId;
   }
 
   public void setFilterId(Guid filterId) {
     this.filterId = filterId;
   }
 
-  /** Gets the filter name. */
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   public void setName(String name) {
     this.name = name;
   }
 
-  /** Gets the filter description. */
-  public Optional<String> getDescription() {
-    return Optional.ofNullable(description);
+  public String getDescription() {
+    return description;
   }
 
   public void setDescription(String description) {
     this.description = description;
   }
 
-  /** Gets the legacy authtype. */
-  public Optional<Integer> getLegacyAuthtype() {
-    return Optional.ofNullable(legacyAuthtype);
+  public Integer getLegacyAuthtype() {
+    return legacyAuthtype;
   }
 
   public void setLegacyAuthtype(Integer legacyAuthtype) {
     this.legacyAuthtype = legacyAuthtype;
   }
 
-  /** Gets the filter rules. */
-  public Optional<Set<ItemFilterRuleDefinition>> getRules() {
-    return Optional.ofNullable(rules);
+  public Set<ItemFilterRuleDefinition> getRules() {
+    return rules;
   }
 
   public void setRules(Set<ItemFilterRuleDefinition> rules) {
     this.rules = rules;
   }
 
-  /** Gets the parent filter. */
-  public Optional<ItemFilter> getParentFilter() {
-    return Optional.ofNullable(parentFilter);
+  public ItemFilter getParentFilter() {
+    return parentFilter;
   }
 
   public void setParentFilter(ItemFilter parentFilter) {

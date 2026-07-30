@@ -115,8 +115,7 @@ public class SlotsResourceDetailTest {
     when(adaptor.updateSlot(any(), eq("missing"), any())).thenReturn(null);
     WebApplicationException ex =
         assertThrows(
-            WebApplicationException.class,
-            () -> resource.updateSlot("missing", new SlotDetail()));
+            WebApplicationException.class, () -> resource.updateSlot("missing", new SlotDetail()));
     assertEquals(404, ex.getResponse().getStatus());
   }
 
@@ -147,6 +146,8 @@ public class SlotsResourceDetailTest {
     when(adaptor.updateSlot(any(), eq("target"), any())).thenReturn(updated);
     SlotDetail result = resource.updateSlot("target", body);
     assertEquals(1, result.getAssociations().size());
-    assertEquals("0-2-301", result.getAssociations().get(0).getContentTypeGuid().getStringValue().orElse(null));
+    assertEquals(
+        "0-2-301",
+        result.getAssociations().get(0).getContentTypeGuid().getStringValue().orElse(null));
   }
 }

@@ -48,4 +48,9 @@ public class TestItemFilterAdaptor implements IItemFilterAdaptor {
   public ItemFilter getItemFilter(Guid itemFilterId) {
     return null;
   }
+
+  @Override
+  public ItemFilter findItemFilter(String idOrName) {
+    return null;
+  }
 }

@@ -76,10 +76,45 @@ class PSCategoryLockInfoStaleTest {
   }
 
   @Test
-  void isLockStaleFalseForNullOrBlankSession() throws Exception {
+  void isLockStaleFalseForNullInput() throws Exception {
+    // A null lock entry is treated as "no lock present" rather than a stale lock
+    // — callers (getLockInfo) only call isLockStale on a non-null parsed payload.
     assertFalse(PSCategoryLockInfo.isLockStale(null));
+  }
+
+  @Test
+  void isLockStaleWhenSessionIdIsBlank() throws Exception {
+    // GH-1566: blank sessionId entries were previously ignored and could only be
+    // cleared by an explicit overwrite. Treat them as stale so getLockInfo()
+    // cleans them up automatically on the next read.
     var json = new JSONObject();
     json.put("sessionId", "");
-    assertFalse(PSCategoryLockInfo.isLockStale(json));
+    json.put("userName", "tester");
+    assertTrue(PSCategoryLockInfo.isLockStale(json));
+  }
+
+  @Test
+  void isLockStaleWhenSessionIdIsWhitespace() throws Exception {
+    var json = new JSONObject();
+    json.put("sessionId", "   ");
+    json.put("userName", "tester");
+    assertTrue(PSCategoryLockInfo.isLockStale(json));
+  }
+
+  @Test
+  void isLockStaleWhenSessionIdMissing() throws Exception {
+    // No "sessionId" key at all — malformed record. GH-1566.
+    var json = new JSONObject();
+    json.put("userName", "tester");
+    assertTrue(PSCategoryLockInfo.isLockStale(json));
+  }
+
+  @Test
+  void isLockStaleWhenSessionIdIsWrongType() throws Exception {
+    // sessionId is a JSON number rather than a string — malformed record. GH-1566.
+    var json = new JSONObject();
+    json.put("sessionId", 42);
+    json.put("userName", "tester");
+    assertTrue(PSCategoryLockInfo.isLockStale(json));
   }
 }

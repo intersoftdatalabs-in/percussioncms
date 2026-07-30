@@ -67,20 +67,20 @@ triggering `use of default constructor, which does not provide a comment`.
 
 ### Per-file summary
 
-| File | Notes |
-|------|-------|
-| `AbstractEvent` | Added class-level Javadoc, getter/setter descriptions, and a constructor Javadoc. `getOutcome` / `setOutcome` use `@code null` semantics that match the existing implementation (`setOutcome` does not check `null`). |
-| `AuditException` | Added class Javadoc + Javadoc on the three public ctors. The class is now properly documented as the standard checked exception raised by the audit-log subsystem. |
-| `FileCreator` | Added class Javadoc and an explicit no-arg constructor with Javadoc. The static `generateFile` method already had Javadoc; only the constructor warning remained after the first fix pass. |
-| `AuditPropertyLoader` | Added class Javadoc and `loadProperties` description. The private constructor intentionally remains undocumented (doclint only flags public ctors). |
-| `IPSAuditEvent` | Added interface and `getAction` Javadoc. The `<T> T getAction()` generic carries the documented `@param <T>` declaration. |
-| `IPSAuditLogService` | Added per-method Javadoc on the five public API methods. The existing `/** Defines the interface for the audit log service */` on the interface itself was retained. |
-| `PSActionOutcome` | Added class Javadoc and Javadoc on each of the three enum constants (`SUCCESS`, `FAILURE`, `UNKNOWN`). |
-| `PSAuditLogService` | Added class Javadoc + Javadoc on `auditLog`, `createEvent`, `getInstance`, `generateLogFile`, `isGenerateLog`. Replaced missing `@param event` descriptions on the three event-log methods with proper sentences. |
-| `PSAuthenticationEvent` | Added class Javadoc, Javadoc on the five public constants (sessionid/roles/communityName/user-uri/security-uri), on both ctors, on the `AuthenticationEventActions` enum and each of its 4 constants, and on every getter/setter pair. |
-| `PSContentEvent` | Added class Javadoc, Javadoc on the three public constants (`CONTENTID_TAG`, `GUID_TAG`, `CONTENT_OBSERVER`), on the `ContentEventActions` enum and each of its 6 constants, on the populated ctor (6 `@param`s), on every getter/setter pair, and on the no-arg ctor. |
-| `PSUserManagementEvent` | Added class Javadoc, Javadoc on the `UserEventActions` enum and each of its 5 constants, on the populated ctor, and on `getAction`/`setAction`. |
-| `PSWorkflowEvent` | Added class Javadoc, Javadoc on the four public constants (`CONTENTID_TAG`, `GUID_TAG`, `TRANSITIONFROM_TAG`, `TRANSITIONTO_TAG`), on the `WorkflowEventActions` enum and its sole `update` constant, on the populated ctor (7 `@param`s), and on every getter/setter pair. |
+|          File           |                                                                                                                                    Notes                                                                                                                                    |
+|-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `AbstractEvent`         | Added class-level Javadoc, getter/setter descriptions, and a constructor Javadoc. `getOutcome` / `setOutcome` use `@code null` semantics that match the existing implementation (`setOutcome` does not check `null`).                                                       |
+| `AuditException`        | Added class Javadoc + Javadoc on the three public ctors. The class is now properly documented as the standard checked exception raised by the audit-log subsystem.                                                                                                          |
+| `FileCreator`           | Added class Javadoc and an explicit no-arg constructor with Javadoc. The static `generateFile` method already had Javadoc; only the constructor warning remained after the first fix pass.                                                                                  |
+| `AuditPropertyLoader`   | Added class Javadoc and `loadProperties` description. The private constructor intentionally remains undocumented (doclint only flags public ctors).                                                                                                                         |
+| `IPSAuditEvent`         | Added interface and `getAction` Javadoc. The `<T> T getAction()` generic carries the documented `@param <T>` declaration.                                                                                                                                                   |
+| `IPSAuditLogService`    | Added per-method Javadoc on the five public API methods. The existing `/** Defines the interface for the audit log service */` on the interface itself was retained.                                                                                                        |
+| `PSActionOutcome`       | Added class Javadoc and Javadoc on each of the three enum constants (`SUCCESS`, `FAILURE`, `UNKNOWN`).                                                                                                                                                                      |
+| `PSAuditLogService`     | Added class Javadoc + Javadoc on `auditLog`, `createEvent`, `getInstance`, `generateLogFile`, `isGenerateLog`. Replaced missing `@param event` descriptions on the three event-log methods with proper sentences.                                                           |
+| `PSAuthenticationEvent` | Added class Javadoc, Javadoc on the five public constants (sessionid/roles/communityName/user-uri/security-uri), on both ctors, on the `AuthenticationEventActions` enum and each of its 4 constants, and on every getter/setter pair.                                      |
+| `PSContentEvent`        | Added class Javadoc, Javadoc on the three public constants (`CONTENTID_TAG`, `GUID_TAG`, `CONTENT_OBSERVER`), on the `ContentEventActions` enum and each of its 6 constants, on the populated ctor (6 `@param`s), on every getter/setter pair, and on the no-arg ctor.      |
+| `PSUserManagementEvent` | Added class Javadoc, Javadoc on the `UserEventActions` enum and each of its 5 constants, on the populated ctor, and on `getAction`/`setAction`.                                                                                                                             |
+| `PSWorkflowEvent`       | Added class Javadoc, Javadoc on the four public constants (`CONTENTID_TAG`, `GUID_TAG`, `TRANSITIONFROM_TAG`, `TRANSITIONTO_TAG`), on the `WorkflowEventActions` enum and its sole `update` constant, on the populated ctor (7 `@param`s), and on every getter/setter pair. |
 
 ### Behaviour preservation
 
@@ -111,3 +111,4 @@ logic.
   whitespace in `AuditPropertyLoader#loadProperties` (the project uses
   `googleJavaFormat`). All 12 in-scope files remain in scope; no out-of-scope
   changes were introduced.
+

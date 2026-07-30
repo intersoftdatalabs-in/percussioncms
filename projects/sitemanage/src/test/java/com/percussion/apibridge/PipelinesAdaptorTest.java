@@ -19,12 +19,11 @@ package com.percussion.apibridge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.percussion.design.objectstore.PSApplication;
 import com.percussion.design.objectstore.PSApplicationType;
@@ -75,13 +74,11 @@ class PipelinesAdaptorTest {
     PSApplicationSummary c = summary(3, "gamma", "other", true, "c", false, false);
     PSApplicationSummary[] sums = {a, b, c};
 
-    List<ApplicationSummary> byName =
-        PipelinesAdaptor.mapFilterSortLimit(sums, "ALPHA", 500, 0);
+    List<ApplicationSummary> byName = PipelinesAdaptor.mapFilterSortLimit(sums, "ALPHA", 500, 0);
     assertEquals(1, byName.size());
     assertEquals("AlphaApp", byName.get(0).getName());
 
-    List<ApplicationSummary> byDesc =
-        PipelinesAdaptor.mapFilterSortLimit(sums, "docs", 500, 0);
+    List<ApplicationSummary> byDesc = PipelinesAdaptor.mapFilterSortLimit(sums, "docs", 500, 0);
     assertEquals(1, byDesc.size());
     assertEquals("Beta", byDesc.get(0).getName());
   }
@@ -95,7 +92,8 @@ class PipelinesAdaptorTest {
     List<ApplicationSummary> out =
         PipelinesAdaptor.mapFilterSortLimit(new PSApplicationSummary[] {z, a, m}, null, 500, 0);
 
-    assertEquals(List.of("Alpha", "mid", "zeta"), out.stream().map(ApplicationSummary::getName).toList());
+    assertEquals(
+        List.of("Alpha", "mid", "zeta"), out.stream().map(ApplicationSummary::getName).toList());
   }
 
   @Test
@@ -105,12 +103,10 @@ class PipelinesAdaptorTest {
       sums[i] = summary(i, "app" + i, null, true, "r" + i, false, false);
     }
 
-    List<ApplicationSummary> defaulted =
-        PipelinesAdaptor.mapFilterSortLimit(sums, null, 0, 0);
+    List<ApplicationSummary> defaulted = PipelinesAdaptor.mapFilterSortLimit(sums, null, 0, 0);
     assertEquals(5, defaulted.size());
 
-    List<ApplicationSummary> negativeLimit =
-        PipelinesAdaptor.mapFilterSortLimit(sums, null, -3, 0);
+    List<ApplicationSummary> negativeLimit = PipelinesAdaptor.mapFilterSortLimit(sums, null, -3, 0);
     assertEquals(5, negativeLimit.size());
 
     // Hard cap: even if limit is huge, at most MAX_LIMIT — with only 5 rows, still 5
@@ -129,8 +125,7 @@ class PipelinesAdaptorTest {
       sums[i] = summary(i, "app" + i, null, true, "r" + i, false, false);
     }
 
-    List<ApplicationSummary> page =
-        PipelinesAdaptor.mapFilterSortLimit(sums, null, 2, 1);
+    List<ApplicationSummary> page = PipelinesAdaptor.mapFilterSortLimit(sums, null, 2, 1);
     assertEquals(2, page.size());
     assertEquals("app1", page.get(0).getName());
     assertEquals("app2", page.get(1).getName());
@@ -193,8 +188,7 @@ class PipelinesAdaptorTest {
 
   @Test
   void mapFilterSortLimit_mapsHiddenFlag() {
-    PSApplicationSummary hidden =
-        summary(9, "secret", "hidden app", false, "sec", true, true);
+    PSApplicationSummary hidden = summary(9, "secret", "hidden app", false, "sec", true, true);
 
     List<ApplicationSummary> out =
         PipelinesAdaptor.mapFilterSortLimit(new PSApplicationSummary[] {hidden}, null, 10, 0);
@@ -232,7 +226,8 @@ class PipelinesAdaptorTest {
     PSApplicationSummary[] sums = {a};
 
     // by name (case-insensitive) → catalog name, not raw user casing
-    assertEquals("sys_cmpDocuments", PipelinesAdaptor.resolveApplicationName("SYS_CMPDOCUMENTS", sums));
+    assertEquals(
+        "sys_cmpDocuments", PipelinesAdaptor.resolveApplicationName("SYS_CMPDOCUMENTS", sums));
     // by id
     assertEquals("sys_cmpDocuments", PipelinesAdaptor.resolveApplicationName("7", sums));
     // unknown / path injection attempts

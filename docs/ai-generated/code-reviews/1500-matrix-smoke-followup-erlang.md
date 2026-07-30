@@ -1,15 +1,15 @@
 # Erlang review — `1500-matrix-smoke-followup`
 
-| Field | Value |
-|-------|--------|
-| **Date (UTC)** | 2026-07-26 |
-| **Reviewer** | Erlang (strict independent pre-PR) |
-| **Branch** | `1500-matrix-smoke-followup` |
-| **Base** | `origin/development` |
-| **Commits** | `7c85dd5c0b` (scheduler H2/PG), `376504d470` (H2 path / empty pwd / ems bean) |
-| **Scope** | Branch `origin/development...HEAD` (no uncommitted dirty tree at review time) |
-| **gh** | Available; no open PR for this head yet |
-| **Prior report** | None under `docs/ai-generated/code-reviews/` for this slug |
+|          Field          |                                                              Value                                                               |
+|-------------------------|----------------------------------------------------------------------------------------------------------------------------------|
+| **Date (UTC)**          | 2026-07-26                                                                                                                       |
+| **Reviewer**            | Erlang (strict independent pre-PR)                                                                                               |
+| **Branch**              | `1500-matrix-smoke-followup`                                                                                                     |
+| **Base**                | `origin/development`                                                                                                             |
+| **Commits**             | `7c85dd5c0b` (scheduler H2/PG), `376504d470` (H2 path / empty pwd / ems bean)                                                    |
+| **Scope**               | Branch `origin/development...HEAD` (no uncommitted dirty tree at review time)                                                    |
+| **gh**                  | Available; no open PR for this head yet                                                                                          |
+| **Prior report**        | None under `docs/ai-generated/code-reviews/` for this slug                                                                       |
 | **Memory patterns hit** | Hard gate: missing behavioral tests; Installer/Ant relative path CWD; passwords in config encrypt/decrypt; Path/Files preference |
 
 ## Summary
@@ -31,12 +31,12 @@ Path resolution and scheduler mapping have solid unit tests. Matrix smoke was ob
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
+|           Check           |                                          Result                                          |
+|---------------------------|------------------------------------------------------------------------------------------|
 | Correctness bugs in logic | No open correctness bugs found in path/scheduler resolution (smoke + unit tests support) |
-| Missing behavioral tests | **Pass** after re-review (empty Jetty DS password unit tests) |
-| Cross-platform path I/O | **Pass** (see below) |
-| Security / secrets | **Pass** — empty password left unencrypted; no secrets committed |
+| Missing behavioral tests  | **Pass** after re-review (empty Jetty DS password unit tests)                            |
+| Cross-platform path I/O   | **Pass** (see below)                                                                     |
+| Security / secrets        | **Pass** — empty password left unencrypted; no secrets committed                         |
 
 ## Cross-platform path review
 
@@ -75,13 +75,13 @@ Touched: `PSJdbcUtils.resolveEmbeddedFileServer`, `InstallUtil.ensureH2Repositor
 
 ## What looks solid
 
-| Area | Evidence |
-|------|----------|
+|                Area                 |                                                        Evidence                                                        |
+|-------------------------------------|------------------------------------------------------------------------------------------------------------------------|
 | H2 relative → install-root absolute | `PSJdbcUtils.resolveEmbeddedFileServer` + TempDir tests (relative product default, absolute normalize, nulls/non-file) |
-| Scheduler `h2:file` / postgresql | `PSSchedulerBeanDriverDelegateTest` behavioral cases |
-| Driver URL map `h2:file` | `PSJdbcUtilsTest.testH2JdbcUrlAndDriverMap` |
-| Runtime smoke | `docker/logs/matrix-results-20260726-080125.json` — cms-h2 **pass**, HTTP 200 |
-| Full reactor | Earlier session: `clean install -DskipTests` BUILD SUCCESS |
+| Scheduler `h2:file` / postgresql    | `PSSchedulerBeanDriverDelegateTest` behavioral cases                                                                   |
+| Driver URL map `h2:file`            | `PSJdbcUtilsTest.testH2JdbcUrlAndDriverMap`                                                                            |
+| Runtime smoke                       | `docker/logs/matrix-results-20260726-080125.json` — cms-h2 **pass**, HTTP 200                                          |
+| Full reactor                        | Earlier session: `clean install -DskipTests` BUILD SUCCESS                                                             |
 
 ## Required before push / PR
 
@@ -92,12 +92,12 @@ Touched: `PSJdbcUtils.resolveEmbeddedFileServer`, `InstallUtil.ensureH2Repositor
 
 ## Re-review (2026-07-26)
 
-| Item | Status |
-|------|--------|
-| Empty Jetty pwd unit tests | **Fixed** — `JettyDatasourceConfigurationAdapterTest` (3 run / 0 fail) |
-| Cross-platform path I/O | Unchanged pass |
-| CMS H2 matrix smoke | Still green evidence (HTTP 200) — not re-run this re-review |
-| CMS PostgreSQL matrix smoke | **Not run** on this branch session — no pass evidence |
+|            Item             |                                 Status                                 |
+|-----------------------------|------------------------------------------------------------------------|
+| Empty Jetty pwd unit tests  | **Fixed** — `JettyDatasourceConfigurationAdapterTest` (3 run / 0 fail) |
+| Cross-platform path I/O     | Unchanged pass                                                         |
+| CMS H2 matrix smoke         | Still green evidence (HTTP 200) — not re-run this re-review            |
+| CMS PostgreSQL matrix smoke | **Not run** on this branch session — no pass evidence                  |
 
 **Recommendation:** `approve`  
 **May commit/push: yes**

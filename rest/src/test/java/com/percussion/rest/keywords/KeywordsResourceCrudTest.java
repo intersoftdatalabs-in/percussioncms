@@ -126,8 +126,7 @@ public class KeywordsResourceCrudTest {
     when(adaptor.updateKeyword(any(), eq("9"), any())).thenReturn(null);
     WebApplicationException ex =
         assertThrows(
-            WebApplicationException.class,
-            () -> resource.updateKeyword("9", new KeywordSummary()));
+            WebApplicationException.class, () -> resource.updateKeyword("9", new KeywordSummary()));
     assertEquals(404, ex.getResponse().getStatus());
   }
 

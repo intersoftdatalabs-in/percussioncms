@@ -126,8 +126,6 @@
         <gwt.maven.plugin.version>2.10.0</gwt.maven.plugin.version>
         <!-- #548 default embedded replacement (bake-off primary); Derby retained for migration window -->
         <h2.version>2.3.232</h2.version>
-        <!-- #1500 external PostgreSQL repository backend (org.postgresql:postgresql, Java 21) -->
-        <postgresql.version>42.7.12</postgresql.version>
         <hibernate.validator.version>8.0.1.Final</hibernate.validator.version>
         <hibernate.version>7.2.6.Final</hibernate.version>
         <hikaricp.version>7.0.2</hikaricp.version>
@@ -224,6 +222,8 @@
         <pdfbox.version>3.0.6</pdfbox.version>
         <plexus.component.metadata.version>2.2.0</plexus.component.metadata.version>
         <poi.version>5.4.0</poi.version>
+        <!-- #1500 external PostgreSQL repository backend (org.postgresql:postgresql, Java 21) -->
+        <postgresql.version>42.7.12</postgresql.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quartz.version>2.5.2</quartz.version>
@@ -236,12 +236,12 @@
         <skin.last.release.version>1.3.1</skin.last.release.version>
         <skipITs>true</skipITs>
         <skipTests>false</skipTests>
-        <slf4j.version>2.0.17</slf4j.version>
+        <slf4j.version>2.0.18</slf4j.version>
         <snakeyaml.version>2.5</snakeyaml.version>
         <solr.version>9.10.1</solr.version>
         <spotless.plugin.version>3.1.0</spotless.plugin.version>
         <!-- 5.17.x and up require Java 11 -->
-        <spring.version>7.0.7</spring.version>
+        <spring.version>7.0.8</spring.version>
         <sqlite.version>3.51.1.0</sqlite.version>
         <stax.version>1.0.1</stax.version>
         <surefireArgLine/>
@@ -2643,15 +2643,15 @@
                         </execution>
                     </executions>
                 </plugin>
-                <plugin>
+       <!-- re-enable when maven central publishing issue is resolved  - til then it breaks dependabot
+
+            <plugin>
                     <groupId>com.intsof</groupId>
                     <artifactId>ai-build-integrity-maven-plugin</artifactId>
                     <version>0.13.3</version>
                     <configuration>
                         <hashFileMode>CENTRAL</hashFileMode>
-                        <!-- Scan the entire repo, not just the current module's basedir -->
                         <baseDir>${maven.multiModuleProjectDirectory}</baseDir>
-                        <!-- All modules share one ledger written to root target/ -->
                         <centralHashFile>${maven.multiModuleProjectDirectory}/target/ai-integrity.sha256</centralHashFile>
                         <gitignoreAutoExclude>true</gitignoreAutoExclude>
                         <forceIncludes>.env</forceIncludes>
@@ -2671,14 +2671,12 @@
                             <goals>
                                 <goal>generate-hashes</goal>
                             </goals>
-                            <!-- Seal once at reactor start -->
                             <configuration>
                                 <executionRootOnly>true</executionRootOnly>
                             </configuration>
                         </execution>
                         <execution>
                             <id>verify</id>
-                            <!-- No executionRootOnly — fires in every module before it is packaged -->
                             <goals>
                                 <goal>verify-hashes</goal>
                             </goals>
@@ -2688,21 +2686,21 @@
                             <goals>
                                 <goal>clean-hashes</goal>
                             </goals>
-                            <!-- Delete ledger once -->
                             <configuration>
                                 <executionRootOnly>true</executionRootOnly>
                             </configuration>
                         </execution>
                     </executions>
-                </plugin>
+                </plugin> -->
             </plugins>
         </pluginManagement>
         <plugins>
-            <plugin>
+     <!--       <plugin>
                 <groupId>com.intsof</groupId>
                 <artifactId>ai-build-integrity-maven-plugin</artifactId>
                 <version>0.13.3</version>
             </plugin>
+    -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>

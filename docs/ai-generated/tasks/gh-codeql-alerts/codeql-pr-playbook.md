@@ -29,12 +29,12 @@ Structural fixes were correct; **PR gating used the wrong analyzer**. That cause
 
 ### Path filters & branch protection
 
-| Check name | When it runs |
-|------------|----------------|
-| `Detect language changes` | Always (for PR/push/schedule/manual) |
-| `Analyze (java-kotlin)` | Java-relevant paths, or full scan events |
-| `Analyze (javascript-typescript)` | JS/TS-relevant paths, or full scan events |
-| **`CodeQL`** (gate) | Always — succeeds when required language jobs succeed or were legitimately skipped |
+|            Check name             |                                    When it runs                                    |
+|-----------------------------------|------------------------------------------------------------------------------------|
+| `Detect language changes`         | Always (for PR/push/schedule/manual)                                               |
+| `Analyze (java-kotlin)`           | Java-relevant paths, or full scan events                                           |
+| `Analyze (javascript-typescript)` | JS/TS-relevant paths, or full scan events                                          |
+| **`CodeQL`** (gate)               | Always — succeeds when required language jobs succeed or were legitimately skipped |
 
 **Prefer requiring the gate check `CodeQL`** in branch protection rather than the individual `Analyze (…)` names, so a docs-only PR is not blocked by a missing Java check.
 

@@ -24,12 +24,12 @@
 
 ## Pre-PR build (HARD GATE)
 
-| Module | Command | Result |
-|---|---|---|
-| `extensions-workflow` | `cd modules\extensions-workflow & mvn clean install -Dtest=PSLoadFromHibernateTest -DfailIfNoTests=false` | BUILD SUCCESS — 9 tests, 1 active passing (`commitColumnMap_populatesStateIdAndRevisions`), 8 `@Disabled` skipped, 0 failures |
-| `system` | `cd system & mvn clean install -Dtest=PSSystemServicePhase4d1bWritesTest -DfailIfNoTests=false` | BUILD SUCCESS — 16/16 passing |
-| Full `extensions-workflow` | `cd modules\extensions-workflow & mvn clean install` | BUILD SUCCESS — 53 tests, 20 active, 33 `@Disabled`, 0 failures |
-| Spotless | `mvn spotless:apply` on `system` and `extensions-workflow` | BUILD SUCCESS on both |
+|           Module           |                                                  Command                                                  |                                                            Result                                                             |
+|----------------------------|-----------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|
+| `extensions-workflow`      | `cd modules\extensions-workflow & mvn clean install -Dtest=PSLoadFromHibernateTest -DfailIfNoTests=false` | BUILD SUCCESS — 9 tests, 1 active passing (`commitColumnMap_populatesStateIdAndRevisions`), 8 `@Disabled` skipped, 0 failures |
+| `system`                   | `cd system & mvn clean install -Dtest=PSSystemServicePhase4d1bWritesTest -DfailIfNoTests=false`           | BUILD SUCCESS — 16/16 passing                                                                                                 |
+| Full `extensions-workflow` | `cd modules\extensions-workflow & mvn clean install`                                                      | BUILD SUCCESS — 53 tests, 20 active, 33 `@Disabled`, 0 failures                                                               |
+| Spotless                   | `mvn spotless:apply` on `system` and `extensions-workflow`                                                | BUILD SUCCESS on both                                                                                                         |
 
 ## Findings
 

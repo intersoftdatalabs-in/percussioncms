@@ -42,8 +42,8 @@ public class PSSimpleTrustManager implements X509TrustManager {
    * Constructs a new simple trust manager wrapping the {@link X509TrustManager} from the supplied
    * key store using the default JCA algorithm.
    *
-   * @param keystore the key store providing trusted certificates, may be <code>null</code> in
-   *     which case the JCA default trust store is used.
+   * @param keystore the key store providing trusted certificates, may be <code>null</code> in which
+   *     case the JCA default trust store is used.
    * @throws NoSuchAlgorithmException if no trust manager can be created.
    * @throws KeyStoreException if the supplied key store cannot be initialized.
    */

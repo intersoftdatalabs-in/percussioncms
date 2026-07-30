@@ -27,14 +27,13 @@ import java.util.Map;
 
 /**
  * Provides the high-level form submission lifecycle used by the delivery-tier forms service:
- * persisting submissions, exposing counts and lookup queries, and dispatching notification
- * emails. Implementations are typically backed by a JPA {@link IPSFormDao} and an email
- * helper.
+ * persisting submissions, exposing counts and lookup queries, and dispatching notification emails.
+ * Implementations are typically backed by a JPA {@link IPSFormDao} and an email helper.
  */
 public interface IPSFormService {
   /**
-   * Persists a single form submission. Implementations must validate the supplied form and
-   * delegate the actual storage to the configured DAO.
+   * Persists a single form submission. Implementations must validate the supplied form and delegate
+   * the actual storage to the configured DAO.
    *
    * @param formdata the submission to persist, never <code>null</code>.
    */
@@ -48,8 +47,8 @@ public interface IPSFormService {
   public void delete(IPSFormData form);
 
   /**
-   * Returns the recaptcha service used to validate end-user submissions for spam. May return
-   * <code>null</code> when recaptcha integration is not configured.
+   * Returns the recaptcha service used to validate end-user submissions for spam. May return <code>
+   * null</code> when recaptcha integration is not configured.
    *
    * @return the recaptcha service in use, may be <code>null</code>.
    */
@@ -72,18 +71,18 @@ public interface IPSFormService {
   public IPSFormData createFormData(String formname, Map<String, String[]> formdata);
 
   /**
-   * Permanently deletes forms that have been marked as <code>exported</code>. If the supplied
-   * form name is <code>null</code> or empty every exported form is removed; otherwise only
-   * exported forms whose name matches the supplied value are deleted. The form name
-   * comparison is case-insensitive.
+   * Permanently deletes forms that have been marked as <code>exported</code>. If the supplied form
+   * name is <code>null</code> or empty every exported form is removed; otherwise only exported
+   * forms whose name matches the supplied value are deleted. The form name comparison is
+   * case-insensitive.
    *
    * @param formName the form name to filter by, may be <code>null</code> or empty.
    */
   public void deleteExportedForms(String formName);
 
   /**
-   * Loads every form stored under the supplied name, ordered by created date ascending. The
-   * form name comparison is case-insensitive.
+   * Loads every form stored under the supplied name, ordered by created date ascending. The form
+   * name comparison is case-insensitive.
    *
    * @param name the form name to look up, never <code>null</code>.
    * @return the matching forms, never <code>null</code>, may be empty. Ordered by created date
@@ -92,19 +91,19 @@ public interface IPSFormService {
   public List<IPSFormData> findFormsByName(String name);
 
   /**
-   * Loads every form currently stored in the system, ordered by name first ascending and then
-   * by created date ascending.
+   * Loads every form currently stored in the system, ordered by name first ascending and then by
+   * created date ascending.
    *
    * @return every stored form, never <code>null</code>, may be empty.
    */
   public List<IPSFormData> findAllForms();
 
   /**
-   * Discovers the distinct form names in the underlying store. Names that differ only by
-   * letter case are not considered distinct. The returned list is ordered ascending by name.
+   * Discovers the distinct form names in the underlying store. Names that differ only by letter
+   * case are not considered distinct. The returned list is ordered ascending by name.
    *
-   * @return the distinct form names, never <code>null</code>, may be empty. Ordered by created
-   *     date ascending.
+   * @return the distinct form names, never <code>null</code>, may be empty. Ordered by created date
+   *     ascending.
    */
   public List<String> findDistinctFormNames();
 
@@ -118,8 +117,8 @@ public interface IPSFormService {
   public void markAsExported(Collection<IPSFormData> forms);
 
   /**
-   * Counts the forms that have been marked as exported, optionally filtered by name. The form
-   * name comparison is case-insensitive.
+   * Counts the forms that have been marked as exported, optionally filtered by name. The form name
+   * comparison is case-insensitive.
    *
    * @param name the form name, may be <code>null</code> or empty in which case all forms will be
    *     counted. The form name comparison is case-insensitive.
@@ -128,8 +127,8 @@ public interface IPSFormService {
   public long getExportedFormCount(String name);
 
   /**
-   * Counts all forms currently stored in the system, optionally filtered by name. The form
-   * name comparison is case-insensitive.
+   * Counts all forms currently stored in the system, optionally filtered by name. The form name
+   * comparison is case-insensitive.
    *
    * @param name the form name, may be <code>null</code> or empty in which case all forms will be
    *     counted. The form name comparison is case-insensitive.
@@ -140,10 +139,10 @@ public interface IPSFormService {
   /**
    * Emails the supplied form data using the supplied info.
    *
-   * @param toList A comma-delimited list of recipient email addresses, not <code>null</code> or empty.
+   * @param toList A comma-delimited list of recipient email addresses, not <code>null</code> or
+   *     empty.
    * @param subject The subject line to use, not <code>null</code> or empty.
    * @param formData The form data to include in the body of the email, not <code>null</code>.
-   *
    * @throws PSEmailServiceNotInitializedException if the email service is not properly configured
    * @throws PSEmailException If there are any errors sending the email
    */

@@ -40,10 +40,10 @@ import java.util.logging.Logger;
  *
  * <p>Upgrade-driven FR-018a product backup (CMS/DTS migrators after a confirmed-offline server
  * check) clears stale Derby/H2 lock markers from the live tree, then copies with {@code
- * refuseIfLive=false}. Lock markers are never included in the backup artifact so a restore does
- * not reintroduce files that can block clean startup. Direct operator tools should keep the
- * default refuse-if-live behavior unless they have independently confirmed the instance is
- * offline and call {@link #clearStaleLiveMarkers(Path)}.
+ * refuseIfLive=false}. Lock markers are never included in the backup artifact so a restore does not
+ * reintroduce files that can block clean startup. Direct operator tools should keep the default
+ * refuse-if-live behavior unless they have independently confirmed the instance is offline and call
+ * {@link #clearStaleLiveMarkers(Path)}.
  */
 public final class PSRepositoryOfflineBackup {
 

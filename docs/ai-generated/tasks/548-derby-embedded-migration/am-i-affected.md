@@ -7,13 +7,13 @@
 
 ## 60-second answer
 
-| Your CMS / DTS repository backend | Affected by automatic Derby → H2 migration? |
-|-----------------------------------|-----------------------------------------------|
+|                       Your CMS / DTS repository backend                       |     Affected by automatic Derby → H2 migration?      |
+|-------------------------------------------------------------------------------|------------------------------------------------------|
 | **Apache Derby** (product default / product-managed embedded or ClientDriver) | **Yes** — upgrade will migrate after the backup gate |
-| **H2** (already the live default after a prior successful migration) | **No** re-migration (`ALREADY_MIGRATED`) |
-| **MySQL** | **No** |
-| **Microsoft SQL Server** | **No** |
-| **Oracle** (if configured as external enterprise DB) | **No** (same “external non-Derby” skip class) |
+| **H2** (already the live default after a prior successful migration)          | **No** re-migration (`ALREADY_MIGRATED`)             |
+| **MySQL**                                                                     | **No**                                               |
+| **Microsoft SQL Server**                                                      | **No**                                               |
+| **Oracle** (if configured as external enterprise DB)                          | **No** (same “external non-Derby” skip class)        |
 
 If you never chose an external RDBMS at install and never changed repository properties, you are almost certainly on **product-managed Derby** (or already on **H2** after migrating) — check the property files below.
 
@@ -37,11 +37,11 @@ jetty/base/etc/perc-ds.properties
 
 Look at **`DB_DRIVER_NAME`** / driver class (names may vary slightly by age of install):
 
-| Signal | Backend |
-|--------|---------|
-| `derby`, `org.apache.derby.jdbc.*` | **Derby** → **affected** |
-| `h2`, `org.h2.Driver` | **H2** → not re-migrated |
-| `mysql`, MySQL connector class | **MySQL** → not affected |
+|                  Signal                  |            Backend            |
+|------------------------------------------|-------------------------------|
+| `derby`, `org.apache.derby.jdbc.*`       | **Derby** → **affected**      |
+| `h2`, `org.h2.Driver`                    | **H2** → not re-migrated      |
+| `mysql`, MySQL connector class           | **MySQL** → not affected      |
 | `sqlserver` / `mssql`, SQL Server driver | **SQL Server** → not affected |
 
 Networked product-managed Derby may show a ClientDriver URL with host/port (historically **1527**). That is still **Derby** for migration purposes.
@@ -121,3 +121,4 @@ A: On failure / blocked gate, live config stays on Derby and source data is not 
 - [release-notes-8.2-derby-migration.md](./release-notes-8.2-derby-migration.md)
 - [operator-backup-restore.md](./operator-backup-restore.md)
 - Engineering contracts: `specs/548-derby-embedded-migration/contracts/`
+

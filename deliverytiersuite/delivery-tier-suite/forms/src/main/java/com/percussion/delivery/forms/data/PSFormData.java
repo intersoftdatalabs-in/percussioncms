@@ -163,8 +163,8 @@ public class PSFormData implements IPSFormData {
   }
 
   /**
-   * Reports whether the form has been exported. The value is either {@code 'y'} when the form
-   * has been exported, or {@code 'n'} otherwise.
+   * Reports whether the form has been exported. The value is either {@code 'y'} when the form has
+   * been exported, or {@code 'n'} otherwise.
    *
    * @return the export flag character.
    */
@@ -173,8 +173,7 @@ public class PSFormData implements IPSFormData {
   }
 
   /**
-   * Returns the creation timestamp of the form record (identical to
-   * {@link #getCreateDate()}).
+   * Returns the creation timestamp of the form record (identical to {@link #getCreateDate()}).
    *
    * @return the creation date, never <code>null</code>.
    */
@@ -203,8 +202,8 @@ public class PSFormData implements IPSFormData {
   }
 
   /**
-   * Default constructor required by the JPA provider. Application code should use
-   * {@link #PSFormData(String, Map)} instead.
+   * Default constructor required by the JPA provider. Application code should use {@link
+   * #PSFormData(String, Map)} instead.
    */
   protected PSFormData() {}
 
@@ -218,8 +217,8 @@ public class PSFormData implements IPSFormData {
   }
 
   /**
-   * Sets the persistent identifier for this form. A <code>null</code> value resets the
-   * identifier to {@code 0}.
+   * Sets the persistent identifier for this form. A <code>null</code> value resets the identifier
+   * to {@code 0}.
    *
    * @param id the identifier, may be <code>null</code>.
    */

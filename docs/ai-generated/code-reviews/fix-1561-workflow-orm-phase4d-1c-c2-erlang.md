@@ -68,10 +68,10 @@ The behavioural test surface for the migrated paths is unchanged:
 - `PSExitAddPossibleTransitionsExTest` (3 `@Disabled` tests, all pinned to argument-validation guard ordering + contract placeholders) continues to exercise the same code paths.
 - The `PSExitAddPossibleTransitionsEx.java` integration test relies on Spring+H2 infra (inventory §7), consistent with the established module pattern.
 - No new tests added in this PR because:
-  1. `PSSystemWs.getAllowedTransitions(List<IPSGuid>)` already has an integration test in `system/webservices/test/...` (SystemTestCase.java, PSSystemTestBase.cs etc.) — same code path, same Spring+H2 dependency.
-  2. The deleted overloads had no behavioural tests.
-  3. The 6-arg `getActorRoles` overload had no behavioural tests.
-  Backfilling these is the Phase 4d-1d acceptance criteria (inventory §7).
+1. `PSSystemWs.getAllowedTransitions(List<IPSGuid>)` already has an integration test in `system/webservices/test/...` (SystemTestCase.java, PSSystemTestBase.cs etc.) — same code path, same Spring+H2 dependency.
+2. The deleted overloads had no behavioural tests.
+3. The 6-arg `getActorRoles` overload had no behavioural tests.
+Backfilling these is the Phase 4d-1d acceptance criteria (inventory §7).
 
 ### Non-portable file I/O / path handling
 

@@ -7,13 +7,13 @@
 
 **Result:** **Approve** — no **bug** findings.
 
-| | |
-|---|---|
-| Bug findings | 0 |
-| Test-coverage findings | 0 (3 new regression tests cover the exact reported repro) |
-| Cross-platform path / I/O findings | 0 (no file I/O) |
-| Security / data-loss findings | 0 |
-| Convention / maintainability findings | 0 |
+|                                       |                                                           |
+|---------------------------------------|-----------------------------------------------------------|
+| Bug findings                          | 0                                                         |
+| Test-coverage findings                | 0 (3 new regression tests cover the exact reported repro) |
+| Cross-platform path / I/O findings    | 0 (no file I/O)                                           |
+| Security / data-loss findings         | 0                                                         |
+| Convention / maintainability findings | 0                                                         |
 
 ## Diff size
 
@@ -48,10 +48,10 @@ The Phase 4b PR (`a575533f38`) introduced two copy-paste regressions in
 `PSContentStatusContext`) has both `getObjectType()` and `getContentTypeId()`. The
 two are different fields:
 
-| Method | Return type | Example value | Meaning |
-|---|---|---|---|
-| `getObjectType()` | `int` | `1` (item) or `2` (folder) | Object type — what the row IS |
-| `getContentTypeId()` | `long` | `101` (rffGeneric) | Content type — the schema |
+|        Method        | Return type |       Example value        |            Meaning            |
+|----------------------|-------------|----------------------------|-------------------------------|
+| `getObjectType()`    | `int`       | `1` (item) or `2` (folder) | Object type — what the row IS |
+| `getContentTypeId()` | `long`      | `101` (rffGeneric)         | Content type — the schema     |
 
 `PSCmsObject.TYPE_FOLDER = 2` is the *object* type constant. Comparing the content
 type id to it (with a `long → int` cast) is a type mismatch that compiles but is
@@ -66,11 +66,11 @@ The fix restores the pre-Phase-4b code exactly: `csc.getObjectType() == PSCmsObj
 
 ## Build & test evidence
 
-| Module | Command | Result |
-|---|---|---|
-| `modules/extensions-workflow` | `mvn-env.bat -N clean install -DskipTests` | **BUILD SUCCESS** |
-| `modules/extensions-workflow` | `mvn-env.bat -N test` | **52 tests** (19 active + 33 @Disabled), Failures: 0, Errors: 0 |
-| `modules/extensions-workflow` | `mvn-env.bat -N test -Dtest=PSExitAuthenticateUserFolderCheckTest` | **3 new regression tests** all green |
+|            Module             |                              Command                               |                             Result                              |
+|-------------------------------|--------------------------------------------------------------------|-----------------------------------------------------------------|
+| `modules/extensions-workflow` | `mvn-env.bat -N clean install -DskipTests`                         | **BUILD SUCCESS**                                               |
+| `modules/extensions-workflow` | `mvn-env.bat -N test`                                              | **52 tests** (19 active + 33 @Disabled), Failures: 0, Errors: 0 |
+| `modules/extensions-workflow` | `mvn-env.bat -N test -Dtest=PSExitAuthenticateUserFolderCheckTest` | **3 new regression tests** all green                            |
 
 Pre-existing Spotless violations in 29 other files (none in the files modified by
 this hot-fix) are documented in prior Erlang reviews and are out of scope here.
@@ -106,10 +106,8 @@ Three tests, all active (no `@Disabled`):
    - `csc.getObjectType() == PSCmsObject.TYPE_FOLDER` (true)
    - `csc.isFolder()` (true)
    - `csc.getContentTypeId() != PSCmsObject.TYPE_FOLDER` (the bug case)
-
 2. **`itemRow_isNotDetectedAsFolder`** — inverse case. Content type id 101, object
    type `TYPE_ITEM`. Asserts the folder check is false.
-
 3. **`getObjectTypeIsIntAndGetContentTypeIdIsLong`** — type-safety test. The bug
    code cast a `long` to `int` and compared to an `int` constant. Java auto-widens
    so it compiles, but the comparison was always false. This test pins the
@@ -130,13 +128,14 @@ None.
 
 ## Gate
 
-| Check | Status |
-|---|---|
-| Bug findings | ✅ 0 |
-| Missing behavioural tests | ✅ 0 (3 new active tests covering the exact repro) |
-| Cross-platform portability | ✅ N/A |
-| Security / data-loss | ✅ 0 |
+|           Check            |                                   Status                                   |
+|----------------------------|----------------------------------------------------------------------------|
+| Bug findings               | ✅ 0                                                                        |
+| Missing behavioural tests  | ✅ 0 (3 new active tests covering the exact repro)                          |
+| Cross-platform portability | ✅ N/A                                                                      |
+| Security / data-loss       | ✅ 0                                                                        |
 | Erlang pre-commit (strict) | ✅ **Approve** — may commit / push / amend PR #1589 or open a new fix-up PR |
 
 > The pre-existing Spotless violations in 29 unrelated files are not introduced
 > by this hot-fix and are not in scope for this Erlang review.
+

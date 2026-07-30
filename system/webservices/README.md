@@ -6,10 +6,10 @@ SOAP / web-service endpoints and related types for Percussion CMS (in-tree under
 
 ## Architecture (high level)
 
-- **Base** – shared SOAP base types / helpers  
-- **Services** – security, content, and other SOAP implementations  
-- **Wire / fault types** – request/response and fault handling  
-- **Clients / stubs** – generated or supporting client utilities where present  
+- **Base** – shared SOAP base types / helpers
+- **Services** – security, content, and other SOAP implementations
+- **Wire / fault types** – request/response and fault handling
+- **Clients / stubs** – generated or supporting client utilities where present
 
 Stack has moved off legacy Axis toward modern JAX-WS-style endpoints where migrated; follow existing classes in-tree rather than reintroducing Axis 1 patterns.
 
@@ -25,3 +25,4 @@ See [system/README.md](../README.md) and [system/AGENTS.md](../AGENTS.md).
 
 - Preserve public SOAP contracts unless the task explicitly includes a breaking wire change.
 - No package-by-package modernization log is maintained here.
+

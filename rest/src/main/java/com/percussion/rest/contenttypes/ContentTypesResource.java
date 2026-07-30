@@ -825,8 +825,7 @@ public class ContentTypesResource {
         @ApiResponse(
             responseCode = "200",
             description = "OK",
-            content =
-                @Content(schema = @Schema(implementation = ContentTypeDetail.class))),
+            content = @Content(schema = @Schema(implementation = ContentTypeDetail.class))),
         @ApiResponse(responseCode = "404", description = "Content type not found"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
@@ -866,8 +865,7 @@ public class ContentTypesResource {
         @ApiResponse(
             responseCode = "200",
             description = "Updated",
-            content =
-                @Content(schema = @Schema(implementation = ContentTypeDetail.class))),
+            content = @Content(schema = @Schema(implementation = ContentTypeDetail.class))),
         @ApiResponse(responseCode = "400", description = "Invalid input"),
         @ApiResponse(responseCode = "404", description = "Content type not found"),
         @ApiResponse(responseCode = "409", description = "Could not acquire design lock"),

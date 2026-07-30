@@ -24,8 +24,8 @@ import java.util.Map;
 
 /**
  * Defines the persistence operations available for form submissions. Implementations are
- * responsible for storing, retrieving, and managing the lifecycle of {@link IPSFormData}
- * records independent of the underlying storage technology.
+ * responsible for storing, retrieving, and managing the lifecycle of {@link IPSFormData} records
+ * independent of the underlying storage technology.
  */
 public interface IPSFormDao {
 
@@ -54,21 +54,21 @@ public interface IPSFormDao {
   public void delete(IPSFormData form);
 
   /**
-   * Counts the forms that have been marked as exported, optionally filtered by name. The form
-   * name comparison is case-insensitive.
+   * Counts the forms that have been marked as exported, optionally filtered by name. The form name
+   * comparison is case-insensitive.
    *
-   * @param name the form name to filter by, may be <code>null</code> or empty in which case
-   *     forms across all names are counted.
+   * @param name the form name to filter by, may be <code>null</code> or empty in which case forms
+   *     across all names are counted.
    * @return the number of exported forms matching the supplied name, never <code>null</code>.
    */
   public long getExportedFormCount(String name);
 
   /**
-   * Counts all forms currently stored in the system, optionally filtered by name. The form
-   * name comparison is case-insensitive.
+   * Counts all forms currently stored in the system, optionally filtered by name. The form name
+   * comparison is case-insensitive.
    *
-   * @param name the form name to filter by, may be <code>null</code> or empty in which case
-   *     all forms are counted.
+   * @param name the form name to filter by, may be <code>null</code> or empty in which case all
+   *     forms are counted.
    * @return the total number of forms matching the supplied name, never <code>null</code>.
    */
   public long getTotalFormCount(String name);
@@ -77,15 +77,15 @@ public interface IPSFormDao {
    * Marks each supplied form as exported. This is used to record that the form data has been
    * exported by an administrator so it can be cleaned up later.
    *
-   * @param forms never <code>null</code>, may be empty. It is OK if a supplied form has
-   *     already been marked.
+   * @param forms never <code>null</code>, may be empty. It is OK if a supplied form has already
+   *     been marked.
    */
   public void markAsExported(Collection<IPSFormData> forms);
 
   /**
-   * Removes all forms that have been previously marked as exported. If a form name is supplied
-   * only exported forms matching that name are removed; otherwise all exported forms are
-   * deleted. The form name comparison is case-insensitive.
+   * Removes all forms that have been previously marked as exported. If a form name is supplied only
+   * exported forms matching that name are removed; otherwise all exported forms are deleted. The
+   * form name comparison is case-insensitive.
    *
    * @param formName the form name to filter by, may be <code>null</code> or empty in which case
    *     every exported form is deleted.
@@ -93,8 +93,8 @@ public interface IPSFormDao {
   public void deleteExportedForms(String formName);
 
   /**
-   * Loads all forms stored under the supplied name, ordered by creation date ascending. The
-   * form name comparison is case-insensitive.
+   * Loads all forms stored under the supplied name, ordered by creation date ascending. The form
+   * name comparison is case-insensitive.
    *
    * @param name the form name to look up, never <code>null</code>.
    * @return the matching forms, never <code>null</code>, may be empty.
@@ -102,8 +102,8 @@ public interface IPSFormDao {
   public List<IPSFormData> findFormsByName(String name);
 
   /**
-   * Loads every form currently stored in the system, ordered by name ascending and then by
-   * creation date ascending.
+   * Loads every form currently stored in the system, ordered by name ascending and then by creation
+   * date ascending.
    *
    * @return every stored form, never <code>null</code>, may be empty.
    */

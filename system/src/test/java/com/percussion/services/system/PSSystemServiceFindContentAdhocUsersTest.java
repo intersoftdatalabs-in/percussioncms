@@ -43,10 +43,10 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.test.util.ReflectionTestUtils;
 
 /**
- * Mockito-only tests for {@link PSSystemService#findContentAdhocUsers(int)} added for #1561
- * Phase 4b. Verifies the JPQL is well-formed and that the {@code contentId} parameter is
- * forwarded correctly. Behavioural assertions about the result set are out of scope here —
- * see {@code com.percussion.workflow.PSLoadFromHibernateTest} for the mapping tests.
+ * Mockito-only tests for {@link PSSystemService#findContentAdhocUsers(int)} added for #1561 Phase
+ * 4b. Verifies the JPQL is well-formed and that the {@code contentId} parameter is forwarded
+ * correctly. Behavioural assertions about the result set are out of scope here — see {@code
+ * com.percussion.workflow.PSLoadFromHibernateTest} for the mapping tests.
  */
 public class PSSystemServiceFindContentAdhocUsersTest {
 
@@ -78,8 +78,7 @@ public class PSSystemServiceFindContentAdhocUsersTest {
   @Test
   @SuppressWarnings("unchecked")
   void usesContentIdParameter() {
-    org.hibernate.query.Query<PSContentAdhocUser> mockQuery =
-        mock(org.hibernate.query.Query.class);
+    org.hibernate.query.Query<PSContentAdhocUser> mockQuery = mock(org.hibernate.query.Query.class);
     when(session.createQuery(anyString(), eq(PSContentAdhocUser.class))).thenReturn(mockQuery);
     when(mockQuery.setParameter(eq("cid"), any(Integer.class))).thenReturn(mockQuery);
     when(mockQuery.getResultList()).thenReturn(Collections.emptyList());
@@ -92,8 +91,7 @@ public class PSSystemServiceFindContentAdhocUsersTest {
   @Test
   @SuppressWarnings("unchecked")
   void jpqlContainsContentIdPredicate() {
-    org.hibernate.query.Query<PSContentAdhocUser> mockQuery =
-        mock(org.hibernate.query.Query.class);
+    org.hibernate.query.Query<PSContentAdhocUser> mockQuery = mock(org.hibernate.query.Query.class);
     when(session.createQuery(anyString(), eq(PSContentAdhocUser.class))).thenReturn(mockQuery);
     when(mockQuery.setParameter(eq("cid"), any(Integer.class))).thenReturn(mockQuery);
     when(mockQuery.getResultList()).thenReturn(Collections.emptyList());
@@ -104,9 +102,7 @@ public class PSSystemServiceFindContentAdhocUsersTest {
     verify(session).createQuery(jpql.capture(), eq(PSContentAdhocUser.class));
     String sql = jpql.getValue();
     assertNotNull(sql);
-    assertTrue(
-        sql.contains("contentId = :cid"),
-        "JPQL must filter by contentId, got: " + sql);
+    assertTrue(sql.contains("contentId = :cid"), "JPQL must filter by contentId, got: " + sql);
     assertEquals(
         "from PSContentAdhocUser where contentId = :cid",
         sql.trim(),
@@ -117,8 +113,7 @@ public class PSSystemServiceFindContentAdhocUsersTest {
   @Test
   @SuppressWarnings("unchecked")
   void emptyResultIsForwarded() {
-    org.hibernate.query.Query<PSContentAdhocUser> mockQuery =
-        mock(org.hibernate.query.Query.class);
+    org.hibernate.query.Query<PSContentAdhocUser> mockQuery = mock(org.hibernate.query.Query.class);
     when(session.createQuery(anyString(), eq(PSContentAdhocUser.class))).thenReturn(mockQuery);
     when(mockQuery.setParameter(eq("cid"), any(Integer.class))).thenReturn(mockQuery);
     when(mockQuery.getResultList()).thenReturn(Collections.emptyList());

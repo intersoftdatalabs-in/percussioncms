@@ -29,26 +29,19 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-/**
- * #1500: TableFactory ships a first-class PostgreSQL data type map (driver {@code postgresql}).
- */
+/** #1500: TableFactory ships a first-class PostgreSQL data type map (driver {@code postgresql}). */
 @Tag("UnitTest")
 public class PSJdbcPostgresDataTypeMapTest {
 
-  private static final String RESOURCE =
-      "com/percussion/tablefactory/PSJdbcDataTypeMaps.xml";
+  private static final String RESOURCE = "com/percussion/tablefactory/PSJdbcDataTypeMaps.xml";
 
   @Test
   void postgresMapExistsWithBooleanTextBytea() throws Exception {
     Document doc;
     try (InputStream in =
         Objects.requireNonNull(
-            getClass().getClassLoader().getResourceAsStream(RESOURCE),
-            "missing " + RESOURCE)) {
-      doc =
-          DocumentBuilderFactory.newInstance()
-              .newDocumentBuilder()
-              .parse(in);
+            getClass().getClassLoader().getResourceAsStream(RESOURCE), "missing " + RESOURCE)) {
+      doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(in);
     }
     NodeList maps = doc.getElementsByTagName("DataTypeMap");
     Element postgres = null;

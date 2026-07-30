@@ -112,46 +112,46 @@ cataloger; no other seeding point is required.
 Skip this whole step for a generic code (`es`, `hi`).
 
 a. **Calendar widget picker** — only if the new locale is itself a
-   calendar region, **or** your UI team has confirmed that a picker
-   entry is required for this locale:
+calendar region, **or** your UI team has confirmed that a picker
+entry is required for this locale:
 
-   `modules/perc-packages/src/main/resources/Packages/perc.widget.calendar/sys__UserDependency--rxconfig/Widgets/percCalendarTwo.xml`
+`modules/perc-packages/src/main/resources/Packages/perc.widget.calendar/sys__UserDependency--rxconfig/Widgets/percCalendarTwo.xml`
 
-   Add an `<EnumValue value="<code>" display_value="<endonym (Locale)>" />`
-   inside the `<Enum>` block. The existing `hi-in` row (line 130) is a
-   good template.
+Add an `<EnumValue value="<code>" display_value="<endonym (Locale)>" />`
+inside the `<Enum>` block. The existing `hi-in` row (line 130) is a
+good template.
 
-   The file under
-   `…/Resources/percCalendarTwo.xml` is the **user-resources copy**
-   (legacy / hand-edited classic UI); the canonical source of truth is
-   the `Widgets/` file. Decide which copy to update based on
-   `Widgets/` ⇄ `Resources/` lockstep:
+The file under
+`…/Resources/percCalendarTwo.xml` is the **user-resources copy**
+(legacy / hand-edited classic UI); the canonical source of truth is
+the `Widgets/` file. Decide which copy to update based on
+`Widgets/` ⇄ `Resources/` lockstep:
 
-   - **(a) Lockstep confirmed** — the two copies are still kept in
-     sync by the package consumer team. Update **both** so the modern
-     widget and the legacy UI stay visually aligned.
-   - **(b) Not in lockstep** — the legacy `Resources/` copy is
-     considered canonical for the classic UI and is no longer
-     mirrored into the modern package. Update **only `Widgets/`**
-     (the source of truth) and leave `Resources/` untouched. Do
-     **not** edit `Resources/` from this skill; that copy is
-     maintained by the package / classic-UI team on its own cadence.
+- **(a) Lockstep confirmed** — the two copies are still kept in
+  sync by the package consumer team. Update **both** so the modern
+  widget and the legacy UI stay visually aligned.
+- **(b) Not in lockstep** — the legacy `Resources/` copy is
+  considered canonical for the classic UI and is no longer
+  mirrored into the modern package. Update **only `Widgets/`**
+  (the source of truth) and leave `Resources/` untouched. Do
+  **not** edit `Resources/` from this skill; that copy is
+  maintained by the package / classic-UI team on its own cadence.
 
 b. **Lucene analyzer** — only if the new language is not already covered
-   by the analyzer's language branch table:
+by the analyzer's language branch table:
 
-   `system/src/main/java/com/percussion/search/lucene/analyzer/PSLocaleSpecificLuceneAnalyzer.java`
+`system/src/main/java/com/percussion/search/lucene/analyzer/PSLocaleSpecificLuceneAnalyzer.java`
 
-   The switch (around lines 115-181) maps the **primary sub-tag** to a
-   Lucene `Analyzer`. If your code's primary sub-tag is not yet
-   present, add a new `case "<primary>":` with the appropriate analyzer
-   constant. Note: the consumer reads the **primary sub-tag**, not the
-   full BCP-47 code, so `es-mx` falls through the `case "es":` branch.
+The switch (around lines 115-181) maps the **primary sub-tag** to a
+Lucene `Analyzer`. If your code's primary sub-tag is not yet
+present, add a new `case "<primary>":` with the appropriate analyzer
+constant. Note: the consumer reads the **primary sub-tag**, not the
+full BCP-47 code, so `es-mx` falls through the `case "es":` branch.
 
 c. **Anything new?** Grep for the new code before opening the PR — if a
-   `case "<primary>":` or `<EnumValue>` is already missing for a brand
-   new primary tag, you have likely identified another touch-point.
-   Document in the PR description.
+`case "<primary>":` or `<EnumValue>` is already missing for a brand
+new primary tag, you have likely identified another touch-point.
+Document in the PR description.
 
 ### 4. Back-fill translations via the canonical script
 
@@ -331,3 +331,4 @@ will block if string-by-key fall-through to English is not documented.
 6. If you added a Lucene `case`, include the test that exercises a
    sample analyzer for the primary sub-tag (Erlang will flag a missing
    behavioral test as a bug).
+

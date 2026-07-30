@@ -307,6 +307,28 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
   }),
 }));
 
+vi.mock("../../../main/ts/api/developer/localesApi", () => ({
+  listLocales: vi.fn().mockResolvedValue([
+    {
+      id: 1,
+      languageString: "en-us",
+      label: "English",
+      status: "active",
+      baseLocale: false,
+      hasFormatProfile: true,
+    },
+  ]),
+  getLocaleDetail: vi.fn().mockResolvedValue({
+    languageString: "en-us",
+    label: "English",
+    status: "active",
+    baseLocale: false,
+    hasFormatProfile: true,
+    format: { languageString: "en-us", textDir: "ltr" },
+    designGaps: [],
+  }),
+}));
+
 vi.mock("../../../main/ts/api/developer/sharedFieldsApi", () => ({
   listSharedFieldGroups: vi.fn().mockResolvedValue([
     { name: "shared", filename: "shared.xml", fieldCount: 2 },
@@ -316,6 +338,141 @@ vi.mock("../../../main/ts/api/developer/sharedFieldsApi", () => ({
     filename: "shared.xml",
     fields: [],
     designGaps: [],
+  }),
+}));
+
+vi.mock("../../../main/ts/api/developer/systemDefApi", () => ({
+  getSystemDef: vi.fn().mockResolvedValue({
+    fieldCount: 1,
+    cacheTimeoutMinutes: 10,
+    fields: [
+      {
+        name: "sys_title",
+        dataType: "text",
+        required: true,
+        searchable: true,
+        readOnly: false,
+        occurrence: "required",
+      },
+    ],
+    designGaps: [],
+  }),
+}));
+
+vi.mock("../../../main/ts/api/developer/itemFiltersApi", () => ({
+  listItemFilters: vi.fn().mockResolvedValue([
+    { name: "public", description: "Public", rules: [] },
+  ]),
+  getItemFilterDetail: vi.fn().mockResolvedValue({
+    name: "public",
+    rules: [],
+  }),
+}));
+
+vi.mock("../../../main/ts/api/developer/displayFormatsApi", () => ({
+  listDisplayFormats: vi.fn().mockResolvedValue([
+    { name: "Default", label: "Default View", columns: [] },
+  ]),
+  getDisplayFormatDetail: vi.fn().mockResolvedValue({
+    name: "Default",
+    columns: [],
+  }),
+  normalizeColumns: () => [],
+}));
+
+vi.mock("../../../main/ts/api/developer/actionMenusApi", () => ({
+  listActionMenus: vi.fn().mockResolvedValue([
+    { id: 1, name: "Edit", label: "Edit", menuType: "MENUITEM" },
+  ]),
+  getActionMenuDetail: vi.fn().mockResolvedValue({
+    id: 1,
+    name: "Edit",
+    parameters: [],
+    properties: [],
+  }),
+}));
+
+vi.mock("../../../main/ts/api/developer/searchesApi", () => ({
+  listSearches: vi.fn().mockResolvedValue([
+    { name: "All Content", label: "All Content", standardSearch: true, fields: [] },
+  ]),
+  getSearchDetail: vi.fn().mockResolvedValue({
+    name: "All Content",
+    fields: [],
+    designGaps: [],
+  }),
+}));
+
+vi.mock("../../../main/ts/api/developer/viewsApi", () => ({
+  listViews: vi.fn().mockResolvedValue([
+    { name: "My View", label: "My View", standardView: true, fields: [] },
+  ]),
+  getViewDetail: vi.fn().mockResolvedValue({
+    name: "My View",
+    fields: [],
+    designGaps: [],
+  }),
+}));
+
+vi.mock("../../../main/ts/api/developer/extensionsApi", () => ({
+  listExtensions: vi.fn().mockResolvedValue([
+    { extensionName: "sys_add", handlerName: "Java", fqn: "Java/global/percussion/sys_add" },
+  ]),
+  getExtensionDetail: vi.fn().mockResolvedValue({
+    extensionName: "sys_add",
+    supportedInterfaces: [],
+    runtimeParameters: [],
+  }),
+}));
+
+vi.mock("../../../main/ts/api/developer/relationshipTypesApi", () => ({
+  listRelationshipTypes: vi.fn().mockResolvedValue([
+    {
+      name: "ActiveAssembly",
+      label: "Active Assembly",
+      category: "rs_activeassembly",
+      categoryLabel: "Active Assembly",
+      type: "system",
+      systemType: true,
+      userType: false,
+      allowCloning: true,
+      guid: { stringValue: "0-11-1", uuid: 1 },
+    },
+  ]),
+  getRelationshipTypeDetail: vi.fn().mockResolvedValue({
+    name: "ActiveAssembly",
+    label: "Active Assembly",
+    category: "rs_activeassembly",
+    categoryLabel: "Active Assembly",
+    type: "system",
+    systemType: true,
+    userType: false,
+    allowCloning: true,
+    effects: [
+      {
+        name: "sys_aaEffect",
+        activationEndPoint: "owner",
+        extensionRef: "Java/global/percussion/sys_aaEffect",
+      },
+    ],
+    systemProperties: [{ name: "rs_allowcloning", value: "yes" }],
+    userProperties: [],
+    designGaps: ["Relationship type create / update / delete not supported via this API"],
+  }),
+}));
+
+vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
+  listWorkflows: vi.fn().mockResolvedValue([
+    {
+      workflowName: "Simple Workflow",
+      workflowDescription: "Default",
+      defaultWorkflow: true,
+      workflowSteps: [{ stepName: "Draft" }],
+    },
+  ]),
+  getWorkflowDetail: vi.fn().mockResolvedValue({
+    workflowName: "Simple Workflow",
+    workflowSteps: [{ stepName: "Draft", permissionNames: ["Read"], stepRoles: [] }],
   }),
 }));
 
@@ -357,6 +514,17 @@ describe("DeveloperShell", () => {
     });
   });
 
+  it("loads locales catalog section", async () => {
+    render(<DeveloperShell initialSection="locales" embedded />);
+    expect(screen.getByTestId("tab-developer-locales").getAttribute("aria-selected")).toBe(
+      "true",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-table")).toBeTruthy();
+    });
+    expect(screen.getByText("en-us")).toBeTruthy();
+  });
+
   it("loads shared fields catalog section", async () => {
     render(<DeveloperShell initialSection="shared-fields" embedded />);
     expect(screen.getByTestId("tab-developer-shared-fields").getAttribute("aria-selected")).toBe(
@@ -368,6 +536,53 @@ describe("DeveloperShell", () => {
     expect(screen.getByText("shared")).toBeTruthy();
     expect(screen.getByText("shared.xml")).toBeTruthy();
   });
+
+  it("loads system def catalog section", async () => {
+    render(<DeveloperShell initialSection="system-def" embedded />);
+    expect(screen.getByTestId("tab-developer-system-def").getAttribute("aria-selected")).toBe(
+      "true",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sys-fields-table")).toBeTruthy();
+    });
+    expect(screen.getByText("sys_title")).toBeTruthy();
+  });
+
+  it("loads item filters catalog section", async () => {
+    render(<DeveloperShell initialSection="item-filters" embedded />);
+    expect(screen.getByTestId("tab-developer-item-filters").getAttribute("aria-selected")).toBe(
+      "true",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-if-table")).toBeTruthy();
+    });
+    expect(screen.getByText("public")).toBeTruthy();
+  });
+
+  it("loads display formats catalog section", async () => {
+    render(<DeveloperShell initialSection="display-formats" embedded />);
+    expect(screen.getByTestId("tab-developer-display-formats").getAttribute("aria-selected")).toBe(
+      "true",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-table")).toBeTruthy();
+    });
+    const table = screen.getByTestId("developer-df-table");
+    expect(table.textContent).toContain("Default");
+  });
+
+  it("loads action menus catalog section", async () => {
+    render(<DeveloperShell initialSection="action-menus" embedded />);
+    expect(screen.getByTestId("tab-developer-action-menus").getAttribute("aria-selected")).toBe(
+      "true",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-am-table")).toBeTruthy();
+    });
+    const table = screen.getByTestId("developer-am-table");
+    expect(table.textContent).toContain("Edit");
+  });
+
 
   it("opens content type detail from list row", async () => {
     render(<DeveloperShell embedded />);
@@ -396,6 +611,27 @@ describe("DeveloperShell", () => {
       expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
     });
   });
+
+  it("loads searches catalog section", async () => {
+    render(<DeveloperShell initialSection="searches" embedded />);
+    expect(screen.getByTestId("tab-developer-searches").getAttribute("aria-selected")).toBe(
+      "true",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sr-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-sr-table").textContent).toContain("All Content");
+  });
+
+it("loads views catalog section", async () => {
+    render(<DeveloperShell initialSection="views" embedded />);
+    expect(screen.getByTestId("tab-developer-views").getAttribute("aria-selected")).toBe("true");
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-vw-table").textContent).toContain("My View");
+  });
+
 
   it("edits content type field searchable and saves with design lock path", async () => {
     const { updateContentTypeDetail } = await import(
@@ -428,6 +664,57 @@ describe("DeveloperShell", () => {
     expect(body.allowedTemplates).toBeUndefined();
     await waitFor(() => {
       expect(screen.getByTestId("developer-ct-detail-notice").textContent).toMatch(/saved/i);
+    });
+  });
+
+  it("loads extensions catalog section", async () => {
+    render(<DeveloperShell initialSection="extensions" embedded />);
+    expect(screen.getByTestId("tab-developer-extensions").getAttribute("aria-selected")).toBe(
+      "true",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ex-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ex-table").textContent).toContain("sys_add");
+  });
+
+  it("loads relationship types catalog section", async () => {
+    render(<DeveloperShell initialSection="relationship-types" embedded />);
+    expect(
+      screen.getByTestId("tab-developer-relationship-types").getAttribute("aria-selected"),
+    ).toBe("true");
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-rt-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-rt-table").textContent).toContain("ActiveAssembly");
+  });
+
+  it("loads workflows catalog section", async () => {
+    render(<DeveloperShell initialSection="workflows" embedded />);
+    expect(screen.getByTestId("tab-developer-workflows").getAttribute("aria-selected")).toBe(
+      "true",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-wf-table").textContent).toContain("Simple Workflow");
+  });
+
+  it("workflows tab surfaces empty and error panel states", async () => {
+    const wfApi = await import("../../../main/ts/api/developer/workflowsApi");
+    (wfApi.listWorkflows as ReturnType<typeof vi.fn>).mockResolvedValueOnce([]);
+    const { unmount } = render(<DeveloperShell initialSection="workflows" embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-empty")).toBeTruthy();
+    });
+    unmount();
+
+    (wfApi.listWorkflows as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
+      new Error("workflow service down"),
+    );
+    render(<DeveloperShell initialSection="workflows" embedded />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-error")).toBeTruthy();
     });
   });
 

@@ -18,7 +18,6 @@ package com.percussion.delivery.utils;
 
 import com.percussion.delivery.email.data.IPSEmailRequest;
 import com.percussion.delivery.exceptions.PSEmailException;
-import org.apache.commons.mail.EmailException;
 
 /** A common helper class to send emails. */
 public interface IPSEmailHelper {

@@ -54,6 +54,7 @@ approve
 ## Issues
 
 ### Issue 1 — Severity: bug (fixed)
+
 - File: `WebUI/src/main/ts/ui-themes/intersoft/intersoftTheme.ts:133-136`
 - Description: `toVarName` replaced uppercase letters with
   `-lowercase` but did **not** convert path dots (`'.'`) to dashes.
@@ -74,6 +75,7 @@ approve
   generated keys are dash-only, no dots).
 
 ### Issue 2 — Severity: bug (fixed)
+
 - File: `WebUI/src/main/ts/ui-themes/intersoft/intersoftTheme.ts:138-148`
 - Description: `flatten` recursed into plain objects but skipped
   arrays. The `spacing.scale` is an array, so `--space-scale-0..10`
@@ -89,6 +91,7 @@ approve
   `0,4,8,12,16,20,24,32,40,56,72`).
 
 ### Issue 3 — Severity: bug (fixed)
+
 - File: `WebUI/src/main/ts/ui-themes/intersoft/intersoftTheme.ts:54-63`
 - Description: the Intersoft tagline was written
   `"intelligent \u2022 innovative \u2022 imaginative"` (lowercase).
@@ -105,6 +108,7 @@ approve
   marketing site).
 
 ### Issue 4 — Severity: bug (fixed)
+
 - File: `WebUI/src/main/ts/ui-themes/intersoft/intersoftTheme.ts` (export site)
 - Description: `intersoftTheme` was exported as a mutable plain
   object. The new test
@@ -122,6 +126,7 @@ approve
   to read only property`).
 
 ### Issue 5 — Severity: suggestion (open, low)
+
 - File: `WebUI/src/main/ts/ui-themes/index.ts:43-49`
 - Description: `getActiveTheme()` only inspects
   `window.PERC_THEME_ID` when `typeof window !== "undefined"`. In
@@ -138,6 +143,7 @@ approve
 - Status: open (not a merge blocker).
 
 ### Issue 6 — Severity: nit (open)
+
 - File: `WebUI/src/main/ts/home/HomeShell.tsx:87-127`
 - Description: the JSX indentation after the new `<BrandBar />` /
   `<BrandFooter />` was left uneven during the multi-step edit
@@ -148,16 +154,16 @@ approve
 
 ## Cross-platform path / file I/O checklist
 
-| Check                                                                | Outcome                |
-|----------------------------------------------------------------------|------------------------|
-| Hardcoded `/` or `\\` in filesystem path joins                        | **Clean** — no joins.  |
-| Unix-only absolute roots in runtime/tests                            | **Clean** — none.      |
-| Windows-only paths in shared code/tests                              | **Clean** — none.      |
-| `:` / `;` multi-path split that is OS-specific                       | **Clean** — none.      |
-| Path string equality / regex assuming Unix shape                    | **Clean** — none.      |
-| Case-sensitive-only filesystem assumptions                           | **Clean** — none.      |
-| Line-ending assertions requiring `\n` only                           | **Clean** — none.      |
-| Unix-shell-only product automation                                   | **Clean** — none added.|
+|                      Check                       |         Outcome         |
+|--------------------------------------------------|-------------------------|
+| Hardcoded `/` or `\\` in filesystem path joins   | **Clean** — no joins.   |
+| Unix-only absolute roots in runtime/tests        | **Clean** — none.       |
+| Windows-only paths in shared code/tests          | **Clean** — none.       |
+| `:` / `;` multi-path split that is OS-specific   | **Clean** — none.       |
+| Path string equality / regex assuming Unix shape | **Clean** — none.       |
+| Case-sensitive-only filesystem assumptions       | **Clean** — none.       |
+| Line-ending assertions requiring `\n` only       | **Clean** — none.       |
+| Unix-shell-only product automation               | **Clean** — none added. |
 
 Logo URLs use the web-root form `/cm/themes/intersoft/brand/...`,
 which correctly uses `/` per the AGENTS.md false-positive guard
@@ -221,3 +227,4 @@ covered conceptually under "**immutable tokens**" in the
 - May commit/push: **yes** (post-fix).
 - Author should now: create feature branch, commit only the
   theme-related files, open PR against `development`.
+

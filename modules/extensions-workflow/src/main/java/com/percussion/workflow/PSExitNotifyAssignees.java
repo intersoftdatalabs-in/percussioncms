@@ -62,8 +62,8 @@ import com.percussion.services.workflow.PSWorkflowServiceLocator;
 import com.percussion.services.workflow.data.PSAdhocTypeEnum;
 import com.percussion.services.workflow.data.PSAssignedRole;
 import com.percussion.services.workflow.data.PSAssignmentTypeEnum;
-import com.percussion.services.workflow.data.PSTransition;
 import com.percussion.services.workflow.data.PSState;
+import com.percussion.services.workflow.data.PSTransition;
 import com.percussion.system.utils.PSUrlUtils;
 import com.percussion.util.PSDataTypeConverter;
 import com.percussion.util.PSStringTemplate;
@@ -430,9 +430,7 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
       IWorkflowRoleInfo wfRoleInfo,
       IPSRequestContext request,
       String communityId)
-      throws PSEntryNotFoundException,
-          PSMailException,
-          RepositoryException {
+      throws PSEntryNotFoundException, PSMailException, RepositoryException {
     PSWorkFlowUtils.printWorkflowMessage(request, "  Entering Method sendNotifications");
 
     List<PSNotificationEmailAddress> toStateUserList = new ArrayList<>();

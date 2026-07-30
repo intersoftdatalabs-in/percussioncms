@@ -26,20 +26,22 @@
  *   TEST_PRODUCT   cms | dts — default cms (chooses probe path)
  */
 
-const { test, expect } = require('@playwright/test');
+const { test, expect } = require("@playwright/test");
 
-const BASE_URL = process.env.TEST_CMS_URL || 'http://localhost:9993';
-const DB_TYPE = process.env.TEST_DB_TYPE || 'h2';
-const PRODUCT = (process.env.TEST_PRODUCT || 'cms').toLowerCase();
-const PROBE_PATH = PRODUCT === 'dts' ? '/' : '/Rhythmyx/login';
+const BASE_URL = process.env.TEST_CMS_URL || "http://localhost:9993";
+const DB_TYPE = process.env.TEST_DB_TYPE || "h2";
+const PRODUCT = (process.env.TEST_PRODUCT || "cms").toLowerCase();
+const PROBE_PATH = PRODUCT === "dts" ? "/" : "/Rhythmyx/login";
 
 test.describe(`${PRODUCT} on ${DB_TYPE} database`, () => {
   test(`should respond on ${PROBE_PATH} for ${DB_TYPE}`, async ({ page }) => {
-    console.log(`Probing ${PRODUCT} at ${BASE_URL}${PROBE_PATH} (db=${DB_TYPE})...`);
+    console.log(
+      `Probing ${PRODUCT} at ${BASE_URL}${PROBE_PATH} (db=${DB_TYPE})...`
+    );
 
     await page.goto(`${BASE_URL}${PROBE_PATH}`, { timeout: 120000 });
 
-    if (PRODUCT === 'dts') {
+    if (PRODUCT === "dts") {
       // DTS root may not be a titled login page; accept any non-error document.
       const status = page.url();
       expect(status).toBeTruthy();
@@ -48,8 +50,10 @@ test.describe(`${PRODUCT} on ${DB_TYPE} database`, () => {
     }
 
     const title = await page.title();
-    console.log('Page title:', title);
-    await expect(page).toHaveTitle(/Percussion|Login|Rhythmyx/i, { timeout: 60000 });
+    console.log("Page title:", title);
+    await expect(page).toHaveTitle(/Percussion|Login|Rhythmyx/i, {
+      timeout: 60000,
+    });
     console.log(`✓ Login page verified for ${DB_TYPE} backend!`);
   });
 });

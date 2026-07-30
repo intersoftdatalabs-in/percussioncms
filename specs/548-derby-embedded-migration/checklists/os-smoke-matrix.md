@@ -6,14 +6,14 @@
 
 ## Commands (cross-platform outline)
 
-|              Step              |                            Linux / macOS                            |           Windows            |
-|--------------------------------|---------------------------------------------------------------------|------------------------------|
-| Build installer artifacts      | Per product release pipeline / local `Maven wrapper` distribution modules | Same via `mvnw.cmd`       |
-| Install CMS accepting defaults | Installer CLI with no `--db.type` (defaults `h2`)                   | Same                         |
-| Start CMS                      | Product start script under install root                             | Product `.bat` service/start |
-| CMS smoke                      | Browser/curl login to `/Rhythmyx/login`                             | Same URL                     |
-| Install DTS defaults           | DTS installer; `perc.db.type=h2` default                            | Same                         |
-| DTS health                     | Service health endpoints / Tomcat start without DRDA 1527           | Same                         |
+|              Step              |                               Linux / macOS                               |           Windows            |
+|--------------------------------|---------------------------------------------------------------------------|------------------------------|
+| Build installer artifacts      | Per product release pipeline / local `Maven wrapper` distribution modules | Same via `mvnw.cmd`          |
+| Install CMS accepting defaults | Installer CLI with no `--db.type` (defaults `h2`)                         | Same                         |
+| Start CMS                      | Product start script under install root                                   | Product `.bat` service/start |
+| CMS smoke                      | Browser/curl login to `/Rhythmyx/login`                                   | Same URL                     |
+| Install DTS defaults           | DTS installer; `perc.db.type=h2` default                                  | Same                         |
+| DTS health                     | Service health endpoints / Tomcat start without DRDA 1527                 | Same                         |
 
 **Do not** require Derby NetworkServer / port **1527** for new default path.
 

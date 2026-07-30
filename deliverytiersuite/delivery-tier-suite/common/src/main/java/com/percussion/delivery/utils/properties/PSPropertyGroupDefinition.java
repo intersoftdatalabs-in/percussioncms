@@ -67,8 +67,8 @@ public class PSPropertyGroupDefinition {
    * When true, indicates that this property group should be displayed expanded. When false
    * collapsed.
    *
-   * @param expanded <code>true</code> to render the group expanded, <code>false</code> to render
-   *     it collapsed.
+   * @param expanded <code>true</code> to render the group expanded, <code>false</code> to render it
+   *     collapsed.
    */
   public void setExpanded(boolean expanded) {
     this.expanded = expanded;

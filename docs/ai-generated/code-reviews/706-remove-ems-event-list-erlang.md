@@ -60,8 +60,8 @@ None (blocking).
 
 ## Build evidence (pre-PR)
 
-|              Module              |                      Command                      |                                                     Result                                                      |
-|----------------------------------|---------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+|              Module              |                   Command                   |                                                     Result                                                      |
+|----------------------------------|---------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
 | `modules/perc-packages`          | `../../mvnw clean install`                  | BUILD SUCCESS                                                                                                   |
 | `projects/sitemanage`            | `../../mvnw clean install`                  | BUILD SUCCESS — Tests run: 552, Failures: 0; `EmsEventListRemovalTest` 3/0; `PSWidgetServiceValidationTest` 1/0 |
 | `rest`                           | `../mvnw clean install`                     | BUILD SUCCESS                                                                                                   |

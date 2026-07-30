@@ -22,8 +22,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Represents a single submitted form along with its field names and values. Implementations
- * are normally backed by a JPA entity and follow the contract documented by each accessor.
+ * Represents a single submitted form along with its field names and values. Implementations are
+ * normally backed by a JPA entity and follow the contract documented by each accessor.
  *
  * @author leonardohildt
  */
@@ -50,16 +50,16 @@ public interface IPSFormData {
   public Date getCreateDate();
 
   /**
-   * Reports whether this form has been exported by an administrator. The value is either
-   * {@code 'y'} when the form has been exported or {@code 'n'} otherwise.
+   * Reports whether this form has been exported by an administrator. The value is either {@code
+   * 'y'} when the form has been exported or {@code 'n'} otherwise.
    *
    * @return the export flag character, either {@code 'y'} or {@code 'n'}.
    */
   public char isExported();
 
   /**
-   * Returns the timestamp at which the form record was created. Identical to
-   * {@link #getCreateDate()}.
+   * Returns the timestamp at which the form record was created. Identical to {@link
+   * #getCreateDate()}.
    *
    * @return the creation date, never <code>null</code>.
    */
@@ -87,8 +87,8 @@ public interface IPSFormData {
   public String getId();
 
   /**
-   * Sets the persistent identifier for this form. A <code>null</code> value resets the
-   * identifier to {@code 0}, allowing the entity to be treated as newly created.
+   * Sets the persistent identifier for this form. A <code>null</code> value resets the identifier
+   * to {@code 0}, allowing the entity to be treated as newly created.
    *
    * @param id the identifier, may be <code>null</code>.
    */

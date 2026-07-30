@@ -49,8 +49,7 @@ public final class PSLocaleFormatCatalog {
     try {
       IPSCmsObjectMgr mgr = PSCmsObjectMgrLocator.getObjectManager();
       if (mgr != null) {
-        List<PSLocaleFormat> rows =
-            mgr.findAllLocaleFormats().collect(Collectors.toList());
+        List<PSLocaleFormat> rows = mgr.findAllLocaleFormats().collect(Collectors.toList());
         for (PSLocaleFormat row : rows) {
           if (row != null && row.getLanguageString() != null) {
             map.put(PSLocaleFormatResolver.normalize(row.getLanguageString()), row);

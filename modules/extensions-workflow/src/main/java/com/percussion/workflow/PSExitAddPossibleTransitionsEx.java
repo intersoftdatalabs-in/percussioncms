@@ -1036,10 +1036,8 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
       }
 
       // By sending true for authUser we are imposing the same rule as authenticateuser
-      PSContentAdhocUsersContext cauc =
-          PSContentAdhocUsersContext.loadFromHibernate(contentID);
-      actorRoles =
-          PSWorkflowRoleInfoStatic.getActorRoles(userName, roleNameList, src, cauc, true);
+      PSContentAdhocUsersContext cauc = PSContentAdhocUsersContext.loadFromHibernate(contentID);
+      actorRoles = PSWorkflowRoleInfoStatic.getActorRoles(userName, roleNameList, src, cauc, true);
 
       if (null == actorRoles || actorRoles.isEmpty()) {
         /* local params keep their default value */
@@ -1114,10 +1112,8 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
           PSStateRolesContext.loadFromHibernate(
               workflowID, stateid, PSWorkFlowUtils.ASSIGNMENT_TYPE_NONE);
       // By sending true for authUser we are imposing the same rule as authenticateuser
-      PSContentAdhocUsersContext cauc =
-          PSContentAdhocUsersContext.loadFromHibernate(contentID);
-      actorRoles =
-          PSWorkflowRoleInfoStatic.getActorRoles(userName, roleNameList, src, cauc, true);
+      PSContentAdhocUsersContext cauc = PSContentAdhocUsersContext.loadFromHibernate(contentID);
+      actorRoles = PSWorkflowRoleInfoStatic.getActorRoles(userName, roleNameList, src, cauc, true);
 
       if (null == actorRoles || actorRoles.isEmpty()) {
         return assignmentType;

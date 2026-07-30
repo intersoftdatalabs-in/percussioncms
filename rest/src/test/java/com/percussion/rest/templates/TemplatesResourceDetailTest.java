@@ -69,8 +69,7 @@ public class TemplatesResourceDetailTest {
 
   @Test
   public void getTemplateWrapsFailures() {
-    when(adaptor.getTemplate(any(), eq("boom")))
-        .thenThrow(new IllegalStateException("fail"));
+    when(adaptor.getTemplate(any(), eq("boom"))).thenThrow(new IllegalStateException("fail"));
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.getTemplate("boom"));
     assertEquals(500, ex.getResponse().getStatus());

@@ -28,6 +28,7 @@
 
 -->
     <header>
+        <prop type="supportedlanguage">ar</prop>
         <prop type="supportedlanguage">en-us</prop>
         <prop type="supportedlanguage">en-gb</prop>
         <prop type="supportedlanguage">de-de</prop>

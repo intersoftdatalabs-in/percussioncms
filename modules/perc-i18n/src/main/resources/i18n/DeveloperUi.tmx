@@ -1189,6 +1189,136 @@
             <note xml:lang="en-us">DEV_MSG.PIPE_COL_DS_REQUEST</note>
             <tuv xml:lang="en-us"><seg>Request page</seg></tuv>
         </tu>
+        <tu tuid="perc.ui.developer@Locales">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.TAB_LOCALES</note>
+            <tuv xml:lang="en-us"><seg>Locales</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading locales…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.LOC_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading locales…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@No locales returned.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.LOC_EMPTY</note>
+            <tuv xml:lang="en-us"><seg>No locales returned.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load locales.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.LOC_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load locales.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@CMS locales (RXLOCALE) including base-locale flag and whether an exact RXLOCALEFORMAT profile exists. Open a row for format fields. Create/edit is a later slice.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.LOC_HINT</note>
+            <tuv xml:lang="en-us"><seg>CMS locales (RXLOCALE) including base-locale flag and whether an exact RXLOCALEFORMAT profile exists. Open a row for format fields. Create/edit is a later slice.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Language">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.LOC_COL_LANG</note>
+            <tuv xml:lang="en-us"><seg>Language</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Status">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.LOC_COL_STATUS</note>
+            <tuv xml:lang="en-us"><seg>Status</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Base locale">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.LOC_COL_BASE</note>
+            <tuv xml:lang="en-us"><seg>Base locale</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Format profile">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.LOC_COL_FORMAT</note>
+            <tuv xml:lang="en-us"><seg>Format profile</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading locale…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.LOC_DETAIL_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading locale…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load locale.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.LOC_DETAIL_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load locale.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Format profile (RXLOCALEFORMAT)">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.LOC_FORMAT</note>
+            <tuv xml:lang="en-us"><seg>Format profile (RXLOCALEFORMAT)</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Exact format row for this language string. Runtime may still resolve via regional → base → en-us defaults when empty.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.LOC_FORMAT_HINT</note>
+            <tuv xml:lang="en-us"><seg>Exact format row for this language string. Runtime may still resolve via regional → base → en-us defaults when empty.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@No exact format row stored for this language string.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.LOC_FORMAT_EMPTY</note>
+            <tuv xml:lang="en-us"><seg>No exact format row stored for this language string.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Text direction">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.LOC_FMT_DIR</note>
+            <tuv xml:lang="en-us"><seg>Text direction</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Date pattern">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.LOC_FMT_DATE</note>
+            <tuv xml:lang="en-us"><seg>Date pattern</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Time pattern">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.LOC_FMT_TIME</note>
+            <tuv xml:lang="en-us"><seg>Time pattern</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Date-time pattern">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.LOC_FMT_DATETIME</note>
+            <tuv xml:lang="en-us"><seg>Date-time pattern</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Decimal separator">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.LOC_FMT_DECIMAL</note>
+            <tuv xml:lang="en-us"><seg>Decimal separator</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Grouping separator">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.LOC_FMT_GROUPING</note>
+            <tuv xml:lang="en-us"><seg>Grouping separator</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Currency">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.LOC_FMT_CURRENCY</note>
+            <tuv xml:lang="en-us"><seg>Currency</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@First day of week">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.LOC_FMT_FIRST_DAY</note>
+            <tuv xml:lang="en-us"><seg>First day of week</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Measurement">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.LOC_FMT_MEASURE</note>
+            <tuv xml:lang="en-us"><seg>Measurement</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Default timezone">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.LOC_FMT_TZ</note>
+            <tuv xml:lang="en-us"><seg>Default timezone</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Numbering system">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.LOC_FMT_NUMBERING</note>
+            <tuv xml:lang="en-us"><seg>Numbering system</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Calendar">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.LOC_FMT_CALENDAR</note>
+            <tuv xml:lang="en-us"><seg>Calendar</seg></tuv>
+        </tu>
         <tu tuid="perc.ui.developer@Shared Fields">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TAB_SHARED_FIELDS</note>
@@ -1233,6 +1363,734 @@
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SF_FIELDS_HINT</note>
             <tuv xml:lang="en-us"><seg>Read-only field catalog for this shared group. Control properties and write are not exposed yet.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@System Def">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.TAB_SYSTEM_DEF</note>
+            <tuv xml:lang="en-us"><seg>System Def</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading system definition…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SYS_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading system definition…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load system definition.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SYS_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load system definition.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@No system fields returned.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SYS_EMPTY</note>
+            <tuv xml:lang="en-us"><seg>No system fields returned.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Global system fields from the content-editor system definition. Read-only catalog — write and control configuration are later slices.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SYS_HINT</note>
+            <tuv xml:lang="en-us"><seg>Global system fields from the content-editor system definition. Read-only catalog — write and control configuration are later slices.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Content editor system definition">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SYS_TITLE</note>
+            <tuv xml:lang="en-us"><seg>Content editor system definition</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Field count">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SYS_META_FIELD_COUNT</note>
+            <tuv xml:lang="en-us"><seg>Field count</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Error cache timeout">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SYS_META_CACHE</note>
+            <tuv xml:lang="en-us"><seg>Error cache timeout</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@minutes">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SYS_META_CACHE_UNIT</note>
+            <tuv xml:lang="en-us"><seg>minutes</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@System fields">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SYS_FIELDS</note>
+            <tuv xml:lang="en-us"><seg>System fields</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Fields available to all content types as system fields. Property and control write are not exposed yet.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SYS_FIELDS_HINT</note>
+            <tuv xml:lang="en-us"><seg>Fields available to all content types as system fields. Property and control write are not exposed yet.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Item Filters">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.TAB_ITEM_FILTERS</note>
+            <tuv xml:lang="en-us"><seg>Item Filters</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading item filters…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.IF_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading item filters…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@No item filters returned.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.IF_EMPTY</note>
+            <tuv xml:lang="en-us"><seg>No item filters returned.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load item filters.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.IF_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load item filters.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Assembly item filters (rules applied when resolving related content). Open a row for rules and parent linkage. Create/edit is a later slice.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.IF_HINT</note>
+            <tuv xml:lang="en-us"><seg>Assembly item filters (rules applied when resolving related content). Open a row for rules and parent linkage. Create/edit is a later slice.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Parent filter">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.IF_COL_PARENT</note>
+            <tuv xml:lang="en-us"><seg>Parent filter</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading item filter…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.IF_DETAIL_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading item filter…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load item filter.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.IF_DETAIL_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load item filter.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Legacy authtype">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.IF_COL_AUTHTYPE</note>
+            <tuv xml:lang="en-us"><seg>Legacy authtype</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Filter rule definitions and parameters. Rule editing is not exposed yet.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.IF_RULES_HINT</note>
+            <tuv xml:lang="en-us"><seg>Filter rule definitions and parameters. Rule editing is not exposed yet.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Rule">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.IF_COL_RULE</note>
+            <tuv xml:lang="en-us"><seg>Rule</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Parameters">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.IF_COL_PARAMS</note>
+            <tuv xml:lang="en-us"><seg>Parameters</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Item filter create / update / delete not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.IF_GAP_WRITE</note>
+            <tuv xml:lang="en-us"><seg>Item filter create / update / delete not supported via this API</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Rule and parameter editing not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.IF_GAP_RULE_EDIT</note>
+            <tuv xml:lang="en-us"><seg>Rule and parameter editing not supported via this API</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Display Formats">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.TAB_DISPLAY_FORMATS</note>
+            <tuv xml:lang="en-us"><seg>Display Formats</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading display formats…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading display formats…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@No display formats returned.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_EMPTY</note>
+            <tuv xml:lang="en-us"><seg>No display formats returned.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load display formats.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load display formats.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Content Explorer display formats (columns, folder/view/search usage). Open a row for the column catalog. Create/edit is a later slice.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_HINT</note>
+            <tuv xml:lang="en-us"><seg>Content Explorer display formats (columns, folder/view/search usage). Open a row for the column catalog. Create/edit is a later slice.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Columns">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_COL_COLUMNS</note>
+            <tuv xml:lang="en-us"><seg>Columns</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Usage">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_COL_USAGE</note>
+            <tuv xml:lang="en-us"><seg>Usage</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Folders">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_USAGE_FOLDER</note>
+            <tuv xml:lang="en-us"><seg>Folders</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Views &amp; searches">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_USAGE_VIEWS</note>
+            <tuv xml:lang="en-us"><seg>Views &amp; searches</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Related content">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_USAGE_RELATED</note>
+            <tuv xml:lang="en-us"><seg>Related content</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading display format…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_DETAIL_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading display format…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load display format.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_DETAIL_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load display format.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Column definitions for this display format. Column create/edit is not exposed yet.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_COLUMNS_HINT</note>
+            <tuv xml:lang="en-us"><seg>Column definitions for this display format. Column create/edit is not exposed yet.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Pos">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_COL_POS</note>
+            <tuv xml:lang="en-us"><seg>Pos</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Source field">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_COL_SOURCE</note>
+            <tuv xml:lang="en-us"><seg>Source field</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Column label">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_COL_COL_LABEL</note>
+            <tuv xml:lang="en-us"><seg>Column label</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Render type">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_COL_RENDER</note>
+            <tuv xml:lang="en-us"><seg>Render type</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Width">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_COL_WIDTH</note>
+            <tuv xml:lang="en-us"><seg>Width</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Display format create / update / delete not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_GAP_WRITE</note>
+            <tuv xml:lang="en-us"><seg>Display format create / update / delete not supported via this API</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Column and sort configuration write not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_GAP_COLUMNS_EDIT</note>
+            <tuv xml:lang="en-us"><seg>Column and sort configuration write not supported via this API</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Allowed-community editing not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.DF_GAP_COMMUNITIES</note>
+            <tuv xml:lang="en-us"><seg>Allowed-community editing not supported via this API</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Action Menus">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.TAB_ACTION_MENUS</note>
+            <tuv xml:lang="en-us"><seg>Action Menus</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading action menus…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.AM_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading action menus…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@No action menus returned.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.AM_EMPTY</note>
+            <tuv xml:lang="en-us"><seg>No action menus returned.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load action menus.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.AM_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load action menus.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Content Explorer action menus (types, handlers, URL parameters). Open a row for parameters and properties. Create/edit is a later slice.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.AM_HINT</note>
+            <tuv xml:lang="en-us"><seg>Content Explorer action menus (types, handlers, URL parameters). Open a row for parameters and properties. Create/edit is a later slice.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Menu type">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.AM_COL_TYPE</note>
+            <tuv xml:lang="en-us"><seg>Menu type</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Handler">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.AM_COL_HANDLER</note>
+            <tuv xml:lang="en-us"><seg>Handler</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@URL">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.AM_COL_URL</note>
+            <tuv xml:lang="en-us"><seg>URL</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Sort rank">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.AM_COL_SORT</note>
+            <tuv xml:lang="en-us"><seg>Sort rank</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading action menu…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.AM_DETAIL_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading action menu…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load action menu.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.AM_DETAIL_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load action menu.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@URL parameters for this menu action. Parameter editing is not exposed yet.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.AM_PARAMS_HINT</note>
+            <tuv xml:lang="en-us"><seg>URL parameters for this menu action. Parameter editing is not exposed yet.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Properties">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.AM_PROPS</note>
+            <tuv xml:lang="en-us"><seg>Properties</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Parameter">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.AM_COL_PARAM</note>
+            <tuv xml:lang="en-us"><seg>Parameter</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Property">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.AM_COL_PROP</note>
+            <tuv xml:lang="en-us"><seg>Property</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Action menu create / update / delete not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.AM_GAP_WRITE</note>
+            <tuv xml:lang="en-us"><seg>Action menu create / update / delete not supported via this API</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Cascading child menu composition not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.AM_GAP_CHILDREN</note>
+            <tuv xml:lang="en-us"><seg>Cascading child menu composition not supported via this API</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Visibility context editing not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.AM_GAP_VISIBILITY</note>
+            <tuv xml:lang="en-us"><seg>Visibility context editing not supported via this API</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Searches">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.TAB_SEARCHES</note>
+            <tuv xml:lang="en-us"><seg>Searches</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading searches…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SR_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading searches…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@No searches returned.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SR_EMPTY</note>
+            <tuv xml:lang="en-us"><seg>No searches returned.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load searches.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SR_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load searches.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Content Explorer search definitions (not views). Open a row for field criteria. Create/edit is a later slice.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SR_HINT</note>
+            <tuv xml:lang="en-us"><seg>Content Explorer search definitions (not views). Open a row for field criteria. Create/edit is a later slice.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Display format id">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SR_COL_DF</note>
+            <note xml:lang="en-us">DEV_MSG.VW_COL_DF</note>
+            <tuv xml:lang="en-us"><seg>Display format id</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Max results">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SR_COL_MAX</note>
+            <note xml:lang="en-us">DEV_MSG.VW_COL_MAX</note>
+            <tuv xml:lang="en-us"><seg>Max results</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Case sensitive">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SR_COL_CASE</note>
+            <note xml:lang="en-us">DEV_MSG.VW_COL_CASE</note>
+            <tuv xml:lang="en-us"><seg>Case sensitive</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Custom">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SR_KIND_CUSTOM</note>
+            <note xml:lang="en-us">DEV_MSG.VW_KIND_CUSTOM</note>
+            <tuv xml:lang="en-us"><seg>Custom</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@User">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SR_KIND_USER</note>
+            <tuv xml:lang="en-us"><seg>User</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Standard">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SR_KIND_STANDARD</note>
+            <note xml:lang="en-us">DEV_MSG.VW_KIND_STANDARD</note>
+            <tuv xml:lang="en-us"><seg>Standard</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading search…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SR_DETAIL_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading search…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load search.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SR_DETAIL_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load search.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Field criteria">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SR_FIELDS</note>
+            <note xml:lang="en-us">DEV_MSG.VW_FIELDS</note>
+            <tuv xml:lang="en-us"><seg>Field criteria</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Search field conditions. Criterion editing is not exposed yet.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SR_FIELDS_HINT</note>
+            <tuv xml:lang="en-us"><seg>Search field conditions. Criterion editing is not exposed yet.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Operator">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SR_COL_OP</note>
+            <note xml:lang="en-us">DEV_MSG.VW_COL_OP</note>
+            <tuv xml:lang="en-us"><seg>Operator</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Search create / update / delete not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SR_GAP_WRITE</note>
+            <tuv xml:lang="en-us"><seg>Search create / update / delete not supported via this API</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Search field criterion editing not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SR_GAP_FIELDS</note>
+            <tuv xml:lang="en-us"><seg>Search field criterion editing not supported via this API</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Views are a separate catalog (Developer Views / UI-07)">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SR_GAP_VIEWS</note>
+            <tuv xml:lang="en-us"><seg>Views are a separate catalog (Developer Views / UI-07)</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Views">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.TAB_VIEWS</note>
+            <tuv xml:lang="en-us"><seg>Views</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading views…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.VW_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading views…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@No views returned.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.VW_EMPTY</note>
+            <tuv xml:lang="en-us"><seg>No views returned.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load views.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.VW_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load views.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Content Explorer view definitions. Open a row for field criteria. Create/edit is a later slice.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.VW_HINT</note>
+            <tuv xml:lang="en-us"><seg>Content Explorer view definitions. Open a row for field criteria. Create/edit is a later slice.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading view…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.VW_DETAIL_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading view…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load view.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.VW_DETAIL_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load view.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@View field conditions. Criterion editing is not exposed yet.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.VW_FIELDS_HINT</note>
+            <tuv xml:lang="en-us"><seg>View field conditions. Criterion editing is not exposed yet.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@View create / update / delete not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.VW_GAP_WRITE</note>
+            <tuv xml:lang="en-us"><seg>View create / update / delete not supported via this API</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@View field criterion editing not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.VW_GAP_FIELDS</note>
+            <tuv xml:lang="en-us"><seg>View field criterion editing not supported via this API</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Searches are a separate catalog (Developer Searches / UI-06)">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.VW_GAP_SEARCHES</note>
+            <tuv xml:lang="en-us"><seg>Searches are a separate catalog (Developer Searches / UI-06)</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Extensions">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.TAB_EXTENSIONS</note>
+            <tuv xml:lang="en-us"><seg>Extensions</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading extensions…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading extensions…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@No extensions returned.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_EMPTY</note>
+            <tuv xml:lang="en-us"><seg>No extensions returned.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load extensions.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load extensions.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Registered server extensions (handlers, contexts, interfaces). Open a row for parameters. Install/remove is a later slice.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_HINT</note>
+            <tuv xml:lang="en-us"><seg>Registered server extensions (handlers, contexts, interfaces). Open a row for parameters. Install/remove is a later slice.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Context">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_COL_CONTEXT</note>
+            <tuv xml:lang="en-us"><seg>Context</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Category">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_COL_CATEGORY</note>
+            <tuv xml:lang="en-us"><seg>Category</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Flags">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_COL_FLAGS</note>
+            <tuv xml:lang="en-us"><seg>Flags</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@FQN">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_COL_FQN</note>
+            <tuv xml:lang="en-us"><seg>FQN</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@JEXL">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_FLAG_JEXL</note>
+            <tuv xml:lang="en-us"><seg>JEXL</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Deprecated">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_FLAG_DEPRECATED</note>
+            <tuv xml:lang="en-us"><seg>Deprecated</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading extension…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_DETAIL_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading extension…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load extension.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_DETAIL_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load extension.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Interfaces">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_IFACES</note>
+            <tuv xml:lang="en-us"><seg>Interfaces</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Runtime parameters">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_PARAMS</note>
+            <tuv xml:lang="en-us"><seg>Runtime parameters</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Extension install / remove not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_GAP_INSTALL</note>
+            <tuv xml:lang="en-us"><seg>Extension install / remove not supported via this API</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Extension parameter and method edit not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.EX_GAP_EDIT</note>
+            <tuv xml:lang="en-us"><seg>Extension parameter and method edit not supported via this API</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Relationship Types">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.TAB_RELATIONSHIP_TYPES</note>
+            <tuv xml:lang="en-us"><seg>Relationship Types</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading relationship types…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading relationship types…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@No relationship types returned.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_EMPTY</note>
+            <tuv xml:lang="en-us"><seg>No relationship types returned.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load relationship types.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load relationship types.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@System and user relationship types (category, cloning flags, effects). Open a row for properties. Create/edit is a later slice.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_HINT</note>
+            <tuv xml:lang="en-us"><seg>System and user relationship types (category, cloning flags, effects). Open a row for properties. Create/edit is a later slice.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Activation end point">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_COL_ENDPOINT</note>
+            <tuv xml:lang="en-us"><seg>Activation end point</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Extension ref">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_COL_EXTREF</note>
+            <tuv xml:lang="en-us"><seg>Extension ref</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Property">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_COL_PROP</note>
+            <tuv xml:lang="en-us"><seg>Property</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Cloning">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_FLAG_CLONE</note>
+            <tuv xml:lang="en-us"><seg>Cloning</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@System">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_FLAG_SYSTEM</note>
+            <tuv xml:lang="en-us"><seg>System</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@User">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_FLAG_USER</note>
+            <tuv xml:lang="en-us"><seg>User</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading relationship type…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_DETAIL_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading relationship type…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load relationship type.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_DETAIL_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load relationship type.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Effects">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_EFFECTS</note>
+            <tuv xml:lang="en-us"><seg>Effects</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@System properties">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_SYS_PROPS</note>
+            <tuv xml:lang="en-us"><seg>System properties</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@User properties">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_USER_PROPS</note>
+            <tuv xml:lang="en-us"><seg>User properties</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Relationship type create / update / delete not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_GAP_WRITE</note>
+            <tuv xml:lang="en-us"><seg>Relationship type create / update / delete not supported via this API</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Cloning field override editor not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_GAP_CLONE</note>
+            <tuv xml:lang="en-us"><seg>Cloning field override editor not supported via this API</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Effect condition and execution-context edit not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_GAP_EFFECTS</note>
+            <tuv xml:lang="en-us"><seg>Effect condition and execution-context edit not supported via this API</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Workflows">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.TAB_WORKFLOWS</note>
+            <tuv xml:lang="en-us"><seg>Workflows</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading workflows…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.WF_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading workflows…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@No workflows returned.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.WF_EMPTY</note>
+            <tuv xml:lang="en-us"><seg>No workflows returned.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load workflows.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.WF_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load workflows.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Workflow definitions for association and step browse (SY-04). Full graph design stays on the workflow management surface.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.WF_HINT</note>
+            <tuv xml:lang="en-us"><seg>Workflow definitions for association and step browse (SY-04). Full graph design stays on the workflow management surface.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Steps">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.WF_COL_STEPS</note>
+            <note xml:lang="en-us">DEV_MSG.WF_STEPS</note>
+            <tuv xml:lang="en-us"><seg>Steps</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Staging roles">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.WF_COL_STAGING</note>
+            <tuv xml:lang="en-us"><seg>Staging roles</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Step">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.WF_COL_STEP</note>
+            <tuv xml:lang="en-us"><seg>Step</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Roles">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.WF_COL_ROLES</note>
+            <tuv xml:lang="en-us"><seg>Roles</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading workflow…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.WF_DETAIL_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading workflow…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load workflow.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.WF_DETAIL_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load workflow.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Full workflow graph design is not exposed in the Developer catalog">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.WF_GAP_GRAPH</note>
+            <tuv xml:lang="en-us"><seg>Full workflow graph design is not exposed in the Developer catalog</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Workflow create / update / delete is not supported from this Developer surface">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.WF_GAP_WRITE</note>
+            <tuv xml:lang="en-us"><seg>Workflow create / update / delete is not supported from this Developer surface</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Content type workflow association is edited on the content type detail panel">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.WF_GAP_CT</note>
+            <tuv xml:lang="en-us"><seg>Content type workflow association is edited on the content type detail panel</seg></tuv>
         </tu>
         <tu tuid="perc.ui.developer@Not implemented yet">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>

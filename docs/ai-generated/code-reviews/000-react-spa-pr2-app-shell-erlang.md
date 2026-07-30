@@ -14,13 +14,13 @@ PR-2 adds authenticated SPA chrome (`App` + `HashRouter` + `AppLayout`/`TopNav`)
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs | None found |
+|      Check       |                        Result                        |
+|------------------|------------------------------------------------------|
+| Bugs             | None found                                           |
 | Behavioral tests | 27 vitest (entry, session, App, bridge races, login) |
-| Open redirect | 401 return + buildLoginReturnUrl allowlist |
-| Bridge races | generation token on mount/unmount |
-| May commit/push | **yes** |
+| Open redirect    | 401 return + buildLoginReturnUrl allowlist           |
+| Bridge races     | generation token on mount/unmount                    |
+| May commit/push  | **yes**                                              |
 
 ## Issues
 
@@ -33,5 +33,6 @@ None (hard gate).
 
 ## Test evidence
 
-- Vitest app/login/bridge: 27 pass  
-- WebUI clean install: see PR body  
+- Vitest app/login/bridge: 27 pass
+- WebUI clean install: see PR body
+

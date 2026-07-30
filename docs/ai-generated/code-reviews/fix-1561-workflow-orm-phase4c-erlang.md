@@ -10,20 +10,20 @@
 
 ## Files changed
 
-| Path | Change |
-|---|---|
-| `system/services/.../workflow/IPSWorkflowService.java` | Add `findTransitionNotifications(workflowId, transitionId)` |
-| `system/services/.../workflow/impl/PSWorkflowService.java` | Implement `findTransitionNotifications` with typed `createQuery` + `@Transactional` |
-| `system/services/.../system/IPSSystemService.java` | Add `findNotificationDef(workflowId, notificationId)` |
-| `system/services/.../system/impl/PSSystemService.java` | Implement with `Session.get(PSNotificationDef.class, ...)` |
-| `modules/extensions-workflow/.../PSNotificationsContext.java` | Add `static loadFromHibernate(int, int)` factory + `populateFromHibernate` |
-| `modules/extensions-workflow/.../PSTransitionNotificationsContext.java` | Add `static loadFromHibernate(int, int)` factory + `populateFromHibernate` |
-| `modules/extensions-workflow/.../PSExitNotifyAssignees.java` | Drop `new PSConnectionMgr()` + Connection plumbing; use Hibernate-backed contexts |
-| `modules/extensions-workflow/.../PSSendNotificationsTest.java` | Update `sendNotifications` call signature (Connection parameter removed) |
-| `system/src/test/.../PSWorkflowServiceFindTransitionNotificationsTest.java` (new) | 5 Mockito tests |
-| `system/src/test/.../PSSystemServiceFindNotificationDefTest.java` (new) | 4 Mockito tests |
-| `modules/extensions-workflow/.../PSNotificationsContextLoadFromHibernateTest.java` (new) | 5 `@Disabled` mapping tests |
-| `modules/extensions-workflow/.../PSTransitionNotificationsContextLoadFromHibernateTest.java` (new) | 5 `@Disabled` mapping tests |
+|                                                Path                                                |                                       Change                                        |
+|----------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
+| `system/services/.../workflow/IPSWorkflowService.java`                                             | Add `findTransitionNotifications(workflowId, transitionId)`                         |
+| `system/services/.../workflow/impl/PSWorkflowService.java`                                         | Implement `findTransitionNotifications` with typed `createQuery` + `@Transactional` |
+| `system/services/.../system/IPSSystemService.java`                                                 | Add `findNotificationDef(workflowId, notificationId)`                               |
+| `system/services/.../system/impl/PSSystemService.java`                                             | Implement with `Session.get(PSNotificationDef.class, ...)`                          |
+| `modules/extensions-workflow/.../PSNotificationsContext.java`                                      | Add `static loadFromHibernate(int, int)` factory + `populateFromHibernate`          |
+| `modules/extensions-workflow/.../PSTransitionNotificationsContext.java`                            | Add `static loadFromHibernate(int, int)` factory + `populateFromHibernate`          |
+| `modules/extensions-workflow/.../PSExitNotifyAssignees.java`                                       | Drop `new PSConnectionMgr()` + Connection plumbing; use Hibernate-backed contexts   |
+| `modules/extensions-workflow/.../PSSendNotificationsTest.java`                                     | Update `sendNotifications` call signature (Connection parameter removed)            |
+| `system/src/test/.../PSWorkflowServiceFindTransitionNotificationsTest.java` (new)                  | 5 Mockito tests                                                                     |
+| `system/src/test/.../PSSystemServiceFindNotificationDefTest.java` (new)                            | 4 Mockito tests                                                                     |
+| `modules/extensions-workflow/.../PSNotificationsContextLoadFromHibernateTest.java` (new)           | 5 `@Disabled` mapping tests                                                         |
+| `modules/extensions-workflow/.../PSTransitionNotificationsContextLoadFromHibernateTest.java` (new) | 5 `@Disabled` mapping tests                                                         |
 
 ## Erlang checklist walk-through
 
@@ -43,12 +43,12 @@ Specific checks:
 
 ### 2. Behavioural tests added
 
-| Test file | Tests | Notes |
-|---|---|---|
-| `PSWorkflowServiceFindTransitionNotificationsTest` | 5 | Argument validation, JPQL shape, parameter forwarding, result pass-through. |
-| `PSSystemServiceFindNotificationDefTest` | 4 | Argument validation, composite key, pass-through. |
-| `PSNotificationsContextLoadFromHibernateTest` | 5 | `@Disabled` (legacy static-init constraint). |
-| `PSTransitionNotificationsContextLoadFromHibernateTest` | 5 | `@Disabled` (legacy static-init constraint). |
+|                        Test file                        | Tests |                                    Notes                                    |
+|---------------------------------------------------------|-------|-----------------------------------------------------------------------------|
+| `PSWorkflowServiceFindTransitionNotificationsTest`      | 5     | Argument validation, JPQL shape, parameter forwarding, result pass-through. |
+| `PSSystemServiceFindNotificationDefTest`                | 4     | Argument validation, composite key, pass-through.                           |
+| `PSNotificationsContextLoadFromHibernateTest`           | 5     | `@Disabled` (legacy static-init constraint).                                |
+| `PSTransitionNotificationsContextLoadFromHibernateTest` | 5     | `@Disabled` (legacy static-init constraint).                                |
 
 Disabled tests will be re-enabled when the Phase 4+ Spring+H2 infrastructure lands (per the same plan that re-enables the Phase 4b `PSLoadFromHibernateTest`).
 
@@ -81,3 +81,4 @@ Disabled tests will be re-enabled when the Phase 4+ Spring+H2 infrastructure lan
 
 - Phase 4d: `PSExitAddPossibleTransitions{,Ex}` + `PSExitPerformTransition` + `CONTENTADHOCUSERS` writes + `PSConnectionMgr` deletion.
 - Phase 4+: Spring+H2 test infrastructure.
+

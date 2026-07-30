@@ -80,8 +80,7 @@ public class SharedFieldsResourceTest {
   @Test
   public void listGroupsWithoutInjectionFailsWithDiagnostic() {
     SharedFieldsResource bare = new SharedFieldsResource();
-    WebApplicationException ex =
-        assertThrows(WebApplicationException.class, bare::listGroups);
+    WebApplicationException ex = assertThrows(WebApplicationException.class, bare::listGroups);
     assertEquals(500, ex.getResponse().getStatus());
     assertInstanceOf(IllegalStateException.class, ex.getCause());
   }

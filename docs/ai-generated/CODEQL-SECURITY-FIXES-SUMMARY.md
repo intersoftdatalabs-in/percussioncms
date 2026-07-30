@@ -296,8 +296,8 @@ BUILD SUCCESS
 
 ### Module-Specific Builds
 
-|       Module        |                           Command                            |  Status   | Time  |
-|---------------------|--------------------------------------------------------------|-----------|-------|
+|       Module        |                        Command                         |  Status   | Time  |
+|---------------------|--------------------------------------------------------|-----------|-------|
 | perc-security-utils | `./mvnw -pl modules/perc-security-utils clean install` | ✅ SUCCESS | 12.5s |
 | sitemanage          | `./mvnw -pl projects/sitemanage clean compile test`    | ✅ SUCCESS | 18.7s |
 

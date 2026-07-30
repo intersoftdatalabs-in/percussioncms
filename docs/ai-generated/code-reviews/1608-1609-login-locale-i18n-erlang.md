@@ -65,14 +65,14 @@ None blocking.
 
 ## Behavioral tests
 
-| Behaviour | Coverage |
-|---|---|
-| Endonym labels (français, español, Deutsch) | `localeLabels.test.ts`, `LoginPage.test.tsx` |
-| Labels stable across UI locale change (GH-1608) | both test files |
-| Fallback when `Intl.DisplayNames` absent | both test files |
-| Chrome re-reads I18N after TMX load (GH-1609) | `LoginPage.test.tsx` new async test |
-| Document title tracks locale | same GH-1609 test |
-| Form/CSRF preserved | existing test unchanged |
+|                    Behaviour                    |                   Coverage                   |
+|-------------------------------------------------|----------------------------------------------|
+| Endonym labels (français, español, Deutsch)     | `localeLabels.test.ts`, `LoginPage.test.tsx` |
+| Labels stable across UI locale change (GH-1608) | both test files                              |
+| Fallback when `Intl.DisplayNames` absent        | both test files                              |
+| Chrome re-reads I18N after TMX load (GH-1609)   | `LoginPage.test.tsx` new async test          |
+| Document title tracks locale                    | same GH-1609 test                            |
+| Form/CSRF preserved                             | existing test unchanged                      |
 
 ## Pre-commit evidence
 
@@ -91,3 +91,4 @@ cd WebUI && ../mvnw clean install
 
 - None new; aligns with prior login i18n work (dynamic TMX re-apply, endonym
   vs viewer localization distinction).
+

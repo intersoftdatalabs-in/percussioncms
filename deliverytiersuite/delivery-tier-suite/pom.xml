@@ -31,8 +31,6 @@
         <disruptor.version>4.0.0</disruptor.version>
         <eclipse-manifest-location>META-INF</eclipse-manifest-location>
         <ehcache-core.version>3.10.8</ehcache-core.version>
-        <!-- Overrides Parent -->
-        <install.jre.version>8.222.10.1</install.jre.version>
         <javadocs.skip>false</javadocs.skip>
         <jaxb-runtime.version>4.0.6</jaxb-runtime.version>
         <jdt.version>3.18.0</jdt.version>
@@ -42,17 +40,12 @@
         <lifecycle.mapping.plugin>1.0.0</lifecycle.mapping.plugin>
         <liquibase-core.version>5.0.1</liquibase-core.version>
         <macker.version>1.0.2</macker.version>
-        <mariadb.version>3.5.7</mariadb.version>
         <morphia.version>0.104</morphia.version>
-        <postgresql.version>42.7.12</postgresql.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- Jakarta EE 11 / Tomcat 11 — align with parent jakarta.servlet.api.version (#667) -->
         <servlet.api.version>6.1.0</servlet.api.version>
-        <servlet.spec>6.1.0</servlet.spec>
-        <spring.security.version>7.0.5</spring.security.version>
-        <!-- Overrides Parent-->
-        <spring.version>7.0.7</spring.version>
+        <spring.security.version>7.0.6</spring.security.version>
         <sqlserver.version>13.3.1.jre11-preview</sqlserver.version>
         <supercsv.version>2.4.0</supercsv.version>
         <timestamp>${maven.build.timestamp}</timestamp>
@@ -230,6 +223,11 @@
                         <artifactId>micrometer-commons</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.ldap</groupId>
+                <artifactId>spring-ldap-core</artifactId>
+                <version>4.0.4</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>

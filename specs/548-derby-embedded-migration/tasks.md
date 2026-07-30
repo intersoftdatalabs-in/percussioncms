@@ -127,7 +127,6 @@
 - [x] T064 [US2] Implement DTS per-service migration (TableFactory export/import + config cutover) — **QC-012**, **FR-006**, **SC-003** (`PSDtsEmbeddedRepositoryMigrator`, `PSMigrateDtsEmbeddedRepository`, `installDts.xml`)
 - [x] T065 [US2] **CMS+DTS upgrade sequencing** documented — `checklists/upgrade-sequence.md` (+ contracts already state order)
 - [x] T066 [US2] Keep Derby jars on migration classpath only (**FR-021** window); document scope — `checklists/derby-migration-classpath.md`
-
 - [x] T067 [US2] Standalone clean install/tests for all modules touched in US2; PR evidence — **QC-018** — completed via PR #1496 (+ residual #1498)
 - [x] T068 [US2] Commit US2; open PR “548 US2 Derby migration”; pause for review/merge — **merged** [#1496](https://github.com/intersoftdatalabs-in/percussioncms/pull/1496)
 
@@ -247,15 +246,15 @@ Phase 1 Setup
         → Phase 9 Polish / GA
 ```
 
-| Story | Depends on | Notes |
-|-------|------------|-------|
-| US1 | Phase 2 (incl. T024 seed decision) | First shippable product default change |
-| US2 | Phase 2 + US1 | Migration target must match new install engine |
-| US4 | Phase 2 + US1 | Full harness after runtime exists |
-| US3 | US2 detectors | Finish after migrator API stable |
-| US5 | US2 backup helper + T050 timing | Docs + sizing |
-| US6 | US1–US5 content | Canonical paths under `docs/ai-generated/tasks/548-derby-embedded-migration/` |
-| Polish | All stories | QC freeze including QC-029 |
+| Story  |             Depends on             |                                     Notes                                     |
+|--------|------------------------------------|-------------------------------------------------------------------------------|
+| US1    | Phase 2 (incl. T024 seed decision) | First shippable product default change                                        |
+| US2    | Phase 2 + US1                      | Migration target must match new install engine                                |
+| US4    | Phase 2 + US1                      | Full harness after runtime exists                                             |
+| US3    | US2 detectors                      | Finish after migrator API stable                                              |
+| US5    | US2 backup helper + T050 timing    | Docs + sizing                                                                 |
+| US6    | US1–US5 content                    | Canonical paths under `docs/ai-generated/tasks/548-derby-embedded-migration/` |
+| Polish | All stories                        | QC freeze including QC-029                                                    |
 
 ### Constitution story checkpoints
 
@@ -286,38 +285,38 @@ T091 release notes  ||  T092 am-i-affected  ||  T096 package audit
 
 ### MVP (first vertical)
 
-1. Phase 1–2 foundation (inventory + bake-off + seed decision + primitives)  
-2. **US1 only** — new installs on H2 (CMS + DTS defaults)  
+1. Phase 1–2 foundation (inventory + bake-off + seed decision + primitives)
+2. **US1 only** — new installs on H2 (CMS + DTS defaults)
 3. Validate Q1/Q2 + QC-013/014 + OS matrix (T038)
 
 ### Incremental delivery
 
-1. US2 migration + safety gates + sequencing (largest risk)  
-2. US4 multiuser (CMS + DTS)  
-3. US3 external non-interference  
-4. US5 ops docs + sizing + dry-run  
-5. US6 communications  
-6. Phase 9 packaging/QC freeze  
+1. US2 migration + safety gates + sequencing (largest risk)
+2. US4 multiuser (CMS + DTS)
+3. US3 external non-interference
+4. US5 ops docs + sizing + dry-run
+5. US6 communications
+6. Phase 9 packaging/QC freeze
 
 ### Suggested PR slicing
 
-| PR | Scope |
-|----|--------|
-| PR-A | Phase 2 foundation |
-| PR-B | US1 new install |
-| PR-C | US2 CMS migrator |
+|  PR  |                   Scope                   |
+|------|-------------------------------------------|
+| PR-A | Phase 2 foundation                        |
+| PR-B | US1 new install                           |
+| PR-C | US2 CMS migrator                          |
 | PR-D | US2 DTS migrator (if large, split from C) |
-| PR-E | US4 multiuser |
-| PR-F | US3 + US5 + US6 docs/guards |
-| PR-G | Polish / packaging / QC closeout |
+| PR-E | US4 multiuser                             |
+| PR-F | US3 + US5 + US6 docs/guards               |
+| PR-G | Polish / packaging / QC closeout          |
 
 ---
 
 ## Format validation
 
 - All tasks use `- [ ]`, sequential IDs **T001–T105**, story labels on US phases only, `[P]` only when parallel-safe, and concrete file paths.
-- Total tasks: **105**  
-- Setup: 3 · Foundational: 22 · US1: 17 · US2: 26 · US4: 7 · US3: 6 · US5: 9 · US6: 4 · Polish: 11  
+- Total tasks: **105**
+- Setup: 3 · Foundational: 22 · US1: 17 · US2: 26 · US4: 7 · US3: 6 · US5: 9 · US6: 4 · Polish: 11
 
 ---
 
@@ -330,3 +329,4 @@ T091 release notes  ||  T092 am-i-affected  ||  T096 package audit
 # Start implementation at Phase 2:
 T004 inventory script → T007–T011 bake-off → T024 seed decision → T012+ platform
 ```
+

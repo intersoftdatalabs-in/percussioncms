@@ -29,9 +29,7 @@ import static org.mockito.Mockito.when;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.memory.IPSCacheAccess;
 import com.percussion.services.workflow.data.PSAssignedRole;
-import com.percussion.services.workflow.data.PSAssignedRolePK;
 import com.percussion.services.workflow.data.PSWorkflowRole;
-import com.percussion.services.workflow.data.PSWorkflowRolePK;
 import com.percussion.services.workflow.impl.PSWorkflowService;
 import jakarta.persistence.EntityManager;
 import java.util.ArrayList;
@@ -46,14 +44,13 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.test.util.ReflectionTestUtils;
 
 /**
- * Unit tests for the Hibernate-backed state-roles query methods added for #1561 Phase 4b:
- * {@link IPSWorkflowService#findStateRoles(long, long, int)} and
- * {@link IPSWorkflowService#findWorkflowRoles(long, Set)}.
+ * Unit tests for the Hibernate-backed state-roles query methods added for #1561 Phase 4b: {@link
+ * IPSWorkflowService#findStateRoles(long, long, int)} and {@link
+ * IPSWorkflowService#findWorkflowRoles(long, Set)}.
  *
- * <p>The service uses {@code @PersistenceContext EntityManager} + a private
- * {@code Session getSession()} helper. We mock both via Mockito (and inject the
- * {@code EntityManager} field via {@link ReflectionTestUtils}) so these tests run
- * without a Spring context or a live database.</p>
+ * <p>The service uses {@code @PersistenceContext EntityManager} + a private {@code Session
+ * getSession()} helper. We mock both via Mockito (and inject the {@code EntityManager} field via
+ * {@link ReflectionTestUtils}) so these tests run without a Spring context or a live database.
  */
 public class PSWorkflowServiceStateRolesTest {
 
@@ -73,10 +70,8 @@ public class PSWorkflowServiceStateRolesTest {
   /** Argument validation: non-positive ids fail fast. */
   @Test
   void findStateRoles_rejectsNonPositiveIds() {
-    assertThrows(
-        IllegalArgumentException.class, () -> service.findStateRoles(0L, 7L, 1));
-    assertThrows(
-        IllegalArgumentException.class, () -> service.findStateRoles(7L, 0L, 1));
+    assertThrows(IllegalArgumentException.class, () -> service.findStateRoles(0L, 7L, 1));
+    assertThrows(IllegalArgumentException.class, () -> service.findStateRoles(7L, 0L, 1));
   }
 
   /**
@@ -131,8 +126,7 @@ public class PSWorkflowServiceStateRolesTest {
 
   @Test
   void findWorkflowRoles_rejectsNullSet() {
-    assertThrows(
-        IllegalArgumentException.class, () -> service.findWorkflowRoles(7L, null));
+    assertThrows(IllegalArgumentException.class, () -> service.findWorkflowRoles(7L, null));
   }
 
   /** Empty role-id set returns empty list without ever touching Hibernate. */
@@ -145,8 +139,8 @@ public class PSWorkflowServiceStateRolesTest {
   }
 
   /**
-   * Happy path: the query is a typed {@code createQuery} with the right JPQL + parameters,
-   * and the returned rows are passed through.
+   * Happy path: the query is a typed {@code createQuery} with the right JPQL + parameters, and the
+   * returned rows are passed through.
    */
   @Test
   @SuppressWarnings({"rawtypes", "unchecked"})

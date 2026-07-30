@@ -22,7 +22,6 @@ package com.percussion.rest.extensions;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 
 /**
  * Represents an Extension Parameter with value. Sunny Sal: "Parameter ka power, extension ka
@@ -66,24 +65,24 @@ public class ExtensionParameter {
     // Default constructor
   }
 
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   public void setName(String name) {
     this.name = name;
   }
 
-  public Optional<String> getDescription() {
-    return Optional.ofNullable(description);
+  public String getDescription() {
+    return description;
   }
 
   public void setDescription(String description) {
     this.description = description;
   }
 
-  public Optional<String> getDataType() {
-    return Optional.ofNullable(dataType);
+  public String getDataType() {
+    return dataType;
   }
 
   public void setDataType(String dataType) {
@@ -98,8 +97,8 @@ public class ExtensionParameter {
     this.required = required;
   }
 
-  public Optional<String> getValue() {
-    return Optional.ofNullable(value);
+  public String getValue() {
+    return value;
   }
 
   public void setValue(String value) {

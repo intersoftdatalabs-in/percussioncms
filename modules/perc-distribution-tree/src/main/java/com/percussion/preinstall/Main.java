@@ -568,7 +568,7 @@ public class Main {
     return processCode;
   }
 
-private static Properties loadVersionProperties(Path installDir) {
+  private static Properties loadVersionProperties(Path installDir) {
     File versionFile = new File(installDir + File.separator + VERSION_PROPERTIES);
     Properties rawVersionProperties = new Properties();
     if (versionFile.exists()) {

@@ -39,6 +39,7 @@ in-scope modules.
 ## Issues
 
 ### Issue 1 -- Severity: suggestion
+
 - File: `modules/extensions-workflow/src/main/java/com/percussion/workflow/PSExitPerformTransition.java:1117`
 - Description: The `nApproved` increment originally used `transitionApprovals.stream().map(PSContentApproval::getUser).distinct().count()` and the same pattern was repeated at line 1289. The legacy `cac.getApprovedUserCount()` counted raw rows (with user names that may repeat under the legacy schema), while the inline replacement used distinct users. The migration changed the semantics from "rows" to "distinct users".
 - Suggestion: Replaced both call sites with `transitionApprovals.size()` to preserve the legacy PSContentApprovalsContext row-count semantics. Inline comments at both sites cite the legacy semantics.
@@ -46,12 +47,14 @@ in-scope modules.
 - Pattern-id: tests.semantic-equivalence
 
 ### Issue 2 -- Severity: nit
+
 - File: `modules/extensions-workflow/src/main/java/com/percussion/workflow/PSExitPerformTransition.java:1131`
 - Description: Three new local fields (`transitionFromStateID`, `transitionID`) are pulled from `tc` at the top of `processTransition`. The variable `transitionToStateID` was already extracted on the same line. The four variables are conceptually a tuple (`workflowID`, `transitionID`, `transitionFromStateID`, `transitionToStateID`). Minor cleanup is possible by sharing a record, but this is purely stylistic.
 - Suggestion: Leave as-is; the readability is fine.
 - Status: open
 
 ### Issue 3 -- Severity: nit
+
 - File: `modules/extensions-workflow/src/main/java/com/percussion/workflow/PSExitPerformTransition.java:1624`
 - Description: The aging cursor `candidateTC = new PSTransitionsContext(csc.getWorkflowID(), connection, agingStateID);` is documented as a deferred Phase 5 follow-up with a 9-line comment. Calling out the issue is correct and necessary; the comment is a touch verbose. Acceptable.
 - Suggestion: Keep as-is; this is the right amount of audit trail for a deferred migration.
@@ -90,10 +93,10 @@ is satisfied by construction.
 
 ## Build & test evidence
 
-| Module | Command | Result |
-|---|---|---|
-| `modules/extensions-workflow` | `mvnw.cmd clean install` from repo root | **BUILD SUCCESS** — Tests run: 57, Failures: 0, Errors: 0, Skipped: 38 (5 new tests added) |
-| `system` | `mvnw.cmd clean install` from repo root | **BUILD FAILURE** — 2 pre-existing failures (verified via `git stash` + rerun on base `origin/development` @ `798a5c0d8a`, both failures reproduce without my changes): `PSObjectSerializerTest` (documented pre-existing in PR-4d-1b review) and `H2 DTS concurrent write smoke (#548 T071)` (flaky when run in parallel with the full suite; passes in isolation). Total: 924 tests, 244 skipped, 2 failures (pre-existing), 0 errors. |
+|            Module             |                 Command                 |                                                                                                                                                                                                                  Result                                                                                                                                                                                                                  |
+|-------------------------------|-----------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `modules/extensions-workflow` | `mvnw.cmd clean install` from repo root | **BUILD SUCCESS** — Tests run: 57, Failures: 0, Errors: 0, Skipped: 38 (5 new tests added)                                                                                                                                                                                                                                                                                                                                               |
+| `system`                      | `mvnw.cmd clean install` from repo root | **BUILD FAILURE** — 2 pre-existing failures (verified via `git stash` + rerun on base `origin/development` @ `798a5c0d8a`, both failures reproduce without my changes): `PSObjectSerializerTest` (documented pre-existing in PR-4d-1b review) and `H2 DTS concurrent write smoke (#548 T071)` (flaky when run in parallel with the full suite; passes in isolation). Total: 924 tests, 244 skipped, 2 failures (pre-existing), 0 errors. |
 
 The same `system` `clean install` is a pre-existing failure on `origin/development`. The
 in-scope migration does not introduce any new test failures, warnings, or
@@ -108,3 +111,4 @@ documented in the PR body.
   `transitionApprovals.size()` or document the distinct-users semantic shift in
   the PR body before the final commit.
 - Durable report: `docs/ai-generated/code-reviews/fix-1561-workflow-orm-phase4d-1c-perform-erlang.md`.
+

@@ -6,21 +6,21 @@ Per spec 994 (`specs/994-python-build-scripts/spec.md`): the original `.sh` wrap
 
 ## Two stacks (do not confuse them)
 
-| Stack | Purpose | How to run |
-|-------|---------|------------|
-| **Dev (`cms-dts`)** | Day-to-day coding: host install bind-mounted, hot-deploy jars | `perc-devctl.py` + `scripts/install-cms-dev.py` |
-| **Matrix install smoke** | Ephemeral silent install of **CMS and/or DTS** per DB, probe, record, destroy | `docker/scripts/matrix-install-smoke.py` |
+|          Stack           |                                    Purpose                                    |                   How to run                    |
+|--------------------------|-------------------------------------------------------------------------------|-------------------------------------------------|
+| **Dev (`cms-dts`)**      | Day-to-day coding: host install bind-mounted, hot-deploy jars                 | `perc-devctl.py` + `scripts/install-cms-dev.py` |
+| **Matrix install smoke** | Ephemeral silent install of **CMS and/or DTS** per DB, probe, record, destroy | `docker/scripts/matrix-install-smoke.py`        |
 
 ## Layout
 
-| Path | Purpose |
-|------|---------|
-| `cms/` | Dockerfile + image for the long-lived cms-dts **dev** container |
-| `matrix/` | Dockerfile + in-cell entrypoint for ephemeral install matrix cells |
-| `dev-data/` | Persistent bind-mount volume (CMS install + DB) for **dev** only |
-| `entrypoint/` | Dev container service-start scripts (`install-update.py`) |
-| `scripts/` | Host-side operator control (`perc-devctl.py`, `matrix-install-smoke.py`) |
-| `logs/` | Timestamped logs + matrix JSON results |
+|     Path      |                                 Purpose                                  |
+|---------------|--------------------------------------------------------------------------|
+| `cms/`        | Dockerfile + image for the long-lived cms-dts **dev** container          |
+| `matrix/`     | Dockerfile + in-cell entrypoint for ephemeral install matrix cells       |
+| `dev-data/`   | Persistent bind-mount volume (CMS install + DB) for **dev** only         |
+| `entrypoint/` | Dev container service-start scripts (`install-update.py`)                |
+| `scripts/`    | Host-side operator control (`perc-devctl.py`, `matrix-install-smoke.py`) |
+| `logs/`       | Timestamped logs + matrix JSON results                                   |
 
 ## Host-side scripts
 
@@ -72,10 +72,10 @@ ENTRYPOINT ["/usr/local/bin/python3", "/usr/local/bin/install-update.py"]
 
 Ephemeral cells mount the real installer jars (not a fictional `perc-preinstall.jar`):
 
-| Product | Installer jar (customer-shipped assembly only) | Start after install | Default host probe |
-|---------|------------------------------------------------|---------------------|--------------------|
-| CMS | `modules/perc-distribution-tree/target/perc-distribution-tree.jar` | `jetty/StartJetty.sh` | `http://127.0.0.1:9993/Rhythmyx/login` |
-| DTS | `…/delivery-tier-distribution/target/delivery-tier-distribution.jar` | `TomcatStartup.sh` / `startup.sh` | `http://127.0.0.1:9983/` |
+| Product |            Installer jar (customer-shipped assembly only)            |        Start after install        |           Default host probe           |
+|---------|----------------------------------------------------------------------|-----------------------------------|----------------------------------------|
+| CMS     | `modules/perc-distribution-tree/target/perc-distribution-tree.jar`   | `jetty/StartJetty.sh`             | `http://127.0.0.1:9993/Rhythmyx/login` |
+| DTS     | `…/delivery-tier-distribution/target/delivery-tier-distribution.jar` | `TomcatStartup.sh` / `startup.sh` | `http://127.0.0.1:9983/`               |
 
 Do **not** use `*-SNAPSHOT.jar` — those are plain module jars without the runnable installer main class. Package with `mvn package` so the assembly `finalName` jars exist and are non-empty.
 
@@ -116,12 +116,12 @@ python3 docker/scripts/matrix-install-smoke.py --product cms --db h2 --dry-run -
 Matrix cells (`perc-matrix-*`) are destroyed after each cell unless `--keep`.
 External compose DBs (`percussion-postgres` / `percussion-mysql` / `percussion-sqlserver`) follow a separate ownership rule:
 
-| Flag | Cells | External DBs |
-|------|-------|--------------|
-| **Default** | Destroyed | Stop services **this process started** (`compose stop`; no volume wipe) |
-| `--keep` | Left running | Left running (Layer 2 / debugging) |
-| `--keep-db` | Destroyed (unless `--keep`) | Left running (reuse across runs) |
-| `--stop-db` | Destroyed (unless `--keep`) | Stop **all** external DBs used by the matrix, even if pre-existing |
+|    Flag     |            Cells            |                              External DBs                               |
+|-------------|-----------------------------|-------------------------------------------------------------------------|
+| **Default** | Destroyed                   | Stop services **this process started** (`compose stop`; no volume wipe) |
+| `--keep`    | Left running                | Left running (Layer 2 / debugging)                                      |
+| `--keep-db` | Destroyed (unless `--keep`) | Left running (reuse across runs)                                        |
+| `--stop-db` | Destroyed (unless `--keep`) | Stop **all** external DBs used by the matrix, even if pre-existing      |
 
 If a DB container was already running before the harness (e.g. long-lived dev stack), the default path **reuses** it and **does not** stop it at the end. Use `--stop-db` only when you intentionally want those containers stopped. Never uses `compose down -v` by default (named volumes / operator data are preserved).
 
@@ -129,11 +129,11 @@ If a DB container was already running before the harness (e.g. long-lived dev st
 
 DTS Tomcat listens on **`${http.port}`** from `conf/perc/perc-catalina.properties` (default **9980**), not stock Tomcat 8080. The shipping tree requires:
 
-| File | Requirement |
-|------|-------------|
-| `conf/server.xml` | Property-driven connectors (`port="${http.port}"`) + `PSSimpleRedirectorValve` |
-| `conf/catalina.properties` | `common.loader` includes `common/lib`; `PROPERTY_SOURCE=com.percussion.tomcat.PSTomcatPropertySource` |
-| `common/lib/perc-tomcat-common-*.jar` | Must contain `com.percussion.tomcat.valves.PSSimpleRedirectorValve` (correct package) |
+|                 File                  |                                              Requirement                                              |
+|---------------------------------------|-------------------------------------------------------------------------------------------------------|
+| `conf/server.xml`                     | Property-driven connectors (`port="${http.port}"`) + `PSSimpleRedirectorValve`                        |
+| `conf/catalina.properties`            | `common.loader` includes `common/lib`; `PROPERTY_SOURCE=com.percussion.tomcat.PSTomcatPropertySource` |
+| `common/lib/perc-tomcat-common-*.jar` | Must contain `com.percussion.tomcat.valves.PSSimpleRedirectorValve` (correct package)                 |
 
 Matrix host probe: `http://127.0.0.1:9983/` → container **9980**.
 

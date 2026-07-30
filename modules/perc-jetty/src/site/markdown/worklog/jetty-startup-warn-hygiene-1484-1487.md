@@ -12,12 +12,12 @@
 Four classes of Jetty console noise observed on CMS 8.2 Windows smoke are fixed
 in `perc-jetty` packaging and defaults (no application Java changes).
 
-| Issue | Symptom | Fix |
-|-------|---------|-----|
-| **#1484** | Multiple SLF4J providers → NOP logger | `perc-logging` provides `logging\|default` so stock `logging-jetty` / `jetty-slf4j-impl` is not selected |
-| **#1485** | Fork second JVM for `[perc-logging, perc]` | Remove `[exec]` from those modules; consolidate JVM system properties in `start.d/jvm.ini` |
-| **#1486** | `ShutdownMonitor` + `CookieConfig.setComment` deprecations | Enable Jetty `shutdown` module (`jetty.shutdown.*`); SameSite via `setAttribute` in `Rhythmyx.xml` |
-| **#1487** | Empty `jetty.xml` Args + DigesterFactory missing schemas | Named Server constructor Args on assembled `upstream/etc/jetty.xml`; ship W3C DTD/XSD jar for DigesterFactory |
+|   Issue   |                          Symptom                           |                                                      Fix                                                      |
+|-----------|------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
+| **#1484** | Multiple SLF4J providers → NOP logger                      | `perc-logging` provides `logging\|default` so stock `logging-jetty` / `jetty-slf4j-impl` is not selected      |
+| **#1485** | Fork second JVM for `[perc-logging, perc]`                 | Remove `[exec]` from those modules; consolidate JVM system properties in `start.d/jvm.ini`                    |
+| **#1486** | `ShutdownMonitor` + `CookieConfig.setComment` deprecations | Enable Jetty `shutdown` module (`jetty.shutdown.*`); SameSite via `setAttribute` in `Rhythmyx.xml`            |
+| **#1487** | Empty `jetty.xml` Args + DigesterFactory missing schemas   | Named Server constructor Args on assembled `upstream/etc/jetty.xml`; ship W3C DTD/XSD jar for DigesterFactory |
 
 ## #1484 — Single SLF4J provider (Log4j2)
 
@@ -153,3 +153,4 @@ does not ship those three files.
    registered with old start params containing `-DSTOP.PORT`.
 3. If operators previously overrode SameSite via cookie **comment** in a custom
    context XML, migrate to `setAttribute` / `SameSite`.
+

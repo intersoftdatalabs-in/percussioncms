@@ -58,7 +58,8 @@ class PSJdbcConnectionDiagnosticsTest {
       assertTrue(diag.contains("h2.NON_KEYWORDS=VALUE"), diag);
       assertTrue(diag.contains("h2.unquotedVALUE_identifier_ok=true"), diag);
       assertTrue(PSJdbcConnectionDiagnostics.probeUnquotedValueIdentifier(c));
-      assertTrue("VALUE".equalsIgnoreCase(PSJdbcConnectionDiagnostics.queryH2Setting(c, "NON_KEYWORDS")));
+      assertTrue(
+          "VALUE".equalsIgnoreCase(PSJdbcConnectionDiagnostics.queryH2Setting(c, "NON_KEYWORDS")));
     }
   }
 
@@ -68,7 +69,8 @@ class PSJdbcConnectionDiagnosticsTest {
     String url = "jdbc:h2:mem:diag_no_nk;DB_CLOSE_DELAY=-1";
     try (Connection c = DriverManager.getConnection(url, "sa", "")) {
       String diag = PSJdbcConnectionDiagnostics.describeConnection(c);
-      assertTrue(diag.contains("h2.NON_KEYWORDS=<absent>") || diag.contains("h2.NON_KEYWORDS="), diag);
+      assertTrue(
+          diag.contains("h2.NON_KEYWORDS=<absent>") || diag.contains("h2.NON_KEYWORDS="), diag);
       // absent or empty
       String nk = PSJdbcConnectionDiagnostics.queryH2Setting(c, "NON_KEYWORDS");
       assertTrue(nk == null || nk.isBlank(), "expected no NON_KEYWORDS, got " + nk);

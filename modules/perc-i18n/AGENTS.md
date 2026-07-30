@@ -281,14 +281,14 @@ translation text is `i18n_translate.py`; do not hand-translate.
 If seeing `PSTmxResourceBundle` errors:
 1. Check XML syntax: `xmllint --noout <file.tmx>`
 2. Verify supported languages declared in header (17 codes, see
-   Quick Reference)
+Quick Reference)
 3. Check for properly closed elements (especially `<seg>` content with
-   `<` / `>` / `&` characters that must be XML-escaped)
+`<` / `>` / `&` characters that must be XML-escaped)
 4. Validate against TMX 1.4 schema
 5. If a new TUV was just inserted by hand and the file no longer
-   parses, re-run `i18n_translate.py --force --target <lang>` for the
-   affected key — the script XML-escapes `<seg>` content via
-   `xml.sax.saxutils.escape` on write.
+parses, re-run `i18n_translate.py --force --target <lang>` for the
+affected key — the script XML-escapes `<seg>` content via
+`xml.sax.saxutils.escape` on write.
 
 ## Related Modules
 
@@ -298,9 +298,9 @@ If seeing `PSTmxResourceBundle` errors:
 
 ## Quick Reference
 
-|        File         |         Purpose         |   Languages   |          Location          |
-|---------------------|-------------------------|---------------|----------------------------|
-| ResourceBundle.tmx  | Master bundle (seed)    | en-us         | `src/main/resources/i18n/` |
+|        File         |         Purpose         |          Languages           |          Location          |
+|---------------------|-------------------------|------------------------------|----------------------------|
+| ResourceBundle.tmx  | Master bundle (seed)    | en-us                        | `src/main/resources/i18n/` |
 | CmsUi.tmx           | UI labels/strings       | 18-locale matrix (see below) | `src/main/resources/i18n/` |
 | SystemResources.tmx | System/editor resources | 18-locale matrix (see below) | `src/main/resources/i18n/` |
 
@@ -320,11 +320,11 @@ The runtime loader normalizes incoming tags so `EN_US`, `en-US`,
 
 **Developer tooling** (outside the JAR; in `scripts/`):
 
-|        File                  |         Purpose                              |
-|------------------------------|----------------------------------------------|
-| `scripts/i18n_translate.py`  | Back-fill missing TUVs via Docker translate-shell |
-| `scripts/test_i18n_translate.py` | Unit tests (no Docker required)         |
-| `scripts/README.md`          | CLI contract, rate-limit semantics, cross-platform notes |
+|               File               |                         Purpose                          |
+|----------------------------------|----------------------------------------------------------|
+| `scripts/i18n_translate.py`      | Back-fill missing TUVs via Docker translate-shell        |
+| `scripts/test_i18n_translate.py` | Unit tests (no Docker required)                          |
+| `scripts/README.md`              | CLI contract, rate-limit semantics, cross-platform notes |
 
 ## Questions or Issues?
 
