@@ -345,6 +345,7 @@ def main(argv: list[str] | None = None) -> int:
     total_missing = 0
     total_inserted = 0
     total_fixed = 0
+    total_skipped = 0
 
     for f in files:
         if not f.exists():
@@ -369,9 +370,10 @@ def main(argv: list[str] | None = None) -> int:
                 try:
                     translations[tuid] = translate(en_seg, target, cache=cache, force=args.force)
                 except Exception as e:
-                    print(f'  ERROR: {e}', file=sys.stderr)
+                    print(f'  SKIP {tuid}: {e}', file=sys.stderr)
+                    total_skipped += 1
                     save_cache(cache)
-                    return 1
+                    continue
                 processed += 1
                 if processed % 10 == 0:
                     print(f'  ... {processed}/{len(missing)}')
@@ -410,9 +412,10 @@ def main(argv: list[str] | None = None) -> int:
                     try:
                         translations[tuid] = translate(en_seg, target, cache=cache, force=args.force)
                     except Exception as e:
-                        print(f'  ERROR: {e}', file=sys.stderr)
+                        print(f'  SKIP {tuid}: {e}', file=sys.stderr)
                         save_cache(cache)
-                        return 1
+                        total_skipped += 1
+                        continue
                     processed += 1
                     if processed % 10 == 0:
                         print(f'  ... {processed}/{len(matching)}')
@@ -425,7 +428,7 @@ def main(argv: list[str] | None = None) -> int:
                         tmx.commit()
                     print(f'  fixed {replaced} translations')
 
-    print(f'\nDone. Missing: {total_missing}; inserted: {total_inserted}; fixed: {total_fixed}')
+    print(f'\nDone. Missing: {total_missing}; inserted: {total_inserted}; fixed: {total_fixed}; skipped: {total_skipped}')
     return 0
 
 
