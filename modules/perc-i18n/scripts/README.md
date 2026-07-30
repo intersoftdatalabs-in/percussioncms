@@ -7,12 +7,12 @@ hand-maintained Python/shell scripts.
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `i18n_translate.py` | CLI: walks canonical TMX files, fills missing `<tuv>` blocks via **Docker** `soimort/translate-shell`. |
-| `i18n_translate_direct.py` | Same job as `i18n_translate.py`, but prefers **`trans` on PATH** (translate-shell) and falls back to Docker if `trans` is unavailable. |
-| `test_i18n_translate.py` | Unit tests for the Docker variant (no Docker required). |
-| `test_i18n_translate_direct.py` | Unit tests for the direct `trans` variant (no `trans` required). |
+|              File               |                                                                Purpose                                                                 |
+|---------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
+| `i18n_translate.py`             | CLI: walks canonical TMX files, fills missing `<tuv>` blocks via **Docker** `soimort/translate-shell`.                                 |
+| `i18n_translate_direct.py`      | Same job as `i18n_translate.py`, but prefers **`trans` on PATH** (translate-shell) and falls back to Docker if `trans` is unavailable. |
+| `test_i18n_translate.py`        | Unit tests for the Docker variant (no Docker required).                                                                                |
+| `test_i18n_translate_direct.py` | Unit tests for the direct `trans` variant (no `trans` required).                                                                       |
 
 ## Quick start
 
@@ -53,8 +53,6 @@ python3 modules/perc-i18n/scripts/i18n_translate.py \
 - **Atomicity**: the cache is written to a sibling `.tmp` file and
   renamed, so a SIGKILL mid-write does not corrupt the cache.
 
-
-
 ## Direct variant (`i18n_translate_direct.py`)
 
 Use this when you have translate-shell installed locally, or when Docker is
@@ -69,12 +67,21 @@ python3 modules/perc-i18n/scripts/i18n_translate_direct.py --target hi
 # Arabic base locale fill
 python3 modules/perc-i18n/scripts/i18n_translate_direct.py --target ar
 
+# Windows (Docker Desktop only — no local trans): force Docker + UTF-8 capture
+python modules/perc-i18n/scripts/i18n_translate_direct.py --target ar --docker --force
+
 # Fix rows where the target still equals English
 python3 modules/perc-i18n/scripts/i18n_translate_direct.py --target es --fix-matching-en
 
 # Variant locale (only store differences from base when using --variant-base)
 python3 modules/perc-i18n/scripts/i18n_translate_direct.py --target hi-in --variant-base hi
 ```
+
+On **Windows with Docker Desktop**, prefer `--docker`. The script already falls
+back to Docker when `trans` is missing; `--docker` makes that path explicit.
+Each successful translation is logged as
+`[trans] <source> -> <lang> = <translated>` (flushed immediately so PowerShell /
+`cmd` show the line without waiting for process exit).
 
 Differences from `i18n_translate.py`:
 
@@ -84,6 +91,34 @@ Differences from `i18n_translate.py`:
 | Cache file | `scripts/.cache/i18n_translate.json` | `scripts/.cache/i18n_translate_direct.json` |
 | Rate limits | Exponential backoff on 429-like errors (2s base, 60s cap, ±20% jitter, 5 attempts) | **Same backoff** + random 1–10s throttle after each successful translation |
 | Extra flags | (see Quick start) | `--fix-matching-en`, `--variant-base` |
+
+### RTL / Arabic (`--target ar`)
+
+Both scripts pass **`-no-bidi`** to translate-shell. Without that flag, RTL
+output is terminal-padded and rewritten into Arabic presentation forms /
+visual order, which looks like a blank or garbled translation and corrupts
+placeholders such as `{0}`.
+
+Default mode only **inserts missing** target TUVs. If `ar` rows already exist
+but are polluted (the usual case after a pre-`-no-bidi` run), use
+**`--replace-existing`** to re-translate and overwrite them. That flag always
+bypasses the cache. Local `trans` is fine — no Docker required:
+
+```bash
+# Full Arabic repair (missing insert + overwrite every existing ar TUV)
+python3 modules/perc-i18n/scripts/i18n_translate_direct.py \
+  --target ar --replace-existing
+
+# Same thing, solemn edition:
+python3 modules/perc-i18n/scripts/i18n_translate_direct.py \
+  --target ar --waste-another-6-hours-of-your-life
+
+# Smoke-test a handful first
+python3 modules/perc-i18n/scripts/i18n_translate_direct.py \
+  --target ar --replace-existing --file CmsUi.tmx --limit 5
+```
+
+`--limit` applies **per phase** (missing / replace-existing / fix-matching-en).
 
 Both scripts cache translations atomically (write `.tmp` then rename) and
 XML-escape every inserted segment.
@@ -144,3 +179,4 @@ end-to-end smoke test, but the build gate does not depend on it.
   (Windows defaults to cp1252 otherwise).
 - **Line endings**: the script preserves whatever line endings are in
   the source TMX; it does not rewrite `\r\n` ↔ `\n`.
+

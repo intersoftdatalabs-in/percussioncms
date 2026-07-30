@@ -5,6 +5,7 @@
    Keys: perc.ui.developer@English — English after @ is default fallback.
 -->
     <header>
+	<prop type="supportedLanguage">ar</prop>
         <prop type="supportedlanguage">en-us</prop>
         <prop type="supportedlanguage">en-gb</prop>
         <prop type="supportedlanguage">de-de</prop>
@@ -28,2079 +29,2079 @@
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SHELL_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading Developer…</seg></tuv>
-        </tu>
+        <tuv xml:lang="es"><seg>Cargando desarrollador…</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل المطور...</seg></tuv><tuv xml:lang="hi"><seg>डेवलपर लोड हो रहा है...</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Developer">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TITLE</note>
             <tuv xml:lang="en-us"><seg>Developer</seg></tuv>
-        </tu>
+        <tuv xml:lang="ar"><seg>المطور</seg></tuv><tuv xml:lang="hi"><seg>डेवलपर</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Design-time tools for content types, assembly, and related CMS objects. Replaces the classic Workbench / Design surfaces.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.INTRO</note>
             <tuv xml:lang="en-us"><seg>Design-time tools for content types, assembly, and related CMS objects. Replaces the classic Workbench / Design surfaces.</seg></tuv>
-        </tu>
+        <tuv xml:lang="ar"><seg>أدوات وقت التصميم لأنواع المحتوى والتجميع وكائنات CMS ذات الصلة. يستبدل أسطح طاولة العمل/التصميم الكلاسيكية.</seg></tuv><tuv xml:lang="hi"><seg>सामग्री प्रकार, असेंबली और संबंधित सीएमएस ऑब्जेक्ट के लिए डिज़ाइन-टाइम टूल। क्लासिक वर्कबेंच/डिज़ाइन सतहों को प्रतिस्थापित करता है।</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Session expired — redirecting to login…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SESSION_REDIRECT</note>
             <tuv xml:lang="en-us"><seg>Session expired — redirecting to login…</seg></tuv>
-        </tu>
+        <tuv xml:lang="ar"><seg>انتهت الجلسة — جارٍ إعادة التوجيه لتسجيل الدخول...</seg></tuv><tuv xml:lang="hi"><seg>सत्र समाप्त हो गया - लॉगिन करने के लिए पुनः निर्देशित किया जा रहा है...</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Object ACL">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_TITLE</note>
             <tuv xml:lang="en-us"><seg>Object ACL</seg></tuv>
-        </tu>
+        <tuv xml:lang="ar"><seg>قائمة التحكم بالوصول (ACL) للكائن</seg></tuv><tuv xml:lang="hi"><seg>ऑब्जेक्ट एसीएल</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Design-time access control entries for this object. Toggle permissions and save. Adding or removing entries is a later slice.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_HINT</note>
             <tuv xml:lang="en-us"><seg>Design-time access control entries for this object. Toggle permissions and save. Adding or removing entries is a later slice.</seg></tuv>
-        </tu>
+        <tuv xml:lang="ar"><seg>إدخالات التحكم بالوصول في وقت التصميم لهذا الكائن. تبديل الأذونات وحفظها. تعد إضافة أو إزالة الإدخالات شريحة لاحقة.</seg></tuv><tuv xml:lang="hi"><seg>इस ऑब्जेक्ट के लिए डिज़ाइन-टाइम एक्सेस कंट्रोल प्रविष्टियाँ। अनुमतियाँ टॉगल करें और सहेजें। प्रविष्टियाँ जोड़ना या हटाना बाद का चरण है।</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading ACL…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading ACL…</seg></tuv>
-        </tu>
+        <tuv xml:lang="ar"><seg>جارٍ تحميل قائمة التحكم بالوصول…</seg></tuv><tuv xml:lang="hi"><seg>एसीएल लोड हो रहा है...</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load object ACL.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load object ACL.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>ऑब्जेक्ट ACL लोड नहीं किया जा सका.</seg></tuv><tuv xml:lang="ar"><seg>تعذر تحميل كائن ACL.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@No ACL defined for this object.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_EMPTY</note>
             <tuv xml:lang="en-us"><seg>No ACL defined for this object.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>इस ऑब्जेक्ट के लिए कोई ACL परिभाषित नहीं है।</seg></tuv><tuv xml:lang="ar"><seg>لم يتم تعريف قائمة التحكم بالوصول (ACL) لهذا الكائن.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Object GUID not available — cannot load ACL.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_NO_GUID</note>
             <tuv xml:lang="en-us"><seg>Object GUID not available — cannot load ACL.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>ऑब्जेक्ट GUID उपलब्ध नहीं है - ACL लोड नहीं कर सकता।</seg></tuv><tuv xml:lang="ar"><seg>المعرف الفريد العمومي للكائن غير متوفر — لا يمكن تحميل قائمة التحكم بالوصول (ACL).</seg></tuv></tu>
         <tu tuid="perc.ui.developer@ACL has no entries.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_NO_ENTRIES</note>
             <tuv xml:lang="en-us"><seg>ACL has no entries.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>ACL में कोई प्रविष्टियाँ नहीं हैं.</seg></tuv><tuv xml:lang="ar"><seg>ACL لا يوجد لديه أي إدخالات.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Principal / name">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_COL_ENTRY</note>
             <tuv xml:lang="en-us"><seg>Principal / name</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>प्रिंसिपल / नाम</seg></tuv><tuv xml:lang="ar"><seg>الرئيسي / الاسم</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Type">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_COL_TYPE</note>
             <tuv xml:lang="en-us"><seg>Type</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>प्रकार</seg></tuv><tuv xml:lang="ar"><seg>يكتب</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Permissions">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_COL_PERMS</note>
             <tuv xml:lang="en-us"><seg>Permissions</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>अनुमतियां</seg></tuv><tuv xml:lang="ar"><seg>الأذونات</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Save ACL">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_SAVE</note>
             <tuv xml:lang="en-us"><seg>Save ACL</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>एसीएल सहेजें</seg></tuv><tuv xml:lang="ar"><seg>حفظ قائمة التحكم بالوصول (ACL).</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Saving…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_SAVING</note>
             <tuv xml:lang="en-us"><seg>Saving…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सहेजा जा रहा है...</seg></tuv><tuv xml:lang="ar"><seg>توفير…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Object ACL saved.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_SAVED</note>
             <tuv xml:lang="en-us"><seg>Object ACL saved.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>ऑब्जेक्ट ACL सहेजा गया.</seg></tuv><tuv xml:lang="ar"><seg>تم حفظ كائن ACL.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not save object ACL.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_SAVE_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not save object ACL.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>ऑब्जेक्ट ACL सहेजा नहीं जा सका.</seg></tuv><tuv xml:lang="ar"><seg>لا يمكن حفظ كائن ACL.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@ACL saved, but could not reload the updated ACL.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_RELOAD_ERROR</note>
             <tuv xml:lang="en-us"><seg>ACL saved, but could not reload the updated ACL.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>ACL सहेजा गया, लेकिन अद्यतन ACL पुनः लोड नहीं किया जा सका।</seg></tuv><tuv xml:lang="ar"><seg>تم حفظ قائمة التحكم بالوصول (ACL)، ولكن تعذر إعادة تحميل قائمة التحكم بالوصول (ACL) المحدثة.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Content Types">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TAB_CONTENT_TYPES</note>
             <tuv xml:lang="en-us"><seg>Content Types</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सामग्री प्रकार</seg></tuv><tuv xml:lang="ar"><seg>أنواع المحتوى</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Templates">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TAB_TEMPLATES</note>
             <tuv xml:lang="en-us"><seg>Templates</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>टेम्पलेट्स</seg></tuv><tuv xml:lang="ar"><seg>قوالب</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Slots">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TAB_SLOTS</note>
             <tuv xml:lang="en-us"><seg>Slots</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>स्लॉट्स</seg></tuv><tuv xml:lang="ar"><seg>فتحات</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Keywords">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TAB_KEYWORDS</note>
             <tuv xml:lang="en-us"><seg>Keywords</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कीवर्ड</seg></tuv><tuv xml:lang="ar"><seg>الكلمات الرئيسية</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Communities">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TAB_COMMUNITIES</note>
             <tuv xml:lang="en-us"><seg>Communities</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>समुदाय</seg></tuv><tuv xml:lang="ar"><seg>المجتمعات</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Pipelines">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TAB_PIPELINES</note>
             <tuv xml:lang="en-us"><seg>Pipelines</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>पाइपलाइनों</seg></tuv><tuv xml:lang="ar"><seg>خطوط الأنابيب</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading content types…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading content types…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सामग्री प्रकार लोड हो रहा है...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل أنواع المحتوى…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@No content types returned.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_EMPTY</note>
             <tuv xml:lang="en-us"><seg>No content types returned.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कोई सामग्री प्रकार नहीं लौटाया गया.</seg></tuv><tuv xml:lang="ar"><seg>لم يتم إرجاع أي أنواع محتوى.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load content types.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load content types.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सामग्री प्रकार लोड नहीं किया जा सका.</seg></tuv><tuv xml:lang="ar"><seg>لا يمكن تحميل أنواع المحتوى.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Name">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_COL_NAME</note>
             <tuv xml:lang="en-us"><seg>Name</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>नाम</seg></tuv><tuv xml:lang="ar"><seg>اسم</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Label">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_COL_LABEL</note>
             <tuv xml:lang="en-us"><seg>Label</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>लेबल</seg></tuv><tuv xml:lang="ar"><seg>ملصق</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Description">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_COL_DESCRIPTION</note>
             <tuv xml:lang="en-us"><seg>Description</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>विवरण</seg></tuv><tuv xml:lang="ar"><seg>وصف</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Id">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_COL_ID</note>
             <tuv xml:lang="en-us"><seg>Id</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>पहचान</seg></tuv><tuv xml:lang="ar"><seg>بطاقة تعريف</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Select a content type to view fields and edit label, description, enabled, field flags, workflows, and templates.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_HINT</note>
             <tuv xml:lang="en-us"><seg>Select a content type to view fields and edit label, description, enabled, field flags, workflows, and templates.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>फ़ील्ड देखने और लेबल, विवरण, सक्षम, फ़ील्ड फ़्लैग, वर्कफ़्लो और टेम्पलेट संपादित करने के लिए एक सामग्री प्रकार का चयन करें।</seg></tuv><tuv xml:lang="ar"><seg>حدد نوع محتوى لعرض الحقول وتحرير التسمية والوصف والتمكين وعلامات الحقول ومهام سير العمل والقوالب.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Back to list">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_BACK</note>
             <tuv xml:lang="en-us"><seg>Back to list</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सूची पर वापस जाएं</seg></tuv><tuv xml:lang="ar"><seg>العودة إلى القائمة</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading content type…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_DETAIL_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading content type…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सामग्री प्रकार लोड हो रहा है...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل نوع المحتوى…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load content type detail.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_DETAIL_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load content type detail.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सामग्री प्रकार विवरण लोड नहीं किया जा सका.</seg></tuv><tuv xml:lang="ar"><seg>تعذر تحميل تفاصيل نوع المحتوى.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Label">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_FORM_LABEL</note>
             <tuv xml:lang="en-us"><seg>Label</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>लेबल</seg></tuv><tuv xml:lang="ar"><seg>ملصق</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Description">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_FORM_DESCRIPTION</note>
             <tuv xml:lang="en-us"><seg>Description</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>विवरण</seg></tuv><tuv xml:lang="ar"><seg>وصف</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Enabled">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_FORM_ENABLED</note>
             <tuv xml:lang="en-us"><seg>Enabled</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सक्रिय</seg></tuv><tuv xml:lang="ar"><seg>ممكّن</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Save content type">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_SAVE</note>
             <tuv xml:lang="en-us"><seg>Save content type</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सामग्री प्रकार सहेजें</seg></tuv><tuv xml:lang="ar"><seg>حفظ نوع المحتوى</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Content type saved.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_SAVED</note>
             <tuv xml:lang="en-us"><seg>Content type saved.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सामग्री प्रकार सहेजा गया.</seg></tuv><tuv xml:lang="ar"><seg>تم حفظ نوع المحتوى.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not save content type.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_SAVE_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not save content type.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सामग्री प्रकार सहेजा नहीं जा सका.</seg></tuv><tuv xml:lang="ar"><seg>لا يمكن حفظ نوع المحتوى.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Fields">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_FIELDS</note>
             <tuv xml:lang="en-us"><seg>Fields</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>खेत</seg></tuv><tuv xml:lang="ar"><seg>الحقول</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Toggle searchable / required for local fields. Save acquires a design lock, writes, and releases.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_FIELDS_HINT</note>
             <tuv xml:lang="en-us"><seg>Toggle searchable / required for local fields. Save acquires a design lock, writes, and releases.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>स्थानीय फ़ील्ड के लिए खोजने योग्य/आवश्यक टॉगल करें। सेव एक डिज़ाइन लॉक प्राप्त करता है, लिखता है और रिलीज़ करता है।</seg></tuv><tuv xml:lang="ar"><seg>تبديل قابل للبحث / مطلوب للحقول المحلية. يكتسب Save قفل التصميم ويكتب ويصدر.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Child field sets">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_CHILD_SETS</note>
             <tuv xml:lang="en-us"><seg>Child field sets</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>चाइल्ड फ़ील्ड सेट</seg></tuv><tuv xml:lang="ar"><seg>مجموعات حقل الطفل</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Design gaps (not in this API yet)">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_GAPS</note>
             <tuv xml:lang="en-us"><seg>Design gaps (not in this API yet)</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>डिज़ाइन में कमियाँ (अभी तक इस एपीआई में नहीं)</seg></tuv><tuv xml:lang="ar"><seg>فجوات التصميم (ليست موجودة في واجهة برمجة التطبيقات هذه بعد)</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Enabled">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_META_ENABLED</note>
             <tuv xml:lang="en-us"><seg>Enabled</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सक्रिय</seg></tuv><tuv xml:lang="ar"><seg>ممكّن</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Hidden from menu">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_META_HIDDEN</note>
             <tuv xml:lang="en-us"><seg>Hidden from menu</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>मेनू से छिपा हुआ</seg></tuv><tuv xml:lang="ar"><seg>مخفي من القائمة</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Application">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_META_APP</note>
             <tuv xml:lang="en-us"><seg>Application</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>आवेदन</seg></tuv><tuv xml:lang="ar"><seg>طلب</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Field">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_COL_FIELD</note>
             <tuv xml:lang="en-us"><seg>Field</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>मैदान</seg></tuv><tuv xml:lang="ar"><seg>مجال</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Origin">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_COL_ORIGIN</note>
             <tuv xml:lang="en-us"><seg>Origin</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>मूल</seg></tuv><tuv xml:lang="ar"><seg>أصل</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Data type">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_COL_DATATYPE</note>
             <tuv xml:lang="en-us"><seg>Data type</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>डेटा प्रकार</seg></tuv><tuv xml:lang="ar"><seg>نوع البيانات</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Control">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_COL_CONTROL</note>
             <tuv xml:lang="en-us"><seg>Control</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>नियंत्रण</seg></tuv><tuv xml:lang="ar"><seg>يتحكم</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Required">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_COL_REQUIRED</note>
             <tuv xml:lang="en-us"><seg>Required</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>आवश्यक</seg></tuv><tuv xml:lang="ar"><seg>مطلوب</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Read-only">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_COL_READONLY</note>
             <tuv xml:lang="en-us"><seg>Read-only</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>केवल पढ़ने के लिए</seg></tuv><tuv xml:lang="ar"><seg>للقراءة فقط</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Occurrence">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_COL_OCCURRENCE</note>
             <tuv xml:lang="en-us"><seg>Occurrence</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>घटना</seg></tuv><tuv xml:lang="ar"><seg>حدوث</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Rules">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_COL_RULES</note>
             <tuv xml:lang="en-us"><seg>Rules</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>नियम</seg></tuv><tuv xml:lang="ar"><seg>قواعد</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Searchable">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_COL_SEARCH</note>
             <tuv xml:lang="en-us"><seg>Searchable</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>खोज सकने</seg></tuv><tuv xml:lang="ar"><seg>قابلة للبحث</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Field set">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_COL_FIELDSET</note>
             <tuv xml:lang="en-us"><seg>Field set</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>फ़ील्ड सेट</seg></tuv><tuv xml:lang="ar"><seg>مجموعة الميدان</seg></tuv></tu>
         <tu tuid="perc.ui.developer@validation">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_RULE_VALIDATION</note>
             <tuv xml:lang="en-us"><seg>validation</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>मान्यकरण</seg></tuv><tuv xml:lang="ar"><seg>تصديق</seg></tuv></tu>
         <tu tuid="perc.ui.developer@visibility">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_RULE_VISIBILITY</note>
             <tuv xml:lang="en-us"><seg>visibility</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>दृश्यता</seg></tuv><tuv xml:lang="ar"><seg>الرؤية</seg></tuv></tu>
         <tu tuid="perc.ui.developer@in-xform">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_RULE_IN_XFORM</note>
             <tuv xml:lang="en-us"><seg>in-xform</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>इन-एक्सफॉर्म</seg></tuv><tuv xml:lang="ar"><seg>in-xform</seg></tuv></tu>
         <tu tuid="perc.ui.developer@out-xform">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_RULE_OUT_XFORM</note>
             <tuv xml:lang="en-us"><seg>out-xform</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>आउट-एक्सफॉर्म</seg></tuv><tuv xml:lang="ar"><seg>out-xform</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Allowed workflows">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_WORKFLOWS</note>
             <tuv xml:lang="en-us"><seg>Allowed workflows</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>अनुमत कार्यप्रवाह</seg></tuv><tuv xml:lang="ar"><seg>سير العمل المسموح به</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Full replace on save when changed. Add by workflow name; set default with the radio.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_WORKFLOWS_HINT</note>
             <tuv xml:lang="en-us"><seg>Full replace on save when changed. Add by workflow name; set default with the radio.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>परिवर्तित होने पर सेव पर पूर्ण प्रतिस्थापन। वर्कफ़्लो नाम से जोड़ें; रेडियो के साथ डिफ़ॉल्ट सेट करें।</seg></tuv><tuv xml:lang="ar"><seg>استبدال كامل عند الحفظ عند التغيير. إضافة حسب اسم سير العمل؛ تعيين الافتراضي مع الراديو.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Default workflow">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_DEFAULT_WF</note>
             <tuv xml:lang="en-us"><seg>Default workflow</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>डिफ़ॉल्ट वर्कफ़्लो</seg></tuv><tuv xml:lang="ar"><seg>سير العمل الافتراضي</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Allowed templates">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_TEMPLATES</note>
             <tuv xml:lang="en-us"><seg>Allowed templates</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>अनुमत टेम्पलेट</seg></tuv><tuv xml:lang="ar"><seg>القوالب المسموح بها</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Full replace on save when changed. Add by template name or GUID (type-host-uuid, e.g. 0-10-347).">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_TEMPLATES_HINT</note>
             <tuv xml:lang="en-us"><seg>Full replace on save when changed. Add by template name or GUID (type-host-uuid, e.g. 0-10-347).</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>परिवर्तित होने पर सेव पर पूर्ण प्रतिस्थापन। टेम्प्लेट नाम या GUID द्वारा जोड़ें (प्रकार-होस्ट-uuid, उदाहरण के लिए 0-10-347)।</seg></tuv><tuv xml:lang="ar"><seg>استبدال كامل عند الحفظ عند التغيير. أضف حسب اسم القالب أو GUID (نوع المضيف-uuid، على سبيل المثال 0-10-347).</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Add">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_ASSOC_ADD</note>
             <tuv xml:lang="en-us"><seg>Add</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>जोड़ना</seg></tuv><tuv xml:lang="ar"><seg>يضيف</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Remove">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_ASSOC_REMOVE</note>
             <tuv xml:lang="en-us"><seg>Remove</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>निकालना</seg></tuv><tuv xml:lang="ar"><seg>يزيل</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Workflow name">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_WF_NAME_PLACEHOLDER</note>
             <tuv xml:lang="en-us"><seg>Workflow name</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>वर्कफ़्लो नाम</seg></tuv><tuv xml:lang="ar"><seg>اسم سير العمل</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Template name or GUID (0-10-347)">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_TPL_NAME_PLACEHOLDER</note>
             <tuv xml:lang="en-us"><seg>Template name or GUID (0-10-347)</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>टेम्प्लेट नाम या GUID (0-10-347)</seg></tuv><tuv xml:lang="ar"><seg>اسم القالب أو المعرف الفريد العمومي (0-10-347)</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Default">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_SET_DEFAULT</note>
             <tuv xml:lang="en-us"><seg>Default</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>गलती करना</seg></tuv><tuv xml:lang="ar"><seg>تقصير</seg></tuv></tu>
         <tu tuid="perc.ui.developer@None">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.CT_NONE</note>
             <tuv xml:lang="en-us"><seg>None</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कोई नहीं</seg></tuv><tuv xml:lang="ar"><seg>لا أحد</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Yes">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.YES</note>
             <tuv xml:lang="en-us"><seg>Yes</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>हाँ</seg></tuv><tuv xml:lang="ar"><seg>نعم</seg></tuv></tu>
         <tu tuid="perc.ui.developer@No">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.NO</note>
             <tuv xml:lang="en-us"><seg>No</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>नहीं</seg></tuv><tuv xml:lang="ar"><seg>لا</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading keywords…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.KW_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading keywords…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कीवर्ड लोड हो रहे हैं...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل الكلمات الرئيسية…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@No keywords returned.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.KW_EMPTY</note>
             <tuv xml:lang="en-us"><seg>No keywords returned.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कोई कीवर्ड वापस नहीं आया.</seg></tuv><tuv xml:lang="ar"><seg>لم يتم إرجاع أي كلمات رئيسية.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load keywords.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.KW_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load keywords.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कीवर्ड लोड नहीं हो सके.</seg></tuv><tuv xml:lang="ar"><seg>تعذر تحميل الكلمات الرئيسية.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Create, edit, or delete keyword definitions and their choices.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.KW_HINT</note>
             <tuv xml:lang="en-us"><seg>Create, edit, or delete keyword definitions and their choices.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कीवर्ड परिभाषाएँ और उनकी पसंद बनाएँ, संपादित करें या हटाएँ।</seg></tuv><tuv xml:lang="ar"><seg>إنشاء أو تعديل أو حذف تعريفات الكلمات الرئيسية واختياراتها.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Label">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.KW_COL_LABEL</note>
             <tuv xml:lang="en-us"><seg>Label</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>लेबल</seg></tuv><tuv xml:lang="ar"><seg>ملصق</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Value">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.KW_COL_VALUE</note>
             <tuv xml:lang="en-us"><seg>Value</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कीमत</seg></tuv><tuv xml:lang="ar"><seg>قيمة</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Choices">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.KW_COL_CHOICES</note>
             <tuv xml:lang="en-us"><seg>Choices</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>विकल्प</seg></tuv><tuv xml:lang="ar"><seg>الاختيارات</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Description">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.KW_COL_DESCRIPTION</note>
             <tuv xml:lang="en-us"><seg>Description</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>विवरण</seg></tuv><tuv xml:lang="ar"><seg>وصف</seg></tuv></tu>
         <tu tuid="perc.ui.developer@New keyword">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.KW_NEW</note>
             <tuv xml:lang="en-us"><seg>New keyword</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>नया कीवर्ड</seg></tuv><tuv xml:lang="ar"><seg>كلمة رئيسية جديدة</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Save">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.KW_SAVE</note>
             <tuv xml:lang="en-us"><seg>Save</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>बचाना</seg></tuv><tuv xml:lang="ar"><seg>يحفظ</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Cancel">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.KW_CANCEL</note>
             <tuv xml:lang="en-us"><seg>Cancel</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>रद्द करना</seg></tuv><tuv xml:lang="ar"><seg>يلغي</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Delete">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.KW_DELETE</note>
             <tuv xml:lang="en-us"><seg>Delete</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>मिटाना</seg></tuv><tuv xml:lang="ar"><seg>يمسح</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Edit">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.KW_EDIT</note>
             <tuv xml:lang="en-us"><seg>Edit</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>संपादन करना</seg></tuv><tuv xml:lang="ar"><seg>يحرر</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Back to list">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.KW_BACK</note>
             <tuv xml:lang="en-us"><seg>Back to list</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सूची पर वापस जाएं</seg></tuv><tuv xml:lang="ar"><seg>العودة إلى القائمة</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Label">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.KW_FORM_LABEL</note>
             <tuv xml:lang="en-us"><seg>Label</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>लेबल</seg></tuv><tuv xml:lang="ar"><seg>ملصق</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Description">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.KW_FORM_DESCRIPTION</note>
             <tuv xml:lang="en-us"><seg>Description</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>विवरण</seg></tuv><tuv xml:lang="ar"><seg>وصف</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Sequence">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.KW_FORM_SEQUENCE</note>
             <tuv xml:lang="en-us"><seg>Sequence</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>अनुक्रम</seg></tuv><tuv xml:lang="ar"><seg>تسلسل</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Choices (label, value, sequence per line: label|value|seq)">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.KW_FORM_CHOICES</note>
             <tuv xml:lang="en-us"><seg>Choices (label, value, sequence per line: label|value|seq)</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>विकल्प (लेबल, मान, अनुक्रम प्रति पंक्ति: लेबल|मूल्य|seq)</seg></tuv><tuv xml:lang="ar"><seg>الاختيارات (التسمية، القيمة، التسلسل في كل سطر: التسمية|القيمة|التسلسل)</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not save keyword.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.KW_SAVE_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not save keyword.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कीवर्ड सहेजा नहीं जा सका.</seg></tuv><tuv xml:lang="ar"><seg>تعذر حفظ الكلمة الرئيسية.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not delete keyword.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.KW_DELETE_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not delete keyword.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कीवर्ड हटाया नहीं जा सका.</seg></tuv><tuv xml:lang="ar"><seg>لا يمكن حذف الكلمة الرئيسية.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Delete this keyword and all of its choices?">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.KW_DELETE_CONFIRM</note>
             <tuv xml:lang="en-us"><seg>Delete this keyword and all of its choices?</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>क्या यह कीवर्ड और इसके सभी विकल्प हटाएं?</seg></tuv><tuv xml:lang="ar"><seg>هل تريد حذف هذه الكلمة الرئيسية وجميع اختياراتها؟</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Keyword saved.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.KW_SAVED</note>
             <tuv xml:lang="en-us"><seg>Keyword saved.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कीवर्ड सहेजा गया.</seg></tuv><tuv xml:lang="ar"><seg>تم حفظ الكلمة الرئيسية.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Keyword deleted.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.KW_DELETED</note>
             <tuv xml:lang="en-us"><seg>Keyword deleted.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कीवर्ड हटा दिया गया.</seg></tuv><tuv xml:lang="ar"><seg>تم حذف الكلمة الرئيسية.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading templates…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading templates…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>टेम्प्लेट लोड हो रहे हैं...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل النماذج…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@No templates returned.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_EMPTY</note>
             <tuv xml:lang="en-us"><seg>No templates returned.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कोई टेम्प्लेट नहीं लौटाया गया.</seg></tuv><tuv xml:lang="ar"><seg>لم يتم إرجاع أي قوالب.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load templates.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load templates.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>टेम्प्लेट लोड नहीं किए जा सके.</seg></tuv><tuv xml:lang="ar"><seg>لا يمكن تحميل القوالب.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Select a template to edit label, description, source, bindings, and contained slots.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_HINT</note>
             <tuv xml:lang="en-us"><seg>Select a template to edit label, description, source, bindings, and contained slots.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>लेबल, विवरण, स्रोत, बाइंडिंग और निहित स्लॉट को संपादित करने के लिए एक टेम्पलेट का चयन करें।</seg></tuv><tuv xml:lang="ar"><seg>حدد قالبًا لتحرير التسمية والوصف والمصدر والارتباطات والفتحات المضمنة.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Label">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_COL_LABEL</note>
             <tuv xml:lang="en-us"><seg>Label</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>लेबल</seg></tuv><tuv xml:lang="ar"><seg>ملصق</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Name">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_COL_NAME</note>
             <tuv xml:lang="en-us"><seg>Name</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>नाम</seg></tuv><tuv xml:lang="ar"><seg>اسم</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Id">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_COL_ID</note>
             <tuv xml:lang="en-us"><seg>Id</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>पहचान</seg></tuv><tuv xml:lang="ar"><seg>بطاقة تعريف</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Description">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_COL_DESCRIPTION</note>
             <tuv xml:lang="en-us"><seg>Description</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>विवरण</seg></tuv><tuv xml:lang="ar"><seg>وصف</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Back to list">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_BACK</note>
             <tuv xml:lang="en-us"><seg>Back to list</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सूची पर वापस जाएं</seg></tuv><tuv xml:lang="ar"><seg>العودة إلى القائمة</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading template…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_DETAIL_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading template…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>टेम्प्लेट लोड हो रहा है…</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل النموذج…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load template detail.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_DETAIL_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load template detail.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>टेम्प्लेट विवरण लोड नहीं किया जा सका.</seg></tuv><tuv xml:lang="ar"><seg>تعذر تحميل تفاصيل القالب.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Assembler">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_META_ASSEMBLER</note>
             <tuv xml:lang="en-us"><seg>Assembler</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कोडांतरक</seg></tuv><tuv xml:lang="ar"><seg>المجمع</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Output format">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_META_OUTPUT</note>
             <tuv xml:lang="en-us"><seg>Output format</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>आउटपुट स्वरूप</seg></tuv><tuv xml:lang="ar"><seg>تنسيق الإخراج</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Template type">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_META_TYPE</note>
             <tuv xml:lang="en-us"><seg>Template type</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>टेम्पलेट प्रकार</seg></tuv><tuv xml:lang="ar"><seg>نوع القالب</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Active assembly">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_META_AA</note>
             <tuv xml:lang="en-us"><seg>Active assembly</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सक्रिय सभा</seg></tuv><tuv xml:lang="ar"><seg>التجمع النشط</seg></tuv></tu>
         <tu tuid="perc.ui.developer@MIME type">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_META_MIME</note>
             <tuv xml:lang="en-us"><seg>MIME type</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>माइम प्रकार</seg></tuv><tuv xml:lang="ar"><seg>نوع MIME</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Legacy variant">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_META_VARIANT</note>
             <tuv xml:lang="en-us"><seg>Legacy variant</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>विरासत संस्करण</seg></tuv><tuv xml:lang="ar"><seg>البديل القديم</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Bindings">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_BINDINGS</note>
             <tuv xml:lang="en-us"><seg>Bindings</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>बंधन</seg></tuv><tuv xml:lang="ar"><seg>الارتباطات</seg></tuv></tu>
         <tu tuid="perc.ui.developer@JEXL bindings executed in order. Add, edit, or remove rows, then save (full replace).">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_BINDINGS_HINT</note>
             <tuv xml:lang="en-us"><seg>JEXL bindings executed in order. Add, edit, or remove rows, then save (full replace).</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>JEXL बाइंडिंग क्रम में निष्पादित। पंक्तियाँ जोड़ें, संपादित करें या हटाएँ, फिर सहेजें (पूर्ण प्रतिस्थापन)।</seg></tuv><tuv xml:lang="ar"><seg>يتم تنفيذ روابط JEXL بالترتيب. إضافة صفوف أو تحريرها أو إزالتها، ثم حفظها (استبدال كامل).</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Add binding">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_BINDING_ADD</note>
             <tuv xml:lang="en-us"><seg>Add binding</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>बाइंडिंग जोड़ें</seg></tuv><tuv xml:lang="ar"><seg>إضافة ملزمة</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Remove">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_BINDING_REMOVE</note>
             <tuv xml:lang="en-us"><seg>Remove</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>निकालना</seg></tuv><tuv xml:lang="ar"><seg>يزيل</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Slots">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_SLOTS</note>
             <tuv xml:lang="en-us"><seg>Slots</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>स्लॉट्स</seg></tuv><tuv xml:lang="ar"><seg>فتحات</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Check slots contained by this template, then save (full replace).">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_SLOTS_HINT</note>
             <tuv xml:lang="en-us"><seg>Check slots contained by this template, then save (full replace).</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>इस टेम्पलेट में मौजूद स्लॉट्स की जाँच करें, फिर सेव करें (पूर्ण प्रतिस्थापन)।</seg></tuv><tuv xml:lang="ar"><seg>تحقق من الفتحات التي يحتوي عليها هذا القالب، ثم احفظها (استبدال كامل).</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Template source">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_SOURCE</note>
             <tuv xml:lang="en-us"><seg>Template source</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>टेम्पलेट स्रोत</seg></tuv><tuv xml:lang="ar"><seg>مصدر القالب</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Label">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_FORM_LABEL</note>
             <tuv xml:lang="en-us"><seg>Label</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>लेबल</seg></tuv><tuv xml:lang="ar"><seg>ملصق</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Description">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_FORM_DESCRIPTION</note>
             <tuv xml:lang="en-us"><seg>Description</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>विवरण</seg></tuv><tuv xml:lang="ar"><seg>وصف</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Save template">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_SAVE</note>
             <tuv xml:lang="en-us"><seg>Save template</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>टेम्प्लेट सहेजें</seg></tuv><tuv xml:lang="ar"><seg>حفظ القالب</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Template saved.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_SAVED</note>
             <tuv xml:lang="en-us"><seg>Template saved.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>टेम्प्लेट सहेजा गया.</seg></tuv><tuv xml:lang="ar"><seg>تم حفظ القالب.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not save template.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_SAVE_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not save template.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>टेम्प्लेट सहेजा नहीं जा सका.</seg></tuv><tuv xml:lang="ar"><seg>لا يمكن حفظ القالب.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Design gaps (not in this API yet)">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_GAPS</note>
             <tuv xml:lang="en-us"><seg>Design gaps (not in this API yet)</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>डिज़ाइन में कमियाँ (अभी तक इस एपीआई में नहीं)</seg></tuv><tuv xml:lang="ar"><seg>فجوات التصميم (ليست موجودة في واجهة برمجة التطبيقات هذه بعد)</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Variable">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_COL_VARIABLE</note>
             <tuv xml:lang="en-us"><seg>Variable</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>चर</seg></tuv><tuv xml:lang="ar"><seg>عامل</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Expression">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_COL_EXPRESSION</note>
             <tuv xml:lang="en-us"><seg>Expression</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>अभिव्यक्ति</seg></tuv><tuv xml:lang="ar"><seg>تعبير</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Order">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_COL_ORDER</note>
             <tuv xml:lang="en-us"><seg>Order</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>आदेश</seg></tuv><tuv xml:lang="ar"><seg>طلب</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Actions">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_COL_ACTIONS</note>
             <tuv xml:lang="en-us"><seg>Actions</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कार्रवाई</seg></tuv><tuv xml:lang="ar"><seg>الإجراءات</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Member">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_COL_MEMBER</note>
             <tuv xml:lang="en-us"><seg>Member</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सदस्य</seg></tuv><tuv xml:lang="ar"><seg>عضو</seg></tuv></tu>
         <tu tuid="perc.ui.developer@None">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TPL_NONE</note>
             <tuv xml:lang="en-us"><seg>None</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कोई नहीं</seg></tuv><tuv xml:lang="ar"><seg>لا أحد</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading slots…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading slots…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>स्लॉट लोड हो रहे हैं…</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل الفتحات…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@No slots returned.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_EMPTY</note>
             <tuv xml:lang="en-us"><seg>No slots returned.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कोई स्लॉट वापस नहीं आया.</seg></tuv><tuv xml:lang="ar"><seg>لم يتم إرجاع أي فتحات.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load slots.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load slots.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>स्लॉट लोड नहीं किये जा सके.</seg></tuv><tuv xml:lang="ar"><seg>لا يمكن تحميل الفتحات.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Select a slot to edit label, description, and content-type/template associations.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_HINT</note>
             <tuv xml:lang="en-us"><seg>Select a slot to edit label, description, and content-type/template associations.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>लेबल, विवरण और सामग्री-प्रकार/टेम्पलेट एसोसिएशन को संपादित करने के लिए एक स्लॉट चुनें।</seg></tuv><tuv xml:lang="ar"><seg>حدد فتحة لتحرير التصنيف والوصف واقترانات نوع المحتوى/القالب.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Label">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_COL_LABEL</note>
             <tuv xml:lang="en-us"><seg>Label</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>लेबल</seg></tuv><tuv xml:lang="ar"><seg>ملصق</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Name">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_COL_NAME</note>
             <tuv xml:lang="en-us"><seg>Name</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>नाम</seg></tuv><tuv xml:lang="ar"><seg>اسم</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Description">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_COL_DESCRIPTION</note>
             <tuv xml:lang="en-us"><seg>Description</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>विवरण</seg></tuv><tuv xml:lang="ar"><seg>وصف</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Back to list">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_BACK</note>
             <tuv xml:lang="en-us"><seg>Back to list</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सूची पर वापस जाएं</seg></tuv><tuv xml:lang="ar"><seg>العودة إلى القائمة</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading slot…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_DETAIL_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading slot…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>स्लॉट लोड हो रहा है...</seg></tuv><tuv xml:lang="ar"><seg>فتحة التحميل…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load slot detail.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_DETAIL_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load slot detail.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>स्लॉट विवरण लोड नहीं किया जा सका.</seg></tuv><tuv xml:lang="ar"><seg>تعذر تحميل تفاصيل الفتحة.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Label">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_FORM_LABEL</note>
             <tuv xml:lang="en-us"><seg>Label</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>लेबल</seg></tuv><tuv xml:lang="ar"><seg>ملصق</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Description">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_FORM_DESCRIPTION</note>
             <tuv xml:lang="en-us"><seg>Description</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>विवरण</seg></tuv><tuv xml:lang="ar"><seg>وصف</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Save slot">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_SAVE</note>
             <tuv xml:lang="en-us"><seg>Save slot</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>स्लॉट सहेजें</seg></tuv><tuv xml:lang="ar"><seg>فتحة الحفظ</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Slot saved.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_SAVED</note>
             <tuv xml:lang="en-us"><seg>Slot saved.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>स्लॉट सहेजा गया.</seg></tuv><tuv xml:lang="ar"><seg>تم حفظ الفتحة.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not save slot.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_SAVE_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not save slot.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>स्लॉट सहेजा नहीं जा सका.</seg></tuv><tuv xml:lang="ar"><seg>تعذر حفظ الفتحة.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Slot type">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_META_TYPE</note>
             <tuv xml:lang="en-us"><seg>Slot type</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>स्लॉट प्रकार</seg></tuv><tuv xml:lang="ar"><seg>نوع الفتحة</seg></tuv></tu>
         <tu tuid="perc.ui.developer@System slot">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_META_SYSTEM</note>
             <tuv xml:lang="en-us"><seg>System slot</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सिस्टम स्लॉट</seg></tuv><tuv xml:lang="ar"><seg>فتحة النظام</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Finder">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_META_FINDER</note>
             <tuv xml:lang="en-us"><seg>Finder</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>खोजक</seg></tuv><tuv xml:lang="ar"><seg>مكتشف</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Relationship">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_META_RELATIONSHIP</note>
             <tuv xml:lang="en-us"><seg>Relationship</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>संबंध</seg></tuv><tuv xml:lang="ar"><seg>علاقة</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Finder arguments">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_ARGS</note>
             <tuv xml:lang="en-us"><seg>Finder arguments</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>खोजक तर्क</seg></tuv><tuv xml:lang="ar"><seg>حجج الباحث</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Content type / template associations">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_ASSOCIATIONS</note>
             <tuv xml:lang="en-us"><seg>Content type / template associations</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सामग्री प्रकार/टेम्पलेट एसोसिएशन</seg></tuv><tuv xml:lang="ar"><seg>نوع المحتوى / اقترانات القالب</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Add or remove content-type ↔ template pairs (GUID string values). Save applies a full replace.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_ASSOCIATIONS_HINT</note>
             <tuv xml:lang="en-us"><seg>Add or remove content-type ↔ template pairs (GUID string values). Save applies a full replace.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सामग्री-प्रकार ↔ टेम्पलेट जोड़े (GUID स्ट्रिंग मान) जोड़ें या हटाएं। सहेजें पूर्ण प्रतिस्थापन लागू करता है।</seg></tuv><tuv xml:lang="ar"><seg>إضافة أو إزالة أزواج قوالب ↔ نوع المحتوى (قيم سلسلة GUID). ينطبق الحفظ على الاستبدال الكامل.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Add association">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_ASSOC_ADD</note>
             <tuv xml:lang="en-us"><seg>Add association</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>एसोसिएशन जोड़ें</seg></tuv><tuv xml:lang="ar"><seg>إضافة اقتران</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Remove">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_ASSOC_REMOVE</note>
             <tuv xml:lang="en-us"><seg>Remove</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>निकालना</seg></tuv><tuv xml:lang="ar"><seg>يزيل</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Content type GUID (e.g. 0-2-301)">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_ASSOC_CT_PLACEHOLDER</note>
             <tuv xml:lang="en-us"><seg>Content type GUID (e.g. 0-2-301)</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सामग्री प्रकार GUID (उदा. 0-2-301)</seg></tuv><tuv xml:lang="ar"><seg>نوع المحتوى GUID (على سبيل المثال، 0-2-301)</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Template GUID (e.g. 0-10-1)">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_ASSOC_TPL_PLACEHOLDER</note>
             <tuv xml:lang="en-us"><seg>Template GUID (e.g. 0-10-1)</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>टेम्प्लेट GUID (उदा. 0-10-1)</seg></tuv><tuv xml:lang="ar"><seg>المعرف الفريد العمومي (GUID) للنموذج (على سبيل المثال 0-10-1)</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Known limitations of this endpoint">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_GAPS</note>
             <tuv xml:lang="en-us"><seg>Known limitations of this endpoint</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>इस समापन बिंदु की ज्ञात सीमाएँ</seg></tuv><tuv xml:lang="ar"><seg>القيود المعروفة لنقطة النهاية هذه</seg></tuv></tu>
         <tu tuid="perc.ui.developer@None">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_NONE</note>
             <tuv xml:lang="en-us"><seg>None</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कोई नहीं</seg></tuv><tuv xml:lang="ar"><seg>لا أحد</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Content type GUID">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_COL_CT</note>
             <tuv xml:lang="en-us"><seg>Content type GUID</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सामग्री प्रकार GUID</seg></tuv><tuv xml:lang="ar"><seg>نوع المحتوى GUID</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Template GUID">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_COL_TPL</note>
             <tuv xml:lang="en-us"><seg>Template GUID</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>टेम्प्लेट गाइड</seg></tuv><tuv xml:lang="ar"><seg>دليل القالب</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Actions">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SLOT_COL_ACTIONS</note>
             <tuv xml:lang="en-us"><seg>Actions</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कार्रवाई</seg></tuv><tuv xml:lang="ar"><seg>الإجراءات</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading communities…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading communities…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>समुदाय लोड हो रहे हैं...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل المجتمعات…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@No communities returned.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_EMPTY</note>
             <tuv xml:lang="en-us"><seg>No communities returned.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कोई समुदाय वापस नहीं आया.</seg></tuv><tuv xml:lang="ar"><seg>لم يتم إرجاع أي مجتمعات.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load communities.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load communities.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>समुदायों को लोड नहीं किया जा सका.</seg></tuv><tuv xml:lang="ar"><seg>لا يمكن تحميل المجتمعات.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Select a community to view and edit role membership. Object ACL dialogs are not available yet.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_HINT</note>
             <tuv xml:lang="en-us"><seg>Select a community to view and edit role membership. Object ACL dialogs are not available yet.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>भूमिका सदस्यता देखने और संपादित करने के लिए एक समुदाय का चयन करें। ऑब्जेक्ट एसीएल संवाद अभी तक उपलब्ध नहीं हैं।</seg></tuv><tuv xml:lang="ar"><seg>حدد مجتمعًا لعرض عضوية الدور وتحريرها. مربعات حوار ACL للكائنات غير متوفرة بعد.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Label">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_COL_LABEL</note>
             <tuv xml:lang="en-us"><seg>Label</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>लेबल</seg></tuv><tuv xml:lang="ar"><seg>ملصق</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Name">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_COL_NAME</note>
             <tuv xml:lang="en-us"><seg>Name</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>नाम</seg></tuv><tuv xml:lang="ar"><seg>اسم</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Id">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_COL_ID</note>
             <tuv xml:lang="en-us"><seg>Id</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>पहचान</seg></tuv><tuv xml:lang="ar"><seg>بطاقة تعريف</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Description">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_COL_DESCRIPTION</note>
             <tuv xml:lang="en-us"><seg>Description</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>विवरण</seg></tuv><tuv xml:lang="ar"><seg>وصف</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Back to list">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_BACK</note>
             <tuv xml:lang="en-us"><seg>Back to list</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सूची पर वापस जाएं</seg></tuv><tuv xml:lang="ar"><seg>العودة إلى القائمة</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading community…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_DETAIL_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading community…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>समुदाय लोड हो रहा है...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل المجتمع…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load community detail.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_DETAIL_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load community detail.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>समुदाय विवरण लोड नहीं किया जा सका.</seg></tuv><tuv xml:lang="ar"><seg>تعذر تحميل تفاصيل المجتمع.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Id">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_META_ID</note>
             <tuv xml:lang="en-us"><seg>Id</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>पहचान</seg></tuv><tuv xml:lang="ar"><seg>بطاقة تعريف</seg></tuv></tu>
         <tu tuid="perc.ui.developer@GUID">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_META_GUID</note>
             <tuv xml:lang="en-us"><seg>GUID</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>GUID</seg></tuv><tuv xml:lang="ar"><seg>GUID</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Role membership">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_ROLES</note>
             <tuv xml:lang="en-us"><seg>Role membership</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>भूमिका सदस्यता</seg></tuv><tuv xml:lang="ar"><seg>عضوية الدور</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Check roles to associate with this community, then save.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_ROLES_HINT</note>
             <tuv xml:lang="en-us"><seg>Check roles to associate with this community, then save.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>इस समुदाय से जुड़ने के लिए भूमिकाएँ जाँचें, फिर सहेजें।</seg></tuv><tuv xml:lang="ar"><seg>حدد الأدوار لربطها بهذا المجتمع، ثم احفظها.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@This community has no role memberships.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_NO_ROLES</note>
             <tuv xml:lang="en-us"><seg>This community has no role memberships.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>इस समुदाय की कोई भूमिका सदस्यता नहीं है.</seg></tuv><tuv xml:lang="ar"><seg>هذا المجتمع ليس له دور العضوية.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@No security roles are defined in the system.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_NO_ROLES_SYSTEM</note>
             <tuv xml:lang="en-us"><seg>No security roles are defined in the system.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सिस्टम में कोई सुरक्षा भूमिकाएँ परिभाषित नहीं हैं.</seg></tuv><tuv xml:lang="ar"><seg>لم يتم تحديد أي أدوار أمنية في النظام.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Member">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_COL_MEMBER</note>
             <tuv xml:lang="en-us"><seg>Member</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सदस्य</seg></tuv><tuv xml:lang="ar"><seg>عضو</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Role name">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_COL_ROLE_NAME</note>
             <tuv xml:lang="en-us"><seg>Role name</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>भूमिका का नाम</seg></tuv><tuv xml:lang="ar"><seg>اسم الدور</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Role id">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_COL_ROLE_ID</note>
             <tuv xml:lang="en-us"><seg>Role id</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>भूमिका आईडी</seg></tuv><tuv xml:lang="ar"><seg>معرف الدور</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Role GUID">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_COL_ROLE_GUID</note>
             <tuv xml:lang="en-us"><seg>Role GUID</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>भूमिका गाइड</seg></tuv><tuv xml:lang="ar"><seg>دليل الدور</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Save roles">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_ROLES_SAVE</note>
             <tuv xml:lang="en-us"><seg>Save roles</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>भूमिकाएँ सहेजें</seg></tuv><tuv xml:lang="ar"><seg>حفظ الأدوار</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Role membership saved.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_ROLES_SAVED</note>
             <tuv xml:lang="en-us"><seg>Role membership saved.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>भूमिका सदस्यता सहेजी गई.</seg></tuv><tuv xml:lang="ar"><seg>تم حفظ عضوية الدور.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not save role membership.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_ROLES_SAVE_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not save role membership.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>भूमिका सदस्यता सहेजी नहीं जा सकी.</seg></tuv><tuv xml:lang="ar"><seg>تعذر حفظ عضوية الدور.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Object visibility">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_VISIBILITY</note>
             <tuv xml:lang="en-us"><seg>Object visibility</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>वस्तु दृश्यता</seg></tuv><tuv xml:lang="ar"><seg>رؤية الكائن</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Design objects visible to this community (read-only lens). Complements per-object ACL edit.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_VISIBILITY_HINT</note>
             <tuv xml:lang="en-us"><seg>Design objects visible to this community (read-only lens). Complements per-object ACL edit.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>इस समुदाय के लिए दृश्यमान वस्तुओं को डिज़ाइन करें (केवल पढ़ने योग्य लेंस)। प्रति-ऑब्जेक्ट एसीएल संपादन को पूरा करता है।</seg></tuv><tuv xml:lang="ar"><seg>تصميم كائنات مرئية لهذا المجتمع (عدسة للقراءة فقط). يكمل تحرير ACL لكل كائن.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading visibility…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_VISIBILITY_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading visibility…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>दृश्यता लोड हो रही है...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل إمكانية الرؤية…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load community visibility.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_VISIBILITY_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load community visibility.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>समुदाय दृश्यता लोड नहीं हो सकी.</seg></tuv><tuv xml:lang="ar"><seg>لا يمكن تحميل رؤية المجتمع.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@No visible objects returned for this community.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_VISIBILITY_EMPTY</note>
             <tuv xml:lang="en-us"><seg>No visible objects returned for this community.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>इस समुदाय के लिए कोई दृश्यमान वस्तु वापस नहीं आई।</seg></tuv><tuv xml:lang="ar"><seg>لم يتم إرجاع أي أشياء مرئية لهذا المجتمع.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Community GUID not available — cannot load visibility.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_VISIBILITY_NO_GUID</note>
             <tuv xml:lang="en-us"><seg>Community GUID not available — cannot load visibility.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सामुदायिक GUID उपलब्ध नहीं है - दृश्यता लोड नहीं की जा सकती।</seg></tuv><tuv xml:lang="ar"><seg>المعرف الفريد العمومي للمجتمع غير متوفر — لا يمكن تحميل الرؤية.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Type">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_COL_OBJ_TYPE</note>
             <tuv xml:lang="en-us"><seg>Type</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>प्रकार</seg></tuv><tuv xml:lang="ar"><seg>يكتب</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Name">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_COL_OBJ_NAME</note>
             <tuv xml:lang="en-us"><seg>Name</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>नाम</seg></tuv><tuv xml:lang="ar"><seg>اسم</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Label">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_COL_OBJ_LABEL</note>
             <tuv xml:lang="en-us"><seg>Label</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>लेबल</seg></tuv><tuv xml:lang="ar"><seg>ملصق</seg></tuv></tu>
         <tu tuid="perc.ui.developer@GUID">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_COL_OBJ_GUID</note>
             <tuv xml:lang="en-us"><seg>GUID</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>GUID</seg></tuv><tuv xml:lang="ar"><seg>GUID</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Known gaps">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_GAPS</note>
             <tuv xml:lang="en-us"><seg>Known gaps</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>ज्ञात अंतराल</seg></tuv><tuv xml:lang="ar"><seg>الفجوات المعروفة</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Per-object ACL entry add/remove remains a separate object editor slice">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.COMM_GAP_ACL</note>
             <tuv xml:lang="en-us"><seg>Per-object ACL entry add/remove remains a separate object editor slice</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>प्रति-ऑब्जेक्ट ACL प्रविष्टि जोड़ने/निकालने का एक अलग ऑब्जेक्ट संपादक स्लाइस रहता है</seg></tuv><tuv xml:lang="ar"><seg>تظل إضافة/إزالة إدخال قائمة التحكم بالوصول (ACL) لكل كائن بمثابة شريحة محرر كائن منفصلة</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading pipelines…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PIPE_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading pipelines…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>पाइपलाइनें लोड हो रही हैं…</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل خطوط الأنابيب…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@No pipeline applications returned.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PIPE_EMPTY</note>
             <tuv xml:lang="en-us"><seg>No pipeline applications returned.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कोई पाइपलाइन आवेदन वापस नहीं आया.</seg></tuv><tuv xml:lang="ar"><seg>لم يتم إرجاع أي طلبات لخطوط الأنابيب.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load pipelines.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PIPE_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load pipelines.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>पाइपलाइनें लोड नहीं की जा सकीं.</seg></tuv><tuv xml:lang="ar"><seg>لا يمكن تحميل خطوط الأنابيب.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Server applications (classic XML Applications). Read-only catalog — editor, start/stop, and IR import are later slices.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PIPE_HINT</note>
             <tuv xml:lang="en-us"><seg>Server applications (classic XML Applications). Read-only catalog — editor, start/stop, and IR import are later slices.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सर्वर अनुप्रयोग (क्लासिक XML अनुप्रयोग)। केवल पढ़ने योग्य कैटलॉग - संपादक, स्टार्ट/स्टॉप और आईआर आयात बाद के स्लाइस हैं।</seg></tuv><tuv xml:lang="ar"><seg>تطبيقات الخادم (تطبيقات XML الكلاسيكية). كتالوج للقراءة فقط — المحرر، والبدء/الإيقاف، واستيراد IR هي شرائح لاحقة.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Name">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PIPE_COL_NAME</note>
             <tuv xml:lang="en-us"><seg>Name</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>नाम</seg></tuv><tuv xml:lang="ar"><seg>اسم</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Id">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PIPE_COL_ID</note>
             <tuv xml:lang="en-us"><seg>Id</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>पहचान</seg></tuv><tuv xml:lang="ar"><seg>بطاقة تعريف</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Type">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PIPE_COL_TYPE</note>
             <tuv xml:lang="en-us"><seg>Type</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>प्रकार</seg></tuv><tuv xml:lang="ar"><seg>يكتب</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Enabled">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PIPE_COL_ENABLED</note>
             <tuv xml:lang="en-us"><seg>Enabled</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सक्रिय</seg></tuv><tuv xml:lang="ar"><seg>ممكّن</seg></tuv></tu>
         <tu tuid="perc.ui.developer@App root">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PIPE_COL_ROOT</note>
             <tuv xml:lang="en-us"><seg>App root</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>ऐप रूट</seg></tuv><tuv xml:lang="ar"><seg>جذر التطبيق</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Description">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PIPE_COL_DESCRIPTION</note>
             <tuv xml:lang="en-us"><seg>Description</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>विवरण</seg></tuv><tuv xml:lang="ar"><seg>وصف</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Design-time access control for this object. Toggle permissions, add or remove entries, then save (full entry list replace via bulk ACL API).">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_HINT</note>
             <tuv xml:lang="en-us"><seg>Design-time access control for this object. Toggle permissions, add or remove entries, then save (full entry list replace via bulk ACL API).</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>इस ऑब्जेक्ट के लिए डिज़ाइन-टाइम एक्सेस नियंत्रण। अनुमतियाँ टॉगल करें, प्रविष्टियाँ जोड़ें या हटाएँ, फिर सहेजें (पूर्ण प्रविष्टि सूची को बल्क एसीएल एपीआई के माध्यम से बदलें)।</seg></tuv><tuv xml:lang="ar"><seg>التحكم في الوصول في وقت التصميم لهذا الكائن. قم بتبديل الأذونات، وإضافة الإدخالات أو إزالتها، ثم الحفظ (استبدال قائمة الإدخال الكاملة عبر واجهة برمجة تطبيقات ACL المجمعة).</seg></tuv></tu>
         <tu tuid="perc.ui.developer@An entry with that name and type already exists.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_ENTRY_DUP</note>
             <tuv xml:lang="en-us"><seg>An entry with that name and type already exists.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>उस नाम और प्रकार वाली एक प्रविष्टि पहले से मौजूद है।</seg></tuv><tuv xml:lang="ar"><seg>هناك إدخال بهذا الاسم والنوع موجود بالفعل.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Role, user, or community name">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_ENTRY_NAME_PLACEHOLDER</note>
             <tuv xml:lang="en-us"><seg>Role, user, or community name</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>भूमिका, उपयोगकर्ता, या समुदाय का नाम</seg></tuv><tuv xml:lang="ar"><seg>الدور أو المستخدم أو اسم المجتمع</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Principal name">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_ENTRY_NAME</note>
             <tuv xml:lang="en-us"><seg>Principal name</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>प्रधान का नाम</seg></tuv><tuv xml:lang="ar"><seg>الاسم الرئيسي</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Add entry">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_ENTRY_ADD</note>
             <tuv xml:lang="en-us"><seg>Add entry</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>प्रविष्टि जोड़ें</seg></tuv><tuv xml:lang="ar"><seg>إضافة إدخال</seg></tuv></tu>
         <tu tuid="perc.ui.developer@User or role that owns the ACL">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_OWNER_NAME_PLACEHOLDER</note>
             <tuv xml:lang="en-us"><seg>User or role that owns the ACL</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>उपयोगकर्ता या भूमिका जो ACL का स्वामी है</seg></tuv><tuv xml:lang="ar"><seg>المستخدم أو الدور الذي يملك قائمة التحكم بالوصول (ACL).</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Owner principal">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_OWNER_NAME</note>
             <tuv xml:lang="en-us"><seg>Owner principal</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>मालिक प्रिंसिपल</seg></tuv><tuv xml:lang="ar"><seg>المالك الرئيسي</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not create object ACL.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_CREATE_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not create object ACL.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>ऑब्जेक्ट ACL नहीं बनाया जा सका.</seg></tuv><tuv xml:lang="ar"><seg>لا يمكن إنشاء كائن ACL.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Creating…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_CREATING</note>
             <tuv xml:lang="en-us"><seg>Creating…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>बनाया जा रहा है...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ الإنشاء…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Create ACL">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_CREATE</note>
             <tuv xml:lang="en-us"><seg>Create ACL</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>एसीएल बनाएं</seg></tuv><tuv xml:lang="ar"><seg>إنشاء قائمة التحكم بالوصول (ACL).</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Create a design-time ACL with an owner principal. You can add more entries after it is created.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_EMPTY_HINT</note>
             <tuv xml:lang="en-us"><seg>Create a design-time ACL with an owner principal. You can add more entries after it is created.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>स्वामी प्रिंसिपल के साथ एक डिज़ाइन-टाइम एसीएल बनाएं। इसके बनने के बाद आप और प्रविष्टियाँ जोड़ सकते हैं।</seg></tuv><tuv xml:lang="ar"><seg>قم بإنشاء قائمة ACL لوقت التصميم باستخدام مدير المالك. يمكنك إضافة المزيد من الإدخالات بعد إنشائها.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@No ACL entries yet — add a principal below.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.ACL_NO_ENTRIES</note>
             <tuv xml:lang="en-us"><seg>No ACL entries yet — add a principal below.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>अभी तक कोई एसीएल प्रविष्टियाँ नहीं - नीचे एक मूलधन जोड़ें।</seg></tuv><tuv xml:lang="ar"><seg>لا توجد إدخالات في قائمة التحكم بالوصول (ACL) حتى الآن - أضف مديرًا رئيسيًا أدناه.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Server applications (classic XML Applications). Open a row for read-only detail and data sets. Editor, start/stop, and IR import are later slices.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PIPE_HINT</note>
             <tuv xml:lang="en-us"><seg>Server applications (classic XML Applications). Open a row for read-only detail and data sets. Editor, start/stop, and IR import are later slices.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सर्वर अनुप्रयोग (क्लासिक XML अनुप्रयोग)। केवल पढ़ने योग्य विवरण और डेटा सेट के लिए एक पंक्ति खोलें। संपादक, स्टार्ट/स्टॉप और आईआर आयात बाद के स्लाइस हैं।</seg></tuv><tuv xml:lang="ar"><seg>تطبيقات الخادم (تطبيقات XML الكلاسيكية). افتح صفًا للحصول على تفاصيل ومجموعات بيانات للقراءة فقط. المحرر، والبدء/الإيقاف، واستيراد IR هي شرائح لاحقة.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading pipeline application…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PIPE_DETAIL_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading pipeline application…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>पाइपलाइन एप्लिकेशन लोड हो रहा है…</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل تطبيق خط الأنابيب…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load pipeline application.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PIPE_DETAIL_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load pipeline application.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>पाइपलाइन एप्लिकेशन लोड नहीं किया जा सका.</seg></tuv><tuv xml:lang="ar"><seg>تعذر تحميل تطبيق خط الأنابيب.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Hidden">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PIPE_META_HIDDEN</note>
             <tuv xml:lang="en-us"><seg>Hidden</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>छिपा हुआ</seg></tuv><tuv xml:lang="ar"><seg>مختفي</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Version">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PIPE_META_VERSION</note>
             <tuv xml:lang="en-us"><seg>Version</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>संस्करण</seg></tuv><tuv xml:lang="ar"><seg>إصدار</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Data sets">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PIPE_DATASETS</note>
             <tuv xml:lang="en-us"><seg>Data sets</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>डेटा सेट</seg></tuv><tuv xml:lang="ar"><seg>مجموعات البيانات</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Request pages and content editors defined in this application. Pipe IR and mappers are not exposed yet.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PIPE_DATASETS_HINT</note>
             <tuv xml:lang="en-us"><seg>Request pages and content editors defined in this application. Pipe IR and mappers are not exposed yet.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>इस एप्लिकेशन में परिभाषित पृष्ठों और सामग्री संपादकों का अनुरोध करें। पाइप आईआर और मैपर अभी तक सामने नहीं आए हैं।</seg></tuv><tuv xml:lang="ar"><seg>طلب الصفحات ومحرري المحتوى المحددين في هذا التطبيق. لم يتم الكشف عن الأنابيب IR ومصممي الخرائط بعد.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Kind">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PIPE_COL_DS_KIND</note>
             <tuv xml:lang="en-us"><seg>Kind</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>दयालु</seg></tuv><tuv xml:lang="ar"><seg>عطوف</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Request page">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PIPE_COL_DS_REQUEST</note>
             <tuv xml:lang="en-us"><seg>Request page</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>अनुरोध पृष्ठ</seg></tuv><tuv xml:lang="ar"><seg>صفحة الطلب</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Locales">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TAB_LOCALES</note>
             <tuv xml:lang="en-us"><seg>Locales</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>स्थानों</seg></tuv><tuv xml:lang="ar"><seg>اللغات</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading locales…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.LOC_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading locales…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>स्थान लोड हो रहे हैं...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل اللغات...</seg></tuv></tu>
         <tu tuid="perc.ui.developer@No locales returned.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.LOC_EMPTY</note>
             <tuv xml:lang="en-us"><seg>No locales returned.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कोई स्थान वापस नहीं आया.</seg></tuv><tuv xml:lang="ar"><seg>لم يتم إرجاع أي لغات.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load locales.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.LOC_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load locales.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>स्थान लोड नहीं किए जा सके.</seg></tuv><tuv xml:lang="ar"><seg>تعذر تحميل اللغات.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@CMS locales (RXLOCALE) including base-locale flag and whether an exact RXLOCALEFORMAT profile exists. Open a row for format fields. Create/edit is a later slice.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.LOC_HINT</note>
             <tuv xml:lang="en-us"><seg>CMS locales (RXLOCALE) including base-locale flag and whether an exact RXLOCALEFORMAT profile exists. Open a row for format fields. Create/edit is a later slice.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>बेस-लोकेल फ़्लैग सहित CMS लोकेल (RXLOCALE) और क्या सटीक RXLOCALEFORMAT प्रोफ़ाइल मौजूद है। प्रारूप फ़ील्ड के लिए एक पंक्ति खोलें. बनाना/संपादित करना बाद का भाग है।</seg></tuv><tuv xml:lang="ar"><seg>لغات CMS (RXLOCALE) بما في ذلك علامة اللغة الأساسية وما إذا كان هناك ملف تعريف RXLOCALEFORMAT دقيق. افتح صفًا لحقول التنسيق. الإنشاء/التحرير هو شريحة لاحقة.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Language">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.LOC_COL_LANG</note>
             <tuv xml:lang="en-us"><seg>Language</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>भाषा</seg></tuv><tuv xml:lang="ar"><seg>لغة</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Status">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.LOC_COL_STATUS</note>
             <tuv xml:lang="en-us"><seg>Status</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>स्थिति</seg></tuv><tuv xml:lang="ar"><seg>حالة</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Base locale">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.LOC_COL_BASE</note>
             <tuv xml:lang="en-us"><seg>Base locale</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>स्थानीय आधार</seg></tuv><tuv xml:lang="ar"><seg>القاعدة المحلية</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Format profile">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.LOC_COL_FORMAT</note>
             <tuv xml:lang="en-us"><seg>Format profile</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>प्रोफ़ाइल प्रारूपित करें</seg></tuv><tuv xml:lang="ar"><seg>تنسيق الملف الشخصي</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading locale…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.LOC_DETAIL_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading locale…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>स्थान लोड हो रहा है...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل اللغة…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load locale.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.LOC_DETAIL_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load locale.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>स्थान लोड नहीं किया जा सका.</seg></tuv><tuv xml:lang="ar"><seg>تعذر تحميل اللغة.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Format profile (RXLOCALEFORMAT)">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.LOC_FORMAT</note>
             <tuv xml:lang="en-us"><seg>Format profile (RXLOCALEFORMAT)</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>प्रारूप प्रोफ़ाइल (RXLOCALEFORMAT)</seg></tuv><tuv xml:lang="ar"><seg>تنسيق ملف التعريف (RXLOCALEFORMAT)</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Exact format row for this language string. Runtime may still resolve via regional → base → en-us defaults when empty.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.LOC_FORMAT_HINT</note>
             <tuv xml:lang="en-us"><seg>Exact format row for this language string. Runtime may still resolve via regional → base → en-us defaults when empty.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>इस भाषा स्ट्रिंग के लिए सटीक प्रारूप पंक्ति। रनटाइम खाली होने पर भी क्षेत्रीय → बेस → एन-यूएस डिफॉल्ट के माध्यम से हल हो सकता है।</seg></tuv><tuv xml:lang="ar"><seg>صف التنسيق الدقيق لسلسلة اللغة هذه. قد يستمر حل وقت التشغيل عبر الإعدادات الافتراضية الإقليمية → الأساسية → en-us عندما يكون فارغًا.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@No exact format row stored for this language string.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.LOC_FORMAT_EMPTY</note>
             <tuv xml:lang="en-us"><seg>No exact format row stored for this language string.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>इस भाषा स्ट्रिंग के लिए कोई सटीक प्रारूप पंक्ति संग्रहीत नहीं है।</seg></tuv><tuv xml:lang="ar"><seg>لا يوجد صف تنسيق دقيق مخزن لسلسلة اللغة هذه.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Text direction">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.LOC_FMT_DIR</note>
             <tuv xml:lang="en-us"><seg>Text direction</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>पाठ दिशा</seg></tuv><tuv xml:lang="ar"><seg>اتجاه النص</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Date pattern">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.LOC_FMT_DATE</note>
             <tuv xml:lang="en-us"><seg>Date pattern</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>दिनांक पैटर्न</seg></tuv><tuv xml:lang="ar"><seg>نمط التاريخ</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Time pattern">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.LOC_FMT_TIME</note>
             <tuv xml:lang="en-us"><seg>Time pattern</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>समय का पैटर्न</seg></tuv><tuv xml:lang="ar"><seg>نمط الوقت</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Date-time pattern">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.LOC_FMT_DATETIME</note>
             <tuv xml:lang="en-us"><seg>Date-time pattern</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>दिनांक-समय पैटर्न</seg></tuv><tuv xml:lang="ar"><seg>نمط التاريخ والوقت</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Decimal separator">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.LOC_FMT_DECIMAL</note>
             <tuv xml:lang="en-us"><seg>Decimal separator</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>दशमलव विभाजक</seg></tuv><tuv xml:lang="ar"><seg>فاصل عشري</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Grouping separator">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.LOC_FMT_GROUPING</note>
             <tuv xml:lang="en-us"><seg>Grouping separator</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>समूह विभाजक</seg></tuv><tuv xml:lang="ar"><seg>فاصل التجميع</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Currency">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.LOC_FMT_CURRENCY</note>
             <tuv xml:lang="en-us"><seg>Currency</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>मुद्रा</seg></tuv><tuv xml:lang="ar"><seg>عملة</seg></tuv></tu>
         <tu tuid="perc.ui.developer@First day of week">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.LOC_FMT_FIRST_DAY</note>
             <tuv xml:lang="en-us"><seg>First day of week</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सप्ताह का पहला दिन</seg></tuv><tuv xml:lang="ar"><seg>اليوم الأول من الأسبوع</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Measurement">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.LOC_FMT_MEASURE</note>
             <tuv xml:lang="en-us"><seg>Measurement</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>माप</seg></tuv><tuv xml:lang="ar"><seg>قياس</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Default timezone">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.LOC_FMT_TZ</note>
             <tuv xml:lang="en-us"><seg>Default timezone</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>डिफ़ॉल्ट समय क्षेत्र</seg></tuv><tuv xml:lang="ar"><seg>المنطقة الزمنية الافتراضية</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Numbering system">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.LOC_FMT_NUMBERING</note>
             <tuv xml:lang="en-us"><seg>Numbering system</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>क्रमांकन प्रणाली</seg></tuv><tuv xml:lang="ar"><seg>نظام الترقيم</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Calendar">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.LOC_FMT_CALENDAR</note>
             <tuv xml:lang="en-us"><seg>Calendar</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कैलेंडर</seg></tuv><tuv xml:lang="ar"><seg>تقويم</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Shared Fields">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TAB_SHARED_FIELDS</note>
             <tuv xml:lang="en-us"><seg>Shared Fields</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>साझा फ़ील्ड</seg></tuv><tuv xml:lang="ar"><seg>الحقول المشتركة</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading shared field groups…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SF_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading shared field groups…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>साझा फ़ील्ड समूह लोड हो रहे हैं...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل مجموعات الحقول المشتركة...</seg></tuv></tu>
         <tu tuid="perc.ui.developer@No shared field groups returned.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SF_EMPTY</note>
             <tuv xml:lang="en-us"><seg>No shared field groups returned.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कोई साझा फ़ील्ड समूह वापस नहीं आया.</seg></tuv><tuv xml:lang="ar"><seg>لم يتم إرجاع أي مجموعات حقول مشتركة.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load shared field groups.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SF_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load shared field groups.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>साझा फ़ील्ड समूह लोड नहीं किया जा सका.</seg></tuv><tuv xml:lang="ar"><seg>تعذر تحميل مجموعات الحقول المشتركة.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Shared field groups from the content-editor shared definition. Open a row for the field catalog. Create/edit and system def are later slices.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SF_HINT</note>
             <tuv xml:lang="en-us"><seg>Shared field groups from the content-editor shared definition. Open a row for the field catalog. Create/edit and system def are later slices.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सामग्री-संपादक साझा परिभाषा से साझा फ़ील्ड समूह। फ़ील्ड कैटलॉग के लिए एक पंक्ति खोलें. बनाएं/संपादित करें और सिस्टम डीईफ़ बाद के स्लाइस हैं।</seg></tuv><tuv xml:lang="ar"><seg>مجموعات الحقول المشتركة من التعريف المشترك لمحرر المحتوى. افتح صفًا لكتالوج الحقول. إنشاء/تحرير وتعريف النظام هما شرائح لاحقة.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Filename">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SF_COL_FILENAME</note>
             <tuv xml:lang="en-us"><seg>Filename</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>फ़ाइलनाम</seg></tuv><tuv xml:lang="ar"><seg>اسم الملف</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading shared field group…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SF_DETAIL_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading shared field group…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>साझा फ़ील्ड समूह लोड हो रहा है...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل مجموعة الحقول المشتركة...</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load shared field group.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SF_DETAIL_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load shared field group.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>साझा फ़ील्ड समूह लोड नहीं किया जा सका.</seg></tuv><tuv xml:lang="ar"><seg>تعذر تحميل مجموعة الحقول المشتركة.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Read-only field catalog for this shared group. Control properties and write are not exposed yet.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SF_FIELDS_HINT</note>
             <tuv xml:lang="en-us"><seg>Read-only field catalog for this shared group. Control properties and write are not exposed yet.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>इस साझा समूह के लिए केवल पढ़ने योग्य फ़ील्ड कैटलॉग। नियंत्रण गुण और लेखन अभी तक उजागर नहीं हुए हैं।</seg></tuv><tuv xml:lang="ar"><seg>كتالوج حقل للقراءة فقط لهذه المجموعة المشتركة. خصائص التحكم والكتابة لم يتم كشفها بعد.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@System Def">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TAB_SYSTEM_DEF</note>
             <tuv xml:lang="en-us"><seg>System Def</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सिस्टम डिफ़</seg></tuv><tuv xml:lang="ar"><seg>تعريف النظام</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading system definition…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SYS_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading system definition…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सिस्टम परिभाषा लोड हो रही है...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل تعريف النظام…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load system definition.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SYS_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load system definition.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सिस्टम परिभाषा लोड नहीं की जा सकी.</seg></tuv><tuv xml:lang="ar"><seg>تعذر تحميل تعريف النظام.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@No system fields returned.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SYS_EMPTY</note>
             <tuv xml:lang="en-us"><seg>No system fields returned.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कोई सिस्टम फ़ील्ड वापस नहीं आया.</seg></tuv><tuv xml:lang="ar"><seg>لم يتم إرجاع أية حقول للنظام.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Global system fields from the content-editor system definition. Read-only catalog — write and control configuration are later slices.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SYS_HINT</note>
             <tuv xml:lang="en-us"><seg>Global system fields from the content-editor system definition. Read-only catalog — write and control configuration are later slices.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सामग्री-संपादक सिस्टम परिभाषा से वैश्विक सिस्टम फ़ील्ड। केवल पढ़ने योग्य कैटलॉग - लिखना और नियंत्रण कॉन्फ़िगरेशन बाद के स्लाइस हैं।</seg></tuv><tuv xml:lang="ar"><seg>حقول النظام العالمي من تعريف نظام محرر المحتوى. كتالوج للقراءة فقط - تكوين الكتابة والتحكم عبارة عن شرائح لاحقة.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Content editor system definition">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SYS_TITLE</note>
             <tuv xml:lang="en-us"><seg>Content editor system definition</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सामग्री संपादक प्रणाली परिभाषा</seg></tuv><tuv xml:lang="ar"><seg>تعريف نظام محرر المحتوى</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Field count">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SYS_META_FIELD_COUNT</note>
             <tuv xml:lang="en-us"><seg>Field count</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>फ़ील्ड गिनती</seg></tuv><tuv xml:lang="ar"><seg>عدد الحقول</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Error cache timeout">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SYS_META_CACHE</note>
             <tuv xml:lang="en-us"><seg>Error cache timeout</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>त्रुटि कैश टाइमआउट</seg></tuv><tuv xml:lang="ar"><seg>خطأ في مهلة ذاكرة التخزين المؤقت</seg></tuv></tu>
         <tu tuid="perc.ui.developer@minutes">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SYS_META_CACHE_UNIT</note>
             <tuv xml:lang="en-us"><seg>minutes</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>मिनट</seg></tuv><tuv xml:lang="ar"><seg>دقائق</seg></tuv></tu>
         <tu tuid="perc.ui.developer@System fields">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SYS_FIELDS</note>
             <tuv xml:lang="en-us"><seg>System fields</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सिस्टम फ़ील्ड</seg></tuv><tuv xml:lang="ar"><seg>حقول النظام</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Fields available to all content types as system fields. Property and control write are not exposed yet.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SYS_FIELDS_HINT</note>
             <tuv xml:lang="en-us"><seg>Fields available to all content types as system fields. Property and control write are not exposed yet.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सिस्टम फ़ील्ड के रूप में सभी सामग्री प्रकारों के लिए फ़ील्ड उपलब्ध हैं। संपत्ति और नियंत्रण लेखन अभी तक उजागर नहीं हुए हैं।</seg></tuv><tuv xml:lang="ar"><seg>الحقول المتاحة لجميع أنواع المحتوى كحقول النظام. لم يتم الكشف عن خاصية الكتابة والتحكم بعد.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Item Filters">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TAB_ITEM_FILTERS</note>
             <tuv xml:lang="en-us"><seg>Item Filters</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>आइटम फ़िल्टर</seg></tuv><tuv xml:lang="ar"><seg>مرشحات العنصر</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading item filters…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.IF_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading item filters…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>आइटम फ़िल्टर लोड हो रहा है...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل عوامل تصفية العناصر…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@No item filters returned.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.IF_EMPTY</note>
             <tuv xml:lang="en-us"><seg>No item filters returned.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कोई आइटम फ़िल्टर वापस नहीं आया.</seg></tuv><tuv xml:lang="ar"><seg>لم يتم إرجاع أي عوامل تصفية للعناصر.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load item filters.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.IF_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load item filters.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>आइटम फ़िल्टर लोड नहीं किया जा सका.</seg></tuv><tuv xml:lang="ar"><seg>تعذر تحميل عوامل تصفية العناصر.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Assembly item filters (rules applied when resolving related content). Open a row for rules and parent linkage. Create/edit is a later slice.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.IF_HINT</note>
             <tuv xml:lang="en-us"><seg>Assembly item filters (rules applied when resolving related content). Open a row for rules and parent linkage. Create/edit is a later slice.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>असेंबली आइटम फ़िल्टर (संबंधित सामग्री को हल करते समय लागू नियम)। नियमों और मूल लिंकेज के लिए एक पंक्ति खोलें। बनाना/संपादित करना बाद का भाग है।</seg></tuv><tuv xml:lang="ar"><seg>عوامل تصفية عناصر التجميع (القواعد المطبقة عند حل المحتوى ذي الصلة). افتح صفًا للقواعد والربط الأصلي. الإنشاء/التحرير هو شريحة لاحقة.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Parent filter">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.IF_COL_PARENT</note>
             <tuv xml:lang="en-us"><seg>Parent filter</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>मूल फ़िल्टर</seg></tuv><tuv xml:lang="ar"><seg>مرشح الوالدين</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading item filter…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.IF_DETAIL_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading item filter…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>आइटम फ़िल्टर लोड हो रहा है...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل عامل تصفية العناصر…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load item filter.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.IF_DETAIL_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load item filter.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>आइटम फ़िल्टर लोड नहीं किया जा सका.</seg></tuv><tuv xml:lang="ar"><seg>تعذر تحميل عامل تصفية العناصر.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Legacy authtype">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.IF_COL_AUTHTYPE</note>
             <tuv xml:lang="en-us"><seg>Legacy authtype</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>लीगेसी ऑथटाइप</seg></tuv><tuv xml:lang="ar"><seg>نوع المصادقة القديم</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Filter rule definitions and parameters. Rule editing is not exposed yet.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.IF_RULES_HINT</note>
             <tuv xml:lang="en-us"><seg>Filter rule definitions and parameters. Rule editing is not exposed yet.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>नियम परिभाषाएँ और पैरामीटर फ़िल्टर करें। नियम संपादन अभी उजागर नहीं हुआ है.</seg></tuv><tuv xml:lang="ar"><seg>تعريفات ومعلمات قاعدة التصفية. لم يتم الكشف عن تحرير القاعدة بعد.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Rule">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.IF_COL_RULE</note>
             <tuv xml:lang="en-us"><seg>Rule</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>नियम</seg></tuv><tuv xml:lang="ar"><seg>قاعدة</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Parameters">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.IF_COL_PARAMS</note>
             <tuv xml:lang="en-us"><seg>Parameters</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>पैरामीटर</seg></tuv><tuv xml:lang="ar"><seg>حدود</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Item filter create / update / delete not supported via this API">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.IF_GAP_WRITE</note>
             <tuv xml:lang="en-us"><seg>Item filter create / update / delete not supported via this API</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>आइटम फ़िल्टर बनाना/अपडेट करना/हटाना इस एपीआई के माध्यम से समर्थित नहीं है</seg></tuv><tuv xml:lang="ar"><seg>إنشاء/تحديث/حذف مرشح العناصر غير مدعوم عبر واجهة برمجة التطبيقات هذه</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Rule and parameter editing not supported via this API">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.IF_GAP_RULE_EDIT</note>
             <tuv xml:lang="en-us"><seg>Rule and parameter editing not supported via this API</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>नियम और पैरामीटर संपादन इस एपीआई के माध्यम से समर्थित नहीं है</seg></tuv><tuv xml:lang="ar"><seg>تحرير القواعد والمعلمات غير مدعوم عبر واجهة برمجة التطبيقات هذه</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Display Formats">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TAB_DISPLAY_FORMATS</note>
             <tuv xml:lang="en-us"><seg>Display Formats</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>प्रदर्शन प्रारूप</seg></tuv><tuv xml:lang="ar"><seg>تنسيقات العرض</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading display formats…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.DF_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading display formats…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>प्रदर्शन प्रारूप लोड हो रहे हैं...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل تنسيقات العرض…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@No display formats returned.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.DF_EMPTY</note>
             <tuv xml:lang="en-us"><seg>No display formats returned.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कोई प्रदर्शन प्रारूप नहीं लौटाया गया.</seg></tuv><tuv xml:lang="ar"><seg>لم يتم إرجاع أي تنسيقات عرض.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load display formats.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.DF_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load display formats.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>प्रदर्शन प्रारूप लोड नहीं किया जा सका.</seg></tuv><tuv xml:lang="ar"><seg>تعذر تحميل تنسيقات العرض.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Content Explorer display formats (columns, folder/view/search usage). Open a row for the column catalog. Create/edit is a later slice.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.DF_HINT</note>
             <tuv xml:lang="en-us"><seg>Content Explorer display formats (columns, folder/view/search usage). Open a row for the column catalog. Create/edit is a later slice.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सामग्री एक्सप्लोरर प्रदर्शन प्रारूप (कॉलम, फ़ोल्डर/दृश्य/खोज उपयोग)। कॉलम कैटलॉग के लिए एक पंक्ति खोलें. बनाना/संपादित करना बाद का भाग है।</seg></tuv><tuv xml:lang="ar"><seg>تنسيقات عرض Content Explorer (الأعمدة والمجلدات/العرض/استخدام البحث). افتح صفًا لكتالوج الأعمدة. الإنشاء/التحرير هو شريحة لاحقة.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Columns">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.DF_COL_COLUMNS</note>
             <tuv xml:lang="en-us"><seg>Columns</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कॉलम</seg></tuv><tuv xml:lang="ar"><seg>أعمدة</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Usage">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.DF_COL_USAGE</note>
             <tuv xml:lang="en-us"><seg>Usage</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>प्रयोग</seg></tuv><tuv xml:lang="ar"><seg>الاستخدام</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Folders">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.DF_USAGE_FOLDER</note>
             <tuv xml:lang="en-us"><seg>Folders</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>फ़ोल्डर</seg></tuv><tuv xml:lang="ar"><seg>المجلدات</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Views &amp; searches">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.DF_USAGE_VIEWS</note>
             <tuv xml:lang="en-us"><seg>Views &amp; searches</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>दृश्य और खोजें</seg></tuv><tuv xml:lang="ar"><seg>المشاهدات وعمليات البحث</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Related content">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.DF_USAGE_RELATED</note>
             <tuv xml:lang="en-us"><seg>Related content</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>संबंधित सामग्री</seg></tuv><tuv xml:lang="ar"><seg>محتوى ذو صلة</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading display format…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.DF_DETAIL_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading display format…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>प्रदर्शन प्रारूप लोड हो रहा है...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل تنسيق العرض…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load display format.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.DF_DETAIL_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load display format.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>प्रदर्शन प्रारूप लोड नहीं किया जा सका.</seg></tuv><tuv xml:lang="ar"><seg>تعذر تحميل تنسيق العرض.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Column definitions for this display format. Column create/edit is not exposed yet.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.DF_COLUMNS_HINT</note>
             <tuv xml:lang="en-us"><seg>Column definitions for this display format. Column create/edit is not exposed yet.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>इस प्रदर्शन प्रारूप के लिए कॉलम परिभाषाएँ। कॉलम निर्माण/संपादन अभी तक सामने नहीं आया है।</seg></tuv><tuv xml:lang="ar"><seg>تعريفات الأعمدة لتنسيق العرض هذا. لم يتم عرض إنشاء/تحرير العمود بعد.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Pos">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.DF_COL_POS</note>
             <tuv xml:lang="en-us"><seg>Pos</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>स्थिति</seg></tuv><tuv xml:lang="ar"><seg>نقاط البيع</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Source field">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.DF_COL_SOURCE</note>
             <tuv xml:lang="en-us"><seg>Source field</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>स्रोत फ़ील्ड</seg></tuv><tuv xml:lang="ar"><seg>حقل المصدر</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Column label">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.DF_COL_COL_LABEL</note>
             <tuv xml:lang="en-us"><seg>Column label</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कॉलम लेबल</seg></tuv><tuv xml:lang="ar"><seg>تسمية العمود</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Render type">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.DF_COL_RENDER</note>
             <tuv xml:lang="en-us"><seg>Render type</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>रेंडर प्रकार</seg></tuv><tuv xml:lang="ar"><seg>نوع العرض</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Width">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.DF_COL_WIDTH</note>
             <tuv xml:lang="en-us"><seg>Width</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>चौड़ाई</seg></tuv><tuv xml:lang="ar"><seg>عرض</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Display format create / update / delete not supported via this API">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.DF_GAP_WRITE</note>
             <tuv xml:lang="en-us"><seg>Display format create / update / delete not supported via this API</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>प्रदर्शन प्रारूप बनाएं/अपडेट करें/हटाएं इस एपीआई के माध्यम से समर्थित नहीं है</seg></tuv><tuv xml:lang="ar"><seg>إنشاء / تحديث / حذف تنسيق العرض غير مدعوم عبر واجهة برمجة التطبيقات هذه</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Column and sort configuration write not supported via this API">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.DF_GAP_COLUMNS_EDIT</note>
             <tuv xml:lang="en-us"><seg>Column and sort configuration write not supported via this API</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कॉलम और सॉर्ट कॉन्फ़िगरेशन लेखन इस एपीआई के माध्यम से समर्थित नहीं है</seg></tuv><tuv xml:lang="ar"><seg>كتابة تكوين العمود والفرز غير مدعومة عبر واجهة برمجة التطبيقات هذه</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Allowed-community editing not supported via this API">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.DF_GAP_COMMUNITIES</note>
             <tuv xml:lang="en-us"><seg>Allowed-community editing not supported via this API</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>इस एपीआई के माध्यम से स्वीकृत-सामुदायिक संपादन समर्थित नहीं है</seg></tuv><tuv xml:lang="ar"><seg>تحرير المجتمع المسموح به غير مدعوم عبر واجهة برمجة التطبيقات هذه</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Action Menus">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TAB_ACTION_MENUS</note>
             <tuv xml:lang="en-us"><seg>Action Menus</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>क्रिया मेनू</seg></tuv><tuv xml:lang="ar"><seg>قوائم الإجراءات</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading action menus…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.AM_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading action menus…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>क्रिया मेनू लोड हो रहा है...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل قوائم الإجراءات…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@No action menus returned.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.AM_EMPTY</note>
             <tuv xml:lang="en-us"><seg>No action menus returned.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कोई क्रिया मेनू नहीं लौटाया गया.</seg></tuv><tuv xml:lang="ar"><seg>لم يتم إرجاع أي قوائم إجراءات.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load action menus.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.AM_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load action menus.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>क्रिया मेनू लोड नहीं किया जा सका.</seg></tuv><tuv xml:lang="ar"><seg>لا يمكن تحميل قوائم الإجراءات.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Content Explorer action menus (types, handlers, URL parameters). Open a row for parameters and properties. Create/edit is a later slice.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.AM_HINT</note>
             <tuv xml:lang="en-us"><seg>Content Explorer action menus (types, handlers, URL parameters). Open a row for parameters and properties. Create/edit is a later slice.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कंटेंट एक्सप्लोरर एक्शन मेनू (प्रकार, हैंडलर, यूआरएल पैरामीटर)। पैरामीटर और गुणों के लिए एक पंक्ति खोलें. बनाना/संपादित करना बाद का भाग है।</seg></tuv><tuv xml:lang="ar"><seg>قوائم إجراءات Content Explorer (الأنواع والمعالجات ومعلمات URL). افتح صفًا للمعلمات والخصائص. الإنشاء/التحرير هو شريحة لاحقة.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Menu type">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.AM_COL_TYPE</note>
             <tuv xml:lang="en-us"><seg>Menu type</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>मेनू प्रकार</seg></tuv><tuv xml:lang="ar"><seg>نوع القائمة</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Handler">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.AM_COL_HANDLER</note>
             <tuv xml:lang="en-us"><seg>Handler</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>हैंडलर</seg></tuv><tuv xml:lang="ar"><seg>معالج</seg></tuv></tu>
         <tu tuid="perc.ui.developer@URL">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.AM_COL_URL</note>
             <tuv xml:lang="en-us"><seg>URL</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>यूआरएल</seg></tuv><tuv xml:lang="ar"><seg>عنوان URL</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Sort rank">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.AM_COL_SORT</note>
             <tuv xml:lang="en-us"><seg>Sort rank</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>रैंक क्रमबद्ध करें</seg></tuv><tuv xml:lang="ar"><seg>ترتيب الترتيب</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading action menu…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.AM_DETAIL_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading action menu…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>क्रिया मेनू लोड हो रहा है...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل قائمة الإجراءات…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load action menu.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.AM_DETAIL_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load action menu.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>क्रिया मेनू लोड नहीं हो सका.</seg></tuv><tuv xml:lang="ar"><seg>لا يمكن تحميل قائمة الإجراءات.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@URL parameters for this menu action. Parameter editing is not exposed yet.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.AM_PARAMS_HINT</note>
             <tuv xml:lang="en-us"><seg>URL parameters for this menu action. Parameter editing is not exposed yet.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>इस मेनू कार्रवाई के लिए यूआरएल पैरामीटर। पैरामीटर संपादन अभी तक सामने नहीं आया है.</seg></tuv><tuv xml:lang="ar"><seg>معلمات URL لإجراء القائمة هذا. لم يتم كشف تحرير المعلمة بعد.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Properties">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.AM_PROPS</note>
             <tuv xml:lang="en-us"><seg>Properties</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>गुण</seg></tuv><tuv xml:lang="ar"><seg>ملكيات</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Parameter">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.AM_COL_PARAM</note>
             <tuv xml:lang="en-us"><seg>Parameter</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>पैरामीटर</seg></tuv><tuv xml:lang="ar"><seg>المعلمة</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Property">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.AM_COL_PROP</note>
             <tuv xml:lang="en-us"><seg>Property</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>संपत्ति</seg></tuv><tuv xml:lang="ar"><seg>ملكية</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Action menu create / update / delete not supported via this API">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.AM_GAP_WRITE</note>
             <tuv xml:lang="en-us"><seg>Action menu create / update / delete not supported via this API</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>एक्शन मेनू बनाएं / अपडेट करें / हटाएं इस एपीआई के माध्यम से समर्थित नहीं है</seg></tuv><tuv xml:lang="ar"><seg>إنشاء/تحديث/حذف قائمة الإجراءات غير مدعوم عبر واجهة برمجة التطبيقات هذه</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Cascading child menu composition not supported via this API">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.AM_GAP_CHILDREN</note>
             <tuv xml:lang="en-us"><seg>Cascading child menu composition not supported via this API</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>इस एपीआई के माध्यम से कैस्केडिंग चाइल्ड मेनू संरचना समर्थित नहीं है</seg></tuv><tuv xml:lang="ar"><seg>تكوين القائمة الفرعية المتتالية غير مدعوم عبر واجهة برمجة التطبيقات هذه</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Visibility context editing not supported via this API">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.AM_GAP_VISIBILITY</note>
             <tuv xml:lang="en-us"><seg>Visibility context editing not supported via this API</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>इस एपीआई के माध्यम से दृश्यता संदर्भ संपादन समर्थित नहीं है</seg></tuv><tuv xml:lang="ar"><seg>تحرير سياق الرؤية غير مدعوم عبر واجهة برمجة التطبيقات هذه</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Searches">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TAB_SEARCHES</note>
             <tuv xml:lang="en-us"><seg>Searches</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>खोजें</seg></tuv><tuv xml:lang="ar"><seg>عمليات البحث</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading searches…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SR_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading searches…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>खोजें लोड हो रही हैं...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل عمليات البحث…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@No searches returned.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SR_EMPTY</note>
             <tuv xml:lang="en-us"><seg>No searches returned.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कोई खोज वापस नहीं आई।</seg></tuv><tuv xml:lang="ar"><seg>لم يتم إرجاع أي عمليات بحث.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load searches.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SR_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load searches.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>खोजें लोड नहीं की जा सकीं.</seg></tuv><tuv xml:lang="ar"><seg>لا يمكن تحميل عمليات البحث.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Content Explorer search definitions (not views). Open a row for field criteria. Create/edit is a later slice.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SR_HINT</note>
             <tuv xml:lang="en-us"><seg>Content Explorer search definitions (not views). Open a row for field criteria. Create/edit is a later slice.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सामग्री एक्सप्लोरर खोज परिभाषाएँ (दृश्य नहीं)। फ़ील्ड मानदंड के लिए एक पंक्ति खोलें. बनाना/संपादित करना बाद का भाग है।</seg></tuv><tuv xml:lang="ar"><seg>تعريفات بحث Content Explorer (وليس طرق العرض). افتح صفًا لمعايير الحقل. الإنشاء/التحرير هو شريحة لاحقة.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Display format id">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SR_COL_DF</note>
             <note xml:lang="en-us">DEV_MSG.VW_COL_DF</note>
             <tuv xml:lang="en-us"><seg>Display format id</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>प्रदर्शन प्रारूप आईडी</seg></tuv><tuv xml:lang="ar"><seg>معرف تنسيق العرض</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Max results">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SR_COL_MAX</note>
             <note xml:lang="en-us">DEV_MSG.VW_COL_MAX</note>
             <tuv xml:lang="en-us"><seg>Max results</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>अधिकतम परिणाम</seg></tuv><tuv xml:lang="ar"><seg>النتائج القصوى</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Case sensitive">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SR_COL_CASE</note>
             <note xml:lang="en-us">DEV_MSG.VW_COL_CASE</note>
             <tuv xml:lang="en-us"><seg>Case sensitive</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>अक्षर संवेदनशील</seg></tuv><tuv xml:lang="ar"><seg>حساسية الموضوع</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Custom">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SR_KIND_CUSTOM</note>
             <note xml:lang="en-us">DEV_MSG.VW_KIND_CUSTOM</note>
             <tuv xml:lang="en-us"><seg>Custom</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>रिवाज़</seg></tuv><tuv xml:lang="ar"><seg>مخصص</seg></tuv></tu>
         <tu tuid="perc.ui.developer@User">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SR_KIND_USER</note>
             <tuv xml:lang="en-us"><seg>User</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>उपयोगकर्ता</seg></tuv><tuv xml:lang="ar"><seg>مستخدم</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Standard">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SR_KIND_STANDARD</note>
             <note xml:lang="en-us">DEV_MSG.VW_KIND_STANDARD</note>
             <tuv xml:lang="en-us"><seg>Standard</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>मानक</seg></tuv><tuv xml:lang="ar"><seg>معيار</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading search…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SR_DETAIL_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading search…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>खोज लोड हो रही है...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل البحث…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load search.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SR_DETAIL_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load search.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>खोज लोड नहीं हो सकी.</seg></tuv><tuv xml:lang="ar"><seg>تعذر تحميل البحث.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Field criteria">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SR_FIELDS</note>
             <note xml:lang="en-us">DEV_MSG.VW_FIELDS</note>
             <tuv xml:lang="en-us"><seg>Field criteria</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>फ़ील्ड मानदंड</seg></tuv><tuv xml:lang="ar"><seg>المعايير الميدانية</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Search field conditions. Criterion editing is not exposed yet.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SR_FIELDS_HINT</note>
             <tuv xml:lang="en-us"><seg>Search field conditions. Criterion editing is not exposed yet.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>खोज फ़ील्ड स्थितियाँ. मानदंड संपादन अभी तक सामने नहीं आया है.</seg></tuv><tuv xml:lang="ar"><seg>شروط حقل البحث. لم يتم الكشف عن تحرير المعيار بعد.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Operator">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SR_COL_OP</note>
             <note xml:lang="en-us">DEV_MSG.VW_COL_OP</note>
             <tuv xml:lang="en-us"><seg>Operator</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>संचालिका</seg></tuv><tuv xml:lang="ar"><seg>المشغل</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Search create / update / delete not supported via this API">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SR_GAP_WRITE</note>
             <tuv xml:lang="en-us"><seg>Search create / update / delete not supported via this API</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>इस एपीआई के माध्यम से खोज बनाएं / अपडेट करें / हटाएं समर्थित नहीं है</seg></tuv><tuv xml:lang="ar"><seg>البحث عن الإنشاء/التحديث/الحذف غير مدعوم عبر واجهة برمجة التطبيقات هذه</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Search field criterion editing not supported via this API">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SR_GAP_FIELDS</note>
             <tuv xml:lang="en-us"><seg>Search field criterion editing not supported via this API</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>खोज फ़ील्ड मानदंड संपादन इस एपीआई के माध्यम से समर्थित नहीं है</seg></tuv><tuv xml:lang="ar"><seg>تحرير معيار حقل البحث غير مدعوم عبر واجهة برمجة التطبيقات هذه</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Views are a separate catalog (Developer Views / UI-07)">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.SR_GAP_VIEWS</note>
             <tuv xml:lang="en-us"><seg>Views are a separate catalog (Developer Views / UI-07)</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>दृश्य एक अलग कैटलॉग हैं (डेवलपर दृश्य / यूआई-07)</seg></tuv><tuv xml:lang="ar"><seg>طرق العرض عبارة عن كتالوج منفصل (طرق عرض المطورين / UI-07)</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Views">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TAB_VIEWS</note>
             <tuv xml:lang="en-us"><seg>Views</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>दृश्य</seg></tuv><tuv xml:lang="ar"><seg>وجهات النظر</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading views…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.VW_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading views…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>दृश्य लोड हो रहे हैं...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل المشاهدات…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@No views returned.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.VW_EMPTY</note>
             <tuv xml:lang="en-us"><seg>No views returned.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कोई दृश्य वापस नहीं आया.</seg></tuv><tuv xml:lang="ar"><seg>لم يتم إرجاع أي مشاهدات.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load views.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.VW_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load views.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>दृश्य लोड नहीं किये जा सके.</seg></tuv><tuv xml:lang="ar"><seg>تعذر تحميل طرق العرض.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Content Explorer view definitions. Open a row for field criteria. Create/edit is a later slice.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.VW_HINT</note>
             <tuv xml:lang="en-us"><seg>Content Explorer view definitions. Open a row for field criteria. Create/edit is a later slice.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सामग्री एक्सप्लोरर दृश्य परिभाषाएँ। फ़ील्ड मानदंड के लिए एक पंक्ति खोलें. बनाना/संपादित करना बाद का भाग है।</seg></tuv><tuv xml:lang="ar"><seg>تعريفات عرض مستكشف المحتوى. افتح صفًا لمعايير الحقل. الإنشاء/التحرير هو شريحة لاحقة.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading view…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.VW_DETAIL_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading view…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>दृश्य लोड हो रहा है...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل العرض…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load view.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.VW_DETAIL_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load view.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>दृश्य लोड नहीं किया जा सका.</seg></tuv><tuv xml:lang="ar"><seg>تعذر تحميل العرض.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@View field conditions. Criterion editing is not exposed yet.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.VW_FIELDS_HINT</note>
             <tuv xml:lang="en-us"><seg>View field conditions. Criterion editing is not exposed yet.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>फ़ील्ड स्थितियाँ देखें. मानदंड संपादन अभी तक सामने नहीं आया है.</seg></tuv><tuv xml:lang="ar"><seg>عرض الظروف الميدانية. لم يتم الكشف عن تحرير المعيار بعد.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@View create / update / delete not supported via this API">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.VW_GAP_WRITE</note>
             <tuv xml:lang="en-us"><seg>View create / update / delete not supported via this API</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>व्यू क्रिएट/अपडेट/डिलीट इस एपीआई के माध्यम से समर्थित नहीं है</seg></tuv><tuv xml:lang="ar"><seg>عرض الإنشاء/التحديث/الحذف غير مدعوم عبر واجهة برمجة التطبيقات هذه</seg></tuv></tu>
         <tu tuid="perc.ui.developer@View field criterion editing not supported via this API">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.VW_GAP_FIELDS</note>
             <tuv xml:lang="en-us"><seg>View field criterion editing not supported via this API</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>फ़ील्ड मानदंड संपादन देखें इस एपीआई के माध्यम से समर्थित नहीं है</seg></tuv><tuv xml:lang="ar"><seg>عرض تعديل معيار الحقل غير مدعوم عبر واجهة برمجة التطبيقات هذه</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Searches are a separate catalog (Developer Searches / UI-06)">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.VW_GAP_SEARCHES</note>
             <tuv xml:lang="en-us"><seg>Searches are a separate catalog (Developer Searches / UI-06)</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>खोजें एक अलग कैटलॉग हैं (डेवलपर खोजें / यूआई-06)</seg></tuv><tuv xml:lang="ar"><seg>عمليات البحث عبارة عن كتالوج منفصل (عمليات بحث المطورين / UI-06)</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Extensions">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TAB_EXTENSIONS</note>
             <tuv xml:lang="en-us"><seg>Extensions</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>एक्सटेंशन</seg></tuv><tuv xml:lang="ar"><seg>ملحقات</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading extensions…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.EX_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading extensions…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>एक्सटेंशन लोड हो रहे हैं...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل الإضافات…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@No extensions returned.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.EX_EMPTY</note>
             <tuv xml:lang="en-us"><seg>No extensions returned.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कोई एक्सटेंशन नहीं लौटाया गया.</seg></tuv><tuv xml:lang="ar"><seg>لم يتم إرجاع أي ملحقات.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load extensions.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.EX_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load extensions.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>एक्सटेंशन लोड नहीं हो सका.</seg></tuv><tuv xml:lang="ar"><seg>تعذر تحميل الملحقات.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Registered server extensions (handlers, contexts, interfaces). Open a row for parameters. Install/remove is a later slice.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.EX_HINT</note>
             <tuv xml:lang="en-us"><seg>Registered server extensions (handlers, contexts, interfaces). Open a row for parameters. Install/remove is a later slice.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>पंजीकृत सर्वर एक्सटेंशन (हैंडलर, संदर्भ, इंटरफेस)। पैरामीटर के लिए एक पंक्ति खोलें. इंस्टॉल/निकालना बाद का चरण है।</seg></tuv><tuv xml:lang="ar"><seg>ملحقات الخادم المسجلة (المعالجات، السياقات، الواجهات). فتح صف للمعلمات. التثبيت/الإزالة هو شريحة لاحقة.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Context">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.EX_COL_CONTEXT</note>
             <tuv xml:lang="en-us"><seg>Context</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>प्रसंग</seg></tuv><tuv xml:lang="ar"><seg>سياق</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Category">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.EX_COL_CATEGORY</note>
             <tuv xml:lang="en-us"><seg>Category</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>वर्ग</seg></tuv><tuv xml:lang="ar"><seg>فئة</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Flags">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.EX_COL_FLAGS</note>
             <tuv xml:lang="en-us"><seg>Flags</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>झंडे</seg></tuv><tuv xml:lang="ar"><seg>أعلام</seg></tuv></tu>
         <tu tuid="perc.ui.developer@FQN">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.EX_COL_FQN</note>
             <tuv xml:lang="en-us"><seg>FQN</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>प्रश्न एन</seg></tuv><tuv xml:lang="ar"><seg>س ن</seg></tuv></tu>
         <tu tuid="perc.ui.developer@JEXL">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.EX_FLAG_JEXL</note>
             <tuv xml:lang="en-us"><seg>JEXL</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>JEXL</seg></tuv><tuv xml:lang="ar"><seg>جيكسل</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Deprecated">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.EX_FLAG_DEPRECATED</note>
             <tuv xml:lang="en-us"><seg>Deprecated</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>पदावनत</seg></tuv><tuv xml:lang="ar"><seg>مهمل</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading extension…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.EX_DETAIL_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading extension…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>एक्सटेंशन लोड हो रहा है...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل الإضافة…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load extension.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.EX_DETAIL_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load extension.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>एक्सटेंशन लोड नहीं किया जा सका.</seg></tuv><tuv xml:lang="ar"><seg>تعذر تحميل الامتداد.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Interfaces">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.EX_IFACES</note>
             <tuv xml:lang="en-us"><seg>Interfaces</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>इंटरफेस</seg></tuv><tuv xml:lang="ar"><seg>واجهات</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Runtime parameters">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.EX_PARAMS</note>
             <tuv xml:lang="en-us"><seg>Runtime parameters</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>रनटाइम पैरामीटर</seg></tuv><tuv xml:lang="ar"><seg>معلمات وقت التشغيل</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Extension install / remove not supported via this API">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.EX_GAP_INSTALL</note>
             <tuv xml:lang="en-us"><seg>Extension install / remove not supported via this API</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>इस एपीआई के माध्यम से एक्सटेंशन इंस्टॉल/निकालना समर्थित नहीं है</seg></tuv><tuv xml:lang="ar"><seg>تثبيت/إزالة الإضافة غير مدعوم عبر واجهة برمجة التطبيقات هذه</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Extension parameter and method edit not supported via this API">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.EX_GAP_EDIT</note>
             <tuv xml:lang="en-us"><seg>Extension parameter and method edit not supported via this API</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>एक्सटेंशन पैरामीटर और विधि संपादन इस एपीआई के माध्यम से समर्थित नहीं है</seg></tuv><tuv xml:lang="ar"><seg>معلمة الامتداد وطريقة التحرير غير مدعومة عبر واجهة برمجة التطبيقات هذه</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Relationship Types">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TAB_RELATIONSHIP_TYPES</note>
             <tuv xml:lang="en-us"><seg>Relationship Types</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>रिश्ते के प्रकार</seg></tuv><tuv xml:lang="ar"><seg>أنواع العلاقات</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading relationship types…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.RT_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading relationship types…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>संबंध प्रकार लोड हो रहे हैं...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل أنواع العلاقات...</seg></tuv></tu>
         <tu tuid="perc.ui.developer@No relationship types returned.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.RT_EMPTY</note>
             <tuv xml:lang="en-us"><seg>No relationship types returned.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कोई संबंध प्रकार नहीं लौटाया गया.</seg></tuv><tuv xml:lang="ar"><seg>لم يتم إرجاع أي أنواع علاقات.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load relationship types.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.RT_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load relationship types.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>संबंध प्रकार लोड नहीं किया जा सका.</seg></tuv><tuv xml:lang="ar"><seg>تعذر تحميل أنواع العلاقات.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@System and user relationship types (category, cloning flags, effects). Open a row for properties. Create/edit is a later slice.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.RT_HINT</note>
             <tuv xml:lang="en-us"><seg>System and user relationship types (category, cloning flags, effects). Open a row for properties. Create/edit is a later slice.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सिस्टम और उपयोगकर्ता संबंध प्रकार (श्रेणी, क्लोनिंग फ़्लैग, प्रभाव)। गुणों के लिए एक पंक्ति खोलें. बनाना/संपादित करना बाद का भाग है।</seg></tuv><tuv xml:lang="ar"><seg>أنواع علاقات النظام والمستخدم (الفئة، أعلام الاستنساخ، التأثيرات). فتح صف للخصائص. الإنشاء/التحرير هو شريحة لاحقة.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Activation end point">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.RT_COL_ENDPOINT</note>
             <tuv xml:lang="en-us"><seg>Activation end point</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सक्रियण समाप्ति बिंदु</seg></tuv><tuv xml:lang="ar"><seg>نقطة نهاية التنشيط</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Extension ref">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.RT_COL_EXTREF</note>
             <tuv xml:lang="en-us"><seg>Extension ref</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>एक्सटेंशन रेफरी</seg></tuv><tuv xml:lang="ar"><seg>مرجع التمديد</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Property">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.RT_COL_PROP</note>
             <tuv xml:lang="en-us"><seg>Property</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>संपत्ति</seg></tuv><tuv xml:lang="ar"><seg>ملكية</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Cloning">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.RT_FLAG_CLONE</note>
             <tuv xml:lang="en-us"><seg>Cloning</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>क्लोनिंग</seg></tuv><tuv xml:lang="ar"><seg>استنساخ</seg></tuv></tu>
         <tu tuid="perc.ui.developer@System">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.RT_FLAG_SYSTEM</note>
             <tuv xml:lang="en-us"><seg>System</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>प्रणाली</seg></tuv><tuv xml:lang="ar"><seg>نظام</seg></tuv></tu>
         <tu tuid="perc.ui.developer@User">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.RT_FLAG_USER</note>
             <tuv xml:lang="en-us"><seg>User</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>उपयोगकर्ता</seg></tuv><tuv xml:lang="ar"><seg>مستخدم</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading relationship type…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.RT_DETAIL_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading relationship type…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>संबंध प्रकार लोड हो रहा है...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل نوع العلاقة…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load relationship type.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.RT_DETAIL_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load relationship type.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>संबंध प्रकार लोड नहीं किया जा सका.</seg></tuv><tuv xml:lang="ar"><seg>لا يمكن تحميل نوع العلاقة.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Effects">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.RT_EFFECTS</note>
             <tuv xml:lang="en-us"><seg>Effects</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>प्रभाव</seg></tuv><tuv xml:lang="ar"><seg>التأثيرات</seg></tuv></tu>
         <tu tuid="perc.ui.developer@System properties">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.RT_SYS_PROPS</note>
             <tuv xml:lang="en-us"><seg>System properties</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सिस्टम गुण</seg></tuv><tuv xml:lang="ar"><seg>خصائص النظام</seg></tuv></tu>
         <tu tuid="perc.ui.developer@User properties">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.RT_USER_PROPS</note>
             <tuv xml:lang="en-us"><seg>User properties</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>उपयोगकर्ता गुण</seg></tuv><tuv xml:lang="ar"><seg>خصائص المستخدم</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Relationship type create / update / delete not supported via this API">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.RT_GAP_WRITE</note>
             <tuv xml:lang="en-us"><seg>Relationship type create / update / delete not supported via this API</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>संबंध प्रकार बनाना/अपडेट करना/हटाना इस एपीआई के माध्यम से समर्थित नहीं है</seg></tuv><tuv xml:lang="ar"><seg>نوع العلاقة إنشاء/تحديث/حذف غير مدعوم عبر واجهة برمجة التطبيقات هذه</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Cloning field override editor not supported via this API">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.RT_GAP_CLONE</note>
             <tuv xml:lang="en-us"><seg>Cloning field override editor not supported via this API</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>क्लोनिंग फ़ील्ड ओवरराइड संपादक इस एपीआई के माध्यम से समर्थित नहीं है</seg></tuv><tuv xml:lang="ar"><seg>محرر تجاوز حقل الاستنساخ غير مدعوم عبر واجهة برمجة التطبيقات هذه</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Effect condition and execution-context edit not supported via this API">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.RT_GAP_EFFECTS</note>
             <tuv xml:lang="en-us"><seg>Effect condition and execution-context edit not supported via this API</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>प्रभाव की स्थिति और निष्पादन-संदर्भ संपादन इस एपीआई के माध्यम से समर्थित नहीं है</seg></tuv><tuv xml:lang="ar"><seg>حالة التأثير وتحرير سياق التنفيذ غير مدعومين عبر واجهة برمجة التطبيقات هذه</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Workflows">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TAB_WORKFLOWS</note>
             <tuv xml:lang="en-us"><seg>Workflows</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>वर्कफ़्लो</seg></tuv><tuv xml:lang="ar"><seg>سير العمل</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading workflows…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.WF_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading workflows…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>वर्कफ़्लो लोड हो रहा है...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل مهام سير العمل...</seg></tuv></tu>
         <tu tuid="perc.ui.developer@No workflows returned.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.WF_EMPTY</note>
             <tuv xml:lang="en-us"><seg>No workflows returned.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कोई वर्कफ़्लो वापस नहीं आया.</seg></tuv><tuv xml:lang="ar"><seg>لم يتم إرجاع أي سير عمل.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load workflows.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.WF_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load workflows.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>वर्कफ़्लो लोड नहीं किया जा सका.</seg></tuv><tuv xml:lang="ar"><seg>لا يمكن تحميل مهام سير العمل.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Workflow definitions for association and step browse (SY-04). Full graph design stays on the workflow management surface.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.WF_HINT</note>
             <tuv xml:lang="en-us"><seg>Workflow definitions for association and step browse (SY-04). Full graph design stays on the workflow management surface.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>एसोसिएशन और स्टेप ब्राउज के लिए वर्कफ़्लो परिभाषाएँ (SY-04)। पूर्ण ग्राफ़ डिज़ाइन वर्कफ़्लो प्रबंधन सतह पर रहता है।</seg></tuv><tuv xml:lang="ar"><seg>تعريفات سير العمل للارتباط وتصفح الخطوات (SY-04). يبقى تصميم الرسم البياني الكامل على سطح إدارة سير العمل.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Steps">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.WF_COL_STEPS</note>
             <note xml:lang="en-us">DEV_MSG.WF_STEPS</note>
             <tuv xml:lang="en-us"><seg>Steps</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कदम</seg></tuv><tuv xml:lang="ar"><seg>خطوات</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Staging roles">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.WF_COL_STAGING</note>
             <tuv xml:lang="en-us"><seg>Staging roles</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>मंचन भूमिकाएँ</seg></tuv><tuv xml:lang="ar"><seg>الأدوار التدريجية</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Step">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.WF_COL_STEP</note>
             <tuv xml:lang="en-us"><seg>Step</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>कदम</seg></tuv><tuv xml:lang="ar"><seg>خطوة</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Roles">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.WF_COL_ROLES</note>
             <tuv xml:lang="en-us"><seg>Roles</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>भूमिकाएँ</seg></tuv><tuv xml:lang="ar"><seg>الأدوار</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Loading workflow…">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.WF_DETAIL_LOADING</note>
             <tuv xml:lang="en-us"><seg>Loading workflow…</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>वर्कफ़्लो लोड हो रहा है...</seg></tuv><tuv xml:lang="ar"><seg>جارٍ تحميل سير العمل…</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Could not load workflow.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.WF_DETAIL_ERROR</note>
             <tuv xml:lang="en-us"><seg>Could not load workflow.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>वर्कफ़्लो लोड नहीं किया जा सका.</seg></tuv><tuv xml:lang="ar"><seg>لا يمكن تحميل سير العمل.</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Full workflow graph design is not exposed in the Developer catalog">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.WF_GAP_GRAPH</note>
             <tuv xml:lang="en-us"><seg>Full workflow graph design is not exposed in the Developer catalog</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>डेवलपर कैटलॉग में पूर्ण वर्कफ़्लो ग्राफ़ डिज़ाइन प्रदर्शित नहीं किया गया है</seg></tuv><tuv xml:lang="ar"><seg>لا يتم عرض تصميم الرسم البياني الكامل لسير العمل في كتالوج المطورين</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Workflow create / update / delete is not supported from this Developer surface">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.WF_GAP_WRITE</note>
             <tuv xml:lang="en-us"><seg>Workflow create / update / delete is not supported from this Developer surface</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>इस डेवलपर सतह से वर्कफ़्लो बनाना/अद्यतन/हटाना समर्थित नहीं है</seg></tuv><tuv xml:lang="ar"><seg>إنشاء / تحديث / حذف سير العمل غير مدعوم من سطح المطور هذا</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Content type workflow association is edited on the content type detail panel">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.WF_GAP_CT</note>
             <tuv xml:lang="en-us"><seg>Content type workflow association is edited on the content type detail panel</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>सामग्री प्रकार वर्कफ़्लो एसोसिएशन को सामग्री प्रकार विवरण पैनल पर संपादित किया जाता है</seg></tuv><tuv xml:lang="ar"><seg>يتم تحرير اقتران سير عمل نوع المحتوى في لوحة تفاصيل نوع المحتوى</seg></tuv></tu>
         <tu tuid="perc.ui.developer@Not implemented yet">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PLACEHOLDER_TITLE</note>
             <tuv xml:lang="en-us"><seg>Not implemented yet</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>अभी तक लागू नहीं हुआ</seg></tuv><tuv xml:lang="ar"><seg>لم يتم تنفيذها بعد</seg></tuv></tu>
         <tu tuid="perc.ui.developer@This section is planned for Developer P0. See docs/ai-generated/tasks/developer-module-p0 and docs/developer-module.">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PLACEHOLDER_BODY</note>
             <tuv xml:lang="en-us"><seg>This section is planned for Developer P0. See docs/ai-generated/tasks/developer-module-p0 and docs/developer-module.</seg></tuv>
-        </tu>
+        <tuv xml:lang="hi"><seg>यह अनुभाग डेवलपर P0 के लिए नियोजित है। डॉक्स/एआई-जेनरेटेड/टास्क/डेवलपर-मॉड्यूल-पी0 और डॉक्स/डेवलपर-मॉड्यूल देखें।</seg></tuv><tuv xml:lang="ar"><seg>تم التخطيط لهذا القسم للمطور P0. راجع docs/ai-generated/tasks/developer-module-p0 وdocs/developer-module.</seg></tuv></tu>
     </body>
 </tmx>
