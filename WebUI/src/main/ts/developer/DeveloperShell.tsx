@@ -27,6 +27,7 @@ import { KeywordsPanel } from "./KeywordsPanel";
 import { LocalesPanel } from "./LocalesPanel";
 import { DEV_MSG } from "./messages";
 import { PipelinesPanel } from "./PipelinesPanel";
+import { SharedFieldsPanel } from "./SharedFieldsPanel";
 import { SlotsPanel } from "./SlotsPanel";
 import { TemplatesPanel } from "./TemplatesPanel";
 
@@ -38,6 +39,7 @@ const SECTION_LABEL: Record<DeveloperSection, string> = {
   slots: DEV_MSG.TAB_SLOTS,
   keywords: DEV_MSG.TAB_KEYWORDS,
   locales: DEV_MSG.TAB_LOCALES,
+  "shared-fields": DEV_MSG.TAB_SHARED_FIELDS,
   communities: DEV_MSG.TAB_COMMUNITIES,
   pipelines: DEV_MSG.TAB_PIPELINES,
 };
@@ -142,6 +144,8 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
           <KeywordsPanel />
         ) : active === "locales" ? (
           <LocalesPanel />
+        ) : active === "shared-fields" ? (
+          <SharedFieldsPanel />
         ) : active === "communities" ? (
           <CommunitiesPanel />
         ) : (

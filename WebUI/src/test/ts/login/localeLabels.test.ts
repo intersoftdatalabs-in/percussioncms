@@ -20,6 +20,7 @@ import {
   __resetLocaleLabelsCache,
   localeLabel,
   normalizeTag,
+  SHIP_LOCALE_ENDONYMS,
 } from "../../../main/ts/login/localeLabels";
 
 describe("login/localeLabels", () => {
@@ -50,21 +51,24 @@ describe("login/localeLabels", () => {
   });
 
   describe("localeLabel", () => {
-    it("uses fallback when Intl.DisplayNames is unavailable", () => {
+    it("ship endonyms still work when Intl.DisplayNames is unavailable", () => {
       const original = (Intl as unknown as { DisplayNames?: unknown })
         .DisplayNames;
       // @ts-expect-error simulate runtime without DisplayNames
       delete Intl.DisplayNames;
       try {
+        // Curated map does not depend on Intl.
         expect(localeLabel("fr-fr", "en-us", "French (France)")).toBe(
-          "fr-fr - French (France)",
+          "fr-fr - français (France)",
         );
+        // Unknown codes still use the English server fallback.
+        expect(localeLabel("zz", "en-us", "Made Up")).toBe("zz - Made Up");
       } finally {
         (Intl as unknown as { DisplayNames?: unknown }).DisplayNames = original;
       }
     });
 
-    it("uses fallback when Intl.DisplayNames.of throws", () => {
+    it("ship endonyms still work when Intl.DisplayNames.of throws", () => {
       const original = Intl.DisplayNames;
       // @ts-expect-error stub ctor that throws
       Intl.DisplayNames = function () {
@@ -72,7 +76,7 @@ describe("login/localeLabels", () => {
       };
       try {
         expect(localeLabel("ja-jp", "en-us", "Japanese (Japan)")).toBe(
-          "ja-jp - Japanese (Japan)",
+          "ja-jp - 日本語 (日本)",
         );
       } finally {
         Intl.DisplayNames = original;
@@ -104,6 +108,31 @@ describe("login/localeLabels", () => {
       const deHi = localeLabel("de-de", "hi-in", "German (Germany)");
       expect(deEn).toMatch(/^de-de - Deutsch/);
       expect(deHi).toBe(deEn);
+    });
+
+    it("uses curated ship endonyms for the product locale matrix", () => {
+      expect(localeLabel("ar", "en-us", "Arabic")).toBe("ar - العربية");
+      expect(localeLabel("ja-jp", "en-us", "Japanese (Japan)")).toBe(
+        "ja-jp - 日本語 (日本)",
+      );
+      expect(localeLabel("tr-tr", "en-us", "Turkish (Turkey)")).toBe(
+        "tr-tr - Türkçe (Türkiye)",
+      );
+      expect(localeLabel("hi-in", "en-us", "Hindi (India)")).toBe(
+        "hi-in - हिन्दी (भारत)",
+      );
+      // Server English fallback is ignored when a ship endonym exists.
+      expect(localeLabel("de-de", "en-us", "German (Germany)")).toBe(
+        "de-de - Deutsch (Deutschland)",
+      );
+    });
+
+    it("covers every key in SHIP_LOCALE_ENDONYMS", () => {
+      for (const [code, endonym] of Object.entries(SHIP_LOCALE_ENDONYMS)) {
+        expect(localeLabel(code, "en-us", "EnglishFallback")).toBe(
+          `${code} - ${endonym}`,
+        );
+      }
     });
 
     it("falls back to server displayName for unknown codes", () => {

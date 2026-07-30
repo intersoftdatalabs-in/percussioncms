@@ -289,6 +289,10 @@ export const PATHS = {
   get LOCALES() {
     return `${SERVICES_ROOT}/locales`;
   },
+  /** Shared field groups design catalog (content-editor shared def). */
+  get SHARED_FIELDS() {
+    return `${SERVICES_ROOT}/sharedfields`;
+  },
   /** Object ACL catalog (design-time security). */
   get ACLS() {
     return `${SERVICES_ROOT}/acls`;
