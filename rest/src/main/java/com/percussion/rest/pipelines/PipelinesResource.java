@@ -27,6 +27,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
@@ -96,6 +97,39 @@ public class PipelinesResource {
       throw e;
     } catch (Exception e) {
       // Preserve cause; matches Keywords/Slots catalog resources
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @GET
+  @Path("/{idOrName}")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Get pipeline application detail",
+      description =
+          "Loads one classic XML Application by name or numeric id (read-only). Includes data set"
+              + " catalog; pipe IR / start-stop / import remain unsupported (see designGaps).",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content =
+                @Content(schema = @Schema(implementation = ApplicationDetail.class))),
+        @ApiResponse(responseCode = "404", description = "Application not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ApplicationDetail getApplication(@PathParam("idOrName") String idOrName) {
+    try {
+      ApplicationDetail detail =
+          requireAdaptor().getApplication(uriInfo.getBaseUri(), idOrName);
+      if (detail == null) {
+        // Generic body: do not echo raw idOrName (path-injection / name probing).
+        throw new WebApplicationException("Application not found", 404);
+      }
+      return detail;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
       throw new WebApplicationException(e, 500);
     }
   }

@@ -32,4 +32,11 @@ public interface IPipelinesAdaptor {
    * @return application summaries, never {@code null}
    */
   List<ApplicationSummary> listApplications(URI baseUri, String nameFilter, int limit, int offset);
+
+  /**
+   * Load one application by internal name or numeric id.
+   *
+   * @return detail, or {@code null} when not found / not visible
+   */
+  ApplicationDetail getApplication(URI baseUri, String idOrName);
 }

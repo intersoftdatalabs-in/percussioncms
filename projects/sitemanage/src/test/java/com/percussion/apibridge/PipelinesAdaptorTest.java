@@ -23,9 +23,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import com.percussion.design.objectstore.PSApplication;
 import com.percussion.design.objectstore.PSApplicationType;
+import com.percussion.design.objectstore.PSDataSet;
+import com.percussion.design.objectstore.PSRequestor;
 import com.percussion.design.objectstore.server.PSApplicationSummary;
+import com.percussion.rest.pipelines.ApplicationDetail;
 import com.percussion.rest.pipelines.ApplicationSummary;
+import com.percussion.util.PSCollection;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -137,6 +145,41 @@ class PipelinesAdaptorTest {
   }
 
   @Test
+  void toDetail_mapsAppMetaAndDataSets() {
+    PSApplication app = mock(PSApplication.class);
+    when(app.getId()).thenReturn(42);
+    when(app.getName()).thenReturn("sys_cmpDocuments");
+    when(app.getDescription()).thenReturn("Docs app");
+    when(app.isEnabled()).thenReturn(true);
+    when(app.isHidden()).thenReturn(false);
+    when(app.getRequestRoot()).thenReturn("sys_cmpDocuments");
+    when(app.getApplicationType()).thenReturn(PSApplicationType.CONTENT_EDITOR);
+    when(app.getVersion()).thenReturn("8.2");
+
+    PSDataSet ds = mock(PSDataSet.class);
+    when(ds.getName()).thenReturn("contenteditor");
+    when(ds.getDescription()).thenReturn("CE");
+    PSRequestor req = mock(PSRequestor.class);
+    when(req.getRequestPage()).thenReturn("contenteditor.html");
+    when(ds.getRequestor()).thenReturn(req);
+
+    PSCollection coll = new PSCollection(PSDataSet.class);
+    coll.add(ds);
+    when(app.getDataSets()).thenReturn(coll);
+
+    ApplicationDetail detail = PipelinesAdaptor.toDetail(app);
+    assertEquals(42, detail.getId());
+    assertEquals("sys_cmpDocuments", detail.getName());
+    assertEquals("CONTENT_EDITOR", detail.getAppType());
+    assertEquals(1, detail.getDataSets().size());
+    assertEquals("contenteditor", detail.getDataSets().get(0).getName());
+    assertEquals("contenteditor.html", detail.getDataSets().get(0).getRequestPage());
+    assertEquals("DATASET", detail.getDataSets().get(0).getKind());
+    assertNotNull(detail.getDesignGaps());
+    assertFalse(detail.getDesignGaps().isEmpty());
+  }
+
+  @Test
   void mapFilterSortLimit_skipsNullEntriesAndNullArray() {
     assertTrue(PipelinesAdaptor.mapFilterSortLimit(null, null, 10, 0).isEmpty());
 
@@ -170,6 +213,33 @@ class PipelinesAdaptorTest {
     assertTrue(PipelinesAdaptor.matchesNameFilter(dto, "sys_"));
     assertTrue(PipelinesAdaptor.matchesNameFilter(dto, "package"));
     assertFalse(PipelinesAdaptor.matchesNameFilter(dto, "missing"));
+  }
+
+  @Test
+  void isSafeApplicationName_rejectsPathTraversal() {
+    assertTrue(PipelinesAdaptor.isSafeApplicationName("sys_cmpDocuments"));
+    assertTrue(PipelinesAdaptor.isSafeApplicationName("42"));
+    assertFalse(PipelinesAdaptor.isSafeApplicationName("../etc/passwd"));
+    assertFalse(PipelinesAdaptor.isSafeApplicationName("foo/bar"));
+    assertFalse(PipelinesAdaptor.isSafeApplicationName("foo\\bar"));
+    assertFalse(PipelinesAdaptor.isSafeApplicationName(""));
+    assertFalse(PipelinesAdaptor.isSafeApplicationName(null));
+  }
+
+  @Test
+  void resolveApplicationName_returnsTrustedCatalogNameOnly() {
+    PSApplicationSummary a = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PSApplicationSummary[] sums = {a};
+
+    // by name (case-insensitive) → catalog name, not raw user casing
+    assertEquals("sys_cmpDocuments", PipelinesAdaptor.resolveApplicationName("SYS_CMPDOCUMENTS", sums));
+    // by id
+    assertEquals("sys_cmpDocuments", PipelinesAdaptor.resolveApplicationName("7", sums));
+    // unknown / path injection attempts
+    assertNull(PipelinesAdaptor.resolveApplicationName("missing", sums));
+    assertNull(PipelinesAdaptor.resolveApplicationName("../sys_cmpDocuments", sums));
+    assertNull(PipelinesAdaptor.resolveApplicationName("sys_cmpDocuments/../other", sums));
+    assertNull(PipelinesAdaptor.resolveApplicationName("99", sums));
   }
 
   private static PSApplicationSummary summary(

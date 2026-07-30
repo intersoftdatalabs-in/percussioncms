@@ -17,6 +17,7 @@
 
 package com.percussion.rest.test.apibridge;
 
+import com.percussion.rest.pipelines.ApplicationDetail;
 import com.percussion.rest.pipelines.ApplicationSummary;
 import com.percussion.rest.pipelines.IPipelinesAdaptor;
 import java.net.URI;
@@ -36,5 +37,10 @@ public class TestPipelinesAdaptor implements IPipelinesAdaptor {
   public List<ApplicationSummary> listApplications(
       URI baseUri, String nameFilter, int limit, int offset) {
     return List.of();
+  }
+
+  @Override
+  public ApplicationDetail getApplication(URI baseUri, String idOrName) {
+    return null;
   }
 }

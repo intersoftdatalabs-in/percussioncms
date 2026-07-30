@@ -99,4 +99,36 @@ public class PipelinesResourceTest {
         "Pipelines adaptor not configured (resource constructed without injection)",
         ex.getCause().getMessage());
   }
+
+  @Test
+  public void getApplicationDelegatesToAdaptor() {
+    ApplicationDetail d = new ApplicationDetail();
+    d.setName("sys_foo");
+    when(adaptor.getApplication(any(), eq("sys_foo"))).thenReturn(d);
+
+    assertEquals("sys_foo", resource.getApplication("sys_foo").getName());
+    verify(adaptor).getApplication(any(), eq("sys_foo"));
+  }
+
+  @Test
+  public void getApplicationNotFound() {
+    when(adaptor.getApplication(any(), eq("missing"))).thenReturn(null);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getApplication("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+    // Do not echo raw path param (name probing / log injection)
+    assertEquals("Application not found", ex.getMessage());
+  }
+
+  @Test
+  public void getApplicationWrapsUnexpectedFailuresAs500() {
+    IllegalStateException boom = new IllegalStateException("object store down");
+    when(adaptor.getApplication(any(), eq("sys_foo"))).thenThrow(boom);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getApplication("sys_foo"));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause(), "cause chain must preserve the original failure");
+  }
 }

@@ -1144,6 +1144,51 @@
             <note xml:lang="en-us">DEV_MSG.ACL_NO_ENTRIES</note>
             <tuv xml:lang="en-us"><seg>No ACL entries yet — add a principal below.</seg></tuv>
         </tu>
+        <tu tuid="perc.ui.developer@Server applications (classic XML Applications). Open a row for read-only detail and data sets. Editor, start/stop, and IR import are later slices.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.PIPE_HINT</note>
+            <tuv xml:lang="en-us"><seg>Server applications (classic XML Applications). Open a row for read-only detail and data sets. Editor, start/stop, and IR import are later slices.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading pipeline application…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.PIPE_DETAIL_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading pipeline application…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load pipeline application.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.PIPE_DETAIL_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load pipeline application.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Hidden">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.PIPE_META_HIDDEN</note>
+            <tuv xml:lang="en-us"><seg>Hidden</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Version">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.PIPE_META_VERSION</note>
+            <tuv xml:lang="en-us"><seg>Version</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Data sets">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.PIPE_DATASETS</note>
+            <tuv xml:lang="en-us"><seg>Data sets</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Request pages and content editors defined in this application. Pipe IR and mappers are not exposed yet.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.PIPE_DATASETS_HINT</note>
+            <tuv xml:lang="en-us"><seg>Request pages and content editors defined in this application. Pipe IR and mappers are not exposed yet.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Kind">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.PIPE_COL_DS_KIND</note>
+            <tuv xml:lang="en-us"><seg>Kind</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Request page">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.PIPE_COL_DS_REQUEST</note>
+            <tuv xml:lang="en-us"><seg>Request page</seg></tuv>
+        </tu>
         <tu tuid="perc.ui.developer@Not implemented yet">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PLACEHOLDER_TITLE</note>

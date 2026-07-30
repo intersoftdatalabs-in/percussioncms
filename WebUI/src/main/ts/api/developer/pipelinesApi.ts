@@ -17,7 +17,7 @@
 
 import { get } from "../client";
 import { PATHS } from "../paths";
-import type { ApplicationSummary } from "./types";
+import type { ApplicationDetail, ApplicationSummary } from "./types";
 
 export interface ListApplicationsOptions {
   name?: string;
@@ -50,4 +50,12 @@ export async function listApplications(
   const url = q ? `${PATHS.PIPELINES}?${q}` : PATHS.PIPELINES;
   const payload = await get<unknown>(url);
   return asArray<ApplicationSummary>(payload);
+}
+
+/** GET /services/pipelines/{idOrName} — name or numeric id */
+export async function getApplicationDetail(
+  idOrName: string,
+): Promise<ApplicationDetail> {
+  const key = encodeURIComponent(idOrName);
+  return get<ApplicationDetail>(`${PATHS.PIPELINES}/${key}`);
 }
