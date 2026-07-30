@@ -31,6 +31,7 @@ import { KeywordsPanel } from "./KeywordsPanel";
 import { LocalesPanel } from "./LocalesPanel";
 import { DEV_MSG } from "./messages";
 import { PipelinesPanel } from "./PipelinesPanel";
+import { RelationshipTypesPanel } from "./RelationshipTypesPanel";
 import { SearchesPanel } from "./SearchesPanel";
 import { SharedFieldsPanel } from "./SharedFieldsPanel";
 import { SystemDefPanel } from "./SystemDefPanel";
@@ -54,6 +55,7 @@ const SECTION_LABEL: Record<DeveloperSection, string> = {
   searches: DEV_MSG.TAB_SEARCHES,
   views: DEV_MSG.TAB_VIEWS,
   extensions: DEV_MSG.TAB_EXTENSIONS,
+  "relationship-types": DEV_MSG.TAB_RELATIONSHIP_TYPES,
   communities: DEV_MSG.TAB_COMMUNITIES,
   pipelines: DEV_MSG.TAB_PIPELINES,
 };
@@ -174,6 +176,8 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
           <ViewsPanel />
         ) : active === "extensions" ? (
           <ExtensionsPanel />
+        ) : active === "relationship-types" ? (
+          <RelationshipTypesPanel />
         ) : active === "communities" ? (
           <CommunitiesPanel />
         ) : (

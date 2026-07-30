@@ -398,6 +398,10 @@ vi.mock("../../../main/ts/api/developer/searchesApi", () => ({
   ]),
   getSearchDetail: vi.fn().mockResolvedValue({
     name: "All Content",
+    fields: [],
+    designGaps: [],
+  }),
+}));
 
 vi.mock("../../../main/ts/api/developer/viewsApi", () => ({
   listViews: vi.fn().mockResolvedValue([
@@ -421,7 +425,24 @@ vi.mock("../../../main/ts/api/developer/extensionsApi", () => ({
   }),
 }));
 
-
+vi.mock("../../../main/ts/api/developer/relationshipTypesApi", () => ({
+  listRelationshipTypes: vi.fn().mockResolvedValue([
+    {
+      name: "ActiveAssembly",
+      label: "Active Assembly",
+      categoryLabel: "Active Assembly",
+      type: "system",
+      systemType: true,
+    },
+  ]),
+  getRelationshipTypeDetail: vi.fn().mockResolvedValue({
+    name: "ActiveAssembly",
+    effects: [],
+    systemProperties: [],
+    userProperties: [],
+    designGaps: [],
+  }),
+}));
 
 describe("DeveloperShell", () => {
   beforeEach(() => {
@@ -625,6 +646,16 @@ it("loads views catalog section", async () => {
     expect(screen.getByTestId("developer-ex-table").textContent).toContain("sys_add");
   });
 
+  it("loads relationship types catalog section", async () => {
+    render(<DeveloperShell initialSection="relationship-types" embedded />);
+    expect(
+      screen.getByTestId("tab-developer-relationship-types").getAttribute("aria-selected"),
+    ).toBe("true");
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-rt-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-rt-table").textContent).toContain("ActiveAssembly");
+  });
 
   it("edits content type workflow and template associations on save", async () => {
     const { updateContentTypeDetail } = await import(

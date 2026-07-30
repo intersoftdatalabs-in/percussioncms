@@ -309,23 +309,27 @@ export const PATHS = {
   get ACTION_MENUS() {
     return `${SERVICES_ROOT}/actions/catalog`;
   },
-  },
   /** CX search design catalog. */
   get SEARCHES() {
-    return ${SERVICES_ROOT}/searches;
+    return `${SERVICES_ROOT}/searches`;
   },
   /** CX view design catalog. */
   get VIEWS() {
-    return ${SERVICES_ROOT}/views;
+    return `${SERVICES_ROOT}/views`;
   },
   /** Server extension design catalog. */
   get EXTENSIONS() {
     return `${SERVICES_ROOT}/extensions/catalog`;
   },
+  /** System relationship type design catalog (SY-03). */
+  get RELATIONSHIP_TYPES() {
+    return `${SERVICES_ROOT}/relationshiptypes`;
+  },
   /** Object ACL catalog (design-time security). */
   get ACLS() {
     return `${SERVICES_ROOT}/acls`;
   },
+
   /** Workflow management (workflowmanagement) — Feature 993 */
   get WORKFLOWS() {
     return `${SERVICES_ROOT}/workflowmanagement/workflows/`;

@@ -1941,6 +1941,101 @@
             <note xml:lang="en-us">DEV_MSG.EX_GAP_EDIT</note>
             <tuv xml:lang="en-us"><seg>Extension parameter and method edit not supported via this API</seg></tuv>
         </tu>
+        <tu tuid="perc.ui.developer@Relationship Types">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.TAB_RELATIONSHIP_TYPES</note>
+            <tuv xml:lang="en-us"><seg>Relationship Types</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading relationship types…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading relationship types…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@No relationship types returned.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_EMPTY</note>
+            <tuv xml:lang="en-us"><seg>No relationship types returned.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load relationship types.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load relationship types.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@System and user relationship types (category, cloning flags, effects). Open a row for properties. Create/edit is a later slice.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_HINT</note>
+            <tuv xml:lang="en-us"><seg>System and user relationship types (category, cloning flags, effects). Open a row for properties. Create/edit is a later slice.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Activation end point">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_COL_ENDPOINT</note>
+            <tuv xml:lang="en-us"><seg>Activation end point</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Extension ref">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_COL_EXTREF</note>
+            <tuv xml:lang="en-us"><seg>Extension ref</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Property">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_COL_PROP</note>
+            <tuv xml:lang="en-us"><seg>Property</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Cloning">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_FLAG_CLONE</note>
+            <tuv xml:lang="en-us"><seg>Cloning</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@System">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_FLAG_SYSTEM</note>
+            <tuv xml:lang="en-us"><seg>System</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@User">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_FLAG_USER</note>
+            <tuv xml:lang="en-us"><seg>User</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading relationship type…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_DETAIL_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading relationship type…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load relationship type.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_DETAIL_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load relationship type.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Effects">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_EFFECTS</note>
+            <tuv xml:lang="en-us"><seg>Effects</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@System properties">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_SYS_PROPS</note>
+            <tuv xml:lang="en-us"><seg>System properties</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@User properties">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_USER_PROPS</note>
+            <tuv xml:lang="en-us"><seg>User properties</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Relationship type create / update / delete not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_GAP_WRITE</note>
+            <tuv xml:lang="en-us"><seg>Relationship type create / update / delete not supported via this API</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Cloning field override editor not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_GAP_CLONE</note>
+            <tuv xml:lang="en-us"><seg>Cloning field override editor not supported via this API</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Effect condition and execution-context edit not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.RT_GAP_EFFECTS</note>
+            <tuv xml:lang="en-us"><seg>Effect condition and execution-context edit not supported via this API</seg></tuv>
+        </tu>
         <tu tuid="perc.ui.developer@Not implemented yet">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PLACEHOLDER_TITLE</note>
