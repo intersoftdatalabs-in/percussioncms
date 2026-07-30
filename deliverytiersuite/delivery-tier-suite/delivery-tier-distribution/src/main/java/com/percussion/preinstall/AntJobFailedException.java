@@ -17,10 +17,20 @@
 
 package com.percussion.preinstall;
 
+/**
+ * Unchecked exception thrown by the DTS preinstall entry point when the embedded Ant install job
+ * fails or returns a non-zero exit code. Carries the underlying failure message verbatim for
+ * operator-facing logs.
+ */
 public class AntJobFailedException extends RuntimeException {
 
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Build an exception with the supplied operator-facing message.
+   *
+   * @param message description of the install failure; never {@code null}
+   */
   public AntJobFailedException(String message) {
     super(message);
   }

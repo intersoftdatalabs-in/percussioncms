@@ -41,6 +41,10 @@ import java.util.Properties;
  */
 public final class JavaPropertiesSupport {
 
+  private JavaPropertiesSupport() {
+    // Static-only utility.
+  }
+
   /** Property key for the absolute Java home (JRE/JDK root). */
   public static final String KEY_JAVA_HOME = "JAVA_HOME";
 
@@ -50,12 +54,19 @@ public final class JavaPropertiesSupport {
   /** Marker key written/updated by this feature for round-trip diagnostics. */
   public static final String KEY_WRITTEN_BY = "#written-by";
 
+  /** Marker value stamped into {@link #KEY_WRITTEN_BY} by this feature for diagnostics. */
   public static final String WRITTEN_BY_VALUE = "perc-preinstall-java-home";
 
   /**
    * Loads properties from {@code <installRoot>/java.properties} if present. Returns an empty map
    * when the file does not exist so callers can treat absent-file as "no product config". Malformed
    * entries are surfaced via {@link JavaLoadResult} to allow callers to log without throwing.
+   *
+   * @param installRoot the install directory; must not be {@code null}
+   * @return the load result carrying the file location, parsed keys, presence flag, and any I/O
+   *     error encountered; never {@code null}
+   * @throws IOException when the file path is invalid (defensive — most errors surface via the
+   *     returned {@link JavaLoadResult#error()} instead)
    */
   public static JavaLoadResult load(Path installRoot) throws IOException {
     if (installRoot == null) {
@@ -81,12 +92,22 @@ public final class JavaPropertiesSupport {
   /**
    * Returns the persisted {@code JAVA_HOME} value as a string, or {@code null} when not set or
    * blank. Callers must validate the path before treating it as resolved.
+   *
+   * @param installRoot the install directory; must not be {@code null}
+   * @return the trimmed {@code JAVA_HOME} value, or {@code null} when not set or blank
+   * @throws IOException when the underlying {@link #load(Path)} call fails to read the file
    */
   public static String readJavaHome(Path installRoot) throws IOException {
     return readString(installRoot, KEY_JAVA_HOME);
   }
 
-  /** Returns the persisted {@code JAVA} (launcher) value, or {@code null} when not set. */
+  /**
+   * Returns the persisted {@code JAVA} (launcher) value, or {@code null} when not set.
+   *
+   * @param installRoot the install directory; must not be {@code null}
+   * @return the trimmed {@code JAVA} value, or {@code null} when not set or blank
+   * @throws IOException when the underlying {@link #load(Path)} call fails to read the file
+   */
   public static String readJava(Path installRoot) throws IOException {
     return readString(installRoot, KEY_JAVA);
   }
@@ -106,6 +127,12 @@ public final class JavaPropertiesSupport {
    * <installRoot>/java.properties}, preserving any unrelated keys already on disk. Parent
    * directories are created as needed. Relative paths supplied by the caller are rejected to avoid
    * runtime ambiguity; absolute paths only.
+   *
+   * @param installRoot the install directory; must not be {@code null}
+   * @param javaHome absolute path to the selected Java home; must be a non-empty absolute path
+   * @param javaLauncher absolute path to the launcher; may be {@code null} or empty, in which case
+   *     the launcher is derived from {@code javaHome} using the host-platform bin suffix
+   * @throws IOException when reading or writing the {@code java.properties} file fails
    */
   public static void write(Path installRoot, String javaHome, String javaLauncher)
       throws IOException {
@@ -148,6 +175,11 @@ public final class JavaPropertiesSupport {
    * Returns a map consisting of existing properties in the install-root {@code java.properties}
    * file, merged with {@code additional}. Existing values take precedence — only keys absent on
    * disk are added from {@code additional}. The file on disk is not modified by this call.
+   *
+   * @param installRoot the install directory; must not be {@code null}
+   * @param additional keys to add when absent on disk; {@code null} is treated as empty
+   * @return an immutable map of merged properties; never {@code null}
+   * @throws IOException when reading the {@code java.properties} file fails
    */
   public static Map<String, String> mergePreserving(
       Path installRoot, Map<String, String> additional) throws IOException {
@@ -177,19 +209,41 @@ public final class JavaPropertiesSupport {
     return os.toLowerCase(Locale.ROOT).contains("win") ? ".exe" : "";
   }
 
-  /** Result of loading {@code java.properties}. */
+  /**
+   * Result of loading {@code java.properties}.
+   *
+   * @param location the resolved file location under the install root
+   * @param properties the parsed key/value pairs; empty when the file is absent
+   * @param present {@code true} when the {@code java.properties} file exists on disk
+   * @param error any I/O error encountered during the load (typically {@code null})
+   */
   public record JavaLoadResult(
       Path location, Map<String, String> properties, boolean present, IOException error) {
 
+    /**
+     * Returns the keys present in the loaded properties, useful for diagnostics.
+     *
+     * @return a mutable list of keys (insertion order); never {@code null}
+     */
     public List<String> keysForDebug() {
       return new ArrayList<>(properties.keySet());
     }
 
-    /** Pretty-prints the resulting properties without values, suitable for logs. */
+    /**
+     * Pretty-prints the resulting properties without values, suitable for logs.
+     *
+     * @return a single-line summary; never {@code null}
+     */
     public String summary() {
       return "java.properties " + (present ? "loaded" : "absent") + " keys=" + keysForDebug();
     }
 
+    /**
+     * Renders a path for log output, mapping {@code null} to a sentinel string.
+     *
+     * @param path the path to render; may be {@code null}
+     * @return the path's string form, or {@code "<null>"} when {@code path} is {@code null}
+     */
     public static String forLogPath(Path path) {
       return path == null ? "<null>" : path.toString();
     }
