@@ -329,6 +329,10 @@ export const PATHS = {
   get SERVER_CONFIGS() {
     return `${SERVICES_ROOT}/serverconfigs`;
   },
+  /** Content editor control catalog (UI-01). */
+  get CE_CONTROLS() {
+    return `${SERVICES_ROOT}/cecontrols`;
+  },
   /** Site design catalog (SY-04 association browse) — rest SitesResource. */
   get SITES() {
     return `${SERVICES_ROOT}/sites`;

@@ -135,6 +135,7 @@ test.describe("Login locale (GH-1608 / GH-1609)", () => {
     expect(joinedBefore).toMatch(/fr-fr\s*-\s*français/i);
     expect(joinedBefore).toMatch(/de-de\s*-\s*Deutsch/);
     expect(joinedBefore).toMatch(/^es\s*-\s*español/m);
+    expect(joinedBefore).toMatch(/^te\s*-\s*తెలుగు/m);
 
     await select.selectOption(target);
     await expect(page.getByTestId("perc-login-page")).not.toHaveAttribute(

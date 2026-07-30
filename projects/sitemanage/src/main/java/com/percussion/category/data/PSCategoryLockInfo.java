@@ -79,8 +79,8 @@ public class PSCategoryLockInfo {
 
   /**
    * Returns the current request's session ID, or {@code ""} when no request is bound (matches
-   * {@link PSRequest#getUserSessionId()} semantics). Tests override via
-   * {@link #currentSessionIdOverride}.
+   * {@link PSRequest#getUserSessionId()} semantics). Tests override via {@link
+   * #currentSessionIdOverride}.
    */
   static String currentSessionId() {
     var override = currentSessionIdOverride;

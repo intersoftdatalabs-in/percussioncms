@@ -24,6 +24,7 @@ import {
 import { ActionMenusPanel } from "./ActionMenusPanel";
 import { CommunitiesPanel } from "./CommunitiesPanel";
 import { ContentTypesPanel } from "./ContentTypesPanel";
+import { ControlsPanel } from "./ControlsPanel";
 import { ExtensionsPanel } from "./ExtensionsPanel";
 import { DisplayFormatsPanel } from "./DisplayFormatsPanel";
 import { ItemFiltersPanel } from "./ItemFiltersPanel";
@@ -61,6 +62,7 @@ const SECTION_LABEL: Record<DeveloperSection, string> = {
   "relationship-types": DEV_MSG.TAB_RELATIONSHIP_TYPES,
   workflows: DEV_MSG.TAB_WORKFLOWS,
   "server-configs": DEV_MSG.TAB_SERVER_CONFIGS,
+  "ce-controls": DEV_MSG.TAB_CE_CONTROLS,
   sites: DEV_MSG.TAB_SITES,
   communities: DEV_MSG.TAB_COMMUNITIES,
   pipelines: DEV_MSG.TAB_PIPELINES,
@@ -188,6 +190,8 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
           <WorkflowsPanel />
         ) : active === "server-configs" ? (
           <ServerConfigsPanel />
+        ) : active === "ce-controls" ? (
+          <ControlsPanel />
         ) : active === "sites" ? (
           <SitesPanel />
         ) : active === "communities" ? (

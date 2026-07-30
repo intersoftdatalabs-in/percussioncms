@@ -2162,6 +2162,76 @@
             <note xml:lang="en-us">DEV_MSG.CFG_GAP_LOCK</note>
             <tuv xml:lang="en-us"><seg>Locking and concurrent edit are not exposed on this Developer surface</seg></tuv>
         </tu>
+        <tu tuid="perc.ui.developer@CE Controls">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.TAB_CE_CONTROLS</note>
+            <tuv xml:lang="en-us"><seg>CE Controls</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading controls…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.CTL_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading controls…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@No controls returned.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.CTL_EMPTY</note>
+            <tuv xml:lang="en-us"><seg>No controls returned.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load controls.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.CTL_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load controls.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Content editor system and user controls (UI-01). Open a row for parameters. User control registration is a later slice.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.CTL_HINT</note>
+            <tuv xml:lang="en-us"><seg>Content editor system and user controls (UI-01). Open a row for parameters. User control registration is a later slice.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Display name">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.CTL_COL_DISPLAY</note>
+            <tuv xml:lang="en-us"><seg>Display name</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Scope">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.CTL_COL_SCOPE</note>
+            <tuv xml:lang="en-us"><seg>Scope</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Dimension">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.CTL_COL_DIM</note>
+            <tuv xml:lang="en-us"><seg>Dimension</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Choice set">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.CTL_COL_CHOICES</note>
+            <tuv xml:lang="en-us"><seg>Choice set</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading control…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.CTL_DETAIL_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading control…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load control.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.CTL_DETAIL_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load control.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@User control create / edit / delete not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.CTL_GAP_USER</note>
+            <tuv xml:lang="en-us"><seg>User control create / edit / delete not supported via this API</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Control XSL source editing not supported via this API">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.CTL_GAP_XSL</note>
+            <tuv xml:lang="en-us"><seg>Control XSL source editing not supported via this API</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@System controls are read-only packaged defaults">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.CTL_GAP_SYS</note>
+            <tuv xml:lang="en-us"><seg>System controls are read-only packaged defaults</seg></tuv>
+        </tu>
         <tu tuid="perc.ui.developer@Sites">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.TAB_SITES</note>

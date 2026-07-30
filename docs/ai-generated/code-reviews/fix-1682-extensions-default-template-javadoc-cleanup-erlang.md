@@ -40,15 +40,15 @@ None.
 `PSDefaultTemplateLookup.java` is the **only** Java source file in the module (no `src/test`,
 no other main classes). The diff:
 
-| Section | Before | After |
-|---|---|---|
-| Class-level javadoc (lines 45-47) | Bare `@author adamgent` only — javac emits `warning: no main description`. | Full class description (JEXL utility purpose, FastForward role, entry points) plus preserved `@author` tag. |
-| Default constructor | None — javac emits `warning: use of default constructor, which does not provide a comment`. | Explicit `public PSDefaultTemplateLookup()` no-op constructor. |
-| `test(String first)` (line 53) | `@IPSJexlMethod(...)` annotation only — javac emits `warning: no comment`. | Added javadoc with `@param first`, `@return`. |
-| `test2(int i)` (line 60) | Same pattern — `warning: no comment`. | Added javadoc with `@param i`, `@return`. |
-| `lookup(IPSAssemblyItem item)` (line 72) | Same pattern — `warning: no comment`. | Added javadoc with `@param item`, `@return`. |
-| `lookupDefaults(IPSAssemblyItem item)` (line 85+) | Already documented (full javadoc with `@param`, `@return`, internal-context paragraphs). | Unchanged. |
-| Private helpers `getContentTypeId`, `getSiteId`, `isDefault`, `log` | Package-private / private — not javac-reported. | Unchanged. |
+|                               Section                               |                                           Before                                            |                                                    After                                                    |
+|---------------------------------------------------------------------|---------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|
+| Class-level javadoc (lines 45-47)                                   | Bare `@author adamgent` only — javac emits `warning: no main description`.                  | Full class description (JEXL utility purpose, FastForward role, entry points) plus preserved `@author` tag. |
+| Default constructor                                                 | None — javac emits `warning: use of default constructor, which does not provide a comment`. | Explicit `public PSDefaultTemplateLookup()` no-op constructor.                                              |
+| `test(String first)` (line 53)                                      | `@IPSJexlMethod(...)` annotation only — javac emits `warning: no comment`.                  | Added javadoc with `@param first`, `@return`.                                                               |
+| `test2(int i)` (line 60)                                            | Same pattern — `warning: no comment`.                                                       | Added javadoc with `@param i`, `@return`.                                                                   |
+| `lookup(IPSAssemblyItem item)` (line 72)                            | Same pattern — `warning: no comment`.                                                       | Added javadoc with `@param item`, `@return`.                                                                |
+| `lookupDefaults(IPSAssemblyItem item)` (line 85+)                   | Already documented (full javadoc with `@param`, `@return`, internal-context paragraphs).    | Unchanged.                                                                                                  |
+| Private helpers `getContentTypeId`, `getSiteId`, `isDefault`, `log` | Package-private / private — not javac-reported.                                             | Unchanged.                                                                                                  |
 
 ### Functional risk
 
@@ -127,3 +127,4 @@ mvnw.cmd spotless:check
   break consumer scripts that use them for parameter-binding smoke tests.
 - **Delete the bare `@author` tag** — rejected; AGENTS.md / project culture keeps `@author`
   tags on legacy classes. We retained it as a secondary line in the new class javadoc.
+
