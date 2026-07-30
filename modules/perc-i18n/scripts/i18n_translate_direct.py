@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Fill missing translations using trans (translate-shell) directly.
 
-This script is a variant of i18n_translate.py that uses trans directly
-instead of Docker, with random 1-10 second sleep between calls to avoid
-rate limiting.
+This script is a variant of i18n_translate.py that uses ``trans``
+(translate-shell) on PATH instead of Docker. Rate limits use the same
+exponential backoff contract as ``i18n_translate.py`` (2s base, 60s cap,
+±20% jitter, up to 5 attempts). Successful calls do not sleep.
 
 Usage:
     python3 modules/perc-i18n/scripts/i18n_translate_direct.py --target hi
@@ -32,6 +33,12 @@ DEFAULT_FILES = ('CmsUi.tmx', 'SystemResources.tmx')
 PLACEHOLDER_RE = re.compile(r'^\s*\{[0-9]+(,[0-9]+)*\}\s*$')
 
 SOURCE_LANG = 'en-us'
+
+# Exponential-backoff parameters (shared contract with i18n_translate.py).
+BACKOFF_START_SEC = 2.0
+BACKOFF_MAX_SEC = 60.0
+BACKOFF_JITTER = 0.2
+BACKOFF_MAX_ATTEMPTS = 5
 
 # Variant locale mapping: variant -> base
 VARIANT_BASES = {
@@ -72,24 +79,59 @@ def save_cache(cache: dict[str, str]) -> None:
     tmp.replace(CACHE_FILE)
 
 
-def invoke_translate(text: str, target: str) -> str:
-    """Run trans directly to translate text."""
-    # Sleep random 1-10 seconds to avoid rate limiting
-    sleep_time = random.randint(1, 10)
-    print(f"  sleeping {sleep_time}s before trans...")
-    time.sleep(sleep_time)
-    
-    cmd = ['trans', '--brief', f':{target}', text]
-    result = subprocess.run(
-        cmd,
-        capture_output=True,
-        text=True,
-        check=False,
-        encoding='utf-8',
-    )
-    if result.returncode != 0:
-        raise RuntimeError(f'trans failed: {result.stderr}')
-    return result.stdout.rstrip('\n')
+def invoke_translate(text: str, target: str, *,
+                     trans_cmd: list[str] | None = None) -> str:
+    """Run ``trans`` (translate-shell) on PATH. Returns the translated string.
+
+    Raises :class:`RuntimeError` if ``trans`` is unavailable or the translation
+    could not be obtained after exhausting retries. Rate-limit responses
+    (429 / "too many requests") trigger exponential backoff; successful calls
+    do not sleep.
+    """
+    cmd = trans_cmd if trans_cmd is not None else [
+        'trans', '--brief', f':{target}', text,
+    ]
+    delay = BACKOFF_START_SEC
+    attempt = 0
+    while True:
+        attempt += 1
+        try:
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                check=False,
+                encoding='utf-8',
+            )
+        except FileNotFoundError as e:
+            raise RuntimeError(
+                'trans (translate-shell) is not on PATH. Install translate-shell '
+                '(https://github.com/soimort/translate-shell) or use '
+                'i18n_translate.py with Docker. Underlying error: '
+                f'{e}',
+            ) from e
+        if result.returncode == 0:
+            return result.stdout.rstrip('\n')
+        lowered = (result.stderr + result.stdout).lower()
+        is_rate_limit = (
+            '429' in lowered
+            or 'rate limit' in lowered
+            or 'too many requests' in lowered
+        )
+        if is_rate_limit and attempt < BACKOFF_MAX_ATTEMPTS:
+            jitter = 1.0 + random.uniform(-BACKOFF_JITTER, BACKOFF_JITTER)
+            sleep_s = min(BACKOFF_MAX_SEC, delay) * jitter
+            print(
+                f'  rate limit; sleeping {sleep_s:.1f}s (attempt {attempt})',
+                file=sys.stderr,
+            )
+            time.sleep(sleep_s)
+            delay *= 2
+            continue
+        raise RuntimeError(
+            f'trans failed (rc={result.returncode}): '
+            f'stdout={result.stdout!r} stderr={result.stderr!r}',
+        )
 
 
 def translate(text: str, target: str, *, cache: dict[str, str] | None = None, force: bool = False) -> str:
