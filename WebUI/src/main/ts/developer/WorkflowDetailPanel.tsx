@@ -127,8 +127,8 @@ export function WorkflowDetailPanel({
               {(detail.designGaps && detail.designGaps.length
                 ? detail.designGaps
                 : [DEV_MSG.WF_GAP_GRAPH, DEV_MSG.WF_GAP_WRITE, DEV_MSG.WF_GAP_CT]
-              ).map((g) => (
-                <li key={g}>{g}</li>
+              ).map((g, i) => (
+                <li key={`${g}-${i}`}>{g}</li>
               ))}
             </ul>
           </section>

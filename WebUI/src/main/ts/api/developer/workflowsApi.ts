@@ -13,10 +13,19 @@ export const WORKFLOW_DESIGN_GAPS: string[] = [
   "Content type workflow association is edited on the content type detail panel",
 ];
 
+/** Known envelope keys for list payloads (PSUiWorkflowList @JsonRootName + historical aliases). */
+const LIST_WRAPPER_KEYS = [
+  "Workflow",
+  "workflow",
+  "WorkflowList",
+  "PSUiWorkflowList",
+  "entries",
+] as const;
+
 /**
  * Parse workflowmanagement metadata list.
- * Production payload is either a bare JSON array or a root object with a
- * {@code Workflow} property (PSUiWorkflowList / @JsonRootName("Workflow")).
+ * Accepts a bare JSON array or a known list wrapper object. Unknown object shapes throw
+ * so the UI surfaces an error instead of a silent empty catalog.
  */
 function parseWorkflowList(payload: unknown): WorkflowDef[] {
   if (payload == null) {
@@ -27,15 +36,18 @@ function parseWorkflowList(payload: unknown): WorkflowDef[] {
   }
   if (typeof payload === "object") {
     const obj = payload as Record<string, unknown>;
-    const raw = obj.Workflow ?? obj.workflow;
-    if (Array.isArray(raw)) {
-      return raw as WorkflowDef[];
-    }
-    if (raw != null && typeof raw === "object") {
-      return [raw as WorkflowDef];
+    for (const key of LIST_WRAPPER_KEYS) {
+      const raw = obj[key];
+      if (raw == null) continue;
+      if (Array.isArray(raw)) {
+        return raw as WorkflowDef[];
+      }
+      if (typeof raw === "object") {
+        return [raw as WorkflowDef];
+      }
     }
     throw new Error(
-      "Unexpected workflow list payload (expected array or Workflow wrapper)",
+      "Unexpected workflow list payload (expected array or known Workflow wrapper)",
     );
   }
   throw new Error("Unexpected workflow list payload type");
@@ -64,6 +76,14 @@ export async function listWorkflows(): Promise<WorkflowDef[]> {
 export async function getWorkflowDetail(name: string): Promise<WorkflowDef> {
   const key = encodeURIComponent(name);
   // PATHS.WORKFLOWS already ends with '/'
-  const detail = await get<WorkflowDef>(`${PATHS.WORKFLOWS}${key}`);
-  return withGaps(detail ?? {});
+  const detail = await get<WorkflowDef | null | undefined>(`${PATHS.WORKFLOWS}${key}`);
+  if (detail == null || typeof detail !== "object") {
+    throw new Error("Workflow not found or empty response");
+  }
+  const workflowName =
+    typeof detail.workflowName === "string" ? detail.workflowName.trim() : "";
+  if (!workflowName) {
+    throw new Error("Workflow response missing workflowName");
+  }
+  return withGaps(detail);
 }

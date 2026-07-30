@@ -78,12 +78,12 @@ export function WorkflowsPanel(): React.ReactElement {
             </tr>
           </thead>
           <tbody>
-            {sorted.map((w) => {
+            {sorted.map((w, index) => {
               const openKey = (w.workflowName || "").trim();
               const stepCount = Array.isArray(w.workflowSteps) ? w.workflowSteps.length : 0;
               return (
                 <tr
-                  key={openKey}
+                  key={`${openKey}-${index}`}
                   data-testid="developer-wf-row"
                   style={{
                     borderBottom: "1px solid #edf2f7",
