@@ -432,6 +432,37 @@ export interface ActionMenu {
   properties?: ActionMenuProperty[];
 }
 
+/** Search field criterion from GET /services/searches. */
+export interface SearchFieldSummary {
+  fieldName?: string;
+  displayName?: string;
+  operator?: string;
+  fieldValue?: string;
+  fieldType?: string;
+  position?: number;
+}
+
+/** CX search definition (UI-06). */
+export interface SearchDef {
+  guid?: RestGuid;
+  id?: number;
+  name?: string;
+  label?: string;
+  description?: string;
+  type?: string;
+  displayFormatId?: string;
+  url?: string;
+  parentCategory?: number;
+  maximumResultSize?: number;
+  userSearch?: boolean;
+  customSearch?: boolean;
+  standardSearch?: boolean;
+  userCustomizable?: boolean;
+  caseSensitive?: boolean;
+  fields?: SearchFieldSummary[];
+  designGaps?: string[];
+}
+
 /** View field criterion from GET /services/views. */
 export interface ViewFieldSummary {
   fieldName?: string;
