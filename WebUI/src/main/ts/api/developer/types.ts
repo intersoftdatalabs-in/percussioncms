@@ -265,3 +265,40 @@ export interface ApplicationDetail extends ApplicationSummary {
   dataSets?: ApplicationDataSetSummary[];
   designGaps?: string[];
 }
+
+/** CMS locale summary from GET /services/locales. */
+export interface LocaleSummary {
+  id?: number;
+  languageString?: string;
+  label?: string;
+  description?: string;
+  status?: string;
+  /** RXLOCALE.ISBASE — language-only / base locale. */
+  baseLocale?: boolean;
+  /** Exact RXLOCALEFORMAT row present for this language string. */
+  hasFormatProfile?: boolean;
+}
+
+/** RXLOCALEFORMAT row (keyed by language string, not LOCALEID). */
+export interface LocaleFormatSummary {
+  languageString?: string;
+  textDir?: string;
+  datePattern?: string;
+  timePattern?: string;
+  dateTimePattern?: string;
+  decimalSep?: string;
+  groupingSep?: string;
+  currencyCode?: string;
+  currencyPattern?: string;
+  firstDayOfWeek?: number;
+  measurementSystem?: string;
+  defaultTz?: string;
+  numberingSystem?: string;
+  calendar?: string;
+}
+
+/** Locale detail including optional exact format profile. */
+export interface LocaleDetail extends LocaleSummary {
+  format?: LocaleFormatSummary | null;
+  designGaps?: string[];
+}

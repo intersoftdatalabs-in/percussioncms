@@ -285,6 +285,10 @@ export const PATHS = {
   get PIPELINES() {
     return `${SERVICES_ROOT}/pipelines`;
   },
+  /** CMS locale design catalog (RXLOCALE + format profile flag). */
+  get LOCALES() {
+    return `${SERVICES_ROOT}/locales`;
+  },
   /** Object ACL catalog (design-time security). */
   get ACLS() {
     return `${SERVICES_ROOT}/acls`;
