@@ -70,6 +70,7 @@ export const DEV_MSG_KEYS = {
   TAB_EXTENSIONS: "perc.ui.developer@Extensions",
   TAB_RELATIONSHIP_TYPES: "perc.ui.developer@Relationship Types",
   TAB_WORKFLOWS: "perc.ui.developer@Workflows",
+  TAB_SITES: "perc.ui.developer@Sites",
   TAB_COMMUNITIES: "perc.ui.developer@Communities",
   TAB_PIPELINES: "perc.ui.developer@Pipelines",
   CT_LOADING: "perc.ui.developer@Loading content types…",
@@ -573,6 +574,31 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Workflow create / update / delete is not supported from this Developer surface",
   WF_GAP_CT:
     "perc.ui.developer@Content type workflow association is edited on the content type detail panel",
+  SITE_LOADING: "perc.ui.developer@Loading sites…",
+  SITE_EMPTY: "perc.ui.developer@No sites returned.",
+  SITE_ERROR: "perc.ui.developer@Could not load sites.",
+  SITE_HINT:
+    "perc.ui.developer@Site definitions for association browse (SY-04). Open a row for URL and defaults. Site design/write is a later surface.",
+  SITE_COL_NAME: "perc.ui.developer@Name",
+  SITE_COL_DESC: "perc.ui.developer@Description",
+  SITE_COL_URL: "perc.ui.developer@Base URL",
+  SITE_COL_FLAGS: "perc.ui.developer@Flags",
+  SITE_COL_PROTOCOL: "perc.ui.developer@Protocol",
+  SITE_COL_DEFAULT_DOC: "perc.ui.developer@Default document",
+  SITE_COL_EXT: "perc.ui.developer@Default file extension",
+  SITE_COL_PAGE_BASED: "perc.ui.developer@Page-based",
+  SITE_FLAG_PAGE: "perc.ui.developer@Page-based",
+  SITE_FLAG_CANONICAL: "perc.ui.developer@Canonical",
+  SITE_YES: "perc.ui.developer@Yes",
+  SITE_NO: "perc.ui.developer@No",
+  SITE_BACK: "perc.ui.developer@Back to list",
+  SITE_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
+  SITE_GAP_WRITE:
+    "perc.ui.developer@Site create / update / delete is not supported from this Developer surface",
+  SITE_GAP_PUBLISH:
+    "perc.ui.developer@Full site publish and section design live outside the Developer catalog",
+  SITE_GAP_WF:
+    "perc.ui.developer@Workflow association is browsed under the Workflows catalog",
   PLACEHOLDER_TITLE: "perc.ui.developer@Not implemented yet",
   PLACEHOLDER_BODY: "perc.ui.developer@This section is planned for Developer P0. See docs/ai-generated/tasks/developer-module-p0 and docs/developer-module.",
 } as const;

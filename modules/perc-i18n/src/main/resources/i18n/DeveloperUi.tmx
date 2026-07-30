@@ -2092,6 +2092,76 @@
             <note xml:lang="en-us">DEV_MSG.WF_GAP_CT</note>
             <tuv xml:lang="en-us"><seg>Content type workflow association is edited on the content type detail panel</seg></tuv>
         </tu>
+        <tu tuid="perc.ui.developer@Sites">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.TAB_SITES</note>
+            <tuv xml:lang="en-us"><seg>Sites</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Loading sites…">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SITE_LOADING</note>
+            <tuv xml:lang="en-us"><seg>Loading sites…</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@No sites returned.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SITE_EMPTY</note>
+            <tuv xml:lang="en-us"><seg>No sites returned.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Could not load sites.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SITE_ERROR</note>
+            <tuv xml:lang="en-us"><seg>Could not load sites.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Site definitions for association browse (SY-04). Open a row for URL and defaults. Site design/write is a later surface.">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SITE_HINT</note>
+            <tuv xml:lang="en-us"><seg>Site definitions for association browse (SY-04). Open a row for URL and defaults. Site design/write is a later surface.</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Base URL">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SITE_COL_URL</note>
+            <tuv xml:lang="en-us"><seg>Base URL</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Protocol">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SITE_COL_PROTOCOL</note>
+            <tuv xml:lang="en-us"><seg>Protocol</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Default document">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SITE_COL_DEFAULT_DOC</note>
+            <tuv xml:lang="en-us"><seg>Default document</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Default file extension">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SITE_COL_EXT</note>
+            <tuv xml:lang="en-us"><seg>Default file extension</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Page-based">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SITE_COL_PAGE_BASED</note>
+            <tuv xml:lang="en-us"><seg>Page-based</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Canonical">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SITE_FLAG_CANONICAL</note>
+            <tuv xml:lang="en-us"><seg>Canonical</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Site create / update / delete is not supported from this Developer surface">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SITE_GAP_WRITE</note>
+            <tuv xml:lang="en-us"><seg>Site create / update / delete is not supported from this Developer surface</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Full site publish and section design live outside the Developer catalog">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SITE_GAP_PUBLISH</note>
+            <tuv xml:lang="en-us"><seg>Full site publish and section design live outside the Developer catalog</seg></tuv>
+        </tu>
+        <tu tuid="perc.ui.developer@Workflow association is browsed under the Workflows catalog">
+            <prop type="sectionname" xml:lang="en-us">Developer</prop>
+            <note xml:lang="en-us">DEV_MSG.SITE_GAP_WF</note>
+            <tuv xml:lang="en-us"><seg>Workflow association is browsed under the Workflows catalog</seg></tuv>
+        </tu>
         <tu tuid="perc.ui.developer@Not implemented yet">
             <prop type="sectionname" xml:lang="en-us">Developer</prop>
             <note xml:lang="en-us">DEV_MSG.PLACEHOLDER_TITLE</note>
