@@ -297,6 +297,7 @@ When starting work, create a new feature branch.
 
   Windows: `mvnw.cmd spotless:apply` then `mvnw.cmd spotless:check`. Do not run `check` alone as the gate and only apply if it fails.
   - Note: the `google-java-format` implementation used by Spotless needs JDK 21 at runtime; run Spotless via the wrapper scripts so the formatter runs under JDK 21.
+
 - Run `./mvnw -DskipTests validate` or `./mvnw clean verify` to ensure the module builds before pushing your commit.
 
 IntelliJ makes some of this a lot easier, especially when searching for specific error messages across modules in the code base.

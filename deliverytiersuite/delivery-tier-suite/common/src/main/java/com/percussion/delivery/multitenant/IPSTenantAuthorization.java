@@ -38,7 +38,9 @@ public interface IPSTenantAuthorization {
 
   /** Authorization status codes. */
   public enum Status {
-    /** Validation failed due to a system error - client behavior will be different than a failure. */
+    /**
+     * Validation failed due to a system error - client behavior will be different than a failure.
+     */
     UNEXPECTED_ERROR,
     /** User has exceeded quota. */
     EXCEEDED_QUOTA,

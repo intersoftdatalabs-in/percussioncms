@@ -147,6 +147,7 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
       return response;
     }
   }
+
   @Override
   public List<Extension> listExtensions(URI baseURI) {
     return getExtensions(baseURI, new ExtensionFilterOptions());
@@ -173,9 +174,7 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
     return null;
   }
 
-  /**
-   * Allow FQN-style keys (may contain '/'). Reject traversal and backslash/null.
-   */
+  /** Allow FQN-style keys (may contain '/'). Reject traversal and backslash/null. */
   static boolean isSafeExtensionKey(String key) {
     if (key == null || key.isBlank()) {
       return false;
