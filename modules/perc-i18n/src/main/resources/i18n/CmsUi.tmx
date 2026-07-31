@@ -11369,17 +11369,7 @@ Continuer?</seg></tuv><tuv xml:lang="te"><seg>నావిగేషన్ ను
 	    </tuv>
 
 	             <tuv xml:lang="hi"><seg>स्थानीय सामग्री हटाएँ</seg></tuv><tuv xml:lang="fr-fr"><seg>Supprimer le contenu local</seg></tuv><tuv xml:lang="te"><seg>స్థానిక కంటెంట్u200cను తొలగించండి</seg></tuv><tuv xml:lang="de"><seg>Lokale Inhalte löschen</seg></tuv><tuv xml:lang="pt"><seg>Excluir conteúdo local</seg></tuv></tu>
-	 <tu tuid="perc.ui.content.view@Remove Shared Asset">
-	    <prop type="sectionname" xml:lang="en-us">Tip</prop>
-	    <note xml:lang="en-us"></note>
-	    <tuv xml:lang="en-us">
-	        <seg>Remove shared asset from widget. This will not delete the asset from the system.</seg>
-	    </tuv>
-	      <tuv xml:lang="es">
-	        <seg>Quitar recurso compartido del widget. Esto no eliminará el activo del sistema.</seg>
-	    </tuv>
 
-	             <tuv xml:lang="hi"><seg>साझा संपत्ति हटाएँ</seg></tuv><tuv xml:lang="fr-fr"><seg>Supprimer l'actif partagé</seg></tuv><tuv xml:lang="te"><seg>భాగస్వామ్య ఆస్తిని తీసివేయండి</seg></tuv><tuv xml:lang="de"><seg>Gemeinsames Asset entfernen</seg></tuv><tuv xml:lang="pt"><seg>Remover ativo compartilhado</seg></tuv></tu>
 	 <tu tuid="perc.ui.content.view@Double Check Delete">
 	    <prop type="sectionname" xml:lang="en-us">Tip</prop>
 	    <note xml:lang="en-us"></note>
@@ -16085,17 +16075,7 @@ Les modifications non enregistrées dans « {1} » risquent d'être perdues.</
 	    </tuv>
 
 	             <tuv xml:lang="hi"><seg>क्षेत्र के लिए पहले से ही क्षेत्र आधारित सीएसएस सेटिंग्स मौजूद हैं</seg></tuv><tuv xml:lang="fr-fr"><seg>Il existe déjà des paramètres CSS basés sur la région pour la région</seg></tuv><tuv xml:lang="te"><seg>ప్రాంతం కోసం ఇప్పటికే రీజియన్ ఆధారిత CSS సెట్టింగ్u200cలు ఉన్నాయి</seg></tuv><tuv xml:lang="de"><seg>Es gibt bereits regionalbasierte CSS-Einstellungen für die Region</seg></tuv><tuv xml:lang="pt"><seg>Já existem configurações CSS baseadas em região para região</seg></tuv></tu>
-	 <tu tuid="perc.ui.template.layout@Delete Content Of Region">
-	    <prop type="sectionname" xml:lang="en-us">General</prop>
-	    <note xml:lang="en-us"></note>
-	    <tuv xml:lang="en-us">
-	        <seg>There are already region based CSS settings for region</seg>
-	    </tuv>
-	     <tuv xml:lang="es">
-	        <seg>Ya existen configuraciones de CSS basadas en regiones para la región</seg>
-	    </tuv>
 
-	             <tuv xml:lang="hi"><seg>क्षेत्र के लिए पहले से ही क्षेत्र आधारित सीएसएस सेटिंग्स मौजूद हैं</seg></tuv><tuv xml:lang="fr-fr"><seg>Il existe déjà des paramètres CSS basés sur la région pour la région</seg></tuv><tuv xml:lang="te"><seg>ప్రాంతం కోసం ఇప్పటికే రీజియన్ ఆధారిత CSS సెట్టింగ్u200cలు ఉన్నాయి</seg></tuv><tuv xml:lang="de"><seg>Es gibt bereits regionalbasierte CSS-Einstellungen für die Region</seg></tuv><tuv xml:lang="pt"><seg>Já existem configurações CSS baseadas em região para região</seg></tuv></tu>
 	 <tu tuid="perc.ui.template.layout@What To Do">
 	    <prop type="sectionname" xml:lang="en-us">General</prop>
 	    <note xml:lang="en-us"></note>
