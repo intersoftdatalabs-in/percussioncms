@@ -8,6 +8,7 @@ Tool-agnostic reverse engineering of the Rhythmyx 7.3.2 **Workbench** (Eclipse D
 
 |                                     File                                     |                                                                                          Description                                                                                           |
 |------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [workbench-rest-and-qa-modes.md](./workbench-rest-and-qa-modes.md)           | **Direction of record:** clean REST for Workbench replacement (SOAP as reference); **dev mode** (local install + docker bind + hot copy) vs **QA mode** (all-in-docker pass/fail)             |
 | [workbench-functional-inventory.md](./workbench-functional-inventory.md)     | Primary inventory + functional requirements: IA, object catalog, module FR, cross-cutting platform needs, prioritization, appendices                                                           |
 | [data-pipeline-engine-inventory.md](./data-pipeline-engine-inventory.md)     | **XML Application / E2Designer data pipeline engine** — full stage inventory (tanks, mapper, selector, updater, txn, hooks, value system) + modernization brief (JSON, datasources, hooks, IR) |
 | [data-pipeline-server-runtime-map.md](./data-pipeline-server-runtime-map.md) | **Server runtime map** in this repo — `PSApplicationHandler` → `PSQueryHandler` / `PSUpdateHandler` (+ reuse vs reimplement notes for Slice A)                                                 |
@@ -28,7 +29,7 @@ Tool-agnostic reverse engineering of the Rhythmyx 7.3.2 **Workbench** (Eclipse D
 2. **Server runtime map** — [data-pipeline-server-runtime-map.md](./data-pipeline-server-runtime-map.md) (done as docs; use before estimating engine reuse)
 3. **Pipeline Slice A (parallel or next)** — pipeline IR + SQL runtime + JSON I/O + hooks + classic app import
 
-**Slice progress (todo list):** [issue #1622](https://github.com/intersoftdatalabs-in/percussioncms/issues/1622) — update the issue task list when PRs merge; do not thrash the P0 README checklist on every PR.
+**Slice progress:** post-P0 tracker [issue #1690](https://github.com/intersoftdatalabs-in/percussioncms/issues/1690) (P0 checklist [#1622](https://github.com/intersoftdatalabs-in/percussioncms/issues/1622) is closed). Do not thrash markdown checklists on every PR.
 
 Implementation notes and **PR review deferrals / tech debt** live under  
 [`docs/ai-generated/tasks/developer-module-p0/`](../ai-generated/tasks/developer-module-p0/)  
