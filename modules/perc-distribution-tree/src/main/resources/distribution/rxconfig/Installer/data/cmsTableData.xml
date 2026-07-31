@@ -12263,6 +12263,16 @@
             <column name="ISBASE">1</column>
             <column name="VERSION">0</column>
         </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">20</column>
+            <column name="LANGUAGESTRING">bn</column>
+            <column name="DISPLAYNAME">Bengali</column>
+            <column name="SORTORDER">15</column>
+            <column name="DESCRIPTION">Bengali language (generic, no region)</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">1</column>
+            <column name="VERSION">0</column>
+        </row>
     </table>
     <table name="RXLOCALEPROPERTY"/>
     <table name="RXLOCALEFORMAT" onCreateOnly="no">
@@ -12585,6 +12595,23 @@
             <column name="FIRSTDAYOFWEEK">6</column>
             <column name="MEASUREMENTSYSTEM">metric</column>
             <column name="DEFAULTTZ"></column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">bn</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">h:mm a</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">.</column>
+            <column name="GROUPINGSEP">,</column>
+            <column name="CURRENCYCODE">BDT</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">Asia/Dhaka</column>
             <column name="NUMBERINGSYSTEM">latn</column>
             <column name="CALENDAR">gregory</column>
             <column name="VERSION">0</column>

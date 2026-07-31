@@ -2,7 +2,7 @@
 <tmx version="1.4">
   <header>
     <prop type="supportedlanguage">ar</prop>
-    <prop type="supportedlanguage">de</prop>
+    <prop type="supportedlanguage">bn</prop><prop type="supportedlanguage">de</prop>
     <prop type="supportedlanguage">en-gb</prop>
     <prop type="supportedlanguage">en-us</prop>
     <prop type="supportedlanguage">es</prop>

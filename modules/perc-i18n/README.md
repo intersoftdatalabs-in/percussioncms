@@ -44,7 +44,7 @@ All translation memory exchange (TMX) files are maintained in this module:
 
 - **Purpose**: UI-specific translations for the CMS interface
 - **Scope**: Content Manager UI components, dialogs, and labels
-- **Supported Languages**: the 18-locale matrix below
+- **Supported Languages**: the 20-locale matrix below
 - **Naming Convention**: Keys follow pattern `perc.ui.(IDENTIFIER).(TYPE)@(MESSAGE/KEY)`
 
 ### SystemResources.tmx
@@ -52,9 +52,9 @@ All translation memory exchange (TMX) files are maintained in this module:
 - **Purpose**: System and content editor resources
 - **Scope**: Content editor actions, system messages, and resource definitions
 - **Key Examples**: `psx.ce.action@Check-in`, `psx.ce.action@Update`
-- **Supported Languages**: the 18-locale matrix below
+- **Supported Languages**: the 20-locale matrix below
 
-### Canonical 18-Locale Matrix
+### Canonical 20-Locale Matrix
 
 Both `CmsUi.tmx` and `SystemResources.tmx` declare the same set of
 languages in their `<header>` `<prop type="supportedlanguage">` lines:
@@ -62,6 +62,7 @@ languages in their `<header>` `<prop type="supportedlanguage">` lines:
 |   Family   |                 Codes                  |
 |------------|----------------------------------------|
 | Arabic     | `ar` (base)                            |
+| Bengali    | `bn` (base)                            |
 | English    | `en-us` (default fallback), `en-gb`    |
 | Spanish    | `es` (base), `es-cl`, `es-es`, `es-mx` |
 | French     | `fr-ca`, `fr-fr`                       |
@@ -71,9 +72,10 @@ languages in their `<header>` `<prop type="supportedlanguage">` lines:
 | Japanese   | `ja-jp`                                |
 | Dutch      | `nl-nl`                                |
 | Portuguese | `pt-br`, `pt-pt`                       |
+| Telugu     | `te` (base)                            |
 | Turkish    | `tr-tr`                                |
 
-**Base locales** (`RXLOCALE.ISBASE=1`): `ar`, `es`, `hi`. Prefer storing
+**Base locales** (`RXLOCALE.ISBASE=1`): `ar`, `bn`, `es`, `hi`, `te`. Prefer storing
 shared translations under the base tag; regionals hold dialect
 overrides only. Lookup chain: regional → base → `en-us`.
 

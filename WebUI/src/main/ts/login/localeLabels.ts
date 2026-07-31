@@ -40,6 +40,7 @@ const viewerCache: Map<string, Intl.DisplayNames | null> = new Map();
  */
 export const SHIP_LOCALE_ENDONYMS: Readonly<Record<string, string>> = {
   ar: "العربية",
+  bn: "বাংলা",
   "de-de": "Deutsch (Deutschland)",
   "en-gb": "English (United Kingdom)",
   "en-us": "English (United States)",
