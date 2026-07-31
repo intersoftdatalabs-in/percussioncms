@@ -16,7 +16,7 @@
  */
 package com.percussion.delivery.data;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import com.percussion.delivery.feeds.data.PSFeedDescriptor;
 
 /** A feed descriptor contains meta data needed to create a feed. */

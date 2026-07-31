@@ -105,8 +105,8 @@ public class PSDisplayTextLiteral extends PSLiteral implements IPSMutatableRepla
   public Element toXml(Document doc) {
     if (null == doc) throw new IllegalArgumentException("Must provide a valid Document");
     Element root = doc.createElement(XML_NODE_NAME);
-    Text textNode = doc.createTextNode(PSXmlDocumentBuilder.normalize(m_value));
-    root.appendChild(textNode);
+    Text StringNode = doc.createTextNode(PSXmlDocumentBuilder.normalize(m_value));
+    root.appendChild(StringNode);
     root.setAttribute("displayText", m_displayValue);
     return root;
   }

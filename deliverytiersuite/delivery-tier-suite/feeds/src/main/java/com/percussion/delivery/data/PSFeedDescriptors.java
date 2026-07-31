@@ -16,7 +16,7 @@
  */
 package com.percussion.delivery.data;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import com.percussion.delivery.feeds.data.IPSFeedDescriptor;
 import com.percussion.delivery.feeds.data.PSFeedDescriptor;
 import java.util.ArrayList;

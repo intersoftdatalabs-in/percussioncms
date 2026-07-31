@@ -1,10 +1,16 @@
 # Plan: Migrate to Jackson 3
 
-Migrate Percussion CMS from Jackson 2.21.1 to Jackson 3.1 (LTS). This involves changing Maven groupId (`com.fasterxml.jackson` → `tools.jackson`), Java package imports, converting ObjectMapper to immutable builder pattern, updating renamed classes/methods, removing embedded Java 8 modules, and adjusting for changed defaults. An [OpenRewrite recipe](https://docs.openrewrite.org/recipes/java/jackson/upgradejackson_2_3) exists to automate much of the mechanical work.
+**Tracking issue:** [#1706](https://github.com/intersoftdatalabs-in/percussioncms/issues/1706) — `[8.2] Migrate runtime Jackson 2.x → Jackson 3.x (LTS)`  
+**Branch (WIP):** `feature/1706-jackson3-migration`
 
-## Current State
+Migrate Percussion CMS from Jackson 2.x to Jackson 3.1 (LTS). This involves changing Maven groupId (`com.fasterxml.jackson` → `tools.jackson`), Java package imports, converting ObjectMapper to immutable builder pattern, updating renamed classes/methods, removing embedded Java 8 modules, and adjusting for changed defaults. An [OpenRewrite recipe](https://docs.openrewrite.org/recipes/java/jackson/upgradejackson_2_3) exists to automate much of the mechanical work.
 
-- Jackson 2.21.1 across the codebase (annotations 2.21, Jakarta variants 2.20.1)
+**Status (2026-07-31):** Runtime migration to Jackson **3.1.5** implemented on branch `feature/1706-jackson3-migration` (single PR). Path C OpenAPI isolation remains the Swagger gate completed earlier.
+
+## Current State (post-migration)
+
+- Jackson **3.1.5** (`tools.jackson.*`) across the monorepo; `jackson-annotations` stays **2.21** on `com.fasterxml.jackson.core` by Jackson 3 design
+- Java 8 modules (`jackson-datatype-jdk8` / `jsr310` / `parameter-names`) removed — built into databind
 - 100+ files with Jackson imports, 150+ annotation usages
 - 10 Jackson Maven artifacts declared
 - 50+ direct `new ObjectMapper()` instantiations

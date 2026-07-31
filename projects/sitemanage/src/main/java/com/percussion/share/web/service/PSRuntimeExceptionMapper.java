@@ -17,7 +17,7 @@
  */
 package com.percussion.share.web.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import tools.jackson.core.JacksonException;
 import com.percussion.cms.IPSConstants;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.share.service.exception.IPSValidationException;
@@ -82,7 +82,7 @@ public class PSRuntimeExceptionMapper extends PSAbstractExceptionMapper<RuntimeE
     if (exception instanceof IllegalArgumentException) {
       return Status.BAD_REQUEST;
     }
-    if (exception.getCause() instanceof JsonProcessingException) {
+    if (exception.getCause() instanceof JacksonException) {
       return Status.BAD_REQUEST;
     }
     return super.getStatus(exception);

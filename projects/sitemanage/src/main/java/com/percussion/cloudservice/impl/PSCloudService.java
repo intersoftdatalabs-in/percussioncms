@@ -17,7 +17,8 @@
 
 package com.percussion.cloudservice.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.percussion.cloudservice.IPSCloudService;
 import com.percussion.cloudservice.data.PSCloudLicenseType;
 import com.percussion.cloudservice.data.PSCloudServiceInfo;
@@ -54,7 +55,7 @@ public class PSCloudService implements IPSCloudService {
   protected static final String PAGE_THUMB_ROOT = "/rx_resources/images/TemplateImages/";
   protected static final String PAGE_THUMB_SUFFIX = "-page.jpg";
   protected static final String CLOUD_SERVICE_TYPE_CM1 = "CM1";
-  protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  protected static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();
 
   protected IPSFolderHelper folderHelper;
   protected IPSRenderService renderService;

@@ -17,7 +17,8 @@
  */
 package com.percussion.delivery.comments.data;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.percussion.delivery.comments.data.IPSComment.APPROVAL_STATE;
 import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
@@ -290,11 +291,11 @@ public class PSCommentCriteria {
    */
   public String toJSON() {
     String ret = "";
-    ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = JsonMapper.builder().build();
 
     try {
       ret = mapper.writeValueAsString(this);
-    } catch (IOException e) {
+    } catch (Exception e) {
       log.warn("Error deserializing to JSON.", e);
     }
     return ret;

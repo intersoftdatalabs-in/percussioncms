@@ -20,7 +20,8 @@ package com.percussion.patch;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.assetmanagement.service.IPSAssetService;
 import com.percussion.assetmanagement.service.impl.PSAssetService;
@@ -286,7 +287,7 @@ public class PSSaveAssetsMaintenanceProcess
 
   public void loadFailedAssetsFromFile(File f) {
     assetListSet = new HashSet<>();
-    var objectMapper = new ObjectMapper();
+    var objectMapper = JsonMapper.builder().build();
     try {
       addAssets(
           (Set<ItemWrapper>)
@@ -563,7 +564,7 @@ public class PSSaveAssetsMaintenanceProcess
       file.mkdirs();
     }
     log.info("Logging Assets to {}", assetsLogFilePath);
-    var objectMapper = new ObjectMapper();
+    var objectMapper = JsonMapper.builder().build();
     objectMapper.writeValue(new File(PathUtils.getRxDir(null), assetsLogFilePath), assetListSet);
   }
 
@@ -573,7 +574,7 @@ public class PSSaveAssetsMaintenanceProcess
       file.mkdirs();
     }
     log.info("Logging Pages to {}", pagesLogFilePath);
-    var objectMapper = new ObjectMapper();
+    var objectMapper = JsonMapper.builder().build();
     objectMapper.writeValue(new File(PathUtils.getRxDir(null), pagesLogFilePath), qualifiedPages);
   }
 
@@ -710,7 +711,7 @@ public class PSSaveAssetsMaintenanceProcess
 
   private void loadPagesFromFile(File readFile) {
     qualifiedPages = new HashSet<>();
-    var objectMapper = new ObjectMapper();
+    var objectMapper = JsonMapper.builder().build();
     try {
       qualifiedPages.addAll(
           (Set<ItemWrapper>)

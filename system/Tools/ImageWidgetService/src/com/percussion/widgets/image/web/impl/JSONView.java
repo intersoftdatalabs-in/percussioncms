@@ -17,8 +17,9 @@
 
 package com.percussion.widgets.image.web.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.SerializationFeature;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -248,11 +249,11 @@ public class JSONView extends AbstractView implements View {
      */
     private String convertToJson(Object obj, boolean debug) {
         try {
-            var mapper = new ObjectMapper();
+            var builder = JsonMapper.builder();
             if (debug) {
-                mapper.enable(SerializationFeature.INDENT_OUTPUT);
+                builder.enable(SerializationFeature.INDENT_OUTPUT);
             }
-            return mapper.writeValueAsString(obj);
+            return builder.build().writeValueAsString(obj);
         } catch (Exception e) {
             log.warn("Error converting object to JSON: {}", e.getMessage());
             return "{}";

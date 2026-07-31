@@ -27,7 +27,6 @@ import com.percussion.webservices.faults.PSErrorsFaultServiceCall;
 import com.percussion.webservices.faults.PSErrorsFaultServiceCallError;
 import com.percussion.webservices.faults.PSErrorsFaultServiceCallSuccess;
 import com.percussion.webservices.faults.PSLockFaultBean;
-import com.percussion.webservices.faults.PSError;
 
 import java.util.Map;
 

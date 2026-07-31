@@ -18,28 +18,27 @@
 
 package com.percussion.category.data;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.percussion.share.service.exception.PSDataServiceException;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 
 /** Jackson deserializer for LocalDateTime. Handles ISO-8601 and common variants. */
-public class LocalDateDeserializer extends JsonDeserializer<LocalDateTime> {
+public class LocalDateDeserializer extends ValueDeserializer<LocalDateTime> {
 
   private static final Logger log = LogManager.getLogger(LocalDateDeserializer.class);
 
   @Override
   public LocalDateTime deserialize(JsonParser parser, DeserializationContext ctxt)
-      throws IOException {
+      throws JacksonException {
     var dateInStringFormat = parser.getText();
     try {
-      // Try ISO_LOCAL_DATE_TIME first
       return Optional.ofNullable(dateInStringFormat)
           .map(String::trim)
           .filter(s -> !s.isEmpty())
@@ -48,7 +47,6 @@ public class LocalDateDeserializer extends JsonDeserializer<LocalDateTime> {
                 try {
                   return LocalDateTime.parse(s, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
                 } catch (Exception e) {
-                  // Try fallback: replace single-digit hour/min/sec with padded zero
                   var fixed =
                       s.replaceAll("T(\\d:)", "T0$1")
                           .replaceAll(":(\\d:)", ":0$1")

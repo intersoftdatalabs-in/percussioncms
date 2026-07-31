@@ -17,7 +17,8 @@
 
 package com.percussion.widgets.image.web.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.percussion.server.PSServer;
 import com.percussion.system.utils.PSBaseBean;
 import com.percussion.widgets.image.data.CachedImageMetaData;
@@ -136,7 +137,7 @@ public class BinaryUploadController {
      */
     protected List<Object> buildResults(HttpServletRequest request) throws PSBinaryUploadException {
         var results = new ArrayList<Object>();
-        var mapper = new ObjectMapper();
+        var mapper = JsonMapper.builder().build();
 
         if (!(request instanceof MultipartHttpServletRequest)) {
             throw new PSBinaryUploadException("Request is not a multipart request");

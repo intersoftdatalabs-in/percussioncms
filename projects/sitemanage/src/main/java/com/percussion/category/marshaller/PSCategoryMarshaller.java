@@ -19,11 +19,9 @@
 
 package com.percussion.category.marshaller;
 
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.dataformat.xml.jaxb.XmlJaxbAnnotationIntrospector;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
 import com.percussion.category.data.PSCategory;
 import com.percussion.category.data.PSCategoryFileLockData;
 import com.percussion.server.PSServer;
@@ -142,17 +140,14 @@ public class PSCategoryMarshaller {
 
   public static String marshalToJson(PSCategory category) {
     try (var writer = new StringWriter()) {
-      var mapper = new ObjectMapper();
-      mapper.registerModule(new JavaTimeModule());
-      mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
-      AnnotationIntrospector introspector =
-          new XmlJaxbAnnotationIntrospector(mapper.getTypeFactory());
-      mapper.getSerializationConfig().withAppendedAnnotationIntrospector(introspector);
-
+      var mapper =
+          JsonMapper.builder()
+              .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+              .annotationIntrospector(new JakartaXmlBindAnnotationIntrospector())
+              .build();
       mapper.writeValue(writer, category);
       return writer.toString();
-    } catch (IOException e) {
+    } catch (Exception e) {
       log.debug("Cannot convert category object to JSON string", e);
       throw new RuntimeException("Error processing category data", e);
     }

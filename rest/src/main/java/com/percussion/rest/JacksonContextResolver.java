@@ -17,34 +17,38 @@
 
 package com.percussion.rest;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.ext.ContextResolver;
 import jakarta.ws.rs.ext.Provider;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * @author stephenbolton
  *     <p>This is picked up by Jackson automatically by the Provider annotation It will modify the
  *     serialization behavior of the objects passed in we test that the class has the same ancestor
  *     package as this class to ensure we do not modify behavior for other parts of the system
+ *
+ *     <p>Jackson 3 embeds Optional / java.time support in databind — no Jdk8Module or JavaTimeModule
+ *     registration required. Many rest DTOs expose {@code Optional} getters (e.g. ContentType name);
+ *     without that support, catalog tables serialize empty (hideFromMenu-only payloads).
  */
 // REFACTORED: CP-JAVA11
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
 public class JacksonContextResolver implements ContextResolver<ObjectMapper> {
-  private static final ObjectMapper objectMapper = new ObjectMapper();
-
-  static {
-    objectMapper
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
-        .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-        .configure(SerializationFeature.WRAP_ROOT_VALUE, true)
-        .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
-        .configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
-  }
+  private static final ObjectMapper objectMapper =
+      JsonMapper.builder()
+          .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+          .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+          .enable(SerializationFeature.WRAP_ROOT_VALUE)
+          .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
+          .enable(DeserializationFeature.UNWRAP_ROOT_VALUE)
+          .build();
 
   @Override
   public ObjectMapper getContext(Class<?> objectType) {

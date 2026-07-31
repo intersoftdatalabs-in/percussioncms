@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.percussion.rest.errors.RestExceptionMapper;
 import com.percussion.utils.testing.PSTestNetUtils;
 import jakarta.ws.rs.Path;
@@ -67,7 +67,7 @@ public class MainTest {
     WebTarget target =
         builder
             .build()
-            .register(com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider.class)
+            .register(tools.jackson.jakarta.rs.json.JacksonJsonProvider.class)
             .target(endpoint)
             .path(address);
 
