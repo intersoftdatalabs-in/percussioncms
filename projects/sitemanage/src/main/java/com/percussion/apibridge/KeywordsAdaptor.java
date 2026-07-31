@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -142,8 +143,6 @@ public class KeywordsAdaptor implements IKeywordsAdaptor {
     } catch (PSErrorsException e) {
       log.error("Failed to create keyword via content design WS", e);
       throw new IllegalStateException("Failed to create keyword", e);
-    } catch (IllegalArgumentException e) {
-      throw e;
     }
   }
 
@@ -186,7 +185,7 @@ public class KeywordsAdaptor implements IKeywordsAdaptor {
       designWs.saveKeywords(Collections.singletonList(kw), true, session, user);
       return reloadSummary(kw.getGUID());
     } catch (PSErrorResultsException e) {
-      if (isNotFound(e)) {
+      if (isNotFound(e, g)) {
         return null;
       }
       log.error("Failed to load keyword for update via design WS: {}", id, e);
@@ -320,8 +319,20 @@ public class KeywordsAdaptor implements IKeywordsAdaptor {
     return null;
   }
 
-  private static boolean isNotFound(PSErrorResultsException e) {
-    return e != null && e.getErrors() != null && !e.getErrors().isEmpty() && e.getResults().isEmpty();
+  /**
+   * True when the design WS reported an error for the specific requested keyword GUID and did not
+   * return a result for that GUID. Partial multi-id results are not treated as not-found for other
+   * ids.
+   */
+  static boolean isNotFound(PSErrorResultsException e, IPSGuid requested) {
+    if (e == null || requested == null) {
+      return false;
+    }
+    Map<IPSGuid, Object> errors = e.getErrors();
+    Map<IPSGuid, Object> results = e.getResults();
+    boolean errored = errors != null && errors.containsKey(requested);
+    boolean hasResult = results != null && results.containsKey(requested);
+    return errored && !hasResult;
   }
 
   private static String currentSession() {
