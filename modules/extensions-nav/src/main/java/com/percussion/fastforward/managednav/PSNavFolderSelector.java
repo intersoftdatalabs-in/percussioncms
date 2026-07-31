@@ -55,8 +55,6 @@ public class PSNavFolderSelector extends PSDefaultExtension
   /**
    * This extension never modifies the stylesheet.
    *
-   * <p>
-   *
    * @see com.percussion.extension.IPSResultDocumentProcessor#canModifyStyleSheet()
    */
   public boolean canModifyStyleSheet() {

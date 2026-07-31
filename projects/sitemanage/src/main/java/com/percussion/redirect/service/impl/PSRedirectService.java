@@ -18,7 +18,8 @@
 
 package com.percussion.redirect.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.percussion.licensemanagement.data.PSModuleLicense;
 import com.percussion.licensemanagement.service.IPSLicenseService;
 import com.percussion.licensemanagement.service.impl.PSLicenseService;
@@ -128,7 +129,7 @@ public class PSRedirectService implements IPSRedirectService {
 
   private String getDataAsString(PSRedirectValidationData data) {
     var temp = "";
-    var mapper = new ObjectMapper();
+    var mapper = JsonMapper.builder().build();
     try {
       temp = mapper.writeValueAsString(data);
     } catch (Exception e) {

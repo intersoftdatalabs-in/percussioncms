@@ -16,11 +16,11 @@
  */
 package com.percussion.delivery.services;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import java.io.IOException;
 import org.apache.commons.lang3.time.FastDateFormat;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
 
 /**
  * Custom date serializer to put the serialized date into a non numeric format. Uses the date format
@@ -28,30 +28,17 @@ import org.apache.commons.lang3.time.FastDateFormat;
  *
  * @author erikserating
  */
-public class PSCustomDateSerializer extends JsonSerializer<Object> {
+public class PSCustomDateSerializer extends ValueSerializer<Object> {
 
   private final FastDateFormat formatter = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
-  /**
-   * Default constructor. The {@link SerializerProvider} argument is not currently used by this
-   * implementation; it is a placeholder for future enhancements such as locale-aware formatting.
-   */
   public PSCustomDateSerializer() {}
 
-  /**
-   * Serializes the supplied date value as a string using {@code yyyy-MM-dd'T'HH:mm:ss.SSSZ}.
-   *
-   * @param value the value to serialize; expected to be a {@link java.util.Date}.
-   * @param gen the Jackson generator to write to, never <code>null</code>.
-   * @param provider the serializer provider, reserved for future use.
-   * @throws IOException if writing to the generator fails.
-   */
   @Override
   public void serialize(
-      Object value, JsonGenerator gen, @SuppressWarnings("unused") SerializerProvider provider)
-      throws IOException {
+      Object value, JsonGenerator gen, @SuppressWarnings("unused") SerializationContext provider)
+      throws JacksonException {
     String formattedDate = formatter.format(value);
-
     gen.writeString(formattedDate);
   }
 }

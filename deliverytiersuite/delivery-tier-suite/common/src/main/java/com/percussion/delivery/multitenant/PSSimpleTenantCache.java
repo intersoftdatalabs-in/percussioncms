@@ -49,8 +49,8 @@ public class PSSimpleTenantCache implements IPSTenantCache {
   private IPSTenantAuthorization auth;
 
   /**
-   * Sets the maximum time to live that cached tenant entries may remain in the cache before
-   * being re-authorized.
+   * Sets the maximum time to live that cached tenant entries may remain in the cache before being
+   * re-authorized.
    *
    * @param minutes the cache TTL in minutes.
    */
@@ -102,8 +102,8 @@ public class PSSimpleTenantCache implements IPSTenantCache {
   }
 
   /**
-   * Puts the supplied tenant information into the cache, replacing any existing entry for the
-   * same tenant id.
+   * Puts the supplied tenant information into the cache, replacing any existing entry for the same
+   * tenant id.
    *
    * @param tenant the tenant information to cache, never <code>null</code>.
    */
@@ -167,8 +167,8 @@ public class PSSimpleTenantCache implements IPSTenantCache {
   /**
    * Returns whether the cache re-authorizes tenants whose TTL has expired.
    *
-   * @return <code>true</code> if expired entries are re-authorized, <code>false</code> if they
-   *     are evicted without re-authorization.
+   * @return <code>true</code> if expired entries are re-authorized, <code>false</code> if they are
+   *     evicted without re-authorization.
    */
   @Override
   public boolean getAuthorizeExpiredTTL() {
@@ -178,8 +178,7 @@ public class PSSimpleTenantCache implements IPSTenantCache {
   /**
    * Configures whether the cache re-authorizes tenants whose TTL has expired.
    *
-   * @param ret <code>true</code> to re-authorize expired entries, <code>false</code> to evict
-   *     them.
+   * @param ret <code>true</code> to re-authorize expired entries, <code>false</code> to evict them.
    */
   @Override
   public void setAuthorizeExpiredTTL(boolean ret) {

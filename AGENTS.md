@@ -91,13 +91,13 @@ Spotless in this monorepo is **not Java-only**. It formats / checks **Java, Mark
    ```
 
    Module-scoped apply is OK for mid-work iteration; the **final** PR commit must still end with a clean `spotless:check` for everything that will land on the PR (root apply then check when unsure).
+
 3. Immediately inspect what Spotless rewrote:
 
    ```bash
    git status
    git diff --name-only
    ```
-
 4. **Partition the working tree** into:
    - **In-scope** — files that are part of the agent’s intentional task (feature/fix/docs you meant to ship on *this* PR).
    - **Out-of-scope** — files Spotless rewrote that the agent did **not** intentionally change for this task (baseline formatting debt, unrelated modules, “100 files I never touched”).
@@ -106,13 +106,13 @@ Spotless in this monorepo is **not Java-only**. It formats / checks **Java, Mark
 
 If Spotless touches files **outside** the agent’s task scope:
 
-| Do | Do **not** |
-|----|------------|
-| Keep **only in-scope** files on the feature branch / feature PR | Stuff dozens or hundreds of unrelated Spotless files into the feature PR |
-| Leave out-of-scope Spotless changes **uncommitted** (or stash them) while finishing the feature commit | Panic, discard the whole worktree, or “fix everything Spotless touched” as part of the feature story |
-| Open a **second PR** whose sole purpose is baseline formatting | Expand the feature PR description to claim ownership of unrelated modules |
-| Title that second PR clearly, e.g. **`chore: Spotless cleanup`** (branch e.g. `chore/spotless-cleanup-<short-date-or-topic>`) | Skip Spotless entirely because “too many files” |
-| Commit **only** the Spotless-only diffs on that cleanup branch | Mix product logic and repo-wide reformat in one review |
+|                                                              Do                                                               |                                              Do **not**                                              |
+|-------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
+| Keep **only in-scope** files on the feature branch / feature PR                                                               | Stuff dozens or hundreds of unrelated Spotless files into the feature PR                             |
+| Leave out-of-scope Spotless changes **uncommitted** (or stash them) while finishing the feature commit                        | Panic, discard the whole worktree, or “fix everything Spotless touched” as part of the feature story |
+| Open a **second PR** whose sole purpose is baseline formatting                                                                | Expand the feature PR description to claim ownership of unrelated modules                            |
+| Title that second PR clearly, e.g. **`chore: Spotless cleanup`** (branch e.g. `chore/spotless-cleanup-<short-date-or-topic>`) | Skip Spotless entirely because “too many files”                                                      |
+| Commit **only** the Spotless-only diffs on that cleanup branch                                                                | Mix product logic and repo-wide reformat in one review                                               |
 
 Concrete workflow when `git status` shows a sea of unrelated Spotless files:
 
@@ -188,11 +188,11 @@ cd rest
 
 Adjust `../` vs `../../` (etc.) so the path points at the **repo-root** `mvnw` / `mvnw.cmd`. Maven uses the **current working directory**’s `pom.xml`, so only that module is built.
 
-|                         Situation                         |                                                                                                Command guidance                                                                                                 |
-|-----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|                         Situation                         |                                                                                             Command guidance                                                                                              |
+|-----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | One or more leaf modules’ sources/tests/resources changed | **`cd` into each module** → `…/mvnw clean install` (standalone). If module B depends on module A and you changed both, build **A first**, then B (each still standalone after A is installed to `~/.m2`). |
-| Only docs / AGENTS.md / non-Maven files                   | No Maven clean install required; say so in the PR body.                                                                                                                                                         |
-| Change **requires** a multi-module reactor (see below)    | Only then use a root reactor command — and scope it as tightly as possible.                                                                                                                                     |
+| Only docs / AGENTS.md / non-Maven files                   | No Maven clean install required; say so in the PR body.                                                                                                                                                   |
+| Change **requires** a multi-module reactor (see below)    | Only then use a root reactor command — and scope it as tightly as possible.                                                                                                                               |
 
 ### When a full (or partial) reactor build *is* required
 
@@ -444,7 +444,7 @@ A list of child modules in this repository. Each bullet contains: Module name �
 - **webservices** — `./modules/webservices` — Legacy Rhythmyx SOAP web services API migrated from Apache Axis to CXF.
 - **perc-system** — `./system` — The core CMS module representing Rhythmyx functionality.  Contains the core XML application server and content managenent implementation.
 - **perc-service-wrapper** — `./modules/perc-service-wrapper` — Legacy module that was intended to be used for Windows service management. Currently not used in deployments.
-- **rest** — `./rest` — Public REST API (JAX-RS resources, wire DTOs, `IXxxAdaptor` interfaces). **Must not** depend on `sitemanage` (reactor cycle). See `rest/AGENTS.md`.
+- **rest** — `./rest` — Public REST API (JAX-RS resources, wire DTOs, `IXxxAdaptor` interfaces). **Must not** depend on `sitemanage` (reactor cycle). See `rest/AGENTS.md`. Workbench-replacement REST + **dev/QA test modes**: `docs/developer-module/workbench-rest-and-qa-modes.md`.
 - **perc-tinymce** — `./modules/perc-tinymce` — Packaging module for the TinyMCE rich text editor used in the CMS ui to edit content.
 - **perc-toolkit** — `./modules/perc-toolkit` — Legacy module containing
 - **perc-taxonomy** — `./modules/perc-taxonomy` — Legacy Rhythmyx module that provides taxonomy services for CMS content.
@@ -463,7 +463,7 @@ A list of child modules in this repository. Each bullet contains: Module name �
 - **Percussion CMS Common UI Bundle** — `./modules/perc-common-ui-bundle` — Minified JavaScript bundle for the Percussion CMS delivery-tier widgets (perc_common_ui.js and perc_common_ui_slim.js); built with esbuild and served as bundled web resources from this JAR.
 - **Percussion OpenAPI Generator Maven Plugin** — `./modules/perc-openapi-generator-plugin` — Maven plugin to generate OpenAPI specification from JAX-RS annotations in the `rest` module.
 - **perc-web-ui** — `./WebUI` — The main user interface for the product. UI screen changes require Playwright create/update in `modules/perc-qa-automation` (see `WebUI/AGENTS.md`).
-- **perc-qa-automation** — `./modules/perc-qa-automation` — Playwright (+ TestNG) E2E against a live CMS; required companion tests for WebUI screen work.
+- **perc-qa-automation** — `./modules/perc-qa-automation` — Playwright (+ TestNG) E2E against a live CMS; required companion tests for WebUI screen work. **Dev mode** = local install + docker bind + hot copy (no restart); **QA mode** = all-in-docker pass/fail. See `docs/developer-module/workbench-rest-and-qa-modes.md` and `modules/perc-qa-automation/AGENTS.md`.
 - **Percussion OpenAPI Web App** — `./modules/perc-openapi-webapp` — Provides the OpenAPI Swagger UI forinteracting with the products REST API's.
 - **perc-thumbnail** — `./modules/perc-thumbnail` — Responsible for generating all web page thumbnails in the application.
 - **sitemanage** — `./projects/sitemanage` — CM1 middleware + `com.percussion.apibridge` implementations of `rest` `IXxxAdaptor` interfaces. Depends on `rest`; never reverse. See `projects/sitemanage/AGENTS.md`.

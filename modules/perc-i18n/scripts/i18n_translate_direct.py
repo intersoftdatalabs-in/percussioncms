@@ -64,6 +64,11 @@ BACKOFF_MAX_SEC = 60.0
 BACKOFF_JITTER = 0.2
 BACKOFF_MAX_ATTEMPTS = 5
 
+# Fixed wait before retrying non-rate-limit transient failures such as
+# translate-shell returning a "Null response" / "Oops! Something went wrong"
+# hiccup. Lets the upstream settle without spinning the throttle jitter.
+TRANSIENT_RETRY_SEC = 10.0
+
 # Docker fallback. soimort/translate-shell accepts the form
 # `docker run --rm soimort/translate-shell --brief "<text>" :<target>`.
 DOCKER_IMAGE = 'soimort/translate-shell'
@@ -268,6 +273,17 @@ def invoke_translate(text: str, target: str, *,
             )
             time.sleep(sleep_s)
             delay *= 2
+            continue
+        if attempt < BACKOFF_MAX_ATTEMPTS:
+            jitter = 1.0 + random.uniform(-BACKOFF_JITTER, BACKOFF_JITTER)
+            sleep_s = TRANSIENT_RETRY_SEC * jitter
+            print(
+                f'  translate-shell error (rc={result.returncode}); '
+                f'retrying in {sleep_s:.1f}s (attempt {attempt})',
+                file=sys.stderr,
+            )
+            time.sleep(sleep_s)
+            delay = BACKOFF_START_SEC
             continue
         raise RuntimeError(
             f'translate-shell failed (rc={result.returncode}): '
@@ -556,6 +572,7 @@ def main(argv: list[str] | None = None) -> int:
     total_inserted = 0
     total_replaced = 0
     total_fixed = 0
+    total_skipped = 0
 
     for f in files:
         if not f.exists():
@@ -572,16 +589,23 @@ def main(argv: list[str] | None = None) -> int:
         if args.dry_run or not missing:
             pass
         else:
-            translations = _translate_batch(
-                missing,
-                target,
-                cache=cache,
-                force=args.force,
-                limit=args.limit,
-                label='missing',
-            )
-            if translations is None:
-                return 1
+            translations = {}
+            processed = 0
+            for tuid, en_seg in missing:
+                if args.limit and processed >= args.limit:
+                    break
+                try:
+                    translations[tuid] = translate(en_seg, target, cache=cache, force=args.force)
+                except Exception as e:
+                    print(f'  SKIP {tuid}: {e}', file=sys.stderr)
+                    total_skipped += 1
+                    save_cache(cache)
+                    continue
+                processed += 1
+                if processed % 10 == 0:
+                    print(f'  ... {processed}/{len(missing)}')
+                    save_cache(cache)
+            save_cache(cache)
 
             if translations:
                 # For variant locales, filter to only include differences from base
@@ -657,17 +681,23 @@ def main(argv: list[str] | None = None) -> int:
             if args.dry_run or not matching:
                 pass
             else:
-                pairs = [(tuid, en_seg) for tuid, en_seg, _ in matching]
-                translations = _translate_batch(
-                    pairs,
-                    target,
-                    cache=cache,
-                    force=args.force,
-                    limit=args.limit,
-                    label='fix-matching-en',
-                )
-                if translations is None:
-                    return 1
+                translations = {}
+                processed = 0
+                for tuid, en_seg, _ in matching:
+                    if args.limit and processed >= args.limit:
+                        break
+                    try:
+                        translations[tuid] = translate(en_seg, target, cache=cache, force=args.force)
+                    except Exception as e:
+                        print(f'  SKIP {tuid}: {e}', file=sys.stderr)
+                        save_cache(cache)
+                        total_skipped += 1
+                        continue
+                    processed += 1
+                    if processed % 10 == 0:
+                        print(f'  ... {processed}/{len(matching)}')
+                        save_cache(cache)
+                save_cache(cache)
 
                 if translations:
                     replaced = tmx.replace_translation(target, translations)
@@ -676,11 +706,7 @@ def main(argv: list[str] | None = None) -> int:
                     total_fixed = total_fixed  # count already from list size
                     print(f'  fixed {replaced} translations', flush=True)
 
-    print(
-        f'\nDone. Missing: {total_missing}; inserted: {total_inserted}; '
-        f'replaced: {total_replaced}; fixed: {total_fixed}',
-        flush=True,
-    )
+    print(f'\nDone. Missing: {total_missing}; inserted: {total_inserted}; fixed: {total_fixed}; skipped: {total_skipped}')
     return 0
 
 

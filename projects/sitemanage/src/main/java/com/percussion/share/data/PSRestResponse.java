@@ -48,8 +48,8 @@ public class PSRestResponse {
       res.put(DEFAULT_MESSAGE, DEFAULT_ERROR_MESSAGE);
     }
     try {
-      result = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(res);
-    } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+      result = new tools.jackson.databind.ObjectMapper().writeValueAsString(res);
+    } catch (tools.jackson.core.JacksonException e) {
       result = "{\"message\":\"Error\"}";
     }
   }

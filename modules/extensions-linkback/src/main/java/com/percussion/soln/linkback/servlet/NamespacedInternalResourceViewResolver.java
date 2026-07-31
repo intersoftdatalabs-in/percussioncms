@@ -21,16 +21,27 @@ import java.util.Locale;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
+/**
+ * Resolves views only when their names start with a configured namespace.
+ *
+ * <p>Creates a view resolver with no namespace configured; callers must set the namespace before
+ * use.
+ */
 public class NamespacedInternalResourceViewResolver extends InternalResourceViewResolver {
+
+  /** Creates a view resolver with no namespace configured. */
+  public NamespacedInternalResourceViewResolver() {}
 
   private String m_namespace;
 
-  /*
-   * (non-Javadoc)
+  /**
+   * Loads a view whose name is prefixed with the configured namespace.
    *
-   * @see
-   * org.springframework.web.servlet.view.UrlBasedViewResolver#loadView(java
-   * .lang.String, java.util.Locale)
+   * @param viewName the view name to resolve
+   * @param locale the locale to associate with the view
+   * @return the resolved view, or {@code null} when the view name does not start with the
+   *     configured namespace
+   * @throws IllegalStateException if no namespace has been assigned
    */
   @Override
   protected View loadView(String viewName, Locale locale) throws Exception {
@@ -45,13 +56,17 @@ public class NamespacedInternalResourceViewResolver extends InternalResourceView
   }
 
   /**
-   * @return the namespace
+   * Returns the namespace required for a view to be resolved.
+   *
+   * @return the configured namespace
    */
   public String getNamespace() {
     return m_namespace;
   }
 
   /**
+   * Sets the namespace required for a view to be resolved.
+   *
    * @param namespace the namespace to set
    */
   public void setNamespace(String namespace) {

@@ -375,12 +375,19 @@ public class PSExecSQLStmt extends PSAction {
   /**
    * SQL for H2 (default embedded, #548). If empty at execute time, {@link #sqlDerby} is used when
    * non-empty.
+   *
+   * @return the H2-specific SQL statement, never <code>null</code>, may be empty.
    */
   public String getSqlH2() {
     return sqlH2;
   }
 
-  /** Sets the H2-specific SQL statement (Ant attribute {@code sqlH2}). */
+  /**
+   * Sets the H2-specific SQL statement (Ant attribute {@code sqlH2}).
+   *
+   * @param sqlH2 the H2-specific SQL statement, may be <code>null</code> or empty in which case
+   *     {@link #sqlDerby} is used at execute time when non-empty.
+   */
   public void setSqlH2(String sqlH2) {
     if (sqlH2 == null) sqlH2 = "";
     this.sqlH2 = sqlH2;
@@ -389,12 +396,19 @@ public class PSExecSQLStmt extends PSAction {
   /**
    * SQL for PostgreSQL external repository (#1500). If empty, the generic {@code sql} attribute is
    * used.
+   *
+   * @return the PostgreSQL-specific SQL statement, never <code>null</code>, may be empty.
    */
   public String getSqlPostgresql() {
     return sqlPostgresql;
   }
 
-  /** Sets the PostgreSQL-specific SQL statement (Ant attribute {@code sqlPostgresql}). */
+  /**
+   * Sets the PostgreSQL-specific SQL statement (Ant attribute {@code sqlPostgresql}).
+   *
+   * @param sqlPostgresql the PostgreSQL-specific SQL statement, may be <code>null</code> or empty,
+   *     in which case {@link #sql} is used at execute time when non-empty.
+   */
   public void setSqlPostgresql(String sqlPostgresql) {
     if (sqlPostgresql == null) sqlPostgresql = "";
     this.sqlPostgresql = sqlPostgresql;

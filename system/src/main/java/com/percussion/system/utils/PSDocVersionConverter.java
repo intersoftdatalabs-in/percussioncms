@@ -355,8 +355,8 @@ public class PSDocVersionConverter {
       } // end of loop
 
       Element typeNode = doc.createElement("type");
-      Text textNode = doc.createTextNode(type);
-      typeNode.appendChild(textNode);
+      Text StringNode = doc.createTextNode(type);
+      typeNode.appendChild(StringNode);
       extDefNode.insertBefore(typeNode, paramDefNode);
 
       // create <PSXJavaExtensionDef> without child
@@ -473,8 +473,8 @@ public class PSDocVersionConverter {
       } // end of loop
 
       Element typeNode = doc.createElement("type");
-      Text textNode = doc.createTextNode(ms_type1); // UDF_PROC is type 1
-      typeNode.appendChild(textNode);
+      Text StringNode = doc.createTextNode(ms_type1); // UDF_PROC is type 1
+      typeNode.appendChild(StringNode);
       extDefNode.insertBefore(typeNode, paramDefNode);
 
       // create <PSXScriptExtensionDef> without child

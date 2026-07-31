@@ -59,6 +59,11 @@ import org.w3c.dom.NodeList;
  */
 public class PSNavTreeSlotMarker extends PSDefaultExtension implements IPSResultDocumentProcessor {
 
+  /** Default constructor. */
+  public PSNavTreeSlotMarker() {
+    super();
+  }
+
   /** This extension never modifies the stylesheet. */
   public boolean canModifyStyleSheet() {
     return false;

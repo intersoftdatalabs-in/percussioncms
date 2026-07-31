@@ -20,10 +20,16 @@ package com.percussion.ant.install;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** See super class */
+/**
+ * Subclass of {@link PSExecSQLStmt} that substitutes the configured Tomcat port into the SQL
+ * statement before it is executed. The literal token {@code CATALINA_PORT} in the SQL is replaced
+ * with the value of the {@code tomcatPort} attribute.
+ */
 public class PSUpdateTomcatPortInTables extends PSExecSQLStmt {
   /** Creates a new Tomcat port update task. */
-  public PSUpdateTomcatPortInTables() {}
+  public PSUpdateTomcatPortInTables() {
+    super();
+  }
 
   // see base class
   @Override
@@ -38,14 +44,19 @@ public class PSUpdateTomcatPortInTables extends PSExecSQLStmt {
   }
 
   /**
-   * @return Returns the tomcatPort.
+   * Returns the Tomcat port that will be substituted into the SQL statement.
+   *
+   * @return the Tomcat port, never <code>null</code>
    */
   public String getTomcatPort() {
     return tomcatPort;
   }
 
   /**
-   * @param token The tomcatPort to set.
+   * Sets the Tomcat port that will be substituted into the SQL statement.
+   *
+   * @param token the Tomcat port (Ant attribute {@code tomcatPort}) to substitute for {@code
+   *     CATALINA_PORT}
    */
   public void setTomcatPort(String token) {
     this.tomcatPort = token;

@@ -32,6 +32,15 @@ public class LinkbackJexlTools implements IPSJexlExpression {
 
   private LinkbackTokenCodec linkbackCodec = null;
 
+  /** Creates a JEXL tool with no configured codec. */
+  public LinkbackJexlTools() {}
+
+  /**
+   * Encodes assembly parameters into a linkback token.
+   *
+   * @param map the parameters to encode
+   * @return the encoded linkback token
+   */
   @IPSJexlMethod(
       description = "encode a map of parameters into a linkback token.",
       params = {@IPSJexlParam(name = "map", description = "map of <String, Object>")})
@@ -39,18 +48,40 @@ public class LinkbackJexlTools implements IPSJexlExpression {
     return linkbackCodec.encode(map);
   }
 
+  /**
+   * Returns the request parameter name used for linkback tokens.
+   *
+   * @return the request parameter name
+   */
   public String getLinkbackParamName() {
     return LinkbackUtils.LINKBACK_PARAM_NAME;
   }
 
+  /**
+   * Returns the codec used to encode linkback tokens.
+   *
+   * @return the codec used to encode linkback tokens
+   */
   public LinkbackTokenCodec getLinkbackCodec() {
     return linkbackCodec;
   }
 
+  /**
+   * Sets the codec used to encode linkback tokens.
+   *
+   * @param linkbackCodec the codec to use
+   */
   public void setLinkbackCodec(LinkbackTokenCodec linkbackCodec) {
     this.linkbackCodec = linkbackCodec;
   }
 
+  /**
+   * Initializes the JEXL tool and creates the default codec when none is configured.
+   *
+   * @param arg0 the extension definition
+   * @param arg1 the extension directory
+   * @throws PSExtensionException if extension initialization fails
+   */
   public void init(IPSExtensionDef arg0, File arg1) throws PSExtensionException {
     if (linkbackCodec == null) {
       log.debug("create a default codec");

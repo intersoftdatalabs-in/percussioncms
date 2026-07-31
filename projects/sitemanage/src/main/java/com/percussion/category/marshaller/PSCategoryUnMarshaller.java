@@ -19,11 +19,10 @@
 
 package com.percussion.category.marshaller;
 
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.dataformat.xml.jaxb.XmlJaxbAnnotationIntrospector;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
 import com.percussion.category.data.PSCategory;
 import com.percussion.category.data.PSCategoryNode;
 import com.percussion.category.transformer.PSCategoryXmlTransform;
@@ -108,15 +107,14 @@ public class PSCategoryUnMarshaller {
       return null;
     }
     try (Reader reader = new StringReader(categoryJson)) {
-      var mapper = new ObjectMapper();
-      mapper.registerModule(new JavaTimeModule());
-      mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-      mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-      AnnotationIntrospector introspector =
-          new XmlJaxbAnnotationIntrospector(mapper.getTypeFactory());
-      mapper.getDeserializationConfig().withAppendedAnnotationIntrospector(introspector);
+      var mapper =
+          JsonMapper.builder()
+              .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+              .enable(SerializationFeature.INDENT_OUTPUT)
+              .annotationIntrospector(new JakartaXmlBindAnnotationIntrospector())
+              .build();
       return mapper.readValue(categoryJson, PSCategory.class);
-    } catch (IOException e) {
+    } catch (Exception e) {
       log.error("Error parsing category JSON: " + categoryJson, e);
       throw new RuntimeException("Unexpected error processing categories", e);
     }

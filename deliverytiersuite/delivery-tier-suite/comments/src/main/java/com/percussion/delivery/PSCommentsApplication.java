@@ -18,7 +18,7 @@
 
 package com.percussion.delivery;
 
-import com.fasterxml.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
+import tools.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 import com.percussion.delivery.comments.services.PSCommentsRestService;
 import com.percussion.delivery.exceptions.PSJsonMappingErrorResponse;
 import com.percussion.delivery.exceptions.PSUncaughtError;
@@ -41,7 +41,10 @@ import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 @ApplicationPath("/")
 public class PSCommentsApplication extends ResourceConfig {
 
-  /** Registers Jersey/Spring components, REST resources, features, and providers for the comments and likes REST APIs. */
+  /**
+   * Registers Jersey/Spring components, REST resources, features, and providers for the comments
+   * and likes REST APIs.
+   */
   public PSCommentsApplication() {
     // Register Jersey and Spring integration components
     register(RequestContextFilter.class);

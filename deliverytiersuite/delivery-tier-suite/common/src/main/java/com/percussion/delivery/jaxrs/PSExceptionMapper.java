@@ -17,8 +17,8 @@
 
 package com.percussion.delivery.jaxrs;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DatabindException;
 import com.percussion.security.error.PSExceptionUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.WebApplicationException;
@@ -59,10 +59,10 @@ public class PSExceptionMapper implements ExceptionMapper<Exception> {
 
     String clientMsg;
     Status status;
-    if (e instanceof JsonMappingException) {
+    if (e instanceof DatabindException) {
       clientMsg = "Invalid request. JSON property is not of an expected type";
       status = Response.Status.BAD_REQUEST;
-    } else if (e instanceof JsonParseException) {
+    } else if (e instanceof JacksonException) {
       clientMsg = "Invalid request.  Invalid JSON object";
       status = Response.Status.BAD_REQUEST;
     } else if (e instanceof WebApplicationException) {

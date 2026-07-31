@@ -16,7 +16,8 @@
 
 package com.percussion.pso.jexl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.percussion.extension.IPSJexlExpression;
 import com.percussion.extension.IPSJexlMethod;
 import com.percussion.extension.IPSJexlParam;
@@ -49,7 +50,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
   private static final int SC_NOT_MODIFIED = 304;
   private static final HttpClient HTTP_CLIENT =
       HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build();
-  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();
 
   public PSORemoteContentTools() {
     super();

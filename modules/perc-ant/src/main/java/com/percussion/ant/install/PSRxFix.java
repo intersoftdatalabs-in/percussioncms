@@ -111,12 +111,20 @@ public class PSRxFix extends PSAction {
    * Property Accessors and Mutators
    *************************************************************************/
 
-  /** Accessor for the fix modules property */
+  /**
+   * Accessor for the fix modules property.
+   *
+   * @return the list of RxFix module class names to be executed, never <code>null</code>
+   */
   public String[] getFixModules() {
     return m_fixModules;
   }
 
-  /** Mutator for the fix modules property. */
+  /**
+   * Mutator for the fix modules property.
+   *
+   * @param fixModules comma-separated list of RxFix module class names to be executed
+   */
   public void setFixModules(String fixModules) {
     m_fixModules = convertToArray(fixModules);
   }

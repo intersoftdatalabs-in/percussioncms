@@ -10,7 +10,6 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
@@ -23,23 +22,30 @@ import com.percussion.design.objectstore.PSFieldSet;
 import com.percussion.rest.systemdef.ISystemDefAdaptor;
 import com.percussion.rest.systemdef.SystemDefDetail;
 import com.percussion.rest.systemdef.SystemDefFieldSummary;
-import com.percussion.server.PSServer;
 import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.utils.request.PSRequestInfo;
+import com.percussion.webservices.PSErrorException;
+import com.percussion.webservices.content.IPSContentDesignWs;
+import com.percussion.webservices.content.PSContentWsLocator;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Read-only content-editor system definition field catalog ({@link PSContentEditorSystemDef}).
  *
- * <p>Uses {@link PSServer#getContentEditorSystemDef()} in production; mapping helpers are pure so
- * unit tests need no object-store singleton.
+ * <p>Workbench parity: loads via {@link IPSContentDesignWs#loadContentEditorSystemDef} (same design
+ * web service SOAP uses), not {@code PSServer.getContentEditorSystemDef()} alone.
  */
 @PSSiteManageBean
 public class SystemDefAdaptor implements ISystemDefAdaptor {
+
+  private static final Logger log = LogManager.getLogger(SystemDefAdaptor.class);
 
   private static final List<String> DESIGN_GAPS =
       List.of(
@@ -50,12 +56,32 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
   private final Supplier<PSContentEditorSystemDef> systemDefLoader;
 
   public SystemDefAdaptor() {
-    this(PSServer::getContentEditorSystemDef);
+    this(
+        () ->
+            loadSystemDefFromDesignWs(
+                PSContentWsLocator.getContentDesignWebservice(),
+                (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID),
+                (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER)));
   }
 
   /** Package-visible for unit tests that inject a fake system def source. */
   SystemDefAdaptor(Supplier<PSContentEditorSystemDef> systemDefLoader) {
     this.systemDefLoader = systemDefLoader;
+  }
+
+  /**
+   * Production load path used by the default constructor. Package-visible so unit tests can exercise
+   * design-WS success, {@link PSErrorException} wrapping, and absent request session/user without
+   * mocking static locators.
+   */
+  static PSContentEditorSystemDef loadSystemDefFromDesignWs(
+      IPSContentDesignWs designWs, String sessionId, String user) {
+    try {
+      return designWs.loadContentEditorSystemDef(false, false, sessionId, user);
+    } catch (PSErrorException e) {
+      log.error("Failed to load content editor system def via design WS", e);
+      throw new IllegalStateException("Failed to load system def", e);
+    }
   }
 
   @Override

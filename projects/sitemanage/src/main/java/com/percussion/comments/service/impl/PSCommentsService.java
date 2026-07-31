@@ -19,7 +19,8 @@ package com.percussion.comments.service.impl;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.Validate.notNull;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.percussion.comments.data.PSComment;
 import com.percussion.comments.data.PSCommentIds;
 import com.percussion.comments.data.PSCommentList;
@@ -208,7 +209,7 @@ public class PSCommentsService implements IPSCommentsService {
       try {
         var deliveryClient = new PSDeliveryClient();
         deliveryClient.setLicenseOverride(licenseId);
-        var mapper = new ObjectMapper();
+        var mapper = JsonMapper.builder().build();
         var responseMapObj =
             deliveryClient.getJsonObject(
                 new PSDeliveryActionOptions(
@@ -314,7 +315,7 @@ public class PSCommentsService implements IPSCommentsService {
       deliveryClient.push(
           new PSDeliveryActionOptions(
               server, COMMENT_DEFAULT_MODERATION_STATE_PATH, HttpMethodType.PUT, true),
-          new ObjectMapper().writeValueAsString(setState));
+          JsonMapper.builder().build().writeValueAsString(setState));
     } catch (Exception e) {
       log.error(
           "An unknown error occurred while retrieving the default moderation setting. Error: {}",
@@ -346,7 +347,7 @@ public class PSCommentsService implements IPSCommentsService {
       if ("APPROVED".equals(moderationState) || "REJECTED".equals(moderationState)) {
         var returnObject = new java.util.LinkedHashMap<String, Object>();
         returnObject.put("defaultModerationState", moderationState);
-        return new ObjectMapper().writeValueAsString(returnObject);
+        return JsonMapper.builder().build().writeValueAsString(returnObject);
       } else {
         log.error("Unknown default moderation state: {}", moderationState);
         throw new WebApplicationException(Response.serverError().build());
@@ -473,7 +474,7 @@ public class PSCommentsService implements IPSCommentsService {
     try {
       var deliveryClient = new PSDeliveryClient();
       deliveryClient.setLicenseOverride(licenseId);
-      var mapper = new ObjectMapper();
+      var mapper = JsonMapper.builder().build();
 
       Map<String, Object> responseMap =
           (Map<String, Object>)

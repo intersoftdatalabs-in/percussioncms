@@ -376,5 +376,76 @@ class TmxInjectTest(unittest.TestCase):
             self.assertEqual(ctx.exception.code, 2)
 
 
+class MainSkipOnErrorTest(unittest.TestCase):
+    """Verify that a per-key translate failure skips the key and the run
+    continues (does not return non-zero). This is the contract change that
+    prevents one bad key from killing a multi-hour translation run.
+    """
+
+    def setUp(self):
+        self._orig_argv = sys.argv
+        self._orig_cache_file = itd.CACHE_FILE
+        self._orig_invoke = itd.invoke_translate
+        self._orig_load_cache = itd.load_cache
+        self._orig_save_cache = itd.save_cache
+        self._orig_sleep = itd.time.sleep
+        self._tmpdir = tempfile.TemporaryDirectory()
+        itd.CACHE_FILE = Path(self._tmpdir.name) / "cache.json"
+        # Ensure load_cache returns a fresh dict; don't touch disk during run.
+        itd.load_cache = lambda: {}
+        itd.save_cache = lambda _cache: None
+        itd.time.sleep = lambda _s: None  # no throttling in tests
+        self.tmx_path = Path(self._tmpdir.name) / "sample.tmx"
+        self.tmx_path.write_text(
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<tmx version="1.4"><header>'
+            '<prop type="supportedlanguage">en-us</prop>'
+            '</header><body>'
+            '<tu tuid="k@1"><tuv xml:lang="en-us"><seg>Hello</seg></tuv></tu>'
+            '<tu tuid="k@2"><tuv xml:lang="en-us"><seg>World</seg></tuv></tu>'
+            '</body></tmx>\n',
+            encoding="utf-8",
+        )
+
+    def tearDown(self):
+        sys.argv = self._orig_argv
+        itd.CACHE_FILE = self._orig_cache_file
+        itd.invoke_translate = self._orig_invoke
+        itd.load_cache = self._orig_load_cache
+        itd.save_cache = self._orig_save_cache
+        itd.time.sleep = self._orig_sleep
+        self._tmpdir.cleanup()
+
+    def test_runtime_error_on_one_key_continues_run(self):
+        """First key fails; second key succeeds; run returns 0."""
+        calls: list[str] = []
+
+        def fake_invoke(text, target):
+            calls.append(text)
+            if text == "Hello":
+                raise RuntimeError("Null response from translate-shell")
+            return "[te] " + text
+
+        itd.invoke_translate = fake_invoke
+        sys.argv = ["i18n_translate_direct.py", "--target", "te", "--file", str(self.tmx_path)]
+
+        rc = itd.main()
+
+        self.assertEqual(rc, 0, "main() must return 0 even when a key fails")
+        self.assertEqual(calls, ["Hello", "World"], "both keys must be attempted")
+        # TMX should have a Telugu TUV for k@2 only (k@1 was skipped).
+        # Both TUs are present (k@1 with en-us only, k@2 with en-us + te).
+        body = self.tmx_path.read_text(encoding="utf-8")
+        self.assertIn('tuid="k@1"', body)
+        self.assertIn('tuid="k@2"', body)
+        self.assertIn("Hello", body)
+        self.assertIn("[te] World", body)
+        # k@1 must NOT have a Telugu TUV (the skip path leaves it en-us only).
+        # Verify by extracting the k@1 <tu>...</tu> block.
+        import re as _re
+        k1_block = _re.search(r'<tu tuid="k@1">.*?</tu>', body, _re.DOTALL).group(0)
+        self.assertNotIn('xml:lang="te"', k1_block, "skipped key must not get a Te TUV")
+
+
 if __name__ == "__main__":
     unittest.main()

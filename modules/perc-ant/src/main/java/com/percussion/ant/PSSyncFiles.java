@@ -37,12 +37,24 @@ import org.apache.tools.ant.Task;
  */
 public class PSSyncFiles extends Task {
   /** Creates a new file synchronization task. */
-  public PSSyncFiles() {}
+  public PSSyncFiles() {
+    super();
+  }
 
+  /**
+   * Sets the source directory whose contents will be mirrored into the destination.
+   *
+   * @param fromDir the source directory, must already exist when {@link #execute()} is invoked
+   */
   public void setFromdir(File fromDir) {
     m_fromDir = fromDir;
   }
 
+  /**
+   * Sets the destination directory that will be brought into sync with the source.
+   *
+   * @param toDir the destination directory; created if missing
+   */
   public void setTodir(File toDir) {
     m_toDir = toDir;
   }

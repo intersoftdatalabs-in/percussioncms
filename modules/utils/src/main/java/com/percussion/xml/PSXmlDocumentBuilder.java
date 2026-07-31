@@ -880,8 +880,8 @@ public class PSXmlDocumentBuilder {
       value = normalize(value);
     }
 
-    Text textNode = node.getOwnerDocument().createTextNode(value);
-    node.appendChild(textNode);
+    Text StringNode = node.getOwnerDocument().createTextNode(value);
+    node.appendChild(StringNode);
 
     return node;
   }

@@ -18,7 +18,8 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.integrations.siteimprove.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.percussion.integrations.siteimprove.data.PSSiteImproveCredentials;
 import com.percussion.integrations.siteimprove.data.PSSiteImproveSiteConfigurations;
 import com.percussion.metadata.data.PSMetadata;
@@ -154,7 +155,7 @@ public class PSSiteimprove {
         addSiteImproveTaskToPreExistingEditions(credentials.getSiteName());
         var metadataKey = SITEIMPROVE_CREDENTIALS_BASE_KEY + credentials.getSiteName();
         metadataService.save(
-            new PSMetadata(metadataKey, new ObjectMapper().writeValueAsString(jsonMap)));
+            new PSMetadata(metadataKey, JsonMapper.builder().build().writeValueAsString(jsonMap)));
         // CMS-8189: Upgraded jquery unable to parse if response is empty string. Advisable to
         // return "204 - No content" to avoid jquery parser error for json.
         return Response.noContent().build();
@@ -194,7 +195,7 @@ public class PSSiteimprove {
           "isSiteImproveEnabled", publishSettings.getIsSiteImproveEnabled().orElse(false));
       metadataService.save(
           new PSMetadata(
-              siteConfigKey, new ObjectMapper().writeValueAsString(publishSettingsJSON)));
+              siteConfigKey, JsonMapper.builder().build().writeValueAsString(publishSettingsJSON)));
       // CMS-8189: Upgraded jquery unable to parse if response is empty string. Advisable to return
       // "204 - No content" to avoid jquery parser error for json.
       return Response.noContent().build();

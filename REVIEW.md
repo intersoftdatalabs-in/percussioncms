@@ -24,27 +24,24 @@ from the base branch, never from the feature branch under review.
 - **Lockstep contracts must update multiple places at once.** When a
   parent-POM dependency version bumps (canonical example:
   `modules/perc-distribution-tree/README.md:178-189` JDBC drivers):
+
   1. The version property in the parent POM.
   2. `BundledJdbcDrivers.EXACT_FILENAMES` and `PRIOR_FILENAMES` in
      `modules/perc-distribution-tree/src/test/java/com/percussion/distribution/jdbc/BundledJdbcDrivers.java`.
   3. The `<delete>` block in
      `modules/perc-distribution-tree/src/main/resources/distribution/rxconfig/Installer/install.xml`.
-  `InstallXmlDeleteSetTest` enforces strict set equality; a clean
-  per-module `Maven wrapper clean install` in `modules/perc-distribution-tree`
-  is the proof of correctness.
-
+     `InstallXmlDeleteSetTest` enforces strict set equality; a clean
+     per-module `Maven wrapper clean install` in `modules/perc-distribution-tree`
+     is the proof of correctness.
 - **H2 is intentionally absent from the bundled delete list.** Do not
   "fix" this — H2 is the default embedded engine (`#548`); it has a
   staging glob but is preserved across upgrades.
-
 - **Java 21 stack.** Spring (NOT Spring Boot), Hibernate, JSP, jQuery,
   XML/XSL, Artemis, JUnit 5, Mockito. Use parent-POM-managed plugin
   versions; do not duplicate plugin versions in module `pom.xml`.
-
 - **No new dependencies without justification.** Prefer parent POM
   `<dependencyManagement>` over per-module dependency declarations.
   Dependabot is configured at `.github/dependabot.yml` for `development`.
-
 - **Secrets and tokens never appear in code, logs, or test fixtures.**
   A `MKD-REDACTED` marker in a session indicates a leak.
 
@@ -126,3 +123,4 @@ from the base branch, never from the feature branch under review.
   can confirm without re-reading the spec.
 - If the PR is clean against the rules above, leave a short
   acknowledgement so the human does not have to re-derive the result.
+

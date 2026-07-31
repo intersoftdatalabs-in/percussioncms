@@ -21,8 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.percussion.design.objectstore.PSContentEditorSharedDef;
@@ -32,6 +37,8 @@ import com.percussion.design.objectstore.PSSharedFieldGroup;
 import com.percussion.rest.sharedfields.SharedFieldGroupDetail;
 import com.percussion.rest.sharedfields.SharedFieldGroupSummary;
 import com.percussion.util.PSCollection;
+import com.percussion.webservices.PSErrorException;
+import com.percussion.webservices.content.IPSContentDesignWs;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -120,5 +127,50 @@ class SharedFieldsAdaptorTest {
     assertEquals(
         "required", SharedFieldsAdaptor.mapOccurrence(PSField.OCCURRENCE_DIMENSION_REQUIRED));
     assertEquals("unknown", SharedFieldsAdaptor.mapOccurrence(-99));
+  }
+
+  @Test
+  void loadSharedDefFromDesignWs_returnsDesignWsResult() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSContentEditorSharedDef def = mock(PSContentEditorSharedDef.class);
+    when(designWs.loadContentEditorSharedDef(false, false, "sid", "admin")).thenReturn(def);
+
+    assertSame(def, SharedFieldsAdaptor.loadSharedDefFromDesignWs(designWs, "sid", "admin"));
+    verify(designWs).loadContentEditorSharedDef(false, false, "sid", "admin");
+  }
+
+  @Test
+  void loadSharedDefFromDesignWs_wrapsPsErrorException() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSErrorException cause = new PSErrorException("ws failed");
+    when(designWs.loadContentEditorSharedDef(false, false, "sid", "admin")).thenThrow(cause);
+
+    IllegalStateException ex =
+        assertThrows(
+            IllegalStateException.class,
+            () -> SharedFieldsAdaptor.loadSharedDefFromDesignWs(designWs, "sid", "admin"));
+    assertEquals("Failed to load shared def", ex.getMessage());
+    assertSame(cause, ex.getCause());
+  }
+
+  @Test
+  void loadSharedDefFromDesignWs_passesNullSessionAndUserWhenRequestInfoAbsent() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSContentEditorSharedDef def = mock(PSContentEditorSharedDef.class);
+    when(designWs.loadContentEditorSharedDef(eq(false), eq(false), isNull(), isNull()))
+        .thenReturn(def);
+
+    assertSame(def, SharedFieldsAdaptor.loadSharedDefFromDesignWs(designWs, null, null));
+    verify(designWs).loadContentEditorSharedDef(false, false, null, null);
+  }
+
+  @Test
+  void listGroups_usesInjectedLoaderFromDefaultConstructorShape() {
+    PSContentEditorSharedDef def = mock(PSContentEditorSharedDef.class);
+    when(def.getFieldGroups()).thenReturn(new PSCollection(PSSharedFieldGroup.class).iterator());
+
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(() -> def);
+    assertNotNull(adaptor.listGroups(null));
+    assertTrue(adaptor.listGroups(null).isEmpty());
   }
 }

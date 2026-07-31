@@ -70,25 +70,48 @@ import org.apache.tools.ant.taskdefs.Expand;
  *
  * </pre>
  */
+/**
+ * Unzips a Rhythmyx {@code .ppkg} package from the supplied source folder into the destination
+ * folder derived from the root directory. The package is first expanded into a {@code temp}
+ * subdirectory and then moved into its final location.
+ *
+ * <p>Ant task usage:
+ *
+ * <pre>{@code
+ * <taskdef name="psunzippackage"
+ *           class="com.percussion.ant.packagetool.PSUnZipPackage"
+ *           classpath="c:\lib"/>
+ * <psunzippackage zipFilePath="..." rootDirPath="..."/>
+ * }</pre>
+ */
 public class PSUnZipPackage extends Expand {
   /** Creates a new unzip package task. */
-  public PSUnZipPackage() {}
+  public PSUnZipPackage() {
+    super();
+  }
 
-  /** The source package file path(required) */
+  /** The source package file path (required). */
   private String m_zipFilePath;
 
-  /** Root directory where package folder will go. It is required and comes from build.xml */
+  /**
+   * Root directory where the package folder will be created. Required; comes from {@code
+   * build.xml}.
+   */
   private String m_rootDirPath;
 
   /**
-   * @param zipFilePath the zipFilePath to set
+   * Sets the path of the {@code .ppkg} file to be unzipped.
+   *
+   * @param zipFilePath absolute path to the package file, may not be <code>null</code> or empty
    */
   public void setZipFilePath(String zipFilePath) {
     this.m_zipFilePath = zipFilePath;
   }
 
   /**
-   * @param rootDir the rootDir to set
+   * Sets the root directory under which the unzipped package folder will be created.
+   *
+   * @param rootDir absolute path to the destination root, may not be <code>null</code> or empty
    */
   public void setRootDirPath(String rootDir) {
     this.m_rootDirPath = rootDir;

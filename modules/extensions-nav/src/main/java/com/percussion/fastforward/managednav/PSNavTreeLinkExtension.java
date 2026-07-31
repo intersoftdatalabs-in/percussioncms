@@ -52,6 +52,12 @@ import org.w3c.dom.Document;
  */
 public class PSNavTreeLinkExtension extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
+
+  /** Default constructor. */
+  public PSNavTreeLinkExtension() {
+    super();
+  }
+
   /**
    * This extension never modifies the stylesheet.
    *
@@ -95,7 +101,7 @@ public class PSNavTreeLinkExtension extends PSDefaultExtension
    * @param loc the locator of the self node. If <code>null</code> the content id and revision from
    *     the parent context will be used.
    * @return the clean XML document. Never <code>null</code>
-   * @throws PSNavException
+   * @throws PSNavException if an error occurs while building the NavTree XML.
    */
   public static Document getTreeVariantXMLClean(IPSRequestContext req, PSLocator loc)
       throws PSNavException {
@@ -128,7 +134,7 @@ public class PSNavTreeLinkExtension extends PSDefaultExtension
    * @param loc the locator of the self node. If <code>null</code> the content id and revision from
    *     the parent context will be used.
    * @return the Raw XML document. Never <code>null</code>
-   * @throws PSNavException
+   * @throws PSNavException if an error occurs while loading the NavTree variant XML.
    */
   public static Document getTreeVariantXMLRaw(IPSRequestContext req, PSLocator loc)
       throws PSNavException {
@@ -153,7 +159,7 @@ public class PSNavTreeLinkExtension extends PSDefaultExtension
    * @param req the parent request context.
    * @param loc the locator for the root node.
    * @return the NavTree XML document.
-   * @throws PSNavException
+   * @throws PSNavException if an error occurs while loading the NavTree root XML.
    */
   public static Document getTreeVariantXMLRoot(IPSRequestContext req, PSLocator loc)
       throws PSNavException {

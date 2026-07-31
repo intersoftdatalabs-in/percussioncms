@@ -37,6 +37,12 @@ import org.w3c.dom.Document;
  */
 public class PSNavReset extends PSDefaultExtension
     implements IPSRequestPreProcessor, IPSResultDocumentProcessor {
+
+  /** Default constructor. */
+  public PSNavReset() {
+    super();
+  }
+
   /*
    * (non-Javadoc)
    *

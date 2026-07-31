@@ -476,6 +476,44 @@ vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   }),
 }));
 
+vi.mock("../../../main/ts/api/developer/serverConfigsApi", () => ({
+  listServerConfigs: vi.fn().mockResolvedValue([
+    {
+      name: "LOG_CONFIG",
+      displayName: "Logging configuration",
+      fileName: "log4j.xml",
+    },
+  ]),
+  getServerConfigDetail: vi.fn().mockResolvedValue({
+    name: "LOG_CONFIG",
+    content: "<Configuration/>",
+    designGaps: [],
+  }),
+}));
+
+vi.mock("../../../main/ts/api/developer/controlsApi", () => ({
+  listControls: vi.fn().mockResolvedValue([
+    { name: "sys_EditBox", displayName: "Edit Box", scope: "system", dimension: "single" },
+  ]),
+  getControlDetail: vi.fn().mockResolvedValue({
+    name: "sys_EditBox",
+    parameters: [],
+    designGaps: [],
+  }),
+}));
+
+vi.mock("../../../main/ts/api/developer/sitesApi", () => ({
+  listSites: vi.fn().mockResolvedValue([
+    {
+      name: "Corporate",
+      description: "Main site",
+      baseUrl: "https://example.com",
+      pageBasedSite: true,
+    },
+  ]),
+  SITE_DESIGN_GAPS: [],
+}));
+
 describe("DeveloperShell", () => {
   beforeEach(() => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
@@ -716,6 +754,39 @@ it("loads views catalog section", async () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-wf-error")).toBeTruthy();
     });
+  });
+
+  it("loads server configs catalog section", async () => {
+    render(<DeveloperShell initialSection="server-configs" embedded />);
+    expect(
+      screen.getByTestId("tab-developer-server-configs").getAttribute("aria-selected"),
+    ).toBe("true");
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-cfg-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-cfg-table").textContent).toContain(
+      "Logging configuration",
+    );
+  });
+
+  it("loads CE controls catalog section", async () => {
+    render(<DeveloperShell initialSection="ce-controls" embedded />);
+    expect(screen.getByTestId("tab-developer-ce-controls").getAttribute("aria-selected")).toBe(
+      "true",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ctl-table").textContent).toContain("sys_EditBox");
+  });
+
+  it("loads sites catalog section", async () => {
+    render(<DeveloperShell initialSection="sites" embedded />);
+    expect(screen.getByTestId("tab-developer-sites").getAttribute("aria-selected")).toBe("true");
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-site-table").textContent).toContain("Corporate");
   });
 
   it("edits content type workflow and template associations on save", async () => {

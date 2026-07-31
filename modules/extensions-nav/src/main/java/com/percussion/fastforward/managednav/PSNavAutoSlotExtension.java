@@ -71,6 +71,12 @@ import org.w3c.dom.NodeList;
  */
 public class PSNavAutoSlotExtension extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
+
+  /** Default constructor. */
+  public PSNavAutoSlotExtension() {
+    super();
+  }
+
   /**
    * This exit will never modify the stylesheet.
    *

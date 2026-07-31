@@ -18,8 +18,7 @@
 package com.percussion.delivery.exceptions;
 
 /**
- * Signals that an error occurred while sending or preparing an email message in the delivery
- * tier.
+ * Signals that an error occurred while sending or preparing an email message in the delivery tier.
  */
 public class PSEmailException extends Exception {
   private static final long serialVersionUID = 1L;

@@ -80,7 +80,7 @@
         <ant.contrib.version>1.0b3</ant.contrib.version>
         <ant.version>1.10.14</ant.version>
         <aopalliance.version>1.0</aopalliance.version>
-        <artemis.version>2.50.0</artemis.version>
+        <artemis.version>2.52.0</artemis.version>
         <avalon.version>4.1.5</avalon.version>
         <awssdk.version>1.12.797</awssdk.version>
         <batik.version>1.19</batik.version>
@@ -132,13 +132,15 @@
         <httpcomponents.core.version>4.4.16</httpcomponents.core.version>
         <httpcomponents.version>4.5.14</httpcomponents.version>
         <install.jre.version>8.222.10.1</install.jre.version>
-        <jackson.annotation.api.version>2.22</jackson.annotation.api.version>
-        <jackson.version>2.22.1</jackson.version>
+        <!-- Jackson 3.x runtime (tools.jackson); annotations stay on 2.x com.fasterxml by design -->
+        <jackson.annotation.api.version>2.21</jackson.annotation.api.version>
+        <jackson.version>3.1.5</jackson.version>
         <jakarta.activation.version>2.1.4</jakarta.activation.version>
         <jakarta.annotation.api.version>3.0.0</jakarta.annotation.api.version>
         <jakarta.el.api.version>6.0.1</jakarta.el.api.version>
         <jakarta.inject.version>2.0.1</jakarta.inject.version>
-        <jakarta.jackson.version>2.20.1</jakarta.jackson.version>
+        <!-- Align Jakarta-RS / xmlbind modules with core Jackson 3 line -->
+        <jakarta.jackson.version>${jackson.version}</jakarta.jackson.version>
         <jakarta.jms.api.version>3.1.0</jakarta.jms.api.version>
         <jakarta.json.api.version>2.1.3</jakarta.json.api.version>
         <jakarta.mail.api.version>2.1.5</jakarta.mail.api.version>
@@ -164,7 +166,7 @@
         <jenkins.buildNumber>2024</jenkins.buildNumber>
         <!-- Jetty 12 EE11 Maven plugin (dev jetty:run). Runtime packaging uses perc-jetty ee11 / jetty.version. -->
         <jetty.maven.plugin.version>${jetty.version}</jetty.maven.plugin.version>
-        <jetty.version>12.1.7</jetty.version>
+        <jetty.version>12.1.11</jetty.version>
         <jfx.version>11.0.2</jfx.version>
         <json.version>20251224</json.version>
         <jsoup.version>1.22.1</jsoup.version>
@@ -213,7 +215,7 @@
         <mockito.version>5.21.0</mockito.version>
         <mssql.version>13.3.1.jre11-preview</mssql.version>
         <mysql.connector.version>8.4.0</mysql.connector.version>
-        <nettyall.version>4.2.9.Final</nettyall.version>
+        <nettyall.version>4.2.16.Final</nettyall.version>
         <ojdbc17.version>23.26.0.0.0</ojdbc17.version>
         <opencsv.version>5.12.0</opencsv.version>
         <oracle.version>12.1.0.1</oracle.version>
@@ -665,7 +667,7 @@
                 <version>${swagger.version}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>com.fasterxml.jackson.module</groupId>
+                        <groupId>tools.jackson.module</groupId>
                         <artifactId>jackson-module-jaxb-annotations</artifactId>
                     </exclusion>
                 </exclusions>
@@ -676,7 +678,7 @@
                 <version>${swagger.version}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>com.fasterxml.jackson.module</groupId>
+                        <groupId>tools.jackson.module</groupId>
                         <artifactId>jackson-module-jaxb-annotations</artifactId>
                     </exclusion>
                 </exclusions>
@@ -1655,22 +1657,22 @@
                 <version>${commons.file.upload.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
+                <groupId>tools.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.fasterxml.jackson.jaxrs</groupId>
+                <groupId>tools.jackson.jaxrs</groupId>
                 <artifactId>jackson-jaxrs-json-provider</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
+                <groupId>tools.jackson.jakarta.rs</groupId>
                 <artifactId>jackson-jakarta-rs-json-provider</artifactId>
                 <version>${jakarta.jackson.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.fasterxml.jackson.module</groupId>
+                <groupId>tools.jackson.module</groupId>
                 <artifactId>jackson-module-jakarta-xmlbind-annotations</artifactId>
                 <version>${jakarta.jackson.version}</version>
             </dependency>
@@ -1680,7 +1682,7 @@
                 <version>${jackson.annotation.api.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.fasterxml.jackson.module</groupId>
+                <groupId>tools.jackson.module</groupId>
                 <artifactId>jackson-module-jaxb-annotations</artifactId>
                 <version>${jackson.version}</version>
                 <exclusions>
@@ -1705,28 +1707,13 @@
                 <version>${jaxb.api.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
+                <groupId>tools.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <groupId>tools.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-xml</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.datatype</groupId>
-                <artifactId>jackson-datatype-jsr310</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.module</groupId>
-                <artifactId>jackson-module-parameter-names</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.datatype</groupId>
-                <artifactId>jackson-datatype-jdk8</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
@@ -2643,7 +2630,7 @@
                         </execution>
                     </executions>
                 </plugin>
-       <!-- re-enable when maven central publishing issue is resolved  - til then it breaks dependabot
+                <!-- re-enable when maven central publishing issue is resolved  - til then it breaks dependabot
 
             <plugin>
                     <groupId>com.intsof</groupId>
@@ -2695,7 +2682,7 @@
             </plugins>
         </pluginManagement>
         <plugins>
-     <!--       <plugin>
+            <!--       <plugin>
                 <groupId>com.intsof</groupId>
                 <artifactId>ai-build-integrity-maven-plugin</artifactId>
                 <version>0.13.3</version>

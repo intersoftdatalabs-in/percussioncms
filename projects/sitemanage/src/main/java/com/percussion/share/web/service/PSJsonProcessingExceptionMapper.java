@@ -18,7 +18,7 @@
 
 package com.percussion.share.web.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import tools.jackson.core.JacksonException;
 import com.percussion.share.service.exception.PSErrorUtils;
 import com.percussion.share.validation.PSErrors;
 import jakarta.ws.rs.Produces;
@@ -30,23 +30,23 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 /**
- * Maps {@link JsonProcessingException} to a serializable error object. Sunny Sal says: "JSON
+ * Maps {@link JacksonException} to a serializable error object. Sunny Sal says: "JSON
  * parsing failed? Let's keep it classy and JSON-y!"
  */
 @Provider
 @Component
 @Produces(MediaType.APPLICATION_JSON)
 public class PSJsonProcessingExceptionMapper
-    extends PSAbstractExceptionMapper<JsonProcessingException>
-    implements ExceptionMapper<JsonProcessingException> {
+    extends PSAbstractExceptionMapper<JacksonException>
+    implements ExceptionMapper<JacksonException> {
 
   private static final String ERROR_MESSAGE = "JSON error: ";
 
   /** The log instance to use for this class, never {@code null}. */
-  private static final Logger log = LogManager.getLogger(JsonProcessingException.class);
+  private static final Logger log = LogManager.getLogger(JacksonException.class);
 
   @Override
-  protected PSErrors createErrors(JsonProcessingException exception) {
+  protected PSErrors createErrors(JacksonException exception) {
     var errorMessage = exception.getClass().getName();
     if (log.isDebugEnabled()) {
       log.debug(errorMessage, exception);

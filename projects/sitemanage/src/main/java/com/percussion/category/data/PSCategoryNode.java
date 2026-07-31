@@ -20,10 +20,11 @@
 package com.percussion.category.data;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 import com.percussion.share.data.PSAbstractDataObject;
 import jakarta.xml.bind.annotation.*;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -343,9 +344,9 @@ public class PSCategoryNode extends PSAbstractDataObject
    */
   public String toJSON() {
     try {
-      var mapper = new ObjectMapper();
+      var mapper = JsonMapper.builder().build();
       return mapper.writeValueAsString(this);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       System.out.println(e.getMessage());
       return null;
     }

@@ -18,7 +18,7 @@ package com.percussion.analytics.service.impl;
 
 import static com.percussion.share.service.exception.PSParameterValidationUtils.validateParameters;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import tools.jackson.core.JacksonException;
 import com.percussion.analytics.data.PSAnalyticsProviderConfig;
 import com.percussion.analytics.error.IPSAnalyticsErrorMessageHandler;
 import com.percussion.analytics.error.PSAnalyticsProviderException;
@@ -88,11 +88,11 @@ public class PSAnalyticsProviderService implements IPSAnalyticsProviderService {
 
     config.setPassword(ePwd);
 
-    var objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
+    var objectMapper = new tools.jackson.databind.ObjectMapper();
     String objectToJson = null;
     try {
       objectToJson = objectMapper.writeValueAsString(config);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       log.error("Exception occurred while parsing -> {}", PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }
@@ -115,7 +115,7 @@ public class PSAnalyticsProviderService implements IPSAnalyticsProviderService {
     if (metadata == null) return null;
     var json = metadata.getData();
     if (StringUtils.isBlank(json)) return null;
-    var objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
+    var objectMapper = new tools.jackson.databind.ObjectMapper();
     try {
       config = objectMapper.readValue(json, PSAnalyticsProviderConfig.class);
 
@@ -146,7 +146,7 @@ public class PSAnalyticsProviderService implements IPSAnalyticsProviderService {
 
       config.setPassword(pwd);
       config.setUserid(userID);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       log.error("Error parsing Analytics configuration: {}", e.getMessage());
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       var builder = validateParameters("json file");

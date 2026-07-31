@@ -29,11 +29,15 @@ public class PSRestLikes implements IPSLikes {
 
   /** The unique identifier for this like. */
   private String id;
+
   private String likeId;
+
   /** The type of liked entity (page, comment, image). */
   private String type;
+
   /** The site this like belongs to. */
   private String site;
+
   /** The current total number of likes. */
   private int total;
 

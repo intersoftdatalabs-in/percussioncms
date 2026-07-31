@@ -17,8 +17,9 @@
 
 package com.percussion.sitemanage.task.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.percussion.cms.IPSConstants;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.extension.IPSExtensionDef;
@@ -110,10 +111,10 @@ public class PSSiteMapGeneratorTask implements IPSEditionTask {
       var jsonString = site.getGenerateSiteMapOptions();
       PSGenerateSiteMapOptions psGenerateSiteMapOptions = null;
       if (jsonString != null && !jsonString.trim().isEmpty()) {
-        var mapper = new ObjectMapper();
+        var mapper = JsonMapper.builder().build();
         try {
           psGenerateSiteMapOptions = mapper.readValue(jsonString, PSGenerateSiteMapOptions.class);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
           log.warn(
               "Failed to parse generateSiteMapOptions JSON, using defaults. Error: {}",
               PSExceptionUtils.getMessageForLog(e));
