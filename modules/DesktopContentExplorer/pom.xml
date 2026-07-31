@@ -69,6 +69,16 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!--
+            Provided scope: hibernate-core is only needed at compile and javadoc
+            time so that javadoc can resolve @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+            references from classes in the classpath. It is excluded from the shaded jar.
+        -->
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>utils</artifactId>
