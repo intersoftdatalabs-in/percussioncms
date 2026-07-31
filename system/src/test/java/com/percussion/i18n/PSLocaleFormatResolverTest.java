@@ -98,5 +98,42 @@ public class PSLocaleFormatResolverTest {
     assertTrue(shipped.containsKey("fr-fr"));
     assertTrue(shipped.containsKey("ar"));
     assertEquals(PSLocaleFormat.TEXT_DIR_RTL, shipped.get("ar").getTextDir());
+    // Base language tags used for TMX storage / format inheritance
+    assertTrue(shipped.containsKey("de"));
+    assertTrue(shipped.containsKey("fr"));
+    assertTrue(shipped.containsKey("it"));
+    assertTrue(shipped.containsKey("nl"));
+    assertTrue(shipped.containsKey("pt"));
+    assertTrue(shipped.containsKey("tr"));
+    assertEquals("EUR", shipped.get("de").getCurrencyCode());
+    assertEquals("EUR", shipped.get("fr").getCurrencyCode());
+  }
+
+  @Test
+  public void lookupChain_frenchRegionalFallsBackToBaseFr() {
+    assertEquals(List.of("fr-fr", "fr", "en-us"), PSLocaleFormatResolver.lookupChain("fr-fr"));
+    assertEquals(List.of("de-de", "de", "en-us"), PSLocaleFormatResolver.lookupChain("de-de"));
+    assertEquals(List.of("it-it", "it", "en-us"), PSLocaleFormatResolver.lookupChain("it-it"));
+  }
+
+  @Test
+  public void resolve_regionalInheritsBaseFormatWhenPartial() {
+    Map<String, PSLocaleFormat> catalog = new HashMap<>();
+    PSLocaleFormat fr = new PSLocaleFormat("fr");
+    fr.setCurrencyCode("EUR");
+    fr.setDatePattern("dd/MM/yyyy");
+    fr.setTextDir(PSLocaleFormat.TEXT_DIR_LTR);
+    catalog.put("fr", fr);
+
+    // Country override only for currency/tz-style fields would win; missing
+    // fields inherit from base fr then en-us floor.
+    PSLocaleFormat frBe = new PSLocaleFormat("fr-be");
+    frBe.setDefaultTz("Europe/Brussels");
+    catalog.put("fr-be", frBe);
+
+    PSLocaleFormat resolved = PSLocaleFormatResolver.resolve("fr-be", catalog);
+    assertEquals("EUR", resolved.getCurrencyCode());
+    assertEquals("dd/MM/yyyy", resolved.getDatePattern());
+    assertEquals("Europe/Brussels", resolved.getDefaultTz());
   }
 }

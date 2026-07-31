@@ -89,6 +89,27 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <configuration>
+                    <formats>
+                        <format>
+                            <includes>
+                                <include>**/*.json</include>
+                            </includes>
+                            <excludes>
+                                <exclude>scripts/.cache/**</exclude>
+                                <exclude>**/target/**</exclude>
+                                <exclude>**/node_modules/**</exclude>
+                            </excludes>
+                            <prettier>
+                                <prettierVersion>2.8.8</prettierVersion>
+                            </prettier>
+                        </format>
+                    </formats>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>

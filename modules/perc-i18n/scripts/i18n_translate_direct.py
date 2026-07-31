@@ -3,12 +3,15 @@
 
 This script is a variant of i18n_translate.py that prefers ``trans``
 (translate-shell) on PATH, falling back to the ``soimort/translate-shell``
-Docker image when ``trans`` is not available. Rate limits use the same
-exponential backoff contract as ``i18n_translate.py`` (2s base, 60s cap,
-±20% jitter, up to 5 attempts). Successful calls do not sleep.
+Docker image when ``trans`` is not available. Pass ``--docker`` to force
+Docker (typical on Windows where only Docker Desktop is installed). Rate
+limits use the same exponential backoff contract as ``i18n_translate.py``
+(2s base, 60s cap, ±20% jitter, up to 5 attempts).
 
 Usage:
     python3 modules/perc-i18n/scripts/i18n_translate_direct.py --target hi
+    python3 modules/perc-i18n/scripts/i18n_translate_direct.py --target ar --docker
+    python3 modules/perc-i18n/scripts/i18n_translate_direct.py --target ar --replace-existing
     python3 modules/perc-i18n/scripts/i18n_translate_direct.py --target hi --fix-matching-en
     python3 modules/perc-i18n/scripts/i18n_translate_direct.py --target hi-in --variant-base hi
 """
@@ -16,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import html
 import json
 import random
 import re
@@ -26,12 +30,23 @@ import time
 from pathlib import Path
 from xml.sax.saxutils import escape as xml_escape
 
-# Windows terminals default to cp1252; force UTF-8 so translated text and
-# TMX content can be printed without encoding errors.
-if sys.stdout.encoding.lower() != 'utf-8':
-    sys.stdout.reconfigure(encoding='utf-8')
-if sys.stderr.encoding.lower() != 'utf-8':
-    sys.stderr.reconfigure(encoding='utf-8')
+# Windows terminals often default to cp1252 / cp65001; force UTF-8 so Arabic
+# and other non-Latin translations can be printed and written safely.
+def _force_utf8_stdio() -> None:
+    for stream in (sys.stdout, sys.stderr):
+        enc = (getattr(stream, 'encoding', None) or '').lower().replace('-', '')
+        if enc in ('utf8', 'cp65001'):
+            continue
+        try:
+            stream.reconfigure(encoding='utf-8')  # type: ignore[attr-defined]
+        except (AttributeError, OSError, ValueError):
+            pass
+
+
+_force_utf8_stdio()
+
+# Module-level engine preference (set from CLI --docker).
+_force_docker = False
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 I18N_DIR = REPO_ROOT / 'modules' / 'perc-i18n' / 'src' / 'main' / 'resources' / 'i18n'
@@ -105,6 +120,88 @@ def save_cache(cache: dict[str, str]) -> None:
     tmp.replace(CACHE_FILE)
 
 
+def _default_trans_cmd(text: str, target: str) -> list[str]:
+    """Build the preferred local ``trans`` argv.
+
+    ``-no-bidi`` is required for RTL targets (e.g. ``ar``): without it,
+    translate-shell pads the line for terminal display and rewrites Arabic
+    into presentation forms / visual order, which corrupts TMX storage and
+    placeholders such as ``{0}``.
+    """
+    return ['trans', '--brief', '-no-bidi', f':{target}', text]
+
+
+def _default_docker_cmd(text: str, target: str) -> list[str]:
+    """Build the Docker translate-shell argv (same flags as local ``trans``).
+
+    Forces UTF-8 inside the container so Windows Docker Desktop captures
+    Arabic (and other non-Latin) stdout correctly.
+    """
+    return [
+        'docker', 'run', '--rm',
+        '-e', 'LANG=C.UTF-8',
+        '-e', 'LC_ALL=C.UTF-8',
+        DOCKER_IMAGE,
+        DOCKER_BRIEF_FLAG, '-no-bidi', text, f':{target}',
+    ]
+
+
+def _normalize_engine_output(stdout: str, stderr: str) -> str:
+    """Return the brief translation from subprocess streams.
+
+    Strips BOM / whitespace. On some Windows Docker setups the brief result
+    can land on stderr while stdout is empty; accept stderr when it does not
+    look like an error banner.
+    """
+    out = (stdout or '').replace('\ufeff', '').strip()
+    if out:
+        return out
+    err = (stderr or '').replace('\ufeff', '').strip()
+    if not err:
+        return ''
+    lowered = err.lower()
+    if any(tok in lowered for tok in (
+        'error', 'warning', 'unable', 'failed', 'not found', 'denied',
+    )):
+        return ''
+    # Single-line brief translation only (reject multi-line diagnostics).
+    if '\n' in err:
+        return ''
+    return err
+
+
+def _resolve_initial_cmd(text: str, target: str,
+                         trans_cmd: list[str] | None) -> list[str]:
+    """Pick local ``trans`` or Docker based on PATH and ``--docker``."""
+    if trans_cmd is not None:
+        return trans_cmd
+    if _force_docker:
+        if shutil.which('docker') is None:
+            raise RuntimeError(
+                '--docker was set but docker is not on PATH. '
+                'Install Docker Desktop and ensure `docker` works in this shell.',
+            )
+        return _default_docker_cmd(text, target)
+    if shutil.which('trans') is not None:
+        return _default_trans_cmd(text, target)
+    if shutil.which('docker') is not None:
+        global _warned_trans_fallback
+        if not _warned_trans_fallback:
+            print(
+                'trans not found on PATH; using Docker translate-shell '
+                '(pass --docker to force this path)',
+                file=sys.stderr,
+                flush=True,
+            )
+            _warned_trans_fallback = True
+        return _default_docker_cmd(text, target)
+    raise RuntimeError(
+        'trans (translate-shell) is not on PATH and Docker is unavailable. '
+        'Install translate-shell (https://github.com/soimort/translate-shell) '
+        'or install Docker and pull the soimort/translate-shell image.',
+    )
+
+
 def invoke_translate(text: str, target: str, *,
                      trans_cmd: list[str] | None = None) -> str:
     """Run translate-shell, preferring ``trans`` on PATH, falling back to Docker.
@@ -114,9 +211,7 @@ def invoke_translate(text: str, target: str, *,
     obtained after exhausting retries. Rate-limit responses (429 / "too many
     requests") trigger exponential backoff; successful calls do not sleep.
     """
-    cmd = trans_cmd if trans_cmd is not None else [
-        'trans', '--brief', f':{target}', text,
-    ]
+    cmd = _resolve_initial_cmd(text, target, trans_cmd)
     delay = BACKOFF_START_SEC
     attempt = 0
     while True:
@@ -128,21 +223,22 @@ def invoke_translate(text: str, target: str, *,
                 text=True,
                 check=False,
                 encoding='utf-8',
+                errors='replace',
             )
         except FileNotFoundError as e:
-            # If this is the default trans command and docker is available,
-            # fall back to the Docker image once.
-            if trans_cmd is None and cmd[0] == 'trans' and shutil.which('docker') is not None:
+            # Binary disappeared mid-run, or PATH race — try Docker once.
+            if (trans_cmd is None and not _force_docker
+                    and cmd and cmd[0] == 'trans'
+                    and shutil.which('docker') is not None):
                 global _warned_trans_fallback
                 if not _warned_trans_fallback:
                     print(
                         'trans not found on PATH; falling back to Docker translate-shell',
                         file=sys.stderr,
+                        flush=True,
                     )
                     _warned_trans_fallback = True
-                cmd = [
-                    'docker', 'run', '--rm', DOCKER_IMAGE, DOCKER_BRIEF_FLAG, text, f':{target}',
-                ]
+                cmd = _default_docker_cmd(text, target)
                 attempt = 0
                 delay = BACKOFF_START_SEC
                 continue
@@ -153,7 +249,14 @@ def invoke_translate(text: str, target: str, *,
                 f'Underlying error: {e}',
             ) from e
         if result.returncode == 0:
-            return result.stdout.rstrip('\n')
+            out = _normalize_engine_output(result.stdout, result.stderr)
+            if out:
+                return out
+            raise RuntimeError(
+                f'translate-shell returned empty translation '
+                f'(rc={result.returncode}): stdout={result.stdout!r} '
+                f'stderr={result.stderr!r}',
+            )
         lowered = (result.stderr + result.stdout).lower()
         is_rate_limit = (
             '429' in lowered
@@ -166,6 +269,7 @@ def invoke_translate(text: str, target: str, *,
             print(
                 f'  rate limit; sleeping {sleep_s:.1f}s (attempt {attempt})',
                 file=sys.stderr,
+                flush=True,
             )
             time.sleep(sleep_s)
             delay *= 2
@@ -187,6 +291,12 @@ def invoke_translate(text: str, target: str, *,
         )
 
 
+def _preview(s: str, n: int = 50) -> str:
+    """Single-line preview for progress logs."""
+    one = s.replace('\n', ' ').replace('\r', ' ')
+    return one if len(one) <= n else one[:n] + '…'
+
+
 def translate(text: str, target: str, *, cache: dict[str, str] | None = None, force: bool = False) -> str:
     """Translate text to target, honoring cache."""
     if PLACEHOLDER_RE.match(text):
@@ -195,14 +305,21 @@ def translate(text: str, target: str, *, cache: dict[str, str] | None = None, fo
         cache = load_cache()
     key = cache_key(text, target)
     if not force and key in cache:
-        print(f"  [cache] {text[:30]}... -> {target}")
-        return cache[key]
-    print(f"  [trans] {text[:30]}... -> {target}")
+        cached = cache[key]
+        print(
+            f'  [cache] {_preview(text, 30)} -> {target} = {_preview(cached)}',
+            flush=True,
+        )
+        return cached
+    print(f'  [trans] {_preview(text, 30)} -> {target}', flush=True)
     translated = invoke_translate(text, target)
-    print(f"  [trans] {text[:30]}... -> {target} = {translated[:50]}")
+    print(
+        f'  [trans] {_preview(text, 30)} -> {target} = {_preview(translated)}',
+        flush=True,
+    )
     cache[key] = translated
     throttle_s = random.uniform(THROTTLE_MIN_SEC, THROTTLE_MAX_SEC)
-    print(f"  sleeping {throttle_s:.1f}s", file=sys.stderr)
+    print(f'  sleeping {throttle_s:.1f}s', file=sys.stderr, flush=True)
     time.sleep(throttle_s)
     return translated
 
@@ -261,6 +378,33 @@ class TmxFile:
                 matching.append((tuid, en_seg, target_seg))
         return matching
 
+    def list_existing(self, target: str) -> list[tuple[str, str, str]]:
+        """Return [(tuid, en_seg, target_seg)] for every <tu> that already has target.
+
+        Used by ``--replace-existing`` to re-translate and overwrite polluted
+        rows (e.g. pre ``-no-bidi`` Arabic presentation forms + padding).
+        Includes empty or whitespace-only target segs.
+        """
+        root = self._parse()
+        existing: list[tuple[str, str, str]] = []
+        for tu in root.iter('tu'):
+            tuid = tu.get('tuid') or ''
+            if not tuid:
+                continue
+            en_seg = ''
+            target_seg: str | None = None
+            for tuv in tu.findall('tuv'):
+                tlang = tuv.get('{http://www.w3.org/XML/1998/namespace}lang') or tuv.get('xml:lang')
+                seg_el = tuv.find('seg')
+                text = seg_el.text if seg_el is not None and seg_el.text else ''
+                if tlang == SOURCE_LANG:
+                    en_seg = text
+                elif tlang == target:
+                    target_seg = text  # may be '' for empty <seg></seg>
+            if en_seg and target_seg is not None:
+                existing.append((tuid, en_seg, target_seg))
+        return existing
+
     def get_base_translations(self, base_lang: str) -> dict[str, str]:
         """Get all translations for base_lang: {tuid: seg_text}."""
         root = self._parse()
@@ -279,7 +423,12 @@ class TmxFile:
         return translations
 
     def inject(self, target: str, translations: dict[str, str]) -> int:
-        """Insert missing <tuv> blocks. Returns number inserted."""
+        """Insert missing <tuv> blocks. Returns number inserted.
+
+        ``translations`` keys are logical tuids as returned by ElementTree
+        (XML entities unescaped). Raw TMX attribute values may still contain
+        ``&gt;`` / ``&lt;`` / ``&amp;`` — those are unescaped before lookup.
+        """
         if not translations:
             return 0
         inserted = 0
@@ -287,7 +436,8 @@ class TmxFile:
         pos = 0
         tu_pattern = re.compile(r'<tu\s+tuid="([^"]+)"[^>]*>.*?</tu>', re.DOTALL)
         for m in tu_pattern.finditer(self.text):
-            tuid = m.group(1)
+            # ElementTree / list_missing keys are entity-decoded; raw attrs are not.
+            tuid = html.unescape(m.group(1))
             if tuid not in translations:
                 continue
             tu_text = m.group(0)
@@ -306,7 +456,10 @@ class TmxFile:
         return inserted
 
     def replace_translation(self, target: str, translations: dict[str, str]) -> int:
-        """Replace existing translations. Returns number replaced."""
+        """Replace existing translations. Returns number replaced.
+
+        See :meth:`inject` for tuid entity-decoding notes.
+        """
         if not translations:
             return 0
         replaced = 0
@@ -314,18 +467,24 @@ class TmxFile:
         pos = 0
         tu_pattern = re.compile(r'<tu\s+tuid="([^"]+)"[^>]*>.*?</tu>', re.DOTALL)
         for m in tu_pattern.finditer(self.text):
-            tuid = m.group(1)
+            tuid = html.unescape(m.group(1))
             if tuid not in translations:
                 continue
             tu_text = m.group(0)
-            # Find and replace the target tuv
-            pattern = rf'(<tuv\s+xml:lang="{re.escape(target)}"[^>]*>)\s*<seg>(.*?)</seg>\s*(</tuv>)'
-            def replacer(match):
+            # Allow optional sibling elements (e.g. <prop>) before <seg>.
+            pattern = (
+                rf'(<tuv\s+xml:lang="{re.escape(target)}"[^>]*>)'
+                rf'(.*?)'
+                rf'(<seg>)(.*?)(</seg>)'
+            )
+
+            def replacer(match, _tuid=tuid):
                 nonlocal replaced
                 replaced += 1
-                seg = xml_escape(translations[tuid])
-                return f'{match.group(1)}<seg>{seg}</seg>{match.group(3)}'
-            new_tu_text = re.sub(pattern, replacer, tu_text, flags=re.DOTALL)
+                seg = xml_escape(translations[_tuid])
+                return f'{match.group(1)}{match.group(2)}{match.group(3)}{seg}{match.group(5)}'
+
+            new_tu_text = re.sub(pattern, replacer, tu_text, count=1, flags=re.DOTALL)
             out.append(self.text[pos:m.start()])
             out.append(new_tu_text)
             pos = m.end()
@@ -338,16 +497,67 @@ class TmxFile:
         self.path.write_text(self.text, encoding='utf-8')
 
 
+def _translate_batch(
+    pairs: list[tuple[str, str]],
+    target: str,
+    *,
+    cache: dict[str, str],
+    force: bool,
+    limit: int,
+    label: str,
+) -> dict[str, str] | None:
+    """Translate ``(tuid, en_seg)`` pairs. Returns None on hard failure."""
+    translations: dict[str, str] = {}
+    processed = 0
+    total = len(pairs)
+    for tuid, en_seg in pairs:
+        if limit and processed >= limit:
+            print(f'  --limit={limit} reached for {label}', flush=True)
+            break
+        try:
+            translations[tuid] = translate(
+                en_seg, target, cache=cache, force=force,
+            )
+        except Exception as e:
+            print(f'  ERROR on tuid={tuid!r}: {e}', file=sys.stderr, flush=True)
+            save_cache(cache)
+            return None
+        processed += 1
+        if processed % 10 == 0:
+            print(f'  ... {processed}/{total} ({label})', flush=True)
+            save_cache(cache)
+    save_cache(cache)
+    return translations
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--target', required=True, help='Target BCP-47 locale code')
     parser.add_argument('--file', action='append', dest='files', help='TMX file to process')
     parser.add_argument('--dry-run', action='store_true', help='Report without translating')
     parser.add_argument('--force', action='store_true', help='Ignore cache')
+    parser.add_argument(
+        '--docker',
+        action='store_true',
+        help='Force Docker soimort/translate-shell (optional; local trans is fine)',
+    )
+    parser.add_argument(
+        '--replace-existing',
+        '--waste-another-6-hours-of-your-life',
+        action='store_true',
+        help=(
+            'Re-translate and overwrite every existing target <tuv> from en-us '
+            '(always bypasses cache). Use to repair polluted ar from pre -no-bidi '
+            'runs. Alias: --waste-another-6-hours-of-your-life'
+        ),
+    )
     parser.add_argument('--fix-matching-en', action='store_true', help='Fix translations matching English')
     parser.add_argument('--variant-base', help='Base locale for variant (e.g., hi for hi-in)')
-    parser.add_argument('--limit', type=int, default=0, help='Max translations (0=unlimited)')
+    parser.add_argument('--limit', type=int, default=0, help='Max translations per phase (0=unlimited)')
     args = parser.parse_args(argv)
+
+    global _force_docker
+    _force_docker = bool(args.docker)
 
     files = []
     for name in (args.files or list(DEFAULT_FILES)):
@@ -360,6 +570,7 @@ def main(argv: list[str] | None = None) -> int:
     cache = load_cache()
     total_missing = 0
     total_inserted = 0
+    total_replaced = 0
     total_fixed = 0
     total_skipped = 0
 
@@ -373,7 +584,7 @@ def main(argv: list[str] | None = None) -> int:
         # Step 1: Handle missing translations
         missing = tmx.list_missing(target)
         total_missing += len(missing)
-        print(f'{f.name}: {len(missing)} missing <tuv xml:lang="{target}">')
+        print(f'{f.name}: {len(missing)} missing <tuv xml:lang="{target}">', flush=True)
 
         if args.dry_run or not missing:
             pass
@@ -402,20 +613,70 @@ def main(argv: list[str] | None = None) -> int:
                     base_trans = tmx.get_base_translations(base_lang)
                     filtered = {k: v for k, v in translations.items()
                                 if k not in base_trans or base_trans[k] != v}
-                    print(f'  variant filter: {len(translations)} -> {len(filtered)} (only differences)')
+                    print(
+                        f'  variant filter: {len(translations)} -> {len(filtered)} '
+                        f'(only differences)',
+                        flush=True,
+                    )
                     translations = filtered
 
                 inserted = tmx.inject(target, translations)
                 if not args.dry_run:
                     tmx.commit()
                 total_inserted += inserted
-                print(f'  inserted {inserted} TUVs')
+                print(f'  inserted {inserted} TUVs', flush=True)
 
-        # Step 2: Fix translations matching English (only for base locales)
+        # Step 2: Overwrite every existing target TUV (full repair path)
+        if args.replace_existing:
+            # Re-read after possible inject so we see newly written rows too
+            # only when we want to also re-hit them — skip: inject already
+            # wrote fresh text. list_existing on current tmx is correct for
+            # pre-existing polluted rows.
+            existing = tmx.list_existing(target)
+            print(
+                f'{f.name}: {len(existing)} existing <tuv xml:lang="{target}"> '
+                f'to re-translate',
+                flush=True,
+            )
+            if args.dry_run or not existing:
+                pass
+            else:
+                pairs = [(tuid, en_seg) for tuid, en_seg, _ in existing]
+                # Always bypass cache — that is the whole point of this flag.
+                translations = _translate_batch(
+                    pairs,
+                    target,
+                    cache=cache,
+                    force=True,
+                    limit=args.limit,
+                    label='replace-existing',
+                )
+                if translations is None:
+                    return 1
+                if translations:
+                    if base_lang and base_lang != target:
+                        base_trans = tmx.get_base_translations(base_lang)
+                        filtered = {
+                            k: v for k, v in translations.items()
+                            if k not in base_trans or base_trans[k] != v
+                        }
+                        print(
+                            f'  variant filter: {len(translations)} -> '
+                            f'{len(filtered)} (only differences)',
+                            flush=True,
+                        )
+                        translations = filtered
+                    replaced = tmx.replace_translation(target, translations)
+                    if not args.dry_run:
+                        tmx.commit()
+                    total_replaced += replaced
+                    print(f'  replaced {replaced} TUVs', flush=True)
+
+        # Step 3: Fix translations matching English (only for base locales)
         if args.fix_matching_en and not base_lang:
             matching = tmx.list_matching_en(target)
             total_fixed += len(matching)
-            print(f'{f.name}: {len(matching)} match English, fixing...')
+            print(f'{f.name}: {len(matching)} match English, fixing...', flush=True)
 
             if args.dry_run or not matching:
                 pass
@@ -442,7 +703,8 @@ def main(argv: list[str] | None = None) -> int:
                     replaced = tmx.replace_translation(target, translations)
                     if not args.dry_run:
                         tmx.commit()
-                    print(f'  fixed {replaced} translations')
+                    total_fixed = total_fixed  # count already from list size
+                    print(f'  fixed {replaced} translations', flush=True)
 
     print(f'\nDone. Missing: {total_missing}; inserted: {total_inserted}; fixed: {total_fixed}; skipped: {total_skipped}')
     return 0

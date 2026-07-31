@@ -101,7 +101,7 @@ class BackoffTest(unittest.TestCase):
                 self.stdout = stdout
                 self.stderr = stderr
 
-        def fake_run(cmd, capture_output, text, check, encoding):
+        def fake_run(cmd, capture_output, text, check, encoding, **kwargs):
             calls["n"] += 1
             if calls["n"] < 3:
                 return _FakeResult(rc=1, stderr="HTTP 429 Too Many Requests")
@@ -144,7 +144,16 @@ class BackoffTest(unittest.TestCase):
 
 
 class DockerFallbackTest(unittest.TestCase):
-    def test_falls_back_to_docker_when_trans_missing(self):
+    def setUp(self):
+        self._force = itd._force_docker
+        itd._force_docker = False
+        itd._warned_trans_fallback = False
+
+    def tearDown(self):
+        itd._force_docker = self._force
+        itd._warned_trans_fallback = False
+
+    def test_uses_docker_when_trans_missing(self):
         calls: list[list[str]] = []
 
         class _FakeResult:
@@ -154,9 +163,7 @@ class DockerFallbackTest(unittest.TestCase):
                 self.stderr = stderr
 
         def fake_run(cmd, *a, **k):
-            calls.append(cmd[:2])
-            if cmd[0] == 'trans':
-                raise FileNotFoundError('trans not found')
+            calls.append(list(cmd))
             return _FakeResult(rc=0, stdout='مرحبا\n')
 
         orig_run = itd.subprocess.run
@@ -170,15 +177,58 @@ class DockerFallbackTest(unittest.TestCase):
             itd.shutil.which = orig_which
 
         self.assertEqual(result, 'مرحبا')
-        self.assertEqual(calls, [['trans', '--brief'], ['docker', 'run']])
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(calls[0][:3], ['docker', 'run', '--rm'])
+        self.assertIn('-no-bidi', calls[0])
+        self.assertIn('-no-bidi', itd._default_trans_cmd('Hello', 'ar'))
+        self.assertIn('-no-bidi', itd._default_docker_cmd('Hello', 'ar'))
 
-    def test_raises_when_trans_and_docker_unavailable(self):
+    def test_force_docker_flag(self):
+        calls: list[list[str]] = []
+
+        class _FakeResult:
+            def __init__(self):
+                self.returncode = 0
+                self.stdout = 'مرحبا\n'
+                self.stderr = ''
+
         def fake_run(cmd, *a, **k):
-            raise FileNotFoundError('trans not found')
+            calls.append(cmd[0])
+            return _FakeResult()
 
         orig_run = itd.subprocess.run
         orig_which = itd.shutil.which
         itd.subprocess.run = fake_run
+        # Even if trans exists, --docker must win.
+        itd.shutil.which = lambda name: f'/usr/bin/{name}'
+        itd._force_docker = True
+        try:
+            self.assertEqual(itd.invoke_translate('Hello', 'ar'), 'مرحبا')
+        finally:
+            itd.subprocess.run = orig_run
+            itd.shutil.which = orig_which
+        self.assertEqual(calls, ['docker'])
+
+    def test_stderr_brief_on_windows_docker(self):
+        """Some Windows Docker hosts put the brief line on stderr."""
+        class _FakeResult:
+            returncode = 0
+            stdout = ''
+            stderr = 'مرحبا\n'
+
+        orig_run = itd.subprocess.run
+        orig_which = itd.shutil.which
+        itd.subprocess.run = lambda *a, **k: _FakeResult()
+        itd.shutil.which = lambda name: '/usr/bin/docker' if name == 'docker' else None
+        itd._force_docker = True
+        try:
+            self.assertEqual(itd.invoke_translate('Hello', 'ar'), 'مرحبا')
+        finally:
+            itd.subprocess.run = orig_run
+            itd.shutil.which = orig_which
+
+    def test_raises_when_trans_and_docker_unavailable(self):
+        orig_which = itd.shutil.which
         itd.shutil.which = lambda name: None
         try:
             with self.assertRaises(RuntimeError) as ctx:
@@ -186,7 +236,6 @@ class DockerFallbackTest(unittest.TestCase):
             self.assertIn('trans', str(ctx.exception))
             self.assertIn('Docker', str(ctx.exception))
         finally:
-            itd.subprocess.run = orig_run
             itd.shutil.which = orig_which
 
 
@@ -229,6 +278,102 @@ class TmxInjectTest(unittest.TestCase):
             n = tmx.replace_translation("es", {"k@1": "Hola"})
             self.assertEqual(n, 1)
             self.assertIn("<seg>Hola</seg>", tmx.text)
+
+    def test_inject_matches_entity_encoded_tuid(self):
+        """list_missing returns decoded tuids; raw XML keeps &gt;/&lt;/&amp;."""
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "sample.tmx"
+            p.write_text(
+                '<?xml version="1.0" encoding="UTF-8"?>\n'
+                '<tmx version="1.4"><header>'
+                '<prop type="supportedlanguage">en-us</prop>'
+                '<prop type="supportedlanguage">es</prop>'
+                "</header><body>"
+                '<tu tuid="dialog@Advanced &gt;&gt;">'
+                '<tuv xml:lang="en-us"><seg>Advanced &gt;&gt;</seg></tuv>'
+                "</tu>"
+                '<tu tuid="dialog@A &amp; B">'
+                '<tuv xml:lang="en-us"><seg>A &amp; B</seg></tuv>'
+                "</tu>"
+                '<tu tuid="dialog@val &lt;{0}&gt;">'
+                '<tuv xml:lang="en-us"><seg>val &lt;{0}&gt;</seg></tuv>'
+                "</tu>"
+                "</body></tmx>\n",
+                encoding="utf-8",
+            )
+            tmx = itd.TmxFile(p)
+            missing = tmx.list_missing("es")
+            keys = [t for t, _ in missing]
+            self.assertEqual(
+                keys,
+                ["dialog@Advanced >>", "dialog@A & B", "dialog@val <{0}>"],
+            )
+            translations = {
+                "dialog@Advanced >>": "Avanzado >>",
+                "dialog@A & B": "A y B",
+                "dialog@val <{0}>": "val <{0}>",
+            }
+            inserted = tmx.inject("es", translations)
+            self.assertEqual(inserted, 3)
+            self.assertIn('tuid="dialog@Advanced &gt;&gt;"', tmx.text)
+            self.assertIn("<seg>Avanzado &gt;&gt;</seg>", tmx.text)
+            self.assertIn("<seg>A y B</seg>", tmx.text)
+            self.assertIn("<seg>val &lt;{0}&gt;</seg>", tmx.text)
+
+    def test_replace_entity_encoded_tuid(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "sample.tmx"
+            p.write_text(
+                '<?xml version="1.0" encoding="UTF-8"?>\n'
+                "<tmx version=\"1.4\"><header></header><body>"
+                '<tu tuid="dialog@Advanced &gt;&gt;">'
+                '<tuv xml:lang="en-us"><seg>Advanced &gt;&gt;</seg></tuv>'
+                '<tuv xml:lang="es"><seg>Advanced &gt;&gt;</seg></tuv>'
+                "</tu>"
+                "</body></tmx>\n",
+                encoding="utf-8",
+            )
+            tmx = itd.TmxFile(p)
+            n = tmx.replace_translation("es", {"dialog@Advanced >>": "Avanzado >>"})
+            self.assertEqual(n, 1)
+            self.assertIn("<seg>Avanzado &gt;&gt;</seg>", tmx.text)
+
+    def test_list_existing_includes_padded_and_empty(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "sample.tmx"
+            p.write_text(
+                '<?xml version="1.0" encoding="UTF-8"?>\n'
+                '<tmx version="1.4"><header></header><body>'
+                '<tu tuid="k@ok">'
+                '<tuv xml:lang="en-us"><seg>Hello</seg></tuv>'
+                '<tuv xml:lang="ar"><seg>مرحبا</seg></tuv>'
+                '</tu>'
+                '<tu tuid="k@pad">'
+                '<tuv xml:lang="en-us"><seg>Save</seg></tuv>'
+                '<tuv xml:lang="ar"><seg>          يحفظ</seg></tuv>'
+                '</tu>'
+                '<tu tuid="k@missing">'
+                '<tuv xml:lang="en-us"><seg>Only English</seg></tuv>'
+                '</tu>'
+                '</body></tmx>\n',
+                encoding='utf-8',
+            )
+            tmx = itd.TmxFile(p)
+            existing = tmx.list_existing('ar')
+            keys = [t for t, _, __ in existing]
+            self.assertEqual(keys, ['k@ok', 'k@pad'])
+            self.assertEqual(tmx.list_missing('ar'), [('k@missing', 'Only English')])
+
+    def test_replace_existing_cli_flag_accepted(self):
+        # Ensure both long names parse onto the same dest.
+        for flag in (
+            '--replace-existing',
+            '--waste-another-6-hours-of-your-life',
+        ):
+            with self.assertRaises(SystemExit) as ctx:
+                # Missing --target should still parse the flag name.
+                itd.main([flag])
+            self.assertEqual(ctx.exception.code, 2)
 
 
 class MainSkipOnErrorTest(unittest.TestCase):

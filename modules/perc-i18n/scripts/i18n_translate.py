@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import html
 import json
 import random
 import re
@@ -112,8 +113,15 @@ def invoke_translate(text: str, target: str, *,
     could not be obtained after exhausting retries. Rate-limit responses
     trigger exponential backoff per ``backoff_sleep``.
     """
+    # ``-no-bidi`` keeps RTL languages (e.g. ar) in logical order without
+    # terminal padding / presentation-form rewriting — required for TMX.
+    # LANG/LC_ALL help Windows Docker Desktop capture UTF-8 Arabic stdout.
     cmd = docker_cmd if docker_cmd is not None else [
-        'docker', 'run', '--rm', DOCKER_IMAGE, DOCKER_BRIEF_FLAG, text, f':{target}',
+        'docker', 'run', '--rm',
+        '-e', 'LANG=C.UTF-8',
+        '-e', 'LC_ALL=C.UTF-8',
+        DOCKER_IMAGE,
+        DOCKER_BRIEF_FLAG, '-no-bidi', text, f':{target}',
     ]
     delay = BACKOFF_START_SEC
     attempt = 0
@@ -126,6 +134,7 @@ def invoke_translate(text: str, target: str, *,
                 text=True,
                 check=False,
                 encoding='utf-8',
+                errors='replace',
             )
         except FileNotFoundError as e:
             raise RuntimeError(
@@ -134,7 +143,18 @@ def invoke_translate(text: str, target: str, *,
                 f'image. Underlying error: {e}',
             ) from e
         if result.returncode == 0:
-            return result.stdout.rstrip('\n')
+            out = (result.stdout or '').replace('\ufeff', '').strip()
+            if not out:
+                err = (result.stderr or '').replace('\ufeff', '').strip()
+                if err and '\n' not in err and 'error' not in err.lower():
+                    out = err
+            if out:
+                return out
+            raise RuntimeError(
+                f'translate-shell returned empty translation '
+                f'(rc={result.returncode}): stdout={result.stdout!r} '
+                f'stderr={result.stderr!r}',
+            )
         # Crude rate-limit detection: 429-like substrings in stderr or stdout.
         lowered = (result.stderr + result.stdout).lower()
         is_rate_limit = (
@@ -160,6 +180,11 @@ def invoke_translate(text: str, target: str, *,
 # Translation request (cached)
 # ---------------------------------------------------------------------------
 
+def _preview(s: str, n: int = 50) -> str:
+    one = s.replace('\n', ' ').replace('\r', ' ')
+    return one if len(one) <= n else one[:n] + '…'
+
+
 def translate(text: str, target: str, *,
               cache: dict[str, str] | None = None,
               force: bool = False) -> str:
@@ -170,8 +195,14 @@ def translate(text: str, target: str, *,
         cache = load_cache()
     key = cache_key(text, target)
     if not force and key in cache:
-        return cache[key]
+        cached = cache[key]
+        print(f'  [cache] {_preview(text, 30)} -> {target} = {_preview(cached)}',
+              flush=True)
+        return cached
+    print(f'  [trans] {_preview(text, 30)} -> {target}', flush=True)
     translated = invoke_translate(text, target)
+    print(f'  [trans] {_preview(text, 30)} -> {target} = {_preview(translated)}',
+          flush=True)
     cache[key] = translated
     return translated
 
@@ -217,7 +248,13 @@ class TmxFile:
     def inject(self, target: str, translations: dict[str, str]) -> int:
         """Insert ``<tuv xml:lang="target"><seg>...</seg></tuv>`` blocks for
         every tuid in ``translations`` that is missing that lang. Returns the
-        number of inserted TUVs."""
+        number of inserted TUVs.
+
+        ``translations`` keys must match ElementTree-decoded tuids. Raw TMX
+        attribute values may still contain ``&gt;`` / ``&lt;`` / ``&amp;``;
+        those are unescaped before lookup so keys with ``>>``, ``&``, etc.
+        actually inject.
+        """
         if not translations:
             return 0
         # Build a regex that matches each <tu ...>...</tu> we care about.
@@ -226,7 +263,8 @@ class TmxFile:
         pos = 0
         tu_pattern = re.compile(r'<tu\s+tuid="([^"]+)"[^>]*>.*?</tu>', re.DOTALL)
         for m in tu_pattern.finditer(self.text):
-            tuid = m.group(1)
+            # list_missing() returns entity-decoded tuids; raw attrs do not.
+            tuid = html.unescape(m.group(1))
             if tuid not in translations:
                 continue
             # Check if this TU already has the target lang (skip).

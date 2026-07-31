@@ -54,20 +54,27 @@ locales stay stable across installs.
   line and the inline `<tuv xml:lang="...">` attribute still work
   because both are normalized on read, but new content must use the
   canonical form.
-- **Canonical 19-locale set**: `ar`, `de-de`, `en-gb`, `en-us`, `es`,
-  `es-cl`, `es-es`, `es-mx`, `fr-ca`, `fr-fr`, `hi`, `hi-in`,
-  `it-it`, `ja-jp`, `nl-nl`, `pt-br`, `pt-pt`, `te`, `tr-tr`. Base /
-  language-only codes (`ar`, `es`, `hi`, `te`) have `RXLOCALE.ISBASE=1`.
-  Product string fallback when no locale is set is always **`en-us`**.
-  Do not introduce a code outside this set without updating `RXLOCALE`
-  in `modules/perc-distribution-tree/.../cmsTableData.xml` first.
-- **Header `<prop type="supportedlanguage">` lines must match the 19
-  codes above in alphabetical order.** The header is the source of
-  truth for "what languages ship out of the box".
+- **Ship locale matrix** (bases + regionals) is defined in `RXLOCALE`
+  (`cmsTableData.xml`) and mirrored in TMX headers / `RXLOCALEFORMAT`.
+  **Base / language-only** codes (`ISBASE=1`): `ar`, `bn`, `de`, `es`,
+  `fr`, `hi`, `it`, `nl`, `pl`, `pt`, `ru`, `sv`, `te`, `tr`.
+  **Regionals** (`ISBASE=0`) include e.g. `de-de`, `de-at`, `es-es`,
+  `es-mx`, `fr-fr`, `fr-ca`, `it-it`, `nl-nl`, `pt-br`, `pt-pt`,
+  `tr-tr`, `zh-cn`, `zh-tw`, plus additional `es-*` / `fr-*` / `de-*`
+  variants listed in the TMX header. Product string fallback when no
+  locale is set is always **`en-us`**. Do not introduce a code outside
+  this set without updating `RXLOCALE` **and** `RXLOCALEFORMAT` in
+  `modules/perc-distribution-tree/.../cmsTableData.xml` first (and
+  `PSLocaleFormatDefaults` / WebUI `SHIP_LOCALE_ENDONYMS`).
+- **Header `<prop type="supportedlanguage">` lines** list every
+  base + regional the product recognizes (see development TMX header).
+  The header is the source of truth for "what languages ship out of
+  the box".
 - **Base vs regional TMX storage:** store shared translations under the
-  base language tag (`es`, `hi`, `ar`). Regional tags store **only
-  dialect overrides**. Lookup is `regional → base → en-us` via
-  `PSTmxResourceBundle.languageLookupChain`.
+  base language tag (`de`, `es`, `fr`, `hi`, `it`, `ar`, …). Regional
+  tags store **only dialect overrides**. Lookup is
+  `regional → base → en-us` via `PSTmxResourceBundle.languageLookupChain`
+  (and the same chain for `RXLOCALEFORMAT`).
 - **Login dropdown:** server-side `PSLocaleLoginSelection` hides a base
   locale when any active regional sibling exists (e.g. hide `es` when
   `es-es` is active; show `ar` when no `ar-*` exists).
@@ -298,22 +305,26 @@ affected key — the script XML-escapes `<seg>` content via
 
 ## Quick Reference
 
-|        File         |         Purpose         |          Languages           |          Location          |
-|---------------------|-------------------------|------------------------------|----------------------------|
-| ResourceBundle.tmx  | Master bundle (seed)    | en-us                        | `src/main/resources/i18n/` |
-| CmsUi.tmx           | UI labels/strings       | 19-locale matrix (see below) | `src/main/resources/i18n/` |
-| SystemResources.tmx | System/editor resources | 19-locale matrix (see below) | `src/main/resources/i18n/` |
+|        File         |         Purpose         |            Languages            |          Location          |
+|---------------------|-------------------------|---------------------------------|----------------------------|
+| ResourceBundle.tmx  | Master bundle (seed)    | en-us                           | `src/main/resources/i18n/` |
+| CmsUi.tmx           | UI labels/strings       | base + regional matrix (header) | `src/main/resources/i18n/` |
+| SystemResources.tmx | System/editor resources | base + regional matrix (header) | `src/main/resources/i18n/` |
 
-**19-locale matrix** (alphabetical, BCP-47 lowercase hyphen):
+**Base locales** (`RXLOCALE.ISBASE=1`): `ar`, `bn`, `de`, `es`, `fr`,
+`hi`, `it`, `nl`, `pl`, `pt`, `ru`, `sv`, `te`, `tr`. TMX bodies store
+shared strings under these tags; regionals hold dialect overrides only.
 
-`ar`, `de-de`, `en-gb`, `en-us`, `es`, `es-cl`, `es-es`, `es-mx`,
-`fr-ca`, `fr-fr`, `hi`, `hi-in`, `it-it`, `ja-jp`, `nl-nl`,
-`pt-br`, `pt-pt`, `te`, `tr-tr`.
+**Representative regionals** (`ISBASE=0`): `de-de`/`de-at`/…, `en-us`/
+`en-gb`, `es-es`/`es-mx`/…, `fr-fr`/`fr-ca`/…, `hi-in`, `it-it`/`it-ch`,
+`ja-jp`, `nl-nl`/`nl-be`, `pt-br`/`pt-pt`, `tr-tr`, `zh-cn`/`zh-tw`.
+Full list: `RXLOCALE` + TMX `<header>` in `cmsTableData.xml` /
+canonical TMX files.
 
-**Base locales** (`RXLOCALE.ISBASE=1`): `ar`, `es`, `hi`, `te`. Regionals
-store dialect overrides; TMX lookup is `regional → base → en-us`.
-Login hides a base locale when any active regional sibling exists
-(`PSLocaleLoginSelection`). Default login/string fallback: **`en-us`**.
+Lookup is `regional → base → en-us`. Login hides a base locale when any
+active regional sibling exists (`PSLocaleLoginSelection`). Default
+login/string fallback: **`en-us`**. Format profiles: `RXLOCALEFORMAT`
+(+ `PSLocaleFormatDefaults`).
 
 The runtime loader normalizes incoming tags so `EN_US`, `en-US`,
 `es_ES`, `ja-JP`, etc. all resolve to their canonical bucket.
