@@ -26,14 +26,23 @@ import java.nio.file.Paths;
 import java.util.List;
 import org.apache.tools.ant.BuildException;
 
+/**
+ * ANT upgrade task that removes AJP connectors from both the production and staging DTS connector
+ * configurations during a JBoss-to-Jetty upgrade. After removal the updated configuration is
+ * persisted to disk.
+ */
 public class PSUpgradeRemoveTomcatAJP extends PSAction {
   /** Creates a new Tomcat AJP removal upgrade task. */
-  public PSUpgradeRemoveTomcatAJP() {}
+  public PSUpgradeRemoveTomcatAJP() {
+    super();
+  }
 
   /**
-   * This will handle initialization of the install logger, loading of PreviousVersion.properties
-   * for upgrades, and setting of the entity resolver's resolution home used to find DTD's. It also
-   * determines if all files should be refreshed by date.
+   * Removes any AJP connectors from the local production DTS and, when enabled, the local staging
+   * DTS. The configuration is reloaded after each removal to make sure the persisted file reflects
+   * the change.
+   *
+   * @throws BuildException if loading or saving the configuration fails
    */
   @Override
   public void execute() throws BuildException {

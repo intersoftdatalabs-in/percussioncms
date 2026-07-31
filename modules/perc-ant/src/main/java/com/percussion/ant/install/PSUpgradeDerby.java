@@ -35,40 +35,72 @@ import java.util.Properties;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.tools.ant.BuildException;
 
-/***
- * Provides an ant task to upgrade a derby database.  Expects to be able to start the derby database in
- * embedded mode - single user
+/**
+ * Provides an Ant task to upgrade a Derby database. Expects to be able to start the Derby database
+ * in embedded mode (single user).
  */
 public class PSUpgradeDerby extends PSAction {
   /** Creates a new Derby upgrade task. */
-  public PSUpgradeDerby() {}
+  public PSUpgradeDerby() {
+    super();
+  }
 
   private String targetVersion;
 
+  /**
+   * Returns the target version of the Derby upgrade.
+   *
+   * @return the target version, may be <code>null</code> when not configured
+   */
   public String getTargetVersion() {
     return targetVersion;
   }
 
+  /**
+   * Sets the target version of the Derby upgrade.
+   *
+   * @param targetVersion the target Derby version string
+   */
   public void setTargetVersion(String targetVersion) {
     this.targetVersion = targetVersion;
   }
 
   private String databasePath;
 
+  /**
+   * Returns the path to the Derby database that will be upgraded.
+   *
+   * @return the absolute path to the Derby database, may be <code>null</code>
+   */
   public String getDatabasePath() {
     return databasePath;
   }
 
+  /**
+   * Sets the path to the Derby database that will be upgraded.
+   *
+   * @param databasePath the absolute path to the Derby database
+   */
   public void setDatabasePath(String databasePath) {
     this.databasePath = databasePath;
   }
 
   private String backupDirectory;
 
+  /**
+   * Returns the directory where database backups will be written.
+   *
+   * @return the absolute path to the backup directory, may be <code>null</code>
+   */
   public String getBackupDirectory() {
     return backupDirectory;
   }
 
+  /**
+   * Sets the directory where database backups will be written.
+   *
+   * @param backupDirectory the absolute path to the backup directory
+   */
   public void setBackupDirectory(String backupDirectory) {
     this.backupDirectory = backupDirectory;
   }
@@ -77,26 +109,56 @@ public class PSUpgradeDerby extends PSAction {
   private String password;
   private String schema;
 
+  /**
+   * Returns the user name used to connect to the Derby database.
+   *
+   * @return the Derby user name, may be <code>null</code>
+   */
   public String getUserName() {
     return userName;
   }
 
+  /**
+   * Sets the user name used to connect to the Derby database.
+   *
+   * @param userName the Derby user name
+   */
   public void setUserName(String userName) {
     this.userName = userName;
   }
 
+  /**
+   * Returns the password used to connect to the Derby database.
+   *
+   * @return the Derby password, may be <code>null</code>
+   */
   public String getPassword() {
     return password;
   }
 
+  /**
+   * Sets the password used to connect to the Derby database.
+   *
+   * @param password the Derby password
+   */
   public void setPassword(String password) {
     this.password = password;
   }
 
+  /**
+   * Returns the schema used to connect to the Derby database.
+   *
+   * @return the Derby schema name, may be <code>null</code>
+   */
   public String getSchema() {
     return schema;
   }
 
+  /**
+   * Sets the schema used to connect to the Derby database.
+   *
+   * @param schema the Derby schema name
+   */
   public void setSchema(String schema) {
     this.schema = schema;
   }
@@ -167,6 +229,16 @@ public class PSUpgradeDerby extends PSAction {
     }
   }
 
+  /**
+   * Locates the Derby JDBC driver jar shipped under {@code Deployment/Server/common/lib} and adds
+   * it to the current thread's context class loader via reflection. No-op if no matching jar is
+   * found.
+   *
+   * @throws MalformedURLException if the located driver file cannot be converted to a URL
+   * @throws NoSuchMethodException if {@code URLClassLoader.addURL} cannot be located via reflection
+   * @throws InvocationTargetException if the reflective {@code addURL} invocation throws
+   * @throws IllegalAccessException if the reflective {@code addURL} invocation is denied
+   */
   public synchronized void loadDerbyJDBCJar()
       throws MalformedURLException,
           NoSuchMethodException,

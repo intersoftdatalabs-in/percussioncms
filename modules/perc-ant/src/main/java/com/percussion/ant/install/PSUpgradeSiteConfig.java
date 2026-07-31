@@ -24,10 +24,20 @@ import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * ANT upgrade task that refreshes the per-site secure and non-secure configurations shipped under
+ * {@code rxconfig/SiteConfigs} from the templates bundled in {@code sys_resources/webapps}.
+ *
+ * <p>For every existing site folder the task deletes the previous contents and copies the matching
+ * default configuration in their place.
+ */
 public class PSUpgradeSiteConfig extends PSAction {
   /** Creates a new site config upgrade task. */
-  public PSUpgradeSiteConfig() {}
+  public PSUpgradeSiteConfig() {
+    super();
+  }
 
+  /** Logger for this task. */
   Logger log = LogManager.getLogger(PSUpgradeSiteConfig.class);
 
   /**
