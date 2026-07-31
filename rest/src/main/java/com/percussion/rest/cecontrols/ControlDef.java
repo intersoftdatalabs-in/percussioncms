@@ -21,8 +21,10 @@ public class ControlDef {
   private String description;
   private String dimension;
   private String choiceSet;
+
   /** system or user */
   private String scope;
+
   private boolean deprecated;
   private String deprecatedReplacement;
   private List<ControlParameter> parameters = new ArrayList<>();

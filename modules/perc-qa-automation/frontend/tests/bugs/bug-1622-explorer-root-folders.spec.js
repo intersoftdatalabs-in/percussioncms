@@ -55,7 +55,7 @@ test.describe("GH-1622 explorer root folders (encodePath / no double-slash)", ()
     });
     expect(
       root.status(),
-      `GET ${PATH_FOLDER}/ should be 200 (double-slash form is 400)`,
+      `GET ${PATH_FOLDER}/ should be 200 (double-slash form is 400)`
     ).toBe(200);
 
     const sites = await request.get(`${PATH_FOLDER}/Sites`, {
@@ -64,7 +64,7 @@ test.describe("GH-1622 explorer root folders (encodePath / no double-slash)", ()
     // Sites may be empty on a fresh install, but the path must be valid.
     expect(
       sites.status(),
-      `GET ${PATH_FOLDER}/Sites must not 400 (folder//Sites was the bug)`,
+      `GET ${PATH_FOLDER}/Sites must not 400 (folder//Sites was the bug)`
     ).toBe(200);
 
     const bad = await request.get(`${PATH_FOLDER}//Sites`, {

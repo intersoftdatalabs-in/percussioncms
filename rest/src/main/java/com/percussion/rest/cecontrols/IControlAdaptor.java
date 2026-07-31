@@ -12,8 +12,6 @@ public interface IControlAdaptor {
   /** List system and user CE controls. Never null. */
   List<ControlDef> listControls();
 
-  /**
-   * Resolve by control name (case-insensitive). Null if missing or unsafe key.
-   */
+  /** Resolve by control name (case-insensitive). Null if missing or unsafe key. */
   ControlDef findControlByName(String name);
 }

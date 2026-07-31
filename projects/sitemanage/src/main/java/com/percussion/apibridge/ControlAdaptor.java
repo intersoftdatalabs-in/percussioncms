@@ -129,9 +129,9 @@ public class ControlAdaptor implements IControlAdaptor {
   }
 
   /**
-   * Single path segment name only — ASCII identifier characters used by CE
-   * control names ({@code sys_EditBox}, {@code myCustomControl}). Rejects
-   * traversal, separators, and any non-identifier Unicode.
+   * Single path segment name only — ASCII identifier characters used by CE control names ({@code
+   * sys_EditBox}, {@code myCustomControl}). Rejects traversal, separators, and any non-identifier
+   * Unicode.
    */
   static boolean isSafeControlKey(String key) {
     if (key == null || key.isBlank()) {
