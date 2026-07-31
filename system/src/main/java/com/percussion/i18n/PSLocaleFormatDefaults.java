@@ -475,6 +475,19 @@ public final class PSLocaleFormatDefaults {
     put(
         m,
         fmt(
+            "lou",
+            PSLocaleFormat.TEXT_DIR_LTR,
+            "MM/dd/yyyy",
+            "h:mm a",
+            ".",
+            ",",
+            "USD",
+            PSLocaleFormat.FIRST_DAY_MONDAY,
+            PSLocaleFormat.MEASUREMENT_METRIC,
+            "America/New_York"));
+    put(
+        m,
+        fmt(
             "hi",
             PSLocaleFormat.TEXT_DIR_LTR,
             "dd/MM/yyyy",

@@ -12363,6 +12363,16 @@
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">53</column>
+            <column name="LANGUAGESTRING">fr-us</column>
+            <column name="DISPLAYNAME">Cajun / Louisiana French</column>
+            <column name="SORTORDER">65</column>
+            <column name="DESCRIPTION">Cajun / Louisiana French language</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
             <column name="LOCALEID">51</column>
             <column name="LANGUAGESTRING">es-ni</column>
             <column name="DISPLAYNAME">Spanish (Nicaragua)</column>
@@ -12374,12 +12384,12 @@
         </row>
         <row onTableCreateOnly="no" action="i">
             <column name="LOCALEID">34</column>
-            <column name="LANGUAGESTRING">fr-us</column>
-            <column name="DISPLAYNAME">French (United States)</column>
-            <column name="SORTORDER">66</column>
-            <column name="DESCRIPTION">French language used in the United States</column>
+            <column name="LANGUAGESTRING">lou</column>
+            <column name="DISPLAYNAME">Louisiana Creole</column>
+            <column name="SORTORDER">67</column>
+            <column name="DESCRIPTION">Louisiana Creole language (base)</column>
             <column name="STATUS">1</column>
-            <column name="ISBASE">0</column>
+            <column name="ISBASE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -13179,6 +13189,23 @@
         </row>
         <row onTableCreateOnly="no" action="i">
             <column name="LANGUAGESTRING">fr-us</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">MM/dd/yyyy</column>
+            <column name="TIMEPATTERN">h:mm a</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">.</column>
+            <column name="GROUPINGSEP">,</column>
+            <column name="CURRENCYCODE">USD</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">America/New_York</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">lou</column>
             <column name="TEXTDIR">ltr</column>
             <column name="DATEPATTERN">MM/dd/yyyy</column>
             <column name="TIMEPATTERN">h:mm a</column>

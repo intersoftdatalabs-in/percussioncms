@@ -76,6 +76,7 @@ languages in their `<header>` `<prop type="supportedlanguage">` lines:
 | Russian    | `ru` (base)                                                     |
 | Spanish    | `es` (base), `es-es`, `es-mx`, `es-cl`, + LATAM `es-*` variants |
 | Swedish    | `sv` (base)                                                     |
+| Louisiana Creole | `lou`                                                |
 | Telugu     | `te` (base)                                                     |
 | Turkish    | `tr` (base), `tr-tr`                                            |
 
