@@ -1,8 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tmx version="1.4">
-   <header>
-      <prop type="supportedlanguage">en-us</prop>
-   </header>
-   <body>
+  <header>
+    <prop type="supportedlanguage">ar</prop>
+    <prop type="supportedlanguage">de</prop>
+    <prop type="supportedlanguage">en-gb</prop>
+    <prop type="supportedlanguage">en-us</prop>
+    <prop type="supportedlanguage">es</prop>
+    <prop type="supportedlanguage">es-cl</prop>
+    <prop type="supportedlanguage">es-es</prop>
+    <prop type="supportedlanguage">es-mx</prop>
+    <prop type="supportedlanguage">fr</prop>
+    <prop type="supportedlanguage">fr-ca</prop>
+    <prop type="supportedlanguage">hi</prop>
+    <prop type="supportedlanguage">it</prop>
+    <prop type="supportedlanguage">ja-jp</prop>
+    <prop type="supportedlanguage">nl</prop>
+    <prop type="supportedlanguage">pt</prop>
+    <prop type="supportedlanguage">pt-br</prop>
+    <prop type="supportedlanguage">te</prop>
+    <prop type="supportedlanguage">tr</prop>
+    <prop type="supportedlanguage">zh-cn</prop>
+    <prop type="supportedlanguage">zh-tw</prop>
+  </header>
+  <body>
    </body>
 </tmx>
