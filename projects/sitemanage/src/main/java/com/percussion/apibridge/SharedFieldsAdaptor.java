@@ -25,8 +25,11 @@ import com.percussion.rest.sharedfields.ISharedFieldsAdaptor;
 import com.percussion.rest.sharedfields.SharedFieldGroupDetail;
 import com.percussion.rest.sharedfields.SharedFieldGroupSummary;
 import com.percussion.rest.sharedfields.SharedFieldSummary;
-import com.percussion.server.PSServer;
 import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.utils.request.PSRequestInfo;
+import com.percussion.webservices.PSErrorException;
+import com.percussion.webservices.content.IPSContentDesignWs;
+import com.percussion.webservices.content.PSContentWsLocator;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -40,8 +43,8 @@ import org.apache.logging.log4j.Logger;
 /**
  * Read-only catalog of content-editor shared field groups ({@link PSContentEditorSharedDef}).
  *
- * <p>Uses {@link PSServer#getContentEditorSharedDef()} in production; mapping helpers are pure so
- * unit tests need no object-store singleton.
+ * <p>Workbench parity: loads via {@link IPSContentDesignWs#loadContentEditorSharedDef} (same design
+ * web service SOAP uses), not {@code PSServer.getContentEditorSharedDef()} alone.
  */
 @PSSiteManageBean
 public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
@@ -57,7 +60,20 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
   private final Supplier<PSContentEditorSharedDef> sharedDefLoader;
 
   public SharedFieldsAdaptor() {
-    this(PSServer::getContentEditorSharedDef);
+    this(
+        () -> {
+          IPSContentDesignWs designWs = PSContentWsLocator.getContentDesignWebservice();
+          try {
+            return designWs.loadContentEditorSharedDef(
+                false,
+                false,
+                (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID),
+                (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER));
+          } catch (PSErrorException e) {
+            log.error("Failed to load content editor shared def via design WS", e);
+            throw new IllegalStateException("Failed to load shared def", e);
+          }
+        });
   }
 
   /** Package-visible for unit tests that inject a fake shared def source. */
