@@ -71,6 +71,11 @@ import org.w3c.dom.Element;
  */
 public class PSNavAddAttribute extends PSDefaultExtension implements IPSResultDocumentProcessor {
 
+  /** Default constructor. Initializes the logger for this class. */
+  public PSNavAddAttribute() {
+    super();
+  }
+
   private static final Logger logger = LogManager.getLogger(PSNavAddAttribute.class);
 
   /**
