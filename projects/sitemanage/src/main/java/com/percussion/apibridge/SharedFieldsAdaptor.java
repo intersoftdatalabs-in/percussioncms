@@ -61,24 +61,31 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
 
   public SharedFieldsAdaptor() {
     this(
-        () -> {
-          IPSContentDesignWs designWs = PSContentWsLocator.getContentDesignWebservice();
-          try {
-            return designWs.loadContentEditorSharedDef(
-                false,
-                false,
+        () ->
+            loadSharedDefFromDesignWs(
+                PSContentWsLocator.getContentDesignWebservice(),
                 (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID),
-                (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER));
-          } catch (PSErrorException e) {
-            log.error("Failed to load content editor shared def via design WS", e);
-            throw new IllegalStateException("Failed to load shared def", e);
-          }
-        });
+                (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER)));
   }
 
   /** Package-visible for unit tests that inject a fake shared def source. */
   SharedFieldsAdaptor(Supplier<PSContentEditorSharedDef> sharedDefLoader) {
     this.sharedDefLoader = sharedDefLoader;
+  }
+
+  /**
+   * Production load path used by the default constructor. Package-visible so unit tests can exercise
+   * design-WS success, {@link PSErrorException} wrapping, and absent request session/user without
+   * mocking static locators.
+   */
+  static PSContentEditorSharedDef loadSharedDefFromDesignWs(
+      IPSContentDesignWs designWs, String sessionId, String user) {
+    try {
+      return designWs.loadContentEditorSharedDef(false, false, sessionId, user);
+    } catch (PSErrorException e) {
+      log.error("Failed to load content editor shared def via design WS", e);
+      throw new IllegalStateException("Failed to load shared def", e);
+    }
   }
 
   @Override
