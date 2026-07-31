@@ -150,11 +150,13 @@ async function handleResponse<T>(response: Response): Promise<T> {
 export async function get<T>(
   url: string,
   headers?: HeadersInit,
+  init?: Omit<RequestInit, "method" | "headers" | "body">,
 ): Promise<T> {
   const response = await fetch(url, {
     method: "GET",
     headers: buildHeaders(headers),
     credentials: "same-origin",
+    ...init,
   });
   return handleResponse<T>(response);
 }

@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-import React from "react";
+import React, { useState } from "react";
 import { Outlet } from "react-router";
 import { BrandBar, BrandFooter } from "../../ui-themes/components";
+import { AboutDialog } from "./AboutDialog";
 import { TopNav } from "./TopNav";
 import styles from "./AppLayout.module.css";
 
@@ -26,6 +27,8 @@ import styles from "./AppLayout.module.css";
  * Feature shells should use {@code embedded} (PR-3+) to avoid duplicate chrome.
  */
 export function AppLayout(): React.ReactElement {
+  const [aboutOpen, setAboutOpen] = useState(false);
+
   return (
     <div className={styles.shell} data-testid="perc-spa-app">
       <BrandBar />
@@ -33,7 +36,26 @@ export function AppLayout(): React.ReactElement {
       <main className={styles.main} data-testid="perc-spa-outlet">
         <Outlet />
       </main>
-      <BrandFooter />
+      <BrandFooter>
+        <button
+          type="button"
+          data-testid="perc-brand-footer-about-link"
+          onClick={() => setAboutOpen(true)}
+          style={{
+            background: "none",
+            border: "none",
+            padding: 0,
+            marginRight: 8,
+            color: "inherit",
+            textDecoration: "underline",
+            cursor: "pointer",
+            font: "inherit",
+          }}
+        >
+          About
+        </button>
+      </BrandFooter>
+      {aboutOpen && <AboutDialog onClose={() => setAboutOpen(false)} />}
     </div>
   );
 }

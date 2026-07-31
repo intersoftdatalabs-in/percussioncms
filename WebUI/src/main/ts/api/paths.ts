@@ -341,6 +341,13 @@ export const PATHS = {
   get ACLS() {
     return `${SERVICES_ROOT}/acls`;
   },
+  /**
+   * Server version and third-party license disclaimer (issue #1529) - rest AboutResource.
+   * Shared source of truth with the startup console log.
+   */
+  get ABOUT() {
+    return `${SERVICES_ROOT}/about`;
+  },
 
   /** Workflow management (workflowmanagement) — Feature 993 */
   get WORKFLOWS() {

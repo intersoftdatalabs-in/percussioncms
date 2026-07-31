@@ -73,6 +73,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
     <!-- Rest API -->
     <jaxrs:server id="rest-jax-rs" address="/">
         <jaxrs:serviceBeans>
+            <ref bean="restAboutResource"/>
             <ref bean="restAclResource" />
             <ref bean="restActionMenuResource" />
             <ref bean="restCommunityResource"/>
