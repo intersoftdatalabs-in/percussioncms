@@ -19,6 +19,8 @@
  *
  * Loads each primary Developer SPA section against a live CMS and asserts the
  * catalog reaches a non-error state (panel, empty, or loading resolved to data).
+ * Content-types also asserts table rows carry real labels/names (not only "—"
+ * placeholders from empty DTOs).
  *
  * Entry: spa.jsp?entry=developer&section=<slug>
  * Refs #1690 (design-WS retargets #1700–#1704).
@@ -109,6 +111,45 @@ test.describe("Developer catalog smoke (#1690)", () => {
       }
 
       await expect(success.first()).toBeVisible();
+
+      // Content-types: panel with rows must expose real labels/names, not only
+      // "—" placeholders (empty DTOs when list JSON only carries hideFromMenu).
+      // Empty catalog (developer-ct-empty) is a valid success surface.
+      if (cat.section === "content-types") {
+        await assertContentTypesRowsUsable(page);
+      }
     });
   }
 });
+
+/**
+ * When the content-types panel is shown (not the empty state), require at least
+ * one data row with alphabetic label/name content.
+ *
+ * @param {import('@playwright/test').Page} page
+ */
+async function assertContentTypesRowsUsable(page) {
+  const panel = page.locator('[data-testid="developer-ct-panel"]');
+  if (!(await panel.isVisible())) {
+    return;
+  }
+
+  const table = page.locator('[data-testid="developer-ct-table"]');
+  await expect(table).toBeVisible({ timeout: 10_000 });
+
+  const rowCount = await table.locator('[data-testid="developer-ct-row"]').count();
+  expect(
+    rowCount,
+    "content type table should have at least one row when panel is shown",
+  ).toBeGreaterThan(0);
+
+  const bodyText = await table.innerText();
+  // Strip column headers so we only judge cell content.
+  const onlyPlaceholders = !/[A-Za-z]{2,}/.test(
+    bodyText.replace(/Label|Name|Id|Description|Select/gi, ""),
+  );
+  expect(
+    onlyPlaceholders,
+    "content type rows look empty (labels/names missing from API/DTO) — redeploy rest/WebUI or fix ContentType list mapping",
+  ).toBe(false);
+}
