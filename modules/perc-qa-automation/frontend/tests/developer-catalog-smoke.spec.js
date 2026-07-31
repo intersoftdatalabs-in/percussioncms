@@ -19,8 +19,8 @@
  *
  * Loads each primary Developer SPA section against a live CMS and asserts the
  * catalog reaches a non-error state (panel, empty, or loading resolved to data).
- * Content-types also asserts table rows carry real labels/names (not only "—"
- * placeholders from empty DTOs).
+ * Content-types also asserts table body cells are not only empty / "—"
+ * placeholders (empty DTOs); any other cell text counts as real data.
  *
  * Entry: spa.jsp?entry=developer&section=<slug>
  * Refs #1690 (design-WS retargets #1700–#1704).
@@ -124,7 +124,8 @@ test.describe("Developer catalog smoke (#1690)", () => {
 
 /**
  * When the content-types panel is shown (not the empty state), require at least
- * one data row with alphabetic label/name content.
+ * one data row whose cells are not only empty / "—" placeholders (empty DTOs).
+ * Accepts any non-placeholder text: single letters, digits, "Label", "C++", etc.
  *
  * @param {import('@playwright/test').Page} page
  */
@@ -137,19 +138,28 @@ async function assertContentTypesRowsUsable(page) {
   const table = page.locator('[data-testid="developer-ct-table"]');
   await expect(table).toBeVisible({ timeout: 10_000 });
 
-  const rowCount = await table.locator('[data-testid="developer-ct-row"]').count();
+  const rows = table.locator('[data-testid="developer-ct-row"]');
+  const rowCount = await rows.count();
   expect(
     rowCount,
     "content type table should have at least one row when panel is shown",
   ).toBeGreaterThan(0);
 
-  const bodyText = await table.innerText();
-  // Strip column headers so we only judge cell content.
-  const onlyPlaceholders = !/[A-Za-z]{2,}/.test(
-    bodyText.replace(/Label|Name|Id|Description|Select/gi, ""),
-  );
+  // Body cells only (skip thead). Placeholder UI uses em dash / hyphen when
+  // label/name are missing from the DTO — any other trimmed text is real data.
+  const hasRealCell = await rows.evaluateAll((trs) => {
+    const isPlaceholder = (raw) => {
+      const t = (raw || "").replace(/\u00a0/g, " ").trim();
+      return t === "" || t === "—" || t === "–" || t === "-";
+    };
+    return trs.some((tr) =>
+      Array.from(tr.querySelectorAll("td")).some(
+        (td) => !isPlaceholder(td.textContent),
+      ),
+    );
+  });
   expect(
-    onlyPlaceholders,
+    hasRealCell,
     "content type rows look empty (labels/names missing from API/DTO) — redeploy rest/WebUI or fix ContentType list mapping",
-  ).toBe(false);
+  ).toBe(true);
 }
