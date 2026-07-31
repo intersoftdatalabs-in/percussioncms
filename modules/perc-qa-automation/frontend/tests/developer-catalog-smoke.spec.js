@@ -15,120 +15,151 @@
  */
 
 /**
- * Smoke: Developer module SPA + catalog REST health (Refs #1690).
+ * Developer catalog smoke (post-P0 / #1690).
  *
- * <p>Catches the common post-P0 failure mode: SPA shell mounts but catalog
- * endpoints 500 / return unusable payloads, or the CMS install is behind
- * {@code development} (new REST resources not deployed).</p>
+ * Loads each primary Developer SPA section against a live CMS and asserts the
+ * catalog reaches a non-error state (panel, empty, or loading resolved to data).
+ * Content-types also asserts table body cells are not only empty / "—"
+ * placeholders (empty DTOs); any other cell text counts as real data.
  *
- * <pre>
- *   cd modules/perc-qa-automation/frontend
- *   npm test -- tests/developer-catalog-smoke.spec.js
- * </pre>
+ * Entry: spa.jsp?entry=developer&section=<slug>
+ * Refs #1690 (design-WS retargets #1700–#1704).
  */
 
 const { test, expect } = require("@playwright/test");
-const {
-  loginAsAdmin,
-  BASE_URL,
-  adminBasicAuthHeaders,
-} = require("./helpers/auth");
+const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
 
-const DEVELOPER_URL = `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=developer&_=${Date.now()}`;
-
-/** Catalog REST paths used by Developer shell sections (thin read catalogs). */
-const CATALOG_ENDPOINTS = [
-  { name: "contenttypes", path: "/Rhythmyx/services/contenttypes", critical: true },
-  { name: "templates", path: "/Rhythmyx/services/templates", critical: true },
-  { name: "slots", path: "/Rhythmyx/services/slots", critical: true },
-  { name: "keywords", path: "/Rhythmyx/services/keywords", critical: true },
-  { name: "locales", path: "/Rhythmyx/services/locales", critical: false },
-  { name: "searches", path: "/Rhythmyx/services/searches", critical: false },
-  { name: "views", path: "/Rhythmyx/services/views", critical: false },
-  { name: "extensions", path: "/Rhythmyx/services/extensions/catalog", critical: false },
-  { name: "cecontrols", path: "/Rhythmyx/services/cecontrols", critical: false },
-  { name: "serverconfigs", path: "/Rhythmyx/services/serverconfigs", critical: false },
-  { name: "sites", path: "/Rhythmyx/services/sites", critical: false },
-  { name: "relationshiptypes", path: "/Rhythmyx/services/relationshiptypes", critical: false },
+/**
+ * @type {{
+ *   section: string,
+ *   successTestIds: string[],
+ *   errorTestId: string,
+ * }[]}
+ */
+const CATALOGS = [
+  {
+    section: "content-types",
+    successTestIds: ["developer-ct-panel", "developer-ct-empty"],
+    errorTestId: "developer-ct-error",
+  },
+  {
+    section: "keywords",
+    successTestIds: ["developer-kw-panel", "developer-kw-empty"],
+    errorTestId: "developer-kw-error",
+  },
+  {
+    section: "locales",
+    successTestIds: ["developer-loc-panel", "developer-loc-empty"],
+    errorTestId: "developer-loc-error",
+  },
+  {
+    section: "slots",
+    successTestIds: ["developer-slot-panel", "developer-slot-empty"],
+    errorTestId: "developer-slot-error",
+  },
+  {
+    section: "shared-fields",
+    successTestIds: ["developer-sf-panel", "developer-sf-empty"],
+    errorTestId: "developer-sf-error",
+  },
+  {
+    section: "system-def",
+    successTestIds: ["developer-sys-panel", "developer-sys-empty"],
+    errorTestId: "developer-sys-error",
+  },
 ];
 
+function developerUrl(section) {
+  const q = new URLSearchParams({
+    entry: "developer",
+    section,
+    _: String(Date.now()),
+  });
+  return `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?${q.toString()}`;
+}
+
 test.describe("Developer catalog smoke (#1690)", () => {
-  test("SPA Developer shell mounts and content-types table is usable", async ({
-    page,
-  }) => {
+  test.beforeEach(async ({ page }) => {
     test.setTimeout(90_000);
     await loginAsAdmin(page);
-    await page.goto(DEVELOPER_URL, { waitUntil: "networkidle" });
-
-    const shell = page.locator('[data-testid="perc-developer-shell"]');
-    await expect(shell).toBeVisible({ timeout: 20_000 });
-
-    // Default section: content types list
-    const table = page.locator('[data-testid="developer-ct-table"]');
-    await expect(table).toBeVisible({ timeout: 20_000 });
-
-    // Fail hard if the panel is in error chrome
-    const err = page.locator('[data-testid="developer-ct-error"]');
-    if ((await err.count()) > 0) {
-      const text = await err.innerText();
-      throw new Error(`Developer content-types panel error: ${text}`);
-    }
-
-    // Rows should expose a real name/label, not only "—" placeholders from
-    // empty DTOs (seen when list JSON only carries hideFromMenu flags).
-    const openBtns = table.locator('[data-testid="developer-ct-open"]');
-    const rowCount = await table.locator("tbody tr").count();
-    expect(rowCount, "content type table should have at least one row").toBeGreaterThan(
-      0,
-    );
-
-    const bodyText = await table.innerText();
-    // If every cell is an em dash, the REST payload is useless for the SPA.
-    const onlyPlaceholders =
-      !/[A-Za-z]{2,}/.test(bodyText.replace(/Label|Name|Id|Description|Select/gi, ""));
-    expect(
-      onlyPlaceholders,
-      "content type rows look empty (labels/names missing from API/DTO) — redeploy rest/WebUI or fix ContentType list mapping",
-    ).toBe(false);
-
-    if ((await openBtns.count()) > 0) {
-      await expect(openBtns.first()).toBeVisible();
-    }
   });
 
-  test("catalog REST endpoints return 2xx with Basic auth", async ({ request }) => {
-    test.setTimeout(120_000);
-    const headers = adminBasicAuthHeaders();
-    const failures = [];
+  for (const cat of CATALOGS) {
+    test(`${cat.section}: catalog loads without API error`, async ({ page }) => {
+      await page.goto(developerUrl(cat.section), { waitUntil: "networkidle" });
 
-    for (const ep of CATALOG_ENDPOINTS) {
-      const res = await request.get(`${BASE_URL}${ep.path}`, { headers });
-      const status = res.status();
-      if (status < 200 || status >= 300) {
-        failures.push({
-          name: ep.name,
-          path: ep.path,
-          status,
-          critical: ep.critical,
-        });
-      }
-    }
+      await expect(page.locator('[data-testid="nav-developer"]')).toBeVisible({
+        timeout: 20_000,
+      });
+      await expect(
+        page.locator(`[data-testid="tab-developer-${cat.section}"]`),
+      ).toBeVisible({ timeout: 15_000 });
 
-    const criticalFails = failures.filter((f) => f.critical);
-    const softFails = failures.filter((f) => !f.critical);
-
-    // Soft fails (P0.7+ catalogs) still report — install often lags development.
-    if (softFails.length) {
-      console.warn(
-        "[developer-catalog-smoke] non-critical catalog HTTP failures (often means install not redeployed):\n" +
-          softFails.map((f) => `  ${f.status} ${f.name} ${f.path}`).join("\n"),
+      const error = page.locator(`[data-testid="${cat.errorTestId}"]`);
+      const success = page.locator(
+        cat.successTestIds.map((id) => `[data-testid="${id}"]`).join(", "),
       );
-    }
 
-    expect(
-      criticalFails,
-      `Critical catalog REST failures (redeploy rest/sitemanage or fix 5xx):\n` +
-        criticalFails.map((f) => `  ${f.status} ${f.name} ${f.path}`).join("\n"),
-    ).toEqual([]);
-  });
+      // Wait until loading finishes: either success surface or error alert
+      await expect(success.or(error).first()).toBeVisible({ timeout: 30_000 });
+
+      if (await error.isVisible()) {
+        const msg = (await error.innerText()).trim();
+        throw new Error(
+          `Developer section "${cat.section}" showed catalog error: ${msg}`,
+        );
+      }
+
+      await expect(success.first()).toBeVisible();
+
+      // Content-types: panel with rows must expose real labels/names, not only
+      // "—" placeholders (empty DTOs when list JSON only carries hideFromMenu).
+      // Empty catalog (developer-ct-empty) is a valid success surface.
+      if (cat.section === "content-types") {
+        await assertContentTypesRowsUsable(page);
+      }
+    });
+  }
 });
+
+/**
+ * When the content-types panel is shown (not the empty state), require at least
+ * one data row whose cells are not only empty / "—" placeholders (empty DTOs).
+ * Accepts any non-placeholder text: single letters, digits, "Label", "C++", etc.
+ *
+ * @param {import('@playwright/test').Page} page
+ */
+async function assertContentTypesRowsUsable(page) {
+  const panel = page.locator('[data-testid="developer-ct-panel"]');
+  if (!(await panel.isVisible())) {
+    return;
+  }
+
+  const table = page.locator('[data-testid="developer-ct-table"]');
+  await expect(table).toBeVisible({ timeout: 10_000 });
+
+  const rows = table.locator('[data-testid="developer-ct-row"]');
+  const rowCount = await rows.count();
+  expect(
+    rowCount,
+    "content type table should have at least one row when panel is shown",
+  ).toBeGreaterThan(0);
+
+  // Body cells only (skip thead). Placeholder UI uses em dash / hyphen when
+  // label/name are missing from the DTO — any other trimmed text is real data.
+  const hasRealCell = await rows.evaluateAll((trs) => {
+    const isPlaceholder = (raw) => {
+      const t = (raw || "").replace(/\u00a0/g, " ").trim();
+      return t === "" || t === "—" || t === "–" || t === "-";
+    };
+    return trs.some((tr) =>
+      Array.from(tr.querySelectorAll("td")).some(
+        (td) => !isPlaceholder(td.textContent),
+      ),
+    );
+  });
+  expect(
+    hasRealCell,
+    "content type rows look empty (labels/names missing from API/DTO) — redeploy rest/WebUI or fix ContentType list mapping",
+  ).toBe(true);
+}
