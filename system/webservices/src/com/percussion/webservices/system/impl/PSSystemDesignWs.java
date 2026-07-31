@@ -69,7 +69,6 @@ import com.percussion.webservices.system.IPSSystemDesignWs;
 import com.percussion.webservices.system.IPSSystemWs;
 import com.percussion.webservices.system.PSSystemWsLocator;
 import com.percussion.security.shim.acl.NotOwnerException;
-import com.percussion.services.system.data.PSSharedProperty;
 import org.apache.commons.lang3.StringUtils;
 import com.percussion.webservices.ExceptionUtils;
 import org.springframework.transaction.annotation.Transactional;

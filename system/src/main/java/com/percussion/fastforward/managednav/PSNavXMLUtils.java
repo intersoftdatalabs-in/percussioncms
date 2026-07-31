@@ -482,7 +482,7 @@ public class PSNavXMLUtils {
    */
   public static void replaceNodeText(Element elem, String value) {
     Document parentDoc = elem.getOwnerDocument();
-    Node textNode = parentDoc.createTextNode(value);
+    Node StringNode = parentDoc.createTextNode(value);
     NodeList nlist = elem.getChildNodes();
     for (int i = 0; i < nlist.getLength(); i++) {
       Node child = nlist.item(i);
@@ -497,7 +497,7 @@ public class PSNavXMLUtils {
           continue;
       }
     }
-    elem.appendChild(textNode);
+    elem.appendChild(StringNode);
   }
 
   /** Name of the query to use for Nav Theme overrides. */

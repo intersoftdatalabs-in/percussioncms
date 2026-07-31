@@ -27,7 +27,8 @@ import static org.apache.commons.lang3.Validate.isTrue;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.percussion.analytics.service.IPSAnalyticsProviderService;
 import com.percussion.category.data.PSCategory;
 import com.percussion.category.data.PSCategoryNode;
@@ -1017,7 +1018,7 @@ public class PSPageUtils extends PSJexlUtilBase {
       returns = "Map of key/value pairs")
   public Map<String, String> parseSoProMetadata(String metadata) {
     try {
-      ObjectMapper mapper = new ObjectMapper();
+      ObjectMapper mapper = JsonMapper.builder().build();
 
       Map<String, String> jsonObject = mapper.readValue(metadata, Map.class);
       Map<String, String> map = new ConcurrentHashMap<>();
@@ -2018,7 +2019,7 @@ public class PSPageUtils extends PSJexlUtilBase {
 
       // Get the persisted drop down field value.
 
-      var mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+      var mapper = new tools.jackson.databind.ObjectMapper();
       List<Map<String, Object>> jsonArray = mapper.readValue(fieldValue, java.util.ArrayList.class);
 
       // Get the categories from the category xml, so that the relevant
@@ -2047,7 +2048,7 @@ public class PSPageUtils extends PSJexlUtilBase {
         }
       }
       return new TreeMap<>(templateMap);
-    } catch (PSDataServiceException | com.fasterxml.jackson.core.JsonProcessingException e) {
+    } catch (PSDataServiceException | tools.jackson.core.JacksonException e) {
       log.error(
           LOG_ERROR_DEFAULT, "getCategoryDropDownValues", PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -2358,7 +2359,7 @@ public class PSPageUtils extends PSJexlUtilBase {
       returns = "A Map instance")
   public Map<String, Object> createJsonObject(String jsonString) {
     try {
-      ObjectMapper mapper = new ObjectMapper();
+      ObjectMapper mapper = JsonMapper.builder().build();
 
       Map<String, Object> result = mapper.readValue(jsonString, Map.class);
       return result;

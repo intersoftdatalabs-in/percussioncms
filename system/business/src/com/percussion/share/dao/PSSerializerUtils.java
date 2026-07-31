@@ -17,7 +17,8 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.share.dao;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.xml.PSXmlSecurityOptions;
@@ -250,7 +251,7 @@ public class PSSerializerUtils
             if (json == null || json.isBlank()) {
                 return null;
             }
-            var mapper = new ObjectMapper();
+            var mapper = JsonMapper.builder().build();
             String wrappedJson = '[' + json + ']';
             var array = mapper.readValue(wrappedJson, List.class);
             if (array.isEmpty()) {
@@ -281,7 +282,7 @@ public class PSSerializerUtils
      */
     public static String getJsonFromObject(Object obj) {
         try {
-            var mapper = new ObjectMapper();
+            var mapper = JsonMapper.builder().build();
             var wrappedList = Collections.singletonList(obj);
             String jsonList = mapper.writeValueAsString(wrappedList);
             // Remove surrounding [ and ]

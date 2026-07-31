@@ -27,11 +27,11 @@ import static com.percussion.utils.service.impl.PSSiteConfigUtils.updateSiteConf
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectWriter;
 import com.percussion.assetmanagement.dao.IPSAssetDao;
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
@@ -373,10 +373,10 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     String jsonString = site.getGenerateSiteMapOptions();
     PSGenerateSiteMapOptions psGenerateSiteMapOptions = null;
     if (StringUtils.isNotBlank(jsonString)) {
-      ObjectMapper mapper = new ObjectMapper();
+      ObjectMapper mapper = JsonMapper.builder().build();
       try {
         psGenerateSiteMapOptions = mapper.readValue(jsonString, PSGenerateSiteMapOptions.class);
-      } catch (JsonProcessingException e) {
+      } catch (JacksonException e) {
         log.warn(
             "Failed to parse generateSiteMapOptions JSON for site {}, using defaults. Error: {}",
             site.getName(),
@@ -540,12 +540,12 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     site.setSiteBeforeBodyCloseContent(props.getSiteBeforeBodyCloseContent().orElse(null));
     site.setMobilePreviewEnabled(props.isMobilePreviewEnabled());
     site.setGenerateSitemap(props.isGenerateSiteMap());
-    ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+    ObjectWriter ow = JsonMapper.builder().build().writer().withDefaultPrettyPrinter();
     String json = null;
     try {
       json = ow.writeValueAsString(props.getGenerateSiteMapOptions());
 
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw new RuntimeException(e);
     }
     site.setGenerateSiteMapOptions(json);
@@ -1264,7 +1264,7 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     for (PSSiteSummary siteSum : sums) {
       siteNames.add(siteSum.getName());
     }
-    ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = JsonMapper.builder().build();
 
     for (File file : fileList) {
       PSSaasSiteConfig saasSiteConfig = loadSiteConfig(file.getName(), mapper);
@@ -1310,7 +1310,7 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     if (!map.containsKey(siteName)) {
       return null;
     }
-    ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = JsonMapper.builder().build();
     return loadSiteConfig(map.get(siteName), mapper);
   }
 
@@ -1331,17 +1331,12 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
                 + fileName);
     try {
       saasSiteConfig = mapper.readValue(file, PSSaasSiteConfig.class);
-    } catch (JsonGenerationException e) {
+    } catch (JacksonException e) {
       log.error(
-          "The site config file {} is not a valid json file. Error: {}",
+          "The site config file {} is not valid JSON or does not map. Error: {}",
           file.getName(),
           PSExceptionUtils.getMessageForLog(e));
-    } catch (JsonMappingException e) {
-      log.error(
-          "The site config file {} does not map to the java class. Error: {}",
-          file.getName(),
-          PSExceptionUtils.getMessageForLog(e));
-    } catch (IOException e) {
+    } catch (Exception e) {
       log.error(
           "Exception occurred while reading saas site configuration file {}. Error: {}",
           file.getName(),

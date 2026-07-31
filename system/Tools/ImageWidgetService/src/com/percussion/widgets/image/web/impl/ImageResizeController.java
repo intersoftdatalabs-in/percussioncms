@@ -17,7 +17,8 @@
 
 package com.percussion.widgets.image.web.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.system.utils.PSBaseBean;
 import com.percussion.widgets.image.data.CachedImageMetaData;
@@ -78,7 +79,7 @@ public class ImageResizeController {
     @PostMapping
     public ModelAndView handle(@ModelAttribute("results") ResizeImageBean bean, BindingResult result) {
         var mav = new ModelAndView(viewName);
-        var mapper = new ObjectMapper();
+        var mapper = JsonMapper.builder().build();
 
         try {
             var validationError = validateResizeBean(bean);

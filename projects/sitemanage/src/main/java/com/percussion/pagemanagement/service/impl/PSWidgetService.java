@@ -17,7 +17,8 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.percussion.metadata.service.IPSMetadataService;
 import com.percussion.pagemanagement.dao.IPSWidgetDao;
 import com.percussion.pagemanagement.data.PSWidgetDefinition;
@@ -125,13 +126,13 @@ public class PSWidgetService implements IPSWidgetService {
       if (md != null) {
         var data = md.getData();
         if (StringUtils.isNotBlank(data)) {
-          var mapper = new ObjectMapper();
+          var mapper = JsonMapper.builder().build();
           try {
             var jsonArray = mapper.readValue(data, java.util.ArrayList.class);
             for (var item : jsonArray) {
               disabledWidgets.add((String) item);
             }
-          } catch (IOException e) {
+          } catch (Exception e) {
             log.warn("Error parsing disabled widgets configuration", e);
           }
         }

@@ -19,22 +19,19 @@
 
 package com.percussion.category.data;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
 
 /** Jackson serializer for LocalDateTime. */
-public class LocalDateSerializer extends JsonSerializer<LocalDateTime> {
+public class LocalDateSerializer extends ValueSerializer<LocalDateTime> {
   @Override
   public void serialize(
-      LocalDateTime localDateTime,
-      JsonGenerator jsonGenerator,
-      SerializerProvider serializerProvider)
-      throws IOException {
-    // Use ISO_LOCAL_DATE_TIME for consistency
+      LocalDateTime localDateTime, JsonGenerator jsonGenerator, SerializationContext ctxt)
+      throws JacksonException {
     jsonGenerator.writeString(localDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
   }
 }

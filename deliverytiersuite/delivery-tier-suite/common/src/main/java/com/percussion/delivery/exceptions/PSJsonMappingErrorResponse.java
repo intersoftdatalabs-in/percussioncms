@@ -17,7 +17,7 @@
 
 package com.percussion.delivery.exceptions;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
+import tools.jackson.databind.DatabindException;
 import com.percussion.security.error.PSExceptionUtils;
 import jakarta.annotation.Priority;
 import jakarta.ws.rs.core.Response;
@@ -27,12 +27,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Maps Jackson {@link JsonMappingException}s into a generic 500 plain-text response, logging the
+ * Maps Jackson {@link DatabindException}s into a generic 500 plain-text response, logging the
  * original error for diagnostics.
  */
 @Provider
 @Priority(1)
-public class PSJsonMappingErrorResponse implements ExceptionMapper<JsonMappingException> {
+public class PSJsonMappingErrorResponse implements ExceptionMapper<DatabindException> {
 
   /** Default constructor. */
   public PSJsonMappingErrorResponse() {}
@@ -48,7 +48,7 @@ public class PSJsonMappingErrorResponse implements ExceptionMapper<JsonMappingEx
    * @return a response mapped from the supplied exception.
    */
   @Override
-  public Response toResponse(JsonMappingException exception) {
+  public Response toResponse(DatabindException exception) {
     log.error(PSExceptionUtils.getMessageForLog(exception));
     log.debug(PSExceptionUtils.getDebugMessageForLog(exception));
     return Response.status(500)

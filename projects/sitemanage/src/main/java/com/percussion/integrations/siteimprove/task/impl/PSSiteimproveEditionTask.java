@@ -18,7 +18,8 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.integrations.siteimprove.task.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.google.common.collect.Iterators;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.integrations.siteimprove.data.PSSiteImproveSiteConfigurations;
@@ -234,7 +235,7 @@ public class PSSiteimproveEditionTask implements IPSEditionTask {
 
   /** Obtain the token and site name from a metadata JSON. */
   private Map<String, String> obtainToken(String credentialsData) throws Exception {
-    var mapper = new ObjectMapper();
+    var mapper = JsonMapper.builder().build();
     var credentialsJSON = mapper.readValue(credentialsData, java.util.LinkedHashMap.class);
     var credentials = new HashMap<String, String>();
     if (!credentialsJSON.containsKey(SITE_NAME)) {
@@ -259,7 +260,7 @@ public class PSSiteimproveEditionTask implements IPSEditionTask {
   /** Parse metadata JSON for our Siteimprove configuration settings. */
   private PSSiteImproveSiteConfigurations obtainSiteConfiguration(String siteConfigurationData)
       throws Exception {
-    var mapper = new ObjectMapper();
+    var mapper = JsonMapper.builder().build();
     var siteConfigurationJson =
         mapper.readValue(siteConfigurationData, java.util.LinkedHashMap.class);
     if (!siteConfigurationJson.containsKey(DO_PRODUCTION)) {

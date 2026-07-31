@@ -22,7 +22,8 @@ import static com.percussion.webservices.PSWebserviceUtils.getStateById;
 import static com.percussion.webservices.PSWebserviceUtils.getWorkflow;
 import static java.util.Arrays.asList;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.percussion.assetmanagement.dao.IPSAssetDao;
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.assetmanagement.data.PSReportFailedToRunException;
@@ -563,7 +564,7 @@ public class PSItemService implements IPSItemService {
           "An unexpected error occurred while fetching the site impact details for the asset.", e);
     }
     try {
-      ObjectMapper mapper = new ObjectMapper();
+      ObjectMapper mapper = JsonMapper.builder().build();
       return mapper.writeValueAsString(result);
     } catch (Exception e) {
       log.error("Error serializing site impact data: {}", PSExceptionUtils.getMessageForLog(e));

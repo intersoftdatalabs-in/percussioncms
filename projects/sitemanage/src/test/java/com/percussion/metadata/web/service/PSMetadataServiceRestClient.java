@@ -18,7 +18,8 @@
 
 package com.percussion.metadata.web.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.percussion.dashboardmanagement.data.PSDashboardConfiguration;
 import com.percussion.dashboardmanagement.data.PSGadget;
 import com.percussion.metadata.data.PSMetadata;
@@ -43,8 +44,8 @@ public class PSMetadataServiceRestClient extends PSDataServiceRestClient<PSMetad
   }
 
   public void save(Map<String, Object> obj)
-      throws com.fasterxml.jackson.core.JsonProcessingException {
-    POST(getPath(), new ObjectMapper().writeValueAsString(obj));
+      throws tools.jackson.core.JacksonException {
+    POST(getPath(), JsonMapper.builder().build().writeValueAsString(obj));
   }
 
   public List<PSGadget> getCurrentGadgets() {
@@ -52,7 +53,7 @@ public class PSMetadataServiceRestClient extends PSDataServiceRestClient<PSMetad
     try {
       var response = GET(concatPath(getPath(), GADGETS_KEY));
       var metadata = PSSerializerUtils.unmarshal(response, PSMetadata.class);
-      var mapper = new ObjectMapper();
+      var mapper = JsonMapper.builder().build();
       var dataMap = mapper.readValue(metadata.getData(), java.util.Map.class);
       var dashboardConfigMap = (java.util.Map<String, Object>) dataMap.get("DashboardConfig");
       config = mapper.convertValue(dashboardConfigMap, PSDashboardConfiguration.class);
@@ -85,7 +86,7 @@ public class PSMetadataServiceRestClient extends PSDataServiceRestClient<PSMetad
 
   private Map<String, Object> getMetadataJsonForSpecificGadgetSettings(
       PSDashboardConfiguration dashboardConfig)
-      throws com.fasterxml.jackson.core.JsonProcessingException {
+      throws tools.jackson.core.JacksonException {
     var userConfig = new LinkedHashMap<String, Object>();
     for (var gad : dashboardConfig.getGadgets()) {
       var specificGadgetSettings = new LinkedHashMap<String, Object>();
@@ -97,7 +98,7 @@ public class PSMetadataServiceRestClient extends PSDataServiceRestClient<PSMetad
     var userPrefJson = new LinkedHashMap<String, Object>();
     userPrefJson.put("userprefs", userConfig);
 
-    var mapper = new ObjectMapper();
+    var mapper = JsonMapper.builder().build();
     var metadata =
         new PSMetadata(GADGETS_PREFS_KEY, "\"" + mapper.writeValueAsString(userPrefJson) + "\"");
     var metadataJson = new LinkedHashMap<String, Object>();
@@ -106,9 +107,9 @@ public class PSMetadataServiceRestClient extends PSDataServiceRestClient<PSMetad
   }
 
   private Map<String, Object> getMetadataJson(PSDashboardConfiguration dashboardConfig)
-      throws com.fasterxml.jackson.core.JsonProcessingException {
+      throws tools.jackson.core.JacksonException {
     var dashboardConfigJson = new LinkedHashMap<String, Object>();
-    var mapper = new ObjectMapper();
+    var mapper = JsonMapper.builder().build();
     dashboardConfigJson.put("DashboardConfig", mapper.convertValue(dashboardConfig, Object.class));
 
     var metadata =

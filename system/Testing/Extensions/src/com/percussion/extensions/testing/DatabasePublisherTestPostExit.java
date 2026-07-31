@@ -41,7 +41,6 @@ import com.percussion.server.PSServer;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
-import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.tablefactory.PSJdbcTableFactory;
 
 import java.io.ByteArrayInputStream;
