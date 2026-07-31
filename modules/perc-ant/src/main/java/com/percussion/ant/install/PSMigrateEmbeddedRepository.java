@@ -44,13 +44,28 @@ import org.apache.tools.ant.BuildException;
  */
 public class PSMigrateEmbeddedRepository extends PSAction {
 
+  /** Default constructor. */
+  public PSMigrateEmbeddedRepository() {
+    super();
+  }
+
   private boolean performProductBackup = true;
   private boolean failOnBlock = true;
 
+  /**
+   * Sets whether to perform a product backup before migrating the embedded CMS Derby database.
+   *
+   * @param performProductBackup <code>true</code> to back up the CMS database before migration
+   */
   public void setPerformProductBackup(boolean performProductBackup) {
     this.performProductBackup = performProductBackup;
   }
 
+  /**
+   * Returns whether a product backup will be performed before migration.
+   *
+   * @return <code>true</code> if a product backup will be performed before migration
+   */
   public boolean isPerformProductBackup() {
     return performProductBackup;
   }
@@ -58,11 +73,18 @@ public class PSMigrateEmbeddedRepository extends PSAction {
   /**
    * When true (default), BLOCKED_BACKUP_GATE and FAILED throw {@link BuildException}. When false,
    * logs and continues (not recommended for production upgrades).
+   *
+   * @param failOnBlock <code>true</code> to fail the upgrade on blocked/errored migrations
    */
   public void setFailOnBlock(boolean failOnBlock) {
     this.failOnBlock = failOnBlock;
   }
 
+  /**
+   * Returns whether the upgrade should fail on blocked/errored migrations.
+   *
+   * @return <code>true</code> when the upgrade should fail on blocked/errored migrations
+   */
   public boolean isFailOnBlock() {
     return failOnBlock;
   }

@@ -48,23 +48,47 @@ import org.apache.tools.ant.Task;
  */
 public class PSValidateRepositoryConnection extends Task {
   /** Creates a new repository connection validation task. */
-  public PSValidateRepositoryConnection() {}
+  public PSValidateRepositoryConnection() {
+    super();
+  }
 
   private String rootDir;
   private int loginTimeoutSeconds = 15;
 
+  /**
+   * Sets the CMS install root whose {@code rxconfig/Installer/rxrepository.properties} should be
+   * validated.
+   *
+   * @param rootDir absolute or relative install root
+   */
   public void setRootDir(String rootDir) {
     this.rootDir = rootDir;
   }
 
+  /**
+   * Returns the install root whose repository will be validated.
+   *
+   * @return the install root, may be <code>null</code>
+   */
   public String getRootDir() {
     return rootDir;
   }
 
+  /**
+   * Sets the JDBC login timeout (in seconds) used while validating the repository connection.
+   *
+   * @param loginTimeoutSeconds login timeout in seconds; values &lt;= 0 leave the JVM default in
+   *     place
+   */
   public void setLoginTimeoutSeconds(int loginTimeoutSeconds) {
     this.loginTimeoutSeconds = loginTimeoutSeconds;
   }
 
+  /**
+   * Returns the JDBC login timeout (in seconds) used while validating the repository connection.
+   *
+   * @return the configured login timeout in seconds
+   */
   public int getLoginTimeoutSeconds() {
     return loginTimeoutSeconds;
   }
