@@ -10,7 +10,6 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
@@ -23,9 +22,15 @@ import com.percussion.rest.locales.ILocalesAdaptor;
 import com.percussion.rest.locales.LocaleDetail;
 import com.percussion.rest.locales.LocaleFormatSummary;
 import com.percussion.rest.locales.LocaleSummary;
+import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.utils.guid.IPSGuid;
+import com.percussion.utils.request.PSRequestInfo;
+import com.percussion.webservices.PSErrorResultsException;
+import com.percussion.webservices.content.IPSContentDesignWs;
+import com.percussion.webservices.content.PSContentWsLocator;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -42,14 +47,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Read-only CMS locale catalog aligned with recent RXLOCALE / RXLOCALEFORMAT model:
+ * Read-only CMS locale catalog for Developer REST.
  *
- * <ul>
- *   <li>{@link PSLocale} — {@code LANGUAGESTRING}, display name, status, {@code ISBASE}
- *   <li>{@link PSLocaleFormat} — optional format profile keyed by language string (not LOCALEID)
- * </ul>
- *
- * <p>Mapping helpers are pure so unit tests need no Hibernate.
+ * <p>Workbench parity for locale definitions: {@link IPSContentDesignWs#findLocales} /
+ * {@link IPSContentDesignWs#loadLocales} (same design web service SOAP uses). Format profiles
+ * ({@link PSLocaleFormat} / RXLOCALEFORMAT) have no design-WS twin — still enriched from {@link
+ * IPSCmsObjectMgr} as an optional secondary read.
  */
 @PSSiteManageBean
 public class LocalesAdaptor implements ILocalesAdaptor {
@@ -63,14 +66,13 @@ public class LocalesAdaptor implements ILocalesAdaptor {
           "Format resolution chain (regional → base → en-us defaults) is runtime-only",
           "Auto-translation configuration not exposed via this API");
 
-  private final Supplier<List<PSLocale>> localeLoader;
+  private final IPSContentDesignWs designWs;
   private final Function<String, Optional<PSLocaleFormat>> formatByLang;
   private final Supplier<Set<String>> formatLanguageIndex;
 
   public LocalesAdaptor() {
     this(
-        () ->
-            PSCmsObjectMgrLocator.getObjectManager().findAllLocales().collect(Collectors.toList()),
+        PSContentWsLocator.getContentDesignWebservice(),
         lang -> {
           IPSCmsObjectMgr mgr = PSCmsObjectMgrLocator.getObjectManager();
           return mgr.findLocaleFormatByLanguageString(lang);
@@ -86,22 +88,21 @@ public class LocalesAdaptor implements ILocalesAdaptor {
 
   /** Package-visible for unit tests. */
   LocalesAdaptor(
-      Supplier<List<PSLocale>> localeLoader,
+      IPSContentDesignWs designWs,
       Function<String, Optional<PSLocaleFormat>> formatByLang,
       Supplier<Set<String>> formatLanguageIndex) {
-    this.localeLoader = localeLoader;
+    this.designWs = designWs;
     this.formatByLang = formatByLang;
     this.formatLanguageIndex = formatLanguageIndex;
   }
 
   @Override
   public List<LocaleSummary> listLocales(URI baseUri) {
-    // baseUri reserved for HATEOAS
     try {
-      Set<String> formatLangs = formatLanguageIndex.get();
-      return mapSummaries(localeLoader.get(), formatLangs);
+      Set<String> formatLangs = safeFormatIndex();
+      return mapSummaries(loadAllLocalesViaDesignWs(), formatLangs);
     } catch (RuntimeException e) {
-      log.warn("Failed to list CMS locales", e);
+      log.warn("Failed to list CMS locales via content design WS", e);
       throw e;
     }
   }
@@ -112,7 +113,7 @@ public class LocalesAdaptor implements ILocalesAdaptor {
       return null;
     }
     try {
-      List<PSLocale> all = localeLoader.get();
+      List<PSLocale> all = loadAllLocalesViaDesignWs();
       PSLocale found = resolveLocale(all, idOrLang.trim());
       if (found == null) {
         return null;
@@ -121,9 +122,50 @@ public class LocalesAdaptor implements ILocalesAdaptor {
       PSLocaleFormat format = lang == null ? null : formatByLang.apply(lang).orElse(null);
       return toDetail(found, format);
     } catch (RuntimeException e) {
-      log.warn("Failed to load CMS locale", e);
+      log.warn("Failed to load CMS locale via content design WS", e);
       throw e;
     }
+  }
+
+  private List<PSLocale> loadAllLocalesViaDesignWs() {
+    List<IPSCatalogSummary> summaries = designWs.findLocales(null, null);
+    if (summaries == null || summaries.isEmpty()) {
+      return List.of();
+    }
+    List<IPSGuid> guids = new ArrayList<>();
+    for (IPSCatalogSummary sum : summaries) {
+      if (sum != null && sum.getGUID() != null) {
+        guids.add(sum.getGUID());
+      }
+    }
+    if (guids.isEmpty()) {
+      return List.of();
+    }
+    try {
+      List<PSLocale> loaded =
+          designWs.loadLocales(guids, false, false, currentSession(), currentUser());
+      return loaded != null ? loaded : List.of();
+    } catch (PSErrorResultsException e) {
+      log.error("Failed to load locales via content design WS", e);
+      throw new IllegalStateException("Failed to load locales", e);
+    }
+  }
+
+  private Set<String> safeFormatIndex() {
+    try {
+      return formatLanguageIndex.get();
+    } catch (RuntimeException e) {
+      log.debug("Locale format index unavailable: {}", e.getMessage());
+      return Set.of();
+    }
+  }
+
+  private static String currentSession() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+  }
+
+  private static String currentUser() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
   }
 
   /** Language strings (BCP-47 style) or numeric locale ids. Reject path separators / traversal. */
