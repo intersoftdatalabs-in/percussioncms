@@ -63,6 +63,9 @@ import org.w3c.dom.Element;
  * primary key in the backed table(s).
  */
 public class PSDeleteContent implements IPSRequestPreProcessor {
+  /** Creates a new PSDeleteContent. */
+  public PSDeleteContent() {}
+
   /*
    * implementation of the method in the interface IPSRequestPreProcessor
    */

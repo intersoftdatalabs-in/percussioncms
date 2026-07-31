@@ -37,6 +37,9 @@ import org.apache.commons.lang3.time.FastDateFormat;
  * string, date time offset, and truncate.
  */
 public class PSAddCurrentDateTime extends PSDefaultExtension implements IPSRequestPreProcessor {
+  /** Creates a new PSAddCurrentDateTime. */
+  public PSAddCurrentDateTime() {}
+
   /**
    * Adds a the current date and time to the provided request.
    *
@@ -102,6 +105,7 @@ public class PSAddCurrentDateTime extends PSDefaultExtension implements IPSReque
    * @param offset the number of hours to offset the date passed in. Can be negative, positive or
    *     zero.
    * @param truncate flag to indicate if we want to truncate this date/time
+   * @return the offset date.
    */
   public static Date getDateOffset(Date date, int offset, boolean truncate) {
     long oneDay = 86400000L;

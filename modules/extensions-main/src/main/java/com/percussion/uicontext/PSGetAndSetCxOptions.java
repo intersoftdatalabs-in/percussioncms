@@ -51,6 +51,9 @@ import org.xml.sax.SAXException;
  * any problems and we won't be storing bad data.
  */
 public class PSGetAndSetCxOptions implements IPSResultDocumentProcessor, IPSRequestPreProcessor {
+  /** Creates a new PSGetAndSetCxOptions. */
+  public PSGetAndSetCxOptions() {}
+
   /**
    * @see IPSResultDocumentProcessor *
    */

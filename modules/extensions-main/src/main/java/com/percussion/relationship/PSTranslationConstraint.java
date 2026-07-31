@@ -40,6 +40,8 @@ import org.apache.logging.log4j.Logger;
  * created.
  */
 public class PSTranslationConstraint extends PSDefaultExtension implements IPSRequestPreProcessor {
+  /** Creates a new PSTranslationConstraint. */
+  public PSTranslationConstraint() {}
 
   private static final Logger log = LogManager.getLogger(PSTranslationConstraint.class);
 

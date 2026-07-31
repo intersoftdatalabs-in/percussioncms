@@ -33,8 +33,6 @@ import org.w3c.dom.Text;
  * Then the value is located based on the name of the element supplied. The parameter description is
  * as follows:
  *
- * <p>
- *
  * <ul>
  *   <li>First parameter is the name of the Rhythmyx resource that generates the field value to be
  *       overridden. This has a syntax of ../<code>rxApp</code>/ <code>resource</code>.cml
@@ -48,6 +46,9 @@ import org.w3c.dom.Text;
  * @author RammohanVangapalli
  */
 public class PSCloneOverrideField extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSCloneOverrideField. */
+  public PSCloneOverrideField() {}
+
   /* (non-Javadoc)
    * @see com.percussion.extension.IPSUdfProcessor#processUdf(java.lang.Object[], com.percussion.server.IPSRequestContext)
    */

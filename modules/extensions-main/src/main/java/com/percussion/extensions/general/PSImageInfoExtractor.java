@@ -40,6 +40,8 @@ import org.apache.logging.log4j.Logger;
  * be added to the request as image size attributes. Requires the SUN JAI library.
  */
 public class PSImageInfoExtractor extends PSFileInfo implements IPSItemInputTransformer {
+  /** Creates a new PSImageInfoExtractor. */
+  public PSImageInfoExtractor() {}
 
   private static final Logger log = LogManager.getLogger(PSImageInfoExtractor.class);
 

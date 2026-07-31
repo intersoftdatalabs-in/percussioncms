@@ -51,12 +51,27 @@ import org.w3c.dom.Element;
 public class PSAllowOnlyBooleanValues
     implements IPSResultDocumentProcessor, IPSAllowOnlyItemInputValidator {
 
+  /** Creates a new PSAllowOnlyBooleanValues. */
+  public PSAllowOnlyBooleanValues() {}
+
+  /** The TRUE boolean string. */
   public static String TRUE = "true";
+
+  /** The YES boolean string. */
   public static String YES = "yes";
+
+  /** The FALSE boolean string. */
   public static String FALSE = "false";
+
+  /** The NO boolean string. */
   public static String NO = "no";
+
+  /** The ONE boolean string. */
   public static String ONE = "1";
+
+  /** The ZERO boolean string. */
   public static String ZERO = "0";
+
   private String ms_fullExtensionName;
 
   @Override
@@ -80,6 +95,16 @@ public class PSAllowOnlyBooleanValues
     return ret;
   }
 
+  /**
+   * Validates and normalizes boolean parameters from the request.
+   *
+   * @param params the extension parameters.
+   * @param request the request context.
+   * @throws PSAuthorizationException if authorization fails.
+   * @throws PSRequestValidationException if the request is invalid.
+   * @throws PSParameterMismatchException if the parameters are mismatched.
+   * @throws PSExtensionProcessingException if processing fails.
+   */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSAuthorizationException,
           PSRequestValidationException,

@@ -27,6 +27,9 @@ import java.io.InputStream;
  * it only returns Base64 encoded <code>BODY</code> portion of the fetched HTML document.
  */
 public class PSGetBase64EncodedBody extends PSGetBase64Encoded {
+  /** Creates a new PSGetBase64EncodedBody. */
+  public PSGetBase64EncodedBody() {}
+
   /**
    * Overridden method of the base class. Returns an InputStream that only returns the data found in
    * the <code>BODY</code> portion of the HTTP response.

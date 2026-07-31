@@ -28,6 +28,9 @@ import org.w3c.dom.Element;
 
 /** Creates a properties element as used in portal publisher assemblers. */
 public class PSCreatePortalPropertyList extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSCreatePortalPropertyList. */
+  public PSCreatePortalPropertyList() {}
+
   /**
    * Creates the <code>Properties</code> element as specified in the sys_PortalPublisher.dtd for the
    * supplied parameters.

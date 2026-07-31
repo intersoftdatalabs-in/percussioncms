@@ -46,6 +46,8 @@ import org.w3c.dom.Text;
  * @author David Benua
  */
 public class PSFormatFileTree extends PSDefaultExtension implements IPSResultDocumentProcessor {
+  /** Creates a new PSFormatFileTree. */
+  public PSFormatFileTree() {}
 
   private static final Logger log = LogManager.getLogger(PSFormatFileTree.class);
 
@@ -290,7 +292,7 @@ public class PSFormatFileTree extends PSDefaultExtension implements IPSResultDoc
   /**
    * This is a dummy main() for use in debugging only
    *
-   * @param args
+   * @param args the command line arguments.
    */
   public static void main(String[] args) {
     PSFormatFileTree pSFT = new PSFormatFileTree();

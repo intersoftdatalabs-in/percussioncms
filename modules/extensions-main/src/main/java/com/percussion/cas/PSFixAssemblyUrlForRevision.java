@@ -42,8 +42,6 @@ import org.w3c.dom.Text;
  * sys_casSupport/casSupport_1 or any custom authtype resource that needs corrections for tha last
  * public revision. It takes two optional parameters:
  *
- * <p>
- *
  * <ol>
  *   <li>Name of the element in the result XML document whose value represents of the link URL to be
  *       corrected for last public revision. If the name specifed starts with "@", then the link URL
@@ -61,6 +59,9 @@ import org.w3c.dom.Text;
  */
 public class PSFixAssemblyUrlForRevision extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
+  /** Creates a new PSFixAssemblyUrlForRevision. */
+  public PSFixAssemblyUrlForRevision() {}
+
   /**
    * Implementation of the interface method, always return <code>false</code>.
    *
@@ -170,8 +171,6 @@ public class PSFixAssemblyUrlForRevision extends PSDefaultExtension
    * contentid of the related item is parsed from the supplied URL. The following scheme is used to
    * corerct teh URL:
    *
-   * <p>
-   *
    * <ul>
    *   <li>If the URL does not have a {@link IPSHtmlParameters#SYS_CONTENTID contentid}parameter,
    *       then the URL is returned as it is.
@@ -196,7 +195,7 @@ public class PSFixAssemblyUrlForRevision extends PSDefaultExtension
    * @return the fixed related content url, <code>null</code> if this url should be skipped.
    * @throws PSInternalRequestCallException for errors caused doing internal lookups.
    * @throws PSNotFoundException if a required resource is not found while making lookup requests.
-   * @throws PSRequestParsingException
+   * @throws PSRequestParsingException if the request cannot be parsed.
    */
   public static String fixRelatedContentUrl(
       IPSRequestContext request,

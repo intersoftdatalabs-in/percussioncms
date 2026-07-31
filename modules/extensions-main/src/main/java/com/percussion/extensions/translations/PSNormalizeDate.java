@@ -54,6 +54,9 @@ import java.text.ParseException;
  * @author dougrand
  */
 public class PSNormalizeDate implements IPSFieldInputTransformer {
+  /** Creates a new PSNormalizeDate. */
+  public PSNormalizeDate() {}
+
   public Object processUdf(Object[] params, @SuppressWarnings("unused") IPSRequestContext request)
       throws PSConversionException {
     PSExtensionParams ep = new PSExtensionParams(params);

@@ -54,6 +54,9 @@ import org.w3c.dom.NodeList;
  * which is processed by the update resource).
  */
 public class PSCascadeDelete extends PSDefaultExtension implements IPSRequestPreProcessor {
+  /** Creates a new PSCascadeDelete. */
+  public PSCascadeDelete() {}
+
   /*
    * Implementation of the method in the interface
    * <code>com.percussion.extension.IPSRequestPreProcessor</code>

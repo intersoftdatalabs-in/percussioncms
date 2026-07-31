@@ -46,6 +46,8 @@ import java.util.Iterator;
  * @author dougrand
  */
 public class PSCheckIfVariantIsInUse implements IPSRequestPreProcessor {
+  /** Creates a new PSCheckIfVariantIsInUse. */
+  public PSCheckIfVariantIsInUse() {}
 
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSAuthorizationException,

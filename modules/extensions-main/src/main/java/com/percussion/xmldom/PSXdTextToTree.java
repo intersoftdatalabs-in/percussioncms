@@ -36,6 +36,9 @@ import org.xml.sax.SAXParseException;
  * Document.
  */
 public class PSXdTextToTree extends PSDefaultExtension implements IPSResultDocumentProcessor {
+  /** Creates a new PSXdTextToTree. */
+  public PSXdTextToTree() {}
+
   /**
    * This method handles the post-exit request.
    *

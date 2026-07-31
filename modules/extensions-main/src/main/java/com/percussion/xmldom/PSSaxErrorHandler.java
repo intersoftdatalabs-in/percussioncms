@@ -51,20 +51,40 @@ public class PSSaxErrorHandler implements ErrorHandler {
     m_printWriter = pw;
   }
 
+  /**
+   * Sets whether fatal errors should be thrown.
+   *
+   * @param shouldThrow whether fatal errors should be thrown.
+   */
   public void throwOnFatalErrors(boolean shouldThrow) {
 
     m_throwFatalErrors = shouldThrow;
   }
 
+  /**
+   * Sets whether errors should be thrown.
+   *
+   * @param shouldThrow whether errors should be thrown.
+   */
   public void throwOnErrors(boolean shouldThrow) {
     m_throwErrors = shouldThrow;
   }
 
+  /**
+   * Sets whether warnings should be thrown.
+   *
+   * @param shouldThrow whether warnings should be thrown.
+   */
   public void throwOnWarnings(boolean shouldThrow) {
     m_throwWarnings = shouldThrow;
   }
 
-  // report an error
+  /**
+   * Reports a SAX parse error.
+   *
+   * @param exception the parse exception.
+   * @throws SAXException if configured to throw.
+   */
   public void error(SAXParseException exception) throws SAXException {
     if (m_printWriter != null) {
       m_printWriter.println("Parser Error: " + exception.toString());
@@ -75,7 +95,12 @@ public class PSSaxErrorHandler implements ErrorHandler {
     if (m_throwErrors) throw exception;
   }
 
-  // report a fatal error
+  /**
+   * Reports a SAX parse fatal error.
+   *
+   * @param exception the parse exception.
+   * @throws SAXException if configured to throw.
+   */
   public void fatalError(SAXParseException exception) throws SAXException {
     if (m_printWriter != null) {
       m_printWriter.println("Parser Fatal Error: " + exception.toString());
@@ -85,7 +110,12 @@ public class PSSaxErrorHandler implements ErrorHandler {
     if (m_throwFatalErrors) throw exception;
   }
 
-  // report a warning
+  /**
+   * Reports a SAX parse warning.
+   *
+   * @param exception the parse exception.
+   * @throws SAXException if configured to throw.
+   */
   public void warning(SAXParseException exception) throws SAXException {
     if (m_printWriter != null) {
       m_printWriter.println("Parser Warning: " + exception.toString());
@@ -95,26 +125,56 @@ public class PSSaxErrorHandler implements ErrorHandler {
     if (m_throwWarnings) throw exception;
   }
 
+  /**
+   * Gets the number of errors recorded.
+   *
+   * @return the number of errors.
+   */
   public int numErrors() {
     return m_errors.size();
   }
 
+  /**
+   * Gets the number of fatal errors recorded.
+   *
+   * @return the number of fatal errors.
+   */
   public int numFatalErrors() {
     return m_fatalErrors.size();
   }
 
+  /**
+   * Gets the number of warnings recorded.
+   *
+   * @return the number of warnings.
+   */
   public int numWarnings() {
     return m_warnings.size();
   }
 
+  /**
+   * Gets an iterator over the recorded errors.
+   *
+   * @return the errors iterator.
+   */
   public Iterator errors() {
     return m_errors.iterator();
   }
 
+  /**
+   * Gets an iterator over the recorded fatal errors.
+   *
+   * @return the fatal errors iterator.
+   */
   public Iterator fatalErrors() {
     return m_fatalErrors.iterator();
   }
 
+  /**
+   * Gets an iterator over the recorded warnings.
+   *
+   * @return the warnings iterator.
+   */
   public Iterator warnings() {
     return m_warnings.iterator();
   }

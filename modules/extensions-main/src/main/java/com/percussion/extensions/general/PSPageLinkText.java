@@ -33,7 +33,10 @@ import javax.jcr.RepositoryException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/** UDF that returns the page link text for a page id found in the request. */
 public class PSPageLinkText extends PSSimpleJavaUdfExtension implements IPSUdfProcessor {
+  /** Creates a new PSPageLinkText. */
+  public PSPageLinkText() {}
 
   private static final Logger log = LogManager.getLogger(PSPageLinkText.class);
 

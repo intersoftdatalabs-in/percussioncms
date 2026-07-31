@@ -38,6 +38,9 @@ import java.util.Date;
  * @see java.util.Date
  */
 public class PSLocalizeDateToUser extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSLocalizeDateToUser. */
+  public PSLocalizeDateToUser() {}
+
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws com.percussion.data.PSConversionException {
     Object date = params[0];

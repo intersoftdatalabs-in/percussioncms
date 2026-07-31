@@ -43,6 +43,8 @@ import org.w3c.dom.NodeList;
  * img tag.
  */
 public class PSWepFixImages extends PSFileInfo implements IPSRequestPreProcessor {
+  /** Creates a new PSWepFixImages. */
+  public PSWepFixImages() {}
 
   /** Pre processes the request. */
   public void preProcessRequest(Object[] params, IPSRequestContext request)

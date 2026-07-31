@@ -26,6 +26,9 @@ import com.percussion.server.IPSRequestContext;
  * <p>See {@link PSGetSessionVariable#preProcessRequest preProcessRequest} for a description.
  */
 public class PSGetSessionVariable extends PSDefaultExtension implements IPSRequestPreProcessor {
+  /** Creates a new PSGetSessionVariable. */
+  public PSGetSessionVariable() {}
+
   /**
    * Gets a session object and adds it to the request parameters as a String.
    *

@@ -41,6 +41,9 @@ import org.w3c.dom.Document;
  * @see PSModifyRelatedContent
  */
 public class PSInsertAsRelatedItem implements IPSResultDocumentProcessor {
+  /** Creates a new PSInsertAsRelatedItem. */
+  public PSInsertAsRelatedItem() {}
+
   // see IPSResultDocumentProcessor#canModifyStyleSheet()
   public boolean canModifyStyleSheet() {
     return false;

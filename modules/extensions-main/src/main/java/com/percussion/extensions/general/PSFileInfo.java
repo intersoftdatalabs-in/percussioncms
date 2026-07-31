@@ -85,6 +85,8 @@ import java.util.StringTokenizer;
  * length is 0), the corresponding parameter will not be added to the server's parameter map.
  */
 public class PSFileInfo extends PSDefaultExtension implements IPSRequestPreProcessor {
+  /** Creates a new PSFileInfo. */
+  public PSFileInfo() {}
 
   /**
    * This method handles the pre-exit request.

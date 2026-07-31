@@ -48,6 +48,9 @@ import org.w3c.dom.Element;
  */
 public class PSGetRelationshipProps extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
+  /** Creates a new PSGetRelationshipProps. */
+  public PSGetRelationshipProps() {}
+
   // see IPSResultDocumentProcessor#canModifyStyleSheet()
   public boolean canModifyStyleSheet() {
     return false;

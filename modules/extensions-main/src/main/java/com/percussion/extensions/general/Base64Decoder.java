@@ -27,6 +27,9 @@ import com.percussion.util.PSBase64Decoder;
  * {@link Base64Decoder#processUdf processUdf} for a description.
  */
 public class Base64Decoder extends PSSimpleJavaUdfExtension implements IPSUdfProcessor {
+  /** Creates a new Base64Decoder. */
+  public Base64Decoder() {}
+
   /**
    * The Base64Decoder class is used to decode data from the base64 format.
    *

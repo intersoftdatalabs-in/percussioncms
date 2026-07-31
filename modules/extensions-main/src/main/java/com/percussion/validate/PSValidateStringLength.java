@@ -54,6 +54,8 @@ import java.io.File;
  * @author dougrand
  */
 public class PSValidateStringLength extends PSRangeValidator {
+  /** Creates a new PSValidateStringLength. */
+  public PSValidateStringLength() {}
 
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {

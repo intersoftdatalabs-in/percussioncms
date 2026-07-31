@@ -34,7 +34,14 @@ import org.w3c.dom.Element;
  * Load and manage action information in the user session. Used by the filtering exit {@link
  * com.percussion.uicontext.PSFilterContextMenu}to obtain information about each action.
  */
+/**
+ * Load and manage action information in the user session. Used by the filtering exit {@link
+ * com.percussion.uicontext.PSFilterContextMenu}to obtain information about each action.
+ */
 public class PSManageActionInfo {
+  /** Creates a new PSManageActionInfo. */
+  public PSManageActionInfo() {}
+
   /** The component processor proxy. Initialized on demand. */
   private PSComponentProcessorProxy m_componentProcessor = null;
 

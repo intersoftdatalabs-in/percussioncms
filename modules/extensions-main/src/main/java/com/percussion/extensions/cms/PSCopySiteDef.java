@@ -56,6 +56,9 @@ import org.w3c.dom.Element;
  * @author paulhoward
  */
 public class PSCopySiteDef extends PSDefaultExtension implements IPSResultDocumentProcessor {
+  /** Creates a new PSCopySiteDef. */
+  public PSCopySiteDef() {}
+
   // see base class method for details
   public boolean canModifyStyleSheet() {
     return false;

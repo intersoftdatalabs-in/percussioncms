@@ -26,6 +26,9 @@ import java.io.File;
 
 /** This assembly location generator concatenates all provided parameters. */
 public class PSConcatAssemblyLocation implements IPSAssemblyLocation {
+  /** Creates a new PSConcatAssemblyLocation. */
+  public PSConcatAssemblyLocation() {}
+
   // See interface for details
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
     m_def = def;

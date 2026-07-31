@@ -56,6 +56,9 @@ import org.w3c.dom.NodeList;
  * (Param*)&gt;
  */
 public class PSContextMenu implements IPSResultDocumentProcessor {
+  /** Creates a new PSContextMenu. */
+  public PSContextMenu() {}
+
   /*
    * Implementation of the method required by the interface IPSExtension.
    */

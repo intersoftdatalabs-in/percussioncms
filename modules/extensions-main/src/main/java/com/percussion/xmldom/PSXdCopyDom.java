@@ -64,6 +64,9 @@ import org.w3c.dom.Node;
  * document element (sometimes called root element) of the XML result document.
  */
 public class PSXdCopyDom extends PSDefaultExtension implements IPSResultDocumentProcessor {
+  /** Creates a new PSXdCopyDom. */
+  public PSXdCopyDom() {}
+
   /**
    * Copy a subtree of the source XML document into the result document.
    *

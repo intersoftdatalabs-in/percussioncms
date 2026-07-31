@@ -30,6 +30,9 @@ import com.percussion.server.IPSRequestContext;
  * @since 1.1
  */
 public class PSSimpleJavaUdf_literal extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSSimpleJavaUdf_literal. */
+  public PSSimpleJavaUdf_literal() {}
+
   /* ************ IPSUdfProcessor Interface Implementation ************ */
 
   /**

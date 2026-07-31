@@ -31,6 +31,9 @@ import com.percussion.system.utils.PSCalculation;
  * @since 1.1
  */
 public class PSSimpleJavaUdf_divide extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSSimpleJavaUdf_divide. */
+  public PSSimpleJavaUdf_divide() {}
+
   /* ************ IPSUdfProcessor Interface Implementation ************ */
 
   /**

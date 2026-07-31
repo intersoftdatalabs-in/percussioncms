@@ -27,6 +27,8 @@ import com.percussion.system.utils.IPSHtmlParameters;
 import java.io.File;
 
 /**
+ * Modifies the user's community based on the parameters passed into the pre-exit.
+ *
  * @author dougrand
  *     <p>This exit modifies the user's community based on the parameters passed into the pre-exit.
  *     The user's community is modified if:
@@ -38,6 +40,9 @@ import java.io.File;
  *     </ul>
  */
 public class PSModifyCommunity implements IPSRequestPreProcessor {
+  /** Creates a new PSModifyCommunity. */
+  public PSModifyCommunity() {}
+
   /**
    * The name of this extension, defined in the {@link #init(IPSExtensionDef, File) init} method and
    * never modified after.

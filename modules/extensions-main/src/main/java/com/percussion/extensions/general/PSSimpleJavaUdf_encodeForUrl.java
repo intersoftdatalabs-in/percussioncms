@@ -28,6 +28,9 @@ import org.apache.commons.lang3.StringUtils;
  * @author paulhoward
  */
 public class PSSimpleJavaUdf_encodeForUrl extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSSimpleJavaUdf_encodeForUrl. */
+  public PSSimpleJavaUdf_encodeForUrl() {}
+
   /**
    * See class description.
    *

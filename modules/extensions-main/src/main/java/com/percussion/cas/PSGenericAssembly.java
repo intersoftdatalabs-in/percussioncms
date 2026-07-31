@@ -40,6 +40,8 @@ import org.w3c.dom.Node;
  * for the parameters supported by this exit.
  */
 public class PSGenericAssembly extends PSDefaultExtension implements IPSAssemblyLocation {
+  /** Creates a new PSGenericAssembly. */
+  public PSGenericAssembly() {}
 
   private static final Logger log = LogManager.getLogger(IPSConstants.ASSEMBLY_LOG);
 

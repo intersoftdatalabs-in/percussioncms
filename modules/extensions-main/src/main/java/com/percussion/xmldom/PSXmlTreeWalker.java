@@ -29,8 +29,16 @@ import org.w3c.dom.Node;
  *
  * @deprecated Use com.percussion.xml.PSXmlTreeWalker instead
  */
+/**
+ * Deprecated wrapper around {@link com.percussion.xml.PSXmlTreeWalker}.
+ *
+ * @deprecated Use com.percussion.xml.PSXmlTreeWalker instead
+ */
 public class PSXmlTreeWalker extends com.percussion.xml.PSXmlTreeWalker implements Serializable {
   /**
+   * Constructs a new tree walker for the supplied document.
+   *
+   * @param doc the document to walk.
    * @see com.percussion.xml.PSXmlTreeWalker#PSXmlTreeWalker(Document)
    */
   public PSXmlTreeWalker(Document doc) {
@@ -38,6 +46,9 @@ public class PSXmlTreeWalker extends com.percussion.xml.PSXmlTreeWalker implemen
   }
 
   /**
+   * Constructs a new tree walker for the supplied root element.
+   *
+   * @param root the root element to walk.
    * @see com.percussion.xml.PSXmlTreeWalker#PSXmlTreeWalker(Element)
    */
   public PSXmlTreeWalker(Element root) {
@@ -45,6 +56,9 @@ public class PSXmlTreeWalker extends com.percussion.xml.PSXmlTreeWalker implemen
   }
 
   /**
+   * Constructs a new tree walker for the supplied root node.
+   *
+   * @param root the root node to walk.
    * @see com.percussion.xml.PSXmlTreeWalker#PSXmlTreeWalker(Node)
    */
   public PSXmlTreeWalker(Node root) {
@@ -52,6 +66,9 @@ public class PSXmlTreeWalker extends com.percussion.xml.PSXmlTreeWalker implemen
   }
 
   /**
+   * Writes the walked tree to the supplied writer.
+   *
+   * @param out the writer to write to.
    * @see com.percussion.xml.PSXmlTreeWalker#write(Writer)
    */
   public void write(Writer out) {
@@ -59,6 +76,10 @@ public class PSXmlTreeWalker extends com.percussion.xml.PSXmlTreeWalker implemen
   }
 
   /**
+   * Writes the walked tree to the supplied writer with optional indentation.
+   *
+   * @param out the writer to write to.
+   * @param indentFlag whether to indent the output.
    * @see com.percussion.xml.PSXmlTreeWalker#write(Writer, boolean)
    */
   public void write(Writer out, boolean indentFlag) {

@@ -34,6 +34,8 @@ import org.w3c.dom.Element;
  */
 public class PSGetInlineVariantBody extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
+  /** Creates a new PSGetInlineVariantBody. */
+  public PSGetInlineVariantBody() {}
 
   public boolean canModifyStyleSheet() {
     return false;

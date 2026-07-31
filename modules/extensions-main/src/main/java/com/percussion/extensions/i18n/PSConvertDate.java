@@ -47,6 +47,9 @@ import java.util.Date;
  * @see java.util.Date
  */
 public class PSConvertDate extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSConvertDate. */
+  public PSConvertDate() {}
+
   /* ************ IPSUdfProcessor Interface Implementation ************ */
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws com.percussion.data.PSConversionException {

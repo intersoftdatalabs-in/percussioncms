@@ -58,6 +58,8 @@ import java.util.Iterator;
  * @author Vitaly.
  */
 public class PSSimpleJavaUdf_cloneTitle extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSSimpleJavaUdf_cloneTitle. */
+  public PSSimpleJavaUdf_cloneTitle() {}
 
   /* (non-Javadoc)
    * @see com.percussion.extension.IPSUdfProcessor#processUdf(java.lang.Object[], com.percussion.server.IPSRequestContext)

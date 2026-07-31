@@ -49,6 +49,9 @@ import org.w3c.dom.*;
  * attributes of an element.
  */
 public class PSAddAllParamsToUrl implements IPSResultDocumentProcessor {
+  /** Creates a new PSAddAllParamsToUrl. */
+  public PSAddAllParamsToUrl() {}
+
   /*
    * Implementation of the method defined by the interface
    */
