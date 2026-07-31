@@ -23,6 +23,7 @@
  */
 
 import React, { useEffect, useState, useCallback, useMemo } from "react";
+import { formatApiError } from "../api/client";
 import { findChildren } from "../api/contentExplorer/pathApi";
 import type { PSPathItem } from "../api/contentExplorer/types";
 import { message } from "../i18n/message";
@@ -91,7 +92,7 @@ export function ExplorerTree({
         [path]: { loaded: true, loading: false, error: null, children },
       }));
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
+      const msg = formatApiError(err, message(EXPLORER_MSG.TREE_LOAD_ERROR));
       setNodes((prev) => ({
         ...prev,
         [path]: { loaded: true, loading: false, error: msg, children: [] },
@@ -183,10 +184,11 @@ export function ExplorerTree({
   }, [nodes, rootState.error]);
 
   if (error) {
+    // Not role=tree: axe aria-required-children fails when there are no treeitems.
     return (
-      <div style={treeStyle} role="tree" data-testid="explorer-tree">
-        <div style={errorStateStyle} role="alert">
-          {message(EXPLORER_MSG.TREE_LOAD_ERROR)}: {error}
+      <div style={treeStyle} data-testid="explorer-tree">
+        <div style={errorStateStyle} role="alert" data-testid="explorer-tree-error">
+          {error}
         </div>
       </div>
     );
@@ -194,8 +196,10 @@ export function ExplorerTree({
 
   if (rootState.loaded && rootState.children.length === 0) {
     return (
-      <div style={treeStyle} role="tree" data-testid="explorer-tree">
-        <div style={emptyStateStyle}>{message(EXPLORER_MSG.TREE_EMPTY)}</div>
+      <div style={treeStyle} data-testid="explorer-tree">
+        <div style={emptyStateStyle} data-testid="explorer-tree-empty">
+          {message(EXPLORER_MSG.TREE_EMPTY)}
+        </div>
       </div>
     );
   }
