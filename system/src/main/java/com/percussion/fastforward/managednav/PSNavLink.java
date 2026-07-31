@@ -455,8 +455,8 @@ public class PSNavLink {
     if (m_folderId != 0) parentElem.setAttribute(XML_ATTR_FOLDERID, String.valueOf(m_folderId));
 
     Document parentDoc = parentElem.getOwnerDocument();
-    Node textNode = parentDoc.createTextNode(m_uri);
-    parentElem.appendChild(textNode);
+    Node StringNode = parentDoc.createTextNode(m_uri);
+    parentElem.appendChild(StringNode);
 
     return parentElem;
   }

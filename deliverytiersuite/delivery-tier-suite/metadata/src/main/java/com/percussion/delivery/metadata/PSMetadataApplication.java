@@ -17,7 +17,7 @@
 
 package com.percussion.delivery.metadata;
 
-import com.fasterxml.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
+import tools.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 import com.percussion.delivery.exceptions.PSJsonMappingErrorResponse;
 import com.percussion.delivery.exceptions.PSUncaughtError;
 import com.percussion.delivery.metadata.impl.PSMetadataExtractorRestService;

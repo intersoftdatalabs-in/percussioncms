@@ -20,7 +20,8 @@ package com.percussion.licensemanagement.service.impl;
 
 import static org.apache.commons.lang3.Validate.notNull;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.percussion.delivery.service.IPSDeliveryInfoService;
 import com.percussion.licensemanagement.data.PSLicenseStatus;
 import com.percussion.licensemanagement.data.PSModuleLicense;
@@ -90,13 +91,13 @@ public class PSLicenseService implements IPSLicenseService {
       throws PSLicenseServiceException {
     notNull(moduleLicense);
     validateModuleLicense(moduleLicense);
-    var mapper = new ObjectMapper();
+    var mapper = JsonMapper.builder().build();
     try {
       var moduleLicenses = findAllModuleLicenses();
       moduleLicenses.addModuleLicense(moduleLicense);
       metadataService.save(
           new PSMetadata(MODULE_LICENSE_METADATA_KEY, mapper.writeValueAsString(moduleLicenses)));
-    } catch (IOException | IPSGenericDao.LoadException | IPSGenericDao.SaveException e) {
+    } catch (Exception e) {
       log.error(e);
       throw new PSLicenseServiceException(PSLicenseServiceException.ERROR_SAVING_LICENSES);
     }
@@ -115,13 +116,13 @@ public class PSLicenseService implements IPSLicenseService {
       throws PSLicenseServiceException {
     notNull(moduleLicense);
     validateModuleLicense(moduleLicense);
-    var mapper = new ObjectMapper();
+    var mapper = JsonMapper.builder().build();
     try {
       var moduleLicenses = findAllModuleLicenses();
       moduleLicenses.removeModuleLicense(moduleLicense);
       metadataService.save(
           new PSMetadata(MODULE_LICENSE_METADATA_KEY, mapper.writeValueAsString(moduleLicenses)));
-    } catch (IOException | IPSGenericDao.LoadException | IPSGenericDao.SaveException e) {
+    } catch (Exception e) {
       log.error(e);
       throw new PSLicenseServiceException(PSLicenseServiceException.ERROR_SAVING_LICENSES);
     }
@@ -163,7 +164,7 @@ public class PSLicenseService implements IPSLicenseService {
     if (StringUtils.isBlank(moduleLicense.getName().orElse(""))
         || StringUtils.isBlank(moduleLicense.getKey().orElse(""))
         || StringUtils.isBlank(moduleLicense.getHandshake().orElse(""))) {
-      var mapper = new ObjectMapper();
+      var mapper = JsonMapper.builder().build();
       try {
         log.error(
             "Supplied module license is invalid. " + mapper.writeValueAsString(moduleLicense));
@@ -209,10 +210,10 @@ public class PSLicenseService implements IPSLicenseService {
       return null;
     }
     PSModuleLicenses mls;
-    var mapper = new ObjectMapper();
+    var mapper = JsonMapper.builder().build();
     try {
       mls = mapper.readValue(jsonStr, PSModuleLicenses.class);
-    } catch (IOException e) {
+    } catch (Exception e) {
       log.error(e);
       throw new PSLicenseServiceException(PSLicenseServiceException.ERROR_FINDING_LICENSE);
     }

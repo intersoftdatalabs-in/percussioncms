@@ -93,14 +93,14 @@ public class PSExpandedOption implements IPSClientObjects {
     Element el = null;
 
     // create temp text node
-    Text textNode = null;
+    Text StringNode = null;
 
     Iterator iter = m_paths.iterator();
     while (iter.hasNext()) {
       el = doc.createElement(ELEM_PATH);
-      textNode = doc.createTextNode((String) iter.next());
+      StringNode = doc.createTextNode((String) iter.next());
 
-      el.appendChild(textNode);
+      el.appendChild(StringNode);
       root.appendChild(el);
     }
     return root;

@@ -10,7 +10,6 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
@@ -21,17 +20,21 @@ import com.percussion.rest.slots.ISlotsAdaptor;
 import com.percussion.rest.slots.SlotAssociationSummary;
 import com.percussion.rest.slots.SlotDetail;
 import com.percussion.rest.slots.SlotSummary;
-import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.IPSTemplateSlot;
-import com.percussion.services.assembly.PSAssemblyException;
-import com.percussion.services.assembly.PSAssemblyServiceLocator;
+import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.guid.IPSGuid;
+import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.utils.types.PSPair;
+import com.percussion.webservices.PSErrorResultsException;
+import com.percussion.webservices.PSErrorsException;
+import com.percussion.webservices.assembly.IPSAssemblyDesignWs;
+import com.percussion.webservices.assembly.PSAssemblyWsLocator;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -40,78 +43,82 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/** Lists and loads assembly slots for the Developer module design catalog. */
+/**
+ * Assembly slots catalog for Developer REST.
+ *
+ * <p>Workbench parity: routes through {@link IPSAssemblyDesignWs} (same design web service assembly
+ * SOAP design uses) for find / load / save — not a parallel path via raw {@code IPSAssemblyService}
+ * alone.
+ */
 @PSSiteManageBean
 public class SlotsAdaptor implements ISlotsAdaptor {
 
   private static final Logger log = LogManager.getLogger(SlotsAdaptor.class);
 
-  /**
-   * Known API limitations (API-level, not per-slot). Exposed once as a shared constant for
-   * tests/docs; detail responses still include a copy so the SPA needs no second source.
-   */
   public static final List<String> SLOT_DESIGN_GAPS =
       List.of(
-          "Create / delete / lock not supported via this API",
+          "Create / delete not supported via this REST API (use design WS createSlots/deleteSlots)",
           "Content-type and template names not resolved (GUIDs only)");
 
-  private final IPSAssemblyService asmSvc;
+  private final IPSAssemblyDesignWs designWs;
 
   public SlotsAdaptor() {
-    this(PSAssemblyServiceLocator.getAssemblyService());
+    this(PSAssemblyWsLocator.getAssemblyDesignWebservice());
   }
 
-  /** Package-visible for unit tests that inject a fake assembly service. */
-  SlotsAdaptor(IPSAssemblyService asmSvc) {
-    this.asmSvc = asmSvc;
+  /** Package-visible for unit tests. */
+  SlotsAdaptor(IPSAssemblyDesignWs designWs) {
+    this.designWs = designWs;
   }
 
   @Override
   public List<SlotSummary> listSlots(URI baseUri) {
-    // baseUri reserved for HATEOAS link building (interface contract)
-    List<IPSTemplateSlot> slots = asmSvc.findSlotsByName(null);
-    List<SlotSummary> out = new ArrayList<>();
-    if (slots != null) {
-      for (IPSTemplateSlot slot : slots) {
-        if (slot == null) continue;
-        SlotSummary s = new SlotSummary();
-        try {
-          if (slot.getGUID() != null) {
-            s.setGuid(ApiUtils.convertGuid(slot.getGUID()));
-          }
-        } catch (Exception e) {
-          log.debug("Could not convert GUID for slot {}: {}", slot.getName(), e.getMessage());
-        }
-        s.setName(slot.getName());
-        s.setLabel(labelOrName(slot));
-        s.setDescription(slot.getDescription());
-        out.add(s);
+    try {
+      List<IPSCatalogSummary> summaries = designWs.findSlots(null, null);
+      if (summaries == null || summaries.isEmpty()) {
+        return List.of();
       }
+      List<IPSGuid> guids = new ArrayList<>();
+      for (IPSCatalogSummary sum : summaries) {
+        if (sum != null && sum.getGUID() != null) {
+          guids.add(sum.getGUID());
+        }
+      }
+      if (guids.isEmpty()) {
+        return List.of();
+      }
+      List<IPSTemplateSlot> slots =
+          designWs.loadSlots(guids, false, false, currentSession(), currentUser());
+      List<SlotSummary> out = new ArrayList<>();
+      if (slots != null) {
+        for (IPSTemplateSlot slot : slots) {
+          if (slot == null) continue;
+          out.add(toSummary(slot));
+        }
+      }
+      out.sort(
+          Comparator.comparing(
+              SlotSummary::getLabel, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+      return out;
+    } catch (PSErrorResultsException e) {
+      log.error("Failed to list slots via assembly design WS", e);
+      throw new IllegalStateException("Failed to list slots", e);
     }
-    out.sort(
-        Comparator.comparing(
-            SlotSummary::getLabel, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
-    return out;
   }
 
   @Override
   public SlotDetail getSlot(URI baseUri, String idOrName) {
-    // baseUri reserved for HATEOAS link building (interface contract)
     if (StringUtils.isBlank(idOrName)) {
       return null;
     }
     try {
-      IPSTemplateSlot slot = resolveSlot(idOrName.trim());
-      if (slot == null) {
-        return null;
-      }
-      return toDetail(slot);
-    } catch (PSAssemblyException e) {
+      IPSTemplateSlot slot = resolveSlot(idOrName.trim(), false);
+      return slot == null ? null : toDetail(slot);
+    } catch (PSErrorResultsException e) {
       log.debug("Slot not found {}: {}", idOrName, e.getMessage());
       return null;
     } catch (Exception e) {
       log.error("Failed to load slot {}: {}", idOrName, e.getMessage(), e);
-      // Sanitized client message — class name stays in logs only
       throw new IllegalStateException("Failed to load slot", e);
     }
   }
@@ -124,8 +131,11 @@ public class SlotsAdaptor implements ISlotsAdaptor {
     if (body == null) {
       throw new IllegalArgumentException("body is required");
     }
+    requireSessionUserForWrite();
+    String session = currentSession();
+    String user = currentUser();
     try {
-      IPSTemplateSlot slot = resolveSlotModifiable(idOrName.trim());
+      IPSTemplateSlot slot = resolveSlot(idOrName.trim(), true);
       if (slot == null) {
         return null;
       }
@@ -135,16 +145,18 @@ public class SlotsAdaptor implements ISlotsAdaptor {
       if (body.getDescription() != null) {
         slot.setDescription(body.getDescription());
       }
-      // null associations = leave unchanged; empty/non-null list = full replace
       if (body.getAssociations() != null) {
         slot.setSlotAssociations(toAssociationPairs(body.getAssociations()));
       }
-      asmSvc.saveSlot(slot);
-      IPSTemplateSlot reloaded = resolveSlot(idOrName.trim());
+      designWs.saveSlots(Collections.singletonList(slot), true, session, user);
+      IPSTemplateSlot reloaded = resolveSlot(idOrName.trim(), false);
       return reloaded != null ? toDetail(reloaded) : toDetail(slot);
     } catch (IllegalArgumentException e) {
       throw e;
-    } catch (PSAssemblyException e) {
+    } catch (PSErrorResultsException e) {
+      log.error("Failed to load slot for update {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to update slot", e);
+    } catch (PSErrorsException e) {
       log.error("Failed to save slot {}: {}", idOrName, e.getMessage(), e);
       throw new IllegalStateException("Failed to save slot", e);
     } catch (Exception e) {
@@ -153,10 +165,6 @@ public class SlotsAdaptor implements ISlotsAdaptor {
     }
   }
 
-  /**
-   * Convert REST association summaries to IPSGuid pairs. Requires stringValue (or parseable
-   * longValue) on each guid.
-   */
   private List<PSPair<IPSGuid, IPSGuid>> toAssociationPairs(
       List<SlotAssociationSummary> associations) {
     List<PSPair<IPSGuid, IPSGuid>> pairs = new ArrayList<>();
@@ -199,76 +207,86 @@ public class SlotsAdaptor implements ISlotsAdaptor {
         "association[" + index + "]." + field + " requires stringValue");
   }
 
-  /** Prefer modifiable load for updates; fall back to normal resolve. */
-  private IPSTemplateSlot resolveSlotModifiable(String idOrName) throws PSAssemblyException {
-    if (StringUtils.isNumeric(idOrName)) {
-      long uuid = Long.parseLong(idOrName);
-      IPSGuid g = new PSGuid(PSTypeEnum.SLOT, uuid);
-      try {
-        return asmSvc.loadSlotModifiable(g);
-      } catch (PSAssemblyException e) {
-        return null;
-      }
-    }
-    if (idOrName.matches("\\d+-\\d+(-\\d+)?")) {
-      try {
-        PSGuid g = new PSGuid(idOrName);
-        if (g.getType() == 0) {
-          g = new PSGuid(PSTypeEnum.SLOT, g.getUUID());
+  /**
+   * @param forEdit when true, load with design lock
+   */
+  private IPSTemplateSlot resolveSlot(String idOrName, boolean forEdit)
+      throws PSErrorResultsException {
+    String session = currentSession();
+    String user = currentUser();
+    if (StringUtils.isNumeric(idOrName) || idOrName.matches("\\d+-\\d+(-\\d+)?")) {
+      IPSGuid g = parseSlotGuid(idOrName);
+      if (g != null) {
+        List<IPSTemplateSlot> loaded =
+            designWs.loadSlots(Collections.singletonList(g), forEdit, false, session, user);
+        if (loaded != null && !loaded.isEmpty()) {
+          return loaded.get(0);
         }
-        return asmSvc.loadSlotModifiable(g);
-      } catch (PSAssemblyException e) {
-        return null;
-      } catch (Exception e) {
-        log.debug("Not a slot GUID for update: {}", idOrName);
-      }
-    }
-    // Name path: load then re-open modifiable by GUID if available
-    IPSTemplateSlot byName = resolveSlot(idOrName);
-    if (byName == null || byName.getGUID() == null) {
-      return byName;
-    }
-    try {
-      return asmSvc.loadSlotModifiable(byName.getGUID());
-    } catch (PSAssemblyException e) {
-      return byName;
-    }
-  }
-
-  private IPSTemplateSlot resolveSlot(String idOrName) throws PSAssemblyException {
-    if (StringUtils.isNumeric(idOrName)) {
-      long uuid = Long.parseLong(idOrName);
-      IPSGuid g = new PSGuid(PSTypeEnum.SLOT, uuid);
-      try {
-        return asmSvc.loadSlot(g);
-      } catch (PSAssemblyException e) {
         return null;
       }
     }
-    // GUID-shaped only (digits and dashes), not arbitrary names containing "-"
-    if (idOrName.matches("\\d+-\\d+(-\\d+)?")) {
-      try {
-        PSGuid g = new PSGuid(idOrName);
-        if (g.getType() == 0) {
-          g = new PSGuid(PSTypeEnum.SLOT, g.getUUID());
-        }
-        return asmSvc.loadSlot(g);
-      } catch (PSAssemblyException e) {
-        log.debug("Slot GUID load not found for {}: {}", idOrName, e.getMessage());
-        return null;
-      } catch (Exception e) {
-        log.warn(
-            "Could not parse '{}' as slot GUID, falling through to name lookup: {}",
-            idOrName,
-            e.getMessage(),
-            e);
-      }
-    }
-    try {
-      return asmSvc.findSlotByName(idOrName);
-    } catch (PSAssemblyException e) {
+    // Name lookup via findSlots then load
+    List<IPSCatalogSummary> found = designWs.findSlots(idOrName, null);
+    if (found == null || found.isEmpty()) {
       return null;
     }
+    for (IPSCatalogSummary sum : found) {
+      if (sum == null || sum.getGUID() == null) {
+        continue;
+      }
+      if (idOrName.equalsIgnoreCase(sum.getName())
+          || idOrName.equalsIgnoreCase(sum.getLabel())) {
+        List<IPSTemplateSlot> loaded =
+            designWs.loadSlots(
+                Collections.singletonList(sum.getGUID()), forEdit, false, session, user);
+        if (loaded != null && !loaded.isEmpty()) {
+          return loaded.get(0);
+        }
+      }
+    }
+    // Fallback: first match if single result
+    if (found.size() == 1 && found.get(0) != null && found.get(0).getGUID() != null) {
+      List<IPSTemplateSlot> loaded =
+          designWs.loadSlots(
+              Collections.singletonList(found.get(0).getGUID()), forEdit, false, session, user);
+      if (loaded != null && !loaded.isEmpty()) {
+        return loaded.get(0);
+      }
+    }
+    return null;
+  }
+
+  private static IPSGuid parseSlotGuid(String idOrName) {
+    try {
+      if (StringUtils.isNumeric(idOrName)) {
+        return new PSGuid(PSTypeEnum.SLOT, Long.parseLong(idOrName));
+      }
+      if (idOrName.matches("\\d+-\\d+(-\\d+)?")) {
+        PSGuid g = new PSGuid(idOrName);
+        if (g.getType() == 0) {
+          g = new PSGuid(PSTypeEnum.SLOT, g.getUUID());
+        }
+        return g;
+      }
+    } catch (Exception e) {
+      log.debug("Not a slot GUID: {}", idOrName);
+    }
+    return null;
+  }
+
+  private SlotSummary toSummary(IPSTemplateSlot slot) {
+    SlotSummary s = new SlotSummary();
+    try {
+      if (slot.getGUID() != null) {
+        s.setGuid(ApiUtils.convertGuid(slot.getGUID()));
+      }
+    } catch (Exception e) {
+      log.debug("Could not convert GUID for slot {}: {}", slot.getName(), e.getMessage());
+    }
+    s.setName(slot.getName());
+    s.setLabel(labelOrName(slot));
+    s.setDescription(slot.getDescription());
+    return s;
   }
 
   private SlotDetail toDetail(IPSTemplateSlot slot) {
@@ -319,7 +337,6 @@ public class SlotsAdaptor implements ISlotsAdaptor {
       }
     }
     d.setAssociations(associations.isEmpty() ? null : associations);
-    // API-level limitations (shared constant) — SPA can also reference SLOT_DESIGN_GAPS
     d.setDesignGaps(new ArrayList<>(SLOT_DESIGN_GAPS));
     return d;
   }
@@ -330,5 +347,20 @@ public class SlotsAdaptor implements ISlotsAdaptor {
       return label;
     }
     return StringUtils.defaultString(slot.getName());
+  }
+
+  private static String currentSession() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+  }
+
+  private static String currentUser() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
+  }
+
+  private static void requireSessionUserForWrite() {
+    if (StringUtils.isBlank(currentSession()) || StringUtils.isBlank(currentUser())) {
+      throw new IllegalStateException(
+          "session and user are required for slot design update (IPSAssemblyDesignWs)");
+    }
   }
 }

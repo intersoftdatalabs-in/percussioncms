@@ -49,6 +49,11 @@ BACKOFF_MAX_SEC = 60.0
 BACKOFF_JITTER = 0.2
 BACKOFF_MAX_ATTEMPTS = 5
 
+# Fixed wait before retrying non-rate-limit transient failures such as
+# translate-shell returning a "Null response" / "Oops! Something went wrong"
+# hiccup. Lets the upstream settle without spinning the throttle jitter.
+TRANSIENT_RETRY_SEC = 10.0
+
 # Docker fallback. soimort/translate-shell accepts the form
 # `docker run --rm soimort/translate-shell --brief "<text>" :<target>`.
 DOCKER_IMAGE = 'soimort/translate-shell'
@@ -164,6 +169,17 @@ def invoke_translate(text: str, target: str, *,
             )
             time.sleep(sleep_s)
             delay *= 2
+            continue
+        if attempt < BACKOFF_MAX_ATTEMPTS:
+            jitter = 1.0 + random.uniform(-BACKOFF_JITTER, BACKOFF_JITTER)
+            sleep_s = TRANSIENT_RETRY_SEC * jitter
+            print(
+                f'  translate-shell error (rc={result.returncode}); '
+                f'retrying in {sleep_s:.1f}s (attempt {attempt})',
+                file=sys.stderr,
+            )
+            time.sleep(sleep_s)
+            delay = BACKOFF_START_SEC
             continue
         raise RuntimeError(
             f'translate-shell failed (rc={result.returncode}): '

@@ -18,8 +18,9 @@ package com.percussion.delivery.comments.services;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 import com.percussion.delivery.comments.data.PSCommentCriteria;
 import com.percussion.delivery.multitenant.PSTenantSecurityFilter;
 import com.percussion.delivery.test.utils.FakeRegistrant;
@@ -104,7 +105,7 @@ public abstract class PSCommentsRestServiceBaseTest extends JerseyTest {
     WebTarget webTarget = client.target(MOD_STATE_PUT_URL);
     Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
 
-    ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = JsonMapper.builder().build();
     ObjectNode setState = mapper.createObjectNode();
     setState.put("site", "testsite");
     setState.put("state", "REJECTED");
@@ -133,7 +134,7 @@ public abstract class PSCommentsRestServiceBaseTest extends JerseyTest {
 
     // Load up 1 comment per tenant.
     int i = 1;
-    ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = JsonMapper.builder().build();
     for (FakeRegistrant p : this.tenants) {
 
       Client client = ClientBuilder.newClient();

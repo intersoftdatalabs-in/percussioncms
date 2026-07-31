@@ -7,12 +7,13 @@ hand-maintained Python/shell scripts.
 
 ## Files
 
-|              File               |                                                                Purpose                                                                 |
-|---------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
-| `i18n_translate.py`             | CLI: walks canonical TMX files, fills missing `<tuv>` blocks via **Docker** `soimort/translate-shell`.                                 |
-| `i18n_translate_direct.py`      | Same job as `i18n_translate.py`, but prefers **`trans` on PATH** (translate-shell) and falls back to Docker if `trans` is unavailable. |
-| `test_i18n_translate.py`        | Unit tests for the Docker variant (no Docker required).                                                                                |
-| `test_i18n_translate_direct.py` | Unit tests for the direct `trans` variant (no `trans` required).                                                                       |
+|              File               |                                                                      Purpose                                                                       |
+|---------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| `i18n_translate.py`             | CLI: walks canonical TMX files, fills missing `<tuv>` blocks via **Docker** `soimort/translate-shell`.                                             |
+| `i18n_translate_direct.py`      | Same job as `i18n_translate.py`, but prefers **`trans` on PATH** (translate-shell) and falls back to Docker if `trans` is unavailable.             |
+| `resolve_tmx_conflicts.py`      | One-shot helper that auto-resolves git merge conflict markers in the canonical TMX files (union of `<tuv>` blocks; stops on structural conflicts). |
+| `test_i18n_translate.py`        | Unit tests for the Docker variant (no Docker required).                                                                                            |
+| `test_i18n_translate_direct.py` | Unit tests for the direct `trans` variant (no `trans` required).                                                                                   |
 
 ## Quick start
 
@@ -142,4 +143,35 @@ end-to-end smoke test, but the build gate does not depend on it.
   (Windows defaults to cp1252 otherwise).
 - **Line endings**: the script preserves whatever line endings are in
   the source TMX; it does not rewrite `\r\n` ↔ `\n`.
+
+## Resolving TMX merge conflicts (`resolve_tmx_conflicts.py`)
+
+If `git stash pop` (or a merge) leaves `<<<<<<< Updated upstream` /
+`=======` / `>>>>>>> Stashed changes` markers inside the canonical
+TMX files, run this script to auto-resolve them:
+
+```bash
+python3 modules/perc-i18n/scripts/resolve_tmx_conflicts.py
+```
+
+Strategy:
+
+- For each **simple** hunk (only trailing `<tuv>` elements differ,
+  optionally with a shared `<seg>` that wraps the marker), it finds
+  the longest common prefix ending at the last complete `</tuv>` and
+  emits the union of every distinct `<tuv xml:lang="...">` from both
+  sides, deduping by `xml:lang` (Stashed changes wins on collision).
+- For **structural** hunks where one side adds or removes entire
+  `<tu>` blocks, the script stops and leaves the markers intact —
+  those need human judgement because verbatim concatenation would
+  interleave `<tuv>` children across `<tu>` boundaries.
+
+After it runs:
+
+1. Validate XML on the resolved files:
+   `python -c "import xml.etree.ElementTree as ET; [ET.parse(p) for p in ['modules/perc-i18n/src/main/resources/i18n/CmsUi.tmx', 'modules/perc-i18n/src/main/resources/i18n/SystemResources.tmx', 'modules/perc-i18n/src/main/resources/i18n/DeveloperUi.tmx']]"`
+2. `git diff` each TMX and skim for unexpected content.
+3. `git add` each TMX to mark the merge resolved.
+4. Manually resolve any structural conflicts the script reported,
+   then re-run if more markers remain.
 

@@ -17,7 +17,7 @@
  */
 package com.percussion.delivery.comments.data;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 import java.util.Date;
 import java.util.Set;
 
@@ -96,7 +96,7 @@ public interface IPSComment {
    *
    * @return the created date for this comment. Never <code>null</code> or empty.
    */
-  @JsonSerialize(using = com.fasterxml.jackson.databind.JsonSerializer.class)
+  @JsonSerialize(using = com.percussion.delivery.services.PSCustomDateSerializer.class)
   Date getCreatedDate();
 
   /**

@@ -19,13 +19,6 @@
 
 package com.percussion.category.marshaller;
 
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
 import com.percussion.category.data.PSCategory;
 import com.percussion.category.data.PSCategoryNode;
 import com.percussion.category.data.PSDateAdapter;
@@ -34,6 +27,13 @@ import jakarta.ws.rs.ext.ContextResolver;
 import jakarta.xml.bind.JAXBException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import tools.jackson.databind.AnnotationIntrospector;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
 
 @PSSiteManageBean("categoryContextResolver")
 public class PSJAXBContextResolver implements ContextResolver<ObjectMapper> {
@@ -43,15 +43,15 @@ public class PSJAXBContextResolver implements ContextResolver<ObjectMapper> {
   private static final Logger log = LogManager.getLogger(PSJAXBContextResolver.class);
 
   public PSJAXBContextResolver() throws JAXBException {
-    this.objectMapper = new ObjectMapper();
-    objectMapper.registerModule(new JavaTimeModule());
-    objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-    objectMapper
-        .configure(SerializationFeature.INDENT_OUTPUT, true)
-        .setAnnotationIntrospector(
-            AnnotationIntrospector.pair(
-                new JacksonAnnotationIntrospector(),
-                new JakartaXmlBindAnnotationIntrospector(TypeFactory.defaultInstance())));
+    this.objectMapper =
+        JsonMapper.builder()
+            .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .enable(SerializationFeature.INDENT_OUTPUT)
+            .annotationIntrospector(
+                AnnotationIntrospector.pair(
+                    new JacksonAnnotationIntrospector(),
+                    new JakartaXmlBindAnnotationIntrospector()))
+            .build();
   }
 
   @Override

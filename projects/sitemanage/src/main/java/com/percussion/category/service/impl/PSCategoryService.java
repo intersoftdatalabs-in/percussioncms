@@ -18,8 +18,9 @@
 
 package com.percussion.category.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.percussion.category.dao.IPSCategoryDao;
 import com.percussion.category.data.PSCategory;
 import com.percussion.category.data.PSCategoryLockInfo;
@@ -221,9 +222,9 @@ public class PSCategoryService implements IPSCategoryService {
     }
     PSCategory categoryWithJson = null;
     try {
-      var mapper = new ObjectMapper();
+      var mapper = JsonMapper.builder().build();
       categoryWithJson = mapper.readValue(categoryString, PSCategory.class);
-    } catch (JsonProcessingException ex) {
+    } catch (JacksonException ex) {
       log.error("Error while parsing json to {} Error: {}", categoryString, ex.getMessage());
       log.debug(ex.getMessage(), ex);
     }
@@ -241,9 +242,9 @@ public class PSCategoryService implements IPSCategoryService {
     }
     PSCategory categoryWithJson = null;
     try {
-      var mapper = new ObjectMapper();
+      var mapper = JsonMapper.builder().build();
       categoryWithJson = mapper.readValue(categoryString, PSCategory.class);
-    } catch (JsonProcessingException ex) {
+    } catch (JacksonException ex) {
       log.error("Error while parsing json to {} Error: {}", categoryString, ex.getMessage());
       log.debug(ex.getMessage(), ex);
     }

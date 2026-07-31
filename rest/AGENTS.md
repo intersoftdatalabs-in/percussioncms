@@ -22,6 +22,20 @@ Source of truth for dependency versions is the root `pom.xml`:
 
 ## Design Patterns
 
+### Workbench replacement APIs (HARD RULES)
+
+For **Developer module / Workbench replacement** surfaces, do **not** lazily reuse partial
+sitemanage “already REST-like” product endpoints. Build a **clean** public REST contract here
+and use **classic SOAP / design webservices as the behavioral reference**.
+
+Full rules + dev/QA modes:
+[`docs/developer-module/workbench-rest-and-qa-modes.md`](../docs/developer-module/workbench-rest-and-qa-modes.md).
+
+```text
+SOAP / IPS*DesignWs (reference) → REST resource + DTO + IXxxAdaptor (this module)
+  → sitemanage apibridge (thin) → same design/system backends Workbench used
+```
+
 ### Adaptor Pattern (with sitemanage apibridge)
 
 The REST module uses the **Adaptor pattern**. HTTP concerns live here; **implementations live in
@@ -36,7 +50,8 @@ Adaptor Interface (rest)             e.g. IPreferenceAdaptor, IRelationshipSumma
     ↓
 Adaptor Implementation (sitemanage)  com.percussion.apibridge.*  e.g. PreferencesAdaptor
     ↓
-Domain services (sitemanage / perc-system)
+Design WS / system (prefer IPS*DesignWs when replacing Workbench)
+  or documented domain services when no design-WS twin exists
     ↓
 Database & Internal Services
 ```

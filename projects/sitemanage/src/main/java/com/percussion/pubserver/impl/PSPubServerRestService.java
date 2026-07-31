@@ -18,7 +18,8 @@
 package com.percussion.pubserver.impl;
 
 import com.amazonaws.regions.Regions;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.percussion.delivery.service.IPSDeliveryInfoService;
 import com.percussion.delivery.service.PSDeliveryInfoServiceLocator;
 import com.percussion.delivery.service.impl.PSDeliveryInfoService;
@@ -186,22 +187,22 @@ public class PSPubServerRestService {
   @GET
   @Path("/availableDrivers")
   @Produces(MediaType.TEXT_PLAIN)
-  public String getAvailableDrivers() throws com.fasterxml.jackson.core.JsonProcessingException {
-    return new ObjectMapper().writeValueAsString(service.getAvailableDrivers());
+  public String getAvailableDrivers() throws tools.jackson.core.JacksonException {
+    return JsonMapper.builder().build().writeValueAsString(service.getAvailableDrivers());
   }
 
   /** Gets available EC2 bucket regions. */
   @GET
   @Path("/availableRegions")
   @Produces(MediaType.TEXT_PLAIN)
-  public String getAvailableRegions() throws com.fasterxml.jackson.core.JsonProcessingException {
+  public String getAvailableRegions() throws tools.jackson.core.JacksonException {
     var regions = Regions.values();
     if (regions != null) {
       var regionNames = new String[regions.length];
       for (int i = 0; i < regions.length; i++) {
         regionNames[i] = regions[i].getName();
       }
-      return new ObjectMapper().writeValueAsString(regionNames);
+      return JsonMapper.builder().build().writeValueAsString(regionNames);
     }
     return null;
   }
@@ -211,12 +212,12 @@ public class PSPubServerRestService {
   @Path("/availablePublishingServer/{publishServerType}")
   @Produces(MediaType.TEXT_PLAIN)
   public String getAvailablePublishingServer(@PathParam("publishServerType") String publishServer)
-      throws com.fasterxml.jackson.core.JsonProcessingException {
+      throws tools.jackson.core.JacksonException {
     var psDeliveryInfoService =
         (PSDeliveryInfoService) PSDeliveryInfoServiceLocator.getDeliveryInfoService();
     var serverList = psDeliveryInfoService.getAdminUrls(publishServer);
     serverList.add(IPSPubServerService.DEFAULT_DTS);
-    return new ObjectMapper().writeValueAsString(serverList.toArray());
+    return JsonMapper.builder().build().writeValueAsString(serverList.toArray());
   }
 
   /** Checks if the current instance is an EC2 instance. */
@@ -261,8 +262,8 @@ public class PSPubServerRestService {
   @Path("/availableDeliveryServers")
   @Produces(MediaType.TEXT_PLAIN)
   public String getAvailableDeliveryServers()
-      throws com.fasterxml.jackson.core.JsonProcessingException {
+      throws tools.jackson.core.JacksonException {
     IPSDeliveryInfoService svc = PSDeliveryInfoServiceLocator.getDeliveryInfoService();
-    return new ObjectMapper().writeValueAsString(svc.findAll());
+    return JsonMapper.builder().build().writeValueAsString(svc.findAll());
   }
 }

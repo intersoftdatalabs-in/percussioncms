@@ -117,13 +117,18 @@ npm run test             # Vitest
 npm run dev              # HMR when wired to a running CMS
 ```
 
-### Hot copy to docker CMS (example)
+### Hot copy to CMS install (dev mode)
+
+**Dev mode:** CMS is a **local install** on the machine; docker **binds** to it. Copy artifacts into that install and re-run Playwright — **no restart** for typical JS/CSS/JSP.  
+**QA mode:** fully containerized stack; pass/fail only — no host-install hot copy.  
+See [`docs/developer-module/workbench-rest-and-qa-modes.md`](../docs/developer-module/workbench-rest-and-qa-modes.md).
 
 ```bash
+# Paths: use your DEV_PERCUSSION_INSTALL (e.g. /opt/Percussion or C:\Installs\…)
 cp WebUI/target/generated-webui/cm/modern/assets/perc-modern-ui.js \
-   /opt/Percussion/jetty/base/webapps/Rhythmyx/cm/modern/assets/perc-modern-ui.js
+   "$DEV_PERCUSSION_INSTALL/jetty/base/webapps/Rhythmyx/cm/modern/assets/perc-modern-ui.js"
 cp WebUI/target/generated-webui/cm/modern/assets/perc-modern-ui.css \
-   /opt/Percussion/jetty/base/webapps/Rhythmyx/cm/modern/assets/perc-modern-ui.css
+   "$DEV_PERCUSSION_INSTALL/jetty/base/webapps/Rhythmyx/cm/modern/assets/perc-modern-ui.css"
 # Path routes: spa.jsp + filter are on the server; rebuild WAR or copy JSP/filter classes as needed
 ```
 

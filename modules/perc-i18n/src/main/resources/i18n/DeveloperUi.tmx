@@ -1,28 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tmx version="1.4">
-  <!--
-   Developer module (SPA) UI strings.
-   Keys: perc.ui.developer@English — English after @ is default fallback.
--->
+  
   <header>
-    <prop type="supportedlanguage">ar</prop>
-    <prop type="supportedlanguage">bn</prop>
-    <prop type="supportedlanguage">en-us</prop>
+ <prop type="supportedlanguage">ar</prop>
+    <prop type="supportedlanguage">bn</prop><prop type="supportedlanguage">de</prop>
+    <prop type="supportedlanguage">de-de</prop>
+    <prop type="supportedlanguage">de-at</prop>
+    <prop type="supportedlanguage">de-ch</prop>
+    <prop type="supportedlanguage">de-li</prop>
+    <prop type="supportedlanguage">de-lu</prop>
+    <prop type="supportedlanguage">en</prop>
     <prop type="supportedlanguage">en-gb</prop>
-    <prop type="supportedlanguage">de</prop>
+    <prop type="supportedlanguage">en-us</prop>
     <prop type="supportedlanguage">es</prop>
+    <prop type="supportedlanguage">es-es</prop>
     <prop type="supportedlanguage">es-cl</prop>
+    <prop type="supportedlanguage">es-es</prop>
     <prop type="supportedlanguage">es-mx</prop>
-    <prop type="supportedlanguage">fr-ca</prop>
+    <prop type="supportedlanguage">es-co</prop>
+    <prop type="supportedlanguage">es-ar</prop>
+    <prop type="supportedlanguage">es-ve</prop>
+    <prop type="supportedlanguage">es-pe</prop>
+    <prop type="supportedlanguage">es-ec</prop>
+    <prop type="supportedlanguage">es-cr</prop>
+    <prop type="supportedlanguage">es-pa</prop>
+    <prop type="supportedlanguage">es-uy</prop>
+    <prop type="supportedlanguage">es-bo</prop>
+    <prop type="supportedlanguage">es-sv</prop>
+    <prop type="supportedlanguage">es-hn</prop>
+    <prop type="supportedlanguage">es-ni</prop>
+    <prop type="supportedlanguage">es-pr</prop>
     <prop type="supportedlanguage">fr</prop>
+    <prop type="supportedlanguage">fr-fr</prop>
+    <prop type="supportedlanguage">fr-ca</prop>
+    <prop type="supportedlanguage">fr-ch</prop>
+    <prop type="supportedlanguage">fr-lu</prop>
+    <prop type="supportedlanguage">fr-be</prop>
+    <prop type="supportedlanguage">fr-us</prop>
     <prop type="supportedlanguage">hi</prop>
-    <prop type="supportedlanguage">it</prop>
+    <prop type="supportedlanguage">hi-in</prop>
+     <prop type="supportedlanguage">it</prop>
+    <prop type="supportedlanguage">it-it</prop>
+    <prop type="supportedlanguage">it-ch</prop>
     <prop type="supportedlanguage">ja-jp</prop>
     <prop type="supportedlanguage">nl</prop>
-    <prop type="supportedlanguage">pt-br</prop>
+    <prop type="supportedlanguage">nl-nl</prop>
+    <prop type="supportedlanguage">nl-be</prop>
+    <prop type="supportedlanguage">pl</prop>
     <prop type="supportedlanguage">pt</prop>
+    <prop type="supportedlanguage">pt-br</prop>
+    <prop type="supportedlanguage">pt-pt</prop>
+    <prop type="supportedlanguage">ru</prop>
+    <prop type="supportedlanguage">sv</prop>
     <prop type="supportedlanguage">te</prop>
     <prop type="supportedlanguage">tr</prop>
+    <prop type="supportedlanguage">zh-cn</prop>
+    <prop type="supportedlanguage">zh-tw</prop>
   </header>
   <body>
     <tu tuid="perc.ui.developer@Loading Developer…">
@@ -31,7 +64,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading Developer…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>డెవలపర్u200cని లోడ్ చేస్తోంది…</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载开发人员...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বিকাশকারী লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -41,7 +80,13 @@
       <tuv xml:lang="en-us">
         <seg>Developer</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>డెవలపర్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>开发商</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বিকাশকারী</seg>
       </tuv>
     </tu>
@@ -51,7 +96,13 @@
       <tuv xml:lang="en-us">
         <seg>Design-time tools for content types, assembly, and related CMS objects. Replaces the classic Workbench / Design surfaces.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కంటెంట్ రకాలు, అసెంబ్లీ మరియు సంబంధిత CMS ఆబ్జెక్ట్u200cల కోసం డిజైన్-టైమ్ టూల్స్. క్లాసిక్ వర్క్u200cబెంచ్ / డిజైన్ ఉపరితలాలను భర్తీ చేస్తుంది.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>用于内容类型、程序集和相关 CMS 对象的设计时工具。取代了经典的工作台/设计表面。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বিষয়বস্তুর ধরন, সমাবেশ এবং সম্পর্কিত CMS অবজেক্টের জন্য ডিজাইন-টাইম টুল। ক্লাসিক ওয়ার্কবেঞ্চ/ডিজাইন সারফেস প্রতিস্থাপন করে।</seg>
       </tuv>
     </tu>
@@ -61,7 +112,13 @@
       <tuv xml:lang="en-us">
         <seg>Session expired — redirecting to login…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సెషన్ గడువు ముగిసింది - లాగిన్u200cకి దారి మళ్లిస్తోంది...</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>会话已过期 - 重定向到登录...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সেশনের মেয়াদ শেষ হয়েছে — লগইনে পুনঃনির্দেশ করা হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -71,7 +128,13 @@
       <tuv xml:lang="en-us">
         <seg>Object ACL</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఆబ్జెక్ట్ ACL</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>对象访问控制列表</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অবজেক্ট ACL</seg>
       </tuv>
     </tu>
@@ -81,7 +144,13 @@
       <tuv xml:lang="en-us">
         <seg>Design-time access control entries for this object. Toggle permissions and save. Adding or removing entries is a later slice.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ వస్తువు కోసం డిజైన్-టైమ్ యాక్సెస్ కంట్రోల్ ఎంట్రీలు. అనుమతులను టోగుల్ చేసి, సేవ్ చేయండి. ఎంట్రీలను జోడించడం లేదా తీసివేయడం అనేది తర్వాత స్లైస్.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>该对象的设计时访问控制条目。切换权限并保存。添加或删除条目是稍后的切片。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এই বস্তুর জন্য ডিজাইন-টাইম অ্যাক্সেস কন্ট্রোল এন্ট্রি। অনুমতি টগল করুন এবং সংরক্ষণ করুন। এন্ট্রি যোগ করা বা অপসারণ করা একটি পরবর্তী স্লাইস।</seg>
       </tuv>
     </tu>
@@ -91,7 +160,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading ACL…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ACL లోడ్ అవుతోంది…</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载 ACL...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ACL লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -101,7 +176,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load object ACL.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఆబ్జెక్ట్ ACLని లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载对象 ACL。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ACL অবজেক্ট লোড করা যায়নি।</seg>
       </tuv>
     </tu>
@@ -111,7 +192,13 @@
       <tuv xml:lang="en-us">
         <seg>No ACL defined for this object.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ వస్తువు కోసం ఏ ACL నిర్వచించబడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>没有为此对象定义 ACL。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এই বস্তুর জন্য কোন ACL সংজ্ঞায়িত করা হয়নি।</seg>
       </tuv>
     </tu>
@@ -121,7 +208,13 @@
       <tuv xml:lang="en-us">
         <seg>Object GUID not available — cannot load ACL.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఆబ్జెక్ట్ GUID అందుబాటులో లేదు - ACLని లోడ్ చేయడం సాధ్యపడదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>对象 GUID 不可用 — 无法加载 ACL。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অবজেক্ট GUID উপলব্ধ নেই — ACL লোড করা যাবে না।</seg>
       </tuv>
     </tu>
@@ -131,7 +224,13 @@
       <tuv xml:lang="en-us">
         <seg>ACL has no entries.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ACLకి ఎంట్రీలు లేవు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>ACL 没有条目。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ACL কোন এন্ট্রি আছে.</seg>
       </tuv>
     </tu>
@@ -141,7 +240,13 @@
       <tuv xml:lang="en-us">
         <seg>Principal / name</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ప్రిన్సిపాల్ / పేరు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>校长/姓名</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অধ্যক্ষ/নাম</seg>
       </tuv>
     </tu>
@@ -151,7 +256,13 @@
       <tuv xml:lang="en-us">
         <seg>Type</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>టైప్ చేయండి</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>类型</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>টাইপ</seg>
       </tuv>
     </tu>
@@ -161,7 +272,13 @@
       <tuv xml:lang="en-us">
         <seg>Permissions</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>అనుమతులు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>权限</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অনুমতি</seg>
       </tuv>
     </tu>
@@ -171,7 +288,13 @@
       <tuv xml:lang="en-us">
         <seg>Save ACL</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ACLని సేవ్ చేయండి</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>保存访问控制列表</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ACL সংরক্ষণ করুন</seg>
       </tuv>
     </tu>
@@ -181,7 +304,13 @@
       <tuv xml:lang="en-us">
         <seg>Saving…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సేవ్ చేస్తోంది...</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>保存…</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সংরক্ষণ করা হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -191,7 +320,13 @@
       <tuv xml:lang="en-us">
         <seg>Object ACL saved.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఆబ్జెక్ట్ ACL సేవ్ చేయబడింది.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>对象 ACL 已保存。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অবজেক্ট ACL সংরক্ষিত।</seg>
       </tuv>
     </tu>
@@ -201,7 +336,16 @@
       <tuv xml:lang="en-us">
         <seg>Could not save object ACL.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="de">
+        <seg>Objekt-ACL konnte nicht gespeichert werden.</seg>
+      </tuv>
+      <tuv xml:lang="pt">
+        <seg>Não foi possível salvar a ACL do objeto.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法保存对象 ACL。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বস্তু ACL সংরক্ষণ করা যায়নি.</seg>
       </tuv>
     </tu>
@@ -211,7 +355,13 @@
       <tuv xml:lang="en-us">
         <seg>ACL saved, but could not reload the updated ACL.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ACL సేవ్ చేయబడింది, కానీ నవీకరించబడిన ACLని మళ్లీ లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>ACL 已保存，但无法重新加载更新的 ACL。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ACL সংরক্ষিত, কিন্তু আপডেট করা ACL পুনরায় লোড করা যায়নি।</seg>
       </tuv>
     </tu>
@@ -221,7 +371,13 @@
       <tuv xml:lang="en-us">
         <seg>Content Types</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కంటెంట్ రకాలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>内容类型</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বিষয়বস্তুর প্রকার</seg>
       </tuv>
     </tu>
@@ -231,7 +387,13 @@
       <tuv xml:lang="en-us">
         <seg>Templates</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>టెంప్లేట్లు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>模板</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>টেমপ্লেট</seg>
       </tuv>
     </tu>
@@ -241,7 +403,13 @@
       <tuv xml:lang="en-us">
         <seg>Slots</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>స్లాట్లు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>老虎机</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>স্লট</seg>
       </tuv>
     </tu>
@@ -251,7 +419,13 @@
       <tuv xml:lang="en-us">
         <seg>Keywords</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కీలకపదాలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>关键词</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কীওয়ার্ড</seg>
       </tuv>
     </tu>
@@ -261,7 +435,13 @@
       <tuv xml:lang="en-us">
         <seg>Communities</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సంఘాలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>社区</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সম্প্রদায়গুলি</seg>
       </tuv>
     </tu>
@@ -271,7 +451,13 @@
       <tuv xml:lang="en-us">
         <seg>Pipelines</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పైపులైన్లు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>管道</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>পাইপলাইন</seg>
       </tuv>
     </tu>
@@ -281,7 +467,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading content types…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కంటెంట్ రకాలను లోడ్ చేస్తోంది...</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载内容类型...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বিষয়বস্তুর প্রকার লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -291,7 +483,13 @@
       <tuv xml:lang="en-us">
         <seg>No content types returned.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కంటెంట్ రకాలు ఏవీ తిరిగి ఇవ్వబడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>没有返回内容类型。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কোনো বিষয়বস্তুর ধরন ফেরত দেওয়া হয়নি।</seg>
       </tuv>
     </tu>
@@ -301,7 +499,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load content types.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కంటెంట్ రకాలను లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载内容类型。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বিষয়বস্তুর প্রকার লোড করা যায়নি।</seg>
       </tuv>
     </tu>
@@ -311,7 +515,13 @@
       <tuv xml:lang="en-us">
         <seg>Name</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పేరు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>姓名</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>নাম</seg>
       </tuv>
     </tu>
@@ -321,7 +531,13 @@
       <tuv xml:lang="en-us">
         <seg>Label</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>లేబుల్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>标签</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>লেবেল</seg>
       </tuv>
     </tu>
@@ -331,7 +547,13 @@
       <tuv xml:lang="en-us">
         <seg>Description</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>వివరణ</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>描述</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বর্ণনা</seg>
       </tuv>
     </tu>
@@ -341,7 +563,13 @@
       <tuv xml:lang="en-us">
         <seg>Id</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>Id</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>ID</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>আইডি</seg>
       </tuv>
     </tu>
@@ -351,7 +579,13 @@
       <tuv xml:lang="en-us">
         <seg>Select a content type to view fields and edit label, description, enabled, field flags, workflows, and templates.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఫీల్డ్u200cలను వీక్షించడానికి మరియు లేబుల్, వివరణ, ప్రారంభించబడిన, ఫీల్డ్ ఫ్లాగ్u200cలు, వర్క్u200cఫ్లోలు మరియు టెంప్లేట్u200cలను సవరించడానికి కంటెంట్ రకాన్ని ఎంచుకోండి.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>选择内容类型以查看字段并编辑标签、说明、已启用、字段标志、工作流程和模板。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ক্ষেত্রগুলি দেখতে এবং লেবেল, বিবরণ, সক্ষম, ক্ষেত্র পতাকা, কর্মপ্রবাহ এবং টেমপ্লেটগুলি সম্পাদনা করতে একটি সামগ্রীর ধরন নির্বাচন করুন৷</seg>
       </tuv>
     </tu>
@@ -361,7 +595,13 @@
       <tuv xml:lang="en-us">
         <seg>Back to list</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>జాబితాకు తిరిగి వెళ్ళు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>返回列表</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>তালিকায় ফিরে যান</seg>
       </tuv>
     </tu>
@@ -371,7 +611,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading content type…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కంటెంట్ రకాన్ని లోడ్ చేస్తోంది...</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载内容类型...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বিষয়বস্তুর প্রকার লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -381,7 +627,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load content type detail.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కంటెంట్ రకం వివరాలను లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载内容类型详细信息。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বিষয়বস্তুর প্রকারের বিশদ বিবরণ লোড করা যায়নি।</seg>
       </tuv>
     </tu>
@@ -391,8 +643,11 @@
       <tuv xml:lang="en-us">
         <seg>Label</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>লেবেল</seg>
+      <tuv xml:lang="te">
+        <seg>లేబుల్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>标签</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Description">
@@ -401,8 +656,11 @@
       <tuv xml:lang="en-us">
         <seg>Description</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>বর্ণনা</seg>
+      <tuv xml:lang="te">
+        <seg>వివరణ</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>描述</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Enabled">
@@ -411,7 +669,13 @@
       <tuv xml:lang="en-us">
         <seg>Enabled</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ప్రారంభించబడింది</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>启用</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সক্রিয়</seg>
       </tuv>
     </tu>
@@ -421,7 +685,13 @@
       <tuv xml:lang="en-us">
         <seg>Save content type</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కంటెంట్ రకాన్ని సేవ్ చేయండి</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>保存内容类型</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সামগ্রীর ধরন সংরক্ষণ করুন</seg>
       </tuv>
     </tu>
@@ -431,7 +701,13 @@
       <tuv xml:lang="en-us">
         <seg>Content type saved.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కంటెంట్ రకం సేవ్ చేయబడింది.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>已保存内容类型。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বিষয়বস্তুর প্রকার সংরক্ষিত।</seg>
       </tuv>
     </tu>
@@ -441,7 +717,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not save content type.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కంటెంట్ రకాన్ని సేవ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法保存内容类型。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বিষয়বস্তুর প্রকার সংরক্ষণ করা যায়নি।</seg>
       </tuv>
     </tu>
@@ -451,7 +733,13 @@
       <tuv xml:lang="en-us">
         <seg>Fields</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఫీల్డ్స్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>领域</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ক্ষেত্র</seg>
       </tuv>
     </tu>
@@ -461,7 +749,13 @@
       <tuv xml:lang="en-us">
         <seg>Toggle searchable / required for local fields. Save acquires a design lock, writes, and releases.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>స్థానిక ఫీల్డ్u200cల కోసం శోధించదగిన / అవసరమైన టోగుల్ చేయండి. సేవ్ డిజైన్ లాక్u200cని పొందుతుంది, వ్రాస్తుంది మరియు విడుదల చేస్తుంది.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>切换本地字段的可搜索/必填。 Save 获取设计锁、写入并释放。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>স্থানীয় ক্ষেত্রের জন্য অনুসন্ধানযোগ্য / প্রয়োজনীয় টগল করুন। সেভ একটি ডিজাইন লক অর্জন করে, লেখে এবং প্রকাশ করে।</seg>
       </tuv>
     </tu>
@@ -471,7 +765,13 @@
       <tuv xml:lang="en-us">
         <seg>Child field sets</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>చైల్డ్ ఫీల్డ్ సెట్లు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>子字段集</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>শিশু ক্ষেত্রের সেট</seg>
       </tuv>
     </tu>
@@ -481,7 +781,13 @@
       <tuv xml:lang="en-us">
         <seg>Design gaps (not in this API yet)</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>డిజైన్ ఖాళీలు (ఇంకా ఈ APIలో లేవు)</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>设计差距（尚未在此 API 中）</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ডিজাইনের ফাঁক (এখনও এই API তে নেই)</seg>
       </tuv>
     </tu>
@@ -491,8 +797,11 @@
       <tuv xml:lang="en-us">
         <seg>Enabled</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>সক্রিয়</seg>
+      <tuv xml:lang="te">
+        <seg>ప్రారంభించబడింది</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>启用</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Hidden from menu">
@@ -501,7 +810,13 @@
       <tuv xml:lang="en-us">
         <seg>Hidden from menu</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>మెను నుండి దాచబడింది</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>从菜单中隐藏</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>মেনু থেকে লুকানো</seg>
       </tuv>
     </tu>
@@ -511,7 +826,13 @@
       <tuv xml:lang="en-us">
         <seg>Application</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>అప్లికేషన్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>应用</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>আবেদন</seg>
       </tuv>
     </tu>
@@ -521,7 +842,13 @@
       <tuv xml:lang="en-us">
         <seg>Field</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఫీల్డ్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>场地</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>মাঠ</seg>
       </tuv>
     </tu>
@@ -531,7 +858,13 @@
       <tuv xml:lang="en-us">
         <seg>Origin</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>మూలం</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>起源</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>উৎপত্তি</seg>
       </tuv>
     </tu>
@@ -541,7 +874,13 @@
       <tuv xml:lang="en-us">
         <seg>Data type</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>డేటా రకం</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>数据类型</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ডেটা টাইপ</seg>
       </tuv>
     </tu>
@@ -551,7 +890,13 @@
       <tuv xml:lang="en-us">
         <seg>Control</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>నియంత్రణ</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>控制</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>নিয়ন্ত্রণ</seg>
       </tuv>
     </tu>
@@ -561,7 +906,13 @@
       <tuv xml:lang="en-us">
         <seg>Required</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>అవసరం</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>必需的</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>প্রয়োজন</seg>
       </tuv>
     </tu>
@@ -571,7 +922,13 @@
       <tuv xml:lang="en-us">
         <seg>Read-only</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>చదవడానికి మాత్రమే</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>只读</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>শুধুমাত্র পঠনযোগ্য</seg>
       </tuv>
     </tu>
@@ -581,7 +938,13 @@
       <tuv xml:lang="en-us">
         <seg>Occurrence</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సంభవం</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>发生</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ঘটনা</seg>
       </tuv>
     </tu>
@@ -591,7 +954,13 @@
       <tuv xml:lang="en-us">
         <seg>Rules</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>నియమాలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>规则</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>নিয়ম</seg>
       </tuv>
     </tu>
@@ -601,7 +970,13 @@
       <tuv xml:lang="en-us">
         <seg>Searchable</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>శోధించదగినది</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>可搜索</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অনুসন্ধানযোগ্য</seg>
       </tuv>
     </tu>
@@ -611,7 +986,13 @@
       <tuv xml:lang="en-us">
         <seg>Field set</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఫీల్డ్ సెట్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>现场设置</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>মাঠ সেট</seg>
       </tuv>
     </tu>
@@ -621,7 +1002,13 @@
       <tuv xml:lang="en-us">
         <seg>validation</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ధ్రువీకరణ</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>验证</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বৈধতা</seg>
       </tuv>
     </tu>
@@ -631,7 +1018,13 @@
       <tuv xml:lang="en-us">
         <seg>visibility</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>దృశ్యమానత</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>能见度</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>দৃশ্যমানতা</seg>
       </tuv>
     </tu>
@@ -641,7 +1034,13 @@
       <tuv xml:lang="en-us">
         <seg>in-xform</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>in-xform</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>in-xform</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ইন-এক্সফর্ম</seg>
       </tuv>
     </tu>
@@ -651,7 +1050,13 @@
       <tuv xml:lang="en-us">
         <seg>out-xform</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>అవుట్-xform</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>外型</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>আউট-এক্সফর্ম</seg>
       </tuv>
     </tu>
@@ -661,7 +1066,13 @@
       <tuv xml:lang="en-us">
         <seg>Allowed workflows</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>అనుమతించబడిన వర్క్u200cఫ్లోలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>允许的工作流程</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অনুমোদিত কর্মপ্রবাহ</seg>
       </tuv>
     </tu>
@@ -671,7 +1082,13 @@
       <tuv xml:lang="en-us">
         <seg>Full replace on save when changed. Add by workflow name; set default with the radio.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>మార్చినప్పుడు సేవ్u200cలో పూర్తిగా భర్తీ చేయండి. వర్క్u200cఫ్లో పేరు ద్వారా జోడించండి; రేడియోతో డిఫాల్ట్u200cగా సెట్ చేయండి.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>更改后保存时完全替换。按工作流名称添加；使用收音机设置默认值。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>পরিবর্তিত হলে সংরক্ষণে সম্পূর্ণ প্রতিস্থাপন। ওয়ার্কফ্লো নাম দ্বারা যোগ করুন; রেডিওর সাথে ডিফল্ট সেট করুন।</seg>
       </tuv>
     </tu>
@@ -681,7 +1098,13 @@
       <tuv xml:lang="en-us">
         <seg>Default workflow</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>డిఫాల్ట్ వర్క్u200cఫ్లో</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>默认工作流程</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ডিফল্ট ওয়ার্কফ্লো</seg>
       </tuv>
     </tu>
@@ -691,7 +1114,13 @@
       <tuv xml:lang="en-us">
         <seg>Allowed templates</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>అనుమతించబడిన టెంప్లేట్u200cలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>允许的模板</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অনুমোদিত টেমপ্লেট</seg>
       </tuv>
     </tu>
@@ -701,7 +1130,13 @@
       <tuv xml:lang="en-us">
         <seg>Full replace on save when changed. Add by template name or GUID (type-host-uuid, e.g. 0-10-347).</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>మార్చినప్పుడు సేవ్u200cలో పూర్తిగా భర్తీ చేయండి. టెంప్లేట్ పేరు లేదా GUID (టైప్-హోస్ట్-uuid, ఉదా. 0-10-347) ద్వారా జోడించండి.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>更改后保存时完全替换。按模板名称或 GUID 添加（类型主机 uuid，例如 0-10-347）。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>পরিবর্তিত হলে সংরক্ষণে সম্পূর্ণ প্রতিস্থাপন। টেমপ্লেট নাম বা GUID দ্বারা যোগ করুন (টাইপ-হোস্ট-উইড, যেমন 0-10-347)।</seg>
       </tuv>
     </tu>
@@ -711,7 +1146,13 @@
       <tuv xml:lang="en-us">
         <seg>Add</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>జోడించు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>添加</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>যোগ করুন</seg>
       </tuv>
     </tu>
@@ -721,7 +1162,13 @@
       <tuv xml:lang="en-us">
         <seg>Remove</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>తొలగించు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>消除</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সরান</seg>
       </tuv>
     </tu>
@@ -731,7 +1178,13 @@
       <tuv xml:lang="en-us">
         <seg>Workflow name</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>వర్క్u200cఫ్లో పేరు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>工作流程名称</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কর্মপ্রবাহের নাম</seg>
       </tuv>
     </tu>
@@ -741,7 +1194,13 @@
       <tuv xml:lang="en-us">
         <seg>Template name or GUID (0-10-347)</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>టెంప్లేట్ పేరు లేదా GUID (0-10-347)</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>模板名称或 GUID (0-10-347)</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>টেমপ্লেট নাম বা GUID (0-10-347)</seg>
       </tuv>
     </tu>
@@ -751,7 +1210,13 @@
       <tuv xml:lang="en-us">
         <seg>Default</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>డిఫాల్ట్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>默认</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ডিফল্ট</seg>
       </tuv>
     </tu>
@@ -761,7 +1226,13 @@
       <tuv xml:lang="en-us">
         <seg>None</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఏదీ లేదు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>没有任何</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কোনোটিই নয়</seg>
       </tuv>
     </tu>
@@ -771,7 +1242,13 @@
       <tuv xml:lang="en-us">
         <seg>Yes</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>అవును</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>是的</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>হ্যাঁ</seg>
       </tuv>
     </tu>
@@ -781,7 +1258,13 @@
       <tuv xml:lang="en-us">
         <seg>No</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>నం</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>不</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>না</seg>
       </tuv>
     </tu>
@@ -791,7 +1274,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading keywords…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కీలకపదాలను లోడ్ చేస్తోంది...</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载关键字...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কীওয়ার্ড লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -801,7 +1290,13 @@
       <tuv xml:lang="en-us">
         <seg>No keywords returned.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కీలక పదాలు ఏవీ తిరిగి ఇవ్వబడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>没有返回关键字。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কোন কীওয়ার্ড ফিরে আসেনি।</seg>
       </tuv>
     </tu>
@@ -811,7 +1306,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load keywords.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కీలకపదాలను లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载关键字。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কীওয়ার্ড লোড করা যায়নি।</seg>
       </tuv>
     </tu>
@@ -821,7 +1322,13 @@
       <tuv xml:lang="en-us">
         <seg>Create, edit, or delete keyword definitions and their choices.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కీవర్డ్ నిర్వచనాలు మరియు వాటి ఎంపికలను సృష్టించండి, సవరించండి లేదా తొలగించండి.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>创建、编辑或删除关键字定义及其选择。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কীওয়ার্ড সংজ্ঞা এবং তাদের পছন্দগুলি তৈরি করুন, সম্পাদনা করুন বা মুছুন৷</seg>
       </tuv>
     </tu>
@@ -831,8 +1338,11 @@
       <tuv xml:lang="en-us">
         <seg>Label</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>লেবেল</seg>
+      <tuv xml:lang="te">
+        <seg>లేబుల్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>标签</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Value">
@@ -841,7 +1351,13 @@
       <tuv xml:lang="en-us">
         <seg>Value</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>విలువ</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>价值</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>মান</seg>
       </tuv>
     </tu>
@@ -851,7 +1367,13 @@
       <tuv xml:lang="en-us">
         <seg>Choices</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఎంపికలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>选择</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>পছন্দ</seg>
       </tuv>
     </tu>
@@ -861,8 +1383,11 @@
       <tuv xml:lang="en-us">
         <seg>Description</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>বর্ণনা</seg>
+      <tuv xml:lang="te">
+        <seg>వివరణ</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>描述</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@New keyword">
@@ -871,7 +1396,13 @@
       <tuv xml:lang="en-us">
         <seg>New keyword</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కొత్త కీవర్డ్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>新关键字</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>নতুন কীওয়ার্ড</seg>
       </tuv>
     </tu>
@@ -881,7 +1412,13 @@
       <tuv xml:lang="en-us">
         <seg>Save</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సేవ్ చేయండి</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>节省</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সংরক্ষণ করুন</seg>
       </tuv>
     </tu>
@@ -891,7 +1428,13 @@
       <tuv xml:lang="en-us">
         <seg>Cancel</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>రద్దు చేయి</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>取消</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বাতিল করুন</seg>
       </tuv>
     </tu>
@@ -901,7 +1444,13 @@
       <tuv xml:lang="en-us">
         <seg>Delete</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>తొలగించు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>删除</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>মুছুন</seg>
       </tuv>
     </tu>
@@ -911,7 +1460,13 @@
       <tuv xml:lang="en-us">
         <seg>Edit</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సవరించు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>编辑</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সম্পাদনা করুন</seg>
       </tuv>
     </tu>
@@ -921,8 +1476,11 @@
       <tuv xml:lang="en-us">
         <seg>Back to list</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>তালিকায় ফিরে যান</seg>
+      <tuv xml:lang="te">
+        <seg>జాబితాకు తిరిగి వెళ్ళు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>返回列表</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Label">
@@ -931,8 +1489,11 @@
       <tuv xml:lang="en-us">
         <seg>Label</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>লেবেল</seg>
+      <tuv xml:lang="te">
+        <seg>లేబుల్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>标签</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Description">
@@ -941,8 +1502,11 @@
       <tuv xml:lang="en-us">
         <seg>Description</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>বর্ণনা</seg>
+      <tuv xml:lang="te">
+        <seg>వివరణ</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>描述</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Sequence">
@@ -951,7 +1515,13 @@
       <tuv xml:lang="en-us">
         <seg>Sequence</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>క్రమం</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>顺序</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সিকোয়েন্স</seg>
       </tuv>
     </tu>
@@ -961,7 +1531,13 @@
       <tuv xml:lang="en-us">
         <seg>Choices (label, value, sequence per line: label|value|seq)</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఎంపికలు (లేబుల్, విలువ, పంక్తికి క్రమం: లేబుల్|విలువ|సెక్యూ)</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>选择（标签、值、每行序列：标签|值|seq）</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>পছন্দ (লেবেল, মান, প্রতি লাইনের ক্রম: লেবেল|মান|seq)</seg>
       </tuv>
     </tu>
@@ -971,7 +1547,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not save keyword.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కీవర్డ్u200cని సేవ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法保存关键字。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কীওয়ার্ড সংরক্ষণ করা যায়নি।</seg>
       </tuv>
     </tu>
@@ -981,7 +1563,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not delete keyword.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కీవర్డ్u200cని తొలగించడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法删除关键字。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কীওয়ার্ড মুছে ফেলা যায়নি।</seg>
       </tuv>
     </tu>
@@ -991,7 +1579,13 @@
       <tuv xml:lang="en-us">
         <seg>Delete this keyword and all of its choices?</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ కీవర్డ్ మరియు దాని ఎంపికలన్నింటినీ తొలగించాలా?</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>删除该关键字及其所有选择？</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এই কীওয়ার্ড এবং এর সমস্ত পছন্দ মুছবেন?</seg>
       </tuv>
     </tu>
@@ -1001,7 +1595,13 @@
       <tuv xml:lang="en-us">
         <seg>Keyword saved.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కీవర్డ్ సేవ్ చేయబడింది.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>关键字已保存。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কীওয়ার্ড সংরক্ষিত।</seg>
       </tuv>
     </tu>
@@ -1011,7 +1611,13 @@
       <tuv xml:lang="en-us">
         <seg>Keyword deleted.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కీవర్డ్ తొలగించబడింది.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>关键字已删除。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>মূলশব্দ মুছে ফেলা হয়েছে.</seg>
       </tuv>
     </tu>
@@ -1021,7 +1627,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading templates…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>టెంప్లేట్u200cలను లోడ్ చేస్తోంది...</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载模板...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>টেমপ্লেট লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -1031,7 +1643,13 @@
       <tuv xml:lang="en-us">
         <seg>No templates returned.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>టెంప్లేట్u200cలు ఏవీ తిరిగి ఇవ్వబడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>没有返回模板。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কোনো টেমপ্লেট ফেরত দেওয়া হয়নি।</seg>
       </tuv>
     </tu>
@@ -1041,7 +1659,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load templates.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>టెంప్లేట్u200cలను లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载模板。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>টেমপ্লেট লোড করা যায়নি।</seg>
       </tuv>
     </tu>
@@ -1051,7 +1675,13 @@
       <tuv xml:lang="en-us">
         <seg>Select a template to edit label, description, source, bindings, and contained slots.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>లేబుల్, వివరణ, మూలం, బైండింగ్u200cలు మరియు కలిగి ఉన్న స్లాట్u200cలను సవరించడానికి టెంప్లేట్u200cను ఎంచుకోండి.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>选择一个模板来编辑标签、描述、源、绑定和包含的插槽。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>লেবেল, বর্ণনা, উৎস, বাইন্ডিং এবং থাকা স্লট সম্পাদনা করতে একটি টেমপ্লেট নির্বাচন করুন।</seg>
       </tuv>
     </tu>
@@ -1061,8 +1691,11 @@
       <tuv xml:lang="en-us">
         <seg>Label</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>লেবেল</seg>
+      <tuv xml:lang="te">
+        <seg>లేబుల్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>标签</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Name">
@@ -1071,8 +1704,11 @@
       <tuv xml:lang="en-us">
         <seg>Name</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>নাম</seg>
+      <tuv xml:lang="te">
+        <seg>పేరు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>姓名</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Id">
@@ -1081,8 +1717,11 @@
       <tuv xml:lang="en-us">
         <seg>Id</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>আইডি</seg>
+      <tuv xml:lang="te">
+        <seg>Id</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>ID</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Description">
@@ -1091,8 +1730,11 @@
       <tuv xml:lang="en-us">
         <seg>Description</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>বর্ণনা</seg>
+      <tuv xml:lang="te">
+        <seg>వివరణ</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>描述</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Back to list">
@@ -1101,8 +1743,11 @@
       <tuv xml:lang="en-us">
         <seg>Back to list</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>তালিকায় ফিরে যান</seg>
+      <tuv xml:lang="te">
+        <seg>జాబితాకు తిరిగి వెళ్ళు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>返回列表</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Loading template…">
@@ -1111,7 +1756,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading template…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>టెంప్లేట్ లోడ్ అవుతోంది…</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载模板...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>টেমপ্লেট লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -1121,7 +1772,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load template detail.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>టెంప్లేట్ వివరాలను లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载模板详细信息。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>টেমপ্লেট বিশদ লোড করা যায়নি।</seg>
       </tuv>
     </tu>
@@ -1131,7 +1788,13 @@
       <tuv xml:lang="en-us">
         <seg>Assembler</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>అసెంబ్లర్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>汇编器</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অ্যাসেম্বলার</seg>
       </tuv>
     </tu>
@@ -1141,7 +1804,13 @@
       <tuv xml:lang="en-us">
         <seg>Output format</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>అవుట్u200cపుట్ ఫార్మాట్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>输出格式</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>আউটপুট বিন্যাস</seg>
       </tuv>
     </tu>
@@ -1151,7 +1820,13 @@
       <tuv xml:lang="en-us">
         <seg>Template type</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>టెంప్లేట్ రకం</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>模板类型</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>টেমপ্লেট টাইপ</seg>
       </tuv>
     </tu>
@@ -1161,7 +1836,13 @@
       <tuv xml:lang="en-us">
         <seg>Active assembly</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>క్రియాశీల అసెంబ్లీ</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>主动装配</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সক্রিয় সমাবেশ</seg>
       </tuv>
     </tu>
@@ -1171,7 +1852,13 @@
       <tuv xml:lang="en-us">
         <seg>MIME type</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>MIME రకం</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>MIME类型</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>MIME প্রকার</seg>
       </tuv>
     </tu>
@@ -1181,7 +1868,13 @@
       <tuv xml:lang="en-us">
         <seg>Legacy variant</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>లెగసీ వేరియంట్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>旧版本</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>উত্তরাধিকার বৈকল্পিক</seg>
       </tuv>
     </tu>
@@ -1191,7 +1884,13 @@
       <tuv xml:lang="en-us">
         <seg>Bindings</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>బైండింగ్స్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>绑定</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বাঁধাই</seg>
       </tuv>
     </tu>
@@ -1201,7 +1900,13 @@
       <tuv xml:lang="en-us">
         <seg>JEXL bindings executed in order. Add, edit, or remove rows, then save (full replace).</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>JEXL బైండింగ్u200cలు క్రమంలో అమలు చేయబడ్డాయి. అడ్డు వరుసలను జోడించండి, సవరించండి లేదా తీసివేయండి, ఆపై సేవ్ చేయండి (పూర్తిగా భర్తీ చేయండి).</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>JEXL 绑定按顺序执行。添加、编辑或删除行，然后保存（完全替换）。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>JEXL বাইন্ডিং ক্রমানুসারে কার্যকর করা হয়েছে। সারি যোগ করুন, সম্পাদনা করুন বা সরান, তারপর সংরক্ষণ করুন (সম্পূর্ণ প্রতিস্থাপন করুন)।</seg>
       </tuv>
     </tu>
@@ -1211,7 +1916,13 @@
       <tuv xml:lang="en-us">
         <seg>Add binding</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>బైండింగ్ జోడించండి</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>添加绑定</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বাঁধাই যোগ করুন</seg>
       </tuv>
     </tu>
@@ -1221,8 +1932,11 @@
       <tuv xml:lang="en-us">
         <seg>Remove</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>সরান</seg>
+      <tuv xml:lang="te">
+        <seg>తొలగించు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>消除</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Slots">
@@ -1231,8 +1945,11 @@
       <tuv xml:lang="en-us">
         <seg>Slots</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>স্লট</seg>
+      <tuv xml:lang="te">
+        <seg>స్లాట్లు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>老虎机</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Check slots contained by this template, then save (full replace).">
@@ -1241,7 +1958,13 @@
       <tuv xml:lang="en-us">
         <seg>Check slots contained by this template, then save (full replace).</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ టెంప్లేట్ కలిగి ఉన్న స్లాట్u200cలను తనిఖీ చేసి, సేవ్ చేయండి (పూర్తిగా భర్తీ చేయండి).</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>检查此模板包含的插槽，然后保存（完全替换）。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এই টেমপ্লেটটিতে থাকা স্লটগুলি পরীক্ষা করুন, তারপর সংরক্ষণ করুন (সম্পূর্ণ প্রতিস্থাপন করুন)।</seg>
       </tuv>
     </tu>
@@ -1251,7 +1974,13 @@
       <tuv xml:lang="en-us">
         <seg>Template source</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>టెంప్లేట్ మూలం</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>模板来源</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>টেমপ্লেট উৎস</seg>
       </tuv>
     </tu>
@@ -1261,8 +1990,11 @@
       <tuv xml:lang="en-us">
         <seg>Label</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>লেবেল</seg>
+      <tuv xml:lang="te">
+        <seg>లేబుల్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>标签</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Description">
@@ -1271,8 +2003,11 @@
       <tuv xml:lang="en-us">
         <seg>Description</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>বর্ণনা</seg>
+      <tuv xml:lang="te">
+        <seg>వివరణ</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>描述</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Save template">
@@ -1281,7 +2016,13 @@
       <tuv xml:lang="en-us">
         <seg>Save template</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>టెంప్లేట్u200cను సేవ్ చేయండి</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>保存模板</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>টেমপ্লেট সংরক্ষণ করুন</seg>
       </tuv>
     </tu>
@@ -1291,7 +2032,13 @@
       <tuv xml:lang="en-us">
         <seg>Template saved.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>టెంప్లేట్ సేవ్ చేయబడింది.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>模板已保存。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>টেমপ্লেট সংরক্ষিত।</seg>
       </tuv>
     </tu>
@@ -1301,7 +2048,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not save template.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>టెంప్లేట్u200cని సేవ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法保存模板。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>টেমপ্লেট সংরক্ষণ করা যায়নি.</seg>
       </tuv>
     </tu>
@@ -1311,8 +2064,11 @@
       <tuv xml:lang="en-us">
         <seg>Design gaps (not in this API yet)</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>ডিজাইনের ফাঁক (এখনও এই API তে নেই)</seg>
+      <tuv xml:lang="te">
+        <seg>డిజైన్ ఖాళీలు (ఇంకా ఈ APIలో లేవు)</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>设计差距（尚未在此 API 中）</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Variable">
@@ -1321,7 +2077,13 @@
       <tuv xml:lang="en-us">
         <seg>Variable</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>వేరియబుల్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>多变的</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>পরিবর্তনশীল</seg>
       </tuv>
     </tu>
@@ -1331,7 +2093,13 @@
       <tuv xml:lang="en-us">
         <seg>Expression</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>వ్యక్తీకరణ</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>表达</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অভিব্যক্তি</seg>
       </tuv>
     </tu>
@@ -1341,7 +2109,13 @@
       <tuv xml:lang="en-us">
         <seg>Order</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఆర్డర్ చేయండి</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>命令</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অর্ডার</seg>
       </tuv>
     </tu>
@@ -1351,7 +2125,13 @@
       <tuv xml:lang="en-us">
         <seg>Actions</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>చర్యలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>行动</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কর্ম</seg>
       </tuv>
     </tu>
@@ -1361,7 +2141,13 @@
       <tuv xml:lang="en-us">
         <seg>Member</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సభ్యుడు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>成员</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সদস্য</seg>
       </tuv>
     </tu>
@@ -1371,8 +2157,11 @@
       <tuv xml:lang="en-us">
         <seg>None</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>কোনোটিই নয়</seg>
+      <tuv xml:lang="te">
+        <seg>ఏదీ లేదు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>没有任何</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Loading slots…">
@@ -1381,7 +2170,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading slots…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>స్లాట్u200cలను లోడ్ చేస్తోంది...</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>加载插槽...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>স্লট লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -1391,7 +2186,13 @@
       <tuv xml:lang="en-us">
         <seg>No slots returned.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>స్లాట్u200cలు ఏవీ తిరిగి ఇవ్వబడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>没有返回槽位。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কোন স্লট ফিরে.</seg>
       </tuv>
     </tu>
@@ -1401,7 +2202,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load slots.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>స్లాట్u200cలను లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载插槽。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>স্লট লোড করা যায়নি।</seg>
       </tuv>
     </tu>
@@ -1411,7 +2218,13 @@
       <tuv xml:lang="en-us">
         <seg>Select a slot to edit label, description, and content-type/template associations.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>లేబుల్, వివరణ మరియు కంటెంట్-రకం/టెంప్లేట్ అనుబంధాలను సవరించడానికి స్లాట్u200cను ఎంచుకోండి.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>选择一个插槽来编辑标签、描述和内容类型/模板关联。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>লেবেল, বিবরণ, এবং বিষয়বস্তু-প্রকার/টেমপ্লেট অ্যাসোসিয়েশন সম্পাদনা করতে একটি স্লট নির্বাচন করুন।</seg>
       </tuv>
     </tu>
@@ -1421,8 +2234,11 @@
       <tuv xml:lang="en-us">
         <seg>Label</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>লেবেল</seg>
+      <tuv xml:lang="te">
+        <seg>లేబుల్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>标签</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Name">
@@ -1431,8 +2247,11 @@
       <tuv xml:lang="en-us">
         <seg>Name</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>নাম</seg>
+      <tuv xml:lang="te">
+        <seg>పేరు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>姓名</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Description">
@@ -1441,8 +2260,11 @@
       <tuv xml:lang="en-us">
         <seg>Description</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>বর্ণনা</seg>
+      <tuv xml:lang="te">
+        <seg>వివరణ</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>描述</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Back to list">
@@ -1451,8 +2273,11 @@
       <tuv xml:lang="en-us">
         <seg>Back to list</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>তালিকায় ফিরে যান</seg>
+      <tuv xml:lang="te">
+        <seg>జాబితాకు తిరిగి వెళ్ళు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>返回列表</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Loading slot…">
@@ -1461,7 +2286,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading slot…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>స్లాట్ లోడ్ అవుతోంది…</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>加载槽...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>স্লট লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -1471,7 +2302,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load slot detail.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>స్లాట్ వివరాలను లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载插槽详细信息。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>স্লটের বিশদ বিবরণ লোড করা যায়নি।</seg>
       </tuv>
     </tu>
@@ -1481,8 +2318,11 @@
       <tuv xml:lang="en-us">
         <seg>Label</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>লেবেল</seg>
+      <tuv xml:lang="te">
+        <seg>లేబుల్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>标签</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Description">
@@ -1491,8 +2331,11 @@
       <tuv xml:lang="en-us">
         <seg>Description</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>বর্ণনা</seg>
+      <tuv xml:lang="te">
+        <seg>వివరణ</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>描述</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Save slot">
@@ -1501,7 +2344,13 @@
       <tuv xml:lang="en-us">
         <seg>Save slot</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>స్లాట్u200cను సేవ్ చేయండి</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>保存槽</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>স্লট সংরক্ষণ করুন</seg>
       </tuv>
     </tu>
@@ -1511,7 +2360,13 @@
       <tuv xml:lang="en-us">
         <seg>Slot saved.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>స్లాట్ సేవ్ చేయబడింది.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>插槽已保存。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>স্লট সংরক্ষিত.</seg>
       </tuv>
     </tu>
@@ -1521,7 +2376,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not save slot.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>స్లాట్u200cను సేవ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法保存插槽。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>স্লট সংরক্ষণ করা যায়নি.</seg>
       </tuv>
     </tu>
@@ -1531,7 +2392,13 @@
       <tuv xml:lang="en-us">
         <seg>Slot type</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>స్లాట్ రకం</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>插槽类型</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>স্লট টাইপ</seg>
       </tuv>
     </tu>
@@ -1541,7 +2408,13 @@
       <tuv xml:lang="en-us">
         <seg>System slot</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సిస్టమ్ స్లాట్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>系统槽位</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সিস্টেম স্লট</seg>
       </tuv>
     </tu>
@@ -1551,7 +2424,13 @@
       <tuv xml:lang="en-us">
         <seg>Finder</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఫైండర్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>发现者</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ফাইন্ডার</seg>
       </tuv>
     </tu>
@@ -1561,7 +2440,13 @@
       <tuv xml:lang="en-us">
         <seg>Relationship</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సంబంధం</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>关系</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সম্পর্ক</seg>
       </tuv>
     </tu>
@@ -1571,7 +2456,13 @@
       <tuv xml:lang="en-us">
         <seg>Finder arguments</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఫైండర్ వాదనలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>查找器参数</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ফাইন্ডার আর্গুমেন্ট</seg>
       </tuv>
     </tu>
@@ -1581,7 +2472,13 @@
       <tuv xml:lang="en-us">
         <seg>Content type / template associations</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కంటెంట్ రకం / టెంప్లేట్ సంఘాలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>内容类型/模板关联</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বিষয়বস্তুর ধরন/টেমপ্লেট অ্যাসোসিয়েশন</seg>
       </tuv>
     </tu>
@@ -1591,7 +2488,13 @@
       <tuv xml:lang="en-us">
         <seg>Add or remove content-type ↔ template pairs (GUID string values). Save applies a full replace.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కంటెంట్-రకం ↔ టెంప్లేట్ జతలను జోడించండి లేదా తీసివేయండి (GUID స్ట్రింగ్ విలువలు). సేవ్ పూర్తి రీప్లేస్ వర్తిస్తుంది.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>添加或删除内容类型 ↔ 模板对（GUID 字符串值）。保存应用完全替换。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কন্টেন্ট-টাইপ ↔ টেমপ্লেট জোড়া (GUID স্ট্রিং মান) যোগ করুন বা সরান। সংরক্ষণ একটি সম্পূর্ণ প্রতিস্থাপন প্রযোজ্য.</seg>
       </tuv>
     </tu>
@@ -1601,7 +2504,13 @@
       <tuv xml:lang="en-us">
         <seg>Add association</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>అనుబంధాన్ని జోడించండి</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>添加关联</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অ্যাসোসিয়েশন যোগ করুন</seg>
       </tuv>
     </tu>
@@ -1611,8 +2520,11 @@
       <tuv xml:lang="en-us">
         <seg>Remove</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>সরান</seg>
+      <tuv xml:lang="te">
+        <seg>తొలగించు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>消除</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Content type GUID (e.g. 0-2-301)">
@@ -1621,7 +2533,13 @@
       <tuv xml:lang="en-us">
         <seg>Content type GUID (e.g. 0-2-301)</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కంటెంట్ రకం GUID (ఉదా. 0-2-301)</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>内容类型 GUID（例如 0-2-301）</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বিষয়বস্তুর প্রকার GUID (যেমন 0-2-301)</seg>
       </tuv>
     </tu>
@@ -1631,7 +2549,13 @@
       <tuv xml:lang="en-us">
         <seg>Template GUID (e.g. 0-10-1)</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>టెంప్లేట్ GUID (ఉదా. 0-10-1)</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>模板 GUID（例如 0-10-1）</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>টেমপ্লেট GUID (যেমন 0-10-1)</seg>
       </tuv>
     </tu>
@@ -1641,7 +2565,13 @@
       <tuv xml:lang="en-us">
         <seg>Known limitations of this endpoint</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ ముగింపు స్థానం యొక్క తెలిసిన పరిమితులు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>此端点的已知限制</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এই শেষ বিন্দু পরিচিত সীমাবদ্ধতা</seg>
       </tuv>
     </tu>
@@ -1651,8 +2581,11 @@
       <tuv xml:lang="en-us">
         <seg>None</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>কোনোটিই নয়</seg>
+      <tuv xml:lang="te">
+        <seg>ఏదీ లేదు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>没有任何</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Content type GUID">
@@ -1661,7 +2594,13 @@
       <tuv xml:lang="en-us">
         <seg>Content type GUID</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కంటెంట్ రకం GUID</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>内容类型 GUID</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বিষয়বস্তুর প্রকার GUID</seg>
       </tuv>
     </tu>
@@ -1671,7 +2610,13 @@
       <tuv xml:lang="en-us">
         <seg>Template GUID</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>టెంప్లేట్ GUID</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>模板 GUID</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>টেমপ্লেট GUID</seg>
       </tuv>
     </tu>
@@ -1681,8 +2626,11 @@
       <tuv xml:lang="en-us">
         <seg>Actions</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>কর্ম</seg>
+      <tuv xml:lang="te">
+        <seg>చర్యలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>行动</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Loading communities…">
@@ -1691,7 +2639,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading communities…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సంఘాలను లోడ్ చేస్తోంది...</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载社区...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সম্প্রদায়গুলি লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -1701,7 +2655,13 @@
       <tuv xml:lang="en-us">
         <seg>No communities returned.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సంఘాలు ఏవీ తిరిగి రాలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>没有社区返回。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কোনো সম্প্রদায় ফিরে আসেনি।</seg>
       </tuv>
     </tu>
@@ -1711,7 +2671,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load communities.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సంఘాలను లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载社区。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সম্প্রদায়গুলি লোড করা যায়নি৷</seg>
       </tuv>
     </tu>
@@ -1721,7 +2687,13 @@
       <tuv xml:lang="en-us">
         <seg>Select a community to view and edit role membership. Object ACL dialogs are not available yet.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పాత్ర సభ్యత్వాన్ని వీక్షించడానికి మరియు సవరించడానికి సంఘాన్ని ఎంచుకోండి. ఆబ్జెక్ట్ ACL డైలాగ్u200cలు ఇంకా అందుబాటులో లేవు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>选择社区以查看和编辑角色成员资格。对象 ACL 对话框尚不可用。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ভূমিকা সদস্যতা দেখতে এবং সম্পাদনা করতে একটি সম্প্রদায় নির্বাচন করুন৷ অবজেক্ট ACL ডায়ালগ এখনও উপলব্ধ নয়।</seg>
       </tuv>
     </tu>
@@ -1731,8 +2703,11 @@
       <tuv xml:lang="en-us">
         <seg>Label</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>লেবেল</seg>
+      <tuv xml:lang="te">
+        <seg>లేబుల్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>标签</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Name">
@@ -1741,8 +2716,11 @@
       <tuv xml:lang="en-us">
         <seg>Name</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>নাম</seg>
+      <tuv xml:lang="te">
+        <seg>పేరు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>姓名</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Id">
@@ -1751,8 +2729,11 @@
       <tuv xml:lang="en-us">
         <seg>Id</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>আইডি</seg>
+      <tuv xml:lang="te">
+        <seg>Id</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>ID</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Description">
@@ -1761,8 +2742,11 @@
       <tuv xml:lang="en-us">
         <seg>Description</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>বর্ণনা</seg>
+      <tuv xml:lang="te">
+        <seg>వివరణ</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>描述</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Back to list">
@@ -1771,8 +2755,11 @@
       <tuv xml:lang="en-us">
         <seg>Back to list</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>তালিকায় ফিরে যান</seg>
+      <tuv xml:lang="te">
+        <seg>జాబితాకు తిరిగి వెళ్ళు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>返回列表</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Loading community…">
@@ -1781,7 +2768,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading community…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సంఘం లోడ్ అవుతోంది…</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载社区...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সম্প্রদায় লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -1791,7 +2784,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load community detail.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సంఘం వివరాలను లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载社区详细信息。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সম্প্রদায়ের বিবরণ লোড করা যায়নি৷</seg>
       </tuv>
     </tu>
@@ -1801,8 +2800,11 @@
       <tuv xml:lang="en-us">
         <seg>Id</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>আইডি</seg>
+      <tuv xml:lang="te">
+        <seg>Id</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>ID</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@GUID">
@@ -1811,7 +2813,13 @@
       <tuv xml:lang="en-us">
         <seg>GUID</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>గైడ్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>GUID</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>GUID</seg>
       </tuv>
     </tu>
@@ -1821,7 +2829,13 @@
       <tuv xml:lang="en-us">
         <seg>Role membership</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పాత్ర సభ్యత్వం</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>角色成员资格</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ভূমিকা সদস্যপদ</seg>
       </tuv>
     </tu>
@@ -1831,7 +2845,13 @@
       <tuv xml:lang="en-us">
         <seg>Check roles to associate with this community, then save.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ సంఘంతో అనుబంధించడానికి పాత్రలను తనిఖీ చేయండి, ఆపై సేవ్ చేయండి.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>检查与该社区关联的角色，然后保存。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এই সম্প্রদায়ের সাথে যুক্ত হতে ভূমিকা পরীক্ষা করুন, তারপর সংরক্ষণ করুন৷</seg>
       </tuv>
     </tu>
@@ -1841,7 +2861,13 @@
       <tuv xml:lang="en-us">
         <seg>This community has no role memberships.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ సంఘానికి పాత్ర సభ్యత్వాలు లేవు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>该社区没有角色成员资格。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এই সম্প্রদায়ের কোন ভূমিকা সদস্যতা নেই.</seg>
       </tuv>
     </tu>
@@ -1851,7 +2877,13 @@
       <tuv xml:lang="en-us">
         <seg>No security roles are defined in the system.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సిస్టమ్u200cలో భద్రతా పాత్రలు ఏవీ నిర్వచించబడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>系统中未定义安全角色。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সিস্টেমে কোন নিরাপত্তা ভূমিকা সংজ্ঞায়িত করা হয় না।</seg>
       </tuv>
     </tu>
@@ -1861,8 +2893,11 @@
       <tuv xml:lang="en-us">
         <seg>Member</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>সদস্য</seg>
+      <tuv xml:lang="te">
+        <seg>సభ్యుడు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>成员</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Role name">
@@ -1871,7 +2906,13 @@
       <tuv xml:lang="en-us">
         <seg>Role name</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పాత్ర పేరు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>角色名称</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ভূমিকার নাম</seg>
       </tuv>
     </tu>
@@ -1881,7 +2922,13 @@
       <tuv xml:lang="en-us">
         <seg>Role id</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పాత్ర ID</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>角色编号</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ভূমিকা আইডি</seg>
       </tuv>
     </tu>
@@ -1891,7 +2938,13 @@
       <tuv xml:lang="en-us">
         <seg>Role GUID</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పాత్ర GUID</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>角色GUID</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ভূমিকা GUID</seg>
       </tuv>
     </tu>
@@ -1901,7 +2954,13 @@
       <tuv xml:lang="en-us">
         <seg>Save roles</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పాత్రలను సేవ్ చేయండి</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>保存角色</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ভূমিকা সংরক্ষণ করুন</seg>
       </tuv>
     </tu>
@@ -1911,7 +2970,13 @@
       <tuv xml:lang="en-us">
         <seg>Role membership saved.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పాత్ర సభ్యత్వం సేవ్ చేయబడింది.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>角色成员资格已保存。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ভূমিকা সদস্যপদ সংরক্ষিত.</seg>
       </tuv>
     </tu>
@@ -1921,7 +2986,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not save role membership.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పాత్ర సభ్యత్వాన్ని సేవ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法保存角色成员身份。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ভূমিকা সদস্যপদ সংরক্ষণ করা যায়নি.</seg>
       </tuv>
     </tu>
@@ -1931,7 +3002,13 @@
       <tuv xml:lang="en-us">
         <seg>Object visibility</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>వస్తువు దృశ్యమానత</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>对象可见性</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বস্তুর দৃশ্যমানতা</seg>
       </tuv>
     </tu>
@@ -1941,7 +3018,13 @@
       <tuv xml:lang="en-us">
         <seg>Design objects visible to this community (read-only lens). Complements per-object ACL edit.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ కమ్యూనిటీకి కనిపించే వస్తువులను డిజైన్ చేయండి (చదవడానికి మాత్రమే లెన్స్). ప్రతి వస్తువు ACL సవరణను పూరిస్తుంది.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>设计该社区可见的对象（只读镜头）。补充每个对象的 ACL 编辑。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এই সম্প্রদায়ের কাছে দৃশ্যমান বস্তুর ডিজাইন করুন (শুধুমাত্র পড়ার লেন্স)। প্রতি-বস্তু ACL সম্পাদনা পরিপূরক।</seg>
       </tuv>
     </tu>
@@ -1951,7 +3034,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading visibility…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>దృశ్యమానతను లోడ్ చేస్తోంది…</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载可见性...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>দৃশ্যমানতা লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -1961,7 +3050,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load community visibility.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సంఘం దృశ్యమానతను లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载社区可见性。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সম্প্রদায়ের দৃশ্যমানতা লোড করা যায়নি৷</seg>
       </tuv>
     </tu>
@@ -1971,7 +3066,13 @@
       <tuv xml:lang="en-us">
         <seg>No visible objects returned for this community.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ సంఘం కోసం కనిపించే వస్తువులు ఏవీ తిరిగి ఇవ్వబడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>没有为该社区返回任何可见对象。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এই সম্প্রদায়ের জন্য কোন দৃশ্যমান বস্তু ফিরে আসেনি৷</seg>
       </tuv>
     </tu>
@@ -1981,7 +3082,13 @@
       <tuv xml:lang="en-us">
         <seg>Community GUID not available — cannot load visibility.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కమ్యూనిటీ GUID అందుబాటులో లేదు - దృశ్యమానతను లోడ్ చేయడం సాధ్యపడదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>社区 GUID 不可用 — 无法加载可见性。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কমিউনিটি GUID উপলব্ধ নেই — দৃশ্যমানতা লোড করা যাবে না।</seg>
       </tuv>
     </tu>
@@ -1991,8 +3098,11 @@
       <tuv xml:lang="en-us">
         <seg>Type</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>টাইপ</seg>
+      <tuv xml:lang="te">
+        <seg>టైప్ చేయండి</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>类型</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Name">
@@ -2001,8 +3111,11 @@
       <tuv xml:lang="en-us">
         <seg>Name</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>নাম</seg>
+      <tuv xml:lang="te">
+        <seg>పేరు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>姓名</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Label">
@@ -2011,8 +3124,11 @@
       <tuv xml:lang="en-us">
         <seg>Label</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>লেবেল</seg>
+      <tuv xml:lang="te">
+        <seg>లేబుల్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>标签</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@GUID">
@@ -2021,7 +3137,10 @@
       <tuv xml:lang="en-us">
         <seg>GUID</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>గైడ్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
         <seg>GUID</seg>
       </tuv>
     </tu>
@@ -2031,7 +3150,13 @@
       <tuv xml:lang="en-us">
         <seg>Known gaps</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>తెలిసిన ఖాళీలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>已知的差距</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>পরিচিত ফাঁক</seg>
       </tuv>
     </tu>
@@ -2041,7 +3166,13 @@
       <tuv xml:lang="en-us">
         <seg>Per-object ACL entry add/remove remains a separate object editor slice</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పర్-ఆబ్జెక్ట్ ACL ఎంట్రీ యాడ్/తొలగింపు అనేది ప్రత్యేక ఆబ్జెక్ట్ ఎడిటర్ స్లైస్u200cగా మిగిలిపోయింది</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>每个对象 ACL 条目添加/删除仍然是一个单独的对象编辑器片段</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>প্রতি-অবজেক্ট ACL এন্ট্রি অ্যাড/রিমুভ একটি আলাদা অবজেক্ট এডিটর স্লাইস থেকে যায়</seg>
       </tuv>
     </tu>
@@ -2051,7 +3182,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading pipelines…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పైప్u200cలైన్u200cలను లోడ్ చేస్తోంది…</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载管道...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>পাইপলাইন লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -2061,7 +3198,13 @@
       <tuv xml:lang="en-us">
         <seg>No pipeline applications returned.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పైప్u200cలైన్ దరఖాస్తులు ఏవీ తిరిగి రాలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>没有返回管道应用程序。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কোনো পাইপলাইন অ্যাপ্লিকেশন ফিরে আসেনি.</seg>
       </tuv>
     </tu>
@@ -2071,7 +3214,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load pipelines.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పైప్u200cలైన్u200cలను లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载管道。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>পাইপলাইন লোড করা যায়নি।</seg>
       </tuv>
     </tu>
@@ -2081,7 +3230,13 @@
       <tuv xml:lang="en-us">
         <seg>Server applications (classic XML Applications). Read-only catalog — editor, start/stop, and IR import are later slices.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సర్వర్ అప్లికేషన్లు (క్లాసిక్ XML అప్లికేషన్లు). చదవడానికి-మాత్రమే కేటలాగ్ — ఎడిటర్, స్టార్ట్/స్టాప్ మరియు IR దిగుమతి తర్వాత స్లైస్u200cలు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>服务器应用程序（经典 XML 应用程序）。只读目录 - 编辑器、启动/停止和 IR 导入是后面的切片。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সার্ভার অ্যাপ্লিকেশন (ক্লাসিক XML অ্যাপ্লিকেশন)। শুধুমাত্র পঠনযোগ্য ক্যাটালগ — এডিটর, স্টার্ট/স্টপ, এবং IR ইম্পোর্ট হল পরবর্তী স্লাইস।</seg>
       </tuv>
     </tu>
@@ -2091,8 +3246,11 @@
       <tuv xml:lang="en-us">
         <seg>Name</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>নাম</seg>
+      <tuv xml:lang="te">
+        <seg>పేరు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>姓名</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Id">
@@ -2101,8 +3259,11 @@
       <tuv xml:lang="en-us">
         <seg>Id</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>আইডি</seg>
+      <tuv xml:lang="te">
+        <seg>Id</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>ID</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Type">
@@ -2111,8 +3272,11 @@
       <tuv xml:lang="en-us">
         <seg>Type</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>টাইপ</seg>
+      <tuv xml:lang="te">
+        <seg>టైప్ చేయండి</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>类型</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Enabled">
@@ -2121,8 +3285,11 @@
       <tuv xml:lang="en-us">
         <seg>Enabled</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>সক্রিয়</seg>
+      <tuv xml:lang="te">
+        <seg>ప్రారంభించబడింది</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>启用</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@App root">
@@ -2131,7 +3298,13 @@
       <tuv xml:lang="en-us">
         <seg>App root</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>యాప్ రూట్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>应用程序根目录</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অ্যাপ রুট</seg>
       </tuv>
     </tu>
@@ -2141,8 +3314,11 @@
       <tuv xml:lang="en-us">
         <seg>Description</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>বর্ণনা</seg>
+      <tuv xml:lang="te">
+        <seg>వివరణ</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>描述</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Design-time access control for this object. Toggle permissions, add or remove entries, then save (full entry list replace via bulk ACL API).">
@@ -2151,7 +3327,13 @@
       <tuv xml:lang="en-us">
         <seg>Design-time access control for this object. Toggle permissions, add or remove entries, then save (full entry list replace via bulk ACL API).</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ వస్తువు కోసం డిజైన్-సమయ యాక్సెస్ నియంత్రణ. అనుమతులను టోగుల్ చేయండి, ఎంట్రీలను జోడించండి లేదా తీసివేయండి, ఆపై సేవ్ చేయండి (పూర్తి ఎంట్రీ జాబితాను బల్క్ ACL API ద్వారా భర్తీ చేయండి).</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>该对象的设计时访问控制。切换权限、添加或删除条目，然后保存（通过批量 ACL API 替换完整条目列表）。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এই বস্তুর জন্য ডিজাইন-টাইম অ্যাক্সেস নিয়ন্ত্রণ। অনুমতি টগল করুন, এন্ট্রি যোগ করুন বা সরান, তারপর সংরক্ষণ করুন (পূর্ণ এন্ট্রি তালিকা বাল্ক ACL API এর মাধ্যমে প্রতিস্থাপন করুন)।</seg>
       </tuv>
     </tu>
@@ -2161,7 +3343,13 @@
       <tuv xml:lang="en-us">
         <seg>An entry with that name and type already exists.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఆ పేరు మరియు రకంతో ఇప్పటికే ఒక ఎంట్రీ ఉంది.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>具有该名称和类型的条目已存在。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সেই নাম এবং প্রকারের একটি এন্ট্রি ইতিমধ্যেই বিদ্যমান।</seg>
       </tuv>
     </tu>
@@ -2171,7 +3359,13 @@
       <tuv xml:lang="en-us">
         <seg>Role, user, or community name</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పాత్ర, వినియోగదారు లేదా సంఘం పేరు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>角色、用户或社区名称</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ভূমিকা, ব্যবহারকারী, বা সম্প্রদায়ের নাম</seg>
       </tuv>
     </tu>
@@ -2181,7 +3375,13 @@
       <tuv xml:lang="en-us">
         <seg>Principal name</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ప్రధాన పేరు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>校长姓名</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>প্রধান নাম</seg>
       </tuv>
     </tu>
@@ -2191,7 +3391,13 @@
       <tuv xml:lang="en-us">
         <seg>Add entry</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఎంట్రీని జోడించండి</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>添加条目</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এন্ট্রি যোগ করুন</seg>
       </tuv>
     </tu>
@@ -2201,7 +3407,13 @@
       <tuv xml:lang="en-us">
         <seg>User or role that owns the ACL</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ACLని కలిగి ఉన్న వినియోగదారు లేదా పాత్ర</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>拥有 ACL 的用户或角色</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ACL এর মালিক ব্যবহারকারী বা ভূমিকা</seg>
       </tuv>
     </tu>
@@ -2211,7 +3423,13 @@
       <tuv xml:lang="en-us">
         <seg>Owner principal</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>యజమాని ప్రిన్సిపాల్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>业主本金</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>মালিক প্রধান</seg>
       </tuv>
     </tu>
@@ -2221,7 +3439,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not create object ACL.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>వస్తువు ACLని సృష్టించడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法创建对象 ACL。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ACL অবজেক্ট তৈরি করা যায়নি।</seg>
       </tuv>
     </tu>
@@ -2231,7 +3455,13 @@
       <tuv xml:lang="en-us">
         <seg>Creating…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సృష్టిస్తోంది...</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>创造……</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>তৈরি করা হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -2241,7 +3471,13 @@
       <tuv xml:lang="en-us">
         <seg>Create ACL</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ACLని సృష్టించండి</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>创建访问控制列表</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ACL তৈরি করুন</seg>
       </tuv>
     </tu>
@@ -2251,7 +3487,13 @@
       <tuv xml:lang="en-us">
         <seg>Create a design-time ACL with an owner principal. You can add more entries after it is created.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>యజమాని ప్రిన్సిపాల్u200cతో డిజైన్-టైమ్ ACLని సృష్టించండి. ఇది సృష్టించబడిన తర్వాత మీరు మరిన్ని ఎంట్రీలను జోడించవచ్చు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>创建具有所有者主体的设计时 ACL。创建后您可以添加更多条目。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>মালিক প্রধানের সাথে একটি ডিজাইন-টাইম ACL তৈরি করুন। এটি তৈরি হওয়ার পরে আপনি আরও এন্ট্রি যোগ করতে পারেন।</seg>
       </tuv>
     </tu>
@@ -2261,7 +3503,13 @@
       <tuv xml:lang="en-us">
         <seg>No ACL entries yet — add a principal below.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఇంకా ACL ఎంట్రీలు ఏవీ లేవు — దిగువన ఒక ప్రిన్సిపాల్u200cని జోడించండి.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>尚无 ACL 条目 - 在下面添加主体。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এখনও কোন ACL এন্ট্রি নেই — নীচে একটি প্রধান যোগ করুন।</seg>
       </tuv>
     </tu>
@@ -2271,7 +3519,13 @@
       <tuv xml:lang="en-us">
         <seg>Server applications (classic XML Applications). Open a row for read-only detail and data sets. Editor, start/stop, and IR import are later slices.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సర్వర్ అప్లికేషన్లు (క్లాసిక్ XML అప్లికేషన్లు). చదవడానికి-మాత్రమే వివరాలు మరియు డేటా సెట్u200cల కోసం అడ్డు వరుసను తెరవండి. ఎడిటర్, స్టార్ట్/స్టాప్ మరియు IR దిగుమతి తర్వాత స్లైస్u200cలు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>服务器应用程序（经典 XML 应用程序）。打开一行用于只读详细信息和数据集。编辑器、开始/停止和 IR 导入是后面的切片。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সার্ভার অ্যাপ্লিকেশন (ক্লাসিক XML অ্যাপ্লিকেশন)। শুধুমাত্র পঠনযোগ্য বিশদ এবং ডেটা সেটের জন্য একটি সারি খুলুন। এডিটর, স্টার্ট/স্টপ, এবং IR ইম্পোর্ট পরবর্তী স্লাইস।</seg>
       </tuv>
     </tu>
@@ -2281,7 +3535,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading pipeline application…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పైప్u200cలైన్ అప్లికేషన్ లోడ్ అవుతోంది…</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载管道应用程序...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>পাইপলাইন অ্যাপ্লিকেশন লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -2291,7 +3551,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load pipeline application.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పైప్u200cలైన్ అప్లికేషన్u200cను లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载管道应用程序。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>পাইপলাইন অ্যাপ্লিকেশন লোড করা যায়নি.</seg>
       </tuv>
     </tu>
@@ -2301,7 +3567,13 @@
       <tuv xml:lang="en-us">
         <seg>Hidden</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>దాచబడింది</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>隐</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>লুকানো</seg>
       </tuv>
     </tu>
@@ -2311,7 +3583,13 @@
       <tuv xml:lang="en-us">
         <seg>Version</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>వెర్షన్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>版本</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সংস্করণ</seg>
       </tuv>
     </tu>
@@ -2321,7 +3599,13 @@
       <tuv xml:lang="en-us">
         <seg>Data sets</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>డేటా సెట్లు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>数据集</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ডেটা সেট</seg>
       </tuv>
     </tu>
@@ -2331,7 +3615,13 @@
       <tuv xml:lang="en-us">
         <seg>Request pages and content editors defined in this application. Pipe IR and mappers are not exposed yet.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ అప్లికేషన్u200cలో నిర్వచించబడిన పేజీలు మరియు కంటెంట్ ఎడిటర్u200cలను అభ్యర్థించండి. పైప్ IR మరియు మ్యాపర్u200cలు ఇంకా బహిర్గతం కాలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>请求此应用程序中定义的页面和内容编辑器。管道 IR 和映射器尚未公开。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এই অ্যাপ্লিকেশনে সংজ্ঞায়িত পৃষ্ঠা এবং বিষয়বস্তু সম্পাদকদের অনুরোধ করুন। পাইপ আইআর এবং ম্যাপার এখনও উন্মুক্ত করা হয়নি।</seg>
       </tuv>
     </tu>
@@ -2341,7 +3631,13 @@
       <tuv xml:lang="en-us">
         <seg>Kind</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>దయ</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>种类</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সদয়</seg>
       </tuv>
     </tu>
@@ -2351,7 +3647,13 @@
       <tuv xml:lang="en-us">
         <seg>Request page</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>అభ్యర్థన పేజీ</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>请求页面</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অনুরোধ পাতা</seg>
       </tuv>
     </tu>
@@ -2361,7 +3663,13 @@
       <tuv xml:lang="en-us">
         <seg>Locales</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>స్థానికులు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>区域设置</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>লোকেল</seg>
       </tuv>
     </tu>
@@ -2371,7 +3679,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading locales…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>లొకేల్u200cలను లోడ్ చేస్తోంది…</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载语言环境...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>লোকেল লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -2381,7 +3695,13 @@
       <tuv xml:lang="en-us">
         <seg>No locales returned.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>లొకేల్u200cలు ఏవీ తిరిగి ఇవ్వబడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>没有返回语言环境。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কোনো লোকেল ফিরে আসেনি।</seg>
       </tuv>
     </tu>
@@ -2391,7 +3711,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load locales.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>లొకేల్u200cలను లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载语言环境。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>লোকেল লোড করা যায়নি।</seg>
       </tuv>
     </tu>
@@ -2401,7 +3727,13 @@
       <tuv xml:lang="en-us">
         <seg>CMS locales (RXLOCALE) including base-locale flag and whether an exact RXLOCALEFORMAT profile exists. Open a row for format fields. Create/edit is a later slice.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>CMS లొకేల్u200cలు (RXLOCALE) బేస్-లోకేల్ ఫ్లాగ్u200cతో సహా మరియు ఖచ్చితమైన RXLOCALEFORMAT ప్రొఫైల్ ఉందా. ఫార్మాట్ ఫీల్డ్u200cల కోసం అడ్డు వరుసను తెరవండి. సృష్టించు/సవరించు అనేది తర్వాత స్లైస్.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>CMS 区域设置 (RXLOCALE) 包括基本区域设置标志以及是否存在确切的 RXLOCALEFORMAT 配置文件。为格式字段打开一行。创建/编辑是稍后的切片。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বেস-লোকেল পতাকা সহ CMS লোকেল (RXLOCALE) এবং একটি সঠিক RXLOCALEFORMAT প্রোফাইল বিদ্যমান কিনা। বিন্যাস ক্ষেত্রগুলির জন্য একটি সারি খুলুন। তৈরি/সম্পাদনা একটি পরবর্তী স্লাইস.</seg>
       </tuv>
     </tu>
@@ -2411,7 +3743,13 @@
       <tuv xml:lang="en-us">
         <seg>Language</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>భాష</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>语言</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ভাষা</seg>
       </tuv>
     </tu>
@@ -2421,7 +3759,13 @@
       <tuv xml:lang="en-us">
         <seg>Status</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>స్థితి</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>地位</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>স্ট্যাটাস</seg>
       </tuv>
     </tu>
@@ -2431,7 +3775,13 @@
       <tuv xml:lang="en-us">
         <seg>Base locale</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>స్థానిక స్థావరం</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>当地基地</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>স্থানীয় ঘাঁটি</seg>
       </tuv>
     </tu>
@@ -2441,7 +3791,13 @@
       <tuv xml:lang="en-us">
         <seg>Format profile</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ప్రొఫైల్u200cను ఫార్మాట్ చేయండి</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>格式配置文件</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ফর্ম্যাট প্রোফাইল</seg>
       </tuv>
     </tu>
@@ -2451,7 +3807,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading locale…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>లొకేల్ లోడ్ అవుతోంది…</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载语言环境...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>লোকেল লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -2461,7 +3823,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load locale.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>లొకేల్u200cని లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载区域设置。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>লোকেল লোড করা যায়নি।</seg>
       </tuv>
     </tu>
@@ -2471,7 +3839,13 @@
       <tuv xml:lang="en-us">
         <seg>Format profile (RXLOCALEFORMAT)</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఫార్మాట్ ప్రొఫైల్ (RXLOCALEFORMAT)</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>格式配置文件 (RXLOCALEFORMAT)</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ফর্ম্যাট প্রোফাইল (RXLOCALEFORMAT)</seg>
       </tuv>
     </tu>
@@ -2481,7 +3855,13 @@
       <tuv xml:lang="en-us">
         <seg>Exact format row for this language string. Runtime may still resolve via regional → base → en-us defaults when empty.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ భాషా స్ట్రింగ్ కోసం ఖచ్చితమైన ఫార్మాట్ అడ్డు వరుస. రన్u200cటైమ్ ఇప్పటికీ ఖాళీగా ఉన్నప్పుడు ప్రాంతీయ → బేస్ → en-us డిఫాల్ట్u200cల ద్వారా పరిష్కరించవచ్చు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>该语言字符串的精确格式行。当空时，运行时仍然可以通过区域 → 基础 → en-us 默认值进行解析。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এই ভাষা স্ট্রিং জন্য সঠিক বিন্যাস সারি. রানটাইম খালি থাকলে আঞ্চলিক → বেস → en-us ডিফল্টের মাধ্যমে সমাধান হতে পারে।</seg>
       </tuv>
     </tu>
@@ -2491,7 +3871,13 @@
       <tuv xml:lang="en-us">
         <seg>No exact format row stored for this language string.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ భాషా స్ట్రింగ్ కోసం ఖచ్చితమైన ఫార్మాట్ అడ్డు వరుస ఏదీ నిల్వ చేయబడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>没有为此语言字符串存储确切的格式行。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এই ভাষা স্ট্রিং জন্য কোন সঠিক বিন্যাস সারি সংরক্ষিত.</seg>
       </tuv>
     </tu>
@@ -2501,7 +3887,13 @@
       <tuv xml:lang="en-us">
         <seg>Text direction</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>వచన దిశ</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>文字方向</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>পাঠ্যের দিকনির্দেশ</seg>
       </tuv>
     </tu>
@@ -2511,7 +3903,13 @@
       <tuv xml:lang="en-us">
         <seg>Date pattern</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>తేదీ నమూనా</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>日期图案</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>তারিখ প্যাটার্ন</seg>
       </tuv>
     </tu>
@@ -2521,7 +3919,13 @@
       <tuv xml:lang="en-us">
         <seg>Time pattern</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సమయ నమూనా</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>时间模式</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সময়ের প্যাটার্ন</seg>
       </tuv>
     </tu>
@@ -2531,7 +3935,13 @@
       <tuv xml:lang="en-us">
         <seg>Date-time pattern</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>తేదీ-సమయ నమూనా</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>日期时间模式</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>তারিখ-সময় প্যাটার্ন</seg>
       </tuv>
     </tu>
@@ -2541,7 +3951,13 @@
       <tuv xml:lang="en-us">
         <seg>Decimal separator</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>దశాంశ విభజన</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>小数点分隔符</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>দশমিক বিভাজক</seg>
       </tuv>
     </tu>
@@ -2551,7 +3967,13 @@
       <tuv xml:lang="en-us">
         <seg>Grouping separator</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>గ్రూపింగ్ సెపరేటర్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>分组分隔符</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>গ্রুপিং বিভাজক</seg>
       </tuv>
     </tu>
@@ -2561,7 +3983,13 @@
       <tuv xml:lang="en-us">
         <seg>Currency</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కరెన్సీ</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>货币</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>মুদ্রা</seg>
       </tuv>
     </tu>
@@ -2571,7 +3999,13 @@
       <tuv xml:lang="en-us">
         <seg>First day of week</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>వారంలో మొదటి రోజు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>一周的第一天</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সপ্তাহের প্রথম দিন</seg>
       </tuv>
     </tu>
@@ -2581,7 +4015,13 @@
       <tuv xml:lang="en-us">
         <seg>Measurement</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కొలత</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>测量</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>পরিমাপ</seg>
       </tuv>
     </tu>
@@ -2591,7 +4031,13 @@
       <tuv xml:lang="en-us">
         <seg>Default timezone</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>డిఫాల్ట్ టైమ్u200cజోన్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>默认时区</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ডিফল্ট টাইমজোন</seg>
       </tuv>
     </tu>
@@ -2601,7 +4047,13 @@
       <tuv xml:lang="en-us">
         <seg>Numbering system</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>నంబరింగ్ సిస్టమ్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>编号系统</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সংখ্যা পদ্ধতি</seg>
       </tuv>
     </tu>
@@ -2611,7 +4063,13 @@
       <tuv xml:lang="en-us">
         <seg>Calendar</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>క్యాలెండర్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>日历</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ক্যালেন্ডার</seg>
       </tuv>
     </tu>
@@ -2621,7 +4079,13 @@
       <tuv xml:lang="en-us">
         <seg>Shared Fields</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>షేర్డ్ ఫీల్డ్స్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>共享字段</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ভাগ করা ক্ষেত্র</seg>
       </tuv>
     </tu>
@@ -2631,7 +4095,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading shared field groups…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>భాగస్వామ్య ఫీల్డ్ సమూహాలను లోడ్ చేస్తోంది...</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载共享字段组...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>শেয়ার করা ফিল্ড গ্রুপ লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -2641,7 +4111,13 @@
       <tuv xml:lang="en-us">
         <seg>No shared field groups returned.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>షేర్ చేసిన ఫీల్డ్ గ్రూపులు ఏవీ తిరిగి ఇవ్వబడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>没有返回共享字段组。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কোনো ভাগ করা ক্ষেত্র গ্রুপ ফিরে আসেনি.</seg>
       </tuv>
     </tu>
@@ -2651,7 +4127,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load shared field groups.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>భాగస్వామ్య ఫీల్డ్ సమూహాలను లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载共享字段组。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ভাগ করা ক্ষেত্র গোষ্ঠীগুলি লোড করা যায়নি৷</seg>
       </tuv>
     </tu>
@@ -2661,7 +4143,13 @@
       <tuv xml:lang="en-us">
         <seg>Shared field groups from the content-editor shared definition. Open a row for the field catalog. Create/edit and system def are later slices.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కంటెంట్-ఎడిటర్ షేర్డ్ డెఫినిషన్ నుండి షేర్డ్ ఫీల్డ్ గ్రూపులు. ఫీల్డ్ కేటలాగ్ కోసం అడ్డు వరుసను తెరవండి. క్రియేట్/ఎడిట్ మరియు సిస్టమ్ డెఫ్ తర్వాత స్లైస్u200cలు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>来自内容编辑器共享定义的共享字段组。为字段目录打开一行。创建/编辑和系统定义是后面的部分。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বিষয়বস্তু-সম্পাদক ভাগ করা সংজ্ঞা থেকে ভাগ করা ক্ষেত্র গোষ্ঠী। ক্ষেত্রের ক্যাটালগের জন্য একটি সারি খুলুন। ক্রিয়েট/এডিট এবং সিস্টেম ডিফ পরবর্তী স্লাইস।</seg>
       </tuv>
     </tu>
@@ -2671,7 +4159,13 @@
       <tuv xml:lang="en-us">
         <seg>Filename</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఫైల్ పేరు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>文件名</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ফাইলের নাম</seg>
       </tuv>
     </tu>
@@ -2681,7 +4175,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading shared field group…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>షేర్ చేసిన ఫీల్డ్ గ్రూప్ లోడ్ అవుతోంది...</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载共享字段组...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>শেয়ার করা ফিল্ড গ্রুপ লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -2691,7 +4191,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load shared field group.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>భాగస్వామ్య ఫీల్డ్ సమూహాన్ని లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载共享字段组。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ভাগ করা ফিল্ড গ্রুপ লোড করা যায়নি.</seg>
       </tuv>
     </tu>
@@ -2701,7 +4207,13 @@
       <tuv xml:lang="en-us">
         <seg>Read-only field catalog for this shared group. Control properties and write are not exposed yet.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ భాగస్వామ్య సమూహం కోసం చదవడానికి మాత్రమే ఫీల్డ్ కేటలాగ్. నియంత్రణ లక్షణాలు మరియు వ్రాయడం ఇంకా బహిర్గతం కాలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>此共享组的只读字段目录。控件属性和写入尚未公开。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এই ভাগ করা গোষ্ঠীর জন্য শুধুমাত্র-পঠন ক্ষেত্র ক্যাটালগ৷ নিয়ন্ত্রণ বৈশিষ্ট্য এবং লিখন এখনও উন্মুক্ত করা হয় না.</seg>
       </tuv>
     </tu>
@@ -2711,7 +4223,13 @@
       <tuv xml:lang="en-us">
         <seg>System Def</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సిస్టమ్ డెఫ్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>系统定义</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সিস্টেম ডিফ</seg>
       </tuv>
     </tu>
@@ -2721,7 +4239,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading system definition…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సిస్టమ్ నిర్వచనం లోడ్ అవుతోంది…</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载系统定义...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সিস্টেমের সংজ্ঞা লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -2731,7 +4255,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load system definition.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సిస్టమ్ నిర్వచనాన్ని లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载系统定义。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সিস্টেম সংজ্ঞা লোড করা যায়নি.</seg>
       </tuv>
     </tu>
@@ -2741,7 +4271,13 @@
       <tuv xml:lang="en-us">
         <seg>No system fields returned.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సిస్టమ్ ఫీల్డ్u200cలు ఏవీ తిరిగి ఇవ్వబడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>没有返回系统字段。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কোনো সিস্টেম ক্ষেত্র ফেরত আসেনি।</seg>
       </tuv>
     </tu>
@@ -2751,7 +4287,13 @@
       <tuv xml:lang="en-us">
         <seg>Global system fields from the content-editor system definition. Read-only catalog — write and control configuration are later slices.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కంటెంట్-ఎడిటర్ సిస్టమ్ నిర్వచనం నుండి గ్లోబల్ సిస్టమ్ ఫీల్డ్u200cలు. చదవడానికి మాత్రమే కేటలాగ్ — వ్రాయడం మరియు నియంత్రణ కాన్ఫిగరేషన్ తరువాత స్లైసులు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>内容编辑器系统定义中的全局系统字段。只读目录——写入和控制配置是后面的切片。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বিষয়বস্তু-সম্পাদক সিস্টেম সংজ্ঞা থেকে বিশ্বব্যাপী সিস্টেম ক্ষেত্র। শুধুমাত্র-পঠন ক্যাটালগ — লিখুন এবং নিয়ন্ত্রণ কনফিগারেশন পরে স্লাইস হয়.</seg>
       </tuv>
     </tu>
@@ -2761,7 +4303,13 @@
       <tuv xml:lang="en-us">
         <seg>Content editor system definition</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కంటెంట్ ఎడిటర్ సిస్టమ్ నిర్వచనం</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>内容编辑器系统定义</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বিষয়বস্তু সম্পাদক সিস্টেম সংজ্ঞা</seg>
       </tuv>
     </tu>
@@ -2771,7 +4319,13 @@
       <tuv xml:lang="en-us">
         <seg>Field count</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఫీల్డ్ కౌంట్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>场数</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ক্ষেত্র গণনা</seg>
       </tuv>
     </tu>
@@ -2781,7 +4335,13 @@
       <tuv xml:lang="en-us">
         <seg>Error cache timeout</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>లోపం కాష్ గడువు ముగిసింది</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>错误缓存超时</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ত্রুটি ক্যাশে টাইমআউট</seg>
       </tuv>
     </tu>
@@ -2791,7 +4351,13 @@
       <tuv xml:lang="en-us">
         <seg>minutes</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>నిమిషాలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>分钟</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>মিনিট</seg>
       </tuv>
     </tu>
@@ -2801,7 +4367,13 @@
       <tuv xml:lang="en-us">
         <seg>System fields</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సిస్టమ్ ఫీల్డ్u200cలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>系统字段</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সিস্টেম ক্ষেত্র</seg>
       </tuv>
     </tu>
@@ -2811,6 +4383,12 @@
       <tuv xml:lang="en-us">
         <seg>Fields available to all content types as system fields. Property and control write are not exposed yet.</seg>
       </tuv>
+      <tuv xml:lang="te">
+        <seg>సిస్టమ్ ఫీల్డ్u200cల వలె అన్ని కంటెంట్ రకాలకు ఫీల్డ్u200cలు అందుబాటులో ఉంటాయి. ఆస్తి మరియు నియంత్రణ వ్రాత ఇంకా బహిర్గతం కాలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>可作为系统字段供所有内容类型使用的字段。属性和控件写入尚未公开。</seg>
+      </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Item Filters">
       <prop type="sectionname" xml:lang="en-us">Developer</prop>
@@ -2818,7 +4396,13 @@
       <tuv xml:lang="en-us">
         <seg>Item Filters</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>అంశం ఫిల్టర్లు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>项目过滤器</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>আইটেম ফিল্টার</seg>
       </tuv>
     </tu>
@@ -2828,7 +4412,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading item filters…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఐటెమ్ ఫిల్టర్u200cలను లోడ్ చేస్తోంది...</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载项目过滤器...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>আইটেম ফিল্টার লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -2838,7 +4428,13 @@
       <tuv xml:lang="en-us">
         <seg>No item filters returned.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఐటెమ్ ఫిల్టర్u200cలు ఏవీ తిరిగి ఇవ్వబడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>没有返回项目过滤器。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কোন আইটেম ফিল্টার ফিরে.</seg>
       </tuv>
     </tu>
@@ -2848,7 +4444,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load item filters.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>అంశం ఫిల్టర్u200cలను లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载项目过滤器。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>আইটেম ফিল্টার লোড করা যায়নি.</seg>
       </tuv>
     </tu>
@@ -2858,7 +4460,13 @@
       <tuv xml:lang="en-us">
         <seg>Assembly item filters (rules applied when resolving related content). Open a row for rules and parent linkage. Create/edit is a later slice.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>అసెంబ్లీ ఐటెమ్ ఫిల్టర్u200cలు (సంబంధిత కంటెంట్u200cని పరిష్కరించేటప్పుడు నియమాలు వర్తిస్తాయి). నియమాలు మరియు పేరెంట్ లింకేజీ కోసం అడ్డు వరుసను తెరవండి. సృష్టించు/సవరించు అనేది తర్వాత స్లైస్.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>程序集项目过滤器（解析相关内容时应用的规则）。打开一行用于规则和父级链接。创建/编辑是稍后的切片。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অ্যাসেম্বলি আইটেম ফিল্টার (সংশ্লিষ্ট বিষয়বস্তু সমাধান করার সময় প্রযোজ্য নিয়ম)। নিয়ম এবং পিতামাতার সংযোগের জন্য একটি সারি খুলুন। তৈরি/সম্পাদনা একটি পরবর্তী স্লাইস.</seg>
       </tuv>
     </tu>
@@ -2868,7 +4476,13 @@
       <tuv xml:lang="en-us">
         <seg>Parent filter</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పేరెంట్ ఫిల్టర్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>父过滤器</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অভিভাবক ফিল্টার</seg>
       </tuv>
     </tu>
@@ -2878,7 +4492,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading item filter…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఐటెమ్ ఫిల్టర్ లోడ్ అవుతోంది...</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载项目过滤器...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>আইটেম ফিল্টার লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -2888,7 +4508,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load item filter.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>అంశం ఫిల్టర్u200cను లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载项目过滤器。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>আইটেম ফিল্টার লোড করা যায়নি.</seg>
       </tuv>
     </tu>
@@ -2898,7 +4524,13 @@
       <tuv xml:lang="en-us">
         <seg>Legacy authtype</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>లెగసీ ఆథటైప్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>旧版验证类型</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>লিগ্যাসি অথটাইপ</seg>
       </tuv>
     </tu>
@@ -2908,7 +4540,13 @@
       <tuv xml:lang="en-us">
         <seg>Filter rule definitions and parameters. Rule editing is not exposed yet.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>నియమ నిర్వచనాలు మరియు పారామితులను ఫిల్టర్ చేయండి. రూల్ ఎడిటింగ్ ఇంకా బహిర్గతం కాలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>过滤规则定义和参数。规则编辑尚未公开。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ফিল্টার নিয়ম সংজ্ঞা এবং পরামিতি। নিয়ম সম্পাদনা এখনও উন্মোচিত হয় না.</seg>
       </tuv>
     </tu>
@@ -2918,7 +4556,13 @@
       <tuv xml:lang="en-us">
         <seg>Rule</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>నియమం</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>规则</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>নিয়ম</seg>
       </tuv>
     </tu>
@@ -2928,7 +4572,13 @@
       <tuv xml:lang="en-us">
         <seg>Parameters</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పారామితులు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>参数</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>পরামিতি</seg>
       </tuv>
     </tu>
@@ -2938,7 +4588,13 @@
       <tuv xml:lang="en-us">
         <seg>Item filter create / update / delete not supported via this API</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఐటెమ్ ఫిల్టర్ ఈ API ద్వారా సృష్టించడానికి / నవీకరించడానికి / తొలగించడానికి మద్దతు ఇవ్వదు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>不支持通过此 API 创建/更新/删除项目过滤器</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>আইটেম ফিল্টার তৈরি / আপডেট / মুছে ফেলা এই API এর মাধ্যমে সমর্থিত নয়</seg>
       </tuv>
     </tu>
@@ -2948,7 +4604,13 @@
       <tuv xml:lang="en-us">
         <seg>Rule and parameter editing not supported via this API</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ API ద్వారా నియమం మరియు పారామీటర్ సవరణకు మద్దతు లేదు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>不支持通过此 API 编辑规则和参数</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এই API এর মাধ্যমে নিয়ম এবং পরামিতি সম্পাদনা সমর্থিত নয়</seg>
       </tuv>
     </tu>
@@ -2958,7 +4620,13 @@
       <tuv xml:lang="en-us">
         <seg>Display Formats</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ప్రదర్శన ఆకృతులు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>显示格式</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>প্রদর্শন বিন্যাস</seg>
       </tuv>
     </tu>
@@ -2968,7 +4636,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading display formats…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ప్రదర్శన ఫార్మాట్u200cలను లోడ్ చేస్తోంది...</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载显示格式...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>প্রদর্শন বিন্যাস লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -2978,7 +4652,13 @@
       <tuv xml:lang="en-us">
         <seg>No display formats returned.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ప్రదర్శన ఫార్మాట్u200cలు ఏవీ తిరిగి ఇవ్వబడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>没有返回显示格式。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কোন প্রদর্শন বিন্যাস ফেরত.</seg>
       </tuv>
     </tu>
@@ -2988,7 +4668,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load display formats.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ప్రదర్శన ఫార్మాట్u200cలను లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载显示格式。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>প্রদর্শন বিন্যাস লোড করা যায়নি.</seg>
       </tuv>
     </tu>
@@ -2998,7 +4684,13 @@
       <tuv xml:lang="en-us">
         <seg>Content Explorer display formats (columns, folder/view/search usage). Open a row for the column catalog. Create/edit is a later slice.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కంటెంట్ ఎక్స్u200cప్లోరర్ ప్రదర్శన ఫార్మాట్u200cలు (నిలువు వరుసలు, ఫోల్డర్/వీక్షణ/శోధన వినియోగం). కాలమ్ కేటలాగ్ కోసం అడ్డు వరుసను తెరవండి. సృష్టించు/సవరించు అనేది తర్వాత స్లైస్.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>内容资源管理器显示格式（列、文件夹/视图/搜索使用）。为列目录打开一行。创建/编辑是稍后的切片。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কন্টেন্ট এক্সপ্লোরার ডিসপ্লে ফরম্যাট (কলাম, ফোল্ডার/ভিউ/সার্চ ব্যবহার)। কলাম ক্যাটালগের জন্য একটি সারি খুলুন। তৈরি/সম্পাদনা একটি পরবর্তী স্লাইস.</seg>
       </tuv>
     </tu>
@@ -3008,7 +4700,13 @@
       <tuv xml:lang="en-us">
         <seg>Columns</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>నిలువు వరుసలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>专栏</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কলাম</seg>
       </tuv>
     </tu>
@@ -3018,7 +4716,13 @@
       <tuv xml:lang="en-us">
         <seg>Usage</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>వాడుక</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>用法</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ব্যবহার</seg>
       </tuv>
     </tu>
@@ -3028,7 +4732,13 @@
       <tuv xml:lang="en-us">
         <seg>Folders</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఫోల్డర్లు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>文件夹</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ফোল্ডার</seg>
       </tuv>
     </tu>
@@ -3045,7 +4755,13 @@
       <tuv xml:lang="en-us">
         <seg>Related content</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సంబంధిత కంటెంట్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>相关内容</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সম্পর্কিত বিষয়বস্তু</seg>
       </tuv>
     </tu>
@@ -3055,7 +4771,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading display format…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ప్రదర్శన ఆకృతిని లోడ్ చేస్తోంది...</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载显示格式...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>প্রদর্শন বিন্যাস লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -3065,7 +4787,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load display format.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ప్రదర్శన ఆకృతిని లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载显示格式。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>প্রদর্শন বিন্যাস লোড করা যায়নি.</seg>
       </tuv>
     </tu>
@@ -3075,7 +4803,13 @@
       <tuv xml:lang="en-us">
         <seg>Column definitions for this display format. Column create/edit is not exposed yet.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ ప్రదర్శన ఆకృతికి నిలువు నిర్వచనాలు. నిలువు వరుస సృష్టించడం/సవరించడం ఇంకా బహిర్గతం కాలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>此显示格式的列定义。列创建/编辑尚未公开。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এই প্রদর্শন বিন্যাসের জন্য কলাম সংজ্ঞা। কলাম তৈরি/সম্পাদনা এখনও প্রকাশ করা হয়নি।</seg>
       </tuv>
     </tu>
@@ -3085,7 +4819,13 @@
       <tuv xml:lang="en-us">
         <seg>Pos</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పోస్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>位置</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>পদ</seg>
       </tuv>
     </tu>
@@ -3095,7 +4835,13 @@
       <tuv xml:lang="en-us">
         <seg>Source field</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>మూల క్షేత్రం</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>源字段</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>উৎস ক্ষেত্র</seg>
       </tuv>
     </tu>
@@ -3105,7 +4851,13 @@
       <tuv xml:lang="en-us">
         <seg>Column label</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కాలమ్ లేబుల్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>列标签</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কলাম লেবেল</seg>
       </tuv>
     </tu>
@@ -3115,7 +4867,13 @@
       <tuv xml:lang="en-us">
         <seg>Render type</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>రెండర్ రకం</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>渲染类型</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>রেন্ডার টাইপ</seg>
       </tuv>
     </tu>
@@ -3125,7 +4883,13 @@
       <tuv xml:lang="en-us">
         <seg>Width</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>వెడల్పు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>宽度</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>প্রস্থ</seg>
       </tuv>
     </tu>
@@ -3135,7 +4899,13 @@
       <tuv xml:lang="en-us">
         <seg>Display format create / update / delete not supported via this API</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ API ద్వారా ప్రదర్శన ఆకృతిని సృష్టించడం / నవీకరించడం / తొలగించడం మద్దతు లేదు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>通过此 API 不支持显示格式创建/更新/删除</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>প্রদর্শন বিন্যাস তৈরি / আপডেট / মুছে ফেলা এই API এর মাধ্যমে সমর্থিত নয়</seg>
       </tuv>
     </tu>
@@ -3145,7 +4915,13 @@
       <tuv xml:lang="en-us">
         <seg>Column and sort configuration write not supported via this API</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ API ద్వారా నిలువు వరుస మరియు క్రమబద్ధీకరణ వ్రాత మద్దతు లేదు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>不支持通过此 API 写入列和排序配置</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কলাম এবং সাজানোর কনফিগারেশন লেখা এই API এর মাধ্যমে সমর্থিত নয়</seg>
       </tuv>
     </tu>
@@ -3155,7 +4931,13 @@
       <tuv xml:lang="en-us">
         <seg>Allowed-community editing not supported via this API</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ API ద్వారా అనుమతించబడిన కమ్యూనిటీ సవరణకు మద్దతు లేదు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>此 API 不支持允许的社区编辑</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এই API-এর মাধ্যমে অনুমোদিত-সম্প্রদায় সম্পাদনা সমর্থিত নয়</seg>
       </tuv>
     </tu>
@@ -3165,7 +4947,13 @@
       <tuv xml:lang="en-us">
         <seg>Action Menus</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>యాక్షన్ మెనూలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>操作菜单</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অ্যাকশন মেনু</seg>
       </tuv>
     </tu>
@@ -3175,7 +4963,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading action menus…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>చర్య మెనులను లోడ్ చేస్తోంది...</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载操作菜单...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অ্যাকশন মেনু লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -3185,7 +4979,13 @@
       <tuv xml:lang="en-us">
         <seg>No action menus returned.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>చర్య మెనులు ఏవీ తిరిగి ఇవ్వబడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>没有返回操作菜单。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কোনো অ্যাকশন মেনু ফিরে আসেনি।</seg>
       </tuv>
     </tu>
@@ -3195,7 +4995,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load action menus.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>చర్య మెనులను లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载操作菜单。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অ্যাকশন মেনু লোড করা যায়নি।</seg>
       </tuv>
     </tu>
@@ -3205,7 +5011,13 @@
       <tuv xml:lang="en-us">
         <seg>Content Explorer action menus (types, handlers, URL parameters). Open a row for parameters and properties. Create/edit is a later slice.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కంటెంట్ ఎక్స్u200cప్లోరర్ చర్య మెనులు (రకాలు, హ్యాండ్లర్లు, URL పారామితులు). పారామితులు మరియు లక్షణాల కోసం వరుసను తెరవండి. సృష్టించు/సవరించు అనేది తర్వాత స్లైస్.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>Content Explorer 操作菜单（类型、处理程序、URL 参数）。打开一行参数和属性。创建/编辑是稍后的切片。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কন্টেন্ট এক্সপ্লোরার অ্যাকশন মেনু (টাইপ, হ্যান্ডলার, ইউআরএল প্যারামিটার)। পরামিতি এবং বৈশিষ্ট্যগুলির জন্য একটি সারি খুলুন। তৈরি/সম্পাদনা একটি পরবর্তী স্লাইস.</seg>
       </tuv>
     </tu>
@@ -3215,7 +5027,13 @@
       <tuv xml:lang="en-us">
         <seg>Menu type</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>మెను రకం</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>菜单类型</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>মেনু প্রকার</seg>
       </tuv>
     </tu>
@@ -3225,7 +5043,13 @@
       <tuv xml:lang="en-us">
         <seg>Handler</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>హ్యాండ్లర్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>处理程序</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>হ্যান্ডলার</seg>
       </tuv>
     </tu>
@@ -3235,7 +5059,13 @@
       <tuv xml:lang="en-us">
         <seg>URL</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>URL</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>网址</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>URL</seg>
       </tuv>
     </tu>
@@ -3245,7 +5075,13 @@
       <tuv xml:lang="en-us">
         <seg>Sort rank</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ర్యాంక్ క్రమబద్ధీకరించండి</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>排序排名</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বাছাই র্যাঙ্ক</seg>
       </tuv>
     </tu>
@@ -3255,7 +5091,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading action menu…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>చర్య మెనుని లోడ్ చేస్తోంది...</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载操作菜单...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অ্যাকশন মেনু লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -3265,7 +5107,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load action menu.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>చర్య మెనుని లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载操作菜单。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অ্যাকশন মেনু লোড করা যায়নি।</seg>
       </tuv>
     </tu>
@@ -3275,7 +5123,13 @@
       <tuv xml:lang="en-us">
         <seg>URL parameters for this menu action. Parameter editing is not exposed yet.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ మెను చర్య కోసం URL పారామితులు. పారామీటర్ సవరణ ఇంకా బహిర్గతం కాలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>此菜单操作的 URL 参数。参数编辑尚未公开。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এই মেনু কর্মের জন্য URL প্যারামিটার। পরামিতি সম্পাদনা এখনও উন্মুক্ত করা হয় না.</seg>
       </tuv>
     </tu>
@@ -3285,7 +5139,13 @@
       <tuv xml:lang="en-us">
         <seg>Properties</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>లక్షణాలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>特性</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বৈশিষ্ট্য</seg>
       </tuv>
     </tu>
@@ -3295,7 +5155,13 @@
       <tuv xml:lang="en-us">
         <seg>Parameter</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పరామితి</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>范围</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>প্যারামিটার</seg>
       </tuv>
     </tu>
@@ -3305,7 +5171,13 @@
       <tuv xml:lang="en-us">
         <seg>Property</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఆస్తి</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>财产</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সম্পত্তি</seg>
       </tuv>
     </tu>
@@ -3315,7 +5187,13 @@
       <tuv xml:lang="en-us">
         <seg>Action menu create / update / delete not supported via this API</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ API ద్వారా యాక్షన్ మెను సృష్టించడానికి / నవీకరించడానికి / తొలగించడానికి మద్దతు లేదు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>此 API 不支持操作菜单创建/更新/删除</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অ্যাকশন মেনু তৈরি / আপডেট / মুছে ফেলা এই API এর মাধ্যমে সমর্থিত নয়</seg>
       </tuv>
     </tu>
@@ -3325,7 +5203,13 @@
       <tuv xml:lang="en-us">
         <seg>Cascading child menu composition not supported via this API</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ API ద్వారా క్యాస్కేడింగ్ చైల్డ్ మెను కూర్పుకు మద్దతు లేదు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>此 API 不支持级联子菜单组合</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এই API এর মাধ্যমে ক্যাসকেডিং চাইল্ড মেনু কম্পোজিশন সমর্থিত নয়</seg>
       </tuv>
     </tu>
@@ -3335,7 +5219,13 @@
       <tuv xml:lang="en-us">
         <seg>Visibility context editing not supported via this API</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ API ద్వారా దృశ్యమానత సందర్భ సవరణకు మద్దతు లేదు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>不支持通过此 API 进行可见性上下文编辑</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এই API এর মাধ্যমে দৃশ্যমানতা প্রসঙ্গ সম্পাদনা সমর্থিত নয়</seg>
       </tuv>
     </tu>
@@ -3345,7 +5235,13 @@
       <tuv xml:lang="en-us">
         <seg>Searches</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>శోధనలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>搜索次数</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অনুসন্ধান করে</seg>
       </tuv>
     </tu>
@@ -3355,7 +5251,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading searches…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>శోధనలను లోడ్ చేస్తోంది...</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载搜索...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অনুসন্ধান লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -3365,7 +5267,13 @@
       <tuv xml:lang="en-us">
         <seg>No searches returned.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>శోధనలు ఏవీ తిరిగి రాలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>没有返回搜索结果。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কোন অনুসন্ধান ফেরত.</seg>
       </tuv>
     </tu>
@@ -3375,7 +5283,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load searches.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>శోధనలను లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载搜索。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অনুসন্ধানগুলি লোড করা যায়নি৷</seg>
       </tuv>
     </tu>
@@ -3385,7 +5299,13 @@
       <tuv xml:lang="en-us">
         <seg>Content Explorer search definitions (not views). Open a row for field criteria. Create/edit is a later slice.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కంటెంట్ ఎక్స్u200cప్లోరర్ శోధన నిర్వచనాలు (వీక్షణలు కాదు). ఫీల్డ్ ప్రమాణాల కోసం అడ్డు వరుసను తెరవండి. సృష్టించు/సవరించు అనేది తర్వాత స్లైస్.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>Content Explorer 搜索定义（不是视图）。打开一行作为字段条件。创建/编辑是稍后的切片。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বিষয়বস্তু এক্সপ্লোরার অনুসন্ধান সংজ্ঞা (দর্শন নয়)। ক্ষেত্রের মানদণ্ডের জন্য একটি সারি খুলুন। তৈরি/সম্পাদনা একটি পরবর্তী স্লাইস.</seg>
       </tuv>
     </tu>
@@ -3396,7 +5316,13 @@
       <tuv xml:lang="en-us">
         <seg>Display format id</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ప్రదర్శన ఫార్మాట్ ID</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>显示格式ID</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ডিসপ্লে ফরম্যাট আইডি</seg>
       </tuv>
     </tu>
@@ -3407,7 +5333,13 @@
       <tuv xml:lang="en-us">
         <seg>Max results</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>గరిష్ట ఫలితాలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>最大结果</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সর্বোচ্চ ফলাফল</seg>
       </tuv>
     </tu>
@@ -3418,7 +5350,13 @@
       <tuv xml:lang="en-us">
         <seg>Case sensitive</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కేస్ సెన్సిటివ్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>区分大小写</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কেস সংবেদনশীল</seg>
       </tuv>
     </tu>
@@ -3429,7 +5367,13 @@
       <tuv xml:lang="en-us">
         <seg>Custom</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కస్టమ్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>风俗</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কাস্টম</seg>
       </tuv>
     </tu>
@@ -3439,7 +5383,13 @@
       <tuv xml:lang="en-us">
         <seg>User</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>వినియోగదారు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>用户</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ব্যবহারকারী</seg>
       </tuv>
     </tu>
@@ -3450,7 +5400,13 @@
       <tuv xml:lang="en-us">
         <seg>Standard</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ప్రామాణికం</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>标准</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>স্ট্যান্ডার্ড</seg>
       </tuv>
     </tu>
@@ -3460,7 +5416,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading search…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>శోధన లోడ్ అవుతోంది…</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载搜索...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অনুসন্ধান লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -3470,7 +5432,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load search.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>శోధనను లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载搜索。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অনুসন্ধান লোড করা যায়নি.</seg>
       </tuv>
     </tu>
@@ -3481,7 +5449,13 @@
       <tuv xml:lang="en-us">
         <seg>Field criteria</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఫీల్డ్ ప్రమాణాలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>领域标准</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ক্ষেত্রের মানদণ্ড</seg>
       </tuv>
     </tu>
@@ -3491,7 +5465,13 @@
       <tuv xml:lang="en-us">
         <seg>Search field conditions. Criterion editing is not exposed yet.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>శోధన ఫీల్డ్ పరిస్థితులు. ప్రమాణ సవరణ ఇంకా బహిర్గతం కాలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>搜索字段条件。标准编辑尚未公开。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অনুসন্ধান ক্ষেত্রের অবস্থা। মানদণ্ড সম্পাদনা এখনও উন্মুক্ত করা হয় না.</seg>
       </tuv>
     </tu>
@@ -3502,7 +5482,13 @@
       <tuv xml:lang="en-us">
         <seg>Operator</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఆపరేటర్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>操作员</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অপারেটর</seg>
       </tuv>
     </tu>
@@ -3512,7 +5498,13 @@
       <tuv xml:lang="en-us">
         <seg>Search create / update / delete not supported via this API</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ API ద్వారా శోధన సృష్టించడానికి / నవీకరించడానికి / తొలగించడానికి మద్దతు లేదు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>不支持通过此 API 搜索创建/更新/删除</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এই API এর মাধ্যমে সার্চ তৈরি/আপডেট/ডিলিট সমর্থিত নয়</seg>
       </tuv>
     </tu>
@@ -3522,7 +5514,13 @@
       <tuv xml:lang="en-us">
         <seg>Search field criterion editing not supported via this API</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ API ద్వారా శోధన ఫీల్డ్ ప్రమాణం సవరణకు మద్దతు లేదు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>不支持通过此 API 编辑搜索字段条件</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অনুসন্ধান ক্ষেত্রের মানদণ্ড সম্পাদনা এই API এর মাধ্যমে সমর্থিত নয়</seg>
       </tuv>
     </tu>
@@ -3532,7 +5530,13 @@
       <tuv xml:lang="en-us">
         <seg>Views are a separate catalog (Developer Views / UI-07)</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>వీక్షణలు ప్రత్యేక కేటలాగ్ (డెవలపర్ వీక్షణలు / UI-07)</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>视图是一个单独的目录（开发人员视图/UI-07）</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ভিউ হল একটি আলাদা ক্যাটালগ (ডেভেলপার ভিউ / UI-07)</seg>
       </tuv>
     </tu>
@@ -3542,7 +5546,13 @@
       <tuv xml:lang="en-us">
         <seg>Views</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>వీక్షణలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>意见</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ভিউ</seg>
       </tuv>
     </tu>
@@ -3552,7 +5562,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading views…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>వీక్షణలను లోడ్ చేస్తోంది…</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载视图...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ভিউ লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -3562,7 +5578,13 @@
       <tuv xml:lang="en-us">
         <seg>No views returned.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>వీక్షణలు ఏవీ తిరిగి ఇవ్వబడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>没有返回任何视图。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কোনো ভিউ ফিরে আসেনি।</seg>
       </tuv>
     </tu>
@@ -3572,7 +5594,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load views.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>వీక్షణలను లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载视图。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ভিউ লোড করা যায়নি।</seg>
       </tuv>
     </tu>
@@ -3582,7 +5610,13 @@
       <tuv xml:lang="en-us">
         <seg>Content Explorer view definitions. Open a row for field criteria. Create/edit is a later slice.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>కంటెంట్ ఎక్స్u200cప్లోరర్ వీక్షణ నిర్వచనాలు. ఫీల్డ్ ప్రమాణాల కోసం అడ్డు వరుసను తెరవండి. సృష్టించు/సవరించు అనేది తర్వాత స్లైస్.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>内容资源管理器视图定义。打开一行作为字段条件。创建/编辑是稍后的切片。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কন্টেন্ট এক্সপ্লোরার ভিউ সংজ্ঞা। ক্ষেত্রের মানদণ্ডের জন্য একটি সারি খুলুন। তৈরি/সম্পাদনা একটি পরবর্তী স্লাইস.</seg>
       </tuv>
     </tu>
@@ -3592,6 +5626,12 @@
       <tuv xml:lang="en-us">
         <seg>Loading view…</seg>
       </tuv>
+      <tuv xml:lang="te">
+        <seg>వీక్షణ లోడ్ అవుతోంది…</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载视图...</seg>
+      </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Could not load view.">
       <prop type="sectionname" xml:lang="en-us">Developer</prop>
@@ -3599,7 +5639,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load view.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>వీక్షణను లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载视图。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ভিউ লোড করা যায়নি।</seg>
       </tuv>
     </tu>
@@ -3609,7 +5655,13 @@
       <tuv xml:lang="en-us">
         <seg>View field conditions. Criterion editing is not exposed yet.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఫీల్డ్ పరిస్థితులను వీక్షించండి. ప్రమాణ సవరణ ఇంకా బహిర్గతం కాలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>查看现场情况。标准编辑尚未公开。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>মাঠের অবস্থা দেখুন। মানদণ্ড সম্পাদনা এখনও উন্মুক্ত করা হয় না.</seg>
       </tuv>
     </tu>
@@ -3619,7 +5671,13 @@
       <tuv xml:lang="en-us">
         <seg>View create / update / delete not supported via this API</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ API ద్వారా సృష్టించడానికి / నవీకరించడానికి / తొలగించడానికి మద్దతు లేదు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>不支持通过此 API 创建/更新/删除视图</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এই API এর মাধ্যমে তৈরি/আপডেট/মুছে ফেলা সমর্থিত নয় দেখুন</seg>
       </tuv>
     </tu>
@@ -3629,7 +5687,13 @@
       <tuv xml:lang="en-us">
         <seg>View field criterion editing not supported via this API</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ API ద్వారా ఫీల్డ్ ప్రమాణాల సవరణకు మద్దతు లేదు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>通过此 API 不支持查看字段条件编辑</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এই API এর মাধ্যমে ক্ষেত্র মানদণ্ড সম্পাদনা সমর্থিত নয় দেখুন</seg>
       </tuv>
     </tu>
@@ -3639,7 +5703,13 @@
       <tuv xml:lang="en-us">
         <seg>Searches are a separate catalog (Developer Searches / UI-06)</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>శోధనలు ప్రత్యేక కేటలాగ్ (డెవలపర్ శోధనలు / UI-06)</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>搜索是一个单独的目录（开发人员搜索/UI-06）</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অনুসন্ধানগুলি একটি পৃথক ক্যাটালগ (ডেভেলপার অনুসন্ধান / UI-06)</seg>
       </tuv>
     </tu>
@@ -3649,7 +5719,13 @@
       <tuv xml:lang="en-us">
         <seg>Extensions</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పొడిగింపులు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>扩展</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এক্সটেনশন</seg>
       </tuv>
     </tu>
@@ -3659,7 +5735,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading extensions…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పొడిగింపులను లోడ్ చేస్తోంది…</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载扩展...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এক্সটেনশন লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -3669,7 +5751,13 @@
       <tuv xml:lang="en-us">
         <seg>No extensions returned.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పొడిగింపులు ఏవీ తిరిగి ఇవ్వబడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>没有返回扩展名。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কোন এক্সটেনশন ফিরে আসেনি.</seg>
       </tuv>
     </tu>
@@ -3679,7 +5767,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load extensions.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పొడిగింపులను లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载扩展。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এক্সটেনশনগুলি লোড করা যায়নি৷</seg>
       </tuv>
     </tu>
@@ -3689,7 +5783,13 @@
       <tuv xml:lang="en-us">
         <seg>Registered server extensions (handlers, contexts, interfaces). Open a row for parameters. Install/remove is a later slice.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>నమోదిత సర్వర్ పొడిగింపులు (హ్యాండ్లర్u200cలు, సందర్భాలు, ఇంటర్u200cఫేస్u200cలు). పారామితుల కోసం అడ్డు వరుసను తెరవండి. ఇన్u200cస్టాల్/తీసివేయడం అనేది తర్వాత స్లైస్.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>注册的服务器扩展（处理程序、上下文、接口）。打开一行参数。安装/删除是稍后的部分。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>নিবন্ধিত সার্ভার এক্সটেনশন (হ্যান্ডলার, প্রসঙ্গ, ইন্টারফেস)। পরামিতিগুলির জন্য একটি সারি খুলুন। ইন্সটল/রিমুভ একটি পরবর্তী স্লাইস।</seg>
       </tuv>
     </tu>
@@ -3699,7 +5799,13 @@
       <tuv xml:lang="en-us">
         <seg>Context</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సందర్భం</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>语境</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>প্রসঙ্গ</seg>
       </tuv>
     </tu>
@@ -3709,7 +5815,13 @@
       <tuv xml:lang="en-us">
         <seg>Category</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>వర్గం</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>类别</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>শ্রেণী</seg>
       </tuv>
     </tu>
@@ -3719,7 +5831,13 @@
       <tuv xml:lang="en-us">
         <seg>Flags</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>జెండాలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>旗帜</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>পতাকা</seg>
       </tuv>
     </tu>
@@ -3729,7 +5847,13 @@
       <tuv xml:lang="en-us">
         <seg>FQN</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>Q N</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>FQN</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>Q N</seg>
       </tuv>
     </tu>
@@ -3739,7 +5863,13 @@
       <tuv xml:lang="en-us">
         <seg>JEXL</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>JEXL</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>杰克斯利</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>JEXL</seg>
       </tuv>
     </tu>
@@ -3749,7 +5879,13 @@
       <tuv xml:lang="en-us">
         <seg>Deprecated</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>తిరస్కరించబడింది</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>已弃用</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অবচয়</seg>
       </tuv>
     </tu>
@@ -3759,7 +5895,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading extension…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పొడిగింపు లోడ్ అవుతోంది…</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载扩展...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এক্সটেনশন লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -3769,7 +5911,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load extension.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పొడిగింపును లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载扩展。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এক্সটেনশন লোড করা যায়নি।</seg>
       </tuv>
     </tu>
@@ -3779,7 +5927,13 @@
       <tuv xml:lang="en-us">
         <seg>Interfaces</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఇంటర్u200cఫేస్u200cలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>接口</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ইন্টারফেস</seg>
       </tuv>
     </tu>
@@ -3789,7 +5943,13 @@
       <tuv xml:lang="en-us">
         <seg>Runtime parameters</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>రన్u200cటైమ్ పారామితులు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>运行时参数</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>রানটাইম পরামিতি</seg>
       </tuv>
     </tu>
@@ -3799,7 +5959,13 @@
       <tuv xml:lang="en-us">
         <seg>Extension install / remove not supported via this API</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ API ద్వారా పొడిగింపు ఇన్u200cస్టాల్ / తీసివేయడానికి మద్దతు లేదు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>不支持通过此 API 安装/删除扩展</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এক্সটেনশন ইনস্টল / অপসারণ এই API এর মাধ্যমে সমর্থিত নয়</seg>
       </tuv>
     </tu>
@@ -3809,7 +5975,13 @@
       <tuv xml:lang="en-us">
         <seg>Extension parameter and method edit not supported via this API</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ API ద్వారా పొడిగింపు పరామితి మరియు పద్ధతి సవరణకు మద్దతు లేదు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>不支持通过此 API 编辑扩展参数和方法</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এক্সটেনশন প্যারামিটার এবং পদ্ধতি সম্পাদনা এই API এর মাধ্যমে সমর্থিত নয়</seg>
       </tuv>
     </tu>
@@ -3819,7 +5991,13 @@
       <tuv xml:lang="en-us">
         <seg>Relationship Types</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సంబంధాల రకాలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>关系类型</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সম্পর্কের ধরন</seg>
       </tuv>
     </tu>
@@ -3829,7 +6007,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading relationship types…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సంబంధాల రకాలను లోడ్ చేస్తోంది...</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载关系类型...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সম্পর্কের ধরন লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -3839,7 +6023,13 @@
       <tuv xml:lang="en-us">
         <seg>No relationship types returned.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సంబంధ రకాలు ఏవీ తిరిగి ఇవ్వబడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>没有返回关系类型。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কোনো সম্পর্কের ধরন ফিরে আসেনি।</seg>
       </tuv>
     </tu>
@@ -3849,7 +6039,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load relationship types.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సంబంధాల రకాలను లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载关系类型。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সম্পর্কের ধরন লোড করা যায়নি।</seg>
       </tuv>
     </tu>
@@ -3859,7 +6055,13 @@
       <tuv xml:lang="en-us">
         <seg>System and user relationship types (category, cloning flags, effects). Open a row for properties. Create/edit is a later slice.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సిస్టమ్ మరియు వినియోగదారు సంబంధాల రకాలు (వర్గం, క్లోనింగ్ ఫ్లాగ్u200cలు, ప్రభావాలు). లక్షణాల కోసం అడ్డు వరుసను తెరవండి. సృష్టించు/సవరించు అనేది తర్వాత స్లైస్.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>系统和用户关系类型（类别、克隆标志、效果）。打开一行属性。创建/编辑是稍后的切片。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সিস্টেম এবং ব্যবহারকারী সম্পর্কের ধরন (বিভাগ, ক্লোনিং পতাকা, প্রভাব)। বৈশিষ্ট্যের জন্য একটি সারি খুলুন। তৈরি/সম্পাদনা একটি পরবর্তী স্লাইস.</seg>
       </tuv>
     </tu>
@@ -3869,7 +6071,13 @@
       <tuv xml:lang="en-us">
         <seg>Activation end point</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>యాక్టివేషన్ ముగింపు పాయింట్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>激活终点</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সক্রিয়করণ শেষ বিন্দু</seg>
       </tuv>
     </tu>
@@ -3879,7 +6087,13 @@
       <tuv xml:lang="en-us">
         <seg>Extension ref</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>పొడిగింపు ref</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>扩展参考</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এক্সটেনশন রেফ</seg>
       </tuv>
     </tu>
@@ -3889,8 +6103,11 @@
       <tuv xml:lang="en-us">
         <seg>Property</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>সম্পত্তি</seg>
+      <tuv xml:lang="te">
+        <seg>ఆస్తి</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>财产</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Cloning">
@@ -3899,7 +6116,13 @@
       <tuv xml:lang="en-us">
         <seg>Cloning</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>క్లోనింగ్</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>克隆</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ক্লোনিং</seg>
       </tuv>
     </tu>
@@ -3909,7 +6132,13 @@
       <tuv xml:lang="en-us">
         <seg>System</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>వ్యవస్థ</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>系统</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সিস্টেম</seg>
       </tuv>
     </tu>
@@ -3919,8 +6148,11 @@
       <tuv xml:lang="en-us">
         <seg>User</seg>
       </tuv>
-      <tuv xml:lang="bn">
-        <seg>ব্যবহারকারী</seg>
+      <tuv xml:lang="te">
+        <seg>వినియోగదారు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>用户</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Loading relationship type…">
@@ -3929,7 +6161,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading relationship type…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సంబంధం రకం లోడ్ అవుతోంది…</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载关系类型...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সম্পর্কের ধরন লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -3939,7 +6177,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load relationship type.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సంబంధ రకాన్ని లోడ్ చేయడం సాధ్యపడలేదు.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载关系类型。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সম্পর্কের ধরন লোড করা যায়নি।</seg>
       </tuv>
     </tu>
@@ -3949,7 +6193,13 @@
       <tuv xml:lang="en-us">
         <seg>Effects</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ప్రభావాలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>效果</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>প্রভাব</seg>
       </tuv>
     </tu>
@@ -3959,7 +6209,13 @@
       <tuv xml:lang="en-us">
         <seg>System properties</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>సిస్టమ్ లక్షణాలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>系统属性</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সিস্টেম বৈশিষ্ট্য</seg>
       </tuv>
     </tu>
@@ -3969,7 +6225,13 @@
       <tuv xml:lang="en-us">
         <seg>User properties</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>వినియోగదారు లక్షణాలు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>用户属性</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ব্যবহারকারীর বৈশিষ্ট্য</seg>
       </tuv>
     </tu>
@@ -3979,7 +6241,13 @@
       <tuv xml:lang="en-us">
         <seg>Relationship type create / update / delete not supported via this API</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ API ద్వారా రిలేషన్u200cషిప్ రకం సృష్టించడానికి / నవీకరించడానికి / తొలగించడానికి మద్దతు లేదు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>不支持通过此 API 创建/更新/删除关系类型</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সম্পর্কের ধরন তৈরি / আপডেট / মুছে ফেলা এই API এর মাধ্যমে সমর্থিত নয়</seg>
       </tuv>
     </tu>
@@ -3989,7 +6257,13 @@
       <tuv xml:lang="en-us">
         <seg>Cloning field override editor not supported via this API</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ API ద్వారా క్లోనింగ్ ఫీల్డ్ ఓవర్u200cరైడ్ ఎడిటర్u200cకు మద్దతు లేదు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>此 API 不支持克隆字段覆盖编辑器</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ক্লোনিং ফিল্ড ওভাররাইড এডিটর এই API এর মাধ্যমে সমর্থিত নয়</seg>
       </tuv>
     </tu>
@@ -3999,7 +6273,13 @@
       <tuv xml:lang="en-us">
         <seg>Effect condition and execution-context edit not supported via this API</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ API ద్వారా ఎఫెక్ట్ కండిషన్ మరియు ఎగ్జిక్యూషన్-కంటెక్స్ట్ సవరణకు మద్దతు లేదు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>不支持通过此 API 编辑效果条件和执行上下文</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>প্রভাব অবস্থা এবং এক্সিকিউশন-প্রসঙ্গ সম্পাদনা এই API এর মাধ্যমে সমর্থিত নয়</seg>
       </tuv>
     </tu>
@@ -4009,7 +6289,16 @@
       <tuv xml:lang="en-us">
         <seg>Workflows</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="de">
+        <seg>Arbeitsabläufe</seg>
+      </tuv>
+      <tuv xml:lang="pt">
+        <seg>Fluxos de trabalho</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>工作流程</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কর্মপ্রবাহ</seg>
       </tuv>
     </tu>
@@ -4019,7 +6308,16 @@
       <tuv xml:lang="en-us">
         <seg>Loading workflows…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="de">
+        <seg>Arbeitsabläufe werden geladen…</seg>
+      </tuv>
+      <tuv xml:lang="pt">
+        <seg>Carregando fluxos de trabalho…</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载工作流程...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কর্মপ্রবাহ লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -4029,7 +6327,16 @@
       <tuv xml:lang="en-us">
         <seg>No workflows returned.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="de">
+        <seg>Es wurden keine Workflows zurückgegeben.</seg>
+      </tuv>
+      <tuv xml:lang="pt">
+        <seg>Nenhum fluxo de trabalho foi retornado.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>没有返回任何工作流程。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কোনো কর্মপ্রবাহ ফিরে আসেনি।</seg>
       </tuv>
     </tu>
@@ -4039,7 +6346,16 @@
       <tuv xml:lang="en-us">
         <seg>Could not load workflows.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="de">
+        <seg>Arbeitsabläufe konnten nicht geladen werden.</seg>
+      </tuv>
+      <tuv xml:lang="pt">
+        <seg>Não foi possível carregar fluxos de trabalho.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载工作流程。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ওয়ার্কফ্লো লোড করা যায়নি।</seg>
       </tuv>
     </tu>
@@ -4049,7 +6365,16 @@
       <tuv xml:lang="en-us">
         <seg>Workflow definitions for association and step browse (SY-04). Full graph design stays on the workflow management surface.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="de">
+        <seg>Workflow definitions for association and step browse (SY-04). Das vollständige Diagrammdesign bleibt auf der Workflow-Management-Oberfläche.</seg>
+      </tuv>
+      <tuv xml:lang="pt">
+        <seg>Definições de fluxo de trabalho para associação e navegação por etapas (SY-04). O design gráfico completo permanece na superfície de gerenciamento do fluxo de trabalho.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>关联和步骤浏览的工作流程定义 (SY-04)。完整的图形设计保留在工作流程管理界面上。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অ্যাসোসিয়েশন এবং স্টেপ ব্রাউজের জন্য ওয়ার্কফ্লো সংজ্ঞা (SY-04)। সম্পূর্ণ গ্রাফ ডিজাইন ওয়ার্কফ্লো ম্যানেজমেন্ট পৃষ্ঠে থাকে।</seg>
       </tuv>
     </tu>
@@ -4060,7 +6385,16 @@
       <tuv xml:lang="en-us">
         <seg>Steps</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="de">
+        <seg>Schritte</seg>
+      </tuv>
+      <tuv xml:lang="pt">
+        <seg>Passos</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>步骤</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ধাপ</seg>
       </tuv>
     </tu>
@@ -4070,7 +6404,16 @@
       <tuv xml:lang="en-us">
         <seg>Staging roles</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="de">
+        <seg>Inszenierungsrollen</seg>
+      </tuv>
+      <tuv xml:lang="pt">
+        <seg>Papéis de preparação</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>舞台角色</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>মঞ্চায়ন ভূমিকা</seg>
       </tuv>
     </tu>
@@ -4080,7 +6423,16 @@
       <tuv xml:lang="en-us">
         <seg>Step</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="de">
+        <seg>Schritt</seg>
+      </tuv>
+      <tuv xml:lang="pt">
+        <seg>Etapa</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>步</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ধাপ</seg>
       </tuv>
     </tu>
@@ -4090,7 +6442,16 @@
       <tuv xml:lang="en-us">
         <seg>Roles</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="de">
+        <seg>Rollen</seg>
+      </tuv>
+      <tuv xml:lang="pt">
+        <seg>Funções</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>角色</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ভূমিকা</seg>
       </tuv>
     </tu>
@@ -4100,7 +6461,16 @@
       <tuv xml:lang="en-us">
         <seg>Loading workflow…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="de">
+        <seg>Workflow wird geladen…</seg>
+      </tuv>
+      <tuv xml:lang="pt">
+        <seg>Carregando fluxo de trabalho…</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载工作流程...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কর্মপ্রবাহ লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -4110,7 +6480,16 @@
       <tuv xml:lang="en-us">
         <seg>Could not load workflow.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="de">
+        <seg>Der Workflow konnte nicht geladen werden.</seg>
+      </tuv>
+      <tuv xml:lang="pt">
+        <seg>Não foi possível carregar o fluxo de trabalho.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载工作流程。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ওয়ার্কফ্লো লোড করা যায়নি।</seg>
       </tuv>
     </tu>
@@ -4120,7 +6499,16 @@
       <tuv xml:lang="en-us">
         <seg>Full workflow graph design is not exposed in the Developer catalog</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="de">
+        <seg>Das vollständige Design des Workflow-Diagramms wird im Entwicklerkatalog nicht angezeigt</seg>
+      </tuv>
+      <tuv xml:lang="pt">
+        <seg>O design gráfico completo do fluxo de trabalho não é exposto no catálogo do desenvolvedor</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>完整的工作流程图设计未在开发人员目录中公开</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সম্পূর্ণ ওয়ার্কফ্লো গ্রাফ ডিজাইন ডেভেলপার ক্যাটালগে প্রকাশ করা হয়নি</seg>
       </tuv>
     </tu>
@@ -4130,7 +6518,16 @@
       <tuv xml:lang="en-us">
         <seg>Workflow create / update / delete is not supported from this Developer surface</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="de">
+        <seg>Das Erstellen/Aktualisieren/Löschen von Workflows wird von dieser Entwickleroberfläche nicht unterstützt</seg>
+      </tuv>
+      <tuv xml:lang="pt">
+        <seg>A criação/atualização/exclusão de fluxo de trabalho não é suportada nesta superfície do desenvolvedor</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>此开发人员界面不支持工作流创建/更新/删除</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এই বিকাশকারী পৃষ্ঠ থেকে ওয়ার্কফ্লো তৈরি / আপডেট / মুছুন সমর্থিত নয়৷</seg>
       </tuv>
     </tu>
@@ -4140,148 +6537,11 @@
       <tuv xml:lang="en-us">
         <seg>Content type workflow association is edited on the content type detail panel</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="zh-tw">
+        <seg>内容类型工作流关联在内容类型详细信息面板上编辑</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বিষয়বস্তু টাইপ ওয়ার্কফ্লো অ্যাসোসিয়েশন বিষয়বস্তুর প্রকারের বিস্তারিত প্যানেলে সম্পাদনা করা হয়</seg>
-      </tuv>
-    </tu>
-    <tu tuid="perc.ui.developer@CE Controls">
-      <prop type="sectionname" xml:lang="en-us">Developer</prop>
-      <note xml:lang="en-us">DEV_MSG.TAB_CE_CONTROLS</note>
-      <tuv xml:lang="en-us">
-        <seg>CE Controls</seg>
-      </tuv>
-      <tuv xml:lang="bn">
-        <seg>সিই নিয়ন্ত্রণ</seg>
-      </tuv>
-    </tu>
-    <tu tuid="perc.ui.developer@Loading controls…">
-      <prop type="sectionname" xml:lang="en-us">Developer</prop>
-      <note xml:lang="en-us">DEV_MSG.CTL_LOADING</note>
-      <tuv xml:lang="en-us">
-        <seg>Loading controls…</seg>
-      </tuv>
-      <tuv xml:lang="bn">
-        <seg>নিয়ন্ত্রণ লোড হচ্ছে...</seg>
-      </tuv>
-    </tu>
-    <tu tuid="perc.ui.developer@No controls returned.">
-      <prop type="sectionname" xml:lang="en-us">Developer</prop>
-      <note xml:lang="en-us">DEV_MSG.CTL_EMPTY</note>
-      <tuv xml:lang="en-us">
-        <seg>No controls returned.</seg>
-      </tuv>
-      <tuv xml:lang="bn">
-        <seg>কোনো নিয়ন্ত্রণ ফিরে আসেনি।</seg>
-      </tuv>
-    </tu>
-    <tu tuid="perc.ui.developer@Could not load controls.">
-      <prop type="sectionname" xml:lang="en-us">Developer</prop>
-      <note xml:lang="en-us">DEV_MSG.CTL_ERROR</note>
-      <tuv xml:lang="en-us">
-        <seg>Could not load controls.</seg>
-      </tuv>
-      <tuv xml:lang="bn">
-        <seg>নিয়ন্ত্রণ লোড করা যায়নি.</seg>
-      </tuv>
-    </tu>
-    <tu tuid="perc.ui.developer@Content editor system and user controls (UI-01). Open a row for parameters. User control registration is a later slice.">
-      <prop type="sectionname" xml:lang="en-us">Developer</prop>
-      <note xml:lang="en-us">DEV_MSG.CTL_HINT</note>
-      <tuv xml:lang="en-us">
-        <seg>Content editor system and user controls (UI-01). Open a row for parameters. User control registration is a later slice.</seg>
-      </tuv>
-      <tuv xml:lang="bn">
-        <seg>বিষয়বস্তু সম্পাদক সিস্টেম এবং ব্যবহারকারী নিয়ন্ত্রণ (UI-01)। পরামিতিগুলির জন্য একটি সারি খুলুন। ব্যবহারকারী নিয়ন্ত্রণ নিবন্ধন একটি পরবর্তী স্লাইস.</seg>
-      </tuv>
-    </tu>
-    <tu tuid="perc.ui.developer@Display name">
-      <prop type="sectionname" xml:lang="en-us">Developer</prop>
-      <note xml:lang="en-us">DEV_MSG.CTL_COL_DISPLAY</note>
-      <tuv xml:lang="en-us">
-        <seg>Display name</seg>
-      </tuv>
-      <tuv xml:lang="bn">
-        <seg>প্রদর্শনের নাম</seg>
-      </tuv>
-    </tu>
-    <tu tuid="perc.ui.developer@Scope">
-      <prop type="sectionname" xml:lang="en-us">Developer</prop>
-      <note xml:lang="en-us">DEV_MSG.CTL_COL_SCOPE</note>
-      <tuv xml:lang="en-us">
-        <seg>Scope</seg>
-      </tuv>
-      <tuv xml:lang="bn">
-        <seg>ব্যাপ্তি</seg>
-      </tuv>
-    </tu>
-    <tu tuid="perc.ui.developer@Dimension">
-      <prop type="sectionname" xml:lang="en-us">Developer</prop>
-      <note xml:lang="en-us">DEV_MSG.CTL_COL_DIM</note>
-      <tuv xml:lang="en-us">
-        <seg>Dimension</seg>
-      </tuv>
-      <tuv xml:lang="bn">
-        <seg>মাত্রা</seg>
-      </tuv>
-    </tu>
-    <tu tuid="perc.ui.developer@Choice set">
-      <prop type="sectionname" xml:lang="en-us">Developer</prop>
-      <note xml:lang="en-us">DEV_MSG.CTL_COL_CHOICES</note>
-      <tuv xml:lang="en-us">
-        <seg>Choice set</seg>
-      </tuv>
-      <tuv xml:lang="bn">
-        <seg>পছন্দ সেট</seg>
-      </tuv>
-    </tu>
-    <tu tuid="perc.ui.developer@Loading control…">
-      <prop type="sectionname" xml:lang="en-us">Developer</prop>
-      <note xml:lang="en-us">DEV_MSG.CTL_DETAIL_LOADING</note>
-      <tuv xml:lang="en-us">
-        <seg>Loading control…</seg>
-      </tuv>
-      <tuv xml:lang="bn">
-        <seg>নিয়ন্ত্রণ লোড হচ্ছে...</seg>
-      </tuv>
-    </tu>
-    <tu tuid="perc.ui.developer@Could not load control.">
-      <prop type="sectionname" xml:lang="en-us">Developer</prop>
-      <note xml:lang="en-us">DEV_MSG.CTL_DETAIL_ERROR</note>
-      <tuv xml:lang="en-us">
-        <seg>Could not load control.</seg>
-      </tuv>
-      <tuv xml:lang="bn">
-        <seg>নিয়ন্ত্রণ লোড করা যায়নি.</seg>
-      </tuv>
-    </tu>
-    <tu tuid="perc.ui.developer@User control create / edit / delete not supported via this API">
-      <prop type="sectionname" xml:lang="en-us">Developer</prop>
-      <note xml:lang="en-us">DEV_MSG.CTL_GAP_USER</note>
-      <tuv xml:lang="en-us">
-        <seg>User control create / edit / delete not supported via this API</seg>
-      </tuv>
-      <tuv xml:lang="bn">
-        <seg>ব্যবহারকারী নিয়ন্ত্রণ এই API এর মাধ্যমে তৈরি/সম্পাদনা/মুছে ফেলা সমর্থিত নয়</seg>
-      </tuv>
-    </tu>
-    <tu tuid="perc.ui.developer@Control XSL source editing not supported via this API">
-      <prop type="sectionname" xml:lang="en-us">Developer</prop>
-      <note xml:lang="en-us">DEV_MSG.CTL_GAP_XSL</note>
-      <tuv xml:lang="en-us">
-        <seg>Control XSL source editing not supported via this API</seg>
-      </tuv>
-      <tuv xml:lang="bn">
-        <seg>নিয়ন্ত্রণ XSL উৎস সম্পাদনা এই API এর মাধ্যমে সমর্থিত নয়</seg>
-      </tuv>
-    </tu>
-    <tu tuid="perc.ui.developer@System controls are read-only packaged defaults">
-      <prop type="sectionname" xml:lang="en-us">Developer</prop>
-      <note xml:lang="en-us">DEV_MSG.CTL_GAP_SYS</note>
-      <tuv xml:lang="en-us">
-        <seg>System controls are read-only packaged defaults</seg>
-      </tuv>
-      <tuv xml:lang="bn">
-        <seg>সিস্টেম নিয়ন্ত্রণগুলি শুধুমাত্র পঠনযোগ্য প্যাকেজ ডিফল্ট</seg>
       </tuv>
     </tu>
     <tu tuid="perc.ui.developer@Sites">
@@ -4290,7 +6550,13 @@
       <tuv xml:lang="en-us">
         <seg>Sites</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="pt">
+        <seg>Locais</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>站点</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সাইট</seg>
       </tuv>
     </tu>
@@ -4300,7 +6566,13 @@
       <tuv xml:lang="en-us">
         <seg>Loading sites…</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="pt">
+        <seg>Carregando sites…</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>正在加载站点...</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সাইট লোড হচ্ছে...</seg>
       </tuv>
     </tu>
@@ -4310,7 +6582,13 @@
       <tuv xml:lang="en-us">
         <seg>No sites returned.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="pt">
+        <seg>Nenhum site foi retornado.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>没有返回任何网站。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>কোন সাইট ফিরে.</seg>
       </tuv>
     </tu>
@@ -4320,7 +6598,13 @@
       <tuv xml:lang="en-us">
         <seg>Could not load sites.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="pt">
+        <seg>Não foi possível carregar sites.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>无法加载网站。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সাইট লোড করা যায়নি.</seg>
       </tuv>
     </tu>
@@ -4330,7 +6614,13 @@
       <tuv xml:lang="en-us">
         <seg>Site definitions for association browse (SY-04). Open a row for URL and defaults. Site design/write is a later surface.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="pt">
+        <seg>Definições de site para navegação de associação (SY-04). Abra uma linha para URL e padrões. O design/gravação do site é uma superfície posterior.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>关联浏览的站点定义 (SY-04)。打开 URL 和默认值行。网站设计/编写是稍后的表面。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>অ্যাসোসিয়েশন ব্রাউজের জন্য সাইটের সংজ্ঞা (SY-04)। URL এবং ডিফল্টের জন্য একটি সারি খুলুন। সাইট ডিজাইন/লিখন একটি পরবর্তী পৃষ্ঠ।</seg>
       </tuv>
     </tu>
@@ -4340,7 +6630,13 @@
       <tuv xml:lang="en-us">
         <seg>Base URL</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="pt">
+        <seg>URL base</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>基本网址</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>বেস URL</seg>
       </tuv>
     </tu>
@@ -4350,7 +6646,13 @@
       <tuv xml:lang="en-us">
         <seg>Protocol</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="pt">
+        <seg>Protocolo</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>协议</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>প্রোটোকল</seg>
       </tuv>
     </tu>
@@ -4360,7 +6662,13 @@
       <tuv xml:lang="en-us">
         <seg>Default document</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="pt">
+        <seg>Documento padrão</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>默认文档</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ডিফল্ট নথি</seg>
       </tuv>
     </tu>
@@ -4370,7 +6678,13 @@
       <tuv xml:lang="en-us">
         <seg>Default file extension</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="pt">
+        <seg>Extensão de arquivo padrão</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>默认文件扩展名</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ডিফল্ট ফাইল এক্সটেনশন</seg>
       </tuv>
     </tu>
@@ -4380,7 +6694,13 @@
       <tuv xml:lang="en-us">
         <seg>Page-based</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="pt">
+        <seg>Baseado em página</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>基于页面的</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>পৃষ্ঠা ভিত্তিক</seg>
       </tuv>
     </tu>
@@ -4390,7 +6710,13 @@
       <tuv xml:lang="en-us">
         <seg>Canonical</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="pt">
+        <seg>Canônico</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>典范</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ক্যানোনিকাল</seg>
       </tuv>
     </tu>
@@ -4400,7 +6726,13 @@
       <tuv xml:lang="en-us">
         <seg>Site create / update / delete is not supported from this Developer surface</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="pt">
+        <seg>A criação/atualização/exclusão de site não é suportada nesta superfície do desenvolvedor</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>此开发人员界面不支持站点创建/更新/删除</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এই বিকাশকারী পৃষ্ঠ থেকে সাইট তৈরি / আপডেট / মুছে ফেলা সমর্থিত নয়৷</seg>
       </tuv>
     </tu>
@@ -4410,7 +6742,13 @@
       <tuv xml:lang="en-us">
         <seg>Full site publish and section design live outside the Developer catalog</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="pt">
+        <seg>Publicação completa do site e design de seção ao vivo fora do catálogo do desenvolvedor</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>完整站点发布和部分设计在开发人员目录之外实时发布</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>সম্পূর্ণ সাইট প্রকাশ এবং বিভাগের নকশা বিকাশকারী ক্যাটালগের বাইরে লাইভ৷</seg>
       </tuv>
     </tu>
@@ -4420,7 +6758,13 @@
       <tuv xml:lang="en-us">
         <seg>Workflow association is browsed under the Workflows catalog</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="pt">
+        <seg>A associação do fluxo de trabalho é navegada no catálogo Fluxos de trabalho</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>工作流程关联在工作流程目录下浏览</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>ওয়ার্কফ্লো অ্যাসোসিয়েশন ওয়ার্কফ্লো ক্যাটালগের অধীনে ব্রাউজ করা হয়</seg>
       </tuv>
     </tu>
@@ -4430,7 +6774,13 @@
       <tuv xml:lang="en-us">
         <seg>Not implemented yet</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఇంకా అమలు కాలేదు</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>尚未实施</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এখনো বাস্তবায়ন হয়নি</seg>
       </tuv>
     </tu>
@@ -4440,9 +6790,127 @@
       <tuv xml:lang="en-us">
         <seg>This section is planned for Developer P0. See docs/ai-generated/tasks/developer-module-p0 and docs/developer-module.</seg>
       </tuv>
-      <tuv xml:lang="bn">
+      <tuv xml:lang="te">
+        <seg>ఈ విభాగం డెవలపర్ P0 కోసం ప్లాన్ చేయబడింది. docs/ai-generated/tasks/developer-module-p0 మరియు docs/developer-module చూడండి.</seg>
+      </tuv>
+      <tuv xml:lang="zh-tw">
+        <seg>此部分计划用于 Developer P0。请参阅 docs/ai- generated/tasks/developer-module-p0 和 docs/developer-module。</seg>
+      </tuv>
+    <tuv xml:lang="bn">
         <seg>এই বিভাগটি বিকাশকারী P0 এর জন্য পরিকল্পনা করা হয়েছে৷ ডক্স/এআই-জেনারেটেড/টাস্ক/ডেভেলপার-মডিউল-পি0 এবং ডক্স/ডেভেলপার-মডিউল দেখুন।</seg>
       </tuv>
     </tu>
-  </body>
+  <tu tuid="perc.ui.developer@CE Controls"><prop type="sectionname" xml:lang="en-us">Developer</prop>
+      <note xml:lang="en-us">DEV_MSG.TAB_CE_CONTROLS</note>
+      <tuv xml:lang="en-us">
+        <seg>CE Controls</seg>
+      </tuv>
+      <tuv xml:lang="bn">
+        <seg>সিই নিয়ন্ত্রণ</seg>
+      </tuv>
+    </tu><tu tuid="perc.ui.developer@Loading controls…"><prop type="sectionname" xml:lang="en-us">Developer</prop>
+      <note xml:lang="en-us">DEV_MSG.CTL_LOADING</note>
+      <tuv xml:lang="en-us">
+        <seg>Loading controls…</seg>
+      </tuv>
+      <tuv xml:lang="bn">
+        <seg>নিয়ন্ত্রণ লোড হচ্ছে...</seg>
+      </tuv>
+    </tu><tu tuid="perc.ui.developer@No controls returned."><prop type="sectionname" xml:lang="en-us">Developer</prop>
+      <note xml:lang="en-us">DEV_MSG.CTL_EMPTY</note>
+      <tuv xml:lang="en-us">
+        <seg>No controls returned.</seg>
+      </tuv>
+      <tuv xml:lang="bn">
+        <seg>কোনো নিয়ন্ত্রণ ফিরে আসেনি।</seg>
+      </tuv>
+    </tu><tu tuid="perc.ui.developer@Could not load controls."><prop type="sectionname" xml:lang="en-us">Developer</prop>
+      <note xml:lang="en-us">DEV_MSG.CTL_ERROR</note>
+      <tuv xml:lang="en-us">
+        <seg>Could not load controls.</seg>
+      </tuv>
+      <tuv xml:lang="bn">
+        <seg>নিয়ন্ত্রণ লোড করা যায়নি.</seg>
+      </tuv>
+    </tu><tu tuid="perc.ui.developer@Content editor system and user controls (UI-01). Open a row for parameters. User control registration is a later slice."><prop type="sectionname" xml:lang="en-us">Developer</prop>
+      <note xml:lang="en-us">DEV_MSG.CTL_HINT</note>
+      <tuv xml:lang="en-us">
+        <seg>Content editor system and user controls (UI-01). Open a row for parameters. User control registration is a later slice.</seg>
+      </tuv>
+      <tuv xml:lang="bn">
+        <seg>বিষয়বস্তু সম্পাদক সিস্টেম এবং ব্যবহারকারী নিয়ন্ত্রণ (UI-01)। পরামিতিগুলির জন্য একটি সারি খুলুন। ব্যবহারকারী নিয়ন্ত্রণ নিবন্ধন একটি পরবর্তী স্লাইস.</seg>
+      </tuv>
+    </tu><tu tuid="perc.ui.developer@Display name"><prop type="sectionname" xml:lang="en-us">Developer</prop>
+      <note xml:lang="en-us">DEV_MSG.CTL_COL_DISPLAY</note>
+      <tuv xml:lang="en-us">
+        <seg>Display name</seg>
+      </tuv>
+      <tuv xml:lang="bn">
+        <seg>প্রদর্শনের নাম</seg>
+      </tuv>
+    </tu><tu tuid="perc.ui.developer@Scope"><prop type="sectionname" xml:lang="en-us">Developer</prop>
+      <note xml:lang="en-us">DEV_MSG.CTL_COL_SCOPE</note>
+      <tuv xml:lang="en-us">
+        <seg>Scope</seg>
+      </tuv>
+      <tuv xml:lang="bn">
+        <seg>ব্যাপ্তি</seg>
+      </tuv>
+    </tu><tu tuid="perc.ui.developer@Dimension"><prop type="sectionname" xml:lang="en-us">Developer</prop>
+      <note xml:lang="en-us">DEV_MSG.CTL_COL_DIM</note>
+      <tuv xml:lang="en-us">
+        <seg>Dimension</seg>
+      </tuv>
+      <tuv xml:lang="bn">
+        <seg>মাত্রা</seg>
+      </tuv>
+    </tu><tu tuid="perc.ui.developer@Choice set"><prop type="sectionname" xml:lang="en-us">Developer</prop>
+      <note xml:lang="en-us">DEV_MSG.CTL_COL_CHOICES</note>
+      <tuv xml:lang="en-us">
+        <seg>Choice set</seg>
+      </tuv>
+      <tuv xml:lang="bn">
+        <seg>পছন্দ সেট</seg>
+      </tuv>
+    </tu><tu tuid="perc.ui.developer@Loading control…"><prop type="sectionname" xml:lang="en-us">Developer</prop>
+      <note xml:lang="en-us">DEV_MSG.CTL_DETAIL_LOADING</note>
+      <tuv xml:lang="en-us">
+        <seg>Loading control…</seg>
+      </tuv>
+      <tuv xml:lang="bn">
+        <seg>নিয়ন্ত্রণ লোড হচ্ছে...</seg>
+      </tuv>
+    </tu><tu tuid="perc.ui.developer@Could not load control."><prop type="sectionname" xml:lang="en-us">Developer</prop>
+      <note xml:lang="en-us">DEV_MSG.CTL_DETAIL_ERROR</note>
+      <tuv xml:lang="en-us">
+        <seg>Could not load control.</seg>
+      </tuv>
+      <tuv xml:lang="bn">
+        <seg>নিয়ন্ত্রণ লোড করা যায়নি.</seg>
+      </tuv>
+    </tu><tu tuid="perc.ui.developer@User control create / edit / delete not supported via this API"><prop type="sectionname" xml:lang="en-us">Developer</prop>
+      <note xml:lang="en-us">DEV_MSG.CTL_GAP_USER</note>
+      <tuv xml:lang="en-us">
+        <seg>User control create / edit / delete not supported via this API</seg>
+      </tuv>
+      <tuv xml:lang="bn">
+        <seg>ব্যবহারকারী নিয়ন্ত্রণ এই API এর মাধ্যমে তৈরি/সম্পাদনা/মুছে ফেলা সমর্থিত নয়</seg>
+      </tuv>
+    </tu><tu tuid="perc.ui.developer@Control XSL source editing not supported via this API"><prop type="sectionname" xml:lang="en-us">Developer</prop>
+      <note xml:lang="en-us">DEV_MSG.CTL_GAP_XSL</note>
+      <tuv xml:lang="en-us">
+        <seg>Control XSL source editing not supported via this API</seg>
+      </tuv>
+      <tuv xml:lang="bn">
+        <seg>নিয়ন্ত্রণ XSL উৎস সম্পাদনা এই API এর মাধ্যমে সমর্থিত নয়</seg>
+      </tuv>
+    </tu><tu tuid="perc.ui.developer@System controls are read-only packaged defaults"><prop type="sectionname" xml:lang="en-us">Developer</prop>
+      <note xml:lang="en-us">DEV_MSG.CTL_GAP_SYS</note>
+      <tuv xml:lang="en-us">
+        <seg>System controls are read-only packaged defaults</seg>
+      </tuv>
+      <tuv xml:lang="bn">
+        <seg>সিস্টেম নিয়ন্ত্রণগুলি শুধুমাত্র পঠনযোগ্য প্যাকেজ ডিফল্ট</seg>
+      </tuv>
+    </tu></body>
 </tmx>

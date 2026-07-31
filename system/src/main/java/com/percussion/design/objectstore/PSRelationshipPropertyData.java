@@ -207,9 +207,9 @@ public class PSRelationshipPropertyData implements Serializable {
     String isPersisted = m_isPersisted ? PSRelationship.XML_TRUE : PSRelationship.XML_FALSE;
     propEl.setAttribute(XML_ATTR_ISPERSISTED, isPersisted);
     propEl.setAttribute(XML_ATTR_NAME, String.valueOf(m_propertyName));
-    Text textNode =
+    Text StringNode =
         propEl.getOwnerDocument().createTextNode(m_propertyValue == null ? "" : m_propertyValue);
-    propEl.appendChild(textNode);
+    propEl.appendChild(StringNode);
 
     return propEl;
   }

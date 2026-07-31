@@ -20,8 +20,9 @@
 package com.percussion.category.data;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.percussion.share.data.PSAbstractDataObject;
 import jakarta.xml.bind.annotation.*;
 import java.util.ArrayList;
@@ -107,9 +108,9 @@ public class PSCategory extends PSAbstractDataObject implements Cloneable {
    */
   public String toJSON() {
     try {
-      var mapper = new ObjectMapper();
+      var mapper = JsonMapper.builder().build();
       return mapper.writeValueAsString(this);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       System.out.println(e.getMessage());
       return null;
     }

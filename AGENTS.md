@@ -444,7 +444,7 @@ A list of child modules in this repository. Each bullet contains: Module name �
 - **webservices** — `./modules/webservices` — Legacy Rhythmyx SOAP web services API migrated from Apache Axis to CXF.
 - **perc-system** — `./system` — The core CMS module representing Rhythmyx functionality.  Contains the core XML application server and content managenent implementation.
 - **perc-service-wrapper** — `./modules/perc-service-wrapper` — Legacy module that was intended to be used for Windows service management. Currently not used in deployments.
-- **rest** — `./rest` — Public REST API (JAX-RS resources, wire DTOs, `IXxxAdaptor` interfaces). **Must not** depend on `sitemanage` (reactor cycle). See `rest/AGENTS.md`.
+- **rest** — `./rest` — Public REST API (JAX-RS resources, wire DTOs, `IXxxAdaptor` interfaces). **Must not** depend on `sitemanage` (reactor cycle). See `rest/AGENTS.md`. Workbench-replacement REST + **dev/QA test modes**: `docs/developer-module/workbench-rest-and-qa-modes.md`.
 - **perc-tinymce** — `./modules/perc-tinymce` — Packaging module for the TinyMCE rich text editor used in the CMS ui to edit content.
 - **perc-toolkit** — `./modules/perc-toolkit` — Legacy module containing
 - **perc-taxonomy** — `./modules/perc-taxonomy` — Legacy Rhythmyx module that provides taxonomy services for CMS content.
@@ -463,7 +463,7 @@ A list of child modules in this repository. Each bullet contains: Module name �
 - **Percussion CMS Common UI Bundle** — `./modules/perc-common-ui-bundle` — Minified JavaScript bundle for the Percussion CMS delivery-tier widgets (perc_common_ui.js and perc_common_ui_slim.js); built with esbuild and served as bundled web resources from this JAR.
 - **Percussion OpenAPI Generator Maven Plugin** — `./modules/perc-openapi-generator-plugin` — Maven plugin to generate OpenAPI specification from JAX-RS annotations in the `rest` module.
 - **perc-web-ui** — `./WebUI` — The main user interface for the product. UI screen changes require Playwright create/update in `modules/perc-qa-automation` (see `WebUI/AGENTS.md`).
-- **perc-qa-automation** — `./modules/perc-qa-automation` — Playwright (+ TestNG) E2E against a live CMS; required companion tests for WebUI screen work.
+- **perc-qa-automation** — `./modules/perc-qa-automation` — Playwright (+ TestNG) E2E against a live CMS; required companion tests for WebUI screen work. **Dev mode** = local install + docker bind + hot copy (no restart); **QA mode** = all-in-docker pass/fail. See `docs/developer-module/workbench-rest-and-qa-modes.md` and `modules/perc-qa-automation/AGENTS.md`.
 - **Percussion OpenAPI Web App** — `./modules/perc-openapi-webapp` — Provides the OpenAPI Swagger UI forinteracting with the products REST API's.
 - **perc-thumbnail** — `./modules/perc-thumbnail` — Responsible for generating all web page thumbnails in the application.
 - **sitemanage** — `./projects/sitemanage` — CM1 middleware + `com.percussion.apibridge` implementations of `rest` `IXxxAdaptor` interfaces. Depends on `rest`; never reverse. See `projects/sitemanage/AGENTS.md`.

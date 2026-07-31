@@ -48,6 +48,16 @@ Package: `com.percussion.apibridge`
 This package is the **only** place that should implement public REST adaptor interfaces from
 `com.percussion.rest.*`.
 
+### Workbench replacement (HARD RULES)
+
+apibridge is **thin glue**, not a second Workbench. Prefer **design webservices**
+(`IPSContentDesignWs`, `IPSUiDesignWs`, `IPSAssemblyDesignWs`, …) when implementing
+Developer/Workbench-replacement catalogs — same backends SOAP used. Do **not** wire
+partial CM1/sitemanage product REST “because it’s already REST-like.”
+
+Canonical rules: [`docs/developer-module/workbench-rest-and-qa-modes.md`](../../docs/developer-module/workbench-rest-and-qa-modes.md).  
+Audit matrix: [`docs/ai-generated/tasks/developer-module-p0/adaptor-design-ws-audit.md`](../../docs/ai-generated/tasks/developer-module-p0/adaptor-design-ws-audit.md).
+
 ```text
 rest JAX-RS Resource
         │  injects interface
@@ -56,9 +66,10 @@ rest IXxxAdaptor  (interface + wire DTOs live in rest)
         │  implemented by
         ▼
 sitemanage apibridge XxxAdaptor  (@PSSiteManageBean)
-        │  calls
+        │  calls (Workbench replacement prefer:)
         ▼
-sitemanage / perc-system domain services
+IPS*DesignWs / design system APIs  (SOAP reference)
+  or documented ALT system owners when no design-WS twin
 ```
 
 ### Conventions

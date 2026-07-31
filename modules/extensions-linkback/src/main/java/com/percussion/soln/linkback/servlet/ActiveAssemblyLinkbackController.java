@@ -43,10 +43,18 @@ public class ActiveAssemblyLinkbackController extends GenericLinkbackController 
 
   private ItemSummaryFinder itemSummaryFinder;
 
+  /** Creates a controller that targets the Active Assembly redirect path. */
+  public ActiveAssemblyLinkbackController() {
+    super();
+  }
+
   /**
-   * Return a ModelAndView to the active assembly. Verify sys_contentid, sys_template, sys_folderid,
-   * and sys_siteid are in the map. Use the latest revision of the item, which may or may not be
-   * checked out by current user.
+   * Returns a view for the Active Assembly redirect.
+   *
+   * <p>The method validates the required parameters and uses the latest item revision.
+   *
+   * @param params decoded linkback parameters
+   * @return the Active Assembly redirect or an error view
    */
   @Override
   protected ModelAndView handleLinkBackRedirect(Map<String, String> params) {
@@ -124,24 +132,39 @@ public class ActiveAssemblyLinkbackController extends GenericLinkbackController 
     return (StringUtils.isBlank(str) || !StringUtils.isNumeric(str));
   }
 
+  /**
+   * Returns whether the template parameter is submitted as a variant ID.
+   *
+   * @return {@code true} when the variant ID is used, otherwise {@code false}
+   */
   public boolean isUseVariantId() {
     return useVariantId;
   }
 
   /**
-   * Set this property in the bean config. If "true" (default), use IPSHtmlParameters.SYS_VARIANTID
-   * to submit the template ID; otherwise, use IPSHtmlParameters.SYS_TEMPLATE.
+   * Sets whether the template parameter is submitted as a variant ID.
    *
-   * @param useVariantId
+   * @param useVariantId {@code true} to submit the template as a variant ID; {@code false} to use
+   *     the template parameter
    */
   public void setUseVariantId(boolean useVariantId) {
     this.useVariantId = useVariantId;
   }
 
+  /**
+   * Returns the item summary finder used to resolve the current or edit revision.
+   *
+   * @return the item summary finder
+   */
   public ItemSummaryFinder getItemSummaryFinder() {
     return itemSummaryFinder;
   }
 
+  /**
+   * Sets the item summary finder used to resolve the current or edit revision.
+   *
+   * @param itemSummaryFinder the item summary finder
+   */
   public void setItemSummaryFinder(ItemSummaryFinder itemSummaryFinder) {
     this.itemSummaryFinder = itemSummaryFinder;
   }

@@ -19,7 +19,7 @@
 package com.percussion.pagemanagement.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 import com.percussion.share.data.PSAbstractPersistantObject;
 import jakarta.xml.bind.annotation.*;
 import net.sf.oval.constraint.NotEmpty;

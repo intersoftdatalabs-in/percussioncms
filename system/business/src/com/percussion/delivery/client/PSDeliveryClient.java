@@ -17,7 +17,8 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.delivery.client;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.percussion.delivery.data.PSDeliveryInfo;
 import com.percussion.proxyconfig.data.PSProxyConfig;
 import com.percussion.proxyconfig.service.IPSProxyConfigService;
@@ -237,7 +238,7 @@ public class PSDeliveryClient implements IPSDeliveryClient
             return new java.util.HashMap<String, Object>();
         }
         try {
-            var mapper = new ObjectMapper();
+            var mapper = JsonMapper.builder().build();
             return mapper.readValue(jsonStr, Object.class);
         }
         catch (Exception ex) {

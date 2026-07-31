@@ -20,28 +20,27 @@ package com.percussion.sitemanage.json;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
-import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.percussion.system.utils.PSSiteManageBean;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.ext.ContextResolver;
 import jakarta.ws.rs.ext.Provider;
+import tools.jackson.databind.AnnotationIntrospector;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.cfg.EnumFeature;
+import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
 
 /**
  * JacksonContextResolver is picked up by Jackson automatically via the Provider annotation. It
- * modifies the serialization behavior of objects passed in. Only classes in the same package and
- * subpackages are affected.
+ * modifies the serialization behavior of objects passed in.
+ *
+ * <p>Configured via Jackson 3 immutable {@link JsonMapper} builder (Optional / java.time built-in).
  */
 @Provider
 @PSSiteManageBean("jacksonContextResolver")
@@ -49,28 +48,25 @@ import jakarta.ws.rs.ext.Provider;
 @Produces({MediaType.APPLICATION_JSON, "text/json"})
 public class JacksonContextResolver implements ContextResolver<ObjectMapper> {
 
-  private static final ObjectMapper MAPPER = new ObjectMapper();
-
-  static {
-    MAPPER
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        .enable(SerializationFeature.INDENT_OUTPUT)
-        .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-        .configure(SerializationFeature.WRAP_ROOT_VALUE, true)
-        .configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true)
-        .configure(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS, false)
-        .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
-        .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE, true)
-        .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.PUBLIC_ONLY)
-        .setAnnotationIntrospector(
-            AnnotationIntrospector.pair(
-                new JakartaXmlBindAnnotationIntrospector(TypeFactory.defaultInstance()),
-                new JacksonAnnotationIntrospector()))
-        .registerModule(new ParameterNamesModule())
-        .registerModule(new Jdk8Module())
-        .registerModule(new JavaTimeModule())
-        .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-  }
+  private static final ObjectMapper MAPPER =
+      JsonMapper.builder()
+          .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+          .enable(SerializationFeature.INDENT_OUTPUT)
+          .changeDefaultPropertyInclusion(
+              incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
+          .enable(SerializationFeature.WRAP_ROOT_VALUE)
+          .enable(DeserializationFeature.UNWRAP_ROOT_VALUE)
+          .disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+          .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
+          .enable(EnumFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+          .changeDefaultVisibility(
+              vc -> vc.withFieldVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY))
+          .annotationIntrospector(
+              AnnotationIntrospector.pair(
+                  new JakartaXmlBindAnnotationIntrospector(),
+                  new JacksonAnnotationIntrospector()))
+          .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+          .build();
 
   public JacksonContextResolver() {
     // Default constructor
@@ -78,13 +74,6 @@ public class JacksonContextResolver implements ContextResolver<ObjectMapper> {
 
   @Override
   public ObjectMapper getContext(Class<?> objectType) {
-    // Only use this configuration for classes in the same package and subpackages.
-    // If you want to restrict, uncomment the following:
-    // if
-    // (objectType.getPackage().getName().startsWith(JacksonContextResolver.class.getPackage().getName())) {
-    //     return MAPPER;
-    // }
-    // return null;
     return MAPPER;
   }
 }

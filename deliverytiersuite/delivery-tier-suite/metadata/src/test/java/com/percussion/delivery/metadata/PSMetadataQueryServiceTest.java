@@ -18,8 +18,9 @@ package com.percussion.delivery.metadata;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.github.javafaker.Faker;
 import com.percussion.delivery.metadata.IPSMetadataProperty.VALUETYPE;
 import com.percussion.delivery.metadata.data.PSMetadataBlogResult;
@@ -1600,7 +1601,7 @@ public class PSMetadataQueryServiceTest {
   @Test
   public void testSortByCreatedDateDesc() {
     PSMetadataQuery query = new PSMetadataQuery();
-    ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = JsonMapper.builder().build();
     try {
       query =
           mapper.readValue(
@@ -1642,7 +1643,7 @@ public class PSMetadataQueryServiceTest {
   @Test
   public void testSortByCreatedDateAsc() {
     PSMetadataQuery query = new PSMetadataQuery();
-    ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = JsonMapper.builder().build();
     try {
       query =
           mapper.readValue(
@@ -1690,7 +1691,7 @@ public class PSMetadataQueryServiceTest {
   @Test
   public void testSortByLinkTextASC() {
     PSMetadataQuery query = new PSMetadataQuery();
-    ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = JsonMapper.builder().build();
     try {
       query =
           mapper.readValue(
@@ -1722,7 +1723,7 @@ public class PSMetadataQueryServiceTest {
         }
       }
 
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       fail(e.getMessage());
@@ -1736,7 +1737,7 @@ public class PSMetadataQueryServiceTest {
   @Test
   public void testSortByLinkTextDesc() {
     PSMetadataQuery query = new PSMetadataQuery();
-    ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = JsonMapper.builder().build();
     try {
       query =
           mapper.readValue(

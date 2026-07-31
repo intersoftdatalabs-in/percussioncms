@@ -34,6 +34,7 @@ public class ActionPanelLinkbackController extends GenericLinkbackController {
 
   private static final String REDIRECT_PATH = "/ui/actionpage/panel";
 
+  /** Creates a controller configured for the Action Panel redirect. */
   public ActionPanelLinkbackController() {
     super();
     setRedirectPath(REDIRECT_PATH);

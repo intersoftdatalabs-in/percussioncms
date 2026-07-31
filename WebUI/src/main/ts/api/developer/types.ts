@@ -564,6 +564,20 @@ export interface WorkflowDef {
   designGaps?: string[];
 }
 
+/** Server configuration from GET /services/serverconfigs (SY-02). */
+export interface ServerConfigDef {
+  name?: string;
+  displayName?: string;
+  fileName?: string;
+  description?: string;
+  typeId?: number;
+  content?: string;
+  mimeType?: string;
+  characterEncoding?: string;
+  contentLength?: number;
+  designGaps?: string[];
+}
+
 /** CE control parameter from GET /services/cecontrols. */
 export interface ControlParameterSummary {
   name?: string;

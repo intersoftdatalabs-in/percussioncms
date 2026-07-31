@@ -16,14 +16,11 @@
  */
 package com.percussion.delivery.test.utils.properties;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.percussion.delivery.utils.properties.PSPropertyDefinition;
 import com.percussion.delivery.utils.properties.PSPropertyGroupDefinition;
-import java.io.IOException;
-import java.io.StringWriter;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * @author natechadwick
@@ -31,8 +28,7 @@ import org.junit.jupiter.api.Test;
 public class PSPropertyGroupTest {
 
   @Test
-  public void testJSON() throws IOException {
-
+  public void testJSON() {
     PSPropertyGroupDefinition basic = new PSPropertyGroupDefinition();
     basic.setDisplayName("Basic");
     basic.setName("basic");
@@ -53,16 +49,7 @@ public class PSPropertyGroupTest {
     p2.setName("p2");
     basic.getProperties().add(p2);
 
-    ObjectMapper m = new ObjectMapper();
-    JsonFactory jf = new JsonFactory();
-    StringWriter sw = new StringWriter();
-
-    JsonGenerator jg = jf.createJsonGenerator(sw);
-
-    jg.useDefaultPrettyPrinter();
-
-    m.writeValue(jg, basic);
-
-    System.out.print(sw.toString());
+    var mapper = JsonMapper.builder().enable(SerializationFeature.INDENT_OUTPUT).build();
+    System.out.print(mapper.writeValueAsString(basic));
   }
 }
