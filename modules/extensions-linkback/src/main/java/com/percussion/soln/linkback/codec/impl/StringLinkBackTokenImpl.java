@@ -134,6 +134,12 @@ public class StringLinkBackTokenImpl implements LinkbackTokenCodec {
     }
   }
 
+  /**
+   * Converts supported parameter value representations to a single string value.
+   *
+   * @param value a string, string array, list, or other object
+   * @return the first value represented as a string, or {@code null} when the input is null
+   */
   public static String simplifyValue(Object value) {
     if (value == null) {
       log.debug("null value");
@@ -163,15 +169,21 @@ public class StringLinkBackTokenImpl implements LinkbackTokenCodec {
     return sval;
   }
 
+  /** Marker identifying a content ID parameter. */
   public static final char CONTENTID = 'C';
 
+  /** Marker identifying a revision parameter. */
   public static final char REVISION = 'R';
 
+  /** Marker identifying a template parameter. */
   public static final char TEMPLATE = 'T';
 
+  /** Marker identifying a site parameter. */
   public static final char SITE = 'S';
 
+  /** Marker identifying a folder parameter. */
   public static final char FOLDER = 'F';
 
+  /** Delimiter separating encoded parameter segments. */
   public static final String DELIM = "-";
 }

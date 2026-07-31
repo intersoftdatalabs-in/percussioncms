@@ -34,6 +34,7 @@ public class ContentExplorerLinkbackController extends GenericLinkbackController
 
   private static final String REDIRECT_PATH = "/sys_cx/mainpage.html";
 
+  /** Creates a controller configured for the Content Explorer redirect. */
   public ContentExplorerLinkbackController() {
     super();
     setRedirectPath(REDIRECT_PATH);
