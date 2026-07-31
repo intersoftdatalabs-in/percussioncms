@@ -41,6 +41,7 @@
     <prop type="supportedlanguage">fr-lu</prop>
     <prop type="supportedlanguage">fr-be</prop>
     <prop type="supportedlanguage">fr-us</prop>
+    <prop type="supportedlanguage">lou</prop>
     <prop type="supportedlanguage">hi</prop>
     <prop type="supportedlanguage">hi-in</prop>
     <prop type="supportedlanguage">it</prop>
