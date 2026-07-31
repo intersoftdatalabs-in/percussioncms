@@ -134,13 +134,19 @@ or same line:
 someSink(arg); // codeql[java/ssrf]
 ```
 
-**Preferred form for Jackson/JAXB/CXF REST residuals (`java/xss`):** put the annotation
-**on the exact `return` / `write` / `print` line** with a short `justification:` that states
-why the flow is not HTML XSS (e.g. JSON/XML DTO serialization, reverse-proxy pass-through,
-or an `XSSValidation.*` sanitizer). Prefer this over bulk path-exclude or mass dismiss:
+**Preferred form (all rules, including Jackson/JAXB/CXF REST `java/xss` residuals):** put a
+**short** annotation on the exact sink line. Rule id only — no long `justification:` text on
+the Java line. Long rationale belongs in `suppressions.md` (and optionally a normal `//`
+comment on the line above, which is *not* a CodeQL annotation).
 
 ```java
-return siteDataService.save(site); // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; not HTML body
+// JSON/XML DTO via Jackson/JAXB — not HTML body (see suppressions.md)
+return siteDataService.save(site); // codeql[java/xss]
+```
+
+```java
+response.sendRedirect(safe); // codeql[java/unvalidated-url-redirection]
+if (namedCssFile.exists()) { // codeql[java/path-injection]
 ```
 
 **Does not work** (comment not adjacent to the alert line):
@@ -161,6 +167,28 @@ HttpRequest.Builder b =
             .GET()
             .timeout(Duration.ofSeconds(60));
 ```
+
+### CodeQL annotations and Spotless (google-java-format)
+
+Root Spotless uses **google-java-format** (`style: GOOGLE`, `reflowLongStrings: true`). It does
+**not** delete `// codeql[...]` comments, but it **does** rewrap long lines. That matters because
+CodeQL only honors annotations on the **alert line** (or the single line immediately above a
+one-line sink).
+
+| Risk | What happens | Mitigation |
+|------|--------------|------------|
+| Long trailing `// codeql[…] justification: …` | Formatter wraps the call; comment lands on a continuation / closing-paren line while CodeQL reports the `return` / call start | Keep annotations **short** (`// codeql[rule-id]` only) |
+| Multi-line `// codeql[…] reason: …` blocks above the sink | Comment is not adjacent → CodeQL ignores it | Same-line short form only |
+| Spotless cleanup or any line-number shift near a sink | CodeQL **re-fingerprints** → new alert ID for the same residual | Avoid re-editing already-annotated sinks for wording; document thrash in `suppressions.md` and dismiss FP when runtime is already closed |
+| "Improve" annotation wording on a closed residual | Same re-fingerprint thrash as #1911–#1913 / XSS waves #1850–#1903 | Do not re-touch stable sink lines |
+
+**Agent rule:** after `spotless:apply`, re-check every in-scope `// codeql[` line — it must still
+sit on the sink statement (or the single line above). If apply rewrapped a call, put the short
+annotation back on the line CodeQL will flag, then re-run `spotless:check`.
+
+**Spotless cleanup PRs:** treat files that already carry `// codeql[...]` as high-risk. Prefer
+not to reformat them in bulk cleanup; if Spotless rewrites them out of scope of a feature PR,
+split to a cleanup PR and verify annotations still land on sinks.
 
 ---
 
@@ -205,7 +233,9 @@ Copy into the PR body or agent task list:
 - [ ] Runtime fix + regression test(s) green under `./mvnw`
 - [ ] Custom sanitizer covered by `.github/codeql/models` (or justified why not)
 - [ ] Any `// codeql[...]` is on the **sink line** (not three lines above a multi-line builder)
-- [ ] `suppressions.md` updated for path excludes / dismissals / new models
+- [ ] Annotations are **short** (`// codeql[rule-id]` only) so Spotless/google-java-format will not rewrap them off the sink
+- [ ] After `spotless:apply`, re-check in-scope `// codeql[` placement; fix if rewrapped
+- [ ] `suppressions.md` updated for path excludes / dismissals / new models (long justifications live here, not on Java lines)
 - [ ] Default setup still `not-configured` (`gh api .../default-setup`)
 - [ ] Advanced workflow is the one that ran on the PR (check name **CodeQL Advanced** / Analyze jobs with config)
 - [ ] CodeQL review threads: inline mitigation reply **and** `resolveReviewThread`

@@ -1389,7 +1389,7 @@ public class PSSecurityFilter implements Filter {
         response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid redirect location");
         return;
       }
-      response.sendRedirect(redirect);
+      response.sendRedirect(redirect); // codeql[java/unvalidated-url-redirection]
     } catch (Exception e) {
       ms_log.warn("Failed to rebuild redirect location: {}", sanitizeForLog(safe));
       response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid redirect location");
