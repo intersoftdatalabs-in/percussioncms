@@ -10,7 +10,6 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
@@ -21,68 +20,96 @@ import com.percussion.rest.keywords.IKeywordsAdaptor;
 import com.percussion.rest.keywords.KeywordChoiceSummary;
 import com.percussion.rest.keywords.KeywordNotFoundException;
 import com.percussion.rest.keywords.KeywordSummary;
+import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
-import com.percussion.services.content.IPSContentService;
-import com.percussion.services.content.PSContentException;
-import com.percussion.services.content.PSContentServiceLocator;
 import com.percussion.services.content.data.PSKeyword;
 import com.percussion.services.content.data.PSKeywordChoice;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.guid.IPSGuid;
+import com.percussion.utils.request.PSRequestInfo;
+import com.percussion.webservices.PSErrorResultsException;
+import com.percussion.webservices.PSErrorsException;
+import com.percussion.webservices.content.IPSContentDesignWs;
+import com.percussion.webservices.content.PSContentWsLocator;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/** Keyword design catalog + create/update/delete for the Developer module. */
+/**
+ * Keyword design catalog for Developer REST.
+ *
+ * <p>Workbench parity: routes through {@link IPSContentDesignWs} (same design web service
+ * {@code ContentDesignSOAPImpl} uses) — find / load / create / save / delete with design locks —
+ * not a parallel path via {@code IPSContentService} alone.
+ */
 @PSSiteManageBean
 public class KeywordsAdaptor implements IKeywordsAdaptor {
 
   private static final Logger log = LogManager.getLogger(KeywordsAdaptor.class);
 
-  private final IPSContentService contentService;
+  private final IPSContentDesignWs designWs;
 
   public KeywordsAdaptor() {
-    this(PSContentServiceLocator.getContentService());
+    this(PSContentWsLocator.getContentDesignWebservice());
   }
 
-  /** Package-visible for unit tests that inject a fake content service. */
-  KeywordsAdaptor(IPSContentService contentService) {
-    this.contentService = contentService;
-  }
-
-  private IPSContentService svc() {
-    return contentService;
+  /** Package-visible for unit tests that inject a fake design web service. */
+  KeywordsAdaptor(IPSContentDesignWs designWs) {
+    this.designWs = designWs;
   }
 
   @Override
   public List<KeywordSummary> listKeywords(URI baseUri, boolean includeChoices) {
-    // baseUri reserved for HATEOAS link building (interface contract)
-    List<PSKeyword> keywords = svc().findKeywordsByLabel(null, "label");
-    List<KeywordSummary> out = new ArrayList<>();
-    for (PSKeyword kw : keywords) {
-      if (kw == null || !isKeywordDef(kw)) {
-        continue;
+    try {
+      List<IPSCatalogSummary> summaries = designWs.findKeywords(null);
+      if (summaries == null || summaries.isEmpty()) {
+        return List.of();
       }
-      out.add(toSummary(kw, includeChoices));
+      List<IPSGuid> guids = new ArrayList<>();
+      for (IPSCatalogSummary sum : summaries) {
+        if (sum != null && sum.getGUID() != null) {
+          guids.add(sum.getGUID());
+        }
+      }
+      if (guids.isEmpty()) {
+        return List.of();
+      }
+      List<PSKeyword> loaded =
+          designWs.loadKeywords(guids, false, false, currentSession(), currentUser());
+      List<KeywordSummary> out = new ArrayList<>();
+      if (loaded != null) {
+        for (PSKeyword kw : loaded) {
+          if (kw == null || !isKeywordDef(kw)) {
+            continue;
+          }
+          out.add(toSummary(kw, includeChoices));
+        }
+      }
+      out.sort(
+          Comparator.comparing(
+              KeywordSummary::getLabel, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+      return out;
+    } catch (PSErrorResultsException e) {
+      log.error("Failed to list keywords via content design WS", e);
+      throw new IllegalStateException("Failed to list keywords", e);
+    } catch (RuntimeException e) {
+      log.error("Failed to list keywords via content design WS", e);
+      throw e;
     }
-    out.sort(
-        Comparator.comparing(
-            KeywordSummary::getLabel, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
-    return out;
   }
 
   @Override
   public KeywordSummary getKeyword(URI baseUri, String idOrValue) {
-    // baseUri reserved for HATEOAS link building (interface contract)
     if (StringUtils.isBlank(idOrValue)) {
       return null;
     }
-    PSKeyword kw = resolveKeyword(svc(), idOrValue.trim());
+    PSKeyword kw = resolveKeyword(idOrValue.trim());
     return kw == null ? null : toSummary(kw, true);
   }
 
@@ -91,25 +118,31 @@ public class KeywordsAdaptor implements IKeywordsAdaptor {
     if (body == null || StringUtils.isBlank(body.getLabel())) {
       throw new IllegalArgumentException("label is required");
     }
-    IPSContentService svc = svc();
+    requireSessionUserForWrite();
     String label = body.getLabel().trim();
-    assertLabelUnique(svc, label, null);
+    assertLabelUnique(label, null);
+    String session = currentSession();
+    String user = currentUser();
     try {
-      PSKeyword kw = svc.createKeyword(label, body.getDescription());
+      List<PSKeyword> created =
+          designWs.createKeywords(Collections.singletonList(label), session, user);
+      if (created == null || created.isEmpty() || created.get(0) == null) {
+        throw new IllegalStateException("Design WS createKeywords returned empty");
+      }
+      PSKeyword kw = created.get(0);
+      if (body.getDescription() != null) {
+        kw.setDescription(body.getDescription());
+      }
       if (body.getSequence() != null) {
         kw.setSequence(body.getSequence());
       }
       applyChoices(kw, body.getChoices());
-      svc.saveKeyword(kw);
-      try {
-        PSKeyword reloaded = svc.loadKeyword(kw.getGUID(), "sequence");
-        return toSummary(reloaded, true);
-      } catch (PSContentException e) {
-        log.debug("Could not reload keyword after create: {}", e.getMessage());
-        return toSummary(kw, true);
-      }
+      designWs.saveKeywords(Collections.singletonList(kw), true, session, user);
+      return reloadSummary(kw.getGUID());
+    } catch (PSErrorsException e) {
+      log.error("Failed to create keyword via content design WS", e);
+      throw new IllegalStateException("Failed to create keyword", e);
     } catch (IllegalArgumentException e) {
-      // Surface service uniqueness/validation as 400
       throw e;
     }
   }
@@ -122,31 +155,45 @@ public class KeywordsAdaptor implements IKeywordsAdaptor {
     if (body == null) {
       throw new IllegalArgumentException("body is required");
     }
-    IPSContentService svc = svc();
-    PSKeyword kw = loadById(svc, id.trim());
-    if (kw == null) {
-      return null;
+    requireSessionUserForWrite();
+    IPSGuid g = parseKeywordGuid(id.trim());
+    if (g == null) {
+      throw new IllegalArgumentException("Invalid keyword id: " + id);
     }
-    if (StringUtils.isNotBlank(body.getLabel())) {
-      String newLabel = body.getLabel().trim();
-      assertLabelUnique(svc, newLabel, kw.getGUID());
-      kw.setLabel(newLabel);
-    }
-    if (body.getDescription() != null) {
-      kw.setDescription(body.getDescription());
-    }
-    if (body.getSequence() != null) {
-      kw.setSequence(body.getSequence());
-    }
-    if (body.getChoices() != null) {
-      applyChoices(kw, body.getChoices());
-    }
-    svc.saveKeyword(kw);
+    String session = currentSession();
+    String user = currentUser();
     try {
-      return toSummary(svc.loadKeyword(kw.getGUID(), "sequence"), true);
-    } catch (PSContentException e) {
-      log.debug("Could not reload keyword after update: {}", e.getMessage());
-      return toSummary(kw, true);
+      List<PSKeyword> loaded =
+          designWs.loadKeywords(Collections.singletonList(g), true, false, session, user);
+      if (loaded == null || loaded.isEmpty() || loaded.get(0) == null) {
+        return null;
+      }
+      PSKeyword kw = loaded.get(0);
+      if (StringUtils.isNotBlank(body.getLabel())) {
+        String newLabel = body.getLabel().trim();
+        assertLabelUnique(newLabel, kw.getGUID());
+        kw.setLabel(newLabel);
+      }
+      if (body.getDescription() != null) {
+        kw.setDescription(body.getDescription());
+      }
+      if (body.getSequence() != null) {
+        kw.setSequence(body.getSequence());
+      }
+      if (body.getChoices() != null) {
+        applyChoices(kw, body.getChoices());
+      }
+      designWs.saveKeywords(Collections.singletonList(kw), true, session, user);
+      return reloadSummary(kw.getGUID());
+    } catch (PSErrorResultsException e) {
+      if (isNotFound(e)) {
+        return null;
+      }
+      log.error("Failed to load keyword for update via design WS: {}", id, e);
+      throw new IllegalStateException("Failed to update keyword", e);
+    } catch (PSErrorsException e) {
+      log.error("Failed to save keyword via content design WS: {}", id, e);
+      throw new IllegalStateException("Failed to update keyword", e);
     }
   }
 
@@ -155,34 +202,59 @@ public class KeywordsAdaptor implements IKeywordsAdaptor {
     if (StringUtils.isBlank(id)) {
       throw new IllegalArgumentException("id is required");
     }
-    IPSContentService svc = svc();
+    requireSessionUserForWrite();
     IPSGuid g = parseKeywordGuid(id.trim());
     if (g == null) {
       throw new IllegalArgumentException("Invalid keyword id: " + id);
     }
+    String session = currentSession();
+    String user = currentUser();
+    // Ensure exists (design load)
     try {
-      svc.loadKeyword(g, null);
-    } catch (PSContentException e) {
+      designWs.loadKeywords(Collections.singletonList(g), false, false, session, user);
+    } catch (PSErrorResultsException e) {
       throw new KeywordNotFoundException("Keyword not found: " + id);
     }
-    svc.deleteKeyword(g);
+    try {
+      designWs.deleteKeywords(Collections.singletonList(g), false, session, user);
+    } catch (PSErrorsException e) {
+      log.error("Failed to delete keyword via content design WS: {}", id, e);
+      throw new IllegalStateException("Failed to delete keyword", e);
+    }
   }
 
-  /**
-   * Ensure no other keyword definition uses the same label (case-insensitive).
-   *
-   * @param excludeGuid when updating, the current keyword GUID to ignore
-   */
-  private static void assertLabelUnique(IPSContentService svc, String label, IPSGuid excludeGuid) {
-    List<PSKeyword> matches = svc.findKeywordsByLabel(label, null);
+  private KeywordSummary reloadSummary(IPSGuid guid) {
+    if (guid == null) {
+      return null;
+    }
+    try {
+      List<PSKeyword> loaded =
+          designWs.loadKeywords(
+              Collections.singletonList(guid), false, false, currentSession(), currentUser());
+      if (loaded != null && !loaded.isEmpty() && loaded.get(0) != null) {
+        return toSummary(loaded.get(0), true);
+      }
+    } catch (PSErrorResultsException e) {
+      log.debug("Could not reload keyword after write: {}", e.getMessage());
+    }
+    return null;
+  }
+
+  private void assertLabelUnique(String label, IPSGuid excludeGuid) {
+    List<IPSCatalogSummary> matches = designWs.findKeywords(label);
     if (matches == null) {
       return;
     }
-    for (PSKeyword existing : matches) {
-      if (existing == null || !isKeywordDef(existing)) {
+    for (IPSCatalogSummary existing : matches) {
+      if (existing == null) {
         continue;
       }
-      if (!label.equalsIgnoreCase(StringUtils.defaultString(existing.getLabel()))) {
+      String name = existing.getName();
+      String sumLabel = existing.getLabel();
+      boolean labelMatch =
+          label.equalsIgnoreCase(StringUtils.defaultString(name))
+              || label.equalsIgnoreCase(StringUtils.defaultString(sumLabel));
+      if (!labelMatch) {
         continue;
       }
       if (excludeGuid != null
@@ -198,32 +270,72 @@ public class KeywordsAdaptor implements IKeywordsAdaptor {
     return kw.getKeywordType() == null || PSKeyword.KEYWORD_TYPE.equals(kw.getKeywordType());
   }
 
-  private static PSKeyword resolveKeyword(IPSContentService svc, String idOrValue) {
+  private PSKeyword resolveKeyword(String idOrValue) {
     if (StringUtils.isNumeric(idOrValue) || idOrValue.contains("-")) {
-      PSKeyword byId = loadById(svc, idOrValue);
-      if (byId != null) {
-        return byId;
+      IPSGuid g = parseKeywordGuid(idOrValue);
+      if (g != null) {
+        try {
+          List<PSKeyword> loaded =
+              designWs.loadKeywords(
+                  Collections.singletonList(g), false, false, currentSession(), currentUser());
+          if (loaded != null && !loaded.isEmpty() && loaded.get(0) != null) {
+            return loaded.get(0);
+          }
+        } catch (PSErrorResultsException e) {
+          log.debug("Keyword id not found {}: {}", idOrValue, e.getMessage());
+        }
       }
     }
-    // Match by value among keyword defs
-    List<PSKeyword> all = svc.findKeywordsByLabel(null, null);
-    for (PSKeyword kw : all) {
-      if (kw != null && isKeywordDef(kw) && idOrValue.equals(kw.getValue())) {
-        return kw;
+    // Match by value or label among all defs loaded via design WS
+    try {
+      List<IPSCatalogSummary> summaries = designWs.findKeywords(null);
+      if (summaries == null || summaries.isEmpty()) {
+        return null;
       }
+      List<IPSGuid> guids = new ArrayList<>();
+      for (IPSCatalogSummary sum : summaries) {
+        if (sum != null && sum.getGUID() != null) {
+          guids.add(sum.getGUID());
+        }
+      }
+      if (guids.isEmpty()) {
+        return null;
+      }
+      List<PSKeyword> loaded =
+          designWs.loadKeywords(guids, false, false, currentSession(), currentUser());
+      if (loaded == null) {
+        return null;
+      }
+      for (PSKeyword kw : loaded) {
+        if (kw == null || !isKeywordDef(kw)) {
+          continue;
+        }
+        if (idOrValue.equals(kw.getValue()) || idOrValue.equalsIgnoreCase(kw.getLabel())) {
+          return kw;
+        }
+      }
+    } catch (PSErrorResultsException e) {
+      log.debug("Keyword resolve failed for {}: {}", idOrValue, e.getMessage());
     }
     return null;
   }
 
-  private static PSKeyword loadById(IPSContentService svc, String id) {
-    IPSGuid g = parseKeywordGuid(id);
-    if (g == null) {
-      return null;
-    }
-    try {
-      return svc.loadKeyword(g, "sequence");
-    } catch (PSContentException e) {
-      return null;
+  private static boolean isNotFound(PSErrorResultsException e) {
+    return e != null && e.getErrors() != null && !e.getErrors().isEmpty() && e.getResults().isEmpty();
+  }
+
+  private static String currentSession() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+  }
+
+  private static String currentUser() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
+  }
+
+  private static void requireSessionUserForWrite() {
+    if (StringUtils.isBlank(currentSession()) || StringUtils.isBlank(currentUser())) {
+      throw new IllegalStateException(
+          "session and user are required for keyword design create/update/delete (IPSContentDesignWs)");
     }
   }
 
