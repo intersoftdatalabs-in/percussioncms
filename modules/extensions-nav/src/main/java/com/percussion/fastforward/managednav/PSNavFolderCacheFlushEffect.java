@@ -37,6 +37,11 @@ import com.percussion.server.cache.PSCacheProxy;
  */
 public class PSNavFolderCacheFlushEffect extends PSNavAbstractEffect implements IPSEffect {
 
+  /** Default constructor. */
+  public PSNavFolderCacheFlushEffect() {
+    super();
+  }
+
   /**
    * Attempt to process the effect. Items which are added or removed from folders will cause this
    * effect to fire. This method only processes new or deleted relationships. All other changes are
