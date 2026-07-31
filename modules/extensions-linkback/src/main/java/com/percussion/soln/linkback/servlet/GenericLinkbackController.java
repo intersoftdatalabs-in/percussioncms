@@ -47,8 +47,13 @@ import org.springframework.web.servlet.view.RedirectView;
  *   <li>helpViewName (optional) - help view name
  *   <li>linkbackCodec (optional) - implementation of {@link LinkbackTokenCodec}
  * </ul>
+ *
+ * <p>Creates a controller with default configuration.
  */
 public class GenericLinkbackController extends AbstractController {
+
+  /** Creates a generic linkback controller with default configuration. */
+  public GenericLinkbackController() {}
 
   private static final Logger log = LogManager.getLogger(GenericLinkbackController.class);
 
