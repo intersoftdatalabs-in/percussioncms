@@ -117,7 +117,8 @@
       <tuv xml:lang="te"><seg>కోసం పాస్u200cవర్డ్ విజయవంతంగా మార్చబడింది</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>已成功更改密码</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>已成功更改密码</seg></tuv>
-    <tuv xml:lang="ru"><seg>Успешно изменен пароль для</seg></tuv><tuv xml:lang="he"><seg>הסיסמה שונתה בהצלחה עבור</seg></tuv></tu>
+
+    <tuv xml:lang="fr-ca"><seg>Le mot de passe a été modifié avec succès pour</seg></tuv><tuv xml:lang="ru"><seg>Успешно изменен пароль для</seg></tuv><tuv xml:lang="he"><seg>הסיסמה שונתה בהצלחה עבור</seg></tuv></tu>
     <tu tuid="perc.ui.common.label@Password Match">
       <tuv xml:lang="en-us"><seg>Passwords do not match</seg></tuv>
       <tuv xml:lang="ar"><seg>كلمات المرور غير متطابقة</seg></tuv>
@@ -1493,7 +1494,8 @@
       <tuv xml:lang="te"><seg>డెలివరీ రకం</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>交货类型</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>交货类型</seg></tuv>
-    <tuv xml:lang="ru"><seg>Тип доставки</seg></tuv><tuv xml:lang="he"><seg>סוג משלוח</seg></tuv></tu>
+
+    <tuv xml:lang="fr-ca"><seg>Mode de livraison</seg></tuv><tuv xml:lang="ru"><seg>Тип доставки</seg></tuv><tuv xml:lang="he"><seg>סוג משלוח</seg></tuv></tu>
     <tu tuid="perc.ui.publish.title@Content ID">
       <tuv xml:lang="en-us"><seg>Content ID</seg></tuv>
       <tuv xml:lang="ar"><seg>معرف المحتوى</seg></tuv>
@@ -4434,7 +4436,8 @@ Documentación' href='https://percussioncmshelp.intsof.com/'&gt;percussioncmshel
       <tuv xml:lang="te"><seg>ఎంచుకున్న మార్గం అవసరం.</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>需要选择路径。</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>需要选择路径。</seg></tuv>
-    <tuv xml:lang="ru"><seg>Требуется выбранный путь.</seg></tuv><tuv xml:lang="he"><seg>נדרש נתיב נבחר.</seg></tuv></tu>
+
+    <tuv xml:lang="fr-ca"><seg>Le chemin sélectionné est obligatoire.</seg></tuv><tuv xml:lang="ru"><seg>Требуется выбранный путь.</seg></tuv><tuv xml:lang="he"><seg>נדרש נתיב נבחר.</seg></tuv></tu>
     <tu tuid="perc.ui.saveassharedassetdialog.errormessage@You do not have permission to create an asset here.">
       <tuv xml:lang="en-us"><seg>You do not have permission to create an asset here.</seg></tuv>
       <tuv xml:lang="ar"><seg>ليس لديك إذن لإنشاء مادة عرض هنا.</seg></tuv>
@@ -10360,6 +10363,7 @@ Doorgaan?</seg></tuv>
       <tuv xml:lang="te"><seg>editWidgetCommit</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>编辑小部件提交</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>编辑小部件提交</seg></tuv>
+
     <tuv xml:lang="ru"><seg>EditWidgetCommit</seg></tuv><tuv xml:lang="he"><seg>editWidgetCommit</seg></tuv></tu>
     <tu tuid="perc.ui.layout.controller@Unable To Retrieve Widget Lib">
       <tuv xml:lang="en-us"><seg>Unable to retrieve widget library</seg></tuv>
@@ -11496,7 +11500,8 @@ Doorgaan?</seg></tuv>
       <tuv xml:lang="te"><seg>ఆస్తి కాపీకి మద్దతు లేదు.</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>不支持资产复制。</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>不支持资产复制。</seg></tuv>
-    <tuv xml:lang="ru"><seg>Копирование активов не поддерживается.</seg></tuv><tuv xml:lang="he"><seg>עותק נכס אינו נתמך.</seg></tuv></tu>
+
+    <tuv xml:lang="fr-ca"><seg>La copie d'éléments n'est pas prise en charge.</seg></tuv><tuv xml:lang="ru"><seg>Копирование активов не поддерживается.</seg></tuv><tuv xml:lang="he"><seg>עותק נכס אינו נתמך.</seg></tuv></tu>
     <tu tuid="perc.ui.contributor.ui.adaptor@Path and ID delete">
       <tuv xml:lang="en-us"><seg>path and id are required to delete an item</seg></tuv>
       <tuv xml:lang="ar"><seg>مطلوب المسار والمعرف لحذف عنصر</seg></tuv>
@@ -11800,7 +11805,8 @@ Doorgaan?</seg></tuv>
       <tuv xml:lang="te"><seg>'కి జోడించబడుతుంది</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>' 将被添加到</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>' 将被添加到</seg></tuv>
-    <tuv xml:lang="ru"><seg>' будет добавлено в</seg></tuv><tuv xml:lang="he"><seg>' יתווסף ל-</seg></tuv></tu>
+
+    <tuv xml:lang="fr-ca"><seg>'sera ajouté au</seg></tuv><tuv xml:lang="ru"><seg>' будет добавлено в</seg></tuv><tuv xml:lang="he"><seg>' יתווסף ל-</seg></tuv></tu>
     <tu tuid="perc.ui.copy.site.dialog@Finder When Copy Processing">
       <tuv xml:lang="en-us"><seg>finder when copy processing is complete.</seg></tuv>
       <tuv xml:lang="ar"><seg>مكتشف عند اكتمال معالجة النسخ.</seg></tuv>
