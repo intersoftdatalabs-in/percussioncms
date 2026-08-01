@@ -183,8 +183,8 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
 
     <!-- <bean id="jacksonContextResolver" class="com.percussion.sitemanage.json.JacksonContextResolver"> </bean> -->
 
-    <!-- JacksonJaxbJsonProvider was removed in Jackson 2.15+. Using JacksonJsonProvider instead -->
-    <bean id="jacksonProvider" class="com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider">
+    <!-- Jackson 3.x: package moved com.fasterxml.jackson → tools.jackson -->
+    <bean id="jacksonProvider" class="tools.jackson.jakarta.rs.json.JacksonJsonProvider">
     </bean>
 
     <jaxrs:server id="category-jax-rs" address="/categorymanagement">

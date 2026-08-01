@@ -26,6 +26,9 @@ import com.percussion.server.PSServer;
  * calls to rhythmyx resources.
  */
 public class PSRhythmyxRoot extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSRhythmyxRoot. */
+  public PSRhythmyxRoot() {}
+
   /**
    * This UDF constructs the rhythmyx root url out of the supplied request and returns it as <code>
    * String</code>.

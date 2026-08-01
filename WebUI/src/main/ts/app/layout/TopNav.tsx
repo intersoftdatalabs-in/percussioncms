@@ -18,6 +18,8 @@
 import React from "react";
 import { NavLink } from "react-router";
 import { useSpaBootstrap } from "../bootstrap/BootstrapContext";
+import { i18nKeyAttr } from "../../i18n/i18nDom";
+import { message, MSG } from "../../i18n/message";
 import { UserMenu } from "./UserMenu";
 import styles from "./AppLayout.module.css";
 
@@ -34,12 +36,22 @@ export function TopNav(): React.ReactElement {
     isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink;
 
   return (
-    <nav className={styles.topNav} aria-label="Main" data-testid="perc-spa-topnav">
+    <nav
+      className={styles.topNav}
+      aria-label={message(MSG.NAV_ARIA_MAIN)}
+      data-testid="perc-spa-topnav"
+    >
       <ul className={styles.navGroup}>
         <li>
-          {/* Product default landing after login (not a separate “dashboard” SPA) */}
-          <NavLink to="/home" className={linkClass} end data-testid="nav-home">
-            Home
+          {/* Product default landing after login (not a separate "dashboard" SPA) */}
+          <NavLink
+            to="/home"
+            className={linkClass}
+            end
+            data-testid="nav-home"
+            {...i18nKeyAttr(MSG.NAV_HOME)}
+          >
+            {message(MSG.NAV_HOME)}
           </NavLink>
         </li>
         <li>
@@ -51,9 +63,10 @@ export function TopNav(): React.ReactElement {
             to="/home/gadgets"
             className={linkClass}
             data-testid="nav-dashboard"
-            title="Dashboard gadgets on Home"
+            title={message(MSG.NAV_DASHBOARD_TITLE)}
+            {...i18nKeyAttr(MSG.NAV_DASHBOARD)}
           >
-            Dashboard
+            {message(MSG.NAV_DASHBOARD)}
           </NavLink>
         </li>
         <li>
@@ -61,8 +74,9 @@ export function TopNav(): React.ReactElement {
             className={styles.navLink}
             href="/cm/app/?view=editor"
             data-testid="nav-editor"
+            {...i18nKeyAttr(MSG.NAV_EDITOR)}
           >
-            Editor
+            {message(MSG.NAV_EDITOR)}
           </a>
         </li>
         {canPublish ? (
@@ -72,8 +86,9 @@ export function TopNav(): React.ReactElement {
                 className={styles.navLink}
                 href="/cm/app/?view=arch"
                 data-testid="nav-architecture"
+                {...i18nKeyAttr(MSG.NAV_ARCHITECTURE)}
               >
-                Architecture
+                {message(MSG.NAV_ARCHITECTURE)}
               </a>
             </li>
             <li>
@@ -81,29 +96,45 @@ export function TopNav(): React.ReactElement {
                 to="/developer"
                 className={linkClass}
                 data-testid="nav-developer"
-                title="CMS design tools (content types, templates, …)"
+                title={message(MSG.NAV_DEVELOPER_TITLE)}
+                {...i18nKeyAttr(MSG.NAV_DEVELOPER)}
               >
-                Developer
+                {message(MSG.NAV_DEVELOPER)}
               </NavLink>
             </li>
             <li>
-              <NavLink to="/publish" className={linkClass} data-testid="nav-publish">
-                Publish
+              <NavLink
+                to="/publish"
+                className={linkClass}
+                data-testid="nav-publish"
+                {...i18nKeyAttr(MSG.NAV_PUBLISH)}
+              >
+                {message(MSG.NAV_PUBLISH)}
               </NavLink>
             </li>
           </>
         ) : null}
         {isAdmin ? (
           <li>
-            <NavLink to="/workflow" className={linkClass} data-testid="nav-workflow">
-              Administration
+            <NavLink
+              to="/workflow"
+              className={linkClass}
+              data-testid="nav-workflow"
+              {...i18nKeyAttr(MSG.NAV_ADMINISTRATION)}
+            >
+              {message(MSG.NAV_ADMINISTRATION)}
             </NavLink>
           </li>
         ) : null}
         {isAdmin ? (
           <li>
-            <NavLink to="/admin" className={linkClass} data-testid="nav-admin">
-              Admin tools
+            <NavLink
+              to="/admin"
+              className={linkClass}
+              data-testid="nav-admin"
+              {...i18nKeyAttr(MSG.NAV_ADMIN_TOOLS)}
+            >
+              {message(MSG.NAV_ADMIN_TOOLS)}
             </NavLink>
           </li>
         ) : null}
@@ -113,14 +144,20 @@ export function TopNav(): React.ReactElement {
               to="/widget-builder"
               className={linkClass}
               data-testid="nav-widget-builder"
+              {...i18nKeyAttr(MSG.NAV_WIDGET_BUILDER)}
             >
-              Widget Builder
+              {message(MSG.NAV_WIDGET_BUILDER)}
             </NavLink>
           </li>
         ) : null}
         <li>
-          <NavLink to="/explorer" className={linkClass} data-testid="nav-explorer">
-            Explorer
+          <NavLink
+            to="/explorer"
+            className={linkClass}
+            data-testid="nav-explorer"
+            {...i18nKeyAttr(MSG.NAV_EXPLORER)}
+          >
+            {message(MSG.NAV_EXPLORER)}
           </NavLink>
         </li>
       </ul>

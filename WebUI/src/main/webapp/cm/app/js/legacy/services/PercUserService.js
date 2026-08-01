@@ -80,16 +80,16 @@
         if (status === $.PercServiceUtils.STATUS_SUCCESS) {
           //Convert all users values to string.
           result.data.UserList.users = convertToString(
-            result.data.UserList.users
+            result.data.UserList.users,
           );
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -115,11 +115,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -144,12 +144,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      userObj
+      userObj,
     );
   }
 
@@ -169,7 +169,7 @@
     if (usernameStartsWith === null) {
       callback(
         $.PercServiceUtils.STATUS_ERROR,
-        I18N.message("perc.ui.user.service@Null String")
+        I18N.message("perc.ui.user.service@Null String"),
       );
       return;
     }
@@ -191,17 +191,17 @@
         } else {
           try {
             var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-              result.request
+              result.request,
             );
             callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
           } catch (err) {
             callback(
               $.PercServiceUtils.STATUS_ERROR,
-              I18N.message("perc.ui.user.service@Unable To Retrieve Users")
+              I18N.message("perc.ui.user.service@Unable To Retrieve Users"),
             );
           }
         }
-      }
+      },
     );
   }
 
@@ -225,7 +225,7 @@
     ) {
       callback(
         $.PercServiceUtils.STATUS_ERROR,
-        I18N.message("perc.ui.user.service@Null or Empty List of Users")
+        I18N.message("perc.ui.user.service@Null or Empty List of Users"),
       );
       return;
     }
@@ -239,12 +239,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      usersJSON
+      usersJSON,
     );
   }
 
@@ -269,11 +269,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -296,16 +296,16 @@
         if (status === $.PercServiceUtils.STATUS_SUCCESS) {
           //Convert all roles values to string.
           result.data.RoleList.roles = convertToString(
-            result.data.RoleList.roles
+            result.data.RoleList.roles,
           );
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -331,12 +331,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      userObj
+      userObj,
     );
   }
 
@@ -355,11 +355,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -388,12 +388,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      userObj
+      userObj,
     );
   }
 
@@ -421,12 +421,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      strObj
+      strObj,
     );
   }
 
@@ -447,12 +447,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      strObj
+      strObj,
     );
   }
 
@@ -478,12 +478,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      roleObj
+      roleObj,
     );
   }
 
@@ -511,12 +511,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      roleObj
+      roleObj,
     );
   }
 
@@ -541,17 +541,17 @@
         if (status === $.PercServiceUtils.STATUS_SUCCESS) {
           //Convert all users values to string.
           result.data.UserList.users = convertToString(
-            result.data.UserList.users
+            result.data.UserList.users,
           );
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      roleObj
+      roleObj,
     );
   }
 
@@ -592,16 +592,16 @@
         if (status === $.PercServiceUtils.STATUS_SUCCESS) {
           callback(
             $.PercServiceUtils.STATUS_SUCCESS,
-            result.data.AccessLevel.accessLevel
+            result.data.AccessLevel.accessLevel,
           );
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      reqObj
+      reqObj,
     );
   }
 
@@ -627,12 +627,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      roleObj
+      roleObj,
     );
   }
 
@@ -657,12 +657,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      userList
+      userList,
     );
   }
 

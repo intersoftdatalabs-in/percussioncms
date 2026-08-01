@@ -100,6 +100,12 @@
                     useKeepAliveResponseHeader="${http.useKeepAliveResponseHeader}"
                     xpoweredBy="${http.xpoweredBy}"
         />
+        <!--
+          Tomcat 11 requires nested SSLHostConfig/Certificate (legacy Connector
+          keystoreFile/keyAlias attributes no longer create a default SSLHostConfig,
+          which fails with: No SSLHostConfig element was found with hostName [_default_]).
+          Keystore props come from conf/perc/perc-catalina.properties via PSTomcatPropertySource.
+        -->
         <Connector  SSLEnabled="${https.SSLEnabled}"
                     URIEncoding="${https.URIEncoding}"
                     acceptCount="${https.acceptCount}"
@@ -108,8 +114,6 @@
                     allowHostHeaderMismatch="${https.allowHostHeaderMismatch}"
                     allowTrace="${https.allowTrace}"
                     asyncTimeout="${https.asyncTimeout}"
-                    bindOnInit="${https.bindOnInit}"
-                    clientAuth="${https.clientAuth}"
                     compressibleMimeType="${https.compressibleMimeType}"
                     compression="${https.compression}"
                     compressionMinSize="${https.compressionMinSize}"
@@ -118,10 +122,6 @@
                     discardFacades="${https.discardFacades}"
                     enableLookups="${https.enableLookups}"
                     keepAliveTimeout="${https.keepAliveTimeout}"
-                    keyAlias="${https.keyAlias}"
-                    keystoreFile="${https.keystoreFile}"
-                    keystorePass="${https.keystorePass}"
-                    keystoreType="${https.keystoreType}"
                     maxConnections="${https.maxConnections}"
                     maxCookieCount="${https.maxCookieCount}"
                     maxExtensionSize="${https.maxExtensionSize}"
@@ -138,13 +138,11 @@
                     parseBodyMethods="${https.parseBodyMethods}"
                     port="${https.port}"
                     processorCache="${https.processorCache}"
-                    sslEnabledProtocols="${https.sslEnabledProtocols}"
                     rejectIllegalHeader="${https.rejectIllegalHeader}"
                     relaxedPathChars="&quot; &lt; &gt; [ \ ] ^ ` { | }"
                     relaxedQueryChars="&quot; &lt; &gt; [ \ ] ^ ` { | }"
                     scheme="${https.scheme}"
                     secure="${https.secure}"
-                    ciphers="${https.ciphers}"
                     tcpNoDelay="${https.tcpNoDelay}"
                     threadPriority="${https.threadPriority}"
                     throwOnFailure="${https.throwOnFailure}"
@@ -155,14 +153,17 @@
                     xpoweredBy="${https.xpoweredBy}"
                     sslImplementationName="org.apache.tomcat.util.net.jsse.JSSEImplementation"
         >
+            <SSLHostConfig hostName="_default_"
+                           protocols="${https.sslEnabledProtocols}"
+                           ciphers="${https.ciphers}"
+                           certificateVerification="none">
+                <Certificate certificateKeystoreFile="${https.keystoreFile}"
+                             certificateKeystorePassword="${https.keystorePass}"
+                             certificateKeystoreType="${https.keystoreType}"
+                             certificateKeyAlias="${https.keyAlias}"
+                             type="${https.type}" />
+            </SSLHostConfig>
         </Connector>
-
-        <!--
-                certificateKeyPassword ="${https.certificateKeyPassword}"
-                certificateFile="${https.certificateFile}"
-                certificateChainFile="${https.certificateChainFile}"
-                certificateKeyFile="${https.certificateKeyFile}"
-                -->
 
         <!-- An Engine represents the entry point (within Catalina) that processes
              every request.  The Engine implementation for Tomcat stand alone

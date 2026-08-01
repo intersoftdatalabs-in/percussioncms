@@ -2037,9 +2037,15 @@ textarea {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
-  -webkit-transition: -webkit-box-shadow 0.45s, border-color 0.45s ease-in-out;
-  -moz-transition: -moz-box-shadow 0.45s, border-color 0.45s ease-in-out;
-  transition: box-shadow 0.45s, border-color 0.45s ease-in-out;
+  -webkit-transition:
+    -webkit-box-shadow 0.45s,
+    border-color 0.45s ease-in-out;
+  -moz-transition:
+    -moz-box-shadow 0.45s,
+    border-color 0.45s ease-in-out;
+  transition:
+    box-shadow 0.45s,
+    border-color 0.45s ease-in-out;
 }
 input[type="text"]:focus,
 input[type="password"]:focus,
@@ -4806,8 +4812,14 @@ label.error {
   display: block;
   width: 16px;
   height: 0;
-  -webkit-box-shadow: 0 10px 0 1px #fff, 0 16px 0 1px #fff, 0 22px 0 1px #fff;
-  box-shadow: 0 10px 0 1px #fff, 0 16px 0 1px #fff, 0 22px 0 1px #fff;
+  -webkit-box-shadow:
+    0 10px 0 1px #fff,
+    0 16px 0 1px #fff,
+    0 22px 0 1px #fff;
+  box-shadow:
+    0 10px 0 1px #fff,
+    0 16px 0 1px #fff,
+    0 22px 0 1px #fff;
 }
 .top-bar.expanded {
   height: auto;
@@ -4820,8 +4832,14 @@ label.error {
   color: #888;
 }
 .top-bar.expanded .toggle-topbar a span {
-  -webkit-box-shadow: 0 10px 0 1px #888, 0 16px 0 1px #888, 0 22px 0 1px #888;
-  box-shadow: 0 10px 0 1px #888, 0 16px 0 1px #888, 0 22px 0 1px #888;
+  -webkit-box-shadow:
+    0 10px 0 1px #888,
+    0 16px 0 1px #888,
+    0 22px 0 1px #888;
+  box-shadow:
+    0 10px 0 1px #888,
+    0 16px 0 1px #888,
+    0 22px 0 1px #888;
 }
 .top-bar-section {
   left: 0;
@@ -6601,11 +6619,16 @@ ul.pagination li {
     background: -moz-linear-gradient(top, #fff 0%, #f2f2f2 100%);
     background: -webkit-linear-gradient(top, #fff 0%, #f2f2f2 100%);
     background: linear-gradient(to bottom, #fff 0%, #f2f2f2 100%);
-    -webkit-box-shadow: 2px 0 10px 0 rgba(0, 0, 0, 0.07),
-      1000px 0 0 1000px #e1f5d1, -2px 0 10px 0 rgba(0, 0, 0, 0.07),
+    -webkit-box-shadow:
+      2px 0 10px 0 rgba(0, 0, 0, 0.07),
+      1000px 0 0 1000px #e1f5d1,
+      -2px 0 10px 0 rgba(0, 0, 0, 0.07),
       -1000px 0 0 1000px #f5f5f5;
-    box-shadow: 2px 0 10px 0 rgba(0, 0, 0, 0.07), 1000px 0 0 980px #e1f5d1,
-      -2px 0 10px 0 rgba(0, 0, 0, 0.07), -1000px 0 0 1000px #f5f5f5;
+    box-shadow:
+      2px 0 10px 0 rgba(0, 0, 0, 0.07),
+      1000px 0 0 980px #e1f5d1,
+      -2px 0 10px 0 rgba(0, 0, 0, 0.07),
+      -1000px 0 0 1000px #f5f5f5;
   }
   div.switch:hover span:last-child,
   div.switch:focus span:last-child {

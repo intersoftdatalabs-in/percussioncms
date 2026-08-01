@@ -27,6 +27,9 @@ import org.apache.commons.lang3.StringUtils;
  * content of the supplied file is not empty.
  */
 public class PSValidateFile extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSValidateFile. */
+  public PSValidateFile() {}
+
   /**
    * See {@link #processUdf(Object[], IPSRequestContext)}.
    *

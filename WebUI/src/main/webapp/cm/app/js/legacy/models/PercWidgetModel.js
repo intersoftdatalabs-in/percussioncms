@@ -124,7 +124,7 @@
     ownerId,
     supportedContentTypes,
     assetShared,
-    relationshipId
+    relationshipId,
   ) {
     this.widgetId = widgetId;
     this.appendSupport = appendSupport;

@@ -23,7 +23,7 @@
 
       /** @property {function(Object, ?Object=): string} template */
       template: _.template(
-        '<form><div class="modal-header"><button type="button" class="close" data-dismiss="modal">&times;</button><h3><%- column.get("label") %></h3></div><div class="modal-body"><textarea cols="<%= cols %>" rows="<%= rows %>"><%- content %></textarea></div><div class="modal-footer"><input class="btn" type="submit" value="Save"/></div></form>'
+        '<form><div class="modal-header"><button type="button" class="close" data-dismiss="modal">&times;</button><h3><%- column.get("label") %></h3></div><div class="modal-body"><textarea cols="<%= cols %>" rows="<%= rows %>"><%- content %></textarea></div><div class="modal-footer"><input class="btn" type="submit" value="Save"/></div></form>',
       ),
 
       /** @property */
@@ -60,10 +60,10 @@
               cols: this.cols,
               rows: this.rows,
               content: this.formatter.fromRaw(
-                this.model.get(this.column.get("name"))
+                this.model.get(this.column.get("name")),
               ),
-            })
-          )
+            }),
+          ),
         );
 
         this.delegateEvents();
@@ -110,7 +110,7 @@
             newValue !==
               (this.model.get(this.column.get("name")) || "").replace(
                 /\r/g,
-                ""
+                "",
               ) &&
             window.confirm("Would you like to save your changes?"))
         ) {
@@ -142,7 +142,7 @@
           "backgrid:edited",
           model,
           this.column,
-          new Backgrid.Command(e)
+          new Backgrid.Command(e),
         );
       },
 

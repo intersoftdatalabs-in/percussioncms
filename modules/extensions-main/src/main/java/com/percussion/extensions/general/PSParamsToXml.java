@@ -54,6 +54,8 @@ import org.w3c.dom.Element;
  * now.
  */
 public class PSParamsToXml extends PSDefaultExtension implements IPSResultDocumentProcessor {
+  /** Creates a new PSParamsToXml. */
+  public PSParamsToXml() {}
 
   /*
    * Required by the interface. This exit never modifies the stylesheet.

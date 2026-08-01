@@ -25,6 +25,7 @@
  */
 
 import React from "react";
+import { message, MSG } from "../i18n/message";
 import { styles } from "./dashboard.styles";
 
 export interface WidgetPosition {
@@ -91,7 +92,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ widgets, onRem
                   justifyContent: "center",
                   zIndex: 10,
                 }}
-                title="Remove gadget"
+                title={message(MSG.GADGET_REMOVE_TITLE)}
+                aria-label={message(MSG.GADGET_REMOVE_TITLE)}
               >
                 ✕
               </button>
@@ -133,7 +135,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ widgets, onRem
                   justifyContent: "center",
                   zIndex: 10,
                 }}
-                title="Remove gadget"
+                title={message(MSG.GADGET_REMOVE_TITLE)}
+                aria-label={message(MSG.GADGET_REMOVE_TITLE)}
               >
                 ✕
               </button>

@@ -43,10 +43,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // src/test/js -> frontend root scripts/
-const builder = require(path.resolve(
-  __dirname,
-  "../../../scripts/build-legacy-bundles.js"
-));
+const builder = require(
+  path.resolve(__dirname, "../../../scripts/build-legacy-bundles.js"),
+);
 
 const {
   WAR_DIR,
@@ -68,7 +67,7 @@ describe("legacy intermediate bundle builder", () => {
     const normalized = WAR_DIR.split(path.sep).join("/");
     expect(normalized.endsWith("src/main/webapp/cm")).toBe(true);
     expect(fs.existsSync(path.join(WAR_DIR, "plugins", "perc_utils.js"))).toBe(
-      true
+      true,
     );
   });
 
@@ -98,7 +97,7 @@ describe("legacy intermediate bundle builder", () => {
   it("resolves every common-minuet-bundles.json source under the cm tree", () => {
     const configPath = path.join(
       BUNDLE_CONFIG_DIR,
-      "common-minuet-bundles.json"
+      "common-minuet-bundles.json",
     );
     const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
     const missing = [];
@@ -125,7 +124,7 @@ describe("legacy intermediate bundle builder", () => {
       "node_modules",
       "jquery",
       "dist",
-      "jquery.js"
+      "jquery.js",
     );
     if (!fs.existsSync(jquery)) {
       // Hermetic CI without frontend node_modules still gets resolution tests above.
@@ -147,7 +146,7 @@ describe("legacy intermediate bundle builder", () => {
 
     const sharedCommon = path.join(OUTPUT_DIR, "shared-common.js");
     expect(fs.statSync(sharedCommon).size).toBeGreaterThan(
-      MIN_SHARED_COMMON_BYTES
+      MIN_SHARED_COMMON_BYTES,
     );
 
     // Perc-written source must appear in the concatenation (not only npm libs).
@@ -171,7 +170,7 @@ describe("legacy intermediate bundle builder", () => {
       const sourcePath = path.join(WAR_DIR, dest);
       expect(
         fs.existsSync(sourcePath),
-        `source must not contain regenerable ${dest}: ${sourcePath}`
+        `source must not contain regenerable ${dest}: ${sourcePath}`,
       ).toBe(false);
     }
   });
@@ -184,13 +183,13 @@ describe("legacy intermediate bundle builder", () => {
 
     const nodeModulesRoot = path.join(
       path.dirname(path.dirname(path.dirname(__dirname))),
-      "node_modules"
+      "node_modules",
     );
     const jqueryMin = path.join(
       nodeModulesRoot,
       "jquery",
       "dist",
-      "jquery.min.js"
+      "jquery.min.js",
     );
     if (!fs.existsSync(jqueryMin)) {
       return;

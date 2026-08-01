@@ -35,7 +35,7 @@ import { beforeEach, afterEach, describe, it, expect, vi } from "vitest";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const COMPAT_PATH = resolve(
   __dirname,
-  "../../../../system/cms/content/applications/sys_resources/ApplicationFiles/ps/compat.js"
+  "../../../../system/cms/content/applications/sys_resources/ApplicationFiles/ps/compat.js",
 );
 
 // ---------------------------------------------------------------------------
@@ -155,7 +155,7 @@ describe("ps.assert", () => {
 
   it("includes the custom message in the error", () => {
     expect(() => ps.assert(false, "must be true")).toThrow(
-      "Assertion failed: must be true"
+      "Assertion failed: must be true",
     );
   });
 });
@@ -546,7 +546,7 @@ describe("ps.declare", () => {
         greet: function () {
           return "hello";
         },
-      }
+      },
     );
     ps.declare("TestNs.Child", TestNs.Base, function () {
       this.child = true;
@@ -901,7 +901,7 @@ describe("URI facades (Track A7)", () => {
     const result = ps.uri.dojoUri("../ps/widget/images/icon.gif");
     expect(result).toBe("/resolved/dojo/path");
     expect(dojo.uri.dojoUri).toHaveBeenCalledWith(
-      "../ps/widget/images/icon.gif"
+      "../ps/widget/images/icon.gif",
     );
   });
 });

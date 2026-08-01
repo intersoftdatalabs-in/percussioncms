@@ -38,6 +38,8 @@ import org.w3c.dom.Element;
  */
 public class PSConvertCustomSearchOperator extends PSDefaultExtension
     implements IPSRequestPreProcessor {
+  /** Creates a new PSConvertCustomSearchOperator. */
+  public PSConvertCustomSearchOperator() {}
 
   /**
    * Converts an operator value sent by a custom search to the appropriate SQL operator.

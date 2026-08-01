@@ -39,6 +39,8 @@ import org.w3c.dom.Node;
  * </code>. The root element name is never included in the path name.
  */
 public class PSXdRemoveElements extends PSDefaultExtension implements IPSResultDocumentProcessor {
+  /** Creates a new PSXdRemoveElements. */
+  public PSXdRemoveElements() {}
 
   /**
    * This method handles the post-exit request.

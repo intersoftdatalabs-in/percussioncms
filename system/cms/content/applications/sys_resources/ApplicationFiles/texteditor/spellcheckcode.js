@@ -9,7 +9,7 @@ function spellCheckText() {
   if (
     document.spellcheck.checkSpelling(
       Composition.document.body.innerHTML,
-      Composition.document.body.innerText
+      Composition.document.body.innerText,
     )
   ) {
     var result = document.spellcheck.checkResult();
@@ -18,7 +18,7 @@ function spellCheckText() {
     else if (result == 2) {
       refreshText(document.spellcheck.getChangedText());
       alert(
-        "Misspelled words are automatically changed as per previous 'ChangeAll' Settings"
+        "Misspelled words are automatically changed as per previous 'ChangeAll' Settings",
       );
     } else if (result == 0) alert("No misspelled words");
   }

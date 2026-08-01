@@ -40,7 +40,7 @@
     path,
     workflowName,
     callback,
-    includeFoldersWithDifferentWorkflow
+    includeFoldersWithDifferentWorkflow,
   ) {
     var requestURL =
       $.perc_paths.FOLDERMGT_FOLDERS_WITH_WORKFLOW +
@@ -60,11 +60,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -72,7 +72,7 @@
     path,
     workflowName,
     callback,
-    includeFoldersWithDifferentWorkflow
+    includeFoldersWithDifferentWorkflow,
   ) {
     var requestURL =
       $.perc_paths.FOLDERMGT_START_ASSOCIATED_FOLDERS_JOB +
@@ -91,11 +91,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
   function getAssociatedFoldersJobStatus(jobId, callback) {
@@ -110,11 +110,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
   /**
@@ -126,7 +126,7 @@
   function assignFoldersWithWorkflow(
     workflowAssignment,
     callback,
-    abortCallback
+    abortCallback,
   ) {
     $.PercServiceUtils.makeJsonRequest(
       $.perc_paths.FOLDERMGT_FOLDERS_WITH_WORKFLOW_ASSIGN,
@@ -137,14 +137,14 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
       workflowAssignment,
       abortCallback,
-      5000
+      5000,
     );
   }
 
@@ -158,11 +158,11 @@
           callback(true, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback(false, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -178,11 +178,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
   function isWorkflowAssignmentInProgress(callback) {
@@ -196,12 +196,12 @@
           callback(result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           $.perc_utils.info(defaultMsg);
           callback(false);
         }
-      }
+      },
     );
   }
 })(jQuery);

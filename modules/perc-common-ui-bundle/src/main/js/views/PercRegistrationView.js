@@ -57,7 +57,7 @@
           } else {
             console.log(data.message);
           }
-        }
+        },
       );
     }
 
@@ -85,7 +85,7 @@
           } else {
             $(".perc-reg-confirmation-message").text(data.message);
           }
-        }
+        },
       );
     } else if ($(".perc-registration-mode").length) {
       $(".perc-registration-mode").show();
@@ -161,7 +161,7 @@
           } else {
             alert(data.message);
           }
-        }
+        },
       );
     }
     return false;
@@ -195,7 +195,7 @@
           } else {
             alert(data.message);
           }
-        }
+        },
       );
     }
     return false;
@@ -212,7 +212,7 @@
     if (self.validate().form()) {
       // Retrieve widget and form options
       var widgetOptions = JSON.parse(
-        self.parent().parent(".percRegistration").attr("data")
+        self.parent().parent(".percRegistration").attr("data"),
       );
       var options = self.data("options");
 
@@ -274,13 +274,13 @@
                 // CodeQL js/xss-through-dom (alert #989): confirmation_page is
                 // user-supplied via form; sanitize before navigation.
                 window.location = $.PercServiceUtils.sanitizeUrlForHref(
-                  confirmation_page + params
+                  confirmation_page + params,
                 );
               }
             } else {
               $(".perc-registration-mode").hide();
               $(".perc-reg-confirmation-message").html(
-                "<div>Thank you for registering with us.</div><div>Please check your email and confirm your registration to activate your account.</div>"
+                "<div>Thank you for registering with us.</div><div>Please check your email and confirm your registration to activate your account.</div>",
               );
               $(".perc-reg-confirmation-mode").show();
             }

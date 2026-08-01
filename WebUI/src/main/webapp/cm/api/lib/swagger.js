@@ -123,13 +123,13 @@ SwaggerApi.prototype.build = function () {
           return _this.fail("Please specify the protocol for " + _this.url);
         } else if (response.status === 0) {
           return _this.fail(
-            "Can't read from server.  It may not have the appropriate access-control-origin settings."
+            "Can't read from server.  It may not have the appropriate access-control-origin settings.",
           );
         } else if (response.status === 404) {
           return _this.fail("Can't read swagger JSON from " + _this.url);
         } else {
           return _this.fail(
-            response.status + " : " + response.statusText + " " + _this.url
+            response.status + " : " + response.statusText + " " + _this.url,
           );
         }
       },
@@ -202,7 +202,7 @@ SwaggerApi.prototype.buildFromSpec = function (response) {
 
 SwaggerApi.prototype.buildFrom1_1Spec = function (response) {
   log(
-    "This API is using a deprecated version of Swagger!  Please see http://github.com/wordnik/swagger-core/wiki for more info"
+    "This API is using a deprecated version of Swagger!  Please see http://github.com/wordnik/swagger-core/wiki for more info",
   );
   if (response.apiVersion != null) this.apiVersion = response.apiVersion;
   this.apis = {};
@@ -330,7 +330,7 @@ SwaggerApi.prototype.help = function () {
             parameter.name +
             (parameter.required ? " (required)" : "") +
             " - " +
-            parameter.description
+            parameter.description,
         );
       }
     }
@@ -390,7 +390,7 @@ var SwaggerResource = function (resourceObj, api) {
               _this.url +
               " (server returned " +
               response.statusText +
-              ")"
+              ")",
           );
         },
       },
@@ -441,7 +441,7 @@ SwaggerResource.prototype.addApiDeclaration = function (response) {
         endpoint.path,
         endpoint.operations,
         response.consumes,
-        response.produces
+        response.produces,
       );
     }
   }
@@ -474,7 +474,7 @@ SwaggerResource.prototype.addOperations = function (
   resource_path,
   ops,
   consumes,
-  produces
+  produces,
 ) {
   if (ops) {
     output = [];
@@ -523,7 +523,7 @@ SwaggerResource.prototype.addOperations = function (
         this,
         consumes,
         produces,
-        o.authorizations
+        o.authorizations,
       );
       this.operations[op.nickname] = op;
       output.push(this.operationsArray.push(op));
@@ -555,7 +555,7 @@ SwaggerResource.prototype.help = function () {
           parameter.name +
           (parameter.required ? " (required)" : "") +
           " - " +
-          parameter.description
+          parameter.description,
       );
     }
     output.push(msg);
@@ -759,7 +759,7 @@ var SwaggerOperation = function (
   resource,
   consumes,
   produces,
-  authorizations
+  authorizations,
 ) {
   var _this = this;
 
@@ -794,11 +794,11 @@ var SwaggerOperation = function (
   else {
     this.responseClassSignature = this.getSignature(
       this.type,
-      this.resource.models
+      this.resource.models,
     );
     this.responseSampleJSON = this.getSampleJSON(
       this.type,
-      this.resource.models
+      this.resource.models,
     );
   }
 
@@ -912,8 +912,8 @@ SwaggerOperation.prototype.getSampleJSON = function (type, models) {
   val = isPrimitive
     ? void 0
     : listType != null
-    ? models[listType].createJSONSample()
-    : models[type].createJSONSample();
+      ? models[listType].createJSONSample()
+      : models[type].createJSONSample();
   if (val) {
     val = listType ? [val] : val;
     if (typeof val == "string") return val;
@@ -1017,7 +1017,7 @@ SwaggerOperation.prototype["do"] = function (args, opts, callback, error) {
     opts,
     callback,
     error,
-    this
+    this,
   );
   if (opts.mock != null) {
     return req;
@@ -1231,7 +1231,7 @@ var SwaggerRequest = function (
   successCallback,
   errorCallback,
   operation,
-  execution
+  execution,
 ) {
   var _this = this;
   var errors = [];
@@ -1242,7 +1242,7 @@ var SwaggerRequest = function (
   this.type =
     type ||
     errors.push(
-      "SwaggerRequest type is required (get/post/put/delete/patch/options)."
+      "SwaggerRequest type is required (get/post/put/delete/patch/options).",
     );
   this.url = url || errors.push("SwaggerRequest url is required.");
   this.params = params;
@@ -1400,7 +1400,7 @@ SwaggerRequest.prototype.setHeaders = function (params, operation) {
         "server doesn't consume " +
           consumes +
           ", try " +
-          JSON.stringify(this.operation.consumes)
+          JSON.stringify(this.operation.consumes),
       );
       consumes = this.operation.consumes[0];
     }
@@ -1591,7 +1591,7 @@ ShredHttpClient.prototype.registerProcessors = function (shred) {
       {
         parser: identity,
         stringify: toString,
-      }
+      },
     );
   } else {
     this.Shred.registerProcessor(
@@ -1599,7 +1599,7 @@ ShredHttpClient.prototype.registerProcessors = function (shred) {
       {
         parser: identity,
         stringify: toString,
-      }
+      },
     );
   }
 };

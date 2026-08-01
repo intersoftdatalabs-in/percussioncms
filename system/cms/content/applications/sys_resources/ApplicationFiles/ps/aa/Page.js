@@ -22,7 +22,7 @@ ps.aa.Page = new (function () {
    * Initialize the properties of the page. This should be called right after
    * the dojo is done passing the HTML content.
    */
-  (this.init = function () {}),
+  ((this.init = function () {}),
     /**
      * Activate the specified div element and deactivate the previous activated
      * div element.
@@ -128,5 +128,5 @@ ps.aa.Page = new (function () {
       var element = document.getElementById(objectId.toString());
       ps.assert(element, "No element found for id " + objectId.toString());
       return element;
-    });
+    }));
 })();

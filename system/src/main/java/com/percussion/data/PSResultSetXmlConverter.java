@@ -1646,7 +1646,8 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
 
           if (m_dataSource != null) {
             nodeData.m_curValue = curValue.toString();
-            Text StringNode = doc.createTextNode(PSXmlDocumentBuilder.normalize(curValue.toString()));
+            Text StringNode =
+                doc.createTextNode(PSXmlDocumentBuilder.normalize(curValue.toString()));
             elementNode.appendChild(StringNode);
           }
         }

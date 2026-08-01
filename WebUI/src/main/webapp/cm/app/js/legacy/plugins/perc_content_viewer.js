@@ -77,7 +77,7 @@
                 true,
                 null,
                 load_content,
-                ut.show_error
+                ut.show_error,
               );
             }
           });
@@ -88,7 +88,7 @@
         template_id,
         false,
         set_drops,
-        ut.show_error
+        ut.show_error,
       );
     }
 
@@ -114,7 +114,7 @@
               });
 
             after_load();
-          }
+          },
         );
       });
     }
@@ -126,7 +126,7 @@
             return $(
               "<a class='perc-widget-delete' href='#'><img src='" +
                 $.perc_paths.IMAGE_ROOT +
-                "/icons/editor/delete.png'></img></div>"
+                "/icons/editor/delete.png'></img></div>",
             );
           },
           action: function (assetid, widgetid, widgetdefid, id) {
@@ -138,7 +138,7 @@
             return $(
               "<a class='perc-widget-edit' href='#'><img src='" +
                 $.perc_paths.IMAGE_ROOT +
-                "/icons/editor/edit.png'></img></div>"
+                "/icons/editor/edit.png'></img></div>",
             );
           },
           action: function (assetid, widgetid, widgetdefid, id) {
@@ -149,7 +149,7 @@
               widgetid,
               widgetdefid,
               id,
-              "template"
+              "template",
             );
           },
         },
@@ -236,7 +236,7 @@
         id: "perc-editor-page-dirty",
         title: I18N.message("perc.ui.content.viewer@Unsaved Changes"),
         question: I18N.message(
-          "perc.ui.content.viewer@Unsaved Changes Question"
+          "perc.ui.content.viewer@Unsaved Changes Question",
         ),
         success: k,
         cancel: err,
@@ -425,7 +425,7 @@
             return $(
               "<a class='perc-widget-delete' href='#'><img src='" +
                 $.perc_paths.IMAGE_ROOT +
-                "/icons/editor/delete.png'></img></div>"
+                "/icons/editor/delete.png'></img></div>",
             );
           },
           action: function (assetid, widgetid, widgetdefid, pageid) {
@@ -437,7 +437,7 @@
             return $(
               "<a class='perc-widget-edit' href='#'><img src='" +
                 $.perc_paths.IMAGE_ROOT +
-                "/icons/editor/edit.png'></img></div>"
+                "/icons/editor/edit.png'></img></div>",
             );
           },
           action: function (assetid, widgetid, widgetdefid, pageid) {
@@ -447,7 +447,7 @@
               assetid,
               widgetid,
               widgetdefid,
-              pageid
+              pageid,
             );
           },
         },
@@ -494,7 +494,7 @@
     }
     function _decorateLayout() {
       widgetLib = $.perc_create_widget_library(
-        $("#perc-widget-library-button")
+        $("#perc-widget-library-button"),
       );
 
       actions = [
@@ -503,12 +503,12 @@
             return $(
               "<a href='#'><img src='" +
                 $.perc_paths.IMAGE_ROOT +
-                "/icons/editor/delete.png'></img></div>"
+                "/icons/editor/delete.png'></img></div>",
             );
           },
           action: function (widgetid, pageid) {
             alert(
-              I18N.message("perc.ui.content.viewer@Delete not yet supported")
+              I18N.message("perc.ui.content.viewer@Delete not yet supported"),
             );
           },
         },
@@ -517,14 +517,14 @@
             return $(
               "<a href='#'><img src='" +
                 $.perc_paths.IMAGE_ROOT +
-                "/icons/editor/configure.png'></img></a>"
+                "/icons/editor/configure.png'></img></a>",
             );
           },
           action: function (widgetid, pageid) {
             alert(
               I18N.message(
-                "perc.ui.content.viewer@Configuration is not yet defined"
-              )
+                "perc.ui.content.viewer@Configuration is not yet defined",
+              ),
             );
           },
         },
@@ -658,7 +658,7 @@
                 function () {
                   content_viewer.reload();
                 },
-                ut.show_error
+                ut.show_error,
               );
             }
           });
@@ -669,7 +669,7 @@
         pageId,
         true,
         set_drops,
-        ut.show_error
+        ut.show_error,
       );
     }
 
@@ -724,7 +724,7 @@
               wdgName +
               I18N.message("perc.ui.content.viewer@Region") +
               regionId +
-              "."
+              ".",
           );
         },
       });

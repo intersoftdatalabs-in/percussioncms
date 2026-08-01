@@ -537,7 +537,7 @@
       e,
       sequenceName,
       combination,
-      level
+      level,
     ) {
       var i;
       var callback;
@@ -679,7 +679,7 @@
             callbacks[i].callback,
             e,
             callbacks[i].combo,
-            callbacks[i].seq
+            callbacks[i].seq,
           );
           continue;
         }
@@ -875,7 +875,7 @@
         { type: info.action },
         sequenceName,
         combination,
-        level
+        level,
       );
 
       // add this call back to the array
@@ -1048,7 +1048,7 @@
           return function () {
             return documentMousetrap[method].apply(
               documentMousetrap,
-              arguments
+              arguments,
             );
           };
         })(method);
@@ -1074,5 +1074,5 @@
   }
 })(
   typeof window !== "undefined" ? window : null,
-  typeof window !== "undefined" ? document : null
+  typeof window !== "undefined" ? document : null,
 );

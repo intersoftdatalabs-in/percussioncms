@@ -98,7 +98,7 @@
       // If modifying more than 1 selector, this statement
       // must be modified to determine which text to use for the selector.
       container.append(
-        '<option value="-1">Search All Departments</option></br>'
+        '<option value="-1">Search All Departments</option></br>',
       );
 
       for (var i = 0; i < orgNodes.length; i++) {
@@ -106,7 +106,7 @@
           const orgName = orgNodes[i].children[0].textContent;
           const orgId = orgNodes[i].children[1].textContent;
           container.append(
-            "<option value=" + orgId + ">" + orgName + "</option>"
+            "<option value=" + orgId + ">" + orgName + "</option>",
           );
         }
       }

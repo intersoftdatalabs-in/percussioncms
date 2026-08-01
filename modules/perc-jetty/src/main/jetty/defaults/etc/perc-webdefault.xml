@@ -78,15 +78,13 @@
 		If True, weak etags will be generated and handled. * * maxCacheSize The maximum
 		total size of the cache or 0 for no cache. * maxCachedFileSize The maximum
 		size of a file to cache * maxCachedFiles The maximum number of files to cache
-		* * useFileMappedBuffer * If set to true, it will use mapped file buffers
-		to serve static content * when using an NIO connector. Setting this value
-		to false means that * a direct buffer will be used instead of a mapped file
-		buffer. * This file sets the value to true. * * cacheControl If set, all
-		static content will have this value set as the cache-control * header. * -->
+		* * minMappedFileSize Files >= this size are memory-mapped; 0 disables mapping. *
+		* cacheControl If set, all static content will have this value set as the
+		cache-control * header. * -->
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	<servlet>
 		<servlet-name>default</servlet-name>
-		<servlet-class>org.eclipse.jetty.servlet.DefaultServlet</servlet-class>
+		<servlet-class>org.eclipse.jetty.ee11.servlet.ResourceServlet</servlet-class>
 		<init-param>
 			<param-name>aliases</param-name>
 			<param-value>false</param-value>
@@ -126,8 +124,8 @@
 			<param-value>false</param-value>
 		</init-param>
 		<init-param>
-			<param-name>useFileMappedBuffer</param-name>
-			<param-value>true</param-value>
+			<param-name>minMappedFileSize</param-name>
+			<param-value>0</param-value>
 		</init-param>
 		<!-- <init-param> <param-name>resourceCache</param-name> <param-value>resourceCache</param-value>
 			</init-param> -->

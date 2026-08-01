@@ -210,7 +210,7 @@ ps.io.Actions = new (function () {
       "Move",
       this.MIMETYPE_PLAIN,
       objectId.serialize(),
-      params
+      params,
     );
   };
 
@@ -243,7 +243,7 @@ ps.io.Actions = new (function () {
       "MoveToSlot",
       this.MIMETYPE_PLAIN,
       objectId.serialize(),
-      params
+      params,
     );
   };
 
@@ -277,7 +277,7 @@ ps.io.Actions = new (function () {
       "GetUrl",
       this.MIMETYPE_JSON,
       objectId.serialize(),
-      params
+      params,
     );
   };
 
@@ -308,7 +308,7 @@ ps.io.Actions = new (function () {
       "GetActionVisibility",
       this.MIMETYPE_JSON,
       objectId.serialize(),
-      params
+      params,
     );
     if (result.isSuccess()) {
       result._m_value = result._m_value[0];
@@ -367,7 +367,7 @@ ps.io.Actions = new (function () {
       "GetActionLabels",
       this.MIMETYPE_JSON,
       null,
-      params
+      params,
     );
   };
 
@@ -382,7 +382,7 @@ ps.io.Actions = new (function () {
       "GetAllowedContentTypeForSlot",
       this.MIMETYPE_JSON,
       objectId.serialize(),
-      null
+      null,
     );
   };
 
@@ -398,7 +398,7 @@ ps.io.Actions = new (function () {
       "GetContentTypeByContentId",
       this.MIMETYPE_JSON,
       null,
-      params
+      params,
     );
   };
 
@@ -416,7 +416,7 @@ ps.io.Actions = new (function () {
       "GetTemplateImagesForContentType",
       this.MIMETYPE_JSON,
       objectId.serialize(),
-      params
+      params,
     );
   };
 
@@ -452,7 +452,7 @@ ps.io.Actions = new (function () {
       "GetItemPath",
       this.MIMETYPE_PLAIN,
       objectId.serialize(),
-      null
+      null,
     );
   };
 
@@ -477,7 +477,7 @@ ps.io.Actions = new (function () {
       "GetAllowedSnippetTemplates",
       this.MIMETYPE_JSON,
       objectId.serialize(),
-      null
+      null,
     );
   };
 
@@ -492,7 +492,7 @@ ps.io.Actions = new (function () {
       "GetItemTemplatesForSlot",
       this.MIMETYPE_JSON,
       objectId.serialize(),
-      null
+      null,
     );
   };
 
@@ -517,7 +517,7 @@ ps.io.Actions = new (function () {
       "GetFieldContent",
       this.MIMETYPE_HTML,
       objectId.serialize(),
-      params
+      params,
     );
   };
 
@@ -541,7 +541,7 @@ ps.io.Actions = new (function () {
       "GetSlotContent",
       this.MIMETYPE_HTML,
       objectId.serialize(),
-      params
+      params,
     );
   };
 
@@ -574,7 +574,7 @@ ps.io.Actions = new (function () {
       "GetSnippetContent",
       this.MIMETYPE_HTML,
       objectId.serialize(),
-      params
+      params,
     );
   };
 
@@ -589,7 +589,7 @@ ps.io.Actions = new (function () {
       "GetSnippetMimeType",
       this.MIMETYPE_JSON,
       objectId.serialize(),
-      null
+      null,
     );
   };
 
@@ -609,7 +609,7 @@ ps.io.Actions = new (function () {
       "GetSnippetPickerSlotContent",
       this.MIMETYPE_HTML,
       objectId.serialize(),
-      params
+      params,
     );
   };
 
@@ -625,7 +625,7 @@ ps.io.Actions = new (function () {
       "RemoveSnippet",
       this.MIMETYPE_PLAIN,
       null,
-      params
+      params,
     );
   };
 
@@ -687,7 +687,7 @@ ps.io.Actions = new (function () {
     contentId,
     trigger,
     commentText,
-    adhocUsers
+    adhocUsers,
   ) {
     var params = {
       operation: "transition_checkout",
@@ -741,7 +741,7 @@ ps.io.Actions = new (function () {
       "GetItemSortRank",
       this.MIMETYPE_PLAIN,
       null,
-      params
+      params,
     );
   };
 
@@ -754,7 +754,7 @@ ps.io.Actions = new (function () {
       "GetServerProperties",
       this.MIMETYPE_JSON,
       null,
-      null
+      null,
     );
   };
 
@@ -784,7 +784,7 @@ ps.io.Actions = new (function () {
       "ResolveSiteFolders",
       this.MIMETYPE_JSON,
       null,
-      params
+      params,
     );
   };
 
@@ -817,7 +817,7 @@ ps.io.Actions = new (function () {
     parentFolderPath,
     ctypeid,
     slotid,
-    isSiteFolder
+    isSiteFolder,
   ) {
     var params = {
       parentFolderPath: parentFolderPath,
@@ -845,7 +845,7 @@ ps.io.Actions = new (function () {
       "GetCreateItemUrl",
       this.MIMETYPE_JSON,
       null,
-      params
+      params,
     );
   };
 
@@ -865,7 +865,7 @@ ps.io.Actions = new (function () {
       "GetInlinelinkParents",
       this.MIMETYPE_JSON,
       null,
-      params
+      params,
     );
   };
 
@@ -879,7 +879,7 @@ ps.io.Actions = new (function () {
       "GetContentEditorFieldValue",
       this.MIMETYPE_HTML,
       objectId.serialize(),
-      null
+      null,
     );
   };
 
@@ -895,7 +895,7 @@ ps.io.Actions = new (function () {
       "SetContentEditorFieldValue",
       this.MIMETYPE_JSON,
       objectId.serialize(),
-      params
+      params,
     );
   };
 
@@ -927,7 +927,7 @@ ps.io.Actions = new (function () {
       "GetLocaleCount",
       this.MIMETYPE_PLAIN,
       null,
-      null
+      null,
     );
     if (response.isSuccess()) {
       this.localeCount = parseInt(response.getValue(), 10);

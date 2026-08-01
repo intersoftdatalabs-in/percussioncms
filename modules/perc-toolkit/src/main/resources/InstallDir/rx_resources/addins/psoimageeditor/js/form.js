@@ -6,7 +6,7 @@ jQuery.fn.ajaxSubmit = function (options) {
       url: this.attr("action") || window.location,
       type: this.attr("method") || "GET",
     },
-    options || {}
+    options || {},
   );
 
   var a = this.formToArray(options.semantic);
@@ -143,8 +143,8 @@ jQuery.fn.ajaxSubmit = function (options) {
         doc = io.contentWindow
           ? io.contentWindow.document
           : io.contentDocument
-          ? io.contentDocument
-          : io.document;
+            ? io.contentDocument
+            : io.document;
         xhr.responseText = doc.body ? doc.body.innerHTML : null;
         xhr.responseXML = doc.XMLDocument ? doc.XMLDocument : doc;
 
@@ -221,7 +221,7 @@ jQuery.fn.ajaxForm = function (options) {
         setTimeout(function () {
           $form.clk = $form.clk_x = $form.clk_y = null;
         }, 10);
-      }
+      },
     );
   }).submit(function (e) {
     jQuery(this).ajaxSubmit(options);
@@ -246,7 +246,7 @@ jQuery.fn.formToArray = function (semantic) {
       if (!el.disabled && form.clk === el)
         a.push(
           { name: n + ".x", value: form.clk_x },
-          { name: n + ".y", value: form.clk_y }
+          { name: n + ".y", value: form.clk_y },
         );
       continue;
     }
@@ -267,7 +267,7 @@ jQuery.fn.formToArray = function (semantic) {
       if (n && !input.disabled && input.type === "image" && form.clk === input)
         a.push(
           { name: n + ".x", value: form.clk_x },
-          { name: n + ".y", value: form.clk_y }
+          { name: n + ".y", value: form.clk_y },
         );
     }
   }
@@ -308,7 +308,8 @@ jQuery.fn.fieldSerialize = function (successful) {
     if (v && v.constructor === Array) {
       for (var i = 0, max = v.length; i < max; i++)
         a.push({ name: n, value: v[i] });
-    } else if (v !== null && typeof v != "undefined") a.push({ name: this.name, value: v });
+    } else if (v !== null && typeof v != "undefined")
+      a.push({ name: this.name, value: v });
   });
   //hand off to jQuery.param for proper encoding
   return jQuery.param(a);

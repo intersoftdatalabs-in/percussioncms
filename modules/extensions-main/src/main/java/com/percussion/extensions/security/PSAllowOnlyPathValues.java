@@ -35,8 +35,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+/**
+ * Validates that the supplied input is a valid path value.
+ *
+ * @author natechadwick
+ */
 public class PSAllowOnlyPathValues
     implements IPSResultDocumentProcessor, IPSAllowOnlyItemInputValidator {
+  /** Creates a new PSAllowOnlyPathValues. */
+  public PSAllowOnlyPathValues() {}
+
   private String ms_fullExtensionName;
 
   @Override
@@ -64,6 +72,16 @@ public class PSAllowOnlyPathValues
     return ret;
   }
 
+  /**
+   * Validates path parameters from the request.
+   *
+   * @param params the extension parameters.
+   * @param request the request context.
+   * @throws PSAuthorizationException if authorization fails.
+   * @throws PSRequestValidationException if the request is invalid.
+   * @throws PSParameterMismatchException if the parameters are mismatched.
+   * @throws PSExtensionProcessingException if processing fails.
+   */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSAuthorizationException,
           PSRequestValidationException,

@@ -123,7 +123,7 @@ function buildQuery() {
   p_pagecategories = getPageCategories();
   p_hide_past_results = $('[name="hide_past_results"]').val() === "true";
   p_hide_past_filter = $(
-    '[name="perc-pageautolist-hide-past-results-date-type"]:checked'
+    '[name="perc-pageautolist-hide-past-results-date-type"]:checked',
   ).val();
 
   //Sample JCR query
@@ -229,8 +229,8 @@ function buildQuery() {
                 tpl.name +
                 "'>" +
                 tpl.name +
-                "</span></div>"
-            )
+                "</span></div>",
+            ),
           );
         }
         $(".perc-pagetemplates-chkbox").on("change", function () {
@@ -259,11 +259,11 @@ function buildQuery() {
       $(document).ready(function () {
         populateTemplateTypes(
           getSiteFromFolderPath($('[name="site_path"]').val()),
-          pageTemplatesOptionsArray
+          pageTemplatesOptionsArray,
         );
         populateCategories(
           getSiteFromFolderPath($('[name="site_path"]').val()),
-          pageTemplatesOptionsArray
+          pageTemplatesOptionsArray,
         );
       });
     }
@@ -285,7 +285,7 @@ function buildQuery() {
         }
         if (el.hasAttribute("id") && el.getAttribute("id") != "") {
           stack.unshift(
-            el.nodeName.toLowerCase() + "#" + el.getAttribute("id")
+            el.nodeName.toLowerCase() + "#" + el.getAttribute("id"),
           );
         } else if (sibCount > 1) {
           stack.unshift(el.nodeName.toLowerCase() + ":eq(" + sibIndex + ")");
@@ -335,7 +335,7 @@ function buildQuery() {
       $(document).ready(function () {
         populateCategories(
           getSiteFromFolderPath($('[name="site_path"]').val()),
-          pageCategoriesOptionsArray
+          pageCategoriesOptionsArray,
         );
       });
     }
@@ -358,7 +358,7 @@ function buildQuery() {
     function showSites() {
       $(document).ready(function () {
         var path = $.PercFinderTreeConstants.convertFolderPathToPath(
-          $('[name="site_path"]').val()
+          $('[name="site_path"]').val(),
         );
 
         function renderComplete() {
@@ -375,7 +375,7 @@ function buildQuery() {
           ) {
             populateTemplateTypes(
               getSiteFromFolderPath(pathItem.folderPath),
-              []
+              [],
             );
             populateCategories(getSiteFromFolderPath(pathItem.folderPath), []);
           }
@@ -430,11 +430,11 @@ function buildQuery() {
       "change",
       function () {
         var hideFilterDateType = $(
-          '[name="perc-pageautolist-hide-past-results-date-type"]:checked'
+          '[name="perc-pageautolist-hide-past-results-date-type"]:checked',
         ).val();
         $('[name="hide_past_results_filter"]').val(hideFilterDateType);
         buildQuery();
-      }
+      },
     );
 
     /**
@@ -492,7 +492,7 @@ function buildQuery() {
       $(
         '[name="perc-pageautolist-hide-past-results-date-type"][value="' +
           hideFilterDateType +
-          '"]'
+          '"]',
       ).prop("checked", true);
       $("#display_title_contains")
         .val($('[name="title_contains"]').val())
@@ -521,12 +521,12 @@ function buildQuery() {
     $.perc_textAutoFill(
       $("#perc-feed-title"),
       $("#perc-feed-name"),
-      $.perc_autoFillTextFilters.URL
+      $.perc_autoFillTextFilters.URL,
     );
     $.perc_filterField($("#perc-feed-name"), $.perc_autoFillTextFilters.URL);
 
     var metaFields = $(
-      "#perc-feed-name, #perc-feed-title, #perc-feed-description"
+      "#perc-feed-name, #perc-feed-title, #perc-feed-description",
     );
 
     //If there is error make sure the chekcbox is checked on re-redering the form.
@@ -538,17 +538,17 @@ function buildQuery() {
       $("#perc-feed-title").after(
         "<div class = 'perc-disabled datadisplay'>" +
           $("#perc-feed-title").val() +
-          "</div>"
+          "</div>",
       );
       $("#perc-feed-name").after(
         "<div class = 'perc-disabled datadisplay'>" +
           $("#perc-feed-name").val() +
-          "</div>"
+          "</div>",
       );
       $("#perc-feed-description").after(
         "<div class = 'perc-disabled datadisplay'>" +
           $("#perc-feed-description").val() +
-          "</div>"
+          "</div>",
       );
       metaFields.hide();
     }
@@ -559,24 +559,24 @@ function buildQuery() {
   });
   $(document).on("click", "#perc-enable-feed", function () {
     var metaFields = $(
-      "#perc-feed-name, #perc-feed-title, #perc-feed-description"
+      "#perc-feed-name, #perc-feed-title, #perc-feed-description",
     );
     metaFields.toggleClass("perc-rss-disabled");
     if ($("#perc-feed-name").hasClass("perc-rss-disabled")) {
       $("#perc-feed-title").after(
         "<div class = 'perc-disabled datadisplay'>" +
           $("#perc-feed-title").val() +
-          "</div>"
+          "</div>",
       );
       $("#perc-feed-name").after(
         "<div class = 'perc-disabled datadisplay'>" +
           $("#perc-feed-name").val() +
-          "</div>"
+          "</div>",
       );
       $("#perc-feed-description").after(
         "<div class = 'perc-disabled datadisplay' style = 'width:320px; height:80px'>" +
           $("#perc-feed-description").val() +
-          "</div>"
+          "</div>",
       );
       metaFields.hide();
     } else {

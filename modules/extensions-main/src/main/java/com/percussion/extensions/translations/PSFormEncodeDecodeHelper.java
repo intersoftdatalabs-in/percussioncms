@@ -39,6 +39,8 @@ import org.apache.logging.log4j.Logger;
  * @author erikserating
  */
 public class PSFormEncodeDecodeHelper {
+  /** Creates a new PSFormEncodeDecodeHelper. */
+  public PSFormEncodeDecodeHelper() {}
 
   private static final Logger log = LogManager.getLogger(PSFormEncodeDecodeHelper.class);
 
@@ -193,7 +195,11 @@ public class PSFormEncodeDecodeHelper {
     return buff.toString();
   }
 
-  // Main for testing
+  /**
+   * Main for testing.
+   *
+   * @param args the command line arguments.
+   */
   public static void main(String[] args) {
     String encoded = encode(ms_test_string);
     String decoded = decode(encoded);
@@ -228,7 +234,7 @@ public class PSFormEncodeDecodeHelper {
    */
   private static final int MAX_COMMENT_INPUT_LENGTH = 64 * 1024;
 
-  // Test string
+  /** Test string used by main for manual testing. */
   public static final String ms_test_string =
       "<body>\n"
           + "<form action=\"test.jsp\" method=\"post\">\n"

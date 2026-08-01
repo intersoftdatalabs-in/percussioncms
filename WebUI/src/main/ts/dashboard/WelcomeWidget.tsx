@@ -23,6 +23,7 @@
  */
 
 import React from "react";
+import { message, MSG } from "../i18n/message";
 import { styles } from "./dashboard.styles";
 
 export interface WelcomeWidgetProps {
@@ -34,39 +35,39 @@ export const WelcomeWidget: React.FC<WelcomeWidgetProps> = ({
 }) => {
   const now = new Date();
   const hour = now.getHours();
-  let greeting = "Good morning";
-  if (hour >= 12 && hour < 18) greeting = "Good afternoon";
-  if (hour >= 18) greeting = "Good evening";
+  let greetingKey: string = MSG.WELCOME_GREETING_MORNING;
+  if (hour >= 12 && hour < 18) greetingKey = MSG.WELCOME_GREETING_AFTERNOON;
+  if (hour >= 18) greetingKey = MSG.WELCOME_GREETING_EVENING;
 
   return (
     <div style={styles.widget}>
-      <h3 style={styles.widgetTitle}>Welcome</h3>
+      <h3 style={styles.widgetTitle}>{message(MSG.GADGET_WELCOME)}</h3>
       <div style={styles.widgetContent}>
         <p>
-          {greeting}, <strong>{userName}</strong>!
+          {message(greetingKey)}, <strong>{userName}</strong>!
         </p>
         <p style={{ color: "#666", fontSize: "14px", marginTop: "12px" }}>
-          You're using Percussion CMS 8.2. Here are some quick actions:
+          {message(MSG.WELCOME_BLURB)}
         </p>
         <ul style={{ marginTop: "12px", paddingLeft: "20px" }}>
           <li>
             <a href="/cm/app/sitemanage" style={styles.link}>
-              Site Management
+              {message(MSG.WELCOME_LINK_SITEMANAGE)}
             </a>
           </li>
           <li>
             <a href="/cm/app/webmgt" style={styles.link}>
-              Web Management
+              {message(MSG.WELCOME_LINK_WEBMGT)}
             </a>
           </li>
           <li>
             <a href="/cm/app/admin" style={styles.link}>
-              Administration
+              {message(MSG.NAV_ADMINISTRATION)}
             </a>
           </li>
           <li>
             <a href="/Rhythmyx/ui/admin/console.faces" style={styles.link}>
-              Admin Console
+              {message(MSG.WELCOME_LINK_ADMINCONSOLE)}
             </a>
           </li>
         </ul>

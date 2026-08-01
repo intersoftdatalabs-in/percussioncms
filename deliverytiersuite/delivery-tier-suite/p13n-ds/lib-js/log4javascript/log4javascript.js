@@ -131,14 +131,14 @@ var SimpleDateFormat;
       previousSunday = new Date(
         previousSunday.getFullYear(),
         previousSunday.getMonth(),
-        previousSunday.getDate()
+        previousSunday.getDate(),
       );
       var startOfYear = new Date(this.getFullYear(), 0, 1);
       var numberOfSundays = previousSunday.isBefore(startOfYear)
         ? 0
         : 1 +
           Math.floor(
-            (previousSunday.getTime() - startOfYear.getTime()) / ONE_WEEK
+            (previousSunday.getTime() - startOfYear.getTime()) / ONE_WEEK,
           );
       var numberOfDaysInFirstWeek = 7 - startOfYear.getDay();
       var weekInYear = numberOfSundays;
@@ -155,14 +155,14 @@ var SimpleDateFormat;
       previousSunday = new Date(
         previousSunday.getFullYear(),
         previousSunday.getMonth(),
-        previousSunday.getDate()
+        previousSunday.getDate(),
       );
       var startOfMonth = new Date(this.getFullYear(), this.getMonth(), 1);
       var numberOfSundays = previousSunday.isBefore(startOfMonth)
         ? 0
         : 1 +
           Math.floor(
-            (previousSunday.getTime() - startOfMonth.getTime()) / ONE_WEEK
+            (previousSunday.getTime() - startOfMonth.getTime()) / ONE_WEEK,
           );
       var numberOfDaysInFirstWeek = 7 - startOfMonth.getDay();
       var weekInMonth = numberOfSundays;
@@ -217,7 +217,7 @@ var SimpleDateFormat;
           } else {
             formattedString += quotedString.substring(
               1,
-              quotedString.length - 1
+              quotedString.length - 1,
             );
           }
         } else if (otherLetters) {
@@ -306,7 +306,7 @@ var SimpleDateFormat;
                 formattedString += formatText(
                   monthNames[rawData],
                   numberOfLetters,
-                  numberOfLetters
+                  numberOfLetters,
                 );
               } else {
                 formattedString += formatNumber(rawData + 1, numberOfLetters);
@@ -373,7 +373,7 @@ var SimpleDateFormat;
       for (i = 0; i < obj.length; i++) {
         childLines.push(
           childIndentation +
-            formatObjectExpansion(obj[i], childDepth, childIndentation)
+            formatObjectExpansion(obj[i], childDepth, childIndentation),
         );
       }
       output += childLines.join("," + newLine) + newLine + indentation + "]";
@@ -391,7 +391,7 @@ var SimpleDateFormat;
           childIndentation +
             i +
             ": " +
-            formatObjectExpansion(obj[i], childDepth, childIndentation)
+            formatObjectExpansion(obj[i], childDepth, childIndentation),
         );
       }
       output += childLines.join("," + newLine) + newLine + indentation + "}";
@@ -536,7 +536,7 @@ var SimpleDateFormat;
         appenders.push(appender);
       } else {
         handleError(
-          "Logger.addAppender: appender supplied is not a subclass of Appender"
+          "Logger.addAppender: appender supplied is not a subclass of Appender",
         );
       }
     };
@@ -553,7 +553,7 @@ var SimpleDateFormat;
           new Date(),
           level,
           message,
-          exception
+          exception,
         );
         for (var i = 0; i < appenders.length; i++) {
           appenders[i].doAppend(loggingEvent);
@@ -679,7 +679,7 @@ var SimpleDateFormat;
     },
     ignoresThrowable: function () {
       handleError(
-        "Layout.ignoresThrowable: layout supplied has no ignoresThrowable() method"
+        "Layout.ignoresThrowable: layout supplied has no ignoresThrowable() method",
       );
     },
     getContentType: function () {
@@ -718,24 +718,24 @@ var SimpleDateFormat;
       levelKey,
       messageKey,
       exceptionKey,
-      urlKey
+      urlKey,
     ) {
       this.loggerKey = extractStringFromParam(
         loggerKey,
-        this.defaults.loggerKey
+        this.defaults.loggerKey,
       );
       this.timeStampKey = extractStringFromParam(
         timeStampKey,
-        this.defaults.timeStampKey
+        this.defaults.timeStampKey,
       );
       this.levelKey = extractStringFromParam(levelKey, this.defaults.levelKey);
       this.messageKey = extractStringFromParam(
         messageKey,
-        this.defaults.messageKey
+        this.defaults.messageKey,
       );
       this.exceptionKey = extractStringFromParam(
         exceptionKey,
-        this.defaults.exceptionKey
+        this.defaults.exceptionKey,
       );
       this.urlKey = extractStringFromParam(urlKey, this.defaults.urlKey);
     },
@@ -834,7 +834,7 @@ var SimpleDateFormat;
     levelKey,
     messageKey,
     exceptionKey,
-    urlKey
+    urlKey,
   ) {
     this.readable = bool(readable);
     this.batchHeader = this.readable ? "[" + newLine : "[";
@@ -846,7 +846,7 @@ var SimpleDateFormat;
       levelKey,
       messageKey,
       exceptionKey,
-      urlKey
+      urlKey,
     );
     this.propertySeparator = this.readable ? ", " : ",";
     this.colon = this.readable ? ": " : ":";
@@ -900,7 +900,7 @@ var SimpleDateFormat;
     levelKey,
     messageKey,
     exceptionKey,
-    urlKey
+    urlKey,
   ) {
     this.setKeys(
       loggerKey,
@@ -908,7 +908,7 @@ var SimpleDateFormat;
       levelKey,
       messageKey,
       exceptionKey,
-      urlKey
+      urlKey,
     );
     this.customFields = [];
   };
@@ -921,7 +921,7 @@ var SimpleDateFormat;
     var queryBits = [];
     for (var i = 0; i < dataValues.length; i++) {
       queryBits.push(
-        urlEncode(dataValues[i][0]) + "=" + urlEncode(dataValues[i][1])
+        urlEncode(dataValues[i][0]) + "=" + urlEncode(dataValues[i][1]),
       );
     }
     return queryBits.join("&");
@@ -990,7 +990,7 @@ var SimpleDateFormat;
               }
             }
             replacement = new SimpleDateFormat(dateFormat).format(
-              loggingEvent.timeStamp
+              loggingEvent.timeStamp,
             );
             break;
           case "f":
@@ -1002,19 +1002,19 @@ var SimpleDateFormat;
                   handleError(
                     "PatternLayout.format: invalid specifier '" +
                       specifier +
-                      "' for conversion character 'f' - should be a number"
+                      "' for conversion character 'f' - should be a number",
                   );
                 } else if (fieldIndex === 0) {
                   handleError(
                     "PatternLayout.format: invalid specifier '" +
                       specifier +
-                      "' for conversion character 'f' - must be greater than zero"
+                      "' for conversion character 'f' - must be greater than zero",
                   );
                 } else if (fieldIndex > this.customFields.length) {
                   handleError(
                     "PatternLayout.format: invalid specifier '" +
                       specifier +
-                      "' for conversion character 'f' - there aren't that many custom fields"
+                      "' for conversion character 'f' - there aren't that many custom fields",
                   );
                 } else {
                   fieldIndex = fieldIndex - 1;
@@ -1030,13 +1030,13 @@ var SimpleDateFormat;
                 handleError(
                   "PatternLayout.format: invalid specifier '" +
                     specifier +
-                    "' for conversion character 'm' - should be a number"
+                    "' for conversion character 'm' - should be a number",
                 );
                 replacement = loggingEvent.message;
               } else {
                 replacement = formatObjectExpansion(
                   loggingEvent.message,
-                  depth
+                  depth,
                 );
               }
             } else {
@@ -1108,7 +1108,7 @@ var SimpleDateFormat;
         handleError(
           "Appender.setLayout: layout supplied to " +
             this.toString() +
-            " is not a subclass of Layout"
+            " is not a subclass of Layout",
         );
       }
     },
@@ -1122,7 +1122,7 @@ var SimpleDateFormat;
         handleError(
           "Appender.setThreshold: threshold supplied to " +
             this.toString() +
-            " is not a subclass of Level"
+            " is not a subclass of Level",
         );
       }
     },
@@ -1160,7 +1160,7 @@ var SimpleDateFormat;
     batchSize,
     timerInterval,
     requestSuccessCallback,
-    failCallback
+    failCallback,
   ) {
     var appender = this;
     var isSupported = true;
@@ -1171,20 +1171,20 @@ var SimpleDateFormat;
     timed = extractBooleanFromParam(timed, this.defaults.timed);
     waitForResponse = extractBooleanFromParam(
       waitForResponse,
-      this.defaults.waitForResponse
+      this.defaults.waitForResponse,
     );
     batchSize = extractIntFromParam(batchSize, this.defaults.batchSize);
     timerInterval = extractIntFromParam(
       timerInterval,
-      this.defaults.timerInterval
+      this.defaults.timerInterval,
     );
     requestSuccessCallback = extractFunctionFromParam(
       requestSuccessCallback,
-      this.defaults.requestSuccessCallback
+      this.defaults.requestSuccessCallback,
     );
     failCallback = extractFunctionFromParam(
       failCallback,
-      this.defaults.failCallback
+      this.defaults.failCallback,
     );
     var sessionId = null;
     var queuedLoggingEvents = [];
@@ -1196,7 +1196,7 @@ var SimpleDateFormat;
         handleError(
           "AjaxAppender: configuration option '" +
             configOptionName +
-            "' may not be set after the appender has been initialized"
+            "' may not be set after the appender has been initialized",
         );
         return false;
       }
@@ -1255,7 +1255,7 @@ var SimpleDateFormat;
     this.setRequestSuccessCallback = function (requestSuccessCallbackParam) {
       requestSuccessCallback = extractFunctionFromParam(
         requestSuccessCallbackParam,
-        requestSuccessCallback
+        requestSuccessCallback,
       );
     };
     this.setFailCallback = function (failCallbackParam) {
@@ -1378,7 +1378,7 @@ var SimpleDateFormat;
           try {
             xmlHttp.setRequestHeader(
               "Content-Type",
-              "application/x-www-form-urlencoded"
+              "application/x-www-form-urlencoded",
             );
           } catch (headerEx) {
             var msg =
@@ -1521,7 +1521,7 @@ var SimpleDateFormat;
       width,
       height,
       reopenWhenClosed,
-      maxMessages
+      maxMessages,
     ) {
       var appender = this;
       if (layout) {
@@ -1537,11 +1537,11 @@ var SimpleDateFormat;
       lazyInit = extractBooleanFromParam(lazyInit, true);
       newestMessageAtTop = extractBooleanFromParam(
         newestMessageAtTop,
-        this.defaults.newestMessageAtTop
+        this.defaults.newestMessageAtTop,
       );
       scrollToLatestMessage = extractBooleanFromParam(
         scrollToLatestMessage,
-        this.defaults.scrollToLatestMessage
+        this.defaults.scrollToLatestMessage,
       );
       width = width ? width : this.defaults.width;
       height = height ? height : this.defaults.height;
@@ -1554,7 +1554,7 @@ var SimpleDateFormat;
             appenderName +
               ": configuration option '" +
               configOptionName +
-              "' may not be set after the appender has been initialized"
+              "' may not be set after the appender has been initialized",
           );
           return false;
         }
@@ -1642,7 +1642,7 @@ var SimpleDateFormat;
       var pollConsoleWindow = function (
         windowTest,
         successCallback,
-        errorMessage
+        errorMessage,
       ) {
         function pollConsoleWindowLoaded() {
           try {
@@ -1665,13 +1665,13 @@ var SimpleDateFormat;
         if (!containerElement || !containerElement.appendChild) {
           isSupported = false;
           handleError(
-            "InPageAppender.init: a container DOM element must be supplied for the console window"
+            "InPageAppender.init: a container DOM element must be supplied for the console window",
           );
           return;
         }
         initiallyMinimized = extractBooleanFromParam(
           initiallyMinimized,
-          appender.defaults.initiallyMinimized
+          appender.defaults.initiallyMinimized,
         );
         this.isInitiallyMinimized = function () {
           return initiallyMinimized;
@@ -1737,7 +1737,7 @@ var SimpleDateFormat;
           }
           minimized = initiallyMinimized;
           iframeContainerDiv = containerElement.appendChild(
-            document.createElement("div")
+            document.createElement("div"),
           );
           iframeContainerDiv.style.width = width;
           iframeContainerDiv.style.height = height;
@@ -1760,7 +1760,7 @@ var SimpleDateFormat;
             pollConsoleWindow(
               iframeDocumentExistsTest,
               writeToDocument,
-              initErrorMessage
+              initErrorMessage,
             );
           }
           initialized = true;
@@ -1787,15 +1787,15 @@ var SimpleDateFormat;
       } else {
         useOldPopUp = extractBooleanFromParam(
           useOldPopUp,
-          appender.defaults.useOldPopUp
+          appender.defaults.useOldPopUp,
         );
         complainAboutPopUpBlocking = extractBooleanFromParam(
           complainAboutPopUpBlocking,
-          appender.defaults.complainAboutPopUpBlocking
+          appender.defaults.complainAboutPopUpBlocking,
         );
         reopenWhenClosed = extractBooleanFromParam(
           reopenWhenClosed,
-          this.defaults.reopenWhenClosed
+          this.defaults.reopenWhenClosed,
         );
         this.isUseOldPopUp = function () {
           return useOldPopUp;
@@ -1809,7 +1809,7 @@ var SimpleDateFormat;
           return complainAboutPopUpBlocking;
         };
         this.setComplainAboutPopUpBlocking = function (
-          complainAboutPopUpBlockingParam
+          complainAboutPopUpBlockingParam,
         ) {
           if (checkCanConfigure("complainAboutPopUpBlocking")) {
             complainAboutPopUpBlocking = bool(complainAboutPopUpBlockingParam);
@@ -1870,18 +1870,18 @@ var SimpleDateFormat;
                   pollConsoleWindow(
                     popUpLoadedTest,
                     finalInit,
-                    "PopUpAppender.init: unable to create console window"
+                    "PopUpAppender.init: unable to create console window",
                   );
                 }
               }
             } else {
               isSupported = false;
               logLog.warn(
-                "PopUpAppender.init: pop-ups blocked, please unblock to use PopUpAppender"
+                "PopUpAppender.init: pop-ups blocked, please unblock to use PopUpAppender",
               );
               if (complainAboutPopUpBlocking) {
                 handleError(
-                  "log4javascript: pop-up windows appear to be blocked. Please unblock them to use pop-up logging."
+                  "log4javascript: pop-up windows appear to be blocked. Please unblock them to use pop-up logging.",
                 );
               }
             }
@@ -1926,11 +1926,11 @@ var SimpleDateFormat;
       reopenWhenClosed,
       width,
       height,
-      maxMessages
+      maxMessages,
     ) {
       var focusConsoleWindow = extractBooleanFromParam(
         focusPopUp,
-        this.defaults.focusPopUp
+        this.defaults.focusPopUp,
       );
       this.create(
         false,
@@ -1946,7 +1946,7 @@ var SimpleDateFormat;
         width,
         height,
         reopenWhenClosed,
-        maxMessages
+        maxMessages,
       );
     };
     PopUpAppender.prototype = new ConsoleAppender();
@@ -1976,7 +1976,7 @@ var SimpleDateFormat;
       scrollToLatestMessage,
       width,
       height,
-      maxMessages
+      maxMessages,
     ) {
       this.create(
         true,
@@ -1992,7 +1992,7 @@ var SimpleDateFormat;
         width,
         height,
         null,
-        maxMessages
+        maxMessages,
       );
     };
     InPageAppender.prototype = new ConsoleAppender();

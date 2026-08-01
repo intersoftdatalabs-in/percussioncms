@@ -26,6 +26,7 @@ import com.percussion.server.IPSRequestContext;
 import java.io.File;
 import org.owasp.encoder.Encode;
 
+/** Field input transformer that XML-encodes the supplied string parameter. */
 public class PSXMLEncode implements IPSFieldInputTransformer {
 
   /***

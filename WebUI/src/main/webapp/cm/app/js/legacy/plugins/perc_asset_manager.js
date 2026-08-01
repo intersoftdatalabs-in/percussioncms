@@ -43,7 +43,7 @@
     isResource,
     folderPath,
     k,
-    err
+    err,
   ) {
     var resType = isResource ? "shared" : "local";
     var awr = {
@@ -73,7 +73,7 @@
     widgetId,
     widgetDefinitionId,
     assetId,
-    callback
+    callback,
   ) {
     callback = callback || function () {};
     var awr = {

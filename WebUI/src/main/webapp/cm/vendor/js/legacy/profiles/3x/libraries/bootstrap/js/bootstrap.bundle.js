@@ -7,10 +7,10 @@
   typeof exports === "object" && typeof module !== "undefined"
     ? factory(exports, require("jquery"))
     : typeof define === "function" && define.amd
-    ? define(["exports", "jquery"], factory)
-    : ((global =
-        typeof globalThis !== "undefined" ? globalThis : global || self),
-      factory((global.bootstrap = {}), global.jQuery));
+      ? define(["exports", "jquery"], factory)
+      : ((global =
+          typeof globalThis !== "undefined" ? globalThis : global || self),
+        factory((global.bootstrap = {}), global.jQuery));
 })(this, function (exports, $) {
   "use strict";
 
@@ -163,14 +163,14 @@
       }
     },
     getTransitionDurationFromElement: function getTransitionDurationFromElement(
-      element
+      element,
     ) {
       if (!element) {
         return 0;
       } // Get transition-duration of the element
 
       var transitionDuration = $__default["default"](element).css(
-        "transition-duration"
+        "transition-duration",
       );
       var transitionDelay =
         $__default["default"](element).css("transition-delay");
@@ -203,7 +203,7 @@
     typeCheckConfig: function typeCheckConfig(
       componentName,
       config,
-      configTypes
+      configTypes,
     ) {
       for (var property in configTypes) {
         if (Object.prototype.hasOwnProperty.call(configTypes, property)) {
@@ -221,7 +221,7 @@
                   '" provided type "' +
                   valueType +
                   '" ') +
-                ('but expected type "' + expectedTypes + '".')
+                ('but expected type "' + expectedTypes + '".'),
             );
           }
         }
@@ -250,7 +250,7 @@
     jQueryDetection: function jQueryDetection() {
       if (typeof $__default["default"] === "undefined") {
         throw new TypeError(
-          "Bootstrap's JavaScript requires jQuery. jQuery must be included before Bootstrap's JavaScript."
+          "Bootstrap's JavaScript requires jQuery. jQuery must be included before Bootstrap's JavaScript.",
         );
       }
 
@@ -269,7 +269,7 @@
         version[0] >= maxMajor
       ) {
         throw new Error(
-          "Bootstrap's JavaScript requires at least jQuery v1.9.1 but less than v4.0.0"
+          "Bootstrap's JavaScript requires at least jQuery v1.9.1 but less than v4.0.0",
         );
       }
     },
@@ -337,7 +337,7 @@
 
       if (!parent) {
         parent = $__default["default"](element).closest(
-          "." + CLASS_NAME_ALERT
+          "." + CLASS_NAME_ALERT,
         )[0];
       }
 
@@ -417,7 +417,7 @@
   $__default["default"](document).on(
     EVENT_CLICK_DATA_API$6,
     SELECTOR_DISMISS,
-    Alert._handleDismiss(new Alert())
+    Alert._handleDismiss(new Alert()),
   );
   /**
    * jQuery
@@ -476,7 +476,7 @@
       var triggerChangeEvent = true;
       var addAriaPressed = true;
       var rootElement = $__default["default"](this._element).closest(
-        SELECTOR_DATA_TOGGLES
+        SELECTOR_DATA_TOGGLES,
       )[0];
 
       if (rootElement) {
@@ -494,7 +494,7 @@
 
               if (activeElement) {
                 $__default["default"](activeElement).removeClass(
-                  CLASS_NAME_ACTIVE$3
+                  CLASS_NAME_ACTIVE$3,
                 );
               }
             }
@@ -517,16 +517,14 @@
         }
       }
 
-      if (
-        !(
-          this._element.hasAttribute("disabled") ||
-          this._element.classList.contains("disabled")
-        )
-      ) {
+      if (!(
+        this._element.hasAttribute("disabled") ||
+        this._element.classList.contains("disabled")
+      )) {
         if (addAriaPressed) {
           this._element.setAttribute(
             "aria-pressed",
-            !this._element.classList.contains(CLASS_NAME_ACTIVE$3)
+            !this._element.classList.contains(CLASS_NAME_ACTIVE$3),
           );
         }
 
@@ -543,7 +541,7 @@
 
     Button._jQueryInterface = function _jQueryInterface(
       config,
-      avoidTriggerChange
+      avoidTriggerChange,
     ) {
       return this.each(function () {
         var $element = $__default["default"](this);
@@ -609,7 +607,7 @@
           Button._jQueryInterface.call(
             $__default["default"](button),
             "toggle",
-            initialButton.tagName === "INPUT"
+            initialButton.tagName === "INPUT",
           );
         }
       }
@@ -619,19 +617,19 @@
       SELECTOR_DATA_TOGGLE_CARROT,
       function (event) {
         var button = $__default["default"](event.target).closest(
-          SELECTOR_BUTTON
+          SELECTOR_BUTTON,
         )[0];
         $__default["default"](button).toggleClass(
           CLASS_NAME_FOCUS,
-          /^focus(in)?$/.test(event.type)
+          /^focus(in)?$/.test(event.type),
         );
-      }
+      },
     );
   $__default["default"](window).on(EVENT_LOAD_DATA_API$2, function () {
     // ensure correct active class is set to match the controls' actual values/states
     // find all checkboxes/readio buttons inside data-toggle groups
     var buttons = [].slice.call(
-      document.querySelectorAll(SELECTOR_DATA_TOGGLES_BUTTONS)
+      document.querySelectorAll(SELECTOR_DATA_TOGGLES_BUTTONS),
     );
 
     for (var i = 0, len = buttons.length; i < len; i++) {
@@ -761,7 +759,7 @@
         "ontouchstart" in document.documentElement ||
         navigator.maxTouchPoints > 0;
       this._pointerEvent = Boolean(
-        window.PointerEvent || window.MSPointerEvent
+        window.PointerEvent || window.MSPointerEvent,
       );
 
       this._addEventListeners();
@@ -824,9 +822,9 @@
 
         this._interval = setInterval(
           (document.visibilityState ? this.nextWhenVisible : this.next).bind(
-            this
+            this,
           ),
-          this._config.interval
+          this._config.interval,
         );
       }
     };
@@ -906,7 +904,7 @@
           EVENT_KEYDOWN,
           function (event) {
             return _this2._keydown(event);
-          }
+          },
         );
       }
 
@@ -982,7 +980,7 @@
       };
 
       $__default["default"](
-        this._element.querySelectorAll(SELECTOR_ITEM_IMG)
+        this._element.querySelectorAll(SELECTOR_ITEM_IMG),
       ).on(EVENT_DRAG_START, function (e) {
         return e.preventDefault();
       });
@@ -992,13 +990,13 @@
           EVENT_POINTERDOWN,
           function (event) {
             return start(event);
-          }
+          },
         );
         $__default["default"](this._element).on(
           EVENT_POINTERUP,
           function (event) {
             return end(event);
-          }
+          },
         );
 
         this._element.classList.add(CLASS_NAME_POINTER_EVENT);
@@ -1007,19 +1005,19 @@
           EVENT_TOUCHSTART,
           function (event) {
             return start(event);
-          }
+          },
         );
         $__default["default"](this._element).on(
           EVENT_TOUCHMOVE,
           function (event) {
             return move(event);
-          }
+          },
         );
         $__default["default"](this._element).on(
           EVENT_TOUCHEND,
           function (event) {
             return end(event);
-          }
+          },
         );
       }
     };
@@ -1052,7 +1050,7 @@
 
     _proto._getItemByDirection = function _getItemByDirection(
       direction,
-      activeElement
+      activeElement,
     ) {
       var isNextDirection = direction === DIRECTION_NEXT;
       var isPrevDirection = direction === DIRECTION_PREV;
@@ -1077,12 +1075,12 @@
 
     _proto._triggerSlideEvent = function _triggerSlideEvent(
       relatedTarget,
-      eventDirectionName
+      eventDirectionName,
     ) {
       var targetIndex = this._getItemIndex(relatedTarget);
 
       var fromIndex = this._getItemIndex(
-        this._element.querySelector(SELECTOR_ACTIVE_ITEM)
+        this._element.querySelector(SELECTOR_ACTIVE_ITEM),
       );
 
       var slideEvent = $__default["default"].Event(EVENT_SLIDE, {
@@ -1096,11 +1094,11 @@
     };
 
     _proto._setActiveIndicatorElement = function _setActiveIndicatorElement(
-      element
+      element,
     ) {
       if (this._indicatorsElement) {
         var indicators = [].slice.call(
-          this._indicatorsElement.querySelectorAll(SELECTOR_ACTIVE$1)
+          this._indicatorsElement.querySelectorAll(SELECTOR_ACTIVE$1),
         );
         $__default["default"](indicators).removeClass(CLASS_NAME_ACTIVE$2);
 
@@ -1214,7 +1212,7 @@
                 " " +
                 orderClassName +
                 " " +
-                directionalClassName
+                directionalClassName,
             );
             _this4._isSliding = false;
             setTimeout(function () {
@@ -1241,7 +1239,7 @@
         var _config = _extends$1(
           {},
           Default$7,
-          $__default["default"](this).data()
+          $__default["default"](this).data(),
         );
 
         if (typeof config === "object") {
@@ -1289,7 +1287,7 @@
       var config = _extends$1(
         {},
         $__default["default"](target).data(),
-        $__default["default"](this).data()
+        $__default["default"](this).data(),
       );
 
       var slideIndex = this.getAttribute("data-slide-to");
@@ -1331,11 +1329,11 @@
   $__default["default"](document).on(
     EVENT_CLICK_DATA_API$4,
     SELECTOR_DATA_SLIDE,
-    Carousel._dataApiClickHandler
+    Carousel._dataApiClickHandler,
   );
   $__default["default"](window).on(EVENT_LOAD_DATA_API$1, function () {
     var carousels = [].slice.call(
-      document.querySelectorAll(SELECTOR_DATA_RIDE)
+      document.querySelectorAll(SELECTOR_DATA_RIDE),
     );
 
     for (var i = 0, len = carousels.length; i < len; i++) {
@@ -1401,11 +1399,11 @@
           '[data-toggle="collapse"][href="#' +
             element.id +
             '"],' +
-            ('[data-toggle="collapse"][data-target="#' + element.id + '"]')
-        )
+            ('[data-toggle="collapse"][data-target="#' + element.id + '"]'),
+        ),
       );
       var toggleList = [].slice.call(
-        document.querySelectorAll(SELECTOR_DATA_TOGGLE$3)
+        document.querySelectorAll(SELECTOR_DATA_TOGGLE$3),
       );
 
       for (var i = 0, len = toggleList.length; i < len; i++) {
@@ -1495,7 +1493,7 @@
       if (actives) {
         Collapse._jQueryInterface.call(
           $__default["default"](actives).not(this._selector),
-          "hide"
+          "hide",
         );
 
         if (!activesData) {
@@ -1533,7 +1531,7 @@
         dimension[0].toUpperCase() + dimension.slice(1);
       var scrollSize = "scroll" + capitalizedDimension;
       var transitionDuration = Util.getTransitionDurationFromElement(
-        this._element
+        this._element,
       );
       $__default["default"](this._element)
         .one(Util.TRANSITION_END, complete)
@@ -1575,7 +1573,7 @@
 
           if (selector !== null) {
             var $elem = $__default["default"](
-              [].slice.call(document.querySelectorAll(selector))
+              [].slice.call(document.querySelectorAll(selector)),
             );
 
             if (!$elem.hasClass(CLASS_NAME_SHOW$6)) {
@@ -1600,7 +1598,7 @@
 
       this._element.style[dimension] = "";
       var transitionDuration = Util.getTransitionDurationFromElement(
-        this._element
+        this._element,
       );
       $__default["default"](this._element)
         .one(Util.TRANSITION_END, complete)
@@ -1630,7 +1628,7 @@
 
     _proto._getDimension = function _getDimension() {
       var hasWidth = $__default["default"](this._element).hasClass(
-        DIMENSION_WIDTH
+        DIMENSION_WIDTH,
       );
       return hasWidth ? DIMENSION_WIDTH : DIMENSION_HEIGHT;
     };
@@ -1656,7 +1654,7 @@
       $__default["default"](children).each(function (i, element) {
         _this3._addAriaAndCollapsedClass(
           Collapse._getTargetFromElement(element),
-          [element]
+          [element],
         );
       });
       return parent;
@@ -1664,7 +1662,7 @@
 
     _proto._addAriaAndCollapsedClass = function _addAriaAndCollapsedClass(
       element,
-      triggerArray
+      triggerArray,
     ) {
       var isOpen = $__default["default"](element).hasClass(CLASS_NAME_SHOW$6);
 
@@ -1689,7 +1687,7 @@
           {},
           Default$6,
           $element.data(),
-          typeof config === "object" && config ? config : {}
+          typeof config === "object" && config ? config : {},
         );
 
         if (
@@ -1756,7 +1754,7 @@
 
         Collapse._jQueryInterface.call($target, config);
       });
-    }
+    },
   );
   /**
    * jQuery
@@ -2162,12 +2160,14 @@
       isIE(10)
         ? parseInt(html["offset" + axis]) +
             parseInt(
-              computedStyle["margin" + (axis === "Height" ? "Top" : "Left")]
+              computedStyle["margin" + (axis === "Height" ? "Top" : "Left")],
             ) +
             parseInt(
-              computedStyle["margin" + (axis === "Height" ? "Bottom" : "Right")]
+              computedStyle[
+                "margin" + (axis === "Height" ? "Bottom" : "Right")
+              ],
             )
-        : 0
+        : 0,
     );
   }
 
@@ -2456,7 +2456,7 @@
     if (boundariesElement === "viewport") {
       boundaries = getViewportOffsetRectRelativeToArtbitraryNode(
         offsetParent,
-        fixedPosition
+        fixedPosition,
       );
     } else {
       // Handle other cases based on DOM element used as boundaries
@@ -2475,7 +2475,7 @@
       var offsets = getOffsetRectRelativeToArbitraryNode(
         boundariesNode,
         offsetParent,
-        fixedPosition
+        fixedPosition,
       );
 
       // In case of HTML, we need a different computation
@@ -2526,7 +2526,7 @@
     refRect,
     popper,
     reference,
-    boundariesElement
+    boundariesElement,
   ) {
     var padding =
       arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0;
@@ -2539,7 +2539,7 @@
       popper,
       reference,
       padding,
-      boundariesElement
+      boundariesElement,
     );
 
     var rects = {
@@ -2570,7 +2570,7 @@
           rects[key],
           {
             area: getArea(rects[key]),
-          }
+          },
         );
       })
       .sort(function (a, b) {
@@ -2611,7 +2611,7 @@
     return getOffsetRectRelativeToArbitraryNode(
       reference,
       commonOffsetParent,
-      fixedPosition
+      fixedPosition,
     );
   }
 
@@ -2800,7 +2800,7 @@
       this.state,
       this.popper,
       this.reference,
-      this.options.positionFixed
+      this.options.positionFixed,
     );
 
     // compute auto placement, store placement inside the data object,
@@ -2812,7 +2812,7 @@
       this.popper,
       this.reference,
       this.options.modifiers.flip.boundariesElement,
-      this.options.modifiers.flip.padding
+      this.options.modifiers.flip.padding,
     );
 
     // store the computed placement inside `originalPlacement`
@@ -2824,7 +2824,7 @@
     data.offsets.popper = getPopperOffsets(
       this.popper,
       data.offsets.reference,
-      data.placement
+      data.placement,
     );
 
     data.offsets.popper.position = this.options.positionFixed
@@ -2929,7 +2929,7 @@
         getScrollParent(target.parentNode),
         event,
         callback,
-        scrollParents
+        scrollParents,
       );
     }
     scrollParents.push(target);
@@ -2954,7 +2954,7 @@
       scrollElement,
       "scroll",
       state.updateBound,
-      state.scrollParents
+      state.scrollParents,
     );
     state.scrollElement = scrollElement;
     state.eventsEnabled = true;
@@ -2974,7 +2974,7 @@
         this.reference,
         this.options,
         this.state,
-        this.scheduleUpdate
+        this.scheduleUpdate,
       );
     }
   }
@@ -3112,14 +3112,14 @@
     popper,
     options,
     modifierOptions,
-    state
+    state,
   ) {
     // compute reference element offsets
     var referenceOffsets = getReferenceOffsets(
       state,
       popper,
       reference,
-      options.positionFixed
+      options.positionFixed,
     );
 
     // compute auto placement, store placement inside the data object,
@@ -3131,7 +3131,7 @@
       popper,
       reference,
       options.modifiers.flip.boundariesElement,
-      options.modifiers.flip.padding
+      options.modifiers.flip.padding,
     );
 
     popper.setAttribute("x-placement", placement);
@@ -3186,15 +3186,15 @@
     var horizontalToInteger = !shouldRound
       ? noRound
       : isVertical || isVariation || sameWidthParity
-      ? round
-      : floor;
+        ? round
+        : floor;
     var verticalToInteger = !shouldRound ? noRound : round;
 
     return {
       left: horizontalToInteger(
         bothOddWidth && !isVariation && shouldRound
           ? popper.left - 1
-          : popper.left
+          : popper.left,
       ),
       top: verticalToInteger(popper.top),
       bottom: verticalToInteger(popper.bottom),
@@ -3222,11 +3222,11 @@
       data.instance.modifiers,
       function (modifier) {
         return modifier.name === "applyStyle";
-      }
+      },
     ).gpuAcceleration;
     if (legacyGpuAccelerationOption !== undefined) {
       console.warn(
-        "WARNING: `gpuAcceleration` option moved to `computeStyle` modifier and will not be supported in future versions of Popper.js!"
+        "WARNING: `gpuAcceleration` option moved to `computeStyle` modifier and will not be supported in future versions of Popper.js!",
       );
     }
     var gpuAcceleration =
@@ -3244,7 +3244,7 @@
 
     var offsets = getRoundedOffsets(
       data,
-      window.devicePixelRatio < 2 || !isFirefox
+      window.devicePixelRatio < 2 || !isFirefox,
     );
 
     var sideA = x === "bottom" ? "top" : "bottom";
@@ -3349,7 +3349,7 @@
           _requesting +
           " modifier in order to work, be sure to include it before " +
           _requesting +
-          "!"
+          "!",
       );
     }
     return isRequired;
@@ -3385,7 +3385,7 @@
       // provided DOM node is child of its popper node
       if (!data.instance.popper.contains(arrowElement)) {
         console.warn(
-          "WARNING: `arrow.element` must be child of its popper element!"
+          "WARNING: `arrow.element` must be child of its popper element!",
         );
         return data;
       }
@@ -3430,7 +3430,7 @@
     var css = getStyleComputedProperty(data.instance.popper);
     var popperMarginSide = parseFloat(css["margin" + sideCapitalized]);
     var popperBorderSide = parseFloat(
-      css["border" + sideCapitalized + "Width"]
+      css["border" + sideCapitalized + "Width"],
     );
     var sideValue =
       center - data.offsets.popper[side] - popperMarginSide - popperBorderSide;
@@ -3438,7 +3438,7 @@
     // prevent arrowElement from being placed not contiguously to its popper
     sideValue = Math.max(
       Math.min(popper[len] - arrowElementSize, sideValue),
-      0
+      0,
     );
 
     data.arrowElement = arrowElement;
@@ -3569,7 +3569,7 @@
       data.instance.reference,
       options.padding,
       options.boundariesElement,
-      data.positionFixed
+      data.positionFixed,
     );
 
     var placement = data.placement.split("-")[0];
@@ -3670,8 +3670,8 @@
           getPopperOffsets(
             data.instance.popper,
             data.offsets.reference,
-            data.placement
-          )
+            data.placement,
+          ),
         );
 
         data = runModifiers(data.instance.modifiers, data, "flip");
@@ -3753,12 +3753,12 @@
       if (unit === "vh") {
         size = Math.max(
           document.documentElement.clientHeight,
-          window.innerHeight || 0
+          window.innerHeight || 0,
         );
       } else {
         size = Math.max(
           document.documentElement.clientWidth,
-          window.innerWidth || 0
+          window.innerWidth || 0,
         );
       }
       return (size / 100) * value;
@@ -3799,12 +3799,12 @@
     var divider = fragments.indexOf(
       find(fragments, function (frag) {
         return frag.search(/,|\s/) !== -1;
-      })
+      }),
     );
 
     if (fragments[divider] && fragments[divider].indexOf(",") === -1) {
       console.warn(
-        "Offsets separated by white space(s) are deprecated, use a comma (,) instead."
+        "Offsets separated by white space(s) are deprecated, use a comma (,) instead.",
       );
     }
 
@@ -3818,7 +3818,7 @@
               .slice(0, divider)
               .concat([fragments[divider].split(splitRegex)[0]]),
             [fragments[divider].split(splitRegex)[1]].concat(
-              fragments.slice(divider + 1)
+              fragments.slice(divider + 1),
             ),
           ]
         : [fragments];
@@ -3944,7 +3944,7 @@
       data.instance.reference,
       options.padding,
       boundariesElement,
-      data.positionFixed
+      data.positionFixed,
     );
 
     // NOTE: DOM access here
@@ -3979,7 +3979,7 @@
           value = Math.min(
             popper[mainSide],
             boundaries[placement] -
-              (placement === "right" ? popper.width : popper.height)
+              (placement === "right" ? popper.width : popper.height),
           );
         }
         return defineProperty({}, mainSide, value);
@@ -4024,7 +4024,7 @@
         end: defineProperty(
           {},
           side,
-          reference[side] + reference[measurement] - popper[measurement]
+          reference[side] + reference[measurement] - popper[measurement],
         ),
       };
 
@@ -4586,12 +4586,12 @@
       // Deep merge modifiers options
       this.options.modifiers = {};
       Object.keys(
-        _extends({}, Popper.Defaults.modifiers, options.modifiers)
+        _extends({}, Popper.Defaults.modifiers, options.modifiers),
       ).forEach(function (name) {
         _this.options.modifiers[name] = _extends(
           {},
           Popper.Defaults.modifiers[name] || {},
-          options.modifiers ? options.modifiers[name] : {}
+          options.modifiers ? options.modifiers[name] : {},
         );
       });
 
@@ -4602,7 +4602,7 @@
             {
               name: name,
             },
-            _this.options.modifiers[name]
+            _this.options.modifiers[name],
           );
         })
         // sort the modifiers by order
@@ -4621,7 +4621,7 @@
             _this.popper,
             _this.options,
             modifierOptions,
-            _this.state
+            _this.state,
           );
         }
       });
@@ -4742,7 +4742,7 @@
   var RIGHT_MOUSE_BUTTON_WHICH = 3; // MouseEvent.which value for the right button (assuming a right-handed mouse)
 
   var REGEXP_KEYDOWN = new RegExp(
-    ARROW_UP_KEYCODE + "|" + ARROW_DOWN_KEYCODE + "|" + ESCAPE_KEYCODE$1
+    ARROW_UP_KEYCODE + "|" + ARROW_DOWN_KEYCODE + "|" + ESCAPE_KEYCODE$1,
   );
   var CLASS_NAME_DISABLED$1 = "disabled";
   var CLASS_NAME_SHOW$5 = "show";
@@ -4814,7 +4814,7 @@
       }
 
       var isActive = $__default["default"](this._menu).hasClass(
-        CLASS_NAME_SHOW$5
+        CLASS_NAME_SHOW$5,
       );
 
       Dropdown._clearMenus();
@@ -4856,7 +4856,7 @@
         // Check for Popper dependency
         if (typeof Popper$1 === "undefined") {
           throw new TypeError(
-            "Bootstrap's dropdowns require Popper (https://popper.js.org)"
+            "Bootstrap's dropdowns require Popper (https://popper.js.org)",
           );
         }
 
@@ -4881,7 +4881,7 @@
         this._popper = new Popper$1(
           referenceElement,
           this._menu,
-          this._getPopperConfig()
+          this._getPopperConfig(),
         );
       } // If this is a touch-enabled device we add extra
       // empty mouseover listeners to the body's immediate children;
@@ -4976,7 +4976,7 @@
         {},
         this.constructor.Default,
         $__default["default"](this._element).data(),
-        config
+        config,
       );
       Util.typeCheckConfig(NAME$6, config, this.constructor.DefaultType);
       return config;
@@ -5000,7 +5000,7 @@
 
       if ($parentDropdown.hasClass(CLASS_NAME_DROPUP)) {
         placement = $__default["default"](this._menu).hasClass(
-          CLASS_NAME_MENURIGHT
+          CLASS_NAME_MENURIGHT,
         )
           ? PLACEMENT_TOPEND
           : PLACEMENT_TOP;
@@ -5031,7 +5031,7 @@
           data.offsets = _extends$1(
             {},
             data.offsets,
-            _this2._config.offset(data.offsets, _this2._element)
+            _this2._config.offset(data.offsets, _this2._element),
           );
           return data;
         };
@@ -5096,7 +5096,7 @@
       }
 
       var toggles = [].slice.call(
-        document.querySelectorAll(SELECTOR_DATA_TOGGLE$2)
+        document.querySelectorAll(SELECTOR_DATA_TOGGLE$2),
       );
 
       for (var i = 0, len = toggles.length; i < len; i++) {
@@ -5133,7 +5133,7 @@
 
         var hideEvent = $__default["default"].Event(
           EVENT_HIDE$3,
-          relatedTarget
+          relatedTarget,
         );
         $__default["default"](parent).trigger(hideEvent);
 
@@ -5218,7 +5218,7 @@
       ) {
         if (event.which === ESCAPE_KEYCODE$1) {
           $__default["default"](
-            parent.querySelector(SELECTOR_DATA_TOGGLE$2)
+            parent.querySelector(SELECTOR_DATA_TOGGLE$2),
           ).trigger("focus");
         }
 
@@ -5286,12 +5286,12 @@
     .on(
       EVENT_KEYDOWN_DATA_API,
       SELECTOR_DATA_TOGGLE$2,
-      Dropdown._dataApiKeydownHandler
+      Dropdown._dataApiKeydownHandler,
     )
     .on(EVENT_KEYDOWN_DATA_API, SELECTOR_MENU, Dropdown._dataApiKeydownHandler)
     .on(
       EVENT_CLICK_DATA_API$2 + " " + EVENT_KEYUP_DATA_API,
-      Dropdown._clearMenus
+      Dropdown._clearMenus,
     )
     .on(EVENT_CLICK_DATA_API$2, SELECTOR_DATA_TOGGLE$2, function (event) {
       event.preventDefault();
@@ -5425,7 +5425,7 @@
         SELECTOR_DATA_DISMISS$1,
         function (event) {
           return _this.hide(event);
-        }
+        },
       );
       $__default["default"](this._dialog).on(
         EVENT_MOUSEDOWN_DISMISS,
@@ -5436,9 +5436,9 @@
               if ($__default["default"](event.target).is(_this._element)) {
                 _this._ignoreBackdropClick = true;
               }
-            }
+            },
           );
-        }
+        },
       );
 
       this._showBackdrop(function () {
@@ -5466,7 +5466,7 @@
 
       this._isShown = false;
       var transition = $__default["default"](this._element).hasClass(
-        CLASS_NAME_FADE$4
+        CLASS_NAME_FADE$4,
       );
 
       if (transition) {
@@ -5484,7 +5484,7 @@
 
       if (transition) {
         var transitionDuration = Util.getTransitionDurationFromElement(
-          this._element
+          this._element,
         );
         $__default["default"](this._element)
           .one(Util.TRANSITION_END, function (event) {
@@ -5550,7 +5550,7 @@
       this._element.classList.add(CLASS_NAME_STATIC);
 
       var modalTransitionDuration = Util.getTransitionDurationFromElement(
-        this._dialog
+        this._dialog,
       );
       $__default["default"](this._element).off(Util.TRANSITION_END);
       $__default["default"](this._element)
@@ -5574,7 +5574,7 @@
       var _this4 = this;
 
       var transition = $__default["default"](this._element).hasClass(
-        CLASS_NAME_FADE$4
+        CLASS_NAME_FADE$4,
       );
       var modalBody = this._dialog
         ? this._dialog.querySelector(SELECTOR_MODAL_BODY)
@@ -5630,7 +5630,7 @@
 
       if (transition) {
         var transitionDuration = Util.getTransitionDurationFromElement(
-          this._dialog
+          this._dialog,
         );
         $__default["default"](this._dialog)
           .one(Util.TRANSITION_END, transitionComplete)
@@ -5674,7 +5674,7 @@
             ) {
               _this6._triggerBackdropTransition();
             }
-          }
+          },
         );
       } else if (!this._isShown) {
         $__default["default"](this._element).off(EVENT_KEYDOWN_DISMISS);
@@ -5728,7 +5728,7 @@
       var _this9 = this;
 
       var animate = $__default["default"](this._element).hasClass(
-        CLASS_NAME_FADE$4
+        CLASS_NAME_FADE$4,
       )
         ? CLASS_NAME_FADE$4
         : "";
@@ -5759,7 +5759,7 @@
             } else {
               _this9.hide();
             }
-          }
+          },
         );
 
         if (animate) {
@@ -5778,7 +5778,7 @@
         }
 
         var backdropTransitionDuration = Util.getTransitionDurationFromElement(
-          this._backdrop
+          this._backdrop,
         );
         $__default["default"](this._backdrop)
           .one(Util.TRANSITION_END, callback)
@@ -5844,10 +5844,10 @@
         // Note: DOMNode.style.paddingRight returns the actual value or '' if not set
         //   while $(DOMNode).css('padding-right') returns the calculated value or 0 if not set
         var fixedContent = [].slice.call(
-          document.querySelectorAll(SELECTOR_FIXED_CONTENT)
+          document.querySelectorAll(SELECTOR_FIXED_CONTENT),
         );
         var stickyContent = [].slice.call(
-          document.querySelectorAll(SELECTOR_STICKY_CONTENT)
+          document.querySelectorAll(SELECTOR_STICKY_CONTENT),
         ); // Adjust fixed content padding
 
         $__default["default"](fixedContent).each(function (index, element) {
@@ -5858,7 +5858,7 @@
             .data("padding-right", actualPadding)
             .css(
               "padding-right",
-              parseFloat(calculatedPadding) + _this10._scrollbarWidth + "px"
+              parseFloat(calculatedPadding) + _this10._scrollbarWidth + "px",
             );
         }); // Adjust sticky content margin
 
@@ -5870,19 +5870,19 @@
             .data("margin-right", actualMargin)
             .css(
               "margin-right",
-              parseFloat(calculatedMargin) - _this10._scrollbarWidth + "px"
+              parseFloat(calculatedMargin) - _this10._scrollbarWidth + "px",
             );
         }); // Adjust body padding
 
         var actualPadding = document.body.style.paddingRight;
         var calculatedPadding = $__default["default"](document.body).css(
-          "padding-right"
+          "padding-right",
         );
         $__default["default"](document.body)
           .data("padding-right", actualPadding)
           .css(
             "padding-right",
-            parseFloat(calculatedPadding) + this._scrollbarWidth + "px"
+            parseFloat(calculatedPadding) + this._scrollbarWidth + "px",
           );
       }
 
@@ -5892,7 +5892,7 @@
     _proto._resetScrollbar = function _resetScrollbar() {
       // Restore fixed content padding
       var fixedContent = [].slice.call(
-        document.querySelectorAll(SELECTOR_FIXED_CONTENT)
+        document.querySelectorAll(SELECTOR_FIXED_CONTENT),
       );
       $__default["default"](fixedContent).each(function (index, element) {
         var padding = $__default["default"](element).data("padding-right");
@@ -5901,7 +5901,7 @@
       }); // Restore sticky content
 
       var elements = [].slice.call(
-        document.querySelectorAll("" + SELECTOR_STICKY_CONTENT)
+        document.querySelectorAll("" + SELECTOR_STICKY_CONTENT),
       );
       $__default["default"](elements).each(function (index, element) {
         var margin = $__default["default"](element).data("margin-right");
@@ -5937,7 +5937,7 @@
           {},
           Default$4,
           $__default["default"](this).data(),
-          typeof config === "object" && config ? config : {}
+          typeof config === "object" && config ? config : {},
         );
 
         if (!data) {
@@ -5996,7 +5996,7 @@
         : _extends$1(
             {},
             $__default["default"](target).data(),
-            $__default["default"](this).data()
+            $__default["default"](this).data(),
           );
 
       if (this.tagName === "A" || this.tagName === "AREA") {
@@ -6016,11 +6016,11 @@
               _this11.focus();
             }
           });
-        }
+        },
       );
 
       Modal._jQueryInterface.call($__default["default"](target), config, this);
-    }
+    },
   );
   /**
    * jQuery
@@ -6108,7 +6108,7 @@
       if (uriAttrs.indexOf(attrName) !== -1) {
         return Boolean(
           SAFE_URL_PATTERN.test(attr.nodeValue) ||
-            DATA_URL_PATTERN.test(attr.nodeValue)
+          DATA_URL_PATTERN.test(attr.nodeValue),
         );
       }
 
@@ -6155,7 +6155,7 @@
 
       var whitelistedAttributes = [].concat(
         whiteList["*"] || [],
-        whiteList[elName] || []
+        whiteList[elName] || [],
       );
       attributeList.forEach(function (attr) {
         if (!allowedAttribute(attr, whitelistedAttributes)) {
@@ -6185,7 +6185,7 @@
   var CLASS_PREFIX$1 = "bs-tooltip";
   var BSCLS_PREFIX_REGEX$1 = new RegExp(
     "(^|\\s)" + CLASS_PREFIX$1 + "\\S+",
-    "g"
+    "g",
   );
   var DISALLOWED_ATTRIBUTES = ["sanitize", "whiteList", "sanitizeFn"];
   var CLASS_NAME_FADE$3 = "fade";
@@ -6266,7 +6266,7 @@
     function Tooltip(element, config) {
       if (typeof Popper$1 === "undefined") {
         throw new TypeError(
-          "Bootstrap's tooltips require Popper (https://popper.js.org)"
+          "Bootstrap's tooltips require Popper (https://popper.js.org)",
         );
       } // Private
 
@@ -6310,7 +6310,7 @@
         if (!context) {
           context = new this.constructor(
             event.currentTarget,
-            this._getDelegateConfig()
+            this._getDelegateConfig(),
           );
           $__default["default"](event.currentTarget).data(dataKey, context);
         }
@@ -6325,7 +6325,7 @@
       } else {
         if (
           $__default["default"](this.getTipElement()).hasClass(
-            CLASS_NAME_SHOW$3
+            CLASS_NAME_SHOW$3,
           )
         ) {
           this._leave(null, this);
@@ -6380,7 +6380,7 @@
           shadowRoot !== null
             ? shadowRoot
             : this.element.ownerDocument.documentElement,
-          this.element
+          this.element,
         );
 
         if (showEvent.isDefaultPrevented() || !isInTheDom) {
@@ -6413,19 +6413,19 @@
         if (
           !$__default["default"].contains(
             this.element.ownerDocument.documentElement,
-            this.tip
+            this.tip,
           )
         ) {
           $__default["default"](tip).appendTo(container);
         }
 
         $__default["default"](this.element).trigger(
-          this.constructor.Event.INSERTED
+          this.constructor.Event.INSERTED,
         );
         this._popper = new Popper$1(
           this.element,
           tip,
-          this._getPopperConfig(attachment)
+          this._getPopperConfig(attachment),
         );
         $__default["default"](tip).addClass(CLASS_NAME_SHOW$3);
         $__default["default"](tip).addClass(this.config.customClass); // If this is a touch-enabled device we add extra
@@ -6447,7 +6447,7 @@
           var prevHoverState = _this._hoverState;
           _this._hoverState = null;
           $__default["default"](_this.element).trigger(
-            _this.constructor.Event.SHOWN
+            _this.constructor.Event.SHOWN,
           );
 
           if (prevHoverState === HOVER_STATE_OUT) {
@@ -6457,7 +6457,7 @@
 
         if ($__default["default"](this.tip).hasClass(CLASS_NAME_FADE$3)) {
           var transitionDuration = Util.getTransitionDurationFromElement(
-            this.tip
+            this.tip,
           );
           $__default["default"](this.tip)
             .one(Util.TRANSITION_END, complete)
@@ -6484,7 +6484,7 @@
         _this2.element.removeAttribute("aria-describedby");
 
         $__default["default"](_this2.element).trigger(
-          _this2.constructor.Event.HIDDEN
+          _this2.constructor.Event.HIDDEN,
         );
 
         if (_this2._popper !== null) {
@@ -6539,7 +6539,7 @@
 
     _proto.addAttachmentClass = function addAttachmentClass(attachment) {
       $__default["default"](this.getTipElement()).addClass(
-        CLASS_PREFIX$1 + "-" + attachment
+        CLASS_PREFIX$1 + "-" + attachment,
       );
     };
 
@@ -6552,10 +6552,10 @@
       var tip = this.getTipElement();
       this.setElementContent(
         $__default["default"](tip.querySelectorAll(SELECTOR_TOOLTIP_INNER)),
-        this.getTitle()
+        this.getTitle(),
       );
       $__default["default"](tip).removeClass(
-        CLASS_NAME_FADE$3 + " " + CLASS_NAME_SHOW$3
+        CLASS_NAME_FADE$3 + " " + CLASS_NAME_SHOW$3,
       );
     };
 
@@ -6578,7 +6578,7 @@
           content = sanitizeHtml(
             content,
             this.config.whiteList,
-            this.config.sanitizeFn
+            this.config.sanitizeFn,
           );
         }
 
@@ -6640,7 +6640,7 @@
           data.offsets = _extends$1(
             {},
             data.offsets,
-            _this4.config.offset(data.offsets, _this4.element)
+            _this4.config.offset(data.offsets, _this4.element),
           );
           return data;
         };
@@ -6678,7 +6678,7 @@
             _this5.config.selector,
             function (event) {
               return _this5.toggle(event);
-            }
+            },
           );
         } else if (trigger !== TRIGGER_MANUAL) {
           var eventIn =
@@ -6725,7 +6725,7 @@
       if (this.element.getAttribute("title") || titleType !== "string") {
         this.element.setAttribute(
           "data-original-title",
-          this.element.getAttribute("title") || ""
+          this.element.getAttribute("title") || "",
         );
         this.element.setAttribute("title", "");
       }
@@ -6739,7 +6739,7 @@
       if (!context) {
         context = new this.constructor(
           event.currentTarget,
-          this._getDelegateConfig()
+          this._getDelegateConfig(),
         );
         $__default["default"](event.currentTarget).data(dataKey, context);
       }
@@ -6752,7 +6752,7 @@
 
       if (
         $__default["default"](context.getTipElement()).hasClass(
-          CLASS_NAME_SHOW$3
+          CLASS_NAME_SHOW$3,
         ) ||
         context._hoverState === HOVER_STATE_SHOW
       ) {
@@ -6783,7 +6783,7 @@
       if (!context) {
         context = new this.constructor(
           event.currentTarget,
-          this._getDelegateConfig()
+          this._getDelegateConfig(),
         );
         $__default["default"](event.currentTarget).data(dataKey, context);
       }
@@ -6834,7 +6834,7 @@
         {},
         this.constructor.Default,
         dataAttributes,
-        typeof config === "object" && config ? config : {}
+        typeof config === "object" && config ? config : {},
       );
 
       if (typeof config.delay === "number") {
@@ -6858,7 +6858,7 @@
         config.template = sanitizeHtml(
           config.template,
           config.whiteList,
-          config.sanitizeFn
+          config.sanitizeFn,
         );
       }
 
@@ -6889,7 +6889,7 @@
     };
 
     _proto._handlePopperPlacementChange = function _handlePopperPlacementChange(
-      popperData
+      popperData,
     ) {
       this.tip = popperData.instance.popper;
 
@@ -7061,7 +7061,7 @@
 
     _proto.addAttachmentClass = function addAttachmentClass(attachment) {
       $__default["default"](this.getTipElement()).addClass(
-        CLASS_PREFIX + "-" + attachment
+        CLASS_PREFIX + "-" + attachment,
       );
     };
 
@@ -7244,7 +7244,7 @@
         EVENT_SCROLL,
         function (event) {
           return _this._process(event);
-        }
+        },
       );
       this.refresh();
 
@@ -7320,7 +7320,7 @@
       config = _extends$1(
         {},
         Default$1,
-        typeof config === "object" && config ? config : {}
+        typeof config === "object" && config ? config : {},
       );
 
       if (typeof config.target !== "string" && Util.isElement(config.target)) {
@@ -7349,7 +7349,7 @@
         this._scrollElement.scrollHeight ||
         Math.max(
           document.body.scrollHeight,
-          document.documentElement.scrollHeight
+          document.documentElement.scrollHeight,
         )
       );
     };
@@ -7394,7 +7394,7 @@
         return;
       }
 
-      for (var i = this._offsets.length; i--; ) {
+      for (var i = this._offsets.length; i--;) {
         var isActiveTarget =
           this._activeTarget !== this._targets[i] &&
           scrollTop >= this._offsets[i] &&
@@ -7426,7 +7426,7 @@
       });
 
       var $link = $__default["default"](
-        [].slice.call(document.querySelectorAll(queries.join(",")))
+        [].slice.call(document.querySelectorAll(queries.join(","))),
       );
 
       if ($link.hasClass(CLASS_NAME_DROPDOWN_ITEM)) {
@@ -7512,11 +7512,11 @@
 
   $__default["default"](window).on(EVENT_LOAD_DATA_API, function () {
     var scrollSpys = [].slice.call(
-      document.querySelectorAll(SELECTOR_DATA_SPY)
+      document.querySelectorAll(SELECTOR_DATA_SPY),
     );
     var scrollSpysLength = scrollSpys.length;
 
-    for (var i = scrollSpysLength; i--; ) {
+    for (var i = scrollSpysLength; i--;) {
       var $spy = $__default["default"](scrollSpys[i]);
 
       ScrollSpy._jQueryInterface.call($spy, $spy.data());
@@ -7590,7 +7590,7 @@
       var target;
       var previous;
       var listElement = $__default["default"](this._element).closest(
-        SELECTOR_NAV_LIST_GROUP
+        SELECTOR_NAV_LIST_GROUP,
       )[0];
       var selector = Util.getSelectorFromElement(this._element);
 
@@ -7600,7 +7600,7 @@
             ? SELECTOR_ACTIVE_UL
             : SELECTOR_ACTIVE;
         previous = $__default["default"].makeArray(
-          $__default["default"](listElement).find(itemSelector)
+          $__default["default"](listElement).find(itemSelector),
         );
         previous = previous[previous.length - 1];
       }
@@ -7683,12 +7683,12 @@
     _proto._transitionComplete = function _transitionComplete(
       element,
       active,
-      callback
+      callback,
     ) {
       if (active) {
         $__default["default"](active).removeClass(CLASS_NAME_ACTIVE);
         var dropdownChild = $__default["default"](active.parentNode).find(
-          SELECTOR_DROPDOWN_ACTIVE_CHILD
+          SELECTOR_DROPDOWN_ACTIVE_CHILD,
         )[0];
 
         if (dropdownChild) {
@@ -7727,7 +7727,7 @@
 
         if (dropdownElement) {
           var dropdownToggleList = [].slice.call(
-            dropdownElement.querySelectorAll(SELECTOR_DROPDOWN_TOGGLE)
+            dropdownElement.querySelectorAll(SELECTOR_DROPDOWN_TOGGLE),
           );
           $__default["default"](dropdownToggleList).addClass(CLASS_NAME_ACTIVE);
         }
@@ -7782,7 +7782,7 @@
       event.preventDefault();
 
       Tab._jQueryInterface.call($__default["default"](this), "show");
-    }
+    },
   );
   /**
    * jQuery
@@ -7879,7 +7879,7 @@
 
       if (this._config.animation) {
         var transitionDuration = Util.getTransitionDurationFromElement(
-          this._element
+          this._element,
         );
         $__default["default"](this._element)
           .one(Util.TRANSITION_END, complete)
@@ -7922,7 +7922,7 @@
         {},
         Default,
         $__default["default"](this._element).data(),
-        typeof config === "object" && config ? config : {}
+        typeof config === "object" && config ? config : {},
       );
       Util.typeCheckConfig(NAME, config, this.constructor.DefaultType);
       return config;
@@ -7936,7 +7936,7 @@
         SELECTOR_DATA_DISMISS,
         function () {
           return _this2.hide();
-        }
+        },
       );
     };
 
@@ -7953,7 +7953,7 @@
 
       if (this._config.animation) {
         var transitionDuration = Util.getTransitionDurationFromElement(
-          this._element
+          this._element,
         );
         $__default["default"](this._element)
           .one(Util.TRANSITION_END, complete)

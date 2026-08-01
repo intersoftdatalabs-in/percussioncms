@@ -25,10 +25,10 @@
     equalTo: "Sláðu sama gildi inn aftur.",
     range: $.validator.format("Sláðu inn gildi milli {0} og {1}."),
     max: $.validator.format(
-      "Sláðu inn gildi sem er minna en eða jafnt og {0}."
+      "Sláðu inn gildi sem er minna en eða jafnt og {0}.",
     ),
     min: $.validator.format(
-      "Sláðu inn gildi sem er stærra en eða jafnt og {0}."
+      "Sláðu inn gildi sem er stærra en eða jafnt og {0}.",
     ),
     creditcard: "Sláðu inn gilt greiðslukortanúmer.",
   });

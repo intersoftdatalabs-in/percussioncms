@@ -28,20 +28,20 @@
     extension:
       "Por favor, introduza um ficheiro com uma extens&atilde;o v&aacute;lida.",
     maxlength: $.validator.format(
-      "Por favor, n&atilde;o introduza mais do que {0} caracteres."
+      "Por favor, n&atilde;o introduza mais do que {0} caracteres.",
     ),
     minlength: $.validator.format(
-      "Por favor, introduza pelo menos {0} caracteres."
+      "Por favor, introduza pelo menos {0} caracteres.",
     ),
     rangelength: $.validator.format(
-      "Por favor, introduza entre {0} e {1} caracteres."
+      "Por favor, introduza entre {0} e {1} caracteres.",
     ),
     range: $.validator.format("Por favor, introduza um valor entre {0} e {1}."),
     max: $.validator.format(
-      "Por favor, introduza um valor menor ou igual a {0}."
+      "Por favor, introduza um valor menor ou igual a {0}.",
     ),
     min: $.validator.format(
-      "Por favor, introduza um valor maior ou igual a {0}."
+      "Por favor, introduza um valor maior ou igual a {0}.",
     ),
     nifES: "Por favor, introduza um NIF v&aacute;lido.",
     nieES: "Por favor, introduza um NIE v&aacute;lido.",

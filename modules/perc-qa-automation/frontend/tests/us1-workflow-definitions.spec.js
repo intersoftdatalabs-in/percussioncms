@@ -39,7 +39,7 @@ test.describe("Workflow Administration - Workflow Definitions (US1)", () => {
 
     // Verify inputs
     await expect(
-      page.locator("[data-testid='workflow-name-input']")
+      page.locator("[data-testid='workflow-name-input']"),
     ).toBeVisible();
     await expect(page.locator("[data-testid='add-step-button']")).toBeVisible();
   });

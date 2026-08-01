@@ -45,7 +45,7 @@ const OUT_DIR = path.join(
   "resources",
   "cm",
   "common",
-  "js"
+  "js",
 );
 fs.mkdirSync(OUT_DIR, { recursive: true });
 

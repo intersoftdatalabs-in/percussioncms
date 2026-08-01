@@ -43,6 +43,9 @@ import org.w3c.dom.NodeList;
  * the database and has the same slotid passed in by this request.
  */
 public class PSValidateSlotName implements IPSRequestPreProcessor {
+  /** Creates a new PSValidateSlotName. */
+  public PSValidateSlotName() {}
+
   /*
    * Implementation of the method in the interface IPSRequestPreProcessor
    * Empty in this case as it is not needed

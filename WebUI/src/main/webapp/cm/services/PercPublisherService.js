@@ -56,7 +56,7 @@ var publishingServer;
       serviceUrl,
       $.PercServiceUtils.TYPE_GET,
       false,
-      callback
+      callback,
     );
   }
 
@@ -79,7 +79,7 @@ var publishingServer;
       pubUrl,
       $.PercServiceUtils.TYPE_GET,
       false,
-      serviceCallback
+      serviceCallback,
     );
   }
 
@@ -102,7 +102,7 @@ var publishingServer;
       $.PercServiceUtils.TYPE_GET,
       false,
       serviceCallback,
-      ""
+      "",
     );
   }
 
@@ -125,7 +125,7 @@ var publishingServer;
       $.PercServiceUtils.TYPE_POST,
       false,
       serviceCallback,
-      pubObject
+      pubObject,
     );
   }
 
@@ -144,11 +144,11 @@ var publishingServer;
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -181,12 +181,12 @@ var publishingServer;
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      sitePublishObj
+      sitePublishObj,
     );
   }
 
@@ -213,7 +213,7 @@ var publishingServer;
       $.PercServiceUtils.TYPE_POST,
       false,
       serviceCallback,
-      obj
+      obj,
     );
   }
 
@@ -243,7 +243,7 @@ var publishingServer;
       serviceCallback,
       obj,
       contentType,
-      dataType
+      dataType,
     );
   }
 
@@ -265,7 +265,7 @@ var publishingServer;
       serviceUrl,
       $.PercServiceUtils.TYPE_GET,
       false,
-      serviceCallback
+      serviceCallback,
     );
   }
 
@@ -289,7 +289,7 @@ var publishingServer;
       serviceUrl,
       $.PercServiceUtils.TYPE_GET,
       false,
-      serviceCallback
+      serviceCallback,
     );
   }
 
@@ -320,7 +320,7 @@ var publishingServer;
         $.PercServiceUtils.TYPE_POST,
         false,
         serviceCallback,
-        propObj
+        propObj,
       );
     }
     //If serverId is avaliable - Update a Server
@@ -330,7 +330,7 @@ var publishingServer;
         $.PercServiceUtils.TYPE_PUT,
         false,
         serviceCallback,
-        propObj
+        propObj,
       );
     }
   }
@@ -346,7 +346,7 @@ var publishingServer;
     var serviceCallback = function (status, results) {
       if (status === $.PercServiceUtils.STATUS_ERROR) {
         var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-          results.request
+          results.request,
         );
         callback(false, defaultMsg);
         //callback(false, [results.request, results.textstatus, results.error]);
@@ -358,7 +358,7 @@ var publishingServer;
       serviceUrl,
       $.PercServiceUtils.TYPE_DELETE,
       false,
-      serviceCallback
+      serviceCallback,
     );
   }
 
@@ -383,7 +383,7 @@ var publishingServer;
       serviceUrl,
       $.PercServiceUtils.TYPE_GET,
       false,
-      serviceCallback
+      serviceCallback,
     );
   }
 
@@ -406,7 +406,7 @@ var publishingServer;
       serviceUrl,
       $.PercServiceUtils.TYPE_GET,
       false,
-      serviceCallback
+      serviceCallback,
     );
   }
 
@@ -427,7 +427,7 @@ var publishingServer;
       serviceUrl,
       $.PercServiceUtils.TYPE_GET,
       false,
-      serviceCallback
+      serviceCallback,
     );
   }
 
@@ -448,7 +448,7 @@ var publishingServer;
       serviceUrl,
       $.PercServiceUtils.TYPE_GET,
       false,
-      serviceCallback
+      serviceCallback,
     );
   }
 
@@ -469,7 +469,7 @@ var publishingServer;
       serviceUrl,
       $.PercServiceUtils.TYPE_POST,
       false,
-      serviceCallback
+      serviceCallback,
     );
   }
 
@@ -494,7 +494,7 @@ var publishingServer;
       serviceUrl,
       $.PercServiceUtils.TYPE_GET,
       false,
-      serviceCallback
+      serviceCallback,
     );
   }
 
@@ -511,7 +511,7 @@ var publishingServer;
     serverName,
     startIndex,
     pageSize,
-    callback
+    callback,
   ) {
     _getIncrementalOrRelatedItems(
       true,
@@ -519,7 +519,7 @@ var publishingServer;
       serverName,
       startIndex,
       pageSize,
-      callback
+      callback,
     );
   }
 
@@ -536,7 +536,7 @@ var publishingServer;
     serverName,
     startIndex,
     pageSize,
-    callback
+    callback,
   ) {
     _getIncrementalOrRelatedItems(
       false,
@@ -544,7 +544,7 @@ var publishingServer;
       serverName,
       startIndex,
       pageSize,
-      callback
+      callback,
     );
   }
 
@@ -557,7 +557,7 @@ var publishingServer;
     serverName,
     startIndex,
     pageSize,
-    callback
+    callback,
   ) {
     var basePath = isIncremental
       ? $.perc_paths.INCREMENTAL_LIST
@@ -575,7 +575,7 @@ var publishingServer;
       if (status === $.PercServiceUtils.STATUS_ERROR) {
         callback(
           false,
-          $.PercServiceUtils.extractDefaultErrorMessage(results.request)
+          $.PercServiceUtils.extractDefaultErrorMessage(results.request),
         );
       } else {
         callback(true, results.data);
@@ -585,7 +585,7 @@ var publishingServer;
       serviceUrl,
       $.PercServiceUtils.TYPE_GET,
       false,
-      serviceCallback
+      serviceCallback,
     );
   }
 
@@ -606,7 +606,7 @@ var publishingServer;
       if (status === $.PercServiceUtils.STATUS_ERROR) {
         callback(
           false,
-          $.PercServiceUtils.extractDefaultErrorMessage(results.request)
+          $.PercServiceUtils.extractDefaultErrorMessage(results.request),
         );
       } else {
         callback(true, [results.data, results.textstatus]);
@@ -616,7 +616,7 @@ var publishingServer;
       pubUrl,
       $.PercServiceUtils.TYPE_GET,
       false,
-      serviceCallback
+      serviceCallback,
     );
   }
 
@@ -635,7 +635,7 @@ var publishingServer;
     siteName,
     serverName,
     relatedItems,
-    callback
+    callback,
   ) {
     var pubUrl =
       $.perc_paths.INCREMENTAL_PUBLISH +
@@ -649,7 +649,7 @@ var publishingServer;
       if (status === $.PercServiceUtils.STATUS_ERROR) {
         callback(
           false,
-          $.PercServiceUtils.extractDefaultErrorMessage(results.request)
+          $.PercServiceUtils.extractDefaultErrorMessage(results.request),
         );
       } else {
         callback(true, [results.data, results.textstatus]);
@@ -659,7 +659,7 @@ var publishingServer;
       pubUrl,
       $.PercServiceUtils.TYPE_GET,
       false,
-      serviceCallback
+      serviceCallback,
     );
   }
 })(jQuery);

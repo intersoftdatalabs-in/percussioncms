@@ -23,6 +23,9 @@ import org.apache.commons.lang3.StringUtils;
 
 /** Checks if a string is empty, null, or whitespace. */
 public class PSValidateString extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSValidateString. */
+  public PSValidateString() {}
+
   /* ************ IPSUdfProcessor Interface Implementation ************ */
 
   /**

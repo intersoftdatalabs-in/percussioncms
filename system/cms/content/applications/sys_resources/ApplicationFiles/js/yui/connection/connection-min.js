@@ -163,7 +163,7 @@ YAHOO.util.Connect = {
       if (this._customEvents[prop][0]) {
         o[this._customEvents[prop][0]] = new YAHOO.util.CustomEvent(
           this._customEvents[prop][1],
-          callback.scope ? callback.scope : null
+          callback.scope ? callback.scope : null,
         );
         o[this._customEvents[prop][0]].subscribe(callback.customevents[prop]);
       }
@@ -231,7 +231,7 @@ YAHOO.util.Connect = {
           responseObject = this.createExceptionObject(
             o.tId,
             callback.argument,
-            isAbort ? isAbort : false
+            isAbort ? isAbort : false,
           );
           if (callback.failure) {
             if (!callback.scope) {
@@ -269,7 +269,7 @@ YAHOO.util.Connect = {
         var delimitPos = header[i].indexOf(":");
         if (delimitPos != -1) {
           headerObj[header[i].substring(0, delimitPos)] = header[i].substring(
-            delimitPos + 2
+            delimitPos + 2,
           );
         }
       }
@@ -379,7 +379,7 @@ YAHOO.util.Connect = {
                     encodeURIComponent(
                       oElement.options[j].attributes["value"].specified
                         ? oElement.options[j].value
-                        : oElement.options[j].text
+                        : oElement.options[j].text,
                     ) +
                     "&";
                 } else {
@@ -389,7 +389,7 @@ YAHOO.util.Connect = {
                     encodeURIComponent(
                       oElement.options[j].hasAttribute("value")
                         ? oElement.options[j].value
-                        : oElement.options[j].text
+                        : oElement.options[j].text,
                     ) +
                     "&";
                 }
@@ -449,7 +449,7 @@ YAHOO.util.Connect = {
     var io;
     if (window.ActiveXObject) {
       io = document.createElement(
-        '<iframe id="' + frameId + '" name="' + frameId + '" />'
+        '<iframe id="' + frameId + '" name="' + frameId + '" />',
       );
       if (typeof secureUri == "boolean") {
         io.src = "javascript:false";

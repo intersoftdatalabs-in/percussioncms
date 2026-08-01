@@ -63,7 +63,7 @@ ps.DivActionHelper.handleDivHover = function (div, isHovering) {
       ps.DivActionHelper.mouseOverInfo.stack.push(div);
       ps.DivActionHelper.mouseOverInfo.inTimeoutId = window.setTimeout(
         "ps.DivActionHelper._divHoverAction()",
-        ps.DivActionHelper.mouseOverInfo.barDelay
+        ps.DivActionHelper.mouseOverInfo.barDelay,
       );
     } else {
       if (ps.DivActionHelper.mouseOverInfo.barOffTimeoutId != -1) {
@@ -151,7 +151,7 @@ ps.DivActionHelper.delayedActionBarOff = function () {
   }
   ps.DivActionHelper.mouseOverInfo.barOffTimeoutId = window.setTimeout(
     "ps.DivActionHelper.reset()",
-    ps.DivActionHelper.mouseOverInfo.barOffDelay
+    ps.DivActionHelper.mouseOverInfo.barOffDelay,
   );
 };
 
@@ -176,7 +176,7 @@ ps.DivActionHelper._onmousemove = function (e) {
   ps.DivActionHelper.mouseOverInfo.y = e.pageY;
   ps.DivActionHelper.mouseOverInfo.mouseStopTimeoutId = window.setTimeout(
     "ps.DivActionHelper._onmousestop()",
-    1000
+    1000,
   );
 };
 
@@ -209,7 +209,7 @@ ps.DivActionHelper._initFloatingActionBar = function () {
 
   ps.DivActionHelper.mouseOverInfo.boundIds = new ps.collections.ArrayList();
   var stack = ps.DivActionHelper._copyArray(
-    ps.DivActionHelper.mouseOverInfo.stack
+    ps.DivActionHelper.mouseOverInfo.stack,
   );
   var nodes = new Array();
   var objId = null;
@@ -240,7 +240,7 @@ ps.DivActionHelper._initFloatingActionBar = function () {
   if (pageDiv != null) {
     objId = new ps.aa.ObjectId(pageDiv.id);
     fDiv.appendChild(
-      ps.DivActionHelper._createActionBarElement(objId, pageDiv)
+      ps.DivActionHelper._createActionBarElement(objId, pageDiv),
     );
     ps.DivActionHelper.mouseOverInfo.boundIds.add(objId);
   }
@@ -267,7 +267,7 @@ ps.DivActionHelper._destroyFloatingActionBar = function () {
   if (ps.DivActionHelper.mouseOverInfo.boundIds != null) {
     ps.aa.Menu.unBindContextMenu(
       ps.DivActionHelper.mouseOverInfo.boundIds,
-      true
+      true,
     );
     ps.DivActionHelper.mouseOverInfo.boundIds = null;
   }

@@ -22,7 +22,7 @@
   var pageName;
   $.perc_build_copy_page_button = function (finderRef, content) {
     var btn = $(
-      "<a id='perc-finder-copy-page' href='#' title='Click to copy selected page'>Copy</a>"
+      "<a id='perc-finder-copy-page' href='#' title='Click to copy selected page'>Copy</a>",
     ).on("click", function (event) {
       copyPageValidate(event);
     });
@@ -30,13 +30,13 @@
     function copyPageValidate(evt) {
       $.PercBlockUI($.PercBlockUIMode.CURSORONLY);
       var selectedPage = $(
-        ".mcol-opened.perc-listing-type-percPage.perc-listing-category-PAGE"
+        ".mcol-opened.perc-listing-type-percPage.perc-listing-category-PAGE",
       );
       var selectedPage1 = $(
-        ".mcol-opened.perc-listing-type-percPage.perc-listing-category-LANDING_PAGE"
+        ".mcol-opened.perc-listing-type-percPage.perc-listing-category-LANDING_PAGE",
       );
       var selectedItemList = $(
-        "#perc-finder-listview .perc-datatable-row-highlighted"
+        "#perc-finder-listview .perc-datatable-row-highlighted",
       );
 
       if (
@@ -84,7 +84,7 @@
               title: I18N.message("perc.ui.copy.page.button@Copy Page"),
               content:
                 I18N.message(
-                  "perc.ui.copy.page.button@Copy Page Authorization"
+                  "perc.ui.copy.page.button@Copy Page Authorization",
                 ) +
                 pageName +
                 ".'",
@@ -95,7 +95,7 @@
             id = id.replace("perc-finder-listing-", "");
             copyPage(id);
           }
-        }
+        },
       );
     }
 
@@ -137,28 +137,28 @@
           enableButtonCopy(false);
         } else {
           var selectedPage = $(
-            ".mcol-opened.perc-listing-type-percPage.perc-listing-category-PAGE.perc_last_selected"
+            ".mcol-opened.perc-listing-type-percPage.perc-listing-category-PAGE.perc_last_selected",
           );
           var selectedPage1 = $(
-            ".mcol-opened.perc-listing-type-percPage.perc-listing-category-LANDING_PAGE.perc_last_selected"
+            ".mcol-opened.perc-listing-type-percPage.perc-listing-category-LANDING_PAGE.perc_last_selected",
           );
           var selectedFolderId = $(
             ".mcol-listing.perc-listing-type-Folder.perc-listing-category-FOLDER.ui-draggable.perc_last_selected.ui-droppable[title='" +
               last_page +
-              "']"
+              "']",
           )
             .eq(0)
             .attr("id");
           var selectedSectionFolderId = $(
             ".mcol-listing.perc-listing-type-Folder.perc-listing-category-SECTION_FOLDER.perc_last_selected.ui-droppable[title='" +
               last_page +
-              "']"
+              "']",
           )
             .eq(0)
             .attr("id");
 
           var selectedItemList = $(
-            "#perc-finder-listview .perc-datatable-row-highlighted"
+            "#perc-finder-listview .perc-datatable-row-highlighted",
           );
 
           if (selectedItemList.length > 0) {
@@ -229,7 +229,7 @@
             callback(result !== $.PercFolderHelper().PERMISSION_READ);
             return;
           }
-        }
+        },
       );
     }
 

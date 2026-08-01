@@ -50,7 +50,7 @@
             doResultsDisplay(status, result, options);
             secondCallback(status, result);
           },
-          options
+          options,
         );
       };
 
@@ -80,7 +80,7 @@
       this.settings.query = $.extend(true, {}, this.settings.query); // Prevents overwrite of anything, but initializes it if it doesn't exist already.
 
       this.settings.query.criteria = this.settings.query.criteria.concat(
-        this.settings.criteria
+        this.settings.criteria,
       );
 
       this.settings.query.maxResults = this.settings.maxResults;
@@ -206,7 +206,7 @@
             console.debug(results);
           }
         }
-      }
+      },
     );
   }
 
@@ -219,7 +219,7 @@
     // We only get totalEntries back if we've requested page 1.  Otherwise, we get null.
     if (returnData.totalEntries) {
       target.totalPages = Math.ceil(
-        returnData.totalEntries / target.settings.maxResults
+        returnData.totalEntries / target.settings.maxResults,
       );
       target.totalEntries = returnData.totalEntries;
     }
@@ -278,8 +278,8 @@
           .prepend(
             createTitleHtml(
               objData.resultsTitle + " " + urlstring.filter,
-              target
-            )
+              target,
+            ),
           );
       } catch (e) {
         console.error(e);
@@ -289,7 +289,7 @@
     try {
       //Get the structure and get the root element of the list
       var structureListRoot = currentBlogList.find(
-        ".perc-blog-list-structure .perc-blog-list"
+        ".perc-blog-list-structure .perc-blog-list",
       );
 
       //Clone the li for future use
@@ -314,8 +314,8 @@
           0 === i
             ? "perc-list-first"
             : i === pageEntries.length - 1
-            ? "perc-list-last"
-            : "";
+              ? "perc-list-last"
+              : "";
 
         newListElem.addClass(rowClass);
 
@@ -347,7 +347,7 @@
                 $(link)
                   .attr(
                     "class",
-                    "perc-no-update-link-text perc-blog-list-more-link"
+                    "perc-no-update-link-text perc-blog-list-more-link",
                   )
                   .attr("href", pageEntry.folder + pageEntry.name)
                   .attr("title", pageEntry.linktext)
@@ -377,7 +377,7 @@
             categoryClassList = processCategoryClasses(value);
             for (var j = 0; j < categoryClassList.length; j++) {
               newListElem.addClass(
-                "perc-bloglist-category-" + categoryClassList[j]
+                "perc-bloglist-category-" + categoryClassList[j],
               );
             }
           }
@@ -547,8 +547,8 @@
             count +
               (1 === count
                 ? " " + target.settings.entriesTextSingular
-                : " " + target.settings.entriesTextPlural)
-          )
+                : " " + target.settings.entriesTextPlural),
+          ),
       )
       .addClass("perc-bloglist-result-container");
   }

@@ -51,7 +51,7 @@
             title: I18N.message("perc.ui.publish.title@Error"),
             content:
               I18N.message(
-                "perc.ui.folder.properties.dialog@Folder Not Found"
+                "perc.ui.folder.properties.dialog@Folder Not Found",
               ) + pathItem.path,
           });
           callback("", false);
@@ -172,11 +172,11 @@
             "<div class='ui-layout-south'>" +
             "<div id='perc_buttons' style='z-index: 100;'></div>" +
             "</div>" +
-            "</div>"
+            "</div>",
         ).perc_dialog({
           resizable: false,
           title: I18N.message(
-            "perc.ui.folderPropsDialog.title@Folder Properties"
+            "perc.ui.folderPropsDialog.title@Folder Properties",
           ),
           modal: true,
           dragStart: function () {
@@ -219,9 +219,9 @@
           if (status === $.PercUserService.STATUS_ERROR) {
             $.PercUserView.alertDialog(
               I18N.message(
-                "perc.ui.folder.properties.dialog@Error Loading Users"
+                "perc.ui.folder.properties.dialog@Error Loading Users",
               ),
-              usersJson
+              usersJson,
             );
             return;
           }
@@ -250,7 +250,7 @@
               I18N.message("perc.ui.folderPropsDialog.title@User Properties") +
               ":",
             title2: I18N.message(
-              "perc.ui.folderPropsDialog.permissionValue@Write"
+              "perc.ui.folderPropsDialog.permissionValue@Write",
             ),
           });
 
@@ -270,10 +270,10 @@
 
                   // Append a select to the panel with all available sites
                   var securityPanel = dialog.find(
-                    "#perc-asset-folder-sites-container"
+                    "#perc-asset-folder-sites-container",
                   );
                   var allowedSitesSelect = $(
-                    "<select name='allowed-sites' id='allowed-sites' multiple='multiple'></select>"
+                    "<select name='allowed-sites' id='allowed-sites' multiple='multiple'></select>",
                   );
                   securityPanel.append(allowedSitesSelect);
                   // The list of allowed sites for the folder is a comma-sepparated
@@ -310,26 +310,26 @@
                     height: 175,
                     minWidth: 225,
                     checkAllText: I18N.message(
-                      "perc.ui.folder.properties.dialog@Select All"
+                      "perc.ui.folder.properties.dialog@Select All",
                     ),
                     uncheckAllText: I18N.message(
-                      "perc.ui.folder.properties.dialog@Deselect All"
+                      "perc.ui.folder.properties.dialog@Deselect All",
                     ),
                     noneSelectedText: I18N.message(
-                      "perc.ui.folder.properties.dialog@All sites allowed"
+                      "perc.ui.folder.properties.dialog@All sites allowed",
                     ),
                     selectedText: function (
                       numChecked,
                       numTotal,
-                      checkedItems
+                      checkedItems,
                     ) {
                       if (numChecked === 0)
                         return I18N.message(
-                          "perc.ui.folder.properties.dialog@All sites allowed"
+                          "perc.ui.folder.properties.dialog@All sites allowed",
                         );
                       else
                         return I18N.message(
-                          "perc.ui.folder.properties.dialog@Some sites allowed"
+                          "perc.ui.folder.properties.dialog@Some sites allowed",
                         );
                     },
                   });
@@ -361,14 +361,14 @@
                   // Retrieving the list of all sites was unsuccessful
                   var defaultMsg =
                     $.PercServiceUtils.extractDefaultErrorMessage(
-                      result.request
+                      result.request,
                     );
                   $.perc_utils.alert_dialog({
                     title: I18N.message("perc.ui.publish.title@Error"),
                     content: defaultMsg,
                   });
                 }
-              }
+              },
             );
           } else {
             $("#perc-asset-folder-security").hide();
@@ -386,7 +386,7 @@
         if ($("#perc-folder-name").val().trim().length < 1) {
           $("#perc-folder-name").val("");
           $("#perc_folder_duplicate_error").text(
-            I18N.message("perc.ui.folder.properties.dialog@Field Required")
+            I18N.message("perc.ui.folder.properties.dialog@Field Required"),
           );
           $("#perc_folder_duplicate_error").show();
           return;
@@ -411,7 +411,7 @@
             allowedSitesMultiselect.multiselect("getChecked"),
             function (index) {
               allowedSites.push($(this).val());
-            }
+            },
           );
           if (allowedSites.length > 0) {
             // The elements must be a comma-sepparated string
@@ -431,12 +431,12 @@
             id: "perc-folder-properties-changed-allowed-sites-warning",
             title: I18N.message("perc.ui.page.general@Warning"),
             content: I18N.message(
-              "perc.ui.folder.properties.dialog@Content Already Queued"
+              "perc.ui.folder.properties.dialog@Content Already Queued",
             ),
             okCallBack: function () {
               $.PercPathService.saveFolderProperties(
                 folderProps,
-                _saveCallBack
+                _saveCallBack,
               );
             },
           };
@@ -454,19 +454,19 @@
           callback(newName);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           var code = $.PercServiceUtils.extractFieldErrorCode(result.request);
           if (code === "`FolderProperties#name") {
             var msg =
               I18N.message(
-                "perc.ui.folder.properties.dialog@Cannot Rename Folder"
+                "perc.ui.folder.properties.dialog@Cannot Rename Folder",
               ) +
               $("#perc-folder-oldname").val() +
               I18N.message("perc.ui.folder.properties.dialog@To") +
               $("#perc-folder-name").val().trim() +
               I18N.message(
-                "perc.ui.folder.properties.dialog@Object With Same Name"
+                "perc.ui.folder.properties.dialog@Object With Same Name",
               );
             $("#perc_folder_duplicate_error").text(msg).show();
           } else if (code === "saveFolderProperties#reservedName") {
@@ -488,19 +488,19 @@
           {
             groupName: "perc-folder-general-properties-container",
             groupLabel: I18N.message(
-              "perc.ui.folder.properties.dialog@General"
+              "perc.ui.folder.properties.dialog@General",
             ),
           },
           {
             groupName: "perc-user-permissions-container",
             groupLabel: I18N.message(
-              "perc.ui.folder.properties.dialog@Permissions"
+              "perc.ui.folder.properties.dialog@Permissions",
             ),
           },
           {
             groupName: "perc-asset-folder-sites-container",
             groupLabel: I18N.message(
-              "perc.ui.folder.properties.dialog@Security"
+              "perc.ui.folder.properties.dialog@Security",
             ),
           },
         ];

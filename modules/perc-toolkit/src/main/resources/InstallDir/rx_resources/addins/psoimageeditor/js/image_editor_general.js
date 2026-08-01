@@ -39,10 +39,10 @@ function enableCrop() {
   var overlay = $("#resizeMe");
   var imageContainer = $("#imageContainer");
   var imageContainerTop = parseInt(
-    $(imageContainer).css("top").replace("px", "")
+    $(imageContainer).css("top").replace("px", ""),
   );
   var imageContainerLeft = parseInt(
-    $(imageContainer).css("left").replace("px", "")
+    $(imageContainer).css("left").replace("px", ""),
   );
   //Init Container
   $(imageContainer).css("width", imageWidth + "px");
@@ -134,10 +134,10 @@ function enableResize(constraint) {
   var imageToResize = getImageElement();
   var imageContainer = $("#imageContainer");
   var imageContainerTop = parseInt(
-    $(imageContainer).css("top").replace("px", "")
+    $(imageContainer).css("top").replace("px", ""),
   );
   var imageContainerLeft = parseInt(
-    $(imageContainer).css("left").replace("px", "")
+    $(imageContainer).css("left").replace("px", ""),
   );
   var resizeMe = $("#resizeMe");
   var width = $("#width");

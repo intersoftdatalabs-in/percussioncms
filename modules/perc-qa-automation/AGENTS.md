@@ -243,10 +243,10 @@ npm test -- --debug
 
 Full product rules: [`docs/developer-module/workbench-rest-and-qa-modes.md`](../../docs/developer-module/workbench-rest-and-qa-modes.md).
 
-| Mode | CMS | Docker | Change loop | Outcome |
-|------|-----|--------|-------------|---------|
-| **Dev mode** (fast) | **Local install on the dev machine** | **Binds** to that install (or uses that tree) | Build → **copy into install** → re-run Playwright — **no restart** for typical hot-copy paths | Iterate on specs + product |
-| **QA mode** (gate) | **Fully contained in Docker** | Stack owns the install | Image/stack built from the revision under test | **Pass or fail** — no host install drift |
+|        Mode         |                 CMS                  |                    Docker                     |                                          Change loop                                          |                 Outcome                  |
+|---------------------|--------------------------------------|-----------------------------------------------|-----------------------------------------------------------------------------------------------|------------------------------------------|
+| **Dev mode** (fast) | **Local install on the dev machine** | **Binds** to that install (or uses that tree) | Build → **copy into install** → re-run Playwright — **no restart** for typical hot-copy paths | Iterate on specs + product               |
+| **QA mode** (gate)  | **Fully contained in Docker**        | Stack owns the install                        | Image/stack built from the revision under test                                                | **Pass or fail** — no host install drift |
 
 **Automation owns** full build → install/image → start → test. Agents must **not** treat manual “redeploy jars forever” as the primary process. Dev mode = local install + bind + hot copy; QA mode = all-in-docker.
 

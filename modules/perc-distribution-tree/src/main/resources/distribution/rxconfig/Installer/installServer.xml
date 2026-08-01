@@ -2,7 +2,8 @@
 
 	<property name="install.dir" value="${basedir}/target" />
 	<property name="configdir" location="${install.dir}/rxconfig" />
-	<property name="install.I18n" location="${configdir}/I18n" />
+	<!-- Canonical lowercase path only; never create rxconfig/I18n on Linux. -->
+	<property name="install.I18n" location="${configdir}/i18n" />
 	<property name="install.rxlt" location="${install.dir}/rxlt" />
 	<property name="install.src" location="../.." />
 	<property name="sfp.exits.source"

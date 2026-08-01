@@ -38,7 +38,7 @@ function handleLogin() {
         '<div class="api-popup-actions"><button class="api-popup-authbtn api-button green" type="button">Authorize</button><button class="api-popup-cancel api-button gray" type="button">Cancel</button></div>',
         "</div>",
         "</div>",
-      ].join("")
+      ].join(""),
     );
     $(document.body).append(popupDialog);
 
@@ -90,7 +90,7 @@ function handleLogin() {
     var host = window.location;
     var pathname = location.pathname.substring(
       0,
-      location.pathname.lastIndexOf("/")
+      location.pathname.lastIndexOf("/"),
     );
     var redirectUrl = host.protocol + "//" + host.host + pathname + "/o2c.html";
     var url = null;
@@ -223,7 +223,7 @@ function onOAuthComplete(token) {
 
         window.authorizations.add(
           "oauth2",
-          new ApiKeyAuthorization("Authorization", "Bearer " + b, "header")
+          new ApiKeyAuthorization("Authorization", "Bearer " + b, "header"),
         );
       }
     }

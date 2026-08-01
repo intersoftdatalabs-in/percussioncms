@@ -60,14 +60,14 @@ ps.content.Browse = function (mode) {
       {
         id: "ps.content.BrowseDlg",
         title: psxGetLocalMessage(
-          "javascript.ps.content.browse@Active_Assembly_Browse_Content"
+          "javascript.ps.content.browse@Active_Assembly_Browse_Content",
         ),
         titleBarDisplay: !this.isStandAlone,
         hasShadow: !this.isStandAlone,
         resizable: !this.isStandAlone,
       },
       theWidth + "px",
-      theHeight + "px"
+      theHeight + "px",
     );
 
     function tab(prefix, tabLabel) {
@@ -88,15 +88,15 @@ ps.content.Browse = function (mode) {
       'style="width: 100%; height: 100%">\n' +
       tab(
         ps.util.BROWSETAB_SITES_PANEL_PREF,
-        psxGetLocalMessage("javascript.ps.content.browse@Sites")
+        psxGetLocalMessage("javascript.ps.content.browse@Sites"),
       ) +
       tab(
         ps.util.BROWSETAB_FOLDERS_PANEL_PREF,
-        psxGetLocalMessage("javascript.ps.content.browse@Folders")
+        psxGetLocalMessage("javascript.ps.content.browse@Folders"),
       ) +
       tab(
         ps.util.BROWSETAB_SEARCH_PANEL_PREF,
-        psxGetLocalMessage("javascript.ps.content.browse@Search")
+        psxGetLocalMessage("javascript.ps.content.browse@Search"),
       ) +
       "</div>";
     this.wgtDlg.setContent(content);
@@ -170,7 +170,7 @@ ps.content.Browse = function (mode) {
       ps.util.setDialogSize(
         this.wgtDlg,
         this.preferredWidth,
-        this.preferredHeight
+        this.preferredHeight,
       );
     } else {
       var _this = this;

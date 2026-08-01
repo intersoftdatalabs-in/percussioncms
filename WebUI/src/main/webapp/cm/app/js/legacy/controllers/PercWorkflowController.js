@@ -52,7 +52,7 @@
     var chkInCb = function (status, results) {
       if (status == $.PercServiceUtils.STATUS_ERROR) {
         var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-          results.request
+          results.request,
         );
         $.perc_utils.debug("Error : " + defMsg);
         callback(false);
@@ -117,7 +117,7 @@
         }
       } else {
         var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-          results.request
+          results.request,
         );
         if (defMsg.indexOf("Not a valid content id") != -1) {
           var options = {
@@ -152,7 +152,7 @@
         callback(true);
       } else {
         var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-          results.request
+          results.request,
         );
         $.perc_utils.alert_dialog({
           title: I18N.message("perc.ui.labels@Error"),
@@ -176,7 +176,7 @@
     var trCb = function (status, results) {
       if (status == $.PercServiceUtils.STATUS_ERROR) {
         var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-          results.request
+          results.request,
         );
         $.perc_utils.alert_dialog({
           title: I18N.message("perc.ui.labels@Error"),
@@ -252,7 +252,7 @@
         callback(true, trAs);
       } else {
         var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-          results.request
+          results.request,
         );
         $.perc_utils.alert_dialog({ title: "Error", content: defMsg });
         callback(false, []);
@@ -275,7 +275,7 @@
       } else {
         callback(
           false,
-          $.PercServiceUtils.extractDefaultErrorMessage(results.request)
+          $.PercServiceUtils.extractDefaultErrorMessage(results.request),
         );
       }
     };
@@ -332,7 +332,7 @@
     } else if (msgType == 3) {
       msg = I18N.message(
         "perc.ui.workflow.steps.view@Deleted In Another Session",
-        [type]
+        [type],
       );
     }
     return msg;

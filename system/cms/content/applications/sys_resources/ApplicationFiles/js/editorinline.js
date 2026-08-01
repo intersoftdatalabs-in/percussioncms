@@ -21,7 +21,7 @@ var ___blockTags = new Array(
   "ol",
   "p",
   "pre",
-  "ul"
+  "ul",
 );
 
 function encodeAmpersand(urlstring) {
@@ -69,14 +69,14 @@ function inlineCallback(objectId, callback, type) {
     var response2 = ps.io.Actions.getSnippetContent(
       oId,
       false,
-      ___selectedContent
+      ___selectedContent,
     );
     if (response2.isSuccess()) {
       var theContent = unicode2entity(response2.getValue());
       var tagstart = theContent.indexOf("<") + 1;
       var tagend = minIgnoreNegative(
         theContent.indexOf(">", tagstart),
-        theContent.indexOf(" ", tagstart)
+        theContent.indexOf(" ", tagstart),
       );
       var mattribs = "";
       var tagname = theContent.substring(tagstart, tagend);
@@ -105,7 +105,7 @@ function inlineCallback(objectId, callback, type) {
     var response3 = ps.io.Actions.getSnippetContent(
       oId,
       false,
-      ___selectedContent
+      ___selectedContent,
     );
     if (response3.isSuccess()) {
       attribs += ' style="display: inline;"';
@@ -174,7 +174,7 @@ function createInlineSearchBox(
   selectedText,
   inlineslotid,
   ctypeid,
-  callback
+  callback,
 ) {
   var inlinetype = type;
   __rxroot = "";
@@ -208,7 +208,7 @@ function openWindow() {
   ___bws = window.open(
     "/ui/content/ContentBrowserDialog.jsp",
     "contentBrowerDialog",
-    "resizable,status=1,scrollbars=yes,width=750,height=500"
+    "resizable,status=1,scrollbars=yes,width=750,height=500",
   );
   setTimeout(function () {
     ___bws.focus();

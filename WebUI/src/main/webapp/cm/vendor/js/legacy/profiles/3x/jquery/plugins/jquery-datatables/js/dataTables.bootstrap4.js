@@ -66,7 +66,7 @@
     idx,
     buttons,
     page,
-    pages
+    pages,
   ) {
     var api = new DataTable.Api(settings);
     var classes = settings.oClasses;
@@ -145,7 +145,7 @@
                   "data-dt-idx": counter,
                   tabindex: settings.iTabIndex,
                   class: "page-link",
-                }).html(btnDisplay)
+                }).html(btnDisplay),
               )
               .appendTo(container);
 
@@ -171,7 +171,7 @@
 
     attach(
       $(host).empty().html('<ul class="pagination"/>').children("ul"),
-      buttons
+      buttons,
     );
 
     if (activeEl !== undefined) {

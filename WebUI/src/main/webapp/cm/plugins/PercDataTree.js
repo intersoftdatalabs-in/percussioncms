@@ -98,7 +98,7 @@
     if (options.addHeader) {
       // Create the head element that holds the collapse button, title and buttons
       var head = $('<div class="' + LABEL_HEAD_CLASS + '" />').html(
-        options.title
+        options.title,
       ); //.css('color', '#0099CC');
       container.append(head);
       // Enable/disable collapse and add buttons (the sentence after '&&' is evaluated only if the option is truthy)
@@ -109,14 +109,14 @@
               COLLAPSE_BTN_CLASS +
               " " +
               MINIMIZER_CLASS +
-              '" />'
-          ).attr("title", I18N.message("perc.ui.workflow.view@Minimize"))
+              '" />',
+          ).attr("title", I18N.message("perc.ui.workflow.view@Minimize")),
         );
       options.enableAdd &&
         head.append(
           $(
-            '<div role="button" tabindex="0" class="' + ADD_BTN_CLASS + '"/>'
-          ).attr("title", options.addTitle)
+            '<div role="button" tabindex="0" class="' + ADD_BTN_CLASS + '"/>',
+          ).attr("title", options.addTitle),
         );
 
       // Bind collapse and add button evetns
@@ -131,12 +131,12 @@
           if (minmaxClass[1] == MINIMIZER_CLASS) {
             $(this).attr(
               "title",
-              I18N.message("perc.ui.workflow.view@Minimize")
+              I18N.message("perc.ui.workflow.view@Minimize"),
             );
           } else if (minmaxClass[1] == MAXIMIZER_CLASS) {
             $(this).attr(
               "title",
-              I18N.message("perc.ui.workflow.view@Maximize")
+              I18N.message("perc.ui.workflow.view@Maximize"),
             );
           }
 
@@ -178,8 +178,8 @@
           options.instanceId +
           '" class="' +
           TREELIST_CONTAINER_CLASS +
-          '" />'
-      )
+          '" />',
+      ),
     );
 
     if (options.showRoots) {
@@ -223,7 +223,7 @@
           .attr("for", node.data.title)
           .css(
             "padding-left",
-            uls * FANCYTREE_UL_LI_PADDING + FANCYTREE_UL_LI_PADDING_OFFSET
+            uls * FANCYTREE_UL_LI_PADDING + FANCYTREE_UL_LI_PADDING_OFFSET,
           )
           .find(".fancytree-title")
           .addClass("perc-ellipsis");
@@ -295,7 +295,7 @@
           sitesRoot,
           itemList[0].folderItem,
           options.levelLimit,
-          level
+          level,
         );
       itemList[1] &&
         itemList[1].folderItem &&
@@ -303,7 +303,7 @@
           assetsRoot,
           itemList[1].folderItem,
           options.levelLimit,
-          level
+          level,
         );
     } else {
       var rootNode = tree.getRoot();
@@ -317,7 +317,7 @@
           rootNode,
           itemList[0].folderItem,
           options.levelLimit,
-          level
+          level,
         );
     }
     tree.visit(function (node) {
@@ -412,7 +412,7 @@
               fancytree_node.getChildren()[i],
               this.children.child,
               levelLimit,
-              level + 1
+              level + 1,
             );
         }
       });

@@ -17,7 +17,6 @@
 
 package com.percussion.delivery.exceptions;
 
-import tools.jackson.databind.DatabindException;
 import com.percussion.security.error.PSExceptionUtils;
 import jakarta.annotation.Priority;
 import jakarta.ws.rs.core.Response;
@@ -25,6 +24,7 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import tools.jackson.databind.DatabindException;
 
 /**
  * Maps Jackson {@link DatabindException}s into a generic 500 plain-text response, logging the

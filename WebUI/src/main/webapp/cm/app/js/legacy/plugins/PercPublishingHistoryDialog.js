@@ -44,7 +44,7 @@
               itemType,
             content:
               I18N.message(
-                "perc.ui.publishing.history@No Publishing History For"
+                "perc.ui.publishing.history@No Publishing History For",
               ) +
               " " +
               itemType,
@@ -130,7 +130,7 @@
           "</thead>" +
           "<tbody></tbody>" +
           "</table>" +
-          "</div>"
+          "</div>",
       );
     }
 
@@ -182,7 +182,7 @@
             "'>" +
             pubEntry.status +
             "</div></td>" +
-            "</tr>"
+            "</tr>",
         );
 
         $rowHTML.find("td:eq(1)").data("timedate", pubDate);
@@ -246,9 +246,9 @@
                 .text(
                   (window.I18N &&
                     I18N.message("perc.ui.publish.modern@Open Status Logs")) ||
-                    "Open Publishing logs (modern UI)"
-                )
-            )
+                    "Open Publishing logs (modern UI)",
+                ),
+            ),
         );
       }
     }
@@ -265,12 +265,12 @@
           deferred.resolve(result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           $.perc_utils.info(
             I18N.message("perc.ui.publishing.history@Error Fetching History") +
               itemId +
-              defaultMsg
+              defaultMsg,
           );
           deferred.reject(defaultMsg);
         }
@@ -279,7 +279,7 @@
         url,
         $.PercServiceUtils.TYPE_GET,
         false,
-        serviceCallback
+        serviceCallback,
       );
       return deferred.promise();
     }

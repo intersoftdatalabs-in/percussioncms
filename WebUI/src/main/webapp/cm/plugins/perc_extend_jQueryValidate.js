@@ -239,8 +239,8 @@
               validator.stopRequest(element, valid);
             },
           },
-          param
-        )
+          param,
+        ),
       );
       return "pending";
     } else if (this.pending[element.name]) {

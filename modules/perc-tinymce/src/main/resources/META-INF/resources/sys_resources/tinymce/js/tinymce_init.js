@@ -109,7 +109,7 @@ function mergeConfig(options, url) {
                 $.inArray(options.typeName, item.fields) >= 0 ||
                 $.inArray(
                   options.typeName + "." + options.fieldName,
-                  item.fields
+                  item.fields,
                 ) >= 0)
             ) {
               config = $.extend({}, config, item);
@@ -127,7 +127,7 @@ function mergeConfig(options, url) {
             config.external_plugins = $.extend(
               {},
               config.external_plugins,
-              external_plugins
+              external_plugins,
             );
           }
         }
@@ -235,7 +235,7 @@ function getBaseConfig(parameters) {
 
             filePickerDialog = topFrJQ.PercPathSelectionDialog.open(
               pathSelectionOptions,
-              callback
+              callback,
             );
           }
 
@@ -243,12 +243,12 @@ function getBaseConfig(parameters) {
           if (meta.filetype == "image") {
             var openCreateImageDialog = function (
               successCallback,
-              cancelCallback
+              cancelCallback,
             ) {
               $.topFrameJQuery.PercCreateNewAssetDialog(
                 "percImage",
                 successCallback,
-                cancelCallback
+                cancelCallback,
               );
             };
             var validator = function (pathItem) {
@@ -272,16 +272,16 @@ function getBaseConfig(parameters) {
               },
             };
             imagePickerDialog = topFrJQ.PercPathSelectionDialog.open(
-              pathSelectionOptions2
+              pathSelectionOptions2,
             );
           }
         },
         convert_urls: false,
       },
-      options
+      options,
     );
     console.log(
-      "From base config=" + JSON.stringify(mergedBaseOptions, null, 2)
+      "From base config=" + JSON.stringify(mergedBaseOptions, null, 2),
     );
 
     resolve(mergedBaseOptions);
@@ -309,7 +309,7 @@ function perc_tinymce_init(options) {
     console.log("load user config=" + JSON.stringify(options, null, 2));
     return mergeConfig(
       options,
-      "../rx_resources/tinymce/config/customer_config_override.json"
+      "../rx_resources/tinymce/config/customer_config_override.json",
     );
   };
 
@@ -330,7 +330,7 @@ function perc_tinymce_init(options) {
   var init_tinymce = function (options) {
     return new Promise(function (resolve, reject) {
       console.log(
-        "Effective TinyMCE config1=" + JSON.stringify(options, null, 2)
+        "Effective TinyMCE config1=" + JSON.stringify(options, null, 2),
       );
       tinyMCE.init(options);
       resolve();

@@ -35,6 +35,8 @@ import com.percussion.server.IPSRequestContext;
  * @see PSSimpleJavaUdfExtension
  */
 public class PSSuperConcat extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSSuperConcat. */
+  public PSSuperConcat() {}
 
   /**
    * Processes the provided parameters and concatenates all non-empty values.

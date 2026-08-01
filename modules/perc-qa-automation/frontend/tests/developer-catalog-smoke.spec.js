@@ -85,7 +85,9 @@ test.describe("Developer catalog smoke (#1690)", () => {
   });
 
   for (const cat of CATALOGS) {
-    test(`${cat.section}: catalog loads without API error`, async ({ page }) => {
+    test(`${cat.section}: catalog loads without API error`, async ({
+      page,
+    }) => {
       await page.goto(developerUrl(cat.section), { waitUntil: "networkidle" });
 
       await expect(page.locator('[data-testid="nav-developer"]')).toBeVisible({

@@ -178,7 +178,7 @@
           },
           function () {
             $(this).css("overflow", "visible");
-          }
+          },
         );
 
       // TODO: should this styling be on a CSS? the margin should be based on the size of the image.
@@ -204,7 +204,7 @@
 
     var dropdownOptionList = dropdown.find(".perc-dropdown-option-list");
     var dropdownOptionItemTemplate = dropdown.find(
-      ".perc-dropdown-option-item-template"
+      ".perc-dropdown-option-item-template",
     );
     let k = 0;
     for (let l = 1; l < labels.length; l++) {
@@ -222,20 +222,20 @@
           .replaceWith(config.percDropdownOptionElements[l]);
         optionAElem = config.percDropdownOptionElements[l].addClass(
           "perc-dropdown-option-" +
-            $.perc_textFilters.IDNAMECDATA(dropdownOptionLabel)
+            $.perc_textFilters.IDNAMECDATA(dropdownOptionLabel),
         );
       } else {
         optionAElem = dropdownOptionItem
           .find("a")
           .html(
             I18N.message(
-              "perc.ui.edit.workflow.step.dialog@" + dropdownOptionLabel
-            )
+              "perc.ui.edit.workflow.step.dialog@" + dropdownOptionLabel,
+            ),
           )
           .attr("title", dropdownOptionLabel)
           .addClass(
             "perc-dropdown-option-" +
-              $.perc_textFilters.IDNAMECDATA(dropdownOptionLabel)
+              $.perc_textFilters.IDNAMECDATA(dropdownOptionLabel),
           );
       }
 
@@ -287,10 +287,10 @@
       "perc-dropdown-template-pages-items-dropdown"
     ) {
       $(
-        "ul.perc-dropdown-template-pages-items-dropdown > li > ul.perc-dropdown-option-list"
+        "ul.perc-dropdown-template-pages-items-dropdown > li > ul.perc-dropdown-option-list",
       ).css("max-height", "66px");
       $(
-        "ul.perc-dropdown-template-pages-items-dropdown > li > ul.perc-dropdown-option-list"
+        "ul.perc-dropdown-template-pages-items-dropdown > li > ul.perc-dropdown-option-list",
       ).css("overflow-y", "auto");
     }
   };

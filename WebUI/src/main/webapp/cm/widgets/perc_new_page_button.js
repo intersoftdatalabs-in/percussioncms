@@ -27,7 +27,7 @@
     var newPageButton = $(
       '<a id="mcol-new-page" class="perc-font-icon" href="#" title="' +
         I18N.message("perc.ui.new.page.button@Click New Page") +
-        '"class="ui-disabled"><span class="icon-plus fas fa-plus"></span><span class="icon-file fas fa-file"></span></a>'
+        '"class="ui-disabled"><span class="icon-plus fas fa-plus"></span><span class="icon-file fas fa-file"></span></a>',
     ).perc_button();
 
     /**
@@ -64,7 +64,7 @@
               ) {
                 enableButton(false);
               }
-            }
+            },
           );
         }
       } else {
@@ -129,7 +129,7 @@
             $.perc_utils.alert_dialog({
               title: I18N.message("perc.ui.new.page.button@New Page"),
               content: I18N.message(
-                "perc.ui.new.page.button@New Page Authorization"
+                "perc.ui.new.page.button@New Page Authorization",
               ),
             });
             return;
@@ -141,11 +141,11 @@
           } else {
             open_new_page_dialog(
               $.PercNewPageDialog().openDialog(finderPath.join("/")),
-              null
+              null,
             );
           }
         },
-        folderPath
+        folderPath,
       );
     }
 

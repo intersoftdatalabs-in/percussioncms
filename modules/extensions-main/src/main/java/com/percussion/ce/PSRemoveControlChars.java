@@ -35,6 +35,8 @@ import java.util.Set;
  * to the modify command handler in the ContentEditorSystemDef as an input data exit.
  */
 public class PSRemoveControlChars implements IPSRequestPreProcessor {
+  /** Creates a new PSRemoveControlChars. */
+  public PSRemoveControlChars() {}
 
   /*
    * @see com.percussion.extension.IPSRequestPreProcessor#preProcessRequest(java.lang.Object[], com.percussion.server.IPSRequestContext)

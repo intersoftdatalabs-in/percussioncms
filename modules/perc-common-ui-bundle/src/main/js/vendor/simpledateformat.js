@@ -118,7 +118,7 @@ var SimpleDateFormat;
       this.getHours(),
       this.getMinutes(),
       this.getSeconds(),
-      this.getMilliseconds()
+      this.getMilliseconds(),
     );
   };
 
@@ -134,13 +134,13 @@ var SimpleDateFormat;
       this.getDate(),
       12,
       0,
-      0
+      0,
     );
     var previousSunday = new Date(midday.getTime() - this.getDay() * ONE_DAY);
     return newDateAtMidnight(
       previousSunday.getFullYear(),
       previousSunday.getMonth(),
-      previousSunday.getDate()
+      previousSunday.getDate(),
     );
   };
 
@@ -169,7 +169,7 @@ var SimpleDateFormat;
     var startOfMonth = newDateAtMidnight(
       this.getFullYear(),
       this.getMonth(),
-      1
+      1,
     );
     var numberOfSundays = previousSunday.isBefore(startOfMonth)
       ? 0
@@ -336,7 +336,7 @@ var SimpleDateFormat;
               formattedString += formatText(
                 monthNames[rawData],
                 numberOfLetters,
-                numberOfLetters
+                numberOfLetters,
               );
             } else {
               // NB. Months returned by getMonth are zero-based

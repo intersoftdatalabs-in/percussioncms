@@ -31,7 +31,7 @@ import jquery from "jquery";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SRC = resolve(
   __dirname,
-  "../../../../modules/perc-packages/src/main/resources/Packages/perc.CategoryDropDownControl/SupportFile-rx_resources/widgets/categoryDropDown/js/categoryDropdown.js"
+  "../../../../modules/perc-packages/src/main/resources/Packages/perc.CategoryDropDownControl/SupportFile-rx_resources/widgets/categoryDropDown/js/categoryDropdown.js",
 );
 
 describe("categoryDropdown createSubCategorySelect", () => {

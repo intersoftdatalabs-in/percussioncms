@@ -53,6 +53,8 @@ import java.net.URLDecoder;
  * @author dougrand
  */
 public class PSMapOutputValue implements IPSFieldOutputTransformer {
+  /** Creates a new PSMapOutputValue. */
+  public PSMapOutputValue() {}
 
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {

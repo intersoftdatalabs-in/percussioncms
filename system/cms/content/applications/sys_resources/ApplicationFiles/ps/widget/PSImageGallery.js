@@ -48,5 +48,5 @@ ps.widget.defineWidget(
       }
       this.setData(imageData);
     },
-  }
+  },
 );

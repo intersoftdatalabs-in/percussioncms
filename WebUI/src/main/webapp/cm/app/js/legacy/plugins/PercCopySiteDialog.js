@@ -36,13 +36,13 @@
       $.PercSiteService.getSaaSSiteNames(true)
         .done(function (siteNames) {
           var saasSiteNames = $.PercServiceUtils.convertMapToArray(
-            siteNames.psmap.entries
+            siteNames.psmap.entries,
           );
           if ($.isEmptyObject(saasSiteNames)) {
             $.perc_utils.alert_dialog({
               title: I18N.message("perc.ui.copy.site.dialog@Warning"),
               content: I18N.message(
-                "perc.ui.copy.site.dialog@Not Authorized to Create Site"
+                "perc.ui.copy.site.dialog@Not Authorized to Create Site",
               ),
             });
           } else {
@@ -53,7 +53,7 @@
           $.perc_utils.alert_dialog({
             title: I18N.message("perc.ui.copy.site.dialog@Warning"),
             content: I18N.message(
-              "perc.ui.copy.site.dialog@Failed to Fetch Configurations"
+              "perc.ui.copy.site.dialog@Failed to Fetch Configurations",
             ),
           });
         });
@@ -77,7 +77,7 @@
           click: function () {
             if ($("#perc_site_name").val() === "") {
               $("#perc_copysite_error").text(
-                I18N.message("perc.ui.copy.site.dialog@Site Name Required")
+                I18N.message("perc.ui.copy.site.dialog@Site Name Required"),
               );
             } else {
               $.PercSiteService.getSites(validateAndConfirm);
@@ -117,7 +117,7 @@
         var newSiteName = $("#perc_site_name").val();
         if (!_validateUniqueSiteName(newSiteName, result)) {
           $("#perc_copysite_error").text(
-            I18N.message("perc.ui.new.site.dialog@Unique Name Req")
+            I18N.message("perc.ui.new.site.dialog@Unique Name Req"),
           );
         } else if (!_validateFolders(newSiteName)) {
           $.noop();
@@ -139,7 +139,7 @@
       var labelSiteName = $("<div/>").append(
         $("<label/>")
           .attr("for", "perc_site_name")
-          .text(I18N.message("perc.ui.copy.site.dialog@Site Name"))
+          .text(I18N.message("perc.ui.copy.site.dialog@Site Name")),
       );
       var siteInput = "";
 
@@ -150,7 +150,7 @@
             .attr("type", "text")
             .css("width", "240px")
             .attr("id", "perc_site_name")
-            .attr("maxlength", 86)
+            .attr("maxlength", 86),
         );
 
       var radioButtons = $("<div/>")
@@ -158,7 +158,7 @@
           '<div id="copy-site-asset-options"><input style="width:15px; margin-bottom:10px; margin-top:0px; " type="radio" name="share-type-buttons" class="shareTypeButtons" id="share-type-buttons-across-site" value="Share Assets across site" checked="checked" >' +
             '<label style="margin-left: 3px; margin-top:0px;" for="share-type-buttons-across-site">Share assets across sites.</label></div>' +
             '<div><input style="width:15px; margin-top:0px;" type="radio" name="share-type-buttons" class="shareTypeButtons" id="share-type-buttons-selected-folder" value="Copy Assets from the selected source">' +
-            '<label style="margin-left: 3px; margin-top:0px;" for="share-type-buttons-selected-folder">Copy assets from the selected folder.</label></div>'
+            '<label style="margin-left: 3px; margin-top:0px;" for="share-type-buttons-selected-folder">Copy assets from the selected folder.</label></div>',
         )
         .css("margin-top", "8px");
 
@@ -168,11 +168,11 @@
           $("<label/>")
             .attr("for", "perc-share-assets-location-tree")
             .text("Specify the asset folder to copy:")
-            .css("font-weight", "bold")
+            .css("font-weight", "bold"),
         );
 
       var locationTree = $(
-        "<div id='perc-share-assets-location-tree' class='perc-share-assets-location-tree'>"
+        "<div id='perc-share-assets-location-tree' class='perc-share-assets-location-tree'>",
       )
         .css("margin-top", "7px")
         .PercFinderTree({
@@ -197,7 +197,7 @@
         });
 
       var treeContainer = $(
-        '<div id="perc-share-assets-tree-container" style="display: none;" />'
+        '<div id="perc-share-assets-tree-container" style="display: none;" />',
       )
         .append(labelTree)
         .append(locationTree)
@@ -213,7 +213,7 @@
           if ($(this).attr("id") === "share-type-buttons-across-site")
             $("#perc-share-assets-tree-container").css("display", "none");
           else $("#perc-share-assets-tree-container").css("display", "block");
-        }
+        },
       );
 
       var labelError = $("<div/>")
@@ -221,7 +221,7 @@
           $("<label/>")
             .css("color", "red")
             .attr("id", "perc_copysite_error")
-            .attr("for", "perc_site_name")
+            .attr("for", "perc_site_name"),
         )
         .css("margin-top", "15px");
 
@@ -255,7 +255,7 @@
           I18N.message("perc.ui.copy.site.dialog@Finder When Copy Processing"),
         success: function () {
           $("#perc-site-map-copy").addClass(
-            "perc-site-map-action-item-disabled"
+            "perc-site-map-action-item-disabled",
           );
 
           var jsonRequest = createRequestObject(newSiteName, siteName);
@@ -269,7 +269,7 @@
                 //if ($('#perc-site-map-copy'))
                 // $('#perc-site-map-copy').removeClass("perc-site-map-action-item-disabled");
               }
-            }
+            },
           );
         },
         cancel: function () {},
@@ -305,7 +305,7 @@
           ValidateCopyFoldersRequest: {
             srcFolder: selectedTreePath.path.replace(
               $.perc_paths.ASSETS_ROOT + "/",
-              ""
+              "",
             ),
             destFolder: newSiteName,
           },
@@ -321,7 +321,7 @@
               createConfirmDialog(newSiteName);
               return true;
             }
-          }
+          },
         );
       } else {
         createConfirmDialog(newSiteName);
@@ -340,7 +340,7 @@
       if (selectedCheckbox === "share-type-buttons-selected-folder") {
         jsonRequest.SiteCopyRequest.assetFolder = selectedTreePath.path.replace(
           $.perc_paths.ASSETS_ROOT + "/",
-          ""
+          "",
         );
       } else {
         delete jsonRequest.SiteCopyRequest.assetFolder;

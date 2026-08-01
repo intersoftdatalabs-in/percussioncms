@@ -162,7 +162,7 @@
             var newPagePath =
               result.PathItem.folderPaths + "/" + result.PathItem.name;
             console.log(
-              "for pageID: " + pageData.pageId + " newPagePath: " + newPagePath
+              "for pageID: " + pageData.pageId + " newPagePath: " + newPagePath,
             );
             if (pageData.pagepath != newPagePath) {
               pageData.pagepath = newPagePath;
@@ -181,7 +181,7 @@
             }
             defer.reject({ title: "Error on page lookup", content: msg });
           }
-        }
+        },
       );
       return defer.promise();
     }
@@ -194,7 +194,7 @@
 
       //Add the pre-submit handler to prepare data for saving.
       window.parent.jQuery.PercContentPreSubmitHandlers.addHandler(
-        _preSubmitHandler
+        _preSubmitHandler,
       );
 
       //Widget behavioral events
@@ -258,13 +258,13 @@
       var validation = false;
       // Check all page selector fields for a valid page-id.
       $(
-        '.perc-page-select input[name="pageSelections"]:not("#perc-content-page-selections-0")'
+        '.perc-page-select input[name="pageSelections"]:not("#perc-content-page-selections-0")',
       ).each(function () {
         var selectedPageId = $(this).attr("data-page-id");
         if (selectedPageId == "false") {
           console.log("No page selected for page field.");
           $("#perc-local-lang-editor").append(
-            '<div id="page-selection-error">Error: Page selection missing. Please select an alternate language page for each row.</div>'
+            '<div id="page-selection-error">Error: Page selection missing. Please select an alternate language page for each row.</div>',
           );
           validation = false;
         } else {
@@ -314,7 +314,7 @@
       }
 
       $("#perc-content-edit-sys_title").val(
-        $("#perc-content-edit-configurationName").val()
+        $("#perc-content-edit-configurationName").val(),
       );
 
       //Get the Widget data and convert it to a JSON string that can be saved.

@@ -236,8 +236,8 @@
 
       dialogMarkup.append(
         $(
-          '<div style="height: 50px; overflow:hidden; margin-left: 30px; margin-right: 30px">'
-        ).append($("<p></p>"))
+          '<div style="height: 50px; overflow:hidden; margin-left: 30px; margin-right: 30px">',
+        ).append($("<p></p>")),
       );
 
       dialogMarkup
@@ -414,12 +414,12 @@
       .append(
         $("<input/>")
           .attr("type", "checkBox")
-          .attr("id", "perc_show_again_check")
+          .attr("id", "perc_show_again_check"),
       )
       .append(
         $("<label/>")
           .attr("for", "perc_show_again_check")
-          .text("Do not show again")
+          .text("Do not show again"),
       );
     $(this).parent().find(".ui-dialog-buttonpane").append(showCheck);
   }
@@ -704,7 +704,7 @@
     $.extend(settings, options);
 
     var inputField = $(
-      "<input type='text' id='perc-prompt-dialog-question' />"
+      "<input type='text' id='perc-prompt-dialog-question' />",
     );
     // Render the question as a text node so attacker-controlled or
     // server-supplied strings cannot inject HTML/scripts via jQuery's
@@ -907,10 +907,10 @@
     ) {
       returnIcon.src = "/Rhythmyx/sys_resources/images/finderLandingPage.png";
       returnIcon.alt = I18N.message(
-        "perc.ui.newpagedialog.label@Navigation Landing Page"
+        "perc.ui.newpagedialog.label@Navigation Landing Page",
       );
       returnIcon.title = I18N.message(
-        "perc.ui.newpagedialog.label@Navigation Landing Page"
+        "perc.ui.newpagedialog.label@Navigation Landing Page",
       );
       returnIcon.decorative = false;
       return returnIcon;
@@ -919,7 +919,7 @@
       debug(
         "Accessibility Check: Verify that " +
           icon +
-          " has accessible attributes set"
+          " has accessible attributes set",
       );
       debug("i18n Check: Verify that " + icon + " has i18n strings set");
     }
@@ -974,7 +974,7 @@
       debug(
         "Accessibility Check: Verify that " +
           icon +
-          " has accessible attributes set"
+          " has accessible attributes set",
       );
       debug("i18n Check: Verify that " + icon + " has i18n strings set");
 
@@ -1057,7 +1057,7 @@
         .replaceWith(
           '<a id="perc-wid-lib-maximizer"  title="' +
             I18N.message("perc.ui.workflow.view@Maximize") +
-            '" style="float: left;" href="#"></a>'
+            '" style="float: left;" href="#"></a>',
         );
     } else {
       var regionLibContainer = $(baseEle)
@@ -1083,7 +1083,7 @@
         .replaceWith(
           '<a id="perc-wid-lib-minimizer" title="' +
             I18N.message("perc.ui.workflow.view@Minimize") +
-            '" style="float: left;" href="#"></a>'
+            '" style="float: left;" href="#"></a>',
         );
     }
 
@@ -1105,17 +1105,17 @@
 
     var parent = $(baseEle).parent();
     var regionLibraryContainer = $(
-      parent.find(".perc-region-library-container")
+      parent.find(".perc-region-library-container"),
     );
     var templateContainer = $(baseEle)
       .parent()
       .find(".perc-template-container");
     var regionLibraryExpander = $(parent.find("#perc-region-library-expander"));
     var regionLibraryMaximizer = $(
-      parent.find("#perc-region-library-maximizer")
+      parent.find("#perc-region-library-maximizer"),
     );
     var regionLibraryMinimizer = $(
-      parent.find("#perc-region-library-minimizer")
+      parent.find("#perc-region-library-minimizer"),
     );
 
     if (regionLibraryContainer.hasClass("perc-visible")) {
@@ -1126,7 +1126,7 @@
       regionLibraryMinimizer.replaceWith(
         '<a id="perc-region-library-maximizer" title="' +
           I18N.message("perc.ui.workflow.view@Maximize") +
-          '"  style="float: left;" href="#"></a>'
+          '"  style="float: left;" href="#"></a>',
       );
     } else {
       // if widget tray is visible, toggle it (close it) so that only the region tray is shown
@@ -1141,7 +1141,7 @@
       regionLibraryMaximizer.replaceWith(
         '<a id="perc-region-library-minimizer" title="' +
           I18N.message("perc.ui.workflow.view@Minimize") +
-          '" style="float: left;" href="#"></a>'
+          '" style="float: left;" href="#"></a>',
       );
     }
 
@@ -1172,7 +1172,7 @@
       orphanAssetsMinimizer.replaceWith(
         '<a id="perc_orphan_assets_maximizer" title="' +
           I18N.message("perc.ui.workflow.view@Maximize") +
-          '" style="float: left;" href="#"></a>'
+          '" style="float: left;" href="#"></a>',
       );
     } else {
       var orphanAssetsMaximizer = parent.find("#perc_orphan_assets_maximizer");
@@ -1181,7 +1181,7 @@
       orphanAssetsMaximizer.replaceWith(
         '<a id="perc_orphan_assets_minimizer" title="' +
           I18N.message("perc.ui.workflow.view@Minimize") +
-          '" style="float: left;" href="#"></a>'
+          '" style="float: left;" href="#"></a>',
       );
     }
 
@@ -1310,7 +1310,7 @@
           I18N.message("perc.ui.utils@Expected To Find") +
             name +
             I18N.message("perc.ui.utils@Tags Found") +
-            tagNames
+            tagNames,
         );
       }
     });
@@ -1461,7 +1461,7 @@
    */
   function preLoadImages() {
     var args_len = arguments.length;
-    for (var i = args_len; i--; ) {
+    for (var i = args_len; i--;) {
       var cacheImage = document.createElement("img");
       cacheImage.src = arguments[i];
       __cache.push(cacheImage);
@@ -1531,8 +1531,8 @@
               divWidth +
               "; height: " +
               divHeight +
-              ';"></div>'
-          )
+              ';"></div>',
+          ),
         );
       });
   }
@@ -1719,7 +1719,7 @@
                   content: errorMsg,
                 });
               }
-            }
+            },
           );
         } else {
           $.perc_finder().refresh();
@@ -1742,7 +1742,7 @@
         data: function (value, settings) {
           return $(this).parent().attr("title");
         },
-      }
+      },
     );
     $("#perc-finder-listing-" + pathItem.id)
       .children(".perc-finder-item-name")

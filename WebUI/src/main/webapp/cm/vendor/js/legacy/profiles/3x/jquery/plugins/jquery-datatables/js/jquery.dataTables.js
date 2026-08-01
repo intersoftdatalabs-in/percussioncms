@@ -411,7 +411,7 @@
       bRegex,
       bSmart,
       bShowGlobal,
-      bCaseInsensitive
+      bCaseInsensitive,
     ) {
       var api = this.api(true);
 
@@ -815,7 +815,7 @@
           null,
           0,
           "Non-table node initialisation (" + this.nodeName + ")",
-          2
+          2,
         );
         return;
       }
@@ -963,13 +963,13 @@
         oSettings,
         "aoStateSaveParams",
         oInit.fnStateSaveParams,
-        "user"
+        "user",
       );
       _fnCallbackReg(
         oSettings,
         "aoStateLoadParams",
         oInit.fnStateLoadParams,
-        "user"
+        "user",
       );
       _fnCallbackReg(oSettings, "aoStateLoaded", oInit.fnStateLoaded, "user");
       _fnCallbackReg(oSettings, "aoRowCallback", oInit.fnRowCallback, "user");
@@ -977,26 +977,26 @@
         oSettings,
         "aoRowCreatedCallback",
         oInit.fnCreatedRow,
-        "user"
+        "user",
       );
       _fnCallbackReg(
         oSettings,
         "aoHeaderCallback",
         oInit.fnHeaderCallback,
-        "user"
+        "user",
       );
       _fnCallbackReg(
         oSettings,
         "aoFooterCallback",
         oInit.fnFooterCallback,
-        "user"
+        "user",
       );
       _fnCallbackReg(oSettings, "aoInitComplete", oInit.fnInitComplete, "user");
       _fnCallbackReg(
         oSettings,
         "aoPreDrawCallback",
         oInit.fnPreDrawCallback,
-        "user"
+        "user",
       );
 
       oSettings.rowIdFn = _fnGetObjectDataFn(oInit.rowId);
@@ -1071,7 +1071,7 @@
           true,
           $.map(stripeClasses, function (el, i) {
             return rowOne.hasClass(el);
-          })
+          }),
         ) !== -1
       ) {
         $("tbody tr", this).removeClass(stripeClasses.join(" "));
@@ -1112,7 +1112,7 @@
         aoColumnsInit,
         function (iCol, oDef) {
           _fnColumnOptions(oSettings, iCol, oDef);
-        }
+        },
       );
 
       /* HTML5 attribute detection - build an mData object automatically if the
@@ -1199,7 +1199,7 @@
               _fnSortingClasses(oSettings);
             }
           },
-          "sc"
+          "sc",
         );
 
         /*
@@ -1337,7 +1337,7 @@
         "-",
       ].join("|\\") +
       ")",
-    "g"
+    "g",
   );
 
   // http://en.wikipedia.org/wiki/Foreign_exchange_market
@@ -1411,8 +1411,8 @@
     return !html
       ? null
       : _isNumber(_stripHtml(d), decimalPoint, formatted)
-      ? true
-      : null;
+        ? true
+        : null;
   };
 
   var _pluck = function (a, prop, prop2) {
@@ -1849,7 +1849,7 @@
                 // is used to join the strings together, otherwise an array is returned
                 var join = arrayNotation[0].substring(
                   1,
-                  arrayNotation[0].length - 1
+                  arrayNotation[0].length - 1,
                 );
                 data = join === "" ? out : out.join(join);
 
@@ -2116,8 +2116,8 @@
               $("<div/>").css({
                 width: "100%",
                 height: 10,
-              })
-            )
+              }),
+            ),
         )
         .appendTo("body");
 
@@ -2525,8 +2525,8 @@
           def.target !== undefined
             ? def.target
             : def.targets !== undefined
-            ? def.targets
-            : def.aTargets;
+              ? def.targets
+              : def.aTargets;
 
         if (!Array.isArray(aTargets)) {
           aTargets = [aTargets];
@@ -2702,7 +2702,7 @@
             rowIdx +
             ", column " +
             colIdx,
-          4
+          4,
         );
         settings.iDrawError = draw;
       }
@@ -2872,7 +2872,7 @@
         settings,
         row,
         colIdx,
-        colIdx === undefined ? undefined : row._aData
+        colIdx === undefined ? undefined : row._aData,
       ).data;
     } else {
       // Reading from data object, update the DOM
@@ -3096,7 +3096,7 @@
             _fnGetCellData(oSettings, iRow, i),
             rowData,
             iRow,
-            i
+            i,
           );
         }
       }
@@ -3407,7 +3407,7 @@
           valign: "top",
           colSpan: _fnVisbleColumns(oSettings),
           class: oSettings.oClasses.sRowEmpty,
-        }).html(sZero)
+        }).html(sZero),
       )[0];
     }
 
@@ -3713,8 +3713,8 @@
       oSettings._iDisplayStart = bServerSide
         ? iInitDisplayStart
         : iInitDisplayStart >= oSettings.fnRecordsDisplay()
-        ? 0
-        : iInitDisplayStart;
+          ? 0
+          : iInitDisplayStart;
 
       oSettings.iInitDisplayStart = -1;
     }
@@ -3843,14 +3843,14 @@
           return { name: key, value: val };
         }),
         callback,
-        oSettings
+        oSettings,
       );
     } else if (oSettings.sAjaxSource || typeof ajax === "string") {
       // DataTables 1.9- compatibility
       oSettings.jqXHR = $.ajax(
         $.extend(baseAjax, {
           url: ajax || oSettings.sAjaxSource,
-        })
+        }),
       );
     } else if (typeof ajax === "function") {
       // Is a function - let the caller define what needs to be done
@@ -4118,15 +4118,15 @@
       settings.searchDelay !== null
         ? settings.searchDelay
         : _fnDataSource(settings) === "ssp"
-        ? 400
-        : 0;
+          ? 400
+          : 0;
 
     var jqFilter = $("input", filter)
       .val(previousSearch.sSearch)
       .attr("placeholder", language.sSearchPlaceholder)
       .on(
         "keyup.DT search.DT input.DT paste.DT cut.DT",
-        searchDelay ? _fnThrottle(searchFn, searchDelay) : searchFn
+        searchDelay ? _fnThrottle(searchFn, searchDelay) : searchFn,
       )
       .on("mouseup", function (e) {
         // Edge fix! Edge 17 does not trigger anything other than mouse events when clicking
@@ -4197,7 +4197,7 @@
         fnRegex(oInput),
         oInput.bSmart,
         oInput.bCaseInsensitive,
-        oInput.return
+        oInput.return,
       );
       fnSaveFilter(oInput);
 
@@ -4209,7 +4209,7 @@
           i,
           fnRegex(aoPrevSearch[i]),
           aoPrevSearch[i].bSmart,
-          aoPrevSearch[i].bCaseInsensitive
+          aoPrevSearch[i].bCaseInsensitive,
         );
       }
 
@@ -4270,7 +4270,7 @@
     colIdx,
     regex,
     smart,
-    caseInsensitive
+    caseInsensitive,
   ) {
     if (searchStr === "") {
       return;
@@ -4283,7 +4283,7 @@
       searchStr,
       regex,
       smart,
-      caseInsensitive
+      caseInsensitive,
     );
 
     for (var i = 0; i < display.length; i++) {
@@ -4556,7 +4556,7 @@
         end,
         max,
         total,
-        out
+        out,
       );
     }
 
@@ -4579,11 +4579,11 @@
       .replace(/_TOTAL_/g, formatter.call(settings, vis))
       .replace(
         /_PAGE_/g,
-        formatter.call(settings, all ? 1 : Math.ceil(start / len))
+        formatter.call(settings, all ? 1 : Math.ceil(start / len)),
       )
       .replace(
         /_PAGES_/g,
-        formatter.call(settings, all ? 1 : Math.ceil(vis / len))
+        formatter.call(settings, all ? 1 : Math.ceil(vis / len)),
       );
   }
 
@@ -4667,7 +4667,7 @@
             _fnProcessingDisplay(settings, false);
             _fnInitComplete(settings, json);
           },
-          settings
+          settings,
         );
       } else {
         _fnProcessingDisplay(settings, false);
@@ -4731,7 +4731,7 @@
         typeof language[i] === "number"
           ? settings.fnFormatNumber(language[i])
           : language[i],
-        lengths[i]
+        lengths[i],
       );
     }
 
@@ -4743,7 +4743,7 @@
     div
       .children()
       .append(
-        settings.oLanguage.sLengthMenu.replace("_MENU_", select[0].outerHTML)
+        settings.oLanguage.sLengthMenu.replace("_MENU_", select[0].outerHTML),
       );
 
     // Can't use `select` variable as user might provide their own and the
@@ -4814,7 +4814,7 @@
                 i,
                 buttons,
                 page,
-                pages
+                pages,
               );
             }
           } else {
@@ -4981,9 +4981,9 @@
                   .removeAttr("id")
                   .css("margin-left", 0)
                   .append(captionSide === "top" ? caption : null)
-                  .append(table.children("thead"))
-              )
-          )
+                  .append(table.children("thead")),
+              ),
+          ),
       )
       .append(
         $(_div, { class: classes.sScrollBody })
@@ -4992,7 +4992,7 @@
             overflow: "auto",
             width: size(scrollX),
           })
-          .append(table)
+          .append(table),
       );
 
     if (footer) {
@@ -5009,9 +5009,9 @@
                 .removeAttr("id")
                 .css("margin-left", 0)
                 .append(captionSide === "bottom" ? caption : null)
-                .append(table.children("tfoot"))
-            )
-          )
+                .append(table.children("tfoot")),
+            ),
+          ),
       );
     }
 
@@ -5494,7 +5494,7 @@
               padding: 0,
               border: 0,
               height: 1,
-            })
+            }),
           );
         }
       }
@@ -5532,7 +5532,7 @@
                 right: 0,
                 overflow: "hidden",
               }
-            : {}
+            : {},
         )
         .append(tmpTable)
         .appendTo(tableContainer);
@@ -5602,7 +5602,7 @@
           "resize.DT-" + oSettings.sInstance,
           _fnThrottle(function () {
             _fnAdjustColumnSizing(oSettings);
-          })
+          }),
         );
       };
 
@@ -5766,7 +5766,7 @@
         if (nestedSort[i]._idx === undefined) {
           nestedSort[i]._idx = $.inArray(
             nestedSort[i][1],
-            aoColumns[iCol].asSorting
+            aoColumns[iCol].asSorting,
           );
         }
 
@@ -5956,7 +5956,7 @@
         if (aSort.length > 0 && aSort[0].col == i) {
           th.setAttribute(
             "aria-sort",
-            aSort[0].dir == "asc" ? "ascending" : "descending"
+            aSort[0].dir == "asc" ? "ascending" : "descending",
           );
           nextSort = asSorting[aSort[0].index + 1] || asSorting[0];
         } else {
@@ -6107,7 +6107,7 @@
 
         // Remove column sorting
         $(_pluck(settings.aoData, "anCells", colIdx)).removeClass(
-          sortClass + (i < 2 ? i + 1 : 3)
+          sortClass + (i < 2 ? i + 1 : 3),
         );
       }
 
@@ -6116,7 +6116,7 @@
         colIdx = sort[i].src;
 
         $(_pluck(settings.aoData, "anCells", colIdx)).addClass(
-          sortClass + (i < 2 ? i + 1 : 3)
+          sortClass + (i < 2 ? i + 1 : 3),
         );
       }
     }
@@ -6137,7 +6137,7 @@
         settings.oInstance,
         settings,
         idx,
-        _fnColumnIndexToVisible(settings, idx)
+        _fnColumnIndexToVisible(settings, idx),
       );
     }
 
@@ -6218,7 +6218,7 @@
     var state = settings.fnStateLoadCallback.call(
       settings.oInstance,
       settings,
-      loaded
+      loaded,
     );
 
     if (state !== undefined) {
@@ -6250,7 +6250,7 @@
       settings,
       "aoStateLoadParams",
       "stateLoadParams",
-      [settings, s]
+      [settings, s],
     );
     if ($.inArray(false, abStateLoad) !== -1) {
       settings._bLoadingState = false;
@@ -7056,8 +7056,8 @@
         struct.type === "function"
           ? methodScoping(scope, struct.val, struct)
           : struct.type === "object"
-          ? {}
-          : struct.val;
+            ? {}
+            : struct.val;
 
       obj[struct.name].__dt_wrapper = true;
 
@@ -7144,8 +7144,8 @@
           typeof val === "function"
             ? "function"
             : $.isPlainObject(val)
-            ? "object"
-            : "other";
+              ? "object"
+              : "other";
       } else {
         struct = method ? src.methodExt : src.propExt;
       }
@@ -7155,7 +7155,7 @@
   _Api.registerPlural = _api_registerPlural = function (
     pluralName,
     singularName,
-    val
+    val,
   ) {
     _Api.register(pluralName, val);
 
@@ -7248,7 +7248,7 @@
       function (ctx) {
         return ctx.nTable;
       },
-      1
+      1,
     );
   });
 
@@ -7258,7 +7258,7 @@
       function (ctx) {
         return ctx.nTBody;
       },
-      1
+      1,
     );
   });
 
@@ -7268,7 +7268,7 @@
       function (ctx) {
         return ctx.nTHead;
       },
-      1
+      1,
     );
   });
 
@@ -7278,7 +7278,7 @@
       function (ctx) {
         return ctx.nTFoot;
       },
-      1
+      1,
     );
   });
 
@@ -7291,9 +7291,9 @@
         function (ctx) {
           return ctx.nTableWrapper;
         },
-        1
+        1,
       );
-    }
+    },
   );
 
   /**
@@ -7613,7 +7613,7 @@
         order: "current",
         page: "all",
       },
-      opts
+      opts,
     );
   };
 
@@ -7820,7 +7820,7 @@
       function (settings) {
         return __row_selector(settings, selector, opts);
       },
-      1
+      1,
     );
 
     // Want argument shifting here and in __row_selector?
@@ -7836,7 +7836,7 @@
       function (settings, row) {
         return settings.aoData[row].nTr || undefined;
       },
-      1
+      1,
     );
   });
 
@@ -7847,7 +7847,7 @@
       function (settings, rows) {
         return _pluck_order(settings.aoData, rows, "_aData");
       },
-      1
+      1,
     );
   });
 
@@ -7858,7 +7858,7 @@
         var r = settings.aoData[row];
         return type === "search" ? r._aFilterData : r._aSortData;
       },
-      1
+      1,
     );
   });
 
@@ -7869,7 +7869,7 @@
       return this.iterator("row", function (settings, row) {
         _fnInvalidate(settings, row, src);
       });
-    }
+    },
   );
 
   _api_registerPlural("rows().indexes()", "row().index()", function () {
@@ -7878,7 +7878,7 @@
       function (settings, row) {
         return row;
       },
-      1
+      1,
     );
   });
 
@@ -7974,7 +7974,7 @@
 
         return out;
       },
-      1
+      1,
     );
 
     // Return an Api.rows() extended instance, so rows().nodes() etc can be used
@@ -8069,7 +8069,7 @@
         .rows(
           $.map(loaded.childRows, function (id) {
             return id.replace(/:/g, "\\:");
-          })
+          }),
         )
         .every(function () {
           _fnCallbackFire(context, null, "requestChild", [this]);
@@ -8268,7 +8268,7 @@
       // it returns an object and this method is not executed)
       __details_display(this, true);
       return this;
-    }
+    },
   );
 
   _api_register(
@@ -8280,7 +8280,7 @@
       // it returns an object and this method is not executed)
       __details_display(this, false);
       return this;
-    }
+    },
   );
 
   _api_register(
@@ -8292,7 +8292,7 @@
       // it returns an object and this method is not executed)
       __details_remove(this);
       return this;
-    }
+    },
   );
 
   _api_register(_child_obj + ".isShown()", function () {
@@ -8480,7 +8480,7 @@
       function (settings) {
         return __column_selector(settings, selector, opts);
       },
-      1
+      1,
     );
 
     // Want argument shifting here and in _row_selector?
@@ -8499,9 +8499,9 @@
         function (settings, column) {
           return settings.aoColumns[column].nTh;
         },
-        1
+        1,
       );
-    }
+    },
   );
 
   _api_registerPlural(
@@ -8513,9 +8513,9 @@
         function (settings, column) {
           return settings.aoColumns[column].nTf;
         },
-        1
+        1,
       );
-    }
+    },
   );
 
   _api_registerPlural("columns().data()", "column().data()", function () {
@@ -8528,7 +8528,7 @@
       function (settings, column) {
         return settings.aoColumns[column].mData;
       },
-      1
+      1,
     );
   });
 
@@ -8540,10 +8540,10 @@
           settings.aoData,
           rows,
           type === "search" ? "_aFilterData" : "_aSortData",
-          column
+          column,
         );
       },
-      1
+      1,
     );
   });
 
@@ -8553,7 +8553,7 @@
       function (settings, column, i, j, rows) {
         return _pluck_order(settings.aoData, rows, "anCells", column);
       },
-      1
+      1,
     );
   });
 
@@ -8603,7 +8603,7 @@
       }
 
       return ret;
-    }
+    },
   );
 
   _api_registerPlural(
@@ -8617,9 +8617,9 @@
             ? _fnColumnIndexToVisible(settings, column)
             : column;
         },
-        1
+        1,
       );
-    }
+    },
   );
 
   _api_register("columns.adjust()", function () {
@@ -8628,7 +8628,7 @@
       function (settings) {
         _fnAdjustColumnSizing(settings);
       },
-      1
+      1,
     );
   });
 
@@ -8681,7 +8681,7 @@
                 s(
                   o,
                   _fnGetCellData(settings, row, j),
-                  host.anCells ? host.anCells[j] : null
+                  host.anCells ? host.anCells[j] : null,
                 )
               ) {
                 a.push(o);
@@ -8795,7 +8795,7 @@
 
         return a;
       },
-      1
+      1,
     );
 
     // There is currently only one extension which uses a cell selector extension
@@ -8821,7 +8821,7 @@
 
         return data && data.anCells ? data.anCells[column] : undefined;
       },
-      1
+      1,
     );
   });
 
@@ -8831,7 +8831,7 @@
       function (settings, row, column) {
         return _fnGetCellData(settings, row, column);
       },
-      1
+      1,
     );
   });
 
@@ -8843,7 +8843,7 @@
       function (settings, row, column) {
         return settings.aoData[row][type][column];
       },
-      1
+      1,
     );
   });
 
@@ -8853,7 +8853,7 @@
       function (settings, row, column) {
         return _fnGetCellData(settings, row, column, type);
       },
-      1
+      1,
     );
   });
 
@@ -8867,7 +8867,7 @@
           columnVisible: _fnColumnIndexToVisible(settings, column),
         };
       },
-      1
+      1,
     );
   });
 
@@ -8878,7 +8878,7 @@
       return this.iterator("cell", function (settings, row, column) {
         _fnInvalidate(settings, row, src, column);
       });
-    }
+    },
   );
 
   _api_register("cell()", function (rowSelector, columnSelector, opts) {
@@ -9019,7 +9019,7 @@
           bSmart: smart === null ? true : smart,
           bCaseInsensitive: caseInsen === null ? true : caseInsen,
         }),
-        1
+        1,
       );
     });
   });
@@ -9050,7 +9050,7 @@
 
         _fnFilterComplete(settings, settings.oPreviousSearch, 1);
       });
-    }
+    },
   );
 
   /*
@@ -9207,8 +9207,8 @@
     return $(
       [].concat(
         jqRows.filter(selector).toArray(),
-        jqRows.find(selector).toArray()
-      )
+        jqRows.find(selector).toArray(),
+      ),
     );
   });
 
@@ -9308,7 +9308,7 @@
           " " +
           classes.sSortableDesc +
           " " +
-          classes.sSortableNone
+          classes.sSortableNone,
       );
 
       // Add the TR elements back into the table in their original order
@@ -9374,12 +9374,12 @@
           api[type](
             arg1,
             type === "cell" ? arg2 : opts,
-            type === "cell" ? opts : undefined
+            type === "cell" ? opts : undefined,
           ),
           arg1,
           arg2,
           arg3,
-          arg4
+          arg4,
         );
       });
     });
@@ -10892,8 +10892,8 @@
             ? sessionStorage
             : localStorage
           ).getItem(
-            "DataTables_" + settings.sInstance + "_" + location.pathname
-          )
+            "DataTables_" + settings.sInstance + "_" + location.pathname,
+          ),
         );
       } catch (e) {
         return {};
@@ -10996,7 +10996,7 @@
           : localStorage
         ).setItem(
           "DataTables_" + settings.sInstance + "_" + location.pathname,
-          JSON.stringify(data)
+          JSON.stringify(data),
         );
       } catch (e) {}
     },
@@ -14352,7 +14352,7 @@
 
             if (Array.isArray(button)) {
               var inner = $("<" + (button.DT_el || "div") + "/>").appendTo(
-                container
+                container,
               );
               attach(inner, button);
             } else {
@@ -14514,16 +14514,16 @@
       return _empty(data)
         ? data
         : typeof data === "string"
-        ? data.replace(_re_new_lines, " ").replace(_re_html, "")
-        : "";
+          ? data.replace(_re_new_lines, " ").replace(_re_html, "")
+          : "";
     },
 
     string: function (data) {
       return _empty(data)
         ? data
         : typeof data === "string"
-        ? data.replace(_re_new_lines, " ")
-        : data;
+          ? data.replace(_re_new_lines, " ")
+          : data;
     },
   });
 
@@ -14579,7 +14579,7 @@
             d,
             decimalPlace,
             _re_html,
-            _re_formatted_numeric
+            _re_formatted_numeric,
           );
         },
       },
@@ -14591,7 +14591,7 @@
         if (key.match(/^html\-/)) {
           _ext.type.search[key + decimalPlace] = _ext.type.search.html;
         }
-      }
+      },
     );
   }
 
@@ -14608,8 +14608,8 @@
       return _empty(a)
         ? ""
         : a.replace
-        ? a.replace(/<.*?>/g, "").toLowerCase()
-        : a + "";
+          ? a.replace(/<.*?>/g, "").toLowerCase()
+          : a + "";
     },
 
     // string
@@ -14619,10 +14619,10 @@
       return _empty(a)
         ? ""
         : typeof a === "string"
-        ? a.toLowerCase()
-        : !a.toString
-        ? ""
-        : a.toString();
+          ? a.toLowerCase()
+          : !a.toString
+            ? ""
+            : a.toString();
     },
 
     // string-asc and -desc are retained only for compatibility with the old
@@ -14663,10 +14663,10 @@
                 columns[colIdx] == "asc"
                   ? classes.sSortAsc
                   : columns[colIdx] == "desc"
-                  ? classes.sSortDesc
-                  : column.sSortingClass
+                    ? classes.sSortDesc
+                    : column.sSortingClass,
               );
-          }
+          },
         );
       },
 
@@ -14676,8 +14676,8 @@
           .append(cell.contents())
           .append(
             $("<span/>").addClass(
-              classes.sSortIcon + " " + column.sSortingClassJUI
-            )
+              classes.sSortIcon + " " + column.sSortingClassJUI,
+            ),
           )
           .appendTo(cell);
 
@@ -14697,8 +14697,8 @@
                 columns[colIdx] == "asc"
                   ? classes.sSortAsc
                   : columns[colIdx] == "desc"
-                  ? classes.sSortDesc
-                  : column.sSortingClass
+                    ? classes.sSortDesc
+                    : column.sSortingClass,
               );
 
             cell
@@ -14712,16 +14712,16 @@
                   " " +
                   classes.sSortJUIAscAllowed +
                   " " +
-                  classes.sSortJUIDescAllowed
+                  classes.sSortJUIDescAllowed,
               )
               .addClass(
                 columns[colIdx] == "asc"
                   ? classes.sSortJUIAsc
                   : columns[colIdx] == "desc"
-                  ? classes.sSortJUIDesc
-                  : column.sSortingClassJUI
+                    ? classes.sSortJUIDesc
+                    : column.sSortingClassJUI,
               );
-          }
+          },
         );
       },
     },
@@ -14785,7 +14785,7 @@
     } else {
       if (!__mlWarning) {
         alert(
-          "DataTables warning: Formatted date without Moment.js or Luxon - https://datatables.net/tn/17"
+          "DataTables warning: Formatted date without Moment.js or Luxon - https://datatables.net/tn/17",
         );
       }
 
@@ -14857,8 +14857,8 @@
                 local.getDate(),
                 local.getHours(),
                 local.getMinutes(),
-                local.getSeconds()
-              )
+                local.getSeconds(),
+              ),
             );
           } else {
             d = "";
@@ -15056,7 +15056,7 @@
   function _fnExternApiFunc(fn) {
     return function () {
       var args = [_fnSettingsFromNode(this[DataTable.ext.iApiIndex])].concat(
-        Array.prototype.slice.call(arguments)
+        Array.prototype.slice.call(arguments),
       );
       return DataTable.ext.internal[fn].apply(this, args);
     };

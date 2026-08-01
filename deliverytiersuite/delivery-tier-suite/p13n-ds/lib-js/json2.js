@@ -311,8 +311,8 @@ if (!this.JSON) {
             partial.length === 0
               ? "[]"
               : gap
-              ? "[\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "]"
-              : "[" + partial.join(",") + "]";
+                ? "[\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "]"
+                : "[" + partial.join(",") + "]";
           gap = mind;
           return v;
         }
@@ -350,8 +350,8 @@ if (!this.JSON) {
           partial.length === 0
             ? "{}"
             : gap
-            ? "{\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "}"
-            : "{" + partial.join(",") + "}";
+              ? "{\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "}"
+              : "{" + partial.join(",") + "}";
         gap = mind;
         return v;
     }
@@ -464,9 +464,9 @@ if (!this.JSON) {
             .replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@")
             .replace(
               /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g,
-              "]"
+              "]",
             )
-            .replace(/(?:^|:|,)(?:\s*\[)+/g, "")
+            .replace(/(?:^|:|,)(?:\s*\[)+/g, ""),
         )
       ) {
         // In the third stage we use the eval function to compile the text into a

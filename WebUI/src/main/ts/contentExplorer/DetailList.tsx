@@ -34,6 +34,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { paginatedFolder } from "../api/contentExplorer/pathApi";
 import type { PSPathItem, PSPagedResult } from "../api/contentExplorer/types";
+import { MKD_LANG_IGNORE_ATTR } from "../i18n/mkdLangIgnore";
 
 /**
  * Public display-format column contract. Maps to the live
@@ -329,7 +330,7 @@ export function DetailList({
             ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody {...{ [MKD_LANG_IGNORE_ATTR]: "1" as const }}>
           {children.map((item) => {
             const selected = selectedItemId === item.id;
             const visible = canRead(item);

@@ -238,7 +238,7 @@
           if (previous != null && previous !== data) different = true;
           previous = data;
           aData.push(data);
-        }
+        },
       );
       if (!different) {
         for (let i = 0; i < aData.length; i++) {
@@ -256,7 +256,7 @@
           var data = $(this).text();
           data = data.substring(0, data.indexOf("/"));
           aData.push(data);
-        }
+        },
       );
       return aData;
     };
@@ -273,13 +273,13 @@
           dateTimeArray[0] = $(this).find(".top-line").text();
           dateTimeArray[1] = ("" + $(this).find(".bottom-line").text()).replace(
             /^(.*?)\s*\(.+$/,
-            "$1"
+            "$1",
           ); // Get rid of username.
           var dateString = dateTimeArray.join(" ");
           var date = new Date(dateString);
           aData.push(new Date(date.setSeconds(seconds)));
           seconds++;
-        }
+        },
       );
       return aData;
     };

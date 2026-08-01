@@ -81,7 +81,7 @@ test.describe("Login locale (GH-1608 / GH-1609)", () => {
     expect(
       target,
       // Base hi is hidden when hi-in is active (PSLocaleLoginSelection).
-      "install must expose hi-in in the login locale dropdown"
+      "install must expose hi-in in the login locale dropdown",
     ).toBeTruthy();
     expect(target).toBe("hi-in");
 
@@ -95,27 +95,27 @@ test.describe("Login locale (GH-1608 / GH-1609)", () => {
     await expect(page.getByTestId("perc-login-page")).not.toHaveAttribute(
       "data-tmx-ready",
       readyBefore ?? "0",
-      { timeout: 20_000 }
+      { timeout: 20_000 },
     );
 
     await expect(page.getByTestId("perc-login-title")).toHaveText(
       HI_CHROME.title,
-      { timeout: 10_000 }
+      { timeout: 10_000 },
     );
     await expect(page.locator('label[for="perc-login-username"]')).toHaveText(
-      HI_CHROME.username
+      HI_CHROME.username,
     );
     await expect(page.locator('label[for="perc-login-password"]')).toHaveText(
-      HI_CHROME.pwdLabel
+      HI_CHROME.pwdLabel,
     );
     await expect(page.locator('label[for="perc-login-locale"]')).toHaveText(
-      HI_CHROME.locale
+      HI_CHROME.locale,
     );
     await expect(page.locator('label[for="perc-login-select-ui"]')).toHaveText(
-      HI_CHROME.legacy
+      HI_CHROME.legacy,
     );
     await expect(page.getByTestId("perc-login-submit")).toHaveText(
-      HI_CHROME.submit
+      HI_CHROME.submit,
     );
     await expect(page).toHaveTitle(new RegExp(HI_CHROME.title));
     await expect(page.locator("html")).toHaveAttribute("lang", target);
@@ -136,18 +136,20 @@ test.describe("Login locale (GH-1608 / GH-1609)", () => {
     expect(joinedBefore).toMatch(/de-de\s*-\s*Deutsch/);
     expect(joinedBefore).toMatch(/^es\s*-\s*español/m);
     expect(joinedBefore).toMatch(/^te\s*-\s*తెలుగు/m);
+    // Hebrew regional (login hides base he when he-il is active)
+    expect(joinedBefore).toMatch(/he-il\s*-\s*עברית/);
 
     await select.selectOption(target);
     await expect(page.getByTestId("perc-login-page")).not.toHaveAttribute(
       "data-tmx-ready",
       "0",
-      { timeout: 20_000 }
+      { timeout: 20_000 },
     );
 
     const labelsAfter = await select.locator("option").allTextContents();
     expect(
       labelsAfter,
-      "dropdown labels must not re-translate into the selected UI language"
+      "dropdown labels must not re-translate into the selected UI language",
     ).toEqual(labelsBefore);
 
     // Explicit non-regression: Spanish must not become a Hindi exonym.
@@ -168,8 +170,8 @@ test.describe("Login locale (GH-1608 / GH-1609)", () => {
     const target = optionValues.includes("es")
       ? "es"
       : optionValues.includes("fr-fr")
-      ? "fr-fr"
-      : optionValues[0];
+        ? "fr-fr"
+        : optionValues[0];
     expect(target).toBeTruthy();
 
     await select.selectOption(target);
@@ -179,7 +181,7 @@ test.describe("Login locale (GH-1608 / GH-1609)", () => {
     const src = await script.getAttribute("src");
     expect(src).toContain("sys_lang=");
     expect(src).toMatch(
-      new RegExp(`sys_lang=${target}|sys_lang=${encodeURIComponent(target)}`)
+      new RegExp(`sys_lang=${target}|sys_lang=${encodeURIComponent(target)}`),
     );
     expect(src).toContain("prefix=perc.ui.");
     expect(src).toContain("mode=js");

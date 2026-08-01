@@ -74,7 +74,7 @@
     levelOfs,
     lineOfs,
     labelOfs,
-    measureUnit
+    measureUnit,
   ) {
     var i,
       prefix = "#" + containerId + " span.fancytree-level-",
@@ -87,7 +87,7 @@
           " span.fancytree-title { padding-left: " +
           (i * levelOfs + lineOfs) +
           measureUnit +
-          "; }"
+          "; }",
       );
     }
     // Some UI animations wrap the UL inside a DIV and set position:relative on both.
@@ -102,7 +102,7 @@
         "{ padding-left: " +
         labelOfs +
         measureUnit +
-        "; position: static; width: auto; }"
+        "; position: static; width: auto; }",
     );
     return rules.join("\n");
   }
@@ -161,7 +161,7 @@
         instOpts = ctx.options.wide,
         // css sniffing
         $dummyLI = $(
-          "<li id='fancytreeTemp'><span class='fancytree-node'><span class='fancytree-icon' /><span class='fancytree-title' /></span><ul />"
+          "<li id='fancytreeTemp'><span class='fancytree-node'><span class='fancytree-icon' /><span class='fancytree-title' /></span><ul />",
         ).appendTo(ctx.tree.$container),
         $dummyIcon = $dummyLI.find(".fancytree-icon"),
         $dummyUL = $dummyLI.find("ul"),
@@ -186,7 +186,7 @@
         labelSpacingUnit !== iconWidthUnit
       ) {
         $.error(
-          "iconWidth, iconSpacing, and levelOfs must have the same css measure unit"
+          "iconWidth, iconSpacing, and levelOfs must have the same css measure unit",
         );
       }
       this._local.measureUnit = iconWidthUnit;
@@ -209,7 +209,7 @@
         this._local.levelOfs,
         this._local.lineOfs,
         this._local.labelOfs,
-        this._local.measureUnit
+        this._local.measureUnit,
       );
       defineHeadStyleElement(containerId, cssText);
     },
@@ -231,7 +231,7 @@
         containerId = this.$container.attr("id");
         this._local.maxDepth *= 2;
         node.debug(
-          "Define global ext-wide css up to level " + this._local.maxDepth
+          "Define global ext-wide css up to level " + this._local.maxDepth,
         );
         cssText = renderLevelCss(
           containerId,
@@ -239,7 +239,7 @@
           this._local.levelOfs,
           this._local.lineOfs,
           this._local.labelSpacing,
-          this._local.measureUnit
+          this._local.measureUnit,
         );
         defineHeadStyleElement(containerId, cssText);
       }

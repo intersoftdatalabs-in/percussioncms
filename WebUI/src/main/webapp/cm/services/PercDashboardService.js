@@ -46,16 +46,16 @@
           if (typeof callback == "function")
             callback(
               $.PercServiceUtils.STATUS_SUCCESS,
-              filterGadgets(result.data)
+              filterGadgets(result.data),
             );
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           if (typeof callback == "function")
             callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 

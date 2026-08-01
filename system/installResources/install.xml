@@ -225,8 +225,9 @@
 		location="${install.dir}/WebServices" />
 	<property name="install.Samples"
 		location="${install.dir}/Samples" />
+	<!-- Canonical lowercase path only (Linux case-sensitive). -->
 	<property name="install.I18n"
-		location="${install.rxconfig}/I18n" />
+		location="${install.rxconfig}/i18n" />
 	<property name="install.XSplit"
 		location="${install.rxconfig}/XSpLit" />
 	<property name="install.rxlt" location="${install.dir}/rxlt" />
@@ -1225,10 +1226,11 @@
 			<then>
 				<if>
 					<not>
-						<available
-							file="${install.I18n}/I18n/ResourceBundle.tmx" />
+						<available file="${install.I18n}/ResourceBundle.tmx" />
 					</not>
 					<then>
+						<!-- configdir seed may still live under system/config/I18n; dest is
+							lowercase i18n -->
 						<PSCopy tofile="${install.I18n}/ResourceBundle.tmx"
 							file="${configdir}/I18n/ResourceBundle.tmx" />
 					</then>

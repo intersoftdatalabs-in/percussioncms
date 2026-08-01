@@ -24,13 +24,13 @@
     equalTo: "Si us plau, escriu el mateix valor de nou.",
     extension: "Si us plau, escriu un valor amb una extensió acceptada.",
     maxlength: $.validator.format(
-      "Si us plau, no escriguis més de {0} caracters."
+      "Si us plau, no escriguis més de {0} caracters.",
     ),
     minlength: $.validator.format(
-      "Si us plau, no escriguis menys de {0} caracters."
+      "Si us plau, no escriguis menys de {0} caracters.",
     ),
     rangelength: $.validator.format(
-      "Si us plau, escriu un valor entre {0} i {1} caracters."
+      "Si us plau, escriu un valor entre {0} i {1} caracters.",
     ),
     range: $.validator.format("Si us plau, escriu un valor entre {0} i {1}."),
     max: $.validator.format("Si us plau, escriu un valor menor o igual a {0}."),

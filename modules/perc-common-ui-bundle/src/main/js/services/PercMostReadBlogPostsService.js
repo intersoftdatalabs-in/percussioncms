@@ -24,7 +24,7 @@
   function trackBlogPost(pagePath, deliveryUrl, callback) {
     var serviceUrl = $.PercServiceUtils.joinURL(
       deliveryUrl,
-      "/perc-metadata-services/metadata/trackblogpost"
+      "/perc-metadata-services/metadata/trackblogpost",
     );
     $.PercServiceUtils.makeXdmJsonRequest(
       null,
@@ -33,7 +33,7 @@
       function (status, results) {
         // Ignoring the callback;
       },
-      { pagePath: pagePath }
+      { pagePath: pagePath },
     );
   }
 
@@ -45,7 +45,7 @@
     var promotedPagePaths = queryString.promotedPagePaths || "";
     var serviceUrl = $.PercServiceUtils.joinURL(
       deliveryUrl,
-      "/perc-metadata-services/metadata/topblogposts"
+      "/perc-metadata-services/metadata/topblogposts",
     );
     var sortOrder = queryString.sortOrderByHits || "desc";
     $.PercServiceUtils.makeXdmJsonRequest(
@@ -57,7 +57,7 @@
           callback(true, results.data);
         } else {
           var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            results.request
+            results.request,
           );
           callback(false, defMsg);
         }
@@ -68,7 +68,7 @@
         timePeriod: timePeriod,
         sortOrder: sortOrder,
         promotedPagePaths: promotedPagePaths,
-      }
+      },
     );
     /** Sample data
 		var results = getSampleResults(queryData);

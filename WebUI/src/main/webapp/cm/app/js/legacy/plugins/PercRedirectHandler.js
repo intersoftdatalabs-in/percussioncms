@@ -23,18 +23,18 @@
     var deferred = $.Deferred();
     if (fromPath === toPath) {
       deferred.resolve(
-        I18N.message("perc.ui.redirect.handler@To and From Same")
+        I18N.message("perc.ui.redirect.handler@To and From Same"),
       );
     } else if (!gIsSaaSEnvironment) {
       deferred.resolve(
-        I18N.message("perc.ui.redirect.handler@SaaS Environment")
+        I18N.message("perc.ui.redirect.handler@SaaS Environment"),
       );
     } else if (
       type === $.Perc_SectionServiceClient.PERC_SECTION_TYPE.SECTION_LINK ||
       type === $.Perc_SectionServiceClient.PERC_SECTION_TYPE.EXTERNAL_LINK
     ) {
       deferred.resolve(
-        I18N.message("perc.ui.redirect.handler@Skipping redirect creation")
+        I18N.message("perc.ui.redirect.handler@Skipping redirect creation"),
       );
     } else {
       // Check for and strip first of double slash if necessary
@@ -73,7 +73,7 @@
           deferred.resolve(result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           deferred.reject(defaultMsg);
         }
@@ -82,9 +82,9 @@
       function (status) {
         // On abort(timeout) callback
         deferred.reject(
-          I18N.message("perc.ui.redirect.handler@Redirect Service Timed Out")
+          I18N.message("perc.ui.redirect.handler@Redirect Service Timed Out"),
         );
-      }
+      },
     );
     return deferred.promise();
   }
@@ -109,7 +109,7 @@
       ) {
         fromPath = makeSectionLink(
           fromPathArray,
-          siteProperties.defaultDocument
+          siteProperties.defaultDocument,
         );
       }
 
@@ -125,7 +125,7 @@
       }
       if (resData.response.status === "NotApplicable") {
         deferred.resolve(
-          I18N.message("perc.ui.redirect.handler@Redirects Not Applicable")
+          I18N.message("perc.ui.redirect.handler@Redirects Not Applicable"),
         );
       } else if (resData.response.status === "Published") {
         showRedirectDialog(fromPath, toPath, resData)
@@ -137,7 +137,7 @@
           });
       } else {
         deferred.resolve(
-          I18N.message("perc.ui.redirect.handler@Redirect Not Required")
+          I18N.message("perc.ui.redirect.handler@Redirect Not Required"),
         );
       }
     });
@@ -175,12 +175,12 @@
     })
       .done(function (data, status, request) {
         deferred.resolve(
-          I18N.message("perc.ui.redirect.handler@Created Redirect")
+          I18N.message("perc.ui.redirect.handler@Created Redirect"),
         );
       })
       .fail(function (request, status, errorMsg) {
         var errMsg = I18N.message(
-          "perc.ui.redirect.handler@Rule Cannot Be Created"
+          "perc.ui.redirect.handler@Rule Cannot Be Created",
         );
         if (request && request.responseText)
           errMsg = JSON.parse(request.responseText).message;
@@ -213,8 +213,8 @@
     } else {
       console.log(
         I18N.message(
-          "perc.ui.redirect.handler@Could not retrieve site properties"
-        )
+          "perc.ui.redirect.handler@Could not retrieve site properties",
+        ),
       );
     }
   }
@@ -253,7 +253,7 @@
             $.unblockUI();
             dialog.remove();
             deferred.resolve(
-              I18N.message("perc.ui.redirect.handler@Created Redirect")
+              I18N.message("perc.ui.redirect.handler@Created Redirect"),
             );
           });
       },
@@ -265,15 +265,15 @@
         dialog.remove();
         deferred.resolve(
           I18N.message(
-            "perc.ui.redirect.handler@User doesn't want to create redirect"
-          )
+            "perc.ui.redirect.handler@User doesn't want to create redirect",
+          ),
         );
       },
       id: "perc-redirect-no",
     };
 
     dialog = $(createDialogHtml(fromPath, toPath)).perc_dialog(
-      percDialogObject
+      percDialogObject,
     );
     addBrowseHandler(dialog);
     return deferred.promise();
@@ -283,31 +283,31 @@
     dialogHtml.append(
       $("<div/>").append(
         $("<label/>").text(
-          I18N.message("perc.ui.redirect.handler@Page Not Found")
+          I18N.message("perc.ui.redirect.handler@Page Not Found"),
         ),
         $("<br/>"),
-        $("<br/>")
-      )
+        $("<br/>"),
+      ),
     );
     dialogHtml.append(
-      $("<div/>").append($("<label/>").text("From path:"), $("<br/>"))
+      $("<div/>").append($("<label/>").text("From path:"), $("<br/>")),
     );
     dialogHtml.append(
       // codeql[js/xss-through-dom] reason: `.text(getRelativePath(...))`
       // sets a text node and is HTML-safe; the path value is never
       // concatenated into an HTML string and re-parsed.
-      $("<div/>").addClass("readonlyinput").text(getRelativePath(fromPath))
+      $("<div/>").addClass("readonlyinput").text(getRelativePath(fromPath)),
     );
     dialogHtml.append($("<br/>"));
     dialogHtml.append(
-      $("<div/>").append($("<label/>").text("To path:"), $("<br/>"))
+      $("<div/>").append($("<label/>").text("To path:"), $("<br/>")),
     );
     if (toPath) {
       dialogHtml.append(
         // codeql[js/xss-through-dom] reason: `.text(getRelativePath(...))`
         // sets a text node and is HTML-safe; the path value is never
         // concatenated into an HTML string and re-parsed.
-        $("<div/>").addClass("readonlyinput").text(getRelativePath(toPath))
+        $("<div/>").addClass("readonlyinput").text(getRelativePath(toPath)),
       );
     } else {
       dialogHtml.append(
@@ -321,15 +321,15 @@
           $("<img/>")
             .attr("id", "perc-redirect-to-path-button")
             .attr("src", "../images/images/buttonEllipse.png")
-            .addClass("perc-button-ellipse")
-        )
+            .addClass("perc-button-ellipse"),
+        ),
       );
       dialogHtml.append(
         $("<div/>")
           .attr("for", "perc-redirect-to-path")
           .addClass("perc_field_error")
           .css("display", "none")
-          .text(I18N.message("perc.ui.redirect.handler@To path is required"))
+          .text(I18N.message("perc.ui.redirect.handler@To path is required")),
       );
     }
     return dialogHtml;
@@ -355,15 +355,15 @@
         var errMsg = null;
         if (!pathItem)
           errMsg = I18N.message(
-            "perc.ui.redirect.handler@Select Folder or Page"
+            "perc.ui.redirect.handler@Select Folder or Page",
           );
         else if (pathItem.path === "/Sites/")
           errMsg = I18N.message(
-            "perc.ui.redirect.handler@Current Selection Sites Root"
+            "perc.ui.redirect.handler@Current Selection Sites Root",
           );
         else if (pathItem.type === "site")
           errMsg = I18N.message(
-            "perc.ui.redirect.handler@Current Selection Site"
+            "perc.ui.redirect.handler@Current Selection Site",
           );
         return errMsg;
       };

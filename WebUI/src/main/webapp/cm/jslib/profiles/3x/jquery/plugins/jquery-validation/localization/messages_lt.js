@@ -24,14 +24,14 @@
     equalTo: "Prašau įvestį tą pačią reikšmę dar kartą.",
     extension: "Prašau įvesti reikšmę su teisingu plėtiniu.",
     maxlength: $.validator.format(
-      "Prašau įvesti ne daugiau kaip {0} simbolių."
+      "Prašau įvesti ne daugiau kaip {0} simbolių.",
     ),
     minlength: $.validator.format("Prašau įvesti bent {0} simbolius."),
     rangelength: $.validator.format(
-      "Prašau įvesti reikšmes, kurių ilgis nuo {0} iki {1} simbolių."
+      "Prašau įvesti reikšmes, kurių ilgis nuo {0} iki {1} simbolių.",
     ),
     range: $.validator.format(
-      "Prašau įvesti reikšmę intervale nuo {0} iki {1}."
+      "Prašau įvesti reikšmę intervale nuo {0} iki {1}.",
     ),
     max: $.validator.format("Prašau įvesti reikšmę mažesnę arba lygią {0}."),
     min: $.validator.format("Prašau įvesti reikšmę didesnę arba lygią {0}."),

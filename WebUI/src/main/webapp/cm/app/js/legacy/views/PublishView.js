@@ -65,18 +65,18 @@
           getServersList(function (servers) {
             var serversListContainer = $("#perc-servers");
             $("#perc-servers").append(
-              $("<option></option>").val(" ").html("All")
+              $("<option></option>").val(" ").html("All"),
             );
             $.each(servers, function () {
               //TODO - Do appending outside the loop
               $("#perc-servers").append(
-                $("<option></option>").val(this.serverId).html(this.serverName)
+                $("<option></option>").val(this.serverId).html(this.serverName),
               );
             });
 
             //Refresh the Publishing log section(if its open) after Publish
             var pubLogContainer = $("#perc-publish-jobs-widget").find(
-              ".perc-foldable"
+              ".perc-foldable",
             );
             if (pubLogContainer.hasClass("perc-opened")) {
               pubLogContainer.trigger("click").trigger("click");
@@ -207,14 +207,14 @@
     dialogHtml.append(
       "<div><label>" +
         I18N.message("perc.ui.publish.view@Select Publishing server") +
-        "</label></div>"
+        "</label></div>",
     );
     dialogHtml.append(
       "<div><button id='perc-staging-server-button' name='perc-staging-server-button' class='btn btn-primary perc-text-button' type='button'>" +
         I18N.message("perc.ui.publish.view@Staging") +
         "</button><button id='perc-production-server-button'  name='perc-production-server-button' class='btn btn-primary perc-text-button perc-text-button-selected' type='button'>" +
         I18N.message("perc.ui.publish.view@Production") +
-        "</button></div>"
+        "</button></div>",
     );
     return dialogHtml;
   }
@@ -256,7 +256,7 @@
               });
               return;
             }
-          }
+          },
         );
       },
     };
@@ -278,7 +278,7 @@
         editorRenderer().renderEditor(
           serverName,
           result[0],
-          result[0].serverInfo.serverType
+          result[0].serverInfo.serverType,
         );
       } else {
       }
@@ -338,7 +338,7 @@
             //Add publish buttons
             _addPublishButtons(serverProperties);
             var publishButton = $("#perc-servers-container").find(
-              "#perc-publish-now"
+              "#perc-publish-now",
             );
             if (serverProperties.serverInfo.isModified) {
               publishButton.addClass("perc-disabled");
@@ -349,7 +349,7 @@
               $(".perc-warning-message").hide();
               $("#perc-default-server").removeClass("perc-disabled");
             }
-          }
+          },
         );
       } else {
         $.perc_utils.alert_dialog({
@@ -376,14 +376,14 @@
         $("#perc-publish-button").append(
           "<button id='perc-full-publish-now' class='btn btn-primary' style=''>" +
             I18N.message("perc.ui.publish.view@Full Publish") +
-            "</button>"
+            "</button>",
         );
       } else {
         _addSplitPublishButton(serverProperties);
       }
     } else {
       $("#perc-publish-button").append(
-        "<div id='perc-publish-now' class='perc-publish' style=''></div>"
+        "<div id='perc-publish-now' class='perc-publish' style=''></div>",
       );
     }
   }
@@ -397,7 +397,7 @@
     var lastFullPublish = "-----";
     if (serverInfo.lastFullPublishDate) {
       var dateParts = $.perc_utils.splitDateTime(
-        serverInfo.lastFullPublishDate
+        serverInfo.lastFullPublishDate,
       );
       lastFullPublish = dateParts.date + ", " + dateParts.time;
     }
@@ -414,7 +414,7 @@
       var lastIncPublish = "-----";
       if (serverInfo.lastIncrementalPublishDate) {
         var dateParts = $.perc_utils.splitDateTime(
-          serverInfo.lastIncrementalPublishDate
+          serverInfo.lastIncrementalPublishDate,
         );
         lastIncPublish = dateParts.date + ", " + dateParts.time;
       }
@@ -443,7 +443,7 @@
     var dropdownButtonImage = "/cm/images/images/splitButtonArrow.gif";
     var dropdownButtonImageOver = "/cm/images/images/splitButtonArrowOn.gif";
     var publishDropdown = $("#perc-publish-button").addClass(
-      "perc-publish-split-button"
+      "perc-publish-split-button",
     );
     publishDropdown
       .append(
@@ -451,10 +451,10 @@
           .attr("href", "#")
           .html("&nbsp;")
           .css("display", "inline-block")
-          .addClass("perc-publish-split-button-incremental")
+          .addClass("perc-publish-split-button-incremental"),
       )
       .append(
-        $("<div />").addClass("perc-publish").css("display", "inline-block")
+        $("<div />").addClass("perc-publish").css("display", "inline-block"),
       );
     publishDropdown.children("div").eq(0).PercDropdown({
       percDropdownRootClass: "perc-publish",
@@ -476,7 +476,7 @@
     var infoIcon = $(
       '<a style="display:inline-block;float:right;" title="' +
         tootltiptext +
-        '"><span id="perc-publish-button-help" style="margin-top: 3px;background-color: #e6e6e9;color:#a1a1a1;" class="perc-font-icon icon-info-sign"></span></a>'
+        '"><span id="perc-publish-button-help" style="margin-top: 3px;background-color: #e6e6e9;color:#a1a1a1;" class="perc-font-icon icon-info-sign"></span></a>',
     );
     infoIcon.tooltip({
       delay: 500,
@@ -554,13 +554,13 @@
             status === $.PercPublisherService().PUBLISHER_JOB_STATUS_FORBIDDEN
           ) {
             msg = I18N.message(
-              "perc.ui.publish.errordialog.message@Publish Not Allowed"
+              "perc.ui.publish.errordialog.message@Publish Not Allowed",
             );
           } else if (
             status === $.PercPublisherService().PUBLISHER_JOB_STATUS_BADCONFIG
           ) {
             msg = I18N.message(
-              "perc.ui.publish.errordialog.message@Bad configuration"
+              "perc.ui.publish.errordialog.message@Bad configuration",
             );
           } else {
             msg =
@@ -583,7 +583,7 @@
             id: "perc-publish-failure",
           });
         }
-      }
+      },
     );
   }
 
@@ -597,7 +597,7 @@
         if (action == $.PercIncrementalPreviewDialog.CONTINUE) {
           incrementalPublish();
         }
-      }
+      },
     );
   }
 
@@ -617,7 +617,7 @@
             $.PercPublisherService().PUBLISHER_JOB_STATUS_FORBIDDEN
           ) {
             msg = I18N.message(
-              "perc.ui.publish.errordialog.message@Publish Not Allowed"
+              "perc.ui.publish.errordialog.message@Publish Not Allowed",
             );
             $.perc_utils.alert_dialog({
               content: msg,
@@ -629,7 +629,7 @@
             $.PercPublisherService().PUBLISHER_JOB_STATUS_BADCONFIG
           ) {
             msg = I18N.message(
-              "perc.ui.publish.errordialog.message@Bad configuration"
+              "perc.ui.publish.errordialog.message@Bad configuration",
             );
             $.perc_utils.alert_dialog({
               content: msg,
@@ -646,7 +646,7 @@
             id: "perc-publish-failure",
           });
         }
-      }
+      },
     );
   }
 
@@ -728,13 +728,13 @@
 
       if (stagingServer) {
         var stagingServerItem = container.find(
-          ".perc-itemname[title='" + stagingServer + "']"
+          ".perc-itemname[title='" + stagingServer + "']",
         );
         stagingServerItem.addClass("perc-staging-server-marker");
       }
       if (typeof defaultServer != "undefined") {
         var defaultServerItem = container.find(
-          ".perc-itemname[title='" + defaultServer.name + "']"
+          ".perc-itemname[title='" + defaultServer.name + "']",
         );
         defaultServerItem.addClass("perc-default-server-marker");
         if (defaultServer.isModified) {
@@ -760,12 +760,12 @@
         } else {
           $.perc_utils.alert_dialog({
             content: I18N.message(
-              "perc.ui.publish.view@Unable Retrieve Site Properties"
+              "perc.ui.publish.view@Unable Retrieve Site Properties",
             ),
             title: I18N.message("perc.ui.publish.view@Site Properties"),
           });
         }
-      }
+      },
     );
   }
 
@@ -789,12 +789,12 @@
           .find("*[name=" + fieldName + "]")
           .parent()
           .append(
-            "<span class = 'perc_field_error'>" + errorMessage + "</span>"
+            "<span class = 'perc_field_error'>" + errorMessage + "</span>",
           );
       });
     } else {
       var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-        errorObj.request
+        errorObj.request,
       );
       if (
         defaultMsg ==
@@ -939,7 +939,7 @@
             validateFields(results);
             dirtyController.setDirty(true);
           }
-        }
+        },
       );
     }
   };

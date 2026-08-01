@@ -71,11 +71,11 @@ import org.w3c.dom.Document;
  * <p>When called as a post-exit, the output is a node in the XML result document The special node
  * name "." (period) will cause the new document fragment to be copied directly underneath the
  * <code>&lt;root&gt;</code> element.
- *
- * <p>
  */
 public class PSXdDomToText extends PSDefaultExtension
     implements IPSRequestPreProcessor, IPSResultDocumentProcessor {
+  /** Creates a new PSXdDomToText. */
+  public PSXdDomToText() {}
 
   /**
    * This method handles the pre-exit request.

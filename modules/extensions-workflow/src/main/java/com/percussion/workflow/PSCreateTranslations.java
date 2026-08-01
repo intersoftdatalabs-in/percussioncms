@@ -290,15 +290,19 @@ public class PSCreateTranslations implements IPSWorkflowAction {
 
   /**
    * Configuration properties for the effect to use. Loads properties from the {@link
-   * #CONFIG_FILE_NAME config file} which must be locaed in the rxconfig/I18n directory.
+   * #CONFIG_FILE_NAME config file} which must be located in the {@code rxconfig/i18n} directory
+   * (lowercase; legacy {@code rxconfig/I18n} is tried when the canonical path is missing).
    */
   private static Properties ms_props = new Properties();
 
   static {
+    File canonical =
+        new File("rxconfig" + File.separator + "i18n" + File.separator + CONFIG_FILE_NAME);
+    File legacy =
+        new File("rxconfig" + File.separator + "I18n" + File.separator + CONFIG_FILE_NAME);
+    File config = canonical.isFile() ? canonical : legacy;
     try {
-      try (FileInputStream fis =
-          new FileInputStream(
-              "rxconfig" + File.separator + "I18n" + File.separator + CONFIG_FILE_NAME)) {
+      try (FileInputStream fis = new FileInputStream(config)) {
         ms_props.load(fis);
       }
     } catch (FileNotFoundException e) {

@@ -102,7 +102,7 @@
    <tx:annotation-driven transaction-manager="txManager"/>
 
    <bean id="txManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-      <property name="entityManagerFactory" ref="sessionFactoryProxy" />
+      <property name="entityManagerFactory" ref="metadataSessionFactory" />
       <property name="nestedTransactionAllowed" value="true" />
    </bean>
 

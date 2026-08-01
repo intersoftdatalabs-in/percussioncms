@@ -24,7 +24,8 @@ const appIndex = resolve(webappRoot, "cm/app/index.jsp");
 const pagesIndex = resolve(webappRoot, "cm/pages/app/index.jsp");
 
 function read(path: string): string {
-  return readFileSync(path, "utf8");
+  // Normalize CRLF/LF so dual-tree equality is portable on Windows checkouts.
+  return readFileSync(path, "utf8").replace(/\r\n/g, "\n");
 }
 
 /** Product host JSPs deleted in PR-8 (SPA owns these surfaces). */

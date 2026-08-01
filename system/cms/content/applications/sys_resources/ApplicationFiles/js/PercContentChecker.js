@@ -6,7 +6,7 @@ var PercTinymceFieldsContentCheckerArray = [];
 $(function ($) {
   if (window.location !== window.parent.location) {
     window.parent.jQuery.PercContentPreSubmitHandlers.addHandler(
-      reservedClassesWarning
+      reservedClassesWarning,
     );
   }
 });

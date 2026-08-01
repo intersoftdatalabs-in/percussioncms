@@ -67,7 +67,7 @@
 
     var menu = $("<div class='perc-simplemenu'>");
     var menuTitle = $(
-      "<div class='perc-simplemenu-title perc-simplemenu-title-deselected'>"
+      "<div class='perc-simplemenu-title perc-simplemenu-title-deselected'>",
     ).append(title);
     menu.append(menuTitle);
     var menuItems = $("<div class='perc-simplemenu-menuitems'>");
@@ -93,8 +93,8 @@
           label && label.jquery
             ? label
             : typeof label === "object" && label && label.nodeType
-            ? label
-            : $("<span>").text(label == null ? "" : String(label))
+              ? label
+              : $("<span>").text(label == null ? "" : String(label)),
         )
         .addClass(menuItemClass)
         .data("callback", callback)

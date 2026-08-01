@@ -173,7 +173,7 @@ test.describe("US6 hard cut — cutover inventory evidence (FR-022)", () => {
     // SC-009 (a11y) and SC-012 (FR-029 parity).
     await page.goto(
       `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=explorer&_=${Date.now()}`,
-      { waitUntil: "networkidle" }
+      { waitUntil: "networkidle" },
     );
     await expectNoSeriousA11yViolations(page, {
       scope:

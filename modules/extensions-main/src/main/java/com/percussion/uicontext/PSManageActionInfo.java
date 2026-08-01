@@ -35,6 +35,9 @@ import org.w3c.dom.Element;
  * com.percussion.uicontext.PSFilterContextMenu}to obtain information about each action.
  */
 public class PSManageActionInfo {
+  /** Creates a new PSManageActionInfo. */
+  public PSManageActionInfo() {}
+
   /** The component processor proxy. Initialized on demand. */
   private PSComponentProcessorProxy m_componentProcessor = null;
 

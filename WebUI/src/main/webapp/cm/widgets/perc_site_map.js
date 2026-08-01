@@ -104,12 +104,12 @@
                 content: msg,
                 okCallBack: function () {
                   $.PercNavigationManager.goToLocation(
-                    $.PercNavigationManager.VIEW_SITE_ARCH
+                    $.PercNavigationManager.VIEW_SITE_ARCH,
                   );
                 },
               });
             }
-          }
+          },
         );
         // Handle window resize by doing a full layout of all levels
         $(window).on("resize", function () {
@@ -274,7 +274,7 @@
       $(".perc-site-map-level").each(function (idx) {
         if (idx < 1) return;
         var $lastDropArea = $(this).find(
-          ".perc-site-map-nodes .perc-site-map-droparea:last"
+          ".perc-site-map-nodes .perc-site-map-droparea:last",
         );
         if ($lastDropArea.length === 0) return;
         var left = $lastDropArea.offset().left;
@@ -350,7 +350,7 @@
             droppedData.parentId,
             droppedData.index,
             targetData.targetId,
-            targetData.index
+            targetData.index,
           );
         },
       });
@@ -402,12 +402,12 @@
         .attr("id", "perc_level_" + (levelCount + 1))
         .attr(
           "data",
-          "{level: '" + (levelCount + 1) + "', parentId: '" + parentId + "'}"
+          "{level: '" + (levelCount + 1) + "', parentId: '" + parentId + "'}",
         );
       $sitemap.append($level);
 
       $level.append(
-        $("<div></div>").addClass("perc-site-map-level-title").text(title)
+        $("<div></div>").addClass("perc-site-map-level-title").text(title),
       );
       if (!isTopLevel) {
         $level.append(
@@ -418,15 +418,15 @@
                 .attr("src", this.getImageSrc(this.LINE_IMAGE))
                 .attr("width", "2")
                 .attr("height", "2")
-                .attr("alt", "")
-            )
+                .attr("alt", ""),
+            ),
         );
         var $imgButton = this.createImageButton(
           this.ADD_BUTTON_IMAGE,
           I18N.message("perc.ui.sitemap.tooltip@Add Section"),
           this.onAddSection,
           { level: levelCount + 1, parentSectionId: parentId, context: this },
-          "level_" + levelCount + 1
+          "level_" + levelCount + 1,
         );
         $imgButton.attr("id", "perc_level_" + (levelCount + 1) + "_add");
         $imgButton.attr("tabindex", "0");
@@ -434,13 +434,13 @@
         var $addSectionButton = $level.append(
           $("<div></div>")
             .addClass("perc-site-map-addpage-button")
-            .append($imgButton)
+            .append($imgButton),
         );
       } else {
         $level.append(
           $("<div></div>")
             .addClass("perc-site-map-sitetitle")
-            .text(this.options.site)
+            .text(this.options.site),
         );
         $level.append($("<div></div>").addClass("perc-site-map-actions"));
         this.checkCopySite();
@@ -564,7 +564,7 @@
             sitename,
             function (status, result) {
               callback(result);
-            }
+            },
           );
         } else {
           callback(false);
@@ -583,7 +583,7 @@
       var sitename = [$(".perc-site-map-sitetitle").text()];
       var confirmMessage = I18N.message(
         "perc.ui.deletesitedialog.warning@Confirm",
-        sitename
+        sitename,
       );
       dialog = $("<div/>")
         .append(confirmMessage)
@@ -628,7 +628,7 @@
               $.perc_utils.alert_dialog({
                 title: I18N.message("perc.ui.publish.title@Error"),
                 content: I18N.message(
-                  "perc.ui.site.map@Cannot Start A Copy Site"
+                  "perc.ui.site.map@Cannot Start A Copy Site",
                 ),
               });
             } else {
@@ -691,15 +691,15 @@
               .attr("src", this.getImageSrc(this.LINE_IMAGE))
               .attr("width", "2")
               .attr("height", "14")
-              .attr("alt", "")
-          )
+              .attr("alt", ""),
+          ),
       );
       $section.append(
         $("<div></div>")
           .addClass("perc-site-map-sectiontitle")
           .text(this.truncateSectionTitle(sectionObj.title + ""))
           .attr("title", sectionObj.title)
-          .attr("alt", sectionObj.title)
+          .attr("alt", sectionObj.title),
       );
       var data = {
         level: levelIdx,
@@ -717,7 +717,7 @@
           name: sectionObj.title,
           sectionType: sectionObj.sectionType,
           folderPath: sectionObj.folderPath,
-        })
+        }),
       );
       $section.append($box);
       this.addNodeButtons($box, sectionObj, levelIdx);
@@ -725,7 +725,7 @@
       if (levelIdx > 1) {
         $box.on("click", function (evt) {
           $(".perc-site-map-box-selected").removeClass(
-            "perc-site-map-box-selected"
+            "perc-site-map-box-selected",
           );
           $(this).addClass("perc-site-map-box-selected");
           self.handleMoveActionItemState();
@@ -754,7 +754,7 @@
         },
         drop: function (event, ui) {
           var isLandingPageAssign = ui.draggable.hasClass(
-            "perc-listing-category-PAGE"
+            "perc-listing-category-PAGE",
           );
           var $target = $(this);
           $target.removeClass("perc-site-map-box-over");
@@ -769,7 +769,7 @@
               droppedData.parentId,
               droppedData.index,
               targetData.id,
-              -1
+              -1,
             );
           }
         },
@@ -796,7 +796,7 @@
     addNodeButtons: function ($parent, sectionObj, levelIdx) {
       var self = this;
       var $nodeButtons = $("<div></div>").addClass(
-        "perc-site-map-node-buttons"
+        "perc-site-map-node-buttons",
       );
 
       $parent.append($nodeButtons);
@@ -810,7 +810,7 @@
         I18N.message("perc.ui.sitemap.tooltip@Configure Section"),
         configAction,
         { sectionId: sectionObj.id, context: this, site: site },
-        "level_" + levelIdx
+        "level_" + levelIdx,
       );
       $configButton.attr("id", sectionObj.id + "_config");
       $configButton.attr("tabindex", "0");
@@ -821,11 +821,11 @@
         var $deleteButton = this.createImageButton(
           this.DELETE_BUTTON_IMAGE,
           I18N.message(
-            "perc.ui.sitemap.tooltip@Remove section from Navigation"
+            "perc.ui.sitemap.tooltip@Remove section from Navigation",
           ),
           this.onDelete,
           { sectionId: sectionObj.id, context: self },
-          "level_" + levelIdx
+          "level_" + levelIdx,
         );
         $deleteButton.attr("id", sectionObj.id + "_delete");
         $deleteButton.attr("tabindex", "0");
@@ -880,7 +880,7 @@
           { sectionId: sectionObj.id },
           function (evt) {
             self.onNodeCountClick(evt);
-          }
+          },
         );
         $nodeCount.on(
           "keydown." + "level_" + levelIdx,
@@ -889,7 +889,7 @@
             if (eventHandler.code == "Enter" || eventHandler.code == "Space") {
               self.onNodeCountClick(evt);
             }
-          }
+          },
         );
       }
     },
@@ -963,7 +963,7 @@
         var $expanded = $(
           "#perc_level_" +
             levelIdx +
-            " .perc-site-map-nodes .perc-site-map-expanded"
+            " .perc-site-map-nodes .perc-site-map-expanded",
         );
 
         if ($expanded.length === 1) this.collapseSection($expanded.attr("id"));
@@ -988,7 +988,7 @@
               $("<img/>")
                 .attr("src", self.getImageSrc(self.LINE_IMAGE))
                 .attr("width", "2")
-                .attr("alt", "")
+                .attr("alt", ""),
             )
             .hide();
           $section.append($bottomLine);
@@ -1003,7 +1003,7 @@
                   var child = children[i];
                   self.addSectionToLevel(
                     self.createSection(child, levelIdx + 1, sectionId, i),
-                    levelIdx + 1
+                    levelIdx + 1,
                   );
                 }
                 self.layoutLevel(levelIdx);
@@ -1017,7 +1017,7 @@
                   content: data,
                 });
               }
-            }
+            },
           );
         } else {
           self.adjustLevelWidths();
@@ -1219,19 +1219,19 @@
                     $.perc_utils.alert_dialog({
                       title: I18N.message("perc.ui.page.general@Warning"),
                       content: I18N.message(
-                        "perc.ui.site.map@Publishing Location Changed"
+                        "perc.ui.site.map@Publishing Location Changed",
                       ),
                       okCallBack: function () {
                         $.PercNavigationManager.goToLocation(
                           $.PercNavigationManager.VIEW_SITE_ARCH,
-                          fields.site_hostname
+                          fields.site_hostname,
                         );
                       },
                     });
                   } else {
                     $.PercNavigationManager.goToLocation(
                       $.PercNavigationManager.VIEW_SITE_ARCH,
-                      fields.site_hostname
+                      fields.site_hostname,
                     );
                   }
                 } else {
@@ -1241,10 +1241,10 @@
                     content: results,
                   });
                 }
-              }
+              },
             );
           }
-        }
+        },
       );
     },
 
@@ -1326,10 +1326,10 @@
               editSectionObj,
               function (status, data) {
                 self.afterEditSectionCallback(status, data, evt);
-              }
+              },
             );
           }
-        }
+        },
       );
     },
 
@@ -1349,7 +1349,7 @@
 
       var parentSectionId = getJsonObj(
         $("#perc_level_" + levelIdx),
-        "data"
+        "data",
       ).parentId;
 
       var siteName = $(".perc-site-map-sitetitle").text();
@@ -1360,7 +1360,7 @@
       var sectionPath = getJsonObj($section, "data").displayTitlePath;
 
       var dlgTitle = I18N.message(
-        "perc.ui.sitemap.editsectionlink.dlgtitle@Edit Section Link"
+        "perc.ui.sitemap.editsectionlink.dlgtitle@Edit Section Link",
       );
       $.PercEditSectionLinksDialog().open(
         sectionObj,
@@ -1400,11 +1400,11 @@
                 secLinkObj,
                 function (status, data) {
                   self.afterEditSectionCallback(status, data, evt);
-                }
+                },
               );
             }
           }
-        }
+        },
       );
     },
 
@@ -1423,7 +1423,7 @@
       var siteName = $(".perc-site-map-sitetitle").text();
       var parentPath = self.getParentPath(evt.data.sectionId);
       var dlgTitle = I18N.message(
-        "perc.ui.sitemap.editexternallink.dlgtitle@Edit External Link"
+        "perc.ui.sitemap.editexternallink.dlgtitle@Edit External Link",
       );
       $.PercEditSectionLinksDialog().open(
         sectionObj,
@@ -1456,10 +1456,10 @@
               extLinkObj,
               function (status, data) {
                 self.afterEditSectionCallback(status, data, evt);
-              }
+              },
             );
           }
-        }
+        },
       );
     },
 
@@ -1499,7 +1499,7 @@
           return;
         }
         var oldSectionName = $(
-          "#" + sectionID + " div.perc-site-map-sectiontitle"
+          "#" + sectionID + " div.perc-site-map-sectiontitle",
         ).text();
         var parentNodePath = self.getParentPath(sectionID);
 
@@ -1537,7 +1537,7 @@
               //Get all sections nodes
               var displayTitlePath = getJsonObj(
                 $(this),
-                "data"
+                "data",
               ).displayTitlePath;
               if (typeof displayTitlePath != "undefined") {
                 //Replace the entire path to the node.
@@ -1548,7 +1548,7 @@
                   name: "data",
                 }).displayTitlePath = displayTitlePath.replace(
                   oldPath,
-                  newPath
+                  newPath,
                 );
               }
             });
@@ -1616,7 +1616,7 @@
               } else {
                 $.perc_utils.debug(result);
               }
-            }
+            },
           );
         });
       }
@@ -1636,7 +1636,7 @@
         var sitename = $(".perc-site-map-sitetitle").text();
         var treeLabel = I18N.message(
           "perc.ui.sitemap.movesection.label@message",
-          [parentData.title]
+          [parentData.title],
         );
         $.PercSectionTreeDialog.open(
           sitename,
@@ -1650,9 +1650,9 @@
               selectedData.parentId,
               selectedData.index,
               targetId,
-              -1
+              -1,
             );
-          }
+          },
         );
       }
     },
@@ -1688,7 +1688,7 @@
     displayDuplicateSectionMessage: function () {
       $.unblockUI();
       var msg = I18N.message(
-        "perc.ui.sitemap.duplicatesection@Duplicate section not allowed"
+        "perc.ui.sitemap.duplicatesection@Duplicate section not allowed",
       );
       var errorLabel = I18N.message("perc.ui.labels@Error");
       $.perc_utils.alert_dialog({ title: errorLabel, content: msg });
@@ -1730,16 +1730,16 @@
                 "<div style='float:left;'>" +
                 I18N.message(
                   "perc.ui.sitemap.assign.landing.page.label@message",
-                  args
+                  args,
                 ) +
                 "</div>" +
                 "<div class='ui-layout-south'>" +
                 "<div id='perc_buttons' style='z-index: 100;'></div>" +
                 "</div>" +
-                "</div>"
+                "</div>",
             ).perc_dialog({
               title: I18N.message(
-                "perc.ui.sitemap.assign.landing.page.title@Landing Page Assigned"
+                "perc.ui.sitemap.assign.landing.page.title@Landing Page Assigned",
               ),
               resizable: false,
               modal: true,
@@ -1758,7 +1758,7 @@
             $.unblockUI();
             $.perc_utils.alert_dialog({ title: "Error", content: result });
           }
-        }
+        },
       );
     },
     /**
@@ -1778,7 +1778,7 @@
       sourceParentId,
       sourceIdx,
       targetId,
-      targetIdx
+      targetIdx,
     ) {
       var self = this;
       var isSortOnly = sourceParentId === targetId;
@@ -1803,7 +1803,7 @@
           var $target = $("#" + targetId);
           function handleMoveRefresh() {
             var sourceParentParentId = JSON.parse(
-              $sourceParent.attr("data")
+              $sourceParent.attr("data"),
             ).parentId;
             // Handle cache clearing
             $.Perc_SectionServiceClient.clearCache("getChildren");
@@ -1817,7 +1817,7 @@
               var $nodes = $level.children(".perc-site-map-nodes");
               if (sourceIdx > targetIdx) {
                 var $node = $nodes.children(
-                  ".perc-site-map-node:eq(" + targetIdx + ")"
+                  ".perc-site-map-node:eq(" + targetIdx + ")",
                 );
                 $node.before($source);
                 Object.assign(targetData, {
@@ -1837,7 +1837,7 @@
                 self.layoutAll();
               } else if (sourceIdx < targetIdx && sourceIdx !== targetIdx - 1) {
                 var $node = $nodes.children(
-                  ".perc-site-map-node:eq(" + (targetIdx - 1) + ")"
+                  ".perc-site-map-node:eq(" + (targetIdx - 1) + ")",
                 );
                 $node.after($source);
                 Object.assign(targetData, {
@@ -1901,7 +1901,7 @@
       var levelIdx = parseInt(getJsonObj($section, "data").level);
       var parentSectionId = getJsonObj(
         $("#perc_level_" + levelIdx),
-        "data"
+        "data",
       ).parentId;
       var $parentSection = $("#" + parentSectionId);
       var folderPath = JSON.parse($section.attr("data")).folderPath;
@@ -1936,7 +1936,7 @@
             "</div>" +
             '<div style="clear:both"/>' +
             "</div>" +
-            "</div>"
+            "</div>",
         );
         delConfirmHtml
           .find(".perc-delete-section-text")
@@ -1952,7 +1952,7 @@
           question: delConfirmHtml,
           success: function () {
             var deleteOption = $(
-              "input:radio[name ='perc-remove-section-option']:checked"
+              "input:radio[name ='perc-remove-section-option']:checked",
             ).val();
             if (deleteOption === "delete-section") {
               $.PercPathService.deleteSection(path, sectionName, function () {
@@ -1965,13 +1965,13 @@
                   if (!status) {
                     $.perc_utils.alert_dialog({
                       title: I18N.message(
-                        "perc.ui.site.map@Error Deleting Section"
+                        "perc.ui.site.map@Error Deleting Section",
                       ),
                       content: message,
                     });
                   }
                   self.afterDeleteCallback(evt, false);
-                }
+                },
               );
             }
           },
@@ -2019,7 +2019,7 @@
 
       var parentSectionId = getJsonObj(
         $("#perc_level_" + levelIdx),
-        "data"
+        "data",
       ).parentId;
 
       var $parentSection = $("#" + parentSectionId);
@@ -2062,7 +2062,7 @@
 
       var parentSectionId = getJsonObj(
         $("#perc_level_" + levelIdx),
-        "data"
+        "data",
       ).parentId;
 
       var sectionName = getJsonObj($section, "data").title;
@@ -2084,7 +2084,7 @@
                   content: data,
                 });
               }
-            }
+            },
           );
         },
         width: 500,
@@ -2119,7 +2119,7 @@
                   content: data,
                 });
               }
-            }
+            },
           );
         },
         width: 500,
@@ -2164,7 +2164,7 @@
               var fileName = "index";
               var duplicateErrorMessage = I18N.message(
                 "perc.ui.site.map@Section Duplicate",
-                [fields.section_name]
+                [fields.section_name],
               );
               if (allTitle.indexOf(fields.section_name) > -1) {
                 $.unblockUI();
@@ -2204,9 +2204,9 @@
                     sectionObj,
                     function (status, data) {
                       self.addNewSectionCallback(status, data, evt);
-                    }
+                    },
                   );
-                }
+                },
               );
             } else if (fields["perc-section-type"] === "externallink") {
               var sectionObj = {
@@ -2221,7 +2221,7 @@
                 sectionObj,
                 function (status, data) {
                   self.addNewSectionCallback(status, data, evt);
-                }
+                },
               );
             } else if (fields["perc-section-type"] === "sectionlink") {
               var sid = fields["perc-section-link-targetid"];
@@ -2233,7 +2233,7 @@
                   evt.data.parentSectionId,
                   function (status, data) {
                     self.addNewSectionCallback(status, data, evt);
-                  }
+                  },
                 );
               }
             } else if (fields["perc-section-type"] === "convertfolder") {
@@ -2249,11 +2249,11 @@
                 sectionObj,
                 function (status, data) {
                   self.addNewSectionCallback(status, data, evt);
-                }
+                },
               );
             }
           }
-        }
+        },
       );
     },
 
@@ -2276,9 +2276,9 @@
             data.SiteSection,
             evt.data.level,
             evt.data.parentSectionId,
-            temp.childIds.length
+            temp.childIds.length,
           ),
-          evt.data.level
+          evt.data.level,
         );
         // Update child list in parent
         temp.childIds.push(data.SiteSection.id);
@@ -2293,7 +2293,7 @@
             .append(
               $("<img/>")
                 .attr("src", self.getImageSrc(self.LINE_IMAGE))
-                .attr("width", "2")
+                .attr("width", "2"),
             )
             .hide();
           $parentSection.append($bottomLine);
@@ -2409,7 +2409,7 @@
         var tempElement = Ids_arr[j];
         attributeValue = attributeValue.replace(
           tempElement,
-          '"' + tempElement + '"'
+          '"' + tempElement + '"',
         );
       }
     }
@@ -2437,14 +2437,14 @@
             null,
             null,
             null,
-            null
+            null,
           );
         }, 200);
       },
       function (result) {
         $.unblockUI();
         site_delete_handle_error(result);
-      }
+      },
     );
   }
 

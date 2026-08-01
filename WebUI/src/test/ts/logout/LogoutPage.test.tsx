@@ -22,7 +22,7 @@ import type { LogoutBootstrap } from "@/logout/types";
 
 const baseBootstrap: LogoutBootstrap = {
   locale: "en-us",
-  loginHref: "login",
+  loginHref: "login?j_locale=en-us",
 };
 
 describe("LogoutPage", () => {
@@ -43,11 +43,29 @@ describe("LogoutPage", () => {
 
   it("links Sign in again to the allowlisted login href", () => {
     render(
-      <LogoutPage bootstrap={{ locale: "en-us", loginHref: "/rxlogin.jsp" }} />,
+      <LogoutPage
+        bootstrap={{
+          locale: "fr-fr",
+          loginHref: "/rxlogin.jsp?j_locale=fr-fr",
+        }}
+      />,
     );
     const link = screen.getByTestId("perc-logout-sign-in") as HTMLAnchorElement;
-    expect(link.getAttribute("href")).toBe("/rxlogin.jsp");
+    expect(link.getAttribute("href")).toBe("/rxlogin.jsp?j_locale=fr-fr");
     expect(link.textContent).toMatch(/Sign in again/i);
+  });
+
+  it("exposes data-i18n-key on localized pilot chrome", () => {
+    render(<LogoutPage bootstrap={baseBootstrap} />);
+    expect(screen.getByTestId("perc-logout-title").getAttribute("data-i18n-key")).toBe(
+      "perc.ui.logout.modern@Signed out",
+    );
+    expect(
+      screen.getByTestId("perc-logout-message").getAttribute("data-i18n-key"),
+    ).toBe("perc.ui.logout.modern@You have been logged out.");
+    expect(
+      screen.getByTestId("perc-logout-sign-in").getAttribute("data-i18n-key"),
+    ).toBe("perc.ui.logout.modern@Sign in again");
   });
 
   it("does not render jQuery legacy markup or form post", () => {

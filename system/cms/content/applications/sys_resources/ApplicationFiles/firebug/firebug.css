@@ -2,7 +2,10 @@ html,
 body {
   margin: 0;
   background: #ffffff;
-  font-family: Lucida Grande, Tahoma, sans-serif;
+  font-family:
+    Lucida Grande,
+    Tahoma,
+    sans-serif;
   font-size: 11px;
   overflow: hidden;
 }
@@ -121,7 +124,9 @@ a:hover {
   right: 4px;
   top: 2px;
   padding-left: 8px;
-  font-family: Lucida Grande, sans-serif;
+  font-family:
+    Lucida Grande,
+    sans-serif;
   font-weight: bold;
   color: #0000ff;
 }

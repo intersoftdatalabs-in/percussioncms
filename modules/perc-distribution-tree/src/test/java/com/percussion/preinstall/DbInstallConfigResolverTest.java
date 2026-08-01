@@ -404,4 +404,53 @@ class DbInstallConfigResolverTest {
         cfg.systemProperties().containsKey("cmdb.password"),
         "silent path must not synthesize a cmdb.password; ANT generates it");
   }
+
+  @Test
+  void parseDemoSitesFlagDefaultsFalseAndHonorsAliases() {
+    String prev = System.getProperty(DbInstallConfigResolver.DEMO_SITES_SYSTEM_PROPERTY);
+    try {
+      System.clearProperty(DbInstallConfigResolver.DEMO_SITES_SYSTEM_PROPERTY);
+      assertFalse(DbInstallConfigResolver.parseDemoSitesFlag(null));
+      assertFalse(DbInstallConfigResolver.parseDemoSitesFlag(Map.of()));
+      assertTrue(
+          DbInstallConfigResolver.parseDemoSitesFlag(
+              Map.of(DbInstallConfigResolver.DEMO_SITES_KEY, "true")));
+      assertTrue(
+          DbInstallConfigResolver.parseDemoSitesFlag(
+              Map.of(DbInstallConfigResolver.DEMO_SITES_KEY, "yes")));
+      assertTrue(
+          DbInstallConfigResolver.parseDemoSitesFlag(
+              Map.of(DbInstallConfigResolver.DEMO_SITES_KEY, "Y")));
+      assertTrue(DbInstallConfigResolver.parseDemoSitesFlag(Map.of("install.demo.sites", "true")));
+      assertFalse(
+          DbInstallConfigResolver.parseDemoSitesFlag(
+              Map.of(DbInstallConfigResolver.DEMO_SITES_KEY, "false")));
+      assertFalse(
+          DbInstallConfigResolver.parseDemoSitesFlag(
+              Map.of(DbInstallConfigResolver.DEMO_SITES_KEY, "no")));
+
+      // CLI flag wins when both are set; system property is only consulted when
+      // CLI is blank / unset. Mirrors ObsoleteInstallDirCleaner.parseCleanInstallDirFlag.
+      System.setProperty(DbInstallConfigResolver.DEMO_SITES_SYSTEM_PROPERTY, "true");
+      assertFalse(
+          DbInstallConfigResolver.parseDemoSitesFlag(
+              Map.of(DbInstallConfigResolver.DEMO_SITES_KEY, "false")));
+
+      // System property is the fallback when CLI is absent.
+      System.setProperty(DbInstallConfigResolver.DEMO_SITES_SYSTEM_PROPERTY, "true");
+      assertTrue(DbInstallConfigResolver.parseDemoSitesFlag(Map.of()));
+      System.setProperty(DbInstallConfigResolver.DEMO_SITES_SYSTEM_PROPERTY, "no");
+      assertFalse(DbInstallConfigResolver.parseDemoSitesFlag(Map.of()));
+
+      // Unparseable values fall back to false (Boolean.parseBoolean("xyz") == false).
+      System.setProperty(DbInstallConfigResolver.DEMO_SITES_SYSTEM_PROPERTY, "maybe");
+      assertFalse(DbInstallConfigResolver.parseDemoSitesFlag(Map.of()));
+    } finally {
+      if (prev == null) {
+        System.clearProperty(DbInstallConfigResolver.DEMO_SITES_SYSTEM_PROPERTY);
+      } else {
+        System.setProperty(DbInstallConfigResolver.DEMO_SITES_SYSTEM_PROPERTY, prev);
+      }
+    }
+  }
 }

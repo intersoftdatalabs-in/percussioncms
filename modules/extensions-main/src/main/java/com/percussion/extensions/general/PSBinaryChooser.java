@@ -21,7 +21,15 @@ import com.percussion.extension.IPSUdfProcessor;
 import com.percussion.extension.PSDefaultExtension;
 import com.percussion.server.IPSRequestContext;
 
+/**
+ * Compares two string values and returns one of two alternatives based on the result.
+ *
+ * @author dougrand
+ */
 public class PSBinaryChooser extends PSDefaultExtension implements IPSUdfProcessor {
+  /** Creates a new PSBinaryChooser. */
+  public PSBinaryChooser() {}
+
   /**
    * Compares the first param to the 2nd param as Strings. If they are equal, the 3rd param is
    * returned, otherwise the 4th param is returned. The comparison is performed case insensitive. If

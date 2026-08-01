@@ -50,7 +50,7 @@ import { beforeEach, afterEach, describe, it, expect, vi } from "vitest";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SRC_PATH = resolve(
   __dirname,
-  "../../main/webapp/cm/views/PercUserView.js"
+  "../../main/webapp/cm/views/PercUserView.js",
 );
 
 let $;
@@ -220,7 +220,7 @@ describe("source-pattern (anti-regression for js/xss-through-dom)", () => {
   it("uses .text() for the role and narrow-search sinks", () => {
     expect(src).toMatch(/\.val\([^)]+\)\s*\.text\([^)]*userRole[^)]*\)/);
     expect(src).toMatch(
-      /\.val\([^)]+\)\s*\.text\([^)]*rolesArrayCache\[i\][^)]*\)/
+      /\.val\([^)]+\)\s*\.text\([^)]*rolesArrayCache\[i\][^)]*\)/,
     );
     expect(src).toMatch(/narrowSearchLabel\.text\(/);
   });
@@ -239,7 +239,7 @@ describe("updateAssignedRoles (role-name sink)", () => {
     expect(select).toBeTruthy();
     expect(
       select.querySelectorAll("script").length,
-      "no <script> from role"
+      "no <script> from role",
     ).toBe(0);
     expect(window.__pwned).toBeUndefined();
   });
@@ -286,7 +286,7 @@ describe("updateAvailableRoles (role-name sink)", () => {
     api.updateAvailableRoles(["A", "B", "C"], ["B"]);
     const select = document.querySelector("#perc-users-available-roles select");
     const opts = Array.from(select.querySelectorAll("option")).map(
-      (o) => o.textContent
+      (o) => o.textContent,
     );
     expect(opts).toEqual(["A", "C"]);
   });
@@ -355,7 +355,7 @@ describe("public API", () => {
     ];
     for (const name of expected) {
       expect(typeof api[name], `api.${name} should be a function`).toBe(
-        "function"
+        "function",
       );
     }
   });
@@ -368,13 +368,13 @@ describe("lockstep residual .html sinks (source pattern)", () => {
   const legacySrc = readFileSync(
     resolve(
       __dirname,
-      "../../main/webapp/cm/app/js/legacy/views/PercUserView.js"
+      "../../main/webapp/cm/app/js/legacy/views/PercUserView.js",
     ),
-    "utf8"
+    "utf8",
   );
   const mainSrc = readFileSync(
     resolve(__dirname, "../../main/webapp/cm/views/PercUserView.js"),
-    "utf8"
+    "utf8",
   );
 
   it("legacy PercUserView does not use .html() for selected role transfer", () => {

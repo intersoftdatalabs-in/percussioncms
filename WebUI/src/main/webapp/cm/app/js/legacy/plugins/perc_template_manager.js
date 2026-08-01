@@ -102,7 +102,7 @@ jQuery.fn.toXML = function () {
     k,
     err,
     update_preview,
-    preview_only
+    preview_only,
   ) {
     var $templateObject;
     var $cssTheme;
@@ -150,7 +150,7 @@ jQuery.fn.toXML = function () {
         },
         error: function (request, textstatus, error) {
           alert(
-            I18N.message("perc.ui.template.manager@Error Grabbing Template")
+            I18N.message("perc.ui.template.manager@Error Grabbing Template"),
           );
         },
       });
@@ -181,7 +181,7 @@ jQuery.fn.toXML = function () {
           $templateObject = $(data);
 
           $themeSummaryObjects = $templateObject.find(
-            "ThemeSummarys ThemeSummary"
+            "ThemeSummarys ThemeSummary",
           );
           k($themeSummaryObjects);
         },
@@ -250,7 +250,7 @@ jQuery.fn.toXML = function () {
     k,
     err,
     update_preview,
-    preview_only
+    preview_only,
   ) {
     var $templateObject;
     var $cssOverride;
@@ -304,7 +304,7 @@ jQuery.fn.toXML = function () {
         },
         error: function (request, textstatus, error) {
           alert(
-            I18N.message("perc.ui.template.manager@Error Grabbing Template")
+            I18N.message("perc.ui.template.manager@Error Grabbing Template"),
           );
         },
       });
@@ -360,7 +360,7 @@ jQuery.fn.toXML = function () {
     k,
     err,
     update_preview,
-    preview_only
+    preview_only,
   ) {
     $.ajax({
       headers: {

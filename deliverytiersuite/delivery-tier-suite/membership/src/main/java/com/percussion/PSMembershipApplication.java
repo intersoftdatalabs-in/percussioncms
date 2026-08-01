@@ -19,7 +19,6 @@ package com.percussion;
 
 // REFACTORED: CP-JAVA11
 
-import tools.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 import com.percussion.delivery.exceptions.PSJsonMappingErrorResponse;
 import com.percussion.delivery.exceptions.PSUncaughtError;
 import com.percussion.generickey.utils.services.impl.PSGenericKeyRestService;
@@ -34,6 +33,7 @@ import org.glassfish.jersey.server.spring.SpringComponentProvider;
 import org.glassfish.jersey.server.spring.SpringLifecycleListener;
 import org.glassfish.jersey.server.spring.SpringWebApplicationInitializer;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
+import tools.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 
 /**
  * JAX-RS Application configuration for Percussion Membership Services. Configures Jersey with

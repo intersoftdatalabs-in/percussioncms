@@ -37,7 +37,7 @@ ps.aa.Tree = function () {
     var startElement = document.getElementById("ps.aa.ContentPane");
     ps.assert(
       startElement != null,
-      "Cannot find DOM element id='ps.aa.ContentPane'"
+      "Cannot find DOM element id='ps.aa.ContentPane'",
     );
     this._createNodes(startElement, null);
     this._sort(this.root);
@@ -217,7 +217,7 @@ ps.aa.Tree = function () {
   this._addPageNode = function (div) {
     if (this.root != null) {
       ps.util.error(
-        "Unknown page node, already got a root: " + this.root.objId.toString()
+        "Unknown page node, already got a root: " + this.root.objId.toString(),
       );
       return null;
     }
@@ -243,7 +243,7 @@ ps.aa.Tree = function () {
     var parentNode = this._getParentPageSnippet(node, lastParent);
     ps.assert(
       parentNode != null,
-      "Cannot find parent node for slot node: " + node.toString()
+      "Cannot find parent node for slot node: " + node.toString(),
     );
 
     parentNode.addChildNode(node);
@@ -301,7 +301,7 @@ ps.aa.Tree = function () {
     }
 
     ps.util.error(
-      "Cannot find parent node for snippet node: " + node.toString()
+      "Cannot find parent node for snippet node: " + node.toString(),
     );
     return null;
   };
@@ -350,7 +350,7 @@ ps.aa.Tree = function () {
     var parentNode = this._getParentPageSnippet(node, lastParent);
     ps.assert(
       parentNode != null,
-      "Cannot find parent node for field node: " + node.toString()
+      "Cannot find parent node for field node: " + node.toString(),
     );
 
     parentNode.addChildNode(node);
@@ -369,7 +369,7 @@ ps.aa.Tree = function () {
     var objId = ps.aa.Page.getObjectId(div);
     ps.assert(
       objId != null,
-      "Malformed objectId for a node of class=" + div.className
+      "Malformed objectId for a node of class=" + div.className,
     );
 
     return new ps.aa.TreeNode(objId);
@@ -550,7 +550,7 @@ ps.aa.Tree = function () {
     contentId,
     fieldName,
     pnode,
-    result
+    result,
   ) {
     if (pnode.isLeafNode()) return;
 
@@ -853,7 +853,7 @@ ps.aa.TreeNode = function (objectId, pNode, childNodes) {
     }
     ps.assert(
       false,
-      "Inconsistent tree structure, could not find this node in the parent"
+      "Inconsistent tree structure, could not find this node in the parent",
     );
   };
 

@@ -178,7 +178,7 @@
    */
   $.ui.fancytree._FancytreeClass.prototype.activateCell = function (
     $td,
-    orgEvent
+    orgEvent,
   ) {
     var colIdx,
       $input,
@@ -195,7 +195,7 @@
       "activateCell(" +
         ($prevTd ? $prevTd.text() : "null") +
         ") -> " +
-        ($td ? $td.text() : "OFF")
+        ($td ? $td.text() : "OFF"),
     );
 
     // Make available as event
@@ -252,7 +252,7 @@
       }
       // $td == null: switch back to row-mode
       this.$container.removeClass(
-        clsFancytreeCellMode + " " + clsFancytreeCellNavMode
+        clsFancytreeCellMode + " " + clsFancytreeCellNavMode,
       );
       // console.log("activateCell: set row-mode for " + this.activeNode, $prevTd);
       if ($prevTd) {
@@ -394,7 +394,7 @@
           ", node was active: " +
           (node && node.isActive()) +
           ", last cell: " +
-          (tree.$activeTd ? tree.$activeTd.text() : null)
+          (tree.$activeTd ? tree.$activeTd.text() : null),
       );
 
       if (tree.$activeTd) {
@@ -529,7 +529,7 @@
           "), activeTd: '" +
           ($activeTd && $activeTd.text()) +
           "', inputType: " +
-          inputType
+          inputType,
       );
 
       if (inputType && eventString !== "esc" && !forceNav) {
@@ -593,7 +593,7 @@
             tree.debug("Enter cell-nav-mode");
             tree.$container.toggleClass(
               clsFancytreeCellNavMode,
-              !!tree.forceNavMode
+              !!tree.forceNavMode,
             );
             return false;
           } else if ($activeTd && opts.cellFocus !== "force") {
@@ -627,7 +627,7 @@
               // Embedded checkboxes are always toggled (ignoring `autoFocusInput`)
               $embeddedCheckbox.prop(
                 "checked",
-                !$embeddedCheckbox.prop("checked")
+                !$embeddedCheckbox.prop("checked"),
               );
             } else if (tree.forceNavMode && $target.is(":input")) {
               tree.forceNavMode = false;
@@ -652,7 +652,7 @@
             } else if ($embeddedCheckbox) {
               $embeddedCheckbox.prop(
                 "checked",
-                !$embeddedCheckbox.prop("checked")
+                !$embeddedCheckbox.prop("checked"),
               );
             }
             return false; // no default handling

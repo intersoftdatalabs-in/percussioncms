@@ -145,7 +145,7 @@
         if (missingKeyList.length) {
           tree.warn(
             "_loadLazyNodes: could not load those keys: ",
-            missingKeyList
+            missingKeyList,
           );
           for (i = 0, l = missingKeyList.length; i < l; i++) {
             key = keyList[i];
@@ -187,7 +187,7 @@
 
   $.ui.fancytree._FancytreeClass.prototype.clearCookies = function (types) {
     this.warn(
-      "'tree.clearCookies()' is deprecated since v2.27.0: use 'clearPersistData()' instead."
+      "'tree.clearCookies()' is deprecated since v2.27.0: use 'clearPersistData()' instead.",
     );
     return this.clearPersistData(types);
   };
@@ -334,7 +334,7 @@
             local,
             keyList,
             instOpts.expandLazy ? "expand" : false,
-            null
+            null,
           );
         } else {
           // nothing to do
@@ -417,7 +417,7 @@
       if (local.storeActive) {
         local._data(
           local.cookiePrefix + ACTIVE,
-          this.activeNode ? this.activeNode.key : null
+          this.activeNode ? this.activeNode.key : null,
         );
       }
       return res;
@@ -445,7 +445,7 @@
       if (local.storeFocus) {
         local._data(
           local.cookiePrefix + FOCUS,
-          this.focusNode ? this.focusNode.key : null
+          this.focusNode ? this.focusNode.key : null,
         );
       }
       return res;

@@ -67,7 +67,7 @@
     idx,
     buttons,
     page,
-    pages
+    pages,
   ) {
     var api = new DataTable.Api(settings);
     var classes = settings.oClasses;
@@ -157,7 +157,7 @@
               .append(
                 tag
                   ? $("<" + tag + "/>", { href: "#" }).html(btnDisplay)
-                  : btnDisplay
+                  : btnDisplay,
               )
               .appendTo(container);
 
@@ -169,7 +169,7 @@
 
     attach(
       $(host).empty().html('<ul class="pagination"/>').children("ul"),
-      buttons
+      buttons,
     );
   };
 

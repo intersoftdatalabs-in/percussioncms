@@ -26,6 +26,7 @@ import com.percussion.server.IPSRequestContext;
 import java.io.File;
 import org.owasp.encoder.Encode;
 
+/** Field input transformer that CSS-encodes the supplied string parameter. */
 public class PSCSSEncode implements IPSFieldInputTransformer {
 
   /***

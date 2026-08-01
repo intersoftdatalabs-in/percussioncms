@@ -37,7 +37,7 @@
             } else if (nodes[i].nodeType === 3) {
               if (index + nodes[i].length < maxIndex) {
                 result[result.length - 1].appendChild(
-                  nodes[i].cloneNode(false)
+                  nodes[i].cloneNode(false),
                 );
               } else {
                 tmp = nodes[i].cloneNode(false);
@@ -47,7 +47,7 @@
                     maxIndex - index,
                     tmp.textContent
                       .substring(0, maxIndex - index)
-                      .lastIndexOf(" ")
+                      .lastIndexOf(" "),
                   );
                 }
                 tmp[propertyName] = options.trim
@@ -77,7 +77,7 @@
           className: undefined,
           wholeWord: false,
         },
-        options
+        options,
       );
 
       if (!hasTextOverflow) {
@@ -109,7 +109,7 @@
               overflow: "visible",
               "max-width": "inherit",
               "min-width": "inherit",
-            })
+            }),
           );
 
           if (clone.width() > originalWidth) {

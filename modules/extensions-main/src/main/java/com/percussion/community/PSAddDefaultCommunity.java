@@ -36,6 +36,9 @@ import org.w3c.dom.Element;
  * attributes will get empty values.
  */
 public class PSAddDefaultCommunity implements IPSResultDocumentProcessor {
+  /** Creates a new PSAddDefaultCommunity. */
+  public PSAddDefaultCommunity() {}
+
   /*
    * Implementation of the method required by the interface IPSExtension.
    */

@@ -76,7 +76,7 @@ $.perc = {};
     tgt,
     filter,
     ignoreEmpty,
-    maxChars // IgnoreEmpty is false, by default
+    maxChars, // IgnoreEmpty is false, by default
   ) {
     var tgtEmpty = false;
     var srcFocused = false;

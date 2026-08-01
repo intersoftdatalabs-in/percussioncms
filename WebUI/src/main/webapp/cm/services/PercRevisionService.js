@@ -37,7 +37,7 @@
       url,
       $.PercServiceUtils.TYPE_GET,
       false,
-      callback
+      callback,
     );
     /* Test Data****
         var result = [{revId:1,lastModifiedDate:"Jul 21, 2010 1:33:13 PM",lastModifier:"Admin", status:"Live"},
@@ -77,7 +77,7 @@
       url,
       $.PercServiceUtils.TYPE_GET,
       false,
-      callback
+      callback,
     );
   }
 
@@ -87,7 +87,7 @@
       url,
       $.PercServiceUtils.TYPE_GET,
       false,
-      callback
+      callback,
     );
   }
 })(jQuery);

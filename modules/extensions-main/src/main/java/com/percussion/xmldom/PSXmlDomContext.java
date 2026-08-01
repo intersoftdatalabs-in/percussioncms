@@ -67,6 +67,8 @@ public class PSXmlDomContext {
   /**
    * create a context where an IPSRequestContext is not available. This is primarily used when
    * debugging.
+   *
+   * @param functionName the name of the function being processed.
    */
   public PSXmlDomContext(String functionName) {
     m_function = functionName;
@@ -76,6 +78,9 @@ public class PSXmlDomContext {
   /**
    * create a context for the extension. The context should be a be a member variable of the Process
    * method in each extension.
+   *
+   * @param functionName the name of the function being processed.
+   * @param req the request context.
    */
   public PSXmlDomContext(String functionName, IPSRequestContext req) {
     m_req = req;
@@ -103,7 +108,11 @@ public class PSXmlDomContext {
     m_rxCommentHandling = value;
   }
 
-  /** Allows support routines to print trace messages without knowing about the IPSRequestContext */
+  /**
+   * Allows support routines to print trace messages without knowing about the IPSRequestContext.
+   *
+   * @param msg the trace message to print.
+   */
   public void printTraceMessage(String msg) {
     if (!m_logging) return;
 
@@ -121,17 +130,30 @@ public class PSXmlDomContext {
     else return "127.0.0.1:" + m_req.getServerListenerPort() + PSServer.getRequestRoot();
   }
 
-  /** get the tidy properties for this operation context */
+  /**
+   * Gets the tidy properties for this operation context.
+   *
+   * @return the tidy properties.
+   */
   public Properties getTidyProperties() {
     return m_tidyProperties;
   }
 
-  /** set the tidy properties for this operation context */
+  /**
+   * Sets the tidy properties for this operation context.
+   *
+   * @param props the tidy properties to set.
+   */
   public void setTidyProperties(Properties props) {
     m_tidyProperties = props;
   }
 
-  /** set the tidy properties from a file */
+  /**
+   * Sets the tidy properties from a file.
+   *
+   * @param FileName the name of the file to load the tidy properties from.
+   * @throws IOException if the file cannot be read.
+   */
   public void setTidyProperties(String FileName) throws IOException {
     IPSRhythmyxInfo rxInfo = PSRhythmyxInfoLocator.getRhythmyxInfo();
     String rxRootDir = (String) rxInfo.getProperty(IPSRhythmyxInfo.Key.ROOT_DIRECTORY);
@@ -140,7 +162,11 @@ public class PSXmlDomContext {
     }
   }
 
-  /** determine if Tidy processing is enabled for this context */
+  /**
+   * Determine if Tidy processing is enabled for this context.
+   *
+   * @return <code>true</code> if tidy processing is enabled, <code>false</code> otherwise.
+   */
   public boolean isTidyEnabled() {
     return (null != m_tidyProperties && !m_tidyProperties.isEmpty());
   }
@@ -193,12 +219,18 @@ public class PSXmlDomContext {
     return m_logging;
   }
 
-  /** Sets the Validate flag. If this flag is <code>true</code>, use the validating parser. */
+  /**
+   * Sets the Validate flag. If this flag is <code>true</code>, use the validating parser.
+   *
+   * @param validate whether to use the validating parser.
+   */
   public void setValidate(boolean validate) {
     m_validate = validate;
   }
 
   /**
+   * Determines whether the validating parser should be used.
+   *
    * @return <code>true</code> when the validating parser should be used; <code>false</code> when
    *     the non-validating parser should be used.
    */
@@ -208,12 +240,16 @@ public class PSXmlDomContext {
 
   /**
    * Sets the use tidy pprint flag. If this flag is <code>true</code>, use the tidy pretty print.
+   *
+   * @param pprint the pretty-print flag to set.
    */
   public void setUsePrettyPrint(boolean pprint) {
     m_pprint = pprint;
   }
 
   /**
+   * Returns the tidy pretty print flag.
+   *
    * @return tidy pretty print flag.
    */
   public boolean getUsePrettyPrint() {

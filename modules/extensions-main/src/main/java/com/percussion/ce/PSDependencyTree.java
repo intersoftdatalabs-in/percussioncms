@@ -51,6 +51,8 @@ import org.xml.sax.InputSource;
  * content item as a tree.
  */
 public class PSDependencyTree implements IPSResultDocumentProcessor {
+  /** Creates a new PSDependencyTree. */
+  public PSDependencyTree() {}
 
   private static final Logger log = LogManager.getLogger(PSDependencyTree.class);
 
@@ -268,7 +270,11 @@ public class PSDependencyTree implements IPSResultDocumentProcessor {
   /** Indent string for rendering the tree for the style sheet */
   public static final String INDENT = "..";
 
-  /** Main routine for testing */
+  /**
+   * Main routine for testing.
+   *
+   * @param args the command line arguments.
+   */
   public static void main(String[] args) {
 
     PSDependencyTree pSDependencyTree = new PSDependencyTree();

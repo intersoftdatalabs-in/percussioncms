@@ -227,7 +227,7 @@
         getSitesCallback(status, result, callback);
       },
       null,
-      null // abort callback function not needed in this case
+      null, // abort callback function not needed in this case
     );
   }
 
@@ -329,7 +329,7 @@
         var error = results[2];
         postCallback(
           "Unable to create or assign templates to sites.\nError: ",
-          error
+          error,
         );
       }
     });
@@ -387,7 +387,7 @@
         loadCallback(status, result, loadPostCallbacks);
       },
       null,
-      null // abort callback function not needed in this case
+      null, // abort callback function not needed in this case
     );
   }
 
@@ -557,7 +557,7 @@
         getTemplateSitesCallback(status, result, callback, templateid);
       },
       null,
-      null // abort callback function not needed in this case
+      null, // abort callback function not needed in this case
     );
   }
 
@@ -619,7 +619,7 @@
      */
     function createTemplateFromUrlResultCallback(
       status,
-      percTemplateServiceData
+      percTemplateServiceData,
     ) {
       if (status != $.PercServiceUtils.STATUS_SUCCESS) {
         if (postCreationCallback !== undefined)
@@ -637,7 +637,7 @@
         getPagetIdFromTemplate,
         function (pageServiceStatus, percPageServiceData) {
           postCreationCallback(percPageServiceData);
-        }
+        },
       );
     }
 
@@ -659,7 +659,7 @@
         null,
         querystring.path,
         null,
-        memento
+        memento,
       );
     }
 
@@ -685,7 +685,7 @@
           currentSiteName,
           function (status, jobId) {
             callbackJobIdHandler(status, jobId);
-          }
+          },
         );
       },
       pollingProgressCallback:

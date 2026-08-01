@@ -115,7 +115,7 @@
    */
   $.ui.fancytree._FancytreeClass.prototype._shiftViewport = function (
     mode,
-    ofs
+    ofs,
   ) {
     this.debug("_shiftViewport", mode, ofs);
     switch (mode) {
@@ -268,7 +268,7 @@
   $.ui.fancytree._FancytreeClass.prototype.adjustViewportSize = function () {
     _assert(
       this.scrollWrapper,
-      "No parent div.fancytree-grid-container found."
+      "No parent div.fancytree-grid-container found.",
     );
     if (this.isVpUpdating) {
       this.debug("Ignoring adjustViewportSize() during VP update.");
@@ -366,7 +366,7 @@
           return true;
         }
         tree.debug(
-          "Got 'wheel' event: dy=" + dy + ", mode=" + orgEvent.deltaMode
+          "Got 'wheel' event: dy=" + dy + ", mode=" + orgEvent.deltaMode,
         );
         tree._shiftViewport("vscroll", dy);
         return false;
@@ -384,7 +384,7 @@
    */
   $.ui.fancytree._FancytreeClass.prototype._renumberVisibleNodes = function (
     force,
-    startIdx
+    startIdx,
   ) {
     if (
       (!this.options.viewport.enabled || this.visibleNodeList != null) &&
@@ -526,14 +526,14 @@
       }
       // Note: we also re-use CSS rules from ext-table
       $table.addClass(
-        "fancytree-container fancytree-ext-grid fancytree-ext-table"
+        "fancytree-container fancytree-ext-grid fancytree-ext-table",
       );
       $tbody = $table.find(">tbody");
       if (!$tbody.length) {
         // TODO: not sure if we can rely on browsers to insert missing <tbody> before <tr>s:
         if ($table.find(">tr").length) {
           $.error(
-            "Expected table > tbody > tr. If you see this, please open an issue."
+            "Expected table > tbody > tr. If you see this, please open an issue.",
           );
         }
         $tbody = $("<tbody>").appendTo($table);
@@ -554,7 +554,7 @@
               columnCount +
               ") and tbody (" +
               n +
-              "): using tbody."
+              "): using tbody.",
           );
           columnCount = n;
         }
@@ -563,7 +563,7 @@
         // Only thead is defined: create default row markup
         _assert(
           columnCount >= 1,
-          "Need either <thead> or <tbody> with <td> elements to determine column count."
+          "Need either <thead> or <tbody> with <td> elements to determine column count.",
         );
         $row = $("<tr />");
         for (i = 0; i < columnCount; i++) {
@@ -624,7 +624,7 @@
           return $.Deferred(function () {
             this.resolveWith(node);
           }).promise();
-        }
+        },
       );
 
       tree.visibleNodeList = null; // Set by _renumberVisibleNodes()
@@ -647,8 +647,8 @@
             keepEmptyRows: true,
             noEvents: true,
           },
-          opts.viewport
-        )
+          opts.viewport,
+        ),
       );
       // tree.$scrollbar = _addScrollbar($table);
 
@@ -861,7 +861,7 @@
           opts.renderStatusColumns.call(
             tree,
             { type: "renderStatusColumns" },
-            ctx
+            ctx,
           );
         } else if (opts.grid.mergeStatusColumns && node.isTopLevel()) {
           node.warn("mergeStatusColumns is not yet implemented.");

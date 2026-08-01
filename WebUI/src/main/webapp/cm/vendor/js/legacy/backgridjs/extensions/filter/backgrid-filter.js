@@ -25,7 +25,7 @@
 
       /** @property {function(Object, ?Object=): string} template */
       template: _.template(
-        '<div class="input-prepend input-append"><span class="add-on"><i class="icon-search"></i></span><input type="text" <% if (placeholder) { %> placeholder="<%- placeholder %>" <% } %> name="<%- name %>" /><span class="add-on"><a class="close" href="#">&times;</a></span></div>'
+        '<div class="input-prepend input-append"><span class="add-on"><i class="icon-search"></i></span><input type="text" <% if (placeholder) { %> placeholder="<%- placeholder %>" <% } %> name="<%- name %>" /><span class="add-on"><a class="close" href="#">&times;</a></span></div>',
       ),
 
       /** @property */
@@ -97,7 +97,7 @@
             name: this.name,
             placeholder: this.placeholder,
             value: this.value,
-          })
+          }),
         );
         this.delegateEvents();
         return this;
@@ -174,7 +174,7 @@
           "remove",
           function (model, collection, options) {
             shadowCollection.remove(model, options);
-          }
+          },
         );
         this.listenTo(collection, "sort reset", function (collection, options) {
           options = _.extend({ reindex: true }, options || {});
@@ -229,7 +229,7 @@
       search: function () {
         var matcher = _.bind(
           this.makeMatcher(this.$("input[type=text]").val()),
-          this
+          this,
         );
         this.collection.reset(this.shadowCollection.filter(matcher), {
           reindex: false,
@@ -314,7 +314,7 @@
               this.field(fieldName, boost);
               this.ref(self.ref);
             },
-            this
+            this,
           );
         });
 

@@ -14,9 +14,9 @@ describe("PercRssView description sink", () => {
   const src = readFileSync(
     resolve(
       ROOT,
-      "modules/perc-common-ui-bundle/src/main/js/views/PercRssView.js"
+      "modules/perc-common-ui-bundle/src/main/js/views/PercRssView.js",
     ),
-    "utf8"
+    "utf8",
   );
 
   it("does not call .html(item.description) or .html(description.text())", () => {
@@ -33,9 +33,9 @@ describe("PercMostReadBlogPostsView heading tag whitelist", () => {
   const src = readFileSync(
     resolve(
       ROOT,
-      "modules/perc-common-ui-bundle/src/main/js/views/PercMostReadBlogPostsView.js"
+      "modules/perc-common-ui-bundle/src/main/js/views/PercMostReadBlogPostsView.js",
     ),
-    "utf8"
+    "utf8",
   );
 
   it("defines safeHeadingTag allow-list", () => {

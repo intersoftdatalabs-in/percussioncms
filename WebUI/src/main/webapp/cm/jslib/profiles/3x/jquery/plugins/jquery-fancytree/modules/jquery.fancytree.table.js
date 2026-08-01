@@ -109,12 +109,12 @@
       if (tableOpts.customStatus != null) {
         if (opts.renderStatusColumns == null) {
           tree.warn(
-            "The 'customStatus' option is deprecated since v2.15.0. Use 'renderStatusColumns' instead."
+            "The 'customStatus' option is deprecated since v2.15.0. Use 'renderStatusColumns' instead.",
           );
           opts.renderStatusColumns = tableOpts.customStatus;
         } else {
           $.error(
-            "The 'customStatus' option is deprecated since v2.15.0. Use 'renderStatusColumns' only instead."
+            "The 'customStatus' option is deprecated since v2.15.0. Use 'renderStatusColumns' only instead.",
           );
         }
       }
@@ -132,7 +132,7 @@
         // TODO: not sure if we can rely on browsers to insert missing <tbody> before <tr>s:
         if ($table.find(">tr").length) {
           $.error(
-            "Expected table > tbody > tr. If you see this please open an issue."
+            "Expected table > tbody > tr. If you see this please open an issue.",
           );
         }
         $tbody = $("<tbody>").appendTo($table);
@@ -155,7 +155,7 @@
               tree.columnCount +
               ") and tbody (" +
               n +
-              "): using tbody."
+              "): using tbody.",
           );
           tree.columnCount = n;
         }
@@ -164,7 +164,7 @@
         // Only thead is defined: create default row markup
         _assert(
           tree.columnCount >= 1,
-          "Need either <thead> or <tbody> with <td> elements to determine column count."
+          "Need either <thead> or <tbody> with <td> elements to determine column count.",
         );
         $row = $("<tr />");
         for (i = 0; i < tree.columnCount; i++) {
@@ -299,7 +299,7 @@
           } else {
             _assert(
               !prevNode.parent,
-              "prev. row must have a tr, or be system root"
+              "prev. row must have a tr, or be system root",
             );
             // tree.tbody.appendChild(newRow);
             insertFirstChild(tree.tbody, newRow); // #675
@@ -396,7 +396,7 @@
           opts.renderStatusColumns.call(
             tree,
             { type: "renderStatusColumns" },
-            ctx
+            ctx,
           );
         } else if (opts.table.mergeStatusColumns && node.isTopLevel()) {
           $(node.tr)

@@ -87,12 +87,12 @@ const CASES = [
 function extractEscapeFn(src, relPath) {
   const match =
     /SearchWord = SearchWord\.replace\(\/<\/g, "&lt;"\)\s*\n\s*\.replace\(\/>\/g, "&gt;"\)\s*\n\s*\.replace\(\/"\/g, "&quot;"\);/.exec(
-      src
+      src,
     );
   if (!match) {
     throw new Error(
       `${relPath}: fixed escaping expression not found -- has the ` +
-        `js/incomplete-sanitization fix been reverted or reformatted?`
+        `js/incomplete-sanitization fix been reverted or reformatted?`,
     );
   }
   // eslint-disable-next-line no-new-func
@@ -119,7 +119,7 @@ for (const relPath of FILES) {
   if (/SearchWord\.replace\("<", "&lt;"\)/.test(src)) {
     console.error(
       `FAIL: ${relPath} still contains the old non-global ` +
-        `SearchWord.replace("<", ...) pattern`
+        `SearchWord.replace("<", ...) pattern`,
     );
     failures++;
     continue;
@@ -143,7 +143,7 @@ for (const relPath of FILES) {
       console.error(
         `FAIL: ${relPath}: escaping threw for input ${JSON.stringify(input)}: ${
           e.message
-        }`
+        }`,
       );
       fileOk = false;
       failures++;
@@ -152,7 +152,7 @@ for (const relPath of FILES) {
     if (actual !== expected) {
       console.error(
         `FAIL: ${relPath}: input ${JSON.stringify(input)} -> ` +
-          `${JSON.stringify(actual)}, expected ${JSON.stringify(expected)}`
+          `${JSON.stringify(actual)}, expected ${JSON.stringify(expected)}`,
       );
       fileOk = false;
       failures++;

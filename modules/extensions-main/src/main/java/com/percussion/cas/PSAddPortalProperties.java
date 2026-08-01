@@ -30,6 +30,8 @@ import org.w3c.dom.Element;
 
 /** Creates a properties element as used in portal publisher assemblers. */
 public class PSAddPortalProperties extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSAddPortalProperties. */
+  public PSAddPortalProperties() {}
 
   private static final Logger log = LogManager.getLogger(PSAddPortalProperties.class);
 

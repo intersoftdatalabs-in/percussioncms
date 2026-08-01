@@ -75,7 +75,7 @@
       typeof $.getCMSVersion === "function" ? $.getCMSVersion() : "";
     var url = joinURL(
       deliveryServicesURL,
-      "/perc-comments-services/comment/addcomment"
+      "/perc-comments-services/comment/addcomment",
     );
     var commentForm = $("form[name = 'commentForm']");
     commentForm.attr("action", url);
@@ -91,7 +91,7 @@
     $.PercServiceUtils.csrfGetToken(
       $.PercServiceUtils.joinURL(
         deliveryServicesURL,
-        "/perc-comments-services/comment/csrf"
+        "/perc-comments-services/comment/csrf",
       ),
       function (response) {
         if (typeof response !== "undefined" && response != null)
@@ -104,7 +104,7 @@
             commentForm.attr("action", url);
           }
         }
-      }
+      },
     );
   });
 
@@ -198,7 +198,7 @@
         if (lastComment.position()) {
           $("html,body").animate(
             { scrollTop: lastComment.position().top },
-            200
+            200,
           );
         }
       });
@@ -210,13 +210,13 @@
     if (methods[method]) {
       return methods[method].apply(
         this,
-        Array.prototype.slice.call(arguments, 1)
+        Array.prototype.slice.call(arguments, 1),
       );
     } else if ("object" === typeof method || !method) {
       return methods.init.apply(this, arguments);
     } else {
       $.error(
-        "Method " + method + " does not exist on jQuery.PercCommentsRenderer"
+        "Method " + method + " does not exist on jQuery.PercCommentsRenderer",
       );
     }
   };
@@ -343,8 +343,8 @@
             $("<div/>")
               .addClass("perc-comment-message")
               .text(
-                "Your comment is being held for moderation. It will appear on this page after approval."
-              )
+                "Your comment is being held for moderation. It will appear on this page after approval.",
+              ),
           );
         }
       }
@@ -395,7 +395,7 @@
           "<span class='comment-pretext'>" +
             field["pretext"] +
             "</span>" +
-            snippet.html()
+            snippet.html(),
         );
       }
       // Handle posttext
@@ -404,7 +404,7 @@
           snippet.html() +
             "<span class='comment-posttext'>" +
             field["posttext"] +
-            "</span>"
+            "</span>",
         );
       }
       container.append(snippet);

@@ -190,7 +190,7 @@ m_patterns[m_idx++] = getRegEx(
   ":",
   "ss",
   "\\.",
-  "SSS"
+  "SSS",
 );
 m_patterns[m_idx++] = getRegEx(
   true,
@@ -204,7 +204,7 @@ m_patterns[m_idx++] = getRegEx(
   ":",
   "mm",
   ":",
-  "ss"
+  "ss",
 );
 m_patterns[m_idx++] = getRegEx(
   true,
@@ -216,7 +216,7 @@ m_patterns[m_idx++] = getRegEx(
   " ",
   "HH",
   ":",
-  "mm"
+  "mm",
 );
 //m_patterns[m_idx++] = getRegEx(true, "yyyy","\\.","MM","\\.","dd"," ","G"," at ","HH",":", "mm",":","ss");
 m_patterns[m_idx++] = getRegEx(
@@ -233,7 +233,7 @@ m_patterns[m_idx++] = getRegEx(
   ":",
   "ss",
   "\\.",
-  "SSS"
+  "SSS",
 );
 m_patterns[m_idx++] = getRegEx(
   true,
@@ -247,7 +247,7 @@ m_patterns[m_idx++] = getRegEx(
   ":",
   "mm",
   ":",
-  "ss"
+  "ss",
 );
 //m_patterns[m_idx++] = getRegEx(true, "yyyy","/","MM","/","dd"," ","G"," at ","HH",":", "mm",":","ss");
 m_patterns[m_idx++] = getRegEx(
@@ -264,7 +264,7 @@ m_patterns[m_idx++] = getRegEx(
   ":",
   "ss",
   "\\.",
-  "SSS"
+  "SSS",
 );
 m_patterns[m_idx++] = getRegEx(
   true,
@@ -278,7 +278,7 @@ m_patterns[m_idx++] = getRegEx(
   ":",
   "mm",
   ":",
-  "ss"
+  "ss",
 );
 m_patterns[m_idx++] = getRegEx(
   true,
@@ -290,7 +290,7 @@ m_patterns[m_idx++] = getRegEx(
   " ",
   "HH",
   ":",
-  "mm"
+  "mm",
 );
 m_patterns[m_idx++] = getRegEx(true, "yyyy", "-", "MM", "-", "dd");
 m_patterns[m_idx++] = getRegEx(true, "yyyy", "\\.", "MM", "\\.", "dd");
@@ -313,7 +313,7 @@ m_patterns[m_idx++] = getRegEx(
   ":",
   "ss",
   "\\.",
-  "SSS"
+  "SSS",
 );
 m_patterns[m_idx++] = getRegEx(
   true,
@@ -327,7 +327,7 @@ m_patterns[m_idx++] = getRegEx(
   ":",
   "mm",
   ":",
-  "ss"
+  "ss",
 );
 //m_patterns[m_idx++] = getRegEx(true, "MM","\\.","dd","\\.","yyyy"," ","G"," at ","HH",":", "mm",":","ss");
 m_patterns[m_idx++] = getRegEx(
@@ -344,7 +344,7 @@ m_patterns[m_idx++] = getRegEx(
   ":",
   "ss",
   "\\.",
-  "SSS"
+  "SSS",
 );
 m_patterns[m_idx++] = getRegEx(
   true,
@@ -358,7 +358,7 @@ m_patterns[m_idx++] = getRegEx(
   ":",
   "mm",
   ":",
-  "ss"
+  "ss",
 );
 //m_patterns[m_idx++] = getRegEx(true, "MM","/","dd","/","yyyy"," ","G"," at ","HH",":", "mm",":","ss");
 m_patterns[m_idx++] = getRegEx(
@@ -375,7 +375,7 @@ m_patterns[m_idx++] = getRegEx(
   ":",
   "ss",
   "\\.",
-  "SSS"
+  "SSS",
 );
 m_patterns[m_idx++] = getRegEx(
   true,
@@ -389,7 +389,7 @@ m_patterns[m_idx++] = getRegEx(
   ":",
   "mm",
   ":",
-  "ss"
+  "ss",
 );
 m_patterns[m_idx++] = getRegEx(
   true,
@@ -401,7 +401,7 @@ m_patterns[m_idx++] = getRegEx(
   " ",
   "HH",
   ":",
-  "mm"
+  "mm",
 );
 m_patterns[m_idx++] = getRegEx(true, "MM", "-", "dd", "-", "yyyy");
 m_patterns[m_idx++] = getRegEx(true, "MM", "\\.", "dd", "\\.", "yyyy");
@@ -416,7 +416,7 @@ m_patterns[m_idx++] = getRegEx(
   ":",
   "mm",
   ":",
-  "ss"
+  "ss",
 );
 //m_patterns[m_idx++] = getRegEx(true, "MMM"," ","dd",", ","yyyy");
 //m_patterns[m_idx++] = getRegEx(true, "MMM"," ","yyyy");
@@ -440,7 +440,7 @@ m_timePatterns[m_tIdx++] = getRegEx(
   ":",
   "ss",
   "\\.",
-  "SSS"
+  "SSS",
 );
 m_timePatterns[m_tIdx++] = getRegEx(
   false,
@@ -454,7 +454,7 @@ m_timePatterns[m_tIdx++] = getRegEx(
   ":",
   "mm",
   ":",
-  "ss"
+  "ss",
 );
 m_timePatterns[m_tIdx++] = getRegEx(
   false,
@@ -466,7 +466,7 @@ m_timePatterns[m_tIdx++] = getRegEx(
   " ",
   "HH",
   ":",
-  "mm"
+  "mm",
 );
 m_timePatterns[m_tIdx++] = getRegEx(
   false,
@@ -482,7 +482,7 @@ m_timePatterns[m_tIdx++] = getRegEx(
   ":",
   "ss",
   "\\.",
-  "SSS"
+  "SSS",
 );
 m_timePatterns[m_tIdx++] = getRegEx(
   false,
@@ -496,7 +496,7 @@ m_timePatterns[m_tIdx++] = getRegEx(
   ":",
   "mm",
   ":",
-  "ss"
+  "ss",
 );
 m_timePatterns[m_tIdx++] = getRegEx(
   false,
@@ -512,7 +512,7 @@ m_timePatterns[m_tIdx++] = getRegEx(
   ":",
   "ss",
   "\\.",
-  "SSS"
+  "SSS",
 );
 m_timePatterns[m_tIdx++] = getRegEx(
   false,
@@ -526,7 +526,7 @@ m_timePatterns[m_tIdx++] = getRegEx(
   ":",
   "mm",
   ":",
-  "ss"
+  "ss",
 );
 m_timePatterns[m_tIdx++] = getRegEx(
   false,
@@ -538,7 +538,7 @@ m_timePatterns[m_tIdx++] = getRegEx(
   " ",
   "HH",
   ":",
-  "mm"
+  "mm",
 );
 m_timePatterns[m_tIdx++] = getRegEx(
   false,
@@ -554,7 +554,7 @@ m_timePatterns[m_tIdx++] = getRegEx(
   ":",
   "ss",
   "\\.",
-  "SSS"
+  "SSS",
 );
 m_timePatterns[m_tIdx++] = getRegEx(
   false,
@@ -568,7 +568,7 @@ m_timePatterns[m_tIdx++] = getRegEx(
   ":",
   "mm",
   ":",
-  "ss"
+  "ss",
 );
 m_timePatterns[m_tIdx++] = getRegEx(
   false,
@@ -584,7 +584,7 @@ m_timePatterns[m_tIdx++] = getRegEx(
   ":",
   "ss",
   "\\.",
-  "SSS"
+  "SSS",
 );
 m_timePatterns[m_tIdx++] = getRegEx(
   false,
@@ -598,7 +598,7 @@ m_timePatterns[m_tIdx++] = getRegEx(
   ":",
   "mm",
   ":",
-  "ss"
+  "ss",
 );
 m_timePatterns[m_tIdx++] = getRegEx(
   false,
@@ -614,7 +614,7 @@ m_timePatterns[m_tIdx++] = getRegEx(
   ":",
   "ss",
   "\\.",
-  "SSS"
+  "SSS",
 );
 m_timePatterns[m_tIdx++] = getRegEx(
   false,
@@ -628,7 +628,7 @@ m_timePatterns[m_tIdx++] = getRegEx(
   ":",
   "mm",
   ":",
-  "ss"
+  "ss",
 );
 m_timePatterns[m_tIdx++] = getRegEx(
   false,
@@ -640,7 +640,7 @@ m_timePatterns[m_tIdx++] = getRegEx(
   " ",
   "HH",
   ":",
-  "mm"
+  "mm",
 );
 m_timePatterns[m_tIdx++] = getRegEx(
   false,
@@ -652,5 +652,5 @@ m_timePatterns[m_tIdx++] = getRegEx(
   ":",
   "mm",
   ":",
-  "ss"
+  "ss",
 );

@@ -22,6 +22,9 @@ import com.percussion.server.IPSRequestContext;
 
 /** Strips leading and trailing white space from the supplied string. */
 public class PSStringTrimmerUdf extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSStringTrimmerUdf. */
+  public PSStringTrimmerUdf() {}
+
   /* ************ IPSUdfProcessor Interface Implementation ************ */
 
   /**

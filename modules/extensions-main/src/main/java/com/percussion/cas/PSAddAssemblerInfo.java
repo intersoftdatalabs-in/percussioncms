@@ -107,6 +107,9 @@ import org.xml.sax.SAXException;
  * are modfied.
  */
 public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
+  /** Creates a new PSAddAssemblerInfo. */
+  public PSAddAssemblerInfo() {}
+
   // see IPSResultDocumentProcessor#canModifyStyleSheet()
   public boolean canModifyStyleSheet() {
     return false;

@@ -45,7 +45,7 @@
       if (settings.datepicker.format) {
         dateFormatted = $.datepicker.formatDate(
           settings.datepicker.format,
-          new Date(dateRaw)
+          new Date(dateRaw),
         );
       } else {
         dateFormatted = dateRaw;

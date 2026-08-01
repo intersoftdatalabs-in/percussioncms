@@ -75,6 +75,9 @@ import org.w3c.dom.Element;
  * the database for the processed result.
  */
 public class PSInlineLinkCleanup extends PSDefaultExtension implements IPSResultDocumentProcessor {
+  /** Creates a new PSInlineLinkCleanup. */
+  public PSInlineLinkCleanup() {}
+
   private static final Logger log = LogManager.getLogger(PSInlineLinkCleanup.class);
 
   /**

@@ -5,7 +5,7 @@
   $.perc_sessionTimeout = function (options) {
     var dialogTitle = I18N.message("perc.ui.session.timeout@Still There");
     var dialogMessageTimeout = I18N.message(
-      "perc.ui.session.timeout@Auto Log Out"
+      "perc.ui.session.timeout@Auto Log Out",
     );
 
     var isDialogOn = false;
@@ -26,7 +26,7 @@
 		 */
     function getSessionTimeoutVariables() {
       console.log(
-        "Calling getSessionTimeoutVariables() function***************"
+        "Calling getSessionTimeoutVariables() function***************",
       );
       $.ajax({
         url: "/sessionCheckServlet",

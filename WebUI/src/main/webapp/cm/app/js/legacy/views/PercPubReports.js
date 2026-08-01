@@ -28,7 +28,7 @@
   // Custom column sorting for Publishing Log Details Elapsed Time column
   $.fn.dataTableExt.afnSortData["dom-elapsed-time"] = function (
     oSettings,
-    iColumn
+    iColumn,
   ) {
     var aData = [];
     $("td:eq(" + iColumn + ")", oSettings.oApi._fnGetTrNodes(oSettings)).each(
@@ -36,7 +36,7 @@
         var data = $(this).text();
         var dataNum = new Number(data.substring(0, data.indexOf("s")));
         aData.push(dataNum);
-      }
+      },
     );
     return aData;
   };
@@ -180,10 +180,10 @@
       } else {
         $.perc_utils.alert_dialog({
           content: I18N.message(
-            "perc.ui.perc.pub.reports@Unable To Retrieve Job Status"
+            "perc.ui.perc.pub.reports@Unable To Retrieve Job Status",
           ),
           title: I18N.message(
-            "perc.ui.perc.pub.reports@Current Status Of Jobs"
+            "perc.ui.perc.pub.reports@Current Status Of Jobs",
           ),
         });
       }
@@ -233,20 +233,20 @@
           var totalItems = results[r].totalItems;
           if (totalItems > 0) {
             queued = ((results[r].completedItems / totalItems) * 100).toFixed(
-              0
+              0,
             );
           }
           if (results[r].isStopping)
             var $stopPubButton = $(
               "<div><div class = 'perc-stop-button perc-stop-inactive' id='" +
                 results[r].jobId +
-                "'></div></div>"
+                "'></div></div>",
             );
           else
             var $stopPubButton = $(
               "<div><div class = 'perc-stop-button perc-stop-active' id='" +
                 results[r].jobId +
-                "'></div></div>"
+                "'></div></div>",
             );
 
           logString +=
@@ -355,10 +355,10 @@
       } else {
         $.perc_utils.alert_dialog({
           content: I18N.message(
-            "perc.ui.perc.pub.reports@Unable To Retrieve Logs"
+            "perc.ui.perc.pub.reports@Unable To Retrieve Logs",
           ),
           title: I18N.message(
-            "perc.ui.perc.pub.reports@Logs Of Published Jobs"
+            "perc.ui.perc.pub.reports@Logs Of Published Jobs",
           ),
         });
       }
@@ -509,7 +509,7 @@
     var options = {
       title: title,
       question: I18N.message(
-        "perc.ui.perc.pub.reports@Are You Sure Delete Logs"
+        "perc.ui.perc.pub.reports@Are You Sure Delete Logs",
       ),
       cancel: function () {},
       success: function () {
@@ -521,7 +521,7 @@
           } else {
             $.perc_utils.alert_dialog({
               content: I18N.message(
-                "perc.ui.perc.pub.reports@Unable To Delete Logs"
+                "perc.ui.perc.pub.reports@Unable To Delete Logs",
               ),
               title: title,
             });
@@ -555,7 +555,7 @@
       } else {
         $.perc_utils.alert_dialog({
           content: I18N.message(
-            "perc.ui.perc.pub.reports@Unable To Get Log Details"
+            "perc.ui.perc.pub.reports@Unable To Get Log Details",
           ),
         });
       }
@@ -712,14 +712,14 @@
         $.each(servers, function () {
           //TODO - Do appending outside the loop
           $("#perc-servers").append(
-            $("<option></option>").val(this.serverId).html(this.serverName)
+            $("<option></option>").val(this.serverId).html(this.serverName),
           );
         });
       } else {
         $.perc_utils.alert_dialog({
           content:
             I18N.message(
-              "perc.ui.perc.pub.reports@Unable To Get List Of Servers"
+              "perc.ui.perc.pub.reports@Unable To Get List Of Servers",
             ) + siteName,
           title: I18N.message("perc.ui.publish.title@Error"),
         });
@@ -737,7 +737,7 @@
       } else {
         $.perc_utils.alert_dialog({
           content: I18N.message(
-            "perc.ui.perc.pub.reports@Unable To Stop The Publishing Server"
+            "perc.ui.perc.pub.reports@Unable To Stop The Publishing Server",
           ),
           title: I18N.message("perc.ui.publish.title@Error"),
         });
@@ -777,7 +777,7 @@
       ".perc-stop-active",
       function (evt) {
         stopPublishing(evt);
-      }
+      },
     );
   });
 })(jQuery);

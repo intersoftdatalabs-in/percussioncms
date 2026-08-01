@@ -30,7 +30,7 @@
       parentPath,
       siteName,
       dlgTitle,
-      okCallback
+      okCallback,
     ) {
       var taborder = 30;
       var v;
@@ -66,7 +66,7 @@
           "</select> <br/>" +
           "<label for='perc-external-link-navigation-cssclassnames'>" +
           I18N.message(
-            "perc.ui.editSectionDialog.label@Navigation class names"
+            "perc.ui.editSectionDialog.label@Navigation class names",
           ) +
           ":</label> <br/> " +
           "<input type='text' tabindex='" +
@@ -86,13 +86,13 @@
           "<div class='ui-layout-south'>" +
           "<div id='perc_buttons' style='z-index: 100;'></div>" +
           "</div>" +
-          "</form> </div>"
+          "</form> </div>",
       ).perc_dialog({
         title: dlgTitle,
         open: function () {
           $.Perc_SectionServiceClient.getSection(
             sectionObj.id,
-            setDialogContent
+            setDialogContent,
           );
         },
         modal: true,
@@ -133,16 +133,16 @@
           $(
             "#perc-external-link-target option[value='" +
               data.SiteSection.target +
-              "']"
+              "']",
           ).attr("selected", "selected");
           // Bind the filter to the class names field and retrieve its value
           $.perc_filterFieldText(
             $("#perc-external-link-navigation-cssclassnames"),
             $.perc_autoFillTextFilters.IDNAMECDATAALPHA,
-            " "
+            " ",
           );
           $("#perc-external-link-navigation-cssclassnames").val(
-            data.SiteSection.cssClassNames
+            data.SiteSection.cssClassNames,
           );
         } else if (
           sectionObj.sectionType ===
@@ -166,7 +166,7 @@
           function (targetId, path) {
             $("#perc-section-link-targetid").val(targetId);
             $("#perc-section-link-target").val(path);
-          }
+          },
         );
       });
       function err(str) {

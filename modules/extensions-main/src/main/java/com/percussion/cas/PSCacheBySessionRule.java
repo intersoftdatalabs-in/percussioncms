@@ -29,6 +29,9 @@ import java.io.File;
  * Used by server to determine if a request should be cached using the sessionid as one of the keys.
  */
 public class PSCacheBySessionRule implements IPSUdfProcessor {
+  /** Creates a new PSCacheBySessionRule. */
+  public PSCacheBySessionRule() {}
+
   // see IPSUdfProcessor doc
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
     // noop

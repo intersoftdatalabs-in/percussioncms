@@ -66,7 +66,9 @@ public class PSXmlDomUtils {
    * @param cx the PSXmlDomContext for this request.
    * @param incomingFile The file which contains the XML/HTML document.
    * @return the parsed Document as an XML tree; may be <code>null</code> or empty.
-   * @throws IOException
+   * @throws IOException if an I/O error occurs.
+   * @throws PSExtensionProcessingException if an extension processing error occurs.
+   * @throws SAXException if a parse error occurs.
    */
   public static Document loadXmlDocument(PSXmlDomContext cx, File incomingFile)
       throws IOException, PSExtensionProcessingException, SAXException {
@@ -84,6 +86,9 @@ public class PSXmlDomUtils {
    * @param incomingFile The file which contains the XML/HTML document.
    * @param encoding the character encoding to use
    * @return the parsed Document as an XML tree.
+   * @throws IOException if an I/O error occurs.
+   * @throws PSExtensionProcessingException if an extension processing error occurs.
+   * @throws SAXException if a parse error occurs.
    */
   public static Document loadXmlDocument(PSXmlDomContext cx, File incomingFile, String encoding)
       throws IOException, PSExtensionProcessingException, SAXException {
@@ -339,9 +344,9 @@ public class PSXmlDomUtils {
    *
    * @param inFile The incoming file
    * @param encoding The standard Java name for the file's encoding method
-   * @throws FileNotFoundException
-   * @throws UnsupportedEncodingException
-   * @throws java.io.IOException
+   * @throws FileNotFoundException if the file does not exist.
+   * @throws UnsupportedEncodingException if the encoding is not supported.
+   * @throws java.io.IOException if an I/O error occurs.
    * @return The file as a <code>String</code>, never <code>null</code>
    */
   protected static String readInFile(File inFile, String encoding) throws IOException {
@@ -366,9 +371,9 @@ public class PSXmlDomUtils {
    * Read a file into a <code>String</code>, in chunks, using the default encoding.
    *
    * @param inFile the incoming file
-   * @throws FileNotFoundException
-   * @throws UnsupportedEncodingException
-   * @throws java.io.IOException
+   * @throws FileNotFoundException if the file does not exist.
+   * @throws UnsupportedEncodingException if the encoding is not supported.
+   * @throws java.io.IOException if an I/O error occurs.
    * @return The file as a <code>String</code>, never <code>null</code>
    */
   protected static String readInFile(File inFile) throws IOException {

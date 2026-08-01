@@ -37,6 +37,9 @@ import org.w3c.dom.Document;
  * @author yubingchen
  */
 public class PSTidyUtils {
+  /** Creates a new PSTidyUtils. */
+  public PSTidyUtils() {}
+
   /** The logger for this class. */
   private static final Logger ms_logger = LogManager.getLogger("PSHtmlUtils");
 
@@ -57,6 +60,11 @@ public class PSTidyUtils {
     return PSXmlDocumentBuilder.toString(doc);
   }
 
+  /**
+   * Sets the tidy properties used by this utility.
+   *
+   * @param props the tidy properties to set, must not be null.
+   */
   public static void setTidyProperties(Properties props) {
     notNull(props);
     m_tidyProperties = props;

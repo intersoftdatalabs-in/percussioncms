@@ -42,5 +42,5 @@ ps.declare(
       var id = "ps.select.templates.includeFoldersCheckbox";
       return this._mustById(id).checked ? this.getFolder() : null;
     },
-  }
+  },
 );

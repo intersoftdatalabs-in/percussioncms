@@ -20,7 +20,7 @@ ps.content.CreateItem = function () {
    * @param (string} url the url of the content that this
    * dialog will display.
    */
-  (this.init = function (url) {
+  ((this.init = function (url) {
     this.url = url;
   }),
     /**
@@ -40,7 +40,7 @@ ps.content.CreateItem = function () {
         },
         this.preferredWidth,
         this.preferredHeight,
-        false
+        false,
       );
 
       new ps.widget.ContentPaneProgress(this.wgtDlg);
@@ -122,13 +122,13 @@ ps.content.CreateItem = function () {
       };
       this.okCallback(this.slotId, this.itemId, this.position, newData);
       this.wgtDlg.hide();
-    });
+    }));
 
   /**
    * Initializes the content type combo to the content type of itemId.
    * If itemId is null then defaults to the first item in the combo.
    */
-  (this._initContentType = function () {
+  ((this._initContentType = function () {
     if (this.itemId == null) {
       this._initTemplateImages(this.selectContentTypes.getValue());
       return;
@@ -156,7 +156,7 @@ ps.content.CreateItem = function () {
         this.wgtTemplateGallery.setImages(
           this.contentTypeImageData[ctid].thumbUrls,
           this.contentTypeImageData[ctid].fullUrls,
-          this.contentTypeImageData[ctid].imgTitles
+          this.contentTypeImageData[ctid].imgTitles,
         );
         return;
       }
@@ -227,7 +227,7 @@ ps.content.CreateItem = function () {
       cancelCallback,
       slotId,
       itemId,
-      position
+      position,
     ) {
       this.slotId = slotId;
       this.itemId = itemId;
@@ -242,8 +242,8 @@ ps.content.CreateItem = function () {
       ps.util.setDialogSize(
         this.wgtDlg,
         this.preferredWidth,
-        this.preferredHeight
+        this.preferredHeight,
       );
       this.wgtDlg.show();
-    });
+    }));
 };

@@ -23,7 +23,7 @@
     var btn = $(
       "<a id='perc-finder-preview' class='perc-font-icon icon-eye-open fas fa-eye' href='#' title='" +
         I18N.message("perc.ui.preview.button@Launch Preview") +
-        "'></a>"
+        "'></a>",
     )
       .perc_button()
       .on("click", function (event) {
@@ -35,7 +35,7 @@
         $("#perc-finder-listview .perc-datatable-row-highlighted").length > 0
       ) {
         var listSelectedRowData = $(
-          "#perc-finder-listview .perc-datatable-row-highlighted"
+          "#perc-finder-listview .perc-datatable-row-highlighted",
         ).data("percRowData");
 
         if (
@@ -62,7 +62,7 @@
       var selectedPageColumn = $(".mcol-opened.perc-listing-type-percPage");
       var selectedAssetColumn = $(".mcol-opened.perc-listing-category-ASSET");
       var selectedItemList = $(
-        "#perc-finder-listview .perc-datatable-row-highlighted"
+        "#perc-finder-listview .perc-datatable-row-highlighted",
       );
 
       if (path[1] === "Sites" && path.length < 4) {

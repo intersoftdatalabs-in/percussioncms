@@ -116,11 +116,18 @@
                 <version>${jakarta.servlet.api.version}</version>
                 <scope>provided</scope>
             </dependency>
+            <!--
+              Must be compile (packaged in each WAR), not provided.
+              Tomcat is a servlet container only and does not ship JAX-RS.
+              Jersey 4 also marks jakarta.ws.rs-api as provided, so the API is
+              not a transitive runtime dependency of jersey-server/common.
+              Leaving this provided caused ClassNotFoundException: jakarta.ws.rs.Path
+              on every DTS webapp deploy (ContextConfig / ServletContainerInitializer).
+            -->
             <dependency>
                 <groupId>jakarta.ws.rs</groupId>
                 <artifactId>jakarta.ws.rs-api</artifactId>
                 <version>${jakarta.ws.rs.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>jakarta.xml.bind</groupId>
@@ -508,6 +515,24 @@
                         <artifactId>jaxb-api</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <!--
+              Parent core depMgmt scopes opencsv as test and snakeyaml as runtime-only
+              for CMS modules. DTS WARs need both at runtime (Liquibase SPI + packaging
+              into WEB-INF/lib), so re-declare here without test scope.
+            -->
+            <dependency>
+                <groupId>com.opencsv</groupId>
+                <artifactId>opencsv</artifactId>
+                <version>${opencsv.version}</version>
+                <!-- Explicit compile: parent core DM uses test and would drop this as a transitive -->
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>${snakeyaml.version}</version>
+                <scope>compile</scope>
             </dependency>
             <!-- Missing Hibernate dependencies -->
             <dependency>

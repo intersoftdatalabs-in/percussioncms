@@ -1,7 +1,7 @@
 !(function (t) {
   function e(e, o, p) {
     var d = this;
-    (d.id = p),
+    ((d.id = p),
       (d.options = o),
       (d.status = { animated: !1, rendered: !1, disabled: !1, focused: !1 }),
       (d.elements = {
@@ -25,16 +25,16 @@
               d,
               2,
               t.fn.qtip.constants.TOOLTIP_NOT_RENDERED,
-              "show"
+              "show",
             );
           if ("none" !== d.elements.tooltip.css("display")) return d;
           if ((d.elements.tooltip.stop(!0, !1), !1 === d.beforeShow.call(d, e)))
             return d;
           function i() {
-            "static" !== d.options.position.type && d.focus(),
+            ("static" !== d.options.position.type && d.focus(),
               d.onShow.call(d, e),
               t.browser.msie &&
-                d.elements.tooltip.get(0).style.removeAttribute("filter");
+                d.elements.tooltip.get(0).style.removeAttribute("filter"));
           }
           if (
             ((d.cache.toggle = 1),
@@ -51,13 +51,13 @@
               }),
             "function" == typeof d.options.show.effect.type)
           )
-            d.options.show.effect.type.call(
+            (d.options.show.effect.type.call(
               d.elements.tooltip,
-              d.options.show.effect.length
+              d.options.show.effect.length,
             ),
               d.elements.tooltip.queue(function () {
-                i(), t(this).dequeue();
-              });
+                (i(), t(this).dequeue());
+              }));
           else {
             switch (d.options.show.effect.type.toLowerCase()) {
               case "fade":
@@ -67,10 +67,10 @@
                 d.elements.tooltip.slideDown(
                   d.options.show.effect.length,
                   function () {
-                    i(),
+                    (i(),
                       "static" !== d.options.position.type &&
-                        d.updatePosition(e, !0);
-                  }
+                        d.updatePosition(e, !0));
+                  },
                 );
                 break;
               case "grow":
@@ -85,7 +85,7 @@
             d,
             1,
             t.fn.qtip.constants.EVENT_SHOWN,
-            "show"
+            "show",
           );
         },
         hide: function (e) {
@@ -94,7 +94,7 @@
               d,
               2,
               t.fn.qtip.constants.TOOLTIP_NOT_RENDERED,
-              "hide"
+              "hide",
             );
           if ("none" === d.elements.tooltip.css("display")) return d;
           if (
@@ -110,13 +110,13 @@
             ((d.cache.toggle = 0),
             "function" == typeof d.options.hide.effect.type)
           )
-            d.options.hide.effect.type.call(
+            (d.options.hide.effect.type.call(
               d.elements.tooltip,
-              d.options.hide.effect.length
+              d.options.hide.effect.length,
             ),
               d.elements.tooltip.queue(function () {
-                o(), t(this).dequeue();
-              });
+                (o(), t(this).dequeue());
+              }));
           else {
             switch (d.options.hide.effect.type.toLowerCase()) {
               case "fade":
@@ -137,7 +137,7 @@
             d,
             1,
             t.fn.qtip.constants.EVENT_HIDDEN,
-            "hide"
+            "hide",
           );
         },
         updatePosition: function (e, o) {
@@ -147,14 +147,14 @@
               d,
               2,
               t.fn.qtip.constants.TOOLTIP_NOT_RENDERED,
-              "updatePosition"
+              "updatePosition",
             );
           if ("static" == d.options.position.type)
             return t.fn.qtip.log.error.call(
               d,
               1,
               t.fn.qtip.constants.CANNOT_POSITION_STATIC,
-              "updatePosition"
+              "updatePosition",
             );
           if (
             ((n = {
@@ -211,20 +211,20 @@
                           (n.dimensions.height = l[i]),
                         l[i] < l[1] &&
                           (n.position.top = Math.floor(a.top + l[i])));
-                  (n.dimensions.width =
+                  ((n.dimensions.width =
                     n.dimensions.width - (n.position.left - a.left)),
                     (n.dimensions.height =
-                      n.dimensions.height - (n.position.top - a.top));
+                      n.dimensions.height - (n.position.top - a.top)));
                   break;
                 default:
                   return t.fn.qtip.log.error.call(
                     d,
                     4,
                     t.fn.qtip.constants.INVALID_AREA_SHAPE,
-                    "updatePosition"
+                    "updatePosition",
                   );
               }
-              (n.dimensions.width -= 2), (n.dimensions.height -= 2);
+              ((n.dimensions.width -= 2), (n.dimensions.height -= 2));
             } else
               1 === d.options.position.target.add(document.body).length
                 ? ((n.position = {
@@ -243,7 +243,7 @@
                     height: d.options.position.target.outerHeight(),
                     width: d.options.position.target.outerWidth(),
                   }));
-            (h = t.extend({}, n.position)),
+            ((h = t.extend({}, n.position)),
               -1 !== n.corner.search(/right/i) &&
                 (h.left += n.dimensions.width),
               -1 !== n.corner.search(/bottom/i) &&
@@ -251,10 +251,10 @@
               -1 !== n.corner.search(/((top|bottom)Middle)|center/) &&
                 (h.left += n.dimensions.width / 2),
               -1 !== n.corner.search(/((left|right)Middle)|center/) &&
-                (h.top += n.dimensions.height / 2);
+                (h.top += n.dimensions.height / 2));
           } else
-            (n.position = h = { left: d.cache.mouse.x, top: d.cache.mouse.y }),
-              (n.dimensions = { height: 1, width: 1 });
+            ((n.position = h = { left: d.cache.mouse.x, top: d.cache.mouse.y }),
+              (n.dimensions = { height: 1, width: 1 }));
           if (
             (-1 !== r.corner.search(/right/i) && (h.left -= r.dimensions.width),
             -1 !== r.corner.search(/bottom/i) && (h.top -= r.dimensions.height),
@@ -287,7 +287,7 @@
               (h = function (e, o, i) {
                 var n, r, l, p;
                 if ((this, "center" == i.corner)) return o.position;
-                (n = t.extend({}, e)),
+                ((n = t.extend({}, e)),
                   (l = { x: !1, y: !1 }),
                   (p = {
                     left: n.left < t.fn.qtip.cache.screen.scroll.left,
@@ -321,7 +321,7 @@
                       ("mouse" !== this.options.position.target
                         ? (n.left = o.position.left - i.dimensions.width)
                         : (n.left = this.cache.mouse.x - i.dimensions.width),
-                      (l.x = "Right"));
+                      (l.x = "Right")));
                 r.top
                   ? ("mouse" !== this.options.position.target
                       ? (n.top = o.position.top + o.dimensions.height)
@@ -356,13 +356,13 @@
               t.browser.msie &&
               6 == parseInt(t.browser.version.charAt(0)) &&
               t("select, object").each(function () {
-                ((u = t(this).offset()).bottom = u.top + t(this).height()),
+                (((u = t(this).offset()).bottom = u.top + t(this).height()),
                   (u.right = u.left + t(this).width()),
                   h.top + r.dimensions.height >= u.top &&
                     h.left + r.dimensions.width >= u.left &&
                     function () {
                       var t, e;
-                      (e = this.getDimensions()),
+                      ((e = this.getDimensions()),
                         (t =
                           '<iframe class="qtip-bgiframe" style="border:0;" tabindex="-1" src="javascript:false" style="display:block; position:absolute; z-index:-1; filter:alpha(opacity=\'0\'); border: 1px solid red; height:' +
                           e.height +
@@ -371,8 +371,8 @@
                           'px" />'),
                         (this.elements.bgiframe = this.elements.wrapper
                           .prepend(t)
-                          .children(".qtip-bgiframe:first"));
-                    }.call(d);
+                          .children(".qtip-bgiframe:first")));
+                    }.call(d));
               }),
             (h.left += d.options.position.adjust.x),
             (h.top += d.options.position.adjust.y),
@@ -380,7 +380,7 @@
             h.left != m.left || h.top != m.top)
           ) {
             if (!1 === d.beforePositionUpdate.call(d, e)) return d;
-            (d.cache.position = h),
+            ((d.cache.position = h),
               !0 === o
                 ? ((d.status.animated = !0),
                   d.elements.tooltip.animate(h, 200, "swing", function () {
@@ -395,8 +395,8 @@
                   d,
                   1,
                   t.fn.qtip.constants.EVENT_POSITION_UPDATED,
-                  "updatePosition"
-                );
+                  "updatePosition",
+                ));
           }
           return d;
         },
@@ -408,7 +408,7 @@
                   d,
                   2,
                   "newWidth must be of type number",
-                  "updateWidth"
+                  "updateWidth",
                 )
               : ((o = d.elements.contentWrapper
                   .siblings()
@@ -451,13 +451,13 @@
                   d,
                   1,
                   t.fn.qtip.constants.EVENT_WIDTH_UPDATED,
-                  "updateWidth"
+                  "updateWidth",
                 ))
             : t.fn.qtip.log.error.call(
                 d,
                 2,
                 t.fn.qtip.constants.TOOLTIP_NOT_RENDERED,
-                "updateWidth"
+                "updateWidth",
               );
         },
         updateStyle: function (e) {
@@ -467,7 +467,7 @@
               ? ((d.options.style = a.call(
                   d,
                   t.fn.qtip.styles[e],
-                  d.options.user.style
+                  d.options.user.style,
                 )),
                 d.elements.content.css(l(d.options.style)),
                 !1 !== d.options.content.title.text &&
@@ -482,22 +482,22 @@
                       (p = h(
                         (r = o.parent("div[rel]:first").attr("rel")),
                         d.options.style.tip.size.width,
-                        d.options.style.tip.size.height
+                        d.options.style.tip.size.height,
                       )),
                       n.call(
                         d,
                         o,
                         p,
                         d.options.style.tip.color ||
-                          d.options.style.border.color
+                          d.options.style.border.color,
                       ))
                     : t.browser.msie &&
                       (o = d.elements.tooltip.find(
-                        '.qtip-tip [nodeName="shape"]'
+                        '.qtip-tip [nodeName="shape"]',
                       )).attr(
                         "fillcolor",
                         d.options.style.tip.color ||
-                          d.options.style.border.color
+                          d.options.style.border.color,
                       )),
                 d.options.style.border.radius > 0 &&
                   (d.elements.tooltip
@@ -508,7 +508,7 @@
                       d.elements.tooltip
                         .find(".qtip-wrapper canvas")
                         .each(function () {
-                          t(this)
+                          (t(this)
                             .get(0)
                             .getContext("2d")
                             .clearRect(0, 0, 300, 300),
@@ -518,8 +518,8 @@
                               t(this),
                               s[r],
                               d.options.style.border.radius,
-                              d.options.style.border.color
-                            );
+                              d.options.style.border.color,
+                            ));
                         }))
                     : t.browser.msie &&
                       d.elements.tooltip
@@ -527,26 +527,26 @@
                         .each(function () {
                           t(this).attr(
                             "fillcolor",
-                            d.options.style.border.color
+                            d.options.style.border.color,
                           );
                         })),
                 t.fn.qtip.log.error.call(
                   d,
                   1,
                   t.fn.qtip.constants.EVENT_STYLE_UPDATED,
-                  "updateStyle"
+                  "updateStyle",
                 ))
               : t.fn.qtip.log.error.call(
                   d,
                   2,
                   t.fn.qtip.constants.STYLE_NOT_DEFINED,
-                  "updateStyle"
+                  "updateStyle",
                 )
             : t.fn.qtip.log.error.call(
                 d,
                 2,
                 t.fn.qtip.constants.TOOLTIP_NOT_RENDERED,
-                "updateStyle"
+                "updateStyle",
               );
         },
         updateContent: function (e, o) {
@@ -556,23 +556,23 @@
               d,
               2,
               t.fn.qtip.constants.TOOLTIP_NOT_RENDERED,
-              "updateContent"
+              "updateContent",
             );
           if (!e)
             return t.fn.qtip.log.error.call(
               d,
               2,
               t.fn.qtip.constants.NO_CONTENT_PROVIDED,
-              "updateContent"
+              "updateContent",
             );
           if ("string" == typeof (i = d.beforeContentUpdate.call(d, e))) e = i;
           else if (!1 === i) return;
           function l() {
-            d.updateWidth(),
+            (d.updateWidth(),
               !1 !== o &&
                 ("static" !== d.options.position.type &&
                   d.updatePosition(d.elements.tooltip.is(":visible"), !0),
-                !1 !== d.options.style.tip.corner && r.call(d));
+                !1 !== d.options.style.tip.corner && r.call(d)));
           }
           return (
             t.browser.msie &&
@@ -586,7 +586,7 @@
                   t('<img src="' + t(this).attr("src") + '" />').load(
                     function () {
                       ++n == s.length && l();
-                    }
+                    },
                   );
                 }))
               : l(),
@@ -595,7 +595,7 @@
               d,
               1,
               t.fn.qtip.constants.EVENT_CONTENT_UPDATED,
-              "loadContent"
+              "loadContent",
             )
           );
         },
@@ -605,20 +605,20 @@
               d,
               2,
               t.fn.qtip.constants.TOOLTIP_NOT_RENDERED,
-              "loadContent"
+              "loadContent",
             );
           if (!1 === d.beforeContentLoad.call(d)) return d;
           function s(e) {
-            d.onContentLoad.call(d),
+            (d.onContentLoad.call(d),
               t.fn.qtip.log.error.call(
                 d,
                 1,
                 t.fn.qtip.constants.EVENT_CONTENT_LOADED,
-                "loadContent"
+                "loadContent",
               ),
-              d.updateContent(e);
+              d.updateContent(e));
           }
-          return "post" == i ? t.post(e, o, s) : t.get(e, o, s), d;
+          return ("post" == i ? t.post(e, o, s) : t.get(e, o, s), d);
         },
         updateTitle: function (e) {
           if (!d.status.rendered)
@@ -626,14 +626,14 @@
               d,
               2,
               t.fn.qtip.constants.TOOLTIP_NOT_RENDERED,
-              "updateTitle"
+              "updateTitle",
             );
           if (!e)
             return t.fn.qtip.log.error.call(
               d,
               2,
               t.fn.qtip.constants.NO_CONTENT_PROVIDED,
-              "updateTitle"
+              "updateTitle",
             );
           return !1 === d.beforeTitleUpdate.call(d)
             ? d
@@ -646,7 +646,7 @@
                 d,
                 1,
                 t.fn.qtip.constants.EVENT_TITLE_UPDATED,
-                "updateTitle"
+                "updateTitle",
               ));
         },
         focus: function (e) {
@@ -656,14 +656,14 @@
               d,
               2,
               t.fn.qtip.constants.TOOLTIP_NOT_RENDERED,
-              "focus"
+              "focus",
             );
           if ("static" == d.options.position.type)
             return t.fn.qtip.log.error.call(
               d,
               1,
               t.fn.qtip.constants.CANNOT_FOCUS_STATIC,
-              "focus"
+              "focus",
             );
           if (
             ((o = parseInt(d.elements.tooltip.css("z-index"))),
@@ -671,7 +671,7 @@
             !d.status.focused && o !== i)
           ) {
             if (!1 === d.beforeFocus.call(d, e)) return d;
-            t("div.qtip[qtip]")
+            (t("div.qtip[qtip]")
               .not(d.elements.tooltip)
               .each(function () {
                 !0 === t(this).qtip("api").status.rendered &&
@@ -689,8 +689,8 @@
                 d,
                 1,
                 t.fn.qtip.constants.EVENT_FOCUSED,
-                "focus"
-              );
+                "focus",
+              ));
           }
           return d;
         },
@@ -702,35 +702,35 @@
                       d,
                       1,
                       t.fn.qtip.constants.TOOLTIP_ALREADY_DISABLED,
-                      "disable"
+                      "disable",
                     )
                   : ((d.status.disabled = !0),
                     t.fn.qtip.log.error.call(
                       d,
                       1,
                       t.fn.qtip.constants.EVENT_DISABLED,
-                      "disable"
+                      "disable",
                     ))
                 : d.status.disabled
-                ? ((d.status.disabled = !1),
-                  t.fn.qtip.log.error.call(
-                    d,
-                    1,
-                    t.fn.qtip.constants.EVENT_ENABLED,
-                    "disable"
-                  ))
-                : t.fn.qtip.log.error.call(
-                    d,
-                    1,
-                    t.fn.qtip.constants.TOOLTIP_ALREADY_ENABLED,
-                    "disable"
-                  ),
+                  ? ((d.status.disabled = !1),
+                    t.fn.qtip.log.error.call(
+                      d,
+                      1,
+                      t.fn.qtip.constants.EVENT_ENABLED,
+                      "disable",
+                    ))
+                  : t.fn.qtip.log.error.call(
+                      d,
+                      1,
+                      t.fn.qtip.constants.TOOLTIP_ALREADY_ENABLED,
+                      "disable",
+                    ),
               d)
             : t.fn.qtip.log.error.call(
                 d,
                 2,
                 t.fn.qtip.constants.TOOLTIP_NOT_RENDERED,
-                "disable"
+                "disable",
               );
         },
         destroy: function () {
@@ -740,20 +740,20 @@
             (d.status.rendered
               ? (d.options.show.when.target.off(
                   "mousemove.qtip",
-                  d.updatePosition
+                  d.updatePosition,
                 ),
                 d.options.show.when.target.off("mouseout.qtip", d.hide),
                 d.options.show.when.target.off(
-                  d.options.show.when.event + ".qtip"
+                  d.options.show.when.event + ".qtip",
                 ),
                 d.options.hide.when.target.off(
-                  d.options.hide.when.event + ".qtip"
+                  d.options.hide.when.event + ".qtip",
                 ),
                 d.elements.tooltip.off(d.options.hide.when.event + ".qtip"),
                 d.elements.tooltip.off("mouseover.qtip", d.focus),
                 d.elements.tooltip.remove())
               : d.options.show.when.target.off(
-                  d.options.show.when.event + ".qtip-create"
+                  d.options.show.when.event + ".qtip-create",
                 ),
             "object" == typeof d.elements.target.data("qtip") &&
               "object" ==
@@ -772,7 +772,7 @@
               d,
               1,
               t.fn.qtip.constants.EVENT_DESTROYED,
-              "destroy"
+              "destroy",
             ),
             d.elements.target
           );
@@ -789,7 +789,7 @@
                 d,
                 2,
                 t.fn.qtip.constants.TOOLTIP_NOT_RENDERED,
-                "getPosition"
+                "getPosition",
               );
         },
         getDimensions: function () {
@@ -807,14 +807,14 @@
                 d,
                 2,
                 t.fn.qtip.constants.TOOLTIP_NOT_RENDERED,
-                "getDimensions"
+                "getDimensions",
               );
         },
-      });
+      }));
   }
   function o() {
     var e, o, n, r;
-    this.beforeRender.call(this),
+    (this.beforeRender.call(this),
       (this.status.rendered = !0),
       (this.elements.tooltip =
         '<div qtip="' +
@@ -854,7 +854,7 @@
                 (l = c(n)),
                 (p = {}),
                 l))
-                  (p[o] =
+                  ((p[o] =
                     '<div rel="' +
                     o +
                     '" style="' +
@@ -889,8 +889,8 @@
                           "px; margin-left:" +
                           (-1 !== o.search(/Right/) ? l[o][2] - 3.5 : -1) +
                           'px; vertical-align:top; display:inline-block; behavior:url(#default#VML)"></v:arc>')),
-                    (p[o] += "</div>");
-                (h = e.getDimensions().width - 2 * Math.max(s, n)),
+                    (p[o] += "</div>"));
+                ((h = e.getDimensions().width - 2 * Math.max(s, n)),
                   (d =
                     '<div class="qtip-betweenCorners" style="height:' +
                     n +
@@ -921,19 +921,19 @@
                   e.elements.wrapper.append(u),
                   t("<canvas>").get(0).getContext
                     ? e.elements.wrapper.find("canvas").each(function () {
-                        (m = l[t(this).parent("[rel]:first").attr("rel")]),
-                          i.call(e, t(this), m, n, r);
+                        ((m = l[t(this).parent("[rel]:first").attr("rel")]),
+                          i.call(e, t(this), m, n, r));
                       })
                     : t.browser.msie &&
                       e.elements.tooltip.append(
-                        '<v:image style="behavior:url(#default#VML);"></v:image>'
-                      );
-                (g = Math.max(n, n + (s - n))),
+                        '<v:image style="behavior:url(#default#VML);"></v:image>',
+                      ));
+                ((g = Math.max(n, n + (s - n))),
                   (w = Math.max(s - n, 0)),
                   e.elements.contentWrapper.css({
                     border: "0px solid " + r,
                     borderWidth: w + "px " + g + "px",
-                  });
+                  }));
               }.call(this)
             : this.elements.contentWrapper.css({
                 border:
@@ -954,45 +954,45 @@
             this,
             2,
             t.fn.qtip.constants.CANVAS_VML_NOT_SUPPORTED,
-            "render"
+            "render",
           )),
       ("string" == typeof this.options.content.text &&
         this.options.content.text.length > 0) ||
       (this.options.content.text.jquery && this.options.content.text.length > 0)
         ? (e = this.options.content.text)
         : "string" == typeof this.elements.target.attr("title") &&
-          this.elements.target.attr("title").length > 0
-        ? ((e = this.elements.target.attr("title").replace("\\n", "<br />")),
-          this.elements.target.attr("title", ""))
-        : "string" == typeof this.elements.target.attr("alt") &&
-          this.elements.target.attr("alt").length > 0
-        ? ((e = this.elements.target.attr("alt").replace("\\n", "<br />")),
-          this.elements.target.attr("alt", ""))
-        : ((e = " "),
-          t.fn.qtip.log.error.call(
-            this,
-            1,
-            t.fn.qtip.constants.NO_VALID_CONTENT,
-            "render"
-          )),
+            this.elements.target.attr("title").length > 0
+          ? ((e = this.elements.target.attr("title").replace("\\n", "<br />")),
+            this.elements.target.attr("title", ""))
+          : "string" == typeof this.elements.target.attr("alt") &&
+              this.elements.target.attr("alt").length > 0
+            ? ((e = this.elements.target.attr("alt").replace("\\n", "<br />")),
+              this.elements.target.attr("alt", ""))
+            : ((e = " "),
+              t.fn.qtip.log.error.call(
+                this,
+                1,
+                t.fn.qtip.constants.NO_VALID_CONTENT,
+                "render",
+              )),
       !1 !== this.options.content.title.text &&
         function () {
           var e = this;
           null !== e.elements.title && e.elements.title.remove();
-          (e.elements.title = t(
-            '<div class="' + e.options.style.classes.title + '">'
+          ((e.elements.title = t(
+            '<div class="' + e.options.style.classes.title + '">',
           )
             .css(l(e.options.style.title, !0))
             .css({ zoom: t.browser.msie ? 1 : 0 })
             .prependTo(e.elements.contentWrapper)),
             e.options.content.title.text &&
-              e.updateTitle.call(e, e.options.content.title.text);
+              e.updateTitle.call(e, e.options.content.title.text));
           !1 !== e.options.content.title.button &&
             "string" == typeof e.options.content.title.button &&
             (e.elements.button = t(
               '<a class="' +
                 e.options.style.classes.button +
-                '" style="float:right; position: relative"></a>'
+                '" style="float:right; position: relative"></a>',
             )
               .css(l(e.options.style.button, !0))
               .html(e.options.content.title.button)
@@ -1004,19 +1004,19 @@
       this.updateContent(e),
       function () {
         var e, o, i, s;
-        (o = (e = this).options.show.when.target),
+        ((o = (e = this).options.show.when.target),
           (i = e.options.hide.when.target),
-          e.options.hide.fixed && (i = i.add(e.elements.tooltip));
+          e.options.hide.fixed && (i = i.add(e.elements.tooltip)));
         if ("inactive" == e.options.hide.when.event) {
           function n(o) {
             !0 !== e.status.disabled &&
               (clearTimeout(e.timers.inactive),
               (e.timers.inactive = setTimeout(function () {
-                t(s).each(function () {
-                  i.off(this + ".qtip-inactive"),
-                    e.elements.content.off(this + ".qtip-inactive");
+                (t(s).each(function () {
+                  (i.off(this + ".qtip-inactive"),
+                    e.elements.content.off(this + ".qtip-inactive"));
                 }),
-                  e.hide(o);
+                  e.hide(o));
               }, e.options.hide.delay)));
           }
           s = [
@@ -1039,8 +1039,8 @@
           !0 !== e.status.disabled &&
             ("inactive" == e.options.hide.when.event &&
               (t(s).each(function () {
-                i.on(this + ".qtip-inactive", n),
-                  e.elements.content.on(this + ".qtip-inactive", n);
+                (i.on(this + ".qtip-inactive", n),
+                  e.elements.content.on(this + ".qtip-inactive", n));
               }),
               n()),
             clearTimeout(e.timers.show),
@@ -1062,12 +1062,12 @@
                 clearTimeout(e.timers.hide),
                 !1
               );
-            clearTimeout(e.timers.show),
+            (clearTimeout(e.timers.show),
               clearTimeout(e.timers.hide),
               e.elements.tooltip.stop(!0, !0),
               (e.timers.hide = setTimeout(function () {
                 e.hide(o);
-              }, e.options.hide.delay));
+              }, e.options.hide.delay)));
           }
         }
         (1 ===
@@ -1087,12 +1087,12 @@
         "mouse" === e.options.position.target &&
           "static" !== e.options.position.type &&
           o.on("mousemove.qtip", function (t) {
-            (e.cache.mouse = { x: t.pageX, y: t.pageY }),
+            ((e.cache.mouse = { x: t.pageX, y: t.pageY }),
               !1 === e.status.disabled &&
                 !0 === e.options.position.adjust.mouse &&
                 "static" !== e.options.position.type &&
                 "none" !== e.elements.tooltip.css("display") &&
-                e.updatePosition(t);
+                e.updatePosition(t));
           });
       }.call(this),
       !0 === this.options.show.ready && this.show(),
@@ -1106,26 +1106,26 @@
         this,
         1,
         t.fn.qtip.constants.EVENT_RENDERED,
-        "render"
-      );
+        "render",
+      ));
   }
   function i(t, e, o, i) {
     var s = t.get(0).getContext("2d");
-    (s.fillStyle = i),
+    ((s.fillStyle = i),
       s.beginPath(),
       s.arc(e[0], e[1], o, 0, 2 * Math.PI, !1),
-      s.fill();
+      s.fill());
   }
   function s(e) {
     var o, i, s, l;
-    null !== this.elements.tip && this.elements.tip.remove(),
+    (null !== this.elements.tip && this.elements.tip.remove(),
       (o = this.options.style.tip.color || this.options.style.border.color),
       !1 !== this.options.style.tip.corner &&
         (e || (e = this.options.style.tip.corner),
         (i = h(
           e,
           this.options.style.tip.size.width,
-          this.options.style.tip.size.height
+          this.options.style.tip.size.height,
         )),
         (this.elements.tip =
           '<div class="' +
@@ -1180,16 +1180,16 @@
           t.browser.msie &&
           6 === parseInt(t.browser.version.charAt(0)) &&
           this.elements.tip.css({ marginTop: -4 }),
-        r.call(this, e));
+        r.call(this, e)));
   }
   function n(t, e, o) {
     var i = t.get(0).getContext("2d");
-    (i.fillStyle = o),
+    ((i.fillStyle = o),
       i.beginPath(),
       i.moveTo(e[0][0], e[0][1]),
       i.lineTo(e[1][0], e[1][1]),
       i.lineTo(e[2][0], e[2][1]),
-      i.fill();
+      i.fill());
   }
   function r(e) {
     var o, i, s, n;
@@ -1209,13 +1209,13 @@
                 marginLeft: -this.options.style.tip.size.width / 2,
               })
             : -1 !== e.search(/Left/)
-            ? this.elements.tip.css({
-                left: this.options.style.border.radius - o,
-              })
-            : -1 !== e.search(/Right/) &&
-              this.elements.tip.css({
-                right: this.options.style.border.radius + o,
-              }),
+              ? this.elements.tip.css({
+                  left: this.options.style.border.radius - o,
+                })
+              : -1 !== e.search(/Right/) &&
+                this.elements.tip.css({
+                  right: this.options.style.border.radius + o,
+                }),
           -1 !== e.search(/top/)
             ? this.elements.tip.css({ top: -positionAdjust })
             : this.elements.tip.css({ bottom: positionAdjust }))
@@ -1225,21 +1225,21 @@
               6 === parseInt(t.browser.version.charAt(0))
                 ? 1
                 : -1 !== e.search(/left/)
-                ? 1
-                : 2),
+                  ? 1
+                  : 2),
           -1 !== e.search(/Middle/)
             ? this.elements.tip.css({
                 top: "50%",
                 marginTop: -this.options.style.tip.size.height / 2,
               })
             : -1 !== e.search(/Top/)
-            ? this.elements.tip.css({
-                top: this.options.style.border.radius - o,
-              })
-            : -1 !== e.search(/Bottom/) &&
-              this.elements.tip.css({
-                bottom: this.options.style.border.radius + o,
-              }),
+              ? this.elements.tip.css({
+                  top: this.options.style.border.radius - o,
+                })
+              : -1 !== e.search(/Bottom/) &&
+                this.elements.tip.css({
+                  bottom: this.options.style.border.radius + o,
+                }),
           -1 !== e.search(/left/)
             ? this.elements.tip.css({ left: -positionAdjust })
             : this.elements.tip.css({ right: positionAdjust })),
@@ -1288,13 +1288,13 @@
     var e, o, i, s, n;
     for (this, o = [!0, {}], e = 0; e < arguments.length; e++)
       o.push(arguments[e]);
-    for (i = [t.extend.apply(t, o)]; "string" == typeof i[0].name; )
+    for (i = [t.extend.apply(t, o)]; "string" == typeof i[0].name;)
       i.unshift(p(t.fn.qtip.styles[i[0].name]));
     return (
       i.unshift(
         !0,
         { classes: { tooltip: "qtip-" + (arguments[0].name || "defaults") } },
-        t.fn.qtip.styles.defaults
+        t.fn.qtip.styles.defaults,
       ),
       (s = t.extend.apply(t, i)),
       (n = t.browser.msie ? 1 : 0),
@@ -1380,7 +1380,7 @@
       o
     );
   }
-  (t.fn.qtip = function (i, s) {
+  ((t.fn.qtip = function (i, s) {
     var n, r, l, h, c, d, f, u;
     if ("string" == typeof i) {
       if (
@@ -1389,14 +1389,14 @@
             self,
             1,
             t.fn.qtip.constants.NO_TOOLTIP_PRESENT,
-            !1
+            !1,
           ),
         "api" == i)
       )
         return t(this).data("qtip").interfaces[t(this).data("qtip").current];
       if ("interfaces" == i) return t(this).data("qtip").interfaces;
     } else
-      i || (i = {}),
+      (i || (i = {}),
         ("object" != typeof i.content ||
           (i.content.jquery && i.content.length > 0)) &&
           (i.content = { text: i.content }),
@@ -1422,9 +1422,9 @@
         (i.style = p(i.style)),
         ((h = t.extend(!0, {}, t.fn.qtip.defaults, i)).style = a.call(
           { options: h },
-          h.style
+          h.style,
         )),
-        (h.user = t.extend(!0, {}, i));
+        (h.user = t.extend(!0, {}, i)));
     return t(this).each(function () {
       if ("string" == typeof i) {
         if (
@@ -1432,7 +1432,7 @@
           "object" == typeof (l = t(this).qtip("interfaces")))
         )
           if (!0 === s && "destroy" == d)
-            for (; l.length > 0; ) l[l.length - 1].destroy();
+            for (; l.length > 0;) l[l.length - 1].destroy();
           else
             for (
               !0 !== s && (l = [t(this).qtip("api")]), n = 0;
@@ -1445,12 +1445,12 @@
                   ("show" == d
                     ? l[n].show()
                     : "hide" == d
-                    ? l[n].hide()
-                    : "focus" == d
-                    ? l[n].focus()
-                    : "disable" == d
-                    ? l[n].disable(!0)
-                    : "enable" == d && l[n].disable(!1));
+                      ? l[n].hide()
+                      : "focus" == d
+                        ? l[n].focus()
+                        : "disable" == d
+                          ? l[n].disable(!0)
+                          : "enable" == d && l[n].disable(!1));
       } else {
         for (
           (f = t.extend(!0, {}, h)).hide.effect.length = h.hide.effect.length,
@@ -1469,7 +1469,7 @@
             r = n;
             break;
           }
-        (c = new e(t(this), f, r)),
+        ((c = new e(t(this), f, r)),
           (t.fn.qtip.interfaces[r] = c),
           "object" == typeof t(this).data("qtip")
             ? (void 0 === t(this).attr("qtip") &&
@@ -1484,33 +1484,33 @@
                 f.show.when.event + ".qtip-" + r + "-create",
                 { qtip: r },
                 function (e) {
-                  (u =
+                  ((u =
                     t.fn.qtip.interfaces[
                       e.data.qtip
                     ]).options.show.when.target.off(
                     u.options.show.when.event +
                       ".qtip-" +
                       e.data.qtip +
-                      "-create"
+                      "-create",
                   ),
                     (u.cache.mouse = { x: e.pageX, y: e.pageY }),
                     o.call(u),
                     u.options.show.when.target.trigger(
-                      u.options.show.when.event
-                    );
-                }
+                      u.options.show.when.event,
+                    ));
+                },
               )
             : ((c.cache.mouse = {
                 x: f.show.when.target.offset().left,
                 y: f.show.when.target.offset().top,
               }),
-              o.call(c));
+              o.call(c)));
       }
     });
   }),
     t(function () {
       var e;
-      (t.fn.qtip.cache = {
+      ((t.fn.qtip.cache = {
         screen: {
           scroll: { left: t(window).scrollLeft(), top: t(window).scrollTop() },
           width: t(window).width(),
@@ -1518,7 +1518,7 @@
         },
       }),
         t(window).on("resize scroll", function (o) {
-          clearTimeout(e),
+          (clearTimeout(e),
             (e = setTimeout(function () {
               "scroll" === o.type
                 ? (t.fn.qtip.cache.screen.scroll = {
@@ -1536,7 +1536,7 @@
                       "resize" === o.type)) &&
                   e.updatePosition(o, !0);
               }
-            }, 100));
+            }, 100)));
         }),
         t(document).on("mousedown.qtip", function (e) {
           0 === t(e.target).parents("div.qtip").length &&
@@ -1547,7 +1547,7 @@
                 t(e.target).add(o.elements.target).length > 1 &&
                 o.hide(e);
             });
-        });
+        }));
     }),
     (t.fn.qtip.interfaces = []),
     (t.fn.qtip.log = {
@@ -1677,5 +1677,5 @@
         color: "#4D9FBF",
         classes: { tooltip: "qtip-blue" },
       },
-    });
+    }));
 })(jQuery);

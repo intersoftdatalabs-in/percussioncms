@@ -49,7 +49,7 @@
     plugin: function (settings, original) {
       $("textarea", this).charCounter(
         settings.charcounter.characters,
-        settings.charcounter
+        settings.charcounter,
       );
     },
   });

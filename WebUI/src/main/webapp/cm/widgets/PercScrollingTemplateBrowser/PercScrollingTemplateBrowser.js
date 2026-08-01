@@ -25,10 +25,10 @@
     scrollable.append(items);
 
     var prev = $(
-      "<a tabindex='0' style = 'margin:50px 0px' class='prevPage browse left' ></a>"
+      "<a tabindex='0' style = 'margin:50px 0px' class='prevPage browse left' ></a>",
     );
     var next = $(
-      "<a tabindex='0' style = 'margin:50px 0px' class='nextPage browse right'></a>"
+      "<a tabindex='0' style = 'margin:50px 0px' class='nextPage browse right'></a>",
     );
     var clearboth = $("<div style='clear:both'>");
 
@@ -48,9 +48,9 @@
         var empty = $(
           "<div class='perc-empty'>" +
             I18N.message(
-              "perc.ui.scrolling.template.browser@No Templates Found"
+              "perc.ui.scrolling.template.browser@No Templates Found",
             ) +
-            "</div>"
+            "</div>",
         ).css("margin-top", "70px");
         scrollable
           .css("text-align", "center")

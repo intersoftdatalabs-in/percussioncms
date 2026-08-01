@@ -38,6 +38,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HEAD;
 import jakarta.ws.rs.POST;
@@ -739,8 +740,14 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
   }
 
   /** {@inheritDoc} */
+  @DELETE
+  @Path("/updateOldSiteEntries/{prevSiteName}/{newSiteName}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("deliverymanager")
   @Override
-  public Response updateOldSiteEntries(String prevSiteName, String newSiteName) {
+  public Response updateOldSiteEntries(
+      @PathParam("prevSiteName") String prevSiteName,
+      @PathParam("newSiteName") String newSiteName) {
     PSFeedService.log.info("Attempting to delete feeds entries for site name: {}", prevSiteName);
     try {
       List<IPSFeedDescriptor> feeds = this.feedDao.findBySite(prevSiteName);

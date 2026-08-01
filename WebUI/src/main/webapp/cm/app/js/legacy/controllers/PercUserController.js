@@ -95,14 +95,14 @@
       // if we cant even get the status show a generic error message
       if (status == userService.STATUS_ERROR)
         errorMessage = I18N.message(
-          "perc.ui.user.controller@Unable to retrieve Directory Service status"
+          "perc.ui.user.controller@Unable to retrieve Directory Service status",
         );
       // if we do get a status, if it's not ENABLED then show a more specific error message.
       // Response from service:
       // {"DirectoryServiceStatus":{"status":"ENABLED"}}
       else if (userServiceStatus.DirectoryServiceStatus.status != "ENABLED")
         errorMessage = I18N.message(
-          "perc.ui.user.controller@Directory Service Unavailable"
+          "perc.ui.user.controller@Directory Service Unavailable",
         );
 
       if (errorMessage != null) {
@@ -128,7 +128,7 @@
       if (status == userService.STATUS_ERROR) {
         view.alertDialog(
           I18N.message("perc.ui.user.controller@Error while loading users"),
-          usersJson
+          usersJson,
         );
         return;
       }
@@ -160,11 +160,11 @@
       if (status == userService.STATUS_ERROR) {
         view.alertDialog(
           I18N.message(
-            "perc.ui.user.controller@Error deleting available roles"
+            "perc.ui.user.controller@Error deleting available roles",
           ) +
             " " +
             username,
-          response
+          response,
         );
         return;
       }
@@ -184,7 +184,7 @@
     if (selectedUser == null || state == STATE_ADDING_NEW_USER) {
       view.alertDialog(
         I18N.message("perc.ui.user.controller@Select a user to edit"),
-        I18N.message("perc.ui.user.controller@Select a user to edit")
+        I18N.message("perc.ui.user.controller@Select a user to edit"),
       );
       return;
     }
@@ -301,12 +301,12 @@
           I18N.message("perc.ui.user.controller@Error retrieving user") +
             " " +
             username,
-          usersJson
+          usersJson,
         );
         return;
       }
       var assignedRolesArray = $.perc_utils.convertCXFArray(
-        userJson.User.roles
+        userJson.User.roles,
       );
       assignedRolesArray.sort();
       view.updateUserNameField(username);
@@ -344,7 +344,7 @@
       if ($.perc_utils.isBlankString(username)) {
         view.alertDialog(
           I18N.message("perc.ui.user.controller@Error"),
-          I18N.message("perc.ui.user.controller@User name cannot be blank")
+          I18N.message("perc.ui.user.controller@User name cannot be blank"),
         );
         return;
       }
@@ -358,14 +358,14 @@
       ) {
         view.alertDialog(
           I18N.message("perc.ui.user.controller@Error"),
-          I18N.message("perc.ui.user.controller@User name invalid pattern")
+          I18N.message("perc.ui.user.controller@User name invalid pattern"),
         );
         return;
       }
       if (password1 == "") {
         view.alertDialog(
           I18N.message("perc.ui.user.controller@Error"),
-          I18N.message("perc.ui.user.controller@Passwords is Mandatory")
+          I18N.message("perc.ui.user.controller@Passwords is Mandatory"),
         );
         return;
       }
@@ -373,14 +373,16 @@
       if (password2 == "") {
         view.alertDialog(
           I18N.message("perc.ui.user.controller@Error"),
-          I18N.message("perc.ui.user.controller@Confirm Passwords is Mandatory")
+          I18N.message(
+            "perc.ui.user.controller@Confirm Passwords is Mandatory",
+          ),
         );
         return;
       }
       if (password1 !== "" && password1.length < 6) {
         view.alertDialog(
           I18N.message("perc.ui.user.controller@Error"),
-          I18N.message("perc.ui.user.controller@Password requirements")
+          I18N.message("perc.ui.user.controller@Password requirements"),
         );
         return;
       }
@@ -388,7 +390,7 @@
       if (username == "PercussionAdmin") {
         view.alertDialog(
           I18N.message("perc.ui.user.controller@Error"),
-          I18N.message("perc.ui.user.controller@User name restricted")
+          I18N.message("perc.ui.user.controller@User name restricted"),
         );
         return;
       }
@@ -396,7 +398,7 @@
       if (password1 != password2) {
         view.alertDialog(
           I18N.message("perc.ui.user.controller@Error"),
-          I18N.message("perc.ui.user.controller@Passwords must be the same")
+          I18N.message("perc.ui.user.controller@Passwords must be the same"),
         );
         return;
       }
@@ -404,7 +406,7 @@
       if (email != "" && !emailPattern.test(email)) {
         view.alertDialog(
           I18N.message("perc.ui.user.controller@Error"),
-          I18N.message("perc.ui.user.controller@Invalid Email address format")
+          I18N.message("perc.ui.user.controller@Invalid Email address format"),
         );
         return;
       }
@@ -412,8 +414,8 @@
         view.alertDialog(
           I18N.message("perc.ui.user.controller@Error"),
           I18N.message(
-            "perc.ui.user.controller@User must be in at least one role"
-          )
+            "perc.ui.user.controller@User must be in at least one role",
+          ),
         );
         return;
       }
@@ -439,7 +441,7 @@
             if (status != $.PercServiceUtils.STATUS_SUCCESS) {
               view.alertDialog(
                 I18N.message("perc.ui.user.controller@Error"),
-                createdUserObj
+                createdUserObj,
               );
               return;
             }
@@ -449,7 +451,7 @@
             updateListOfUsers(function () {
               selectUser(username);
             });
-          }
+          },
         );
       } else {
         var newUserObj = {
@@ -464,7 +466,7 @@
           if (status != $.PercServiceUtils.STATUS_SUCCESS) {
             view.alertDialog(
               I18N.message("perc.ui.user.controller@Error"),
-              createdUserObj
+              createdUserObj,
             );
             return;
           }
@@ -503,7 +505,7 @@
       if (status == $.PercServiceUtils.STATUS_ERROR) {
         view.alertDialog(
           I18N.message("perc.ui.user.controller@Error loading available roles"),
-          rolesJson
+          rolesJson,
         );
         return;
       }

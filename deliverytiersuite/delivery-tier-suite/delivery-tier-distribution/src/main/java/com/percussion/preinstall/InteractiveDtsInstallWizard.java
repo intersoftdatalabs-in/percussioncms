@@ -91,24 +91,59 @@ public final class InteractiveDtsInstallWizard {
       InstallPrompt prompt,
       Path unattendedJavaHome,
       String installProdDtsProperty) {
+    return run(parsedArgs, interactive, prompt, unattendedJavaHome, installProdDtsProperty, null);
+  }
+
+  /**
+   * Same as {@link #run(MainDTSPreInstall.ParsedArgs, boolean, InstallPrompt, Path, String)} with
+   * injectable user-settings home for tests.
+   *
+   * @param userSettingsHome optional {@code user.home} override; null for default
+   */
+  public static WizardResult run(
+      MainDTSPreInstall.ParsedArgs parsedArgs,
+      boolean interactive,
+      InstallPrompt prompt,
+      Path unattendedJavaHome,
+      String installProdDtsProperty,
+      Path userSettingsHome) {
     Objects.requireNonNull(parsedArgs, "parsedArgs");
     if (interactive && prompt == null) {
       throw new IllegalArgumentException("prompt is required when interactive");
     }
 
-    Path installPath = parsedArgs.installPath();
+    // Seed path/options from DTS prod when install.prod.dts=true; else prefer any saved DTS path
+    // for the path prompt default. Final option defaults re-applied after server type is known.
+    String initialPrefix =
+        "true".equalsIgnoreCase(installProdDtsProperty)
+            ? InstallerUserSettings.PREFIX_DTS_PROD
+            : "false".equalsIgnoreCase(installProdDtsProperty)
+                ? InstallerUserSettings.PREFIX_DTS_STAGE
+                : InstallerUserSettings.PREFIX_DTS_PROD;
+    InstallerUserSettings initialSettings =
+        new InstallerUserSettings(userSettingsHome, initialPrefix);
+    MainDTSPreInstall.ParsedArgs withDefaults = initialSettings.applyDefaults(parsedArgs);
+
+    Path installPath = withDefaults.installPath();
     Map<String, String> options =
-        parsedArgs.options() != null
-            ? new LinkedHashMap<>(parsedArgs.options())
+        withDefaults.options() != null
+            ? new LinkedHashMap<>(withDefaults.options())
             : new LinkedHashMap<>();
 
     if (installPath == null) {
+      Path pathDefault =
+          InstallerUserSettings.loadAnyDtsInstallDirectory(userSettingsHome).orElse(null);
       if (!interactive) {
-        return WizardResult.abort(EXIT_USAGE, usageMessage());
-      }
-      installPath = promptForInstallPath(prompt);
-      if (installPath == null) {
-        return WizardResult.abort(EXIT_ABORTED, "Installation cancelled: no install directory.");
+        if (pathDefault != null) {
+          installPath = pathDefault;
+        } else {
+          return WizardResult.abort(EXIT_USAGE, usageMessage());
+        }
+      } else {
+        installPath = promptForInstallPath(prompt, pathDefault);
+        if (installPath == null) {
+          return WizardResult.abort(EXIT_ABORTED, "Installation cancelled: no install directory.");
+        }
       }
     } else {
       installPath = installPath.toAbsolutePath().normalize();
@@ -142,6 +177,10 @@ public final class InteractiveDtsInstallWizard {
     } catch (IllegalArgumentException ex) {
       return WizardResult.abort(EXIT_ABORTED, ex.getMessage());
     }
+
+    // Re-merge DB option defaults for the resolved DTS role (prod vs stage)
+    new InstallerUserSettings(userSettingsHome, InstallerUserSettings.dtsPrefix(isProduction))
+        .mergeMissingOptions(options);
 
     MainDTSPreInstall.ResolvedDbConfig dbConfig;
     try {
@@ -351,13 +390,18 @@ public final class InteractiveDtsInstallWizard {
     return "true";
   }
 
-  private static Path promptForInstallPath(InstallPrompt prompt) {
+  private static Path promptForInstallPath(InstallPrompt prompt, Path defaultPath) {
     prompt.println("");
     prompt.println("Percussion DTS interactive installer");
     prompt.println("Enter the installation directory (new install or existing upgrade root).");
+    String defaultHint =
+        defaultPath != null ? " [" + defaultPath.toAbsolutePath().normalize() + "]" : "";
     for (int attempt = 0; attempt < 5; attempt++) {
-      String line = prompt.readLine("Installation directory: ");
+      String line = prompt.readLine("Installation directory" + defaultHint + ": ");
       if (line == null || line.isBlank()) {
+        if (defaultPath != null) {
+          return defaultPath.toAbsolutePath().normalize();
+        }
         prompt.println("Install directory is required. Enter a path or Ctrl+C to abort.");
         continue;
       }
@@ -369,6 +413,9 @@ public final class InteractiveDtsInstallWizard {
         }
       }
       if (trimmed.isEmpty()) {
+        if (defaultPath != null) {
+          return defaultPath.toAbsolutePath().normalize();
+        }
         prompt.println("Install directory is required.");
         continue;
       }

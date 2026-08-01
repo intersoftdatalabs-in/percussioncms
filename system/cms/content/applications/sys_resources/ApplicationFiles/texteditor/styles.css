@@ -1,6 +1,9 @@
 select {
   background: lavender;
-  font: 8pt verdana, arial, sans-serif;
+  font:
+    8pt verdana,
+    arial,
+    sans-serif;
 }
 .Gen {
   position: relative;
@@ -55,7 +58,10 @@ table {
   width: 1px;
 }
 .TBGen {
-  font: 8pt verdana, arial, sans-serif;
+  font:
+    8pt verdana,
+    arial,
+    sans-serif;
   height: 22px;
   position: absolute;
   top: 2px;

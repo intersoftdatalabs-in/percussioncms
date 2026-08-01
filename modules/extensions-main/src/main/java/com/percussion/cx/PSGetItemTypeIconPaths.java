@@ -63,6 +63,9 @@ import org.xml.sax.SAXException;
  * this exit.
  */
 public class PSGetItemTypeIconPaths implements IPSResultDocumentProcessor {
+  /** Creates a new PSGetItemTypeIconPaths. */
+  public PSGetItemTypeIconPaths() {}
+
   /*
    * (non-Javadoc)
    * @see com.percussion.extension.IPSResultDocumentProcessor#processResultDocument(java.lang.Object[], com.percussion.server.IPSRequestContext, org.w3c.dom.Document)

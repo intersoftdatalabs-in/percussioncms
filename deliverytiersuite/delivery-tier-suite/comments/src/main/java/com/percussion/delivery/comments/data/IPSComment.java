@@ -17,9 +17,9 @@
  */
 package com.percussion.delivery.comments.data;
 
-import tools.jackson.databind.annotation.JsonSerialize;
 import java.util.Date;
 import java.util.Set;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 /**
  * Represents a comment stored by the delivery tier comment service.

@@ -35,7 +35,7 @@ ps.widget.Autoscroller = function () {
       ps.dnd.dragManager,
       "onMouseMove",
       this,
-      "_onMouseMove"
+      "_onMouseMove",
     );
   };
 

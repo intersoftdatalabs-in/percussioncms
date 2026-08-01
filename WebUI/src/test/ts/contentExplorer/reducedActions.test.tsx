@@ -15,7 +15,7 @@
  */
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import { ReducedActions } from "../../../main/ts/contentExplorer/ReducedActions";
 import type { ReducedActionHandlers } from "../../../main/ts/contentExplorer/ReducedActions";
@@ -190,7 +190,11 @@ describe("ReducedActions", () => {
   it("surfaces server errors via onError", async () => {
     const { handlers } = makeHandlers();
     handlers.confirm = () => true;
-    mockFetch(async () => new Response("denied", { status: 500 }));
+    // Handler must reject for runItemAction to surface onError (mockFetch alone
+    // is unused when custom handlers do not call pathApi).
+    handlers.onDelete = async () => {
+      throw new Error("denied");
+    };
     const onError = vi.fn();
     render(
       <ReducedActions

@@ -63,7 +63,7 @@
         } else {
           callback(false, null);
         }
-      }
+      },
     );
   };
   /**
@@ -105,7 +105,7 @@
         } else {
           callback(false, null);
         }
-      }
+      },
     );
   };
 
@@ -120,7 +120,7 @@
       this.siteName,
       likePathname,
       constants.PERC_TYPE_PAGE,
-      callback
+      callback,
     );
   };
 
@@ -145,7 +145,7 @@
         } else {
           callback(false, null);
         }
-      }
+      },
     );
   };
   /**
@@ -155,7 +155,7 @@
   var isThisLiked = function () {
     var pathname = window.location.pathname;
     return isLiked(
-      window.location.protocol + "//" + this.siteName + likeId(pathname)
+      window.location.protocol + "//" + this.siteName + likeId(pathname),
     );
   };
   /**
@@ -226,7 +226,7 @@
         "//" +
         siteName +
         likeId(window.location.pathname),
-      liked
+      liked,
     );
   };
   /**

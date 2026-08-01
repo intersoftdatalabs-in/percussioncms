@@ -64,7 +64,7 @@
 
         if (name !== "Not found" && length > 0) {
           document.querySelector(
-            'option[data-personname="' + name + '"]'
+            'option[data-personname="' + name + '"]',
           ).selected = "selected";
         }
 
@@ -94,7 +94,7 @@
             $("<input/>")
               .attr("type", "hidden")
               .attr("name", "perc_hostUrl")
-              .attr("value", getLocation(location.href))
+              .attr("value", getLocation(location.href)),
           );
 
           var tokenHeader;
@@ -111,7 +111,7 @@
           $.PercServiceUtils.csrfGetToken(
             $.PercServiceUtils.joinURL(
               servicebase,
-              "/perc-form-processor/forms/csrf"
+              "/perc-form-processor/forms/csrf",
             ),
             function (response) {
               if (typeof response !== "undefined" && response != null)
@@ -127,7 +127,7 @@
                   doc.attr("action", formAction);
                 }
               }
-            }
+            },
           );
         }
 

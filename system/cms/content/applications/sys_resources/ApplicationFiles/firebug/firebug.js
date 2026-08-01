@@ -55,7 +55,7 @@ if (!("console" in window) || !("firebug" in console)) {
             '<td class="propertyNameCell"><span class="propertyName">',
             escapeHTML(name),
             "</span></td>",
-            '<td><span class="propertyValue">'
+            '<td><span class="propertyValue">',
           );
           appendObject(value, html);
           html.push("</span></td></tr>");
@@ -383,7 +383,7 @@ if (!("console" in window) || !("firebug" in console)) {
       html.push(
         '<span class="objectBox-null">',
         escapeHTML(objectToString(object)),
-        "</span>"
+        "</span>",
       );
     }
 
@@ -391,7 +391,7 @@ if (!("console" in window) || !("firebug" in console)) {
       html.push(
         '<span class="objectBox-string">&quot;',
         escapeHTML(objectToString(object)),
-        "&quot;</span>"
+        "&quot;</span>",
       );
     }
 
@@ -399,7 +399,7 @@ if (!("console" in window) || !("firebug" in console)) {
       html.push(
         '<span class="objectBox-number">',
         escapeHTML(objectToString(object)),
-        "</span>"
+        "</span>",
       );
     }
 
@@ -407,7 +407,7 @@ if (!("console" in window) || !("firebug" in console)) {
       html.push(
         '<span class="objectBox-number">',
         escapeHTML(objectToString(object)),
-        "</span>"
+        "</span>",
       );
     }
 
@@ -418,7 +418,7 @@ if (!("console" in window) || !("firebug" in console)) {
       html.push(
         '<span class="objectBox-function">',
         escapeHTML(name),
-        "()</span>"
+        "()</span>",
       );
     }
 
@@ -449,19 +449,19 @@ if (!("console" in window) || !("firebug" in console)) {
       html.push(
         '<span class="selectorTag">',
         escapeHTML(object.nodeName.toLowerCase()),
-        "</span>"
+        "</span>",
       );
       if (object.id)
         html.push(
           '<span class="selectorId">#',
           escapeHTML(object.id),
-          "</span>"
+          "</span>",
         );
       if (object.className)
         html.push(
           '<span class="selectorClass">.',
           escapeHTML(object.className),
-          "</span>"
+          "</span>",
         );
 
       html.push("</span>");
@@ -473,7 +473,7 @@ if (!("console" in window) || !("firebug" in console)) {
           '<div class="objectBox-element">',
           '&lt;<span class="nodeTag">',
           node.nodeName.toLowerCase(),
-          "</span>"
+          "</span>",
         );
 
         for (var i = 0; i < node.attributes.length; ++i) {
@@ -485,7 +485,7 @@ if (!("console" in window) || !("firebug" in console)) {
             attr.nodeName.toLowerCase(),
             '</span>=&quot;<span class="nodeValue">',
             escapeHTML(attr.nodeValue),
-            "</span>&quot;"
+            "</span>&quot;",
           );
         }
 
@@ -498,14 +498,14 @@ if (!("console" in window) || !("firebug" in console)) {
           html.push(
             '</div><div class="objectBox-element">&lt;/<span class="nodeTag">',
             node.nodeName.toLowerCase(),
-            "&gt;</span></div>"
+            "&gt;</span></div>",
           );
         } else html.push("/&gt;</div>");
       } else if (node.nodeType == 3) {
         html.push(
           '<div class="nodeText">',
           escapeHTML(node.nodeValue),
-          "</div>"
+          "</div>",
         );
       }
     }
@@ -541,7 +541,7 @@ if (!("console" in window) || !("firebug" in console)) {
         fileName,
         " (line ",
         lineNo,
-        ")</div>"
+        ")</div>",
       );
 
       logRow(html, "error");

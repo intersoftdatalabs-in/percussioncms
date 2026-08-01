@@ -5,7 +5,7 @@ Page[0] = new Array(
   "review and manage the packages installed on your Percussion CM Server; and",
   "maintain the Community visibility of the packages installed on your Percussion CM Server ",
   "About Package Manager",
-  "19948.htm"
+  "19948.htm",
 );
 Page[1] = new Array(
   "Use the Packages tab to manage packages. On this tab you can:",
@@ -14,7 +14,7 @@ Page[1] = new Array(
   "reapply package visibility settings",
   "uninstall packages ",
   "Managing Packages",
-  "19949.htm"
+  "19949.htm",
 );
 Page[2] = new Array(
   "The Packages tab is the default tab of the Package Manager.",
@@ -55,14 +55,14 @@ Page[2] = new Array(
   "Last Modified Date",
   "The most recent date the package was changed. Changes include installation, uninstallation, or configuration.",
   "Package Tab",
-  "19953.htm"
+  "19953.htm",
 );
 Page[3] = new Array(
   "All columns are included in the table on the Package tab by default, but you can remove columns from the table. To remove a column from the table, click on the drop arrow in any column header and from the drop menu, choose Columns, and select the column you want to remove. You can remove multiple columns at one time",
   "Rows in the table can be sorted on any column. To sort by a column, click on the drop arrow in the column header of the column you want to use to sort, and from the drop menu choose Sort Ascending or Sort Descending. Any new sort you choose overrides an existing sort; you cannot sort within a sort.",
   "The data in a column can be locked to scrolling like the data in a spreadsheet. To lock the data in a column, click on the drop arrow in the column header of the column you want to lock, and from the drop menu choose Freeze. Choose Unfreeze to unlock a locked column. ",
   "Package Tab Options",
-  "19954.htm"
+  "19954.htm",
 );
 Page[4] = new Array(
   "Verifying a package allows you to check the following conditions:",
@@ -71,14 +71,14 @@ Page[4] = new Array(
   "To verify a package, check the box in the row of the package you want to verify, then click the [Verify] button. If any design objects in the package have been modified outside of configuration, the system displays a message with a list of modified design objects.",
   "If any dependencies are missing, the system displays a message with a list of missing dependencies.",
   "Verifying Package Configurations",
-  "19955.htm"
+  "19955.htm",
 );
 Page[5] = new Array(
   "Package configurations can be reapplied. For example, you may want to reapply configurations if deisgn objects were modified outside of configuration, such as directly in the Percussion Workbench.",
   "If you create new design objects of the same type as are included in a package, the configurations will be applied to the new design objects when reapplying the configurations. For example, suppose you have installed a package that includes one or more Sites, which all have a set of Context Variables. Later you add a new Site to your implementation. To add the existing Context Variables to your new Site, update the configurations to add Context Variable values for the new Site, then reapply the configuration. The Context Variables will be added to the new Site.",
   "To reapply package configurations, check the box in the row of the package whose configurations you want to reapply, then click on the [Reapply] button and from the drop list, choose Configuration Settings. The server attempts to reapply the configurations and returns a message indicating whether the processing was successful. ",
   "Reapplying Package Configuration Settings",
-  "19956.htm"
+  "19956.htm",
 );
 Page[6] = new Array(
   "When you uninstall a package, the design objects are deleted from the system.",
@@ -86,13 +86,13 @@ Page[6] = new Array(
   "For example, if you want to uninstall a package that includes Workflow, but Content Items have been created and exist any of those Workflows, the Workflows will not be deleted. Similarly, if you want to uninstall a package that includes Content Types, but you have created Content Items of those Content Types, the Content Types will not be deleted.",
   "To uninstall a package, check the box in the row of the package you want to delete, then click the [Uninstall] button. The system displays a confirmation dialog. Click [OK] to uinstall the package or [Cancel] to stop the uninstall action. ",
   "Uninstalling Packages",
-  "19957.htm"
+  "19957.htm",
 );
 Page[7] = new Array(
   "When a package is installed, it is not associated with any Communities, so the design objects in the package are not available to business users. You must associate a package with Communities so business users in those Communities can see and use the design objects in the package. Use the Visibility tab of the Package Manager to maintain the Community visibility of packages.",
   "By default, the Visibility tab displays package visibility by Communities. The [Show by Communities] button toggles to an alternative view displaying Communities and the packages visible to that Community. In this view, the [Show by Packages] button toggles to the default Packages by Communities view.",
   "Managing Package Visibility",
-  "19950.htm"
+  "19950.htm",
 );
 Page[8] = new Array(
   "To change package associations in the &quot;Show by Packages&quot; view:",
@@ -105,7 +105,7 @@ Page[8] = new Array(
   "Click the [OK] button.",
   "The system saves your changes. ",
   "Changing Package Association to Communities",
-  "19958.htm"
+  "19958.htm",
 );
 Page[9] = new Array(
   "To change package associations in the &quot;Show by Communities&quot; view:",
@@ -118,14 +118,14 @@ Page[9] = new Array(
   "Click the [OK] button.",
   "The system saves your changes. ",
   "Changing Community Association to Packages",
-  "19959.htm"
+  "19959.htm",
 );
 Page[10] = new Array(
   "Like configurations, visibility settings may be changed outside of configuration, directly in the Percussion Workbench. In that case, you may want to reapply the configured visibility settings.",
   "You can also use this capability to apply visibility settings developed in one server tier to another server tier. For example, if you define a set of visibility settings in your development tier, you can copy the visibility settings to the production tier. Reapplying the visibility settings updates the production tier with the visibility settings you defined in development.",
   "To reapply visibility settings, check the box in the row of the package whose settings you want to reapply, then click on the [Reapply] button and from the drop list, choose Visibility Settings. The server attempts to reapply the visibility settings and returns a message indicating whether the processing was successful. ",
   "Reapplying Package Visibility Settings",
-  "19960.htm"
+  "19960.htm",
 );
 var PageCount = 11;
 

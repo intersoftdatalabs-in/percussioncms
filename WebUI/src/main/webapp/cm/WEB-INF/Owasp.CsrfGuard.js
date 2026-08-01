@@ -106,7 +106,7 @@ if (owaspCSRFGuardScriptHasLoaded !== true) {
         url,
         async,
         user,
-        pass
+        pass,
       ) {
         this.url = url;
 
@@ -165,7 +165,7 @@ if (owaspCSRFGuardScriptHasLoaded !== true) {
         url,
         async,
         user,
-        pass
+        pass,
       ) {
         var self = this;
         this.url = url;
@@ -368,7 +368,7 @@ if (owaspCSRFGuardScriptHasLoaded !== true) {
             "'Extension' and 'partial path wildcard' matching for page tokens is not supported properly yet! " +
               "Every resource will be assigned a new unique token instead of using the defined resource matcher token. " +
               "Although this is not a security issue, in case of a large REST application it can have an impact on performance." +
-              "Consider using regular expressions instead."
+              "Consider using regular expressions instead.",
           );
         }
       });
@@ -383,7 +383,7 @@ if (owaspCSRFGuardScriptHasLoaded !== true) {
       tokenName,
       tokenValue,
       pageTokens,
-      injectGetForms
+      injectGetForms,
     ) {
       if (!injectGetForms) {
         var method = form.getAttribute("method");
@@ -421,7 +421,7 @@ if (owaspCSRFGuardScriptHasLoaded !== true) {
             "Hidden input element [",
             hidden,
             "] was added to the form: ",
-            form
+            form,
           );
         } else {
           hiddenTokenFields.forEach(function (i) {
@@ -433,7 +433,7 @@ if (owaspCSRFGuardScriptHasLoaded !== true) {
             "] of form [",
             form,
             "] were updated with new token value: ",
-            value
+            value,
           );
         }
       }
@@ -447,7 +447,7 @@ if (owaspCSRFGuardScriptHasLoaded !== true) {
       attr,
       tokenName,
       tokenValue,
-      pageTokens
+      pageTokens,
     ) {
       const addTokenToLocation = function (location, tokenName, value) {
         let newLocation;
@@ -473,7 +473,7 @@ if (owaspCSRFGuardScriptHasLoaded !== true) {
 
         const tokenValueMatcher = new RegExp(
           "(?:" + tokenName + "=)([^?|#|&]+)",
-          "gi"
+          "gi",
         );
         const tokenMatches = tokenValueMatcher.exec(location);
 
@@ -499,7 +499,7 @@ if (owaspCSRFGuardScriptHasLoaded !== true) {
               "] with value [",
               newLocation,
               "] set for element: ",
-              element
+              element,
             );
           } catch (e) {
             // attempted to set/update unsupported attribute
@@ -517,7 +517,7 @@ if (owaspCSRFGuardScriptHasLoaded !== true) {
             "] with value [",
             newLocation,
             "] set for element: ",
-            element
+            element,
           );
         }
       }
@@ -584,7 +584,7 @@ if (owaspCSRFGuardScriptHasLoaded !== true) {
               tokenName,
               tokenValue,
               pageTokens,
-              injectGetForms
+              injectGetForms,
             );
 
             /* adjust array length after addition of new element */
@@ -596,7 +596,7 @@ if (owaspCSRFGuardScriptHasLoaded !== true) {
               "action",
               tokenName,
               tokenValue,
-              pageTokens
+              pageTokens,
             );
           }
           /* inject into attribute */
@@ -606,14 +606,14 @@ if (owaspCSRFGuardScriptHasLoaded !== true) {
             "src",
             tokenName,
             tokenValue,
-            pageTokens
+            pageTokens,
           );
           injectTokenAttribute(
             element,
             "href",
             tokenName,
             tokenValue,
-            pageTokens
+            pageTokens,
           );
         }
       }
@@ -682,14 +682,14 @@ if (owaspCSRFGuardScriptHasLoaded !== true) {
             [event.detail],
             tokenName,
             masterTokenValue,
-            pageTokenWrapper.pageTokens
+            pageTokenWrapper.pageTokens,
           );
         });
       } else {
         if (MutationObserver) {
           const formMutationObserver = new MutationObserver(function (
             mutations,
-            observer
+            observer,
           ) {
             for (let i in mutations) {
               const mutation = mutations[i];
@@ -703,7 +703,7 @@ if (owaspCSRFGuardScriptHasLoaded !== true) {
                   addedNodes,
                   tokenName,
                   masterTokenValue,
-                  pageTokenWrapper.pageTokens
+                  pageTokenWrapper.pageTokens,
                 );
               }
             }
@@ -723,7 +723,7 @@ if (owaspCSRFGuardScriptHasLoaded !== true) {
                 [target],
                 tokenName,
                 masterTokenValue,
-                pageTokenWrapper.pageTokens
+                pageTokenWrapper.pageTokens,
               );
             }
           });
@@ -757,7 +757,7 @@ if (owaspCSRFGuardScriptHasLoaded !== true) {
           injectTokens(
             tokenName,
             masterTokenValue,
-            pageTokenWrapper.pageTokens
+            pageTokenWrapper.pageTokens,
           );
         }
       });
@@ -788,7 +788,7 @@ if (owaspCSRFGuardScriptHasLoaded !== true) {
                     masterTokenValue = newMasterToken;
                     console.debug(
                       "New master token value received: ",
-                      masterTokenValue
+                      masterTokenValue,
                     );
                   }
 
@@ -800,18 +800,18 @@ if (owaspCSRFGuardScriptHasLoaded !== true) {
                     });
                     console.debug(
                       "New page token value(s) received: ",
-                      newPageTokens
+                      newPageTokens,
                     );
                   }
 
                   injectTokens(
                     tokenName,
                     masterTokenValue,
-                    pageTokenWrapper.pageTokens
+                    pageTokenWrapper.pageTokens,
                   );
                 } catch (e) {
                   console.error(
-                    "Error while updating tokens from response header."
+                    "Error while updating tokens from response header.",
                   );
                 }
               }
@@ -830,7 +830,7 @@ if (owaspCSRFGuardScriptHasLoaded !== true) {
               builtPath += "/" + pathArray[i];
               let pageTokenValue = calculatePageTokenForUri(
                 pageTokens,
-                builtPath + modifiedUri
+                builtPath + modifiedUri,
               );
               if (pageTokenValue != undefined) {
                 result = pageTokenValue;
@@ -872,12 +872,12 @@ if (owaspCSRFGuardScriptHasLoaded !== true) {
             } else {
               let pageToken = calculatePageTokenForUri(
                 pageTokenWrapper.pageTokens,
-                normalizedUrl
+                normalizedUrl,
               );
               if (pageToken == undefined) {
                 let computedPageToken = computePageToken(
                   pageTokenWrapper.pageTokens,
-                  normalizedUrl
+                  normalizedUrl,
                 );
 
                 if (computedPageToken === null) {
@@ -907,7 +907,7 @@ if (owaspCSRFGuardScriptHasLoaded !== true) {
         requestPageTokens(
           tokenName,
           masterTokenValue,
-          pageTokenRequestCallback
+          pageTokenRequestCallback,
         );
       } else {
         /* update nodes in DOM after load */
@@ -917,7 +917,7 @@ if (owaspCSRFGuardScriptHasLoaded !== true) {
       }
     } else {
       alert(
-        "OWASP CSRFGuard JavaScript was included from within an unauthorized domain!"
+        "OWASP CSRFGuard JavaScript was included from within an unauthorized domain!",
       );
     }
   })();

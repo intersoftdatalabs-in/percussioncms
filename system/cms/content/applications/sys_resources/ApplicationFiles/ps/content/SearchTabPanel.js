@@ -30,24 +30,24 @@ ps.declare(
         this._setSplitPaneChildVisible(
           this.contentSplitPane,
           this.searchformPanel,
-          true
+          true,
         );
         // We first remove the filter panel then add it
         // so it appears in the correct order.
         this._setSplitPaneChildVisible(
           this.contentSplitPane,
           this.filterPanel,
-          false
+          false,
         );
         this._setSplitPaneChildVisible(
           this.contentSplitPane,
           this.filterPanel,
-          true
+          true,
         );
         this._setSplitPaneChildVisible(
           this.contentSplitPane,
           this.filteringTablePanel,
-          false
+          false,
         );
 
         this._getQId("nameAndCtypeFilterDiv").style.display = "none";
@@ -56,30 +56,30 @@ ps.declare(
         this._maybeSetButton(
           this.okButton,
           psxGetLocalMessage("javascript.ps.content.browse@Search"),
-          false
+          false,
         );
       } else {
         this._setSplitPaneChildVisible(
           this.contentSplitPane,
           this.filteringTablePanel,
-          true
+          true,
         );
         // We first remove the filter panel then add it
         // so it appears in the correct order.
         this._setSplitPaneChildVisible(
           this.contentSplitPane,
           this.filterPanel,
-          false
+          false,
         );
         this._setSplitPaneChildVisible(
           this.contentSplitPane,
           this.filterPanel,
-          true
+          true,
         );
         this._setSplitPaneChildVisible(
           this.contentSplitPane,
           this.searchformPanel,
-          false
+          false,
         );
         this._getQId("nameAndCtypeFilterDiv").style.display = "";
         this._getQId("siteAndFolderFilterDiv").style.display = "none";
@@ -87,7 +87,7 @@ ps.declare(
         this._maybeSetButton(
           this.okButton,
           psxGetLocalMessage("javascript.ps.content.browse@Open"),
-          false
+          false,
         );
       }
     },
@@ -148,7 +148,7 @@ ps.declare(
         this.contentTable,
         "onSelect",
         this,
-        "_onContentTableSelect"
+        "_onContentTableSelect",
       );
       this._setButtonRememberState("okButton", this.okButton, null, true);
       return true;
@@ -180,7 +180,7 @@ ps.declare(
       var firstChar = searchForValue.charAt(0);
       if (firstChar == "*" || firstChar == "?") {
         var msg = psxGetLocalMessage(
-          "javascript.ps.content.browse@Invalid_First_Char"
+          "javascript.ps.content.browse@Invalid_First_Char",
         );
         alert(msg);
         return false;
@@ -217,7 +217,7 @@ ps.declare(
           "*",
           "?",
           ":",
-          "\\"
+          "\\",
         );
         for (var i = 0; i < specialChars.length; i++) {
           var spChar = specialChars[i];
@@ -229,7 +229,7 @@ ps.declare(
 
         if (spChars.length > 0) {
           var msg = psxGetLocalMessage(
-            "javascript.ps.content.browse@Invalid_Chars_Synonym_Exp"
+            "javascript.ps.content.browse@Invalid_Chars_Synonym_Exp",
           );
           alert(msg + " " + spChars);
           return false;
@@ -304,14 +304,14 @@ ps.declare(
       ps.io.Actions.initFormBind(
         ps.io.Actions.getRcSearchUrl(),
         "searchQuery",
-        ps.io.Actions.MIMETYPE_JSON
+        ps.io.Actions.MIMETYPE_JSON,
       );
       if (this.advancedButton) {
         ps.event.connect(
           this.advancedButton,
           "onClick",
           this,
-          "_showSearchFields"
+          "_showSearchFields",
         );
       }
       if (this.simpleButton) {
@@ -319,7 +319,7 @@ ps.declare(
           this.simpleButton,
           "onClick",
           this,
-          "_showSearchFields"
+          "_showSearchFields",
         );
       }
       if (this.advancedButton) {
@@ -358,7 +358,7 @@ ps.declare(
       this._maybeSetButton(
         this.okButton,
         null,
-        this.isSearchSimple && q && (!q.value || q.value.trim() === "")
+        this.isSearchSimple && q && (!q.value || q.value.trim() === ""),
       );
     },
 
@@ -410,11 +410,11 @@ ps.declare(
       //Set the default values for include site id and folder id check boxes
       var inclSitesFlag = ps.util.getServerProperty(
         "slotContentIncludeSiteDefaultValue",
-        ""
+        "",
       );
       var inclFoldersFlag = ps.util.getServerProperty(
         "slotContentIncludeFolderDefaultValue",
-        ""
+        "",
       );
       if (inclSitesFlag == "true") {
         this.includeSitesCheckbox.checked = true;
@@ -437,7 +437,7 @@ ps.declare(
         this.searchformPanel,
         "onLoad",
         this,
-        "_onSearchFormPanelLoad"
+        "_onSearchFormPanelLoad",
       );
 
       this.searchBackButton = this._getWidgetById("searchBackButton");
@@ -445,7 +445,7 @@ ps.declare(
         this.searchBackButton,
         "onClick",
         this,
-        "_onSearchAgain"
+        "_onSearchAgain",
       );
     },
 
@@ -454,13 +454,13 @@ ps.declare(
      */
     _onTemplatesSiteFolderParamLoaded: function () {
       var includeSites = this._mustById(
-        "ps.select.templates.includeSitesCheckbox"
+        "ps.select.templates.includeSitesCheckbox",
       );
       includeSites.checked = this.includeSitesChecked;
       includeSites.disabled = true;
 
       var includeFolders = this._mustById(
-        "ps.select.templates.includeFoldersCheckbox"
+        "ps.select.templates.includeFoldersCheckbox",
       );
       includeFolders.checked = this.includeFoldersChecked;
       includeFolders.disabled = true;
@@ -497,5 +497,5 @@ ps.declare(
     _refresh: function () {
       // no-op
     },
-  }
+  },
 );

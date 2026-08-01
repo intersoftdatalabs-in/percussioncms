@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import React from "react";
 import { render, screen, cleanup } from "@testing-library/react";
 import { ThemeProvider, useTheme } from "../../../main/ts/ui-themes/ThemeProvider";
 import { BrandBar, BrandFooter } from "../../../main/ts/ui-themes/components/Branding";
 import { intersoftTheme } from "../../../main/ts/ui-themes/intersoft/intersoftTheme";
+import * as themeRegistry from "../../../main/ts/ui-themes";
 
 function CaptureTheme({ testId }: { testId: string }): React.ReactElement {
   const t = useTheme();
@@ -123,9 +124,11 @@ describe("ThemeProvider runtime reactivity", () => {
 
   it("re-resolves the active theme on every render when no theme prop is supplied", () => {
     // Two distinct theme objects with different ids; we mutate the
-    // global override between renders and assert the provider picks
+    // registry result between renders and assert the provider picks
     // up the new one. This is the inconsistency flagged in the
     // 2026-07 Erlang review of the original useMemo([theme]) path.
+    // Use ESM import + vi.spyOn (not require) so Vite resolves the
+    // TypeScript package entry under Vitest.
     const themeA = {
       ...intersoftTheme,
       meta: { ...intersoftTheme.meta, id: "alpha" },
@@ -135,12 +138,9 @@ describe("ThemeProvider runtime reactivity", () => {
       meta: { ...intersoftTheme.meta, id: "beta" },
     };
     let active = themeA;
-    vi.spyOn(
-      // Lazy import via require-style to avoid a top-level circular dep
-      // with the registry module that we are about to (effectively) patch.
-      require("../../../main/ts/ui-themes") as { getActiveTheme: () => typeof themeA },
-      "getActiveTheme",
-    ).mockImplementation(() => active);
+    const spy = vi
+      .spyOn(themeRegistry, "getActiveTheme")
+      .mockImplementation(() => active);
 
     const { rerender } = render(
       React.createElement(ThemeProvider, { "data-testid": "scope" }),
@@ -157,6 +157,6 @@ describe("ThemeProvider runtime reactivity", () => {
       "beta",
     );
 
-    vi.restoreAllMocks();
+    spy.mockRestore();
   });
 });

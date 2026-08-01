@@ -66,24 +66,24 @@
         .find(".perc-item-list-label")
         .append(
           $(
-            '<div class="perc-item-delete-button" aria-disabled="false" role="button" tabindex="0" />'
-          ).attr("title", options.deleteTitle)
+            '<div class="perc-item-delete-button" aria-disabled="false" role="button" tabindex="0" />',
+          ).attr("title", options.deleteTitle),
         );
     if (options.enableAdd)
       container
         .find(".perc-item-list-label")
         .append(
           $(
-            '<div class="perc-item-add-button" aria-disabled="false" role="button" tabindex="0"/>'
-          ).attr("title", options.addTitle)
+            '<div class="perc-item-add-button" aria-disabled="false" role="button" tabindex="0"/>',
+          ).attr("title", options.addTitle),
         );
     if (options.collapsible) {
       container
         .find(".perc-item-list-label")
         .append(
           $(
-            '<span style="float: left;" role="button"  id="perc-wf-min-max" class = "perc-items-minimizer" />'
-          ).attr("title", I18N.message("perc.ui.workflow.view@Minimize"))
+            '<span style="float: left;" role="button"  id="perc-wf-min-max" class = "perc-items-minimizer" />',
+          ).attr("title", I18N.message("perc.ui.workflow.view@Minimize")),
         );
     }
 
@@ -185,13 +185,13 @@
       ulRoot.append(htmlLi);
       if (options.truncateEntries && i === options.truncateEntriesCount) {
         ulRoot.append(
-          '<li class="perc-moreLink perc-visible" style = "display:block" title = "more">more</li>'
+          '<li class="perc-moreLink perc-visible" style = "display:block" title = "more">more</li>',
         );
       }
 
       if (options.truncateEntries && i === itemList.length - 1) {
         ulRoot.append(
-          '<li class="perc-lessLink perc-hidden" style = "display:none" title = "less">less</li>'
+          '<li class="perc-lessLink perc-hidden" style = "display:none" title = "less">less</li>',
         );
       }
     });

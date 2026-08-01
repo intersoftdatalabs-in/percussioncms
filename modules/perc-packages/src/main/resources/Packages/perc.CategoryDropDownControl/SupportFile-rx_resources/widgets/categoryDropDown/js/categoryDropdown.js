@@ -57,7 +57,7 @@
                   x[i].children[j].getAttribute("id") +
                   ">" +
                   y +
-                  "</option>"
+                  "</option>",
               );
               totalChild = totalChild + 1;
             }
@@ -129,7 +129,7 @@
           setVal.push(value);
           setSubSelectsValues(subSelectIdVal, setVal);
         }
-      }
+      },
     );
 
     function markSelectedOption(container) {
@@ -184,7 +184,7 @@
       $.each(vals.split(","), function (i, e) {
         $(container.selector + " option[value='" + e + "']").prop(
           "selected",
-          true
+          true,
         );
         if (
           containerSelect[0].disabled === "disabled" ||
@@ -192,7 +192,7 @@
         )
           $(container.selector + " option[value='" + e + "']").prop(
             "disabled",
-            "disabled"
+            "disabled",
           );
       });
     }
@@ -247,7 +247,7 @@
                 ) {
                   createSubCategorySelect(
                     paramName + "-Categories",
-                    "subCategory-" + paramName + "-" + subSelectIdVal
+                    "subCategory-" + paramName + "-" + subSelectIdVal,
                   );
                 } else {
                   $("#subCategory-" + paramName + "-" + subSelectIdVal).empty();

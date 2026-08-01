@@ -112,7 +112,7 @@
 .form-honeypot-label-disable {
   background-repeat: no-repeat;
   background-position: 15px 0;
-  pointer-events: none; //This makes it not clickable
+  pointer-events: none; /* This makes it not clickable */
   opacity: 0.6;
 }
 .field-editor-basic div.perc-form-datadisplay,
@@ -287,7 +287,7 @@ ul#perc-control-menu-container {
 .form-perc-honeypot-label-disable {
   background-repeat: no-repeat;
   background-position: 15px 0;
-  pointer-events: none; //This makes it not clickable
+  pointer-events: none; /* This makes it not clickable */
   opacity: 0.6;
 }
 
@@ -299,7 +299,7 @@ ul#perc-control-menu-container {
 
 .form-text-label-disable {
   background-repeat: no-repeat;
-  pointer-events: none; //This makes it not clickable
+  pointer-events: none; /* This makes it not clickable */
   opacity: 0.6;
   background-position: 15px 0;
 }
@@ -317,7 +317,7 @@ ul#perc-control-menu-container {
 }
 
 .form-email-label-disable {
-  pointer-events: none; //This makes it not clickable
+  pointer-events: none; /* This makes it not clickable */
   opacity: 0.6;
   cursor: default;
 }
@@ -329,7 +329,7 @@ ul#perc-control-menu-container {
 }
 
 .form-username-label-disable {
-  pointer-events: none; //This makes it not clickable
+  pointer-events: none; /* This makes it not clickable */
   opacity: 0.6;
   cursor: default;
 }
@@ -341,7 +341,7 @@ ul#perc-control-menu-container {
 }
 
 .form-title-label-disable {
-  pointer-events: none; //This makes it not clickable
+  pointer-events: none; /* This makes it not clickable */
   opacity: 0.6;
   background-position: 15px 1px;
 }
@@ -353,7 +353,7 @@ ul#perc-control-menu-container {
 }
 
 .form-website-label-disable {
-  pointer-events: none; //This makes it not clickable
+  pointer-events: none; /* This makes it not clickable */
   opacity: 0.6;
 }
 .form-date-field-label {

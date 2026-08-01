@@ -28,14 +28,14 @@
     maxlength: $.validator.format("Veuillez fournir au plus {0} caractères."),
     minlength: $.validator.format("Veuillez fournir au moins {0} caractères."),
     rangelength: $.validator.format(
-      "Veuillez fournir une valeur qui contient entre {0} et {1} caractères."
+      "Veuillez fournir une valeur qui contient entre {0} et {1} caractères.",
     ),
     range: $.validator.format("Veuillez fournir une valeur entre {0} et {1}."),
     max: $.validator.format(
-      "Veuillez fournir une valeur inférieure ou égale à {0}."
+      "Veuillez fournir une valeur inférieure ou égale à {0}.",
     ),
     min: $.validator.format(
-      "Veuillez fournir une valeur supérieure ou égale à {0}."
+      "Veuillez fournir une valeur supérieure ou égale à {0}.",
     ),
     step: $.validator.format("Veuillez fournir une valeur multiple de {0}."),
     maxWords: $.validator.format("Veuillez fournir au plus {0} mots."),
@@ -58,7 +58,7 @@
     phoneUK: "Veuillez fournir un numéro de téléphone valide.",
     mobileUK: "Veuillez fournir un numéro de téléphone mobile valide.",
     strippedminlength: $.validator.format(
-      "Veuillez fournir au moins {0} caractères."
+      "Veuillez fournir au moins {0} caractères.",
     ),
     email2: "Veuillez fournir une adresse électronique valide.",
     url2: "Veuillez fournir une adresse URL valide.",
@@ -66,7 +66,7 @@
     ipv4: "Veuillez fournir une adresse IP v4 valide.",
     ipv6: "Veuillez fournir une adresse IP v6 valide.",
     require_from_group: $.validator.format(
-      "Veuillez fournir au moins {0} de ces champs."
+      "Veuillez fournir au moins {0} de ces champs.",
     ),
     nifES: "Veuillez fournir un numéro NIF valide.",
     nieES: "Veuillez fournir un numéro NIE valide.",

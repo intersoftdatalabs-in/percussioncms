@@ -2,23 +2,23 @@
   "function" == typeof define && define.amd
     ? define(["jquery", "moment"], a)
     : "object" == typeof exports
-    ? (module.exports = a(require("jquery"), require("moment")))
-    : a(jQuery, moment);
+      ? (module.exports = a(require("jquery"), require("moment")))
+      : a(jQuery, moment);
 })(function (a, b) {
-  !(function () {
-    !(function () {
+  (!(function () {
+    (!(function () {
       "use strict";
       var a = (b.updateLocale || b.lang).call(b, "ar-ma", {
         months:
           "يناير_فبراير_مارس_أبريل_ماي_يونيو_يوليوز_غشت_شتنبر_أكتوبر_نونبر_دجنبر".split(
-            "_"
+            "_",
           ),
         monthsShort:
           "يناير_فبراير_مارس_أبريل_ماي_يونيو_يوليوز_غشت_شتنبر_أكتوبر_نونبر_دجنبر".split(
-            "_"
+            "_",
           ),
         weekdays: "الأحد_الإتنين_الثلاثاء_الأربعاء_الخميس_الجمعة_السبت".split(
-          "_"
+          "_",
         ),
         weekdaysShort: "احد_اتنين_ثلاثاء_اربعاء_خميس_جمعة_سبت".split("_"),
         weekdaysMin: "ح_ن_ث_ر_خ_ج_س".split("_"),
@@ -121,10 +121,10 @@
         buttonText: { month: "شهر", week: "أسبوع", day: "يوم", list: "أجندة" },
         allDayText: "اليوم كله",
         eventLimitText: "أخرى",
-      });
+      }));
   })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = {
             1: "١",
@@ -153,11 +153,11 @@
           d = (b.updateLocale || b.lang).call(b, "ar-sa", {
             months:
               "يناير_فبراير_مارس_أبريل_مايو_يونيو_يوليو_أغسطس_سبتمبر_أكتوبر_نوفمبر_ديسمبر".split(
-                "_"
+                "_",
               ),
             monthsShort:
               "يناير_فبراير_مارس_أبريل_مايو_يونيو_يوليو_أغسطس_سبتمبر_أكتوبر_نوفمبر_ديسمبر".split(
-                "_"
+                "_",
               ),
             weekdays:
               "الأحد_الإثنين_الثلاثاء_الأربعاء_الخميس_الجمعة_السبت".split("_"),
@@ -288,22 +288,22 @@
           },
           allDayText: "اليوم كله",
           eventLimitText: "أخرى",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "ar-tn", {
           months:
             "جانفي_فيفري_مارس_أفريل_ماي_جوان_جويلية_أوت_سبتمبر_أكتوبر_نوفمبر_ديسمبر".split(
-              "_"
+              "_",
             ),
           monthsShort:
             "جانفي_فيفري_مارس_أفريل_ماي_جوان_جويلية_أوت_سبتمبر_أكتوبر_نوفمبر_ديسمبر".split(
-              "_"
+              "_",
             ),
           weekdays: "الأحد_الإثنين_الثلاثاء_الأربعاء_الخميس_الجمعة_السبت".split(
-            "_"
+            "_",
           ),
           weekdaysShort: "أحد_إثنين_ثلاثاء_أربعاء_خميس_جمعة_سبت".split("_"),
           weekdaysMin: "ح_ن_ث_ر_خ_ج_س".split("_"),
@@ -411,10 +411,10 @@
           },
           allDayText: "اليوم كله",
           eventLimitText: "أخرى",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = {
             1: "١",
@@ -444,14 +444,14 @@
             return 0 === a
               ? 0
               : 1 === a
-              ? 1
-              : 2 === a
-              ? 2
-              : a % 100 >= 3 && 10 >= a % 100
-              ? 3
-              : a % 100 >= 11
-              ? 4
-              : 5;
+                ? 1
+                : 2 === a
+                  ? 2
+                  : a % 100 >= 3 && 10 >= a % 100
+                    ? 3
+                    : a % 100 >= 11
+                      ? 4
+                      : 5;
           },
           e = {
             s: [
@@ -507,7 +507,7 @@
             return function (b, c, f, g) {
               var h = d(b),
                 i = e[a][d(b)];
-              return 2 === h && (i = i[c ? 0 : 1]), i.replace(/%d/i, b);
+              return (2 === h && (i = i[c ? 0 : 1]), i.replace(/%d/i, b));
             };
           },
           g = [
@@ -657,18 +657,18 @@
           },
           allDayText: "اليوم كله",
           eventLimitText: "أخرى",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "bg", {
           months:
             "януари_февруари_март_април_май_юни_юли_август_септември_октомври_ноември_декември".split(
-              "_"
+              "_",
             ),
           monthsShort: "янр_фев_мар_апр_май_юни_юли_авг_сеп_окт_ное_дек".split(
-            "_"
+            "_",
           ),
           weekdays:
             "неделя_понеделник_вторник_сряда_четвъртък_петък_събота".split("_"),
@@ -724,16 +724,16 @@
             return 0 === a
               ? a + "-ев"
               : 0 === c
-              ? a + "-ен"
-              : c > 10 && 20 > c
-              ? a + "-ти"
-              : 1 === b
-              ? a + "-ви"
-              : 2 === b
-              ? a + "-ри"
-              : 7 === b || 8 === b
-              ? a + "-ми"
-              : a + "-ти";
+                ? a + "-ен"
+                : c > 10 && 20 > c
+                  ? a + "-ти"
+                  : 1 === b
+                    ? a + "-ви"
+                    : 2 === b
+                      ? a + "-ри"
+                      : 7 === b || 8 === b
+                        ? a + "-ми"
+                        : a + "-ти";
           },
           week: { dow: 1, doy: 7 },
         });
@@ -802,24 +802,24 @@
           eventLimitText: function (a) {
             return "+още " + a;
           },
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "ca", {
           months:
             "gener_febrer_març_abril_maig_juny_juliol_agost_setembre_octubre_novembre_desembre".split(
-              "_"
+              "_",
             ),
           monthsShort:
             "gen._febr._mar._abr._mai._jun._jul._ag._set._oct._nov._des.".split(
-              "_"
+              "_",
             ),
           monthsParseExact: !0,
           weekdays:
             "diumenge_dilluns_dimarts_dimecres_dijous_divendres_dissabte".split(
-              "_"
+              "_",
             ),
           weekdaysShort: "dg._dl._dt._dc._dj._dv._ds.".split("_"),
           weekdaysMin: "Dg_Dl_Dt_Dc_Dj_Dv_Ds".split("_"),
@@ -875,13 +875,13 @@
               1 === a
                 ? "r"
                 : 2 === a
-                ? "n"
-                : 3 === a
-                ? "r"
-                : 4 === a
-                ? "t"
-                : "è";
-            return ("w" !== b && "W" !== b) || (c = "a"), a + c;
+                  ? "n"
+                  : 3 === a
+                    ? "r"
+                    : 4 === a
+                      ? "t"
+                      : "è";
+            return (("w" !== b && "W" !== b) || (c = "a"), a + c);
           },
           week: { dow: 1, doy: 4 },
         });
@@ -947,10 +947,10 @@
           },
           allDayText: "Tot el dia",
           eventLimitText: "més",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         function a(a) {
           return a > 1 && 5 > a && 1 !== ~~(a / 10);
@@ -984,7 +984,7 @@
         }
         var d =
             "leden_únor_březen_duben_květen_červen_červenec_srpen_září_říjen_listopad_prosinec".split(
-              "_"
+              "_",
             ),
           e = "led_úno_bře_dub_kvě_čvn_čvc_srp_zář_říj_lis_pro".split("_"),
           f = (b.updateLocale || b.lang).call(b, "cs", {
@@ -1010,7 +1010,7 @@
               return c;
             })(d),
             weekdays: "neděle_pondělí_úterý_středa_čtvrtek_pátek_sobota".split(
-              "_"
+              "_",
             ),
             weekdaysShort: "ne_po_út_st_čt_pá_so".split("_"),
             weekdaysMin: "ne_po_út_st_čt_pá_so".split("_"),
@@ -1144,21 +1144,21 @@
           eventLimitText: function (a) {
             return "+další: " + a;
           },
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "da", {
           months:
             "januar_februar_marts_april_maj_juni_juli_august_september_oktober_november_december".split(
-              "_"
+              "_",
             ),
           monthsShort: "jan_feb_mar_apr_maj_jun_jul_aug_sep_okt_nov_dec".split(
-            "_"
+            "_",
           ),
           weekdays: "søndag_mandag_tirsdag_onsdag_torsdag_fredag_lørdag".split(
-            "_"
+            "_",
           ),
           weekdaysShort: "søn_man_tir_ons_tor_fre_lør".split("_"),
           weekdaysMin: "sø_ma_ti_on_to_fr_lø".split("_"),
@@ -1259,10 +1259,10 @@
           },
           allDayText: "Hele dagen",
           eventLimitText: "flere",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         function a(a, b, c, d) {
           var e = {
@@ -1280,16 +1280,16 @@
         var c = (b.updateLocale || b.lang).call(b, "de-at", {
           months:
             "Jänner_Februar_März_April_Mai_Juni_Juli_August_September_Oktober_November_Dezember".split(
-              "_"
+              "_",
             ),
           monthsShort:
             "Jän._Febr._Mrz._Apr._Mai_Jun._Jul._Aug._Sept._Okt._Nov._Dez.".split(
-              "_"
+              "_",
             ),
           monthsParseExact: !0,
           weekdays:
             "Sonntag_Montag_Dienstag_Mittwoch_Donnerstag_Freitag_Samstag".split(
-              "_"
+              "_",
             ),
           weekdaysShort: "So._Mo._Di._Mi._Do._Fr._Sa.".split("_"),
           weekdaysMin: "So_Mo_Di_Mi_Do_Fr_Sa".split("_"),
@@ -1393,10 +1393,10 @@
           eventLimitText: function (a) {
             return "+ weitere " + a;
           },
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         function a(a, b, c, d) {
           var e = {
@@ -1414,16 +1414,16 @@
         var c = (b.updateLocale || b.lang).call(b, "de", {
           months:
             "Januar_Februar_März_April_Mai_Juni_Juli_August_September_Oktober_November_Dezember".split(
-              "_"
+              "_",
             ),
           monthsShort:
             "Jan._Febr._Mrz._Apr._Mai_Jun._Jul._Aug._Sept._Okt._Nov._Dez.".split(
-              "_"
+              "_",
             ),
           monthsParseExact: !0,
           weekdays:
             "Sonntag_Montag_Dienstag_Mittwoch_Donnerstag_Freitag_Samstag".split(
-              "_"
+              "_",
             ),
           weekdaysShort: "So._Mo._Di._Mi._Do._Fr._Sa.".split("_"),
           weekdaysMin: "So_Mo_Di_Mi_Do_Fr_Sa".split("_"),
@@ -1527,10 +1527,10 @@
           eventLimitText: function (a) {
             return "+ weitere " + a;
           },
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         function a(a) {
           return (
@@ -1541,11 +1541,11 @@
         var c = (b.updateLocale || b.lang).call(b, "el", {
           monthsNominativeEl:
             "Ιανουάριος_Φεβρουάριος_Μάρτιος_Απρίλιος_Μάιος_Ιούνιος_Ιούλιος_Αύγουστος_Σεπτέμβριος_Οκτώβριος_Νοέμβριος_Δεκέμβριος".split(
-              "_"
+              "_",
             ),
           monthsGenitiveEl:
             "Ιανουαρίου_Φεβρουαρίου_Μαρτίου_Απριλίου_Μαΐου_Ιουνίου_Ιουλίου_Αυγούστου_Σεπτεμβρίου_Οκτωβρίου_Νοεμβρίου_Δεκεμβρίου".split(
-              "_"
+              "_",
             ),
           months: function (a, b) {
             return /D/.test(b.substring(0, b.indexOf("MMMM")))
@@ -1677,22 +1677,22 @@
           },
           allDayText: "Ολοήμερο",
           eventLimitText: "περισσότερα",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "en-au", {
           months:
             "January_February_March_April_May_June_July_August_September_October_November_December".split(
-              "_"
+              "_",
             ),
           monthsShort: "Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec".split(
-            "_"
+            "_",
           ),
           weekdays:
             "Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday".split(
-              "_"
+              "_",
             ),
           weekdaysShort: "Sun_Mon_Tue_Wed_Thu_Fri_Sat".split("_"),
           weekdaysMin: "Su_Mo_Tu_We_Th_Fr_Sa".split("_"),
@@ -1734,12 +1734,12 @@
                 1 === ~~((a % 100) / 10)
                   ? "th"
                   : 1 === b
-                  ? "st"
-                  : 2 === b
-                  ? "nd"
-                  : 3 === b
-                  ? "rd"
-                  : "th";
+                    ? "st"
+                    : 2 === b
+                      ? "nd"
+                      : 3 === b
+                        ? "rd"
+                        : "th";
             return a + c;
           },
           week: { dow: 1, doy: 4 },
@@ -1797,22 +1797,22 @@
           showMonthAfterYear: !1,
           yearSuffix: "",
         }),
-        a.fullCalendar.lang("en-au");
+        a.fullCalendar.lang("en-au"));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "en-ca", {
           months:
             "January_February_March_April_May_June_July_August_September_October_November_December".split(
-              "_"
+              "_",
             ),
           monthsShort: "Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec".split(
-            "_"
+            "_",
           ),
           weekdays:
             "Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday".split(
-              "_"
+              "_",
             ),
           weekdaysShort: "Sun_Mon_Tue_Wed_Thu_Fri_Sat".split("_"),
           weekdaysMin: "Su_Mo_Tu_We_Th_Fr_Sa".split("_"),
@@ -1854,33 +1854,33 @@
                 1 === ~~((a % 100) / 10)
                   ? "th"
                   : 1 === b
-                  ? "st"
-                  : 2 === b
-                  ? "nd"
-                  : 3 === b
-                  ? "rd"
-                  : "th";
+                    ? "st"
+                    : 2 === b
+                      ? "nd"
+                      : 3 === b
+                        ? "rd"
+                        : "th";
             return a + c;
           },
         });
         return a;
       })(),
-        a.fullCalendar.lang("en-ca");
+        a.fullCalendar.lang("en-ca"));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "en-gb", {
           months:
             "January_February_March_April_May_June_July_August_September_October_November_December".split(
-              "_"
+              "_",
             ),
           monthsShort: "Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec".split(
-            "_"
+            "_",
           ),
           weekdays:
             "Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday".split(
-              "_"
+              "_",
             ),
           weekdaysShort: "Sun_Mon_Tue_Wed_Thu_Fri_Sat".split("_"),
           weekdaysMin: "Su_Mo_Tu_We_Th_Fr_Sa".split("_"),
@@ -1922,12 +1922,12 @@
                 1 === ~~((a % 100) / 10)
                   ? "th"
                   : 1 === b
-                  ? "st"
-                  : 2 === b
-                  ? "nd"
-                  : 3 === b
-                  ? "rd"
-                  : "th";
+                    ? "st"
+                    : 2 === b
+                      ? "nd"
+                      : 3 === b
+                        ? "rd"
+                        : "th";
             return a + c;
           },
           week: { dow: 1, doy: 4 },
@@ -1985,22 +1985,22 @@
           showMonthAfterYear: !1,
           yearSuffix: "",
         }),
-        a.fullCalendar.lang("en-gb");
+        a.fullCalendar.lang("en-gb"));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "en-ie", {
           months:
             "January_February_March_April_May_June_July_August_September_October_November_December".split(
-              "_"
+              "_",
             ),
           monthsShort: "Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec".split(
-            "_"
+            "_",
           ),
           weekdays:
             "Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday".split(
-              "_"
+              "_",
             ),
           weekdaysShort: "Sun_Mon_Tue_Wed_Thu_Fri_Sat".split("_"),
           weekdaysMin: "Su_Mo_Tu_We_Th_Fr_Sa".split("_"),
@@ -2042,34 +2042,34 @@
                 1 === ~~((a % 100) / 10)
                   ? "th"
                   : 1 === b
-                  ? "st"
-                  : 2 === b
-                  ? "nd"
-                  : 3 === b
-                  ? "rd"
-                  : "th";
+                    ? "st"
+                    : 2 === b
+                      ? "nd"
+                      : 3 === b
+                        ? "rd"
+                        : "th";
             return a + c;
           },
           week: { dow: 1, doy: 4 },
         });
         return a;
       })(),
-        a.fullCalendar.lang("en-ie");
+        a.fullCalendar.lang("en-ie"));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "en-nz", {
           months:
             "January_February_March_April_May_June_July_August_September_October_November_December".split(
-              "_"
+              "_",
             ),
           monthsShort: "Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec".split(
-            "_"
+            "_",
           ),
           weekdays:
             "Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday".split(
-              "_"
+              "_",
             ),
           weekdaysShort: "Sun_Mon_Tue_Wed_Thu_Fri_Sat".split("_"),
           weekdaysMin: "Su_Mo_Tu_We_Th_Fr_Sa".split("_"),
@@ -2111,12 +2111,12 @@
                 1 === ~~((a % 100) / 10)
                   ? "th"
                   : 1 === b
-                  ? "st"
-                  : 2 === b
-                  ? "nd"
-                  : 3 === b
-                  ? "rd"
-                  : "th";
+                    ? "st"
+                    : 2 === b
+                      ? "nd"
+                      : 3 === b
+                        ? "rd"
+                        : "th";
             return a + c;
           },
           week: { dow: 1, doy: 4 },
@@ -2174,20 +2174,20 @@
           showMonthAfterYear: !1,
           yearSuffix: "",
         }),
-        a.fullCalendar.lang("en-nz");
+        a.fullCalendar.lang("en-nz"));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a =
             "ene._feb._mar._abr._may._jun._jul._ago._sep._oct._nov._dic.".split(
-              "_"
+              "_",
             ),
           c = "ene_feb_mar_abr_may_jun_jul_ago_sep_oct_nov_dic".split("_"),
           d = (b.updateLocale || b.lang).call(b, "es", {
             months:
               "enero_febrero_marzo_abril_mayo_junio_julio_agosto_septiembre_octubre_noviembre_diciembre".split(
-                "_"
+                "_",
               ),
             monthsShort: function (b, d) {
               return /-MMM-/.test(d) ? c[b.month()] : a[b.month()];
@@ -2311,24 +2311,24 @@
           },
           allDayHtml: "Todo<br/>el día",
           eventLimitText: "más",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "eu", {
           months:
             "urtarrila_otsaila_martxoa_apirila_maiatza_ekaina_uztaila_abuztua_iraila_urria_azaroa_abendua".split(
-              "_"
+              "_",
             ),
           monthsShort:
             "urt._ots._mar._api._mai._eka._uzt._abu._ira._urr._aza._abe.".split(
-              "_"
+              "_",
             ),
           monthsParseExact: !0,
           weekdays:
             "igandea_astelehena_asteartea_asteazkena_osteguna_ostirala_larunbata".split(
-              "_"
+              "_",
             ),
           weekdaysShort: "ig._al._ar._az._og._ol._lr.".split("_"),
           weekdaysMin: "ig_al_ar_az_og_ol_lr".split("_"),
@@ -2434,10 +2434,10 @@
           },
           allDayHtml: "Egun<br/>osoa",
           eventLimitText: "gehiago",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = {
             1: "۱",
@@ -2466,11 +2466,11 @@
           d = (b.updateLocale || b.lang).call(b, "fa", {
             months:
               "ژانویه_فوریه_مارس_آوریل_مه_ژوئن_ژوئیه_اوت_سپتامبر_اکتبر_نوامبر_دسامبر".split(
-                "_"
+                "_",
               ),
             monthsShort:
               "ژانویه_فوریه_مارس_آوریل_مه_ژوئن_ژوئیه_اوت_سپتامبر_اکتبر_نوامبر_دسامبر".split(
-                "_"
+                "_",
               ),
             weekdays:
               "یک‌شنبه_دوشنبه_سه‌شنبه_چهارشنبه_پنج‌شنبه_جمعه_شنبه".split("_"),
@@ -2598,10 +2598,10 @@
           eventLimitText: function (a) {
             return "بیش از " + a;
           },
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         function a(a, b, d, e) {
           var f = "";
@@ -2640,7 +2640,7 @@
         }
         var d =
             "nolla yksi kaksi kolme neljä viisi kuusi seitsemän kahdeksan yhdeksän".split(
-              " "
+              " ",
             ),
           e = [
             "nolla",
@@ -2657,15 +2657,15 @@
           f = (b.updateLocale || b.lang).call(b, "fi", {
             months:
               "tammikuu_helmikuu_maaliskuu_huhtikuu_toukokuu_kesäkuu_heinäkuu_elokuu_syyskuu_lokakuu_marraskuu_joulukuu".split(
-                "_"
+                "_",
               ),
             monthsShort:
               "tammi_helmi_maalis_huhti_touko_kesä_heinä_elo_syys_loka_marras_joulu".split(
-                "_"
+                "_",
               ),
             weekdays:
               "sunnuntai_maanantai_tiistai_keskiviikko_torstai_perjantai_lauantai".split(
-                "_"
+                "_",
               ),
             weekdaysShort: "su_ma_ti_ke_to_pe_la".split("_"),
             weekdaysMin: "su_ma_ti_ke_to_pe_la".split("_"),
@@ -2770,23 +2770,23 @@
           },
           allDayText: "Koko päivä",
           eventLimitText: "lisää",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "fr-ca", {
           months:
             "janvier_février_mars_avril_mai_juin_juillet_août_septembre_octobre_novembre_décembre".split(
-              "_"
+              "_",
             ),
           monthsShort:
             "janv._févr._mars_avr._mai_juin_juil._août_sept._oct._nov._déc.".split(
-              "_"
+              "_",
             ),
           monthsParseExact: !0,
           weekdays: "dimanche_lundi_mardi_mercredi_jeudi_vendredi_samedi".split(
-            "_"
+            "_",
           ),
           weekdaysShort: "dim._lun._mar._mer._jeu._ven._sam.".split("_"),
           weekdaysMin: "Di_Lu_Ma_Me_Je_Ve_Sa".split("_"),
@@ -2898,23 +2898,23 @@
           },
           allDayHtml: "Toute la<br/>journée",
           eventLimitText: "en plus",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "fr-ch", {
           months:
             "janvier_février_mars_avril_mai_juin_juillet_août_septembre_octobre_novembre_décembre".split(
-              "_"
+              "_",
             ),
           monthsShort:
             "janv._févr._mars_avr._mai_juin_juil._août_sept._oct._nov._déc.".split(
-              "_"
+              "_",
             ),
           monthsParseExact: !0,
           weekdays: "dimanche_lundi_mardi_mercredi_jeudi_vendredi_samedi".split(
-            "_"
+            "_",
           ),
           weekdaysShort: "dim._lun._mar._mer._jeu._ven._sam.".split("_"),
           weekdaysMin: "Di_Lu_Ma_Me_Je_Ve_Sa".split("_"),
@@ -3027,23 +3027,23 @@
           },
           allDayHtml: "Toute la<br/>journée",
           eventLimitText: "en plus",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "fr", {
           months:
             "janvier_février_mars_avril_mai_juin_juillet_août_septembre_octobre_novembre_décembre".split(
-              "_"
+              "_",
             ),
           monthsShort:
             "janv._févr._mars_avr._mai_juin_juil._août_sept._oct._nov._déc.".split(
-              "_"
+              "_",
             ),
           monthsParseExact: !0,
           weekdays: "dimanche_lundi_mardi_mercredi_jeudi_vendredi_samedi".split(
-            "_"
+            "_",
           ),
           weekdaysShort: "dim._lun._mar._mer._jeu._ven._sam.".split("_"),
           weekdaysMin: "Di_Lu_Ma_Me_Je_Ve_Sa".split("_"),
@@ -3156,23 +3156,23 @@
           },
           allDayHtml: "Toute la<br/>journée",
           eventLimitText: "en plus",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "gl", {
           months:
             "Xaneiro_Febreiro_Marzo_Abril_Maio_Xuño_Xullo_Agosto_Setembro_Outubro_Novembro_Decembro".split(
-              "_"
+              "_",
             ),
           monthsShort:
             "Xan._Feb._Mar._Abr._Mai._Xuñ._Xul._Ago._Set._Out._Nov._Dec.".split(
-              "_"
+              "_",
             ),
           monthsParseExact: !0,
           weekdays: "Domingo_Luns_Martes_Mércores_Xoves_Venres_Sábado".split(
-            "_"
+            "_",
           ),
           weekdaysShort: "Dom._Lun._Mar._Mér._Xov._Ven._Sáb.".split("_"),
           weekdaysMin: "Do_Lu_Ma_Mé_Xo_Ve_Sá".split("_"),
@@ -3288,19 +3288,19 @@
           },
           allDayHtml: "Todo<br/>o día",
           eventLimitText: "máis",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "he", {
           months:
             "ינואר_פברואר_מרץ_אפריל_מאי_יוני_יולי_אוגוסט_ספטמבר_אוקטובר_נובמבר_דצמבר".split(
-              "_"
+              "_",
             ),
           monthsShort:
             "ינו׳_פבר׳_מרץ_אפר׳_מאי_יוני_יולי_אוג׳_ספט׳_אוק׳_נוב׳_דצמ׳".split(
-              "_"
+              "_",
             ),
           weekdays: "ראשון_שני_שלישי_רביעי_חמישי_שישי_שבת".split("_"),
           weekdaysShort: "א׳_ב׳_ג׳_ד׳_ה׳_ו׳_ש׳".split("_"),
@@ -3348,8 +3348,8 @@
               return 2 === a
                 ? "שנתיים"
                 : a % 10 === 0 && 10 !== a
-                ? a + " שנה"
-                : a + " שנים";
+                  ? a + " שנה"
+                  : a + " שנים";
             },
           },
           meridiemParse:
@@ -3361,16 +3361,16 @@
             return 5 > a
               ? "לפנות בוקר"
               : 10 > a
-              ? "בבוקר"
-              : 12 > a
-              ? c
-                ? 'לפנה"צ'
-                : "לפני הצהריים"
-              : 18 > a
-              ? c
-                ? 'אחה"צ'
-                : "אחרי הצהריים"
-              : "בערב";
+                ? "בבוקר"
+                : 12 > a
+                  ? c
+                    ? 'לפנה"צ'
+                    : "לפני הצהריים"
+                  : 18 > a
+                    ? c
+                      ? 'אחה"צ'
+                      : "אחרי הצהריים"
+                    : "בערב";
           },
         });
         return a;
@@ -3428,10 +3428,10 @@
           weekNumberTitle: "שבוע",
           allDayText: "כל היום",
           eventLimitText: "אחר",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = {
             1: "१",
@@ -3460,11 +3460,11 @@
           d = (b.updateLocale || b.lang).call(b, "hi", {
             months:
               "जनवरी_फ़रवरी_मार्च_अप्रैल_मई_जून_जुलाई_अगस्त_सितम्बर_अक्टूबर_नवम्बर_दिसम्बर".split(
-                "_"
+                "_",
               ),
             monthsShort:
               "जन._फ़र._मार्च_अप्रै._मई_जून_जुल._अग._सित._अक्टू._नव._दिस.".split(
-                "_"
+                "_",
               ),
             monthsParseExact: !0,
             weekdays:
@@ -3521,26 +3521,26 @@
                     ? a
                     : a + 12
                   : "सुबह" === b
-                  ? a
-                  : "दोपहर" === b
-                  ? a >= 10
                     ? a
-                    : a + 12
-                  : "शाम" === b
-                  ? a + 12
-                  : void 0
+                    : "दोपहर" === b
+                      ? a >= 10
+                        ? a
+                        : a + 12
+                      : "शाम" === b
+                        ? a + 12
+                        : void 0
               );
             },
             meridiem: function (a, b, c) {
               return 4 > a
                 ? "रात"
                 : 10 > a
-                ? "सुबह"
-                : 17 > a
-                ? "दोपहर"
-                : 20 > a
-                ? "शाम"
-                : "रात";
+                  ? "सुबह"
+                  : 17 > a
+                    ? "दोपहर"
+                    : 20 > a
+                      ? "शाम"
+                      : "रात";
             },
             week: { dow: 0, doy: 6 },
           });
@@ -3608,10 +3608,10 @@
           eventLimitText: function (a) {
             return "+अधिक " + a;
           },
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         function a(a, b, c) {
           var d = a + " ";
@@ -3623,8 +3623,8 @@
                 1 === a
                   ? "minuta"
                   : 2 === a || 3 === a || 4 === a
-                  ? "minute"
-                  : "minuta");
+                    ? "minute"
+                    : "minuta");
             case "h":
               return b ? "jedan sat" : "jednog sata";
             case "hh":
@@ -3632,8 +3632,8 @@
                 1 === a
                   ? "sat"
                   : 2 === a || 3 === a || 4 === a
-                  ? "sata"
-                  : "sati");
+                    ? "sata"
+                    : "sati");
             case "dd":
               return (d += 1 === a ? "dan" : "dana");
             case "MM":
@@ -3641,36 +3641,36 @@
                 1 === a
                   ? "mjesec"
                   : 2 === a || 3 === a || 4 === a
-                  ? "mjeseca"
-                  : "mjeseci");
+                    ? "mjeseca"
+                    : "mjeseci");
             case "yy":
               return (d +=
                 1 === a
                   ? "godina"
                   : 2 === a || 3 === a || 4 === a
-                  ? "godine"
-                  : "godina");
+                    ? "godine"
+                    : "godina");
           }
         }
         var c = (b.updateLocale || b.lang).call(b, "hr", {
           months: {
             format:
               "siječnja_veljače_ožujka_travnja_svibnja_lipnja_srpnja_kolovoza_rujna_listopada_studenoga_prosinca".split(
-                "_"
+                "_",
               ),
             standalone:
               "siječanj_veljača_ožujak_travanj_svibanj_lipanj_srpanj_kolovoz_rujan_listopad_studeni_prosinac".split(
-                "_"
+                "_",
               ),
           },
           monthsShort:
             "sij._velj._ožu._tra._svi._lip._srp._kol._ruj._lis._stu._pro.".split(
-              "_"
+              "_",
             ),
           monthsParseExact: !0,
           weekdays:
             "nedjelja_ponedjeljak_utorak_srijeda_četvrtak_petak_subota".split(
-              "_"
+              "_",
             ),
           weekdaysShort: "ned._pon._uto._sri._čet._pet._sub.".split("_"),
           weekdaysMin: "ne_po_ut_sr_če_pe_su".split("_"),
@@ -3801,10 +3801,10 @@
           eventLimitText: function (a) {
             return "+ još " + a;
           },
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         function a(a, b, c, d) {
           var e = a;
@@ -3839,12 +3839,12 @@
         }
         var d =
             "vasárnap hétfőn kedden szerdán csütörtökön pénteken szombaton".split(
-              " "
+              " ",
             ),
           e = (b.updateLocale || b.lang).call(b, "hu", {
             months:
               "január_február_március_április_május_június_július_augusztus_szeptember_október_november_december".split(
-                "_"
+                "_",
               ),
             monthsShort:
               "jan_feb_márc_ápr_máj_jún_júl_aug_szept_okt_nov_dec".split("_"),
@@ -3960,18 +3960,18 @@
           },
           allDayText: "Egész nap",
           eventLimitText: "további",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "id", {
           months:
             "Januari_Februari_Maret_April_Mei_Juni_Juli_Agustus_September_Oktober_November_Desember".split(
-              "_"
+              "_",
             ),
           monthsShort: "Jan_Feb_Mar_Apr_Mei_Jun_Jul_Ags_Sep_Okt_Nov_Des".split(
-            "_"
+            "_",
           ),
           weekdays: "Minggu_Senin_Selasa_Rabu_Kamis_Jumat_Sabtu".split("_"),
           weekdaysShort: "Min_Sen_Sel_Rab_Kam_Jum_Sab".split("_"),
@@ -3991,22 +3991,22 @@
               "pagi" === b
                 ? a
                 : "siang" === b
-                ? a >= 11
-                  ? a
-                  : a + 12
-                : "sore" === b || "malam" === b
-                ? a + 12
-                : void 0
+                  ? a >= 11
+                    ? a
+                    : a + 12
+                  : "sore" === b || "malam" === b
+                    ? a + 12
+                    : void 0
             );
           },
           meridiem: function (a, b, c) {
             return 11 > a
               ? "pagi"
               : 15 > a
-              ? "siang"
-              : 19 > a
-              ? "sore"
-              : "malam";
+                ? "siang"
+                : 19 > a
+                  ? "sore"
+                  : "malam";
           },
           calendar: {
             sameDay: "[Hari ini pukul] LT",
@@ -4095,10 +4095,10 @@
           },
           allDayHtml: "Sehari<br/>penuh",
           eventLimitText: "lebih",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         function a(a) {
           return a % 100 === 11 ? !0 : a % 10 !== 1;
@@ -4114,8 +4114,8 @@
               return a(b)
                 ? f + (c || e ? "mínútur" : "mínútum")
                 : c
-                ? f + "mínúta"
-                : f + "mínútu";
+                  ? f + "mínúta"
+                  : f + "mínútu";
             case "hh":
               return a(b)
                 ? f + (c || e ? "klukkustundir" : "klukkustundum")
@@ -4128,8 +4128,8 @@
                   ? f + "dagar"
                   : f + (e ? "daga" : "dögum")
                 : c
-                ? f + "dagur"
-                : f + (e ? "dag" : "degi");
+                  ? f + "dagur"
+                  : f + (e ? "dag" : "degi");
             case "M":
               return c ? "mánuður" : e ? "mánuð" : "mánuði";
             case "MM":
@@ -4138,8 +4138,8 @@
                   ? f + "mánuðir"
                   : f + (e ? "mánuði" : "mánuðum")
                 : c
-                ? f + "mánuður"
-                : f + (e ? "mánuð" : "mánuði");
+                  ? f + "mánuður"
+                  : f + (e ? "mánuð" : "mánuði");
             case "y":
               return c || e ? "ár" : "ári";
             case "yy":
@@ -4151,14 +4151,14 @@
         var d = (b.updateLocale || b.lang).call(b, "is", {
           months:
             "janúar_febrúar_mars_apríl_maí_júní_júlí_ágúst_september_október_nóvember_desember".split(
-              "_"
+              "_",
             ),
           monthsShort: "jan_feb_mar_apr_maí_jún_júl_ágú_sep_okt_nóv_des".split(
-            "_"
+            "_",
           ),
           weekdays:
             "sunnudagur_mánudagur_þriðjudagur_miðvikudagur_fimmtudagur_föstudagur_laugardagur".split(
-              "_"
+              "_",
             ),
           weekdaysShort: "sun_mán_þri_mið_fim_fös_lau".split("_"),
           weekdaysMin: "Su_Má_Þr_Mi_Fi_Fö_La".split("_"),
@@ -4259,22 +4259,22 @@
           },
           allDayHtml: "Allan<br/>daginn",
           eventLimitText: "meira",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "it", {
           months:
             "gennaio_febbraio_marzo_aprile_maggio_giugno_luglio_agosto_settembre_ottobre_novembre_dicembre".split(
-              "_"
+              "_",
             ),
           monthsShort: "gen_feb_mar_apr_mag_giu_lug_ago_set_ott_nov_dic".split(
-            "_"
+            "_",
           ),
           weekdays:
             "Domenica_Lunedì_Martedì_Mercoledì_Giovedì_Venerdì_Sabato".split(
-              "_"
+              "_",
             ),
           weekdaysShort: "Dom_Lun_Mar_Mer_Gio_Ven_Sab".split("_"),
           weekdaysMin: "Do_Lu_Ma_Me_Gi_Ve_Sa".split("_"),
@@ -4386,19 +4386,19 @@
           eventLimitText: function (a) {
             return "+altri " + a;
           },
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "ja", {
           months: "1月_2月_3月_4月_5月_6月_7月_8月_9月_10月_11月_12月".split(
-            "_"
+            "_",
           ),
           monthsShort:
             "1月_2月_3月_4月_5月_6月_7月_8月_9月_10月_11月_12月".split("_"),
           weekdays: "日曜日_月曜日_火曜日_水曜日_木曜日_金曜日_土曜日".split(
-            "_"
+            "_",
           ),
           weekdaysShort: "日_月_火_水_木_金_土".split("_"),
           weekdaysMin: "日_月_火_水_木_金_土".split("_"),
@@ -4516,19 +4516,19 @@
           eventLimitText: function (a) {
             return "他 " + a + " 件";
           },
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "ko", {
           months: "1월_2월_3월_4월_5월_6월_7월_8월_9월_10월_11월_12월".split(
-            "_"
+            "_",
           ),
           monthsShort:
             "1월_2월_3월_4월_5월_6월_7월_8월_9월_10월_11월_12월".split("_"),
           weekdays: "일요일_월요일_화요일_수요일_목요일_금요일_토요일".split(
-            "_"
+            "_",
           ),
           weekdaysShort: "일_월_화_수_목_금_토".split("_"),
           weekdaysMin: "일_월_화_수_목_금_토".split("_"),
@@ -4631,10 +4631,10 @@
           buttonText: { month: "월", week: "주", day: "일", list: "일정목록" },
           allDayText: "종일",
           eventLimitText: "개",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         function a(a, b, c, d) {
           var e = {
@@ -4664,24 +4664,24 @@
             return e(0 === b ? c : b);
           }
           if (1e4 > a) {
-            for (; a >= 10; ) a /= 10;
+            for (; a >= 10;) a /= 10;
             return e(a);
           }
-          return (a /= 1e3), e(a);
+          return ((a /= 1e3), e(a));
         }
         var f = (b.updateLocale || b.lang).call(b, "lb", {
           months:
             "Januar_Februar_Mäerz_Abrëll_Mee_Juni_Juli_August_September_Oktober_November_Dezember".split(
-              "_"
+              "_",
             ),
           monthsShort:
             "Jan._Febr._Mrz._Abr._Mee_Jun._Jul._Aug._Sept._Okt._Nov._Dez.".split(
-              "_"
+              "_",
             ),
           monthsParseExact: !0,
           weekdays:
             "Sonndeg_Méindeg_Dënschdeg_Mëttwoch_Donneschdeg_Freideg_Samschdeg".split(
-              "_"
+              "_",
             ),
           weekdaysShort: "So._Mé._Dë._Më._Do._Fr._Sa.".split("_"),
           weekdaysMin: "So_Mé_Dë_Më_Do_Fr_Sa".split("_"),
@@ -4791,17 +4791,17 @@
           },
           allDayText: "Ganzen Dag",
           eventLimitText: "méi",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         function a(a, b, c, d) {
           return b
             ? "kelios sekundės"
             : d
-            ? "kelių sekundžių"
-            : "kelias sekundes";
+              ? "kelių sekundžių"
+              : "kelias sekundes";
         }
         function c(a, b, c, d) {
           return b ? e(c)[0] : d ? e(c)[1] : e(c)[2];
@@ -4817,10 +4817,10 @@
           return 1 === a
             ? h + c(a, b, f[0], g)
             : b
-            ? h + (d(a) ? e(f)[1] : e(f)[0])
-            : g
-            ? h + e(f)[1]
-            : h + (d(a) ? e(f)[1] : e(f)[2]);
+              ? h + (d(a) ? e(f)[1] : e(f)[0])
+              : g
+                ? h + e(f)[1]
+                : h + (d(a) ? e(f)[1] : e(f)[2]);
         }
         var g = {
             m: "minutė_minutės_minutę",
@@ -4838,11 +4838,11 @@
             months: {
               format:
                 "sausio_vasario_kovo_balandžio_gegužės_birželio_liepos_rugpjūčio_rugsėjo_spalio_lapkričio_gruodžio".split(
-                  "_"
+                  "_",
                 ),
               standalone:
                 "sausis_vasaris_kovas_balandis_gegužė_birželis_liepa_rugpjūtis_rugsėjis_spalis_lapkritis_gruodis".split(
-                  "_"
+                  "_",
                 ),
             },
             monthsShort:
@@ -4850,11 +4850,11 @@
             weekdays: {
               format:
                 "sekmadienį_pirmadienį_antradienį_trečiadienį_ketvirtadienį_penktadienį_šeštadienį".split(
-                  "_"
+                  "_",
                 ),
               standalone:
                 "sekmadienis_pirmadienis_antradienis_trečiadienis_ketvirtadienis_penktadienis_šeštadienis".split(
-                  "_"
+                  "_",
                 ),
               isFormat: /dddd HH:mm/,
             },
@@ -4964,10 +4964,10 @@
           },
           allDayText: "Visą dieną",
           eventLimitText: "daugiau",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         function a(a, b, c) {
           return c
@@ -4975,8 +4975,8 @@
               ? a[2]
               : a[3]
             : b % 10 === 1 && 11 !== b
-            ? a[0]
-            : a[1];
+              ? a[0]
+              : a[1];
         }
         function c(b, c, d) {
           return b + " " + a(f[d], b, c);
@@ -5002,13 +5002,13 @@
           g = (b.updateLocale || b.lang).call(b, "lv", {
             months:
               "janvāris_februāris_marts_aprīlis_maijs_jūnijs_jūlijs_augusts_septembris_oktobris_novembris_decembris".split(
-                "_"
+                "_",
               ),
             monthsShort:
               "jan_feb_mar_apr_mai_jūn_jūl_aug_sep_okt_nov_dec".split("_"),
             weekdays:
               "svētdiena_pirmdiena_otrdiena_trešdiena_ceturtdiena_piektdiena_sestdiena".split(
-                "_"
+                "_",
               ),
             weekdaysShort: "Sv_P_O_T_C_Pk_S".split("_"),
             weekdaysMin: "Sv_P_O_T_C_Pk_S".split("_"),
@@ -5112,23 +5112,23 @@
           eventLimitText: function (a) {
             return "+vēl " + a;
           },
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "nb", {
           months:
             "januar_februar_mars_april_mai_juni_juli_august_september_oktober_november_desember".split(
-              "_"
+              "_",
             ),
           monthsShort:
             "jan._feb._mars_april_mai_juni_juli_aug._sep._okt._nov._des.".split(
-              "_"
+              "_",
             ),
           monthsParseExact: !0,
           weekdays: "søndag_mandag_tirsdag_onsdag_torsdag_fredag_lørdag".split(
-            "_"
+            "_",
           ),
           weekdaysShort: "sø._ma._ti._on._to._fr._lø.".split("_"),
           weekdaysMin: "sø_ma_ti_on_to_fr_lø".split("_"),
@@ -5230,20 +5230,20 @@
           },
           allDayText: "Hele dagen",
           eventLimitText: "til",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a =
             "jan._feb._mrt._apr._mei_jun._jul._aug._sep._okt._nov._dec.".split(
-              "_"
+              "_",
             ),
           c = "jan_feb_mrt_apr_mei_jun_jul_aug_sep_okt_nov_dec".split("_"),
           d = (b.updateLocale || b.lang).call(b, "nl", {
             months:
               "januari_februari_maart_april_mei_juni_juli_augustus_september_oktober_november_december".split(
-                "_"
+                "_",
               ),
             monthsShort: function (b, d) {
               return /-MMM-/.test(d) ? c[b.month()] : a[b.month()];
@@ -5251,7 +5251,7 @@
             monthsParseExact: !0,
             weekdays:
               "zondag_maandag_dinsdag_woensdag_donderdag_vrijdag_zaterdag".split(
-                "_"
+                "_",
               ),
             weekdaysShort: "zo._ma._di._wo._do._vr._za.".split("_"),
             weekdaysMin: "Zo_Ma_Di_Wo_Do_Vr_Za".split("_"),
@@ -5355,21 +5355,21 @@
           },
           allDayText: "Hele dag",
           eventLimitText: "extra",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "nn", {
           months:
             "januar_februar_mars_april_mai_juni_juli_august_september_oktober_november_desember".split(
-              "_"
+              "_",
             ),
           monthsShort: "jan_feb_mar_apr_mai_jun_jul_aug_sep_okt_nov_des".split(
-            "_"
+            "_",
           ),
           weekdays: "sundag_måndag_tysdag_onsdag_torsdag_fredag_laurdag".split(
-            "_"
+            "_",
           ),
           weekdaysShort: "sun_mån_tys_ons_tor_fre_lau".split("_"),
           weekdaysMin: "su_må_ty_on_to_fr_lø".split("_"),
@@ -5470,10 +5470,10 @@
           },
           allDayText: "Heile dagen",
           eventLimitText: "til",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         function a(a) {
           return 5 > a % 10 && a % 10 > 1 && ~~(a / 10) % 10 !== 1;
@@ -5497,25 +5497,25 @@
         }
         var d =
             "styczeń_luty_marzec_kwiecień_maj_czerwiec_lipiec_sierpień_wrzesień_październik_listopad_grudzień".split(
-              "_"
+              "_",
             ),
           e =
             "stycznia_lutego_marca_kwietnia_maja_czerwca_lipca_sierpnia_września_października_listopada_grudnia".split(
-              "_"
+              "_",
             ),
           f = (b.updateLocale || b.lang).call(b, "pl", {
             months: function (a, b) {
               return "" === b
                 ? "(" + e[a.month()] + "|" + d[a.month()] + ")"
                 : /D MMMM/.test(b)
-                ? e[a.month()]
-                : d[a.month()];
+                  ? e[a.month()]
+                  : d[a.month()];
             },
             monthsShort:
               "sty_lut_mar_kwi_maj_cze_lip_sie_wrz_paź_lis_gru".split("_"),
             weekdays:
               "niedziela_poniedziałek_wtorek_środa_czwartek_piątek_sobota".split(
-                "_"
+                "_",
               ),
             weekdaysShort: "nie_pon_wt_śr_czw_pt_sb".split("_"),
             weekdaysMin: "Nd_Pn_Wt_Śr_Cz_Pt_So".split("_"),
@@ -5627,22 +5627,22 @@
           },
           allDayText: "Cały dzień",
           eventLimitText: "więcej",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "pt-br", {
           months:
             "Janeiro_Fevereiro_Março_Abril_Maio_Junho_Julho_Agosto_Setembro_Outubro_Novembro_Dezembro".split(
-              "_"
+              "_",
             ),
           monthsShort: "Jan_Fev_Mar_Abr_Mai_Jun_Jul_Ago_Set_Out_Nov_Dez".split(
-            "_"
+            "_",
           ),
           weekdays:
             "Domingo_Segunda-feira_Terça-feira_Quarta-feira_Quinta-feira_Sexta-feira_Sábado".split(
-              "_"
+              "_",
             ),
           weekdaysShort: "Dom_Seg_Ter_Qua_Qui_Sex_Sáb".split("_"),
           weekdaysMin: "Dom_2ª_3ª_4ª_5ª_6ª_Sáb".split("_"),
@@ -5749,22 +5749,22 @@
           eventLimitText: function (a) {
             return "mais +" + a;
           },
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "pt", {
           months:
             "Janeiro_Fevereiro_Março_Abril_Maio_Junho_Julho_Agosto_Setembro_Outubro_Novembro_Dezembro".split(
-              "_"
+              "_",
             ),
           monthsShort: "Jan_Fev_Mar_Abr_Mai_Jun_Jul_Ago_Set_Out_Nov_Dez".split(
-            "_"
+            "_",
           ),
           weekdays:
             "Domingo_Segunda-Feira_Terça-Feira_Quarta-Feira_Quinta-Feira_Sexta-Feira_Sábado".split(
-              "_"
+              "_",
             ),
           weekdaysShort: "Dom_Seg_Ter_Qua_Qui_Sex_Sáb".split("_"),
           weekdaysMin: "Dom_2ª_3ª_4ª_5ª_6ª_Sáb".split("_"),
@@ -5870,10 +5870,10 @@
           },
           allDayText: "Todo o dia",
           eventLimitText: "mais",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         function a(a, b, c) {
           var d = {
@@ -5892,15 +5892,15 @@
         var c = (b.updateLocale || b.lang).call(b, "ro", {
           months:
             "ianuarie_februarie_martie_aprilie_mai_iunie_iulie_august_septembrie_octombrie_noiembrie_decembrie".split(
-              "_"
+              "_",
             ),
           monthsShort:
             "ian._febr._mart._apr._mai_iun._iul._aug._sept._oct._nov._dec.".split(
-              "_"
+              "_",
             ),
           monthsParseExact: !0,
           weekdays: "duminică_luni_marți_miercuri_joi_vineri_sâmbătă".split(
-            "_"
+            "_",
           ),
           weekdaysShort: "Dum_Lun_Mar_Mie_Joi_Vin_Sâm".split("_"),
           weekdaysMin: "Du_Lu_Ma_Mi_Jo_Vi_Sâ".split("_"),
@@ -6003,18 +6003,18 @@
           eventLimitText: function (a) {
             return "+alte " + a;
           },
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         function a(a, b) {
           var c = a.split("_");
           return b % 10 === 1 && b % 100 !== 11
             ? c[0]
             : b % 10 >= 2 && 4 >= b % 10 && (10 > b % 100 || b % 100 >= 20)
-            ? c[1]
-            : c[2];
+              ? c[1]
+              : c[2];
         }
         function c(b, c, d) {
           var e = {
@@ -6044,31 +6044,31 @@
             months: {
               format:
                 "января_февраля_марта_апреля_мая_июня_июля_августа_сентября_октября_ноября_декабря".split(
-                  "_"
+                  "_",
                 ),
               standalone:
                 "январь_февраль_март_апрель_май_июнь_июль_август_сентябрь_октябрь_ноябрь_декабрь".split(
-                  "_"
+                  "_",
                 ),
             },
             monthsShort: {
               format:
                 "янв._февр._мар._апр._мая_июня_июля_авг._сент._окт._нояб._дек.".split(
-                  "_"
+                  "_",
                 ),
               standalone:
                 "янв._февр._март_апр._май_июнь_июль_авг._сент._окт._нояб._дек.".split(
-                  "_"
+                  "_",
                 ),
             },
             weekdays: {
               standalone:
                 "воскресенье_понедельник_вторник_среда_четверг_пятница_суббота".split(
-                  "_"
+                  "_",
                 ),
               format:
                 "воскресенье_понедельник_вторник_среду_четверг_пятницу_субботу".split(
-                  "_"
+                  "_",
                 ),
               isFormat: /\[ ?[Вв] ?(?:прошлую|следующую|эту)? ?\] ?dddd/,
             },
@@ -6158,10 +6158,10 @@
               return 4 > a
                 ? "ночи"
                 : 12 > a
-                ? "утра"
-                : 17 > a
-                ? "дня"
-                : "вечера";
+                  ? "утра"
+                  : 17 > a
+                    ? "дня"
+                    : "вечера";
             },
             ordinalParse: /\d{1,2}-(й|го|я)/,
             ordinal: function (a, b) {
@@ -6245,10 +6245,10 @@
           eventLimitText: function (a) {
             return "+ ещё " + a;
           },
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         function a(a) {
           return a > 1 && 5 > a;
@@ -6284,7 +6284,7 @@
         }
         var d =
             "január_február_marec_apríl_máj_jún_júl_august_september_október_november_december".split(
-              "_"
+              "_",
             ),
           e = "jan_feb_mar_apr_máj_jún_júl_aug_sep_okt_nov_dec".split("_"),
           f = (b.updateLocale || b.lang).call(b, "sk", {
@@ -6424,10 +6424,10 @@
           eventLimitText: function (a) {
             return "+ďalšie: " + a;
           },
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         function a(a, b, c, d) {
           var e = a + " ";
@@ -6443,16 +6443,16 @@
                     ? "minuta"
                     : "minuto"
                   : 2 === a
-                  ? b || d
-                    ? "minuti"
-                    : "minutama"
-                  : 5 > a
-                  ? b || d
-                    ? "minute"
-                    : "minutami"
-                  : b || d
-                  ? "minut"
-                  : "minutami");
+                    ? b || d
+                      ? "minuti"
+                      : "minutama"
+                    : 5 > a
+                      ? b || d
+                        ? "minute"
+                        : "minutami"
+                      : b || d
+                        ? "minut"
+                        : "minutami");
             case "h":
               return b ? "ena ura" : "eno uro";
             case "hh":
@@ -6462,16 +6462,16 @@
                     ? "ura"
                     : "uro"
                   : 2 === a
-                  ? b || d
-                    ? "uri"
-                    : "urama"
-                  : 5 > a
-                  ? b || d
-                    ? "ure"
-                    : "urami"
-                  : b || d
-                  ? "ur"
-                  : "urami");
+                    ? b || d
+                      ? "uri"
+                      : "urama"
+                    : 5 > a
+                      ? b || d
+                        ? "ure"
+                        : "urami"
+                      : b || d
+                        ? "ur"
+                        : "urami");
             case "d":
               return b || d ? "en dan" : "enim dnem";
             case "dd":
@@ -6481,12 +6481,12 @@
                     ? "dan"
                     : "dnem"
                   : 2 === a
-                  ? b || d
-                    ? "dni"
-                    : "dnevoma"
-                  : b || d
-                  ? "dni"
-                  : "dnevi");
+                    ? b || d
+                      ? "dni"
+                      : "dnevoma"
+                    : b || d
+                      ? "dni"
+                      : "dnevi");
             case "M":
               return b || d ? "en mesec" : "enim mesecem";
             case "MM":
@@ -6496,16 +6496,16 @@
                     ? "mesec"
                     : "mesecem"
                   : 2 === a
-                  ? b || d
-                    ? "meseca"
-                    : "mesecema"
-                  : 5 > a
-                  ? b || d
-                    ? "mesece"
-                    : "meseci"
-                  : b || d
-                  ? "mesecev"
-                  : "meseci");
+                    ? b || d
+                      ? "meseca"
+                      : "mesecema"
+                    : 5 > a
+                      ? b || d
+                        ? "mesece"
+                        : "meseci"
+                      : b || d
+                        ? "mesecev"
+                        : "meseci");
             case "y":
               return b || d ? "eno leto" : "enim letom";
             case "yy":
@@ -6515,30 +6515,30 @@
                     ? "leto"
                     : "letom"
                   : 2 === a
-                  ? b || d
-                    ? "leti"
-                    : "letoma"
-                  : 5 > a
-                  ? b || d
-                    ? "leta"
-                    : "leti"
-                  : b || d
-                  ? "let"
-                  : "leti");
+                    ? b || d
+                      ? "leti"
+                      : "letoma"
+                    : 5 > a
+                      ? b || d
+                        ? "leta"
+                        : "leti"
+                      : b || d
+                        ? "let"
+                        : "leti");
           }
         }
         var c = (b.updateLocale || b.lang).call(b, "sl", {
           months:
             "januar_februar_marec_april_maj_junij_julij_avgust_september_oktober_november_december".split(
-              "_"
+              "_",
             ),
           monthsShort:
             "jan._feb._mar._apr._maj._jun._jul._avg._sep._okt._nov._dec.".split(
-              "_"
+              "_",
             ),
           monthsParseExact: !0,
           weekdays: "nedelja_ponedeljek_torek_sreda_četrtek_petek_sobota".split(
-            "_"
+            "_",
           ),
           weekdaysShort: "ned._pon._tor._sre._čet._pet._sob.".split("_"),
           weekdaysMin: "ne_po_to_sr_če_pe_so".split("_"),
@@ -6668,10 +6668,10 @@
           },
           allDayText: "Ves dan",
           eventLimitText: "več",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = {
             words: {
@@ -6698,11 +6698,11 @@
           c = (b.updateLocale || b.lang).call(b, "sr-cyrl", {
             months:
               "јануар_фебруар_март_април_мај_јун_јул_август_септембар_октобар_новембар_децембар".split(
-                "_"
+                "_",
               ),
             monthsShort:
               "јан._феб._мар._апр._мај_јун_јул_авг._сеп._окт._нов._дец.".split(
-                "_"
+                "_",
               ),
             monthsParseExact: !0,
             weekdays:
@@ -6834,10 +6834,10 @@
           eventLimitText: function (a) {
             return "+ још " + a;
           },
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = {
             words: {
@@ -6864,16 +6864,16 @@
           c = (b.updateLocale || b.lang).call(b, "sr", {
             months:
               "januar_februar_mart_april_maj_jun_jul_avgust_septembar_oktobar_novembar_decembar".split(
-                "_"
+                "_",
               ),
             monthsShort:
               "jan._feb._mar._apr._maj_jun_jul_avg._sep._okt._nov._dec.".split(
-                "_"
+                "_",
               ),
             monthsParseExact: !0,
             weekdays:
               "nedelja_ponedeljak_utorak_sreda_četvrtak_petak_subota".split(
-                "_"
+                "_",
               ),
             weekdaysShort: "ned._pon._uto._sre._čet._pet._sub.".split("_"),
             weekdaysMin: "ne_po_ut_sr_če_pe_su".split("_"),
@@ -7002,21 +7002,21 @@
           eventLimitText: function (a) {
             return "+ још " + a;
           },
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "sv", {
           months:
             "januari_februari_mars_april_maj_juni_juli_augusti_september_oktober_november_december".split(
-              "_"
+              "_",
             ),
           monthsShort: "jan_feb_mar_apr_maj_jun_jul_aug_sep_okt_nov_dec".split(
-            "_"
+            "_",
           ),
           weekdays: "söndag_måndag_tisdag_onsdag_torsdag_fredag_lördag".split(
-            "_"
+            "_",
           ),
           weekdaysShort: "sön_mån_tis_ons_tor_fre_lör".split("_"),
           weekdaysMin: "sö_må_ti_on_to_fr_lö".split("_"),
@@ -7060,10 +7060,10 @@
                 1 === ~~((a % 100) / 10)
                   ? "e"
                   : 1 === b
-                  ? "a"
-                  : 2 === b
-                  ? "a"
-                  : "e";
+                    ? "a"
+                    : 2 === b
+                      ? "a"
+                      : "e";
             return a + c;
           },
           week: { dow: 1, doy: 4 },
@@ -7130,24 +7130,24 @@
           },
           allDayText: "Heldag",
           eventLimitText: "till",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "th", {
           months:
             "มกราคม_กุมภาพันธ์_มีนาคม_เมษายน_พฤษภาคม_มิถุนายน_กรกฎาคม_สิงหาคม_กันยายน_ตุลาคม_พฤศจิกายน_ธันวาคม".split(
-              "_"
+              "_",
             ),
           monthsShort:
             "มกรา_กุมภา_มีนา_เมษา_พฤษภา_มิถุนา_กรกฎา_สิงหา_กันยา_ตุลา_พฤศจิกา_ธันวา".split(
-              "_"
+              "_",
             ),
           monthsParseExact: !0,
           weekdays: "อาทิตย์_จันทร์_อังคาร_พุธ_พฤหัสบดี_ศุกร์_เสาร์".split("_"),
           weekdaysShort: "อาทิตย์_จันทร์_อังคาร_พุธ_พฤหัส_ศุกร์_เสาร์".split(
-            "_"
+            "_",
           ),
           weekdaysMin: "อา._จ._อ._พ._พฤ._ศ._ส.".split("_"),
           weekdaysParseExact: !0,
@@ -7252,10 +7252,10 @@
           },
           allDayText: "ตลอดวัน",
           eventLimitText: "เพิ่มเติม",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = {
             1: "'inci",
@@ -7280,13 +7280,13 @@
           c = (b.updateLocale || b.lang).call(b, "tr", {
             months:
               "Ocak_Şubat_Mart_Nisan_Mayıs_Haziran_Temmuz_Ağustos_Eylül_Ekim_Kasım_Aralık".split(
-                "_"
+                "_",
               ),
             monthsShort:
               "Oca_Şub_Mar_Nis_May_Haz_Tem_Ağu_Eyl_Eki_Kas_Ara".split("_"),
             weekdays:
               "Pazar_Pazartesi_Salı_Çarşamba_Perşembe_Cuma_Cumartesi".split(
-                "_"
+                "_",
               ),
             weekdaysShort: "Paz_Pts_Sal_Çar_Per_Cum_Cts".split("_"),
             weekdaysMin: "Pz_Pt_Sa_Ça_Pe_Cu_Ct".split("_"),
@@ -7394,18 +7394,18 @@
           },
           allDayText: "Tüm gün",
           eventLimitText: "daha fazla",
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         function a(a, b) {
           var c = a.split("_");
           return b % 10 === 1 && b % 100 !== 11
             ? c[0]
             : b % 10 >= 2 && 4 >= b % 10 && (10 > b % 100 || b % 100 >= 20)
-            ? c[1]
-            : c[2];
+              ? c[1]
+              : c[2];
         }
         function c(b, c, d) {
           var e = {
@@ -7420,31 +7420,31 @@
               ? "хвилина"
               : "хвилину"
             : "h" === d
-            ? c
-              ? "година"
-              : "годину"
-            : b + " " + a(e[d], +b);
+              ? c
+                ? "година"
+                : "годину"
+              : b + " " + a(e[d], +b);
         }
         function d(a, b) {
           var c = {
               nominative:
                 "неділя_понеділок_вівторок_середа_четвер_п’ятниця_субота".split(
-                  "_"
+                  "_",
                 ),
               accusative:
                 "неділю_понеділок_вівторок_середу_четвер_п’ятницю_суботу".split(
-                  "_"
+                  "_",
                 ),
               genitive:
                 "неділі_понеділка_вівторка_середи_четверга_п’ятниці_суботи".split(
-                  "_"
+                  "_",
                 ),
             },
             d = /(\[[ВвУу]\]) ?dddd/.test(b)
               ? "accusative"
               : /\[?(?:минулої|наступної)? ?\] ?dddd/.test(b)
-              ? "genitive"
-              : "nominative";
+                ? "genitive"
+                : "nominative";
           return c[d][a.day()];
         }
         function e(a) {
@@ -7456,11 +7456,11 @@
           months: {
             format:
               "січня_лютого_березня_квітня_травня_червня_липня_серпня_вересня_жовтня_листопада_грудня".split(
-                "_"
+                "_",
               ),
             standalone:
               "січень_лютий_березень_квітень_травень_червень_липень_серпень_вересень_жовтень_листопад_грудень".split(
-                "_"
+                "_",
               ),
           },
           monthsShort:
@@ -7519,10 +7519,10 @@
             return 4 > a
               ? "ночі"
               : 12 > a
-              ? "ранку"
-              : 17 > a
-              ? "дня"
-              : "вечора";
+                ? "ранку"
+                : 17 > a
+                  ? "дня"
+                  : "вечора";
           },
           ordinalParse: /\d{1,2}-(й|го)/,
           ordinal: function (a, b) {
@@ -7605,19 +7605,19 @@
           eventLimitText: function (a) {
             return "+ще " + a + "...";
           },
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "vi", {
           months:
             "tháng 1_tháng 2_tháng 3_tháng 4_tháng 5_tháng 6_tháng 7_tháng 8_tháng 9_tháng 10_tháng 11_tháng 12".split(
-              "_"
+              "_",
             ),
           monthsShort:
             "Th01_Th02_Th03_Th04_Th05_Th06_Th07_Th08_Th09_Th10_Th11_Th12".split(
-              "_"
+              "_",
             ),
           monthsParseExact: !0,
           weekdays:
@@ -7737,20 +7737,20 @@
           eventLimitText: function (a) {
             return "+ thêm " + a;
           },
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "zh-cn", {
           months:
             "一月_二月_三月_四月_五月_六月_七月_八月_九月_十月_十一月_十二月".split(
-              "_"
+              "_",
             ),
           monthsShort:
             "1月_2月_3月_4月_5月_6月_7月_8月_9月_10月_11月_12月".split("_"),
           weekdays: "星期日_星期一_星期二_星期三_星期四_星期五_星期六".split(
-            "_"
+            "_",
           ),
           weekdaysShort: "周日_周一_周二_周三_周四_周五_周六".split("_"),
           weekdaysMin: "日_一_二_三_四_五_六".split("_"),
@@ -7773,10 +7773,10 @@
               "凌晨" === b || "早上" === b || "上午" === b
                 ? a
                 : "下午" === b || "晚上" === b
-                ? a + 12
-                : a >= 11
-                ? a
-                : a + 12
+                  ? a + 12
+                  : a >= 11
+                    ? a
+                    : a + 12
             );
           },
           meridiem: function (a, b, c) {
@@ -7784,14 +7784,14 @@
             return 600 > d
               ? "凌晨"
               : 900 > d
-              ? "早上"
-              : 1130 > d
-              ? "上午"
-              : 1230 > d
-              ? "中午"
-              : 1800 > d
-              ? "下午"
-              : "晚上";
+                ? "早上"
+                : 1130 > d
+                  ? "上午"
+                  : 1230 > d
+                    ? "中午"
+                    : 1800 > d
+                      ? "下午"
+                      : "晚上";
           },
           calendar: {
             sameDay: function () {
@@ -7921,20 +7921,20 @@
           eventLimitText: function (a) {
             return "另外 " + a + " 个";
           },
-        });
+        }));
     })(),
     (function () {
-      !(function () {
+      (!(function () {
         "use strict";
         var a = (b.updateLocale || b.lang).call(b, "zh-tw", {
           months:
             "一月_二月_三月_四月_五月_六月_七月_八月_九月_十月_十一月_十二月".split(
-              "_"
+              "_",
             ),
           monthsShort:
             "1月_2月_3月_4月_5月_6月_7月_8月_9月_10月_11月_12月".split("_"),
           weekdays: "星期日_星期一_星期二_星期三_星期四_星期五_星期六".split(
-            "_"
+            "_",
           ),
           weekdaysShort: "週日_週一_週二_週三_週四_週五_週六".split("_"),
           weekdaysMin: "日_一_二_三_四_五_六".split("_"),
@@ -7957,12 +7957,12 @@
               "早上" === b || "上午" === b
                 ? a
                 : "中午" === b
-                ? a >= 11
-                  ? a
-                  : a + 12
-                : "下午" === b || "晚上" === b
-                ? a + 12
-                : void 0
+                  ? a >= 11
+                    ? a
+                    : a + 12
+                  : "下午" === b || "晚上" === b
+                    ? a + 12
+                    : void 0
             );
           },
           meridiem: function (a, b, c) {
@@ -7970,12 +7970,12 @@
             return 900 > d
               ? "早上"
               : 1130 > d
-              ? "上午"
-              : 1230 > d
-              ? "中午"
-              : 1800 > d
-              ? "下午"
-              : "晚上";
+                ? "上午"
+                : 1230 > d
+                  ? "中午"
+                  : 1800 > d
+                    ? "下午"
+                    : "晚上";
           },
           calendar: {
             sameDay: "[今天]LT",
@@ -8082,9 +8082,9 @@
           buttonText: { month: "月", week: "週", day: "天", list: "待辦事項" },
           allDayText: "全天",
           eventLimitText: "更多",
-        });
+        }));
     })(),
     (b.locale || b.lang).call(b, "en"),
     a.fullCalendar.lang("en"),
-    a.datepicker && a.datepicker.setDefaults(a.datepicker.regional[""]);
+    a.datepicker && a.datepicker.setDefaults(a.datepicker.regional[""]));
 });

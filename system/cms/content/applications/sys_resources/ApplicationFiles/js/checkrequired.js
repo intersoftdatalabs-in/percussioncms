@@ -19,7 +19,7 @@ function checkrequired(which) {
 
   if (!pass) {
     alert(
-      "One or more of the required elements are not completed. Please complete them, then submit again!"
+      "One or more of the required elements are not completed. Please complete them, then submit again!",
     );
     return false;
   } else return true;

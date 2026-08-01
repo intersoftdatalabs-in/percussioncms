@@ -514,8 +514,14 @@ public class PSMembershipRestService extends PSAbstractRestService
     return version;
   }
 
+  @DELETE
+  @Path("/updateOldSiteEntries/{prevSiteName}/{newSiteName}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("deliverymanager")
   @Override
-  public Response updateOldSiteEntries(String prevSiteName, String newSiteName) {
+  public Response updateOldSiteEntries(
+      @PathParam("prevSiteName") String prevSiteName,
+      @PathParam("newSiteName") String newSiteName) {
     log.debug("Nothing to do for membership service. Prev name is: {}", prevSiteName);
     return Response.status(Response.Status.NO_CONTENT).build();
   }

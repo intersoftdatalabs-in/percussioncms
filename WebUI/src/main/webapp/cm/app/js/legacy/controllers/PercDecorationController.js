@@ -63,7 +63,7 @@
     allElements,
     decorationClasses,
     selectionClasses,
-    menuItems
+    menuItems,
   ) {
     var _visible = false,
       _selected = null;

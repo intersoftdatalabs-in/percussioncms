@@ -27,5 +27,5 @@ ps.widget.defineWidget(
       ps.assert(objId, "widget does not have a model id");
       ps.aa.controller.activate(objId);
     },
-  }
+  },
 );

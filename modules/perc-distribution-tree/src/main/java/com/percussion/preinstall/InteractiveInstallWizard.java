@@ -118,22 +118,42 @@ public final class InteractiveInstallWizard {
       boolean interactive,
       InstallPrompt prompt,
       Path unattendedJavaHome) {
+    return runPhase1(parsedArgs, interactive, prompt, unattendedJavaHome, null);
+  }
+
+  /**
+   * Same as {@link #runPhase1(DbInstallConfigResolver.ParsedArgs, boolean, InstallPrompt, Path)}
+   * with injectable user-settings home (tests) or null for {@code user.home}.
+   *
+   * @param userSettingsHome optional home override for {@link InstallerUserSettings}; null =
+   *     default
+   */
+  public static Phase1Result runPhase1(
+      DbInstallConfigResolver.ParsedArgs parsedArgs,
+      boolean interactive,
+      InstallPrompt prompt,
+      Path unattendedJavaHome,
+      Path userSettingsHome) {
     Objects.requireNonNull(parsedArgs, "parsedArgs");
     if (interactive && prompt == null) {
       throw new IllegalArgumentException("prompt is required when interactive");
     }
 
-    Path installPath = parsedArgs.installPath();
+    InstallerUserSettings userSettings =
+        new InstallerUserSettings(userSettingsHome, InstallerUserSettings.PREFIX_CMS);
+    DbInstallConfigResolver.ParsedArgs withDefaults = userSettings.applyDefaults(parsedArgs);
+
+    Path installPath = withDefaults.installPath();
     Map<String, String> options =
-        parsedArgs.options() != null
-            ? new LinkedHashMap<>(parsedArgs.options())
+        withDefaults.options() != null
+            ? new LinkedHashMap<>(withDefaults.options())
             : new LinkedHashMap<>();
 
     if (installPath == null) {
       if (!interactive) {
         return Phase1Result.abort(EXIT_USAGE, usageMessage());
       }
-      installPath = promptForInstallPath(prompt);
+      installPath = promptForInstallPath(prompt, userSettings.loadInstallDirectory().orElse(null));
       if (installPath == null) {
         return Phase1Result.abort(EXIT_ABORTED, "Installation cancelled: no install directory.");
       }
@@ -174,8 +194,15 @@ public final class InteractiveInstallWizard {
           EXIT_DB_CONFIG, "Database configuration error: " + badDb.getMessage());
     }
 
+    // Sample sites (Corporate Investments / Enterprise Investments) seed on both new
+    // installs and upgrades. The install.demo.sites flag drives an additional PSTableAction
+    // pass that runs after the core schema load. Protection against overwriting operator
+    // locale tables (RXLOCALE / RXLOCALEFORMAT) is handled at the ANT layer by the strip
+    // step in installRepository.xml, not by gating here.
+    boolean demoSites = resolveDemoSites(interactive, options, prompt);
+
     if (interactive) {
-      String summary = buildSummary(installPath, dbConfig, javaOutcome);
+      String summary = buildSummary(installPath, dbConfig, javaOutcome, demoSites, upgrade);
       prompt.println(summary);
       boolean defaultYes = isDefaultYesConfirm(dbConfig);
       if (!confirmProceed(prompt, defaultYes)) {
@@ -184,6 +211,59 @@ public final class InteractiveInstallWizard {
     }
 
     return Phase1Result.proceed(installPath, Map.copyOf(options), dbConfig, javaOutcome);
+  }
+
+  /**
+   * Decide whether the operator opted in to sample-site seeding.
+   *
+   * <p>Interactive: prompt with default No (sample data is destructive to an existing locale/site
+   * matrix; the install dir may be re-used for QA experiments). Pre-populated from any CLI {@code
+   * --demo-sites} flag so a script that later upgrades its prompt path picks up the same value.
+   *
+   * <p>Silent: honor the resolved CLI value from {@link
+   * DbInstallConfigResolver#parseDemoSitesFlag(java.util.Map)}.
+   *
+   * <p>Same flow on new installs and upgrades — the install.demo.sites flag drives an additional
+   * PSTableAction pass after the core schema load regardless of install type. RXLOCALE /
+   * RXLOCALEFORMAT protection is handled by the strip step in installRepository.xml, not by gating
+   * here.
+   *
+   * @param interactive whether the wizard may prompt
+   * @param options mutable options map; mutated to record the resolved value
+   * @param prompt operator I/O
+   * @return resolved sample-sites decision (never null)
+   */
+  static boolean resolveDemoSites(
+      boolean interactive, Map<String, String> options, InstallPrompt prompt) {
+    if (!interactive) {
+      boolean resolved = DbInstallConfigResolver.parseDemoSitesFlag(options);
+      options.put(DbInstallConfigResolver.DEMO_SITES_KEY, Boolean.toString(resolved));
+      return resolved;
+    }
+
+    boolean preFromCli = DbInstallConfigResolver.parseDemoSitesFlag(options);
+    for (int attempt = 0; attempt < 5; attempt++) {
+      String hint = preFromCli ? "[Y/n]" : "[y/N]";
+      String line =
+          prompt.readLine(
+              "Install sample sites (Corporate Investments / Enterprise Investments)? "
+                  + hint
+                  + " ");
+      // Empty input on first attempt honors the CLI pre-population; otherwise default to No.
+      Boolean parsed;
+      if (line == null || line.isBlank()) {
+        parsed = preFromCli;
+      } else {
+        parsed = parseYesNo(line, preFromCli);
+      }
+      if (parsed != null) {
+        options.put(DbInstallConfigResolver.DEMO_SITES_KEY, Boolean.toString(parsed));
+        return parsed;
+      }
+      prompt.println("Please answer y or n.");
+    }
+    options.put(DbInstallConfigResolver.DEMO_SITES_KEY, "false");
+    return false;
   }
 
   /**
@@ -266,6 +346,9 @@ public final class InteractiveInstallWizard {
         "Optional database target for new installs: -Ddbprops=<path> or --dbprops=<path>",
         "Optional upgrade cleanup: --clean-install-dir (default false) removes obsolete"
             + " folders such as PreInstall",
+        "Optional sample sites: --demo-sites / --no-demo-sites (default no). Seeds the"
+            + " Corporate Investments / Enterprise Investments sample sites on a new"
+            + " install. Ignored on upgrades.",
         "Silent mode: --silent or --no-tty (disables interactive prompts for automated testing)");
   }
 
@@ -293,33 +376,44 @@ public final class InteractiveInstallWizard {
    * @param installPath absolute install path
    * @param dbConfig resolved DB config
    * @param javaOutcome selected Java home (may be null before Phase 2)
+   * @param demoSites whether sample sites will be seeded after the core schema load
+   * @param upgrade whether the install root is an existing product install
    * @return multi-line summary text
    */
   static String buildSummary(
       Path installPath,
       DbInstallConfigResolver.ResolvedDbConfig dbConfig,
-      JavaInstallSelection.SelectionOutcome javaOutcome) {
+      JavaInstallSelection.SelectionOutcome javaOutcome,
+      boolean demoSites,
+      boolean upgrade) {
     List<String> lines = new ArrayList<>();
     lines.add("");
     lines.add("========================================");
     lines.add("Percussion CMS installation summary");
     lines.add("========================================");
     lines.add("Install path : " + installPath.toAbsolutePath().normalize());
-    lines.add("Mode         : " + (isUpgradeInstall(installPath) ? "Upgrade" : "New install"));
+    lines.add("Mode         : " + (upgrade ? "Upgrade" : "New install"));
     lines.add("Database     : " + formatDbSummary(dbConfig));
     String secretLocation = formatDbSecretLocation(dbConfig);
     if (secretLocation != null) {
       lines.add("DB password  : stored in " + secretLocation);
     }
     lines.add("Java home    : " + formatJavaHomeLine(javaOutcome));
+    lines.add(
+        "Sample sites : "
+            + (demoSites ? "enabled (Corporate + Enterprise Investments)" : "disabled"));
     lines.add("========================================");
     return String.join(System.lineSeparator(), lines);
   }
 
-  /** Convenience for tests that omit a Java selection outcome. */
+  /**
+   * Backwards-compatible overload for tests that pre-date the demo-sites flag.
+   *
+   * @deprecated pass demoSites/upgrade explicitly; kept for legacy callers
+   */
   @Deprecated
   static String buildSummary(Path installPath, DbInstallConfigResolver.ResolvedDbConfig dbConfig) {
-    return buildSummary(installPath, dbConfig, null);
+    return buildSummary(installPath, dbConfig, null, false, isUpgradeInstall(installPath));
   }
 
   static boolean isUpgradeInstall(Path installPath) {
@@ -401,13 +495,18 @@ public final class InteractiveInstallWizard {
     return null;
   }
 
-  private static Path promptForInstallPath(InstallPrompt prompt) {
+  private static Path promptForInstallPath(InstallPrompt prompt, Path defaultPath) {
     prompt.println("");
     prompt.println("Percussion CMS interactive installer");
     prompt.println("Enter the installation directory (new install or existing upgrade root).");
+    String defaultHint =
+        defaultPath != null ? " [" + defaultPath.toAbsolutePath().normalize() + "]" : "";
     for (int attempt = 0; attempt < 5; attempt++) {
-      String line = prompt.readLine("Installation directory: ");
+      String line = prompt.readLine("Installation directory" + defaultHint + ": ");
       if (line == null || line.isBlank()) {
+        if (defaultPath != null) {
+          return defaultPath.toAbsolutePath().normalize();
+        }
         prompt.println("Install directory is required. Enter a path or Ctrl+C to abort.");
         continue;
       }
@@ -420,6 +519,9 @@ public final class InteractiveInstallWizard {
         }
       }
       if (trimmed.isEmpty()) {
+        if (defaultPath != null) {
+          return defaultPath.toAbsolutePath().normalize();
+        }
         prompt.println("Install directory is required.");
         continue;
       }

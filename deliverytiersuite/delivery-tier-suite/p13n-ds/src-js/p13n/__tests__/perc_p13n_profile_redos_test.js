@@ -64,10 +64,10 @@ function assertNoRegexOnResponseText() {
   const path = require("path");
   const source = fs.readFileSync(
     path.join(__dirname, "..", "perc_p13n_profile.js"),
-    "utf8"
+    "utf8",
   );
   const onProfileDataSubmitMatch = source.match(
-    /onProfileDataSubmit\s*=\s*function[\s\S]*?\n\};/m
+    /onProfileDataSubmit\s*=\s*function[\s\S]*?\n\};/m,
   );
   if (!onProfileDataSubmitMatch) {
     throw new Error("Could not find onProfileDataSubmit function in source");
@@ -80,7 +80,7 @@ function assertNoRegexOnResponseText() {
     throw new Error(
       "onProfileDataSubmit must not call .replace() on responseText. " +
         "Use the DOM-based scrub via jQuery('<div/>').html(responseText) + " +
-        "Element.remove() instead."
+        "Element.remove() instead.",
     );
   }
   // Must NOT use jQuery.parseHTML — that API doesn't exist in jQuery 1.3.2
@@ -89,14 +89,14 @@ function assertNoRegexOnResponseText() {
     throw new Error(
       "onProfileDataSubmit must NOT use jQuery.parseHTML — that API " +
         "was added in jQuery 1.8 but this module bundles jQuery 1.3.2. " +
-        "Use jQuery('<div/>').html(responseText) instead."
+        "Use jQuery('<div/>').html(responseText) instead.",
     );
   }
   // Must use the jQuery 1.3-compatible container+html idiom.
   if (!/jQuery\s*\(\s*["']<div[^"']*["']\s*\)\s*\.html\s*\(/.test(codeOnly)) {
     throw new Error(
       "onProfileDataSubmit must use jQuery('<div/>').html(responseText) " +
-        "for the DOM-based scrub (jQuery 1.3 compatible)"
+        "for the DOM-based scrub (jQuery 1.3 compatible)",
     );
   }
   // Must call .find('script').remove() — the CodeQL-recognized sanitizer.
@@ -104,7 +104,7 @@ function assertNoRegexOnResponseText() {
     throw new Error(
       "onProfileDataSubmit must call container.find('script').remove() " +
         "to satisfy the CodeQL-recognized sanitizer for " +
-        "js/incomplete-multi-character-sanitization"
+        "js/incomplete-multi-character-sanitization",
     );
   }
   // Must also call .filter('script').remove() — handles top-level <script>
@@ -113,14 +113,14 @@ function assertNoRegexOnResponseText() {
   if (!/\.filter\s*\(\s*['"]script['"]\s*\)\.remove\s*\(/.test(codeOnly)) {
     throw new Error(
       "onProfileDataSubmit must call container.filter('script').remove() " +
-        "to satisfy the CodeQL sanitizer pair"
+        "to satisfy the CodeQL sanitizer pair",
     );
   }
   // Must guard against empty responseText (Issue 3: silent data loss).
   if (!/typeof\s+responseText\s*!==\s*["']string["']/.test(codeOnly)) {
     throw new Error(
       "onProfileDataSubmit must guard against non-string responseText " +
-        "to avoid silent data-loss regression"
+        "to avoid silent data-loss regression",
     );
   }
   // Must guard against missing #ProfileEditPane in the scrubbed response
@@ -128,7 +128,7 @@ function assertNoRegexOnResponseText() {
   if (!/pane\.length\s*===\s*0/.test(codeOnly)) {
     throw new Error(
       "onProfileDataSubmit must guard against missing #ProfileEditPane " +
-        "to avoid silent data-loss regression"
+        "to avoid silent data-loss regression",
     );
   }
 }

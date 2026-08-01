@@ -24,13 +24,13 @@
     equalTo: "Mesedez, idatzi berdina berriro ere.",
     extension: "Mesedez, idatzi onartutako luzapena duen balio bat.",
     maxlength: $.validator.format(
-      "Mesedez, ez idatzi {0} karaktere baino gehiago."
+      "Mesedez, ez idatzi {0} karaktere baino gehiago.",
     ),
     minlength: $.validator.format(
-      "Mesedez, ez idatzi {0} karaktere baino gutxiago."
+      "Mesedez, ez idatzi {0} karaktere baino gutxiago.",
     ),
     rangelength: $.validator.format(
-      "Mesedez, idatzi {0} eta {1} karaktere arteko balio bat."
+      "Mesedez, idatzi {0} eta {1} karaktere arteko balio bat.",
     ),
     range: $.validator.format("Mesedez, idatzi {0} eta {1} arteko balio bat."),
     max: $.validator.format("Mesedez, idatzi {0} edo txikiagoa den balio bat."),

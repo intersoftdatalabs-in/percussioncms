@@ -24,7 +24,7 @@
           delay: isUrl ? $.Autocompleter.defaults.delay : 10,
           max: options && !options.scroll ? 10 : 150,
         },
-        options
+        options,
       );
 
       // if highlight is set to false, replace it with a do-nothing function
@@ -164,7 +164,7 @@
               timeout = setTimeout(onChange, options.delay);
               break;
           }
-        }
+        },
       )
       .on("focus", function () {
         // track whether the field has focus, we shouldn't process any
@@ -295,13 +295,13 @@
       ) {
         // fill in the value (keep the case the user has typed)
         $input.val(
-          $input.val() + sValue.substring(lastWord(previousValue).length)
+          $input.val() + sValue.substring(lastWord(previousValue).length),
         );
         // select the portion of the value not typed by the user (so the next character will erase)
         $.Autocompleter.Selection(
           input,
           previousValue.length,
-          previousValue.length + sValue.length
+          previousValue.length + sValue.length,
         );
       }
     }
@@ -325,7 +325,7 @@
               var words = trimWords($input.val()).slice(0, -1);
               $input.val(
                 words.join(options.multipleSeparator) +
-                  (words.length ? options.multipleSeparator : "")
+                  (words.length ? options.multipleSeparator : ""),
               );
             } else $input.val("");
           }
@@ -336,7 +336,7 @@
         $.Autocompleter.Selection(
           input,
           input.value.length,
-          input.value.length
+          input.value.length,
         );
     }
 
@@ -378,7 +378,7 @@
               q: lastWord(term),
               limit: options.max,
             },
-            extraParams
+            extraParams,
           ),
           success: function (data) {
             var parsed = (options.parse && options.parse(data)) || parse(data);
@@ -445,9 +445,9 @@
           "(?![^&;]+;)(?!<[^<>]*)(" +
             term.replace(/([\^\$\(\)\[\]\{\}\*\.\+\?\|\\])/gi, "\\$1") +
             ")(?![^<>]*>)(?![^&;]+;)",
-          "gi"
+          "gi",
         ),
-        "<strong>$1</strong>"
+        "<strong>$1</strong>",
       );
     },
     scroll: true,
@@ -666,7 +666,7 @@
           list[0].clientHeight
         ) {
           list.scrollTop(
-            offset + activeItem[0].offsetHeight - list.innerHeight()
+            offset + activeItem[0].offsetHeight - list.innerHeight(),
           );
         } else if (offset < list.scrollTop()) {
           list.scrollTop(offset);
@@ -697,7 +697,7 @@
           i + 1,
           max,
           data[i].value,
-          term
+          term,
         );
         if (formatted === false) continue;
         var li = $("<li/>")
@@ -791,14 +791,14 @@
             var scrollbarsVisible = listHeight > options.scrollHeight;
             list.css(
               "height",
-              scrollbarsVisible ? options.scrollHeight : listHeight
+              scrollbarsVisible ? options.scrollHeight : listHeight,
             );
             if (!scrollbarsVisible) {
               // IE doesn't recalculate width when scrollbar disappears
               listItems.width(
                 list.width() -
                   parseInt(listItems.css("padding-left")) -
-                  parseInt(listItems.css("padding-right"))
+                  parseInt(listItems.css("padding-right")),
               );
             }
           }

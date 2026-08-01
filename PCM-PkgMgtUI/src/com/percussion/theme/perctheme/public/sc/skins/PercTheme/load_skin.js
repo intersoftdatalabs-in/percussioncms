@@ -670,7 +670,7 @@ isc.loadSkin = function (theWindow) {
           showFocused: true,
           imgOnly: true,
           src: "[SKIN]/controls/spinner_control_increase.gif",
-        }
+        },
       );
       isc.SpinnerItem.DECREASE_ICON = isc.addProperties(
         isc.SpinnerItem.DECREASE_ICON,
@@ -681,7 +681,7 @@ isc.loadSkin = function (theWindow) {
           showFocused: true,
           imgOnly: true,
           src: "[SKIN]/controls/spinner_control_decrease.gif",
-        }
+        },
       );
     }
 

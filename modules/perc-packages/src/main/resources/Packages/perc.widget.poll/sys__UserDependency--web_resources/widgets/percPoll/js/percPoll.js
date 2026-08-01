@@ -19,7 +19,7 @@
         j();
       });
       d.find(
-        ".perc-poll-submit-button, .perc-poll-submit-button-span-action"
+        ".perc-poll-submit-button, .perc-poll-submit-button-span-action",
       ).on("click", function () {
         g();
       });
@@ -86,7 +86,7 @@
             console.error(v);
           }
         },
-        l
+        l,
       );
     }
     function j() {
@@ -109,7 +109,7 @@
             var r = a.PercServiceUtils.extractDefaultErrorMessage(p.request);
             console.error(r);
           }
-        }
+        },
       );
     }
     function e(m) {
@@ -131,7 +131,7 @@
         var p = m.totalVotes > 0 ? Math.round((s / m.totalVotes) * 100) : 0;
         q.find(".perc-poll-result-percent").text(p + "%");
         q.find(".perc-poll-result-count").text(
-          "(" + s + "/" + m.totalVotes + ")"
+          "(" + s + "/" + m.totalVotes + ")",
         );
       });
       c.find(".perc-poll-total-votes span").text(" " + m.totalVotes);
@@ -180,7 +180,7 @@
                 } else {
                   q(!1);
                 }
-              }
+              },
             );
           }
         }

@@ -109,11 +109,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
   /**
@@ -146,11 +146,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -192,12 +192,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      assetFolderRelationship
+      assetFolderRelationship,
     );
   }
 
@@ -264,7 +264,7 @@
     isResource,
     folderPath,
     k,
-    err
+    err,
   ) {
     var resType = isResource ? "shared" : "local";
     var relationshipId =
@@ -310,7 +310,7 @@
     pageid,
     name,
     path,
-    callback
+    callback,
   ) {
     // path variable already comes with a leading '/'
     var url = $.perc_paths.ASSET_FROM_LOCALCONTENT + "/" + name + path;
@@ -335,14 +335,14 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
       awr,
       "application/json",
-      "text"
+      "text",
     );
   }
 
@@ -352,7 +352,7 @@
     widgetData,
     pageid,
     k,
-    err
+    err,
   ) {
     var replacedRelationshipId =
       typeof widgetData.relationshipId !== "undefined"
@@ -387,12 +387,12 @@
           }
         } else {
           var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            results.request
+            results.request,
           );
           err(false, defMsg);
         }
       },
-      awr
+      awr,
     );
   }
 
@@ -407,7 +407,7 @@
     widgetId,
     widgetDefinitionId,
     assetId,
-    callback
+    callback,
   ) {
     callback = callback || function () {};
     var awr = {
@@ -444,7 +444,7 @@
     widgetIds,
     widgetDefinitionIds,
     assetIds,
-    callback
+    callback,
   ) {
     callback = callback || function () {};
 
@@ -509,7 +509,7 @@
       getUrl,
       $.PercServiceUtils.TYPE_POST,
       false,
-      serviceCallback
+      serviceCallback,
     );
   }
 
@@ -530,7 +530,7 @@
     ownerid,
     assetOrder,
     isResource,
-    callback
+    callback,
   ) {
     var resType = isResource ? "shared" : "local";
     var awr = {
@@ -553,12 +553,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      awr
+      awr,
     );
   }
 
@@ -575,15 +575,15 @@
         if (status === $.PercServiceUtils.STATUS_SUCCESS) {
           callback(
             $.PercServiceUtils.STATUS_SUCCESS,
-            $.perc_utils.convertCXFArray(result.data.UnusedAssetSummary)
+            $.perc_utils.convertCXFArray(result.data.UnusedAssetSummary),
           );
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -607,15 +607,15 @@
         if (status === $.PercServiceUtils.STATUS_SUCCESS) {
           callback(
             $.PercServiceUtils.STATUS_SUCCESS,
-            $.perc_utils.convertCXFArray(result.data.WidgetContentType)
+            $.perc_utils.convertCXFArray(result.data.WidgetContentType),
           );
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 })(jQuery);

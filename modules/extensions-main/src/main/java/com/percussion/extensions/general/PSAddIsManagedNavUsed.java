@@ -36,6 +36,9 @@ import org.w3c.dom.Element;
  * <p>The supplied parameters will be ignored.
  */
 public class PSAddIsManagedNavUsed implements IPSResultDocumentProcessor {
+  /** Creates a new PSAddIsManagedNavUsed. */
+  public PSAddIsManagedNavUsed() {}
+
   // Implementation of the method required by the interface IPSExtension.
   public void init(IPSExtensionDef extensionDef, File file) throws PSExtensionException {
     ms_fullExtensionName = extensionDef.getRef().toString();

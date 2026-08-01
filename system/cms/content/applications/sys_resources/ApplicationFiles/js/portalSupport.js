@@ -2,7 +2,7 @@ function showActionPage(url) {
   var w = window.open(
     url,
     "actionpage",
-    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=550,height=550"
+    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=550,height=550",
   );
   if (w != null) w.focus();
 }

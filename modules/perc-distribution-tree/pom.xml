@@ -348,6 +348,11 @@
             <version>${project.parent.version}</version>
             <scope>runtime</scope>
         </dependency>
+        <!-- Per-user install defaults under ~/.intsof/percussion (com.intsof.common:utilities) -->
+        <dependency>
+            <groupId>com.intsof.common</groupId>
+            <artifactId>utilities</artifactId>
+        </dependency>
         <!-- 002-jdbc-drivers-cleanup: JUnit 5 for new test sources under src/test/java.
              Version inherited from parent dependencyManagement (root pom.xml junit5.version). -->
         <dependency>

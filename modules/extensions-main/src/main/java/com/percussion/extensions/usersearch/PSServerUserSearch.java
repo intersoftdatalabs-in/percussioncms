@@ -62,6 +62,9 @@ import org.w3c.dom.NodeList;
  * <p>The element root indicates any Document Element of the result document.
  */
 public class PSServerUserSearch implements IPSResultDocumentProcessor {
+  /** Creates a new PSServerUserSearch. */
+  public PSServerUserSearch() {}
+
   /*
    * Implementation of the method defined by the interface
    */

@@ -107,7 +107,7 @@ ps.aa.controller = new (function () {
    * Initialize the controller and other AA objects.
    * Should be called right after the dojo is done passing the HTML content.
    */
-  (this.init = function () {
+  ((this.init = function () {
     // Be careful when adding any new code to initialization, especially
     // dojo widget creation.
     // New code can visibly affect performance old systems (especially IE6).
@@ -124,7 +124,7 @@ ps.aa.controller = new (function () {
       this.treeModel,
       "onBeforeDomChange",
       this,
-      "_onBeforeDomChange"
+      "_onBeforeDomChange",
     );
     ps.event.connect(this.treeModel, "onDomChanged", this, "_onDomChanged");
 
@@ -180,7 +180,7 @@ ps.aa.controller = new (function () {
       bodyElem.setAttribute("id", idAttrib);
       //Set the body class to the predefined class.
       bodyElem.className = "PsAabody";
-    });
+    }));
 
   /**
    * Run this method with a delay for initialization, which can be done much
@@ -204,7 +204,7 @@ ps.aa.controller = new (function () {
     this.treeWidget.dndInit();
 
     this.contentBrowser = new ps.content.Browse(
-      ps.util.BROWSE_MODE_ACTIVE_ASSEMBLY
+      ps.util.BROWSE_MODE_ACTIVE_ASSEMBLY,
     );
     this.contentBrowser.init(__rxroot);
 
@@ -302,7 +302,7 @@ ps.aa.controller = new (function () {
   /**
    * Is called when the user resized the tree.
    */
-  (this._endTreeSizing = function () {
+  ((this._endTreeSizing = function () {
     var wg = ps.widget.byId("pageTree");
     if (wg.sizeShare > this.MIN_TREE_WIDTH && !this.isShowTree) {
       // became visible because of resizing
@@ -315,7 +315,7 @@ ps.aa.controller = new (function () {
     (this.showTree = function () {
       this.isShowTree = true;
       this._maybeShowTree();
-    });
+    }));
 
   this.hideTree = function () {
     this.isShowTree = false;
@@ -418,7 +418,7 @@ ps.aa.controller = new (function () {
       undefined,
       false,
       ps.io.Actions,
-      "getSlotContent"
+      "getSlotContent",
     );
   };
 
@@ -455,7 +455,7 @@ ps.aa.controller = new (function () {
       undefined,
       true,
       ps.io.Actions,
-      "getFieldContent"
+      "getFieldContent",
     );
   };
 
@@ -511,7 +511,7 @@ ps.aa.controller = new (function () {
           node,
           newId,
           response.getValue(),
-          newId.isSnippetNode()
+          newId.isSnippetNode(),
         );
       } else {
         this._refreshNode(node, newId, response.getValue());
@@ -564,7 +564,7 @@ ps.aa.controller = new (function () {
       "Expected html to contain a node with id " +
         objId.serialize() +
         ".\nThe html: " +
-        htmlContent
+        htmlContent,
     );
 
     node.parentNode.replaceChild(newNode, node);
@@ -589,7 +589,7 @@ ps.aa.controller = new (function () {
       var anchorElem = document.getElementById(id.getAnchorId());
       ps.assert(
         anchorElem,
-        "Could not find anchor with id " + id.getAnchorId()
+        "Could not find anchor with id " + id.getAnchorId(),
       );
       var container = anchorElem.parentNode;
     } else {
@@ -626,7 +626,7 @@ ps.aa.controller = new (function () {
         var snippets = Array.from(
           document
             .getElementById(this.activeId.toString())
-            .getElementsByTagName("div")
+            .getElementsByTagName("div"),
         ).filter(function (el) {
           return el.className === "PsAaSnippet";
         });
@@ -639,7 +639,7 @@ ps.aa.controller = new (function () {
             },
             function () {},
             this.activeId,
-            1
+            1,
           );
         }
         break;
@@ -654,7 +654,7 @@ ps.aa.controller = new (function () {
           snSlotId,
           1,
           "before",
-          this.activeId.getRelationshipId()
+          this.activeId.getRelationshipId(),
         );
         break;
     }
@@ -677,7 +677,7 @@ ps.aa.controller = new (function () {
       },
       slotId,
       refRelId,
-      position
+      position,
     );
   };
 
@@ -689,7 +689,7 @@ ps.aa.controller = new (function () {
     var snippets = Array.from(
       document
         .getElementById(this.activeId.toString())
-        .getElementsByTagName("div")
+        .getElementsByTagName("div"),
     ).filter(function (el) {
       return el.className === "PsAaSnippet";
     });
@@ -704,7 +704,7 @@ ps.aa.controller = new (function () {
       },
       function () {},
       this.activeId,
-      0
+      0,
     );
   };
 
@@ -748,7 +748,7 @@ ps.aa.controller = new (function () {
         var snippets = Array.from(
           document
             .getElementById(this.activeId.toString())
-            .getElementsByTagName("div")
+            .getElementsByTagName("div"),
         ).filter(function (el) {
           return el.className === "PsAaSnippet";
         });
@@ -760,12 +760,12 @@ ps.aa.controller = new (function () {
               _this._openNewItemDlg(
                 slotId,
                 _this._getSnippetIdFromRelId(slotId, relId),
-                position
+                position,
               );
             },
             function () {},
             this.activeId,
-            1
+            1,
           );
         }
         break;
@@ -778,14 +778,14 @@ ps.aa.controller = new (function () {
             _this._openNewItemDlg(
               slotId,
               _this._getSnippetIdFromRelId(slotId, relId),
-              position
+              position,
             );
           },
           function () {},
           slotId,
           1,
           "before",
-          this.activeId.getRelationshipId()
+          this.activeId.getRelationshipId(),
         );
         break;
       case ps.aa.Menu.REPLACE_FROM_SNIPPET: //Replace from snippet
@@ -800,7 +800,7 @@ ps.aa.controller = new (function () {
           slotId,
           1,
           "replace",
-          this.activeId.getRelationshipId()
+          this.activeId.getRelationshipId(),
         );
         break;
       case ps.aa.Menu.COPY_FROM_CONTENT: //Copy from Page
@@ -840,12 +840,12 @@ ps.aa.controller = new (function () {
     var okCallBack = function (resultText) {
       newData.itemTitle = resultText;
       var response = ps.io.Actions.getIdByPath(
-        newData.folderPath + "/" + resultText
+        newData.folderPath + "/" + resultText,
       );
       if (response.isSuccess()) {
         alert(
           "Title should be unique under the specified folder.\n" +
-            newData.folderPath
+            newData.folderPath,
         );
         _this.dlg.hide();
         _this._handleCopyItem(itemId, newData);
@@ -883,7 +883,7 @@ ps.aa.controller = new (function () {
     var snippetId = null;
     if (relId != null) {
       var snippets = Array.from(
-        document.getElementById(slotId.toString()).getElementsByTagName("div")
+        document.getElementById(slotId.toString()).getElementsByTagName("div"),
       ).filter(function (el) {
         return el.className === "PsAaSnippet";
       });
@@ -921,7 +921,7 @@ ps.aa.controller = new (function () {
       function () {},
       slotId,
       itemId,
-      position
+      position,
     );
   };
 
@@ -948,7 +948,7 @@ ps.aa.controller = new (function () {
       newData.sys_contenttypeid,
       newData.folderPath,
       newData.itemPath,
-      newData.itemTitle
+      newData.itemTitle,
     );
     if (!response.isSuccess()) {
       ps.io.Actions.maybeReportActionError(response);
@@ -960,14 +960,14 @@ ps.aa.controller = new (function () {
         !confirm(
           "The following errors occured while creating the new item\n" +
             obj.validationError +
-            "\nClick OK to open the full editor."
+            "\nClick OK to open the full editor.",
         )
       )
         return;
       var iuresp = ps.io.Actions.getCreateItemUrl(
         newData.folderPath,
         newData.sys_contenttypeid,
-        false
+        false,
       );
       ps.io.Actions.maybeReportActionError(iuresp);
       if (iuresp.isSuccess()) {
@@ -976,7 +976,7 @@ ps.aa.controller = new (function () {
         if (!idresp.isSuccess) {
           alert(
             "Failed to get the folderid for the supplied folder path." +
-              "\nSkipping adding item to folder action."
+              "\nSkipping adding item to folder action.",
           );
         } else {
           url += "&sys_folderid=" + idresp.getValue().id;
@@ -992,7 +992,7 @@ ps.aa.controller = new (function () {
         parent.newItemWindow = window.open(
           url,
           "PsAaCreateItem",
-          this.PREVIEW_WINDOW_STYLE
+          this.PREVIEW_WINDOW_STYLE,
         );
         parent.newItemWindow.focus();
       }
@@ -1003,7 +1003,7 @@ ps.aa.controller = new (function () {
     if (fid == -1) {
       alert(
         "Created the new item but failed to add it to the " +
-          "folder. \n See console.log for more details."
+          "folder. \n See console.log for more details.",
       );
     }
     this.postCreateItem(slotId, itemId, position, newData, cid);
@@ -1115,7 +1115,7 @@ ps.aa.controller = new (function () {
     //Remove the item id from slot if position is replace
     if (position == "replace") {
       var response = ps.io.Actions.removeSnippet(
-        oldSnippetId.getRelationshipId()
+        oldSnippetId.getRelationshipId(),
       );
       ps.io.Actions.maybeReportActionError(response);
     }
@@ -1141,7 +1141,7 @@ ps.aa.controller = new (function () {
       "TOOL_LINK_TO_PAGE",
       this.PREVIEW_WINDOW_STYLE,
       this.activeId,
-      "PSAaSnippetWindow"
+      "PSAaSnippetWindow",
     );
   };
 
@@ -1168,7 +1168,7 @@ ps.aa.controller = new (function () {
       "PREVIEW_PAGE",
       this.PREVIEW_WINDOW_STYLE,
       this._previewObjIdFromParamMap(paramMap),
-      this.PREVIEW_WINDOW_NAME
+      this.PREVIEW_WINDOW_NAME,
     );
   };
 
@@ -1190,7 +1190,7 @@ ps.aa.controller = new (function () {
       this.PREVIEW_WINDOW_STYLE,
       this._previewObjIdFromParamMap(paramMap),
       this.PREVIEW_WINDOW_NAME,
-      additionalParams
+      additionalParams,
     );
   };
 
@@ -1253,7 +1253,7 @@ ps.aa.controller = new (function () {
   this.showItemRelationships = function () {
     this.openWindow(
       "TOOL_SHOW_AA_RELATIONSHIPS",
-      this._getSizedStyle(null, null, 500)
+      this._getSizedStyle(null, null, 500),
     );
   };
 
@@ -1274,7 +1274,7 @@ ps.aa.controller = new (function () {
   this.createVersion = function () {
     this.openWindow(
       "ACTION_Edit_PromotableVersion",
-      this._getSizedStyle(null, 800, 700)
+      this._getSizedStyle(null, 800, 700),
     );
   };
 
@@ -1287,7 +1287,7 @@ ps.aa.controller = new (function () {
     var url = this._getUrl("TOOL_LINK_TO_PAGE", tmpId);
     if (url == null) {
       console.debug(
-        "Failed to get link for item id = " + this.activeId.getContentId()
+        "Failed to get link for item id = " + this.activeId.getContentId(),
       );
       return;
     }
@@ -1390,7 +1390,7 @@ ps.aa.controller = new (function () {
     wStyle,
     objectId,
     wName,
-    additionalParams
+    additionalParams,
   ) {
     var url = this._getUrl(windowType, objectId);
     if (url == null) return;
@@ -1427,7 +1427,7 @@ ps.aa.controller = new (function () {
         _this._handleTemplateChange(newSnippetId, snippetId);
       },
       function () {},
-      this.activeId
+      this.activeId,
     );
   };
 
@@ -1492,7 +1492,7 @@ ps.aa.controller = new (function () {
    */
   this._handleTemplateChange = function (newSnippetId, snippetId) {
     var response = ps.io.Actions.getItemSortRank(
-      newSnippetId.getRelationshipId()
+      newSnippetId.getRelationshipId(),
     );
     if (response.isSuccess()) {
       var rank = parseInt(response.getValue());
@@ -1501,7 +1501,7 @@ ps.aa.controller = new (function () {
         newSnippetId,
         newSnippetId.getSlotId(),
         newSnippetId.getTemplateId(),
-        rank
+        rank,
       );
       if (!resp.isSuccess()) {
         ps.io.Actions.maybeReportActionError(resp);
@@ -1604,7 +1604,7 @@ ps.aa.controller = new (function () {
     this.psCeWindow = window.open(
       ceurl,
       this.CE_EDIT_ITEM_WINDOW,
-      this.PREVIEW_WINDOW_STYLE
+      this.PREVIEW_WINDOW_STYLE,
     );
     this.psCeWindow.focus();
   };
@@ -1617,7 +1617,7 @@ ps.aa.controller = new (function () {
     this.refreshFieldsOnPage(
       this.editObjectId.getContentId(),
       null,
-      this.psCeWindow
+      this.psCeWindow,
     );
     //Reset the tree label
     this._resetTreeLabel(sysTitle);
@@ -1705,7 +1705,7 @@ ps.aa.controller = new (function () {
     // gets the affected parent/owner nodes
     var response = ps.io.Actions.getInlinelinkParentIds(
       contentId,
-      allContentIds.toArray()
+      allContentIds.toArray(),
     );
     ps.io.Actions.maybeReportActionError(response);
     if (response.isSuccess()) {
@@ -1853,7 +1853,7 @@ ps.aa.controller = new (function () {
       move.getSnippetId(),
       move.getTargetSlotId().getSlotId(),
       move.getTargetSnippetId().getTemplateId(),
-      move.getTargetIndex()
+      move.getTargetIndex(),
     );
 
     var success = this._handleMoveToSlotResponse(response, move);
@@ -1887,7 +1887,7 @@ ps.aa.controller = new (function () {
         return false;
       }
       var response = ps.io.Actions.getAllowedSnippetTemplates(
-        move.getTargetSnippetId()
+        move.getTargetSnippetId(),
       );
 
       // handle failure
@@ -1908,7 +1908,7 @@ ps.aa.controller = new (function () {
         // 1 extra node is for the "Cancel" button
         ps.assert(
           nodes.length - 1 === 1,
-          "Got more than 1 node from " + value.templateHtml
+          "Got more than 1 node from " + value.templateHtml,
         );
         var snippetDiv = nodes[0];
         move.setTargetSnippetId(ps.aa.Page.getObjectId(snippetDiv));
@@ -1924,7 +1924,7 @@ ps.aa.controller = new (function () {
         this.templatesDlg.open(
           this._onMoveToSlotTemplateSelected,
           this._onSnippetTemplateSelectionDialogCancelled,
-          move.getTargetSnippetId()
+          move.getTargetSnippetId(),
         );
 
         // *do not* refresh snippet from backend, because the snippet
@@ -2034,7 +2034,7 @@ ps.aa.controller = new (function () {
     ps.assertType(snippetId, ps.aa.ObjectId);
     ps.assert(
       ps.isNumeric(targetIndex),
-      "Can't be interpreted as number: \"" + targetIndex + '"'
+      "Can't be interpreted as number: \"" + targetIndex + '"',
     );
     var response = ps.io.Actions.move(snippetId, "reorder", targetIndex);
     ps.io.Actions.maybeReportActionError(response);
@@ -2167,7 +2167,9 @@ ps.aa.controller = new (function () {
     var imgElem = anchor.firstElementChild;
     if (imgElem == null) {
       console.debug(
-        "Image element for the objectid = " + objId.serialize() + "is not found"
+        "Image element for the objectid = " +
+          objId.serialize() +
+          "is not found",
       );
       return;
     } else {
@@ -2305,7 +2307,7 @@ ps.aa.controller = new (function () {
       windowName === ps.aa.Menu.AAHELP ||
         windowName === ps.aa.Menu.AATUTORIAL ||
         windowName === ps.aa.Menu.AAABOUT,
-      "Unexpected windowName " + windowName
+      "Unexpected windowName " + windowName,
     );
     if (windowName == ps.aa.Menu.AAHELP) {
       var hwin = window.open(this.helpUrl, windowName);
@@ -2321,7 +2323,7 @@ ps.aa.controller = new (function () {
           href: this.helpAboutUrl,
         },
         "510px",
-        "400px"
+        "400px",
       );
       dlg.show();
     } else {

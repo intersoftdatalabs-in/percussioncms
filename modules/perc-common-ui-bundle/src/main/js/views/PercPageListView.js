@@ -118,7 +118,7 @@
           ("0" + nowDate.getSeconds()).slice(-2);
 
         var hideFilterDateType = $(currentAutoList).attr(
-          "data-hide-past-results-filter-type"
+          "data-hide-past-results-filter-type",
         );
         var hideString = hideFilterDateType + " > '" + nowDateFormatted + "'";
         queryString.criteria.push(hideString);
@@ -136,7 +136,7 @@
             doResultsDisplay(status, result, options);
             secondCallback(status, result);
           },
-          options
+          options,
         );
       };
 
@@ -172,7 +172,7 @@
       this.settings.query = $.extend(true, {}, this.settings.query); // Prevents overwrite of anything, but initializes it if it doesn't exist already.
 
       this.settings.query.criteria = this.settings.query.criteria.concat(
-        this.settings.criteria
+        this.settings.criteria,
       );
 
       this.settings.query.maxResults = this.settings.maxResults;
@@ -244,7 +244,7 @@
                 console.debug(results);
               }
             }
-          }
+          },
         );
       } // end loadResults
 
@@ -256,7 +256,7 @@
         // We only get totalEntries back if we've requested page 1.  Otherwise, we get null.
         if (returnData.totalEntries) {
           target.totalPages = Math.ceil(
-            returnData.totalEntries / target.settings.maxResults
+            returnData.totalEntries / target.settings.maxResults,
           );
           target.totalEntries = returnData.totalEntries;
         }
@@ -271,7 +271,7 @@
 
         if ("undefined" !== typeof pageEntries && 0 < pageEntries.length) {
           var structureListRoot = currentAutoList.find(
-            ".perc-page-auto-list-structure .perc-list-main"
+            ".perc-page-auto-list-structure .perc-list-main",
           );
 
           //Clone the li for future use
@@ -299,8 +299,8 @@
               0 === i
                 ? "perc-list-first"
                 : i === pageEntries.length - 1
-                ? "perc-list-last"
-                : "";
+                  ? "perc-list-last"
+                  : "";
 
             newListElem.addClass(rowClass);
 
@@ -325,7 +325,7 @@
                   if (0 < linkelem.length) {
                     linkelem
                       .addClass(
-                        "perc-no-update-link-text perc-blog-list-more-link"
+                        "perc-no-update-link-text perc-blog-list-more-link",
                       )
                       .attr("href", pageEntry.folder + pageEntry.name)
                       .text("...more");
@@ -334,7 +334,7 @@
                       .find("a")
                       .attr(
                         "aria-label",
-                        "Read more about " + pageEntry.linktext
+                        "Read more about " + pageEntry.linktext,
                       );
                   }
                   summary = summary.appendTo("<div />").parent().html();
@@ -346,13 +346,13 @@
                     $(link)
                       .attr(
                         "class",
-                        "perc-no-update-link-text perc-blog-list-more-link"
+                        "perc-no-update-link-text perc-blog-list-more-link",
                       )
                       .attr("href", pageEntry.folder + pageEntry.name)
                       .attr("title", pageEntry.linktext)
                       .attr(
                         "aria-label",
-                        "Read more about " + pageEntry.linktext
+                        "Read more about " + pageEntry.linktext,
                       )
                       .text("...more");
                     summary = data.xml
@@ -377,7 +377,7 @@
                 var categoryClassList = processCategoryClasses(value);
                 for (var i = 0; i < categoryClassList.length; i++) {
                   newListElem.addClass(
-                    "perc-autolist-category-" + categoryClassList[i]
+                    "perc-autolist-category-" + categoryClassList[i],
                   );
                 }
               }
@@ -417,7 +417,7 @@
         else if ("true" === currentAutoList.attr("data-hide-past-results")) {
           // then there are no results set in the future. need to make sure current  list is empty
           console.log(
-            "This list is set to display events in the future but no results were returned."
+            "This list is set to display events in the future but no results were returned.",
           );
           currentAutoList
             .find(".perc-list-main")
@@ -428,7 +428,7 @@
             //Log the error and leave the original list entries as is
             console.error(
               "No results returned by query. Server reported status: %s",
-              status
+              status,
             );
           } else {
             //Log the no results and leave the original list entries as is

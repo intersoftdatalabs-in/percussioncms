@@ -129,7 +129,7 @@
         item["name"],
         item["path"],
         null,
-        null
+        null,
       );
       return;
     }
@@ -149,7 +149,7 @@
       null,
       item["path"],
       null,
-      null
+      null,
     );
   }
 
@@ -161,7 +161,7 @@
    */
   function handleOpenPage(item, isEditMode) {
     var fwrapper = $.PercViewReadyManager.getWrapper(
-      "perc-ui-component-editor-frame"
+      "perc-ui-component-editor-frame",
     );
     if (fwrapper != null) {
       $.PercViewReadyManager.showRenderingProgressWarning();
@@ -198,11 +198,11 @@
               item["name"],
               item["path"],
               constants.PATH_TYPE_PAGE,
-              null
+              null,
             );
           }
         }
-      }
+      },
     );
   }
 
@@ -310,11 +310,11 @@
               item["name"],
               item["path"],
               constants.PATH_TYPE_ASSET,
-              null
+              null,
             );
           }
         }
-      }
+      },
     );
   }
 
@@ -339,7 +339,7 @@
     aName,
     aPath,
     aPathType,
-    aMemento
+    aMemento,
   ) {
     var params = buildParams(
       aSite,
@@ -349,7 +349,7 @@
       aName,
       aPath,
       aPathType,
-      aMemento
+      aMemento,
     );
     $.PercBlockUI($.PercBlockUIMode.CURSORONLY);
     $.PercQueuePostAJAX(function () {
@@ -385,7 +385,7 @@
     aName,
     aPath,
     aPathType,
-    aMemento
+    aMemento,
   ) {
     var params = { view: aView };
     if (!isBlank(aSite)) $.extend(params, { site: aSite });
@@ -416,7 +416,7 @@
     for (var key in memento) ++count;
     var mem = count === 0 ? null : encodeURIComponent(memento);
     buff += createUrl(
-      buildParams(site, view, mode, id, name, path, pathType, mem)
+      buildParams(site, view, mode, id, name, path, pathType, mem),
     );
     return buff;
   }
@@ -496,7 +496,7 @@
         ", isDesigner: " +
         isDesigner +
         ", isAccessibilityUser: " +
-        isAccessibilityUser
+        isAccessibilityUser,
     );
   }
 
@@ -856,7 +856,7 @@
       aName,
       aPath,
       aPathType,
-      aMemento
+      aMemento,
     ) {
       changeLocation(
         aSite,
@@ -866,7 +866,7 @@
         aName,
         aPath,
         aPathType,
-        aMemento
+        aMemento,
       );
     },
 

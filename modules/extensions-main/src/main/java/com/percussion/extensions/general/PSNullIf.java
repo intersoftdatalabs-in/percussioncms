@@ -31,6 +31,8 @@ import com.percussion.server.PSRequestValidationException;
  * &lt;select> tags.
  */
 public class PSNullIf extends PSDefaultExtension implements IPSRequestPreProcessor {
+  /** Creates a new PSNullIf. */
+  public PSNullIf() {}
 
   /**
    * Compares the request parameters' values whose names are supplied to the supplied value, and if

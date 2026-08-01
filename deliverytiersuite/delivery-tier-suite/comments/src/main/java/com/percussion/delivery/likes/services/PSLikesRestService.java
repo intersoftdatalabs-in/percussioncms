@@ -18,12 +18,15 @@
 package com.percussion.delivery.likes.services;
 
 import com.percussion.delivery.services.PSAbstractRestService;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -127,8 +130,18 @@ public class PSLikesRestService extends PSAbstractRestService {
     }
   }
 
+  /**
+   * Jersey 4 requires {@code @PathParam} on the implementation method; interface annotations alone
+   * are not applied when the resource method is redeclared here.
+   */
+  @DELETE
+  @Path("/updateOldSiteEntries/{prevSiteName}/{newSiteName}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("deliverymanager")
   @Override
-  public Response updateOldSiteEntries(String prevSiteName, String newSiteName) {
+  public Response updateOldSiteEntries(
+      @PathParam("prevSiteName") String prevSiteName,
+      @PathParam("newSiteName") String newSiteName) {
     log.info("Attempting to update likes service with site name: {}", prevSiteName);
     likesService.updateLikesForSiteAfterRename(prevSiteName, newSiteName);
     return Response.status(Response.Status.NO_CONTENT).build();

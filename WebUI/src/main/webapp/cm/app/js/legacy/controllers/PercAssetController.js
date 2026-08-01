@@ -67,7 +67,7 @@
     }
     $.PercAssetService.getAssetEditorLibrary(
       currentFolderPath,
-      serviceCallback
+      serviceCallback,
     );
   }
 
@@ -81,7 +81,7 @@
       assetId,
       function (status, assetEditorUrl) {
         callback(status, assetEditorUrl);
-      }
+      },
     );
   }
 
@@ -95,7 +95,7 @@
       assetId,
       function (status, assetViewUrl) {
         callback(status, assetViewUrl);
-      }
+      },
     );
   }
 
@@ -115,7 +115,7 @@
         pathItemJson.PathItem.type,
         pathItemJson.PathItem.folderPath,
         pathItemJson.PathItem.leaf,
-        pathItemJson.PathItem.path
+        pathItemJson.PathItem.path,
       );
       controllerCallback(pathItemObj);
     }
@@ -131,7 +131,7 @@
     };
     $.PercAssetService.putAssetInFolder(
       assetFolderRelationship,
-      controllerCallback
+      controllerCallback,
     );
   }
 })(jQuery);

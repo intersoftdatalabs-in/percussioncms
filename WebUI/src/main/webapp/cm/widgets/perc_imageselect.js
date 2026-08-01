@@ -31,7 +31,7 @@
       if ("select" !== this.element[0].nodeName.toLowerCase())
         window.alert(
           I18N.message("perc.ui.image.select@Widget Use Error") +
-            I18N.message("perc.ui.image.select@Select HTML Element")
+            I18N.message("perc.ui.image.select@Select HTML Element"),
         );
       self._addPseudoControl();
       self._bindEvents(false);
@@ -45,7 +45,7 @@
       var id = this.element[0].id;
       if ("undefined" === id || null === id || "" === id) {
         window.alert(
-          I18N.message("perc.ui.image.select@Attribute Required Error")
+          I18N.message("perc.ui.image.select@Attribute Required Error"),
         );
       }
       buff += "<div id='";
@@ -85,7 +85,7 @@
       //Add index nodes
       elem.each(function () {
         $(this).append(
-          "<span class='perc_imageselect_index'>" + count++ + "</span>"
+          "<span class='perc_imageselect_index'>" + count++ + "</span>",
         );
       });
     },
@@ -170,7 +170,7 @@
     _moveSelection: function (increment) {
       var current = this.getSelectedIndex();
       var childCount = this._pseudoCtl.children(
-        ".perc_imageselect_item"
+        ".perc_imageselect_item",
       ).length;
       if (current !== -1) {
         if (increment && childCount - 1 > current) {
@@ -209,7 +209,7 @@
           this._pseudoCtl.append(this._getItemHtml(current[0], current[1]));
         }
         this._addChildIndexes(
-          this._pseudoCtl.children(".perc_imageselect_item")
+          this._pseudoCtl.children(".perc_imageselect_item"),
         );
         this._bindEvents(true);
       }
@@ -237,7 +237,7 @@
     clearSelection: function () {
       var imageselectId = this.element[0].id + this._idPostfix;
       $("#" + imageselectId + " .perc_imageselect_selected").removeClass(
-        "perc_imageselect_selected"
+        "perc_imageselect_selected",
       );
     },
 
@@ -248,7 +248,7 @@
       this.clearSelection();
       var imageselectId = this.element[0].id + this._idPostfix;
       $(
-        "#" + imageselectId + " .perc_imageselect_item:eq(" + idx + ")"
+        "#" + imageselectId + " .perc_imageselect_item:eq(" + idx + ")",
       ).addClass("perc_imageselect_selected");
       var targetOffset =
         this._pseudoCtl.children(".perc_imageselect_selected").offset().top -
@@ -260,7 +260,7 @@
       }
       this._pseudoCtl.animate(
         { scrollTop: oldScrollTop + targetOffset - sourceOffset },
-        500
+        500,
       );
       this._pseudoCtl.focus();
     },

@@ -37,7 +37,7 @@
           publishDate: scheduleDates.startDate,
           removalDate: scheduleDates.endDate,
         });
-      }
+      },
     );
 
     var dialog;
@@ -46,7 +46,7 @@
 
       if (status === $.PercServiceUtils.STATUS_ERROR) {
         var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-          result.request
+          result.request,
         );
         $.perc_utils.alert_dialog({
           title: I18N.message("perc.ui.publish.title@Error"),
@@ -97,7 +97,7 @@
 
     function createSchedule(result) {
       var labelPublish = $('<div id = "perc-publish-label"/>').append(
-        $("<label/>").attr("for", "publish_date").text("Publish date:")
+        $("<label/>").attr("for", "publish_date").text("Publish date:"),
       );
       var inputPublish = $("<div/>")
         .css("position", "relative")
@@ -110,10 +110,10 @@
             .addClass("perc-datetime-picker")
             .attr("id", "perc_publish_date_input")
             .attr("name", "publish_date")
-            .val(result.publishDate)
+            .val(result.publishDate),
         );
       var labelRemoval = $('<div id = "perc-removal-label"/>').append(
-        $("<label/>").attr("for", "removal_date").text("Removal date:")
+        $("<label/>").attr("for", "removal_date").text("Removal date:"),
       );
       var inputRemoval = $("<div/>")
         .css("position", "relative")
@@ -126,7 +126,7 @@
             .addClass("perc-datetime-picker")
             .attr("id", "perc_removal_date")
             .attr("name", "removal_date")
-            .val(result.removalDate)
+            .val(result.removalDate),
         );
       var $dialogHtml = $("<div/>")
         .addClass("perc-schedule")
@@ -150,7 +150,7 @@
         if (publishDate - 0 === removalDate - 0) {
           $.perc_utils.alert_dialog({
             content: I18N.message(
-              "perc.ui.schedule.dialog@Dates Cannot Be Same"
+              "perc.ui.schedule.dialog@Dates Cannot Be Same",
             ),
             title: I18N.message("perc.ui.publish.title@Error"),
           });
@@ -159,7 +159,7 @@
         if (publishDate - 0 > removalDate - 0) {
           $.perc_utils.alert_dialog({
             content: I18N.messsage(
-              "perc.ui.schedule.dialog@Enter Valid Date Range"
+              "perc.ui.schedule.dialog@Enter Valid Date Range",
             ),
             title: I18N.message("perc.ui.publish.title@Error"),
           });
@@ -273,7 +273,7 @@
             } else {
               commentDialog.remove();
             }
-          }
+          },
         );
       },
       id: "perc-workflow-comment-ok",
@@ -290,7 +290,7 @@
         "Approve" +
         "'>" +
         I18N.message("perc.ui.finder.view@Enter Comments Limit") +
-        '</div><textarea id="perc-workflow-comment" name="perc-workflow-comment" maxlength="500"></textarea></div>'
+        '</div><textarea id="perc-workflow-comment" name="perc-workflow-comment" maxlength="500"></textarea></div>',
     ).perc_dialog({
       dialogClass: "perc-workflow-comment-dialog",
       title: I18N.message("perc.ui.finder.view@Enter Comments"),

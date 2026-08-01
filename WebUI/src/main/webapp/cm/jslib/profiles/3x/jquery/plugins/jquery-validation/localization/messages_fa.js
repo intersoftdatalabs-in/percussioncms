@@ -28,7 +28,7 @@
     maxlength: $.validator.format("لطفا بیشتر از {0} حرف وارد نکنید."),
     minlength: $.validator.format("لطفا کمتر از {0} حرف وارد نکنید."),
     rangelength: $.validator.format(
-      "لطفا مقداری بین {0} تا {1} حرف وارد کنید."
+      "لطفا مقداری بین {0} تا {1} حرف وارد کنید.",
     ),
     range: $.validator.format("لطفا مقداری بین {0} تا {1} حرف وارد کنید."),
     max: $.validator.format("لطفا مقداری کمتر از {0} وارد کنید."),

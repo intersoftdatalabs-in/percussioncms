@@ -146,8 +146,14 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
   public void terminate() {
     // Store the missing keys to a properties file, may be for debug purpose.
     File missingFile = new File(m_rxRootDir, FILE_MISSING_RESOURCES);
-    try (FileOutputStream fos = new FileOutputStream(missingFile)) {
-      ms_MissingResources.store(fos, "Created by " + SUBSYSTEM);
+    try {
+      File parent = missingFile.getParentFile();
+      if (parent != null) {
+        Files.createDirectories(parent.toPath());
+      }
+      try (FileOutputStream fos = new FileOutputStream(missingFile)) {
+        ms_MissingResources.store(fos, "Created by " + SUBSYSTEM);
+      }
     } catch (Exception t) {
       Logger l = LogManager.getLogger("TmxResourceBundle");
       l.error("Unexpected error during termination {} ", t.getMessage());
@@ -401,16 +407,26 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
   public static final String SYS_RESOURCES_I18NPATH = "sys_resources" + File.separator + "I18n";
 
   /**
-   * Lowercase {@code rxconfig/i18n/} sibling of {@link #RX_RESOURCES_I18NPATH}. The Maven build
-   * extracts the canonical {@code CmsUi.tmx} and {@code SystemResources.tmx} files here (see {@code
-   * modules/perc-distribution-tree/pom.xml:507-525}), so the loader must scan this directory in
-   * addition to the uppercase paths above.
+   * Canonical product i18n directory under the install root. <strong>Must remain lowercase</strong>
+   * ({@code rxconfig/i18n}) so case-sensitive filesystems (Linux) do not accumulate a second {@code
+   * rxconfig/I18n} folder. The Maven build extracts {@code CmsUi.tmx}, {@code SystemResources.tmx},
+   * and related product TMX here (see {@code modules/perc-distribution-tree/pom.xml}).
    */
   public static final String RXCONFIG_I18NPATH = "rxconfig" + File.separator + "i18n";
 
-  /** String constant specifying the location path of the TMX resource bundle. */
+  /**
+   * Legacy uppercase path used by older installers. Read-only fallback on case-sensitive installs
+   * that still have files only under this name. Never create or write here for new content.
+   */
+  public static final String RXCONFIG_I18NPATH_LEGACY = "rxconfig" + File.separator + "I18n";
+
+  /** Canonical location of the master TMX resource bundle (lowercase path). */
   public static final String MASTER_RESOURCE_FILEPATH =
-      "rxconfig" + File.separator + "I18n" + File.separator + "ResourceBundle.tmx";
+      RXCONFIG_I18NPATH + File.separator + "ResourceBundle.tmx";
+
+  /** Legacy master path (uppercase); used only when the canonical file is missing. */
+  public static final String MASTER_RESOURCE_FILEPATH_LEGACY =
+      RXCONFIG_I18NPATH_LEGACY + File.separator + "ResourceBundle.tmx";
 
   /**
    * Map storing all language resources. Never <code>null</code>. <code>Empty</code> until
@@ -427,9 +443,9 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
   /** Properties object to cache the missing resources. Never <code>null</code>. */
   private static final Properties ms_MissingResources = new Properties();
 
-  /** Name of the file to store missing resources. */
+  /** Canonical file for missing-resource dumps (lowercase path). */
   private static final String FILE_MISSING_RESOURCES =
-      "rxconfig" + File.separator + "I18n" + File.separator + "MissingResources.properties";
+      RXCONFIG_I18NPATH + File.separator + "MissingResources.properties";
 
   /** The rhythmyx root directory, never <code>null</code> or empty after construction. */
   private String m_rxRootDir;
@@ -483,17 +499,25 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
       ret = false;
     }
 
-    // rxconfig/i18n/*.tmx (lowercase). The Maven build extracts the canonical
-    // CmsUi.tmx and SystemResources.tmx into this directory (see
-    // modules/perc-distribution-tree/pom.xml:507-525). The legacy
-    // MASTER_RESOURCE_FILEPATH above uses rxconfig/I18n (uppercase) and the
-    // two sibling directories above use I18n as well; on Windows and
-    // case-insensitive macOS volumes they collapse to the same on-disk
-    // location, but on case-sensitive Linux the lowercase path would
-    // otherwise be invisible. Scan it explicitly so the canonical files
-    // always reach users.
+    // Canonical product TMX directory (lowercase only).
     try {
       processResourceFiles(Paths.get(m_rxRootDir, RXCONFIG_I18NPATH));
+    } catch (IOException | ParserConfigurationException | SAXException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      ret = false;
+    }
+
+    // Legacy uppercase path: only when it is a distinct directory (Linux). On
+    // case-insensitive volumes the two paths are the same file and re-scanning
+    // would double-load every TMX.
+    try {
+      Path canonical = Paths.get(m_rxRootDir, RXCONFIG_I18NPATH);
+      Path legacy = Paths.get(m_rxRootDir, RXCONFIG_I18NPATH_LEGACY);
+      if (Files.exists(legacy)
+          && (!Files.exists(canonical) || !Files.isSameFile(canonical, legacy))) {
+        log.info("Also loading legacy i18n resources from {}", legacy);
+        processResourceFiles(legacy);
+      }
     } catch (IOException | ParserConfigurationException | SAXException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       ret = false;
@@ -524,13 +548,18 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
       return;
     }
 
+    // Diagnostic: capture the filename from the document's URL so error messages identify
+    // which TMX file was being processed when the error fires.
+    String docUri = doc.getDocumentURI() == null ? "<memory>" : doc.getDocumentURI();
+
     Element header = null;
     if (nl.item(0) instanceof Element) header = (Element) nl.item(0);
 
     if (header != null) nl = header.getElementsByTagName(IPSTmxDtdConstants.ELEM_PROP);
 
     if (nl.getLength() < 1) {
-      log.error("Invalid TMX Document. No supported language is specified in the header");
+      log.error(
+          "Invalid TMX Document {}. No supported language is specified in the header", docUri);
       return;
     }
 
@@ -553,7 +582,8 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
       ms_ResourceBundles.computeIfAbsent(normalizeLang(value), k -> new HashMap<>());
     }
     if (ms_ResourceBundles.size() < 1) {
-      log.error("Invalid TMX Document. No supported language is specified in the header.");
+      log.error(
+          "Invalid TMX Document {}. No supported language is specified in the header.", docUri);
       return;
     }
     nl = doc.getElementsByTagName(IPSTmxDtdConstants.ELEM_TU);
@@ -663,12 +693,41 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
   }
 
   /**
-   * Get a file reference to the {@link #MASTER_RESOURCE_FILEPATH} file.
+   * Resolve the master resource file for <em>read</em> operations: prefer the canonical lowercase
+   * path, then fall back to the legacy uppercase path when only that exists (case-sensitive
+   * installs). When neither exists, returns the canonical path so callers create the correct
+   * location.
    *
    * @param rxRootDir The rx root directory, may not be <code>null</code>.
    * @return The file, never <code>null</code>.
    */
   public static File getMasterResourceFile(String rxRootDir) {
+    if (rxRootDir == null) {
+      throw new IllegalArgumentException("rxRootDir may not be null");
+    }
+    File canonical = new File(rxRootDir, MASTER_RESOURCE_FILEPATH);
+    if (canonical.isFile()) {
+      return canonical;
+    }
+    File legacy = new File(rxRootDir, MASTER_RESOURCE_FILEPATH_LEGACY);
+    if (legacy.isFile()) {
+      return legacy;
+    }
+    return canonical;
+  }
+
+  /**
+   * Canonical master resource file for <em>write</em> operations. Always {@link
+   * #MASTER_RESOURCE_FILEPATH} (lowercase) so new content never lands in a dual {@code I18n} folder
+   * on Linux.
+   *
+   * @param rxRootDir The rx root directory, may not be <code>null</code>.
+   * @return The file, never <code>null</code>.
+   */
+  public static File getCanonicalMasterResourceFile(String rxRootDir) {
+    if (rxRootDir == null) {
+      throw new IllegalArgumentException("rxRootDir may not be null");
+    }
     return new File(rxRootDir, MASTER_RESOURCE_FILEPATH);
   }
 
@@ -687,8 +746,11 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
     if (doc == null) throw new IllegalArgumentException("doc may not be null");
 
     synchronized (m_masterResourceMonitor) {
-      File tmxFile = getMasterResourceFile(m_rxRootDir);
-
+      File tmxFile = getCanonicalMasterResourceFile(m_rxRootDir);
+      File parent = tmxFile.getParentFile();
+      if (parent != null) {
+        Files.createDirectories(parent.toPath());
+      }
       doc.save(tmxFile, true);
     }
 

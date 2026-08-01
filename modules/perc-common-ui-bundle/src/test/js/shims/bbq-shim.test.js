@@ -38,7 +38,7 @@ const ROOT = resolve(__dirname, "../../../..");
 // Load and evaluate the shim once — it extends the global $ installed by setup.js
 const shimCode = readFileSync(
   resolve(ROOT, "src/main/js/shims/bbq-shim.js"),
-  "utf8"
+  "utf8",
 );
 eval(shimCode); // eslint-disable-line no-eval
 

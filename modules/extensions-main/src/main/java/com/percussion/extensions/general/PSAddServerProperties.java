@@ -40,6 +40,9 @@ import org.w3c.dom.Element;
  * resulting value is empty. Parameters with empty names will be ignored.
  */
 public class PSAddServerProperties implements IPSResultDocumentProcessor {
+  /** Creates a new PSAddServerProperties. */
+  public PSAddServerProperties() {}
+
   /*
    * Implementation of the method required by the interface IPSExtension.
    */

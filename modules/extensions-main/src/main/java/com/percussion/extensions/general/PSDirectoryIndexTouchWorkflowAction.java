@@ -56,6 +56,8 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSDirectoryIndexTouchWorkflowAction extends PSDefaultExtension
     implements IPSWorkflowAction {
+  /** Creates a new PSDirectoryIndexTouchWorkflowAction. */
+  public PSDirectoryIndexTouchWorkflowAction() {}
 
   /** The logger for this class. */
   private static final Logger ms_logger =

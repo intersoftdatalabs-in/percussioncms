@@ -77,12 +77,12 @@
             } else {
               removeWidget(widgetObj.regionId, newWidgetId);
               var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-                result.request
+                result.request,
               );
               callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
             }
           },
-          obj
+          obj,
         );
       } else {
         removeWidget(widgetObj.regionId, widgetObj.id);
@@ -506,7 +506,7 @@
               regionAddingTo.children.splice(
                 originalRegionPosition,
                 0,
-                newRegion
+                newRegion,
               );
             }
           } else {
@@ -541,7 +541,7 @@
               regionAddingTo.children.splice(
                 originalRegionPosition,
                 0,
-                newRegion
+                newRegion,
               );
             } else {
               var region;
@@ -687,7 +687,7 @@
     function _addWidget(regionId, widget, beforeWidgetId) {
       if (regionId === model.getRoot().regionId) {
         $.perc_utils.debug(
-          "Add widget: widget can not be added to root region"
+          "Add widget: widget can not be added to root region",
         );
         return;
       }

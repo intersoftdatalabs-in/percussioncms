@@ -187,6 +187,12 @@
             <artifactId>perc-security-utils</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <!-- Per-user install defaults under ~/.intsof/percussion (com.intsof.common:utilities) -->
+        <dependency>
+            <groupId>com.intsof.common</groupId>
+            <artifactId>utilities</artifactId>
+            <version>${intsof.common.utilities.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
@@ -338,20 +344,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- Embedded default is H2 (#548). Derby is not a runtime product dependency;
+             upgrade-time Derby→H2 migration uses perc-ant / installer classpath only. -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <version>${h2.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.derby</groupId>
-            <artifactId>derby</artifactId>
-            <version>${derby.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.derby</groupId>
-            <artifactId>derbyclient</artifactId>
-            <version>${derby.version}</version>
         </dependency>
         <dependency>
             <groupId>net.sourceforge.jtds</groupId>
@@ -575,17 +573,17 @@
                         </zipUrlInstaller>
                         <systemProperties>
                             <systemProperties>
-                                <derby.system.home>derbydata</derby.system.home>
+                                <!-- Embedded product default is H2; do not set derby.system.home on cargo. -->
+                                <perc.h2.data.home>h2data</perc.h2.data.home>
                             </systemProperties>
                         </systemProperties>
                         <dependencies>
+                            <!-- Shared JDBC drivers on Tomcat common/lib (also used by deployable WARs).
+                                 H2 is the embedded default; Derby must not ship here (Class-Path locale
+                                 scan noise + wrong engine for new installs). -->
                             <dependency>
-                                <groupId>org.apache.derby</groupId>
-                                <artifactId>derby</artifactId>
-                            </dependency>
-                            <dependency>
-                                <groupId>org.apache.derby</groupId>
-                                <artifactId>derbyclient</artifactId>
+                                <groupId>com.h2database</groupId>
+                                <artifactId>h2</artifactId>
                             </dependency>
                             <dependency>
                                 <groupId>net.sourceforge.jtds</groupId>
@@ -1173,15 +1171,6 @@
                                     <dependency>
                                         <groupId>com.h2database</groupId>
                                         <artifactId>h2</artifactId>
-                                    </dependency>
-                                    <!-- Derby retained on cargo classpath for FR-021 migration-window tests only -->
-                                    <dependency>
-                                        <groupId>org.apache.derby</groupId>
-                                        <artifactId>derby</artifactId>
-                                    </dependency>
-                                    <dependency>
-                                        <groupId>org.apache.derby</groupId>
-                                        <artifactId>derbyclient</artifactId>
                                     </dependency>
                                     <dependency>
                                         <groupId>net.sourceforge.jtds</groupId>

@@ -28,4 +28,7 @@ import com.percussion.extension.IPSWorkflowAction;
  *
  * @see PSTouchItemsWorkflowAction
  */
-public class PSTouchParentItems extends PSTouchItemsWorkflowAction implements IPSWorkflowAction {}
+public class PSTouchParentItems extends PSTouchItemsWorkflowAction implements IPSWorkflowAction {
+  /** Creates a new PSTouchParentItems. */
+  public PSTouchParentItems() {}
+}

@@ -91,7 +91,7 @@
   $.ui.fancytree._FancytreeClass.prototype._applyFilterImpl = function (
     filter,
     branchMode,
-    _opts
+    _opts,
   ) {
     var match,
       statusNode,
@@ -113,7 +113,7 @@
     if (typeof filter === "string") {
       if (filter === "") {
         this.warn(
-          "Fancytree passing an empty string as a filter is handled as clearFilter()."
+          "Fancytree passing an empty string as a filter is handled as clearFilter().",
         );
         this.clearFilter();
         return;
@@ -193,7 +193,7 @@
     }
     this.$div.toggleClass(
       "fancytree-ext-filter-hide-expanders",
-      !!opts.hideExpanders
+      !!opts.hideExpanders,
     );
     // Reset current filter
     this.rootNode.subMatchCount = 0;
@@ -264,7 +264,7 @@
           key: KeyNoData,
           title: this.options.strings.noData,
         },
-        statusNode
+        statusNode,
       );
 
       this.getRootNode().addNode(statusNode).match = true;
@@ -287,12 +287,12 @@
    */
   $.ui.fancytree._FancytreeClass.prototype.filterNodes = function (
     filter,
-    opts
+    opts,
   ) {
     if (typeof opts === "boolean") {
       opts = { leavesOnly: opts };
       this.warn(
-        "Fancytree.filterNodes() leavesOnly option is deprecated since 2.9.0 / 2015-04-19. Use opts.leavesOnly instead."
+        "Fancytree.filterNodes() leavesOnly option is deprecated since 2.9.0 / 2015-04-19. Use opts.leavesOnly instead.",
       );
     }
     return this._applyFilterImpl(filter, false, opts);
@@ -309,7 +309,7 @@
    */
   $.ui.fancytree._FancytreeClass.prototype.filterBranches = function (
     filter,
-    opts
+    opts,
   ) {
     return this._applyFilterImpl(filter, true, opts);
   };
@@ -366,7 +366,7 @@
         if (enhanceTitle) {
           enhanceTitle(
             { type: "enhanceTitle" },
-            { node: node, $title: $title }
+            { node: node, $title: $title },
           );
         }
       }
@@ -389,7 +389,7 @@
     this.enableFilter = false;
     this.lastFilterArgs = null;
     this.$div.removeClass(
-      "fancytree-ext-filter fancytree-ext-filter-dimm fancytree-ext-filter-hide"
+      "fancytree-ext-filter fancytree-ext-filter-dimm fancytree-ext-filter-hide",
     );
     this._callHook("treeStructureChanged", this, "clearFilter");
     // this.render();
@@ -496,7 +496,7 @@
           node.$subMatchBadge = $("<span class='fancytree-childcounter'/>");
           $(
             "span.fancytree-icon, span.fancytree-custom-icon",
-            node.span
+            node.span,
           ).append(node.$subMatchBadge);
         }
         node.$subMatchBadge.show().text(node.subMatchCount);
@@ -517,7 +517,7 @@
         if (enhanceTitle) {
           enhanceTitle(
             { type: "enhanceTitle" },
-            { node: node, $title: $title }
+            { node: node, $title: $title },
           );
         }
       }

@@ -63,12 +63,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      sectionObj
+      sectionObj,
     );
   }
 
@@ -89,12 +89,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      sectionObj
+      sectionObj,
     );
   }
 
@@ -120,11 +120,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -144,12 +144,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      sectionObj
+      sectionObj,
     );
   }
 
@@ -166,12 +166,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      updateSecObject
+      updateSecObject,
     );
   }
 
@@ -188,12 +188,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      extLinkObj
+      extLinkObj,
     );
   }
 
@@ -221,10 +221,10 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           var defaultErrorCode = $.PercServiceUtils.extractGlobalErrorCode(
-            result.request
+            result.request,
           );
 
           if (
@@ -239,7 +239,7 @@
             callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
           }
         }
-      }
+      },
     );
   }
 
@@ -261,7 +261,7 @@
       callback(
         $.PercServiceUtils.STATUS_SUCCESS,
         section,
-        cache.getChildren[section.SiteSection.id]
+        cache.getChildren[section.SiteSection.id],
       );
     } else {
       $.PercServiceUtils.makeJsonRequest(
@@ -274,12 +274,12 @@
             callback($.PercServiceUtils.STATUS_SUCCESS, section, result.data);
           } else {
             var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-              result.request
+              result.request,
             );
             callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
           }
         },
-        section
+        section,
       );
     }
   }
@@ -301,12 +301,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      false // Data to post. Not required for GET
+      false, // Data to post. Not required for GET
     );
   }
 
@@ -328,7 +328,7 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
@@ -341,7 +341,7 @@
         };
         callback($.PercServiceUtils.STATUS_ERROR, result);
       },
-      120000
+      120000,
     );
   }
 
@@ -367,16 +367,16 @@
           callback(
             $.PercServiceUtils.STATUS_SUCCESS,
             moveSiteSectionObj,
-            result.data
+            result.data,
           );
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      moveSiteSectionObj
+      moveSiteSectionObj,
     );
   }
 
@@ -405,12 +405,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      obj
+      obj,
     );
   }
 
@@ -430,11 +430,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -460,11 +460,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -484,13 +484,13 @@
       function (status, result) {
         if (status !== $.PercServiceUtils.STATUS_SUCCESS) {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback(false, defaultMsg);
         } else {
           callback(true);
         }
-      }
+      },
     );
   }
 

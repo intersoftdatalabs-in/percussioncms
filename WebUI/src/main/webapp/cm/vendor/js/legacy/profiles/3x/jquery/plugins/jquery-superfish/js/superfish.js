@@ -20,7 +20,7 @@
       },
       ios = (function () {
         var ios = /^(?![\w\W]*Windows Phone)[\w\W]*(iPhone|iPad|iPod)/i.test(
-          navigator.userAgent
+          navigator.userAgent,
         );
         if (ios) {
           // tap anywhere on iOS to unfocus a submenu
@@ -269,13 +269,13 @@
     if (methods[method]) {
       return methods[method].apply(
         this,
-        Array.prototype.slice.call(arguments, 1)
+        Array.prototype.slice.call(arguments, 1),
       );
     } else if (typeof method === "object" || !method) {
       return methods.init.apply(this, arguments);
     } else {
       return $.error(
-        "Method " + method + " does not exist on jQuery.fn.superfish"
+        "Method " + method + " does not exist on jQuery.fn.superfish",
       );
     }
   };

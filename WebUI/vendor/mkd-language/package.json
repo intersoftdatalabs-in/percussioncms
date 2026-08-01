@@ -1,0 +1,22 @@
+{
+  "name": "@mkd/language",
+  "version": "0.2.0",
+  "description": "Vendored build of @mkd/language for Percussion CMS WebUI. Do not edit dist; refresh from mkd-language client build.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "license": "MIT",
+  "private": true
+}

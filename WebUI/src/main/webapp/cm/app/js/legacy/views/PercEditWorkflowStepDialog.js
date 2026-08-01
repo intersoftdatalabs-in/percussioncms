@@ -43,7 +43,7 @@
       previousStepName,
       currentStep,
       successCallBack,
-      cancelCallBack
+      cancelCallBack,
     ) {
       //Remove existent DIVs to fix issues with ESC key
       $("#perc-edit-workflow-dialog").remove();
@@ -78,14 +78,14 @@
           "</div>" +
           "         <div >" +
           I18N.message(
-            "perc.ui.edit.workflow.step.dialog@Specify Permissions"
+            "perc.ui.edit.workflow.step.dialog@Specify Permissions",
           ) +
           "</div><br/>" +
           "         <div id='perc-wfconfig-roles-wrapper' style='background:#fff'>" +
           "  </div></div></div>" +
           "  <div class='ui-layout-south'>" +
           "    <div id='perc_buttons' style='z-index: 100;'></div>" +
-          "  </div></div>"
+          "  </div></div>",
       ).perc_dialog({
         buttons: buttons,
         percButtons: {
@@ -120,7 +120,7 @@
           function () {
             _remove();
             successCallBack();
-          }
+          },
         );
       }
 
@@ -136,9 +136,9 @@
           if (status === $.PercServiceUtils.STATUS_ERROR) {
             utils.alertDialog(
               I18N.message(
-                "perc.ui.edit.workflow.step.dialog@Error Loading Roles"
+                "perc.ui.edit.workflow.step.dialog@Error Loading Roles",
               ),
-              rolesJson
+              rolesJson,
             );
             return;
           }
@@ -154,7 +154,7 @@
         var roleHeaderRow = $('<tr class="perc-wfconfig-row-header"></tr>');
         $(roleHeaderRow).attr("class", generateRowId(0));
         var roleHeader = $(
-          '<th scope="col" style="text-align: left;">Roles</th>'
+          '<th scope="col" style="text-align: left;">Roles</th>',
         );
         $(roleHeader).attr("class", generateColumnId(0));
         $(roleHeaderRow).append(roleHeader);
@@ -184,7 +184,7 @@
           var roleRow = $('<tr class="perc-wfconfig-row"></tr>');
           roleRow.addClass(generateRowId(i + 1));
           var roleNameElement = $(
-            '<td scope = "row" style="text-align:left;"><span class = "perc-roleName-wrapper perc-ellipsis"></span></td>'
+            '<td scope = "row" style="text-align:left;"><span class = "perc-roleName-wrapper perc-ellipsis"></span></td>',
           );
           $(roleNameElement).addClass(generateColumnId(0));
           var roleName = roleListObject.RoleList.roles[i];
@@ -224,7 +224,7 @@
             $(roleRowElement).prop("class", generateColumnId(j + 1));
             $(roleRowElement).prop(
               "class",
-              "perc-" + possiblePermissions[j].toLowerCase()
+              "perc-" + possiblePermissions[j].toLowerCase(),
             );
             $(roleRow).append(roleRowElement);
           }
@@ -371,17 +371,17 @@
         workflowName,
         workflowStep,
         previousStepName,
-        successCallback
+        successCallback,
       ) {
         var stepName = $("#perc-wfstep-name").val().trim();
 
         if (!$("#perc-wfstep-name")[0].checkValidity()) {
           var validationError = I18N.message(
-            "perc.ui.workflow.steps.view@Please enter a valid step name"
+            "perc.ui.workflow.steps.view@Please enter a valid step name",
           );
           $.perc_utils.alert_dialog({
             title: I18N.message(
-              "perc.ui.workflow.view@Workflow Validation Error"
+              "perc.ui.workflow.view@Workflow Validation Error",
             ),
             content: validationError,
           });
@@ -468,7 +468,7 @@
                 });
               }
               $.unblockUI();
-            }
+            },
           );
         } else {
           //call the service to save and create the new step if 'isUpdate' is false.
@@ -494,7 +494,7 @@
                 });
               }
               $.unblockUI();
-            }
+            },
           );
         }
       }

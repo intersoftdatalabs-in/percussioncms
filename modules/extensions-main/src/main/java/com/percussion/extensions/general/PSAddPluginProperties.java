@@ -44,6 +44,9 @@ import org.w3c.dom.Element;
  * </ol>
  */
 public class PSAddPluginProperties implements IPSResultDocumentProcessor {
+  /** Creates a new PSAddPluginProperties. */
+  public PSAddPluginProperties() {}
+
   /*
    * Implementation of the method required by the interface IPSExtension.
    */

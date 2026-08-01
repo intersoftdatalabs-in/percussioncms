@@ -83,7 +83,7 @@ import { beforeEach, afterEach, describe, it, expect } from "vitest";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SRC_PATH = resolve(
   __dirname,
-  "../../main/webapp/cm/plugins/perc_utils.js"
+  "../../main/webapp/cm/plugins/perc_utils.js",
 );
 
 const XSS_MARKER = 'onerror="globalThis.__perc_utils_pwned__=true"';
@@ -174,7 +174,7 @@ describe("perc_utils.js $.fn.perc_toggle XSS regression (js/unsafe-jquery-plugin
     }
 
     const sawRawMarkup = rawCalls.some(
-      (call) => typeof call === "string" && call.includes(XSS_MARKER)
+      (call) => typeof call === "string" && call.includes(XSS_MARKER),
     );
     expect(sawRawMarkup).toBe(false);
     expect(document.querySelectorAll("img").length).toBe(0);
@@ -294,14 +294,14 @@ describe("perc_utils.js dialog content XSS regression (js/xss-through-dom)", () 
     });
 
     expect(
-      document.querySelector("#perc-delete-dialog-warning").textContent
+      document.querySelector("#perc-delete-dialog-warning").textContent,
     ).toBe("Warning");
     expect(document.querySelector("strong").textContent).toBe(
-      "This role has active users"
+      "This role has active users",
     );
     expect(document.querySelectorAll("br").length).toBe(2);
     expect(
-      document.querySelector("#perc-delete-warn-msg").textContent
+      document.querySelector("#perc-delete-warn-msg").textContent,
     ).toContain("Editors");
   });
 
@@ -376,7 +376,7 @@ describe("perc_utils.js dialog content XSS regression (js/xss-through-dom)", () 
   // alert_dialog (see e.g. PercUserView's showImportWarning()).
   it("alert_dialog preserves an <a href> link produced by replaceURLWithHTMLLinks()", () => {
     const message = globalThis.jQuery.perc_utils.replaceURLWithHTMLLinks(
-      "See https://example.com/docs for details."
+      "See https://example.com/docs for details.",
     );
     globalThis.jQuery.perc_utils.alert_dialog({
       title: "Test",
@@ -424,7 +424,7 @@ describe("perc_utils.js dialog content XSS regression (js/xss-through-dom)", () 
       const link = document.querySelector("a");
       expect(link).not.toBeNull();
       expect(link.getAttribute("href")).toBeNull();
-    }
+    },
   );
 
   it("strips a style value obfuscated with an embedded tab the same way", () => {

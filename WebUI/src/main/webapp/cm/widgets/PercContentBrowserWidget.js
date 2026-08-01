@@ -112,7 +112,7 @@
           : "") +
         //Space for the directory navigation.
         "<div id='perc-asset-browser-dialog-direc'></div>" +
-        "</div>"
+        "</div>",
     );
 
     $("#" + options.placeHolder).append(top);
@@ -203,8 +203,8 @@
         indent += "&nbsp;&nbsp;";
         path_select.append(
           $("<option value='" + current_path.join("/") + "'></option>").append(
-            indent + current_path[current_path.length - 1]
-          )
+            indent + current_path[current_path.length - 1],
+          ),
         );
       }
       path_select.val(current_path.join("/"));
@@ -229,7 +229,7 @@
                 //the new folder is seen).
                 set_path(ut.acop(path));
               },
-              err
+              err,
             );
           },
         });
@@ -257,7 +257,7 @@
           function () {
             top.remove();
           },
-          err
+          err,
         );
       } else {
         settings.on_save(
@@ -266,7 +266,7 @@
           function () {
             top.remove();
           },
-          err
+          err,
         );
       }
     }
@@ -295,8 +295,8 @@
               icon.title +
               "' aria-hidden='" +
               icon.decorative +
-              "' />"
-          )
+              "' />",
+          ),
         )
         .append(spec.name)
         .data("name", path_end)

@@ -65,7 +65,7 @@ test.describe("T092d / Edge Cases #7 — cross-frame session + CSRF", () => {
       // in another browser context (proves no cross-frame Finder
       // assumptions leak into the modern surface).
       await expect(
-        pageA.locator('[data-testid="perc-explorer-host"]')
+        pageA.locator('[data-testid="perc-explorer-host"]'),
       ).toBeVisible({ timeout: 15_000 });
       await expect(pageB.locator("body")).toBeVisible();
 

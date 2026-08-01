@@ -26,7 +26,7 @@
     }
     if (serviceContent.PagedItemList !== undefined) {
       serviceData = $.perc_utils.convertCXFArray(
-        serviceContent.PagedItemList.childrenInPage
+        serviceContent.PagedItemList.childrenInPage,
       );
       self.data("totalResult", serviceContent.PagedItemList.childrenCount);
       self.data("startIndex", serviceContent.PagedItemList.startIndex);
@@ -167,7 +167,7 @@
       _folderDblClickCallback("/" + getItemFolderPath(rowData).join("/"));
     } else {
       $.PercNavigationManager.openPathItem(
-        "/" + getItemFolderPath(rowData).join("/")
+        "/" + getItemFolderPath(rowData).join("/"),
       );
     }
   }
@@ -184,7 +184,7 @@
     var c, s;
     for (s = 0; s < serviceData.length; s++) {
       var dataRow = $.perc_utils.convertCXFArray(
-        serviceData[s].columnData.column
+        serviceData[s].columnData.column,
       );
       var nameValueMap = nameValueObjectArrayToMap(dataRow, "name", "value");
       var percRow = [];
@@ -192,7 +192,7 @@
       var icon = $.perc_utils.choose_icon(
         serviceData[s].type,
         serviceData[s].icon,
-        getItemFolderPath({ data: serviceData[s] })
+        getItemFolderPath({ data: serviceData[s] }),
       );
       var iconHtml =
         '<img style="float:left;" src="' +
@@ -303,8 +303,8 @@
         column.width == -1
           ? "*"
           : $.browser.msie
-          ? column.width - 20
-          : column.width
+            ? column.width - 20
+            : column.width,
       );
       var type = column.type.toLowerCase();
       if (type === "text") {

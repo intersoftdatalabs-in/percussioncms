@@ -39,12 +39,12 @@ ps.content.SelectTemplates = function () {
       {
         id: "ps.content.SelectTemplatesDlg",
         title: psxGetLocalMessage(
-          "javascript.ps.content.selecttemplates@Templates"
+          "javascript.ps.content.selecttemplates@Templates",
         ),
         href: this.url,
       },
       "750px",
-      "450px"
+      "450px",
     );
     new ps.widget.ContentPaneProgress(this.wgtDlg);
 
@@ -106,7 +106,7 @@ ps.content.SelectTemplates = function () {
   this.parseControls = function () {
     var _this = this;
     this.wgtTemplates = document.getElementById(
-      "ps.select.templates.wgtTemplates"
+      "ps.select.templates.wgtTemplates",
     );
     this.wgtPreviewPane = ps.widget.byId("ps.select.templates.wgtPreviewPane");
     this.wgtTemplates.onchange = function () {
@@ -114,10 +114,10 @@ ps.content.SelectTemplates = function () {
     };
     if (this.isAsDialog) {
       this.wgtButtonSelect = ps.widget.byId(
-        "ps.select.templates.wgtButtonSelect"
+        "ps.select.templates.wgtButtonSelect",
       );
       this.wgtButtonCancel = ps.widget.byId(
-        "ps.select.templates.wgtButtonCancel"
+        "ps.select.templates.wgtButtonCancel",
       );
       this.wgtButtonCancel.onClick = function () {
         _this.cancelCallback();
@@ -156,7 +156,7 @@ ps.content.SelectTemplates = function () {
     ps.util.setDialogSize(
       this.wgtDlg,
       this.preferredWidth,
-      this.preferredHeight
+      this.preferredHeight,
     );
     this.wgtDlg.show();
   };
@@ -245,7 +245,7 @@ ps.content.SelectTemplates = function () {
         response = ps.io.Actions.getSnippetContent(
           snippetId,
           false,
-          selectedContent
+          selectedContent,
         );
         if (response.isSuccess()) {
           content = response.getValue();
@@ -257,7 +257,7 @@ ps.content.SelectTemplates = function () {
     } else {
       content = content.replace(
         "href",
-        " onclick='webviewAction.showFileInBrowser();' href"
+        " onclick='webviewAction.showFileInBrowser();' href",
       );
     }
 

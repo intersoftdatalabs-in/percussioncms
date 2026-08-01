@@ -237,6 +237,25 @@ public class Main {
         System.exit(exitCode);
       }
 
+      // Persist non-secret defaults for the next install (no passwords).
+      try {
+        String versionToSave = percVersion != null ? percVersion : "";
+        String javaHomeToSave =
+            javaOutcome != null && javaOutcome.javaHome() != null
+                ? javaOutcome.javaHome().toString()
+                : javaHome;
+        new InstallerUserSettings(InstallerUserSettings.PREFIX_CMS)
+            .save(
+                installPath,
+                versionToSave,
+                options,
+                javaHomeToSave,
+                resolvedDbConfig != null ? resolvedDbConfig.systemProperties() : null);
+      } catch (Exception saveEx) {
+        System.out.println(
+            "Warning: could not save installer user settings: " + saveEx.getMessage());
+      }
+
     } catch (Exception e) {
       System.out.println(
           "An error occurred while executing the installation, installation has likely failed. "
@@ -475,6 +494,17 @@ public class Main {
       command.add("-Dfile.encoding=UTF-8");
       command.add("-Dsun.jnu.encoding=UTF-8");
       command.add("-Dinstall.dir=" + installDir.toAbsolutePath());
+      // Propagate the --demo-sites flag so the ANT installer can decide whether to chain
+      // a sample-site seeding pass (RxffTableData/RxffTableDef) after the core schema/data
+      // load. Upgrades always ignore the flag to protect existing repositories.
+      boolean demoSites =
+          DbInstallConfigResolver.parseDemoSitesFlag(
+              System.getProperties().entrySet().stream()
+                  .collect(
+                      java.util.stream.Collectors.toMap(
+                          e -> e.getKey().toString(),
+                          e -> e.getValue() == null ? null : e.getValue().toString())));
+      command.add("-D" + DbInstallConfigResolver.DEMO_SITES_SYSTEM_PROPERTY + "=" + demoSites);
       for (Map.Entry<String, String> entry : resolvedDbConfig.systemProperties().entrySet()) {
         command.add("-D" + entry.getKey() + "=" + entry.getValue());
       }

@@ -159,7 +159,7 @@
         namespace: namespace,
         widgetName: name,
         widgetFullName: fullName,
-      }
+      },
     );
 
     // If this widget is being redefined then we need to find all widgets that
@@ -175,7 +175,7 @@
         $.widget(
           childPrototype.namespace + "." + childPrototype.widgetName,
           constructor,
-          child._proto
+          child._proto,
         );
       });
 
@@ -251,7 +251,7 @@
                   " prior to initialization; " +
                   "attempted to call method '" +
                   options +
-                  "'"
+                  "'",
               );
             }
 
@@ -264,7 +264,7 @@
                   options +
                   "' for " +
                   name +
-                  " widget instance"
+                  " widget instance",
               );
             }
 
@@ -343,10 +343,10 @@
             ? // Element within the document
               element.ownerDocument
             : // Element is window or document
-              element.document || element
+              element.document || element,
         );
         this.window = $(
-          this.document[0].defaultView || this.document[0].parentWindow
+          this.document[0].defaultView || this.document[0].parentWindow,
         );
       }
 
@@ -354,7 +354,7 @@
         {},
         this.options,
         this._getCreateOptions(),
-        options
+        options,
       );
 
       this._create();
@@ -494,7 +494,7 @@
             keys: classKey,
             classes: value,
             add: true,
-          })
+          }),
         );
       }
     },
@@ -504,7 +504,7 @@
         this.widget(),
         this.widgetFullName + "-disabled",
         null,
-        !!value
+        !!value,
       );
 
       // If the widget is becoming disabled, then nothing is interactive
@@ -531,7 +531,7 @@
           element: this.element,
           classes: this.options.classes || {},
         },
-        options
+        options,
       );
 
       function bindRemoveEvent() {
@@ -561,7 +561,7 @@
           if (options.add) {
             bindRemoveEvent();
             current = $(
-              $.uniqueSort(current.get().concat(options.element.get()))
+              $.uniqueSort(current.get().concat(options.element.get())),
             );
           } else {
             current = $(current.not(options.element).get());
@@ -761,8 +761,8 @@
       var effectName = !options
         ? method
         : options === true || typeof options === "number"
-        ? defaultEffect
-        : options.effect || defaultEffect;
+          ? defaultEffect
+          : options.effect || defaultEffect;
 
       options = options || {};
       if (typeof options === "number") {
@@ -879,7 +879,7 @@
           div = $(
             "<div style=" +
               "'display:block;position:absolute;width:200px;height:200px;overflow:hidden;'>" +
-              "<div style='height:300px;width:auto;'></div></div>"
+              "<div style='height:300px;width:auto;'></div></div>",
           ),
           innerDiv = div.children()[0];
 
@@ -984,8 +984,8 @@
           pos = rhorizontal.test(pos[0])
             ? pos.concat(["center"])
             : rvertical.test(pos[0])
-            ? ["center"].concat(pos)
-            : ["center", "center"];
+              ? ["center"].concat(pos)
+              : ["center", "center"];
         }
         pos[0] = rhorizontal.test(pos[0]) ? pos[0] : "center";
         pos[1] = rvertical.test(pos[1]) ? pos[1] : "center";
@@ -1045,7 +1045,7 @@
           myOffset = getOffsets(
             offsets.my,
             elem.outerWidth(),
-            elem.outerHeight()
+            elem.outerHeight(),
           );
 
         if (options.my[0] === "right") {
@@ -1186,7 +1186,7 @@
           } else {
             position.left = max(
               position.left - collisionPosLeft,
-              position.left
+              position.left,
             );
           }
         },
@@ -1262,14 +1262,14 @@
               data.my[0] === "left"
                 ? -data.elemWidth
                 : data.my[0] === "right"
-                ? data.elemWidth
-                : 0,
+                  ? data.elemWidth
+                  : 0,
             atOffset =
               data.at[0] === "left"
                 ? data.targetWidth
                 : data.at[0] === "right"
-                ? -data.targetWidth
-                : 0,
+                  ? -data.targetWidth
+                  : 0,
             offset = -2 * data.offset[0],
             newOverRight,
             newOverLeft;
@@ -1312,14 +1312,14 @@
             myOffset = top
               ? -data.elemHeight
               : data.my[1] === "bottom"
-              ? data.elemHeight
-              : 0,
+                ? data.elemHeight
+                : 0,
             atOffset =
               data.at[1] === "top"
                 ? data.targetHeight
                 : data.at[1] === "bottom"
-                ? -data.targetHeight
-                : 0,
+                  ? -data.targetHeight
+                  : 0,
             offset = -2 * data.offset[1],
             newOverTop,
             newOverBottom;
@@ -1586,11 +1586,11 @@
   // Populate the class2type map
   jQuery.each(
     "Boolean Number String Function Array Date RegExp Object Error Symbol".split(
-      " "
+      " ",
     ),
     function (_i, name) {
       class2type["[object " + name + "]"] = name.toLowerCase();
-    }
+    },
   );
 
   function getType(obj) {
@@ -1810,7 +1810,7 @@
           }
           result[index] = clamp(
             (endValue - startValue) * distance + startValue,
-            prop
+            prop,
           );
         }
       });
@@ -1829,7 +1829,7 @@
       return color(
         jQuery.map(rgb, function (v, i) {
           return (1 - a) * blend[i] + a * v;
-        })
+        }),
       );
     },
     toRgbaString: function () {
@@ -2081,7 +2081,7 @@
               value = value.blend(
                 backgroundColor && backgroundColor !== "transparent"
                   ? backgroundColor
-                  : "_default"
+                  : "_default",
               );
             }
 
@@ -2205,7 +2205,7 @@
             fx.setAttr = true;
           }
         };
-      }
+      },
     );
 
     function camelCase(string) {
@@ -2266,7 +2266,7 @@
     if (!$.fn.addBack) {
       $.fn.addBack = function (selector) {
         return this.add(
-          selector == null ? this.prevObject : this.prevObject.filter(selector)
+          selector == null ? this.prevObject : this.prevObject.filter(selector),
         );
       };
     }
@@ -2354,7 +2354,7 @@
                 { add: classNames },
                 speed,
                 easing,
-                callback
+                callback,
               )
             : orig.apply(this, arguments);
         };
@@ -2368,7 +2368,7 @@
                 { remove: classNames },
                 speed,
                 easing,
-                callback
+                callback,
               )
             : orig.apply(this, arguments);
         };
@@ -2386,7 +2386,7 @@
                 force ? { add: classNames } : { remove: classNames },
                 speed,
                 easing,
-                callback
+                callback,
               );
             }
           } else {
@@ -2396,7 +2396,7 @@
               { toggle: classNames },
               force,
               speed,
-              easing
+              easing,
             );
           }
         };
@@ -2411,7 +2411,7 @@
           },
           speed,
           easing,
-          callback
+          callback,
         );
       },
     });
@@ -2608,7 +2608,7 @@
         if (queueLength > 1) {
           queue.splice.apply(
             queue,
-            [1, 0].concat(queue.splice(queueLength, count))
+            [1, 0].concat(queue.splice(queueLength, count)),
           );
         }
         element.dequeue();
@@ -2803,10 +2803,10 @@
       effect.duration = $.fx.off
         ? 0
         : typeof speed === "number"
-        ? speed
-        : speed in $.fx.speeds
-        ? $.fx.speeds[speed]
-        : $.fx.speeds._default;
+          ? speed
+          : speed in $.fx.speeds
+            ? $.fx.speeds[speed]
+            : $.fx.speeds._default;
 
       effect.complete = callback || options.complete;
 
@@ -3007,7 +3007,7 @@
               clipObj.bottom +
               "px " +
               clipObj.left +
-              "px)"
+              "px)",
           );
         }
         return parseClip(this.css("clip"), this);
@@ -3186,7 +3186,7 @@
         placeholder.animate(
           $.effects.clipToBox(animate),
           options.duration,
-          options.easing
+          options.easing,
         );
       }
 
@@ -3196,7 +3196,7 @@
         easing: options.easing,
         complete: done,
       });
-    }
+    },
   );
 
   /*!
@@ -3288,7 +3288,7 @@
       element.queue(done);
 
       $.effects.unshift(element, queuelen, anims + 1);
-    }
+    },
   );
 
   /*!
@@ -3339,7 +3339,7 @@
         easing: options.easing,
         complete: done,
       });
-    }
+    },
   );
 
   /*!
@@ -3395,7 +3395,7 @@
         easing: options.easing,
         complete: done,
       });
-    }
+    },
   );
 
   /*!
@@ -3490,7 +3490,7 @@
               },
               options.duration || 500,
               options.easing,
-              childComplete
+              childComplete,
             );
         }
       }
@@ -3502,7 +3502,7 @@
         $(pieces).remove();
         done();
       }
-    }
+    },
   );
 
   /*!
@@ -3537,9 +3537,9 @@
             duration: options.duration,
             easing: options.easing,
             complete: done,
-          }
+          },
         );
-    }
+    },
   );
 
   /*!
@@ -3602,12 +3602,12 @@
               .animate(
                 $.effects.clipToBox(animation1),
                 duration,
-                options.easing
+                options.easing,
               )
               .animate(
                 $.effects.clipToBox(animation2),
                 duration,
-                options.easing
+                options.easing,
               );
           }
 
@@ -3618,7 +3618,7 @@
         .queue(done);
 
       $.effects.unshift(element, queuelen, 4);
-    }
+    },
   );
 
   /*!
@@ -3662,7 +3662,7 @@
           easing: options.easing,
           complete: done,
         });
-    }
+    },
   );
 
   /*!
@@ -3798,13 +3798,13 @@
             child,
             vProps,
             factor.from.y,
-            childFrom
+            childFrom,
           );
           childTo = $.effects.setTransition(
             child,
             vProps,
             factor.to.y,
-            childTo
+            childTo,
           );
         }
 
@@ -3814,13 +3814,13 @@
             child,
             hProps,
             factor.from.x,
-            childFrom
+            childFrom,
           );
           childTo = $.effects.setTransition(
             child,
             hProps,
             factor.to.x,
-            childTo
+            childTo,
           );
         }
 
@@ -3895,11 +3895,11 @@
           to: $.effects.scaledDimensions(
             el,
             percent,
-            options.direction || "both"
+            options.direction || "both",
           ),
           origin: options.origin || ["middle", "center"],
         },
-        options
+        options,
       );
 
     // Fade option to support puff
@@ -3936,7 +3936,7 @@
       });
 
       $.effects.effect.scale.call(this, newOptions, done);
-    }
+    },
   );
 
   /*!
@@ -3986,7 +3986,7 @@
       element.queue(done);
 
       $.effects.unshift(element, queuelen, anims + 1);
-    }
+    },
   );
 
   /*!
@@ -4106,7 +4106,7 @@
         easing: options.easing,
         complete: done,
       });
-    }
+    },
   );
 
   /*!
@@ -4425,7 +4425,7 @@
 
       // Get a full set of top level ancestors
       ancestors = ancestor.add(
-        ancestor.length ? ancestor.siblings() : this.siblings()
+        ancestor.length ? ancestor.siblings() : this.siblings(),
       );
 
       // Create a selector for the label based on the id
@@ -4465,7 +4465,7 @@
           return overflowRegex.test(
             parent.css("overflow") +
               parent.css("overflow-y") +
-              parent.css("overflow-x")
+              parent.css("overflow-x"),
           );
         })
         .eq(0);
@@ -4640,7 +4640,7 @@
         this._addClass(
           icon,
           "ui-accordion-header-icon",
-          "ui-icon " + icons.header
+          "ui-icon " + icons.header,
         );
         icon.prependTo(this.headers);
         children = this.active.children(".ui-accordion-header-icon");
@@ -4722,7 +4722,7 @@
         this.headers.add(this.headers.next()),
         null,
         "ui-state-disabled",
-        !!value
+        !!value,
       );
     },
 
@@ -4827,7 +4827,7 @@
       this._addClass(
         this.headers,
         "ui-accordion-header ui-accordion-header-collapsed",
-        "ui-state-default"
+        "ui-state-default",
       );
 
       this.panels = this.headers
@@ -4837,7 +4837,7 @@
       this._addClass(
         this.panels,
         "ui-accordion-content",
-        "ui-helper-reset ui-widget-content"
+        "ui-helper-reset ui-widget-content",
       );
 
       // Avoid memory leaks (#10056)
@@ -4857,7 +4857,7 @@
       this._addClass(
         this.active,
         "ui-accordion-header-active",
-        "ui-state-active"
+        "ui-state-active",
       )._removeClass(this.active, "ui-accordion-header-collapsed");
       this._addClass(this.active.next(), "ui-accordion-content-active");
       this.active.next().show();
@@ -4928,7 +4928,7 @@
           .next()
           .each(function () {
             $(this).height(
-              Math.max(0, maxHeight - $(this).innerHeight() + $(this).height())
+              Math.max(0, maxHeight - $(this).innerHeight() + $(this).height()),
             );
           })
           .css("overflow", "auto");
@@ -5029,14 +5029,14 @@
       this._removeClass(
         active,
         "ui-accordion-header-active",
-        "ui-state-active"
+        "ui-state-active",
       );
       if (options.icons) {
         activeChildren = active.children(".ui-accordion-header-icon");
         this._removeClass(
           activeChildren,
           null,
-          options.icons.activeHeader
+          options.icons.activeHeader,
         )._addClass(activeChildren, null, options.icons.header);
       }
 
@@ -5044,14 +5044,14 @@
         this._removeClass(clicked, "ui-accordion-header-collapsed")._addClass(
           clicked,
           "ui-accordion-header-active",
-          "ui-state-active"
+          "ui-state-active",
         );
         if (options.icons) {
           clickedChildren = clicked.children(".ui-accordion-header-icon");
           this._removeClass(
             clickedChildren,
             null,
-            options.icons.header
+            options.icons.header,
           )._addClass(clickedChildren, null, options.icons.activeHeader);
         }
 
@@ -5173,7 +5173,7 @@
       this._removeClass(toHide, "ui-accordion-content-active");
       this._removeClass(prev, "ui-accordion-header-active")._addClass(
         prev,
-        "ui-accordion-header-collapsed"
+        "ui-accordion-header-collapsed",
       );
 
       // Work around for rendering bug in IE (#5421)
@@ -5319,7 +5319,7 @@
           this._delay(function () {
             var notContained = !$.contains(
               this.element[0],
-              $.ui.safeActiveElement(this.document[0])
+              $.ui.safeActiveElement(this.document[0]),
             );
             if (notContained) {
               this.collapseAll(event);
@@ -5383,7 +5383,7 @@
       this._removeClass(
         target.siblings().children(".ui-state-active"),
         null,
-        "ui-state-active"
+        "ui-state-active",
       );
       this.focus(event, target);
     },
@@ -5404,7 +5404,7 @@
         .addBack()
         .removeAttr(
           "role aria-labelledby aria-expanded aria-hidden aria-disabled " +
-            "tabIndex"
+            "tabIndex",
         )
         .removeUniqueId()
         .show();
@@ -5529,7 +5529,7 @@
       this._toggleClass(
         "ui-menu-icons",
         null,
-        !!this.element.find(".ui-icon").length
+        !!this.element.find(".ui-icon").length,
       );
 
       // Initialize nested menus
@@ -5554,7 +5554,7 @@
       this._addClass(
         newSubmenus,
         "ui-menu",
-        "ui-widget ui-widget-content ui-front"
+        "ui-widget ui-widget-content ui-front",
       );
 
       menus = submenus.add(this.element);
@@ -5576,7 +5576,7 @@
       });
       this._addClass(newItems, "ui-menu-item")._addClass(
         newWrappers,
-        "ui-menu-item-wrapper"
+        "ui-menu-item-wrapper",
       );
 
       // Add aria-disabled attribute to any disabled menu item
@@ -5601,7 +5601,7 @@
         this._removeClass(icons, null, this.options.icons.submenu)._addClass(
           icons,
           null,
-          value.submenu
+          value.submenu,
         );
       }
       this._super(key, value);
@@ -5674,7 +5674,7 @@
           this.activeMenu.scrollTop(scroll + offset);
         } else if (offset + itemHeight > elementHeight) {
           this.activeMenu.scrollTop(
-            scroll + offset - elementHeight + itemHeight
+            scroll + offset - elementHeight + itemHeight,
           );
         }
       }
@@ -5692,7 +5692,7 @@
       this._removeClass(
         this.active.children(".ui-menu-item-wrapper"),
         null,
-        "ui-state-active"
+        "ui-state-active",
       );
 
       this._trigger("blur", event, { item: this.active });
@@ -5719,7 +5719,7 @@
         {
           of: this.active,
         },
-        this.options.position
+        this.options.position,
       );
 
       clearTimeout(this.timer);
@@ -5759,12 +5759,12 @@
           this._removeClass(
             currentMenu.find(".ui-state-active"),
             null,
-            "ui-state-active"
+            "ui-state-active",
           );
 
           this.activeMenu = currentMenu;
         },
-        all ? 0 : this.delay
+        all ? 0 : this.delay,
       );
     },
 
@@ -5844,7 +5844,7 @@
         if (direction === "first" || direction === "last") {
           next =
             this.active[direction === "first" ? "prevAll" : "nextAll"](
-              ".ui-menu-item"
+              ".ui-menu-item",
             ).last();
         } else {
           next = this.active[direction + "All"](".ui-menu-item").first();
@@ -5885,7 +5885,7 @@
       } else {
         this.focus(
           event,
-          this._menuItems(this.activeMenu)[!this.active ? "first" : "last"]()
+          this._menuItems(this.activeMenu)[!this.active ? "first" : "last"](),
         );
       }
     },
@@ -5937,7 +5937,7 @@
     _filterMenuItems: function (character) {
       var escapedCharacter = character.replace(
           /[\-\[\]{}()*+?.,\\\^$|#\s]/g,
-          "\\$&"
+          "\\$&",
         ),
         regex = new RegExp("^" + escapedCharacter, "i");
 
@@ -5950,8 +5950,8 @@
           .filter(function () {
             return regex.test(
               String.prototype.trim.call(
-                $(this).children(".ui-menu-item-wrapper").text()
-              )
+                $(this).children(".ui-menu-item-wrapper").text(),
+              ),
             );
           })
       );
@@ -6480,8 +6480,8 @@
           {
             of: this.element,
           },
-          this.options.position
-        )
+          this.options.position,
+        ),
       );
 
       if (this.options.autoFocus) {
@@ -6501,8 +6501,8 @@
           // Firefox wraps long text (possibly a rounding bug)
           // so we add 1px to avoid the wrapping (#7513)
           ul.width("").outerWidth() + 1,
-          this.element.outerWidth()
-        )
+          this.element.outerWidth(),
+        ),
       );
     },
 
@@ -6714,7 +6714,7 @@
           that._addClass(
             labels,
             null,
-            "ui-widget ui-widget-content ui-state-default"
+            "ui-widget ui-widget-content ui-state-default",
           );
           childWidgets = childWidgets.concat(labels.get());
           return;
@@ -6755,7 +6755,7 @@
           if (instance) {
             instanceOptions.classes = that._resolveClassesValues(
               instanceOptions.classes,
-              instance
+              instance,
             );
           }
           element[widget](instanceOptions);
@@ -6766,7 +6766,7 @@
           $.data(
             widgetElement[0],
             "ui-controlgroup-data",
-            instance ? instance : element[widget]("instance")
+            instance ? instance : element[widget]("instance"),
           );
 
           childWidgets.push(widgetElement[0]);
@@ -6861,7 +6861,7 @@
       $.each(classes, function (key) {
         var current = instance.options.classes[key] || "";
         current = String.prototype.trim.call(
-          current.replace(controlgroupCornerRegex, "")
+          current.replace(controlgroupCornerRegex, ""),
         );
         result[key] = (current + " " + classes[key]).replace(/\s+/g, " ");
       });
@@ -6887,7 +6887,7 @@
         that = this;
 
       this._addClass(
-        "ui-controlgroup ui-controlgroup-" + this.options.direction
+        "ui-controlgroup ui-controlgroup-" + this.options.direction,
       );
 
       if (this.options.direction === "horizontal") {
@@ -6910,11 +6910,11 @@
 
           if (instance && that["_" + instance.widgetName + "Options"]) {
             var options = that["_" + instance.widgetName + "Options"](
-              children.length === 1 ? "only" : value
+              children.length === 1 ? "only" : value,
             );
             options.classes = that._resolveClassesValues(
               options.classes,
-              instance
+              instance,
             );
             instance.element[instance.widgetName](options);
           } else {
@@ -7021,7 +7021,7 @@
         this._addClass(
           this.label,
           "ui-checkboxradio-label",
-          "ui-button ui-widget"
+          "ui-button ui-widget",
         );
 
         if (this.type === "radio") {
@@ -7040,7 +7040,7 @@
           this._addClass(
             this.label,
             "ui-checkboxradio-checked",
-            "ui-state-active"
+            "ui-state-active",
           );
         }
 
@@ -7053,7 +7053,7 @@
             this._removeClass(
               this.label,
               null,
-              "ui-state-focus ui-visual-focus"
+              "ui-state-focus ui-visual-focus",
             );
           },
         });
@@ -7067,7 +7067,7 @@
             "Can't create checkboxradio on element.nodeName=" +
               nodeName +
               " and element.type=" +
-              this.type
+              this.type,
           );
         }
       },
@@ -7108,7 +7108,7 @@
           this.label,
           "ui-checkboxradio-checked",
           "ui-state-active",
-          checked
+          checked,
         );
 
         if (this.options.icon && this.type === "checkbox") {
@@ -7116,7 +7116,7 @@
             this.icon,
             null,
             "ui-icon-check ui-state-checked",
-            checked
+            checked,
           )._toggleClass(this.icon, null, "ui-icon-blank", !checked);
         }
 
@@ -7128,7 +7128,7 @@
               instance._removeClass(
                 instance.label,
                 "ui-checkboxradio-checked",
-                "ui-state-active"
+                "ui-state-active",
               );
             }
           });
@@ -7179,7 +7179,7 @@
             this._removeClass(
               this.icon,
               null,
-              checked ? "ui-icon-blank" : "ui-icon-check"
+              checked ? "ui-icon-blank" : "ui-icon-check",
             );
           } else {
             toAdd += "ui-icon-blank";
@@ -7189,7 +7189,7 @@
             this._removeClass(
               this.icon,
               null,
-              "ui-icon-check ui-state-checked"
+              "ui-icon-check ui-state-checked",
             );
           }
           this.icon.prependTo(this.label).after(this.iconSpace);
@@ -7223,7 +7223,7 @@
           this.label,
           "ui-checkboxradio-checked",
           "ui-state-active",
-          checked
+          checked,
         );
         if (this.options.label !== null) {
           this._updateLabel();
@@ -7419,13 +7419,13 @@
 
     _attachIconSpace: function (iconPosition) {
       this.icon[/^(?:end|bottom)/.test(iconPosition) ? "before" : "after"](
-        this.iconSpace
+        this.iconSpace,
       );
     },
 
     _attachIcon: function (iconPosition) {
       this.element[/^(?:end|bottom)/.test(iconPosition) ? "append" : "prepend"](
-        this.icon
+        this.icon,
       );
     },
 
@@ -7595,7 +7595,7 @@
                     " prior to initialization; " +
                     "attempted to call method '" +
                     options +
-                    "'"
+                    "'",
                 );
               }
 
@@ -7607,7 +7607,7 @@
                   "no such method '" +
                     options +
                     "' for button" +
-                    " widget instance"
+                    " widget instance",
                 );
               }
 
@@ -7869,8 +7869,8 @@
       $(
         "<div id='" +
           this._mainDivId +
-          "' class='ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all'></div>"
-      )
+          "' class='ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all'></div>",
+      ),
     );
   }
 
@@ -7934,8 +7934,8 @@
               $(
                 "<div class='" +
                   this._inlineClass +
-                  " ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all'></div>"
-              )
+                  " ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all'></div>",
+              ),
             ),
       };
     },
@@ -8003,7 +8003,7 @@
           });
         } else {
           inst.trigger = $("<button type='button'>").addClass(
-            this._triggerClass
+            this._triggerClass,
           );
           if (buttonImage) {
             inst.trigger.html(
@@ -8011,7 +8011,7 @@
                 src: buttonImage,
                 alt: buttonText,
                 title: buttonText,
-              })
+              }),
             );
           } else {
             inst.trigger.text(buttonText);
@@ -8065,19 +8065,19 @@
             findMax(
               this._get(
                 inst,
-                dateFormat.match(/MM/) ? "monthNames" : "monthNamesShort"
-              )
-            )
+                dateFormat.match(/MM/) ? "monthNames" : "monthNamesShort",
+              ),
+            ),
           );
           date.setDate(
             findMax(
               this._get(
                 inst,
-                dateFormat.match(/DD/) ? "dayNames" : "dayNamesShort"
-              )
+                dateFormat.match(/DD/) ? "dayNames" : "dayNamesShort",
+              ),
             ) +
               20 -
-              date.getDay()
+              date.getDay(),
           );
         }
         inst.input.attr("size", this._formatDate(inst, date).length);
@@ -8130,7 +8130,7 @@
         this._dialogInput = $(
           "<input type='text' id='" +
             id +
-            "' style='position: absolute; top: -100px; width: 0px;'/>"
+            "' style='position: absolute; top: -100px; width: 0px;'/>",
         );
         this._dialogInput.on("keydown", this._doKeyDown);
         $("body").append(this._dialogInput);
@@ -8240,7 +8240,7 @@
         // Delete entry
         function (value) {
           return value === target ? null : value;
-        }
+        },
       );
     },
 
@@ -8281,7 +8281,7 @@
         // Delete entry
         function (value) {
           return value === target ? null : value;
-        }
+        },
       );
       this._disabledInputs[this._disabledInputs.length] = target;
     },
@@ -8335,10 +8335,10 @@
         return name === "defaults"
           ? $.extend({}, $.datepicker._defaults)
           : inst
-          ? name === "all"
-            ? $.extend({}, inst.settings)
-            : this._get(inst, name)
-          : null;
+            ? name === "all"
+              ? $.extend({}, inst.settings)
+              : this._get(inst, name)
+            : null;
       }
 
       settings = name || {};
@@ -8451,14 +8451,14 @@
                 ":not(." +
                 $.datepicker._currentClass +
                 ")",
-              inst.dpDiv
+              inst.dpDiv,
             );
             if (sel[0]) {
               $.datepicker._selectDay(
                 event.target,
                 inst.selectedMonth,
                 inst.selectedYear,
-                sel[0]
+                sel[0],
               );
             }
 
@@ -8485,7 +8485,7 @@
               event.ctrlKey
                 ? -$.datepicker._get(inst, "stepBigMonths")
                 : -$.datepicker._get(inst, "stepMonths"),
-              "M"
+              "M",
             );
             break; // previous month/year on page up/+ ctrl
           case 34:
@@ -8494,7 +8494,7 @@
               event.ctrlKey
                 ? +$.datepicker._get(inst, "stepBigMonths")
                 : +$.datepicker._get(inst, "stepMonths"),
-              "M"
+              "M",
             );
             break; // next month/year on page down/+ ctrl
           case 35:
@@ -8522,7 +8522,7 @@
                 event.ctrlKey
                   ? -$.datepicker._get(inst, "stepBigMonths")
                   : -$.datepicker._get(inst, "stepMonths"),
-                "M"
+                "M",
               );
             }
 
@@ -8547,7 +8547,7 @@
                 event.ctrlKey
                   ? +$.datepicker._get(inst, "stepBigMonths")
                   : +$.datepicker._get(inst, "stepMonths"),
-                "M"
+                "M",
               );
             }
 
@@ -8583,10 +8583,10 @@
 
       if ($.datepicker._get(inst, "constrainInput")) {
         chars = $.datepicker._possibleChars(
-          $.datepicker._get(inst, "dateFormat")
+          $.datepicker._get(inst, "dateFormat"),
         );
         chr = String.fromCharCode(
-          event.charCode == null ? event.keyCode : event.charCode
+          event.charCode == null ? event.keyCode : event.charCode,
         );
         return (
           event.ctrlKey ||
@@ -8608,7 +8608,7 @@
           date = $.datepicker.parseDate(
             $.datepicker._get(inst, "dateFormat"),
             inst.input ? inst.input.val() : null,
-            $.datepicker._getFormatConfig(inst)
+            $.datepicker._getFormatConfig(inst),
           );
 
           if (date) {
@@ -8711,8 +8711,8 @@
           $.datepicker._inDialog && $.blockUI
             ? "static"
             : isFixed
-            ? "fixed"
-            : "absolute",
+              ? "fixed"
+              : "absolute",
         display: "none",
         left: offset.left + "px",
         top: offset.top + "px",
@@ -8728,7 +8728,7 @@
           inst.dpDiv.show(
             showAnim,
             $.datepicker._get(inst, "showOptions"),
-            duration
+            duration,
           );
         } else {
           inst.dpDiv[showAnim || "show"](showAnim ? duration : null);
@@ -8762,7 +8762,7 @@
 
       inst.dpDiv
         .removeClass(
-          "ui-datepicker-multi-2 ui-datepicker-multi-3 ui-datepicker-multi-4"
+          "ui-datepicker-multi-2 ui-datepicker-multi-3 ui-datepicker-multi-4",
         )
         .width("");
       if (cols > 1) {
@@ -8774,7 +8774,7 @@
         (numMonths[0] !== 1 || numMonths[1] !== 1 ? "add" : "remove") + "Class"
       ]("ui-datepicker-multi");
       inst.dpDiv[(this._get(inst, "isRTL") ? "add" : "remove") + "Class"](
-        "ui-datepicker-rtl"
+        "ui-datepicker-rtl",
       );
 
       if (
@@ -8845,13 +8845,13 @@
         offset.left,
         offset.left + dpWidth > viewWidth && viewWidth > dpWidth
           ? Math.abs(offset.left + dpWidth - viewWidth)
-          : 0
+          : 0,
       );
       offset.top -= Math.min(
         offset.top,
         offset.top + dpHeight > viewHeight && viewHeight > dpHeight
           ? Math.abs(dpHeight + inputHeight)
-          : 0
+          : 0,
       );
 
       return offset;
@@ -8903,15 +8903,15 @@
             showAnim,
             $.datepicker._get(inst, "showOptions"),
             duration,
-            postProcess
+            postProcess,
           );
         } else {
           inst.dpDiv[
             showAnim === "slideDown"
               ? "slideUp"
               : showAnim === "fadeIn"
-              ? "fadeOut"
-              : "hide"
+                ? "fadeOut"
+                : "hide"
           ](showAnim ? duration : null, postProcess);
         }
 
@@ -9031,7 +9031,7 @@
 
       inst = this._getInst(target[0]);
       inst.selectedDay = inst.currentDay = parseInt(
-        $("a", td).attr("data-date")
+        $("a", td).attr("data-date"),
       );
       inst.selectedMonth = inst.currentMonth = month;
       inst.selectedYear = inst.currentYear = year;
@@ -9041,8 +9041,8 @@
           inst,
           inst.currentDay,
           inst.currentMonth,
-          inst.currentYear
-        )
+          inst.currentYear,
+        ),
       );
     },
 
@@ -9193,12 +9193,12 @@
               match === "@"
                 ? 14
                 : match === "!"
-                ? 20
-                : match === "y" && isDoubled
-                ? 4
-                : match === "o"
-                ? 3
-                : 2,
+                  ? 20
+                  : match === "y" && isDoubled
+                    ? 4
+                    : match === "o"
+                      ? 3
+                      : 2,
             minSize = match === "y" ? size : 1,
             digits = new RegExp("^\\d{" + minSize + "," + size + "}"),
             num = value.substring(iValue).match(digits);
@@ -9215,7 +9215,7 @@
               lookAhead(match) ? longNames : shortNames,
               function (v, k) {
                 return [[k, v]];
-              }
+              },
             ).sort(function (a, b) {
               return -(a[1].length - b[1].length);
             });
@@ -9449,7 +9449,7 @@
                   "D",
                   date.getDay(),
                   dayNamesShort,
-                  dayNames
+                  dayNames,
                 );
                 break;
               case "o":
@@ -9459,12 +9459,12 @@
                     (new Date(
                       date.getFullYear(),
                       date.getMonth(),
-                      date.getDate()
+                      date.getDate(),
                     ).getTime() -
                       new Date(date.getFullYear(), 0, 0).getTime()) /
-                      86400000
+                      86400000,
                   ),
-                  3
+                  3,
                 );
                 break;
               case "m":
@@ -9475,7 +9475,7 @@
                   "M",
                   date.getMonth(),
                   monthNamesShort,
-                  monthNames
+                  monthNames,
                 );
                 break;
               case "y":
@@ -9591,7 +9591,7 @@
     _getDefaultDate: function (inst) {
       return this._restrictMinMax(
         inst,
-        this._determineDate(inst, this._get(inst, "defaultDate"), new Date())
+        this._determineDate(inst, this._get(inst, "defaultDate"), new Date()),
       );
     },
 
@@ -9607,7 +9607,7 @@
             return $.datepicker.parseDate(
               $.datepicker._get(inst, "dateFormat"),
               offset,
-              $.datepicker._getFormatConfig(inst)
+              $.datepicker._getFormatConfig(inst),
             );
           } catch (e) {
             // Ignore
@@ -9652,12 +9652,12 @@
           date == null || date === ""
             ? defaultDate
             : typeof date === "string"
-            ? offsetString(date)
-            : typeof date === "number"
-            ? isNaN(date)
-              ? defaultDate
-              : offsetNumeric(date)
-            : new Date(date.getTime());
+              ? offsetString(date)
+              : typeof date === "number"
+                ? isNaN(date)
+                  ? defaultDate
+                  : offsetNumeric(date)
+                : new Date(date.getTime());
 
       newDate =
         newDate && newDate.toString() === "Invalid Date"
@@ -9694,7 +9694,7 @@
         origYear = inst.selectedYear,
         newDate = this._restrictMinMax(
           inst,
-          this._determineDate(inst, date, new Date())
+          this._determineDate(inst, date, new Date()),
         );
 
       inst.selectedDay = inst.currentDay = newDate.getDate();
@@ -9724,7 +9724,7 @@
         !inst.currentYear || (inst.input && inst.input.val() === "")
           ? null
           : this._daylightSavingAdjust(
-              new Date(inst.currentYear, inst.currentMonth, inst.currentDay)
+              new Date(inst.currentYear, inst.currentMonth, inst.currentDay),
             );
       return startDate;
     },
@@ -9754,7 +9754,7 @@
               id,
               +this.getAttribute("data-month"),
               +this.getAttribute("data-year"),
-              this
+              this,
             );
             return false;
           },
@@ -9769,7 +9769,7 @@
         };
         $(this).on(
           this.getAttribute("data-event"),
-          handler[this.getAttribute("data-handler")]
+          handler[this.getAttribute("data-handler")],
         );
       });
     },
@@ -9820,8 +9820,8 @@
           new Date(
             tempDate.getFullYear(),
             tempDate.getMonth(),
-            tempDate.getDate()
-          )
+            tempDate.getDate(),
+          ),
         ), // clear time
         isRTL = this._get(inst, "isRTL"),
         showButtonPanel = this._get(inst, "showButtonPanel"),
@@ -9834,7 +9834,7 @@
         currentDate = this._daylightSavingAdjust(
           !inst.currentDay
             ? new Date(9999, 9, 9)
-            : new Date(inst.currentYear, inst.currentMonth, inst.currentDay)
+            : new Date(inst.currentYear, inst.currentMonth, inst.currentDay),
         ),
         minDate = this._getMinMaxDate(inst, "min"),
         maxDate = this._getMinMaxDate(inst, "max"),
@@ -9850,8 +9850,8 @@
           new Date(
             maxDate.getFullYear(),
             maxDate.getMonth() - numMonths[0] * numMonths[1] + 1,
-            maxDate.getDate()
-          )
+            maxDate.getDate(),
+          ),
         );
         maxDraw = minDate && maxDraw < minDate ? minDate : maxDraw;
         while (
@@ -9873,9 +9873,9 @@
         : this.formatDate(
             prevText,
             this._daylightSavingAdjust(
-              new Date(drawYear, drawMonth - stepMonths, 1)
+              new Date(drawYear, drawMonth - stepMonths, 1),
             ),
-            this._getFormatConfig(inst)
+            this._getFormatConfig(inst),
           );
 
       if (this._canAdjustMonth(inst, -1, drawYear, drawMonth)) {
@@ -9889,9 +9889,9 @@
           .append(
             $("<span>")
               .addClass(
-                "ui-icon ui-icon-circle-triangle-" + (isRTL ? "e" : "w")
+                "ui-icon ui-icon-circle-triangle-" + (isRTL ? "e" : "w"),
               )
-              .text(prevText)
+              .text(prevText),
           )[0].outerHTML;
       } else if (hideIfNoPrevNext) {
         prev = "";
@@ -9904,9 +9904,9 @@
           .append(
             $("<span>")
               .addClass(
-                "ui-icon ui-icon-circle-triangle-" + (isRTL ? "e" : "w")
+                "ui-icon ui-icon-circle-triangle-" + (isRTL ? "e" : "w"),
               )
-              .text(prevText)
+              .text(prevText),
           )[0].outerHTML;
       }
 
@@ -9916,9 +9916,9 @@
         : this.formatDate(
             nextText,
             this._daylightSavingAdjust(
-              new Date(drawYear, drawMonth + stepMonths, 1)
+              new Date(drawYear, drawMonth + stepMonths, 1),
             ),
-            this._getFormatConfig(inst)
+            this._getFormatConfig(inst),
           );
 
       if (this._canAdjustMonth(inst, +1, drawYear, drawMonth)) {
@@ -9932,9 +9932,9 @@
           .append(
             $("<span>")
               .addClass(
-                "ui-icon ui-icon-circle-triangle-" + (isRTL ? "w" : "e")
+                "ui-icon ui-icon-circle-triangle-" + (isRTL ? "w" : "e"),
               )
-              .text(nextText)
+              .text(nextText),
           )[0].outerHTML;
       } else if (hideIfNoPrevNext) {
         next = "";
@@ -9948,9 +9948,9 @@
             $("<span>")
               .attr(
                 "class",
-                "ui-icon ui-icon-circle-triangle-" + (isRTL ? "w" : "e")
+                "ui-icon ui-icon-circle-triangle-" + (isRTL ? "w" : "e"),
               )
-              .text(nextText)
+              .text(nextText),
           )[0].outerHTML;
       }
 
@@ -9977,7 +9977,7 @@
       buttonPanel = "";
       if (showButtonPanel) {
         buttonPanel = $(
-          "<div class='ui-datepicker-buttonpane ui-widget-content'>"
+          "<div class='ui-datepicker-buttonpane ui-widget-content'>",
         )
           .append(isRTL ? controls : "")
           .append(
@@ -9991,7 +9991,7 @@
                     "data-event": "click",
                   })
                   .text(currentText)
-              : ""
+              : "",
           )
           .append(isRTL ? "" : controls)[0].outerHTML;
       }
@@ -10015,7 +10015,7 @@
         this.maxRows = 4;
         for (col = 0; col < numMonths[1]; col++) {
           selectedDate = this._daylightSavingAdjust(
-            new Date(drawYear, drawMonth, inst.selectedDay)
+            new Date(drawYear, drawMonth, inst.selectedDay),
           );
           cornerClass = " ui-corner-all";
           calender = "";
@@ -10061,7 +10061,7 @@
               maxDate,
               row > 0 || col > 0,
               monthNames,
-              monthNamesShort
+              monthNamesShort,
             ) + // draw month headers
             "</div><table class='ui-datepicker-calendar'><thead>" +
             "<tr>";
@@ -10103,7 +10103,7 @@
             : curRows; //If multiple months, use the higher number of rows (see #7043)
           this.maxRows = numRows;
           printDate = this._daylightSavingAdjust(
-            new Date(drawYear, drawMonth, 1 - leadDays)
+            new Date(drawYear, drawMonth, 1 - leadDays),
           );
           for (dRow = 0; dRow < numRows; dRow++) {
             // create date picker rows
@@ -10168,26 +10168,26 @@
                 (otherMonth && !showOtherMonths
                   ? "&#xa0;" // display for other months
                   : unselectable
-                  ? "<span class='ui-state-default'>" +
-                    printDate.getDate() +
-                    "</span>"
-                  : "<a class='ui-state-default" +
-                    (printDate.getTime() === today.getTime()
-                      ? " ui-state-highlight"
-                      : "") +
-                    (printDate.getTime() === currentDate.getTime()
-                      ? " ui-state-active"
-                      : "") + // highlight selected day
-                    (otherMonth ? " ui-priority-secondary" : "") + // distinguish dates from other months
-                    "' href='#' aria-current='" +
-                    (printDate.getTime() === currentDate.getTime()
-                      ? "true"
-                      : "false") + // mark date as selected for screen reader
-                    "' data-date='" +
-                    printDate.getDate() + // store date as data
-                    "'>" +
-                    printDate.getDate() +
-                    "</a>") +
+                    ? "<span class='ui-state-default'>" +
+                      printDate.getDate() +
+                      "</span>"
+                    : "<a class='ui-state-default" +
+                      (printDate.getTime() === today.getTime()
+                        ? " ui-state-highlight"
+                        : "") +
+                      (printDate.getTime() === currentDate.getTime()
+                        ? " ui-state-active"
+                        : "") + // highlight selected day
+                      (otherMonth ? " ui-priority-secondary" : "") + // distinguish dates from other months
+                      "' href='#' aria-current='" +
+                      (printDate.getTime() === currentDate.getTime()
+                        ? "true"
+                        : "false") + // mark date as selected for screen reader
+                      "' data-date='" +
+                      printDate.getDate() + // store date as data
+                      "'>" +
+                      printDate.getDate() +
+                      "</a>") +
                 "</td>"; // display selectable date
               printDate.setDate(printDate.getDate() + 1);
               printDate = this._daylightSavingAdjust(printDate);
@@ -10225,7 +10225,7 @@
       maxDate,
       secondary,
       monthNames,
-      monthNamesShort
+      monthNamesShort,
     ) {
       var inMinYear,
         inMaxYear,
@@ -10293,8 +10293,8 @@
             var year = value.match(/c[+\-].*/)
               ? drawYear + parseInt(value.substring(1), 10)
               : value.match(/[+\-].*/)
-              ? thisYear + parseInt(value, 10)
-              : parseInt(value, 10);
+                ? thisYear + parseInt(value, 10)
+                : parseInt(value, 10);
             return isNaN(year) ? thisYear : year;
           };
           year = determineYear(years[0]);
@@ -10343,7 +10343,7 @@
           (period === "D" ? offset : 0),
         date = this._restrictMinMax(
           inst,
-          this._daylightSavingAdjust(new Date(year, month, day))
+          this._daylightSavingAdjust(new Date(year, month, day)),
         );
 
       inst.selectedDay = date.getDate();
@@ -10380,8 +10380,8 @@
       return numMonths == null
         ? [1, 1]
         : typeof numMonths === "number"
-        ? [1, numMonths]
-        : numMonths;
+          ? [1, numMonths]
+          : numMonths;
     },
 
     /* Determine the current maximum date - ensure no time components are set. */
@@ -10408,8 +10408,8 @@
           new Date(
             curYear,
             curMonth + (offset < 0 ? offset : numMonths[0] * numMonths[1]),
-            1
-          )
+            1,
+          ),
         );
 
       if (offset < 0) {
@@ -10476,12 +10476,12 @@
           ? day
           : this._daylightSavingAdjust(new Date(year, month, day))
         : this._daylightSavingAdjust(
-            new Date(inst.currentYear, inst.currentMonth, inst.currentDay)
+            new Date(inst.currentYear, inst.currentMonth, inst.currentDay),
           );
       return this.formatDate(
         this._get(inst, "dateFormat"),
         date,
-        this._getFormatConfig(inst)
+        this._getFormatConfig(inst),
       );
     },
   });
@@ -10512,7 +10512,7 @@
       !$.datepicker._isDisabledDatepicker(
         datepicker_instActive.inline
           ? datepicker_instActive.dpDiv.parent()[0]
-          : datepicker_instActive.input[0]
+          : datepicker_instActive.input[0],
       )
     ) {
       $(this)
@@ -10570,7 +10570,7 @@
     ) {
       return $.datepicker["_" + options + "Datepicker"].apply(
         $.datepicker,
-        [this[0]].concat(otherArgs)
+        [this[0]].concat(otherArgs),
       );
     }
     if (
@@ -10580,14 +10580,14 @@
     ) {
       return $.datepicker["_" + options + "Datepicker"].apply(
         $.datepicker,
-        [this[0]].concat(otherArgs)
+        [this[0]].concat(otherArgs),
       );
     }
     return this.each(function () {
       if (typeof options === "string") {
         $.datepicker["_" + options + "Datepicker"].apply(
           $.datepicker,
-          [this].concat(otherArgs)
+          [this].concat(otherArgs),
         );
       } else {
         $.datepicker._attachDatepicker(this, options);
@@ -10813,7 +10813,7 @@
       return (
         Math.max(
           Math.abs(this._mouseDownEvent.pageX - event.pageX),
-          Math.abs(this._mouseDownEvent.pageY - event.pageY)
+          Math.abs(this._mouseDownEvent.pageY - event.pageY),
         ) >= this.options.distance
       );
     },
@@ -11052,7 +11052,7 @@
       //Generate the original position
       this.originalPosition = this.position = this._generatePosition(
         event,
-        false
+        false,
       );
       this.originalPageX = event.pageX;
       this.originalPageY = event.pageY;
@@ -11165,7 +11165,7 @@
             if (that._trigger("stop", event) !== false) {
               that._clear();
             }
-          }
+          },
         );
       } else {
         if (this._trigger("stop", event) !== false) {
@@ -11229,12 +11229,12 @@
         helper = helperIsFunction
           ? $(o.helper.apply(this.element[0], [event]))
           : o.helper === "clone"
-          ? this.element.clone().removeAttr("id")
-          : this.element;
+            ? this.element.clone().removeAttr("id")
+            : this.element;
 
       if (!helper.parents("body").length) {
         helper.appendTo(
-          o.appendTo === "parent" ? this.element[0].parentNode : o.appendTo
+          o.appendTo === "parent" ? this.element[0].parentNode : o.appendTo,
         );
       }
 
@@ -11470,8 +11470,8 @@
           (this.cssPosition === "fixed"
             ? -this.offset.scroll.top
             : scrollIsRootNode
-            ? 0
-            : this.offset.scroll.top) *
+              ? 0
+              : this.offset.scroll.top) *
             mod,
         left:
           // The absolute mouse position
@@ -11483,8 +11483,8 @@
           (this.cssPosition === "fixed"
             ? -this.offset.scroll.left
             : scrollIsRootNode
-            ? 0
-            : this.offset.scroll.left) *
+              ? 0
+              : this.offset.scroll.left) *
             mod,
       };
     },
@@ -11553,8 +11553,8 @@
               top - this.offset.click.top > containment[3]
               ? top
               : top - this.offset.click.top >= containment[1]
-              ? top - o.grid[1]
-              : top + o.grid[1]
+                ? top - o.grid[1]
+                : top + o.grid[1]
             : top;
 
           left = o.grid[0]
@@ -11566,8 +11566,8 @@
               left - this.offset.click.left > containment[2]
               ? left
               : left - this.offset.click.left >= containment[0]
-              ? left - o.grid[0]
-              : left + o.grid[0]
+                ? left - o.grid[0]
+                : left + o.grid[0]
             : left;
         }
 
@@ -11593,8 +11593,8 @@
           (this.cssPosition === "fixed"
             ? -this.offset.scroll.top
             : scrollIsRootNode
-            ? 0
-            : this.offset.scroll.top),
+              ? 0
+              : this.offset.scroll.top),
         left:
           // The absolute mouse position
           pageX -
@@ -11607,8 +11607,8 @@
           (this.cssPosition === "fixed"
             ? -this.offset.scroll.left
             : scrollIsRootNode
-            ? 0
-            : this.offset.scroll.left),
+              ? 0
+              : this.offset.scroll.left),
       };
     },
 
@@ -11937,14 +11937,14 @@
         if (!o.axis || o.axis !== "x") {
           if (event.pageY - $(document).scrollTop() < o.scrollSensitivity) {
             scrolled = $(document).scrollTop(
-              $(document).scrollTop() - o.scrollSpeed
+              $(document).scrollTop() - o.scrollSpeed,
             );
           } else if (
             $(window).height() - (event.pageY - $(document).scrollTop()) <
             o.scrollSensitivity
           ) {
             scrolled = $(document).scrollTop(
-              $(document).scrollTop() + o.scrollSpeed
+              $(document).scrollTop() + o.scrollSpeed,
             );
           }
         }
@@ -11952,14 +11952,14 @@
         if (!o.axis || o.axis !== "y") {
           if (event.pageX - $(document).scrollLeft() < o.scrollSensitivity) {
             scrolled = $(document).scrollLeft(
-              $(document).scrollLeft() - o.scrollSpeed
+              $(document).scrollLeft() - o.scrollSpeed,
             );
           } else if (
             $(window).width() - (event.pageX - $(document).scrollLeft()) <
             o.scrollSensitivity
           ) {
             scrolled = $(document).scrollLeft(
-              $(document).scrollLeft() + o.scrollSpeed
+              $(document).scrollLeft() + o.scrollSpeed,
             );
           }
         }
@@ -11980,7 +11980,7 @@
       $(
         o.snap.constructor !== String
           ? o.snap.items || ":data(ui-draggable)"
-          : o.snap
+          : o.snap,
       ).each(function () {
         var $t = $(this),
           $o = $t.offset();
@@ -12026,7 +12026,7 @@
           y1 > b + d ||
           !$.contains(
             inst.snapElements[i].item.ownerDocument,
-            inst.snapElements[i].item
+            inst.snapElements[i].item,
           )
         ) {
           if (inst.snapElements[i].snapping) {
@@ -12036,7 +12036,7 @@
                 event,
                 $.extend(inst._uiHash(), {
                   snapItem: inst.snapElements[i].item,
-                })
+                }),
               );
             }
           }
@@ -12115,7 +12115,7 @@
               event,
               $.extend(inst._uiHash(), {
                 snapItem: inst.snapElements[i].item,
-              })
+              }),
             );
           }
         }
@@ -12272,7 +12272,7 @@
       // Wrap the element if it cannot hold child nodes
       if (
         this.element[0].nodeName.match(
-          /^(canvas|textarea|input|select|button|img)$/i
+          /^(canvas|textarea|input|select|button|img)$/i,
         )
       ) {
         this.element.wrap(
@@ -12283,7 +12283,7 @@
             height: this.element.outerHeight(),
             top: this.element.css("top"),
             left: this.element.css("left"),
-          })
+          }),
         );
 
         this.element = this.element
@@ -12312,7 +12312,7 @@
             position: "static",
             zoom: 1,
             display: "block",
-          })
+          }),
         );
 
         // Support: IE9
@@ -12465,7 +12465,7 @@
           if (
             this.elementIsWrapper &&
             this.originalElement[0].nodeName.match(
-              /^(textarea|input|select|button)$/i
+              /^(textarea|input|select|button)$/i,
             )
           ) {
             axis = $(this.handles[i], this.element);
@@ -12479,10 +12479,10 @@
               /ne|nw|n/.test(i)
                 ? "Top"
                 : /se|sw|s/.test(i)
-                ? "Bottom"
-                : /^e$/.test(i)
-                ? "Right"
-                : "Left",
+                  ? "Bottom"
+                  : /^e$/.test(i)
+                    ? "Right"
+                    : "Left",
             ].join("");
 
             target.css(padPos, padWrapper);
@@ -12498,7 +12498,7 @@
       this._renderAxis(this.element);
 
       this._handles = this._handles.add(
-        this.element.find(".ui-resizable-handle")
+        this.element.find(".ui-resizable-handle"),
       );
       this._handles.disableSelection();
 
@@ -12594,7 +12594,7 @@
       cursor = $(".ui-resizable-" + this.axis).css("cursor");
       $("body").css(
         "cursor",
-        cursor === "auto" ? this.axis + "-resize" : cursor
+        cursor === "auto" ? this.axis + "-resize" : cursor,
       );
 
       this._addClass("ui-resizable-resizing");
@@ -12960,25 +12960,25 @@
       se: function (event, dx, dy) {
         return $.extend(
           this._change.s.apply(this, arguments),
-          this._change.e.apply(this, [event, dx, dy])
+          this._change.e.apply(this, [event, dx, dy]),
         );
       },
       sw: function (event, dx, dy) {
         return $.extend(
           this._change.s.apply(this, arguments),
-          this._change.w.apply(this, [event, dx, dy])
+          this._change.w.apply(this, [event, dx, dy]),
         );
       },
       ne: function (event, dx, dy) {
         return $.extend(
           this._change.n.apply(this, arguments),
-          this._change.e.apply(this, [event, dx, dy])
+          this._change.e.apply(this, [event, dx, dy]),
         );
       },
       nw: function (event, dx, dy) {
         return $.extend(
           this._change.n.apply(this, arguments),
-          this._change.w.apply(this, [event, dx, dy])
+          this._change.w.apply(this, [event, dx, dy]),
         );
       },
     },
@@ -13050,7 +13050,7 @@
             that._updateCache(data);
             that._propagate("resize", event);
           },
-        }
+        },
       );
     },
   });
@@ -13072,8 +13072,8 @@
           oc instanceof $
             ? oc.get(0)
             : /parent/.test(oc)
-            ? el.parent().get(0)
-            : oc;
+              ? el.parent().get(0)
+              : oc;
 
       if (!ce) {
         return;
@@ -13177,7 +13177,7 @@
 
       isParent = that.containerElement.get(0) === that.element.parent().get(0);
       isOffsetRelative = /relative|absolute/.test(
-        that.containerElement.css("position")
+        that.containerElement.css("position"),
       );
 
       if (isParent && isOffsetRelative) {
@@ -13192,12 +13192,12 @@
         that.sizeDiff.width +
           (that._helper
             ? that.offset.left - cop.left
-            : that.offset.left - co.left)
+            : that.offset.left - co.left),
       );
 
       hoset = Math.abs(
         that.sizeDiff.height +
-          (that._helper ? that.offset.top - cop.top : that.offset.top - co.top)
+          (that._helper ? that.offset.top - cop.top : that.offset.top - co.top),
       );
 
       if (woset + that.size.width >= that.parentData.width) {
@@ -13758,7 +13758,7 @@
       this._addClass(
         this.uiDialog,
         "ui-dialog",
-        "ui-widget ui-widget-content ui-front"
+        "ui-widget ui-widget-content ui-front",
       );
       this._on(this.uiDialog, {
         keydown: function (event) {
@@ -13826,7 +13826,7 @@
       this._addClass(
         this.uiDialogTitlebar,
         "ui-dialog-titlebar",
-        "ui-widget-header ui-helper-clearfix"
+        "ui-widget-header ui-helper-clearfix",
       );
       this._on(this.uiDialogTitlebar, {
         mousedown: function (event) {
@@ -13883,7 +13883,7 @@
       this._addClass(
         this.uiDialogButtonPane,
         "ui-dialog-buttonpane",
-        "ui-widget-content ui-helper-clearfix"
+        "ui-widget-content ui-helper-clearfix",
       );
 
       this.uiButtonSet = $("<div>").appendTo(this.uiDialogButtonPane);
@@ -14322,7 +14322,7 @@
                 instance._delay(instance._restoreTabbableFocus);
               }
             }
-          }.bind(this)
+          }.bind(this),
         );
       }
 
@@ -14334,7 +14334,7 @@
       });
       this.document.data(
         "ui-dialog-overlays",
-        (this.document.data("ui-dialog-overlays") || 0) + 1
+        (this.document.data("ui-dialog-overlays") || 0) + 1,
       );
     },
 
@@ -14522,7 +14522,7 @@
       if (
         this.accept.call(
           this.element[0],
-          draggable.currentItem || draggable.element
+          draggable.currentItem || draggable.element,
         )
       ) {
         this._addHoverClass();
@@ -14544,7 +14544,7 @@
       if (
         this.accept.call(
           this.element[0],
-          draggable.currentItem || draggable.element
+          draggable.currentItem || draggable.element,
         )
       ) {
         this._removeHoverClass();
@@ -14575,13 +14575,13 @@
             inst.options.scope === draggable.options.scope &&
             inst.accept.call(
               inst.element[0],
-              draggable.currentItem || draggable.element
+              draggable.currentItem || draggable.element,
             ) &&
             $.ui.intersect(
               draggable,
               $.extend(inst, { offset: inst.element.offset() }),
               inst.options.tolerance,
-              event
+              event,
             )
           ) {
             childrenIntersection = true;
@@ -14595,7 +14595,7 @@
       if (
         this.accept.call(
           this.element[0],
-          draggable.currentItem || draggable.element
+          draggable.currentItem || draggable.element,
         )
       ) {
         this._removeActiveClass();
@@ -14761,14 +14761,14 @@
             this.visible &&
             this.accept.call(
               this.element[0],
-              draggable.currentItem || draggable.element
+              draggable.currentItem || draggable.element,
             )
           ) {
             this.isout = true;
             this.isover = false;
             this._deactivate.call(this, event);
           }
-        }
+        },
       );
       return dropped;
     },
@@ -14805,14 +14805,14 @@
               draggable,
               this,
               this.options.tolerance,
-              event
+              event,
             ),
             c =
               !intersects && this.isover
                 ? "isout"
                 : intersects && !this.isover
-                ? "isover"
-                : null;
+                  ? "isover"
+                  : null;
           if (!c) {
             return;
           }
@@ -14849,7 +14849,7 @@
             parentInstance.isover = true;
             parentInstance._over.call(parentInstance, event);
           }
-        }
+        },
       );
     },
     dragStop: function (draggable, event) {
@@ -15032,7 +15032,7 @@
         this.valueDiv,
         "ui-progressbar-complete",
         null,
-        value === this.options.max
+        value === this.options.max,
       )._toggleClass("ui-progressbar-indeterminate", null, this.indeterminate);
 
       if (this.indeterminate) {
@@ -15199,11 +15199,11 @@
             that
               ._removeClass(
                 selectee.$element,
-                doSelect ? "ui-unselecting" : "ui-selected"
+                doSelect ? "ui-unselecting" : "ui-selected",
               )
               ._addClass(
                 selectee.$element,
-                doSelect ? "ui-selecting" : "ui-unselecting"
+                doSelect ? "ui-selecting" : "ui-unselecting",
               );
             selectee.unselecting = !doSelect;
             selectee.selecting = doSelect;
@@ -15447,7 +15447,7 @@
           that = this,
           item = this._parseOption(
             this.element.find("option:selected"),
-            this.element[0].selectedIndex
+            this.element[0].selectedIndex,
           );
 
         // Associate existing label with the new button
@@ -15477,14 +15477,14 @@
         this._addClass(
           this.button,
           "ui-selectmenu-button ui-selectmenu-button-closed",
-          "ui-button ui-widget"
+          "ui-button ui-widget",
         );
 
         icon = $("<span>").appendTo(this.button);
         this._addClass(
           icon,
           "ui-selectmenu-icon",
-          "ui-icon " + this.options.icons.button
+          "ui-icon " + this.options.icons.button,
         );
         this.buttonItem = this._renderButtonItem(item).appendTo(this.button);
 
@@ -15548,7 +15548,7 @@
 
               that.button.attr(
                 "aria-activedescendant",
-                that.menuItems.eq(item.index).attr("id")
+                that.menuItems.eq(item.index).attr("id"),
               );
             },
           })
@@ -15573,8 +15573,8 @@
         this.buttonItem.replaceWith(
           (this.buttonItem = this._renderButtonItem(
             // Fall back to an empty object in case there are no options
-            this._getSelectedItem().data("ui-selectmenu-item") || {}
-          ))
+            this._getSelectedItem().data("ui-selectmenu-item") || {},
+          )),
         );
         if (this.options.width === null) {
           this._resizeButton();
@@ -15625,7 +15625,7 @@
           this._removeClass(
             this.menu.find(".ui-state-active"),
             null,
-            "ui-state-active"
+            "ui-state-active",
           );
           this.menuInstance.focus(null, this._getSelectedItem());
         }
@@ -15647,7 +15647,7 @@
 
       _position: function () {
         this.menuWrap.position(
-          $.extend({ of: this.button }, this.options.position)
+          $.extend({ of: this.button }, this.options.position),
         );
       },
 
@@ -15699,7 +15699,7 @@
               "ui-menu-divider" +
                 (item.element.parent("optgroup").prop("disabled")
                   ? " ui-state-disabled"
-                  : "")
+                  : ""),
             );
 
             li.appendTo(ul);
@@ -15800,7 +15800,7 @@
 
           if (
             !$(event.target).closest(
-              ".ui-selectmenu-menu, #" + $.escapeSelector(this.ids.button)
+              ".ui-selectmenu-menu, #" + $.escapeSelector(this.ids.button),
             ).length
           ) {
             this.close(event);
@@ -15902,7 +15902,7 @@
         // Change native select element
         this.element[0].selectedIndex = item.index;
         this.buttonItem.replaceWith(
-          (this.buttonItem = this._renderButtonItem(item))
+          (this.buttonItem = this._renderButtonItem(item)),
         );
         this._setAria(item);
         this._trigger("select", event, { item: item });
@@ -15930,7 +15930,7 @@
           this._removeClass(icon, null, this.options.icons.button)._addClass(
             icon,
             null,
-            value.button
+            value.button,
           );
         }
 
@@ -15990,11 +15990,11 @@
         // same theme class, it will be removed after we add it.
         this._removeClass(
           this.button,
-          "ui-selectmenu-button-" + (this.isOpen ? "closed" : "open")
+          "ui-selectmenu-button-" + (this.isOpen ? "closed" : "open"),
         )
           ._addClass(
             this.button,
-            "ui-selectmenu-button-" + (this.isOpen ? "open" : "closed")
+            "ui-selectmenu-button-" + (this.isOpen ? "open" : "closed"),
           )
           ._toggleClass(this.menuWrap, "ui-selectmenu-open", null, this.isOpen);
 
@@ -16027,8 +16027,8 @@
             // Support: IE10
             // IE10 wraps long text (possibly a rounding bug)
             // so we add 1px to avoid the wrapping
-            this.menu.width("").outerWidth() + 1
-          )
+            this.menu.width("").outerWidth() + 1,
+          ),
         );
       },
 
@@ -16140,7 +16140,7 @@
 
       this._addClass(
         "ui-slider ui-slider-" + this.orientation,
-        "ui-widget ui-widget-content"
+        "ui-widget ui-widget-content",
       );
 
       this._refresh();
@@ -16175,7 +16175,7 @@
       }
 
       this.handles = existingHandles.add(
-        $(handles.join("")).appendTo(this.element)
+        $(handles.join("")).appendTo(this.element),
       );
 
       this._addClass(this.handles, "ui-slider-handle", "ui-state-default");
@@ -16208,7 +16208,7 @@
         } else {
           this._removeClass(
             this.range,
-            "ui-slider-range-min ui-slider-range-max"
+            "ui-slider-range-min ui-slider-range-max",
           );
 
           // Handle range switching from true to min/max
@@ -16434,7 +16434,7 @@
       allowed = this._trigger(
         "slide",
         event,
-        this._uiHash(index, newVal, newValues)
+        this._uiHash(index, newVal, newValues),
       );
 
       // A slide can be canceled by returning false from the slide callback
@@ -16527,7 +16527,7 @@
         case "orientation":
           this._detectOrientation();
           this._removeClass(
-            "ui-slider-horizontal ui-slider-vertical"
+            "ui-slider-horizontal ui-slider-vertical",
           )._addClass("ui-slider-" + this.orientation);
           this._refreshValue();
           if (this.options.range) {
@@ -16702,7 +16702,7 @@
                   {
                     left: valPercent + "%",
                   },
-                  o.animate
+                  o.animate,
                 );
               }
               if (i === 1) {
@@ -16713,7 +16713,7 @@
                   {
                     queue: false,
                     duration: o.animate,
-                  }
+                  },
                 );
               }
             } else {
@@ -16722,7 +16722,7 @@
                   {
                     bottom: valPercent + "%",
                   },
-                  o.animate
+                  o.animate,
                 );
               }
               if (i === 1) {
@@ -16733,7 +16733,7 @@
                   {
                     queue: false,
                     duration: o.animate,
-                  }
+                  },
                 );
               }
             }
@@ -16757,7 +16757,7 @@
             {
               width: valPercent + "%",
             },
-            o.animate
+            o.animate,
           );
         }
         if (oRange === "max" && this.orientation === "horizontal") {
@@ -16765,7 +16765,7 @@
             {
               width: 100 - valPercent + "%",
             },
-            o.animate
+            o.animate,
           );
         }
         if (oRange === "min" && this.orientation === "vertical") {
@@ -16773,7 +16773,7 @@
             {
               height: valPercent + "%",
             },
-            o.animate
+            o.animate,
           );
         }
         if (oRange === "max" && this.orientation === "vertical") {
@@ -16781,7 +16781,7 @@
             {
               height: 100 - valPercent + "%",
             },
-            o.animate
+            o.animate,
           );
         }
       }
@@ -16832,12 +16832,12 @@
             break;
           case $.ui.keyCode.PAGE_UP:
             newVal = this._trimAlignValue(
-              curVal + (this._valueMax() - this._valueMin()) / this.numPages
+              curVal + (this._valueMax() - this._valueMin()) / this.numPages,
             );
             break;
           case $.ui.keyCode.PAGE_DOWN:
             newVal = this._trimAlignValue(
-              curVal - (this._valueMax() - this._valueMin()) / this.numPages
+              curVal - (this._valueMax() - this._valueMin()) / this.numPages,
             );
             break;
           case $.ui.keyCode.UP:
@@ -16972,14 +16972,14 @@
       var that = this;
       this._removeClass(
         this.element.find(".ui-sortable-handle"),
-        "ui-sortable-handle"
+        "ui-sortable-handle",
       );
       $.each(this.items, function () {
         that._addClass(
           this.instance.options.handle
             ? this.item.find(this.instance.options.handle)
             : this.item,
-          "ui-sortable-handle"
+          "ui-sortable-handle",
         );
       });
     },
@@ -17058,7 +17058,7 @@
 
       //Prepare the dragged items parent
       this.appendTo = $(
-        o.appendTo !== "parent" ? o.appendTo : this.currentItem.parent()
+        o.appendTo !== "parent" ? o.appendTo : this.currentItem.parent(),
       );
 
       //Create and append the visible helper
@@ -17141,7 +17141,7 @@
         body.css("cursor", o.cursor);
 
         this.storedStylesheet = $(
-          "<style>*{ cursor: " + o.cursor + " !important; }</style>"
+          "<style>*{ cursor: " + o.cursor + " !important; }</style>",
         ).appendTo(body);
       }
 
@@ -17262,27 +17262,27 @@
       } else {
         if (event.pageY - this.document.scrollTop() < o.scrollSensitivity) {
           scrolled = this.document.scrollTop(
-            this.document.scrollTop() - o.scrollSpeed
+            this.document.scrollTop() - o.scrollSpeed,
           );
         } else if (
           this.window.height() - (event.pageY - this.document.scrollTop()) <
           o.scrollSensitivity
         ) {
           scrolled = this.document.scrollTop(
-            this.document.scrollTop() + o.scrollSpeed
+            this.document.scrollTop() + o.scrollSpeed,
           );
         }
 
         if (event.pageX - this.document.scrollLeft() < o.scrollSensitivity) {
           scrolled = this.document.scrollLeft(
-            this.document.scrollLeft() - o.scrollSpeed
+            this.document.scrollLeft() - o.scrollSpeed,
           );
         } else if (
           this.window.width() - (event.pageX - this.document.scrollLeft()) <
           o.scrollSensitivity
         ) {
           scrolled = this.document.scrollLeft(
-            this.document.scrollLeft() + o.scrollSpeed
+            this.document.scrollLeft() + o.scrollSpeed,
           );
         }
       }
@@ -17430,7 +17430,7 @@
           parseInt(this.options.revert, 10) || 500,
           function () {
             that._clear(event);
-          }
+          },
         );
       } else {
         this._clear(event, noPropagation);
@@ -17498,13 +17498,13 @@
 
       $(items).each(function () {
         var res = ($(o.item || this).attr(o.attribute || "id") || "").match(
-          o.expression || /(.+)[\-=_](.+)/
+          o.expression || /(.+)[\-=_](.+)/,
         );
         if (res) {
           str.push(
             (o.key || res[1] + "[]") +
               "=" +
-              (o.key && o.expression ? res[1] : res[2])
+              (o.key && o.expression ? res[1] : res[2]),
           );
         }
       });
@@ -17572,14 +17572,14 @@
           this._isOverAxis(
             this.positionAbs.top + this.offset.click.top,
             item.top,
-            item.height
+            item.height,
           ),
         isOverElementWidth =
           this.options.axis === "y" ||
           this._isOverAxis(
             this.positionAbs.left + this.offset.click.left,
             item.left,
-            item.width
+            item.width,
           ),
         isOverElement = isOverElementHeight && isOverElementWidth;
 
@@ -17601,12 +17601,12 @@
       var isOverBottomHalf = this._isOverAxis(
           this.positionAbs.top + this.offset.click.top,
           item.top + item.height / 2,
-          item.height
+          item.height,
         ),
         isOverRightHalf = this._isOverAxis(
           this.positionAbs.left + this.offset.click.left,
           item.left + item.width / 2,
-          item.width
+          item.width,
         ),
         verticalDirection = this.dragDirection.vertical,
         horizontalDirection = this.dragDirection.horizontal;
@@ -17860,14 +17860,14 @@
               ._addClass(
                 element,
                 "ui-sortable-placeholder",
-                className || that.currentItem[0].className
+                className || that.currentItem[0].className,
               )
               ._removeClass(element, "ui-sortable-helper");
 
             if (nodeName === "tbody") {
               that._createTrPlaceholder(
                 that.currentItem.find("tr").eq(0),
-                $("<tr>", that.document[0]).appendTo(element)
+                $("<tr>", that.document[0]).appendTo(element),
               );
             } else if (nodeName === "tr") {
               that._createTrPlaceholder(that.currentItem, element);
@@ -17905,14 +17905,14 @@
               p.height(
                 that.currentItem.innerHeight() -
                   parseInt(that.currentItem.css("paddingTop") || 0, 10) -
-                  parseInt(that.currentItem.css("paddingBottom") || 0, 10)
+                  parseInt(that.currentItem.css("paddingBottom") || 0, 10),
               );
             }
             if (!p.width()) {
               p.width(
                 that.currentItem.innerWidth() -
                   parseInt(that.currentItem.css("paddingLeft") || 0, 10) -
-                  parseInt(that.currentItem.css("paddingRight") || 0, 10)
+                  parseInt(that.currentItem.css("paddingRight") || 0, 10),
               );
             }
           },
@@ -17921,7 +17921,7 @@
 
       //Create the placeholder
       that.placeholder = $(
-        o.placeholder.element.call(that.element, that.currentItem)
+        o.placeholder.element.call(that.element, that.currentItem),
       );
 
       //Append it after the actual current item
@@ -17968,7 +17968,7 @@
             innermostContainer &&
             $.contains(
               this.containers[i].element[0],
-              innermostContainer.element[0]
+              innermostContainer.element[0],
             )
           ) {
             continue;
@@ -17996,7 +17996,7 @@
           this.containers[innermostIndex]._trigger(
             "over",
             event,
-            this._uiHash(this)
+            this._uiHash(this),
           );
           this.containers[innermostIndex].containerCache.over = 1;
         }
@@ -18015,7 +18015,7 @@
           if (
             !$.contains(
               this.containers[innermostIndex].element[0],
-              this.items[j].item[0]
+              this.items[j].item[0],
             )
           ) {
             continue;
@@ -18047,7 +18047,7 @@
             this.containers[innermostIndex]._trigger(
               "over",
               event,
-              this._uiHash()
+              this._uiHash(),
             );
             this.currentContainer.containerCache.over = 1;
           }
@@ -18061,21 +18061,21 @@
             event,
             null,
             this.containers[innermostIndex].element,
-            true
+            true,
           );
         }
         this._trigger("change", event, this._uiHash());
         this.containers[innermostIndex]._trigger(
           "change",
           event,
-          this._uiHash(this)
+          this._uiHash(this),
         );
         this.currentContainer = this.containers[innermostIndex];
 
         //Update the placeholder
         this.options.placeholder.update(
           this.currentContainer,
-          this.placeholder
+          this.placeholder,
         );
 
         //Update scrollParent
@@ -18092,7 +18092,7 @@
         this.containers[innermostIndex]._trigger(
           "over",
           event,
-          this._uiHash(this)
+          this._uiHash(this),
         );
         this.containers[innermostIndex].containerCache.over = 1;
       }
@@ -18104,8 +18104,8 @@
           typeof o.helper === "function"
             ? $(o.helper.apply(this.element[0], [event, this.currentItem]))
             : o.helper === "clone"
-            ? this.currentItem.clone()
-            : this.currentItem;
+              ? this.currentItem.clone()
+              : this.currentItem;
 
       //Add the helper to the DOM if that didn't happen already
       if (!helper.parents("body").length) {
@@ -18312,8 +18312,8 @@
           (this.cssPosition === "fixed"
             ? -this.scrollParent.scrollTop()
             : scrollIsRootNode
-            ? 0
-            : scroll.scrollTop()) *
+              ? 0
+              : scroll.scrollTop()) *
             mod,
         left:
           // The absolute mouse position
@@ -18325,8 +18325,8 @@
           (this.cssPosition === "fixed"
             ? -this.scrollParent.scrollLeft()
             : scrollIsRootNode
-            ? 0
-            : scroll.scrollLeft()) *
+              ? 0
+              : scroll.scrollLeft()) *
             mod,
       };
     },
@@ -18393,8 +18393,8 @@
               top - this.offset.click.top <= this.containment[3]
               ? top
               : top - this.offset.click.top >= this.containment[1]
-              ? top - o.grid[1]
-              : top + o.grid[1]
+                ? top - o.grid[1]
+                : top + o.grid[1]
             : top;
 
           left =
@@ -18405,8 +18405,8 @@
               left - this.offset.click.left <= this.containment[2]
               ? left
               : left - this.offset.click.left >= this.containment[0]
-              ? left - o.grid[0]
-              : left + o.grid[0]
+                ? left - o.grid[0]
+                : left + o.grid[0]
             : left;
         }
       }
@@ -18424,8 +18424,8 @@
           (this.cssPosition === "fixed"
             ? -this.scrollParent.scrollTop()
             : scrollIsRootNode
-            ? 0
-            : scroll.scrollTop()),
+              ? 0
+              : scroll.scrollTop()),
         left:
           // The absolute mouse position
           pageX -
@@ -18438,8 +18438,8 @@
           (this.cssPosition === "fixed"
             ? -this.scrollParent.scrollLeft()
             : scrollIsRootNode
-            ? 0
-            : scroll.scrollLeft()),
+              ? 0
+              : scroll.scrollLeft()),
       };
     },
 
@@ -18449,7 +18449,7 @@
       } else {
         i.item[0].parentNode.insertBefore(
           this.placeholder[0],
-          this.direction === "down" ? i.item[0] : i.item[0].nextSibling
+          this.direction === "down" ? i.item[0] : i.item[0].nextSibling,
         );
       }
 
@@ -18531,14 +18531,14 @@
               return function (event) {
                 c._trigger("receive", event, this._uiHash(this));
               };
-            }.call(this, this.currentContainer)
+            }.call(this, this.currentContainer),
           );
           delayedTriggers.push(
             function (c) {
               return function (event) {
                 c._trigger("update", event, this._uiHash(this));
               };
-            }.call(this, this.currentContainer)
+            }.call(this, this.currentContainer),
           );
         }
       }
@@ -18552,7 +18552,7 @@
       for (i = this.containers.length - 1; i >= 0; i--) {
         if (!noPropagation) {
           delayedTriggers.push(
-            delayEvent("deactivate", this, this.containers[i])
+            delayEvent("deactivate", this, this.containers[i]),
           );
         }
         if (this.containers[i].containerCache.over) {
@@ -18572,7 +18572,7 @@
       if (this._storedZIndex) {
         this.helper.css(
           "zIndex",
-          this._storedZIndex === "auto" ? "" : this._storedZIndex
+          this._storedZIndex === "auto" ? "" : this._storedZIndex,
         );
       }
 
@@ -18815,7 +18815,7 @@
         this._repeat(
           null,
           $(event.currentTarget).hasClass("ui-spinner-up") ? 1 : -1,
-          event
+          event,
         );
       },
       "mouseup .ui-spinner-button": "_stop",
@@ -18831,7 +18831,7 @@
         this._repeat(
           null,
           $(event.currentTarget).hasClass("ui-spinner-up") ? 1 : -1,
-          event
+          event,
         );
       },
 
@@ -18858,7 +18858,7 @@
       this._addClass(
         this.uiSpinner,
         "ui-spinner",
-        "ui-widget ui-widget-content"
+        "ui-widget ui-widget-content",
       );
       this._addClass("ui-spinner-input");
 
@@ -18969,7 +18969,7 @@
         return typeof incremental === "function"
           ? incremental(i)
           : Math.floor(
-              (i * i * i) / 50000 - (i * i) / 500 + (17 * i) / 200 + 1
+              (i * i * i) / 50000 - (i * i) / 500 + (17 * i) / 200 + 1,
             );
       }
 
@@ -19089,7 +19089,7 @@
         ? Globalize.format(
             value,
             this.options.numberFormat,
-            this.options.culture
+            this.options.culture,
           )
         : value;
     },
@@ -19136,7 +19136,7 @@
       this.element
         .prop("disabled", false)
         .removeAttr(
-          "autocomplete role aria-valuemin aria-valuemax aria-valuenow"
+          "autocomplete role aria-valuemin aria-valuemax aria-valuenow",
         );
 
       this.uiSpinner.replaceWith(this.element);
@@ -19290,8 +19290,8 @@
           options.disabled.concat(
             $.map(this.tabs.filter(".ui-state-disabled"), function (li) {
               return that.tabs.index(li);
-            })
-          )
+            }),
+          ),
         ).sort();
       }
 
@@ -19361,7 +19361,7 @@
 
     _tabKeydown: function (event) {
       var focusedTab = $($.ui.safeActiveElement(this.document[0])).closest(
-          "li"
+          "li",
         ),
         selectedIndex = this.tabs.index(focusedTab),
         goingForward = true;
@@ -19399,7 +19399,7 @@
 
           // Determine if we should collapse or activate
           this._activate(
-            selectedIndex === this.options.active ? false : selectedIndex
+            selectedIndex === this.options.active ? false : selectedIndex,
           );
           return;
         default:
@@ -19518,7 +19518,7 @@
         lis.filter(".ui-state-disabled"),
         function (tab) {
           return lis.index(tab);
-        }
+        },
       );
 
       this._processTabs();
@@ -19541,7 +19541,7 @@
           // activate previous tab
         } else {
           this._activate(
-            this._findNextTab(Math.max(0, options.active - 1), false)
+            this._findNextTab(Math.max(0, options.active - 1), false),
           );
         }
 
@@ -19594,7 +19594,7 @@
       this._addClass(
         this.tablist,
         "ui-tabs-nav",
-        "ui-helper-reset ui-helper-clearfix ui-widget-header"
+        "ui-helper-reset ui-helper-clearfix ui-widget-header",
       );
 
       // Prevent users from focusing disabled tabs via click
@@ -19724,7 +19724,7 @@
         this.widget(),
         this.widgetFullName + "-disabled",
         null,
-        disabled === true
+        disabled === true,
       );
     },
 
@@ -19780,7 +19780,7 @@
         this.panels
           .each(function () {
             $(this).height(
-              Math.max(0, maxHeight - $(this).innerHeight() + $(this).height())
+              Math.max(0, maxHeight - $(this).innerHeight() + $(this).height()),
             );
           })
           .css("overflow", "auto");
@@ -19860,7 +19860,7 @@
         that._addClass(
           eventData.newTab.closest("li"),
           "ui-tabs-active",
-          "ui-state-active"
+          "ui-state-active",
         );
 
         if (toShow.length && that.options.show) {
@@ -19877,7 +19877,7 @@
           that._removeClass(
             eventData.oldTab.closest("li"),
             "ui-tabs-active",
-            "ui-state-active"
+            "ui-state-active",
           );
           show();
         });
@@ -19885,7 +19885,7 @@
         this._removeClass(
           eventData.oldTab.closest("li"),
           "ui-tabs-active",
-          "ui-state-active"
+          "ui-state-active",
         );
         toHide.hide();
         show();
@@ -19948,7 +19948,7 @@
       // meta-function to give users option to provide a href string instead of a numerical index.
       if (typeof index === "string") {
         index = this.anchors.index(
-          this.anchors.filter("[href$='" + $.escapeSelector(index) + "']")
+          this.anchors.filter("[href$='" + $.escapeSelector(index) + "']"),
         );
       }
 
@@ -19970,7 +19970,7 @@
         } else {
           $(this).removeAttr(
             "role tabIndex " +
-              "aria-live aria-busy aria-selected aria-labelledby aria-hidden aria-expanded"
+              "aria-live aria-busy aria-selected aria-labelledby aria-hidden aria-expanded",
           );
         }
       });
@@ -20105,7 +20105,7 @@
           return that._trigger(
             "beforeLoad",
             event,
-            $.extend({ jqXHR: jqXHR, ajaxSettings: settings }, eventData)
+            $.extend({ jqXHR: jqXHR, ajaxSettings: settings }, eventData),
           );
         },
       };
@@ -20185,7 +20185,7 @@
         .data("ui-tooltip-id", id)
         .attr(
           "aria-describedby",
-          String.prototype.trim.call(describedby.join(" "))
+          String.prototype.trim.call(describedby.join(" ")),
         );
     },
 
@@ -20270,7 +20270,7 @@
                 .data("ui-tooltip-title", element.attr("title"))
                 .removeAttr("title");
             }
-          })
+          }),
       );
     },
 
@@ -20435,8 +20435,8 @@
             {
               of: target,
             },
-            this.options.position
-          )
+            this.options.position,
+          ),
         );
       }
 

@@ -13,7 +13,7 @@ var Jelly = (function () {
 
     for (i = 0; i < sequence.length; ++i) {
       combos.push(
-        "<span>" + _formatKeysAsHtml(sequence[i].split("+")) + "</span>"
+        "<span>" + _formatKeysAsHtml(sequence[i].split("+")) + "</span>",
       );
     }
 

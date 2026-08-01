@@ -65,7 +65,7 @@ var globalVar;
       if (status != $.PercServiceUtils.STATUS_SUCCESS) {
         view.errorDialog(
           I18N.message("perc.ui.category.controller@Error loading categories"),
-          categoryJson
+          categoryJson,
         );
         return;
       }
@@ -93,7 +93,7 @@ var globalVar;
           user +
             " " +
             I18N.message(
-              "perc.ui.category.controller@User working on categories"
+              "perc.ui.category.controller@User working on categories",
             ),
           function (action) {
             if (action == "cancel") {
@@ -101,7 +101,7 @@ var globalVar;
             } else {
               saveCategories(catArray, sitename, success, error);
             }
-          }
+          },
         );
       } else {
         saveCategories(catArray, sitename, success, error);
@@ -119,7 +119,7 @@ var globalVar;
         if (status != $.PercServiceUtils.STATUS_SUCCESS) {
           view.alertDialog(
             I18N.message("perc.ui.category.controller@Error"),
-            categoryJson
+            categoryJson,
           );
           typeof error === "function" && error();
           return;
@@ -131,7 +131,7 @@ var globalVar;
         // get the new category xml data and give it to the view to render
         getCategories(sitename);
         typeof success === "function" && success();
-      }
+      },
     );
   }
 
@@ -139,7 +139,7 @@ var globalVar;
     if (catArray === null) {
       view.alertDialog(
         I18N.message("perc.ui.category.controller@Error"),
-        I18N.message("perc.ui.category.controller@Categories cannot be null")
+        I18N.message("perc.ui.category.controller@Categories cannot be null"),
       );
       return;
     }
@@ -157,7 +157,7 @@ var globalVar;
       if (status != $.PercServiceUtils.STATUS_SUCCESS) {
         view.alertDialog(
           I18N.message("perc.ui.category.controller@Error"),
-          lockinfo
+          lockinfo,
         );
         return;
       } else {
@@ -175,7 +175,7 @@ var globalVar;
       if (status != $.PercServiceUtils.STATUS_SUCCESS) {
         view.alertDialog(
           I18N.message("perc.ui.category.controller@Error"),
-          lockinfo
+          lockinfo,
         );
         return;
       }
@@ -192,8 +192,8 @@ var globalVar;
         view.alertDialog(
           I18N.message("perc.ui.category.controller@Error"),
           I18N.message(
-            "perc.ui.category.controller@Problem Removing Category Tab Lock"
-          )
+            "perc.ui.category.controller@Problem Removing Category Tab Lock",
+          ),
         );
         return;
       }
@@ -229,16 +229,16 @@ var globalVar;
           view.alertDialog(
             I18N.message("perc.ui.category.controller@Publish Error"),
             I18N.message(
-              "perc.ui.category.controller@Error Publishing to DTS"
+              "perc.ui.category.controller@Error Publishing to DTS",
             ) +
               " " +
-              message
+              message,
           );
           return;
         }
 
         dirtyController.setDirty(false);
-      }
+      },
     );
   }
 })(jQuery);

@@ -39,6 +39,9 @@ import org.w3c.dom.Node;
  */
 public class PSAddUserControlsToTree extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
+  /** Creates a new PSAddUserControlsToTree. */
+  public PSAddUserControlsToTree() {}
+
   /**
    * This method handles the post-exit request by loading the specified file, parsing it into a
    * Document, and appending it to the parentNode in the result document.

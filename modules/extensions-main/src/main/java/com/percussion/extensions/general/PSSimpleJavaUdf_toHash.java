@@ -24,6 +24,9 @@ import com.percussion.server.IPSRequestContext;
 /** The PSSimpleJavaUdf_toHash class returns a hashcode for the object passed into the UDF. */
 public class PSSimpleJavaUdf_toHash extends PSSimpleJavaUdfExtension
     implements IPSFieldInputTransformer {
+  /** Creates a new PSSimpleJavaUdf_toHash. */
+  public PSSimpleJavaUdf_toHash() {}
+
   /* ************ IPSUdfProcessor Interface Implementation ************ */
 
   /**

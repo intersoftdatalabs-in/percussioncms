@@ -66,7 +66,7 @@
 
     //Add the Form pre submit handler
     window.parent.jQuery.PercContentPreSubmitHandlers.addHandler(
-      updateFormFields
+      updateFormFields,
     );
   }
 
@@ -98,7 +98,7 @@
         $(this).sortable("refresh");
       },
       containment: $("#perc-form-dnd-fields").parents(
-        "#perc-content-edit-content"
+        "#perc-content-edit-content",
       ),
     });
   }
@@ -114,12 +114,12 @@
         fieldType === "PercSubmitButtonControl"
       ) {
         $(this).append(
-          "<div class = 'perc-form-ui-menu'><span class='toggle-editor'><img src='../rx_resources/widgets/commentsForm/images/edit.png' alt='Edit'></span><span class='disabled-delete-field'><img src='../rx_resources/widgets/commentsForm/images/deleteInactive.png' alt='Delete'></span></div>"
+          "<div class = 'perc-form-ui-menu'><span class='toggle-editor'><img src='../rx_resources/widgets/commentsForm/images/edit.png' alt='Edit'></span><span class='disabled-delete-field'><img src='../rx_resources/widgets/commentsForm/images/deleteInactive.png' alt='Delete'></span></div>",
         );
       } else {
         var currentField = $(this);
         $(this).append(
-          "<div class = 'perc-form-ui-menu'><span class='toggle-editor'><img src='../rx_resources/widgets/commentsForm/images/edit.png' alt='Edit'></span><span class='delete-field'><img src='../rx_resources/widgets/commentsForm/images/delete.png' alt='Delete'></span></div>"
+          "<div class = 'perc-form-ui-menu'><span class='toggle-editor'><img src='../rx_resources/widgets/commentsForm/images/edit.png' alt='Edit'></span><span class='delete-field'><img src='../rx_resources/widgets/commentsForm/images/delete.png' alt='Delete'></span></div>",
         );
         getClassName(currentField);
       }
@@ -307,7 +307,7 @@
     //Add Text field
     $(".form-text-label").on("click", function () {
       var newElem = $.PercCommentsFormController().getNewFieldEditor(
-        "PercTextFieldControl"
+        "PercTextFieldControl",
       );
       addEvents(newElem);
       $("#perc-form-dnd-fields").append(newElem);
@@ -346,37 +346,37 @@
    */
   function loadDefaultFields() {
     var newElem = $.PercCommentsFormController().getNewFieldEditor(
-      "PercTitleFieldControl"
+      "PercTitleFieldControl",
     );
     addEvents(newElem);
     $("#perc-form-dnd-fields").append(newElem);
     var newElem2 = $.PercCommentsFormController().getNewFieldEditor(
-      "PercHoneypotFieldControl"
+      "PercHoneypotFieldControl",
     );
     addEvents(newElem2);
     $("#perc-form-dnd-fields").append(newElem2);
     var newElem3 = $.PercCommentsFormController().getNewFieldEditor(
-      "PercURLFieldControl"
+      "PercURLFieldControl",
     );
     addEvents(newElem3);
     $("#perc-form-dnd-fields").append(newElem3);
     var newElem4 = $.PercCommentsFormController().getNewFieldEditor(
-      "PercUserFieldControl"
+      "PercUserFieldControl",
     );
     addEvents(newElem4);
     $("#perc-form-dnd-fields").append(newElem4);
     var newElem5 = $.PercCommentsFormController().getNewFieldEditor(
-      "PercTextareaFieldControl"
+      "PercTextareaFieldControl",
     );
     addCommentboxEvents(newElem5);
     $("#perc-form-dnd-fields").append(newElem5);
     var newElem6 = $.PercCommentsFormController().getNewFieldEditor(
-      "PercEmailFieldControl"
+      "PercEmailFieldControl",
     );
     addEvents(newElem6);
     $("#perc-form-dnd-fields").append(newElem6);
     var newElem7 = $.PercCommentsFormController().getNewFieldEditor(
-      "PercSubmitButtonControl"
+      "PercSubmitButtonControl",
     );
     addCommentboxEvents(newElem7);
     $("#perc-form-dnd-fields").append(newElem7);
@@ -416,7 +416,7 @@
     elem
       .find(".field-editor")
       .append(
-        "<div class = 'perc-form-ui-menu'><span class='toggle-editor'><img alt='' src='../rx_resources/widgets/commentsForm/images/edit.png' ></span><span class='delete-field'><img alt='' src='../rx_resources/widgets/commentsForm/images/delete.png'></span></div>"
+        "<div class = 'perc-form-ui-menu'><span class='toggle-editor'><img alt='' src='../rx_resources/widgets/commentsForm/images/edit.png' ></span><span class='delete-field'><img alt='' src='../rx_resources/widgets/commentsForm/images/delete.png'></span></div>",
       );
   }
 
@@ -424,7 +424,7 @@
     elem
       .find(".field-editor")
       .append(
-        "<div class = 'perc-form-ui-menu'><span class='toggle-editor'><img alt=''  src='../rx_resources/widgets/commentsForm/images/edit.png' ></span><span class='disabled-delete-field'><img alt='' src='../rx_resources/widgets/commentsForm/images/deleteInactive.png'></span></div>"
+        "<div class = 'perc-form-ui-menu'><span class='toggle-editor'><img alt=''  src='../rx_resources/widgets/commentsForm/images/edit.png' ></span><span class='disabled-delete-field'><img alt='' src='../rx_resources/widgets/commentsForm/images/deleteInactive.png'></span></div>",
       );
   }
 
@@ -449,7 +449,7 @@
         .append(
           "<div class = 'perc-form-ui-menu'>" +
             configButtonHtml +
-            "<span class='disabled-delete-field'><img alt='' src='../rx_resources/widgets/commentsForm/images/deleteInactive.png'></span></div>"
+            "<span class='disabled-delete-field'><img alt='' src='../rx_resources/widgets/commentsForm/images/deleteInactive.png'></span></div>",
         );
     } else {
       elem
@@ -457,7 +457,7 @@
         .append(
           "<div class = 'perc-form-ui-menu'>" +
             configButtonHtml +
-            "<span class='delete-field'><img alt=''  src='../rx_resources/widgets/commentsForm/images/delete.png'></span></div>"
+            "<span class='delete-field'><img alt=''  src='../rx_resources/widgets/commentsForm/images/delete.png'></span></div>",
         );
     }
   }
@@ -473,7 +473,7 @@
     var success = true;
 
     var formData = $.PercCommentsFormController().getFormData(
-      $("." + $.PercFormConstants.FORM_CLASS)
+      $("." + $.PercFormConstants.FORM_CLASS),
     );
     var formConfig = formData.config;
     //Set the formData and rendered form.
@@ -485,7 +485,7 @@
         $("<div/>")
           .append($.PercCommentsFormController().getRenderedForm(formData))
           .html()
-          .replace(/<input\s+([^>]*?)\s*>/gi, "<input $1 />")
+          .replace(/<input\s+([^>]*?)\s*>/gi, "<input $1 />"),
     ); // @TODO: This *will* break once we're serving as application/xhtml+xml.  Get rid of the .replace to fix.
     return success;
   }
@@ -558,7 +558,7 @@
         for (let i of preferences) {
           preferenceVals[i.pref.name] = i.pref.onApply(
             preferenceVals,
-            i.defaults
+            i.defaults,
           );
         }
         control.data("preferences", preferenceVals);

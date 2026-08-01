@@ -105,7 +105,12 @@ body {
 ----------------------------------*/
 
 .ui-widget {
-  font-family: Trebuchet MS, Tahoma, Verdana, Arial, sans-serif;
+  font-family:
+    Trebuchet MS,
+    Tahoma,
+    Verdana,
+    Arial,
+    sans-serif;
   font-size: 1.1em;
 }
 
@@ -228,7 +233,9 @@ All fields are wrapped in <div>s, with labels specified here. */
   margin-right: 20px;
 }
 .perc-list-title {
-  font-family: Times New Roman, serif;
+  font-family:
+    Times New Roman,
+    serif;
   font-style: normal;
   font-size: 18px;
 }
@@ -1456,7 +1463,12 @@ body {
 ----------------------------------*/
 
 .ui-widget {
-  font-family: Trebuchet MS, Tahoma, Verdana, Arial, sans-serif;
+  font-family:
+    Trebuchet MS,
+    Tahoma,
+    Verdana,
+    Arial,
+    sans-serif;
   font-size: 1.1em;
 }
 

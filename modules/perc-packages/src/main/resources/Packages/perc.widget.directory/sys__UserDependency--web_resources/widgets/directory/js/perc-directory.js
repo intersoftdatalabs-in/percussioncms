@@ -44,12 +44,12 @@ $(document).ready(function () {
 
     var alphaFilterLetters = getFilterLetters(
       DirectoryList.items,
-      "perc-person-last-name"
+      "perc-person-last-name",
     );
     populateAlphaFilters(alphaFilterLetters);
 
     var firstLetterFilter = $(
-      "#perc-directory-alphabet-sort .perc-alpha-sort:first"
+      "#perc-directory-alphabet-sort .perc-alpha-sort:first",
     );
     var letter = firstLetterFilter.text().toLowerCase();
     firstLetterFilter.addClass("active");
@@ -57,7 +57,7 @@ $(document).ready(function () {
       return (
         _.includes(
           item.values()["perc-person-last-name"].charAt(0).toLowerCase(),
-          letter
+          letter,
         ) || !letter
       );
     });
@@ -94,7 +94,7 @@ $(document).ready(function () {
             letter.toUpperCase() +
             '" tabindex="0">' +
             letter.toUpperCase() +
-            "</a>"
+            "</a>",
         );
       }
     }, this);
@@ -113,11 +113,11 @@ $(document).ready(function () {
       dptList.sort();
       $("#perc-dpt-filter").empty();
       $("#perc-dpt-filter").append(
-        '<option value="all">Filter By Department</option>'
+        '<option value="all">Filter By Department</option>',
       );
       for (var i = 0; i < dptList.length; i++) {
         $("#perc-dpt-filter").append(
-          $("<option/>").val(dptList[i]).text(dptList[i])
+          $("<option/>").val(dptList[i]).text(dptList[i]),
         );
       }
       if (percDirectorySearchAllDepts) $("#perc-dpt-filter").show();
@@ -134,11 +134,11 @@ $(document).ready(function () {
       dptList.sort();
       $("#perc-dpt-filter").empty();
       $("#perc-dpt-filter").append(
-        '<option value="all">Filter By Department</option>'
+        '<option value="all">Filter By Department</option>',
       );
       for (var i = 0; i < dptList.length; i++) {
         $("#perc-dpt-filter").append(
-          $("<option/>").val(dptList[i]).text(dptList[i])
+          $("<option/>").val(dptList[i]).text(dptList[i]),
         );
       }
     });
@@ -222,13 +222,13 @@ $(document).ready(function () {
           return (
             _.includes(
               item.values()["perc-person-last-name"].charAt(0).toLowerCase(),
-              letter
+              letter,
             ) || !letter
           );
         });
         $("#perc-clear-alpha-filter").show();
       }
-    }
+    },
   );
 
   // alpha sort on keypress "enter"
@@ -251,14 +251,14 @@ $(document).ready(function () {
             return (
               _.includes(
                 item.values()["perc-person-last-name"].charAt(0).toLowerCase(),
-                letter
+                letter,
               ) || !letter
             );
           });
           $("#perc-clear-alpha-filter").show();
         }
       }
-    }
+    },
   );
 
   $("#perc-clear-alpha-filter").on("click", function () {
@@ -285,7 +285,7 @@ $(document).ready(function () {
       url = encodeURI(url);
       // update the element href attribute prior to navigation
       $(this).attr("href", url);
-    }
+    },
   );
 
   if (percDisplayFullDir) {

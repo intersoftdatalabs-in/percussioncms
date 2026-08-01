@@ -156,7 +156,7 @@
           mapping,
           startIndex,
           i,
-          resultString
+          resultString,
         );
 
         startIndex = i;
@@ -170,7 +170,7 @@
       mapping,
       startIndex,
       i,
-      resultString
+      resultString,
     );
   };
 
@@ -191,7 +191,7 @@
     mapping,
     startIndex,
     currentIndex,
-    resultString
+    resultString,
   ) {
     if (startIndex !== -1) {
       var tempString = formatString.substring(startIndex, currentIndex);
@@ -211,7 +211,7 @@
   function init(momentJS) {
     if (!momentJS) {
       throw new Error(
-        "Moment JDateFormatParser Plugin - Cannot find moment.js instance."
+        "Moment JDateFormatParser Plugin - Cannot find moment.js instance.",
       );
     }
 
@@ -269,7 +269,7 @@
       if (!momentDateFormats[formatString]) {
         momentDateFormats[formatString] = translateFormat(
           formatString,
-          momentFormatMapping
+          momentFormatMapping,
         );
       }
 

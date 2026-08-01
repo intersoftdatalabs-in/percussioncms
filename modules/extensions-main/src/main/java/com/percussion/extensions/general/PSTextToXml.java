@@ -34,6 +34,9 @@ import org.w3c.dom.Element;
  * match.
  */
 public class PSTextToXml extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSTextToXml. */
+  public PSTextToXml() {}
+
   /**
    * Parses the text and returns the document.
    *

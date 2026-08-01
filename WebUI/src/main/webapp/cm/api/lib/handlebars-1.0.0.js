@@ -49,7 +49,7 @@ var Handlebars = {};
     if (toString.call(name) === objectType) {
       if (inverse || fn) {
         throw new Handlebars.Exception(
-          "Arg not supported with multiple helpers"
+          "Arg not supported with multiple helpers",
         );
       }
       Handlebars.Utils.extend(this.helpers, name);
@@ -347,7 +347,7 @@ var Handlebars = {};
         yy,
         yystate,
         $$,
-        _$
+        _$,
       ) {
         var $0 = $$.length - 1;
         switch (yystate) {
@@ -384,7 +384,7 @@ var Handlebars = {};
               $$[$0 - 2],
               $$[$0 - 1].inverse,
               $$[$0 - 1],
-              $$[$0]
+              $$[$0],
             );
             break;
           case 11:
@@ -392,7 +392,7 @@ var Handlebars = {};
               $$[$0 - 2],
               $$[$0 - 1],
               $$[$0 - 1].inverse,
-              $$[$0]
+              $$[$0],
             );
             break;
           case 12:
@@ -421,7 +421,7 @@ var Handlebars = {};
             this.$ = new yy.MustacheNode(
               $$[$0 - 1][0],
               $$[$0 - 1][1],
-              $$[$0 - 2][2] === "&"
+              $$[$0 - 2][2] === "&",
             );
 
             break;
@@ -1138,7 +1138,7 @@ var Handlebars = {};
               "Parse Error: multiple actions possible at state: " +
                 state +
                 ", token: " +
-                symbol
+                symbol,
             );
           }
           switch (action[0]) {
@@ -1182,7 +1182,7 @@ var Handlebars = {};
                 this.yy,
                 action[1],
                 vstack,
-                lstack
+                lstack,
               );
               if (typeof r !== "undefined") {
                 return r;
@@ -1295,7 +1295,7 @@ var Handlebars = {};
         pastInput: function () {
           var past = this.matched.substr(
             0,
-            this.matched.length - this.match.length
+            this.matched.length - this.match.length,
           );
           return (
             (past.length > 20 ? "..." : "") +
@@ -1309,7 +1309,7 @@ var Handlebars = {};
           }
           return (next.substr(0, 20) + (next.length > 20 ? "..." : "")).replace(
             /\n/g,
-            ""
+            "",
           );
         },
         showPosition: function () {
@@ -1367,7 +1367,7 @@ var Handlebars = {};
               this.yy,
               this,
               rules[index],
-              this.conditionStack[this.conditionStack.length - 1]
+              this.conditionStack[this.conditionStack.length - 1],
             );
             if (this.done && this._input) this.done = false;
             if (token) return token;
@@ -1381,7 +1381,7 @@ var Handlebars = {};
                 (this.yylineno + 1) +
                 ". Unrecognized text.\n" +
                 this.showPosition(),
-              { text: "", token: null, line: this.yylineno }
+              { text: "", token: null, line: this.yylineno },
             );
           }
         },
@@ -1416,7 +1416,7 @@ var Handlebars = {};
         yy,
         yy_,
         $avoiding_name_collisions,
-        YY_START
+        YY_START,
       ) {
         var YYSTATE = YY_START;
         switch ($avoiding_name_collisions) {
@@ -1427,8 +1427,8 @@ var Handlebars = {};
           case 1:
             if (yy_.yytext.slice(-1) !== "\\") this.begin("mu");
             if (yy_.yytext.slice(-1) === "\\")
-              (yy_.yytext = yy_.yytext.substr(0, yy_.yyleng - 1)),
-                this.begin("emu");
+              ((yy_.yytext = yy_.yytext.substr(0, yy_.yyleng - 1)),
+                this.begin("emu"));
             if (yy_.yytext) return 14;
 
             break;
@@ -1653,7 +1653,7 @@ var Handlebars = {};
     var verifyMatch = function (open, close) {
       if (open.original !== close.original) {
         throw new Handlebars.Exception(
-          open.original + " doesn't match " + close.original
+          open.original + " doesn't match " + close.original,
         );
       }
     };
@@ -2121,7 +2121,7 @@ var Handlebars = {};
         this.opcode("invokeKnownHelper", params.length, name);
       } else if (this.options.knownHelpersOnly) {
         throw new Error(
-          "You specified knownHelpersOnly, but used the unknown helper " + name
+          "You specified knownHelpersOnly, but used the unknown helper " + name,
         );
       } else {
         this.opcode("invokeHelper", params.length, name);
@@ -2148,7 +2148,7 @@ var Handlebars = {};
       this.options.data = true;
       if (data.id.isScoped || data.id.depth) {
         throw new Handlebars.Exception(
-          "Scoped data references are not supported: " + data.original
+          "Scoped data references are not supported: " + data.original,
         );
       }
 
@@ -2316,7 +2316,7 @@ var Handlebars = {};
 
       Handlebars.log(
         Handlebars.logger.DEBUG,
-        this.environment.disassemble() + "\n\n"
+        this.environment.disassemble() + "\n\n",
       );
 
       this.name = this.environment.name;
@@ -2539,7 +2539,7 @@ var Handlebars = {};
           current +
           " = blockHelperMissing.call(" +
           params.join(", ") +
-          "); }"
+          "); }",
       );
     },
 
@@ -2574,7 +2574,7 @@ var Handlebars = {};
           local +
           " === 0) { " +
           this.appendToBuffer(local) +
-          " }"
+          " }",
       );
       if (this.environment.isSimple) {
         this.source.push("else { " + this.appendToBuffer("''") + " }");
@@ -2591,7 +2591,7 @@ var Handlebars = {};
       this.context.aliases.escapeExpression = "this.escapeExpression";
 
       this.source.push(
-        this.appendToBuffer("escapeExpression(" + this.popStack() + ")")
+        this.appendToBuffer("escapeExpression(" + this.popStack() + ")"),
       );
     },
 
@@ -2789,7 +2789,7 @@ var Handlebars = {};
       var nonHelper = this.nameLookup(
         "depth" + this.lastContext,
         name,
-        "context"
+        "context",
       );
 
       this.push(helper.name + " || " + nonHelper);
@@ -2841,13 +2841,13 @@ var Handlebars = {};
       var helperName = (this.lastHelper = this.nameLookup(
         "helpers",
         name,
-        "helper"
+        "helper",
       ));
 
       var nonHelper = this.nameLookup(
         "depth" + this.lastContext,
         name,
-        "context"
+        "context",
       );
       var nextStack = this.nextStack();
 
@@ -2862,7 +2862,7 @@ var Handlebars = {};
           nextStack +
           ".call(" +
           helper.callParams +
-          "); }"
+          "); }",
       );
       this.source.push(
         "else { " +
@@ -2877,7 +2877,7 @@ var Handlebars = {};
           nextStack +
           ".apply(depth0) : " +
           nextStack +
-          "; }"
+          "; }",
       );
     },
 
@@ -2955,7 +2955,7 @@ var Handlebars = {};
           this.context.programs[index] = compiler.compile(
             child,
             options,
-            this.context
+            this.context,
           );
           this.context.environments[index] = child;
         } else {
@@ -3264,7 +3264,7 @@ var Handlebars = {};
     ) {
       throw new Handlebars.Exception(
         "You must pass a string or Handlebars AST to Handlebars.precompile. You passed " +
-          input
+          input,
       );
     }
 
@@ -3285,7 +3285,7 @@ var Handlebars = {};
     ) {
       throw new Handlebars.Exception(
         "You must pass a string or Handlebars AST to Handlebars.compile. You passed " +
-          input
+          input,
       );
     }
 
@@ -3301,7 +3301,7 @@ var Handlebars = {};
         environment,
         options,
         undefined,
-        true
+        true,
       );
       return Handlebars.template(templateSpec);
     }
@@ -3356,7 +3356,7 @@ var Handlebars = {};
           context,
           options.helpers,
           options.partials,
-          options.data
+          options.data,
         );
 
         var compilerInfo = container.compilerInfo || [],
@@ -3420,7 +3420,7 @@ var Handlebars = {};
 
       if (partial === undefined) {
         throw new Handlebars.Exception(
-          "The partial " + name + " could not be found"
+          "The partial " + name + " could not be found",
         );
       } else if (partial instanceof Function) {
         return partial(context, options);
@@ -3428,7 +3428,7 @@ var Handlebars = {};
         throw new Handlebars.Exception(
           "The partial " +
             name +
-            " could not be compiled when running in runtime-only mode"
+            " could not be compiled when running in runtime-only mode",
         );
       } else {
         partials[name] = Handlebars.compile(partial, {

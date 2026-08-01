@@ -38,7 +38,7 @@ ps.declare(
         this.contentTable,
         "onSelect",
         this,
-        "_onContentTableSelect"
+        "_onContentTableSelect",
       );
     },
 
@@ -58,13 +58,13 @@ ps.declare(
         this.getContentTypeList(),
         "onchange",
         this,
-        "_onCTypeChanged"
+        "_onCTypeChanged",
       );
       ps.event.connectBefore(
         this.getContentTypeList(),
         "onfocus",
         this,
-        "_onCTypeFocused"
+        "_onCTypeFocused",
       );
     },
 
@@ -96,5 +96,5 @@ ps.declare(
     _onUp: function () {
       this._goTo(this.getParentFolder());
     },
-  }
+  },
 );

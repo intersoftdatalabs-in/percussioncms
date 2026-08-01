@@ -67,7 +67,7 @@ test.describe("modern React Content Explorer (US1) — feature 992", () => {
     await expect(page.locator('[data-testid="action-open"]')).toBeVisible();
     await expect(page.locator('[data-testid="action-preview"]')).toBeVisible();
     await expect(
-      page.locator('[data-testid="action-create-folder"]')
+      page.locator('[data-testid="action-create-folder"]'),
     ).toBeVisible();
     await expect(page.locator('[data-testid="action-rename"]')).toBeVisible();
     await expect(page.locator('[data-testid="action-move"]')).toBeVisible();

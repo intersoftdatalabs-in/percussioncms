@@ -74,6 +74,8 @@ export const SHIP_LOCALE_ENDONYMS: Readonly<Record<string, string>> = {
   "fr-lu": "français (Luxembourg)",
   "fr-us": "Français cadien",
   lou: "Kréyòl",
+  he: "עברית",
+  "he-il": "עברית (ישראל)",
   hi: "हिन्दी",
   "hi-in": "हिन्दी (भारत)",
   it: "italiano",
@@ -105,6 +107,118 @@ export function normalizeTag(code: string): string {
     return "";
   }
   return code.trim().toLowerCase().replace(/_/g, "-");
+}
+
+/**
+ * Representative ISO 3166-1 alpha-2 region for language-only (base) tags, and
+ * special overrides where the language subtag is not a country code.
+ * Used to pick a flag emoji for the login locale dropdown.
+ */
+const LANGUAGE_DEFAULT_REGION: Readonly<Record<string, string>> = {
+  ar: "SA",
+  bn: "BD",
+  de: "DE",
+  en: "US",
+  es: "ES",
+  fr: "FR",
+  he: "IL",
+  hi: "IN",
+  it: "IT",
+  ja: "JP",
+  lou: "US", // Louisiana Creole — product uses US flag for fr-us / lou
+  nl: "NL",
+  pl: "PL",
+  pt: "PT",
+  ru: "RU",
+  sv: "SE",
+  te: "IN",
+  tr: "TR",
+  zh: "CN",
+};
+
+/** Explicit region for full tags when the trailing subtag is not a country. */
+const LOCALE_REGION_OVERRIDES: Readonly<Record<string, string>> = {
+  "zh-cn": "CN",
+  "zh-tw": "TW",
+  "fr-us": "US",
+  "en-gb": "GB",
+  "en-us": "US",
+  "pt-br": "BR",
+  "pt-pt": "PT",
+  "he-il": "IL",
+  "hi-in": "IN",
+  "ja-jp": "JP",
+  "tr-tr": "TR",
+};
+
+/**
+ * Resolve the ISO 3166-1 alpha-2 region used for a flag icon (uppercase).
+ * Prefer an explicit regional subtag ({@code fr-fr} → {@code FR}); fall back
+ * to a representative country for base language tags ({@code es} → {@code ES}).
+ * Returns empty string when no region can be determined.
+ */
+export function localeRegionCode(code: string): string {
+  const norm = normalizeTag(code);
+  if (!norm) {
+    return "";
+  }
+  const override = LOCALE_REGION_OVERRIDES[norm];
+  if (override) {
+    return override;
+  }
+  const parts = norm.split("-");
+  if (parts.length >= 2) {
+    const region = parts[parts.length - 1];
+    if (region.length === 2 && /^[a-z]{2}$/i.test(region)) {
+      return region.toUpperCase();
+    }
+  }
+  const lang = parts[0];
+  const defaultRegion = LANGUAGE_DEFAULT_REGION[lang];
+  return defaultRegion ? defaultRegion.toUpperCase() : "";
+}
+
+/**
+ * Convert an ISO 3166-1 alpha-2 region code to a Unicode regional-indicator
+ * flag emoji (e.g. {@code "FR"} → 🇫🇷). Returns empty string when the code is
+ * not two Latin letters. Prefer {@link LocaleFlag} SVG icons in the UI; this
+ * remains as a text fallback for environments without SVG support.
+ */
+export function regionToFlagEmoji(region: string): string {
+  if (!region || region.length !== 2) {
+    return "";
+  }
+  const upper = region.toUpperCase();
+  if (!/^[A-Z]{2}$/.test(upper)) {
+    return "";
+  }
+  // Regional Indicator Symbol Letter A = U+1F1E6
+  const BASE = 0x1f1e6;
+  const cp0 = BASE + (upper.charCodeAt(0) - 65);
+  const cp1 = BASE + (upper.charCodeAt(1) - 65);
+  return String.fromCodePoint(cp0, cp1);
+}
+
+/**
+ * Resolve a flag emoji for a BCP-47 locale tag. Prefer SVG via {@code LocaleFlag}
+ * in the custom dropdown; emoji is a degraded / text-only fallback.
+ */
+export function localeFlagEmoji(code: string): string {
+  return regionToFlagEmoji(localeRegionCode(code));
+}
+
+/**
+ * Text option label with optional emoji prefix (legacy / plain-text). The
+ * custom login dropdown uses SVG flags + {@link localeLabel} instead.
+ */
+export function localeOptionLabel(
+  code: string,
+  viewer: string,
+  fallback: string,
+): string {
+  const label = localeLabel(code, viewer, fallback);
+  const flag = localeFlagEmoji(code);
+  return flag ? `${flag} ${label}` : label;
 }
 
 function getDisplayNames(

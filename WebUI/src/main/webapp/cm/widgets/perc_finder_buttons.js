@@ -124,7 +124,7 @@
           null,
           $.perc_paths.SITES_ROOT + "/" + sitename,
           null,
-          null
+          null,
         );
       }
 
@@ -162,7 +162,7 @@
         $newSiteDialog.perc_wizard("open");
         //remove the unwanted stupid z-index values
         $(
-          ".ui-dialog.ui-widget.ui-widget-content.ui-corner-all.perc-dialog.perc-dialog-corner-all.ui-draggable"
+          ".ui-dialog.ui-widget.ui-widget-content.ui-corner-all.perc-dialog.perc-dialog-corner-all.ui-draggable",
         )
           .find("div")
           .css("z-index", "");
@@ -182,7 +182,7 @@
       } else {
         if (
           !$.PercNavigationManager.getPath().startsWith(
-            $.perc_paths.RECYCLING_ROOT
+            $.perc_paths.RECYCLING_ROOT,
           )
         ) {
           $(".perc-finder-menu #perc-finder-new-site")

@@ -17,7 +17,6 @@
 
 package com.percussion.delivery.forms;
 
-import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.percussion.delivery.exceptions.PSJsonMappingErrorResponse;
 import com.percussion.delivery.exceptions.PSUncaughtError;
 import com.percussion.delivery.forms.impl.PSFormRestService;
@@ -30,6 +29,7 @@ import org.glassfish.jersey.server.spring.SpringComponentProvider;
 import org.glassfish.jersey.server.spring.SpringLifecycleListener;
 import org.glassfish.jersey.server.spring.SpringWebApplicationInitializer;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
+import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 /**
  * The JAX-RS application class for the Forms delivery tier service. Registers all REST resource

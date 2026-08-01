@@ -62,7 +62,7 @@
               elem.attr("widgetid"),
               elem.attr("widgetdefid"),
               elem.attr("assetid"),
-              renderContent
+              renderContent,
             );
           },
         };
@@ -136,7 +136,7 @@
             widgetData,
             assetId,
             isSharedAsset,
-            renderContent
+            renderContent,
           );
         }
       },
@@ -190,7 +190,7 @@
               assetId,
               widgetData,
               assetInfo.assetShared,
-              renderContent
+              renderContent,
             );
           }
         },
@@ -206,7 +206,7 @@
       allWidgets,
       "perc-widget-puff",
       "perc-widget-active",
-      widgetMenu
+      widgetMenu,
     );
 
     $("#show-hide-decorations")
@@ -247,7 +247,7 @@
         } else if (currentView === $.PercNavigationManager.VIEW_EDITOR) {
           var currentTabIndex = $("#perc-pageEditor-tabs").tabs(
             "option",
-            "selected"
+            "selected",
           );
           if (currentTabIndex === 0) renderContent();
         }
@@ -407,7 +407,7 @@
                 dropOnWidgetData,
                 draggedWidget.attr("assetid"),
                 false,
-                renderContent
+                renderContent,
               );
             } else if (
               dropOnWidgetData.widgetdefid === draggetWidgetData.widgetdefid
@@ -425,12 +425,12 @@
                       updateOrphanAssetTray(ui.draggable);
                       renderContent();
                     },
-                    null
+                    null,
                   );
                 },
                 function (status, message) {
                   handleUpdateAssetRelationshipError(message, ui.draggable);
-                }
+                },
               );
             }
           },
@@ -509,7 +509,7 @@
             };
             var options = {
               title: I18N.message(
-                "perc.ui.content.view@Content Replace Warning"
+                "perc.ui.content.view@Content Replace Warning",
               ),
               question:
                 I18N.message("perc.ui.content.view@Asset Dropping") +
@@ -523,7 +523,7 @@
                     widgetData,
                     assetid,
                     true,
-                    renderContent
+                    renderContent,
                   );
                 else {
                   model.updateAssetRelationship(
@@ -536,7 +536,7 @@
                     },
                     function (status, message) {
                       handleUpdateAssetRelationshipError(message, ui.draggable);
-                    }
+                    },
                   );
                 }
               },
@@ -550,7 +550,7 @@
                   widgetData,
                   assetid,
                   true,
-                  renderContent
+                  renderContent,
                 );
               else {
                 model.updateAssetRelationship(
@@ -563,7 +563,7 @@
                   },
                   function (status, message) {
                     handleUpdateAssetRelationshipError(message, ui.draggable);
-                  }
+                  },
                 );
               }
             }
@@ -602,20 +602,20 @@
         afterRender();
         $("#frame").attr("perc-view-type", "content");
         var frwrapper = $.PercViewReadyManager.getWrapper(
-          "perc-ui-component-editor-frame"
+          "perc-ui-component-editor-frame",
         );
         if (frwrapper != null)
           frwrapper.handleComponentProgress(
             "perc-ui-component-editor-frame",
-            "complete"
+            "complete",
           );
         var tbwrapper = $.PercViewReadyManager.getWrapper(
-          "perc-ui-component-editor-toolbar"
+          "perc-ui-component-editor-toolbar",
         );
         if (tbwrapper != null)
           tbwrapper.handleComponentProgress(
             "perc-ui-component-editor-toolbar",
-            "complete"
+            "complete",
           );
       });
     }
@@ -668,7 +668,7 @@
             $(this).text(scriptOn);
             $(this).attr(
               "title",
-              I18N.message("perc.ui.content.view@Turns On JavaScript")
+              I18N.message("perc.ui.content.view@Turns On JavaScript"),
             );
             model.setJavaScriptOff(true);
             renderContent();
@@ -676,7 +676,7 @@
             $(this).text(scriptOff);
             $(this).attr(
               "title",
-              I18N.message("perc.ui.content.view@Turns Off JavaScript")
+              I18N.message("perc.ui.content.view@Turns Off JavaScript"),
             );
             model.setJavaScriptOff(false);
             renderContent();

@@ -37,6 +37,9 @@ import org.w3c.dom.Element;
  * then does not show the slots for that item.
  */
 public class PSCheckOutSlotItem extends PSDefaultExtension implements IPSResultDocumentProcessor {
+  /** Creates a new PSCheckOutSlotItem. */
+  public PSCheckOutSlotItem() {}
+
   // see IPSResultDocumentProcessor#canModifyStyleSheet()
   public boolean canModifyStyleSheet() {
     return false;

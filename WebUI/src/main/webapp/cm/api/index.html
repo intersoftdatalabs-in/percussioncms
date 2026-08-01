@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <title>Swagger UI</title>
@@ -77,7 +77,7 @@
             log("added key " + key);
             window.authorizations.add(
               "key",
-              new ApiKeyAuthorization("api_key", key, "query")
+              new ApiKeyAuthorization("api_key", key, "query"),
             );
           }
         });

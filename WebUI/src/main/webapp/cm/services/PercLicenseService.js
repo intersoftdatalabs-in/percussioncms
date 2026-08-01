@@ -41,11 +41,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback(status, defMsg);
         }
-      }
+      },
     );
   }
 
@@ -65,7 +65,7 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback(status, defMsg);
         }
@@ -74,7 +74,7 @@
       function (status) {
         // On abort(timeout) callback
         callback(status);
-      }
+      },
     );
   }
 
@@ -100,11 +100,11 @@
         if (status === $.PercServiceUtils.STATUS_SUCCESS) {
           callback(
             $.PercServiceUtils.STATUS_SUCCESS,
-            result.data.licenseStatus
+            result.data.licenseStatus,
           );
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback(status, defaultMsg);
         }
@@ -113,7 +113,7 @@
       function (status) {
         // On abort(timeout) callback
         callback(status);
-      }
+      },
     );
   }
   /**
@@ -146,7 +146,7 @@
           callback(true, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback(false, defaultMsg);
         }
@@ -156,9 +156,9 @@
         // On abort(timeout) callback
         callback(
           false,
-          I18N.message("perc.ui.licence.service@Lisensing Service Timed Out")
+          I18N.message("perc.ui.licence.service@Lisensing Service Timed Out"),
         );
-      }
+      },
     );
   }
   /**
@@ -177,7 +177,7 @@
           callback(true, result.data);
         } else {
           var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback(false, defMsg);
         }
@@ -187,9 +187,9 @@
         // On abort(timeout) callback
         callback(
           false,
-          I18N.message("perc.ui.lisence.service@Module License Save Failed")
+          I18N.message("perc.ui.lisence.service@Module License Save Failed"),
         );
-      }
+      },
     );
   }
 })(jQuery);

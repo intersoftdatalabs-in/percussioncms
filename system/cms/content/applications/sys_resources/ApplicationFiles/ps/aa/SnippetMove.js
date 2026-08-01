@@ -29,7 +29,7 @@ ps.aa.SnippetMove = function (
   slotId,
   targetSlotId,
   targetIndex,
-  dontUpdatePage
+  dontUpdatePage,
 ) {
   ps.assertType(snippetId, ps.aa.ObjectId);
   ps.assertType(targetSlotId, ps.aa.ObjectId);
@@ -140,7 +140,7 @@ ps.aa.SnippetMove = function (
     if (uiUpdateNeeded) {
       ps.assert(
         this.getDontUpdatePage(),
-        "uiUpdateNeeded can be true only if getDontUpdatePage is true"
+        "uiUpdateNeeded can be true only if getDontUpdatePage is true",
       );
     }
     this._m_uiUpdateNeeded = uiUpdateNeeded;

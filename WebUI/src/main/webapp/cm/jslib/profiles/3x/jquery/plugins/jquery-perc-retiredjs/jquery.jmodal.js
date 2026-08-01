@@ -36,7 +36,7 @@
           content: "This is a jquery plugin!",
           skinId: "jmodal-main",
         },
-        setting
+        setting,
       );
 
       var allSel = $("select").hide();
@@ -124,7 +124,7 @@
             '<div class="jmodal-border-bottom jmodal-png-fiexed">&nbsp;</div>' +
             '<div class="jmodal-bottom-right jmodal-png-fiexed">&nbsp;</div>' +
             "</div>" +
-            "</div>"
+            "</div>",
         ).appendTo($(document.body));
         jmodal = $("#jquery-jmodal");
         overlay = $("#jmodal-overlay");

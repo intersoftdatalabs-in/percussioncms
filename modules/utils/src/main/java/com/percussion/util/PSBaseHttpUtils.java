@@ -102,13 +102,11 @@ public class PSBaseHttpUtils {
    * <p>
    *
    * <BLOCKQUOTE>
-   *
    * The grammar described by this specification is word-based. Except where noted otherwise, linear
    * whitespace (LWS) can be included between any two adjacent words (token or quoted-string), and
    * between adjacent tokens and delimiters (tspecials), without changing the interpretation of a
    * field. At least one delimiter (tspecials) must exist between any two tokens, since they would
    * otherwise be interpreted as a single token.
-   *
    * </BLOCKQUOTE>
    *
    * <PRE>

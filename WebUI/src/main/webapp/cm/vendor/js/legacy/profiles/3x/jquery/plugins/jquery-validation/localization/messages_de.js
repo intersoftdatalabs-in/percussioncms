@@ -15,10 +15,10 @@
     required: "Dieses Feld ist ein Pflichtfeld.",
     maxlength: $.validator.format("Geben Sie bitte maximal {0} Zeichen ein."),
     minlength: $.validator.format(
-      "Geben Sie bitte mindestens {0} Zeichen ein."
+      "Geben Sie bitte mindestens {0} Zeichen ein.",
     ),
     rangelength: $.validator.format(
-      "Geben Sie bitte mindestens {0} und maximal {1} Zeichen ein."
+      "Geben Sie bitte mindestens {0} und maximal {1} Zeichen ein.",
     ),
     email: "Geben Sie bitte eine gültige E-Mail-Adresse ein.",
     url: "Geben Sie bitte eine gültige URL ein.",
@@ -27,24 +27,24 @@
     digits: "Geben Sie bitte nur Ziffern ein.",
     equalTo: "Wiederholen Sie bitte denselben Wert.",
     range: $.validator.format(
-      "Geben Sie bitte einen Wert zwischen {0} und {1} ein."
+      "Geben Sie bitte einen Wert zwischen {0} und {1} ein.",
     ),
     max: $.validator.format(
-      "Geben Sie bitte einen Wert kleiner oder gleich {0} ein."
+      "Geben Sie bitte einen Wert kleiner oder gleich {0} ein.",
     ),
     min: $.validator.format(
-      "Geben Sie bitte einen Wert größer oder gleich {0} ein."
+      "Geben Sie bitte einen Wert größer oder gleich {0} ein.",
     ),
     creditcard: "Geben Sie bitte eine gültige Kreditkarten-Nummer ein.",
     remote: "Korrigieren Sie bitte dieses Feld.",
     dateISO: "Geben Sie bitte ein gültiges Datum ein (ISO-Format).",
     step: $.validator.format("Geben Sie bitte ein Vielfaches von {0} ein."),
     maxWords: $.validator.format(
-      "Geben Sie bitte {0} Wörter oder weniger ein."
+      "Geben Sie bitte {0} Wörter oder weniger ein.",
     ),
     minWords: $.validator.format("Geben Sie bitte mindestens {0} Wörter ein."),
     rangeWords: $.validator.format(
-      "Geben Sie bitte zwischen {0} und {1} Wörtern ein."
+      "Geben Sie bitte zwischen {0} und {1} Wörtern ein.",
     ),
     accept: "Geben Sie bitte einen Wert mit einem gültigen MIME-Typ ein.",
     alphanumeric:
@@ -89,14 +89,14 @@
       "Geben Sie bitte eine gültige niederländische Postleitzahl ein.",
     postcodeUK: "Geben Sie bitte eine gültige britische Postleitzahl ein.",
     require_from_group: $.validator.format(
-      "Füllen Sie bitte mindestens {0} dieser Felder aus."
+      "Füllen Sie bitte mindestens {0} dieser Felder aus.",
     ),
     skip_or_fill_minimum: $.validator.format(
-      "Überspringen Sie bitte diese Felder oder füllen Sie mindestens {0} von ihnen aus."
+      "Überspringen Sie bitte diese Felder oder füllen Sie mindestens {0} von ihnen aus.",
     ),
     stateUS: "Geben Sie bitte einen gültigen US-Bundesstaat ein.",
     strippedminlength: $.validator.format(
-      "Geben Sie bitte mindestens {0} Zeichen ein."
+      "Geben Sie bitte mindestens {0} Zeichen ein.",
     ),
     time: "Geben Sie bitte eine gültige Uhrzeit zwischen 00:00 und 23:59 ein.",
     time12h: "Geben Sie bitte eine gültige Uhrzeit im 12-Stunden-Format ein.",

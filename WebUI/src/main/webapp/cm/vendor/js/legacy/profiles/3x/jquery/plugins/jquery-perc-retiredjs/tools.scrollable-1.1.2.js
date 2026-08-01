@@ -194,14 +194,14 @@
             { left: -item.position().left },
             time,
             conf.easing,
-            callback
+            callback,
           );
         } else {
           wrap.animate(
             { top: -item.position().top },
             time,
             conf.easing,
-            callback
+            callback,
           );
         }
 

@@ -28,7 +28,7 @@
     }
 
     $(
-      "#perc-google-calendar-background-color, #perc-google-calendar-text-color"
+      "#perc-google-calendar-background-color, #perc-google-calendar-text-color",
     ).minicolors({
       control: $(this).attr("data-control") || "hue",
       defaultValue: $(this).attr("data-defaultValue") || "",
@@ -126,7 +126,7 @@
 
       //Add the pre-submit handler to prepare data for saving.
       window.parent.jQuery.PercContentPreSubmitHandlers.addHandler(
-        _preSubmitHandler
+        _preSubmitHandler,
       );
 
       //Widget behavioral events
@@ -142,7 +142,7 @@
         $table.find("table").append($clone);
 
         $(
-          "#perc-google-calendar-background-color, #perc-google-calendar-text-color"
+          "#perc-google-calendar-background-color, #perc-google-calendar-text-color",
         ).minicolors({
           hide: function () {
             console.log("Hide event triggered!");
@@ -215,7 +215,7 @@
             .find(".perc-google-calendar-text-color")
             .val();
           alt["className"] = convertToSlug(
-            $(this).find(".perc-google-calendar-name").val()
+            $(this).find(".perc-google-calendar-name").val(),
           );
 
           config.push(alt);
@@ -235,7 +235,7 @@
       }
 
       $("#perc-content-edit-sys_title").val(
-        $("#perc-content-edit-calendarName").val()
+        $("#perc-content-edit-calendarName").val(),
       );
 
       //Get the Widget data and convert it to a JSON string that can be saved.

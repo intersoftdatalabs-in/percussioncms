@@ -37,7 +37,7 @@
         }
 
         this.settings.dateFormatter = new SimpleDateFormat(
-          this.settings.dateFormat
+          this.settings.dateFormat,
         );
 
         var urlstring = $.deparam.querystring();
@@ -70,7 +70,7 @@
           // Might already be defined by the paging mechanism, if we're using one.
           this.settings.maxResults = parseInt(
             this.settings.query.maxResults,
-            10
+            10,
           ); // Set
           if (isNaN(this.settings.maxResults) || 1 > this.settings.maxResults) {
             // Check
@@ -110,7 +110,7 @@
           if ("function" === typeof secondCallback) {
             secondCallback(data, success);
           }
-        }
+        },
       );
     },
     updateDisplay: function (respTotalEntries) {
@@ -135,7 +135,7 @@
       } else {
         console.warn(
           "There are 0 results or there was an error retrieving results" +
-            "from the metadata service."
+            "from the metadata service.",
         );
       }
     },
@@ -146,13 +146,13 @@
     if (methods[method]) {
       return methods[method].apply(
         this.get(0),
-        Array.prototype.slice.call(arguments, 1)
+        Array.prototype.slice.call(arguments, 1),
       );
     } else if ("object" === typeof method || !method) {
       return methods.init.apply(this.get(0), arguments);
     } else {
       $.error(
-        "Method " + method + " does not exist on jQuery.PercResultRenderer"
+        "Method " + method + " does not exist on jQuery.PercResultRenderer",
       );
     }
   };
@@ -162,7 +162,7 @@
       .append(
         $("<h2/>")
           .addClass("perc-result-title")
-          .text(settings.headerText + " " + settings.filter)
+          .text(settings.headerText + " " + settings.filter),
       )
       .append(
         $("<p/>")
@@ -171,8 +171,8 @@
             count +
               (1 === count
                 ? " " + settings.entriesTextSingular
-                : " " + settings.entriesTextPlural)
-          )
+                : " " + settings.entriesTextPlural),
+          ),
       );
     return title;
   }
@@ -194,7 +194,7 @@
         .css("cursor", "pointer")
         .on("click", function () {
           window.location = pagePath;
-        })
+        }),
     );
 
     //Page date
@@ -206,7 +206,7 @@
     ) {
       moment.locale(locale);
       datePage = moment(entry.properties["dcterms:created"]).formatWithJDF(
-        settings.dateFormat
+        settings.dateFormat,
       );
     }
 
@@ -220,7 +220,7 @@
     pageItem.append(
       $("<p/>")
         .addClass("perc-result-page-date")
-        .text(datePage + " " + timeZone)
+        .text(datePage + " " + timeZone),
     );
 
     // Page summary
@@ -246,7 +246,7 @@
         }
       }
       pageItem.append(
-        $("<div/>").addClass("perc-result-page-summary").html(summary)
+        $("<div/>").addClass("perc-result-page-summary").html(summary),
       );
     } // end if
     return pageItem;

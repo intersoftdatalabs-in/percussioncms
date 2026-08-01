@@ -40,12 +40,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      obj
+      obj,
     );
   }
 
@@ -54,7 +54,7 @@
     startDateDrill,
     endDateDrill,
     usage,
-    callback
+    callback,
   ) {
     var request = {
       TrafficDetailsRequest: {
@@ -74,12 +74,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      request
+      request,
     );
   }
 
@@ -90,7 +90,7 @@
     granularity,
     trafficRequested,
     usage,
-    callback
+    callback,
   ) {
     var obj = {
       ContentTrafficRequest: {
@@ -112,12 +112,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      obj
+      obj,
     );
   }
 
@@ -127,7 +127,7 @@
     duration,
     usage,
     threshold,
-    callback
+    callback,
   ) {
     var obj = {
       EffectivenessRequest: {
@@ -147,12 +147,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      obj
+      obj,
     );
   }
 })(jQuery);

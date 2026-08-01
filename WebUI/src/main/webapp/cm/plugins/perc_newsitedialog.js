@@ -94,7 +94,7 @@ var $perc_newSiteDialogLayout;
                   "'/>" +
                   "<br/><span>" +
                   val.split(".")[2] +
-                  "</span>"
+                  "</span>",
               );
               $("#selectedtemplate").val(val);
             },
@@ -273,7 +273,7 @@ var $perc_newSiteDialogLayout;
         null,
         pathItem.path,
         null,
-        memento
+        memento,
       );
     }
 
@@ -326,7 +326,7 @@ var $perc_newSiteDialogLayout;
             function (status, jobId) {
               // callbackJobIdHandler is specified by the Import Progress dialog
               callbackJobIdHandler(status, jobId);
-            }
+            },
           );
         },
         pollingProgressCallback: $.PercSiteService.createSiteFromUrlStatus,
@@ -425,7 +425,7 @@ var $perc_newSiteDialogLayout;
 
   function _loadTemplateList() {
     var baseTemplates = $(
-      "#perc-base-template-lib"
+      "#perc-base-template-lib",
     ).PercScrollingTemplateBrowser({
       isBase: true,
       width: 590,
@@ -433,7 +433,7 @@ var $perc_newSiteDialogLayout;
       hiddenFieldId: "perc_selected_basetemplate",
     });
     var respTemplates = $(
-      "#perc-resp-template-lib"
+      "#perc-resp-template-lib",
     ).PercScrollingTemplateBrowser({
       isBase: true,
       width: 590,
@@ -504,7 +504,7 @@ var $perc_newSiteDialogLayout;
       templatename: {
         required: I18N.message("perc.ui.new.site.dialog@Template Req"),
         perc_remote: I18N.message(
-          "perc.ui.new.site.dialog@Template Unique Req"
+          "perc.ui.new.site.dialog@Template Unique Req",
         ),
       },
       selectedtemplate: {

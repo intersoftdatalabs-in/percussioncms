@@ -46,8 +46,6 @@ import org.w3c.dom.Node;
  * parameters that are already there if appendParameter flag is not set or is "no". If flag is set
  * to "yes" then the new values will be appended to the existing parameters.
  *
- * <p>
- *
  * <p>The parameters for this exit are:
  *
  * <table border="1">
@@ -73,6 +71,9 @@ import org.w3c.dom.Node;
  * </table>
  */
 public class PSXdDomToParams extends PSDefaultExtension implements IPSRequestPreProcessor {
+  /** Creates a new PSXdDomToParams. */
+  public PSXdDomToParams() {}
+
   /**
    * This method handles the pre-exit request.
    *

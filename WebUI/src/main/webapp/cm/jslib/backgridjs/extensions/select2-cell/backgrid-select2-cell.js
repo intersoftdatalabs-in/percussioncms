@@ -41,7 +41,7 @@
       setSelect2Options: function (options) {
         this.select2Options = _.extend(
           { containerCssClass: "select2-container" },
-          options || {}
+          options || {},
         );
       },
 
@@ -78,7 +78,7 @@
         this.$el.select2("destroy");
         return Backgrid.SelectCellEditor.prototype.remove.apply(
           this,
-          arguments
+          arguments,
         );
       },
     }));
@@ -120,7 +120,7 @@
           if (column.get("name") == this.column.get("name")) {
             editor.setSelect2Options(this.select2Options);
           }
-        }
+        },
       );
     },
   });
