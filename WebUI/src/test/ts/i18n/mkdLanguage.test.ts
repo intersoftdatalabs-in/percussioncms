@@ -22,7 +22,8 @@ const configureMock = vi.fn();
 const rescanMock = vi.fn();
 const destroyMock = vi.fn();
 
-vi.mock("@mkd/language", () => {
+vi.mock("@mkd/language", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@mkd/language")>();
   class NoopSubmissionClient {
     constructor(public debug = false) {}
     async submit(): Promise<void> {
@@ -30,6 +31,7 @@ vi.mock("@mkd/language", () => {
     }
   }
   return {
+    ...actual,
     NoopSubmissionClient,
     init: (...args: unknown[]) => {
       initMock(...args);
@@ -124,9 +126,11 @@ describe("mkdLanguage adapter", () => {
       const opts = initMock.mock.calls[0][0] as {
         messageIdAttr: string;
         locale: string;
+        getMessageId?: (el: Element) => string | undefined;
       };
       expect(opts.messageIdAttr).toBe("data-i18n-key");
       expect(opts.locale).toBe("fr-fr");
+      expect(typeof opts.getMessageId).toBe("function");
 
       // second call reconfigures rather than stacking
       ensureMkdLanguage({ locale: "de-de" });

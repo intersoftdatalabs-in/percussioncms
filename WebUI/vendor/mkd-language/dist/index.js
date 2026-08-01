@@ -152,6 +152,17 @@ function setTriggerExpanded(trigger, expanded) {
 }
 
 // src/scan/attach.ts
+var CHROME_SELECTORS = [
+  '[role="tab"]',
+  "legend",
+  "th",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6"
+];
 function buildSelectorList(config) {
   const parts = [
     "label",
@@ -160,23 +171,38 @@ function buildSelectorList(config) {
     '[role="button"]',
     "[aria-label]",
     "[aria-labelledby]",
-    `.${cssEscapeClass(config.targetClass)}`,
-    ...config.includeSelectors
+    `.${cssEscapeClass(config.targetClass)}`
   ];
+  if (config.includeChromeSelectors) {
+    parts.push(...CHROME_SELECTORS);
+  }
+  if (config.scanMessageIdAttr && config.messageIdAttr) {
+    parts.push(`[${cssEscapeAttr(config.messageIdAttr)}]`);
+  }
+  parts.push(...config.includeSelectors);
   return parts.join(",");
 }
 function cssEscapeClass(className) {
-  if (typeof CSS !== "undefined" && typeof CSS.escape === "function") {
-    return CSS.escape(className);
-  }
-  return className.replace(/([ !"#$%&'()*+,./:;<=>?@[\\\]^`{|}~])/g, "\\$1");
+  return cssEscapeIdent(className);
 }
-function matchReasonFor(el, targetClass) {
+function cssEscapeAttr(attr) {
+  return cssEscapeIdent(attr);
+}
+function cssEscapeIdent(value) {
+  if (typeof CSS !== "undefined" && typeof CSS.escape === "function") {
+    return CSS.escape(value);
+  }
+  return value.replace(/([ !"#$%&'()*+,./:;<=>?@[\\\]^`{|}~])/g, "\\$1");
+}
+function matchReasonFor(el, targetClass, messageIdAttr) {
   const tag = el.tagName.toLowerCase();
   if (tag === "label") return "label";
   if (tag === "button") return "button";
   if (tag === "a" && el.hasAttribute("href")) return "link";
   if (el.getAttribute("role") === "button") return "role-button";
+  if (el.getAttribute("role") === "tab") return "chrome";
+  if (tag === "legend" || tag === "th" || /^h[1-6]$/.test(tag)) return "chrome";
+  if (messageIdAttr && el.hasAttribute(messageIdAttr)) return "message-id";
   if (el.classList.contains(targetClass)) return "class";
   if (el.hasAttribute("aria-label") || el.hasAttribute("aria-labelledby")) return "aria";
   return "custom";
@@ -221,7 +247,11 @@ function scanAndAttach(config, openPopover, boundElements) {
 function attachTrigger(el, config, openPopover, boundElements) {
   markBound(el);
   const trigger = createTrigger(config, () => {
-    openPopover(el, trigger, matchReasonFor(el, config.targetClass));
+    openPopover(
+      el,
+      trigger,
+      matchReasonFor(el, config.targetClass, config.messageIdAttr)
+    );
   });
   if (canHaveChildren(el)) {
     el.appendChild(trigger);
@@ -1002,9 +1032,11 @@ function resolveConfig(options = {}) {
     userEmail: options.userEmail,
     getUserEmail: options.getUserEmail,
     messageIdAttr: options.messageIdAttr === void 0 ? "data-i18n-key" : options.messageIdAttr,
+    scanMessageIdAttr: options.scanMessageIdAttr ?? true,
     getMessageId: options.getMessageId,
     messageIdAncestorWalk: options.messageIdAncestorWalk ?? true,
     targetClass: options.targetClass ?? "mkd-lang-target",
+    includeChromeSelectors: options.includeChromeSelectors ?? true,
     includeSelectors: options.includeSelectors ?? [],
     root: options.root ?? document.documentElement,
     client: options.client ?? new NoopSubmissionClient(debug),
@@ -1022,11 +1054,17 @@ function mergeConfig(current, partial) {
   if (partial.userEmail !== void 0) next.userEmail = partial.userEmail;
   if (partial.getUserEmail !== void 0) next.getUserEmail = partial.getUserEmail;
   if (partial.messageIdAttr !== void 0) next.messageIdAttr = partial.messageIdAttr;
+  if (partial.scanMessageIdAttr !== void 0) {
+    next.scanMessageIdAttr = partial.scanMessageIdAttr;
+  }
   if (partial.getMessageId !== void 0) next.getMessageId = partial.getMessageId;
   if (partial.messageIdAncestorWalk !== void 0) {
     next.messageIdAncestorWalk = partial.messageIdAncestorWalk;
   }
   if (partial.targetClass !== void 0) next.targetClass = partial.targetClass;
+  if (partial.includeChromeSelectors !== void 0) {
+    next.includeChromeSelectors = partial.includeChromeSelectors;
+  }
   if (partial.includeSelectors !== void 0) {
     next.includeSelectors = partial.includeSelectors;
   }
@@ -1101,8 +1139,57 @@ function init(options = {}) {
   activeHandle = handle;
   return handle;
 }
+
+// src/host/createTrackedMessage.ts
+function normalizeTrackedText(text) {
+  return text.replace(/\s+/g, " ").trim();
+}
+function createTrackedMessage(resolve) {
+  const byText = /* @__PURE__ */ new Map();
+  function message(key, args) {
+    const text = resolve(key, args);
+    const normalized = normalizeTrackedText(text ?? "");
+    if (normalized && key) {
+      byText.set(normalized, key);
+    }
+    return text;
+  }
+  function getMessageId(el) {
+    const normalized = normalizeTrackedText(extractVisibleText(el));
+    if (!normalized) return void 0;
+    return byText.get(normalized);
+  }
+  return {
+    message,
+    getMessageId,
+    clear: () => {
+      byText.clear();
+    },
+    size: () => byText.size
+  };
+}
+
+// src/host/messageIdProps.ts
+var MESSAGE_ID_ATTR = "data-i18n-key";
+var TARGET_CLASS = "mkd-lang-target";
+function messageIdProps(key, options = {}) {
+  const attr = options.attr ?? MESSAGE_ID_ATTR;
+  const props = { [attr]: key };
+  if (options.markTarget) {
+    const target = options.targetClass ?? TARGET_CLASS;
+    props.className = [target, options.className].filter(Boolean).join(" ");
+  } else if (options.className) {
+    props.className = options.className;
+  }
+  return props;
+}
 export {
+  MESSAGE_ID_ATTR,
   NoopSubmissionClient,
+  TARGET_CLASS,
+  createTrackedMessage,
   init,
+  messageIdProps,
+  normalizeTrackedText,
   registerCatalog
 };

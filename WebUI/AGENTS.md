@@ -142,7 +142,7 @@ cp WebUI/target/generated-webui/cm/modern/assets/perc-modern-ui.css \
 - Feature modules under `src/main/ts/<feature>/`
 - REST via `api/client.ts` + feature APIs; CSRF from bootstrap / `OWASP_CSRFTOKEN`
 - i18n via TMX `message()` helpers — no raw keys in primary chrome
-- **Crowdsource translation (alpha, third-party):** vendored `@mkd/language` under `WebUI/vendor/mkd-language/`. Adapter: `src/main/ts/i18n/mkdLanguage.ts`. DOM keys: spread `i18nKeyAttr(key)` from `i18n/i18nDom.ts` on localized hosts (`data-i18n-key`). **Opt-in only:** `?mkdLang=1` or `localStorage.perc-mkd-lang=1`. Default submit is no-op. Do not edit vendored `dist/`; refresh procedure is in the vendor README. Treat mkd-language / mkd-gcm as external — no product design notes for that stack in this monorepo.
+- **Crowdsource translation (alpha, third-party):** vendored `@mkd/language` under `WebUI/vendor/mkd-language/`. Adapter: `src/main/ts/i18n/mkdLanguage.ts`. Keys come from **tracked** `message()` (`createTrackedMessage` / `getTrackedMessageId`) — do **not** mass-annotate templates with `data-i18n-key`. Optional `i18nKeyAttr` only for collisions / non-`message` chrome. **Opt-in only:** `?mkdLang=1` or `localStorage.perc-mkd-lang=1`. Default submit is no-op. Do not edit vendored `dist/`; refresh procedure is in the vendor README. Treat mkd-language / mkd-gcm as external — no product design notes for that stack in this monorepo.
 - Styles: CSS modules preferred; theme tokens via `ui-themes`
 - Tests: **two layers** — Vitest for unit/component logic **and** Playwright for live-CMS screen behavior (see **Playwright (HARD GATE)**)
 - Prefer stable `data-testid` on interactive chrome so Playwright selectors stay reliable

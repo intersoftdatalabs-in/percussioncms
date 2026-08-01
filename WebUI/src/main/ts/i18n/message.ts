@@ -20,7 +20,13 @@
  *
  * <p>Shell JSPs must load {@code /Rhythmyx/tmx/tmx.jsp?mode=js&prefix=perc.ui.&sys_lang=...}
  * before the modern bundle so keys resolve for the session locale (FR-023).</p>
+ *
+ * <p>Resolutions are tracked for third-party {@code @mkd/language} so correction
+ * popovers can associate catalog keys without per-element {@code data-i18n-key}
+ * attributes. See {@link getTrackedMessageId}.</p>
  */
+
+import { createTrackedMessage } from "@mkd/language";
 
 declare global {
   interface Window {
@@ -46,13 +52,9 @@ export function fallbackLabelFromKey(key: string): string {
 }
 
 /**
- * Resolve a TMX message key. Falls back to the English segment after {@code @}
- * (or the raw key) when I18N is unavailable (tests, or spa.jsp missing tmx load).
- *
- * @param key - catalog key such as {@code perc.ui.home@My Recent}
- * @param args - optional format arguments (legacy I18N.message second arg)
+ * Resolve a TMX message key (no tracking). Prefer {@link message} at call sites.
  */
-export function message(key: string, args?: unknown[]): string {
+export function resolveMessage(key: string, args?: unknown[]): string {
   const i18n = typeof window !== "undefined" ? window.I18N : undefined;
   if (i18n?.message) {
     try {
@@ -68,6 +70,35 @@ export function message(key: string, args?: unknown[]): string {
     }
   }
   return fallbackLabelFromKey(key);
+}
+
+const tracked = createTrackedMessage((key, args) => resolveMessage(key, args));
+
+/**
+ * Resolve a TMX message key. Falls back to the English segment after {@code @}
+ * (or the raw key) when I18N is unavailable (tests, or spa.jsp missing tmx load).
+ *
+ * <p>Also registers the key↔display mapping for {@code @mkd/language}
+ * ({@link getTrackedMessageId}).</p>
+ *
+ * @param key - catalog key such as {@code perc.ui.home@My Recent}
+ * @param args - optional format arguments (legacy I18N.message second arg)
+ */
+export function message(key: string, args?: unknown[]): string {
+  return tracked.message(key, args);
+}
+
+/**
+ * Catalog key for a DOM host from tracked {@link message} resolutions.
+ * Passed to {@code @mkd/language} {@code init({ getMessageId })}.
+ */
+export function getTrackedMessageId(el: Element): string | undefined {
+  return tracked.getMessageId(el);
+}
+
+/** Test helper — clear tracked key↔text map. */
+export function __resetMessageTrackingForTests(): void {
+  tracked.clear();
 }
 
 export const MSG = {

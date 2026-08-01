@@ -6,21 +6,27 @@ Built artifacts only — **do not edit** `dist/`.
 | Field | Value |
 |-------|--------|
 | Package | `@mkd/language` |
-| Vendored version | `0.1.0` |
-| Upstream (human note) | Separate mkd-language workspace / repo — not part of this monorepo |
-| Percussion usage | `WebUI/src/main/ts/i18n/mkdLanguage.ts` |
+| Vendored version | `0.2.0` |
+| Upstream | Separate mkd-language workspace — not part of this monorepo |
+| Percussion usage | `WebUI/src/main/ts/i18n/mkdLanguage.ts` + tracked `message()` |
+
+## Preferred host pattern (0.2+)
+
+`message()` in `src/main/ts/i18n/message.ts` is wrapped with `createTrackedMessage`.
+`ensureMkdLanguage` passes `getTrackedMessageId` — **no per-element attrs required**
+for catalog keys on chrome that already calls `message(key)`.
+
+Optional explicit attrs: `i18nKeyAttr` / library `messageIdProps`.
 
 ## Refresh
 
 From a checkout of the mkd-language **client** package:
 
 ```bash
-# in mkd-language/client
+cd client
 npm test
 npm run build
 ```
-
-Then copy into this tree (portable PowerShell example):
 
 ```powershell
 Copy-Item <mkd-language>/client/dist/index.js   WebUI/vendor/mkd-language/dist/index.js

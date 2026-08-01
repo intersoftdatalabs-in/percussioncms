@@ -16,23 +16,29 @@
  */
 
 /**
- * DOM attributes for the third-party {@code @mkd/language} correction client.
+ * Optional DOM key helpers for {@code @mkd/language}.
  *
- * <p>Host elements that display a TMX-resolved string should spread
- * {@link i18nKeyAttr} so correction submissions include the catalog key.
- * The attribute name matches the library default {@code messageIdAttr}.</p>
+ * <p><strong>Preferred path:</strong> use {@link message} from {@code ./message}
+ * (tracked) so keys associate without attributes. Spread {@link i18nKeyAttr}
+ * only when you need an explicit key (collisions, non-message chrome).</p>
  */
 
+import {
+  MESSAGE_ID_ATTR,
+  messageIdProps as mkdMessageIdProps,
+} from "@mkd/language";
+
 /** Attribute name expected by {@code @mkd/language} {@code messageIdAttr}. */
-export const I18N_KEY_ATTR = "data-i18n-key" as const;
+export const I18N_KEY_ATTR = MESSAGE_ID_ATTR;
 
 export type I18nKeyAttrs = { [I18N_KEY_ATTR]: string };
 
 /**
- * Spread onto a host element that displays a localized TMX string.
+ * Spread onto a host when an explicit catalog key is required.
+ * Prefer tracked {@link message} for normal chrome.
  *
  * @param key - full catalog key (e.g. {@code perc.ui.navMenu@Home})
  */
 export function i18nKeyAttr(key: string): I18nKeyAttrs {
-  return { [I18N_KEY_ATTR]: key };
+  return mkdMessageIdProps(key) as I18nKeyAttrs;
 }

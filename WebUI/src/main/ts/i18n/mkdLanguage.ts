@@ -19,8 +19,10 @@
  * Thin adapter for third-party {@code @mkd/language} (crowdsource translation UX).
  *
  * <p>Alpha: opt-in via query or localStorage; submissions use the library
- * no-op client (optional debug log). Library design and GCM live outside this
- * monorepo — do not expand this module into product-owned correction UI.</p>
+ * no-op client (optional debug log). Catalog keys come from tracked
+ * {@link message} resolutions ({@link getTrackedMessageId}) — product screens
+ * do not need per-element {@code data-i18n-key} for alpha. Library design and
+ * GCM live outside this monorepo.</p>
  *
  * <p>Enable (developer / experiment):</p>
  * <ul>
@@ -35,6 +37,7 @@ import {
   type MkdLanguageHandle,
 } from "@mkd/language";
 import { I18N_KEY_ATTR } from "./i18nDom";
+import { getTrackedMessageId } from "./message";
 
 /** localStorage key for the opt-in experiment flag. */
 export const MKD_LANG_STORAGE_KEY = "perc-mkd-lang";
@@ -158,6 +161,9 @@ export function ensureMkdLanguage(
         debug,
         client: new NoopSubmissionClient(debug),
         messageIdAttr: I18N_KEY_ATTR,
+        getMessageId: getTrackedMessageId,
+        scanMessageIdAttr: true,
+        includeChromeSelectors: true,
       });
       handle.rescan();
       return handle;
@@ -169,6 +175,9 @@ export function ensureMkdLanguage(
       getUserEmail: options.getUserEmail,
       messageIdAttr: I18N_KEY_ATTR,
       messageIdAncestorWalk: true,
+      getMessageId: getTrackedMessageId,
+      scanMessageIdAttr: true,
+      includeChromeSelectors: true,
       client: new NoopSubmissionClient(debug),
       debug,
     });
@@ -203,6 +212,7 @@ export function configureMkdLanguage(
       debug,
       client: new NoopSubmissionClient(debug),
       messageIdAttr: I18N_KEY_ATTR,
+      getMessageId: getTrackedMessageId,
     });
   } catch (err) {
     console.warn("[PercModernUI] @mkd/language configure failed", err);
