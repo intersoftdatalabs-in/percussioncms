@@ -83,6 +83,13 @@
         <artemis.version>2.55.0</artemis.version>
         <avalon.version>4.1.5</avalon.version>
         <awssdk.version>1.12.797</awssdk.version>
+        <!-- Transitive CVE floors (see dependencyManagement BOM / pins below) -->
+        <!-- SolrJ → ZK 3.9.4; Dependabot #210/#211 need ≥3.9.5 -->
+        <zookeeper.version>3.9.5</zookeeper.version>
+        <!-- AWS SDK v1 / SolrJ still use com.fasterxml Jackson 2.x; product runtime is tools.jackson 3.x -->
+        <jackson.fasterxml.version>2.22.1</jackson.fasterxml.version>
+        <!-- Artemis modular Netty (not netty-all); Dependabot needs ≥4.1.136.Final -->
+        <netty.version>4.1.136.Final</netty.version>
         <batik.version>1.19</batik.version>
         <bc.version>1.84</bc.version>
         <build.helper.maven.plugin.version>3.6.1</build.helper.maven.plugin.version>
@@ -132,8 +139,9 @@
         <httpcomponents.core.version>4.4.16</httpcomponents.core.version>
         <httpcomponents.version>4.5.14</httpcomponents.version>
         <install.jre.version>8.222.10.1</install.jre.version>
-        <!-- Jackson 3.x runtime (tools.jackson); annotations stay on 2.x com.fasterxml by design -->
-        <jackson.annotation.api.version>2.21</jackson.annotation.api.version>
+        <!-- Jackson 3.x runtime (tools.jackson); annotations stay on 2.x com.fasterxml by design.
+             Annotations use major.minor only (2.22), not patch (jackson-bom jackson.version.annotations). -->
+        <jackson.annotation.api.version>2.22</jackson.annotation.api.version>
         <jackson.version>3.1.5</jackson.version>
         <jakarta.activation.version>2.1.4</jakarta.activation.version>
         <jakarta.annotation.api.version>3.0.0</jakarta.annotation.api.version>
@@ -267,6 +275,35 @@
     </properties>
     <dependencyManagement>
         <dependencies>
+            <!-- ===== Transitive security floors (BOM imports first) =====
+                 Product does not call Netty/ZooKeeper APIs directly. AWS SDK v1 and
+                 SolrJ still pull com.fasterxml Jackson 2.x; Artemis pulls modular Netty.
+                 Import BOMs so every module version is forced without sprinkling per-artifact
+                 pins. Exclude Solr's optional ZK client module so its 3.9.4 pin cannot win. -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-bom</artifactId>
+                <version>${netty.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson.fasterxml.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.zookeeper</groupId>
+                <artifactId>zookeeper</artifactId>
+                <version>${zookeeper.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.zookeeper</groupId>
+                <artifactId>zookeeper-jute</artifactId>
+                <version>${zookeeper.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-spring</artifactId>
@@ -910,6 +947,24 @@
                 <artifactId>solr-solrj</artifactId>
                 <version>${solr.version}</version>
                 <exclusions>
+                    <!-- Optional SolrCloud client; pins ZK 3.9.4 (Dependabot #210/#211).
+                         HTTP SolrJ does not need this module. If CloudSolrClient+ZK is
+                         required later, re-add solr-solrj-zookeeper and rely on
+                         zookeeper.version (3.9.5+) management above. -->
+                    <exclusion>
+                        <groupId>org.apache.solr</groupId>
+                        <artifactId>solr-solrj-zookeeper</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.zookeeper</groupId>
+                        <artifactId>zookeeper</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.zookeeper</groupId>
+                        <artifactId>zookeeper-jute</artifactId>
+                    </exclusion>
+                    <!-- com.fasterxml Jackson 2.x for SolrJ is version-forced via jackson-bom
+                         (do not exclude — SolrJ needs it at runtime). Netty via netty-bom. -->
                     <exclusion>
                         <groupId>io.netty</groupId>
                         <artifactId>netty-buffer</artifactId>
@@ -980,6 +1035,9 @@
                 <artifactId>aws-java-sdk-sts</artifactId>
                 <version>${awssdk.version}</version>
             </dependency>
+            <!-- AWS v1 still pulls com.fasterxml Jackson 2.x (pins 2.17.2 in its POM).
+                 Versions are forced by jackson-bom import above (${jackson.fasterxml.version}).
+                 Do not exclude without re-adding — S3/STS need Jackson on the classpath. -->
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
@@ -1038,7 +1096,9 @@
                 <version>${commons.compress.version}</version>
             </dependency>
             <!-- Apache Artemis TLP coordinates (org.apache.artemis); packages remain
-                 org.apache.activemq.artemis.* for API compatibility. -->
+                 org.apache.activemq.artemis.* for API compatibility.
+                 Modular Netty versions forced by netty-bom import (${netty.version});
+                 do not exclude Netty from Artemis — broker/client require it at runtime. -->
             <dependency>
                 <groupId>org.apache.artemis</groupId>
                 <artifactId>artemis-server</artifactId>
