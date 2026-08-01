@@ -42,7 +42,11 @@ function shouldIgnore(el, respectIgnore) {
   return false;
 }
 function isLibraryUi(el) {
-  return isTrigger(el) || el.hasAttribute(POPOVER_ROOT_ATTR) || !!el.closest(`[${POPOVER_ROOT_ATTR}]`);
+  return (
+    isTrigger(el) ||
+    el.hasAttribute(POPOVER_ROOT_ATTR) ||
+    !!el.closest(`[${POPOVER_ROOT_ATTR}]`)
+  );
 }
 function setText(el, text) {
   el.textContent = text;
@@ -64,23 +68,26 @@ var en = {
   "field.ariaLabelCurrent": "aria-label (now)",
   "field.ariaLabelProposed": "What aria-label should say",
   "field.ariaLabelledby": "aria-labelledby (now)",
-  "field.ariaLabelledbyHelp": "This control is named via aria-labelledby. Correct the referenced elements, or describe the issue in Notes on the Text tab.",
+  "field.ariaLabelledbyHelp":
+    "This control is named via aria-labelledby. Correct the referenced elements, or describe the issue in Notes on the Text tab.",
   "field.title": "title attribute (now)",
   "field.ariaEmpty": "No ARIA name attributes found on this element.",
   "action.submit": "Submit",
   "action.cancel": "Cancel",
   "action.submitting": "Submitting\u2026",
-  "error.localeRequired": "Locale is required. Configure locale when initializing @mkd/language.",
-  "error.noChange": "Change the text or aria-label, or add notes explaining why.",
+  "error.localeRequired":
+    "Locale is required. Configure locale when initializing @mkd/language.",
+  "error.noChange":
+    "Change the text or aria-label, or add notes explaining why.",
   "error.proposedRequired": "Enter what the text should say.",
   "error.submitFailed": "Could not submit your correction. Please try again.",
   "status.success": "Thanks \u2014 your correction was submitted.",
-  "status.failure": "Submission failed."
+  "status.failure": "Submission failed.",
 };
 
 // src/i18n/resolve.ts
 var CATALOGS = {
-  en
+  en,
 };
 var RTL_LANGS = /* @__PURE__ */ new Set(["ar", "he", "fa", "ur"]);
 function resolveLocaleValue(value) {
@@ -96,7 +103,7 @@ function resolveUiLocale(uiLocale, contentLocale) {
     resolveLocaleValue(uiLocale),
     resolveLocaleValue(contentLocale),
     typeof navigator !== "undefined" ? navigator.language : void 0,
-    "en"
+    "en",
   ].filter(Boolean);
   for (const tag of candidates) {
     const normalized = tag.toLowerCase();
@@ -136,7 +143,10 @@ function createTrigger(config, onActivate) {
   btn.setAttribute("aria-haspopup", "dialog");
   btn.setAttribute("aria-expanded", "false");
   const uiLocale = resolveUiLocale(config.uiLocale, config.locale);
-  btn.setAttribute("aria-label", t("trigger.ariaLabel", uiLocale, config.messages));
+  btn.setAttribute(
+    "aria-label",
+    t("trigger.ariaLabel", uiLocale, config.messages),
+  );
   btn.insertAdjacentHTML("afterbegin", MARK_SVG);
   const handle = (e) => {
     e.preventDefault();
@@ -161,7 +171,7 @@ var CHROME_SELECTORS = [
   "h3",
   "h4",
   "h5",
-  "h6"
+  "h6",
 ];
 function buildSelectorList(config) {
   const parts = [
@@ -171,7 +181,7 @@ function buildSelectorList(config) {
     '[role="button"]',
     "[aria-label]",
     "[aria-labelledby]",
-    `.${cssEscapeClass(config.targetClass)}`
+    `.${cssEscapeClass(config.targetClass)}`,
   ];
   if (config.includeChromeSelectors) {
     parts.push(...CHROME_SELECTORS);
@@ -204,7 +214,8 @@ function matchReasonFor(el, targetClass, messageIdAttr) {
   if (tag === "legend" || tag === "th" || /^h[1-6]$/.test(tag)) return "chrome";
   if (messageIdAttr && el.hasAttribute(messageIdAttr)) return "message-id";
   if (el.classList.contains(targetClass)) return "class";
-  if (el.hasAttribute("aria-label") || el.hasAttribute("aria-labelledby")) return "aria";
+  if (el.hasAttribute("aria-label") || el.hasAttribute("aria-labelledby"))
+    return "aria";
   return "custom";
 }
 function shouldSkip(el, config) {
@@ -227,7 +238,7 @@ function scanAndAttach(config, openPopover, boundElements) {
       '[role="button"]',
       "[aria-label]",
       "[aria-labelledby]",
-      `.${cssEscapeClass(config.targetClass)}`
+      `.${cssEscapeClass(config.targetClass)}`,
     ].join(",");
     nodes = Array.from(config.root.querySelectorAll(fallback));
   }
@@ -250,7 +261,7 @@ function attachTrigger(el, config, openPopover, boundElements) {
     openPopover(
       el,
       trigger,
-      matchReasonFor(el, config.targetClass, config.messageIdAttr)
+      matchReasonFor(el, config.targetClass, config.messageIdAttr),
     );
   });
   if (canHaveChildren(el)) {
@@ -278,7 +289,7 @@ function canHaveChildren(el) {
     "param",
     "source",
     "track",
-    "wbr"
+    "wbr",
   ]);
   return !voidTags.has(el.tagName.toLowerCase());
 }
@@ -319,10 +330,11 @@ function startObserver(config, openPopover, boundElements, onScan) {
       onScan();
     });
   });
-  const rootNode = config.root instanceof Document ? config.root.documentElement : config.root;
+  const rootNode =
+    config.root instanceof Document ? config.root.documentElement : config.root;
   observer.observe(rootNode, {
     childList: true,
-    subtree: true
+    subtree: true,
   });
   return observer;
 }
@@ -359,7 +371,12 @@ function attrOrNull(el, name) {
 function resolveMessageId(el, config) {
   const { messageIdAttr, messageIdAncestorWalk, getMessageId, root } = config;
   if (messageIdAttr) {
-    const fromAttr = readAttrWalk(el, messageIdAttr, messageIdAncestorWalk, root);
+    const fromAttr = readAttrWalk(
+      el,
+      messageIdAttr,
+      messageIdAncestorWalk,
+      root,
+    );
     if (fromAttr) return fromAttr;
   }
   if (getMessageId) {
@@ -392,7 +409,8 @@ function validateSubmission(payload) {
   const currentAria = (payload.currentAriaLabel ?? "").trim();
   const notes = payload.notes.trim();
   const textChanged = proposedText !== currentText;
-  const ariaChanged = payload.proposedAriaLabel != null && proposedAria !== currentAria;
+  const ariaChanged =
+    payload.proposedAriaLabel != null && proposedAria !== currentAria;
   const hasVisible = currentText.length > 0 || proposedText.length > 0;
   const hasAriaSource = currentAria.length > 0 || proposedAria.length > 0;
   if (hasVisible && !proposedText && !hasAriaSource) {
@@ -651,7 +669,8 @@ function createPopoverController(getConfig) {
     setTriggerExpanded(trigger, true);
     const uiLocale = resolveUiLocale(config.uiLocale, config.locale);
     const contentLocale = resolveLocaleValue(config.locale) ?? "";
-    const email = config.getUserEmail?.()?.trim() || config.userEmail?.trim() || "";
+    const email =
+      config.getUserEmail?.()?.trim() || config.userEmail?.trim() || "";
     const currentText = extractVisibleText(el);
     const currentAriaLabel = attrOrNull(el, "aria-label");
     const ariaLabelledby = attrOrNull(el, "aria-labelledby");
@@ -713,30 +732,34 @@ function createPopoverController(getConfig) {
     panelText.setAttribute("role", "tabpanel");
     panelText.setAttribute("aria-labelledby", tabTextId);
     panelText.appendChild(
-      readonlyField(tt("field.currentText"), currentText || "\u2014", uid("cur"))
+      readonlyField(
+        tt("field.currentText"),
+        currentText || "\u2014",
+        uid("cur"),
+      ),
     );
     panelText.appendChild(
       readonlyField(
         tt("field.messageId"),
         messageId ?? tt("field.messageIdMissing"),
-        uid("mid")
-      )
+        uid("mid"),
+      ),
     );
     panelText.appendChild(
-      readonlyField(tt("field.locale"), contentLocale || "\u2014", uid("loc"))
+      readonlyField(tt("field.locale"), contentLocale || "\u2014", uid("loc")),
     );
     const proposedField = editableField({
       label: tt("field.proposedText"),
       id: proposedId,
       multiline: true,
-      value: currentText
+      value: currentText,
     });
     panelText.appendChild(proposedField.wrap);
     const notesField = editableField({
       label: tt("field.notes"),
       id: notesId,
       multiline: true,
-      value: ""
+      value: "",
     });
     panelText.appendChild(notesField.wrap);
     const emailField = editableField({
@@ -744,7 +767,7 @@ function createPopoverController(getConfig) {
       id: emailId,
       multiline: false,
       value: email,
-      inputType: "email"
+      inputType: "email",
     });
     panelText.appendChild(emailField.wrap);
     const panelAria = document.createElement("div");
@@ -753,7 +776,10 @@ function createPopoverController(getConfig) {
     panelAria.setAttribute("role", "tabpanel");
     panelAria.setAttribute("aria-labelledby", tabAriaId);
     panelAria.hidden = true;
-    const hasAria = currentAriaLabel != null || ariaLabelledby != null || currentTitle != null;
+    const hasAria =
+      currentAriaLabel != null ||
+      ariaLabelledby != null ||
+      currentTitle != null;
     if (!hasAria) {
       const empty = document.createElement("p");
       empty.className = "mkd-lang-help";
@@ -764,22 +790,22 @@ function createPopoverController(getConfig) {
       readonlyField(
         tt("field.ariaLabelCurrent"),
         currentAriaLabel ?? "\u2014",
-        uid("aria-cur")
-      )
+        uid("aria-cur"),
+      ),
     );
     const ariaProposedField = editableField({
       label: tt("field.ariaLabelProposed"),
       id: ariaProposedId,
       multiline: true,
-      value: currentAriaLabel ?? ""
+      value: currentAriaLabel ?? "",
     });
     panelAria.appendChild(ariaProposedField.wrap);
     panelAria.appendChild(
       readonlyField(
         tt("field.ariaLabelledby"),
         ariaLabelledby ?? "\u2014",
-        uid("aria-lb")
-      )
+        uid("aria-lb"),
+      ),
     );
     if (ariaLabelledby) {
       const help = document.createElement("p");
@@ -789,7 +815,7 @@ function createPopoverController(getConfig) {
     }
     if (currentTitle) {
       panelAria.appendChild(
-        readonlyField(tt("field.title"), currentTitle, uid("title-attr"))
+        readonlyField(tt("field.title"), currentTitle, uid("title-attr")),
       );
     }
     root.append(panelText, panelAria);
@@ -830,12 +856,19 @@ function createPopoverController(getConfig) {
     tabText.addEventListener("click", () => selectTab("text"));
     tabAria.addEventListener("click", () => selectTab("aria"));
     const onTabKeydown = (e) => {
-      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft" && e.key !== "Home" && e.key !== "End") {
+      if (
+        e.key !== "ArrowRight" &&
+        e.key !== "ArrowLeft" &&
+        e.key !== "Home" &&
+        e.key !== "End"
+      ) {
         return;
       }
       e.preventDefault();
       const tabs = [tabText, tabAria];
-      let idx = tabs.findIndex((tb) => tb.getAttribute("aria-selected") === "true");
+      let idx = tabs.findIndex(
+        (tb) => tb.getAttribute("aria-selected") === "true",
+      );
       if (e.key === "ArrowRight") idx = (idx + 1) % tabs.length;
       if (e.key === "ArrowLeft") idx = (idx - 1 + tabs.length) % tabs.length;
       if (e.key === "Home") idx = 0;
@@ -857,8 +890,9 @@ function createPopoverController(getConfig) {
         currentText,
         proposedText,
         currentAriaLabel,
-        proposedAriaLabel: currentAriaLabel != null || proposedAria.trim() ? proposedAria : null,
-        notes
+        proposedAriaLabel:
+          currentAriaLabel != null || proposedAria.trim() ? proposedAria : null,
+        notes,
       };
       const result = validateSubmission(draft);
       if (!result.ok) {
@@ -882,9 +916,9 @@ function createPopoverController(getConfig) {
           tagName: activeEl.tagName.toLowerCase(),
           matchReason,
           elementId: activeEl.id || void 0,
-          pageUrl: typeof location !== "undefined" ? location.href : ""
+          pageUrl: typeof location !== "undefined" ? location.href : "",
         },
-        submittedAt: (/* @__PURE__ */ new Date()).toISOString()
+        submittedAt: /* @__PURE__ */ new Date().toISOString(),
       };
       submitting = true;
       submitBtn.disabled = true;
@@ -901,11 +935,12 @@ function createPopoverController(getConfig) {
         setText(submitBtn, tt("action.submit"));
       }
     });
-    const focusables = () => Array.from(
-      root.querySelectorAll(
-        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-      )
-    ).filter((n) => !n.hasAttribute("disabled") && n.offsetParent !== null);
+    const focusables = () =>
+      Array.from(
+        root.querySelectorAll(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((n) => !n.hasAttribute("disabled") && n.offsetParent !== null);
     const onKeydown = (e) => {
       if (!root) return;
       if (e.key === "Escape") {
@@ -931,7 +966,10 @@ function createPopoverController(getConfig) {
     const onPointerDown = (e) => {
       if (!root) return;
       const target = e.target;
-      if (target && (root.contains(target) || activeTrigger?.contains(target))) {
+      if (
+        target &&
+        (root.contains(target) || activeTrigger?.contains(target))
+      ) {
         return;
       }
       close();
@@ -959,7 +997,7 @@ function createPopoverController(getConfig) {
     destroy: () => {
       close();
     },
-    isOpen: () => root != null
+    isOpen: () => root != null,
   };
 }
 function readonlyField(label, value, id) {
@@ -1006,7 +1044,10 @@ function positionPopover(popover, trigger) {
   const vh = window.innerHeight;
   let top = rect.bottom + margin;
   let left = rect.left;
-  if (top + pop.height > vh - margin && rect.top - margin - pop.height > margin) {
+  if (
+    top + pop.height > vh - margin &&
+    rect.top - margin - pop.height > margin
+  ) {
     top = rect.top - margin - pop.height;
   }
   if (left + pop.width > vw - margin) {
@@ -1031,7 +1072,10 @@ function resolveConfig(options = {}) {
     uiLocale: options.uiLocale,
     userEmail: options.userEmail,
     getUserEmail: options.getUserEmail,
-    messageIdAttr: options.messageIdAttr === void 0 ? "data-i18n-key" : options.messageIdAttr,
+    messageIdAttr:
+      options.messageIdAttr === void 0
+        ? "data-i18n-key"
+        : options.messageIdAttr,
     scanMessageIdAttr: options.scanMessageIdAttr ?? true,
     getMessageId: options.getMessageId,
     messageIdAncestorWalk: options.messageIdAncestorWalk ?? true,
@@ -1044,7 +1088,7 @@ function resolveConfig(options = {}) {
     zIndex: options.zIndex ?? 1e4,
     once: options.once ?? false,
     debug,
-    messages: options.messages ?? {}
+    messages: options.messages ?? {},
   };
 }
 function mergeConfig(current, partial) {
@@ -1053,7 +1097,8 @@ function mergeConfig(current, partial) {
   if (partial.uiLocale !== void 0) next.uiLocale = partial.uiLocale;
   if (partial.userEmail !== void 0) next.userEmail = partial.userEmail;
   if (partial.getUserEmail !== void 0) next.getUserEmail = partial.getUserEmail;
-  if (partial.messageIdAttr !== void 0) next.messageIdAttr = partial.messageIdAttr;
+  if (partial.messageIdAttr !== void 0)
+    next.messageIdAttr = partial.messageIdAttr;
   if (partial.scanMessageIdAttr !== void 0) {
     next.scanMessageIdAttr = partial.scanMessageIdAttr;
   }
@@ -1070,12 +1115,16 @@ function mergeConfig(current, partial) {
   }
   if (partial.root !== void 0) next.root = partial.root;
   if (partial.client !== void 0) next.client = partial.client;
-  if (partial.respectIgnore !== void 0) next.respectIgnore = partial.respectIgnore;
+  if (partial.respectIgnore !== void 0)
+    next.respectIgnore = partial.respectIgnore;
   if (partial.zIndex !== void 0) next.zIndex = partial.zIndex;
   if (partial.once !== void 0) next.once = partial.once;
   if (partial.debug !== void 0) {
     next.debug = partial.debug;
-    if (partial.client === void 0 && next.client instanceof NoopSubmissionClient) {
+    if (
+      partial.client === void 0 &&
+      next.client instanceof NoopSubmissionClient
+    ) {
       next.client = new NoopSubmissionClient(partial.debug);
     }
   }
@@ -1099,12 +1148,16 @@ function init(options = {}) {
     config,
     boundElements,
     observer: null,
-    popover
+    popover,
   };
   activeState = state;
   const rescan = () => {
     if (!activeState) return;
-    scanAndAttach(activeState.config, activeState.popover.open, activeState.boundElements);
+    scanAndAttach(
+      activeState.config,
+      activeState.popover.open,
+      activeState.boundElements,
+    );
   };
   const destroy = () => {
     if (!activeState) return;
@@ -1124,17 +1177,15 @@ function init(options = {}) {
       activeState.config,
       activeState.popover.open,
       activeState.boundElements,
-      () => {
-      }
+      () => {},
     );
   };
   rescan();
-  state.observer = startObserver(config, popover.open, boundElements, () => {
-  });
+  state.observer = startObserver(config, popover.open, boundElements, () => {});
   const handle = {
     rescan,
     destroy,
-    configure
+    configure,
   };
   activeHandle = handle;
   return handle;
@@ -1165,7 +1216,7 @@ function createTrackedMessage(resolve) {
     clear: () => {
       byText.clear();
     },
-    size: () => byText.size
+    size: () => byText.size,
   };
 }
 
@@ -1191,5 +1242,5 @@ export {
   init,
   messageIdProps,
   normalizeTrackedText,
-  registerCatalog
+  registerCatalog,
 };

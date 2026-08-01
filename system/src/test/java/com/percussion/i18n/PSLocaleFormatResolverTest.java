@@ -69,8 +69,7 @@ public class PSLocaleFormatResolverTest {
     assertEquals("ILS", he.getCurrencyCode());
     assertEquals(PSLocaleFormat.FIRST_DAY_SUNDAY, he.getFirstDayOfWeek());
 
-    PSLocaleFormat heIl =
-        PSLocaleFormatResolver.resolve("he-il", PSLocaleFormatDefaults.shipped());
+    PSLocaleFormat heIl = PSLocaleFormatResolver.resolve("he-il", PSLocaleFormatDefaults.shipped());
     assertEquals(PSLocaleFormat.TEXT_DIR_RTL, heIl.getTextDir());
     assertEquals("ILS", heIl.getCurrencyCode());
     assertEquals("Asia/Jerusalem", heIl.getDefaultTz());

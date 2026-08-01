@@ -287,7 +287,9 @@ describe("perc_utils.js dialog content XSS regression (js/xss-through-dom)", () 
     });
 
     expect(document.querySelector("#perc-x")).toBeNull();
-    expect(document.body.textContent).toContain("<span id='perc-x'>text</span>");
+    expect(document.body.textContent).toContain(
+      "<span id='perc-x'>text</span>",
+    );
   });
 
   it("alert_dialog with contentIsHtml preserves table markup for LDAP-import warning pattern", () => {
@@ -343,9 +345,7 @@ describe("perc_utils.js htmlEntities regression (js/incomplete-sanitization)", (
 describe("public API", () => {
   it("$.perc_utils exposes the documented dialog helpers", () => {
     expect(typeof globalThis.jQuery.perc_utils.alert_dialog).toBe("function");
-    expect(typeof globalThis.jQuery.perc_utils.confirm_dialog).toBe(
-      "function",
-    );
+    expect(typeof globalThis.jQuery.perc_utils.confirm_dialog).toBe("function");
     expect(typeof globalThis.jQuery.perc_utils.prompt_dialog).toBe("function");
   });
 });

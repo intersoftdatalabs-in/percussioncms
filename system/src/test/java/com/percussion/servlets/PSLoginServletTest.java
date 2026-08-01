@@ -161,8 +161,9 @@ public class PSLoginServletTest {
   public void testResolveLogoutLocalePrefersQueryThenSession() {
     // Query j_locale wins over session
     request.setParameter("j_locale", "es-es");
-    request.getSession().setAttribute(
-        com.percussion.i18n.PSI18nUtils.USER_SESSION_OBJECT_SYS_LANG, "de-de");
+    request
+        .getSession()
+        .setAttribute(com.percussion.i18n.PSI18nUtils.USER_SESSION_OBJECT_SYS_LANG, "de-de");
     assertEquals("es-es", PSLoginServlet.resolveLogoutLocale(request));
 
     // sys_lang preferred over j_locale
@@ -174,16 +175,14 @@ public class PSLoginServletTest {
     // Session when no query
     MockHttpServletRequest req3 = new MockHttpServletRequest();
     req3.getSession()
-        .setAttribute(
-            com.percussion.i18n.PSI18nUtils.USER_SESSION_OBJECT_SYS_LANG, "hi-in");
+        .setAttribute(com.percussion.i18n.PSI18nUtils.USER_SESSION_OBJECT_SYS_LANG, "hi-in");
     assertEquals("hi-in", PSLoginServlet.resolveLogoutLocale(req3));
 
     // Invalid query falls through to session
     MockHttpServletRequest req4 = new MockHttpServletRequest();
     req4.setParameter("j_locale", "javascript:alert(1)");
     req4.getSession()
-        .setAttribute(
-            com.percussion.i18n.PSI18nUtils.USER_SESSION_OBJECT_SYS_LANG, "nl-nl");
+        .setAttribute(com.percussion.i18n.PSI18nUtils.USER_SESSION_OBJECT_SYS_LANG, "nl-nl");
     assertEquals("nl-nl", PSLoginServlet.resolveLogoutLocale(req4));
 
     // No session / no params → system language (never null/empty)

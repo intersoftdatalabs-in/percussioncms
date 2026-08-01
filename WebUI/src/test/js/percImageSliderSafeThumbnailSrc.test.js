@@ -49,38 +49,38 @@ function loadSafeThumbnailSrc(srcPath) {
 describe.each(
   PACKAGE_COPIES.map((p) => [p.split(/[/\\]/).slice(-5).join("/"), p]),
 )("safeThumbnailSrc (%s)", (_label, srcPath) => {
-    const safeThumbnailSrc = loadSafeThumbnailSrc(srcPath);
+  const safeThumbnailSrc = loadSafeThumbnailSrc(srcPath);
 
-    it("returns empty for null/undefined/blank", () => {
-      expect(safeThumbnailSrc(null)).toBe("");
-      expect(safeThumbnailSrc(undefined)).toBe("");
-      expect(safeThumbnailSrc("")).toBe("");
-      expect(safeThumbnailSrc("   ")).toBe("");
-    });
+  it("returns empty for null/undefined/blank", () => {
+    expect(safeThumbnailSrc(null)).toBe("");
+    expect(safeThumbnailSrc(undefined)).toBe("");
+    expect(safeThumbnailSrc("")).toBe("");
+    expect(safeThumbnailSrc("   ")).toBe("");
+  });
 
-    it("passes through relative CMS thumbnail paths", () => {
-      expect(safeThumbnailSrc("/Assets/uploads/img.jpg")).toBe(
-        "/Assets/uploads/img.jpg",
-      );
-      expect(safeThumbnailSrc("rx_resources/images/t.png")).toBe(
-        "rx_resources/images/t.png",
-      );
-    });
+  it("passes through relative CMS thumbnail paths", () => {
+    expect(safeThumbnailSrc("/Assets/uploads/img.jpg")).toBe(
+      "/Assets/uploads/img.jpg",
+    );
+    expect(safeThumbnailSrc("rx_resources/images/t.png")).toBe(
+      "rx_resources/images/t.png",
+    );
+  });
 
-    it("rejects javascript: data: and vbscript: schemes (case-insensitive)", () => {
-      expect(safeThumbnailSrc("javascript:alert(1)")).toBe("");
-      expect(safeThumbnailSrc("JAVASCRIPT:alert(1)")).toBe("");
-      expect(safeThumbnailSrc("  javascript:alert(1)  ")).toBe("");
-      expect(safeThumbnailSrc("data:text/html,<script>")).toBe("");
-      expect(safeThumbnailSrc("DATA:image/png;base64,xx")).toBe("");
-      expect(safeThumbnailSrc("vbscript:msgbox")).toBe("");
-      expect(safeThumbnailSrc("VbScRiPt:msgbox")).toBe("");
-    });
+  it("rejects javascript: data: and vbscript: schemes (case-insensitive)", () => {
+    expect(safeThumbnailSrc("javascript:alert(1)")).toBe("");
+    expect(safeThumbnailSrc("JAVASCRIPT:alert(1)")).toBe("");
+    expect(safeThumbnailSrc("  javascript:alert(1)  ")).toBe("");
+    expect(safeThumbnailSrc("data:text/html,<script>")).toBe("");
+    expect(safeThumbnailSrc("DATA:image/png;base64,xx")).toBe("");
+    expect(safeThumbnailSrc("vbscript:msgbox")).toBe("");
+    expect(safeThumbnailSrc("VbScRiPt:msgbox")).toBe("");
+  });
 
-    it("does not reject paths that merely contain scheme-like substrings later", () => {
-      // Only scheme *prefix* is blocked; middle occurrences remain (product contract).
-      expect(safeThumbnailSrc("/path/data:not-a-scheme.jpg")).toBe(
-        "/path/data:not-a-scheme.jpg",
-      );
-    });
+  it("does not reject paths that merely contain scheme-like substrings later", () => {
+    // Only scheme *prefix* is blocked; middle occurrences remain (product contract).
+    expect(safeThumbnailSrc("/path/data:not-a-scheme.jpg")).toBe(
+      "/path/data:not-a-scheme.jpg",
+    );
+  });
 });

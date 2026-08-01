@@ -141,11 +141,7 @@ public class InstallUtilRunningServerTest {
       throws IOException {
     Path root =
         temp.resolve(
-            "dtsRoot-"
-                + connectorPort
-                + "-"
-                + shutdownPort
-                + (usePlaceholder ? "-ph" : "-lit"));
+            "dtsRoot-" + connectorPort + "-" + shutdownPort + (usePlaceholder ? "-ph" : "-lit"));
     Path conf = root.resolve("Deployment").resolve("Server").resolve("conf");
     Path perc = conf.resolve("perc");
     Files.createDirectories(perc);

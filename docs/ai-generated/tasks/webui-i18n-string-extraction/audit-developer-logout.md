@@ -740,8 +740,8 @@ Locale for the logout host is resolved from the pre-invalidate session /
 query params (not system language only), and "Sign in again" carries
 `j_locale`.
 
-|                       tuid                        |        English text         | Status |
-|---------------------------------------------------|-----------------------------|--------|
+|                       tuid                        |        English text         |   Status   |
+|---------------------------------------------------|-----------------------------|------------|
 | `perc.ui.logout.modern@Signed out`                | `Signed out`                | **in TMX** |
 | `perc.ui.logout.modern@You have been logged out.` | `You have been logged out.` | **in TMX** |
 | `perc.ui.logout.modern@Sign in again`             | `Sign in again`             | **in TMX** |

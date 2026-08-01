@@ -3,11 +3,11 @@
 Third-party browser client for crowd-sourced translation correction triggers.
 Built artifacts only — **do not edit** `dist/`.
 
-| Field | Value |
-|-------|--------|
-| Package | `@mkd/language` |
-| Vendored version | `0.2.0` |
-| Upstream | Separate mkd-language workspace — not part of this monorepo |
+|      Field       |                             Value                             |
+|------------------|---------------------------------------------------------------|
+| Package          | `@mkd/language`                                               |
+| Vendored version | `0.2.0`                                                       |
+| Upstream         | Separate mkd-language workspace — not part of this monorepo   |
 | Percussion usage | `WebUI/src/main/ts/i18n/mkdLanguage.ts` + tracked `message()` |
 
 ## Preferred host pattern (0.2+)

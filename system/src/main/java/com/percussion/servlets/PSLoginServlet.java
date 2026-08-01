@@ -262,8 +262,7 @@ public class PSLoginServlet extends HttpServlet {
       return null;
     }
     // Normalize legacy underscore form (en_US) before allowlist match.
-    String trimmed =
-        candidate.trim().toLowerCase(Locale.ROOT).replace('_', '-');
+    String trimmed = candidate.trim().toLowerCase(Locale.ROOT).replace('_', '-');
     if (trimmed.isEmpty() || trimmed.length() > 32) {
       return null;
     }
@@ -276,8 +275,7 @@ public class PSLoginServlet extends HttpServlet {
   }
 
   /** Allowlisted BCP-47 shape: language, optional script/region/variant subtags. */
-  private static final Pattern LOCALE_TAG =
-      Pattern.compile("(?i)^[a-z]{2,3}(-[a-z0-9]{2,8})*$");
+  private static final Pattern LOCALE_TAG = Pattern.compile("(?i)^[a-z]{2,3}(-[a-z0-9]{2,8})*$");
 
   /**
    * Handles the login request.

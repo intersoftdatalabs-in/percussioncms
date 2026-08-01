@@ -133,6 +133,8 @@
         <httpcomponents.core.version>4.4.16</httpcomponents.core.version>
         <httpcomponents.version>4.5.14</httpcomponents.version>
         <install.jre.version>8.222.10.1</install.jre.version>
+        <!-- Intersoft common utilities (semver; independent of CMS product version) -->
+        <intsof.common.utilities.version>0.0.1</intsof.common.utilities.version>
         <!-- Jackson 3.x runtime (tools.jackson); annotations stay on 2.x com.fasterxml by design.
              Annotations use major.minor only (2.22), not patch (jackson-bom jackson.version.annotations). -->
         <jackson.annotation.api.version>2.22</jackson.annotation.api.version>
@@ -280,8 +282,6 @@
         <!-- Transitive CVE floors (see dependencyManagement BOM / pins below) -->
         <!-- SolrJ → ZK 3.9.4; Dependabot #210/#211 need ≥3.9.5 -->
         <zookeeper.version>3.9.5</zookeeper.version>
-        <!-- Intersoft common utilities (semver; independent of CMS product version) -->
-        <intsof.common.utilities.version>0.0.1</intsof.common.utilities.version>
     </properties>
     <dependencyManagement>
         <dependencies>

@@ -258,8 +258,7 @@ class InteractiveInstallWizardTest {
     Path invalid = tempDir.resolve("not-a-jdk");
     DbInstallConfigResolver.ParsedArgs parsed =
         new DbInstallConfigResolver.ParsedArgs(install, Map.of());
-    InteractiveInstallWizard.Phase1Result result =
-        runPhase1Isolated(parsed, false, null, invalid);
+    InteractiveInstallWizard.Phase1Result result = runPhase1Isolated(parsed, false, null, invalid);
     assertFalse(result.proceed());
     assertEquals(InteractiveInstallWizard.EXIT_JAVA, result.exitCode());
     assertTrue(result.message().toLowerCase().contains("java"));
