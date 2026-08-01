@@ -136,6 +136,8 @@ test.describe("Login locale (GH-1608 / GH-1609)", () => {
     expect(joinedBefore).toMatch(/de-de\s*-\s*Deutsch/);
     expect(joinedBefore).toMatch(/^es\s*-\s*español/m);
     expect(joinedBefore).toMatch(/^te\s*-\s*తెలుగు/m);
+    // Hebrew regional (login hides base he when he-il is active)
+    expect(joinedBefore).toMatch(/he-il\s*-\s*עברית/);
 
     await select.selectOption(target);
     await expect(page.getByTestId("perc-login-page")).not.toHaveAttribute(

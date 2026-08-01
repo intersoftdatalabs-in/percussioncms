@@ -9,6 +9,23 @@ This module contains all the configuration files for DTS. For e.g.
 * DTS tomcat configurations
 etc...
 
+## Last-install user defaults
+
+After a **successful** DTS install, non-secret settings are merged into the same file used by the CMS
+installer:
+
+```text
+~/.intsof/percussion/last-install.properties
+```
+
+- Production installs use the `dts.prod.*` prefix
+- Staging installs use the `dts.stage.*` prefix
+- Includes `*.version` (version installed) and `*.install.directory`
+- Passwords are never written
+
+On subsequent runs, missing CLI values (including install path) are filled from the matching prefix.
+See `InstallerUserSettings` and `com.intsof.common:utilities`.
+
 ## Runtime platform (Jakarta EE 11 / Tomcat 11)
 
 |            Item             |                                         Value                                         |

@@ -734,25 +734,17 @@ catalog is the canonical local source for every `perc.ui.logout.modern@…` key.
 
 ## Logout: TMX gap (perc.ui.logout.modern@…)
 
-Confirmed via `Select-String`:
+**Resolved (2026-08-01):** all three tuids are present in `CmsUi.tmx` with
+`en-us` plus the same base-locale matrix as `perc.ui.login.modern@…`.
+Locale for the logout host is resolved from the pre-invalidate session /
+query params (not system language only), and "Sign in again" carries
+`j_locale`.
 
-```powershell
-PS> Select-String -LiteralPath 'modules\perc-i18n\src\main\resources\i18n\CmsUi.tmx' `
-    -Pattern 'tuid="perc\.ui\.logout\.modern@"' | Measure-Object | Select-Object Count
-
-Count
------
-    0
-```
-
-The `perc.ui.logout.modern@…` prefix has **zero entries** in `CmsUi.tmx`.
-Every tuid below must be added in Phase 2:
-
-|                       tuid                        |        English text         |
-|---------------------------------------------------|-----------------------------|
-| `perc.ui.logout.modern@Signed out`                | `Signed out`                |
-| `perc.ui.logout.modern@You have been logged out.` | `You have been logged out.` |
-| `perc.ui.logout.modern@Sign in again`             | `Sign in again`             |
+|                       tuid                        |        English text         | Status |
+|---------------------------------------------------|-----------------------------|--------|
+| `perc.ui.logout.modern@Signed out`                | `Signed out`                | **in TMX** |
+| `perc.ui.logout.modern@You have been logged out.` | `You have been logged out.` | **in TMX** |
+| `perc.ui.logout.modern@Sign in again`             | `Sign in again`             | **in TMX** |
 
 ## Combined: Phase 2 TMX additions required
 
@@ -768,7 +760,8 @@ do not paraphrase.
 
 ### Group: `perc.ui.logout.modern@…`
 
-3 unique tuids from `WebUI/src/main/ts/logout/i18n.ts:25-29`:
+**Done** — 3 unique tuids from `WebUI/src/main/ts/logout/i18n.ts:25-29`
+are seeded in `CmsUi.tmx` (see **Logout: TMX gap** above):
 
 - `perc.ui.logout.modern@Signed out`
 - `perc.ui.logout.modern@You have been logged out.`

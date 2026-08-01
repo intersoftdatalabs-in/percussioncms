@@ -63,6 +63,21 @@ public class PSLocaleFormatResolverTest {
   }
 
   @Test
+  public void resolve_hebrewUsesRtlFromDefaults() {
+    PSLocaleFormat he = PSLocaleFormatResolver.resolve("he", PSLocaleFormatDefaults.shipped());
+    assertEquals(PSLocaleFormat.TEXT_DIR_RTL, he.getTextDir());
+    assertEquals("ILS", he.getCurrencyCode());
+    assertEquals(PSLocaleFormat.FIRST_DAY_SUNDAY, he.getFirstDayOfWeek());
+
+    PSLocaleFormat heIl =
+        PSLocaleFormatResolver.resolve("he-il", PSLocaleFormatDefaults.shipped());
+    assertEquals(PSLocaleFormat.TEXT_DIR_RTL, heIl.getTextDir());
+    assertEquals("ILS", heIl.getCurrencyCode());
+    assertEquals("Asia/Jerusalem", heIl.getDefaultTz());
+    assertEquals(List.of("he-il", "he", "en-us"), PSLocaleFormatResolver.lookupChain("he-il"));
+  }
+
+  @Test
   public void resolve_exactRegionalOverridesBase() {
     Map<String, PSLocaleFormat> catalog = new HashMap<>();
     PSLocaleFormat es = new PSLocaleFormat("es");
@@ -98,6 +113,9 @@ public class PSLocaleFormatResolverTest {
     assertTrue(shipped.containsKey("fr-fr"));
     assertTrue(shipped.containsKey("ar"));
     assertEquals(PSLocaleFormat.TEXT_DIR_RTL, shipped.get("ar").getTextDir());
+    assertTrue(shipped.containsKey("he"));
+    assertTrue(shipped.containsKey("he-il"));
+    assertEquals(PSLocaleFormat.TEXT_DIR_RTL, shipped.get("he").getTextDir());
     // Base language tags used for TMX storage / format inheritance
     assertTrue(shipped.containsKey("de"));
     assertTrue(shipped.containsKey("fr"));

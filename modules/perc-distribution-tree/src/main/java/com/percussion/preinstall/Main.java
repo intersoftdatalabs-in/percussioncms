@@ -237,6 +237,25 @@ public class Main {
         System.exit(exitCode);
       }
 
+      // Persist non-secret defaults for the next install (no passwords).
+      try {
+        String versionToSave = percVersion != null ? percVersion : "";
+        String javaHomeToSave =
+            javaOutcome != null && javaOutcome.javaHome() != null
+                ? javaOutcome.javaHome().toString()
+                : javaHome;
+        new InstallerUserSettings(InstallerUserSettings.PREFIX_CMS)
+            .save(
+                installPath,
+                versionToSave,
+                options,
+                javaHomeToSave,
+                resolvedDbConfig != null ? resolvedDbConfig.systemProperties() : null);
+      } catch (Exception saveEx) {
+        System.out.println(
+            "Warning: could not save installer user settings: " + saveEx.getMessage());
+      }
+
     } catch (Exception e) {
       System.out.println(
           "An error occurred while executing the installation, installation has likely failed. "

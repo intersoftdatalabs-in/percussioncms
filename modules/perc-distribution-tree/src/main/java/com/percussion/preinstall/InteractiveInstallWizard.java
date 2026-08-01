@@ -118,22 +118,42 @@ public final class InteractiveInstallWizard {
       boolean interactive,
       InstallPrompt prompt,
       Path unattendedJavaHome) {
+    return runPhase1(parsedArgs, interactive, prompt, unattendedJavaHome, null);
+  }
+
+  /**
+   * Same as {@link #runPhase1(DbInstallConfigResolver.ParsedArgs, boolean, InstallPrompt, Path)}
+   * with injectable user-settings home (tests) or null for {@code user.home}.
+   *
+   * @param userSettingsHome optional home override for {@link InstallerUserSettings}; null =
+   *     default
+   */
+  public static Phase1Result runPhase1(
+      DbInstallConfigResolver.ParsedArgs parsedArgs,
+      boolean interactive,
+      InstallPrompt prompt,
+      Path unattendedJavaHome,
+      Path userSettingsHome) {
     Objects.requireNonNull(parsedArgs, "parsedArgs");
     if (interactive && prompt == null) {
       throw new IllegalArgumentException("prompt is required when interactive");
     }
 
-    Path installPath = parsedArgs.installPath();
+    InstallerUserSettings userSettings =
+        new InstallerUserSettings(userSettingsHome, InstallerUserSettings.PREFIX_CMS);
+    DbInstallConfigResolver.ParsedArgs withDefaults = userSettings.applyDefaults(parsedArgs);
+
+    Path installPath = withDefaults.installPath();
     Map<String, String> options =
-        parsedArgs.options() != null
-            ? new LinkedHashMap<>(parsedArgs.options())
+        withDefaults.options() != null
+            ? new LinkedHashMap<>(withDefaults.options())
             : new LinkedHashMap<>();
 
     if (installPath == null) {
       if (!interactive) {
         return Phase1Result.abort(EXIT_USAGE, usageMessage());
       }
-      installPath = promptForInstallPath(prompt);
+      installPath = promptForInstallPath(prompt, userSettings.loadInstallDirectory().orElse(null));
       if (installPath == null) {
         return Phase1Result.abort(EXIT_ABORTED, "Installation cancelled: no install directory.");
       }
@@ -475,13 +495,18 @@ public final class InteractiveInstallWizard {
     return null;
   }
 
-  private static Path promptForInstallPath(InstallPrompt prompt) {
+  private static Path promptForInstallPath(InstallPrompt prompt, Path defaultPath) {
     prompt.println("");
     prompt.println("Percussion CMS interactive installer");
     prompt.println("Enter the installation directory (new install or existing upgrade root).");
+    String defaultHint =
+        defaultPath != null ? " [" + defaultPath.toAbsolutePath().normalize() + "]" : "";
     for (int attempt = 0; attempt < 5; attempt++) {
-      String line = prompt.readLine("Installation directory: ");
+      String line = prompt.readLine("Installation directory" + defaultHint + ": ");
       if (line == null || line.isBlank()) {
+        if (defaultPath != null) {
+          return defaultPath.toAbsolutePath().normalize();
+        }
         prompt.println("Install directory is required. Enter a path or Ctrl+C to abort.");
         continue;
       }
@@ -494,6 +519,9 @@ public final class InteractiveInstallWizard {
         }
       }
       if (trimmed.isEmpty()) {
+        if (defaultPath != null) {
+          return defaultPath.toAbsolutePath().normalize();
+        }
         prompt.println("Install directory is required.");
         continue;
       }

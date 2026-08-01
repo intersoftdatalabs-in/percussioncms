@@ -57,6 +57,12 @@ This is executed in `installDistributionFiles.xml` after MySQL connector setup a
 
 ## Common Tasks
 
+### Last-install defaults (`~/.intsof/percussion`)
+
+CMS preinstall loads/saves non-secret defaults via `InstallerUserSettings` (`cms.*` keys in
+`last-install.properties`). Do not store passwords. Shared file with DTS (`dts.prod.*` /
+`dts.stage.*`). Depends on `com.intsof.common:utilities`.
+
 ### Installing Sample Sites (Corporate / Enterprise Investments)
 
 The preinstall CLI / interactive wizard accepts a `--demo-sites` (or `--no-demo-sites`) flag

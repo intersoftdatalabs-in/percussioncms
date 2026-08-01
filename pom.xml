@@ -14,6 +14,7 @@
         </license>
     </licenses>
     <modules>
+        <module>modules/intsof-common-utilities</module>
         <module>modules/perc-security-utils</module>
         <module>modules/perc-security-acl-shim</module>
         <module>modules/perc-xml-security</module>
@@ -279,9 +280,16 @@
         <!-- Transitive CVE floors (see dependencyManagement BOM / pins below) -->
         <!-- SolrJ → ZK 3.9.4; Dependabot #210/#211 need ≥3.9.5 -->
         <zookeeper.version>3.9.5</zookeeper.version>
+        <!-- Intersoft common utilities (semver; independent of CMS product version) -->
+        <intsof.common.utilities.version>0.0.1</intsof.common.utilities.version>
     </properties>
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.intsof.common</groupId>
+                <artifactId>utilities</artifactId>
+                <version>${intsof.common.utilities.version}</version>
+            </dependency>
             <!-- ===== Transitive security floors (BOM imports first) =====
                  Product does not call Netty/ZooKeeper APIs directly. AWS SDK v1 and
                  SolrJ still pull com.fasterxml Jackson 2.x; Artemis pulls modular Netty.

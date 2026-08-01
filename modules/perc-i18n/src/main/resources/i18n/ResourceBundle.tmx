@@ -11,6 +11,8 @@
     <prop type="supportedlanguage">es-mx</prop>
     <prop type="supportedlanguage">fr</prop>
     <prop type="supportedlanguage">fr-ca</prop>
+    <prop type="supportedlanguage">he</prop>
+    <prop type="supportedlanguage">he-il</prop>
     <prop type="supportedlanguage">hi</prop>
     <prop type="supportedlanguage">it</prop>
     <prop type="supportedlanguage">ja-jp</prop>

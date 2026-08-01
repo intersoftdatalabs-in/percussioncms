@@ -422,6 +422,7 @@ Disposition ladder: **runtime fix + test → model pack barrier → sink-line `/
 
 A list of child modules in this repository. Each bullet contains: Module name — module path — one-line description.
 
+- **intsof-common-utilities** — `./modules/intsof-common-utilities` — Product-agnostic Intersoft utilities (`com.intsof.common:utilities`, semver). Portable per-user config under `~/.intsof/<app>/`. No CMS-specific code.
 - **perc-security-utils** — `./modules/perc-security-utils` - System wide security related utilities. Common re-usable security code shareable by all modules belongs here.
 - **Percussion Security ACL Shim** — `./modules/perc-security-acl-shim` — A temporary module that provides shim classes for Java 8 ACL related classes dropped from the JDK.
 - **perc-xml-security** — `./modules/perc-xml-security` — Shared java library that contains all XML security related common code for use by all modules.

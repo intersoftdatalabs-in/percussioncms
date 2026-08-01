@@ -126,6 +126,10 @@ describe("login/localeLabels", () => {
         "hi-in - हिन्दी (भारत)",
       );
       expect(localeLabel("te", "en-us", "Telugu")).toBe("te - తెలుగు");
+      expect(localeLabel("he", "en-us", "Hebrew")).toBe("he - עברית");
+      expect(localeLabel("he-il", "en-us", "Hebrew (Israel)")).toBe(
+        "he-il - עברית (ישראל)",
+      );
       // Server English fallback is ignored when a ship endonym exists.
       expect(localeLabel("de-de", "en-us", "German (Germany)")).toBe(
         "de-de - Deutsch (Deutschland)",
@@ -182,6 +186,8 @@ describe("login/localeLabels", () => {
       expect(localeRegionCode("zh-tw")).toBe("TW");
       expect(localeRegionCode("es")).toBe("ES");
       expect(localeRegionCode("ar")).toBe("SA");
+      expect(localeRegionCode("he")).toBe("IL");
+      expect(localeRegionCode("he-il")).toBe("IL");
       expect(localeRegionCode("hi")).toBe("IN");
     });
 
