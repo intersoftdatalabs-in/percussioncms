@@ -45,9 +45,9 @@ import org.apache.logging.log4j.Logger;
 /**
  * Keyword design catalog for Developer REST.
  *
- * <p>Workbench parity: routes through {@link IPSContentDesignWs} (same design web service
- * {@code ContentDesignSOAPImpl} uses) — find / load / create / save / delete with design locks —
- * not a parallel path via {@code IPSContentService} alone.
+ * <p>Workbench parity: routes through {@link IPSContentDesignWs} (same design web service {@code
+ * ContentDesignSOAPImpl} uses) — find / load / create / save / delete with design locks — not a
+ * parallel path via {@code IPSContentService} alone.
  */
 @PSSiteManageBean
 public class KeywordsAdaptor implements IKeywordsAdaptor {
@@ -346,7 +346,8 @@ public class KeywordsAdaptor implements IKeywordsAdaptor {
   private static void requireSessionUserForWrite() {
     if (StringUtils.isBlank(currentSession()) || StringUtils.isBlank(currentUser())) {
       throw new IllegalStateException(
-          "session and user are required for keyword design create/update/delete (IPSContentDesignWs)");
+          "session and user are required for keyword design create/update/delete"
+              + " (IPSContentDesignWs)");
     }
   }
 

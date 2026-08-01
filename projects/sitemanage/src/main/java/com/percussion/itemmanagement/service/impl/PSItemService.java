@@ -22,8 +22,6 @@ import static com.percussion.webservices.PSWebserviceUtils.getStateById;
 import static com.percussion.webservices.PSWebserviceUtils.getWorkflow;
 import static java.util.Arrays.asList;
 
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 import com.percussion.assetmanagement.dao.IPSAssetDao;
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.assetmanagement.data.PSReportFailedToRunException;
@@ -138,6 +136,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * @author Jose_Annunziato

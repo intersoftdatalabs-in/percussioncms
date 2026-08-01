@@ -37,6 +37,12 @@ import org.w3c.dom.Document;
  * @author DavidBenua
  */
 public class PSNavTreeExtension extends PSDefaultExtension implements IPSResultDocumentProcessor {
+
+  /** Default constructor. */
+  public PSNavTreeExtension() {
+    super();
+  }
+
   /**
    * This extension never modifies the stylesheet.
    *

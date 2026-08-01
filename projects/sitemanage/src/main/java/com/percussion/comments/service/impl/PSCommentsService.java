@@ -19,8 +19,6 @@ package com.percussion.comments.service.impl;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.Validate.notNull;
 
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 import com.percussion.comments.data.PSComment;
 import com.percussion.comments.data.PSCommentIds;
 import com.percussion.comments.data.PSCommentList;
@@ -68,6 +66,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * @author davidpardini

@@ -12,27 +12,23 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>17</version>
+            <!-- version from parent javafx.version (17.0.20+) -->
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
-            <version>17</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-base</artifactId>
-            <version>17</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-web</artifactId>
-            <version>17</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-swing</artifactId>
-            <version>17</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -68,6 +64,16 @@
                     <artifactId>csrfguard</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <!--
+            Provided scope: hibernate-core is only needed at compile and javadoc
+            time so that javadoc can resolve @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+            references from classes in the classpath. It is excluded from the shaded jar.
+        -->
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
@@ -137,6 +143,17 @@
             <groupId>com.vladsch.javafx-webview-debugger</groupId>
             <artifactId>javafx-webview-debugger</artifactId>
             <version>0.8.6</version>
+            <exclusions>
+                <!-- Parent manages Java-WebSocket at ${java.websocket.version} (1.6.0) -->
+                <exclusion>
+                    <groupId>org.java-websocket</groupId>
+                    <artifactId>Java-WebSocket</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.java-websocket</groupId>
+            <artifactId>Java-WebSocket</artifactId>
         </dependency>
         <dependency>
             <groupId>com.vladsch.boxed-json</groupId>

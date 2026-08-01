@@ -49,9 +49,9 @@ import org.apache.logging.log4j.Logger;
 /**
  * Read-only CMS locale catalog for Developer REST.
  *
- * <p>Workbench parity for locale definitions: {@link IPSContentDesignWs#findLocales} /
- * {@link IPSContentDesignWs#loadLocales} (same design web service SOAP uses). Format profiles
- * ({@link PSLocaleFormat} / RXLOCALEFORMAT) have no design-WS twin — still enriched from {@link
+ * <p>Workbench parity for locale definitions: {@link IPSContentDesignWs#findLocales} / {@link
+ * IPSContentDesignWs#loadLocales} (same design web service SOAP uses). Format profiles ({@link
+ * PSLocaleFormat} / RXLOCALEFORMAT) have no design-WS twin — still enriched from {@link
  * IPSCmsObjectMgr} as an optional secondary read.
  */
 @PSSiteManageBean

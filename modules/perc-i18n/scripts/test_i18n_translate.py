@@ -98,7 +98,7 @@ class TranslateTest(unittest.TestCase):
                 self.stdout = stdout
                 self.stderr = stderr
 
-        def fake_run(cmd, capture_output, text, check, encoding):
+        def fake_run(cmd, capture_output, text, check, encoding, **kwargs):
             calls['n'] += 1
             if calls['n'] < 3:
                 return _FakeResult(
@@ -155,6 +155,29 @@ class TranslateTest(unittest.TestCase):
             de_tuv = next((t for t in tuvs if t.get('{http://www.w3.org/XML/1998/namespace}lang') == 'de-de'), None)
             self.assertIsNotNone(de_tuv)
             self.assertEqual(de_tuv.find('seg').text, 'Hallo <welt> & "freunde"')
+
+    def test_inject_matches_entity_encoded_tuid(self):
+        """Regression: decoded list_missing keys must inject into escaped attrs."""
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / 'sample.tmx'
+            p.write_text(
+                '<?xml version="1.0" encoding="UTF-8"?>\n'
+                '<tmx version="1.4"><header>'
+                '<prop type="supportedlanguage">en-us</prop>'
+                '<prop type="supportedlanguage">de-de</prop>'
+                '</header><body>'
+                '<tu tuid="dialog@Advanced &gt;&gt;">'
+                '<tuv xml:lang="en-us"><seg>Advanced &gt;&gt;</seg></tuv>'
+                '</tu>'
+                '</body></tmx>\n',
+                encoding='utf-8',
+            )
+            tmx = it.TmxFile(p)
+            missing = tmx.list_missing('de-de')
+            self.assertEqual([t for t, _ in missing], ['dialog@Advanced >>'])
+            inserted = tmx.inject('de-de', {'dialog@Advanced >>': 'Erweitert >>'})
+            self.assertEqual(inserted, 1)
+            self.assertIn('<seg>Erweitert &gt;&gt;</seg>', tmx.text)
 
 
 class TmxFileTest(unittest.TestCase):

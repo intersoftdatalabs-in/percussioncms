@@ -208,7 +208,8 @@ public class PSTemplateRestService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSTemplate save(PSTemplate object) {
     try {
-      return templateService.save(object);
+      // JSON/XML DTO via Jackson/JAXB — not HTML body (see suppressions.md #1917/#1918)
+      return templateService.save(object); // codeql[java/xss]
     } catch (PSDataServiceException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -222,7 +223,8 @@ public class PSTemplateRestService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSTemplate save(PSTemplate object, @PathParam("id") String pageId) {
     try {
-      return templateService.save(object, null, pageId);
+      // JSON/XML DTO via Jackson/JAXB — not HTML body (see suppressions.md #1917/#1918)
+      return templateService.save(object, null, pageId); // codeql[java/xss]
     } catch (PSDataServiceException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));

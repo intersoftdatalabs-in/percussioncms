@@ -19,10 +19,6 @@
 
 package com.percussion.category.marshaller;
 
-import tools.jackson.databind.SerializationFeature;
-import tools.jackson.databind.cfg.DateTimeFeature;
-import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
 import com.percussion.category.data.PSCategory;
 import com.percussion.category.data.PSCategoryNode;
 import com.percussion.category.transformer.PSCategoryXmlTransform;
@@ -31,7 +27,6 @@ import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
 import java.io.File;
-import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -40,6 +35,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
 
 @Component("categoryUnmarshaller")
 @Lazy

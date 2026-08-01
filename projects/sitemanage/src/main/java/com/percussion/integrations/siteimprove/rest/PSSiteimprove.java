@@ -18,8 +18,6 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.integrations.siteimprove.rest;
 
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 import com.percussion.integrations.siteimprove.data.PSSiteImproveCredentials;
 import com.percussion.integrations.siteimprove.data.PSSiteImproveSiteConfigurations;
 import com.percussion.metadata.data.PSMetadata;
@@ -40,6 +38,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import tools.jackson.databind.json.JsonMapper;
 
 /** REST endpoints for our integration with Siteimprove. */
 @Path("/siteimprove")

@@ -12051,7 +12051,17 @@
             <column name="DESCRIPTION">Context for folders in search results.</column>
         </row>
     </table>
-    <table name="RXLOCALE"  onCreateOnly="no">
+        <table name="RXLOCALE"  onCreateOnly="no">
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">18</column>
+            <column name="LANGUAGESTRING">ar</column>
+            <column name="DISPLAYNAME">Arabic</column>
+            <column name="SORTORDER">5</column>
+            <column name="DESCRIPTION">Arabic language (generic base locale)</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">1</column>
+            <column name="VERSION">0</column>
+        </row>
         <row onTableCreateOnly="no" action="i">
             <column name="LOCALEID">1</column>
             <column name="LANGUAGESTRING">en-us</column>
@@ -12060,6 +12070,16 @@
             <column name="DESCRIPTION">English language used in United States of America</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">20</column>
+            <column name="LANGUAGESTRING">bn</column>
+            <column name="DISPLAYNAME">Bengali</column>
+            <column name="SORTORDER">15</column>
+            <column name="DESCRIPTION">Bengali language (generic, no region)</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12073,11 +12093,61 @@
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">21</column>
+            <column name="LANGUAGESTRING">de</column>
+            <column name="DISPLAYNAME">German</column>
+            <column name="SORTORDER">30</column>
+            <column name="DESCRIPTION">German language (generic base locale)</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
             <column name="LOCALEID">3</column>
             <column name="LANGUAGESTRING">de-de</column>
             <column name="DISPLAYNAME">German (Germany)</column>
-            <column name="SORTORDER">30</column>
+            <column name="SORTORDER">31</column>
             <column name="DESCRIPTION">German language used in Germany</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">27</column>
+            <column name="LANGUAGESTRING">de-at</column>
+            <column name="DISPLAYNAME">German (Austria)</column>
+            <column name="SORTORDER">32</column>
+            <column name="DESCRIPTION">German language used in Austria</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">28</column>
+            <column name="LANGUAGESTRING">de-ch</column>
+            <column name="DISPLAYNAME">German (Switzerland)</column>
+            <column name="SORTORDER">33</column>
+            <column name="DESCRIPTION">German language used in Switzerland</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">29</column>
+            <column name="LANGUAGESTRING">de-li</column>
+            <column name="DISPLAYNAME">German (Liechtenstein)</column>
+            <column name="SORTORDER">34</column>
+            <column name="DESCRIPTION">German language used in Liechtenstein</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">30</column>
+            <column name="LANGUAGESTRING">de-lu</column>
+            <column name="DISPLAYNAME">German (Luxembourg)</column>
+            <column name="SORTORDER">35</column>
+            <column name="DESCRIPTION">German language used in Luxembourg</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
             <column name="VERSION">0</column>
@@ -12096,7 +12166,7 @@
             <column name="LOCALEID">5</column>
             <column name="LANGUAGESTRING">es-cl</column>
             <column name="DISPLAYNAME">Spanish (Chile)</column>
-            <column name="SORTORDER">41</column>
+            <column name="SORTORDER">43</column>
             <column name="DESCRIPTION">Spanish language used in Chile</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
@@ -12106,7 +12176,7 @@
             <column name="LOCALEID">6</column>
             <column name="LANGUAGESTRING">es-es</column>
             <column name="DISPLAYNAME">Spanish (Spain)</column>
-            <column name="SORTORDER">42</column>
+            <column name="SORTORDER">41</column>
             <column name="DESCRIPTION">Spanish language used in Spain (canonical Castilian)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
@@ -12116,8 +12186,88 @@
             <column name="LOCALEID">7</column>
             <column name="LANGUAGESTRING">es-mx</column>
             <column name="DISPLAYNAME">Spanish (Mexico)</column>
-            <column name="SORTORDER">43</column>
+            <column name="SORTORDER">42</column>
             <column name="DESCRIPTION">Spanish language used in Mexico</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">40</column>
+            <column name="LANGUAGESTRING">es-co</column>
+            <column name="DISPLAYNAME">Spanish (Colombia)</column>
+            <column name="SORTORDER">46</column>
+            <column name="DESCRIPTION">Spanish language used in Colombia</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">41</column>
+            <column name="LANGUAGESTRING">es-ar</column>
+            <column name="DISPLAYNAME">Spanish (Argentina)</column>
+            <column name="SORTORDER">44</column>
+            <column name="DESCRIPTION">Spanish language used in Argentina</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">42</column>
+            <column name="LANGUAGESTRING">es-ve</column>
+            <column name="DISPLAYNAME">Spanish (Venezuela)</column>
+            <column name="SORTORDER">56</column>
+            <column name="DESCRIPTION">Spanish language used in Venezuela</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">43</column>
+            <column name="LANGUAGESTRING">es-pe</column>
+            <column name="DISPLAYNAME">Spanish (Peru)</column>
+            <column name="SORTORDER">52</column>
+            <column name="DESCRIPTION">Spanish language used in Peru</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">44</column>
+            <column name="LANGUAGESTRING">es-ec</column>
+            <column name="DISPLAYNAME">Spanish (Ecuador)</column>
+            <column name="SORTORDER">48</column>
+            <column name="DESCRIPTION">Spanish language used in Ecuador</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">22</column>
+            <column name="LANGUAGESTRING">fr</column>
+            <column name="DISPLAYNAME">French</column>
+            <column name="SORTORDER">60</column>
+            <column name="DESCRIPTION">French language (generic base locale)</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">45</column>
+            <column name="LANGUAGESTRING">es-cr</column>
+            <column name="DISPLAYNAME">Spanish (Costa Rica)</column>
+            <column name="SORTORDER">47</column>
+            <column name="DESCRIPTION">Spanish language used in Costa Rica</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">46</column>
+            <column name="LANGUAGESTRING">es-pa</column>
+            <column name="DISPLAYNAME">Spanish (Panama)</column>
+            <column name="SORTORDER">51</column>
+            <column name="DESCRIPTION">Spanish language used in Panama</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
             <column name="VERSION">0</column>
@@ -12126,8 +12276,18 @@
             <column name="LOCALEID">8</column>
             <column name="LANGUAGESTRING">fr-ca</column>
             <column name="DISPLAYNAME">French (Canada)</column>
-            <column name="SORTORDER">50</column>
+            <column name="SORTORDER">62</column>
             <column name="DESCRIPTION">French language used in Canada</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">47</column>
+            <column name="LANGUAGESTRING">es-uy</column>
+            <column name="DISPLAYNAME">Spanish (Uruguay)</column>
+            <column name="SORTORDER">55</column>
+            <column name="DESCRIPTION">Spanish language used in Uruguay</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
             <column name="VERSION">0</column>
@@ -12136,8 +12296,108 @@
             <column name="LOCALEID">9</column>
             <column name="LANGUAGESTRING">fr-fr</column>
             <column name="DISPLAYNAME">French (France)</column>
-            <column name="SORTORDER">51</column>
+            <column name="SORTORDER">61</column>
             <column name="DESCRIPTION">French language used in France</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">48</column>
+            <column name="LANGUAGESTRING">es-bo</column>
+            <column name="DISPLAYNAME">Spanish (Bolivia)</column>
+            <column name="SORTORDER">45</column>
+            <column name="DESCRIPTION">Spanish language used in Bolivia</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">31</column>
+            <column name="LANGUAGESTRING">fr-ch</column>
+            <column name="DISPLAYNAME">French (Switzerland)</column>
+            <column name="SORTORDER">64</column>
+            <column name="DESCRIPTION">French language used in Switzerland</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">49</column>
+            <column name="LANGUAGESTRING">es-sv</column>
+            <column name="DISPLAYNAME">Spanish (El Salvador)</column>
+            <column name="SORTORDER">54</column>
+            <column name="DESCRIPTION">Spanish language used in El Salvador</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">32</column>
+            <column name="LANGUAGESTRING">fr-lu</column>
+            <column name="DISPLAYNAME">French (Luxembourg)</column>
+            <column name="SORTORDER">65</column>
+            <column name="DESCRIPTION">French language used in Luxembourg</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">50</column>
+            <column name="LANGUAGESTRING">es-hn</column>
+            <column name="DISPLAYNAME">Spanish (Honduras)</column>
+            <column name="SORTORDER">49</column>
+            <column name="DESCRIPTION">Spanish language used in Honduras</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">33</column>
+            <column name="LANGUAGESTRING">fr-be</column>
+            <column name="DISPLAYNAME">French (Belgium)</column>
+            <column name="SORTORDER">63</column>
+            <column name="DESCRIPTION">French language used in Belgium</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">53</column>
+            <column name="LANGUAGESTRING">fr-us</column>
+            <column name="DISPLAYNAME">Cajun / Louisiana French</column>
+            <column name="SORTORDER">65</column>
+            <column name="DESCRIPTION">Cajun / Louisiana French language</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">51</column>
+            <column name="LANGUAGESTRING">es-ni</column>
+            <column name="DISPLAYNAME">Spanish (Nicaragua)</column>
+            <column name="SORTORDER">50</column>
+            <column name="DESCRIPTION">Spanish language used in Nicaragua</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">34</column>
+            <column name="LANGUAGESTRING">lou</column>
+            <column name="DISPLAYNAME">Louisiana Creole</column>
+            <column name="SORTORDER">67</column>
+            <column name="DESCRIPTION">Louisiana Creole language (base)</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">52</column>
+            <column name="LANGUAGESTRING">es-pr</column>
+            <column name="DISPLAYNAME">Spanish (Puerto Rico)</column>
+            <column name="SORTORDER">53</column>
+            <column name="DESCRIPTION">Spanish language used in Puerto Rico</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
             <column name="VERSION">0</column>
@@ -12146,7 +12406,7 @@
             <column name="LOCALEID">10</column>
             <column name="LANGUAGESTRING">hi</column>
             <column name="DISPLAYNAME">Hindi</column>
-            <column name="SORTORDER">60</column>
+            <column name="SORTORDER">70</column>
             <column name="DESCRIPTION">Hindi language (generic, no region)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">1</column>
@@ -12156,18 +12416,38 @@
             <column name="LOCALEID">11</column>
             <column name="LANGUAGESTRING">hi-in</column>
             <column name="DISPLAYNAME">Hindi (India)</column>
-            <column name="SORTORDER">61</column>
+            <column name="SORTORDER">71</column>
             <column name="DESCRIPTION">Hindi language used in India (canonical regional form)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">23</column>
+            <column name="LANGUAGESTRING">it</column>
+            <column name="DISPLAYNAME">Italian</column>
+            <column name="SORTORDER">80</column>
+            <column name="DESCRIPTION">Italian language (generic base locale)</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
             <column name="LOCALEID">12</column>
             <column name="LANGUAGESTRING">it-it</column>
             <column name="DISPLAYNAME">Italian (Italy)</column>
-            <column name="SORTORDER">70</column>
+            <column name="SORTORDER">81</column>
             <column name="DESCRIPTION">Italian language used in Italy</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">35</column>
+            <column name="LANGUAGESTRING">it-ch</column>
+            <column name="DISPLAYNAME">Italian (Switzerland)</column>
+            <column name="SORTORDER">82</column>
+            <column name="DESCRIPTION">Italian language used in Switzerland</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
             <column name="VERSION">0</column>
@@ -12176,27 +12456,57 @@
             <column name="LOCALEID">13</column>
             <column name="LANGUAGESTRING">ja-jp</column>
             <column name="DISPLAYNAME">Japanese (Japan)</column>
-            <column name="SORTORDER">80</column>
+            <column name="SORTORDER">90</column>
             <column name="DESCRIPTION">Japanese language used in Japan</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">24</column>
+            <column name="LANGUAGESTRING">nl</column>
+            <column name="DISPLAYNAME">Dutch</column>
+            <column name="SORTORDER">100</column>
+            <column name="DESCRIPTION">Dutch language (generic base locale)</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
             <column name="LOCALEID">14</column>
             <column name="LANGUAGESTRING">nl-nl</column>
             <column name="DISPLAYNAME">Dutch (Netherlands)</column>
-            <column name="SORTORDER">90</column>
+            <column name="SORTORDER">101</column>
             <column name="DESCRIPTION">Dutch language used in Netherlands</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">36</column>
+            <column name="LANGUAGESTRING">nl-be</column>
+            <column name="DISPLAYNAME">Dutch (Belgium)</column>
+            <column name="SORTORDER">102</column>
+            <column name="DESCRIPTION">Dutch language used in Belgium</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">25</column>
+            <column name="LANGUAGESTRING">pt</column>
+            <column name="DISPLAYNAME">Portuguese</column>
+            <column name="SORTORDER">120</column>
+            <column name="DESCRIPTION">Portuguese language (generic base locale)</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
             <column name="LOCALEID">15</column>
             <column name="LANGUAGESTRING">pt-br</column>
             <column name="DISPLAYNAME">Portuguese (Brazil)</column>
-            <column name="SORTORDER">100</column>
+            <column name="SORTORDER">121</column>
             <column name="DESCRIPTION">Portuguese language used in Brazil</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
@@ -12206,17 +12516,57 @@
             <column name="LOCALEID">16</column>
             <column name="LANGUAGESTRING">pt-pt</column>
             <column name="DISPLAYNAME">Portuguese (Portugal)</column>
-            <column name="SORTORDER">101</column>
+            <column name="SORTORDER">122</column>
             <column name="DESCRIPTION">Portuguese language used in Portugal</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">53</column>
+            <column name="LANGUAGESTRING">pl</column>
+            <column name="DISPLAYNAME">Polish</column>
+            <column name="SORTORDER">110</column>
+            <column name="DESCRIPTION">Polish language (generic base locale)</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">54</column>
+            <column name="LANGUAGESTRING">ru</column>
+            <column name="DISPLAYNAME">Russian</column>
+            <column name="SORTORDER">130</column>
+            <column name="DESCRIPTION">Russian language (generic base locale)</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">55</column>
+            <column name="LANGUAGESTRING">sv</column>
+            <column name="DISPLAYNAME">Swedish</column>
+            <column name="SORTORDER">140</column>
+            <column name="DESCRIPTION">Swedish language (generic base locale)</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">26</column>
+            <column name="LANGUAGESTRING">tr</column>
+            <column name="DISPLAYNAME">Turkish</column>
+            <column name="SORTORDER">160</column>
+            <column name="DESCRIPTION">Turkish language (generic base locale)</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
             <column name="LOCALEID">17</column>
             <column name="LANGUAGESTRING">tr-tr</column>
             <column name="DISPLAYNAME">Turkish (Turkey)</column>
-            <column name="SORTORDER">110</column>
+            <column name="SORTORDER">161</column>
             <column name="DESCRIPTION">Turkish language used in Turkey</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
@@ -12226,24 +12576,34 @@
             <column name="LOCALEID">19</column>
             <column name="LANGUAGESTRING">te</column>
             <column name="DISPLAYNAME">Telugu</column>
-            <column name="SORTORDER">115</column>
+            <column name="SORTORDER">150</column>
             <column name="DESCRIPTION">Telugu language (generic base locale)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
-            <column name="LOCALEID">18</column>
-            <column name="LANGUAGESTRING">ar</column>
-            <column name="DISPLAYNAME">Arabic</column>
-            <column name="SORTORDER">5</column>
-            <column name="DESCRIPTION">Arabic language (generic base locale)</column>
+            <column name="LOCALEID">56</column>
+            <column name="LANGUAGESTRING">zh-cn</column>
+            <column name="DISPLAYNAME">Chinese (Simplified)</column>
+            <column name="SORTORDER">170</column>
+            <column name="DESCRIPTION">Simplified Chinese used in China</column>
             <column name="STATUS">1</column>
-            <column name="ISBASE">1</column>
+            <column name="ISBASE">0</column>
             <column name="VERSION">0</column>
         </row>
-        <!-- Upgrade existing installs: set base flags and ensure Arabic row -->
-        <row action="u" onTableCreateOnly="no">
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">57</column>
+            <column name="LANGUAGESTRING">zh-tw</column>
+            <column name="DISPLAYNAME">Chinese (Traditional)</column>
+            <column name="SORTORDER">171</column>
+            <column name="DESCRIPTION">Traditional Chinese used in Taiwan</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <!-- Upgrade existing installs: ensure base flags on es/hi -->
+        <row onTableCreateOnly="no" action="u">
             <column name="LOCALEID">4</column>
             <column name="LANGUAGESTRING">es</column>
             <column name="DISPLAYNAME">Spanish</column>
@@ -12253,11 +12613,11 @@
             <column name="ISBASE">1</column>
             <column name="VERSION">0</column>
         </row>
-        <row action="u" onTableCreateOnly="no">
+        <row onTableCreateOnly="no" action="u">
             <column name="LOCALEID">10</column>
             <column name="LANGUAGESTRING">hi</column>
             <column name="DISPLAYNAME">Hindi</column>
-            <column name="SORTORDER">60</column>
+            <column name="SORTORDER">70</column>
             <column name="DESCRIPTION">Hindi language (generic, no region)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">1</column>
@@ -12265,7 +12625,7 @@
         </row>
     </table>
     <table name="RXLOCALEPROPERTY"/>
-    <table name="RXLOCALEFORMAT" onCreateOnly="no">
+        <table name="RXLOCALEFORMAT" onCreateOnly="no">
         <row onTableCreateOnly="no" action="i">
             <column name="LANGUAGESTRING">en-us</column>
             <column name="TEXTDIR">ltr</column>
@@ -12301,6 +12661,57 @@
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">ar</column>
+            <column name="TEXTDIR">rtl</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">.</column>
+            <column name="GROUPINGSEP">,</column>
+            <column name="CURRENCYCODE"></column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">6</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ"></column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">bn</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">h:mm a</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">.</column>
+            <column name="GROUPINGSEP">,</column>
+            <column name="CURRENCYCODE">BDT</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">Asia/Dhaka</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">de</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd.MM.yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP">.</column>
+            <column name="CURRENCYCODE">EUR</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ"></column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
             <column name="LANGUAGESTRING">de-de</column>
             <column name="TEXTDIR">ltr</column>
             <column name="DATEPATTERN">dd.MM.yyyy</column>
@@ -12313,6 +12724,74 @@
             <column name="FIRSTDAYOFWEEK">1</column>
             <column name="MEASUREMENTSYSTEM">metric</column>
             <column name="DEFAULTTZ">Europe/Berlin</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">de-at</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd.MM.yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP">.</column>
+            <column name="CURRENCYCODE">EUR</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">Europe/Vienna</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">de-ch</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd.MM.yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP">.</column>
+            <column name="CURRENCYCODE">CHF</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">Europe/Zurich</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">de-li</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd.MM.yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP">.</column>
+            <column name="CURRENCYCODE">CHF</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">Europe/Vaduz</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">de-lu</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd.MM.yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP">.</column>
+            <column name="CURRENCYCODE">EUR</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">Europe/Luxembourg</column>
             <column name="NUMBERINGSYSTEM">latn</column>
             <column name="CALENDAR">gregory</column>
             <column name="VERSION">0</column>
@@ -12386,6 +12865,244 @@
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">es-co</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">h:mm a</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP">.</column>
+            <column name="CURRENCYCODE">COP</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">America/Bogota</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">es-ar</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP">.</column>
+            <column name="CURRENCYCODE">ARS</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">America/Argentina/Buenos_Aires</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">es-ve</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">h:mm a</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP">.</column>
+            <column name="CURRENCYCODE">VES</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">America/Caracas</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">es-pe</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">.</column>
+            <column name="GROUPINGSEP">,</column>
+            <column name="CURRENCYCODE">PEN</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">America/Lima</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">es-ec</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP">.</column>
+            <column name="CURRENCYCODE">USD</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">America/Guayaquil</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">es-cr</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP">.</column>
+            <column name="CURRENCYCODE">CRC</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">America/Costa_Rica</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">es-pa</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">h:mm a</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">.</column>
+            <column name="GROUPINGSEP">,</column>
+            <column name="CURRENCYCODE">PAB</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">America/Panama</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">es-uy</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP">.</column>
+            <column name="CURRENCYCODE">UYU</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">America/Montevideo</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">es-bo</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP">.</column>
+            <column name="CURRENCYCODE">BOB</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">America/La_Paz</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">es-sv</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">h:mm a</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">.</column>
+            <column name="GROUPINGSEP">,</column>
+            <column name="CURRENCYCODE">USD</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">America/El_Salvador</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">es-hn</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">h:mm a</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">.</column>
+            <column name="GROUPINGSEP">,</column>
+            <column name="CURRENCYCODE">HNL</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">America/Tegucigalpa</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">es-ni</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">h:mm a</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">.</column>
+            <column name="GROUPINGSEP">,</column>
+            <column name="CURRENCYCODE">NIO</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">America/Managua</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">es-pr</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">h:mm a</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">.</column>
+            <column name="GROUPINGSEP">,</column>
+            <column name="CURRENCYCODE">USD</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">America/Puerto_Rico</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">fr</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP"> </column>
+            <column name="CURRENCYCODE">EUR</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ"></column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
             <column name="LANGUAGESTRING">fr-fr</column>
             <column name="TEXTDIR">ltr</column>
             <column name="DATEPATTERN">dd/MM/yyyy</column>
@@ -12415,6 +13132,91 @@
             <column name="FIRSTDAYOFWEEK">1</column>
             <column name="MEASUREMENTSYSTEM">metric</column>
             <column name="DEFAULTTZ">America/Toronto</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">fr-ch</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd.MM.yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">.</column>
+            <column name="GROUPINGSEP">'</column>
+            <column name="CURRENCYCODE">CHF</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">Europe/Zurich</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">fr-lu</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP"> </column>
+            <column name="CURRENCYCODE">EUR</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">Europe/Luxembourg</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">fr-be</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP"> </column>
+            <column name="CURRENCYCODE">EUR</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">Europe/Brussels</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">fr-us</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">MM/dd/yyyy</column>
+            <column name="TIMEPATTERN">h:mm a</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">.</column>
+            <column name="GROUPINGSEP">,</column>
+            <column name="CURRENCYCODE">USD</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">America/New_York</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">lou</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">MM/dd/yyyy</column>
+            <column name="TIMEPATTERN">h:mm a</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">.</column>
+            <column name="GROUPINGSEP">,</column>
+            <column name="CURRENCYCODE">USD</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">America/New_York</column>
             <column name="NUMBERINGSYSTEM">latn</column>
             <column name="CALENDAR">gregory</column>
             <column name="VERSION">0</column>
@@ -12454,6 +13256,23 @@
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">it</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP">.</column>
+            <column name="CURRENCYCODE">EUR</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ"></column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
             <column name="LANGUAGESTRING">it-it</column>
             <column name="TEXTDIR">ltr</column>
             <column name="DATEPATTERN">dd/MM/yyyy</column>
@@ -12466,6 +13285,23 @@
             <column name="FIRSTDAYOFWEEK">1</column>
             <column name="MEASUREMENTSYSTEM">metric</column>
             <column name="DEFAULTTZ">Europe/Rome</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">it-ch</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd.MM.yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">.</column>
+            <column name="GROUPINGSEP">'</column>
+            <column name="CURRENCYCODE">CHF</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">Europe/Zurich</column>
             <column name="NUMBERINGSYSTEM">latn</column>
             <column name="CALENDAR">gregory</column>
             <column name="VERSION">0</column>
@@ -12488,6 +13324,23 @@
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">nl</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd-MM-yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP">.</column>
+            <column name="CURRENCYCODE">EUR</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ"></column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
             <column name="LANGUAGESTRING">nl-nl</column>
             <column name="TEXTDIR">ltr</column>
             <column name="DATEPATTERN">dd-MM-yyyy</column>
@@ -12500,6 +13353,40 @@
             <column name="FIRSTDAYOFWEEK">1</column>
             <column name="MEASUREMENTSYSTEM">metric</column>
             <column name="DEFAULTTZ">Europe/Amsterdam</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">nl-be</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP">.</column>
+            <column name="CURRENCYCODE">EUR</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">Europe/Brussels</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">pt</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP">.</column>
+            <column name="CURRENCYCODE"></column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ"></column>
             <column name="NUMBERINGSYSTEM">latn</column>
             <column name="CALENDAR">gregory</column>
             <column name="VERSION">0</column>
@@ -12539,18 +13426,69 @@
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
-            <column name="LANGUAGESTRING">te</column>
+            <column name="LANGUAGESTRING">pl</column>
             <column name="TEXTDIR">ltr</column>
-            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="DATEPATTERN">dd.MM.yyyy</column>
             <column name="TIMEPATTERN">HH:mm</column>
             <column name="DATETIMEPATTERN"></column>
-            <column name="DECIMALSEP">.</column>
-            <column name="GROUPINGSEP">,</column>
-            <column name="CURRENCYCODE">INR</column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP"> </column>
+            <column name="CURRENCYCODE">PLN</column>
             <column name="CURRENCYPATTERN"></column>
             <column name="FIRSTDAYOFWEEK">1</column>
             <column name="MEASUREMENTSYSTEM">metric</column>
-            <column name="DEFAULTTZ">Asia/Kolkata</column>
+            <column name="DEFAULTTZ"></column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">ru</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd.MM.yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP"> </column>
+            <column name="CURRENCYCODE">RUB</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ"></column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">sv</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">yyyy-MM-dd</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP"> </column>
+            <column name="CURRENCYCODE">SEK</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ"></column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">tr</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd.MM.yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP">.</column>
+            <column name="CURRENCYCODE">TRY</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ"></column>
             <column name="NUMBERINGSYSTEM">latn</column>
             <column name="CALENDAR">gregory</column>
             <column name="VERSION">0</column>
@@ -12573,18 +13511,52 @@
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
-            <column name="LANGUAGESTRING">ar</column>
-            <column name="TEXTDIR">rtl</column>
+            <column name="LANGUAGESTRING">te</column>
+            <column name="TEXTDIR">ltr</column>
             <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">h:mm a</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">.</column>
+            <column name="GROUPINGSEP">,</column>
+            <column name="CURRENCYCODE">INR</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">Asia/Kolkata</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">zh-cn</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">yyyy/MM/dd</column>
             <column name="TIMEPATTERN">HH:mm</column>
             <column name="DATETIMEPATTERN"></column>
             <column name="DECIMALSEP">.</column>
             <column name="GROUPINGSEP">,</column>
-            <column name="CURRENCYCODE"></column>
+            <column name="CURRENCYCODE">CNY</column>
             <column name="CURRENCYPATTERN"></column>
-            <column name="FIRSTDAYOFWEEK">6</column>
+            <column name="FIRSTDAYOFWEEK">1</column>
             <column name="MEASUREMENTSYSTEM">metric</column>
-            <column name="DEFAULTTZ"></column>
+            <column name="DEFAULTTZ">Asia/Shanghai</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">zh-tw</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">yyyy/MM/dd</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">.</column>
+            <column name="GROUPINGSEP">,</column>
+            <column name="CURRENCYCODE">TWD</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">Asia/Taipei</column>
             <column name="NUMBERINGSYSTEM">latn</column>
             <column name="CALENDAR">gregory</column>
             <column name="VERSION">0</column>

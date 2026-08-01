@@ -19,11 +19,11 @@
 package com.percussion.pagemanagement.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-import tools.jackson.databind.annotation.JsonSerialize;
 import com.percussion.share.data.PSAbstractPersistantObject;
 import jakarta.xml.bind.annotation.*;
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 /**
  * The summary information of a Template. This is an immutable class.

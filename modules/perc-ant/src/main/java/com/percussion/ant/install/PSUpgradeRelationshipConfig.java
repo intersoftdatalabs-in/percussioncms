@@ -35,9 +35,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * ANT task that upgrades the {@code PSX_RXCONFIGURATIONS} row named {@code relationships} by adding
+ * any missing relationship configuration entries (Recycled Content, Local Content, Widget Assembly,
+ * Widget Content) for newer installations.
+ */
 public class PSUpgradeRelationshipConfig extends PSAction {
   /** Creates a new relationship config upgrade task. */
-  public PSUpgradeRelationshipConfig() {}
+  public PSUpgradeRelationshipConfig() {
+    super();
+  }
 
   Logger logger = LogManager.getLogger(PSUpgradeSiteConfig.class);
 

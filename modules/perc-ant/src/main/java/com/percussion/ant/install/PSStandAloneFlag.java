@@ -68,6 +68,9 @@ public class PSStandAloneFlag extends PSAction {
   }
 
   /**
+   * Indicates whether the current install is a standalone install (e.g. DevToolsSetup.exe) rather
+   * than a multi-suite install.
+   *
    * @return <code>true</code> if this is a standalone install, <code>false</code> otherwise.
    */
   public static boolean isStandalone() {

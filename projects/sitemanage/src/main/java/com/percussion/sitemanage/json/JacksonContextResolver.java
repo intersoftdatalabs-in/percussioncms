@@ -63,8 +63,7 @@ public class JacksonContextResolver implements ContextResolver<ObjectMapper> {
               vc -> vc.withFieldVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY))
           .annotationIntrospector(
               AnnotationIntrospector.pair(
-                  new JakartaXmlBindAnnotationIntrospector(),
-                  new JacksonAnnotationIntrospector()))
+                  new JakartaXmlBindAnnotationIntrospector(), new JacksonAnnotationIntrospector()))
           .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
           .build();
 

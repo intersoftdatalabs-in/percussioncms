@@ -248,7 +248,7 @@
         </dependency>
         <dependency>
             <groupId>tools.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
+            <artifactId>jackson-core</artifactId>
         </dependency>
         <dependency>
             <groupId>tools.jackson.module</groupId>
@@ -262,7 +262,7 @@
         </dependency>
         <dependency>
             <groupId>tools.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
             <groupId>tools.jackson.dataformat</groupId>

@@ -70,9 +70,9 @@ public class SystemDefAdaptor implements ISystemDefAdaptor {
   }
 
   /**
-   * Production load path used by the default constructor. Package-visible so unit tests can exercise
-   * design-WS success, {@link PSErrorException} wrapping, and absent request session/user without
-   * mocking static locators.
+   * Production load path used by the default constructor. Package-visible so unit tests can
+   * exercise design-WS success, {@link PSErrorException} wrapping, and absent request session/user
+   * without mocking static locators.
    */
   static PSContentEditorSystemDef loadSystemDefFromDesignWs(
       IPSContentDesignWs designWs, String sessionId, String user) {

@@ -182,12 +182,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
           urlString,
           statusCode);
     }
-    try {
-      return OBJECT_MAPPER.readValue(response.body(), Object.class);
-    } catch (IOException e) {
-      log.error("Failed to parse JSON from URL: {}", urlString, e);
-      throw e;
-    }
+    return OBJECT_MAPPER.readValue(response.body(), Object.class);
   }
 
   /**
@@ -221,12 +216,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
           urlString,
           statusCode);
     }
-    try {
-      return OBJECT_MAPPER.readValue(response.body(), Object.class);
-    } catch (IOException e) {
-      log.error("Failed to parse JSON from URL: {}", urlString, e);
-      throw e;
-    }
+    return OBJECT_MAPPER.readValue(response.body(), Object.class);
   }
 
   /**
@@ -253,12 +243,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
     if (response.statusCode() != SC_OK) {
       log.debug("Get failed for URL {}. Status code: {}", urlString, response.statusCode());
     }
-    try {
-      return OBJECT_MAPPER.readValue(response.body(), Object.class);
-    } catch (IOException e) {
-      log.error("Failed to parse JSON from URL: {}", urlString, e);
-      throw e;
-    }
+    return OBJECT_MAPPER.readValue(response.body(), Object.class);
   }
 
   /**
@@ -297,12 +282,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
           urlString,
           statusCode);
     }
-    try {
-      return OBJECT_MAPPER.readValue(response.body(), Object.class);
-    } catch (IOException e) {
-      log.error("Failed to parse JSON from URL: {}", urlString, e);
-      throw e;
-    }
+    return OBJECT_MAPPER.readValue(response.body(), Object.class);
   }
 
   private HttpResponse<String> executeGet(

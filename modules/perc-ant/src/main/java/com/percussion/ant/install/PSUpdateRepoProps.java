@@ -60,8 +60,15 @@ import java.util.Properties;
  */
 public class PSUpdateRepoProps extends PSAction {
   /** Creates a new repository properties update task. */
-  public PSUpdateRepoProps() {}
+  public PSUpdateRepoProps() {
+    super();
+  }
 
+  /**
+   * Loads the JNDI datasource resolver from the configured Jetty root and writes a fresh {@code
+   * rxrepository.properties} file containing the repository datasource values (with an encrypted
+   * password).
+   */
   public void execute() {
     File root = new File(getRootDir());
     IPSContainerUtils jetty =
@@ -117,11 +124,20 @@ public class PSUpdateRepoProps extends PSAction {
    * Property Accessors and Mutators
    *************************************************************************/
 
-  /** Accessor for the repository location */
+  /**
+   * Accessor for the repository location.
+   *
+   * @return the repository location path, never <code>null</code>
+   */
   public String getRepositoryLocation() {
     return m_strRepositoryLocation;
   }
 
+  /**
+   * Mutator for the repository location.
+   *
+   * @param repositoryLocation the repository location path, may be <code>null</code>
+   */
   public void setRepositoryLocation(String repositoryLocation) {
     m_strRepositoryLocation = repositoryLocation;
   }

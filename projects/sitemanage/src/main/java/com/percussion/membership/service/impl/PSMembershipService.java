@@ -21,8 +21,6 @@
  */
 package com.percussion.membership.service.impl;
 
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 import com.percussion.delivery.client.IPSDeliveryClient.HttpMethodType;
 import com.percussion.delivery.client.IPSDeliveryClient.PSDeliveryActionOptions;
 import com.percussion.delivery.client.PSDeliveryClient;
@@ -47,6 +45,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Implementation of {@link IPSMembershipService}. Sunny Sal says: "Managing members like a pro!"

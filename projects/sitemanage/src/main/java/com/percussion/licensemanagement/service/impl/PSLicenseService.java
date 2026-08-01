@@ -20,8 +20,6 @@ package com.percussion.licensemanagement.service.impl;
 
 import static org.apache.commons.lang3.Validate.notNull;
 
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 import com.percussion.delivery.service.IPSDeliveryInfoService;
 import com.percussion.licensemanagement.data.PSLicenseStatus;
 import com.percussion.licensemanagement.data.PSModuleLicense;
@@ -45,13 +43,13 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
-import java.io.IOException;
 import java.text.MessageFormat;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Service implementation for managing module licenses.

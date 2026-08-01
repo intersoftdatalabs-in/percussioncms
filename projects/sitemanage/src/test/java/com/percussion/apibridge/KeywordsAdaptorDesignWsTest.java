@@ -32,6 +32,7 @@ import com.percussion.utils.request.PSRequestInfoBase;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,7 +49,7 @@ class KeywordsAdaptorDesignWsTest {
 
   @BeforeEach
   void setRequestInfo() {
-    PSRequestInfoBase.initRequestInfo(Collections.emptyMap());
+    PSRequestInfoBase.initRequestInfo(new HashMap<>());
     PSRequestInfoBase.setRequestInfo(PSRequestInfoBase.KEY_JSESSIONID, "test-session");
     PSRequestInfoBase.setRequestInfo(PSRequestInfoBase.KEY_USER, "test-user");
   }
@@ -185,7 +186,8 @@ class KeywordsAdaptorDesignWsTest {
     IPSGuid guid = new PSGuid(PSTypeEnum.KEYWORD_DEF, 11L);
     PSErrorResultsException err = new PSErrorResultsException();
     err.addError(guid, "missing");
-    when(designWs.loadKeywords(eq(List.of(guid)), eq(true), eq(false), any(), any())).thenThrow(err);
+    when(designWs.loadKeywords(eq(List.of(guid)), eq(true), eq(false), any(), any()))
+        .thenThrow(err);
 
     KeywordSummary body = new KeywordSummary();
     body.setLabel("X");
@@ -208,7 +210,8 @@ class KeywordsAdaptorDesignWsTest {
     adaptor.deleteKeyword(null, String.valueOf(guid.getUUID()));
 
     verify(designWs).loadKeywords(eq(List.of(guid)), eq(false), eq(false), any(), any());
-    verify(designWs).deleteKeywords(eq(List.of(guid)), eq(false), eq("test-session"), eq("test-user"));
+    verify(designWs)
+        .deleteKeywords(eq(List.of(guid)), eq(false), eq("test-session"), eq("test-user"));
   }
 
   @Test

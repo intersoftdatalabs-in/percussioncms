@@ -20,11 +20,6 @@
 package com.percussion.category.data;
 
 import com.fasterxml.jackson.annotation.*;
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.databind.annotation.JsonDeserialize;
-import tools.jackson.databind.annotation.JsonSerialize;
 import com.percussion.share.data.PSAbstractDataObject;
 import jakarta.xml.bind.annotation.*;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -32,6 +27,10 @@ import java.text.Collator;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.json.JsonMapper;
 
 /** Represents a node in the category tree. */
 @XmlRootElement(name = "Category")

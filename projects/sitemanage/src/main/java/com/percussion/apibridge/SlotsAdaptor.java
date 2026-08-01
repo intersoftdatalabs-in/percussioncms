@@ -234,8 +234,7 @@ public class SlotsAdaptor implements ISlotsAdaptor {
       if (sum == null || sum.getGUID() == null) {
         continue;
       }
-      if (idOrName.equalsIgnoreCase(sum.getName())
-          || idOrName.equalsIgnoreCase(sum.getLabel())) {
+      if (idOrName.equalsIgnoreCase(sum.getName()) || idOrName.equalsIgnoreCase(sum.getLabel())) {
         List<IPSTemplateSlot> loaded =
             designWs.loadSlots(
                 Collections.singletonList(sum.getGUID()), forEdit, false, session, user);

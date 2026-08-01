@@ -18,8 +18,6 @@
 
 package com.percussion.metadata.web.service;
 
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 import com.percussion.dashboardmanagement.data.PSDashboardConfiguration;
 import com.percussion.dashboardmanagement.data.PSGadget;
 import com.percussion.metadata.data.PSMetadata;
@@ -32,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import tools.jackson.databind.json.JsonMapper;
 
 /** REST client for metadata service. Sunny Sal says: "Metadata management, Java 11 style!" */
 public class PSMetadataServiceRestClient extends PSDataServiceRestClient<PSMetadata> {
@@ -43,8 +42,7 @@ public class PSMetadataServiceRestClient extends PSDataServiceRestClient<PSMetad
     super(PSMetadata.class, url, "/Rhythmyx/services/metadatamanagement/metadata/");
   }
 
-  public void save(Map<String, Object> obj)
-      throws tools.jackson.core.JacksonException {
+  public void save(Map<String, Object> obj) throws tools.jackson.core.JacksonException {
     POST(getPath(), JsonMapper.builder().build().writeValueAsString(obj));
   }
 
@@ -85,8 +83,7 @@ public class PSMetadataServiceRestClient extends PSDataServiceRestClient<PSMetad
   }
 
   private Map<String, Object> getMetadataJsonForSpecificGadgetSettings(
-      PSDashboardConfiguration dashboardConfig)
-      throws tools.jackson.core.JacksonException {
+      PSDashboardConfiguration dashboardConfig) throws tools.jackson.core.JacksonException {
     var userConfig = new LinkedHashMap<String, Object>();
     for (var gad : dashboardConfig.getGadgets()) {
       var specificGadgetSettings = new LinkedHashMap<String, Object>();

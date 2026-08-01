@@ -19,10 +19,10 @@ package com.percussion.share.web.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import tools.jackson.core.JacksonException;
 import jakarta.ws.rs.core.Response;
 import java.lang.reflect.Method;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.JacksonException;
 
 /**
  * Regression for GH-675 / v8.1.7 PR #676: map Jackson/null-style runtime failures to BAD_REQUEST.
@@ -50,8 +50,7 @@ class PSRuntimeExceptionMapperJacksonNullTest {
 
   @Test
   void jacksonCauseIsBadRequest() throws Exception {
-    RuntimeException wrap =
-        new RuntimeException("wrap", new JacksonException("bad json") {});
+    RuntimeException wrap = new RuntimeException("wrap", new JacksonException("bad json") {});
     assertEquals(Response.Status.BAD_REQUEST, statusOf(wrap));
   }
 }

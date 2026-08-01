@@ -27,11 +27,6 @@ import static com.percussion.utils.service.impl.PSSiteConfigUtils.updateSiteConf
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.DatabindException;
-import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.ObjectWriter;
 import com.percussion.assetmanagement.dao.IPSAssetDao;
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
@@ -141,6 +136,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.json.JsonMapper;
 
 @Component("siteDataService")
 @PSSiteManageBean

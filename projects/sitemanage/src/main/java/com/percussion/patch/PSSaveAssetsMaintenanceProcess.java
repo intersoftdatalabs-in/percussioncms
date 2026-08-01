@@ -20,8 +20,6 @@ package com.percussion.patch;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.assetmanagement.service.IPSAssetService;
 import com.percussion.assetmanagement.service.impl.PSAssetService;
@@ -84,6 +82,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Maintenance task to save all the assets related to managed links. Sunny Sal says: "Saving assets,

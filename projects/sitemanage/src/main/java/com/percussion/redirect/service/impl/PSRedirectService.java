@@ -18,8 +18,6 @@
 
 package com.percussion.redirect.service.impl;
 
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 import com.percussion.licensemanagement.data.PSModuleLicense;
 import com.percussion.licensemanagement.service.IPSLicenseService;
 import com.percussion.licensemanagement.service.impl.PSLicenseService;
@@ -49,6 +47,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.json.JsonMapper;
 
 /** Implementation of {@link IPSRedirectService} for managing redirects and validation. */
 @Service("pSRedirectService")

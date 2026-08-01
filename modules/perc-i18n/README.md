@@ -44,7 +44,7 @@ All translation memory exchange (TMX) files are maintained in this module:
 
 - **Purpose**: UI-specific translations for the CMS interface
 - **Scope**: Content Manager UI components, dialogs, and labels
-- **Supported Languages**: the 18-locale matrix below
+- **Supported Languages**: the 20-locale matrix below
 - **Naming Convention**: Keys follow pattern `perc.ui.(IDENTIFIER).(TYPE)@(MESSAGE/KEY)`
 
 ### SystemResources.tmx
@@ -52,30 +52,39 @@ All translation memory exchange (TMX) files are maintained in this module:
 - **Purpose**: System and content editor resources
 - **Scope**: Content editor actions, system messages, and resource definitions
 - **Key Examples**: `psx.ce.action@Check-in`, `psx.ce.action@Update`
-- **Supported Languages**: the 18-locale matrix below
+- **Supported Languages**: the 20-locale matrix below
 
-### Canonical 18-Locale Matrix
+### Canonical 20-Locale Matrix
 
 Both `CmsUi.tmx` and `SystemResources.tmx` declare the same set of
 languages in their `<header>` `<prop type="supportedlanguage">` lines:
 
-|   Family   |                 Codes                  |
-|------------|----------------------------------------|
-| Arabic     | `ar` (base)                            |
-| English    | `en-us` (default fallback), `en-gb`    |
-| Spanish    | `es` (base), `es-cl`, `es-es`, `es-mx` |
-| French     | `fr-ca`, `fr-fr`                       |
-| German     | `de-de`                                |
-| Hindi      | `hi` (base), `hi-in`                   |
-| Italian    | `it-it`                                |
-| Japanese   | `ja-jp`                                |
-| Dutch      | `nl-nl`                                |
-| Portuguese | `pt-br`, `pt-pt`                       |
-| Turkish    | `tr-tr`                                |
+|   Family   |                              Codes                              |
+|------------|-----------------------------------------------------------------|
+| Arabic     | `ar` (base)                                                     |
+| Bengali    | `bn` (base)                                                     |
+| Chinese    | `zh-cn`, `zh-tw`                                                |
+| Dutch      | `nl` (base), `nl-nl`, `nl-be`                                   |
+| English    | `en-us` (default fallback), `en-gb`                             |
+| French     | `fr` (base), `fr-fr`, `fr-ca`, `fr-be`, `fr-ch`, `fr-lu`, `fr-us` |
+| German     | `de` (base), `de-de`, `de-at`, `de-ch`, `de-li`, `de-lu`        |
+| Hindi      | `hi` (base), `hi-in`                                            |
+| Italian    | `it` (base), `it-it`, `it-ch`                                   |
+| Japanese   | `ja-jp`                                                         |
+| Polish     | `pl` (base)                                                     |
+| Portuguese | `pt` (base), `pt-br`, `pt-pt`                                   |
+| Russian    | `ru` (base)                                                     |
+| Spanish    | `es` (base), `es-es`, `es-mx`, `es-cl`, + LATAM `es-*` variants |
+| Swedish    | `sv` (base)                                                     |
+| Louisiana Creole | `lou`                                                |
+| Telugu     | `te` (base)                                                     |
+| Turkish    | `tr` (base), `tr-tr`                                            |
 
-**Base locales** (`RXLOCALE.ISBASE=1`): `ar`, `es`, `hi`. Prefer storing
-shared translations under the base tag; regionals hold dialect
-overrides only. Lookup chain: regional → base → `en-us`.
+**Base locales** (`RXLOCALE.ISBASE=1`): `ar`, `bn`, `de`, `es`, `fr`, `hi`,
+`it`, `nl`, `pl`, `pt`, `ru`, `sv`, `te`, `tr`. Prefer storing shared
+translations under the base tag; regionals hold dialect overrides only.
+Lookup chain: regional → base → `en-us`. Format profiles live in
+`RXLOCALEFORMAT` (mirrored by `PSLocaleFormatDefaults`).
 
 **Login:** `PSLocaleLoginSelection` hides a base locale when an active
 regional sibling exists (e.g. `es` is hidden while `es-es` is active;

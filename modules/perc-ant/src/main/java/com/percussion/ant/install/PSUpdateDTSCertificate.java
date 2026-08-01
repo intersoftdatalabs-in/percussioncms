@@ -31,9 +31,18 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.Properties;
 
+/**
+ * ANT task that upgrades the DTS self-signed certificate when a new keystore ships with the build.
+ *
+ * <p>The task scans both the production and staging DTS roots under {@code rxDir} and, when a new
+ * keystore file is present, copies its certificate into the existing keystore using the configured
+ * password (falling back to the default password when needed).
+ */
 public class PSUpdateDTSCertificate extends PSAction {
   /** Creates a new DTS certificate update task. */
-  public PSUpdateDTSCertificate() {}
+  public PSUpdateDTSCertificate() {
+    super();
+  }
 
   private static String PROD_PATH = "Deployment";
   private static String STAGING_PATH = "Staging/Deployment";
@@ -59,10 +68,11 @@ public class PSUpdateDTSCertificate extends PSAction {
   }
 
   /**
-   * Get KeyStore Password from Catalina.properties
+   * Get KeyStore Password from Catalina.properties.
    *
-   * @param prodPath
-   * @throws IOException
+   * @param prodPath the production DTS root containing the {@code perc-catalina.properties} file
+   * @return the keystore password read from {@code https.keystorePass}
+   * @throws IOException if the catalina properties file cannot be read
    */
   private String getKeyStorePasswordFromCatalinaProperties(File prodPath) throws IOException {
     File percCatalinaFile = new File(prodPath, CATALINA_PROPERTIES);
@@ -79,9 +89,9 @@ public class PSUpdateDTSCertificate extends PSAction {
   }
 
   /**
-   * Update New Default Certificate in the path specified
+   * Update New Default Certificate in the path specified.
    *
-   * @param prodPath
+   * @param prodPath the DTS root directory whose keystore should be upgraded
    */
   private void updateCertificate(File prodPath) {
 
@@ -102,9 +112,12 @@ public class PSUpdateDTSCertificate extends PSAction {
    * gets the pwd from Catalina.properties and opens the keystore. If Successful in opening the
    * keystore, then updates the certificate.
    *
-   * @param prodPath
-   * @param newCertFile
-   * @param pwd
+   * @param prodPath the DTS root directory containing the keystores
+   * @param newCertFile the new keystore file shipped with the build
+   * @param pwd the password to open the existing keystore
+   * @param withDefaultPwd <code>true</code> if the supplied {@code pwd} is the default password;
+   *     when <code>false</code> and the keystore cannot be opened, the method gives up rather than
+   *     re-reading {@code perc-catalina.properties}
    */
   private void updateCertificate(
       File prodPath, File newCertFile, char[] pwd, boolean withDefaultPwd) {

@@ -18,9 +18,6 @@
 
 package com.percussion.category.service.impl;
 
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 import com.percussion.category.dao.IPSCategoryDao;
 import com.percussion.category.data.PSCategory;
 import com.percussion.category.data.PSCategoryLockInfo;
@@ -60,6 +57,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestParam;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 @Path("/category")
 @Component("categoryService")

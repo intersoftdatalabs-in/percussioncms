@@ -80,9 +80,16 @@
         <ant.contrib.version>1.0b3</ant.contrib.version>
         <ant.version>1.10.14</ant.version>
         <aopalliance.version>1.0</aopalliance.version>
-        <artemis.version>2.52.0</artemis.version>
+        <artemis.version>2.55.0</artemis.version>
         <avalon.version>4.1.5</avalon.version>
         <awssdk.version>1.12.797</awssdk.version>
+        <!-- Transitive CVE floors (see dependencyManagement BOM / pins below) -->
+        <!-- SolrJ → ZK 3.9.4; Dependabot #210/#211 need ≥3.9.5 -->
+        <zookeeper.version>3.9.5</zookeeper.version>
+        <!-- AWS SDK v1 / SolrJ still use com.fasterxml Jackson 2.x; product runtime is tools.jackson 3.x -->
+        <jackson.fasterxml.version>2.22.1</jackson.fasterxml.version>
+        <!-- Artemis modular Netty (not netty-all); Dependabot needs ≥4.1.136.Final -->
+        <netty.version>4.1.136.Final</netty.version>
         <batik.version>1.19</batik.version>
         <bc.version>1.84</bc.version>
         <build.helper.maven.plugin.version>3.6.1</build.helper.maven.plugin.version>
@@ -103,7 +110,7 @@
         <commons.compress.version>1.28.0</commons.compress.version>
         <commons.digester.version>2.1</commons.digester.version>
         <commons.file.upload.version>1.6.0</commons.file.upload.version>
-        <commons.io.version>2.21.0</commons.io.version>
+        <commons.io.version>2.22.0</commons.io.version>
         <commons.lang3.version>3.20.0</commons.lang3.version>
         <commons.logging.version>1.3.5</commons.logging.version>
         <commons.math.version>3.6.1</commons.math.version>
@@ -132,8 +139,9 @@
         <httpcomponents.core.version>4.4.16</httpcomponents.core.version>
         <httpcomponents.version>4.5.14</httpcomponents.version>
         <install.jre.version>8.222.10.1</install.jre.version>
-        <!-- Jackson 3.x runtime (tools.jackson); annotations stay on 2.x com.fasterxml by design -->
-        <jackson.annotation.api.version>2.21</jackson.annotation.api.version>
+        <!-- Jackson 3.x runtime (tools.jackson); annotations stay on 2.x com.fasterxml by design.
+             Annotations use major.minor only (2.22), not patch (jackson-bom jackson.version.annotations). -->
+        <jackson.annotation.api.version>2.22</jackson.annotation.api.version>
         <jackson.version>3.1.5</jackson.version>
         <jakarta.activation.version>2.1.4</jakarta.activation.version>
         <jakarta.annotation.api.version>3.0.0</jakarta.annotation.api.version>
@@ -215,7 +223,6 @@
         <mockito.version>5.21.0</mockito.version>
         <mssql.version>13.3.1.jre11-preview</mssql.version>
         <mysql.connector.version>8.4.0</mysql.connector.version>
-        <nettyall.version>4.2.16.Final</nettyall.version>
         <ojdbc17.version>23.26.0.0.0</ojdbc17.version>
         <opencsv.version>5.12.0</opencsv.version>
         <oracle.version>12.1.0.1</oracle.version>
@@ -249,7 +256,14 @@
         <surefireArgLine/>
         <swagger.ui.version>5.31.0</swagger.ui.version>
         <swagger.version>2.2.42</swagger.version>
-        <tika.version>3.2.3</tika.version>
+        <!-- 3.3.1 pulls junrar 7.6.0 (clears Dependabot #208/#214; was 7.5.5 on 3.2.3) -->
+        <tika.version>3.3.1</tika.version>
+        <!-- Desktop Content Explorer OpenJFX line (bare "17" was unpatched javafx-media) -->
+        <javafx.version>17.0.20</javafx.version>
+        <!-- javafx-webview-debugger → Java-WebSocket 1.3.7; floor for Dependabot #204 -->
+        <java.websocket.version>1.6.0</java.websocket.version>
+        <!-- minify-maven-plugin and other plugins; Dependabot #213 -->
+        <plexus.utils.version>4.0.3</plexus.utils.version>
         <!-- TinyMCE 6.8.x is the last series under the MIT license. -->
         <!-- TinyMCE 7+ switched to GPL-2.0-or-later, which is incompatible -->
         <!-- with this project's Apache 2.0 license for distribution. -->
@@ -268,6 +282,76 @@
     </properties>
     <dependencyManagement>
         <dependencies>
+            <!-- ===== Transitive security floors (BOM imports first) =====
+                 Product does not call Netty/ZooKeeper APIs directly. AWS SDK v1 and
+                 SolrJ still pull com.fasterxml Jackson 2.x; Artemis pulls modular Netty.
+                 Import BOMs so every module version is forced without sprinkling per-artifact
+                 pins. Exclude Solr's optional ZK client module so its 3.9.4 pin cannot win. -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-bom</artifactId>
+                <version>${netty.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson.fasterxml.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.zookeeper</groupId>
+                <artifactId>zookeeper</artifactId>
+                <version>${zookeeper.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.zookeeper</groupId>
+                <artifactId>zookeeper-jute</artifactId>
+                <version>${zookeeper.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.java-websocket</groupId>
+                <artifactId>Java-WebSocket</artifactId>
+                <version>${java.websocket.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-utils</artifactId>
+                <version>${plexus.utils.version}</version>
+            </dependency>
+            <!-- OpenJFX managed versions (DCE uses ${javafx.version}) -->
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-controls</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-graphics</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-base</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-web</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-media</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-swing</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-spring</artifactId>
@@ -487,11 +571,6 @@
                 <scope>test</scope>
             </dependency>
             <!-- End Junit 5-->
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-all</artifactId>
-                <version>${nettyall.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.mortbay.jasper</groupId>
                 <artifactId>apache-jsp</artifactId>
@@ -916,6 +995,24 @@
                 <artifactId>solr-solrj</artifactId>
                 <version>${solr.version}</version>
                 <exclusions>
+                    <!-- Optional SolrCloud client; pins ZK 3.9.4 (Dependabot #210/#211).
+                         HTTP SolrJ does not need this module. If CloudSolrClient+ZK is
+                         required later, re-add solr-solrj-zookeeper and rely on
+                         zookeeper.version (3.9.5+) management above. -->
+                    <exclusion>
+                        <groupId>org.apache.solr</groupId>
+                        <artifactId>solr-solrj-zookeeper</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.zookeeper</groupId>
+                        <artifactId>zookeeper</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.zookeeper</groupId>
+                        <artifactId>zookeeper-jute</artifactId>
+                    </exclusion>
+                    <!-- com.fasterxml Jackson 2.x for SolrJ is version-forced via jackson-bom
+                         (do not exclude — SolrJ needs it at runtime). Netty via netty-bom. -->
                     <exclusion>
                         <groupId>io.netty</groupId>
                         <artifactId>netty-buffer</artifactId>
@@ -986,6 +1083,9 @@
                 <artifactId>aws-java-sdk-sts</artifactId>
                 <version>${awssdk.version}</version>
             </dependency>
+            <!-- AWS v1 still pulls com.fasterxml Jackson 2.x (pins 2.17.2 in its POM).
+                 Versions are forced by jackson-bom import above (${jackson.fasterxml.version}).
+                 Do not exclude without re-adding — S3/STS need Jackson on the classpath. -->
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
@@ -1043,13 +1143,17 @@
                 <artifactId>commons-compress</artifactId>
                 <version>${commons.compress.version}</version>
             </dependency>
+            <!-- Apache Artemis TLP coordinates (org.apache.artemis); packages remain
+                 org.apache.activemq.artemis.* for API compatibility.
+                 Modular Netty versions forced by netty-bom import (${netty.version});
+                 do not exclude Netty from Artemis — broker/client require it at runtime. -->
             <dependency>
-                <groupId>org.apache.activemq</groupId>
+                <groupId>org.apache.artemis</groupId>
                 <artifactId>artemis-server</artifactId>
                 <version>${artemis.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.activemq</groupId>
+                <groupId>org.apache.artemis</groupId>
                 <artifactId>artemis-jakarta-client</artifactId>
                 <version>${artemis.version}</version>
             </dependency>
@@ -1982,7 +2086,7 @@
                         <dependency>
                             <groupId>org.codehaus.plexus</groupId>
                             <artifactId>plexus-utils</artifactId>
-                            <version>4.0.3</version>
+                            <version>${plexus.utils.version}</version>
                         </dependency>
                         <dependency>
                             <groupId>com.google.javascript</groupId>

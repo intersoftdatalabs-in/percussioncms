@@ -309,15 +309,19 @@ public class PSUpdateWarFiles extends PSAction {
   }
 
   /**
-   * Set isRemoveFiles.
+   * Sets the {@code removeFiles} flag.
    *
-   * @param b
+   * @param b <code>true</code> to remove the listed jar files from the war instead of adding them
    */
   public void setRemoveFiles(boolean b) {
     m_isRemoveFiles = b;
   }
 
-  /** Is RemoveFiles?. */
+  /**
+   * Returns whether the listed jar files should be removed from the war instead of added.
+   *
+   * @return <code>true</code> when files will be removed, <code>false</code> when added
+   */
   public boolean isRemoveFiles() {
     return m_isRemoveFiles;
   }
@@ -358,6 +362,12 @@ public class PSUpdateWarFiles extends PSAction {
    * main
    **************************************************************************/
 
+  /**
+   * Manual test driver that demonstrates adding and removing entries from a war file. Not used
+   * during installation.
+   *
+   * @param args ignored
+   */
   public static void main(String[] args) {
     String warFile = "C:/Rhythmyx55_0219/InstallableApps/RemotePublisher/soap.war";
 

@@ -18,8 +18,6 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.integrations.siteimprove.task.impl;
 
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 import com.google.common.collect.Iterators;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.integrations.siteimprove.data.PSSiteImproveSiteConfigurations;
@@ -49,6 +47,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * A post publish edition task that runs if a Siteimprove configuration is found.
