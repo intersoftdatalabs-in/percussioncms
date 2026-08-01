@@ -50,6 +50,8 @@ import org.w3c.dom.Document;
  * @author adamgent
  */
 public class PSSortXmlExtension implements IPSResultDocumentProcessor {
+  /** Creates a new PSSortXmlExtension. */
+  public PSSortXmlExtension() {}
 
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}
 

@@ -39,6 +39,8 @@ import java.util.Iterator;
  * quotes.
  */
 public class PSPrepareInClause implements IPSRequestPreProcessor {
+  /** Creates a new PSPrepareInClause. */
+  public PSPrepareInClause() {}
 
   // see IPSExtension interface
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {

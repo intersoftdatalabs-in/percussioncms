@@ -30,6 +30,9 @@ import com.percussion.system.utils.PSCalculation;
  * @since 1.1
  */
 public class PSSimpleJavaUdf_subtract extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSSimpleJavaUdf_subtract. */
+  public PSSimpleJavaUdf_subtract() {}
+
   /* ************ IPSUdfProcessor Interface Implementation ************ */
 
   /**

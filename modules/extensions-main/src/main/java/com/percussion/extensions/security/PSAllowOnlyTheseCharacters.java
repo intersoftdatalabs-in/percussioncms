@@ -33,8 +33,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+/**
+ * Validates that the supplied input matches a configured set of allowed characters.
+ *
+ * @author natechadwick
+ */
 public class PSAllowOnlyTheseCharacters
     implements IPSResultDocumentProcessor, IPSAllowOnlyItemInputValidator {
+
+  /** Creates a new PSAllowOnlyTheseCharacters. */
+  public PSAllowOnlyTheseCharacters() {}
 
   private String ms_fullExtensionName;
 
@@ -53,6 +61,16 @@ public class PSAllowOnlyTheseCharacters
     return ret;
   }
 
+  /**
+   * Validates character parameters from the request.
+   *
+   * @param params the extension parameters.
+   * @param request the request context.
+   * @throws PSAuthorizationException if authorization fails.
+   * @throws PSRequestValidationException if the request is invalid.
+   * @throws PSParameterMismatchException if the parameters are mismatched.
+   * @throws PSExtensionProcessingException if processing fails.
+   */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSAuthorizationException,
           PSRequestValidationException,

@@ -51,6 +51,8 @@ import java.io.File;
  * @author dougrand
  */
 public class PSJexlInputTranslation implements IPSFieldInputTransformer {
+  /** Creates a new PSJexlInputTranslation. */
+  public PSJexlInputTranslation() {}
 
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {

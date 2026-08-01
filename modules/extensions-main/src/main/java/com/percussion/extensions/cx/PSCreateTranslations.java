@@ -41,6 +41,8 @@ import org.w3c.dom.Element;
  * with the status of translations for each content item.
  */
 public class PSCreateTranslations extends PSDefaultExtension implements IPSResultDocumentProcessor {
+  /** Creates a new PSCreateTranslations. */
+  public PSCreateTranslations() {}
 
   private static final Logger log = LogManager.getLogger(PSCreateTranslations.class);
 

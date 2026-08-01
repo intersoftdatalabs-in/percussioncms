@@ -34,6 +34,8 @@ import org.w3c.dom.Element;
  * tables in an assembler without manual SQL and outer joins.
  */
 public class PSAddChildInfo extends PSDefaultExtension implements IPSResultDocumentProcessor {
+  /** Creates a new PSAddChildInfo. */
+  public PSAddChildInfo() {}
 
   /**
    * Queries the URL specified by required paramater <code>params[0]</code> (the "resource"

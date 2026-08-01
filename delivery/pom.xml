@@ -11,14 +11,14 @@
     <version>8.2.0-SNAPSHOT</version>
     <packaging>war</packaging>
     <dependencies>
-        <!-- AWS SDK for S3 and STS (latest v1.x for Java 11 compatibility) -->
+        <!-- AWS SDK for S3 and STS (issue #1730 - migrated from v1 to v2). -->
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-s3</artifactId>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-sts</artifactId>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>sts</artifactId>
         </dependency>
         <!-- Other existing dependencies here -->
     </dependencies>

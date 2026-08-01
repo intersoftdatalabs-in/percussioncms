@@ -31,6 +31,9 @@ import com.percussion.util.PSStringOperation;
  */
 public class PSSimpleJavaUdf_replace extends PSSimpleJavaUdfExtension
     implements IPSFieldInputTransformer {
+  /** Creates a new PSSimpleJavaUdf_replace. */
+  public PSSimpleJavaUdf_replace() {}
+
   /* ************ IPSUdfProcessor Interface Implementation ************ */
 
   /**

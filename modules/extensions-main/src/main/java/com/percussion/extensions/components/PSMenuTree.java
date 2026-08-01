@@ -53,6 +53,9 @@ import org.w3c.dom.Text;
  * <p>Multiple requests are made to expand each child item to menu item.
  */
 public class PSMenuTree implements IPSResultDocumentProcessor {
+  /** Creates a new PSMenuTree. */
+  public PSMenuTree() {}
+
   /*
    * Implementation of the method required by the interface IPSExtension.
    */

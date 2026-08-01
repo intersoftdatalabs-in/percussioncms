@@ -20194,6 +20194,22 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>您确定要删除区域吗</seg></tuv>
     <tuv xml:lang="ru"><seg>Вы уверены, что хотите удалить регион?</seg></tuv><tuv xml:lang="he"><seg>האם אתה בטוח שברצונך למחוק אזור</seg></tuv></tu>
     <tu tuid="perc.ui.template.layout@Delete Content Of Region">
+      <tuv xml:lang="en-us"><seg>Delete content of region.</seg></tuv>
+      <tuv xml:lang="ar"><seg>حذف محتوى المنطقة.</seg></tuv>
+      <tuv xml:lang="bn"><seg>অঞ্চলের সামগ্রী মুছুন।</seg></tuv>
+      <tuv xml:lang="de"><seg>Inhalt der Region löschen.</seg></tuv>
+      <tuv xml:lang="es"><seg>Eliminar contenido de la región.</seg></tuv>
+      <tuv xml:lang="fr"><seg>Supprimer le contenu de la région.</seg></tuv>
+      <tuv xml:lang="hi"><seg>क्षेत्र की सामग्री हटाएँ।</seg></tuv>
+      <tuv xml:lang="it"><seg>Elimina il contenuto della regione.</seg></tuv>
+      <tuv xml:lang="ja-jp"><seg>領域の内容を削除します。</seg></tuv>
+      <tuv xml:lang="nl"><seg>Inhoud van de regio verwijderen.</seg></tuv>
+      <tuv xml:lang="pt"><seg>Excluir o conteúdo da região.</seg></tuv>
+      <tuv xml:lang="te"><seg>ప్రాంతం కంటెంట్u200cను తొలగించండి.</seg></tuv>
+      <tuv xml:lang="zh-cn"><seg>删除区域内容。</seg></tuv>
+      <tuv xml:lang="zh-tw"><seg>刪除區域內容。</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.template.layout@Region CSS Settings Exist">
       <tuv xml:lang="en-us"><seg>There are already region based CSS settings for region</seg></tuv>
       <tuv xml:lang="ar"><seg>توجد بالفعل إعدادات CSS تعتمد على المنطقة للمنطقة</seg></tuv>
       <tuv xml:lang="bn"><seg>অঞ্চলের জন্য ইতিমধ্যেই অঞ্চল ভিত্তিক CSS সেটিংস রয়েছে৷</seg></tuv>

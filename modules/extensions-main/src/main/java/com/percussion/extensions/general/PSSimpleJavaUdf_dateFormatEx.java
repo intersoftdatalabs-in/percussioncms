@@ -100,6 +100,9 @@ import org.apache.commons.lang3.StringUtils;
  * @since 2.0
  */
 public class PSSimpleJavaUdf_dateFormatEx extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSSimpleJavaUdf_dateFormatEx. */
+  public PSSimpleJavaUdf_dateFormatEx() {}
+
   /* ************ IPSUdfProcessor Interface Implementation ************ */
 
   /**

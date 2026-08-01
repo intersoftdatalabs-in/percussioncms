@@ -95,7 +95,7 @@ public class PSExtensionParamsHelper {
    *
    * @param args slot finders args from slotfinder.getFinderArguments()
    * @param selectors The selectors that are passed with the find method.
-   * @param log
+   * @param log the logger to use.
    */
   public PSExtensionParamsHelper(
       Map<String, ? extends Object> args, Map<String, Object> selectors, Logger log) {
@@ -118,7 +118,7 @@ public class PSExtensionParamsHelper {
    * Gets a parameter by first trying to get it from the request then followed by the parameters
    * passed to the extension.
    *
-   * @param paramName
+   * @param paramName the name of the parameter to look up.
    * @return The value of the parameter, or null if the parameter is not found.
    */
   public String getParameter(String paramName) {
@@ -181,10 +181,22 @@ public class PSExtensionParamsHelper {
     return null;
   }
 
+  /**
+   * Gets the required parameter as a Number.
+   *
+   * @param paramName the name of the parameter to look up.
+   * @return the parameter value as a Number.
+   */
   public Number getRequiredParameterAsNumber(String paramName) {
     return paramToNumber(paramName, getRequiredParameter(paramName));
   }
 
+  /**
+   * Gets the required parameter as a Boolean.
+   *
+   * @param paramName the name of the parameter to look up.
+   * @return the parameter value as a Boolean.
+   */
   public Boolean getRequiredParameterAsBoolean(String paramName) {
     return paramToBoolean(paramName, getRequiredParameter(paramName));
   }
@@ -194,7 +206,7 @@ public class PSExtensionParamsHelper {
    *
    * @param paramName Name of the parameter.
    * @return value of the parameter never null or empty.
-   * @throws IllegalArgumentException
+   * @throws IllegalArgumentException if the parameter is missing or empty.
    */
   public String getRequiredParameter(String paramName) {
     String value = getParameter(paramName);
@@ -206,10 +218,24 @@ public class PSExtensionParamsHelper {
     return value;
   }
 
+  /**
+   * Gets the optional parameter as a Number.
+   *
+   * @param paramName the name of the parameter to look up.
+   * @param defaultValue the default value if the parameter is not found.
+   * @return the parameter value as a Number, or the default if not found.
+   */
   public Number getOptionalParameterAsNumber(String paramName, String defaultValue) {
     return paramToNumber(paramName, getOptionalParameter(paramName, defaultValue));
   }
 
+  /**
+   * Gets the optional parameter as a Boolean.
+   *
+   * @param paramName the name of the parameter to look up.
+   * @param defaultValue the default value if the parameter is not found.
+   * @return the parameter value as a Boolean, or the default if not found.
+   */
   public Boolean getOptionalParameterAsBoolean(String paramName, Boolean defaultValue) {
     String b = (defaultValue.booleanValue()) ? "true" : "false";
     return paramToBoolean(paramName, getOptionalParameter(paramName, b));
@@ -231,12 +257,25 @@ public class PSExtensionParamsHelper {
     return value;
   }
 
+  /**
+   * Throws an IllegalArgumentException for the given parameter.
+   *
+   * @param paramName the name of the parameter that is invalid.
+   * @param reason the reason the parameter is invalid.
+   */
   public void errorOnParameter(String paramName, String reason) {
     String error = "Parameter: " + paramName + " is invalid." + " Reason: " + reason;
     log.error(error);
     throw new IllegalArgumentException(error);
   }
 
+  /**
+   * Converts a parameter value to a Number.
+   *
+   * @param paramName the name of the parameter being converted.
+   * @param param the parameter value to convert.
+   * @return the converted Number value.
+   */
   public Number paramToNumber(String paramName, String param) {
     try {
       return NumberUtils.createNumber(param);
@@ -247,6 +286,13 @@ public class PSExtensionParamsHelper {
     }
   }
 
+  /**
+   * Converts a parameter value to a Boolean.
+   *
+   * @param paramName the name of the parameter being converted.
+   * @param param the parameter value to convert.
+   * @return the converted Boolean value.
+   */
   public Boolean paramToBoolean(String paramName, String param) {
     Converter cvt = new BooleanConverter();
     try {
@@ -270,10 +316,16 @@ public class PSExtensionParamsHelper {
     return this.extensionParameters;
   }
 
+  /**
+   * Sets the logger for this helper.
+   *
+   * @param log the logger to use.
+   */
   protected void doLog(Logger log) {
     this.log = log;
   }
 
+  /** Populates the extension parameters map from the extension definition. */
   protected void doParameters() {
     extensionParameters = new HashMap<>();
 

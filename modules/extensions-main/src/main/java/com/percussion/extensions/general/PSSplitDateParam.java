@@ -49,6 +49,9 @@ import java.util.Date;
  * etc. If not specified, date will not be set into the request parameters.
  */
 public class PSSplitDateParam implements IPSRequestPreProcessor {
+  /** Creates a new PSSplitDateParam. */
+  public PSSplitDateParam() {}
+
   /**
    * See the class description above for parameter details.
    *

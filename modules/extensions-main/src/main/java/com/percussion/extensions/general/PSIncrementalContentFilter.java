@@ -96,6 +96,8 @@ import org.w3c.dom.Node;
  */
 public class PSIncrementalContentFilter extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
+  /** Creates a new PSIncrementalContentFilter. */
+  public PSIncrementalContentFilter() {}
 
   private static final Logger log = LogManager.getLogger(PSIncrementalContentFilter.class);
 

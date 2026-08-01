@@ -31,6 +31,9 @@ import com.percussion.server.IPSRequestContext;
  */
 public class PSSimpleJavaUdf_toLowerCase extends PSSimpleJavaUdfExtension
     implements IPSFieldInputTransformer {
+  /** Creates a new PSSimpleJavaUdf_toLowerCase. */
+  public PSSimpleJavaUdf_toLowerCase() {}
+
   /* ************ IPSUdfProcessor Interface Implementation ************ */
 
   /**

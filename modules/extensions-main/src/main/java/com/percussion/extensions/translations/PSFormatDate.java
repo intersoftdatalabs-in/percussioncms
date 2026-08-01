@@ -52,6 +52,9 @@ import java.text.ParseException;
  * @author dougrand
  */
 public class PSFormatDate implements IPSFieldOutputTransformer {
+  /** Creates a new PSFormatDate. */
+  public PSFormatDate() {}
+
   public Object processUdf(Object[] params, @SuppressWarnings("unused") IPSRequestContext request)
       throws PSConversionException {
     PSExtensionParams ep = new PSExtensionParams(params);

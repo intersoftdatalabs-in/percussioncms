@@ -83,7 +83,7 @@
         <aopalliance.version>1.0</aopalliance.version>
         <artemis.version>2.55.0</artemis.version>
         <avalon.version>4.1.5</avalon.version>
-        <awssdk.version>1.12.797</awssdk.version>
+        <aws.sdk.v2.version>2.50.2</aws.sdk.v2.version>
         <batik.version>1.19</batik.version>
         <bc.version>1.84</bc.version>
         <build.helper.maven.plugin.version>3.6.1</build.helper.maven.plugin.version>
@@ -1081,24 +1081,14 @@
                 <artifactId>jdom2</artifactId>
                 <version>2.0.6.1</version>
             </dependency>
+            <!-- AWS SDK v2 (software.amazon.awssdk). Use BOM for version alignment across modules. -->
             <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-s3</artifactId>
-                <version>${awssdk.version}</version>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>${aws.sdk.v2.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-bom</artifactId>
-                <version>${awssdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-sts</artifactId>
-                <version>${awssdk.version}</version>
-            </dependency>
-            <!-- AWS v1 still pulls com.fasterxml Jackson 2.x (pins 2.17.2 in its POM).
-                 Versions are forced by jackson-bom import above (${jackson.fasterxml.version}).
-                 Do not exclude without re-adding — S3/STS need Jackson on the classpath. -->
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>

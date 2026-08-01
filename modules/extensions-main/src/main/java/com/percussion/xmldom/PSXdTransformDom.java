@@ -109,6 +109,8 @@ import org.xml.sax.SAXException;
  */
 public class PSXdTransformDom extends PSDefaultExtension
     implements IPSRequestPreProcessor, IPSResultDocumentProcessor {
+  /** Creates a new PSXdTransformDom. */
+  public PSXdTransformDom() {}
 
   /**
    * This method handles the pre-exit request.

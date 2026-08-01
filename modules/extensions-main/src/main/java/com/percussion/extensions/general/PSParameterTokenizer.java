@@ -53,6 +53,8 @@ import org.apache.logging.log4j.Logger;
  * <p>This exit supports 3 delimiters: semicolon, period, and comma.
  */
 public class PSParameterTokenizer extends PSDefaultExtension implements IPSRequestPreProcessor {
+  /** Creates a new PSParameterTokenizer. */
+  public PSParameterTokenizer() {}
 
   private static final Logger log = LogManager.getLogger(IPSConstants.ASSEMBLY_LOG);
 

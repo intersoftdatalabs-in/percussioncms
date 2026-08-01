@@ -35,8 +35,6 @@ import org.w3c.dom.Node;
  * internal request names today. To overcome this restriction one can use this exit. To use this
  * exit one needs to do the following:
  *
- * <p>
- *
  * <OL>
  *   <LI>Create other resource that need to be executed conditionally by probably cloning the
  *       original and modifying suitably and give proper internal names (pipe names)
@@ -56,6 +54,9 @@ import org.w3c.dom.Node;
  * of the execution of the internal request.
  */
 public class PSReplaceResultDocument implements IPSResultDocumentProcessor {
+  /** Creates a new PSReplaceResultDocument. */
+  public PSReplaceResultDocument() {}
+
   // see IPSResultDocumentProcessor#canModifyStyleSheet()
   public boolean canModifyStyleSheet() {
     return false;

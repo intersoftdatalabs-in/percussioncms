@@ -24,17 +24,15 @@ import com.percussion.system.utils.PSCms;
 
 /** Tests if the addressed content is publishable or not. */
 public class PSPublishableContent extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSPublishableContent. */
+  public PSPublishableContent() {}
+
   /**
    * This UDF tests whether or not the addressed content is publishable or not. Makes a call to
    * isPublishable method to determine the item's publishable status.
    *
-   * @param params[0] a comma separated list of tokens that represent publishable content, may be
-   *     <code>null</code> or empty, in which case the defaults <code>y,i</code> are used.
-   * @param params[1] the content id of the item to test, may be <code>null</code>, in which case
-   *     the content id of the supplied request is used. If no valid content id is supplied, an
-   *     exception is thrown.
-   * @param params[2] the revision of the item to test, may be <code>null</code>, in which case the
-   *     current revision is used.
+   * @param params extension args: [0] publishable tokens (comma-separated; default y,i), [1]
+   *     content id (optional), [2] revision (optional)
    * @param request the request to operate on, not <code>null</code>.
    * @return a <code>Boolean</code> with a value of <code>true</code> if the supplied content item
    *     is publishable, <code>false</code> otherwise.

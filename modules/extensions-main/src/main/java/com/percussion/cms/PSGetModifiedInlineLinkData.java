@@ -47,6 +47,9 @@ import org.w3c.dom.NodeList;
  */
 public class PSGetModifiedInlineLinkData extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
+  /** Creates a new PSGetModifiedInlineLinkData. */
+  public PSGetModifiedInlineLinkData() {}
+
   /* (non-Javadoc)
    * @see com.percussion.extension.IPSResultDocumentProcessor#canModifyStyleSheet()
    */

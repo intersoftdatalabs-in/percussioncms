@@ -34,6 +34,9 @@ import org.apache.logging.log4j.Logger;
  * given position.
  */
 public class PSConcatWithIdAssemblyLocation implements IPSAssemblyLocation {
+  /** Creates a new PSConcatWithIdAssemblyLocation. */
+  public PSConcatWithIdAssemblyLocation() {}
+
   // See interface for details
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
     m_def = def;

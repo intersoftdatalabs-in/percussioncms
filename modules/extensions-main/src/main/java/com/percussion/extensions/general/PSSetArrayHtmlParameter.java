@@ -55,6 +55,9 @@ import org.w3c.dom.NodeList;
  * </ol>
  */
 public class PSSetArrayHtmlParameter implements IPSRequestPreProcessor {
+  /** Creates a new PSSetArrayHtmlParameter. */
+  public PSSetArrayHtmlParameter() {}
+
   /*
    * (non-Javadoc)
    *
@@ -174,6 +177,11 @@ public class PSSetArrayHtmlParameter implements IPSRequestPreProcessor {
    */
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}
 
+  /**
+   * Main for manual testing.
+   *
+   * @param args the command line arguments.
+   */
   public static void main(String[] args) {}
 
   /** Logger for this exit. */

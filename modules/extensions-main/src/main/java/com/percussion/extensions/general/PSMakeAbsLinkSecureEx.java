@@ -29,18 +29,17 @@ import java.util.HashMap;
  * {@link #processUdf(Object[], IPSRequestContext) processUdf} for a description.
  */
 public class PSMakeAbsLinkSecureEx extends PSSimpleJavaUdfExtension implements IPSUdfProcessor {
+  /** Creates a new PSMakeAbsLinkSecureEx. */
+  public PSMakeAbsLinkSecureEx() {}
+
   /**
    * Creates a URL from the supplied parameters and returns it.
    *
    * <p>A URI has the following pieces for purposes of this description (see RFC 2396 for more
    * details):
    *
-   * <p>
-   *
    * <p>&lt;scheme&gt;://&lt;host&gt;&lt;path-segments&gt;
    * &lt;resource&gt;?&lt;query&gt;#&lt;fragment&gt;
-   *
-   * <p>
    *
    * <p>All parts except resource are optional.
    *
@@ -66,8 +65,6 @@ public class PSMakeAbsLinkSecureEx extends PSSimpleJavaUdfExtension implements I
    * port, and Rhythmyx root will be added, assuming it is relative from the originating requests
    * app root. For an empty string, all parts of the originating request will be used, substituting
    * the supplied parameters.If the port is 80, no port number will be added to the generated url.
-   *
-   * <p>
    *
    * <p>Multiple name/value pairs may be specified for the parameters. For example, if the following
    * were supplied as parameters:
@@ -146,7 +143,6 @@ public class PSMakeAbsLinkSecureEx extends PSSimpleJavaUdfExtension implements I
    * </table>
    *     <p>The table below shows the possible combinations of input parameter values and the
    *     resulting protocol and port used:
-   *     <p>
    *     <table border="1">
    *       <caption style="display:none">Protocol and port combinations</caption>
    * <tr>
@@ -203,7 +199,7 @@ public class PSMakeAbsLinkSecureEx extends PSSimpleJavaUdfExtension implements I
    *    supplied URL</td>
    * </tr>
    * </table>
-   *     <p>
+   *
    * @param request The current request context. May not be <code>null</code>.
    * @return The absolute URL created from the supplied foundation, user session information, and
    *     supplied parameters and values. If the resource is <code>null</code>, an empty string will

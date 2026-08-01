@@ -68,8 +68,12 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+/** Generates the variant list for the Content Manager UI. */
 public class PSGenerateVariantList extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
+  /** Creates a new PSGenerateVariantList. */
+  public PSGenerateVariantList() {}
+
   // see IPSResultDocumentProcessor#canModifyStyleSheet()
   public boolean canModifyStyleSheet() {
     return false;
@@ -358,8 +362,10 @@ public class PSGenerateVariantList extends PSDefaultExtension
         }
       };
 
+  /** Server property name for templates grouping in CX. */
   public static final String SERVER_PROP_GROUP_TEMPLATES = "templatesGroupingInCX";
 
+  /** Server property name to skip folders when there is only a single submenu in CX. */
   public static final String SERVER_PROP_SKIP_FOLDERS = "skipFoldersIfOnlySingleSubMenuInCX";
 
   private static String TEMPLATES_PATH_PREFIX = "/templates/";

@@ -67,6 +67,8 @@ import org.xml.sax.SAXException;
  * @author adamgent
  */
 public class PSProxyQueryResource extends PSDefaultExtension implements IPSResultDocumentProcessor {
+  /** Creates a new PSProxyQueryResource. */
+  public PSProxyQueryResource() {}
 
   private static final String PARAM_PASSWORD = "password";
   private static final String PARAM_USER = "user";
