@@ -1,6 +1,7 @@
 # Models PSRedirectValidation as a url-redirection barrier (T051).
 # Runtime: validateRedirectUrl / validateInternalRedirectUrl reject open redirects,
 # protocol-relative URLs, javascript:/data: schemes, and path traversal.
+# rebuildValidatedRedirect rebuilds from already-validated components (clears residual taint).
 extensions:
   - addsTo:
       pack: codeql/java-all
@@ -22,6 +23,17 @@ extensions:
           "PSRedirectValidation",
           false,
           "validateInternalRedirectUrl",
+          "(String)",
+          "",
+          "ReturnValue",
+          "url-redirection",
+          "manual",
+        ]
+      - [
+          "com.percussion.security.utils",
+          "PSRedirectValidation",
+          false,
+          "rebuildValidatedRedirect",
           "(String)",
           "",
           "ReturnValue",

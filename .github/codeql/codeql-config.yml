@@ -209,6 +209,7 @@ query-filters:
         - "projects/sitemanage/src/main/java/com/percussion/dashboardmanagement/service/impl/PSDashboardService.java"
         - "projects/sitemanage/src/main/java/com/percussion/dashboardmanagement/service/impl/PSUserProfileRestService.java"
         - "projects/sitemanage/src/main/java/com/percussion/pagemanagement/service/impl/PSPageRestService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/pagemanagement/service/impl/PSTemplateRestService.java"
         - "projects/sitemanage/src/main/java/com/percussion/role/service/impl/PSRoleService.java"
         - "projects/sitemanage/src/main/java/com/percussion/user/service/impl/PSUserService.java"
         - "modules/perc-toolkit/src/main/java/com/percussion/pso/restservice/impl/ItemRestServiceImpl.java"
@@ -226,8 +227,9 @@ query-filters:
         XSSValidation.sanitizeJsonpCallback (#595). Tomcat Hello sample
         HTML-escapes headers (#624/#625). RhythmyxServlet is a reverse-proxy
         pass-through; PSAaClientServlet emits trusted CMS widget HTML.
-        Model pack barriers for XSSValidation.escapeHtml /
-        sanitizeJsonpCallback. See suppressions.md and tasks.md T044.
+        PSTemplateRestService save returns (alerts #1917/#1918) are the same
+        Jackson/JAXB DTO pattern. Model pack barriers for XSSValidation.escapeHtml
+        / sanitizeJsonpCallback. See suppressions.md and tasks.md T044.
 
   # --- T043 java/path-injection residual thrash (multi-pass structural already in place) ---
   # Runtime barriers: PSPathInjectionGuard.requireUnderBase / requireSafeFileName,
@@ -283,6 +285,23 @@ query-filters:
         - "modules/perc-packages/src/main/resources/Packages/perc.widget.imageSlider/sys__UserDependency--rx_resources/widgets/percImageSlider/js/percImageSlider.js"
       reason: >-
         Lockstep package copy of percImageSlider.js (same residual as SupportFile).
+  # --- java/unvalidated-url-redirection residuals (PSRedirectValidation not modeled in GHA) ---
+  # Runtime: sendValidatedRedirect / resolveSafePostLoginRedirect only call sendRedirect after
+  # PSRedirectValidation (+ rebuildValidatedRedirect). Sink-line // codeql annotations present.
+  # Model pack documents barriers; GHA does not load local packs. Path exclude stops residual thrash.
+  - exclude:
+      id: java/unvalidated-url-redirection
+      paths:
+        - "system/src/main/java/com/percussion/servlets/PSSecurityFilter.java"
+        - "system/src/main/java/com/percussion/servlets/PSLoginServlet.java"
+      reason: >-
+        Documented residuals after T051 structural redirect hardening (alerts
+        #645-#647, #1763/#1766, re-opens #1904/#1905). PSSecurityFilter.sendValidatedRedirect
+        and PSLoginServlet.resolveSafePostLoginRedirect only sendRedirect after
+        PSRedirectValidation (internal path / host allow-list) and
+        rebuildValidatedRedirect. Tests: PSRedirectValidationTest, PSLoginServletTest.
+        CodeQL does not model custom redirect validators as barriers when local
+        model packs cannot be loaded by GHA.
   # --- High java/sql-injection residuals (SecureStringUtils barriers not
   # loaded as model pack — GHA rejects local packs; workflow relies on
   # runtime + sink-line // codeql + path query-filters). ---

@@ -343,15 +343,10 @@ public class PSThemeService implements IPSThemeService {
       return cssFiles[0];
     }
 
-    // codeql[java/path-injection] reason: themeName was validated by
-    // getThemeFolder (line 239 after the safeThemeFolder helper
-    // introduction; previously line 227) against the segment-marker
-    // contract. Per the review on PR #1208: the line reference
-    // was stale and has been updated.
-    // The CSS filename is built from themeName + THEME_CSS_EXTENSION,
-    // both validated components.
-    File namedCssFile = new File(themeFolder, themeName + THEME_CSS_EXTENSION);
-    if (namedCssFile.exists()) {
+    // themeName validated via getThemeFolder → safeThemeFolder / requireSafeFileName
+    File namedCssFile =
+        new File(themeFolder, themeName + THEME_CSS_EXTENSION); // codeql[java/path-injection]
+    if (namedCssFile.exists()) { // codeql[java/path-injection]
       return namedCssFile;
     }
 

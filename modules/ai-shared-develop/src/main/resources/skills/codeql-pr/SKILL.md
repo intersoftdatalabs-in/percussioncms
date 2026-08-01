@@ -18,9 +18,10 @@ description: >-
 1. **Analyzer of record** is **CodeQL Advanced** (`.github/workflows/codeql.yml` + `codeql-config.yml` + `.github/codeql/models`). Scope: **Java + JavaScript/TypeScript only**.
 2. **Default CodeQL setup** must stay `not-configured`. **GitHub Code Quality** (dynamic `Code Quality: CodeQL Setup`) must stay **disabled** (Settings → Code quality) — it ignores advanced config and can mass-close alerts.
 3. **Disposition ladder**: runtime fix + test → model pack barrier → sink-line `// codeql[rule-id]` → path `query-filters` → dismiss last.
-4. **Sink-line only**: put `// codeql[...]` on the alert line or the single line immediately above a one-line sink. Multi-line builders with a comment three lines up **fail**.
-5. **Do not** open dismiss-only PRs. **Do not** re-enable default CodeQL setup or Code Quality without the same config/models.
-6. After addressing a CodeQL review comment: **reply with mitigation (commit SHA)** then **`resolveReviewThread`** (root `AGENTS.md`).
+4. **Sink-line only**: put a **short** `// codeql[rule-id]` on the alert line or the single line immediately above a one-line sink. Multi-line builders with a comment three lines up **fail**. No long `justification:` on the Java line — Spotless/google-java-format rewraps long trailing comments off the sink; put rationale in `suppressions.md`.
+5. **After `spotless:apply`**: re-check in-scope `// codeql[` placement (see playbook "CodeQL annotations and Spotless").
+6. **Do not** open dismiss-only PRs. **Do not** re-enable default CodeQL setup or Code Quality without the same config/models.
+7. After addressing a CodeQL review comment: **reply with mitigation (commit SHA)** then **`resolveReviewThread`** (root `AGENTS.md`).
 
 ## Verify default setup off
 
@@ -51,7 +52,8 @@ Edit `.github/codeql/models/models/*.model.yml`, bump pack `version` in `codeql-
 
 - [ ] Runtime fix + `./mvnw` tests green
 - [ ] Model pack updated (or path exclude + suppressions.md row justified)
-- [ ] Sink-line suppressions only
+- [ ] Sink-line suppressions only (short `// codeql[rule-id]`; long text in suppressions.md)
+- [ ] Spotless apply did not move annotations off sinks
 - [ ] Default setup still `not-configured`
 - [ ] CodeQL threads replied + resolved
 
