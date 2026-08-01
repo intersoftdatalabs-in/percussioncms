@@ -20,7 +20,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import html
-import json
 import random
 import re
 import shutil
@@ -29,6 +28,13 @@ import sys
 import time
 from pathlib import Path
 from xml.sax.saxutils import escape as xml_escape
+
+# Sibling modules live in the same directory (dev tool, not a package).
+_SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+
+import i18n_cache as _i18n_cache  # noqa: E402
 
 # Windows terminals often default to cp1252 / cp65001; force UTF-8 so Arabic
 # and other non-Latin translations can be printed and written safely.
@@ -50,7 +56,9 @@ _force_docker = False
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 I18N_DIR = REPO_ROOT / 'modules' / 'perc-i18n' / 'src' / 'main' / 'resources' / 'i18n'
-CACHE_FILE = Path(__file__).resolve().parent / '.cache' / 'i18n_translate_direct.json'
+# Shared checked-in cache with i18n_translate.py (scripts/cache/i18n_translate.json).
+# Reassignable by unit tests so they never touch the committed file.
+CACHE_FILE = _i18n_cache.CACHE_FILE
 
 DEFAULT_FILES = ('CmsUi.tmx', 'SystemResources.tmx', 'DeveloperUi.tmx')
 
@@ -96,6 +104,7 @@ VARIANT_BASES = {
 
 
 def cache_key(text: str, target: str) -> str:
+    """Stable hash for a (text, target) translation request."""
     h = hashlib.sha256()
     h.update(target.encode('utf-8'))
     h.update(b'\x00')
@@ -104,20 +113,14 @@ def cache_key(text: str, target: str) -> str:
 
 
 def load_cache() -> dict[str, str]:
-    if CACHE_FILE.exists():
-        try:
-            return json.loads(CACHE_FILE.read_text(encoding='utf-8'))
-        except (OSError, json.JSONDecodeError):
-            return {}
-    return {}
+    """Load the shared translation cache (migrates legacy ``.cache/`` once)."""
+    # Resolve through this module's CACHE_FILE so tests can redirect it.
+    return _i18n_cache.load_cache(CACHE_FILE)
 
 
 def save_cache(cache: dict[str, str]) -> None:
-    CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
-    tmp = CACHE_FILE.with_suffix('.tmp')
-    tmp.write_text(json.dumps(cache, ensure_ascii=False, indent=2, sort_keys=True),
-                   encoding='utf-8')
-    tmp.replace(CACHE_FILE)
+    """Persist the shared translation cache (atomic write)."""
+    _i18n_cache.save_cache(cache, CACHE_FILE)
 
 
 def _default_trans_cmd(text: str, target: str) -> list[str]:

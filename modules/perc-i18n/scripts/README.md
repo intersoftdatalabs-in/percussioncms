@@ -7,13 +7,19 @@ hand-maintained Python/shell scripts.
 
 ## Files
 
-|              File               |                                                                      Purpose                                                                       |
-|---------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
-| `i18n_translate.py`             | CLI: walks canonical TMX files, fills missing `<tuv>` blocks via **Docker** `soimort/translate-shell`.                                             |
-| `i18n_translate_direct.py`      | Same job as `i18n_translate.py`, but prefers **`trans` on PATH** (translate-shell) and falls back to Docker if `trans` is unavailable.             |
-| `resolve_tmx_conflicts.py`      | One-shot helper that auto-resolves git merge conflict markers in the canonical TMX files (union of `<tuv>` blocks; stops on structural conflicts). |
-| `test_i18n_translate.py`        | Unit tests for the Docker variant (no Docker required).                                                                                            |
-| `test_i18n_translate_direct.py` | Unit tests for the direct `trans` variant (no `trans` required).                                                                                   |
+|                File                 |                                                                        Purpose                                                                        |
+|-------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `i18n_translate.py`                 | CLI: walks canonical TMX files, fills missing `<tuv>` blocks via **Docker** `soimort/translate-shell`.                                                |
+| `i18n_translate_direct.py`          | Same job as `i18n_translate.py`, but prefers **`trans` on PATH** (translate-shell) and falls back to Docker if `trans` is unavailable.                |
+| `i18n_cache.py`                     | Shared load/save for the checked-in translation cache; legacy `.cache/` migration; JSON conflict-union helpers.                                       |
+| `resolve_i18n_cache_conflicts.py`   | Union both sides of git conflict markers in `cache/i18n_translate.json` (accept both; ours wins on key clash).                                        |
+| `resolve_tmx_conflicts.py`          | One-shot helper that auto-resolves git merge conflict markers in the canonical TMX files (union of `<tuv>` blocks; stops on structural conflicts).    |
+| `cache/i18n_translate.json`         | **Checked-in** translation cache (sha256 keys). Commit updates after translate runs so other machines hit the cache.                                  |
+| `conftest.py`                       | Pytest path bootstrap so sibling modules import when tests run from repo root.                                                                        |
+| `test_i18n_translate.py`            | Unit tests for the Docker variant (no Docker required).                                                                                               |
+| `test_i18n_translate_direct.py`     | Unit tests for the direct `trans` variant (no `trans` required).                                                                                      |
+| `test_i18n_cache.py`                | Unit tests for cache load/save, legacy migrate, and conflict union.                                                                                   |
+| `test_resolve_tmx_conflicts.py`     | Unit tests for TMX merge-conflict resolver.                                                                                                           |
 
 ## Quick start
 
@@ -41,8 +47,11 @@ python3 modules/perc-i18n/scripts/i18n_translate.py \
   pass through to the output unchanged so parameter substitution still
   works.
 - **Cache**: results are keyed by `sha256(target || \0 || text)` and
-  stored at `scripts/.cache/i18n_translate.json`. Re-running resumes
-  exactly where the previous run stopped. Pass `--force` to bypass the
+  stored at the **shared checked-in** file
+  `scripts/cache/i18n_translate.json` (both Docker and direct CLIs).
+  Re-running resumes across machines once the cache is committed. On
+  first load, any legacy local `scripts/.cache/*.json` keys are folded
+  into the shared file automatically. Pass `--force` to bypass the
   cache.
 - **Rate limits / throttling**: when `soimort/translate-shell` exits with a 429-like
   message, the script sleeps with exponential backoff (2s base, 60s cap,
@@ -89,7 +98,7 @@ Differences from `i18n_translate.py`:
 | | Docker (`i18n_translate.py`) | Direct (`i18n_translate_direct.py`) |
 |--|------------------------------|--------------------------------------|
 | Binary | `docker run … soimort/translate-shell` | `trans --brief` (preferred); `docker run … soimort/translate-shell` (fallback) |
-| Cache file | `scripts/.cache/i18n_translate.json` | `scripts/.cache/i18n_translate_direct.json` |
+| Cache file | **Shared** `scripts/cache/i18n_translate.json` (checked in) | **Same file** |
 | Rate limits | Exponential backoff on 429-like errors (2s base, 60s cap, ±20% jitter, 5 attempts) | **Same backoff** + random 1–10s throttle after each successful translation |
 | Extra flags | (see Quick start) | `--fix-matching-en`, `--variant-base` |
 
@@ -211,3 +220,34 @@ After it runs:
 3. `git add` each TMX to mark the merge resolved.
 4. Manually resolve any structural conflicts the script reported,
    then re-run if more markers remain.
+
+## Shared translation cache (`cache/i18n_translate.json`)
+
+Both CLIs share one **checked-in** cache so translate runs resume across
+machines and avoid re-paying the provider throttle for strings already
+translated elsewhere.
+
+| Path | Role |
+|------|------|
+| `scripts/cache/i18n_translate.json` | Canonical cache — **commit** after meaningful translate runs |
+| `scripts/.cache/*.json` | Legacy local-only caches (gitignored); auto-merged into the shared file on first load |
+
+### After a translate run
+
+```bash
+# Review + commit cache alongside any TMX changes
+git add modules/perc-i18n/scripts/cache/i18n_translate.json
+git add modules/perc-i18n/src/main/resources/i18n/*.tmx
+```
+
+### Resolving cache merge conflicts
+
+If a pull/merge leaves conflict markers in the cache JSON, **accept both**
+sides (union of keys; working tree / ours wins on the same key):
+
+```bash
+python3 modules/perc-i18n/scripts/resolve_i18n_cache_conflicts.py
+git add modules/perc-i18n/scripts/cache/i18n_translate.json
+```
+
+No per-key human review. Same operating rule as TMX `<tuv>` union.

@@ -112,12 +112,15 @@ ones (Windows / macOS default volumes).
 
 ### 2a. Translation Pipeline
 
-The `scripts/i18n_translate.py` CLI is the single source of new
-translation text. It shells out to `docker run --rm
-soimort/translate-shell` and writes results back into the canonical
-TMX files with proper XML escaping. It honors rate limits with
-exponential backoff and caches results on disk so a re-run resumes
-from where it stopped.
+The `scripts/i18n_translate.py` / `i18n_translate_direct.py` CLIs are
+the single source of new translation text. They shell out to
+translate-shell (Docker and/or local `trans`) and write results back
+into the canonical TMX files with proper XML escaping. They honor rate
+limits with exponential backoff and share a **checked-in** cache at
+`scripts/cache/i18n_translate.json` (via `i18n_cache.py`) so re-runs
+resume across machines. Commit cache updates with TMX changes after a
+translate run. On cache merge conflicts run
+`scripts/resolve_i18n_cache_conflicts.py` (union both sides).
 
 ```bash
 # Translate every <tu> missing a German TUV in both canonical files.
