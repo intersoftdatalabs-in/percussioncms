@@ -56,6 +56,9 @@ import org.w3c.dom.Document;
  * for all active assembly update functionality.
  */
 public class PSModifyRelatedContent extends PSDefaultExtension implements IPSRequestPreProcessor {
+  /** Creates a new PSModifyRelatedContent. */
+  public PSModifyRelatedContent() {}
+
   /** This exit does not take any parameters. */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSExtensionProcessingException {
@@ -167,6 +170,10 @@ public class PSModifyRelatedContent extends PSDefaultExtension implements IPSReq
   /**
    * Convenience method that calls {@link move(int, IPSRequestContext, boolean) move(rid, request,
    * true)}.
+   *
+   * @param rid the id of the relationship to move up.
+   * @param request the request context.
+   * @throws PSException if an error occurs performing the move.
    */
   public static void moveUp(int rid, IPSRequestContext request) throws PSException {
     move(rid, request, true);
@@ -175,6 +182,10 @@ public class PSModifyRelatedContent extends PSDefaultExtension implements IPSReq
   /**
    * Convenience method that calls {@link move(int, IPSRequestContext, boolean) move(rid, request,
    * false)}.
+   *
+   * @param rid the id of the relationship to move down.
+   * @param request the request context.
+   * @throws PSException if an error occurs performing the move.
    */
   public static void moveDown(int rid, IPSRequestContext request) throws PSException {
     move(rid, request, false);
@@ -346,11 +357,14 @@ public class PSModifyRelatedContent extends PSDefaultExtension implements IPSReq
   }
 
   /**
-   * @param rid
-   * @param slotId
-   * @param index
-   * @param request
-   * @throws PSException
+   * Moves the supplied relationship to a new slot position.
+   *
+   * @param rid the id of the relationship to move.
+   * @param slotId the id of the destination slot.
+   * @param index the index within the destination slot.
+   * @param newVariantId the id of the new variant to use.
+   * @param request the request context.
+   * @throws PSException if an error occurs performing the move.
    */
   public static void moveToSlot(
       int rid, int slotId, int index, int newVariantId, IPSRequestContext request)
@@ -387,8 +401,12 @@ public class PSModifyRelatedContent extends PSDefaultExtension implements IPSReq
   }
 
   /**
-   * @param rid
-   * @param index
+   * Reorders the supplied relationship to a new index in its slot.
+   *
+   * @param rid the id of the relationship to reorder.
+   * @param index the new index within the slot.
+   * @param request the request context.
+   * @throws PSException if an error occurs performing the reorder.
    */
   public static void reorder(int rid, int index, IPSRequestContext request) throws PSException {
     PSRelationship relationship = getRelationship(rid, request);
@@ -446,6 +464,14 @@ public class PSModifyRelatedContent extends PSDefaultExtension implements IPSReq
         PSActiveAssemblyProcessorProxy.PROCTYPE_SERVERLOCAL, request);
   }
 
+  /**
+   * Gets the relationships for the supplied relationship id.
+   *
+   * @param rid the relationship id.
+   * @param request the request context.
+   * @return the set of relationships for the id.
+   * @throws PSCmsException if an error occurs.
+   */
   public static PSRelationshipSet getRelationships(int rid, IPSRequestContext request)
       throws PSCmsException {
     PSRelationshipFilter filter = new PSRelationshipFilter();
@@ -455,6 +481,14 @@ public class PSModifyRelatedContent extends PSDefaultExtension implements IPSReq
     return processor.getRelationships(filter);
   }
 
+  /**
+   * Gets a single relationship by its id.
+   *
+   * @param rid the relationship id.
+   * @param request the request context.
+   * @return the relationship for the id.
+   * @throws PSCmsException if an error occurs.
+   */
   public static PSRelationship getRelationship(int rid, IPSRequestContext request)
       throws PSCmsException {
     PSRelationshipSet relationships = getRelationships(rid, request);
@@ -485,7 +519,15 @@ public class PSModifyRelatedContent extends PSDefaultExtension implements IPSReq
     }
   }
 
-  /** Convenience method that calls {@link getSlotType(int, request)}. */
+  /**
+   * Convenience method that calls {@link getSlotType(int, IPSRequestContext) getSlotType(int,
+   * request)}.
+   *
+   * @param slotid the slot id as a string.
+   * @param request the request context.
+   * @return the slot type for the given slot id.
+   * @throws PSCmsException if an error occurs.
+   */
   public static PSSlotType getSlotType(String slotid, IPSRequestContext request)
       throws PSCmsException {
     try {

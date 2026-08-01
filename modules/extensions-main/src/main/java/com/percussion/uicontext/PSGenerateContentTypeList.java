@@ -53,8 +53,12 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+/** Generates the content type list for the Content Manager UI. */
 public class PSGenerateContentTypeList extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
+  /** Creates a new PSGenerateContentTypeList. */
+  public PSGenerateContentTypeList() {}
+
   // see IPSResultDocumentProcessor#canModifyStyleSheet()
   public boolean canModifyStyleSheet() {
     return false;
@@ -312,10 +316,9 @@ public class PSGenerateContentTypeList extends PSDefaultExtension
     return retList;
   }
 
-  /*
-   * Alphabetically Sorts PSMenuAction object based on its type PSMenuAction
-   * object of type MENU are sorted first and are followed by MENUITEM type
-   * object
+  /**
+   * Alphabetically sorts PSMenuAction objects based on their type. PSMenuAction objects of type
+   * MENU are sorted first and are followed by MENUITEM type objects.
    */
   public static Comparator<PSMenuAction> actionComparator =
       new Comparator<PSMenuAction>() {
@@ -337,8 +340,10 @@ public class PSGenerateContentTypeList extends PSDefaultExtension
 
   private static final Logger log = LogManager.getLogger(PSGenerateContentTypeList.class);
 
+  /** Server property name for content type grouping in CX. */
   public static final String SERVER_PROP_GROUP_CONTENTTYPES = "contentTypeGroupingInCX";
 
+  /** Server property name to skip folders when there is only a single submenu in CX. */
   public static final String SERVER_PROP_SKIP_FOLDERS = "skipFoldersIfOnlySingleSubMenuInCX";
 
   private static String CONTENTTYPES_PATH_PREFIX = "/contentTypes/";

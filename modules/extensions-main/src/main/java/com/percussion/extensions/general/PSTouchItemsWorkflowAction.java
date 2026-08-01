@@ -41,6 +41,8 @@ import org.apache.logging.log4j.Logger;
  * @author yubingchen
  */
 public class PSTouchItemsWorkflowAction extends PSDefaultExtension implements IPSWorkflowAction {
+  /** Creates a new PSTouchItemsWorkflowAction. */
+  public PSTouchItemsWorkflowAction() {}
 
   private static final Logger ms_logger = LogManager.getLogger(PSTouchItemsWorkflowAction.class);
 

@@ -41,6 +41,9 @@ import org.w3c.dom.NodeList;
  * feature.
  */
 public class PSCmsObjectNameLookup extends PSSimpleJavaUdfExtension implements IPSUdfProcessor {
+  /** Creates a new PSCmsObjectNameLookup. */
+  public PSCmsObjectNameLookup() {}
+
   // Implementation of the Interface
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {

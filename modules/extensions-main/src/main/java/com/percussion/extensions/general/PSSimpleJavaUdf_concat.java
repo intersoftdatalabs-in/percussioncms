@@ -28,6 +28,9 @@ import com.percussion.server.IPSRequestContext;
  * @since 1.1
  */
 public class PSSimpleJavaUdf_concat extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSSimpleJavaUdf_concat. */
+  public PSSimpleJavaUdf_concat() {}
+
   /* ************ IPSUdfProcessor Interface Implementation ************ */
 
   /**

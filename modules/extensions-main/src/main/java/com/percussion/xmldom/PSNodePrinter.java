@@ -35,7 +35,7 @@ public class PSNodePrinter extends com.percussion.xml.PSNodePrinter {
    * Only constructor. Takes the print writer as the argument.
    *
    * @param out must not be <code>null</code>.
-   * @throws IllegalArgumentException
+   * @throws IllegalArgumentException if the writer is null.
    */
   public PSNodePrinter(Writer out) {
     super(out);

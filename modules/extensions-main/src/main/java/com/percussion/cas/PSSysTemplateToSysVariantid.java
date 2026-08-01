@@ -44,6 +44,8 @@ import org.w3c.dom.NodeList;
  * <p>This exit requires the existance of App resource sys_ceSupport/variantlist.xml.
  */
 public class PSSysTemplateToSysVariantid implements IPSRequestPreProcessor {
+  /** Creates a new PSSysTemplateToSysVariantid. */
+  public PSSysTemplateToSysVariantid() {}
 
   /*
    * @see com.percussion.extension.IPSRequestPreProcessor#preProcessRequest(

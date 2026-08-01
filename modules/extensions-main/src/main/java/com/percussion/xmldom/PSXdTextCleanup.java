@@ -132,10 +132,11 @@ import org.jsoup.select.Elements;
  *
  * <p>Rhythmyx provides default files for JSoup (html-cleaner.properties) and ServerPageTags
  * (rxW2KServerPageTags.xml).
- *
- * <p>
  */
 public class PSXdTextCleanup extends PSDefaultExtension implements IPSRequestPreProcessor {
+  /** Creates a new PSXdTextCleanup. */
+  public PSXdTextCleanup() {}
+
   private static final Logger log = LogManager.getLogger(IPSConstants.EXTENSIONS_LOG);
 
   /**

@@ -109,6 +109,8 @@ import org.w3c.dom.Document;
  */
 public class PSXdTextToDom extends PSDefaultExtension
     implements IPSRequestPreProcessor, IPSResultDocumentProcessor {
+  /** Creates a new PSXdTextToDom. */
+  public PSXdTextToDom() {}
 
   /**
    * This method handles the pre-exit request.

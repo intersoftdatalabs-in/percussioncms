@@ -68,6 +68,8 @@ import java.io.File;
  * @author dougrand
  */
 public class PSValidateNumber extends PSRangeValidator {
+  /** Creates a new PSValidateNumber. */
+  public PSValidateNumber() {}
 
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {

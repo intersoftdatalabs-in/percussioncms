@@ -37,6 +37,9 @@ import org.w3c.dom.Element;
  * modification takes place.
  */
 public class PSInlineImageSizeExtractor implements IPSResultDocumentProcessor {
+  /** Creates a new PSInlineImageSizeExtractor. */
+  public PSInlineImageSizeExtractor() {}
+
   /*
    * Implementation of the method required by the interface IPSExtension.
    */

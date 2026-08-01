@@ -31,6 +31,8 @@ import org.apache.logging.log4j.Logger;
 
 /** The default location generator for content assemblers. */
 public class PSDefaultAssemblyLocation implements IPSAssemblyLocation {
+  /** Creates a new PSDefaultAssemblyLocation. */
+  public PSDefaultAssemblyLocation() {}
 
   private static final Logger log = LogManager.getLogger(IPSConstants.ASSEMBLY_LOG);
 

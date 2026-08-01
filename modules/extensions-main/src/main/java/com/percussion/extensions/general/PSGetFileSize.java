@@ -29,6 +29,9 @@ import java.net.URL;
  * {@link #processUdf(Object[], IPSRequestContext) processUdf} for a description.
  */
 public class PSGetFileSize extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSGetFileSize. */
+  public PSGetFileSize() {}
+
   /**
    * First this creates a URL from the supplied parameters and attaches the pssessionid as one of
    * the html parameters. It then makes an internal request using the created URL, base64 encodes

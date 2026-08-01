@@ -34,6 +34,9 @@ import org.w3c.dom.Element;
  * this attribute is yes if communities are enabled or no if communities are disabled.
  */
 public class PSAddCommunityEnabledFlag implements IPSResultDocumentProcessor {
+  /** Creates a new PSAddCommunityEnabledFlag. */
+  public PSAddCommunityEnabledFlag() {}
+
   /*
    * Implementation of the method required by the interface IPSExtension.
    */

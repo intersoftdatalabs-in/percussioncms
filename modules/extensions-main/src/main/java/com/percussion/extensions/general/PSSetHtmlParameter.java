@@ -28,6 +28,9 @@ import java.io.File;
 
 /** This pre-exit sets / creates or removes a single request parameter */
 public class PSSetHtmlParameter implements IPSRequestPreProcessor {
+  /** Creates a new PSSetHtmlParameter. */
+  public PSSetHtmlParameter() {}
+
   /**
    * This is the implementation of the IPSRequestPreProcessor interface This exit expects two
    * parameters to be passed in: params[0] - parameter name (required), params[1] - parameter value

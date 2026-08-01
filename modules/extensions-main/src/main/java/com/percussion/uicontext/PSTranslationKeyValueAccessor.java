@@ -45,6 +45,9 @@ import org.w3c.dom.Document;
  * processResultDocument(Object[], IPSRequestContext, Document)}
  */
 public class PSTranslationKeyValueAccessor implements IPSResultDocumentProcessor {
+  /** Creates a new PSTranslationKeyValueAccessor. */
+  public PSTranslationKeyValueAccessor() {}
+
   /**
    * @see IPSResultDocumentProcessor *
    */

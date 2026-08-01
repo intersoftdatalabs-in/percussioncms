@@ -38,8 +38,6 @@ import org.w3c.dom.NodeList;
  * This exit authenticates the current user by means of his role-community membership. The following
  * is the list of things that happen:
  *
- * <p>
- *
  * <UL>
  *   <LI>If the communities feature is disabled (by setting communities_enabled=no in
  *       Server.properties file, the passes the authentication and the user's communityid is set to
@@ -56,6 +54,9 @@ import org.w3c.dom.NodeList;
  * </UL>
  */
 public class PSAuthenticateUser implements IPSRequestPreProcessor {
+  /** Creates a new PSAuthenticateUser. */
+  public PSAuthenticateUser() {}
+
   /*
    * Implementation of the interface method
    */
@@ -84,7 +85,7 @@ public class PSAuthenticateUser implements IPSRequestPreProcessor {
    *     process request method, assumed never <code>null</code>.
    * @param name Community name, can not be null
    * @return Community id.
-   * @throws Exception
+   * @throws Exception if an error occurs.
    */
   public static String getCommunityId(IPSRequestContext request, String name) throws Exception {
     // Backup parameters

@@ -43,6 +43,8 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSTouchContentAndParentItems extends PSDefaultExtension
     implements IPSRequestPreProcessor {
+  /** Creates a new PSTouchContentAndParentItems. */
+  public PSTouchContentAndParentItems() {}
 
   private static final Logger log = LogManager.getLogger(PSTouchContentAndParentItems.class);
 
@@ -55,8 +57,8 @@ public class PSTouchContentAndParentItems extends PSDefaultExtension
    *     limit a number of parents a user would like to be touched (the default value is set as
    *     'unlimited') In case if index[1] receives a negative number the exit assumes 'unlimited'.
    * @param request server contructed request object
-   * @throws PSParameterMismatchException
-   * @throws PSExtensionProcessingException
+   * @throws PSParameterMismatchException if the parameters do not match what is expected.
+   * @throws PSExtensionProcessingException if processing fails.
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSParameterMismatchException, PSExtensionProcessingException {

@@ -39,6 +39,8 @@ import org.w3c.dom.Document;
  * <p>This exit has one one parameter: the Name of the HTML parameter to create.
  */
 public class PSXdMoveInputDocument extends PSDefaultExtension implements IPSRequestPreProcessor {
+  /** Creates a new PSXdMoveInputDocument. */
+  public PSXdMoveInputDocument() {}
 
   /**
    * This method handles the pre-exit request.

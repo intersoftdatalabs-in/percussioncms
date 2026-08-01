@@ -41,6 +41,9 @@ import org.w3c.dom.NodeList;
  * for the requested authtype is "0".
  */
 public class PSAuthtypeDispatcher extends PSDefaultExtension implements IPSResultDocumentProcessor {
+  /** Creates a new PSAuthtypeDispatcher. */
+  public PSAuthtypeDispatcher() {}
+
   /**
    * Implementation of the method from the interface.
    *

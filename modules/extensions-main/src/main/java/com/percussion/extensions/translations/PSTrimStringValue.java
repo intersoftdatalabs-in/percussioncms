@@ -50,6 +50,8 @@ import org.apache.commons.lang3.StringUtils;
  * @author dougrand
  */
 public class PSTrimStringValue implements IPSFieldInputTransformer {
+  /** Creates a new PSTrimStringValue. */
+  public PSTrimStringValue() {}
 
   public Object processUdf(Object[] params, @SuppressWarnings("unused") IPSRequestContext request)
       throws PSConversionException {

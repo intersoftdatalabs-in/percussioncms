@@ -28,6 +28,9 @@ import com.percussion.util.PSBase64Encoder;
  * {@link Base64Encoder#processUdf processUdf} for a description.
  */
 public class Base64Encoder extends PSSimpleJavaUdfExtension implements IPSUdfProcessor {
+  /** Creates a new Base64Encoder. */
+  public Base64Encoder() {}
+
   /**
    * The Base64Encoder class is used to encode data from the normal format.
    *

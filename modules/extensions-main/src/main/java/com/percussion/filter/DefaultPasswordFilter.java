@@ -30,9 +30,17 @@ import org.apache.logging.log4j.Logger;
  * security providers.
  */
 public class DefaultPasswordFilter implements IPSPasswordFilter {
+  /** Creates a new DefaultPasswordFilter. */
+  public DefaultPasswordFilter() {}
+
+  /** The logger for this class. */
   public static final Logger log = LogManager.getLogger(DefaultPasswordFilter.class);
 
-  /* Main method used to test or encrypt from command line */
+  /**
+   * Main method used to test or encrypt from command line.
+   *
+   * @param args the command line arguments.
+   */
   public static void main(String[] args) {
     DefaultPasswordFilter filter = new DefaultPasswordFilter();
 

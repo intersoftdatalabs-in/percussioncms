@@ -76,6 +76,9 @@ import org.w3c.dom.NodeList;
  * it is a publishable variant or not. If not removes the link.
  */
 public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
+  /** Creates a new PSSiteFolderAuthTypeFilter. */
+  public PSSiteFolderAuthTypeFilter() {}
+
   /* (non-Javadoc)
    * @see com.percussion.extension.IPSResultDocumentProcessor#canModifyStyleSheet()
    */

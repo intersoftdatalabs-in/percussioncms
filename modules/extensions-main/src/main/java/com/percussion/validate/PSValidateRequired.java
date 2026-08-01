@@ -44,6 +44,9 @@ import org.apache.commons.lang3.StringUtils;
  * @author dougrand
  */
 public class PSValidateRequired implements IPSFieldValidator {
+  /** Creates a new PSValidateRequired. */
+  public PSValidateRequired() {}
+
   public Object processUdf(Object[] params, @SuppressWarnings("unused") IPSRequestContext request) {
     Object value;
 

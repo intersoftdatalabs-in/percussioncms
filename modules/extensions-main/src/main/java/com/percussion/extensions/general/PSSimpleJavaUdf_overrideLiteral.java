@@ -28,6 +28,9 @@ import com.percussion.server.IPSRequestContext;
  */
 public class PSSimpleJavaUdf_overrideLiteral extends PSSimpleJavaUdfExtension
     implements IPSFieldInputTransformer {
+  /** Creates a new PSSimpleJavaUdf_overrideLiteral. */
+  public PSSimpleJavaUdf_overrideLiteral() {}
+
   /**
    * Returns the supplied literal (params[0]) as String or the override value if an override
    * parameter (params[1]) is specified and was found on the supplied request. If found, the

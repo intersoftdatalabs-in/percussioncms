@@ -34,6 +34,9 @@ import java.net.URL;
  * {@link #processUdf(Object[], IPSRequestContext) processUdf} for a description.
  */
 public class PSGetBase64Encoded extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSGetBase64Encoded. */
+  public PSGetBase64Encoded() {}
+
   /**
    * Firts this creates a URL from the supplied parameters and attaches the pssessionid as one of
    * the html parameters. It then makes an internal request using the created URL, base64 encodes

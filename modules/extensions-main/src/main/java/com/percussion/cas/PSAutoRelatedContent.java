@@ -55,6 +55,9 @@ import org.w3c.dom.NodeList;
  * @version 1.0
  */
 public class PSAutoRelatedContent extends PSDefaultExtension implements IPSResultDocumentProcessor {
+  /** Creates a new PSAutoRelatedContent. */
+  public PSAutoRelatedContent() {}
+
   /**
    * Required by the interface. This exit never modifies the stylesheet.
    *

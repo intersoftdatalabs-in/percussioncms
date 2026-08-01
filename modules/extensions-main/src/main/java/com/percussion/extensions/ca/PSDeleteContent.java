@@ -49,6 +49,9 @@ import org.w3c.dom.Element;
  * The XML element pkey must be mapped to the primary key in the backed table(s).
  */
 public class PSDeleteContent implements IPSRequestPreProcessor {
+  /** Creates a new PSDeleteContent. */
+  public PSDeleteContent() {}
+
   /*
    * implementation of the method in the interface IPSRequestPreProcessor
    */
@@ -236,7 +239,11 @@ public class PSDeleteContent implements IPSRequestPreProcessor {
     return result;
   }
 
-  /** main method for testing purpose. */
+  /**
+   * main method for testing purpose.
+   *
+   * @param args the command line arguments.
+   */
   public static void main(String[] args) {
     PSDeleteContent.getPurgeAppResource(
         "http://10.10.10.17:9992/Rhythmyx/xr_ceImage/image.html?sys_command=preview&sys_contentid=78&sys_revision=1");

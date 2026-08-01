@@ -23,6 +23,9 @@ import java.net.URLDecoder;
 
 /** The PSSimpleJavaUdf_decodeURL class Decodes a "x-www-form-urlencoded" to a String. */
 public class PSSimpleJavaUdf_decodeURL extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSSimpleJavaUdf_decodeURL. */
+  public PSSimpleJavaUdf_decodeURL() {}
+
   /* ************ IPSUdfProcessor Interface Implementation ************ */
 
   /**

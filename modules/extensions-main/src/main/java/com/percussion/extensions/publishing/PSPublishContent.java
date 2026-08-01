@@ -79,6 +79,8 @@ import org.xml.sax.SAXException;
  * requests.
  */
 public class PSPublishContent extends PSDefaultExtension implements IPSWorkflowAction {
+  /** Creates a new PSPublishContent. */
+  public PSPublishContent() {}
 
   private static final Logger log = LogManager.getLogger(PSPublishContent.class);
 

@@ -32,6 +32,9 @@ import org.w3c.dom.Document;
  */
 public class PSCollapseHtmlParameter extends PSDefaultExtension
     implements IPSRequestPreProcessor, IPSResultDocumentProcessor {
+  /** Creates a new PSCollapseHtmlParameter. */
+  public PSCollapseHtmlParameter() {}
+
   /*
    * Implementation of the method required by
    * <code>IPSRequestPreProcessor</code> interface

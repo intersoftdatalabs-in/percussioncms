@@ -31,6 +31,9 @@ import org.w3c.dom.NodeList;
  * multiple fields with the same name.
  */
 public class PSXdMultiTextToTree extends PSXdTextToTree implements IPSResultDocumentProcessor {
+  /** Creates a new PSXdMultiTextToTree. */
+  public PSXdMultiTextToTree() {}
+
   /**
    * Returns a list which contains all the elements from the specified document <code>resultDoc
    * </code> with the specified tag name <code>textSourceName</code>
