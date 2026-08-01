@@ -4492,140 +4492,140 @@
       <tuv xml:lang="bn"><seg>সাইট</seg></tuv>
       <tuv xml:lang="pt"><seg>Locais</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>站点</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>Sites</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Loading sites…">
       <tuv xml:lang="en-us"><seg>Loading sites…</seg></tuv>
       <tuv xml:lang="bn"><seg>সাইট লোড হচ্ছে...</seg></tuv>
       <tuv xml:lang="pt"><seg>Carregando sites…</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>正在加载站点...</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>Chargement des sites…</seg></tuv></tu>
     <tu tuid="perc.ui.developer@No sites returned.">
       <tuv xml:lang="en-us"><seg>No sites returned.</seg></tuv>
       <tuv xml:lang="bn"><seg>কোন সাইট ফিরে.</seg></tuv>
       <tuv xml:lang="pt"><seg>Nenhum site foi retornado.</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>没有返回任何网站。</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>Aucun site n'a été renvoyé.</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Could not load sites.">
       <tuv xml:lang="en-us"><seg>Could not load sites.</seg></tuv>
       <tuv xml:lang="bn"><seg>সাইট লোড করা যায়নি.</seg></tuv>
       <tuv xml:lang="pt"><seg>Não foi possível carregar sites.</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>无法加载网站。</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>Impossible de charger les sites.</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Site definitions for association browse (SY-04). Open a row for URL and defaults. Site design/write is a later surface.">
       <tuv xml:lang="en-us"><seg>Site definitions for association browse (SY-04). Open a row for URL and defaults. Site design/write is a later surface.</seg></tuv>
       <tuv xml:lang="bn"><seg>অ্যাসোসিয়েশন ব্রাউজের জন্য সাইটের সংজ্ঞা (SY-04)। URL এবং ডিফল্টের জন্য একটি সারি খুলুন। সাইট ডিজাইন/লিখন একটি পরবর্তী পৃষ্ঠ।</seg></tuv>
       <tuv xml:lang="pt"><seg>Definições de site para navegação de associação (SY-04). Abra uma linha para URL e padrões. O design/gravação do site é uma superfície posterior.</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>关联浏览的站点定义 (SY-04)。打开 URL 和默认值行。网站设计/编写是稍后的表面。</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>Définitions de sites pour la navigation par association (SY-04). Ouvrez une ligne pour l'URL et les valeurs par défaut. La conception/écriture du site est une surface ultérieure.</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Base URL">
       <tuv xml:lang="en-us"><seg>Base URL</seg></tuv>
       <tuv xml:lang="bn"><seg>বেস URL</seg></tuv>
       <tuv xml:lang="pt"><seg>URL base</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>基本网址</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>URL de base</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Protocol">
       <tuv xml:lang="en-us"><seg>Protocol</seg></tuv>
       <tuv xml:lang="bn"><seg>প্রোটোকল</seg></tuv>
       <tuv xml:lang="pt"><seg>Protocolo</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>协议</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>Protocole</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Default document">
       <tuv xml:lang="en-us"><seg>Default document</seg></tuv>
       <tuv xml:lang="bn"><seg>ডিফল্ট নথি</seg></tuv>
       <tuv xml:lang="pt"><seg>Documento padrão</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>默认文档</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>Document par défaut</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Default file extension">
       <tuv xml:lang="en-us"><seg>Default file extension</seg></tuv>
       <tuv xml:lang="bn"><seg>ডিফল্ট ফাইল এক্সটেনশন</seg></tuv>
       <tuv xml:lang="pt"><seg>Extensão de arquivo padrão</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>默认文件扩展名</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>Extension de fichier par défaut</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Page-based">
       <tuv xml:lang="en-us"><seg>Page-based</seg></tuv>
       <tuv xml:lang="bn"><seg>পৃষ্ঠা ভিত্তিক</seg></tuv>
       <tuv xml:lang="pt"><seg>Baseado em página</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>基于页面的</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>Basé sur des pages</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Canonical">
       <tuv xml:lang="en-us"><seg>Canonical</seg></tuv>
       <tuv xml:lang="bn"><seg>ক্যানোনিকাল</seg></tuv>
       <tuv xml:lang="pt"><seg>Canônico</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>典范</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>Canonique</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Site create / update / delete is not supported from this Developer surface">
       <tuv xml:lang="en-us"><seg>Site create / update / delete is not supported from this Developer surface</seg></tuv>
       <tuv xml:lang="bn"><seg>এই বিকাশকারী পৃষ্ঠ থেকে সাইট তৈরি / আপডেট / মুছে ফেলা সমর্থিত নয়৷</seg></tuv>
       <tuv xml:lang="pt"><seg>A criação/atualização/exclusão de site não é suportada nesta superfície do desenvolvedor</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>此开发人员界面不支持站点创建/更新/删除</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>La création/mise à jour/suppression de site n'est pas prise en charge à partir de cet espace développeur</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Full site publish and section design live outside the Developer catalog">
       <tuv xml:lang="en-us"><seg>Full site publish and section design live outside the Developer catalog</seg></tuv>
       <tuv xml:lang="bn"><seg>সম্পূর্ণ সাইট প্রকাশ এবং বিভাগের নকশা বিকাশকারী ক্যাটালগের বাইরে লাইভ৷</seg></tuv>
       <tuv xml:lang="pt"><seg>Publicação completa do site e design de seção ao vivo fora do catálogo do desenvolvedor</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>完整站点发布和部分设计在开发人员目录之外实时发布</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>Publication complète du site et conception des sections en dehors du catalogue des développeurs</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Workflow association is browsed under the Workflows catalog">
       <tuv xml:lang="en-us"><seg>Workflow association is browsed under the Workflows catalog</seg></tuv>
       <tuv xml:lang="bn"><seg>ওয়ার্কফ্লো অ্যাসোসিয়েশন ওয়ার্কফ্লো ক্যাটালগের অধীনে ব্রাউজ করা হয়</seg></tuv>
       <tuv xml:lang="pt"><seg>A associação do fluxo de trabalho é navegada no catálogo Fluxos de trabalho</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>工作流程关联在工作流程目录下浏览</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>L'association de workflow est parcourue sous le catalogue Workflows</seg></tuv></tu>
     <tu tuid="perc.ui.developer@CE Controls">
       <tuv xml:lang="en-us"><seg>CE Controls</seg></tuv>
       <tuv xml:lang="bn"><seg>সিই নিয়ন্ত্রণ</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>Contrôles CE</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Loading controls…">
       <tuv xml:lang="en-us"><seg>Loading controls…</seg></tuv>
       <tuv xml:lang="bn"><seg>নিয়ন্ত্রণ লোড হচ্ছে...</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>Chargement des contrôles…</seg></tuv></tu>
     <tu tuid="perc.ui.developer@No controls returned.">
       <tuv xml:lang="en-us"><seg>No controls returned.</seg></tuv>
       <tuv xml:lang="bn"><seg>কোনো নিয়ন্ত্রণ ফিরে আসেনি।</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>Aucun contrôle n'est retourné.</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Could not load controls.">
       <tuv xml:lang="en-us"><seg>Could not load controls.</seg></tuv>
       <tuv xml:lang="bn"><seg>নিয়ন্ত্রণ লোড করা যায়নি.</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>Impossible de charger les contrôles.</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Content editor system and user controls (UI-01). Open a row for parameters. User control registration is a later slice.">
       <tuv xml:lang="en-us"><seg>Content editor system and user controls (UI-01). Open a row for parameters. User control registration is a later slice.</seg></tuv>
       <tuv xml:lang="bn"><seg>বিষয়বস্তু সম্পাদক সিস্টেম এবং ব্যবহারকারী নিয়ন্ত্রণ (UI-01)। পরামিতিগুলির জন্য একটি সারি খুলুন। ব্যবহারকারী নিয়ন্ত্রণ নিবন্ধন একটি পরবর্তী স্লাইস.</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>Système d'édition de contenu et contrôles utilisateur (UI-01). Ouvrez une ligne pour les paramètres. L’enregistrement du contrôle utilisateur est une tranche ultérieure.</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Display name">
       <tuv xml:lang="en-us"><seg>Display name</seg></tuv>
       <tuv xml:lang="bn"><seg>প্রদর্শনের নাম</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>Nom d'affichage</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Scope">
       <tuv xml:lang="en-us"><seg>Scope</seg></tuv>
       <tuv xml:lang="bn"><seg>ব্যাপ্তি</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>Portée</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Dimension">
       <tuv xml:lang="en-us"><seg>Dimension</seg></tuv>
       <tuv xml:lang="bn"><seg>মাত্রা</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>Dimension</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Choice set">
       <tuv xml:lang="en-us"><seg>Choice set</seg></tuv>
       <tuv xml:lang="bn"><seg>পছন্দ সেট</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>Ensemble de choix</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Loading control…">
       <tuv xml:lang="en-us"><seg>Loading control…</seg></tuv>
       <tuv xml:lang="bn"><seg>নিয়ন্ত্রণ লোড হচ্ছে...</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>Contrôle du chargement…</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Could not load control.">
       <tuv xml:lang="en-us"><seg>Could not load control.</seg></tuv>
       <tuv xml:lang="bn"><seg>নিয়ন্ত্রণ লোড করা যায়নি.</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>Impossible de charger le contrôle.</seg></tuv></tu>
     <tu tuid="perc.ui.developer@User control create / edit / delete not supported via this API">
       <tuv xml:lang="en-us"><seg>User control create / edit / delete not supported via this API</seg></tuv>
       <tuv xml:lang="bn"><seg>ব্যবহারকারী নিয়ন্ত্রণ এই API এর মাধ্যমে তৈরি/সম্পাদনা/মুছে ফেলা সমর্থিত নয়</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>Contrôle utilisateur créer/modifier/supprimer non pris en charge via cette API</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Control XSL source editing not supported via this API">
       <tuv xml:lang="en-us"><seg>Control XSL source editing not supported via this API</seg></tuv>
       <tuv xml:lang="bn"><seg>নিয়ন্ত্রণ XSL উৎস সম্পাদনা এই API এর মাধ্যমে সমর্থিত নয়</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>Contrôler l'édition des sources XSL non pris en charge via cette API</seg></tuv></tu>
     <tu tuid="perc.ui.developer@System controls are read-only packaged defaults">
       <tuv xml:lang="en-us"><seg>System controls are read-only packaged defaults</seg></tuv>
       <tuv xml:lang="bn"><seg>সিস্টেম নিয়ন্ত্রণগুলি শুধুমাত্র পঠনযোগ্য প্যাকেজ ডিফল্ট</seg></tuv>
-    </tu>
+    <tuv xml:lang="fr-ca"><seg>Les contrôles système sont des valeurs par défaut packagées en lecture seule</seg></tuv></tu>
   </body>
 </tmx>
