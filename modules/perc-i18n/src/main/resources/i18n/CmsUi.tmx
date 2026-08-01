@@ -10364,7 +10364,7 @@ Doorgaan?</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>编辑小部件提交</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>编辑小部件提交</seg></tuv>
 
-    <tuv xml:lang="fr-ca"><seg>modifierWidgetCommit</seg></tuv><tuv xml:lang="ru"><seg>EditWidgetCommit</seg></tuv><tuv xml:lang="he"><seg>editWidgetCommit</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>EditWidgetCommit</seg></tuv><tuv xml:lang="he"><seg>editWidgetCommit</seg></tuv></tu>
     <tu tuid="perc.ui.layout.controller@Unable To Retrieve Widget Lib">
       <tuv xml:lang="en-us"><seg>Unable to retrieve widget library</seg></tuv>
       <tuv xml:lang="ar"><seg>غير قادر على استرداد مكتبة القطعة</seg></tuv>
