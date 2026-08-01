@@ -41,11 +41,31 @@ class InteractiveDtsInstallWizardTest {
     return Path.of(System.getProperty("java.home")).toAbsolutePath().normalize();
   }
 
+  /** Isolated user.home so tests never read real ~/.intsof/percussion settings. */
+  private Path isolatedUserHome() {
+    return tempDir.resolve("fake-user-home");
+  }
+
+  private InteractiveDtsInstallWizard.WizardResult runIsolated(
+      MainDTSPreInstall.ParsedArgs parsed,
+      boolean interactive,
+      InstallPrompt prompt,
+      Path unattendedJavaHome,
+      String installProdDtsProperty) {
+    return InteractiveDtsInstallWizard.run(
+        parsed,
+        interactive,
+        prompt,
+        unattendedJavaHome,
+        installProdDtsProperty,
+        isolatedUserHome());
+  }
+
   @Test
   void nonInteractiveMissingPathReturnsUsage() {
     MainDTSPreInstall.ParsedArgs parsed = new MainDTSPreInstall.ParsedArgs(null, Map.of());
     InteractiveDtsInstallWizard.WizardResult result =
-        InteractiveDtsInstallWizard.run(parsed, false, null, runningJavaHome(), null);
+        runIsolated(parsed, false, null, runningJavaHome(), null);
     assertFalse(result.proceed());
     assertEquals(InteractiveDtsInstallWizard.EXIT_USAGE, result.exitCode());
     assertTrue(result.message().contains("installation or upgrade folder"));
@@ -56,7 +76,7 @@ class InteractiveDtsInstallWizardTest {
     Path install = tempDir.resolve("dts");
     MainDTSPreInstall.ParsedArgs parsed = new MainDTSPreInstall.ParsedArgs(install, Map.of());
     InteractiveDtsInstallWizard.WizardResult result =
-        InteractiveDtsInstallWizard.run(parsed, false, null, runningJavaHome(), null);
+        runIsolated(parsed, false, null, runningJavaHome(), null);
     assertTrue(result.proceed());
     assertEquals(install.toAbsolutePath().normalize(), result.installPath());
     assertEquals("h2", result.dbConfig().systemProperties().get("perc.db.type"));
@@ -72,7 +92,7 @@ class InteractiveDtsInstallWizardTest {
     ScriptedPrompt prompt = new ScriptedPrompt(install.toString(), "", "", "");
     MainDTSPreInstall.ParsedArgs parsed = new MainDTSPreInstall.ParsedArgs(null, Map.of());
     InteractiveDtsInstallWizard.WizardResult result =
-        InteractiveDtsInstallWizard.run(parsed, true, prompt, runningJavaHome(), null);
+        runIsolated(parsed, true, prompt, runningJavaHome(), null);
     assertTrue(result.proceed());
     assertEquals("true", result.isProduction());
     assertEquals("h2", result.dbConfig().systemProperties().get("perc.db.type"));
@@ -99,7 +119,7 @@ class InteractiveDtsInstallWizardTest {
             "y");
     MainDTSPreInstall.ParsedArgs parsed = new MainDTSPreInstall.ParsedArgs(install, Map.of());
     InteractiveDtsInstallWizard.WizardResult result =
-        InteractiveDtsInstallWizard.run(parsed, true, prompt, runningJavaHome(), null);
+        runIsolated(parsed, true, prompt, runningJavaHome(), null);
     assertTrue(result.proceed());
     assertEquals("false", result.isProduction());
     assertEquals("sqlserver", result.dbConfig().systemProperties().get("perc.db.type"));
@@ -114,7 +134,7 @@ class InteractiveDtsInstallWizardTest {
     ScriptedPrompt prompt = new ScriptedPrompt("1", "1", "n");
     MainDTSPreInstall.ParsedArgs parsed = new MainDTSPreInstall.ParsedArgs(install, Map.of());
     InteractiveDtsInstallWizard.WizardResult result =
-        InteractiveDtsInstallWizard.run(parsed, true, prompt, runningJavaHome(), null);
+        runIsolated(parsed, true, prompt, runningJavaHome(), null);
     assertFalse(result.proceed());
     assertTrue(result.message().toLowerCase().contains("cancelled"));
   }
@@ -126,7 +146,7 @@ class InteractiveDtsInstallWizardTest {
     ScriptedPrompt prompt = new ScriptedPrompt("y");
     MainDTSPreInstall.ParsedArgs parsed = new MainDTSPreInstall.ParsedArgs(install, Map.of());
     InteractiveDtsInstallWizard.WizardResult result =
-        InteractiveDtsInstallWizard.run(parsed, true, prompt, runningJavaHome(), "true");
+        runIsolated(parsed, true, prompt, runningJavaHome(), "true");
     assertTrue(result.proceed());
     assertTrue(prompt.outputsAsString().toLowerCase().contains("upgrade"));
     assertTrue(prompt.outputsAsString().contains("Upgrade"));
@@ -138,7 +158,7 @@ class InteractiveDtsInstallWizardTest {
     Path invalid = tempDir.resolve("no-jdk");
     MainDTSPreInstall.ParsedArgs parsed = new MainDTSPreInstall.ParsedArgs(install, Map.of());
     InteractiveDtsInstallWizard.WizardResult result =
-        InteractiveDtsInstallWizard.run(parsed, false, null, invalid, null);
+        runIsolated(parsed, false, null, invalid, null);
     assertFalse(result.proceed());
     assertEquals(InteractiveDtsInstallWizard.EXIT_JAVA, result.exitCode());
   }
@@ -157,7 +177,7 @@ class InteractiveDtsInstallWizardTest {
     ScriptedPrompt prompt = new ScriptedPrompt("n", "yes");
     MainDTSPreInstall.ParsedArgs parsed = new MainDTSPreInstall.ParsedArgs(install, opts);
     InteractiveDtsInstallWizard.WizardResult result =
-        InteractiveDtsInstallWizard.run(parsed, true, prompt, runningJavaHome(), "true");
+        runIsolated(parsed, true, prompt, runningJavaHome(), "true");
     assertTrue(result.proceed());
     assertEquals("mysql", result.dbConfig().systemProperties().get("perc.db.type"));
     assertFalse(prompt.outputsAsString().contains("p-secret"));

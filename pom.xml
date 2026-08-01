@@ -14,6 +14,7 @@
         </license>
     </licenses>
     <modules>
+        <module>modules/intsof-common-utilities</module>
         <module>modules/perc-security-utils</module>
         <module>modules/perc-security-acl-shim</module>
         <module>modules/perc-xml-security</module>
@@ -82,7 +83,7 @@
         <aopalliance.version>1.0</aopalliance.version>
         <artemis.version>2.55.0</artemis.version>
         <avalon.version>4.1.5</avalon.version>
-        <awssdk.version>1.12.797</awssdk.version>
+        <aws.sdk.v2.version>2.50.2</aws.sdk.v2.version>
         <batik.version>1.19</batik.version>
         <bc.version>1.84</bc.version>
         <build.helper.maven.plugin.version>3.6.1</build.helper.maven.plugin.version>
@@ -132,6 +133,8 @@
         <httpcomponents.core.version>4.4.16</httpcomponents.core.version>
         <httpcomponents.version>4.5.14</httpcomponents.version>
         <install.jre.version>8.222.10.1</install.jre.version>
+        <!-- Intersoft common utilities (semver; independent of CMS product version) -->
+        <intsof.common.utilities.version>0.0.1</intsof.common.utilities.version>
         <!-- Jackson 3.x runtime (tools.jackson); annotations stay on 2.x com.fasterxml by design.
              Annotations use major.minor only (2.22), not patch (jackson-bom jackson.version.annotations). -->
         <jackson.annotation.api.version>2.22</jackson.annotation.api.version>
@@ -252,6 +255,11 @@
         <snakeyaml.version>2.5</snakeyaml.version>
         <solr.version>9.10.1</solr.version>
         <spotless.plugin.version>3.8.0</spotless.plugin.version>
+        <!--
+          Agent / nested worktree dirs. Spotless must never format these full-tree copies.
+          Note: **/.worktrees/** does NOT match .kilo/worktrees/ (no leading dot on "worktrees").
+          Always exclude .kilo/** and .kilo/worktrees/** explicitly.
+        -->
         <!-- 5.17.x and up require Java 11 -->
         <spring.version>7.0.8</spring.version>
         <sqlite.version>3.51.1.0</sqlite.version>
@@ -282,6 +290,11 @@
     </properties>
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.intsof.common</groupId>
+                <artifactId>utilities</artifactId>
+                <version>${intsof.common.utilities.version}</version>
+            </dependency>
             <!-- ===== Transitive security floors (BOM imports first) =====
                  Product does not call Netty/ZooKeeper APIs directly. AWS SDK v1 and
                  SolrJ still pull com.fasterxml Jackson 2.x; Artemis pulls modular Netty.
@@ -1068,24 +1081,14 @@
                 <artifactId>jdom2</artifactId>
                 <version>2.0.6.1</version>
             </dependency>
+            <!-- AWS SDK v2 (software.amazon.awssdk). Use BOM for version alignment across modules. -->
             <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-s3</artifactId>
-                <version>${awssdk.version}</version>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>${aws.sdk.v2.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-bom</artifactId>
-                <version>${awssdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-sts</artifactId>
-                <version>${awssdk.version}</version>
-            </dependency>
-            <!-- AWS v1 still pulls com.fasterxml Jackson 2.x (pins 2.17.2 in its POM).
-                 Versions are forced by jackson-bom import above (${jackson.fasterxml.version}).
-                 Do not exclude without re-adding — S3/STS need Jackson on the classpath. -->
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
@@ -2436,10 +2439,21 @@
                             <!-- optional, default is ${project.build.directory}/spotless-index -->
                         </upToDateChecking>
                         <java>
+                            <!-- Module-relative only: no leading **/ so Spotless does not walk the monorepo -->
                             <includes>
                                 <include>src/main/java/**/*.java</include>
                                 <include>src/test/java/**/*.java</include>
                             </includes>
+                            <excludes>
+                                <!-- Nested agent worktrees are full monorepo copies under basedir -->
+                                <exclude>.kilo/**</exclude>
+                                <exclude>.kilo/worktrees/**</exclude>
+                                <exclude>.grok/**</exclude>
+                                <exclude>.worktrees/**</exclude>
+                                <exclude>**/.kilo/**</exclude>
+                                <exclude>**/.grok/**</exclude>
+                                <exclude>**/.worktrees/**</exclude>
+                            </excludes>
                             <googleJavaFormat>
                                 <version>${google.java.format.version}</version>
                                 <!-- optional, 1.8 is the minimum supported version for Java 11 -->
@@ -2453,12 +2467,33 @@
                             </googleJavaFormat>
                         </java>
                         <markdown>
+                            <!--
+                              Prefer fixed top-level prefixes over **/*.md. Repo-wide **/ globs force a full
+                              tree walk on every reactor module (and especially the root packaging POM) and
+                              have been observed to take many minutes on this monorepo.
+                              Patterns are dual-purpose:
+                              - module basedir: *.md + src/**/*.md cover local docs
+                              - root basedir: docs/, specs/, plans/, .github/, etc. cover non-module trees
+                            -->
                             <includes>
-                                <!-- You have to set the target manually -->
-                                <include>**/*.md</include>
+                                <include>*.md</include>
+                                <include>src/**/*.md</include>
+                                <include>docs/**/*.md</include>
+                                <include>specs/**/*.md</include>
+                                <include>plans/**/*.md</include>
+                                <include>scripts/**/*.md</include>
+                                <include>docker/**/*.md</include>
+                                <include>delivery/**/*.md</include>
+                                <include>Tools/**/*.md</include>
+                                <include>.github/**/*.md</include>
+                                <include>.specify/**/*.md</include>
                             </includes>
                             <excludes>
-                                <!-- Agent / local worktrees are full tree copies — never format them -->
+                                <!-- Agent worktrees: full monorepo copies (see spotless note near plugin version) -->
+                                <exclude>.kilo/**</exclude>
+                                <exclude>.kilo/worktrees/**</exclude>
+                                <exclude>.grok/**</exclude>
+                                <exclude>.worktrees/**</exclude>
                                 <exclude>**/.kilo/**</exclude>
                                 <exclude>**/.grok/**</exclude>
                                 <exclude>**/.worktrees/**</exclude>
@@ -2474,14 +2509,35 @@
                             <!-- has its own section below -->
                         </markdown>
                         <javascript>
+                            <!--
+                              Module-local + known non-src layouts only. Avoid **/*.js which walks Docs,
+                              FastForward, node_modules, target, war trees on large modules (esp. system, WebUI).
+                            -->
                             <includes>
-                                <include>**/*.js</include>
-                                <include>**/*.mjs</include>
-                                <include>**/*.cjs</include>
-                                <include>**/*.jsx</include>
+                                <include>src/**/*.js</include>
+                                <include>src/**/*.mjs</include>
+                                <include>src/**/*.cjs</include>
+                                <include>src/**/*.jsx</include>
+                                <include>frontend/**/*.js</include>
+                                <include>frontend/**/*.mjs</include>
+                                <include>build-scripts/**/*.js</include>
+                                <include>build-scripts/**/*.mjs</include>
+                                <include>*.js</include>
+                                <include>*.mjs</include>
+                                <!-- system module: product JS lives under cms/, not src/ -->
+                                <include>cms/**/*.js</include>
+                                <include>workflow/**/*.js</include>
+                                <include>installResources/**/*.js</include>
+                                <!-- root-only trees (no-op when basedir is a child module) -->
+                                <include>scripts/**/*.js</include>
+                                <include>.github/**/*.js</include>
                             </includes>
                             <excludes>
-                                <!-- Agent / local worktrees are full tree copies — never format them -->
+                                <!-- Agent worktrees: full monorepo copies (see spotless note near plugin version) -->
+                                <exclude>.kilo/**</exclude>
+                                <exclude>.kilo/worktrees/**</exclude>
+                                <exclude>.grok/**</exclude>
+                                <exclude>.worktrees/**</exclude>
                                 <exclude>**/.kilo/**</exclude>
                                 <exclude>**/.grok/**</exclude>
                                 <exclude>**/.worktrees/**</exclude>
@@ -2513,6 +2569,16 @@
                             <includes>
                                 <include>pom.xml</include>
                             </includes>
+                            <excludes>
+                                <!-- Never sort poms inside nested agent worktrees -->
+                                <exclude>.kilo/**</exclude>
+                                <exclude>.kilo/worktrees/**</exclude>
+                                <exclude>.grok/**</exclude>
+                                <exclude>.worktrees/**</exclude>
+                                <exclude>**/.kilo/**</exclude>
+                                <exclude>**/.grok/**</exclude>
+                                <exclude>**/.worktrees/**</exclude>
+                            </excludes>
                             <sortPom>
                                 <!-- The encoding of the pom files -->
                                 <encoding>UTF-8</encoding>
@@ -2537,14 +2603,19 @@
                         </pom>
                         <formats>
                             <format>
+                                <!-- Module-relative; leading **/ made root walk the full monorepo for resources -->
                                 <includes>
-                                    <include>**/src/main/resources/**/*.xml</include>
-                                    <include>**/src/main/resources/**/*.xsl</include>
-                                    <include>**/src/main/resources/**/*.xslt</include>
-                                    <include>**/src/main/webapp/**/*.xml</include>
+                                    <include>src/main/resources/**/*.xml</include>
+                                    <include>src/main/resources/**/*.xsl</include>
+                                    <include>src/main/resources/**/*.xslt</include>
+                                    <include>src/main/webapp/**/*.xml</include>
                                 </includes>
                                 <excludes>
-                                    <!-- Agent / local worktrees are full tree copies — never format them -->
+                                    <!-- Agent worktrees: full monorepo copies (see spotless note near plugin version) -->
+                                    <exclude>.kilo/**</exclude>
+                                    <exclude>.kilo/worktrees/**</exclude>
+                                    <exclude>.grok/**</exclude>
+                                    <exclude>.worktrees/**</exclude>
                                     <exclude>**/.kilo/**</exclude>
                                     <exclude>**/.grok/**</exclude>
                                     <exclude>**/.worktrees/**</exclude>
@@ -2574,13 +2645,23 @@
                                 <endWithNewline/>
                             </format>
                             <format>
+                                <!--
+                                  Product HTML under src/ only. Do not use **/*.html — system/ alone has
+                                  ~1900 legacy HTML/HTM files that are fully excluded below; walking them
+                                  is pure cost. system/ is intentionally not included.
+                                -->
                                 <includes>
-                                    <include>**/*.html</include>
-                                    <include>**/*.htm</include>
-                                    <include>**/*.xhtml</include>
+                                    <include>src/**/*.html</include>
+                                    <include>src/**/*.htm</include>
+                                    <include>src/**/*.xhtml</include>
+                                    <include>docs/**/*.html</include>
                                 </includes>
                                 <excludes>
-                                    <!-- Agent / local worktrees are full tree copies — never format them -->
+                                    <!-- Agent worktrees: full monorepo copies (see spotless note near plugin version) -->
+                                    <exclude>.kilo/**</exclude>
+                                    <exclude>.kilo/worktrees/**</exclude>
+                                    <exclude>.grok/**</exclude>
+                                    <exclude>.worktrees/**</exclude>
                                     <exclude>**/.kilo/**</exclude>
                                     <exclude>**/.grok/**</exclude>
                                     <exclude>**/.worktrees/**</exclude>
@@ -2628,12 +2709,22 @@
                             <!-- Format CSS/SCSS/LESS files using Prettier -->
                             <format>
                                 <includes>
-                                    <include>**/*.css</include>
-                                    <include>**/*.scss</include>
-                                    <include>**/*.less</include>
+                                    <include>src/**/*.css</include>
+                                    <include>src/**/*.scss</include>
+                                    <include>src/**/*.less</include>
+                                    <!-- WebUI checked-in war static assets (no-op on modules without war/) -->
+                                    <include>war/**/*.css</include>
+                                    <include>war/**/*.scss</include>
+                                    <include>war/**/*.less</include>
+                                    <!-- system module product CSS -->
+                                    <include>cms/**/*.css</include>
                                 </includes>
                                 <excludes>
-                                    <!-- Agent / local worktrees are full tree copies — never format them -->
+                                    <!-- Agent worktrees: full monorepo copies (see spotless note near plugin version) -->
+                                    <exclude>.kilo/**</exclude>
+                                    <exclude>.kilo/worktrees/**</exclude>
+                                    <exclude>.grok/**</exclude>
+                                    <exclude>.worktrees/**</exclude>
                                     <exclude>**/.kilo/**</exclude>
                                     <exclude>**/.grok/**</exclude>
                                     <exclude>**/.worktrees/**</exclude>
@@ -2658,10 +2749,20 @@
                             <!-- Format JSON files using Prettier -->
                             <format>
                                 <includes>
-                                    <include>**/*.json</include>
+                                    <include>*.json</include>
+                                    <include>src/**/*.json</include>
+                                    <include>frontend/**/*.json</include>
+                                    <include>docs/**/*.json</include>
+                                    <include>.vscode/**/*.json</include>
+                                    <include>.specify/**/*.json</include>
+                                    <include>.github/**/*.json</include>
                                 </includes>
                                 <excludes>
-                                    <!-- Agent / local worktrees are full tree copies — never format them -->
+                                    <!-- Agent worktrees: full monorepo copies (see spotless note near plugin version) -->
+                                    <exclude>.kilo/**</exclude>
+                                    <exclude>.kilo/worktrees/**</exclude>
+                                    <exclude>.grok/**</exclude>
+                                    <exclude>.worktrees/**</exclude>
                                     <exclude>**/.kilo/**</exclude>
                                     <exclude>**/.grok/**</exclude>
                                     <exclude>**/.worktrees/**</exclude>
@@ -2685,11 +2786,29 @@
                             <!-- Format YAML files using Prettier -->
                             <format>
                                 <includes>
-                                    <include>**/*.yml</include>
-                                    <include>**/*.yaml</include>
+                                    <include>*.yml</include>
+                                    <include>*.yaml</include>
+                                    <include>src/**/*.yml</include>
+                                    <include>src/**/*.yaml</include>
+                                    <include>.github/**/*.yml</include>
+                                    <include>.github/**/*.yaml</include>
+                                    <include>.specify/**/*.yml</include>
+                                    <include>.specify/**/*.yaml</include>
+                                    <!-- system module install config sequences -->
+                                    <include>configmgr/**/*.yml</include>
+                                    <include>configmgr/**/*.yaml</include>
+                                    <include>dtsconfigmgr/**/*.yml</include>
+                                    <include>dtsconfigmgr/**/*.yaml</include>
+                                    <!-- root-only CodeQL pack metadata -->
+                                    <include>codeql-custom-queries-java/**/*.yml</include>
+                                    <include>codeql-custom-queries-java/**/*.yaml</include>
                                 </includes>
                                 <excludes>
-                                    <!-- Agent / local worktrees are full tree copies — never format them -->
+                                    <!-- Agent worktrees: full monorepo copies (see spotless note near plugin version) -->
+                                    <exclude>.kilo/**</exclude>
+                                    <exclude>.kilo/worktrees/**</exclude>
+                                    <exclude>.grok/**</exclude>
+                                    <exclude>.worktrees/**</exclude>
                                     <exclude>**/.kilo/**</exclude>
                                     <exclude>**/.grok/**</exclude>
                                     <exclude>**/.worktrees/**</exclude>

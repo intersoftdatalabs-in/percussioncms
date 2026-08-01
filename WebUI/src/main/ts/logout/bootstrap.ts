@@ -66,6 +66,21 @@ export function sanitizeLoginHref(
 }
 
 /**
+ * Ensures the login href carries {@code j_locale} so re-login opens in the same language.
+ * No-ops when the href already has {@code j_locale} or locale is empty.
+ */
+export function loginHrefWithLocale(loginHref: string, locale: string): string {
+  const href = sanitizeLoginHref(loginHref, DEFAULT_LOGIN_HREF);
+  const loc = typeof locale === "string" ? locale.trim() : "";
+  if (!loc || /[?&]j_locale=/i.test(href)) {
+    return href;
+  }
+  // Same allowlist shape as sanitizeLoginHref (relative or path-absolute product paths).
+  const sep = href.includes("?") ? "&" : "?";
+  return `${href}${sep}j_locale=${encodeURIComponent(loc)}`;
+}
+
+/**
  * Reads logout bootstrap from the host page JSON script tag.
  */
 export function readLogoutBootstrap(): LogoutBootstrap {
@@ -80,9 +95,14 @@ export function readLogoutBootstrap(): LogoutBootstrap {
       );
     }
   }
+  const locale =
+    typeof raw?.locale === "string" && raw.locale ? raw.locale : "en-us";
+  const loginHref = loginHrefWithLocale(
+    sanitizeLoginHref(raw?.loginHref, DEFAULT_LOGIN_HREF),
+    locale,
+  );
   return {
-    locale:
-      typeof raw?.locale === "string" && raw.locale ? raw.locale : "en-us",
-    loginHref: sanitizeLoginHref(raw?.loginHref, DEFAULT_LOGIN_HREF),
+    locale,
+    loginHref,
   };
 }

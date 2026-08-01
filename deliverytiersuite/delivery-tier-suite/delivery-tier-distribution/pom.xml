@@ -187,6 +187,12 @@
             <artifactId>perc-security-utils</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <!-- Per-user install defaults under ~/.intsof/percussion (com.intsof.common:utilities) -->
+        <dependency>
+            <groupId>com.intsof.common</groupId>
+            <artifactId>utilities</artifactId>
+            <version>${intsof.common.utilities.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>

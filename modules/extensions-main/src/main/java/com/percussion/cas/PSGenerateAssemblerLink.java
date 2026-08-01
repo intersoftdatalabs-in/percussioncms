@@ -37,6 +37,9 @@ import org.w3c.dom.Document;
  * (similar to the SYS_MAKEINTLINK UDF).
  */
 public class PSGenerateAssemblerLink extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSGenerateAssemblerLink. */
+  public PSGenerateAssemblerLink() {}
+
   /**
    * Generates an internal URL to the assembler for the specified variant. The assembler resource
    * name is obtained by querying the sys_casSupport application.
@@ -178,9 +181,10 @@ public class PSGenerateAssemblerLink extends PSSimpleJavaUdfExtension {
    * Gets the base URL for the assembler resource associated with the supplied variant ID. Makes an
    * internal request to a system query resource to obtain the URL.
    *
-   * @param variantid
-   * @param request
-   * @return @throws PSConversionException
+   * @param variantid the variant id for which to obtain the assembler URL.
+   * @param request the request context.
+   * @return the base URL of the assembler resource.
+   * @throws PSConversionException if an error occurs making the internal request.
    */
   protected String getAssemblyBaseUrl(String variantid, IPSRequestContext request)
       throws PSConversionException {

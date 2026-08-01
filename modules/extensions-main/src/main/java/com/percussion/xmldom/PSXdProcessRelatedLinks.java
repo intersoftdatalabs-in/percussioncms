@@ -46,6 +46,8 @@ import org.w3c.dom.NodeList;
  * <p>There is only one parameter: the name of the XMLDOM private object to be scanned.
  */
 public class PSXdProcessRelatedLinks extends PSDefaultExtension implements IPSRequestPreProcessor {
+  /** Creates a new PSXdProcessRelatedLinks. */
+  public PSXdProcessRelatedLinks() {}
 
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSAuthorizationException,

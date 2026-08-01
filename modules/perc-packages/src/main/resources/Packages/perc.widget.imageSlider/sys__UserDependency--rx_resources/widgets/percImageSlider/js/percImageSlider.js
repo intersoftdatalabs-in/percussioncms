@@ -135,8 +135,8 @@
             .empty()
             .append(
               $("<img/>", { id: "perc-thumbnail-preview", height: 33 }).attr(
-                "src", // codeql[js/xss-through-dom]
-                safeThumbnailSrc(thumbnailPath),
+                "src",
+                safeThumbnailSrc(thumbnailPath), // codeql[js/xss-through-dom]
               ),
             );
           if (
@@ -339,8 +339,8 @@
         .empty()
         .append(
           $("<img/>", { id: "perc-thumbnail-preview", height: 33 }).attr(
-            "src", // codeql[js/xss-through-dom]
-            safeThumbnailSrc(percImagePath),
+            "src",
+            safeThumbnailSrc(percImagePath), // codeql[js/xss-through-dom]
           ),
         );
       previousThumbnailPath[i] = percImagePath;

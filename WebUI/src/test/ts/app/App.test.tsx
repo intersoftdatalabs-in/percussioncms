@@ -25,9 +25,47 @@ vi.mock("../../../main/ts/api/home/homeApi", async (importOriginal) => {
   };
 });
 
-vi.mock("../../../main/ts/api/publishing", () => ({
-  // Publishing sections load their own APIs; keep module resolution soft
-}));
+// Load feature shells via direct imports (still async for React.lazy) but skip
+// the production registry graph. Avoids blank barrel mocks and keeps Suspense
+// resolution predictable under jsdom.
+vi.mock("../../../main/ts/registry", () => {
+  const loaders: Record<
+    string,
+    () => Promise<React.ComponentType<any>>
+  > = {
+    HomeShell: () =>
+      import("../../../main/ts/home").then((m) => m.HomeShell),
+    PublishingShell: () =>
+      import("../../../main/ts/publishing").then((m) => m.PublishingShell),
+    DeveloperShell: () =>
+      import("../../../main/ts/developer").then((m) => m.DeveloperShell),
+    WorkflowAdminShell: () =>
+      import("../../../main/ts/workflowAdmin/WorkflowAdminShell").then(
+        (m) => m.WorkflowAdminShell,
+      ),
+    AdminShell: () =>
+      import("../../../main/ts/admin/AdminShell").then((m) => m.AdminShell),
+    WidgetBuilderApp: () =>
+      import("../../../main/ts/widgetbuilder/WidgetBuilderApp").then(
+        (m) => m.WidgetBuilderApp,
+      ),
+    ContentExplorerShell: () =>
+      import("../../../main/ts/contentExplorer/ContentExplorerShell").then(
+        (m) => m.ContentExplorerShell,
+      ),
+  };
+  return {
+    loadComponent: (name: string) => {
+      const load = loaders[name];
+      if (!load) {
+        return Promise.reject(new Error(`Unknown component: ${name}`));
+      }
+      return load();
+    },
+    isRegisteredComponent: (name: string) =>
+      Object.prototype.hasOwnProperty.call(loaders, name),
+  };
+});
 
 vi.mock("../../../main/ts/api/widgetbuilder/widgetBuilderApi", () => ({
   isWidgetBuilderActive: vi.fn().mockResolvedValue(true),
@@ -48,6 +86,14 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", () => ({
   }),
 }));
 
+vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
+  listTemplates: vi.fn().mockResolvedValue([]),
+  getTemplateDetail: vi.fn().mockResolvedValue({ templateName: "x" }),
+  listSlots: vi.fn().mockResolvedValue([]),
+  getSlotDetail: vi.fn().mockResolvedValue({}),
+  listCommunities: vi.fn().mockResolvedValue([]),
+  getCommunityDetail: vi.fn().mockResolvedValue({}),
+}));
 const bootstrap: SpaBootstrap = {
   userName: "demo",
   locale: "en-us",
@@ -89,6 +135,9 @@ describe("App shell", () => {
   });
 
   it("shows publish nav for designer and loads PublishingShell", async () => {
+    // Seed path route so BrowserRouter initial location is publish even if
+    // entry-query handoff races with the first paint (order-sensitive suites).
+    window.history.replaceState({}, "", "/cm/app/publish");
     render(
       <App
         bootstrap={bootstrap}
@@ -97,12 +146,11 @@ describe("App shell", () => {
       />,
     );
     expect(screen.getByTestId("nav-publish")).toBeTruthy();
-    await waitFor(() => {
-      expect(screen.getByTestId("publishing-shell")).toBeTruthy();
-    });
+    expect(await screen.findByTestId("publishing-shell", {}, { timeout: 5000 })).toBeTruthy();
   });
 
   it("shows developer nav for designer and loads DeveloperShell", async () => {
+    window.history.replaceState({}, "", "/cm/app/developer/templates");
     render(
       <App
         bootstrap={bootstrap}
@@ -111,9 +159,9 @@ describe("App shell", () => {
       />,
     );
     expect(screen.getByTestId("nav-developer")).toBeTruthy();
-    await waitFor(() => {
-      expect(screen.getByTestId("perc-developer-shell")).toBeTruthy();
-    });
+    expect(
+      await screen.findByTestId("perc-developer-shell", {}, { timeout: 5000 }),
+    ).toBeTruthy();
     expect(
       screen.getByTestId("tab-developer-templates").getAttribute("aria-selected"),
     ).toBe("true");

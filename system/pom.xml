@@ -217,10 +217,22 @@
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
 		</dependency>
+		<!-- AWS SDK v2 (issue #1730 - migrated from com.amazonaws:aws-java-sdk-*). -->
 		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-core</artifactId>
-			<version>${awssdk.version}</version>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>s3</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>sts</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>regions</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>utils</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.mail</groupId>
@@ -576,14 +588,6 @@
 			<artifactId>bctls-jdk18on</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-s3</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-sts</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.percussion</groupId>
 			<artifactId>audit-log</artifactId>
 			<version>${project.parent.version}</version>
@@ -826,15 +830,43 @@
 				<groupId>com.diffplug.spotless</groupId>
 				<artifactId>spotless-maven-plugin</artifactId>
 				<configuration>
-
+					<!--
+					  Legacy tab-indented system/pom.xml is not sortPom-clean; do not reformat it
+					  when this module's Spotless config is touched. Spotless treats empty includes
+					  as "defaults" (pom.xml), so use a non-matching path to disable sortPom here.
+					-->
+					<pom>
+						<includes combine.self="override">
+							<include>__spotless_pom_disabled__</include>
+						</includes>
+					</pom>
+					<!--
+					  Avoid **/*.xml — system/ has huge Docs/FastForward trees. Scope to product
+					  source and known config layouts only.
+					-->
 					<formats>
 						<format>
 							<includes>
-								<include>**/*.xml</include>
-								<include>**/*.xsl</include>
-								<include>**/*.xslt</include>
+								<include>src/**/*.xml</include>
+								<include>src/**/*.xsl</include>
+								<include>src/**/*.xslt</include>
+								<include>cms/**/*.xml</include>
+								<include>cms/**/*.xsl</include>
+								<include>cms/**/*.xslt</include>
+								<include>configmgr/**/*.xml</include>
+								<include>dtsconfigmgr/**/*.xml</include>
+								<include>business/**/*.xml</include>
+								<include>services/**/*.xml</include>
 							</includes>
 							<excludes>
+								<!-- Agent worktrees (full monorepo copies) — never format -->
+								<exclude>.kilo/**</exclude>
+								<exclude>.kilo/worktrees/**</exclude>
+								<exclude>.grok/**</exclude>
+								<exclude>.worktrees/**</exclude>
+								<exclude>**/.kilo/**</exclude>
+								<exclude>**/.grok/**</exclude>
+								<exclude>**/.worktrees/**</exclude>
 								<exclude>**/target/**</exclude>
 								<exclude>**/node_modules/**</exclude>
 								<exclude>**/system/Docs/**</exclude>

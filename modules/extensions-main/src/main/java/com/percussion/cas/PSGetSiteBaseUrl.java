@@ -52,6 +52,9 @@ import org.apache.logging.log4j.Logger;
  * <p>An internal request is executed to lookup the site attributes.
  */
 public class PSGetSiteBaseUrl implements IPSUdfProcessor {
+  /** Creates a new PSGetSiteBaseUrl. */
+  public PSGetSiteBaseUrl() {}
+
   /**
    * Implementation of the method in the interface. See method description for more details of the
    * implementation.

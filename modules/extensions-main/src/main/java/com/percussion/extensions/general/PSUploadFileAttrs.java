@@ -32,6 +32,8 @@ import org.apache.commons.lang3.time.FastDateFormat;
  * date value in a given date format.
  */
 public class PSUploadFileAttrs extends PSDefaultExtension implements IPSRequestPreProcessor {
+  /** Creates a new PSUploadFileAttrs. */
+  public PSUploadFileAttrs() {}
 
   /**
    * Does the all the work for the class. See the class description.

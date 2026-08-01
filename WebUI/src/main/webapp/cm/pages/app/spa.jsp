@@ -53,7 +53,8 @@
         }
         if ("home".equals(n) || "publish".equals(n) || "workflow".equals(n)
                 || "admin".equals(n) || "widget-builder".equals(n)
-                || "explorer".equals(n) || "unavailable".equals(n)) {
+                || "explorer".equals(n) || "developer".equals(n)
+                || "unavailable".equals(n)) {
             return n;
         }
         return "home";
@@ -102,7 +103,8 @@
     if (("workflow".equals(entry) || "admin".equals(entry)) && !isAdmin) {
         entry = "home";
     }
-    if (("publish".equals(entry) || "widget-builder".equals(entry))
+    if (("publish".equals(entry) || "widget-builder".equals(entry)
+            || "developer".equals(entry))
             && !(isAdmin || isDesigner)) {
         entry = "home";
     }

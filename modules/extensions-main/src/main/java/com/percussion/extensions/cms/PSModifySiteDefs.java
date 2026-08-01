@@ -49,6 +49,9 @@ import org.w3c.dom.Element;
  * @author paulhoward
  */
 public class PSModifySiteDefs extends PSDefaultExtension implements IPSResultDocumentProcessor {
+  /** Creates a new PSModifySiteDefs. */
+  public PSModifySiteDefs() {}
+
   // see base class method for details
   public boolean canModifyStyleSheet() {
     return false;

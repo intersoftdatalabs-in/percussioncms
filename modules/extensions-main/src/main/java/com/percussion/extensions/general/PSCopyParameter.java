@@ -31,10 +31,22 @@ import java.io.File;
  * the key specified by the destination exit parameter
  */
 public class PSCopyParameter implements IPSItemInputTransformer {
+  /** Creates a new PSCopyParameter. */
   public PSCopyParameter() {
     // nothing to do
   }
 
+  /**
+   * Copies a request parameter from the source key to the destination key.
+   *
+   * @param params the extension parameters; index 0 is the source name and index 1 is the
+   *     destination name.
+   * @param request the request context.
+   * @throws PSAuthorizationException if authorization fails.
+   * @throws PSRequestValidationException if the request is invalid.
+   * @throws PSParameterMismatchException if the parameters are mismatched.
+   * @throws PSExtensionProcessingException if processing fails.
+   */
   // see IPSRequestPreProcessor
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSAuthorizationException,

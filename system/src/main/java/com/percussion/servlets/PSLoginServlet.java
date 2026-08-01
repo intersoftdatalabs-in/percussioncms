@@ -49,9 +49,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Pattern;
 import javax.security.auth.login.LoginException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -170,7 +174,13 @@ public class PSLoginServlet extends HttpServlet {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }
-    HttpSession session = request.getSession();
+
+    // Capture UI locale before the session is invalidated so the logout
+    // confirmation page can load TMX + "sign in again" in the same language.
+    String logoutLocale = resolveLogoutLocale(request);
+    request.setAttribute(LOGOUT_LOCALE_REQUEST_ATTR, logoutLocale);
+
+    HttpSession session = request.getSession(false);
     if (session != null) {
       PSSecurityFilter.logout(
           request, (String) session.getAttribute(IPSHtmlParameters.SYS_SESSIONID));
@@ -180,6 +190,92 @@ public class PSLoginServlet extends HttpServlet {
     response.setContentType(CONTENT_TYPE_HEADER_VAL);
     request.getRequestDispatcher(getLogoutPage()).include(request, response);
   }
+
+  /**
+   * Request attribute holding the BCP-47 locale for the post-logout confirmation page. Set by
+   * {@link #logout} before session invalidation so {@code rxlogout.jsp} can still read it.
+   */
+  public static final String LOGOUT_LOCALE_REQUEST_ATTR = "perc.logout.locale";
+
+  /**
+   * Resolves the locale for the post-logout confirmation page.
+   *
+   * <p>Preference order:
+   *
+   * <ol>
+   *   <li>{@code sys_lang} or {@code j_locale} request parameter (allowlisted BCP-47)
+   *   <li>Session private object {@link PSI18nUtils#USER_SESSION_OBJECT_SYS_LANG} (user login
+   *       locale), when the session still exists
+   *   <li>{@link PSI18nUtils#getSystemLanguage()} as last resort
+   * </ol>
+   *
+   * @param request current request, never {@code null}
+   * @return normalized lowercase-hyphen BCP-47 tag, never {@code null} or empty
+   */
+  public static String resolveLogoutLocale(HttpServletRequest request) {
+    if (request == null) {
+      return PSI18nUtils.getSystemLanguage();
+    }
+    String fromParam = firstNonBlankLocale(request.getParameter("sys_lang"));
+    if (fromParam == null) {
+      fromParam = firstNonBlankLocale(request.getParameter("j_locale"));
+    }
+    if (fromParam != null) {
+      return fromParam;
+    }
+    HttpSession session = request.getSession(false);
+    if (session != null) {
+      Object fromSession = session.getAttribute(PSI18nUtils.USER_SESSION_OBJECT_SYS_LANG);
+      if (fromSession instanceof String sessionLang) {
+        String normalized = firstNonBlankLocale(sessionLang);
+        if (normalized != null) {
+          return normalized;
+        }
+      }
+    }
+    return PSI18nUtils.getSystemLanguage();
+  }
+
+  /**
+   * Builds the relative "sign in again" href for the logout page, carrying the resolved locale as
+   * {@code j_locale} so {@code rxlogin.jsp} reopens in the same language.
+   *
+   * @param locale BCP-47 tag from {@link #resolveLogoutLocale}; may be {@code null}
+   * @return relative href such as {@code login?j_locale=fr-fr}, never {@code null}
+   */
+  public static String buildLogoutLoginHref(String locale) {
+    String normalized = firstNonBlankLocale(locale);
+    if (normalized == null) {
+      return "login";
+    }
+    return "login?j_locale=" + URLEncoder.encode(normalized, StandardCharsets.UTF_8);
+  }
+
+  /**
+   * Validates and normalizes a locale tag candidate for use in HTML, TMX, and query strings.
+   *
+   * @param candidate raw parameter/session value
+   * @return normalized tag or {@code null} if empty/invalid
+   */
+  static String firstNonBlankLocale(String candidate) {
+    if (candidate == null) {
+      return null;
+    }
+    // Normalize legacy underscore form (en_US) before allowlist match.
+    String trimmed = candidate.trim().toLowerCase(Locale.ROOT).replace('_', '-');
+    if (trimmed.isEmpty() || trimmed.length() > 32) {
+      return null;
+    }
+    // BCP-47 language tags used by the product (e.g. en-us, fr-fr, zh-cn). Reject anything that
+    // could break HTML attributes or query strings if reflected into the page.
+    if (!LOCALE_TAG.matcher(trimmed).matches()) {
+      return null;
+    }
+    return trimmed;
+  }
+
+  /** Allowlisted BCP-47 shape: language, optional script/region/variant subtags. */
+  private static final Pattern LOCALE_TAG = Pattern.compile("(?i)^[a-z]{2,3}(-[a-z0-9]{2,8})*$");
 
   /**
    * Handles the login request.

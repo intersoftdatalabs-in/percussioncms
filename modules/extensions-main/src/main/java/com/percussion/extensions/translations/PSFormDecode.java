@@ -33,6 +33,9 @@ import java.io.File;
  * @author erikserating
  */
 public class PSFormDecode implements IPSFieldInputTransformer {
+  /** Creates a new PSFormDecode. */
+  public PSFormDecode() {}
+
   /* (non-Javadoc)
    * @see com.percussion.extension.IPSUdfProcessor#
    * processUdf(java.lang.Object[], com.percussion.server.IPSRequestContext)

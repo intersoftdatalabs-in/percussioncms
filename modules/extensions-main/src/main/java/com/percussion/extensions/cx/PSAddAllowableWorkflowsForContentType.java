@@ -66,6 +66,9 @@ import org.w3c.dom.Text;
 public class PSAddAllowableWorkflowsForContentType extends PSDefaultExtension
     implements IPSResultDocumentProcessor, IPSRequestPreProcessor {
 
+  /** Creates a new PSAddAllowableWorkflowsForContentType. */
+  public PSAddAllowableWorkflowsForContentType() {}
+
   private static final Logger log =
       LogManager.getLogger(PSAddAllowableWorkflowsForContentType.class);
 

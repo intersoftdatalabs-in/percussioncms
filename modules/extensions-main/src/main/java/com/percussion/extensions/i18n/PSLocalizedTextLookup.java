@@ -41,6 +41,8 @@ import org.apache.logging.log4j.Logger;
  * @see PSI18nUtils#getString
  */
 public class PSLocalizedTextLookup extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSLocalizedTextLookup. */
+  public PSLocalizedTextLookup() {}
 
   private static final Logger log = LogManager.getLogger(PSLocalizedTextLookup.class);
 
@@ -77,9 +79,10 @@ public class PSLocalizedTextLookup extends PSSimpleJavaUdfExtension {
     return PSI18nUtils.getString(PSI18nUtils.makeLookupKey(list), lang);
   }
 
-  /*
-   * main method for test purpose
-   * @param args  not used
+  /**
+   * main method for test purpose.
+   *
+   * @param args not used
    */
   public static void main(String[] args) {
     PSLocalizedTextLookup o = new PSLocalizedTextLookup();

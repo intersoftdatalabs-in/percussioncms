@@ -88,7 +88,11 @@ export const IframeWidget: React.FC<IframeWidgetProps> = ({
   };
 
   return (
-    <div style={styles.widget} data-testid="iframe-widget">
+    <div
+      style={styles.widget}
+      data-testid="iframe-widget"
+      data-mkd-lang-ignore="1"
+    >
       <div style={styles.widgetTitle}>{title}</div>
       <div style={styles.widgetContent}>
         <div

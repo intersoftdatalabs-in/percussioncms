@@ -32,6 +32,9 @@ import com.percussion.util.PSStringOperation;
  */
 public class PSSimpleJavaUdf_toProperCase extends PSSimpleJavaUdfExtension
     implements IPSFieldInputTransformer {
+  /** Creates a new PSSimpleJavaUdf_toProperCase. */
+  public PSSimpleJavaUdf_toProperCase() {}
+
   /* ************ IPSUdfProcessor Interface Implementation ************ */
 
   /**

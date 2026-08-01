@@ -36,6 +36,9 @@ import org.w3c.dom.Document;
  */
 public class PSParamStringListToMultiParams extends PSDefaultExtension
     implements IPSRequestPreProcessor, IPSResultDocumentProcessor {
+  /** Creates a new PSParamStringListToMultiParams. */
+  public PSParamStringListToMultiParams() {}
+
   /** See {@link #process(Object[], IPSRequestContext)} for the description. */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSParameterMismatchException {

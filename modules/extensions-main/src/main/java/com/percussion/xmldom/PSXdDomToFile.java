@@ -76,6 +76,8 @@ import org.w3c.dom.Document;
  * <p>The output for a pre-exit is always stored in an HTML parameter as a File.
  */
 public class PSXdDomToFile extends PSDefaultExtension implements IPSRequestPreProcessor {
+  /** Creates a new PSXdDomToFile. */
+  public PSXdDomToFile() {}
 
   /**
    * This method handles the pre-exit request.

@@ -34,6 +34,9 @@ import org.apache.logging.log4j.Logger;
  * @author dougrand
  */
 public class PSCalculateCompareRevision implements IPSRequestPreProcessor {
+  /** Creates a new PSCalculateCompareRevision. */
+  public PSCalculateCompareRevision() {}
+
   private static final String SYS_REVISION2 = "sys_revision2";
   private static final Logger log = LogManager.getLogger(PSCalculateCompareRevision.class);
 

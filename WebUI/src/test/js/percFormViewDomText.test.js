@@ -17,26 +17,26 @@ describe("PercFormView metadata HTML escape (DOM text as HTML)", () => {
   );
 
   it("escapes saveToUrl and other metadata fields before HTML concat", () => {
-    const src = readFileSync(srcPath, "utf8");
-    expect(src).toMatch(
-      /var\s+safeSaveToUrl\s*=\s*\$\("<div\/>"\)\.text\(saveToUrl/,
-    );
-    expect(src).toMatch(
-      /var\s+safeSuccessUrl\s*=\s*\$\("<div\/>"\)\.text\(successUrl/,
-    );
-    expect(src).toMatch(
-      /var\s+safeErrorUrl\s*=\s*\$\("<div\/>"\)\.text\(errorUrl/,
-    );
-    expect(src).toMatch(/var\s+safeMailTo\s*=\s*\$\("<div\/>"\)\.text\(mailTo/);
-    expect(src).toMatch(
-      /var\s+safeMailSubject\s*=\s*\$\("<div\/>"\)\.text\(mailSubject/,
-    );
+    // Normalize CRLF; production formats the jQuery .text().html() chain
+    // across multiple lines (with || "" defaults).
+    const src = readFileSync(srcPath, "utf8").replace(/\r\n/g, "\n");
+    // $("<div/>").text(field || "").html() — field may wrap lines.
+    const textEscape = (ident) =>
+      new RegExp(
+        String.raw`var\s+safe\w+\s*=\s*\$\("<div\/>"\)\s*\.text\(\s*${ident}\s*(?:\|\|\s*""\s*)?\)\s*\.html\(\)`,
+        "m",
+      );
+    expect(src).toMatch(textEscape("saveToUrl"));
+    expect(src).toMatch(textEscape("successUrl"));
+    expect(src).toMatch(textEscape("errorUrl"));
+    expect(src).toMatch(textEscape("mailTo"));
+    expect(src).toMatch(textEscape("mailSubject"));
     // Must not concat the raw DOM value into the metadata HTML template.
     expect(src).not.toMatch(
       /save-to-url-text-readonly['"]?\s*>\s*['"]\s*\+\s*saveToUrl\s*\+/,
     );
     expect(src).toMatch(
-      /save-to-url-text-readonly['"]?\s*>\s*['"]\s*\+\s*safeSaveToUrl\s*\+/,
+      /save-to-url-text-readonly['"]?\s*>\s*['"]\s*\+\s*\n?\s*safeSaveToUrl\s*\+/,
     );
   });
 });

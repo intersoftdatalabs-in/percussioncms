@@ -826,6 +826,23 @@
                             <arguments>run build:legacy</arguments>
                         </configuration>
                     </execution>
+                    <!--
+                        Vitest (modern TS/React unit tests under src/test/ts).
+                        Bound to test so clean install / CI fail when an agent or
+                        developer breaks frontend tests — same gate as Surefire for Java.
+                        Honors -DskipTests (and -Dmaven.test.skip=true when skipTests is true).
+                    -->
+                    <execution>
+                        <id>npm-test</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>test</phase>
+                        <configuration>
+                            <arguments>run test</arguments>
+                            <skip>${skipTests}</skip>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>

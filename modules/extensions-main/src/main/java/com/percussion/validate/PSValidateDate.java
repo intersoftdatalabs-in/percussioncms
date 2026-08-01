@@ -69,6 +69,8 @@ import java.util.Date;
  * @author dougrand
  */
 public class PSValidateDate extends PSRangeValidator {
+  /** Creates a new PSValidateDate. */
+  public PSValidateDate() {}
 
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {

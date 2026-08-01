@@ -25,7 +25,10 @@ import com.percussion.server.IPSRequestContext;
 import java.io.File;
 import java.util.regex.Pattern;
 
+/** Validates a string value against a regular expression pattern. */
 public class PSValidateStringPattern implements IPSFieldValidator {
+  /** Creates a new PSValidateStringPattern. */
+  public PSValidateStringPattern() {}
 
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {

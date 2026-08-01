@@ -66,6 +66,22 @@ describe("LoginPage", () => {
     );
   });
 
+  it("exposes data-i18n-key on localized pilot chrome", () => {
+    render(<LoginPage bootstrap={baseBootstrap} />);
+    expect(screen.getByTestId("perc-login-title").getAttribute("data-i18n-key")).toBe(
+      "perc.ui.login.modern@Sign in",
+    );
+    expect(
+      screen.getByTestId("perc-login-submit").getAttribute("data-i18n-key"),
+    ).toBe("perc.ui.login.modern@Login");
+    const usernameLabel = document.querySelector(
+      'label[for="perc-login-username"]',
+    );
+    expect(usernameLabel?.getAttribute("data-i18n-key")).toBe(
+      "perc.ui.login.modern@User name",
+    );
+  });
+
   it("renders front-door form fields and posts to /login", () => {
     render(<LoginPage bootstrap={baseBootstrap} />);
 

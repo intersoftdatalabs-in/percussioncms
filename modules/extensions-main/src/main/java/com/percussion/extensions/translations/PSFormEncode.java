@@ -38,6 +38,8 @@ import org.apache.commons.lang3.StringUtils;
  * @author erikserating
  */
 public class PSFormEncode implements IPSFieldInputTransformer {
+  /** Creates a new PSFormEncode. */
+  public PSFormEncode() {}
 
   /* (non-Javadoc)
    * @see com.percussion.extension.IPSUdfProcessor#

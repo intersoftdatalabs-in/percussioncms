@@ -38,6 +38,9 @@ import org.w3c.dom.Element;
  * is always "Role'.
  */
 public class PSAppendUserRoles implements IPSResultDocumentProcessor {
+  /** Creates a new PSAppendUserRoles. */
+  public PSAppendUserRoles() {}
+
   /*
    * Implementation of the method defined by the interface
    */

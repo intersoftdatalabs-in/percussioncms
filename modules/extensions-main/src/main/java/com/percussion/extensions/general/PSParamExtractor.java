@@ -49,6 +49,9 @@ import org.w3c.dom.Document;
  * it is specified as 8 now (which means 10 total parameters for the exit).
  */
 public class PSParamExtractor extends PSDefaultExtension implements IPSRequestPreProcessor {
+  /** Creates a new PSParamExtractor. */
+  public PSParamExtractor() {}
+
   /*
    * Required by the interface. Actual processing happens in this method.
    * @see IPSRequestPreProcessor#preProcessRequestt()

@@ -33,6 +33,9 @@ import org.w3c.dom.Document;
  * request to another resource which deletes the other relation(CHILDRELATION).
  */
 public class PSDeleteChildComponentRelations implements IPSResultDocumentProcessor {
+  /** Creates a new PSDeleteChildComponentRelations. */
+  public PSDeleteChildComponentRelations() {}
+
   /*
    * Implementation of the method required by the interface IPSExtension.
    */

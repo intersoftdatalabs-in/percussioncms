@@ -87,6 +87,9 @@ import org.apache.logging.log4j.Logger;
  * RXLOCATIONSCHEME.
  */
 public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSGeneratePubLocation. */
+  public PSGeneratePubLocation() {}
+
   /** Commons logging logger for this class */
   private static final Logger log = LogManager.getLogger(PSGeneratePubLocation.class);
 
@@ -591,7 +594,7 @@ public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
    * @return an array of PSExtensionParamValue objects with all parameters found, never <code>null
    *     </code>, might be empty.
    * @throws SQLException if any SQL operation fails.
-   * @throws NamingException
+   * @throws NamingException if a naming lookup fails.
    */
   protected PSExtensionParamValue[] getExitParameters(
       IPSLocationScheme scheme, int contentid, int revision) throws SQLException, NamingException {

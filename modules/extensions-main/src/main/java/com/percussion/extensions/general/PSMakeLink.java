@@ -29,6 +29,9 @@ import java.util.HashMap;
  * {@link #processUdf(Object[], IPSRequestContext) processUdf} for a description.
  */
 public class PSMakeLink extends PSSimpleJavaUdfExtension implements IPSUdfProcessor {
+  /** Creates a new PSMakeLink. */
+  public PSMakeLink() {}
+
   /**
    * Creates a URL from the supplied parameters and returns it. Upto 6 name/ value pairs may be
    * specified for the arguments. For example, if the following were supplied as arguments:

@@ -45,6 +45,9 @@ import org.w3c.dom.NodeList;
  * @author dougrand
  */
 public class PSSelectAASlots implements IPSResultDocumentProcessor {
+  /** Creates a new PSSelectAASlots. */
+  public PSSelectAASlots() {}
+
   private static final Logger log = LogManager.getLogger(PSSelectAASlots.class);
 
   public boolean canModifyStyleSheet() {

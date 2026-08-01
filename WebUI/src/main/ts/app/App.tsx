@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter } from "react-router";
+import { ensureMkdLanguage } from "../i18n/mkdLanguage";
 import { ThemeProvider } from "../ui-themes/ThemeProvider";
 import { BootstrapProvider } from "./bootstrap/BootstrapContext";
 import type { SpaBootstrap } from "./bootstrap/types";
@@ -122,6 +123,13 @@ export function App({
       basename,
     );
   }
+
+  // Opt-in @mkd/language correction triggers (third-party experiment).
+  useEffect(() => {
+    ensureMkdLanguage({
+      locale: () => bootstrap.locale || "en-us",
+    });
+  }, [bootstrap.locale]);
 
   return (
     <ThemeProvider>

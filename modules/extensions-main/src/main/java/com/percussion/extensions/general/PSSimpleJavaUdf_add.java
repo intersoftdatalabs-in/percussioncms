@@ -30,6 +30,9 @@ import com.percussion.system.utils.PSCalculation;
  * @since 1.1
  */
 public class PSSimpleJavaUdf_add extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSSimpleJavaUdf_add. */
+  public PSSimpleJavaUdf_add() {}
+
   /* ************ IPSUdfProcessor Interface Implementation ************ */
 
   /**

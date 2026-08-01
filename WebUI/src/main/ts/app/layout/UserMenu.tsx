@@ -17,6 +17,7 @@
 
 import React from "react";
 import { useSpaBootstrap } from "../bootstrap/BootstrapContext";
+import { i18nKeyAttr } from "../../i18n/i18nDom";
 import { message, MSG } from "../../i18n/message";
 import styles from "./AppLayout.module.css";
 
@@ -26,9 +27,16 @@ export function UserMenu(): React.ReactElement {
 
   return (
     <div className={styles.userMenu} data-testid="perc-spa-user-menu">
-      <span>
+      <span
+        className="mkd-lang-target"
+        {...i18nKeyAttr(MSG.USER_SIGNED_IN_AS)}
+      >
         {message(MSG.USER_SIGNED_IN_AS)}{" "}
-        <span className={styles.userName} data-testid="perc-spa-user-name">
+        <span
+          className={styles.userName}
+          data-testid="perc-spa-user-name"
+          data-mkd-lang-ignore="1"
+        >
           {name}
         </span>
       </span>
@@ -36,6 +44,7 @@ export function UserMenu(): React.ReactElement {
         className={styles.logoutLink}
         href="/logout"
         data-testid="perc-spa-logout"
+        {...i18nKeyAttr(MSG.USER_LOGOUT)}
       >
         {message(MSG.USER_LOGOUT)}
       </a>

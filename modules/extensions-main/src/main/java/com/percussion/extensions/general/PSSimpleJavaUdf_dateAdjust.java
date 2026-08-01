@@ -43,6 +43,9 @@ import java.util.Date;
  * @since 1.1
  */
 public class PSSimpleJavaUdf_dateAdjust extends PSSimpleJavaUdfExtension {
+  /** Creates a new PSSimpleJavaUdf_dateAdjust. */
+  public PSSimpleJavaUdf_dateAdjust() {}
+
   /* ************ IPSUdfProcessor Interface Implementation ************ */
 
   /**

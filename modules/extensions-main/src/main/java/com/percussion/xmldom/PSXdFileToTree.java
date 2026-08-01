@@ -33,8 +33,6 @@ import org.w3c.dom.Node;
  * A Rhythmyx post-exit to load an XML document from the file system and add it to the result
  * document
  *
- * <p>
- *
  * <table border="1">
  *   <caption style="display:none">Parameters</caption>
  *   <tr><th>Param #</th><th>Name</th><th>Description</th><th>Default</th><tr>
@@ -55,6 +53,9 @@ import org.w3c.dom.Node;
  * </table>
  */
 public class PSXdFileToTree extends PSDefaultExtension implements IPSResultDocumentProcessor {
+  /** Creates a new PSXdFileToTree. */
+  public PSXdFileToTree() {}
+
   /**
    * This method handles the post-exit request by loading the specified file, parsing it into a
    * Document, and appending it to the parentNode in the result document.

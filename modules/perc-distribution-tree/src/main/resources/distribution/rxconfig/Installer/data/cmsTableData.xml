@@ -12403,6 +12403,26 @@
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">58</column>
+            <column name="LANGUAGESTRING">he</column>
+            <column name="DISPLAYNAME">Hebrew</column>
+            <column name="SORTORDER">68</column>
+            <column name="DESCRIPTION">Hebrew language (generic base locale)</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">59</column>
+            <column name="LANGUAGESTRING">he-il</column>
+            <column name="DISPLAYNAME">Hebrew (Israel)</column>
+            <column name="SORTORDER">69</column>
+            <column name="DESCRIPTION">Hebrew language used in Israel (canonical regional form)</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
             <column name="LOCALEID">10</column>
             <column name="LANGUAGESTRING">hi</column>
             <column name="DISPLAYNAME">Hindi</column>
@@ -13217,6 +13237,40 @@
             <column name="FIRSTDAYOFWEEK">1</column>
             <column name="MEASUREMENTSYSTEM">metric</column>
             <column name="DEFAULTTZ">America/New_York</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">he</column>
+            <column name="TEXTDIR">rtl</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">.</column>
+            <column name="GROUPINGSEP">,</column>
+            <column name="CURRENCYCODE">ILS</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">7</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ"></column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">he-il</column>
+            <column name="TEXTDIR">rtl</column>
+            <column name="DATEPATTERN">dd/MM/yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">.</column>
+            <column name="GROUPINGSEP">,</column>
+            <column name="CURRENCYCODE">ILS</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">7</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">Asia/Jerusalem</column>
             <column name="NUMBERINGSYSTEM">latn</column>
             <column name="CALENDAR">gregory</column>
             <column name="VERSION">0</column>

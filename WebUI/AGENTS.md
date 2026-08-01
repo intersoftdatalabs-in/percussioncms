@@ -113,7 +113,7 @@ cd WebUI
 ```bash
 cd WebUI/src/main/frontend
 npm run build:modern     # tsc + vite
-npm run test             # Vitest
+npm run test             # Vitest (also runs in Maven test phase — see Testing)
 npm run dev              # HMR when wired to a running CMS
 ```
 
@@ -142,6 +142,7 @@ cp WebUI/target/generated-webui/cm/modern/assets/perc-modern-ui.css \
 - Feature modules under `src/main/ts/<feature>/`
 - REST via `api/client.ts` + feature APIs; CSRF from bootstrap / `OWASP_CSRFTOKEN`
 - i18n via TMX `message()` helpers — no raw keys in primary chrome
+- **Crowdsource translation (alpha, third-party):** vendored `@mkd/language` under `WebUI/vendor/mkd-language/`. Adapter: `src/main/ts/i18n/mkdLanguage.ts`. Keys come from **tracked** `message()` (`createTrackedMessage` / `getTrackedMessageId`) — do **not** mass-annotate templates with `data-i18n-key`. Optional `i18nKeyAttr` only for collisions / non-`message` chrome. Mark user content with `data-mkd-lang-ignore` / `mkdLangIgnoreProps()` (explorer names, search hit titles, usernames, iframe gadgets) so triggers stay on product chrome. **Opt-in only:** `?mkdLang=1` or `localStorage.perc-mkd-lang=1`. Default submit is no-op; popover z-index is 20000. Do not edit vendored `dist/`; refresh procedure is in the vendor README. Treat mkd-language / mkd-gcm as external — no product design notes for that stack in this monorepo.
 - Styles: CSS modules preferred; theme tokens via `ui-themes`
 - Tests: **two layers** — Vitest for unit/component logic **and** Playwright for live-CMS screen behavior (see **Playwright (HARD GATE)**)
 - Prefer stable `data-testid` on interactive chrome so Playwright selectors stay reliable
@@ -166,6 +167,17 @@ cp WebUI/target/generated-webui/cm/modern/assets/perc-modern-ui.css \
 ## Testing Guidelines
 
 ### React/TypeScript (Vitest)
+
+**Maven (preferred pre-PR / CI):** WebUI’s `frontend-maven-plugin` runs `npm run test` (Vitest) in the **`test`** phase after the modern/legacy builds. A failing Vitest suite fails the module build the same way Surefire does for Java. Skip with `-DskipTests` (or `-Dmaven.test.skip=true`) like other unit tests.
+
+```bash
+cd WebUI
+../mvnw test
+# or full gate:
+../mvnw clean install
+```
+
+**Frontend-only iteration:**
 
 ```bash
 cd WebUI/src/main/frontend

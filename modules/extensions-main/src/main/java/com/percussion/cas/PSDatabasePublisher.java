@@ -46,6 +46,8 @@ import org.w3c.dom.Text;
  * sys_DatabasePublisher.dtd out of input documents conforming to the markup.dtd.
  */
 public class PSDatabasePublisher implements IPSResultDocumentProcessor {
+  /** Creates a new PSDatabasePublisher. */
+  public PSDatabasePublisher() {}
 
   private static final Logger log = LogManager.getLogger(PSDatabasePublisher.class);
 

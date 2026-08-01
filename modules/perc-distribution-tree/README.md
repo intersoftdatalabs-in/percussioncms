@@ -2,6 +2,20 @@
 
 This module contains all Percussion CMS distribution assembly, installation, and upgrade related classes, configurations, and scripts. It is responsible for packaging Jetty, web applications, and configuration files into a complete, deployable Percussion CMS distribution.
 
+## Last-install user defaults
+
+After a **successful** CMS install, non-secret settings (install directory, version, DB host/type/user,
+SSL flags, demo-sites — **never passwords**) are merged into:
+
+```text
+~/.intsof/percussion/last-install.properties
+```
+
+under the `cms.*` property prefix (shared file with DTS `dts.prod.*` / `dts.stage.*` keys). On the next
+run, missing CLI parameters are filled from these defaults; interactive path prompts show the last
+install directory as the default. Implementation: `InstallerUserSettings` +
+`com.intsof.common:utilities` (`UserConfiguration`).
+
 ## Overview
 
 The `perc-distribution-tree` module is a critical component in the build pipeline that:

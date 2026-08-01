@@ -68,8 +68,18 @@ import org.w3c.dom.NodeList;
  * @author dougrand
  */
 public class PSSearchCommunityHandler implements IPSRequestPreProcessor {
+  /** Creates a new PSSearchCommunityHandler. */
+  public PSSearchCommunityHandler() {}
+
+  /** The logger for this class. */
   protected static Logger ms_log = LogManager.getLogger(PSSearchCommunityHandler.class);
 
+  /**
+   * Pre processes the search community request.
+   *
+   * @param params the extension parameters.
+   * @param request the request context.
+   */
   @SuppressWarnings("unused")
   public void preProcessRequest(Object[] params, IPSRequestContext request) {
     IPSBackEndRoleMgr rmgr = PSRoleMgrLocator.getBackEndRoleManager();

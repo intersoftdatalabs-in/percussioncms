@@ -44,6 +44,23 @@ class InteractiveInstallWizardTest {
     return Path.of(System.getProperty("java.home")).toAbsolutePath().normalize();
   }
 
+  /**
+   * Isolated {@code user.home} for {@link InstallerUserSettings} so tests never read the
+   * developer's real {@code ~/.intsof/percussion/last-install.properties}.
+   */
+  private Path isolatedUserHome() {
+    return tempDir.resolve("fake-user-home");
+  }
+
+  private InteractiveInstallWizard.Phase1Result runPhase1Isolated(
+      DbInstallConfigResolver.ParsedArgs parsed,
+      boolean interactive,
+      InstallPrompt prompt,
+      Path unattendedJavaHome) {
+    return InteractiveInstallWizard.runPhase1(
+        parsed, interactive, prompt, unattendedJavaHome, isolatedUserHome());
+  }
+
   @Test
   void silentModeRecognizesSilentAndNoTtyFlags() {
     assertTrue(InteractiveInstallWizard.isSilentMode(Map.of("silent", "true")));
@@ -66,7 +83,7 @@ class InteractiveInstallWizardTest {
     DbInstallConfigResolver.ParsedArgs parsed =
         new DbInstallConfigResolver.ParsedArgs(null, Map.of());
     InteractiveInstallWizard.Phase1Result result =
-        InteractiveInstallWizard.runPhase1(parsed, false, null);
+        runPhase1Isolated(parsed, false, null, runningJavaHome());
     assertFalse(result.proceed());
     assertEquals(InteractiveInstallWizard.EXIT_USAGE, result.exitCode());
     assertNotNull(result.message());
@@ -80,7 +97,7 @@ class InteractiveInstallWizardTest {
     DbInstallConfigResolver.ParsedArgs parsed =
         new DbInstallConfigResolver.ParsedArgs(install, Map.of());
     InteractiveInstallWizard.Phase1Result result =
-        InteractiveInstallWizard.runPhase1(parsed, false, null, runningJavaHome());
+        runPhase1Isolated(parsed, false, null, runningJavaHome());
     assertTrue(result.proceed());
     assertEquals(install.toAbsolutePath().normalize(), result.installPath());
     assertEquals("h2", result.dbConfig().systemProperties().get("perc.db.type"));
@@ -97,7 +114,7 @@ class InteractiveInstallWizardTest {
     DbInstallConfigResolver.ParsedArgs parsed =
         new DbInstallConfigResolver.ParsedArgs(null, Map.of());
     InteractiveInstallWizard.Phase1Result result =
-        InteractiveInstallWizard.runPhase1(parsed, true, prompt, runningJavaHome());
+        runPhase1Isolated(parsed, true, prompt, runningJavaHome());
     assertTrue(result.proceed());
     assertEquals(install.toAbsolutePath().normalize(), result.installPath());
     assertEquals("h2", result.dbConfig().systemProperties().get("perc.db.type"));
@@ -123,7 +140,7 @@ class InteractiveInstallWizardTest {
     DbInstallConfigResolver.ParsedArgs parsed =
         new DbInstallConfigResolver.ParsedArgs(null, Map.of());
     InteractiveInstallWizard.Phase1Result result =
-        InteractiveInstallWizard.runPhase1(parsed, true, prompt, runningJavaHome());
+        runPhase1Isolated(parsed, true, prompt, runningJavaHome());
     assertFalse(result.proceed());
     assertEquals(InteractiveInstallWizard.EXIT_ABORTED, result.exitCode());
     assertTrue(result.message().toLowerCase().contains("cancelled"));
@@ -137,7 +154,7 @@ class InteractiveInstallWizardTest {
     DbInstallConfigResolver.ParsedArgs parsed =
         new DbInstallConfigResolver.ParsedArgs(install, Map.of());
     InteractiveInstallWizard.Phase1Result result =
-        InteractiveInstallWizard.runPhase1(parsed, true, prompt, runningJavaHome());
+        runPhase1Isolated(parsed, true, prompt, runningJavaHome());
     assertTrue(result.proceed());
     assertEquals(install.toAbsolutePath().normalize(), result.installPath());
     assertTrue(prompt.outputsAsString().contains("Install path"));
@@ -160,7 +177,7 @@ class InteractiveInstallWizardTest {
     DbInstallConfigResolver.ParsedArgs parsed =
         new DbInstallConfigResolver.ParsedArgs(install, opts);
     InteractiveInstallWizard.Phase1Result result =
-        InteractiveInstallWizard.runPhase1(parsed, true, prompt, runningJavaHome());
+        runPhase1Isolated(parsed, true, prompt, runningJavaHome());
     assertFalse(result.proceed());
     assertTrue(prompt.outputsAsString().contains("mysql"));
     assertTrue(prompt.outputsAsString().contains("db.example.com"));
@@ -183,7 +200,7 @@ class InteractiveInstallWizardTest {
     DbInstallConfigResolver.ParsedArgs parsed =
         new DbInstallConfigResolver.ParsedArgs(install, opts);
     InteractiveInstallWizard.Phase1Result result =
-        InteractiveInstallWizard.runPhase1(parsed, true, prompt, runningJavaHome());
+        runPhase1Isolated(parsed, true, prompt, runningJavaHome());
     assertTrue(result.proceed());
     assertEquals("mysql", result.dbConfig().systemProperties().get("perc.db.type"));
     assertFalse(prompt.outputsAsString().contains("s3cret-should-not-appear"));
@@ -211,7 +228,7 @@ class InteractiveInstallWizardTest {
     DbInstallConfigResolver.ParsedArgs parsed =
         new DbInstallConfigResolver.ParsedArgs(install, Map.of());
     InteractiveInstallWizard.Phase1Result result =
-        InteractiveInstallWizard.runPhase1(parsed, true, prompt, runningJavaHome());
+        runPhase1Isolated(parsed, true, prompt, runningJavaHome());
     assertTrue(result.proceed());
     assertEquals("sqlserver", result.dbConfig().systemProperties().get("perc.db.type"));
     assertEquals("sa", result.dbConfig().systemProperties().get("perc.db.user"));
@@ -228,7 +245,7 @@ class InteractiveInstallWizardTest {
     DbInstallConfigResolver.ParsedArgs parsed =
         new DbInstallConfigResolver.ParsedArgs(install, opts);
     InteractiveInstallWizard.Phase1Result result =
-        InteractiveInstallWizard.runPhase1(parsed, false, null, runningJavaHome());
+        runPhase1Isolated(parsed, false, null, runningJavaHome());
     assertFalse(result.proceed());
     assertEquals(InteractiveInstallWizard.EXIT_DB_CONFIG, result.exitCode());
     assertTrue(result.message().toLowerCase().contains("database"));
@@ -241,11 +258,26 @@ class InteractiveInstallWizardTest {
     Path invalid = tempDir.resolve("not-a-jdk");
     DbInstallConfigResolver.ParsedArgs parsed =
         new DbInstallConfigResolver.ParsedArgs(install, Map.of());
-    InteractiveInstallWizard.Phase1Result result =
-        InteractiveInstallWizard.runPhase1(parsed, false, null, invalid);
+    InteractiveInstallWizard.Phase1Result result = runPhase1Isolated(parsed, false, null, invalid);
     assertFalse(result.proceed());
     assertEquals(InteractiveInstallWizard.EXIT_JAVA, result.exitCode());
     assertTrue(result.message().toLowerCase().contains("java"));
+  }
+
+  @Test
+  void savedInstallDirectoryIsAppliedWhenCliPathMissing() throws Exception {
+    Path savedInstall = tempDir.resolve("from-settings");
+    Files.createDirectories(savedInstall);
+    InstallerUserSettings settings =
+        new InstallerUserSettings(isolatedUserHome(), InstallerUserSettings.PREFIX_CMS);
+    settings.save(savedInstall, "8.2.0", Map.of(), runningJavaHome().toString());
+
+    DbInstallConfigResolver.ParsedArgs parsed =
+        new DbInstallConfigResolver.ParsedArgs(null, Map.of());
+    InteractiveInstallWizard.Phase1Result result =
+        runPhase1Isolated(parsed, false, null, runningJavaHome());
+    assertTrue(result.proceed());
+    assertEquals(savedInstall.toAbsolutePath().normalize(), result.installPath());
   }
 
   @Test

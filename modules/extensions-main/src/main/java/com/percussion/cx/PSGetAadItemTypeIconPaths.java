@@ -47,6 +47,9 @@ import org.w3c.dom.NodeList;
  * resultDoc does not contain expected input.
  */
 public class PSGetAadItemTypeIconPaths implements IPSResultDocumentProcessor {
+  /** Creates a new PSGetAadItemTypeIconPaths. */
+  public PSGetAadItemTypeIconPaths() {}
+
   /*
    * (non-Javadoc)
    *

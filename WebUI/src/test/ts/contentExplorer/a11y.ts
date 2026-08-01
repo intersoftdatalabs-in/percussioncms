@@ -52,20 +52,32 @@ import axeCore from "axe-core";
 export async function runAxe(
   container: Element | string,
   opts: {
-    rules?: Record<string, unknown>;
+    rules?: Record<string, { enabled?: boolean; [key: string]: unknown }>;
+    /** Tag names for axe {@code runOnly} (default WCAG 2.0/2.1 A+AA). */
+    tags?: string[];
+    /**
+     * @deprecated Prefer {@link tags}. Nested under a non-API key historically
+     * and was ignored by axe-core; kept for call-site compatibility.
+     */
     runOptions?: { tags?: string[]; [key: string]: unknown };
   } = {},
 ): Promise<Awaited<ReturnType<typeof axeCore.run>>> {
+  const tags =
+    opts.tags ??
+    opts.runOptions?.tags ??
+    (["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] as const);
+
+  // jsdom lacks real layout/canvas; color-contrast and similar rules can
+  // recurse or throw unhandled RangeErrors under Vitest. Keep the gate on
+  // structural WCAG rules; contrast is covered in Playwright / browser CI.
   return axeCore.run(container, {
-    rules: opts.rules,
-    runOptions: {
-      ...opts.runOptions,
-      tags: opts.runOptions?.tags ?? [
-        "wcag2a",
-        "wcag2aa",
-        "wcag21a",
-        "wcag21aa",
-      ],
+    runOnly: {
+      type: "tag",
+      values: [...tags],
+    },
+    rules: {
+      "color-contrast": { enabled: false },
+      ...(opts.rules ?? {}),
     },
   });
 }

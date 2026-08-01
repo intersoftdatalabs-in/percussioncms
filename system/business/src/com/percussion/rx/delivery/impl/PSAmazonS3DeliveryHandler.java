@@ -16,24 +16,6 @@
  */
 package com.percussion.rx.delivery.impl;
 
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.SdkClientException;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.InstanceProfileCredentialsProvider;
-import com.amazonaws.auth.STSAssumeRoleSessionCredentialsProvider;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.amazonaws.services.s3.model.GetObjectMetadataRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.transfer.TransferManager;
-import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
-import com.amazonaws.services.securitytoken.AWSSecurityTokenService;
-import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.legacy.security.deprecated.PSAesCBC;
 import com.percussion.rx.delivery.IPSDeliveryErrors;
@@ -48,12 +30,6 @@ import com.percussion.services.pubserver.IPSPubServer;
 import com.percussion.services.pubserver.IPSPubServerDao;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.utils.types.PSPair;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -62,20 +38,83 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.InstanceProfileCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.exception.SdkException;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3Configuration;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
+import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectResponse;
+import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.sts.StsClient;
+import software.amazon.awssdk.services.sts.auth.StsAssumeRoleCredentialsProvider;
 
 import static jakarta.ws.rs.client.ClientBuilder.newClient;
 
 /**
  * This handler delivers content to the amazon s3.
+ *
+ * <p>Uses AWS SDK for Java v2 ({@code software.amazon.awssdk}). The v1 SDK and the product-local
+ * {@code com.amazonaws.services.s3.transfer.TransferManagerBuilder} shim are no longer used (see
+ * issue #1730).
  */
 public class PSAmazonS3DeliveryHandler extends PSBaseDeliveryHandler
 {
     private static final String CREDS_WRONG_MSG = "Either bucket {} doesn't exist or the credentials to access the bucket are wrong. Error: {}";
-    private String targetRegion = Regions.DEFAULT_REGION.getName();
-    private final ConcurrentHashMap<Long, TransferManager> jobTransferManagers = new ConcurrentHashMap<>();
+    /** Default AWS region when none is configured; matches v1's {@code Regions.DEFAULT_REGION}. */
+    private static final String DEFAULT_REGION = "us-east-1";
+
+    private String targetRegion = DEFAULT_REGION;
+    /** Per-job S3 client (v2 {@link S3Client}) - replaces v1's cached TransferManager. */
+    private final ConcurrentHashMap<Long, S3Client> jobTransferManagers = new ConcurrentHashMap<>();
     private static Boolean isEC2Instance = null;
     private static final Logger log = LogManager.getLogger(PSAmazonS3DeliveryHandler.class);
+
+    /**
+     * Factory used to build the per-job {@link S3Client}. Hooks the v2 SDK v1's implicit
+     * {@code AmazonS3ClientBuilder.build()} chain so unit tests can substitute a mock client.
+     * Defaults to the static {@link #getS3Client(IPSPubServer, Region)} implementation.
+     */
+    @FunctionalInterface
+    public interface S3ClientFactory {
+        S3Client create(IPSPubServer pubServer, Region region) throws PSDeliveryException;
+    }
+
+    private volatile S3ClientFactory s3ClientFactory = PSAmazonS3DeliveryHandler::getS3Client;
+
+    /**
+     * Replace the factory used to build the per-job S3 client. Intended for unit tests; the
+     * factory should not be changed concurrently with delivery.
+     */
+    public void setS3ClientFactory(S3ClientFactory factory) {
+        this.s3ClientFactory = factory;
+    }
+
+    private S3ClientFactory factory() {
+        var f = s3ClientFactory;
+        return f == null ? PSAmazonS3DeliveryHandler::getS3Client : f;
+    }
 
     public String getTargetRegion() {
         return targetRegion;
@@ -90,24 +129,24 @@ public class PSAmazonS3DeliveryHandler extends PSBaseDeliveryHandler
         super.init(jobid, site, pubServer);
         jobTransferManagers.computeIfAbsent(jobid, k -> {
             try {
-                var s3Client = getAmazonS3Client(pubServer, getConfiguredAWSRegion());
-                return TransferManagerBuilder.standard().withS3Client(s3Client).build();
+                return factory().create(pubServer, getConfiguredAWSRegion());
             } catch (PSDeliveryException e) {
                 throw new RuntimeException(e);
             }
         });
     }
 
+    /** Resolves the configured target region as a v2 {@link Region}. */
     private Region getConfiguredAWSRegion() {
-        return Region.getRegion(Regions.fromName(targetRegion));
+        return Region.of(targetRegion);
     }
 
     @Override
     protected void releaseForDelivery(long jobId) {
         super.releaseForDelivery(jobId);
-        var t = jobTransferManagers.remove(jobId);
-        if (t != null) {
-            t.shutdownNow(true);
+        var s3 = jobTransferManagers.remove(jobId);
+        if (s3 != null) {
+            s3.close();
         }
     }
 
@@ -128,8 +167,11 @@ public class PSAmazonS3DeliveryHandler extends PSBaseDeliveryHandler
         var destPath = location.substring(1);
         var bucketName = pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_AS3_BUCKET_PROPERTY, "");
         try {
-            var s3Client = getAmazonS3Client(pubServer, getConfiguredAWSRegion());
-            s3Client.deleteObject(bucketName, destPath);
+            var s3Client = factory().create(pubServer, getConfiguredAWSRegion());
+            s3Client.deleteObject(DeleteObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(destPath)
+                    .build());
         } catch (PSDeliveryException e) {
             de = e;
         } catch (Exception e) {
@@ -153,8 +195,14 @@ public class PSAmazonS3DeliveryHandler extends PSBaseDeliveryHandler
         var key = location.substring(1);
         var bucketName = pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_AS3_BUCKET_PROPERTY, "");
         try {
-            var s3Client = getAmazonS3Client(pubServer, getConfiguredAWSRegion());
-            var tm = jobTransferManagers.computeIfAbsent(jobId, k -> TransferManagerBuilder.standard().withS3Client(s3Client).build());
+            var s3Client = jobTransferManagers.computeIfAbsent(jobId,
+                    k -> {
+                        try {
+                            return factory().create(pubServer, getConfiguredAWSRegion());
+                        } catch (PSDeliveryException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    });
             if (item.getFile() != null) {
                 var checksum = "";
                 try (var is = new FileInputStream(item.getFile())) {
@@ -163,17 +211,23 @@ public class PSAmazonS3DeliveryHandler extends PSBaseDeliveryHandler
                         var checksumValueChanged = true;
                         log.debug("local CheckSum value -> {}", checksum);
                         try {
-                            var mreq = new GetObjectMetadataRequest(bucketName, key);
-                            var retrieved_metadata = s3Client.getObjectMetadata(mreq);
-                            if (retrieved_metadata != null) {
-                                var s3CheckSum = retrieved_metadata.getUserMetaDataOf("Perc-Content-Checksum");
+                            var headResp = s3Client.headObject(HeadObjectRequest.builder()
+                                    .bucket(bucketName)
+                                    .key(key)
+                                    .build());
+                            if (headResp != null) {
+                                var s3CheckSum = headResp.metadata() == null ? null
+                                        : headResp.metadata().get("Perc-Content-Checksum");
                                 log.debug("S3 Checksum  property -> {}", s3CheckSum);
                                 if (checksum != null && checksum.equalsIgnoreCase(s3CheckSum)) {
                                     checksumValueChanged = false;
                                 }
                             }
-                        } catch (AmazonS3Exception e) {
-                            if (e.getStatusCode() == 404) {
+                        } catch (NoSuchKeyException e) {
+                            log.debug("The object {} was not found so this is a new item.", key);
+                            checksumValueChanged = true;
+                        } catch (S3Exception e) {
+                            if (e.statusCode() == 404) {
                                 log.debug("The object {} was not found so this is a new item.", key);
                             } else {
                                 log.error(PSExceptionUtils.getMessageForLog(e));
@@ -181,19 +235,17 @@ public class PSAmazonS3DeliveryHandler extends PSBaseDeliveryHandler
                             checksumValueChanged = true;
                         }
                         if (checksumValueChanged) {
-                            copyToAmazonDirect(tm, bucketName, key, item.getFile(), item.getMimeType(), item.getLength(), checksum);
+                            copyToAmazonDirect(s3Client, bucketName, key, item.getFile(), item.getMimeType(), item.getLength(), checksum);
                         }
                     } else {
-                        copyToAmazonDirect(tm, bucketName, key, item.getFile(), item.getMimeType(), item.getLength(), checksum);
+                        copyToAmazonDirect(s3Client, bucketName, key, item.getFile(), item.getMimeType(), item.getLength(), checksum);
                     }
                 }
             } else {
                 try (var is = item.getResultStream()) {
-                    copyToAmazon(tm, bucketName, key, is, item.getMimeType(), item.getLength());
+                    copyToAmazon(s3Client, bucketName, key, is, item.getMimeType(), item.getLength());
                 }
             }
-        } catch (PSDeliveryException e) {
-            de = e;
         } catch (Exception e) {
             de = new PSDeliveryException(
                     IPSDeliveryErrors.COULD_NOT_COPY_TO_AMAMZON, e, location, bucketName, getExceptionMessage(e));
@@ -203,6 +255,7 @@ public class PSAmazonS3DeliveryHandler extends PSBaseDeliveryHandler
         }
         return new PSDeliveryResult(Outcome.DELIVERED, null, item.getId(), jobId, item.getReferenceId(), location.getBytes(StandardCharsets.UTF_8));
     }
+
     /**
      * calculate the checksum of provided InputStream
      *
@@ -224,24 +277,28 @@ public class PSAmazonS3DeliveryHandler extends PSBaseDeliveryHandler
         return result;
     }
 
-    private void copyToAmazon(TransferManager tm, String bucketName, String key, InputStream is, String mimeType, long contentLength) throws AmazonClientException, InterruptedException {
-        var metadata = new ObjectMetadata();
-        metadata.setContentType(mimeType);
-        metadata.setContentLength(contentLength);
-        metadata.setCacheControl("max-age=0");
-        var myUpload = tm.upload(new PutObjectRequest(bucketName, key, is, metadata));
-        myUpload.waitForCompletion();
+    private void copyToAmazon(S3Client s3, String bucketName, String key, InputStream is, String mimeType, long contentLength) throws SdkException {
+        var putReq = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .contentType(mimeType)
+                .contentLength(contentLength)
+                .cacheControl("max-age=0")
+                .build();
+        s3.putObject(putReq, RequestBody.fromInputStream(is, contentLength));
     }
 
-    private void copyToAmazonDirect(TransferManager tm, String bucketName, String key, File file, String mimeType, long contentLength, String checksum) throws IOException, InterruptedException {
-        var metadata = new ObjectMetadata();
-        metadata.setContentType(mimeType);
-        metadata.setContentLength(contentLength);
-        metadata.setCacheControl("max-age=20");
-        metadata.addUserMetadata("Perc-Content-Checksum", checksum);
+    private void copyToAmazonDirect(S3Client s3, String bucketName, String key, File file, String mimeType, long contentLength, String checksum) throws IOException {
+        var putReq = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .contentType(mimeType)
+                .contentLength(contentLength)
+                .cacheControl("max-age=20")
+                .metadata(Map.of("Perc-Content-Checksum", checksum))
+                .build();
         try (var fileInputStream = new FileInputStream(file)) {
-            var myUpload = tm.upload(new PutObjectRequest(bucketName, key, fileInputStream, metadata));
-            myUpload.waitForCompletion();
+            s3.putObject(putReq, RequestBody.fromInputStream(fileInputStream, contentLength));
         }
     }
 
@@ -267,31 +324,74 @@ public class PSAmazonS3DeliveryHandler extends PSBaseDeliveryHandler
         return isEC2Instance;
     }
 
-    public static AmazonS3 getAmazonS3Client(IPSPubServer pubServer, Region configuredRegion) throws PSDeliveryException {
-        AmazonS3 s3 = null;
+    /**
+     * Returns the EC2 instance region by querying the EC2 instance metadata service
+     * ({@code http://169.254.169.254/latest/meta-data/placement/availability-zone/}) and stripping
+     * the trailing AZ letter. Returns {@code null} if the host is not on EC2 or the metadata call
+     * fails.
+     *
+     * <p>Replaces v1's {@code com.amazonaws.regions.Regions.getCurrentRegion()} which has no
+     * direct v2 equivalent.
+     */
+    public static String getCurrentEc2Region() {
+        if (!isEC2Instance()) {
+            return null;
+        }
+        try {
+            var client = newClient();
+            var resource = client.target("http://169.254.169.254/latest/meta-data/placement/availability-zone/");
+            var request = resource.request();
+            var response = request.get();
+            if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
+                String az = response.readEntity(String.class);
+                if (az != null && az.length() > 1) {
+                    // Availability zone is "<region><letter>", e.g. "us-east-1a" -> "us-east-1".
+                    return az.substring(0, az.length() - 1);
+                }
+            }
+        } catch (Exception e) {
+            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+        }
+        return null;
+    }
+
+    /**
+     * Build a v2 {@link S3Client} for the given publishing server. Replaces the v1
+     * {@code getAmazonS3Client(IPSPubServer, Region)} factory and supports:
+     *
+     * <ul>
+     *   <li>Assume-role (STS) with either static keys or EC2 instance profile</li>
+     *   <li>EC2 instance profile (no role assumption)</li>
+     *   <li>Static access/secret key pair</li>
+     * </ul>
+     */
+    public static S3Client getS3Client(IPSPubServer pubServer, Region configuredRegion) throws PSDeliveryException {
         var selectedRegionName = pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_EC2_REGION, "");
-        if (selectedRegionName == null || selectedRegionName.trim().isEmpty()) {
+        if (StringUtils.isBlank(selectedRegionName)) {
+            // Fall back to EC2 IMDS-resolved "current" region, else to the configured target.
             try {
-                if (Regions.getCurrentRegion() != null) {
-                    selectedRegionName = Regions.getCurrentRegion().getName();
+                var ec2Region = getCurrentEc2Region();
+                if (StringUtils.isNotBlank(ec2Region)) {
+                    selectedRegionName = ec2Region;
                 }
             } catch (Exception e) {
                 log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             }
-            if (selectedRegionName == null || selectedRegionName.trim().isEmpty()) {
-                if (configuredRegion != null) {
-                    selectedRegionName = configuredRegion.getName();
-                }
+            if (StringUtils.isBlank(selectedRegionName) && configuredRegion != null) {
+                selectedRegionName = configuredRegion.id();
             }
         }
+        if (StringUtils.isBlank(selectedRegionName)) {
+            selectedRegionName = DEFAULT_REGION;
+        }
+        var region = Region.of(selectedRegionName);
+
+        AwsCredentialsProvider creds;
         if (useAssumeRole(pubServer)) {
-            s3 = getS3FromAssumeRole(pubServer);
+            creds = buildAssumeRoleCredentialsProvider(pubServer, region);
         } else if (isEC2Instance()) {
             log.debug("EC2 Instance Running");
-            s3 = AmazonS3ClientBuilder.standard()
-                    .withCredentials(new InstanceProfileCredentialsProvider(false))
-                    .withRegion(selectedRegionName)
-                    .build();
+            creds = InstanceProfileCredentialsProvider.builder().asyncCredentialUpdateEnabled(false).build();
         } else {
             var accessKey = pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_AS3_ACCESSKEY_PROPERTY, "");
             var secretKey = pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_AS3_SECURITYKEY_PROPERTY, "");
@@ -302,10 +402,14 @@ public class PSAmazonS3DeliveryHandler extends PSBaseDeliveryHandler
                 log.error(PSExceptionUtils.getMessageForLog(e));
                 throw new PSDeliveryException(IPSDeliveryErrors.COULD_NOT_DECRYPT_CREDENTIALS, e, getExceptionMessage(e));
             }
-            var awsCreds = new BasicAWSCredentials(accessKey, secretKey);
-            s3 = AmazonS3ClientBuilder.standard().withRegion(selectedRegionName).withCredentials(new AWSStaticCredentialsProvider(awsCreds)).build();
+            creds = StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey));
         }
-        return s3;
+
+        return S3Client.builder()
+                .region(region)
+                .credentialsProvider(creds)
+                .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(false).build())
+                .build();
     }
 
     private static boolean useAssumeRole(IPSPubServer pubServer) {
@@ -313,17 +417,19 @@ public class PSAmazonS3DeliveryHandler extends PSBaseDeliveryHandler
         return Boolean.parseBoolean(assumeVal);
     }
 
-    private static AmazonS3 getS3FromAssumeRole(IPSPubServer pubServer) throws PSDeliveryException {
+    /**
+     * Build an STS-backed credentials provider that assumes the configured role. The STS client
+     * itself is credentialed by either the EC2 instance profile or static access/secret keys,
+     * matching the v1 behavior of {@code getS3FromAssumeRole}.
+     */
+    private static AwsCredentialsProvider buildAssumeRoleCredentialsProvider(IPSPubServer pubServer, Region region)
+            throws PSDeliveryException {
         try {
-            var selectedRegionName = pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_EC2_REGION, "");
             var roleARN = pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_AS3_ARN_ROLE, "");
-            AWSSecurityTokenService stsClient = null;
+            AwsCredentialsProvider stsCreds;
             if (isEC2Instance()) {
                 log.debug("EC2 Instance Running");
-                stsClient = AWSSecurityTokenServiceClientBuilder.standard()
-                        .withCredentials(new InstanceProfileCredentialsProvider(false))
-                        .withRegion(selectedRegionName)
-                        .build();
+                stsCreds = InstanceProfileCredentialsProvider.builder().asyncCredentialUpdateEnabled(false).build();
             } else {
                 var accessKey = pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_AS3_ACCESSKEY_PROPERTY, "");
                 var secretKey = pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_AS3_SECURITYKEY_PROPERTY, "");
@@ -334,19 +440,18 @@ public class PSAmazonS3DeliveryHandler extends PSBaseDeliveryHandler
                     log.error(PSExceptionUtils.getMessageForLog(e));
                     throw new PSDeliveryException(IPSDeliveryErrors.COULD_NOT_DECRYPT_CREDENTIALS, e, getExceptionMessage(e));
                 }
-                var awsCreds = new BasicAWSCredentials(accessKey, secretKey);
-                stsClient = AWSSecurityTokenServiceClientBuilder.standard()
-                        .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-                        .withRegion(selectedRegionName)
-                        .build();
+                stsCreds = StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey));
             }
-            var assumeRoleSessionBuilder =
-                    new STSAssumeRoleSessionCredentialsProvider.Builder(roleARN, "CMS-S3Publishing-UsingAssumeRole");
-            var s3Client = AmazonS3ClientBuilder.standard()
-                    .withRegion(selectedRegionName)
-                    .withCredentials(assumeRoleSessionBuilder.withStsClient(stsClient).build()).build();
-            return s3Client;
-        } catch (SdkClientException e) {
+            var stsClient = StsClient.builder()
+                    .region(region)
+                    .credentialsProvider(stsCreds)
+                    .build();
+            return StsAssumeRoleCredentialsProvider.builder()
+                    .stsClient(stsClient)
+                    .refreshRequest(b -> b.roleArn(roleARN)
+                            .roleSessionName("CMS-S3Publishing-UsingAssumeRole"))
+                    .build();
+        } catch (SdkException e) {
             log.error(PSExceptionUtils.getMessageForLog(e));
             throw new PSDeliveryException(IPSDeliveryErrors.COULD_NOT_COPY_TO_AMAMZON, e, getExceptionMessage(e));
         }
@@ -390,14 +495,26 @@ public class PSAmazonS3DeliveryHandler extends PSBaseDeliveryHandler
     public boolean checkConnection(IPSPubServer pubServer, IPSSite site) {
         var result = true;
         var bucketName = pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_AS3_BUCKET_PROPERTY, "");
+        S3Client s3Client = null;
         try {
-            var s3Client = getAmazonS3Client(pubServer, getConfiguredAWSRegion());
-            s3Client.getS3AccountOwner();
-            result = s3Client.doesBucketExistV2(bucketName);
+            s3Client = factory().create(pubServer, getConfiguredAWSRegion());
+            // Auth probe: listBuckets requires ListBucket permission; matches v1's getS3AccountOwner().
+            ListBucketsResponse listResp = s3Client.listBuckets();
+            if (listResp == null) {
+                result = false;
+            } else {
+                // Bucket existence check via headBucket.
+                s3Client.headBucket(HeadBucketRequest.builder().bucket(bucketName).build());
+                result = true;
+            }
         } catch (Exception e) {
             log.error(CREDS_WRONG_MSG, bucketName, PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             result = false;
+        } finally {
+            if (s3Client != null) {
+                s3Client.close();
+            }
         }
         return result;
     }
@@ -409,21 +526,20 @@ public class PSAmazonS3DeliveryHandler extends PSBaseDeliveryHandler
         var result = new PSPair<>(Boolean.TRUE, "Successfully published, accessed and deleted image to amazon s3");
         var key = "Assets/uploads/" + generateTestImageKey(token);
         var bucketName = pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_AS3_BUCKET_PROPERTY, "");
-        TransferManager tm = null;
+        S3Client tm = null;
         try (var in = new FileInputStream(PSServer.getRxDir().getAbsolutePath() + PERC_TEST_IMG_DIR + PERC_TEST_IMG)) {
-            var s3Client = getAmazonS3Client(pubServer, getConfiguredAWSRegion());
-            tm = TransferManagerBuilder.standard().withS3Client(s3Client).build();
+            tm = factory().create(pubServer, getConfiguredAWSRegion());
             copyToAmazon(tm, bucketName, key, in, "image/jpeg", in.available());
-            s3Client = getAmazonS3Client(pubServer, getConfiguredAWSRegion());
-            s3Client.getObject(bucketName, key);
-            s3Client.deleteObject(bucketName, key);
+            var getResp = tm.getObject(GetObjectRequest.builder().bucket(bucketName).key(key).build());
+            getResp.close();
+            tm.deleteObject(DeleteObjectRequest.builder().bucket(bucketName).key(key).build());
         } catch (Exception e) {
             log.error("Error copying image to amazon s3 bucket. {}", PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             result = new PSPair<>(Boolean.FALSE, e.getLocalizedMessage());
         } finally {
             if (tm != null)
-                tm.shutdownNow();
+                tm.close();
         }
         return result;
     }

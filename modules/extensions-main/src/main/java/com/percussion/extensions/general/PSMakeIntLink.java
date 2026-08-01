@@ -30,6 +30,9 @@ import java.util.HashMap;
  * {@link #processUdf(Object[], IPSRequestContext) processUdf} for a description.
  */
 public class PSMakeIntLink extends PSSimpleJavaUdfExtension implements IPSUdfProcessor {
+  /** Creates a new PSMakeIntLink. */
+  public PSMakeIntLink() {}
+
   /**
    * Creates a URL from the supplied parameters and returns it with the sessionid attached as one of
    * the html parameters. The server and port are set to the Rhythmyx server's address and port.
@@ -37,12 +40,8 @@ public class PSMakeIntLink extends PSSimpleJavaUdfExtension implements IPSUdfPro
    * <p>A URI has the following pieces for purposes of this description (see RFC 2396 for more
    * details):
    *
-   * <p>
-   *
    * <p>&lt;scheme&gt;://&lt;host&gt;&lt;path-segments&gt;
    * &lt;resource&gt;?&lt;query&gt;#&lt;fragment&gt;
-   *
-   * <p>
    *
    * <p>All parts except resource are optional.
    *

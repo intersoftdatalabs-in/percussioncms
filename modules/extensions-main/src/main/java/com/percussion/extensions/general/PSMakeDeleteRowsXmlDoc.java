@@ -50,6 +50,9 @@ import org.w3c.dom.Element;
  * in this case.
  */
 public class PSMakeDeleteRowsXmlDoc implements IPSRequestPreProcessor {
+  /** Creates a new PSMakeDeleteRowsXmlDoc. */
+  public PSMakeDeleteRowsXmlDoc() {}
+
   /*
    * implementation of the method in the interface IPSRequestPreProcessor
    */

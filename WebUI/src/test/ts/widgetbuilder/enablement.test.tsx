@@ -32,9 +32,8 @@ describe("WidgetBuilder enablement", () => {
     await waitFor(() => {
       expect(screen.getByTestId("wb-disabled")).toBeDefined();
     });
-    expect(
-      screen.getByText("perc.ui.widgetbuilder.modern@Disabled"),
-    ).toBeDefined();
+    // message() falls back to the segment after @ when I18N echoes the key
+    expect(screen.getByText("Disabled")).toBeDefined();
   });
 
   it("shows list when active", async () => {

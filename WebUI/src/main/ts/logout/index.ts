@@ -20,6 +20,7 @@ export type { LogoutPageProps } from "./LogoutPage";
 export {
   readLogoutBootstrap,
   sanitizeLoginHref,
+  loginHrefWithLocale,
   DEFAULT_LOGIN_HREF,
 } from "./bootstrap";
 export type { LogoutBootstrap } from "./types";

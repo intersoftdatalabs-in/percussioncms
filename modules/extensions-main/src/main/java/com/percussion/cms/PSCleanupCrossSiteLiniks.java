@@ -80,6 +80,9 @@ import org.w3c.dom.Document;
  */
 public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
+  /** Creates a new PSCleanupCrossSiteLiniks. */
+  public PSCleanupCrossSiteLiniks() {}
+
   /*
    * (non-Javadoc)
    *

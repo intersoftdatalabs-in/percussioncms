@@ -51,6 +51,8 @@ import java.io.File;
  * @author dougrand
  */
 public class PSValidateJexlExpression implements IPSFieldValidator {
+  /** Creates a new PSValidateJexlExpression. */
+  public PSValidateJexlExpression() {}
 
   /**
    * (non-Javadoc)

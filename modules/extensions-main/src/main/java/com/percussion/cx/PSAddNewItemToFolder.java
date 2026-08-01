@@ -38,6 +38,9 @@ import org.w3c.dom.Document;
  * to the folder.
  */
 public class PSAddNewItemToFolder implements IPSResultDocumentProcessor {
+  /** Creates a new PSAddNewItemToFolder. */
+  public PSAddNewItemToFolder() {}
+
   // see IPSResultDocumentProcessor#canModifyStyleSheet()
   public boolean canModifyStyleSheet() {
     return false;

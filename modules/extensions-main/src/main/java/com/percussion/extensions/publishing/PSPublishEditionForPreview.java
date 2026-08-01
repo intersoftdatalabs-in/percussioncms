@@ -46,6 +46,8 @@ import org.w3c.dom.NodeList;
  */
 public class PSPublishEditionForPreview extends PSDefaultExtension
     implements IPSRequestPreProcessor, IPSResultDocumentProcessor {
+  /** Creates a new PSPublishEditionForPreview. */
+  public PSPublishEditionForPreview() {}
 
   private static final Logger log = LogManager.getLogger(PSPublishEditionForPreview.class);
 

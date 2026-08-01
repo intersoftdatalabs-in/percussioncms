@@ -2,11 +2,17 @@
  * Copyright 1999-2026 Percussion Software, Inc.
  */
 import { afterEach, describe, expect, it } from "vitest";
-import { fallbackLabelFromKey, message } from "../../../main/ts/i18n/message";
+import {
+  __resetMessageTrackingForTests,
+  fallbackLabelFromKey,
+  getTrackedMessageId,
+  message,
+} from "../../../main/ts/i18n/message";
 
 describe("message / TMX fallback", () => {
   afterEach(() => {
     delete (window as { I18N?: unknown }).I18N;
+    __resetMessageTrackingForTests();
   });
 
   it("fallbackLabelFromKey uses text after @", () => {
@@ -38,6 +44,13 @@ describe("message / TMX fallback", () => {
       message: () => "",
     };
     expect(message("perc.ui.home.modern@Home")).toBe("Home");
+  });
+
+  it("tracks key for @mkd/language getMessageId after message()", () => {
+    message("perc.ui.navMenu.home@Home");
+    document.body.innerHTML = `<button type="button">Home</button>`;
+    const btn = document.querySelector("button")!;
+    expect(getTrackedMessageId(btn)).toBe("perc.ui.navMenu.home@Home");
   });
 });
 

@@ -130,6 +130,7 @@
         <dependency>
             <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
+            <!-- compile: Jersey / Jackson 3 need this on the WAR classpath -->
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>

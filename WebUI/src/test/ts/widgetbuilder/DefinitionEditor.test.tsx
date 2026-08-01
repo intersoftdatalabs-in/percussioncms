@@ -29,9 +29,10 @@ describe("DefinitionEditor", () => {
       />,
     );
     expect(screen.getByText("Name required")).toBeDefined();
-    fireEvent.click(screen.getByText("perc.ui.widgetbuilder.modern@Save"));
+    // message() falls back to the segment after @ when I18N echoes the key
+    fireEvent.click(screen.getByText("Save"));
     expect(onSave).toHaveBeenCalled();
-    fireEvent.click(screen.getByText("perc.ui.widgetbuilder.modern@Validate"));
+    fireEvent.click(screen.getByText("Validate"));
     expect(onValidate).toHaveBeenCalled();
   });
 
@@ -47,8 +48,8 @@ describe("DefinitionEditor", () => {
         onCancel={() => undefined}
       />,
     );
-    const save = screen.getByText("perc.ui.widgetbuilder.modern@Save");
-    const validate = screen.getByText("perc.ui.widgetbuilder.modern@Validate");
+    const save = screen.getByText("Save");
+    const validate = screen.getByText("Validate");
     expect((save as HTMLButtonElement).disabled).toBe(true);
     expect((validate as HTMLButtonElement).disabled).toBe(true);
     fireEvent.click(save);

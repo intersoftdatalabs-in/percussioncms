@@ -31,6 +31,9 @@ import java.util.GregorianCalendar;
  * difference.
  */
 public class PSDateDifference extends PSDefaultExtension implements IPSUdfProcessor {
+  /** Creates a new PSDateDifference. */
+  public PSDateDifference() {}
+
   /**
    * @see com.percussion.extension.IPSUdfProcessor#processUdf(java.lang.Object[],
    *     com.percussion.server.IPSRequestContext)
