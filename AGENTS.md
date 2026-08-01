@@ -256,7 +256,6 @@ Any time an agent **creates or works inside** a disposable git worktree for a fe
    # optional if the branch is fully merged / no longer needed locally
    git branch -D <branch-name>
    ```
-
 4. **Periodic cleanup** (any machine with leftover agent worktrees):
 
    ```bash

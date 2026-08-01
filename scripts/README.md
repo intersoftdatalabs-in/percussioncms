@@ -36,7 +36,6 @@ List or remove **stale git worktrees** left by agent sessions (Kilo / Grok / etc
   scripts\prune-stale-worktrees.bat
   scripts\prune-stale-worktrees.bat --apply --force --delete-local-branches
   ```
-
 - **Keeps**: main worktree, current cwd worktree, locked worktrees, branches with **open** PRs (unless `--include-open`).
 - **Prereqs**: `git`; `gh` authenticated (unless `--skip-gh` with `--include-no-pr` only).
 - **Tests**: `python3 -m pytest scripts/test_prune_stale_worktrees.py -v` (or `python3 scripts/test_prune_stale_worktrees.py`).
