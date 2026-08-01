@@ -149,13 +149,13 @@
         model = P.templateModel(
           $.perc_templatemanager,
           gSelectTemp,
-          setupContent
+          setupContent,
         );
 
         frame.css("display", "block");
         // enable the Metadata  button
         $(
-          ".perc-dropdown-option-EditMeta-data, .perc-dropdown-option-ViewMeta-data, #perc-metadata-button"
+          ".perc-dropdown-option-EditMeta-data, .perc-dropdown-option-ViewMeta-data, #perc-metadata-button",
         )
           .off()
           .perc_button()
@@ -237,7 +237,7 @@
           function (status, results) {
             if (status == $.PercServiceUtils.STATUS_ERROR)
               percTemplateHelpLayoutMenu = false;
-          }
+          },
         );
 
         var percTemplateHelpLayout = $("#perc-dropdown-help-layout");
@@ -269,19 +269,19 @@
             function () {
               openUrl(
                 "UIVideo",
-                "https://percussioncmshelp.intsof.com/percussion-cm1/overview/introduction-to-the-ui"
+                "https://percussioncmshelp.intsof.com/percussion-cm1/overview/introduction-to-the-ui",
               );
             },
             function () {
               openUrl(
                 "ImportFAQs",
-                "https://percussioncmshelp.intsof.com/in-product/import-faqs"
+                "https://percussioncmshelp.intsof.com/in-product/import-faqs",
               );
             },
             function () {
               openUrl(
                 "PercussionCommunity",
-                "https://percussioncmscommunity.intsof.com"
+                "https://percussioncmscommunity.intsof.com",
               );
             },
             function () {
@@ -302,7 +302,7 @@
         model = P.templateModel(
           $.perc_templatemanager,
           gSelectTemp,
-          setupLayout
+          setupLayout,
         );
         frame.css("display", "block");
 
@@ -365,28 +365,28 @@
       // Initialize the dialog markup and instantiate the perc_dialog plugin
       dialogMarkup.append(
         $(
-          '<div style="height: 400px; overflow:hidden; margin-left: 68px; margin-right: 92px">'
+          '<div style="height: 400px; overflow:hidden; margin-left: 68px; margin-right: 92px">',
         )
           .append(
             $(
-              '<iframe id="perc_iframe_video" src="https://percussioncmshelp.intsof.com/percussion-cm1/overview/introduction-to-the-ui/" scrolling="yes" marginheight="0" marginwidth="0" frameborder="0" width="480px" height="0px" style="display: block; overflow: hidden">'
-            )
+              '<iframe id="perc_iframe_video" src="https://percussioncmshelp.intsof.com/percussion-cm1/overview/introduction-to-the-ui/" scrolling="yes" marginheight="0" marginwidth="0" frameborder="0" width="480px" height="0px" style="display: block; overflow: hidden">',
+            ),
           )
           .append(
             $(
-              '<img id="perc_notfound_image" src="../images/images/VideoTutorialNotFound.png" width="480px" height="0px">'
-            )
-          )
+              '<img id="perc_notfound_image" src="../images/images/VideoTutorialNotFound.png" width="480px" height="0px">',
+            ),
+          ),
       );
       //Used a random dummy parameter to avoid cache
       dialogMarkup.append(
         $(
           '<img height="0px" width="0px" src="https://percussioncmshelp.intsof.com/Assets/Help/header/images/PercussionSwoosh.png?dummy=' +
             Math.random() +
-            '">'
+            '">',
         )
           .on("error", handleUnreachableURL)
-          .on("load", showVideoIframe)
+          .on("load", showVideoIframe),
       );
 
       var dialogButtons = {
@@ -467,7 +467,7 @@
               $.perc_utils.alert_dialog({
                 title: I18N.message("perc.ui.recycledPage@RecycledPage"),
                 content: I18N.message(
-                  "perc.ui.recycledPageWarning@RecycledPage"
+                  "perc.ui.recycledPageWarning@RecycledPage",
                 ),
               });
               return;
@@ -486,7 +486,7 @@
               content: data,
             });
           }
-        }
+        },
       );
     }
 
@@ -496,7 +496,7 @@
     function resetJavaScriptMenu() {
       //Reset the JavaScript Off/On menu to JavaScript Off
       $(".perc-dropdown-option-DisableJavaScript").text(
-        I18N.message("perc.ui.menu@JavaScript Off")
+        I18N.message("perc.ui.menu@JavaScript Off"),
       );
     }
     /**
@@ -538,12 +538,12 @@
         //Hide the region inspector tools for responsive templates.
         $("#perc-region-tool-inspector, #perc-region-tool-menu").css(
           "visibility",
-          "hidden"
+          "hidden",
         );
       } else {
         // show region inspector tool for base templates
         $(
-          "#region-tool, #region-tool-help, #perc-region-tool-inspector, #perc-region-tool-menu"
+          "#region-tool, #region-tool-help, #perc-region-tool-inspector, #perc-region-tool-menu",
         ).css("visibility", "visible");
       }
       // There is no need to pass the layoutController or the sizeController from here
@@ -559,7 +559,7 @@
         null,
         function (isDirty) {
           setDirty(isDirty);
-        }
+        },
       );
       fixIframeHeight();
       if ($.PercNavigationManager.isJavascriptOff())
@@ -589,7 +589,7 @@
       cssController = P.cssController(
         model,
         $("#frame"),
-        P.CSSPreviewView($("#frame"), model)
+        P.CSSPreviewView($("#frame"), model),
       );
       cssController.refreshCssViews();
 
@@ -603,7 +603,7 @@
         $(".perc-template-name-label")
           .html("")
           .text(
-            I18N.message("perc.ui.edit.template@Editing Responsive Template")
+            I18N.message("perc.ui.edit.template@Editing Responsive Template"),
           );
         $(".perc-template-details").attr("type", "template-responsive");
       } else {
@@ -637,10 +637,10 @@
       inspectorButton.removeClass("buttonPressed");
       //Enable the menu and remove the overaly div on switching between tabs
       $(
-        "#perc-layout-menu .perc-lib-expander-div, #perc-layout-menu #perc-dropdown-actions-layout, #perc-layout-menu #perc-dropdown-view-layout, #perc-region-library-maximizer, #perc-wid-lib-maximizer"
+        "#perc-layout-menu .perc-lib-expander-div, #perc-layout-menu #perc-dropdown-actions-layout, #perc-layout-menu #perc-dropdown-view-layout, #perc-region-library-maximizer, #perc-wid-lib-maximizer",
       ).removeClass("perc-disable-menu-item");
       $(
-        ".perc-overlay-div, #region-tool-disabled, #perc-undo-tool, #perc-undo-tool-disabled"
+        ".perc-overlay-div, #region-tool-disabled, #perc-undo-tool, #perc-undo-tool-disabled",
       ).hide();
       $("#region-tool").show();
     }
@@ -658,7 +658,7 @@
       $.PercTemplateService().regionCSSClearCache(
         model.getTemplateObj().Template.theme,
         model.getTemplateObj().Template.name,
-        function (status, data) {}
+        function (status, data) {},
       );
     }
     function prepareForEditRegionCSS() {
@@ -669,7 +669,7 @@
             model.getTemplateObj().Template.name,
             function (status, data) {
               isPreparedForEdit = true;
-            }
+            },
           );
         }
       }

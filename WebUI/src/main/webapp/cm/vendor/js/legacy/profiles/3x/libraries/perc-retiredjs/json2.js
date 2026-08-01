@@ -307,8 +307,8 @@ if (typeof JSON !== "object") {
             partial.length === 0
               ? "[]"
               : gap
-              ? "[\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "]"
-              : "[" + partial.join(",") + "]";
+                ? "[\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "]"
+                : "[" + partial.join(",") + "]";
           gap = mind;
           return v;
         }
@@ -346,8 +346,8 @@ if (typeof JSON !== "object") {
           partial.length === 0
             ? "{}"
             : gap
-            ? "{\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "}"
-            : "{" + partial.join(",") + "}";
+              ? "{\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "}"
+              : "{" + partial.join(",") + "}";
         gap = mind;
         return v;
     }
@@ -467,7 +467,7 @@ if (typeof JSON !== "object") {
 
       if (
         rx_one.test(
-          text.replace(rx_two, "@").replace(rx_three, "]").replace(rx_four, "")
+          text.replace(rx_two, "@").replace(rx_three, "]").replace(rx_four, ""),
         )
       ) {
         // In the third stage we use the eval function to compile the text into a

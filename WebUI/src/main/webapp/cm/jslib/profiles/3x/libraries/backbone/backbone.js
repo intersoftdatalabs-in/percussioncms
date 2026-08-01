@@ -35,7 +35,7 @@
       root,
       {},
       root._,
-      root.jQuery || root.Zepto || root.ender || root.$
+      root.jQuery || root.Zepto || root.ender || root.$,
     );
   }
 })(function (root, Backbone, _, $) {
@@ -304,7 +304,7 @@
       {},
       name,
       callback,
-      this.stopListening.bind(this, obj)
+      this.stopListening.bind(this, obj),
     );
     return this.listenTo(obj, events);
   };
@@ -564,7 +564,7 @@
             "change:" + changes[i],
             this,
             current[changes[i]],
-            options
+            options,
           );
         }
       }
@@ -784,7 +784,7 @@
         "invalid",
         this,
         error,
-        _.extend(options, { validationError: error })
+        _.extend(options, { validationError: error }),
       );
       return false;
     },
@@ -1477,7 +1477,7 @@
       this.$el.off(
         eventName + ".delegateEvents" + this.cid,
         selector,
-        listener
+        listener,
       );
       return this;
     },
@@ -1538,7 +1538,7 @@
             this[attribute],
             cb(iteratee, this),
             defaultVal,
-            context
+            context,
           );
         };
       default:
@@ -1662,13 +1662,13 @@
             memo[name] = 0;
             return memo;
           },
-          {}
+          {},
         );
         addUnderscoreMethods(Base, obj, mappings, attribute);
       };
 
       addUnderscoreMethods(Base, _, methods, attribute);
-    }
+    },
   );
 
   // Backbone.sync
@@ -1951,7 +1951,7 @@
     // Get the pathname and search params, without the root.
     getPath: function () {
       var path = this.decodeFragment(
-        this.location.pathname + this.getSearch()
+        this.location.pathname + this.getSearch(),
       ).slice(this.root.length - 1);
       return path.charAt(0) === "/" ? path.slice(1) : path;
     },
@@ -2026,7 +2026,7 @@
         // Using `appendChild` will throw on IE < 9 if the document is not ready.
         var iWindow = body.insertBefore(
           this.iframe,
-          body.firstChild
+          body.firstChild,
         ).contentWindow;
         iWindow.document.open();
         iWindow.document.close();
@@ -2153,7 +2153,7 @@
         this.history[options.replace ? "replaceState" : "pushState"](
           {},
           document.title,
-          url
+          url,
         );
 
         // If hash changes haven't been explicitly disabled, update the hash

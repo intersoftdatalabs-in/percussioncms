@@ -18,8 +18,12 @@
 import { afterEach, describe, expect, it } from "vitest";
 import {
   __resetLocaleLabelsCache,
+  localeFlagEmoji,
   localeLabel,
+  localeOptionLabel,
+  localeRegionCode,
   normalizeTag,
+  regionToFlagEmoji,
   SHIP_LOCALE_ENDONYMS,
 } from "../../../main/ts/login/localeLabels";
 
@@ -155,6 +159,48 @@ describe("login/localeLabels", () => {
       const second = localeLabel("de-de", "fr-fr", "German");
       expect(first.startsWith("en-us -")).toBe(true);
       expect(second.startsWith("de-de -")).toBe(true);
+    });
+  });
+
+  describe("localeRegionCode / localeFlagEmoji", () => {
+    it("maps ISO region codes to regional-indicator flag pairs", () => {
+      expect(regionToFlagEmoji("FR")).toBe("🇫🇷");
+      expect(regionToFlagEmoji("us")).toBe("🇺🇸");
+      expect(regionToFlagEmoji("GB")).toBe("🇬🇧");
+      expect(regionToFlagEmoji("")).toBe("");
+      expect(regionToFlagEmoji("USA")).toBe("");
+    });
+
+    it("resolves ISO region codes for ship locales", () => {
+      expect(localeRegionCode("fr-fr")).toBe("FR");
+      expect(localeRegionCode("it-it")).toBe("IT");
+      expect(localeRegionCode("de-de")).toBe("DE");
+      expect(localeRegionCode("en-us")).toBe("US");
+      expect(localeRegionCode("en-gb")).toBe("GB");
+      expect(localeRegionCode("ja-jp")).toBe("JP");
+      expect(localeRegionCode("zh-cn")).toBe("CN");
+      expect(localeRegionCode("zh-tw")).toBe("TW");
+      expect(localeRegionCode("es")).toBe("ES");
+      expect(localeRegionCode("ar")).toBe("SA");
+      expect(localeRegionCode("hi")).toBe("IN");
+    });
+
+    it("maps region codes to emoji (text fallback)", () => {
+      expect(localeFlagEmoji("fr-fr")).toBe("🇫🇷");
+      expect(localeFlagEmoji("es")).toBe("🇪🇸");
+    });
+
+    it("prefixes plain-text option labels with the flag emoji", () => {
+      expect(localeOptionLabel("fr-fr", "en-us", "French (France)")).toBe(
+        "🇫🇷 fr-fr - français (France)",
+      );
+      expect(localeOptionLabel("zz", "en-us", "Made Up")).toBe("zz - Made Up");
+    });
+
+    it("covers every ship endonym key with a region code", () => {
+      for (const code of Object.keys(SHIP_LOCALE_ENDONYMS)) {
+        expect(localeRegionCode(code).length).toBe(2);
+      }
     });
   });
 });

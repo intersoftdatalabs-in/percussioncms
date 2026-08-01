@@ -2,17 +2,17 @@
   typeof exports === "object" && typeof module !== "undefined"
     ? (module.exports = factory())
     : typeof define === "function" && define.amd
-    ? define("underscore", factory)
-    : ((global =
-        typeof globalThis !== "undefined" ? globalThis : global || self),
-      (function () {
-        var current = global._;
-        var exports = (global._ = factory());
-        exports.noConflict = function () {
-          global._ = current;
-          return exports;
-        };
-      })());
+      ? define("underscore", factory)
+      : ((global =
+          typeof globalThis !== "undefined" ? globalThis : global || self),
+        (function () {
+          var current = global._;
+          var exports = (global._ = factory());
+          exports.noConflict = function () {
+            global._ = current;
+            return exports;
+          };
+        })());
 })(this, function () {
   //     Underscore.js 1.13.1
   //     https://underscorejs.org
@@ -382,7 +382,7 @@
     return new Uint8Array(
       bufferSource.buffer || bufferSource,
       bufferSource.byteOffset || 0,
-      getByteLength(bufferSource)
+      getByteLength(bufferSource),
     );
   }
 
@@ -948,7 +948,7 @@
         (settings.interpolate || noMatch).source,
         (settings.evaluate || noMatch).source,
       ].join("|") + "|$",
-      "g"
+      "g",
     );
 
     // Compile the template source, escaping string literals appropriately.
@@ -970,7 +970,7 @@
 
         // Adobe VMs need the match returned to produce the correct offset.
         return match;
-      }
+      },
     );
     source += "';\n";
 
@@ -1654,7 +1654,7 @@
         }
         return left.index - right.index;
       }),
-      "value"
+      "value",
     );
   }
 
@@ -1768,7 +1768,7 @@
     return slice.call(
       array,
       0,
-      Math.max(0, array.length - (n == null || guard ? 1 : n))
+      Math.max(0, array.length - (n == null || guard ? 1 : n)),
     );
   }
 
@@ -1976,7 +1976,7 @@
         }
         return chainResult(this, obj);
       };
-    }
+    },
   );
 
   // Add all accessor `Array` functions to the wrapper.

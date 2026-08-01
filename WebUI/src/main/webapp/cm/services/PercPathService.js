@@ -40,7 +40,7 @@
   function getDisplayFormat(callback) {
     // Retrieve the corresponding displayformat for the current path
     var displayFormatName = $.perc_utils.getDisplayFormat(
-      $.PercNavigationManager.getPath()
+      $.PercNavigationManager.getPath(),
     );
     // Search View has no path asigned, so it should always be the default one
     if (
@@ -61,11 +61,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -92,11 +92,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
   /**
@@ -128,11 +128,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -165,14 +165,14 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           var errorCode = $.PercServiceUtils.extractGlobalErrorCode(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg, errorCode);
         }
-      }
+      },
     );
   }
 
@@ -218,12 +218,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      obj
+      obj,
     );
   }
 
@@ -250,12 +250,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      obj
+      obj,
     );
   }
   /**
@@ -277,11 +277,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
   /**
@@ -301,11 +301,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -329,15 +329,15 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           var defaultCode = $.PercServiceUtils.extractFieldErrorCode(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg, defaultCode);
         }
       },
-      obj
+      obj,
     );
   }
 
@@ -421,11 +421,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -445,7 +445,7 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
@@ -453,7 +453,7 @@
       null,
       null,
       null,
-      true
+      true,
     );
   }
 
@@ -494,7 +494,7 @@
 
         if (
           typeof $("a.perc-listing-category-FOLDER.perc_last_selected").attr(
-            "id"
+            "id",
           ) !== "undefined"
         ) {
           guid = $("a.perc-listing-category-FOLDER.perc_last_selected")
@@ -502,7 +502,7 @@
             .split("perc-finder-listing-")[1];
         } else if (
           typeof $(
-            "a.perc-listing-category-SECTION_FOLDER.perc_last_selected"
+            "a.perc-listing-category-SECTION_FOLDER.perc_last_selected",
           ).attr("id") !== "undefined"
         ) {
           guid = $("a.perc-listing-category-SECTION_FOLDER.perc_last_selected")
@@ -510,7 +510,7 @@
             .split("perc-finder-listing-")[1];
         } else if (
           typeof $("a.perc-listing-category-SYSTEM.perc_last_selected").attr(
-            "id"
+            "id",
           ) !== "undefined"
         ) {
           guid = $("a.perc-listing-category-SYSTEM.perc_last_selected")
@@ -563,7 +563,7 @@
   function cbVdfErrors(error) {
     var errorMsg = $.PercServiceUtils.extractDefaultErrorMessage(errors);
     var defMessage = I18N.message(
-      "perc.ui.path.service@Failed to Delete Folder"
+      "perc.ui.path.service@Failed to Delete Folder",
     );
     $.perc_utils.alert_dialog({
       id: "perc-finder-delete-error",
@@ -578,7 +578,7 @@
   function cbDfErrors(errors) {
     var errorMsg = $.PercServiceUtils.extractDefaultErrorMessage(errors);
     var defMessage = I18N.message(
-      "perc.ui.path.service@Failed to Delete Folder"
+      "perc.ui.path.service@Failed to Delete Folder",
     );
     $.perc_utils.alert_dialog({
       id: "perc-finder-delete-error",
@@ -708,7 +708,7 @@
       false,
       function (status, result) {
         callback(status, result);
-      }
+      },
     );
   }
 
@@ -746,7 +746,7 @@
       function (status, result) {
         callback(status, result);
       },
-      folderProps
+      folderProps,
     );
   }
 
@@ -771,11 +771,11 @@
           callback(true, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback(false, defaultMsg);
         }
-      }
+      },
     );
   }
 })(jQuery);

@@ -100,12 +100,12 @@ let PERCUSSION_URL = process.env.DEV_PERCUSSION_URL;
 
 if (!PERCUSSION_URL && INSTALL_PATH) {
   console.log(
-    "DEV_PERCUSSION_URL not found in .env, calculating from installation..."
+    "DEV_PERCUSSION_URL not found in .env, calculating from installation...",
   );
   PERCUSSION_URL = getUrlFromInstall(
     INSTALL_PATH,
     "jetty/base/etc/installation.properties",
-    "jetty.http.port"
+    "jetty.http.port",
   );
   updateEnvFile("DEV_PERCUSSION_URL", PERCUSSION_URL);
 } else if (!PERCUSSION_URL) {
@@ -116,13 +116,13 @@ let DTS_URL = process.env.DEV_PERCUSSION_DTS_URL;
 
 if (!DTS_URL && DTS_INSTALL_PATH) {
   console.log(
-    "DEV_PERCUSSION_DTS_URL not found in .env, calculating from DTS installation..."
+    "DEV_PERCUSSION_DTS_URL not found in .env, calculating from DTS installation...",
   );
   try {
     DTS_URL = getUrlFromInstall(
       DTS_INSTALL_PATH,
       "Deployment/Server/conf/perc/perc-catalina.properties",
-      "http.port"
+      "http.port",
     );
     updateEnvFile("DEV_PERCUSSION_DTS_URL", DTS_URL);
   } catch (e) {
@@ -135,7 +135,7 @@ let passwords = {};
 
 if (INSTALL_PATH) {
   const missingPasswords = users.some(
-    (user) => !process.env[`${user.toUpperCase()}_PASSWORD`]
+    (user) => !process.env[`${user.toUpperCase()}_PASSWORD`],
   );
   if (missingPasswords) {
     console.log("Some passwords missing, reading from installation...");
@@ -152,7 +152,7 @@ const CONTRIBUTOR_PASSWORD =
 async function login(page, username, password) {
   if (!password) {
     throw new Error(
-      `Password for ${username} not set and could not be read from installation`
+      `Password for ${username} not set and could not be read from installation`,
     );
   }
 
@@ -171,7 +171,7 @@ async function login(page, username, password) {
       .waitForFunction(
         () => !window.location.pathname.endsWith("/Rhythmyx/login"),
         null,
-        { timeout: 15_000 }
+        { timeout: 15_000 },
       )
       .catch(async () => {
         // networkidle sometimes fires before the JS function evaluates;
@@ -184,7 +184,7 @@ async function login(page, username, password) {
   const url = page.url();
   if (url.includes("/Rhythmyx/login")) {
     throw new Error(
-      `Login did not navigate away from /Rhythmyx/login (still at ${url})`
+      `Login did not navigate away from /Rhythmyx/login (still at ${url})`,
     );
   }
 }
@@ -215,10 +215,12 @@ async function loginAsContributor(page) {
 function basicAuthHeaders(username, password) {
   if (!password) {
     throw new Error(
-      `basicAuthHeaders: password for ${username} is missing (set .env or DEV_PERCUSSION_INSTALL)`
+      `basicAuthHeaders: password for ${username} is missing (set .env or DEV_PERCUSSION_INSTALL)`,
     );
   }
-  const token = Buffer.from(`${username}:${password}`, "utf8").toString("base64");
+  const token = Buffer.from(`${username}:${password}`, "utf8").toString(
+    "base64",
+  );
   return {
     RX_USEBASICAUTH: "true",
     Authorization: `Basic ${token}`,

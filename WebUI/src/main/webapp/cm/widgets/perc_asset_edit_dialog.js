@@ -40,7 +40,7 @@
     assetid,
     widgetData,
     parentId,
-    ownerType
+    ownerType,
   ) {
     ownerType = ownerType || "page";
     var ut = $.perc_utils;
@@ -85,7 +85,7 @@
             id: "perc-content_info_error",
             title: I18N.message("perc.ui.page.label@Editing Page"),
             content: I18N.message(
-              "perc.ui.asset.info.dialog@Error Opening Content Editor"
+              "perc.ui.asset.info.dialog@Error Opening Content Editor",
             ),
             width: 400,
           });
@@ -93,7 +93,7 @@
           ut.alert_dialog({
             id: "perc-content_edit_error",
             title: I18N.message(
-              "perc.ui.asset.edit.dialog@Error Opening Content Editor"
+              "perc.ui.asset.edit.dialog@Error Opening Content Editor",
             ),
             content: $.PercServiceUtils.extractDefaultErrorMessage(request),
             width: 400,
@@ -141,11 +141,11 @@
           $("#edit-widget-content").height($(this).parent().height() - 120);
           $("#edit-widget-content").width($(this).parent().width());
           $("#edit-widget-content-frame").height(
-            $(this).parent().height() - 120
+            $(this).parent().height() - 120,
           );
           $("#edit-widget-content-frame").width($(this).parent().width() - 3);
           maximize = $(
-            '<a id="ui-dialog-titlebar-resize" class="ui-dialog-titlebar-resize ui-corner-all" role="button" aria-label="full screen" href="#"><i class="fas fa-expand"/></a>'
+            '<a id="ui-dialog-titlebar-resize" class="ui-dialog-titlebar-resize ui-corner-all" role="button" aria-label="full screen" href="#"><i class="fas fa-expand"/></a>',
           );
           maximized = false;
           $(this).parent().find(".ui-dialog-title").after(maximize);
@@ -159,7 +159,7 @@
           $("#edit-widget-content").height($(this).parent().height() - 120);
           $("#edit-widget-content").width($(this).parent().width());
           $("#edit-widget-content-frame").height(
-            $(this).parent().height() - 120
+            $(this).parent().height() - 120,
           );
           $("#edit-widget-content-frame").width($(this).parent().width() - 5);
         },
@@ -180,10 +180,10 @@
                 var options = {
                   id: "perc-finder-delete-confirm",
                   title: I18N.message(
-                    "perc.ui.closeEditor.title@Close Content Editor"
+                    "perc.ui.closeEditor.title@Close Content Editor",
                   ),
                   question: I18N.message(
-                    "perc.ui.closeEditor.question@Close Content Editor"
+                    "perc.ui.closeEditor.question@Close Content Editor",
                   ),
                   success: function () {
                     closeContentEditor();
@@ -237,7 +237,7 @@
                 dialog.dialog("option", "draggable", true);
                 dialog.dialog("option", "resizable", true);
                 maximized = false;
-              }
+              },
             );
           } else {
             var o = dialog_frame.offset();
@@ -258,7 +258,7 @@
                 $("#edit-widget-content").width($(this).parent().width());
                 $("#edit-widget-content-frame").height($(this).height() - 120);
                 $("#edit-widget-content-frame").width(
-                  $(this).parent().width() - 5
+                  $(this).parent().width() - 5,
                 );
                 $(this)
                   .find(".fa-expand")
@@ -270,7 +270,7 @@
                 dialog.dialog("option", "draggable", false);
                 dialog.dialog("option", "resizable", false);
                 maximized = true;
-              }
+              },
             );
           }
         });
@@ -340,10 +340,10 @@
         var warning =
           "This is a shared Asset.  Your edits will take effect on all pages that use this Asset.";
         var $topPlaceHolder = $contentFrameElem(
-          "#perc-content-edit-content-top-placeholder"
+          "#perc-content-edit-content-top-placeholder",
         );
         $topPlaceHolder.addClass(
-          "perc_shared_asset_edit_warning perc-asset-edit-info-line"
+          "perc_shared_asset_edit_warning perc-asset-edit-info-line",
         );
         $topPlaceHolder.html(warning);
         $topPlaceHolder.show();
@@ -357,7 +357,7 @@
             "</div> <br/>";
 
           $contentFrameElem(
-            "#perc-content-edit-meta-data-top-placeholder"
+            "#perc-content-edit-meta-data-top-placeholder",
           ).html(pathField);
           $contentFrameElem("#perc-content-edit-metadata-panel").show();
           //Render site impact for the asset.
@@ -365,7 +365,7 @@
           $.PercSiteImpactView.renderSiteImpact(
             assetId,
             $.PercSiteImpactView.ITEM_TYPE_ASSET,
-            $contentFrameElem("#perc-site-impact-panel")
+            $contentFrameElem("#perc-site-impact-panel"),
           );
         }
       }
@@ -412,11 +412,11 @@
                 saveAssetContent(name, fs.PathItem.folderPath);
                 k();
               },
-              err
+              err,
             );
           }
         },
-        err
+        err,
       );
     }
 
@@ -440,7 +440,7 @@
       var ediv = $("#edit-widget-content").get(0);
       if (!$.data(ediv, "assetid") && contentEditCriteria.workflowId) {
         $contentFrameElem("#perc-content-edit-sys_workflowid").val(
-          contentEditCriteria.workflowId
+          contentEditCriteria.workflowId,
         );
       }
 
@@ -449,7 +449,7 @@
        * It expects psredirect to have the folder id.
        */
       $.perc_utils.debug(
-        I18N.message("perc.ui.asset.edit.dialog@Doing A Save Asset")
+        I18N.message("perc.ui.asset.edit.dialog@Doing A Save Asset"),
       );
       $.perc_utils.debug(contentEditCriteria);
       if (contentEditCriteria.producesResource) {
@@ -474,7 +474,7 @@
       var frameToCheckForMandatoryField = $("#edit-widget-content-frame");
       var showMandatoryFieldAlertPopUp = false;
       showMandatoryFieldAlertPopUp = $.perc_utils.checkMandatoryFieldsEmpty(
-        frameToCheckForMandatoryField
+        frameToCheckForMandatoryField,
       );
       if (showMandatoryFieldAlertPopUp) {
         dosubmit = false;
@@ -497,7 +497,7 @@
             .contents()
             .find("#perc-content-form")
             .trigger("submit");
-        }
+        },
       );
     }
 
@@ -556,7 +556,7 @@
               title: I18N.message("perc.ui.publish.title@Error"),
               content: defaultMsg,
             });
-          }
+          },
         );
       } else {
         $.PercAssetService.updateAsset(parentId, assetid, function () {

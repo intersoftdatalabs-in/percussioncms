@@ -50,7 +50,7 @@ import { describe, it, expect } from "vitest";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SRC_PATH = resolve(
   __dirname,
-  "../../main/webapp/cm/classes/perc_template_layout_class.js"
+  "../../main/webapp/cm/classes/perc_template_layout_class.js",
 );
 
 function loadPercTemplateCodeHasClass() {
@@ -59,7 +59,7 @@ function loadPercTemplateCodeHasClass() {
   if (!match) {
     throw new Error(
       "percTemplateCodeHasClass() not found in perc_template_layout_class.js " +
-        "— has the fix for js/xss-through-dom been reverted?"
+        "— has the fix for js/xss-through-dom been reverted?",
     );
   }
   // eslint-disable-next-line no-eval
@@ -70,7 +70,7 @@ describe("perc_template_layout_class percTemplateCodeHasClass regression", () =>
   it("does not reference jQuery/DOM APIs (no HTML-parsing sink)", () => {
     const src = readFileSync(SRC_PATH, "utf8");
     const match = /function percTemplateCodeHasClass\([\s\S]*?\n {2}}/.exec(
-      src
+      src,
     );
     expect(match).not.toBeNull();
     const fnBody = match[0];

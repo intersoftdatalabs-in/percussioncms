@@ -17,7 +17,6 @@
 
 package com.percussion.delivery.metadata;
 
-import tools.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 import com.percussion.delivery.exceptions.PSJsonMappingErrorResponse;
 import com.percussion.delivery.exceptions.PSUncaughtError;
 import com.percussion.delivery.metadata.impl.PSMetadataExtractorRestService;
@@ -31,6 +30,7 @@ import org.glassfish.jersey.server.spring.SpringComponentProvider;
 import org.glassfish.jersey.server.spring.SpringLifecycleListener;
 import org.glassfish.jersey.server.spring.SpringWebApplicationInitializer;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
+import tools.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 
 @ApplicationPath("/")
 public class PSMetadataApplication extends ResourceConfig {

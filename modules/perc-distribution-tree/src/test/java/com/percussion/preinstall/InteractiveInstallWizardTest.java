@@ -91,9 +91,9 @@ class InteractiveInstallWizardTest {
   @Test
   void interactivePromptsForPathAndConfirmsDefaultYesForH2() {
     Path install = tempDir.resolve("interactive-cms");
-    // path → DB menu default H2 → CMS DB password + confirm → confirm default Y
+    // path → DB menu default H2 → CMS DB password + confirm → demo-sites (default No) → confirm Y
     ScriptedPrompt prompt =
-        new ScriptedPrompt(install.toString(), "", "operator-pwd", "operator-pwd", "");
+        new ScriptedPrompt(install.toString(), "", "operator-pwd", "operator-pwd", "", "");
     DbInstallConfigResolver.ParsedArgs parsed =
         new DbInstallConfigResolver.ParsedArgs(null, Map.of());
     InteractiveInstallWizard.Phase1Result result =
@@ -109,13 +109,17 @@ class InteractiveInstallWizardTest {
         prompt.outputsAsString().contains("rxrepository.properties"),
         "interactive H2 summary must reference rxrepository.properties; was:\n"
             + prompt.outputsAsString());
+    assertTrue(
+        prompt.outputsAsString().contains("Sample sites"),
+        "summary must include the demo-sites line; was:\n" + prompt.outputsAsString());
   }
 
   @Test
   void interactiveConfirmNoAborts() {
     Path install = tempDir.resolve("abort-cms");
-    // path → H2 menu → CMS DB password + confirm → confirm n
-    ScriptedPrompt prompt = new ScriptedPrompt(install.toString(), "1", "secret", "secret", "n");
+    // path → H2 menu → CMS DB password + confirm → demo-sites (default No) → confirm n
+    ScriptedPrompt prompt =
+        new ScriptedPrompt(install.toString(), "1", "secret", "secret", "", "n");
     DbInstallConfigResolver.ParsedArgs parsed =
         new DbInstallConfigResolver.ParsedArgs(null, Map.of());
     InteractiveInstallWizard.Phase1Result result =
@@ -128,8 +132,8 @@ class InteractiveInstallWizardTest {
   @Test
   void interactivePathAlreadySuppliedStillConfirms() {
     Path install = tempDir.resolve("cli-path");
-    // H2 menu → CMS DB password + confirm → confirm y
-    ScriptedPrompt prompt = new ScriptedPrompt("1", "secret", "secret", "y");
+    // H2 menu → CMS DB password + confirm → demo-sites (default No) → confirm y
+    ScriptedPrompt prompt = new ScriptedPrompt("1", "secret", "secret", "", "y");
     DbInstallConfigResolver.ParsedArgs parsed =
         new DbInstallConfigResolver.ParsedArgs(install, Map.of());
     InteractiveInstallWizard.Phase1Result result =
@@ -150,8 +154,9 @@ class InteractiveInstallWizardTest {
     opts.put("db.user", "cms");
     opts.put("db.password", "s3cret-should-not-appear");
 
-    // skip field prompts (CLI override) → test connection n → confirm empty → No
-    ScriptedPrompt prompt = new ScriptedPrompt("n", "");
+    // skip field prompts (CLI override) → test connection n → demo-sites (default No) → confirm
+    // empty → No
+    ScriptedPrompt prompt = new ScriptedPrompt("n", "", "");
     DbInstallConfigResolver.ParsedArgs parsed =
         new DbInstallConfigResolver.ParsedArgs(install, opts);
     InteractiveInstallWizard.Phase1Result result =
@@ -173,8 +178,8 @@ class InteractiveInstallWizardTest {
     opts.put("db.user", "cms");
     opts.put("db.password", "s3cret-should-not-appear");
 
-    // test connection n → confirm yes
-    ScriptedPrompt prompt = new ScriptedPrompt("n", "yes");
+    // test connection n → demo-sites (default No) → confirm yes
+    ScriptedPrompt prompt = new ScriptedPrompt("n", "", "yes");
     DbInstallConfigResolver.ParsedArgs parsed =
         new DbInstallConfigResolver.ParsedArgs(install, opts);
     InteractiveInstallWizard.Phase1Result result =
@@ -187,7 +192,8 @@ class InteractiveInstallWizardTest {
   @Test
   void interactiveSqlServerExpressPathCollectsStructuredFields() {
     Path install = tempDir.resolve("express-cms");
-    // menu 2 (SQL Server) → host/port/name/schema/user/password/ssl/sslVerify → skip test → confirm
+    // menu 2 (SQL Server) → host/port/name/schema/user/password/ssl/sslVerify → skip test
+    //   → demo-sites (default No) → confirm y
     ScriptedPrompt prompt =
         new ScriptedPrompt(
             "2",
@@ -200,6 +206,7 @@ class InteractiveInstallWizardTest {
             "true",
             "true",
             "n",
+            "",
             "y");
     DbInstallConfigResolver.ParsedArgs parsed =
         new DbInstallConfigResolver.ParsedArgs(install, Map.of());
@@ -337,6 +344,131 @@ class InteractiveInstallWizardTest {
     assertFalse(
         InteractiveInstallWizard.isDefaultYesConfirm(
             DbInstallConfigResolver.resolveDbConfig(mysql)));
+  }
+
+  @Test
+  void demoSitesFlagParsesCliAndSystemProperty() {
+    String prevSys = System.getProperty(DbInstallConfigResolver.DEMO_SITES_SYSTEM_PROPERTY);
+    try {
+      System.clearProperty(DbInstallConfigResolver.DEMO_SITES_SYSTEM_PROPERTY);
+      assertFalse(DbInstallConfigResolver.parseDemoSitesFlag(Map.of()));
+      assertFalse(DbInstallConfigResolver.parseDemoSitesFlag(null));
+      assertTrue(
+          DbInstallConfigResolver.parseDemoSitesFlag(
+              Map.of(DbInstallConfigResolver.DEMO_SITES_KEY, "true")));
+      assertTrue(
+          DbInstallConfigResolver.parseDemoSitesFlag(
+              Map.of(DbInstallConfigResolver.DEMO_SITES_KEY, "yes")));
+      assertTrue(
+          DbInstallConfigResolver.parseDemoSitesFlag(
+              Map.of(DbInstallConfigResolver.DEMO_SITES_KEY, "1")));
+      assertTrue(DbInstallConfigResolver.parseDemoSitesFlag(Map.of("install.demo.sites", "true")));
+      assertFalse(
+          DbInstallConfigResolver.parseDemoSitesFlag(
+              Map.of(DbInstallConfigResolver.DEMO_SITES_KEY, "false")));
+
+      // CLI flag wins when both are set; system property is the fallback when CLI is blank.
+      // Mirrors ObsoleteInstallDirCleaner.parseCleanInstallDirFlag.
+      System.setProperty(DbInstallConfigResolver.DEMO_SITES_SYSTEM_PROPERTY, "true");
+      assertFalse(
+          DbInstallConfigResolver.parseDemoSitesFlag(
+              Map.of(DbInstallConfigResolver.DEMO_SITES_KEY, "false")));
+      System.setProperty(DbInstallConfigResolver.DEMO_SITES_SYSTEM_PROPERTY, "true");
+      assertTrue(DbInstallConfigResolver.parseDemoSitesFlag(Map.of()));
+      System.setProperty(DbInstallConfigResolver.DEMO_SITES_SYSTEM_PROPERTY, "no");
+      assertFalse(DbInstallConfigResolver.parseDemoSitesFlag(Map.of()));
+    } finally {
+      if (prevSys == null) {
+        System.clearProperty(DbInstallConfigResolver.DEMO_SITES_SYSTEM_PROPERTY);
+      } else {
+        System.setProperty(DbInstallConfigResolver.DEMO_SITES_SYSTEM_PROPERTY, prevSys);
+      }
+    }
+  }
+
+  @Test
+  void resolveDemoSitesInteractivePromptsOnUpgradeToo() {
+    // Upgrades must surface the demo-sites prompt so operators can opt in (the strip
+    // step in installRepository.xml is the RXLOCALE/RXLOCALEFORMAT protection, not
+    // install-type gating).
+    Map<String, String> options = new HashMap<>();
+    ScriptedPrompt prompt = new ScriptedPrompt("y");
+    boolean resolved = InteractiveInstallWizard.resolveDemoSites(true, options, prompt);
+    assertTrue(resolved);
+    assertEquals("true", options.get(DbInstallConfigResolver.DEMO_SITES_KEY));
+    assertTrue(
+        prompt.outputsAsString().contains("Install sample sites"),
+        "prompt must show on upgrade; was:\n" + prompt.outputsAsString());
+  }
+
+  @Test
+  void resolveDemoSitesInteractiveHonorsEmptyAnswerAgainstCliDefault() {
+    Map<String, String> options = new HashMap<>();
+    options.put(DbInstallConfigResolver.DEMO_SITES_KEY, "true");
+    ScriptedPrompt prompt = new ScriptedPrompt("");
+    boolean resolved = InteractiveInstallWizard.resolveDemoSites(true, options, prompt);
+    assertTrue(resolved);
+    assertEquals("true", options.get(DbInstallConfigResolver.DEMO_SITES_KEY));
+  }
+
+  @Test
+  void resolveDemoSitesSilentHonorsCliAndDefaultsToFalse() {
+    Map<String, String> options = new HashMap<>();
+    assertFalse(InteractiveInstallWizard.resolveDemoSites(false, options, new ScriptedPrompt()));
+    assertEquals("false", options.get(DbInstallConfigResolver.DEMO_SITES_KEY));
+
+    options.clear();
+    options.put(DbInstallConfigResolver.DEMO_SITES_KEY, "yes");
+    assertTrue(InteractiveInstallWizard.resolveDemoSites(false, options, new ScriptedPrompt()));
+    assertEquals("true", options.get(DbInstallConfigResolver.DEMO_SITES_KEY));
+  }
+
+  @Test
+  void resolveDemoSitesInteractiveDefaultsNoAndPrefersPreFlag() {
+    // No CLI pre-population: empty input defaults to No.
+    Map<String, String> options = new HashMap<>();
+    ScriptedPrompt prompt = new ScriptedPrompt("");
+    boolean resolved = InteractiveInstallWizard.resolveDemoSites(true, options, prompt);
+    assertFalse(resolved);
+    assertEquals("false", options.get(DbInstallConfigResolver.DEMO_SITES_KEY));
+    assertTrue(
+        prompt.outputsAsString().contains("Install sample sites"),
+        "must show the demo-sites prompt; was:\n" + prompt.outputsAsString());
+
+    // With --demo-sites on CLI: empty input honors the pre-population.
+    options.clear();
+    prompt = new ScriptedPrompt("");
+    options.put(DbInstallConfigResolver.DEMO_SITES_KEY, "true");
+    resolved = InteractiveInstallWizard.resolveDemoSites(true, options, prompt);
+    assertTrue(resolved);
+
+    // Explicit operator answer y.
+    options.clear();
+    prompt = new ScriptedPrompt("y");
+    resolved = InteractiveInstallWizard.resolveDemoSites(true, options, prompt);
+    assertTrue(resolved);
+    assertEquals("true", options.get(DbInstallConfigResolver.DEMO_SITES_KEY));
+  }
+
+  @Test
+  void summaryMentionsSampleSitesState() {
+    DbInstallConfigResolver.ResolvedDbConfig db = DbInstallConfigResolver.resolveDbConfig(Map.of());
+    Path install = tempDir.resolve("any-root");
+    String enabled = InteractiveInstallWizard.buildSummary(install, db, null, true, false);
+    assertTrue(enabled.contains("Sample sites : enabled"));
+    String disabled = InteractiveInstallWizard.buildSummary(install, db, null, false, false);
+    assertTrue(disabled.contains("Sample sites : disabled"));
+    // Upgrades also surface the enabled/disabled state, not a "skipped" sentinel.
+    String upgradeEnabled = InteractiveInstallWizard.buildSummary(install, db, null, true, true);
+    assertTrue(upgradeEnabled.contains("Sample sites : enabled"));
+  }
+
+  @Test
+  void usageMessageMentionsDemoSitesFlag() {
+    String msg = InteractiveInstallWizard.usageMessage();
+    assertTrue(
+        msg.contains("--demo-sites"), "usage message must mention --demo-sites; was:\n" + msg);
+    assertTrue(msg.contains("--no-demo-sites"));
   }
 
   /** Scripted prompt: answers consumed in order for readLine/readPassword. */

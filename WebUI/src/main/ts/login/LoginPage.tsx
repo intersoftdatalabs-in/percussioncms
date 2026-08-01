@@ -20,7 +20,7 @@ import { BrandBar, BrandFooter } from "../ui-themes/components";
 import { ThemeProvider } from "../ui-themes/ThemeProvider";
 import { useTheme } from "../ui-themes/ThemeProvider";
 import { LOGIN_KEYS, t } from "./i18n";
-import { localeLabel } from "./localeLabels";
+import { LocaleSelect } from "./LocaleSelect";
 import { ensureTmxLoaded } from "./tmxLoader";
 import type { LocaleFormatBootstrap, LoginBootstrap } from "./types";
 import styles from "./LoginPage.module.css";
@@ -211,24 +211,20 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
               <label className={styles.label} htmlFor="perc-login-locale">
                 {t(LOGIN_KEYS.LOCALE)}
               </label>
-              <select
-                className={styles.select}
+              {/*
+                Custom combobox with SVG flags (country-flag-icons). Native
+                <select> cannot host HTML/SVG in options. Hidden j_locale
+                field still posts with the multipart form.
+              */}
+              <LocaleSelect
                 id="perc-login-locale"
-                name="j_locale"
+                locales={bootstrap.locales}
                 value={locale}
-                onChange={(e) => onLocaleChange(e.target.value)}
+                onChange={onLocaleChange}
+                name="j_locale"
+                tabIndex={3}
                 data-testid="perc-login-locale"
-              >
-                {bootstrap.locales.map((loc) => (
-                  <option key={loc.name} value={loc.name}>
-                    {/*
-                      Endonym labels are stable across UI locale changes
-                      (GH-1608). Second arg is unused; pass option code.
-                    */}
-                    {localeLabel(loc.name, loc.name, loc.displayName)}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
 
             <div className={styles.checkboxRow}>

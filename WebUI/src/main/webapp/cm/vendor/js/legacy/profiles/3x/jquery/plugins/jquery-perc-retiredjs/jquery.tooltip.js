@@ -116,7 +116,7 @@
     helper.parent = $(
       '<div id="' +
         settings.id +
-        '"><h3></h3><div class="body"></div><div class="url"></div></div>'
+        '"><h3></h3><div class="body"></div><div class="url"></div></div>',
     )
       // add to document
       .appendTo(document.body)

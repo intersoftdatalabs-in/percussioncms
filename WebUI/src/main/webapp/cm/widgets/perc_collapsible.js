@@ -29,8 +29,8 @@
         return $("<span/>")
           .append(
             $(
-              '<span class="ui-icon ui-icon-plus ui-state-disabled ui-state-default">+</span>'
-            )
+              '<span class="ui-icon ui-icon-plus ui-state-disabled ui-state-default">+</span>',
+            ),
           )
           .append(
             $('<span class="ui-icon ui-icon-minus ui-state-default">-</span>')
@@ -43,7 +43,7 @@
               .on("click", function () {
                 self.collapse();
                 toggle.empty().append(toggle_off());
-              })
+              }),
           );
       };
 
@@ -60,12 +60,12 @@
               .on("click", function () {
                 self.uncollapse();
                 toggle.empty().append(toggle_on());
-              })
+              }),
           )
           .append(
             $(
-              '<span class="ui-icon ui-icon-minus ui-state-default ui-state-disabled">-</span>'
-            )
+              '<span class="ui-icon ui-icon-minus ui-state-default ui-state-disabled">-</span>',
+            ),
           );
       };
 
@@ -79,7 +79,7 @@
         .append(
           $("<div/>")
             .addClass("perc_collapsible_body ui-widget ui-widget-content")
-            .append(this._getData("bodyContent"))
+            .append(this._getData("bodyContent")),
         );
       return this.element;
     },

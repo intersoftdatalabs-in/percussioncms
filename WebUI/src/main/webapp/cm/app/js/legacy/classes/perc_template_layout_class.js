@@ -84,7 +84,7 @@ var regionWidgetAssociationXmlString = "";
       var $regionTree = $temp.find("Template regionTree");
       var $rootRegion = $regionTree.find("rootRegion children region:first");
       var $regionWidgetAssociations = $regionTree.find(
-        "regionWidgetAssociations"
+        "regionWidgetAssociations",
       );
       var $css = $temp.find("Template cssMarkup");
 
@@ -116,7 +116,7 @@ var regionWidgetAssociationXmlString = "";
       var $children = $region.children("children");
       var templateCodeText = $children.find("code templateCode:first").text();
       newRegion.setVertical(
-        !percTemplateCodeHasClass(templateCodeText, "perc-horizontal")
+        !percTemplateCodeHasClass(templateCodeText, "perc-horizontal"),
       );
 
       // Get regions
@@ -163,11 +163,11 @@ var regionWidgetAssociationXmlString = "";
       var regionWidgetAssociationsXmlString =
         this.rootRegion.generateWidgetAssociationsXml(true);
       var regionWidgetAssociationsXmlDom = $.xmlDOM(
-        regionWidgetAssociationsXmlString
+        regionWidgetAssociationsXmlString,
       );
       var element = regionWidgetAssociationsXmlDom.context.documentElement;
       var $regionWidgetAssociations = $regionTree.find(
-        "regionWidgetAssociations"
+        "regionWidgetAssociations",
       );
       $regionWidgetAssociations.replaceWith(element);
 

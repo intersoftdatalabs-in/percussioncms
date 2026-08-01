@@ -10,7 +10,7 @@
         '{"' + qp.replace(/&/g, '","').replace(/=/g, '":"') + '"}',
         function (key, value) {
           return key === "" ? value : decodeURIComponent(value);
-        }
+        },
       )
     : {};
   window.opener.onOAuthComplete(qp);

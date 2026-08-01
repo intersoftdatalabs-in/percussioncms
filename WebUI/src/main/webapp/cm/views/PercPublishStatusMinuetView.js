@@ -37,7 +37,7 @@
     function getPublishStatus() {
       $.PercPublisherService(false).getJobStatus(
         selectedSiteData.siteId,
-        getPublishStatusCallback
+        getPublishStatusCallback,
       );
     }
 
@@ -53,7 +53,7 @@
       processTemplate(
         emptyObject,
         "templatePercPublishStatus",
-        "percPublishStatusTarget"
+        "percPublishStatusTarget",
       );
       bindStatusEvents();
     }
@@ -90,7 +90,7 @@
               "templatePercPublishStatusList",
               "percPublishStatusListTarget",
               "SitePublishJob",
-              toggleFlag
+              toggleFlag,
             );
             $("#percPublishStatusListTarget").animateCss("fadeIn");
           });
@@ -105,7 +105,7 @@
             "templatePercPublishStatusList",
             "percPublishStatusListTarget",
             "SitePublishJob",
-            toggleFlag
+            toggleFlag,
           );
         }
 
@@ -119,7 +119,7 @@
       stopPublishingJobDeferred = $.Deferred();
       $.PercPublisherService(false).stopPubJob(
         jobId,
-        stopPublishingJobCallback
+        stopPublishingJobCallback,
       );
       stopPublishingJobDeferred.done(function (response) {
         processAlert(response);
@@ -132,12 +132,12 @@
         response = {};
         response.result = {};
         response.source = I18N.message(
-          "perc.ui.publish.title@Stop Publishing Job"
+          "perc.ui.publish.title@Stop Publishing Job",
         );
         if (result[1] == "success") {
           response.result.warning = false;
           response.result.status = I18N.message(
-            "perc.ui.publish.title@Successfully Stopped Publishing Job"
+            "perc.ui.publish.title@Successfully Stopped Publishing Job",
           );
         } else {
           responseText = JSON.parse(result[0].responseText);
@@ -154,7 +154,7 @@
           if (event.type === "click" || event.which === 13) {
             renderPublishStatusList("click", true, this);
           }
-        }
+        },
       );
     }
 
@@ -176,6 +176,6 @@
       }
 
       return progress;
-    }
+    },
   );
 })($);

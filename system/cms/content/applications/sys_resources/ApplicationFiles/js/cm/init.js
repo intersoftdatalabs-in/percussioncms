@@ -6,7 +6,7 @@ jQuery(function ($) {
       var updateTitleValue = $(this).val();
       updateTitleValue = updateTitleValue.trim();
       $(this).val(updateTitleValue);
-    }
+    },
   );
 });
 

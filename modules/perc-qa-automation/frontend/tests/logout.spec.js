@@ -39,10 +39,10 @@ test.describe("Logout screen", () => {
       timeout: 15_000,
     });
     await expect(page.getByTestId("perc-logout-title")).toContainText(
-      /signed out/i
+      /signed out/i,
     );
     await expect(page.getByTestId("perc-logout-message")).toContainText(
-      /logged out/i
+      /logged out/i,
     );
     await expect(page.getByTestId("perc-brand-bar")).toBeVisible();
     await expect(page.getByTestId("perc-logout-logo")).toBeVisible();

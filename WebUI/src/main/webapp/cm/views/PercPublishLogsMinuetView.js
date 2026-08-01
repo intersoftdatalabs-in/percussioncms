@@ -40,7 +40,7 @@
       processTemplate(
         serverListObject,
         "templatePercPublishLogs",
-        "percPublishLogsTarget"
+        "percPublishLogsTarget",
       );
     }
 
@@ -58,7 +58,7 @@
     function getSiteLogs(logParams) {
       $.PercPublisherService(false).getPublishingLogs(
         logParams,
-        getSiteLogsCallback
+        getSiteLogsCallback,
       );
     }
 
@@ -74,17 +74,17 @@
         response = {};
         response.result = {};
         response.source = I18N.message(
-          "perc.ui.publish.title@Delete Publishing Logs"
+          "perc.ui.publish.title@Delete Publishing Logs",
         );
         //CMS-8073 : The result is returned as 204 - No Content <host:port>/Rhythmyx/services/sitemanage/pubstatus/purge/ api
         if (result[1] === "success" || result[1] === "nocontent") {
           response.result.status = I18N.message(
-            "perc.ui.publish.title@Delete Logs Success"
+            "perc.ui.publish.title@Delete Logs Success",
           );
           refreshSiteLogs();
         } else {
           response.result.warning = I18N.message(
-            "perc.ui.page.dialog@Request Error"
+            "perc.ui.page.dialog@Request Error",
           );
         }
         deleteSelectedLogsResponseDeferred.resolve(response);
@@ -118,12 +118,12 @@
         processTemplate(
           jobObject,
           "templatePercPublishLogDetailsOverlay",
-          "percPublishLogDetailsOverlayTarget"
+          "percPublishLogDetailsOverlayTarget",
         );
         processTemplate(
           jobObject,
           "templatePercPublishLogDetailsList",
-          "percPublishLogDetailsListTarget"
+          "percPublishLogDetailsListTarget",
         );
         $("#percPublishLogDetailsOverlayTarget").animateCss("fadeIn faster");
         $("#percPublishLogDetails").modal("_enforceFocus");
@@ -138,7 +138,7 @@
     function getPublishingLogDetails(jobId) {
       $.PercPublisherService(false).getPublishingLogDetails(
         jobId,
-        getPublishingLogDetailsCallback
+        getPublishingLogDetailsCallback,
       );
     }
 
@@ -152,16 +152,16 @@
       dialogObject = createDialogObject();
       dialogObject.type = "branded";
       dialogObject.title = I18N.message(
-        "perc.ui.page.dialog@Delete Logs Confirmation Title"
+        "perc.ui.page.dialog@Delete Logs Confirmation Title",
       );
       dialogObject.message = I18N.message(
-        "perc.ui.page.dialog@Delete Logs Confirmation"
+        "perc.ui.page.dialog@Delete Logs Confirmation",
       );
 
       processTemplate(
         dialogObject,
         "templateFullScreenDialog",
-        "percDialogTarget"
+        "percDialogTarget",
       );
       $(".perc-fullscreen-dialog").modal("_enforceFocus");
       $(".perc-fullscreen-dialog").animateCss("fadeIn");
@@ -200,7 +200,7 @@
       });
       $.PercPublisherService(false).purgeJob(
         jobIdList,
-        deleteSelectedLogsCallback
+        deleteSelectedLogsCallback,
       );
     }
 
@@ -226,7 +226,7 @@
           if (event.type == "click" || event.which == 13) {
             sortLogList("click", true, this);
           }
-        }
+        },
       );
     }
 
@@ -244,7 +244,7 @@
         "templatePercServerLogList",
         "percServerLogListTarget",
         "SitePublishJob",
-        toggleFlag
+        toggleFlag,
       );
     }
 
@@ -268,10 +268,10 @@
             processTemplate(
               itemData,
               "templatePercPublishItemLogDetails",
-              "percPublishItemLogDetailsTarget"
+              "percPublishItemLogDetailsTarget",
             );
             $("#percPublishItemLogDetailsTarget").animateCss("fadeIn faster");
-          }
+          },
         );
       });
 
@@ -290,10 +290,10 @@
               "templatePercPublishLogDetailsList",
               "percPublishLogDetailsListTarget",
               "SitePublishItem",
-              true
+              true,
             );
           }
-        }
+        },
       );
     }
 
@@ -314,7 +314,7 @@
     function filterPublishItemsByString(filterItemString) {
       $("#percPublishLogDetailsListTarget tr").filter(function () {
         $(this).toggle(
-          $(this).text().toLowerCase().indexOf(filterItemString) > -1
+          $(this).text().toLowerCase().indexOf(filterItemString) > -1,
         );
       });
     }
@@ -325,7 +325,7 @@
       template,
       target,
       sortWithin,
-      sortToggle
+      sortToggle,
     ) {
       // Retrieving target Id ensures we are only affecting the closest
       // table and not any of the other sortable tables
@@ -337,7 +337,7 @@
       tempObject = [];
       $(dataObject[sortWithin]).each(function () {
         this.calculatedStartDate = new Date(
-          this.startDate + " " + this.startTime
+          this.startDate + " " + this.startTime,
         ).getTime();
         this.calculatedProgress = this.completedItems / this.totalItems;
         tempObject.push(this);
@@ -360,7 +360,7 @@
         }
       }
       sortedData = dataObject[sortWithin].sort(
-        fieldSorter([sortAttr, "-calculatedStartDate"])
+        fieldSorter([sortAttr, "-calculatedStartDate"]),
       );
       dataObject[sortWithin] = sortedData;
       $("#" + targetId + " .perc-sortable-header")

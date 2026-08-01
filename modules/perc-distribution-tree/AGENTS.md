@@ -57,6 +57,41 @@ This is executed in `installDistributionFiles.xml` after MySQL connector setup a
 
 ## Common Tasks
 
+### Installing Sample Sites (Corporate / Enterprise Investments)
+
+The preinstall CLI / interactive wizard accepts a `--demo-sites` (or `--no-demo-sites`) flag
+that seeds the legacy `RxffTableData.xml` / `RxffTableDef.xml` sample-site bundle after the
+core schema load. The flag works on both new installs and upgrades; the protection against
+overwriting operator locale tables (`RXLOCALE` / `RXLOCALEFORMAT`) is the strip step in
+`installRepository.xml`, not install-type gating.
+
+|             Channel              |                                                                                                                                                                                                  Behaviour                                                                                                                                                                                                  |
+|----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Interactive wizard               | Always prompts with `Install sample sites (Corporate Investments / Enterprise Investments)? [y/N]` (default No; the default is the CLI pre-population when `--demo-sites` / `--no-demo-sites` is supplied). Same flow on new installs and upgrades.                                                                                                                                                         |
+| Silent (`--silent` / `--no-tty`) | Honors `--demo-sites` / `--no-demo-sites` / `-Dinstall.demo.sites=true`. Same flow on new installs and upgrades.                                                                                                                                                                                                                                                                                            |
+| ANT side                         | `installRepository.xml` has an `installSampleSites` target that runs only when `-Dinstall.demo.sites=true`. The target chains a `stripSampleLocales` pass first to defensively drop any `<table name="RXLOCALE…">` / `<table name="RXLOCALEFORMAT…">` blocks from the sample XML before the second `PSTableAction` run. RXLOCALE rows are never part of the seeded XML, so this is a belt-and-braces guard. |
+
+Constants / parsing live in `DbInstallConfigResolver`:
+
+- `DbInstallConfigResolver.DEMO_SITES_KEY = "demo-sites"` (CLI key)
+- `DbInstallConfigResolver.DEMO_SITES_SYSTEM_PROPERTY = "install.demo.sites"` (ANT-visible)
+- `DbInstallConfigResolver.parseDemoSitesFlag(Map<String,String>)` — mirror of
+  `ObsoleteInstallDirCleaner.parseCleanInstallDirFlag` for truthy/yes/1/no/0 parsing.
+
+Source-of-truth files:
+
+- `modules/perc-distribution-tree/src/main/resources/distribution/rxconfig/Installer/installRepository.xml` — `installSampleSites` + `stripSampleLocales` targets.
+- `modules/perc-distribution-tree/src/main/resources/distribution/rxconfig/Installer/install.xml` — comments documenting the demo-sites chain wiring.
+- `modules/perc-distribution-tree/src/main/java/com/percussion/preinstall/InteractiveInstallWizard.java` — `resolveDemoSites` + `buildSummary` "Sample sites" line + `usageMessage()` mentions `--demo-sites`.
+- `modules/perc-distribution-tree/src/main/java/com/percussion/preinstall/Main.java` — propagates `-Dinstall.demo.sites=…` to the ANT JVM.
+
+Test coverage:
+
+- `InteractiveInstallWizardTest#demoSitesFlag…` + `resolveDemoSites…` + `summaryMentionsSampleSitesState` + `usageMessageMentionsDemoSitesFlag`.
+- `DbInstallConfigResolverTest#parseDemoSitesFlagDefaultsFalseAndHonorsAliases`.
+- `SampleSiteLocaleStripTest` (regression guard for the source file + Java mirror of the
+  ANT strip regex).
+
 ### Building This Module
 
 ```bash

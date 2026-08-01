@@ -159,11 +159,11 @@ var layoutModel;
                   } else
                     $.perc_utils.alert_dialog({
                       title: I18N.message(
-                        "perc.ui.layout.view@Conversion Error"
+                        "perc.ui.layout.view@Conversion Error",
                       ),
                       content: message,
                     });
-                }
+                },
               );
             },
           });
@@ -215,20 +215,20 @@ var layoutModel;
       allWidgets,
       "perc-widget-puff",
       "perc-widget-active",
-      widgetMenu
+      widgetMenu,
     );
     var regionDecorator = layoutModel.isTemplate()
       ? P.decorationController(
           allRegions,
           "perc-region-puff",
           "perc-region-active",
-          regionMenu
+          regionMenu,
         )
       : P.decorationController(
           allRegions,
           "perc-region-puff",
           "perc-region-active",
-          []
+          [],
         );
 
     // let both decorators know about each other so that they can unselect each other
@@ -278,7 +278,7 @@ var layoutModel;
           setLayoutDirty(false);
         },
         widObj,
-        requireMigration
+        requireMigration,
       );
     }
 
@@ -307,7 +307,7 @@ var layoutModel;
                 I18N.message("perc.ui.layout.view@Failed To Fill Widget") +
                   newAsset.widgetId +
                   I18N.message("perc.ui.layout.view@Error Is") +
-                  err
+                  err,
               );
               updatedHtml = $("").wrapAll("<div></div>").parent();
             }
@@ -396,7 +396,7 @@ var layoutModel;
               handleScripts();
             },
             function () {},
-            options
+            options,
           );
         } else {
           handleScripts();
@@ -424,7 +424,7 @@ var layoutModel;
 
       if (layoutModel.isTemplate()) {
         $.PercRegionCSSHandler.setTemplateAndThemeNamesAndTemplateIdIfEmpty(
-          layoutModel
+          layoutModel,
         );
         $.PercRegionCSSHandler.prepareForEditRegionCSS(layoutModel);
       }
@@ -486,20 +486,20 @@ var layoutModel;
         afterRender();
         $("#frame").attr("perc-view-type", "layout");
         var frwrapper = $.PercViewReadyManager.getWrapper(
-          "perc-ui-component-editor-frame"
+          "perc-ui-component-editor-frame",
         );
         if (frwrapper != null)
           frwrapper.handleComponentProgress(
             "perc-ui-component-editor-frame",
-            "complete"
+            "complete",
           );
         var tbwrapper = $.PercViewReadyManager.getWrapper(
-          "perc-ui-component-editor-toolbar"
+          "perc-ui-component-editor-toolbar",
         );
         if (tbwrapper != null)
           tbwrapper.handleComponentProgress(
             "perc-ui-component-editor-toolbar",
-            "complete"
+            "complete",
           );
       });
     }
@@ -613,7 +613,7 @@ var layoutModel;
           var regionId = "perc-re-" + $(this).attr("id");
           $(".perc-region-library-tool").removeClass("perc-region-active");
           $(".perc-region-library-tool[name=" + regionId + "]").addClass(
-            "perc-region-active"
+            "perc-region-active",
           );
         });
       iframe.contents().find(".sf-menu").superfish({
@@ -801,7 +801,7 @@ var layoutModel;
         ["north", "south", "east", "west", "after", "below", "center"],
         function (dir) {
           return makeFeedbackDroppable(regionId, dir);
-        }
+        },
       );
 
       dirs[NORTH].css({
@@ -1013,7 +1013,7 @@ var layoutModel;
             layoutController.moveRegion(
               region.attr("id"),
               ui.item.attr("id"),
-              newPosition
+              newPosition,
             );
 
             setLayoutDirty(true);
@@ -1039,7 +1039,7 @@ var layoutModel;
               layoutController.moveRegion(
                 region.attr("id"),
                 ui.item.attr("id"),
-                pos
+                pos,
               );
               setLayoutDirty(true);
               refreshRender();
@@ -1081,7 +1081,7 @@ var layoutModel;
                 fromRegionId,
                 widgetid,
                 toRegionId,
-                newPosition
+                newPosition,
               );
               setLayoutDirty(true);
               refreshRender();
@@ -1097,7 +1097,7 @@ var layoutModel;
               fromRegionId,
               widgetid,
               toRegionId,
-              newPosition
+              newPosition,
             );
             setLayoutDirty(true);
             refreshRender();
@@ -1142,7 +1142,7 @@ var layoutModel;
         parentReg = this;
       });
       var minw = Math.floor(
-        $(iframe.contents().find("#" + parentReg.regionId)[0]).width() / 12
+        $(iframe.contents().find("#" + parentReg.regionId)[0]).width() / 12,
       );
       var position = layoutModel.getRegionPosition(regionId);
       //Only east side of the border is used for resizing.
@@ -1166,18 +1166,18 @@ var layoutModel;
           $.each(parentReg.children, function () {
             $(iframe.contents().find("#" + this.regionId)[0]).css(
               "min-width",
-              minw + "px"
+              minw + "px",
             );
           });
           regionResizing.resizable("option", "maxWidth", totalSize - minw);
           console.log("regionResizing.width()" + regionResizing.width());
           console.log("minw" + minw);
           console.log(
-            "regionResizing.next().width()" + regionResizing.next().width()
+            "regionResizing.next().width()" + regionResizing.next().width(),
           );
           console.log(
             "parentWidth",
-            $(iframe.contents().find("#" + parentReg.regionId)[0]).width()
+            $(iframe.contents().find("#" + parentReg.regionId)[0]).width(),
           );
         },
         resize: function (event, ui) {
@@ -1191,7 +1191,7 @@ var layoutModel;
           $.each(parentReg.children, function () {
             $(iframe.contents().find("#" + this.regionId)[0]).css(
               "min-width",
-              ""
+              "",
             );
           });
           regL = Math.round(regionResizing.outerWidth() / minw);
@@ -1287,7 +1287,7 @@ var layoutModel;
                 rightSiblingRegion.attr("id"),
                 function () {
                   this.width = totalSize - ui.size.width;
-                }
+                },
               );
             }
           }
@@ -1453,7 +1453,7 @@ var layoutModel;
         widgetDefinitionId,
         refreshRender,
         "UserPref",
-        layoutModel.getWidgetByName
+        layoutModel.getWidgetByName,
       );
     }
 
@@ -1524,7 +1524,7 @@ var layoutModel;
           $(".perc-widget-list").width("auto");
 
           fixIframeHeight();
-        }
+        },
       );
     }
 
@@ -1544,17 +1544,17 @@ var layoutModel;
             allWidgetDefs[this.id] = this;
           });
           addWidgetInfoToolTips(allWidgetDefs);
-        }
+        },
       );
     }
     function addWidgetInfoToolTips(widgetDefs) {
       var cb = function (status, results) {
         if (status === $.PercServiceUtils.STATUS_ERROR) {
           var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            results.request
+            results.request,
           );
           $.perc_utils.debug(
-            I18N.message("perc.ui.publish.title@Error") + defMsg
+            I18N.message("perc.ui.publish.title@Error") + defMsg,
           );
           return;
         }
@@ -1563,7 +1563,7 @@ var layoutModel;
             var widgetInfo = this;
             var widgetDef = widgetDefs[widgetInfo.widgetName];
             var wdgElem = $(
-              "div.perc-widget-tool[id=widget-" + widgetInfo.widgetName + "-0]"
+              "div.perc-widget-tool[id=widget-" + widgetInfo.widgetName + "-0]",
             ).closest("a");
             var infoHtml =
               "<p> Name: " +
@@ -1580,7 +1580,7 @@ var layoutModel;
             wdgElem.attr("title", $(infoHtml).html());
             //Setting the tooltip on entire block
             wdgElem.attr("alt", $(infoHtml).html());
-          }
+          },
         );
       };
       var url = $.perc_paths.WIDGET_INFO;
@@ -1592,7 +1592,7 @@ var layoutModel;
         $.PercServiceUtils.TYPE_POST,
         false,
         cb,
-        dataObj
+        dataObj,
       );
     }
 
@@ -1638,7 +1638,7 @@ var layoutModel;
             $("<option />")
               .addClass("perc-widget-category-custom")
               .val("other")
-              .text("Other")
+              .text("Other"),
           );
         }
       }
@@ -1652,7 +1652,7 @@ var layoutModel;
             $("<option />")
               .addClass("perc-widget-category-custom")
               .val(value)
-              .text(value.charAt(0).toUpperCase() + value.slice(1))
+              .text(value.charAt(0).toUpperCase() + value.slice(1)),
           );
         });
       }
@@ -1738,7 +1738,7 @@ var layoutModel;
               $("<div/>")
                 .append($("<nobr/>").append(w.label))
                 .addClass("perc-widget-label")
-                .css("overflow", "hidden")
+                .css("overflow", "hidden"),
             )
             .attr("id", "widget-" + w.id + "-" + $(".perc-widget").length)
             .attr("tabindex", "0")
@@ -1755,7 +1755,7 @@ var layoutModel;
               scope: $.perc_iframe_scope,
               scroll: true,
             })
-            .data("widget", w)
+            .data("widget", w),
         );
 
       //Setting the tooltip on entire block
@@ -1788,7 +1788,7 @@ var layoutModel;
     function populateOrphanAssets() {
       var orphanAssetsContainer = $("#perc-orphan-assets");
       orphanAssetsContainer.html(
-        '<a class="mcol-listing perc-listing-type-percRichTextAsset perc-listing-category-ASSET ui-draggable ui-droppable mcol-opened" alt="RichText1" id="perc-finder-listing-16777215-101-721" title="RichText1"><img style="float: left;" src="/Rhythmyx/rx_resources/images/ContentTypeIcons/filetypeIconsRichText.png"><div style="cursor: default; text-overflow: ellipsis; overflow: hidden;" class="perc-finder-item-name" unselectable="on">RichText1</div></a>'
+        '<a class="mcol-listing perc-listing-type-percRichTextAsset perc-listing-category-ASSET ui-draggable ui-droppable mcol-opened" alt="RichText1" id="perc-finder-listing-16777215-101-721" title="RichText1"><img style="float: left;" src="/Rhythmyx/rx_resources/images/ContentTypeIcons/filetypeIconsRichText.png"><div style="cursor: default; text-overflow: ellipsis; overflow: hidden;" class="perc-finder-item-name" unselectable="on">RichText1</div></a>',
       );
     }
     /**
@@ -1819,7 +1819,7 @@ var layoutModel;
       var selectedRegionId =
         "perc-re-" + iframe.contents().find(".perc-region-active").attr("id");
       $(".perc-region-library-tool[name=" + selectedRegionId + "]").addClass(
-        "perc-region-active"
+        "perc-region-active",
       );
 
       // bind click events on each of the regions in the tray so that clicking on them highlitghts the region in the layout
@@ -1943,7 +1943,7 @@ var layoutModel;
         currentWidgetId = widgetStacks[currentRegionId][0];
       if (currentWidgetId && currentRegionId) {
         var widget = layout.find(
-          ".perc-widget[widgetid='" + currentWidgetId + "']"
+          ".perc-widget[widgetid='" + currentWidgetId + "']",
         );
         if (
           typeof widget === "undefined" ||
@@ -2045,7 +2045,7 @@ var layoutModel;
       if (widgetStacks[currentRegionId]) {
         currentWidgetId = widgetStacks[currentRegionId][0];
         currentWidget = layout.find(
-          ".perc-widget[widgetid=" + currentWidgetId + "]"
+          ".perc-widget[widgetid=" + currentWidgetId + "]",
         );
       }
 
@@ -2053,7 +2053,7 @@ var layoutModel;
         layoutController.addWidget(
           currentRegionId,
           widgetType,
-          currentWidgetId
+          currentWidgetId,
         );
         setLayoutDirty(true);
         refreshRender();
@@ -2191,7 +2191,7 @@ var layoutModel;
       }
       //Disable all the menu
       $(
-        "#perc-layout-menu .perc-lib-expander-div, #perc-layout-menu #perc-dropdown-actions-layout, #perc-layout-menu #perc-dropdown-help-layout, #perc-layout-menu #perc-dropdown-view-layout, #perc-region-library-maximizer, #perc-wid-lib-maximizer"
+        "#perc-layout-menu .perc-lib-expander-div, #perc-layout-menu #perc-dropdown-actions-layout, #perc-layout-menu #perc-dropdown-help-layout, #perc-layout-menu #perc-dropdown-view-layout, #perc-region-library-maximizer, #perc-wid-lib-maximizer",
       ).addClass("perc-disable-menu-item");
       $(".perc-overlay-div, #region-tool-disabled").show();
       $("#region-tool").hide();
@@ -2203,7 +2203,7 @@ var layoutModel;
     function enableToolbarMenu() {
       //Enable all the menu
       $(
-        "#perc-layout-menu .perc-lib-expander-div, #perc-layout-menu #perc-dropdown-actions-layout, #perc-layout-menu #perc-dropdown-help-layout, #perc-layout-menu #perc-dropdown-view-layout, #perc-region-library-maximizer, #perc-wid-lib-maximizer"
+        "#perc-layout-menu .perc-lib-expander-div, #perc-layout-menu #perc-dropdown-actions-layout, #perc-layout-menu #perc-dropdown-help-layout, #perc-layout-menu #perc-dropdown-view-layout, #perc-region-library-maximizer, #perc-wid-lib-maximizer",
       ).removeClass("perc-disable-menu-item");
       $(".perc-overlay-div, #region-tool-disabled").hide();
       $("#region-tool").show();
@@ -2232,7 +2232,7 @@ var layoutModel;
     $.PercEditRegionPropertiesDialog().initEditRegionPropertiesDialog(
       layoutFunctions,
       layoutModel,
-      iframe
+      iframe,
     );
   };
 })(jQuery, jQuery.Percussion);

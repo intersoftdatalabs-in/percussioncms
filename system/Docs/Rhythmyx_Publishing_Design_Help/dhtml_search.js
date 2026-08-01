@@ -9,7 +9,7 @@ Page[0] = new Array(
   "Delivery Types",
   "For details about Publishing concepts, see the Rhythmyx Concepts Guide.  For details about implementing Publishing, see the Rhythmyx Implementation Guide and Setting Up the Production Environment.  For details about publishing Editions and monitoring and reviewing Publishing jobs, see the Publishing Runtime Help and the Rhythmyx Administration Manual.  For information about setting up publishing schedules, see the Rhythmyx Administration Manual or &quot;Scheduled Tasks&quot; in the Help for the Rhythmyx Administration tab.  For technical information about the Publishing engine, see the Rhythmyx Technical Reference Manual.",
   "About Publishing Design",
-  "17806.htm"
+  "17806.htm",
 );
 Page[1] = new Array(
   "A Site defines a location where output will be published.  In most cases, a Site is either a directory location (which may be accessed directly or through FTP) or a database.  You can maintain multiple Sites on a single Rhythmyx server.  Different Sites usually refer to different output locations.  ",
@@ -21,7 +21,7 @@ Page[1] = new Array(
   "modify an existing Site;",
   "delete a Site.",
   "Maintaining Sites",
-  "17807.htm"
+  "17807.htm",
 );
 Page[2] = new Array(
   "Use the Site editor to create and maintain Sites.  ",
@@ -50,7 +50,7 @@ Page[2] = new Array(
   "Context Read-only.  Output Context with which the associated value will be used.",
   "Value  Value of the Context Variable for the specified Context.",
   "Site Editor",
-  "17808.htm"
+  "17808.htm",
 );
 Page[3] = new Array(
   "Use the Add Context Variable page to add Context Variables to the Site.  To access the Add Context Variable page, on the Site Editor, on the Menu bar, choose Action &gt; Add Context Variable.",
@@ -60,7 +60,7 @@ Page[3] = new Array(
   "Context  Drop List.  Context with which the Context Variable is associated.  ",
   "All Context Variables  Read-only table of all Context Variables currently defined in the system.  ",
   "Add Context Variable Page",
-  "18860.htm"
+  "18860.htm",
 );
 Page[4] = new Array(
   "To define a new Site:",
@@ -101,7 +101,7 @@ Page[4] = new Array(
   "Content Explorer returns to the Site editor.",
   "To save the Site, in the Menu bar, Click Save.",
   "Defining a New Site",
-  "17809.htm"
+  "17809.htm",
 );
 Page[5] = new Array(
   "To copy a Site:",
@@ -121,7 +121,7 @@ Page[5] = new Array(
   "To delete a Context Variable, select the Context Variable you want to delete and from the Menu bar choose Action &gt; Delete Selected Context Variable.",
   "To save the new Site, in the Menu bar, choose Save.",
   "Copying a Site",
-  "17810.htm"
+  "17810.htm",
 );
 Page[6] = new Array(
   "To edit a Site:",
@@ -139,13 +139,13 @@ Page[6] = new Array(
   "To delete a Context Variable, select the Context Variable you want to delete and from the Menu bar choose Action &gt; Delete Selected Context Variable.",
   "To save your changes, in the Menu bar, choose Save.",
   "Editing a Site",
-  "17811.htm"
+  "17811.htm",
 );
 Page[7] = new Array(
   "If you delete a Site, you can no longer publish to that Site. The Editions associated with that Site are deleted when the Site is deleted.",
   "To delete a Site, on the Navigation pane, click on the Sites node.  In the Sites List, select the Site you want to delete and from the Menu bar, choose Action &gt; Delete Selected Site.  Context Explorer displays a confirmation message.  In the Menu bar, click Delete to delete the Site or Cancel to cancel the delete action.",
   "Deleting a Site",
-  "17813.htm"
+  "17813.htm",
 );
 Page[8] = new Array(
   " An Edition specifies a set of Content Lists and the sequence in which to publish them. &nbsp;The sequence is important for two reasons:",
@@ -162,7 +162,7 @@ Page[8] = new Array(
   "Delete an Edition.",
   "NOTE:  For information about scheduling an Edition to publish, see the Rhythmyx Administration Manual or, in the Help for the Rhythmyx Administation tab, see &quot;Scheduled Tasks&quot;.",
   "Maintaining Editions",
-  "17814.htm"
+  "17814.htm",
 );
 Page[9] = new Array(
   "Use the Editions editor to create and maintain Editions.  ",
@@ -211,7 +211,7 @@ Page[9] = new Array(
   "failure_count",
   "Count of the number of Content Items for which publishing failed.  Only valid for post-edition tasks.",
   "Editions Editor",
-  "17815.htm"
+  "17815.htm",
 );
 Page[10] = new Array(
   "Use the Add/Edit Content Lists dialog to add Content Lists to an Edition or to modify the data of existing associations.",
@@ -224,7 +224,7 @@ Page[10] = new Array(
   "Delivery Context  The Context to use when determining the location to which to deliver the published output.",
   "Authtype  Used in legacy systems originally implemented in Rhythmyx Version 5.7 or earlier.  The Auth Type to use when publishing the Edition.",
   "Associate Content List",
-  "17838.htm"
+  "17838.htm",
 );
 Page[11] = new Array(
   "To create a new Edition:",
@@ -271,7 +271,7 @@ Page[11] = new Array(
   "failure_count (Count of the number of Content Items for which publishing failed.  Only valid for post-edition tasks.)",
   "To save the Edition, in the Menu bar, choose [Save].",
   "Creating an Edition",
-  "17853.htm"
+  "17853.htm",
 );
 Page[12] = new Array(
   "To modify an Edition:",
@@ -325,7 +325,7 @@ Page[12] = new Array(
   "To delete a Content List Association or Task, select the radio button in the row of the Content List or Task you want to delete, and in the Menu bar, choose Action &gt; Delete Selected Row.",
   "To save your edits, in the Menu bar, choose [Save].",
   "Modifying an Edition",
-  "17854.htm"
+  "17854.htm",
 );
 Page[13] = new Array(
   "Previewing a Content List allows you to see a list of the Content Item Page Templates that would be generated by the Content List when run in the Edition.  It is not a preview of formatted page output (use the Template preview function in Content Explorer to see formatted previews of Content Items).  Rather, it shows which Content Items will be published when the Edition is run, and the data will be will used to generate the output (such as the output location, and  Assembly URL).  The Content List Preview is used to check that the Content List is generating the expected output.",
@@ -336,7 +336,7 @@ Page[13] = new Array(
   "The View and Edit pane displays the Content List Preview dialog.",
   "The preview displays the XML generated by the Content list.  It lists all Content Items that will be processed by the Content List, the URL that will be submitted to the Assembly engine for the Content Item, and the location to which the published Content Item will be output. ",
   "Previewing a Content List",
-  "17856.htm"
+  "17856.htm",
 );
 Page[14] = new Array(
   "When you delete an Edition, the Edition is no longer available to publish Content Items.  Content Lists associated with the Edition are not deleted when you delete an Edition.",
@@ -345,7 +345,7 @@ Page[14] = new Array(
   "Rhythmyx displays the Editions List.",
   "Select the Editions you want to delete.  From the Menu bar, choose Action &gt; Remove Selected Edition.",
   "Deleting an Edition",
-  "17855.htm"
+  "17855.htm",
 );
 Page[15] = new Array(
   "A Content List is a Rhythmyx object that defines the rules that determine which Content Items to extract from the database for Publishing. &nbsp;Divide a Site into separate Content Lists to give site managers control over the way the Publication looks on the Site.  ",
@@ -385,7 +385,7 @@ Page[15] = new Array(
   "Note that a separate dialog is available for maintaining legacy Content Lists (Content Lists implemented in Rhythmyx Version 5.7 or earlier that use an XML application to assemble the Content).",
   "Two List Content Lists dialogs are available.  When you click on the Content Lists node under a Site, the List Content List dialog lists all Content Lists associated with an Edition for the Site.  When you click on the Content Lists node at the root level of the Navigation pane, the List Content Lists dialog lists only Content Lists not associated with any Edition.",
   "Content Lists",
-  "Content_Lists2.htm"
+  "Content_Lists2.htm",
 );
 Page[16] = new Array(
   "Use Content List editor to create and maintain Content Lists.  ",
@@ -417,7 +417,7 @@ Page[16] = new Array(
   "Base Resource Path  (Advanced option)  Path to the Content List servlet.  Defaults to /Rhythmyx/contentlist.  Should only be changed if you implement an alternate Content List servlet.  For details about implementing servlets in Rhythmyx, see the Rhythmyx Technical Reference Manual.",
   "Extra Parameters  (Advanced option)  Additional HTML parameters to include in the request to the Servlet.  Parameters must be coded as HTML parameters.",
   "Content List Editor",
-  "17863.htm"
+  "17863.htm",
 );
 Page[17] = new Array(
   "To define a Content List",
@@ -441,7 +441,7 @@ Page[17] = new Array(
   "To save the Content List, in the Menu bar, click [Save].",
   "Note:  When a new Content List is created, it is not associated with any Edition.  To access the new Content List, use the Content Lists node at the root of the Navigation pane to access the List Content Lists dialog.  See Editing an Edition  for details about associating a Content List with an Edition.",
   "Creating a Content List",
-  "17866.htm"
+  "17866.htm",
 );
 Page[18] = new Array(
   "To modify a Content List",
@@ -451,7 +451,7 @@ Page[18] = new Array(
   "You can modify the value of any field.  If you change the Generator or the Template Expander, you must enter values for the associated parameters.",
   "To save your changes, in the Menu bar, choose Save.",
   "Modifying a Content List",
-  "17867.htm"
+  "17867.htm",
 );
 Page[19] = new Array(
   "To copy a Content List:",
@@ -462,7 +462,7 @@ Page[19] = new Array(
   "You can change any other data in the Content List.  If you change the Generator or the Template Expander, you must enter values for the associated parameters.",
   "Click the [Save] button to save the new Content List.",
   "Copying a Content List",
-  "17868.htm"
+  "17868.htm",
 );
 Page[20] = new Array(
   "You cannot delete a Content List that is associated with an Edition.  You must remove the Content List from all Editions before you can delete the Content List.  For details about removing a Content List from an Edition, see Editing an Edition.  Note that this policy means you cannot delete a Content List from the List Content Lists dialog that lists Content Lists associated with an Edition.  You can only delete Content Lists from the List Content Lists dialog accessed by click on the the Content Lists node at the root of the Navigation pane.",
@@ -472,7 +472,7 @@ Page[20] = new Array(
   "In the Menu bar, choose Action &gt; Delete Selected Content List.",
   "Rhythmyx returns a confirmation message.  To delete the Content List, in the Menu bar choose Delete.  To abort the delete action, choose Cancel.",
   "Deleting a Content List",
-  "17869.htm"
+  "17869.htm",
 );
 Page[21] = new Array(
   "The value of the query parameter of the sys_SearchGenerator is written using JCR Query Language.  JCR Query Language is a language similar to Structured Query Language [SQL] used to query content Repositories.  ",
@@ -506,7 +506,7 @@ Page[21] = new Array(
   "Only use maxrowsperpage if necessary, and set it to the highest value that your system's memory can handle.",
   "You can use the Query Debugger to test your Content List query.",
   "Writing Content List Queries",
-  "14585.htm"
+  "14585.htm",
 );
 Page[22] = new Array(
   "Rhythmyx provides a Query Debugger page where you can test JSR-170 queries.  To access the query debugger, start a browser and enter the following URL:",
@@ -517,7 +517,7 @@ Page[22] = new Array(
   "You can also access the query debegger by logging in to the Rhythmyx Application Server Home Page (start a browser and enter http://&lt;RhythmyxServerName:RhythmyxPort in the Address field), clicking on the Testing and Debugging tools for implementers link to go to the Debugging and Testing Page, then clicking on the Test JSR-170 searches link.",
   "The query box displays a default query.  Modify it to match the query you want to use and click the [execute] button to execute the query.  If your query includes any variable parameters derived from JEXL functions, use the Parameters table to specify sample values for each.  Because sample values and values calculated when processing Templates may not match exactly, the results of the query debugger my differ slightly from the results generated when previewing a Template.  ",
   "Testing JSR-170 Queries",
-  "18833.htm"
+  "18833.htm",
 );
 Page[23] = new Array(
   "Content Lists implemented in Rhythmyx Version 5.7 and earlier used XML applications to generate the list of Content Items to publish.  When you access such a Content List, Rhythmyx displays the legacy Content List editor.  This Content List editor can be used only to maintain an existing Content List created in Rhythmyx Version 5.7 or earlier.  ",
@@ -526,7 +526,7 @@ Page[23] = new Array(
   "Description  Free-form text description of the Content List.  Value can contain any alphanumeric characters and punctuation marks.",
   "URL  The URL used to generate the Content List.  For details about the appropriate URL, refer to the documentation for the version of Rhythmyx on which your implementation was originally based.",
   "Legacy Content List Editor",
-  "17870.htm"
+  "17870.htm",
 );
 Page[24] = new Array(
   "Because Rhythmyx decouples Content Management from content delivery, it requires a mechanism to generate paths and URLs (such as links to image and CSS files).  A link that is valid when previewing a Content Item on the Rhythmyx server is rarely valid when viewing a final published page from a Web server.  Location Schemes build these links using Java Expression Language (JEXL).  (Note:  in earlier versions of Rhythmyx, UDFs provided link generation functionality.)  The result of the JEXL expression defines the path or URL.",
@@ -540,7 +540,7 @@ Page[24] = new Array(
   "remove a Location Scheme from a Context;",
   "delete a Context.",
   "Maintaining Contexts and Link Generation Schemes",
-  "17876.htm"
+  "17876.htm",
 );
 Page[25] = new Array(
   "Use the Context editor to create and maintain Contexts.",
@@ -558,7 +558,7 @@ Page[25] = new Array(
   "Used By  The combination of Content Type and Template to which the Location Scheme can be applied.",
   "Description  The text description of the Location Scheme.",
   "Context Editor",
-  "17885.htm"
+  "17885.htm",
 );
 Page[26] = new Array(
   "Use the Scheme editor to create and maintain Location Schemes.  ",
@@ -577,7 +577,7 @@ Page[26] = new Array(
   "Item Path  Path to the Content Item you want to use to test the Location Scheme.  Click the @button to access the Browse Site Root Path dialog to browse to the Content Item.  ",
   "Extra Parameters  Additional parameters required to process the JEXL expression successfully.  Parameters should be expressed as name=value pairs, pairs separated by an ampersand character (&quot;&amp;&quot;); for example:  sys_contentid=301&amp;sys_revision=1&amp;sys_slotid=501.",
   "Scheme Editor",
-  "17886.htm"
+  "17886.htm",
 );
 Page[27] = new Array(
   "To create a Context:",
@@ -596,7 +596,7 @@ Page[27] = new Array(
   "Repeat steps a through f to add more Location Schemes.",
   "Click the [OK] button to save the Context.",
   "Creating a Context",
-  "17879.htm"
+  "17879.htm",
 );
 Page[28] = new Array(
   "To create a Location Scheme:",
@@ -616,7 +616,7 @@ Page[28] = new Array(
   "The Result is returned (either the path generated by the expression or the error returned by it), with an indication of the Status (Success or Failure).  ",
   "Click the [OK] button to save the Location Scheme. ",
   "Creating a Location Scheme",
-  "17880.htm"
+  "17880.htm",
 );
 Page[29] = new Array(
   "To modify a Context:",
@@ -642,7 +642,7 @@ Page[29] = new Array(
   "To remove a Location Scheme, select the Location Scheme you want to remove (you can remove multiple Location Schemes), and in the Menu bar, choose Action &gt; Remove Location Scheme.",
   "Click the [OK] button to save your changes.",
   "Modifying a Context",
-  "17881.htm"
+  "17881.htm",
 );
 Page[30] = new Array(
   "To modify a Location Scheme:",
@@ -657,7 +657,7 @@ Page[30] = new Array(
   "Click the [Evaluate JEXL Expression] button.  The Result is returned (either the path generated by the expression or the error returned by it), with an indication of the Status (Success or Failure).  ",
   "Click the [OK] button to save your changes.",
   "Modifying a Location Scheme",
-  "17882.htm"
+  "17882.htm",
 );
 Page[31] = new Array(
   "When you remove a Location Scheme from a Context, that Location Scheme is deleted and cannot be recovered.  ",
@@ -669,7 +669,7 @@ Page[31] = new Array(
   "Rhythmyx returns a confirmation page.  To confirm the delete action, in the Menu bar, click Delete.  To cancel the delete action, in the Menu bar, click Cancel.",
   "To save your change, in the Menu bar of the Context Editor, click Save.",
   "Removing a Location Scheme from a Context",
-  "17883.htm"
+  "17883.htm",
 );
 Page[32] = new Array(
   "If you delete a Context, it is no longer available for publishing or assembly.  Assembling or publishing output that relies on the Context will fail.  An error will be reported in the publishing log for the Edition.",
@@ -680,7 +680,7 @@ Page[32] = new Array(
   "In the Menu bar, choose Action &gt; Delete Selected Context.",
   "Rhythmyx returns a confirmation dialog.  To confirm the delete action, in the Menu bar, click Delete.  To cancel the delete action, in the Menu bar, click Cancel.",
   "Deleting a Context",
-  "17884.htm"
+  "17884.htm",
 );
 Page[33] = new Array(
   "Rhythmyx includes an extensive array of variables to use when creating Location Schemes.  Note that all JEXL variables must begin with the character &quot;$&quot;  Variables fall into the following categories:",
@@ -706,7 +706,7 @@ Page[33] = new Array(
   "Velocity Tools Extensions",
   "Prefix used for Velocity tools extensions.  ",
   "JEXL Variables and Functions",
-  "17905.htm"
+  "17905.htm",
 );
 Page[34] = new Array(
   "Simple system variables all begin with the string &quot;$sys&quot;.",
@@ -823,7 +823,7 @@ Page[34] = new Array(
   "Provides access to context variables for the current Site.",
   "Used in:  Templates and Location Schemes",
   "System Variables",
-  "13181.htm"
+  "13181.htm",
 );
 Page[35] = new Array(
   "Binding variables that begin with the prefix $rx are system functions.",
@@ -843,7 +843,7 @@ Page[35] = new Array(
   "$rx.session:  returns session IDs",
   "$rx.string:  manipulate string values",
   "System Functions",
-  "16842.htm"
+  "16842.htm",
 );
 Page[36] = new Array(
   "The methods of this function provide data for use in assembly.  The following methods are available:",
@@ -971,7 +971,7 @@ Page[36] = new Array(
   "String",
   "Name of the key in the mapList parameter whose values you want to return",
   "$rx.asmhelper",
-  "15434.htm"
+  "15434.htm",
 );
 Page[37] = new Array(
   "The methods of this function encode and decode data.  ",
@@ -1002,7 +1002,7 @@ Page[37] = new Array(
   "	Used in  Templates",
   "Converts the embedded XML entities in the input string to characters.",
   "$rx.codec",
-  "15435.htm"
+  "15435.htm",
 );
 Page[38] = new Array(
   "NOTE:  This function is deprecated.  JEXL expressions that use this binding should be rewritten to use the JEXL if...else conditional function instead.",
@@ -1024,7 +1024,7 @@ Page[38] = new Array(
   "The value to return if the boolean expression evaluates to false.",
   "Example:  $rx.cond.choose($location==&quot;above&quot;,&quot;rffSnTitleAndImage&quot;,&quot;rffSnImageAndTitle&quot;) returns rffSnTitleAndImage if the value of $location is above, otherwise it returns rffSnImageAndTitle.",
   "$rx.cond",
-  "16840.htm"
+  "16840.htm",
 );
 Page[39] = new Array(
   "The method of this function is used in database publishing.  ",
@@ -1044,7 +1044,7 @@ Page[39] = new Array(
   "SQL query to execute on the specified datasource.",
   "Example:  $rx.db.get(&quot;RhythmyxData&quot;, &quot;select LANGUAGESTRING, DISPLAYNAME from RXLOCALES where LOCALE_ID&lt;10&quot;) would return a list of the values of the LANGUAGESTRING and DISPLAYNAME columns in the database specified by the Rhythmyx Data datasource.  The results are returned as a map array.",
   "$rx.db",
-  "15436.htm"
+  "15436.htm",
 );
 Page[40] = new Array(
   "The methods of this function process XML and HTML documents.  ",
@@ -1088,7 +1088,7 @@ Page[40] = new Array(
   "String",
   "The HTML document from which to extract the body.  Optional; not used if the rval parameter is used.",
   "$rx.doc",
-  "15437.htm"
+  "15437.htm",
 );
 Page[41] = new Array(
   "The method of this function allows you to call an extension.",
@@ -1106,7 +1106,7 @@ Page[41] = new Array(
   "String",
   "Parameters to submit to the requested extension.  Up to 20 parameters can be submitted as strings.",
   "$rx.ext",
-  "15438.htm"
+  "15438.htm",
 );
 Page[42] = new Array(
   "The method of this function allows you to retrieve GUIDs.",
@@ -1115,7 +1115,7 @@ Page[42] = new Array(
   "	Used in  Templates and Location Schemes",
   "Extracts the Content Item ID from the submitted GUID.  The GUID must be the ID of a Content Item.  If the GUID is any other type of object, the method fails.",
   "$rx.guid",
-  "15439.htm"
+  "15439.htm",
 );
 Page[43] = new Array(
   "The method of this function is used to retrieve internationalized and localized data.",
@@ -1134,7 +1134,7 @@ Page[43] = new Array(
   "The Locale for which to look up the text of the key..",
   "Example:  $rx.i18n.getString (&quot;psx.role@admin&quot;, &quot;fr-fr&quot;) returns the French translation of the Role admin for France.",
   "$rx.i18n",
-  "15454.htm"
+  "15454.htm",
 );
 Page[44] = new Array(
   "The methods of this function provide access to Keyword data.",
@@ -1213,7 +1213,7 @@ Page[44] = new Array(
   "String",
   "The choice value whose name to return.",
   "$rx.keyword",
-  "15459.htm"
+  "15459.htm",
 );
 Page[45] = new Array(
   "The methods of this function allow you to manipulate links.",
@@ -1263,7 +1263,7 @@ Page[45] = new Array(
   "String",
   "HTML parameters to add to the output URL.",
   "$rx.link",
-  "15440.htm"
+  "15440.htm",
 );
 Page[46] = new Array(
   "The methods of this function allow you to generate hypertext links.",
@@ -1339,7 +1339,7 @@ Page[46] = new Array(
   "String",
   "If the value of this parameter is &quot;yes&quot;, the protocol, host, and port will be stripped from the base URL.  Otherwise, the protocol, host, and port are included.   (Optional) ",
   "$rx.location",
-  "15441.htm"
+  "15441.htm",
 );
 Page[47] = new Array(
   "The methods of this function are used in processing Managed Navigation.  They are only valid when applied to nodes returned from the Managed Navigation Slot Content Finder.",
@@ -1371,7 +1371,7 @@ Page[47] = new Array(
   "String",
   "The name of the child node to search for.",
   "$rx.nav",
-  "15452.htm"
+  "15452.htm",
 );
 Page[48] = new Array(
   "The methods of this function return session IDs that can be returned to Rhythmyx when calling Rhythmyx applications or other URLs via HTTP.",
@@ -1388,7 +1388,7 @@ Page[48] = new Array(
   "	Used in  Templates",
   "Returns the session ID.  The ID must be passed back to Rhythmyx in a HTTP parameter called PSSESSIONID.",
   "$rx.session",
-  "17423.htm"
+  "17423.htm",
 );
 Page[49] = new Array(
   "The methods of this function allow you to allow you to manipulate string values. ",
@@ -1439,7 +1439,7 @@ Page[49] = new Array(
   "String",
   "The source string to process for extraneous whitespace.  May be empty but never null.",
   "$rx.string",
-  "15433.htm"
+  "15433.htm",
 );
 Page[50] = new Array(
   "The following variables have been defined specifically for use in Database Publishing.  For additional details, see the Rhythmyx JavaDoc.",
@@ -1489,7 +1489,7 @@ Page[50] = new Array(
   "String",
   "The encoding of the specified child column.  Options are empty or base64.",
   "Database Publishing Variables",
-  "15458.htm"
+  "15458.htm",
 );
 Page[51] = new Array(
   "Velocity tools are available using the $tool prefix.  For details, see the Velocity tools documentation (http://jakarta.apache.org/velocity/tools/index.htm).",
@@ -1518,7 +1518,7 @@ Page[51] = new Array(
   "$tools.parser",
   "org.apache.velocity.tools.generic.ValueParser",
   "Velocity Tool Extensions",
-  "15532.htm"
+  "15532.htm",
 );
 Page[52] = new Array(
   "Rhythmyx displays the Legacy Scheme editor when you access a UDF-based Location Scheme defined in Rhythmyx Version 5.7 and earlier.  ",
@@ -1546,7 +1546,7 @@ Page[52] = new Array(
   "Type  Specifies the type of the parameter.  Options include:  String (value is a hard-coded text string; enter the string in the Param Value field) and Backend column (value is derived from a column in the Repository; enter the name of the column in the Param Value field)",
   "Value  Value of the parameter; either the text string (if the value of the Type field is String) or the name of a column in a Repository table (if the value of the Type field is Backend Column).",
   "Legacy Scheme Editor",
-  "17887.htm"
+  "17887.htm",
 );
 Page[53] = new Array(
   "Legacy Location Schemes use Rhythmyx UDF extensions that generally require parameters. Use the Legacy Location Scheme Parameter Editor to create and maintain these parameters.",
@@ -1557,7 +1557,7 @@ Page[53] = new Array(
   "Type  Specifies the type of the parameter.  Options include:  String (value is a hard-coded text string; enter the string in the Param Value field) and Backend column (value is derived from a column in the Repository; enter the name of the column in the Param Value field)",
   "Value  Value of the parameter; either the text string (if the value of the Type field is String) or the name of a column in a Repository table (if the value of the Type field is Backend Column).",
   "Legacy Location Scheme Parameter Editor",
-  "18866.htm"
+  "18866.htm",
 );
 Page[54] = new Array(
   "To maintain a legacy Location Scheme:",
@@ -1573,7 +1573,7 @@ Page[54] = new Array(
   "To delete a parameter, select the parameter you want to delete and in the Menu bar, choose Edit &gt; Remove Selected Parameter.",
   "Click the [OK] button to save your changes.",
   "Maintaining a Legacy Location Scheme",
-  "17888.htm"
+  "17888.htm",
 );
 Page[55] = new Array(
   "Use the Browse Site Root Path page to browse the Folders under the //Sites node in Content Explorer.  ",
@@ -1583,7 +1583,7 @@ Page[55] = new Array(
   "To expand a Folder, click on the Folder or its name.  The current Folder path is listed in the Site Root Path field.  ",
   "To select a Content Item, click on it.  The Content Item will be entered into the appropriate field.",
   "Browse Site Root Path",
-  "18856.htm"
+  "18856.htm",
 );
 Page[56] = new Array(
   "Publishing processing is performed by Delivery Handlers.  Rhythmyx ships with four standard Delivery Handlers (File System, FTP, SFTP, and Database), but you can implement custom Delivery Handlers if the standard handlers do not meet your needs.  For details about implementing a custom Delivery Handler (including registering the Spring bean), see &quot;Implementing a Delivery Handler&quot; in the Rhythmyx Technical Reference.",
@@ -1593,7 +1593,7 @@ Page[56] = new Array(
   "Modify a Delivery Type registration;",
   "Delete a Delivery Type registration.",
   "Maintaining Delivery Type Registrations",
-  "17927.htm"
+  "17927.htm",
 );
 Page[57] = new Array(
   "Use the Delivery Type editor to create and maintain Delivery Type registrations.  ",
@@ -1606,7 +1606,7 @@ Page[57] = new Array(
   "Spring Bean Name  Name of the Spring bean used to configure the Delivery Handler with which the Delivery Type is associated. The name entered will be validated when the Delivery Type is saved.  (Thus, the bean must be registered with Spring before you can create the Delivery Type.)",
   "Assemble Item for Unpublish  Checkbox.  If checked, Content Items will be assembled when they are part of an unpublish operation.",
   "Delivery Type Editor",
-  "18011.htm"
+  "18011.htm",
 );
 Page[58] = new Array(
   "Before creating a Delivery Type registration, the associated Delivery Handler must be registered with in the Spring configuration.  Rhythmyx validates the Spring bean specified for the Delivery Type when saving it.  For details about writing and configuring a Delivery Type, see &quot;Implementing a Delivery Handler&quot; in the Rhythmyx Technical Reference.",
@@ -1618,7 +1618,7 @@ Page[58] = new Array(
   "If you want to assemble Content Items when unpublishing them, check the Assemble Item for Unpublish checkbox.",
   "Click the [Save] button to save the Delivery Type registration.",
   "Creating a Delivery Type Registration",
-  "18012.htm"
+  "18012.htm",
 );
 Page[59] = new Array(
   "If you modify the Spring Bean Name, the bean you specify must exist.  The bean is validated when you save the Delivery Type registration.",
@@ -1628,7 +1628,7 @@ Page[59] = new Array(
   "You can change the value of any field.  (Note:  The value in the Spring Bean Name field will be validated on save to ensure that the specified bean exists.).",
   "Click the [Save] button to save your changes.",
   "Modifying a Delivery Type Registration",
-  "18013.htm"
+  "18013.htm",
 );
 Page[60] = new Array(
   "If you delete a Delivery Type registration, Sites that use that registration can no longer publish.  Publishing of Editions on these Sites will fail.",
@@ -1637,7 +1637,7 @@ Page[60] = new Array(
   "Rhythmyx displays the Delivery Types list in the View and Edit pane.",
   "Select the Delivery Types you want to delete, and from the Menu bar, choose Action &gt; Remove Selected Delivery Types.",
   "Deleting a Delivery Type",
-  "18014.htm"
+  "18014.htm",
 );
 var PageCount = 61;
 

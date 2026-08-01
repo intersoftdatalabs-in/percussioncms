@@ -55,13 +55,13 @@
             .closest("tr")
             .children("#perc-content-image-size")
             .html(
-              '<p class="perc-image-size-text"><i class="fa fa-chain-broken" aria-hidden="true"></i></p>'
+              '<p class="perc-image-size-text"><i class="fa fa-chain-broken" aria-hidden="true"></i></p>',
             );
           $(this)
             .closest("tr")
             .children("#perc-content-image-thumbnail")
             .html(
-              '<p class="perc-image-size-text"><i class="fa fa-chain-broken" aria-hidden="true"></i></p>'
+              '<p class="perc-image-size-text"><i class="fa fa-chain-broken" aria-hidden="true"></i></p>',
             );
           return true;
         }
@@ -104,27 +104,27 @@
                 imageHeight +
                 "x" +
                 imageWidth +
-                "</p>"
+                "</p>",
             );
         } else if (imageWidth === 0 || imageHeight === 0) {
           $(this)
             .closest("tr")
             .children("#perc-content-image-size")
             .html(
-              '<p class="perc-image-size-text"><i class="fa fa-question-circle" aria-hidden="true"></i></p>'
+              '<p class="perc-image-size-text"><i class="fa fa-question-circle" aria-hidden="true"></i></p>',
             );
           $(this)
             .closest("tr")
             .children("#perc-content-image-thumbnail")
             .html(
-              '<p class="perc-image-size-text"><i class="fa fa-question-circle" aria-hidden="true"></i></p>'
+              '<p class="perc-image-size-text"><i class="fa fa-question-circle" aria-hidden="true"></i></p>',
             );
         } else {
           $(this)
             .closest("tr")
             .children("#perc-content-image-size")
             .html(
-              '<p class="perc-image-size-text"><i class="fa fa-exclamation-circle" aria-hidden="true"></i></p>'
+              '<p class="perc-image-size-text"><i class="fa fa-exclamation-circle" aria-hidden="true"></i></p>',
             );
         }
 
@@ -136,8 +136,8 @@
             .append(
               $("<img/>", { id: "perc-thumbnail-preview", height: 33 }).attr(
                 "src", // codeql[js/xss-through-dom]
-                safeThumbnailSrc(thumbnailPath)
-              )
+                safeThumbnailSrc(thumbnailPath),
+              ),
             );
           if (
             previousThumbnailPath[i] != thumbnailPath &&
@@ -147,7 +147,7 @@
               .closest("tr")
               .children("#perc-content-image-size")
               .html(
-                '<i class="fa fa-spinner fa-pulse fa-fw"></i><span class="sr-only"></span>'
+                '<i class="fa fa-spinner fa-pulse fa-fw"></i><span class="sr-only"></span>',
               );
           }
           previousThumbnailPath[i] = thumbnailPath;
@@ -173,7 +173,7 @@
     // Listen for a change event on either the image or external link fields
     // These change events are triggered by PercImageSelectionControl.js and PercPageSelectionControl.js
     $(
-      ".perc-slider-image-path, .perc-slider-image-link, .perc-slider-image-link-setting-select"
+      ".perc-slider-image-path, .perc-slider-image-link, .perc-slider-image-link-setting-select",
     ).on("change", function (event) {
       validateAssetItems();
     });
@@ -261,25 +261,25 @@
             .find(".perc-slider-image-path")
             .attr(
               "data-perc-image-content-id",
-              data.percJSONConfig[i].percImageContentId
+              data.percJSONConfig[i].percImageContentId,
             );
           $clone
             .find(".perc-slider-image-link")
             .attr(
               "data-perc-page-content-id",
-              data.percJSONConfig[i].percPageContentId
+              data.percJSONConfig[i].percPageContentId,
             );
           $clone
             .find(".perc-slider-image-path")
             .attr(
               "data-perc-image-path-link-id",
-              data.percJSONConfig[i].percImagePathLinkId
+              data.percJSONConfig[i].percImagePathLinkId,
             );
           $clone
             .find(".perc-slider-image-link")
             .attr(
               "data-perc-page-path-link-id",
-              data.percJSONConfig[i].percPagePathLinkId
+              data.percJSONConfig[i].percPagePathLinkId,
             );
           $table.find("table").append($clone);
 
@@ -332,7 +332,7 @@
       clonedTable
         .find("#perc-content-image-thumbnail")
         .html(
-          '<i class="fa fa-spinner fa-pulse fa-fw"></i><span class="sr-only"></span>'
+          '<i class="fa fa-spinner fa-pulse fa-fw"></i><span class="sr-only"></span>',
         );
       clonedTable
         .find("#perc-content-image-thumbnail")
@@ -340,8 +340,8 @@
         .append(
           $("<img/>", { id: "perc-thumbnail-preview", height: 33 }).attr(
             "src", // codeql[js/xss-through-dom]
-            safeThumbnailSrc(percImagePath)
-          )
+            safeThumbnailSrc(percImagePath),
+          ),
         );
       previousThumbnailPath[i] = percImagePath;
     }
@@ -356,7 +356,7 @@
 
       //Add the pre-submit handler to prepare data for saving.
       window.parent.jQuery.PercContentPreSubmitHandlers.addHandler(
-        _preSubmitHandler
+        _preSubmitHandler,
       );
 
       //Widget behavioral events
@@ -557,7 +557,6 @@
           // We need to check the workflow status of the image to make sure it is not set to Archive
           checkItemStatus(url, currentElement, imageTargetClass, itemType);
         } // end if current image path is not '#'
-
         // If the image path is not valid, apply the error class
         else {
           $(currentElement)
@@ -587,7 +586,7 @@
               url,
               currentElement,
               internalPageTargetClass,
-              itemType
+              itemType,
             );
           } else {
             $(currentElement)
@@ -649,7 +648,7 @@
       }, // end success
       error: function () {
         console.log(
-          "Percussion Slider Widget Error: Could not connect to REST API to retrieve asset content status"
+          "Percussion Slider Widget Error: Could not connect to REST API to retrieve asset content status",
         );
       }, // end error
     }); // end ajax

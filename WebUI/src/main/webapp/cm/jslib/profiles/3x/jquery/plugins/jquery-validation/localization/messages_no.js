@@ -27,7 +27,7 @@
     range: $.validator.format("Angi en verdi mellom {0} og {1}."),
     max: $.validator.format("Angi en verdi som er mindre eller lik {0}."),
     min: $.validator.format(
-      "Angi en verdi som er st&oslash;rre eller lik {0}."
+      "Angi en verdi som er st&oslash;rre eller lik {0}.",
     ),
     step: $.validator.format("Angi en verdi ganger {0}."),
     creditcard: "Angi et gyldig kredittkortnummer.",

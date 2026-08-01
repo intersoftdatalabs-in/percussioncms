@@ -154,7 +154,7 @@ require.define = function (filename, fn) {
       module_,
       module_.exports,
       dirname,
-      filename
+      filename,
     );
     require.modules[filename]._cached = module_.exports;
     return module_.exports;
@@ -182,7 +182,7 @@ if (!process.nextTick)
             }
           }
         },
-        true
+        true,
       );
     }
 
@@ -278,7 +278,7 @@ require.define(
         filter(resolvedPath.split("/"), function (p) {
           return !!p;
         }),
-        !resolvedAbsolute
+        !resolvedAbsolute,
       ).join("/");
 
       return (resolvedAbsolute ? "/" : "") + resolvedPath || ".";
@@ -295,7 +295,7 @@ require.define(
         filter(path.split("/"), function (p) {
           return !!p;
         }),
-        !isAbsolute
+        !isAbsolute,
       ).join("/");
 
       if (!path && !isAbsolute) {
@@ -314,7 +314,7 @@ require.define(
       return exports.normalize(
         filter(paths, function (p, index) {
           return p && typeof p === "string";
-        }).join("/")
+        }).join("/"),
       );
     };
 
@@ -348,7 +348,7 @@ require.define(
     exports.extname = function (path) {
       return splitPathRe.exec(path)[3] || "";
     };
-  }
+  },
 );
 
 require.define(
@@ -412,14 +412,14 @@ require.define(
     });
 
     module.exports = Shred;
-  }
+  },
 );
 
 require.define(
   "/node_modules/ax/package.json",
   function (require, module, exports, __dirname, __filename) {
     module.exports = { main: "./lib/ax.js" };
-  }
+  },
 );
 
 require.define(
@@ -538,28 +538,28 @@ require.define(
     };
 
     module.exports = Logger;
-  }
+  },
 );
 
 require.define(
   "util",
   function (require, module, exports, __dirname, __filename) {
     // todo
-  }
+  },
 );
 
 require.define(
   "fs",
   function (require, module, exports, __dirname, __filename) {
     // nothing to see here... no file methods for the browser
-  }
+  },
 );
 
 require.define(
   "/node_modules/cookiejar/package.json",
   function (require, module, exports, __dirname, __filename) {
     module.exports = { main: "cookiejar.js" };
-  }
+  },
 );
 
 require.define(
@@ -569,7 +569,7 @@ require.define(
       domain,
       path,
       secure,
-      script
+      script,
     ) {
       if (this instanceof CookieAccessInfo) {
         this.domain = domain || undefined;
@@ -638,9 +638,9 @@ require.define(
         this.value = value;
 
         for (var i = 1; i < parts.length; i++) {
-          (pair = parts[i].match(/([^=]+)(?:=((?:.|\n)*))?/)),
+          ((pair = parts[i].match(/([^=]+)(?:=((?:.|\n)*))?/)),
             (key = pair[1].trim().toLowerCase()),
-            (value = pair[2]);
+            (value = pair[2]));
           switch (key) {
             case "httponly":
               this.noscript = true;
@@ -796,7 +796,7 @@ require.define(
       }
       return successful;
     };
-  }
+  },
 );
 
 require.define(
@@ -899,7 +899,7 @@ require.define(
             this.host,
             this.port,
             (this.proxy ? "/" : this.path) +
-              (this.query ? "?" + this.query : "")
+              (this.query ? "?" + this.query : ""),
           );
         },
         set: function (_url) {
@@ -1069,7 +1069,7 @@ require.define(
     Object.defineProperty(
       Request.prototype,
       "content",
-      Object.getOwnPropertyDescriptor(Request.prototype, "body")
+      Object.getOwnPropertyDescriptor(Request.prototype, "body"),
     );
 
     // The `Request` object can be pretty overwhelming to view using the built-in
@@ -1148,7 +1148,7 @@ require.define(
       if (!options.url && !options.host) {
         request.emitter.emit(
           "request_error",
-          new Error("No url or url options (host, port, etc.)")
+          new Error("No url or url options (host, port, etc.)"),
         );
         return;
       }
@@ -1172,7 +1172,7 @@ require.define(
 
       if (request.cookieJar) {
         var cookies = request.cookieJar.getCookies(
-          CookieAccessInfo(request.host, request.path)
+          CookieAccessInfo(request.host, request.path),
         );
         if (cookies.length) {
           var cookieString = request.getHeader("cookie") || "";
@@ -1277,7 +1277,7 @@ require.define(
           // given in the `Location` header. We fire a `redirect` event.
           if (response.isRedirect) {
             request.log.debug(
-              "Redirecting to " + response.getHeader("Location")
+              "Redirecting to " + response.getHeader("Location"),
             );
             request.url = response.getHeader("Location");
             emit("redirect");
@@ -1319,7 +1319,7 @@ require.define(
       // underlying request object.
       if (request.content) {
         request.log.debug(
-          "Streaming body: '" + request.content.data.slice(0, 59) + "' ... "
+          "Streaming body: '" + request.content.data.slice(0, 59) + "' ... ",
         );
         request._raw.write(request.content.data);
       }
@@ -1371,26 +1371,26 @@ require.define(
           query +
           " " +
           headerString +
-          bodyString
+          bodyString,
       );
     };
 
     module.exports = Request;
-  }
+  },
 );
 
 require.define(
   "http",
   function (require, module, exports, __dirname, __filename) {
     // todo
-  }
+  },
 );
 
 require.define(
   "https",
   function (require, module, exports, __dirname, __filename) {
     // todo
-  }
+  },
 );
 
 require.define(
@@ -1447,7 +1447,7 @@ require.define(
     };
 
     module.exports = parseUri;
-  }
+  },
 );
 
 require.define(
@@ -1558,7 +1558,7 @@ require.define(
               "(node) warning: possible EventEmitter memory " +
                 "leak detected. %d listeners added. " +
                 "Use emitter.setMaxListeners() to increase limit.",
-              this._events[type].length
+              this._events[type].length,
             );
             console.trace();
           }
@@ -1622,14 +1622,14 @@ require.define(
       }
       return this._events[type];
     };
-  }
+  },
 );
 
 require.define(
   "/node_modules/sprintf/package.json",
   function (require, module, exports, __dirname, __filename) {
     module.exports = { main: "./lib/sprintf" };
-  }
+  },
 );
 
 require.define(
@@ -1719,7 +1719,7 @@ Changelog:
         return str_format.format.call(
           null,
           str_format.cache[arguments[0]],
-          arguments
+          arguments,
         );
       };
 
@@ -1748,7 +1748,7 @@ Changelog:
                 if (!arg.hasOwnProperty(match[2][k])) {
                   throw sprintf(
                     '[sprintf] property "%s" does not exist',
-                    match[2][k]
+                    match[2][k],
                   );
                 }
                 arg = arg[match[2][k]];
@@ -1764,7 +1764,7 @@ Changelog:
             if (/[^s]/.test(match[8]) && get_type(arg) != "number") {
               throw sprintf(
                 "[sprintf] expecting number but found %s",
-                get_type(arg)
+                get_type(arg),
               );
             }
             switch (match[8]) {
@@ -1836,7 +1836,7 @@ Changelog:
           } else if (
             (match =
               /^\x25(?:([1-9]\d*)\$|\(([^\)]+)\))?(\+)?(0|'[^$])?(-)?(\d+)?(?:\.(\d+))?([b-fosuxX])/.exec(
-                _fmt
+                _fmt,
               )) !== null
           ) {
             if (match[2]) {
@@ -1846,18 +1846,18 @@ Changelog:
                 field_match = [];
               if (
                 (field_match = /^([a-z_][a-z_\d]*)/i.exec(
-                  replacement_field
+                  replacement_field,
                 )) !== null
               ) {
                 field_list.push(field_match[1]);
                 while (
                   (replacement_field = replacement_field.substring(
-                    field_match[0].length
+                    field_match[0].length,
                   )) !== ""
                 ) {
                   if (
                     (field_match = /^\.([a-z_][a-z_\d]*)/i.exec(
-                      replacement_field
+                      replacement_field,
                     )) !== null
                   ) {
                     field_list.push(field_match[1]);
@@ -1899,7 +1899,7 @@ Changelog:
 
     exports.sprintf = sprintf;
     exports.vsprintf = vsprintf;
-  }
+  },
 );
 
 require.define(
@@ -2013,7 +2013,7 @@ require.define(
             if (Iconv && response.request.encoding) {
               body = Iconv.fromEncoding(
                 gunzippedBody,
-                response.request.encoding
+                response.request.encoding,
               );
             } else {
               body = gunzippedBody.toString();
@@ -2118,7 +2118,7 @@ require.define(
     };
 
     module.exports = Response;
-  }
+  },
 );
 
 require.define(
@@ -2301,7 +2301,7 @@ require.define(
         stringify: function (data) {
           return JSON.stringify(data);
         },
-      }
+      },
     );
 
     // Error functions are defined separately here in an attempt to make the code
@@ -2310,18 +2310,18 @@ require.define(
       setDataWithBody: function (object) {
         throw new Error(
           "Attempt to set data attribute of a content object " +
-            "when the body attributes was already set."
+            "when the body attributes was already set.",
         );
       },
       setBodyWithData: function (object) {
         throw new Error(
           "Attempt to set body attribute of a content object " +
-            "when the data attributes was already set."
+            "when the data attributes was already set.",
         );
       },
     };
     module.exports = Content;
-  }
+  },
 );
 
 require.define(
@@ -2450,14 +2450,14 @@ require.define(
         };
       },
     };
-  }
+  },
 );
 
 require.define(
   "/node_modules/iconv-lite/package.json",
   function (require, module, exports, __dirname, __filename) {
     module.exports = {};
-  }
+  },
 );
 
 require.define(
@@ -2501,7 +2501,7 @@ require.define(
                 encoding +
                 "' (searched as: '" +
                 enc +
-                "')"
+                "')",
             );
         }
       },
@@ -2534,7 +2534,7 @@ require.define(
             throw new Error(
               "Encoding '" +
                 options.type +
-                "' has incorrect 'chars' (must be of len 128 or 256)"
+                "' has incorrect 'chars' (must be of len 128 or 256)",
             );
 
           if (options.chars.length === 128)
@@ -2590,7 +2590,7 @@ require.define(
             revCharsTable = options.revCharsTable;
           if (!table) {
             throw new Error(
-              "Encoding '" + options.type + "' has incorect 'table' option"
+              "Encoding '" + options.type + "' has incorect 'table' option",
             );
           }
           if (!revCharsTable) {
@@ -2693,14 +2693,14 @@ require.define(
     var getType = function (obj) {
       return Object.prototype.toString.call(obj).slice(8, -1);
     };
-  }
+  },
 );
 
 require.define(
   "/node_modules/http-browserify/package.json",
   function (require, module, exports, __dirname, __filename) {
     module.exports = { main: "index.js", browserify: "browser.js" };
-  }
+  },
 );
 
 require.define(
@@ -2812,7 +2812,7 @@ require.define(
       509: "Bandwidth Limit Exceeded",
       510: "Not Extended", // RFC 2774
     };
-  }
+  },
 );
 
 require.define(
@@ -2832,7 +2832,7 @@ require.define(
       xhr.open(
         params.method || "GET",
         (params.scheme || "http") + "://" + uri,
-        true
+        true,
       );
 
       if (params.headers) {
@@ -2877,7 +2877,7 @@ require.define(
       if (s !== undefined) this.write(s);
       this.xhr.send(this.body);
     };
-  }
+  },
 );
 
 require.define(
@@ -2989,7 +2989,7 @@ require.define(
         this.offset = xhr.responseText.length;
       }
     };
-  }
+  },
 );
 
 require.define(
@@ -3025,7 +3025,7 @@ require.define(
       if (!headerName) return false;
       return unsafeHeaders.indexOf(headerName.toLowerCase()) === -1;
     };
-  }
+  },
 );
 
 require.alias("http-browserify", "/node_modules/http");

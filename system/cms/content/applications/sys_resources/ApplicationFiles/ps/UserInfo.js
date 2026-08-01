@@ -37,14 +37,14 @@ ps.UserInfo = new (function () {
         title: "User Info",
       },
       "420px",
-      "150px"
+      "150px",
     );
     var aaUrl = ps.aa.controller.getLinkToCurrentPage();
     aaUrl = aaUrl.replace("/Rhythmyx", "..");
     var url = ps.util.addParamToUrl(
       this.USER_INFO_PAGE_URL,
       "sys_redirecturl",
-      escape(aaUrl)
+      escape(aaUrl),
     );
     this._userInfoDlg.setUrl(url);
     return this._userInfoDlg;

@@ -72,7 +72,7 @@ async function runA11yCheck(page, opts = {}) {
   const results = await builder.analyze();
 
   const filtered = (results.violations || []).filter((v) =>
-    ["serious", "critical"].includes(v.impact)
+    ["serious", "critical"].includes(v.impact),
   );
 
   return { violations: filtered, completed: true };
@@ -108,14 +108,14 @@ async function expectNoSeriousA11yViolations(page, opts = {}) {
           .map(
             (n) =>
               `      target=${JSON.stringify(n.target)} html=${JSON.stringify(
-                (n.html || "").slice(0, 160)
-              )}`
+                (n.html || "").slice(0, 160),
+              )}`,
           )
-          .join("\n")
+          .join("\n"),
     )
     .join("\n");
   throw new Error(
-    `axe-core found ${violations.length} serious/critical violation(s):\n${summary}`
+    `axe-core found ${violations.length} serious/critical violation(s):\n${summary}`,
   );
 }
 

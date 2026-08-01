@@ -26,7 +26,7 @@
           layoutHelper.load(
             "dummy",
             layoutHelper.Type.TEMPLATE,
-            function (html) {}
+            function (html) {},
           );
         });
 
@@ -42,7 +42,7 @@
           equals(
             $header.html().replace(/</g, "&lt;"),
             expected.replace(/</g, "&lt;"),
-            "Correct add north of empty horizontal region."
+            "Correct add north of empty horizontal region.",
           );
 
           reg = layoutHelper.addRegion("middle", layoutHelper.Layout.NORTH);
@@ -58,7 +58,7 @@
           equals(
             $header.html().replace(/</g, "&lt;"),
             expected.replace(/</g, "&lt;"),
-            "Correct add north of horizontal region with 2 vertical subregions."
+            "Correct add north of horizontal region with 2 vertical subregions.",
           );
         });
 
@@ -80,7 +80,7 @@
             function (html) {
               layoutHelper.htmlToRegionTree(html);
               layoutHelper.save(function () {});
-            }
+            },
           );
         });
       });

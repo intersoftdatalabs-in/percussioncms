@@ -572,6 +572,16 @@
 			name="rxconfig/Server/startupProcessManager.properties" />
 		<include name="rxconfig/Server/sys_DatabaseFunctionDefs.xml" />
 		<include name="rxconfig/Installer/**" />
+		<!-- Product i18n TMX (lowercase path only). Note: upgrade.excludes still
+			has rxconfig/** so these includes alone do not land during the bulk overwrite
+			pass; updateConfiguration.xml force-copies the same product files. Listed
+			here as documentation of intent. -->
+		<include name="rxconfig/i18n/CmsUi.tmx" />
+		<include name="rxconfig/i18n/SystemResources.tmx" />
+		<include name="rxconfig/i18n/DeveloperUi.tmx" />
+		<include name="rxconfig/i18n/ResourceBundle.tmx" />
+		<include
+			name="rxconfig/i18n/sys_createTranslations.properties" />
 		<include name="sys_resources/**" />
 		<include name="Defaults/**" />
 		<include name="cm/**" />
@@ -654,8 +664,11 @@
 		<antcall target="install_server" inheritall="true"
 			inheritrefs="true" />
 		<!-- setupDB (repository_properties) must run before configure_jetty so
-			PSConfigureDatasource reads the target backend (postgresql/mysql/…) rather
-			than the shipped H2 defaults written during install_server (#1500 matrix). -->
+			PSConfigureDatasource reads the target backend (postgresql/mysql/...) rather
+			than the shipped H2 defaults written during install_server (#1500 matrix).
+			setupDB is also the entry point for the optional demo-sites sample-seed chain
+			(installSampleSites inside installRepository.xml runs only when install.demo.sites=true;
+			upgrades never invoke it). -->
 		<antcall target="setupDB" inheritall="true" inheritrefs="true" />
 		<antcall target="configure_jetty" inheritall="true"
 			inheritrefs="true" />

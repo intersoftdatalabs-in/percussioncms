@@ -62,7 +62,7 @@
       $("#perc-temp-lib-expander").removeClass("expander-enabled");
       $("#perc-temp-lib-expander").addClass("expander-disabled");
       $("#perc-temp-lib-maximizer").replaceWith(
-        '<a id="perc-temp-lib-disabled" style="float: left;" href="#"></a>'
+        '<a id="perc-temp-lib-disabled" style="float: left;" href="#"></a>',
       );
     } else {
       $("#perc-site-templates-label").show();
@@ -70,7 +70,7 @@
       $("#perc-temp-lib-expander").removeClass("expander-disabled");
       $("#perc-temp-lib-expander").addClass("expander-enabled");
       $("#perc-temp-lib-disabled").replaceWith(
-        '<a id="perc-temp-lib-maximizer" style="float: left;" href="#"></a>'
+        '<a id="perc-temp-lib-maximizer" style="float: left;" href="#"></a>',
       );
     }
 
@@ -163,7 +163,7 @@
     function setPanelPreference(showPanel, pageNumber) {
       var siteName = $.PercNavigationManager.getSiteName();
       var panelSettings = JSON.parse(
-        $.cookie("perc-unassigned-panel-" + siteName + "-settings")
+        $.cookie("perc-unassigned-panel-" + siteName + "-settings"),
       );
       if (panelSettings != null) {
         if (showPanel != null && typeof showPanel != "undefined")
@@ -175,7 +175,7 @@
       }
       $.cookie(
         "perc-unassigned-panel-" + siteName + "-settings",
-        JSON.stringify(panelSettings)
+        JSON.stringify(panelSettings),
       );
     }
 
@@ -189,11 +189,11 @@
             panel.removeClass("perc-closed").addClass("perc-opened");
             panelExpanderIcon.attr(
               "title",
-              '<i18n:message key = "perc.ui.workflow.view@Minimize"/>'
+              '<i18n:message key = "perc.ui.workflow.view@Minimize"/>',
             );
             panel.show("slide", {}, 500, function () {
               $("#perc-assigned-templates").template_selected(
-                "updateTemplatesPagingSize"
+                "updateTemplatesPagingSize",
               );
             });
             panelExpanderIcon
@@ -205,7 +205,7 @@
             panel.removeClass("perc-opened").addClass("perc-closed");
             panel.hide("slide", {}, 500, function () {
               $("#perc-assigned-templates").template_selected(
-                "updateTemplatesPagingSize"
+                "updateTemplatesPagingSize",
               );
             });
             panelExpanderIcon
@@ -213,7 +213,7 @@
               .addClass("perc-collapsed");
             panelExpanderIcon.attr(
               "title",
-              '<i18n:message key = "perc.ui.workflow.view@Maximize"/>'
+              '<i18n:message key = "perc.ui.workflow.view@Maximize"/>',
             );
             window.clearInterval(intervalId);
             setPanelPreference(false);
@@ -238,8 +238,8 @@
                 $.cookie(
                   "perc-unassigned-panel-" +
                     $.PercNavigationManager.getSiteName() +
-                    "-settings"
-                )
+                    "-settings",
+                ),
               );
               var showPanel = false;
               var pageNumber = 1;
@@ -266,7 +266,7 @@
                 intervalId = setInterval(requestUnassignedPages, 10000);
               }
             }
-          }
+          },
         );
       } else {
         panelExpanderIcon.addClass("perc-disabled");
@@ -274,7 +274,7 @@
 
       //Set a filter to each of the paging selectors to allow only digits.
       var percJump = $(
-        ".perc-unassigned-panel .perc-template-pages-controls .perc-jump"
+        ".perc-unassigned-panel .perc-template-pages-controls .perc-jump",
       );
       $.perc_filterField(percJump, $.perc_textFilters.ONLY_DIGITS);
 
@@ -283,7 +283,7 @@
         "click",
         function (evt) {
           unassignedPreviousClick(evt);
-        }
+        },
       );
 
       // Pagination controls - Next button - Click
@@ -291,7 +291,7 @@
         "click",
         function (evt) {
           unassignedNextClick(evt);
-        }
+        },
       );
 
       // Pagination controls - Text input for page selector
@@ -300,7 +300,7 @@
         function () {
           requestUnassignedPages(parseInt(percJump.val()));
           return false;
-        }
+        },
       );
       //setting attributes for first child, for Action dropdown
       var actionMenuAnchor_child = $("#perc-dropdown-actions")
@@ -334,14 +334,14 @@
 
     function unassignedPreviousClick(event) {
       var percJump = $(
-        ".perc-unassigned-panel .perc-template-pages-controls .perc-jump"
+        ".perc-unassigned-panel .perc-template-pages-controls .perc-jump",
       );
       requestUnassignedPages(parseInt(percJump.val()) - 1);
     }
 
     function unassignedNextClick(event) {
       var percJump = $(
-        ".perc-unassigned-panel .perc-template-pages-controls .perc-jump"
+        ".perc-unassigned-panel .perc-template-pages-controls .perc-jump",
       );
       requestUnassignedPages(parseInt(percJump.val()) + 1);
     }
@@ -350,7 +350,7 @@
       if (typeof pageNumber == "undefined") {
         //Use the current pageNumber
         var percJump = $(
-          ".perc-unassigned-panel .perc-template-pages-controls .perc-jump"
+          ".perc-unassigned-panel .perc-template-pages-controls .perc-jump",
         );
         pageNumber = percJump.val() != "" ? parseInt(percJump.val()) : 1;
       }
@@ -381,16 +381,16 @@
                 "undefined"
               )
                 childrenInPage = $.perc_utils.convertCXFArray(
-                  unassignedResult.unassignedItemList.childrenInPage
+                  unassignedResult.unassignedItemList.childrenInPage,
                 ).length;
               updatePaging(
                 unassignedResult.unassignedItemList.startIndex,
                 childrenInPage,
-                totalPages
+                totalPages,
               );
             } else {
             }
-          }
+          },
         );
       }
     }
@@ -446,10 +446,10 @@
     function updateProgressBar(importStatus) {
       var progressPanel = $(".perc-panel-progress");
       var progressFinishedMessage = progressPanel.find(
-        ".perc-progress-finished"
+        ".perc-progress-finished",
       );
       var progressContainer = progressPanel.find(
-        ".perc-progress-bar-container"
+        ".perc-progress-bar-container",
       );
       var progressBar = progressContainer.find(".perc-progress-bar");
       var progressMessage = progressPanel.find(".perc-progress-message");
@@ -497,7 +497,7 @@
       var pageList = $("<ul/>");
       pageContainer.append(pageList);
       var childrenInPage = $.perc_utils.convertCXFArray(
-        unassignedItemList.childrenInPage
+        unassignedItemList.childrenInPage,
       );
       for (var i = 0; i < 10; i++) {
         var page = { id: "", path: "", name: "", status: "blankSlot" };
@@ -513,7 +513,7 @@
             $("<img alt='Inspect Button'/>")
               .addClass("perc-left-img")
               .attr("src", "../images/images/inspectButton.png")
-              .attr("data", JSON.stringify(page))
+              .attr("data", JSON.stringify(page)),
           )
           .append($("<div/>").text(page.name))
           .append($("<span/>").addClass("perc-imported-page-dropdown"));
@@ -537,11 +537,11 @@
           case "Imported":
             pageObj.addClass("perc-imported-page").on("click", function (evt) {
               $(".perc-imported-page-selected").removeClass(
-                "perc-imported-page-selected"
+                "perc-imported-page-selected",
               );
               $(this).addClass("perc-imported-page-selected");
               var createTplPageMenuEntry = $(
-                ".perc-dropdown-option-CreateTemplatefromPage"
+                ".perc-dropdown-option-CreateTemplatefromPage",
               );
               createTplPageMenuEntry
                 .removeClass("perc-drop-disabled")
@@ -606,7 +606,7 @@
         $.PercNavigationManager.getSiteName(),
         function () {
           window.location.reload();
-        }
+        },
       );
     }
 
@@ -656,18 +656,18 @@
       // Instance the "Add template" dialog.
       // The newTemplateName argument in the callback function will be bound
       // to the new template name
-      $.PercAddTemplateDialog(function refreshAndFocusNewTemplate(
-        newTemplateName
-      ) {
-        if (newTemplateName !== undefined && newTemplateName !== "") {
-          // Invoke the jQuery widget method refresh passing the (optional) template
-          // name to focus is after refreshing the panel
-          $("#perc-assigned-templates").template_selected(
-            "refresh",
-            newTemplateName
-          );
-        }
-      });
+      $.PercAddTemplateDialog(
+        function refreshAndFocusNewTemplate(newTemplateName) {
+          if (newTemplateName !== undefined && newTemplateName !== "") {
+            // Invoke the jQuery widget method refresh passing the (optional) template
+            // name to focus is after refreshing the panel
+            $("#perc-assigned-templates").template_selected(
+              "refresh",
+              newTemplateName,
+            );
+          }
+        },
+      );
     }
 
     /**
@@ -677,7 +677,7 @@
       $.PercBlockUI();
       if (
         $(".perc-dropdown-option-CreateTemplatefromPage").hasClass(
-          "perc-drop-disabled"
+          "perc-drop-disabled",
         )
       ) {
         $.unblockUI();
@@ -688,7 +688,7 @@
         $.perc_utils.alert_dialog({
           title: I18N.message("perc.ui.page.general@Warning"),
           content: I18N.message(
-            "perc.ui.template.design.view@Select Imported Page"
+            "perc.ui.template.design.view@Select Imported Page",
           ),
         });
         $.unblockUI();
@@ -710,7 +710,7 @@
                     });
                   } else {
                     var percJump = $(
-                      ".perc-unassigned-panel .perc-template-pages-controls .perc-jump"
+                      ".perc-unassigned-panel .perc-template-pages-controls .perc-jump",
                     );
                     requestUnassignedPages(parseInt(percJump.val()));
 
@@ -732,10 +732,10 @@
                       location.reload();
                     }
                   }
-                }
+                },
               );
             }
-          }
+          },
         );
       }
     }
@@ -911,7 +911,7 @@
       $(".perc-template-item .perc-template-paging-container").show();
 
       $(".perc-template-item-middle-droppable").height(
-        $(".perc-template-item").height
+        $(".perc-template-item").height,
       );
 
       $("#perc-activated-templates").addClass("perc-templates-detailed");
@@ -972,7 +972,7 @@
         null,
         function (isDirty) {
           setDirty(isDirty);
-        }
+        },
       );
 
       $("#region-tool").draggable({
@@ -1069,7 +1069,7 @@
                       closeDialogOnSuccess();
                     });
                   }
-                }
+                },
               );
             },
             id: "perc-template-import",

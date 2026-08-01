@@ -66,7 +66,7 @@
       "JQMIGRATE: Migrate is installed" +
         (jQuery.migrateMute ? "" : " with logging active") +
         ", version " +
-        jQuery.migrateVersion
+        jQuery.migrateVersion,
     );
   })();
 
@@ -169,7 +169,7 @@
           rattrHashGlob,
           function (_, attr, op, value) {
             return "[" + attr + op + '"' + value + '"]';
-          }
+          },
         );
 
         // If the regexp *may* have created an invalid selector, don't update it
@@ -201,7 +201,7 @@
     function () {
       return this.length;
     },
-    "jQuery.fn.size() is deprecated and removed; use the .length property"
+    "jQuery.fn.size() is deprecated and removed; use the .length property",
   );
 
   migrateWarnFunc(
@@ -210,21 +210,21 @@
     function () {
       return JSON.parse.apply(null, arguments);
     },
-    "jQuery.parseJSON is deprecated; use JSON.parse"
+    "jQuery.parseJSON is deprecated; use JSON.parse",
   );
 
   migrateWarnFunc(
     jQuery,
     "holdReady",
     jQuery.holdReady,
-    "jQuery.holdReady is deprecated"
+    "jQuery.holdReady is deprecated",
   );
 
   migrateWarnFunc(
     jQuery,
     "unique",
     jQuery.uniqueSort,
-    "jQuery.unique is deprecated; use jQuery.uniqueSort"
+    "jQuery.unique is deprecated; use jQuery.uniqueSort",
   );
 
   // Now jQuery.expr.pseudos is the standard incantation
@@ -232,13 +232,13 @@
     jQuery.expr,
     "filters",
     jQuery.expr.pseudos,
-    "jQuery.expr.filters is deprecated; use jQuery.expr.pseudos"
+    "jQuery.expr.filters is deprecated; use jQuery.expr.pseudos",
   );
   migrateWarnProp(
     jQuery.expr,
     ":",
     jQuery.expr.pseudos,
-    "jQuery.expr[':'] is deprecated; use jQuery.expr.pseudos"
+    "jQuery.expr[':'] is deprecated; use jQuery.expr.pseudos",
   );
 
   // Prior to jQuery 3.1.1 there were internal refs so we don't warn there
@@ -249,7 +249,7 @@
       function (text) {
         return text == null ? "" : (text + "").replace(rtrim, "");
       },
-      "jQuery.trim is deprecated; use String.prototype.trim"
+      "jQuery.trim is deprecated; use String.prototype.trim",
     );
   }
 
@@ -263,14 +263,14 @@
           elem.nodeName && elem.nodeName.toLowerCase() === name.toLowerCase()
         );
       },
-      "jQuery.nodeName is deprecated"
+      "jQuery.nodeName is deprecated",
     );
 
     migrateWarnFunc(
       jQuery,
       "isArray",
       Array.isArray,
-      "jQuery.isArray is deprecated; use Array.isArray"
+      "jQuery.isArray is deprecated; use Array.isArray",
     );
   }
 
@@ -291,17 +291,17 @@
           !isNaN(obj - parseFloat(obj))
         );
       },
-      "jQuery.isNumeric() is deprecated"
+      "jQuery.isNumeric() is deprecated",
     );
 
     // Populate the class2type map
     jQuery.each(
       "Boolean Number String Function Array Date RegExp Object Error Symbol".split(
-        " "
+        " ",
       ),
       function (_, name) {
         class2type["[object " + name + "]"] = name.toLowerCase();
-      }
+      },
     );
 
     migrateWarnFunc(
@@ -317,7 +317,7 @@
           ? class2type[Object.prototype.toString.call(obj)] || "object"
           : typeof obj;
       },
-      "jQuery.type is deprecated"
+      "jQuery.type is deprecated",
     );
 
     migrateWarnFunc(
@@ -326,7 +326,7 @@
       function (obj) {
         return typeof obj === "function";
       },
-      "jQuery.isFunction() is deprecated"
+      "jQuery.isFunction() is deprecated",
     );
 
     migrateWarnFunc(
@@ -335,7 +335,7 @@
       function (obj) {
         return obj != null && obj === obj.window;
       },
-      "jQuery.isWindow() is deprecated"
+      "jQuery.isWindow() is deprecated",
     );
   }
 
@@ -353,19 +353,19 @@
           jQXHR,
           "success",
           jQXHR.done,
-          "jQXHR.success is deprecated and removed"
+          "jQXHR.success is deprecated and removed",
         );
         migrateWarnFunc(
           jQXHR,
           "error",
           jQXHR.fail,
-          "jQXHR.error is deprecated and removed"
+          "jQXHR.error is deprecated and removed",
         );
         migrateWarnFunc(
           jQXHR,
           "complete",
           jQXHR.always,
-          "jQXHR.complete is deprecated and removed"
+          "jQXHR.complete is deprecated and removed",
         );
       }
 
@@ -386,7 +386,7 @@
           (rjsonp.test(s.url) ||
             (typeof s.data === "string" &&
               (s.contentType || "").indexOf(
-                "application/x-www-form-urlencoded"
+                "application/x-www-form-urlencoded",
               ) === 0 &&
               rjsonp.test(s.data)))
         ) {
@@ -406,7 +406,7 @@
     jQuery.each(name.match(rmatchNonSpace), function (_i, attr) {
       if (jQuery.expr.match.bool.test(attr)) {
         migrateWarn(
-          "jQuery.fn.removeAttr no longer sets boolean properties: " + attr
+          "jQuery.fn.removeAttr no longer sets boolean properties: " + attr,
         );
         self.prop(attr, false);
       }
@@ -440,7 +440,7 @@
           "class",
           className || state === false
             ? ""
-            : jQuery.data(this, "__className__") || ""
+            : jQuery.data(this, "__className__") || "",
         );
       }
     });
@@ -564,7 +564,7 @@
         migrateWarn(
           'Number-typed values are deprecated for jQuery.fn.css( "' +
             name +
-            '", value )'
+            '", value )',
         );
       }
     }
@@ -584,7 +584,7 @@
       for (key in name) {
         if (key !== camelCase(key)) {
           migrateWarn(
-            "jQuery.data() always sets/gets camelCased names: " + key
+            "jQuery.data() always sets/gets camelCased names: " + key,
           );
           curData[key] = name[key];
         } else {
@@ -626,7 +626,7 @@
         migrateWarn(
           "'jQuery.easing." +
             this.easing.toString() +
-            "' should use only one argument"
+            "' should use only one argument",
         );
 
         jQuery.easing[this.easing] = linearEasing;
@@ -670,7 +670,7 @@
     jQuery.event.props,
     "concat",
     jQuery.event.props.concat,
-    "jQuery.event.props.concat() is deprecated and removed"
+    "jQuery.event.props.concat() is deprecated and removed",
   );
 
   jQuery.event.fix = function (originalEvent) {
@@ -681,7 +681,7 @@
 
     if (props.length) {
       migrateWarn(
-        "jQuery.event.props are deprecated and removed: " + props.join()
+        "jQuery.event.props are deprecated and removed: " + props.join(),
       );
       while (props.length) {
         jQuery.event.addProp(props.pop());
@@ -713,7 +713,7 @@
       window.document.readyState === "complete"
     ) {
       migrateWarn(
-        "jQuery(window).on('load'...) called after load event occurred"
+        "jQuery(window).on('load'...) called after load event occurred",
       );
     }
     return oldEventAdd.apply(this, arguments);
@@ -761,7 +761,7 @@
           ? this.on(name, null, data, fn)
           : this.trigger(name);
       };
-    }
+    },
   );
 
   // Trigger "ready" event only once, on document ready
@@ -854,7 +854,7 @@
 
       if (traditional === undefined && ajaxTraditional) {
         migrateWarn(
-          "jQuery.param() no longer uses jQuery.ajaxSettings.traditional"
+          "jQuery.param() no longer uses jQuery.ajaxSettings.traditional",
         );
         traditional = ajaxTraditional;
       }
@@ -867,7 +867,7 @@
 
   jQuery.fn.andSelf = function () {
     migrateWarn(
-      "jQuery.fn.andSelf() is deprecated and removed, use jQuery.fn.addBack()"
+      "jQuery.fn.andSelf() is deprecated and removed, use jQuery.fn.addBack()",
     );
     return oldSelf.apply(this, arguments);
   };
@@ -903,40 +903,41 @@
       var deferred = oldDeferred(),
         promise = deferred.promise();
 
-      deferred.pipe = promise.pipe =
-        function (/* fnDone, fnFail, fnProgress */) {
-          var fns = arguments;
+      deferred.pipe = promise.pipe = function (
+        /* fnDone, fnFail, fnProgress */
+      ) {
+        var fns = arguments;
 
-          migrateWarn("deferred.pipe() is deprecated");
+        migrateWarn("deferred.pipe() is deprecated");
 
-          return jQuery
-            .Deferred(function (newDefer) {
-              jQuery.each(tuples, function (i, tuple) {
-                var fn = typeof fns[i] === "function" && fns[i];
+        return jQuery
+          .Deferred(function (newDefer) {
+            jQuery.each(tuples, function (i, tuple) {
+              var fn = typeof fns[i] === "function" && fns[i];
 
-                // Deferred.done(function() { bind to newDefer or newDefer.resolve })
-                // deferred.fail(function() { bind to newDefer or newDefer.reject })
-                // deferred.progress(function() { bind to newDefer or newDefer.notify })
-                deferred[tuple[1]](function () {
-                  var returned = fn && fn.apply(this, arguments);
-                  if (returned && typeof returned.promise === "function") {
-                    returned
-                      .promise()
-                      .done(newDefer.resolve)
-                      .fail(newDefer.reject)
-                      .progress(newDefer.notify);
-                  } else {
-                    newDefer[tuple[0] + "With"](
-                      this === promise ? newDefer.promise() : this,
-                      fn ? [returned] : arguments
-                    );
-                  }
-                });
+              // Deferred.done(function() { bind to newDefer or newDefer.resolve })
+              // deferred.fail(function() { bind to newDefer or newDefer.reject })
+              // deferred.progress(function() { bind to newDefer or newDefer.notify })
+              deferred[tuple[1]](function () {
+                var returned = fn && fn.apply(this, arguments);
+                if (returned && typeof returned.promise === "function") {
+                  returned
+                    .promise()
+                    .done(newDefer.resolve)
+                    .fail(newDefer.reject)
+                    .progress(newDefer.notify);
+                } else {
+                  newDefer[tuple[0] + "With"](
+                    this === promise ? newDefer.promise() : this,
+                    fn ? [returned] : arguments,
+                  );
+                }
               });
-              fns = null;
-            })
-            .promise();
-        };
+            });
+            fns = null;
+          })
+          .promise();
+      };
 
       if (func) {
         func.call(deferred, deferred);

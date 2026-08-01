@@ -87,7 +87,7 @@
         templateModel = P.templateModel(
           templateManager,
           templateId,
-          initialize
+          initialize,
         );
 
         // call back after template is loaded
@@ -99,7 +99,7 @@
           // The parsing of regions is done in P.regionsFromTree defined in PercTemplateModel
           var pageRegions = regionsFromBranches(
             pageObj.Page.regionBranches.regions,
-            pageObj.Page.regionBranches.regionWidgetAssociations
+            pageObj.Page.regionBranches.regionWidgetAssociations,
           );
           templateRootRegion = templateModel.getRoot();
 
@@ -145,7 +145,7 @@
         $.map(pageRegions, function (tree) {
           var region = P.regionsFromTree(tree, assocs, "page");
           return { k: region.regionId, v: region };
-        })
+        }),
       );
     }
 
@@ -164,7 +164,7 @@
             // put the page widgets in the template region
             overrideTemplateRegionWithPageRegion(
               this,
-              pageRegions[this.regionId]
+              pageRegions[this.regionId],
             );
             // TODO: anything else that needs to be overriden? region properties? region id?
           }
@@ -256,7 +256,7 @@
         isResource,
         null,
         callback,
-        utils.show_error
+        utils.show_error,
       );
     }
 
@@ -265,7 +265,7 @@
       assetid,
       relationshipId,
       callback,
-      errorCallback
+      errorCallback,
     ) {
       $.PercAssetService.update_relationship(
         assetid,
@@ -273,7 +273,7 @@
         widgetData,
         pageId,
         callback,
-        errorCallback
+        errorCallback,
       );
     }
 
@@ -294,7 +294,7 @@
           var defaultMsg =
             $.PercServiceUtils.extractDefaultErrorMessage(request);
           $.perc_utils.alert_dialog({ title: "Error", content: defaultMsg });
-        }
+        },
       );
     }
 
@@ -315,7 +315,7 @@
           widgetId,
           widgetDefinitionId,
           assetId,
-          callback
+          callback,
         );
     }
 
@@ -333,7 +333,7 @@
       widgetId,
       widgetDefinitionId,
       assetId,
-      callback
+      callback,
     ) {
       if (assetId)
         $.PercAssetService.clear_orphan_assets(
@@ -341,7 +341,7 @@
           widgetId,
           widgetDefinitionId,
           assetId,
-          callback
+          callback,
         );
     }
 
@@ -385,7 +385,7 @@
                 _editAsset(widgetData, assetId, isSharedAsset, callback);
               }
             }
-          }
+          },
         );
       } else {
         _editAsset(widgetData, assetId, isSharedAsset, callback);
@@ -432,13 +432,13 @@
                       assetId,
                       widgetData,
                       pageId,
-                      "page"
+                      "page",
                     );
                   } else {
                     //Unable to check out the asset.
                     callback();
                   }
-                }
+                },
               );
             } else {
               $.perc_asset_edit_dialog(
@@ -447,7 +447,7 @@
                 assetId,
                 widgetData,
                 pageId,
-                "page"
+                "page",
               );
             }
           } else {
@@ -459,13 +459,13 @@
               success: function () {
                 $.PercNavigationManager.goTo(
                   $.PercNavigationManager.VIEW_EDITOR,
-                  false
+                  false,
                 );
               },
             };
             $.perc_utils.confirm_dialog(options);
           }
-        }
+        },
       );
     }
     function editWidget(widgetId, callback) {
@@ -633,7 +633,7 @@
             pageManager.save_page(
               pageId,
               utils.rexml($.perc_schemata.page, pageObj),
-              postCallback
+              postCallback,
             );
           } else {
             $.unblockUI();
@@ -641,11 +641,11 @@
               title: I18N.message("perc.ui.common.label@Save"),
               content: I18N.message(
                 "perc.ui.webmgt.contentbrowser.warning@Action Not Performed Saved",
-                ["page"]
+                ["page"],
               ),
             });
           }
-        }
+        },
       );
     }
 
@@ -697,7 +697,7 @@
         utils.rexml($.perc_schemata.page, pageObj),
         function (data) {
           callback($(data).find("result").text());
-        }
+        },
       );
     }
 

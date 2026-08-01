@@ -171,7 +171,7 @@
         }
       } else {
         $(
-          ".perc-roles-assigned-users-list .perc-assigned-user-selected"
+          ".perc-roles-assigned-users-list .perc-assigned-user-selected",
         ).remove();
         disableRemoveUsers();
       }
@@ -302,7 +302,7 @@
       for (i in assignedUsersArray) {
         var userName = assignedUsersArray[i];
         var liUser = $(
-          "<li tabindex='0' class='perc-assigned-user-entry'/>"
+          "<li tabindex='0' class='perc-assigned-user-entry'/>",
         ).append($("<span />").html(userName).attr("title", userName));
         //When Admin role is selected, if the list of users will contain the logged in user, then that user name will be disabled.
         //Note: This ensures there is always at least one user in the Admin role.
@@ -399,7 +399,7 @@
     function unhighlightAllUsers() {
       // unhighlight all users
       $(
-        ".perc-roles-assigned-users-list .perc-assigned-user-selected"
+        ".perc-roles-assigned-users-list .perc-assigned-user-selected",
       ).removeClass("perc-assigned-user-selected");
     }
 
@@ -480,7 +480,7 @@
         origRoleName,
         description,
         homepage,
-        assignedUsers
+        assignedUsers,
       );
     }
 

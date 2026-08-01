@@ -1,9 +1,9 @@
-!(function (t) {
+(!(function (t) {
   "function" == typeof define && define.amd
     ? define("ui/version.js", ["jquery"], t)
     : t(jQuery);
 })(function (t) {
-  return (t.ui = t.ui || {}), (t.ui.version = "@VERSION");
+  return ((t.ui = t.ui || {}), (t.ui.version = "@VERSION"));
 }),
   (function (t) {
     "function" == typeof define && define.amd
@@ -48,8 +48,8 @@
     "function" == typeof define && define.amd
       ? define("ui/vendor/jquery-color/jquery.color.js", ["jquery"], e)
       : "object" == typeof exports
-      ? (module.exports = e(require("jquery")))
-      : e(t.jQuery);
+        ? (module.exports = e(require("jquery")))
+        : e(t.jQuery);
   })(this, function (t, e) {
     var i,
       s = {},
@@ -129,8 +129,8 @@
       return null == t
         ? t + ""
         : "object" == typeof t
-        ? s[n.call(t)] || "object"
-        : typeof t;
+          ? s[n.call(t)] || "object"
+          : typeof t;
     }
     function f(t, e, i) {
       var s = h[e.type] || {};
@@ -142,8 +142,8 @@
           isNaN(t)
             ? e.def
             : s.mod
-            ? (t + s.mod) % s.mod
-            : Math.min(s.max, Math.max(0, t)));
+              ? (t + s.mod) % s.mod
+              : Math.min(s.max, Math.max(0, t)));
     }
     function g(e) {
       var s = r(),
@@ -172,28 +172,28 @@
       return 6 * (i = (i + 1) % 1) < 1
         ? t + (e - t) * i * 6
         : 2 * i < 1
-        ? e
-        : 3 * i < 2
-        ? t + (e - t) * (2 / 3 - i) * 6
-        : t;
+          ? e
+          : 3 * i < 2
+            ? t + (e - t) * (2 / 3 - i) * 6
+            : t;
     }
-    (c.style.cssText = "background-color:rgba(1,1,1,.5)"),
+    ((c.style.cssText = "background-color:rgba(1,1,1,.5)"),
       (u.rgba = c.style.backgroundColor.indexOf("rgba") > -1),
       d(l, function (t, e) {
-        (e.cache = "_" + t),
-          (e.props.alpha = { idx: 3, type: "percent", def: 1 });
+        ((e.cache = "_" + t),
+          (e.props.alpha = { idx: 3, type: "percent", def: 1 }));
       }),
       t.each(
         "Boolean Number String Function Array Date RegExp Object Error Symbol".split(
-          " "
+          " ",
         ),
         function (t, e) {
           s["[object " + e + "]"] = e.toLowerCase();
-        }
+        },
       ),
       (r.fn = t.extend(r.prototype, {
         parse: function (s, n, o, a) {
-          if (s === e) return (this._rgba = [null, null, null, null]), this;
+          if (s === e) return ((this._rgba = [null, null, null, null]), this);
           (s.jquery || s.nodeType) && ((s = t(s).css(n)), (n = e));
           var h = this,
             u = p(s),
@@ -203,34 +203,34 @@
             "string" === u
               ? this.parse(g(s) || i._default)
               : "array" === u
-              ? (d(l.rgba.props, function (t, e) {
-                  c[e.idx] = f(s[e.idx], e);
-                }),
-                this)
-              : "object" === u
-              ? (d(
-                  l,
-                  s instanceof r
-                    ? function (t, e) {
-                        s[e.cache] && (h[e.cache] = s[e.cache].slice());
-                      }
-                    : function (e, i) {
-                        var n = i.cache;
-                        d(i.props, function (t, e) {
-                          if (!h[n] && i.to) {
-                            if ("alpha" === t || null == s[t]) return;
-                            h[n] = i.to(h._rgba);
+                ? (d(l.rgba.props, function (t, e) {
+                    c[e.idx] = f(s[e.idx], e);
+                  }),
+                  this)
+                : "object" === u
+                  ? (d(
+                      l,
+                      s instanceof r
+                        ? function (t, e) {
+                            s[e.cache] && (h[e.cache] = s[e.cache].slice());
                           }
-                          h[n][e.idx] = f(s[t], e, !0);
-                        }),
-                          h[n] &&
-                            t.inArray(null, h[n].slice(0, 3)) < 0 &&
-                            (null == h[n][3] && (h[n][3] = 1),
-                            i.from && (h._rgba = i.from(h[n])));
-                      }
-                ),
-                this)
-              : void 0
+                        : function (e, i) {
+                            var n = i.cache;
+                            (d(i.props, function (t, e) {
+                              if (!h[n] && i.to) {
+                                if ("alpha" === t || null == s[t]) return;
+                                h[n] = i.to(h._rgba);
+                              }
+                              h[n][e.idx] = f(s[t], e, !0);
+                            }),
+                              h[n] &&
+                                t.inArray(null, h[n].slice(0, 3)) < 0 &&
+                                (null == h[n][3] && (h[n][3] = 1),
+                                i.from && (h._rgba = i.from(h[n]))));
+                          },
+                    ),
+                    this)
+                  : void 0
           );
         },
         is: function (t) {
@@ -297,7 +297,7 @@
           return r(
             t.map(i, function (t, e) {
               return (1 - s) * n[e] + s * t;
-            })
+            }),
           );
         },
         toRgbaString: function () {
@@ -305,7 +305,7 @@
             i = t.map(this._rgba, function (t, e) {
               return null != t ? t : e > 2 ? 1 : 0;
             });
-          return 1 === i[3] && (i.pop(), (e = "rgb(")), e + i.join() + ")";
+          return (1 === i[3] && (i.pop(), (e = "rgb(")), e + i.join() + ")");
         },
         toHslaString: function () {
           var e = "hsla(",
@@ -316,7 +316,7 @@
                 t
               );
             });
-          return 1 === i[3] && (i.pop(), (e = "hsl(")), e + i.join() + ")";
+          return (1 === i[3] && (i.pop(), (e = "hsl(")), e + i.join() + ")");
         },
         toHexString: function (e) {
           var i = this._rgba.slice(),
@@ -355,10 +355,10 @@
             l === r
               ? 0
               : s === r
-              ? (60 * (n - o)) / h + 360
-              : n === r
-              ? (60 * (o - s)) / h + 120
-              : (60 * (s - n)) / h + 240),
+                ? (60 * (n - o)) / h + 360
+                : n === r
+                  ? (60 * (o - s)) / h + 120
+                  : (60 * (s - n)) / h + 240),
           (i = 0 === h ? 0 : c <= 0.5 ? h / u : h / (2 - u)),
           [Math.round(e) % 360, i, c, null == a ? 1 : a]
         );
@@ -384,7 +384,7 @@
           n = i.cache,
           a = i.to,
           l = i.from;
-        (r.fn[t] = function (t) {
+        ((r.fn[t] = function (t) {
           if ((a && !this[n] && (this[n] = a(this._rgba)), t === e))
             return this[n].slice();
           var i,
@@ -394,7 +394,7 @@
           return (
             d(s, function (t, e) {
               var i = h["object" === o ? t : e.idx];
-              null == i && (i = u[e.idx]), (u[e.idx] = f(i, e));
+              (null == i && (i = u[e.idx]), (u[e.idx] = f(i, e)));
             }),
             l ? (((i = r(l(u)))[n] = u), i) : r(u)
           );
@@ -425,12 +425,12 @@
                           this[l](n)))
                 );
               });
-          });
+          }));
       }),
       (r.hook = function (e) {
         var i = e.split(" ");
         d(i, function (e, i) {
-          (t.cssHooks[i] = {
+          ((t.cssHooks[i] = {
             set: function (e, s) {
               var n,
                 o,
@@ -440,10 +440,9 @@
                   for (
                     o = "backgroundColor" === i ? e.parentNode : e;
                     ("" === a || "transparent" === a) && o && o.style;
-
                   )
                     try {
-                      (a = t.css(o, "backgroundColor")), (o = o.parentNode);
+                      ((a = t.css(o, "backgroundColor")), (o = o.parentNode));
                     } catch (t) {}
                   s = s.blend(a && "transparent" !== a ? a : "_default");
                 }
@@ -455,16 +454,16 @@
             },
           }),
             (t.fx.step[i] = function (e) {
-              e.colorInit ||
+              (e.colorInit ||
                 ((e.start = r(e.elem, i)),
                 (e.end = r(e.end)),
                 (e.colorInit = !0)),
-                t.cssHooks[i].set(e.elem, e.start.transition(e.end, e.pos));
-            });
+                t.cssHooks[i].set(e.elem, e.start.transition(e.end, e.pos)));
+            }));
         });
       }),
       r.hook(
-        "backgroundColor borderBottomColor borderLeftColor borderRightColor borderTopColor color columnRuleColor outlineColor textDecorationColor textEmphasisColor"
+        "backgroundColor borderBottomColor borderLeftColor borderRightColor borderTopColor color columnRuleColor outlineColor textDecorationColor textEmphasisColor",
       ),
       (t.cssHooks.borderColor = {
         expand: function (t) {
@@ -497,14 +496,14 @@
           yellow: "#ffff00",
           transparent: [null, null, null, 0],
           _default: "#ffffff",
-        });
+        }));
   }),
   (function (t) {
     "function" == typeof define && define.amd
       ? define(
           "ui/effect",
           ["jquery", "./vendor/jquery-color/jquery.color", "./version"],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -536,7 +535,7 @@
               : t.currentStyle,
             o = {};
           if (n && n.length && n[0] && n[n[0]])
-            for (i = n.length; i--; )
+            for (i = n.length; i--;)
               "string" == typeof n[(e = n[i])] &&
                 (o[
                   ((s = e),
@@ -547,7 +546,7 @@
           else for (e in n) "string" == typeof n[e] && (o[e] = n[e]);
           return o;
         }
-        t.each(
+        (t.each(
           [
             "borderLeftStyle",
             "borderRightStyle",
@@ -560,12 +559,12 @@
                 (1 === t.pos && !t.setAttr)) &&
                 (s.style(t.elem, i, t.end), (t.setAttr = !0));
             };
-          }
+          },
         ),
           t.fn.addBack ||
             (t.fn.addBack = function (t) {
               return this.add(
-                null == t ? this.prevObject : this.prevObject.filter(t)
+                null == t ? this.prevObject : this.prevObject.filter(t),
               );
             }),
           (t.effects.animateClass = function (e, s, a, r) {
@@ -575,7 +574,7 @@
                 a = t(this),
                 r = a.attr("class") || "",
                 h = l.children ? a.find("*").addBack() : a;
-              (h = h.map(function () {
+              ((h = h.map(function () {
                 return { el: t(this), start: o(this) };
               })),
                 (s = function () {
@@ -591,11 +590,11 @@
                         o,
                         a = {};
                       for (s in i)
-                        (o = i[s]),
+                        ((o = i[s]),
                           e[s] !== o &&
                             (n[s] ||
                               (!t.fx.step[s] && isNaN(parseFloat(o))) ||
-                              (a[s] = o));
+                              (a[s] = o)));
                       return a;
                     })(this.start, this.end)),
                     this
@@ -611,18 +610,18 @@
                         i.resolve(e);
                       },
                     });
-                  return this.el.animate(this.diff, s), i.promise();
+                  return (this.el.animate(this.diff, s), i.promise());
                 })),
                 t.when.apply(t, h.get()).done(function () {
-                  s(),
+                  (s(),
                     t.each(arguments, function () {
                       var e = this.el;
                       t.each(this.diff, function (t) {
                         e.css(t, "");
                       });
                     }),
-                    l.complete.call(a[0]);
-                });
+                    l.complete.call(a[0]));
+                }));
             });
           }),
           t.fn.extend({
@@ -649,7 +648,7 @@
                         s ? { add: i } : { remove: i },
                         n,
                         o,
-                        a
+                        a,
                       )
                     : e.apply(this, arguments)
                   : t.effects.animateClass.call(this, { toggle: i }, s, n, o);
@@ -661,10 +660,10 @@
                 { add: i, remove: e },
                 s,
                 n,
-                o
+                o,
               );
             },
-          });
+          }));
       })(),
       (function () {
         var e;
@@ -682,10 +681,10 @@
             (e.duration = t.fx.off
               ? 0
               : "number" == typeof s
-              ? s
-              : s in t.fx.speeds
-              ? t.fx.speeds[s]
-              : t.fx.speeds._default),
+                ? s
+                : s in t.fx.speeds
+                  ? t.fx.speeds[s]
+                  : t.fx.speeds._default),
             (e.complete = n || i.complete),
             e
           );
@@ -703,7 +702,7 @@
             s = e.outerHeight(),
             n =
               /^rect\((-?\d*\.?\d*px|-?\d+%|auto),?\s*(-?\d*\.?\d*px|-?\d+%|auto),?\s*(-?\d*\.?\d*px|-?\d+%|auto),?\s*(-?\d*\.?\d*px|-?\d+%|auto)\)$/.exec(
-                t
+                t,
               ) || ["", 0, i, s, 0];
           return {
             top: parseFloat(n[1]) || 0,
@@ -712,7 +711,7 @@
             left: parseFloat(n[4]) || 0,
           };
         }
-        t.expr &&
+        (t.expr &&
           t.expr.pseudos &&
           t.expr.pseudos.animated &&
           (t.expr.pseudos.animated =
@@ -734,7 +733,8 @@
               },
               setMode: function (t, e) {
                 return (
-                  "toggle" === e && (e = t.is(":hidden") ? "show" : "hide"), e
+                  "toggle" === e && (e = t.is(":hidden") ? "show" : "hide"),
+                  e
                 );
               },
               createWrapper: function (e) {
@@ -772,9 +772,9 @@
                       t.each(
                         ["top", "left", "bottom", "right"],
                         function (t, s) {
-                          (i[s] = e.css(s)),
-                            isNaN(parseInt(i[s], 10)) && (i[s] = "auto");
-                        }
+                          ((i[s] = e.css(s)),
+                            isNaN(parseInt(i[s], 10)) && (i[s] = "auto"));
+                        },
                       ),
                       e.css({
                         position: "relative",
@@ -830,15 +830,15 @@
             },
             unshift: function (t, e, i) {
               var s = t.queue();
-              e > 1 && s.splice.apply(s, [1, 0].concat(s.splice(e, i))),
-                t.dequeue();
+              (e > 1 && s.splice.apply(s, [1, 0].concat(s.splice(e, i))),
+                t.dequeue());
             },
             saveStyle: function (t) {
               t.data("ui-effects-style", t[0].style.cssText);
             },
             restoreStyle: function (t) {
-              (t[0].style.cssText = t.data("ui-effects-style") || ""),
-                t.removeData("ui-effects-style");
+              ((t[0].style.cssText = t.data("ui-effects-style") || ""),
+                t.removeData("ui-effects-style"));
             },
             mode: function (t, e) {
               var i = t.is(":hidden");
@@ -921,7 +921,7 @@
               i && (i.remove(), t.removeData(e));
             },
             cleanUp: function (e) {
-              t.effects.restoreStyle(e), t.effects.removePlaceholder(e);
+              (t.effects.restoreStyle(e), t.effects.removePlaceholder(e));
             },
             setTransition: function (e, i, s, n) {
               return (
@@ -947,13 +947,13 @@
                 c = function (e) {
                   var s = t(this),
                     n = t.effects.mode(s, h) || o;
-                  s.data(i, !0),
+                  (s.data(i, !0),
                     u.push(n),
                     o &&
                       ("show" === n || (n === o && "hide" === n)) &&
                       s.show(),
                     (o && "none" === n) || t.effects.saveStyle(s),
-                    "function" == typeof e && e();
+                    "function" == typeof e && e());
                 };
               if (t.fx.off || !n)
                 return h
@@ -964,22 +964,22 @@
               function d(s) {
                 var a = t(this);
                 function r() {
-                  "function" == typeof l && l.call(a[0]),
-                    "function" == typeof s && s();
+                  ("function" == typeof l && l.call(a[0]),
+                    "function" == typeof s && s());
                 }
-                (e.mode = u.shift()),
+                ((e.mode = u.shift()),
                   !1 === t.uiBackCompat || o
                     ? "none" === e.mode
                       ? (a[h](), r())
                       : n.call(a[0], e, function () {
-                          a.removeData(i),
+                          (a.removeData(i),
                             t.effects.cleanUp(a),
                             "hide" === e.mode && a.hide(),
-                            r();
+                            r());
                         })
                     : (a.is(":hidden") ? "hide" === h : "show" === h)
-                    ? (a[h](), r())
-                    : n.call(a[0], e, r);
+                      ? (a[h](), r())
+                      : n.call(a[0], e, r));
               }
               return !1 === a
                 ? this.each(c).each(d)
@@ -989,14 +989,14 @@
               return function (e) {
                 if (n(e)) return t.apply(this, arguments);
                 var i = s.apply(this, arguments);
-                return (i.mode = "show"), this.effect.call(this, i);
+                return ((i.mode = "show"), this.effect.call(this, i));
               };
             })(t.fn.show),
             hide: (function (t) {
               return function (e) {
                 if (n(e)) return t.apply(this, arguments);
                 var i = s.apply(this, arguments);
-                return (i.mode = "hide"), this.effect.call(this, i);
+                return ((i.mode = "hide"), this.effect.call(this, i));
               };
             })(t.fn.hide),
             toggle: (function (t) {
@@ -1004,7 +1004,7 @@
                 if (n(e) || "boolean" == typeof e)
                   return t.apply(this, arguments);
                 var i = s.apply(this, arguments);
-                return (i.mode = "toggle"), this.effect.call(this, i);
+                return ((i.mode = "toggle"), this.effect.call(this, i));
               };
             })(t.fn.toggle),
             cssUnit: function (e) {
@@ -1029,7 +1029,7 @@
                       t.bottom +
                       "px " +
                       t.left +
-                      "px)"
+                      "px)",
                   )
                 : o(this.css("clip"), this);
             },
@@ -1059,12 +1059,12 @@
                   position: o ? "fixed" : "absolute",
                 })
                 .animate(u, e.duration, e.easing, function () {
-                  d.remove(), "function" == typeof i && i();
+                  (d.remove(), "function" == typeof i && i());
                 });
             },
           }),
           (t.fx.step.clip = function (e) {
-            e.clipInit ||
+            (e.clipInit ||
               ((e.start = t(e.elem).cssClip()),
               "string" == typeof e.end && (e.end = o(e.end, e.elem)),
               (e.clipInit = !0)),
@@ -1074,8 +1074,8 @@
                 bottom:
                   e.pos * (e.end.bottom - e.start.bottom) + e.start.bottom,
                 left: e.pos * (e.end.left - e.start.left) + e.start.left,
-              });
-          });
+              }));
+          }));
       })(),
       (e = {}),
       t.each(["Quad", "Cubic", "Quart", "Quint", "Expo"], function (t, i) {
@@ -1100,20 +1100,20 @@
           return t * t * (3 * t - 2);
         },
         Bounce: function (t) {
-          for (var e, i = 4; t < ((e = Math.pow(2, --i)) - 1) / 11; );
+          for (var e, i = 4; t < ((e = Math.pow(2, --i)) - 1) / 11;);
           return (
             1 / Math.pow(4, 3 - i) - 7.5625 * Math.pow((3 * e - 2) / 22 - t, 2)
           );
         },
       }),
       t.each(e, function (e, i) {
-        (t.easing["easeIn" + e] = i),
+        ((t.easing["easeIn" + e] = i),
           (t.easing["easeOut" + e] = function (t) {
             return 1 - i(1 - t);
           }),
           (t.easing["easeInOut" + e] = function (t) {
             return t < 0.5 ? i(2 * t) / 2 : 1 - i(-2 * t + 2) / 2;
-          });
+          }));
       }),
       t.effects
     );
@@ -1123,7 +1123,7 @@
       ? define(
           "ui/effects/effect-blind.js",
           ["jquery", "../version", "../effect"],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -1141,7 +1141,7 @@
         a = n.cssClip(),
         r = { clip: t.extend({}, a) },
         l = t.effects.createPlaceholder(n);
-      (r.clip[s[o][0]] = r.clip[s[o][1]]),
+      ((r.clip[s[o][0]] = r.clip[s[o][1]]),
         "show" === e.mode &&
           (n.cssClip(r.clip), l && l.css(t.effects.clipToBox(r)), (r.clip = a)),
         l && l.animate(t.effects.clipToBox(r), e.duration, e.easing),
@@ -1150,7 +1150,7 @@
           duration: e.duration,
           easing: e.easing,
           complete: i,
-        });
+        }));
     });
   }),
   (function (t) {
@@ -1158,7 +1158,7 @@
       ? define(
           "ui/effects/effect-bounce.js",
           ["jquery", "../version", "../effect"],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -1195,13 +1195,13 @@
         v < d;
         v++
       )
-        ((s = {})[m] = (_ ? "-=" : "+=") + c),
+        (((s = {})[m] = (_ ? "-=" : "+=") + c),
           a.animate(s, f, g).animate(n, f, g),
-          (c = l ? 2 * c : c / 2);
-      l &&
+          (c = l ? 2 * c : c / 2));
+      (l &&
         (((s = { opacity: 0 })[m] = (_ ? "-=" : "+=") + c), a.animate(s, f, g)),
         a.queue(i),
-        t.effects.unshift(a, b, p + 1);
+        t.effects.unshift(a, b, p + 1));
     });
   }),
   (function (t) {
@@ -1209,7 +1209,7 @@
       ? define(
           "ui/effects/effect-clip.js",
           ["jquery", "../version", "../effect"],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -1221,7 +1221,7 @@
         r = "both" === a,
         l = r || "horizontal" === a,
         h = r || "vertical" === a;
-      (s = o.cssClip()),
+      ((s = o.cssClip()),
         (n.clip = {
           top: h ? (s.bottom - s.top) / 2 : s.top,
           right: l ? (s.right - s.left) / 2 : s.right,
@@ -1235,7 +1235,7 @@
           duration: e.duration,
           easing: e.easing,
           complete: i,
-        });
+        }));
     });
   }),
   (function (t) {
@@ -1243,7 +1243,7 @@
       ? define(
           "ui/effects/effect-drop.js",
           ["jquery", "../version", "../effect"],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -1256,7 +1256,7 @@
         l = "up" === a || "left" === a ? "-=" : "+=",
         h = "+=" === l ? "-=" : "+=",
         u = { opacity: 0 };
-      t.effects.createPlaceholder(n),
+      (t.effects.createPlaceholder(n),
         (s =
           e.distance || n["top" === r ? "outerHeight" : "outerWidth"](!0) / 2),
         (u[r] = l + s),
@@ -1266,7 +1266,7 @@
           duration: e.duration,
           easing: e.easing,
           complete: i,
-        });
+        }));
     });
   }),
   (function (t) {
@@ -1274,7 +1274,7 @@
       ? define(
           "ui/effects/effect-explode.js",
           ["jquery", "../version", "../effect"],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -1294,13 +1294,13 @@
         g = Math.ceil(c.outerHeight() / h),
         m = [];
       function _() {
-        m.push(this),
+        (m.push(this),
           m.length === h * u &&
-            (c.css({ visibility: "visible" }), t(m).remove(), i());
+            (c.css({ visibility: "visible" }), t(m).remove(), i()));
       }
       for (s = 0; s < h; s++)
         for (a = p.top + s * g, l = s - (h - 1) / 2, n = 0; n < u; n++)
-          (o = p.left + n * f),
+          ((o = p.left + n * f),
             (r = n - (u - 1) / 2),
             c
               .clone()
@@ -1331,8 +1331,8 @@
                 },
                 e.duration || 500,
                 e.easing,
-                _
-              );
+                _,
+              ));
     });
   }),
   (function (t) {
@@ -1340,7 +1340,7 @@
       ? define(
           "ui/effects/effect-fade.js",
           ["jquery", "../version", "../effect"],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -1350,7 +1350,7 @@
         .css("opacity", s ? 0 : 1)
         .animate(
           { opacity: s ? 1 : 0 },
-          { queue: !1, duration: e.duration, easing: e.easing, complete: i }
+          { queue: !1, duration: e.duration, easing: e.easing, complete: i },
         );
     });
   }),
@@ -1359,7 +1359,7 @@
       ? define(
           "ui/effects/effect-fold.js",
           ["jquery", "../version", "../effect"],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -1378,7 +1378,7 @@
         f = { clip: t.extend({}, d) },
         g = [d[h[0]], d[h[1]]],
         m = s.queue().length;
-      l && (r = (parseInt(l[1], 10) / 100) * g[a ? 0 : 1]),
+      (l && (r = (parseInt(l[1], 10) / 100) * g[a ? 0 : 1]),
         (p.clip[h[0]] = r),
         (f.clip[h[0]] = r),
         (f.clip[h[1]] = 0),
@@ -1386,16 +1386,16 @@
           (s.cssClip(f.clip), c && c.css(t.effects.clipToBox(f)), (f.clip = d)),
         s
           .queue(function (i) {
-            c &&
+            (c &&
               c
                 .animate(t.effects.clipToBox(p), u, e.easing)
                 .animate(t.effects.clipToBox(f), u, e.easing),
-              i();
+              i());
           })
           .animate(p, u, e.easing)
           .animate(f, u, e.easing)
           .queue(i),
-        t.effects.unshift(s, m, 4);
+        t.effects.unshift(s, m, 4));
     });
   }),
   (function (t) {
@@ -1403,14 +1403,14 @@
       ? define(
           "ui/effects/effect-highlight.js",
           ["jquery", "../version", "../effect"],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
     return t.effects.define("highlight", "show", function (e, i) {
       var s = t(this),
         n = { backgroundColor: s.css("backgroundColor") };
-      "hide" === e.mode && (n.opacity = 0),
+      ("hide" === e.mode && (n.opacity = 0),
         t.effects.saveStyle(s),
         s
           .css({
@@ -1422,7 +1422,7 @@
             duration: e.duration,
             easing: e.easing,
             complete: i,
-          });
+          }));
     });
   }),
   (function (t) {
@@ -1430,7 +1430,7 @@
       ? define(
           "ui/effects/effect-size.js",
           ["jquery", "../version", "../effect"],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -1461,7 +1461,7 @@
         m = t.effects.scaledDimensions(a),
         _ = e.from || m,
         v = e.to || t.effects.scaledDimensions(a, 0);
-      t.effects.createPlaceholder(a),
+      (t.effects.createPlaceholder(a),
         "show" === u && ((o = _), (_ = v), (v = o)),
         (n = {
           from: { y: _.height / m.height, x: _.width / m.width },
@@ -1505,7 +1505,7 @@
                 outerHeight: s.height * n.to.y,
                 outerWidth: s.width * n.to.x,
               };
-            n.from.y !== n.to.y &&
+            (n.from.y !== n.to.y &&
               ((o = t.effects.setTransition(i, l, n.from.y, o)),
               (a = t.effects.setTransition(i, l, n.to.y, a))),
               n.from.x !== n.to.x &&
@@ -1515,7 +1515,7 @@
               i.css(o),
               i.animate(a, e.duration, e.easing, function () {
                 c && t.effects.restoreStyle(i);
-              });
+              }));
           })),
         a.animate(v, {
           queue: !1,
@@ -1523,13 +1523,13 @@
           easing: e.easing,
           complete: function () {
             var e = a.offset();
-            0 === v.opacity && a.css("opacity", _.opacity),
+            (0 === v.opacity && a.css("opacity", _.opacity),
               c ||
                 (a.css("position", "static" === f ? "relative" : f).offset(e),
                 t.effects.saveStyle(a)),
-              i();
+              i());
           },
-        });
+        }));
     });
   }),
   (function (t) {
@@ -1537,7 +1537,7 @@
       ? define(
           "ui/effects/effect-scale.js",
           ["jquery", "../version", "../effect", "./effect-size"],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -1554,10 +1554,10 @@
             to: t.effects.scaledDimensions(s, o, e.direction || "both"),
             origin: e.origin || ["middle", "center"],
           },
-          e
+          e,
         );
-      e.fade && ((a.from.opacity = 1), (a.to.opacity = 0)),
-        t.effects.effect.size.call(this, a, i);
+      (e.fade && ((a.from.opacity = 1), (a.to.opacity = 0)),
+        t.effects.effect.size.call(this, a, i));
     });
   }),
   (function (t) {
@@ -1565,7 +1565,7 @@
       ? define(
           "ui/effects/effect-puff.js",
           ["jquery", "../version", "../effect", "./effect-scale"],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -1582,7 +1582,7 @@
       ? define(
           "ui/effects/effect-pulsate.js",
           ["jquery", "../version", "../effect"],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -1601,10 +1601,10 @@
         u < r;
         u++
       )
-        s.animate({ opacity: h }, l, e.easing), (h = 1 - h);
-      s.animate({ opacity: h }, l, e.easing),
+        (s.animate({ opacity: h }, l, e.easing), (h = 1 - h));
+      (s.animate({ opacity: h }, l, e.easing),
         s.queue(i),
-        t.effects.unshift(s, c, r + 1);
+        t.effects.unshift(s, c, r + 1));
     });
   }),
   (function (t) {
@@ -1612,7 +1612,7 @@
       ? define(
           "ui/effects/effect-shake.js",
           ["jquery", "../version", "../effect"],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -1640,11 +1640,11 @@
         s++
       )
         n.animate(p, h, e.easing).animate(f, h, e.easing);
-      n
+      (n
         .animate(p, h, e.easing)
         .animate(d, h / 2, e.easing)
         .queue(i),
-        t.effects.unshift(n, g, l + 1);
+        t.effects.unshift(n, g, l + 1));
     });
   }),
   (function (t) {
@@ -1652,7 +1652,7 @@
       ? define(
           "ui/effects/effect-slide.js",
           ["jquery", "../version", "../effect"],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -1672,7 +1672,7 @@
         u = "up" === l || "left" === l,
         c = e.distance || o["top" === h ? "outerHeight" : "outerWidth"](!0),
         d = {};
-      t.effects.createPlaceholder(o),
+      (t.effects.createPlaceholder(o),
         (s = o.cssClip()),
         (n = o.position()[h]),
         (d[h] = (u ? -1 : 1) * c + n),
@@ -1685,7 +1685,7 @@
           duration: e.duration,
           easing: e.easing,
           complete: i,
-        });
+        }));
     });
   }),
   (function (t) {
@@ -1693,7 +1693,7 @@
       ? define(
           "ui/effects/effect-transfer.js",
           ["jquery", "../version", "../effect"],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -1733,8 +1733,8 @@
               t(e).is(":visible") &&
               (function (t) {
                 var e = t.css("visibility");
-                for (; "inherit" === e; )
-                  (t = t.parent()), (e = t.css("visibility"));
+                for (; "inherit" === e;)
+                  ((t = t.parent()), (e = t.css("visibility")));
                 return "visible" === e;
               })(t(e)));
       }),
@@ -1775,21 +1775,21 @@
       _bindFormResetHandler: function () {
         if (((this.form = this.element._form()), this.form.length)) {
           var t = this.form.data("ui-form-reset-instances") || [];
-          t.length ||
+          (t.length ||
             this.form.on("reset.ui-form-reset", this._formResetHandler),
             t.push(this),
-            this.form.data("ui-form-reset-instances", t);
+            this.form.data("ui-form-reset-instances", t));
         }
       },
       _unbindFormResetHandler: function () {
         if (this.form.length) {
           var e = this.form.data("ui-form-reset-instances");
-          e.splice(t.inArray(this, e), 1),
+          (e.splice(t.inArray(this, e), 1),
             e.length
               ? this.form.data("ui-form-reset-instances", e)
               : this.form
                   .removeData("ui-form-reset-instances")
-                  .off("reset.ui-form-reset");
+                  .off("reset.ui-form-reset"));
         }
       },
     });
@@ -1877,7 +1877,7 @@
           : ((n = this.eq(0).parents("label")),
             (s = this.attr("id")) &&
               ((o = (e = this.eq(0).parents().last()).add(
-                e.length ? e.siblings() : this.siblings()
+                e.length ? e.siblings() : this.siblings(),
               )),
               (i = "label[for='" + t.escapeSelector(s) + "']"),
               (n = n.add(o.find(i).addBack(i)))),
@@ -1895,7 +1895,7 @@
         var n,
           o = t.ui[e].prototype;
         for (n in s)
-          (o.plugins[n] = o.plugins[n] || []), o.plugins[n].push([i, s[n]]);
+          ((o.plugins[n] = o.plugins[n] || []), o.plugins[n].push([i, s[n]]));
       },
       call: function (t, e, i, s) {
         var n,
@@ -1939,13 +1939,13 @@
         function d(t) {
           return null != t && t === t.window;
         }
-        (t.position = {
+        ((t.position = {
           scrollbarWidth: function () {
             if (void 0 !== e) return e;
             var i,
               s,
               n = t(
-                "<div style='display:block;position:absolute;width:200px;height:200px;overflow:hidden;'><div style='height:300px;width:auto;'></div></div>"
+                "<div style='display:block;position:absolute;width:200px;height:200px;overflow:hidden;'><div style='height:300px;width:auto;'></div></div>",
               ),
               o = n.children()[0];
             return (
@@ -2016,22 +2016,22 @@
                       offset: { top: 0, left: 0 },
                     }
                   : d(b)
-                  ? {
-                      width: v.width(),
-                      height: v.height(),
-                      offset: { top: v.scrollTop(), left: v.scrollLeft() },
-                    }
-                  : b.preventDefault
-                  ? {
-                      width: 0,
-                      height: 0,
-                      offset: { top: b.pageY, left: b.pageX },
-                    }
-                  : {
-                      width: v.outerWidth(),
-                      height: v.outerHeight(),
-                      offset: v.offset(),
-                    }),
+                    ? {
+                        width: v.width(),
+                        height: v.height(),
+                        offset: { top: v.scrollTop(), left: v.scrollLeft() },
+                      }
+                    : b.preventDefault
+                      ? {
+                          width: 0,
+                          height: 0,
+                          offset: { top: b.pageY, left: b.pageX },
+                        }
+                      : {
+                          width: v.outerWidth(),
+                          height: v.outerHeight(),
+                          offset: v.offset(),
+                        }),
               y[0].preventDefault && (e.at = "left top"),
               (p = _.width),
               (f = _.height),
@@ -2041,18 +2041,18 @@
                 var t,
                   i,
                   s = (e[this] || "").split(" ");
-                1 === s.length &&
+                (1 === s.length &&
                   (s = n.test(s[0])
                     ? s.concat(["center"])
                     : o.test(s[0])
-                    ? ["center"].concat(s)
-                    : ["center", "center"]),
+                      ? ["center"].concat(s)
+                      : ["center", "center"]),
                   (s[0] = n.test(s[0]) ? s[0] : "center"),
                   (s[1] = o.test(s[1]) ? s[1] : "center"),
                   (t = a.exec(s[0])),
                   (i = a.exec(s[1])),
                   (C[this] = [t ? t[0] : 0, i ? i[0] : 0]),
-                  (e[this] = [r.exec(s[0])[0], r.exec(s[1])[0]]);
+                  (e[this] = [r.exec(s[0])[0], r.exec(s[1])[0]]));
               }),
               1 === x.length && (x[1] = x[0]),
               "right" === e.at[0]
@@ -2076,7 +2076,7 @@
                   b = h + _ + c(this, "marginBottom") + k.height,
                   D = t.extend({}, m),
                   I = u(C.my, a.outerWidth(), a.outerHeight());
-                "right" === e.my[0]
+                ("right" === e.my[0]
                   ? (D.left -= r)
                   : "center" === e.my[0] && (D.left -= r / 2),
                   "bottom" === e.my[1]
@@ -2127,14 +2127,14 @@
                             o < 0 ? "left" : n > 0 ? "right" : "center",
                           vertical: u < 0 ? "top" : l > 0 ? "bottom" : "middle",
                         };
-                      p < r && s(n + o) < p && (c.horizontal = "center"),
+                      (p < r && s(n + o) < p && (c.horizontal = "center"),
                         f < h && s(l + u) < f && (c.vertical = "middle"),
                         i(s(n), s(o)) > i(s(l), s(u))
                           ? (c.important = "horizontal")
                           : (c.important = "vertical"),
-                        e.using.call(this, t, c);
+                        e.using.call(this, t, c));
                     }),
-                  a.offset(t.extend(D, { using: o }));
+                  a.offset(t.extend(D, { using: o })));
               })
             );
           }),
@@ -2156,13 +2156,13 @@
                         h > 0 && l <= 0
                           ? o
                           : l > h
-                          ? o + a - e.collisionWidth
-                          : o)
+                            ? o + a - e.collisionWidth
+                            : o)
                   : l > 0
-                  ? (t.left += l)
-                  : h > 0
-                  ? (t.left -= h)
-                  : (t.left = i(t.left - r, t.left));
+                    ? (t.left += l)
+                    : h > 0
+                      ? (t.left -= h)
+                      : (t.left = i(t.left - r, t.left));
               },
               top: function (t, e) {
                 var s,
@@ -2180,13 +2180,13 @@
                         h > 0 && l <= 0
                           ? o
                           : l > h
-                          ? o + a - e.collisionHeight
-                          : o)
+                            ? o + a - e.collisionHeight
+                            : o)
                   : l > 0
-                  ? (t.top += l)
-                  : h > 0
-                  ? (t.top -= h)
-                  : (t.top = i(t.top - r, t.top));
+                    ? (t.top += l)
+                    : h > 0
+                      ? (t.top -= h)
+                      : (t.top = i(t.top - r, t.top));
               },
             },
             flip: {
@@ -2204,14 +2204,14 @@
                     "left" === e.my[0]
                       ? -e.elemWidth
                       : "right" === e.my[0]
-                      ? e.elemWidth
-                      : 0,
+                        ? e.elemWidth
+                        : 0,
                   p =
                     "left" === e.at[0]
                       ? e.targetWidth
                       : "right" === e.at[0]
-                      ? -e.targetWidth
-                      : 0,
+                        ? -e.targetWidth
+                        : 0,
                   f = -2 * e.offset[0];
                 u < 0
                   ? ((i = t.left + d + p + f + e.collisionWidth - r - a) < 0 ||
@@ -2238,14 +2238,14 @@
                     "top" === e.my[1]
                       ? -e.elemHeight
                       : "bottom" === e.my[1]
-                      ? e.elemHeight
-                      : 0,
+                        ? e.elemHeight
+                        : 0,
                   p =
                     "top" === e.at[1]
                       ? e.targetHeight
                       : "bottom" === e.at[1]
-                      ? -e.targetHeight
-                      : 0,
+                        ? -e.targetHeight
+                        : 0,
                   f = -2 * e.offset[1];
                 u < 0
                   ? ((n = t.top + d + p + f + e.collisionHeight - r - a) < 0 ||
@@ -2261,15 +2261,15 @@
             },
             flipfit: {
               left: function () {
-                t.ui.position.flip.left.apply(this, arguments),
-                  t.ui.position.fit.left.apply(this, arguments);
+                (t.ui.position.flip.left.apply(this, arguments),
+                  t.ui.position.fit.left.apply(this, arguments));
               },
               top: function () {
-                t.ui.position.flip.top.apply(this, arguments),
-                  t.ui.position.fit.top.apply(this, arguments);
+                (t.ui.position.flip.top.apply(this, arguments),
+                  t.ui.position.fit.top.apply(this, arguments));
               },
             },
-          });
+          }));
       })(),
       t.ui.position
     );
@@ -2286,7 +2286,7 @@
       } catch (i) {
         e = t.body;
       }
-      return e || (e = t.body), e.nodeName || (e = t.body), e;
+      return (e || (e = t.body), e.nodeName || (e = t.body), e);
     });
   }),
   (function (t) {
@@ -2313,7 +2313,7 @@
             return (
               (!s || "static" !== e.css("position")) &&
               n.test(
-                e.css("overflow") + e.css("overflow-y") + e.css("overflow-x")
+                e.css("overflow") + e.css("overflow-y") + e.css("overflow-x"),
               )
             );
           })
@@ -2433,7 +2433,7 @@
             a,
             { widgetEventPrefix: (n && a.widgetEventPrefix) || e },
             r,
-            { constructor: o, namespace: l, widgetName: e, widgetFullName: h }
+            { constructor: o, namespace: l, widgetName: e, widgetFullName: h },
           )),
           n
             ? (t.each(n._childConstructors, function (e, i) {
@@ -2453,14 +2453,14 @@
           r++
         )
           for (i in a[r])
-            (o = a[r][i]),
+            ((o = a[r][i]),
               s.call(a[r], i) &&
                 void 0 !== o &&
                 (t.isPlainObject(o)
                   ? (e[i] = t.isPlainObject(e[i])
                       ? t.widget.extend({}, e[i], o)
                       : t.widget.extend({}, o))
-                  : (e[i] = o));
+                  : (e[i] = o)));
         return e;
       }),
       (t.widget.bridge = function (e, i) {
@@ -2478,24 +2478,25 @@
                     return "instance" === o
                       ? ((l = n), !1)
                       : n
-                      ? "function" != typeof n[o] || "_" === o.charAt(0)
-                        ? t.error(
-                            "no such method '" +
-                              o +
-                              "' for " +
+                        ? "function" != typeof n[o] || "_" === o.charAt(0)
+                          ? t.error(
+                              "no such method '" +
+                                o +
+                                "' for " +
+                                e +
+                                " widget instance",
+                            )
+                          : (i = n[o].apply(n, r)) !== n && void 0 !== i
+                            ? ((l = i && i.jquery ? l.pushStack(i.get()) : i),
+                              !1)
+                            : void 0
+                        : t.error(
+                            "cannot call methods on " +
                               e +
-                              " widget instance"
-                          )
-                        : (i = n[o].apply(n, r)) !== n && void 0 !== i
-                        ? ((l = i && i.jquery ? l.pushStack(i.get()) : i), !1)
-                        : void 0
-                      : t.error(
-                          "cannot call methods on " +
-                            e +
-                            " prior to initialization; attempted to call method '" +
-                            o +
-                            "'"
-                        );
+                              " prior to initialization; attempted to call method '" +
+                              o +
+                              "'",
+                          );
                   })
                 : (l = void 0)
               : (r.length && (o = t.widget.extend.apply(null, [o].concat(r))),
@@ -2517,7 +2518,7 @@
         defaultElement: "<div>",
         options: { classes: {}, disabled: !1, create: null },
         _createWidget: function (e, s) {
-          (s = t(s || this.defaultElement || this)[0]),
+          ((s = t(s || this.defaultElement || this)[0]),
             (this.element = t(s)),
             (this.uuid = i++),
             (this.eventNamespace = "." + this.widgetName + this.uuid),
@@ -2534,19 +2535,19 @@
               }),
               (this.document = t(s.style ? s.ownerDocument : s.document || s)),
               (this.window = t(
-                this.document[0].defaultView || this.document[0].parentWindow
+                this.document[0].defaultView || this.document[0].parentWindow,
               ))),
             (this.options = t.widget.extend(
               {},
               this.options,
               this._getCreateOptions(),
-              e
+              e,
             )),
             this._create(),
             this.options.disabled &&
               this._setOptionDisabled(this.options.disabled),
             this._trigger("create", null, this._getCreateEventData()),
-            this._init();
+            this._init());
         },
         _getCreateOptions: function () {
           return {};
@@ -2556,7 +2557,7 @@
         _init: t.noop,
         destroy: function () {
           var e = this;
-          this._destroy(),
+          (this._destroy(),
             t.each(this.classesElementLookup, function (t, i) {
               e._removeClass(i, t);
             }),
@@ -2564,7 +2565,7 @@
               .off(this.eventNamespace)
               .removeData(this.widgetFullName),
             this.widget().off(this.eventNamespace).removeAttr("aria-disabled"),
-            this.bindings.off(this.eventNamespace);
+            this.bindings.off(this.eventNamespace));
         },
         _destroy: t.noop,
         widget: function () {
@@ -2583,7 +2584,7 @@
                 o < s.length - 1;
                 o++
               )
-                (n[s[o]] = n[s[o]] || {}), (n = n[s[o]]);
+                ((n[s[o]] = n[s[o]] || {}), (n = n[s[o]]));
               if (((e = s.pop()), 1 === arguments.length))
                 return void 0 === n[e] ? null : n[e];
               n[e] = i;
@@ -2592,7 +2593,7 @@
                 return void 0 === this.options[e] ? null : this.options[e];
               a[e] = i;
             }
-          return this._setOptions(a), this;
+          return (this._setOptions(a), this);
         },
         _setOptions: function (t) {
           var e;
@@ -2610,26 +2611,26 @@
         _setOptionClasses: function (e) {
           var i, s, n;
           for (i in e)
-            (n = this.classesElementLookup[i]),
+            ((n = this.classesElementLookup[i]),
               e[i] !== this.options.classes[i] &&
                 n &&
                 n.length &&
                 ((s = t(n.get())),
                 this._removeClass(n, i),
                 s.addClass(
-                  this._classes({ element: s, keys: i, classes: e, add: !0 })
-                ));
+                  this._classes({ element: s, keys: i, classes: e, add: !0 }),
+                )));
         },
         _setOptionDisabled: function (t) {
-          this._toggleClass(
+          (this._toggleClass(
             this.widget(),
             this.widgetFullName + "-disabled",
             null,
-            !!t
+            !!t,
           ),
             t &&
               (this._removeClass(this.hoverable, null, "ui-state-hover"),
-              this._removeClass(this.focusable, null, "ui-state-focus"));
+              this._removeClass(this.focusable, null, "ui-state-focus")));
         },
         enable: function () {
           return this._setOptions({ disabled: !1 });
@@ -2643,7 +2644,7 @@
           function n(n, o) {
             var a, r;
             for (r = 0; r < n.length; r++)
-              (a = s.classesElementLookup[n[r]] || t()),
+              ((a = s.classesElementLookup[n[r]] || t()),
                 e.add
                   ? (e.element.each(function (e, i) {
                       t
@@ -2658,12 +2659,12 @@
                   : (a = t(a.not(e.element).get())),
                 (s.classesElementLookup[n[r]] = a),
                 i.push(n[r]),
-                o && e.classes[n[r]] && i.push(e.classes[n[r]]);
+                o && e.classes[n[r]] && i.push(e.classes[n[r]]));
           }
           return (
             (e = t.extend(
               { element: this.element, classes: this.options.classes || {} },
-              e
+              e,
             )).keys && n(e.keys.match(/\S+/g) || [], !0),
             e.extra && n(e.extra.match(/\S+/g) || []),
             i.join(" ")
@@ -2671,11 +2672,11 @@
         },
         _untrackClassesElement: function (e) {
           var i = this;
-          t.each(i.classesElementLookup, function (s, n) {
+          (t.each(i.classesElementLookup, function (s, n) {
             -1 !== t.inArray(e.target, n) &&
               (i.classesElementLookup[s] = t(n.not(e.target).get()));
           }),
-            this._off(t(e.target));
+            this._off(t(e.target)));
         },
         _removeClass: function (t, e, i) {
           return this._toggleClass(t, e, i, !1);
@@ -2692,12 +2693,12 @@
               element: n ? this.element : t,
               add: s,
             };
-          return o.element.toggleClass(this._classes(o), s), this;
+          return (o.element.toggleClass(this._classes(o), s), this);
         },
         _on: function (e, i, s) {
           var n,
             o = this;
-          "boolean" != typeof e && ((s = i), (i = e), (e = !1)),
+          ("boolean" != typeof e && ((s = i), (i = e), (e = !1)),
             s
               ? ((i = n = t(i)), (this.bindings = this.bindings.add(i)))
               : ((s = i), (i = this.element), (n = this.widget())),
@@ -2716,16 +2717,16 @@
                 h = l[1] + o.eventNamespace,
                 u = l[2];
               u ? n.on(h, u, r) : i.on(h, r);
-            });
+            }));
         },
         _off: function (e, i) {
-          (i =
+          ((i =
             (i || "").split(" ").join(this.eventNamespace + " ") +
             this.eventNamespace),
             e.off(i),
             (this.bindings = t(this.bindings.not(e).get())),
             (this.focusable = t(this.focusable.not(e).get())),
-            (this.hoverable = t(this.hoverable.not(e).get()));
+            (this.hoverable = t(this.hoverable.not(e).get())));
         },
         _delay: function (t, e) {
           var i = this;
@@ -2734,7 +2735,7 @@
           }, e || 0);
         },
         _hoverable: function (e) {
-          (this.hoverable = this.hoverable.add(e)),
+          ((this.hoverable = this.hoverable.add(e)),
             this._on(e, {
               mouseenter: function (e) {
                 this._addClass(t(e.currentTarget), null, "ui-state-hover");
@@ -2742,10 +2743,10 @@
               mouseleave: function (e) {
                 this._removeClass(t(e.currentTarget), null, "ui-state-hover");
               },
-            });
+            }));
         },
         _focusable: function (e) {
-          (this.focusable = this.focusable.add(e)),
+          ((this.focusable = this.focusable.add(e)),
             this._on(e, {
               focusin: function (e) {
                 this._addClass(t(e.currentTarget), null, "ui-state-focus");
@@ -2753,7 +2754,7 @@
               focusout: function (e) {
                 this._removeClass(t(e.currentTarget), null, "ui-state-focus");
               },
-            });
+            }));
         },
         _trigger: function (e, i, s) {
           var n,
@@ -2787,7 +2788,7 @@
               ? i
               : n.effect || i
             : e;
-          "number" == typeof (n = n || {})
+          ("number" == typeof (n = n || {})
             ? (n = { duration: n })
             : !0 === n && (n = {}),
             (a = !t.isEmptyObject(n)),
@@ -2796,10 +2797,10 @@
             a && t.effects && t.effects.effect[r]
               ? s[e](n)
               : r !== e && s[r]
-              ? s[r](n.duration, n.easing, o)
-              : s.queue(function (i) {
-                  t(this)[e](), o && o.call(s[0]), i();
-                });
+                ? s[r](n.duration, n.easing, o)
+                : s.queue(function (i) {
+                    (t(this)[e](), o && o.call(s[0]), i());
+                  }));
         };
       }),
       t.widget
@@ -2810,7 +2811,7 @@
       ? define(
           "ui/widgets/accordion.js",
           ["jquery", "../version", "../keycode", "../unique-id", "../widget"],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -2853,7 +2854,7 @@
       },
       _create: function () {
         var e = this.options;
-        (this.prevShow = this.prevHide = t()),
+        ((this.prevShow = this.prevHide = t()),
           this._addClass("ui-accordion", "ui-widget ui-helper-reset"),
           this.element.attr("role", "tablist"),
           e.collapsible ||
@@ -2861,7 +2862,7 @@
             (e.active = 0),
           this._processPanels(),
           e.active < 0 && (e.active += this.headers.length),
-          this._refresh();
+          this._refresh());
       },
       _getCreateEventData: function () {
         return {
@@ -2883,15 +2884,15 @@
             ._addClass(this.headers, "ui-accordion-icons"));
       },
       _destroyIcons: function () {
-        this._removeClass(this.headers, "ui-accordion-icons"),
-          this.headers.children(".ui-accordion-header-icon").remove();
+        (this._removeClass(this.headers, "ui-accordion-icons"),
+          this.headers.children(".ui-accordion-header-icon").remove());
       },
       _destroy: function () {
         var t;
-        this.element.removeAttr("role"),
+        (this.element.removeAttr("role"),
           this.headers
             .removeAttr(
-              "role aria-expanded aria-selected aria-controls tabIndex"
+              "role aria-expanded aria-selected aria-controls tabIndex",
             )
             .removeUniqueId(),
           this._destroyIcons(),
@@ -2900,7 +2901,7 @@
             .css("display", "")
             .removeAttr("role aria-hidden aria-labelledby")
             .removeUniqueId()),
-          "content" !== this.options.heightStyle && t.css("height", "");
+          "content" !== this.options.heightStyle && t.css("height", ""));
       },
       _setOption: function (t, e) {
         "active" !== t
@@ -2917,15 +2918,15 @@
           : this._activate(e);
       },
       _setOptionDisabled: function (t) {
-        this._super(t),
+        (this._super(t),
           this.element.attr("aria-disabled", t),
           this._toggleClass(null, "ui-state-disabled", !!t),
           this._toggleClass(
             this.headers.add(this.headers.next()),
             null,
             "ui-state-disabled",
-            !!t
-          );
+            !!t,
+          ));
       },
       _keydown: function (e) {
         if (!e.altKey && !e.ctrlKey) {
@@ -2966,30 +2967,31 @@
       },
       refresh: function () {
         var e = this.options;
-        this._processPanels(),
+        (this._processPanels(),
           (!1 === e.active && !0 === e.collapsible) || !this.headers.length
             ? ((e.active = !1), (this.active = t()))
             : !1 === e.active
-            ? this._activate(0)
-            : this.active.length && !t.contains(this.element[0], this.active[0])
-            ? this.headers.length ===
-              this.headers.find(".ui-state-disabled").length
-              ? ((e.active = !1), (this.active = t()))
-              : this._activate(Math.max(0, e.active - 1))
-            : (e.active = this.headers.index(this.active)),
+              ? this._activate(0)
+              : this.active.length &&
+                  !t.contains(this.element[0], this.active[0])
+                ? this.headers.length ===
+                  this.headers.find(".ui-state-disabled").length
+                  ? ((e.active = !1), (this.active = t()))
+                  : this._activate(Math.max(0, e.active - 1))
+                : (e.active = this.headers.index(this.active)),
           this._destroyIcons(),
-          this._refresh();
+          this._refresh());
       },
       _processPanels: function () {
         var t = this.headers,
           e = this.panels;
-        "function" == typeof this.options.header
+        ("function" == typeof this.options.header
           ? (this.headers = this.options.header(this.element))
           : (this.headers = this.element.find(this.options.header)),
           this._addClass(
             this.headers,
             "ui-accordion-header ui-accordion-header-collapsed",
-            "ui-state-default"
+            "ui-state-default",
           ),
           (this.panels = this.headers
             .next()
@@ -2998,20 +3000,20 @@
           this._addClass(
             this.panels,
             "ui-accordion-content",
-            "ui-helper-reset ui-widget-content"
+            "ui-helper-reset ui-widget-content",
           ),
-          e && (this._off(t.not(this.headers)), this._off(e.not(this.panels)));
+          e && (this._off(t.not(this.headers)), this._off(e.not(this.panels))));
       },
       _refresh: function () {
         var e,
           i = this.options,
           s = i.heightStyle,
           n = this.element.parent();
-        (this.active = this._findActive(i.active)),
+        ((this.active = this._findActive(i.active)),
           this._addClass(
             this.active,
             "ui-accordion-header-active",
-            "ui-state-active"
+            "ui-state-active",
           )._removeClass(this.active, "ui-accordion-header-collapsed"),
           this._addClass(this.active.next(), "ui-accordion-content-active"),
           this.active.next().show(),
@@ -3022,7 +3024,7 @@
                 i = e.uniqueId().attr("id"),
                 s = e.next(),
                 n = s.uniqueId().attr("id");
-              e.attr("aria-controls", n), s.attr("aria-labelledby", i);
+              (e.attr("aria-controls", n), s.attr("aria-labelledby", i));
             })
             .next()
             .attr("role", "tabpanel"),
@@ -3062,7 +3064,7 @@
                 .next()
                 .each(function () {
                   t(this).height(
-                    Math.max(0, e - t(this).innerHeight() + t(this).height())
+                    Math.max(0, e - t(this).innerHeight() + t(this).height()),
                   );
                 })
                 .css("overflow", "auto"))
@@ -3072,11 +3074,11 @@
                 .next()
                 .each(function () {
                   var i = t(this).is(":visible");
-                  i || t(this).show(),
+                  (i || t(this).show(),
                     (e = Math.max(e, t(this).css("height", "").height())),
-                    i || t(this).hide();
+                    i || t(this).hide());
                 })
-                .height(e));
+                .height(e)));
       },
       _activate: function (e) {
         var i = this._findActive(e)[0];
@@ -3093,7 +3095,7 @@
       },
       _setupEvents: function (e) {
         var i = { keydown: "_keydown" };
-        e &&
+        (e &&
           t.each(e.split(" "), function (t, e) {
             i[e] = "_eventHandler";
           }),
@@ -3101,7 +3103,7 @@
           this._on(this.headers, i),
           this._on(this.headers.next(), { keydown: "_panelKeyDown" }),
           this._hoverable(this.headers),
-          this._focusable(this.headers);
+          this._focusable(this.headers));
       },
       _eventHandler: function (e) {
         var i,
@@ -3119,7 +3121,7 @@
             newHeader: l ? t() : a,
             newPanel: h,
           };
-        e.preventDefault(),
+        (e.preventDefault(),
           (r && !n.collapsible) ||
             !1 === this._trigger("beforeActivate", e, c) ||
             ((n.active = !l && this.headers.index(a)),
@@ -3128,34 +3130,34 @@
             this._removeClass(
               o,
               "ui-accordion-header-active",
-              "ui-state-active"
+              "ui-state-active",
             ),
             n.icons &&
               ((i = o.children(".ui-accordion-header-icon")),
               this._removeClass(i, null, n.icons.activeHeader)._addClass(
                 i,
                 null,
-                n.icons.header
+                n.icons.header,
               )),
             r ||
               (this._removeClass(a, "ui-accordion-header-collapsed")._addClass(
                 a,
                 "ui-accordion-header-active",
-                "ui-state-active"
+                "ui-state-active",
               ),
               n.icons &&
                 ((s = a.children(".ui-accordion-header-icon")),
                 this._removeClass(s, null, n.icons.header)._addClass(
                   s,
                   null,
-                  n.icons.activeHeader
+                  n.icons.activeHeader,
                 )),
-              this._addClass(a.next(), "ui-accordion-content-active")));
+              this._addClass(a.next(), "ui-accordion-content-active"))));
       },
       _toggle: function (e) {
         var i = e.newPanel,
           s = this.prevShow.length ? this.prevShow : e.oldPanel;
-        this.prevShow.add(this.prevHide).stop(!0, !0),
+        (this.prevShow.add(this.prevHide).stop(!0, !0),
           (this.prevShow = i),
           (this.prevHide = s),
           this.options.animate
@@ -3175,7 +3177,7 @@
             "aria-selected": "true",
             "aria-expanded": "true",
             tabIndex: 0,
-          });
+          }));
       },
       _animate: function (t, e, i) {
         var s,
@@ -3210,12 +3212,12 @@
                   easing: n,
                   complete: d,
                   step: function (t, i) {
-                    (i.now = Math.round(t)),
+                    ((i.now = Math.round(t)),
                       "height" !== i.prop
                         ? "content-box" === l && (r += i.now)
                         : "content" !== a.options.heightStyle &&
                           ((i.now = Math.round(s - e.outerHeight() - r)),
-                          (r = 0));
+                          (r = 0)));
                   },
                 }))
               : e.animate(this.hideProps, o, n, d)
@@ -3225,13 +3227,13 @@
       _toggleComplete: function (t) {
         var e = t.oldPanel,
           i = e.prev();
-        this._removeClass(e, "ui-accordion-content-active"),
+        (this._removeClass(e, "ui-accordion-content-active"),
           this._removeClass(i, "ui-accordion-header-active")._addClass(
             i,
-            "ui-accordion-header-collapsed"
+            "ui-accordion-header-collapsed",
           ),
           e.length && (e.parent()[0].className = e.parent()[0].className),
-          this._trigger("activate", null, t);
+          this._trigger("activate", null, t));
       },
     });
   }),
@@ -3248,7 +3250,7 @@
             "../version",
             "../widget",
           ],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -3267,7 +3269,7 @@
         select: null,
       },
       _create: function () {
-        (this.activeMenu = this.element),
+        ((this.activeMenu = this.element),
           (this.mouseHandled = !1),
           (this.lastMousePosition = { x: null, y: null }),
           this.element
@@ -3276,7 +3278,7 @@
           this._addClass("ui-menu", "ui-widget ui-widget-content"),
           this._on({
             "mousedown .ui-menu-item": function (t) {
-              t.preventDefault(), this._activateItem(t);
+              (t.preventDefault(), this._activateItem(t));
             },
             "click .ui-menu-item": function (e) {
               var i = t(e.target),
@@ -3306,7 +3308,7 @@
               this._delay(function () {
                 !t.contains(
                   this.element[0],
-                  t.ui.safeActiveElement(this.document[0])
+                  t.ui.safeActiveElement(this.document[0]),
                 ) && this.collapseAll(e);
               });
             },
@@ -3315,10 +3317,10 @@
           this.refresh(),
           this._on(this.document, {
             click: function (t) {
-              this._closeOnDocumentClick(t) && this.collapseAll(t, !0),
-                (this.mouseHandled = !1);
+              (this._closeOnDocumentClick(t) && this.collapseAll(t, !0),
+                (this.mouseHandled = !1));
             },
-          });
+          }));
       },
       _activateItem: function (e) {
         if (
@@ -3334,7 +3336,7 @@
               (this._removeClass(
                 s.siblings().children(".ui-state-active"),
                 null,
-                "ui-state-active"
+                "ui-state-active",
               ),
               this.focus(e, s)));
         }
@@ -3346,19 +3348,19 @@
           .children(".ui-menu-item-wrapper")
           .removeUniqueId()
           .removeAttr("tabIndex role aria-haspopup");
-        this.element
+        (this.element
           .removeAttr("aria-activedescendant")
           .find(".ui-menu")
           .addBack()
           .removeAttr(
-            "role aria-labelledby aria-expanded aria-hidden aria-disabled tabIndex"
+            "role aria-labelledby aria-expanded aria-hidden aria-disabled tabIndex",
           )
           .removeUniqueId()
           .show(),
           e.children().each(function () {
             var e = t(this);
             e.data("ui-menu-submenu-caret") && e.remove();
-          });
+          }));
       },
       _keydown: function (e) {
         var i,
@@ -3401,7 +3403,7 @@
             this.collapse(e);
             break;
           default:
-            (a = !1),
+            ((a = !1),
               (s = this.previousFilter || ""),
               (o = !1),
               (n =
@@ -3423,7 +3425,7 @@
                   (this.filterTimer = this._delay(function () {
                     delete this.previousFilter;
                   }, 1e3)))
-                : delete this.previousFilter;
+                : delete this.previousFilter);
         }
         a && e.preventDefault();
       },
@@ -3442,10 +3444,10 @@
           o = this,
           a = this.options.icons.submenu,
           r = this.element.find(this.options.menus);
-        this._toggleClass(
+        (this._toggleClass(
           "ui-menu-icons",
           null,
-          !!this.element.find(".ui-icon").length
+          !!this.element.find(".ui-icon").length,
         ),
           (i = r
             .filter(":not(.ui-menu)")
@@ -3459,9 +3461,9 @@
               var e = t(this),
                 i = e.prev(),
                 s = t("<span>").data("ui-menu-submenu-caret", !0);
-              o._addClass(s, "ui-menu-icon", "ui-icon " + a),
+              (o._addClass(s, "ui-menu-icon", "ui-icon " + a),
                 i.attr("aria-haspopup", "true").prepend(s),
-                e.attr("aria-labelledby", i.attr("id"));
+                e.attr("aria-labelledby", i.attr("id")));
             })),
           this._addClass(i, "ui-menu", "ui-widget ui-widget-content ui-front"),
           (e = r.add(this.element).find(this.options.items))
@@ -3478,12 +3480,12 @@
             .attr({ tabIndex: -1, role: this._itemRole() })),
           this._addClass(s, "ui-menu-item")._addClass(
             n,
-            "ui-menu-item-wrapper"
+            "ui-menu-item-wrapper",
           ),
           e.filter(".ui-state-disabled").attr("aria-disabled", "true"),
           this.active &&
             !t.contains(this.element[0], this.active[0]) &&
-            this.blur();
+            this.blur());
       },
       _itemRole: function () {
         return { menu: "menuitem", listbox: "option" }[this.options.role];
@@ -3494,19 +3496,19 @@
           this._removeClass(i, null, this.options.icons.submenu)._addClass(
             i,
             null,
-            e.submenu
+            e.submenu,
           );
         }
         this._super(t, e);
       },
       _setOptionDisabled: function (t) {
-        this._super(t),
+        (this._super(t),
           this.element.attr("aria-disabled", String(t)),
-          this._toggleClass(null, "ui-state-disabled", !!t);
+          this._toggleClass(null, "ui-state-disabled", !!t));
       },
       focus: function (t, e) {
         var i, s, n;
-        this.blur(t, t && "focus" === t.type),
+        (this.blur(t, t && "focus" === t.type),
           this._scrollIntoView(e),
           (this.active = e.first()),
           (s = this.active.children(".ui-menu-item-wrapper")),
@@ -3528,7 +3530,7 @@
             /^mouse/.test(t.type) &&
             this._startOpening(i),
           (this.activeMenu = e.parent()),
-          this._trigger("focus", t, { item: e });
+          this._trigger("focus", t, { item: e }));
       },
       _scrollIntoView: function (e) {
         var i, s, n, o, a, r;
@@ -3544,26 +3546,26 @@
             : n + r > a && this.activeMenu.scrollTop(o + n - a + r));
       },
       blur: function (t, e) {
-        e || clearTimeout(this.timer),
+        (e || clearTimeout(this.timer),
           this.active &&
             (this._removeClass(
               this.active.children(".ui-menu-item-wrapper"),
               null,
-              "ui-state-active"
+              "ui-state-active",
             ),
             this._trigger("blur", t, { item: this.active }),
-            (this.active = null));
+            (this.active = null)));
       },
       _startOpening: function (t) {
-        clearTimeout(this.timer),
+        (clearTimeout(this.timer),
           "true" === t.attr("aria-hidden") &&
             (this.timer = this._delay(function () {
-              this._close(), this._open(t);
-            }, this.delay));
+              (this._close(), this._open(t));
+            }, this.delay)));
       },
       _open: function (e) {
         var i = t.extend({ of: this.active }, this.options.position);
-        clearTimeout(this.timer),
+        (clearTimeout(this.timer),
           this.element
             .find(".ui-menu")
             .not(e.parents(".ui-menu"))
@@ -3573,35 +3575,35 @@
             .show()
             .removeAttr("aria-hidden")
             .attr("aria-expanded", "true")
-            .position(i);
+            .position(i));
       },
       collapseAll: function (e, i) {
-        clearTimeout(this.timer),
+        (clearTimeout(this.timer),
           (this.timer = this._delay(
             function () {
               var s = i
                 ? this.element
                 : t(e && e.target).closest(this.element.find(".ui-menu"));
-              s.length || (s = this.element),
+              (s.length || (s = this.element),
                 this._close(s),
                 this.blur(e),
                 this._removeClass(
                   s.find(".ui-state-active"),
                   null,
-                  "ui-state-active"
+                  "ui-state-active",
                 ),
-                (this.activeMenu = s);
+                (this.activeMenu = s));
             },
-            i ? 0 : this.delay
-          ));
+            i ? 0 : this.delay,
+          )));
       },
       _close: function (t) {
-        t || (t = this.active ? this.active.parent() : this.element),
+        (t || (t = this.active ? this.active.parent() : this.element),
           t
             .find(".ui-menu")
             .hide()
             .attr("aria-hidden", "true")
-            .attr("aria-expanded", "false");
+            .attr("aria-expanded", "false"));
       },
       _closeOnDocumentClick: function (e) {
         return !t(e.target).closest(".ui-menu").length;
@@ -3645,16 +3647,16 @@
       },
       _move: function (t, e, i) {
         var s;
-        this.active &&
+        (this.active &&
           (s =
             "first" === t || "last" === t
               ? this.active["first" === t ? "prevAll" : "nextAll"](
-                  ".ui-menu-item"
+                  ".ui-menu-item",
                 ).last()
               : this.active[t + "All"](".ui-menu-item").first()),
           (s && s.length && this.active) ||
             (s = this._menuItems(this.activeMenu)[e]()),
-          this.focus(i, s);
+          this.focus(i, s));
       },
       nextPage: function (e) {
         var i, s, n;
@@ -3674,7 +3676,7 @@
                   e,
                   this._menuItems(this.activeMenu)[
                     this.active ? "last" : "first"
-                  ]()
+                  ](),
                 ))
           : this.next(e);
       },
@@ -3701,8 +3703,8 @@
       select: function (e) {
         this.active = this.active || t(e.target).closest(".ui-menu-item");
         var i = { item: this.active };
-        this.active.has(".ui-menu").length || this.collapseAll(e, !0),
-          this._trigger("select", e, i);
+        (this.active.has(".ui-menu").length || this.collapseAll(e, !0),
+          this._trigger("select", e, i));
       },
       _filterMenuItems: function (e) {
         var i = e.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&"),
@@ -3713,8 +3715,8 @@
           .filter(function () {
             return s.test(
               String.prototype.trim.call(
-                t(this).children(".ui-menu-item-wrapper").text()
-              )
+                t(this).children(".ui-menu-item-wrapper").text(),
+              ),
             );
           });
       },
@@ -3733,7 +3735,7 @@
             "../version",
             "../widget",
           ],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -3765,7 +3767,7 @@
             n = this.element[0].nodeName.toLowerCase(),
             o = "textarea" === n,
             a = "input" === n;
-          (this.isMultiLine =
+          ((this.isMultiLine =
             o || (!a && this._isContentEditable(this.element))),
             (this.valueMethod = this.element[o || a ? "val" : "text"]),
             (this.isNewMenu = !0),
@@ -3774,21 +3776,21 @@
             this._on(this.element, {
               keydown: function (n) {
                 if (this.element.prop("readOnly"))
-                  return (e = !0), (s = !0), void (i = !0);
-                (e = !1), (s = !1), (i = !1);
+                  return ((e = !0), (s = !0), void (i = !0));
+                ((e = !1), (s = !1), (i = !1));
                 var o = t.ui.keyCode;
                 switch (n.keyCode) {
                   case o.PAGE_UP:
-                    (e = !0), this._move("previousPage", n);
+                    ((e = !0), this._move("previousPage", n));
                     break;
                   case o.PAGE_DOWN:
-                    (e = !0), this._move("nextPage", n);
+                    ((e = !0), this._move("nextPage", n));
                     break;
                   case o.UP:
-                    (e = !0), this._keyEvent("previous", n);
+                    ((e = !0), this._keyEvent("previous", n));
                     break;
                   case o.DOWN:
-                    (e = !0), this._keyEvent("next", n);
+                    ((e = !0), this._keyEvent("next", n));
                     break;
                   case o.ENTER:
                     this.menu.active &&
@@ -3804,7 +3806,7 @@
                       n.preventDefault());
                     break;
                   default:
-                    (i = !0), this._searchTimeout(n);
+                    ((i = !0), this._searchTimeout(n));
                 }
               },
               keypress: function (s) {
@@ -3834,14 +3836,14 @@
                 }
               },
               input: function (t) {
-                if (s) return (s = !1), void t.preventDefault();
+                if (s) return ((s = !1), void t.preventDefault());
                 this._searchTimeout(t);
               },
               focus: function () {
-                (this.selectedItem = null), (this.previous = this._value());
+                ((this.selectedItem = null), (this.previous = this._value()));
               },
               blur: function (t) {
-                clearTimeout(this.searching), this.close(t), this._change(t);
+                (clearTimeout(this.searching), this.close(t), this._change(t));
               },
             }),
             this._initSource(),
@@ -3869,7 +3871,7 @@
                       t(e.target).trigger(e.originalEvent);
                     })
                   );
-                (n = i.item.data("ui-autocomplete-item")),
+                ((n = i.item.data("ui-autocomplete-item")),
                   !1 !== this._trigger("focus", e, { item: n }) &&
                     e.originalEvent &&
                     /^key/.test(e.originalEvent.type) &&
@@ -3877,22 +3879,22 @@
                   (s = i.item.attr("aria-label") || n.value) &&
                     String.prototype.trim.call(s).length &&
                     (this.liveRegion.children().hide(),
-                    t("<div>").text(s).appendTo(this.liveRegion));
+                    t("<div>").text(s).appendTo(this.liveRegion)));
               },
               menuselect: function (e, i) {
                 var s = i.item.data("ui-autocomplete-item"),
                   n = this.previous;
-                this.element[0] !== t.ui.safeActiveElement(this.document[0]) &&
+                (this.element[0] !== t.ui.safeActiveElement(this.document[0]) &&
                   (this.element.trigger("focus"),
                   (this.previous = n),
                   this._delay(function () {
-                    (this.previous = n), (this.selectedItem = s);
+                    ((this.previous = n), (this.selectedItem = s));
                   })),
                   !1 !== this._trigger("select", e, { item: s }) &&
                     this._value(s.value),
                   (this.term = this._value()),
                   this.close(e),
-                  (this.selectedItem = s);
+                  (this.selectedItem = s));
               },
             }),
             (this.liveRegion = t("<div>", {
@@ -3903,25 +3905,25 @@
             this._addClass(
               this.liveRegion,
               null,
-              "ui-helper-hidden-accessible"
+              "ui-helper-hidden-accessible",
             ),
             this._on(this.window, {
               beforeunload: function () {
                 this.element.removeAttr("autocomplete");
               },
-            });
+            }));
         },
         _destroy: function () {
-          clearTimeout(this.searching),
+          (clearTimeout(this.searching),
             this.element.removeAttr("autocomplete"),
             this.menu.element.remove(),
-            this.liveRegion.remove();
+            this.liveRegion.remove());
         },
         _setOption: function (t, e) {
-          this._super(t, e),
+          (this._super(t, e),
             "source" === t && this._initSource(),
             "appendTo" === t && this.menu.element.appendTo(this._appendTo()),
-            "disabled" === t && e && this.xhr && this.xhr.abort();
+            "disabled" === t && e && this.xhr && this.xhr.abort());
         },
         _isEventTargetInWidget: function (e) {
           var i = this.menu.element[0];
@@ -3954,32 +3956,32 @@
                 s(t.ui.autocomplete.filter(e, i.term));
               }))
             : "string" == typeof this.options.source
-            ? ((i = this.options.source),
-              (this.source = function (e, n) {
-                s.xhr && s.xhr.abort(),
-                  (s.xhr = t.ajax({
-                    url: i,
-                    data: e,
-                    dataType: "json",
-                    success: function (t) {
-                      n(t);
-                    },
-                    error: function () {
-                      n([]);
-                    },
-                  }));
-              }))
-            : (this.source = this.options.source);
+              ? ((i = this.options.source),
+                (this.source = function (e, n) {
+                  (s.xhr && s.xhr.abort(),
+                    (s.xhr = t.ajax({
+                      url: i,
+                      data: e,
+                      dataType: "json",
+                      success: function (t) {
+                        n(t);
+                      },
+                      error: function () {
+                        n([]);
+                      },
+                    })));
+                }))
+              : (this.source = this.options.source);
         },
         _searchTimeout: function (t) {
-          clearTimeout(this.searching),
+          (clearTimeout(this.searching),
             (this.searching = this._delay(function () {
               var e = this.term === this._value(),
                 i = this.menu.element.is(":visible"),
                 s = t.altKey || t.ctrlKey || t.metaKey || t.shiftKey;
               (e && (!e || i || s)) ||
                 ((this.selectedItem = null), this.search(null, t));
-            }, this.options.delay));
+            }, this.options.delay)));
         },
         search: function (t, e) {
           return (
@@ -3988,41 +3990,41 @@
             t.length < this.options.minLength
               ? this.close(e)
               : !1 !== this._trigger("search", e)
-              ? this._search(t)
-              : void 0
+                ? this._search(t)
+                : void 0
           );
         },
         _search: function (t) {
-          this.pending++,
+          (this.pending++,
             this._addClass("ui-autocomplete-loading"),
             (this.cancelSearch = !1),
-            this.source({ term: t }, this._response());
+            this.source({ term: t }, this._response()));
         },
         _response: function () {
           var t = ++this.requestIndex;
           return function (e) {
-            t === this.requestIndex && this.__response(e),
+            (t === this.requestIndex && this.__response(e),
               this.pending--,
-              this.pending || this._removeClass("ui-autocomplete-loading");
+              this.pending || this._removeClass("ui-autocomplete-loading"));
           }.bind(this);
         },
         __response: function (t) {
-          t && (t = this._normalize(t)),
+          (t && (t = this._normalize(t)),
             this._trigger("response", null, { content: t }),
             !this.options.disabled && t && t.length && !this.cancelSearch
               ? (this._suggest(t), this._trigger("open"))
-              : this._close();
+              : this._close());
         },
         close: function (t) {
-          (this.cancelSearch = !0), this._close(t);
+          ((this.cancelSearch = !0), this._close(t));
         },
         _close: function (t) {
-          this._off(this.document, "mousedown"),
+          (this._off(this.document, "mousedown"),
             this.menu.element.is(":visible") &&
               (this.menu.element.hide(),
               this.menu.blur(),
               (this.isNewMenu = !0),
-              this._trigger("close", t));
+              this._trigger("close", t)));
         },
         _change: function (t) {
           this.previous !== this._value() &&
@@ -4042,19 +4044,19 @@
         },
         _suggest: function (e) {
           var i = this.menu.element.empty();
-          this._renderMenu(i, e),
+          (this._renderMenu(i, e),
             (this.isNewMenu = !0),
             this.menu.refresh(),
             i.show(),
             this._resizeMenu(),
             i.position(t.extend({ of: this.element }, this.options.position)),
             this.options.autoFocus && this.menu.next(),
-            this._on(this.document, { mousedown: "_closeOnClickOutside" });
+            this._on(this.document, { mousedown: "_closeOnClickOutside" }));
         },
         _resizeMenu: function () {
           var t = this.menu.element;
           t.outerWidth(
-            Math.max(t.width("").outerWidth() + 1, this.element.outerWidth())
+            Math.max(t.width("").outerWidth() + 1, this.element.outerWidth()),
           );
         },
         _renderMenu: function (e, i) {
@@ -4122,7 +4124,7 @@
         },
         __response: function (e) {
           var i;
-          this._superApply(arguments),
+          (this._superApply(arguments),
             this.options.disabled ||
               this.cancelSearch ||
               ((i =
@@ -4130,7 +4132,7 @@
                   ? this.options.messages.results(e.length)
                   : this.options.messages.noResults),
               this.liveRegion.children().hide(),
-              t("<div>").text(i).appendTo(this.liveRegion));
+              t("<div>").text(i).appendTo(this.liveRegion)));
         },
       }),
       t.ui.autocomplete
@@ -4162,10 +4164,10 @@
         this._enhance();
       },
       _enhance: function () {
-        this.element.attr("role", "toolbar"), this.refresh();
+        (this.element.attr("role", "toolbar"), this.refresh());
       },
       _destroy: function () {
-        this._callChildMethod("destroy"),
+        (this._callChildMethod("destroy"),
           this.childWidgets.removeData("ui-controlgroup-data"),
           this.element.removeAttr("role"),
           this.options.items.controlgroupLabel &&
@@ -4173,12 +4175,12 @@
               .find(this.options.items.controlgroupLabel)
               .find(".ui-controlgroup-label-contents")
               .contents()
-              .unwrap();
+              .unwrap());
       },
       _initWidgets: function () {
         var e = this,
           i = [];
-        t.each(this.options.items, function (s, n) {
+        (t.each(this.options.items, function (s, n) {
           var o,
             a = {};
           if (n)
@@ -4189,13 +4191,13 @@
                     e
                       .contents()
                       .wrapAll(
-                        "<span class='ui-controlgroup-label-contents'></span>"
+                        "<span class='ui-controlgroup-label-contents'></span>",
                       );
                 }),
                 e._addClass(
                   o,
                   null,
-                  "ui-widget ui-widget-content ui-state-default"
+                  "ui-widget ui-widget-content ui-state-default",
                 ),
                 void (i = i.concat(o.get())))
               : void (
@@ -4208,23 +4210,23 @@
                       o = n[s]("instance"),
                       r = t.widget.extend({}, a);
                     if ("button" !== s || !n.parent(".ui-spinner").length) {
-                      o || (o = n[s]()[s]("instance")),
+                      (o || (o = n[s]()[s]("instance")),
                         o &&
                           (r.classes = e._resolveClassesValues(r.classes, o)),
-                        n[s](r);
+                        n[s](r));
                       var l = n[s]("widget");
-                      t.data(
+                      (t.data(
                         l[0],
                         "ui-controlgroup-data",
-                        o || n[s]("instance")
+                        o || n[s]("instance"),
                       ),
-                        i.push(l[0]);
+                        i.push(l[0]));
                     }
                   }))
                 );
         }),
           (this.childWidgets = t(t.uniqueSort(i))),
-          this._addClass(this.childWidgets, "ui-controlgroup-item");
+          this._addClass(this.childWidgets, "ui-controlgroup-item"));
       },
       _callChildMethod: function (e) {
         this.childWidgets.each(function () {
@@ -4234,12 +4236,12 @@
       },
       _updateCornerClass: function (t, e) {
         var i = this._buildSimpleOptions(e, "label").classes.label;
-        this._removeClass(
+        (this._removeClass(
           t,
           null,
-          "ui-corner-top ui-corner-bottom ui-corner-left ui-corner-right ui-corner-all"
+          "ui-corner-top ui-corner-bottom ui-corner-left ui-corner-right ui-corner-all",
         ),
-          this._addClass(t, null, i);
+          this._addClass(t, null, i));
       },
       _buildSimpleOptions: function (t, e) {
         var i = "vertical" === this.options.direction,
@@ -4299,25 +4301,25 @@
         return (
           t.each(i, function (t) {
             var o = s.options.classes[t] || "";
-            (o = String.prototype.trim.call(o.replace(e, ""))),
-              (n[t] = (o + " " + i[t]).replace(/\s+/g, " "));
+            ((o = String.prototype.trim.call(o.replace(e, ""))),
+              (n[t] = (o + " " + i[t]).replace(/\s+/g, " ")));
           }),
           n
         );
       },
       _setOption: function (t, e) {
-        "direction" === t &&
+        ("direction" === t &&
           this._removeClass("ui-controlgroup-" + this.options.direction),
           this._super(t, e),
           "disabled" !== t
             ? this.refresh()
-            : this._callChildMethod(e ? "disable" : "enable");
+            : this._callChildMethod(e ? "disable" : "enable"));
       },
       refresh: function () {
         var e,
           i = this;
-        this._addClass(
-          "ui-controlgroup ui-controlgroup-" + this.options.direction
+        (this._addClass(
+          "ui-controlgroup ui-controlgroup-" + this.options.direction,
         ),
           "horizontal" === this.options.direction &&
             this._addClass(null, "ui-helper-clearfix"),
@@ -4329,13 +4331,13 @@
               var n = e[s]().data("ui-controlgroup-data");
               if (n && i["_" + n.widgetName + "Options"]) {
                 var o = i["_" + n.widgetName + "Options"](
-                  1 === e.length ? "only" : s
+                  1 === e.length ? "only" : s,
                 );
-                (o.classes = i._resolveClassesValues(o.classes, n)),
-                  n.element[n.widgetName](o);
+                ((o.classes = i._resolveClassesValues(o.classes, n)),
+                  n.element[n.widgetName](o));
               } else i._updateCornerClass(e[s](), s);
             }),
-            this._callChildMethod("refresh"));
+            this._callChildMethod("refresh")));
       },
     });
   }),
@@ -4344,7 +4346,7 @@
       ? define(
           "ui/widgets/checkboxradio.js",
           ["jquery", "../form-reset-mixin", "../labels", "../widget"],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -4388,7 +4390,7 @@
           },
           _create: function () {
             var t = this.element[0].checked;
-            this._bindFormResetHandler(),
+            (this._bindFormResetHandler(),
               null == this.options.disabled &&
                 (this.options.disabled = this.element[0].disabled),
               this._setOption("disabled", this.options.disabled),
@@ -4396,7 +4398,7 @@
               this._addClass(
                 this.label,
                 "ui-checkboxradio-label",
-                "ui-button ui-widget"
+                "ui-button ui-widget",
               ),
               "radio" === this.type &&
                 this._addClass(this.label, "ui-checkboxradio-radio-label"),
@@ -4409,7 +4411,7 @@
                 this._addClass(
                   this.label,
                   "ui-checkboxradio-checked",
-                  "ui-state-active"
+                  "ui-state-active",
                 ),
               this._on({
                 change: "_toggleClasses",
@@ -4417,28 +4419,28 @@
                   this._addClass(
                     this.label,
                     null,
-                    "ui-state-focus ui-visual-focus"
+                    "ui-state-focus ui-visual-focus",
                   );
                 },
                 blur: function () {
                   this._removeClass(
                     this.label,
                     null,
-                    "ui-state-focus ui-visual-focus"
+                    "ui-state-focus ui-visual-focus",
                   );
                 },
-              });
+              }));
           },
           _readType: function () {
             var e = this.element[0].nodeName.toLowerCase();
-            (this.type = this.element[0].type),
+            ((this.type = this.element[0].type),
               ("input" === e && /radio|checkbox/.test(this.type)) ||
                 t.error(
                   "Can't create checkboxradio on element.nodeName=" +
                     e +
                     " and element.type=" +
-                    this.type
-                );
+                    this.type,
+                ));
           },
           _enhance: function () {
             this._updateIcon(this.element[0].checked);
@@ -4460,11 +4462,11 @@
           },
           _toggleClasses: function () {
             var e = this.element[0].checked;
-            this._toggleClass(
+            (this._toggleClass(
               this.label,
               "ui-checkboxradio-checked",
               "ui-state-active",
-              e
+              e,
             ),
               this.options.icon &&
                 "checkbox" === this.type &&
@@ -4472,7 +4474,7 @@
                   this.icon,
                   null,
                   "ui-icon-check ui-state-checked",
-                  e
+                  e,
                 )._toggleClass(this.icon, null, "ui-icon-blank", !e),
               "radio" === this.type &&
                 this._getRadioGroup().each(function () {
@@ -4481,13 +4483,13 @@
                     e._removeClass(
                       e.label,
                       "ui-checkboxradio-checked",
-                      "ui-state-active"
+                      "ui-state-active",
                     );
-                });
+                }));
           },
           _destroy: function () {
-            this._unbindFormResetHandler(),
-              this.icon && (this.icon.remove(), this.iconSpace.remove());
+            (this._unbindFormResetHandler(),
+              this.icon && (this.icon.remove(), this.iconSpace.remove()));
           },
           _setOption: function (t, e) {
             if ("label" !== t || e) {
@@ -4507,7 +4509,7 @@
                   (this.iconSpace = t("<span> </span>")),
                   this._addClass(
                     this.iconSpace,
-                    "ui-checkboxradio-icon-space"
+                    "ui-checkboxradio-icon-space",
                   )),
                 "checkbox" === this.type
                   ? ((i += e
@@ -4516,7 +4518,7 @@
                     this._removeClass(
                       this.icon,
                       null,
-                      e ? "ui-icon-blank" : "ui-icon-check"
+                      e ? "ui-icon-blank" : "ui-icon-check",
                     ))
                   : (i += "ui-icon-blank"),
                 this._addClass(this.icon, "ui-checkboxradio-icon", i),
@@ -4524,7 +4526,7 @@
                   this._removeClass(
                     this.icon,
                     null,
-                    "ui-icon-check ui-state-checked"
+                    "ui-icon-check ui-state-checked",
                   ),
                 this.icon.prependTo(this.label).after(this.iconSpace))
               : void 0 !== this.icon &&
@@ -4532,23 +4534,23 @@
           },
           _updateLabel: function () {
             var t = this.label.contents().not(this.element[0]);
-            this.icon && (t = t.not(this.icon[0])),
+            (this.icon && (t = t.not(this.icon[0])),
               this.iconSpace && (t = t.not(this.iconSpace[0])),
               t.remove(),
-              this.label.append(this.options.label);
+              this.label.append(this.options.label));
           },
           refresh: function () {
             var t = this.element[0].checked,
               e = this.element[0].disabled;
-            this._updateIcon(t),
+            (this._updateIcon(t),
               this._toggleClass(
                 this.label,
                 "ui-checkboxradio-checked",
                 "ui-state-active",
-                t
+                t,
               ),
               null !== this.options.label && this._updateLabel(),
-              e !== this.options.disabled && this._setOptions({ disabled: e });
+              e !== this.options.disabled && this._setOptions({ disabled: e }));
           },
         },
       ]),
@@ -4566,7 +4568,7 @@
             "../keycode",
             "../widget",
           ],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -4597,7 +4599,7 @@
           );
         },
         _create: function () {
-          !this.option.showLabel & !this.options.icon &&
+          (!this.option.showLabel & !this.options.icon &&
             (this.options.showLabel = !0),
             null == this.options.disabled &&
               (this.options.disabled = this.element[0].disabled || !1),
@@ -4619,25 +4621,25 @@
                       ? this.element[0].click()
                       : this.element.trigger("click"));
                 },
-              });
+              }));
         },
         _enhance: function () {
-          this.element.is("button") || this.element.attr("role", "button"),
+          (this.element.is("button") || this.element.attr("role", "button"),
             this.options.icon &&
               (this._updateIcon("icon", this.options.icon),
-              this._updateTooltip());
+              this._updateTooltip()));
         },
         _updateTooltip: function () {
-          (this.title = this.element.attr("title")),
+          ((this.title = this.element.attr("title")),
             this.options.showLabel ||
               this.title ||
-              this.element.attr("title", this.options.label);
+              this.element.attr("title", this.options.label));
         },
         _updateIcon: function (e, i) {
           var s = "iconPosition" !== e,
             n = s ? this.options.iconPosition : i,
             o = "top" === n || "bottom" === n;
-          this.icon
+          (this.icon
             ? s && this._removeClass(this.icon, null, this.options.icon)
             : ((this.icon = t("<span>")),
               this._addClass(this.icon, "ui-button-icon", "ui-icon"),
@@ -4651,31 +4653,31 @@
                   ((this.iconSpace = t("<span> </span>")),
                   this._addClass(this.iconSpace, "ui-button-icon-space")),
                 this._removeClass(this.icon, null, "ui-wiget-icon-block"),
-                this._attachIconSpace(n));
+                this._attachIconSpace(n)));
         },
         _destroy: function () {
-          this.element.removeAttr("role"),
+          (this.element.removeAttr("role"),
             this.icon && this.icon.remove(),
             this.iconSpace && this.iconSpace.remove(),
-            this.hasTitle || this.element.removeAttr("title");
+            this.hasTitle || this.element.removeAttr("title"));
         },
         _attachIconSpace: function (t) {
           this.icon[/^(?:end|bottom)/.test(t) ? "before" : "after"](
-            this.iconSpace
+            this.iconSpace,
           );
         },
         _attachIcon: function (t) {
           this.element[/^(?:end|bottom)/.test(t) ? "append" : "prepend"](
-            this.icon
+            this.icon,
           );
         },
         _setOptions: function (t) {
           var e = void 0 === t.showLabel ? this.options.showLabel : t.showLabel,
             i = void 0 === t.icon ? this.options.icon : t.icon;
-          e || i || (t.showLabel = !0), this._super(t);
+          (e || i || (t.showLabel = !0), this._super(t));
         },
         _setOption: function (t, e) {
-          "icon" === t &&
+          ("icon" === t &&
             (e
               ? this._updateIcon(t, e)
               : this.icon &&
@@ -4696,21 +4698,21 @@
             "disabled" === t &&
               (this._toggleClass(null, "ui-state-disabled", e),
               (this.element[0].disabled = e),
-              e && this.element.trigger("blur"));
+              e && this.element.trigger("blur")));
         },
         refresh: function () {
           var t = this.element.is("input, button")
             ? this.element[0].disabled
             : this.element.hasClass("ui-button-disabled");
-          t !== this.options.disabled && this._setOptions({ disabled: t }),
-            this._updateTooltip();
+          (t !== this.options.disabled && this._setOptions({ disabled: t }),
+            this._updateTooltip());
         },
       }),
       !1 !== t.uiBackCompat &&
         (t.widget("ui.button", t.ui.button, {
           options: { text: !0, icons: { primary: null, secondary: null } },
           _create: function () {
-            this.options.showLabel &&
+            (this.options.showLabel &&
               !this.options.text &&
               (this.options.showLabel = this.options.text),
               !this.options.showLabel &&
@@ -4721,10 +4723,10 @@
                 ? this.options.icon &&
                   (this.options.icons.primary = this.options.icon)
                 : this.options.icons.primary
-                ? (this.options.icon = this.options.icons.primary)
-                : ((this.options.icon = this.options.icons.secondary),
-                  (this.options.iconPosition = "end")),
-              this._super();
+                  ? (this.options.icon = this.options.icons.primary)
+                  : ((this.options.icon = this.options.icons.secondary),
+                    (this.options.iconPosition = "end")),
+              this._super());
           },
           _setOption: function (t, e) {
             "text" !== t
@@ -4761,20 +4763,21 @@
                       return "instance" === i
                         ? ((o = r), !1)
                         : r
-                        ? "function" != typeof r[i] || "_" === i.charAt(0)
-                          ? t.error(
-                              "no such method '" +
+                          ? "function" != typeof r[i] || "_" === i.charAt(0)
+                            ? t.error(
+                                "no such method '" +
+                                  i +
+                                  "' for button widget instance",
+                              )
+                            : (e = r[i].apply(r, n)) !== r && void 0 !== e
+                              ? ((o = e && e.jquery ? o.pushStack(e.get()) : e),
+                                !1)
+                              : void 0
+                          : t.error(
+                              "cannot call methods on button prior to initialization; attempted to call method '" +
                                 i +
-                                "' for button widget instance"
-                            )
-                          : (e = r[i].apply(r, n)) !== r && void 0 !== e
-                          ? ((o = e && e.jquery ? o.pushStack(e.get()) : e), !1)
-                          : void 0
-                        : t.error(
-                            "cannot call methods on button prior to initialization; attempted to call method '" +
-                              i +
-                              "'"
-                          );
+                                "'",
+                            );
                     })
                   : (o = void 0)
                 : (n.length && (i = t.widget.extend.apply(null, [i].concat(n))),
@@ -4785,7 +4788,7 @@
                           ? "button"
                           : "checkboxradio",
                       o = t.data(this, "ui-" + n);
-                    if (o) o.option(i || {}), o._init && o._init();
+                    if (o) (o.option(i || {}), o._init && o._init());
                     else {
                       if ("button" === n) return void e.call(t(this), i);
                       t(this).checkboxradio(t.extend({ icon: !1 }, i));
@@ -4806,11 +4809,11 @@
                   arguments[2],
                 ])
               : "option" === arguments[0] && "items" === arguments[1]
-              ? this.controlgroup.apply(this, [arguments[0], "items.button"])
-              : ("object" == typeof arguments[0] &&
-                  arguments[0].items &&
-                  (arguments[0].items = { button: arguments[0].items }),
-                this.controlgroup.apply(this, arguments))
+                ? this.controlgroup.apply(this, [arguments[0], "items.button"])
+                : ("object" == typeof arguments[0] &&
+                    arguments[0].items &&
+                    (arguments[0].items = { button: arguments[0].items }),
+                  this.controlgroup.apply(this, arguments))
           );
         })),
       t.ui.button
@@ -4821,13 +4824,13 @@
       ? define(
           "ui/widgets/datepicker.js",
           ["jquery", "../version", "../keycode"],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
     var e;
     function i() {
-      (this._curInst = null),
+      ((this._curInst = null),
         (this._keyEvent = !1),
         (this._disabledInputs = []),
         (this._datepickerShowing = !1),
@@ -4941,26 +4944,26 @@
           t(
             "<div id='" +
               this._mainDivId +
-              "' class='ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all'></div>"
-          )
-        ));
+              "' class='ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all'></div>",
+          ),
+        )));
     }
     function s(e) {
       var i =
         "button, .ui-datepicker-prev, .ui-datepicker-next, .ui-datepicker-calendar td a";
       return e
         .on("mouseout", i, function () {
-          t(this).removeClass("ui-state-hover"),
+          (t(this).removeClass("ui-state-hover"),
             -1 !== this.className.indexOf("ui-datepicker-prev") &&
               t(this).removeClass("ui-datepicker-prev-hover"),
             -1 !== this.className.indexOf("ui-datepicker-next") &&
-              t(this).removeClass("ui-datepicker-next-hover");
+              t(this).removeClass("ui-datepicker-next-hover"));
         })
         .on("mouseover", i, n);
     }
     function n() {
       t.datepicker._isDisabledDatepicker(
-        e.inline ? e.dpDiv.parent()[0] : e.input[0]
+        e.inline ? e.dpDiv.parent()[0] : e.input[0],
       ) ||
         (t(this)
           .parents(".ui-datepicker-calendar")
@@ -4985,16 +4988,16 @@
           return this.dpDiv;
         },
         setDefaults: function (t) {
-          return o(this._defaults, t || {}), this;
+          return (o(this._defaults, t || {}), this);
         },
         _attachDatepicker: function (e, i) {
           var s, n, o;
-          (n = "div" === (s = e.nodeName.toLowerCase()) || "span" === s),
+          ((n = "div" === (s = e.nodeName.toLowerCase()) || "span" === s),
             e.id || ((this.uuid += 1), (e.id = "dp" + this.uuid)),
             ((o = this._newInst(t(e), n)).settings = t.extend({}, i || {})),
             "input" === s
               ? this._connectDatepicker(e, o)
-              : n && this._inlineDatepicker(e, o);
+              : n && this._inlineDatepicker(e, o));
         },
         _newInst: function (e, i) {
           return {
@@ -5011,15 +5014,15 @@
                   t(
                     "<div class='" +
                       this._inlineClass +
-                      " ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all'></div>"
-                  )
+                      " ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all'></div>",
+                  ),
                 )
               : this.dpDiv,
           };
         },
         _connectDatepicker: function (e, i) {
           var s = t(e);
-          (i.append = t([])),
+          ((i.append = t([])),
             (i.trigger = t([])),
             s.hasClass(this.markerClassName) ||
               (this._attachments(s, i),
@@ -5030,7 +5033,7 @@
                 .on("keyup", this._doKeyUp),
               this._autoSize(i),
               t.data(e, "datepicker", i),
-              i.settings.disabled && this._disableDatepicker(e));
+              i.settings.disabled && this._disableDatepicker(e)));
         },
         _attachments: function (e, i) {
           var s,
@@ -5038,7 +5041,7 @@
             o,
             a = this._get(i, "appendText"),
             r = this._get(i, "isRTL");
-          i.append && i.append.remove(),
+          (i.append && i.append.remove(),
             a &&
               ((i.append = t("<span>").addClass(this._appendClass).text(a)),
               e[r ? "before" : "after"](i.append)),
@@ -5054,11 +5057,11 @@
                     .addClass(this._triggerClass)
                     .attr({ src: o, alt: n, title: n }))
                 : ((i.trigger = t("<button type='button'>").addClass(
-                    this._triggerClass
+                    this._triggerClass,
                   )),
                   o
                     ? i.trigger.html(
-                        t("<img>").attr({ src: o, alt: n, title: n })
+                        t("<img>").attr({ src: o, alt: n, title: n }),
                       )
                     : i.trigger.text(n)),
               e[r ? "before" : "after"](i.trigger),
@@ -5068,13 +5071,13 @@
                   t.datepicker._lastInput === e[0]
                     ? t.datepicker._hideDatepicker()
                     : t.datepicker._datepickerShowing &&
-                      t.datepicker._lastInput !== e[0]
-                    ? (t.datepicker._hideDatepicker(),
-                      t.datepicker._showDatepicker(e[0]))
-                    : t.datepicker._showDatepicker(e[0]),
+                        t.datepicker._lastInput !== e[0]
+                      ? (t.datepicker._hideDatepicker(),
+                        t.datepicker._showDatepicker(e[0]))
+                      : t.datepicker._showDatepicker(e[0]),
                   !1
                 );
-              }));
+              })));
         },
         _autoSize: function (t) {
           if (this._get(t, "autoSize") && !t.inline) {
@@ -5084,7 +5087,7 @@
               n,
               o = new Date(2009, 11, 20),
               a = this._get(t, "dateFormat");
-            a.match(/[DM]/) &&
+            (a.match(/[DM]/) &&
               ((e = function (t) {
                 for (i = 0, s = 0, n = 0; n < t.length; n++)
                   t[n].length > i && ((i = t[n].length), (s = n));
@@ -5092,15 +5095,18 @@
               }),
               o.setMonth(
                 e(
-                  this._get(t, a.match(/MM/) ? "monthNames" : "monthNamesShort")
-                )
+                  this._get(
+                    t,
+                    a.match(/MM/) ? "monthNames" : "monthNamesShort",
+                  ),
+                ),
               ),
               o.setDate(
                 e(this._get(t, a.match(/DD/) ? "dayNames" : "dayNamesShort")) +
                   20 -
-                  o.getDay()
+                  o.getDay(),
               )),
-              t.input.attr("size", this._formatDate(t, o).length);
+              t.input.attr("size", this._formatDate(t, o).length));
           }
         },
         _inlineDatepicker: function (e, i) {
@@ -5128,7 +5134,7 @@
               (this._dialogInput = t(
                 "<input type='text' id='" +
                   r +
-                  "' style='position: absolute; top: -100px; width: 0px;'/>"
+                  "' style='position: absolute; top: -100px; width: 0px;'/>",
               )),
               this._dialogInput.on("keydown", this._doKeyDown),
               t("body").append(this._dialogInput),
@@ -5258,11 +5264,11 @@
             return "defaults" === i
               ? t.extend({}, t.datepicker._defaults)
               : h
-              ? "all" === i
-                ? t.extend({}, h.settings)
-                : this._get(h, i)
-              : null;
-          (n = i || {}),
+                ? "all" === i
+                  ? t.extend({}, h.settings)
+                  : this._get(h, i)
+                : null;
+          ((n = i || {}),
             "string" == typeof i && ((n = {})[i] = s),
             h &&
               (this._curInst === h && this._hideDatepicker(),
@@ -5286,7 +5292,7 @@
               this._autoSize(h),
               this._setDate(h, a),
               this._updateAlternate(h),
-              this._updateDatepicker(h));
+              this._updateDatepicker(h)));
         },
         _changeDatepicker: function (t, e, i) {
           this._optionDatepicker(t, e, i);
@@ -5319,7 +5325,7 @@
           if (((o._keyEvent = !0), t.datepicker._datepickerShowing))
             switch (e.keyCode) {
               case 9:
-                t.datepicker._hideDatepicker(), (a = !1);
+                (t.datepicker._hideDatepicker(), (a = !1));
                 break;
               case 13:
                 return (
@@ -5329,13 +5335,13 @@
                       ":not(." +
                       t.datepicker._currentClass +
                       ")",
-                    o.dpDiv
+                    o.dpDiv,
                   ))[0] &&
                     t.datepicker._selectDay(
                       e.target,
                       o.selectedMonth,
                       o.selectedYear,
-                      n[0]
+                      n[0],
                     ),
                   (i = t.datepicker._get(o, "onSelect"))
                     ? ((s = t.datepicker._formatDate(o)),
@@ -5352,7 +5358,7 @@
                   e.ctrlKey
                     ? -t.datepicker._get(o, "stepBigMonths")
                     : -t.datepicker._get(o, "stepMonths"),
-                  "M"
+                  "M",
                 );
                 break;
               case 34:
@@ -5361,19 +5367,19 @@
                   e.ctrlKey
                     ? +t.datepicker._get(o, "stepBigMonths")
                     : +t.datepicker._get(o, "stepMonths"),
-                  "M"
+                  "M",
                 );
                 break;
               case 35:
-                (e.ctrlKey || e.metaKey) && t.datepicker._clearDate(e.target),
-                  (a = e.ctrlKey || e.metaKey);
+                ((e.ctrlKey || e.metaKey) && t.datepicker._clearDate(e.target),
+                  (a = e.ctrlKey || e.metaKey));
                 break;
               case 36:
-                (e.ctrlKey || e.metaKey) && t.datepicker._gotoToday(e.target),
-                  (a = e.ctrlKey || e.metaKey);
+                ((e.ctrlKey || e.metaKey) && t.datepicker._gotoToday(e.target),
+                  (a = e.ctrlKey || e.metaKey));
                 break;
               case 37:
-                (e.ctrlKey || e.metaKey) &&
+                ((e.ctrlKey || e.metaKey) &&
                   t.datepicker._adjustDate(e.target, r ? 1 : -1, "D"),
                   (a = e.ctrlKey || e.metaKey),
                   e.originalEvent.altKey &&
@@ -5382,16 +5388,16 @@
                       e.ctrlKey
                         ? -t.datepicker._get(o, "stepBigMonths")
                         : -t.datepicker._get(o, "stepMonths"),
-                      "M"
-                    );
+                      "M",
+                    ));
                 break;
               case 38:
-                (e.ctrlKey || e.metaKey) &&
+                ((e.ctrlKey || e.metaKey) &&
                   t.datepicker._adjustDate(e.target, -7, "D"),
-                  (a = e.ctrlKey || e.metaKey);
+                  (a = e.ctrlKey || e.metaKey));
                 break;
               case 39:
-                (e.ctrlKey || e.metaKey) &&
+                ((e.ctrlKey || e.metaKey) &&
                   t.datepicker._adjustDate(e.target, r ? -1 : 1, "D"),
                   (a = e.ctrlKey || e.metaKey),
                   e.originalEvent.altKey &&
@@ -5400,13 +5406,13 @@
                       e.ctrlKey
                         ? +t.datepicker._get(o, "stepBigMonths")
                         : +t.datepicker._get(o, "stepMonths"),
-                      "M"
-                    );
+                      "M",
+                    ));
                 break;
               case 40:
-                (e.ctrlKey || e.metaKey) &&
+                ((e.ctrlKey || e.metaKey) &&
                   t.datepicker._adjustDate(e.target, 7, "D"),
-                  (a = e.ctrlKey || e.metaKey);
+                  (a = e.ctrlKey || e.metaKey));
                 break;
               default:
                 a = !1;
@@ -5424,10 +5430,10 @@
           if (t.datepicker._get(n, "constrainInput"))
             return (
               (i = t.datepicker._possibleChars(
-                t.datepicker._get(n, "dateFormat")
+                t.datepicker._get(n, "dateFormat"),
               )),
               (s = String.fromCharCode(
-                null == e.charCode ? e.keyCode : e.charCode
+                null == e.charCode ? e.keyCode : e.charCode,
               )),
               e.ctrlKey || e.metaKey || s < " " || !i || i.indexOf(s) > -1
             );
@@ -5439,7 +5445,7 @@
               t.datepicker.parseDate(
                 t.datepicker._get(i, "dateFormat"),
                 i.input ? i.input.val() : null,
-                t.datepicker._getFormatConfig(i)
+                t.datepicker._getFormatConfig(i),
               ) &&
                 (t.datepicker._setDateFromField(i),
                 t.datepicker._updateAlternate(i),
@@ -5493,8 +5499,8 @@
                   t.datepicker._inDialog && t.blockUI
                     ? "static"
                     : a
-                    ? "fixed"
-                    : "absolute",
+                      ? "fixed"
+                      : "absolute",
                 display: "none",
                 left: r.left + "px",
                 top: r.top + "px",
@@ -5505,7 +5511,7 @@
                 i.dpDiv.css(
                   "z-index",
                   (function (t) {
-                    for (var e, i; t.length && t[0] !== document; ) {
+                    for (var e, i; t.length && t[0] !== document;) {
                       if (
                         ("absolute" === (e = t.css("position")) ||
                           "relative" === e ||
@@ -5517,7 +5523,7 @@
                       t = t.parent();
                     }
                     return 0;
-                  })(t(e)) + 1
+                  })(t(e)) + 1,
                 ),
                 (t.datepicker._datepickerShowing = !0),
                 t.effects && t.effects.effect[l]
@@ -5527,18 +5533,18 @@
                 (t.datepicker._curInst = i))));
         },
         _updateDatepicker: function (i) {
-          (this.maxRows = 4),
+          ((this.maxRows = 4),
             (e = i),
             i.dpDiv.empty().append(this._generateHTML(i)),
-            this._attachHandlers(i);
+            this._attachHandlers(i));
           var s,
             o = this._getNumberOfMonths(i),
             a = o[1],
             r = i.dpDiv.find("." + this._dayOverClass + " a");
-          r.length > 0 && n.apply(r.get(0)),
+          (r.length > 0 && n.apply(r.get(0)),
             i.dpDiv
               .removeClass(
-                "ui-datepicker-multi-2 ui-datepicker-multi-3 ui-datepicker-multi-4"
+                "ui-datepicker-multi-2 ui-datepicker-multi-3 ui-datepicker-multi-4",
               )
               .width(""),
             a > 1 &&
@@ -5546,10 +5552,10 @@
                 .addClass("ui-datepicker-multi-" + a)
                 .css("width", 17 * a + "em"),
             i.dpDiv[(1 !== o[0] || 1 !== o[1] ? "add" : "remove") + "Class"](
-              "ui-datepicker-multi"
+              "ui-datepicker-multi",
             ),
             i.dpDiv[(this._get(i, "isRTL") ? "add" : "remove") + "Class"](
-              "ui-datepicker-rtl"
+              "ui-datepicker-rtl",
             ),
             i === t.datepicker._curInst &&
               t.datepicker._datepickerShowing &&
@@ -5558,14 +5564,14 @@
             i.yearshtml &&
               ((s = i.yearshtml),
               setTimeout(function () {
-                s === i.yearshtml &&
+                (s === i.yearshtml &&
                   i.yearshtml &&
                   i.dpDiv
                     .find("select.ui-datepicker-year")
                     .first()
                     .replaceWith(i.yearshtml),
-                  (s = i.yearshtml = null);
-              }, 0));
+                  (s = i.yearshtml = null));
+              }, 0)));
         },
         _shouldFocusInput: function (t) {
           return (
@@ -5598,11 +5604,11 @@
                 : 0),
             (i.left -= Math.min(
               i.left,
-              i.left + n > l && l > n ? Math.abs(i.left + n - l) : 0
+              i.left + n > l && l > n ? Math.abs(i.left + n - l) : 0,
             )),
             (i.top -= Math.min(
               i.top,
-              i.top + o > h && h > o ? Math.abs(o + r) : 0
+              i.top + o > h && h > o ? Math.abs(o + r) : 0,
             )),
             i
           );
@@ -5614,7 +5620,6 @@
             ("hidden" === e.type ||
               1 !== e.nodeType ||
               t.expr.pseudos.hidden(e));
-
           )
             e = e[n ? "previousSibling" : "nextSibling"];
           return [(i = t(e).offset()).left, i.top];
@@ -5639,8 +5644,8 @@
                     "slideDown" === i
                       ? "slideUp"
                       : "fadeIn" === i
-                      ? "fadeOut"
-                      : "hide"
+                        ? "fadeOut"
+                        : "hide"
                   ](i ? s : null, n),
               i || n(),
               (this._datepickerShowing = !1),
@@ -5687,7 +5692,7 @@
           var i,
             s = t(e),
             n = this._getInst(s[0]);
-          this._get(n, "gotoCurrent") && n.currentDay
+          (this._get(n, "gotoCurrent") && n.currentDay
             ? ((n.selectedDay = n.currentDay),
               (n.drawMonth = n.selectedMonth = n.currentMonth),
               (n.drawYear = n.selectedYear = n.currentYear))
@@ -5696,17 +5701,17 @@
               (n.drawMonth = n.selectedMonth = i.getMonth()),
               (n.drawYear = n.selectedYear = i.getFullYear())),
             this._notifyChange(n),
-            this._adjustDate(s);
+            this._adjustDate(s));
         },
         _selectMonthYear: function (e, i, s) {
           var n = t(e),
             o = this._getInst(n[0]);
-          (o["selected" + ("M" === s ? "Month" : "Year")] = o[
+          ((o["selected" + ("M" === s ? "Month" : "Year")] = o[
             "draw" + ("M" === s ? "Month" : "Year")
           ] =
             parseInt(i.options[i.selectedIndex].value, 10)),
             this._notifyChange(o),
-            this._adjustDate(n);
+            this._adjustDate(n));
         },
         _selectDay: function (e, i, s, n) {
           var o,
@@ -5719,7 +5724,7 @@
             (o.selectedYear = o.currentYear = s),
             this._selectDate(
               e,
-              this._formatDate(o, o.currentDay, o.currentMonth, o.currentYear)
+              this._formatDate(o, o.currentDay, o.currentMonth, o.currentYear),
             ));
         },
         _clearDate: function (e) {
@@ -5730,7 +5735,7 @@
           var s,
             n = t(e),
             o = this._getInst(n[0]);
-          (i = null != i ? i : this._formatDate(o)),
+          ((i = null != i ? i : this._formatDate(o)),
             o.input && o.input.val(i),
             this._updateAlternate(o),
             (s = this._get(o, "onSelect"))
@@ -5741,7 +5746,7 @@
               : (this._hideDatepicker(),
                 (this._lastInput = o.input[0]),
                 "object" != typeof o.input[0] && o.input.trigger("focus"),
-                (this._lastInput = null));
+                (this._lastInput = null)));
         },
         _updateAlternate: function (e) {
           var i,
@@ -5796,7 +5801,7 @@
             b = !1,
             y = function (t) {
               var i = n + 1 < e.length && e.charAt(n + 1) === t;
-              return i && n++, i;
+              return (i && n++, i);
             },
             w = function (t) {
               var e = y(t),
@@ -5804,16 +5809,16 @@
                   "@" === t
                     ? 14
                     : "!" === t
-                    ? 20
-                    : "y" === t && e
-                    ? 4
-                    : "o" === t
-                    ? 3
-                    : 2,
+                      ? 20
+                      : "y" === t && e
+                        ? 4
+                        : "o" === t
+                          ? 3
+                          : 2,
                 n = new RegExp("^\\d{" + ("y" === t ? s : 1) + "," + s + "}"),
                 o = i.substring(l).match(n);
               if (!o) throw "Missing number at position " + l;
-              return (l += o[0].length), parseInt(o[0], 10);
+              return ((l += o[0].length), parseInt(o[0], 10));
             },
             k = function (e, s, n) {
               var o = -1,
@@ -5828,7 +5833,7 @@
                 (t.each(a, function (t, e) {
                   var s = e[1];
                   if (i.substr(l, s.length).toLowerCase() === s.toLowerCase())
-                    return (o = e[0]), (l += s.length), !1;
+                    return ((o = e[0]), (l += s.length), !1);
                 }),
                 -1 !== o)
               )
@@ -5863,16 +5868,16 @@
                   g = w("y");
                   break;
                 case "@":
-                  (g = (r = new Date(w("@"))).getFullYear()),
+                  ((g = (r = new Date(w("@"))).getFullYear()),
                     (m = r.getMonth() + 1),
-                    (_ = r.getDate());
+                    (_ = r.getDate()));
                   break;
                 case "!":
-                  (g = (r = new Date(
-                    (w("!") - this._ticksTo1970) / 1e4
+                  ((g = (r = new Date(
+                    (w("!") - this._ticksTo1970) / 1e4,
                   )).getFullYear()),
                     (m = r.getMonth() + 1),
-                    (_ = r.getDate());
+                    (_ = r.getDate()));
                   break;
                 case "'":
                   y("'") ? x() : (b = !0);
@@ -5892,13 +5897,13 @@
                   (g <= u ? 0 : -100)),
             v > -1)
           )
-            for (m = 1, _ = v; ; ) {
+            for (m = 1, _ = v; ;) {
               if (_ <= (o = this._getDaysInMonth(g, m - 1))) break;
-              m++, (_ -= o);
+              (m++, (_ -= o));
             }
           if (
             (r = this._daylightSavingAdjust(
-              new Date(g, m - 1, _)
+              new Date(g, m - 1, _),
             )).getFullYear() !== g ||
             r.getMonth() + 1 !== m ||
             r.getDate() !== _
@@ -5934,11 +5939,11 @@
             r = (i ? i.monthNames : null) || this._defaults.monthNames,
             l = function (e) {
               var i = s + 1 < t.length && t.charAt(s + 1) === e;
-              return i && s++, i;
+              return (i && s++, i);
             },
             h = function (t, e, i) {
               var s = "" + e;
-              if (l(t)) for (; s.length < i; ) s = "0" + s;
+              if (l(t)) for (; s.length < i;) s = "0" + s;
               return s;
             },
             u = function (t, e, i, s) {
@@ -5965,12 +5970,12 @@
                         (new Date(
                           e.getFullYear(),
                           e.getMonth(),
-                          e.getDate()
+                          e.getDate(),
                         ).getTime() -
                           new Date(e.getFullYear(), 0, 0).getTime()) /
-                          864e5
+                          864e5,
                       ),
-                      3
+                      3,
                     );
                     break;
                   case "m":
@@ -6005,7 +6010,7 @@
             s = !1,
             n = function (i) {
               var s = e + 1 < t.length && t.charAt(e + 1) === i;
-              return s && e++, s;
+              return (s && e++, s);
             };
           for (e = 0; e < t.length; e++)
             if (s)
@@ -6044,19 +6049,19 @@
             } catch (t) {
               s = e ? "" : s;
             }
-            (t.selectedDay = o.getDate()),
+            ((t.selectedDay = o.getDate()),
               (t.drawMonth = t.selectedMonth = o.getMonth()),
               (t.drawYear = t.selectedYear = o.getFullYear()),
               (t.currentDay = s ? o.getDate() : 0),
               (t.currentMonth = s ? o.getMonth() : 0),
               (t.currentYear = s ? o.getFullYear() : 0),
-              this._adjustInstDate(t);
+              this._adjustInstDate(t));
           }
         },
         _getDefaultDate: function (t) {
           return this._restrictMinMax(
             t,
-            this._determineDate(t, this._get(t, "defaultDate"), new Date())
+            this._determineDate(t, this._get(t, "defaultDate"), new Date()),
           );
         },
         _determineDate: function (e, i, s) {
@@ -6064,58 +6069,63 @@
             null == i || "" === i
               ? s
               : "string" == typeof i
-              ? (function (i) {
-                  try {
-                    return t.datepicker.parseDate(
-                      t.datepicker._get(e, "dateFormat"),
-                      i,
-                      t.datepicker._getFormatConfig(e)
-                    );
-                  } catch (t) {}
-                  for (
-                    var s =
-                        (i.toLowerCase().match(/^c/)
-                          ? t.datepicker._getDate(e)
-                          : null) || new Date(),
-                      n = s.getFullYear(),
-                      o = s.getMonth(),
-                      a = s.getDate(),
-                      r = /([+\-]?[0-9]+)\s*(d|D|w|W|m|M|y|Y)?/g,
+                ? (function (i) {
+                    try {
+                      return t.datepicker.parseDate(
+                        t.datepicker._get(e, "dateFormat"),
+                        i,
+                        t.datepicker._getFormatConfig(e),
+                      );
+                    } catch (t) {}
+                    for (
+                      var s =
+                          (i.toLowerCase().match(/^c/)
+                            ? t.datepicker._getDate(e)
+                            : null) || new Date(),
+                        n = s.getFullYear(),
+                        o = s.getMonth(),
+                        a = s.getDate(),
+                        r = /([+\-]?[0-9]+)\s*(d|D|w|W|m|M|y|Y)?/g,
+                        l = r.exec(i);
+                      l;
+                    ) {
+                      switch (l[2] || "d") {
+                        case "d":
+                        case "D":
+                          a += parseInt(l[1], 10);
+                          break;
+                        case "w":
+                        case "W":
+                          a += 7 * parseInt(l[1], 10);
+                          break;
+                        case "m":
+                        case "M":
+                          ((o += parseInt(l[1], 10)),
+                            (a = Math.min(
+                              a,
+                              t.datepicker._getDaysInMonth(n, o),
+                            )));
+                          break;
+                        case "y":
+                        case "Y":
+                          ((n += parseInt(l[1], 10)),
+                            (a = Math.min(
+                              a,
+                              t.datepicker._getDaysInMonth(n, o),
+                            )));
+                      }
                       l = r.exec(i);
-                    l;
-
-                  ) {
-                    switch (l[2] || "d") {
-                      case "d":
-                      case "D":
-                        a += parseInt(l[1], 10);
-                        break;
-                      case "w":
-                      case "W":
-                        a += 7 * parseInt(l[1], 10);
-                        break;
-                      case "m":
-                      case "M":
-                        (o += parseInt(l[1], 10)),
-                          (a = Math.min(a, t.datepicker._getDaysInMonth(n, o)));
-                        break;
-                      case "y":
-                      case "Y":
-                        (n += parseInt(l[1], 10)),
-                          (a = Math.min(a, t.datepicker._getDaysInMonth(n, o)));
                     }
-                    l = r.exec(i);
-                  }
-                  return new Date(n, o, a);
-                })(i)
-              : "number" == typeof i
-              ? isNaN(i)
-                ? s
-                : (function (t) {
-                    var e = new Date();
-                    return e.setDate(e.getDate() + t), e;
+                    return new Date(n, o, a);
                   })(i)
-              : new Date(i.getTime());
+                : "number" == typeof i
+                  ? isNaN(i)
+                    ? s
+                    : (function (t) {
+                        var e = new Date();
+                        return (e.setDate(e.getDate() + t), e);
+                      })(i)
+                  : new Date(i.getTime());
           return (
             (n = n && "Invalid Date" === n.toString() ? s : n) &&
               (n.setHours(0),
@@ -6135,20 +6145,20 @@
             n = t.selectedMonth,
             o = t.selectedYear,
             a = this._restrictMinMax(t, this._determineDate(t, e, new Date()));
-          (t.selectedDay = t.currentDay = a.getDate()),
+          ((t.selectedDay = t.currentDay = a.getDate()),
             (t.drawMonth = t.selectedMonth = t.currentMonth = a.getMonth()),
             (t.drawYear = t.selectedYear = t.currentYear = a.getFullYear()),
             (n === t.selectedMonth && o === t.selectedYear) ||
               i ||
               this._notifyChange(t),
             this._adjustInstDate(t),
-            t.input && t.input.val(s ? "" : this._formatDate(t));
+            t.input && t.input.val(s ? "" : this._formatDate(t)));
         },
         _getDate: function (t) {
           return !t.currentYear || (t.input && "" === t.input.val())
             ? null
             : this._daylightSavingAdjust(
-                new Date(t.currentYear, t.currentMonth, t.currentDay)
+                new Date(t.currentYear, t.currentMonth, t.currentDay),
               );
         },
         _attachHandlers: function (e) {
@@ -6174,21 +6184,21 @@
                     s,
                     +this.getAttribute("data-month"),
                     +this.getAttribute("data-year"),
-                    this
+                    this,
                   ),
                   !1
                 );
               },
               selectMonth: function () {
-                return t.datepicker._selectMonthYear(s, this, "M"), !1;
+                return (t.datepicker._selectMonthYear(s, this, "M"), !1);
               },
               selectYear: function () {
-                return t.datepicker._selectMonthYear(s, this, "Y"), !1;
+                return (t.datepicker._selectMonthYear(s, this, "Y"), !1);
               },
             };
             t(this).on(
               this.getAttribute("data-event"),
-              e[this.getAttribute("data-handler")]
+              e[this.getAttribute("data-handler")],
             );
           });
         },
@@ -6234,7 +6244,7 @@
             R,
             L = new Date(),
             q = this._daylightSavingAdjust(
-              new Date(L.getFullYear(), L.getMonth(), L.getDate())
+              new Date(L.getFullYear(), L.getMonth(), L.getDate()),
             ),
             Y = this._get(e, "isRTL"),
             B = this._get(e, "showButtonPanel"),
@@ -6247,7 +6257,7 @@
             G = this._daylightSavingAdjust(
               e.currentDay
                 ? new Date(e.currentYear, e.currentMonth, e.currentDay)
-                : new Date(9999, 9, 9)
+                : new Date(9999, 9, 9),
             ),
             J = this._getMinMaxDate(e, "min"),
             Z = this._getMinMaxDate(e, "max"),
@@ -6259,12 +6269,11 @@
                 new Date(
                   Z.getFullYear(),
                   Z.getMonth() - U[0] * U[1] + 1,
-                  Z.getDate()
-                )
+                  Z.getDate(),
+                ),
               ),
                 i = J && i < J ? J : i;
               this._daylightSavingAdjust(new Date(et, tt, 1)) > i;
-
             )
               --tt < 0 && ((tt = 11), et--);
           for (
@@ -6275,7 +6284,7 @@
                 ? this.formatDate(
                     s,
                     this._daylightSavingAdjust(new Date(et, tt - X, 1)),
-                    this._getFormatConfig(e)
+                    this._getFormatConfig(e),
                   )
                 : s,
               n = this._canAdjustMonth(e, -1, et, tt)
@@ -6289,31 +6298,32 @@
                     .append(
                       t("<span>")
                         .addClass(
-                          "ui-icon ui-icon-circle-triangle-" + (Y ? "e" : "w")
+                          "ui-icon ui-icon-circle-triangle-" + (Y ? "e" : "w"),
                         )
-                        .text(s)
+                        .text(s),
                     )[0].outerHTML
                 : V
-                ? ""
-                : t("<a>")
-                    .attr({
-                      class:
-                        "ui-datepicker-prev ui-corner-all ui-state-disabled",
-                      title: s,
-                    })
-                    .append(
-                      t("<span>")
-                        .addClass(
-                          "ui-icon ui-icon-circle-triangle-" + (Y ? "e" : "w")
-                        )
-                        .text(s)
-                    )[0].outerHTML,
+                  ? ""
+                  : t("<a>")
+                      .attr({
+                        class:
+                          "ui-datepicker-prev ui-corner-all ui-state-disabled",
+                        title: s,
+                      })
+                      .append(
+                        t("<span>")
+                          .addClass(
+                            "ui-icon ui-icon-circle-triangle-" +
+                              (Y ? "e" : "w"),
+                          )
+                          .text(s),
+                      )[0].outerHTML,
               o = this._get(e, "nextText"),
               o = K
                 ? this.formatDate(
                     o,
                     this._daylightSavingAdjust(new Date(et, tt + X, 1)),
-                    this._getFormatConfig(e)
+                    this._getFormatConfig(e),
                   )
                 : o,
               a = this._canAdjustMonth(e, 1, et, tt)
@@ -6327,26 +6337,27 @@
                     .append(
                       t("<span>")
                         .addClass(
-                          "ui-icon ui-icon-circle-triangle-" + (Y ? "w" : "e")
+                          "ui-icon ui-icon-circle-triangle-" + (Y ? "w" : "e"),
                         )
-                        .text(o)
+                        .text(o),
                     )[0].outerHTML
                 : V
-                ? ""
-                : t("<a>")
-                    .attr({
-                      class:
-                        "ui-datepicker-next ui-corner-all ui-state-disabled",
-                      title: o,
-                    })
-                    .append(
-                      t("<span>")
-                        .attr(
-                          "class",
-                          "ui-icon ui-icon-circle-triangle-" + (Y ? "w" : "e")
-                        )
-                        .text(o)
-                    )[0].outerHTML,
+                  ? ""
+                  : t("<a>")
+                      .attr({
+                        class:
+                          "ui-datepicker-next ui-corner-all ui-state-disabled",
+                        title: o,
+                      })
+                      .append(
+                        t("<span>")
+                          .attr(
+                            "class",
+                            "ui-icon ui-icon-circle-triangle-" +
+                              (Y ? "w" : "e"),
+                          )
+                          .text(o),
+                      )[0].outerHTML,
               r = this._get(e, "currentText"),
               l = this._get(e, "gotoCurrent") && e.currentDay ? G : q,
               r = K ? this.formatDate(r, l, this._getFormatConfig(e)) : r,
@@ -6364,7 +6375,7 @@
               u = "",
               B &&
                 (u = t(
-                  "<div class='ui-datepicker-buttonpane ui-widget-content'>"
+                  "<div class='ui-datepicker-buttonpane ui-widget-content'>",
                 )
                   .append(Y ? h : "")
                   .append(
@@ -6378,7 +6389,7 @@
                             "data-event": "click",
                           })
                           .text(r)
-                      : ""
+                      : "",
                   )
                   .append(Y ? "" : h)[0].outerHTML),
               c = parseInt(this._get(e, "firstDay"), 10),
@@ -6400,7 +6411,7 @@
             for (C = "", this.maxRows = 4, D = 0; D < U[1]; D++) {
               if (
                 ((I = this._daylightSavingAdjust(
-                  new Date(et, tt, e.selectedDay)
+                  new Date(et, tt, e.selectedDay),
                 )),
                 (T = " ui-corner-all"),
                 (P = ""),
@@ -6409,15 +6420,15 @@
                 if (((P += "<div class='ui-datepicker-group"), U[1] > 1))
                   switch (D) {
                     case 0:
-                      (P += " ui-datepicker-group-first"),
-                        (T = " ui-corner-" + (Y ? "right" : "left"));
+                      ((P += " ui-datepicker-group-first"),
+                        (T = " ui-corner-" + (Y ? "right" : "left")));
                       break;
                     case U[1] - 1:
-                      (P += " ui-datepicker-group-last"),
-                        (T = " ui-corner-" + (Y ? "left" : "right"));
+                      ((P += " ui-datepicker-group-last"),
+                        (T = " ui-corner-" + (Y ? "left" : "right")));
                       break;
                     default:
-                      (P += " ui-datepicker-group-middle"), (T = "");
+                      ((P += " ui-datepicker-group-middle"), (T = ""));
                   }
                 P += "'>";
               }
@@ -6436,7 +6447,7 @@
                     Z,
                     x > 0 || D > 0,
                     g,
-                    m
+                    m,
                   ) +
                   "</div><table class='ui-datepicker-calendar'><thead><tr>",
                   S = d
@@ -6484,7 +6495,7 @@
                   k < 7;
                   k++
                 )
-                  (j = _
+                  ((j = _
                     ? _.apply(e.input ? e.input[0] : null, [N])
                     : [!0, ""]),
                     (R =
@@ -6531,28 +6542,28 @@
                       (F && !v
                         ? "&#xa0;"
                         : R
-                        ? "<span class='ui-state-default'>" +
-                          N.getDate() +
-                          "</span>"
-                        : "<a class='ui-state-default" +
-                          (N.getTime() === q.getTime()
-                            ? " ui-state-highlight"
-                            : "") +
-                          (N.getTime() === G.getTime()
-                            ? " ui-state-active"
-                            : "") +
-                          (F ? " ui-priority-secondary" : "") +
-                          "' href='#' aria-current='" +
-                          (N.getTime() === G.getTime() ? "true" : "false") +
-                          "'>" +
-                          N.getDate() +
-                          "</a>") +
+                          ? "<span class='ui-state-default'>" +
+                            N.getDate() +
+                            "</span>"
+                          : "<a class='ui-state-default" +
+                            (N.getTime() === q.getTime()
+                              ? " ui-state-highlight"
+                              : "") +
+                            (N.getTime() === G.getTime()
+                              ? " ui-state-active"
+                              : "") +
+                            (F ? " ui-priority-secondary" : "") +
+                            "' href='#' aria-current='" +
+                            (N.getTime() === G.getTime() ? "true" : "false") +
+                            "'>" +
+                            N.getDate() +
+                            "</a>") +
                       "</td>"),
                     N.setDate(N.getDate() + 1),
-                    (N = this._daylightSavingAdjust(N));
+                    (N = this._daylightSavingAdjust(N)));
                 P += W + "</tr>";
               }
-              ++tt > 11 && ((tt = 0), et++),
+              (++tt > 11 && ((tt = 0), et++),
                 (C += P +=
                   "</tbody></table>" +
                   ($
@@ -6560,11 +6571,11 @@
                       (U[0] > 0 && D === U[1] - 1
                         ? "<div class='ui-datepicker-row-break'></div>"
                         : "")
-                    : ""));
+                    : "")));
             }
             w += C;
           }
-          return (w += u), (e._keyEvent = !1), w;
+          return ((w += u), (e._keyEvent = !1), w);
         },
         _generateMonthYearHeader: function (t, e, i, s, n, o, a, r) {
           var l,
@@ -6619,8 +6630,8 @@
                     var e = t.match(/c[+\-].*/)
                       ? i + parseInt(t.substring(1), 10)
                       : t.match(/[+\-].*/)
-                      ? d + parseInt(t, 10)
-                      : parseInt(t, 10);
+                        ? d + parseInt(t, 10)
+                        : parseInt(t, 10);
                     return isNaN(e) ? d : e;
                   })(c[0]),
                   g = Math.max(f, p(c[1] || "")),
@@ -6641,9 +6652,9 @@
                   ">" +
                   f +
                   "</option>";
-              (t.yearshtml += "</select>"),
+              ((t.yearshtml += "</select>"),
                 (w += t.yearshtml),
-                (t.yearshtml = null);
+                (t.yearshtml = null));
             }
           return (
             (w += this._get(t, "yearSuffix")),
@@ -6659,12 +6670,12 @@
               ("D" === i ? e : 0),
             a = this._restrictMinMax(
               t,
-              this._daylightSavingAdjust(new Date(s, n, o))
+              this._daylightSavingAdjust(new Date(s, n, o)),
             );
-          (t.selectedDay = a.getDate()),
+          ((t.selectedDay = a.getDate()),
             (t.drawMonth = t.selectedMonth = a.getMonth()),
             (t.drawYear = t.selectedYear = a.getFullYear()),
-            ("M" !== i && "Y" !== i) || this._notifyChange(t);
+            ("M" !== i && "Y" !== i) || this._notifyChange(t));
         },
         _restrictMinMax: function (t, e) {
           var i = this._getMinMaxDate(t, "min"),
@@ -6697,7 +6708,7 @@
         _canAdjustMonth: function (t, e, i, s) {
           var n = this._getNumberOfMonths(t),
             o = this._daylightSavingAdjust(
-              new Date(i, s + (e < 0 ? e : n[0] * n[1]), 1)
+              new Date(i, s + (e < 0 ? e : n[0] * n[1]), 1),
             );
           return (
             e < 0 &&
@@ -6750,22 +6761,22 @@
               ? e
               : this._daylightSavingAdjust(new Date(s, i, e))
             : this._daylightSavingAdjust(
-                new Date(t.currentYear, t.currentMonth, t.currentDay)
+                new Date(t.currentYear, t.currentMonth, t.currentDay),
               );
           return this.formatDate(
             this._get(t, "dateFormat"),
             n,
-            this._getFormatConfig(t)
+            this._getFormatConfig(t),
           );
         },
       }),
       (t.fn.datepicker = function (e) {
         if (!this.length) return this;
-        t.datepicker.initialized ||
+        (t.datepicker.initialized ||
           (t(document).on("mousedown", t.datepicker._checkExternalClick),
           (t.datepicker.initialized = !0)),
           0 === t("#" + t.datepicker._mainDivId).length &&
-            t("body").append(t.datepicker.dpDiv);
+            t("body").append(t.datepicker.dpDiv));
         var i = Array.prototype.slice.call(arguments, 1);
         return "string" != typeof e ||
           ("isDisabled" !== e && "getDate" !== e && "widget" !== e)
@@ -6774,19 +6785,19 @@
             "string" == typeof arguments[1]
             ? t.datepicker["_" + e + "Datepicker"].apply(
                 t.datepicker,
-                [this[0]].concat(i)
+                [this[0]].concat(i),
               )
             : this.each(function () {
                 "string" == typeof e
                   ? t.datepicker["_" + e + "Datepicker"].apply(
                       t.datepicker,
-                      [this].concat(i)
+                      [this].concat(i),
                     )
                   : t.datepicker._attachDatepicker(this, e);
               })
           : t.datepicker["_" + e + "Datepicker"].apply(
               t.datepicker,
-              [this[0]].concat(i)
+              [this[0]].concat(i),
             );
       }),
       (t.datepicker = new i()),
@@ -6801,7 +6812,7 @@
       ? define(
           "ui/widgets/mouse.js",
           ["jquery", "../ie", "../version", "../widget"],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -6819,7 +6830,7 @@
         },
         _mouseInit: function () {
           var e = this;
-          this.element
+          (this.element
             .on("mousedown." + this.widgetName, function (t) {
               return e._mouseDown(t);
             })
@@ -6831,20 +6842,20 @@
                   !1
                 );
             }),
-            (this.started = !1);
+            (this.started = !1));
         },
         _mouseDestroy: function () {
-          this.element.off("." + this.widgetName),
+          (this.element.off("." + this.widgetName),
             this._mouseMoveDelegate &&
               this.document
                 .off("mousemove." + this.widgetName, this._mouseMoveDelegate)
-                .off("mouseup." + this.widgetName, this._mouseUpDelegate);
+                .off("mouseup." + this.widgetName, this._mouseUpDelegate));
         },
         _mouseDown: function (i) {
           if (!e) {
-            (this._mouseMoved = !1),
+            ((this._mouseMoved = !1),
               this._mouseStarted && this._mouseUp(i),
-              (this._mouseDownEvent = i);
+              (this._mouseDownEvent = i));
             var s = this,
               n = 1 === i.which,
               o =
@@ -6867,7 +6878,7 @@
                     t.data(i.target, this.widgetName + ".preventClickEvent") &&
                     t.removeData(
                       i.target,
-                      this.widgetName + ".preventClickEvent"
+                      this.widgetName + ".preventClickEvent",
                     ),
                   (this._mouseMoveDelegate = function (t) {
                     return s._mouseMove(t);
@@ -6915,7 +6926,7 @@
           );
         },
         _mouseUp: function (i) {
-          this.document
+          (this.document
             .off("mousemove." + this.widgetName, this._mouseMoveDelegate)
             .off("mouseup." + this.widgetName, this._mouseUpDelegate),
             this._mouseStarted &&
@@ -6928,13 +6939,13 @@
               delete this._mouseDelayTimer),
             (this.ignoreMissingWhich = !1),
             (e = !1),
-            i.preventDefault();
+            i.preventDefault());
         },
         _mouseDistanceMet: function (t) {
           return (
             Math.max(
               Math.abs(this._mouseDownEvent.pageX - t.pageX),
-              Math.abs(this._mouseDownEvent.pageY - t.pageY)
+              Math.abs(this._mouseDownEvent.pageY - t.pageY),
             ) >= this.options.distance
           );
         },
@@ -6965,7 +6976,7 @@
             "../version",
             "../widget",
           ],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -7003,15 +7014,15 @@
           stop: null,
         },
         _create: function () {
-          "original" === this.options.helper && this._setPositionRelative(),
+          ("original" === this.options.helper && this._setPositionRelative(),
             this.options.addClasses && this._addClass("ui-draggable"),
             this._setHandleClassName(),
-            this._mouseInit();
+            this._mouseInit());
         },
         _setOption: function (t, e) {
-          this._super(t, e),
+          (this._super(t, e),
             "handle" === t &&
-              (this._removeHandleClassName(), this._setHandleClassName());
+              (this._removeHandleClassName(), this._setHandleClassName()));
         },
         _destroy: function () {
           (this.helper || this.element).is(".ui-draggable-dragging")
@@ -7087,7 +7098,7 @@
           );
         },
         _refreshOffsets: function (t) {
-          (this.offset = {
+          ((this.offset = {
             top: this.positionAbs.top - this.margins.top,
             left: this.positionAbs.left - this.margins.left,
             scroll: !1,
@@ -7097,7 +7108,7 @@
             (this.offset.click = {
               left: t.pageX - this.offset.left,
               top: t.pageY - this.offset.top,
-            });
+            }));
         },
         _mouseDrag: function (e, i) {
           if (
@@ -7109,7 +7120,7 @@
           ) {
             var s = this._uiHash();
             if (!1 === this._trigger("drag", e, s))
-              return this._mouseUp(new t.Event("mouseup", e)), !1;
+              return (this._mouseUp(new t.Event("mouseup", e)), !1);
             this.position = s.position;
           }
           return (
@@ -7137,7 +7148,7 @@
                   parseInt(this.options.revertDuration, 10),
                   function () {
                     !1 !== i._trigger("stop", e) && i._clear();
-                  }
+                  },
                 )
               : !1 !== this._trigger("stop", e) && this._clear(),
             !1
@@ -7155,7 +7166,7 @@
           return (
             this.helper.is(".ui-draggable-dragging")
               ? this._mouseUp(
-                  new t.Event("mouseup", { target: this.element[0] })
+                  new t.Event("mouseup", { target: this.element[0] }),
                 )
               : this._clear(),
             this
@@ -7168,10 +7179,10 @@
           );
         },
         _setHandleClassName: function () {
-          (this.handleElement = this.options.handle
+          ((this.handleElement = this.options.handle
             ? this.element.find(this.options.handle)
             : this.element),
-            this._addClass(this.handleElement, "ui-draggable-handle");
+            this._addClass(this.handleElement, "ui-draggable-handle"));
         },
         _removeHandleClassName: function () {
           this._removeClass(this.handleElement, "ui-draggable-handle");
@@ -7182,14 +7193,14 @@
             n = s
               ? t(i.helper.apply(this.element[0], [e]))
               : "clone" === i.helper
-              ? this.element.clone().removeAttr("id")
-              : this.element;
+                ? this.element.clone().removeAttr("id")
+                : this.element;
           return (
             n.parents("body").length ||
               n.appendTo(
                 "parent" === i.appendTo
                   ? this.element[0].parentNode
-                  : i.appendTo
+                  : i.appendTo,
               ),
             s && n[0] === this.element[0] && this._setPositionRelative(),
             n[0] === this.element[0] ||
@@ -7203,7 +7214,7 @@
             (this.element[0].style.position = "relative");
         },
         _adjustOffsetFromHelper: function (t) {
-          "string" == typeof t && (t = t.split(" ")),
+          ("string" == typeof t && (t = t.split(" ")),
             Array.isArray(t) && (t = { left: +t[0], top: +t[1] || 0 }),
             "left" in t &&
               (this.offset.click.left = t.left + this.margins.left),
@@ -7213,7 +7224,7 @@
             "top" in t && (this.offset.click.top = t.top + this.margins.top),
             "bottom" in t &&
               (this.offset.click.top =
-                this.helperProportions.height - t.bottom + this.margins.top);
+                this.helperProportions.height - t.bottom + this.margins.top));
         },
         _isRootNode: function (t) {
           return /(html|body)/i.test(t.tagName) || t === this.document[0];
@@ -7273,7 +7284,7 @@
             s,
             n = this.options,
             o = this.document[0];
-          (this.relativeContainer = null),
+          ((this.relativeContainer = null),
             n.containment
               ? "window" !== n.containment
                 ? "document" !== n.containment
@@ -7332,7 +7343,7 @@
                       this.helperProportions.height -
                       this.margins.top,
                   ])
-              : (this.containment = null);
+              : (this.containment = null));
         },
         _convertPositionTo: function (t, e) {
           e || (e = this.position);
@@ -7346,8 +7357,8 @@
               ("fixed" === this.cssPosition
                 ? -this.offset.scroll.top
                 : s
-                ? 0
-                : this.offset.scroll.top) *
+                  ? 0
+                  : this.offset.scroll.top) *
                 i,
             left:
               e.left +
@@ -7356,8 +7367,8 @@
               ("fixed" === this.cssPosition
                 ? -this.offset.scroll.left
                 : s
-                ? 0
-                : this.offset.scroll.left) *
+                  ? 0
+                  : this.offset.scroll.left) *
                 i,
           };
         },
@@ -7405,8 +7416,8 @@
                     n - this.offset.click.top > i[3]
                     ? n
                     : n - this.offset.click.top >= i[1]
-                    ? n - a.grid[1]
-                    : n + a.grid[1]
+                      ? n - a.grid[1]
+                      : n + a.grid[1]
                   : n),
                 (o = a.grid[0]
                   ? this.originalPageX +
@@ -7417,8 +7428,8 @@
                     o - this.offset.click.left > i[2]
                     ? o
                     : o - this.offset.click.left >= i[0]
-                    ? o - a.grid[0]
-                    : o + a.grid[0]
+                      ? o - a.grid[0]
+                      : o + a.grid[0]
                   : o)),
               "y" === a.axis && (l = this.originalPageX),
               "x" === a.axis && (h = this.originalPageY)),
@@ -7431,8 +7442,8 @@
                 ("fixed" === this.cssPosition
                   ? -this.offset.scroll.top
                   : r
-                  ? 0
-                  : this.offset.scroll.top),
+                    ? 0
+                    : this.offset.scroll.top),
               left:
                 l -
                 this.offset.click.left -
@@ -7441,19 +7452,19 @@
                 ("fixed" === this.cssPosition
                   ? -this.offset.scroll.left
                   : r
-                  ? 0
-                  : this.offset.scroll.left),
+                    ? 0
+                    : this.offset.scroll.left),
             }
           );
         },
         _clear: function () {
-          this._removeClass(this.helper, "ui-draggable-dragging"),
+          (this._removeClass(this.helper, "ui-draggable-dragging"),
             this.helper[0] === this.element[0] ||
               this.cancelHelperRemoval ||
               this.helper.remove(),
             (this.helper = null),
             (this.cancelHelperRemoval = !1),
-            this.destroyOnClear && this.destroy();
+            this.destroyOnClear && this.destroy());
         },
         _trigger: function (e, i, s) {
           return (
@@ -7478,7 +7489,7 @@
       t.ui.plugin.add("draggable", "connectToSortable", {
         start: function (e, i, s) {
           var n = t.extend({}, i, { item: s.element });
-          (s.sortables = []),
+          ((s.sortables = []),
             t(s.options.connectToSortable).each(function () {
               var i = t(this).sortable("instance");
               i &&
@@ -7486,11 +7497,11 @@
                 (s.sortables.push(i),
                 i.refreshPositions(),
                 i._trigger("activate", e, n));
-            });
+            }));
         },
         stop: function (e, i, s) {
           var n = t.extend({}, i, { item: s.element });
-          (s.cancelHelperRemoval = !1),
+          ((s.cancelHelperRemoval = !1),
             t.each(s.sortables, function () {
               this.isOver
                 ? ((this.isOver = 0),
@@ -7505,13 +7516,13 @@
                   (this.options.helper = this.options._helper))
                 : ((this.cancelHelperRemoval = !0),
                   this._trigger("deactivate", e, n));
-            });
+            }));
         },
         drag: function (e, i, s) {
           t.each(s.sortables, function () {
             var n = !1,
               o = this;
-            (o.positionAbs = s.positionAbs),
+            ((o.positionAbs = s.positionAbs),
               (o.helperProportions = s.helperProportions),
               (o.offset.click = s.offset.click),
               o._intersectsWith(o.containerCache) &&
@@ -7573,7 +7584,7 @@
                   (s.dropped = !1),
                   t.each(s.sortables, function () {
                     this.refreshPositions();
-                  }));
+                  })));
           });
         },
       }),
@@ -7581,8 +7592,8 @@
         start: function (e, i, s) {
           var n = t("body"),
             o = s.options;
-          n.css("cursor") && (o._cursor = n.css("cursor")),
-            n.css("cursor", o.cursor);
+          (n.css("cursor") && (o._cursor = n.css("cursor")),
+            n.css("cursor", o.cursor));
         },
         stop: function (e, i, s) {
           var n = s.options;
@@ -7593,8 +7604,8 @@
         start: function (e, i, s) {
           var n = t(i.helper),
             o = s.options;
-          n.css("opacity") && (o._opacity = n.css("opacity")),
-            n.css("opacity", o.opacity);
+          (n.css("opacity") && (o._opacity = n.css("opacity")),
+            n.css("opacity", o.opacity));
         },
         stop: function (e, i, s) {
           var n = s.options;
@@ -7603,18 +7614,18 @@
       }),
       t.ui.plugin.add("draggable", "scroll", {
         start: function (t, e, i) {
-          i.scrollParentNotHidden ||
+          (i.scrollParentNotHidden ||
             (i.scrollParentNotHidden = i.helper.scrollParent(!1)),
             i.scrollParentNotHidden[0] !== i.document[0] &&
               "HTML" !== i.scrollParentNotHidden[0].tagName &&
-              (i.overflowOffset = i.scrollParentNotHidden.offset());
+              (i.overflowOffset = i.scrollParentNotHidden.offset()));
         },
         drag: function (e, i, s) {
           var n = s.options,
             o = !1,
             a = s.scrollParentNotHidden[0],
             r = s.document[0];
-          a !== r && "HTML" !== a.tagName
+          (a !== r && "HTML" !== a.tagName
             ? ((n.axis && "x" === n.axis) ||
                 (s.overflowOffset.top + a.offsetHeight - e.pageY <
                 n.scrollSensitivity
@@ -7642,17 +7653,17 @@
             !1 !== o &&
               t.ui.ddmanager &&
               !n.dropBehaviour &&
-              t.ui.ddmanager.prepareOffsets(s, e);
+              t.ui.ddmanager.prepareOffsets(s, e));
         },
       }),
       t.ui.plugin.add("draggable", "snap", {
         start: function (e, i, s) {
           var n = s.options;
-          (s.snapElements = []),
+          ((s.snapElements = []),
             t(
               n.snap.constructor !== String
                 ? n.snap.items || ":data(ui-draggable)"
-                : n.snap
+                : n.snap,
             ).each(function () {
               var e = t(this),
                 i = e.offset();
@@ -7664,7 +7675,7 @@
                   top: i.top,
                   left: i.left,
                 });
-            });
+            }));
         },
         drag: function (e, i, s) {
           var n,
@@ -7684,7 +7695,7 @@
             v = i.offset.top,
             b = v + s.helperProportions.height;
           for (d = s.snapElements.length - 1; d >= 0; d--)
-            (h =
+            ((h =
               (l = s.snapElements[d].left - s.margins.left) +
               s.snapElements[d].width),
               (c =
@@ -7696,7 +7707,7 @@
               v > c + g ||
               !t.contains(
                 s.snapElements[d].item.ownerDocument,
-                s.snapElements[d].item
+                s.snapElements[d].item,
               )
                 ? (s.snapElements[d].snapping &&
                     s.options.snap.release &&
@@ -7705,7 +7716,7 @@
                       e,
                       t.extend(s._uiHash(), {
                         snapItem: s.snapElements[d].item,
-                      })
+                      }),
                     ),
                   (s.snapElements[d].snapping = !1))
                 : ("inner" !== f.snapMode &&
@@ -7767,9 +7778,9 @@
                       e,
                       t.extend(s._uiHash(), {
                         snapItem: s.snapElements[d].item,
-                      })
+                      }),
                     ),
-                  (s.snapElements[d].snapping = n || o || a || r || p));
+                  (s.snapElements[d].snapping = n || o || a || r || p)));
         },
       }),
       t.ui.plugin.add("draggable", "stack", {
@@ -7794,8 +7805,8 @@
         start: function (e, i, s) {
           var n = t(i.helper),
             o = s.options;
-          n.css("zIndex") && (o._zIndex = n.css("zIndex")),
-            n.css("zIndex", o.zIndex);
+          (n.css("zIndex") && (o._zIndex = n.css("zIndex")),
+            n.css("zIndex", o.zIndex));
         },
         stop: function (e, i, s) {
           var n = s.options;
@@ -7817,7 +7828,7 @@
             "../version",
             "../widget",
           ],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -7865,7 +7876,7 @@
           var e,
             i = this.options,
             s = this;
-          this._addClass("ui-resizable"),
+          (this._addClass("ui-resizable"),
             t.extend(this, {
               _aspectRatio: !!i.aspectRatio,
               aspectRatio: i.aspectRatio,
@@ -7877,7 +7888,7 @@
                   : null,
             }),
             this.element[0].nodeName.match(
-              /^(canvas|textarea|input|select|button|img)$/i
+              /^(canvas|textarea|input|select|button|img)$/i,
             ) &&
               (this.element.wrap(
                 t("<div class='ui-wrapper'></div>").css({
@@ -7887,7 +7898,7 @@
                   height: this.element.outerHeight(),
                   top: this.element.css("top"),
                   left: this.element.css("left"),
-                })
+                }),
               ),
               (this.element = this.element
                 .parent()
@@ -7908,7 +7919,7 @@
                   position: "static",
                   zoom: 1,
                   display: "block",
-                })
+                }),
               ),
               this.originalElement.css(e),
               this._proportionallyResize()),
@@ -7925,10 +7936,10 @@
                     s.resizing ||
                     (s._addClass("ui-resizable-autohide"), s._handles.hide());
                 }),
-            this._mouseInit();
+            this._mouseInit());
         },
         _destroy: function () {
-          this._mouseDestroy(), this._addedHandles.remove();
+          (this._mouseDestroy(), this._addedHandles.remove());
           var e,
             i = function (e) {
               t(e)
@@ -7958,7 +7969,7 @@
         _setOption: function (t, e) {
           switch ((this._super(t, e), t)) {
             case "handles":
-              this._removeHandles(), this._setupHandles();
+              (this._removeHandles(), this._setupHandles());
               break;
             case "aspectRatio":
               this._aspectRatio = !!e;
@@ -7999,18 +8010,18 @@
               i < s.length;
               i++
             )
-              (n = "ui-resizable-" + (e = String.prototype.trim.call(s[i]))),
+              ((n = "ui-resizable-" + (e = String.prototype.trim.call(s[i]))),
                 (o = t("<div>")),
                 this._addClass(o, "ui-resizable-handle " + n),
                 o.css({ zIndex: a.zIndex }),
                 (this.handles[e] = ".ui-resizable-" + e),
                 this.element.children(this.handles[e]).length ||
                   (this.element.append(o),
-                  (this._addedHandles = this._addedHandles.add(o)));
-          (this._renderAxis = function (e) {
+                  (this._addedHandles = this._addedHandles.add(o))));
+          ((this._renderAxis = function (e) {
             var i, s, n, o;
             for (i in ((e = e || this.element), this.handles))
-              this.handles[i].constructor === String
+              (this.handles[i].constructor === String
                 ? (this.handles[i] = this.element
                     .children(this.handles[i])
                     .first()
@@ -8020,7 +8031,7 @@
                   this._on(this.handles[i], { mousedown: r._mouseDown })),
                 this.elementIsWrapper &&
                   this.originalElement[0].nodeName.match(
-                    /^(textarea|input|select|button)$/i
+                    /^(textarea|input|select|button)$/i,
                   ) &&
                   ((s = t(this.handles[i], this.element)),
                   (o = /sw|ne|nw|se|n|s/.test(i)
@@ -8031,30 +8042,30 @@
                     /ne|nw|n/.test(i)
                       ? "Top"
                       : /se|sw|s/.test(i)
-                      ? "Bottom"
-                      : /^e$/.test(i)
-                      ? "Right"
-                      : "Left",
+                        ? "Bottom"
+                        : /^e$/.test(i)
+                          ? "Right"
+                          : "Left",
                   ].join("")),
                   e.css(n, o),
                   this._proportionallyResize()),
-                (this._handles = this._handles.add(this.handles[i]));
+                (this._handles = this._handles.add(this.handles[i])));
           }),
             this._renderAxis(this.element),
             (this._handles = this._handles.add(
-              this.element.find(".ui-resizable-handle")
+              this.element.find(".ui-resizable-handle"),
             )),
             this._handles.disableSelection(),
             this._handles.on("mouseover", function () {
               r.resizing ||
                 (this.className &&
                   (o = this.className.match(
-                    /ui-resizable-(se|sw|ne|nw|n|e|s|w)/i
+                    /ui-resizable-(se|sw|ne|nw|n|e|s|w)/i,
                   )),
                 (r.axis = o && o[1] ? o[1] : "se"));
             }),
             a.autoHide &&
-              (this._handles.hide(), this._addClass("ui-resizable-autohide"));
+              (this._handles.hide(), this._addClass("ui-resizable-autohide")));
         },
         _removeHandles: function () {
           this._addedHandles.remove();
@@ -8179,14 +8190,14 @@
           );
         },
         _updatePrevProperties: function () {
-          (this.prevPosition = {
+          ((this.prevPosition = {
             top: this.position.top,
             left: this.position.left,
           }),
             (this.prevSize = {
               width: this.size.width,
               height: this.size.height,
-            });
+            }));
         },
         _applyChanges: function () {
           var t = {};
@@ -8210,7 +8221,7 @@
             n,
             o,
             a = this.options;
-          (o = {
+          ((o = {
             minWidth: this._isNumber(a.minWidth) ? a.minWidth : 0,
             maxWidth: this._isNumber(a.maxWidth) ? a.maxWidth : 1 / 0,
             minHeight: this._isNumber(a.minHeight) ? a.minHeight : 0,
@@ -8225,14 +8236,14 @@
               s > o.minHeight && (o.minHeight = s),
               i < o.maxWidth && (o.maxWidth = i),
               n < o.maxHeight && (o.maxHeight = n)),
-            (this._vBoundaries = o);
+            (this._vBoundaries = o));
         },
         _updateCache: function (t) {
-          (this.offset = this.helper.offset()),
+          ((this.offset = this.helper.offset()),
             this._isNumber(t.left) && (this.position.left = t.left),
             this._isNumber(t.top) && (this.position.top = t.top),
             this._isNumber(t.height) && (this.size.height = t.height),
-            this._isNumber(t.width) && (this.size.width = t.width);
+            this._isNumber(t.width) && (this.size.width = t.width));
         },
         _updateRatio: function (t) {
           var e = this.position,
@@ -8298,7 +8309,7 @@
             e < 4;
             e++
           )
-            (i[e] = parseFloat(s[e]) || 0), (i[e] += parseFloat(n[e]) || 0);
+            ((i[e] = parseFloat(s[e]) || 0), (i[e] += parseFloat(n[e]) || 0));
           return { height: i[0] + i[2], width: i[1] + i[3] };
         },
         _proportionallyResize: function () {
@@ -8308,19 +8319,19 @@
               e < this._proportionallyResizeElements.length;
               e++
             )
-              (t = this._proportionallyResizeElements[e]),
+              ((t = this._proportionallyResizeElements[e]),
                 this.outerDimensions ||
                   (this.outerDimensions =
                     this._getPaddingPlusBorderDimensions(t)),
                 t.css({
                   height: i.height() - this.outerDimensions.height || 0,
                   width: i.width() - this.outerDimensions.width || 0,
-                });
+                }));
         },
         _renderProxy: function () {
           var e = this.element,
             i = this.options;
-          (this.elementOffset = e.offset()),
+          ((this.elementOffset = e.offset()),
             this._helper
               ? ((this.helper =
                   this.helper || t("<div></div>").css({ overflow: "hidden" })),
@@ -8334,7 +8345,7 @@
                   zIndex: ++i.zIndex,
                 }),
                 this.helper.appendTo("body").disableSelection())
-              : (this.helper = this.element);
+              : (this.helper = this.element));
         },
         _change: {
           e: function (t, e) {
@@ -8354,31 +8365,31 @@
           se: function (e, i, s) {
             return t.extend(
               this._change.s.apply(this, arguments),
-              this._change.e.apply(this, [e, i, s])
+              this._change.e.apply(this, [e, i, s]),
             );
           },
           sw: function (e, i, s) {
             return t.extend(
               this._change.s.apply(this, arguments),
-              this._change.w.apply(this, [e, i, s])
+              this._change.w.apply(this, [e, i, s]),
             );
           },
           ne: function (e, i, s) {
             return t.extend(
               this._change.n.apply(this, arguments),
-              this._change.e.apply(this, [e, i, s])
+              this._change.e.apply(this, [e, i, s]),
             );
           },
           nw: function (e, i, s) {
             return t.extend(
               this._change.n.apply(this, arguments),
-              this._change.w.apply(this, [e, i, s])
+              this._change.w.apply(this, [e, i, s]),
             );
           },
         },
         _propagate: function (e, i) {
-          t.ui.plugin.call(this, e, [i, this.ui()]),
-            "resize" !== e && this._trigger(e, i, this.ui());
+          (t.ui.plugin.call(this, e, [i, this.ui()]),
+            "resize" !== e && this._trigger(e, i, this.ui()));
         },
         plugins: {},
         ui: function () {
@@ -8418,11 +8429,11 @@
                 top: parseFloat(i.element.css("top")),
                 left: parseFloat(i.element.css("left")),
               };
-              n &&
+              (n &&
                 n.length &&
                 t(n[0]).css({ width: s.width, height: s.height }),
                 i._updateCache(s),
-                i._propagate("resize", e);
+                i._propagate("resize", e));
             },
           });
         },
@@ -8444,8 +8455,8 @@
               c instanceof t
                 ? c.get(0)
                 : /parent/.test(c)
-                ? u.parent().get(0)
-                : c;
+                  ? u.parent().get(0)
+                  : c;
           d &&
             ((l.containerElement = t(d)),
             /document/.test(c) || c === document
@@ -8497,7 +8508,7 @@
             c = { top: 0, left: 0 },
             d = a.containerElement,
             p = !0;
-          d[0] !== document && /static/.test(d.css("position")) && (c = l),
+          (d[0] !== document && /static/.test(d.css("position")) && (c = l),
             h.left < (a._helper ? l.left : 0) &&
               ((a.size.width =
                 a.size.width +
@@ -8521,11 +8532,11 @@
                 (a.offset.top = a.element.offset().top)),
             (i = Math.abs(
               a.sizeDiff.width +
-                (a._helper ? a.offset.left - c.left : a.offset.left - l.left)
+                (a._helper ? a.offset.left - c.left : a.offset.left - l.left),
             )),
             (s = Math.abs(
               a.sizeDiff.height +
-                (a._helper ? a.offset.top - c.top : a.offset.top - l.top)
+                (a._helper ? a.offset.top - c.top : a.offset.top - l.top),
             )),
             i + a.size.width >= a.parentData.width &&
               ((a.size.width = a.parentData.width - i),
@@ -8537,7 +8548,7 @@
               ((a.position.left = a.prevPosition.left),
               (a.position.top = a.prevPosition.top),
               (a.size.width = a.prevSize.width),
-              (a.size.height = a.prevSize.height));
+              (a.size.height = a.prevSize.height)));
         },
         stop: function () {
           var e = t(this).resizable("instance"),
@@ -8549,7 +8560,7 @@
             r = a.offset(),
             l = a.outerWidth() - e.sizeDiff.width,
             h = a.outerHeight() - e.sizeDiff.height;
-          e._helper &&
+          (e._helper &&
             !i.animate &&
             /relative/.test(o.css("position")) &&
             t(this).css({
@@ -8564,7 +8575,7 @@
                 left: r.left - n.left - s.left,
                 width: l,
                 height: h,
-              });
+              }));
         },
       }),
       t.ui.plugin.add("resizable", "alsoResize", {
@@ -8598,11 +8609,11 @@
               o = e.parents(i.originalElement[0]).length
                 ? ["width", "height"]
                 : ["width", "height", "top", "left"];
-            t.each(o, function (t, e) {
+            (t.each(o, function (t, e) {
               var i = (s[e] || 0) + (r[e] || 0);
               i && i >= 0 && (n[e] = i || null);
             }),
-              e.css(n);
+              e.css(n));
           });
         },
         stop: function () {
@@ -8613,7 +8624,7 @@
         start: function () {
           var e = t(this).resizable("instance"),
             i = e.size;
-          (e.ghost = e.originalElement.clone()),
+          ((e.ghost = e.originalElement.clone()),
             e.ghost.css({
               opacity: 0.25,
               display: "block",
@@ -8628,7 +8639,7 @@
             !1 !== t.uiBackCompat &&
               "string" == typeof e.options.ghost &&
               e.ghost.addClass(this.options.ghost),
-            e.ghost.appendTo(e.helper);
+            e.ghost.appendTo(e.helper));
         },
         resize: function () {
           var e = t(this).resizable("instance");
@@ -8664,7 +8675,7 @@
             m = s.maxHeight && s.maxHeight < f,
             _ = s.minWidth && s.minWidth > p,
             v = s.minHeight && s.minHeight > f;
-          (s.grid = l),
+          ((s.grid = l),
             _ && (p += h),
             v && (f += u),
             g && (p -= h),
@@ -8672,25 +8683,25 @@
             /^(se|s|e)$/.test(r)
               ? ((i.size.width = p), (i.size.height = f))
               : /^(ne)$/.test(r)
-              ? ((i.size.width = p),
-                (i.size.height = f),
-                (i.position.top = a.top - d))
-              : /^(sw)$/.test(r)
-              ? ((i.size.width = p),
-                (i.size.height = f),
-                (i.position.left = a.left - c))
-              : ((f - u <= 0 || p - h <= 0) &&
-                  (e = i._getPaddingPlusBorderDimensions(this)),
-                f - u > 0
-                  ? ((i.size.height = f), (i.position.top = a.top - d))
-                  : ((f = u - e.height),
+                ? ((i.size.width = p),
+                  (i.size.height = f),
+                  (i.position.top = a.top - d))
+                : /^(sw)$/.test(r)
+                  ? ((i.size.width = p),
                     (i.size.height = f),
-                    (i.position.top = a.top + o.height - f)),
-                p - h > 0
-                  ? ((i.size.width = p), (i.position.left = a.left - c))
-                  : ((p = h - e.width),
-                    (i.size.width = p),
-                    (i.position.left = a.left + o.width - p)));
+                    (i.position.left = a.left - c))
+                  : ((f - u <= 0 || p - h <= 0) &&
+                      (e = i._getPaddingPlusBorderDimensions(this)),
+                    f - u > 0
+                      ? ((i.size.height = f), (i.position.top = a.top - d))
+                      : ((f = u - e.height),
+                        (i.size.height = f),
+                        (i.position.top = a.top + o.height - f)),
+                    p - h > 0
+                      ? ((i.size.width = p), (i.position.left = a.left - c))
+                      : ((p = h - e.width),
+                        (i.size.width = p),
+                        (i.position.left = a.left + o.width - p))));
         },
       }),
       t.ui.resizable
@@ -8716,7 +8727,7 @@
             "../version",
             "../widget",
           ],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -8782,7 +8793,7 @@
           minWidth: !0,
         },
         _create: function () {
-          (this.originalCss = {
+          ((this.originalCss = {
             display: this.element[0].style.display,
             width: this.element[0].style.width,
             minHeight: this.element[0].style.minHeight,
@@ -8806,7 +8817,7 @@
             this.options.draggable && t.fn.draggable && this._makeDraggable(),
             this.options.resizable && t.fn.resizable && this._makeResizable(),
             (this._isOpen = !1),
-            this._trackFocus();
+            this._trackFocus());
         },
         _init: function () {
           this.options.autoOpen && this.open();
@@ -8820,7 +8831,7 @@
         _destroy: function () {
           var t,
             e = this.originalPosition;
-          this._untrackInstance(),
+          (this._untrackInstance(),
             this._destroyOverlay(),
             this.element.removeUniqueId().css(this.originalCss).detach(),
             this.uiDialog.remove(),
@@ -8829,7 +8840,7 @@
             (t = e.parent.children().eq(e.index)).length &&
             t[0] !== this.element[0]
               ? t.before(this.element)
-              : e.parent.append(this.element);
+              : e.parent.append(this.element));
         },
         widget: function () {
           return this.uiDialog;
@@ -8885,19 +8896,19 @@
               this.overlay &&
                 this.overlay.css("z-index", this.uiDialog.css("z-index") - 1),
               this._show(this.uiDialog, this.options.show, function () {
-                e._focusTabbable(), e._trigger("focus");
+                (e._focusTabbable(), e._trigger("focus"));
               }),
               this._makeFocusTarget(),
               this._trigger("open"));
         },
         _focusTabbable: function () {
           var t = this._focusedElement;
-          t || (t = this.element.find("[autofocus]")),
+          (t || (t = this.element.find("[autofocus]")),
             t.length || (t = this.element.find(":tabbable")),
             t.length || (t = this.uiDialogButtonPane.find(":tabbable")),
             t.length || (t = this.uiDialogTitlebarClose.filter(":tabbable")),
             t.length || (t = this.uiDialog),
-            t.eq(0).trigger("focus");
+            t.eq(0).trigger("focus"));
         },
         _restoreTabbableFocus: function () {
           var e = t.ui.safeActiveElement(this.document[0]);
@@ -8906,19 +8917,19 @@
             this._focusTabbable();
         },
         _keepFocus: function (t) {
-          t.preventDefault(),
+          (t.preventDefault(),
             this._restoreTabbableFocus(),
-            this._delay(this._restoreTabbableFocus);
+            this._delay(this._restoreTabbableFocus));
         },
         _createWrapper: function () {
-          (this.uiDialog = t("<div>")
+          ((this.uiDialog = t("<div>")
             .hide()
             .attr({ tabIndex: -1, role: "dialog" })
             .appendTo(this._appendTo())),
             this._addClass(
               this.uiDialog,
               "ui-dialog",
-              "ui-widget ui-widget-content ui-front"
+              "ui-widget ui-widget-content ui-front",
             ),
             this._on(this.uiDialog, {
               keydown: function (e) {
@@ -8928,7 +8939,7 @@
                   e.keyCode &&
                   e.keyCode === t.ui.keyCode.ESCAPE
                 )
-                  return e.preventDefault(), void this.close(e);
+                  return (e.preventDefault(), void this.close(e));
                 if (e.keyCode === t.ui.keyCode.TAB && !e.isDefaultPrevented()) {
                   var i = this.uiDialog.find(":tabbable"),
                     s = i.first(),
@@ -8954,15 +8965,15 @@
             this.element.find("[aria-describedby]").length ||
               this.uiDialog.attr({
                 "aria-describedby": this.element.uniqueId().attr("id"),
-              });
+              }));
         },
         _createTitlebar: function () {
           var e;
-          (this.uiDialogTitlebar = t("<div>")),
+          ((this.uiDialogTitlebar = t("<div>")),
             this._addClass(
               this.uiDialogTitlebar,
               "ui-dialog-titlebar",
-              "ui-widget-header ui-helper-clearfix"
+              "ui-widget-header ui-helper-clearfix",
             ),
             this._on(this.uiDialogTitlebar, {
               mousedown: function (e) {
@@ -8979,43 +8990,43 @@
               .appendTo(this.uiDialogTitlebar)),
             this._addClass(
               this.uiDialogTitlebarClose,
-              "ui-dialog-titlebar-close"
+              "ui-dialog-titlebar-close",
             ),
             this._on(this.uiDialogTitlebarClose, {
               click: function (t) {
-                t.preventDefault(), this.close(t);
+                (t.preventDefault(), this.close(t));
               },
             }),
             (e = t("<span>").uniqueId().prependTo(this.uiDialogTitlebar)),
             this._addClass(e, "ui-dialog-title"),
             this._title(e),
             this.uiDialogTitlebar.prependTo(this.uiDialog),
-            this.uiDialog.attr({ "aria-labelledby": e.attr("id") });
+            this.uiDialog.attr({ "aria-labelledby": e.attr("id") }));
         },
         _title: function (t) {
           this.options.title ? t.text(this.options.title) : t.html("&#160;");
         },
         _createButtonPane: function () {
-          (this.uiDialogButtonPane = t("<div>")),
+          ((this.uiDialogButtonPane = t("<div>")),
             this._addClass(
               this.uiDialogButtonPane,
               "ui-dialog-buttonpane",
-              "ui-widget-content ui-helper-clearfix"
+              "ui-widget-content ui-helper-clearfix",
             ),
             (this.uiButtonSet = t("<div>").appendTo(this.uiDialogButtonPane)),
             this._addClass(this.uiButtonSet, "ui-dialog-buttonset"),
-            this._createButtons();
+            this._createButtons());
         },
         _createButtons: function () {
           var e = this,
             i = this.options.buttons;
-          this.uiDialogButtonPane.remove(),
+          (this.uiDialogButtonPane.remove(),
             this.uiButtonSet.empty(),
             t.isEmptyObject(i) || (Array.isArray(i) && !i.length)
               ? this._removeClass(this.uiDialog, "ui-dialog-buttons")
               : (t.each(i, function (i, s) {
                   var n, o;
-                  (s = "function" == typeof s ? { click: s, text: i } : s),
+                  ((s = "function" == typeof s ? { click: s, text: i } : s),
                     (s = t.extend({ type: "button" }, s)),
                     (n = s.click),
                     (o = {
@@ -9036,10 +9047,10 @@
                       .appendTo(e.uiButtonSet)
                       .on("click", function () {
                         n.apply(e.element[0], arguments);
-                      });
+                      }));
                 }),
                 this._addClass(this.uiDialog, "ui-dialog-buttons"),
-                this.uiDialogButtonPane.appendTo(this.uiDialog));
+                this.uiDialogButtonPane.appendTo(this.uiDialog)));
         },
         _makeDraggable: function () {
           var e = this,
@@ -9052,9 +9063,9 @@
             handle: ".ui-dialog-titlebar",
             containment: "document",
             start: function (i, n) {
-              e._addClass(t(this), "ui-dialog-dragging"),
+              (e._addClass(t(this), "ui-dialog-dragging"),
                 e._blockFrames(),
-                e._trigger("dragStart", i, s(n));
+                e._trigger("dragStart", i, s(n)));
             },
             drag: function (t, i) {
               e._trigger("drag", t, s(i));
@@ -9062,7 +9073,7 @@
             stop: function (n, o) {
               var a = o.offset.left - e.document.scrollLeft(),
                 r = o.offset.top - e.document.scrollTop();
-              (i.position = {
+              ((i.position = {
                 my: "left top",
                 at:
                   "left" +
@@ -9075,7 +9086,7 @@
               }),
                 e._removeClass(t(this), "ui-dialog-dragging"),
                 e._unblockFrames(),
-                e._trigger("dragStop", n, s(o));
+                e._trigger("dragStop", n, s(o)));
             },
           });
         },
@@ -9104,9 +9115,9 @@
               minHeight: this._minHeight(),
               handles: o,
               start: function (i, s) {
-                e._addClass(t(this), "ui-dialog-resizing"),
+                (e._addClass(t(this), "ui-dialog-resizing"),
                   e._blockFrames(),
-                  e._trigger("resizeStart", i, a(s));
+                  e._trigger("resizeStart", i, a(s)));
               },
               resize: function (t, i) {
                 e._trigger("resize", t, a(i));
@@ -9115,7 +9126,7 @@
                 var o = e.uiDialog.offset(),
                   r = o.left - e.document.scrollLeft(),
                   l = o.top - e.document.scrollTop();
-                (i.height = e.uiDialog.height()),
+                ((i.height = e.uiDialog.height()),
                   (i.width = e.uiDialog.width()),
                   (i.position = {
                     my: "left top",
@@ -9130,7 +9141,7 @@
                   }),
                   e._removeClass(t(this), "ui-dialog-resizing"),
                   e._unblockFrames(),
-                  e._trigger("resizeStop", s, a(n));
+                  e._trigger("resizeStop", s, a(n)));
               },
             })
             .css("position", n);
@@ -9138,12 +9149,12 @@
         _trackFocus: function () {
           this._on(this.widget(), {
             focusin: function (e) {
-              this._makeFocusTarget(), (this._focusedElement = t(e.target));
+              (this._makeFocusTarget(), (this._focusedElement = t(e.target)));
             },
           });
         },
         _makeFocusTarget: function () {
-          this._untrackInstance(), this._trackingInstances().unshift(this);
+          (this._untrackInstance(), this._trackingInstances().unshift(this));
         },
         _untrackInstance: function () {
           var e = this._trackingInstances(),
@@ -9153,7 +9164,8 @@
         _trackingInstances: function () {
           var t = this.document.data("ui-dialog-instances");
           return (
-            t || ((t = []), this.document.data("ui-dialog-instances", t)), t
+            t || ((t = []), this.document.data("ui-dialog-instances", t)),
+            t
           );
         },
         _minHeight: function () {
@@ -9164,22 +9176,22 @@
         },
         _position: function () {
           var t = this.uiDialog.is(":visible");
-          t || this.uiDialog.show(),
+          (t || this.uiDialog.show(),
             this.uiDialog.position(this.options.position),
-            t || this.uiDialog.hide();
+            t || this.uiDialog.hide());
         },
         _setOptions: function (e) {
           var i = this,
             s = !1,
             n = {};
-          t.each(e, function (t, e) {
-            i._setOption(t, e),
+          (t.each(e, function (t, e) {
+            (i._setOption(t, e),
               t in i.sizeRelatedOptions && (s = !0),
-              t in i.resizableRelatedOptions && (n[t] = e);
+              t in i.resizableRelatedOptions && (n[t] = e));
           }),
             s && (this._size(), this._position()),
             this.uiDialog.is(":data(ui-resizable)") &&
-              this.uiDialog.resizable("option", n);
+              this.uiDialog.resizable("option", n));
         },
         _setOption: function (e, i) {
           var s,
@@ -9215,7 +9227,7 @@
             e,
             i,
             s = this.options;
-          this.element
+          (this.element
             .show()
             .css({ width: "auto", minHeight: 0, maxHeight: "none", height: 0 }),
             s.minWidth > s.width && (s.width = s.minWidth),
@@ -9231,7 +9243,11 @@
               ? this.element.css({ minHeight: e, maxHeight: i, height: "auto" })
               : this.element.height(Math.max(0, s.height - t)),
             this.uiDialog.is(":data(ui-resizable)") &&
-              this.uiDialog.resizable("option", "minHeight", this._minHeight());
+              this.uiDialog.resizable(
+                "option",
+                "minHeight",
+                this._minHeight(),
+              ));
         },
         _blockFrames: function () {
           this.iframeBlocks = this.document.find("iframe").map(function () {
@@ -9260,7 +9276,7 @@
           if (this.options.modal) {
             var e = t.fn.jquery.substring(0, 4),
               i = !0;
-            this._delay(function () {
+            (this._delay(function () {
               i = !1;
             }),
               this.document.data("ui-dialog-overlays") ||
@@ -9275,26 +9291,26 @@
                         ("3.4." !== e && "3.5." !== e) ||
                           s._delay(s._restoreTabbableFocus));
                     }
-                  }.bind(this)
+                  }.bind(this),
                 ),
               (this.overlay = t("<div>").appendTo(this._appendTo())),
               this._addClass(this.overlay, null, "ui-widget-overlay ui-front"),
               this._on(this.overlay, { mousedown: "_keepFocus" }),
               this.document.data(
                 "ui-dialog-overlays",
-                (this.document.data("ui-dialog-overlays") || 0) + 1
-              );
+                (this.document.data("ui-dialog-overlays") || 0) + 1,
+              ));
           }
         },
         _destroyOverlay: function () {
           if (this.options.modal && this.overlay) {
             var t = this.document.data("ui-dialog-overlays") - 1;
-            t
+            (t
               ? this.document.data("ui-dialog-overlays", t)
               : (this.document.off("focusin.ui-dialog"),
                 this.document.removeData("ui-dialog-overlays")),
               this.overlay.remove(),
-              (this.overlay = null);
+              (this.overlay = null));
           }
         },
       }),
@@ -9302,12 +9318,12 @@
         t.widget("ui.dialog", t.ui.dialog, {
           options: { dialogClass: "" },
           _createWrapper: function () {
-            this._super(), this.uiDialog.addClass(this.options.dialogClass);
+            (this._super(), this.uiDialog.addClass(this.options.dialogClass));
           },
           _setOption: function (t, e) {
-            "dialogClass" === t &&
+            ("dialogClass" === t &&
               this.uiDialog.removeClass(this.options.dialogClass).addClass(e),
-              this._superApply(arguments);
+              this._superApply(arguments));
           },
         }),
       t.ui.dialog
@@ -9318,7 +9334,7 @@
       ? define(
           "ui/widgets/droppable.js",
           ["jquery", "./draggable", "./mouse", "../version", "../widget"],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -9342,7 +9358,7 @@
           var t,
             e = this.options,
             i = e.accept;
-          (this.isover = !1),
+          ((this.isover = !1),
             (this.isout = !0),
             (this.accept =
               "function" == typeof i
@@ -9362,11 +9378,11 @@
               t = arguments[0];
             }),
             this._addToManager(e.scope),
-            e.addClasses && this._addClass("ui-droppable");
+            e.addClasses && this._addClass("ui-droppable"));
         },
         _addToManager: function (e) {
-          (t.ui.ddmanager.droppables[e] = t.ui.ddmanager.droppables[e] || []),
-            t.ui.ddmanager.droppables[e].push(this);
+          ((t.ui.ddmanager.droppables[e] = t.ui.ddmanager.droppables[e] || []),
+            t.ui.ddmanager.droppables[e].push(this));
         },
         _splice: function (t) {
           for (var e = 0; e < t.length; e++) t[e] === this && t.splice(e, 1);
@@ -9385,18 +9401,19 @@
                   };
           else if ("scope" === e) {
             var s = t.ui.ddmanager.droppables[this.options.scope];
-            this._splice(s), this._addToManager(i);
+            (this._splice(s), this._addToManager(i));
           }
           this._super(e, i);
         },
         _activate: function (e) {
           var i = t.ui.ddmanager.current;
-          this._addActiveClass(), i && this._trigger("activate", e, this.ui(i));
+          (this._addActiveClass(),
+            i && this._trigger("activate", e, this.ui(i)));
         },
         _deactivate: function (e) {
           var i = t.ui.ddmanager.current;
-          this._removeActiveClass(),
-            i && this._trigger("deactivate", e, this.ui(i));
+          (this._removeActiveClass(),
+            i && this._trigger("deactivate", e, this.ui(i)));
         },
         _over: function (e) {
           var i = t.ui.ddmanager.current;
@@ -9431,10 +9448,10 @@
                     s,
                     t.extend(i, { offset: i.element.offset() }),
                     i.options.tolerance,
-                    e
+                    e,
                   )
                 )
-                  return (n = !0), !1;
+                  return ((n = !0), !1);
               }),
             !n &&
               !!this.accept.call(this.element[0], s.currentItem || s.element) &&
@@ -9518,29 +9535,24 @@
               .find(":data(ui-droppable)")
               .addBack();
           t: for (s = 0; s < o.length; s++)
-            if (
-              !(
-                o[s].options.disabled ||
-                (e &&
-                  !o[s].accept.call(
-                    o[s].element[0],
-                    e.currentItem || e.element
-                  ))
-              )
-            ) {
+            if (!(
+              o[s].options.disabled ||
+              (e &&
+                !o[s].accept.call(o[s].element[0], e.currentItem || e.element))
+            )) {
               for (n = 0; n < r.length; n++)
                 if (r[n] === o[s].element[0]) {
                   o[s].proportions().height = 0;
                   continue t;
                 }
-              (o[s].visible = "none" !== o[s].element.css("display")),
+              ((o[s].visible = "none" !== o[s].element.css("display")),
                 o[s].visible &&
                   ("mousedown" === a && o[s]._activate.call(o[s], i),
                   (o[s].offset = o[s].element.offset()),
                   o[s].proportions({
                     width: o[s].element[0].offsetWidth,
                     height: o[s].element[0].offsetHeight,
-                  }));
+                  })));
             }
         },
         drop: function (e, i) {
@@ -9558,12 +9570,12 @@
                     this.visible &&
                     this.accept.call(
                       this.element[0],
-                      e.currentItem || e.element
+                      e.currentItem || e.element,
                     ) &&
                     ((this.isout = !0),
                     (this.isover = !1),
                     this._deactivate.call(this, i)));
-              }
+              },
             ),
             s
           );
@@ -9574,7 +9586,7 @@
           });
         },
         drag: function (e, i) {
-          e.options.refreshPositions && t.ui.ddmanager.prepareOffsets(e, i),
+          (e.options.refreshPositions && t.ui.ddmanager.prepareOffsets(e, i),
             t.each(
               t.ui.ddmanager.droppables[e.options.scope] || [],
               function () {
@@ -9591,8 +9603,8 @@
                       !a && this.isover
                         ? "isout"
                         : a && !this.isover
-                        ? "isover"
-                        : null;
+                          ? "isover"
+                          : null;
                   r &&
                     (this.options.greedy &&
                       ((n = this.options.scope),
@@ -9615,36 +9627,36 @@
                       "isout" === r &&
                       ((s.isout = !1), (s.isover = !0), s._over.call(s, i)));
                 }
-              }
-            );
+              },
+            ));
         },
         dragStop: function (e, i) {
-          e.element.parentsUntil("body").off("scroll.droppable"),
-            e.options.refreshPositions || t.ui.ddmanager.prepareOffsets(e, i);
+          (e.element.parentsUntil("body").off("scroll.droppable"),
+            e.options.refreshPositions || t.ui.ddmanager.prepareOffsets(e, i));
         },
       }),
       !1 !== t.uiBackCompat &&
         t.widget("ui.droppable", t.ui.droppable, {
           options: { hoverClass: !1, activeClass: !1 },
           _addActiveClass: function () {
-            this._super(),
+            (this._super(),
               this.options.activeClass &&
-                this.element.addClass(this.options.activeClass);
+                this.element.addClass(this.options.activeClass));
           },
           _removeActiveClass: function () {
-            this._super(),
+            (this._super(),
               this.options.activeClass &&
-                this.element.removeClass(this.options.activeClass);
+                this.element.removeClass(this.options.activeClass));
           },
           _addHoverClass: function () {
-            this._super(),
+            (this._super(),
               this.options.hoverClass &&
-                this.element.addClass(this.options.hoverClass);
+                this.element.addClass(this.options.hoverClass));
           },
           _removeHoverClass: function () {
-            this._super(),
+            (this._super(),
               this.options.hoverClass &&
-                this.element.removeClass(this.options.hoverClass);
+                this.element.removeClass(this.options.hoverClass));
           },
         }),
       t.ui.droppable
@@ -9655,7 +9667,7 @@
       ? define(
           "ui/widgets/progressbar.js",
           ["jquery", "../version", "../widget"],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -9674,26 +9686,27 @@
       },
       min: 0,
       _create: function () {
-        (this.oldValue = this.options.value = this._constrainedValue()),
+        ((this.oldValue = this.options.value = this._constrainedValue()),
           this.element.attr({ role: "progressbar", "aria-valuemin": this.min }),
           this._addClass("ui-progressbar", "ui-widget ui-widget-content"),
           (this.valueDiv = t("<div>").appendTo(this.element)),
           this._addClass(
             this.valueDiv,
             "ui-progressbar-value",
-            "ui-widget-header"
+            "ui-widget-header",
           ),
-          this._refreshValue();
+          this._refreshValue());
       },
       _destroy: function () {
-        this.element.removeAttr(
-          "role aria-valuemin aria-valuemax aria-valuenow"
+        (this.element.removeAttr(
+          "role aria-valuemin aria-valuemax aria-valuenow",
         ),
-          this.valueDiv.remove();
+          this.valueDiv.remove());
       },
       value: function (t) {
         if (void 0 === t) return this.options.value;
-        (this.options.value = this._constrainedValue(t)), this._refreshValue();
+        ((this.options.value = this._constrainedValue(t)),
+          this._refreshValue());
       },
       _constrainedValue: function (t) {
         return (
@@ -9706,18 +9719,18 @@
       },
       _setOptions: function (t) {
         var e = t.value;
-        delete t.value,
+        (delete t.value,
           this._super(t),
           (this.options.value = this._constrainedValue(e)),
-          this._refreshValue();
+          this._refreshValue());
       },
       _setOption: function (t, e) {
-        "max" === t && (e = Math.max(this.min, e)), this._super(t, e);
+        ("max" === t && (e = Math.max(this.min, e)), this._super(t, e));
       },
       _setOptionDisabled: function (t) {
-        this._super(t),
+        (this._super(t),
           this.element.attr("aria-disabled", t),
-          this._toggleClass(null, "ui-state-disabled", !!t);
+          this._toggleClass(null, "ui-state-disabled", !!t));
       },
       _percentage: function () {
         return this.indeterminate
@@ -9728,18 +9741,18 @@
       _refreshValue: function () {
         var e = this.options.value,
           i = this._percentage();
-        this.valueDiv
+        (this.valueDiv
           .toggle(this.indeterminate || e > this.min)
           .width(i.toFixed(0) + "%"),
           this._toggleClass(
             this.valueDiv,
             "ui-progressbar-complete",
             null,
-            e === this.options.max
+            e === this.options.max,
           )._toggleClass(
             "ui-progressbar-indeterminate",
             null,
-            this.indeterminate
+            this.indeterminate,
           ),
           this.indeterminate
             ? (this.element.removeAttr("aria-valuenow"),
@@ -9753,7 +9766,7 @@
               this.overlayDiv &&
                 (this.overlayDiv.remove(), (this.overlayDiv = null))),
           this.oldValue !== e && ((this.oldValue = e), this._trigger("change")),
-          e === this.options.max && this._trigger("complete");
+          e === this.options.max && this._trigger("complete"));
       },
     });
   }),
@@ -9762,7 +9775,7 @@
       ? define(
           "ui/widgets/selectable.js",
           ["jquery", "./mouse", "../version", "../widget"],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -9783,10 +9796,10 @@
       },
       _create: function () {
         var e = this;
-        this._addClass("ui-selectable"),
+        (this._addClass("ui-selectable"),
           (this.dragged = !1),
           (this.refresh = function () {
-            (e.elementPos = t(e.element[0]).offset()),
+            ((e.elementPos = t(e.element[0]).offset()),
               (e.selectees = t(e.options.filter, e.element[0])),
               e._addClass(e.selectees, "ui-selectee"),
               e.selectees.each(function () {
@@ -9808,20 +9821,20 @@
                   selecting: i.hasClass("ui-selecting"),
                   unselecting: i.hasClass("ui-unselecting"),
                 });
-              });
+              }));
           }),
           this.refresh(),
           this._mouseInit(),
           (this.helper = t("<div>")),
-          this._addClass(this.helper, "ui-selectable-helper");
+          this._addClass(this.helper, "ui-selectable-helper"));
       },
       _destroy: function () {
-        this.selectees.removeData("selectable-item"), this._mouseDestroy();
+        (this.selectees.removeData("selectable-item"), this._mouseDestroy());
       },
       _mouseStart: function (e) {
         var i = this,
           s = this.options;
-        (this.opos = [e.pageX, e.pageY]),
+        ((this.opos = [e.pageX, e.pageY]),
           (this.elementPos = t(this.element[0]).offset()),
           this.options.disabled ||
             ((this.selectees = t(s.filter, this.element[0])),
@@ -9836,14 +9849,14 @@
             s.autoRefresh && this.refresh(),
             this.selectees.filter(".ui-selected").each(function () {
               var s = t.data(this, "selectable-item");
-              (s.startselected = !0),
+              ((s.startselected = !0),
                 e.metaKey ||
                   e.ctrlKey ||
                   (i._removeClass(s.$element, "ui-selected"),
                   (s.selected = !1),
                   i._addClass(s.$element, "ui-unselecting"),
                   (s.unselecting = !0),
-                  i._trigger("unselecting", e, { unselecting: s.element }));
+                  i._trigger("unselecting", e, { unselecting: s.element })));
             }),
             t(e.target)
               .parents()
@@ -9859,11 +9872,11 @@
                     i
                       ._removeClass(
                         n.$element,
-                        s ? "ui-unselecting" : "ui-selected"
+                        s ? "ui-unselecting" : "ui-selected",
                       )
                       ._addClass(
                         n.$element,
-                        s ? "ui-selecting" : "ui-unselecting"
+                        s ? "ui-selecting" : "ui-unselecting",
                       ),
                     (n.unselecting = !s),
                     (n.selecting = s),
@@ -9875,7 +9888,7 @@
                         }),
                     !1
                   );
-              }));
+              })));
       },
       _mouseDrag: function (e) {
         if (((this.dragged = !0), !this.options.disabled)) {
@@ -9957,20 +9970,20 @@
           (this.dragged = !1),
           t(".ui-unselecting", this.element[0]).each(function () {
             var s = t.data(this, "selectable-item");
-            i._removeClass(s.$element, "ui-unselecting"),
+            (i._removeClass(s.$element, "ui-unselecting"),
               (s.unselecting = !1),
               (s.startselected = !1),
-              i._trigger("unselected", e, { unselected: s.element });
+              i._trigger("unselected", e, { unselected: s.element }));
           }),
           t(".ui-selecting", this.element[0]).each(function () {
             var s = t.data(this, "selectable-item");
-            i
+            (i
               ._removeClass(s.$element, "ui-selecting")
               ._addClass(s.$element, "ui-selected"),
               (s.selecting = !1),
               (s.selected = !0),
               (s.startselected = !0),
-              i._trigger("selected", e, { selected: s.element });
+              i._trigger("selected", e, { selected: s.element }));
           }),
           this._trigger("stop", e),
           this.helper.remove(),
@@ -9994,7 +10007,7 @@
             "../version",
             "../widget",
           ],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -10021,24 +10034,28 @@
         },
         _create: function () {
           var e = this.element.uniqueId().attr("id");
-          (this.ids = { element: e, button: e + "-button", menu: e + "-menu" }),
+          ((this.ids = {
+            element: e,
+            button: e + "-button",
+            menu: e + "-menu",
+          }),
             this._drawButton(),
             this._drawMenu(),
             this._bindFormResetHandler(),
             (this._rendered = !1),
-            (this.menuItems = t());
+            (this.menuItems = t()));
         },
         _drawButton: function () {
           var e,
             i = this,
             s = this._parseOption(
               this.element.find("option:selected"),
-              this.element[0].selectedIndex
+              this.element[0].selectedIndex,
             );
-          (this.labels = this.element.labels().attr("for", this.ids.button)),
+          ((this.labels = this.element.labels().attr("for", this.ids.button)),
             this._on(this.labels, {
               click: function (t) {
-                this.button.trigger("focus"), t.preventDefault();
+                (this.button.trigger("focus"), t.preventDefault());
               },
             }),
             this.element.hide(),
@@ -10055,24 +10072,24 @@
             this._addClass(
               this.button,
               "ui-selectmenu-button ui-selectmenu-button-closed",
-              "ui-button ui-widget"
+              "ui-button ui-widget",
             ),
             (e = t("<span>").appendTo(this.button)),
             this._addClass(
               e,
               "ui-selectmenu-icon",
-              "ui-icon " + this.options.icons.button
+              "ui-icon " + this.options.icons.button,
             ),
             (this.buttonItem = this._renderButtonItem(s).appendTo(this.button)),
             !1 !== this.options.width && this._resizeButton(),
             this._on(this.button, this._buttonEvents),
             this.button.one("focusin", function () {
               i._rendered || i._refreshMenu();
-            });
+            }));
         },
         _drawMenu: function () {
           var e = this;
-          (this.menu = t("<ul>", {
+          ((this.menu = t("<ul>", {
             "aria-hidden": "true",
             "aria-labelledby": this.ids.button,
             id: this.ids.menu,
@@ -10085,21 +10102,21 @@
                 classes: { "ui-menu": "ui-corner-bottom" },
                 role: "listbox",
                 select: function (t, i) {
-                  t.preventDefault(),
+                  (t.preventDefault(),
                     e._setSelection(),
-                    e._select(i.item.data("ui-selectmenu-item"), t);
+                    e._select(i.item.data("ui-selectmenu-item"), t));
                 },
                 focus: function (t, i) {
                   var s = i.item.data("ui-selectmenu-item");
-                  null != e.focusIndex &&
+                  (null != e.focusIndex &&
                     s.index !== e.focusIndex &&
                     (e._trigger("focus", t, { item: s }),
                     e.isOpen || e._select(s, t)),
                     (e.focusIndex = s.index),
                     e.button.attr(
                       "aria-activedescendant",
-                      e.menuItems.eq(s.index).attr("id")
-                    );
+                      e.menuItems.eq(s.index).attr("id"),
+                    ));
                 },
               })
               .menu("instance")),
@@ -10109,21 +10126,21 @@
             }),
             (this.menuInstance._isDivider = function () {
               return !1;
-            });
+            }));
         },
         refresh: function () {
-          this._refreshMenu(),
+          (this._refreshMenu(),
             this.buttonItem.replaceWith(
               (this.buttonItem = this._renderButtonItem(
-                this._getSelectedItem().data("ui-selectmenu-item") || {}
-              ))
+                this._getSelectedItem().data("ui-selectmenu-item") || {},
+              )),
             ),
-            null === this.options.width && this._resizeButton();
+            null === this.options.width && this._resizeButton());
         },
         _refreshMenu: function () {
           var t,
             e = this.element.find("option");
-          this.menu.empty(),
+          (this.menu.empty(),
             this._parseOptions(e),
             this._renderMenu(this.menu, this.items),
             this.menuInstance.refresh(),
@@ -10136,7 +10153,7 @@
               ((t = this._getSelectedItem()),
               this.menuInstance.focus(null, t),
               this._setAria(t.data("ui-selectmenu-item")),
-              this._setOption("disabled", this.element.prop("disabled")));
+              this._setOption("disabled", this.element.prop("disabled"))));
         },
         open: function (t) {
           this.options.disabled ||
@@ -10144,7 +10161,7 @@
               ? (this._removeClass(
                   this.menu.find(".ui-state-active"),
                   null,
-                  "ui-state-active"
+                  "ui-state-active",
                 ),
                 this.menuInstance.focus(null, this._getSelectedItem()))
               : this._refreshMenu(),
@@ -10158,7 +10175,7 @@
         },
         _position: function () {
           this.menuWrap.position(
-            t.extend({ of: this.button }, this.options.position)
+            t.extend({ of: this.button }, this.options.position),
           );
         },
         close: function (t) {
@@ -10188,7 +10205,7 @@
             n = "";
           t.each(i, function (i, o) {
             var a;
-            o.optgroup !== n &&
+            (o.optgroup !== n &&
               ((a = t("<li>", { text: o.optgroup })),
               s._addClass(
                 a,
@@ -10196,11 +10213,11 @@
                 "ui-menu-divider" +
                   (o.element.parent("optgroup").prop("disabled")
                     ? " ui-state-disabled"
-                    : "")
+                    : ""),
               ),
               a.appendTo(e),
               (n = o.optgroup)),
-              s._renderItemData(e, o);
+              s._renderItemData(e, o));
           });
         },
         _renderItemData: function (t, e) {
@@ -10222,7 +10239,7 @@
           var i,
             s,
             n = ".ui-menu-item";
-          this.isOpen
+          (this.isOpen
             ? (i = this.menuItems.eq(this.focusIndex).parent("li"))
             : ((i = this.menuItems
                 .eq(this.element[0].selectedIndex)
@@ -10232,7 +10249,7 @@
               "first" === t || "last" === t
                 ? i["first" === t ? "prevAll" : "nextAll"](n).eq(-1)
                 : i[t + "All"](n).eq(0)).length &&
-              this.menuInstance.focus(e, s);
+              this.menuInstance.focus(e, s));
         },
         _getSelectedItem: function () {
           return this.menuItems.eq(this.element[0].selectedIndex).parent("li");
@@ -10253,7 +10270,7 @@
           mousedown: function (e) {
             this.isOpen &&
               (t(e.target).closest(
-                ".ui-selectmenu-menu, #" + t.escapeSelector(this.ids.button)
+                ".ui-selectmenu-menu, #" + t.escapeSelector(this.ids.button),
               ).length ||
                 this.close(e));
           },
@@ -10267,14 +10284,14 @@
               : (this.range = document.selection.createRange());
           },
           click: function (t) {
-            this._setSelection(), this._toggle(t);
+            (this._setSelection(), this._toggle(t));
           },
           keydown: function (e) {
             var i = !0;
             switch (e.keyCode) {
               case t.ui.keyCode.TAB:
               case t.ui.keyCode.ESCAPE:
-                this.close(e), (i = !1);
+                (this.close(e), (i = !1));
                 break;
               case t.ui.keyCode.ENTER:
                 this.isOpen && this._selectFocusedItem(e);
@@ -10303,7 +10320,7 @@
                 this._move("last", e);
                 break;
               default:
-                this.menu.trigger(e), (i = !1);
+                (this.menu.trigger(e), (i = !1));
             }
             i && e.preventDefault();
           },
@@ -10315,22 +10332,22 @@
         },
         _select: function (t, e) {
           var i = this.element[0].selectedIndex;
-          (this.element[0].selectedIndex = t.index),
+          ((this.element[0].selectedIndex = t.index),
             this.buttonItem.replaceWith(
-              (this.buttonItem = this._renderButtonItem(t))
+              (this.buttonItem = this._renderButtonItem(t)),
             ),
             this._setAria(t),
             this._trigger("select", e, { item: t }),
             t.index !== i && this._trigger("change", e, { item: t }),
-            this.close(e);
+            this.close(e));
         },
         _setAria: function (t) {
           var e = this.menuItems.eq(t.index).attr("id");
-          this.button.attr({
+          (this.button.attr({
             "aria-labelledby": e,
             "aria-activedescendant": e,
           }),
-            this.menu.attr("aria-activedescendant", e);
+            this.menu.attr("aria-activedescendant", e));
         },
         _setOption: function (t, e) {
           if ("icons" === t) {
@@ -10338,22 +10355,22 @@
             this._removeClass(i, null, this.options.icons.button)._addClass(
               i,
               null,
-              e.button
+              e.button,
             );
           }
-          this._super(t, e),
+          (this._super(t, e),
             "appendTo" === t && this.menuWrap.appendTo(this._appendTo()),
-            "width" === t && this._resizeButton();
+            "width" === t && this._resizeButton());
         },
         _setOptionDisabled: function (t) {
-          this._super(t),
+          (this._super(t),
             this.menuInstance.option("disabled", t),
             this.button.attr("aria-disabled", t),
             this._toggleClass(this.button, null, "ui-state-disabled", t),
             this.element.prop("disabled", t),
             t
               ? (this.button.attr("tabindex", -1), this.close())
-              : this.button.attr("tabindex", 0);
+              : this.button.attr("tabindex", 0));
         },
         _appendTo: function () {
           var e = this.options.appendTo;
@@ -10366,22 +10383,22 @@
           );
         },
         _toggleAttr: function () {
-          this.button.attr("aria-expanded", this.isOpen),
+          (this.button.attr("aria-expanded", this.isOpen),
             this._removeClass(
               this.button,
-              "ui-selectmenu-button-" + (this.isOpen ? "closed" : "open")
+              "ui-selectmenu-button-" + (this.isOpen ? "closed" : "open"),
             )
               ._addClass(
                 this.button,
-                "ui-selectmenu-button-" + (this.isOpen ? "open" : "closed")
+                "ui-selectmenu-button-" + (this.isOpen ? "open" : "closed"),
               )
               ._toggleClass(
                 this.menuWrap,
                 "ui-selectmenu-open",
                 null,
-                this.isOpen
+                this.isOpen,
               ),
-            this.menu.attr("aria-hidden", !this.isOpen);
+            this.menu.attr("aria-hidden", !this.isOpen));
         },
         _resizeButton: function () {
           var t = this.options.width;
@@ -10395,21 +10412,21 @@
           this.menu.outerWidth(
             Math.max(
               this.button.outerWidth(),
-              this.menu.width("").outerWidth() + 1
-            )
+              this.menu.width("").outerWidth() + 1,
+            ),
           );
         },
         _getCreateOptions: function () {
           var t = this._super();
-          return (t.disabled = this.element.prop("disabled")), t;
+          return ((t.disabled = this.element.prop("disabled")), t);
         },
         _parseOptions: function (e) {
           var i = this,
             s = [];
-          e.each(function (e, n) {
+          (e.each(function (e, n) {
             n.hidden || s.push(i._parseOption(t(n), e));
           }),
-            (this.items = s);
+            (this.items = s));
         },
         _parseOption: function (t, e) {
           var i = t.parent("optgroup");
@@ -10423,12 +10440,12 @@
           };
         },
         _destroy: function () {
-          this._unbindFormResetHandler(),
+          (this._unbindFormResetHandler(),
             this.menuWrap.remove(),
             this.button.remove(),
             this.element.show(),
             this.element.removeUniqueId(),
-            this.labels.attr("for", this.ids.element);
+            this.labels.attr("for", this.ids.element));
         },
       },
     ]);
@@ -10438,7 +10455,7 @@
       ? define(
           "ui/widgets/slider.js",
           ["jquery", "./mouse", "../keycode", "../version", "../widget"],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -10467,7 +10484,7 @@
       },
       numPages: 5,
       _create: function () {
-        (this._keySliding = !1),
+        ((this._keySliding = !1),
           (this._mouseSliding = !1),
           (this._animateOff = !0),
           (this._handleIndex = null),
@@ -10476,16 +10493,16 @@
           this._calculateNewMax(),
           this._addClass(
             "ui-slider ui-slider-" + this.orientation,
-            "ui-widget ui-widget-content"
+            "ui-widget ui-widget-content",
           ),
           this._refresh(),
-          (this._animateOff = !1);
+          (this._animateOff = !1));
       },
       _refresh: function () {
-        this._createRange(),
+        (this._createRange(),
           this._createHandles(),
           this._setupEvents(),
-          this._refreshValue();
+          this._refreshValue());
       },
       _createHandles: function () {
         var e,
@@ -10501,12 +10518,12 @@
           e++
         )
           o.push("<span tabindex='0'></span>");
-        (this.handles = n.add(t(o.join("")).appendTo(this.element))),
+        ((this.handles = n.add(t(o.join("")).appendTo(this.element))),
           this._addClass(this.handles, "ui-slider-handle", "ui-state-default"),
           (this.handle = this.handles.eq(0)),
           this.handles.each(function (e) {
             t(this).data("ui-slider-handle-index", e).attr("tabIndex", 0);
-          });
+          }));
       },
       _createRange: function () {
         var e = this.options;
@@ -10520,7 +10537,7 @@
             this.range && this.range.length
               ? (this._removeClass(
                   this.range,
-                  "ui-slider-range-min ui-slider-range-max"
+                  "ui-slider-range-min ui-slider-range-max",
                 ),
                 this.range.css({ left: "", bottom: "" }))
               : ((this.range = t("<div>").appendTo(this.element)),
@@ -10530,15 +10547,15 @@
           : (this.range && this.range.remove(), (this.range = null));
       },
       _setupEvents: function () {
-        this._off(this.handles),
+        (this._off(this.handles),
           this._on(this.handles, this._handleEvents),
           this._hoverable(this.handles),
-          this._focusable(this.handles);
+          this._focusable(this.handles));
       },
       _destroy: function () {
-        this.handles.remove(),
+        (this.handles.remove(),
           this.range && this.range.remove(),
-          this._mouseDestroy();
+          this._mouseDestroy());
       },
       _mouseCapture: function (e) {
         var i,
@@ -10597,7 +10614,7 @@
       _mouseDrag: function (t) {
         var e = { x: t.pageX, y: t.pageY },
           i = this._normValueFromMouse(e);
-        return this._slide(t, this._handleIndex, i), !1;
+        return (this._slide(t, this._handleIndex, i), !1);
       },
       _mouseStop: function (t) {
         return (
@@ -10660,7 +10677,7 @@
         var s,
           n = this.value(),
           o = this.values();
-        this._hasMultipleValues() &&
+        (this._hasMultipleValues() &&
           ((s = this.values(e ? 0 : 1)),
           (n = this.values(e)),
           2 === this.options.values.length &&
@@ -10669,7 +10686,7 @@
           (o[e] = i)),
           i !== n &&
             !1 !== this._trigger("slide", t, this._uiHash(e, i, o)) &&
-            (this._hasMultipleValues() ? this.values(e, i) : this.value(i));
+            (this._hasMultipleValues() ? this.values(e, i) : this.value(i)));
       },
       _stop: function (t, e) {
         this._trigger("stop", t, this._uiHash(e));
@@ -10703,7 +10720,7 @@
           n < i.length;
           n += 1
         )
-          (i[n] = this._trimAlignValue(s[n])), this._change(null, n);
+          ((i[n] = this._trimAlignValue(s[n])), this._change(null, n));
         this._refreshValue();
       },
       _setOption: function (t, e) {
@@ -10717,7 +10734,7 @@
                 (this.options.values = null))
               : "max" === e &&
                 ((this.options.value = this._values(
-                  this.options.values.length - 1
+                  this.options.values.length - 1,
                 )),
                 (this.options.values = null))),
           Array.isArray(this.options.values) &&
@@ -10726,19 +10743,19 @@
           t)
         ) {
           case "orientation":
-            this._detectOrientation(),
+            (this._detectOrientation(),
               this._removeClass(
-                "ui-slider-horizontal ui-slider-vertical"
+                "ui-slider-horizontal ui-slider-vertical",
               )._addClass("ui-slider-" + this.orientation),
               this._refreshValue(),
               this.options.range && this._refreshRange(e),
-              this.handles.css("horizontal" === e ? "bottom" : "left", "");
+              this.handles.css("horizontal" === e ? "bottom" : "left", ""));
             break;
           case "value":
-            (this._animateOff = !0),
+            ((this._animateOff = !0),
               this._refreshValue(),
               this._change(null, 0),
-              (this._animateOff = !1);
+              (this._animateOff = !1));
             break;
           case "values":
             for (
@@ -10752,17 +10769,17 @@
           case "step":
           case "min":
           case "max":
-            (this._animateOff = !0),
+            ((this._animateOff = !0),
               this._calculateNewMax(),
               this._refreshValue(),
-              (this._animateOff = !1);
+              (this._animateOff = !1));
             break;
           case "range":
-            (this._animateOff = !0), this._refresh(), (this._animateOff = !1);
+            ((this._animateOff = !0), this._refresh(), (this._animateOff = !1));
         }
       },
       _setOptionDisabled: function (t) {
-        this._super(t), this._toggleClass(null, "ui-state-disabled", !!t);
+        (this._super(t), this._toggleClass(null, "ui-state-disabled", !!t));
       },
       _value: function () {
         var t = this.options.value;
@@ -10771,7 +10788,7 @@
       _values: function (t) {
         var e, i, s;
         if (arguments.length)
-          return (e = this.options.values[t]), (e = this._trimAlignValue(e));
+          return ((e = this.options.values[t]), (e = this._trimAlignValue(e)));
         if (this._hasMultipleValues()) {
           for (i = this.options.values.slice(), s = 0; s < i.length; s += 1)
             i[s] = this._trimAlignValue(i[s]);
@@ -10794,8 +10811,8 @@
         var t = this.options.max,
           e = this._valueMin(),
           i = this.options.step;
-        (t = Math.round((t - e) / i) * i + e) > this.options.max && (t -= i),
-          (this.max = parseFloat(t.toFixed(this._precision())));
+        ((t = Math.round((t - e) / i) * i + e) > this.options.max && (t -= i),
+          (this.max = parseFloat(t.toFixed(this._precision()))));
       },
       _precision: function () {
         var t = this._precisionOf(this.options.step);
@@ -10817,8 +10834,8 @@
         return this.max;
       },
       _refreshRange: function (t) {
-        "vertical" === t && this.range.css({ width: "", left: "" }),
-          "horizontal" === t && this.range.css({ height: "", bottom: "" });
+        ("vertical" === t && this.range.css({ width: "", left: "" }),
+          "horizontal" === t && this.range.css({ height: "", bottom: "" }));
       },
       _refreshValue: function () {
         var e,
@@ -10833,7 +10850,7 @@
           u = {};
         this._hasMultipleValues()
           ? this.handles.each(function (s) {
-              (i =
+              ((i =
                 ((l.values(s) - l._valueMin()) /
                   (l._valueMax() - l._valueMin())) *
                 100),
@@ -10849,21 +10866,21 @@
                       1 === s &&
                         l.range[h ? "animate" : "css"](
                           { width: i - e + "%" },
-                          { queue: !1, duration: r.animate }
+                          { queue: !1, duration: r.animate },
                         ))
                     : (0 === s &&
                         l.range
                           .stop(1, 1)
                           [h ? "animate" : "css"](
                             { bottom: i + "%" },
-                            r.animate
+                            r.animate,
                           ),
                       1 === s &&
                         l.range[h ? "animate" : "css"](
                           { height: i - e + "%" },
-                          { queue: !1, duration: r.animate }
+                          { queue: !1, duration: r.animate },
                         ))),
-                (e = i);
+                (e = i));
             })
           : ((s = this.value()),
             (n = this._valueMin()),
@@ -10930,12 +10947,12 @@
               break;
             case t.ui.keyCode.PAGE_UP:
               s = this._trimAlignValue(
-                i + (this._valueMax() - this._valueMin()) / this.numPages
+                i + (this._valueMax() - this._valueMin()) / this.numPages,
               );
               break;
             case t.ui.keyCode.PAGE_DOWN:
               s = this._trimAlignValue(
-                i - (this._valueMax() - this._valueMin()) / this.numPages
+                i - (this._valueMax() - this._valueMin()) / this.numPages,
               );
               break;
             case t.ui.keyCode.UP:
@@ -10974,7 +10991,7 @@
             "../version",
             "../widget",
           ],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -11028,31 +11045,31 @@
         );
       },
       _create: function () {
-        (this.containerCache = {}),
+        ((this.containerCache = {}),
           this._addClass("ui-sortable"),
           this.refresh(),
           (this.offset = this.element.offset()),
           this._mouseInit(),
           this._setHandleClassName(),
-          (this.ready = !0);
+          (this.ready = !0));
       },
       _setOption: function (t, e) {
-        this._super(t, e), "handle" === t && this._setHandleClassName();
+        (this._super(t, e), "handle" === t && this._setHandleClassName());
       },
       _setHandleClassName: function () {
         var e = this;
-        this._removeClass(
+        (this._removeClass(
           this.element.find(".ui-sortable-handle"),
-          "ui-sortable-handle"
+          "ui-sortable-handle",
         ),
           t.each(this.items, function () {
             e._addClass(
               this.instance.options.handle
                 ? this.item.find(this.instance.options.handle)
                 : this.item,
-              "ui-sortable-handle"
+              "ui-sortable-handle",
             );
-          });
+          }));
       },
       _destroy: function () {
         this._mouseDestroy();
@@ -11073,7 +11090,7 @@
             .parents()
             .each(function () {
               if (t.data(this, o.widgetName + "-item") === o)
-                return (s = t(this)), !1;
+                return ((s = t(this)), !1);
             }),
           t.data(e.target, o.widgetName + "-item") === o && (s = t(e.target)),
           !!s &&
@@ -11099,7 +11116,7 @@
           ((this.currentContainer = this),
           this.refreshPositions(),
           (this.appendTo = t(
-            "parent" !== a.appendTo ? a.appendTo : this.currentItem.parent()
+            "parent" !== a.appendTo ? a.appendTo : this.currentItem.parent(),
           )),
           (this.helper = this._createHelper(e)),
           this._cacheHelperProportions(),
@@ -11134,7 +11151,7 @@
             (this.storedCursor = o.css("cursor")),
             o.css("cursor", a.cursor),
             (this.storedStylesheet = t(
-              "<style>*{ cursor: " + a.cursor + " !important; }</style>"
+              "<style>*{ cursor: " + a.cursor + " !important; }</style>",
             ).appendTo(o))),
           a.zIndex &&
             (this.helper.css("zIndex") &&
@@ -11198,21 +11215,21 @@
                     this.scrollParent[0].scrollLeft - e.scrollSpeed))
             : (t.pageY - this.document.scrollTop() < e.scrollSensitivity
                 ? (i = this.document.scrollTop(
-                    this.document.scrollTop() - e.scrollSpeed
+                    this.document.scrollTop() - e.scrollSpeed,
                   ))
                 : this.window.height() - (t.pageY - this.document.scrollTop()) <
                     e.scrollSensitivity &&
                   (i = this.document.scrollTop(
-                    this.document.scrollTop() + e.scrollSpeed
+                    this.document.scrollTop() + e.scrollSpeed,
                   )),
               t.pageX - this.document.scrollLeft() < e.scrollSensitivity
                 ? (i = this.document.scrollLeft(
-                    this.document.scrollLeft() - e.scrollSpeed
+                    this.document.scrollLeft() - e.scrollSpeed,
                   ))
                 : this.window.width() - (t.pageX - this.document.scrollLeft()) <
                     e.scrollSensitivity &&
                   (i = this.document.scrollLeft(
-                    this.document.scrollLeft() + e.scrollSpeed
+                    this.document.scrollLeft() + e.scrollSpeed,
                   ))),
           i
         );
@@ -11266,7 +11283,8 @@
                   !this._intersectsWithSides(s))
               )
                 break;
-              this._rearrange(e, s), this._trigger("change", e, this._uiHash());
+              (this._rearrange(e, s),
+                this._trigger("change", e, this._uiHash()));
               break;
             }
         return (
@@ -11288,7 +11306,7 @@
               n = this.placeholder.offset(),
               o = this.options.axis,
               a = {};
-            (o && "x" !== o) ||
+            ((o && "x" !== o) ||
               (a.left =
                 n.left -
                 this.offset.parent.left -
@@ -11310,24 +11328,28 @@
                 parseInt(this.options.revert, 10) || 500,
                 function () {
                   s._clear(e);
-                }
-              );
+                },
+              ));
           } else this._clear(e, i);
           return !1;
         }
       },
       cancel: function () {
         if (this.dragging) {
-          this._mouseUp(new t.Event("mouseup", { target: null })),
+          (this._mouseUp(new t.Event("mouseup", { target: null })),
             "original" === this.options.helper
               ? (this.currentItem.css(this._storedCSS),
                 this._removeClass(this.currentItem, "ui-sortable-helper"))
-              : this.currentItem.show();
+              : this.currentItem.show());
           for (var e = this.containers.length - 1; e >= 0; e--)
-            this.containers[e]._trigger("deactivate", null, this._uiHash(this)),
+            (this.containers[e]._trigger(
+              "deactivate",
+              null,
+              this._uiHash(this),
+            ),
               this.containers[e].containerCache.over &&
                 (this.containers[e]._trigger("out", null, this._uiHash(this)),
-                (this.containers[e].containerCache.over = 0));
+                (this.containers[e].containerCache.over = 0)));
         }
         return (
           this.placeholder &&
@@ -11356,13 +11378,13 @@
           (e = e || {}),
           t(i).each(function () {
             var i = (t(e.item || this).attr(e.attribute || "id") || "").match(
-              e.expression || /(.+)[\-=_](.+)/
+              e.expression || /(.+)[\-=_](.+)/,
             );
             i &&
               s.push(
                 (e.key || i[1] + "[]") +
                   "=" +
-                  (e.key && e.expression ? i[1] : i[2])
+                  (e.key && e.expression ? i[1] : i[2]),
               );
           }),
           !s.length && e.key && s.push(e.key + "="),
@@ -11413,14 +11435,14 @@
             this._isOverAxis(
               this.positionAbs.top + this.offset.click.top,
               t.top,
-              t.height
+              t.height,
             ),
           n =
             "y" === this.options.axis ||
             this._isOverAxis(
               this.positionAbs.left + this.offset.click.left,
               t.left,
-              t.width
+              t.width,
             );
         return (
           !(!s || !n) &&
@@ -11437,12 +11459,12 @@
         var e = this._isOverAxis(
             this.positionAbs.top + this.offset.click.top,
             t.top + t.height / 2,
-            t.height
+            t.height,
           ),
           i = this._isOverAxis(
             this.positionAbs.left + this.offset.click.left,
             t.left + t.width / 2,
-            t.width
+            t.width,
           ),
           s = this.dragDirection.vertical,
           n = this.dragDirection.horizontal;
@@ -11524,7 +11546,7 @@
         });
       },
       _refreshItems: function (e) {
-        (this.items = []), (this.containers = [this]);
+        ((this.items = []), (this.containers = [this]));
         var i,
           s,
           n,
@@ -11562,7 +11584,7 @@
                 this.containers.push(o));
         for (i = c.length - 1; i >= 0; i--)
           for (a = c[i][1], s = 0, h = (r = c[i][0]).length; s < h; s++)
-            (l = t(r[s])).data(this.widgetName + "-item", a),
+            ((l = t(r[s])).data(this.widgetName + "-item", a),
               u.push({
                 item: l,
                 instance: a,
@@ -11570,12 +11592,12 @@
                 height: 0,
                 left: 0,
                 top: 0,
-              });
+              }));
       },
       _refreshItemPositions: function (e) {
         var i, s, n, o;
         for (i = this.items.length - 1; i >= 0; i--)
-          (s = this.items[i]),
+          ((s = this.items[i]),
             (this.currentContainer &&
               s.instance !== this.currentContainer &&
               s.item[0] !== this.currentItem[0]) ||
@@ -11585,7 +11607,7 @@
               e || ((s.width = n.outerWidth()), (s.height = n.outerHeight())),
               (o = n.offset()),
               (s.left = o.left),
-              (s.top = o.top));
+              (s.top = o.top)));
       },
       refreshPositions: function (t) {
         var e, i;
@@ -11600,20 +11622,20 @@
           this.options.custom.refreshContainers.call(this);
         else
           for (e = this.containers.length - 1; e >= 0; e--)
-            (i = this.containers[e].element.offset()),
+            ((i = this.containers[e].element.offset()),
               (this.containers[e].containerCache.left = i.left),
               (this.containers[e].containerCache.top = i.top),
               (this.containers[e].containerCache.width =
                 this.containers[e].element.outerWidth()),
               (this.containers[e].containerCache.height =
-                this.containers[e].element.outerHeight());
+                this.containers[e].element.outerHeight()));
         return this;
       },
       _createPlaceholder: function (e) {
         var i,
           s,
           n = (e = e || this).options;
-        (n.placeholder && n.placeholder.constructor !== String) ||
+        ((n.placeholder && n.placeholder.constructor !== String) ||
           ((i = n.placeholder),
           (s = e.currentItem[0].nodeName.toLowerCase()),
           (n.placeholder = {
@@ -11624,17 +11646,17 @@
                   ._addClass(
                     n,
                     "ui-sortable-placeholder",
-                    i || e.currentItem[0].className
+                    i || e.currentItem[0].className,
                   )
                   ._removeClass(n, "ui-sortable-helper"),
                 "tbody" === s
                   ? e._createTrPlaceholder(
                       e.currentItem.find("tr").eq(0),
-                      t("<tr>", e.document[0]).appendTo(n)
+                      t("<tr>", e.document[0]).appendTo(n),
                     )
                   : "tr" === s
-                  ? e._createTrPlaceholder(e.currentItem, n)
-                  : "img" === s && n.attr("src", e.currentItem.attr("src")),
+                    ? e._createTrPlaceholder(e.currentItem, n)
+                    : "img" === s && n.attr("src", e.currentItem.attr("src")),
                 i || n.css("visibility", "hidden"),
                 n
               );
@@ -11646,21 +11668,21 @@
                   o.height(
                     e.currentItem.innerHeight() -
                       parseInt(e.currentItem.css("paddingTop") || 0, 10) -
-                      parseInt(e.currentItem.css("paddingBottom") || 0, 10)
+                      parseInt(e.currentItem.css("paddingBottom") || 0, 10),
                   ),
                 o.width() ||
                   o.width(
                     e.currentItem.innerWidth() -
                       parseInt(e.currentItem.css("paddingLeft") || 0, 10) -
-                      parseInt(e.currentItem.css("paddingRight") || 0, 10)
+                      parseInt(e.currentItem.css("paddingRight") || 0, 10),
                   ));
             },
           })),
           (e.placeholder = t(
-            n.placeholder.element.call(e.element, e.currentItem)
+            n.placeholder.element.call(e.element, e.currentItem),
           )),
           e.currentItem.after(e.placeholder),
-          n.placeholder.update(e, e.placeholder);
+          n.placeholder.update(e, e.placeholder));
       },
       _createTrPlaceholder: function (e, i) {
         var s = this;
@@ -11688,7 +11710,7 @@
             if (this._intersectsWith(this.containers[i].containerCache)) {
               if (d && t.contains(this.containers[i].element[0], d.element[0]))
                 continue;
-              (d = this.containers[i]), (p = i);
+              ((d = this.containers[i]), (p = i));
             } else
               this.containers[i].containerCache.over &&
                 (this.containers[i]._trigger("out", e, this._uiHash(this)),
@@ -11713,7 +11735,7 @@
             )
               t.contains(
                 this.containers[p].element[0],
-                this.items[s].item[0]
+                this.items[s].item[0],
               ) &&
                 this.items[s].item[0] !== this.currentItem[0] &&
                 ((l = this.items[s].item.offset()[a]),
@@ -11730,7 +11752,7 @@
                 (this.containers[p]._trigger("over", e, this._uiHash()),
                 (this.currentContainer.containerCache.over = 1))
               );
-            o
+            (o
               ? this._rearrange(e, o, null, !0)
               : this._rearrange(e, null, this.containers[p].element, !0),
               this._trigger("change", e, this._uiHash()),
@@ -11738,14 +11760,14 @@
               (this.currentContainer = this.containers[p]),
               this.options.placeholder.update(
                 this.currentContainer,
-                this.placeholder
+                this.placeholder,
               ),
               (this.scrollParent = this.placeholder.scrollParent()),
               this.scrollParent[0] !== this.document[0] &&
                 "HTML" !== this.scrollParent[0].tagName &&
                 (this.overflowOffset = this.scrollParent.offset()),
               this.containers[p]._trigger("over", e, this._uiHash(this)),
-              (this.containers[p].containerCache.over = 1);
+              (this.containers[p].containerCache.over = 1));
           }
       },
       _createHelper: function (e) {
@@ -11754,8 +11776,8 @@
             "function" == typeof i.helper
               ? t(i.helper.apply(this.element[0], [e, this.currentItem]))
               : "clone" === i.helper
-              ? this.currentItem.clone()
-              : this.currentItem;
+                ? this.currentItem.clone()
+                : this.currentItem;
         return (
           s.parents("body").length || this.appendTo[0].appendChild(s[0]),
           s[0] === this.currentItem[0] &&
@@ -11774,7 +11796,7 @@
         );
       },
       _adjustOffsetFromHelper: function (t) {
-        "string" == typeof t && (t = t.split(" ")),
+        ("string" == typeof t && (t = t.split(" ")),
           Array.isArray(t) && (t = { left: +t[0], top: +t[1] || 0 }),
           "left" in t && (this.offset.click.left = t.left + this.margins.left),
           "right" in t &&
@@ -11783,7 +11805,7 @@
           "top" in t && (this.offset.click.top = t.top + this.margins.top),
           "bottom" in t &&
             (this.offset.click.top =
-              this.helperProportions.height - t.bottom + this.margins.top);
+              this.helperProportions.height - t.bottom + this.margins.top));
       },
       _getParentOffset: function () {
         this.offsetParent = this.helper.offsetParent();
@@ -11842,7 +11864,7 @@
           i,
           s,
           n = this.options;
-        "parent" === n.containment &&
+        ("parent" === n.containment &&
           (n.containment = this.helper[0].parentNode),
           ("document" !== n.containment && "window" !== n.containment) ||
             (this.containment = [
@@ -11888,7 +11910,7 @@
                 (parseInt(t(e).css("paddingBottom"), 10) || 0) -
                 this.helperProportions.height -
                 this.margins.top,
-            ]));
+            ])));
       },
       _convertPositionTo: function (e, i) {
         i || (i = this.position);
@@ -11908,8 +11930,8 @@
             ("fixed" === this.cssPosition
               ? -this.scrollParent.scrollTop()
               : o
-              ? 0
-              : n.scrollTop()) *
+                ? 0
+                : n.scrollTop()) *
               s,
           left:
             i.left +
@@ -11918,8 +11940,8 @@
             ("fixed" === this.cssPosition
               ? -this.scrollParent.scrollLeft()
               : o
-              ? 0
-              : n.scrollLeft()) *
+                ? 0
+                : n.scrollLeft()) *
               s,
         };
       },
@@ -11960,8 +11982,8 @@
                   i - this.offset.click.top <= this.containment[3]
                   ? i
                   : i - this.offset.click.top >= this.containment[1]
-                  ? i - n.grid[1]
-                  : i + n.grid[1]
+                    ? i - n.grid[1]
+                    : i + n.grid[1]
                 : i),
               (s =
                 this.originalPageX +
@@ -11971,8 +11993,8 @@
                   s - this.offset.click.left <= this.containment[2]
                   ? s
                   : s - this.offset.click.left >= this.containment[0]
-                  ? s - n.grid[0]
-                  : s + n.grid[0]
+                    ? s - n.grid[0]
+                    : s + n.grid[0]
                 : s))),
           {
             top:
@@ -11983,8 +12005,8 @@
               ("fixed" === this.cssPosition
                 ? -this.scrollParent.scrollTop()
                 : l
-                ? 0
-                : r.scrollTop()),
+                  ? 0
+                  : r.scrollTop()),
             left:
               o -
               this.offset.click.left -
@@ -11993,19 +12015,19 @@
               ("fixed" === this.cssPosition
                 ? -this.scrollParent.scrollLeft()
                 : l
-                ? 0
-                : r.scrollLeft()),
+                  ? 0
+                  : r.scrollLeft()),
           }
         );
       },
       _rearrange: function (t, e, i, s) {
-        i
+        (i
           ? i[0].appendChild(this.placeholder[0])
           : e.item[0].parentNode.insertBefore(
               this.placeholder[0],
-              "down" === this.direction ? e.item[0] : e.item[0].nextSibling
+              "down" === this.direction ? e.item[0] : e.item[0].nextSibling,
             ),
-          (this.counter = this.counter ? ++this.counter : 1);
+          (this.counter = this.counter ? ++this.counter : 1));
         var n = this.counter;
         this._delay(function () {
           n === this.counter && this.refreshPositions(!s);
@@ -12026,8 +12048,8 @@
             ("auto" !== this._storedCSS[i] &&
               "static" !== this._storedCSS[i]) ||
               (this._storedCSS[i] = "");
-          this.currentItem.css(this._storedCSS),
-            this._removeClass(this.currentItem, "ui-sortable-helper");
+          (this.currentItem.css(this._storedCSS),
+            this._removeClass(this.currentItem, "ui-sortable-helper"));
         } else this.currentItem.show();
         function n(t, e, i) {
           return function (s) {
@@ -12058,23 +12080,23 @@
                     return function (e) {
                       t._trigger("receive", e, this._uiHash(this));
                     };
-                  }.call(this, this.currentContainer)
+                  }.call(this, this.currentContainer),
                 ),
                 s.push(
                   function (t) {
                     return function (e) {
                       t._trigger("update", e, this._uiHash(this));
                     };
-                  }.call(this, this.currentContainer)
+                  }.call(this, this.currentContainer),
                 ))),
             i = this.containers.length - 1;
           i >= 0;
           i--
         )
-          e || s.push(n("deactivate", this, this.containers[i])),
+          (e || s.push(n("deactivate", this, this.containers[i])),
             this.containers[i].containerCache.over &&
               (s.push(n("out", this, this.containers[i])),
-              (this.containers[i].containerCache.over = 0));
+              (this.containers[i].containerCache.over = 0)));
         if (
           (this.storedCursor &&
             (this.document.find("body").css("cursor", this.storedCursor),
@@ -12084,7 +12106,7 @@
           this._storedZIndex &&
             this.helper.css(
               "zIndex",
-              "auto" === this._storedZIndex ? "" : this._storedZIndex
+              "auto" === this._storedZIndex ? "" : this._storedZIndex,
             ),
           (this.dragging = !1),
           e || this._trigger("beforeStop", t, this._uiHash()),
@@ -12097,7 +12119,7 @@
           for (i = 0; i < s.length; i++) s[i].call(this, t);
           this._trigger("stop", t, this._uiHash());
         }
-        return (this.fromOutside = !1), !this.cancelHelperRemoval;
+        return ((this.fromOutside = !1), !this.cancelHelperRemoval);
       },
       _trigger: function () {
         !1 === t.Widget.prototype._trigger.apply(this, arguments) &&
@@ -12129,16 +12151,16 @@
             "../safe-active-element",
             "../widget",
           ],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
     function e(t) {
       return function () {
         var e = this.element.val();
-        t.apply(this, arguments),
+        (t.apply(this, arguments),
           this._refresh(),
-          e !== this.element.val() && this._trigger("change");
+          e !== this.element.val() && this._trigger("change"));
       };
     }
     return (
@@ -12166,7 +12188,7 @@
           stop: null,
         },
         _create: function () {
-          this._setOption("max", this.options.max),
+          (this._setOption("max", this.options.max),
             this._setOption("min", this.options.min),
             this._setOption("step", this.options.step),
             "" !== this.value() && this._value(this.element.val(), !0),
@@ -12177,7 +12199,7 @@
               beforeunload: function () {
                 this.element.removeAttr("autocomplete");
               },
-            });
+            }));
         },
         _getCreateOptions: function () {
           var e = this._super(),
@@ -12210,12 +12232,12 @@
             var s = t.ui.safeActiveElement(this.document[0]);
             if (this.element[0] === s && i) {
               if (!this.spinning && !this._start(e)) return !1;
-              this._spin((i > 0 ? 1 : -1) * this.options.step, e),
+              (this._spin((i > 0 ? 1 : -1) * this.options.step, e),
                 clearTimeout(this.mousewheelTimer),
                 (this.mousewheelTimer = this._delay(function () {
                   this.spinning && this._stop(e);
                 }, 100)),
-                e.preventDefault();
+                e.preventDefault());
             }
           },
           "mousedown .ui-spinner-button": function (e) {
@@ -12228,7 +12250,7 @@
                   this.previous = i;
                 }));
             }
-            (i =
+            ((i =
               this.element[0] === t.ui.safeActiveElement(this.document[0])
                 ? this.previous
                 : this.element.val()),
@@ -12236,14 +12258,14 @@
               s.call(this),
               (this.cancelBlur = !0),
               this._delay(function () {
-                delete this.cancelBlur, s.call(this);
+                (delete this.cancelBlur, s.call(this));
               }),
               !1 !== this._start(e) &&
                 this._repeat(
                   null,
                   t(e.currentTarget).hasClass("ui-spinner-up") ? 1 : -1,
-                  e
-                );
+                  e,
+                ));
           },
           "mouseup .ui-spinner-button": "_stop",
           "mouseenter .ui-spinner-button": function (e) {
@@ -12253,7 +12275,7 @@
                 void this._repeat(
                   null,
                   t(e.currentTarget).hasClass("ui-spinner-up") ? 1 : -1,
-                  e
+                  e,
                 )
               );
           },
@@ -12267,11 +12289,11 @@
             .append("<a></a><a></a>");
         },
         _draw: function () {
-          this._enhance(),
+          (this._enhance(),
             this._addClass(
               this.uiSpinner,
               "ui-spinner",
-              "ui-widget ui-widget-content"
+              "ui-widget ui-widget-content",
             ),
             this._addClass("ui-spinner-input"),
             this.element.attr("role", "spinbutton"),
@@ -12283,11 +12305,11 @@
             this._removeClass(this.buttons, "ui-corner-all"),
             this._addClass(
               this.buttons.first(),
-              "ui-spinner-button ui-spinner-up"
+              "ui-spinner-button ui-spinner-up",
             ),
             this._addClass(
               this.buttons.last(),
-              "ui-spinner-button ui-spinner-down"
+              "ui-spinner-button ui-spinner-down",
             ),
             this.buttons
               .first()
@@ -12297,20 +12319,20 @@
               .button({ icon: this.options.icons.down, showLabel: !1 }),
             this.buttons.height() > Math.ceil(0.5 * this.uiSpinner.height()) &&
               this.uiSpinner.height() > 0 &&
-              this.uiSpinner.height(this.uiSpinner.height());
+              this.uiSpinner.height(this.uiSpinner.height()));
         },
         _keydown: function (e) {
           var i = this.options,
             s = t.ui.keyCode;
           switch (e.keyCode) {
             case s.UP:
-              return this._repeat(null, 1, e), !0;
+              return (this._repeat(null, 1, e), !0);
             case s.DOWN:
-              return this._repeat(null, -1, e), !0;
+              return (this._repeat(null, -1, e), !0);
             case s.PAGE_UP:
-              return this._repeat(null, i.page, e), !0;
+              return (this._repeat(null, i.page, e), !0);
             case s.PAGE_DOWN:
-              return this._repeat(null, -i.page, e), !0;
+              return (this._repeat(null, -i.page, e), !0);
           }
           return !1;
         },
@@ -12321,19 +12343,19 @@
           );
         },
         _repeat: function (t, e, i) {
-          (t = t || 500),
+          ((t = t || 500),
             clearTimeout(this.timer),
             (this.timer = this._delay(function () {
               this._repeat(40, e, i);
             }, t)),
-            this._spin(e * this.options.step, i);
+            this._spin(e * this.options.step, i));
         },
         _spin: function (t, e) {
           var i = this.value() || 0;
-          this.counter || (this.counter = 1),
+          (this.counter || (this.counter = 1),
             (i = this._adjustValue(i + t * this._increment(this.counter))),
             (this.spinning && !1 === this._trigger("spin", e, { value: i })) ||
-              (this._value(i), this.counter++);
+              (this._value(i), this.counter++));
         },
         _increment: function (t) {
           var e = this.options.incremental;
@@ -12341,7 +12363,7 @@
             ? "function" == typeof e
               ? e(t)
               : Math.floor(
-                  (t * t * t) / 5e4 - (t * t) / 500 + (17 * t) / 200 + 1
+                  (t * t * t) / 5e4 - (t * t) / 500 + (17 * t) / 200 + 1,
                 )
             : 1;
         },
@@ -12369,8 +12391,8 @@
             null !== s.max && t > s.max
               ? s.max
               : null !== s.min && t < s.min
-              ? s.min
-              : t
+                ? s.min
+                : t
           );
         },
         _stop: function (t) {
@@ -12389,7 +12411,7 @@
               (this.options[t] = e),
               void this.element.val(this._format(i))
             );
-          ("max" !== t && "min" !== t && "step" !== t) ||
+          (("max" !== t && "min" !== t && "step" !== t) ||
             ("string" == typeof e && (e = this._parse(e))),
             "icons" === t &&
               ((s = this.buttons.first().find(".ui-icon")),
@@ -12398,13 +12420,13 @@
               (n = this.buttons.last().find(".ui-icon")),
               this._removeClass(n, null, this.options.icons.down),
               this._addClass(n, null, e.down)),
-            this._super(t, e);
+            this._super(t, e));
         },
         _setOptionDisabled: function (t) {
-          this._super(t),
+          (this._super(t),
             this._toggleClass(this.uiSpinner, null, "ui-state-disabled", !!t),
             this.element.prop("disabled", !!t),
-            this.buttons.button(t ? "disable" : "enable");
+            this.buttons.button(t ? "disable" : "enable"));
         },
         _setOptions: e(function (t) {
           this._super(t);
@@ -12424,12 +12446,12 @@
           return "" === t
             ? ""
             : window.Globalize && this.options.numberFormat
-            ? Globalize.format(
-                t,
-                this.options.numberFormat,
-                this.options.culture
-              )
-            : t;
+              ? Globalize.format(
+                  t,
+                  this.options.numberFormat,
+                  this.options.culture,
+                )
+              : t;
         },
         _refresh: function () {
           this.element.attr({
@@ -12444,19 +12466,19 @@
         },
         _value: function (t, e) {
           var i;
-          "" !== t &&
+          ("" !== t &&
             null !== (i = this._parse(t)) &&
             (e || (i = this._adjustValue(i)), (t = this._format(i))),
             this.element.val(t),
-            this._refresh();
+            this._refresh());
         },
         _destroy: function () {
-          this.element
+          (this.element
             .prop("disabled", !1)
             .removeAttr(
-              "autocomplete role aria-valuemin aria-valuemax aria-valuenow"
+              "autocomplete role aria-valuemin aria-valuemax aria-valuenow",
             ),
-            this.uiSpinner.replaceWith(this.element);
+            this.uiSpinner.replaceWith(this.element));
         },
         stepUp: e(function (t) {
           this._stepUp(t);
@@ -12517,7 +12539,7 @@
             "../version",
             "../widget",
           ],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -12548,7 +12570,7 @@
           ((e = /#.*$/),
           function (t) {
             var i, s;
-            (i = t.href.replace(e, "")), (s = location.href.replace(e, ""));
+            ((i = t.href.replace(e, "")), (s = location.href.replace(e, "")));
             try {
               i = decodeURIComponent(i);
             } catch (t) {}
@@ -12560,7 +12582,7 @@
         _create: function () {
           var e = this,
             i = this.options;
-          (this.running = !1),
+          ((this.running = !1),
             this._addClass("ui-tabs", "ui-widget ui-widget-content"),
             this._toggleClass("ui-tabs-collapsible", null, i.collapsible),
             this._processTabs(),
@@ -12571,15 +12593,15 @@
                   i.disabled.concat(
                     t.map(this.tabs.filter(".ui-state-disabled"), function (t) {
                       return e.tabs.index(t);
-                    })
-                  )
+                    }),
+                  ),
                 )
                 .sort()),
             !1 !== this.options.active && this.anchors.length
               ? (this.active = this._findActive(i.active))
               : (this.active = t()),
             this._refresh(),
-            this.active.length && this.load(i.active);
+            this.active.length && this.load(i.active));
         },
         _initialActive: function () {
           var e = this.options.active,
@@ -12589,7 +12611,7 @@
             null === e &&
               (s &&
                 this.tabs.each(function (i, n) {
-                  if (t(n).attr("aria-controls") === s) return (e = i), !1;
+                  if (t(n).attr("aria-controls") === s) return ((e = i), !1);
                 }),
               null === e &&
                 (e = this.tabs.index(this.tabs.filter(".ui-tabs-active"))),
@@ -12619,7 +12641,7 @@
                 break;
               case t.ui.keyCode.UP:
               case t.ui.keyCode.LEFT:
-                (n = !1), s--;
+                ((n = !1), s--);
                 break;
               case t.ui.keyCode.END:
                 s = this.anchors.length - 1;
@@ -12642,7 +12664,7 @@
               default:
                 return;
             }
-            e.preventDefault(),
+            (e.preventDefault(),
               clearTimeout(this.activating),
               (s = this._focusNextTab(s, n)),
               e.ctrlKey ||
@@ -12651,7 +12673,7 @@
                 this.tabs.eq(s).attr("aria-selected", "true"),
                 (this.activating = this._delay(function () {
                   this.option("active", s);
-                }, this.delay)));
+                }, this.delay))));
           }
         },
         _panelKeydown: function (e) {
@@ -12665,9 +12687,11 @@
             ? (this._activate(this._focusNextTab(this.options.active - 1, !1)),
               !0)
             : e.altKey && e.keyCode === t.ui.keyCode.PAGE_DOWN
-            ? (this._activate(this._focusNextTab(this.options.active + 1, !0)),
-              !0)
-            : void 0;
+              ? (this._activate(
+                  this._focusNextTab(this.options.active + 1, !0),
+                ),
+                !0)
+              : void 0;
         },
         _findNextTab: function (e, i) {
           var s = this.tabs.length - 1;
@@ -12676,16 +12700,17 @@
             -1 !==
             t.inArray(
               (e > s && (e = 0), e < 0 && (e = s), e),
-              this.options.disabled
+              this.options.disabled,
             );
-
           )
             e = i ? e + 1 : e - 1;
           return e;
         },
         _focusNextTab: function (t, e) {
           return (
-            (t = this._findNextTab(t, e)), this.tabs.eq(t).trigger("focus"), t
+            (t = this._findNextTab(t, e)),
+            this.tabs.eq(t).trigger("focus"),
+            t
           );
         },
         _setOption: function (t, e) {
@@ -12706,7 +12731,7 @@
         refresh: function () {
           var e = this.options,
             i = this.tablist.children(":has(a[href])");
-          (e.disabled = t.map(i.filter(".ui-state-disabled"), function (t) {
+          ((e.disabled = t.map(i.filter(".ui-state-disabled"), function (t) {
             return i.index(t);
           })),
             this._processTabs(),
@@ -12716,14 +12741,14 @@
                 ? this.tabs.length === e.disabled.length
                   ? ((e.active = !1), (this.active = t()))
                   : this._activate(
-                      this._findNextTab(Math.max(0, e.active - 1), !1)
+                      this._findNextTab(Math.max(0, e.active - 1), !1),
                     )
                 : (e.active = this.tabs.index(this.active))
               : ((e.active = !1), (this.active = t())),
-            this._refresh();
+            this._refresh());
         },
         _refresh: function () {
-          this._setOptionDisabled(this.options.disabled),
+          (this._setOptionDisabled(this.options.disabled),
             this._setupEvents(this.options.event),
             this._setupHeightStyle(this.options.heightStyle),
             this.tabs.not(this.active).attr({
@@ -12744,23 +12769,23 @@
                 this._addClass(
                   this.active,
                   "ui-tabs-active",
-                  "ui-state-active"
+                  "ui-state-active",
                 ),
                 this._getPanelForTab(this.active)
                   .show()
                   .attr({ "aria-hidden": "false" }))
-              : this.tabs.eq(0).attr("tabIndex", 0);
+              : this.tabs.eq(0).attr("tabIndex", 0));
         },
         _processTabs: function () {
           var e = this,
             i = this.tabs,
             s = this.anchors,
             n = this.panels;
-          (this.tablist = this._getList().attr("role", "tablist")),
+          ((this.tablist = this._getList().attr("role", "tablist")),
             this._addClass(
               this.tablist,
               "ui-tabs-nav",
-              "ui-helper-reset ui-helper-clearfix ui-widget-header"
+              "ui-helper-reset ui-helper-clearfix ui-widget-header",
             ),
             this.tablist
               .on("mousedown" + this.eventNamespace, "> li", function (e) {
@@ -12771,7 +12796,7 @@
                 ".ui-tabs-anchor",
                 function () {
                   t(this).closest("li").is(".ui-state-disabled") && this.blur();
-                }
+                },
               ),
             (this.tabs = this.tablist
               .find("> li:has(a[href])")
@@ -12791,7 +12816,7 @@
                 r = t(s).uniqueId().attr("id"),
                 l = t(s).closest("li"),
                 h = l.attr("aria-controls");
-              e._isLocal(s)
+              (e._isLocal(s)
                 ? ((a = (n = s.hash).substring(1)),
                   (o = e.element.find(e._sanitizeSelector(n))))
                 : ((n =
@@ -12799,20 +12824,20 @@
                     (a = l.attr("aria-controls") || t({}).uniqueId()[0].id)),
                   (o = e.element.find(n)).length ||
                     (o = e._createPanel(a)).insertAfter(
-                      e.panels[i - 1] || e.tablist
+                      e.panels[i - 1] || e.tablist,
                     ),
                   o.attr("aria-live", "polite")),
                 o.length && (e.panels = e.panels.add(o)),
                 h && l.data("ui-tabs-aria-controls", h),
                 l.attr({ "aria-controls": a, "aria-labelledby": r }),
-                o.attr("aria-labelledby", r);
+                o.attr("aria-labelledby", r));
             }),
             this.panels.attr("role", "tabpanel"),
             this._addClass(this.panels, "ui-tabs-panel", "ui-widget-content"),
             i &&
               (this._off(i.not(this.tabs)),
               this._off(s.not(this.anchors)),
-              this._off(n.not(this.panels)));
+              this._off(n.not(this.panels))));
         },
         _getList: function () {
           return this.tablist || this.element.find("ol, ul").eq(0);
@@ -12831,23 +12856,23 @@
             (s = this.tabs[n]);
             n++
           )
-            (i = t(s)),
+            ((i = t(s)),
               !0 === e || -1 !== t.inArray(n, e)
                 ? (i.attr("aria-disabled", "true"),
                   this._addClass(i, null, "ui-state-disabled"))
                 : (i.removeAttr("aria-disabled"),
-                  this._removeClass(i, null, "ui-state-disabled"));
-          (this.options.disabled = e),
+                  this._removeClass(i, null, "ui-state-disabled")));
+          ((this.options.disabled = e),
             this._toggleClass(
               this.widget(),
               this.widgetFullName + "-disabled",
               null,
-              !0 === e
-            );
+              !0 === e,
+            ));
         },
         _setupEvents: function (e) {
           var i = {};
-          e &&
+          (e &&
             t.each(e.split(" "), function (t, e) {
               i[e] = "_eventHandler";
             }),
@@ -12861,7 +12886,7 @@
             this._on(this.tabs, { keydown: "_tabKeydown" }),
             this._on(this.panels, { keydown: "_panelKeydown" }),
             this._focusable(this.tabs),
-            this._hoverable(this.tabs);
+            this._hoverable(this.tabs));
         },
         _setupHeightStyle: function (e) {
           var i,
@@ -12883,7 +12908,7 @@
               this.panels
                 .each(function () {
                   t(this).height(
-                    Math.max(0, i - t(this).innerHeight() + t(this).height())
+                    Math.max(0, i - t(this).innerHeight() + t(this).height()),
                   );
                 })
                 .css("overflow", "auto"))
@@ -12904,7 +12929,7 @@
             r = a ? t() : this._getPanelForTab(n),
             l = s.length ? this._getPanelForTab(s) : t(),
             h = { oldTab: s, oldPanel: l, newTab: a ? t() : n, newPanel: r };
-          e.preventDefault(),
+          (e.preventDefault(),
             n.hasClass("ui-state-disabled") ||
               n.hasClass("ui-tabs-loading") ||
               this.running ||
@@ -12917,39 +12942,39 @@
                 r.length ||
                 t.error("jQuery UI Tabs: Mismatching fragment identifier."),
               r.length && this.load(this.tabs.index(n), e),
-              this._toggle(e, h));
+              this._toggle(e, h)));
         },
         _toggle: function (e, i) {
           var s = this,
             n = i.newPanel,
             o = i.oldPanel;
           function a() {
-            (s.running = !1), s._trigger("activate", e, i);
+            ((s.running = !1), s._trigger("activate", e, i));
           }
           function r() {
-            s._addClass(
+            (s._addClass(
               i.newTab.closest("li"),
               "ui-tabs-active",
-              "ui-state-active"
+              "ui-state-active",
             ),
               n.length && s.options.show
                 ? s._show(n, s.options.show, a)
-                : (n.show(), a());
+                : (n.show(), a()));
           }
-          (this.running = !0),
+          ((this.running = !0),
             o.length && this.options.hide
               ? this._hide(o, this.options.hide, function () {
-                  s._removeClass(
+                  (s._removeClass(
                     i.oldTab.closest("li"),
                     "ui-tabs-active",
-                    "ui-state-active"
+                    "ui-state-active",
                   ),
-                    r();
+                    r());
                 })
               : (this._removeClass(
                   i.oldTab.closest("li"),
                   "ui-tabs-active",
-                  "ui-state-active"
+                  "ui-state-active",
                 ),
                 o.hide(),
                 r()),
@@ -12971,7 +12996,7 @@
               "aria-selected": "true",
               "aria-expanded": "true",
               tabIndex: 0,
-            });
+            }));
         },
         _activate: function (e) {
           var i,
@@ -12992,20 +13017,20 @@
           return (
             "string" == typeof e &&
               (e = this.anchors.index(
-                this.anchors.filter("[href$='" + t.escapeSelector(e) + "']")
+                this.anchors.filter("[href$='" + t.escapeSelector(e) + "']"),
               )),
             e
           );
         },
         _destroy: function () {
-          this.xhr && this.xhr.abort(),
+          (this.xhr && this.xhr.abort(),
             this.tablist.removeAttr("role").off(this.eventNamespace),
             this.anchors.removeAttr("role tabIndex").removeUniqueId(),
             this.tabs.add(this.panels).each(function () {
               t.data(this, "ui-tabs-destroy")
                 ? t(this).remove()
                 : t(this).removeAttr(
-                    "role tabIndex aria-live aria-busy aria-selected aria-labelledby aria-hidden aria-expanded"
+                    "role tabIndex aria-live aria-busy aria-selected aria-labelledby aria-hidden aria-expanded",
                   );
             }),
             this.tabs.each(function () {
@@ -13017,7 +13042,7 @@
             }),
             this.panels.show(),
             "content" !== this.options.heightStyle &&
-              this.panels.css("height", "");
+              this.panels.css("height", ""));
         },
         enable: function (e) {
           var i = this.options.disabled;
@@ -13053,10 +13078,10 @@
             a = this._getPanelForTab(n),
             r = { tab: n, panel: a },
             l = function (t, e) {
-              "abort" === e && s.panels.stop(!1, !0),
+              ("abort" === e && s.panels.stop(!1, !0),
                 s._removeClass(n, "ui-tabs-loading"),
                 a.removeAttr("aria-busy"),
-                t === s.xhr && delete s.xhr;
+                t === s.xhr && delete s.xhr);
             };
           this._isLocal(o[0]) ||
             ((this.xhr = t.ajax(this._ajaxSettings(o, i, r))),
@@ -13067,7 +13092,7 @@
               this.xhr
                 .done(function (t, e, n) {
                   setTimeout(function () {
-                    a.html(t), s._trigger("load", i, r), l(n, e);
+                    (a.html(t), s._trigger("load", i, r), l(n, e));
                   }, 1);
                 })
                 .fail(function (t, e) {
@@ -13084,7 +13109,7 @@
               return n._trigger(
                 "beforeLoad",
                 i,
-                t.extend({ jqXHR: e, ajaxSettings: o }, s)
+                t.extend({ jqXHR: e, ajaxSettings: o }, s),
               );
             },
           };
@@ -13097,7 +13122,7 @@
       !1 !== t.uiBackCompat &&
         t.widget("ui.tabs", t.ui.tabs, {
           _processTabs: function () {
-            this._superApply(arguments), this._addClass(this.tabs, "ui-tab");
+            (this._superApply(arguments), this._addClass(this.tabs, "ui-tab"));
           },
         }),
       t.ui.tabs
@@ -13115,7 +13140,7 @@
             "../version",
             "../widget",
           ],
-          t
+          t,
         )
       : t(jQuery);
   })(function (t) {
@@ -13142,26 +13167,26 @@
         },
         _addDescribedBy: function (t, e) {
           var i = (t.attr("aria-describedby") || "").split(/\s+/);
-          i.push(e),
+          (i.push(e),
             t
               .data("ui-tooltip-id", e)
               .attr(
                 "aria-describedby",
-                String.prototype.trim.call(i.join(" "))
-              );
+                String.prototype.trim.call(i.join(" ")),
+              ));
         },
         _removeDescribedBy: function (e) {
           var i = e.data("ui-tooltip-id"),
             s = (e.attr("aria-describedby") || "").split(/\s+/),
             n = t.inArray(i, s);
-          -1 !== n && s.splice(n, 1),
+          (-1 !== n && s.splice(n, 1),
             e.removeData("ui-tooltip-id"),
             (s = String.prototype.trim.call(s.join(" ")))
               ? e.attr("aria-describedby", s)
-              : e.removeAttr("aria-describedby");
+              : e.removeAttr("aria-describedby"));
         },
         _create: function () {
-          this._on({ mouseover: "open", focusin: "open" }),
+          (this._on({ mouseover: "open", focusin: "open" }),
             (this.tooltips = {}),
             (this.parents = {}),
             (this.liveRegion = t("<div>")
@@ -13175,26 +13200,26 @@
             this._addClass(
               this.liveRegion,
               null,
-              "ui-helper-hidden-accessible"
+              "ui-helper-hidden-accessible",
             ),
-            (this.disabledTitles = t([]));
+            (this.disabledTitles = t([])));
         },
         _setOption: function (e, i) {
           var s = this;
-          this._super(e, i),
+          (this._super(e, i),
             "content" === e &&
               t.each(this.tooltips, function (t, e) {
                 s._updateContent(e.element);
-              });
+              }));
         },
         _setOptionDisabled: function (t) {
           this[t ? "_disable" : "_enable"]();
         },
         _disable: function () {
           var e = this;
-          t.each(this.tooltips, function (i, s) {
+          (t.each(this.tooltips, function (i, s) {
             var n = t.Event("blur");
-            (n.target = n.currentTarget = s.element[0]), e.close(n, !0);
+            ((n.target = n.currentTarget = s.element[0]), e.close(n, !0));
           }),
             (this.disabledTitles = this.disabledTitles.add(
               this.element
@@ -13206,16 +13231,16 @@
                     return e
                       .data("ui-tooltip-title", e.attr("title"))
                       .removeAttr("title");
-                })
-            ));
+                }),
+            )));
         },
         _enable: function () {
-          this.disabledTitles.each(function () {
+          (this.disabledTitles.each(function () {
             var e = t(this);
             e.data("ui-tooltip-title") &&
               e.attr("title", e.data("ui-tooltip-title"));
           }),
-            (this.disabledTitles = t([]));
+            (this.disabledTitles = t([])));
         },
         open: function (e) {
           var i = this,
@@ -13229,7 +13254,7 @@
               s.parents().each(function () {
                 var e,
                   s = t(this);
-                s.data("ui-tooltip-open") &&
+                (s.data("ui-tooltip-open") &&
                   (((e = t.Event("blur")).target = e.currentTarget = this),
                   i.close(e, !0)),
                   s.attr("title") &&
@@ -13238,7 +13263,7 @@
                       element: this,
                       title: s.attr("title"),
                     }),
-                    s.attr("title", ""));
+                    s.attr("title", "")));
               }),
             this._registerCloseHandlers(e, s),
             this._updateContent(s, e));
@@ -13264,7 +13289,7 @@
             r,
             l = t.extend({}, this.options.position);
           function h(t) {
-            (l.of = t), o.is(":hidden") || o.position(l);
+            ((l.of = t), o.is(":hidden") || o.position(l));
           }
           s &&
             ((n = this._find(i))
@@ -13303,17 +13328,17 @@
             keyup: function (e) {
               if (e.keyCode === t.ui.keyCode.ESCAPE) {
                 var s = t.Event(e);
-                (s.currentTarget = i[0]), this.close(s, !0);
+                ((s.currentTarget = i[0]), this.close(s, !0));
               }
             },
           };
-          i[0] !== this.element[0] &&
+          (i[0] !== this.element[0] &&
             (s.remove = function () {
               this._removeTooltip(this._find(i).tooltip);
             }),
             (e && "mouseover" !== e.type) || (s.mouseleave = "close"),
             (e && "focusin" !== e.type) || (s.focusout = "close"),
-            this._on(!0, i, s);
+            this._on(!0, i, s));
         },
         close: function (e) {
           var i,
@@ -13340,7 +13365,7 @@
                 e &&
                   "mouseleave" === e.type &&
                   t.each(this.parents, function (e, i) {
-                    t(i.element).attr("title", i.title), delete s.parents[e];
+                    (t(i.element).attr("title", i.title), delete s.parents[e]);
                   }),
                 (o.closing = !0),
                 this._trigger("close", e, { tooltip: i }),
@@ -13363,27 +13388,27 @@
           return e ? this.tooltips[e] : null;
         },
         _removeTooltip: function (t) {
-          clearInterval(this.delayedShow),
+          (clearInterval(this.delayedShow),
             t.remove(),
-            delete this.tooltips[t.attr("id")];
+            delete this.tooltips[t.attr("id")]);
         },
         _appendTo: function (t) {
           var e = t.closest(".ui-front, dialog");
-          return e.length || (e = this.document[0].body), e;
+          return (e.length || (e = this.document[0].body), e);
         },
         _destroy: function () {
           var e = this;
-          t.each(this.tooltips, function (i, s) {
+          (t.each(this.tooltips, function (i, s) {
             var n = t.Event("blur"),
               o = s.element;
-            (n.target = n.currentTarget = o[0]),
+            ((n.target = n.currentTarget = o[0]),
               e.close(n, !0),
               t("#" + i).remove(),
               o.data("ui-tooltip-title") &&
                 (o.attr("title") || o.attr("title", o.data("ui-tooltip-title")),
-                o.removeData("ui-tooltip-title"));
+                o.removeData("ui-tooltip-title")));
           }),
-            this.liveRegion.remove();
+            this.liveRegion.remove());
         },
       }),
       !1 !== t.uiBackCompat &&
@@ -13400,4 +13425,4 @@
         }),
       t.ui.tooltip
     );
-  });
+  }));

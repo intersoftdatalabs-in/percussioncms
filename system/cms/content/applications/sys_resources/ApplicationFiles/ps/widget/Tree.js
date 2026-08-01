@@ -121,7 +121,7 @@ ps.widget.defineWidget("ps.widget.Tree", ps.widget.TreeV3, {
         ps.assert(
           !this.indexOfSupported ||
             this.delayedInitSlotNodes.indexOf(widget.domNode) === -1,
-          "Slot node is registered more than once: " + widget.domNode
+          "Slot node is registered more than once: " + widget.domNode,
         );
         this.delayedInitSlotNodes.push(widget.domNode);
       }
@@ -132,7 +132,7 @@ ps.widget.defineWidget("ps.widget.Tree", ps.widget.TreeV3, {
         ps.assert(
           !this.indexOfSupported ||
             this.delayedInitItemNodes.indexOf(widget.domNode) === -1,
-          "Snippet node is registered more than once: " + widget.domNode
+          "Snippet node is registered more than once: " + widget.domNode,
         );
         this.delayedInitItemNodes.push(widget.domNode);
       }
@@ -352,7 +352,7 @@ ps.widget.defineWidget("ps.widget.Tree", ps.widget.TreeV3, {
 
     ps.assert(
       child == rootWidgetNode,
-      "The root widget node should not have changed."
+      "The root widget node should not have changed.",
     );
 
     var modelAndWidget = { model: rootModelNode, widget: rootWidgetNode };
@@ -482,7 +482,7 @@ ps.widget.defineWidget("ps.widget.Tree", ps.widget.TreeV3, {
       slotId,
       targetSlotId,
       index + 1,
-      false
+      false,
     );
     var success = ps.aa.controller.moveToSlot(move);
 

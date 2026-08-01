@@ -2,17 +2,17 @@
   "object" == typeof exports && "object" == typeof module
     ? (module.exports = t())
     : "function" == typeof define && define.amd
-    ? define([], t)
-    : "object" == typeof exports
-    ? (exports.bowser = t())
-    : (e.bowser = t());
+      ? define([], t)
+      : "object" == typeof exports
+        ? (exports.bowser = t())
+        : (e.bowser = t());
 })(this, function () {
   return (function (e) {
     var t = {};
     function r(n) {
       if (t[n]) return t[n].exports;
       var i = (t[n] = { i: n, l: !1, exports: {} });
-      return e[n].call(i.exports, i, i.exports, r), (i.l = !0), i.exports;
+      return (e[n].call(i.exports, i, i.exports, r), (i.l = !0), i.exports);
     }
     return (
       (r.m = e),
@@ -21,10 +21,10 @@
         r.o(e, t) || Object.defineProperty(e, t, { enumerable: !0, get: n });
       }),
       (r.r = function (e) {
-        "undefined" != typeof Symbol &&
+        ("undefined" != typeof Symbol &&
           Symbol.toStringTag &&
           Object.defineProperty(e, Symbol.toStringTag, { value: "Module" }),
-          Object.defineProperty(e, "__esModule", { value: !0 });
+          Object.defineProperty(e, "__esModule", { value: !0 }));
       }),
       (r.t = function (e, t) {
         if ((1 & t && (e = r(e)), 8 & t)) return e;
@@ -41,7 +41,7 @@
               i,
               function (t) {
                 return e[t];
-              }.bind(null, i)
+              }.bind(null, i),
             );
         return n;
       }),
@@ -54,7 +54,7 @@
             : function () {
                 return e;
               };
-        return r.d(t, "a", t), t;
+        return (r.d(t, "a", t), t);
       }),
       (r.o = function (e, t) {
         return Object.prototype.hasOwnProperty.call(e, t);
@@ -65,7 +65,7 @@
   })({
     17: function (e, t, r) {
       "use strict";
-      (t.__esModule = !0), (t.default = void 0);
+      ((t.__esModule = !0), (t.default = void 0));
       var n = r(18),
         i = (function () {
           function e() {}
@@ -153,32 +153,32 @@
                 return 1 === t[0] && t[1] < 6
                   ? "Cupcake"
                   : 1 === t[0] && t[1] >= 6
-                  ? "Donut"
-                  : 2 === t[0] && t[1] < 2
-                  ? "Eclair"
-                  : 2 === t[0] && 2 === t[1]
-                  ? "Froyo"
-                  : 2 === t[0] && t[1] > 2
-                  ? "Gingerbread"
-                  : 3 === t[0]
-                  ? "Honeycomb"
-                  : 4 === t[0] && t[1] < 1
-                  ? "Ice Cream Sandwich"
-                  : 4 === t[0] && t[1] < 4
-                  ? "Jelly Bean"
-                  : 4 === t[0] && t[1] >= 4
-                  ? "KitKat"
-                  : 5 === t[0]
-                  ? "Lollipop"
-                  : 6 === t[0]
-                  ? "Marshmallow"
-                  : 7 === t[0]
-                  ? "Nougat"
-                  : 8 === t[0]
-                  ? "Oreo"
-                  : 9 === t[0]
-                  ? "Pie"
-                  : void 0;
+                    ? "Donut"
+                    : 2 === t[0] && t[1] < 2
+                      ? "Eclair"
+                      : 2 === t[0] && 2 === t[1]
+                        ? "Froyo"
+                        : 2 === t[0] && t[1] > 2
+                          ? "Gingerbread"
+                          : 3 === t[0]
+                            ? "Honeycomb"
+                            : 4 === t[0] && t[1] < 1
+                              ? "Ice Cream Sandwich"
+                              : 4 === t[0] && t[1] < 4
+                                ? "Jelly Bean"
+                                : 4 === t[0] && t[1] >= 4
+                                  ? "KitKat"
+                                  : 5 === t[0]
+                                    ? "Lollipop"
+                                    : 6 === t[0]
+                                      ? "Marshmallow"
+                                      : 7 === t[0]
+                                        ? "Nougat"
+                                        : 8 === t[0]
+                                          ? "Oreo"
+                                          : 9 === t[0]
+                                            ? "Pie"
+                                            : void 0;
             }),
             (e.getVersionPrecision = function (e) {
               return e.split(".").length;
@@ -198,7 +198,7 @@
                     })
                     .reverse();
                 });
-              for (n && (o = a - Math.min(i, s)), a -= 1; a >= o; ) {
+              for (n && (o = a - Math.min(i, s)), a -= 1; a >= o;) {
                 if (u[0][a] > u[1][a]) return 1;
                 if (u[0][a] === u[1][a]) {
                   if (a === o) return 0;
@@ -255,17 +255,17 @@
             e
           );
         })();
-      (t.default = i), (e.exports = t.default);
+      ((t.default = i), (e.exports = t.default));
     },
     18: function (e, t, r) {
       "use strict";
-      (t.__esModule = !0),
+      ((t.__esModule = !0),
         (t.ENGINE_MAP =
           t.OS_MAP =
           t.PLATFORMS_MAP =
           t.BROWSER_MAP =
           t.BROWSER_ALIASES_MAP =
-            void 0);
+            void 0));
       t.BROWSER_ALIASES_MAP = {
         "Amazon Silk": "amazon_silk",
         "Android Browser": "android",
@@ -379,17 +379,17 @@
     },
     90: function (e, t, r) {
       "use strict";
-      (t.__esModule = !0), (t.default = void 0);
+      ((t.__esModule = !0), (t.default = void 0));
       var n,
         i = (n = r(91)) && n.__esModule ? n : { default: n },
         s = r(18);
       function a(e, t) {
         for (var r = 0; r < t.length; r++) {
           var n = t[r];
-          (n.enumerable = n.enumerable || !1),
+          ((n.enumerable = n.enumerable || !1),
             (n.configurable = !0),
             "value" in n && (n.writable = !0),
-            Object.defineProperty(e, n.key, n);
+            Object.defineProperty(e, n.key, n));
         }
       }
       var o = (function () {
@@ -436,11 +436,11 @@
           e
         );
       })();
-      (t.default = o), (e.exports = t.default);
+      ((t.default = o), (e.exports = t.default));
     },
     91: function (e, t, r) {
       "use strict";
-      (t.__esModule = !0), (t.default = void 0);
+      ((t.__esModule = !0), (t.default = void 0));
       var n = u(r(92)),
         i = u(r(93)),
         s = u(r(94)),
@@ -453,7 +453,7 @@
         function e(e, t) {
           if ((void 0 === t && (t = !1), null == e || "" === e))
             throw new Error("UserAgent parameter can't be empty");
-          (this._ua = e), (this.parsedResult = {}), !0 !== t && this.parse();
+          ((this._ua = e), (this.parsedResult = {}), !0 !== t && this.parse());
         }
         var t = e.prototype;
         return (
@@ -626,7 +626,7 @@
             var r = this.getBrowserName().toLowerCase(),
               n = e.toLowerCase(),
               i = o.default.getBrowserTypeByAlias(n);
-            return t && i && (n = i.toLowerCase()), n === r;
+            return (t && i && (n = i.toLowerCase()), n === r);
           }),
           (t.compareVersion = function (e) {
             var t = [0],
@@ -640,8 +640,8 @@
                     "=" === e[1] ? ((n = !0), (r = e.substr(2))) : (t = []),
                     ">" === e[0] ? t.push(1) : t.push(-1))
                   : "=" === e[0]
-                  ? (r = e.substr(1))
-                  : "~" === e[0] && ((n = !0), (r = e.substr(1))),
+                    ? (r = e.substr(1))
+                    : "~" === e[0] && ((n = !0), (r = e.substr(1))),
                 t.indexOf(o.default.compareVersions(i, r, n)) > -1
               );
           }),
@@ -669,11 +669,11 @@
           e
         );
       })();
-      (t.default = d), (e.exports = t.default);
+      ((t.default = d), (e.exports = t.default));
     },
     92: function (e, t, r) {
       "use strict";
-      (t.__esModule = !0), (t.default = void 0);
+      ((t.__esModule = !0), (t.default = void 0));
       var n,
         i = (n = r(17)) && n.__esModule ? n : { default: n };
       var s = /version\/(\d+(\.?_?\d+)+)/i,
@@ -685,7 +685,7 @@
                 r =
                   i.default.getFirstMatch(/googlebot\/(\d+(\.\d+))/i, e) ||
                   i.default.getFirstMatch(s, e);
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -695,7 +695,7 @@
                 r =
                   i.default.getFirstMatch(s, e) ||
                   i.default.getFirstMatch(/(?:opera)[\s/](\d+(\.?_?\d+)+)/i, e);
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -705,7 +705,7 @@
                 r =
                   i.default.getFirstMatch(/(?:opr|opios)[\s/](\S+)/i, e) ||
                   i.default.getFirstMatch(s, e);
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -716,9 +716,9 @@
                   i.default.getFirstMatch(s, e) ||
                   i.default.getFirstMatch(
                     /(?:SamsungBrowser)[\s/](\d+(\.?_?\d+)+)/i,
-                    e
+                    e,
                   );
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -728,7 +728,7 @@
                 r =
                   i.default.getFirstMatch(s, e) ||
                   i.default.getFirstMatch(/(?:whale)[\s/](\d+(?:\.\d+)+)/i, e);
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -738,9 +738,9 @@
                 r =
                   i.default.getFirstMatch(
                     /(?:MZBrowser)[\s/](\d+(?:\.\d+)+)/i,
-                    e
+                    e,
                   ) || i.default.getFirstMatch(s, e);
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -750,9 +750,9 @@
                 r =
                   i.default.getFirstMatch(
                     /(?:focus)[\s/](\d+(?:\.\d+)+)/i,
-                    e
+                    e,
                   ) || i.default.getFirstMatch(s, e);
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -762,9 +762,9 @@
                 r =
                   i.default.getFirstMatch(
                     /(?:swing)[\s/](\d+(?:\.\d+)+)/i,
-                    e
+                    e,
                   ) || i.default.getFirstMatch(s, e);
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -774,7 +774,7 @@
                 r =
                   i.default.getFirstMatch(s, e) ||
                   i.default.getFirstMatch(/(?:coast)[\s/](\d+(\.?_?\d+)+)/i, e);
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -784,7 +784,7 @@
                 r =
                   i.default.getFirstMatch(/(?:opt)[\s/](\d+(\.?_?\d+)+)/i, e) ||
                   i.default.getFirstMatch(s, e);
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -794,9 +794,9 @@
                 r =
                   i.default.getFirstMatch(
                     /(?:yabrowser)[\s/](\d+(\.?_?\d+)+)/i,
-                    e
+                    e,
                   ) || i.default.getFirstMatch(s, e);
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -807,9 +807,9 @@
                   i.default.getFirstMatch(s, e) ||
                   i.default.getFirstMatch(
                     /(?:ucbrowser)[\s/](\d+(\.?_?\d+)+)/i,
-                    e
+                    e,
                   );
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -820,9 +820,9 @@
                   i.default.getFirstMatch(s, e) ||
                   i.default.getFirstMatch(
                     /(?:Maxthon|mxios)[\s/](\d+(\.?_?\d+)+)/i,
-                    e
+                    e,
                   );
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -833,9 +833,9 @@
                   i.default.getFirstMatch(s, e) ||
                   i.default.getFirstMatch(
                     /(?:epiphany)[\s/](\d+(\.?_?\d+)+)/i,
-                    e
+                    e,
                   );
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -846,9 +846,9 @@
                   i.default.getFirstMatch(s, e) ||
                   i.default.getFirstMatch(
                     /(?:puffin)[\s/](\d+(\.?_?\d+)+)/i,
-                    e
+                    e,
                   );
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -859,9 +859,9 @@
                   i.default.getFirstMatch(s, e) ||
                   i.default.getFirstMatch(
                     /(?:sleipnir)[\s/](\d+(\.?_?\d+)+)/i,
-                    e
+                    e,
                   );
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -872,9 +872,9 @@
                   i.default.getFirstMatch(s, e) ||
                   i.default.getFirstMatch(
                     /(?:k-meleon)[\s/](\d+(\.?_?\d+)+)/i,
-                    e
+                    e,
                   );
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -884,9 +884,9 @@
                 r =
                   i.default.getFirstMatch(
                     /(?:micromessenger)[\s/](\d+(\.?_?\d+)+)/i,
-                    e
+                    e,
                   ) || i.default.getFirstMatch(s, e);
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -900,9 +900,9 @@
                 r =
                   i.default.getFirstMatch(
                     /(?:qqbrowserlite|qqbrowser)[/](\d+(\.?_?\d+)+)/i,
-                    e
+                    e,
                   ) || i.default.getFirstMatch(s, e);
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -911,9 +911,9 @@
               var t = { name: "Internet Explorer" },
                 r = i.default.getFirstMatch(
                   /(?:msie |rv:)(\d+(\.?_?\d+)+)/i,
-                  e
+                  e,
                 );
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -921,7 +921,7 @@
             describe: function (e) {
               var t = { name: "Microsoft Edge" },
                 r = i.default.getFirstMatch(/\sedg\/(\d+(\.?_?\d+)+)/i, e);
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -930,9 +930,9 @@
               var t = { name: "Microsoft Edge" },
                 r = i.default.getSecondMatch(
                   /edg([ea]|ios)\/(\d+(\.?_?\d+)+)/i,
-                  e
+                  e,
                 );
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -940,7 +940,7 @@
             describe: function (e) {
               var t = { name: "Vivaldi" },
                 r = i.default.getFirstMatch(/vivaldi\/(\d+(\.?_?\d+)+)/i, e);
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -948,7 +948,7 @@
             describe: function (e) {
               var t = { name: "SeaMonkey" },
                 r = i.default.getFirstMatch(/seamonkey\/(\d+(\.?_?\d+)+)/i, e);
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -957,9 +957,9 @@
               var t = { name: "Sailfish" },
                 r = i.default.getFirstMatch(
                   /sailfish\s?browser\/(\d+(\.\d+)?)/i,
-                  e
+                  e,
                 );
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -967,7 +967,7 @@
             describe: function (e) {
               var t = { name: "Amazon Silk" },
                 r = i.default.getFirstMatch(/silk\/(\d+(\.?_?\d+)+)/i, e);
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -975,7 +975,7 @@
             describe: function (e) {
               var t = { name: "PhantomJS" },
                 r = i.default.getFirstMatch(/phantomjs\/(\d+(\.?_?\d+)+)/i, e);
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -983,7 +983,7 @@
             describe: function (e) {
               var t = { name: "SlimerJS" },
                 r = i.default.getFirstMatch(/slimerjs\/(\d+(\.?_?\d+)+)/i, e);
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -994,9 +994,9 @@
                   i.default.getFirstMatch(s, e) ||
                   i.default.getFirstMatch(
                     /blackberry[\d]+\/(\d+(\.?_?\d+)+)/i,
-                    e
+                    e,
                   );
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -1007,9 +1007,9 @@
                   i.default.getFirstMatch(s, e) ||
                   i.default.getFirstMatch(
                     /w(?:eb)?[o0]sbrowser\/(\d+(\.?_?\d+)+)/i,
-                    e
+                    e,
                   );
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -1017,7 +1017,7 @@
             describe: function (e) {
               var t = { name: "Bada" },
                 r = i.default.getFirstMatch(/dolfin\/(\d+(\.?_?\d+)+)/i, e);
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -1027,9 +1027,9 @@
                 r =
                   i.default.getFirstMatch(
                     /(?:tizen\s?)?browser\/(\d+(\.?_?\d+)+)/i,
-                    e
+                    e,
                   ) || i.default.getFirstMatch(s, e);
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -1039,9 +1039,9 @@
                 r =
                   i.default.getFirstMatch(
                     /(?:qupzilla)[\s/](\d+(\.?_?\d+)+)/i,
-                    e
+                    e,
                   ) || i.default.getFirstMatch(s, e);
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -1050,9 +1050,9 @@
               var t = { name: "Firefox" },
                 r = i.default.getFirstMatch(
                   /(?:firefox|iceweasel|fxios)[\s/](\d+(\.?_?\d+)+)/i,
-                  e
+                  e,
                 );
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -1061,9 +1061,9 @@
               var t = { name: "Electron" },
                 r = i.default.getFirstMatch(
                   /(?:electron)\/(\d+(\.?_?\d+)+)/i,
-                  e
+                  e,
                 );
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -1073,9 +1073,9 @@
                 r =
                   i.default.getFirstMatch(
                     /(?:chromium)[\s/](\d+(\.?_?\d+)+)/i,
-                    e
+                    e,
                   ) || i.default.getFirstMatch(s, e);
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -1084,9 +1084,9 @@
               var t = { name: "Chrome" },
                 r = i.default.getFirstMatch(
                   /(?:chrome|crios|crmo)\/(\d+(\.?_?\d+)+)/i,
-                  e
+                  e,
                 );
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -1094,7 +1094,7 @@
             describe: function (e) {
               var t = { name: "Google Search" },
                 r = i.default.getFirstMatch(/(?:GSA)\/(\d+(\.?_?\d+)+)/i, e);
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -1106,7 +1106,7 @@
             describe: function (e) {
               var t = { name: "Android Browser" },
                 r = i.default.getFirstMatch(s, e);
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -1114,7 +1114,7 @@
             describe: function (e) {
               var t = { name: "PlayStation 4" },
                 r = i.default.getFirstMatch(s, e);
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -1122,7 +1122,7 @@
             describe: function (e) {
               var t = { name: "Safari" },
                 r = i.default.getFirstMatch(s, e);
-              return r && (t.version = r), t;
+              return (r && (t.version = r), t);
             },
           },
           {
@@ -1139,11 +1139,11 @@
             },
           },
         ];
-      (t.default = a), (e.exports = t.default);
+      ((t.default = a), (e.exports = t.default));
     },
     93: function (e, t, r) {
       "use strict";
-      (t.__esModule = !0), (t.default = void 0);
+      ((t.__esModule = !0), (t.default = void 0));
       var n,
         i = (n = r(17)) && n.__esModule ? n : { default: n },
         s = r(18);
@@ -1160,7 +1160,7 @@
           describe: function (e) {
             var t = i.default.getFirstMatch(
               /windows phone (?:os)?\s?(\d+(\.\d+)*)/i,
-              e
+              e,
             );
             return { name: s.OS_MAP.WindowsPhone, version: t };
           },
@@ -1170,7 +1170,7 @@
           describe: function (e) {
             var t = i.default.getFirstMatch(
                 /Windows ((NT|XP)( \d\d?.\d)?)/i,
-                e
+                e,
               ),
               r = i.default.getWindowsVersionName(t);
             return { name: s.OS_MAP.Windows, version: t, versionName: r };
@@ -1181,7 +1181,7 @@
           describe: function (e) {
             var t = { name: s.OS_MAP.iOS },
               r = i.default.getSecondMatch(/(Version\/)(\d[\d.]+)/, e);
-            return r && (t.version = r), t;
+            return (r && (t.version = r), t);
           },
         },
         {
@@ -1192,7 +1192,7 @@
                 .replace(/[_\s]/g, "."),
               r = i.default.getMacOSVersionName(t),
               n = { name: s.OS_MAP.MacOS, version: t };
-            return r && (n.versionName = r), n;
+            return (r && (n.versionName = r), n);
           },
         },
         {
@@ -1214,7 +1214,7 @@
             var t = i.default.getFirstMatch(/android[\s/-](\d+(\.\d+)*)/i, e),
               r = i.default.getAndroidVersionName(t),
               n = { name: s.OS_MAP.Android, version: t };
-            return r && (n.versionName = r), n;
+            return (r && (n.versionName = r), n);
           },
         },
         {
@@ -1222,10 +1222,10 @@
           describe: function (e) {
             var t = i.default.getFirstMatch(
                 /(?:web|hpw)[o0]s\/(\d+(\.\d+)*)/i,
-                e
+                e,
               ),
               r = { name: s.OS_MAP.WebOS };
-            return t && t.length && (r.version = t), r;
+            return (t && t.length && (r.version = t), r);
           },
         },
         {
@@ -1269,17 +1269,17 @@
           describe: function (e) {
             var t = i.default.getFirstMatch(
               /PlayStation 4[/\s](\d+(\.\d+)*)/i,
-              e
+              e,
             );
             return { name: s.OS_MAP.PlayStation4, version: t };
           },
         },
       ];
-      (t.default = a), (e.exports = t.default);
+      ((t.default = a), (e.exports = t.default));
     },
     94: function (e, t, r) {
       "use strict";
-      (t.__esModule = !0), (t.default = void 0);
+      ((t.__esModule = !0), (t.default = void 0));
       var n,
         i = (n = r(17)) && n.__esModule ? n : { default: n },
         s = r(18);
@@ -1295,7 +1295,7 @@
           describe: function (e) {
             var t = i.default.getFirstMatch(/(can-l01)/i, e) && "Nova",
               r = { type: s.PLATFORMS_MAP.mobile, vendor: "Huawei" };
-            return t && (r.model = t), r;
+            return (t && (r.model = t), r);
           },
         },
         {
@@ -1451,11 +1451,11 @@
           },
         },
       ];
-      (t.default = a), (e.exports = t.default);
+      ((t.default = a), (e.exports = t.default));
     },
     95: function (e, t, r) {
       "use strict";
-      (t.__esModule = !0), (t.default = void 0);
+      ((t.__esModule = !0), (t.default = void 0));
       var n,
         i = (n = r(17)) && n.__esModule ? n : { default: n },
         s = r(18);
@@ -1475,7 +1475,7 @@
           describe: function (e) {
             var t = { name: s.ENGINE_MAP.Trident },
               r = i.default.getFirstMatch(/trident\/(\d+(\.?_?\d+)+)/i, e);
-            return r && (t.version = r), t;
+            return (r && (t.version = r), t);
           },
         },
         {
@@ -1485,7 +1485,7 @@
           describe: function (e) {
             var t = { name: s.ENGINE_MAP.Presto },
               r = i.default.getFirstMatch(/presto\/(\d+(\.?_?\d+)+)/i, e);
-            return r && (t.version = r), t;
+            return (r && (t.version = r), t);
           },
         },
         {
@@ -1497,7 +1497,7 @@
           describe: function (e) {
             var t = { name: s.ENGINE_MAP.Gecko },
               r = i.default.getFirstMatch(/gecko\/(\d+(\.?_?\d+)+)/i, e);
-            return r && (t.version = r), t;
+            return (r && (t.version = r), t);
           },
         },
         {
@@ -1511,11 +1511,11 @@
           describe: function (e) {
             var t = { name: s.ENGINE_MAP.WebKit },
               r = i.default.getFirstMatch(/webkit\/(\d+(\.?_?\d+)+)/i, e);
-            return r && (t.version = r), t;
+            return (r && (t.version = r), t);
           },
         },
       ];
-      (t.default = a), (e.exports = t.default);
+      ((t.default = a), (e.exports = t.default));
     },
   });
 });

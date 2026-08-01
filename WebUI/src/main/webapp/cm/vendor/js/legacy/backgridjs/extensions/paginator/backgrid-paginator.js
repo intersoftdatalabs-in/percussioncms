@@ -40,7 +40,7 @@
 
     /** @property */
     template: _.template(
-      '<ul><% _.each(handles, function (handle) { %><li <% if (handle.className) { %>class="<%= handle.className %>"<% } %>><a href="#" <% if (handle.title) {%> title="<%= handle.title %>"<% } %>><%= handle.label %></a></li><% }); %></ul>'
+      '<ul><% _.each(handles, function (handle) { %><li <% if (handle.className) { %>class="<%= handle.className %>"<% } %>><a href="#" <% if (handle.title) {%> title="<%= handle.title %>"<% } %>><%= handle.label %></a></li><% }); %></ul>',
     ),
 
     /** @property */
@@ -184,7 +184,7 @@
       this.$el.append(
         this.template({
           handles: this.makeHandles(),
-        })
+        }),
       );
 
       this.delegateEvents();

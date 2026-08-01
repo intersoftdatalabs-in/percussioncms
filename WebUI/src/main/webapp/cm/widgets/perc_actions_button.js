@@ -147,7 +147,7 @@
      */
     function createMenuHTML(menuentries) {
       var dropdown = $(
-        '<ul class="perc-actions-menu box_shadow_with_padding">'
+        '<ul class="perc-actions-menu box_shadow_with_padding">',
       );
       var option = $('<li class="perc-actions-menu-item">');
 

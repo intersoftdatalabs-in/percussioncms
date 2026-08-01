@@ -45,7 +45,7 @@
   function openSearchCriteriaDialog(
     criteriaData,
     saveCallback,
-    cancelCallback
+    cancelCallback,
   ) {
     // Set the basic markup for the dialog and assign it to the module's dialog variable
     var dialogContent;
@@ -197,50 +197,52 @@
 
     function loadFields() {
       if (criteriaData.type === "pages") {
-        percJQuery.PercReusableSearchService.getSites(function (
-          status,
-          result
-        ) {
+        percJQuery.PercReusableSearchService.getSites(
+          function (status, result) {
+            for (var i = 0; i < result.length; i++) {
+              var value = result[i].value;
+              var optionElement = $("<OPTION>")
+                .html(value)
+                .attr("value", value);
+              if (criteriaData.site != null) {
+                if (value === criteriaData.site.value) {
+                  optionElement.attr("selected", "selected");
+                }
+              }
+              dialog
+                .find("#perc-search-criteria-dialog-site")
+                .append(optionElement);
+            }
+            if (criteriaData.site.value !== "@all") {
+              dialog
+                .find("#perc-search-criteria-dialog-site")
+                .trigger("change");
+            }
+          },
+        );
+      }
+      percJQuery.PercReusableSearchService.getWorkflows(
+        function (status, result) {
           for (var i = 0; i < result.length; i++) {
-            var value = result[i].value;
-            var optionElement = $("<OPTION>").html(value).attr("value", value);
-            if (criteriaData.site != null) {
-              if (value === criteriaData.site.value) {
+            var value = result[i].displayValue;
+            var name = result[i].value;
+            var optionElement = $("<OPTION>").html(name).attr("value", value);
+            if (criteriaData.workflow != null) {
+              if (value === criteriaData.workflow["value"]) {
                 optionElement.attr("selected", "selected");
               }
             }
             dialog
-              .find("#perc-search-criteria-dialog-site")
+              .find("#perc-search-criteria-dialog-workflow")
               .append(optionElement);
           }
-          if (criteriaData.site.value !== "@all") {
-            dialog.find("#perc-search-criteria-dialog-site").trigger("change");
+          if (criteriaData.workflow["value"] !== "@all") {
+            dialog
+              .find("#perc-search-criteria-dialog-workflow")
+              .trigger("change");
           }
-        });
-      }
-      percJQuery.PercReusableSearchService.getWorkflows(function (
-        status,
-        result
-      ) {
-        for (var i = 0; i < result.length; i++) {
-          var value = result[i].displayValue;
-          var name = result[i].value;
-          var optionElement = $("<OPTION>").html(name).attr("value", value);
-          if (criteriaData.workflow != null) {
-            if (value === criteriaData.workflow["value"]) {
-              optionElement.attr("selected", "selected");
-            }
-          }
-          dialog
-            .find("#perc-search-criteria-dialog-workflow")
-            .append(optionElement);
-        }
-        if (criteriaData.workflow["value"] !== "@all") {
-          dialog
-            .find("#perc-search-criteria-dialog-workflow")
-            .trigger("change");
-        }
-      });
+        },
+      );
 
       if (criteriaData.type === "assets") {
         percJQuery.PercAssetService.getAssetTypes(
@@ -259,7 +261,7 @@
                 .find("#perc-search-criteria-dialog-assettype")
                 .append(optionElement);
             }
-          }
+          },
         );
       }
     }
@@ -291,7 +293,7 @@
         function (status, result) {
           if (status === percJQuery.PercServiceUtils.STATUS_SUCCESS) {
             var data = percJQuery.perc_utils.convertCXFArray(
-              result.TemplateSummary
+              result.TemplateSummary,
             );
             dialog
               .find("#perc-search-criteria-dialog-template")
@@ -317,7 +319,7 @@
             }
             callback();
           }
-        }
+        },
       );
     }
 
@@ -371,13 +373,13 @@
             }
             callback();
           }
-        }
+        },
       );
     }
 
     // BEGINNING TYPE_AHEAD
     var inputField = dialog.find(
-      "#perc-search-criteria-dialog-created-by-field"
+      "#perc-search-criteria-dialog-created-by-field",
     );
 
     percJQuery.PercReusableSearchService.getUsers(
@@ -398,14 +400,14 @@
               // callback used after options load
             });
         }
-      }
+      },
     );
     // END TYPE_AHEAD
     if (criteriaData.modifiedby != null) {
       inputField.val(
         criteriaData.modifiedby["value"] === "@all"
           ? ""
-          : criteriaData.modifiedby["value"]
+          : criteriaData.modifiedby["value"],
       );
     }
     loadFields();

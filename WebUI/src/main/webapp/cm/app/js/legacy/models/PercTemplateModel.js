@@ -156,7 +156,7 @@
         root = P.regionsFromTree(
           templObj.Template.regionTree.rootRegion,
           templObj.Template.regionTree.regionWidgetAssociations,
-          "template"
+          "template",
         );
         eachRegion(function () {
           regionIds[this.regionId] = true;
@@ -284,7 +284,7 @@
         isResource,
         null,
         callback,
-        utils.show_error
+        utils.show_error,
       );
     }
 
@@ -309,7 +309,7 @@
               defid,
               function (wPrefs) {
                 widgetPrefs[defid] = wPrefs;
-              }
+              },
             );
           }
         });
@@ -333,7 +333,7 @@
           var defaultMsg =
             $.PercServiceUtils.extractDefaultErrorMessage(request);
           $.perc_utils.alert_dialog({ title: "Error", content: defaultMsg });
-        }
+        },
       );
     }
 
@@ -365,14 +365,14 @@
               null,
               querystring.path,
               null,
-              memento
+              memento,
             );
             /*
                         var defaultMsg =
                                 $.PercServiceUtils.extractDefaultErrorMessage(request);
                              $.perc_utils.alert_dialog({title: 'Error', content: defaultMsg});
                         */
-          }
+          },
         );
       } else {
         callback();
@@ -396,7 +396,7 @@
           widgetId,
           widgetDefinitionId,
           assetId,
-          callback
+          callback,
         );
     }
 
@@ -432,13 +432,13 @@
                 assetId,
                 widgetData,
                 templateId,
-                "template"
+                "template",
               );
             } else {
               //Unable to check out the asset.
               callback();
             }
-          }
+          },
         );
       } else {
         $.perc_asset_edit_dialog(
@@ -447,7 +447,7 @@
           assetId,
           widgetData,
           templateId,
-          "template"
+          "template",
         );
       }
     }
@@ -474,7 +474,7 @@
           } else {
             $.perc_utils.alert_dialog({ title: "Error", content: message });
           }
-        }
+        },
       );
     }
 
@@ -712,7 +712,7 @@
             } else {
               //Display error message
             }
-          }
+          },
         );
       };
 
@@ -726,7 +726,7 @@
         templateId,
         requireMigration,
         utils.rexml($.perc_schemata.template, templObj),
-        callback
+        callback,
       );
     }
 
@@ -776,7 +776,7 @@
         gPageId,
         function (data) {
           callback($(data).find("result").text());
-        }
+        },
       );
     }
 
@@ -785,7 +785,7 @@
       root = P.regionsFromTree(
         templObj.Template.regionTree.rootRegion,
         templObj.Template.regionTree.regionWidgetAssociations,
-        "template"
+        "template",
       );
 
       templateManager.render_region(
@@ -794,7 +794,7 @@
         gPageId,
         function (data) {
           callback($(data).find("result").text());
-        }
+        },
       );
     }
 
@@ -1070,7 +1070,7 @@
           hspan +
           vspan +
           cssClass
-        ).replace(/\s\s+/g, " ")
+        ).replace(/\s\s+/g, " "),
       ) +
       '" ' +
       ' data-noautoresize="' +
@@ -1278,7 +1278,7 @@
     beforeBodyCloseContent,
     afterBodyStartContent,
     protectedRegion,
-    protectedRegionText
+    protectedRegionText,
   ) {
     this.id = id;
     this.additionalHeadContent = additionalHeadContent;

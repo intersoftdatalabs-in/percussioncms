@@ -57,7 +57,7 @@
                   href +
                   "' media='" +
                   media +
-                  "'>"
+                  "'>",
               );
           }
         });
@@ -71,7 +71,9 @@
         $doc
           .find("head")
           .append(
-            "<link type='text/css' rel='stylesheet' href='" + opt.loadCSS + "'>"
+            "<link type='text/css' rel='stylesheet' href='" +
+              opt.loadCSS +
+              "'>",
           );
 
       // grab $.selector as container

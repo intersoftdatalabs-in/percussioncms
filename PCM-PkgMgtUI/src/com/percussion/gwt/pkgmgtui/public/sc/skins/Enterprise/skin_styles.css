@@ -69,7 +69,10 @@
 .buttonSelectedDisabled {
   padding: 2px;
   font-weight: bold;
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   background: #dddddd url(./images/cssButton/button_stretch.png) repeat-x;
   color: #4c4c4c;
@@ -179,7 +182,10 @@
 .buttonTitleSelectedFocusedDown,
 .buttonTitleDisabled,
 .buttonTitleSelectedDisabled {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   color: #4c4c4c;
   font-weight: bold;
@@ -222,7 +228,10 @@
 .treeMenuSelectedOver,
 .treeMenuSelectedSelected,
 .treeMenuSelectedSelectedOver {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   color: #333333;
   padding-top: 2px;
@@ -1456,7 +1465,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 .cubeGridBody {
 }
 .cubeCell {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   color: black;
   text-overflow: ellipsis;
@@ -1468,7 +1480,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 }
 
 .cubeCellDark {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   color: black;
   text-overflow: ellipsis;
@@ -1480,7 +1495,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 }
 
 .cubeCellDisabled {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   color: #666666;
   text-overflow: ellipsis;
@@ -1518,7 +1536,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 
 /* row headers */
 .rowHeader {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   color: white;
   background-color: #6682a0;
@@ -1529,7 +1550,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
   background-image: url("images/CubeGrid/rowHeader.gif");
 }
 .rowHeaderOver {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   color: white;
   background-color: #6682a0;
@@ -1540,7 +1564,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
   background-image: url("images/CubeGrid/rowHeaderOver.gif");
 }
 .rowHeaderDown {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   color: white;
   background-color: #6682a0;
@@ -1551,7 +1578,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
   background-image: url("images/CubeGrid/rowHeaderOver.gif");
 }
 .rowHeaderDisabled {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   color: #808080;
   background-color: #6682a0;
@@ -1562,7 +1592,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 }
 .rowHeaderSelected,
 .rowHeaderSelectedDown {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   color: white;
   background-color: #3e74b3;
@@ -1573,7 +1606,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
   background-image: url("images/CubeGrid/rowHeaderSelected.gif");
 }
 .rowHeaderSelectedOver {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   color: white;
   background-color: #3e74b3;
@@ -1584,7 +1620,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
   background-image: url("images/CubeGrid/rowHeaderSelectedOver.gif");
 }
 .rowHeaderSelectedDisabled {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   color: #808080;
   background-color: #3e74b3;
@@ -1596,7 +1635,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 
 /* row label */
 .rowHeaderLabel {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   font-weight: bold;
   color: white;
@@ -1608,7 +1650,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
   background-image: url("images/CubeGrid/rowHeaderLabel.gif");
 }
 .rowHeaderLabelOver {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   font-weight: bold;
   color: white;
@@ -1620,7 +1665,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
   background-image: url("images/CubeGrid/rowHeaderLabel.gif");
 }
 .rowHeaderLabelDown {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   font-weight: bold;
   color: white;
@@ -1632,7 +1680,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
   background-image: url("images/CubeGrid/rowHeaderLabelDown.gif");
 }
 .rowHeaderLabelDisabled {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   font-weight: bold;
   color: #808080;
@@ -1644,7 +1695,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 }
 .rowHeaderLabelSelected,
 .rowHeaderLabelSelectedDown {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   font-weight: bold;
   color: white;
@@ -1656,7 +1710,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
   background-image: url("images/CubeGrid/rowHeaderDown.gif");
 }
 .rowHeaderLabelSelectedOver {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   font-weight: bold;
   color: white;
@@ -1668,7 +1725,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
   background-image: url("images/CubeGrid/rowHeaderDown.gif");
 }
 .rowHeaderLabelSelectedDisabled {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   font-weight: bold;
   color: #808080;
@@ -1681,7 +1741,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 
 /* column headers */
 .colHeader {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   color: white;
   background-color: #6682a0;
@@ -1692,7 +1755,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
   background-image: url("images/CubeGrid/colHeader.gif");
 }
 .colHeaderOver {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   color: white;
   background-color: #6682a0;
@@ -1703,7 +1769,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
   background-image: url("images/CubeGrid/colHeaderOver.gif");
 }
 .colHeaderDown {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   color: white;
   background-color: #6682a0;
@@ -1714,7 +1783,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
   background-image: url("images/CubeGrid/colHeader.gif");
 }
 .colHeaderDisabled {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   color: #808080;
   background-color: #6682a0;
@@ -1725,7 +1797,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 }
 .colHeaderSelected,
 .colHeaderSelectedDown {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   font-weight: bold;
   color: white;
@@ -1737,7 +1812,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
   background-image: url("images/CubeGrid/colHeaderSelected.gif");
 }
 .colHeaderSelectedOver {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   font-weight: bold;
   color: white;
@@ -1749,7 +1827,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
   background-image: url("images/CubeGrid/colHeaderSelectedOver.gif");
 }
 .colHeaderSelectedDisabled {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   font-weight: bold;
   color: #808080;
@@ -1762,7 +1843,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 
 /* column label */
 .colHeaderLabel {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   font-weight: bold;
   color: white;
@@ -1775,7 +1859,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 }
 .colHeaderLabelOver,
 .colHeaderLabelDown {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   font-weight: bold;
   color: white;
@@ -1787,7 +1874,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
   background-image: url("images/CubeGrid/colHeaderLabelDown.gif");
 }
 .colHeaderLabelDisabled {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   font-weight: bold;
   color: #808080;
@@ -1799,7 +1889,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 }
 .colHeaderLabelSelected,
 .colHeaderLabelSelectedDown {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   font-weight: bold;
   color: white;
@@ -1811,7 +1904,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
   background-image: url("images/CubeGrid/colHeaderLabelDown.gif");
 }
 .colHeaderLabelSelectedOver {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   font-weight: bold;
   color: white;
@@ -1823,7 +1919,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
   background-image: url("images/CubeGrid/colHeaderDown.gif");
 }
 .colHeaderLabelSelectedDisabled {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   font-weight: bold;
   color: #808080;
@@ -1836,7 +1935,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 
 /* inner header */
 .innerHeader {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   color: black;
   background-color: #cccccc;
@@ -1847,7 +1949,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
   background-image: url("images/CubeGrid/innerHeader.gif");
 }
 .innerHeaderOver {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   color: black;
   background-color: #cccccc;
@@ -1858,7 +1963,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
   background-image: url("images/CubeGrid/innerHeader.gif");
 }
 .innerHeaderDown {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   color: black;
   background-color: #cccccc;
@@ -1869,7 +1977,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
   background-image: url("images/CubeGrid/innerHeader.gif");
 }
 .innerHeaderDisabled {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   color: #808080;
   background-color: #cccccc;
@@ -1880,7 +1991,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 }
 .innerHeaderSelected,
 .innerHeaderSelectedDown {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   font-weight: bold;
   color: white;
@@ -1892,7 +2006,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
   background-image: url("images/CubeGrid/innerHeaderSelected.gif");
 }
 .innerHeaderSelectedOver {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   font-weight: bold;
   color: white;
@@ -1904,7 +2021,10 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
   background-image: url("images/CubeGrid/innerHeaderSelectedOver.gif");
 }
 .innerHeaderSelectedDisabled {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 11px;
   color: #808080;
   background-color: #cccccc;
@@ -2154,21 +2274,30 @@ a.calMonthEventLink:active {
 /* ----event window---- */
 
 .eventWindow {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 9px;
   background-color: #ebf4ff;
   border: 1px solid #a2cbff;
 }
 
 .eventWindowHeader {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 9px;
   color: #4c4c4c;
   background-color: #a2cbff;
 }
 
 .eventWindowBody {
-  font-family: Verdana, Bitstream Vera Sans, sans-serif;
+  font-family:
+    Verdana,
+    Bitstream Vera Sans,
+    sans-serif;
   font-size: 9px;
   color: #333333;
   background-color: #ebf4ff;

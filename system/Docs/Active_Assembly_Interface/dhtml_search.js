@@ -15,12 +15,12 @@ Page[0] = new Array(
   "In the next topic we will begin to demonstrate how the Active Assembly Interface enables you to put together Web pages for your Site.",
   "Note: For a more in depth explanation of Active Assembly, see the Active Assembly Tutorial accessible from the Help link at the top of the page.",
   "Introduction to Active Assembly",
-  "17113.htm"
+  "17113.htm",
 );
 Page[1] = new Array(
   "Rhythmyx's Active Assembly interface displays Content Items as assembled Templates that you can edit by modifying data fields and adding and moving Snippets of other content items.  ",
   "Active Assembly Interface",
-  "ActiveAssemblyInterface.htm"
+  "ActiveAssemblyInterface.htm",
 );
 Page[2] = new Array(
   "The Active Assembly interface is a graphical interface that displays content items as assembled Templates that you can edit by modifying data fields and adding and moving Snippets of other content items. ",
@@ -55,7 +55,7 @@ Page[2] = new Array(
   "In either view, you can move, add, and remove Snippets from Slots; any changes are reflected in both views. In either view, you can also edit fields in a content item and perform actions on the content item, such as Workflow  Transitions and previews of the item. You can perform these actions if the content item is the main item or if it is a Snippet in a Slot.",
   "Note: For information about how to access Active Assembly from Content Explorer, see the section Producing Web Sites in the Content Explorer Help, accessible from the Content Explorer interface.",
   "The Active Assembly Interface",
-  "Using_Active_Assembly_to_Produce_Pages.htm"
+  "Using_Active_Assembly_to_Produce_Pages.htm",
 );
 Page[3] = new Array(
   "Outline view is the Active Assembly interface's left panel. Outline view displays a content item formatted using a selected Template in a hierarchical representation. The top node represents the formatted content item, and its sub-nodes represent its Slots and fields and the Snippets inserted into the Slots.",
@@ -69,7 +69,7 @@ Page[3] = new Array(
   "Finding a content item and adding it as a Snippet to a Slot; and",
   "Removing a Snippet from a Slot.",
   "Using Outline View",
-  "16509.htm"
+  "16509.htm",
 );
 Page[4] = new Array(
   "Page view is the Active Assembly interface's right panel. Page view graphically displays a content item formatted using a selected Template. In the graphical representation, Page view allows you to insert and rearrange Snippets in the Template's Slots. In Page view, you can select either the entire item (Page or Snippet) that represents the main item in Outline view, a field on the item, a Slot, or a Snippet in one of its Slots.  The component that you select determines which options appear in the Menu Bar. ",
@@ -85,7 +85,7 @@ Page[4] = new Array(
   "Finding a content item and adding it as a Snippet to a Slot; and",
   "Removing a Snippet from a Slot.",
   "Using Page View",
-  "16517.htm"
+  "16517.htm",
 );
 Page[5] = new Array(
   "The Menu Bar at the top of Active Assembly includes buttons with commands and drop lists of actions. The buttons that appear are different depending on whether the main item, a Slot, a Snippet in a Slot, or a Field is selected, and an appropriate icon appears before the buttons indicating whether the selected object is the main item, a Slot, a Snippet in a Slot, or Field.",
@@ -145,7 +145,7 @@ Page[5] = new Array(
   "Lists the Active Assembly version and product information.",
   "The most commonly used options from Menu Bars are available in Context menus when you right click on an item in Outline view or on the icon representing it in Page view.",
   "Using the Menu Bar and Context Menus",
-  "16530.htm"
+  "16530.htm",
 );
 Page[6] = new Array(
   "In Active Assembly, you can drag and drop a Snippet from one Slot to another Slot or to a new position in its original Slot. To drag and drop the Snippet, click anywhere on the Snippet, drag it to its new location, and drop it. Note that you can only move content into a Slot if the page that includes the Slot is not in a public State and is checked out to you.",
@@ -162,7 +162,7 @@ Page[6] = new Array(
   "Note that when you drop a Snippet in Outline view, the components indented under it may collapse.",
   " ",
   "Drag and Drop",
-  "16552.htm"
+  "16552.htm",
 );
 Page[7] = new Array(
   "In complex Slot layouts, the anchor for dropping a Snippet may not appear in Page view. For example, if Snippets are not arranged in an exact vertical or horizontal pattern, you may have difficulty dragging and dropping them from one position to another in a Slot.  Sometimes you may have difficulty dragging and dropping Snippets when they are arranged horizontally instead of vertically in a Slot. In addition, if conditions are applied to the rules for arranging Snippets in a Slot, the Active Assembly interface may not be able to produce an anchor bar. ",
@@ -171,7 +171,7 @@ Page[7] = new Array(
   "Drag and drop the Snippet in Outline view;",
   "Use the [Up] and [Down] buttons to move the Snippet into the new position.",
   "Drag and Drop Problems",
-  "17417.htm"
+  "17417.htm",
 );
 Page[8] = new Array(
   "In the Active Assembly interface, you can select either the entire main item (which may be a Page or a Snippet depending on the Template chosen), a Slot, a Snippet in a Slot, or a field in an item to edit or preview. When you initially open the Active Assembly interface, the item that you have chosen for active assembly is selected; once you have selected another component, you must select the original item again to make it the current component. You can select an object in Page view or Outline view, but it always becomes selected in the other view as well. In Page view, a selected item's border becomes thicker; in Outline view, a selected item is highlighted.  ",
@@ -194,7 +194,7 @@ Page[8] = new Array(
   "Click the name or icon for the field In Outline view (the field is also automatically selected in Page view).",
   "Note: If you select a field with a link in it, you can follow the link in Internet Explorer or Mozilla Firefox by pressing CTRL-click.",
   "Selecting a main item, a Slot, a Snippet in a Slot, or a Field",
-  "16524.htm"
+  "16524.htm",
 );
 Page[9] = new Array(
   "In Active Assembly, you can create new content items and add them to Slots or add existing content items to Slots.",
@@ -210,7 +210,7 @@ Page[9] = new Array(
   "If want to look for content in a specific folder or find a content item whose location you know, use the Content Browser to browse to the correct site or folder path.",
   "If you want to look for content that matches certain criteria, use the search option of the Content Browser to enter search parameters and get results that match the criteria you have entered. ",
   "Inserting Content in Slots",
-  "16655.htm"
+  "16655.htm",
 );
 Page[10] = new Array(
   "The Content Browser's Sites tab allows you to browse for content in a specific Content Explorer Site path or navigate to a Site folder and create a content item in it:",
@@ -227,7 +227,7 @@ Page[10] = new Array(
   "[Open] - If you have selected a content item icon @ in the content area, opens the content item in the Template selection window. If you have selected a folder icon @ in the content area, expands the folder to show its contents in the content area. In other cases, it is grayed out.",
   "[Close] - Closes the Content Browser without saving any changes.",
   "The Content Browser, Sites Tab",
-  "16652.htm"
+  "16652.htm",
 );
 Page[11] = new Array(
   "The Content Browser's Folders tab allows you to browse for content in a specific Content Explorer Folder path or navigate to a folder and create a content item in it:",
@@ -245,7 +245,7 @@ Page[11] = new Array(
   "[Open] - If you have selected a content item icon @ in the content area, opens the content item in the Template selection window. If you have selected a folder icon @ in the content area, expands the folder to show its contents in the content area. In other cases, it is grayed out.",
   "[Close] - Closes the Content Browser without saving any changes.",
   "The Content Browser, Folders Tab",
-  "16996.htm"
+  "16996.htm",
 );
 Page[12] = new Array(
   "The Content Browser's Search tab allows you to search for content by entering specific values that the content must match.  The Search tab displays different parameters depending on whether your system uses the Full-Text Search or the database search. ",
@@ -256,7 +256,7 @@ Page[12] = new Array(
   "Using an Advanced Full-Text Search",
   "Using a Database Search",
   "The Content Browser, Search Tab",
-  "16997.htm"
+  "16997.htm",
 );
 Page[13] = new Array(
   "In any of the Content Browser tabs, when you choose a content item to insert into a Slot, the Template Selection window opens.  You must choose the Template that will format the item before inserting the item into the Slot. ",
@@ -268,7 +268,7 @@ Page[13] = new Array(
   "[Select] - Inserts the item into the Slot using the selected Template.",
   "[Back] - Returns to the previous window without inserting an item into the Slot.",
   "The Content Browser, Template Selection Window",
-  "17000.htm"
+  "17000.htm",
 );
 Page[14] = new Array(
   "Before creating a new content item in Active Assembly, you must navigate to or create the folder path where you want to store the item. Then you can create the new item and insert it into a Slot.",
@@ -302,7 +302,7 @@ Page[14] = new Array(
   "Either add another item to the Slot or click [Close] to close the Content Browser.",
   "If you want to change the new Snippet's location, select its@icon and click Up in the Menu Bar as many times as necessary. ",
   "Creating a New Content Item and Adding it to a Slot",
-  "CreatingaNewContentItemandAddingittoaSlot.htm"
+  "CreatingaNewContentItemandAddingittoaSlot.htm",
 );
 Page[15] = new Array(
   "To browse for a Content Item:",
@@ -330,7 +330,7 @@ Page[15] = new Array(
   "Either add another item to the Slot or click [Close] to close the Content Browser.",
   "If you want to change the new Snippet's location, select its@icon and click Up in the Menu Bar as many times as necessary. ",
   "Browsing for Content to Add to a Slot",
-  "16656.htm"
+  "16656.htm",
 );
 Page[16] = new Array(
   "To search for a content item to add to a Slot using a simple full-text search:",
@@ -358,7 +358,7 @@ Page[16] = new Array(
   "Either add another item to the Slot or click [Back] to return to the simple search window. Search for another item or click [Close] to close the Content Browser.",
   "If you want to change the new Snippet's location, select its@icon and click Up in the Menu Bar as many times as necessary. ",
   "Using a Simple Full-Text Search",
-  "UsingaSimpleFull-TextSearch.htm"
+  "UsingaSimpleFull-TextSearch.htm",
 );
 Page[17] = new Array(
   "To access the advanced full-text search, open the simple full-text search and click @.  In addition to the fields included on the simple full-text search, the default version of the advanced search includes the following Content Type fields:",
@@ -385,7 +385,7 @@ Page[17] = new Array(
   "Note that you can combine Basic and Advanced Searches.  If you enter a search value in the Search for field and you also enter a value in one of the advanced search fields, Content Items will only be returned if they match both criteria. ",
   "Other than adding additional search fields and possibly a Filter, Mode, or Expansion for the advanced full-text search, follow the same instructions for performing a simple full-text search.",
   "Using an Advanced Full-text Search",
-  "16742.htm"
+  "16742.htm",
 );
 Page[18] = new Array(
   "The database search engine is a light-weight search engine that uses query functionality embedded in the database system  This search engine lacks the ability to search fields that consist of large blocks of text.",
@@ -418,14 +418,14 @@ Page[18] = new Array(
   "Either add another item to the Slot or click [Back] to return to the database search window. Search for another item or click [Cancel] to close the Content Browser.",
   "If you want to change the new Snippet's location, select its@icon and click Up in the Menu Bar as many times as necessary. ",
   "Using a Database Search",
-  "UsingaDatabaseSearch.htm"
+  "UsingaDatabaseSearch.htm",
 );
 Page[19] = new Array(
   "In some cases, your search engine may take longer than usual to return the results of a search query. This occurs if there are a large number of results or if the server is already experiencing a high volume of activity.",
   "Usually, your browser will return a warning and give you the option of ending the script that executes the search.  For example:",
   "In most cases your system will not hang up, so you can respond [Yes] to continue searching. To avoid this type of message, you can increase the timeout settings for running scripts in your browser. See the Help for your specific browser for instructions on changing the script timeout setting.",
   "Slow Search Warnings",
-  "17092.htm"
+  "17092.htm",
 );
 Page[20] = new Array(
   "In Active Assembly, you can change the position of a Content Item within a Slot. Note that you can only perform this function if the page that includes the Slot is checked out to you and is not in a public State.",
@@ -437,7 +437,7 @@ Page[20] = new Array(
   "OR",
   "Change the position of an item in a Slot in Outline view",
   "Changing an Item's Position in a Slot",
-  "16575.htm"
+  "16575.htm",
 );
 Page[21] = new Array(
   "To change an item's position in a Slot in Page view using drag and drop:",
@@ -452,7 +452,7 @@ Page[21] = new Array(
   "Right-click on the Snippet and choose Up or Down. ",
   "The Snippet moves up or down in the Slot.",
   "Changing an Item's Position in a Slot in Page View",
-  "16578.htm"
+  "16578.htm",
 );
 Page[22] = new Array(
   "To change an item's position in a Slot in Outline view using drag and drop:",
@@ -467,7 +467,7 @@ Page[22] = new Array(
   "Right-click on the Snippet and choose Up or Down. ",
   "The Snippet moves up or down in the Slot.",
   "Changing an Item's Position in a Slot in Outline View",
-  "16580.htm"
+  "16580.htm",
 );
 Page[23] = new Array(
   "You can change the Template of an Item in a Slot.",
@@ -482,7 +482,7 @@ Page[23] = new Array(
   "The format of the item in the Slot is changed according to the Template you have selected and the Templates dialog closes.",
   "Note: You are prompted to change an item's Template when you move it into a Slot that already contains the item formatted with the Template or if you attempt to move it into a Slot that does not allow its current Template.",
   "Changing an Item's Template",
-  "16582.htm"
+  "16582.htm",
 );
 Page[24] = new Array(
   "You can remove a Snippet from a Slot if the page that holds the Slot is not Public and is checked out to you.",
@@ -493,7 +493,7 @@ Page[24] = new Array(
   "Right-click on the Snippet in Outline view or on its@ icon in Page view and choose Remove. ",
   "The Snippet is removed from the Slot.",
   "Removing a Snippet from a Slot",
-  "16583.htm"
+  "16583.htm",
 );
 Page[25] = new Array(
   "In Active Assembly, you can edit individual fields. &nbsp;If the field is empty, the @ icon will mark its presence.  You can open the empty field to add data.",
@@ -518,7 +518,7 @@ Page[25] = new Array(
   "If you edit a field with a link in it, you can follow the link in the editor by using CTRL-click.",
   "Note: When you click on a field that can store multiple values (often this type of field resembles a table), it will not open for editing even though you have the Content Item checked out.  To edit this type of field, you must edit the whole Content Item.  ",
   "Editing a Field",
-  "Editing_a_Field.htm"
+  "Editing_a_Field.htm",
 );
 Page[26] = new Array(
   "In-place editing opens a field in the body of the page or Snippet for editing. It is used for the one-line edit box. ",
@@ -530,7 +530,7 @@ Page[26] = new Array(
   "The in-place editor closes.",
   "Click [Cancel] to close the editor without making any changes.",
   "Using In-place Editing",
-  "17038.htm"
+  "17038.htm",
 );
 Page[27] = new Array(
   "The modal field editor opens a field in its own window and disables the Active Assembly window for editing.  By default, it is used for the following types of fields:",
@@ -548,7 +548,7 @@ Page[27] = new Array(
   "Click [Content Item] to open the content editor that includes the field.",
   "Click [Close] to close the editor.  If you have not yet clicked [Update], a dialog prompts you to save or discard your changes before closing the editor.",
   "Using the Modal Field Editor",
-  "17039.htm"
+  "17039.htm",
 );
 Page[28] = new Array(
   "The pop-up field editor opens a field in its own window but does not disable the Active Assembly window for editing.  By default it is used for the following types of fields:",
@@ -567,7 +567,7 @@ Page[28] = new Array(
   "OR",
   "Click [Close] to close the dialog. If you have not clicked [Update], you are prompted to save or discard your changes.",
   "Using the Pop-up Window Field Editor",
-  "17040.htm"
+  "17040.htm",
 );
 Page[29] = new Array(
   "By choosing the Edit Content Item option, you can edit an entire content item in its content editor while you are in the Active Assembly interface either when you select the main item, a Snippet in a Slot, or when you select one of their fields. If you select a field and choose Edit Content Item instead of Edit Field, the content item that contains the field opens for editing, and you can edit the entire content item, not just the selected field.",
@@ -594,13 +594,13 @@ Page[29] = new Array(
   "Click [Close].",
   "If you do not click [Update] before clicking [Close], you are prompted to save or discard your changes. If you click [OK], Rhythmyx saves your changes before closing the dialog. The changes are now visible in both Active Assembly views and in any other places where the Content Item appears. ",
   "Editing an Item",
-  "17871.htm"
+  "17871.htm",
 );
 Page[30] = new Array(
   "When you open a field in Active Assembly in a pop-up editor or a modal editor, a [Content Item] button enables you to close the field editor and open the content editor that contains the field and other fields in the content item. ",
   "The purpose of this function is to demonstrate to users that a field is one of several fields making up a content item. Once you move from the field editor to the content editor, you can edit any of the fields available in the content editor.  You cannot move back to the field editor from the content editor.",
   "Moving from Field Editing to Content Item Editing",
-  "17409.htm"
+  "17409.htm",
 );
 Page[31] = new Array(
   "An inline object is an object you create in the text of a Content Item.  You can insert inline objects into Content Editor fields that use the rich text editor or into body fields in Content Items that you create in Word.  Three types of inline objects are available:",
@@ -624,12 +624,12 @@ Page[31] = new Array(
   "Note that you could use an inline Template to insert an image into a Content Item.  The option you prefer depends on how you want to control the attributes of the image.  If you want to use the rich text editor to control the attributes of the image, insert it using an inline image.  If you want to use the Content Type and Template to control the attributes of the image, insert it as an inline Template.  ",
   "Another factor determining whether you use an inline image or an inline Template is whether you want to create an inline link on the image.  If you want to create an inline link on the image, you must insert it as an inline image so you can edit it to add the inline link.  You cannot use an inline Template because you cannot edit the inline Template to add the inline link.",
   "Using Inline Links",
-  "Using_Inline_Links.htm"
+  "Using_Inline_Links.htm",
 );
 Page[32] = new Array(
   "To create inline links and inline images in Word, see the online Rhythmyx Help in Word.",
   "Creating Inline Links and Inline Images in Word",
-  "Creating_Inline_Links_and_Inline_Images_in_Word.htm"
+  "Creating_Inline_Links_and_Inline_Images_in_Word.htm",
 );
 Page[33] = new Array(
   "Use an inline link when you want to add link to text that exists in the Content Item. (For more details, see Using Inline Links.)  Inline links are only available in Content Editor fields that use rich text editors (not text boxes).",
@@ -643,7 +643,7 @@ Page[33] = new Array(
   "Choose the Content Item to which you want to link and click [Add].",
   "Rhythmyx creates a hotspot on the selected text.  (NOTE:  If the target Content Item is not Public, or if a link to the target page cannot be created for some other reason, no link will be published.)",
   "Creating Inline Links in a Content Editor",
-  "Creating_Inline_Links_in_a_Content_Editor.htm"
+  "Creating_Inline_Links_in_a_Content_Editor.htm",
 );
 Page[34] = new Array(
   "For details about inline images, see Using Inline Links.",
@@ -658,7 +658,7 @@ Page[34] = new Array(
   "Choose the Content Item to which you want to link and click [Add].",
   "Rhythmyx adds the image to your Content Item.",
   "Inserting Inline Images into a Content Editor",
-  "Inserting_Inline_Images_into_a_Content_Editor.htm"
+  "Inserting_Inline_Images_into_a_Content_Editor.htm",
 );
 Page[35] = new Array(
   "An external link is a hyperlink on selected text in assembled HTML output that links to a page outside the CMS (for example, a page on an external Web site). When a user clicks on the hyperlink, the browser jumps to the page specified as the target of the link. ",
@@ -679,7 +679,7 @@ Page[35] = new Array(
   "When Rhythmyx assembles the item, it inserts the hyperlink that you created on the text.",
   "The hyperlink links to the URL that you entered.",
   "Inserting External Links in a Content Editor",
-  "15375.htm"
+  "15375.htm",
 );
 Page[36] = new Array(
   "Use an inline Template when you want to insert formatted content from another Content Item into the text of the Content Item you are editing.  (For more details, see Using Inline Links.)  Inline Templates are only available in Content Editor fields that use rich text editors (not text boxes).",
@@ -693,7 +693,7 @@ Page[36] = new Array(
   "Choose the Content Item to which you want to link and click [Add].",
   "Rhythmyx adds the formatted content to your Content Item.",
   "Inserting an Inline Template into a Content Editor",
-  "15263.htm"
+  "15263.htm",
 );
 Page[37] = new Array(
   "You may want to create a link from an inline image to another Content Item.  Note that you can only create an inline link on an inline image, not on an image inserted as an inline Template (because the inline Template cannot be edited).  To create an inline link on an inline image:",
@@ -707,7 +707,7 @@ Page[37] = new Array(
   "Choose the Content Item to which you want to link and click [Add].",
   "Rhythmyx creates a hotspot on the image.  (NOTE:  If the target Content Item is not Public, or if a link to the target page cannot be created for some other reason, no link will be published.)",
   "Creating an Inline Link on an Inline Image",
-  "11122.htm"
+  "11122.htm",
 );
 Page[38] = new Array(
   "You can view a content item in its content editor while you are in the Active Assembly interface either when you select the main item, a Snippet in a Slot, or when you select one of their fields. When viewing a content item, you cannot edit fields. If you select a field, the content item that contains the field opens for viewing.",
@@ -720,7 +720,7 @@ Page[38] = new Array(
   "Rhythmyx displays the item for viewing in its content editor. None of the fields are accessible for edit.",
   "At the top of the Content Editor is a Properties link that takes you to the Properties page for the Content Item.",
   "Viewing an Item",
-  "Viewing_an_Item.htm"
+  "Viewing_an_Item.htm",
 );
 Page[39] = new Array(
   "You can view a content item's properties while you are in the Active Assembly interface either when you select the main item, a Snippet in a Slot, or when you select one of their fields.  Rhythmyx displays the content item's properties in the Properties page. ",
@@ -732,7 +732,7 @@ Page[39] = new Array(
   "Select the main item, Snippet in a Slot, or field, and in the Menu Bar choose Tools &gt; Properties. ",
   "Rhythmyx displays the Properties page for the content item. The page lists the properties in two rows at the top of the screen. ",
   "Viewing Item Properties",
-  "Viewing_Item_Properties.htm"
+  "Viewing_Item_Properties.htm",
 );
 Page[40] = new Array(
   "You have two options for previewing items in Active Assembly:",
@@ -747,19 +747,19 @@ Page[40] = new Array(
   "If you choose Preview &gt; Preview with Edits, the preview shows the change that you have made, but not yet checked in:",
   " ",
   "Previewing Items",
-  "16666.htm"
+  "16666.htm",
 );
 Page[41] = new Array(
   "In Active Assembly, each Snippet in a Slot displays an@ icon beside it indicating that you can perform functions on the Snippet. However, this is not the case if the Snippet is included in an automated index in the Slot.  You cannot edit the items themselves, because the automated index includes them in a predefined manner.",
   "The Sidebar and List Slots in the graphic below illustrate this difference.  The Snippets in the Sidebar Slot (&quot;Five Terrible Mortgage Mistakes&quot;, and &quot;Before you sign anything&quot;) are not automated indexes. An@icon appears beside each of them so you can edit the content. The Snippets in the List Slot (&quot;2005 Press Releases&quot; and &quot;2004 Press Releases&quot;) are automated indexes. Although the automated index Snippets have @ icons beside each of them so you can edit them, the content items automatically included in their Slots (&quot;Four Revenue Streams&quot;, &quot;Michael Flanders&quot;, &quot;Enterprise Investments Acquires Merchant Credit Card&quot;, and &quot;Highlights of 2004 Tax Changes&quot;) do not include @ icons because you cannot edit the items.",
   "Automated Indexes",
-  "Automated_Indexes.htm"
+  "Automated_Indexes.htm",
 );
 Page[42] = new Array(
   "A Revision is a modification to an existing Content Item after it has been published. It has a separate Revision ID from the original item, but the same Content ID.  Rhythmyx creates revisions automatically when you modify and save published content. ",
   "You can view all Revisions of a Content Item in the Revision List.  Through the Revision List, you can promote an earlier revision (make it the current revision). Workflow transitions for all revisions of a Content Item are displayed in the Audit Trail. ",
   "Revisions",
-  "Revisions.htm"
+  "Revisions.htm",
 );
 Page[43] = new Array(
   "You can view a content item's revisions while you are in the Active Assembly interface. ",
@@ -778,7 +778,7 @@ Page[43] = new Array(
   "Comment - Link to a comment associated with the transition.",
   "NOTE: Since the Revision List does not display transitions that have occurred before Publishing, it has fewer entries than the Audit Trail.",
   "Viewing Revisions",
-  "Viewing_Revisions.htm"
+  "Viewing_Revisions.htm",
 );
 Page[44] = new Array(
   "If you need to replace the current revision of a content item with an earlier revision, you can promote the earlier revision. When you promote a revision, Rhythmyx checks the revision out to you and makes it the current revision.",
@@ -789,7 +789,7 @@ Page[44] = new Array(
   "NOTE: If the row does not display the Promote option, the item may be checked out or you may not have the access necessary for promoting the item.",
   "Rhythmyx checks the content item out to you and makes the promoted revision the current revision.",
   "Promoting a Revision",
-  "Promoting_a_Revision.htm"
+  "Promoting_a_Revision.htm",
 );
 Page[45] = new Array(
   "The Audit Trail lists transitions for the revisions of the active item. ",
@@ -807,7 +807,7 @@ Page[45] = new Array(
   "Comment - Link to a comment associated with the transition.",
   "At the top of the Audit Trail page is a link to the Revision List.",
   "Viewing the Audit Trail of a Content Item",
-  "Viewing_the_Audit_Trail_of_a_Content_Item.htm"
+  "Viewing_the_Audit_Trail_of_a_Content_Item.htm",
 );
 Page[46] = new Array(
   "Each content item in the system exists in a Workflow.  Workflows define the process of creating and managing content by defining the stages in the process, controlling the status of content items through the process, determining which users can access the items at each stage in the process, and determining whether or not a content item is eligible to be published.",
@@ -816,7 +816,7 @@ Page[46] = new Array(
   "Each user in Rhythmyx is assigned to one or more Roles.  Rhythmyx grants access to content items based on the user's Role.  One or more Roles are assigned to each State in the Workflow.  If a user is in one of the Roles assigned to a State, that user can access any Content Item in that State.  If the user is not in a Role associated with the current State of the Content Item, the user cannot access the Content Item.",
   "The movement of Content Items from one State to another State is referred to as a Transition in Rhythmyx.",
   "Workflow",
-  "Workflow.htm"
+  "Workflow.htm",
 );
 Page[47] = new Array(
   "Rhythmyx includes a check-in and check-out feature that allows multiple users to access a Content Item but prevents more than one user at a time from actively editing an item. &nbsp;When you check out a Content Item, you make it available to you to edit, and make it unavailable to all other users. When you have finished working with the Content Item and have updated your changes to the database, check the item back in to make it available to other users. &nbsp;",
@@ -843,13 +843,13 @@ Page[47] = new Array(
   "OR",
   "the parent item of the Slot or Field that does not have an overlay is not checked out.",
   "Checking Content In and Out",
-  "Checking_Content_In_and_Out.htm"
+  "Checking_Content_In_and_Out.htm",
 );
 Page[48] = new Array(
   "Rhythmyx checks the most recent actions performed on a Content Item prior to displaying available Workflow Transitions to avoid displaying Transitions that have already been performed. However, on occasion two users may simultaneously view Check In or Check Out in the Action drop list for the same item and may both attempt to check in or check out the item.  If this occurs, the user whose Transition reaches the server second receives an error message because the first user already completed the same action.",
   "If you attempt to check in or check out a Content Item and receive an error message, redisplay the Workflow dialog and check the Action drop list to see if the item has already been checked in or checked out by another user.",
   "Errors When Checking a Content Item In",
-  "Errors_When_Checking_in_a_Content_Item.htm"
+  "Errors_When_Checking_in_a_Content_Item.htm",
 );
 Page[49] = new Array(
   "The Tools &gt; Workflow button appears in the Menu Bar when you have selected the main item or a Snippet in a Slot.",
@@ -877,13 +877,13 @@ Page[49] = new Array(
   "In the Workflow dialog, click [Submit].",
   "The item is transitioned and automatically checked in.",
   "Performing Workflow Transitions",
-  "16564.htm"
+  "16564.htm",
 );
 Page[50] = new Array(
   "In some cases, Rhythmyx Content Items have Relationships with one another that affect their progress through Workflow.  For example, the Publish Transition for a Content Item may not be available until the Snippets in its Slots are ready to be published, or a Translation Copy may be required to have the same Transitions as its original Content Item.  However, in many Relationships, the Workflow progress of one item in the Relationship is independent of the Workflow progress of the other item.",
   "If a Content Item cannot Transition out of a State until another Content Item reaches the State, the Workflow Transition is not available for the first Content Item until the second Content Item reaches the required State.",
   "Dependency Constraints on Transitions",
-  "Dependency_Constraints_on_Transitions.htm"
+  "Dependency_Constraints_on_Transitions.htm",
 );
 Page[51] = new Array(
   "A Site folder represents a section of your Web site. When you create a Site folder, CM System automatically creates links to that section in navigation lists on the pages in your Site. ",
@@ -915,142 +915,142 @@ Page[51] = new Array(
   "Any page in the Site that displays these navigation links will now display them in the new order.",
   "You can also reorder navigation links by using the Active Assembly table editor.  See the page Maintaining Navigation Content Items in doc.percussion.com\\cmsystem for instructions on how to perform the procedure with the table editor.",
   "Reordering Navigation Links",
-  "20402.htm"
+  "20402.htm",
 );
 Page[52] = new Array(
   "The process of adding Snippets to a Slot on a Template of a Content Item. You perform Active Assembly using Rhythmyx's Active Assembly Interface, which allows you to add content to Slots on a graphical representation of formatted content item. ",
   "Active Assembly",
-  "7711.htm#o16584"
+  "7711.htm#o16584",
 );
 Page[53] = new Array(
   "The Audit Trail is a list of all Workflow transitions for all revisions of the active item.",
   "Audit Trail",
-  "7711.htm#o7716"
+  "7711.htm#o7716",
 );
 Page[54] = new Array(
   "A Community represents a group of roles that require access to similar information in Rhythmyx. A role can be associated with more than one Community, and users belong to all of the Communities associated with their roles. &nbsp;Rhythmyx only gives users access to the Content Editors, Workflows, user interface components, Sites, and Templates associated with their Communities.",
   "Community",
-  "7711.htm#o15252"
+  "7711.htm#o15252",
 );
 Page[55] = new Array(
   "A form for displaying and editing a specific Content Type. Content Editors list and display the contents of the body field and other fields of a Content Type.",
   "Content Editor",
-  "7711.htm#o7720"
+  "7711.htm#o7720",
 );
 Page[56] = new Array(
   "The Rhythmyx interface that resembles Window's Explorer and is used for creating, modifying, and transitioning Content Items. Content Explorer has a Navigation Tree which display folders, views, and searches that store content, and a Display pane that displays and provides access to the Content Items they store.",
   "Content Explorer",
-  "7711.htm#o7721"
+  "7711.htm#o7721",
 );
 Page[57] = new Array(
   "One unit of content, in text, image or file format that appears on a Web page. Content Items consist of body and metadata.",
   "Content Item",
-  "7711.htm#o7722"
+  "7711.htm#o7722",
 );
 Page[58] = new Array(
   "A Content Item format in your Rhythmyx system. Each Content Type has its own backend table in the Rhythmyx data repository.  Content Types in your system may be distinguished by the types of content they store, their functions, the access users have to them, or any other features.",
   "Content Type",
-  "7711.htm#o7723"
+  "7711.htm#o7723",
 );
 Page[59] = new Array(
   "A Rhythmyx login language including its regional variation. The Locale affects what the language of labels on the Content Explorer and Site Explorer interface.  If more than one Locale are available, the system is globalized, and it is possible to make Translation Copies of Content Items. ",
   "Locale",
-  "7711.htm#o7728"
+  "7711.htm#o7728",
 );
 Page[60] = new Array(
   "Bar at the top of the Active Assembly interface that includes buttons with toggle options, drop lists of actions, and commands.",
   "Menu Bar",
-  "7711.htm#o16649"
+  "7711.htm#o16649",
 );
 Page[61] = new Array(
   "The left panel of the Active Assembly interface that represents a formatted Template of a content item as a hierarchical outline. Users can create, move, and remove content items in Slots in Outline view.",
   "Outline view",
-  "7711.htm#o16589"
+  "7711.htm#o16589",
 );
 Page[62] = new Array(
   "A content item formatted by a Template that produces a complete page for a site. (Compare to Snippet). ",
   "Page",
-  "7711.htm#o17105"
+  "7711.htm#o17105",
 );
 Page[63] = new Array(
   "The right-panel in the Active Assembly interface that graphically displays the selected Template of a content item and enables users to insert and remove content items from its Slots. ",
   "Page view",
-  "7711.htm#o16587"
+  "7711.htm#o16587",
 );
 Page[64] = new Array(
   "The metadata associated with a content item or a folder.  Rhythmyx provides a properties view for viewing a Content Item's properties and a Folder Properties dialog for viewing or editing a folder's properties. ",
   "Properties",
-  "7711.htm#o7732"
+  "7711.htm#o7732",
 );
 Page[65] = new Array(
   "The Workflow State of an item that is ready to be published.",
   "Public State",
-  "7711.htm#o7733"
+  "7711.htm#o7733",
 );
 Page[66] = new Array(
   "When a Content Item is assembled in a format that a Template defines, it may display other Content Items.  For example, a Content Item may only hold text content, but one of the assembled Content Items that the Template includes can display an image for illustrating the text.  An image content item that is included in the Template is related content of the text content item. ",
   "Related Content",
-  "7711.htm#o15261"
+  "7711.htm#o15261",
 );
 Page[67] = new Array(
   "An association between two objects in Rhythmyx (usually two Content Items). One object is the owner and the other is the dependent.  For example, in a Related Content Relationship, the original Content Item is the owner, and the Content Item that is added to one of its Slots is the dependent. Each type of Relationship has different properties; for example, in a New Copy Relationship, the dependent and the owner move through their Workflows independently, but in a Promotable Version relationship, when the dependent reaches the public State, Rhythmyx transitions the owner to the archive State.",
   "Relationship",
-  "7711.htm#o7713"
+  "7711.htm#o7713",
 );
 Page[68] = new Array(
   "A modification to an existing content item after it has been published.",
   "Revision",
-  "7711.htm#o7736"
+  "7711.htm#o7736",
 );
 Page[69] = new Array(
   "A list of the revisions to a content item (modifications made after the item is published) that is accessible from the Action menu.",
   "Revision History",
-  "7711.htm#o7737"
+  "7711.htm#o7737",
 );
 Page[70] = new Array(
   "A Role is a collection of users with the same access in Rhythmyx. In Workflows, Roles determine which users can access content at each State and which Transitions they can apply.",
   "Role",
-  "7711.htm#o7738"
+  "7711.htm#o7738",
 );
 Page[71] = new Array(
   "A site is a location where Rhythmyx content is published, such as a Web site or a database.",
   "Site",
-  "7711.htm#o7741"
+  "7711.htm#o7741",
 );
 Page[72] = new Array(
   "Site Explorer is an entire Web Site modified and viewed through the Active Assembly interface.  ",
   "Site Explorer",
-  "7711.htm#o17100"
+  "7711.htm#o17100",
 );
 Page[73] = new Array(
   "A placeholder for Snippets in a Content Item Template.",
   "Slot",
-  "7711.htm#o7751"
+  "7711.htm#o7751",
 );
 Page[74] = new Array(
   "A stage for a content item in a Workflow, such as Draft, Approval, or Public.  In each State content is available to users in certain Roles, who may apply the Transitions assigned for the state to the content.",
   "State",
-  "7711.htm#o7744"
+  "7711.htm#o7744",
 );
 Page[75] = new Array(
   "A content item formatted by a Template that produces a formatted chunk of information that can be inserted on a page but cannot stand alone as a page. Snippets are inserted into Slots on pages.",
   "Snippet",
-  "7711.htm#o17106"
+  "7711.htm#o17106",
 );
 Page[76] = new Array(
   "A defined format for assembling raw content for display. Typically, Templates define the format of a page or a portion of a page.",
   "Template",
-  "7711.htm#o14564"
+  "7711.htm#o14564",
 );
 Page[77] = new Array(
   "An action, such as Approve or Publish, that a user may apply to content in a Workflow State.  Each Workflow State has specific Transitions assigned to it.",
   "Transition",
-  "7711.htm#o7745"
+  "7711.htm#o7745",
 );
 Page[78] = new Array(
   "A defined set of development stages that is applied to a content item.  Each Workflow includes States, Roles, and Transitions.  States are the stages of the content item; Roles are the users with access to content in each state, and Transitions are the actions that move content from one State to another. ",
   "Workflow",
-  "7711.htm#o7748"
+  "7711.htm#o7748",
 );
 var PageCount = 79;
 

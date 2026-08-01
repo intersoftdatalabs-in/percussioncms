@@ -20,7 +20,7 @@
 ps.widget.ContentPaneProgress = function (contentPane) {
   ps.assert(
     contentPane && contentPane.onDownloadStart && contentPane.onDownloadEnd,
-    "Content pane must be defined"
+    "Content pane must be defined",
   );
 
   // the content pane element

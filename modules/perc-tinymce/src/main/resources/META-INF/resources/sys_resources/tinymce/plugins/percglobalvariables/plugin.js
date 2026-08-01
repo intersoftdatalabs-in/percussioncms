@@ -75,7 +75,7 @@ tinymce.PluginManager.add("percglobalvariables", function (editor, url) {
             //Fix for IE losing cursor position on insert
             if (tinymce.Env.ie) {
               tinyMCE.activeEditor.selection.moveToBookmark(
-                actualCaretPositionBookmark
+                actualCaretPositionBookmark,
               );
               editor.execCommand("mceInsertContent", 0, gvhtml);
             } else {

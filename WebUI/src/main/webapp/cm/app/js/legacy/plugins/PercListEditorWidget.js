@@ -42,13 +42,13 @@
     $title
       .append(
         $("<div/>", { id: "perc-ui-permission-users-title" }).text(
-          options.title1
-        )
+          options.title1,
+        ),
       )
       .append(
         $("<div/>", { id: "perc-ui-permission-users-write" }).text(
-          options.title2
-        )
+          options.title2,
+        ),
       )
       .append($("<div/>", { id: "perc-ui-permission-addstartbutton" }));
     $header.append($title);
@@ -62,7 +62,7 @@
         tabindex: "0",
         title: I18N.message("perc.ui.rolePropsDialog.title@Enter a role"),
         name: "perc-ui-permission-usernamefield",
-      })
+      }),
     );
     $listitemfield.append(
       $("<div/>", {
@@ -70,7 +70,7 @@
         tabindex: "0",
         role: "button",
         title: I18N.message("perc.ui.rolePropsDialog.title@Add User"),
-      })
+      }),
     );
 
     var $scrollPane = $("<div/>", {
@@ -83,7 +83,7 @@
         tabindex: "0",
         class: "perc-ui-permission-deletebutton",
         id: "Username",
-      })
+      }),
     );
     $list.append($seedLi);
     $scrollPane.append($list);
@@ -100,7 +100,7 @@
     var inputField = containerId.find("#perc-ui-permission-usernamefield");
     var plusButton = containerId.find("#perc-ui-permission-plusbutton");
     var scrollPane = containerId.find(
-      "#perc-ui-permission-user-list-scroll-pane"
+      "#perc-ui-permission-user-list-scroll-pane",
     );
     var title = containerId.find("#perc-ui-listedit-title");
     var deleteButtons; // these are dynamically created when items are rendered
@@ -111,7 +111,7 @@
       fieldHelpText = options.help;
     else
       fieldHelpText = I18N.message(
-        "perc.ui.folderPropsDialog.inputField@Enter a username"
+        "perc.ui.folderPropsDialog.inputField@Enter a username",
       );
 
     // state variables
@@ -334,7 +334,7 @@
             class: "perc-ui-permission-deletebutton",
             id: username,
             title: "Remove user",
-          })
+          }),
         );
         // codeql[js/xss-through-dom] reason: $li is a jQuery-wrapped DOM
         // element built above via the jQuery DOM API; `.append($li)`

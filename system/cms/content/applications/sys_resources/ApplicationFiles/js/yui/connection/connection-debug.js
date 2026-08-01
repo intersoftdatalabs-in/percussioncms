@@ -324,7 +324,7 @@ YAHOO.util.Connect = {
     YAHOO.log(
       "ActiveX Program Id  " + id + " added to _msxml_progid.",
       "info",
-      "Connection"
+      "Connection",
     );
   },
 
@@ -354,7 +354,7 @@ YAHOO.util.Connect = {
     YAHOO.log(
       "Use default transaction header set to  " + b,
       "info",
-      "Connection"
+      "Connection",
     );
   },
 
@@ -372,7 +372,7 @@ YAHOO.util.Connect = {
       YAHOO.log(
         "Default polling interval set to " + i + "ms",
         "info",
-        "Connection"
+        "Connection",
       );
     }
   },
@@ -396,7 +396,7 @@ YAHOO.util.Connect = {
       YAHOO.log(
         "XHR object created for transaction " + transactionId,
         "info",
-        "Connection"
+        "Connection",
       );
     } catch (e) {
       for (var i = 0; i < this._msxml_progid.length; ++i) {
@@ -408,7 +408,7 @@ YAHOO.util.Connect = {
           YAHOO.log(
             "ActiveX XHR object created for transaction " + transactionId,
             "info",
-            "Connection"
+            "Connection",
           );
           break;
         } catch (e) {}
@@ -512,7 +512,7 @@ YAHOO.util.Connect = {
           YAHOO.log(
             "Initialize transaction header X-Request-Header to XMLHttpRequest.",
             "info",
-            "Connection"
+            "Connection",
           );
         }
       }
@@ -522,7 +522,7 @@ YAHOO.util.Connect = {
         YAHOO.log(
           "Initialize header Content-Type to application/x-www-form-urlencoded for POST transaction.",
           "info",
-          "Connection"
+          "Connection",
         );
         if (this._isFormSubmit) {
           this.resetFormState();
@@ -566,14 +566,14 @@ YAHOO.util.Connect = {
         // Create the custom event
         o[this._customEvents[prop][0]] = new YAHOO.util.CustomEvent(
           this._customEvents[prop][1],
-          callback.scope ? callback.scope : null
+          callback.scope ? callback.scope : null,
         );
         YAHOO.log(
           "Transaction-specific Custom Event " +
             o[this._customEvents[prop][1]] +
             " created.",
           "info",
-          "Connection"
+          "Connection",
         );
 
         // Subscribe the custom event
@@ -583,7 +583,7 @@ YAHOO.util.Connect = {
             o[this._customEvents[prop][1]] +
             " subscribed.",
           "info",
-          "Connection"
+          "Connection",
         );
       }
     }
@@ -655,7 +655,7 @@ YAHOO.util.Connect = {
       YAHOO.log(
         "No callback object to process. Transaction complete.",
         "info",
-        "Connection"
+        "Connection",
       );
       return;
     }
@@ -683,7 +683,7 @@ YAHOO.util.Connect = {
           YAHOO.log(
             "Success callback. HTTP code is " + httpStatus,
             "info",
-            "Connection"
+            "Connection",
           );
         } else {
           // If a scope property is defined, the callback will be fired from
@@ -692,7 +692,7 @@ YAHOO.util.Connect = {
           YAHOO.log(
             "Success callback with scope. HTTP code is " + httpStatus,
             "info",
-            "Connection"
+            "Connection",
           );
         }
       }
@@ -716,7 +716,7 @@ YAHOO.util.Connect = {
           responseObject = this.createExceptionObject(
             o.tId,
             callback.argument,
-            isAbort ? isAbort : false
+            isAbort ? isAbort : false,
           );
           if (callback.failure) {
             if (!callback.scope) {
@@ -725,7 +725,7 @@ YAHOO.util.Connect = {
                 "Failure callback. Exception detected. Status code is " +
                   httpStatus,
                 "warn",
-                "Connection"
+                "Connection",
               );
             } else {
               callback.failure.apply(callback.scope, [responseObject]);
@@ -733,7 +733,7 @@ YAHOO.util.Connect = {
                 "Failure callback with scope. Exception detected. Status code is " +
                   httpStatus,
                 "warn",
-                "Connection"
+                "Connection",
               );
             }
           }
@@ -746,7 +746,7 @@ YAHOO.util.Connect = {
               YAHOO.log(
                 "Failure callback. HTTP status code is " + httpStatus,
                 "warn",
-                "Connection"
+                "Connection",
               );
             } else {
               callback.failure.apply(callback.scope, [responseObject]);
@@ -754,7 +754,7 @@ YAHOO.util.Connect = {
                 "Failure callback with scope. HTTP status code is " +
                   httpStatus,
                 "warn",
-                "Connection"
+                "Connection",
               );
             }
           }
@@ -795,7 +795,7 @@ YAHOO.util.Connect = {
         var delimitPos = header[i].indexOf(":");
         if (delimitPos != -1) {
           headerObj[header[i].substring(0, delimitPos)] = header[i].substring(
-            delimitPos + 2
+            delimitPos + 2,
           );
         }
       }
@@ -906,7 +906,7 @@ YAHOO.util.Connect = {
               " set with value of " +
               this._default_headers[prop],
             "info",
-            "Connection"
+            "Connection",
           );
         }
       }
@@ -922,7 +922,7 @@ YAHOO.util.Connect = {
               " set with value of " +
               this._http_headers[prop2],
             "info",
-            "Connection"
+            "Connection",
           );
         }
       }
@@ -1018,7 +1018,7 @@ YAHOO.util.Connect = {
                     encodeURIComponent(
                       oElement.options[j].attributes.value.specified
                         ? oElement.options[j].value
-                        : oElement.options[j].text
+                        : oElement.options[j].text,
                     ) +
                     "&";
                 } else {
@@ -1028,7 +1028,7 @@ YAHOO.util.Connect = {
                     encodeURIComponent(
                       oElement.options[j].hasAttribute("value")
                         ? oElement.options[j].value
-                        : oElement.options[j].text
+                        : oElement.options[j].text,
                     ) +
                     "&";
                 }
@@ -1086,7 +1086,7 @@ YAHOO.util.Connect = {
       "Form initialized for transaction. HTML form POST message is: " +
         this._sFormData,
       "info",
-      "Connection"
+      "Connection",
     );
 
     return this._sFormData;
@@ -1124,7 +1124,7 @@ YAHOO.util.Connect = {
     var io;
     if (window.ActiveXObject) {
       io = document.createElement(
-        '<iframe id="' + frameId + '" name="' + frameId + '" />'
+        '<iframe id="' + frameId + '" name="' + frameId + '" />',
       );
 
       // IE will throw a security exception in an SSL environment if the
@@ -1149,7 +1149,7 @@ YAHOO.util.Connect = {
     YAHOO.log(
       "File upload iframe created. Id is:" + frameId,
       "info",
-      "Connection"
+      "Connection",
     );
   },
 
@@ -1310,7 +1310,7 @@ YAHOO.util.Connect = {
         YAHOO.log(
           "File upload iframe destroyed. Id is:" + frameId,
           "info",
-          "Connection"
+          "Connection",
         );
       }, 100);
     };
@@ -1363,7 +1363,7 @@ YAHOO.util.Connect = {
         YAHOO.log(
           "File upload iframe destroyed. Id is:" + frameId,
           "info",
-          "Connection"
+          "Connection",
         );
 
         if (isTimeout) {
@@ -1394,7 +1394,7 @@ YAHOO.util.Connect = {
           o.tId +
           " abort call failed.  Connection object no longer exists.",
         "warn",
-        "Connection"
+        "Connection",
       );
     }
 
@@ -1439,7 +1439,7 @@ YAHOO.util.Connect = {
     YAHOO.log(
       "Connection object for transaction " + o.tId + " destroyed.",
       "info",
-      "Connection"
+      "Connection",
     );
     //dereference the connection object.
     o = null;

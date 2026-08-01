@@ -48,7 +48,7 @@ dojo.declare("sos.widget.ImageGallery", dojo.widget.HtmlWidget, {
     "</div>",
   templateCssPath: dojo.uri.moduleUri(
     "sos",
-    "widget/templates/ImageGallery.css"
+    "widget/templates/ImageGallery.css",
   ),
 
   tempImgPath: dojo.uri.moduleUri("sos", "widget/templates/images/1pixel.gif"),
@@ -70,7 +70,7 @@ dojo.declare("sos.widget.ImageGallery", dojo.widget.HtmlWidget, {
         thisWidget.toggleSlideshow();
         dojo.event.browser.stopEvent(evt);
         return false;
-      }
+      },
     );
 
     this.largeNode.appendChild(img);
@@ -126,24 +126,24 @@ dojo.declare("sos.widget.ImageGallery", dojo.widget.HtmlWidget, {
         "onclick",
         function (evt) {
           thisWidget.showThumbs(
-            thisWidget.thumbIndex - thisWidget.numberThumbs
+            thisWidget.thumbIndex - thisWidget.numberThumbs,
           );
-        }
+        },
       );
       dojo.event.browser.addListener(
         this.thumbCells[this.numberThumbs + 1],
         "onclick",
         function (evt) {
           thisWidget.showThumbs(
-            thisWidget.thumbIndex + thisWidget.numberThumbs
+            thisWidget.thumbIndex + thisWidget.numberThumbs,
           );
-        }
+        },
       );
 
       //calculate the correct width for the widget
       var width = 100 * this.numberThumbs + 90;
       dojo.html.insertCssText(
-        ".image-gallery-wrapper{text-align:center;width:" + width + "px;}"
+        ".image-gallery-wrapper{text-align:center;width:" + width + "px;}",
       );
     }
     this.isInitialized = true;
@@ -236,7 +236,7 @@ dojo.declare("sos.widget.ImageGallery", dojo.widget.HtmlWidget, {
         if (imagesToPlace[i]) {
           while (thisWidget.thumbCells[i + 1].firstChild) {
             thisWidget.hiddenNode.appendChild(
-              thisWidget.thumbCells[i + 1].firstChild
+              thisWidget.thumbCells[i + 1].firstChild,
             );
           }
 
@@ -251,7 +251,7 @@ dojo.declare("sos.widget.ImageGallery", dojo.widget.HtmlWidget, {
           } else {
             var loadPos = imagesToPlace[i].split("_")[1];
             dojo.debug(
-              "No thumb '" + imagesToPlace[i] + "' loading from " + loadPos
+              "No thumb '" + imagesToPlace[i] + "' loading from " + loadPos,
             );
             thisWidget.loadNextThumbnail(imagesToPlace[i].split("_")[1]);
           }
@@ -486,7 +486,7 @@ dojo.declare("sos.widget.ImageGallery", dojo.widget.HtmlWidget, {
   startTimer: function () {
     this._slideId = setTimeout(
       "dojo.widget.byId('" + this.widgetId + "').showNextImage(true);",
-      this.slideshowInterval * 1000
+      this.slideshowInterval * 1000,
     );
   },
 
@@ -575,7 +575,7 @@ dojo.declare("sos.widget.FlickrImageGallery", sos.widget.ImageGallery, {
 
     while (this.pagingDiv.firstChild) {
       this.pagingDiv.firstChild.parentNode.removeChild(
-        this.pagingDiv.firstChild
+        this.pagingDiv.firstChild,
       );
     }
 
@@ -730,7 +730,7 @@ dojo.declare("sos.widget.FlickrImageGallery", sos.widget.ImageGallery, {
     if (arguments.length == 0) {
       if (this.flickrApiKey == "" || this.flickrUserId == "") {
         dojo.debug(
-          "FlickrImageGallery: no userId or apiKey specified. Cannot load Flickr images."
+          "FlickrImageGallery: no userId or apiKey specified. Cannot load Flickr images.",
         );
         return;
       }
@@ -830,7 +830,7 @@ dojo.declare("sos.widget.FlickrImageGallery", sos.widget.ImageGallery, {
             thisWidget.flickrSetId = null;
             thisWidget.loadFlickrPublicPhotos();
           },
-        })
+        }),
       );
       menu2.addChild(dojo.widget.createWidget("MenuSeparator2"));
       dojo.lang.forEach(items, function (itemJson) {

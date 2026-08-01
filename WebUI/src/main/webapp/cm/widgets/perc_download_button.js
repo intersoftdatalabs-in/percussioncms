@@ -28,7 +28,7 @@
   $.perc_build_download_button = function (finder, contentViewer) {
     //TODO: I18N With correct Formatting on btn below.
     var btn = $(
-      '<a id="perc-finder-download" href="#" title="Click to download the selected file">Download File</a>'
+      '<a id="perc-finder-download" href="#" title="Click to download the selected file">Download File</a>',
     );
 
     /**
@@ -47,11 +47,11 @@
       if (path[1] === $.perc_paths.DESIGN_ROOT_NO_SLASH && path.length > 4) {
         // Get the selected item from Column or List mode with the class FSFile
         var selectedItemSpec = $(
-          "#perc-finder-listview .perc-datatable-row-highlighted"
+          "#perc-finder-listview .perc-datatable-row-highlighted",
         ).data("percRowData");
         if (typeof selectedItemSpec === "undefined") {
           selectedItemSpec = $(
-            ".mcol-listing.perc-listing-type-FSFile.mcol-opened.perc_last_selected"
+            ".mcol-listing.perc-listing-type-FSFile.mcol-opened.perc_last_selected",
           ).data("spec");
         }
         // Now check the 3rd condition, that the element selected is a file under Design

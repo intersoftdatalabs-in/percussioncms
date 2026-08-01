@@ -611,7 +611,10 @@ li:hover .sub, li.over .sub { display:block; } */
   margin-top: 0;
 }
 .more_link {
-  font: bold 11px Arial, Helvetica, sans-serif;
+  font:
+    bold 11px Arial,
+    Helvetica,
+    sans-serif;
 }
 .more_link a:link,
 .more_link a:visited {

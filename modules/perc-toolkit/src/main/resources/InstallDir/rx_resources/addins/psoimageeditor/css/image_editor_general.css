@@ -9,7 +9,10 @@ body {
   padding: 0;
 }
 body {
-  font: 11px Arial, Helvetica, sans-serif;
+  font:
+    11px Arial,
+    Helvetica,
+    sans-serif;
   color: #444444;
 }
 fieldset {
@@ -40,10 +43,16 @@ legend {
   color: #a1040b;
 }
 .input {
-  font: 11px Arial, Helvetica, sans-serif;
+  font:
+    11px Arial,
+    Helvetica,
+    sans-serif;
 }
 button {
-  font: bold 11px Arial, Helvetica, sans-serif;
+  font:
+    bold 11px Arial,
+    Helvetica,
+    sans-serif;
   background-color: #ccc;
   color: #334d64;
 }

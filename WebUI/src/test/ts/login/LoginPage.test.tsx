@@ -124,28 +124,38 @@ describe("LoginPage", () => {
     expect(screen.getByTestId("perc-brand-footer")).toBeDefined();
   });
 
-  it("renders locale option labels as stable endonyms (native language names)", () => {
+  it("renders locale option labels as stable endonyms with SVG flags", () => {
     render(<LoginPage bootstrap={baseBootstrap} />);
-    const select = screen.getByTestId("perc-login-locale") as HTMLSelectElement;
-    const options = Array.from(select.options).map((o) => o.textContent ?? "");
-    // Endonyms: each option named in its own language (GH-1608).
-    expect(options.some((t) => /^en-us - English/.test(t))).toBe(true);
-    expect(options.some((t) => /^fr-fr - français/.test(t))).toBe(true);
-    expect(options.some((t) => /^es - español/.test(t))).toBe(true);
+    const trigger = screen.getByTestId("perc-login-locale");
+    fireEvent.click(trigger);
+    const list = screen.getByTestId("perc-login-locale-list");
+    const text = list.textContent ?? "";
+    // Endonyms (GH-1608) + SVG flags from country-flag-icons
+    expect(text).toContain("en-us - English");
+    expect(text).toContain("fr-fr - français");
+    expect(text).toContain("es - español");
+    expect(list.querySelectorAll("svg").length).toBeGreaterThanOrEqual(3);
+    // Hidden field posts j_locale
+    const hidden = screen.getByTestId(
+      "perc-login-locale-value",
+    ) as HTMLInputElement;
+    expect(hidden.name).toBe("j_locale");
+    expect(hidden.value).toBe("en-us");
   });
 
   it("keeps locale option labels stable when the UI locale changes (GH-1608)", () => {
     render(<LoginPage bootstrap={baseBootstrap} />);
-    const select = screen.getByTestId("perc-login-locale") as HTMLSelectElement;
-    const before = Array.from(select.options).map((o) => o.textContent ?? "");
-    fireEvent.change(select, { target: { value: "fr-fr" } });
-    const after = Array.from(select.options).map((o) => o.textContent ?? "");
-    // Selecting French must not re-translate German/Spanish/etc. into French.
-    expect(after).toEqual(before);
-    expect(after.some((t) => /^es - español/.test(t))).toBe(true);
-    expect(after.some((t) => /^fr-fr - français/.test(t))).toBe(true);
-    // Must not show viewer-localized exonyms (e.g. "espagnol" for Spanish).
-    expect(after.some((t) => /espagnol/.test(t))).toBe(false);
+    const trigger = screen.getByTestId("perc-login-locale");
+    fireEvent.click(trigger);
+    const before = screen.getByTestId("perc-login-locale-list").textContent;
+    fireEvent.click(screen.getByTestId("perc-login-locale-option-fr-fr"));
+    fireEvent.click(trigger);
+    const after = screen.getByTestId("perc-login-locale-list").textContent;
+    // Selecting French must not re-translate Spanish option into French.
+    expect(after).toBe(before);
+    expect(after).toContain("es - español");
+    expect(after).toContain("fr-fr - français");
+    expect(after).not.toMatch(/espagnol/);
   });
 
   it("keeps ship endonyms when Intl.DisplayNames is unavailable", () => {
@@ -155,16 +165,11 @@ describe("LoginPage", () => {
     delete Intl.DisplayNames;
     try {
       render(<LoginPage bootstrap={baseBootstrap} />);
-      const select = screen.getByTestId(
-        "perc-login-locale",
-      ) as HTMLSelectElement;
-      const options = Array.from(select.options).map(
-        (o) => o.textContent ?? "",
-      );
-      // Curated SHIP_LOCALE_ENDONYMS — not English server displayName.
-      expect(options).toContain("en-us - English (United States)");
-      expect(options).toContain("fr-fr - français (France)");
-      expect(options).toContain("es - español");
+      fireEvent.click(screen.getByTestId("perc-login-locale"));
+      const text = screen.getByTestId("perc-login-locale-list").textContent ?? "";
+      expect(text).toContain("en-us - English (United States)");
+      expect(text).toContain("fr-fr - français (France)");
+      expect(text).toContain("es - español");
     } finally {
       (Intl as unknown as { DisplayNames?: unknown }).DisplayNames = original;
     }
@@ -172,8 +177,8 @@ describe("LoginPage", () => {
 
   it("injects a TMX script tag on dropdown change", () => {
     render(<LoginPage bootstrap={baseBootstrap} />);
-    const select = screen.getByTestId("perc-login-locale") as HTMLSelectElement;
-    fireEvent.change(select, { target: { value: "fr-fr" } });
+    fireEvent.click(screen.getByTestId("perc-login-locale"));
+    fireEvent.click(screen.getByTestId("perc-login-locale-option-fr-fr"));
     const tag = document.querySelector(
       'script[data-perc-tmx-locale="fr-fr"]',
     ) as HTMLScriptElement | null;
@@ -181,8 +186,11 @@ describe("LoginPage", () => {
     expect(tag!.src).toContain("sys_lang=fr-fr");
     expect(tag!.src).toContain("prefix=perc.ui.");
     expect(tag!.src).toContain("mode=js");
+    const hidden = screen.getByTestId(
+      "perc-login-locale-value",
+    ) as HTMLInputElement;
+    expect(hidden.value).toBe("fr-fr");
   });
-
   it("resolves chrome via stubbed window.I18N when present", () => {
     (window as unknown as { I18N: { message: (k: string) => string } }).I18N = {
       message: (k: string) => {
@@ -212,8 +220,12 @@ describe("LoginPage", () => {
       /Sign in/i,
     );
 
-    const select = screen.getByTestId("perc-login-locale") as HTMLSelectElement;
-    fireEvent.change(select, { target: { value: "fr-fr" } });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("perc-login-locale"));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("perc-login-locale-option-fr-fr"));
+    });
 
     // Install translated catalog and fire the injected script's load event.
     (window as unknown as { I18N: { message: (k: string) => string } }).I18N = {
@@ -229,12 +241,16 @@ describe("LoginPage", () => {
         return map[k] ?? k;
       },
     };
+    await vi.waitFor(() => {
+      expect(
+        document.querySelector('script[data-perc-tmx-locale="fr-fr"]'),
+      ).not.toBeNull();
+    });
     const tag = document.querySelector(
       'script[data-perc-tmx-locale="fr-fr"]',
-    ) as HTMLScriptElement | null;
-    expect(tag).not.toBeNull();
+    ) as HTMLScriptElement;
     await act(async () => {
-      tag!.dispatchEvent(new Event("load"));
+      tag.dispatchEvent(new Event("load"));
     });
 
     // Wait for setTmxReady re-render after ensureTmxLoaded resolves.
@@ -258,8 +274,8 @@ describe("LoginPage", () => {
     fireEvent.change(username, { target: { value: "admin" } });
     const csrf = screen.getByTestId("perc-login-csrf") as HTMLInputElement;
 
-    const select = screen.getByTestId("perc-login-locale") as HTMLSelectElement;
-    fireEvent.change(select, { target: { value: "fr-fr" } });
+    fireEvent.click(screen.getByTestId("perc-login-locale"));
+    fireEvent.click(screen.getByTestId("perc-login-locale-option-fr-fr"));
 
     expect(username.value).toBe("admin");
     expect(csrf.value).toBe("test-csrf-token");

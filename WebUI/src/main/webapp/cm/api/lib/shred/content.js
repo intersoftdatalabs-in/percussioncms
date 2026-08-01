@@ -175,7 +175,7 @@ Content.registerProcessor(
     stringify: function (data) {
       return JSON.stringify(data);
     },
-  }
+  },
 );
 
 var qs = require("querystring");
@@ -191,13 +191,13 @@ var Errors = {
   setDataWithBody: function (object) {
     throw new Error(
       "Attempt to set data attribute of a content object " +
-        "when the body attributes was already set."
+        "when the body attributes was already set.",
     );
   },
   setBodyWithData: function (object) {
     throw new Error(
       "Attempt to set body attribute of a content object " +
-        "when the data attributes was already set."
+        "when the data attributes was already set.",
     );
   },
 };

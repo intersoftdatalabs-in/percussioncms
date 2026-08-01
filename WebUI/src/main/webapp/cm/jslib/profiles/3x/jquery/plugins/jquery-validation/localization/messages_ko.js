@@ -26,7 +26,7 @@
     maxlength: $.validator.format("{0}자를 넘을 수 없습니다. "),
     minlength: $.validator.format("{0}자 이상 입력하세요."),
     rangelength: $.validator.format(
-      "문자 길이가 {0} 에서 {1} 사이의 값을 입력하세요."
+      "문자 길이가 {0} 에서 {1} 사이의 값을 입력하세요.",
     ),
     range: $.validator.format("{0} 에서 {1} 사이의 값을 입력하세요."),
     max: $.validator.format("{0} 이하의 값을 입력하세요."),

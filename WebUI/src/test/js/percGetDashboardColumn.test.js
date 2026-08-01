@@ -51,7 +51,7 @@ import { beforeEach, afterEach, describe, it, expect } from "vitest";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SRC_PATH = resolve(
   __dirname,
-  "../../main/webapp/cm/WEB-INF/classes/features/perc/getDashboardColumn/perc_getDashboardColumn.js"
+  "../../main/webapp/cm/WEB-INF/classes/features/perc/getDashboardColumn/perc_getDashboardColumn.js",
 );
 
 // ---------------------------------------------------------------------------
@@ -169,7 +169,7 @@ describe("__gup() sanitisation", () => {
         loadSource();
         const got = globalThis.__gup("mid");
         expect(got).toBe("scriptalert1script");
-      }
+      },
     );
   });
 
@@ -263,7 +263,7 @@ describe("gadgets.window.getDashboardColumn", () => {
         expect(() => gadgets.window.getDashboardColumn()).not.toThrow();
         expect(selectorSeen).toBeTruthy();
         expect(selectorSeen).toMatch(/^#gid_[A-Za-z0-9._-]*$/);
-      }
+      },
     );
   });
 });

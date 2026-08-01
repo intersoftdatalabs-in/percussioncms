@@ -46,10 +46,10 @@ function setDisplayDate(p_dateValue, p_displayDate) {
     */
 function validateFields() {
   var p_query_published_after = new Date(
-    $('[name="query_published_after"]').val()
+    $('[name="query_published_after"]').val(),
   );
   var p_query_published_before = new Date(
-    $('[name="query_published_before"]').val()
+    $('[name="query_published_before"]').val(),
   );
 
   if (p_query_published_before < p_query_published_after) {
@@ -81,14 +81,14 @@ function buildQuery() {
 
   var jxl_query_published_after = $.datepicker.formatDate(
     "yy/mm/dd",
-    new Date(p_query_published_after)
+    new Date(p_query_published_after),
   );
 
   var p_query_published_before = $('[name="query_published_before"]').val();
 
   var jxl_query_published_before = $.datepicker.formatDate(
     "yy/mm/dd",
-    new Date(p_query_published_before)
+    new Date(p_query_published_before),
   );
 
   var p_site_path = $('[name="query_site_path"]').val();
@@ -177,7 +177,7 @@ function buildQuery() {
       $(document).ready(function () {
         populateTemplateTypes(
           getSiteFromFolderPath($('[name="query_site_path"]').val()),
-          pageTemplatesOptionsArray
+          pageTemplatesOptionsArray,
         );
       });
     }
@@ -208,8 +208,8 @@ function buildQuery() {
                 tpl.name +
                 "'>" +
                 tpl.name +
-                "</span></div>"
-            )
+                "</span></div>",
+            ),
           );
         }
         $(".perc-pagetemplates-chkbox").on("change", function () {
@@ -227,7 +227,7 @@ function buildQuery() {
     function showSites() {
       $(document).ready(function () {
         var path = $.PercFinderTreeConstants.convertFolderPathToPath(
-          $('[name="query_site_path"]').val()
+          $('[name="query_site_path"]').val(),
         );
         if (!path) path = "/site";
         $("#perc-folder-selector").PercFinderTree({
@@ -253,7 +253,7 @@ function buildQuery() {
           ) {
             populateTemplateTypes(
               getSiteFromFolderPath(pathItem.folderPath),
-              []
+              [],
             );
           }
           //Save site_path
@@ -293,39 +293,39 @@ function buildQuery() {
       //Set display date range
       setDisplayDate(
         $('[name="query_published_after"]').val(),
-        "display_query_published_after"
+        "display_query_published_after",
       );
       setDisplayDate(
         $('[name="query_published_before"]').val(),
-        "display_query_published_before"
+        "display_query_published_before",
       );
       $("#display_title_contains").val(
-        $('[name = "query_title_contains"]').val()
+        $('[name = "query_title_contains"]').val(),
       );
       $("#display_query_page_result").val(
-        $('[name="archive_page_result"]').val()
+        $('[name="archive_page_result"]').val(),
       );
 
       $("#display_query_page_result").on("blur", function () {
         $('[name="archive_page_result"]').val(
-          $("#display_query_page_result").val()
+          $("#display_query_page_result").val(),
         );
       });
       $("#display_query_page_result").on("change", function () {
         $('[name="archive_page_result"]').val(
-          $("#display_query_page_result").val()
+          $("#display_query_page_result").val(),
         );
       });
 
       $("#display_title_contains").on("blur", function () {
         $('[name = "query_title_contains"]').val(
-          $("#display_title_contains").val()
+          $("#display_title_contains").val(),
         );
         buildQuery();
       });
       $("#display_title_contains").on("change", function () {
         $('[name = "query_title_contains"]').val(
-          $("#display_title_contains").val()
+          $("#display_title_contains").val(),
         );
         buildQuery();
       });

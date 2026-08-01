@@ -17,11 +17,11 @@
 
 package com.percussion.membership.data;
 
-import tools.jackson.databind.annotation.JsonSerialize;
 import com.percussion.delivery.services.PSCustomDateSerializer;
 import com.percussion.membership.data.IPSMembership.PSMemberStatus;
 import java.util.Date;
 import org.apache.commons.lang3.Validate;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 /**
  * Object to hold summary data about a registered user.

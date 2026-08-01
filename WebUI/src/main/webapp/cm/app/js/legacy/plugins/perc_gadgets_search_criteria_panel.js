@@ -81,15 +81,15 @@
     if (criteriaObj != null && !checkAllValues(criteriaObj))
       $(container)
         .find(
-          ".perc-search-criteria-panel-content-spans:last .perc-search-criteria-panel-values-spans"
+          ".perc-search-criteria-panel-content-spans:last .perc-search-criteria-panel-values-spans",
         )
         .html(
           $(container)
             .find(
-              ".perc-search-criteria-panel-content-spans:last .perc-search-criteria-panel-values-spans"
+              ".perc-search-criteria-panel-content-spans:last .perc-search-criteria-panel-values-spans",
             )
             .html()
-            .slice(0, -1)
+            .slice(0, -1),
         );
 
     container

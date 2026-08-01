@@ -30,7 +30,7 @@ function preinit() {
     document.write(
       '<script language="javascript" src="' +
         tinyMCEPopup.editor.documentBaseURI.toAbsolute(url) +
-        '"></script>'
+        '"></script>',
     );
   }
 }
@@ -54,21 +54,21 @@ function init() {
     "hrefbrowser",
     "href",
     "file",
-    "advlink"
+    "advlink",
   );
   document.getElementById("popupurlbrowsercontainer").innerHTML =
     getBrowserHTML("popupurlbrowser", "popupurl", "file", "advlink");
   document.getElementById("linklisthrefcontainer").innerHTML = getLinkListHTML(
     "linklisthref",
-    "href"
+    "href",
   );
   document.getElementById("anchorlistcontainer").innerHTML = getAnchorListHTML(
     "anchorlist",
-    "href"
+    "href",
   );
   document.getElementById("targetlistcontainer").innerHTML = getTargetListHTML(
     "targetlist",
-    "target"
+    "target",
   );
 
   // Link list
@@ -143,7 +143,7 @@ function init() {
       formObj,
       "targetlist",
       inst.dom.getAttrib(elm, "target"),
-      true
+      true,
     );
   }
 }
@@ -256,7 +256,7 @@ function parseLink(link) {
 
   var fnName = link.replace(
     new RegExp("\\s*([A-Za-z0-9.]*)\\s*\\(.*", "gi"),
-    "$1"
+    "$1",
   );
 
   // Is function name a template function
@@ -264,7 +264,7 @@ function parseLink(link) {
   if (template) {
     // Build regexp
     var variableNames = template.match(
-      new RegExp("'?\\${[A-Za-z0-9.]*}'?", "gi")
+      new RegExp("'?\\${[A-Za-z0-9.]*}'?", "gi"),
     );
     var regExp = "\\s*[A-Za-z0-9.]*\\s*\\(";
     var replaceStr = "";
@@ -279,7 +279,7 @@ function parseLink(link) {
       // Cleanup variable name
       variableNames[i] = variableNames[i].replace(
         new RegExp("[^A-Za-z0-9]", "gi"),
-        ""
+        "",
       );
 
       if (i != variableNames.length - 1) {
@@ -492,7 +492,7 @@ function setAllAttribs(elm) {
     setAttrib(
       elm,
       "sys_dependentvariantid",
-      formObj.sys_dependentvariantid.value
+      formObj.sys_dependentvariantid.value,
     );
   if (formObj.rxinlineslot.value !== "rxinlineslot")
     setAttrib(elm, "rxinlineslot", formObj.rxinlineslot.value);
@@ -504,7 +504,7 @@ function setAllAttribs(elm) {
     setAttrib(
       elm,
       "resourcedefinitionid",
-      formObj.perc_resource_definition_id.value
+      formObj.perc_resource_definition_id.value,
     ); // AG 1/26/2010
   // } JGA
   setAttrib(elm, "href", href);

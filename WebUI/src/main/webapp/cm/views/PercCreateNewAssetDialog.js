@@ -19,7 +19,7 @@
   $.PercCreateNewAssetDialog = function (
     assetType,
     successCallback,
-    cancelCallback
+    cancelCallback,
   ) {
     $.PercCreateNewAssetDialogData = {};
     $.PercCreateNewAssetDialogData.successCallback = successCallback;
@@ -34,7 +34,7 @@
         if (status === $.PercServiceUtils.STATUS_ERROR) {
           $.perc_utils.alert_dialog({
             title: I18N.message(
-              "perc.ui.create.new.asset.dialog@Error New Asset"
+              "perc.ui.create.new.asset.dialog@Error New Asset",
             ),
             content: result,
           });
@@ -45,7 +45,7 @@
         }
         $.PercCreateNewAssetDialogData.assetEditor = result.AssetEditor;
         createContentEditDialog();
-      }
+      },
     );
     /**
      * Creats the content editor dialog. Sets the height and widths as per the criteria
@@ -71,7 +71,7 @@
       //Create dialog and set the preferred height and width from the criteria
       dialog = $(dlgHtml).perc_dialog({
         title: I18N.message(
-          "perc.ui.create.new.asset.dialog@Edit Widget Content"
+          "perc.ui.create.new.asset.dialog@Edit Widget Content",
         ),
         resizable: true,
         modal: true,
@@ -105,7 +105,7 @@
     $.PercBlockUI();
     var assetEditor = $.PercCreateNewAssetDialogData.assetEditor;
     $contentFrameElem("#perc-content-edit-sys_workflowid").val(
-      assetEditor.workflowId
+      assetEditor.workflowId,
     );
     var path = assetEditor.url;
     path = path.split("?")[0];

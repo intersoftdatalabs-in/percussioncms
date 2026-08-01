@@ -65,7 +65,7 @@ function processAlert(response) {
   processTemplate(
     response,
     "templateResponseFooterAlert",
-    "percFooterAlertTarget"
+    "percFooterAlertTarget",
   );
   bindFooterAlertEvents();
   $("#percFooterAlertTarget").animateCss("fadeInUp");
@@ -87,7 +87,7 @@ function startProcessRunningAlert() {
     processTemplate(
       siteListObject,
       "templateProcessRunningFooterAlert",
-      "percFooterAlertTarget"
+      "percFooterAlertTarget",
     );
     $("#percFooterAlertTarget").animateCss("fadeInUp");
   }, 500);
@@ -242,7 +242,7 @@ Handlebars.registerHelper(
     } else {
       return true;
     }
-  }
+  },
 );
 
 Handlebars.registerHelper(
@@ -253,7 +253,7 @@ Handlebars.registerHelper(
     } else {
       return false;
     }
-  }
+  },
 );
 
 Handlebars.registerHelper("filterByValue", function (array, keyName, keyValue) {
@@ -281,13 +281,13 @@ Handlebars.registerHelper("checkCurrentPrivateKey", function (keyName) {
       getArrayProperty(
         selectedServerData.serverInfo.properties,
         "key",
-        "privateKey"
+        "privateKey",
       )
     ) {
       storedKey = getArrayProperty(
         selectedServerData.serverInfo.properties,
         "key",
-        "privateKey"
+        "privateKey",
       ).value;
       if (keyName === storedKey) {
         return true;

@@ -32,13 +32,13 @@
         );
     }
     if ("object" != typeof a || "object" != typeof c) return !1;
-    for (var f = d.length; f--; ) if (d[f] == a) return !0;
+    for (var f = d.length; f--;) if (d[f] == a) return !0;
     d.push(a);
     var f = 0,
       g = !0;
     if ("[object Array]" == e) {
       if (((f = a.length), (g = f == c.length)))
-        for (; f-- && (g = f in a == f in c && r(a[f], c[f], d)); );
+        for (; f-- && (g = f in a == f in c && r(a[f], c[f], d)););
     } else {
       if (
         "constructor" in a != "constructor" in c ||
@@ -256,14 +256,14 @@
           return c === void 0
             ? 1
             : d === void 0
-            ? -1
-            : c < d
-            ? -1
-            : c > d
-            ? 1
-            : 0;
+              ? -1
+              : c < d
+                ? -1
+                : c > d
+                  ? 1
+                  : 0;
         }),
-      "value"
+      "value",
     );
   };
   b.groupBy = function (a, c) {
@@ -281,7 +281,7 @@
   };
   b.sortedIndex = function (a, c, d) {
     d || (d = b.identity);
-    for (var e = 0, f = a.length; e < f; ) {
+    for (var e = 0, f = a.length; e < f;) {
       var g = (e + f) >> 1;
       d(a[g]) < d(c) ? (e = g + 1) : (f = g);
     }
@@ -291,10 +291,10 @@
     return !a
       ? []
       : b.isArray(a) || b.isArguments(a)
-      ? i.call(a)
-      : a.toArray && b.isFunction(a.toArray)
-      ? a.toArray()
-      : b.values(a);
+        ? i.call(a)
+        : a.toArray && b.isFunction(a.toArray)
+          ? a.toArray()
+          : b.values(a);
   };
   b.size = function (a) {
     return b.isArray(a) ? a.length : b.keys(a).length;
@@ -329,7 +329,7 @@
         a[a.length] = e;
         return a;
       },
-      []
+      [],
     );
   };
   b.without = function (a) {
@@ -348,7 +348,7 @@
         }
         return d;
       },
-      []
+      [],
     );
     return e;
   };
@@ -396,7 +396,7 @@
   b.lastIndexOf = function (a, b) {
     if (a == null) return -1;
     if (F && a.lastIndexOf === F) return a.lastIndexOf(b);
-    for (var d = a.length; d--; ) if (d in a && a[d] === b) return d;
+    for (var d = a.length; d--;) if (d in a && a[d] === b) return d;
     return -1;
   };
   b.range = function (a, b, d) {
@@ -410,7 +410,6 @@
         f = 0,
         g = Array(e);
       f < e;
-
     ) {
       g[f++] = a;
       a = a + d;

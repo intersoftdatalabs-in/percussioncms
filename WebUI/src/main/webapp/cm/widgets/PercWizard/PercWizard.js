@@ -27,7 +27,7 @@
       .append("<div class='perc-wizard-steps'>")
       .append("<div class='perc-wizard-content'>")
       .append(
-        "<div class='perc-wizard-required-fields-tip' style='display:none'>* - denotes required field</div>"
+        "<div class='perc-wizard-required-fields-tip' style='display:none'>* - denotes required field</div>",
       ),
     stepIndexStarts: 1,
     currentStep: 0,
@@ -86,7 +86,7 @@
       $(".perc-wizard-content .perc-wizard-content-step").hide();
 
       var content = $(".perc-wizard-content").find(
-        ".perc-wizard-content-" + step
+        ".perc-wizard-content-" + step,
       );
 
       if (content.length == 0 || !this.cache[step]) {
@@ -98,7 +98,7 @@
         var contentStep = $(
           "<div class='perc-wizard-content-" +
             step +
-            " perc-wizard-content-step'>"
+            " perc-wizard-content-step'>",
         ).append(content);
         this.dom.find(".perc-wizard-content").append(contentStep);
       } else {
@@ -205,7 +205,7 @@
                 $.PercWizard.beforeTransition(
                   $.PercWizard.step + 1,
                   null,
-                  $.PercWizard
+                  $.PercWizard,
                 )
               ) {
                 $(".perc-wizard-content").empty();
@@ -249,7 +249,7 @@
                 index +
                 "' class='perc-wizard-step-index perc-wizard-step-inactive'>" +
                 stepIndex +
-                "</div>"
+                "</div>",
             );
             var stepTitle = step.title;
             stepsDom.append(
@@ -257,7 +257,7 @@
                 index +
                 "' class='perc-wizard-step-title'>" +
                 step.title +
-                "</div>"
+                "</div>",
             );
             stepIndex++;
           });

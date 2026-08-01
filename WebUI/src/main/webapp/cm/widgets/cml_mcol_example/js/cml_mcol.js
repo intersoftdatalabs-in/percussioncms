@@ -56,9 +56,9 @@
             .addClass("mcol-remover")
             .append(
               $("<div/>").append(
-                $("<table/>").append($("<tr class='remover-row'/>"))
-              )
-            )
+                $("<table/>").append($("<tr class='remover-row'/>")),
+              ),
+            ),
         )
         .append($("<td/>").addClass("mcol-end-spacer").append($("<div/>")));
       this.element
@@ -73,7 +73,7 @@
         .stop()
         .animate(
           { scrollLeft: col.position().left + this.element.scrollLeft() },
-          1000
+          1000,
         );
     },
     set: function (col, ncol) {
@@ -130,7 +130,7 @@
         .append(
           $("<div/>")
             .addClass("mcol-direc-wrapper")
-            .addClass("mcol-direc-subdirec")
+            .addClass("mcol-direc-subdirec"),
         );
 
       //When a diritem is dropped, it should be added to this directory.
@@ -232,15 +232,15 @@
           $("<tr />")
             .append(
               $("<td/>").append(
-                $("<img/>").attr("src", "icons/" + icn + ".gif")
-              )
+                $("<img/>").attr("src", "icons/" + icn + ".gif"),
+              ),
             )
             .append(
               $("<td/>").append(
-                $("<span class='mcol-clickable'/>").append(spec["tag"])
-              )
-            )
-        )
+                $("<span class='mcol-clickable'/>").append(spec["tag"]),
+              ),
+            ),
+        ),
       )
       .html();
   }
@@ -253,15 +253,15 @@
           $("<tr />")
             .append(
               $("<td/>").append(
-                $("<img/>").attr("src", "icons/" + icn + "_op.gif")
-              )
+                $("<img/>").attr("src", "icons/" + icn + "_op.gif"),
+              ),
             )
             .append(
               $("<td/>").append(
-                $("<span class='mcol-clickable'/>").append(spec["tag"])
-              )
-            )
-        )
+                $("<span class='mcol-clickable'/>").append(spec["tag"]),
+              ),
+            ),
+        ),
       )
       .html();
   }
@@ -274,15 +274,15 @@
           $("<tr />")
             .append(
               $("<td/>").append(
-                $("<img/>").attr("src", "icons/" + icn + "_cl.gif")
-              )
+                $("<img/>").attr("src", "icons/" + icn + "_cl.gif"),
+              ),
             )
             .append(
               $("<td/>").append(
-                $("<span class='mcol-clickable'/>").append(spec["tag"])
-              )
-            )
-        )
+                $("<span class='mcol-clickable'/>").append(spec["tag"]),
+              ),
+            ),
+        ),
       )
       .html();
   }

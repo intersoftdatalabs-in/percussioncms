@@ -37,11 +37,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback(status, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -62,11 +62,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback(status, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -83,11 +83,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback(status, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -104,11 +104,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback(status, defaultMsg);
         }
-      }
+      },
     );
   }
 })(jQuery);

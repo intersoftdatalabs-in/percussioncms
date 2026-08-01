@@ -3,7 +3,7 @@
  * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
  */
 var l, a;
-(l = this),
+((l = this),
   (a = function () {
     "use strict";
     var l = {};
@@ -51,18 +51,18 @@ var l, a;
       .concat(
         u.map(function (l) {
           return l + "x";
-        })
+        }),
       )
       .concat(
         t.map(function (l) {
           return "w-" + l;
-        })
+        }),
       );
     var f = r || {};
-    f[n] || (f[n] = {}),
+    (f[n] || (f[n] = {}),
       f[n].styles || (f[n].styles = {}),
       f[n].hooks || (f[n].hooks = {}),
-      f[n].shims || (f[n].shims = []);
+      f[n].shims || (f[n].shims = []));
     var i = f[n],
       s = [
         ["glass", null, "glass-martini"],
@@ -546,5 +546,5 @@ var l, a;
   "object" == typeof exports && "undefined" != typeof module
     ? (module.exports = a())
     : "function" == typeof define && define.amd
-    ? define(a)
-    : (l["fontawesome-free-shims"] = a());
+      ? define(a)
+      : (l["fontawesome-free-shims"] = a()));

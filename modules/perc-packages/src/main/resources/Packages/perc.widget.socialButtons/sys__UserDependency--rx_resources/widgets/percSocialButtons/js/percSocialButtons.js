@@ -29,17 +29,17 @@
         $(".perc-social-page-link").css("color", "#333333");
         $(".perc-email-row *").attr("disabled", true);
         $(".perc-email-row .perc-social-button-ui").addClass(
-          "perc-social-button-ui-disabled"
+          "perc-social-button-ui-disabled",
         );
         $(".perc-email-row").find("td,input").css("color", "#7f7f7f");
         $(".perc-whatsapp-row *").attr("disabled", true);
         $(".perc-whatsapp-row .perc-social-button-ui").addClass(
-          "perc-social-button-ui-disabled"
+          "perc-social-button-ui-disabled",
         );
         $(".perc-whatsapp-row").find("td,input").css("color", "#7f7f7f");
         $(".perc-youtube-row *").attr("disabled", false);
         $(".perc-youtube-row .perc-social-button-ui").removeClass(
-          "perc-social-button-ui-disabled"
+          "perc-social-button-ui-disabled",
         );
         $(".perc-youtube-row").find("td,input").css("color", "#333333");
         $(".perc-social-enable-whatsapp-checkbox").attr("checked", false);
@@ -48,17 +48,17 @@
         $(".perc-social-enable-youtube-checkbox").attr("checked", false);
         $(".perc-youtube-row *").attr("disabled", true);
         $(".perc-youtube-row .perc-social-button-ui").addClass(
-          "perc-social-button-ui-disabled"
+          "perc-social-button-ui-disabled",
         );
         $(".perc-youtube-row").find("td,input").css("color", "#7f7f7f");
         $(".perc-email-row *").attr("disabled", false);
         $(".perc-email-row .perc-social-button-ui").removeClass(
-          "perc-social-button-ui-disabled"
+          "perc-social-button-ui-disabled",
         );
         $(".perc-email-row").find("td,input").css("color", "#333333");
         $(".perc-whatsapp-row *").attr("disabled", false);
         $(".perc-whatsapp-row .perc-social-button-ui").removeClass(
-          "perc-social-button-ui-disabled"
+          "perc-social-button-ui-disabled",
         );
         $(".perc-whatsapp-row").find("td,input").css("color", "#333333");
         $(".perc-social-page-link").attr("disabled", true);
@@ -93,7 +93,7 @@
       if ($("#perc-social-button-type option:selected").val() === "share") {
         $(".perc-youtube-row *").attr("disabled", true);
         $(".perc-youtube-row .perc-social-button-ui").addClass(
-          "perc-social-button-ui-disabled"
+          "perc-social-button-ui-disabled",
         );
         $(".perc-youtube-row").find("td,input").css("color", "#7f7f7f");
         $(".perc-social-page-link").attr("disabled", true);
@@ -124,7 +124,7 @@
           // hides youtube row to start
           $(".perc-youtube-row *").attr("disabled", true);
           $(".perc-youtube-row .perc-social-button-ui").addClass(
-            "perc-social-button-ui-disabled"
+            "perc-social-button-ui-disabled",
           );
           $(".perc-youtube-row").find("td,input").css("color", "#7f7f7f");
           $(".perc-social-page-link").attr("disabled", true);
@@ -138,7 +138,7 @@
           // before interpolating into a jQuery class selector.
           var safePlatform = String(data.config[i].platform || "").replace(
             /[^a-zA-Z0-9_-]/g,
-            ""
+            "",
           );
           $(".perc-" + safePlatform + "-row")
             .find(".perc-social-platform")
@@ -167,7 +167,7 @@
             .val(data.config[i].socialLink);
           $(".perc-" + safePlatform + "-row").attr(
             "data-order",
-            data.config[i].buttonOrder
+            data.config[i].buttonOrder,
           );
 
           i++;
@@ -245,7 +245,7 @@
 
       //Add the pre-submit handler to prepare data for saving.
       window.parent.jQuery.PercContentPreSubmitHandlers.addHandler(
-        _preSubmitHandler
+        _preSubmitHandler,
       );
     }
 
@@ -255,7 +255,7 @@
      */
     function validateForm() {
       var urlregex = new RegExp(
-        "^(http://|https://){1}((www.)?([0-9A-Za-z]+.)|(plus.google.){1})"
+        "^(http://|https://){1}((www.)?([0-9A-Za-z]+.)|(plus.google.){1})",
       );
 
       $.each(config, function (key, value) {

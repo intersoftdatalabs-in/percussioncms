@@ -77,7 +77,7 @@
         viewX,
         opts.offsetY + viewY,
         viewW - SCROLLBAR_WIDTH,
-        opts.width
+        opts.width,
       );
       $("body").append(scrollUpDiv);
     }
@@ -88,7 +88,7 @@
         viewX,
         opts.offsetY + viewY + viewH - SCROLLBAR_WIDTH - opts.width,
         viewW - SCROLLBAR_WIDTH,
-        opts.width + SCROLLBAR_WIDTH
+        opts.width + SCROLLBAR_WIDTH,
       );
       $("body").append(scrollDownDiv);
     }
@@ -99,7 +99,7 @@
         viewX,
         opts.offsetY + viewY + opts.width,
         opts.width,
-        viewH - SCROLLBAR_WIDTH - opts.width * 2
+        viewH - SCROLLBAR_WIDTH - opts.width * 2,
       );
       $("body").append(scrollLeftDiv);
     }
@@ -110,7 +110,7 @@
         viewX + viewW - SCROLLBAR_WIDTH - opts.width,
         opts.offsetY + viewY + opts.width,
         opts.width,
-        viewH - SCROLLBAR_WIDTH - opts.width * 2
+        viewH - SCROLLBAR_WIDTH - opts.width * 2,
       );
       $("body").append(scrollRightDiv);
     }
@@ -176,7 +176,7 @@
 
     $(this).percAutoScroll.postScrollView(
       newScrollLeft - scrollLeft,
-      newScrollTop - scrollTop
+      newScrollTop - scrollTop,
     );
   }
 

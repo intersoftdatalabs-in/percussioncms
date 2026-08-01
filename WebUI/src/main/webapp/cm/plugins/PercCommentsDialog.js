@@ -46,7 +46,7 @@
 
       if (status === $.PercServiceUtils.STATUS_ERROR) {
         var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-          result.request
+          result.request,
         );
         $.perc_utils.alert_dialog({ title: "Error", content: defaultMsg });
         callback(false);
@@ -108,7 +108,7 @@
           var comment = this;
           var commentDate = new Date(comment.commentDate);
           var commentDateParts = $.perc_utils.splitDateTime(
-            comment.commentDate
+            comment.commentDate,
           );
           var commentDateDate = commentDateParts.date;
           var commentDateTime = commentDateParts.time;

@@ -35,7 +35,7 @@ tinymce.PluginManager.add("codemirror", function (editor, url) {
     // Insert caret marker
     if (editor.options.get("codemirror").saveCursorPosition) {
       editor.selection.setContent(
-        '<span style="display: none;" class="CmCaReT">&#x0;</span>'
+        '<span style="display: none;" class="CmCaReT">&#x0;</span>',
       );
     }
 
@@ -78,7 +78,7 @@ tinymce.PluginManager.add("codemirror", function (editor, url) {
       onAction: function (dialogApi, actionData) {
         if (actionData.name === "codemirrorOk") {
           var doc = document.querySelectorAll(
-            ".tox-dialog__body-iframe iframe"
+            ".tox-dialog__body-iframe iframe",
           )[0];
           doc.contentWindow.submit();
           editor.undoManager.add();

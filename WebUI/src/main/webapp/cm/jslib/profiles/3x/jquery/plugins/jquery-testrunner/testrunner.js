@@ -304,7 +304,7 @@
           if (
             li[i].className.indexOf("fail") > -1 &&
             li[i].innerHTML.indexOf(
-              "missing test - untested code is broken code"
+              "missing test - untested code is broken code",
             ) > -1
           ) {
             li[i].parentNode.parentNode.style.display = missing.checked
@@ -450,7 +450,7 @@
     if (pollution.length > old.length) {
       ok(
         false,
-        "Introduced global variable(s): " + diff(old, pollution).join(", ")
+        "Introduced global variable(s): " + diff(old, pollution).join(", "),
       );
       config.expected++;
     }
@@ -482,7 +482,7 @@
         setup: function () {},
         teardown: function () {},
       },
-      config.moduleLifecycle
+      config.moduleLifecycle,
     );
 
     if (!validTest(name)) {
@@ -514,7 +514,7 @@
         fail("Test " + name + " died, exception and test follows", e, callback);
         QUnit.ok(
           false,
-          "Died on test #" + (config.assertions.length + 1) + ": " + e.message
+          "Died on test #" + (config.assertions.length + 1) + ": " + e.message,
         );
         // else next test will carry the responsibility
         saveGlobal();
@@ -539,7 +539,7 @@
             name +
             ", exception and reset fn follows",
           e,
-          reset
+          reset,
         );
       }
 
@@ -550,7 +550,7 @@
             config.expected +
             " assertions, but " +
             config.assertions.length +
-            " were run"
+            " were run",
         );
       }
 
@@ -732,7 +732,7 @@
       ret,
       !ret
         ? msg + " expected: " + serialArray(b) + " result: " + serialArray(a)
-        : msg
+        : msg,
     );
   }
 
@@ -787,7 +787,7 @@
             ", expected: " +
             jsDump.parse(expected) +
             " result: " +
-            jsDump.parse(actual)
+            jsDump.parse(actual),
     );
   }
 
@@ -817,7 +817,7 @@
         false,
         false,
         0,
-        null
+        null,
       );
       elem.dispatchEvent(event);
     } else if (elem.fireEvent) {
@@ -887,8 +887,8 @@
       return type == "function"
         ? parser.call(this, obj)
         : type == "string"
-        ? parser
-        : this.parsers.error;
+          ? parser
+          : this.parsers.error;
     },
     typeOf: function (obj) {
       var type = typeof obj,
@@ -896,28 +896,28 @@
       return type != "object" && type != f
         ? type
         : !obj
-        ? "null"
-        : obj.exec
-        ? "regexp" // some browsers (FF) consider regexps functions
-        : obj.getHours
-        ? "date"
-        : obj.scrollBy
-        ? "window"
-        : obj.nodeName == "#document"
-        ? "document"
-        : obj.nodeName
-        ? "node"
-        : obj.item
-        ? "nodelist" // Safari reports nodelists as functions
-        : obj.callee
-        ? "arguments"
-        : obj.call ||
-          (obj.constructor != Array && //an array would also fall on this hack
-            (obj + "").indexOf(f) != -1)
-        ? f //IE reports functions like alert, as objects
-        : "length" in obj
-        ? "array"
-        : type;
+          ? "null"
+          : obj.exec
+            ? "regexp" // some browsers (FF) consider regexps functions
+            : obj.getHours
+              ? "date"
+              : obj.scrollBy
+                ? "window"
+                : obj.nodeName == "#document"
+                  ? "document"
+                  : obj.nodeName
+                    ? "node"
+                    : obj.item
+                      ? "nodelist" // Safari reports nodelists as functions
+                      : obj.callee
+                        ? "arguments"
+                        : obj.call ||
+                            (obj.constructor != Array && //an array would also fall on this hack
+                              (obj + "").indexOf(f) != -1)
+                          ? f //IE reports functions like alert, as objects
+                          : "length" in obj
+                            ? "array"
+                            : type;
     },
     separator: function () {
       return this.multiline
@@ -925,8 +925,8 @@
           ? "<br />"
           : "\n"
         : this.HTML
-        ? "&nbsp;"
-        : " ";
+          ? "&nbsp;"
+          : " ";
     },
     indent: function (extra) {
       // extra can be a number, shortcut for increasing-calling-decreasing

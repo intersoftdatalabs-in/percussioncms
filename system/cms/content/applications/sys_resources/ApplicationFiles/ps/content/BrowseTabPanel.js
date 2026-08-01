@@ -27,7 +27,7 @@ ps.declare(
       ps.event.topic.subscribe(
         this.tab.parent.domNode.id + "-selectChild",
         this,
-        "_onTabSelected"
+        "_onTabSelected",
       );
       this.tab.setUrl(this.url);
 
@@ -80,7 +80,7 @@ ps.declare(
       this.rootContentActions = this._defineRootContentActions();
       ps.assert(
         this._isTabLoaded(),
-        "Tab " + this.prefix + " should be loaded already"
+        "Tab " + this.prefix + " should be loaded already",
       );
 
       this.parseControls();
@@ -126,7 +126,7 @@ ps.declare(
       ps.util.forceDialogResize(
         this.parent.wgtDlg,
         this.parent.preferredWidth,
-        this.parent.preferredHeight
+        this.parent.preferredHeight,
       );
       //
     },
@@ -213,7 +213,7 @@ ps.declare(
       var snippetId = this.templatesPanelObj.getSelectedId();
       var response = ps.io.Actions.resolveSiteFolders(
         this._getUISiteName(),
-        this._getUIFolderPath()
+        this._getUIFolderPath(),
       );
       if (response.isSuccess()) {
         var temp = response.getValue();
@@ -236,7 +236,7 @@ ps.declare(
           snippetId,
           slotId,
           this._getUIFolderPath(),
-          this._getUISiteName()
+          this._getUISiteName(),
         );
         if (response1.isSuccess()) {
           this.parent.okCallback(slotId);
@@ -252,7 +252,7 @@ ps.declare(
               slotId,
               refRelId,
               newRelId,
-              position
+              position,
             );
             //Reset the reference to new rel id and position to "after"
             this.parent.refRelId = newRelId;
@@ -376,7 +376,7 @@ ps.declare(
             !filter.trim() ||
             _this._getCellText(str).indexOf(filter) !== -1
           );
-        }
+        },
       );
     },
 
@@ -388,7 +388,7 @@ ps.declare(
       this._maybeSetButton(
         this.okButton,
         this.okButton.caption,
-        !this.contentTable.getSelectedData()
+        !this.contentTable.getSelectedData(),
       );
     },
 
@@ -441,18 +441,18 @@ ps.declare(
 
       this._setButtonDisabledSpecial(
         this.backButton,
-        !this.pathHistory.canGoBack()
+        !this.pathHistory.canGoBack(),
       );
       this._setButtonDisabledSpecial(
         this.upButton,
-        this.getPath() === this.ROOT
+        this.getPath() === this.ROOT,
       );
 
       this._maybeRestoreButtonState("okButton");
       this._maybeSetButton(
         this.okButton,
         psxGetLocalMessage("javascript.ps.content.browse@Open"),
-        true
+        true,
       );
 
       this._scrollPathText();
@@ -513,7 +513,7 @@ ps.declare(
             false,
             false,
             32,
-            32
+            32,
           );
           this.pathText.dispatchEvent(e);
 
@@ -529,7 +529,7 @@ ps.declare(
             false,
             false,
             8,
-            0
+            0,
           );
           this.pathText.dispatchEvent(e1);
         } catch (ignore) {}
@@ -568,7 +568,7 @@ ps.declare(
         var action = this.rootContentActions[this.prefix];
         ps.assert(
           action,
-          "Root content action for " + this.prefix + " should be specified"
+          "Root content action for " + this.prefix + " should be specified",
         );
         response = action();
         maybeSetContent(response);
@@ -589,10 +589,10 @@ ps.declare(
           "okButton",
           this.okButton,
           psxGetLocalMessage("javascript.ps.content.browse@Select"),
-          false
+          false,
         );
         this.cancelButton.setCaption(
-          psxGetLocalMessage("javascript.ps.content.browse@Back")
+          psxGetLocalMessage("javascript.ps.content.browse@Back"),
         );
 
         // See _handleTemplateOk as this is the callback that
@@ -776,7 +776,7 @@ ps.declare(
         path,
         this._getContentType(),
         this.parent.slotId.getSlotId(),
-        this.isSiteTab()
+        this.isSiteTab(),
       );
     },
 
@@ -932,14 +932,14 @@ ps.declare(
         this._setSplitPaneChildVisible(
           this.mainSplitPane,
           this.templatesPanel,
-          true
+          true,
         );
         if (!this.isFolderTab()) {
           this._maybeCreateTemplatesSiteFolderParam();
           this._setSplitPaneChildVisible(
             this.mainSplitPane,
             this.templatesSiteFolderParam,
-            true
+            true,
           );
         }
         // We first remove the command panel then add it
@@ -947,30 +947,30 @@ ps.declare(
         this._setSplitPaneChildVisible(
           this.mainSplitPane,
           this.commandPanel,
-          false
+          false,
         );
         this._setSplitPaneChildVisible(
           this.mainSplitPane,
           this.commandPanel,
-          true
+          true,
         );
         if (this.isSearchTab()) {
           this._setSplitPaneChildVisible(
             this.mainSplitPane,
             this.contentSplitPane,
-            false
+            false,
           );
           this.searchBackButton.hide();
         } else {
           this._setSplitPaneChildVisible(
             this.mainSplitPane,
             this.addressbarPanel,
-            false
+            false,
           );
           this._setSplitPaneChildVisible(
             this.mainSplitPane,
             this.clientPanel,
-            false
+            false,
           );
         }
       } // !isTemplateMode
@@ -979,19 +979,19 @@ ps.declare(
           this._setSplitPaneChildVisible(
             this.mainSplitPane,
             this.contentSplitPane,
-            true
+            true,
           );
           if (!this.isSearchForm) this.searchBackButton.show();
         } else {
           this._setSplitPaneChildVisible(
             this.mainSplitPane,
             this.addressbarPanel,
-            true
+            true,
           );
           this._setSplitPaneChildVisible(
             this.mainSplitPane,
             this.clientPanel,
-            true
+            true,
           );
         }
         // We first remove the command panel then add it
@@ -999,32 +999,32 @@ ps.declare(
         this._setSplitPaneChildVisible(
           this.mainSplitPane,
           this.commandPanel,
-          false
+          false,
         );
         this._setSplitPaneChildVisible(
           this.mainSplitPane,
           this.commandPanel,
-          true
+          true,
         );
         if (this.templatesPanel) {
           this._setSplitPaneChildVisible(
             this.mainSplitPane,
             this.templatesPanel,
-            false
+            false,
           );
         }
         if (this.templatesSiteFolderParam) {
           this._setSplitPaneChildVisible(
             this.mainSplitPane,
             this.templatesSiteFolderParam,
-            false
+            false,
           );
         }
       }
       ps.util.forceDialogResize(
         this.parent.wgtDlg,
         this.parent.preferredWidth,
-        this.parent.preferredHeight
+        this.parent.preferredHeight,
       );
     },
 
@@ -1077,7 +1077,7 @@ ps.declare(
       this.templatesSiteFolderParam = ps.widget.createWidget(
         "ContentPane",
         params,
-        div
+        div,
       );
       new ps.widget.ContentPaneProgress(this.templatesSiteFolderParam);
     },
@@ -1100,11 +1100,11 @@ ps.declare(
           escape("ps.select.templates.") +
           "&includeSitesLabel=" +
           escape(
-            psxGetLocalMessage("javascript.ps.content.browse@Include_Site")
+            psxGetLocalMessage("javascript.ps.content.browse@Include_Site"),
           ) +
           "&includeFoldersLabel=" +
           escape(
-            psxGetLocalMessage("javascript.ps.content.browse@Include_Folder")
+            psxGetLocalMessage("javascript.ps.content.browse@Include_Folder"),
           );
         this.templatesSiteFolderParam.setUrl(newUrl);
         ps.event.connect(this.templatesSiteFolderParam, "onLoad", function () {
@@ -1161,20 +1161,20 @@ ps.declare(
       //Set the default values for include site id and folder id check boxes
       var inclSitesFlag = ps.util.getServerProperty(
         "slotContentIncludeSiteDefaultValue",
-        ""
+        "",
       );
       var inclFoldersFlag = ps.util.getServerProperty(
         "slotContentIncludeFolderDefaultValue",
-        ""
+        "",
       );
       var includeSites = this._mustById(
-        "ps.select.templates.includeSitesCheckbox"
+        "ps.select.templates.includeSitesCheckbox",
       );
       includeSites.checked = inclSitesFlag == "true" ? true : false;
       includeSites.disabled = false;
 
       var includeFolders = this._mustById(
-        "ps.select.templates.includeFoldersCheckbox"
+        "ps.select.templates.includeFoldersCheckbox",
       );
       includeFolders.checked = inclFoldersFlag == "true" ? true : false;
       includeFolders.disabled = false;
@@ -1289,7 +1289,7 @@ ps.declare(
       }
       ps.assert(
         path !== this.ROOT,
-        "Tried to get parent folder for a root directory"
+        "Tried to get parent folder for a root directory",
       );
       var separator = this.isItemPath(path) ? this.ITEM_SEPARATOR : "/";
       var lastIdx = path.lastIndexOf(separator);
@@ -1324,7 +1324,7 @@ ps.declare(
       var to = html.lastIndexOf("</a>");
       ps.assert(
         from > 0 && to > 0 && from <= to,
-        "Unexpected html of the string: " + html
+        "Unexpected html of the string: " + html,
       );
       return html.substring(from, to);
     },
@@ -1370,5 +1370,5 @@ ps.declare(
      * Constant for the Ok button.
      */
     OK_LABEL: psxGetLocalMessage("javascript.ps.content.browse@Ok"),
-  }
+  },
 );

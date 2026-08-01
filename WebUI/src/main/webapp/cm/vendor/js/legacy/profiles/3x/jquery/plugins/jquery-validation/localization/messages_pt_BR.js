@@ -27,36 +27,36 @@
       "Por favor, forne&ccedil;a um cart&atilde;o de cr&eacute;dito v&aacute;lido.",
     equalTo: "Por favor, forne&ccedil;a o mesmo valor novamente.",
     maxlength: $.validator.format(
-      "Por favor, forne&ccedil;a n&atilde;o mais que {0} caracteres."
+      "Por favor, forne&ccedil;a n&atilde;o mais que {0} caracteres.",
     ),
     minlength: $.validator.format(
-      "Por favor, forne&ccedil;a ao menos {0} caracteres."
+      "Por favor, forne&ccedil;a ao menos {0} caracteres.",
     ),
     rangelength: $.validator.format(
-      "Por favor, forne&ccedil;a um valor entre {0} e {1} caracteres de comprimento."
+      "Por favor, forne&ccedil;a um valor entre {0} e {1} caracteres de comprimento.",
     ),
     range: $.validator.format(
-      "Por favor, forne&ccedil;a um valor entre {0} e {1}."
+      "Por favor, forne&ccedil;a um valor entre {0} e {1}.",
     ),
     max: $.validator.format(
-      "Por favor, forne&ccedil;a um valor menor ou igual a {0}."
+      "Por favor, forne&ccedil;a um valor menor ou igual a {0}.",
     ),
     min: $.validator.format(
-      "Por favor, forne&ccedil;a um valor maior ou igual a {0}."
+      "Por favor, forne&ccedil;a um valor maior ou igual a {0}.",
     ),
     step: $.validator.format(
-      "Por favor, forne&ccedil;a um valor m&uacute;ltiplo de {0}."
+      "Por favor, forne&ccedil;a um valor m&uacute;ltiplo de {0}.",
     ),
 
     // Metodos Adicionais
     maxWords: $.validator.format(
-      "Por favor, forne&ccedil;a com {0} palavras ou menos."
+      "Por favor, forne&ccedil;a com {0} palavras ou menos.",
     ),
     minWords: $.validator.format(
-      "Por favor, forne&ccedil;a pelo menos {0} palavras."
+      "Por favor, forne&ccedil;a pelo menos {0} palavras.",
     ),
     rangeWords: $.validator.format(
-      "Por favor, forne&ccedil;a entre {0} e {1} palavras."
+      "Por favor, forne&ccedil;a entre {0} e {1} palavras.",
     ),
     accept: "Por favor, forne&ccedil;a um tipo v&aacute;lido.",
     alphanumeric:
@@ -110,14 +110,14 @@
       "Por favor, forne&ccedil;a um n&uacute;mero de c&oacute;digo postal v&aacute;lido.",
     postalcodeBR: "Por favor, forne&ccedil;a um CEP v&aacute;lido.",
     require_from_group: $.validator.format(
-      "Por favor, forne&ccedil;a pelo menos {0} destes campos."
+      "Por favor, forne&ccedil;a pelo menos {0} destes campos.",
     ),
     skip_or_fill_minimum: $.validator.format(
-      "Por favor, optar entre ignorar esses campos ou preencher pelo menos {0} deles."
+      "Por favor, optar entre ignorar esses campos ou preencher pelo menos {0} deles.",
     ),
     stateUS: "Por favor, forne&ccedil;a um estado v&aacute;lido.",
     strippedminlength: $.validator.format(
-      "Por favor, forne&ccedil;a pelo menos {0} caracteres."
+      "Por favor, forne&ccedil;a pelo menos {0} caracteres.",
     ),
     time: "Por favor, forne&ccedil;a um hor&aacute;rio v&aacute;lido, no intervado de 00:00 a 23:59.",
     time12h:

@@ -2,30 +2,30 @@
   "function" == typeof define && define.amd
     ? define(["jquery"], e)
     : "object" == typeof exports
-    ? (module.exports = e(require("jquery")))
-    : e(jQuery);
+      ? (module.exports = e(require("jquery")))
+      : e(jQuery);
 })(function (e) {
   var a = "https://www.googleapis.com/calendar/v3/calendars",
     o = e.fullCalendar,
     r = o.applyAll;
-  o.sourceNormalizers.push(function (e) {
+  (o.sourceNormalizers.push(function (e) {
     var a,
       o = e.googleCalendarId,
       r = e.url;
-    !o &&
+    (!o &&
       r &&
       (/^[^\/]+@([^\/\.]+\.)*(google|googlemail|gmail)\.com$/.test(r)
         ? (o = r)
         : ((a =
             /^https:\/\/www.googleapis.com\/calendar\/v3\/calendars\/([^\/]*)/.exec(
-              r
+              r,
             )) ||
             (a = /^https?:\/\/www.google.com\/calendar\/feeds\/([^\/]*)/.exec(
-              r
+              r,
             ))) &&
           (o = decodeURIComponent(a[1])),
       o && (e.googleCalendarId = o)),
-      o && (null == e.editable && (e.editable = !1), (e.url = o));
+      o && (null == e.editable && (e.editable = !1), (e.url = o)));
   }),
     o.sourceFetchers.push(function (n, l, t, d) {
       if (n.googleCalendarId)
@@ -41,14 +41,14 @@
             p = n.success;
           function m(a, r) {
             var l = r || [{ message: a }];
-            (n.googleCalendarError || e.noop).apply(c, l),
+            ((n.googleCalendarError || e.noop).apply(c, l),
               (c.options.googleCalendarError || e.noop).apply(c, l),
-              o.warn.apply(null, [a].concat(r || []));
+              o.warn.apply(null, [a].concat(r || [])));
           }
           if (!g)
             return (
               m(
-                "Specify a googleCalendarApiKey. See http://fullcalendar.io/docs/google_calendar/"
+                "Specify a googleCalendarApiKey. See http://fullcalendar.io/docs/google_calendar/",
               ),
               {}
             );
@@ -81,7 +81,7 @@
                   a.items &&
                   (e.each(a.items, function (e, a) {
                     var o = a.htmlLink || null;
-                    s &&
+                    (s &&
                       null !== o &&
                       (o = (function (e, a) {
                         return e.replace(/(\?.*?)?(#|$)/, function (e, o, r) {
@@ -96,7 +96,7 @@
                         url: o,
                         location: a.location,
                         description: a.description,
-                      });
+                      }));
                   }),
                   (o = [l].concat(Array.prototype.slice.call(arguments, 1))),
                   (n = r(p, this, o)),
@@ -108,5 +108,5 @@
             })
           );
         })(n, l, t, d, this);
-    });
+    }));
 });

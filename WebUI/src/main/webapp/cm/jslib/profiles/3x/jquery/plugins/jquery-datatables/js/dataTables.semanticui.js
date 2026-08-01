@@ -74,7 +74,7 @@
     idx,
     buttons,
     page,
-    pages
+    pages,
   ) {
     var api = new DataTable.Api(settings);
     var classes = settings.oClasses;
@@ -180,7 +180,7 @@
         .empty()
         .html('<div class="ui stackable pagination menu"/>')
         .children(),
-      buttons
+      buttons,
     );
 
     if (activeEl !== undefined) {
@@ -208,7 +208,7 @@
       .removeClass("input")
       .addClass("form");
     $("div.dataTables_filter input", api.table().container()).wrap(
-      '<span class="ui input" />'
+      '<span class="ui input" />',
     );
   });
 

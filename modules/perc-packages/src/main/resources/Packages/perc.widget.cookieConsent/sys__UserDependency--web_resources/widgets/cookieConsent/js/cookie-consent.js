@@ -38,7 +38,7 @@ $(function () {
  */
 function checkForConsentCookie() {
   var result = document.cookie.match(
-    new RegExp(COOKIE_CONSENT_NAME + "=([^;]+)")
+    new RegExp(COOKIE_CONSENT_NAME + "=([^;]+)"),
   );
   result && (result = result[1]);
   return result === "true" || checkForConsentDenyCookie();
@@ -149,7 +149,7 @@ function postEntry() {
           ";path=/; SameSite=Lax;" +
           secure;
       }
-    }
+    },
   );
 }
 

@@ -5,7 +5,7 @@ Page[0] = new Array(
   "In Rhythmyx, a workflow consists of States (steps in the workflow processing of a content item) and Roles (groups of individuals who can act on content). &nbsp;Assign Roles to determine which users can take action on content in each State. &nbsp;Define Transitions to move content from one State to another.",
   "When you create content in a Rhythmyx application that is attached to a workflow, the content is automatically managed by the workflow. &nbsp;The content starts in an Initial State, which is the first State the content enters in the workflow. &nbsp;Most commonly, the Initial State is some form of draft state in which the creator actively edits the content. &nbsp;When the draft is complete, the creator initiates a Transition to a State, typically some form of approval State, in which a member of another Role reviews the content. &nbsp;Further Transitions may involve additional drafts and approvals. &nbsp;The exact pattern is defined by the combination of States, Roles, and Transitions in the workflow. Eventually, the content reaches a State where it is Publishable, meaning it is eligible to be processed by the Rhythmyx Publisher application, which delivers the final output of the content. &nbsp;",
   "About Workflows in Rhythmyx",
-  "About_Workflows_in_Rhythmyx.htm"
+  "About_Workflows_in_Rhythmyx.htm",
 );
 Page[1] = new Array(
   "When you start Rhythmyx Workflow Editor, Rhythmyx displays the Workflow Editor page.",
@@ -16,14 +16,14 @@ Page[1] = new Array(
   "preview the workflow item.",
   "To edit a Workflow, click on its name.",
   "Maintaining Workflows",
-  "Maintaining_Workflows.htm"
+  "Maintaining_Workflows.htm",
 );
 Page[2] = new Array(
   "In addition to the Workflow Editor, Rhythmyx includes two additional pages to use when maintaining Workflows:",
   "Edit Workflow Page",
   "Copy Workflow Page",
   "Workflow Maintenance Dialogs",
-  "12245.htm"
+  "12245.htm",
 );
 Page[3] = new Array(
   "Use the Edit Workflow page to maintain workflows.",
@@ -37,7 +37,7 @@ Page[3] = new Array(
   "Initial State &nbsp;Read only. &nbsp;The numeric identifier of the first State that an item enters in the workflow. Defaults to 1.",
   "Description &nbsp;Optional. &nbsp;Free-form description of the workflow.",
   "Edit Workflow Page",
-  "Edit_Workflow_Page.htm"
+  "Edit_Workflow_Page.htm",
 );
 Page[4] = new Array(
   "Use the Copy Workflow page to create a duplicate of an existing Workflow.  The new Workflow contains all of the States, Roles, Transitions, Role assignments, and Notifications of the original, but will have a new name, which you will designate when copying the Workflow.",
@@ -46,7 +46,7 @@ Page[4] = new Array(
   "Source Workflow  Drop List",
   "New Workflow Name Free-form name of the new Workflow.",
   "Copy Workflow Page",
-  "18823.htm"
+  "18823.htm",
 );
 Page[5] = new Array(
   "You can perform the following maintenance operations on Workflows:",
@@ -56,7 +56,7 @@ Page[5] = new Array(
   "Deleting a Workflow",
   "You can also View any Workflow.",
   "Workflow Maintenance Procedures",
-  "12256.htm"
+  "12256.htm",
 );
 Page[6] = new Array(
   "To create a new Workflow:",
@@ -67,7 +67,7 @@ Page[6] = new Array(
   "Click [Save].",
   "Rhythmyx creates the workflow and returns to the Workflow Editor. &nbsp;Edit the workflow to add States and Roles.",
   "Creating a New Workflow",
-  "Creating_a_New_Workflow.htm"
+  "Creating_a_New_Workflow.htm",
 );
 Page[7] = new Array(
   "If you have an established Workflow that you know works (such as the Simple and Standard Workflows provided with FastForward), you may find it easier to create a new Workflow by copying and modifying that Workflow rather than creating a new Workflow from scratch.  ",
@@ -79,7 +79,7 @@ Page[7] = new Array(
   "Click the [Copy] button.",
   "Rhythmyx copies the Workflow and returns you to the Workflow Editor.  The new Workflow includes copies of all the elements of the original Workflow (such as States, Transitions, Roles and Role Assignments, and Notifications).  You can now edit the new Workflow (such as adding new States and Transitions) to meet your needs.",
   "Copying a Workflow",
-  "12257.htm"
+  "12257.htm",
 );
 Page[8] = new Array(
   "A workflow consists of States and Roles. &nbsp;You can add States and Roles to a workflow or delete them from the workflow.",
@@ -98,7 +98,7 @@ Page[8] = new Array(
   "edit a Notification;",
   "delete a Notification.",
   "Editing a Workflow",
-  "Editing_a_Workflow.htm"
+  "Editing_a_Workflow.htm",
 );
 Page[9] = new Array(
   "To delete a workflow:",
@@ -107,14 +107,14 @@ Page[9] = new Array(
   "Rhythmyx displays a confirmation page.",
   "To confirm the delete action, click [OK]. &nbsp;To abort the delete action, click [Cancel].",
   "Deleting a Workflow",
-  "Deleting_a_Workflow.htm"
+  "Deleting_a_Workflow.htm",
 );
 Page[10] = new Array(
   "Rhythmyx Workflow Editor can display a graphic representation of each workflow. &nbsp;To view the workflow graphically, click the Preview button @&nbsp;in the row of the workflow you want to view.",
   "Vertical lines represent States. &nbsp;The name of the State at the bottom of each line is a hyperlink to the Edit State page for that State. &nbsp;To add a new state to the workflow, click the [Add State] button.",
   "Horizontal arrows represent Transitions. &nbsp;The name of each Transition is a hyperlink to the Edit Transition page for that Transition. &nbsp;To add a new Transition to a State, click the New Transition button @ under that State. &nbsp;To add a new Aging Transition to a State, click the new Aging Transition button @ under that State.",
   "Viewing a Workflow",
-  "Viewing_a_Workflow.htm"
+  "Viewing_a_Workflow.htm",
 );
 Page[11] = new Array(
   "A Role defines a group of individuals that can act on content in a State. &nbsp;The Roles used in a workflow may not correspond to job titles in your company. &nbsp;For example, if you create a marketing workflow, you might create Roles with the names Copywriter, Editor, and Approver. &nbsp;The individuals assigned to the Copywriter Role may carry the job title Copywriter, and the individuals assigned the Editor Role may carry the job title Editor, but the individuals assigned to the Approver Role probably don't have the job title Approver. &nbsp;It is more likely that they carry a job title such as Manager or Director or Vice-President.",
@@ -122,7 +122,7 @@ Page[11] = new Array(
   "You must define Roles before you can assign them to a State.",
   "You should create separate Roles for Communities and Workflows.  You should not assign the Roles that you associate with Communities to Workflows, and you should not associate the Roles that you assign with Workflows to Communities.  This allows you to create parallel Workflows, or Workflows that that apply to Content in more than one Community.  To transition a Content Item, a user must be in a Role assigned to the Content Item's Community and in a Role assigned to the transition. ",
   "Workflow Roles",
-  "Workflow_Roles.htm"
+  "Workflow_Roles.htm",
 );
 Page[12] = new Array(
   "Use the Edit Role page to maintain Roles.",
@@ -133,7 +133,7 @@ Page[12] = new Array(
   "Name &nbsp;Mandatory. &nbsp;The name of the Role you want to maintain. &nbsp;Roles must be defined in the Rhythmyx Server Administrator as well as in Workflow in order to function in the workflow. &nbsp;To access Role Maintenance in the Server Administrator, click the @ button.",
   "Description &nbsp;Optional. &nbsp;A free-form description of the Role.",
   "Edit Role Page in Workflow",
-  "Edit_Role_Page_in_Workflow.htm"
+  "Edit_Role_Page_in_Workflow.htm",
 );
 Page[13] = new Array(
   "To function properly, any Role defined in the Workflow Editor must also be defined in the Server Administrator. Defining the Role in the Server Administrator associates individual users with the Role so they can access content items. &nbsp;To access Role Maintenance in the Server Administrator, click the @ button.  For more details, see &quot;Maintaining Server Roles&quot;",
@@ -145,7 +145,7 @@ Page[13] = new Array(
   "Rhythmyx adds the Role to the workflow.",
   "To allow a Workflow to apply to more than one Community, do not assign Roles associated with Communities to Workflows.  The user assigned to a Workflow Role may have a separate Community Role.",
   "Creating a New Role in Rhythmyx Workflow",
-  "Creating_a_New_Role_in_Rhythmyx_Workflow.htm"
+  "Creating_a_New_Role_in_Rhythmyx_Workflow.htm",
 );
 Page[14] = new Array(
   "You must have a role that represents the Workflow administrator that you give assignee access to all States.  The purpose of this role is to be able to edit and transition content in any state and to override the workflow process. The Workflow administrator role gives assigned users these rights, and is otherwise like any other role. ",
@@ -153,7 +153,7 @@ Page[14] = new Array(
   "In addition, you must always have a user named rxserver that has at least reader access to all States.  However, in general, it is recommended that the rxserver user be assigned to the Workflow administrator role because it enables aging transitions to occur. Therefore, the rxserver user usually has assignee access to every State.",
   "By default, Rhythmyx assigns rxserver to the Admin role.  If you want to use a different role as a Workflow administrator, you must assign rxserver to that role.",
   "About the Workflow Administrator",
-  "About_Workflow_Administrator.htm"
+  "About_Workflow_Administrator.htm",
 );
 Page[15] = new Array(
   "To function properly, any Role defined in the Workflow Editor must also be defined in the Server Administrator. Defining the Role in the Server Administrator associated individual users with the Role so they can access content items. &nbsp;To access Role Maintenance in the Server Administrator, click the @ button.",
@@ -165,7 +165,7 @@ Page[15] = new Array(
   "Click [Save].",
   "Rhythmyx saves your changes.",
   "Editing a Role in Workflow",
-  "Editing_a_Role_in_Workflow.htm"
+  "Editing_a_Role_in_Workflow.htm",
 );
 Page[16] = new Array(
   "Deleting a Role also deletes any assignments of the Role to any States in the workflow.",
@@ -175,13 +175,13 @@ Page[16] = new Array(
   "Rhythmyx displays a confirmation message.",
   "To confirm the delete action, click [OK]. &nbsp;To abort the delete action, click [Cancel].",
   "Deleting a Role in Workflow",
-  "Deleting_a_Role_in_Workflow.htm"
+  "Deleting_a_Role_in_Workflow.htm",
 );
 Page[17] = new Array(
   "You must define Roles on the Rhythmyx server as well as in your Workflows in order for them to function.  If you do not define the Roles on the server, Rhythmyx cannot recognize them and Workflow functionality, such as Transitions, will not be available.  ",
   "To maintain Roles on the Rhythmyx server, click the @ button.  Rhythmyx pops up  a browser displaying the login to the Rhythmyx Administration Console.  Enter your User ID and Password, then click [Login].  Rhythmyx displays the Server Administrator.",
   "Maintaining Server Roles",
-  "Maintaining_Server_Roles.htm"
+  "Maintaining_Server_Roles.htm",
 );
 Page[18] = new Array(
   "A Role is a collection of users or groups of users. &nbsp;In Rhythmyx, Roles are used to manage access to specific applications and to manage access to content items in the Workflow.",
@@ -190,7 +190,7 @@ Page[18] = new Array(
   "Each Role, and each Member in a Role, has a set of properties. Properties are defined by the administrator to provide additional options for customization. &nbsp;For example, a Role might have the property sys_community.  The value of this property specifies the Community to which the members of the Role belong.  Rhythmyx uses this property to implement the Communities feature, filtering the content to which the user has access, the tabs on the Content Explorer that the user can see, and the Content Types and Templates or Variants available to the user.",
   "To maintain Roles, use the Roles tab of the Security tab in the System Administrator. &nbsp;Two views are available. You can view a list of Roles and the Members associated with each Role (Members by Role) or you can view a list of Members and the Roles associated with each Member (Roles by Member). &nbsp;Select the option you want from the View field.",
   "Roles",
-  "Roles.htm"
+  "Roles.htm",
 );
 Page[19] = new Array(
   "The New Role dialog and Edit Role dialog are identical, but the Name field is unavailable when the dialog is displayed as the Edit Role dialog. &nbsp;Users can edit the properties associated with the Role but not the name of the Role. &nbsp;To change the name of the Role, you must delete the Role and add a new Role with the new name.",
@@ -202,7 +202,7 @@ Page[19] = new Array(
   "Properties/Value - Read-only. The value of the property.",
   "Edit Value - Free-form field to enter values for the selected property. Enter each separate value on a different line.",
   "Add/Edit Role Dialog",
-  "Add_Edit_Role_Dialog.htm"
+  "Add_Edit_Role_Dialog.htm",
 );
 Page[20] = new Array(
   "Use the Modify Member List for &lt;Role&gt; dialog to add new members to a Role.",
@@ -220,7 +220,7 @@ Page[20] = new Array(
   "Cataloged Members -  List of Members returned from the security provider. ",
   "All Members - List of Members assigned to the Role.",
   "Modify Member List for &quot;Role&quot; Dialog",
-  "Modify_Member_List_for__Role__Dialog.htm"
+  "Modify_Member_List_for__Role__Dialog.htm",
 );
 Page[21] = new Array(
   "Use the New Member dialog to add a new Member to a Role without cataloging the Member from a security provider. &nbsp;The Edit Member Properties dialog is a variation of this dialog.",
@@ -235,13 +235,13 @@ Page[21] = new Array(
   "Value - The value of the property.",
   "Edit Value - Free-form field to enter values for the selected property. Enter each separate value on a different line. ",
   "New Member Dialog",
-  "New_Member_Dialog.htm"
+  "New_Member_Dialog.htm",
 );
 Page[22] = new Array(
   "Role and Member properties provide a generic mechanism for storing information about users that Rhythmyx can use for processing. &nbsp;Properties may be associated with a Role globally (Role Properties), with individual users (Member Properties), or with individual users only within a specific Role (Role Member Properties).",
   "In general, Role and Member properties are used either to customize interfaces or to facilitate interactions between the end-user and the Rhythmyx server. &nbsp;&nbsp;An example of a Member Property used to facility interaction between the server and the end-user is the Notification feature of Workflow. &nbsp;The user's e-mail address is defined as a Member Property, and Rhythmyx sends Notifications to this address when a content item makes a Transition into a State to which the user's Role is assigned.",
   "Role and Member Properties",
-  "Role_and_Member_Properties.htm"
+  "Role_and_Member_Properties.htm",
 );
 Page[23] = new Array(
   "Rhythmyx requires that you define role properties and member properties for some of its optional features. You can define properties when you configure a DBMS table security provider, or you can assign LDAP attributes as properties.",
@@ -258,7 +258,7 @@ Page[23] = new Array(
   "sys_email",
   "Stores the email address of the login user.  Required if you are using<br />the email notifications feature.",
   "Role and Member Properties Required by Rhythmyx Functions",
-  "Role_and_Member_Properties_Required_by_Rhythmyx_Functions.htm"
+  "Role_and_Member_Properties_Required_by_Rhythmyx_Functions.htm",
 );
 Page[24] = new Array(
   "To add a New Role: &nbsp;",
@@ -275,7 +275,7 @@ Page[24] = new Array(
   "If values are free-form, Rhythmyx will move your cursor to the Edit Value field, where you can enter the values. Enter each unique value on a separate line.",
   "Click [OK] to save the new Role.",
   "Adding a New Role",
-  "Adding_a_New_Role.htm"
+  "Adding_a_New_Role.htm",
 );
 Page[25] = new Array(
   "You can edit a Role to change the properties associated with that Role. &nbsp;",
@@ -297,7 +297,7 @@ Page[25] = new Array(
   "If properties are free-form, Rhythmyx will display the current value of the property in the Edit Value field, with the cursor at the end of the last value. &nbsp;You can add a new value on a new line or modify or delete an existing value.",
   "Click [OK] to save your changes.",
   "Editing a Role",
-  "Editing_a_Role.htm"
+  "Editing_a_Role.htm",
 );
 Page[26] = new Array(
   "When you delete a Role, you delete all Member associations with that Role. &nbsp;",
@@ -308,7 +308,7 @@ Page[26] = new Array(
   "Click the [Delete] button.",
   "Rhythmyx displays a confirmation message. &nbsp;Click [Yes] to confirm the delete action or [No] to abort the delete action.",
   "Deleting a Role",
-  "Deleting_a_Role.htm"
+  "Deleting_a_Role.htm",
 );
 Page[27] = new Array(
   "You can add members that already exist in a security provider to a Role. &nbsp;The Server Administrator includes a cataloging function that retrieves a list of users associated with a specified security provider. &nbsp;",
@@ -330,7 +330,7 @@ Page[27] = new Array(
   "Select the Members you want to add and click the [Add&gt;&gt;] button.",
   "Click [OK] to save your edits.",
   "Adding Existing Members to a Role",
-  "Adding_Existing_Members_to_a_Role.htm"
+  "Adding_Existing_Members_to_a_Role.htm",
 );
 Page[28] = new Array(
   "To add a new Member to a Role without Cataloging:",
@@ -349,7 +349,7 @@ Page[28] = new Array(
   "If values are free-form, Rhythmyx will move your cursor to the Edit Value field, where you can enter the values. &nbsp;Enter each unique value on a separate line.",
   "Click [OK] to save the Member record.",
   "Adding New Members to a Role",
-  "Adding_New_Members_to_a_Role.htm"
+  "Adding_New_Members_to_a_Role.htm",
 );
 Page[29] = new Array(
   "To edit a Member's properties:",
@@ -364,7 +364,7 @@ Page[29] = new Array(
   "If values are free-form, Rhythmyx will display the current value of the property in the Edit Value field, with the cursor at the end of the last value. &nbsp;You can add a new value on a new line or modify or delete an existing value.",
   "Click [OK].",
   "Editing a Member's Properties",
-  "Editing_a_Member_s_Properties.htm"
+  "Editing_a_Member_s_Properties.htm",
 );
 Page[30] = new Array(
   "To delete a Member from a Role:",
@@ -376,12 +376,12 @@ Page[30] = new Array(
   "Click the [Delete] button.",
   "Rhythmyx displays a confirmation message. &nbsp;Click [Yes] to confirm the delete action or [No] to abort the delete action.",
   "Deleting a Member from a Role",
-  "Deleting_a_Member_from_a_Role.htm"
+  "Deleting_a_Member_from_a_Role.htm",
 );
 Page[31] = new Array(
   "A State is a step in the workflow process of a document. &nbsp;While in a State, a user may be able to modify, review, or approve a document. &nbsp;",
   "States",
-  "States.htm"
+  "States.htm",
 );
 Page[32] = new Array(
   "Use the Edit State page to maintain States.",
@@ -402,7 +402,7 @@ Page[32] = new Array(
   "Publish the Last Public Revision.",
   "NOTE:  You can extend the Publishable property by adding more values to the property.  For details, see Extending Publishable States.",
   "Edit State Page",
-  "Edit_State_Page.htm"
+  "Edit_State_Page.htm",
 );
 Page[33] = new Array(
   "To create a new State:",
@@ -415,7 +415,7 @@ Page[33] = new Array(
   "Choose Ignore when Rhythmyx should not evaluate whether content in this State is eligible to be published. If the content has already been published, the last Public version remains Public. Any links to the item will also be published. If it has not yet been published, it will remain unpublished.  Links to the item also remain unpublished. This is useful if an item is in the Quick Edit state; it tells Rhythmyx to ignore the Quick Edit version and to publish the last version that reached the Public state.",
   "Click [Save] to add the State to the workflow.",
   "Creating a New State",
-  "Creating_a_New_State.htm"
+  "Creating_a_New_State.htm",
 );
 Page[34] = new Array(
   "To edit a State:",
@@ -424,7 +424,7 @@ Page[34] = new Array(
   "Click [Save].",
   "Rhythmyx updates the data for the State.",
   "Editing a State",
-  "Editing_a_State.htm"
+  "Editing_a_State.htm",
 );
 Page[35] = new Array(
   "When you delete a state, you delete all the Transitions, Notifications, and State-assigned Roles associated with the State you are deleting.",
@@ -434,7 +434,7 @@ Page[35] = new Array(
   "Rhythmyx displays a confirmation message.",
   "To confirm the delete action, click [OK]. &nbsp;To abort the delete action, click [Cancel].",
   "Deleting a State",
-  "Deleting_a_State.htm"
+  "Deleting_a_State.htm",
 );
 Page[36] = new Array(
   "A Transition is a process that moves a document from one State to another State. &nbsp;A Transition specifies:",
@@ -442,7 +442,7 @@ Page[36] = new Array(
   "the new State to which the document will move.",
   "&nbsp;",
   "Transitions",
-  "Transitions.htm"
+  "Transitions.htm",
 );
 Page[37] = new Array(
   "Use the Edit Transition page to maintain Transitions.",
@@ -465,7 +465,7 @@ Page[37] = new Array(
   "If you want to notify users when content makes the Transition, add Transition Notifications.  ",
   "Transitions Roles are required if you choose Each Role in the Approval Type field and Specified Roles in the Transition Role field for the Transition.  Note that Rhythmyx does not preserve approvals.  For example, suppose you have a Transition &quot;Ready for Publish&quot; from the QA State to the Public State, and this Transition requires approval from three Roles, QA, Editor, and Legal Reviewer.  The QA and Editor Roles approve the Content Item, but the Legal Review Role rejects it, sending it back to a previous State.  When the Content Item returns to the QA State, Rhythmyx does not remember that QA and Editor already approved it.  They will have to approve it again before it can make the &quot;Ready for Publish&quot; Transition.",
   "Edit Transition Page",
-  "Edit_Transition_Page.htm"
+  "Edit_Transition_Page.htm",
 );
 Page[38] = new Array(
   "To create a new Transition:",
@@ -482,7 +482,7 @@ Page[38] = new Array(
   "Add Transition Notifications, if necessary.",
   "Click [Save].",
   "Creating a New Transition",
-  "Creating_a_New_Transition.htm"
+  "Creating_a_New_Transition.htm",
 );
 Page[39] = new Array(
   "To edit a Transition:",
@@ -490,7 +490,7 @@ Page[39] = new Array(
   "Make your changes. &nbsp;The Label, and Trigger fields are mandatory.  You cannot change the ID or From State, but can change all other fields, as well as add or delete Transition Roles and add, modify, or delete Transition Notifications.",
   "Click [Save] to save your changes.&nbsp;",
   "Editing a Transition",
-  "Editing_a_Transition.htm"
+  "Editing_a_Transition.htm",
 );
 Page[40] = new Array(
   "To delete a Transition:",
@@ -499,7 +499,7 @@ Page[40] = new Array(
   "Rhythmyx displays a confirmation message. ",
   "To confirm the delete action, click [OK]. &nbsp;To abort the delete action, click [Cancel].",
   "Deleting a Transition",
-  "Deleting_a_Transition.htm"
+  "Deleting_a_Transition.htm",
 );
 Page[41] = new Array(
   "If you define a Transition to require approvals by specified Roles (in other words, if you chose Each Role in the Approval Type field and Specified Roles in the Transition Roles field, you must add Transition Roles to the Transition to specify the Roles that must approve the Content.  ",
@@ -510,7 +510,7 @@ Page[41] = new Array(
   "Click [Save].",
   "To delete a Transition Role, click the delete button @ in the row of the Transition Role you want to delete.",
   "Maintaining Transition Roles",
-  "Maintaining_Transition_Roles.htm"
+  "Maintaining_Transition_Roles.htm",
 );
 Page[42] = new Array(
   "Aging is a Rhythmyx Workflow feature that defines the amount of time a content item can reside in a State before Rhythmyx automatically acts on it. ",
@@ -523,7 +523,7 @@ Page[42] = new Array(
   "A System Field Transition occurs once after the specified system date (Start Date, End Date, Reminder Date) passes.",
   "Typically, an Aging Transition also sends an e-mail message that notifies the users in the Role assigned to the Transition that the content item has aged and that some action is necessary.",
   "About Aging",
-  "About_Aging.htm"
+  "About_Aging.htm",
 );
 Page[43] = new Array(
   "In order for Aging to function, you must complete the following prerequisites:",
@@ -531,7 +531,7 @@ Page[43] = new Array(
   "Define user e-mail addresses. &nbsp;User e-mail addresses are specified on the user's Member Properties in Role Maintenance. &nbsp;Use the Global property sys_email to define the user's e-mail address. &nbsp;The @ button activates the Role Maintenance dialog of the Server Administrator. &nbsp;The sender of aging e-mail messages is the user rxserver. &nbsp;The e-mail address you define for rxserver should be the address of the person that should receive notifications of bounced e-mail messages.",
   "Activate Notification for the Role assignments to each State in which Aging will occur. &nbsp;To activate Notification, set the value of the Notify field on the Role Assignment page to Y. &nbsp;Leave notification off for any Role that should not receive notification e-mail messages. &nbsp;For example, the Workflow admin Role generally does not need to receive Aging e-mail messages. ",
   "Aging Prerequisites",
-  "Aging_Prerequisites.htm"
+  "Aging_Prerequisites.htm",
 );
 Page[44] = new Array(
   "The Java class com.percussion.server.agent.PSAging is the Rhythmyx Aging agent and executes the Aging function. &nbsp;The registration entry of this agent in the agentmanager.xml (Rhythmyxroot/rxconfig/Server/requestHandlers /agentmanager.xml) defines how often Rhythmyx will poll for Aging Transitions. &nbsp;",
@@ -543,7 +543,7 @@ Page[44] = new Array(
   "The &lt;delay&gt; attribute of the schedule element defines the initial delay, the number of seconds after the server starts that must pass before the Aging agent executes the first Aging task. &nbsp;This delay is required to allow all Rhythmyx applications to start. &nbsp;The &lt;interval&gt; attribute of the schedule element defines the amount of time, in seconds between each execution of the Aging task. &nbsp;The default values specify that the Aging agent makes its first Aging ten minutes after the server starts, and will repeat the poll every ten minutes. &nbsp;",
   "To change the frequency of polling for Aging Transitions, change the value of the interval attribute and save the agentmanager.xml. &nbsp;To change the amount of time available for your server to complete initialization before polling begins, change the value of the delay attribute.",
   "Setting Aging Agent Parameters",
-  "Setting_Aging_Agent_Parameters.htm"
+  "Setting_Aging_Agent_Parameters.htm",
 );
 Page[45] = new Array(
   "Aging is associated with the Transitions defined for a State.  An Aging Transition is a Transition that will occur automatically after a specified period if another Transition has not occurred. ",
@@ -563,7 +563,7 @@ Page[45] = new Array(
   "Click [Save] to save the Transition. Rhythmyx saves the Transition and return to the Edit State page.",
   "Create a Notification (see &quot;Creating a Notification&quot; on page 50) and assign it to the Transition (see &quot;Notification Assignment&quot; on page 51).",
   "Creating an Aging Transition",
-  "Creating_an_Aging_Transition.htm"
+  "Creating_an_Aging_Transition.htm",
 );
 Page[46] = new Array(
   "Aging Transitions can be used in a variety of ways. Aging Transitions are most commonly used to:",
@@ -571,7 +571,7 @@ Page[46] = new Array(
   "Send escalating notices to the appropriate users that a Content Item will transition at a specified time unless they take action on it sooner. (Absolute Transition)",
   "Send a repeating notice to the appropriate users that they should transition a Content Item. In this case, the Transition repeatedly sends the reminder Notification but does not actually transition the Content Item itself. (Repeating Transition)",
   "Aging Transition Scenarios",
-  "Aging_Scenarios.htm"
+  "Aging_Scenarios.htm",
 );
 Page[47] = new Array(
   "Scenario: &nbsp;When a system's article content item enters the Approve State, the Editor Role is reminded every day that action is required.",
@@ -582,7 +582,7 @@ Page[47] = new Array(
   "The implementer also creates a Notification to the Members of the Editor Role that the content item needs action, and assigns this Notification to the Transition.",
   "Each day the Members of the Editor Role have not Transitioned a content item to a different State manually, Rhythmyx sends them an e-mail message that the content item needs action. ",
   "Repeating Notices",
-  "Repeating_Notices.htm"
+  "Repeating_Notices.htm",
 );
 Page[48] = new Array(
   "Scenario: &nbsp;When a content item in the Approve State reaches its Start Date, the system automatically moves it to a Public State so it can be published.",
@@ -592,7 +592,7 @@ Page[48] = new Array(
   "The System Field is Start Date.",
   "When a content item is in the Approve State and its Start Date passes, Rhythmyx automatically Transitions it to the Public State, and it is published on the next run of the Publisher.",
   "Automatic Transition",
-  "Automatic_Transition.htm"
+  "Automatic_Transition.htm",
 );
 Page[49] = new Array(
   "Scenario: &nbsp;A Workflow must specify that when a content item enters the approve State, Editors have three days to act on it. Each day they are sent a reminder that they must act on it or it will Transition automatically. &nbsp;&nbsp;If no one has acted on it in three days, the content item automatically moves to the QA State.",
@@ -613,12 +613,12 @@ Page[49] = new Array(
   "The Aging Type is Absolute.",
   "The Aging Interval is 4320 (the number of minutes in a day, 60 minutes per hour times 24 hours in a day, times 3 for three days after the initial Transition).",
   "Escalating Notices",
-  "Escalating_Notices.htm"
+  "Escalating_Notices.htm",
 );
 Page[50] = new Array(
   "A Notification is an e-mail message that Rhythmyx automatically sends to a Role when a document enters a State.",
   "Notifications",
-  "Notifications.htm"
+  "Notifications.htm",
 );
 Page[51] = new Array(
   "For Notification to work, you must define the SMTP mail host in the rxworkflow.properties file, located in the Rhythmyxroot\\rxconfig\\Workflow directory. &nbsp;Set the value of SMTP_Host to the IP address or name of the SMTP mail server. &nbsp;Setting the value to the name of the server is generally preferable.  While the IP address of the server may change, it is unlikely that the name of the server will change.",
@@ -628,7 +628,7 @@ Page[51] = new Array(
   "RX_SERVER_PORT_NOTIFICATION=&lt;port number&gt;",
   "If you enable SSL on your server, you must also set the property RX_SERVER_IS_SSLLINK_NOTIFICATION to &quot;yes&quot; to ensure that the links in the Notification e-mail messages use SSL to link to Content Items on your server.",
   "Setting the Workflow Configuration Properties for Notification",
-  "Setting_the_Workflow_Configuration_Properties_for_Notification.htm"
+  "Setting_the_Workflow_Configuration_Properties_for_Notification.htm",
 );
 Page[52] = new Array(
   "Use the Edit Notification page to maintain the Notifications associated with a Workflow.",
@@ -640,7 +640,7 @@ Page[52] = new Array(
   "Subject  Mandatory.  The subject line for the Notification e-mail message.",
   "Body  Optional.  The body for the Notification e-mail message.",
   "Edit Notification Page",
-  "Edit_Notification_Page.htm"
+  "Edit_Notification_Page.htm",
 );
 Page[53] = new Array(
   "To create a Notification:",
@@ -649,7 +649,7 @@ Page[53] = new Array(
   "Enter the mandatory Subject and the optional Body of the e-mail sent as the Notification.",
   "Click [Save] to save the Notification.",
   "Creating a Notification",
-  "Creating_a_Notification.htm"
+  "Creating_a_Notification.htm",
 );
 Page[54] = new Array(
   "To edit a Notification:",
@@ -658,7 +658,7 @@ Page[54] = new Array(
   "Change the Subject or Body.",
   "When you have made your changes, click [Save].",
   "Editing a Notification",
-  "Editing_a_Notification.htm"
+  "Editing_a_Notification.htm",
 );
 Page[55] = new Array(
   "To delete a Notification:",
@@ -666,7 +666,7 @@ Page[55] = new Array(
   "Rhythmyx displays a confirmation message.",
   "To confirm the delete action, click [OK]. &nbsp;To abort the delete action, click [Cancel].",
   "Deleting a Notification",
-  "Deleting_a_Notification.htm"
+  "Deleting_a_Notification.htm",
 );
 Page[56] = new Array(
   "You may want to include variables in the Notification e-mail messages.  ",
@@ -674,7 +674,7 @@ Page[56] = new Array(
   "Include any field from the item; ",
   "User comments entered in the Enter Workflow Comment dialog.",
   "Including Variables in Notification E-mail Messages",
-  "Including_Variables_in_Notification_E-mail_Messages.htm"
+  "Including_Variables_in_Notification_E-mail_Messages.htm",
 );
 Page[57] = new Array(
   "You may want to include a field from the item in the workflow in the Notification email messages.  To include fields from the workflow, enter",
@@ -683,7 +683,7 @@ Page[57] = new Array(
   "The item with the title ${sys_title} and the content id ${sys_contentid} is now ready for review.",
   "If a field is not found, the variable is ignored.  ",
   "Including Item Fields in Notification Email Messages",
-  "17566.htm"
+  "17566.htm",
 );
 Page[58] = new Array(
   "You may want to include user comments in the Notification e-mail messages.  To include user comments enter the macro in the format:",
@@ -699,13 +699,13 @@ Page[58] = new Array(
   "wfcomment=defaultcomment",
   "Where defaultcomment is the comment you want Rhythmyx to include when the user does not specify a comment.  Rhythmyx uses this value when the comment field is null or an empty string.",
   "Including User Comments in Notification E-mail Messages",
-  "Including_User_Comments_in_Notification_E-mail_Messages.htm"
+  "Including_User_Comments_in_Notification_E-mail_Messages.htm",
 );
 Page[59] = new Array(
   "The Roles assigned to a State determine who can act on the State and who is Notified when a document enters and leaves the State. &nbsp;A Role must already exist in the Workflow before you can assign it to the State.",
   "Notifications must be assigned to Transitions to prompt the system to send the Notification.",
   "Assignment",
-  "Assignment.htm"
+  "Assignment.htm",
 );
 Page[60] = new Array(
   "Use the Edit Assigned Role page to maintain the association between a Role and a State.",
@@ -716,7 +716,7 @@ Page[60] = new Array(
   "Notify &nbsp;Drop List. &nbsp;Defines whether the Role is eligible to receive Notification e-mails triggered by Transitions to the State. &nbsp;Options are Y (default; Notification is allowed) and N (Notification is not allowed).",
   "Show in Inbox  Defines whether to show Content Items in the current State to the Role.  Options are Y (default; Content in this State will be displayed in the Inbox of users in this Role) and N (Content in this State will not be displayed in the Inbox of users in this Role).  This option is used primarily to reduce the volume of content displayed in the user's Inbox.  For example, Authors should have access to content in the Archive State so they can revive it if necessary, so the Author Role should be assigned to the Archive State.  However, you do not want members of the Author Role to see all archived content because their Inbox would become useless.  Therefore, in the assignment of the Author Role to the Archive State, the value of Show in Inbox is N.  Archived content will thus not appear in the Inbox of users in the Author Role, but they will still be able to search for the content and can act on it when the find it.",
   "Edit Assigned Role Page",
-  "Edit_Assigned_Role_Page.htm"
+  "Edit_Assigned_Role_Page.htm",
 );
 Page[61] = new Array(
   "To assign a Role to a State:",
@@ -730,7 +730,7 @@ Page[61] = new Array(
   "Select an option for Show in Inbox.  Options are Y (default; Content Items in this State will appear in the Inbox of users in this Role) and N (Content Items in this State will not appear in the Inbox of users in this Role).  In most cases, you should only choose N for when assigning a Role to a State that will have a very large volume of Content Items, such as an Archive State.",
   "Click [Update] to add the Role to the State. &nbsp;",
   "Assigning a Role to a State",
-  "Assigning_a_Role_to_a_State.htm"
+  "Assigning_a_Role_to_a_State.htm",
 );
 Page[62] = new Array(
   "To edit a Role Assigned to a State:",
@@ -741,7 +741,7 @@ Page[62] = new Array(
   "When you complete your edits, click [Update].",
   "Rhythmyx updates the Role assignment and returns you to the Edit State page.",
   "Editing a Role Assigned to a State",
-  "Editing_a_Role_Assigned_to_a_State.htm"
+  "Editing_a_Role_Assigned_to_a_State.htm",
 );
 Page[63] = new Array(
   "To delete a Role from a State:",
@@ -750,7 +750,7 @@ Page[63] = new Array(
   "Rhythmyx displays a confirmation message. ",
   "To confirm the delete action, click [OK]. &nbsp;To abort the delete action, click [Cancel].",
   "Deleting a Role from a State",
-  "Deleting_a_Role_from_a_State.htm"
+  "Deleting_a_Role_from_a_State.htm",
 );
 Page[64] = new Array(
   "Use the Transition Notification page to assign Notifications to Transitions.",
@@ -761,7 +761,7 @@ Page[64] = new Array(
   "Additional Recipient List &nbsp;Optional. &nbsp;A list of additional e-mail addresses to send the Notification to.",
   "CC List &nbsp;Optional. &nbsp;A list of e-mail addresses that will receive a copy of Notification messages.",
   "Transition Notification Page",
-  "Transition_Notification_Page.htm"
+  "Transition_Notification_Page.htm",
 );
 Page[65] = new Array(
   "To assign the Notification to a Transition:",
@@ -783,7 +783,7 @@ Page[65] = new Array(
   "Click [Save] to save the Transition Notification.",
   "Rhythmyx returns you to the Edit Transition page for the Transition to which you added the Notification.",
   "Assigning a Notification to a Transition",
-  "Assigning_a_Notification_to_a_Transition.htm"
+  "Assigning_a_Notification_to_a_Transition.htm",
 );
 Page[66] = new Array(
   "To edit a Notification Assignment:",
@@ -799,7 +799,7 @@ Page[66] = new Array(
   "Click [Save] to save your changes.",
   "Rhythmyx returns you to the Edit Transition page for the Transition whose Notification assignment you edited.",
   "Editing a Notification Assignment",
-  "Editing_a_Notification_Assignment.htm"
+  "Editing_a_Notification_Assignment.htm",
 );
 Page[67] = new Array(
   "To delete a Notification from a Transition:",
@@ -812,7 +812,7 @@ Page[67] = new Array(
   "Click the delete icon @of the Notification Assignment you want to delete.",
   "Rhythmyx deletes the Notification and returns you to the Edit Transition page.",
   "Deleting a Notification from a Transition",
-  "Deleting_a_Notification_from_a_Transition.htm"
+  "Deleting_a_Notification_from_a_Transition.htm",
 );
 Page[68] = new Array(
   "Rhythmyx does not allow users to check out Content Items in a Public State.  Therefore, a user must Transition an item from the Public State to an editable State, then check it out, in order to edit the item.  This process can be cumbersome if the user only needs to correct a minor misspelling.",
@@ -831,14 +831,14 @@ Page[68] = new Array(
   "The Content List application should direct the Rhythmyx Publisher to publish the Content Item's last public revision. If a Content Item is linked to a Related Content Item that is currently in a Quick Edit State, the Content List should direct the Rhythmyx Publisher to publish the link to the last public revision of the Related Content Item. See &quot;Mapping a Content List Resource&quot; in the CMS Online Help for more information.",
   "See the reference topic &quot;$contextDependentRevision&quot; in the Rhythmyx Workbench online help for a description of the macro that determines the revision of the Content Item to return.",
   "Implementing Quick Edit",
-  "Implementing_Quick_Edit.htm"
+  "Implementing_Quick_Edit.htm",
 );
 Page[69] = new Array(
   "A Workflow Action is an automatic action that can be added to a Transition. &nbsp;Rhythmyx executes the Workflow Action when Transitioning a content item from one State to another. &nbsp;For example, when a content item is approved for Transition to a Public State, all other content items that refer to that item need to be &quot;touched&quot; so the Publisher will republish them with updated links. &nbsp;A Workflow Action could be developed and added to the Transition to touch all of the other content items to ensure that they will be updated.",
   "A Workflow Action is an extension of the IPSExtension Java extension. &nbsp;Thus, a Workflow Action extension must follow all of the requirements of Rhythmyx extensions, including thread safety. &nbsp;&nbsp;The Workflow Action extension must include a performAction method and implement the IPSWorkflowAction interface. &nbsp;The performAction method has two inputs: &nbsp;the request context and an instance of IPSWorkFlowContext. &nbsp;The code of the performAction method defines the actual Workflow Action.",
   "To make the Workflow Action extension available, you must register it in the Rhythmyx Server Administrator. &nbsp;When registering a Workflow Action extension, you must select com.percussion.extension.IPSWorkflowAction as the Supported Interface.",
   "Workflow Actions",
-  "Workflow_Actions.htm"
+  "Workflow_Actions.htm",
 );
 var PageCount = 70;
 

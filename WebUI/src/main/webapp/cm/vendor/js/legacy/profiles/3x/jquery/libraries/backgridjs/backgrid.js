@@ -357,7 +357,7 @@
     Backgrid.NumberFormatter.apply(this, arguments);
   });
 
-  (PercentFormatter.prototype = new Backgrid.NumberFormatter()),
+  ((PercentFormatter.prototype = new Backgrid.NumberFormatter()),
     _.extend(PercentFormatter.prototype, {
       /**
      @member Backgrid.PercentFormatter
@@ -412,7 +412,7 @@
           return rawValue / this.multiplier;
         }
       },
-    });
+    }));
 
   /**
    Formatter to converts between various datetime formats.
@@ -487,8 +487,8 @@
           date && parts[1]
             ? parts[1]
             : this.TIME_RE.test(parts[0])
-            ? parts[0]
-            : "";
+              ? parts[0]
+              : "";
       }
 
       var YYYYMMDD = this.DATE_RE.exec(date) || [];
@@ -509,8 +509,8 @@
           HHmmssSSS[1] * 1 || null,
           HHmmssSSS[2] * 1 || null,
           HHmmssSSS[3] * 1 || null,
-          HHmmssSSS[5] * 1 || null
-        )
+          HHmmssSSS[5] * 1 || null,
+        ),
       );
 
       var result = "";
@@ -662,8 +662,8 @@
       return _.isArray(rawValue)
         ? rawValue
         : rawValue != null
-        ? [rawValue]
-        : [];
+          ? [rawValue]
+          : [];
     },
   });
 
@@ -766,7 +766,7 @@
     render: function () {
       var model = this.model;
       this.$el.val(
-        this.formatter.fromRaw(model.get(this.column.get("name")), model)
+        this.formatter.fromRaw(model.get(this.column.get("name")), model),
       );
       return this;
     },
@@ -893,7 +893,7 @@
 
       var formatter = Backgrid.resolveNameToClass(
         column.get("formatter") || this.formatter,
-        "Formatter"
+        "Formatter",
       );
 
       if (!_.isFunction(formatter.fromRaw) && !_.isFunction(formatter.toRaw)) {
@@ -920,7 +920,7 @@
               $el.toggleClass(key, changed[key]);
             }
           }
-        }
+        },
       );
 
       this.updateStateClassesMaybe();
@@ -932,15 +932,15 @@
       var $el = this.$el;
       $el.toggleClass(
         "editable",
-        Backgrid.callByNeed(column.editable(), column, model)
+        Backgrid.callByNeed(column.editable(), column, model),
       );
       $el.toggleClass(
         "sortable",
-        Backgrid.callByNeed(column.sortable(), column, model)
+        Backgrid.callByNeed(column.sortable(), column, model),
       );
       $el.toggleClass(
         "renderable",
-        Backgrid.callByNeed(column.renderable(), column, model)
+        Backgrid.callByNeed(column.renderable(), column, model),
       );
     },
 
@@ -1005,7 +1005,7 @@
           model,
           column,
           this,
-          this.currentEditor
+          this.currentEditor,
         );
       }
     },
@@ -1101,7 +1101,7 @@
           href: rawValue,
           title: this.title || formattedValue,
           target: this.target,
-        }).text(formattedValue)
+        }).text(formattedValue),
       );
       this.delegateEvents();
       return this;
@@ -1127,14 +1127,14 @@
       var model = this.model;
       var formattedValue = this.formatter.fromRaw(
         model.get(this.column.get("name")),
-        model
+        model,
       );
       this.$el.append(
         $("<a>", {
           tabIndex: -1,
           href: "mailto:" + formattedValue,
           title: formattedValue,
-        }).text(formattedValue)
+        }).text(formattedValue),
       );
       this.delegateEvents();
       return this;
@@ -1297,7 +1297,7 @@
           this.editor.attributes,
           {
             placeholder: placeholder,
-          }
+          },
         ),
       });
     },
@@ -1368,7 +1368,7 @@
       var model = this.model;
       var val = this.formatter.fromRaw(
         model.get(this.column.get("name")),
-        model
+        model,
       );
       this.$el.prop("checked", val);
       return this;
@@ -1457,7 +1457,7 @@
           type: "checkbox",
           checked: this.formatter.fromRaw(model.get(column.get("name")), model),
           disabled: !editable,
-        })
+        }),
       );
       this.delegateEvents();
       return this;
@@ -1490,7 +1490,7 @@
         evaluate: /<%([\s\S]+?)%>/g,
         interpolate: /<%=([\s\S]+?)%>/g,
         escape: /<%-([\s\S]+?)%>/g,
-      }
+      },
     ),
 
     setOptionValues: function (optionValues) {
@@ -1531,7 +1531,7 @@
       var model = this.model;
       var selectedValues = this.formatter.fromRaw(
         model.get(this.column.get("name")),
-        model
+        model,
       );
 
       if (!_.isArray(optionValues))
@@ -1555,18 +1555,18 @@
               text: optionText,
               value: optionValue,
               selected: _.indexOf(selectedValues, optionValue) > -1,
-            })
+            }),
           );
         } else if (_.isObject(optionValue)) {
           optgroupName = optionValue.name;
           optgroup = $("<optgroup></optgroup>", { label: optgroupName });
           optgroup.append(
-            this._renderOptions.call(this, optionValue.values, selectedValues)
+            this._renderOptions.call(this, optionValue.values, selectedValues),
           );
           this.$el.append(optgroup);
         } else {
           throw new TypeError(
-            "optionValues elements must be a name-value pair or an object hash of { name: 'optgroup label', value: [option name-value pairs] }"
+            "optionValues elements must be a name-value pair or an object hash of { name: 'optgroup label', value: [option name-value pairs] }",
           );
         }
       }
@@ -1584,7 +1584,7 @@
       var column = this.column;
       model.set(
         column.get("name"),
-        this.formatter.toRaw(this.$el.val(), model)
+        this.formatter.toRaw(this.$el.val(), model),
       );
     },
 
@@ -1687,7 +1687,7 @@
             editor.setOptionValues(this.optionValues);
             editor.setMultiple(this.multiple);
           }
-        }
+        },
       );
     },
 
@@ -1703,7 +1703,7 @@
       var model = this.model;
       var rawData = this.formatter.fromRaw(
         model.get(this.column.get("name")),
-        model
+        model,
       );
 
       var selectedText = [];
@@ -1742,7 +1742,7 @@
       } catch (ex) {
         if (ex instanceof TypeError) {
           throw new TypeError(
-            "'optionValues' must be of type {Array.<Array>|Array.<{name: string, values: Array.<Array>}>}"
+            "'optionValues' must be of type {Array.<Array>|Array.<{name: string, values: Array.<Array>}>}",
           );
         }
         throw ex;
@@ -1901,7 +1901,7 @@
 
       var headerCell = Backgrid.resolveNameToClass(
         this.get("headerCell"),
-        "HeaderCell"
+        "HeaderCell",
       );
 
       var cell = Backgrid.resolveNameToClass(this.get("cell"), "Cell");
@@ -2194,7 +2194,7 @@
               $el.toggleClass(key, changed[key]);
             }
           }
-        }
+        },
       );
       this.listenTo(column, "change:direction", this.setCellDirection);
       this.listenTo(column, "change:name change:label", this.render);
@@ -2209,7 +2209,7 @@
       this.listenTo(
         collection.fullCollection || collection,
         "backgrid:sorted",
-        this.removeCellDirection
+        this.removeCellDirection,
       );
     },
 
@@ -2262,7 +2262,7 @@
       var sortable = Backgrid.callByNeed(
         column.sortable(),
         column,
-        this.collection
+        this.collection,
       );
       if (sortable) {
         var sortType = column.get("sortType");
@@ -2281,7 +2281,7 @@
       var sortable = Backgrid.callByNeed(
         column.sortable(),
         column,
-        this.collection
+        this.collection,
       );
       var label;
       if (sortable) {
@@ -2656,7 +2656,7 @@
     sort: function (column, direction) {
       if (!_.contains(["ascending", "descending", null], direction)) {
         throw new RangeError(
-          'direction must be one of "ascending", "descending" or `null`'
+          'direction must be one of "ascending", "descending" or `null`',
         );
       }
 
@@ -2676,7 +2676,7 @@
           ? column.sortValue()
           : function (model) {
               return model.cid.replace("c", "") * 1;
-            }
+            },
       );
 
       if (
@@ -2705,7 +2705,7 @@
                 "backgrid:sorted",
                 column,
                 direction,
-                collection
+                collection,
               );
               column.set("direction", direction);
             },
@@ -2728,7 +2728,7 @@
           t;
 
         // if descending order, swap left and right
-        if (order === 1) (t = l), (l = r), (r = t);
+        if (order === 1) ((t = l), (l = r), (r = t));
 
         // compare as usual
         if (l === r) return 0;
@@ -2796,12 +2796,12 @@
             renderable = Backgrid.callByNeed(
               cell.column.renderable(),
               cell.column,
-              cell.model
+              cell.model,
             );
             editable = Backgrid.callByNeed(
               cell.column.editable(),
               cell.column,
-              model
+              model,
             );
             if (renderable && editable) {
               cell.enterEditMode();
@@ -2815,7 +2815,7 @@
               "backgrid:next",
               ~~(offset / l),
               offset - m * l,
-              true
+              true,
             );
           }
         }

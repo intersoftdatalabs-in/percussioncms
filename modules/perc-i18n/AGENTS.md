@@ -103,12 +103,18 @@ When modifying i18n resources:
 ./mvnw -pl modules/perc-distribution-tree clean install
 ```
 
-The runtime loader (`PSTmxResourceBundle`) scans BOTH `rxconfig/I18n/`
-(uppercase, master file path) and `rxconfig/i18n/` (lowercase, where
-the Maven build extracts the canonical TMX files). The lowercase scan
-was added in this revision so that the canonical files reach users on
-case-sensitive filesystems (Linux) in addition to the case-insensitive
-ones (Windows / macOS default volumes).
+**Canonical on-disk directory is lowercase only:** `rxconfig/i18n/`.
+Never create or write `rxconfig/I18n/` (uppercase) — on case-sensitive
+Linux that becomes a second folder and splits product TMX from RXLT
+output. The runtime reads the canonical path first and falls back to
+legacy uppercase only when that distinct path still has files.
+
+**Upgrade:** product TMX (`CmsUi.tmx`, `SystemResources.tmx`,
+`DeveloperUi.tmx`, seed `ResourceBundle.tmx`) is force-copied from the
+package into `rxconfig/i18n/` by
+`rxconfig/Installer/updateConfiguration.xml`. Bulk upgrade preserves
+`rxconfig/**` for customer config, so without that force-copy upgrades
+kept stale TMX and Language Tool remerged the old sources.
 
 ### 2a. Translation Pipeline
 

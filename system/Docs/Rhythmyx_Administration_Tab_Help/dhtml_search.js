@@ -19,7 +19,7 @@ Page[0] = new Array(
   "Scheduled Task Logs ",
   "The scheduled task logs allow you to review the results of scheduled task processing.",
   "About the Rhythmyx Administration Tab",
-  "17763.htm"
+  "17763.htm",
 );
 Page[1] = new Array(
   "Use the Console to issue commands the Rhythmyx server.  ",
@@ -27,12 +27,12 @@ Page[1] = new Array(
   "Enter the command in the Command field.  Click [Go] or press the &lt;Enter&gt; key to run the command.    Any command results are returned in the Command Output field.  By default, new command output overwrites existing command output.  If you want to append command output instead of overwriting it, check the Append Command Output checkbox.",
   "See Server Console Commands for information about commands you can issue to the server.",
   "",
-  "17764.htm"
+  "17764.htm",
 );
 Page[2] = new Array(
   "This section of the Help details the available commands to issue to the server.  Two subsections are included.  One organizes all server commands by function, the other organizes them alphabetically.",
   "",
-  "Server_Console_Commands.htm"
+  "Server_Console_Commands.htm",
 );
 Page[3] = new Array(
   "This section organizes server commands by function:",
@@ -42,7 +42,7 @@ Page[3] = new Array(
   "server commands for flushing caches",
   "server commands for search",
   "Server Console Commands by Function",
-  "Server_Console_Commands_by_Function.htm"
+  "Server_Console_Commands_by_Function.htm",
 );
 Page[4] = new Array(
   "To . . . ",
@@ -113,7 +113,7 @@ Page[4] = new Array(
   "Stop the server",
   "stop server ",
   "General Server Console Commands",
-  "General_Server_Console_Commands.htm"
+  "General_Server_Console_Commands.htm",
 );
 Page[5] = new Array(
   "To . . . ",
@@ -205,7 +205,7 @@ Page[5] = new Array(
   "View tracing options",
   "trace help",
   "Server Console Commands for Applications",
-  "Server_Console_Commands_for_Applications.htm"
+  "Server_Console_Commands_for_Applications.htm",
 );
 Page[6] = new Array(
   "To . . . ",
@@ -260,7 +260,7 @@ Page[6] = new Array(
   "	.",
   "&lt;PSXConsoleCommandResults&gt;",
   "Server Console Commands for Displaying Resources",
-  "Server_Console_Commands_for_Displaying_Resources.htm"
+  "Server_Console_Commands_for_Displaying_Resources.htm",
 );
 Page[7] = new Array(
   "MetaData Cache",
@@ -378,7 +378,7 @@ Page[7] = new Array(
   "   &lt;resultText&gt;The server has stopped caching.&lt;/resultText&gt;",
   "&lt;/PSXConsoleCommandResults&gt;",
   "Server Console Commands for Flushing the Server and MetaData Caches",
-  "Server_Console_Commands_for_Flushing_the_Server_and_MetaData_Caches.htm"
+  "Server_Console_Commands_for_Flushing_the_Server_and_MetaData_Caches.htm",
 );
 Page[8] = new Array(
   "To...",
@@ -415,7 +415,7 @@ Page[8] = new Array(
   "search queue clear",
   "Remove search queue entries. (This may be useful if significant search terms are not being indexed because terms before them in the queue are slowing the indexing process. )",
   "Server Console Commands for Search",
-  "17922.htm"
+  "17922.htm",
 );
 Page[9] = new Array(
   "Command",
@@ -580,23 +580,23 @@ Page[9] = new Array(
   "trace help",
   "View tracing.",
   "Server Console Commands in Alphabetical Order",
-  "Server_Console_Commands_in_Alphabetical_Order.htm"
+  "Server_Console_Commands_in_Alphabetical_Order.htm",
 );
 Page[10] = new Array(
   "The Variant to Template Migration tool is used when upgrading a Rhythmyx Content Management System originally implemented on Rhythmyx Version 5.7.1 to Rhythmyx Version 6.0 or later.  The tool is used to generate Rhythmyx Template objects based on the Variants implemented in the Version 5.x system.  ",
   "For details about the use of this tool, see (Mako version of the conversion document).  ",
   "Variant To Template Migration Tool",
-  "17765.htm"
+  "17765.htm",
 );
 Page[11] = new Array(
   "This tool should only be used under the direction and guidance of Percussion Software Technical support.  Do not use it unless specifically instructed to do so by a Percussion Software Technical Support Representative.",
   "Run RxFix",
-  "17766.htm"
+  "17766.htm",
 );
 Page[12] = new Array(
   "This tool should only be used under the direction and guidance of Percussion Software Technical support.  Do not use it unless specifically instructed to do so by a Percussion Software Technical Support Representative.",
   "Run Repository Consistency Checker",
-  "17767.htm"
+  "17767.htm",
 );
 Page[13] = new Array(
   "Scheduled tasks are Rhythmyx tasks that are run automatically by the server.  Examples of scheduled tasks include:",
@@ -614,7 +614,7 @@ Page[13] = new Array(
   "You can create additional custom Scheduled Tasks to meet your needs.  For details, see &quot;Scheduled Tasks&quot; in the Rhythmyx Technical Reference.",
   "The Scheduled Task List dialog lists all scheduled tasks defined in the system:",
   "Scheduled Tasks",
-  "19544.htm"
+  "19544.htm",
 );
 Page[14] = new Array(
   "Use the Scheduled Task editor to create and maintain scheduled tasks in Rhythmyx.",
@@ -643,7 +643,7 @@ Page[14] = new Array(
   "CC List  List of additional recipients of any Notifications generated by this timed event.",
   "Notification  Drop list.  The Task Notification Template  to use to generate the the e-mails sent to the specified recipients.",
   "Scheduled Task Editor",
-  "18453.htm"
+  "18453.htm",
 );
 Page[15] = new Array(
   "To create a scheduled task:",
@@ -672,7 +672,7 @@ Page[15] = new Array(
   "Click the [Save] button to save the scheduled task.",
   "You can test your scheduled task by running it manually.  To run a scheduled task manually, in the Menu bar, choose Action &gt; Run Now.  (Note:  If you configured the task to run on a different server, you must run the task from that server.  Running a task from a server other than the server for which it is configured results in an error.  Start a browser and connect to the remote server, log in to Content Explorer, go to the Admin tab, and run the task)",
   "Creating a Scheduled Task",
-  "18456.htm"
+  "18456.htm",
 );
 Page[16] = new Array(
   "To modify a scheduled task:",
@@ -683,7 +683,7 @@ Page[16] = new Array(
   "You can change the value in any field.  For details about writing a cron expression, see http://www.opensymphony.com/quartz/wikidocs/CronTriggers%20Tutorial.html.",
   "Click the [Save] button to save your changes.",
   "Modifying a Scheduled Task",
-  "18457.htm"
+  "18457.htm",
 );
 Page[17] = new Array(
   "A quick way to create a new scheduled task is to copy an existing scheduled task that closely matches the scheduled task you want to create and modify the data in the copy.",
@@ -696,21 +696,21 @@ Page[17] = new Array(
   "You can change the value in any field.  For details about writing a cron expression, see http://www.opensymphony.com/quartz/wikidocs/CronTriggers%20Tutorial.html.",
   "Click the [Save] button to save your changes.",
   "Copying a Scheduled Task",
-  "18458.htm"
+  "18458.htm",
 );
 Page[18] = new Array(
   "The scheduled task log lists scheduled tasks that have run, from most recent to oldest.",
   "To access the scheduled task log, in the Rhythmyx Administration tab, click on the scheduled task Log link.",
   "Scheduled task logs can be purged.  Purging removes all scheduled task logs.  To purge the scheduled task log, in the Menu bar, choose Edit &gt; Purge Logs.",
   "Timed Event Logs",
-  "18455.htm"
+  "18455.htm",
 );
 Page[19] = new Array(
   "A task notification is a template used to generate e-mails automatically sent by the scheduled task engine.  The scheduled task specifies which notification to send, the events that trigger sending an e-mail, and the recipients of the message.",
   "Scheduled tasks extensions may define binding variables that can be used to include task data in notification e-mails generated by scheduled tasks that use that extension.  The variable $execution_datetime is available for all Scheduled Tasks.  Other variables are defined by the Scheduled Task extension.  ",
   "The Task Notification List lists all scheduled task notification defined in the system.",
   "Task Notifications",
-  "19545.htm"
+  "19545.htm",
 );
 Page[20] = new Array(
   "Use the Task Notification editor to define notification templates.",
@@ -728,7 +728,7 @@ Page[20] = new Array(
   "sys_purgeTaskLog",
   "The variable $execution_datetime is available for all scheduled tasks.  ",
   "Task Notification Editor",
-  "18459.htm"
+  "18459.htm",
 );
 Page[21] = new Array(
   "To create a scheduled task notification:",
@@ -748,7 +748,7 @@ Page[21] = new Array(
   "Two example scheduled task notifications, Run_Edition_Template and Task_Template are included when you install Rhythmyx.  Use these as models to design the code for your own notifications.",
   "Click the [Save] button to save the notification.",
   "Creating a Scheduled Task Notification",
-  "18460.htm"
+  "18460.htm",
 );
 Page[22] = new Array(
   "To modify a scheduled task notification:",
@@ -759,7 +759,7 @@ Page[22] = new Array(
   "You can change the value in any field.",
   "Click the [Save] button to save your changes.",
   "Modifying a Timed Event",
-  "18461.htm"
+  "18461.htm",
 );
 Page[23] = new Array(
   "If you delete a notification, no e-mails will be generated by scheduled tasks that use that notification.  No error will be returned to inform you that generation of an e-mail failed.",
@@ -770,7 +770,7 @@ Page[23] = new Array(
   "In the Menu bar, choose Edit &gt; Delete Selected Task Notification.",
   "The notification you selected is deleted.  The task notification list is refreshed to show the available notifications.",
   "Deleting a Scheduled Task Notification",
-  "18462.htm"
+  "18462.htm",
 );
 Page[24] = new Array(
   "The Task Notification Variables available fore each extension are defined by that extension.  The following extensions are shipped with Rhythmyx:",
@@ -780,7 +780,7 @@ Page[24] = new Array(
   "sys_purgeTaskLog",
   "The variable $sys_executionDateTime is available for all scheduled task extensions.  All Velocity tool utilities available in Rhythmyx (as defined by &lt;Rhythmyxroot&gt;/AppServer/server/rx/deploy/rxapp.ear/rxapp.war/WEB-INF/config/velocity/tools.xml) are also available for use in task notifications.",
   "Default Task Notification Variables",
-  "19049.htm"
+  "19049.htm",
 );
 Page[25] = new Array(
   "This Scheduled Task extension purges publishing log entries created more than a specified number of days in the past.  The following Task Notification variables are available from this extension:",
@@ -811,7 +811,7 @@ Page[25] = new Array(
   "Long",
   "The duration of the execution in milliseconds.",
   "sys_runPurgePublishingLog",
-  "19058.htm"
+  "19058.htm",
 );
 Page[26] = new Array(
   "This Scheduled Task extension purges Scheduled Task log entries created more than a specified number of days in the past.  The following Task Notification variables are available from this extension:",
@@ -839,7 +839,7 @@ Page[26] = new Array(
   "Long",
   "The duration of the execution in milliseconds.",
   "sys_runPurgeTaskLog",
-  "19061.htm"
+  "19061.htm",
 );
 Page[27] = new Array(
   "This Scheduled Task extension runs a server command.  The following Task Notification variables are available from this extension:",
@@ -867,7 +867,7 @@ Page[27] = new Array(
   "Long",
   "The duration of the execution in milliseconds.",
   "sys_runCommand",
-  "19057.htm"
+  "19057.htm",
 );
 Page[28] = new Array(
   "This Scheduled Task extension publishes an Edition.  The following Task Notification variables are available from this extension:",
@@ -910,14 +910,14 @@ Page[28] = new Array(
   "Long",
   "The duration of the execution in milliseconds.",
   "sys_runEdition",
-  "19053.htm"
+  "19053.htm",
 );
 Page[29] = new Array(
   "Two example task notifications are installed with Rhythmyx:",
   "Run_Edition_Template",
   "Task_Template",
   "Example Task Notifications",
-  "19436.htm"
+  "19436.htm",
 );
 Page[30] = new Array(
   "The Run_Edition_Template provides a generic notification template for a notification that is very commonly desired in Rhythmyx:  the results of running an Edition.  This template generates an e-mail message that reports:",
@@ -950,7 +950,7 @@ Page[30] = new Array(
   "Finally, the URL of the job log is included:",
   "Log URL: $sys.editionLogUrl",
   "Run_Edition_Template",
-  "18531.htm"
+  "18531.htm",
 );
 Page[31] = new Array(
   "The Task_Template is a generic notification to inform the recipient about the results of a scheduled task.  This template generates an e-mail that reports:",
@@ -968,7 +968,7 @@ Page[31] = new Array(
   "Elapse Time: $tools.number.format(&quot;00&quot;, $tools.math.div($sys.executionElapsedTime,3600000)):$tools.number.format(&quot;00&quot;, $tools.math.div($sys.executionElapsedTime,60000)):$tools.number.format(&quot;00&quot;, $tools.math.div($sys.executionElapsedTime,1000))",
   "The value of the $sys.execution.ElapsedTime is the amount of time, in milliseconds, to complete processing of the Edition.  Dividing by 3600000 yields the number of hours for the processing, dividing by 60000 yields the number of minutes, and dividing by 1000 yields the number of seconds.  Functions from the JEXL toolkit are used to calculate these values.",
   "Task_Template",
-  "19442.htm"
+  "19442.htm",
 );
 var PageCount = 32;
 

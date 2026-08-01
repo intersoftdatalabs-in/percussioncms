@@ -40,7 +40,7 @@ const ROOT = resolve(__dirname, "../../../..");
 
 const utilsCode = readFileSync(
   resolve(ROOT, "src/main/js/services/PercServiceUtils.js"),
-  "utf8"
+  "utf8",
 );
 
 beforeAll(() => {
@@ -97,7 +97,7 @@ describe("PercArchiveListView - js/xss-through-dom regression (alerts #980/#981/
   it("neutralizes data: URLs (no XSS payload for javascript: but block anyway)", () => {
     const evil = "data:text/html,<script>alert(1)</script>";
     expect($.PercServiceUtils.sanitizeUrlForHref(evil)).toBe(
-      "about:blank#blocked"
+      "about:blank#blocked",
     );
   });
 });

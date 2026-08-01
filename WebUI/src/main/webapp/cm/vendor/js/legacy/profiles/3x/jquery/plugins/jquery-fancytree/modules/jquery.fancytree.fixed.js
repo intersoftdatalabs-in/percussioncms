@@ -132,7 +132,7 @@
         $topLeftWrapper.append($topLeftTable),
         $topRightWrapper.append($topRightTable),
         $bottomLeftWrapper.append($bottomLeftTable),
-        $bottomRightWrapper.append($bottomRightTable)
+        $bottomRightWrapper.append($bottomRightTable),
       );
 
       $bottomRightTable.on("keydown", function (evt) {
@@ -181,7 +181,7 @@
               $trOther = $tr.data(fcn.counterpart);
             $tr.addClass(fcn.hover);
             $trOther.addClass(fcn.hover);
-          }
+          },
         )
         .on(
           "mouseleave",
@@ -191,7 +191,7 @@
               $trOther = $tr.data(fcn.counterpart);
             $tr.removeClass(fcn.hover);
             $trOther.removeClass(fcn.hover);
-          }
+          },
         );
 
       $bottomLeftWrapper.on("mousewheel DOMMouseScroll", function (event) {
@@ -232,7 +232,7 @@
           return this._super.apply(this, arguments).always(function () {
             tree.$container = $prevContainer;
           });
-        }
+        },
       );
       return res;
     },
@@ -357,10 +357,10 @@
           var idx = $trLeft.index(),
             fixedColCount = this.options.fixed.fixCols,
             $blTableBody = this.$fixedWrapper.find(
-              "div." + fcn.bottomLeft + " table tbody"
+              "div." + fcn.bottomLeft + " table tbody",
             ),
             $brTableBody = this.$fixedWrapper.find(
-              "div." + fcn.bottomRight + " table tbody"
+              "div." + fcn.bottomRight + " table tbody",
             ),
             $prevLeftNode = $blTableBody.find("tr").eq(Math.max(idx + 1, 0)),
             prevRightNode = $prevLeftNode.data(fcn.counterpart);
@@ -527,7 +527,7 @@
           $thTop.css("min-width", newWidth - (thTopOuterWidth - thTopWidth));
           $tdBottom.css(
             "min-width",
-            newWidth - (tdBottomOuterWidth - tdBottomWidth)
+            newWidth - (tdBottomOuterWidth - tdBottomWidth),
           );
         });
       }
@@ -565,7 +565,7 @@
         fixedWidth = Math.min(wrapperWidth, $topLeftTable.width()),
         fixedHeight = Math.min(
           wrapperHeight,
-          Math.max($topLeftTable.height(), $topRightTable.height())
+          Math.max($topLeftTable.height(), $topRightTable.height()),
         );
       //			vScrollbar = $bottomRightWrapper.get(0).scrollHeight > (wrapperHeight - fixedHeight),
       //			hScrollbar = $bottomRightWrapper.get(0).scrollWidth > (wrapperWidth - fixedWidth);

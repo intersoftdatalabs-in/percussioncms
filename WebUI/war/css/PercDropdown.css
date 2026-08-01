@@ -62,7 +62,10 @@
 }
 
 .perc-dropdown.sf-shadow ul {
-  box-shadow: 2px 0px 2px #a2a2a2, -2px 0px 2px #a2a2a2, 0px 2px 2px #a2a2a2,
+  box-shadow:
+    2px 0px 2px #a2a2a2,
+    -2px 0px 2px #a2a2a2,
+    0px 2px 2px #a2a2a2,
     0px -2px 2px #a2a2a2;
   margin-top: -3px;
   border-top: 1px solid #a2a2a2;
@@ -166,7 +169,9 @@
 #perc-dropdown-view-style .sf-menu > li.sfHover > a,
 .perc-template-pages-items-dropdown .sf-menu > li.sfHover > a,
 .perc-imported-page-dropdown .sf-menu > li.sfHover > a {
-  box-shadow: -2px -3px 3px #a2a2a2, 2px -2px 1px #a2a2a2;
+  box-shadow:
+    -2px -3px 3px #a2a2a2,
+    2px -2px 1px #a2a2a2;
   background: white;
   z-index: 10000;
 }

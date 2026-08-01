@@ -104,7 +104,7 @@ var regionWidgetAssociationXmlString = "";
 
       // append page region widget associations to the template region widget associations
       var $templateWidgets = $(templateXml).find(
-        "Template regionTree regionWidgetAssociations"
+        "Template regionTree regionWidgetAssociations",
       );
       $pageObject
         .find("Page regionBranches regionWidgetAssociations regionWidget")
@@ -121,7 +121,7 @@ var regionWidgetAssociationXmlString = "";
       var self = this;
       var $pageObject = $(this.pageXml); //	jQuery wrap around Raw XML
       $pageRegionWidgets = $pageObject.find(
-        "Page regionBranches regionWidgetAssociations regionWidget"
+        "Page regionBranches regionWidgetAssociations regionWidget",
       );
       $pageRegionWidgets.children("regionId").each(function () {
         var regionId = $(this).text();
@@ -150,7 +150,7 @@ var regionWidgetAssociationXmlString = "";
     this.lockedTemplateRegions = new Array();
     this.findOverridableAndLockedTemplateRegions = function (templateXml) {
       var $templateRootRegion = $(templateXml).find(
-        "Template regionTree rootRegion children region:first"
+        "Template regionTree rootRegion children region:first",
       );
       this.recursivelyFindTemplateLeafRegions($templateRootRegion);
       this.removeTemplateRegionsWithWidgets(templateXml);
@@ -173,7 +173,7 @@ var regionWidgetAssociationXmlString = "";
     this.removeTemplateRegionsWithWidgets = function (templateXml) {
       var $template = $(templateXml);
       var $regionWidgetAssociations = $template.find(
-        "Template regionTree regionWidgetAssociations"
+        "Template regionTree regionWidgetAssociations",
       );
       var self = this;
       $regionWidgetAssociations.find("regionWidget").each(function () {
@@ -199,7 +199,7 @@ var regionWidgetAssociationXmlString = "";
 
     this.setOriginalTemplate = function (
       templateObjectXml,
-      templateRootRegion
+      templateRootRegion,
     ) {
       this.templateObjectXml = templateObjectXml;
       this.templateRootRegion = templateRootRegion;
@@ -240,7 +240,7 @@ var regionWidgetAssociationXmlString = "";
       // clear widget ids before saving so that server will create the real ids
       $(self.pageXml)
         .find(
-          "Page regionBranches regionWidgetAssociations regionWidget widgetItems widgetItem id"
+          "Page regionBranches regionWidgetAssociations regionWidget widgetItems widgetItem id",
         )
         .each(function () {
           var id = $(this).text();
@@ -352,7 +352,7 @@ var regionWidgetAssociationXmlString = "";
       }
 
       var $pageRegionWidgetAssociations = $page.find(
-        "Page regionBranches regionWidgetAssociations"
+        "Page regionBranches regionWidgetAssociations",
       );
       for (var regionId in $templateRegionWidgetsForPage) {
         var templateRegionWidget = $templateRegionWidgetsForPage[regionId];
@@ -377,7 +377,7 @@ var regionWidgetAssociationXmlString = "";
 
     this.isAncestor = function (
       overridableTemplateRegionId,
-      templateWithWidgetRegionId
+      templateWithWidgetRegionId,
     ) {
       if (overridableTemplateRegionId == templateWithWidgetRegionId)
         return true;
@@ -435,7 +435,7 @@ var regionWidgetAssociationXmlString = "";
         this.templateRootRegion,
         this.findRegionByIdHelper,
         [regionId],
-        foundRegions
+        foundRegions,
       );
       return foundRegions[0];
     };

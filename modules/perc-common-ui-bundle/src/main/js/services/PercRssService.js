@@ -37,7 +37,7 @@
     var feedsUrlData = { feedsUrl: feedUrl };
     var serviceUrl = $.PercServiceUtils.joinURL(
       deliveryUrl,
-      "/feeds/rss/readExternalFeed"
+      "/feeds/rss/readExternalFeed",
     );
     $.PercServiceUtils.makeXdmXmlRequest(
       null,
@@ -48,12 +48,12 @@
           callback(true, results.data);
         } else {
           var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            results.request
+            results.request,
           );
           callback(false, defMsg);
         }
       },
-      feedsUrlData
+      feedsUrlData,
     );
   }
 })(jQuery);

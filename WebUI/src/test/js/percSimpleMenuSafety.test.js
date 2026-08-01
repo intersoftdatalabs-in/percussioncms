@@ -31,7 +31,7 @@ import jquery from "jquery";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SRC = resolve(
   __dirname,
-  "../../main/webapp/cm/widgets/PercSimpleMenu.js"
+  "../../main/webapp/cm/widgets/PercSimpleMenu.js",
 );
 
 function loadPlugin($) {
@@ -90,7 +90,7 @@ describe("percSimpleMenu label resolution (js/unsafe-jquery-plugin)", () => {
     expect(host.text()).toContain("img");
     // $() was never called with the raw payload string as sole argument
     const hostileCtor = rawCalls.filter(
-      (a) => typeof a === "string" && a.indexOf("onerror") !== -1
+      (a) => typeof a === "string" && a.indexOf("onerror") !== -1,
     );
     expect(hostileCtor.length).toBe(0);
   });

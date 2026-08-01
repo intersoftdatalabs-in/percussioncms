@@ -53,7 +53,7 @@
         if (tree[i].nodeType == 1) {
           if (
             selectedArray.indexOf(
-              tree[i].attributes.getNamedItem("id").value
+              tree[i].attributes.getNamedItem("id").value,
             ) != -1
           ) {
             returnString =
@@ -66,7 +66,7 @@
                 selected,
                 tree[i].childNodes,
                 returnString,
-                categoryCount + 1
+                categoryCount + 1,
               );
             }
           }
@@ -94,14 +94,14 @@
                 selected[k],
                 xml.documentElement.childNodes,
                 null,
-                3
+                3,
               );
           else
             value = findSelectedTitle(
               selected[k],
               xml.documentElement.childNodes,
               null,
-              3
+              3,
             );
         }
         displaySelectedCategory(value);

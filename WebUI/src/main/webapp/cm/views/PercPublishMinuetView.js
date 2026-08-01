@@ -92,7 +92,7 @@ function getAllPublishingServer(serverType, serverObj) {
   }
   $.PercPublisherService(false).getAvailablePublishingServer(
     getPublishServerCallback,
-    serverType
+    serverType,
   );
 
   publishingServerListDeferred.done(function (pslLst) {
@@ -100,7 +100,7 @@ function getAllPublishingServer(serverType, serverObj) {
     $("#publishServer").empty();
     for (var i in publishingServerList) {
       $("#publishServer").append(
-        new Option(publishingServerList[i], publishingServerList[i])
+        new Option(publishingServerList[i], publishingServerList[i]),
       );
     }
     var selectedserver;
@@ -115,7 +115,7 @@ function getAllPublishingServer(serverType, serverObj) {
       var selectedserverProp = getArrayProperty(
         serverObj.serverInfo.properties,
         "key",
-        "publishServer"
+        "publishServer",
       );
       //Selecting Second Record as default because first one is us gov.
       if (
@@ -150,7 +150,7 @@ function getDefaultFolder() {
   $.PercPublisherService(false).getLocalFolderPath(
     selectedSiteData.siteId,
     serverType,
-    getDefaultFolderCallback
+    getDefaultFolderCallback,
   );
   defaultFolderDeferred.done(function (defaultFolder) {
     $("input[name=defaultServer]").val(defaultFolder);
@@ -164,7 +164,7 @@ function getSiteDetails() {
   serverListDeferred = $.Deferred();
   $.PercPublisherService(false).getServersList(
     selectedSiteData.siteId,
-    getServersListCallback
+    getServersListCallback,
   );
 
   serverListDeferred.done(function (serverList) {
@@ -173,13 +173,13 @@ function getSiteDetails() {
 
     // Initialize Status
     $.PercPublishStatusMinuetView(false).renderPublishStatusSection(
-      selectedSiteData.siteId
+      selectedSiteData.siteId,
     );
     $("#percPublishStatusListTarget").animateCss("fadeIn");
 
     // Initialize logs
     $.PercPublishLogsMinuetView(false).renderSiteLogsSection(
-      selectedSiteData.siteId
+      selectedSiteData.siteId,
     );
     $("#percServerLogListTarget").animateCss("fadeIn");
   });
@@ -191,14 +191,14 @@ function updateSites() {
     siteListObject,
     "templatePublishingCards",
     "perc-publish-body-target",
-    bindSitesEvents
+    bindSitesEvents,
   );
   // Restore previously saved view (grid vs list) or initiate default
   $(".perc-site-view-toggle-button > input[value=" + siteView + "]").trigger(
     "click",
     function () {
       $("#perc-publish-body-target").animateCss("fadeIn");
-    }
+    },
   );
 }
 
@@ -207,20 +207,20 @@ function updateSiteDetails() {
   processTemplate(
     serverListObject,
     "templateSiteDetailsShell",
-    "perc-publish-body-target"
+    "perc-publish-body-target",
   );
   // Lists available servers
   processTemplate(
     serverListObject,
     "templatePublishServerList",
-    "publishServerListTarget"
+    "publishServerListTarget",
   );
   $("#publishServerListTarget").animateCss("fadeIn");
   // Updates site name and logo
   processTemplate(
     selectedSiteData,
     "templateSiteTitleLogo",
-    "siteTitleLogoTarget"
+    "siteTitleLogoTarget",
   );
 
   bindSiteDetailsEvents();
@@ -290,7 +290,7 @@ function publishCallback(status, result) {
     parsedResponse = requestResultsParser(
       I18N.message("perc.ui.publish.title@Publish Request"),
       status,
-      result
+      result,
     );
     processAlert(response);
   });
@@ -302,7 +302,7 @@ function updateServerPropertiesCallback(status, result) {
     response = {};
     response.result = {};
     response.source = I18N.message(
-      "perc.ui.publish.title@Server Configuration"
+      "perc.ui.publish.title@Server Configuration",
     );
     if (result[1] == "success") {
       response.result.warning = false;
@@ -614,12 +614,12 @@ function percSiteSelect(eventObj) {
   selectedSiteData = getArrayProperty(
     siteListObject.SiteSummary,
     "siteId",
-    selectedSiteId
+    selectedSiteId,
   );
   selectedSitePath =
     selectedSiteData.folderPath.substring(
       1,
-      selectedSiteData.folderPath.length
+      selectedSiteData.folderPath.length,
     ) + "/";
   updateNavLocation(selectedSiteData.name, selectedSitePath);
   $("#perc-publish-body-target").animateCss("fadeOut faster", function () {
@@ -659,7 +659,7 @@ function processDeleteServer() {
   $.PercPublisherService(false).deleteSiteServer(
     selectedSiteData.siteId,
     selectedServerData.serverInfo.serverId,
-    processDeleteServerCallback
+    processDeleteServerCallback,
   );
   deleteServerResponseDeferred.done(function (response) {
     deleteServerRequestDeferred.resolve(response);
@@ -678,7 +678,7 @@ function processPublish(eventData) {
     $.PercPublisherService(false).publishSite(
       siteName,
       serverName,
-      publishCallback
+      publishCallback,
     );
   }
 
@@ -696,14 +696,14 @@ function processIncrementalPreview(serverId) {
     serverId,
     function (status, result) {
       serverPropertiesDeferred.resolve(result[0]);
-    }
+    },
   );
 
   serverPropertiesDeferred.done(function (serverProperties) {
     publishRelatedItems = getArrayProperty(
       serverProperties.serverInfo.properties,
       "key",
-      "publishRelatedItems"
+      "publishRelatedItems",
     ).value;
     serverType = serverProperties.serverInfo.serverType;
     console.log(serverProperties);
@@ -726,12 +726,12 @@ function loadIncrementalPage(siteName, serverName, startIndex) {
       processTemplate(
         incrementalPreviewObject,
         "templateIncrementalPublishPreviewOverlay",
-        "percIncrementalPublishPreviewOverlayTarget"
+        "percIncrementalPublishPreviewOverlayTarget",
       );
       createPaginatedTable(incrementalPreviewObject, 1);
       bindIncrementalPublishEvents();
       $("#percIncrementalPublishPreviewOverlayTarget").animateCss(
-        "fadeIn faster"
+        "fadeIn faster",
       );
       $("#percIncrementalPublishPreviewOverlay").modal("_enforceFocus");
 
@@ -743,7 +743,7 @@ function loadIncrementalPage(siteName, serverName, startIndex) {
         processIncrementalRelatedItemsPreview();
         $("#percIncrementalRelatedItemsTarget").animateCss("fadeIn faster");
       }
-    }
+    },
   );
 }
 
@@ -762,7 +762,7 @@ function refreshIncrementalPage(siteName, serverName, startIndex) {
       processTemplate(
         incrementalPreviewObject,
         "templateIncrementalPublishPreviewOverlay",
-        "percIncrementalPublishPreviewOverlayTarget"
+        "percIncrementalPublishPreviewOverlayTarget",
       );
       createPaginatedTable(incrementalPreviewObject, startIndex);
       bindIncrementalPublishEvents();
@@ -774,7 +774,7 @@ function refreshIncrementalPage(siteName, serverName, startIndex) {
       ) {
         processIncrementalRelatedItemsPreview();
       }
-    }
+    },
   );
 }
 
@@ -859,10 +859,10 @@ function processIncrementalRelatedItemsPreview() {
       processTemplate(
         incrementalRelatedPreviewObject,
         "templateIncrementalPublishRelatedItems",
-        "percIncrementalRelatedItemsTarget"
+        "percIncrementalRelatedItemsTarget",
       );
       bindIncrementalRelatedItemsEvents();
-    }
+    },
   );
 }
 
@@ -870,7 +870,7 @@ function bindIncrementalPublishEvents() {
   $("#percCloseIncrementalPublishPreviewOverlay").on("click", function () {
     hideSection(
       "#percIncrementalPublishPreviewOverlayTarget",
-      "fadeOut faster"
+      "fadeOut faster",
     );
   });
 
@@ -883,7 +883,7 @@ function bindIncrementalRelatedItemsEvents() {
   $("#percSelectAllRelatedItems").on("click", function () {
     $("#percIncrementalPublishRelatedItemsList input[type=checkbox]").prop(
       "checked",
-      $(this).prop("checked")
+      $(this).prop("checked"),
     );
   });
 }
@@ -898,14 +898,14 @@ function processIncrementalPublish() {
       if (this.checked == true && relatedItemData) {
         itemsToApprove.push(relatedItemData.id);
       }
-    }
+    },
   );
   // Call Publish Incremental with list of related items selected for approval.
   $.PercPublisherService(false).publishIncrementalWithApproval(
     siteName,
     serverName,
     JSON.stringify(itemsToApprove),
-    publishCallback
+    publishCallback,
   );
 }
 
@@ -958,7 +958,7 @@ function editServerProperties(eventData) {
   $.PercPublisherService(false).getServerProperties(
     selectedSiteData.siteId,
     selectedServerId,
-    getServerPropertiesCallback
+    getServerPropertiesCallback,
   );
   serverPropertiesDeferred.done(function (currentProperties) {
     selectedServerData.serverInfo = currentProperties.serverInfo;
@@ -970,62 +970,62 @@ function assembleServerForms(serverObj) {
   processTemplate(
     serverObj,
     "templateServerPropertiesModal",
-    "percModalTarget"
+    "percModalTarget",
   );
   processTemplate(
     serverObj,
     "templateServerPropertiesForm",
-    "percServerPropertiesFormTarget"
+    "percServerPropertiesFormTarget",
   );
   processTemplate(
     serverObj,
     "templatePercServerPropertiesCommon",
-    "percServerPropertiesCommonTarget"
+    "percServerPropertiesCommonTarget",
   );
   processTemplate(
     serverObj,
     "templatePercServerPropertiesFileLocal",
-    "percServerPropertiesFileLocalTarget"
+    "percServerPropertiesFileLocalTarget",
   );
   processTemplate(
     serverObj,
     "templatePercServerPropertiesFileAMAZONS3",
-    "percServerPropertiesFileAMAZONS3Target"
+    "percServerPropertiesFileAMAZONS3Target",
   );
   processTemplate(
     serverObj,
     "templatePercServerPropertiesFileFTP",
-    "percServerPropertiesFileFTPTarget"
+    "percServerPropertiesFileFTPTarget",
   );
   processTemplate(
     serverObj,
     "templatePercServerPropertiesFileFTPS",
-    "percServerPropertiesFileFTPSTarget"
+    "percServerPropertiesFileFTPSTarget",
   );
   processTemplate(
     serverObj,
     "templatePercServerPropertiesFileSFTP",
-    "percServerPropertiesFileSFTPTarget"
+    "percServerPropertiesFileSFTPTarget",
   );
   processTemplate(
     serverObj,
     "templatePercServerPropertiesOptional",
-    "percServerPropertiesOptionalTarget"
+    "percServerPropertiesOptionalTarget",
   );
   processTemplate(
     serverObj,
     "templatePercServerPropertiesDatabaseCommon",
-    "percServerPropertiesDatabaseCommonTarget"
+    "percServerPropertiesDatabaseCommonTarget",
   );
   processTemplate(
     serverObj,
     "templatePercServerPropertiesDatabaseMSSQL",
-    "percServerPropertiesDatabaseMSSQLTarget"
+    "percServerPropertiesDatabaseMSSQLTarget",
   );
   processTemplate(
     serverObj,
     "templatePercServerPropertiesDatabaseOracle",
-    "percServerPropertiesDatabaseOracleTarget"
+    "percServerPropertiesDatabaseOracleTarget",
   );
 
   privateKeyListDeferred = $.Deferred();
@@ -1034,7 +1034,7 @@ function assembleServerForms(serverObj) {
     processTemplate(
       keyData.data.PrivateKeys,
       "templatePrivateKeyOptions",
-      "privateKeyList"
+      "privateKeyList",
     );
   });
 
@@ -1054,7 +1054,7 @@ function addRegionOptions(serverObj) {
   var selectedRegion = getArrayProperty(
     serverObj.serverInfo.properties,
     "key",
-    "region"
+    "region",
   );
   if (selectedRegion != null) {
     selectedRegion = selectedRegion.value;
@@ -1081,10 +1081,10 @@ function deleteServerRequest() {
   dialogObject = createDialogObject();
   dialogObject.type = "warning";
   dialogObject.title = I18N.message(
-    "perc.ui.publish.title@Delete Server Dialog Title"
+    "perc.ui.publish.title@Delete Server Dialog Title",
   );
   dialogObject.message = I18N.message(
-    "perc.ui.publish.title@Delete Server Dialog"
+    "perc.ui.publish.title@Delete Server Dialog",
   );
 
   processTemplate(dialogObject, "templateFullScreenDialog", "percDialogTarget");
@@ -1125,7 +1125,7 @@ function updateServerProperties(siteName, serverName, serverProperties) {
     siteName,
     serverName,
     serverProperties,
-    updateServerPropertiesCallback
+    updateServerPropertiesCallback,
   );
 }
 
@@ -1193,7 +1193,7 @@ function processServerPropertiesForm(eventData) {
     }
 
     var propFields = $("#percServerPropertiesForm").find(
-      "*[percServer" + selectedType + "Prop]"
+      "*[percServer" + selectedType + "Prop]",
     );
     var properties = [];
     $.each(propFields, function (index, value) {

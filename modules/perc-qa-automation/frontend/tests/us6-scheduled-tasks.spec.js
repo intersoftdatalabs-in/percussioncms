@@ -23,7 +23,7 @@ test.describe("Admin Shell - Scheduled Tasks & System Tools (US7, US8)", () => {
     await expect(page.locator("[data-testid='tab-tasks']")).toBeVisible();
     await expect(page.locator("[data-testid='tab-logs']")).toBeVisible();
     await expect(
-      page.locator("[data-testid='tab-notifications']")
+      page.locator("[data-testid='tab-notifications']"),
     ).toBeVisible();
     await expect(page.locator("[data-testid='tab-tools']")).toBeVisible();
   });
@@ -37,24 +37,24 @@ test.describe("Admin Shell - Scheduled Tasks & System Tools (US7, US8)", () => {
     const logsTab = page.locator("[data-testid='tab-logs']");
     await logsTab.click();
     await expect(
-      page.locator("[data-testid='perc-task-logs-section']")
+      page.locator("[data-testid='perc-task-logs-section']"),
     ).toBeVisible();
 
     // Switch to Notifications tab
     const notifTab = page.locator("[data-testid='tab-notifications']");
     await notifTab.click();
     await expect(
-      page.locator("[data-testid='perc-task-notifications-section']")
+      page.locator("[data-testid='perc-task-notifications-section']"),
     ).toBeVisible();
 
     // Switch to System Tools tab
     const toolsTab = page.locator("[data-testid='tab-tools']");
     await toolsTab.click();
     await expect(
-      page.locator("[data-testid='perc-tools-section']")
+      page.locator("[data-testid='perc-tools-section']"),
     ).toBeVisible();
     await expect(
-      page.locator("[data-testid='perc-consistency-checker']")
+      page.locator("[data-testid='perc-consistency-checker']"),
     ).toBeVisible();
   });
 

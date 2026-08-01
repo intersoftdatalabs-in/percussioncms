@@ -25,17 +25,17 @@
     extension: "Sila masukkan nilai yang telah diterima.",
     maxlength: $.validator.format("Sila masukkan tidak lebih dari {0} aksara."),
     minlength: $.validator.format(
-      "Sila masukkan sekurang-kurangnya {0} aksara."
+      "Sila masukkan sekurang-kurangnya {0} aksara.",
     ),
     rangelength: $.validator.format(
-      "Sila masukkan antara {0} dan {1} panjang aksara."
+      "Sila masukkan antara {0} dan {1} panjang aksara.",
     ),
     range: $.validator.format("Sila masukkan nilai antara {0} dan {1} aksara."),
     max: $.validator.format(
-      "Sila masukkan nilai yang kurang atau sama dengan {0}."
+      "Sila masukkan nilai yang kurang atau sama dengan {0}.",
     ),
     min: $.validator.format(
-      "Sila masukkan nilai yang lebih atau sama dengan {0}."
+      "Sila masukkan nilai yang lebih atau sama dengan {0}.",
     ),
   });
   return $;

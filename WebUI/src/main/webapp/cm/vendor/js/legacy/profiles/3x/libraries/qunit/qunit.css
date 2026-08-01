@@ -18,8 +18,9 @@
 #qunit-filteredTest,
 #qunit-userAgent,
 #qunit-testresult {
-  font-family: "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue",
-    Calibri, Helvetica, Arial, sans-serif;
+  font-family:
+    "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri,
+    Helvetica, Arial, sans-serif;
 }
 
 #qunit-testrunner-toolbar,

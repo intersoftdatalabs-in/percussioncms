@@ -26,7 +26,7 @@
   function postConsentEntry(opts, deliveryUrl, callback) {
     var serviceUrl = $.PercServiceUtils.joinURL(
       deliveryUrl,
-      "/perc-metadata-services/metadata/consent/log"
+      "/perc-metadata-services/metadata/consent/log",
     );
 
     $.PercServiceUtils.makeXdmJsonRequest(
@@ -47,7 +47,7 @@
         services: opts.services,
         optIn: opts.optIn,
         consentDate: opts.consentDate,
-      }
+      },
     );
   }
 })(jQuery);

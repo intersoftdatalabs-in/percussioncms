@@ -12,11 +12,11 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const PACKAGE_COPIES = [
   resolve(
     __dirname,
-    "../../../../modules/perc-packages/src/main/resources/Packages/perc.widget.imageSlider/SupportFile-rx_resources/widgets/percImageSlider/js/percImageSlider.js"
+    "../../../../modules/perc-packages/src/main/resources/Packages/perc.widget.imageSlider/SupportFile-rx_resources/widgets/percImageSlider/js/percImageSlider.js",
   ),
   resolve(
     __dirname,
-    "../../../../modules/perc-packages/src/main/resources/Packages/perc.widget.imageSlider/sys__UserDependency--rx_resources/widgets/percImageSlider/js/percImageSlider.js"
+    "../../../../modules/perc-packages/src/main/resources/Packages/perc.widget.imageSlider/sys__UserDependency--rx_resources/widgets/percImageSlider/js/percImageSlider.js",
   ),
 ];
 
@@ -34,14 +34,14 @@ function loadSafeThumbnailSrc(srcPath) {
   // Function body ends at the blank line / next top-level comment before $(document)
   const after = src.slice(start);
   const endMatch = after.match(
-    /^function safeThumbnailSrc\(path\) \{[\s\S]*?\n  \}\n/
+    /^function safeThumbnailSrc\(path\) \{[\s\S]*?\n  \}\n/,
   );
   if (!endMatch) {
     throw new Error("Could not parse safeThumbnailSrc body from " + srcPath);
   }
   // eslint-disable-next-line no-new-func
   return new Function(
-    "return (" + endMatch[0].trim().replace(/;$/, "") + ")"
+    "return (" + endMatch[0].trim().replace(/;$/, "") + ")",
   )();
 }
 
@@ -59,10 +59,10 @@ describe.each(PACKAGE_COPIES.map((p) => [p.split("/").slice(-5).join("/"), p]))(
 
     it("passes through relative CMS thumbnail paths", () => {
       expect(safeThumbnailSrc("/Assets/uploads/img.jpg")).toBe(
-        "/Assets/uploads/img.jpg"
+        "/Assets/uploads/img.jpg",
       );
       expect(safeThumbnailSrc("rx_resources/images/t.png")).toBe(
-        "rx_resources/images/t.png"
+        "rx_resources/images/t.png",
       );
     });
 
@@ -79,8 +79,8 @@ describe.each(PACKAGE_COPIES.map((p) => [p.split("/").slice(-5).join("/"), p]))(
     it("does not reject paths that merely contain scheme-like substrings later", () => {
       // Only scheme *prefix* is blocked; middle occurrences remain (product contract).
       expect(safeThumbnailSrc("/path/data:not-a-scheme.jpg")).toBe(
-        "/path/data:not-a-scheme.jpg"
+        "/path/data:not-a-scheme.jpg",
       );
     });
-  }
+  },
 );

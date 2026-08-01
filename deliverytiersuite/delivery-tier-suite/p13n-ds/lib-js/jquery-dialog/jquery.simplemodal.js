@@ -174,7 +174,7 @@
           // unsupported data type!
           if (console) {
             console.log(
-              "SimpleModal Error: Unsupported data type: " + typeof data
+              "SimpleModal Error: Unsupported data type: " + typeof data,
             );
           }
           return false;
@@ -213,7 +213,7 @@
               left: 0,
               top: 0,
               zIndex: 3000,
-            })
+            }),
           )
           .hide()
           .appendTo("body");
@@ -226,7 +226,7 @@
             $.extend(this.opts.containerCss, {
               position: "fixed",
               zIndex: 3100,
-            })
+            }),
           )
           .append(
             this.opts.close
@@ -235,7 +235,7 @@
                   '" title="' +
                   this.opts.closeTitle +
                   '"></a>'
-              : ""
+              : "",
           )
           .hide()
           .appendTo("body");
@@ -294,7 +294,7 @@
               width: "100%",
               top: 0,
               left: 0,
-            })
+            }),
           )
           .hide()
           .appendTo("body");

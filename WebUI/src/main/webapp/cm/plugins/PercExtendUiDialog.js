@@ -63,7 +63,7 @@
     var baseUrl =
       window.location.protocol + "//" + window.location.host + "/cm";
     uiDialogButtonPane = $("<div></div>").addClass(
-      "ui-dialog-buttonpane " + "ui-widget-content " + "ui-helper-clearfix"
+      "ui-dialog-buttonpane " + "ui-widget-content " + "ui-helper-clearfix",
     );
     // Define buttons below in the mapping object
     // Make the URL absolute for each background image

@@ -47,7 +47,7 @@ import { beforeEach, afterEach, describe, it, expect, vi } from "vitest";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SRC_PATH = resolve(
   __dirname,
-  "../../main/webapp/cm/views/PercCSSGalleryView.js"
+  "../../main/webapp/cm/views/PercCSSGalleryView.js",
 );
 
 let $;
@@ -156,7 +156,7 @@ describe("renderGalleryEntry (name sink)", () => {
     fireGetThemeList([{ name: malicious, thumbUrl: "/img/t.png" }]);
 
     const scripts = document.querySelectorAll(
-      "#perc-css-gallery #perc-themes-table script"
+      "#perc-css-gallery #perc-themes-table script",
     );
     expect(scripts.length, "no <script> from theme name").toBe(0);
     expect(window.__pwned).toBeUndefined();
@@ -169,7 +169,7 @@ describe("renderGalleryEntry (name sink)", () => {
     fireGetThemeList([{ name: malicious, thumbUrl: "/img/t.png" }]);
 
     const imgs = document.querySelectorAll(
-      "#perc-css-gallery #perc-themes-table img"
+      "#perc-css-gallery #perc-themes-table img",
     );
     expect(imgs.length, "no <img> from theme name").toBe(0);
     expect(window.__pwned).toBeUndefined();
@@ -194,7 +194,7 @@ describe("renderGalleryEntry (thumbUrl sink)", () => {
     fireGetThemeList([{ name: "Plain", thumbUrl: malicious }]);
 
     const scripts = document.querySelectorAll(
-      "#perc-css-gallery #perc-themes-table script"
+      "#perc-css-gallery #perc-themes-table script",
     );
     expect(scripts.length, "no <script> from thumbUrl").toBe(0);
     expect(window.__pwned).toBeUndefined();
@@ -210,7 +210,7 @@ describe("renderGalleryEntry (thumbUrl sink)", () => {
     document.querySelectorAll("#perc-css-gallery *").forEach((el) => {
       for (const attr of el.attributes) {
         expect(/^on/i.test(attr.name), `inline handler ${attr.name}`).toBe(
-          false
+          false,
         );
       }
     });

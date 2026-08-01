@@ -127,7 +127,7 @@ ps.aa.Menu = new (function () {
         if (!response.isSuccess()) {
           console.debug(
             "Failed to retrieve labels for some menu actions. Reason: " +
-              response.getValue()
+              response.getValue(),
           );
           return actionName;
         }
@@ -161,12 +161,12 @@ ps.aa.Menu = new (function () {
       if (visibilityMap == null) {
         var response = ps.io.Actions.getActionVisibility(
           this.getNames(),
-          this.m_currentId
+          this.m_currentId,
         );
         if (!response.isSuccess()) {
           console.debug(
             "Failed to retrieve visibility states for some menu actions. Reason: " +
-              response.getValue()
+              response.getValue(),
           );
           return false;
         }
@@ -317,7 +317,7 @@ ps.aa.Menu = new (function () {
   this._updateIconMenuItem = function (objId) {
     // updates the icon image
     this.menubarIcon.setImage(
-      objId.getImagePath(ps.aa.controller.IMAGE_ROOT_PATH)
+      objId.getImagePath(ps.aa.controller.IMAGE_ROOT_PATH),
     );
 
     // updates the title or tooltip
@@ -347,7 +347,7 @@ ps.aa.Menu = new (function () {
         if (widget.rx_actionName !== undefined) {
           this.actionVisibilityChecker.setCurrentId(objId);
           visible = this.actionVisibilityChecker.isVisible(
-            widget.rx_actionName
+            widget.rx_actionName,
           );
         }
       }
@@ -371,7 +371,7 @@ ps.aa.Menu = new (function () {
    * @param {boolean} isCheckoutByMe 'true' if the parent item is checkout by
    *    the user; 'false' otherwise.
    */
-  (this._resetSlotBar = function (isCheckoutByMe) {
+  ((this._resetSlotBar = function (isCheckoutByMe) {
     // hide menu items that do not apply to slot
     this._maybeHide(this.changeTemplateElem);
     this._maybeHide(this.upElem);
@@ -521,7 +521,7 @@ ps.aa.Menu = new (function () {
       this._addAccountMenu(menubar);
       this._addHelpMenu(menubar);
       this.toggleShowHidePlaceholders(true);
-    });
+    }));
 
   /**
    * Helper method to create menu bar items.
@@ -570,13 +570,13 @@ ps.aa.Menu = new (function () {
       this.changeTemplateElem,
       null,
       "after",
-      this.toolElem.domNode
+      this.toolElem.domNode,
     );
     menubar.addChild(
       this.upElem,
       null,
       "after",
-      this.changeTemplateElem.domNode
+      this.changeTemplateElem.domNode,
     );
     menubar.addChild(this.downElem, null, "after", this.upElem.domNode);
   };
@@ -920,7 +920,7 @@ ps.aa.Menu = new (function () {
           onClick: function () {
             ps.aa.controller.openHelpWindow(ps.aa.Menu.AAHELP);
           },
-        })
+        }),
       );
       popmenu.addChild(
         ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
@@ -928,7 +928,7 @@ ps.aa.Menu = new (function () {
           onClick: function () {
             ps.aa.controller.openHelpWindow(ps.aa.Menu.AATUTORIAL);
           },
-        })
+        }),
       );
       popmenu.addChild(
         ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
@@ -936,7 +936,7 @@ ps.aa.Menu = new (function () {
           onClick: function () {
             ps.aa.controller.openHelpWindow(ps.aa.Menu.AAABOUT);
           },
-        })
+        }),
       );
       _this._resetLastMenubar();
     }
@@ -965,7 +965,7 @@ ps.aa.Menu = new (function () {
           onClick: function () {
             ps.aa.controller.previewWithCurrentRevisions();
           },
-        })
+        }),
       );
       popmenu.addChild(
         ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
@@ -973,7 +973,7 @@ ps.aa.Menu = new (function () {
           onClick: function () {
             ps.aa.controller.previewWithEditRevisions();
           },
-        })
+        }),
       );
       _this._resetLastMenubar();
     }
@@ -990,7 +990,7 @@ ps.aa.Menu = new (function () {
    *
    * @param {ps.collections.ArrayList} ids The list of {ps.aa.ObjectId} ids.
    */
-  (this._initContextMenu = function (ids) {
+  ((this._initContextMenu = function (ids) {
     var _this = this;
 
     // create Slot Context Menu
@@ -1063,7 +1063,7 @@ ps.aa.Menu = new (function () {
       itemMenu.addChild(_this.ctxRemove);
 
       _this.ctxItemSeparator1 = ps.widget.createWidget(
-        ps.aa.Menu.MENUSEPARATOR
+        ps.aa.Menu.MENUSEPARATOR,
       );
       itemMenu.addChild(_this.ctxItemSeparator1);
 
@@ -1090,12 +1090,12 @@ ps.aa.Menu = new (function () {
           onClick: function () {
             ps.aa.controller.createItem(ps.aa.Menu.REPLACE_FROM_SNIPPET);
           },
-        }
+        },
       );
       itemMenu.addChild(_this.ctxReplaceFromSnippet);
 
       _this.ctxItemSeparator2 = ps.widget.createWidget(
-        ps.aa.Menu.MENUSEPARATOR
+        ps.aa.Menu.MENUSEPARATOR,
       );
       itemMenu.addChild(_this.ctxItemSeparator2);
 
@@ -1137,7 +1137,7 @@ ps.aa.Menu = new (function () {
           onClick: function () {
             ps.aa.controller.viewContent();
           },
-        })
+        }),
       );
 
       itemMenu.addChild(
@@ -1146,7 +1146,7 @@ ps.aa.Menu = new (function () {
           onClick: function () {
             ps.aa.controller.viewProperties();
           },
-        })
+        }),
       );
 
       itemMenu.addChild(
@@ -1155,7 +1155,7 @@ ps.aa.Menu = new (function () {
           onClick: function () {
             ps.aa.controller.viewRevisions();
           },
-        })
+        }),
       );
 
       itemMenu.addChild(
@@ -1164,7 +1164,7 @@ ps.aa.Menu = new (function () {
           onClick: function () {
             ps.aa.controller.viewAuditTrail();
           },
-        })
+        }),
       );
       _this._resetLastContextMenu();
     };
@@ -1193,7 +1193,7 @@ ps.aa.Menu = new (function () {
       }
       this.slotCtxMenu.bindTargetNodes(slotNodes);
       this.itemCtxMenu.bindTargetNodes(itemNodes);
-    });
+    }));
 
   /**
    * Unbinds the specified image elements from ids related context menu.

@@ -29,7 +29,7 @@ function documentReadyStateChange() {
 
   Composition.document.open();
   Composition.document.write(
-    '<body style="font:10pt arial,sans-serif"></body>'
+    '<body style="font:10pt arial,sans-serif"></body>',
   );
   Composition.document.close();
   Composition.document.designMode = "On";
@@ -187,7 +187,7 @@ function PopulateTB(y) {
             element.id +
             " <" +
             element.tagName +
-            ">"
+            ">",
         );
         return false;
     }
@@ -336,11 +336,11 @@ function createLink() {
 
   var isA = getEl(
     "A",
-    Composition.document.selection.createRange().parentElement()
+    Composition.document.selection.createRange().parentElement(),
   );
   var str = prompt(
     "Enter link location (e.g. http://www.yahoo.com):",
-    isA ? isA.href : "http://"
+    isA ? isA.href : "http://",
   );
 
   if (str != null && str != "http://") {
@@ -377,7 +377,7 @@ function createInlineLink(type) {
   var selectedHtml = Composition.document.selection.createRange().htmlText;
   if (selectedHtml.toLowerCase().indexOf("contenteditable=") != -1) {
     alert(
-      "Your selection contains an inline variant or part of it.\nYou can not insert inline links or images or variants if your selection contains inline variant or part of it."
+      "Your selection contains an inline variant or part of it.\nYou can not insert inline links or images or variants if your selection contains inline variant or part of it.",
     );
     return;
   }
@@ -410,7 +410,7 @@ function createInlineLink(type) {
         "&" +
         params,
       "testVal",
-      "dialogHeight: 300px; dialogWidth: 400px; dialogTop: 65px; dialogLeft: 453px; edge: Raised; center: Yes; help: No; resizable: Yes; status: No;"
+      "dialogHeight: 300px; dialogWidth: 400px; dialogTop: 65px; dialogLeft: 453px; edge: Raised; center: Yes; help: No; resizable: Yes; status: No;",
     );
 
     if (params == "cancel") return;
@@ -425,7 +425,7 @@ function createInlineLink(type) {
         "&" +
         params,
       "testVal",
-      "dialogHeight: 300px; dialogWidth: 400px; dialogTop: 65px; dialogLeft: 453px; edge: Raised; center: Yes; help: No; resizable: Yes; status: No;"
+      "dialogHeight: 300px; dialogWidth: 400px; dialogTop: 65px; dialogLeft: 453px; edge: Raised; center: Yes; help: No; resizable: Yes; status: No;",
     );
     if (urlString == "cancel") return;
     urlString = window.showModalDialog(
@@ -438,7 +438,7 @@ function createInlineLink(type) {
         "&" +
         urlString,
       "testVal",
-      "dialogHeight: 300px; dialogWidth: 400px; dialogTop: 65px; dialogLeft: 453px; edge: Raised; center: Yes; help: No; resizable: Yes; status: No;"
+      "dialogHeight: 300px; dialogWidth: 400px; dialogTop: 65px; dialogLeft: 453px; edge: Raised; center: Yes; help: No; resizable: Yes; status: No;",
     );
   }
 
@@ -465,7 +465,7 @@ function foreColor() {
   var arr = showModalDialog(
     "colorselect.html",
     "",
-    "dialogWidth:355px; dialogHeight:370px; center:yes"
+    "dialogWidth:355px; dialogHeight:370px; center:yes",
   );
   if (arr != null) format("forecolor", arr);
   else {
@@ -479,7 +479,7 @@ function backColor() {
   var arr = showModalDialog(
     "colorselect.html",
     "",
-    "dialogWidth:355px; dialogHeight:370px; center:yes"
+    "dialogWidth:355px; dialogHeight:370px; center:yes",
   );
   if (arr != null) format("backcolor", arr);
   else {

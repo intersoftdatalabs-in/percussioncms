@@ -124,7 +124,7 @@
         .removeClass("paginate_button");
       // add page number attribute to each page for QA
       var pageNumbers = paginator.find(
-        "span span.paginate_button, span span.paginate_active"
+        "span span.paginate_button, span span.paginate_active",
       );
 
       $.each(pageNumbers, function (index, element) {
@@ -252,7 +252,7 @@
 
     // create the table and body
     var table = $(
-      "<table class='perc-datatable' style='table-layout : fixed' cellpadding='0' cellspacing='0'>"
+      "<table class='perc-datatable' style='table-layout : fixed' cellpadding='0' cellspacing='0'>",
     );
     var tbody = $("<tbody>");
 
@@ -273,7 +273,7 @@
           rowIndex +
           " " +
           firstLast +
-          "'>"
+          "'>",
       );
 
       if (row.rowData) rowTr.data("percRowData", row.rowData);
@@ -381,7 +381,7 @@
               } else {
                 columnRowData = $.extend(
                   { content: "", title: "" },
-                  columnRowData
+                  columnRowData,
                 );
                 content = columnRowData.content;
                 title = columnRowData.title;
@@ -419,7 +419,7 @@
             columnRow = $("<div>")
               .attr("title", title == null ? "" : String(title))
               .addClass(
-                "perc-datatable-columnrow perc-ellipsis perc-index-0 perc-first"
+                "perc-datatable-columnrow perc-ellipsis perc-index-0 perc-first",
               )
               .append(content);
             columnTd.append(columnRow);
@@ -427,7 +427,7 @@
         } else {
           columnRow = $("<div>")
             .addClass(
-              "perc-datatable-columnrow perc-ellipsis perc-index-0 perc-first"
+              "perc-datatable-columnrow perc-ellipsis perc-index-0 perc-first",
             )
             .append(element);
           columnTd.append(columnRow);
@@ -499,7 +499,7 @@
         head.width(columnWidth);
 
         var sortingDirection = $(
-          "<span class='perc-sort' style='padding: 0px 10px 0px 0px; border-bottom:none'>&nbsp;</span>"
+          "<span class='perc-sort' style='padding: 0px 10px 0px 0px; border-bottom:none'>&nbsp;</span>",
         );
 
         //Asign external sort function.
@@ -560,7 +560,7 @@
     // so that it is unique to force it to sort in reverse order
     $.fn.dataTableExt.afnSortData["perc-type-string"] = function (
       oSettings,
-      iColumn
+      iColumn,
     ) {
       var aData = [];
       var data;
@@ -587,7 +587,7 @@
     // it will be forced to sort in reverse order
     $.fn.dataTableExt.afnSortData["perc-type-date"] = function (
       oSettings,
-      iColumn
+      iColumn,
     ) {
       var aData = [];
       this.api()

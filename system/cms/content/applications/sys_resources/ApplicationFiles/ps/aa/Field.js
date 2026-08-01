@@ -43,7 +43,7 @@ ps.aa.Field = function () {
         title: "Edit Field",
       },
       "200px",
-      "100px"
+      "100px",
     );
 
     var _this = this;
@@ -83,7 +83,7 @@ ps.aa.Field = function () {
         executeScripts: true,
         resizable: false,
       },
-      div
+      div,
     );
     this.inplaceDlg.setContent(
       '<input type="text" style="border:0px; padding:0px; margin-top:1px"' +
@@ -102,7 +102,7 @@ ps.aa.Field = function () {
         "</td>\n" +
         "</tr>\n" +
         "</table>\n" +
-        "</div>"
+        "</div>",
     );
 
     this.inplaceTextBox = document.getElementById("ps.field.inplaceTextBox");
@@ -110,7 +110,7 @@ ps.aa.Field = function () {
       this.inplaceTextBox,
       "onkeyup",
       this,
-      "_onInplaceTextTyped"
+      "_onInplaceTextTyped",
     );
     var updateButton = ps.widget.byId("ps.field.inplaceUpdateButton");
     ps.assert(updateButton, "Update button could not be found");
@@ -139,7 +139,7 @@ ps.aa.Field = function () {
       this.wgtButtonFullEditor,
       "onClick",
       this,
-      "openFullEditor"
+      "openFullEditor",
     );
     ps.event.connect(this.wgtButtonUpdate, "onClick", this, "updateField");
     ps.event.connect(this.wgtButtonClose, "onClick", this, "_onDialogClose");
@@ -186,7 +186,7 @@ ps.aa.Field = function () {
    * Calls content editor url server action to get the content editor url
    * Opens the editor dialog with the URL.
    */
-  (this.editField = function (divElem, e) {
+  ((this.editField = function (divElem, e) {
     if (this.checkClickEvent(e)) return true;
     ps.aa.controller.activate(divElem);
     //From the div element get the new objectid
@@ -273,7 +273,7 @@ ps.aa.Field = function () {
       this.psCeFieldWindow = window.open(
         this.ceUrl,
         ps.aa.controller.CE_EDIT_ITEM_WINDOW,
-        wstyle
+        wstyle,
       );
       this.psCeFieldWindow.focus();
       return false;
@@ -309,7 +309,7 @@ ps.aa.Field = function () {
         }
       }
       return false;
-    });
+    }));
 
   /**
    * Is called when on onkeyup event for the inline editing text box.
@@ -394,7 +394,7 @@ ps.aa.Field = function () {
       } else if ("validationError" in value) {
         if (
           !confirm(
-            value.validationError + this.FIELD_VALIDATION_CONFIRM_MSG_PART2
+            value.validationError + this.FIELD_VALIDATION_CONFIRM_MSG_PART2,
           )
         )
           return false;
@@ -407,7 +407,7 @@ ps.aa.Field = function () {
     } else if (this.renderer == this.FIELD_RENDERER_INPLACE_TEXT) {
       let response = ps.io.Actions.setContentEditorFieldValue(
         this.objectId,
-        this.inplaceTextBox.value
+        this.inplaceTextBox.value,
       );
       if (!response.isSuccess()) {
         ps.io.Actions.maybeReportActionError(response);
@@ -421,7 +421,7 @@ ps.aa.Field = function () {
       } else if ("validationError" in value) {
         if (
           !confirm(
-            value.validationError + this.FIELD_VALIDATION_CONFIRM_MSG_PART2
+            value.validationError + this.FIELD_VALIDATION_CONFIRM_MSG_PART2,
           )
         )
           return false;
@@ -434,7 +434,7 @@ ps.aa.Field = function () {
     ps.aa.controller.refreshFieldsOnPage(
       this.objectId.getContentId(),
       this.objectId.getFieldName(),
-      this.psCeFieldWindow
+      this.psCeFieldWindow,
     );
   };
 

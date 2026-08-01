@@ -184,7 +184,7 @@
         url: this.attr("action") || window.location.toString(),
         type: this.attr("method") || "GET",
       },
-      options || {}
+      options || {},
     );
 
     // hook for manipulating the form data before it is extracted;
@@ -322,8 +322,8 @@
                     n +
                     '" value="' +
                     options.extraData[n] +
-                    '" />'
-                ).appendTo(form)[0]
+                    '" />',
+                ).appendTo(form)[0],
               );
 
           // add iframe to doc and submit the form
@@ -355,8 +355,8 @@
           doc = io.contentWindow
             ? io.contentWindow.document
             : io.contentDocument
-            ? io.contentDocument
-            : io.document;
+              ? io.contentDocument
+              : io.document;
           xhr.responseText = doc.body ? doc.body.innerHTML : null;
           xhr.responseXML = doc.XMLDocument ? doc.XMLDocument : doc;
           xhr.getResponseHeader = function (header) {
@@ -560,7 +560,7 @@
         if (!el.disabled && form.clk == el)
           a.push(
             { name: n + ".x", value: form.clk_x },
-            { name: n + ".y", value: form.clk_y }
+            { name: n + ".y", value: form.clk_y },
           );
         continue;
       }
@@ -582,7 +582,7 @@
         if (n && !input.disabled && input.type == "image" && form.clk == input)
           a.push(
             { name: n + ".x", value: form.clk_x },
-            { name: n + ".y", value: form.clk_y }
+            { name: n + ".y", value: form.clk_y },
           );
       }
     }
@@ -649,7 +649,8 @@
       if (v && v.constructor == Array) {
         for (var i = 0, max = v.length; i < max; i++)
           a.push({ name: n, value: v[i] });
-      } else if (v !== null && typeof v != "undefined") a.push({ name: this.name, value: v });
+      } else if (v !== null && typeof v != "undefined")
+        a.push({ name: this.name, value: v });
     });
     //hand off to jQuery.param for proper encoding
     return $.param(a);

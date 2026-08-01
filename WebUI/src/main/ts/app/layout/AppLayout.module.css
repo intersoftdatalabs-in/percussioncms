@@ -4,7 +4,11 @@
   flex-direction: column;
   background: var(--color-surface-alt, #f5f7fb);
   color: var(--color-text, #181c2c);
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
 }
 
 .topNav {

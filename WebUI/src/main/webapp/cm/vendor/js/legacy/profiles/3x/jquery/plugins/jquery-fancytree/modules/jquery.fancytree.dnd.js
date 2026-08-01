@@ -78,7 +78,7 @@
             null,
             event,
             ui,
-            draggable
+            draggable,
           );
         }
       },
@@ -103,7 +103,7 @@
           // We ignore it:
           isHelper =
             $(event.target).closest(
-              "div.fancytree-drag-helper,#fancytree-drop-marker"
+              "div.fancytree-drag-helper,#fancytree-drop-marker",
             ).length > 0;
           if (isHelper) {
             logObject = sourceNode || prevTargetNode || $.ui.fancytree;
@@ -131,7 +131,7 @@
             sourceNode,
             event,
             ui,
-            draggable
+            draggable,
           );
         }
         if (targetNode) {
@@ -145,7 +145,7 @@
               sourceNode,
               event,
               ui,
-              draggable
+              draggable,
             );
           } else {
             // Entering this node first time
@@ -155,7 +155,7 @@
               sourceNode,
               event,
               ui,
-              draggable
+              draggable,
             );
             targetNode.tree.ext.dnd._onDragEvent(
               "over",
@@ -163,7 +163,7 @@
               sourceNode,
               event,
               ui,
-              draggable
+              draggable,
             );
           }
         }
@@ -189,7 +189,7 @@
               sourceNode,
               event,
               ui,
-              draggable
+              draggable,
             );
           }
           targetNode.tree.ext.dnd._onDragEvent(
@@ -198,7 +198,7 @@
             sourceNode,
             event,
             ui,
-            draggable
+            draggable,
           );
         }
         if (sourceNode) {
@@ -208,7 +208,7 @@
             null,
             event,
             ui,
-            draggable
+            draggable,
           );
         }
       },
@@ -262,7 +262,7 @@
               $nodeTag = $(sourceNode.span);
               // Only event and node argument is available
               $helper = $(
-                "<div class='fancytree-drag-helper'><span class='fancytree-drag-helper-img' /></div>"
+                "<div class='fancytree-drag-helper'><span class='fancytree-drag-helper-img' /></div>",
               )
                 .css({ zIndex: 3, position: "relative" }) // so it appears above ext-wide selection bar
                 .append($nodeTag.find("span.fancytree-title").clone());
@@ -294,8 +294,8 @@
               return !!sourceNode; // Abort dragging if no node could be found
             },
           },
-          tree.options.dnd.draggable
-        )
+          tree.options.dnd.draggable,
+        ),
       );
     }
     // Attach ui.droppable to this Fancytree instance
@@ -327,8 +327,8 @@
 			}
 */
           },
-          tree.options.dnd.droppable
-        )
+          tree.options.dnd.droppable,
+        ),
       );
     }
   }
@@ -377,7 +377,7 @@
             var node = $.ui.fancytree.getNode(event);
             if (node) {
               node.debug(
-                "Re-enable focus that was prevented by jQuery UI draggable."
+                "Re-enable focus that was prevented by jQuery UI draggable.",
               );
               // node.setFocus();
               // $(node.span).closest(":tabbable").focus();
@@ -414,7 +414,7 @@
 
         if (glyphOpt) {
           instData.$dropMarker.addClass(
-            glyphOpt.map._addClass + " " + glyphOpt.map.dropMarker
+            glyphOpt.map._addClass + " " + glyphOpt.map.dropMarker,
           );
         }
       }
@@ -458,7 +458,7 @@
       $target
         .toggleClass(
           classDropTarget,
-          hitMode === "after" || hitMode === "before" || hitMode === "over"
+          hitMode === "after" || hitMode === "before" || hitMode === "over",
         )
         .toggleClass(classDropAfter, hitMode === "after")
         .toggleClass(classDropBefore, hitMode === "before")
@@ -534,15 +534,15 @@
               rect =
                 node[ctx.tree.nodeContainerAttrName].getBoundingClientRect();
               parentRect = $(
-                draggable.options.appendTo
+                draggable.options.appendTo,
               )[0].getBoundingClientRect();
               draggable.originalPosition.left = Math.max(
                 0,
-                rect.left - parentRect.left
+                rect.left - parentRect.left,
               );
               draggable.originalPosition.top = Math.max(
                 0,
-                rect.top - parentRect.top
+                rect.top - parentRect.top,
               );
             }
             $nodeTag.addClass("fancytree-drag-source");
@@ -559,7 +559,7 @@
                 } else if (event.type === "mousedown") {
                   self.ext.dnd._cancelDrag();
                 }
-              }
+              },
             );
           }
           break;
@@ -689,7 +689,7 @@
             node,
             ui.helper,
             hitMode,
-            accept
+            accept,
           );
           break;
 
@@ -711,7 +711,7 @@
             node,
             ui.helper,
             "out",
-            undefined
+            undefined,
           );
           if (dnd.dragLeave) {
             dnd.dragLeave(node, ctx);

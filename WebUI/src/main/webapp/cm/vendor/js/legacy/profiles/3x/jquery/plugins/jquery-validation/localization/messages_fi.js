@@ -23,20 +23,20 @@
     digits: "Sy&ouml;t&auml; pelk&auml;st&auml;&auml;n numeroita.",
     equalTo: "Sy&ouml;t&auml; sama arvo uudestaan.",
     maxlength: $.validator.format(
-      "Voit sy&ouml;tt&auml;&auml; enint&auml;&auml;n {0} merkki&auml;."
+      "Voit sy&ouml;tt&auml;&auml; enint&auml;&auml;n {0} merkki&auml;.",
     ),
     minlength: $.validator.format("V&auml;hint&auml;&auml;n {0} merkki&auml;."),
     rangelength: $.validator.format(
-      "Sy&ouml;t&auml; v&auml;hint&auml;&auml;n {0} ja enint&auml;&auml;n {1} merkki&auml;."
+      "Sy&ouml;t&auml; v&auml;hint&auml;&auml;n {0} ja enint&auml;&auml;n {1} merkki&auml;.",
     ),
     range: $.validator.format(
-      "Sy&ouml;t&auml; arvo v&auml;lilt&auml; {0}&ndash;{1}."
+      "Sy&ouml;t&auml; arvo v&auml;lilt&auml; {0}&ndash;{1}.",
     ),
     max: $.validator.format(
-      "Sy&ouml;t&auml; arvo, joka on enint&auml;&auml;n {0}."
+      "Sy&ouml;t&auml; arvo, joka on enint&auml;&auml;n {0}.",
     ),
     min: $.validator.format(
-      "Sy&ouml;t&auml; arvo, joka on v&auml;hint&auml;&auml;n {0}."
+      "Sy&ouml;t&auml; arvo, joka on v&auml;hint&auml;&auml;n {0}.",
     ),
   });
   return $;

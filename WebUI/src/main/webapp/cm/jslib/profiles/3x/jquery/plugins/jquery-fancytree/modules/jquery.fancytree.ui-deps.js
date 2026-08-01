@@ -163,7 +163,7 @@
           namespace: namespace,
           widgetName: name,
           widgetFullName: fullName,
-        }
+        },
       );
 
       // If this widget is being redefined then we need to find all widgets that
@@ -179,7 +179,7 @@
           $.widget(
             childPrototype.namespace + "." + childPrototype.widgetName,
             constructor,
-            child._proto
+            child._proto,
           );
         });
 
@@ -255,7 +255,7 @@
                   " prior to initialization; " +
                   "attempted to call method '" +
                   options +
-                  "'"
+                  "'",
               );
             }
 
@@ -268,7 +268,7 @@
                   options +
                   "' for " +
                   name +
-                  " widget instance"
+                  " widget instance",
               );
             }
 
@@ -347,10 +347,10 @@
             ? // Element within the document
               element.ownerDocument
             : // Element is window or document
-              element.document || element
+              element.document || element,
         );
         this.window = $(
-          this.document[0].defaultView || this.document[0].parentWindow
+          this.document[0].defaultView || this.document[0].parentWindow,
         );
       }
 
@@ -358,7 +358,7 @@
         {},
         this.options,
         this._getCreateOptions(),
-        options
+        options,
       );
 
       this._create();
@@ -498,7 +498,7 @@
             keys: classKey,
             classes: value,
             add: true,
-          })
+          }),
         );
       }
     },
@@ -508,7 +508,7 @@
         this.widget(),
         this.widgetFullName + "-disabled",
         null,
-        !!value
+        !!value,
       );
 
       // If the widget is becoming disabled, then nothing is interactive
@@ -535,7 +535,7 @@
           element: this.element,
           classes: this.options.classes || {},
         },
-        options
+        options,
       );
 
       function bindRemoveEvent() {
@@ -565,7 +565,7 @@
           if (options.add) {
             bindRemoveEvent();
             current = $(
-              $.uniqueSort(current.get().concat(options.element.get()))
+              $.uniqueSort(current.get().concat(options.element.get())),
             );
           } else {
             current = $(current.not(options.element).get());
@@ -765,8 +765,8 @@
       var effectName = !options
         ? method
         : options === true || typeof options === "number"
-        ? defaultEffect
-        : options.effect || defaultEffect;
+          ? defaultEffect
+          : options.effect || defaultEffect;
 
       options = options || {};
       if (typeof options === "number") {
@@ -883,7 +883,7 @@
           div = $(
             "<div style=" +
               "'display:block;position:absolute;width:200px;height:200px;overflow:hidden;'>" +
-              "<div style='height:300px;width:auto;'></div></div>"
+              "<div style='height:300px;width:auto;'></div></div>",
           ),
           innerDiv = div.children()[0];
 
@@ -988,8 +988,8 @@
           pos = rhorizontal.test(pos[0])
             ? pos.concat(["center"])
             : rvertical.test(pos[0])
-            ? ["center"].concat(pos)
-            : ["center", "center"];
+              ? ["center"].concat(pos)
+              : ["center", "center"];
         }
         pos[0] = rhorizontal.test(pos[0]) ? pos[0] : "center";
         pos[1] = rvertical.test(pos[1]) ? pos[1] : "center";
@@ -1049,7 +1049,7 @@
           myOffset = getOffsets(
             offsets.my,
             elem.outerWidth(),
-            elem.outerHeight()
+            elem.outerHeight(),
           );
 
         if (options.my[0] === "right") {
@@ -1190,7 +1190,7 @@
           } else {
             position.left = max(
               position.left - collisionPosLeft,
-              position.left
+              position.left,
             );
           }
         },
@@ -1266,14 +1266,14 @@
               data.my[0] === "left"
                 ? -data.elemWidth
                 : data.my[0] === "right"
-                ? data.elemWidth
-                : 0,
+                  ? data.elemWidth
+                  : 0,
             atOffset =
               data.at[0] === "left"
                 ? data.targetWidth
                 : data.at[0] === "right"
-                ? -data.targetWidth
-                : 0,
+                  ? -data.targetWidth
+                  : 0,
             offset = -2 * data.offset[0],
             newOverRight,
             newOverLeft;
@@ -1316,14 +1316,14 @@
             myOffset = top
               ? -data.elemHeight
               : data.my[1] === "bottom"
-              ? data.elemHeight
-              : 0,
+                ? data.elemHeight
+                : 0,
             atOffset =
               data.at[1] === "top"
                 ? data.targetHeight
                 : data.at[1] === "bottom"
-                ? -data.targetHeight
-                : 0,
+                  ? -data.targetHeight
+                  : 0,
             offset = -2 * data.offset[1],
             newOverTop,
             newOverBottom;
@@ -1504,7 +1504,7 @@
           return overflowRegex.test(
             parent.css("overflow") +
               parent.css("overflow-y") +
-              parent.css("overflow-x")
+              parent.css("overflow-x"),
           );
         })
         .eq(0);

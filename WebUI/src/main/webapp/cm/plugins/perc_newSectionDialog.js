@@ -44,7 +44,7 @@
           "<select id='perc-section-type' name='perc-section-type'>" +
           "<option value='section'>" +
           I18N.message(
-            "perc.ui.newSectionDialog.label@Section & landing page"
+            "perc.ui.newSectionDialog.label@Section & landing page",
           ) +
           "</option>" +
           "<option value='sectionlink'>" +
@@ -112,7 +112,7 @@
           "<select id='perc-landing-page' name='perc-landing-page' class='required'>" +
           "<option value='perc-empty-landing-page'>" +
           I18N.message(
-            "perc.ui.newSectionDialog.label@Select a folder to see landing pages"
+            "perc.ui.newSectionDialog.label@Select a folder to see landing pages",
           ) +
           "</option>" +
           "</select> " +
@@ -123,7 +123,7 @@
           "<div class='ui-layout-south'>" +
           "<div id='perc_buttons' style='z-index: 100;'></div>" +
           "</div>" +
-          "</form> </div>"
+          "</form> </div>",
       ).perc_dialog({
         title: I18N.message("perc.ui.newSectionDialog.title@New Section"),
         modal: true,
@@ -132,7 +132,7 @@
             click: function () {
               var sectionName = dialog.find("form").find("#perc-section-url");
               var sectionNameValue = $.perc_textFilters.WINDOWS_FILE_NAME(
-                sectionName.val().trim()
+                sectionName.val().trim(),
               );
               sectionName.val(sectionNameValue);
               _submit();
@@ -175,10 +175,10 @@
         .find("#perc-section-link-targetid-button")
         .on("click", function () {
           var dlgTitle = I18N.message(
-            "perc.ui.newSectionDialog.label@Target Section"
+            "perc.ui.newSectionDialog.label@Target Section",
           );
           var treeLabel = I18N.message(
-            "perc.ui.newSectionDialog.label@Select target section"
+            "perc.ui.newSectionDialog.label@Select target section",
           );
           $.PercSectionTreeDialog.open(
             site,
@@ -189,16 +189,16 @@
             function (targetId, path) {
               $("#perc-section-link-targetid").val(targetId);
               $("#perc-section-link-target").val(path);
-            }
+            },
           );
         });
       //Add click handler to the select target folder ellipse button.
       dialog.find("#perc-convert-folder-path-button").on("click", function () {
         var dlgTitle = I18N.message(
-          "perc.ui.newSectionDialog.label@Target Folder"
+          "perc.ui.newSectionDialog.label@Target Folder",
         );
         var treeLabel = I18N.message(
-          "perc.ui.newSectionDialog.label@Select target folder"
+          "perc.ui.newSectionDialog.label@Select target folder",
         );
         var updateTargetFolderPath = function (pathItem) {
           dialog.find("#perc-landing-page").empty();
@@ -220,7 +220,7 @@
             if (!status) {
               $.perc_utils.alert_dialog({
                 title: I18N.message(
-                  "perc.ui.new.section.dialog@Error Fetching folder pages"
+                  "perc.ui.new.section.dialog@Error Fetching folder pages",
                 ),
                 message: data,
               });
@@ -242,11 +242,11 @@
             errMsg = I18N.message("perc.ui.new.section.dialog@Select folder");
           else if (pathItem.category === "SECTION_FOLDER")
             errMsg = I18N.message(
-              "perc.ui.new.section.dialog@Section Not Folder"
+              "perc.ui.new.section.dialog@Section Not Folder",
             );
           else if (pathItem.path === "/Sites/")
             errMsg = I18N.message(
-              "perc.ui.new.section.dialog@Sites Root Not Folder"
+              "perc.ui.new.section.dialog@Sites Root Not Folder",
             );
           else if (pathItem.type === "site")
             errMsg = I18N.message("perc.ui.new.section.dialog@Site Not Folder");
@@ -342,7 +342,7 @@
       $.perc_textAutoFill(
         section_name,
         section_url,
-        $.perc_autoFillTextFilters.URL
+        $.perc_autoFillTextFilters.URL,
       );
       $.perc_filterField(section_name, $.perc_textFilters.NOBACKSLASH);
       $.perc_filterField(section_url, $.perc_textFilters.URL);

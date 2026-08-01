@@ -36,7 +36,7 @@
     type,
     folderPath,
     leaf,
-    path
+    path,
   ) {
     this.id = id;
     this.folderPaths = folderPaths;

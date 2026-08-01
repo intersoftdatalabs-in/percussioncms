@@ -33,7 +33,7 @@ function countProperties(obj) {
     widgetDefinitionId,
     postCallback,
     propertyType,
-    getWidgetByName
+    getWidgetByName,
   ) {
     $.perc_widget_definition_client.restGetWidgetDefinition(
       widgetDefinitionId,
@@ -48,13 +48,13 @@ function countProperties(obj) {
               "perc_sys_name",
               "",
               "Name",
-              "sys_perc_name"
+              "sys_perc_name",
             );
             widgetDef.userPrefDef.sys_perc_description = new $.perc_sys_pref(
               "perc_sys_description",
               "",
               "Description",
-              "sys_perc_description"
+              "sys_perc_description",
             );
           }
           widgetDef.setValuesFromWidgetProperties(widgetProperties);
@@ -64,7 +64,7 @@ function countProperties(obj) {
           modal: true,
           width: 500,
           title: I18N.message(
-            "perc.ui.widget.properties.dialog@Configure Widget Properties"
+            "perc.ui.widget.properties.dialog@Configure Widget Properties",
           ),
           zIndex: 100000,
           percButtons: {
@@ -90,7 +90,7 @@ function countProperties(obj) {
           dialogOptions.height = dlgHeight;
         $("<div/>").append(widgetDef.render()).perc_dialog(dialogOptions);
         _addFieldGroups();
-      }
+      },
     );
 
     function saveProperties() {
@@ -121,7 +121,7 @@ function countProperties(obj) {
               I18N.message("perc.ui.widget.properties.dialog@Widget Name") +
               widgetName +
               I18N.message(
-                "perc.ui.widget.properties.dialog@Widget Name Already Used"
+                "perc.ui.widget.properties.dialog@Widget Name Already Used",
               ),
           });
           return;
@@ -151,7 +151,7 @@ function countProperties(obj) {
         $(this).remove();
       } else {
         $("#percRequiredFieldWarning").text(
-          I18N.message("perc.ui.general@Required Fields Warning")
+          I18N.message("perc.ui.general@Required Fields Warning"),
         );
       }
     }
@@ -184,13 +184,13 @@ function countProperties(obj) {
         {
           groupName: "perc-section-system-container",
           groupLabel: I18N.message(
-            "perc.ui.widget.properties.dialog@Widget Summary"
+            "perc.ui.widget.properties.dialog@Widget Summary",
           ),
         },
         {
           groupName: "perc-section-properties-container",
           groupLabel: I18N.message(
-            "perc.ui.widget.properties.dialog@Properties"
+            "perc.ui.widget.properties.dialog@Properties",
           ),
         },
       ];
@@ -302,7 +302,7 @@ function countProperties(obj) {
           display_name,
           name,
           required_field,
-          enumValues
+          enumValues,
         );
       });
     };
@@ -313,7 +313,7 @@ function countProperties(obj) {
       var html = $("<div/>");
       var systemContainer = $("<div id='perc-section-system-container' />");
       var propertiesContainer = $(
-        "<div id='perc-section-properties-container' />"
+        "<div id='perc-section-properties-container' />",
       );
       var sysProperties = "";
       var properties = "";
@@ -332,7 +332,7 @@ function countProperties(obj) {
         html.append($("<div class='fieldGroup' />").append(systemContainer));
         propertiesContainer.append($(properties));
         html.append(
-          $("<div class='fieldGroup' />").append(propertiesContainer)
+          $("<div class='fieldGroup' />").append(propertiesContainer),
         );
       } else if (properties === "") html.append($(sysProperties));
       else html.append($(properties));
@@ -347,17 +347,17 @@ function countProperties(obj) {
         html.append(
           "<div><p>" +
             I18N.message("perc.ui.general@Denotes Required Field") +
-            "</p></div>"
+            "</p></div>",
         );
       }
 
       $.perc_filterField(
         html.find("[name=sys_perc_name]"),
-        $.perc_textFilters.ID_WITH_SPACE
+        $.perc_textFilters.ID_WITH_SPACE,
       );
       $.perc_filterField(
         html.find("[name=sys_perc_description]"),
-        $.perc_textFilters.DESCRIPTION
+        $.perc_textFilters.DESCRIPTION,
       );
       return html;
     };
@@ -371,7 +371,7 @@ function countProperties(obj) {
     this.restGetWidgetDefinition = function (
       widgetDefinitionId,
       propertyType,
-      callback
+      callback,
     ) {
       $.ajax({
         headers: {
@@ -388,8 +388,8 @@ function countProperties(obj) {
         error: function () {
           alert(
             I18N.message(
-              "perc.ui.widget.properties.dialog@Unable To Retrieve Widget Definition"
-            ) + widgetDefinitionId
+              "perc.ui.widget.properties.dialog@Unable To Retrieve Widget Definition",
+            ) + widgetDefinitionId,
           );
         },
       });
@@ -411,8 +411,8 @@ function countProperties(obj) {
         error: function () {
           alert(
             I18N.message(
-              "perc.ui.widget.properties.dialog@Unable To Retrieve Widget Definition"
-            ) + widgetDefinitionId
+              "perc.ui.widget.properties.dialog@Unable To Retrieve Widget Definition",
+            ) + widgetDefinitionId,
           );
         },
       });
@@ -424,7 +424,7 @@ function countProperties(obj) {
     default_value,
     display_name,
     name,
-    required_field
+    required_field,
   ) {
     this.datatype = datatype;
     this.default_value = default_value;
@@ -495,7 +495,7 @@ function countProperties(obj) {
     display_name,
     name,
     required_field,
-    enumValues
+    enumValues,
   ) {
     this.datatype = datatype;
     this.default_value = default_value;

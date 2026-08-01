@@ -16,16 +16,24 @@
 package com.percussion.i18n;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Locale;
 import java.util.Map;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -36,6 +44,8 @@ import org.xml.sax.InputSource;
  */
 public class PSTmxResourceBundleTest {
 
+  @TempDir Path tempDir;
+
   @BeforeEach
   void reset() {
     PSTmxResourceBundle.getInstance().flushCacheForTest();
@@ -44,6 +54,72 @@ public class PSTmxResourceBundleTest {
   @AfterEach
   void teardown() {
     PSTmxResourceBundle.getInstance().flushCacheForTest();
+  }
+
+  /**
+   * Product i18n under rxconfig must stay lowercase so case-sensitive Linux installs never grow a
+   * second {@code I18n} directory.
+   */
+  @Test
+  public void masterResourcePaths_areCanonicalLowercaseI18n() {
+    String master = PSTmxResourceBundle.MASTER_RESOURCE_FILEPATH.replace('\\', '/');
+    String canonicalDir = PSTmxResourceBundle.RXCONFIG_I18NPATH.replace('\\', '/');
+    assertEquals("rxconfig/i18n", canonicalDir.toLowerCase(Locale.ROOT));
+    assertTrue(master.endsWith("/i18n/ResourceBundle.tmx"), master);
+    assertFalse(
+        master.contains("/I18n/"), "canonical master path must not use uppercase I18n: " + master);
+    assertTrue(
+        PSTmxResourceBundle.RXCONFIG_I18NPATH_LEGACY.replace('\\', '/').endsWith("/I18n"),
+        "legacy constant retained for read fallback");
+  }
+
+  @Test
+  public void getMasterResourceFile_prefersCanonicalThenLegacy() throws Exception {
+    Path root = tempDir;
+    Path canonical = root.resolve("rxconfig").resolve("i18n").resolve("ResourceBundle.tmx");
+
+    // Neither exists: resolve to canonical write target
+    File none = PSTmxResourceBundle.getMasterResourceFile(root.toString());
+    assertEquals(canonical.toFile().getAbsolutePath(), none.getAbsolutePath());
+    assertEquals(
+        canonical.toFile().getAbsolutePath(),
+        PSTmxResourceBundle.getCanonicalMasterResourceFile(root.toString()).getAbsolutePath());
+
+    // Canonical present
+    Files.createDirectories(canonical.getParent());
+    Files.writeString(canonical, "<tmx/>", StandardCharsets.UTF_8);
+    File found = PSTmxResourceBundle.getMasterResourceFile(root.toString());
+    assertTrue(found.isFile());
+    assertEquals(canonical.toFile().getAbsolutePath(), found.getAbsolutePath());
+
+    // Writes always go to canonical lowercase path
+    assertEquals(
+        canonical.toFile().getAbsolutePath(),
+        PSTmxResourceBundle.getCanonicalMasterResourceFile(root.toString()).getAbsolutePath());
+
+    // Legacy constant retained for case-sensitive read fallback
+    assertTrue(
+        PSTmxResourceBundle.MASTER_RESOURCE_FILEPATH_LEGACY.replace('\\', '/').contains("/I18n/"));
+
+    // On case-sensitive FS only: resolve falls back when only uppercase path has the file
+    Path legacyRoot = tempDir.resolve("legacy-only-root");
+    File legacyFile =
+        new File(legacyRoot.toFile(), PSTmxResourceBundle.MASTER_RESOURCE_FILEPATH_LEGACY);
+    Files.createDirectories(legacyFile.getParentFile().toPath());
+    Files.writeString(legacyFile.toPath(), "<tmx/>", StandardCharsets.UTF_8);
+    File canonicalSibling =
+        new File(legacyRoot.toFile(), PSTmxResourceBundle.MASTER_RESOURCE_FILEPATH);
+    boolean caseSensitive =
+        !canonicalSibling.exists()
+            || !Files.isSameFile(legacyFile.toPath(), canonicalSibling.toPath());
+    File resolvedLegacyRoot = PSTmxResourceBundle.getMasterResourceFile(legacyRoot.toString());
+    assertTrue(resolvedLegacyRoot.isFile());
+    if (caseSensitive) {
+      assertEquals(legacyFile.getAbsolutePath(), resolvedLegacyRoot.getAbsolutePath());
+    }
+
+    assertThrows(
+        IllegalArgumentException.class, () -> PSTmxResourceBundle.getMasterResourceFile(null));
   }
 
   /** Direct test of the static {@code normalizeLang} helper. */

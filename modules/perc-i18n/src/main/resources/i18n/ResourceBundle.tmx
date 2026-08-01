@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tmx version="1.4">
-  <header>
+  <header adminlang="en-us" creationtool="Percussion Language Tool" creationtoolversion="8.2:20260801" datatype="plaintext" o-tmf="none" segtype="block" srclang="en-us">
     <prop type="supportedlanguage">ar</prop>
     <prop type="supportedlanguage">bn</prop><prop type="supportedlanguage">de</prop>
     <prop type="supportedlanguage">en-gb</prop>

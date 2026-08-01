@@ -676,7 +676,9 @@ div.mce-fullscreen {
   left: 0;
   opacity: 0;
   transform: scale(0.1);
-  transition: transform 100ms ease-in, opacity 150ms ease-in;
+  transition:
+    transform 100ms ease-in,
+    opacity 150ms ease-in;
 }
 .mce-window.mce-in {
   transform: scale(1);
@@ -914,7 +916,9 @@ div.mce-fullscreen {
   border-width: 1px;
   border-style: solid;
   border-color: #c5c5c5;
-  transition: transform 100ms ease-in, opacity 150ms ease-in;
+  transition:
+    transform 100ms ease-in,
+    opacity 150ms ease-in;
   opacity: 0;
   box-sizing: border-box;
 }
@@ -1973,7 +1977,9 @@ div.mce-menu .mce-menu-item b {
 .mce-menu.mce-in.mce-animate {
   opacity: 1;
   transform: rotateY(0) rotateX(0);
-  transition: opacity 0.075s ease, transform 0.1s ease;
+  transition:
+    opacity 0.075s ease,
+    transform 0.1s ease;
 }
 .mce-menu-sub-tr-tl {
   margin: -6px 0 0 -1px;
@@ -2149,8 +2155,12 @@ i.mce-i-resize {
   -moz-box-shadow: none;
   box-shadow: none;
   display: inline-block;
-  -webkit-transition: border linear 0.2s, box-shadow linear 0.2s;
-  transition: border linear 0.2s, box-shadow linear 0.2s;
+  -webkit-transition:
+    border linear 0.2s,
+    box-shadow linear 0.2s;
+  transition:
+    border linear 0.2s,
+    box-shadow linear 0.2s;
   height: 28px;
   resize: none;
   padding: 0 4px 0 4px;
@@ -2224,7 +2234,8 @@ i.mce-i-resize {
 @font-face {
   font-family: "tinymce";
   src: url("fonts/tinymce.eot");
-  src: url("fonts/tinymce.eot?#iefix") format("embedded-opentype"),
+  src:
+    url("fonts/tinymce.eot?#iefix") format("embedded-opentype"),
     url("fonts/tinymce.woff") format("woff"),
     url("fonts/tinymce.ttf") format("truetype"),
     url("fonts/tinymce.svg#tinymce") format("svg");
@@ -2234,7 +2245,8 @@ i.mce-i-resize {
 @font-face {
   font-family: "tinymce-small";
   src: url("fonts/tinymce-small.eot");
-  src: url("fonts/tinymce-small.eot?#iefix") format("embedded-opentype"),
+  src:
+    url("fonts/tinymce-small.eot?#iefix") format("embedded-opentype"),
     url("fonts/tinymce-small.woff") format("woff"),
     url("fonts/tinymce-small.ttf") format("truetype"),
     url("fonts/tinymce-small.svg#tinymce") format("svg");

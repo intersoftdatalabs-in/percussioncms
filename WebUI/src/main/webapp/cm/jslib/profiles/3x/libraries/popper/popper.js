@@ -6,10 +6,10 @@
   typeof exports === "object" && typeof module !== "undefined"
     ? factory(exports)
     : typeof define === "function" && define.amd
-    ? define(["exports"], factory)
-    : ((global =
-        typeof globalThis !== "undefined" ? globalThis : global || self),
-      factory((global.Popper = {})));
+      ? define(["exports"], factory)
+      : ((global =
+          typeof globalThis !== "undefined" ? globalThis : global || self),
+        factory((global.Popper = {})));
 })(this, function (exports) {
   "use strict";
 
@@ -204,7 +204,7 @@
     var rect = getBoundingClientRect(
       elementOrVirtualElement,
       offsetParentIsScaled,
-      isFixed
+      isFixed,
     );
     var scroll = {
       scrollLeft: 0,
@@ -319,7 +319,7 @@
     var target = isBody
       ? [win].concat(
           win.visualViewport || [],
-          isScrollParent(scrollParent) ? scrollParent : []
+          isScrollParent(scrollParent) ? scrollParent : [],
         )
       : scrollParent;
     var updatedList = list.concat(target);
@@ -427,11 +427,10 @@
   var reference = "reference";
   var variationPlacements = /*#__PURE__*/ basePlacements.reduce(function (
     acc,
-    placement
+    placement,
   ) {
     return acc.concat([placement + "-" + start, placement + "-" + end]);
-  },
-  []);
+  }, []);
   var placements = /*#__PURE__*/ []
     .concat(basePlacements, [auto])
     .reduce(function (acc, placement) {
@@ -477,7 +476,7 @@
       visited.add(modifier.name);
       var requires = [].concat(
         modifier.requires || [],
-        modifier.requiresIfExists || []
+        modifier.requiresIfExists || [],
       );
       requires.forEach(function (dep) {
         if (!visited.has(dep)) {
@@ -508,7 +507,7 @@
       return acc.concat(
         orderedModifiers.filter(function (modifier) {
           return modifier.phase === phase;
-        })
+        }),
       );
     }, []);
   }
@@ -589,13 +588,13 @@
       html.scrollWidth,
       html.clientWidth,
       body ? body.scrollWidth : 0,
-      body ? body.clientWidth : 0
+      body ? body.clientWidth : 0,
     );
     var height = max(
       html.scrollHeight,
       html.clientHeight,
       body ? body.scrollHeight : 0,
-      body ? body.clientHeight : 0
+      body ? body.clientHeight : 0,
     );
     var x = -winScroll.scrollLeft + getWindowScrollBarX(element);
     var y = -winScroll.scrollTop;
@@ -659,8 +658,8 @@
     return clippingParent === viewport
       ? rectToClientRect(getViewportRect(element, strategy))
       : isElement(clippingParent)
-      ? getInnerBoundingClientRect(clippingParent, strategy)
-      : rectToClientRect(getDocumentRect(getDocumentElement(element)));
+        ? getInnerBoundingClientRect(clippingParent, strategy)
+        : rectToClientRect(getDocumentRect(getDocumentElement(element)));
   } // A "clipping parent" is an overflowable container with the characteristic of
   // clipping (or hiding) overflowing elements with a position different from
   // `initial`
@@ -695,18 +694,21 @@
         : [].concat(boundary);
     var clippingParents = [].concat(mainClippingParents, [rootBoundary]);
     var firstClippingParent = clippingParents[0];
-    var clippingRect = clippingParents.reduce(function (
-      accRect,
-      clippingParent
-    ) {
-      var rect = getClientRectFromMixedType(element, clippingParent, strategy);
-      accRect.top = max(rect.top, accRect.top);
-      accRect.right = min(rect.right, accRect.right);
-      accRect.bottom = min(rect.bottom, accRect.bottom);
-      accRect.left = max(rect.left, accRect.left);
-      return accRect;
-    },
-    getClientRectFromMixedType(element, firstClippingParent, strategy));
+    var clippingRect = clippingParents.reduce(
+      function (accRect, clippingParent) {
+        var rect = getClientRectFromMixedType(
+          element,
+          clippingParent,
+          strategy,
+        );
+        accRect.top = max(rect.top, accRect.top);
+        accRect.right = min(rect.right, accRect.right);
+        accRect.bottom = min(rect.bottom, accRect.bottom);
+        accRect.left = max(rect.left, accRect.left);
+        return accRect;
+      },
+      getClientRectFromMixedType(element, firstClippingParent, strategy),
+    );
     clippingRect.width = clippingRect.right - clippingRect.left;
     clippingRect.height = clippingRect.bottom - clippingRect.top;
     clippingRect.x = clippingRect.left;
@@ -844,7 +846,7 @@
     var paddingObject = mergePaddingObject(
       typeof padding !== "number"
         ? padding
-        : expandToHashMap(padding, basePlacements)
+        : expandToHashMap(padding, basePlacements),
     );
     var altContext = elementContext === popper ? reference : popper;
     var popperRect = state.rects.popper;
@@ -855,7 +857,7 @@
         : element.contextElement || getDocumentElement(state.elements.popper),
       boundary,
       rootBoundary,
-      strategy
+      strategy,
     );
     var referenceClientRect = getBoundingClientRect(state.elements.reference);
     var popperOffsets = computeOffsets({
@@ -865,7 +867,7 @@
       placement: placement,
     });
     var popperClientRect = rectToClientRect(
-      Object.assign({}, popperRect, popperOffsets)
+      Object.assign({}, popperRect, popperOffsets),
     );
     var elementClientRect =
       elementContext === popper ? popperClientRect : referenceClientRect; // positive = overflowing the clipping rect
@@ -963,20 +965,20 @@
             {},
             defaultOptions,
             state.options,
-            options
+            options,
           );
           state.scrollParents = {
             reference: isElement(reference)
               ? listScrollParents(reference)
               : reference.contextElement
-              ? listScrollParents(reference.contextElement)
-              : [],
+                ? listScrollParents(reference.contextElement)
+                : [],
             popper: listScrollParents(popper),
           }; // Orders the modifiers based on their dependencies and `phase`
           // properties
 
           var orderedModifiers = orderModifiers(
-            mergeByName([].concat(defaultModifiers, state.options.modifiers))
+            mergeByName([].concat(defaultModifiers, state.options.modifiers)),
           ); // Strip out disabled modifiers
 
           state.orderedModifiers = orderedModifiers.filter(function (m) {
@@ -1008,7 +1010,7 @@
             reference: getCompositeRect(
               reference,
               getOffsetParent(popper),
-              state.options.strategy === "fixed"
+              state.options.strategy === "fixed",
             ),
             popper: getLayoutRect(popper),
           }; // Modifiers have the ability to reset the current update cycle. The
@@ -1026,7 +1028,7 @@
           state.orderedModifiers.forEach(function (modifier) {
             return (state.modifiersData[modifier.name] = Object.assign(
               {},
-              modifier.data
+              modifier.data,
             ));
           });
 
@@ -1131,7 +1133,7 @@
     var window = getWindow(state.elements.popper);
     var scrollParents = [].concat(
       state.scrollParents.reference,
-      state.scrollParents.popper
+      state.scrollParents.popper,
     );
 
     if (scroll) {
@@ -1295,7 +1297,7 @@
       {
         position: position,
       },
-      adaptive && unsetSides
+      adaptive && unsetSides,
     );
 
     var _ref4 =
@@ -1305,7 +1307,7 @@
               x: x,
               y: y,
             },
-            getWindow(popper)
+            getWindow(popper),
           )
         : {
             x: x,
@@ -1328,7 +1330,7 @@
           (win.devicePixelRatio || 1) <= 1
             ? "translate(" + x + "px, " + y + "px)"
             : "translate3d(" + x + "px, " + y + "px, 0)"),
-        _Object$assign)
+        _Object$assign),
       );
     }
 
@@ -1339,7 +1341,7 @@
       (_Object$assign2[sideY] = hasY ? y + "px" : ""),
       (_Object$assign2[sideX] = hasX ? x + "px" : ""),
       (_Object$assign2.transform = ""),
-      _Object$assign2)
+      _Object$assign2),
     );
   }
 
@@ -1373,8 +1375,8 @@
             position: state.options.strategy,
             adaptive: adaptive,
             roundOffsets: roundOffsets,
-          })
-        )
+          }),
+        ),
       );
     }
 
@@ -1388,8 +1390,8 @@
             position: "absolute",
             adaptive: false,
             roundOffsets: roundOffsets,
-          })
-        )
+          }),
+        ),
       );
     }
 
@@ -1462,7 +1464,7 @@
         var styleProperties = Object.keys(
           state.styles.hasOwnProperty(name)
             ? state.styles[name]
-            : initialStyles[name]
+            : initialStyles[name],
         ); // Set all values to an empty string to unset them
 
         var style = styleProperties.reduce(function (style, property) {
@@ -1500,7 +1502,7 @@
           ? offset(
               Object.assign({}, rects, {
                 placement: placement,
-              })
+              }),
             )
           : offset,
       skidding = _ref[0],
@@ -1671,7 +1673,7 @@
                 flipVariations: flipVariations,
                 allowedAutoPlacements: allowedAutoPlacements,
               })
-            : placement
+            : placement,
         );
       }, []);
     var referenceRect = state.rects.reference;
@@ -1700,8 +1702,8 @@
           ? right
           : left
         : isStartVariation
-        ? bottom
-        : top;
+          ? bottom
+          : top;
 
       if (referenceRect[len] > popperRect[len]) {
         mainVariationSide = getOppositePlacement(mainVariationSide);
@@ -1717,7 +1719,7 @@
       if (checkAltAxis) {
         checks.push(
           overflow[mainVariationSide] <= 0,
-          overflow[altVariationSide] <= 0
+          overflow[altVariationSide] <= 0,
         );
       }
 
@@ -1828,7 +1830,7 @@
         ? tetherOffset(
             Object.assign({}, state.rects, {
               placement: state.placement,
-            })
+            }),
           )
         : tetherOffset;
     var normalizedTetherOffsetValue =
@@ -1842,7 +1844,7 @@
               mainAxis: 0,
               altAxis: 0,
             },
-            tetherOffsetValue
+            tetherOffsetValue,
           );
     var offsetModifierState = state.modifiersData.offset
       ? state.modifiersData.offset[state.placement]
@@ -1928,7 +1930,7 @@
       var preventedOffset = within(
         tether ? min(min$1, tetherMin) : min$1,
         offset,
-        tether ? max(max$1, tetherMax) : max$1
+        tether ? max(max$1, tetherMax) : max$1,
       );
       popperOffsets[mainAxis] = preventedOffset;
       data[mainAxis] = preventedOffset - offset;
@@ -1981,7 +1983,7 @@
           : within(
               tether ? _tetherMin : _min,
               _offset,
-              tether ? _tetherMax : _max
+              tether ? _tetherMax : _max,
             );
 
       popperOffsets[altAxis] = _preventedOffset;
@@ -2005,13 +2007,13 @@
         ? padding(
             Object.assign({}, state.rects, {
               placement: state.placement,
-            })
+            }),
           )
         : padding;
     return mergePaddingObject(
       typeof padding !== "number"
         ? padding
-        : expandToHashMap(padding, basePlacements)
+        : expandToHashMap(padding, basePlacements),
     );
   };
 
@@ -2136,12 +2138,12 @@
     });
     var referenceClippingOffsets = getSideOffsets(
       referenceOverflow,
-      referenceRect
+      referenceRect,
     );
     var popperEscapeOffsets = getSideOffsets(
       popperAltOverflow,
       popperRect,
-      preventedOffsets
+      preventedOffsets,
     );
     var isReferenceHidden = isAnySideFullyClipped(referenceClippingOffsets);
     var hasPopperEscaped = isAnySideFullyClipped(popperEscapeOffsets);

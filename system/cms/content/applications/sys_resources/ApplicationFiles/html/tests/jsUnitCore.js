@@ -104,7 +104,7 @@ function commentArg(expectedNumberOfNonCommentArgs, args) {
 function nonCommentArg(
   desiredNonCommentArgIndex,
   expectedNumberOfNonCommentArgs,
-  args
+  args,
 ) {
   return argumentsIncludeComments(expectedNumberOfNonCommentArgs, args)
     ? args[desiredNonCommentArgIndex]
@@ -112,13 +112,11 @@ function nonCommentArg(
 }
 
 function _validateArguments(expectedNumberOfNonCommentArgs, args) {
-  if (
-    !(
-      args.length == expectedNumberOfNonCommentArgs ||
-      (args.length == expectedNumberOfNonCommentArgs + 1 &&
-        typeof args[0] == "string")
-    )
-  )
+  if (!(
+    args.length == expectedNumberOfNonCommentArgs ||
+    (args.length == expectedNumberOfNonCommentArgs + 1 &&
+      typeof args[0] == "string")
+  ))
     error("Incorrect arguments passed to assert function");
 }
 
@@ -136,7 +134,7 @@ function assert() {
   _assert(
     commentArg(1, arguments),
     booleanValue === true,
-    "Call to assert(boolean) with false"
+    "Call to assert(boolean) with false",
   );
 }
 
@@ -150,7 +148,7 @@ function assertTrue() {
   _assert(
     commentArg(1, arguments),
     booleanValue === true,
-    "Call to assertTrue(boolean) with false"
+    "Call to assertTrue(boolean) with false",
   );
 }
 
@@ -164,7 +162,7 @@ function assertFalse() {
   _assert(
     commentArg(1, arguments),
     booleanValue === false,
-    "Call to assertFalse(boolean) with true"
+    "Call to assertFalse(boolean) with true",
   );
 }
 
@@ -178,7 +176,7 @@ function assertEquals() {
     "Expected " +
       _displayStringForValue(var1) +
       " but was " +
-      _displayStringForValue(var2)
+      _displayStringForValue(var2),
   );
 }
 
@@ -189,7 +187,7 @@ function assertNotEquals() {
   _assert(
     commentArg(2, arguments),
     var1 !== var2,
-    "Expected not to be " + _displayStringForValue(var2)
+    "Expected not to be " + _displayStringForValue(var2),
   );
 }
 
@@ -202,7 +200,7 @@ function assertNull() {
     "Expected " +
       _displayStringForValue(null) +
       " but was " +
-      _displayStringForValue(aVar)
+      _displayStringForValue(aVar),
   );
 }
 
@@ -212,7 +210,7 @@ function assertNotNull() {
   _assert(
     commentArg(1, arguments),
     aVar !== null,
-    "Expected not to be " + _displayStringForValue(null)
+    "Expected not to be " + _displayStringForValue(null),
   );
 }
 
@@ -225,7 +223,7 @@ function assertUndefined() {
     "Expected " +
       _displayStringForValue(top.JSUNIT_UNDEFINED_VALUE) +
       " but was " +
-      _displayStringForValue(aVar)
+      _displayStringForValue(aVar),
   );
 }
 
@@ -235,7 +233,7 @@ function assertNotUndefined() {
   _assert(
     commentArg(1, arguments),
     aVar !== top.JSUNIT_UNDEFINED_VALUE,
-    "Expected not to be " + _displayStringForValue(top.JSUNIT_UNDEFINED_VALUE)
+    "Expected not to be " + _displayStringForValue(top.JSUNIT_UNDEFINED_VALUE),
   );
 }
 
@@ -281,7 +279,7 @@ function assertObjectEquals() {
             assertObjectEquals(
               msg + " found nested " + type + "@" + i + "\n",
               var1[i],
-              var2[i]
+              var2[i],
             );
     }
     _assert(
@@ -290,7 +288,7 @@ function assertObjectEquals() {
       "Expected " +
         _displayStringForValue(var1) +
         " but was " +
-        _displayStringForValue(var2)
+        _displayStringForValue(var2),
     );
   }
 }
@@ -322,7 +320,7 @@ function assertHTMLEquals() {
     "Expected " +
       _displayStringForValue(var1Standardized) +
       " but was " +
-      _displayStringForValue(var2Standardized)
+      _displayStringForValue(var2Standardized),
   );
 }
 
@@ -333,7 +331,7 @@ function assertHashEquals() {
   for (var key in var1) {
     assertNotUndefined(
       "Expected hash had key " + key + " that was not found",
-      var2[key]
+      var2[key],
     );
     assertEquals(
       "Value for key " +
@@ -343,13 +341,13 @@ function assertHashEquals() {
         ", actual = " +
         var2[key],
       var1[key],
-      var2[key]
+      var2[key],
     );
   }
   for (var key in var2) {
     assertNotUndefined(
       "Actual hash had key " + key + " that was not expected",
-      var1[key]
+      var1[key],
     );
   }
 }
@@ -367,7 +365,7 @@ function assertRoughlyEquals() {
       " which was more than " +
       tolerance +
       " away",
-    Math.abs(expected - actual) < tolerance
+    Math.abs(expected - actual) < tolerance,
   );
 }
 
@@ -377,7 +375,7 @@ function assertContains() {
   var container = nonCommentArg(2, 2, arguments);
   assertTrue(
     "Expected '" + container + "' to contain '" + contained + "'",
-    container.indexOf(contained) != -1
+    container.indexOf(contained) != -1,
   );
 }
 
@@ -536,79 +534,79 @@ if (
 ) {
   top.xbDebugTraceObject(
     "top.testManager.containerTestFrame",
-    "JSUnitException"
+    "JSUnitException",
   );
   // asserts
   top.xbDebugTraceFunction(
     "top.testManager.containerTestFrame",
-    "_displayStringForValue"
+    "_displayStringForValue",
   );
   top.xbDebugTraceFunction("top.testManager.containerTestFrame", "error");
   top.xbDebugTraceFunction(
     "top.testManager.containerTestFrame",
-    "argumentsIncludeComments"
+    "argumentsIncludeComments",
   );
   top.xbDebugTraceFunction("top.testManager.containerTestFrame", "commentArg");
   top.xbDebugTraceFunction(
     "top.testManager.containerTestFrame",
-    "nonCommentArg"
+    "nonCommentArg",
   );
   top.xbDebugTraceFunction(
     "top.testManager.containerTestFrame",
-    "_validateArguments"
+    "_validateArguments",
   );
   top.xbDebugTraceFunction("top.testManager.containerTestFrame", "_assert");
   top.xbDebugTraceFunction("top.testManager.containerTestFrame", "assert");
   top.xbDebugTraceFunction("top.testManager.containerTestFrame", "assertTrue");
   top.xbDebugTraceFunction(
     "top.testManager.containerTestFrame",
-    "assertEquals"
+    "assertEquals",
   );
   top.xbDebugTraceFunction(
     "top.testManager.containerTestFrame",
-    "assertNotEquals"
+    "assertNotEquals",
   );
   top.xbDebugTraceFunction("top.testManager.containerTestFrame", "assertNull");
   top.xbDebugTraceFunction(
     "top.testManager.containerTestFrame",
-    "assertNotNull"
+    "assertNotNull",
   );
   top.xbDebugTraceFunction(
     "top.testManager.containerTestFrame",
-    "assertUndefined"
+    "assertUndefined",
   );
   top.xbDebugTraceFunction(
     "top.testManager.containerTestFrame",
-    "assertNotUndefined"
+    "assertNotUndefined",
   );
   top.xbDebugTraceFunction("top.testManager.containerTestFrame", "assertNaN");
   top.xbDebugTraceFunction(
     "top.testManager.containerTestFrame",
-    "assertNotNaN"
+    "assertNotNaN",
   );
   top.xbDebugTraceFunction("top.testManager.containerTestFrame", "isLoaded");
   top.xbDebugTraceFunction("top.testManager.containerTestFrame", "setUp");
   top.xbDebugTraceFunction("top.testManager.containerTestFrame", "tearDown");
   top.xbDebugTraceFunction(
     "top.testManager.containerTestFrame",
-    "getFunctionName"
+    "getFunctionName",
   );
   top.xbDebugTraceFunction(
     "top.testManager.containerTestFrame",
-    "getStackTrace"
+    "getStackTrace",
   );
   top.xbDebugTraceFunction("top.testManager.containerTestFrame", "warn");
   top.xbDebugTraceFunction("top.testManager.containerTestFrame", "inform");
   top.xbDebugTraceFunction("top.testManager.containerTestFrame", "debug");
   top.xbDebugTraceFunction(
     "top.testManager.containerTestFrame",
-    "setJsUnitTracer"
+    "setJsUnitTracer",
   );
   top.xbDebugTraceFunction("top.testManager.containerTestFrame", "trim");
   top.xbDebugTraceFunction("top.testManager.containerTestFrame", "isBlank");
   top.xbDebugTraceFunction(
     "top.testManager.containerTestFrame",
-    "newOnLoadEvent"
+    "newOnLoadEvent",
   );
   top.xbDebugTraceFunction("top.testManager.containerTestFrame", "push");
   top.xbDebugTraceFunction("top.testManager.containerTestFrame", "pop");

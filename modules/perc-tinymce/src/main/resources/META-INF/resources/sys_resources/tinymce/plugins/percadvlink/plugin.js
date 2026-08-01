@@ -167,13 +167,13 @@ tinymce.PluginManager.add("percadvlink", function (editor) {
                 topFrJQ.perc_utils.alert_dialog({
                   title: I18N.message("perc.ui.widget.tinymce@Error"),
                   content: I18N.message(
-                    "perc.ui.widget.tinymce@Invalid Link Message"
+                    "perc.ui.widget.tinymce@Invalid Link Message",
                   ),
                 });
               } else {
                 updateLinkData(result.PathItem);
               }
-            }
+            },
           );
         } else {
           if (linkPath.match("^//Rhythmyx/") || linkPath.match("^/Rhythmyx/")) {
@@ -197,7 +197,7 @@ tinymce.PluginManager.add("percadvlink", function (editor) {
             topFrJQ.perc_utils.alert_dialog({
               title: I18N.message("perc.ui.widget.tincymce@Error"),
               content: I18N.message(
-                "perc.ui.widget.tinymce@Could not get item details"
+                "perc.ui.widget.tinymce@Could not get item details",
               ),
             });
             return;
@@ -215,7 +215,7 @@ tinymce.PluginManager.add("percadvlink", function (editor) {
           data.title = renderLink.title;
           addLink("no");
           win.setData(data);
-        }
+        },
       );
     }
 

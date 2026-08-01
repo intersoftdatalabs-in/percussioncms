@@ -63,9 +63,10 @@ public class PSPagedObjectList<T> {
     Validate.notNull(allItems, "allItems cannot be null");
     Validate.isTrue(maxResults == null || maxResults >= 1, "maxResults cannot be less than 1");
     Validate.notNull(startIndex, "startIndex cannot be null");
-    Validate.isTrue(startIndex >= 1, "startIndex cannot be less than 1");
 
-    var newStartIndex = startIndex;
+    // Per the contract documented on this method, callers may pass a startIndex less than 1
+    // (e.g. zero-based UI paging), in which case we treat it as the first page.
+    var newStartIndex = startIndex < 1 ? 1 : startIndex;
     if (startIndex > allItems.size()) {
       var processedMaxResults = maxResults == null ? Integer.MAX_VALUE : maxResults;
       newStartIndex = startIndex - processedMaxResults;

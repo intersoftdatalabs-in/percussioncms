@@ -55,7 +55,7 @@
             function (status, result, errorCode) {
               if (status == $.PercServiceUtils.STATUS_SUCCESS) {
                 var assetFolderPath = cleanFolderPath(
-                  result.PathItem.folderPaths
+                  result.PathItem.folderPaths,
                 );
 
                 searchForContentType(assetFolderPath, opts, $thisElem);
@@ -63,11 +63,11 @@
                 console.warn("Handle Error manually");
                 // handle error here
               }
-            }
+            },
           );
         } else {
           console.log(
-            contentType + " asset not saved yet. Using current folder."
+            contentType + " asset not saved yet. Using current folder.",
           );
 
           // If this is a new asset, use the current folder location to determine the department and organization
@@ -79,32 +79,32 @@
             function (status, result) {
               cleanedAssetPath = cleanFolderPath(result.PathItem.folderPaths);
               searchForContentType(cleanedAssetPath, opts, $thisElem);
-            }
+            },
           );
         }
       } else {
         if (contentType == "") {
           console.warn(
-            "No content_type value assigned for percAssetFinderControl."
+            "No content_type value assigned for percAssetFinderControl.",
           );
           $thisElem
             .find(".perc-asset-finder-error")
             .append(
-              "<div>No content_type value assigned for percAssetFinderControl.</div>"
+              "<div>No content_type value assigned for percAssetFinderControl.</div>",
             );
         }
         if (fieldToDisplay == "") {
           console.warn(
-            "No field_to_display value assigned for percAssetFinderControl."
+            "No field_to_display value assigned for percAssetFinderControl.",
           );
           $thisElem
             .find(".perc-asset-finder-error")
             .append(
-              "<div>No field_to_display value assigned for percAssetFinderControl.</div>"
+              "<div>No field_to_display value assigned for percAssetFinderControl.</div>",
             );
         }
         console.warn(
-          "This widget is improperly configured, please see documentation on configuring AssetFinder control."
+          "This widget is improperly configured, please see documentation on configuring AssetFinder control.",
         );
       }
     }); // end Return statement
@@ -167,7 +167,7 @@
               $thisElem
                 .find(
                   ".perc-asset-finder-data input#perc-content-display-" +
-                    opts.paramName
+                    opts.paramName,
                 )
                 .val(displayValue);
 
@@ -180,12 +180,12 @@
               }
             } else {
               console.warn(
-                "Error retrieving data for Asset: " + foundContentType
+                "Error retrieving data for Asset: " + foundContentType,
               );
               $thisElem
                 .find(".perc-asset-finder-error")
                 .append(
-                  '<label class="perc-asset-finder-warning" for="personEmail" generated="true" style="display: block; padding-left: 15px">No value found for this field.</label>'
+                  '<label class="perc-asset-finder-warning" for="personEmail" generated="true" style="display: block; padding-left: 15px">No value found for this field.</label>',
                 );
             }
           });
@@ -194,7 +194,7 @@
             "Content Type " +
               opts.contentType +
               " not found in folder " +
-              assetFolderPath
+              assetFolderPath,
           );
           console.info("Looking up one folder.");
           var trimmedPath = splitFolderPath(assetFolderPath, opts, $thisElem);
@@ -212,12 +212,12 @@
         $thisElem
           .find(".perc-asset-finder-error")
           .append(
-            "<div>No data found for this field. Please see configuration of percAssetFinderControl.</div>"
+            "<div>No data found for this field. Please see configuration of percAssetFinderControl.</div>",
           );
         $thisElem
           .find(".perc-asset-finder-error")
           .append(
-            '<label class="perc_field_error" for="personEmail" generated="true" style="display: block;">No data found for this field. Please see configuration of percAssetFinderControl.</label>'
+            '<label class="perc_field_error" for="personEmail" generated="true" style="display: block;">No data found for this field. Please see configuration of percAssetFinderControl.</label>',
           );
       }
     });
@@ -240,12 +240,12 @@
       console.info(
         "Content Type " +
           opts.contentType +
-          " not found anywhere in Asset path."
+          " not found anywhere in Asset path.",
       );
       $thisElem
         .find(".perc-asset-finder-error")
         .append(
-          '<label class="perc-asset-finder-warning" for="personEmail" generated="true" style="display: block; padding-left: 15px">No value found for this field.</label>'
+          '<label class="perc-asset-finder-warning" for="personEmail" generated="true" style="display: block; padding-left: 15px">No value found for this field.</label>',
         );
     }
   }
@@ -350,14 +350,14 @@
             function (status, result, errorCode) {
               if (status == $.PercServiceUtils.STATUS_SUCCESS) {
                 var assetFolderPath = cleanFolderPath(
-                  result.PathItem.folderPaths
+                  result.PathItem.folderPaths,
                 );
                 searchForContentType(assetFolderPath, opts, $thisElem);
               } else {
                 console.warn("Handle Error manually");
                 // handle error here
               }
-            }
+            },
           );
         } else {
           console.log(
@@ -366,32 +366,32 @@
               fieldToDisplay +
               " for " +
               contentType +
-              "."
+              ".",
           );
         }
       } else {
         if (contentType == "") {
           console.warn(
-            "No content_type value assigned for percAssetFinderControl."
+            "No content_type value assigned for percAssetFinderControl.",
           );
           $thisElem
             .find(".perc-asset-finder-error")
             .append(
-              "<div>No content_type value assigned for percAssetFinderControl.</div>"
+              "<div>No content_type value assigned for percAssetFinderControl.</div>",
             );
         }
         if (fieldToDisplay == "") {
           console.warn(
-            "No field_to_display value assigned for percAssetFinderControl."
+            "No field_to_display value assigned for percAssetFinderControl.",
           );
           $thisElem
             .find(".perc-asset-finder-error")
             .append(
-              "<div>No field_to_display value assigned for percAssetFinderControl.</div>"
+              "<div>No field_to_display value assigned for percAssetFinderControl.</div>",
             );
         }
         console.warn(
-          "This widget is improperly configured, please see documentation on configuring AssetFinder control."
+          "This widget is improperly configured, please see documentation on configuring AssetFinder control.",
         );
       }
     }); //end Return statement

@@ -24,22 +24,22 @@
     equalTo: "Zəhmət olmasa, eyni mənanı bir daha daxil edin.",
     extension: "Zəhmət olmasa, düzgün genişlənməyə malik faylı seçin.",
     maxlength: $.validator.format(
-      "Zəhmət olmasa, {0} simvoldan çox olmayaraq daxil edin."
+      "Zəhmət olmasa, {0} simvoldan çox olmayaraq daxil edin.",
     ),
     minlength: $.validator.format(
-      "Zəhmət olmasa, {0} simvoldan az olmayaraq daxil edin."
+      "Zəhmət olmasa, {0} simvoldan az olmayaraq daxil edin.",
     ),
     rangelength: $.validator.format(
-      "Zəhmət olmasa, {0} - {1} aralığında uzunluğa malik simvol daxil edin."
+      "Zəhmət olmasa, {0} - {1} aralığında uzunluğa malik simvol daxil edin.",
     ),
     range: $.validator.format(
-      "Zəhmət olmasa, {0} - {1} aralığında rəqəm daxil edin."
+      "Zəhmət olmasa, {0} - {1} aralığında rəqəm daxil edin.",
     ),
     max: $.validator.format(
-      "Zəhmət olmasa, {0} və ondan kiçik rəqəm daxil edin."
+      "Zəhmət olmasa, {0} və ondan kiçik rəqəm daxil edin.",
     ),
     min: $.validator.format(
-      "Zəhmət olmasa, {0} və ondan böyük rəqəm daxil edin"
+      "Zəhmət olmasa, {0} və ondan böyük rəqəm daxil edin",
     ),
   });
   return $;

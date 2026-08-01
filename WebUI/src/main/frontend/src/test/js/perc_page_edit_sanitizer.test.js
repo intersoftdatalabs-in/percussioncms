@@ -52,7 +52,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // Up four levels from the file -> .../main, then descend into webapp/.
 const SOURCE_PATH = resolve(
   __dirname,
-  "../../../../webapp/cm/widgets/perc_page_edit_dialog.js"
+  "../../../../webapp/cm/widgets/perc_page_edit_dialog.js",
 );
 
 // ---------------------------------------------------------------------------
@@ -142,7 +142,7 @@ describe("PercPageEditSanitizer.sanitize()", () => {
 
   it("returns a detached DOM Element (parsed body) for non-empty input", () => {
     const result = globalThis.PercPageEditSanitizer.sanitize(
-      "<p>Hello <strong>world</strong></p>"
+      "<p>Hello <strong>world</strong></p>",
     );
     expect(result).not.toBeNull();
     expect(result.nodeType).toBe(1); // ELEMENT_NODE
@@ -151,7 +151,7 @@ describe("PercPageEditSanitizer.sanitize()", () => {
 
   it("preserves benign HTML structure and text", () => {
     const result = globalThis.PercPageEditSanitizer.sanitize(
-      "<p>Hello <em>world</em></p>"
+      "<p>Hello <em>world</em></p>",
     );
     expect(result.querySelector("p")).not.toBeNull();
     expect(result.querySelector("em")).not.toBeNull();
@@ -185,7 +185,7 @@ describe("PercPageEditSanitizer removes dangerous elements", () => {
 
   it("drops the entire <script> subtree (including inline JS body)", () => {
     const result = globalThis.PercPageEditSanitizer.sanitize(
-      "<p>before</p><script>alert(1)</script><p>after</p>"
+      "<p>before</p><script>alert(1)</script><p>after</p>",
     );
     expect(result.querySelector("script")).toBeNull();
     expect(result.textContent).toBe("beforeafter");
@@ -193,7 +193,7 @@ describe("PercPageEditSanitizer removes dangerous elements", () => {
 
   it("removes nested <script> inside allowed containers", () => {
     const result = globalThis.PercPageEditSanitizer.sanitize(
-      "<div><p>text</p><script>alert('xss')</script></div>"
+      "<div><p>text</p><script>alert('xss')</script></div>",
     );
     expect(result.querySelector("script")).toBeNull();
     expect(result.querySelector("p").textContent).toBe("text");
@@ -207,7 +207,7 @@ describe("PercPageEditSanitizer removes dangerous elements", () => {
 describe("PercPageEditSanitizer strips dangerous attributes", () => {
   it("removes on* event handlers from any element", () => {
     const result = globalThis.PercPageEditSanitizer.sanitize(
-      '<a href="#" onclick="alert(1)" onmouseover="steal()">click</a>'
+      '<a href="#" onclick="alert(1)" onmouseover="steal()">click</a>',
     );
     const a = result.querySelector("a");
     expect(a.hasAttribute("onclick")).toBe(false);
@@ -224,7 +224,7 @@ describe("PercPageEditSanitizer strips dangerous attributes", () => {
     "VBScript:msgbox(1)",
   ])("removes javascript:/data:/vbscript: URLs", (url) => {
     const result = globalThis.PercPageEditSanitizer.sanitize(
-      `<a href="${url}">x</a>`
+      `<a href="${url}">x</a>`,
     );
     const a = result.querySelector("a");
     expect(a.hasAttribute("href")).toBe(false);
@@ -233,10 +233,10 @@ describe("PercPageEditSanitizer strips dangerous attributes", () => {
 
   it("preserves safe http(s) and relative URLs", () => {
     const result = globalThis.PercPageEditSanitizer.sanitize(
-      '<a href="https://example.com/foo">x</a><img src="/img.png" alt="y" />'
+      '<a href="https://example.com/foo">x</a><img src="/img.png" alt="y" />',
     );
     expect(result.querySelector("a").getAttribute("href")).toBe(
-      "https://example.com/foo"
+      "https://example.com/foo",
     );
     expect(result.querySelector("img").getAttribute("src")).toBe("/img.png");
   });
@@ -245,21 +245,21 @@ describe("PercPageEditSanitizer strips dangerous attributes", () => {
     "removes %s attributes that use a dangerous scheme",
     (attr) => {
       const result = globalThis.PercPageEditSanitizer.sanitize(
-        `<button ${attr}="javascript:alert(1)">x</button>`
+        `<button ${attr}="javascript:alert(1)">x</button>`,
       );
       const btn = result.querySelector("button");
       expect(btn.hasAttribute(attr)).toBe(false);
-    }
+    },
   );
 
   it("does not flag URL schemes that merely *contain* the substring", () => {
     // Legitimate URLs that mention the substrings in path/query should not be
     // stripped (only the scheme is checked, via .indexOf(...) === 0).
     const result = globalThis.PercPageEditSanitizer.sanitize(
-      '<a href="https://example.com/?q=javascript:guide">x</a>'
+      '<a href="https://example.com/?q=javascript:guide">x</a>',
     );
     expect(result.querySelector("a").getAttribute("href")).toBe(
-      "https://example.com/?q=javascript:guide"
+      "https://example.com/?q=javascript:guide",
     );
   });
 });
@@ -272,7 +272,7 @@ describe("Sanitized nodes can be safely appended via Node.appendChild", () => {
   it("appended nodes appear in the host document without innerHTML / .html()", () => {
     const host = document.createElement("div");
     const sanitized = globalThis.PercPageEditSanitizer.sanitize(
-      '<p>safe<a href="https://example.com">link</a></p>'
+      '<p>safe<a href="https://example.com">link</a></p>',
     );
     let next = sanitized.firstChild;
     while (next) {
@@ -283,14 +283,14 @@ describe("Sanitized nodes can be safely appended via Node.appendChild", () => {
     }
     expect(host.querySelector("p")).not.toBeNull();
     expect(host.querySelector("a").getAttribute("href")).toBe(
-      "https://example.com"
+      "https://example.com",
     );
   });
 
   it("does not inject script elements after sanitization + import", () => {
     const host = document.createElement("div");
     const sanitized = globalThis.PercPageEditSanitizer.sanitize(
-      "<p>hi</p><script>window.__pwned=true;</script>"
+      "<p>hi</p><script>window.__pwned=true;</script>",
     );
     let next = sanitized.firstChild;
     while (next) {
@@ -307,7 +307,7 @@ describe("Sanitized nodes can be safely appended via Node.appendChild", () => {
   it("does not execute inline event handlers when appended", () => {
     const host = document.createElement("div");
     const sanitized = globalThis.PercPageEditSanitizer.sanitize(
-      '<button onclick="window.__clicked=true">x</button>'
+      '<button onclick="window.__clicked=true">x</button>',
     );
     let next = sanitized.firstChild;
     while (next) {

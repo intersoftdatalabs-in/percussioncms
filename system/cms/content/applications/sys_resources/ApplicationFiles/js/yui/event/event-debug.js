@@ -113,7 +113,7 @@ YAHOO.util.CustomEvent = function (type, oScope, silent, signature) {
     this.subscribeEvent = new YAHOO.util.CustomEvent(
       onsubscribeType,
       this,
-      true
+      true,
     );
   }
 };
@@ -235,7 +235,7 @@ YAHOO.util.CustomEvent.prototype = {
           "subscribers: " +
           len,
         "info",
-        "Event"
+        "Event",
       );
     }
 
@@ -264,7 +264,7 @@ YAHOO.util.CustomEvent.prototype = {
             YAHOO.log(
               "Event cancelled, subscriber " + i + " of " + len,
               "info",
-              "Event"
+              "Event",
             );
           }
 
@@ -814,7 +814,7 @@ if (!YAHOO.util.Event) {
           YAHOO.log(
             sType + " addListener call failed, invalid callback",
             "error",
-            "Event"
+            "Event",
           );
           return false;
         }
@@ -911,7 +911,7 @@ if (!YAHOO.util.Event) {
             el["on" + sType] = function (e) {
               YAHOO.util.Event.fireLegacyEvent(
                 YAHOO.util.Event.getEvent(e),
-                legacyIndex
+                legacyIndex,
               );
             };
           }
@@ -1396,7 +1396,7 @@ if (!YAHOO.util.Event) {
           YAHOO.log(
             "_isValidCollection threw an error, assuming that " +
               " this is a cross frame problem and not a collection",
-            warn
+            warn,
           );
           return false;
         }
@@ -1863,7 +1863,7 @@ if (!YAHOO.util.Event) {
       YAHOO.util.Event.onDOMReady(
         YAHOO.util.Event._tryPreloadAttach,
         YAHOO.util.Event,
-        true
+        true,
       );
 
       //YAHOO.log("-" + document.readyState + "-");
@@ -1893,7 +1893,7 @@ if (!YAHOO.util.Event) {
       } else {
         //YAHOO.log("-dw-");
         document.write(
-          "<scr" + 'ipt id="_yui_eu_dr" defer="true" src="//:"><' + "/script>"
+          "<scr" + 'ipt id="_yui_eu_dr" defer="true" src="//:"><' + "/script>",
         );
         el = document.getElementById("_yui_eu_dr");
       }
@@ -2080,7 +2080,7 @@ YAHOO.util.EventProvider.prototype = {
 
     if (events[p_type]) {
       YAHOO.log(
-        "EventProvider createEvent skipped: '" + p_type + "' already exists"
+        "EventProvider createEvent skipped: '" + p_type + "' already exists",
       );
     } else {
       var scope = opts.scope || this;
@@ -2090,7 +2090,7 @@ YAHOO.util.EventProvider.prototype = {
         p_type,
         scope,
         silent,
-        YAHOO.util.CustomEvent.FLAT
+        YAHOO.util.CustomEvent.FLAT,
       );
       events[p_type] = ce;
 

@@ -80,7 +80,7 @@
           } catch (err) {
             percCssErrors.push(
               I18N.message("perc.ui.layout.error.dialog@File Not found") +
-                ss[i].href
+                ss[i].href,
             );
           }
         }
@@ -124,7 +124,7 @@
 
         var wrapper = $("<div id='perc-error-wrapper' />").append(listWrapper);
         return $(
-          "<div id='perc-layout-error-table' style='max-height: 300px;' />"
+          "<div id='perc-layout-error-table' style='max-height: 300px;' />",
         ).append(wrapper);
       }
 

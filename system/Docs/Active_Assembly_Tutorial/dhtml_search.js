@@ -5,13 +5,13 @@ Page[0] = new Array(
   "Before taking the tutorial, find out if your administrator has set up a folder for you to use that includes the exact examples discussed in the tutorial. In this case, follow the tutorial exactly. If your administrator has set up other content for you to use, follow the general order of the tutorial, and use your content to perform tasks similar to but not the same as those described.",
   "Next -&gt;",
   "Introduction",
-  "16846.htm"
+  "16846.htm",
 );
 Page[1] = new Array(
   "In this first part of the tutorial, you will gain an understanding of the parts of the Active Assembly Interface.  But first, you must access Active Assembly through Content Explorer.  ",
   "Next -&gt;",
   "Understanding the Active Assembly Interface",
-  "16847.htm"
+  "16847.htm",
 );
 Page[2] = new Array(
   "The purpose of this topic is to show you how to open a potential Web page in the Active Assembly Interface.  It does not explain the steps in Content Explorer in detail. For information about working with items in Content Explorer, see the Content Explorer online help.",
@@ -28,7 +28,7 @@ Page[2] = new Array(
   " @",
   "Next -&gt;",
   "Accessing Active Assembly",
-  "19209.htm"
+  "19209.htm",
 );
 Page[3] = new Array(
   "When you first open the About Enterprise Investments item in the Active Assembly Interface, it appears similar to the following graphic. ",
@@ -40,7 +40,7 @@ Page[3] = new Array(
   "Outline view and Page view always display the same set of components organized in the same manner, although they use a different graphical representation. If a component is indented under another component in Outline view, then it is embedded inside the component in Page view. For example, in the About Enterprise Investments page that you are viewing, the component 10 Mistakes You Can't Afford is indented under the Sidebar Slot in Outline view, and it is embedded within the Sidebar Slot in Page view.",
   "Next -&gt;",
   "Parts of the Active Assembly Interface",
-  "19085.htm"
+  "19085.htm",
 );
 Page[4] = new Array(
   "Regardless of what type of object you have selected in Active Assembly, the Menu bar always displays the View menu. The View menu always includes the following toggle options:",
@@ -59,7 +59,7 @@ Page[4] = new Array(
   "Click View &gt; Show Place Holders to return to the default setting. In the navigation pane at the top of the page and click the [About Enterprise Investments] button to return to the About Enterprise Investments page.",
   "Next -&gt;",
   "Showing and Hiding Parts of the Active Assembly Interface",
-  "19086.htm"
+  "19086.htm",
 );
 Page[5] = new Array(
   "Now we will look at a diagrammed portion of the Active Assembly interface with Show Icons/Borders enabled to understand its icons and components more clearly. To follow on your own screen, click View &gt; Show Icons/Borders on the Menu bar.",
@@ -87,7 +87,7 @@ Page[5] = new Array(
   "This tutorial will cover the meaning and purpose of each of the components represented by these icons.",
   "Next -&gt;",
   "Active Assembly Icons",
-  "19087.htm"
+  "19087.htm",
 );
 Page[6] = new Array(
   "If you have enabled Show Icons/Borders, in the Menu bar, choose Hide Icons/Borders to return to the default view.",
@@ -99,7 +99,7 @@ Page[6] = new Array(
   "Now click on any component's icon or name in Outline view to select it. Notice that the corresponding component in Page view is outlined and that the Menu Bar displays the icon representing the component. ",
   "Next -&gt;",
   "Selecting Components",
-  "19088.htm"
+  "19088.htm",
 );
 Page[7] = new Array(
   "Now we will see how the Menu Bar functions. Anywhere in Outline view or Page view, select the main page, a field, a Slot, and a Snippet, and see the variation in the Menu Bar options that appear for each of them. ",
@@ -109,7 +109,7 @@ Page[7] = new Array(
   "Later in this tutorial, we will explain some of the Menu Bar and Context menu functions in more detail.  For a full explanation of all of them, see the online Active Assembly Interface help.",
   "Next -&gt;",
   "Exploring the Menu Bar and Context Menus",
-  "19091.htm"
+  "19091.htm",
 );
 Page[8] = new Array(
   "In the Active Assembly interface, you can change a Snippet's location by dragging and dropping it within a Slot or from one Slot to another. The source and target Slots must be on the same page or Snippet.",
@@ -124,7 +124,7 @@ Page[8] = new Array(
   "If a Slot is complex, you may have trouble dragging and dropping a Snippet in Page view, but you have other options for moving it.",
   "Next -&gt;",
   "Dragging and Dropping Snippets",
-  "19236.htm"
+  "19236.htm",
 );
 Page[9] = new Array(
   "In complex Slot layouts, the anchor for dropping a Snippet may not appear in Page view. For example, if Snippets are not arranged in an exact vertical or horizontal pattern, you may have difficulty dragging and dropping them from one position to another in a Slot.  Sometimes you may have difficulty dragging and dropping Snippets when they are arranged horizontally instead of vertically in a Slot. In addition, if conditions are applied to the rules for arranging Snippets in a Slot, the Active Assembly interface may not be able to produce an anchor bar. ",
@@ -134,13 +134,13 @@ Page[9] = new Array(
   "Use the [Up] and [Down] buttons to move the Snippet into the new position.",
   "Next -&gt;",
   "Drag and Drop Problems",
-  "19099.htm"
+  "19099.htm",
 );
 Page[10] = new Array(
   "This purpose of this section is to give you an understanding of content items and the way they are represented in the Active Assembly interface. We will begin by looking at the smallest component that makes up a content item: a field. Then we will move on to see how a group of fields are the main components that compose a content item.",
   "Next -&gt;",
   "Understanding Content Items",
-  "16986.htm"
+  "16986.htm",
 );
 Page[11] = new Array(
   "Let's begin looking at fields by editing a few of them. Depending on the field you are editing and the configuration of your system, its editor may be embedded in the page or it may open in a separate box. ",
@@ -158,7 +158,7 @@ Page[11] = new Array(
   "Now, in Outline view or Page view, right-click on the icon for one of the fields you have opened.  The Context menu that opens is another way to access the Edit Field option. ",
   "Next -&gt;",
   "Locating and Editing a Field",
-  "19092.htm"
+  "19092.htm",
 );
 Page[12] = new Array(
   "When you look at a field in Page view or open it in a field editor it is filled with data that is stored in Rhythmyx's content repository (database). Alongside this data, the repository stores data for the other fields that make up the specific content item.",
@@ -173,7 +173,7 @@ Page[12] = new Array(
   "In the following graphic, the first rich-text editor is disabled after the second rich-text editor is selected and enabled.",
   "Next -&gt;",
   "Understanding a Field's Function in a Content Item",
-  "19101.htm"
+  "19101.htm",
 );
 Page[13] = new Array(
   "A Content Type defines the fields that make up a specific kind of content item, such as an Image content item or an Event content item. For example, the FastForward Image Content Type includes fields for Title, Start Date, Image, and Image File Name, while the FastForward Event Content Type includes fields for Title, Start Date, Event Start Date, Event End Date, Event Location, and Event Type.",
@@ -185,14 +185,14 @@ Page[13] = new Array(
   "If you are editing Snippets but not creating them, it is not necessary to know which Content Types they use because Rhythmyx will always open the correct content editor for the item you are editing. ",
   "Next -&gt;",
   "Understanding Content Types",
-  "16995.htm"
+  "16995.htm",
 );
 Page[14] = new Array(
   "We have already discussed the four components of an item opened in the Active Assembly interface: the main item, Slots, Snippets, and fields.  We refer to the content item that we have opened for Active Assembly as the main item because it can either represent a Page or a Snippet.  We opened the About Enterprise Investments item in Active Assembly in a Page format. ",
   "In this tutorial, we will assume that you are opening items for Active Assembly in Page formats rather than Snippet formats. This section will focus on the makeup of a Page in Active Assembly and the way its different components are related to one another.",
   "Next -&gt;",
   "Understanding Page Structure",
-  "16972.htm"
+  "16972.htm",
 );
 Page[15] = new Array(
   "In the following topic, we will discuss components of a page as they appear in both Outline view and Page view. In order to follow which components we are discussing, in the Menu bar, choose View &gt; Show Icons/Borders. ",
@@ -218,7 +218,7 @@ Page[15] = new Array(
   "Notice that the Snippet and its fields are now overlaid with the checked out by me symbol @. The Snippet is now &quot;checked out by me&quot; because it is a different content item than About Enterprise Investments and can function as a separate unit even when it is located in one of the About Enterprise Investments Slots.",
   "Next -&gt;",
   "The Components of a Page",
-  "19093.htm"
+  "19093.htm",
 );
 Page[16] = new Array(
   "When we first looked at the way Outline view and Page view work together, you clicked items in one of the views and noticed that they became selected in both views.",
@@ -226,14 +226,14 @@ Page[16] = new Array(
   "Choose a top-level Slot in Outline view and select it; then see the corresponding component selected in Page view. Then go down the hierarchy of the Slot in Outline view, clicking on Snippets and their fields and their Slots and look at the corresponding components selected in Page view. Also work in the other direction, clicking on a Slot in Page view and seeing the Slot selected in Outline view, then clicking on the embedded components of the Slot in Page view and seeing where they are positioned in Outline view. Continue to work back and forth between the views until you feel that you fully understand the way Slots and Snippets (and the Snippet's fields and Slots) are related to one another and function to organize the composition of the page.",
   "Next -&gt;",
   "Further Understanding the Relationship of Slots and Snippets",
-  "16976.htm"
+  "16976.htm",
 );
 Page[17] = new Array(
   "Earlier we explained that fields on the page are content from the original content item (rather than content from other items included in Slots on the page).",
   "When you perform basic editing of a Slot, you pull Snippets of content in and out of the Slot and rearrange them.  You are organizing the placement of content on the page. In contrast, when you edit a field, you are changing the actual text or other data that appears on the page; you are modifying the content on the page rather than rearranging or organizing it.",
   "Next -&gt;",
   "Editing Fields Versus Editing Slots",
-  "16978.htm"
+  "16978.htm",
 );
 Page[18] = new Array(
   "We have already mentioned that the main item can be a page or a Snippet depending on the format that you have opened it in for Active Assembly; however, for the purposes of this tutorial, we will only look at main items that are pages.",
@@ -242,7 +242,7 @@ Page[18] = new Array(
   "Notice that in Page view, an area borders the page and includes navigation links, the Enterprise Investments logo, and a search bar.  This area is called the Global Template.  It cannot be modified in Active Assembly.",
   "Next -&gt;",
   "The Page or Main Item",
-  "16980.htm"
+  "16980.htm",
 );
 Page[19] = new Array(
   "When we initially listed the Active Assembly icons, we also showed the @ overlay, which indicates that the content item (page or Snippet) is checked out by you, and the @ overlay, which indicates that the content item is checked out by someone else. When the content item is checked out by you, you can modify it as well as move it and perform Workflow functions.  When the content item is checked out by someone else, you cannot modify it or perform Workflow functions, but if it is a Snippet, you can change its position on a page.",
@@ -253,7 +253,7 @@ Page[19] = new Array(
   "Note: Depending on your Role, you may want to learn about other aspects of Workflowing items.  See the Active Assembly Interface help and the Content Explorer Help for a more detailed explanation.",
   "Next -&gt;",
   "Your Access to Page Components",
-  "19246.htm"
+  "19246.htm",
 );
 Page[20] = new Array(
   "Assembly is the creation of pages and Snippets for your Web site. A page or Snippet is created when a content item is formatted with a Template. For example, the About Enterprise Investments page that you are currently viewing in your browser shows the Page - About Enterprise Investments content item formatted with the P - EI Generic Template.",
@@ -265,7 +265,7 @@ Page[20] = new Array(
   "The next topic provides a graphic of the components of Active Assembly and summarizes how they work together. Take a few minutes to review the graphic and make sure you understand how Active Assembly works before continuing.",
   "Next -&gt;",
   "Understanding Basic Assembly and Templates",
-  "19502.htm"
+  "19502.htm",
 );
 Page[21] = new Array("Next -&gt;", "Summary of Active Assembly", "17316.htm");
 Page[22] = new Array(
@@ -277,7 +277,7 @@ Page[22] = new Array(
   "While you are in the Active Assembly interface, you can also browse through the Rhythmyx repository for a content item to format as a Snippet or create a new content item and format it as a Snippet, and insert it into a Slot. We will explore these options in the next section of this tutorial.  ",
   "Next -&gt;",
   "Placing a Snippet in a Slot",
-  "17052.htm"
+  "17052.htm",
 );
 Page[23] = new Array(
   "The Active Assembly interface prompts you to choose a Template to format a new or existing Snippet before you insert it into a Slot. Although the dialogs for adding a new Snippet or inserting an existing Snippet are different, both enable you to preview the Snippet using the allowed Templates before choosing a Template. To demonstrate the process of choosing a Template for a Snippet, we will change the Template for 10 Mistakes You Can't Afford, the Snippet in the Sidebar Slot.",
@@ -291,7 +291,7 @@ Page[23] = new Array(
   "When you create a new item to insert into a Slot, the Create New Item dialog also allows you to select a Template before inserting the Snippet, but the dialog appears and functions differently.  We will introduce you to it in the next section in the topic Creating an Item and Inserting it into a Slot.",
   "Next -&gt;",
   "Selecting a Template for a Snippet",
-  "19095.htm"
+  "19095.htm",
 );
 Page[24] = new Array(
   "In addition to moving Snippets within Slots and between Slots in the Active Assembly interface, you can retrieve content items from the Rhythmyx repository, format them as Snippets, and insert them into Slots. You can also create a new content item while you are in Active Assembly and insert it as a Snippet into a Slot.",
@@ -324,7 +324,7 @@ Page[24] = new Array(
   "Creating an Item and Inserting it into a Slot",
   "Next -&gt;",
   "Finding and Creating Content for Active Assembly",
-  "19096.htm"
+  "19096.htm",
 );
 Page[25] = new Array(
   "In this exercise, we will add an existing item to the Sidebar Slot by entering Search criteria. ",
@@ -346,7 +346,7 @@ Page[25] = new Array(
   "The Snippet is inserted at the bottom of the Slot and the search tab returns you to the list of search results in case you want to enter another Snippet into the Slot. Click [Back] to return to the Search criteria.  At this point you could enter different criteria to locate another content item or close the Content Browser. Click [Cancel] to close the Content Browser.",
   "Next -&gt;",
   "Finding an Item and Inserting it into a Slot",
-  "19098.htm"
+  "19098.htm",
 );
 Page[26] = new Array(
   "Now we will create a new content item and add it to the Sidebar Slot. ",
@@ -360,98 +360,98 @@ Page[26] = new Array(
   "To verify that the item has been created in the path shown on the Create Item dialog, go to Content Explorer and check the path listed in the Create Item dialog.  If you do not see your new item, refresh the page.  You should be able to see your new item.  ",
   "Next -&gt;",
   "Creating an Item and Inserting it into a Slot",
-  "18960.htm"
+  "18960.htm",
 );
 Page[27] = new Array(
   "You have now completed the tutorial. If you feel that you have acquired a good understanding of the Active Assembly Interface and are comfortable using it to rearrange and add Snippets on a Page, edit fields, and change the format of items in Slots, you can go ahead and begin Actively Assembling content items.",
   "If you need to review certain points, feel free to return to those topics in the tutorial and go over them again. If you need more detailed information, refer to the Active Assembly Interface online help.",
   "Where to Go From Here",
-  "17070.htm"
+  "17070.htm",
 );
 Page[28] = new Array(
   "The process of adding Snippets to a Slot on a Template of a Content Item. You perform Active Assembly using Rhythmyx's Active Assembly Interface, which allows you to add content to Slots on a graphical representation of formatted content item. ",
   "Active Assembly",
-  "7711.htm#o16584"
+  "7711.htm#o16584",
 );
 Page[29] = new Array(
   "A form for displaying and editing a specific Content Type. Content Editors list and display the contents of the body field and other fields of a Content Type.",
   "Content Editor",
-  "7711.htm#o7720"
+  "7711.htm#o7720",
 );
 Page[30] = new Array(
   "The Rhythmyx interface that resembles Window's Explorer and is used for creating, modifying, and transitioning Content Items. Content Explorer has a Navigation Tree which display folders, views, and searches that store content, and a Display pane that displays and provides access to the Content Items they store.",
   "Content Explorer",
-  "7711.htm#o7721"
+  "7711.htm#o7721",
 );
 Page[31] = new Array(
   "One unit of content, in text, image or file format that appears on a Web page. Content Items consist of body and metadata.",
   "Content Item",
-  "7711.htm#o7722"
+  "7711.htm#o7722",
 );
 Page[32] = new Array(
   "A Content Item format in your Rhythmyx system. Each Content Type has its own backend table in the Rhythmyx data repository.  Content Types in your system may be distinguished by the types of content they store, their functions, the access users have to them, or any other features.",
   "Content Type",
-  "7711.htm#o7723"
+  "7711.htm#o7723",
 );
 Page[33] = new Array(
   "Bar at the top of the Active Assembly interface that includes buttons with toggle options, drop lists of actions, and commands.",
   "Menu Bar",
-  "7711.htm#o16649"
+  "7711.htm#o16649",
 );
 Page[34] = new Array(
   "The left panel of the Active Assembly interface that represents a formatted Template of a content item as a hierarchical outline. Users can create, move, and remove content items in Slots in Outline view.",
   "Outline view",
-  "7711.htm#o16589"
+  "7711.htm#o16589",
 );
 Page[35] = new Array(
   "A content item formatted by a Template that produces a complete page for a site. (Compare to Snippet). ",
   "Page",
-  "7711.htm#o17105"
+  "7711.htm#o17105",
 );
 Page[36] = new Array(
   "The right-panel in the Active Assembly interface that graphically displays the selected Template of a content item and enables users to insert and remove content items from its Slots. ",
   "Page view",
-  "7711.htm#o16587"
+  "7711.htm#o16587",
 );
 Page[37] = new Array(
   "The metadata associated with a content item or a folder.  Rhythmyx provides a properties view for viewing a Content Item's properties and a Folder Properties dialog for viewing or editing a folder's properties. ",
   "Properties",
-  "7711.htm#o7732"
+  "7711.htm#o7732",
 );
 Page[38] = new Array(
   "A site is a location where Rhythmyx content is published, such as a Web site or a database.",
   "Site",
-  "7711.htm#o7741"
+  "7711.htm#o7741",
 );
 Page[39] = new Array(
   "A placeholder for Snippets in a Content Item .",
   "Slot",
-  "7711.htm#o7751"
+  "7711.htm#o7751",
 );
 Page[40] = new Array(
   "A stage for a content item in a Workflow, such as Draft, Approval, or Public.  In each State content is available to users in certain Roles, who may apply the Transitions assigned for the state to the content.",
   "State",
-  "7711.htm#o7744"
+  "7711.htm#o7744",
 );
 Page[41] = new Array(
   "A content item formatted by a Template that produces a formatted chunk of information that can be inserted on a page but cannot stand alone as a page. Snippets are inserted into Slots on pages.",
   "Snippet",
-  "7711.htm#o17106"
+  "7711.htm#o17106",
 );
 Page[42] = new Array(
   "A defined format for assembling raw content for display. Typically, Templates define the format of a page or a portion of a page.",
   "Template",
-  "7711.htm#o14564"
+  "7711.htm#o14564",
 );
 Page[43] = new Array(
   "An action, such as Approve or Publish, that a user may apply to content in a Workflow State.  Each Workflow State has specific Transitions assigned to it.",
   "Transition",
-  "7711.htm#o7745"
+  "7711.htm#o7745",
 );
 Page[44] = new Array(
   "A defined set of development stages that is applied to a content item.  Each Workflow includes States, Roles, and Transitions.  States are the stages of the content item; Roles are the users with access to content in each state, and Transitions are the actions that move content from one State to another. ",
   "Workflow",
-  "7711.htm#o7748"
+  "7711.htm#o7748",
 );
 var PageCount = 45;
 

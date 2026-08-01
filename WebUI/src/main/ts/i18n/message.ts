@@ -18,7 +18,7 @@
 /**
  * Thin wrapper over the product TMX JS catalog global {@code I18N.message}.
  *
- * <p>Shell JSPs must load {@code /Rhythmyx/tmx/tmx.jsp?mode=js&prefix=perc.ui.&sys_lang=…}
+ * <p>Shell JSPs must load {@code /Rhythmyx/tmx/tmx.jsp?mode=js&prefix=perc.ui.&sys_lang=...}
  * before the modern bundle so keys resolve for the session locale (FR-023).</p>
  */
 
@@ -160,7 +160,7 @@ export const MSG = {
   PUBLISH_ADD_SERVER: "perc.ui.publish.modern@Add Server",
   PUBLISH_EDIT_SERVER: "perc.ui.publish.modern@Edit Server",
   PUBLISH_SERVER_NAME: "perc.ui.publish.modern@Server Name",
-  PUBLISH_SERVER_TYPE: "perc.ui.publish.view@Production",
+  PUBLISH_SERVER_TYPE: "perc.ui.publish.view@Production", // @deprecated re-keyed — use MSG.PUBLISH.SERVER.EDITOR.TYPE (Phase 1 audit-publishing.md).
   PUBLISH_DELIVERY_TYPE: "perc.ui.publish.modern@Delivery Type",
   PUBLISH_DRIVER: "perc.ui.publish.modern@Driver",
   PUBLISH_SET_DEFAULT: "perc.ui.publish.modern@Set as Publish Now Server",
@@ -171,4 +171,461 @@ export const MSG = {
   PUBLISH_CONFIRM_DELETE_SERVER: "perc.ui.publish.modern@Confirm Delete Server",
   PUBLISH_DISCARD_CHANGES: "perc.ui.publish.modern@Discard Changes",
   PUBLISH_CONFIRM_DELETE_DESIGN: "perc.ui.publish.modern@Confirm Delete Design Object",
+  // SPA top navigation (shell chrome)
+  NAV_HOME: "perc.ui.navMenu.home@Home",
+  NAV_DASHBOARD: "perc.ui.navMenu.dashboard@Dashboard",
+  NAV_EDITOR: "perc.ui.navMenu.webmgt@Editor",
+  NAV_ARCHITECTURE: "perc.ui.navMenu.architecture@Architecture",
+  NAV_DEVELOPER: "perc.ui.dashboard.modern@Developer",
+  NAV_PUBLISH: "perc.ui.navMenu.publish@Publish",
+  NAV_ADMINISTRATION: "perc.ui.dashboard.modern@Administration",
+  NAV_ADMIN_TOOLS: "perc.ui.dashboard.modern@Admin tools",
+  NAV_WIDGET_BUILDER: "perc.ui.navMenu.admin@Widget Builder",
+  NAV_EXPLORER: "perc.ui.dashboard.modern@Explorer",
+  NAV_ARIA_MAIN: "perc.ui.dashboard.modern@Main",
+  NAV_DASHBOARD_TITLE: "perc.ui.dashboard.modern@Dashboard gadgets on Home",
+  NAV_DEVELOPER_TITLE: "perc.ui.dashboard.modern@CMS design tools (content types, templates, ...)",
+  USER_SIGNED_IN_AS: "perc.ui.dashboard.modern@Signed in as",
+  USER_DEFAULT_NAME: "perc.ui.dashboard.modern@user",
+  USER_LOGOUT: "perc.ui.common.label@Log Out",
+  // Dashboard / Gadgets chrome
+  DASHBOARD_TITLE: "perc.ui.dashboard.title@Dashboard",
+  DASHBOARD_EMBEDDED_TITLE: "perc.ui.dashboard.modern@Gadgets",
+  DASHBOARD_ADD_GADGET: "perc.ui.dashboard.modern@Add Gadget",
+  DASHBOARD_LOADING: "perc.ui.dashboard.modern@Loading gadgets",
+  DASHBOARD_LAYOUT_WARNING_PREFIX:
+    "perc.ui.dashboard.modern@Could not load saved gadget layout",
+  DASHBOARD_LAYOUT_WARNING_TITLE: "perc.ui.dashboard.modern@Layout load warning",
+  DASHBOARD_LEGACY_LINK: "perc.ui.dashboard.modern@Legacy dashboard",
+  GADGET_REMOVE_TITLE: "perc.ui.dashboard.modern@Remove gadget",
+  // Add Gadget modal
+  MODAL_ADD_GADGET_TITLE: "perc.ui.dashboard.modern@Add Gadget",
+  MODAL_SEARCH_PLACEHOLDER: "perc.ui.dashboard.modern@Search gadgets...",
+  MODAL_ADD_BUTTON: "perc.ui.dashboard.modern@Add",
+  MODAL_ADDED_BUTTON: "perc.ui.dashboard.modern@Added",
+  MODAL_NO_RESULTS: "perc.ui.dashboard.modern@No gadgets found",
+  MODAL_DEFAULT_CATEGORY: "perc.ui.dashboard.modern@Other",
+  // Widget: Widget Configuration
+  WIDGET_CONFIG_HINT:
+    "perc.ui.dashboard.modern@Choose which gadgets appear on Home for this session. You can also use Add Gadget on the dashboard toolbar.",
+  WIDGET_CONFIG_APPLY: "perc.ui.dashboard.modern@Apply layout",
+  WIDGET_CONFIG_EMPTY: "perc.ui.dashboard.modern@Select at least one gadget.",
+  WIDGET_CONFIG_APPLIED:
+    "perc.ui.dashboard.modern@Layout applied for this browser session. Refresh if tiles did not update.",
+  // Widget: Welcome
+  WELCOME_GREETING_MORNING: "perc.ui.dashboard.welcome@Good morning",
+  WELCOME_GREETING_AFTERNOON: "perc.ui.dashboard.welcome@Good afternoon",
+  WELCOME_GREETING_EVENING: "perc.ui.dashboard.welcome@Good evening",
+  WELCOME_BLURB: "perc.ui.dashboard.welcome@Using Percussion CMS",
+  WELCOME_LINK_SITEMANAGE: "perc.ui.dashboard.welcome@Site Management",
+  WELCOME_LINK_WEBMGT: "perc.ui.dashboard.welcome@Web Management",
+  WELCOME_LINK_ADMINCONSOLE: "perc.ui.dashboard.welcome@Admin Console",
+  // Widget: Activity
+  ACTIVITY_LOADING: "perc.ui.dashboard.activity@Loading activity",
+  ACTIVITY_EMPTY: "perc.ui.dashboard.activity@No activity for path",
+  ACTIVITY_PATH: "perc.ui.dashboard.activity@Path",
+  ACTIVITY_SITE: "perc.ui.dashboard.activity@Site",
+  ACTIVITY_PUBLISHED: "perc.ui.dashboard.activity@Published",
+  ACTIVITY_PENDING: "perc.ui.dashboard.activity@Pending",
+  ACTIVITY_NEW: "perc.ui.dashboard.activity@New",
+  ACTIVITY_UPDATED: "perc.ui.dashboard.activity@Updated",
+  ACTIVITY_ARCHIVED: "perc.ui.dashboard.activity@Archived",
+  // Gadget catalog (Title Case, modern UI)
+  GADGET_WELCOME: "perc.ui.gadgets.welcome@WELCOME",
+  GADGET_PAGES_BY_STATUS: "perc.ui.gadgets.workflowStatus@PAGES BY STATUS",
+  GADGET_PROCESS_MONITOR: "perc.ui.gadgets.processmonitor@Process Monitor",
+  GADGET_COMMENTS: "perc.ui.gadgets.comments@COMMENTS",
+  GADGET_COOKIE_CONSENT: "perc.ui.gadgets.cookieConsent@COOKIE CONSENT",
+  GADGET_SITEWIDE_FRAMEWORK: "perc.ui.gadgets.sitewideFramework@Sitewide Framework",
+  GADGET_MEMBERSHIP: "perc.ui.gadgets.membership@MEMBERSHIP",
+  GADGET_SEO_AUDIT: "perc.ui.gadgets.seo@SEO AUDIT",
+  GADGET_ASSETS_BY_STATUS: "perc.ui.asset.status.gadget@ASSETS BY STATUS",
+  GADGET_BULK_UPLOAD: "perc.ui.gadget.bulkUpload@Bulk Upload",
+  GADGET_GLOBAL_VARIABLES: "perc.ui.global.variables.gadget@Global Variables",
+  GADGET_SITEIMPROVE: "perc.ui.site.improve.gadget@SITEIMPROVE",
+  GADGET_TRAFFIC: "perc.ui.traffic.gadget@TRAFFIC",
+  GADGET_ACTIVITY: "perc.ui.dashboard.modern@Activity",
+  GADGET_WHATS_WORKING: "perc.ui.dashboard.modern@What&apos;s Working",
+  GADGET_REPORTS: "perc.ui.dashboard.modern@Reports",
+  GADGET_FORM_TRACKER: "perc.ui.dashboard.modern@Form Tracker",
+  GADGET_EXTERNAL_CONTENT: "perc.ui.dashboard.modern@External Content",
+  GADGET_GOOGLE_SETUP: "perc.ui.dashboard.modern@Google Setup",
+  GADGET_BLOGS: "perc.ui.dashboard.modern@Blogs",
+  GADGET_DASHBOARD_CONFIG: "perc.ui.dashboard.modern@Dashboard Configuration",
+  // Gadget catalog descriptions
+  GADGET_DESC_WELCOME:
+    "perc.ui.dashboard.modern@Welcome message and dashboard introduction",
+  GADGET_DESC_PAGES_BY_STATUS: "perc.ui.dashboard.modern@Pages grouped by workflow state",
+  GADGET_DESC_ACTIVITY: "perc.ui.dashboard.modern@Content activity metrics by path and duration",
+  GADGET_DESC_PROCESS_MONITOR: "perc.ui.dashboard.modern@System process and monitoring status",
+  GADGET_DESC_WHATS_WORKING:
+    "perc.ui.dashboard.modern@Effectiveness scores (requires Google Analytics)",
+  GADGET_DESC_ASSETS_BY_STATUS:
+    "perc.ui.dashboard.modern@Asset workflow status distribution",
+  GADGET_DESC_BULK_UPLOAD: "perc.ui.dashboard.modern@Upload files into Assets/uploads",
+  GADGET_DESC_REPORTS: "perc.ui.dashboard.modern@Quick CMS reports hub",
+  GADGET_DESC_TRAFFIC: "perc.ui.dashboard.modern@Content traffic series",
+  GADGET_DESC_BLOGS: "perc.ui.dashboard.modern@Blog listings and section create",
+  GADGET_DESC_COMMENTS: "perc.ui.dashboard.modern@Pages with visitor comments",
+  GADGET_DESC_FORM_TRACKER: "perc.ui.dashboard.modern@Form submission tracking",
+  GADGET_DESC_COOKIE_CONSENT: "perc.ui.dashboard.modern@Cookie consent log totals",
+  GADGET_DESC_SEO_AUDIT: "perc.ui.dashboard.modern@Non-SEO pages by severity",
+  GADGET_DESC_GOOGLE_SETUP: "perc.ui.dashboard.modern@Google Analytics provider and site profiles",
+  GADGET_DESC_MEMBERSHIP: "perc.ui.dashboard.modern@Site membership users (DTS)",
+  GADGET_DESC_SITEIMPROVE: "perc.ui.dashboard.modern@Siteimprove token and publish config",
+  GADGET_DESC_EXTERNAL_CONTENT: "perc.ui.dashboard.modern@Embed an external URL",
+  GADGET_DESC_GLOBAL_VARIABLES: "perc.ui.dashboard.modern@System global variables metadata",
+  GADGET_DESC_SITEWIDE_FRAMEWORK: "perc.ui.dashboard.modern@Theme / framework summaries",
+GADGET_DESC_DASHBOARD_CONFIG:
+    "perc.ui.dashboard.modern@Choose which gadgets appear this session",
+
+  // ========================================================================
+  // Phase 1 nested groups (added by i18n extraction plan, see
+  // docs/ai-generated/tasks/webui-i18n-string-extraction/plan.md Phase 1).
+  //
+  // Existing flat constants above (HOME_TITLE, SECTION_*, NAV_*, USER_*,
+  // PUBLISH_*, DASHBOARD_*, GADGET_*, MODAL_*, WIDGET_CONFIG_*, WELCOME_*,
+  // ACTIVITY_*) are preserved for backward compatibility. New code in
+  // Phase 3 PRs should consume the nested groups below, e.g.
+  //   message(MSG.DASHBOARD.WIDGETS.ASSETS_STATUS.EMPTY)
+  //   message(MSG.PUBLISH.SERVER.EDITOR.TYPE)
+  //   message(MSG.WIDGETBUILDER.EDITOR.FIELD.LABEL)
+  //
+  // Re-keying: MSG.PUBLISH_SERVER_TYPE above is @deprecated. The new
+  // canonical key is MSG.PUBLISH.SERVER.EDITOR.TYPE. ServerEditor.tsx
+  // migrates in Phase 3 PR-B3.
+  // ========================================================================
+
+  DASHBOARD: {
+    WIDGETS: {
+      ASSETS_STATUS: {
+        LOADING: "perc.ui.dashboard.modern@Loading asset status",
+        EMPTY:
+          "perc.ui.dashboard.modern@No assets found for this path and workflow.",
+      },
+      BLOGS: {
+        NO_TEMPLATES:
+          "perc.ui.dashboard.modern@A blog needs two existing templates: one with a Blog List widget and one with a Blog Post widget. Create those in Design / Templates first (or copy base blog templates onto this site).",
+      },
+      BULK_UPLOAD: {
+        TYPE_FILE: "perc.ui.dashboard.modern@Bulk upload asset type File",
+        TYPE_IMAGE: "perc.ui.dashboard.modern@Bulk upload asset type Image",
+      },
+      COMMENTS: {
+        LOADING: "perc.ui.dashboard.modern@Loading comments",
+        NO_SITES: "perc.ui.dashboard.modern@No sites available.",
+      },
+      COOKIE_CONSENT: {
+        LOADING: "perc.ui.dashboard.modern@Loading cookie consent",
+      },
+      EFFECTIVENESS: {
+        LOADING: "perc.ui.dashboard.modern@Loading effectiveness",
+        NO_ANALYTICS_TITLE:
+          "perc.ui.dashboard.modern@Google Analytics is not configured",
+        NO_ANALYTICS_BODY:
+          "perc.ui.dashboard.modern@What's Working needs a Google Analytics provider and site profile. Use the Google Setup gadget, then refresh this widget.",
+        EMPTY:
+          "perc.ui.dashboard.modern@No effectiveness data for this path and duration.",
+      },
+      FORMS: {
+        LOADING: "perc.ui.dashboard.modern@Loading forms",
+        NO_SITES:
+          "perc.ui.dashboard.modern@No sites available to load forms.",
+      },
+      MEMBERSHIP: {
+        LOADING: "perc.ui.dashboard.modern@Loading membership",
+        NO_SITES: "perc.ui.dashboard.modern@No sites available.",
+        EMPTY: "perc.ui.dashboard.modern@No members for this site.",
+      },
+      PROCESS_MONITOR: {
+        LOADING: "perc.ui.dashboard.modern@Loading process monitor",
+        EMPTY: "perc.ui.dashboard.modern@No monitors available",
+      },
+      REPORTS: {
+        EMPTY: "perc.ui.dashboard.modern@No report data.",
+      },
+      SEO: {
+        LOADING: "perc.ui.dashboard.modern@Loading SEO audit",
+      },
+      SITEIMPROVE: {
+        LOADING: "perc.ui.dashboard.modern@Loading Siteimprove",
+        TOKEN_LABEL: "perc.ui.dashboard.modern@Token on server",
+        NOT_CONFIGURED: "perc.ui.dashboard.modern@Not configured",
+        PRESENT: "perc.ui.dashboard.modern@Present",
+        NONE: "perc.ui.dashboard.modern@None",
+      },
+      SITEWIDE_FRAMEWORK: {
+        EMPTY: "perc.ui.dashboard.modern@No themes found.",
+      },
+      TRAFFIC: {
+        LOADING: "perc.ui.dashboard.modern@Loading traffic data",
+        EMPTY:
+          "perc.ui.dashboard.modern@No traffic data for this path and date range.",
+        LEGEND_VISITS: "perc.ui.traffic.gadget@Visits",
+      },
+      UNAVAILABLE_GADGET: {
+        HEADER: "perc.ui.dashboard.modern@Not available in React Home",
+      },
+      WORKFLOW: {
+        LOADING: "perc.ui.dashboard.modern@Loading workflow status",
+        EMPTY:
+          "perc.ui.dashboard.modern@No pages found for this path and workflow.",
+      },
+    },
+  },
+
+  PUBLISH: {
+    SECTIONS: {
+      LOGS: {
+        SHOW: "perc.ui.publish.title@Show",
+        FILTER_ALL: "perc.ui.publish.title@All",
+        SITE_ID: "perc.ui.publish.sections.logs@Site id",
+        SERVER_ID: "perc.ui.publish.sections.logs@Server id",
+        DAYS: "perc.ui.publish.sections.logs@Days",
+      },
+      RUNTIME: {
+        SITE_PICKER_ARIA: "perc.ui.publish.sections.runtime@Runtime site",
+        EDITIONS_EMPTY:
+          "perc.ui.publish.sections.runtime@No editions for this site",
+        DEMAND_HEADING: "perc.ui.publish.sections.runtime@Demand publish",
+        CONTENT_IDS: "perc.ui.publish.sections.runtime@Content ids",
+        CONTENT_IDS_PLACEHOLDER:
+          "perc.ui.publish.sections.runtime@e.g. 101, 102",
+        ADVANCED_CLEANUP_HEADING:
+          "perc.ui.publish.sections.runtime@Advanced cleanup",
+        PURGE_JOB_LOG: "perc.ui.publish.sections.runtime@Purge job log by id",
+      },
+      DESIGN: {
+        SITE_PICKER_ARIA: "perc.ui.publish.sections.design@Design site",
+        EDITIONS_EMPTY:
+          "perc.ui.publish.sections.design@No editions for this site",
+        CONTENT_LISTS_EMPTY: "perc.ui.publish.sections.design@No content lists",
+      },
+      SITE: {
+        SELECT_ALL_ARIA: "perc.ui.publish.sections.site@Select all related items",
+        ITEM_HEADING: "perc.ui.publish.sections.site@Item",
+      },
+    },
+    DESIGN: {
+      EDITIONS: {
+        COMMENT: "perc.ui.publish.design.editions@Comment",
+        ASSOCIATED_LISTS:
+          "perc.ui.publish.design.editions@Associated content lists",
+        ASSOCIATED_LISTS_NONE: "perc.ui.publish.design.editions@None",
+        ASSOCIATE_LIST_ARIA:
+          "perc.ui.publish.design.editions@Content list to associate",
+        SELECT_LIST: "perc.ui.publish.design.editions@Select content list",
+        DELIVERY_CONTEXT_ARIA:
+          "perc.ui.publish.design.editions@Delivery context",
+        COPY_TO_SITE_HEADING: "perc.ui.publish.design.editions@Copy to site",
+        TARGET_SITE: "perc.ui.publish.design.editions@Target site",
+      },
+      CONTENT_LISTS: {
+        DESCRIPTION: "perc.ui.publish.design.contentLists@Description",
+        TYPE: "perc.ui.publish.design.contentLists@Type",
+        TYPE_MODERN: "perc.ui.publish.design.contentLists@Modern",
+        TYPE_LEGACY: "perc.ui.publish.design.contentLists@Legacy",
+        GENERATOR: "perc.ui.publish.design.contentLists@Generator",
+      },
+      CONTEXTS: {
+        DESCRIPTION: "perc.ui.publish.design.contexts@Description",
+        SCHEME_DESCRIPTION:
+          "perc.ui.publish.design.contexts@Scheme Description",
+        SCHEME_CONTENT_TYPE: "perc.ui.publish.design.contexts@Content type id",
+        SCHEME_TEMPLATE: "perc.ui.publish.design.contexts@Template id",
+        PARAM_NAME_PLACEHOLDER: "perc.ui.publish.design.contexts@Parameter Name",
+        PARAM_TYPE_STRING: "perc.ui.publish.title@Type",
+        PARAM_TYPE_BACKEND_COLUMN:
+          "perc.ui.publish.design.contexts@BackendColumn",
+        PARAM_VALUE_PLACEHOLDER:
+          "perc.ui.publish.design.contexts@Parameter Value",
+        LIST_ARIA: "perc.ui.publish.design.contexts@Publishing context",
+        EMPTY: "perc.ui.publish.design.contexts@No publishing contexts",
+        SCHEMES_HEADING: "perc.ui.publish.design.contexts@Location schemes",
+        SCHEMES_EMPTY:
+          "perc.ui.publish.design.contexts@No schemes for this context",
+      },
+      DELIVERY_TYPES: {
+        DESCRIPTION: "perc.ui.publish.design.deliveryTypes@Description",
+        EMPTY: "perc.ui.publish.design.deliveryTypes@No delivery types",
+      },
+      SITE: {
+        PICKER_ARIA: "perc.ui.publish.design.site@Design site",
+        PROPERTY_CONTEXT_ARIA: "perc.ui.publish.design.site@Property context",
+        CONTEXT_VARIABLES_HEADING:
+          "perc.ui.publish.design.site@Context variables",
+        PROPERTY_NAME: "perc.ui.publish.design.site@Property Name",
+        PROPERTY_VALUE: "perc.ui.publish.design.site@Property Value",
+      },
+      SITE_ROOT: {
+        EMPTY: "perc.ui.publish.design.siteRoot@Empty folder or path not found",
+      },
+    },
+    SERVER: {
+      EDITOR: {
+        TYPE: "perc.ui.publish.server.editor@Server Type",
+        SERVER_TYPE_PRODUCTION: "perc.ui.publish.server.editor@Production",
+        SERVER_TYPE_STAGING: "perc.ui.publish.server.editor@Staging",
+        DELIVERY_TYPE_FILE: "perc.ui.publish.server.editor@File",
+        DELIVERY_TYPE_DATABASE: "perc.ui.publish.server.editor@Database",
+      },
+      DRIVERS: {
+        FILE: {
+          SELECT_REGION: "perc.ui.publish.drivers.file@Select",
+        },
+      },
+    },
+    LOGS_DETAILS: {
+      JOB_ID: "perc.ui.publish.title@Job ID",
+      FILTER_ITEMS: "perc.ui.publish.title@Filter Items",
+      OPERATION: "perc.ui.publish.title@Operation",
+      LOCATION: "perc.ui.publish.title@Location",
+      CONTENT_ID: "perc.ui.publish.title@Content ID",
+      FILENAME: "perc.ui.publish.title@Filename",
+      ELAPSED: "perc.ui.publish.logs.details@Elapsed",
+      REVISION: "perc.ui.publish.logs.details@Revision",
+      TEMPLATE: "perc.ui.publish.logs.details@Template",
+    },
+  },
+
+  WIDGETBUILDER: {
+    LABEL: "perc.ui.widgetbuilder@Label",
+    PREFIX: "perc.ui.widgetbuilder@Prefix",
+    VERSION: "perc.ui.widgetbuilder@Version",
+    LIST: {
+      ACTIONS: "perc.ui.widgetbuilder.list@Actions",
+    },
+    EDITOR: {
+      FIELD: {
+        AUTHOR: "perc.ui.widgetbuilder.editor.field.author@Author",
+        PUBLISHER_URL:
+          "perc.ui.widgetbuilder.editor.field.publisherUrl@Publisher URL",
+        DESCRIPTION:
+          "perc.ui.widgetbuilder.editor.field.description@Description",
+        WIDGET_HTML:
+          "perc.ui.widgetbuilder.editor.field.widgetHtml@Widget HTML",
+      },
+      LEGEND: "perc.ui.widgetbuilder.editor.legend@Fields",
+      FIELD_NAME: "perc.ui.widgetbuilder.editor.field.name@Field Name",
+    },
+  },
+
+  WORKFLOWADMIN: {
+    CATEGORIES: {
+      SYSTEM_LOCK_TITLE:
+        "perc.ui.workflowadmin.categories.system_lock_title@System Category (Read-Only)",
+      HIERARCHY_TREE: "perc.ui.workflowadmin.categories.hierarchy_tree@Hierarchy Tree",
+      EMPTY: "perc.ui.workflowadmin.categories.empty@No categories available.",
+    },
+    ROLE: {
+      DESCRIPTION: "perc.ui.workflowadmin.role.description@Description",
+      NO_USERS_ASSIGNED:
+        "perc.ui.workflowadmin.role.no_users_assigned@No users assigned",
+      NO_AVAILABLE_USERS:
+        "perc.ui.workflowadmin.role.no_available_users@No available users",
+    },
+    STEPS: {
+      MOVE_UP: "perc.ui.workflowadmin.steps.move_up@Move Up",
+      MOVE_DOWN: "perc.ui.workflowadmin.steps.move_down@Move Down",
+    },
+    WORKFLOW: {
+      SITE_ASSIGN: {
+        SITE_LABEL:
+          "perc.ui.workflowadmin.workflow.siteassign.site_label@Site",
+      },
+    },
+  },
+
+  WORKFLOWACTIONS: {
+    PANEL: {
+      LOADING: "perc.ui.workflowactions.panel.loading@Loading workflow status...",
+      CURRENT_STATE_LABEL:
+        "perc.ui.workflowactions.panel.current_state_label@CURRENT STATE",
+      AVAILABLE_ACTIONS_LABEL:
+        "perc.ui.workflowactions.panel.available_actions_label@AVAILABLE ACTIONS",
+      NO_TRANSITIONS:
+        "perc.ui.workflowactions.panel.no_transitions@No transitions available.",
+    },
+    ADHOC_SEARCH: {
+      PLACEHOLDER:
+        "perc.ui.workflowactions.adhocsearch.placeholder@Search users to add...",
+    },
+  },
+
+  ADMIN: {
+    SHELL: {
+      TASK: {
+        LABEL_CRON: "perc.ui.admin.shell.task@Cron:",
+        LABEL_CLASS: "perc.ui.admin.shell.task@Class:",
+        LABEL_SUBJECT: "perc.ui.admin.shell.task@Subject:",
+        PLACEHOLDER_CLASS_NAME:
+          "perc.ui.admin.shell.task@Enter fully-qualified class name",
+        BUTTON_EDIT: "perc.ui.admin.shell.task@Edit",
+        BUTTON_DELETE: "perc.ui.admin.shell.task@Delete",
+        OPTIONS: {
+          PURGE_SCHEDULED_TASK_LOG:
+            "perc.ui.admin.shell.task.option@Purge Scheduled Task Log",
+          RUN_EDITION: "perc.ui.admin.shell.task.option@Run Edition",
+          PURGE_REVISIONS: "perc.ui.admin.shell.task.option@Purge Revisions",
+          RUN_COMMAND: "perc.ui.admin.shell.task.option@Run Command",
+          PURGE_PUBLISHING_LOG:
+            "perc.ui.admin.shell.task.option@Purge Publishing Log",
+          PURGE_EXPIRED_LOG:
+            "perc.ui.admin.shell.task.option@Purge Expired Log",
+          CUSTOM: "perc.ui.admin.shell.task.option@Custom...",
+        },
+      },
+    },
+    TOOLS: {
+      CONSISTENCY_CHECKER: {
+        TITLE: "perc.ui.admin.tools.consistencychecker@System Consistency Checker",
+        BUTTON_RUN:
+          "perc.ui.admin.tools.consistencychecker@Run Consistency Check",
+        LABEL_STATUS: "perc.ui.admin.tools.consistencychecker@Status:",
+        SECTION_REPORTED_ISSUES:
+          "perc.ui.admin.tools.consistencychecker@Reported Issues",
+        EMPTY_ISSUES:
+          "perc.ui.admin.tools.consistencychecker@No consistency issues found. System is fully aligned.",
+      },
+    },
+  },
+
+  CONTENTEXPLORER: {
+    COPY_CONFIRM: {
+      SOURCE: "perc.ui.contentexplorer.copyconfirm@Source",
+      TARGET: "perc.ui.contentexplorer.copyconfirm@Target",
+    },
+    SITE_COPY: {
+      WORKFLOWS: "perc.ui.contentexplorer.sitecopy@Workflows",
+      TEMPLATES: "perc.ui.contentexplorer.sitecopy@Templates",
+    },
+    RELATIONSHIPS: {
+      SUPPLEMENTARY_LINKS:
+        "perc.ui.contentexplorer.relationships@Supplementary links",
+    },
+  },
+
+  CONTENTBROWSER: {
+    SEARCH_PLACEHOLDER: "perc.ui.contentbrowser@Search...",
+  },
+
+  APP: {
+    SHELL: {
+      TEMPORARY_NAV: "perc.ui.app.shell@Temporary navigation",
+      UNAVAILABLE_TITLE: "perc.ui.home.modern@Unavailable",
+    },
+  },
+
+  DEVELOPER: {
+    COMM_BACK_ARIA: "perc.ui.developer@Back to communities list",
+    COMM_ROLES_SAVE_ARIA: "perc.ui.developer@Save community roles",
+    SHELL_NAV_ARIA: "perc.ui.developer@Developer sections",
+    KW_BACK_ARIA: "perc.ui.developer@Back to keywords list",
+    KW_SAVE_ARIA: "perc.ui.developer@Save keyword",
+    KW_DELETE_ARIA: "perc.ui.developer@Delete keyword",
+    ACL_SAVE_ARIA: "perc.ui.developer@Save object ACL",
+    SLOT_BACK_ARIA: "perc.ui.developer@Back to slots list",
+    SLOT_ASSOC_ADD_ARIA: "perc.ui.developer@Add slot association",
+    TPL_BACK_ARIA: "perc.ui.developer@Back to templates list",
+  },
 } as const;

@@ -38,7 +38,7 @@
   function tax_admin_get_all_nodes(theTreeDivId) {
     // TODO make this better
     return $("#" + theTreeDivId).find(
-      ".jstree-undetermined,.jstree-checked,.jstree-unchecked"
+      ".jstree-undetermined,.jstree-checked,.jstree-unchecked",
     );
   }
   function tax_admin_get_checked_nodes(theTreeDivId) {
@@ -55,7 +55,7 @@
           return tax_admin_unprefix_id(this.id);
         })
         .get()
-        .join(",")
+        .join(","),
     );
   }
 
@@ -69,27 +69,27 @@
   function tax_admin_uncheck_tree_node(theTreeDivId, theId) {
     $("#" + theTreeDivId).jstree(
       "uncheck_node",
-      "#" + tax_admin_tree_wrap_id(theId, theTreeDivId)
+      "#" + tax_admin_tree_wrap_id(theId, theTreeDivId),
     );
   }
   function tax_admin_check_tree_node(theTreeDivId, theId) {
     //alert("#" + tax_admin_tree_wrap_id(theId,theTreeDivId));
     $("#" + theTreeDivId).jstree(
       "check_node",
-      "#" + tax_admin_tree_wrap_id(theId, theTreeDivId)
+      "#" + tax_admin_tree_wrap_id(theId, theTreeDivId),
     );
   }
   function tax_admin_open_tree_node(theTreeDivId, theId) {
     $("#" + theTreeDivId).jstree(
       "open_node",
-      "#" + tax_admin_tree_wrap_id(theId, theTreeDivId)
+      "#" + tax_admin_tree_wrap_id(theId, theTreeDivId),
     );
   }
 
   function tax_admin_tree_search_on_ajax_tree(
     theTreeDivId,
     search_term,
-    open_checked
+    open_checked,
   ) {
     var the_tree = $("#" + theTreeDivId);
     //var a = the_tree.jstree('get_settings');
@@ -109,7 +109,7 @@
 
   function tax_admin_tree_open_checked(theTreeDivId) {
     var a = tax_admin_elements_to_ids(
-      tax_admin_get_checked_nodes(theTreeDivId)
+      tax_admin_get_checked_nodes(theTreeDivId),
     );
     for (i = 0; i < a.length; i++) {
       tax_admin_open_tree_node(theTreeDivId, a[i]);
@@ -155,12 +155,12 @@
     tax_admin_tree_search_on_ajax_tree: function (
       theTreeDivId,
       search_term,
-      open_checked
+      open_checked,
     ) {
       tax_admin_tree_search_on_ajax_tree(
         theTreeDivId,
         search_term,
-        open_checked
+        open_checked,
       );
     },
   };
@@ -170,7 +170,7 @@
     if (methods[method]) {
       return methods[method].apply(
         this,
-        Array.prototype.slice.call(arguments, 1)
+        Array.prototype.slice.call(arguments, 1),
       );
     } else if (typeof method === "object" || !method) {
       return methods.init.apply(this, arguments);

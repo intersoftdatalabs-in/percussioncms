@@ -43,10 +43,10 @@
             "" !== data.userSummary.email
           ) {
             var loginMessage = JSON.parse(
-              currentLoginWidget.attr("data")
+              currentLoginWidget.attr("data"),
             ).loggedInMessage;
             var showUsername = JSON.parse(
-              currentLoginWidget.attr("data")
+              currentLoginWidget.attr("data"),
             ).showUsername;
             if (
               null !== showUsername &&
@@ -70,7 +70,7 @@
         var url = self.attr("href");
         self.attr(
           "href",
-          url + "?loginRedirect=" + encodeURIComponent(window.location)
+          url + "?loginRedirect=" + encodeURIComponent(window.location),
         );
       });
 

@@ -107,7 +107,7 @@
                       I18N.message("perc.ui.change.email@Success") +
                       "</b> " +
                       I18N.message("perc.ui.change.email@Success Message") +
-                      ""
+                      "",
                   )
                   .show();
               } else if (status === $.PercServiceUtils.STATUS_ERROR) {
@@ -118,7 +118,7 @@
                       I18N.message("perc.ui.change.email@Error") +
                       "</b> " +
                       I18N.message("perc.ui.change.email@Error Updating") +
-                      ""
+                      "",
                   )
                   .show();
               }

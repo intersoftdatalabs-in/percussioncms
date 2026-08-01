@@ -71,12 +71,12 @@
         <dependency>
             <groupId>jakarta.ws.rs</groupId>
             <artifactId>jakarta.ws.rs-api</artifactId>
-            <scope>provided</scope>
+            <!-- compile: package into WAR; Tomcat does not provide JAX-RS -->
         </dependency>
         <dependency>
             <groupId>tools.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
-            <scope>test</scope>
+            <artifactId>jackson-core</artifactId>
+            <!-- compile: Jersey / Jackson 3 need this on the WAR classpath -->
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -129,8 +129,7 @@
         </dependency>
         <dependency>
             <groupId>tools.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-            <scope>test</scope>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>
@@ -140,7 +139,17 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-orm</artifactId>
-            <scope>test</scope>
+            <!-- compile: beans.xml uses JpaTransactionManager at runtime -->
+        </dependency>
+        <!-- beans.xml defines metadataLiquibase = liquibase.integration.spring.SpringLiquibase -->
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+        </dependency>
+        <!-- Liquibase LoadDataChange SPI (optional parsers also use snakeyaml) -->
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
@@ -182,7 +191,6 @@
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>

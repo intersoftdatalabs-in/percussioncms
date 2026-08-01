@@ -43,7 +43,7 @@
     }
     var serviceUrl = $.PercServiceUtils.joinURL(
       deliveryUrl,
-      "/perc-metadata-services/metadata/categories/get"
+      "/perc-metadata-services/metadata/categories/get",
     );
 
     $.PercServiceUtils.makeXdmJsonRequest(
@@ -55,12 +55,12 @@
           callback(true, results.data);
         } else {
           var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            results.request
+            results.request,
           );
           callback(false, defMsg);
         }
       },
-      queryString
+      queryString,
     );
   }
 })(jQuery);

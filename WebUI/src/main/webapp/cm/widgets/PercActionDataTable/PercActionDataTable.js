@@ -81,7 +81,7 @@
           rowData.formSummary.site +
           "/" +
           rowData.formSummary.name +
-          ".csv"
+          ".csv",
       );
       $(this).attr("target", "_blank");
       $(this).addClass("perc-datatable-form-tracker-export-action");

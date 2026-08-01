@@ -54,7 +54,7 @@ window.resizer = {};
       wrapper.setAttribute("data-device", cl);
       body.setAttribute(
         "style",
-        "min-height:" + height + "px;min-width:" + width + "px;"
+        "min-height:" + height + "px;min-width:" + width + "px;",
       );
       resize(width, height);
       if (wh === "auto" && !t) {
@@ -81,7 +81,7 @@ window.resizer = {};
             // replace() removes absolute ref from start of url
             alllinks[i].href = PSHash2Href(h, hrefattr).replace(
               /^.*\/\/[^\/]+/,
-              ""
+              "",
             );
           }
         }
@@ -116,7 +116,7 @@ window.resizer = {};
           function (el) {
             el.className = el.className.replace(" active", "");
             wrapper.setAttribute("loaded", false);
-          }
+          },
         );
         e.preventDefault();
         e.stopPropagation();
@@ -139,31 +139,31 @@ window.resizer = {};
             setPosition(
               sizes.smartphoneLandscape,
               false,
-              "smartphoneLandscape"
+              "smartphoneLandscape",
             );
           } else if (self.className.match("perc-small-tablet-portrait")) {
             setPosition(
               sizes.smallTabletPortrait,
               false,
-              "smallTabletPortrait"
+              "smallTabletPortrait",
             );
           } else if (self.className.match("perc-small-tablet-landscape")) {
             setPosition(
               sizes.smallTabletLandscape,
               false,
-              "smallTabletLandscape"
+              "smallTabletLandscape",
             );
           } else if (self.className.match("perc-large-tablet-portrait")) {
             setPosition(
               sizes.largeTabletPortrait,
               false,
-              "largeTabletPortrait"
+              "largeTabletPortrait",
             );
           } else if (self.className.match("perc-large-tablet-landscape")) {
             setPosition(
               sizes.largeTabletLandscape,
               false,
-              "largeTabletLandscape"
+              "largeTabletLandscape",
             );
           } else if (self.className.match("perc-auto")) {
             setPosition(sizes.auto, false, "auto");
@@ -208,14 +208,14 @@ window.resizer = {};
           d.getElementById("perccollapse").id = "percexpand";
         }
       },
-      false
+      false,
     );
     w.addEventListener(
       "resize",
       function () {
         resize();
       },
-      false
+      false,
     );
 
     resize();
@@ -257,7 +257,7 @@ window.mobilePreviewFrameOnload = function () {
         // replace() removes absolute ref from start of url
         alllinks[i].href = PSHash2Href(h, hrefattr).replace(
           /^.*\/\/[^\/]+/,
-          ""
+          "",
         );
       }
     }

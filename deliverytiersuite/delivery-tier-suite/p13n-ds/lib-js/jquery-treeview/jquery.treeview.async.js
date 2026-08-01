@@ -37,7 +37,7 @@
                 id: "placeholder",
                 children: [],
               },
-              branch
+              branch,
             );
           }
           if (this.children && this.children.length) {
@@ -73,7 +73,7 @@
             userToggle.apply(this, arguments);
           }
         },
-      })
+      }),
     );
   };
 })(jQuery);

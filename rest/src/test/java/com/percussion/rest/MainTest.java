@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.percussion.rest.errors.RestExceptionMapper;
 import com.percussion.utils.testing.PSTestNetUtils;
 import jakarta.ws.rs.Path;
@@ -49,6 +48,7 @@ import org.springframework.context.annotation.ImportResource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)

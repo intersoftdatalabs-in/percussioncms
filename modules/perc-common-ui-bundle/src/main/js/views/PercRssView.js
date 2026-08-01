@@ -66,8 +66,8 @@
 
           var itemLimit = parseInt(
             queryString.itemLimit.substring(
-              queryString.itemLimit.indexOf("_") + 1
-            )
+              queryString.itemLimit.indexOf("_") + 1,
+            ),
           );
 
           var feedItem = "";
@@ -88,12 +88,12 @@
             var $a = $(this);
             $a.attr(
               "href",
-              $.PercServiceUtils.sanitizeUrlForHref($a.attr("href"))
+              $.PercServiceUtils.sanitizeUrlForHref($a.attr("href")),
             );
           });
           currentFeedWidget.append($fragment);
           currentFeedWidget.attr("aria-busy", "false");
-        }
+        },
       );
     });
   }
@@ -175,7 +175,7 @@
 
         formattedDate = $.datepicker.formatDate(
           queryString.itemDateFormat,
-          date
+          date,
         );
         formattedDate = formattedDate.replace("hh", date.getHours());
         formattedDate = formattedDate.replace("nn", date.getMinutes());

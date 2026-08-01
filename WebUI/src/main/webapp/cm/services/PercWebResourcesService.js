@@ -83,7 +83,7 @@
   function cbDfileErrors(errors) {
     var errorMsg = $.PercServiceUtils.extractDefaultErrorMessage(errors);
     var defMessage = I18N.message(
-      "perc.ui.web.resources.service@Could Not Delete File"
+      "perc.ui.web.resources.service@Could Not Delete File",
     );
     $.perc_utils.alert_dialog({
       id: "perc-finder-delete-error",
@@ -128,7 +128,7 @@
             } else {
               cbDfileErrors(result.request);
             }
-          }
+          },
         );
         $.unblockUI();
       },
@@ -154,7 +154,7 @@
       false,
       function (status, result) {
         callback(status, result);
-      }
+      },
     );
   }
 })(jQuery);

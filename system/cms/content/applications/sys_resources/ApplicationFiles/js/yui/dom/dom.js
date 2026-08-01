@@ -49,7 +49,7 @@ version: 2.6.0
     while (patterns.HYPHEN.exec(converted)) {
       converted = converted.replace(
         RegExp.$1,
-        RegExp.$1.substr(1).toUpperCase()
+        RegExp.$1.substr(1).toUpperCase(),
       );
     }
 
@@ -1029,7 +1029,7 @@ version: 2.6.0
       if (referenceNode.nextSibling) {
         return referenceNode.parentNode.insertBefore(
           newNode,
-          referenceNode.nextSibling
+          referenceNode.nextSibling,
         );
       } else {
         return referenceNode.parentNode.appendChild(newNode);

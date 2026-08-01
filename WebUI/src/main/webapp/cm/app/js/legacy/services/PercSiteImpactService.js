@@ -35,7 +35,7 @@
       url,
       $.PercServiceUtils.TYPE_GET,
       false,
-      callback
+      callback,
     );
   }
 })(jQuery);

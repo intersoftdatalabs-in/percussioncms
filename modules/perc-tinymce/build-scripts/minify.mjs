@@ -28,7 +28,7 @@ if (pluginDirs.length === 0) {
 }
 
 console.log(
-  `Minifying ${pluginDirs.length} TinyMCE plugin files with esbuild...`
+  `Minifying ${pluginDirs.length} TinyMCE plugin files with esbuild...`,
 );
 
 await Promise.all(
@@ -46,7 +46,7 @@ await Promise.all(
     });
 
     console.log(`  ✓ ${plugin}/plugin.min.js`);
-  })
+  }),
 );
 
 console.log("Done.");

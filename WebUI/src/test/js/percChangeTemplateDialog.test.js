@@ -47,7 +47,7 @@ import { beforeEach, afterEach, describe, it, expect, vi } from "vitest";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SRC_PATH = resolve(
   __dirname,
-  "../../main/webapp/cm/views/PercChangeTemplateDialog.js"
+  "../../main/webapp/cm/views/PercChangeTemplateDialog.js",
 );
 
 let $;
@@ -125,7 +125,7 @@ function loadFactory() {
     "DEBUG stub perc_dialog typeof:",
     typeof $.fn.perc_dialog,
     "globalThis.jQuery.fn.perc_dialog typeof:",
-    typeof globalThis.jQuery.fn.perc_dialog
+    typeof globalThis.jQuery.fn.perc_dialog,
   );
   installPercShims();
   // Wrap with counters AFTER installPercShims so they survive.
@@ -147,7 +147,7 @@ function loadFactory() {
     "DEBUG wrap typeof realPercDialog===",
     typeof realPercDialog,
     "outerHTML len=",
-    realPercDialog.toString().length
+    realPercDialog.toString().length,
   );
   // Run the source as a script in the global scope so its IIFE sees
   // globalThis.jQuery.
@@ -184,7 +184,7 @@ describe("source-pattern (anti-regression for js/xss-through-dom)", () => {
 
   it("does not call .html(prefix + name) for the label sinks", () => {
     expect(src).not.toMatch(
-      /\.html\("Selected Template:[^"]*"\s*\+\s*itemName/
+      /\.html\("Selected Template:[^"]*"\s*\+\s*itemName/,
     );
     expect(src).not.toMatch(/\.html\("Current Template:[^"]*"\s*\+\s*\w+/);
   });
@@ -193,7 +193,7 @@ describe("source-pattern (anti-regression for js/xss-through-dom)", () => {
     // The pre-fix createTemplateEntry uses .replace(/@ITEM_LABEL@/, data.name).
     // Post-fix must not substitute user-controlled strings into HTML.
     expect(src).not.toMatch(
-      /\.replace\(\s*\/@ITEM_LABEL@\/,\s*data\.name\s*\)/
+      /\.replace\(\s*\/@ITEM_LABEL@\/,\s*data\.name\s*\)/,
     );
     expect(src).not.toMatch(/\.replace\(\s*\/@ITEM_TT@\/g,\s*data\.name\s*\)/);
   });
@@ -282,7 +282,7 @@ describe("openDialog (createTemplateEntry sink — imageThumbPath)", () => {
     document.querySelectorAll(".perc-items *").forEach((el) => {
       for (const attr of el.attributes) {
         expect(/^on/i.test(attr.name), `inline handler ${attr.name}`).toBe(
-          false
+          false,
         );
       }
     });
@@ -301,7 +301,7 @@ describe("openDialog (createTemplateEntry sink — name)", () => {
     console.log(
       "DEBUG body items:",
       [...document.querySelectorAll(".perc-items")].map(
-        (n) => `len=${n.children.length}`
+        (n) => `len=${n.children.length}`,
       ),
       "dialog outerHTML:",
       document
@@ -310,9 +310,9 @@ describe("openDialog (createTemplateEntry sink — name)", () => {
       "dialog items:",
       [
         ...document.querySelectorAll(
-          "#perc-change-template-dialog .perc-items"
+          "#perc-change-template-dialog .perc-items",
         ),
-      ].map((n) => `len=${n.children.length}`)
+      ].map((n) => `len=${n.children.length}`),
     );
     const texts = document.querySelectorAll(".perc-text-overflow");
     expect(texts.length).toBeGreaterThan(0);
@@ -330,7 +330,7 @@ describe("openDialog (createTemplateEntry sink — name)", () => {
     document.querySelectorAll(".perc-items *").forEach((el) => {
       for (const attr of el.attributes) {
         expect(/^on/i.test(attr.name), `inline handler ${attr.name}`).toBe(
-          false
+          false,
         );
       }
     });

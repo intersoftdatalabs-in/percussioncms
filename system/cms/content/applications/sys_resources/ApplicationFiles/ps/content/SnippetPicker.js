@@ -45,7 +45,7 @@ ps.content.SnippetPicker = function () {
       },
       "750px",
       "450px",
-      false
+      false,
     );
     new ps.widget.ContentPaneProgress(this.wgtDlg);
 
@@ -71,16 +71,16 @@ ps.content.SnippetPicker = function () {
     this.wgtButtonSelect = ps.widget.byId("ps.snippet.picker.wgtButtonSelect");
     this.wgtButtonCancel = ps.widget.byId("ps.snippet.picker.wgtButtonCancel");
     this.wgtButtonShowtitles = ps.widget.byId(
-      "ps.snippet.picker.wgtButtonShowTitles"
+      "ps.snippet.picker.wgtButtonShowTitles",
     );
     this.wgtSnippetDisplayDiv = ps.widget.byId(
-      "ps.snippet.picker.wgtSnippetDisplayDiv"
+      "ps.snippet.picker.wgtSnippetDisplayDiv",
     );
     this.tblRemoveSnippetBtns = document.getElementById(
-      "ps.snippet.picker.tblRemoveSnippetBtns"
+      "ps.snippet.picker.tblRemoveSnippetBtns",
     );
     this.tblCreateSnippetBtns = document.getElementById(
-      "ps.snippet.picker.tblCreateSnippetBtns"
+      "ps.snippet.picker.tblCreateSnippetBtns",
     );
 
     this.wgtButtonCancel.onClick = function () {
@@ -99,7 +99,7 @@ ps.content.SnippetPicker = function () {
       } else {
         var option = "before";
         var rbs = document.getElementsByName(
-          "ps.snippet.picker.placeWhereRadio"
+          "ps.snippet.picker.placeWhereRadio",
         );
         for (var i = 0; (rb = rbs[i]); i++) {
           if (rb.checked) {
@@ -118,10 +118,10 @@ ps.content.SnippetPicker = function () {
 
     if (this.dlgType == this.REMOVE_SNIPPETS_DLG) {
       this.wgtButtonSelectAll = ps.widget.byId(
-        "ps.snippet.picker.wgtButtonSelectAll"
+        "ps.snippet.picker.wgtButtonSelectAll",
       );
       this.wgtButtonDeselectAll = ps.widget.byId(
-        "ps.snippet.picker.wgtButtonDeselectAll"
+        "ps.snippet.picker.wgtButtonDeselectAll",
       );
       this.wgtButtonSelectAll.onClick = function () {
         _this.toggleSelection(true);
@@ -148,7 +148,7 @@ ps.content.SnippetPicker = function () {
     this.wgtSnippetDisplayDiv.setContent(this.snippetContent);
     this.snippetDisplayType = this.SNIPPETS;
     this.snippetNodes = Array.from(
-      this.wgtSnippetDisplayDiv.domNode.getElementsByTagName("div")
+      this.wgtSnippetDisplayDiv.domNode.getElementsByTagName("div"),
     ).filter(function (el) {
       return el.className === "PSAASnippetPickerItem";
     });
@@ -236,7 +236,7 @@ ps.content.SnippetPicker = function () {
         this.wgtSnippetDisplayDiv.setContent(this.titlesContent);
       }
       this.titleNodes = Array.from(
-        this.wgtSnippetDisplayDiv.domNode.getElementsByTagName("div")
+        this.wgtSnippetDisplayDiv.domNode.getElementsByTagName("div"),
       ).filter(function (el) {
         return el.className === "PSAASnippetPickerTitle";
       });
@@ -254,7 +254,7 @@ ps.content.SnippetPicker = function () {
         this.wgtSnippetDisplayDiv.setContent(this.snippetContent);
       }
       this.snippetNodes = Array.from(
-        this.wgtSnippetDisplayDiv.domNode.getElementsByTagName("div")
+        this.wgtSnippetDisplayDiv.domNode.getElementsByTagName("div"),
       ).filter(function (el) {
         return el.className === "PSAASnippetPickerItem";
       });
@@ -408,12 +408,12 @@ ps.content.SnippetPicker = function () {
     slotId,
     dlgType,
     option,
-    refRelId
+    refRelId,
   ) {
     ps.assertType(slotId, ps.aa.ObjectId);
     ps.assert(
       dlgType != this.REMOVE_SNIPPETS_DLG || dlgType != this.CREATE_SNIPPET_DLG,
-      "The Snippet Picker Dialog must of type Remove Snippets or Create Snippet"
+      "The Snippet Picker Dialog must of type Remove Snippets or Create Snippet",
     );
     this.dlgType = dlgType;
     this.slotId = slotId;
@@ -423,7 +423,7 @@ ps.content.SnippetPicker = function () {
         this.option != "before" ||
           this.option != "after" ||
           this.option != "replace",
-        "Invalid option"
+        "Invalid option",
       );
     }
     this.refRelId = refRelId;
@@ -441,7 +441,7 @@ ps.content.SnippetPicker = function () {
     ps.util.setDialogSize(
       this.wgtDlg,
       this.preferredWidth,
-      this.preferredHeight
+      this.preferredHeight,
     );
     this.wgtDlg.show();
   };

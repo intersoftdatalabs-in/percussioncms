@@ -61,7 +61,7 @@
       $.perc_utils.alert_dialog({
         title: I18N.message("perc.ui.page.general@Warning"),
         content: I18N.message(
-          "perc.ui.change.template.dialog@Only One Template"
+          "perc.ui.change.template.dialog@Only One Template",
         ),
         id: "perc-no-template-message",
       });
@@ -157,7 +157,7 @@
             } else {
               errorHandler(result);
             }
-          }
+          },
         );
       }
 
@@ -207,7 +207,7 @@
 
         $(".perc-label-left").text("Current Template: " + currentTemplateName);
         $(".perc-label-right").text(
-          "Selected Template: " + selectedTemplateName
+          "Selected Template: " + selectedTemplateName,
         );
         $("#perc-select-template").val(currentTemplateName);
 
@@ -252,9 +252,9 @@
               $("<table/>").append(
                 $("<tbody/>").append(
                   $("<tr/>").append($("<td/>", { align: "left" }).append($img)),
-                  $("<tr/>").append($("<td/>").append($overflowContainer))
-                )
-              )
+                  $("<tr/>").append($("<td/>").append($overflowContainer)),
+                ),
+              ),
             );
           return $entry;
         }

@@ -73,7 +73,7 @@ ps.util.error = function (error) {
     ps.assert(
       !error.isSuccess(),
       "error() was called with ps.io.Response indicating success. " +
-        "It should be called on an error only."
+        "It should be called on an error only.",
     );
     ps.util.error(error.getValue());
     return;
@@ -101,7 +101,7 @@ ps.util.error = function (error) {
  */
 ps.util.findNodeById = function (nodes, id) {
   ps.assert(
-    Array.isArray(nodes) || (nodes && typeof nodes.length === "number")
+    Array.isArray(nodes) || (nodes && typeof nodes.length === "number"),
   );
   ps.assertType(id, String);
 
@@ -385,14 +385,14 @@ ps.util.ShowPageLinkDialog = function (text) {
       executeScripts: true,
       resizable: false,
     },
-    div
+    div,
   );
 
   //couldn't use Dojo's ps.event.connect, it wouldn't work for onfocus (??)
   dlg.setContent(
     '<input onfocus="ps.util.selectAll(event)" id="ps.util.wgtShowPageLink" type="text" size="60" readonly="true" value="' +
       text +
-      '" />'
+      '" />',
   );
   ps.util.setDialogSize(dlg, 440, 70);
   dlg.show();
@@ -460,7 +460,7 @@ ps.util.CreatePromptDialog = function (options) {
       executeScripts: true,
       resizable: false,
     },
-    div
+    div,
   );
 
   ps.event.connect(this.wgtDlg, "onLoad", function () {

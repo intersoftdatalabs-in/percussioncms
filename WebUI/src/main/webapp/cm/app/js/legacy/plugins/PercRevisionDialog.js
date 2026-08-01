@@ -48,7 +48,7 @@
 
       if (status === $.PercServiceUtils.STATUS_ERROR) {
         var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-          result.request
+          result.request,
         );
         $.perc_utils.alert_dialog({ title: "Error", content: defaultMsg });
         callback(false);
@@ -114,7 +114,7 @@
           "</thead>" +
           "<tbody></tbody>" +
           "</table>" +
-          "</div>"
+          "</div>",
       );
     }
 
@@ -146,7 +146,7 @@
         var lastModifiedDate = new Date(revdata.lastModifiedDate);
         var timeStamp = new Date(revdata.lastModifiedDate).getTime(); //This timestamp will be used to set the data-order attribute of datatable to sort it as date on basis of timestamp
         var lastModifiedDateParts = $.perc_utils.splitDateTime(
-          revdata.lastModifiedDate
+          revdata.lastModifiedDate,
         );
         var lastModifiedDateDate = lastModifiedDateParts.date;
         var lastModifiedDateTime = lastModifiedDateParts.time;
@@ -211,7 +211,7 @@
             "<td style='vertical-align: middle'><div class='data-cell perc-ellipsis'>" +
             lastCol +
             "</div></td>" +
-            "</tr>"
+            "</tr>",
         );
         $rowHTML.find("td:eq(2)").data("timedate", lastModifiedDate);
         $tbody.append($rowHTML);
@@ -229,7 +229,7 @@
               itemName,
               Number(revId),
               Number(latestRevision.revId),
-              allRevisions
+              allRevisions,
             );
           }
         });
@@ -273,7 +273,7 @@
                 $.PercRevisionService.restoreRevision(
                   itemId,
                   revId,
-                  afterRestore
+                  afterRestore,
                 );
               },
               cancel: function () {},
@@ -347,7 +347,7 @@
 
       if (status === $.PercServiceUtils.STATUS_ERROR) {
         var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-          result.request
+          result.request,
         );
         $.perc_utils.alert_dialog({
           title: I18N.message("perc.ui.publish.title@Error"),
@@ -375,7 +375,7 @@
       } else {
         // This should never happen.
         var eMsg = I18N.message(
-          "perc.ui.revision.dialog@Cannot Open Unknown View"
+          "perc.ui.revision.dialog@Cannot Open Unknown View",
         );
         $.perc_utils.alert_dialog({
           title: I18N.message("perc.ui.publish.title@Error"),

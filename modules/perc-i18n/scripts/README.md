@@ -7,19 +7,19 @@ hand-maintained Python/shell scripts.
 
 ## Files
 
-|                File                 |                                                                        Purpose                                                                        |
-|-------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `i18n_translate.py`                 | CLI: walks canonical TMX files, fills missing `<tuv>` blocks via **Docker** `soimort/translate-shell`.                                                |
-| `i18n_translate_direct.py`          | Same job as `i18n_translate.py`, but prefers **`trans` on PATH** (translate-shell) and falls back to Docker if `trans` is unavailable.                |
-| `i18n_cache.py`                     | Shared load/save for the checked-in translation cache; legacy `.cache/` migration; JSON conflict-union helpers.                                       |
-| `resolve_i18n_cache_conflicts.py`   | Union both sides of git conflict markers in `cache/i18n_translate.json` (accept both; ours wins on key clash).                                        |
-| `resolve_tmx_conflicts.py`          | One-shot helper that auto-resolves git merge conflict markers in the canonical TMX files (union of `<tuv>` blocks; stops on structural conflicts).    |
-| `cache/i18n_translate.json`         | **Checked-in** translation cache (sha256 keys). Commit updates after translate runs so other machines hit the cache.                                  |
-| `conftest.py`                       | Pytest path bootstrap so sibling modules import when tests run from repo root.                                                                        |
-| `test_i18n_translate.py`            | Unit tests for the Docker variant (no Docker required).                                                                                               |
-| `test_i18n_translate_direct.py`     | Unit tests for the direct `trans` variant (no `trans` required).                                                                                      |
-| `test_i18n_cache.py`                | Unit tests for cache load/save, legacy migrate, and conflict union.                                                                                   |
-| `test_resolve_tmx_conflicts.py`     | Unit tests for TMX merge-conflict resolver.                                                                                                           |
+|               File                |                                                                      Purpose                                                                       |
+|-----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| `i18n_translate.py`               | CLI: walks canonical TMX files, fills missing `<tuv>` blocks via **Docker** `soimort/translate-shell`.                                             |
+| `i18n_translate_direct.py`        | Same job as `i18n_translate.py`, but prefers **`trans` on PATH** (translate-shell) and falls back to Docker if `trans` is unavailable.             |
+| `i18n_cache.py`                   | Shared load/save for the checked-in translation cache; legacy `.cache/` migration; JSON conflict-union helpers.                                    |
+| `resolve_i18n_cache_conflicts.py` | Union both sides of git conflict markers in `cache/i18n_translate.json` (accept both; ours wins on key clash).                                     |
+| `resolve_tmx_conflicts.py`        | One-shot helper that auto-resolves git merge conflict markers in the canonical TMX files (union of `<tuv>` blocks; stops on structural conflicts). |
+| `cache/i18n_translate.json`       | **Checked-in** translation cache (sha256 keys). Commit updates after translate runs so other machines hit the cache.                               |
+| `conftest.py`                     | Pytest path bootstrap so sibling modules import when tests run from repo root.                                                                     |
+| `test_i18n_translate.py`          | Unit tests for the Docker variant (no Docker required).                                                                                            |
+| `test_i18n_translate_direct.py`   | Unit tests for the direct `trans` variant (no `trans` required).                                                                                   |
+| `test_i18n_cache.py`              | Unit tests for cache load/save, legacy migrate, and conflict union.                                                                                |
+| `test_resolve_tmx_conflicts.py`   | Unit tests for TMX merge-conflict resolver.                                                                                                        |
 
 ## Quick start
 
@@ -227,10 +227,10 @@ Both CLIs share one **checked-in** cache so translate runs resume across
 machines and avoid re-paying the provider throttle for strings already
 translated elsewhere.
 
-| Path | Role |
-|------|------|
-| `scripts/cache/i18n_translate.json` | Canonical cache — **commit** after meaningful translate runs |
-| `scripts/.cache/*.json` | Legacy local-only caches (gitignored); auto-merged into the shared file on first load |
+|                Path                 |                                         Role                                          |
+|-------------------------------------|---------------------------------------------------------------------------------------|
+| `scripts/cache/i18n_translate.json` | Canonical cache — **commit** after meaningful translate runs                          |
+| `scripts/.cache/*.json`             | Legacy local-only caches (gitignored); auto-merged into the shared file on first load |
 
 ### After a translate run
 

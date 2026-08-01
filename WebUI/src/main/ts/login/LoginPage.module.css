@@ -72,8 +72,7 @@
   color: var(--color-text, #181c2c);
 }
 
-.input,
-.select {
+.input {
   width: 100%;
   box-sizing: border-box;
   padding: 0.55rem 0.75rem;
@@ -84,8 +83,7 @@
   color: var(--color-text, #181c2c);
 }
 
-.input:focus,
-.select:focus {
+.input:focus {
   outline: 2px solid var(--color-primary, #4a6aa3);
   outline-offset: 1px;
   border-color: var(--color-primary, #4a6aa3);

@@ -83,7 +83,7 @@ P13NListItem.prototype = jQuery.extend(P13NListItem.prototype, {
         jQuery(document).ready(function () {
           renderCallback.call(ruleItem, d);
         });
-      }
+      },
     );
   },
 });

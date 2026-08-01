@@ -65,7 +65,7 @@ function buildQuery() {
 
   var jxl_start_date = $.datepicker.formatDate(
     "yy/mm/dd",
-    new Date(p_start_date)
+    new Date(p_start_date),
   );
 
   var p_end_date = $('[name="end_date"]').val();
@@ -124,7 +124,7 @@ function buildQuery() {
     function showAssets() {
       $(document).ready(function () {
         var path = $.PercFinderTreeConstants.convertFolderPathToPath(
-          $('[name="asset_library_path"]').val()
+          $('[name="asset_library_path"]').val(),
         );
         if (!path) path = $.perc_paths.ASSETS_ROOT;
         $("#perc-folder-selector").PercFinderTree({

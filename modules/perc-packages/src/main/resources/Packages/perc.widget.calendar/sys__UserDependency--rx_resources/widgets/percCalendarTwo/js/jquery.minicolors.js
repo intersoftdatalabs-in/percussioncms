@@ -204,13 +204,13 @@
           '<div class="minicolors-grid-inner"></div>' +
           '<div class="minicolors-picker"><div></div></div>' +
           "</div>" +
-          "</div>"
+          "</div>",
       );
 
     // The swatch
     if (!settings.inline) {
       input.after(
-        '<span class="minicolors-swatch minicolors-sprite minicolors-input-swatch"><span class="minicolors-swatch-color"></span></span>'
+        '<span class="minicolors-swatch minicolors-sprite minicolors-input-swatch"><span class="minicolors-swatch-color"></span></span>',
       );
       input.next(".minicolors-input-swatch").on("click", function (event) {
         event.preventDefault();
@@ -239,7 +239,7 @@
           ? parseRgb(swatch, true)
           : hex2rgb(parseHex(swatch, true));
         $(
-          '<li class="minicolors-swatch minicolors-sprite"><span class="minicolors-swatch-color"></span></li>'
+          '<li class="minicolors-swatch minicolors-sprite"><span class="minicolors-swatch-color"></span></li>',
         )
           .appendTo(swatches)
           .data("swatch-color", settings.swatches[i])
@@ -370,7 +370,7 @@
         settings.animationEasing,
         function () {
           updateFromControl(input, target);
-        }
+        },
       );
     } else {
       picker.stop(true).animate(
@@ -381,7 +381,7 @@
         settings.animationEasing,
         function () {
           updateFromControl(input, target);
-        }
+        },
       );
     }
   }
@@ -429,7 +429,7 @@
     // Handle colors
     if (
       target.is(
-        ".minicolors-grid, .minicolors-slider, .minicolors-opacity-slider"
+        ".minicolors-grid, .minicolors-slider, .minicolors-opacity-slider",
       )
     ) {
       // Determine HSB values
@@ -451,7 +451,7 @@
           brightness = keepWithin(
             100 - Math.floor(sliderPos.y * (100 / slider.height())),
             0,
-            100
+            100,
           );
           hex = hsb2hex({
             h: hue,
@@ -462,7 +462,7 @@
           // Update UI
           slider.css(
             "backgroundColor",
-            hsb2hex({ h: hue, s: saturation, b: 100 })
+            hsb2hex({ h: hue, s: saturation, b: 100 }),
           );
           break;
 
@@ -471,17 +471,17 @@
           hue = keepWithin(
             parseInt(gridPos.x * (360 / grid.width()), 10),
             0,
-            360
+            360,
           );
           saturation = keepWithin(
             100 - Math.floor(sliderPos.y * (100 / slider.height())),
             0,
-            100
+            100,
           );
           brightness = keepWithin(
             100 - Math.floor(gridPos.y * (100 / grid.height())),
             0,
-            100
+            100,
           );
           hex = hsb2hex({
             h: hue,
@@ -492,7 +492,7 @@
           // Update UI
           slider.css(
             "backgroundColor",
-            hsb2hex({ h: hue, s: 100, b: brightness })
+            hsb2hex({ h: hue, s: 100, b: brightness }),
           );
           minicolors
             .find(".minicolors-grid-inner")
@@ -504,17 +504,17 @@
           hue = keepWithin(
             parseInt(gridPos.x * (360 / grid.width()), 10),
             0,
-            360
+            360,
           );
           saturation = keepWithin(
             100 - Math.floor(gridPos.y * (100 / grid.height())),
             0,
-            100
+            100,
           );
           brightness = keepWithin(
             100 - Math.floor(sliderPos.y * (100 / slider.height())),
             0,
-            100
+            100,
           );
           hex = hsb2hex({
             h: hue,
@@ -525,7 +525,7 @@
           // Update UI
           slider.css(
             "backgroundColor",
-            hsb2hex({ h: hue, s: saturation, b: 100 })
+            hsb2hex({ h: hue, s: saturation, b: 100 }),
           );
           minicolors
             .find(".minicolors-grid-inner")
@@ -537,17 +537,17 @@
           hue = keepWithin(
             360 - parseInt(sliderPos.y * (360 / slider.height()), 10),
             0,
-            360
+            360,
           );
           saturation = keepWithin(
             Math.floor(gridPos.x * (100 / grid.width())),
             0,
-            100
+            100,
           );
           brightness = keepWithin(
             100 - Math.floor(gridPos.y * (100 / grid.height())),
             0,
-            100
+            100,
           );
           hex = hsb2hex({
             h: hue,
@@ -563,7 +563,7 @@
       // Handle opacity
       if (settings.opacity) {
         opacity = parseFloat(1 - opacityPos.y / opacitySlider.height()).toFixed(
-          2
+          2,
         );
       } else {
         opacity = 1;
@@ -690,7 +690,7 @@
     if (!hex) {
       hex = convertCase(
         parseInput(settings.defaultValue, true),
-        settings.letterCase
+        settings.letterCase,
       );
     }
     hsb = hex2hsb(hex);
@@ -730,7 +730,7 @@
       y = keepWithin(
         opacitySlider.height() - opacitySlider.height() * opacity,
         0,
-        opacitySlider.height()
+        opacitySlider.height(),
       );
       opacityPicker.css("top", y + "px");
     }
@@ -771,7 +771,7 @@
         y = keepWithin(
           grid.height() - Math.ceil(hsb.b / (100 / grid.height())),
           0,
-          grid.height()
+          grid.height(),
         );
         gridPicker.css({
           top: y + "px",
@@ -782,7 +782,7 @@
         y = keepWithin(
           slider.height() - hsb.s * (slider.height() / 100),
           0,
-          slider.height()
+          slider.height(),
         );
         sliderPicker.css("top", y + "px");
 
@@ -797,7 +797,7 @@
         y = keepWithin(
           grid.height() - Math.ceil(hsb.s / (100 / grid.height())),
           0,
-          grid.height()
+          grid.height(),
         );
         gridPicker.css({
           top: y + "px",
@@ -808,7 +808,7 @@
         y = keepWithin(
           slider.height() - hsb.b * (slider.height() / 100),
           0,
-          slider.height()
+          slider.height(),
         );
         sliderPicker.css("top", y + "px");
 
@@ -824,12 +824,12 @@
         x = keepWithin(
           Math.ceil(hsb.s / (100 / grid.width())),
           0,
-          grid.width()
+          grid.width(),
         );
         y = keepWithin(
           grid.height() - Math.ceil(hsb.b / (100 / grid.height())),
           0,
-          grid.height()
+          grid.height(),
         );
         gridPicker.css({
           top: y + "px",
@@ -840,7 +840,7 @@
         y = keepWithin(
           slider.height() - hsb.h / (360 / slider.height()),
           0,
-          slider.height()
+          slider.height(),
         );
         sliderPicker.css("top", y + "px");
 
@@ -917,7 +917,7 @@
             "minicolors-changeTimeout",
             setTimeout(function () {
               settings.change.call(input.get(0), value, opacity);
-            }, settings.changeDelay)
+            }, settings.changeDelay),
           );
         } else {
           // Call immediately
@@ -1041,7 +1041,7 @@
   // Checks if a string is a valid RGB(A) string
   function isRgb(string) {
     var rgb = string.match(
-      /^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i
+      /^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i,
     );
     return rgb && rgb.length === 4 ? true : false;
   }
@@ -1049,7 +1049,7 @@
   // Function to get alpha from a RGB(A) string
   function getAlpha(rgba) {
     rgba = rgba.match(
-      /^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+(\.\d{1,2})?|\.\d{1,2})[\s+]?/i
+      /^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+(\.\d{1,2})?|\.\d{1,2})[\s+]?/i,
     );
     return rgba && rgba.length === 6 ? rgba[4] : "1";
   }
@@ -1107,7 +1107,7 @@
   // Converts an RGB string to a hex string
   function rgbString2hex(rgb) {
     rgb = rgb.match(
-      /^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i
+      /^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i,
     );
     return rgb && rgb.length === 4
       ? "#" +
@@ -1195,7 +1195,7 @@
         event.preventDefault();
         $(document).data("minicolors-target", target);
         move(target, event, true);
-      }
+      },
     )
     // Move pickers
     .on("mousemove.minicolors touchmove.minicolors", function (event) {
@@ -1223,7 +1223,7 @@
         var input = $(this).parent().find(".minicolors-input");
         event.preventDefault();
         show(input);
-      }
+      },
     )
     // Show on focus
     .on("focus.minicolors", ".minicolors-input", function () {
@@ -1279,7 +1279,7 @@
                   rgba.b +
                   "," +
                   input.attr("data-opacity") +
-                  ")"
+                  ")",
               )
             : parseRgb("rgb(" + rgba.r + "," + rgba.g + "," + rgba.b + ")");
         } else {

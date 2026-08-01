@@ -73,12 +73,13 @@
     <tx:annotation-driven transaction-manager="txManager"/>
 
     <bean id="txManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-        <property name="entityManagerFactory" ref="sessionFactoryProxy" />
+        <!-- LocalSessionFactoryBean SessionFactory implements EntityManagerFactory (Hibernate 6+) -->
+        <property name="entityManagerFactory" ref="commentsSessionFactory" />
     </bean>
 
-    <!-- Hibernate SessionFactory -->
+    <!-- Hibernate SessionFactory (Spring 7: package is orm.jpa.hibernate, not orm.hibernate6) -->
     <bean id="commentsSessionFactory"
-          class="org.springframework.orm.hibernate6.LocalSessionFactoryBean">
+          class="org.springframework.orm.jpa.hibernate.LocalSessionFactoryBean">
         <property name="dataSource">
             <ref bean="${datasource}" />
         </property>

@@ -475,6 +475,17 @@ public class Main {
       command.add("-Dfile.encoding=UTF-8");
       command.add("-Dsun.jnu.encoding=UTF-8");
       command.add("-Dinstall.dir=" + installDir.toAbsolutePath());
+      // Propagate the --demo-sites flag so the ANT installer can decide whether to chain
+      // a sample-site seeding pass (RxffTableData/RxffTableDef) after the core schema/data
+      // load. Upgrades always ignore the flag to protect existing repositories.
+      boolean demoSites =
+          DbInstallConfigResolver.parseDemoSitesFlag(
+              System.getProperties().entrySet().stream()
+                  .collect(
+                      java.util.stream.Collectors.toMap(
+                          e -> e.getKey().toString(),
+                          e -> e.getValue() == null ? null : e.getValue().toString())));
+      command.add("-D" + DbInstallConfigResolver.DEMO_SITES_SYSTEM_PROPERTY + "=" + demoSites);
       for (Map.Entry<String, String> entry : resolvedDbConfig.systemProperties().entrySet()) {
         command.add("-D" + entry.getKey() + "=" + entry.getValue());
       }

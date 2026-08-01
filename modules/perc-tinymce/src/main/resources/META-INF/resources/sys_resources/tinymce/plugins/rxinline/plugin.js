@@ -67,7 +67,7 @@ tinymce.PluginManager.add("rxinline", function (editor) {
       tinyMCE.activeEditor.selection.getContent(),
       tinyMCEinlineLinkSlot,
       ctypeid,
-      insertInlineText
+      insertInlineText,
     );
   });
 
@@ -121,7 +121,7 @@ tinymce.PluginManager.add("rxinline", function (editor) {
         tinyMCE.activeEditor.selection.getContent(),
         tinyMCEinlineLinkSlot,
         ctypeid,
-        insertInlineText
+        insertInlineText,
       );
     },
     onSetup: function (buttonApi) {
@@ -148,7 +148,7 @@ tinymce.PluginManager.add("rxinline", function (editor) {
         tinyMCE.activeEditor.selection.getContent(),
         tinyMCEinlineLinkSlot,
         ctypeid,
-        insertInlineText
+        insertInlineText,
       );
     },
     onSetup: function (buttonApi) {
@@ -172,7 +172,7 @@ tinymce.PluginManager.add("rxinline", function (editor) {
         tinyMCE.activeEditor.selection.getContent(),
         tinyMCEinlineVariantSlot,
         ctypeid,
-        insertInlineText
+        insertInlineText,
       );
     },
     onSetup: function (buttonApi) {
@@ -199,7 +199,7 @@ tinymce.PluginManager.add("rxinline", function (editor) {
         tinyMCE.activeEditor.selection.getContent(),
         tinyMCEinlineVariantSlot,
         ctypeid,
-        insertInlineText
+        insertInlineText,
       );
     },
     onSetup: function (buttonApi) {
@@ -220,7 +220,7 @@ tinymce.PluginManager.add("rxinline", function (editor) {
       tinyMCE.activeEditor.selection.getContent(),
       tinyMCEinlineVariantSlot,
       ctypeid,
-      insertInlineText
+      insertInlineText,
     );
   });
 
@@ -234,7 +234,7 @@ tinymce.PluginManager.add("rxinline", function (editor) {
         tinyMCE.activeEditor.selection.getContent(),
         tinyMCEinlineImageSlot,
         ctypeid,
-        insertInlineText
+        insertInlineText,
       );
     },
     onSetup: function (buttonApi) {
@@ -261,7 +261,7 @@ tinymce.PluginManager.add("rxinline", function (editor) {
         tinyMCE.activeEditor.selection.getContent(),
         tinyMCEinlineImageSlot,
         ctypeid,
-        insertInlineText
+        insertInlineText,
       );
     },
     onSetup: function (buttonApi) {
@@ -282,7 +282,7 @@ tinymce.PluginManager.add("rxinline", function (editor) {
       tinyMCE.activeEditor.selection.getContent(),
       tinyMCEinlineImageSlot,
       ctypeid,
-      insertInlineText
+      insertInlineText,
     );
   });
 

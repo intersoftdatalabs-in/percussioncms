@@ -176,7 +176,7 @@ PS.editionrt = {
     PS.editionrt.jobNotRunning();
     PS.edition.updateElement(
       "",
-      "_status_state" + "AJAX failure:" + o.responseText()
+      "_status_state" + "AJAX failure:" + o.responseText(),
     );
   },
 
@@ -205,7 +205,7 @@ PS.editionrt = {
     YAHOO.util.Connect.asyncRequest(
       "GET",
       "/Rhythmyx/publisher/status?edition=" + edition.getAttribute("value"),
-      { success: this.editionRuntimePageInitialize }
+      { success: this.editionRuntimePageInitialize },
     );
   },
 
@@ -215,7 +215,7 @@ PS.editionrt = {
       YAHOO.util.Connect.asyncRequest(
         "GET",
         "/Rhythmyx/publisher/status?edition=" + edition.getAttribute("value"),
-        { success: this.singleUpdateUI, failure: this.showFailureOnUI }
+        { success: this.singleUpdateUI, failure: this.showFailureOnUI },
       );
       PS.edition.releaseLock();
     }
@@ -244,7 +244,7 @@ PS.demand = {
       YAHOO.util.Connect.asyncRequest(
         "GET",
         "/Rhythmyx/publisher/status?requestid=" + rid.value,
-        { success: this.callback }
+        { success: this.callback },
       );
       PS.edition.releaseLock();
     }

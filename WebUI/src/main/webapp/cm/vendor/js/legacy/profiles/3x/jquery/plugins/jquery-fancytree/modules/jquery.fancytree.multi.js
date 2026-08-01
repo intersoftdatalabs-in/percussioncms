@@ -53,7 +53,7 @@
       this.$container.addClass("fancytree-ext-multi");
       if (ctx.options.selectMode === 1) {
         $.error(
-          "Fancytree ext-multi: selectMode: 1 (single) is not compatible."
+          "Fancytree ext-multi: selectMode: 1 (single) is not compatible.",
         );
       }
     },
@@ -91,7 +91,7 @@
             {
               start: activeNode,
               reverse: activeNode.isBelowOf(node),
-            }
+            },
           );
           break;
         case "ctrl+click":

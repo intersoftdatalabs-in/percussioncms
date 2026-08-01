@@ -38,7 +38,7 @@
       // Might already be defined by the element itself, or might be defined, but NaN.
       elem.settings.maxResults = parseInt(
         JSON.parse(this.attr("data-query")).maxResults,
-        10
+        10,
       );
       if (isNaN(elem.settings.maxResults) || 1 > elem.settings.maxResults) {
         elem.settings.maxResults = 0;
@@ -255,7 +255,7 @@
               target.totalPages,
               callback,
               callbackOptions,
-              event
+              event,
             );
           })
           .parent()
@@ -351,7 +351,7 @@
         target.totalEntries = parseInt(result.totalEntries, 10);
       }
       target.totalPages = Math.ceil(
-        target.totalEntries / target.settings.maxResults
+        target.totalEntries / target.settings.maxResults,
       );
       if (navLoc > target.totalPages) {
         navLoc = target.totalPages;
@@ -397,7 +397,7 @@
 
         if (queryParams[i] && queryParams[i].indexOf(pageParamName.length)) {
           var paramVal = parseInt(
-            queryParams[i].substring(pageParamName.length)
+            queryParams[i].substring(pageParamName.length),
           );
           if (paramVal && 0 < paramVal) {
             pageNumber = paramVal; //assigning page number only if we got meaningful value
@@ -450,12 +450,12 @@
   function buildPagingStructure() {
     // We should add the <link> to the head in this place with appropriate value for the "rel"
     $("head").append(
-      $("<link />").attr("href", genPageUrl(1)).attr("rel", "prev")
+      $("<link />").attr("href", genPageUrl(1)).attr("rel", "prev"),
     );
     $("head").append(
       $("<link />")
         .attr("href", window.location.href + "#z")
-        .attr("rel", "next")
+        .attr("rel", "next"),
     );
 
     var structure = $("<div />")
@@ -466,7 +466,7 @@
           .attr("role", "navigation")
           .append($("<span />").addClass("perc-page-count-current"))
           .append(" ")
-          .append($("<span />").addClass("perc-page-count-total"))
+          .append($("<span />").addClass("perc-page-count-total")),
       )
       .append(
         $("<ul />")
@@ -480,8 +480,8 @@
                 $("<a />")
                   .addClass("perc-goto-quick-nav")
                   .addClass("perc-goto-first")
-                  .attr("href", window.location.href + "#00")
-              )
+                  .attr("href", window.location.href + "#00"),
+              ),
           )
           .append(
             $("<li />")
@@ -490,8 +490,8 @@
                 $("<a />")
                   .addClass("perc-goto-quick-nav")
                   .addClass("perc-goto-pre")
-                  .attr("href", window.location.href + "#11")
-              )
+                  .attr("href", window.location.href + "#11"),
+              ),
           )
           .append(
             $("<li />")
@@ -500,8 +500,8 @@
                 $("<a>x</a>")
                   .addClass("perc-goto")
                   .addClass("perc-first")
-                  .attr("href", window.location.href + "#1")
-              )
+                  .attr("href", window.location.href + "#1"),
+              ),
           )
           .append(
             $("<li />")
@@ -510,8 +510,8 @@
                 $("<a>x</a>")
                   .addClass("perc-goto")
                   .addClass("perc-second")
-                  .attr("href", window.location.href + "#2")
-              )
+                  .attr("href", window.location.href + "#2"),
+              ),
           )
           .append(
             $("<li />")
@@ -520,8 +520,8 @@
                 $("<a>x</a>")
                   .addClass("perc-goto")
                   .addClass("perc-third")
-                  .attr("href", window.location.href + "#3")
-              )
+                  .attr("href", window.location.href + "#3"),
+              ),
           )
           .append(
             $("<li />")
@@ -530,8 +530,8 @@
                 $("<a>x</a>")
                   .addClass("perc-goto")
                   .addClass("perc-fourth")
-                  .attr("href", window.location.href + "#4")
-              )
+                  .attr("href", window.location.href + "#4"),
+              ),
           )
           .append(
             $("<li />")
@@ -540,8 +540,8 @@
                 $("<a>x</a>")
                   .addClass("perc-goto")
                   .addClass("perc-fifth")
-                  .attr("href", window.location.href + "#5")
-              )
+                  .attr("href", window.location.href + "#5"),
+              ),
           )
           .append(
             $("<li />")
@@ -550,8 +550,8 @@
                 $("<a />")
                   .addClass("perc-goto-quick-nav")
                   .addClass("perc-goto-next")
-                  .attr("href", window.location.href + "#z")
-              )
+                  .attr("href", window.location.href + "#z"),
+              ),
           )
           .append(
             $("<li />")
@@ -560,9 +560,9 @@
                 $("<a />")
                   .addClass("perc-goto-quick-nav")
                   .addClass("perc-goto-last")
-                  .attr("href", window.location.href + "#zz")
-              )
-          )
+                  .attr("href", window.location.href + "#zz"),
+              ),
+          ),
       );
 
     pagingStructure = structure;

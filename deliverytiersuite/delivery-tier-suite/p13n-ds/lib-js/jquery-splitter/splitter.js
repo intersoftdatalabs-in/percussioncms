@@ -77,7 +77,7 @@ jQuery.fn.splitter = function (opts) {
         fixSide2: "Right",
       },
     }[((opts || {}).type || "v").charAt(0).toLowerCase()],
-    opts || {}
+    opts || {},
   );
 
   return this.each(function () {
@@ -118,8 +118,8 @@ jQuery.fn.splitter = function (opts) {
           paneA._max || 9999,
           group._adjust -
             splitbar._adjust -
-            Math.max(paneB._min + paneB._padAdjust, 16)
-        )
+            Math.max(paneB._min + paneB._padAdjust, 16),
+        ),
       );
 
       // Resize/position the two panes and splitbar
@@ -129,7 +129,7 @@ jQuery.fn.splitter = function (opts) {
         .css(opts.set, np + splitbar._adjust + "px")
         .css(
           opts.adjust,
-          group._adjust - splitbar._adjust - paneB._padAdjust - np + "px"
+          group._adjust - splitbar._adjust - paneB._padAdjust - np + "px",
         );
 
       // IE fires resize for us; all others pay cash
@@ -148,11 +148,11 @@ jQuery.fn.splitter = function (opts) {
       // Opera returns -1px for min/max dimensions when they're not there!
       jq._min = Math.max(
         0,
-        opts["min" + pane] || parseInt(jq.css("min-" + opts.adjust)) || 0
+        opts["min" + pane] || parseInt(jq.css("min-" + opts.adjust)) || 0,
       );
       jq._max = Math.max(
         0,
-        opts["max" + pane] || parseInt(jq.css("max-" + opts.adjust)) || 0
+        opts["max" + pane] || parseInt(jq.css("max-" + opts.adjust)) || 0,
       );
     }
 
@@ -197,14 +197,14 @@ jQuery.fn.splitter = function (opts) {
       "_borderAdjust",
       "border",
       opts.adjSide1 + "Width",
-      opts.adjSide2 + "Width"
+      opts.adjSide2 + "Width",
     );
     cssCache(
       group,
       "_borderFixed",
       "border",
       opts.fixSide1 + "Width",
-      opts.fixSide2 + "Width"
+      opts.fixSide2 + "Width",
     );
     cssCache(paneA, "_padAdjust", "padding", opts.adjSide1, opts.adjSide2);
     cssCache(paneA, "_padFixed", "padding", opts.fixSide1, opts.fixSide2);
@@ -246,7 +246,7 @@ jQuery.fn.splitter = function (opts) {
           size ||
             (!opts.initB
               ? paneA[0][opts.offsetAdjust]
-              : group._adjust - paneB[0][opts.offsetAdjust] - splitbar._adjust)
+              : group._adjust - paneB[0][opts.offsetAdjust] - splitbar._adjust),
         );
       })
       .trigger("resize", [
@@ -256,7 +256,7 @@ jQuery.fn.splitter = function (opts) {
             (group[0][opts.offsetAdjust] -
               group._borderAdjust -
               splitbar._adjust) /
-              2
+              2,
           ),
       ]);
   });

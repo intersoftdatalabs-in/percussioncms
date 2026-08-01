@@ -169,6 +169,41 @@ class DtsJavaHomeScriptTest {
     }
   }
 
+  @Test
+  void tomcatScriptsDoNotPassRemovedCmsGc() throws Exception {
+    // CMS collector was removed in Java 14; Java 21 rejects the flag at JVM start
+    // ("Unrecognized VM option 'UseConcMarkSweepGC'"). Match the -XX: form only —
+    // REM/comment lines may mention the collector name for operators.
+    for (Path p : List.of(TOMCAT_START_SH, TOMCAT_STOP_SH, TOMCAT_START_BAT, TOMCAT_STOP_BAT)) {
+      String s = Files.readString(p, StandardCharsets.UTF_8);
+      assertFalse(
+          s.contains("-XX:+UseConcMarkSweepGC"),
+          p.getFileName() + " must not set -XX:+UseConcMarkSweepGC (fatal on Java 21)");
+    }
+  }
+
+  @Test
+  void tomcatScriptsUseH2DataHomeNotDerbySystemHome() throws Exception {
+    // Embedded default is H2; derby.system.home was leftover from the Derby era and
+    // is not required for new installs (Derby→H2 migration runs offline in installDts).
+    for (Path p :
+        List.of(
+            TOMCAT_START_SH,
+            TOMCAT_STOP_SH,
+            TOMCAT_START_BAT,
+            TOMCAT_STOP_BAT,
+            PROD_BAT,
+            STAGING_BAT)) {
+      String s = Files.readString(p, StandardCharsets.UTF_8);
+      assertTrue(
+          s.contains("perc.h2.data.home"),
+          p.getFileName() + " must set -Dperc.h2.data.home for embedded H2");
+      assertFalse(
+          s.contains("derby.system.home"),
+          p.getFileName() + " must not set -Dderby.system.home (product default is H2)");
+    }
+  }
+
   private static void assertTomcatScriptsResolveFromInstallRoot(
       String sh, String bat, String label) {
     assertTrue(

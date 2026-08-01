@@ -105,7 +105,7 @@
           var newTemplateId = $(
             "#perc-assigned-templates .perc-template-item .perc-template-label[title='" +
               self.selectedTemplateName +
-              "']"
+              "']",
           )
             .parent()
             .attr("id");
@@ -115,7 +115,7 @@
           self.autoscrollToSelected();
         } else if ($("#perc-assigned-templates .perc-selected").length != 0) {
           self._selectTemplate(
-            $("#perc-assigned-templates .perc-selected").attr("id")
+            $("#perc-assigned-templates .perc-selected").attr("id"),
           );
           // Auto-scroll to selected template
           self.autoscrollToSelected();
@@ -149,7 +149,7 @@
           var selectedItem = $("#perc-assigned-templates .perc-selected");
 
           var positionInCarousel = $("div#" + selectedItem.attr("id")).data(
-            "positionInCarousel"
+            "positionInCarousel",
           );
           $("#perc-assigned-templates")
             .data("scrollable")
@@ -158,7 +158,7 @@
             {
               scrollTop: 0,
             },
-            500
+            500,
           );
         } else {
           var selectedItem1 = $("#perc-assigned-templates .perc-selected");
@@ -167,7 +167,7 @@
             {
               scrollTop: selectedItemTop - selectedItem1.height(),
             },
-            500
+            500,
           );
         }
       }
@@ -200,7 +200,7 @@
     },
     updateTemplatesPagingSize: function () {
       var amountOfItems = parseInt(
-        $("#perc-assigned-templates-container").width() / 268
+        $("#perc-assigned-templates-container").width() / 268,
       );
 
       if (amountOfItems < 1) {
@@ -292,7 +292,7 @@
           template.getTemplateId() +
           '-apply" title="' +
           I18N.message(
-            "perc.ui.site.templates.widget@Match Content To Template Layout"
+            "perc.ui.site.templates.widget@Match Content To Template Layout",
           ) +
           '">' +
           "</button>";
@@ -382,7 +382,7 @@
           if ($(this).attr("title") == null || $(this).attr("title") == "")
             return;
           $(
-            ".perc-template-item .perc-template-paging-container li"
+            ".perc-template-item .perc-template-paging-container li",
           ).removeClass("perc-template-page-highlighted-color");
           $(this).addClass("perc-template-page-highlighted-color");
           self.selectedPageId = $(this).data("pageInfo").id;
@@ -421,7 +421,7 @@
             callback: function () {
               fixTextOverflow();
             },
-          }
+          },
         );
       }
 
@@ -443,7 +443,7 @@
             if (this.value === event.target.value) {
               self._selectTemplate(
                 $(".perc-items .perc-template-item").eq(idx).attr("id"),
-                false
+                false,
               );
               self.autoscrollToSelected();
               return;
@@ -529,7 +529,7 @@
                 }
               }
               $.unblockUI();
-            }
+            },
           );
         },
       });
@@ -539,25 +539,25 @@
       ) {
         if ($(".perc-prev-templates-carousel").length == 0) {
           var scrollbarDivLeft = $(
-            '<div class="perc-prev-templates-carousel" />'
+            '<div class="perc-prev-templates-carousel" />',
           ).append(
             $(
               '<a role="button" title="' +
                 I18N.message("perc.ui.template.create@Prev") +
-                '" tabindex="0" id="perc_prev_templates_carousel_arrow" class="prevPageCarousel perc-prev-templates-carousel-arrow"></a>'
-            )
+                '" tabindex="0" id="perc_prev_templates_carousel_arrow" class="prevPageCarousel perc-prev-templates-carousel-arrow"></a>',
+            ),
           );
 
           assignedTemplatesDiv.css("overflow", "hidden");
 
           var scrollbarDivRight = $(
-            '<div class="perc-next-templates-carousel" />'
+            '<div class="perc-next-templates-carousel" />',
           ).append(
             $(
               '<a role="button" title="' +
                 I18N.message("perc.ui.common.label@Next") +
-                '" tabindex="0" id="perc_next_templates_carousel_arrow" class="nextPageCarousel perc-next-templates-carousel-arrow"></a>'
-            )
+                '" tabindex="0" id="perc_next_templates_carousel_arrow" class="nextPageCarousel perc-next-templates-carousel-arrow"></a>',
+            ),
           );
 
           assignedTemplatesDiv
@@ -592,7 +592,7 @@
         });
       } else {
         $(".perc-template-item-middle-droppable").height(
-          $(".perc-template-item").css("min-height")
+          $(".perc-template-item").css("min-height"),
         );
       }
 
@@ -604,7 +604,7 @@
         //Set a filter to each of the paging selectors to allow only digits.
         $.perc_filterField(
           $("#" + templateId).find(".perc-template-pages-controls .perc-jump"),
-          $.perc_textFilters.ONLY_DIGITS
+          $.perc_textFilters.ONLY_DIGITS,
         );
       });
 
@@ -618,7 +618,7 @@
           var currentStartIndex = getCurrentStartIndex(templateId);
           var nextStartIndex = currentStartIndex + PAGE_GROUP_SIZE;
           var totalPages = parseInt(
-            $(templateContainer).find(".perc-template-total").html()
+            $(templateContainer).find(".perc-template-total").html(),
           );
           if (nextStartIndex <= totalPages) {
             loadTemplatePages(templateId, nextStartIndex);
@@ -627,7 +627,7 @@
             //it means the selector is in the last page, so do nothing.
             return false;
           }
-        }
+        },
       );
 
       $(".resetPaging").on("click", function (event) {
@@ -641,7 +641,7 @@
 
           // Highlight the page
           $(".perc-template-pages li#" + firstPageId).addClass(
-            "perc-template-page-highlighted-color"
+            "perc-template-page-highlighted-color",
           );
         }
       });
@@ -661,7 +661,7 @@
             //it means the selector is in the first page, so do nothing.
             return false;
           }
-        }
+        },
       );
 
       // Pagination controls - Text input for page selector
@@ -687,12 +687,12 @@
             // Since the value is no longer on the field, it needs to be recalculated from the page group range indicator.
             var currentStartIndex = getCurrentStartIndex(templateId);
             var currentPageGroupNumber = Math.ceil(
-              currentStartIndex / PAGE_GROUP_SIZE
+              currentStartIndex / PAGE_GROUP_SIZE,
             );
             $(this).find(".perc-jump").val(currentPageGroupNumber);
           }
           return false;
-        }
+        },
       );
 
       // bind apply button to template edition.
@@ -703,7 +703,7 @@
           var templateId = $(this).attr("id");
           templateId = templateId.replace("-apply", "");
           _migrateTemplateContent(templateId);
-        }
+        },
       );
 
       /**
@@ -725,7 +725,7 @@
               loadTemplatePages(templateId, 1);
             }
             $.unblockUI();
-          }
+          },
         );
       }
 
@@ -756,15 +756,15 @@
           function (status, data) {
             if (status === $.PercServiceUtils.STATUS_SUCCESS) {
               data.childrenInPage = $.perc_utils.convertCXFArray(
-                data.childrenInPage
+                data.childrenInPage,
               );
               var listElements = $(
                 "#" +
                   templateId +
-                  " .perc-template-pages li.perc-template-pages-items"
+                  " .perc-template-pages li.perc-template-pages-items",
               );
               var templateVersion = $(
-                "#" + templateId + " .perc-template-pages"
+                "#" + templateId + " .perc-template-pages",
               ).attr("data-perc-template-version");
               listElements.removeClass("perc-template-page-highlighted-color");
               // Clear the list of pages and their previous title attribute
@@ -784,7 +784,7 @@
                 // Remove the "/Sites" string from the path and set it as the title for the li element
                 var pagePath = data.childrenInPage[j].path.replace(
                   "//" + $.perc_paths.SITES_ROOT_NO_SLASH,
-                  ""
+                  "",
                 );
                 var curPageId = data.childrenInPage[j].id;
                 var curPageElem = listElements.eq(j);
@@ -804,7 +804,7 @@
                   curPageElem.addClass("perc-template-page-highlighted-color");
                 } else {
                   curPageElem.removeClass(
-                    "perc-template-page-highlighted-color"
+                    "perc-template-page-highlighted-color",
                   );
                 }
 
@@ -814,7 +814,7 @@
                 }
 
                 var typeProps = getTypePropertyMap(
-                  data.childrenInPage[j].typeProperties.entries
+                  data.childrenInPage[j].typeProperties.entries,
                 );
 
                 var dropDownElement =
@@ -841,7 +841,7 @@
                   curPageElem
                     .attr(
                       "title",
-                      I18N.message("perc.ui.recycledPage@RecycledPage")
+                      I18N.message("perc.ui.recycledPage@RecycledPage"),
                     )
                     .attr("id", curPageId)
                     .data("pageInfo", data.childrenInPage[j])
@@ -913,7 +913,7 @@
                   .PercDropdown(dropDownConfig);
                 //setting attributes for child Anchor element (A) , for dropdown
                 var actionMenuAnchor_child = $(
-                  ".perc-template-pages-items-dropdown"
+                  ".perc-template-pages-items-dropdown",
                 )
                   .children()
                   .children()
@@ -929,17 +929,17 @@
               updateIndicators(templateId, data.childrenCount, data.startIndex);
 
               $(
-                ".perc-template-pages-items .perc-template-pages-items-thumbnail img"
+                ".perc-template-pages-items .perc-template-pages-items-thumbnail img",
               ).PercImageTooltip();
             } else {
               $.perc_utils.alert_dialog({
                 title: I18N.message("perc.ui.labels@Error"),
                 content: I18N.message(
-                  "perc.ui.sitetemplates.error@Get pages by template error"
+                  "perc.ui.sitetemplates.error@Get pages by template error",
                 ),
               });
             }
-          }
+          },
         );
 
         // Bind the draggble event to template page items
@@ -965,7 +965,7 @@
           $.PercNavigationManager.getSiteName(),
           function () {
             window.location.reload();
-          }
+          },
         );
       }
 
@@ -987,7 +987,7 @@
             } else {
               window.location.reload();
             }
-          }
+          },
         );
       }
 
@@ -1006,7 +1006,7 @@
             } else {
               window.location.reload();
             }
-          }
+          },
         );
       }
 
@@ -1027,7 +1027,7 @@
 
         //Update page items indicator. (Range indicator)
         var currentPageGroupRange = $("#" + templateId).find(
-          ".perc-template-page-group-range"
+          ".perc-template-page-group-range",
         );
         var endIndex = startIndex + PAGE_GROUP_SIZE - 1;
         var first = 0;
@@ -1065,7 +1065,7 @@
             .attr("aria-disabled", "true");
         } else {
           var disabledPrevButton = $("#" + templateId).find(
-            ".perc-template-pages-controls div.previous-disabled"
+            ".perc-template-pages-controls div.previous-disabled",
           );
           if (disabledPrevButton != undefined)
             $(disabledPrevButton)
@@ -1083,7 +1083,7 @@
             .attr("aria-disabled", "true");
         } else {
           var disabledNextButton = $("#" + templateId).find(
-            ".perc-template-pages-controls div.next-disabled"
+            ".perc-template-pages-controls div.next-disabled",
           );
           if (disabledNextButton != undefined)
             $(disabledNextButton)
@@ -1128,7 +1128,7 @@
         return parseInt(
           $("#" + templateId)
             .find(".perc-template-total")
-            .html()
+            .html(),
         );
       }
 
@@ -1179,7 +1179,7 @@
           null,
           querystring.path,
           null,
-          memento
+          memento,
         );
       }
 
@@ -1242,7 +1242,7 @@
               "/" +
               pageId +
               "-page.jpg?nocache=" +
-              Math.random()
+              Math.random(),
           )
           .attr("alt", "");
       }
@@ -1352,7 +1352,7 @@
     _renameTemplate: function (templateId, newTemplateName) {
       var errorMsg = this.controller.renameTemplate(
         templateId,
-        newTemplateName
+        newTemplateName,
       );
       this._save();
       return errorMsg;
@@ -1390,14 +1390,14 @@
       if (doCleanSelectedPage) {
         // unselect / unhighlight other pages selection
         $(".perc-template-pages li").removeClass(
-          "perc-template-page-highlighted-color"
+          "perc-template-page-highlighted-color",
         );
 
         var firstPageId = this.firstPagesArray[templateId];
         this.selectedPageId = firstPageId;
         this.selectedPageIdOriginalTemplateId = templateId;
         $(".perc-template-pages li#" + firstPageId).addClass(
-          "perc-template-page-highlighted-color"
+          "perc-template-page-highlighted-color",
         );
 
         // Load Thumbnail
@@ -1412,7 +1412,7 @@
               firstPageId +
               "-page.jpg" +
               "?nocache=" +
-              Math.random()
+              Math.random(),
           )
           .attr("alt", "");
       }
@@ -1424,7 +1424,7 @@
 
       // update the selected template indicator
       this._setSelectedTemplateIndicator(
-        "Selected template: " + $("#" + templateId + "-name").attr("title")
+        "Selected template: " + $("#" + templateId + "-name").attr("title"),
       );
       this.selectedTemplateId = templateId;
 
@@ -1547,7 +1547,7 @@
                     closeDialogOnSuccess();
                   });
                 }
-              }
+              },
             );
           },
           id: "perc-template-import",
@@ -1597,16 +1597,16 @@
     // Instance the "Add template" dialog.
     // The newTemplateName argument in the callback function will be bound
     // to the new template name
-    $.PercAddTemplateDialog(function refreshAndFocusNewTemplate(
-      newTemplateName
-    ) {
-      // Invoke the jQuery widget method refresh passing the (optional) template
-      // name to fouse is after refreshing the panel
-      $("#perc-assigned-templates").template_selected(
-        "refresh",
-        newTemplateName
-      );
-    });
+    $.PercAddTemplateDialog(
+      function refreshAndFocusNewTemplate(newTemplateName) {
+        // Invoke the jQuery widget method refresh passing the (optional) template
+        // name to fouse is after refreshing the panel
+        $("#perc-assigned-templates").template_selected(
+          "refresh",
+          newTemplateName,
+        );
+      },
+    );
   }
 
   //Converts the supplied type properties and returns them as an associated array of name and value.
@@ -1642,7 +1642,7 @@
             content: result,
           });
         }
-      }
+      },
     );
   }
 

@@ -81,18 +81,18 @@
 
     // hide region tool for pages
     $(
-      "#region-tool, #region-tool-help, #perc-region-tool-inspector, #perc-region-tool-menu, #perc-error-alert"
+      "#region-tool, #region-tool-help, #perc-region-tool-inspector, #perc-region-tool-menu, #perc-error-alert",
     ).css("visibility", "hidden");
 
     function openPage(pageId, pageName) {
       try {
         $.PercRecentListService.setRecent(
           $.PercRecentListService.RECENT_TYPE_ITEM,
-          pageId
+          pageId,
         )
           .done(function () {
             $.perc_utils.info(
-              I18N.message("perc.ui.page.recent@Added Recent Page", pageId)
+              I18N.message("perc.ui.page.recent@Added Recent Page", pageId),
             );
           })
           .fail(function (message) {
@@ -100,7 +100,7 @@
           });
       } catch (err) {
         $.perc_utils.error(
-          I18N.message("perc.ui.page.recent@Error Adding Recent Page", pageId)
+          I18N.message("perc.ui.page.recent@Error Adding Recent Page", pageId),
         );
       }
       currentPageId = pageId;
@@ -120,11 +120,11 @@
         $(".perc-page-name-name").html(
           '<span class = "perc-title-value"><span class = "perc-page-name-text">' +
             pageName +
-            "</span></span>"
+            "</span></span>",
         );
         $(".perc-title-value").attr("title", titleValue);
         $(".perc-title-value").prepend(
-          '<span class = "perc-page-name-label">' + pglabel + "</span>"
+          '<span class = "perc-page-name-label">' + pglabel + "</span>",
         );
         $(".perc-page-details").attr("type", pgType);
         $("#perc-pageEditor-menu-name").html(pageName);
@@ -178,7 +178,7 @@
                     $.perc_page_edit_dialog(
                       $.perc_finder(),
                       pageViewAPI,
-                      currentPageId
+                      currentPageId,
                     );
                   },
                   _loadTemplate,
@@ -206,7 +206,7 @@
                     $.perc_page_edit_dialog(
                       $.perc_finder(),
                       pageViewAPI,
-                      currentPageId
+                      currentPageId,
                     );
                   },
                   _changeTemplate,
@@ -221,7 +221,7 @@
             }
 
             addMoreMenus();
-          }
+          },
         );
       }
 
@@ -256,7 +256,7 @@
               $.perc_page_edit_dialog(
                 $.perc_finder(),
                 pageViewAPI,
-                currentPageId
+                currentPageId,
               );
             },
           ],
@@ -282,7 +282,7 @@
               .addClass("perc-my-pages-error")
               .attr(
                 "title",
-                I18N.message("perc.ui.page.mypages@Error retrieving status")
+                I18N.message("perc.ui.page.mypages@Error retrieving status"),
               );
           } else {
             if (result) {
@@ -290,7 +290,7 @@
                 .addClass("perc-remove-from-my-pages")
                 .attr(
                   "title",
-                  I18N.message("perc.ui.page.mypages@Remove from My Pages")
+                  I18N.message("perc.ui.page.mypages@Remove from My Pages"),
                 )
                 .on("click", function () {
                   _removeFromMyPages(pageId);
@@ -300,7 +300,7 @@
                 .addClass("perc-add-to-my-pages")
                 .attr(
                   "title",
-                  I18N.message("perc.ui.page.mypages@Add to My Pages")
+                  I18N.message("perc.ui.page.mypages@Add to My Pages"),
                 )
                 .on("click", function () {
                   _addToMyPages(pageId);
@@ -327,7 +327,7 @@
               .addClass("perc-remove-from-my-pages")
               .attr(
                 "title",
-                I18N.message("perc.ui.page.mypages@Remove from My Pages")
+                I18N.message("perc.ui.page.mypages@Remove from My Pages"),
               )
               .off("click")
               .on("click", function () {
@@ -354,7 +354,7 @@
               .addClass("perc-add-to-my-pages")
               .attr(
                 "title",
-                I18N.message("perc.ui.page.mypages@Add to My Pages")
+                I18N.message("perc.ui.page.mypages@Add to My Pages"),
               )
               .off("click")
               .on("click", function () {
@@ -533,7 +533,7 @@
                       pageId: currentPageId,
                       pageName: pageName,
                       trName: I18N.message(
-                        "perc.ui.page.menu@Remove from Staging"
+                        "perc.ui.page.menu@Remove from Staging",
                       ),
                     },
                     currentPageId,
@@ -542,7 +542,7 @@
                 });
               }
             }
-          }
+          },
         );
         $.PercAssetService.getUnusedAssets(currentPageId, populateOrphanAssets);
         // View dropdowm in editmode
@@ -667,14 +667,14 @@
                       })
                       .on("mouseleave", function (e) {
                         handleOut(e);
-                      })
+                      }),
                   )
                   .append(
                     $("<div />")
                       .css("overflow", "hidden")
                       .addClass("perc-asset-label")
-                      .append($("<nobr />").html(asset.title))
-                  )
+                      .append($("<nobr />").html(asset.title)),
+                  ),
               )
               .css("cursor", "pointer")
               .data("assetId", asset.id)
@@ -684,7 +684,7 @@
               .off("click")
               .on("click", function (evt) {
                 selectOrphanAsset(evt, this);
-              })
+              }),
           );
         }
         // populates Orphan Assets tray and toggles it open/close
@@ -762,7 +762,7 @@
           : I18N.message("perc.ui.page.general@assets");
       var msg = I18N.message(
         "perc.ui.page.unused@Remove Unused Assets Message",
-        assetmsg
+        assetmsg,
       );
 
       var options = {
@@ -776,7 +776,7 @@
             orphanWidgetsIds,
             orphanTypes,
             orphanIds,
-            orphanAssetDeleted
+            orphanAssetDeleted,
           );
         },
       };
@@ -820,7 +820,7 @@
         widgetData,
         orphanId,
         orphanIsShared,
-        orphanAssetEdited
+        orphanAssetEdited,
       );
     }
 
@@ -891,7 +891,7 @@
             $("#perc-pageEditor-tabs").tabs(
               "option",
               "active",
-              ui.newTab.index()
+              ui.newTab.index(),
             );
             loadTab(ui.newTab.index(), false);
             //Reset the JavaScript Off/On menu to JavaScript Off
@@ -922,7 +922,10 @@
       if (addWrapper) {
         var viewWrapper = $.PercComponentWrapper(
           "perc-action-page-tab-selected",
-          ["perc-ui-component-editor-toolbar", "perc-ui-component-editor-frame"]
+          [
+            "perc-ui-component-editor-toolbar",
+            "perc-ui-component-editor-frame",
+          ],
         );
         var isWrapperSet = $.PercViewReadyManager.setWrapper(viewWrapper);
         if (!isWrapperSet) {
@@ -965,7 +968,7 @@
           currentPageId,
           pageModel.getTemplateModel().getId(),
           $.PercNavigationManager.getSiteName(),
-          successCallBack
+          successCallBack,
         );
       }
     }
@@ -987,7 +990,7 @@
         null,
         $.PercNavigationManager.getPath(),
         null,
-        memento
+        memento,
       );
     }
 
@@ -997,7 +1000,7 @@
     function resetJavaScriptMenu() {
       //Reset the JavaScript Off/On menu to JavaScript Off
       $(".perc-dropdown-option-DisableJavaScript").text(
-        I18N.message("perc.ui.menu@JavaScript Off")
+        I18N.message("perc.ui.menu@JavaScript Off"),
       );
     }
 
@@ -1032,7 +1035,7 @@
           $.perc_pagemanager,
           $.perc_templatemanager,
           pageId,
-          setupContent
+          setupContent,
         );
         $.PercAssetService.getUnusedAssets(pageId, populateOrphanAssets);
         if ($.PercNavigationManager.isJavascriptOff())
@@ -1050,23 +1053,23 @@
           }, 500);
 
           var frwrapper = $.PercViewReadyManager.getWrapper(
-            "perc-ui-component-editor-frame"
+            "perc-ui-component-editor-frame",
           );
 
           if (frwrapper != null)
             frwrapper.handleComponentProgress(
               "perc-ui-component-editor-frame",
-              "complete"
+              "complete",
             );
 
           var tbwrapper = $.PercViewReadyManager.getWrapper(
-            "perc-ui-component-editor-toolbar"
+            "perc-ui-component-editor-toolbar",
           );
 
           if (tbwrapper != null)
             tbwrapper.handleComponentProgress(
               "perc-ui-component-editor-toolbar",
-              "complete"
+              "complete",
             );
         });
       }
@@ -1077,7 +1080,7 @@
         $.perc_pagemanager,
         $.perc_templatemanager,
         pageId,
-        setupLayout
+        setupLayout,
       );
       if ($.PercNavigationManager.isJavascriptOff())
         pageModel.setJavaScriptOff(true);
@@ -1088,7 +1091,7 @@
         $.perc_pagemanager,
         $.perc_templatemanager,
         pageId,
-        setUpCss
+        setUpCss,
       );
       if ($.PercNavigationManager.isJavascriptOff())
         pageModel.setJavaScriptOff(true);
@@ -1110,7 +1113,7 @@
         sizeController,
         function (isDirty) {
           setDirty(isDirty);
-        }
+        },
       );
       $("#region-tool").draggable({
         helper: "clone",
@@ -1134,7 +1137,7 @@
       var cssController = P.cssController(
         pageModel,
         $("#frame"),
-        P.CSSPreviewView($("#frame"), pageModel)
+        P.CSSPreviewView($("#frame"), pageModel),
       );
       $("#perc-css-editor-save").on("click", function () {
         cssController.save(function () {});
@@ -1191,12 +1194,12 @@
                 $(".perc-page-status-status").html(
                   I18N.message("perc.ui.page.general@Approved For") +
                     " " +
-                    scheduleDates.startDate
+                    scheduleDates.startDate,
                 );
               }
-            }
+            },
           );
-        }
+        },
       );
     }
 
@@ -1223,7 +1226,7 @@
           title: I18N.message("perc.ui.page.general@Warning"),
           question: I18N.message(
             "perc.ui.page.confirmpublish@This item is scheduled",
-            startDate
+            startDate,
           ),
           success: function () {
             _immediateItemPublish(itemId, itemType);
@@ -1292,13 +1295,13 @@
                       } else {
                         $.perc_utils.alert_dialog({
                           content: I18N.message(
-                            "perc.ui.page.confirmpublish@Unable to get the saved publish dates"
+                            "perc.ui.page.confirmpublish@Unable to get the saved publish dates",
                           ),
                           title: I18N.message("perc.ui.labels@Error"),
                         });
                         return false;
                       }
-                    }
+                    },
                   );
                 } else if (
                   trName === I18N.message("perc.ui.page.menu@Take Down")
@@ -1307,14 +1310,14 @@
                   $.PercItemPublisherService.takeDownItem(
                     itemId,
                     itemType,
-                    _afterPublish
+                    _afterPublish,
                   );
                 } else if (trName === I18N.message("perc.ui.page.menu@Stage")) {
                   $.PercBlockUI();
                   $.PercItemPublisherService.publishToStaging(
                     itemId,
                     itemType,
-                    _afterPublish
+                    _afterPublish,
                   );
                 } else if (
                   trName ===
@@ -1324,7 +1327,7 @@
                   $.PercItemPublisherService.removeFromStaging(
                     itemId,
                     itemType,
-                    _afterPublish
+                    _afterPublish,
                   );
                 }
               },
@@ -1333,32 +1336,32 @@
                 $.perc_utils.alert_dialog({
                   title: trName,
                   content: I18N.message(
-                    "perc.ui.webmgt.contentbrowser.warning@Action Not Performed Overridden"
+                    "perc.ui.webmgt.contentbrowser.warning@Action Not Performed Overridden",
                   ),
                   okCallBack: function () {
                     $.PercNavigationManager.goTo(
                       $.PercNavigationManager.VIEW_EDITOR,
-                      true
+                      true,
                     );
                   },
                 });
-              }
+              },
             );
           },
           function () {
             $.perc_utils.alert_dialog({
               title: trName,
               content: I18N.message(
-                "perc.ui.webmgt.contentbrowser.warning@Action Not Performed Deleted"
+                "perc.ui.webmgt.contentbrowser.warning@Action Not Performed Deleted",
               ),
               okCallBack: function () {
                 $.PercNavigationManager.goTo(
                   $.PercNavigationManager.VIEW_EDITOR,
-                  true
+                  true,
                 );
               },
             });
-          }
+          },
         );
       });
     }
@@ -1380,10 +1383,10 @@
           $.unblockUI();
           $.perc_utils.alert_dialog({
             title: I18N.message(
-              "perc.ui.publish.errordialog.title@Server Publish"
+              "perc.ui.publish.errordialog.title@Server Publish",
             ),
             content: I18N.message(
-              "perc.ui.publish.errordialog.message@Publish Not Allowed"
+              "perc.ui.publish.errordialog.message@Publish Not Allowed",
             ),
           });
         } else if (
@@ -1393,10 +1396,10 @@
           $.unblockUI();
           $.perc_utils.alert_dialog({
             title: I18N.message(
-              "perc.ui.publish.errordialog.title@Server Publish"
+              "perc.ui.publish.errordialog.title@Server Publish",
             ),
             content: I18N.message(
-              "perc.ui.publish.errordialog.message@Bad configuration"
+              "perc.ui.publish.errordialog.message@Bad configuration",
             ),
           });
         } else if (
@@ -1406,14 +1409,14 @@
           $.unblockUI();
           $.perc_utils.alert_dialog({
             title: I18N.message(
-              "perc.ui.publish.errordialog.title@Server Publish"
+              "perc.ui.publish.errordialog.title@Server Publish",
             ),
             content: I18N.message(""),
           });
         } else {
           $.PercNavigationManager.goTo(
             $.PercNavigationManager.VIEW_EDITOR,
-            true
+            true,
           );
           $.unblockUI();
         }
@@ -1434,7 +1437,7 @@
         pageId,
         pageName,
         $.PercRevisionDialog.ITEM_TYPE_PAGE,
-        $.PercRevisionDialog.ITEM_MODE_VIEW
+        $.PercRevisionDialog.ITEM_MODE_VIEW,
       );
     }
 
@@ -1451,7 +1454,7 @@
       $.PercCommentsDialog.open(
         pageId,
         pageName,
-        $.PercCommentsDialog.ITEM_TYPE_PAGE
+        $.PercCommentsDialog.ITEM_TYPE_PAGE,
       );
     }
 
@@ -1468,7 +1471,7 @@
       $.PercPublishingHistoryDialog.open(
         pageId,
         pageName,
-        $.PercPublishingHistoryDialog.ITEM_TYPE_PAGE
+        $.PercPublishingHistoryDialog.ITEM_TYPE_PAGE,
       );
     }
 
@@ -1496,7 +1499,7 @@
           } else {
             noCallback();
           }
-        }
+        },
       );
     }
 
@@ -1518,19 +1521,19 @@
                 if (result) {
                   $.perc_utils.alert_dialog({
                     content: I18N.message(
-                      "perc.ui.page.dialog@Restart Required"
+                      "perc.ui.page.dialog@Restart Required",
                     ),
                     title: I18N.message(
-                      "perc.ui.uploadtheme.dialog.title@Warning"
+                      "perc.ui.uploadtheme.dialog.title@Warning",
                     ),
                   });
                 } else {
                   callback();
                 }
               }
-            }
+            },
           );
-        }
+        },
       );
     }
 

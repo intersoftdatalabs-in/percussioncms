@@ -6,7 +6,7 @@
  */
 !(function () {
   var e, n, t, r, i, f, _, a, o, s, u, h, l, c, d, b, p;
-  (o = function (e) {
+  ((o = function (e) {
     return ">" === e;
   }),
     (s = function (e) {
@@ -23,11 +23,11 @@
     }),
     (e = (function () {
       return function (e, n, t) {
-        (this.start_in_before = e),
+        ((this.start_in_before = e),
           (this.start_in_after = n),
           (this.length = t),
           (this.end_in_before = this.start_in_before + this.length - 1),
-          (this.end_in_after = this.start_in_after + this.length - 1);
+          (this.end_in_after = this.start_in_after + this.length - 1));
       };
     })()),
     (a = function (e) {
@@ -46,22 +46,22 @@
             s(n)
               ? (t && _.push(t), (t = "<"), (f = "tag"))
               : /\s/.test(n)
-              ? (t && _.push(t), (t = n), (f = "whitespace"))
-              : /[\w\#@]+/i.test(n)
-              ? (t += n)
-              : (t && _.push(t), (t = n));
+                ? (t && _.push(t), (t = n), (f = "whitespace"))
+                : /[\w\#@]+/i.test(n)
+                  ? (t += n)
+                  : (t && _.push(t), (t = n));
             break;
           case "whitespace":
             s(n)
               ? (t && _.push(t), (t = "<"), (f = "tag"))
               : h(n)
-              ? (t += n)
-              : (t && _.push(t), (t = n), (f = "char"));
+                ? (t += n)
+                : (t && _.push(t), (t = n), (f = "char"));
             break;
           default:
             throw new Error("Unknown mode " + f);
         }
-      return t && _.push(t), _;
+      return (t && _.push(t), _);
     }),
     (f = function (n, t, r, i, f, _, a) {
       var o, s, u, h, l, c, d, b, p, g, w, v, k, m, y;
@@ -73,14 +73,14 @@
         for (k = {}, d = 0, b = (p = r[n[c]]).length; d < b; d++)
           if (!((l = p[d]) < _)) {
             if (l >= a) break;
-            null == w[l - 1] && (w[l - 1] = 0),
+            (null == w[l - 1] && (w[l - 1] = 0),
               (v = w[l - 1] + 1),
               (k[l] = v),
-              v > u && ((s = c - v + 1), (o = l - v + 1), (u = v));
+              v > u && ((s = c - v + 1), (o = l - v + 1), (u = v)));
           }
         w = k;
       }
-      return 0 !== u && (g = new e(s, o, u)), g;
+      return (0 !== u && (g = new e(s, o, u)), g);
     }),
     (d = function (e, n, t, r, i, _, a, o) {
       var s;
@@ -102,8 +102,8 @@
         throw new Error("params must have find_these key");
       if (null == e.in_these) throw new Error("params must have in_these key");
       for (r = {}, n = 0, i = (f = e.find_these).length; n < i; n++)
-        for (r[(_ = f[n])] = [], t = e.in_these.indexOf(_); -1 !== t; )
-          r[_].push(t), (t = e.in_these.indexOf(_, t + 1));
+        for (r[(_ = f[n])] = [], t = e.in_these.indexOf(_); -1 !== t;)
+          (r[_].push(t), (t = e.in_these.indexOf(_, t + 1)));
       return r;
     }),
     (_ = function (e, n) {
@@ -133,7 +133,7 @@
         f < h;
         a = ++f
       )
-        "none" !==
+        ("none" !==
           (i =
             r[
               [
@@ -157,7 +157,7 @@
               end_in_after: c.end_in_after,
             }),
           (w = c.end_in_before + 1),
-          (g = c.end_in_after + 1);
+          (g = c.end_in_after + 1));
       for (
         v = [],
           u = { action: "none" },
@@ -166,7 +166,7 @@
               "equal" === e.action &&
               e.end_in_before - e.start_in_before == 0 &&
               /^\s$/.test(
-                n.slice(e.start_in_before, +e.end_in_before + 1 || 9e9)
+                n.slice(e.start_in_before, +e.end_in_before + 1 || 9e9),
               )
             );
           },
@@ -195,7 +195,7 @@
     }),
     (p = function (e, n) {
       var r, i, f, _, a;
-      for (_ = "", f = 0, r = n.length; ; ) {
+      for (_ = "", f = 0, r = n.length; ;) {
         if (f >= r) break;
         if (
           ((i = t(f, n, l)),
@@ -204,7 +204,7 @@
           f >= r)
         )
           break;
-        (f += (a = t(f, n, u)).length), (_ += a.join(""));
+        ((f += (a = t(f, n, u)).length), (_ += a.join("")));
       }
       return _;
     }),
@@ -232,7 +232,7 @@
     (b = function (e, n, t) {
       var r, i, f, _;
       for (_ = "", r = 0, i = t.length; r < i; r++)
-        (f = t[r]), (_ += c[f.action](f, e, n));
+        ((f = t[r]), (_ += c[f.action](f, e, n)));
       return _;
     }),
     ((i = function (e, t) {
@@ -249,6 +249,6 @@
           return i;
         })
       : "undefined" != typeof module && null !== module
-      ? (module.exports = i)
-      : "undefined" != typeof window && (window.htmldiff = i);
+        ? (module.exports = i)
+        : "undefined" != typeof window && (window.htmldiff = i));
 })();

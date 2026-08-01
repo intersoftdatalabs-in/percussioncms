@@ -72,7 +72,7 @@
               "<hrefText>",
               protectObj.siteLoginPage +
                 "?loginRedirect=" +
-                encodeURIComponent(window.location)
+                encodeURIComponent(window.location),
             );
           } else {
             linkHtml = linkHtml.replace("<hrefText>", "#");

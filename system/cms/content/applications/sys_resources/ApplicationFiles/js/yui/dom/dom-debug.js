@@ -49,7 +49,7 @@ version: 2.6.0
     while (patterns.HYPHEN.exec(converted)) {
       converted = converted.replace(
         RegExp.$1,
-        RegExp.$1.substr(1).toUpperCase()
+        RegExp.$1.substr(1).toUpperCase(),
       );
     }
 
@@ -521,7 +521,7 @@ version: 2.6.0
             YAHOO.log(
               "removeClass removing empty class attribute",
               "info",
-              "Dom"
+              "Dom",
             );
             el.removeAttribute(attr);
           }
@@ -530,7 +530,7 @@ version: 2.6.0
         YAHOO.log(
           "removeClass " + className + " result: " + ret,
           "info",
-          "Dom"
+          "Dom",
         );
         return ret;
       };
@@ -559,7 +559,7 @@ version: 2.6.0
         YAHOO.log(
           "replaceClass replacing " + oldClassName + " with " + newClassName,
           "info",
-          "Dom"
+          "Dom",
         );
 
         if (!this.hasClass(el, oldClassName)) {
@@ -637,13 +637,13 @@ version: 2.6.0
         YAHOO.log(
           "isAncestor failed; invalid input: " + haystack + "," + needle,
           "error",
-          "Dom"
+          "Dom",
         );
       }
       YAHOO.log(
         "isAncestor(" + haystack + "," + needle + " returning " + ret,
         "info",
-        "Dom"
+        "Dom",
       );
       return ret;
     },
@@ -823,7 +823,7 @@ version: 2.6.0
       YAHOO.log(
         "getAncestorBy returning null (no ancestor passed test)",
         "error",
-        "Dom"
+        "Dom",
       );
       return null;
     },
@@ -841,7 +841,7 @@ version: 2.6.0
         YAHOO.log(
           "getAncestorByClassName failed: invalid node argument",
           "error",
-          "Dom"
+          "Dom",
         );
         return null;
       }
@@ -864,7 +864,7 @@ version: 2.6.0
         YAHOO.log(
           "getAncestorByTagName failed: invalid node argument",
           "error",
-          "Dom"
+          "Dom",
         );
         return null;
       }
@@ -907,7 +907,7 @@ version: 2.6.0
         YAHOO.log(
           "getPreviousSibling failed: invalid node argument",
           "error",
-          "Dom"
+          "Dom",
         );
         return null;
       }
@@ -947,7 +947,7 @@ version: 2.6.0
         YAHOO.log(
           "getNextSibling failed: invalid node argument",
           "error",
-          "Dom"
+          "Dom",
         );
         return null;
       }
@@ -980,7 +980,7 @@ version: 2.6.0
         YAHOO.log(
           "getFirstChild failed: invalid node argument",
           "error",
-          "Dom"
+          "Dom",
         );
         return null;
       }
@@ -1089,7 +1089,7 @@ version: 2.6.0
         YAHOO.log(
           "insertAfter failed: missing or invalid arg(s)",
           "error",
-          "Dom"
+          "Dom",
         );
         return null;
       }
@@ -1112,7 +1112,7 @@ version: 2.6.0
         YAHOO.log(
           "insertAfter failed: missing or invalid arg(s)",
           "error",
-          "Dom"
+          "Dom",
         );
         return null;
       }
@@ -1120,7 +1120,7 @@ version: 2.6.0
       if (referenceNode.nextSibling) {
         return referenceNode.parentNode.insertBefore(
           newNode,
-          referenceNode.nextSibling
+          referenceNode.nextSibling,
         );
       } else {
         return referenceNode.parentNode.appendChild(newNode);

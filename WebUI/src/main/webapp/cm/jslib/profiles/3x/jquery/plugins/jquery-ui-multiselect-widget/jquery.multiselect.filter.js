@@ -172,9 +172,9 @@
       var regex = new RegExp(
         (filterRules[filterRule] || filterRule).replace(
           "{{term}}",
-          term.replace(rEscape, "\\$&")
+          term.replace(rEscape, "\\$&"),
         ),
-        "i"
+        "i",
       );
       var searchGroups = !!this.options.searchGroups;
       var $checkboxes = this.instance.$checkboxes;

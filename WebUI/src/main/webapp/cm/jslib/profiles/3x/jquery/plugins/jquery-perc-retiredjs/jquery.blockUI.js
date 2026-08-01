@@ -266,7 +266,7 @@
       opts.overlayCSS = $.extend(
         {},
         $.blockUI.defaults.overlayCSS,
-        opts.overlayCSS || {}
+        opts.overlayCSS || {},
       );
       css = $.extend({}, $.blockUI.defaults.css, opts.css || {});
       if (opts.onOverlayClick) opts.overlayCSS.cursor = "pointer";
@@ -274,7 +274,7 @@
       themedCSS = $.extend(
         {},
         $.blockUI.defaults.themedCSS,
-        opts.themedCSS || {}
+        opts.themedCSS || {},
       );
       msg = msg === undefined ? opts.message : msg;
 
@@ -309,7 +309,7 @@
             z++ +
             ';display:none;border:none;margin:0;padding:0;position:absolute;width:100%;height:100%;top:0;left:0" src="' +
             opts.iframeSrc +
-            '"></iframe>'
+            '"></iframe>',
         );
       else lyr1 = $('<div class="blockUI" style="display:none"></div>');
 
@@ -317,13 +317,13 @@
         lyr2 = $(
           '<div class="blockUI blockOverlay ui-widget-overlay" style="z-index:' +
             z++ +
-            ';display:none"></div>'
+            ';display:none"></div>',
         );
       else
         lyr2 = $(
           '<div class="blockUI blockOverlay" style="z-index:' +
             z++ +
-            ';display:none;border:none;margin:0;padding:0;width:100%;height:100%;top:0;left:0"></div>'
+            ';display:none;border:none;margin:0;padding:0;width:100%;height:100%;top:0;left:0"></div>',
         );
 
       if (opts.theme && full) {
@@ -430,14 +430,14 @@
                 "height",
                 "Math.max(document.body.scrollHeight, document.body.offsetHeight) - (jQuery.support.boxModel?0:" +
                   opts.quirksmodeOffsetHack +
-                  ') + "px"'
+                  ') + "px"',
               );
             else
               s.setExpression("height", 'this.parentNode.offsetHeight + "px"');
             if (full)
               s.setExpression(
                 "width",
-                'jQuery.support.boxModel && document.documentElement.clientWidth || document.body.clientWidth + "px"'
+                'jQuery.support.boxModel && document.documentElement.clientWidth || document.body.clientWidth + "px"',
               );
             else s.setExpression("width", 'this.parentNode.offsetWidth + "px"');
             if (fixL) s.setExpression("left", fixL);
@@ -446,7 +446,7 @@
             if (full)
               s.setExpression(
                 "top",
-                '(document.documentElement.clientHeight || document.body.clientHeight) / 2 - (this.offsetHeight / 2) + (blah = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop) + "px"'
+                '(document.documentElement.clientHeight || document.body.clientHeight) / 2 - (this.offsetHeight / 2) + (blah = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop) + "px"',
               );
             s.marginTop = 0;
           } else if (!opts.centerY && full) {

@@ -90,7 +90,7 @@
       if (status == $.PercServiceUtils.STATUS_ERROR) {
         view.alertDialog(
           I18N.message("perc.ui.role.controller@Error Loading Roles"),
-          rolesJson
+          rolesJson,
         );
         return;
       }
@@ -125,7 +125,7 @@
             " '" +
             roleName +
             "'.",
-          response
+          response,
         );
         return;
       }
@@ -143,7 +143,7 @@
     if (selectedRole == null || state == STATE_ADDING_NEW_ROLE) {
       view.alertDialog(
         I18N.message("perc.ui.role.controller@Select Role to Edit"),
-        I18N.message("perc.ui.role.controller@Select Role to Edit")
+        I18N.message("perc.ui.role.controller@Select Role to Edit"),
       );
       return;
     }
@@ -170,12 +170,12 @@
           I18N.message("perc.ui.role.controller@Error Retrieving Role") +
             " " +
             rolename,
-          roleJson
+          roleJson,
         );
         return;
       }
       var assignedUsersArray = $.perc_utils.convertCXFArray(
-        roleJson.Role.users
+        roleJson.Role.users,
       );
       view.updateRoleNameField(rolename);
       view.updateDescriptionField(roleJson.Role.description);
@@ -203,7 +203,7 @@
     if ($.perc_utils.isBlankString(rolename)) {
       view.alertDialog(
         I18N.message("perc.ui.role.controller@Error"),
-        I18N.message("perc.ui.role.controller@Role Name Cannot Be Blank")
+        I18N.message("perc.ui.role.controller@Role Name Cannot Be Blank"),
       );
       return;
     }
@@ -212,8 +212,8 @@
       view.alertDialog(
         I18N.message("perc.ui.role.controller@Error"),
         I18N.message(
-          "perc.ui.role.controller@Role Contains Invalid Character Sequence"
-        )
+          "perc.ui.role.controller@Role Contains Invalid Character Sequence",
+        ),
       );
       return;
     }
@@ -222,8 +222,8 @@
       view.alertDialog(
         I18N.message("perc.ui.role.controller@Error"),
         I18N.message(
-          "perc.ui.role.controller@Original Role Contains Invalid Character Sequence"
-        ) + " '??'."
+          "perc.ui.role.controller@Original Role Contains Invalid Character Sequence",
+        ) + " '??'.",
       );
       return;
     }
@@ -231,7 +231,7 @@
     if ($.perc_utils.isBlankString(homepage)) {
       view.alertDialog(
         I18N.message("perc.ui.role.controller@Error"),
-        I18N.message("perc.ui.role.controller@Homepage Cannot Be Blank")
+        I18N.message("perc.ui.role.controller@Homepage Cannot Be Blank"),
       );
       return;
     }
@@ -240,7 +240,7 @@
     if (description.length > 255) {
       view.alertDialog(
         I18N.message("perc.ui.role.controller@Error"),
-        I18N.message("perc.ui.role.controller@Maximum Length Role Description")
+        I18N.message("perc.ui.role.controller@Maximum Length Role Description"),
       );
       return;
     }
@@ -249,8 +249,8 @@
       view.alertDialog(
         I18N.message("perc.ui.role.controller@Error"),
         I18N.message(
-          "perc.ui.role.controller@Role Description Contains Invalid Character Sequence"
-        ) + " '??'."
+          "perc.ui.role.controller@Role Description Contains Invalid Character Sequence",
+        ) + " '??'.",
       );
       return;
     }
@@ -284,8 +284,8 @@
             view.alertDialog(
               I18N.message("perc.ui.role.controller@Error"),
               I18N.message(
-                "perc.ui.role.controller@Role Contains Invalid Character Sequence"
-              )
+                "perc.ui.role.controller@Role Contains Invalid Character Sequence",
+              ),
             );
           } else if (createdRoleObj.startsWith("already_exist")) {
             var savedRoleName = "";
@@ -296,12 +296,12 @@
               I18N.message("perc.ui.role.controller@Error"),
               I18N.message("perc.ui.role.controller@Role name already exist", [
                 savedRoleName,
-              ])
+              ]),
             );
           } else {
             view.alertDialog(
               I18N.message("perc.ui.role.controller@Error"),
-              createdRoleObj
+              createdRoleObj,
             );
           }
           return;
@@ -341,9 +341,9 @@
         if (status == $.PercServiceUtils.STATUS_ERROR) {
           view.alertDialog(
             I18N.message(
-              "perc.ui.role.controller@Error Loading Available Users"
+              "perc.ui.role.controller@Error Loading Available Users",
             ),
-            usersJson
+            usersJson,
           );
           return;
         }
@@ -354,14 +354,14 @@
             true,
             userList,
             I18N.message("perc.role.controller@Add Users to Role"),
-            addUsers
+            addUsers,
           );
         } else {
           view.alertDialog(
             I18N.message("perc.ui.role.controller@Add Users to Role"),
             I18N.message("perc.ui.role.controller@No Users Available") +
               selectedRole +
-              I18N.message("perc.ui.role.controller@Users Already Added")
+              I18N.message("perc.ui.role.controller@Users Already Added"),
           );
         }
       });
@@ -371,9 +371,9 @@
         if (status == $.PercServiceUtils.STATUS_ERROR) {
           view.alertDialog(
             I18N.message(
-              "perc.ui.role.controller@Error Loading Available Users"
+              "perc.ui.role.controller@Error Loading Available Users",
             ),
-            usersJson
+            usersJson,
           );
           return;
         }
@@ -388,14 +388,14 @@
             false,
             userList,
             I18N.message("perc.ui.users@Add Users To Role"),
-            addUsers
+            addUsers,
           );
         } else {
           view.alertDialog(
             I18N.message("perc.ui.users@Add Users To Role"),
             I18N.message("perc.ui.role.controller@No Users Available") +
               selectedRole +
-              I18N.message("perc.ui.role.controller@Users Already Added")
+              I18N.message("perc.ui.role.controller@Users Already Added"),
           );
         }
       });
@@ -465,8 +465,8 @@
           view.alertDialog(
             I18N.message("perc.ui.role.controller@Error"),
             I18N.message(
-              "perc.ui.role.controller@Role Contains Invalid Character Sequence"
-            )
+              "perc.ui.role.controller@Role Contains Invalid Character Sequence",
+            ),
           );
         }
         return;
@@ -566,7 +566,7 @@
           "</strong><br/><br/>" +
           "<p id='perc-delete-warn-msg'>" +
           I18N.message(
-            "perc.ui.role.controller@Are You Sure Remove Users From Role"
+            "perc.ui.role.controller@Are You Sure Remove Users From Role",
           ) +
           selectedRole +
           "'?</p>";

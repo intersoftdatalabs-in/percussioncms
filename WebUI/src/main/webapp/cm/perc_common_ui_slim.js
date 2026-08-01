@@ -509,7 +509,7 @@
     callback,
     dataObject,
     abortCallback,
-    timeout
+    timeout,
   ) {
     var self = this;
 
@@ -601,7 +601,7 @@
     contentType,
     dataType,
     noEscape,
-    abortCallback
+    abortCallback,
   ) {
     var self = this;
 
@@ -910,7 +910,7 @@
     sync,
     callback,
     dataString,
-    abortCallback
+    abortCallback,
   ) {
     var self = this;
     var args = {

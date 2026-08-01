@@ -41,7 +41,7 @@
       this.wrappers.push(wrappertoset);
       wrappertoset.init();
       this.logMessage(
-        "Added wrapper '" + wrappertoset.wrapperName + "' to manager"
+        "Added wrapper '" + wrappertoset.wrapperName + "' to manager",
       );
       return true;
     },
@@ -78,7 +78,7 @@
     showRenderingProgressWarning: function () {
       $.perc_utils.alert_dialog({
         content: I18N.message(
-          "perc.ui.view.ready.manager@Page Components Rendering"
+          "perc.ui.view.ready.manager@Page Components Rendering",
         ),
         title: I18N.message("perc.ui.page.general@Warning"),
       });
@@ -105,7 +105,7 @@
             "The component '" +
               compName +
               "' doesn't exist in the wrapper." +
-              this.wrapperName
+              this.wrapperName,
           );
           return;
         }
@@ -127,7 +127,7 @@
           $(".perc-ui-component-overlay").each(function () {
             compWrapper = $(this);
             component = $(
-              "[perc-ui-component='" + compWrapper.attr("id") + "']"
+              "[perc-ui-component='" + compWrapper.attr("id") + "']",
             );
             var compPos = component.position();
             if (compPos == null) return;
@@ -151,7 +151,7 @@
           var compWrapper = $(
             "<div class='perc-ui-component-overlay ui-widget-overlay' style='position:absolute; background-color:silver; opacity:0.3; border-radius: 6px; border: 1px solid silver; z-index:9000'>" +
               "<img src='/cm/images/images/Busy.gif' alt='perc.ui.assign.workflow@LoadingGifAlt' style='margin: auto;  position: absolute;  top: 0; left: 0; bottom: 0; right: 0;'>" +
-              "</div>"
+              "</div>",
           );
           compWrapper
             .attr("id", compName)

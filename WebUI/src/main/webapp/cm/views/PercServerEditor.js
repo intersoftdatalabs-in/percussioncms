@@ -62,7 +62,7 @@
           if (driverValue == "Local") {
             updateFolderLocation();
           }
-        }
+        },
       );
     });
     //Bind click event secureFtp checkbox
@@ -71,7 +71,7 @@
       "#perc-define-secure-ftp-input",
       function (evt) {
         secureFtp(evt);
-      }
+      },
     );
 
     //Bind click event on Password Radio buttons
@@ -80,7 +80,7 @@
       "#perc-ftp-password-rb, #perc-ftp-private-file-key-rb",
       function (evt) {
         setPassPrivKey(evt);
-      }
+      },
     );
 
     //Bind click event on Folder location Radio buttons
@@ -89,7 +89,7 @@
       "#perc-defaultServer, #perc-ownServer",
       function (evt) {
         updateFolderLocation(evt);
-      }
+      },
     );
   });
 
@@ -143,7 +143,7 @@
               if (driverName == "Local") {
                 updateFolderLocation();
               }
-            }
+            },
           );
         }
         if (serverType == "STAGING") {
@@ -151,7 +151,7 @@
           $("#perc-pub-now-wrapper").hide();
           $("#perc-ignore-unmodified-assets").css("margin-left", "0px");
         }
-      }
+      },
     );
   }
 
@@ -167,11 +167,11 @@
       .val(propObj.serverInfo.serverName);
     isDefaultInput.prop("checked", propObj.serverInfo.isDefault);
     var ignoreAssets = $(
-      propContainer.find('input[percName="ignoreUnModifiedAssets"]')
+      propContainer.find('input[percName="ignoreUnModifiedAssets"]'),
     );
     ignoreAssets.prop("checked", propObj.serverInfo.ignoreUnModifiedAssets);
     var publishRelatedItems = $(
-      propContainer.find('input[percName="publishRelatedItems"]')
+      propContainer.find('input[percName="publishRelatedItems"]'),
     );
     publishRelatedItems.prop("checked", propObj.serverInfo.publishRelatedItems);
     //If server is default - disable the checkbox
@@ -289,12 +289,12 @@
         pkFileList.html("");
         if (result.data.PrivateKeys != "") {
           var keyNames = $.perc_utils.convertCXFArray(
-            result.data.PrivateKeys.keyNames
+            result.data.PrivateKeys.keyNames,
           );
           $.each(keyNames, function (val, text) {
             if (selectedOption != "undefined" && selectedOption == text) {
               pkFileList.append(
-                $('<option selected="selected"></option>').val(text).html(text)
+                $('<option selected="selected"></option>').val(text).html(text),
               );
             } else {
               pkFileList.append($("<option></option>").val(text).html(text));
@@ -328,17 +328,17 @@
       $("#perc-driver-filter").show();
       $("select#perc-driver")
         .append(
-          $('<option  class="file-driver" name="FTP" ></option>').html("FTP")
+          $('<option  class="file-driver" name="FTP" ></option>').html("FTP"),
         )
         .append(
           $('<option  class="file-driver" name="LOCAL" ></option>').html(
-            "Local"
-          )
+            "Local",
+          ),
         )
         .append(
           $(
-            '<option  class="file-driver" name="AMAZONS3" value="AMAZONS3"></option>'
-          ).html("Amazon S3")
+            '<option  class="file-driver" name="AMAZONS3" value="AMAZONS3"></option>',
+          ).html("Amazon S3"),
         );
 
       //Get the available drivers and disable the option for the one not found
@@ -360,18 +360,18 @@
       $("select#perc-driver")
         .append(
           $(
-            '<option  class="database-driver" name="MSSQL" value="MSSQL"></option>'
-          ).html("MS SQL")
+            '<option  class="database-driver" name="MSSQL" value="MSSQL"></option>',
+          ).html("MS SQL"),
         )
         .append(
           $(
-            '<option  class="database-driver" name="MYSQL" value="MySQL"></option>'
-          ).html("MySQL")
+            '<option  class="database-driver" name="MYSQL" value="MySQL"></option>',
+          ).html("MySQL"),
         )
         .append(
           $(
-            '<option  class="database-driver" name="ORACLE" value="Oracle"></option>'
-          ).html("Oracle")
+            '<option  class="database-driver" name="ORACLE" value="Oracle"></option>',
+          ).html("Oracle"),
         );
 
       //Get the available drivers and disable the option for the one not found
@@ -403,7 +403,7 @@
     } else {
       $("#perc-ftp-private-file-key-rb, #perc-ftp-private-file-key").attr(
         "disabled",
-        "true"
+        "true",
       );
       $("#perc-ftp-password-rb").prop("checked", true);
     }
@@ -445,7 +445,7 @@
       if ($("#perc-site-id").data("secureSite")) {
         $.perc_utils.alert_dialog({
           content: I18N.message(
-            "perc.ui.perc.server.editor@Selecting Your Own Web Server"
+            "perc.ui.perc.server.editor@Selecting Your Own Web Server",
           ),
           title: I18N.message("perc.ui.page.general@Warning"),
         });

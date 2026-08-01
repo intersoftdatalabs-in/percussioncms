@@ -40,7 +40,7 @@ Date.monthNames = new Array(
   "September",
   "October",
   "November",
-  "December"
+  "December",
 );
 // Month abbreviations. Change this for local month names
 Date.monthAbbreviations = new Array(
@@ -55,7 +55,7 @@ Date.monthAbbreviations = new Array(
   "Sep",
   "Oct",
   "Nov",
-  "Dec"
+  "Dec",
 );
 // Full day names. Change this for local month names
 Date.dayNames = new Array(
@@ -65,7 +65,7 @@ Date.dayNames = new Array(
   "Wednesday",
   "Thursday",
   "Friday",
-  "Saturday"
+  "Saturday",
 );
 // Day abbreviations. Change this for local month names
 Date.dayAbbreviations = new Array(
@@ -75,7 +75,7 @@ Date.dayAbbreviations = new Array(
   "Wed",
   "Thu",
   "Fri",
-  "Sat"
+  "Sat",
 );
 // Used for parsing ambiguous dates like 1/2/2000 - default to preferring 'American' format meaning Jan 2.
 // Set to false to prefer 'European' format meaning Feb 1
@@ -104,14 +104,14 @@ Date.parseString = function (val, format) {
       "d-MMM-y",
       "MMM d",
       "MMM-d",
-      "d-MMM"
+      "d-MMM",
     );
     var monthFirst = new Array("M/d/y", "M-d-y", "M.d.y", "M/d", "M-d");
     var dateFirst = new Array("d/M/y", "d-M-y", "d.M.y", "d/M", "d-M");
     var checkList = new Array(
       generalFormats,
       Date.preferAmericanFormat ? monthFirst : dateFirst,
-      Date.preferAmericanFormat ? dateFirst : monthFirst
+      Date.preferAmericanFormat ? dateFirst : monthFirst,
     );
     for (var i = 0; i < checkList.length; i++) {
       var l = checkList[i];

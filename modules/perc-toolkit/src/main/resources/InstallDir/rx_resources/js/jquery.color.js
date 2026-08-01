@@ -10,7 +10,7 @@
 (function (jQuery, undefined) {
   var stepHooks =
       "backgroundColor borderBottomColor borderLeftColor borderRightColor borderTopColor color outlineColor".split(
-        " "
+        " ",
       ),
     // plusequals test for += 100 -= 100
     rplusequals = /^([\-+])=\s*(\d+\.?\d*)/,
@@ -339,7 +339,7 @@
           }
           result[prop.idx] = clamp(
             (endValue - startValue) * distance + startValue,
-            prop
+            prop,
           );
         }
       });
@@ -358,7 +358,7 @@
       return color(
         jQuery.map(rgb, function (v, i) {
           return (1 - a) * blend[i] + a * v;
-        })
+        }),
       );
     },
     toRgbaString: function () {
@@ -589,7 +589,7 @@
             value = value.blend(
               backgroundColor && backgroundColor !== "transparent"
                 ? backgroundColor
-                : "_default"
+                : "_default",
             );
           }
 

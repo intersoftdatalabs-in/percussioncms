@@ -68,16 +68,16 @@
       if (siteJobId) {
         $.perc_utils.info(
           I18N.message(
-            "perc.ui.workflow.view@Cancelling Assigned Site Folders Job"
-          )
+            "perc.ui.workflow.view@Cancelling Assigned Site Folders Job",
+          ),
         );
         cancelJob(siteJobId, sync);
       }
       if (assetJobId) {
         $.perc_utils.info(
           I18N.message(
-            "perc.ui.workflow.view@Cancelling Assigned Site Folders Job"
-          )
+            "perc.ui.workflow.view@Cancelling Assigned Site Folders Job",
+          ),
         );
         cancelJob(assetJobId, sync);
       }
@@ -86,7 +86,7 @@
       if (!jobId) return;
       $.perc_utils.info(
         I18N.message("perc.ui.workflow.view@Cancelling Assigned Folders Job") +
-          jobId
+          jobId,
       );
       var callback = function (status, result) {
         if (status == $.PercServiceUtils.STATUS_ERROR) {
@@ -94,8 +94,8 @@
         } else {
           $.perc_utils.info(
             I18N.message(
-              "perc.ui.workflow.view@Cancelling Assigned Folders Job"
-            ) + jobId
+              "perc.ui.workflow.view@Cancelling Assigned Folders Job",
+            ) + jobId,
           );
         }
       };
@@ -145,7 +145,7 @@
         .find('input[type="checkbox"]')
         .attr("aria-disabled", "false");
       $(
-        ".perc-step-config-button, .perc-reserved-step-config-bttn, .perc-step-delete-button, .perc-create-new-step"
+        ".perc-step-config-button, .perc-reserved-step-config-bttn, .perc-step-delete-button, .perc-create-new-step",
       )
         .off("click")
         .on("click");
@@ -153,7 +153,7 @@
       $(".perc-step-delete-button").addClass("perc-step-delete-disable");
       $(".perc-step-config-button").addClass("perc-step-config-disable");
       $(".perc-reserved-step-config-bttn").addClass(
-        "perc-reserved-step-config-disable"
+        "perc-reserved-step-config-disable",
       );
       //adding aria-disabled attribute to indicate disability
       $(".perc-create-new-step").attr("aria-disabled", "true");
@@ -164,7 +164,7 @@
       hideWorkflowEditButton();
       $("#perc-wf-update-editor").show();
       var workflowName = $("#perc-workflow-steps-container").data(
-        "workflowName"
+        "workflowName",
       );
 
       //create the workflow control for publish now to staging permissions
@@ -230,7 +230,7 @@
      */
     function deleteWorkflow(workflowName) {
       var previousWorkflowName = $(
-        ".perc-itemname[title='" + workflowName + "']"
+        ".perc-itemname[title='" + workflowName + "']",
       )
         .prev()
         .attr("title");
@@ -261,13 +261,13 @@
                   $.PercServiceUtils.extractDefaultErrorMessage(result[0]);
                 $.perc_utils.alert_dialog({
                   title: I18N.message(
-                    "perc.ui.workflow.view@Error Deleting Workflow"
+                    "perc.ui.workflow.view@Error Deleting Workflow",
                   ),
                   content: errorMessage,
                 });
               }
               $.unblockUI();
-            }
+            },
           );
         },
       };
@@ -349,11 +349,11 @@
       var workflowName = $("#perc-new-workflow-name").val().trim();
       if (!$("#perc-new-workflow-name")[0].checkValidity()) {
         var validationError = I18N.message(
-          "perc.ui.workflow.view@Workflow Invalid Characters"
+          "perc.ui.workflow.view@Workflow Invalid Characters",
         );
         $.perc_utils.alert_dialog({
           title: I18N.message(
-            "perc.ui.workflow.view@Workflow Validation Error"
+            "perc.ui.workflow.view@Workflow Validation Error",
           ),
           content: validationError,
         });
@@ -380,18 +380,18 @@
               refreshWorkflowContainer(workflowName.trim());
             } else {
               var errorMessage = $.PercServiceUtils.extractDefaultErrorMessage(
-                result[0]
+                result[0],
               );
               $.perc_utils.alert_dialog({
                 //TODO: I18N TESTME
                 title: I18N.message(
-                  "perc.ui.workflow.view@Error Creating Workflow"
+                  "perc.ui.workflow.view@Error Creating Workflow",
                 ),
                 content: errorMessage,
               });
             }
             $.unblockUI();
-          }
+          },
         );
       }
       $.PercBlockUI();
@@ -422,17 +422,17 @@
      */
     function updateWorkflow() {
       var previousWorkflowName = $("#perc-workflow-steps-container").data(
-        "workflowName"
+        "workflowName",
       );
       var newWorkflowName = $("#perc-update-workflow-name").val();
       var isDefault = $(".perc-wf-default input").is(":checked");
       if (!$("#perc-update-workflow-name")[0].checkValidity()) {
         var validationError = I18N.message(
-          "perc.ui.workflow.view@Workflow Invalid Characters"
+          "perc.ui.workflow.view@Workflow Invalid Characters",
         );
         $.perc_utils.alert_dialog({
           title: I18N.message(
-            "perc.ui.workflow.view@Workflow Validation Error"
+            "perc.ui.workflow.view@Workflow Validation Error",
           ),
           content: validationError,
         });
@@ -458,7 +458,7 @@
               refreshWorkflowContainer(newWorkflowName.trim());
             } else {
               var errorMessage = $.PercServiceUtils.extractDefaultErrorMessage(
-                result[0]
+                result[0],
               );
               $.perc_utils.alert_dialog({
                 content: errorMessage,
@@ -469,7 +469,7 @@
               });
             }
             $.unblockUI();
-          }
+          },
         );
       }
       var currDefWf = $(".perc-default-wf-list-marker").attr("title");
@@ -509,7 +509,7 @@
       if (serverStringRoles.length > 0)
         serverStringRoles = serverStringRoles.substring(
           0,
-          serverStringRoles.length - 1
+          serverStringRoles.length - 1,
         );
       return serverStringRoles;
     }
@@ -531,7 +531,7 @@
         if (status == $.PercServiceUtils.STATUS_ERROR) {
           utils.alertDialog(
             I18N.message("perc.ui.workflow.view@Error Loading Roles"),
-            rolesJson
+            rolesJson,
           );
           return;
         }
@@ -548,7 +548,7 @@
           toggler: $(".perc-wf-default").find("input"),
           title1: I18N.message("perc.ui.rolePropsDialog.title@Role Properties"),
           title2: I18N.message(
-            "perc.ui.rolePropsDialog.title@Role Staging Actions"
+            "perc.ui.rolePropsDialog.title@Role Staging Actions",
           ),
           help: I18N.message("perc.ui.rolePropsDialog.title@Enter a role"),
         });
@@ -648,7 +648,7 @@
         } else {
           callback(
             false,
-            $.PercServiceUtils.extractDefaultErrorMessage(result[0])
+            $.PercServiceUtils.extractDefaultErrorMessage(result[0]),
           );
         }
       });
@@ -701,7 +701,7 @@
         instanceIdSuffix: "-instance1", // Supply a suffix to make an internal ID really unique
         title: I18N.message("perc.ui.workflow.view@Assigned"), // title of PercDataTree
         addTitle: I18N.message(
-          "perc.ui.workflow.view@Assign Sites and Folders to Workflow"
+          "perc.ui.workflow.view@Assign Sites and Folders to Workflow",
         ), // title atribute of add button
         collapsible: true,
         levelLimit: 2,
@@ -713,7 +713,7 @@
       assign_container.append(
         '<div role="status" class="perc-sa-loading-warning-message"><img src="../css/fancytree/skin/loading.gif" alt="perc.ui.assign.workflow@LoadingGifAlt" style="vertical-align:bottom"/>' +
           I18N.message("perc.ui.assign.workflow@Workflow Loading") +
-          "</div>"
+          "</div>",
       );
     }
 
@@ -750,8 +750,8 @@
           siteJobId = result;
           $.perc_utils.info(
             I18N.message(
-              "perc.ui.workflow.view@Started Associated Folders Jobs For Sites"
-            ) + siteJobId
+              "perc.ui.workflow.view@Started Associated Folders Jobs For Sites",
+            ) + siteJobId,
           );
           $.PercFolderService.startAssociatedFoldersJob(
             "Assets",
@@ -770,16 +770,16 @@
               assetJobId = result;
               $.perc_utils.info(
                 I18N.message(
-                  "perc.ui.workflow.view@Started Associated Folders Jobs For Assets"
-                ) + assetJobId
+                  "perc.ui.workflow.view@Started Associated Folders Jobs For Assets",
+                ) + assetJobId,
               );
               loadSiteFolders();
               loadAssetFolders();
             },
-            false
+            false,
           );
         },
-        false
+        false,
       );
     }
     function loadSiteFolders() {
@@ -802,15 +802,15 @@
           }
           $.perc_utils.info(
             I18N.message(
-              "perc.ui.workflow.view@Finished Associated Folders Jobs For Sites"
-            ) + siteJobId
+              "perc.ui.workflow.view@Finished Associated Folders Jobs For Sites",
+            ) + siteJobId,
           );
           siteJobId = null;
           originalSitesJson = {};
           originalSitesJson.folderItem =
             result.GetAssginedFoldersJobStatus.folderItems;
           showFolderTrees();
-        }
+        },
       );
     }
     function loadAssetFolders() {
@@ -834,15 +834,15 @@
           }
           $.perc_utils.info(
             I18N.message(
-              "perc.ui.workflow.view@Finished Associated Folders Jobs For Assets"
-            ) + assetJobId
+              "perc.ui.workflow.view@Finished Associated Folders Jobs For Assets",
+            ) + assetJobId,
           );
           assetJobId = null;
           originalAssetsJson = {};
           originalAssetsJson.folderItem =
             result.GetAssginedFoldersJobStatus.folderItems;
           showFolderTrees();
-        }
+        },
       );
     }
 
@@ -854,7 +854,7 @@
         $.PercDataTree.updateTree(
           assign_container,
           [originalSitesJson, originalAssetsJson],
-          selectedWorkflow
+          selectedWorkflow,
         );
         setTabIndexForAdminWF();
       }
@@ -941,7 +941,7 @@
       // The variable selectedWorkflow is in the closure scope
       $.perc_assign_workflow_sites_folder_dialog.createDialog(
         selectedWorkflow,
-        updateSitesFolderAssignedSection
+        updateSitesFolderAssignedSection,
       );
     }
 
@@ -961,7 +961,7 @@
           .empty()
           .addClass("perc-workflow-unavailale-message-table")
           .append(
-            "<div class='perc-workflow-unavailale-message'>Workflow assignment in process</div>"
+            "<div class='perc-workflow-unavailale-message'>Workflow assignment in process</div>",
           );
       } else {
         $.wfViewObject.init();

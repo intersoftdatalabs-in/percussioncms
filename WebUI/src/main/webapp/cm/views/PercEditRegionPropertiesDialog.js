@@ -146,7 +146,7 @@
         _layoutModel,
         _iframe,
         region,
-        createDialog
+        createDialog,
       );
 
       function createDialog() {
@@ -154,19 +154,19 @@
 
         if (regionWidth === "")
           regionWidth = I18N.message(
-            "perc.ui.edit.region.properties.dialog@Enter Width"
+            "perc.ui.edit.region.properties.dialog@Enter Width",
           );
         if (regionHeight === "")
           regionHeight = I18N.message(
-            "perc.ui.edit.region.properties.dialog@Enter Height"
+            "perc.ui.edit.region.properties.dialog@Enter Height",
           );
         if (regionPadding === "")
           regionPadding = I18N.message(
-            "perc.ui.edit.region.properties.dialog@Enter Padding"
+            "perc.ui.edit.region.properties.dialog@Enter Padding",
           );
         if (regionMargin === "")
           regionMargin = I18N.message(
-            "perc.ui.edit.region.properties.dialog@Enter Margin"
+            "perc.ui.edit.region.properties.dialog@Enter Margin",
           );
         if (!_layoutModel.isResponsiveBaseTemplate()) {
           percDataOverrides.push({ rowContent: ["Width", regionWidth] });
@@ -198,7 +198,7 @@
 
         oTableOverrides = $.PercInlineEditDataTable.init(
           $("#perc-css-overrides-table"),
-          configOverrides
+          configOverrides,
         );
         var percAttributeData = [];
         var regionAttributesConfig = {
@@ -227,7 +227,7 @@
 
         oTableAttributes = $.PercInlineEditDataTable.init(
           $("#perc-region-attributes-table"),
-          regionAttributesConfig
+          regionAttributesConfig,
         );
 
         $("#perc-css-overrides-disable").on("click", function () {
@@ -237,7 +237,7 @@
         function _toggleCssOverride(state) {
           $.PercInlineEditDataTable.enableTable(
             $("#perc-css-overrides-table"),
-            !state
+            !state,
           );
         }
 
@@ -356,12 +356,9 @@
             }
           }
           dialog.find("#" + self.attr("groupName")).toggle();
-          if (
-            !(
-              "placeholder" in $("<input>")[0] ||
-              "placeHolder" in $("<input>")[0]
-            )
-          ) {
+          if (!(
+            "placeholder" in $("<input>")[0] || "placeHolder" in $("<input>")[0]
+          )) {
             dialog
               .find("#perc-region-cssClass")
               .placeHolder({ hideOnFocus: false });
@@ -399,7 +396,7 @@
     function renameRegionConfirmDialogOK() {
       var selectedVal = "replaceedits";
       var selected = $("#perc-region-edit-rename-confirm-dialog").find(
-        "input[type='radio']:checked"
+        "input[type='radio']:checked",
       );
       if (selected.length > 0) selectedValue = selected.val();
 

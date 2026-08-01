@@ -38,19 +38,19 @@
           callback(
             $.PercServiceUtils.STATUS_SUCCESS,
             result.data,
-            I18N.message("perc.ui.form.service@No Forms Found")
+            I18N.message("perc.ui.form.service@No Forms Found"),
           );
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback(
             $.PercServiceUtils.STATUS_ERROR,
             defaultMsg,
-            I18N.message("perc.ui.form.service@Delivery Service Unavailable")
+            I18N.message("perc.ui.form.service@Delivery Service Unavailable"),
           );
         }
-      }
+      },
     );
   }
   /**
@@ -74,14 +74,14 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
       "",
       "text/csv",
-      "text"
+      "text",
     );
   }
   /**
@@ -97,11 +97,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 })(jQuery);

@@ -655,7 +655,8 @@ del {
 }
 .perc-itool-custom-cursor .ui-state-disabled,
 .perc-itool-custom-cursor.ui-state-disabled {
-  cursor: url("/Rhythmyx/sys_resources/images/cm/region-inspector.cur"), default !important;
+  cursor:
+    url("/Rhythmyx/sys_resources/images/cm/region-inspector.cur"), default !important;
 }
 
 .perc-itool-region-puff {

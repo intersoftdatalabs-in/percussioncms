@@ -38,11 +38,11 @@
     // HOOK_NAMES = "nodeClick nodeCollapseSiblings".split(" "),
     TREE_EVENT_NAMES =
       "beforeRestore beforeUpdateViewport blurTree create init focusTree preInit restore updateViewport".split(
-        " "
+        " ",
       ),
     NODE_EVENT_NAMES =
       "activate activateCell beforeActivate beforeExpand beforeSelect blur click collapse createNode dblclick deactivate defaultGridAction expand enhanceTitle focus keydown keypress lazyLoad loadChildren loadError modifyChild postProcess renderNode renderTitle select".split(
-        " "
+        " ",
       ),
     EVENT_NAMES = TREE_EVENT_NAMES.concat(NODE_EVENT_NAMES),
     // HOOK_NAME_MAP = {},
@@ -163,12 +163,12 @@
         this.options.extensions[this.options.extensions.length - 1] !== "logger"
       ) {
         throw Error(
-          "Fancytree 'logger' extension must be listed as last entry."
+          "Fancytree 'logger' extension must be listed as last entry.",
         );
       }
       tree.warn(
         "Fancytree logger extension is enabled (this may be slow).",
-        opts.logger
+        opts.logger,
       );
 
       tree.debug(
@@ -176,14 +176,14 @@
           $.ui.fancytree.version +
           ", buildType='" +
           $.ui.fancytree.buildType +
-          "'"
+          "'",
       );
       tree.debug(
         "jQuery UI " +
           jQuery.ui.version +
           " (uiBackCompat=" +
           $.uiBackCompat +
-          ")"
+          ")",
       );
       tree.debug("jQuery " + jQuery.fn.jquery);
       tree.debug("Browser: " + getBrowserInfo());
@@ -207,7 +207,7 @@
         "nodeClick",
         this,
         arguments,
-        FT.eventToString(ctx.originalEvent)
+        FT.eventToString(ctx.originalEvent),
       );
     },
     nodeCollapseSiblings: function (ctx) {
@@ -221,7 +221,7 @@
         "nodeKeydown",
         this,
         arguments,
-        FT.eventToString(ctx.originalEvent)
+        FT.eventToString(ctx.originalEvent),
       );
     },
     nodeLoadChildren: function (ctx, source) {

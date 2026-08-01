@@ -67,7 +67,7 @@
             $(".perc-list-empy-title").remove();
             //Get the structure and get the root element of the list
             var listRoot = currentTagList.find(
-              ".perc-tag-list-structure .perc-list-main"
+              ".perc-tag-list-structure .perc-list-main",
             );
             //Clone the li for future use
             var listElem = listRoot.find("li").clone();
@@ -130,8 +130,8 @@
                         pageResult +
                         "?filter=" +
                         tagEntry.tagName +
-                        encodedQuery
-                    )
+                        encodedQuery,
+                    ),
                   )
                   .html(linkText);
               } else {
@@ -145,7 +145,7 @@
             //TODO: Log the error?
             console.error(status);
           }
-        }
+        },
       );
     });
   }

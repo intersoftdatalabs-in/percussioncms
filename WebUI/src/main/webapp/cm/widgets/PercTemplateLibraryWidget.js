@@ -69,7 +69,7 @@
           self._updateTemplatesFilter(percSiteTemplatesController, sites);
           self._loadTemplates();
           $.unblockUI();
-        }
+        },
       );
       //});
     },
@@ -102,12 +102,12 @@
         if (
           $.PercSiteTemplatesController(false).getTemplates(
             "site",
-            filterVal
+            filterVal,
           ) != ""
         ) {
           self.templates = $.PercSiteTemplatesController(false).getTemplates(
             "site",
-            filterVal
+            filterVal,
           );
           displayTemplates(self);
         } else {
@@ -121,7 +121,7 @@
             },
             function (status) {
               $("body").append(status);
-            }
+            },
           );
         }
       }
@@ -132,12 +132,12 @@
           function () {
             self.templates = $.PercSiteTemplatesController(false).getTemplates(
               "site",
-              filterVal
+              filterVal,
             );
             defer.resolve();
           },
           false,
-          siteName
+          siteName,
         );
         return defer.promise();
       }
@@ -233,12 +233,12 @@
      */
     _updateTemplatesFilter: function (percSiteTemplatesController, sites) {
       $("#perc-templates-filter").html(
-        '<option value="base">Base</option><option value="resp">Responsive</option>'
+        '<option value="base">Base</option><option value="resp">Responsive</option>',
       );
       if (sites) {
         for (var s = 0; s < sites.length; s++) {
           $("#perc-templates-filter").append(
-            '<option value="' + sites[s] + '">' + sites[s] + "</option>"
+            '<option value="' + sites[s] + '">' + sites[s] + "</option>",
           );
         }
       }

@@ -34,6 +34,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.URI;
@@ -817,8 +818,14 @@ public class InstallUtil {
    * @return {@code true} when the TCP port can be bound, otherwise {@code false}
    */
   public static boolean portAvailable(int port) {
-    try (ServerSocket ss = new ServerSocket(port)) {
+    try (ServerSocket ss = new ServerSocket()) {
+      // SO_REUSEADDR must be set BEFORE bind() so a probe can succeed on a port that is
+      // briefly in TIME_WAIT from a previous close (including on Linux where the OS holds
+      // the socket for ~60s). Without this, an immediately re-probed port appears busy
+      // and unrelated offline-detection tests fail when a deployed DTS server is running
+      // on the same host.
       ss.setReuseAddress(true);
+      ss.bind(new InetSocketAddress(port));
       return true;
     } catch (IOException e) {
       logError("Port Availability Check Failed." + e.getMessage());

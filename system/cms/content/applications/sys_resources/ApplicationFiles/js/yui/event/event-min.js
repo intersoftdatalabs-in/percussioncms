@@ -24,7 +24,7 @@ YAHOO.util.CustomEvent = function (type, oScope, silent, signature) {
     this.subscribeEvent = new YAHOO.util.CustomEvent(
       onsubscribeType,
       this,
-      true
+      true,
     );
   }
 };
@@ -287,7 +287,7 @@ if (!YAHOO.util.Event) {
             el["on" + sType] = function (e) {
               YAHOO.util.Event.fireLegacyEvent(
                 YAHOO.util.Event.getEvent(e),
-                legacyIndex
+                legacyIndex,
               );
             };
           }
@@ -771,7 +771,7 @@ if (!YAHOO.util.Event) {
       YAHOO.util.Event.onDOMReady(
         YAHOO.util.Event._tryPreloadAttach,
         YAHOO.util.Event,
-        true
+        true,
       );
       var el,
         d = document,
@@ -782,7 +782,7 @@ if (!YAHOO.util.Event) {
         p.insertBefore(el, p.firstChild);
       } else {
         document.write(
-          "<scr" + 'ipt id="_yui_eu_dr" defer="true" src="//:"><' + "/script>"
+          "<scr" + 'ipt id="_yui_eu_dr" defer="true" src="//:"><' + "/script>",
         );
         el = document.getElementById("_yui_eu_dr");
       }
@@ -865,7 +865,7 @@ YAHOO.util.EventProvider.prototype = {
         p_type,
         scope,
         silent,
-        YAHOO.util.CustomEvent.FLAT
+        YAHOO.util.CustomEvent.FLAT,
       );
       events[p_type] = ce;
       if (opts.onSubscribeCallback) {

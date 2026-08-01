@@ -63,7 +63,7 @@
       if (config.debug) {
         var $out = $("#uploadOutput");
         $out.html(
-          "Form success handler received: <strong>" + typeof data + "</strong>"
+          "Form success handler received: <strong>" + typeof data + "</strong>",
         );
         var newData;
         if (typeof data == "object" && data.nodeType) {
@@ -130,7 +130,7 @@
           }
           setImageIdOnForm(imageInfo);
           updateImageForDisplay(imageInfo);
-        }
+        },
       );
     }
 
@@ -170,7 +170,7 @@
       var height = item.page.find(".image_asset_height");
       var width = item.page.find(".image_asset_width");
       height.val(
-        Math.round((uploadedImage.height / uploadedImage.width) * width.val())
+        Math.round((uploadedImage.height / uploadedImage.width) * width.val()),
       );
     }
 
@@ -178,7 +178,7 @@
       var height = item.page.find(".image_asset_width");
       var width = item.page.find(".image_asset_height");
       width.val(
-        Math.round((uploadedImage.width / uploadedImage.height) * width.val())
+        Math.round((uploadedImage.width / uploadedImage.height) * width.val()),
       );
     }
 
@@ -236,10 +236,10 @@
         var width = imageInfo.image.width;
         var displayScale = 100;
         var widthScale = Math.round(
-          (config.maxDisplayHeight / imageInfo.image.height) * 100
+          (config.maxDisplayHeight / imageInfo.image.height) * 100,
         );
         var heightScale = Math.round(
-          (config.maxDisplayWidth / imageInfo.image.width) * 100
+          (config.maxDisplayWidth / imageInfo.image.width) * 100,
         );
         if (heightScale < widthScale) {
           width = config.maxDisplayWidth;
@@ -247,14 +247,14 @@
 
           height = Math.round(
             (imageInfo.image.height / imageInfo.image.width) *
-              config.maxDisplayWidth
+              config.maxDisplayWidth,
           );
         } else {
           height = config.maxDisplayHeight;
           displayScale = widthScale;
           width = Math.round(
             (imageInfo.image.width / imageInfo.image.height) *
-              config.maxDisplayHeight
+              config.maxDisplayHeight,
           );
         }
         scale.html("Displayed scale is " + displayScale + "%");
@@ -271,7 +271,7 @@
             imageInfo.displayImage = data;
             renderMainImage(imageInfo);
           },
-          "json"
+          "json",
         ).fail(function (xhr, status, error) {
           console.log(xhr.statusText);
           console.log(textStatus);
@@ -284,7 +284,7 @@
       imageInfo.page.find(".image_asset_height").val(imageInfo.image.height);
       renderImage(
         imageInfo.page.find(".image_asset_image"),
-        imageInfo.displayImage
+        imageInfo.displayImage,
       );
     }
 
@@ -299,7 +299,7 @@
           j.height +
           '" width="' +
           j.width +
-          '"  />'
+          '"  />',
       );
     }
 
@@ -340,7 +340,7 @@
             setImageIdOnForm(imageInfo);
             updateImageForDisplay(imageInfo);
           },
-          "json"
+          "json",
         ).fail(function (xhr, status, error) {
           console.log(xhr.statusText);
           console.log(textStatus);
@@ -380,7 +380,7 @@
           imageInfo.dirty = true;
           setImageIdOnForm(imageInfo);
         },
-        "json"
+        "json",
       );
     }
 
@@ -406,7 +406,7 @@
             }
           }
         },
-        "json"
+        "json",
       );
     }
 
@@ -430,7 +430,7 @@
           idField.after(
             '<input type="hidden" name="' +
               id_fieldname +
-              '_dirty" value="true" />'
+              '_dirty" value="true" />',
           );
         }
       } else {
@@ -496,14 +496,14 @@
               $.topFrameJQuery.perc_utils.alert_dialog({
                 title: I18N.message("perc.ui.newassetdialog.title@New Asset"),
                 content: I18N.message(
-                  "perc.ui.page.path.selection.dialog@Not Authorized to Create"
+                  "perc.ui.page.path.selection.dialog@Not Authorized to Create",
                 ),
               });
               return;
             } else {
               _checkUserWorkflowPermission(data);
             }
-          }
+          },
         );
     }
 
@@ -521,14 +521,14 @@
             $.topFrameJQuery.perc_utils.alert_dialog({
               title: I18N.message("perc.ui.newassetdialog.title@New Asset"),
               content: I18N.message(
-                "perc.ui.page.path.selection.dialog@Not Authorized to Create"
+                "perc.ui.page.path.selection.dialog@Not Authorized to Create",
               ),
             });
           } else {
             updateFormActionUrl(data);
           }
         },
-        data.folderPath.substring(data.folderPath.indexOf("/Assets"))
+        data.folderPath.substring(data.folderPath.indexOf("/Assets")),
       );
     }
 
@@ -561,13 +561,15 @@
       var prevWidth = width.val();
       if (uploadedImage.height <= uploadedImage.width) {
         height.val(
-          Math.round((uploadedImage.height / uploadedImage.width) * width.val())
+          Math.round(
+            (uploadedImage.height / uploadedImage.width) * width.val(),
+          ),
         );
       } else {
         width.val(
           Math.round(
-            (uploadedImage.width / uploadedImage.height) * height.val()
-          )
+            (uploadedImage.width / uploadedImage.height) * height.val(),
+          ),
         );
       }
       var currHeight = height.val();
@@ -639,7 +641,7 @@
 
         if (constrain > 0) {
           var newWidth = Math.round(
-            (uploadedImage.width / uploadedImage.height) * $(this).val()
+            (uploadedImage.width / uploadedImage.height) * $(this).val(),
           );
           step.find(".image_asset_width").val(newWidth);
         }
@@ -660,7 +662,7 @@
         var constrain = step.find(".image_asset_constrain:checked").length;
         if (constrain > 0) {
           var newHeight = Math.round(
-            (uploadedImage.height / uploadedImage.width) * $(this).val()
+            (uploadedImage.height / uploadedImage.width) * $(this).val(),
           );
           step.find(".image_asset_height").val(newHeight);
         }
@@ -935,7 +937,7 @@
       }
 
       $.topFrameJQuery.PercContentPreSubmitHandlers.addHandler(
-        _updateDisplayTitleIfNeeded
+        _updateDisplayTitleIfNeeded,
       );
 
       _initThumbprefix();

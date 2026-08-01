@@ -257,7 +257,7 @@ function showCalendar(dateField, timevar, appendvar) {
       top.newWin = window.open(
         "javascript:parent.opener.calDocFrameset",
         "cal",
-        winPrefs
+        winPrefs,
       );
 
     // First write the frameset
@@ -544,7 +544,7 @@ function buildBottomCalDOM() {
     linkEl.setAttribute("class", dayType);
     linkEl.setAttribute(
       "href",
-      "javascript:parent.opener.returnDate(" + currentDay + ")"
+      "javascript:parent.opener.returnDate(" + currentDay + ")",
     );
     colEl.appendChild(linkEl);
 
@@ -820,7 +820,7 @@ function getMonthSelect() {
       "Septembre",
       "Octobre",
       "Novembre",
-      "D�cembre"
+      "D�cembre",
     );
   }
   // IF GERMAN
@@ -837,7 +837,7 @@ function getMonthSelect() {
       "September",
       "Oktober",
       "November",
-      "Dezember"
+      "Dezember",
     );
   }
   // IF SPANISH
@@ -854,7 +854,7 @@ function getMonthSelect() {
       "Septiembre",
       "Octubre",
       "Noviembre",
-      "Diciembre"
+      "Diciembre",
     );
   }
   // DEFAULT TO ENGLISH
@@ -871,7 +871,7 @@ function getMonthSelect() {
       "September",
       "October",
       "November",
-      "December"
+      "December",
     );
   }
 
@@ -922,7 +922,7 @@ function getTimeSelect() {
     "8pm",
     "9pm",
     "10pm",
-    "11pm"
+    "11pm",
   );
 
   ValueTimeArray = new Array(
@@ -949,7 +949,7 @@ function getTimeSelect() {
     "20:00:00",
     "21:00:00",
     "22:00:00",
-    "23:00:00"
+    "23:00:00",
   );
 
   TimeSelect = '<select  name="time">';
@@ -978,7 +978,7 @@ function createWeekdayList() {
       "Mercredi",
       "Jeudi",
       "Vendredi",
-      "Samedi"
+      "Samedi",
     );
     weekdayArray = new Array("Di", "Lu", "Ma", "Me", "Je", "Ve", "Sa");
   }
@@ -991,7 +991,7 @@ function createWeekdayList() {
       "Mittwoch",
       "Donnerstag",
       "Freitag",
-      "Samstag"
+      "Samstag",
     );
     weekdayArray = new Array("So", "Mo", "Di", "Mi", "Do", "Fr", "Sa");
   }
@@ -1015,7 +1015,7 @@ function createWeekdayList() {
       "Wednesday",
       "Thursday",
       "Friday",
-      "Saturday"
+      "Saturday",
     );
     weekdayArray = new Array("Su", "Mo", "Tu", "We", "Th", "Fr", "Sa");
   }

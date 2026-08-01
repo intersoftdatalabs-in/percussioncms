@@ -51,26 +51,26 @@
       "click",
       function (evt) {
         setViewColumn(evt);
-      }
+      },
     );
 
     var chooseListView = $("#perc-finder-choose-listview").on(
       "click",
       function (evt) {
         setViewList(evt);
-      }
+      },
     );
     var chooseSearchView = $("#perc-finder-search-submit").on(
       "click",
       function (evt) {
         setViewSearch(evt);
-      }
+      },
     );
     var chooseMyPagesView = $("#perc-finder-choose-mypagesview").on(
       "click",
       function (evt) {
         setMyPagesView(evt);
-      }
+      },
     );
 
     setColumnViewButtonOn();
@@ -89,7 +89,7 @@
         $("#frame").each(function () {
           $.PercNavigationManager.goTo(
             $.PercNavigationManager.VIEW_EDITOR,
-            true
+            true,
           );
         });
       },
@@ -168,11 +168,11 @@
     //Set the newStartIndex and refresh the view
     function pagePrevious(event) {
       percFinderListviewContainer = $(".perc-finder").find(
-        "#perc-finder-listview"
+        "#perc-finder-listview",
       );
       percFinderListviewContainer.data(
         "startIndex",
-        percFinderListviewContainer.data("startIndex") - MAX_RESULTS
+        percFinderListviewContainer.data("startIndex") - MAX_RESULTS,
       );
       percFinderListviewContainer.data("callback", updatePagingBar);
       refreshView();
@@ -181,11 +181,11 @@
     //Set the newStartIndex and refresh the view
     function pageNext(event) {
       var percFinderListviewContainer = $(".perc-finder").find(
-        "#perc-finder-listview"
+        "#perc-finder-listview",
       );
       percFinderListviewContainer.data(
         "startIndex",
-        percFinderListviewContainer.data("startIndex") + MAX_RESULTS
+        percFinderListviewContainer.data("startIndex") + MAX_RESULTS,
       );
       percFinderListviewContainer.data("callback", updatePagingBar);
       refreshView();
@@ -195,15 +195,15 @@
     //This function is called after paging, sorting and new search when the user is already in search view
     function refreshView() {
       percFinderListviewContainer = $(".perc-finder").find(
-        "#perc-finder-listview"
+        "#perc-finder-listview",
       );
       $(".perc-fixedtableheader").remove();
       percFinderListviewContainer.empty();
       percFinderListviewContainer.css("text-align", "left");
       percFinderListviewContainer.append(
         $(
-          '<div class="perc-finder-panel-loading"><span class="icon-spinner icon-spin icon-2x"></span>&nbsp;Loading...</div>'
-        )
+          '<div class="perc-finder-panel-loading"><span class="icon-spinner icon-spin icon-2x"></span>&nbsp;Loading...</div>',
+        ),
       );
       var column = percFinderListviewContainer.data("sortColumn");
       var order = percFinderListviewContainer.data("sortOrder");
@@ -340,12 +340,12 @@
               .append(
                 $('<a class="perc-pagingbar-previous" />').attr(
                   "title",
-                  "Previous"
-                )
+                  "Previous",
+                ),
               )
               .append(
-                $('<a class="perc-pagingbar-next"/>').attr("title", "Next")
-              )
+                $('<a class="perc-pagingbar-next"/>').attr("title", "Next"),
+              ),
           )
           .append($('<span class="perc-pagingbar-items" />'));
 
@@ -442,11 +442,11 @@
                     }
                   });
                   if (callback) callback();
-                }
+                },
               );
             } else {
               var error = $(
-                "<span style='font-weight: normal; margin-top: 15px; display:block'/>"
+                "<span style='font-weight: normal; margin-top: 15px; display:block'/>",
               ).text(result);
               $("#perc-finder-listview")
                 .css("text-align", "center")
@@ -457,7 +457,7 @@
             percFinderListviewContainer = $("#perc-finder-listview");
             percFinderListviewContainerInitialHeight =
               percFinderListviewContainer.height();
-          }
+          },
         );
       });
     }
@@ -480,14 +480,14 @@
               if (callback) callback();
             } else {
               var error = $(
-                "<span style='font-weight: normal; margin-top: 15px; display:block'/>"
+                "<span style='font-weight: normal; margin-top: 15px; display:block'/>",
               ).text(result);
               $("#perc-finder-listview")
                 .css("text-align", "center")
                 .append(error);
               $(".perc-finder-panel-loading").remove();
             }
-          }
+          },
         );
       });
     }
@@ -500,10 +500,10 @@
       if (currentFinderView === PERC_FINDER_SEARCH_RESULTS) {
         // URL-encode the text to avoid jQuery bug:
         var encodedSearchText = encodeURIComponent(
-          $("#perc-finder-item-search").val().trim()
+          $("#perc-finder-item-search").val().trim(),
         );
         var percFinderListviewContainer = $(".perc-finder").find(
-          "#perc-finder-listview"
+          "#perc-finder-listview",
         );
         percFinderListviewContainer.data("searchQuery", encodedSearchText);
         percFinderListviewContainer.data("startIndex", 1);
@@ -521,7 +521,7 @@
     //Set the new column and order to sort and refresh the view
     function sortView(column, order) {
       var percFinderListviewContainer = $(".perc-finder").find(
-        "#perc-finder-listview"
+        "#perc-finder-listview",
       );
       percFinderListviewContainer.data("startIndex", 1);
       percFinderListviewContainer.data("sortColumn", column);
@@ -648,7 +648,7 @@
         _updateListViewContainerData(
           contentPath,
           lastColumn.data("startIndex"),
-          showPagingBar
+          showPagingBar,
         );
         setListViewButtonOn();
       } else if (
@@ -660,7 +660,7 @@
 
         var percFinderListviewContainer = addListViewContainer();
         var searchQuery = encodeURIComponent(
-          $("#perc-finder-item-search").val().trim()
+          $("#perc-finder-item-search").val().trim(),
         );
         if (searchQuery === null) {
           // The original code appends the following message "unformatted (it lacks the
@@ -680,7 +680,7 @@
         if (view === PERC_FINDER_SEARCH_TYPE_MYPAGES) {
           percFinderListviewContainer.data(
             "searchType",
-            PERC_FINDER_SEARCH_TYPE_MYPAGES
+            PERC_FINDER_SEARCH_TYPE_MYPAGES,
           );
         }
         refreshView();
@@ -700,7 +700,7 @@
     function _updateListViewContainerData(
       contentPath,
       startIndex,
-      pagingBarCallback
+      pagingBarCallback,
     ) {
       percFinderListviewContainer.data("path", contentPath);
       percFinderListviewContainer.data("startIndex", startIndex);
@@ -718,10 +718,10 @@
      */
     function setListViewButtonOn(view) {
       $("#perc-finder-choose-view #perc-finder-choose-columnview").removeClass(
-        "ui-enabled"
+        "ui-enabled",
       );
       $("#perc-finder-choose-view #perc-finder-choose-listview").addClass(
-        "ui-enabled"
+        "ui-enabled",
       );
     }
 
@@ -731,10 +731,10 @@
      */
     function setColumnViewButtonOn() {
       $("#perc-finder-choose-view #perc-finder-choose-columnview").addClass(
-        "ui-enabled"
+        "ui-enabled",
       );
       $("#perc-finder-choose-view #perc-finder-choose-listview").removeClass(
-        "ui-enabled"
+        "ui-enabled",
       );
     }
 
@@ -744,7 +744,7 @@
      */
     function setViewButtonsOff() {
       $("#perc-finder-choose-view #perc-finder-choose-listview").removeClass(
-        "ui-enabled"
+        "ui-enabled",
       );
     }
 
@@ -762,13 +762,13 @@
     function openAsset(assetId, isEditMode) {
       $.PercRecentListService.setRecent(
         $.PercRecentListService.RECENT_TYPE_ITEM,
-        assetId
+        assetId,
       )
         .done(function () {
           $.perc_utils.info(
             I18N.message("perc.ui.finder.view@Added Asset") +
               assetId +
-              I18N.message("perc.ui.finder.view@Recent Item List")
+              I18N.message("perc.ui.finder.view@Recent Item List"),
           );
         })
         .fail(function (message) {
@@ -786,7 +786,7 @@
             assetEditorUrl,
             null,
             null,
-            false
+            false,
           );
           addTransitionButtons("percAsset");
           $("#perc-revisions-button")
@@ -818,7 +818,7 @@
             function (status, result) {
               if (status) {
                 var pubActions = eval(
-                  "(" + result + ")"
+                  "(" + result + ")",
                 ).PSPublishingActionList;
                 if (pubActions.length > 0) {
                   var actionNames = ["Publishing"];
@@ -865,7 +865,7 @@
                         assetId: assetId,
                         aName: aName,
                         trName: I18N.message(
-                          "perc.ui.finder.view@Remove From Staging"
+                          "perc.ui.finder.view@Remove From Staging",
                         ),
                       },
                       assetId,
@@ -874,7 +874,7 @@
                   });
                 }
               }
-            }
+            },
           );
           //}
         } else {
@@ -883,23 +883,23 @@
           var dlgContent = assetEditorUrl;
           if (
             assetEditorUrl.indexOf(
-              "must be checked out by the current user"
+              "must be checked out by the current user",
             ) !== -1
           ) {
             dlgTitle = I18N.message(
-              "perc.ui.webmgt.contentbrowser.warning.title@Open Asset"
+              "perc.ui.webmgt.contentbrowser.warning.title@Open Asset",
             );
             dlgContent = I18N.message(
               "perc.ui.webmgt.contentbrowser.warning@Asset Overridden",
-              [contentName]
+              [contentName],
             );
           } else if (assetEditorUrl.indexOf("Item not found") !== -1) {
             dlgTitle = I18N.message(
-              "perc.ui.webmgt.contentbrowser.warning.title@Open Asset"
+              "perc.ui.webmgt.contentbrowser.warning.title@Open Asset",
             );
             dlgContent = I18N.message(
               "perc.ui.webmgt.contentbrowser.warning@Asset Deleted",
-              [contentName]
+              [contentName],
             );
           }
           $.perc_utils.alert_dialog({
@@ -908,7 +908,7 @@
             okCallBack: function () {
               $.PercNavigationManager.goTo(
                 $.PercNavigationManager.VIEW_EDITOR,
-                true
+                true,
               );
             },
           });
@@ -927,7 +927,7 @@
         assetId,
         assetName,
         $.PercRevisionDialog.ITEM_TYPE_ASSET,
-        mode
+        mode,
       );
     }
 
@@ -938,7 +938,7 @@
       $.PercPublishingHistoryDialog.open(
         assetId,
         assetName,
-        $.PercPublishingHistoryDialog.ITEM_TYPE_ASSET
+        $.PercPublishingHistoryDialog.ITEM_TYPE_ASSET,
       );
     }
 
@@ -953,7 +953,7 @@
       newId,
       notificationId,
       notifyComplete,
-      pathType
+      pathType,
     ) {
       if (newId != null) {
         var type = "percPage";
@@ -999,7 +999,7 @@
           } else {
             noCallback();
           }
-        }
+        },
       );
     }
 
@@ -1083,16 +1083,16 @@
                         title: I18N.message("perc.ui.common.label@Save"),
                         content: I18N.message(
                           "perc.ui.webmgt.contentbrowser.warning@Action Not Performed Overridden",
-                          ["asset"]
+                          ["asset"],
                         ),
                         okCallBack: function () {
                           $.PercNavigationManager.goTo(
                             $.PercNavigationManager.VIEW_EDITOR,
-                            true
+                            true,
                           );
                         },
                       });
-                    }
+                    },
                   );
                 },
                 function () {
@@ -1100,16 +1100,16 @@
                     title: I18N.message("perc.ui.common.label@Save"),
                     content: I18N.message(
                       "perc.ui.webmgt.contentbrowser.warning@Action Not Performed Deleted",
-                      ["asset"]
+                      ["asset"],
                     ),
                     okCallBack: function () {
                       $.PercNavigationManager.goTo(
                         $.PercNavigationManager.VIEW_EDITOR,
-                        true
+                        true,
                       );
                     },
                   });
-                }
+                },
               );
             } else {
               $.PercIFrameView.saveContent(newAsset);
@@ -1152,17 +1152,17 @@
                           if (status === $.PercServiceUtils.STATUS_SUCCESS) {
                             $.PercNavigationManager.handleOpenAsset(
                               data.PathItem,
-                              true
+                              true,
                             );
                           } else {
                             $.perc_utils.alert_dialog({
                               title: I18N.message(
-                                "perc.ui.publish.title@Error"
+                                "perc.ui.publish.title@Error",
                               ),
                               content: data,
                             });
                           }
-                        }
+                        },
                       );
                     } else {
                       //CMS-8107 : item.name always returned the asset name.
@@ -1171,7 +1171,7 @@
                   } else {
                     // This should never happen.
                     var eMsg = I18N.message(
-                      "perc.ui.finder.view@Cannot Open Unknown View"
+                      "perc.ui.finder.view@Cannot Open Unknown View",
                     );
                     $.perc_utils.alert_dialog({
                       title: I18N.message("perc.ui.publish.title@Error"),
@@ -1179,7 +1179,7 @@
                     });
                   }
                 });
-            }
+            },
           );
         }
         //Add close button, this will close the editor and switch to the dashboard
@@ -1208,16 +1208,16 @@
                             contentId = null;
                             $.PercNavigationManager.goTo(
                               $.PercNavigationManager.VIEW_EDITOR,
-                              true
+                              true,
                             );
                             $.unblockUI();
-                          }
+                          },
                         );
                       } else {
                         contentId = null;
                         $.PercNavigationManager.goTo(
                           $.PercNavigationManager.VIEW_EDITOR,
-                          true
+                          true,
                         );
                         $.unblockUI();
                       }
@@ -1227,18 +1227,18 @@
                     //just close the content browser, an Admin has overridden the current editor in another session
                     $.PercNavigationManager.goTo(
                       $.PercNavigationManager.VIEW_EDITOR,
-                      true
+                      true,
                     );
-                  }
+                  },
                 );
               },
               function () {
                 //just close the content browser, the item has been deleted in another session
                 $.PercNavigationManager.goTo(
                   $.PercNavigationManager.VIEW_EDITOR,
-                  true
+                  true,
                 );
-              }
+              },
             );
           }
         });
@@ -1255,7 +1255,7 @@
                 var commentIcon = $(
                   "<a style='float: right;' tooltip='" +
                     result.data +
-                    "' class='perc-last-comment-menubar'><span class='perc-font-icon icon-comment'/></a>"
+                    "' class='perc-last-comment-menubar'><span class='perc-font-icon icon-comment'/></a>",
                 );
                 commentIcon.tooltip({
                   delay: 500,
@@ -1273,17 +1273,17 @@
                 $("#perc-content-menu").append(commentIcon);
               } else {
                 $.perc_utils.info(
-                  I18N.message("perc.ui.finder.view@No Comment")
+                  I18N.message("perc.ui.finder.view@No Comment"),
                 );
               }
             } else {
               $.perc_utils.info(
                 I18N.message("perc.ui.finder.view@Failed To Get Comment Info") +
                   contentId +
-                  I18N.message("perc.ui.finder.view@See Server Log")
+                  I18N.message("perc.ui.finder.view@See Server Log"),
               );
             }
-          }
+          },
         );
       }
 
@@ -1348,19 +1348,19 @@
                       .html(
                         I18N.message(
                           "perc.ui.edit.workflow.step.dialog@" +
-                            $.perc_textFilters.IDNAMECDATA(dropdownLabels[0])
-                        )
+                            $.perc_textFilters.IDNAMECDATA(dropdownLabels[0]),
+                        ),
                       )
                       .css("display", "inline-block")
                       .addClass(
                         "btn btn-primary perc-workflow-split-button-left perc-workflow-split-button-" +
-                          $.perc_textFilters.IDNAMECDATA(dropdownLabels[0])
-                      )
+                          $.perc_textFilters.IDNAMECDATA(dropdownLabels[0]),
+                      ),
                   )
                   .append(
                     $("<div />")
                       .addClass("perc-workflow")
-                      .css("display", "inline-block")
+                      .css("display", "inline-block"),
                   );
                 pageWorkflowDropdown.children("div").eq(0).PercDropdown({
                   percDropdownRootClass: "perc-workflow",
@@ -1383,7 +1383,7 @@
               }
               addSaveAndCloseButtons();
             }
-          }
+          },
         );
       } else {
         addSaveAndCloseButtons();
@@ -1405,50 +1405,59 @@
     });
 
     $.PercNavigationManager.registerFinder(finder);
-    $.PercNavigationManager.addLocationChangeListener(function (
-      url,
-      id,
-      notifyComplete,
-      params
-    ) {
-      // Note: notifyComplete MUST be called by the listener so that the Navigation
-      // Manager knows that local processing is done by the listener and knows
-      // if we should continue and actually do the location change.
+    $.PercNavigationManager.addLocationChangeListener(
+      function (url, id, notifyComplete, params) {
+        // Note: notifyComplete MUST be called by the listener so that the Navigation
+        // Manager knows that local processing is done by the listener and knows
+        // if we should continue and actually do the location change.
 
-      var newId = params.id;
-      var modeSwitch =
-        $.PercNavigationManager.getMode() ===
-          $.PercNavigationManager.MODE_READONLY &&
-        params.mode === $.PercNavigationManager.MODE_EDIT;
-      //Alert the user if he tries to open the same page/asset.
-      if (
-        !modeSwitch &&
-        !$.PercNavigationManager.isReopenAllowed() &&
-        contentId &&
-        contentId === newId
-      ) {
-        var options = {
-          title: I18N.message("perc.ui.finder.view@Open") + type,
-          content:
-            I18N.message("perc.ui.finder.view@The") +
-            type +
-            " '" +
-            $.PercNavigationManager.getName() +
-            I18N.message("perc.ui.finder.view@Already Open"),
-        };
-        $.perc_utils.alert_dialog(options);
-        notifyComplete(id, false);
-        return;
-      }
+        var newId = params.id;
+        var modeSwitch =
+          $.PercNavigationManager.getMode() ===
+            $.PercNavigationManager.MODE_READONLY &&
+          params.mode === $.PercNavigationManager.MODE_EDIT;
+        //Alert the user if he tries to open the same page/asset.
+        if (
+          !modeSwitch &&
+          !$.PercNavigationManager.isReopenAllowed() &&
+          contentId &&
+          contentId === newId
+        ) {
+          var options = {
+            title: I18N.message("perc.ui.finder.view@Open") + type,
+            content:
+              I18N.message("perc.ui.finder.view@The") +
+              type +
+              " '" +
+              $.PercNavigationManager.getName() +
+              I18N.message("perc.ui.finder.view@Already Open"),
+          };
+          $.perc_utils.alert_dialog(options);
+          notifyComplete(id, false);
+          return;
+        }
 
-      //Check out the new page before opening it.
+        //Check out the new page before opening it.
 
-      // get dirty state from the singleton where the page, template, and/or asset have updated the status
-      // if they have become dirty
-      dirty = dirtyController.isDirty();
-      if (dirty) {
-        // confirm
-        confirm_if_dirty(function () {
+        // get dirty state from the singleton where the page, template, and/or asset have updated the status
+        // if they have become dirty
+        dirty = dirtyController.isDirty();
+        if (dirty) {
+          // confirm
+          confirm_if_dirty(function () {
+            if (
+              params.mode === $.PercNavigationManager.MODE_EDIT &&
+              contentId != null
+            ) {
+              checkOutCheckInPage(newId, id, notifyComplete, params.pathType);
+            } else {
+              // Nothing to checkout before checkin
+              checkOutCheckInPage(null, id, notifyComplete, params.pathType);
+              notifyComplete(id, true);
+            }
+            return;
+          });
+        } else {
           if (
             params.mode === $.PercNavigationManager.MODE_EDIT &&
             contentId != null
@@ -1459,21 +1468,9 @@
             checkOutCheckInPage(null, id, notifyComplete, params.pathType);
             notifyComplete(id, true);
           }
-          return;
-        });
-      } else {
-        if (
-          params.mode === $.PercNavigationManager.MODE_EDIT &&
-          contentId != null
-        ) {
-          checkOutCheckInPage(newId, id, notifyComplete, params.pathType);
-        } else {
-          // Nothing to checkout before checkin
-          checkOutCheckInPage(null, id, notifyComplete, params.pathType);
-          notifyComplete(id, true);
         }
-      }
-    });
+      },
+    );
     $(".perc-finder").append(finder.elem);
 
     // resize the width/height of the finder implemented in perc_finder.js
@@ -1491,7 +1488,7 @@
 
     finderButtons = $.percFinderButtons().createButtons(
       finder,
-      percFinderViewAPI
+      percFinderViewAPI,
     );
     // Is there a page specified to load
     var contentId = $.PercNavigationManager.getId();
@@ -1507,7 +1504,7 @@
         $.perc_utils.alert_dialog({
           title: I18N.message(I18N.message("perc.ui.page.general@Warning")),
           content: I18N.message(
-            "perc.ui.finder.view@Content Migration Failure"
+            "perc.ui.finder.view@Content Migration Failure",
           ),
           okCallBack: function () {
             $.PercPageService.clearFlagShowMigrationEmptyMessage(contentId);
@@ -1516,7 +1513,7 @@
       }
       $.PercPageService.checkForEmptyMigrationWidgets(
         contentId,
-        onPageHasEmptyMigrationWidgets
+        onPageHasEmptyMigrationWidgets,
       );
     }
     if (
@@ -1534,20 +1531,20 @@
               contentId = null;
               contentName = null;
               var frwrapper = $.PercViewReadyManager.getWrapper(
-                "perc-ui-component-editor-frame"
+                "perc-ui-component-editor-frame",
               );
               if (frwrapper != null)
                 frwrapper.handleComponentProgress(
                   "perc-ui-component-editor-frame",
-                  "complete"
+                  "complete",
                 );
               var tbwrapper = $.PercViewReadyManager.getWrapper(
-                "perc-ui-component-editor-toolbar"
+                "perc-ui-component-editor-toolbar",
               );
               if (tbwrapper != null)
                 tbwrapper.handleComponentProgress(
                   "perc-ui-component-editor-toolbar",
-                  "complete"
+                  "complete",
                 );
               return;
             } else {
@@ -1555,7 +1552,7 @@
               pageView.openPage(contentId, contentName);
               addTransitionButtons("percPage");
             }
-          }
+          },
         );
       } else {
         pageView.openPage(contentId, contentName);
@@ -1573,7 +1570,7 @@
             contentName +
             "> " +
             contentName +
-            "</span>"
+            "</span>",
         );
       // render asset editor
       if (pageMode === $.PercNavigationManager.MODE_EDIT) {
@@ -1586,7 +1583,7 @@
               //Workflow controller presents the appropriate error message to the user if fails to check out.
               openAsset(assetId, true);
             }
-          }
+          },
         );
       } else {
         openAsset(assetId, false);
@@ -1600,20 +1597,20 @@
       }
     } else if (!contentId) {
       var frwrapper = $.PercViewReadyManager.getWrapper(
-        "perc-ui-component-editor-frame"
+        "perc-ui-component-editor-frame",
       );
       if (frwrapper != null)
         frwrapper.handleComponentProgress(
           "perc-ui-component-editor-frame",
-          "complete"
+          "complete",
         );
       var tbwrapper = $.PercViewReadyManager.getWrapper(
-        "perc-ui-component-editor-toolbar"
+        "perc-ui-component-editor-toolbar",
       );
       if (tbwrapper != null)
         tbwrapper.handleComponentProgress(
           "perc-ui-component-editor-toolbar",
-          "complete"
+          "complete",
         );
     }
     //Snippet for displaying inline help when content area is empty. Story 99.
@@ -1648,16 +1645,16 @@
                   title: trName,
                   content: I18N.message(
                     "perc.ui.webmgt.contentbrowser.warning@Action Not Performed Overridden",
-                    [type]
+                    [type],
                   ),
                   okCallBack: function () {
                     $.PercNavigationManager.goTo(
                       $.PercNavigationManager.VIEW_EDITOR,
-                      true
+                      true,
                     );
                   },
                 });
-              }
+              },
             );
           },
           function () {
@@ -1665,16 +1662,16 @@
               title: trName,
               content: I18N.message(
                 "perc.ui.webmgt.contentbrowser.warning@Action Not Performed Overridden",
-                [type]
+                [type],
               ),
               okCallBack: function () {
                 $.PercNavigationManager.goTo(
                   $.PercNavigationManager.VIEW_EDITOR,
-                  true
+                  true,
                 );
               },
             });
-          }
+          },
         );
       });
     }
@@ -1707,7 +1704,7 @@
           trName +
           "'>" +
           I18N.message("perc.ui.finder.view@Enter Comments Limit") +
-          '</div><textarea id="perc-workflow-comment" name="perc-workflow-comment" maxlength="500"></textarea></div>'
+          '</div><textarea id="perc-workflow-comment" name="perc-workflow-comment" maxlength="500"></textarea></div>',
       ).perc_dialog({
         dialogClass: "perc-workflow-comment-dialog",
         title: I18N.message("perc.ui.finder.view@Enter Comments"),
@@ -1732,10 +1729,10 @@
             $.unblockUI();
             $.PercNavigationManager.goTo(
               $.PercNavigationManager.VIEW_EDITOR,
-              true
+              true,
             );
           }
-        }
+        },
       );
       $.unblockUI();
     }
@@ -1767,14 +1764,14 @@
                   result.data,
                   pageId,
                   itemType,
-                  trName
+                  trName,
                 );
               } else {
                 showCommentsDialog(pageId, itemType, trName);
               }
             }
           },
-          null
+          null,
         );
       } else {
         showCommentsDialog(pageId, itemType, trName);
@@ -1845,7 +1842,7 @@
             $.PercItemPublisherService.publishItem(
               itemId,
               itemType,
-              _afterPublish
+              _afterPublish,
             );
           },
           cancel: function () {},
@@ -1886,27 +1883,27 @@
                   } else {
                     $.perc_utils.alert_dialog({
                       content: I18N.message(
-                        "perc.ui.finder.view@Get Saved Schedule"
+                        "perc.ui.finder.view@Get Saved Schedule",
                       ),
                       title: I18N.message("perc.ui.publish.title@Error"),
                     });
                     return false;
                   }
-                }
+                },
               );
             } else if (trName === I18N.message("perc.ui.page.menu@Take Down")) {
               $.PercBlockUI();
               $.PercItemPublisherService.takeDownItem(
                 itemId,
                 itemType,
-                _afterPublish
+                _afterPublish,
               );
             } else if (trName === I18N.message("perc.ui.page.menu@Stage")) {
               $.PercBlockUI();
               $.PercItemPublisherService.publishToStaging(
                 itemId,
                 itemType,
-                _afterPublish
+                _afterPublish,
               );
             } else if (
               trName === I18N.message("perc.ui.page.menu@Remove from Staging")
@@ -1915,7 +1912,7 @@
               $.PercItemPublisherService.removeFromStaging(
                 itemId,
                 itemType,
-                _afterPublish
+                _afterPublish,
               );
             }
 
@@ -1937,16 +1934,16 @@
               title: trName,
               content: I18N.message(
                 "perc.ui.webmgt.contentbrowser.warning@Action Not Performed Deleted",
-                [itemType]
+                [itemType],
               ),
               okCallBack: function () {
                 $.PercNavigationManager.goTo(
                   $.PercNavigationManager.VIEW_EDITOR,
-                  true
+                  true,
                 );
               },
             });
-          }
+          },
         );
       });
     }
@@ -1968,7 +1965,7 @@
           $.perc_utils.alert_dialog({
             title: I18N.message("perc.ui.finder.view@Server Publish"),
             content: I18N.message(
-              "perc.ui.publish.errordialog.message@Publish Not Allowed"
+              "perc.ui.publish.errordialog.message@Publish Not Allowed",
             ),
           });
         } else if (
@@ -1980,7 +1977,7 @@
             title: I18N.message("perc.ui.page.general@Warning"),
             content: I18N.message(
               "perc.ui.publish.errordialog.message@Bad configuration multiple sites",
-              [SitePublishResponse.warningMessage]
+              [SitePublishResponse.warningMessage],
             ),
           });
         } else if (
@@ -1991,7 +1988,7 @@
           $.perc_utils.alert_dialog({
             title: I18N.message("perc.ui.finder.view@Server Publish"),
             content: I18N.message(
-              "perc.ui.finder.view@No Staging Servers Available"
+              "perc.ui.finder.view@No Staging Servers Available",
             ),
           });
         } else if (
@@ -2004,14 +2001,14 @@
             okCallBack: function () {
               $.PercNavigationManager.goTo(
                 $.PercNavigationManager.VIEW_EDITOR,
-                true
+                true,
               );
             },
           });
         } else {
           $.PercNavigationManager.goTo(
             $.PercNavigationManager.VIEW_EDITOR,
-            true
+            true,
           );
         }
       }

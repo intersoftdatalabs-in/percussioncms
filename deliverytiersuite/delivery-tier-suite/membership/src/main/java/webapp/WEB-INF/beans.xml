@@ -138,7 +138,7 @@
    <tx:annotation-driven transaction-manager="txManager"/>
 
    <bean id="txManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-      <property name="entityManagerFactory" ref="sessionFactoryProxy" />
+      <property name="entityManagerFactory" ref="membershipSessionFactory" />
    </bean>
 
    <bean id="genericKeyDao"
@@ -169,11 +169,10 @@
    </bean>
 
 
+   <!-- PSMembershipDao has a final SessionFactory field — constructor injection only. -->
    <bean id="membershipDao"
          class="com.percussion.membership.services.rdbms.impl.PSMembershipDao">
-      <property name="sessionFactory">
-         <ref bean="membershipSessionFactory" />
-      </property>
+      <constructor-arg ref="membershipSessionFactory" />
    </bean>
 
    <bean id="membershipService"

@@ -72,7 +72,7 @@
         function callback(status, result) {
           if (status === $.PercServiceUtils.STATUS_ERROR) {
             var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-              result.request
+              result.request,
             );
             callback(false);
             return;
@@ -83,7 +83,7 @@
             getRevisionDetails(passedParams);
           }
         },
-        payload
+        payload,
       );
     }
 
@@ -93,18 +93,18 @@
         function callback(status, result) {
           if (status === $.PercServiceUtils.STATUS_ERROR) {
             var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-              result.request
+              result.request,
             );
             callback(false);
             return;
           } else {
             convertRevisions(
               result.data.RevisionsSummary.revisions,
-              passedParams
+              passedParams,
             );
             openComparisonWindow();
           }
-        }
+        },
       );
     }
 
@@ -205,14 +205,14 @@
               var msg = "";
               if (errorCode == "cannot.find.item") {
                 msg = I18N.message(
-                  "perc.ui.revisionDialog.failedPageLoad@Failed Page Load"
+                  "perc.ui.revisionDialog.failedPageLoad@Failed Page Load",
                 );
                 console.log("Failed to Load Page. Item Id:" + itemId);
               } else {
                 msg = result;
               }
             }
-          }
+          },
         );
       }
     }
@@ -307,7 +307,7 @@
                 // var message = "Content is not comparable. ContentType : " + contentType ;
                 var message =
                   I18N.message(
-                    "perc.ui.revisionDialog.notComparable@Not compareable"
+                    "perc.ui.revisionDialog.notComparable@Not compareable",
                   ) +
                   " ContentType: " +
                   contentType;
@@ -358,7 +358,7 @@
           console.log(response.statusText);
           $.percCompareServiceInstance.comparedPage =
             I18N.message(
-              "perc.ui.revisionDialog.failedCompare@Failed Compare."
+              "perc.ui.revisionDialog.failedCompare@Failed Compare.",
             ) +
             " Error: " +
             response;

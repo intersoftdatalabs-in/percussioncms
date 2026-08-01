@@ -43,7 +43,7 @@
           "<input type='text' class='required' aria-required='true' tabindex='0' id='perc-site-hostname' maxlength='80' name='site_hostname'/> <br/>" +
           "<label for='perc-page-title-link' class='perc-required-field'>" +
           I18N.message(
-            "perc.ui.editSiteSectionDialog.label@Home page link text"
+            "perc.ui.editSiteSectionDialog.label@Home page link text",
           ) +
           ":</label> <br/> " +
           "<input type='text' aria-required='true' tabindex='0' id='perc-page-title-link' class='required' name='page_title_link'/><br/> " +
@@ -53,26 +53,26 @@
           "<textarea type='text' tabindex='0' id='perc-site-desc' name='site_desc'></textarea><br/> " +
           "<label for='perc-site-navigation-cssclassnames'>" +
           I18N.message(
-            "perc.ui.editSiteSectionDialog.label@Navigation class names"
+            "perc.ui.editSiteSectionDialog.label@Navigation class names",
           ) +
           ":</label> <br/> " +
           "<input type='text' tabindex='0' id='perc-site-navigation-cssclassnames' maxlength='255' name='perc-site-navigation-cssclassnames'/> <br/>" +
           "<label for='perc-site-pagefile-extention-default'>" +
           I18N.message(
-            "perc.ui.editSiteSectionDialog.label@Default file extension"
+            "perc.ui.editSiteSectionDialog.label@Default file extension",
           ) +
           ":</label> <br/> " +
           "<input type='text' tabindex='0' id='perc-site-pagefile-extention-default' maxlength='30' name='perc-site-pagefile-extention-default' value='html'/> <br/>" +
           '<input type="checkbox" id="perc-enable-mobile-preview" name="perc-enable-mobile-preview" style="width:20px" tabindex=0"/>' +
           '<label for="perc-enable-mobile-preview">' +
           I18N.message(
-            "perc.ui.editSiteSectionDialog.label@Enable Mobile Preview"
+            "perc.ui.editSiteSectionDialog.label@Enable Mobile Preview",
           ) +
           "</label> <br/>" +
           '<input type="checkbox" id="perc-enable-canonical-url" name="perc-enable-canonical-url" style="width:20px" tabindex="0"/>' +
           '<label for="perc-enable-canonical-url">' +
           I18N.message(
-            "perc.ui.editSiteSectionDialog.label@Generate Canonical URLs"
+            "perc.ui.editSiteSectionDialog.label@Generate Canonical URLs",
           ) +
           "</label> <br/>" +
           '<input type="radio" id="perc-canonical-url-dist-sections" name="perc-canonical-url-dist" value="sections" style="width:20px" disabled tabindex="0"/>&nbsp;&nbsp;' +
@@ -89,7 +89,7 @@
           '<input type="checkbox" id="perc-replace-canonical-tags" name="perc-replace-canonical-tags" style="width:20px" disabled tabindex="0"/>' +
           '<label for="perc-replace-canonical-tags" id="perc-replace-canonical-tags-label">' +
           I18N.message(
-            "perc.ui.editSiteSectionDialog.label@Replace existing Canonical Tags if present"
+            "perc.ui.editSiteSectionDialog.label@Replace existing Canonical Tags if present",
           ) +
           "</label> <br/>" +
           "<input type='checkbox' style=\"width:20px\" tabindex='0' id='perc-site-gen-sitemap' name='perc-site-gen-sitemap'/>" +
@@ -141,11 +141,11 @@
           "<div class='ui-layout-south'>" +
           "<div id='perc_buttons' style='z-index: 100;'></div>" +
           "</div>" +
-          "</form> </div>"
+          "</form> </div>",
       ).perc_dialog({
         resizable: false,
         title: I18N.message(
-          "perc.ui.editSiteSectionDialog.title@Site Preferences"
+          "perc.ui.editSiteSectionDialog.title@Site Preferences",
         ),
         modal: true,
         dragStart: function () {
@@ -165,7 +165,7 @@
                 var options = {
                   id: "perc_disable_site_security",
                   title: I18N.message(
-                    "perc.ui.edit.site.section.dialog@Disable Site Security"
+                    "perc.ui.edit.site.section.dialog@Disable Site Security",
                   ),
                   question:
                     "<span id='perc-delete-dialog-warning'>" +
@@ -173,23 +173,23 @@
                     "</span> <BR> " +
                     "<span id='perc-warning-red'>" +
                     I18N.message(
-                      "perc.ui.edit.site.section.dialog@Disable Security"
+                      "perc.ui.edit.site.section.dialog@Disable Security",
                     ) +
                     "'" +
                     selectedSite +
                     "' </span><BR> " +
                     "<strong>" +
                     I18N.message(
-                      "perc.ui.edit.site.section.dialog@Remove Files"
+                      "perc.ui.edit.site.section.dialog@Remove Files",
                     ) +
                     "</strong><BR><BR> " +
                     "<span id='perc-delete-warn-msg'>" +
                     I18N.message(
-                      "perc.ui.edit.site.section.dialog@Stop Security"
+                      "perc.ui.edit.site.section.dialog@Stop Security",
                     ) +
                     "<BR> <BR> " +
                     I18N.message(
-                      "perc.ui.edit.site.section.dialog@Continue Question"
+                      "perc.ui.edit.site.section.dialog@Continue Question",
                     ) +
                     "</span>",
                   cancel: function () {},
@@ -233,12 +233,12 @@
           .append(
             "<input type='hidden' name='writePrincipals' value='" +
               writePrincipals +
-              "'>"
+              "'>",
           );
 
         // Clear the white spaces from the class names field
         var cssClassNamesField = dialog.find(
-          "#perc-site-navigation-cssclassnames"
+          "#perc-site-navigation-cssclassnames",
         );
         cssClassNamesField.val(cssClassNamesField.val().replace(/ +/g, " "));
 
@@ -263,25 +263,25 @@
           {
             groupName: "perc-site-general-container",
             groupLabel: I18N.message(
-              "perc.ui.editSiteSectionDialog.label@Site"
+              "perc.ui.editSiteSectionDialog.label@Site",
             ),
           },
           {
             groupName: "perc-site-users-container",
             groupLabel: I18N.message(
-              "perc.ui.editSiteSectionDialog.label@Users"
+              "perc.ui.editSiteSectionDialog.label@Users",
             ),
           },
           {
             groupName: "perc-site-security-container",
             groupLabel: I18N.message(
-              "perc.ui.editSiteSectionDialog.label@Security"
+              "perc.ui.editSiteSectionDialog.label@Security",
             ),
           },
           {
             groupName: "perc-site-membership-container",
             groupLabel: I18N.message(
-              "perc.ui.editSiteSectionDialog.label@Membership"
+              "perc.ui.editSiteSectionDialog.label@Membership",
             ),
           },
         ];
@@ -402,13 +402,13 @@
           $("#perc-canonical-url-dist-pages").addClass("required");
           $("#perc-site-protocol-label").addClass("perc-required-field");
           $("#perc-site-default-document-label").addClass(
-            "perc-required-field"
+            "perc-required-field",
           );
           $("#perc-canonical-url-dist-sections-label").addClass(
-            "perc-required-field"
+            "perc-required-field",
           );
           $("#perc-canonical-url-dist-pages-label").addClass(
-            "perc-required-field"
+            "perc-required-field",
           );
 
           $("#perc-site-protocol").prop("disabled", false);
@@ -423,13 +423,13 @@
           $("#perc-canonical-url-dist-pages").removeClass("required");
           $("#perc-site-protocol-label").removeClass("perc-required-field");
           $("#perc-site-default-document-label").removeClass(
-            "perc-required-field"
+            "perc-required-field",
           );
           $("#perc-canonical-url-dist-sections-label").removeClass(
-            "perc-required-field"
+            "perc-required-field",
           );
           $("#perc-canonical-url-dist-pages-label").removeClass(
-            "perc-required-field"
+            "perc-required-field",
           );
 
           $("#perc-site-protocol").prop("disabled", true);
@@ -449,7 +449,7 @@
           '<input type="checkbox" id="perc-enable-site-security" name="perc-enable-site-security" style="width:20px" tabindex="0"/>' +
           '<label for="perc-enable-site-security">' +
           I18N.message(
-            "perc.ui.editSiteSectionDialog.label@Use site security"
+            "perc.ui.editSiteSectionDialog.label@Use site security",
           ) +
           "</label> <br/>" +
           '<label for="perc-site-login-page" id="perc-site-login-page-label">' +
@@ -462,19 +462,19 @@
           '<div id="perc-site-membership-container">' +
           '<label for="perc-site-registration-confirmation-page">' +
           I18N.message(
-            "perc.ui.editSiteSectionDialog.label@Confirmation page"
+            "perc.ui.editSiteSectionDialog.label@Confirmation page",
           ) +
           ":</label><br/>" +
           '<input id="perc-site-registration-confirmation-page" name="perc-site-registration-confirmation-page" maxlength="2000" type="text" tabindex="0"/><span id="perc-site-registration-confirmation-page-browse" tabindex="0">Browse</span><br/>' +
           '<label for="perc-site-reset-pw-request-page">' +
           I18N.message(
-            "perc.ui.editSiteSectionDialog.label@Password reset request page"
+            "perc.ui.editSiteSectionDialog.label@Password reset request page",
           ) +
           ":</label><br/>" +
           '<input id="perc-site-reset-pw-request-page" name="perc-site-reset-pw-request-page" maxlength="2000" type="text" tabindex="0"/><span id="perc-site-reset-pw-request-page-browse" tabindex="0">Browse</span><br/>' +
           '<label for="perc-site-reset-password-page">' +
           I18N.message(
-            "perc.ui.editSiteSectionDialog.label@Password reset page"
+            "perc.ui.editSiteSectionDialog.label@Password reset page",
           ) +
           ":</label><br/>" +
           '<input id="perc-site-reset-password-page" name="perc-site-reset-password-page" maxlength="2000" type="text" tabindex="0"/><span id="perc-site-reset-password-page-browse" tabindex="0">Browse</span><br/>' +
@@ -505,7 +505,7 @@
           var dlgTitle = "Select registration confirmation page";
           var inputElemName = "perc-site-registration-confirmation-page";
           handleBrowseButtonClick(dlgTitle, inputElemName);
-        }
+        },
       );
       $("#perc-site-reset-pw-request-page-browse").on("click", function () {
         var dlgTitle = "Select password reset request page";
@@ -529,7 +529,7 @@
           if (event.code == "Enter" || event.code == "Space") {
             document.activeElement.click();
           }
-        }
+        },
       );
       $("#perc-site-reset-pw-request-page-browse").on("keydown", function () {
         if (event.code == "Enter" || event.code == "Space") {
@@ -573,7 +573,7 @@
       var $loginPage = $("#perc-site-login-page");
 
       var $registrationConfirmationPage = $(
-        "#perc-site-registration-confirmation-page"
+        "#perc-site-registration-confirmation-page",
       );
       var $pwResetRequestPage = $("#perc-site-reset-pw-request-page");
       var $pwResetPage = $("#perc-site-reset-password-page");
@@ -591,7 +591,7 @@
           $.perc_filterFieldText(
             $("#perc-site-navigation-cssclassnames"),
             $.perc_autoFillTextFilters.IDNAMECDATAALPHA,
-            " "
+            " ",
           );
           $("#perc-site-navigation-cssclassnames").val(props.cssClassNames);
           $siteid.val(props.id);
@@ -604,10 +604,10 @@
           $.perc_filterFieldText(
             $("#perc-site-pagefile-extention-default"),
             $.perc_autoFillTextFilters.IDNAMECDATAALPHA,
-            " "
+            " ",
           );
           $("#perc-site-pagefile-extention-default").val(
-            props.defaultFileExtention
+            props.defaultFileExtention,
           );
 
           //Set the Canonical option.
@@ -623,7 +623,7 @@
 
           $.perc_filterField(
             $("#perc-site-default-document"),
-            $.perc_textFilters.URL
+            $.perc_textFilters.URL,
           );
           if (props.defaultDocument)
             $("#perc-site-default-document").val(props.defaultDocument);
@@ -649,7 +649,7 @@
             $(
               "[name='perc-canonical-url-dist'][value='" +
                 props.canonicalDist +
-                "']"
+                "']",
             ).prop("checked", true);
 
           //Set the Canonical replace option.
@@ -701,7 +701,7 @@
             if (status === $.PercUserService.STATUS_ERROR) {
               $.PercUserView.alertDialog(
                 "Error while loading users",
-                usersJson
+                usersJson,
               );
               return;
             }
@@ -725,10 +725,10 @@
 
               title1:
                 I18N.message(
-                  "perc.ui.folderPropsDialog.title@User Properties"
+                  "perc.ui.folderPropsDialog.title@User Properties",
                 ) + ":",
               title2: I18N.message(
-                "perc.ui.folderPropsDialog.permissionValue@Write"
+                "perc.ui.folderPropsDialog.permissionValue@Write",
               ),
             });
           });

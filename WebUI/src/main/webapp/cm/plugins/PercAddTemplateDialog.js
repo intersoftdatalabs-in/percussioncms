@@ -34,10 +34,10 @@
       },
       TEXT: {
         MAIN_DIALOG_TITLE: I18N.message(
-          "perc.ui.AddTemplateDialog.title@Add Template"
+          "perc.ui.AddTemplateDialog.title@Add Template",
         ),
         SELECT_SITE_ERROR_TEXT: I18N.message(
-          "perc.ui.AddTemplateDialog.text@Please select a site first."
+          "perc.ui.AddTemplateDialog.text@Please select a site first.",
         ),
       },
     };
@@ -307,7 +307,7 @@
       // Get the selected item from the template library widget (traybar)
       // Create a copy of the selected template and assign it to the site
       var selectedTemplateFromId = $("#perc-template-lib .perc-selected").attr(
-        "id"
+        "id",
       );
       var controller = $.PercSiteTemplatesController(false);
       newTemplateName = controller
@@ -338,7 +338,7 @@
             title: I18N.message("perc.ui.publish.title@Error"),
             content: result,
           });
-        }
+        },
       );
     }
 

@@ -736,8 +736,14 @@ public class PSMetadataRestService extends PSAbstractRestService implements IPSM
   }
 
   /** {@inheritDoc} */
+  @DELETE
+  @Path("/updateOldSiteEntries/{prevSiteName}/{newSiteName}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("deliverymanager")
   @Override
-  public Response updateOldSiteEntries(String prevSiteName, String newSiteName) {
+  public Response updateOldSiteEntries(
+      @PathParam("prevSiteName") String prevSiteName,
+      @PathParam("newSiteName") String newSiteName) {
     if (prevSiteName == null || StringUtils.isBlank(prevSiteName)) {
       log.error("prevSiteName may not be null or empty.");
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();

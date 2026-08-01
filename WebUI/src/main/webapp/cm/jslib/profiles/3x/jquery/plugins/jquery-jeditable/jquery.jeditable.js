@@ -98,7 +98,7 @@
         {},
         $.fn.editable.defaults,
         { target: target },
-        options
+        options,
       );
 
       /* setup some functions */
@@ -270,7 +270,7 @@
             if (typeof settings.loaddata === "function") {
               $.extend(
                 loaddata,
-                settings.loaddata.apply(self, [self.revert, settings])
+                settings.loaddata.apply(self, [self.revert, settings]),
               );
             } else {
               $.extend(loaddata, settings.loaddata);
@@ -439,7 +439,7 @@
                         self.revert,
                         settings,
                         submitdata,
-                      ])
+                      ]),
                     );
                   } else {
                     $.extend(submitdata, settings.submitdata);
@@ -541,7 +541,7 @@
               }
             } else {
               console.warn(
-                "jeditable clearTimeout could not find timeout " + t
+                "jeditable clearTimeout could not find timeout " + t,
               );
             }
           }
@@ -773,7 +773,7 @@
                   json.selected === key ||
                   key ===
                     String.prototype.trim.call(
-                      original.revert == null ? "" : original.revert
+                      original.revert == null ? "" : original.revert,
                     )
                 ) {
                   $(option).prop("selected", "selected");

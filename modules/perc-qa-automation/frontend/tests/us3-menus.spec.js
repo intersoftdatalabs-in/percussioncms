@@ -68,7 +68,7 @@ test.describe("US3 P-Menu — action toolbar / context menu (SC-003)", () => {
   }) => {
     await page.goto(MENU_URL, { waitUntil: "networkidle" });
     await expect(
-      page.locator('[data-testid="action-toolbar-empty"]')
+      page.locator('[data-testid="action-toolbar-empty"]'),
     ).toBeVisible({
       timeout: 15_000,
     });
@@ -83,10 +83,10 @@ test.describe("US3 P-Menu — action toolbar / context menu (SC-003)", () => {
     const ariaLabel = await menu.getAttribute("aria-label");
     expect(ariaLabel).toBe("Demo context menu");
     await expect(
-      page.locator('[data-testid="context-menu-item-open"]')
+      page.locator('[data-testid="context-menu-item-open"]'),
     ).toBeVisible();
     await expect(
-      page.locator('[data-testid="context-menu-item-preview"]')
+      page.locator('[data-testid="context-menu-item-preview"]'),
     ).toBeVisible();
   });
 
@@ -144,7 +144,7 @@ test.describe("US3 P-Menu — action toolbar / context menu (SC-003)", () => {
     await expect(
       page
         .locator('[role="toolbar"], [data-testid="perc-action-toolbar"]')
-        .first()
+        .first(),
     ).toBeVisible({ timeout: 15_000 });
     await expectNoSeriousA11yViolations(page, {
       scope: '[data-testid="perc-action-toolbar"], [role="toolbar"]',
