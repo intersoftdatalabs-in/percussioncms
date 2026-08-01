@@ -218,7 +218,9 @@ function basicAuthHeaders(username, password) {
       `basicAuthHeaders: password for ${username} is missing (set .env or DEV_PERCUSSION_INSTALL)`
     );
   }
-  const token = Buffer.from(`${username}:${password}`, "utf8").toString("base64");
+  const token = Buffer.from(`${username}:${password}`, "utf8").toString(
+    "base64"
+  );
   return {
     RX_USEBASICAUTH: "true",
     Authorization: `Basic ${token}`,

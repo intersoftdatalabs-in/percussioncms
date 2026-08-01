@@ -17,14 +17,6 @@
 
 package com.percussion.rx.delivery.impl;
 
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ListObjectsRequest;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.util.IOUtils;
-import com.amazonaws.services.s3.transfer.TransferManager;
-import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 import com.percussion.cms.IPSConstants;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtensionDef;
@@ -35,15 +27,26 @@ import com.percussion.rx.publisher.IPSEditionTaskStatusCallback;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
 import com.percussion.server.PSServer;
+import com.percussion.rx.delivery.PSDeliveryException;
 import com.percussion.services.publisher.IPSEdition;
+import com.percussion.services.pubserver.IPSPubServer;
 import com.percussion.services.pubserver.IPSPubServerDao;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
 import com.percussion.utils.types.PSPair;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Object;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -63,18 +66,49 @@ import java.util.TreeMap;
 /**
  * Post edition task that will publish web_resources files to amazon s3 bucket.
  * Makes an MD5 check before publishing the resources. Any files that don't exist
- * under web_resources are deleted from the s3 bucket when published.   
+ * under web_resources are deleted from the s3 bucket when published.
  *
+ * <p>Uses AWS SDK for Java v2 ({@code software.amazon.awssdk}). The v1 SDK and the
+ * product-local {@code TransferManagerBuilder} shim are no longer used (see issue #1730).
  */
 // REFACTORED: CP-JAVA11
 public class PSAmazonS3EditionTask implements IPSEditionTask
 {
+    /** Default AWS region when none is configured; matches v1's {@code Regions.DEFAULT_REGION}. */
+    private static final String DEFAULT_REGION = "us-east-1";
+
     private static final String WEB_RESOURCES = "web_resources";
     private File webResFolder = null;
     private String webResFolderPath = "";
     private IPSPubServerDao pubServerDao;
-    private String targetRegion = Regions.DEFAULT_REGION.getName();
+    private String targetRegion = DEFAULT_REGION;
     private static final Logger log = LogManager.getLogger(IPSConstants.PUBLISHING_LOG);
+
+    /**
+     * Factory used to build the per-task {@link S3Client}. Mirrors the {@link
+     * PSAmazonS3DeliveryHandler.S3ClientFactory} hook so unit tests can substitute a mock client.
+     */
+    @FunctionalInterface
+    public interface S3ClientFactory {
+        S3Client create(IPSPubServer pubServer, software.amazon.awssdk.regions.Region region)
+                throws PSDeliveryException;
+    }
+
+    private volatile S3ClientFactory s3ClientFactory = PSAmazonS3EditionTask::createS3Client;
+
+    private static S3Client createS3Client(IPSPubServer pubServer, software.amazon.awssdk.regions.Region region)
+            throws PSDeliveryException {
+        return PSAmazonS3DeliveryHandler.getS3Client(pubServer, region);
+    }
+
+    public void setS3ClientFactory(S3ClientFactory factory) {
+        this.s3ClientFactory = factory;
+    }
+
+    private S3ClientFactory factory() {
+        var f = s3ClientFactory;
+        return f == null ? PSAmazonS3EditionTask::createS3Client : f;
+    }
 
     // TODO: Remove me @SuppressFBWarnings("PATH_TRAVERSAL_IN")
     @SuppressWarnings("unused")
@@ -96,25 +130,21 @@ public class PSAmazonS3EditionTask implements IPSEditionTask
         }
         var pubServer = pubServerOpt.get();
         var bucketName = pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_AS3_BUCKET_PROPERTY, "");
-        TransferManager tm = null;
-        AmazonS3 s3Client = null;
+        S3Client s3Client = null;
         try {
-            s3Client = PSAmazonS3DeliveryHandler.getAmazonS3Client(pubServer, getConfiguredAWSRegion());
-            tm = TransferManagerBuilder.standard().withS3Client(s3Client).build();
+            s3Client = factory().create(pubServer, getConfiguredAWSRegion());
             var fileList = getFileList(s3Client, bucketName);
             // Delete files that don't exist
             for (var key : fileList.getSecond()) {
-                s3Client.deleteObject(bucketName, key);
+                s3Client.deleteObject(builder -> builder.bucket(bucketName).key(key));
             }
             // Upload modified files
-            var mfUpload = tm.uploadFileList(bucketName, WEB_RESOURCES, webResFolder, fileList.getFirst());
-            mfUpload.waitForCompletion();
+            uploadFileList(s3Client, bucketName, WEB_RESOURCES, webResFolder, fileList.getFirst());
             var sitemapPath = PSServer.getRxDir().getAbsolutePath() + File.separator + "temp" + File.separator +
                     "publish" + File.separator + jobId + File.separator + "sitemaps";
             if (Files.exists(Paths.get(sitemapPath))) {
                 var sitemapdir = new File(sitemapPath);
-                mfUpload = tm.uploadFileList(bucketName, "", sitemapdir, Arrays.asList(Objects.requireNonNull(sitemapdir.listFiles())));
-                mfUpload.waitForCompletion();
+                uploadFileList(s3Client, bucketName, "", sitemapdir, Arrays.asList(Objects.requireNonNull(sitemapdir.listFiles())));
             }
         } catch (Exception e) {
             log.error("Error occurred while copying the web_resources files to amazon s3 bucket for Site: {} Error: {}",
@@ -122,8 +152,7 @@ public class PSAmazonS3EditionTask implements IPSEditionTask
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             throw e;
         } finally {
-            if (tm != null) tm.shutdownNow();
-            if (s3Client != null) s3Client.shutdown();
+            if (s3Client != null) s3Client.close();
         }
     }
 
@@ -136,11 +165,45 @@ public class PSAmazonS3EditionTask implements IPSEditionTask
     }
 
     private Region getConfiguredAWSRegion() {
-        return Region.getRegion(Regions.fromName(targetRegion));
+        return Region.of(targetRegion);
     }
 
     private String getExceptionMessage(Exception e) {
         return PSExceptionUtils.getMessageForLog(e);
+    }
+
+    /**
+     * Upload each {@code file} under {@code prefix}. Replaces v1's
+     * {@code TransferManager.uploadFileList(bucket, prefix, dir, files)} with explicit
+     * {@code putObject} calls (multipart is handled transparently by v2 for large files).
+     *
+     * <p>Key layout matches v1 SDK behavior: {@code <prefix>/<file path relative to dir>}, with
+     * OS path separators normalized to {@code /}.
+     */
+    /**
+     * Package-private for unit testing; uploads each {@code file} under {@code prefix}.
+     */
+    void uploadFileList(S3Client s3, String bucketName, String prefix, File dir, List<File> files) throws IOException {
+        if (files == null) return;
+        var dirAbs = dir.getAbsolutePath().replace("\\", "/");
+        for (var file : files) {
+            var rel = file.getAbsolutePath().replace("\\", "/");
+            if (rel.startsWith(dirAbs)) {
+                rel = rel.substring(dirAbs.length());
+            }
+            while (rel.startsWith("/")) {
+                rel = rel.substring(1);
+            }
+            var key = prefix.isEmpty() ? rel : prefix + (prefix.endsWith("/") ? "" : "/") + rel;
+            try (var in = new FileInputStream(file)) {
+                var putReq = PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(key)
+                        .contentLength(file.length())
+                        .build();
+                s3.putObject(putReq, RequestBody.fromInputStream(in, file.length()));
+            }
+        }
     }
 
     /**
@@ -154,7 +217,11 @@ public class PSAmazonS3EditionTask implements IPSEditionTask
      * @throws FileNotFoundException
      * @throws IOException
      */
-    private PSPair<List<File>, List<String>> getFileList(AmazonS3 s3Client, String bucketName)
+    /**
+     * Package-private for unit testing. Computes the files to upload and the keys to delete by
+     * comparing local web_resources against the S3 listing.
+     */
+    PSPair<List<File>, List<String>> getFileList(S3Client s3Client, String bucketName)
             throws FileNotFoundException, IOException {
         var modifiedFiles = new ArrayList<File>();
         var localFilesMap = getLocalWebResFiles();
@@ -222,7 +289,10 @@ public class PSAmazonS3EditionTask implements IPSEditionTask
      * @param file assumed not <code>null</code>.
      * @return <code>true</code> if the files is ignorable and <code>false</code> if not.
      */
-    private boolean isIgnorableFile(File file) {
+    /**
+     * Package-private for unit testing.
+     */
+    boolean isIgnorableFile(File file) {
         return file.getName().equals("Thumbs.db") || file.getName().startsWith(".");
     }
 
@@ -230,18 +300,21 @@ public class PSAmazonS3EditionTask implements IPSEditionTask
      * Helper method that returns amazon s3 file keys along with checksum.
      * @param client
      * @param bucketName
-
+     *
      */
-    private Map<String, String> getAmazonS3FilesMap(AmazonS3 client, String bucketName) {
-        ObjectListing listing;
+    private Map<String, String> getAmazonS3FilesMap(S3Client client, String bucketName) {
         var filesMap = new TreeMap<String, String>();
-        var listObjectsRequest = new ListObjectsRequest().withBucketName(bucketName).withPrefix(WEB_RESOURCES);
+        var listReq = ListObjectsV2Request.builder()
+                .bucket(bucketName)
+                .prefix(WEB_RESOURCES)
+                .build();
+        ListObjectsV2Response listing;
         do {
-            listing = client.listObjects(listObjectsRequest);
-            for (var summary : listing.getObjectSummaries()) {
-                filesMap.put(summary.getKey(), summary.getETag());
+            listing = client.listObjectsV2(listReq);
+            for (S3Object summary : listing.contents()) {
+                filesMap.put(summary.key(), summary.eTag());
             }
-            listObjectsRequest.setMarker(listing.getNextMarker());
+            listReq = listReq.toBuilder().continuationToken(listing.nextContinuationToken()).build();
         } while (listing.isTruncated());
         return filesMap;
     }

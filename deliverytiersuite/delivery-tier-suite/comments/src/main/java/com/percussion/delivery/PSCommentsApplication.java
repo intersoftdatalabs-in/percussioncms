@@ -18,7 +18,6 @@
 
 package com.percussion.delivery;
 
-import tools.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 import com.percussion.delivery.comments.services.PSCommentsRestService;
 import com.percussion.delivery.exceptions.PSJsonMappingErrorResponse;
 import com.percussion.delivery.exceptions.PSUncaughtError;
@@ -31,6 +30,7 @@ import org.glassfish.jersey.server.spring.AutowiredInjectResolver;
 import org.glassfish.jersey.server.spring.SpringComponentProvider;
 import org.glassfish.jersey.server.spring.SpringLifecycleListener;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
+import tools.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 
 /**
  * Jersey application configuration for Percussion CMS REST services. Registers REST resources,

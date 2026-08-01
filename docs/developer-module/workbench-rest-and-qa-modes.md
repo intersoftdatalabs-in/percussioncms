@@ -1,10 +1,10 @@
 # Workbench replacement REST + Dev / QA test modes
 
-| Field | Value |
-|-------|--------|
-| **Status** | **Direction of record** for agents and humans |
-| **Audience** | Anyone adding Developer-module (Workbench replacement) APIs or Playwright against CMS |
-| **Related** | [rest/AGENTS.md](../../rest/AGENTS.md), [sitemanage/AGENTS.md](../../projects/sitemanage/AGENTS.md), [perc-qa-automation/AGENTS.md](../../modules/perc-qa-automation/AGENTS.md), [adaptor-design-ws-audit.md](../ai-generated/tasks/developer-module-p0/adaptor-design-ws-audit.md) |
+|    Field     |                                                                                                                                        Value                                                                                                                                        |
+|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Status**   | **Direction of record** for agents and humans                                                                                                                                                                                                                                       |
+| **Audience** | Anyone adding Developer-module (Workbench replacement) APIs or Playwright against CMS                                                                                                                                                                                               |
+| **Related**  | [rest/AGENTS.md](../../rest/AGENTS.md), [sitemanage/AGENTS.md](../../projects/sitemanage/AGENTS.md), [perc-qa-automation/AGENTS.md](../../modules/perc-qa-automation/AGENTS.md), [adaptor-design-ws-audit.md](../ai-generated/tasks/developer-module-p0/adaptor-design-ws-audit.md) |
 
 ---
 
@@ -32,12 +32,12 @@ Same backing capabilities SOAP used
 perc-system / objectstore / services
 ```
 
-| Layer | Module | Role |
-|-------|--------|------|
-| HTTP + OpenAPI + DTOs | **`rest`** | New, intentional Workbench-replacement surface |
-| Adaptor interface | **`rest`** | Contract only — **no** sitemanage dependency |
-| Adaptor impl | **`sitemanage` apibridge** | Thin map to design/system call sites |
-| Domain truth for design objects | **webservices design APIs + system** | Same stack Workbench trusted |
+|              Layer              |                Module                |                      Role                      |
+|---------------------------------|--------------------------------------|------------------------------------------------|
+| HTTP + OpenAPI + DTOs           | **`rest`**                           | New, intentional Workbench-replacement surface |
+| Adaptor interface               | **`rest`**                           | Contract only — **no** sitemanage dependency   |
+| Adaptor impl                    | **`sitemanage` apibridge**           | Thin map to design/system call sites           |
+| Domain truth for design objects | **webservices design APIs + system** | Same stack Workbench trusted                   |
 
 ### DO
 
@@ -68,14 +68,14 @@ Two supported modes. Agents must know which they are in. **Developers/agents do 
 
 **Purpose:** day-to-day feature + Playwright development on a real CMS tree.
 
-| Piece | Expectation |
-|-------|-------------|
-| CMS | **Local install on the developer machine** (e.g. `C:\Installs\…`, `/opt/Percussion`) |
-| Docker | **Binds/mounts that install** (or otherwise uses that tree) — not a throwaway empty container as the only copy of the product |
-| Code changes | Build → **copy artifacts into the install webapp** (hot deploy) |
-| Server restart | **Not required** for typical JS/CSS/JSP (and other hot-copy paths); see WebUI / perc-qa-automation hot-deploy tables |
-| Tests | Playwright against `DEV_PERCUSSION_INSTALL` / discovered URL (e.g. `localhost:9992`) |
-| Loop | edit → build/copy → **re-run test** (cache-buster on SPA URLs when needed) |
+|     Piece      |                                                          Expectation                                                          |
+|----------------|-------------------------------------------------------------------------------------------------------------------------------|
+| CMS            | **Local install on the developer machine** (e.g. `C:\Installs\…`, `/opt/Percussion`)                                          |
+| Docker         | **Binds/mounts that install** (or otherwise uses that tree) — not a throwaway empty container as the only copy of the product |
+| Code changes   | Build → **copy artifacts into the install webapp** (hot deploy)                                                               |
+| Server restart | **Not required** for typical JS/CSS/JSP (and other hot-copy paths); see WebUI / perc-qa-automation hot-deploy tables          |
+| Tests          | Playwright against `DEV_PERCUSSION_INSTALL` / discovered URL (e.g. `localhost:9992`)                                          |
+| Loop           | edit → build/copy → **re-run test** (cache-buster on SPA URLs when needed)                                                    |
 
 **Agent rules (dev mode):**
 
@@ -88,13 +88,13 @@ Two supported modes. Agents must know which they are in. **Developers/agents do 
 
 **Purpose:** clean, reproducible gate — “does this revision work?”
 
-| Piece | Expectation |
-|-------|-------------|
-| CMS | **Fully contained in Docker** (image/stack owns the install) |
-| Host install | Not required for the test run |
+|      Piece      |                                    Expectation                                    |
+|-----------------|-----------------------------------------------------------------------------------|
+| CMS             | **Fully contained in Docker** (image/stack owns the install)                      |
+| Host install    | Not required for the test run                                                     |
 | Code under test | Built into the image / stack under test (or the pipeline’s defined artifact path) |
-| Tests | Playwright (or suite) runs **against that stack only** |
-| Outcome | **Pass or fail** — no “works on my July-29 folder” caveat |
+| Tests           | Playwright (or suite) runs **against that stack only**                            |
+| Outcome         | **Pass or fail** — no “works on my July-29 folder” caveat                         |
 
 **Agent rules (QA mode):**
 
@@ -114,12 +114,12 @@ Two supported modes. Agents must know which they are in. **Developers/agents do 
 
 ## 3. Pointers for agents
 
-| Need | Doc |
-|------|-----|
-| REST adaptor layout | `rest/AGENTS.md`, `projects/sitemanage/AGENTS.md` |
+|             Need             |                                   Doc                                    |
+|------------------------------|--------------------------------------------------------------------------|
+| REST adaptor layout          | `rest/AGENTS.md`, `projects/sitemanage/AGENTS.md`                        |
 | Which adaptors hit design WS | `docs/ai-generated/tasks/developer-module-p0/adaptor-design-ws-audit.md` |
-| Playwright + hot copy | `modules/perc-qa-automation/AGENTS.md`, `WebUI/AGENTS.md` |
-| FR parity | `docs/developer-module/workbench-functional-inventory.md` |
-| Progress tracker | GitHub **#1690** (post-P0); closed **#1622** was P0 |
+| Playwright + hot copy        | `modules/perc-qa-automation/AGENTS.md`, `WebUI/AGENTS.md`                |
+| FR parity                    | `docs/developer-module/workbench-functional-inventory.md`                |
+| Progress tracker             | GitHub **#1690** (post-P0); closed **#1622** was P0                      |
 
 When adding a Workbench-replacement API or Playwright coverage, **read this file first** and state **dev mode** vs **QA mode** in the PR body.

@@ -75,7 +75,7 @@
         </dependency>
         <dependency>
             <groupId>tools.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
+            <artifactId>jackson-core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -129,7 +129,7 @@
         </dependency>
         <dependency>
             <groupId>tools.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
+            <artifactId>jackson-databind</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

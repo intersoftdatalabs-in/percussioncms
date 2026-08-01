@@ -17,7 +17,6 @@
  */
 package com.percussion.pubserver.impl;
 
-import com.amazonaws.regions.Regions;
 import com.percussion.delivery.service.IPSDeliveryInfoService;
 import com.percussion.delivery.service.PSDeliveryInfoServiceLocator;
 import com.percussion.delivery.service.impl.PSDeliveryInfoService;
@@ -46,6 +45,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import software.amazon.awssdk.regions.Region;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
@@ -195,11 +195,12 @@ public class PSPubServerRestService {
   @Path("/availableRegions")
   @Produces(MediaType.TEXT_PLAIN)
   public String getAvailableRegions() throws tools.jackson.core.JacksonException {
-    var regions = Regions.values();
-    if (regions != null) {
-      var regionNames = new String[regions.length];
-      for (int i = 0; i < regions.length; i++) {
-        regionNames[i] = regions[i].getName();
+    // v2 SDK equivalent of v1's Regions.values(): all known AWS partition regions.
+    var regions = Region.regions();
+    if (regions != null && !regions.isEmpty()) {
+      var regionNames = new String[regions.size()];
+      for (int i = 0; i < regions.size(); i++) {
+        regionNames[i] = regions.get(i).id();
       }
       return JsonMapper.builder().build().writeValueAsString(regionNames);
     }

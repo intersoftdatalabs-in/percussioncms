@@ -59,26 +59,26 @@ All translation memory exchange (TMX) files are maintained in this module:
 Both `CmsUi.tmx` and `SystemResources.tmx` declare the same set of
 languages in their `<header>` `<prop type="supportedlanguage">` lines:
 
-|   Family   |                              Codes                              |
-|------------|-----------------------------------------------------------------|
-| Arabic     | `ar` (base)                                                     |
-| Bengali    | `bn` (base)                                                     |
-| Chinese    | `zh-cn`, `zh-tw`                                                |
-| Dutch      | `nl` (base), `nl-nl`, `nl-be`                                   |
-| English    | `en-us` (default fallback), `en-gb`                             |
-| French     | `fr` (base), `fr-fr`, `fr-ca`, `fr-be`, `fr-ch`, `fr-lu`, `fr-us` |
-| German     | `de` (base), `de-de`, `de-at`, `de-ch`, `de-li`, `de-lu`        |
-| Hindi      | `hi` (base), `hi-in`                                            |
-| Italian    | `it` (base), `it-it`, `it-ch`                                   |
-| Japanese   | `ja-jp`                                                         |
-| Polish     | `pl` (base)                                                     |
-| Portuguese | `pt` (base), `pt-br`, `pt-pt`                                   |
-| Russian    | `ru` (base)                                                     |
-| Spanish    | `es` (base), `es-es`, `es-mx`, `es-cl`, + LATAM `es-*` variants |
-| Swedish    | `sv` (base)                                                     |
-| Louisiana Creole | `lou`                                                |
-| Telugu     | `te` (base)                                                     |
-| Turkish    | `tr` (base), `tr-tr`                                            |
+|      Family      |                               Codes                               |
+|------------------|-------------------------------------------------------------------|
+| Arabic           | `ar` (base)                                                       |
+| Bengali          | `bn` (base)                                                       |
+| Chinese          | `zh-cn`, `zh-tw`                                                  |
+| Dutch            | `nl` (base), `nl-nl`, `nl-be`                                     |
+| English          | `en-us` (default fallback), `en-gb`                               |
+| French           | `fr` (base), `fr-fr`, `fr-ca`, `fr-be`, `fr-ch`, `fr-lu`, `fr-us` |
+| German           | `de` (base), `de-de`, `de-at`, `de-ch`, `de-li`, `de-lu`          |
+| Hindi            | `hi` (base), `hi-in`                                              |
+| Italian          | `it` (base), `it-it`, `it-ch`                                     |
+| Japanese         | `ja-jp`                                                           |
+| Polish           | `pl` (base)                                                       |
+| Portuguese       | `pt` (base), `pt-br`, `pt-pt`                                     |
+| Russian          | `ru` (base)                                                       |
+| Spanish          | `es` (base), `es-es`, `es-mx`, `es-cl`, + LATAM `es-*` variants   |
+| Swedish          | `sv` (base)                                                       |
+| Louisiana Creole | `lou`                                                             |
+| Telugu           | `te` (base)                                                       |
+| Turkish          | `tr` (base), `tr-tr`                                              |
 
 **Base locales** (`RXLOCALE.ISBASE=1`): `ar`, `bn`, `de`, `es`, `fr`, `hi`,
 `it`, `nl`, `pl`, `pt`, `ru`, `sv`, `te`, `tr`. Prefer storing shared

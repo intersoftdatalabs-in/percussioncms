@@ -24,8 +24,6 @@ import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.pathmanagement.service.impl.PSAssetPathItemService;
 import com.percussion.pubserver.IPSPubServerService;
@@ -1340,17 +1338,19 @@ public class PSSitePublishDao implements com.percussion.sitemanage.dao.IPSSitePu
       preTask.setParam(
           "secret_key",
           pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_AS3_SECURITYKEY_PROPERTY, ""));
-      Region defaultRegion = null;
+      String defaultRegion = null;
       try {
-        defaultRegion = Regions.getCurrentRegion();
+        // v2 SDK equivalent of v1's Regions.getCurrentRegion() - see
+        // PSAmazonS3DeliveryHandler#getCurrentEc2Region().
+        defaultRegion =
+            com.percussion.rx.delivery.impl.PSAmazonS3DeliveryHandler.getCurrentEc2Region();
       } catch (Exception e) {
         // Do nothing
       }
       preTask.setParam(
           "region",
           pubServer.getPropertyValue(
-              IPSPubServerDao.PUBLISH_EC2_REGION,
-              (defaultRegion != null ? defaultRegion.getName() : "")));
+              IPSPubServerDao.PUBLISH_EC2_REGION, (defaultRegion != null ? defaultRegion : "")));
       preTask.setSequence(1);
       preTask.setExtensionName(PSSitePublishDaoHelper.AMAZONS3_EDITION_TASK_EXT_NAME);
       publishWs.saveEditionTask(preTask);

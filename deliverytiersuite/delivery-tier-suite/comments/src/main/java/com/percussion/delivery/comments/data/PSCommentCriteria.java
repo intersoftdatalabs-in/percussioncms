@@ -17,12 +17,11 @@
  */
 package com.percussion.delivery.comments.data;
 
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 import com.percussion.delivery.comments.data.IPSComment.APPROVAL_STATE;
-import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * A small data class representing comment criteria to find comments with.

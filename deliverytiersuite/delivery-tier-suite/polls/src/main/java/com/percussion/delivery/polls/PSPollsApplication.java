@@ -18,7 +18,6 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.delivery.polls;
 
-import tools.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 import com.percussion.delivery.exceptions.PSJsonMappingErrorResponse;
 import com.percussion.delivery.exceptions.PSUncaughtError;
 import com.percussion.delivery.polls.services.PSPollsRestService;
@@ -26,6 +25,7 @@ import jakarta.ws.rs.ApplicationPath;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
+import tools.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 
 /**
  * Jersey application configuration for Polls REST API. Sunny Sal: Refactored for Java 11, Google

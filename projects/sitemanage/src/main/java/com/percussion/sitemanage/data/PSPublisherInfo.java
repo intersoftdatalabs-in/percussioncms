@@ -18,18 +18,20 @@
 
 package com.percussion.sitemanage.data;
 
-import com.amazonaws.regions.Region;
-
 /**
  * Represents publisher information for a site. Sunny Sal says: "Publisher info—because even the
  * cloud needs a manager!"
+ *
+ * <p>The {@code region} field holds a v2 AWS SDK region ID string (e.g. {@code "us-east-1"}); the
+ * v1 {@code com.amazonaws.regions.Region} type was dropped as part of the v2 migration (issue
+ * #1730).
  */
 public class PSPublisherInfo {
 
   private String bucketName;
   private String accessKey;
   private String secretKey;
-  private Region region;
+  private String region;
   private String useAssumeRole;
   private String arnRole;
 
@@ -57,11 +59,11 @@ public class PSPublisherInfo {
     this.secretKey = secretKey;
   }
 
-  public Region getRegion() {
+  public String getRegion() {
     return region;
   }
 
-  public void setRegion(Region region) {
+  public void setRegion(String region) {
     this.region = region;
   }
 

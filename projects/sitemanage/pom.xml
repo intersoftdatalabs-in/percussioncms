@@ -297,9 +297,18 @@
             <artifactId>derby</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!-- AWS SDK v2 (issue #1730 - migrated from com.amazonaws:aws-java-sdk-*). -->
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-s3</artifactId>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>regions</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>utils</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>

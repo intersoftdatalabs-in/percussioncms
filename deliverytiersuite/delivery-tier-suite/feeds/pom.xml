@@ -54,7 +54,7 @@
         </dependency>
         <dependency>
             <groupId>tools.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

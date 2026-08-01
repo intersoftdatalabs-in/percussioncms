@@ -16,12 +16,12 @@
  */
 package com.percussion.delivery.data;
 
-import tools.jackson.databind.annotation.JsonDeserialize;
 import com.percussion.delivery.feeds.data.IPSFeedDescriptor;
 import com.percussion.delivery.feeds.data.PSFeedDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 /** A transfer class for feed descriptors and connection info. */
 public class PSFeedDescriptors {

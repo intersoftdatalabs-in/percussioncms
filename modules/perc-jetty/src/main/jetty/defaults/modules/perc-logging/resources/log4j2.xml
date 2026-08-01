@@ -233,7 +233,7 @@
 			<AppenderRef ref="FILE" />
 			<AppenderRef ref="RevisionPurgeApp" />
 		</AsyncLogger>
-		<AsyncLogger name="com.amazonaws" level="error"
+		<AsyncLogger name="software.amazon.awssdk" level="error"
 			includeLocation="true" additivity="false">
 			<AppenderRef ref="CONSOLE" />
 			<AppenderRef ref="FILE" />
