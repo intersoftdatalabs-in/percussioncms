@@ -135,6 +135,13 @@ public class PSSecureProperty {
     return true;
   }
 
+  /**
+   * Decrypts all encrypted properties in the supplied properties file. The file is re-written with
+   * the decrypted values. Properties whose values do not match the encrypted format are left
+   * unchanged.
+   *
+   * @param filepath the path to the properties file to be modified. Cannot be <code>null</code>.
+   */
   public static void unsecureProperties(File filepath) {
 
     if (validateFilePath(filepath)) {

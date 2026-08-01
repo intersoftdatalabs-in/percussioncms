@@ -38,19 +38,38 @@ import org.apache.tools.ant.BuildException;
  */
 public class PSMigrateDtsEmbeddedRepository extends PSAction {
 
+  /** Default constructor. */
+  public PSMigrateDtsEmbeddedRepository() {
+    super();
+  }
+
   private boolean performProductBackup = true;
   private boolean failOnBlock = true;
   private String services = "";
 
+  /**
+   * Sets whether to perform a product backup before migrating the embedded DTS Derby databases.
+   *
+   * @param performProductBackup <code>true</code> to back up the DTS databases before migration
+   */
   public void setPerformProductBackup(boolean performProductBackup) {
     this.performProductBackup = performProductBackup;
   }
 
+  /**
+   * Sets whether to abort the upgrade when a DTS service reports FAILED or BLOCKED_BACKUP_GATE.
+   *
+   * @param failOnBlock <code>true</code> to fail the upgrade on blocked/errored migrations
+   */
   public void setFailOnBlock(boolean failOnBlock) {
     this.failOnBlock = failOnBlock;
   }
 
-  /** Optional comma-separated service names; empty means all default services. */
+  /**
+   * Sets the optional comma-separated service names to migrate.
+   *
+   * @param services comma-separated service names; empty means all default services
+   */
   public void setServices(String services) {
     this.services = services == null ? "" : services;
   }

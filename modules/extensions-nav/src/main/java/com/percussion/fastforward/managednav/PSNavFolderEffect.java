@@ -67,11 +67,14 @@ import javax.jcr.RepositoryException;
  *
  * <p>This effect is designed to run as the <code>rxserver</code> user.
  *
- * <p>
- *
  * @author DavidBenua
  */
 public class PSNavFolderEffect extends PSNavAbstractEffect implements IPSEffect {
+
+  /** Default constructor. */
+  public PSNavFolderEffect() {
+    super();
+  }
 
   /**
    * Tests whether the effect should allow the operation to continue.
@@ -82,8 +85,8 @@ public class PSNavFolderEffect extends PSNavAbstractEffect implements IPSEffect 
    *     <code>null</code>.
    * @param result the result object tells the effect processor whether the event is allowed to
    *     continue or not, not <code>null</code>.
-   * @throws PSExtensionProcessingException
-   * @throws PSParameterMismatchException
+   * @throws PSExtensionProcessingException if an error occurs processing the extension.
+   * @throws PSParameterMismatchException if the supplied parameters are invalid.
    */
   @Override
   public void test(

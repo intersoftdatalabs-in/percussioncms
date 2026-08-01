@@ -24,8 +24,10 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.taskdefs.Zip;
 
 /**
- * <br>
- * Example Usage: <br>
+ * Zips a Rhythmyx {@code .ppkg} package from the temporary staging directories into a single {@code
+ * .ppkg} file under the destination directory.
+ *
+ * <p>Ant task usage:
  *
  * <pre>
  *
@@ -84,39 +86,59 @@ import org.apache.tools.ant.taskdefs.Zip;
  */
 public class PSZipPackage extends Zip {
   /** Creates a new zip package task. */
-  public PSZipPackage() {}
+  public PSZipPackage() {
+    super();
+  }
 
+  /**
+   * Returns the destination directory into which the {@code .ppkg} file will be written.
+   *
+   * @return the destination directory path, may be <code>null</code>
+   */
   public String getDestDirPath() {
     return destDirPath;
   }
 
+  /**
+   * Sets the destination directory into which the {@code .ppkg} file will be written.
+   *
+   * @param destDirPath absolute path of the destination directory
+   */
   public void setDestDirPath(String destDirPath) {
     this.destDirPath = destDirPath;
   }
 
   /**
-   * @param tempPath1 the tempDestPath to set
+   * Sets the first temporary staging directory containing the package's source files.
+   *
+   * @param tempPath1 absolute path of the first temporary directory
    */
   public void setTempPath1(String tempPath1) {
     this.tempPath1 = tempPath1;
   }
 
   /**
-   * @param tempPath2 the tempPath2 to set
+   * Sets the second temporary staging directory used as the Ant {@code basedir}.
+   *
+   * @param tempPath2 absolute path of the second temporary directory
    */
   public void setTempPath2(String tempPath2) {
     this.tempPath2 = tempPath2;
   }
 
   /**
-   * @param packagename the packagename to set
+   * Sets the package name (without the {@code .ppkg} extension).
+   *
+   * @param packagename the package name, may not be <code>null</code> or empty
    */
   public void setPackageName(String packagename) {
     packageName = packagename;
   }
 
   /**
-   * @param rootDirPath the rootDirPath to set
+   * Sets the root directory under which the package's source files reside.
+   *
+   * @param rootDirPath absolute path of the package source root
    */
   public void setRootDirPath(String rootDirPath) {
     this.rootDirPath = rootDirPath;

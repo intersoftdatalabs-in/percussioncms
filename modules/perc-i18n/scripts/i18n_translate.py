@@ -5,9 +5,11 @@ Walks ``modules/perc-i18n/src/main/resources/i18n/{CmsUi,SystemResources}.tmx``
 and, for every ``<tuv xml:lang="<target>">`` that is absent on a ``<tu>``,
 shells out to ``docker run --rm soimort/translate-shell --brief ...`` to
 fetch a translation. Honors rate-limit responses with exponential backoff,
-caches results on disk so a re-run resumes from where it stopped, skips
-placeholder-only source segments, and writes the new ``<tuv>`` back into
-the canonical TMX with proper XML escaping.
+caches results in the shared checked-in file
+``scripts/cache/i18n_translate.json`` (via ``i18n_cache``) so re-runs
+resume across machines, skips placeholder-only source segments, and
+writes the new ``<tuv>`` back into the canonical TMX with proper XML
+escaping.
 
 Usage (from repository root)::
 
@@ -29,7 +31,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import json
+import html
 import random
 import re
 import shutil
@@ -40,13 +42,22 @@ from pathlib import Path
 from xml.etree import ElementTree as ET
 from xml.sax.saxutils import escape as xml_escape
 
+# Sibling modules live in the same directory (dev tool, not a package).
+_SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+
+import i18n_cache as _i18n_cache  # noqa: E402
+
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 I18N_DIR = REPO_ROOT / 'modules' / 'perc-i18n' / 'src' / 'main' / 'resources' / 'i18n'
-CACHE_FILE = Path(__file__).resolve().parent / '.cache' / 'i18n_translate.json'
+# Shared checked-in cache (scripts/cache/i18n_translate.json). Reassignable
+# by unit tests so they never touch the committed file.
+CACHE_FILE = _i18n_cache.CACHE_FILE
 
 # Canonical TMX files this script edits.
 DEFAULT_FILES = ('CmsUi.tmx', 'SystemResources.tmx', 'DeveloperUi.tmx')
@@ -71,7 +82,7 @@ SOURCE_LANG = 'en-us'
 
 
 # ---------------------------------------------------------------------------
-# Cache helpers
+# Cache helpers (shared with i18n_translate_direct via i18n_cache)
 # ---------------------------------------------------------------------------
 
 def cache_key(text: str, target: str) -> str:
@@ -84,20 +95,14 @@ def cache_key(text: str, target: str) -> str:
 
 
 def load_cache() -> dict[str, str]:
-    if CACHE_FILE.exists():
-        try:
-            return json.loads(CACHE_FILE.read_text(encoding='utf-8'))
-        except (OSError, json.JSONDecodeError):
-            return {}
-    return {}
+    """Load the shared translation cache (migrates legacy ``.cache/`` once)."""
+    # Resolve through this module's CACHE_FILE so tests can redirect it.
+    return _i18n_cache.load_cache(CACHE_FILE)
 
 
 def save_cache(cache: dict[str, str]) -> None:
-    CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
-    tmp = CACHE_FILE.with_suffix('.tmp')
-    tmp.write_text(json.dumps(cache, ensure_ascii=False, indent=2, sort_keys=True),
-                   encoding='utf-8')
-    tmp.replace(CACHE_FILE)
+    """Persist the shared translation cache (atomic write)."""
+    _i18n_cache.save_cache(cache, CACHE_FILE)
 
 
 # ---------------------------------------------------------------------------
@@ -112,8 +117,15 @@ def invoke_translate(text: str, target: str, *,
     could not be obtained after exhausting retries. Rate-limit responses
     trigger exponential backoff per ``backoff_sleep``.
     """
+    # ``-no-bidi`` keeps RTL languages (e.g. ar) in logical order without
+    # terminal padding / presentation-form rewriting — required for TMX.
+    # LANG/LC_ALL help Windows Docker Desktop capture UTF-8 Arabic stdout.
     cmd = docker_cmd if docker_cmd is not None else [
-        'docker', 'run', '--rm', DOCKER_IMAGE, DOCKER_BRIEF_FLAG, text, f':{target}',
+        'docker', 'run', '--rm',
+        '-e', 'LANG=C.UTF-8',
+        '-e', 'LC_ALL=C.UTF-8',
+        DOCKER_IMAGE,
+        DOCKER_BRIEF_FLAG, '-no-bidi', text, f':{target}',
     ]
     delay = BACKOFF_START_SEC
     attempt = 0
@@ -126,6 +138,7 @@ def invoke_translate(text: str, target: str, *,
                 text=True,
                 check=False,
                 encoding='utf-8',
+                errors='replace',
             )
         except FileNotFoundError as e:
             raise RuntimeError(
@@ -134,7 +147,18 @@ def invoke_translate(text: str, target: str, *,
                 f'image. Underlying error: {e}',
             ) from e
         if result.returncode == 0:
-            return result.stdout.rstrip('\n')
+            out = (result.stdout or '').replace('\ufeff', '').strip()
+            if not out:
+                err = (result.stderr or '').replace('\ufeff', '').strip()
+                if err and '\n' not in err and 'error' not in err.lower():
+                    out = err
+            if out:
+                return out
+            raise RuntimeError(
+                f'translate-shell returned empty translation '
+                f'(rc={result.returncode}): stdout={result.stdout!r} '
+                f'stderr={result.stderr!r}',
+            )
         # Crude rate-limit detection: 429-like substrings in stderr or stdout.
         lowered = (result.stderr + result.stdout).lower()
         is_rate_limit = (
@@ -160,6 +184,11 @@ def invoke_translate(text: str, target: str, *,
 # Translation request (cached)
 # ---------------------------------------------------------------------------
 
+def _preview(s: str, n: int = 50) -> str:
+    one = s.replace('\n', ' ').replace('\r', ' ')
+    return one if len(one) <= n else one[:n] + '…'
+
+
 def translate(text: str, target: str, *,
               cache: dict[str, str] | None = None,
               force: bool = False) -> str:
@@ -170,8 +199,14 @@ def translate(text: str, target: str, *,
         cache = load_cache()
     key = cache_key(text, target)
     if not force and key in cache:
-        return cache[key]
+        cached = cache[key]
+        print(f'  [cache] {_preview(text, 30)} -> {target} = {_preview(cached)}',
+              flush=True)
+        return cached
+    print(f'  [trans] {_preview(text, 30)} -> {target}', flush=True)
     translated = invoke_translate(text, target)
+    print(f'  [trans] {_preview(text, 30)} -> {target} = {_preview(translated)}',
+          flush=True)
     cache[key] = translated
     return translated
 
@@ -217,7 +252,13 @@ class TmxFile:
     def inject(self, target: str, translations: dict[str, str]) -> int:
         """Insert ``<tuv xml:lang="target"><seg>...</seg></tuv>`` blocks for
         every tuid in ``translations`` that is missing that lang. Returns the
-        number of inserted TUVs."""
+        number of inserted TUVs.
+
+        ``translations`` keys must match ElementTree-decoded tuids. Raw TMX
+        attribute values may still contain ``&gt;`` / ``&lt;`` / ``&amp;``;
+        those are unescaped before lookup so keys with ``>>``, ``&``, etc.
+        actually inject.
+        """
         if not translations:
             return 0
         # Build a regex that matches each <tu ...>...</tu> we care about.
@@ -226,7 +267,8 @@ class TmxFile:
         pos = 0
         tu_pattern = re.compile(r'<tu\s+tuid="([^"]+)"[^>]*>.*?</tu>', re.DOTALL)
         for m in tu_pattern.finditer(self.text):
-            tuid = m.group(1)
+            # list_missing() returns entity-decoded tuids; raw attrs do not.
+            tuid = html.unescape(m.group(1))
             if tuid not in translations:
                 continue
             # Check if this TU already has the target lang (skip).

@@ -70,6 +70,12 @@ public class PSRxBuildInput {
    *     files and restoring the originals.
    * @param rootDir the source root directory, may not be <code>null</code> or empty.
    * @param configfile the full path to the .cfg file should not be <code>null</code>
+   * @param readme path to the readme file included in the patch, may be <code>null</code> or empty
+   * @param obfuscation <code>true</code> to obfuscate the resulting patch jar files
+   * @param debug <code>true</code> to build the patch with debug symbols
+   * @param manufacture <code>true</code> to build a manufacturing (release) patch
+   * @param sync <code>true</code> to synchronize files instead of producing a patch
+   * @param verbose <code>true</code> to enable verbose Ant output during the build
    */
   public PSRxBuildInput(
       String batchfile,
@@ -1276,9 +1282,12 @@ public class PSRxBuildInput {
   }
 
   /**
-   * The main program entry point
+   * The main program entry point. Reads the {@code OBFUSCATION}, {@code DEBUG}, {@code
+   * MANUFACTURE}, {@code SYNC}, and {@code VERBOSE} system properties and, when at least 9
+   * arguments are supplied, constructs a {@link PSRxBuildInput} that drives the batch build.
    *
-   * @param args
+   * @param args command line arguments: {@code batchfile libPath buildfile backupfile installfile
+   *     uninstallfile rootDir configfile readme}
    */
   public static void main(String[] args) {
 

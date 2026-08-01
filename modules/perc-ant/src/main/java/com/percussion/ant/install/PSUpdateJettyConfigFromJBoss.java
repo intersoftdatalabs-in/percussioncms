@@ -53,17 +53,33 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tools.ant.BuildException;
 
-/** Update jetty configuration based upon JBoss for an upgrade */
+/**
+ * Update Jetty configuration based upon JBoss for an upgrade. Migrates JNDI datasource settings to
+ * the new Jetty layout, converts the legacy CM1 Derby driver from the network client to the
+ * embedded driver, replaces the jtds SQL Server driver with the Microsoft driver, and carries the
+ * LAX JVM options from {@code PercussionServer.lax} into {@code jetty/base/start.d/jvm.ini}.
+ */
 public class PSUpdateJettyConfigFromJBoss extends PSAction {
   /** Creates a new Jetty config update from JBoss task. */
-  public PSUpdateJettyConfigFromJBoss() {}
+  public PSUpdateJettyConfigFromJBoss() {
+    super();
+  }
 
   private static final Logger log = LogManager.getLogger(PSUpdateJettyConfigFromJBoss.class);
 
+  /** Name of the Windows launcher file containing legacy LAX JVM options. */
   public static final String PERCUSSION_SERVER_LAX = "PercussionServer.lax";
+
+  /** Name of the Linux launcher file containing legacy LAX JVM options. */
   public static final String PERCUSSION_SERVER_LINUX_LAX = "PercussionServer.bin.lax";
+
+  /** Property key in the LAX file that holds the additional Java command line arguments. */
   public static final String LAX_NL_JAVA_OPTION_ADDITIONAL = "lax.nl.java.option.additional";
 
+  /**
+   * JVM arguments that should not be carried over from the legacy LAX file into the new Jetty
+   * {@code jvm.ini}. These arguments are managed by the Jetty startup scripts.
+   */
   public static final ImmutableList<String> SKIP_ARGS =
       ImmutableList.of(
           "-Dprogram.name",
@@ -77,12 +93,22 @@ public class PSUpdateJettyConfigFromJBoss extends PSAction {
   /** The repository location, relative to the Rhythmyx root. */
   private String repositoryLocation = "rxconfig/Installer/rxrepository.properties";
 
-  /** Accessor for the repository location */
+  /**
+   * Accessor for the repository location.
+   *
+   * @return the repository location path relative to the Rhythmyx root, never <code>null</code>
+   */
   public String getRepositoryLocation() {
     return repositoryLocation;
   }
 
   // TODO: Remove me @SuppressFBWarnings({"HARD_CODE_PASSWORD", "HARD_CODE_PASSWORD"})
+  /**
+   * Updates {@code rxrepository.properties} with the supplied datasource and configuration values.
+   *
+   * @param dataSource the JNDI datasource whose settings should be persisted
+   * @param config the datasource configuration supplying schema and database names
+   */
   public void updateInstallOrUpgradeDatasource(
       IPSJndiDatasource dataSource, IPSDatasourceConfig config) {
     Properties props = null;
@@ -132,6 +158,10 @@ public class PSUpdateJettyConfigFromJBoss extends PSAction {
     }
   }
 
+  /**
+   * Loads the Jetty configuration, migrates each JNDI datasource, saves the configuration, and
+   * migrates the LAX JVM settings into Jetty's {@code jvm.ini}.
+   */
   public void execute() {
     File root = new File(getRootDir());
 
@@ -229,6 +259,11 @@ public class PSUpdateJettyConfigFromJBoss extends PSAction {
     }
   }
 
+  /**
+   * Copies non-default JVM arguments from {@code PercussionServer.lax} (or {@code
+   * PercussionServer.bin.lax} on Linux) into {@code jetty/base/start.d/jvm.ini}. Memory arguments
+   * already present in the destination {@code jvm.ini} are preserved.
+   */
   private void migrateLaxJavaSettingsToJetty() {
     File jvmIni = new File(getRootDir(), "jetty/base/start.d/jvm.ini");
     Properties props = new Properties();

@@ -186,18 +186,26 @@ public class PSTableAction extends PSAction {
    * Property Accessors and Mutators
    *************************************************************************/
 
-  /** Accessor for the repository location */
+  /**
+   * Accessor for the repository location.
+   *
+   * @return the repository location path, never <code>null</code>
+   */
   public String getRepositoryLocation() {
     return m_strRepositoryLocation;
   }
 
-  /** Mutator for the repository location. */
+  /**
+   * Mutator for the repository location.
+   *
+   * @param strRepositoryLocation the repository location path, may be <code>null</code>
+   */
   public void setRepositoryLocation(String strRepositoryLocation) {
     m_strRepositoryLocation = strRepositoryLocation;
   }
 
   /**
-   * returns the tablefactory log file path relative to the install directory
+   * Returns the tablefactory log file path relative to the install directory.
    *
    * @return the tablefactory log file path relative to the install directory, never <code>null
    *     </code> or empty
@@ -239,25 +247,37 @@ public class PSTableAction extends PSAction {
     return "";
   }
 
-  /** */
+  /**
+   * Returns the list of table data files used during table installation.
+   *
+   * @return the list of table data files, may be <code>null</code>
+   */
   public String[] getTableData() {
     return m_strTableData;
   }
 
-  /** */
+  /**
+   * Returns the list of table definition files used during table installation.
+   *
+   * @return the list of table definition files, may be <code>null</code>
+   */
   public String[] getTableDef() {
     return m_strTableDef;
   }
 
   /**
-   * @param strings
+   * Sets the comma-separated list of table data files used during table installation.
+   *
+   * @param strings comma-separated list of table data file paths
    */
   public void setTableData(String strings) {
     m_strTableData = convertToArray(strings);
   }
 
   /**
-   * @param strings
+   * Sets the comma-separated list of table definition files used during table installation.
+   *
+   * @param strings comma-separated list of table definition file paths
    */
   public void setTableDef(String strings) {
     m_strTableDef = convertToArray(strings);
