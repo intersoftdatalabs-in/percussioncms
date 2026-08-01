@@ -175,12 +175,12 @@ Root Spotless uses **google-java-format** (`style: GOOGLE`, `reflowLongStrings: 
 CodeQL only honors annotations on the **alert line** (or the single line immediately above a
 one-line sink).
 
-| Risk | What happens | Mitigation |
-|------|--------------|------------|
-| Long trailing `// codeql[…] justification: …` | Formatter wraps the call; comment lands on a continuation / closing-paren line while CodeQL reports the `return` / call start | Keep annotations **short** (`// codeql[rule-id]` only) |
-| Multi-line `// codeql[…] reason: …` blocks above the sink | Comment is not adjacent → CodeQL ignores it | Same-line short form only |
-| Spotless cleanup or any line-number shift near a sink | CodeQL **re-fingerprints** → new alert ID for the same residual | Avoid re-editing already-annotated sinks for wording; document thrash in `suppressions.md` and dismiss FP when runtime is already closed |
-| "Improve" annotation wording on a closed residual | Same re-fingerprint thrash as #1911–#1913 / XSS waves #1850–#1903 | Do not re-touch stable sink lines |
+|                           Risk                            |                                                         What happens                                                          |                                                                Mitigation                                                                |
+|-----------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| Long trailing `// codeql[…] justification: …`             | Formatter wraps the call; comment lands on a continuation / closing-paren line while CodeQL reports the `return` / call start | Keep annotations **short** (`// codeql[rule-id]` only)                                                                                   |
+| Multi-line `// codeql[…] reason: …` blocks above the sink | Comment is not adjacent → CodeQL ignores it                                                                                   | Same-line short form only                                                                                                                |
+| Spotless cleanup or any line-number shift near a sink     | CodeQL **re-fingerprints** → new alert ID for the same residual                                                               | Avoid re-editing already-annotated sinks for wording; document thrash in `suppressions.md` and dismiss FP when runtime is already closed |
+| "Improve" annotation wording on a closed residual         | Same re-fingerprint thrash as #1911–#1913 / XSS waves #1850–#1903                                                             | Do not re-touch stable sink lines                                                                                                        |
 
 **Agent rule:** after `spotless:apply`, re-check every in-scope `// codeql[` line — it must still
 sit on the sink statement (or the single line above). If apply rewrapped a call, put the short

@@ -85,19 +85,21 @@ test.describe("Developer catalog smoke (#1690)", () => {
   });
 
   for (const cat of CATALOGS) {
-    test(`${cat.section}: catalog loads without API error`, async ({ page }) => {
+    test(`${cat.section}: catalog loads without API error`, async ({
+      page,
+    }) => {
       await page.goto(developerUrl(cat.section), { waitUntil: "networkidle" });
 
       await expect(page.locator('[data-testid="nav-developer"]')).toBeVisible({
         timeout: 20_000,
       });
       await expect(
-        page.locator(`[data-testid="tab-developer-${cat.section}"]`),
+        page.locator(`[data-testid="tab-developer-${cat.section}"]`)
       ).toBeVisible({ timeout: 15_000 });
 
       const error = page.locator(`[data-testid="${cat.errorTestId}"]`);
       const success = page.locator(
-        cat.successTestIds.map((id) => `[data-testid="${id}"]`).join(", "),
+        cat.successTestIds.map((id) => `[data-testid="${id}"]`).join(", ")
       );
 
       // Wait until loading finishes: either success surface or error alert
@@ -106,7 +108,7 @@ test.describe("Developer catalog smoke (#1690)", () => {
       if (await error.isVisible()) {
         const msg = (await error.innerText()).trim();
         throw new Error(
-          `Developer section "${cat.section}" showed catalog error: ${msg}`,
+          `Developer section "${cat.section}" showed catalog error: ${msg}`
         );
       }
 
@@ -142,7 +144,7 @@ async function assertContentTypesRowsUsable(page) {
   const rowCount = await rows.count();
   expect(
     rowCount,
-    "content type table should have at least one row when panel is shown",
+    "content type table should have at least one row when panel is shown"
   ).toBeGreaterThan(0);
 
   // Body cells only (skip thead). Placeholder UI uses em dash / hyphen when
@@ -154,12 +156,12 @@ async function assertContentTypesRowsUsable(page) {
     };
     return trs.some((tr) =>
       Array.from(tr.querySelectorAll("td")).some(
-        (td) => !isPlaceholder(td.textContent),
-      ),
+        (td) => !isPlaceholder(td.textContent)
+      )
     );
   });
   expect(
     hasRealCell,
-    "content type rows look empty (labels/names missing from API/DTO) — redeploy rest/WebUI or fix ContentType list mapping",
+    "content type rows look empty (labels/names missing from API/DTO) — redeploy rest/WebUI or fix ContentType list mapping"
   ).toBe(true);
 }

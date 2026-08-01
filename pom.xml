@@ -82,14 +82,7 @@
         <aopalliance.version>1.0</aopalliance.version>
         <artemis.version>2.55.0</artemis.version>
         <avalon.version>4.1.5</avalon.version>
-        <awssdk.version>1.12.797</awssdk.version>
-        <!-- Transitive CVE floors (see dependencyManagement BOM / pins below) -->
-        <!-- SolrJ → ZK 3.9.4; Dependabot #210/#211 need ≥3.9.5 -->
-        <zookeeper.version>3.9.5</zookeeper.version>
-        <!-- AWS SDK v1 / SolrJ still use com.fasterxml Jackson 2.x; product runtime is tools.jackson 3.x -->
-        <jackson.fasterxml.version>2.22.1</jackson.fasterxml.version>
-        <!-- Artemis modular Netty (not netty-all); Dependabot needs ≥4.1.136.Final -->
-        <netty.version>4.1.136.Final</netty.version>
+        <aws.sdk.v2.version>2.50.2</aws.sdk.v2.version>
         <batik.version>1.19</batik.version>
         <bc.version>1.84</bc.version>
         <build.helper.maven.plugin.version>3.6.1</build.helper.maven.plugin.version>
@@ -142,6 +135,8 @@
         <!-- Jackson 3.x runtime (tools.jackson); annotations stay on 2.x com.fasterxml by design.
              Annotations use major.minor only (2.22), not patch (jackson-bom jackson.version.annotations). -->
         <jackson.annotation.api.version>2.22</jackson.annotation.api.version>
+        <!-- AWS SDK v1 / SolrJ still use com.fasterxml Jackson 2.x; product runtime is tools.jackson 3.x -->
+        <jackson.fasterxml.version>2.22.1</jackson.fasterxml.version>
         <jackson.version>3.1.5</jackson.version>
         <jakarta.activation.version>2.1.4</jakarta.activation.version>
         <jakarta.annotation.api.version>3.0.0</jakarta.annotation.api.version>
@@ -165,6 +160,10 @@
         <java.cache.api.version>1.1.1</java.cache.api.version>
         <java.source.version>21</java.source.version>
         <java.version>21</java.version>
+        <!-- javafx-webview-debugger → Java-WebSocket 1.3.7; floor for Dependabot #204 -->
+        <java.websocket.version>1.6.0</java.websocket.version>
+        <!-- Desktop Content Explorer OpenJFX line (bare "17" was unpatched javafx-media) -->
+        <javafx.version>17.0.20</javafx.version>
         <javassist.version>3.30.2-GA</javassist.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
         <jaxb.runtime.version>4.0.6</jaxb.runtime.version>
@@ -223,6 +222,8 @@
         <mockito.version>5.21.0</mockito.version>
         <mssql.version>13.3.1.jre11-preview</mssql.version>
         <mysql.connector.version>8.4.0</mysql.connector.version>
+        <!-- Artemis modular Netty (not netty-all); Dependabot needs ≥4.1.136.Final -->
+        <netty.version>4.1.136.Final</netty.version>
         <ojdbc17.version>23.26.0.0.0</ojdbc17.version>
         <opencsv.version>5.12.0</opencsv.version>
         <oracle.version>12.1.0.1</oracle.version>
@@ -230,6 +231,8 @@
         <owl.version>5.5.1</owl.version>
         <pdfbox.version>3.0.6</pdfbox.version>
         <plexus.component.metadata.version>2.2.0</plexus.component.metadata.version>
+        <!-- minify-maven-plugin and other plugins; Dependabot #213 -->
+        <plexus.utils.version>4.0.3</plexus.utils.version>
         <poi.version>5.4.0</poi.version>
         <!-- #1500 external PostgreSQL repository backend (org.postgresql:postgresql, Java 21) -->
         <postgresql.version>42.7.12</postgresql.version>
@@ -258,12 +261,6 @@
         <swagger.version>2.2.42</swagger.version>
         <!-- 3.3.1 pulls junrar 7.6.0 (clears Dependabot #208/#214; was 7.5.5 on 3.2.3) -->
         <tika.version>3.3.1</tika.version>
-        <!-- Desktop Content Explorer OpenJFX line (bare "17" was unpatched javafx-media) -->
-        <javafx.version>17.0.20</javafx.version>
-        <!-- javafx-webview-debugger → Java-WebSocket 1.3.7; floor for Dependabot #204 -->
-        <java.websocket.version>1.6.0</java.websocket.version>
-        <!-- minify-maven-plugin and other plugins; Dependabot #213 -->
-        <plexus.utils.version>4.0.3</plexus.utils.version>
         <!-- TinyMCE 6.8.x is the last series under the MIT license. -->
         <!-- TinyMCE 7+ switched to GPL-2.0-or-later, which is incompatible -->
         <!-- with this project's Apache 2.0 license for distribution. -->
@@ -279,6 +276,9 @@
         <xmlresolver.version>1.2</xmlresolver.version>
         <xmpbox.version>2.0.17</xmpbox.version>
         <xstream.version>1.4.21</xstream.version>
+        <!-- Transitive CVE floors (see dependencyManagement BOM / pins below) -->
+        <!-- SolrJ → ZK 3.9.4; Dependabot #210/#211 need ≥3.9.5 -->
+        <zookeeper.version>3.9.5</zookeeper.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -1068,24 +1068,14 @@
                 <artifactId>jdom2</artifactId>
                 <version>2.0.6.1</version>
             </dependency>
+            <!-- AWS SDK v2 (software.amazon.awssdk). Use BOM for version alignment across modules. -->
             <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-s3</artifactId>
-                <version>${awssdk.version}</version>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>${aws.sdk.v2.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-bom</artifactId>
-                <version>${awssdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-sts</artifactId>
-                <version>${awssdk.version}</version>
-            </dependency>
-            <!-- AWS v1 still pulls com.fasterxml Jackson 2.x (pins 2.17.2 in its POM).
-                 Versions are forced by jackson-bom import above (${jackson.fasterxml.version}).
-                 Do not exclude without re-adding — S3/STS need Jackson on the classpath. -->
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>

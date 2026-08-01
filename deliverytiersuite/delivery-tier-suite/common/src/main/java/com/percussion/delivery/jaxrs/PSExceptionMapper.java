@@ -17,8 +17,6 @@
 
 package com.percussion.delivery.jaxrs;
 
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.DatabindException;
 import com.percussion.security.error.PSExceptionUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.WebApplicationException;
@@ -30,6 +28,8 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DatabindException;
 
 /**
  * Default {@link ExceptionMapper} used by the delivery tier services. Recognized JSON parsing or

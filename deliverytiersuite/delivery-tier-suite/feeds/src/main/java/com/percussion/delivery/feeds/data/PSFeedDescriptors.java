@@ -16,9 +16,9 @@
  */
 package com.percussion.delivery.feeds.data;
 
-import tools.jackson.databind.annotation.JsonDeserialize;
 import java.util.ArrayList;
 import java.util.List;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 /** A transfer class for feed descriptors and connection info. */
 public class PSFeedDescriptors {

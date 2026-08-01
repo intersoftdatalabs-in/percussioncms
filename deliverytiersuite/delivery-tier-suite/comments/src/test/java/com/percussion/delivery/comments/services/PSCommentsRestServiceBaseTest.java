@@ -18,9 +18,6 @@ package com.percussion.delivery.comments.services;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.databind.node.ObjectNode;
 import com.percussion.delivery.comments.data.PSCommentCriteria;
 import com.percussion.delivery.multitenant.PSTenantSecurityFilter;
 import com.percussion.delivery.test.utils.FakeRegistrant;
@@ -45,6 +42,9 @@ import org.glassfish.jersey.test.grizzly.GrizzlyWebTestContainerFactory;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 /***
  *

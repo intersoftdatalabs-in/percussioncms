@@ -26,13 +26,12 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.Validate.notNull;
 
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
 import com.percussion.legacy.security.deprecated.PSAesCBC;
 import com.percussion.pubserver.IPSPubServerService;
 import com.percussion.pubserver.data.PSPublishServerInfo;
 import com.percussion.pubserver.data.PSPublishServerProperty;
 import com.percussion.pubserver.impl.helper.PSPubServerPropertyHelper;
+import com.percussion.rx.delivery.impl.PSAmazonS3DeliveryHandler;
 import com.percussion.rx.delivery.impl.PSBaseDeliveryHandler;
 import com.percussion.rx.publisher.IPSRxPublisherService;
 import com.percussion.security.PSEncryptionException;
@@ -726,11 +725,21 @@ public class PSPubServerService implements IPSPubServerService {
     server.addProperty(IPSPubServerDao.PUBLISH_OWN_SERVER_PROPERTY, "false");
     server.addProperty(IPSPubServerDao.PUBLISH_FORMAT_PROPERTY, "HTML");
 
-    Region selectedRegion = pubInfo.getRegion();
-    if (selectedRegion == null) {
-      selectedRegion = Regions.getCurrentRegion();
+    String selectedRegion = pubInfo.getRegion();
+    if (StringUtils.isBlank(selectedRegion)) {
+      try {
+        // v2 SDK equivalent of v1's Regions.getCurrentRegion() - see
+        // PSAmazonS3DeliveryHandler#getCurrentEc2Region().
+        var ec2Region = PSAmazonS3DeliveryHandler.getCurrentEc2Region();
+        if (StringUtils.isNotBlank(ec2Region)) {
+          selectedRegion = ec2Region;
+        }
+      } catch (Exception e) {
+        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      }
     }
-    server.addProperty(IPSPubServerDao.PUBLISH_EC2_REGION, selectedRegion.getName());
+    server.addProperty(
+        IPSPubServerDao.PUBLISH_EC2_REGION, selectedRegion == null ? "" : selectedRegion);
     return server;
   }
 
