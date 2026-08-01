@@ -23,11 +23,6 @@ import com.percussion.extension.IPSFieldValidator;
  *
  * @author dougrand
  */
-/**
- * Abstract base class used to write range validators.
- *
- * @author dougrand
- */
 public abstract class PSRangeValidator implements IPSFieldValidator {
   /** Creates a new PSRangeValidator. */
   public PSRangeValidator() {}

@@ -29,11 +29,6 @@ import org.w3c.dom.Node;
  *
  * @deprecated Use com.percussion.xml.PSXmlTreeWalker instead
  */
-/**
- * Deprecated wrapper around {@link com.percussion.xml.PSXmlTreeWalker}.
- *
- * @deprecated Use com.percussion.xml.PSXmlTreeWalker instead
- */
 public class PSXmlTreeWalker extends com.percussion.xml.PSXmlTreeWalker implements Serializable {
   /**
    * Constructs a new tree walker for the supplied document.
