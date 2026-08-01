@@ -32,7 +32,11 @@ export function UserMenu(): React.ReactElement {
         {...i18nKeyAttr(MSG.USER_SIGNED_IN_AS)}
       >
         {message(MSG.USER_SIGNED_IN_AS)}{" "}
-        <span className={styles.userName} data-testid="perc-spa-user-name">
+        <span
+          className={styles.userName}
+          data-testid="perc-spa-user-name"
+          data-mkd-lang-ignore="1"
+        >
           {name}
         </span>
       </span>

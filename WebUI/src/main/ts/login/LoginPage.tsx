@@ -204,6 +204,7 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
                   bootstrap.autocomplete === "off" ? "off" : "username"
                 }
                 data-testid="perc-login-username"
+                data-mkd-lang-ignore="1"
               />
             </div>
 
@@ -222,6 +223,7 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
                 name="j_password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                data-mkd-lang-ignore="1"
                 tabIndex={2}
                 autoComplete={
                   bootstrap.autocomplete === "off" ? "off" : "current-password"

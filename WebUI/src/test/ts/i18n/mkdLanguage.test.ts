@@ -131,6 +131,9 @@ describe("mkdLanguage adapter", () => {
       expect(opts.messageIdAttr).toBe("data-i18n-key");
       expect(opts.locale).toBe("fr-fr");
       expect(typeof opts.getMessageId).toBe("function");
+      expect((opts as { zIndex?: number }).zIndex).toBe(20000);
+      expect((opts as { respectIgnore?: boolean }).respectIgnore).toBe(true);
+      expect(document.getElementById("perc-mkd-lang-theme")).toBeTruthy();
 
       // second call reconfigures rather than stacking
       ensureMkdLanguage({ locale: "de-de" });

@@ -26,6 +26,7 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { formatApiError } from "../api/client";
 import { findChildren } from "../api/contentExplorer/pathApi";
 import type { PSPathItem } from "../api/contentExplorer/types";
+import { MKD_LANG_IGNORE_ATTR } from "../i18n/mkdLangIgnore";
 import { message } from "../i18n/message";
 import { isFolder } from "./selection";
 import {
@@ -165,7 +166,11 @@ export function ExplorerTree({
           >
             {folderish ? (isOpen ? "▾" : "▸") : " "}
           </span>
-          <span style={nodeLabelStyle} title={folder.path}>
+          <span
+            style={nodeLabelStyle}
+            title={folder.path}
+            {...{ [MKD_LANG_IGNORE_ATTR]: "1" as const }}
+          >
             {folder.name || folder.path}
           </span>
         </div>

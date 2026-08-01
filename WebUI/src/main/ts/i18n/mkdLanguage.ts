@@ -65,6 +65,30 @@ export interface EnsureMkdLanguageOptions {
 let handle: MkdLanguageHandle | null = null;
 let lastLocaleRef: EnsureMkdLanguageOptions["locale"] | undefined;
 
+const MKD_THEME_STYLE_ID = "perc-mkd-lang-theme";
+
+/**
+ * Light product theme tokens for library chrome (accent / icon opacity).
+ * Does not fork library CSS — only CSS variables the client already reads.
+ */
+function ensureMkdThemeTokens(): void {
+  if (typeof document === "undefined") {
+    return;
+  }
+  if (document.getElementById(MKD_THEME_STYLE_ID)) {
+    return;
+  }
+  const style = document.createElement("style");
+  style.id = MKD_THEME_STYLE_ID;
+  style.textContent = `
+:root {
+  --mkd-lang-accent: var(--perc-color-primary, #007ea8);
+  --mkd-lang-icon-opacity: 0.5;
+}
+`.trim();
+  document.head.appendChild(style);
+}
+
 /**
  * Resolve experiment enablement. Query wins over localStorage; default is off.
  *
@@ -151,6 +175,7 @@ export function ensureMkdLanguage(
 
   const debug = options.debug ?? isMkdLanguageDebug();
   lastLocaleRef = options.locale;
+  ensureMkdThemeTokens();
 
   try {
     if (handle) {
@@ -164,6 +189,8 @@ export function ensureMkdLanguage(
         getMessageId: getTrackedMessageId,
         scanMessageIdAttr: true,
         includeChromeSelectors: true,
+        zIndex: 20000,
+        respectIgnore: true,
       });
       handle.rescan();
       return handle;
@@ -178,6 +205,9 @@ export function ensureMkdLanguage(
       getMessageId: getTrackedMessageId,
       scanMessageIdAttr: true,
       includeChromeSelectors: true,
+      // Above SPA modals / dialogs (typical product chrome ~1000–5000).
+      zIndex: 20000,
+      respectIgnore: true,
       client: new NoopSubmissionClient(debug),
       debug,
     });
