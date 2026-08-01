@@ -21,25 +21,34 @@ import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import { mockFetch } from "./setup";
 import { renderA11yGate } from "./a11y";
 
+/** Child of /Sites — path is the data-testid suffix (`tree-node-${path}`). */
 const ROOT_FOLDER: PSPathItem = {
   id: "root-1",
-  path: "/Sites",
-  name: "Sites",
+  path: "/Sites/Foo",
+  name: "Foo",
   type: "folder",
   hasFolderChildren: true,
 };
 
 const CHILD_FOLDER: PSPathItem = {
   id: "child-1",
-  path: "/Sites/Foo",
-  name: "Foo",
+  path: "/Sites/Foo/Bar",
+  name: "Bar",
   type: "folder",
   hasFolderChildren: false,
 };
 
+/** Wire shape from PSPathItemList (pathApi.findChildren unwraps PathItem). */
+function pathItemListResponse(items: PSPathItem[]): Response {
+  return new Response(JSON.stringify({ PathItem: items }), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
 describe("ExplorerTree", () => {
   it("renders an initial empty state when the root fetch returns no children", async () => {
-    mockFetch(async () => new Response("[]", { status: 200 }));
+    mockFetch(async () => pathItemListResponse([]));
     render(
       <ExplorerTree
         initialPath="/Sites"
@@ -58,12 +67,9 @@ describe("ExplorerTree", () => {
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;
       if (url.endsWith("/pathmanagement/path/folder/Sites")) {
-        return new Response(JSON.stringify([ROOT_FOLDER]), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
+        return pathItemListResponse([ROOT_FOLDER]);
       }
-      return new Response("[]", { status: 200 });
+      return pathItemListResponse([]);
     });
     render(
       <ExplorerTree
@@ -73,9 +79,7 @@ describe("ExplorerTree", () => {
       />,
     );
     await waitFor(() =>
-      expect(
-        screen.getByTestId("tree-node-/Sites/Sites"),
-      ).toBeInTheDocument(),
+      expect(screen.getByTestId("tree-node-/Sites/Foo")).toBeInTheDocument(),
     );
   });
 
@@ -86,19 +90,13 @@ describe("ExplorerTree", () => {
       const url = typeof input === "string" ? input : (input as Request).url;
       if (url.endsWith("/pathmanagement/path/folder/Sites")) {
         rootCalls++;
-        return new Response(JSON.stringify([ROOT_FOLDER]), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
+        return pathItemListResponse([ROOT_FOLDER]);
       }
       if (url.endsWith("/pathmanagement/path/folder/Sites/Foo")) {
         childCalls++;
-        return new Response(JSON.stringify([CHILD_FOLDER]), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
+        return pathItemListResponse([CHILD_FOLDER]);
       }
-      return new Response("[]", { status: 200 });
+      return pathItemListResponse([]);
     });
     render(
       <ExplorerTree
@@ -108,24 +106,25 @@ describe("ExplorerTree", () => {
       />,
     );
     await waitFor(() =>
-      expect(screen.getByTestId("tree-node-/Sites/Sites")).toBeInTheDocument(),
+      expect(screen.getByTestId("tree-node-/Sites/Foo")).toBeInTheDocument(),
     );
     expect(rootCalls).toBe(1);
     expect(childCalls).toBe(0);
-    fireEvent.click(screen.getByTestId("tree-node-/Sites/Sites"));
+    // Expand is on the toggle control (not the row select handler).
+    const node = screen.getByTestId("tree-node-/Sites/Foo");
+    const toggle = node.querySelector('[aria-hidden="true"]');
+    expect(toggle).toBeTruthy();
+    fireEvent.click(toggle!);
     await waitFor(() =>
-      expect(screen.getByTestId("tree-node-/Sites/Foo")).toBeInTheDocument(),
+      expect(
+        screen.getByTestId("tree-node-/Sites/Foo/Bar"),
+      ).toBeInTheDocument(),
     );
     expect(childCalls).toBe(1);
   });
 
   it("fires onSelectFolder when a row is activated", async () => {
-    mockFetch(async () =>
-      new Response(JSON.stringify([ROOT_FOLDER]), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }),
-    );
+    mockFetch(async () => pathItemListResponse([ROOT_FOLDER]));
     let selected: string | null = null;
     render(
       <ExplorerTree
@@ -137,10 +136,10 @@ describe("ExplorerTree", () => {
       />,
     );
     await waitFor(() =>
-      expect(screen.getByTestId("tree-node-/Sites/Sites")).toBeInTheDocument(),
+      expect(screen.getByTestId("tree-node-/Sites/Foo")).toBeInTheDocument(),
     );
-    fireEvent.click(screen.getByTestId("tree-node-/Sites/Sites"));
-    expect(selected).toBe("/Sites/Sites");
+    fireEvent.click(screen.getByRole("treeitem"));
+    expect(selected).toBe("/Sites/Foo");
   });
 
   it("surfaces fetch errors as an alert", async () => {
@@ -158,21 +157,16 @@ describe("ExplorerTree", () => {
   });
 
   it("passes the zero serious/critical axe-core gate (loaded state with treeitem children)", async () => {
-    mockFetch(async () =>
-      new Response(JSON.stringify([ROOT_FOLDER]), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }),
-    );
+    mockFetch(async () => pathItemListResponse([ROOT_FOLDER]));
     const { container } = render(
       <ExplorerTree
         initialPath="/Sites"
-        selectedPath="/Sites"
+        selectedPath="/Sites/Foo"
         onSelectFolder={() => undefined}
       />,
     );
     await waitFor(() =>
-      expect(screen.getByTestId("tree-node-/Sites/Sites")).toBeTruthy(),
+      expect(screen.getByTestId("tree-node-/Sites/Foo")).toBeTruthy(),
     );
     await renderA11yGate(container);
   });

@@ -25,7 +25,8 @@ const PACKAGE_COPIES = [
  * exercise the real helper body (not a reimplemented twin).
  */
 function loadSafeThumbnailSrc(srcPath) {
-  const src = readFileSync(srcPath, "utf8");
+  // Normalize CRLF so the function-body regex is portable on Windows checkouts.
+  const src = readFileSync(srcPath, "utf8").replace(/\r\n/g, "\n");
   const marker = "function safeThumbnailSrc(path)";
   const start = src.indexOf(marker);
   if (start < 0) {
@@ -45,9 +46,9 @@ function loadSafeThumbnailSrc(srcPath) {
   )();
 }
 
-describe.each(PACKAGE_COPIES.map((p) => [p.split("/").slice(-5).join("/"), p]))(
-  "safeThumbnailSrc (%s)",
-  (_label, srcPath) => {
+describe.each(
+  PACKAGE_COPIES.map((p) => [p.split(/[/\\]/).slice(-5).join("/"), p]),
+)("safeThumbnailSrc (%s)", (_label, srcPath) => {
     const safeThumbnailSrc = loadSafeThumbnailSrc(srcPath);
 
     it("returns empty for null/undefined/blank", () => {
@@ -82,5 +83,4 @@ describe.each(PACKAGE_COPIES.map((p) => [p.split("/").slice(-5).join("/"), p]))(
         "/path/data:not-a-scheme.jpg",
       );
     });
-  },
-);
+});

@@ -33,7 +33,7 @@
 
 import React, { createContext, useContext, type ReactNode } from "react";
 import type { CSSProperties, HTMLAttributes } from "react";
-import { getActiveTheme } from "./index";
+import * as themeRegistry from "./index";
 import type { Theme } from "./types";
 
 const ThemeContext = createContext<Theme | null>(null);
@@ -61,7 +61,8 @@ export function ThemeProvider({
   // provider. Do NOT wrap in useMemo([theme]) — the missing dep on the
   // window override is the inconsistency the fall-back path already
   // handles. See Erlang review comment 2026-07.
-  const resolved: Theme = theme ?? getActiveTheme();
+  // Call via the module namespace so tests can vi.spyOn(themeRegistry, "getActiveTheme").
+  const resolved: Theme = theme ?? themeRegistry.getActiveTheme();
   const cssVars: CSSProperties = resolved.toCssVariables() as CSSProperties;
   const mergedStyle: CSSProperties = extraStyle
     ? ({ ...(cssVars as object), ...(extraStyle as object) } as CSSProperties)
@@ -86,7 +87,7 @@ export function useTheme(): Theme {
     // Fall back to the active theme when no provider is in the tree.
     // This lets individual components (e.g. Dashboard widget used outside
     // the modern shell) still pick up branding without an explicit wrap.
-    return getActiveTheme();
+    return themeRegistry.getActiveTheme();
   }
   return t;
 }

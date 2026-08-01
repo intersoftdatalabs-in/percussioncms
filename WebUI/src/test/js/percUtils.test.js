@@ -17,68 +17,30 @@
 /**
  * Regression tests for WebUI/src/main/webapp/cm/plugins/perc_utils.js
  *
- * Closes 8 GitHub CodeQL alerts across 3 rules:
+ * Closes CodeQL alerts across 3 rules:
  *
- * 1. js/unsafe-jquery-plugin (6 alerts) on `$.fn.perc_toggle`: the plugin
- *    handed its `d` argument straight to jQuery's `$()` HTML-parsing
- *    constructor on every branch (`$(d).hasClass(...)`,
- *    `$(d).removeClass(...)`, `$(d).addClass(...)`) with no guard against
- *    `d` being an attacker-influenced string that looks like HTML.
- *    Post-fix, a string `d` is resolved via `.find()` (Sizzle selector
- *    engine only, never HTML-sniffs) instead of the raw `$()` sniffing
- *    constructor.
+ * 1. js/unsafe-jquery-plugin on `$.fn.perc_toggle`: string targets are
+ *    resolved via `percResolveToggleTarget` / `.find()` (Sizzle only), never
+ *    the HTML-sniffing `$()` constructor.
  *
- * 2. js/xss-through-dom (1 alert, on `alert_dialog`'s
- *    `.append(settings.content)`): the `content`/`question` options of
- *    `alert_dialog()`, `confirm_dialog()`, and `prompt_dialog()` (the
- *    latter two share the exact same pattern, fixed alongside the
- *    flagged one) were appended to the dialog markup unescaped.
+ * 2. js/xss-through-dom on dialog bodies: `alert_dialog` / `confirm_dialog`
+ *    / `prompt_dialog` render `content`/`question` with `.text()` by default.
+ *    Callers that intentionally need markup pass `contentIsHtml` /
+ *    `questionIsHtml` and are responsible for sanitizing.
  *
- *    Several real first-party callers intentionally pass a narrow set
- *    of formatting HTML (e.g. PercRoleController's "Delete Role"
- *    confirmation uses `<p>`/`<strong>`/`<br/>`; perc_editSiteSectionDialog's
- *    "Disable Site Security" confirmation uses `<span id=... style=...>`;
- *    PercUserView's LDAP-import-failure warning builds a `<table>` of
- *    the affected usernames; perc_utils.replaceURLWithHTMLLinks() turns
- *    bare URLs into `<a href="...">` links) -- so post-fix code runs
- *    the option through `percSafeDialogContent()`, an allowlist HTML
- *    sanitizer that preserves that narrow set of structural/style tags
- *    and `id`/`class`/`style`/`href` attributes while stripping
- *    everything else (event handler attributes, `<script>`/`<img>`/
- *    `<iframe>`/any other tag, `javascript:`/`data:`/`vbscript:` URLs,
- *    CSS `expression()`/`url(javascript:)` tricks), unless the caller
- *    already supplied a jQuery object / DOM element, which passes
- *    through untouched.
+ * 3. js/incomplete-sanitization on `htmlEntities()`: the apostrophe replace
+ *    must use the global flag.
  *
- * 3. js/incomplete-sanitization (1 alert) on `htmlEntities()`: the final
- *    `.replace(/'/, "&#39;")` was missing the `g` flag, so only the
- *    *first* single quote in a string was escaped.
- *
- * Test strategy (Constitution III fail-then-pass):
- * - Load the real, checked-in source via `readFileSync` + indirect
- *   `eval` (same general pattern as the other regression tests in this
- *   directory; indirect eval is required here specifically because
- *   `htmlEntities()` is a bare top-level function declaration outside
- *   the file's own IIFE, and a direct `eval()` from this ES module,
- *   which is implicitly strict mode, would not leak that declaration to
- *   `globalThis`).
- * - Spy on the global `$`/`jQuery` entry point to prove `perc_toggle`
- *   never hands a hostile string to the HTML-parsing constructor.
- * - Drive `alert_dialog`/`confirm_dialog`/`prompt_dialog` end-to-end
- *   (via a `$.fn.perc_dialog`/`.dialog()` stub that appends to
- *   `document.body`) and assert hostile `content`/`question` values
- *   never produce a live `<img>`/`<script>` element or survive as a
- *   dangerous attribute, while confirming the real-world formatting
- *   patterns above (span/style, p/strong/br, table/tr/td, a/href) still
- *   render with their structure, attributes, and text intact.
- * - Call `htmlEntities()` directly with multiple single quotes.
+ * Dialog strategy: stub jQuery UI `.dialog()` so the production
+ * `$.fn.perc_dialog` (which delegates to it) attaches the dialog root to
+ * `document.body` and tags it for DOM assertions in jsdom.
  */
 
 import { readFileSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import jquery from "jquery";
-import { beforeEach, afterEach, describe, it, expect } from "vitest";
+import { beforeEach, afterEach, describe, it, expect, vi } from "vitest";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SRC_PATH = resolve(
@@ -107,35 +69,22 @@ function loadSource() {
   Object.assign(spy, realJQ);
   spy.fn = realJQ.fn;
 
-  // Minimal $.fn.perc_dialog stub: real DOM insertion (so we can make
-  // genuine DOM assertions) without any of the real perc_dialog plugin's
-  // jQuery-UI machinery.
-  if (!spy.fn.perc_dialog) {
-    spy.fn.perc_dialog = function (opts) {
-      this.data("perc_dialog_opts", opts);
+  // jQuery UI .dialog() stub: production perc_dialog delegates here.
+  // Tag the dialog root and append to body so sink assertions work in jsdom.
+  spy.fn.dialog = function (opts) {
+    this.attr("data-jquery-ui-dialog-title", opts && opts.title);
+    this.data("dialog_opts", opts);
+    if (this.parent().length === 0) {
       document.body.appendChild(this[0]);
-      return this;
-    };
-  }
-  // prompt_dialog() uses the plain jQuery UI .dialog() (not .perc_dialog());
-  // stub it the same way.
-  if (!spy.fn.dialog) {
-    spy.fn.dialog = function (opts) {
-      this.data("dialog_opts", opts);
-      document.body.appendChild(this[0]);
-      return this;
-    };
-  }
+    }
+    return this;
+  };
 
   globalThis.jQuery = spy;
   globalThis.$ = spy;
 
   const src = readFileSync(SRC_PATH, "utf8");
-  // Indirect eval (aliasing `eval` before calling it) runs the source as
-  // global code: top-level function declarations outside the file's own
-  // IIFE (e.g. `htmlEntities`) become real global bindings, which a
-  // direct `eval()` call would NOT do from this (implicitly strict) ES
-  // module. See the module doc comment for details.
+  // Indirect eval so top-level `htmlEntities` becomes a real global binding.
   // eslint-disable-next-line no-eval
   const indirectEval = eval;
   indirectEval(src);
@@ -149,6 +98,7 @@ beforeEach(() => {
 afterEach(() => {
   document.body.innerHTML = "";
   delete globalThis.__perc_utils_pwned__;
+  vi.restoreAllMocks();
 });
 
 describe("perc_utils.js $.fn.perc_toggle XSS regression (js/unsafe-jquery-plugin)", () => {
@@ -157,19 +107,9 @@ describe("perc_utils.js $.fn.perc_toggle XSS regression (js/unsafe-jquery-plugin
       '<div id="perc-toggle-target" class="perc-hidden"></div>';
     const payload = `<img src=x ${XSS_MARKER}>`;
 
-    // perc_toggle is invoked as $anything.perc_toggle(d); the jQuery
-    // object it's called on is irrelevant to the implementation, which
-    // operates on the `d` argument. A hostile, non-selector-looking
-    // string is resolved via the Sizzle selector engine (.find()), which
-    // throws on invalid selector syntax rather than ever falling back to
-    // HTML parsing -- unlike pre-fix `$(d)`, which silently parsed it
-    // into a live <img> element. Either a thrown error or a no-op is an
-    // acceptable, non-vulnerable outcome here; what matters is that the
-    // raw markup is never handed to the HTML-parsing constructor and no
-    // <img> element is ever created.
     try {
       globalThis.jQuery(document.body).perc_toggle(payload);
-    } catch (e) {
+    } catch {
       // Sizzle rejecting an invalid selector is expected and fine.
     }
 
@@ -213,18 +153,44 @@ describe("perc_utils.js $.fn.perc_toggle XSS regression (js/unsafe-jquery-plugin
   });
 });
 
+describe("source-pattern (anti-regression for dialog XSS sinks)", () => {
+  const src = readFileSync(SRC_PATH, "utf8");
+  const code = src
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/(^|[^:])\/\/.*$/gm, "$1");
+
+  it("htmlEntities escapes every apostrophe (g flag on the regex)", () => {
+    expect(code).not.toMatch(/\.replace\(\s*\/\s*'\s*\/\s*,\s*"/);
+    expect(code).toMatch(/\.replace\(\s*\/\s*'\s*\/\s*g\s*,\s*"/);
+  });
+
+  it("alert_dialog does not use .append(settings.content) directly", () => {
+    expect(code).not.toMatch(/\.append\(\s*settings\.content\s*\)/);
+  });
+
+  it("confirm_dialog does not use .append(settings.question) directly", () => {
+    expect(code).not.toMatch(/\.append\(\s*settings\.question\s*\)/);
+  });
+});
+
 describe("perc_utils.js dialog content XSS regression (js/xss-through-dom)", () => {
-  it("alert_dialog does not create a live <img> element from a hostile content string", () => {
+  it("alert_dialog renders hostile content as inert text by default", () => {
+    const payload = `<img src=x ${XSS_MARKER}>`;
     globalThis.jQuery.perc_utils.alert_dialog({
-      title: "Test",
-      content: `<img src=x ${XSS_MARKER}>`,
+      title: "alert-text-title",
+      content: payload,
     });
 
     expect(document.querySelectorAll("img").length).toBe(0);
     expect(globalThis.__perc_utils_pwned__).toBeUndefined();
+    const sink = document.body.querySelector(
+      "[data-jquery-ui-dialog-title='alert-text-title']",
+    );
+    expect(sink, "alert_dialog sink must be attached to body").toBeTruthy();
+    expect(sink.textContent).toBe(payload);
   });
 
-  it("alert_dialog strips a disallowed <script> tag entirely, plain text still renders", () => {
+  it("alert_dialog strips a disallowed <script> as text (no live script element)", () => {
     const payload =
       "before<script>window.__perc_utils_pwned__=true</script>after";
     globalThis.jQuery.perc_utils.alert_dialog({
@@ -238,39 +204,47 @@ describe("perc_utils.js dialog content XSS regression (js/xss-through-dom)", () 
     expect(document.body.textContent).toContain("after");
   });
 
-  it("confirm_dialog does not create a live <img> element from a hostile question string", () => {
+  it("confirm_dialog renders hostile question as inert text by default", () => {
+    const payload = `<img src=x ${XSS_MARKER}>`;
     globalThis.jQuery.perc_utils.confirm_dialog({
-      title: "Test",
-      question: `<img src=x ${XSS_MARKER}>`,
+      title: "confirm-text-title",
+      question: payload,
       success: () => {},
       cancel: () => {},
     });
 
     expect(document.querySelectorAll("img").length).toBe(0);
     expect(globalThis.__perc_utils_pwned__).toBeUndefined();
+    const sink = document.body.querySelector(
+      "[data-jquery-ui-dialog-title='confirm-text-title']",
+    );
+    expect(sink, "confirm_dialog sink must be attached to body").toBeTruthy();
+    expect(sink.textContent).toBe(payload);
   });
 
-  it("prompt_dialog does not create a live <img> element from a hostile question string", () => {
+  it("prompt_dialog renders hostile question as inert text by default", () => {
+    const payload = `<img src=x ${XSS_MARKER}>`;
     globalThis.jQuery.perc_utils.prompt_dialog({
-      title: "Test",
-      question: `<img src=x ${XSS_MARKER}>`,
+      title: "prompt-text-title",
+      question: payload,
       success: () => {},
       cancel: () => {},
     });
 
     expect(document.querySelectorAll("img").length).toBe(0);
     expect(globalThis.__perc_utils_pwned__).toBeUndefined();
+    const label = document.body.querySelector(
+      "label[for='perc-prompt-dialog-question']",
+    );
+    expect(label).toBeTruthy();
+    expect(label.textContent).toBe(payload);
   });
 
-  // Regression coverage for real first-party callers that intentionally
-  // format their content/question with a narrow set of structural/style
-  // tags (see e.g. PercRoleController's "Delete Role" confirmation and
-  // perc_editSiteSectionDialog's "Disable Site Security" confirmation) --
-  // a blanket text-escape would have visibly broken these dialogs.
-  it("alert_dialog preserves an allowlisted <span id/style> wrapper and its text", () => {
+  it("alert_dialog renders HTML only when contentIsHtml is true", () => {
     globalThis.jQuery.perc_utils.alert_dialog({
-      title: "Test",
+      title: "alert-html-title",
       content: "<span id='perc-warn' style='color:red'>Careful!</span>",
+      contentIsHtml: true,
     });
 
     const span = document.querySelector("#perc-warn");
@@ -280,7 +254,7 @@ describe("perc_utils.js dialog content XSS regression (js/xss-through-dom)", () 
     expect(span.textContent).toBe("Careful!");
   });
 
-  it("confirm_dialog preserves the real-world <p>/<strong>/<br/> pattern used by PercRoleController's delete-role confirmation", () => {
+  it("confirm_dialog renders HTML only when questionIsHtml is true", () => {
     const htmlQuestion =
       "<p id='perc-delete-dialog-warning'>Warning</p>" +
       "<strong>This role has active users</strong><br/><br/>" +
@@ -289,6 +263,7 @@ describe("perc_utils.js dialog content XSS regression (js/xss-through-dom)", () 
     globalThis.jQuery.perc_utils.confirm_dialog({
       title: "Delete Role",
       question: htmlQuestion,
+      questionIsHtml: true,
       success: () => {},
       cancel: () => {},
     });
@@ -305,37 +280,17 @@ describe("perc_utils.js dialog content XSS regression (js/xss-through-dom)", () 
     ).toContain("Editors");
   });
 
-  it("strips a disallowed attribute (onerror) even on an allowlisted tag", () => {
+  it("without contentIsHtml, markup is not parsed as elements", () => {
     globalThis.jQuery.perc_utils.alert_dialog({
       title: "Test",
-      content: `<span id="perc-x" ${XSS_MARKER}>text</span>`,
+      content: "<span id='perc-x'>text</span>",
     });
 
-    const span = document.querySelector("#perc-x");
-    expect(span).not.toBeNull();
-    expect(span.getAttribute("onerror")).toBeNull();
-    expect(globalThis.__perc_utils_pwned__).toBeUndefined();
+    expect(document.querySelector("#perc-x")).toBeNull();
+    expect(document.body.textContent).toContain("<span id='perc-x'>text</span>");
   });
 
-  it("strips a javascript: value even from an allowlisted attribute", () => {
-    globalThis.jQuery.perc_utils.alert_dialog({
-      title: "Test",
-      content:
-        '<span id="perc-y" style="background:url(javascript:alert(1))">text</span>',
-    });
-
-    const span = document.querySelector("#perc-y");
-    expect(span).not.toBeNull();
-    expect(span.getAttribute("style")).toBeNull();
-  });
-
-  // Regression test for the real-world pattern used by
-  // PercUserView.js#showImportWarning(): a <table> listing the
-  // usernames that failed LDAP import. An earlier, narrower version of
-  // the allowlist did not include TABLE/TR/TD and silently deleted the
-  // entire table (defeating the purpose of the dialog); this locks in
-  // that the table structure and every username survive.
-  it("alert_dialog preserves the real-world <table>/<tr>/<td> pattern used by PercUserView's LDAP-import warning", () => {
+  it("alert_dialog with contentIsHtml preserves table markup for LDAP-import warning pattern", () => {
     const table =
       "<div id='perc-users-import-warning-scrollpane'>" +
       "<table id='perc-users-import-warning'>" +
@@ -346,6 +301,7 @@ describe("perc_utils.js dialog content XSS regression (js/xss-through-dom)", () 
     globalThis.jQuery.perc_utils.alert_dialog({
       title: "Error Importing Users",
       content: "LDAP import failed for the following users:<br/><br/>" + table,
+      contentIsHtml: true,
     });
 
     const rows = document.querySelectorAll("#perc-users-import-warning tr");
@@ -354,99 +310,20 @@ describe("perc_utils.js dialog content XSS regression (js/xss-through-dom)", () 
     expect(document.body.textContent).toContain("bob");
   });
 
-  it("still strips a hostile tag nested inside an allowlisted <table> cell (defense in depth)", () => {
-    const table =
-      "<table id='perc-users-import-warning'>" +
-      `<tr><td><span><img src=x ${XSS_MARKER}></span></td></tr>` +
-      "</table>";
-
-    globalThis.jQuery.perc_utils.alert_dialog({
-      title: "Test",
-      content: table,
-    });
-
-    expect(document.querySelectorAll("img").length).toBe(0);
-    expect(globalThis.__perc_utils_pwned__).toBeUndefined();
-    expect(document.querySelectorAll("table tr").length).toBe(1);
-  });
-
-  // Regression test for perc_utils.replaceURLWithHTMLLinks(), which
-  // turns a bare http(s)/ftp/file URL inside a message into a real
-  // <a href="...">...</a> link before the message is handed to
-  // alert_dialog (see e.g. PercUserView's showImportWarning()).
-  it("alert_dialog preserves an <a href> link produced by replaceURLWithHTMLLinks()", () => {
+  it("alert_dialog with contentIsHtml preserves replaceURLWithHTMLLinks <a href>", () => {
     const message = globalThis.jQuery.perc_utils.replaceURLWithHTMLLinks(
       "See https://example.com/docs for details.",
     );
     globalThis.jQuery.perc_utils.alert_dialog({
       title: "Test",
       content: message,
+      contentIsHtml: true,
     });
 
     const link = document.querySelector("a");
     expect(link).not.toBeNull();
     expect(link.getAttribute("href")).toBe("https://example.com/docs");
     expect(link.textContent).toBe("https://example.com/docs");
-  });
-
-  it("strips a javascript: href from an <a> tag but keeps its (inert) text", () => {
-    globalThis.jQuery.perc_utils.alert_dialog({
-      title: "Test",
-      content: `<a href="javascript:${XSS_MARKER}">click me</a>`,
-    });
-
-    const link = document.querySelector("a");
-    expect(link).not.toBeNull();
-    expect(link.getAttribute("href")).toBeNull();
-    expect(link.textContent).toBe("click me");
-    expect(globalThis.__perc_utils_pwned__).toBeUndefined();
-  });
-
-  // Real URL parsers (WHATWG URL Standard, used by browsers for href
-  // navigation) strip TAB/LF/CR from anywhere in a URL before resolving
-  // its scheme, so an embedded control character inside the literal
-  // scheme name still resolves to a live javascript: URL even though it
-  // doesn't contain the literal substring "javascript:". A naive
-  // substring-only check would miss this.
-  it.each([
-    ["tab", "java\tscript:alert(1)"],
-    ["newline", "java\nscript:alert(1)"],
-    ["carriage return", "java\rscript:alert(1)"],
-    ["multiple embedded tabs", "j\tav\tascript:alert(1)"],
-  ])(
-    "strips a javascript: href obfuscated with an embedded %s",
-    (_label, hostileHref) => {
-      globalThis.jQuery.perc_utils.alert_dialog({
-        title: "Test",
-        content: `<a href="${hostileHref}">click me</a>`,
-      });
-
-      const link = document.querySelector("a");
-      expect(link).not.toBeNull();
-      expect(link.getAttribute("href")).toBeNull();
-    },
-  );
-
-  it("strips a style value obfuscated with an embedded tab the same way", () => {
-    globalThis.jQuery.perc_utils.alert_dialog({
-      title: "Test",
-      content:
-        '<span id="perc-z" style="background:url(java\tscript:alert(1))">text</span>',
-    });
-
-    const span = document.querySelector("#perc-z");
-    expect(span).not.toBeNull();
-    expect(span.getAttribute("style")).toBeNull();
-  });
-
-  it("strips a disallowed <iframe> tag entirely (not in the allowlist)", () => {
-    globalThis.jQuery.perc_utils.alert_dialog({
-      title: "Test",
-      content: `<iframe src="javascript:${XSS_MARKER}"></iframe>`,
-    });
-
-    expect(document.querySelectorAll("iframe").length).toBe(0);
-    expect(globalThis.__perc_utils_pwned__).toBeUndefined();
   });
 });
 
@@ -460,5 +337,15 @@ describe("perc_utils.js htmlEntities regression (js/incomplete-sanitization)", (
   it("still escapes the other special characters", () => {
     const result = globalThis.htmlEntities(`<a href="x">&'</a>`);
     expect(result).toBe("&lt;a href=&quot;x&quot;&gt;&amp;&#39;&lt;/a&gt;");
+  });
+});
+
+describe("public API", () => {
+  it("$.perc_utils exposes the documented dialog helpers", () => {
+    expect(typeof globalThis.jQuery.perc_utils.alert_dialog).toBe("function");
+    expect(typeof globalThis.jQuery.perc_utils.confirm_dialog).toBe(
+      "function",
+    );
+    expect(typeof globalThis.jQuery.perc_utils.prompt_dialog).toBe("function");
   });
 });

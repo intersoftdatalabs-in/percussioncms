@@ -5,18 +5,26 @@
 import React from "react";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { getTemplateDetail } from "../../../main/ts/api/developer/assemblyApi";
+import {
+  getTemplateDetail,
+  listSlots,
+} from "../../../main/ts/api/developer/assemblyApi";
 import { TemplateDetailPanel } from "../../../main/ts/developer/TemplateDetailPanel";
 
 vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   getTemplateDetail: vi.fn(),
+  listSlots: vi.fn().mockResolvedValue([]),
+  updateTemplateDetail: vi.fn(),
 }));
 
 const getTemplateDetailMock = vi.mocked(getTemplateDetail);
+const listSlotsMock = vi.mocked(listSlots);
 
 describe("TemplateDetailPanel", () => {
   beforeEach(() => {
     getTemplateDetailMock.mockReset();
+    listSlotsMock.mockReset();
+    listSlotsMock.mockResolvedValue([]);
   });
 
   afterEach(() => {
@@ -32,6 +40,9 @@ describe("TemplateDetailPanel", () => {
       templateSource: "<html/>",
       designGaps: ["read-only"],
     });
+    listSlotsMock.mockResolvedValue([
+      { name: "target", label: "Target", description: "Main slot" },
+    ]);
     const onBack = vi.fn();
     render(<TemplateDetailPanel idOrName="perc.page" onBack={onBack} />);
     await waitFor(() => {

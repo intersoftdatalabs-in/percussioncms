@@ -169,9 +169,18 @@ export function ExplorerTree({
             {folder.name || folder.path}
           </span>
         </div>
-        {folderish && isOpen && state.children.map((child) =>
-          renderNode(child, depth + 1),
-        )}
+        {folderish &&
+          isOpen &&
+          state.children
+            // Guard against self-path or ancestor cycles from a bad API payload
+            // (would recurse forever in render).
+            .filter(
+              (child) =>
+                child.path &&
+                child.path !== path &&
+                child.path.startsWith(path.endsWith("/") ? path : `${path}/`),
+            )
+            .map((child) => renderNode(child, depth + 1))}
       </div>
     );
   };

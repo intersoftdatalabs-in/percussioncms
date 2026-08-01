@@ -16,7 +16,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { intersoftTheme } from "../../../main/ts/ui-themes/intersoft/intersoftTheme";
+import { intersoftTheme } from "../../../../main/ts/ui-themes/intersoft/intersoftTheme";
 
 describe("intersoftTheme", () => {
   it("is registered as the default intersoft distribution theme", () => {

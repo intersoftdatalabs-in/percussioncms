@@ -18,7 +18,7 @@
 import React from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { AddGadgetModal } from '../../main/ts/dashboard/AddGadgetModal';
+import { AddGadgetModal } from '@/dashboard/AddGadgetModal';
 
 describe('AddGadgetModal', () => {
   const mockAvailableGadgets = [
@@ -164,13 +164,18 @@ describe('AddGadgetModal', () => {
       />
     );
 
-    const buttons = screen.getAllByRole('button').filter(
-      (btn) => btn.textContent === 'Added' || btn.textContent === 'Add'
-    );
-
-    // First two buttons should be disabled (for gadgets 1 and 2)
-    expect(buttons[0].textContent).toBe('Added');
-    expect(buttons[1].textContent).toBe('Added');
+    // Gadgets are grouped by category (not id order); assert by label + disabled.
+    const addedButtons = screen
+      .getAllByRole('button')
+      .filter((btn) => btn.textContent === 'Added');
+    expect(addedButtons).toHaveLength(2);
+    for (const btn of addedButtons) {
+      expect((btn as HTMLButtonElement).disabled).toBe(true);
+    }
+    const addButtons = screen
+      .getAllByRole('button')
+      .filter((btn) => btn.textContent === 'Add');
+    expect(addButtons).toHaveLength(2);
   });
 
   it('should call onClose when close button is clicked', () => {
@@ -184,11 +189,8 @@ describe('AddGadgetModal', () => {
       />
     );
 
-    const closeButton = screen.getByRole('button').parentElement?.querySelector('button:last-child');
-    if (closeButton) {
-      fireEvent.click(closeButton);
-      expect(mockOnClose).toHaveBeenCalled();
-    }
+    fireEvent.click(screen.getByText('✕'));
+    expect(mockOnClose).toHaveBeenCalled();
   });
 
   it('should call onClose when clicking outside modal', () => {
