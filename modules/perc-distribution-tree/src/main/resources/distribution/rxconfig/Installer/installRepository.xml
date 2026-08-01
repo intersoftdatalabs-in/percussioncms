@@ -200,6 +200,20 @@
 			tableData="${tableDataSources}" tableDef="${tableDefSources}"
 			failonerror="true" silenceerrors="false" />
 
+		<!-- Optional sample sites (Corporate Investments / Enterprise Investments).
+			Driven by the Java preinstall's demo-sites flag, propagated to ANT as -Dinstall.demo.sites=true.
+			On a new install only: the second PSTableAction run chains an RxffTableData/RxffTableDef
+			pass that seeds the two sample sites plus their ACLs, content types, nav,
+			etc. The processSampleSites target is also invoked explicitly from the install
+			chain in install.xml; this in-target guard is defensive so the chain wiring
+			and the system property remain in sync. -->
+		<if>
+			<equals arg1="${install.demo.sites}" arg2="true" />
+			<then>
+				<antcall target="installSampleSites" inheritrefs="true" />
+			</then>
+		</if>
+
 		<echo>Repository installation complete...</echo>
 
 		<echo>creating views</echo>
@@ -657,6 +671,88 @@
 		<PSExportDatabase rootDir="${install.dir}"
 			tabledatafile="${data.dir}/${start.DSTAMP}_${start.TSTAMP}/cmsTableData.xml"
 			tabledeffile="${data.dir}/${start.DSTAMP}_${start.TSTAMP}/cmsTableDef.xml" />
+	</target>
+
+	<!-- ============================================================== -->
+	<!-- Demo-site seeding (demo-sites flag). -->
+	<!-- Drives a second PSTableAction pass that seeds the Corporate -->
+	<!-- Investments / Enterprise Investments sample sites into the -->
+	<!-- repository. Runs on new installs and upgrades when the operator -->
+	<!-- opts in. RXLOCALE / RXLOCALEFORMAT are protected by stripSampleLocales -->
+	<!-- below, not by install-type gating. -->
+	<!-- ============================================================== -->
+	<target name="installSampleSites"
+		description="Seed the Corporate/Enterprise Investments sample sites into the repository. Skips when install.demo.sites != true.">
+		<if>
+			<not>
+				<equals arg1="${install.demo.sites}" arg2="true" />
+			</not>
+			<then>
+				<echo>installSampleSites: skipped
+					(install.demo.sites=${install.demo.sites})</echo>
+			</then>
+		</if>
+
+		<echo>Seeding sample sites (Corporate Investments / Enterprise
+			Investments)...</echo>
+
+		<!-- Defensive runtime strip: even though the source RxffTableData.xml
+			ships without RXLOCALE/RXLOCALEFORMAT (see SampleSiteLocaleStripTest), this
+			step removes any in-table block whose name matches so a future sample-edit
+			can never overwrite operator locale settings during a demo install. -->
+		<antcall target="stripSampleLocales" inheritrefs="true">
+			<param name="sample.input.file"
+				value="${data.dir}/RxffTableData.xml" />
+			<param name="sample.staging.file"
+				value="${data.dir}/RxffTableData.staging.xml" />
+		</antcall>
+
+		<!-- Run the schema + data load using the stripped staging copy. The original
+			shipped file is never modified. -->
+		<PSTableAction rootDir="${install.dir}"
+			repositoryLocation="${rxrepository.properties}"
+			tableFactoryLogFile="${install.dir}/rxconfig/Installer/tableFactory.log"
+			tableData="${data.dir}/RxffTableData.staging.xml"
+			tableDef="${data.dir}/RxffTableDef.xml" failonerror="true"
+			silenceerrors="false" />
+
+		<echo>Sample sites seeded.</echo>
+	</target>
+
+	<target name="stripSampleLocales"
+		description="Strip RXLOCALE and RXLOCALEFORMAT table blocks from the sample seed XML to a staging copy. Source file is never modified.">
+		<loadfile property="sample.input.contents"
+			srcFile="${sample.input.file}" encoding="UTF-8" />
+		<script language="javascript"><![CDATA[
+			// Mirror of SampleSiteLocaleStripTest.stripLocaleBlocks in the Java test
+			// harness. Keep both in sync so a regex drift fails both the unit test
+			// and the install-time strip.
+			var xml = project.getProperty("sample.input.contents");
+			var stripped = xml;
+			// 1. Replace opening tag with a marker, capturing the table name token.
+			stripped = stripped.replace(
+				/<table\s+name\s*=\s*(['"])RXLOCALE\1[^>]*>/gi,
+				"__STRIPPED_DEMO_SAMPLE__");
+			stripped = stripped.replace(
+				/<table\s+name\s*=\s*(['"])RXLOCALEFORMAT\1[^>]*>/gi,
+				"__STRIPPED_DEMO_SAMPLE__");
+			// 2. Delete everything from the marker to the next </table> closing tag.
+			var marker = "__STRIPPED_DEMO_SAMPLE__";
+			var out = "";
+			var cursor = 0;
+			while (true) {
+				var idx = stripped.indexOf(marker, cursor);
+				if (idx < 0) { out += stripped.substring(cursor); break; }
+				out += stripped.substring(cursor, idx);
+				var close = stripped.indexOf("</table>", idx);
+				if (close < 0) { out += stripped.substring(idx); break; }
+				cursor = close + "</table>".length;
+			}
+			project.setProperty("sample.stripped.contents", out);
+		]]></script>
+		<echo file="${sample.staging.file}" encoding="UTF-8">${sample.stripped.contents}</echo>
+		<echo>stripSampleLocales: wrote stripped copy to
+			${sample.staging.file}</echo>
 	</target>
 
 </project>

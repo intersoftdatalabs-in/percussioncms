@@ -44,7 +44,7 @@ import { beforeEach, afterEach, describe, it, expect, vi } from "vitest";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SRC_PATH = resolve(
   __dirname,
-  "../../main/webapp/cm/plugins/PercSectionTreeDialog.js"
+  "../../main/webapp/cm/plugins/PercSectionTreeDialog.js",
 );
 
 let $;
@@ -121,7 +121,7 @@ function installDialogEnvironment() {
     "jQuery",
     "$",
     "I18N",
-    readFileSync(SRC_PATH, "utf8")
+    readFileSync(SRC_PATH, "utf8"),
   );
   factory($, $, { message: (key) => key });
 }
@@ -160,7 +160,7 @@ function driveSuccess(sectionNode, opts = {}) {
     opts.treeLabel ?? "Tree label",
     opts.dlgTitle ?? "Dialog title",
     opts.okButton ?? "Move",
-    () => {}
+    () => {},
   );
   getTreeSpy.cb($.PercServiceUtils.STATUS_SUCCESS, {
     SectionNode: sectionNode,
@@ -195,7 +195,7 @@ describe("treeLabel sanitization", () => {
     dialogRoot.querySelectorAll("*").forEach((el) => {
       for (const attr of el.attributes) {
         expect(/^on/i.test(attr.name), `inline handler attr ${attr.name}`).toBe(
-          false
+          false,
         );
       }
     });
@@ -246,7 +246,7 @@ describe("section title sanitization", () => {
       for (const attr of el.attributes) {
         expect(
           /^on/i.test(attr.name),
-          `inline handler attr ${attr.name}=${attr.value} should not exist`
+          `inline handler attr ${attr.name}=${attr.value} should not exist`,
         ).toBe(false);
       }
     });

@@ -373,8 +373,6 @@ public class PSInternalRequest {
   }
 
   /**
-   *
-   *
    * <pre>
    *    $USER     |               |   $USER
    * ------------>|  rxuser       |------------------->

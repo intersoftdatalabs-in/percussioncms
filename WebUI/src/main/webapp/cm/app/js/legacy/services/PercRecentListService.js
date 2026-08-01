@@ -57,12 +57,12 @@
           deferred.resolve(result);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           $.perc_utils.info(
             I18N.message(
-              "perc.ui.page.optimizer.service@Access CM1 Page Optimizer"
-            ) + defaultMsg
+              "perc.ui.page.optimizer.service@Access CM1 Page Optimizer",
+            ) + defaultMsg,
           );
           deferred.reject(defaultMsg);
         }
@@ -72,7 +72,7 @@
         url,
         $.PercServiceUtils.TYPE_GET,
         false,
-        serviceCallback
+        serviceCallback,
       );
     }
     return deferred.promise();
@@ -106,7 +106,7 @@
         })
         .fail(function (jqXHR, textStatus) {
           deferred.reject(
-            I18N.message("perc.ui.recent.list.service@Failed To Add Item")
+            I18N.message("perc.ui.recent.list.service@Failed To Add Item"),
           );
         });
     }

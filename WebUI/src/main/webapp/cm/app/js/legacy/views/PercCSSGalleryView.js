@@ -49,7 +49,7 @@
           //////////////////////////////////
           var themes = data.ThemeSummary;
           root.append(
-            "<table id='perc-themes-table'><tr id='perc-themes-table-row'></tr><table>"
+            "<table id='perc-themes-table'><tr id='perc-themes-table-row'></tr><table>",
           );
           if (themes.length > 0) {
             $(themes).each(function () {
@@ -64,7 +64,7 @@
               // expression" whenever `name` contained a CSS-selector
               // metacharacter, which a malicious theme name can do.
               $("#perc-themes-table-row").append(
-                renderGalleryEntry($name, $thumbUrl, $nameAsEntered)
+                renderGalleryEntry($name, $thumbUrl, $nameAsEntered),
               );
             });
 
@@ -78,7 +78,7 @@
           root.append(
             "<div>" +
               I18N.message("perc.ui.css.galery.view@Gallery Cannot Load") +
-              "</div>"
+              "</div>",
           );
         }
       });
@@ -127,7 +127,7 @@
           class: "perc-css-gallery-item-name",
         })
           .css("text-align", "center")
-          .text(nameAsEntered)
+          .text(nameAsEntered),
       );
       $container.append($link);
       $cell.append($container);

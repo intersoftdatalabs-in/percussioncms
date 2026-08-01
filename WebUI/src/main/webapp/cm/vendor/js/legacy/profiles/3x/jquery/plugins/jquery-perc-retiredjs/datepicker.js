@@ -195,8 +195,8 @@
       $(
         "<div id='" +
           this._mainDivId +
-          "' class='ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all'></div>"
-      )
+          "' class='ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all'></div>",
+      ),
     );
   }
 
@@ -260,8 +260,8 @@
               $(
                 "<div class='" +
                   this._inlineClass +
-                  " ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all'></div>"
-              )
+                  " ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all'></div>",
+              ),
             ),
       };
     },
@@ -329,7 +329,7 @@
           });
         } else {
           inst.trigger = $("<button type='button'>").addClass(
-            this._triggerClass
+            this._triggerClass,
           );
           if (buttonImage) {
             inst.trigger.html(
@@ -337,7 +337,7 @@
                 src: buttonImage,
                 alt: buttonText,
                 title: buttonText,
-              })
+              }),
             );
           } else {
             inst.trigger.text(buttonText);
@@ -391,19 +391,19 @@
             findMax(
               this._get(
                 inst,
-                dateFormat.match(/MM/) ? "monthNames" : "monthNamesShort"
-              )
-            )
+                dateFormat.match(/MM/) ? "monthNames" : "monthNamesShort",
+              ),
+            ),
           );
           date.setDate(
             findMax(
               this._get(
                 inst,
-                dateFormat.match(/DD/) ? "dayNames" : "dayNamesShort"
-              )
+                dateFormat.match(/DD/) ? "dayNames" : "dayNamesShort",
+              ),
             ) +
               20 -
-              date.getDay()
+              date.getDay(),
           );
         }
         inst.input.attr("size", this._formatDate(inst, date).length);
@@ -456,7 +456,7 @@
         this._dialogInput = $(
           "<input type='text' id='" +
             id +
-            "' style='position: absolute; top: -100px; width: 0px;'/>"
+            "' style='position: absolute; top: -100px; width: 0px;'/>",
         );
         this._dialogInput.on("keydown", this._doKeyDown);
         $("body").append(this._dialogInput);
@@ -566,7 +566,7 @@
         // Delete entry
         function (value) {
           return value === target ? null : value;
-        }
+        },
       );
     },
 
@@ -607,7 +607,7 @@
         // Delete entry
         function (value) {
           return value === target ? null : value;
-        }
+        },
       );
       this._disabledInputs[this._disabledInputs.length] = target;
     },
@@ -661,10 +661,10 @@
         return name === "defaults"
           ? $.extend({}, $.datepicker._defaults)
           : inst
-          ? name === "all"
-            ? $.extend({}, inst.settings)
-            : this._get(inst, name)
-          : null;
+            ? name === "all"
+              ? $.extend({}, inst.settings)
+              : this._get(inst, name)
+            : null;
       }
 
       settings = name || {};
@@ -777,14 +777,14 @@
                 ":not(." +
                 $.datepicker._currentClass +
                 ")",
-              inst.dpDiv
+              inst.dpDiv,
             );
             if (sel[0]) {
               $.datepicker._selectDay(
                 event.target,
                 inst.selectedMonth,
                 inst.selectedYear,
-                sel[0]
+                sel[0],
               );
             }
 
@@ -811,7 +811,7 @@
               event.ctrlKey
                 ? -$.datepicker._get(inst, "stepBigMonths")
                 : -$.datepicker._get(inst, "stepMonths"),
-              "M"
+              "M",
             );
             break; // previous month/year on page up/+ ctrl
           case 34:
@@ -820,7 +820,7 @@
               event.ctrlKey
                 ? +$.datepicker._get(inst, "stepBigMonths")
                 : +$.datepicker._get(inst, "stepMonths"),
-              "M"
+              "M",
             );
             break; // next month/year on page down/+ ctrl
           case 35:
@@ -848,7 +848,7 @@
                 event.ctrlKey
                   ? -$.datepicker._get(inst, "stepBigMonths")
                   : -$.datepicker._get(inst, "stepMonths"),
-                "M"
+                "M",
               );
             }
 
@@ -873,7 +873,7 @@
                 event.ctrlKey
                   ? +$.datepicker._get(inst, "stepBigMonths")
                   : +$.datepicker._get(inst, "stepMonths"),
-                "M"
+                "M",
               );
             }
 
@@ -909,10 +909,10 @@
 
       if ($.datepicker._get(inst, "constrainInput")) {
         chars = $.datepicker._possibleChars(
-          $.datepicker._get(inst, "dateFormat")
+          $.datepicker._get(inst, "dateFormat"),
         );
         chr = String.fromCharCode(
-          event.charCode == null ? event.keyCode : event.charCode
+          event.charCode == null ? event.keyCode : event.charCode,
         );
         return (
           event.ctrlKey ||
@@ -934,7 +934,7 @@
           date = $.datepicker.parseDate(
             $.datepicker._get(inst, "dateFormat"),
             inst.input ? inst.input.val() : null,
-            $.datepicker._getFormatConfig(inst)
+            $.datepicker._getFormatConfig(inst),
           );
 
           if (date) {
@@ -1037,8 +1037,8 @@
           $.datepicker._inDialog && $.blockUI
             ? "static"
             : isFixed
-            ? "fixed"
-            : "absolute",
+              ? "fixed"
+              : "absolute",
         display: "none",
         left: offset.left + "px",
         top: offset.top + "px",
@@ -1054,7 +1054,7 @@
           inst.dpDiv.show(
             showAnim,
             $.datepicker._get(inst, "showOptions"),
-            duration
+            duration,
           );
         } else {
           inst.dpDiv[showAnim || "show"](showAnim ? duration : null);
@@ -1088,7 +1088,7 @@
 
       inst.dpDiv
         .removeClass(
-          "ui-datepicker-multi-2 ui-datepicker-multi-3 ui-datepicker-multi-4"
+          "ui-datepicker-multi-2 ui-datepicker-multi-3 ui-datepicker-multi-4",
         )
         .width("");
       if (cols > 1) {
@@ -1100,7 +1100,7 @@
         (numMonths[0] !== 1 || numMonths[1] !== 1 ? "add" : "remove") + "Class"
       ]("ui-datepicker-multi");
       inst.dpDiv[(this._get(inst, "isRTL") ? "add" : "remove") + "Class"](
-        "ui-datepicker-rtl"
+        "ui-datepicker-rtl",
       );
 
       if (
@@ -1171,13 +1171,13 @@
         offset.left,
         offset.left + dpWidth > viewWidth && viewWidth > dpWidth
           ? Math.abs(offset.left + dpWidth - viewWidth)
-          : 0
+          : 0,
       );
       offset.top -= Math.min(
         offset.top,
         offset.top + dpHeight > viewHeight && viewHeight > dpHeight
           ? Math.abs(dpHeight + inputHeight)
-          : 0
+          : 0,
       );
 
       return offset;
@@ -1229,15 +1229,15 @@
             showAnim,
             $.datepicker._get(inst, "showOptions"),
             duration,
-            postProcess
+            postProcess,
           );
         } else {
           inst.dpDiv[
             showAnim === "slideDown"
               ? "slideUp"
               : showAnim === "fadeIn"
-              ? "fadeOut"
-              : "hide"
+                ? "fadeOut"
+                : "hide"
           ](showAnim ? duration : null, postProcess);
         }
 
@@ -1365,8 +1365,8 @@
           inst,
           inst.currentDay,
           inst.currentMonth,
-          inst.currentYear
-        )
+          inst.currentYear,
+        ),
       );
     },
 
@@ -1517,12 +1517,12 @@
               match === "@"
                 ? 14
                 : match === "!"
-                ? 20
-                : match === "y" && isDoubled
-                ? 4
-                : match === "o"
-                ? 3
-                : 2,
+                  ? 20
+                  : match === "y" && isDoubled
+                    ? 4
+                    : match === "o"
+                      ? 3
+                      : 2,
             minSize = match === "y" ? size : 1,
             digits = new RegExp("^\\d{" + minSize + "," + size + "}"),
             num = value.substring(iValue).match(digits);
@@ -1539,7 +1539,7 @@
               lookAhead(match) ? longNames : shortNames,
               function (v, k) {
                 return [[k, v]];
-              }
+              },
             ).sort(function (a, b) {
               return -(a[1].length - b[1].length);
             });
@@ -1773,7 +1773,7 @@
                   "D",
                   date.getDay(),
                   dayNamesShort,
-                  dayNames
+                  dayNames,
                 );
                 break;
               case "o":
@@ -1783,12 +1783,12 @@
                     (new Date(
                       date.getFullYear(),
                       date.getMonth(),
-                      date.getDate()
+                      date.getDate(),
                     ).getTime() -
                       new Date(date.getFullYear(), 0, 0).getTime()) /
-                      86400000
+                      86400000,
                   ),
-                  3
+                  3,
                 );
                 break;
               case "m":
@@ -1799,7 +1799,7 @@
                   "M",
                   date.getMonth(),
                   monthNamesShort,
-                  monthNames
+                  monthNames,
                 );
                 break;
               case "y":
@@ -1915,7 +1915,7 @@
     _getDefaultDate: function (inst) {
       return this._restrictMinMax(
         inst,
-        this._determineDate(inst, this._get(inst, "defaultDate"), new Date())
+        this._determineDate(inst, this._get(inst, "defaultDate"), new Date()),
       );
     },
 
@@ -1931,7 +1931,7 @@
             return $.datepicker.parseDate(
               $.datepicker._get(inst, "dateFormat"),
               offset,
-              $.datepicker._getFormatConfig(inst)
+              $.datepicker._getFormatConfig(inst),
             );
           } catch (e) {
             // Ignore
@@ -1976,12 +1976,12 @@
           date == null || date === ""
             ? defaultDate
             : typeof date === "string"
-            ? offsetString(date)
-            : typeof date === "number"
-            ? isNaN(date)
-              ? defaultDate
-              : offsetNumeric(date)
-            : new Date(date.getTime());
+              ? offsetString(date)
+              : typeof date === "number"
+                ? isNaN(date)
+                  ? defaultDate
+                  : offsetNumeric(date)
+                : new Date(date.getTime());
 
       newDate =
         newDate && newDate.toString() === "Invalid Date"
@@ -2018,7 +2018,7 @@
         origYear = inst.selectedYear,
         newDate = this._restrictMinMax(
           inst,
-          this._determineDate(inst, date, new Date())
+          this._determineDate(inst, date, new Date()),
         );
 
       inst.selectedDay = inst.currentDay = newDate.getDate();
@@ -2048,7 +2048,7 @@
         !inst.currentYear || (inst.input && inst.input.val() === "")
           ? null
           : this._daylightSavingAdjust(
-              new Date(inst.currentYear, inst.currentMonth, inst.currentDay)
+              new Date(inst.currentYear, inst.currentMonth, inst.currentDay),
             );
       return startDate;
     },
@@ -2078,7 +2078,7 @@
               id,
               +this.getAttribute("data-month"),
               +this.getAttribute("data-year"),
-              this
+              this,
             );
             return false;
           },
@@ -2093,7 +2093,7 @@
         };
         $(this).on(
           this.getAttribute("data-event"),
-          handler[this.getAttribute("data-handler")]
+          handler[this.getAttribute("data-handler")],
         );
       });
     },
@@ -2144,8 +2144,8 @@
           new Date(
             tempDate.getFullYear(),
             tempDate.getMonth(),
-            tempDate.getDate()
-          )
+            tempDate.getDate(),
+          ),
         ), // clear time
         isRTL = this._get(inst, "isRTL"),
         showButtonPanel = this._get(inst, "showButtonPanel"),
@@ -2158,7 +2158,7 @@
         currentDate = this._daylightSavingAdjust(
           !inst.currentDay
             ? new Date(9999, 9, 9)
-            : new Date(inst.currentYear, inst.currentMonth, inst.currentDay)
+            : new Date(inst.currentYear, inst.currentMonth, inst.currentDay),
         ),
         minDate = this._getMinMaxDate(inst, "min"),
         maxDate = this._getMinMaxDate(inst, "max"),
@@ -2174,8 +2174,8 @@
           new Date(
             maxDate.getFullYear(),
             maxDate.getMonth() - numMonths[0] * numMonths[1] + 1,
-            maxDate.getDate()
-          )
+            maxDate.getDate(),
+          ),
         );
         maxDraw = minDate && maxDraw < minDate ? minDate : maxDraw;
         while (
@@ -2197,9 +2197,9 @@
         : this.formatDate(
             prevText,
             this._daylightSavingAdjust(
-              new Date(drawYear, drawMonth - stepMonths, 1)
+              new Date(drawYear, drawMonth - stepMonths, 1),
             ),
-            this._getFormatConfig(inst)
+            this._getFormatConfig(inst),
           );
 
       if (this._canAdjustMonth(inst, -1, drawYear, drawMonth)) {
@@ -2213,9 +2213,9 @@
           .append(
             $("<span>")
               .addClass(
-                "ui-icon ui-icon-circle-triangle-" + (isRTL ? "e" : "w")
+                "ui-icon ui-icon-circle-triangle-" + (isRTL ? "e" : "w"),
               )
-              .text(prevText)
+              .text(prevText),
           )[0].outerHTML;
       } else if (hideIfNoPrevNext) {
         prev = "";
@@ -2228,9 +2228,9 @@
           .append(
             $("<span>")
               .addClass(
-                "ui-icon ui-icon-circle-triangle-" + (isRTL ? "e" : "w")
+                "ui-icon ui-icon-circle-triangle-" + (isRTL ? "e" : "w"),
               )
-              .text(prevText)
+              .text(prevText),
           )[0].outerHTML;
       }
 
@@ -2240,9 +2240,9 @@
         : this.formatDate(
             nextText,
             this._daylightSavingAdjust(
-              new Date(drawYear, drawMonth + stepMonths, 1)
+              new Date(drawYear, drawMonth + stepMonths, 1),
             ),
-            this._getFormatConfig(inst)
+            this._getFormatConfig(inst),
           );
 
       if (this._canAdjustMonth(inst, +1, drawYear, drawMonth)) {
@@ -2256,9 +2256,9 @@
           .append(
             $("<span>")
               .addClass(
-                "ui-icon ui-icon-circle-triangle-" + (isRTL ? "w" : "e")
+                "ui-icon ui-icon-circle-triangle-" + (isRTL ? "w" : "e"),
               )
-              .text(nextText)
+              .text(nextText),
           )[0].outerHTML;
       } else if (hideIfNoPrevNext) {
         next = "";
@@ -2272,9 +2272,9 @@
             $("<span>")
               .attr(
                 "class",
-                "ui-icon ui-icon-circle-triangle-" + (isRTL ? "w" : "e")
+                "ui-icon ui-icon-circle-triangle-" + (isRTL ? "w" : "e"),
               )
-              .text(nextText)
+              .text(nextText),
           )[0].outerHTML;
       }
 
@@ -2301,7 +2301,7 @@
       buttonPanel = "";
       if (showButtonPanel) {
         buttonPanel = $(
-          "<div class='ui-datepicker-buttonpane ui-widget-content'>"
+          "<div class='ui-datepicker-buttonpane ui-widget-content'>",
         )
           .append(isRTL ? controls : "")
           .append(
@@ -2315,7 +2315,7 @@
                     "data-event": "click",
                   })
                   .text(currentText)
-              : ""
+              : "",
           )
           .append(isRTL ? "" : controls)[0].outerHTML;
       }
@@ -2339,7 +2339,7 @@
         this.maxRows = 4;
         for (col = 0; col < numMonths[1]; col++) {
           selectedDate = this._daylightSavingAdjust(
-            new Date(drawYear, drawMonth, inst.selectedDay)
+            new Date(drawYear, drawMonth, inst.selectedDay),
           );
           cornerClass = " ui-corner-all";
           calender = "";
@@ -2385,7 +2385,7 @@
               maxDate,
               row > 0 || col > 0,
               monthNames,
-              monthNamesShort
+              monthNamesShort,
             ) + // draw month headers
             "</div><table class='ui-datepicker-calendar'><thead>" +
             "<tr>";
@@ -2427,7 +2427,7 @@
             : curRows; //If multiple months, use the higher number of rows (see #7043)
           this.maxRows = numRows;
           printDate = this._daylightSavingAdjust(
-            new Date(drawYear, drawMonth, 1 - leadDays)
+            new Date(drawYear, drawMonth, 1 - leadDays),
           );
           for (dRow = 0; dRow < numRows; dRow++) {
             // create date picker rows
@@ -2492,24 +2492,24 @@
                 (otherMonth && !showOtherMonths
                   ? "&#xa0;" // display for other months
                   : unselectable
-                  ? "<span class='ui-state-default'>" +
-                    printDate.getDate() +
-                    "</span>"
-                  : "<a class='ui-state-default" +
-                    (printDate.getTime() === today.getTime()
-                      ? " ui-state-highlight"
-                      : "") +
-                    (printDate.getTime() === currentDate.getTime()
-                      ? " ui-state-active"
-                      : "") + // highlight selected day
-                    (otherMonth ? " ui-priority-secondary" : "") + // distinguish dates from other months
-                    "' href='#' aria-current='" +
-                    (printDate.getTime() === currentDate.getTime()
-                      ? "true"
-                      : "false") + // mark date as selected for screen reader
-                    "'>" +
-                    printDate.getDate() +
-                    "</a>") +
+                    ? "<span class='ui-state-default'>" +
+                      printDate.getDate() +
+                      "</span>"
+                    : "<a class='ui-state-default" +
+                      (printDate.getTime() === today.getTime()
+                        ? " ui-state-highlight"
+                        : "") +
+                      (printDate.getTime() === currentDate.getTime()
+                        ? " ui-state-active"
+                        : "") + // highlight selected day
+                      (otherMonth ? " ui-priority-secondary" : "") + // distinguish dates from other months
+                      "' href='#' aria-current='" +
+                      (printDate.getTime() === currentDate.getTime()
+                        ? "true"
+                        : "false") + // mark date as selected for screen reader
+                      "'>" +
+                      printDate.getDate() +
+                      "</a>") +
                 "</td>"; // display selectable date
               printDate.setDate(printDate.getDate() + 1);
               printDate = this._daylightSavingAdjust(printDate);
@@ -2547,7 +2547,7 @@
       maxDate,
       secondary,
       monthNames,
-      monthNamesShort
+      monthNamesShort,
     ) {
       var inMinYear,
         inMaxYear,
@@ -2615,8 +2615,8 @@
             var year = value.match(/c[+\-].*/)
               ? drawYear + parseInt(value.substring(1), 10)
               : value.match(/[+\-].*/)
-              ? thisYear + parseInt(value, 10)
-              : parseInt(value, 10);
+                ? thisYear + parseInt(value, 10)
+                : parseInt(value, 10);
             return isNaN(year) ? thisYear : year;
           };
           year = determineYear(years[0]);
@@ -2665,7 +2665,7 @@
           (period === "D" ? offset : 0),
         date = this._restrictMinMax(
           inst,
-          this._daylightSavingAdjust(new Date(year, month, day))
+          this._daylightSavingAdjust(new Date(year, month, day)),
         );
 
       inst.selectedDay = date.getDate();
@@ -2702,8 +2702,8 @@
       return numMonths == null
         ? [1, 1]
         : typeof numMonths === "number"
-        ? [1, numMonths]
-        : numMonths;
+          ? [1, numMonths]
+          : numMonths;
     },
 
     /* Determine the current maximum date - ensure no time components are set. */
@@ -2730,8 +2730,8 @@
           new Date(
             curYear,
             curMonth + (offset < 0 ? offset : numMonths[0] * numMonths[1]),
-            1
-          )
+            1,
+          ),
         );
 
       if (offset < 0) {
@@ -2798,12 +2798,12 @@
           ? day
           : this._daylightSavingAdjust(new Date(year, month, day))
         : this._daylightSavingAdjust(
-            new Date(inst.currentYear, inst.currentMonth, inst.currentDay)
+            new Date(inst.currentYear, inst.currentMonth, inst.currentDay),
           );
       return this.formatDate(
         this._get(inst, "dateFormat"),
         date,
-        this._getFormatConfig(inst)
+        this._getFormatConfig(inst),
       );
     },
   });
@@ -2834,7 +2834,7 @@
       !$.datepicker._isDisabledDatepicker(
         datepicker_instActive.inline
           ? datepicker_instActive.dpDiv.parent()[0]
-          : datepicker_instActive.input[0]
+          : datepicker_instActive.input[0],
       )
     ) {
       $(this)
@@ -2892,7 +2892,7 @@
     ) {
       return $.datepicker["_" + options + "Datepicker"].apply(
         $.datepicker,
-        [this[0]].concat(otherArgs)
+        [this[0]].concat(otherArgs),
       );
     }
     if (
@@ -2902,14 +2902,14 @@
     ) {
       return $.datepicker["_" + options + "Datepicker"].apply(
         $.datepicker,
-        [this[0]].concat(otherArgs)
+        [this[0]].concat(otherArgs),
       );
     }
     return this.each(function () {
       if (typeof options === "string") {
         $.datepicker["_" + options + "Datepicker"].apply(
           $.datepicker,
-          [this].concat(otherArgs)
+          [this].concat(otherArgs),
         );
       } else {
         $.datepicker._attachDatepicker(this, options);

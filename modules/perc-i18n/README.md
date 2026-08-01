@@ -44,7 +44,7 @@ All translation memory exchange (TMX) files are maintained in this module:
 
 - **Purpose**: UI-specific translations for the CMS interface
 - **Scope**: Content Manager UI components, dialogs, and labels
-- **Supported Languages**: the 20-locale matrix below
+- **Supported Languages**: the ship locale matrix below
 - **Naming Convention**: Keys follow pattern `perc.ui.(IDENTIFIER).(TYPE)@(MESSAGE/KEY)`
 
 ### SystemResources.tmx
@@ -52,9 +52,9 @@ All translation memory exchange (TMX) files are maintained in this module:
 - **Purpose**: System and content editor resources
 - **Scope**: Content editor actions, system messages, and resource definitions
 - **Key Examples**: `psx.ce.action@Check-in`, `psx.ce.action@Update`
-- **Supported Languages**: the 20-locale matrix below
+- **Supported Languages**: the ship locale matrix below
 
-### Canonical 20-Locale Matrix
+### Canonical Ship Locale Matrix
 
 Both `CmsUi.tmx` and `SystemResources.tmx` declare the same set of
 languages in their `<header>` `<prop type="supportedlanguage">` lines:
@@ -68,6 +68,7 @@ languages in their `<header>` `<prop type="supportedlanguage">` lines:
 | English          | `en-us` (default fallback), `en-gb`                               |
 | French           | `fr` (base), `fr-fr`, `fr-ca`, `fr-be`, `fr-ch`, `fr-lu`, `fr-us` |
 | German           | `de` (base), `de-de`, `de-at`, `de-ch`, `de-li`, `de-lu`          |
+| Hebrew           | `he` (base), `he-il`                                              |
 | Hindi            | `hi` (base), `hi-in`                                              |
 | Italian          | `it` (base), `it-it`, `it-ch`                                     |
 | Japanese         | `ja-jp`                                                           |
@@ -80,8 +81,8 @@ languages in their `<header>` `<prop type="supportedlanguage">` lines:
 | Telugu           | `te` (base)                                                       |
 | Turkish          | `tr` (base), `tr-tr`                                              |
 
-**Base locales** (`RXLOCALE.ISBASE=1`): `ar`, `bn`, `de`, `es`, `fr`, `hi`,
-`it`, `nl`, `pl`, `pt`, `ru`, `sv`, `te`, `tr`. Prefer storing shared
+**Base locales** (`RXLOCALE.ISBASE=1`): `ar`, `bn`, `de`, `es`, `fr`, `he`,
+`hi`, `it`, `nl`, `pl`, `pt`, `ru`, `sv`, `te`, `tr`. Prefer storing shared
 translations under the base tag; regionals hold dialect overrides only.
 Lookup chain: regional → base → `en-us`. Format profiles live in
 `RXLOCALEFORMAT` (mirrored by `PSLocaleFormatDefaults`).
@@ -102,8 +103,8 @@ The perc-i18n module is consumed by `perc-distribution-tree` during the build pr
 
 1. **Dependency Declaration**: perc-distribution-tree declares perc-i18n as a provided dependency
 2. **Resource Extraction**: During the Maven build, the `maven-dependency-plugin` unpacks i18n resources
-3. **Output Location**: Resources are extracted to `distribution/rxconfig/i18n/` in the assembly
-4. **Runtime Location**: At runtime, the server looks for TMX files at `rxconfig/i18n/` relative to the installation root
+3. **Output Location**: Resources are extracted to `distribution/rxconfig/i18n/` in the assembly (lowercase only)
+4. **Runtime Location**: At runtime, the server uses `rxconfig/i18n/` relative to the installation root. Legacy `rxconfig/I18n/` is read-only fallback; upgrades force-refresh product TMX under the lowercase path so Language Tool does not remerge stale files.
 
 ## Consolidation History
 
@@ -171,11 +172,12 @@ semantics, Docker requirement, and cross-platform guarantees.
 
 ### At Runtime
 
-- The `PSTmxResourceBundle` class loads TMX files from
-  `rxconfig/I18n/ResourceBundle.tmx` (master) plus `rx_resources/I18n/`
-  and `sys_resources/I18n/`. Since this revision it also scans the
-  lowercase `rxconfig/i18n/` directory (where the Maven build extracts
-  `CmsUi.tmx` and `SystemResources.tmx`).
+- The `PSTmxResourceBundle` class loads TMX files from canonical
+  `rxconfig/i18n/ResourceBundle.tmx` (master) plus product files in the
+  same lowercase directory, and also `rx_resources/I18n/` /
+  `sys_resources/I18n/`. Legacy uppercase `rxconfig/I18n/` is read only
+  when it is a distinct path (case-sensitive installs); new writes always
+  use `rxconfig/i18n/`.
 - Locale tags declared in `<prop type="supportedlanguage">` headers
   and looked up via the public API are normalized to lowercase hyphen
   BCP-47 form by `PSTmxResourceBundle.normalizeLang(String)`. Inline

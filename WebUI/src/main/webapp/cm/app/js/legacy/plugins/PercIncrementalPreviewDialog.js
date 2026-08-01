@@ -43,7 +43,7 @@
     gShowRelated = showRelated;
     gOnRelatedView = false;
     var $dialogHtml = $(
-      "<div><div id='perc-incremental-preview'><div id='perc-incremental-preview-table'/><div id='perc-incremental-preview-paging'/></div><div style=\"display:none\" id='perc-incremental-related-preview'><div id='perc-incremental-related-preview-table'/><div id='perc-incremental-related-preview-paging'/></div></div>"
+      "<div><div id='perc-incremental-preview'><div id='perc-incremental-preview-table'/><div id='perc-incremental-preview-paging'/></div><div style=\"display:none\" id='perc-incremental-related-preview'><div id='perc-incremental-related-preview-table'/><div id='perc-incremental-related-preview-paging'/></div></div>",
     );
     gDialog = _createDialog($dialogHtml, callback);
     _createPagedTable(1);
@@ -124,7 +124,7 @@
                 rowData[colName] +
                 "</div>"
               );
-            }
+            },
           ),
           _createColInfo("name", "Title", "string", "-1", null),
           _createColInfo(
@@ -132,21 +132,21 @@
             "Last Modified",
             "html",
             "100",
-            $.PercDataTableUtil.dateColumnDataBuilder
+            $.PercDataTableUtil.dateColumnDataBuilder,
           ),
           _createColInfo(
             "sys_contentlastmodifier",
             "Last Modified By",
             "string",
             "100",
-            null
+            null,
           ),
           _createColInfo(
             "sys_postdate",
             "Last Published",
             "html",
             "100",
-            $.PercDataTableUtil.dateColumnDataBuilder
+            $.PercDataTableUtil.dateColumnDataBuilder,
           ),
         ];
         //If there are no items then hide the continue button and change cancel button to close
@@ -174,7 +174,7 @@
         };
         configDT.oLanguage = {
           sZeroRecords: I18N.message(
-            "perc.ui.incremental.preview@Incremental Publishing"
+            "perc.ui.incremental.preview@Incremental Publishing",
           ),
         };
         configDT.bPaginate = false;
@@ -211,7 +211,7 @@
         gServerName,
         startIndex,
         $.PercIncrementalPreviewDialog.PAGE_SIZE,
-        callback
+        callback,
       );
     } else {
       $.PercPublisherService().getIncrementalItems(
@@ -219,7 +219,7 @@
         gServerName,
         startIndex,
         $.PercIncrementalPreviewDialog.PAGE_SIZE,
-        callback
+        callback,
       );
     }
   }

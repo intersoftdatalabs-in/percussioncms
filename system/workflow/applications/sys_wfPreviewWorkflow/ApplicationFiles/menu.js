@@ -521,7 +521,7 @@ function showMenu(menu, x, y, child) {
       window.releaseEvents(Event.MOUSEMOVE | Event.MOUSEUP);
       setTimeout(
         "if(window.ActiveMenu)window.ActiveMenu.Menu.setMouseTracker();",
-        300
+        300,
       );
     } else {
       var l = child;
@@ -754,7 +754,7 @@ function menuTracker() {
     }
     if (!isNaN(menuTrackers[i].xOffset) && document.body) {
       var off = parseInt(
-        (menuTrackers[i].xOffset - document.body.scrollLeft) / 10
+        (menuTrackers[i].xOffset - document.body.scrollLeft) / 10,
       );
       if (isNaN(off)) off = 0;
       if (off < 0) {
@@ -767,7 +767,7 @@ function menuTracker() {
     }
     if (!isNaN(menuTrackers[i].yOffset) && document.body) {
       var off = parseInt(
-        (menuTrackers[i].yOffset - document.body.scrollTop) / 10
+        (menuTrackers[i].yOffset - document.body.scrollTop) / 10,
       );
       if (isNaN(off)) off = 0;
       if (off < 0) {

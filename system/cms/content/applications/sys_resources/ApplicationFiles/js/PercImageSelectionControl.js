@@ -10,7 +10,7 @@
       var $el = $(this);
       var imgInputName = $el.attr("for");
       var eventSource = $("#" + imgInputName).attr(
-        "data-perc-widget-event-source"
+        "data-perc-widget-event-source",
       );
       var intialPath = $("#" + imgInputName).val();
       if (intialPath.trim() === "")
@@ -44,7 +44,7 @@
         $.topFrameJQuery.PercCreateNewAssetDialog(
           "percImage",
           successCallback,
-          cancelCallback
+          cancelCallback,
         );
       };
       var validator = function (pathItem) {

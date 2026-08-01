@@ -57,7 +57,7 @@ function bind_jcrop(target) {
       },
       function () {
         jcrop_api_controls[target] = this;
-      }
+      },
     );
   } else {
     $("#" + target + " > img").Jcrop(
@@ -71,7 +71,7 @@ function bind_jcrop(target) {
       },
       function () {
         jcrop_api_controls[target] = this;
-      }
+      },
     );
   }
 }

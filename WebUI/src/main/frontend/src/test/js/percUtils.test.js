@@ -72,7 +72,7 @@ import { beforeEach, afterEach, describe, it, expect, vi } from "vitest";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SRC_PATH = resolve(
   __dirname,
-  "../../../../webapp/cm/plugins/perc_utils.js"
+  "../../../../webapp/cm/plugins/perc_utils.js",
 );
 
 let $;
@@ -160,10 +160,10 @@ describe("source-pattern (anti-regression for js/xss-through-dom, js/incomplete-
     // pin that contract by asserting the function body goes through the
     // helper and that no $(d) remains in the if/else branches.
     expect(src).toMatch(
-      /\$\.fn\.perc_toggle\s*=\s*function\s*\(\s*d\s*\)\s*\{[\s\S]{0,200}?percResolveToggleTarget\(d\)/
+      /\$\.fn\.perc_toggle\s*=\s*function\s*\(\s*d\s*\)\s*\{[\s\S]{0,200}?percResolveToggleTarget\(d\)/,
     );
     expect(src).not.toMatch(
-      /\$\.fn\.perc_toggle\s*=\s*function[\s\S]{0,200}?\$\(d\)/
+      /\$\.fn\.perc_toggle\s*=\s*function[\s\S]{0,200}?\$\(d\)/,
     );
   });
 });
@@ -214,7 +214,7 @@ describe("alert_dialog sink", () => {
     // The source's $.fn.perc_dialog delegates to jQuery UI .dialog(),
     // which our stub tags with data-jquery-ui-dialog-title.
     const sink = document.body.querySelector(
-      "[data-jquery-ui-dialog-title='alert-text-title']"
+      "[data-jquery-ui-dialog-title='alert-text-title']",
     );
     expect(sink, "alert_dialog sink must be attached to body").toBeTruthy();
     expect(sink.querySelector("script")).toBeNull();
@@ -245,7 +245,7 @@ describe("confirm_dialog sink", () => {
     expect(scripts.length, "no <script> from question").toBe(0);
     expect(window.__pwned_confirm).toBeUndefined();
     const sink = document.body.querySelector(
-      "[data-jquery-ui-dialog-title='confirm-text-title']"
+      "[data-jquery-ui-dialog-title='confirm-text-title']",
     );
     expect(sink, "confirm_dialog sink must be attached to body").toBeTruthy();
     expect(sink.querySelector("script")).toBeNull();
@@ -261,7 +261,7 @@ describe("confirm_dialog sink", () => {
     const marker = document.getElementById("confirm-html-marker");
     expect(
       marker,
-      "<b id='confirm-html-marker'> should be present"
+      "<b id='confirm-html-marker'> should be present",
     ).toBeTruthy();
     expect(marker.tagName).toBe("B");
   });
@@ -278,7 +278,7 @@ describe("prompt_dialog sink", () => {
     expect(scripts.length, "no <script> from prompt question").toBe(0);
     expect(window.__pwned_prompt).toBeUndefined();
     const label = document.body.querySelector(
-      "label[for='perc-prompt-dialog-question']"
+      "label[for='perc-prompt-dialog-question']",
     );
     expect(label).toBeTruthy();
     expect(label.querySelector("script")).toBeNull();
@@ -294,7 +294,7 @@ describe("prompt_dialog sink", () => {
     const marker = document.getElementById("prompt-html-marker");
     expect(
       marker,
-      "<b id='prompt-html-marker'> should be present in the prompt label"
+      "<b id='prompt-html-marker'> should be present in the prompt label",
     ).toBeTruthy();
     expect(marker.tagName).toBe("B");
   });

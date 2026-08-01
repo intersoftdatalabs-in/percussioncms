@@ -17,22 +17,36 @@
 
 import React from "react";
 import { useSpaBootstrap } from "../bootstrap/BootstrapContext";
+import { i18nKeyAttr } from "../../i18n/i18nDom";
+import { message, MSG } from "../../i18n/message";
 import styles from "./AppLayout.module.css";
 
 export function UserMenu(): React.ReactElement {
   const { userName } = useSpaBootstrap();
-  const name = userName?.trim() || "user";
+  const name = userName?.trim() || message(MSG.USER_DEFAULT_NAME);
 
   return (
     <div className={styles.userMenu} data-testid="perc-spa-user-menu">
-      <span>
-        Signed in as{" "}
-        <span className={styles.userName} data-testid="perc-spa-user-name">
+      <span
+        className="mkd-lang-target"
+        {...i18nKeyAttr(MSG.USER_SIGNED_IN_AS)}
+      >
+        {message(MSG.USER_SIGNED_IN_AS)}{" "}
+        <span
+          className={styles.userName}
+          data-testid="perc-spa-user-name"
+          data-mkd-lang-ignore="1"
+        >
           {name}
         </span>
       </span>
-      <a className={styles.logoutLink} href="/logout" data-testid="perc-spa-logout">
-        Logout
+      <a
+        className={styles.logoutLink}
+        href="/logout"
+        data-testid="perc-spa-logout"
+        {...i18nKeyAttr(MSG.USER_LOGOUT)}
+      >
+        {message(MSG.USER_LOGOUT)}
       </a>
     </div>
   );

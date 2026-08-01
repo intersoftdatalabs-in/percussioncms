@@ -91,7 +91,7 @@
           }
         }
       },
-      null
+      null,
     );
   }
 
@@ -146,7 +146,7 @@
         url,
         $.PercServiceUtils.TYPE_GET,
         false,
-        serviceCallback
+        serviceCallback,
       );
     } else {
       $.PercServiceUtils.makeJsonRequest(
@@ -154,7 +154,7 @@
         $.PercServiceUtils.TYPE_PUT,
         false,
         serviceCallback,
-        dataObj
+        dataObj,
       );
     }
   }
@@ -178,7 +178,7 @@
       publishUrl,
       $.PercServiceUtils.TYPE_GET,
       false,
-      serviceCallback
+      serviceCallback,
     );
   }
 
@@ -201,7 +201,7 @@
       getUrl,
       $.PercServiceUtils.TYPE_GET,
       false,
-      serviceCallback
+      serviceCallback,
     );
   }
 
@@ -216,7 +216,7 @@
     var serviceCallback = function (status, results) {
       if (status === $.PercServiceUtils.STATUS_ERROR) {
         var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-          results.request
+          results.request,
         );
         callback(false, defaultMsg);
       } else {
@@ -229,7 +229,7 @@
       $.PercServiceUtils.TYPE_POST,
       false,
       serviceCallback,
-      obj
+      obj,
     );
   }
 
@@ -243,7 +243,7 @@
     var serviceCallback = function (status, results) {
       if (status === $.PercServiceUtils.STATUS_ERROR) {
         var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-          results.request
+          results.request,
         );
         callback(false, defaultMsg);
       } else {
@@ -254,7 +254,7 @@
       serviceUrl,
       $.PercServiceUtils.TYPE_GET,
       false,
-      serviceCallback
+      serviceCallback,
     );
   }
 

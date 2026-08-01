@@ -29,14 +29,14 @@ function _extractTestFunctionNamesFromScript(aScript) {
 
     var fragment = remainingScriptToInspect.substring(
       currentIndex,
-      remainingScriptToInspect.length
+      remainingScriptToInspect.length,
     );
     result = result.concat(
-      fragment.substring("function ".length, fragment.indexOf("("))
+      fragment.substring("function ".length, fragment.indexOf("(")),
     );
     remainingScriptToInspect = remainingScriptToInspect.substring(
       currentIndex + 12,
-      remainingScriptToInspect.length
+      remainingScriptToInspect.length,
     );
     currentIndex = this._indexOfTestFunctionIn(remainingScriptToInspect);
   }
@@ -57,7 +57,7 @@ function ___psRunTest() {
   for (i = 0; i < tests.length; i++) {
     document.forms["___testRunner"].___testDetail.options[i] = new Option(
       tests[i],
-      tests[i]
+      tests[i],
     );
     try {
       var func = tests[i] + "()";
@@ -93,23 +93,23 @@ function psAddSimpleTestRunner() {
   document.writeln('<form name="___testRunner">');
   document.writeln("<h3>Simple Test Runner</h3>");
   document.writeln(
-    '<input type="button" onclick="___psRunTest()" value="Run Tests"/>'
+    '<input type="button" onclick="___psRunTest()" value="Run Tests"/>',
   );
   document.writeln("<br><br>");
   document.writeln(
-    '<b>Status:<b>&nbsp;<input type="text" onfocus="blur()" id="___status" name="___status">'
+    '<b>Status:<b>&nbsp;<input type="text" onfocus="blur()" id="___status" name="___status">',
   );
   document.writeln("<br>");
   document.writeln(
-    '<b>Execution Time (milliseconds):<b>&nbsp;<input type="text" onfocus="blur()" id="___time" name="___time">'
+    '<b>Execution Time (milliseconds):<b>&nbsp;<input type="text" onfocus="blur()" id="___time" name="___time">',
   );
   document.writeln("<br><br>");
   document.writeln(
-    '<select size="20" style="width:400px" id="___testDetail" name="___testDetail" onchange="___showDetail()">'
+    '<select size="20" style="width:400px" id="___testDetail" name="___testDetail" onchange="___showDetail()">',
   );
   document.writeln("</select>");
   document.writeln(
-    '<textarea name="___detail" id="___detail" cols="40" rows="19">'
+    '<textarea name="___detail" id="___detail" cols="40" rows="19">',
   );
   document.writeln("</textarea>");
   document.writeln("</form>");

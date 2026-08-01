@@ -86,7 +86,7 @@
         var settings = this.setConfirmDialogOptions(
           callback,
           errorCallback,
-          options
+          options,
         );
         this.utils.confirm_dialog(settings);
       } else {
@@ -136,7 +136,7 @@
         //Settings for each other case (e.g. Workflow, Publish, etc), save option is not available. User can only cancel or continue.
         settings.type = "CANCEL_CONTINUE";
         settings.question = I18N.message(
-          "perc.ui.navigatedialog.confirm@This page contains unsaved edits"
+          "perc.ui.navigatedialog.confirm@This page contains unsaved edits",
         );
         settings.width = "326px";
       }

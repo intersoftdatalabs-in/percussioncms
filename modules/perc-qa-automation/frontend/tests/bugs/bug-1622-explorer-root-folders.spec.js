@@ -57,14 +57,14 @@ test.describe("GH-1622 explorer root folders (encodePath / no double-slash)", ()
     const root = await request.get(`${PATH_FOLDER}/`, { headers });
     expect(
       root.status(),
-      `GET ${PATH_FOLDER}/ should be 200 (double-slash form is 400)`
+      `GET ${PATH_FOLDER}/ should be 200 (double-slash form is 400)`,
     ).toBe(200);
 
     const sites = await request.get(`${PATH_FOLDER}/Sites`, { headers });
     // Sites may be empty on a fresh install, but the path must be valid.
     expect(
       sites.status(),
-      `GET ${PATH_FOLDER}/Sites must not 400 (folder//Sites was the bug)`
+      `GET ${PATH_FOLDER}/Sites must not 400 (folder//Sites was the bug)`,
     ).toBe(200);
 
     const bad = await request.get(`${PATH_FOLDER}//Sites`, { headers });
@@ -86,12 +86,12 @@ test.describe("GH-1622 explorer root folders (encodePath / no double-slash)", ()
     // Surface API/load failures explicitly (install lag still has folder// → 400).
     // Prefer data-testid after WebUI fix; also match older alert chrome.
     const treeErr = page.locator(
-      '[data-testid="explorer-tree-error"], [data-testid="explorer-tree"] [role="alert"]'
+      '[data-testid="explorer-tree-error"], [data-testid="explorer-tree"] [role="alert"]',
     );
     if ((await treeErr.count()) > 0 && (await treeErr.first().isVisible())) {
       const text = await treeErr.first().innerText();
       throw new Error(
-        `Explorer tree failed to load: ${text}. If the network URL was path/folder//, redeploy WebUI with encodePath fix (#1680).`
+        `Explorer tree failed to load: ${text}. If the network URL was path/folder//, redeploy WebUI with encodePath fix (#1680).`,
       );
     }
 

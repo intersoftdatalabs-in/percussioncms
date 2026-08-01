@@ -830,15 +830,43 @@
 				<groupId>com.diffplug.spotless</groupId>
 				<artifactId>spotless-maven-plugin</artifactId>
 				<configuration>
-
+					<!--
+					  Legacy tab-indented system/pom.xml is not sortPom-clean; do not reformat it
+					  when this module's Spotless config is touched. Spotless treats empty includes
+					  as "defaults" (pom.xml), so use a non-matching path to disable sortPom here.
+					-->
+					<pom>
+						<includes combine.self="override">
+							<include>__spotless_pom_disabled__</include>
+						</includes>
+					</pom>
+					<!--
+					  Avoid **/*.xml — system/ has huge Docs/FastForward trees. Scope to product
+					  source and known config layouts only.
+					-->
 					<formats>
 						<format>
 							<includes>
-								<include>**/*.xml</include>
-								<include>**/*.xsl</include>
-								<include>**/*.xslt</include>
+								<include>src/**/*.xml</include>
+								<include>src/**/*.xsl</include>
+								<include>src/**/*.xslt</include>
+								<include>cms/**/*.xml</include>
+								<include>cms/**/*.xsl</include>
+								<include>cms/**/*.xslt</include>
+								<include>configmgr/**/*.xml</include>
+								<include>dtsconfigmgr/**/*.xml</include>
+								<include>business/**/*.xml</include>
+								<include>services/**/*.xml</include>
 							</includes>
 							<excludes>
+								<!-- Agent worktrees (full monorepo copies) — never format -->
+								<exclude>.kilo/**</exclude>
+								<exclude>.kilo/worktrees/**</exclude>
+								<exclude>.grok/**</exclude>
+								<exclude>.worktrees/**</exclude>
+								<exclude>**/.kilo/**</exclude>
+								<exclude>**/.grok/**</exclude>
+								<exclude>**/.worktrees/**</exclude>
 								<exclude>**/target/**</exclude>
 								<exclude>**/node_modules/**</exclude>
 								<exclude>**/system/Docs/**</exclude>

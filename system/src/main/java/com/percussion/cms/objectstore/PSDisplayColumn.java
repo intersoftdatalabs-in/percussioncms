@@ -171,8 +171,6 @@ public class PSDisplayColumn extends PSDbComponent implements IPSSequencedCompon
   }
 
   /**
-   *
-   *
    * <pre><code>
    * &gt;!ELEMENT getNodeName() (getLocator().getNodeName(), Description,
    *       RenderType)&lt;

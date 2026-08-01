@@ -32,7 +32,7 @@
         url,
         $.PercServiceUtils.TYPE_GET,
         false,
-        createDialog
+        createDialog,
       );
 
       var taborder = 0;
@@ -44,7 +44,7 @@
 
         if (status === $.PercServiceUtils.STATUS_ERROR) {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           $.perc_utils.alert_dialog({ title: "Error", content: defaultMsg });
           callback(cancel);
@@ -86,7 +86,7 @@
             "</select> <br/>" +
             "<label for='perc-section-navigation-cssclassnames'>" +
             I18N.message(
-              "perc.ui.editSectionDialog.label@Navigation class names"
+              "perc.ui.editSectionDialog.label@Navigation class names",
             ) +
             ":</label> <br/> " +
             "<input type='text' tabindex='0' id='perc-section-navigation-cssclassnames' maxlength='255' name='perc-section-navigation-cssclassnames'/> <br/>" +
@@ -118,11 +118,11 @@
             "<div class='ui-layout-south'>" +
             "<div id='perc_buttons' style='z-index: 100;'></div>" +
             "</div>" +
-            "</form> </div>"
+            "</form> </div>",
         ).perc_dialog({
           resizable: false,
           title: I18N.message(
-            "perc.ui.editSectionDialog.title@Section Preferences"
+            "perc.ui.editSectionDialog.title@Section Preferences",
           ),
           modal: true,
           dragStart: function () {
@@ -145,7 +145,7 @@
                   .append(
                     "<input type='hidden' name='writePrincipals' value='" +
                       writePrincipals +
-                      "'>"
+                      "'>",
                   );
 
                 // add a hidden field to the form to pass the requires login value (disabled object are not serialized)
@@ -155,20 +155,20 @@
                   .append(
                     "<input type='hidden' name='requiresLogin' value='" +
                       requiresLogin +
-                      "'>"
+                      "'>",
                   );
 
                 // Clear the white spaces from the class names field
                 var cssClassNamesField = dialog.find(
-                  "#perc-section-navigation-cssclassnames"
+                  "#perc-section-navigation-cssclassnames",
                 );
                 cssClassNamesField.val(
-                  cssClassNamesField.val().replace(/ +/g, " ")
+                  cssClassNamesField.val().replace(/ +/g, " "),
                 );
 
                 var sectionName = dialog.find("form").find("#perc-section-url");
                 var sectionNameValue = $.perc_textFilters.WINDOWS_FILE_NAME(
-                  sectionName.val().trim()
+                  sectionName.val().trim(),
                 );
                 sectionName.val(sectionNameValue);
 
@@ -202,16 +202,16 @@
         $("#perc-section-name").val(sectionProps.title);
         $("#perc-section-url").val(sectionProps.folderName);
         $(
-          "#perc-section-target option[value='" + sectionProps.target + "']"
+          "#perc-section-target option[value='" + sectionProps.target + "']",
         ).prop("selected", true);
         // Bind the filter to the class names field and retrieve its value
         $.perc_filterFieldText(
           $("#perc-section-navigation-cssclassnames"),
           $.perc_autoFillTextFilters.IDNAMECDATAALPHA,
-          " "
+          " ",
         );
         $("#perc-section-navigation-cssclassnames").val(
-          sectionProps.cssClassNames
+          sectionProps.cssClassNames,
         );
 
         if (
@@ -257,7 +257,7 @@
               I18N.message("perc.ui.folderPropsDialog.title@User Properties") +
               ":",
             title2: I18N.message(
-              "perc.ui.folderPropsDialog.permissionValue@Write"
+              "perc.ui.folderPropsDialog.permissionValue@Write",
             ),
 
             //Write (modify, add, remove and user content.)
@@ -283,7 +283,7 @@
         $.perc_textAutoFill(
           section_name,
           section_url,
-          $.perc_autoFillTextFilters.URL
+          $.perc_autoFillTextFilters.URL,
         );
         $.perc_filterField(section_name, $.perc_textFilters.NOBACKSLASH);
         $.perc_filterField(section_url, $.perc_textFilters.URL);
@@ -405,13 +405,13 @@
           "</label> <br/>" +
           "<label for='perc-group-name-allowed' style='margin-left:5px'>" +
           I18N.message(
-            "perc.ui.editSectionDialog.label@Allow access to: (enter group names)"
+            "perc.ui.editSectionDialog.label@Allow access to: (enter group names)",
           ) +
           "</label> <br/>" +
           "<input type='text' id='perc-group-name-allowed' name='perc-group-name-allowed' >" +
           "<p>" +
           I18N.message(
-            "perc.ui.editSectionDialog.label@Please use a comma to separate each group name"
+            "perc.ui.editSectionDialog.label@Please use a comma to separate each group name",
           ) +
           "</p><br />" +
           "</div>" +

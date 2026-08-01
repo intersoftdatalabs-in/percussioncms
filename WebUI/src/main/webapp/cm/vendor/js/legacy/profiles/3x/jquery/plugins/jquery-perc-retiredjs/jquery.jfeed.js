@@ -11,7 +11,7 @@ jQuery.getFeed = function (options) {
       data: null,
       success: null,
     },
-    options
+    options,
   );
 
   if (options.url) {

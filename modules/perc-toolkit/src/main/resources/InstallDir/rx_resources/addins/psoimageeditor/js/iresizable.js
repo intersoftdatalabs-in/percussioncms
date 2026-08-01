@@ -47,7 +47,7 @@ jQuery.iResize = {
       typeof jQuery.iResize.dragged.resizeOptions.onDragStart === "function"
     ) {
       jQuery.iResize.dragged.resizeOptions.onDragStart.apply(
-        jQuery.iResize.dragged
+        jQuery.iResize.dragged,
       );
     }
     return false;
@@ -64,7 +64,7 @@ jQuery.iResize = {
     // Callback?
     if (typeof jQuery.iResize.dragged.resizeOptions.onDragStop === "function") {
       jQuery.iResize.dragged.resizeOptions.onDragStop.apply(
-        jQuery.iResize.dragged
+        jQuery.iResize.dragged,
       );
     }
 
@@ -89,24 +89,24 @@ jQuery.iResize = {
       Math.min(
         newTop,
         jQuery.iResize.dragged.resizeOptions.maxBottom -
-          jQuery.iResize.sizes.height
+          jQuery.iResize.sizes.height,
       ),
-      jQuery.iResize.dragged.resizeOptions.minTop
+      jQuery.iResize.dragged.resizeOptions.minTop,
     );
     newLeft = Math.max(
       Math.min(
         newLeft,
         jQuery.iResize.dragged.resizeOptions.maxRight -
-          jQuery.iResize.sizes.width
+          jQuery.iResize.sizes.width,
       ),
-      jQuery.iResize.dragged.resizeOptions.minLeft
+      jQuery.iResize.dragged.resizeOptions.minLeft,
     );
 
     // Callback
     if (typeof jQuery.iResize.dragged.resizeOptions.onDrag === "function") {
       var newPos = jQuery.iResize.dragged.resizeOptions.onDrag.apply(
         jQuery.iResize.dragged,
-        [newLeft, newTop]
+        [newLeft, newTop],
       );
       if (typeof newPos == "array" && newPos.length == 2) {
         newLeft = newPos[0];
@@ -143,7 +143,7 @@ jQuery.iResize = {
     if (jQuery.iResize.resizeElement.resizeOptions.onStart) {
       jQuery.iResize.resizeElement.resizeOptions.onStart.apply(
         jQuery.iResize.resizeElement,
-        [this]
+        [this],
       );
     }
 
@@ -159,7 +159,7 @@ jQuery.iResize = {
     if (jQuery.iResize.resizeElement.resizeOptions.onStop) {
       jQuery.iResize.resizeElement.resizeOptions.onStop.apply(
         jQuery.iResize.resizeElement,
-        [jQuery.iResize.resizeDirection]
+        [jQuery.iResize.resizeDirection],
       );
     }
 
@@ -171,24 +171,24 @@ jQuery.iResize = {
     return Math.min(
       Math.max(
         jQuery.iResize.sizes.width + dx * side,
-        jQuery.iResize.resizeElement.resizeOptions.minWidth
+        jQuery.iResize.resizeElement.resizeOptions.minWidth,
       ),
-      jQuery.iResize.resizeElement.resizeOptions.maxWidth
+      jQuery.iResize.resizeElement.resizeOptions.maxWidth,
     );
   },
   getHeight: function (dy, side) {
     return Math.min(
       Math.max(
         jQuery.iResize.sizes.height + dy * side,
-        jQuery.iResize.resizeElement.resizeOptions.minHeight
+        jQuery.iResize.resizeElement.resizeOptions.minHeight,
       ),
-      jQuery.iResize.resizeElement.resizeOptions.maxHeight
+      jQuery.iResize.resizeElement.resizeOptions.maxHeight,
     );
   },
   getHeightMinMax: function (height) {
     return Math.min(
       Math.max(height, jQuery.iResize.resizeElement.resizeOptions.minHeight),
-      jQuery.iResize.resizeElement.resizeOptions.maxHeight
+      jQuery.iResize.resizeElement.resizeOptions.maxHeight,
     );
   },
 
@@ -327,7 +327,7 @@ jQuery.iResize = {
           newSizes.height * jQuery.iResize.resizeElement.resizeOptions.ratio;
       else nWidth = newSizes.width;
       nHeight = jQuery.iResize.getHeightMinMax(
-        nWidth * jQuery.iResize.resizeElement.resizeOptions.ratio
+        nWidth * jQuery.iResize.resizeElement.resizeOptions.ratio,
       );
       nWidth = nHeight / jQuery.iResize.resizeElement.resizeOptions.ratio;
 
@@ -421,7 +421,7 @@ jQuery.iResize = {
     if (jQuery.iResize.resizeElement.resizeOptions.onResize) {
       newDimensions = jQuery.iResize.resizeElement.resizeOptions.onResize.apply(
         jQuery.iResize.resizeElement,
-        [newSizes, newPosition]
+        [newSizes, newPosition],
       );
       if (newDimensions) {
         if (newDimensions.sizes) {
@@ -484,7 +484,7 @@ jQuery.iResize = {
             el.resizeOptions.handlers[i].resizeDirection = i;
             jQuery(el.resizeOptions.handlers[i]).bind(
               "mousedown",
-              jQuery.iResize.start
+              jQuery.iResize.start,
             );
           }
         }
@@ -519,7 +519,7 @@ jQuery.iResize = {
         el.resizeOptions.handlers[i].resizeDirection = null;
         jQuery(el.resizeOptions.handlers[i]).unbind(
           "mousedown",
-          jQuery.iResize.start
+          jQuery.iResize.start,
         );
       }
 

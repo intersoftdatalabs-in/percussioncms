@@ -1,0 +1,20 @@
+.flag {
+  display: inline-block;
+  width: 1.35em;
+  height: 0.9em;
+  flex-shrink: 0;
+  vertical-align: middle;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(11, 34, 74, 0.12);
+  object-fit: cover;
+}
+
+/* Emoji / globe fallback when SVG is unavailable */
+span.flag {
+  width: 1.35em;
+  height: 1.1em;
+  line-height: 1.1em;
+  text-align: center;
+  font-size: 1em;
+  box-shadow: none;
+}

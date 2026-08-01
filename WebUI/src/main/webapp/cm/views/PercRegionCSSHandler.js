@@ -65,7 +65,7 @@
         var row;
         if (data.RegionCSS.properties != null) {
           var regionCSSProperties = $.perc_utils.convertCXFArray(
-            data.RegionCSS.properties
+            data.RegionCSS.properties,
           );
           for (var i = 0; i < regionCSSProperties.length; i++) {
             row = {
@@ -104,7 +104,7 @@
 
         oTable = $.PercInlineEditDataTable.init(
           $("#perc-region-css-table"),
-          config
+          config,
         );
 
         $("#perc-region-edit").dialog("open");
@@ -138,7 +138,7 @@
       id,
       function (status, data) {
         callback(status, data, id);
-      }
+      },
     );
   }
 
@@ -177,11 +177,11 @@
               tempDeletedRegions,
               function (value) {
                 return value != id;
-              }
+              },
             );
             reloadRegionCSSFile();
           }
-        }
+        },
       );
     } else {
       $.PercTemplateService().deleteRegionCSS(
@@ -194,7 +194,7 @@
             tempDeletedRegions.push(id);
             reloadRegionCSSFile();
           }
-        }
+        },
       );
     }
   }
@@ -259,7 +259,7 @@
       _themeName,
       _templateId,
       deletedRegionsJSON,
-      function (status, data) {}
+      function (status, data) {},
     );
   }
 
@@ -271,7 +271,7 @@
     $.PercTemplateService().regionCSSPrepareForEdit(
       _themeName,
       _templateName,
-      function (status, data) {}
+      function (status, data) {},
     );
   }
 

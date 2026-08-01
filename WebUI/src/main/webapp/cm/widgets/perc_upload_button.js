@@ -29,7 +29,7 @@
     var btn = $(
       '<a id="perc-finder-upload" href="#" title="' +
         I18N.message("perc.ui.upload.button@Click Upload File") +
-        '">Upload File...</a>'
+        '">Upload File...</a>',
     ).on("click", function (evt) {
       lauchClickHandler(evt);
     });

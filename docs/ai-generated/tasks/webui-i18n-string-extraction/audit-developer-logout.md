@@ -1,0 +1,816 @@
+# developer + logout audit
+
+Owner: WebUI
+Audit phase: Phase 0 (per-area candidate list) — verify-and-fill, not verify-only
+Branches affected: PR-G (`developer/**`), PR-H (`login/**` + `logout/**`)
+
+## Scope
+
+### developer (`WebUI/src/main/ts/developer/**`)
+
+13 attribute hits across 7 files (all are `aria-label=`). No JSX text-node
+candidates. Per-file counts from `tmp/webui-i18n-by-area/candidates-developer.tsv`:
+
+|                  File                  |   Hits |       Attributes       |
+|----------------------------------------|-------:|------------------------|
+| `developer/CommunityDetailPanel.tsx`   |      2 | `aria-label`           |
+| `developer/ContentTypeDetailPanel.tsx` |      1 | `aria-label`           |
+| `developer/DeveloperShell.tsx`         |      1 | `aria-label` (tablist) |
+| `developer/KeywordEditorPanel.tsx`     |      3 | `aria-label`           |
+| `developer/ObjectAclSection.tsx`       |      1 | `aria-label`           |
+| `developer/SlotDetailPanel.tsx`        |      3 | `aria-label`           |
+| `developer/TemplateDetailPanel.tsx`    |      2 | `aria-label`           |
+| **Total**                              | **13** |                        |
+
+All 13 are real attribute strings (button labels, tablist name). No false
+positives. None are empty. They live on `<button type="button">` controls, so
+they are read aloud by screen readers — localizing them is in-scope per
+WebUI/AGENTS.md "no new product features ship without `aria-label=`
+localization".
+
+### logout (`WebUI/src/main/ts/logout/**`)
+
+`tmp/webui-i18n-by-area/candidates-logout.tsv` does not exist (zero regex
+hits). The logout surface (`LogoutPage.tsx` + `logout/i18n.ts`) already
+renders exclusively through `t(LOGOUT_KEYS.X)`; no direct string literals or
+attribute-localizable strings are present. This audit confirms that and adds
+the matching TMX entries that the local catalog references.
+
+## Developer: Existing local catalog (developer/messages.ts)
+
+`WebUI/src/main/ts/developer/messages.ts:26` exports `DEV_MSG_KEYS` (a
+frozen object literal) and a `DEV_MSG` `Proxy` that resolves each key via
+`message(...)`. The catalog is the canonical local source for every
+`perc.ui.developer@…` key in this area. **Do not rename** — Phase 2 only
+needs to register matching TMX entries so the proxy resolves to the live
+TMX instead of the `@Human Text` fallback.
+
+Catalog size: **556 constant declarations** across **408 unique
+`perc.ui.developer@<Human Text>` tuids** (several English labels — e.g.
+`Back to list`, `Description`, `None`, `Rules`, `Required`, `Member`, `Actions`,
+`Flags`, `Id`, `Kind`, `Name`, `Operator`, `Parameter`, `Type`, `Value`,
+`Read-only`, `Searchable`, `Enabled`, `Occurrence`, `Order`, `Width`,
+`Properties`, `Permissions`, `Steps`, `Views`, `Slots`, `Templates`, `Locales`,
+`Standard`, `Custom`, `Yes`, `No`, `Deprecated`, `User`, `Label`, `Default`,
+`Date pattern`, `Time pattern`, `Member`, `Required`, `Visible`, `Loading …`,
+`Could not load …`, `No … returned`, `Design gaps (not in this API yet)` —
+are reused across multiple constants, so unique tuid count is smaller than
+constant count).
+
+Every constant below maps to a `DEV_MSG.X` accessor and uses the `perc.ui.developer@…`
+prefix. Constants are grouped by panel; the truncated table shows every key
+in the file.
+
+|      DEV_MSG constant      |                                                                        tuid (`perc.ui.developer@<Human Text>`)                                                                        |
+|----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| TITLE                      | `perc.ui.developer@Developer`                                                                                                                                                         |
+| SHELL_LOADING              | `perc.ui.developer@Loading Developer…`                                                                                                                                                |
+| INTRO                      | `perc.ui.developer@Design-time tools for content types, assembly, and related CMS objects. Replaces the classic Workbench / Design surfaces.`                                         |
+| SESSION_REDIRECT           | `perc.ui.developer@Session expired — redirecting to login…`                                                                                                                           |
+| ACL_TITLE                  | `perc.ui.developer@Object ACL`                                                                                                                                                        |
+| ACL_HINT                   | `perc.ui.developer@Design-time access control for this object. Toggle permissions, add or remove entries, then save (full entry list replace via bulk ACL API).`                      |
+| ACL_LOADING                | `perc.ui.developer@Loading ACL…`                                                                                                                                                      |
+| ACL_ERROR                  | `perc.ui.developer@Could not load object ACL.`                                                                                                                                        |
+| ACL_EMPTY                  | `perc.ui.developer@No ACL defined for this object.`                                                                                                                                   |
+| ACL_EMPTY_HINT             | `perc.ui.developer@Create a design-time ACL with an owner principal. You can add more entries after it is created.`                                                                   |
+| ACL_CREATE                 | `perc.ui.developer@Create ACL`                                                                                                                                                        |
+| ACL_CREATING               | `perc.ui.developer@Creating…`                                                                                                                                                         |
+| ACL_CREATE_ERROR           | `perc.ui.developer@Could not create object ACL.`                                                                                                                                      |
+| ACL_OWNER_NAME             | `perc.ui.developer@Owner principal`                                                                                                                                                   |
+| ACL_OWNER_NAME_PLACEHOLDER | `perc.ui.developer@User or role that owns the ACL`                                                                                                                                    |
+| ACL_NO_GUID                | `perc.ui.developer@Object GUID not available — cannot load ACL.`                                                                                                                      |
+| ACL_NO_ENTRIES             | `perc.ui.developer@No ACL entries yet — add a principal below.`                                                                                                                       |
+| ACL_COL_ENTRY              | `perc.ui.developer@Principal / name`                                                                                                                                                  |
+| ACL_COL_TYPE               | `perc.ui.developer@Type`                                                                                                                                                              |
+| ACL_COL_PERMS              | `perc.ui.developer@Permissions`                                                                                                                                                       |
+| ACL_COL_ACTIONS            | `perc.ui.developer@Actions`                                                                                                                                                           |
+| ACL_ENTRY_ADD              | `perc.ui.developer@Add entry`                                                                                                                                                         |
+| ACL_ENTRY_REMOVE           | `perc.ui.developer@Remove`                                                                                                                                                            |
+| ACL_ENTRY_NAME             | `perc.ui.developer@Principal name`                                                                                                                                                    |
+| ACL_ENTRY_NAME_PLACEHOLDER | `perc.ui.developer@Role, user, or community name`                                                                                                                                     |
+| ACL_ENTRY_DUP              | `perc.ui.developer@An entry with that name and type already exists.`                                                                                                                  |
+| ACL_SAVE                   | `perc.ui.developer@Save ACL`                                                                                                                                                          |
+| ACL_SAVING                 | `perc.ui.developer@Saving…`                                                                                                                                                           |
+| ACL_SAVED                  | `perc.ui.developer@Object ACL saved.`                                                                                                                                                 |
+| ACL_SAVE_ERROR             | `perc.ui.developer@Could not save object ACL.`                                                                                                                                        |
+| ACL_RELOAD_ERROR           | `perc.ui.developer@ACL saved, but could not reload the updated ACL.`                                                                                                                  |
+| TAB_CONTENT_TYPES          | `perc.ui.developer@Content Types`                                                                                                                                                     |
+| TAB_TEMPLATES              | `perc.ui.developer@Templates`                                                                                                                                                         |
+| TAB_SLOTS                  | `perc.ui.developer@Slots`                                                                                                                                                             |
+| TAB_KEYWORDS               | `perc.ui.developer@Keywords`                                                                                                                                                          |
+| TAB_LOCALES                | `perc.ui.developer@Locales`                                                                                                                                                           |
+| TAB_SHARED_FIELDS          | `perc.ui.developer@Shared Fields`                                                                                                                                                     |
+| TAB_SYSTEM_DEF             | `perc.ui.developer@System Def`                                                                                                                                                        |
+| TAB_ITEM_FILTERS           | `perc.ui.developer@Item Filters`                                                                                                                                                      |
+| TAB_DISPLAY_FORMATS        | `perc.ui.developer@Display Formats`                                                                                                                                                   |
+| TAB_ACTION_MENUS           | `perc.ui.developer@Action Menus`                                                                                                                                                      |
+| TAB_SEARCHES               | `perc.ui.developer@Searches`                                                                                                                                                          |
+| TAB_VIEWS                  | `perc.ui.developer@Views`                                                                                                                                                             |
+| TAB_EXTENSIONS             | `perc.ui.developer@Extensions`                                                                                                                                                        |
+| TAB_RELATIONSHIP_TYPES     | `perc.ui.developer@Relationship Types`                                                                                                                                                |
+| TAB_WORKFLOWS              | `perc.ui.developer@Workflows`                                                                                                                                                         |
+| TAB_SERVER_CONFIGS         | `perc.ui.developer@Server Configs`                                                                                                                                                    |
+| TAB_CE_CONTROLS            | `perc.ui.developer@CE Controls`                                                                                                                                                       |
+| TAB_SITES                  | `perc.ui.developer@Sites`                                                                                                                                                             |
+| TAB_COMMUNITIES            | `perc.ui.developer@Communities`                                                                                                                                                       |
+| TAB_PIPELINES              | `perc.ui.developer@Pipelines`                                                                                                                                                         |
+| CT_LOADING                 | `perc.ui.developer@Loading content types…`                                                                                                                                            |
+| CT_EMPTY                   | `perc.ui.developer@No content types returned.`                                                                                                                                        |
+| CT_ERROR                   | `perc.ui.developer@Could not load content types.`                                                                                                                                     |
+| CT_COL_NAME                | `perc.ui.developer@Name`                                                                                                                                                              |
+| CT_COL_LABEL               | `perc.ui.developer@Label`                                                                                                                                                             |
+| CT_COL_DESCRIPTION         | `perc.ui.developer@Description`                                                                                                                                                       |
+| CT_COL_ID                  | `perc.ui.developer@Id`                                                                                                                                                                |
+| CT_HINT                    | `perc.ui.developer@Select a content type to view fields and edit label, description, enabled, field flags, workflows, and templates.`                                                 |
+| CT_BACK                    | `perc.ui.developer@Back to list`                                                                                                                                                      |
+| CT_DETAIL_LOADING          | `perc.ui.developer@Loading content type…`                                                                                                                                             |
+| CT_DETAIL_ERROR            | `perc.ui.developer@Could not load content type detail.`                                                                                                                               |
+| CT_FORM_LABEL              | `perc.ui.developer@Label`                                                                                                                                                             |
+| CT_FORM_DESCRIPTION        | `perc.ui.developer@Description`                                                                                                                                                       |
+| CT_FORM_ENABLED            | `perc.ui.developer@Enabled`                                                                                                                                                           |
+| CT_SAVE                    | `perc.ui.developer@Save content type`                                                                                                                                                 |
+| CT_SAVED                   | `perc.ui.developer@Content type saved.`                                                                                                                                               |
+| CT_SAVE_ERROR              | `perc.ui.developer@Could not save content type.`                                                                                                                                      |
+| CT_FIELDS                  | `perc.ui.developer@Fields`                                                                                                                                                            |
+| CT_FIELDS_HINT             | `perc.ui.developer@Toggle searchable / required for local fields. Save acquires a design lock, writes, and releases.`                                                                 |
+| CT_CHILD_SETS              | `perc.ui.developer@Child field sets`                                                                                                                                                  |
+| CT_GAPS                    | `perc.ui.developer@Design gaps (not in this API yet)`                                                                                                                                 |
+| CT_META_ENABLED            | `perc.ui.developer@Enabled`                                                                                                                                                           |
+| CT_META_HIDDEN             | `perc.ui.developer@Hidden from menu`                                                                                                                                                  |
+| CT_META_APP                | `perc.ui.developer@Application`                                                                                                                                                       |
+| CT_COL_FIELD               | `perc.ui.developer@Field`                                                                                                                                                             |
+| CT_COL_ORIGIN              | `perc.ui.developer@Origin`                                                                                                                                                            |
+| CT_COL_DATATYPE            | `perc.ui.developer@Data type`                                                                                                                                                         |
+| CT_COL_CONTROL             | `perc.ui.developer@Control`                                                                                                                                                           |
+| CT_COL_REQUIRED            | `perc.ui.developer@Required`                                                                                                                                                          |
+| CT_COL_READONLY            | `perc.ui.developer@Read-only`                                                                                                                                                         |
+| CT_COL_OCCURRENCE          | `perc.ui.developer@Occurrence`                                                                                                                                                        |
+| CT_COL_RULES               | `perc.ui.developer@Rules`                                                                                                                                                             |
+| CT_COL_SEARCH              | `perc.ui.developer@Searchable`                                                                                                                                                        |
+| CT_COL_FIELDSET            | `perc.ui.developer@Field set`                                                                                                                                                         |
+| CT_RULE_VALIDATION         | `perc.ui.developer@validation`                                                                                                                                                        |
+| CT_RULE_VISIBILITY         | `perc.ui.developer@visibility`                                                                                                                                                        |
+| CT_RULE_IN_XFORM           | `perc.ui.developer@in-xform`                                                                                                                                                          |
+| CT_RULE_OUT_XFORM          | `perc.ui.developer@out-xform`                                                                                                                                                         |
+| CT_WORKFLOWS               | `perc.ui.developer@Allowed workflows`                                                                                                                                                 |
+| CT_WORKFLOWS_HINT          | `perc.ui.developer@Full replace on save when changed. Add by workflow name; set default with the radio.`                                                                              |
+| CT_DEFAULT_WF              | `perc.ui.developer@Default workflow`                                                                                                                                                  |
+| CT_TEMPLATES               | `perc.ui.developer@Allowed templates`                                                                                                                                                 |
+| CT_TEMPLATES_HINT          | `perc.ui.developer@Full replace on save when changed. Add by template name or GUID (type-host-uuid, e.g. 0-10-347).`                                                                  |
+| CT_ASSOC_ADD               | `perc.ui.developer@Add`                                                                                                                                                               |
+| CT_ASSOC_REMOVE            | `perc.ui.developer@Remove`                                                                                                                                                            |
+| CT_WF_NAME_PLACEHOLDER     | `perc.ui.developer@Workflow name`                                                                                                                                                     |
+| CT_TPL_NAME_PLACEHOLDER    | `perc.ui.developer@Template name or GUID (0-10-347)`                                                                                                                                  |
+| CT_SET_DEFAULT             | `perc.ui.developer@Default`                                                                                                                                                           |
+| CT_NONE                    | `perc.ui.developer@None`                                                                                                                                                              |
+| YES                        | `perc.ui.developer@Yes`                                                                                                                                                               |
+| NO                         | `perc.ui.developer@No`                                                                                                                                                                |
+| KW_LOADING                 | `perc.ui.developer@Loading keywords…`                                                                                                                                                 |
+| KW_EMPTY                   | `perc.ui.developer@No keywords returned.`                                                                                                                                             |
+| KW_ERROR                   | `perc.ui.developer@Could not load keywords.`                                                                                                                                          |
+| KW_HINT                    | `perc.ui.developer@Create, edit, or delete keyword definitions and their choices.`                                                                                                    |
+| KW_COL_LABEL               | `perc.ui.developer@Label`                                                                                                                                                             |
+| KW_COL_VALUE               | `perc.ui.developer@Value`                                                                                                                                                             |
+| KW_COL_CHOICES             | `perc.ui.developer@Choices`                                                                                                                                                           |
+| KW_COL_DESCRIPTION         | `perc.ui.developer@Description`                                                                                                                                                       |
+| KW_NEW                     | `perc.ui.developer@New keyword`                                                                                                                                                       |
+| KW_SAVE                    | `perc.ui.developer@Save`                                                                                                                                                              |
+| KW_CANCEL                  | `perc.ui.developer@Cancel`                                                                                                                                                            |
+| KW_DELETE                  | `perc.ui.developer@Delete`                                                                                                                                                            |
+| KW_EDIT                    | `perc.ui.developer@Edit`                                                                                                                                                              |
+| KW_BACK                    | `perc.ui.developer@Back to list`                                                                                                                                                      |
+| KW_FORM_LABEL              | `perc.ui.developer@Label`                                                                                                                                                             |
+| KW_FORM_DESCRIPTION        | `perc.ui.developer@Description`                                                                                                                                                       |
+| KW_FORM_SEQUENCE           | `perc.ui.developer@Sequence`                                                                                                                                                          |
+| KW_FORM_CHOICES            | `perc.ui.developer@Choices (label, value, sequence per line: label\|value\|seq)`                                                                                                      |
+| KW_SAVE_ERROR              | `perc.ui.developer@Could not save keyword.`                                                                                                                                           |
+| KW_DELETE_ERROR            | `perc.ui.developer@Could not delete keyword.`                                                                                                                                         |
+| KW_DELETE_CONFIRM          | `perc.ui.developer@Delete this keyword and all of its choices?`                                                                                                                       |
+| KW_SAVED                   | `perc.ui.developer@Keyword saved.`                                                                                                                                                    |
+| KW_DELETED                 | `perc.ui.developer@Keyword deleted.`                                                                                                                                                  |
+| TPL_LOADING                | `perc.ui.developer@Loading templates…`                                                                                                                                                |
+| TPL_EMPTY                  | `perc.ui.developer@No templates returned.`                                                                                                                                            |
+| TPL_ERROR                  | `perc.ui.developer@Could not load templates.`                                                                                                                                         |
+| TPL_HINT                   | `perc.ui.developer@Select a template to edit label, description, source, bindings, and contained slots.`                                                                              |
+| TPL_COL_LABEL              | `perc.ui.developer@Label`                                                                                                                                                             |
+| TPL_COL_NAME               | `perc.ui.developer@Name`                                                                                                                                                              |
+| TPL_COL_ID                 | `perc.ui.developer@Id`                                                                                                                                                                |
+| TPL_COL_DESCRIPTION        | `perc.ui.developer@Description`                                                                                                                                                       |
+| TPL_BACK                   | `perc.ui.developer@Back to list`                                                                                                                                                      |
+| TPL_DETAIL_LOADING         | `perc.ui.developer@Loading template…`                                                                                                                                                 |
+| TPL_DETAIL_ERROR           | `perc.ui.developer@Could not load template detail.`                                                                                                                                   |
+| TPL_META_ASSEMBLER         | `perc.ui.developer@Assembler`                                                                                                                                                         |
+| TPL_META_OUTPUT            | `perc.ui.developer@Output format`                                                                                                                                                     |
+| TPL_META_TYPE              | `perc.ui.developer@Template type`                                                                                                                                                     |
+| TPL_META_AA                | `perc.ui.developer@Active assembly`                                                                                                                                                   |
+| TPL_META_MIME              | `perc.ui.developer@MIME type`                                                                                                                                                         |
+| TPL_META_VARIANT           | `perc.ui.developer@Legacy variant`                                                                                                                                                    |
+| TPL_BINDINGS               | `perc.ui.developer@Bindings`                                                                                                                                                          |
+| TPL_BINDINGS_HINT          | `perc.ui.developer@JEXL bindings executed in order. Add, edit, or remove rows, then save (full replace).`                                                                             |
+| TPL_BINDING_ADD            | `perc.ui.developer@Add binding`                                                                                                                                                       |
+| TPL_BINDING_REMOVE         | `perc.ui.developer@Remove`                                                                                                                                                            |
+| TPL_SLOTS                  | `perc.ui.developer@Slots`                                                                                                                                                             |
+| TPL_SLOTS_HINT             | `perc.ui.developer@Check slots contained by this template, then save (full replace).`                                                                                                 |
+| TPL_SOURCE                 | `perc.ui.developer@Template source`                                                                                                                                                   |
+| TPL_FORM_LABEL             | `perc.ui.developer@Label`                                                                                                                                                             |
+| TPL_FORM_DESCRIPTION       | `perc.ui.developer@Description`                                                                                                                                                       |
+| TPL_SAVE                   | `perc.ui.developer@Save template`                                                                                                                                                     |
+| TPL_SAVED                  | `perc.ui.developer@Template saved.`                                                                                                                                                   |
+| TPL_SAVE_ERROR             | `perc.ui.developer@Could not save template.`                                                                                                                                          |
+| TPL_GAPS                   | `perc.ui.developer@Design gaps (not in this API yet)`                                                                                                                                 |
+| TPL_COL_VARIABLE           | `perc.ui.developer@Variable`                                                                                                                                                          |
+| TPL_COL_EXPRESSION         | `perc.ui.developer@Expression`                                                                                                                                                        |
+| TPL_COL_ORDER              | `perc.ui.developer@Order`                                                                                                                                                             |
+| TPL_COL_ACTIONS            | `perc.ui.developer@Actions`                                                                                                                                                           |
+| TPL_COL_MEMBER             | `perc.ui.developer@Member`                                                                                                                                                            |
+| TPL_NONE                   | `perc.ui.developer@None`                                                                                                                                                              |
+| SLOT_LOADING               | `perc.ui.developer@Loading slots…`                                                                                                                                                    |
+| SLOT_EMPTY                 | `perc.ui.developer@No slots returned.`                                                                                                                                                |
+| SLOT_ERROR                 | `perc.ui.developer@Could not load slots.`                                                                                                                                             |
+| SLOT_HINT                  | `perc.ui.developer@Select a slot to edit label, description, and content-type/template associations.`                                                                                 |
+| SLOT_COL_LABEL             | `perc.ui.developer@Label`                                                                                                                                                             |
+| SLOT_COL_NAME              | `perc.ui.developer@Name`                                                                                                                                                              |
+| SLOT_COL_DESCRIPTION       | `perc.ui.developer@Description`                                                                                                                                                       |
+| SLOT_BACK                  | `perc.ui.developer@Back to list`                                                                                                                                                      |
+| SLOT_DETAIL_LOADING        | `perc.ui.developer@Loading slot…`                                                                                                                                                     |
+| SLOT_DETAIL_ERROR          | `perc.ui.developer@Could not load slot detail.`                                                                                                                                       |
+| SLOT_FORM_LABEL            | `perc.ui.developer@Label`                                                                                                                                                             |
+| SLOT_FORM_DESCRIPTION      | `perc.ui.developer@Description`                                                                                                                                                       |
+| SLOT_SAVE                  | `perc.ui.developer@Save slot`                                                                                                                                                         |
+| SLOT_SAVED                 | `perc.ui.developer@Slot saved.`                                                                                                                                                       |
+| SLOT_SAVE_ERROR            | `perc.ui.developer@Could not save slot.`                                                                                                                                              |
+| SLOT_META_TYPE             | `perc.ui.developer@Slot type`                                                                                                                                                         |
+| SLOT_META_SYSTEM           | `perc.ui.developer@System slot`                                                                                                                                                       |
+| SLOT_META_FINDER           | `perc.ui.developer@Finder`                                                                                                                                                            |
+| SLOT_META_RELATIONSHIP     | `perc.ui.developer@Relationship`                                                                                                                                                      |
+| SLOT_ARGS                  | `perc.ui.developer@Finder arguments`                                                                                                                                                  |
+| SLOT_ASSOCIATIONS          | `perc.ui.developer@Content type / template associations`                                                                                                                              |
+| SLOT_ASSOCIATIONS_HINT     | `perc.ui.developer@Add or remove content-type ↔ template pairs (GUID string values). Save applies a full replace.`                                                                    |
+| SLOT_ASSOC_ADD             | `perc.ui.developer@Add association`                                                                                                                                                   |
+| SLOT_ASSOC_REMOVE          | `perc.ui.developer@Remove`                                                                                                                                                            |
+| SLOT_ASSOC_CT_PLACEHOLDER  | `perc.ui.developer@Content type GUID (e.g. 0-2-301)`                                                                                                                                  |
+| SLOT_ASSOC_TPL_PLACEHOLDER | `perc.ui.developer@Template GUID (e.g. 0-10-1)`                                                                                                                                       |
+| SLOT_GAPS                  | `perc.ui.developer@Known limitations of this endpoint`                                                                                                                                |
+| SLOT_NONE                  | `perc.ui.developer@None`                                                                                                                                                              |
+| SLOT_COL_CT                | `perc.ui.developer@Content type GUID`                                                                                                                                                 |
+| SLOT_COL_TPL               | `perc.ui.developer@Template GUID`                                                                                                                                                     |
+| SLOT_COL_ACTIONS           | `perc.ui.developer@Actions`                                                                                                                                                           |
+| COMM_LOADING               | `perc.ui.developer@Loading communities…`                                                                                                                                              |
+| COMM_EMPTY                 | `perc.ui.developer@No communities returned.`                                                                                                                                          |
+| COMM_ERROR                 | `perc.ui.developer@Could not load communities.`                                                                                                                                       |
+| COMM_HINT                  | `perc.ui.developer@Select a community to view and edit role membership. Object ACL dialogs are not available yet.`                                                                    |
+| COMM_COL_LABEL             | `perc.ui.developer@Label`                                                                                                                                                             |
+| COMM_COL_NAME              | `perc.ui.developer@Name`                                                                                                                                                              |
+| COMM_COL_ID                | `perc.ui.developer@Id`                                                                                                                                                                |
+| COMM_COL_DESCRIPTION       | `perc.ui.developer@Description`                                                                                                                                                       |
+| COMM_BACK                  | `perc.ui.developer@Back to list`                                                                                                                                                      |
+| COMM_DETAIL_LOADING        | `perc.ui.developer@Loading community…`                                                                                                                                                |
+| COMM_DETAIL_ERROR          | `perc.ui.developer@Could not load community detail.`                                                                                                                                  |
+| COMM_META_ID               | `perc.ui.developer@Id`                                                                                                                                                                |
+| COMM_META_GUID             | `perc.ui.developer@GUID`                                                                                                                                                              |
+| COMM_ROLES                 | `perc.ui.developer@Role membership`                                                                                                                                                   |
+| COMM_ROLES_HINT            | `perc.ui.developer@Check roles to associate with this community, then save.`                                                                                                          |
+| COMM_NO_ROLES              | `perc.ui.developer@This community has no role memberships.`                                                                                                                           |
+| COMM_NO_ROLES_SYSTEM       | `perc.ui.developer@No security roles are defined in the system.`                                                                                                                      |
+| COMM_COL_MEMBER            | `perc.ui.developer@Member`                                                                                                                                                            |
+| COMM_COL_ROLE_NAME         | `perc.ui.developer@Role name`                                                                                                                                                         |
+| COMM_COL_ROLE_ID           | `perc.ui.developer@Role id`                                                                                                                                                           |
+| COMM_COL_ROLE_GUID         | `perc.ui.developer@Role GUID`                                                                                                                                                         |
+| COMM_ROLES_SAVE            | `perc.ui.developer@Save roles`                                                                                                                                                        |
+| COMM_ROLES_SAVED           | `perc.ui.developer@Role membership saved.`                                                                                                                                            |
+| COMM_ROLES_SAVE_ERROR      | `perc.ui.developer@Could not save role membership.`                                                                                                                                   |
+| COMM_VISIBILITY            | `perc.ui.developer@Object visibility`                                                                                                                                                 |
+| COMM_VISIBILITY_HINT       | `perc.ui.developer@Design objects visible to this community (read-only lens). Complements per-object ACL edit.`                                                                       |
+| COMM_VISIBILITY_LOADING    | `perc.ui.developer@Loading visibility…`                                                                                                                                               |
+| COMM_VISIBILITY_ERROR      | `perc.ui.developer@Could not load community visibility.`                                                                                                                              |
+| COMM_VISIBILITY_EMPTY      | `perc.ui.developer@No visible objects returned for this community.`                                                                                                                   |
+| COMM_VISIBILITY_NO_GUID    | `perc.ui.developer@Community GUID not available — cannot load visibility.`                                                                                                            |
+| COMM_COL_OBJ_TYPE          | `perc.ui.developer@Type`                                                                                                                                                              |
+| COMM_COL_OBJ_NAME          | `perc.ui.developer@Name`                                                                                                                                                              |
+| COMM_COL_OBJ_LABEL         | `perc.ui.developer@Label`                                                                                                                                                             |
+| COMM_COL_OBJ_GUID          | `perc.ui.developer@GUID`                                                                                                                                                              |
+| COMM_GAPS                  | `perc.ui.developer@Known gaps`                                                                                                                                                        |
+| COMM_GAP_ACL               | `perc.ui.developer@Per-object ACL entry add/remove remains a separate object editor slice`                                                                                            |
+| PIPE_LOADING               | `perc.ui.developer@Loading pipelines…`                                                                                                                                                |
+| PIPE_EMPTY                 | `perc.ui.developer@No pipeline applications returned.`                                                                                                                                |
+| PIPE_ERROR                 | `perc.ui.developer@Could not load pipelines.`                                                                                                                                         |
+| PIPE_HINT                  | `perc.ui.developer@Server applications (classic XML Applications). Open a row for read-only detail and data sets. Editor, start/stop, and IR import are later slices.`                |
+| PIPE_COL_NAME              | `perc.ui.developer@Name`                                                                                                                                                              |
+| PIPE_COL_ID                | `perc.ui.developer@Id`                                                                                                                                                                |
+| PIPE_COL_TYPE              | `perc.ui.developer@Type`                                                                                                                                                              |
+| PIPE_COL_ENABLED           | `perc.ui.developer@Enabled`                                                                                                                                                           |
+| PIPE_COL_ROOT              | `perc.ui.developer@App root`                                                                                                                                                          |
+| PIPE_COL_DESCRIPTION       | `perc.ui.developer@Description`                                                                                                                                                       |
+| PIPE_BACK                  | `perc.ui.developer@Back to list`                                                                                                                                                      |
+| PIPE_DETAIL_LOADING        | `perc.ui.developer@Loading pipeline application…`                                                                                                                                     |
+| PIPE_DETAIL_ERROR          | `perc.ui.developer@Could not load pipeline application.`                                                                                                                              |
+| PIPE_META_HIDDEN           | `perc.ui.developer@Hidden`                                                                                                                                                            |
+| PIPE_META_VERSION          | `perc.ui.developer@Version`                                                                                                                                                           |
+| PIPE_DATASETS              | `perc.ui.developer@Data sets`                                                                                                                                                         |
+| PIPE_DATASETS_HINT         | `perc.ui.developer@Request pages and content editors defined in this application. Pipe IR and mappers are not exposed yet.`                                                           |
+| PIPE_NONE                  | `perc.ui.developer@None`                                                                                                                                                              |
+| PIPE_COL_DS_NAME           | `perc.ui.developer@Name`                                                                                                                                                              |
+| PIPE_COL_DS_KIND           | `perc.ui.developer@Kind`                                                                                                                                                              |
+| PIPE_COL_DS_REQUEST        | `perc.ui.developer@Request page`                                                                                                                                                      |
+| PIPE_GAPS                  | `perc.ui.developer@Design gaps (not in this API yet)`                                                                                                                                 |
+| LOC_LOADING                | `perc.ui.developer@Loading locales…`                                                                                                                                                  |
+| LOC_EMPTY                  | `perc.ui.developer@No locales returned.`                                                                                                                                              |
+| LOC_ERROR                  | `perc.ui.developer@Could not load locales.`                                                                                                                                           |
+| LOC_HINT                   | `perc.ui.developer@CMS locales (RXLOCALE) including base-locale flag and whether an exact RXLOCALEFORMAT profile exists. Open a row for format fields. Create/edit is a later slice.` |
+| LOC_COL_LANG               | `perc.ui.developer@Language`                                                                                                                                                          |
+| LOC_COL_LABEL              | `perc.ui.developer@Label`                                                                                                                                                             |
+| LOC_COL_STATUS             | `perc.ui.developer@Status`                                                                                                                                                            |
+| LOC_COL_BASE               | `perc.ui.developer@Base locale`                                                                                                                                                       |
+| LOC_COL_FORMAT             | `perc.ui.developer@Format profile`                                                                                                                                                    |
+| LOC_COL_DESCRIPTION        | `perc.ui.developer@Description`                                                                                                                                                       |
+| LOC_BACK                   | `perc.ui.developer@Back to list`                                                                                                                                                      |
+| LOC_DETAIL_LOADING         | `perc.ui.developer@Loading locale…`                                                                                                                                                   |
+| LOC_DETAIL_ERROR           | `perc.ui.developer@Could not load locale.`                                                                                                                                            |
+| LOC_FORMAT                 | `perc.ui.developer@Format profile (RXLOCALEFORMAT)`                                                                                                                                   |
+| LOC_FORMAT_HINT            | `perc.ui.developer@Exact format row for this language string. Runtime may still resolve via regional → base → en-us defaults when empty.`                                             |
+| LOC_FORMAT_YES             | `perc.ui.developer@Yes`                                                                                                                                                               |
+| LOC_FORMAT_NO              | `perc.ui.developer@No`                                                                                                                                                                |
+| LOC_FORMAT_EMPTY           | `perc.ui.developer@No exact format row stored for this language string.`                                                                                                              |
+| LOC_FMT_DIR                | `perc.ui.developer@Text direction`                                                                                                                                                    |
+| LOC_FMT_DATE               | `perc.ui.developer@Date pattern`                                                                                                                                                      |
+| LOC_FMT_TIME               | `perc.ui.developer@Time pattern`                                                                                                                                                      |
+| LOC_FMT_DATETIME           | `perc.ui.developer@Date-time pattern`                                                                                                                                                 |
+| LOC_FMT_DECIMAL            | `perc.ui.developer@Decimal separator`                                                                                                                                                 |
+| LOC_FMT_GROUPING           | `perc.ui.developer@Grouping separator`                                                                                                                                                |
+| LOC_FMT_CURRENCY           | `perc.ui.developer@Currency`                                                                                                                                                          |
+| LOC_FMT_FIRST_DAY          | `perc.ui.developer@First day of week`                                                                                                                                                 |
+| LOC_FMT_MEASURE            | `perc.ui.developer@Measurement`                                                                                                                                                       |
+| LOC_FMT_TZ                 | `perc.ui.developer@Default timezone`                                                                                                                                                  |
+| LOC_FMT_NUMBERING          | `perc.ui.developer@Numbering system`                                                                                                                                                  |
+| LOC_FMT_CALENDAR           | `perc.ui.developer@Calendar`                                                                                                                                                          |
+| LOC_GAPS                   | `perc.ui.developer@Design gaps (not in this API yet)`                                                                                                                                 |
+| SF_LOADING                 | `perc.ui.developer@Loading shared field groups…`                                                                                                                                      |
+| SF_EMPTY                   | `perc.ui.developer@No shared field groups returned.`                                                                                                                                  |
+| SF_ERROR                   | `perc.ui.developer@Could not load shared field groups.`                                                                                                                               |
+| SF_HINT                    | `perc.ui.developer@Shared field groups from the content-editor shared definition. Open a row for the field catalog. Create/edit and system def are later slices.`                     |
+| SF_COL_NAME                | `perc.ui.developer@Name`                                                                                                                                                              |
+| SF_COL_FILENAME            | `perc.ui.developer@Filename`                                                                                                                                                          |
+| SF_COL_FIELDS              | `perc.ui.developer@Fields`                                                                                                                                                            |
+| SF_BACK                    | `perc.ui.developer@Back to list`                                                                                                                                                      |
+| SF_DETAIL_LOADING          | `perc.ui.developer@Loading shared field group…`                                                                                                                                       |
+| SF_DETAIL_ERROR            | `perc.ui.developer@Could not load shared field group.`                                                                                                                                |
+| SF_FIELDS                  | `perc.ui.developer@Fields`                                                                                                                                                            |
+| SF_FIELDS_HINT             | `perc.ui.developer@Read-only field catalog for this shared group. Control properties and write are not exposed yet.`                                                                  |
+| SF_NONE                    | `perc.ui.developer@None`                                                                                                                                                              |
+| SF_COL_FIELD               | `perc.ui.developer@Field`                                                                                                                                                             |
+| SF_COL_DATATYPE            | `perc.ui.developer@Data type`                                                                                                                                                         |
+| SF_COL_OCCURRENCE          | `perc.ui.developer@Occurrence`                                                                                                                                                        |
+| SF_COL_REQUIRED            | `perc.ui.developer@Required`                                                                                                                                                          |
+| SF_COL_SEARCH              | `perc.ui.developer@Searchable`                                                                                                                                                        |
+| SF_COL_READONLY            | `perc.ui.developer@Read-only`                                                                                                                                                         |
+| SF_GAPS                    | `perc.ui.developer@Design gaps (not in this API yet)`                                                                                                                                 |
+| SYS_LOADING                | `perc.ui.developer@Loading system definition…`                                                                                                                                        |
+| SYS_ERROR                  | `perc.ui.developer@Could not load system definition.`                                                                                                                                 |
+| SYS_EMPTY                  | `perc.ui.developer@No system fields returned.`                                                                                                                                        |
+| SYS_HINT                   | `perc.ui.developer@Global system fields from the content-editor system definition. Read-only catalog — write and control configuration are later slices.`                             |
+| SYS_TITLE                  | `perc.ui.developer@Content editor system definition`                                                                                                                                  |
+| SYS_META_FIELD_COUNT       | `perc.ui.developer@Field count`                                                                                                                                                       |
+| SYS_META_CACHE             | `perc.ui.developer@Error cache timeout`                                                                                                                                               |
+| SYS_META_CACHE_UNIT        | `perc.ui.developer@minutes`                                                                                                                                                           |
+| SYS_FIELDS                 | `perc.ui.developer@System fields`                                                                                                                                                     |
+| SYS_FIELDS_HINT            | `perc.ui.developer@Fields available to all content types as system fields. Property and control write are not exposed yet.`                                                           |
+| SYS_COL_FIELD              | `perc.ui.developer@Field`                                                                                                                                                             |
+| SYS_COL_DATATYPE           | `perc.ui.developer@Data type`                                                                                                                                                         |
+| SYS_COL_OCCURRENCE         | `perc.ui.developer@Occurrence`                                                                                                                                                        |
+| SYS_COL_REQUIRED           | `perc.ui.developer@Required`                                                                                                                                                          |
+| SYS_COL_SEARCH             | `perc.ui.developer@Searchable`                                                                                                                                                        |
+| SYS_COL_READONLY           | `perc.ui.developer@Read-only`                                                                                                                                                         |
+| SYS_GAPS                   | `perc.ui.developer@Design gaps (not in this API yet)`                                                                                                                                 |
+| IF_LOADING                 | `perc.ui.developer@Loading item filters…`                                                                                                                                             |
+| IF_EMPTY                   | `perc.ui.developer@No item filters returned.`                                                                                                                                         |
+| IF_ERROR                   | `perc.ui.developer@Could not load item filters.`                                                                                                                                      |
+| IF_HINT                    | `perc.ui.developer@Assembly item filters (rules applied when resolving related content). Open a row for rules and parent linkage. Create/edit is a later slice.`                      |
+| IF_COL_NAME                | `perc.ui.developer@Name`                                                                                                                                                              |
+| IF_COL_RULES               | `perc.ui.developer@Rules`                                                                                                                                                             |
+| IF_COL_PARENT              | `perc.ui.developer@Parent filter`                                                                                                                                                     |
+| IF_COL_DESCRIPTION         | `perc.ui.developer@Description`                                                                                                                                                       |
+| IF_BACK                    | `perc.ui.developer@Back to list`                                                                                                                                                      |
+| IF_DETAIL_LOADING          | `perc.ui.developer@Loading item filter…`                                                                                                                                              |
+| IF_DETAIL_ERROR            | `perc.ui.developer@Could not load item filter.`                                                                                                                                       |
+| IF_COL_GUID                | `perc.ui.developer@GUID`                                                                                                                                                              |
+| IF_COL_AUTHTYPE            | `perc.ui.developer@Legacy authtype`                                                                                                                                                   |
+| IF_RULES                   | `perc.ui.developer@Rules`                                                                                                                                                             |
+| IF_RULES_HINT              | `perc.ui.developer@Filter rule definitions and parameters. Rule editing is not exposed yet.`                                                                                          |
+| IF_NONE                    | `perc.ui.developer@None`                                                                                                                                                              |
+| IF_COL_RULE                | `perc.ui.developer@Rule`                                                                                                                                                              |
+| IF_COL_PARAMS              | `perc.ui.developer@Parameters`                                                                                                                                                        |
+| IF_GAPS                    | `perc.ui.developer@Design gaps (not in this API yet)`                                                                                                                                 |
+| IF_GAP_WRITE               | `perc.ui.developer@Item filter create / update / delete not supported via this API`                                                                                                   |
+| IF_GAP_RULE_EDIT           | `perc.ui.developer@Rule and parameter editing not supported via this API`                                                                                                             |
+| DF_LOADING                 | `perc.ui.developer@Loading display formats…`                                                                                                                                          |
+| DF_EMPTY                   | `perc.ui.developer@No display formats returned.`                                                                                                                                      |
+| DF_ERROR                   | `perc.ui.developer@Could not load display formats.`                                                                                                                                   |
+| DF_HINT                    | `perc.ui.developer@Content Explorer display formats (columns, folder/view/search usage). Open a row for the column catalog. Create/edit is a later slice.`                            |
+| DF_COL_NAME                | `perc.ui.developer@Name`                                                                                                                                                              |
+| DF_COL_LABEL               | `perc.ui.developer@Label`                                                                                                                                                             |
+| DF_COL_COLUMNS             | `perc.ui.developer@Columns`                                                                                                                                                           |
+| DF_COL_USAGE               | `perc.ui.developer@Usage`                                                                                                                                                             |
+| DF_COL_DESCRIPTION         | `perc.ui.developer@Description`                                                                                                                                                       |
+| DF_COL_GUID                | `perc.ui.developer@GUID`                                                                                                                                                              |
+| DF_USAGE_FOLDER            | `perc.ui.developer@Folders`                                                                                                                                                           |
+| DF_USAGE_VIEWS             | `perc.ui.developer@Views & searches`                                                                                                                                                  |
+| DF_USAGE_RELATED           | `perc.ui.developer@Related content`                                                                                                                                                   |
+| DF_BACK                    | `perc.ui.developer@Back to list`                                                                                                                                                      |
+| DF_DETAIL_LOADING          | `perc.ui.developer@Loading display format…`                                                                                                                                           |
+| DF_DETAIL_ERROR            | `perc.ui.developer@Could not load display format.`                                                                                                                                    |
+| DF_COLUMNS                 | `perc.ui.developer@Columns`                                                                                                                                                           |
+| DF_COLUMNS_HINT            | `perc.ui.developer@Column definitions for this display format. Column create/edit is not exposed yet.`                                                                                |
+| DF_NONE                    | `perc.ui.developer@None`                                                                                                                                                              |
+| DF_COL_POS                 | `perc.ui.developer@Pos`                                                                                                                                                               |
+| DF_COL_SOURCE              | `perc.ui.developer@Source field`                                                                                                                                                      |
+| DF_COL_COL_LABEL           | `perc.ui.developer@Column label`                                                                                                                                                      |
+| DF_COL_RENDER              | `perc.ui.developer@Render type`                                                                                                                                                       |
+| DF_COL_WIDTH               | `perc.ui.developer@Width`                                                                                                                                                             |
+| DF_GAPS                    | `perc.ui.developer@Design gaps (not in this API yet)`                                                                                                                                 |
+| DF_GAP_WRITE               | `perc.ui.developer@Display format create / update / delete not supported via this API`                                                                                                |
+| DF_GAP_COLUMNS_EDIT        | `perc.ui.developer@Column and sort configuration write not supported via this API`                                                                                                    |
+| DF_GAP_COMMUNITIES         | `perc.ui.developer@Allowed-community editing not supported via this API`                                                                                                              |
+| AM_LOADING                 | `perc.ui.developer@Loading action menus…`                                                                                                                                             |
+| AM_EMPTY                   | `perc.ui.developer@No action menus returned.`                                                                                                                                         |
+| AM_ERROR                   | `perc.ui.developer@Could not load action menus.`                                                                                                                                      |
+| AM_HINT                    | `perc.ui.developer@Content Explorer action menus (types, handlers, URL parameters). Open a row for parameters and properties. Create/edit is a later slice.`                          |
+| AM_COL_NAME                | `perc.ui.developer@Name`                                                                                                                                                              |
+| AM_COL_LABEL               | `perc.ui.developer@Label`                                                                                                                                                             |
+| AM_COL_TYPE                | `perc.ui.developer@Menu type`                                                                                                                                                         |
+| AM_COL_HANDLER             | `perc.ui.developer@Handler`                                                                                                                                                           |
+| AM_COL_DESCRIPTION         | `perc.ui.developer@Description`                                                                                                                                                       |
+| AM_COL_URL                 | `perc.ui.developer@URL`                                                                                                                                                               |
+| AM_COL_SORT                | `perc.ui.developer@Sort rank`                                                                                                                                                         |
+| AM_BACK                    | `perc.ui.developer@Back to list`                                                                                                                                                      |
+| AM_DETAIL_LOADING          | `perc.ui.developer@Loading action menu…`                                                                                                                                              |
+| AM_DETAIL_ERROR            | `perc.ui.developer@Could not load action menu.`                                                                                                                                       |
+| AM_PARAMS                  | `perc.ui.developer@Parameters`                                                                                                                                                        |
+| AM_PARAMS_HINT             | `perc.ui.developer@URL parameters for this menu action. Parameter editing is not exposed yet.`                                                                                        |
+| AM_PROPS                   | `perc.ui.developer@Properties`                                                                                                                                                        |
+| AM_NONE                    | `perc.ui.developer@None`                                                                                                                                                              |
+| AM_COL_PARAM               | `perc.ui.developer@Parameter`                                                                                                                                                         |
+| AM_COL_PROP                | `perc.ui.developer@Property`                                                                                                                                                          |
+| AM_COL_VALUE               | `perc.ui.developer@Value`                                                                                                                                                             |
+| AM_GAPS                    | `perc.ui.developer@Design gaps (not in this API yet)`                                                                                                                                 |
+| AM_GAP_WRITE               | `perc.ui.developer@Action menu create / update / delete not supported via this API`                                                                                                   |
+| AM_GAP_CHILDREN            | `perc.ui.developer@Cascading child menu composition not supported via this API`                                                                                                       |
+| AM_GAP_VISIBILITY          | `perc.ui.developer@Visibility context editing not supported via this API`                                                                                                             |
+| SR_LOADING                 | `perc.ui.developer@Loading searches…`                                                                                                                                                 |
+| SR_EMPTY                   | `perc.ui.developer@No searches returned.`                                                                                                                                             |
+| SR_ERROR                   | `perc.ui.developer@Could not load searches.`                                                                                                                                          |
+| SR_HINT                    | `perc.ui.developer@Content Explorer search definitions (not views). Open a row for field criteria. Create/edit is a later slice.`                                                     |
+| SR_COL_NAME                | `perc.ui.developer@Name`                                                                                                                                                              |
+| SR_COL_LABEL               | `perc.ui.developer@Label`                                                                                                                                                             |
+| SR_COL_KIND                | `perc.ui.developer@Kind`                                                                                                                                                              |
+| SR_COL_FIELDS              | `perc.ui.developer@Fields`                                                                                                                                                            |
+| SR_COL_DESCRIPTION         | `perc.ui.developer@Description`                                                                                                                                                       |
+| SR_COL_DF                  | `perc.ui.developer@Display format id`                                                                                                                                                 |
+| SR_COL_MAX                 | `perc.ui.developer@Max results`                                                                                                                                                       |
+| SR_COL_CASE                | `perc.ui.developer@Case sensitive`                                                                                                                                                    |
+| SR_KIND_CUSTOM             | `perc.ui.developer@Custom`                                                                                                                                                            |
+| SR_KIND_USER               | `perc.ui.developer@User`                                                                                                                                                              |
+| SR_KIND_STANDARD           | `perc.ui.developer@Standard`                                                                                                                                                          |
+| SR_BACK                    | `perc.ui.developer@Back to list`                                                                                                                                                      |
+| SR_DETAIL_LOADING          | `perc.ui.developer@Loading search…`                                                                                                                                                   |
+| SR_DETAIL_ERROR            | `perc.ui.developer@Could not load search.`                                                                                                                                            |
+| SR_FIELDS                  | `perc.ui.developer@Field criteria`                                                                                                                                                    |
+| SR_FIELDS_HINT             | `perc.ui.developer@Search field conditions. Criterion editing is not exposed yet.`                                                                                                    |
+| SR_NONE                    | `perc.ui.developer@None`                                                                                                                                                              |
+| SR_COL_FIELD               | `perc.ui.developer@Field`                                                                                                                                                             |
+| SR_COL_OP                  | `perc.ui.developer@Operator`                                                                                                                                                          |
+| SR_COL_VALUE               | `perc.ui.developer@Value`                                                                                                                                                             |
+| SR_COL_FTYPE               | `perc.ui.developer@Type`                                                                                                                                                              |
+| SR_GAPS                    | `perc.ui.developer@Design gaps (not in this API yet)`                                                                                                                                 |
+| SR_GAP_WRITE               | `perc.ui.developer@Search create / update / delete not supported via this API`                                                                                                        |
+| SR_GAP_FIELDS              | `perc.ui.developer@Search field criterion editing not supported via this API`                                                                                                         |
+| SR_GAP_VIEWS               | `perc.ui.developer@Views are a separate catalog (Developer Views / UI-07)`                                                                                                            |
+| VW_LOADING                 | `perc.ui.developer@Loading views…`                                                                                                                                                    |
+| VW_EMPTY                   | `perc.ui.developer@No views returned.`                                                                                                                                                |
+| VW_ERROR                   | `perc.ui.developer@Could not load views.`                                                                                                                                             |
+| VW_HINT                    | `perc.ui.developer@Content Explorer view definitions. Open a row for field criteria. Create/edit is a later slice.`                                                                   |
+| VW_COL_NAME                | `perc.ui.developer@Name`                                                                                                                                                              |
+| VW_COL_LABEL               | `perc.ui.developer@Label`                                                                                                                                                             |
+| VW_COL_KIND                | `perc.ui.developer@Kind`                                                                                                                                                              |
+| VW_COL_FIELDS              | `perc.ui.developer@Fields`                                                                                                                                                            |
+| VW_COL_DESCRIPTION         | `perc.ui.developer@Description`                                                                                                                                                       |
+| VW_COL_DF                  | `perc.ui.developer@Display format id`                                                                                                                                                 |
+| VW_COL_MAX                 | `perc.ui.developer@Max results`                                                                                                                                                       |
+| VW_COL_CASE                | `perc.ui.developer@Case sensitive`                                                                                                                                                    |
+| VW_KIND_CUSTOM             | `perc.ui.developer@Custom`                                                                                                                                                            |
+| VW_KIND_STANDARD           | `perc.ui.developer@Standard`                                                                                                                                                          |
+| VW_BACK                    | `perc.ui.developer@Back to list`                                                                                                                                                      |
+| VW_DETAIL_LOADING          | `perc.ui.developer@Loading view…`                                                                                                                                                     |
+| VW_DETAIL_ERROR            | `perc.ui.developer@Could not load view.`                                                                                                                                              |
+| VW_FIELDS                  | `perc.ui.developer@Field criteria`                                                                                                                                                    |
+| VW_FIELDS_HINT             | `perc.ui.developer@View field conditions. Criterion editing is not exposed yet.`                                                                                                      |
+| VW_NONE                    | `perc.ui.developer@None`                                                                                                                                                              |
+| VW_COL_FIELD               | `perc.ui.developer@Field`                                                                                                                                                             |
+| VW_COL_OP                  | `perc.ui.developer@Operator`                                                                                                                                                          |
+| VW_COL_VALUE               | `perc.ui.developer@Value`                                                                                                                                                             |
+| VW_COL_FTYPE               | `perc.ui.developer@Type`                                                                                                                                                              |
+| VW_GAPS                    | `perc.ui.developer@Design gaps (not in this API yet)`                                                                                                                                 |
+| VW_GAP_WRITE               | `perc.ui.developer@View create / update / delete not supported via this API`                                                                                                          |
+| VW_GAP_FIELDS              | `perc.ui.developer@View field criterion editing not supported via this API`                                                                                                           |
+| VW_GAP_SEARCHES            | `perc.ui.developer@Searches are a separate catalog (Developer Searches / UI-06)`                                                                                                      |
+| EX_LOADING                 | `perc.ui.developer@Loading extensions…`                                                                                                                                               |
+| EX_EMPTY                   | `perc.ui.developer@No extensions returned.`                                                                                                                                           |
+| EX_ERROR                   | `perc.ui.developer@Could not load extensions.`                                                                                                                                        |
+| EX_HINT                    | `perc.ui.developer@Registered server extensions (handlers, contexts, interfaces). Open a row for parameters. Install/remove is a later slice.`                                        |
+| EX_COL_NAME                | `perc.ui.developer@Name`                                                                                                                                                              |
+| EX_COL_HANDLER             | `perc.ui.developer@Handler`                                                                                                                                                           |
+| EX_COL_CONTEXT             | `perc.ui.developer@Context`                                                                                                                                                           |
+| EX_COL_CATEGORY            | `perc.ui.developer@Category`                                                                                                                                                          |
+| EX_COL_FLAGS               | `perc.ui.developer@Flags`                                                                                                                                                             |
+| EX_COL_FQN                 | `perc.ui.developer@FQN`                                                                                                                                                               |
+| EX_COL_VERSION             | `perc.ui.developer@Version`                                                                                                                                                           |
+| EX_FLAG_JEXL               | `perc.ui.developer@JEXL`                                                                                                                                                              |
+| EX_FLAG_DEPRECATED         | `perc.ui.developer@Deprecated`                                                                                                                                                        |
+| EX_BACK                    | `perc.ui.developer@Back to list`                                                                                                                                                      |
+| EX_DETAIL_LOADING          | `perc.ui.developer@Loading extension…`                                                                                                                                                |
+| EX_DETAIL_ERROR            | `perc.ui.developer@Could not load extension.`                                                                                                                                         |
+| EX_IFACES                  | `perc.ui.developer@Interfaces`                                                                                                                                                        |
+| EX_PARAMS                  | `perc.ui.developer@Runtime parameters`                                                                                                                                                |
+| EX_NONE                    | `perc.ui.developer@None`                                                                                                                                                              |
+| EX_COL_PARAM               | `perc.ui.developer@Parameter`                                                                                                                                                         |
+| EX_COL_TYPE                | `perc.ui.developer@Type`                                                                                                                                                              |
+| EX_GAPS                    | `perc.ui.developer@Design gaps (not in this API yet)`                                                                                                                                 |
+| EX_GAP_INSTALL             | `perc.ui.developer@Extension install / remove not supported via this API`                                                                                                             |
+| EX_GAP_EDIT                | `perc.ui.developer@Extension parameter and method edit not supported via this API`                                                                                                    |
+| RT_LOADING                 | `perc.ui.developer@Loading relationship types…`                                                                                                                                       |
+| RT_EMPTY                   | `perc.ui.developer@No relationship types returned.`                                                                                                                                   |
+| RT_ERROR                   | `perc.ui.developer@Could not load relationship types.`                                                                                                                                |
+| RT_HINT                    | `perc.ui.developer@System and user relationship types (category, cloning flags, effects). Open a row for properties. Create/edit is a later slice.`                                   |
+| RT_COL_NAME                | `perc.ui.developer@Name`                                                                                                                                                              |
+| RT_COL_LABEL               | `perc.ui.developer@Label`                                                                                                                                                             |
+| RT_COL_CATEGORY            | `perc.ui.developer@Category`                                                                                                                                                          |
+| RT_COL_TYPE                | `perc.ui.developer@Type`                                                                                                                                                              |
+| RT_COL_FLAGS               | `perc.ui.developer@Flags`                                                                                                                                                             |
+| RT_COL_DESC                | `perc.ui.developer@Description`                                                                                                                                                       |
+| RT_COL_EFFECT              | `perc.ui.developer@Effect`                                                                                                                                                            |
+| RT_COL_ENDPOINT            | `perc.ui.developer@Activation end point`                                                                                                                                              |
+| RT_COL_EXTREF              | `perc.ui.developer@Extension ref`                                                                                                                                                     |
+| RT_COL_PROP                | `perc.ui.developer@Property`                                                                                                                                                          |
+| RT_COL_VALUE               | `perc.ui.developer@Value`                                                                                                                                                             |
+| RT_FLAG_CLONE              | `perc.ui.developer@Cloning`                                                                                                                                                           |
+| RT_FLAG_SYSTEM             | `perc.ui.developer@System`                                                                                                                                                            |
+| RT_FLAG_USER               | `perc.ui.developer@User`                                                                                                                                                              |
+| RT_BACK                    | `perc.ui.developer@Back to list`                                                                                                                                                      |
+| RT_DETAIL_LOADING          | `perc.ui.developer@Loading relationship type…`                                                                                                                                        |
+| RT_DETAIL_ERROR            | `perc.ui.developer@Could not load relationship type.`                                                                                                                                 |
+| RT_EFFECTS                 | `perc.ui.developer@Effects`                                                                                                                                                           |
+| RT_SYS_PROPS               | `perc.ui.developer@System properties`                                                                                                                                                 |
+| RT_USER_PROPS              | `perc.ui.developer@User properties`                                                                                                                                                   |
+| RT_NONE                    | `perc.ui.developer@None`                                                                                                                                                              |
+| RT_GAPS                    | `perc.ui.developer@Design gaps (not in this API yet)`                                                                                                                                 |
+| RT_GAP_WRITE               | `perc.ui.developer@Relationship type create / update / delete not supported via this API`                                                                                             |
+| RT_GAP_CLONE               | `perc.ui.developer@Cloning field override editor not supported via this API`                                                                                                          |
+| RT_GAP_EFFECTS             | `perc.ui.developer@Effect condition and execution-context edit not supported via this API`                                                                                            |
+| WF_LOADING                 | `perc.ui.developer@Loading workflows…`                                                                                                                                                |
+| WF_EMPTY                   | `perc.ui.developer@No workflows returned.`                                                                                                                                            |
+| WF_ERROR                   | `perc.ui.developer@Could not load workflows.`                                                                                                                                         |
+| WF_HINT                    | `perc.ui.developer@Workflow definitions for association and step browse (SY-04). Full graph design stays on the workflow management surface.`                                         |
+| WF_COL_NAME                | `perc.ui.developer@Name`                                                                                                                                                              |
+| WF_COL_DESC                | `perc.ui.developer@Description`                                                                                                                                                       |
+| WF_COL_DEFAULT             | `perc.ui.developer@Default`                                                                                                                                                           |
+| WF_COL_STEPS               | `perc.ui.developer@Steps`                                                                                                                                                             |
+| WF_COL_STAGING             | `perc.ui.developer@Staging roles`                                                                                                                                                     |
+| WF_COL_STEP                | `perc.ui.developer@Step`                                                                                                                                                              |
+| WF_COL_PERMS               | `perc.ui.developer@Permissions`                                                                                                                                                       |
+| WF_COL_ROLES               | `perc.ui.developer@Roles`                                                                                                                                                             |
+| WF_YES                     | `perc.ui.developer@Yes`                                                                                                                                                               |
+| WF_NO                      | `perc.ui.developer@No`                                                                                                                                                                |
+| WF_BACK                    | `perc.ui.developer@Back to list`                                                                                                                                                      |
+| WF_DETAIL_LOADING          | `perc.ui.developer@Loading workflow…`                                                                                                                                                 |
+| WF_DETAIL_ERROR            | `perc.ui.developer@Could not load workflow.`                                                                                                                                          |
+| WF_STEPS                   | `perc.ui.developer@Steps`                                                                                                                                                             |
+| WF_NONE                    | `perc.ui.developer@None`                                                                                                                                                              |
+| WF_GAPS                    | `perc.ui.developer@Design gaps (not in this API yet)`                                                                                                                                 |
+| WF_GAP_GRAPH               | `perc.ui.developer@Full workflow graph design is not exposed in the Developer catalog`                                                                                                |
+| WF_GAP_WRITE               | `perc.ui.developer@Workflow create / update / delete is not supported from this Developer surface`                                                                                    |
+| WF_GAP_CT                  | `perc.ui.developer@Content type workflow association is edited on the content type detail panel`                                                                                      |
+| CFG_LOADING                | `perc.ui.developer@Loading server configs…`                                                                                                                                           |
+| CFG_EMPTY                  | `perc.ui.developer@No server configs returned.`                                                                                                                                       |
+| CFG_ERROR                  | `perc.ui.developer@Could not load server configs.`                                                                                                                                    |
+| CFG_HINT                   | `perc.ui.developer@Server configuration files (logging, tidy, navigation, velocity macros). Open a row to view content. Save is a later slice.`                                       |
+| CFG_COL_DISPLAY            | `perc.ui.developer@Name`                                                                                                                                                              |
+| CFG_COL_KEY                | `perc.ui.developer@Key`                                                                                                                                                               |
+| CFG_COL_FILE               | `perc.ui.developer@File`                                                                                                                                                              |
+| CFG_COL_MIME               | `perc.ui.developer@MIME type`                                                                                                                                                         |
+| CFG_COL_ENC                | `perc.ui.developer@Encoding`                                                                                                                                                          |
+| CFG_BACK                   | `perc.ui.developer@Back to list`                                                                                                                                                      |
+| CFG_DETAIL_LOADING         | `perc.ui.developer@Loading configuration…`                                                                                                                                            |
+| CFG_DETAIL_ERROR           | `perc.ui.developer@Could not load configuration.`                                                                                                                                     |
+| CFG_CONTENT                | `perc.ui.developer@Content`                                                                                                                                                           |
+| CFG_CONTENT_EMPTY          | `perc.ui.developer@No content loaded for this configuration.`                                                                                                                         |
+| CFG_GAPS                   | `perc.ui.developer@Design gaps (not in this API yet)`                                                                                                                                 |
+| CFG_GAP_SAVE               | `perc.ui.developer@Configuration create / update / save not supported via this API`                                                                                                   |
+| CFG_GAP_LOCK               | `perc.ui.developer@Locking and concurrent edit are not exposed on this Developer surface`                                                                                             |
+| CTL_LOADING                | `perc.ui.developer@Loading controls…`                                                                                                                                                 |
+| CTL_EMPTY                  | `perc.ui.developer@No controls returned.`                                                                                                                                             |
+| CTL_ERROR                  | `perc.ui.developer@Could not load controls.`                                                                                                                                          |
+| CTL_HINT                   | `perc.ui.developer@Content editor system and user controls (UI-01). Open a row for parameters. User control registration is a later slice.`                                           |
+| CTL_COL_NAME               | `perc.ui.developer@Name`                                                                                                                                                              |
+| CTL_COL_DISPLAY            | `perc.ui.developer@Display name`                                                                                                                                                      |
+| CTL_COL_SCOPE              | `perc.ui.developer@Scope`                                                                                                                                                             |
+| CTL_COL_DIM                | `perc.ui.developer@Dimension`                                                                                                                                                         |
+| CTL_COL_FLAGS              | `perc.ui.developer@Flags`                                                                                                                                                             |
+| CTL_COL_CHOICES            | `perc.ui.developer@Choice set`                                                                                                                                                        |
+| CTL_COL_DESC               | `perc.ui.developer@Description`                                                                                                                                                       |
+| CTL_COL_PARAM              | `perc.ui.developer@Parameter`                                                                                                                                                         |
+| CTL_COL_TYPE               | `perc.ui.developer@Type`                                                                                                                                                              |
+| CTL_COL_REQ                | `perc.ui.developer@Required`                                                                                                                                                          |
+| CTL_COL_DEFAULT            | `perc.ui.developer@Default`                                                                                                                                                           |
+| CTL_FLAG_DEPRECATED        | `perc.ui.developer@Deprecated`                                                                                                                                                        |
+| CTL_YES                    | `perc.ui.developer@Yes`                                                                                                                                                               |
+| CTL_NO                     | `perc.ui.developer@No`                                                                                                                                                                |
+| CTL_BACK                   | `perc.ui.developer@Back to list`                                                                                                                                                      |
+| CTL_DETAIL_LOADING         | `perc.ui.developer@Loading control…`                                                                                                                                                  |
+| CTL_DETAIL_ERROR           | `perc.ui.developer@Could not load control.`                                                                                                                                           |
+| CTL_PARAMS                 | `perc.ui.developer@Parameters`                                                                                                                                                        |
+| CTL_NONE                   | `perc.ui.developer@None`                                                                                                                                                              |
+| CTL_GAPS                   | `perc.ui.developer@Design gaps (not in this API yet)`                                                                                                                                 |
+| CTL_GAP_USER               | `perc.ui.developer@User control create / edit / delete not supported via this API`                                                                                                    |
+| CTL_GAP_XSL                | `perc.ui.developer@Control XSL source editing not supported via this API`                                                                                                             |
+| CTL_GAP_SYS                | `perc.ui.developer@System controls are read-only packaged defaults`                                                                                                                   |
+| SITE_LOADING               | `perc.ui.developer@Loading sites…`                                                                                                                                                    |
+| SITE_EMPTY                 | `perc.ui.developer@No sites returned.`                                                                                                                                                |
+| SITE_ERROR                 | `perc.ui.developer@Could not load sites.`                                                                                                                                             |
+| SITE_HINT                  | `perc.ui.developer@Site definitions for association browse (SY-04). Open a row for URL and defaults. Site design/write is a later surface.`                                           |
+| SITE_COL_NAME              | `perc.ui.developer@Name`                                                                                                                                                              |
+| SITE_COL_DESC              | `perc.ui.developer@Description`                                                                                                                                                       |
+| SITE_COL_URL               | `perc.ui.developer@Base URL`                                                                                                                                                          |
+| SITE_COL_FLAGS             | `perc.ui.developer@Flags`                                                                                                                                                             |
+| SITE_COL_PROTOCOL          | `perc.ui.developer@Protocol`                                                                                                                                                          |
+| SITE_COL_DEFAULT_DOC       | `perc.ui.developer@Default document`                                                                                                                                                  |
+| SITE_COL_EXT               | `perc.ui.developer@Default file extension`                                                                                                                                            |
+| SITE_COL_PAGE_BASED        | `perc.ui.developer@Page-based`                                                                                                                                                        |
+| SITE_FLAG_PAGE             | `perc.ui.developer@Page-based`                                                                                                                                                        |
+| SITE_FLAG_CANONICAL        | `perc.ui.developer@Canonical`                                                                                                                                                         |
+| SITE_YES                   | `perc.ui.developer@Yes`                                                                                                                                                               |
+| SITE_NO                    | `perc.ui.developer@No`                                                                                                                                                                |
+| SITE_BACK                  | `perc.ui.developer@Back to list`                                                                                                                                                      |
+| SITE_GAPS                  | `perc.ui.developer@Design gaps (not in this API yet)`                                                                                                                                 |
+| SITE_GAP_WRITE             | `perc.ui.developer@Site create / update / delete is not supported from this Developer surface`                                                                                        |
+| SITE_GAP_PUBLISH           | `perc.ui.developer@Full site publish and section design live outside the Developer catalog`                                                                                           |
+| SITE_GAP_WF                | `perc.ui.developer@Workflow association is browsed under the Workflows catalog`                                                                                                       |
+| PLACEHOLDER_TITLE          | `perc.ui.developer@Not implemented yet`                                                                                                                                               |
+| PLACEHOLDER_BODY           | `perc.ui.developer@This section is planned for Developer P0. See docs/ai-generated/tasks/developer-module-p0 and docs/developer-module.`                                              |
+
+## Developer: TMX gap (perc.ui.developer@…)
+
+Confirmed via `Select-String`:
+
+```powershell
+PS> Select-String -LiteralPath 'modules\perc-i18n\src\main\resources\i18n\CmsUi.tmx' `
+    -Pattern 'tuid="perc\.ui\.developer@"' | Measure-Object | Select-Object Count
+
+Count
+-----
+    0
+```
+
+The `perc.ui.developer@…` prefix has **zero entries** in `CmsUi.tmx` (and the
+file is the canonical product-UI TMX per `modules/perc-i18n/AGENTS.md`).
+Every tuid in the table above must be added in Phase 2. The header comment
+of `developer/messages.ts:21-25` states these live in `DeveloperUi.tmx`,
+but that file is currently a seed (`modules/perc-i18n/AGENTS.md §1a` and the
+prefix census in the plan confirm `CmsUi.tmx` is where all `perc.ui.*` keys
+are registered). Phase 2 should add every `perc.ui.developer@…` tuid into
+`CmsUi.tmx` directly; if a parallel `DeveloperUi.tmx` body is desired as a
+later consolidation, that is out of scope for this audit.
+
+**Distinct tuids to add**: 408 unique `perc.ui.developer@<Human Text>`
+entries. (Many of the 556 constants share a tuid because labels such as
+`Back to list`, `None`, `Description`, `Label`, `Name`, `Id`, `Type`, `Flags`,
+`Member`, `Rules`, `Required`, `Read-only`, `Searchable`, `Occurrence`,
+`Enabled`, `Version`, `User`, `Default`, `Yes`, `No`, `Deprecated`,
+`Custom`, `Standard`, `Display format id`, `Display name`, `Case sensitive`,
+`Max results`, `Kind`, `Property`, `Parameter`, `Parameters`, `Value`,
+`Fields`, `Designer gaps (not in this API yet)`, etc. are reused across
+panels. The runtime is last-wins per `PSTmxResourceBundle.addResourcesToCache`,
+so duplicates are dangerous and Phase 2 must add each unique tuid only once.)
+
+## Developer: Attribute hits in TSX files
+
+Verdict legend: **reuse** = an existing `DEV_MSG.X` whose `@Human Text` is
+identical to the attribute string (just swap the literal for the `DEV_MSG.X`
+accessor); **new** = need a new `DEV_MSG.Y` constant plus its TMX entry.
+
+|  # |                 file:line                  |       attribute        |          English           |  Verdict  |                               Existing / proposed key                               |
+|---:|--------------------------------------------|------------------------|----------------------------|-----------|-------------------------------------------------------------------------------------|
+|  1 | `developer/CommunityDetailPanel.tsx:158`   | `aria-label`           | `Back to communities list` | **new**   | proposed: `DEV_MSG.COMM_BACK_ARIA = "perc.ui.developer@Back to communities list"`   |
+|  2 | `developer/CommunityDetailPanel.tsx:266`   | `aria-label`           | `Save community roles`     | **new**   | proposed: `DEV_MSG.COMM_ROLES_SAVE_ARIA = "perc.ui.developer@Save community roles"` |
+|  3 | `developer/ContentTypeDetailPanel.tsx:769` | `aria-label`           | `Save content type`        | **reuse** | `DEV_MSG.CT_SAVE` (`perc.ui.developer@Save content type`)                           |
+|  4 | `developer/DeveloperShell.tsx:129`         | `aria-label` (tablist) | `Developer sections`       | **new**   | proposed: `DEV_MSG.SHELL_NAV_ARIA = "perc.ui.developer@Developer sections"`         |
+|  5 | `developer/KeywordEditorPanel.tsx:168`     | `aria-label`           | `Back to keywords list`    | **new**   | proposed: `DEV_MSG.KW_BACK_ARIA = "perc.ui.developer@Back to keywords list"`        |
+|  6 | `developer/KeywordEditorPanel.tsx:234`     | `aria-label`           | `Save keyword`             | **new**   | proposed: `DEV_MSG.KW_SAVE_ARIA = "perc.ui.developer@Save keyword"`                 |
+|  7 | `developer/KeywordEditorPanel.tsx:267`     | `aria-label`           | `Delete keyword`           | **new**   | proposed: `DEV_MSG.KW_DELETE_ARIA = "perc.ui.developer@Delete keyword"`             |
+|  8 | `developer/ObjectAclSection.tsx:697`       | `aria-label`           | `Save object ACL`          | **new**   | proposed: `DEV_MSG.ACL_SAVE_ARIA = "perc.ui.developer@Save object ACL"`             |
+|  9 | `developer/SlotDetailPanel.tsx:188`        | `aria-label`           | `Back to slots list`       | **new**   | proposed: `DEV_MSG.SLOT_BACK_ARIA = "perc.ui.developer@Back to slots list"`         |
+| 10 | `developer/SlotDetailPanel.tsx:387`        | `aria-label`           | `Add slot association`     | **new**   | proposed: `DEV_MSG.SLOT_ASSOC_ADD_ARIA = "perc.ui.developer@Add slot association"`  |
+| 11 | `developer/SlotDetailPanel.tsx:412`        | `aria-label`           | `Save slot`                | **reuse** | `DEV_MSG.SLOT_SAVE` (`perc.ui.developer@Save slot`)                                 |
+| 12 | `developer/TemplateDetailPanel.tsx:270`    | `aria-label`           | `Back to templates list`   | **new**   | proposed: `DEV_MSG.TPL_BACK_ARIA = "perc.ui.developer@Back to templates list"`      |
+| 13 | `developer/TemplateDetailPanel.tsx:533`    | `aria-label`           | `Save template`            | **reuse** | `DEV_MSG.TPL_SAVE` (`perc.ui.developer@Save template`)                              |
+
+**Verdict totals**: 3 reuse + 10 new. The "new" rows are all close-cousin
+labels to existing keys (e.g. `Save template` vs `TPL_BACK` whose text is
+`Back to list`) — they are intentionally distinct because the button label
+names the *destination* list or object, while the visible caption on the
+button uses the panel-internal label.
+
+## Logout: Existing local catalog (logout/i18n.ts)
+
+`WebUI/src/main/ts/logout/i18n.ts:25-29` exports `LOGOUT_KEYS` (a `const`
+object) and a `t(key, args?)` helper that resolves via `message(...)`. The
+catalog is the canonical local source for every `perc.ui.logout.modern@…` key.
+
+| LOGOUT_KEYS constant |                       tuid                        |  English text (after `@`)   |
+|----------------------|---------------------------------------------------|-----------------------------|
+| TITLE                | `perc.ui.logout.modern@Signed out`                | `Signed out`                |
+| MESSAGE              | `perc.ui.logout.modern@You have been logged out.` | `You have been logged out.` |
+| SIGN_IN              | `perc.ui.logout.modern@Sign in again`             | `Sign in again`             |
+
+3 keys, 3 unique tuids.
+
+## Logout: TMX gap (perc.ui.logout.modern@…)
+
+**Resolved (2026-08-01):** all three tuids are present in `CmsUi.tmx` with
+`en-us` plus the same base-locale matrix as `perc.ui.login.modern@…`.
+Locale for the logout host is resolved from the pre-invalidate session /
+query params (not system language only), and "Sign in again" carries
+`j_locale`.
+
+|                       tuid                        |        English text         |   Status   |
+|---------------------------------------------------|-----------------------------|------------|
+| `perc.ui.logout.modern@Signed out`                | `Signed out`                | **in TMX** |
+| `perc.ui.logout.modern@You have been logged out.` | `You have been logged out.` | **in TMX** |
+| `perc.ui.logout.modern@Sign in again`             | `Sign in again`             | **in TMX** |
+
+## Combined: Phase 2 TMX additions required
+
+### Group: `perc.ui.developer@…`
+
+408 unique tuids, drawn from every `DEV_MSG_KEYS.*` constant in
+`WebUI/src/main/ts/developer/messages.ts:26-655` (the full per-constant
+table is reproduced under **Developer: Existing local catalog** above).
+Phase 2 adds one `<tu tuid="perc.ui.developer@<Human Text>">…</tu>` per
+unique `<Human Text>` in `CmsUi.tmx`. English `<seg>` content for each
+`<tuv xml:lang="en-us">` is the literal text after `@` in the catalog —
+do not paraphrase.
+
+### Group: `perc.ui.logout.modern@…`
+
+**Done** — 3 unique tuids from `WebUI/src/main/ts/logout/i18n.ts:25-29`
+are seeded in `CmsUi.tmx` (see **Logout: TMX gap** above):
+
+- `perc.ui.logout.modern@Signed out`
+- `perc.ui.logout.modern@You have been logged out.`
+- `perc.ui.logout.modern@Sign in again`
+
+### Pre-flight checklist (per Phase 2, plan §"Pre-flight check (mandatory
+
+before adding any `<tu>`)")
+
+For each of the 411 tuids above, confirm the absence in
+`modules/perc-i18n/src\main\resources\i18n\CmsUi.tmx` *before* adding (both
+prefixes currently 0; verified 2026-08-01). If a future contributor finds a
+match (e.g. someone already added one), **reuse** the existing tuid and
+remove any duplicate the local catalog accidentally introduced; do **not**
+add a second `<tu>` with the same tuid (runtime is last-wins per
+`PSTmxResourceBundle.addResourcesToCache`).
+
+### Cross-area note: shared Developer aliases
+
+`DEV_MSG.SITE_YES`, `DEV_MSG.SITE_NO`, `DEV_MSG.CTL_YES`, `DEV_MSG.CTL_NO`,
+`DEV_MSG.WF_YES`, `DEV_MSG.WF_NO`, `DEV_MSG.YES`, `DEV_MSG.NO`,
+`DEV_MSG.LOC_FORMAT_YES`, `DEV_MSG.LOC_FORMAT_NO` all map to the same two
+tuid strings `perc.ui.developer@Yes` / `perc.ui.developer@No`. Phase 2 adds
+just one `<tu>` for each. The same applies to `Back to list`, `None`,
+`Description`, `Label`, `Name`, `Id`, `Type`, `Member`, `Rules`, `Default`,
+`Required`, `Read-only`, `Searchable`, `Occurrence`, `Enabled`, `Version`,
+`User`, `Fields`, `Property`, `Property`, `Parameter`, `Value`,
+`Display format id`, `Custom`, `Standard`, `Deprecated`, `Flags`,
+`Kind`, `Max results`, `Case sensitive`, `Dimension`, `Choices`, `Columns`,
+`Effect`, `Properties`, `Step`, `Steps`, `Date pattern`, `Time pattern`,
+`Slots`, `Templates`, `Encoding`, `File`, `Key`, `MIME type`, `Pos`,
+`Source field`, `Column label`, `Render type`, `Width`, `Usage`, `Edit`,
+`Save`, `Delete`, `Cancel`, `Add`, `Remove`, `URL`, `Handler`, `Context`,
+`Category`, `FQN`, `JEXL`, `Format profile`, `Currency`, `Measurement`,
+`Calendar`, `Numbering system`, `Default timezone`, `Default document`,
+`Base URL`, `Protocol`, `Status`, `Base locale`, `Language`,
+`Templates`, `Bindings`, `Add binding`, `Add association`, `Save roles`,
+`Save ACL`, `Save template`, `Save content type`, `Save slot`, `Save keyword`,
+`Rule`, `Order`, `Variable`, `Expression`, `Page-based`, `Canonical`,
+`Hidden`, `Text direction`, `Decimal separator`, `Grouping separator`,
+`First day of week`, `Date-time pattern`, `Sequence`, `Folder`, `Actions`,
+`GUID`, `Effect`, `Membership`, etc. — each produces a single `<tu>` even
+though many constants alias it. This is the runtime's intended behavior;
+the local catalog retains per-context constant names for ergonomics.
+
+## False positives
+
+None. The 13 attribute hits on the developer side are all real `<button>`
+`aria-label` attributes that screen readers will read aloud. None are
+empty strings, none are testids, none are comments, none are machine
+identifiers. The logout side has no attribute or text-node candidates at
+all (catalog exhaustive).

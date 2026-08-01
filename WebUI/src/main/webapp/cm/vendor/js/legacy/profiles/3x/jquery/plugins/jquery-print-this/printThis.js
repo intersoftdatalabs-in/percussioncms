@@ -179,7 +179,7 @@
                 href +
                 "' media='" +
                 media +
-                "'>"
+                "'>",
             );
           }
         });
@@ -198,12 +198,14 @@
         if (Array.isArray(opt.loadCSS)) {
           jQuery.each(opt.loadCSS, function (index, value) {
             $head.append(
-              "<link type='text/css' rel='stylesheet' href='" + this + "'>"
+              "<link type='text/css' rel='stylesheet' href='" + this + "'>",
             );
           });
         } else {
           $head.append(
-            "<link type='text/css' rel='stylesheet' href='" + opt.loadCSS + "'>"
+            "<link type='text/css' rel='stylesheet' href='" +
+              opt.loadCSS +
+              "'>",
           );
         }
       }

@@ -92,7 +92,7 @@
       this.model.trigger(
         "backgrid:selected",
         this.model,
-        $(e.target).prop("checked")
+        $(e.target).prop("checked"),
       );
     },
 
@@ -157,7 +157,7 @@
               delete selectedModels[model.id || model.cid];
               this.$el.find(":checkbox").prop("checked", false);
             }
-          }
+          },
         );
 
         this.listenTo(collection, "remove", function (model) {

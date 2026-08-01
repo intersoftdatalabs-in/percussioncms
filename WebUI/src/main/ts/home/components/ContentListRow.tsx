@@ -18,6 +18,7 @@
 import React from "react";
 import type { ContentListItem } from "../../api/home/types";
 import { isBookmarkableItem } from "../../api/home/homeApi";
+import { MKD_LANG_IGNORE_ATTR } from "../../i18n/mkdLangIgnore";
 import { message, MSG } from "../../i18n/message";
 import {
   actionButtonStyle,
@@ -102,7 +103,10 @@ export function ContentListRow({
       data-item-id={item.id ?? undefined}
       data-bookmarked={isBookmarked ? "true" : "false"}
     >
-      <div style={itemLabelStyle}>
+      <div
+        style={itemLabelStyle}
+        {...{ [MKD_LANG_IGNORE_ATTR]: "1" as const }}
+      >
         <span style={itemPrimaryStyle}>{label}</span>
         {metaParts.length > 0 && (
           <span style={itemMetaStyle} data-testid={`${testIdPrefix}-meta`}>

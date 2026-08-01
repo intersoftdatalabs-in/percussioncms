@@ -27,7 +27,7 @@
    */
   $.perc_build_folderproperties_button = function (finder, contentViewer) {
     var btn = $(
-      '<a id="perc-finder-folderproperties" href="#" title="Folder properties">Folder properties</a>'
+      '<a id="perc-finder-folderproperties" href="#" title="Folder properties">Folder properties</a>',
     );
     var selectedItem;
     var pathItemSpec;
@@ -128,7 +128,7 @@
         $.perc_utils.alert_dialog({
           title: I18N.message("perc.ui.page.general@Warning"),
           content: I18N.message(
-            "perc.ui.folder.properties.button@Path Nonvalid String"
+            "perc.ui.folder.properties.button@Path Nonvalid String",
           ),
         });
         return;
@@ -149,7 +149,7 @@
         $.perc_utils.alert_dialog({
           title: I18N.message("perc.ui.page.general@Warning"),
           content: I18N.message(
-            "perc.ui.folder.properties.button@Use Navigation Editor"
+            "perc.ui.folder.properties.button@Use Navigation Editor",
           ),
         });
         return;
@@ -169,7 +169,7 @@
               $.perc_finder().refresh();
             }
           }
-        }
+        },
       );
     }
 

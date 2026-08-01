@@ -152,9 +152,9 @@
           fileField.after(
             '<label class="perc_field_error" for="upload-theme-file-attachment" style="display: block;">' +
               I18N.message(
-                "perc.ui.uploadtheme.form.text@Please select a file."
+                "perc.ui.uploadtheme.form.text@Please select a file.",
               ) +
-              "</label>"
+              "</label>",
           );
         }
         return false;
@@ -200,12 +200,12 @@
               id: "perc-design-file-upload-file-exist-error",
               title: I18N.message("perc.ui.uploadtheme.dialog.title@Error"),
               content: $.PercServiceUtils.extractDefaultErrorMessage(
-                result.request
+                result.request,
               ),
             };
             $.perc_utils.alert_dialog(options);
           }
-        }
+        },
       );
     }
 
@@ -260,12 +260,12 @@
      */
     function handleError(jqXHR, textStatus, errorThrown) {
       var textResponse = I18N.message(
-        "perc.ui.upload.theme.file.dialog@Unkown Error"
+        "perc.ui.upload.theme.file.dialog@Unkown Error",
       );
 
       if (textStatus === "timeout")
         textResponse = I18N.message(
-          "perc.ui.upload.theme.file.dialog@Operation time"
+          "perc.ui.upload.theme.file.dialog@Operation time",
         );
 
       var options = {
@@ -286,11 +286,11 @@
 
       // Get the selected item from Column or List mode with the class FSFile
       selectedItemSpec = $(
-        "#perc-finder-listview .perc-datatable-row-highlighted"
+        "#perc-finder-listview .perc-datatable-row-highlighted",
       ).data("percRowData");
       if (typeof selectedItemSpec === "undefined") {
         var selectedItemSpec = $(
-          ".mcol-listing.perc-listing-type-FSFile.mcol-opened"
+          ".mcol-listing.perc-listing-type-FSFile.mcol-opened",
         ).data("spec");
       }
 

@@ -178,7 +178,7 @@ YAHOO.lang = {
     if (!superc || !subc) {
       throw new Error(
         "YAHOO.lang.extend failed, please check that " +
-          "all dependencies are included."
+          "all dependencies are included.",
       );
     }
     var F = function () {};

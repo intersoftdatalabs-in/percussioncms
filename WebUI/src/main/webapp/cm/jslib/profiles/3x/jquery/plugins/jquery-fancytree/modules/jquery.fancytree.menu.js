@@ -79,7 +79,7 @@
             };
           tree.ext.menu._openMenu(ctx);
           return false;
-        }
+        },
       );
 
       // Use jquery.ui.menu

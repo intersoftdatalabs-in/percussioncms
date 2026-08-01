@@ -32,13 +32,15 @@ import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import { appendUniqueById } from "../../../main/ts/contentBrowser/selectionHelpers";
 import { renderA11yGate } from "../contentExplorer/a11y";
 
+/** Children of {@code /Sites} — must not include a node whose path equals the parent. */
 const SAMPLE: PSPathItem[] = [
   {
     id: "f-1",
-    path: "/Sites",
-    name: "Sites",
+    path: "/Sites/Foo",
+    name: "Foo",
     type: "folder",
     accessLevel: "WRITE",
+    hasFolderChildren: false,
   },
   {
     id: "p-1",
@@ -59,7 +61,16 @@ const SAMPLE: PSPathItem[] = [
 ];
 
 beforeEach(() => {
-  vi.spyOn(pathApi, "findChildren").mockResolvedValue(SAMPLE);
+  // Path-aware mock: only /Sites has children; other paths empty. Returning a
+  // self-path child (e.g. path "/Sites" under parent "/Sites") makes ExplorerTree
+  // recurse infinitely in renderNode.
+  vi.spyOn(pathApi, "findChildren").mockImplementation(async (path: string) => {
+    const normalized = path.replace(/\/+$/, "") || "/";
+    if (normalized === "/Sites") {
+      return SAMPLE;
+    }
+    return [];
+  });
   vi.spyOn(pathApi, "findItemByPath").mockResolvedValue(SAMPLE[1]!);
 });
 

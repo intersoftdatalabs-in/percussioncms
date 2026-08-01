@@ -47,11 +47,11 @@
       okCallback: function () {},
       cancelCallback: function () {},
       dialogTitle: I18N.message(
-        "perc.ui.page.path.selection.dialog@Select Path"
+        "perc.ui.page.path.selection.dialog@Select Path",
       ),
       rootPath: $.PercFinderTreeConstants.ROOT_PATH_SITES,
       emptySelectionMessage: I18N.message(
-        "perc.ui.page.path.selection.dialog@Select Page"
+        "perc.ui.page.path.selection.dialog@Select Page",
       ),
       initialPath: null,
       createNew: {},
@@ -117,7 +117,7 @@
     function createDialog() {
       var inpath = settings.initialPath ? settings.initialPath : "";
       var container = $(
-        '<div class="perc-path-selector-container"><div class="perc-label" style="height:10px;"><span style="float:left;font-weight:bold">Select from path:</span><span class="perc-create-new-button" style="float:right;margin-right:55px;display:none"></span></div></div>'
+        '<div class="perc-path-selector-container"><div class="perc-label" style="height:10px;"><span style="float:left;font-weight:bold">Select from path:</span><span class="perc-create-new-button" style="float:right;margin-right:55px;display:none"></span></div></div>',
       );
       if (
         settings.createNew &&
@@ -140,8 +140,8 @@
                 .find("label[for='perc-path-location']")
                 .text(
                   I18N.message(
-                    "perc.ui.page.path.selection.dialog@Select Folder"
-                  )
+                    "perc.ui.page.path.selection.dialog@Select Folder",
+                  ),
                 )
                 .show();
               return;
@@ -156,16 +156,16 @@
                 if (error || onlyWrite) {
                   $.perc_utils.alert_dialog({
                     title: I18N.message(
-                      "perc.ui.newassetdialog.title@New Asset"
+                      "perc.ui.newassetdialog.title@New Asset",
                     ),
                     content: I18N.message(
-                      "perc.ui.page.path.selection.dialog@Not Authorized to Create"
+                      "perc.ui.page.path.selection.dialog@Not Authorized to Create",
                     ),
                   });
                 } else {
                   checkUserWorkflowPermission();
                 }
-              }
+              },
             );
             function checkUserWorkflowPermission() {
               $.PercUserService.getAccessLevel(
@@ -178,17 +178,17 @@
                   if (error || accessRead || accessNone) {
                     $.perc_utils.alert_dialog({
                       title: I18N.message(
-                        "perc.ui.newassetdialog.title@New Asset"
+                        "perc.ui.newassetdialog.title@New Asset",
                       ),
                       content: I18N.message(
-                        "perc.ui.page.path.selection.dialog@Not Authorized to Create"
+                        "perc.ui.page.path.selection.dialog@Not Authorized to Create",
                       ),
                     });
                   } else {
                     settings.createNew.onclick(successCallback, cancelCallback);
                   }
                 },
-                $("#perc_selected_path").text()
+                $("#perc_selected_path").text(),
               );
             }
           })
@@ -197,11 +197,11 @@
               settings.createNew.iconclass +
               '"></i> ' +
               settings.createNew.label +
-              "</a>"
+              "</a>",
           );
       }
       finderTree = $(
-        "<div class='perc-path-selection-tree' style='margin-top:20px;'>"
+        "<div class='perc-path-selection-tree' style='margin-top:20px;'>",
       ).PercFinderTree({
         rootPath: settings.rootPath,
         initialPath: settings.initialPath,
@@ -230,10 +230,10 @@
       container.append(
         '<div style="margin-top:10px;"><span style="color:gray; font-weight:bold">Selected item path:</span> <span id="perc_selected_path">' +
           inpath +
-          "</span></div>"
+          "</span></div>",
       );
       container.append(
-        '<label for="perc-path-location" class="perc_field_error" style="display: none;"></label>'
+        '<label for="perc-path-location" class="perc_field_error" style="display: none;"></label>',
       );
       return container;
     }

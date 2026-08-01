@@ -488,6 +488,32 @@ public final class PSLocaleFormatDefaults {
     put(
         m,
         fmt(
+            "he",
+            PSLocaleFormat.TEXT_DIR_RTL,
+            "dd/MM/yyyy",
+            "HH:mm",
+            ".",
+            ",",
+            "ILS",
+            PSLocaleFormat.FIRST_DAY_SUNDAY,
+            PSLocaleFormat.MEASUREMENT_METRIC,
+            null));
+    put(
+        m,
+        fmt(
+            "he-il",
+            PSLocaleFormat.TEXT_DIR_RTL,
+            "dd/MM/yyyy",
+            "HH:mm",
+            ".",
+            ",",
+            "ILS",
+            PSLocaleFormat.FIRST_DAY_SUNDAY,
+            PSLocaleFormat.MEASUREMENT_METRIC,
+            "Asia/Jerusalem"));
+    put(
+        m,
+        fmt(
             "hi",
             PSLocaleFormat.TEXT_DIR_LTR,
             "dd/MM/yyyy",

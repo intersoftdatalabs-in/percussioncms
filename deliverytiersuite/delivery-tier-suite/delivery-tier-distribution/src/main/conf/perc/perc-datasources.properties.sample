@@ -2,17 +2,18 @@
 # perc-datasources.properties
 #
 #    Properties specific for form-processor service, database and hibernate properties.
-#    Defaults to derby database.
+#    Product default for new installs is embedded H2 (#548). Derby is upgrade-only
+#    (migrated offline to H2 by PSMigrateDtsEmbeddedRepository).
 
 ########################
 # data-source properties
-db.username=test
-db.password=ENC(2sU2TZ627xkhnsXip/5mgw\=\=)
+db.username=sa
+db.password=
 
 
 #############################################################
 # Specify the database name that should be used to own the schema
-# Derby - Should be blank
+# H2 / Derby embedded - leave blank
 # MySQL - Should be the database name
 # MSSQL - Should be the database name
 # PostgreSQL - Should be the database name
@@ -22,9 +23,9 @@ db.name=
 # For Oracle, the schema should be the same as the db.username property.
 # For MySQL you may use an empty value: db.schema=
 # For MS SQL you may use db.schema=dbo
-# For Derby you may use db.schema=APP
+# For H2 you may use db.schema=PUBLIC
 # For PostgreSQL you may use db.schema=public (default)
-db.schema=APP
+db.schema=PUBLIC
 
 # the JDBC driver class name
 # "Oracle" - oracle.jdbc.driver.OracleDriver
@@ -33,9 +34,10 @@ db.schema=APP
 #  MySQL 8.0 - com.mysql.cj.jdbc.Driver
 # "MS SQL" - com.microsoft.sqlserver.jdbc.SQLServerDriver
 # "PostgreSQL" - org.postgresql.Driver
-# "Derby"  - org.apache.derby.jdbc.ClientDriver
+# "H2" (embedded default) - org.h2.Driver
+# "Derby" (legacy / upgrade only) - org.apache.derby.jdbc.EmbeddedDriver
 # "Microsoft SQL Server - Native JDBC" -  com.microsoft.sqlserver.jdbc.SQLServerDriver
-jdbcDriver=org.apache.derby.jdbc.ClientDriver
+jdbcDriver=org.h2.Driver
 
 # the connection URL
 # "Oracle" -  jdbc:oracle:thin:@<host>:<port>/<service>
@@ -46,12 +48,12 @@ jdbcDriver=org.apache.derby.jdbc.ClientDriver
 #         Eg: jdbc:sqlserver://localhost/delivery_database
 # "PostgreSQL" -  jdbc:postgresql://<host>:<port>/<database>
 #         Eg: jdbc:postgresql://localhost:5432/dtsdb
-# "Derby"  -  jdbc:derby://<host>:<port>/<database>
-#         Eg: jdbc:derby:percforms;create=true
-#             jdbc:derby://localhost:1528/percforms;create=true
+# "H2" (embedded default; per-service file under h2data/)
+#         Eg: jdbc:h2:file:${catalina.home}/h2data/percmetadata;DB_CLOSE_ON_EXIT=FALSE
+# "Derby" (legacy) - jdbc:derby://<host>:<port>/<database>
 # Note that : and = must be escaped with \
 # "Microsoft SQL Server Native JDBC" - jdbc:sqlserver\://sqlserverhost\:1433;databaseName\=dtsdb
-jdbcUrl=jdbc\:derby\://localhost\:1528/percdts;create\=true
+jdbcUrl=jdbc\:h2\:file\:${catalina.home}/h2data/percdts;DB_CLOSE_ON_EXIT\=FALSE
 maximumPoolSize=10
 
 
@@ -71,9 +73,10 @@ hibernateProperties=percHibernateProperties
 # "MS SQL" - com.percussion.delivery.rdbms.PSUnicodeSQLServerDialect
 # "MS SQL" -  SQLServer2012Dialect, SQLServer2008Dialect, SQLServer2005Dialect, SQLServer2016Dialect
 # "PostgreSQL" - org.hibernate.dialect.PostgreSQLDialect
-# "Derby"  - org.hibernate.community.dialect.DerbyDialect
-hibernate.dialect=org.hibernate.community.dialect.DerbyDialect
+# "H2" - org.hibernate.dialect.H2Dialect
+# "Derby" (legacy) - org.hibernate.community.dialect.DerbyDialect
+hibernate.dialect=org.hibernate.dialect.H2Dialect
 
-# hibernate query substitutions should be EMPTY for other databases, except for derby
-hibernate.query.substitutions=true 'T', false 'F'
+# hibernate query substitutions — typically empty for H2 and external DBs
+hibernate.query.substitutions=
 hibernate.id.new_generator_mappings=false

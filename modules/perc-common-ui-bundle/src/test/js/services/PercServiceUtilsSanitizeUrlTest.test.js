@@ -37,7 +37,7 @@ const ROOT = resolve(__dirname, "../../../..");
 // global jQuery installed by setup.js.
 const utilsCode = readFileSync(
   resolve(ROOT, "src/main/js/services/PercServiceUtils.js"),
-  "utf8"
+  "utf8",
 );
 beforeAll(() => {
   eval(utilsCode); // eslint-disable-line no-eval
@@ -78,7 +78,7 @@ describe("$.PercServiceUtils.sanitizeUrlForHref", () => {
     for (const [label, input] of dangerous) {
       it(`${label} -> about:blank#blocked`, () => {
         expect($.PercServiceUtils.sanitizeUrlForHref(input)).toBe(
-          "about:blank#blocked"
+          "about:blank#blocked",
         );
       });
     }
@@ -113,37 +113,37 @@ describe("$.PercServiceUtils.sanitizeUrlForHref", () => {
   describe("handles edge cases", () => {
     it("returns about:blank#blocked for null", () => {
       expect($.PercServiceUtils.sanitizeUrlForHref(null)).toBe(
-        "about:blank#blocked"
+        "about:blank#blocked",
       );
     });
 
     it("returns about:blank#blocked for undefined", () => {
       expect($.PercServiceUtils.sanitizeUrlForHref(undefined)).toBe(
-        "about:blank#blocked"
+        "about:blank#blocked",
       );
     });
 
     it("returns about:blank#blocked for empty string", () => {
       expect($.PercServiceUtils.sanitizeUrlForHref("")).toBe(
-        "about:blank#blocked"
+        "about:blank#blocked",
       );
     });
 
     it("returns about:blank#blocked for non-string input", () => {
       expect($.PercServiceUtils.sanitizeUrlForHref(42)).toBe(
-        "about:blank#blocked"
+        "about:blank#blocked",
       );
       expect($.PercServiceUtils.sanitizeUrlForHref({})).toBe(
-        "about:blank#blocked"
+        "about:blank#blocked",
       );
       expect($.PercServiceUtils.sanitizeUrlForHref([])).toBe(
-        "about:blank#blocked"
+        "about:blank#blocked",
       );
     });
 
     it("preserves legitimate URL fragments in href", () => {
       expect(
-        $.PercServiceUtils.sanitizeUrlForHref("https://example.com/page#id")
+        $.PercServiceUtils.sanitizeUrlForHref("https://example.com/page#id"),
       ).toBe("https://example.com/page#id");
     });
 
@@ -151,10 +151,10 @@ describe("$.PercServiceUtils.sanitizeUrlForHref", () => {
       // The actual href value retains leading whitespace (browsers tolerate
       // it), but the scheme detection must not be tricked by it.
       expect(
-        $.PercServiceUtils.sanitizeUrlForHref("  https://example.com")
+        $.PercServiceUtils.sanitizeUrlForHref("  https://example.com"),
       ).toBe("  https://example.com");
       expect(
-        $.PercServiceUtils.sanitizeUrlForHref("  javascript:alert(1)")
+        $.PercServiceUtils.sanitizeUrlForHref("  javascript:alert(1)"),
       ).toBe("about:blank#blocked");
     });
   });
@@ -163,25 +163,25 @@ describe("$.PercServiceUtils.sanitizeUrlForHref", () => {
   describe("blocks protocol-relative URLs (defense-in-depth)", () => {
     it("neutralizes //host/path", () => {
       expect($.PercServiceUtils.sanitizeUrlForHref("//evil.example.com")).toBe(
-        "about:blank#blocked"
+        "about:blank#blocked",
       );
     });
 
     it("neutralizes //host/path with a path component", () => {
       expect(
-        $.PercServiceUtils.sanitizeUrlForHref("//evil.example.com/login")
+        $.PercServiceUtils.sanitizeUrlForHref("//evil.example.com/login"),
       ).toBe("about:blank#blocked");
     });
 
     it("neutralizes backslash-prefixed host (some browsers treat \\\\ as //)", () => {
       expect($.PercServiceUtils.sanitizeUrlForHref("/\\evil.example.com")).toBe(
-        "about:blank#blocked"
+        "about:blank#blocked",
       );
     });
 
     it("preserves a single leading slash (same-origin path)", () => {
       expect($.PercServiceUtils.sanitizeUrlForHref("/blog/post-1")).toBe(
-        "/blog/post-1"
+        "/blog/post-1",
       );
     });
   });

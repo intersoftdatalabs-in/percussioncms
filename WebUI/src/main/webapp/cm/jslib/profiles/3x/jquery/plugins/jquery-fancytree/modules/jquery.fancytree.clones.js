@@ -167,7 +167,7 @@
    * @requires jquery.fancytree.clones.js
    */
   $.ui.fancytree._FancytreeNodeClass.prototype.getCloneList = function (
-    includeSelf
+    includeSelf,
   ) {
     var key,
       tree = this.tree,
@@ -217,7 +217,7 @@
    */
   $.ui.fancytree._FancytreeNodeClass.prototype.reRegister = function (
     key,
-    refKey
+    refKey,
   ) {
     key = key == null ? null : "" + key;
     refKey = refKey == null ? null : "" + refKey;
@@ -236,7 +236,7 @@
     if (key != null && key !== this.key) {
       if (keyMap[key]) {
         $.error(
-          "[ext-clones] reRegister(" + key + "): already exists: " + this
+          "[ext-clones] reRegister(" + key + "): already exists: " + this,
         );
       }
       // Update keyMap
@@ -299,7 +299,7 @@
    */
   $.ui.fancytree._FancytreeClass.prototype.getNodesByRef = function (
     refKey,
-    rootNode
+    rootNode,
   ) {
     var keyMap = this.keyMap,
       refList = this.refMap[refKey] || null;
@@ -332,7 +332,7 @@
    */
   $.ui.fancytree._FancytreeClass.prototype.changeRefKey = function (
     oldRefKey,
-    newRefKey
+    newRefKey,
   ) {
     var i,
       node,
@@ -430,7 +430,7 @@
       } else {
         if (keyMap[key] == null) {
           $.error(
-            "clones.treeRegisterNode: node.key not registered: " + node.key
+            "clones.treeRegisterNode: node.key not registered: " + node.key,
           );
         }
         delete keyMap[key];

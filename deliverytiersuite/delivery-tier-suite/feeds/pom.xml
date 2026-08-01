@@ -33,7 +33,7 @@
         <dependency>
             <groupId>jakarta.ws.rs</groupId>
             <artifactId>jakarta.ws.rs-api</artifactId>
-            <scope>provided</scope>
+            <!-- compile: package into WAR; Tomcat does not provide JAX-RS -->
         </dependency>
         <dependency>
             <groupId>jakarta.annotation</groupId>
@@ -75,7 +75,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-orm</artifactId>
-            <scope>test</scope>
+            <!-- compile: beans.xml uses JpaTransactionManager at runtime -->
         </dependency>
         <dependency>
             <groupId>jakarta.persistence</groupId>

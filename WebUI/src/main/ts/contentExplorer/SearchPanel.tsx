@@ -239,7 +239,7 @@ function SearchStatusView(props: {
               padding: "4px 0",
             }}
           >
-            <span style={{ flex: 1 }}>
+            <span style={{ flex: 1 }} data-mkd-lang-ignore="1">
               <strong>{r.title ?? r.name ?? r.id}</strong>
               <small style={{ marginLeft: 6, color: "#888" }}>
                 {r.folderPath ?? r.type}

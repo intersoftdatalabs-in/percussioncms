@@ -44,13 +44,13 @@
       },
       TEXT: {
         MAIN_DIALOG_TITLE: I18N.message(
-          "perc.ui.ImportProgressDialog.title@Import"
+          "perc.ui.ImportProgressDialog.title@Import",
         ),
         IMPORT_ERROR_MESSAGE: I18N.message(
-          "perc.ui.ImportProgressDialog.message@Import failed message"
+          "perc.ui.ImportProgressDialog.message@Import failed message",
         ),
         IMPORT_SUCCESS_MESSAGE: I18N.message(
-          "perc.ui.ImportProgressDialog.message@Import succeded message"
+          "perc.ui.ImportProgressDialog.message@Import succeded message",
         ),
       },
       OTHER: {
@@ -138,19 +138,19 @@
       if (config.showVideo === true) {
         dialogMarkup.append(
           $(
-            '<div align="center" style="margin-top:24px; overflow:hidden">'
+            '<div align="center" style="margin-top:24px; overflow:hidden">',
           ).append(
             $(
-              '<img id="perc_import_image" src="../images/images/ImportVideoNotFound.png" width="560px" height="0px">'
-            )
-          )
+              '<img id="perc_import_image" src="../images/images/ImportVideoNotFound.png" width="560px" height="0px">',
+            ),
+          ),
         );
       }
 
       dialogMarkup.append(
         $("<div>").append(
-          '<p class="hint">Ask questions. Get answers. Visit the <a target="_blank" rel = "noopener noreferrer" href="https://percussioncmscommunity.intsof.com" title="Percussion Community">Percussion Community</a> to access Video Tutorials, Forums, and more.</p>'
-        )
+          '<p class="hint">Ask questions. Get answers. Visit the <a target="_blank" rel = "noopener noreferrer" href="https://percussioncmscommunity.intsof.com" title="Percussion Community">Percussion Community</a> to access Video Tutorials, Forums, and more.</p>',
+        ),
       );
 
       if (config.showVideo === true) {
@@ -159,10 +159,10 @@
           $(
             '<img height="0px" width="0px" src="https://percussioncmshelp.intsof.com/Assets/Help/header/images/PercussionSwoosh.png?dummy=' +
               Math.random() +
-              '">'
+              '">',
           )
             .on("error", handleUnreachableURL)
-            .on("load", showVideoIframe)
+            .on("load", showVideoIframe),
         );
       }
 
@@ -199,7 +199,7 @@
         CONSTANTS.OTHER.EVENTS_ENABLE_DONE_BUTTON,
         function (event, flag) {
           enableDoneButton(flag);
-        }
+        },
       );
     }
 
@@ -304,7 +304,7 @@
             // pollStatus function again
             setTimeout(pollStatus, CONSTANTS.OTHER.POLLING_PERIOD_DURATION);
           }
-        }
+        },
       );
     }
 
@@ -356,7 +356,7 @@
        */
       function modifyLink(templateId) {
         var importLogLink = progressSection.find(
-          'a[title="Download the import log here"]'
+          'a[title="Download the import log here"]',
         );
         importLogLink.attr("href", CONSTANTS.OTHER.IMPORT_LOG_URL + templateId);
       }
@@ -370,7 +370,7 @@
           importData.Site.name,
           function (status, templatesData) {
             modifyLink(templatesData.TemplateSummary[0].id);
-          }
+          },
         );
       }
     }

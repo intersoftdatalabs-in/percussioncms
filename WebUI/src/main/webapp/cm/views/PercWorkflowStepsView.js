@@ -69,7 +69,7 @@
         } else {
           //TODO show error to the user.
         }
-      }
+      },
     );
   }
 
@@ -83,28 +83,28 @@
     var workflowName = workflowObject.Workflow.workflowName;
     var workflowStepName;
     var percStepRow = $(
-      '<tr><td><div id = "perc-workflow-column-wrapper" style = "float:left"></div></td></tr>'
+      '<tr><td><div id = "perc-workflow-column-wrapper" style = "float:left"></div></td></tr>',
     );
     var percArchiveStepRow = $(
-      '<tr id = "perc-workflow-archvie-row"><td></td></tr>'
+      '<tr id = "perc-workflow-archvie-row"><td></td></tr>',
     );
     $(percStepRow).attr("id", "perc-wf-row-one");
     $("#perc-workflow-name").html(workflowName);
     for (var i = 0; i < workflowObject.Workflow.workflowSteps.length; i++) {
       var workflowStep = workflowObject.Workflow.workflowSteps[i];
       var percStepColumn = $(
-        '<div class ="perc-workflow-step" ><div class ="perc-workflow-step-label perc-ellipsis"></div><div class = "perc-action-button"></div></div>'
+        '<div class ="perc-workflow-step" ><div class ="perc-workflow-step-label perc-ellipsis"></div><div class = "perc-action-button"></div></div>',
       );
       percStepColumn.data("workflowStep", workflowStep);
       var percStepColumnSpacer = $(
-        '<div class = "perc-workflow-step-spacer"></div>'
+        '<div class = "perc-workflow-step-spacer"></div>',
       );
       var percStepLabel = $(percStepColumn).find(".perc-workflow-step-label");
       var percWorkflowActionText = $(
-        '<div class ="perc-action-label"><span class = "perc-action-label-span-stepdown"></span><span class="perc-action-label-span-stepup"></span></div>'
+        '<div class ="perc-action-label"><span class = "perc-action-label-span-stepdown"></span><span class="perc-action-label-span-stepup"></span></div>',
       );
       var percWorkflowEditButton = $(
-        '<div class = "perc-workflow-edit-button"></div>'
+        '<div class = "perc-workflow-edit-button"></div>',
       );
       var percStepRoles = $('<div class ="perc-workflow-step-roles"></div>');
       var percStepRolesContainer = $("<ul></ul>");
@@ -140,14 +140,14 @@
         //Add less link after the last element
         if (j == stepRoles.length - 1 && stepRoles.length > 3) {
           var lessLink = $(
-            '<li style = "display:none" class="perc-lessLink perc-ellipsis perc-hidden">less</li>'
+            '<li style = "display:none" class="perc-lessLink perc-ellipsis perc-hidden">less</li>',
           );
           $(percStepRolesContainer).append(lessLink);
         }
       }
       $(percStepColumn).append(
         $(percStepRoles).append(percStepRolesContainer),
-        percWorkflowActionText
+        percWorkflowActionText,
       );
 
       if (workflowStepName != "Archive") {
@@ -166,7 +166,7 @@
         percWorkflowActionText,
         percStepColumnSpacer,
         percStepColumn,
-        workflowStep
+        workflowStep,
       );
     }
     $("#perc-workflow-table").append(percStepRow, percArchiveStepRow);
@@ -185,18 +185,18 @@
     percWorkflowActionText,
     percStepColumnSpacer,
     percStepColumn,
-    workflowStep
+    workflowStep,
   ) {
     var stepUp = $(percWorkflowActionText).find(
-      ".perc-action-label-span-stepup"
+      ".perc-action-label-span-stepup",
     );
     var stepDown = $(percWorkflowActionText).find(
-      ".perc-action-label-span-stepdown"
+      ".perc-action-label-span-stepdown",
     );
     $(percStepColumn)
       .find(".perc-action-button")
       .html(
-        '<span role="button" tabindex="0" title="Configure Step" class="perc-reserved-step-config-bttn"></span>'
+        '<span role="button" tabindex="0" title="Configure Step" class="perc-reserved-step-config-bttn"></span>',
       );
     $(percStepColumn)
       .find(".perc-reserved-step-config-bttn")
@@ -209,23 +209,23 @@
         percStepColumnSpacer.append(
           '<div role="button" tabindex="0" class = "perc-create-new-step" title = ' +
             I18N.message("perc.ui.workflow.steps.view@Add New Step") +
-            "></div>"
+            "></div>",
         );
         percStepColumnSpacer.attr(
           "name",
-          percStepColumnSpacer.prev().attr("name")
+          percStepColumnSpacer.prev().attr("name"),
         );
         break;
       case "Review":
         stepDown.html(
-          "<br />" + I18N.message("perc.ui.workflow.steps.view@Reject") + ""
+          "<br />" + I18N.message("perc.ui.workflow.steps.view@Reject") + "",
         );
         stepUp.html(
           "" +
             I18N.message("perc.ui.edit.workflow.step.dialog@Approve") +
             "<br />" +
             I18N.message("perc.ui.navMenu.publish@Publish") +
-            ""
+            "",
         );
         percStepColumnSpacer.addClass("perc-broken-arrow");
         break;
@@ -235,7 +235,7 @@
             I18N.message("perc.ui.page.general@Pending") +
             "<br/>" +
             I18N.message("perc.ui.workflow.steps.view@Live") +
-            ""
+            "",
         );
         break;
       case "Archive":
@@ -249,11 +249,11 @@
         percStepColumnSpacer.append(
           '<div role="button" tabindex="0" class = "perc-create-new-step" title = ' +
             I18N.message("perc.ui.workflow.steps.view@Add New Step") +
-            "></div>"
+            "></div>",
         );
         percStepColumnSpacer.attr(
           "name",
-          percStepColumnSpacer.prev().attr("name")
+          percStepColumnSpacer.prev().attr("name"),
         );
         $(percStepColumn)
           .find(".perc-action-button")
@@ -262,7 +262,7 @@
               I18N.message("perc.ui.workflow.steps.view@Configure Step") +
               ' class="perc-step-config-button"></span><span title=' +
               I18N.message("perc.ui.workflow.steps.view@Delete Step") +
-              ' class="perc-step-delete-button"></span>'
+              ' class="perc-step-delete-button"></span>',
           );
         $(percStepColumn)
           .find(".perc-reserved-step-config-bttn")
@@ -311,13 +311,13 @@
         if (eventHandler.code == "Enter" || eventHandler.code == "Space") {
           document.activeElement.click();
         }
-      }
+      },
     );
     $(".perc-step-config-button, .perc-reserved-step-config-bttn").on(
       "click",
       function () {
         __updateWorflowStep(this);
-      }
+      },
     );
 
     // Adjust the width of step container on window resize event
@@ -326,12 +326,12 @@
     });
     //Bind the click event to 'more link' and 'less link'
     $(
-      "#perc-workflow-steps-container .perc-moreLink, #perc-workflow-steps-container .perc-lessLink"
+      "#perc-workflow-steps-container .perc-moreLink, #perc-workflow-steps-container .perc-lessLink",
     ).on("click", function () {
       __activateMoreLessLink(this);
     });
     $(
-      "#perc-workflow-steps-container .perc-moreLink, #perc-workflow-steps-container .perc-lessLink"
+      "#perc-workflow-steps-container .perc-moreLink, #perc-workflow-steps-container .perc-lessLink",
     ).on("keydown", function (eventHandler) {
       if (eventHandler.code == "Enter" || eventHandler.code == "Space") {
         document.activeElement.click();
@@ -365,7 +365,7 @@
       previousStepName,
       currentStep,
       successCallBack,
-      cancelCallBack
+      cancelCallBack,
     );
   }
 
@@ -392,18 +392,18 @@
           function (status, newWorkflowObject) {
             if (!status) {
               var errorMessage = $.PercServiceUtils.extractDefaultErrorMessage(
-                newWorkflowObject[0]
+                newWorkflowObject[0],
               );
               $.perc_utils.alert_dialog({
                 title: I18N.message(
-                  "perc.ui.workflow.steps.view@Error Deleteing Step"
+                  "perc.ui.workflow.steps.view@Error Deleteing Step",
                 ),
                 content: errorMessage,
               });
               return;
             }
             refresh(workflowName);
-          }
+          },
         );
         $.unblockUI();
       },
@@ -436,7 +436,7 @@
       previousStepName,
       currentStep,
       successCallBack,
-      cancelCallBack
+      cancelCallBack,
     );
   }
 

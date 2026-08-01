@@ -63,7 +63,7 @@ if (typeof WebImageFXIncludes == "undefined") {
   document.writeln(
     '<script language="JavaScript1.2" src="' +
       getWifxLicenseHandlerPath() +
-      '"></script>'
+      '"></script>',
   );
   // The above two license key values are concatinated in RegisterLicense().
 
@@ -71,7 +71,7 @@ if (typeof WebImageFXIncludes == "undefined") {
     document.writeln(
       '<script type="text/vbscript" language="VBScript" src="' +
         WIFXPath +
-        'wifx.vbs"></script>'
+        'wifx.vbs"></script>',
     );
   }
 
@@ -92,7 +92,7 @@ if (typeof WebImageFXIncludes == "undefined") {
       '<script language="JavaScript1.2" src="' +
         WIFXPath +
         WebImageFXIncludes[i] +
-        '"></script>'
+        '"></script>',
     );
   }
 }

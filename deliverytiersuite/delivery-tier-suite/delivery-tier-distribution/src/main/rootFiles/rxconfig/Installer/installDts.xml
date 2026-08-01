@@ -1154,7 +1154,7 @@
 				file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-catalina.properties">
 				<entry key="https.ciphers"
 					value="TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_256_GCM_SHA384" />
-				<entry key="https.keystoreType" default="JKS" />
+				<entry key="https.keystoreType" default="PKCS12" />
 			</propertyfile>
 
 			<if>

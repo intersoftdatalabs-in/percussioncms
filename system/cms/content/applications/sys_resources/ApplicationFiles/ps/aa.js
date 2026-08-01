@@ -58,13 +58,13 @@ ps.aa.ObjectId = function (idString) {
   if (idString.startsWith(ps.aa.ObjectId.IMG_PREFIX)) {
     this.idString = idString.substring(
       ps.aa.ObjectId.IMG_PREFIX.length,
-      idString.length
+      idString.length,
     );
     this.widget = ps.aa.ObjectId.IMG_PREFIX;
   } else if (idString.startsWith(ps.aa.ObjectId.TREE_NODE_WIDGET)) {
     this.idString = idString.substring(
       ps.aa.ObjectId.TREE_NODE_WIDGET.length,
-      idString.length
+      idString.length,
     );
     this.widget = ps.aa.ObjectId.TREE_NODE_WIDGET;
   }
@@ -123,7 +123,7 @@ ps.aa.ObjectId = function (idString) {
     ps.assert(otherId.isSlotNode(), "Expected slot node, but got " + otherId);
     ps.assert(
       this.isSlotNode(),
-      "Can be called only on a slot node, not on " + this
+      "Can be called only on a slot node, not on " + this,
     );
 
     return this.getRelationshipId() || otherId.getRelationshipId()
@@ -183,7 +183,7 @@ ps.aa.ObjectId = function (idString) {
   this.setCheckoutStatus = function (status) {
     ps.assert(
       status === "0" || status === "1" || status === "2",
-      "status must be 0, 1, or 2"
+      "status must be 0, 1, or 2",
     );
     this.idobj[ps.aa.ObjectId.CHECKOUT_STATUS] = status;
     this._resetIdString();

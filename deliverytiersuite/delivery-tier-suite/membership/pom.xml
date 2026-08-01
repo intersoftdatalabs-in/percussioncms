@@ -36,7 +36,7 @@
         <dependency>
             <groupId>jakarta.ws.rs</groupId>
             <artifactId>jakarta.ws.rs-api</artifactId>
-            <scope>provided</scope>
+            <!-- compile: package into WAR; Tomcat does not provide JAX-RS -->
         </dependency>
         <dependency>
             <groupId>jakarta.persistence</groupId>
@@ -84,6 +84,14 @@
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
         </dependency>
         <!-- Hibernate -->
         <dependency>
@@ -141,7 +149,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-orm</artifactId>
-            <scope>test</scope>
+            <!-- compile: beans.xml uses JpaTransactionManager at runtime -->
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
@@ -182,7 +190,20 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <!--
+                      WEB-INF lives under src/main/java/webapp (same layout as other DTS
+                      services). Without webResources the WAR ships only classes+lib —
+                      Tomcat then starts with no web.xml/beans.xml and Spring looks for
+                      classpath:applicationContext.xml (FileNotFoundException).
+                    -->
+                    <webXml>src/main/java/webapp/WEB-INF/web.xml</webXml>
+                    <webResources>
+                        <resource>
+                            <directory>src/main/java/webapp/WEB-INF</directory>
+                            <targetPath>WEB-INF</targetPath>
+                        </resource>
+                    </webResources>
+                    <failOnMissingWebXml>true</failOnMissingWebXml>
                 </configuration>
             </plugin>
         </plugins>

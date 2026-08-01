@@ -398,7 +398,7 @@ function PSCleanUpLeftOverObj() {
   obj.style.backgroundColor = obj.style.old_backgroundColor;
 
   var img = PSgetImg(
-    "subIMG" + PSlastEnteredObj.id + "-" + PSlastEnteredObj.itemId
+    "subIMG" + PSlastEnteredObj.id + "-" + PSlastEnteredObj.itemId,
   );
   if (img != null) img.src = img.old_src;
   PSlastEnteredObj = null;
@@ -554,14 +554,14 @@ function PSHideObj(name) {
 function PSDelayShowPopMenu(ID) {
   PSmenuElement[ID].showTimerID = setTimeout(
     "PSShowPopMenu (" + ID + ")",
-    PSpopMenuDelay
+    PSpopMenuDelay,
   );
 }
 
 function PSDelayHidePopMenu(ID) {
   PSmenuElement[ID].hideTimerID = setTimeout(
     "PSHidePopMenu (" + ID + ")",
-    PSpopMenuDelay
+    PSpopMenuDelay,
   );
 }
 
@@ -751,7 +751,7 @@ function PSAddItem(url, slotname) {
   var w = window.open(
     x,
     "searchitems",
-    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=720,height=400"
+    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=720,height=400",
   );
   w.focus();
 }
@@ -763,7 +763,7 @@ function PSModifyItem(url, sysid) {
   var w = window.open(
     x,
     "modifyslotitem",
-    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=425,height=200"
+    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=425,height=200",
   );
   w.focus();
 }
@@ -834,7 +834,7 @@ function PSEditMeta(url, sysconid, sysrevid) {
   var w = window.open(
     x,
     "editmeta",
-    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=600,height=400"
+    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=600,height=400",
   );
   w.focus();
 }
@@ -853,7 +853,7 @@ function PSViewMeta(url, sysconid, sysrevid) {
   var w = window.open(
     x,
     "viewmeta",
-    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=600,height=400"
+    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=600,height=400",
   );
   w.focus();
 }
@@ -888,7 +888,7 @@ function PSEditField(url, sysconid, sysrevid, fieldname) {
   var w = window.open(
     x,
     "editfield",
-    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=500,height=200"
+    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=500,height=200",
   );
   w.focus();
 }
@@ -904,7 +904,7 @@ function PSNewVersion(url, sysconid, sysrevid) {
   var w = window.open(
     x,
     "newversion",
-    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=600,height=400"
+    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=600,height=400",
   );
   w.focus();
 }
@@ -920,7 +920,7 @@ function PSPromotableVersion(url, sysconid, sysrevid) {
   var w = window.open(
     x,
     "promotableversion",
-    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=600,height=400"
+    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=600,height=400",
   );
   w.focus();
 }
@@ -929,7 +929,7 @@ function PSEditSimpleItem(url) {
   var w = window.open(
     url,
     "editsimpleitem",
-    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=500,height=200"
+    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=500,height=200",
   );
   w.focus();
 }
@@ -941,7 +941,7 @@ function PSPreviewItem(
   sysrevid,
   siteid,
   folderid,
-  sessionid
+  sessionid,
 ) {
   var x = appendQuestionOrAmpersandtoURL(url);
 
@@ -975,7 +975,7 @@ function PSActiveAssemblyItem(
   siteid,
   folderid,
   sessionid,
-  assemblyUrl
+  assemblyUrl,
 ) {
   var x = appendQuestionOrAmpersandtoURL(url);
 
@@ -1011,7 +1011,7 @@ function PSAuditTrail(url, sysconid, sysrevid) {
   var w = window.open(
     x,
     "audittrail",
-    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=600,height=200"
+    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=600,height=200",
   );
   w.focus();
 }
@@ -1027,7 +1027,7 @@ function PSShowRevisions(url, sysconid, sysrevid) {
   var w = window.open(
     x,
     "showrevisions",
-    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=600,height=200"
+    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=600,height=200",
   );
   w.focus();
 }
@@ -1043,7 +1043,7 @@ function PSBuildWFAction(
   systransid,
   syswfaction,
   syscommand,
-  fromRoles
+  fromRoles,
 ) {
   //While generating the PSBuildWFAction function call single quotes in transitionname and syswfaction will be replaced by _psxapos_, these need to be replaced by back by single quotes
   var re = new RegExp("_psxapos_", "g");
@@ -1063,7 +1063,7 @@ function PSBuildWFAction(
   var w = window.open(
     x,
     "workflowtransition",
-    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=0,resizable=1,width=260,height=345"
+    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=0,resizable=1,width=260,height=345",
   );
   w.focus();
 }
@@ -1074,7 +1074,7 @@ function PSCheckinCheckout(
   sysrevid,
   wfaction,
   actionsetid,
-  checkoutuser
+  checkoutuser,
 ) {
   var confirmAction = true;
   var x =
@@ -1126,7 +1126,7 @@ function PSCreateItem(url, slotname, folderid) {
   var w = window.open(
     x,
     "createitem",
-    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=600,height=400"
+    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=600,height=400",
   );
   w.focus();
 }
@@ -1158,7 +1158,7 @@ function PSPromoteVersion(url, sysconid, rev) {
   var w = PSEditContent(
     "?sys_command=workflow&WFAction=checkout",
     sysconid,
-    rev
+    rev,
   );
   if (w && window.opener) {
     w.window.opener = window.opener;
@@ -1177,7 +1177,7 @@ function PSTranslateItem(url, sysconid, revision) {
   var w = window.open(
     x,
     "translateitem",
-    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=450,height=300"
+    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=450,height=300",
   );
   w.focus();
 }
@@ -1195,7 +1195,7 @@ function PSFlushCache(url, sysconid, revision, variantid) {
   var w = window.open(
     x,
     "FlushCache",
-    "toolbar=0,location=2000,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=100,height=100"
+    "toolbar=0,location=2000,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=100,height=100",
   );
 }
 
@@ -1222,7 +1222,7 @@ function PSPurgeItem(url, sessionid, sysconid) {
   var w = window.open(
     x,
     "purgitem",
-    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=450,height=300"
+    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=450,height=300",
   );
   w.focus();
 }
@@ -1234,15 +1234,15 @@ function PSClipboardCopy(value) {
     var popup = window.open(
       "",
       "Show Link",
-      "toolbar=0,menubar=0,status=0,height=160"
+      "toolbar=0,menubar=0,status=0,height=160",
     );
     var doc = popup.document;
     doc.write(
       "<H3>The following link can be copied and pasted into your application to access the current content item</H3><p>" +
-        value
+        value,
     );
     doc.write(
-      "<br><br><input type='submit' onclick='window.close()' value='Close Window'>"
+      "<br><br><input type='submit' onclick='window.close()' value='Close Window'>",
     );
   }
 }

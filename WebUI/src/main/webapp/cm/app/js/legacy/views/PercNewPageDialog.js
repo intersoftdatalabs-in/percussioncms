@@ -238,9 +238,9 @@
                   dialog.remove();
                   loadPage(path.join("/"), page_name, page.Page.id);
                 },
-                errorHandler
+                errorHandler,
               );
-            }
+            },
           );
         },
       });
@@ -404,7 +404,7 @@
           pageNameField,
           $.perc_autoFillTextFilters.URL,
           null,
-          255
+          255,
         );
         $.perc_filterField(pageNameField, $.perc_textFilters.URL);
       }
@@ -447,7 +447,7 @@
           pageId,
           pageName,
           folderPath + "/" + pageName,
-          $.PercNavigationManager.PATH_TYPE_PAGE
+          $.PercNavigationManager.PATH_TYPE_PAGE,
         );
       }
     } // End open dialog

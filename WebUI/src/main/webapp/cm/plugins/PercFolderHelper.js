@@ -75,13 +75,13 @@
           }
           callback(
             folderHelperConstants.PERMISSION_SUCCESS,
-            result.PathItem.accessLevel
+            result.PathItem.accessLevel,
           );
         });
       } else {
         callback(
           folderHelperConstants.PERMISSION_SUCCESS,
-          pathItem.accessLevel
+          pathItem.accessLevel,
         );
       }
     }
@@ -96,20 +96,20 @@
               callback(
                 folderHelperConstants.PERMISSION_ERROR,
                 result,
-                errorCode
+                errorCode,
               );
               return;
             }
             callback(
               folderHelperConstants.PERMISSION_SUCCESS,
-              result.PathItem.accessLevel
+              result.PathItem.accessLevel,
             );
-          }
+          },
         );
       } else {
         callback(
           folderHelperConstants.PERMISSION_SUCCESS,
-          pathItem.accessLevel
+          pathItem.accessLevel,
         );
       }
     }

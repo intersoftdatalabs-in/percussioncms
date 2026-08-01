@@ -64,12 +64,12 @@ test.describe("T092e / Edge Cases #11 — network failure mid-action", () => {
           return route.abort("failed");
         }
         return route.continue();
-      }
+      },
     );
 
     await page.goto(EXPLORER_URL, { waitUntil: "networkidle" });
     await expect(
-      page.locator('[data-testid="perc-explorer-host"]')
+      page.locator('[data-testid="perc-explorer-host"]'),
     ).toBeVisible({ timeout: 15_000 });
 
     // The clipboard paste is exercised manually in the live browser via

@@ -19,11 +19,15 @@
  * Server-provided bootstrap for the React logout page (XSS-safe JSON text node).
  */
 export interface LogoutBootstrap {
-  /** Session / system locale (BCP-47 lowercase hyphen) */
+  /**
+   * UI locale for TMX + document lang (BCP-47 lowercase hyphen).
+   * Prefer the user's pre-logout session locale; system language is last resort.
+   */
   locale: string;
   /**
    * Path-absolute or relative href for the "sign in again" control.
-   * Prefer the product login front door ({@code /rxlogin.jsp} or {@code login}).
+   * Prefer the product login front door ({@code login} / {@code /rxlogin.jsp})
+   * with {@code j_locale} so login reopens in the same language.
    */
   loginHref: string;
 }

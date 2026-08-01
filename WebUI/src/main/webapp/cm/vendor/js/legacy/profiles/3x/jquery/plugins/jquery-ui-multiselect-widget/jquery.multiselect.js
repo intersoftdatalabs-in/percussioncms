@@ -121,8 +121,8 @@
         elem = !!elem.jquery
           ? elem
           : !!elem.nodeType
-          ? $(elem)
-          : this.document.find(elem).eq(0);
+            ? $(elem)
+            : this.document.find(elem).eq(0);
       }
       if (!elem || !elem[0]) {
         elem = this.element.closest(".ui-front, dialog");
@@ -155,7 +155,7 @@
         true,
         {},
         linkDefaults,
-        options.linkInfo || {}
+        options.linkInfo || {},
       ));
 
       // grab select width before hiding it
@@ -184,7 +184,7 @@
               (wrapText.indexOf("button") > -1
                 ? ""
                 : " ui-multiselect-nowrap") +
-              (classes ? " " + classes : "")
+              (classes ? " " + classes : ""),
           )
           .attr({
             type: "button",
@@ -196,8 +196,8 @@
           .html(
             this._linkHTML(
               '<span class="{{class}}" title="{{title}}">{{icon}}</span>',
-              "open"
-            )
+              "open",
+            ),
           );
 
         this.$buttonlabel = $(document.createElement("span"))
@@ -223,7 +223,7 @@
           ) {
             headerLinksHTML += this._linkHTML(
               '<li><a class="{{class}}" title="{{title}}">{{icon}}<span>{{text}}</span></a></li>',
-              linkInfoKey
+              linkInfoKey,
             );
           }
         }
@@ -236,24 +236,24 @@
             (!options.listbox
               ? this._linkHTML(
                   '<li class="{{class}}"><a class="{{class}}" title="{{title}}">{{icon}}</a></li>',
-                  "close"
+                  "close",
                 )
-              : "")
+              : ""),
         );
 
       // Menu header to hold controls for the menu
       var $header = (this.$header = $(document.createElement("div")))
         .addClass(
-          "ui-multiselect-header ui-widget-header ui-corner-all ui-helper-clearfix"
+          "ui-multiselect-header ui-widget-header ui-corner-all ui-helper-clearfix",
         )
         .append(this.$headerLinkContainer);
 
       // Holds the actual check boxes for inputs
       var $checkboxes = (this.$checkboxes = $(
-        document.createElement("ul")
+        document.createElement("ul"),
       )).addClass(
         "ui-multiselect-checkboxes ui-helper-reset" +
-          (wrapText.indexOf("options") > -1 ? "" : " ui-multiselect-nowrap")
+          (wrapText.indexOf("options") > -1 ? "" : " ui-multiselect-nowrap"),
       );
 
       // This is the menu container that will hold all the options added via refresh().
@@ -262,7 +262,7 @@
           "ui-multiselect-menu ui-widget ui-widget-content ui-corner-all" +
             (elSelect.multiple ? "" : " ui-multiselect-single") +
             (!options.listbox ? "" : " ui-multiselect-listbox") +
-            (classes ? " " + classes : "")
+            (classes ? " " + classes : ""),
         )
         .append($header, $checkboxes);
 
@@ -275,7 +275,7 @@
           var $uiFront = this.element.closest(".ui-front, dialog");
           options.zIndex = Math.max(
             ($uiFront && parseInt($uiFront.css("z-index"), 10) + 1) || 0,
-            ($appendEl && parseInt($appendEl.css("z-index"), 10) + 1) || 0
+            ($appendEl && parseInt($appendEl.css("z-index"), 10) + 1) || 0,
           );
         }
 
@@ -285,7 +285,7 @@
         // Use $.extend below since the "of" position property may not be able to be supplied via the option.
         options.position = $.extend(
           { my: "left top", at: "left bottom", of: $button },
-          options.position || {}
+          options.position || {},
         );
       } else {
         $menu.insertAfter($element); // No button
@@ -325,7 +325,7 @@
       if (this.options.header !== false) {
         this.$headerLinkContainer
           .find(
-            ".ui-multiselect-all, .ui-multiselect-none, .ui-multiselect-flip"
+            ".ui-multiselect-all, .ui-multiselect-none, .ui-multiselect-flip",
           )
           .toggle(!!elSelect.multiple);
       } else {
@@ -462,7 +462,7 @@
             ? $(document.createElement("button"))
                 .attr({ title: self.linkInfo.collapse.title })
                 .addClass(
-                  "ui-state-default ui-corner-all ui-multiselect-collapser"
+                  "ui-state-default ui-corner-all ui-multiselect-collapser",
                 )
                 .html(self.linkInfo.collapse.icon)
             : null;
@@ -474,7 +474,7 @@
             .addClass(
               "ui-multiselect-optgroup" +
                 (self.options.groupColumns ? " ui-multiselect-columns" : "") +
-                (elem.className ? " " + elem.className : "")
+                (elem.className ? " " + elem.className : ""),
             )
             .append($collapseButton, $optGroupLabel, $optionGroup);
           list.push($optGroupItem);
@@ -501,7 +501,7 @@
       if (this.options.header !== false) {
         this.$headerLinkContainer
           .find(
-            ".ui-multiselect-all, .ui-multiselect-none, .ui-multiselect-flip"
+            ".ui-multiselect-all, .ui-multiselect-none, .ui-multiselect-flip",
           )
           .toggle(!!$element[0].multiple);
       }
@@ -604,7 +604,7 @@
             self,
             numChecked,
             inputCount,
-            $checked.get()
+            $checked.get(),
           );
         } else if (
           /\d/.test(selectedList) &&
@@ -777,7 +777,7 @@
           // toggle inputs
           self._toggleChecked(
             $inputs.filter(":checked").length !== $inputs.length,
-            $inputs
+            $inputs,
           );
 
           self._trigger("optgrouptoggle", e, {
@@ -811,7 +811,7 @@
           $this
             .attr(
               "title",
-              isCollapsed ? linkInfo.collapse.title : linkInfo.expand.title
+              isCollapsed ? linkInfo.collapse.title : linkInfo.expand.title,
             )
             .html(isCollapsed ? linkInfo.collapse.icon : linkInfo.expand.icon);
 
@@ -830,7 +830,7 @@
           ".ui-multiselect-collapser",
           function (e) {
             this.classList.add("ui-state-hover");
-          }
+          },
         )
         // collapse button
         .on(
@@ -838,7 +838,7 @@
           ".ui-multiselect-collapser",
           function (e) {
             this.classList.remove("ui-state-hover");
-          }
+          },
         )
         // option label
         .on("mouseenter.multiselect", "label", function () {
@@ -941,7 +941,7 @@
               self.buttonMessage(
                 "<center><b>LIMIT OF " +
                   (numChecked - 1) +
-                  " REACHED!</b></center>"
+                  " REACHED!</b></center>",
               );
             }
             input.checked = false;
@@ -1086,7 +1086,7 @@
           ) {
             self.close();
           }
-        }
+        },
       );
 
       // deal with form resets.  the problem here is that buttons aren't
@@ -1182,8 +1182,8 @@
           minimax < 0
             ? Math.max(width, pixels)
             : minimax > 0
-            ? Math.min(width, pixels)
-            : pixels;
+              ? Math.min(width, pixels)
+              : pixels;
       } else {
         // keywords
         buttonWidth = buttonWidth.toLowerCase();
@@ -1221,8 +1221,8 @@
           minimax < 0
             ? Math.max(width, pixels)
             : minimax > 0
-            ? Math.min(width, pixels)
-            : pixels;
+              ? Math.min(width, pixels)
+              : pixels;
       } else {
         // keywords
         menuWidth = menuWidth.toLowerCase();
@@ -1247,7 +1247,7 @@
 
       var contentWidth = Math.max(
         this.options.wrapText.indexOf("header") > -1 ? 0 : headerWidth,
-        cbWidth
+        cbWidth,
       );
 
       // Use $().width() to set menu width not including padding or border.
@@ -1397,7 +1397,7 @@
       var $next = $start
         .parent()
         [moveToLast ? "prevAll" : "nextAll"](
-          "li:not(:disabled, .ui-multiselect-optgroup):visible"
+          "li:not(:disabled, .ui-multiselect-optgroup):visible",
         )
         .first();
       // we might have to jump to the next/previous option group
@@ -1712,7 +1712,7 @@
       } else {
         this._toggleChecked(
           true,
-          this._multiselectOptgroupFilter(groupID).find("input")
+          this._multiselectOptgroupFilter(groupID).find("input"),
         );
       }
 
@@ -1732,7 +1732,7 @@
       } else {
         this._toggleChecked(
           false,
-          this._multiselectOptgroupFilter(groupID).find("input")
+          this._multiselectOptgroupFilter(groupID).find("input"),
         );
       }
       if (
@@ -2041,7 +2041,7 @@
             // eq(-1) finds the last span
             $header
               .find(
-                "a." + this.linkInfo[key.replace("Text", "")].class + " span"
+                "a." + this.linkInfo[key.replace("Text", "")].class + " span",
               )
               .eq(-1)
               .html(value);
@@ -2056,7 +2056,7 @@
             // eq(0) finds the first span
             $header
               .find(
-                "a." + this.linkInfo[key.replace("Icon", "")].class + " span"
+                "a." + this.linkInfo[key.replace("Icon", "")].class + " span",
               )
               .eq(0)
               .replaceWith(value);

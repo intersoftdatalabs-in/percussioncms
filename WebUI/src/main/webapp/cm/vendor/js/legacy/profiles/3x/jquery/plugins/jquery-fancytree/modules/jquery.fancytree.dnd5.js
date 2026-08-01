@@ -243,7 +243,7 @@
           " - evalEffectModifiers(): " +
           SUGGESTED_DROP_EFFECT +
           " -> " +
-          res
+          res,
       );
     }
     SUGGESTED_DROP_EFFECT = res;
@@ -276,7 +276,7 @@
     data.dropEffectSuggested = evalEffectModifiers(
       tree,
       event,
-      tree.options.dnd5.dropEffectDefault
+      tree.options.dnd5.dropEffectDefault,
     );
     data.isMove = data.dropEffect === "move";
     data.files = dataTransfer.files || [];
@@ -317,7 +317,7 @@
           ": data.effectAllowed changed from " +
           REQUESTED_EFFECT_ALLOWED +
           " -> " +
-          data.effectAllowed
+          data.effectAllowed,
       );
     }
 
@@ -527,7 +527,7 @@
     $(targetNode.span)
       .toggleClass(
         classDropTarget,
-        hitMode === "after" || hitMode === "before" || hitMode === "over"
+        hitMode === "after" || hitMode === "before" || hitMode === "over",
       )
       .toggleClass(classDropAfter, hitMode === "after")
       .toggleClass(classDropBefore, hitMode === "before")
@@ -587,7 +587,7 @@
         $sourceList = $(
           $.map(SOURCE_NODE_LIST, function (n) {
             return n.span;
-          })
+          }),
         );
         // Set visual feedback
         $sourceList.addClass(classDragSource);
@@ -745,7 +745,7 @@
               ": " +
               event.target.tagName +
               "." +
-              event.target.className
+              event.target.className,
           );
           DRAG_ENTER_RESPONSE = false;
           break;
@@ -816,7 +816,7 @@
               ": " +
               event.target.tagName +
               "." +
-              event.target.className
+              event.target.className,
           );
           break;
         }
@@ -861,7 +861,7 @@
               ": " +
               event.target.tagName +
               "." +
-              event.target.className
+              event.target.className,
           );
           break;
         }
@@ -870,7 +870,7 @@
           break;
         }
         $(node.span).removeClass(
-          classDropOver + " " + classDropAccept + " " + classDropReject
+          classDropOver + " " + classDropAccept + " " + classDropReject,
         );
         node.scheduleAction("cancel");
         dndOpts.dragLeave(node, data);
@@ -886,7 +886,7 @@
             event.type +
               ": getData('application/x-fancytree-node'): '" +
               nodeData +
-              "'"
+              "'",
           );
         }
         if (!nodeData) {
@@ -911,11 +911,11 @@
         }
         tree.debug(
           event.type + ": nodeData: '" + nodeData + "', otherNodeData: ",
-          data.otherNodeData
+          data.otherNodeData,
         );
 
         $(node.span).removeClass(
-          classDropOver + " " + classDropAccept + " " + classDropReject
+          classDropOver + " " + classDropAccept + " " + classDropReject,
         );
 
         // Let user implement the actual drop operation
@@ -937,12 +937,12 @@
           // the DOM, so the dragend event will probaly not fire.
           if (orgSourceTree === tree) {
             tree.debug(
-              "Drop handler removed source element: generating dragEnd."
+              "Drop handler removed source element: generating dragEnd.",
             );
             dndOpts.dragEnd(SOURCE_NODE, data);
           } else {
             tree.warn(
-              "Drop handler removed source element: dragend event may be lost."
+              "Drop handler removed source element: dragend event may be lost.",
             );
           }
         }
@@ -1084,7 +1084,7 @@
           FT.setSpanIcon(
             $dropMarker[0],
             glyph.map._addClass,
-            glyph.map.dropMarker
+            glyph.map.dropMarker,
           );
         }
       }
@@ -1100,7 +1100,7 @@
         // Bind drop event handlers
         tree.$container.on(
           "dragenter dragover dragleave drop",
-          onDropEvent.bind(tree)
+          onDropEvent.bind(tree),
         );
       }
     },

@@ -43,7 +43,7 @@
           actions,
           pageId,
           add_widget_dec,
-          rem_widget_dec
+          rem_widget_dec,
         );
       } else if ($(this).is(".perc-region")) {
         decorate_generic(
@@ -52,7 +52,7 @@
           actions,
           pageId,
           add_region_dec,
-          rem_region_dec
+          rem_region_dec,
         );
       }
     });
@@ -102,7 +102,7 @@
           widget.attr("assetid"),
           widget.attr("widgetid"),
           widget.attr("widgetdefid"),
-          pageId
+          pageId,
         );
       });
     });

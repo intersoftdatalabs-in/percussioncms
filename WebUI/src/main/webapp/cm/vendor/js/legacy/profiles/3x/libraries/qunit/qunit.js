@@ -843,7 +843,7 @@
               ret.push(
                 dump.parse(key, "key") +
                   ": " +
-                  dump.parse(val, undefined, stack)
+                  dump.parse(val, undefined, stack),
               );
             }
             dump.down();
@@ -1241,7 +1241,7 @@
   function on(eventName, callback) {
     if (objectType(eventName) !== "string") {
       throw new TypeError(
-        "eventName must be a string when registering a listener"
+        "eventName must be a string when registering a listener",
       );
     } else if (!inArray(eventName, SUPPORTED_EVENTS)) {
       var events = SUPPORTED_EVENTS.join(", ");
@@ -1250,11 +1250,11 @@
           eventName +
           '" is not a valid event; must be one of: ' +
           events +
-          "."
+          ".",
       );
     } else if (objectType(callback) !== "function") {
       throw new TypeError(
-        "callback must be a function when registering a listener"
+        "callback must be a function when registering a listener",
       );
     }
 
@@ -1287,7 +1287,7 @@
       var loggingCallback = function loggingCallback(callback) {
         if (objectType(callback) !== "function") {
           throw new Error(
-            "QUnit logging methods require a callback function as their first parameters."
+            "QUnit logging methods require a callback function as their first parameters.",
           );
         }
 
@@ -1463,7 +1463,7 @@
 
       // Insert into a random position after all prioritized items
       var index = Math.floor(
-        unitSampler() * (config.queue.length - priorityCount + 1)
+        unitSampler() * (config.queue.length - priorityCount + 1),
       );
       config.queue.splice(priorityCount + index, 0, testTasksFunc);
     } else {
@@ -1515,7 +1515,7 @@
 
       if (config.moduleId && config.moduleId.length) {
         throw new Error(
-          'No tests matched the moduleId "' + config.moduleId + '".'
+          'No tests matched the moduleId "' + config.moduleId + '".',
         );
       }
 
@@ -1706,7 +1706,7 @@
         todo: settings.todo,
         skip: settings.skip,
         valid: this.valid(),
-      }
+      },
     );
 
     // Register unique strings
@@ -1739,7 +1739,7 @@
             method +
             '("' +
             settings.testName +
-            '")'
+            '")',
         );
       }
 
@@ -1818,7 +1818,7 @@
             this.stack +
             ": " +
             (e.message || e),
-          extractStacktrace(e, 0)
+          extractStacktrace(e, 0),
         );
 
         // Else next test will carry the responsibility
@@ -1839,7 +1839,7 @@
         if (test.timeout === 0 && test.semaphore !== 0) {
           pushFailure(
             "Test did not finish synchronously even though assert.timeout( 0 ) was used.",
-            sourceFromStacktrace(2)
+            sourceFromStacktrace(2),
           );
         }
       }
@@ -1891,7 +1891,7 @@
               _this.testName +
               ": " +
               (error.message || error),
-            extractStacktrace(error, 0)
+            extractStacktrace(error, 0),
           );
         }
       };
@@ -1911,7 +1911,7 @@
         if (module.hooks[handler].length) {
           for (var i = 0; i < module.hooks[handler].length; i++) {
             hooks.push(
-              test.queueHook(module.hooks[handler][i], handler, module)
+              test.queueHook(module.hooks[handler][i], handler, module),
             );
           }
         }
@@ -1937,7 +1937,7 @@
         this.pushFailure(
           "Expected assert.verifySteps() to be called before end of test " +
             ("after using assert.step(). Unverified steps: " + stepsList),
-          this.stack
+          this.stack,
         );
       }
 
@@ -1945,7 +1945,7 @@
         this.pushFailure(
           "Expected number of assertions to be defined, but expect() was " +
             "not called.",
-          this.stack
+          this.stack,
         );
       } else if (
         this.expected !== null &&
@@ -1957,13 +1957,13 @@
             " assertions, but " +
             this.assertions.length +
             " were run",
-          this.stack
+          this.stack,
         );
       } else if (this.expected === null && !this.assertions.length) {
         this.pushFailure(
           "Expected at least one assertion, but none were run - call " +
             "expect(0) to accept zero assertions.",
-          this.stack
+          this.stack,
         );
       }
 
@@ -2095,14 +2095,14 @@
             function () {
               test.finish();
             },
-          ]
+          ],
         );
       }
 
       var previousFailCount =
         config.storage &&
         +config.storage.getItem(
-          "qunit-test-" + this.module.name + "-" + this.testName
+          "qunit-test-" + this.module.name + "-" + this.testName,
         );
 
       // Prioritize previously failed tests, detected from storage
@@ -2161,7 +2161,7 @@
       if (!(this instanceof Test)) {
         throw new Error(
           "pushFailure() assertion outside test context, was " +
-            sourceFromStacktrace(2)
+            sourceFromStacktrace(2),
         );
       }
 
@@ -2228,7 +2228,7 @@
 
                 // Unblock
                 internalRecover(test);
-              }
+              },
             );
           }
         }
@@ -2296,7 +2296,7 @@
             !!regexFilter[1],
             regexFilter[2],
             regexFilter[3],
-            fullName
+            fullName,
           )
         : this.stringFilter(filter, fullName);
     },
@@ -2331,7 +2331,7 @@
     if (!config.current) {
       throw new Error(
         "pushFailure() assertion outside test context, in " +
-          sourceFromStacktrace(2)
+          sourceFromStacktrace(2),
       );
     }
 
@@ -2454,7 +2454,7 @@
         config.timeout = setTimeout(function () {
           pushFailure(
             "Test took longer than " + timeoutDuration + "ms; test timed out.",
-            sourceFromStacktrace(2)
+            sourceFromStacktrace(2),
           );
           internalRecover(test);
         }, timeoutDuration);
@@ -2500,7 +2500,7 @@
 
       pushFailure(
         "Tried to restart test while already started (test's semaphore was 0 already)",
-        sourceFromStacktrace(2)
+        sourceFromStacktrace(2),
       );
       return;
     }
@@ -2596,7 +2596,7 @@
         value: function timeout(duration) {
           if (typeof duration !== "number") {
             throw new Error(
-              "You must pass a number as the duration to assert.timeout"
+              "You must pass a number as the duration to assert.timeout",
             );
           }
 
@@ -2674,7 +2674,7 @@
             if (popped) {
               test$$1.pushFailure(
                 "Too many calls to the `assert.async` callback",
-                sourceFromStacktrace(2)
+                sourceFromStacktrace(2),
               );
               return;
             }
@@ -2697,7 +2697,7 @@
         value: function push(result, actual, expected, message, negative) {
           Logger.warn(
             "assert.push is deprecated and will be removed in QUnit 3.0." +
-              " Please use assert.pushResult instead (https://api.qunitjs.com/assert/pushResult)."
+              " Please use assert.pushResult instead (https://api.qunitjs.com/assert/pushResult).",
           );
 
           var currentAssert =
@@ -2726,7 +2726,7 @@
           // not exactly the test where assertion were intended to be called.
           if (!currentTest) {
             throw new Error(
-              "assertion outside test context, in " + sourceFromStacktrace(2)
+              "assertion outside test context, in " + sourceFromStacktrace(2),
             );
           }
 
@@ -2894,7 +2894,7 @@
             } else {
               throw new Error(
                 "throws/raises does not accept a string value for the expected argument.\n" +
-                  "Use a non-string object value (e.g. regExp) instead if it's necessary."
+                  "Use a non-string object value (e.g. regExp) instead if it's necessary.",
               );
             }
           }
@@ -3068,7 +3068,7 @@
               });
 
               done();
-            }
+            },
           );
         },
       },
@@ -3171,7 +3171,7 @@
       }
       pushFailure.apply(
         undefined,
-        [error.message, error.fileName + ":" + error.lineNumber].concat(args)
+        [error.message, error.fileName + ":" + error.lineNumber].concat(args),
       );
     } else {
       test(
@@ -3181,12 +3181,12 @@
             pushFailure.apply(
               undefined,
               [error.message, error.fileName + ":" + error.lineNumber].concat(
-                args
-              )
+                args,
+              ),
             );
           },
-          { validTest: true }
-        )
+          { validTest: true },
+        ),
       );
     }
 
@@ -3212,8 +3212,8 @@
           function (assert) {
             assert.pushResult(resultInfo);
           },
-          { validTest: true }
-        )
+          { validTest: true },
+        ),
       );
     }
   }
@@ -3258,12 +3258,12 @@
           throw new Error("Called start() while test already started running");
         } else if (globalStartAlreadyCalled || count > 1) {
           throw new Error(
-            "Called start() outside of a test context too many times"
+            "Called start() outside of a test context too many times",
           );
         } else if (config.autostart) {
           throw new Error(
             "Called start() outside of a test context when " +
-              "QUnit.config.autostart was true"
+              "QUnit.config.autostart was true",
           );
         } else if (!config.pageLoaded) {
           // The page isn't completely loaded yet, so we set autostart and then
@@ -3306,7 +3306,7 @@
           autostart: true,
           filter: "",
         },
-        true
+        true,
       );
 
       if (!runStarted) {
@@ -3484,7 +3484,7 @@
         tooltip:
           "Enabling this will run tests outside of a try-catch block. Makes debugging " +
           "exceptions in IE reasonable. Stored as query-strings.",
-      }
+      },
     );
 
     QUnit.begin(function () {
@@ -3829,7 +3829,7 @@
       var i,
         selectedModules = [],
         modulesList = id(
-          "qunit-modulefilter-dropdown-list"
+          "qunit-modulefilter-dropdown-list",
         ).getElementsByTagName("input"),
         filter = id("qunit-filter-input").value;
 
@@ -3858,12 +3858,12 @@
       addEvents(
         urlConfigContainer.getElementsByTagName("input"),
         "change",
-        toolbarChanged
+        toolbarChanged,
       );
       addEvents(
         urlConfigContainer.getElementsByTagName("select"),
         "change",
-        toolbarChanged
+        toolbarChanged,
       );
 
       return urlConfigContainer;
@@ -4153,8 +4153,8 @@
         userAgent.innerHTML = "";
         userAgent.appendChild(
           document$$1.createTextNode(
-            "QUnit " + QUnit.version + "; " + navigator.userAgent
-          )
+            "QUnit " + QUnit.version + "; " + navigator.userAgent,
+          ),
         );
       }
     }
@@ -4629,7 +4629,7 @@
 
         ret = originalWindowOnError.call.apply(
           originalWindowOnError,
-          [this, message, fileName, lineNumber].concat(args)
+          [this, message, fileName, lineNumber].concat(args),
         );
       }
 
@@ -4953,7 +4953,7 @@
         if (
           text1.substring(
             text1.length - pointermid,
-            text1.length - pointerend
+            text1.length - pointerend,
           ) ===
           text2.substring(text2.length - pointermid, text2.length - pointerend)
         ) {
@@ -4983,7 +4983,7 @@
       text1,
       text2,
       checklines,
-      deadline
+      deadline,
     ) {
       var diffs,
         longtext,
@@ -5121,11 +5121,11 @@
         while ((j = shorttext.indexOf(seed, j + 1)) !== -1) {
           prefixLength = dmp.diffCommonPrefix(
             longtext.substring(i),
-            shorttext.substring(j)
+            shorttext.substring(j),
           );
           suffixLength = dmp.diffCommonSuffix(
             longtext.substring(0, i),
-            shorttext.substring(0, j)
+            shorttext.substring(0, j),
           );
           if (bestCommon.length < suffixLength + prefixLength) {
             bestCommon =
@@ -5241,7 +5241,7 @@
               // Delete the offending records and add the merged ones.
               diffs.splice(
                 pointer - countDelete - countInsert,
-                countDelete + countInsert
+                countDelete + countInsert,
               );
               pointer = pointer - countDelete - countInsert;
               a = this.DiffMain(textDelete, textInsert, false, deadline);
@@ -5436,7 +5436,7 @@
       text2,
       x,
       y,
-      deadline
+      deadline,
     ) {
       var text1a, text1b, text2a, text2b, diffs, diffsb;
       text1a = text1.substring(0, x);
@@ -5572,7 +5572,7 @@
               ]);
               diffs[pointer - 1][1] = deletion.substring(
                 0,
-                deletion.length - overlapLength1
+                deletion.length - overlapLength1,
               );
               diffs[pointer + 1][1] = insertion.substring(overlapLength1);
               pointer++;
@@ -5592,7 +5592,7 @@
               diffs[pointer - 1][0] = DIFF_INSERT;
               diffs[pointer - 1][1] = insertion.substring(
                 0,
-                insertion.length - overlapLength2
+                insertion.length - overlapLength2,
               );
               diffs[pointer + 1][0] = DIFF_DELETE;
               diffs[pointer + 1][1] = deletion.substring(overlapLength2);
@@ -5818,11 +5818,11 @@
                     diffs[pointer][1];
                   textInsert = textInsert.substring(
                     0,
-                    textInsert.length - commonlength
+                    textInsert.length - commonlength,
                   );
                   textDelete = textDelete.substring(
                     0,
-                    textDelete.length - commonlength
+                    textDelete.length - commonlength,
                   );
                 }
               }
@@ -5843,7 +5843,7 @@
                   pointer - countDelete - countInsert,
                   countDelete + countInsert,
                   [DIFF_DELETE, textDelete],
-                  [DIFF_INSERT, textInsert]
+                  [DIFF_INSERT, textInsert],
                 );
               }
               pointer =
@@ -5885,7 +5885,7 @@
         ) {
           diffPointer = diffs[pointer][1];
           position = diffPointer.substring(
-            diffPointer.length - diffs[pointer - 1][1].length
+            diffPointer.length - diffs[pointer - 1][1].length,
           );
 
           // This is a single edit surrounded by equalities.
@@ -5895,7 +5895,7 @@
               diffs[pointer - 1][1] +
               diffs[pointer][1].substring(
                 0,
-                diffs[pointer][1].length - diffs[pointer - 1][1].length
+                diffs[pointer][1].length - diffs[pointer - 1][1].length,
               );
             diffs[pointer + 1][1] =
               diffs[pointer - 1][1] + diffs[pointer + 1][1];
@@ -5936,5 +5936,5 @@
 })(
   (function () {
     return this;
-  })()
+  })(),
 );

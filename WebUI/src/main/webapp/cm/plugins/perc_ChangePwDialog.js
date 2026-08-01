@@ -104,7 +104,7 @@
                       I18N.message("perc.ui.change.pw@Success") +
                       "</b> " +
                       I18N.message("perc.ui.change.pw@Success Message") +
-                      ""
+                      "",
                   )
                   .show();
               } else if (status === $.PercServiceUtils.STATUS_ERROR) {
@@ -115,7 +115,7 @@
                       I18N.message("perc.ui.change.pw@Error") +
                       "</b> " +
                       I18N.message("perc.ui.change.pw@Error Updating") +
-                      ""
+                      "",
                   )
                   .show();
               }

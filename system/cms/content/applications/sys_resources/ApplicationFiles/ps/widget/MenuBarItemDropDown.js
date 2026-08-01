@@ -48,5 +48,5 @@ ps.widget.defineWidget(
 
     // a function, which creates submenu.
     createSubmenu: null,
-  }
+  },
 );

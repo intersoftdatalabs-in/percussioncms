@@ -84,7 +84,7 @@
             checked +
             " DISABLED/>" +
             I18N.message(
-              "perc.ui.widgets.commentsForm@This Field Is Required"
+              "perc.ui.widgets.commentsForm@This Field Is Required",
             ) +
             "</div>";
         } else {
@@ -94,7 +94,7 @@
             checked +
             "/>" +
             I18N.message(
-              "perc.ui.widgets.commentsForm@This Field Is Required"
+              "perc.ui.widgets.commentsForm@This Field Is Required",
             ) +
             "</div>";
         }
@@ -337,7 +337,7 @@
         $.perc_filterFieldText(
           container.find("#perc-field-class-value"),
           $.perc_autoFillTextFilters.IDNAMECDATAALPHA,
-          " "
+          " ",
         );
       },
 
@@ -422,7 +422,7 @@
         $.perc_filterFieldText(
           container.find("#perc-field-name-value"),
           $.perc_autoFillTextFilters.IDNAMECDATAALPHA,
-          " "
+          " ",
         );
       },
 
@@ -507,7 +507,7 @@
         $.perc_filterFieldText(
           container.find("#perc-field-title-value"),
           $.perc_autoFillTextFilters.IDNAMECDATAALPHA,
-          " "
+          " ",
         );
       },
 
@@ -591,7 +591,7 @@
         // Filter the ID field to get a valid ID
         $.perc_filterFieldText(
           container.find("#perc-field-id-value"),
-          $.perc_autoFillTextFilters.IDNAMECDATAALPHA
+          $.perc_autoFillTextFilters.IDNAMECDATAALPHA,
         );
       },
 
@@ -615,7 +615,7 @@
         // We will select the form control editors that are basic, this way, the editor for the current controls doesn't get
         // selected and we will be sure that the comparisson will not be include the current (same) control
         var formControls = $("div.perc-form-field-wrapper").children(
-          ".field-editor-basic"
+          ".field-editor-basic",
         );
         var isUniqueId = true;
         for (var i = 0; i < formControls.length; i++) {
@@ -640,7 +640,7 @@
           window.parent.jQuery.perc_utils.alert_dialog({
             title: I18N.message("perc.ui.labels@Error"),
             content: I18N.message(
-              "perc.ui.widgets.commentsForm@Id Already Assigned"
+              "perc.ui.widgets.commentsForm@Id Already Assigned",
             ),
           });
           return null;
@@ -727,13 +727,13 @@
       var formData = { config: {}, fields: [] };
       //Fill config data
       var $formConfigElem = $formElem.find(
-        "." + $.PercFormConstants.FORM_CONFIG_CLASS
+        "." + $.PercFormConstants.FORM_CONFIG_CLASS,
       );
       formData.config.name = $formConfigElem.find("#perc-form-name").val();
       formData.config.title = $formConfigElem.find("#perc-form-title").val();
       //Fill field Elements
       var $formFieldElems = $formElem.find(
-        "." + $.PercFormConstants.FIELD_CLASS
+        "." + $.PercFormConstants.FIELD_CLASS,
       );
       $.each($formFieldElems, function () {
         var type = $(this).attr("type");
@@ -754,7 +754,7 @@
      */
     function getFormEditor(formData) {
       var formEditorHtml = $(
-        "<div class='" + $.PercFormConstants.FORM_CLASS + "'></div>"
+        "<div class='" + $.PercFormConstants.FORM_CLASS + "'></div>",
       );
       formEditorHtml.append(
         "<div class='" +
@@ -765,7 +765,7 @@
           I18N.message("perc.ui.widgets.commentsForm@Add Form Fields") +
           "</div>" +
           "</div><div id = 'perc-form-control-wrapper'><div><div id = 'perc-form-dnd-fields'></div></div>" +
-          "</div>"
+          "</div>",
       );
       var formFieldsDiv = formEditorHtml.find("#perc-form-dnd-fields");
 
@@ -774,7 +774,7 @@
       autoFillForm(
         formEditorHtml.find("#perc-form-title"),
         formEditorHtml.find("#perc-form-name"),
-        sanitizeTextFill
+        sanitizeTextFill,
       );
       filterField(formEditorHtml.find("#perc-form-name"), sanitizeTextFilter);
 
@@ -851,36 +851,36 @@
       var localserver = true;
       var formConfig = formData.config;
       var formRenderedHtml = $(
-        "<form name='commentForm' method='post' action='PERC_RV_COMMENT_FORM_ACTION' accept-charset='ISO-8859-1'></form>"
+        "<form name='commentForm' method='post' action='PERC_RV_COMMENT_FORM_ACTION' accept-charset='ISO-8859-1'></form>",
       );
       if ($.PercFormVariables.IsHoneypotEnabled === 1) {
         formRenderedHtml = $(
-          "<form name='commentForm' method='post' action='PERC_RV_COMMENT_FORM_ACTION' accept-charset='ISO-8859-1' onsubmit='return validatePercForm()'></form>"
+          "<form name='commentForm' method='post' action='PERC_RV_COMMENT_FORM_ACTION' accept-charset='ISO-8859-1' onsubmit='return validatePercForm()'></form>",
         );
       }
       formRenderedHtml
         .append(
           $("<span/>")
             .addClass($.PercFormConstants.FORM_TITLE_CLASS)
-            .text(formData.config.title)
+            .text(formData.config.title),
         )
         .append(
           $("<input/>")
             .attr("type", "hidden")
             .attr("name", "perc_formName")
-            .attr("value", formData.config.name)
+            .attr("value", formData.config.name),
         )
         .append(
           $("<input/>")
             .attr("type", "hidden")
             .attr("name", "site")
-            .attr("value", "PERC_RV_SITE_NAME")
+            .attr("value", "PERC_RV_SITE_NAME"),
         )
         .append(
           $("<input/>")
             .attr("type", "hidden")
             .attr("name", "pagepath")
-            .attr("value", "PERC_RV_PAGE_PATH")
+            .attr("value", "PERC_RV_PAGE_PATH"),
         );
 
       // This code goes through each field name on the list, and first makes sure that
@@ -989,7 +989,7 @@
       var fieldData = this.getFieldData($fieldElem);
       var editor = this.getFieldEditor(
         fieldData,
-        !$fieldElem.hasClass($.PercFormConstants.FIELD_EDITOR_EXT_CLASS)
+        !$fieldElem.hasClass($.PercFormConstants.FIELD_EDITOR_EXT_CLASS),
       );
       if (typeof prefs == "object") {
         editor
@@ -1062,7 +1062,7 @@
     };
     titleControlAPI.getFieldEditor = function (fieldData, isExtended) {
       var fieldEditorHtml = $("<div/>").addClass(
-        $.PercFormConstants.FORM_FIELD_WRAPPER
+        $.PercFormConstants.FORM_FIELD_WRAPPER,
       );
       if (fieldData && isExtended) {
         var defValue =
@@ -1083,8 +1083,8 @@
                   .attr("maxlength", "255")
                   .addClass("defaultFocus")
                   .addClass($.PercFormConstants.INPUT_CLASS)
-                  .val(fieldData.label)
-              )
+                  .val(fieldData.label),
+              ),
             )
             .append(
               $("<div/>").append(
@@ -1092,9 +1092,9 @@
                   .attr("type", "text")
                   .attr("name", nameValue)
                   .addClass($.PercFormConstants.INPUT_CLASS)
-                  .val(defValue)
-              )
-            )
+                  .val(defValue),
+              ),
+            ),
         );
       } else if (fieldData) {
         var defValue4 =
@@ -1110,14 +1110,14 @@
               $("<div/>")
                 .addClass($.PercFormConstants.FIELD_EDITOR_LABEL_CLASS)
                 .addClass($.PercFormConstants.FORM_LABEL_CLASS)
-                .text(fieldData.label)
+                .text(fieldData.label),
             )
             .append(
               $('<div class = "perc-form-datadisplay"/>')
                 .attr("name", nameValue)
                 .addClass($.PercFormConstants.INPUT_CLASS)
-                .text(defValue4)
-            )
+                .text(defValue4),
+            ),
         );
       } else {
         fieldEditorHtml.append(
@@ -1131,16 +1131,16 @@
                 .attr("id", "perc-form-label-field-name")
                 .addClass($.PercFormConstants.FIELD_EDITOR_LABEL_CLASS)
                 .addClass($.PercFormConstants.FORM_LABEL_CLASS)
-                .text(this.label)
+                .text(this.label),
             )
             .append(
               $("<div>").append(
                 $('<div class = "perc-form-datadisplay"/>')
                   .attr("name", nameValue)
                   .addClass($.PercFormConstants.INPUT_CLASS)
-                  .text("")
-              )
-            )
+                  .text(""),
+              ),
+            ),
         );
       }
       return fieldEditorHtml;
@@ -1169,8 +1169,8 @@
           $("<div/>")
             .addClass($.PercFormConstants.FIELD_LABEL_CONTAINER_CLASS)
             .append(
-              $("<label/>").attr("for", labelForValue).text(fieldData.label)
-            )
+              $("<label/>").attr("for", labelForValue).text(fieldData.label),
+            ),
         )
         .append(
           $("<div/>")
@@ -1180,15 +1180,15 @@
                 .attr("type", "text")
                 .attr("id", fieldId)
                 .attr("name", nameValue)
-                .attr("placeholder", defValue)
-            )
+                .attr("placeholder", defValue),
+            ),
         );
       var prefs = this.getAvailablePrefs();
       for (var i = 0; i < prefs.length; i++) {
         prefs[i].pref.onRender(
           renderedHtml.find("input"),
           fieldData.prefs ? fieldData.prefs[prefs[i].pref.name] : undefined,
-          prefs[i].defaults
+          prefs[i].defaults,
         );
       }
 
@@ -1249,7 +1249,7 @@
     };
     honeypotControlAPI.getFieldEditor = function (fieldData, isExtended) {
       var fieldEditorHtml = $("<div/>").addClass(
-        $.PercFormConstants.FORM_FIELD_WRAPPER
+        $.PercFormConstants.FORM_FIELD_WRAPPER,
       );
       if (fieldData && isExtended) {
         var defValue =
@@ -1262,7 +1262,7 @@
             .addClass($.PercFormConstants.FIELD_EDITOR_EXT_CLASS)
             .addClass($.PercFormConstants.FIELD_CLASS)
             .addClass($.PercFormConstants.FORM_LABEL_CLASS)
-            .append($("<div/>").attr("name", "fieldLabel").text(defValue))
+            .append($("<div/>").attr("name", "fieldLabel").text(defValue)),
         );
       } else if (fieldData) {
         fieldEditorHtml.append(
@@ -1275,8 +1275,8 @@
               $("<div/>")
                 .addClass($.PercFormConstants.FIELD_EDITOR_LABEL_CLASS)
                 .addClass($.PercFormConstants.FORM_LABEL_CLASS)
-                .text(fieldData.label)
-            )
+                .text(fieldData.label),
+            ),
         );
       } else {
         fieldEditorHtml.append(
@@ -1290,8 +1290,8 @@
                 .attr("id", "perc-form-label-field-name")
                 .addClass($.PercFormConstants.FIELD_EDITOR_LABEL_CLASS)
                 .addClass($.PercFormConstants.FORM_LABEL_CLASS)
-                .text(this.label)
-            )
+                .text(this.label),
+            ),
         );
       }
       return fieldEditorHtml;
@@ -1323,8 +1323,8 @@
               $("<input/>")
                 .attr("type", "hidden")
                 .attr("id", "topyenoh")
-                .attr("name", nameValue)
-            )
+                .attr("name", nameValue),
+            ),
         );
 
       var prefs = this.getAvailablePrefs();
@@ -1332,7 +1332,7 @@
         prefs[i].pref.onRender(
           renderedHtml.find("input"),
           fieldData.prefs ? fieldData.prefs[prefs[i].pref.name] : undefined,
-          prefs[i].defaults
+          prefs[i].defaults,
         );
       }
 
@@ -1381,7 +1381,7 @@
     };
     userControlAPI.getFieldEditor = function (fieldData, isExtended) {
       var fieldEditorHtml = $("<div/>").addClass(
-        $.PercFormConstants.FORM_FIELD_WRAPPER
+        $.PercFormConstants.FORM_FIELD_WRAPPER,
       );
       if (fieldData && isExtended) {
         var defValue =
@@ -1402,8 +1402,8 @@
                   .attr("maxlength", "255")
                   .addClass("defaultFocus")
                   .addClass($.PercFormConstants.INPUT_CLASS)
-                  .val(fieldData.label)
-              )
+                  .val(fieldData.label),
+              ),
             )
             .append(
               $("<div/>").append(
@@ -1411,9 +1411,9 @@
                   .attr("type", "text")
                   .attr("name", nameValue)
                   .addClass($.PercFormConstants.INPUT_CLASS)
-                  .val(defValue)
-              )
-            )
+                  .val(defValue),
+              ),
+            ),
         );
       } else if (fieldData) {
         var defValue2 =
@@ -1429,14 +1429,14 @@
               $("<div/>")
                 .addClass($.PercFormConstants.FIELD_EDITOR_LABEL_CLASS)
                 .addClass($.PercFormConstants.FORM_LABEL_CLASS)
-                .text(fieldData.label)
+                .text(fieldData.label),
             )
             .append(
               $('<div class = "perc-form-datadisplay"/>')
                 .attr("name", nameValue)
                 .addClass($.PercFormConstants.INPUT_CLASS)
-                .text(defValue2)
-            )
+                .text(defValue2),
+            ),
         );
       } else {
         fieldEditorHtml.append(
@@ -1450,16 +1450,16 @@
                 .attr("id", "perc-form-label-field-name")
                 .addClass($.PercFormConstants.FIELD_EDITOR_LABEL_CLASS)
                 .addClass($.PercFormConstants.FORM_LABEL_CLASS)
-                .text(this.label)
+                .text(this.label),
             )
             .append(
               $("<div>").append(
                 $('<div class = "perc-form-datadisplay"/>')
                   .attr("name", nameValue)
                   .addClass($.PercFormConstants.INPUT_CLASS)
-                  .text("")
-              )
-            )
+                  .text(""),
+              ),
+            ),
         );
       }
       return fieldEditorHtml;
@@ -1487,8 +1487,8 @@
           $("<div/>")
             .addClass($.PercFormConstants.FIELD_LABEL_CONTAINER_CLASS)
             .append(
-              $("<label/>").attr("for", labelForValue).text(fieldData.label)
-            )
+              $("<label/>").attr("for", labelForValue).text(fieldData.label),
+            ),
         )
         .append(
           $("<div/>")
@@ -1498,22 +1498,22 @@
                 .attr("type", "text")
                 .attr("id", fieldId)
                 .attr("name", nameValue)
-                .val(defValue)
-            )
+                .val(defValue),
+            ),
         );
       var prefs = this.getAvailablePrefs();
       for (var i = 0; i < prefs.length; i++) {
         prefs[i].pref.onRender(
           renderedHtml.find("input"),
           fieldData.prefs ? fieldData.prefs[prefs[i].pref.name] : undefined,
-          prefs[i].defaults
+          prefs[i].defaults,
         );
       }
 
       // Fix Firefox Bug involving rendering html and defaultValue/value
       renderedHtml
         .find(
-          "." + $.PercFormConstants.FIELD_INPUT_CONTAINER_CLASS + " " + "input"
+          "." + $.PercFormConstants.FIELD_INPUT_CONTAINER_CLASS + " " + "input",
         )
         .get(0).defaultValue = fieldData.defaultValue;
 
@@ -1577,7 +1577,7 @@
     };
     emailControlAPI.getFieldEditor = function (fieldData, isExtended) {
       var fieldEditorHtml = $("<div/>").addClass(
-        $.PercFormConstants.FORM_FIELD_WRAPPER
+        $.PercFormConstants.FORM_FIELD_WRAPPER,
       );
       if (fieldData && isExtended) {
         fieldEditorHtml.append(
@@ -1594,8 +1594,8 @@
                   .attr("maxlength", "255")
                   .addClass("defaultFocus")
                   .addClass($.PercFormConstants.INPUT_CLASS)
-                  .val(fieldData.label)
-              )
+                  .val(fieldData.label),
+              ),
             )
             .append(
               $("<div/>").append(
@@ -1604,9 +1604,9 @@
                   .attr("name", nameValue)
                   .addClass($.PercFormConstants.INPUT_CLASS)
                   .addClass("email")
-                  .val(fieldData.defaultValue)
-              )
-            )
+                  .val(fieldData.defaultValue),
+              ),
+            ),
         );
       } else if (fieldData) {
         var defValue =
@@ -1621,14 +1621,14 @@
               $("<div/>")
                 .addClass($.PercFormConstants.FIELD_EDITOR_LABEL_CLASS)
                 .addClass($.PercFormConstants.FORM_LABEL_CLASS)
-                .text(fieldData.label)
+                .text(fieldData.label),
             )
             .append(
               $('<div class = "perc-form-datadisplay"/>')
                 .attr("name", nameValue)
                 .addClass($.PercFormConstants.INPUT_CLASS)
-                .text(defValue)
-            )
+                .text(defValue),
+            ),
         );
       } else {
         fieldEditorHtml.append(
@@ -1642,16 +1642,16 @@
                 .attr("id", "perc-form-label-field-name")
                 .addClass($.PercFormConstants.FIELD_EDITOR_LABEL_CLASS)
                 .addClass($.PercFormConstants.FORM_LABEL_CLASS)
-                .text(this.label)
+                .text(this.label),
             )
             .append(
               $("<div>").append(
                 $('<div class = "perc-form-datadisplay"/>')
                   .attr("name", nameValue)
                   .addClass($.PercFormConstants.INPUT_CLASS)
-                  .text("")
-              )
-            )
+                  .text(""),
+              ),
+            ),
         );
       }
       return fieldEditorHtml;
@@ -1679,8 +1679,8 @@
           $("<div/>")
             .addClass($.PercFormConstants.FIELD_LABEL_CONTAINER_CLASS)
             .append(
-              $("<label/>").attr("for", labelForValue).text(fieldData.label)
-            )
+              $("<label/>").attr("for", labelForValue).text(fieldData.label),
+            ),
         )
         .append(
           $("<div/>")
@@ -1691,15 +1691,15 @@
                 .attr("id", fieldId)
                 .attr("name", nameValue)
                 .addClass("email")
-                .attr("placeholder", defValue)
-            )
+                .attr("placeholder", defValue),
+            ),
         );
       var prefs = this.getAvailablePrefs();
       for (var i = 0; i < prefs.length; i++) {
         prefs[i].pref.onRender(
           renderedHtml.find("input"),
           fieldData.prefs ? fieldData.prefs[prefs[i].pref.name] : undefined,
-          prefs[i].defaults
+          prefs[i].defaults,
         );
       }
 
@@ -1769,7 +1769,7 @@
     };
     textareaControlAPI.getFieldEditor = function (fieldData, isExtended) {
       var fieldEditorHtml = $("<div/>").addClass(
-        $.PercFormConstants.FORM_FIELD_WRAPPER
+        $.PercFormConstants.FORM_FIELD_WRAPPER,
       );
       if (fieldData && isExtended) {
         fieldEditorHtml.append(
@@ -1786,8 +1786,8 @@
                   .attr("maxlength", "255")
                   .addClass("defaultFocus")
                   .addClass($.PercFormConstants.INPUT_CLASS)
-                  .val(fieldData.label)
-              )
+                  .val(fieldData.label),
+              ),
             )
             .append(
               $("<div/>").append(
@@ -1796,9 +1796,9 @@
                   .attr("cols", "50")
                   .attr("rows", "3")
                   .addClass($.PercFormConstants.INPUT_CLASS)
-                  .val(fieldData.defaultValue)
-              )
-            )
+                  .val(fieldData.defaultValue),
+              ),
+            ),
         );
       } else if (fieldData) {
         fieldEditorHtml.append(
@@ -1810,7 +1810,7 @@
               $("<div/>")
                 .addClass($.PercFormConstants.FIELD_EDITOR_LABEL_CLASS)
                 .addClass($.PercFormConstants.FORM_LABEL_CLASS)
-                .text(fieldData.label)
+                .text(fieldData.label),
             )
             .append(
               $("<div/>").append(
@@ -1822,9 +1822,9 @@
                   .attr("aria-labelledby", "Comment Box")
                   .attr("readonly", "readonly")
                   .addClass($.PercFormConstants.INPUT_CLASS)
-                  .val(fieldData.defaultValue)
-              )
-            )
+                  .val(fieldData.defaultValue),
+              ),
+            ),
         );
       } else {
         fieldEditorHtml.append(
@@ -1837,7 +1837,7 @@
                 .attr("id", "perc-form-label-field-name")
                 .addClass($.PercFormConstants.FIELD_EDITOR_LABEL_CLASS)
                 .addClass($.PercFormConstants.FORM_LABEL_CLASS)
-                .text(this.label)
+                .text(this.label),
             )
             .append(
               $("<div>").append(
@@ -1850,9 +1850,9 @@
                   .attr("background", "grey")
                   .attr("readonly", "readonly")
                   .addClass($.PercFormConstants.INPUT_CLASS)
-                  .val("")
-              )
-            )
+                  .val(""),
+              ),
+            ),
         );
       }
       return fieldEditorHtml;
@@ -1878,8 +1878,8 @@
           $("<div/>")
             .addClass($.PercFormConstants.FIELD_LABEL_CONTAINER_CLASS)
             .append(
-              $("<label/>").attr("for", labelForValue).text(fieldData.label)
-            )
+              $("<label/>").attr("for", labelForValue).text(fieldData.label),
+            ),
         )
         .append(
           $("<div/>")
@@ -1889,15 +1889,15 @@
                 .attr("name", nameValue)
                 .attr("class", "required")
                 .attr("id", fieldId)
-                .attr("placeholder", fieldData.defaultValue)
-            )
+                .attr("placeholder", fieldData.defaultValue),
+            ),
         );
       var prefs = this.getAvailablePrefs();
       for (var i = 0; i < prefs.length; i++) {
         prefs[i].pref.onRender(
           renderedHtml.find("textarea"),
           fieldData.prefs ? fieldData.prefs[prefs[i].pref.name] : undefined,
-          prefs[i].defaults
+          prefs[i].defaults,
         );
       }
       return renderedHtml;
@@ -1950,7 +1950,7 @@
     };
     textControlAPI.getFieldEditor = function (fieldData, isExtended) {
       var fieldEditorHtml = $("<div/>").addClass(
-        $.PercFormConstants.FORM_FIELD_WRAPPER
+        $.PercFormConstants.FORM_FIELD_WRAPPER,
       );
       if (fieldData && isExtended) {
         fieldEditorHtml.append(
@@ -1963,9 +1963,9 @@
               $(
                 "<textarea id='elm1' name='elm1' rows='14' cols='80' style='width: 100%'>" +
                   fieldData.label +
-                  "</textarea>"
-              )
-            )
+                  "</textarea>",
+              ),
+            ),
         );
       } else if (fieldData) {
         fieldEditorHtml.append(
@@ -1977,8 +1977,8 @@
               $("<div/>")
                 .addClass($.PercFormConstants.FIELD_EDITOR_LABEL_CLASS)
                 .addClass($.PercFormConstants.FORM_LABEL_CLASS)
-                .html(fieldData.label)
-            )
+                .html(fieldData.label),
+            ),
         );
       } else {
         fieldEditorHtml.append(
@@ -1990,8 +1990,8 @@
               $("<div/>")
                 .addClass($.PercFormConstants.FIELD_EDITOR_LABEL_CLASS)
                 .addClass($.PercFormConstants.FORM_LABEL_CLASS)
-                .text(this.label)
-            )
+                .text(this.label),
+            ),
         );
       }
 
@@ -2006,7 +2006,7 @@
         prefs[i].pref.onRender(
           renderedHtml.find("span"),
           fieldData.prefs ? fieldData.prefs[prefs[i].pref.name] : undefined,
-          prefs[i].defaults
+          prefs[i].defaults,
         );
       }
       return renderedHtml;
@@ -2061,7 +2061,7 @@
     };
     urlControlAPI.getFieldEditor = function (fieldData, isExtended) {
       var fieldEditorHtml = $("<div/>").addClass(
-        $.PercFormConstants.FORM_FIELD_WRAPPER
+        $.PercFormConstants.FORM_FIELD_WRAPPER,
       );
       if (fieldData && isExtended) {
         var defValue =
@@ -2081,8 +2081,8 @@
                   .attr("maxlength", "255")
                   .addClass("defaultFocus")
                   .addClass($.PercFormConstants.INPUT_CLASS)
-                  .val(fieldData.label)
-              )
+                  .val(fieldData.label),
+              ),
             )
             .append(
               $("<div/>").append(
@@ -2090,9 +2090,9 @@
                   .attr("type", "text")
                   .attr("name", nameValue)
                   .addClass($.PercFormConstants.INPUT_CLASS)
-                  .val(defValue)
-              )
-            )
+                  .val(defValue),
+              ),
+            ),
         );
       } else if (fieldData) {
         var defValue1 =
@@ -2107,14 +2107,14 @@
               $("<div/>")
                 .addClass($.PercFormConstants.FIELD_EDITOR_LABEL_CLASS)
                 .addClass($.PercFormConstants.FORM_LABEL_CLASS)
-                .text(fieldData.label)
+                .text(fieldData.label),
             )
             .append(
               $('<div class = "perc-form-datadisplay"/>')
                 .attr("name", nameValue)
                 .addClass($.PercFormConstants.INPUT_CLASS)
-                .text(defValue1)
-            )
+                .text(defValue1),
+            ),
         );
       } else {
         fieldEditorHtml.append(
@@ -2127,16 +2127,16 @@
                 .attr("id", "perc-form-label-field-name")
                 .addClass($.PercFormConstants.FIELD_EDITOR_LABEL_CLASS)
                 .addClass($.PercFormConstants.FORM_LABEL_CLASS)
-                .text(this.label)
+                .text(this.label),
             )
             .append(
               $("<div>").append(
                 $('<div class = "perc-form-datadisplay"/>')
                   .attr("name", nameValue)
                   .addClass($.PercFormConstants.INPUT_CLASS)
-                  .text("")
-              )
-            )
+                  .text(""),
+              ),
+            ),
         );
       }
       return fieldEditorHtml;
@@ -2165,8 +2165,8 @@
           $("<div/>")
             .addClass($.PercFormConstants.FIELD_LABEL_CONTAINER_CLASS)
             .append(
-              $("<label/>").attr("for", labelForValue).text(fieldData.label)
-            )
+              $("<label/>").attr("for", labelForValue).text(fieldData.label),
+            ),
         )
         .append(
           $("<div/>")
@@ -2177,15 +2177,15 @@
                 .attr("id", fieldId)
                 .addClass("url")
                 .attr("name", nameValue)
-                .attr("placeholder", defValue)
-            )
+                .attr("placeholder", defValue),
+            ),
         );
       var prefs = this.getAvailablePrefs();
       for (var i = 0; i < prefs.length; i++) {
         prefs[i].pref.onRender(
           renderedHtml.find("input"),
           fieldData.prefs ? fieldData.prefs[prefs[i].pref.name] : undefined,
-          prefs[i].defaults
+          prefs[i].defaults,
         );
       }
 
@@ -2244,7 +2244,7 @@
     };
     submitButtonControlAPI.getFieldEditor = function (fieldData, isExtended) {
       var fieldEditorHtml = $("<div/>").addClass(
-        $.PercFormConstants.FORM_FIELD_WRAPPER
+        $.PercFormConstants.FORM_FIELD_WRAPPER,
       );
       if (fieldData && isExtended) {
         fieldEditorHtml.append(
@@ -2260,8 +2260,8 @@
                   $("<input/>")
                     .attr("type", "button")
                     .addClass("defaultFocus")
-                    .val(fieldData.label)
-                )
+                    .val(fieldData.label),
+                ),
             )
             .append(
               $("<div/>")
@@ -2269,7 +2269,7 @@
                   $("<div/>")
                     .addClass($.PercFormConstants.FIELD_EDITOR_LABEL_CLASS)
                     .addClass($.PercFormConstants.FORM_LABEL_CLASS)
-                    .text("Enter your custom text")
+                    .text("Enter your custom text"),
                 )
                 .append(
                   $("<div/>").append(
@@ -2279,10 +2279,10 @@
                       .addClass($.PercFormConstants.INPUT_CLASS)
                       .addClass("defaultFocus")
                       .attr("maxlength", "255")
-                      .val(fieldData.label)
-                  )
-                )
-            )
+                      .val(fieldData.label),
+                  ),
+                ),
+            ),
         );
       } else if (fieldData) {
         fieldEditorHtml.append(
@@ -2296,9 +2296,9 @@
                   .attr("type", "button")
                   .attr("name", "label")
                   .attr("disabled", "disabled")
-                  .val(fieldData.label)
-              )
-            )
+                  .val(fieldData.label),
+              ),
+            ),
         );
       } else {
         fieldEditorHtml.append(
@@ -2312,9 +2312,9 @@
                   .attr("type", "button")
                   .attr("name", "label")
                   .attr("disabled", "disabled")
-                  .val("Submit")
-              )
-            )
+                  .val("Submit"),
+              ),
+            ),
         );
       }
 
@@ -2330,7 +2330,7 @@
         prefs[i].pref.onRender(
           renderedHtml.find("input"),
           fieldData.prefs ? fieldData.prefs[prefs[i].pref.name] : undefined,
-          prefs[i].defaults
+          prefs[i].defaults,
         );
       }
       return renderedHtml;

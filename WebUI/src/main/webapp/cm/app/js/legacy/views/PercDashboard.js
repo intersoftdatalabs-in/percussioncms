@@ -204,12 +204,12 @@
             callback($.PercServiceUtils.STATUS_SUCCESS);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           if (typeof callback == "function")
             callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -238,25 +238,25 @@
                   } else {
                     var defaultMsg =
                       $.PercServiceUtils.extractDefaultErrorMessage(
-                        result.request
+                        result.request,
                       );
                     $.perc_utils.alert_dialog({
                       title: I18N.message("perc.ui.publish.title@Error"),
                       content: defaultMsg,
                     });
                   }
-                }
+                },
               );
             } else {
               var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-                result.request
+                result.request,
               );
               $.perc_utils.alert_dialog({
                 title: I18N.message("perc.ui.publish.title@Error"),
                 content: defaultMsg,
               });
             }
-          }
+          },
         );
       },
     });
@@ -317,11 +317,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, config);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -350,7 +350,7 @@
           });
         }
         if (typeof callback == "function") callback();
-      }
+      },
     );
   }
 
@@ -435,7 +435,7 @@
           }
         },
         function () {},
-        true
+        true,
       );
     }
   }
@@ -458,7 +458,7 @@
   function updateGadgetPositionAttributes() {
     $(".perc-gadget").each(function () {
       var column = parseInt(
-        $(this).parent(".perc-gadget-column").attr("id").replace("col-", "")
+        $(this).parent(".perc-gadget-column").attr("id").replace("col-", ""),
       );
       var row = $(this).prevAll().length;
       $(this).attr("column", column).attr("row", row);
@@ -504,7 +504,7 @@
 
           gadgets.container.layoutManager.addGadgetChromeId(
             gadgetObj.id,
-            "gid_" + gadgetObj.id
+            "gid_" + gadgetObj.id,
           );
           gadgets.container.renderGadget(gadgetObj);
           addMenu($("#gid_" + gadgetObj.id));
@@ -512,7 +512,7 @@
             minimizeGadget($("#gid_" + gadgetObj.id));
           }
           makeDashboardGadgetsDraggable($("#gid_" + gadgetObj.id));
-        }
+        },
       );
       return gadgetObj.id;
     }
@@ -552,7 +552,7 @@
     var gadgetMenuButton = $(
       "<img tabindex='0' src='../images/images/gadgetMenuButton.png' class='perc-gadget-menu-button' style='cursor:pointer' title='" +
         I18N.message("perc.ui.dashboard@Show Gadget Menu") +
-        "' alt='Gadget menu icon'/>"
+        "' alt='Gadget menu icon'/>",
     )
       .on("click", function (event) {
         event.stopPropagation();
@@ -808,14 +808,14 @@
           var statusSelect = $('[name="m_' + gadgetId + '_up_status"]');
           statusSelect.find("option").remove();
           var statusList = $.perc_utils.convertCXFArray(
-            result.data.EnumVals.entries
+            result.data.EnumVals.entries,
           );
           for (let s in statusList) {
             var value = statusList[s].value;
             statusSelect.append($("<option/>").val(value).html(value));
           }
         }
-      }
+      },
     );
   }
 
@@ -992,7 +992,7 @@
           callback(result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           $.perc_utils.alert_dialog({
             title: I18N.message("perc.ui.publish.title@Error"),
@@ -1000,7 +1000,7 @@
           });
         }
       },
-      requestObj
+      requestObj,
     );
   }
 
@@ -1124,7 +1124,7 @@
           $("<option />")
             .addClass("perc-gadget-category-custom")
             .val("other")
-            .text("Other")
+            .text("Other"),
         );
       }
     }
@@ -1138,7 +1138,7 @@
           $("<option />")
             .addClass("perc-gadget-category-custom")
             .val(value)
-            .text(value)
+            .text(value),
         );
       });
     }
@@ -1313,7 +1313,7 @@
           dashboardColumnPosition.left,
           dashboardContainPosition,
           dashboardColumn.width() - DASHBOARD_GADGET_MARGIN,
-          dashboardContainer.height()
+          dashboardContainer.height(),
         );
       }
       columnIndex++;
@@ -1338,7 +1338,7 @@
           null,
           top,
           null,
-          dashboardContainer.height()
+          dashboardContainer.height(),
         );
       }
     });
@@ -1364,7 +1364,7 @@
     left,
     top,
     width,
-    height
+    height,
   ) {
     // you have to at least give me the dashboardGadget or the sizes
     if (
@@ -1473,7 +1473,7 @@
               gadgetUrl,
               columnIndex,
               rowIndex,
-              feedback
+              feedback,
             );
           }
           feedback.hide();
@@ -1539,7 +1539,7 @@
     gadgetUrl,
     columnIndex,
     rowIndex,
-    feedback
+    feedback,
   ) {
     if (isFeedbackVisible(feedback, rowIndex))
       addGadget(gadgetUrl, columnIndex, rowIndex);

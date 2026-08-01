@@ -30,21 +30,21 @@
         var d, e, f, g, j;
         if (!b) return this;
         a = a.split(p);
-        for (d = this._callbacks || (this._callbacks = {}); (e = a.shift()); )
-          (f = (j = d[e]) ? j.tail : {}),
+        for (d = this._callbacks || (this._callbacks = {}); (e = a.shift());)
+          ((f = (j = d[e]) ? j.tail : {}),
             (f.next = g = {}),
             (f.context = c),
             (f.callback = b),
-            (d[e] = { tail: g, next: j ? j.next : f });
+            (d[e] = { tail: g, next: j ? j.next : f }));
         return this;
       },
       off: function (a, b, c) {
         var d, e, h, g, j, q;
         if ((e = this._callbacks)) {
-          if (!a && !b && !c) return delete this._callbacks, this;
-          for (a = a ? a.split(p) : f.keys(e); (d = a.shift()); )
+          if (!a && !b && !c) return (delete this._callbacks, this);
+          for (a = a ? a.split(p) : f.keys(e); (d = a.shift());)
             if (((h = e[d]), delete e[d], h && (b || c)))
-              for (g = h.tail; (h = h.next) !== g; )
+              for (g = h.tail; (h = h.next) !== g;)
                 if (
                   ((j = h.callback),
                   (q = h.context),
@@ -59,13 +59,13 @@
         if (!(d = this._callbacks)) return this;
         f = d.all;
         a = a.split(p);
-        for (g = z.call(arguments, 1); (b = a.shift()); ) {
+        for (g = z.call(arguments, 1); (b = a.shift());) {
           if ((c = d[b]))
-            for (e = c.tail; (c = c.next) !== e; )
+            for (e = c.tail; (c = c.next) !== e;)
               c.callback.apply(c.context || this, g);
           if ((c = f)) {
             e = c.tail;
-            for (b = [b].concat(g); (c = c.next) !== e; )
+            for (b = [b].concat(g); (c = c.next) !== e;)
               c.callback.apply(c.context || this, b);
           }
         }
@@ -130,7 +130,7 @@
       for (e in d) {
         a = d[e];
         if (!f.isEqual(h[e], a) || (c.unset && f.has(h, e)))
-          delete g[e], ((c.silent ? this._silent : b)[e] = !0);
+          (delete g[e], ((c.silent ? this._silent : b)[e] = !0));
         c.unset ? delete h[e] : (h[e] = a);
         !f.isEqual(j[e], a) || f.has(h, e) != f.has(j, e)
           ? ((this.changed[e] = a), c.silent || (this._pending[e] = !0))
@@ -192,7 +192,7 @@
         d = function () {
           b.trigger("destroy", b, b.collection, a);
         };
-      if (this.isNew()) return d(), !1;
+      if (this.isNew()) return (d(), !1);
       a.success = function (e) {
         a.wait && d();
         c ? c(b, e) : b.trigger("sync", b, e, a);
@@ -228,7 +228,7 @@
       this._silent = {};
       for (c in d) this.trigger("change:" + c, this, this.get(c), a);
       if (b) return this;
-      for (; !f.isEmpty(this._pending); ) {
+      for (; !f.isEmpty(this._pending);) {
         this._pending = {};
         this.trigger("change", this, a);
         for (c in this.changed)
@@ -309,23 +309,23 @@
           ? l.push(c)
           : (j[g] = k[i] = e);
       }
-      for (c = l.length; c--; ) a.splice(l[c], 1);
+      for (c = l.length; c--;) a.splice(l[c], 1);
       c = 0;
       for (d = a.length; c < d; c++)
-        (e = a[c]).on("all", this._onModelEvent, this),
+        ((e = a[c]).on("all", this._onModelEvent, this),
           (this._byCid[e.cid] = e),
-          null != e.id && (this._byId[e.id] = e);
+          null != e.id && (this._byId[e.id] = e));
       this.length += d;
       A.apply(
         this.models,
-        [null != b.at ? b.at : this.models.length, 0].concat(a)
+        [null != b.at ? b.at : this.models.length, 0].concat(a),
       );
       this.comparator && this.sort({ silent: !0 });
       if (b.silent) return this;
       c = 0;
       for (d = this.models.length; c < d; c++)
         if (j[(e = this.models[c]).cid])
-          (b.index = c), e.trigger("add", e, this, b);
+          ((b.index = c), e.trigger("add", e, this, b));
       return this;
     },
     remove: function (a, b) {
@@ -335,13 +335,13 @@
       c = 0;
       for (d = a.length; c < d; c++)
         if ((g = this.getByCid(a[c]) || this.get(a[c])))
-          delete this._byId[g.id],
+          (delete this._byId[g.id],
             delete this._byCid[g.cid],
             (e = this.indexOf(g)),
             this.models.splice(e, 1),
             this.length--,
             b.silent || ((b.index = e), g.trigger("remove", g, this, b)),
-            this._removeReference(g);
+            this._removeReference(g));
       return this;
     },
     push: function (a, b) {
@@ -470,13 +470,13 @@
   });
   f.each(
     "forEach,each,map,reduce,reduceRight,find,detect,filter,select,reject,every,all,some,any,include,contains,invoke,max,min,sortBy,sortedIndex,toArray,size,first,initial,rest,last,without,indexOf,shuffle,lastIndexOf,isEmpty,groupBy".split(
-      ","
+      ",",
     ),
     function (a) {
       r.prototype[a] = function () {
         return f[a].apply(f, [this.models].concat(f.toArray(arguments)));
       };
-    }
+    },
   );
   var u = (g.Router = function (a) {
       a || (a = {});
@@ -500,7 +500,7 @@
           c && c.apply(this, d);
           this.trigger.apply(this, ["route:" + b].concat(d));
           g.history.trigger("route", this, b, d);
-        }, this)
+        }, this),
       );
       return this;
     },
@@ -563,16 +563,19 @@
       var a = this.getFragment(),
         b = document.documentMode;
       if ((b = E.exec(navigator.userAgent.toLowerCase()) && (!b || 7 >= b)))
-        (this.iframe = i('<iframe src="javascript:0" tabindex="-1" />')
+        ((this.iframe = i('<iframe src="javascript:0" tabindex="-1" />')
           .hide()
           .appendTo("body")[0].contentWindow),
-          this.navigate(a);
+          this.navigate(a));
       this._hasPushState
         ? i(window).bind("popstate", this.checkUrl)
         : this._wantsHashChange && "onhashchange" in window && !b
-        ? i(window).bind("hashchange", this.checkUrl)
-        : this._wantsHashChange &&
-          (this._checkUrlInterval = setInterval(this.checkUrl, this.interval));
+          ? i(window).bind("hashchange", this.checkUrl)
+          : this._wantsHashChange &&
+            (this._checkUrlInterval = setInterval(
+              this.checkUrl,
+              this.interval,
+            ));
       this.fragment = a;
       a = window.location;
       b = a.pathname == this.options.root;
@@ -595,7 +598,7 @@
         window.history.replaceState(
           {},
           document.title,
-          a.protocol + "//" + a.host + this.options.root + this.fragment
+          a.protocol + "//" + a.host + this.options.root + this.fragment,
         ));
       if (!this.options.silent) return this.loadUrl();
     },
@@ -621,7 +624,7 @@
     loadUrl: function (a) {
       var b = (this.fragment = this.getFragment(a));
       return f.any(this.handlers, function (a) {
-        if (a.route.test(b)) return a.callback(b), !0;
+        if (a.route.test(b)) return (a.callback(b), !0);
       });
     },
     navigate: function (a, b) {
@@ -635,16 +638,16 @@
             window.history[b.replace ? "replaceState" : "pushState"](
               {},
               document.title,
-              c
+              c,
             ))
           : this._wantsHashChange
-          ? ((this.fragment = c),
-            this._updateHash(window.location, c, b.replace),
-            this.iframe &&
-              c != this.getFragment(this.getHash(this.iframe)) &&
-              (b.replace || this.iframe.document.open().close(),
-              this._updateHash(this.iframe.location, c, b.replace)))
-          : window.location.assign(this.options.root + a),
+            ? ((this.fragment = c),
+              this._updateHash(window.location, c, b.replace),
+              this.iframe &&
+                c != this.getFragment(this.getHash(this.iframe)) &&
+                (b.replace || this.iframe.document.open().close(),
+                this._updateHash(this.iframe.location, c, b.replace)))
+            : window.location.assign(this.options.root + a),
         b.trigger && this.loadUrl(a));
     },
     _updateHash: function (a, b, c) {
@@ -741,17 +744,17 @@
     var e = { type: d, dataType: "json" };
     c.url || (e.url = n(b, "url") || t());
     if (!c.data && b && ("create" == a || "update" == a))
-      (e.contentType = "application/json"),
-        (e.data = JSON.stringify(b.toJSON()));
+      ((e.contentType = "application/json"),
+        (e.data = JSON.stringify(b.toJSON())));
     g.emulateJSON &&
       ((e.contentType = "application/x-www-form-urlencoded"),
       (e.data = e.data ? { model: e.data } : {}));
     if (g.emulateHTTP && ("PUT" === d || "DELETE" === d))
-      g.emulateJSON && (e.data._method = d),
+      (g.emulateJSON && (e.data._method = d),
         (e.type = "POST"),
         (e.beforeSend = function (a) {
           a.setRequestHeader("X-HTTP-Method-Override", d);
-        });
+        }));
     "GET" !== e.type && !g.emulateJSON && (e.processData = !1);
     return i.ajax(f.extend(e, c));
   };

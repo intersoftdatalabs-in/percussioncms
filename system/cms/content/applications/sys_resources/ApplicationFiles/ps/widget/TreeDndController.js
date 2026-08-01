@@ -38,7 +38,7 @@ ps.widget.defineWidget(
     makeDropTarget: function (node) {
       var target = ps.widget.TreeDndControllerV3.prototype.makeDropTarget.apply(
         this,
-        arguments
+        arguments,
       );
       ps.event.connectAround(target, "onDragOver", this, "_onDragOver");
       return target;
@@ -69,5 +69,5 @@ ps.widget.defineWidget(
       }
       ps.assert(false, "Should not reach here");
     },
-  }
+  },
 );

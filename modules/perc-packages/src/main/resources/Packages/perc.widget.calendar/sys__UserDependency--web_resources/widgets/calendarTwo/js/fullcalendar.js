@@ -90,7 +90,7 @@
             // is the property targeting a view?
             if (
               /^(month|week|day|default|basic(Week|Day)?|agenda(Week|Day)?)$/.test(
-                subName
+                subName,
               )
             ) {
               if (!overrides.views[subName]) {
@@ -180,7 +180,7 @@
 
     var minOffset1 = Math.floor(availableHeight / els.length); // for non-last element
     var minOffset2 = Math.floor(
-      availableHeight - minOffset1 * (els.length - 1)
+      availableHeight - minOffset1 * (els.length - 1),
     ); // for last element *FLOORING NOTE*
     var flexEls = []; // elements that are allowed to expand. array of DOM nodes
     var flexOffsets = []; // amount of vertical space it takes up
@@ -210,7 +210,7 @@
       availableHeight -= usedHeight;
       minOffset1 = Math.floor(availableHeight / flexEls.length);
       minOffset2 = Math.floor(
-        availableHeight - minOffset1 * (flexEls.length - 1)
+        availableHeight - minOffset1 * (flexEls.length - 1),
       ); // *FLOORING NOTE*
     }
 
@@ -288,7 +288,7 @@
           return /(auto|scroll)/.test(
             parent.css("overflow") +
               parent.css("overflow-y") +
-              parent.css("overflow-x")
+              parent.css("overflow-x"),
           );
         })
         .eq(0);
@@ -559,7 +559,7 @@
         specs.push(
           token.charAt(0) == "-"
             ? { field: token.substring(1), order: -1 }
-            : { field: token, order: 1 }
+            : { field: token, order: 1 },
         );
       } else if (typeof token === "function") {
         specs.push({ func: token });
@@ -692,7 +692,7 @@
   function diffByUnit(a, b, unit) {
     return moment.duration(
       Math.round(a.diff(b, unit, true)), // returnFloat=true
-      unit
+      unit,
     );
   }
 
@@ -783,7 +783,7 @@
   // Returns a boolean about whether the given duration has any time parts (hours/minutes/seconds/ms)
   function durationHasTime(dur) {
     return Boolean(
-      dur.hours() || dur.minutes() || dur.seconds() || dur.milliseconds()
+      dur.hours() || dur.minutes() || dur.seconds() || dur.milliseconds(),
     );
   }
 
@@ -1345,7 +1345,7 @@
           return oldMomentProto[name].apply(this, arguments);
         };
       }
-    }
+    },
   );
 
   // Formatting
@@ -1510,15 +1510,16 @@
     ? function (mom, a) {
         // simlate what moment's accessors do
         mom._d.setTime(
-          +new Date( // FYI, there is now way to apply an array of args to a constructor
+          +new Date(
+            // FYI, there is now way to apply an array of args to a constructor
             a[0] || 0,
             a[1] || 0,
             a[2] || 0,
             a[3] || 0,
             a[4] || 0,
             a[5] || 0,
-            a[6] || 0
-          )
+            a[6] || 0,
+          ),
         );
         moment.updateOffset(mom, false); // keepTime=false
       }
@@ -1613,7 +1614,7 @@
       date2,
       getFormatStringChunks(formatStr),
       separator,
-      isRTL
+      isRTL,
     );
   }
   FC.formatRange = formatRange; // expose
@@ -1639,7 +1640,7 @@
         date2,
         unzonedDate1,
         unzonedDate2,
-        chunks[leftI]
+        chunks[leftI],
       );
       if (chunkStr === false) {
         break;
@@ -1654,7 +1655,7 @@
         date2,
         unzonedDate1,
         unzonedDate2,
-        chunks[rightI]
+        chunks[rightI],
       );
       if (chunkStr === false) {
         break;
@@ -1897,7 +1898,7 @@ and more importantly, easily unlistening from them.
         } else if (typeof arg === "string") {
           other.on(
             arg + "." + this.getListenerNamespace(), // use event namespacing to identify this object
-            $.proxy(callback, this) // always use `this` context
+            $.proxy(callback, this), // always use `this` context
             // the usually-undesired jQuery guid behavior doesn't matter,
             // because we always unbind via namespace
           );
@@ -1933,7 +1934,7 @@ and more importantly, easily unlistening from them.
     initMouseIgnoring: function (delay) {
       this.delayUnignoreMouse = debounce(
         proxy(this, "unignoreMouse"),
-        delay || 1000
+        delay || 1000,
       );
     },
 
@@ -2083,12 +2084,12 @@ Options:
       if (options.viewportConstrain !== false) {
         top = Math.min(
           top,
-          viewportTop + viewportEl.outerHeight() - height - this.margin
+          viewportTop + viewportEl.outerHeight() - height - this.margin,
         );
         top = Math.max(top, viewportTop + this.margin);
         left = Math.min(
           left,
-          viewportLeft + viewportEl.outerWidth() - width - this.margin
+          viewportLeft + viewportEl.outerWidth() - width - this.margin,
         );
         left = Math.max(left, viewportLeft + this.margin);
       }
@@ -2106,7 +2107,7 @@ Options:
       if (this.options[name]) {
         this.options[name].apply(
           this,
-          Array.prototype.slice.call(arguments, 1)
+          Array.prototype.slice.call(arguments, 1),
         );
       }
     },
@@ -2409,7 +2410,7 @@ options:
           this.minDistance = firstDefined(
             extraOptions.distance,
             this.options.distance,
-            0
+            0,
           );
           this.subjectEl = this.options.subjectEl;
 
@@ -2672,18 +2673,18 @@ options:
         if (this.options[name]) {
           this.options[name].apply(
             this,
-            Array.prototype.slice.call(arguments, 1)
+            Array.prototype.slice.call(arguments, 1),
           );
         }
         // makes _methods callable by event name. TODO: kill this
         if (this["_" + name]) {
           this["_" + name].apply(
             this,
-            Array.prototype.slice.call(arguments, 1)
+            Array.prototype.slice.call(arguments, 1),
           );
         }
       },
-    }
+    },
   ));
 
   /*
@@ -2716,7 +2717,7 @@ this.scrollEl is set in DragListener
         this.listenTo(
           scrollEl,
           "scroll",
-          debounce(this.handleDebouncedScroll, 100)
+          debounce(this.handleDebouncedScroll, 100),
         );
       }
     },
@@ -2789,7 +2790,7 @@ this.scrollEl is set in DragListener
       if ((this.scrollTopVel || this.scrollLeftVel) && !this.scrollIntervalId) {
         this.scrollIntervalId = setInterval(
           proxy(this, "scrollIntervalFunc"), // scope to `this`
-          this.scrollIntervalMs
+          this.scrollIntervalMs,
         );
       }
     },
@@ -3155,7 +3156,7 @@ options:
             {
               duration: revertDuration,
               complete: complete,
-            }
+            },
           );
         } else {
           complete();
@@ -3525,7 +3526,7 @@ options:
             if (isSelectable) {
               selectionSpan = _this.computeSelection(
                 _this.getHitSpan(origHit),
-                _this.getHitSpan(hit)
+                _this.getHitSpan(hit),
               );
               if (selectionSpan) {
                 _this.renderSelection(selectionSpan);
@@ -3554,7 +3555,7 @@ options:
               view.triggerDayClick(
                 _this.getHitSpan(dayClickHit),
                 _this.getHitEl(dayClickHit),
-                ev
+                ev,
               );
             }
             if (selectionSpan) {
@@ -3839,7 +3840,7 @@ options:
       this.segs = [].concat(
         // record all segs
         this.renderBgEvents(bgEvents),
-        this.renderFgEvents(fgEvents)
+        this.renderFgEvents(fgEvents),
       );
     },
 
@@ -4107,7 +4108,7 @@ options:
       if ($(ev.target).is(".fc-resizer")) {
         this.buildSegResizeListener(
           seg,
-          $(ev.target).is(".fc-start-resizer")
+          $(ev.target).is(".fc-start-resizer"),
         ).startInteraction(ev, dragOptions);
         return true;
       }
@@ -4175,7 +4176,7 @@ options:
           dropLocation = _this.computeEventDrop(
             origHit.component.getHitSpan(origHit),
             hit.component.getHitSpan(hit),
-            event
+            event,
           );
 
           if (
@@ -4381,7 +4382,7 @@ options:
           hitOver: function (hit) {
             dropLocation = _this.computeExternalDrop(
               hit.component.getHitSpan(hit), // since we are querying the parent view, might not belong to this grid
-              meta
+              meta,
             );
 
             if (
@@ -4390,7 +4391,7 @@ options:
               !calendar.isExternalSpanAllowed(
                 _this.eventToSpan(dropLocation),
                 dropLocation,
-                meta.eventProps
+                meta.eventProps,
               )
             ) {
               disableCursor();
@@ -4417,7 +4418,7 @@ options:
             _this.isDraggingExternal = false;
             _this.externalDragListener = null;
           },
-        }
+        },
       ));
 
       dragListener.startDrag(ev); // start listening immediately
@@ -4502,7 +4503,7 @@ options:
             if (
               !calendar.isEventSpanAllowed(
                 _this.eventToSpan(resizeLocation),
-                event
+                event,
               )
             ) {
               disableCursor();
@@ -4543,7 +4544,7 @@ options:
               resizeLocation,
               this.largeUnit,
               el,
-              ev
+              ev,
             );
           }
           _this.segResizeListener = null;
@@ -4761,7 +4762,7 @@ options:
           for (i = 0; i < ranges.length; i++) {
             segs.push.apply(
               segs, // append to
-              _this.eventRangeToSegs(ranges[i], events[0], segSliceFunc)
+              _this.eventRangeToSegs(ranges[i], events[0], segSliceFunc),
             );
           }
         }
@@ -4770,7 +4771,7 @@ options:
           for (i = 0; i < ranges.length; i++) {
             segs.push.apply(
               segs, // append to
-              _this.eventRangeToSegs(ranges[i], events[i], segSliceFunc)
+              _this.eventRangeToSegs(ranges[i], events[i], segSliceFunc),
             );
           }
         }
@@ -4789,7 +4790,7 @@ options:
           : // derive the end from the start and allDay. compute allDay if necessary
             this.view.calendar.getDefaultEventEnd(
               event.allDay != null ? event.allDay : !event.start.hasTime(),
-              event.start
+              event.start,
             )
         ).stripZone(),
       };
@@ -4805,7 +4806,7 @@ options:
       for (i = 0; i < spans.length; i++) {
         segs.push.apply(
           segs, // append to
-          this.eventSpanToSegs(spans[i], event, segSliceFunc)
+          this.eventSpanToSegs(spans[i], event, segSliceFunc),
         );
       }
 
@@ -5138,7 +5139,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
       var normalRange = this.view.computeDayRange(range); // make whole-day range, considering nextDayThreshold
       var rangeFirst = this.getDateDayIndex(normalRange.start); // inclusive first index
       var rangeLast = this.getDateDayIndex(
-        normalRange.end.clone().subtract(1, "days")
+        normalRange.end.clone().subtract(1, "days"),
       ); // inclusive last index
       var segs = [];
       var row;
@@ -5183,7 +5184,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
       var normalRange = this.view.computeDayRange(range); // make whole-day range, considering nextDayThreshold
       var rangeFirst = this.getDateDayIndex(normalRange.start); // inclusive first index
       var rangeLast = this.getDateDayIndex(
-        normalRange.end.clone().subtract(1, "days")
+        normalRange.end.clone().subtract(1, "days"),
       ); // inclusive last index
       var segs = [];
       var row;
@@ -5419,7 +5420,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
             "dayRender",
             null,
             this.getCellDate(row, col),
-            this.getCellEl(row, col)
+            this.getCellEl(row, col),
           );
         }
       }
@@ -5692,7 +5693,8 @@ Prerequisite: the object being mixed into needs to be a *Grid*
 
       return (
         // must return the elements rendered
-        (this.helperEls = $(helperNodes)) // array -> jQuery set
+        this.helperEls =
+          $(helperNodes) // array -> jQuery set
       );
     },
 
@@ -5745,7 +5747,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
           className +
           '-skeleton">' +
           "<table><tr/></table>" +
-          "</div>"
+          "</div>",
       );
       trEl = skeletonEl.find("tr");
 
@@ -5862,7 +5864,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
       var classes = this.getSegClasses(
         seg,
         isDraggable,
-        isResizableFromStart || isResizableFromEnd
+        isResizableFromStart || isResizableFromEnd,
       );
       var skinCss = cssToStr(this.getSegSkinCss(seg));
       var timeHtml = "";
@@ -6214,7 +6216,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
               moreLink = this.renderMoreLink(
                 row,
                 seg.leftCol + j,
-                [seg].concat(segsBelow) // count seg as hidden too
+                [seg].concat(segsBelow), // count seg as hidden too
               );
               moreWrap = $("<div/>").append(moreLink);
               moreTd.append(moreWrap);
@@ -6280,7 +6282,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
                 segs: reslicedAllSegs,
                 hiddenSegs: reslicedHiddenSegs,
               },
-              ev
+              ev,
             );
           }
 
@@ -6343,7 +6345,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
       var view = this.view;
       var isTheme = view.opt("theme");
       var title = this.getCellDate(row, col).format(
-        view.opt("dayPopoverFormat")
+        view.opt("dayPopoverFormat"),
       );
       var content = $(
         '<div class="fc-header ' +
@@ -6361,7 +6363,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
           view.widgetContentClass +
           '">' +
           '<div class="fc-event-container"></div>' +
-          "</div>"
+          "</div>",
       );
       var segContainer = content.find(".fc-event-container");
       var i;
@@ -6515,7 +6517,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
       while (slotTime < this.maxTime) {
         slotDate = this.start.clone().time(slotTime);
         isLabeled = isInt(
-          divideDurationByDuration(slotTime, this.labelInterval)
+          divideDurationByDuration(slotTime, this.labelInterval),
         );
 
         axisHtml =
@@ -6746,8 +6748,8 @@ Prerequisite: the object being mixed into needs to be a *Grid*
           [].concat(
             this.fgSegs || [],
             this.bgSegs || [],
-            this.businessSegs || []
-          )
+            this.businessSegs || [],
+          ),
         );
       }
     },
@@ -6760,7 +6762,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
     // A `startOfDayDate` must be given for avoiding ambiguity over how to treat midnight.
     computeDateTop: function (date, startOfDayDate) {
       return this.computeTimeTop(
-        moment.duration(date - startOfDayDate.clone().stripTime())
+        moment.duration(date - startOfDayDate.clone().stripTime()),
       );
     },
 
@@ -6873,7 +6875,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
         nodes.push(
           $('<div class="fc-now-indicator fc-now-indicator-line"></div>')
             .css("top", top)
-            .appendTo(this.colContainerEls.eq(segs[i].col))[0]
+            .appendTo(this.colContainerEls.eq(segs[i].col))[0],
         );
       }
 
@@ -6883,7 +6885,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
         nodes.push(
           $('<div class="fc-now-indicator fc-now-indicator-arrow"></div>')
             .css("top", top)
-            .appendTo(this.el.find(".fc-content-skeleton"))[0]
+            .appendTo(this.el.find(".fc-content-skeleton"))[0],
         );
       }
 
@@ -6977,13 +6979,13 @@ Prerequisite: the object being mixed into needs to be a *Grid*
           cellHtml +
           "</tr>" +
           "</table>" +
-          "</div>"
+          "</div>",
       );
 
       this.colContainerEls = skeletonEl.find(".fc-content-col");
       this.helperContainerEls = skeletonEl.find(".fc-helper-container");
       this.fgContainerEls = skeletonEl.find(
-        ".fc-event-container:not(.fc-helper-container)"
+        ".fc-event-container:not(.fc-helper-container)",
       );
       this.bgContainerEls = skeletonEl.find(".fc-bgevent-container");
       this.highlightContainerEls = skeletonEl.find(".fc-highlight-container");
@@ -7063,7 +7065,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
       this.updateSegVerticals(segs);
       this.attachSegsByCol(
         this.groupSegsByCol(segs),
-        this.highlightContainerEls
+        this.highlightContainerEls,
       );
       this.highlightSegs = segs;
     },
@@ -7080,7 +7082,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
       this.updateSegVerticals(segs);
       this.attachSegsByCol(
         this.groupSegsByCol(segs),
-        this.businessContainerEls
+        this.businessContainerEls,
       );
       this.businessSegs = segs;
     },
@@ -7174,7 +7176,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
       var classes = this.getSegClasses(
         seg,
         isDraggable,
-        isResizableFromStart || isResizableFromEnd
+        isResizableFromStart || isResizableFromEnd,
       );
       var skinCss = cssToStr(this.getSegSkinCss(seg));
       var timeText;
@@ -7325,7 +7327,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
     computeFgSegForwardBack: function (
       seg,
       seriesBackwardPressure,
-      seriesBackwardCoord
+      seriesBackwardCoord,
     ) {
       var forwardSegs = seg.forwardSegs;
       var i;
@@ -7345,7 +7347,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
           this.computeFgSegForwardBack(
             forwardSegs[0],
             seriesBackwardPressure + 1,
-            seriesBackwardCoord
+            seriesBackwardCoord,
           );
           seg.forwardCoord = forwardSegs[0].backwardCoord;
         }
@@ -7410,7 +7412,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
         // double the width, but don't go beyond the maximum forward coordinate (1.0)
         forwardCoord = Math.min(
           1,
-          backwardCoord + (forwardCoord - backwardCoord) * 2
+          backwardCoord + (forwardCoord - backwardCoord) * 2,
         );
       }
 
@@ -7501,7 +7503,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
         // plus one (for the forwardSeg itself)
         forwardPressure = Math.max(
           forwardPressure,
-          1 + forwardSeg.forwardPressure
+          1 + forwardSeg.forwardPressure,
         );
       }
 
@@ -7612,8 +7614,8 @@ Prerequisite: the object being mixed into needs to be a *Grid*
         calendar,
         [name, thisObj || this].concat(
           Array.prototype.slice.call(arguments, 2), // arguments beyond thisObj
-          [this] // always make the last argument a reference to the view. TODO: deprecate
-        )
+          [this], // always make the last argument a reference to the view. TODO: deprecate
+        ),
       );
     },
 
@@ -7672,14 +7674,14 @@ Prerequisite: the object being mixed into needs to be a *Grid*
     computePrevDate: function (date) {
       return this.massageCurrentDate(
         date.clone().startOf(this.intervalUnit).subtract(this.intervalDuration),
-        -1
+        -1,
       );
     },
 
     // Computes the new date when the user hits the next button, given the current date
     computeNextDate: function (date) {
       return this.massageCurrentDate(
-        date.clone().startOf(this.intervalUnit).add(this.intervalDuration)
+        date.clone().startOf(this.intervalUnit).add(this.intervalDuration),
       );
     },
 
@@ -7715,7 +7717,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
           end: this.calendar.applyTimezone(this.intervalEnd),
         },
         this.opt("titleFormat") || this.computeTitleFormat(),
-        this.opt("titleRangeSeparator")
+        this.opt("titleRangeSeparator"),
       );
     },
 
@@ -7749,7 +7751,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
         end,
         formatStr,
         separator,
-        this.opt("isRTL")
+        this.opt("isRTL"),
       );
     },
 
@@ -7815,7 +7817,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
 
             _this.calendar.unfreezeContentHeight();
             _this.triggerRender();
-          }
+          },
         ));
       });
     },
@@ -7980,7 +7982,9 @@ Prerequisite: the object being mixed into needs to be a *Grid*
       if (this.isNowIndicatorRendered) {
         this.unrenderNowIndicator();
         this.renderNowIndicator(
-          this.initialNowDate.clone().add(new Date() - this.initialNowQueriedMs) // add ms
+          this.initialNowDate
+            .clone()
+            .add(new Date() - this.initialNowQueriedMs), // add ms
         );
       }
     },
@@ -8050,7 +8054,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
 
       this.setHeight(
         calendar.getSuggestedViewHeight(),
-        calendar.isHeightAuto()
+        calendar.isHeightAuto(),
       );
     },
 
@@ -8210,7 +8214,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
         this.opt("eventStartEditable"),
         event.editable,
         source.editable,
-        this.opt("editable")
+        this.opt("editable"),
       );
     },
 
@@ -8303,7 +8307,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
         this.opt("eventDurationEditable"),
         event.editable,
         source.editable,
-        this.opt("editable")
+        this.opt("editable"),
       );
     },
 
@@ -8321,7 +8325,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
         mutateResult.durationDelta,
         undoFunc,
         el,
-        ev
+        ev,
       );
       calendar.reportEventChange(); // will rerender events
     },
@@ -8335,7 +8339,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
         durationDelta,
         undoFunc,
         ev,
-        {}
+        {},
       ); // {} = jqui dummy
     },
 
@@ -8368,7 +8372,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
         null,
         this.calendar.applyTimezone(span.start), // convert to calendar's tz for external API
         this.calendar.applyTimezone(span.end), // "
-        ev
+        ev,
       );
     },
 
@@ -8465,7 +8469,7 @@ Prerequisite: the object being mixed into needs to be a *Grid*
         "dayClick",
         dayEl,
         this.calendar.applyTimezone(span.start), // convert to calendar's timezone for external API
-        ev
+        ev,
       );
     },
 
@@ -8690,7 +8694,7 @@ Embodies a div that has potential scrollbars
       lang = firstDefined(
         // explicit lang option given?
         this.dynamicOverrides.lang,
-        this.overrides.lang
+        this.overrides.lang,
       );
       langDefaults = langOptionHash[lang];
       if (!langDefaults) {
@@ -8704,7 +8708,7 @@ Embodies a div that has potential scrollbars
         this.dynamicOverrides.isRTL,
         this.overrides.isRTL,
         langDefaults.isRTL,
-        Calendar.defaults.isRTL
+        Calendar.defaults.isRTL,
       );
       dirDefaults = isRTL ? Calendar.rtlDefaults : {};
 
@@ -8979,11 +8983,11 @@ Embodies a div that has potential scrollbars
         dayNames,
         dayNamesShort,
         firstDay,
-        weekNumberCalculation
+        weekNumberCalculation,
       ) {
         localeData = createObject(
           // make a cheap copy
-          getMomentLocaleData(lang) // will fall back to en
+          getMomentLocaleData(lang), // will fall back to en
         );
 
         if (monthNames) {
@@ -9021,17 +9025,17 @@ Embodies a div that has potential scrollbars
         if (date) {
           localizeMoment(date); // sets to localeData
         }
-      }
+      },
     );
 
     // Calendar-specific Date Utilities
     // -----------------------------------------------------------------------------------
 
     t.defaultAllDayEventDuration = moment.duration(
-      t.options.defaultAllDayEventDuration
+      t.options.defaultAllDayEventDuration,
     );
     t.defaultTimedEventDuration = moment.duration(
-      t.options.defaultTimedEventDuration
+      t.options.defaultTimedEventDuration,
     );
 
     // Builds a moment using the settings of the current calendar: timezone and language.
@@ -9268,8 +9272,8 @@ Embodies a div that has potential scrollbars
 
         currentView.setElement(
           $("<div class='fc-view fc-" + viewType + "-view' />").appendTo(
-            content
-          )
+            content,
+          ),
         );
         header.activateButton(viewType);
       }
@@ -9380,7 +9384,7 @@ Embodies a div that has potential scrollbars
         suggestedViewHeight = element.parent().height() - queryHeaderHeight();
       } else {
         suggestedViewHeight = Math.round(
-          content.width() / Math.max(t.options.aspectRatio, 0.5)
+          content.width() / Math.max(t.options.aspectRatio, 0.5),
         );
       }
     }
@@ -10163,7 +10167,7 @@ Options binding/triggering system.
                     classes.join(" ") +
                     '">' +
                     innerHtml +
-                    "</button>"
+                    "</button>",
                 )
                   .on("click", function (ev) {
                     // don't process clicks for disabled buttons
@@ -10253,7 +10257,7 @@ Options binding/triggering system.
     function deactivateButton(buttonName) {
       if (el) {
         el.find(".fc-" + buttonName + "-button").removeClass(
-          tm + "-state-active"
+          tm + "-state-active",
         );
       }
     }
@@ -10324,14 +10328,14 @@ Options binding/triggering system.
 
     $.each(
       (t.options.events ? [t.options.events] : []).concat(
-        t.options.eventSources || []
+        t.options.eventSources || [],
       ),
       function (i, sourceInput) {
         var source = buildEventSource(sourceInput);
         if (source) {
           sources.push(source);
         }
-      }
+      },
     );
 
     /* Fetching
@@ -10414,7 +10418,7 @@ Options binding/triggering system.
                 // not false (an invalid event)
                 cache.push.apply(
                   cache,
-                  expandEvent(abstractEvent) // add individual expanded events to the cache
+                  expandEvent(abstractEvent), // add individual expanded events to the cache
                 );
               }
             }
@@ -10454,7 +10458,7 @@ Options binding/triggering system.
           rangeStart.clone(),
           rangeEnd.clone(),
           t.options.timezone,
-          callback
+          callback,
         );
 
         if (res === true) {
@@ -10479,7 +10483,7 @@ Options binding/triggering system.
             function (events) {
               callback(events);
               t.popLoading();
-            }
+            },
           );
         } else if (Array.isArray(events)) {
           callback(events);
@@ -10509,12 +10513,12 @@ Options binding/triggering system.
 
           var startParam = firstDefined(
             source.startParam,
-            t.options.startParam
+            t.options.startParam,
           );
           var endParam = firstDefined(source.endParam, t.options.endParam);
           var timezoneParam = firstDefined(
             source.timezoneParam,
-            t.options.timezoneParam
+            t.options.timezoneParam,
           );
 
           if (startParam) {
@@ -10547,7 +10551,7 @@ Options binding/triggering system.
                 applyAll(complete, this, arguments);
                 t.popLoading();
               },
-            })
+            }),
           );
         } else {
           callback();
@@ -10676,7 +10680,7 @@ Options binding/triggering system.
         matchingSources.push.apply(
           // append
           matchingSources,
-          getEventSourcesByMatch(matchInputs[i])
+          getEventSourcesByMatch(matchInputs[i]),
         );
       }
 
@@ -10955,7 +10959,7 @@ Options binding/triggering system.
           // still undefined? fallback to default
           allDay = firstDefined(
             source ? source.allDayDefault : undefined,
-            t.options.allDayDefault
+            t.options.allDayDefault,
           );
           // still undefined? normalizeEventDates will calculate it
         }
@@ -10992,7 +10996,7 @@ Options binding/triggering system.
         if (t.options.forceEventDuration) {
           eventProps.end = t.getDefaultEventEnd(
             eventProps.allDay,
-            eventProps.start
+            eventProps.start,
           );
         } else {
           eventProps.end = null;
@@ -11075,7 +11079,7 @@ Options binding/triggering system.
                 start,
                 end,
                 !startTime && !endTime, // allDay?
-                event
+                event,
               );
               events.push(event);
             }
@@ -11178,7 +11182,7 @@ Options binding/triggering system.
         newProps.allDay,
         startDelta,
         durationDelta,
-        miscProps
+        miscProps,
       );
 
       return {
@@ -11205,7 +11209,7 @@ Options binding/triggering system.
       allDay,
       dateDelta,
       durationDelta,
-      miscProps
+      miscProps,
     ) {
       var isAmbigTimezone = t.getIsAmbigTimezone();
       var undoFunctions = [];
@@ -11303,12 +11307,12 @@ Options binding/triggering system.
       var constraint = firstDefined(
         event.constraint,
         source.constraint,
-        t.options.eventConstraint
+        t.options.eventConstraint,
       );
       var overlap = firstDefined(
         event.overlap,
         source.overlap,
-        t.options.eventOverlap
+        t.options.eventOverlap,
       );
       return isSpanAllowed(span, constraint, overlap, event);
     }
@@ -11338,7 +11342,7 @@ Options binding/triggering system.
       return isSpanAllowed(
         span,
         t.options.selectConstraint,
-        t.options.selectOverlap
+        t.options.selectOverlap,
       );
     }
 
@@ -11395,7 +11399,7 @@ Options binding/triggering system.
           if (event) {
             peerOverlap = firstDefined(
               peerEvent.overlap,
-              (peerEvent.source || {}).overlap
+              (peerEvent.source || {}).overlap,
               // we already considered the global `eventOverlap`
             );
             if (peerOverlap === false) {
@@ -11521,7 +11525,7 @@ Options binding/triggering system.
   Calendar.prototype.expandBusinessHourEvents = function (
     wholeDay,
     inputs,
-    ignoreNoDow
+    ignoreNoDow,
   ) {
     var view = this.getView();
     var events = [];
@@ -11545,7 +11549,7 @@ Options binding/triggering system.
 
       events.push.apply(
         events, // append
-        this.expandEvent(this.buildEventFromInput(input), view.start, view.end)
+        this.expandEvent(this.buildEventFromInput(input), view.start, view.end),
       );
     }
 
@@ -11628,10 +11632,10 @@ Options binding/triggering system.
 
       this.scroller.render();
       var dayGridContainerEl = this.scroller.el.addClass(
-        "fc-day-grid-container"
+        "fc-day-grid-container",
       );
       var dayGridEl = $('<div class="fc-day-grid" />').appendTo(
-        dayGridContainerEl
+        dayGridContainerEl,
       );
       this.el.find(".fc-body > tr > td").append(dayGridContainerEl);
 
@@ -12068,7 +12072,7 @@ Options binding/triggering system.
       this.scroller.render();
       var timeGridWrapEl = this.scroller.el.addClass("fc-time-grid-container");
       var timeGridEl = $('<div class="fc-time-grid" />').appendTo(
-        timeGridWrapEl
+        timeGridWrapEl,
       );
       this.el.find(".fc-body > tr > td").append(timeGridWrapEl);
 
@@ -12077,7 +12081,7 @@ Options binding/triggering system.
 
       // the <hr> that sometimes displays under the time-grid
       this.bottomRuleEl = $(
-        '<hr class="fc-divider ' + this.widgetHeaderClass + '"/>'
+        '<hr class="fc-divider ' + this.widgetHeaderClass + '"/>',
       ).appendTo(this.timeGrid.el); // inject it into the time-grid
 
       if (this.dayGrid) {

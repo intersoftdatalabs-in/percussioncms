@@ -14,8 +14,8 @@ The `perc-i18n` module is the **canonical source for all i18n resources** in Per
 
 All TMX files are centralized in `src/main/resources/i18n/`:
 - **ResourceBundle.tmx** - Master resource bundle
-- **CmsUi.tmx** - UI translations (19-locale matrix, see Quick Reference)
-- **SystemResources.tmx** - System/editor resources (same 19-locale matrix)
+- **CmsUi.tmx** - UI translations (ship locale matrix, see Quick Reference)
+- **SystemResources.tmx** - System/editor resources (same ship locale matrix)
 
 **Legacy locations are deprecated:**
 - ~~`system/config/I18n/`~~ (TMX files removed)
@@ -57,11 +57,11 @@ locales stay stable across installs.
 - **Ship locale matrix** (bases + regionals) is defined in `RXLOCALE`
   (`cmsTableData.xml`) and mirrored in TMX headers / `RXLOCALEFORMAT`.
   **Base / language-only** codes (`ISBASE=1`): `ar`, `bn`, `de`, `es`,
-  `fr`, `hi`, `it`, `nl`, `pl`, `pt`, `ru`, `sv`, `te`, `tr`.
+  `fr`, `he`, `hi`, `it`, `nl`, `pl`, `pt`, `ru`, `sv`, `te`, `tr`.
   **Regionals** (`ISBASE=0`) include e.g. `de-de`, `de-at`, `es-es`,
-  `es-mx`, `fr-fr`, `fr-ca`, `it-it`, `nl-nl`, `pt-br`, `pt-pt`,
-  `tr-tr`, `zh-cn`, `zh-tw`, plus additional `es-*` / `fr-*` / `de-*`
-  variants listed in the TMX header. Product string fallback when no
+  `es-mx`, `fr-fr`, `fr-ca`, `he-il`, `hi-in`, `it-it`, `nl-nl`,
+  `pt-br`, `pt-pt`, `tr-tr`, `zh-cn`, `zh-tw`, plus additional
+  `es-*` / `fr-*` / `de-*` variants listed in the TMX header. Product string fallback when no
   locale is set is always **`en-us`**. Do not introduce a code outside
   this set without updating `RXLOCALE` **and** `RXLOCALEFORMAT` in
   `modules/perc-distribution-tree/.../cmsTableData.xml` first (and
@@ -103,12 +103,18 @@ When modifying i18n resources:
 ./mvnw -pl modules/perc-distribution-tree clean install
 ```
 
-The runtime loader (`PSTmxResourceBundle`) scans BOTH `rxconfig/I18n/`
-(uppercase, master file path) and `rxconfig/i18n/` (lowercase, where
-the Maven build extracts the canonical TMX files). The lowercase scan
-was added in this revision so that the canonical files reach users on
-case-sensitive filesystems (Linux) in addition to the case-insensitive
-ones (Windows / macOS default volumes).
+**Canonical on-disk directory is lowercase only:** `rxconfig/i18n/`.
+Never create or write `rxconfig/I18n/` (uppercase) — on case-sensitive
+Linux that becomes a second folder and splits product TMX from RXLT
+output. The runtime reads the canonical path first and falls back to
+legacy uppercase only when that distinct path still has files.
+
+**Upgrade:** product TMX (`CmsUi.tmx`, `SystemResources.tmx`,
+`DeveloperUi.tmx`, seed `ResourceBundle.tmx`) is force-copied from the
+package into `rxconfig/i18n/` by
+`rxconfig/Installer/updateConfiguration.xml`. Bulk upgrade preserves
+`rxconfig/**` for customer config, so without that force-copy upgrades
+kept stale TMX and Language Tool remerged the old sources.
 
 ### 2a. Translation Pipeline
 
@@ -315,14 +321,15 @@ affected key — the script XML-escapes `<seg>` content via
 | SystemResources.tmx | System/editor resources | base + regional matrix (header) | `src/main/resources/i18n/` |
 
 **Base locales** (`RXLOCALE.ISBASE=1`): `ar`, `bn`, `de`, `es`, `fr`,
-`hi`, `it`, `nl`, `pl`, `pt`, `ru`, `sv`, `te`, `tr`. TMX bodies store
-shared strings under these tags; regionals hold dialect overrides only.
+`he`, `hi`, `it`, `nl`, `pl`, `pt`, `ru`, `sv`, `te`, `tr`. TMX bodies
+store shared strings under these tags; regionals hold dialect overrides
+only.
 
 **Representative regionals** (`ISBASE=0`): `de-de`/`de-at`/…, `en-us`/
-`en-gb`, `es-es`/`es-mx`/…, `fr-fr`/`fr-ca`/…, `hi-in`, `it-it`/`it-ch`,
-`ja-jp`, `nl-nl`/`nl-be`, `pt-br`/`pt-pt`, `tr-tr`, `zh-cn`/`zh-tw`.
-Full list: `RXLOCALE` + TMX `<header>` in `cmsTableData.xml` /
-canonical TMX files.
+`en-gb`, `es-es`/`es-mx`/…, `fr-fr`/`fr-ca`/…, `he-il`, `hi-in`,
+`it-it`/`it-ch`, `ja-jp`, `nl-nl`/`nl-be`, `pt-br`/`pt-pt`, `tr-tr`,
+`zh-cn`/`zh-tw`. Full list: `RXLOCALE` + TMX `<header>` in
+`cmsTableData.xml` / canonical TMX files.
 
 Lookup is `regional → base → en-us`. Login hides a base locale when any
 active regional sibling exists (`PSLocaleLoginSelection`). Default

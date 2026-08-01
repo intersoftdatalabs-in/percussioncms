@@ -24,13 +24,13 @@ ps.aa.dnd = new (function () {
       ps.aa.controller.treeModel,
       "onBeforeDomChange",
       this,
-      "_onBeforeDomChange"
+      "_onBeforeDomChange",
     );
     ps.event.connect(
       ps.aa.controller.treeModel,
       "onDomChanged",
       this,
-      "_onDomChanged"
+      "_onDomChanged",
     );
 
     this._onDomChanged(ps.aa.controller.pageId);
@@ -48,7 +48,7 @@ ps.aa.dnd = new (function () {
       ids.forEach(function (id) {
         ps.assert(
           id.serialize() in objects,
-          "Following id is not registered: " + id.serialize()
+          "Following id is not registered: " + id.serialize(),
         );
         objects[id.serialize()].unregister();
         delete objects[id.serialize()];
@@ -86,7 +86,7 @@ ps.aa.dnd = new (function () {
         target,
         "onDragMove",
         _this,
-        "_resetDropTargetVertical"
+        "_resetDropTargetVertical",
       );
 
       ps.event.connectAround(target, "onDragOver", _this, "_onDragOver");
@@ -96,7 +96,7 @@ ps.aa.dnd = new (function () {
         target,
         "createDropIndicator",
         _this,
-        "_createDropIndicator"
+        "_createDropIndicator",
       );
 
       ps.event.connect(target, "onDropEnd", _this, "_onDropEnd");
@@ -285,7 +285,7 @@ ps.aa.dnd = new (function () {
         slotId,
         targetSlotId,
         index,
-        true
+        true,
       );
       var result = ps.aa.controller.moveToSlot(this._m_move);
     }
@@ -298,7 +298,7 @@ ps.aa.dnd = new (function () {
         slotId,
         targetSlotId,
         index,
-        true
+        true,
       );
       this._m_move.setUiUpdateNeeded(true);
       this._m_move.setSuccess(true);
@@ -463,7 +463,7 @@ ps.aa.dnd = new (function () {
       position === this.POS_BEFORE ||
         position === this.POS_AFTER ||
         position === this.POS_APPEND,
-      "Unrecognized position: " + position
+      "Unrecognized position: " + position,
     );
   };
 

@@ -58,16 +58,16 @@ test.describe("US7 P-Adv \u2014 advanced CE (SC-011)", () => {
     await expect(host).toBeVisible({ timeout: 15_000 });
     await expect(page.locator('[data-testid="clipboard-panel"]')).toBeVisible();
     await expect(
-      page.locator('[data-testid="site-copy-wizard"]')
+      page.locator('[data-testid="site-copy-wizard"]'),
     ).toBeVisible();
     await expect(
-      page.locator('[data-testid="subfolder-copy-wizard"]')
+      page.locator('[data-testid="subfolder-copy-wizard"]'),
     ).toBeVisible();
     await expect(
-      page.locator('[data-testid="dependency-viewer"]')
+      page.locator('[data-testid="dependency-viewer"]'),
     ).toBeVisible();
     await expect(
-      page.locator('[data-testid="relationships-view"]')
+      page.locator('[data-testid="relationships-view"]'),
     ).toBeVisible();
   });
 
@@ -78,11 +78,11 @@ test.describe("US7 P-Adv \u2014 advanced CE (SC-011)", () => {
     const panel = page.locator('[data-testid="clipboard-panel"]');
     await expect(panel).toBeVisible({ timeout: 15_000 });
     await expect(panel.locator('[data-testid="clipboard-size"]')).toContainText(
-      "(1)"
+      "(1)",
     );
     // One pre-populated row.
     await expect(
-      page.locator('[data-testid="clipboard-item-row"]').first()
+      page.locator('[data-testid="clipboard-item-row"]').first(),
     ).toContainText("/Sites/Foo/Bar");
     // Add is enabled (the host supplies a selection).
     const addBtn = page.locator('[data-testid="clipboard-add"]');
@@ -96,10 +96,10 @@ test.describe("US7 P-Adv \u2014 advanced CE (SC-011)", () => {
     const wizard = page.locator('[data-testid="site-copy-wizard"]');
     await expect(wizard).toBeVisible({ timeout: 15_000 });
     await expect(
-      page.locator('[data-testid="site-copy-step-source"]')
+      page.locator('[data-testid="site-copy-step-source"]'),
     ).toBeVisible();
     await expect(
-      page.locator('[data-testid="site-copy-step-count"]')
+      page.locator('[data-testid="site-copy-step-count"]'),
     ).toContainText("of 5");
     // Next button is disabled (no source yet).
     const next = page.locator('[data-testid="site-copy-next"]');
@@ -113,10 +113,10 @@ test.describe("US7 P-Adv \u2014 advanced CE (SC-011)", () => {
     const wizard = page.locator('[data-testid="subfolder-copy-wizard"]');
     await expect(wizard).toBeVisible({ timeout: 15_000 });
     await expect(
-      page.locator('[data-testid="subfolder-copy-step-source"]')
+      page.locator('[data-testid="subfolder-copy-step-source"]'),
     ).toBeVisible();
     await expect(
-      page.locator('[data-testid="subfolder-copy-step-count"]')
+      page.locator('[data-testid="subfolder-copy-step-count"]'),
     ).toContainText("of 4");
   });
 
@@ -142,7 +142,7 @@ test.describe("US7 P-Adv \u2014 advanced CE (SC-011)", () => {
     }
     // Client-side preview banner is visible.
     await expect(
-      page.locator('[data-testid="dependency-client-side-preview"]')
+      page.locator('[data-testid="dependency-client-side-preview"]'),
     ).toBeVisible();
   });
 
@@ -160,7 +160,7 @@ test.describe("US7 P-Adv \u2014 advanced CE (SC-011)", () => {
     const aa = page.locator('[data-testid="relationships-row-aa"]');
     await expect(aa).toContainText("3 AA links");
     await expect(
-      page.locator('[data-testid="relationships-client-side-preview"]')
+      page.locator('[data-testid="relationships-client-side-preview"]'),
     ).toBeVisible();
   });
 

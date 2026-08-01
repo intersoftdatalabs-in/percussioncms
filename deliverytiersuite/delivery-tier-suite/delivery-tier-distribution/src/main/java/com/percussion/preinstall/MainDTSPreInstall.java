@@ -141,6 +141,8 @@ public class MainDTSPreInstall {
       var installPath = wizard.installPath();
       ResolvedDbConfig resolvedDbConfig = wizard.dbConfig();
       var isProduction = wizard.isProduction();
+      Map<String, String> options =
+          wizard.options() != null ? new HashMap<>(wizard.options()) : new HashMap<>();
       if (wizard.javaOutcome() != null) {
         System.out.println("DTS Java home selection: " + wizard.javaOutcome().summary());
       }
@@ -203,6 +205,25 @@ public class MainDTSPreInstall {
           execPath.resolve(getVersionLessJarFilePath(execPath, PERC_ANT_JAR + "-*.jar"));
 
       exitCode = execJar(installAntJarPath, execPath, installPath, isProduction, resolvedDbConfig);
+
+      if (exitCode == 0) {
+        try {
+          String javaHomeToSave =
+              wizard.javaOutcome() != null && wizard.javaOutcome().javaHome() != null
+                  ? wizard.javaOutcome().javaHome().toString()
+                  : javaHome;
+          new InstallerUserSettings(InstallerUserSettings.dtsPrefix(isProduction))
+              .save(
+                  installPath,
+                  percVersion,
+                  options,
+                  javaHomeToSave,
+                  resolvedDbConfig != null ? resolvedDbConfig.systemProperties() : null);
+        } catch (Exception saveEx) {
+          System.out.println(
+              "Warning: could not save installer user settings: " + saveEx.getMessage());
+        }
+      }
 
     } catch (Exception e) {
       System.out.println(

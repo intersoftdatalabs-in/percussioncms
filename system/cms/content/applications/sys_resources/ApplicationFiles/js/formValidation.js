@@ -37,12 +37,12 @@ function portField(fieldValue) {
     return true;
   } else if (parseInt(fieldValue, 10) != fieldValue) {
     alert(
-      "Only integer number between 1 and 65535 is allowed in the field: Port"
+      "Only integer number between 1 and 65535 is allowed in the field: Port",
     );
     return false;
   } else if (parseInt(fieldValue, 10) < 1 || parseInt(fieldValue, 10) > 65535) {
     alert(
-      "Only integer number between 1 and 65535 is allowed in the field: Port"
+      "Only integer number between 1 and 65535 is allowed in the field: Port",
     );
     return false;
   }
@@ -183,7 +183,7 @@ function valSwitch(strVal,fieldValue,fieldName){
 function delConfirm(link) {
   if (
     confirm(
-      "Delete actions cannot be undone. Are you sure you want to continue?"
+      "Delete actions cannot be undone. Are you sure you want to continue?",
     )
   ) {
     location = link;
@@ -195,7 +195,7 @@ function delConfirm(link) {
 function delComfirmonSubmit() {
   if (
     confirm(
-      "Delete actions cannot be undone. Are you sure you want to continue?"
+      "Delete actions cannot be undone. Are you sure you want to continue?",
     )
   ) {
     return true;
@@ -230,7 +230,7 @@ function dateValidate(dateValue) {
     var entdate = new Date(
       parseInt(datearr[0], 10),
       parseInt(datearr[1], 10) - 1,
-      parseInt(datearr[2], 10)
+      parseInt(datearr[2], 10),
     );
     if (
       parseInt(datearr[0], 10) > 2079 ||
@@ -256,7 +256,7 @@ function showUserSearch(datafield, fromRoles, contentid) {
       "&sys_contentid=" +
       contentid,
     "rolesearch",
-    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=400,height=300,z-lock=1"
+    "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=400,height=300,z-lock=1",
   );
 }
 function showUserSearch2(datafield, windowName) {
@@ -270,13 +270,13 @@ function showUserSearch2(datafield, windowName) {
       "../sys_ServerUserRoleSearch/rolelist.html?sys_command=GetRoles&sys_contentid=" +
         contentid,
       windowName,
-      "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=400,height=300,z-lock=1"
+      "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=400,height=300,z-lock=1",
     );
   } else {
     window.open(
       "",
       windowName,
-      "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=400,height=300,z-lock=1"
+      "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,width=400,height=300,z-lock=1",
     );
     document.UserSearchForm.submit();
   }

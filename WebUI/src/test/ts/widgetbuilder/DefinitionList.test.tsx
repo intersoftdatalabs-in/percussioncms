@@ -23,7 +23,8 @@ describe("DefinitionList", () => {
         onDeploy={() => undefined}
       />,
     );
-    expect(screen.getByText("perc.ui.widgetbuilder.modern@Empty")).toBeDefined();
+    // message() falls back to the segment after @ when I18N echoes the key
+    expect(screen.getByText("Empty")).toBeDefined();
   });
 
   it("renders rows and edit action", () => {
@@ -38,7 +39,7 @@ describe("DefinitionList", () => {
       />,
     );
     expect(screen.getByText("MyWidget")).toBeDefined();
-    fireEvent.click(screen.getByText("perc.ui.widgetbuilder.modern@Edit"));
+    fireEvent.click(screen.getByText("Edit"));
     expect(onEdit).toHaveBeenCalledWith(1);
   });
 });

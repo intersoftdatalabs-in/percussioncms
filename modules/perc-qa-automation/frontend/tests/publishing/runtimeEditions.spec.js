@@ -16,7 +16,7 @@ test.describe("Unified Publishing UI - Runtime Editions (US5)", () => {
 
     // Verify Runtime edition views/tables
     const runtimeContainer = page.locator(
-      ".perc-publishing-runtime-container, .perc-coming-soon"
+      ".perc-publishing-runtime-container, .perc-coming-soon",
     );
     await expect(runtimeContainer).toBeVisible();
   });

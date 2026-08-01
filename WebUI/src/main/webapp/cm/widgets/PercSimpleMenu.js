@@ -190,8 +190,8 @@
               percJQuery.perc_paths.ASSET_FORMS_EXPORT +
                 "/" +
                 callbackData[ml].formSummary.name +
-                ".csv"
-            )
+                ".csv",
+            ),
           );
           $menuLabel.attr("target", "_blank");
         }
@@ -329,7 +329,7 @@
       ) {
         menuItems.css(
           "margin-top",
-          (menu.outerHeight() + menuItems.outerHeight()) * -1
+          (menu.outerHeight() + menuItems.outerHeight()) * -1,
         );
       } else {
         menuItems.css("margin-top", 0);

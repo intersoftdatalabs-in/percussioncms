@@ -130,7 +130,7 @@
           if (type === self.Type.PAGE) {
             self.page.setOriginalTemplate(
               self.templateObjectXml,
-              self.rootRegion
+              self.rootRegion,
             );
           }
 
@@ -143,7 +143,7 @@
         error: function () {
           alert(
             I18N.message("perc.ui.template.layout.helper@Load Error") +
-              templateId
+              templateId,
           );
         },
       });
@@ -154,7 +154,7 @@
       $page = $(this.page.pageXml);
       alert(this.page.pageXml.textContent);
       $pageRegionWidgets = $(this.page.pageXml).find(
-        "Page regionBranches regionWidgetAssociations regionWidget regionId"
+        "Page regionBranches regionWidgetAssociations regionWidget regionId",
       );
       $pageRegionWidgets.children("regionId").each(function () {
         alert($(this).text());
@@ -164,7 +164,7 @@
     this.updateWidgetsHtmlFromRest = function (
       pageOrTemplateXml,
       regionId,
-      callback
+      callback,
     ) {
       // find out if the object passed in is a page or a template
       // retrieve the region widget associations element from either
@@ -172,11 +172,11 @@
       $pageOrTemplateXml = $(pageOrTemplateXml);
       if ($pageOrTemplateXml.find("Template").length > 0) {
         $regionWidgetAssociations = $pageOrTemplateXml.find(
-          "Template regionTree regionWidgetAssociations"
+          "Template regionTree regionWidgetAssociations",
         );
       } else {
         $regionWidgetAssociations = $pageOrTemplateXml.find(
-          "Page regionBranches regionWidgetAssociations"
+          "Page regionBranches regionWidgetAssociations",
         );
       }
 
@@ -228,10 +228,10 @@
 
       // Find region tree first
       var $rootRegion = $template.find(
-        "Template regionTree rootRegion children region:first"
+        "Template regionTree rootRegion children region:first",
       );
       var $regionWidgetAssociations = $template.find(
-        "Template regionTree regionWidgetAssociations"
+        "Template regionTree regionWidgetAssociations",
       );
       var $css = $template.find("Template cssMarkup");
       var $cssRegion = $template.find("Template cssRegion");
@@ -266,7 +266,7 @@
       var $children = $region.children("children");
       var templateCodeText = $children.find("code templateCode:first").text();
       newRegion.setVertical(
-        !percTemplateCodeHasClass(templateCodeText, "perc-horizontal")
+        !percTemplateCodeHasClass(templateCodeText, "perc-horizontal"),
       );
 
       // Get regions
@@ -279,7 +279,7 @@
     // adding them to their parent regions
     this.parseRegionWidgetAssociations = function (
       regionWidgetAssociations,
-      callback
+      callback,
     ) {
       append = true;
       var self = this;
@@ -352,7 +352,7 @@
         // clear widget ids before saving so that server will create the real ids
         $(self.templateObjectXml)
           .find(
-            "Template regionTree regionWidgetAssociations regionWidget widgetItems widgetItem id"
+            "Template regionTree regionWidgetAssociations regionWidget widgetItems widgetItem id",
           )
           .each(function () {
             var id = $(this).text();
@@ -424,12 +424,12 @@
       var regionWidgetAssociationsXmlString =
         this.rootRegion.generateWidgetAssociationsXml(true);
       var regionWidgetAssociationsXmlDom = $.xmlDOM(
-        regionWidgetAssociationsXmlString
+        regionWidgetAssociationsXmlString,
       );
       var element = regionWidgetAssociationsXmlDom.context.documentElement;
 
       var $regionWidgetAssociations = $regionTree.find(
-        "regionWidgetAssociations"
+        "regionWidgetAssociations",
       );
       //$regionWidgetAssociations.replaceWith(element);
       $regionWidgetAssociations
@@ -449,7 +449,7 @@
       this.getRegionHtmlFromRest(
         this.templateObjectXml,
         rootRegionId,
-        callback
+        callback,
       );
     };
 
@@ -457,7 +457,7 @@
     this.getRegionHtmlFromRest = function (
       pageOrTemplateXml,
       regionId,
-      callback
+      callback,
     ) {
       //   		callback("<DIV class='perc-raw-html'>Raw HTML Widget</DIV>");
       //  		return;
@@ -481,7 +481,7 @@
         error: function (request, textstatus, error) {
           //TODO: I18N TEST ME
           alert(
-            I18N.message("perc.ui.template.layout.helper@REST Error") + error
+            I18N.message("perc.ui.template.layout.helper@REST Error") + error,
           );
         },
       });
@@ -523,7 +523,7 @@
       return new $.Perc_Widget_class(
         this._createPseudoWidgetId(),
         widgetDefinitionId,
-        region
+        region,
       );
     };
 
@@ -537,7 +537,7 @@
       if (reg == null) {
         // Return null if there is no region
         alert(
-          I18N.message("perc.ui.template.layout.helper@Reigon Does Not Exist")
+          I18N.message("perc.ui.template.layout.helper@Reigon Does Not Exist"),
         );
         return null;
       }
@@ -616,7 +616,7 @@
       var target = this.getRegion(targetRegionId, this.rootRegion);
       if (target == null)
         throw I18N.message(
-          "perc.ui.template.layout.helper@Target Reigon Does Not Exist"
+          "perc.ui.template.layout.helper@Target Reigon Does Not Exist",
         );
       var targetIndex = target.getIndex();
       var moveIndex = before ? targetIndex : targetIndex + 1;
@@ -635,7 +635,7 @@
       if (widgetId == null) {
         alert(
           I18N.message("perc.ui.template.layout.helper@Cannot Order Widget") +
-            widgetId
+            widgetId,
         );
         return;
       }
@@ -655,8 +655,8 @@
             pos +
             ".\n" +
             I18N.message(
-              "perc.ui.template.layout.helper@One Region Does Not Exist"
-            )
+              "perc.ui.template.layout.helper@One Region Does Not Exist",
+            ),
         );
     };
 
@@ -693,7 +693,7 @@
       } else {
         var newRegion2 = new $.Perc_Region_class(
           this._createNewRegionId(),
-          null
+          null,
         );
         newRegion2.setVertical(region.isVertical());
         region.setVertical(vertical);

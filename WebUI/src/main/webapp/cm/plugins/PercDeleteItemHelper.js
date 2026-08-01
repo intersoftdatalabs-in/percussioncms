@@ -31,7 +31,7 @@
       chkBoxId = "perc_delete_" + type + "_force",
       response = data.responseText,
       matches = response.match(
-        /User: (.*) is editing the item. Failed to delete item./
+        /User: (.*) is editing the item. Failed to delete item./,
       );
 
     if (matches) {

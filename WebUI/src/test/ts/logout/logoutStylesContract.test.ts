@@ -24,6 +24,27 @@ describe("logout / modern CSS host contract", () => {
     expect(text).not.toContain("jquery-migrate");
   });
 
+  it("rxlogout.jsp resolves locale from request attr / query and passes j_locale on login", () => {
+    const path = resolve(__dirname, "../../../main/webapp/rxlogout.jsp");
+    const text = readFileSync(path, "utf8");
+    // Locale sources (must match PSLoginServlet.resolveLogoutLocale contract)
+    expect(text).toContain("perc.logout.locale");
+    expect(text).toContain('request.getParameter("sys_lang")');
+    expect(text).toContain('request.getParameter("j_locale")');
+    expect(text).toContain("getSystemLanguage()");
+    // Sign-in again carries locale for login page
+    expect(text).toContain("j_locale=");
+    expect(text).toContain("buildLoginHref");
+  });
+
+  it("logout i18n keys use perc.ui.logout.modern prefix", () => {
+    const path = resolve(__dirname, "../../../main/ts/logout/i18n.ts");
+    const text = readFileSync(path, "utf8");
+    expect(text).toContain("perc.ui.logout.modern@Signed out");
+    expect(text).toContain("perc.ui.logout.modern@You have been logged out.");
+    expect(text).toContain("perc.ui.logout.modern@Sign in again");
+  });
+
   it("logout reuses login card logo size caps", () => {
     const path = resolve(
       __dirname,

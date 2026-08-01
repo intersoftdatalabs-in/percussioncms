@@ -134,7 +134,7 @@
     // Note: v2.23: checkbox and hideCheckbox are *not* in this list
     CLASS_ATTRS =
       "active expanded focus folder lazy radiogroup selected unselectable unselectableIgnore".split(
-        " "
+        " ",
       ),
     CLASS_ATTR_MAP = {},
     // Top-level Fancytree attributes, that can be set by dict
@@ -143,7 +143,7 @@
     // Top-level FancytreeNode attributes, that can be set by dict
     NODE_ATTRS =
       "checkbox expanded extraClasses folder icon iconTooltip key lazy partsel radiogroup refKey selected statusNodeType title tooltip type unselectable unselectableIgnore unselectableStatus".split(
-        " "
+        " ",
       ),
     NODE_ATTR_MAP = {},
     // Mapping of lowercase -> real name (because HTML5 data-... attribute only supports lowercase)
@@ -381,7 +381,7 @@
             tree,
             base,
             extension,
-            extName
+            extName,
           );
         } else if (attrName.charAt(0) === "_") {
           // Create private methods in tree.ext.EXTENSION namespace
@@ -390,7 +390,7 @@
             tree,
             base,
             extension,
-            extName
+            extName,
           );
         } else {
           $.error(
@@ -399,7 +399,7 @@
               ". Use prefix '_' to create tree." +
               extName +
               "._" +
-              attrName
+              attrName,
           );
         }
       } else {
@@ -533,7 +533,7 @@
     }
     if (obj.hideCheckbox) {
       $.error(
-        "'hideCheckbox' node option was removed in v2.23.0: use 'checkbox: false'"
+        "'hideCheckbox' node option was removed in v2.23.0: use 'checkbox: false'",
       );
     }
     // node.data += obj.data
@@ -624,7 +624,7 @@
     _setChildren: function (children) {
       _assert(
         children && (!this.children || this.children.length === 0),
-        "only init supported"
+        "only init supported",
       );
       this.children = [];
       for (var i = 0, l = children.length; i < l; i++) {
@@ -696,7 +696,7 @@
       }
       this.triggerModifyChild(
         "add",
-        nodeList.length === 1 ? nodeList[0] : null
+        nodeList.length === 1 ? nodeList[0] : null,
       );
       return firstNode;
     },
@@ -765,7 +765,7 @@
           statusNodeType: "paging",
           icon: false,
         },
-        node
+        node,
       );
       this.partload = true;
       return this.addNode(node, mode);
@@ -899,7 +899,7 @@
      */
     discard: function () {
       this.warn(
-        "FancytreeNode.discard() is deprecated since 2014-02-16. Use .resetLazy() instead."
+        "FancytreeNode.discard() is deprecated since 2014-02-16. Use .resetLazy() instead.",
       );
       return this.resetLazy();
     },
@@ -975,7 +975,7 @@
           this,
           this,
           opts,
-          undefined
+          undefined,
         );
 
       if (unselectable && unselectableStatus != null) {
@@ -1065,7 +1065,7 @@
               child,
               child,
               opts,
-              false
+              false,
             );
             if (!unselIgnore) {
               if (s !== false) {
@@ -1085,7 +1085,7 @@
             node,
             node,
             opts,
-            undefined
+            undefined,
           );
           state = unselState == null ? !!node.selected : !!unselState;
         }
@@ -1122,7 +1122,7 @@
             child,
             child,
             opts,
-            false
+            false,
           );
           if (!unselIgnore) {
             unselState = FT.evalOption(
@@ -1130,7 +1130,7 @@
               child,
               child,
               opts,
-              undefined
+              undefined,
             );
             state = unselState == null ? !!child.selected : !!unselState;
             // When fixing the parents, we trust the sibling status (i.e.
@@ -1399,7 +1399,7 @@
     hasClass: function (className) {
       return (
         (" " + (this.extraClasses || "") + " ").indexOf(
-          " " + className + " "
+          " " + className + " ",
         ) >= 0
       );
     },
@@ -1603,7 +1603,7 @@
      */
     lazyLoad: function (discard) {
       $.error(
-        "FancytreeNode.lazyLoad() is deprecated since 2014-02-16. Use .load() instead."
+        "FancytreeNode.lazyLoad() is deprecated since 2014-02-16. Use .load() instead.",
       );
     },
     /**
@@ -1634,7 +1634,7 @@
       }
       _assert(
         typeof source !== "boolean",
-        "lazyLoad event must return source in data.result"
+        "lazyLoad event must return source in data.result",
       );
       res = this.tree._callHook("nodeLoadChildren", this, source);
       if (wasExpanded) {
@@ -1975,7 +1975,7 @@
 
       _assert(
         this.isPagingNode(),
-        "replaceWith() currently requires a paging status node"
+        "replaceWith() currently requires a paging status node",
       );
 
       res = this.tree._callHook("nodeLoadChildren", this, source);
@@ -1990,7 +1990,7 @@
           }
           parent.children.splice.apply(
             parent.children,
-            [pos + 1, 0].concat(children)
+            [pos + 1, 0].concat(children),
           );
 
           // Remove self
@@ -2061,7 +2061,7 @@
     scrollIntoView: function (effects, options) {
       if (options !== undefined && _isNode(options)) {
         throw Error(
-          "scrollIntoView() with 'topNode' option is deprecated since 2014-05-08. Use 'options.topNode' instead."
+          "scrollIntoView() with 'topNode' option is deprecated since 2014-05-08. Use 'options.topNode' instead.",
         );
       }
       // The scroll parent is typically the plain tree's <UL> container.
@@ -2076,7 +2076,7 @@
             scrollParent: this.tree.options.scrollParent,
             topNode: null,
           },
-          options
+          options,
         ),
         $scrollParent = opts.scrollParent,
         $container = this.tree.$container,
@@ -2100,7 +2100,7 @@
         // but would not work: (see #894)
         this.debug(
           "scrollIntoView(): normalizing scrollParent to 'window':",
-          $scrollParent[0]
+          $scrollParent[0],
         );
         $scrollParent = $(window);
       }
@@ -2135,7 +2135,7 @@
       } else {
         _assert(
           $scrollParent[0] !== document && $scrollParent[0] !== document.body,
-          "scrollParent should be a simple element or `window`, not document or body."
+          "scrollParent should be a simple element or `window`, not document or body.",
         );
 
         containerOffsetTop = $scrollParent.offset().top;
@@ -2145,7 +2145,7 @@
           : 0;
         horzScrollbarHeight = Math.max(
           0,
-          $scrollParent.innerHeight() - $scrollParent[0].clientHeight
+          $scrollParent.innerHeight() - $scrollParent[0].clientHeight,
         );
         containerHeight -= horzScrollbarHeight;
       }
@@ -2163,7 +2163,7 @@
         if (topNode) {
           _assert(
             topNode.isRootNode() || topNode.isVisible(),
-            "topNode must be visible"
+            "topNode must be visible",
           );
           if (topNodeY < newScrollTop) {
             newScrollTop = topNodeY - topOfs;
@@ -2184,7 +2184,7 @@
             {
               scrollTop: newScrollTop,
             },
-            opts.effects
+            opts.effects,
           );
         } else {
           $animateTarget[0].scrollTop = newScrollTop;
@@ -2239,7 +2239,7 @@
         this,
         status,
         message,
-        details
+        details,
       );
     },
     /**Rename this node.
@@ -2608,22 +2608,22 @@
     if (this.options) {
       if (this.options.lazyload !== undefined) {
         $.error(
-          "The 'lazyload' event is deprecated since 2014-02-25. Use 'lazyLoad' (with uppercase L) instead."
+          "The 'lazyload' event is deprecated since 2014-02-25. Use 'lazyLoad' (with uppercase L) instead.",
         );
       }
       if (this.options.loaderror !== undefined) {
         $.error(
-          "The 'loaderror' event was renamed since 2014-07-03. Use 'loadError' (with uppercase E) instead."
+          "The 'loaderror' event was renamed since 2014-07-03. Use 'loadError' (with uppercase E) instead.",
         );
       }
       if (this.options.fx !== undefined) {
         $.error(
-          "The 'fx' option was replaced by 'toggleEffect' since 2014-11-30."
+          "The 'fx' option was replaced by 'toggleEffect' since 2014-11-30.",
         );
       }
       if (this.options.removeNode !== undefined) {
         $.error(
-          "The 'removeNode' event was replaced by 'modifyChild' since 2.20 (2016-09-10)."
+          "The 'removeNode' event was replaced by 'modifyChild' since 2.20 (2016-09-10).",
         );
       }
     }
@@ -2798,7 +2798,7 @@
 
       _assert(
         thisName && thisName !== name,
-        "invalid or same name '" + thisName + "' (require yourself?)"
+        "invalid or same name '" + thisName + "' (require yourself?)",
       );
 
       if (isMissing || badOrder) {
@@ -2986,7 +2986,7 @@
         p2 = patchList[i];
         _assert(
           p2.length === 2,
-          "patchList must be an array of length-2-arrays"
+          "patchList must be an array of length-2-arrays",
         );
         key = p2[0];
         patch = p2[1];
@@ -3227,7 +3227,7 @@
               res = n;
               return false;
             },
-            { start: node, reverse: true, includeSelf: false }
+            { start: node, reverse: true, includeSelf: false },
           );
           break;
         case "down":
@@ -3237,7 +3237,7 @@
               res = n;
               return false;
             },
-            { start: node, includeSelf: false }
+            { start: node, includeSelf: false },
           );
           break;
         default:
@@ -3295,7 +3295,7 @@
             name: activeName,
             value: this.activeNode.key,
             checked: true,
-          })
+          }),
         );
       }
       function _appender(node) {
@@ -3305,7 +3305,7 @@
             name: selectedName,
             value: node.key,
             checked: true,
-          })
+          }),
         );
       }
       if (opts.filter) {
@@ -3610,7 +3610,7 @@
                 key +
                 " (parent: " +
                 tmpParent +
-                ")"
+                ")",
             );
             opts.callback(this, key, "error");
             break;
@@ -3857,7 +3857,7 @@
         nextIdx = siblings.indexOf(node) + siblingOfs;
         _assert(
           nextIdx >= 0,
-          "Could not find " + node + " in parent's children: " + parent
+          "Could not find " + node + " in parent's children: " + parent,
         );
 
         for (i = nextIdx; i < siblings.length; i++) {
@@ -4128,7 +4128,7 @@
           // tree.debug("quicksearch find", tree.lastQuicksearchTerm);
           matchNode = tree.findNextNode(
             tree.lastQuicksearchTerm,
-            tree.getActiveNode()
+            tree.getActiveNode(),
           );
           if (matchNode) {
             matchNode.setActive();
@@ -4208,7 +4208,7 @@
           source = source.call(tree, { type: "source" }, ctx);
           _assert(
             !_isFunction(source),
-            "source callback must not return another function"
+            "source callback must not return another function",
           );
         }
         // `source` is already a promise:
@@ -4229,7 +4229,7 @@
             node.warn(
               "nodeLoadChildren waiting debugDelay " +
                 Math.round(delay) +
-                " ms ..."
+                " ms ...",
             );
             ajaxDfd = $.Deferred(function (ajaxDfd) {
               setTimeout(function () {
@@ -4270,7 +4270,7 @@
               requestId +
               " while #" +
               node._requestId +
-              " is pending."
+              " is pending.",
           );
           node._requestId = requestId;
           // 	node.debug("Send load request #" + requestId);
@@ -4301,7 +4301,7 @@
               typeof data === "string"
             ) {
               $.error(
-                "Ajax request returned a string (did you get the JSON dataType wrong?)."
+                "Ajax request returned a string (did you get the JSON dataType wrong?).",
               );
             }
             if (node._requestId && node._requestId > requestId) {
@@ -4334,7 +4334,7 @@
                     response: data,
                     error: null,
                     dataType: source.dataType,
-                  }
+                  },
                 );
                 if (res.error) {
                   tree.warn("postProcess returned error:", res);
@@ -4370,7 +4370,7 @@
               if (ctx.options.enableAspx === 42) {
                 tree.warn(
                   "The default for enableAspx will change to `false` in the fututure. " +
-                    "Pass `enableAspx: true` or implement postProcess to silence this warning."
+                    "Pass `enableAspx: true` or implement postProcess to silence this warning.",
                 );
               }
               data = typeof data.d === "string" ? $.parseJSON(data.d) : data.d;
@@ -4386,7 +4386,7 @@
               details: jqXHR.status + ": " + errorThrown,
             });
             resultDfd.rejectWith(this, [errorObj]);
-          }
+          },
         );
 
         // The async Ajax request has now started.
@@ -4404,11 +4404,11 @@
               // Copy extra properties to tree.data.foo
               _assert(
                 node.isRootNode(),
-                "source may only be an object for root nodes (expecting an array of child objects otherwise)"
+                "source may only be an object for root nodes (expecting an array of child objects otherwise)",
               );
               _assert(
                 _isArray(data.children),
-                "if an object is passed as source, it must contain a 'children' array (all other properties are added to 'tree.data')"
+                "if an object is passed as source, it must contain a 'children' array (all other properties are added to 'tree.data')",
               );
               metaData = data;
               children = data.children;
@@ -4433,7 +4433,7 @@
                 noDataRes = tree.options.nodata.call(
                   tree,
                   { type: "nodata" },
-                  ctx
+                  ctx,
                 );
               } else if (tree.options.nodata === true && node.isRootNode()) {
                 noDataRes = tree.options.strings.noData;
@@ -4459,12 +4459,12 @@
                   requestId +
                   " (expected #" +
                   node._requestId +
-                  ")"
+                  ")",
               );
               return;
             } else if (error === INVALID_REQUEST_TARGET_ERROR) {
               node.warn(
-                "Lazy parent node was removed while loading: discarding response."
+                "Lazy parent node was removed while loading: discarding response.",
               );
               return;
             } else if (error.node && error.error && error.message) {
@@ -4698,7 +4698,7 @@
             } else {
               // May happen, when a top-level node was dropped over another
               this.debug(
-                "Unlinking " + node + " (must be child of " + node.parent + ")"
+                "Unlinking " + node + " (must be child of " + node.parent + ")",
               );
             }
             //	            this.debug("nodeRemoveMarkup...");
@@ -4853,7 +4853,7 @@
             ares.push(
               "<span " +
                 role +
-                " class='fancytree-expander fancytree-expander-fixed'></span>"
+                " class='fancytree-expander fancytree-expander-fixed'></span>",
             );
           }
           // .. else (i.e. for root level) skip expander/connector alltogether
@@ -4877,11 +4877,11 @@
           // Handle / warn about backward compatibility
           if (node.icon) {
             $.error(
-              "'iconClass' node option is deprecated since v2.14.0: use 'icon' only instead"
+              "'iconClass' node option is deprecated since v2.14.0: use 'icon' only instead",
             );
           } else {
             node.warn(
-              "'iconClass' node option is deprecated since v2.14.0: use 'icon' instead"
+              "'iconClass' node option is deprecated since v2.14.0: use 'icon' instead",
             );
             node.icon = node.data.iconClass;
           }
@@ -4913,7 +4913,7 @@
                   icon +
                   "' class='fancytree-icon'" +
                   iconTooltip +
-                  " alt='' />"
+                  " alt='' />",
               );
             } else {
               ares.push(
@@ -4923,7 +4923,7 @@
                   icon +
                   "'" +
                   iconTooltip +
-                  "></span>"
+                  "></span>",
               );
             }
           } else if (icon.text) {
@@ -4936,7 +4936,7 @@
                 iconTooltip +
                 ">" +
                 FT.escapeHtml(icon.text) +
-                "</span>"
+                "</span>",
             );
           } else if (icon.html) {
             ares.push(
@@ -4948,7 +4948,7 @@
                 iconTooltip +
                 ">" +
                 icon.html +
-                "</span>"
+                "</span>",
             );
           } else {
             // standard icon: theme css will take care of this
@@ -4957,7 +4957,7 @@
                 role +
                 " class='fancytree-icon'" +
                 iconTooltip +
-                "></span>"
+                "></span>",
             );
           }
         }
@@ -5098,13 +5098,13 @@
             cn.combinedExpanderPrefix +
               (node.expanded ? "e" : "c") +
               (node.lazy && node.children == null ? "d" : "") +
-              (isLastSib ? "l" : "")
+              (isLastSib ? "l" : ""),
           );
         }
         cnList.push(
           cn.combinedIconPrefix +
             (node.expanded ? "e" : "c") +
-            (node.folder ? "f" : "")
+            (node.folder ? "f" : ""),
         );
         // node.span.className = cnList.join(" ");
         statusElem.className = cnList.join(" ");
@@ -5167,7 +5167,7 @@
           if (tree.activeNode) {
             _assert(
               tree.activeNode !== node,
-              "node was active (inconsistency)"
+              "node was active (inconsistency)",
             );
             subCtx = $.extend({}, ctx, { node: tree.activeNode });
             tree.nodeSetActive(subCtx, false);
@@ -5191,7 +5191,7 @@
         } else {
           _assert(
             tree.activeNode === node,
-            "node was not active (inconsistency)"
+            "node was not active (inconsistency)",
           );
           tree.activeNode = null;
           this.nodeRenderStatus(ctx);
@@ -5309,7 +5309,7 @@
           tree._callHook(
             "treeStructureChanged",
             ctx,
-            flag ? "expand" : "collapse"
+            flag ? "expand" : "collapse",
           );
           // Create required markup, but make sure the top UL is hidden, so we
           // can animate later
@@ -5367,7 +5367,7 @@
                     $(this).removeClass(cn.animating); // #716
                     $(node.li).removeClass(cn.animating); // #717
                     callback();
-                  }
+                  },
                 );
               }
               return;
@@ -5470,7 +5470,7 @@
               "aria-activedescendant",
               $(node.tr || node.li)
                 .uniqueId()
-                .attr("id")
+                .attr("id"),
             );
             // "ftal_" + opts.idPrefix + node.key);
           }
@@ -5645,7 +5645,7 @@
                   checkbox: false,
                   tooltip: details,
                 },
-                status
+                status,
               );
             }
             node._isLoading = true;
@@ -5662,7 +5662,7 @@
                 checkbox: false,
                 tooltip: details,
               },
-              status
+              status,
             );
             node._isLoading = false;
             node._error = { message: message, details: details };
@@ -5676,7 +5676,7 @@
                 checkbox: false,
                 tooltip: details,
               },
-              status
+              status,
             );
             node._isLoading = false;
             node._error = null;
@@ -5808,7 +5808,7 @@
                 this.data = $.extend(this.data, _getElementDataAsDict($ul));
               } else {
                 FT.warn(
-                  "No `source` option was passed and container does not contain `<ul>`: assuming `source: []`."
+                  "No `source` option was passed and container does not contain `<ul>`: assuming `source: []`.",
                 );
                 source = [];
               }
@@ -5827,7 +5827,7 @@
                 // We got {foo: 'abc', children: [...]}
                 _assert(
                   _isArray(source.children),
-                  "if an object is passed as source, it must contain a 'children' array (all other properties are added to 'tree.data')"
+                  "if an object is passed as source, it must contain a 'children' array (all other properties are added to 'tree.data')",
                 );
                 metaData = source;
                 source = source.children;
@@ -5883,7 +5883,7 @@
         ctx.tree._callHook(
           "treeStructureChanged",
           ctx,
-          add ? "addNode" : "removeNode"
+          add ? "addNode" : "removeNode",
         );
       },
       /** Widget got focus.
@@ -5947,7 +5947,7 @@
           case "checkboxAutoHide":
             tree.$container.toggleClass(
               "fancytree-checkbox-auto-hide",
-              !!value
+              !!value,
             );
             break;
           case "escapeTitles":
@@ -5969,7 +5969,7 @@
             break;
         }
         tree.debug(
-          "set option " + key + "=" + value + " <" + typeof value + ">"
+          "set option " + key + "=" + value + " <" + typeof value + ">",
         );
         if (callDefault) {
           if (this.widget._super) {
@@ -5991,7 +5991,7 @@
        * @param {EventData} ctx
        */
       treeStructureChanged: function (ctx, type) {},
-    }
+    },
   );
 
   /*******************************************************************************
@@ -6107,7 +6107,7 @@
           tree.warn(
             "$().fancytree('" +
               name +
-              "') is deprecated (see https://wwwendt.de/tech/fancytree/doc/jsdoc/Fancytree_Widget.html"
+              "') is deprecated (see https://wwwendt.de/tech/fancytree/doc/jsdoc/Fancytree_Widget.html",
           );
         }
       },
@@ -6134,7 +6134,7 @@
             $.error(
               "Could not apply extension '" +
                 extName +
-                "' (it is not registered, did you forget to include it?)"
+                "' (it is not registered, did you forget to include it?)",
             );
           }
           // Add extension options as tree.options.EXTENSION
@@ -6145,7 +6145,7 @@
           this.tree.options[extName] = _simpleDeepMerge(
             {},
             extension.options,
-            this.tree.options[extName]
+            this.tree.options[extName],
           );
           // this.tree.options[extName] = $.extend(true, {}, extension.options, this.tree.options[extName]);
 
@@ -6157,7 +6157,7 @@
             this.tree.ext[extName] === undefined,
             "Extension name must not exist as Fancytree.ext attribute: '" +
               extName +
-              "'"
+              "'",
           );
           // this.tree[extName] = extension;
           this.tree.ext[extName] = {};
@@ -6171,12 +6171,12 @@
           // 2015-11-16
           if (opts.icon === true) {
             this.tree.warn(
-              "'icons' tree option is deprecated since v2.14.0: use 'icon' instead"
+              "'icons' tree option is deprecated since v2.14.0: use 'icon' instead",
             );
             opts.icon = opts.icons;
           } else {
             $.error(
-              "'icons' tree option is deprecated since v2.14.0: use 'icon' only instead"
+              "'icons' tree option is deprecated since v2.14.0: use 'icon' only instead",
             );
           }
         }
@@ -6184,11 +6184,11 @@
           // 2015-11-16
           if (opts.icon) {
             $.error(
-              "'iconClass' tree option is deprecated since v2.14.0: use 'icon' only instead"
+              "'iconClass' tree option is deprecated since v2.14.0: use 'icon' only instead",
             );
           } else {
             this.tree.warn(
-              "'iconClass' tree option is deprecated since v2.14.0: use 'icon' instead"
+              "'iconClass' tree option is deprecated since v2.14.0: use 'icon' instead",
             );
             opts.icon = opts.iconClass;
           }
@@ -6199,7 +6199,7 @@
           this.tree.warn(
             "'tabbable' tree option is deprecated since v2.17.0: use 'tabindex='" +
               opts.tabindex +
-              "' instead"
+              "' instead",
           );
         }
         //
@@ -6279,7 +6279,7 @@
                 node = tree._getExpiringValue("mouseDownNode");
                 if (node) {
                   tree.debug(
-                    "Reconstruct mouse target for focusin from recent event."
+                    "Reconstruct mouse target for focusin from recent event.",
                   );
                 }
               }
@@ -6289,7 +6289,7 @@
               tree._callHook(
                 "nodeSetFocus",
                 tree._makeHookContext(node, event),
-                flag
+                flag,
               );
             } else {
               if (
@@ -6425,7 +6425,7 @@
         this._deprecationWarning("getTree");
         return this.tree;
       },
-    }
+    },
   );
 
   // $.ui.fancytree was created by the widget factory. Create a local shortcut:
@@ -6735,7 +6735,7 @@
         node,
         nodeObject,
         treeOptions,
-        defaultValue
+        defaultValue,
       ) {
         var ctx,
           res,
@@ -6838,7 +6838,7 @@
           s.push(et);
         } else if (!IGNORE_KEYCODES[which]) {
           s.push(
-            SPECIAL_KEYCODES[which] || String.fromCharCode(which).toLowerCase()
+            SPECIAL_KEYCODES[which] || String.fromCharCode(which).toLowerCase(),
           );
         }
         return s.join("+");
@@ -7006,11 +7006,11 @@
       registerExtension: function (definition) {
         _assert(
           definition.name != null,
-          "extensions must have a `name` property."
+          "extensions must have a `name` property.",
         );
         _assert(
           definition.version != null,
-          "extensions must have a `version` property."
+          "extensions must have a `version` property.",
         );
         $.ui.fancytree._extensions[definition.name] = definition;
       },
@@ -7037,7 +7037,7 @@
           consoleApply("warn", arguments);
         }
       },
-    }
+    },
   );
 
   // Value returned by `require('jquery.fancytree')`
@@ -7137,7 +7137,7 @@
     ) {
       if (!$badge.length) {
         $badge = $("<span class='fancytree-childcounter'/>").appendTo(
-          $("span.fancytree-icon,span.fancytree-custom-icon", node.span)
+          $("span.fancytree-icon,span.fancytree-custom-icon", node.span),
         );
       }
       $badge.text(count);
@@ -7257,7 +7257,7 @@
         (!node.isExpanded() || !extOpts.hideExpanded)
       ) {
         $("span.fancytree-icon,span.fancytree-custom-icon", node.span).append(
-          $("<span class='fancytree-childcounter'/>").text(count)
+          $("<span class='fancytree-childcounter'/>").text(count),
         );
       }
     },
@@ -7447,7 +7447,7 @@
    * @requires jquery.fancytree.clones.js
    */
   $.ui.fancytree._FancytreeNodeClass.prototype.getCloneList = function (
-    includeSelf
+    includeSelf,
   ) {
     var key,
       tree = this.tree,
@@ -7497,7 +7497,7 @@
    */
   $.ui.fancytree._FancytreeNodeClass.prototype.reRegister = function (
     key,
-    refKey
+    refKey,
   ) {
     key = key == null ? null : "" + key;
     refKey = refKey == null ? null : "" + refKey;
@@ -7516,7 +7516,7 @@
     if (key != null && key !== this.key) {
       if (keyMap[key]) {
         $.error(
-          "[ext-clones] reRegister(" + key + "): already exists: " + this
+          "[ext-clones] reRegister(" + key + "): already exists: " + this,
         );
       }
       // Update keyMap
@@ -7579,7 +7579,7 @@
    */
   $.ui.fancytree._FancytreeClass.prototype.getNodesByRef = function (
     refKey,
-    rootNode
+    rootNode,
   ) {
     var keyMap = this.keyMap,
       refList = this.refMap[refKey] || null;
@@ -7612,7 +7612,7 @@
    */
   $.ui.fancytree._FancytreeClass.prototype.changeRefKey = function (
     oldRefKey,
-    newRefKey
+    newRefKey,
   ) {
     var i,
       node,
@@ -7710,7 +7710,7 @@
       } else {
         if (keyMap[key] == null) {
           $.error(
-            "clones.treeRegisterNode: node.key not registered: " + node.key
+            "clones.treeRegisterNode: node.key not registered: " + node.key,
           );
         }
         delete keyMap[key];
@@ -7854,7 +7854,7 @@
             null,
             event,
             ui,
-            draggable
+            draggable,
           );
         }
       },
@@ -7879,7 +7879,7 @@
           // We ignore it:
           isHelper =
             $(event.target).closest(
-              "div.fancytree-drag-helper,#fancytree-drop-marker"
+              "div.fancytree-drag-helper,#fancytree-drop-marker",
             ).length > 0;
           if (isHelper) {
             logObject = sourceNode || prevTargetNode || $.ui.fancytree;
@@ -7907,7 +7907,7 @@
             sourceNode,
             event,
             ui,
-            draggable
+            draggable,
           );
         }
         if (targetNode) {
@@ -7921,7 +7921,7 @@
               sourceNode,
               event,
               ui,
-              draggable
+              draggable,
             );
           } else {
             // Entering this node first time
@@ -7931,7 +7931,7 @@
               sourceNode,
               event,
               ui,
-              draggable
+              draggable,
             );
             targetNode.tree.ext.dnd._onDragEvent(
               "over",
@@ -7939,7 +7939,7 @@
               sourceNode,
               event,
               ui,
-              draggable
+              draggable,
             );
           }
         }
@@ -7965,7 +7965,7 @@
               sourceNode,
               event,
               ui,
-              draggable
+              draggable,
             );
           }
           targetNode.tree.ext.dnd._onDragEvent(
@@ -7974,7 +7974,7 @@
             sourceNode,
             event,
             ui,
-            draggable
+            draggable,
           );
         }
         if (sourceNode) {
@@ -7984,7 +7984,7 @@
             null,
             event,
             ui,
-            draggable
+            draggable,
           );
         }
       },
@@ -8038,7 +8038,7 @@
               $nodeTag = $(sourceNode.span);
               // Only event and node argument is available
               $helper = $(
-                "<div class='fancytree-drag-helper'><span class='fancytree-drag-helper-img' /></div>"
+                "<div class='fancytree-drag-helper'><span class='fancytree-drag-helper-img' /></div>",
               )
                 .css({ zIndex: 3, position: "relative" }) // so it appears above ext-wide selection bar
                 .append($nodeTag.find("span.fancytree-title").clone());
@@ -8070,8 +8070,8 @@
               return !!sourceNode; // Abort dragging if no node could be found
             },
           },
-          tree.options.dnd.draggable
-        )
+          tree.options.dnd.draggable,
+        ),
       );
     }
     // Attach ui.droppable to this Fancytree instance
@@ -8103,8 +8103,8 @@
 			}
 */
           },
-          tree.options.dnd.droppable
-        )
+          tree.options.dnd.droppable,
+        ),
       );
     }
   }
@@ -8153,7 +8153,7 @@
             var node = $.ui.fancytree.getNode(event);
             if (node) {
               node.debug(
-                "Re-enable focus that was prevented by jQuery UI draggable."
+                "Re-enable focus that was prevented by jQuery UI draggable.",
               );
               // node.setFocus();
               // $(node.span).closest(":tabbable").focus();
@@ -8190,7 +8190,7 @@
 
         if (glyphOpt) {
           instData.$dropMarker.addClass(
-            glyphOpt.map._addClass + " " + glyphOpt.map.dropMarker
+            glyphOpt.map._addClass + " " + glyphOpt.map.dropMarker,
           );
         }
       }
@@ -8234,7 +8234,7 @@
       $target
         .toggleClass(
           classDropTarget,
-          hitMode === "after" || hitMode === "before" || hitMode === "over"
+          hitMode === "after" || hitMode === "before" || hitMode === "over",
         )
         .toggleClass(classDropAfter, hitMode === "after")
         .toggleClass(classDropBefore, hitMode === "before")
@@ -8310,15 +8310,15 @@
               rect =
                 node[ctx.tree.nodeContainerAttrName].getBoundingClientRect();
               parentRect = $(
-                draggable.options.appendTo
+                draggable.options.appendTo,
               )[0].getBoundingClientRect();
               draggable.originalPosition.left = Math.max(
                 0,
-                rect.left - parentRect.left
+                rect.left - parentRect.left,
               );
               draggable.originalPosition.top = Math.max(
                 0,
-                rect.top - parentRect.top
+                rect.top - parentRect.top,
               );
             }
             $nodeTag.addClass("fancytree-drag-source");
@@ -8335,7 +8335,7 @@
                 } else if (event.type === "mousedown") {
                   self.ext.dnd._cancelDrag();
                 }
-              }
+              },
             );
           }
           break;
@@ -8465,7 +8465,7 @@
             node,
             ui.helper,
             hitMode,
-            accept
+            accept,
           );
           break;
 
@@ -8487,7 +8487,7 @@
             node,
             ui.helper,
             "out",
-            undefined
+            undefined,
           );
           if (dnd.dragLeave) {
             dnd.dragLeave(node, ctx);
@@ -8764,7 +8764,7 @@
           " - evalEffectModifiers(): " +
           SUGGESTED_DROP_EFFECT +
           " -> " +
-          res
+          res,
       );
     }
     SUGGESTED_DROP_EFFECT = res;
@@ -8797,7 +8797,7 @@
     data.dropEffectSuggested = evalEffectModifiers(
       tree,
       event,
-      tree.options.dnd5.dropEffectDefault
+      tree.options.dnd5.dropEffectDefault,
     );
     data.isMove = data.dropEffect === "move";
     data.files = dataTransfer.files || [];
@@ -8838,7 +8838,7 @@
           ": data.effectAllowed changed from " +
           REQUESTED_EFFECT_ALLOWED +
           " -> " +
-          data.effectAllowed
+          data.effectAllowed,
       );
     }
 
@@ -9048,7 +9048,7 @@
     $(targetNode.span)
       .toggleClass(
         classDropTarget,
-        hitMode === "after" || hitMode === "before" || hitMode === "over"
+        hitMode === "after" || hitMode === "before" || hitMode === "over",
       )
       .toggleClass(classDropAfter, hitMode === "after")
       .toggleClass(classDropBefore, hitMode === "before")
@@ -9108,7 +9108,7 @@
         $sourceList = $(
           $.map(SOURCE_NODE_LIST, function (n) {
             return n.span;
-          })
+          }),
         );
         // Set visual feedback
         $sourceList.addClass(classDragSource);
@@ -9266,7 +9266,7 @@
               ": " +
               event.target.tagName +
               "." +
-              event.target.className
+              event.target.className,
           );
           DRAG_ENTER_RESPONSE = false;
           break;
@@ -9337,7 +9337,7 @@
               ": " +
               event.target.tagName +
               "." +
-              event.target.className
+              event.target.className,
           );
           break;
         }
@@ -9382,7 +9382,7 @@
               ": " +
               event.target.tagName +
               "." +
-              event.target.className
+              event.target.className,
           );
           break;
         }
@@ -9391,7 +9391,7 @@
           break;
         }
         $(node.span).removeClass(
-          classDropOver + " " + classDropAccept + " " + classDropReject
+          classDropOver + " " + classDropAccept + " " + classDropReject,
         );
         node.scheduleAction("cancel");
         dndOpts.dragLeave(node, data);
@@ -9407,7 +9407,7 @@
             event.type +
               ": getData('application/x-fancytree-node'): '" +
               nodeData +
-              "'"
+              "'",
           );
         }
         if (!nodeData) {
@@ -9432,11 +9432,11 @@
         }
         tree.debug(
           event.type + ": nodeData: '" + nodeData + "', otherNodeData: ",
-          data.otherNodeData
+          data.otherNodeData,
         );
 
         $(node.span).removeClass(
-          classDropOver + " " + classDropAccept + " " + classDropReject
+          classDropOver + " " + classDropAccept + " " + classDropReject,
         );
 
         // Let user implement the actual drop operation
@@ -9458,12 +9458,12 @@
           // the DOM, so the dragend event will probaly not fire.
           if (orgSourceTree === tree) {
             tree.debug(
-              "Drop handler removed source element: generating dragEnd."
+              "Drop handler removed source element: generating dragEnd.",
             );
             dndOpts.dragEnd(SOURCE_NODE, data);
           } else {
             tree.warn(
-              "Drop handler removed source element: dragend event may be lost."
+              "Drop handler removed source element: dragend event may be lost.",
             );
           }
         }
@@ -9605,7 +9605,7 @@
           FT.setSpanIcon(
             $dropMarker[0],
             glyph.map._addClass,
-            glyph.map.dropMarker
+            glyph.map.dropMarker,
           );
         }
       }
@@ -9621,7 +9621,7 @@
         // Bind drop event handlers
         tree.$container.on(
           "dragenter dragover dragleave drop",
-          onDropEvent.bind(tree)
+          onDropEvent.bind(tree),
         );
       }
     },
@@ -9768,7 +9768,7 @@
    */
   $.ui.fancytree._FancytreeNodeClass.prototype.editEnd = function (
     applyChanges,
-    _event
+    _event,
   ) {
     var newVal,
       node = this,
@@ -9857,7 +9857,7 @@
    */
   $.ui.fancytree._FancytreeNodeClass.prototype.editCreateNode = function (
     mode,
-    init
+    init,
   ) {
     var newNode,
       tree = this.tree,
@@ -10111,7 +10111,7 @@
   $.ui.fancytree._FancytreeClass.prototype._applyFilterImpl = function (
     filter,
     branchMode,
-    _opts
+    _opts,
   ) {
     var match,
       statusNode,
@@ -10133,7 +10133,7 @@
     if (typeof filter === "string") {
       if (filter === "") {
         this.warn(
-          "Fancytree passing an empty string as a filter is handled as clearFilter()."
+          "Fancytree passing an empty string as a filter is handled as clearFilter().",
         );
         this.clearFilter();
         return;
@@ -10213,7 +10213,7 @@
     }
     this.$div.toggleClass(
       "fancytree-ext-filter-hide-expanders",
-      !!opts.hideExpanders
+      !!opts.hideExpanders,
     );
     // Reset current filter
     this.rootNode.subMatchCount = 0;
@@ -10284,7 +10284,7 @@
           key: KeyNoData,
           title: this.options.strings.noData,
         },
-        statusNode
+        statusNode,
       );
 
       this.getRootNode().addNode(statusNode).match = true;
@@ -10307,12 +10307,12 @@
    */
   $.ui.fancytree._FancytreeClass.prototype.filterNodes = function (
     filter,
-    opts
+    opts,
   ) {
     if (typeof opts === "boolean") {
       opts = { leavesOnly: opts };
       this.warn(
-        "Fancytree.filterNodes() leavesOnly option is deprecated since 2.9.0 / 2015-04-19. Use opts.leavesOnly instead."
+        "Fancytree.filterNodes() leavesOnly option is deprecated since 2.9.0 / 2015-04-19. Use opts.leavesOnly instead.",
       );
     }
     return this._applyFilterImpl(filter, false, opts);
@@ -10329,7 +10329,7 @@
    */
   $.ui.fancytree._FancytreeClass.prototype.filterBranches = function (
     filter,
-    opts
+    opts,
   ) {
     return this._applyFilterImpl(filter, true, opts);
   };
@@ -10386,7 +10386,7 @@
         if (enhanceTitle) {
           enhanceTitle(
             { type: "enhanceTitle" },
-            { node: node, $title: $title }
+            { node: node, $title: $title },
           );
         }
       }
@@ -10409,7 +10409,7 @@
     this.enableFilter = false;
     this.lastFilterArgs = null;
     this.$div.removeClass(
-      "fancytree-ext-filter fancytree-ext-filter-dimm fancytree-ext-filter-hide"
+      "fancytree-ext-filter fancytree-ext-filter-dimm fancytree-ext-filter-hide",
     );
     this._callHook("treeStructureChanged", this, "clearFilter");
     // this.render();
@@ -10516,7 +10516,7 @@
           node.$subMatchBadge = $("<span class='fancytree-childcounter'/>");
           $(
             "span.fancytree-icon, span.fancytree-custom-icon",
-            node.span
+            node.span,
           ).append(node.$subMatchBadge);
         }
         node.$subMatchBadge.show().text(node.subMatchCount);
@@ -10537,7 +10537,7 @@
         if (enhanceTitle) {
           enhanceTitle(
             { type: "enhanceTitle" },
-            { node: node, $title: $title }
+            { node: node, $title: $title },
           );
         }
       }
@@ -10774,7 +10774,7 @@
       if (opts.preset) {
         FT.assert(
           !!PRESETS[opts.preset],
-          "Invalid value for `options.glyph.preset`: " + opts.preset
+          "Invalid value for `options.glyph.preset`: " + opts.preset,
         );
         opts.map = $.extend({}, PRESETS[opts.preset], opts.map);
       } else {
@@ -10829,8 +10829,8 @@
           icon = node.selected
             ? "checkboxSelected"
             : node.partsel
-            ? "checkboxUnknown"
-            : "checkbox";
+              ? "checkboxUnknown"
+              : "checkbox";
           // span.className = "fancytree-checkbox " + map[icon];
           setIcon(node, span, "fancytree-checkbox", opts, icon);
         }
@@ -10869,7 +10869,7 @@
           //
           span = $(
             ".fancytree-statusnode-" + status,
-            node[this.nodeContainerAttrName]
+            node[this.nodeContainerAttrName],
           )
             .find(".fancytree-icon")
             .get(0);
@@ -11159,7 +11159,7 @@
       this.$container.addClass("fancytree-ext-multi");
       if (ctx.options.selectMode === 1) {
         $.error(
-          "Fancytree ext-multi: selectMode: 1 (single) is not compatible."
+          "Fancytree ext-multi: selectMode: 1 (single) is not compatible.",
         );
       }
     },
@@ -11197,7 +11197,7 @@
             {
               start: activeNode,
               reverse: activeNode.isBelowOf(node),
-            }
+            },
           );
           break;
         case "ctrl+click":
@@ -11380,7 +11380,7 @@
         if (missingKeyList.length) {
           tree.warn(
             "_loadLazyNodes: could not load those keys: ",
-            missingKeyList
+            missingKeyList,
           );
           for (i = 0, l = missingKeyList.length; i < l; i++) {
             key = keyList[i];
@@ -11422,7 +11422,7 @@
 
   $.ui.fancytree._FancytreeClass.prototype.clearCookies = function (types) {
     this.warn(
-      "'tree.clearCookies()' is deprecated since v2.27.0: use 'clearPersistData()' instead."
+      "'tree.clearCookies()' is deprecated since v2.27.0: use 'clearPersistData()' instead.",
     );
     return this.clearPersistData(types);
   };
@@ -11569,7 +11569,7 @@
             local,
             keyList,
             instOpts.expandLazy ? "expand" : false,
-            null
+            null,
           );
         } else {
           // nothing to do
@@ -11652,7 +11652,7 @@
       if (local.storeActive) {
         local._data(
           local.cookiePrefix + ACTIVE,
-          this.activeNode ? this.activeNode.key : null
+          this.activeNode ? this.activeNode.key : null,
         );
       }
       return res;
@@ -11680,7 +11680,7 @@
       if (local.storeFocus) {
         local._data(
           local.cookiePrefix + FOCUS,
-          this.focusNode ? this.focusNode.key : null
+          this.focusNode ? this.focusNode.key : null,
         );
       }
       return res;
@@ -11828,12 +11828,12 @@
       if (tableOpts.customStatus != null) {
         if (opts.renderStatusColumns == null) {
           tree.warn(
-            "The 'customStatus' option is deprecated since v2.15.0. Use 'renderStatusColumns' instead."
+            "The 'customStatus' option is deprecated since v2.15.0. Use 'renderStatusColumns' instead.",
           );
           opts.renderStatusColumns = tableOpts.customStatus;
         } else {
           $.error(
-            "The 'customStatus' option is deprecated since v2.15.0. Use 'renderStatusColumns' only instead."
+            "The 'customStatus' option is deprecated since v2.15.0. Use 'renderStatusColumns' only instead.",
           );
         }
       }
@@ -11851,7 +11851,7 @@
         // TODO: not sure if we can rely on browsers to insert missing <tbody> before <tr>s:
         if ($table.find(">tr").length) {
           $.error(
-            "Expected table > tbody > tr. If you see this please open an issue."
+            "Expected table > tbody > tr. If you see this please open an issue.",
           );
         }
         $tbody = $("<tbody>").appendTo($table);
@@ -11874,7 +11874,7 @@
               tree.columnCount +
               ") and tbody (" +
               n +
-              "): using tbody."
+              "): using tbody.",
           );
           tree.columnCount = n;
         }
@@ -11883,7 +11883,7 @@
         // Only thead is defined: create default row markup
         _assert(
           tree.columnCount >= 1,
-          "Need either <thead> or <tbody> with <td> elements to determine column count."
+          "Need either <thead> or <tbody> with <td> elements to determine column count.",
         );
         $row = $("<tr />");
         for (i = 0; i < tree.columnCount; i++) {
@@ -12018,7 +12018,7 @@
           } else {
             _assert(
               !prevNode.parent,
-              "prev. row must have a tr, or be system root"
+              "prev. row must have a tr, or be system root",
             );
             // tree.tbody.appendChild(newRow);
             insertFirstChild(tree.tbody, newRow); // #675
@@ -12115,7 +12115,7 @@
           opts.renderStatusColumns.call(
             tree,
             { type: "renderStatusColumns" },
-            ctx
+            ctx,
           );
         } else if (opts.table.mergeStatusColumns && node.isTopLevel()) {
           $(node.tr)
@@ -12312,14 +12312,14 @@
 
         $(node.tr ? node.tr : node.span).toggleClass(
           opts.hoverClass + " " + opts.addClass,
-          flag
+          flag,
         );
       });
     },
     treeDestroy: function (ctx) {
       this._superApply(arguments);
       ctx.widget.element.removeClass(
-        "ui-widget ui-widget-content ui-corner-all"
+        "ui-widget ui-widget-content ui-corner-all",
       );
     },
     nodeRenderStatus: function (ctx) {
@@ -12441,7 +12441,7 @@
     levelOfs,
     lineOfs,
     labelOfs,
-    measureUnit
+    measureUnit,
   ) {
     var i,
       prefix = "#" + containerId + " span.fancytree-level-",
@@ -12454,7 +12454,7 @@
           " span.fancytree-title { padding-left: " +
           (i * levelOfs + lineOfs) +
           measureUnit +
-          "; }"
+          "; }",
       );
     }
     // Some UI animations wrap the UL inside a DIV and set position:relative on both.
@@ -12469,7 +12469,7 @@
         "{ padding-left: " +
         labelOfs +
         measureUnit +
-        "; position: static; width: auto; }"
+        "; position: static; width: auto; }",
     );
     return rules.join("\n");
   }
@@ -12528,7 +12528,7 @@
         instOpts = ctx.options.wide,
         // css sniffing
         $dummyLI = $(
-          "<li id='fancytreeTemp'><span class='fancytree-node'><span class='fancytree-icon' /><span class='fancytree-title' /></span><ul />"
+          "<li id='fancytreeTemp'><span class='fancytree-node'><span class='fancytree-icon' /><span class='fancytree-title' /></span><ul />",
         ).appendTo(ctx.tree.$container),
         $dummyIcon = $dummyLI.find(".fancytree-icon"),
         $dummyUL = $dummyLI.find("ul"),
@@ -12553,7 +12553,7 @@
         labelSpacingUnit !== iconWidthUnit
       ) {
         $.error(
-          "iconWidth, iconSpacing, and levelOfs must have the same css measure unit"
+          "iconWidth, iconSpacing, and levelOfs must have the same css measure unit",
         );
       }
       this._local.measureUnit = iconWidthUnit;
@@ -12576,7 +12576,7 @@
         this._local.levelOfs,
         this._local.lineOfs,
         this._local.labelOfs,
-        this._local.measureUnit
+        this._local.measureUnit,
       );
       defineHeadStyleElement(containerId, cssText);
     },
@@ -12598,7 +12598,7 @@
         containerId = this.$container.attr("id");
         this._local.maxDepth *= 2;
         node.debug(
-          "Define global ext-wide css up to level " + this._local.maxDepth
+          "Define global ext-wide css up to level " + this._local.maxDepth,
         );
         cssText = renderLevelCss(
           containerId,
@@ -12606,7 +12606,7 @@
           this._local.levelOfs,
           this._local.lineOfs,
           this._local.labelSpacing,
-          this._local.measureUnit
+          this._local.measureUnit,
         );
         defineHeadStyleElement(containerId, cssText);
       }

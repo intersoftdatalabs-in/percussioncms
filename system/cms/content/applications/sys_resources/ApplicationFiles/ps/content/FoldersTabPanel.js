@@ -24,8 +24,8 @@ ps.declare(
       ps.assert(
         false,
         "Templates site folder params pane should not be loaded " +
-          "on the folders tab"
+          "on the folders tab",
       );
     },
-  }
+  },
 );

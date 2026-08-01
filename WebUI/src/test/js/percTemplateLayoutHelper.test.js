@@ -55,7 +55,7 @@ import { beforeEach, afterEach, describe, it, expect } from "vitest";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SRC_PATH = resolve(
   __dirname,
-  "../../main/webapp/cm/plugins/perc_template_layout_helper.js"
+  "../../main/webapp/cm/plugins/perc_template_layout_helper.js",
 );
 
 const XSS_MARKER = 'onerror="window.__perc_template_layout_pwned__=true"';
@@ -135,7 +135,7 @@ describe("perc_template_layout_helper parseRegions XSS regression", () => {
     helper.parseRegions($region, null);
 
     const sawRawMarkup = rawCalls.some(
-      (call) => typeof call === "string" && call.includes(XSS_MARKER)
+      (call) => typeof call === "string" && call.includes(XSS_MARKER),
     );
     expect(sawRawMarkup).toBe(false);
   });

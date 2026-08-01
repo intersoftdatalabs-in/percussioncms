@@ -95,7 +95,7 @@
     //Dialog Html
     function createDialog(itemList) {
       var htmlList = $('<div class="perc-multicheck-list" />').append(
-        $('<div class="perc-items-container" />')
+        $('<div class="perc-items-container" />'),
       );
       var container = htmlList.find(".perc-items-container");
       for (let i in itemList) {
@@ -103,8 +103,8 @@
         var html = $("<div class='perc-item-entry'/>")
           .append(
             $(
-              "<input type='checkbox' tabindex='0' title='" + itemName + "'/>"
-            ).val(itemName)
+              "<input type='checkbox' tabindex='0' title='" + itemName + "'/>",
+            ).val(itemName),
           )
           .append($("<span />").html(itemName).attr("title", itemName));
         // append html to DOM

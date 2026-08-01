@@ -153,7 +153,7 @@
     if (typeof root_path[2] != "undefined") {
       root_path[2] = root_path[2].replace(
         "<sitename>",
-        settings.customRootSite
+        settings.customRootSite,
       );
     }
 
@@ -173,7 +173,7 @@
           settings.asset_name,
           "asset-name",
           "perc-saveas-dialog-assetname",
-          sa_tabindex
+          sa_tabindex,
         ) +
         //Selection box for the location drop-down, which provides a
         //list of parent directories.
@@ -181,11 +181,11 @@
           settings.location,
           "location",
           "perc-saveas-dialog-location",
-          sa_tabindex
+          sa_tabindex,
         ) +
         //Space for the directory navigation.
         "</p><div id='perc-saveas-dialog-direc'></div>" +
-        "</div>"
+        "</div>",
     );
 
     var root_direc = top.find("#perc-saveas-dialog-direc");
@@ -306,8 +306,8 @@
           $(
             "<option  style = 'color:#000' value='" +
               current_path.join("/") +
-              "'></option>"
-          ).append(indent + current_path[current_path.length - 1])
+              "'></option>",
+          ).append(indent + current_path[current_path.length - 1]),
         );
       }
       path_select.val(current_path.join("/"));
@@ -333,7 +333,7 @@
                 //the new folder is seen).
                 set_path(ut.acop(path));
               },
-              err
+              err,
             );
           },
         });
@@ -364,7 +364,7 @@
           function () {
             top.remove();
           },
-          err
+          err,
         );
       } else {
         settings.on_save(
@@ -373,7 +373,7 @@
           function () {
             top.remove();
           },
-          err
+          err,
         );
       }
     }
@@ -396,8 +396,8 @@
               icon.title +
               "' aria-hidden='" +
               icon.decorative +
-              "' />"
-          )
+              "' />",
+          ),
         )
         .append(spec["name"])
         .data("name", path_end)

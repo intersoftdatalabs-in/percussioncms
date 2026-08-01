@@ -1,11 +1,27 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="com.percussion.i18n.PSI18nUtils" %>
+<%@ page import="java.net.URLEncoder" %>
+<%@ page import="java.nio.charset.StandardCharsets" %>
+<%@ page import="java.util.Locale" %>
+<%@ page import="java.util.regex.Pattern" %>
 <%--
   React Logout SPA host (post-logout confirmation).
   Server /logout endpoint is unchanged — this page is the UI only.
   Mirrors rxlogin.jsp host contract: modern CSS/JS, TMX, XSS-safe bootstrap.
+
+  Locale preference (mirrors PSLoginServlet.resolveLogoutLocale):
+    1) request attribute perc.logout.locale (set before session invalidate)
+    2) sys_lang / j_locale query params (direct hits / bookmarks)
+    3) system language
+  "Sign in again" carries j_locale so login reopens in the same language.
 --%>
 <%!
+    /** Must match PSLoginServlet.LOGOUT_LOCALE_REQUEST_ATTR */
+    private static final String LOGOUT_LOCALE_REQUEST_ATTR = "perc.logout.locale";
+
+    private static final Pattern LOCALE_TAG =
+            Pattern.compile("(?i)^[a-z]{2,3}(-[a-z0-9]{2,8})*$");
+
     private static String jsonString(String s) {
         if (s == null) {
             return "null";
@@ -38,14 +54,55 @@
         sb.append('"');
         return sb.toString();
     }
+
+    /** Allowlist + normalize BCP-47; null if empty/invalid. */
+    private static String normalizeLocaleCandidate(String candidate) {
+        if (candidate == null) {
+            return null;
+        }
+        // Normalize legacy underscore form (en_US) before allowlist match.
+        String trimmed = candidate.trim().toLowerCase(Locale.ROOT).replace('_', '-');
+        if (trimmed.isEmpty() || trimmed.length() > 32) {
+            return null;
+        }
+        if (!LOCALE_TAG.matcher(trimmed).matches()) {
+            return null;
+        }
+        return trimmed;
+    }
+
+    /** Relative login front door with j_locale (mirrors PSLoginServlet.buildLogoutLoginHref). */
+    private static String buildLoginHref(String locale) {
+        if (locale == null || locale.isEmpty()) {
+            return "login";
+        }
+        return "login?j_locale=" + URLEncoder.encode(locale, StandardCharsets.UTF_8);
+    }
 %>
 <%
-    String locale = PSI18nUtils.getSystemLanguage();
-    if (locale == null || locale.isEmpty()) {
-        locale = "en-us";
+    // 1) Attribute set by PSLoginServlet.logout before session invalidate
+    String locale = null;
+    Object attr = request.getAttribute(LOGOUT_LOCALE_REQUEST_ATTR);
+    if (attr instanceof String) {
+        locale = normalizeLocaleCandidate((String) attr);
     }
-    // Product login front door (same relative action as classic login form).
-    String loginHref = "login";
+    // 2) Query params (direct /rxlogout.jsp?sys_lang=… or j_locale=…)
+    if (locale == null) {
+        locale = normalizeLocaleCandidate(request.getParameter("sys_lang"));
+    }
+    if (locale == null) {
+        locale = normalizeLocaleCandidate(request.getParameter("j_locale"));
+    }
+    // 3) System default
+    if (locale == null || locale.isEmpty()) {
+        locale = PSI18nUtils.getSystemLanguage();
+        if (locale == null || locale.isEmpty()) {
+            locale = "en-us";
+        }
+    }
+
+    // Product login front door with locale so sign-in reopens in the same language.
+    String loginHref = buildLoginHref(locale);
 %>
 <!DOCTYPE html>
 <html lang="<%= locale %>">

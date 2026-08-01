@@ -40,7 +40,7 @@
     $(".perc-form-fields-col").append(editorHtml);
     $("#perc-metadata-content").html(metaHtml);
     $(".field-editor").append(
-      "<div class = 'perc-form-ui-menu'><span class='toggle-editor'><img src='../rx_resources/widgets/form/images/edit.png' alt='Edit'></span><span class='delete-field'><img src='../rx_resources/widgets/form/images/delete.png' ></span></div>"
+      "<div class = 'perc-form-ui-menu'><span class='toggle-editor'><img src='../rx_resources/widgets/form/images/edit.png' alt='Edit'></span><span class='delete-field'><img src='../rx_resources/widgets/form/images/delete.png' ></span></div>",
     );
 
     // Position the Form controls menu button
@@ -104,7 +104,7 @@
     //Add Textarea field
     $(".form-textarea-label").on("click", function () {
       var newElem = $.PercFormController().getNewFieldEditor(
-        "PercTextareaFieldControl"
+        "PercTextareaFieldControl",
       );
       addEvents(newElem);
       $("#perc-form-dnd-fields").append(newElem);
@@ -115,7 +115,7 @@
     //Add Check boxes
     $(".form-check-boxes-label").on("click", function () {
       var newElem = $.PercFormController().getNewFieldEditor(
-        "PercCheckBoxControl"
+        "PercCheckBoxControl",
       );
       addEvents(newElem);
       $("#perc-form-dnd-fields").append(newElem);
@@ -136,7 +136,7 @@
     //Add Submit Button
     $(".form-submit-buttons-label").on("click", function () {
       var newElem = $.PercFormController().getNewFieldEditor(
-        "PercSubmitButtonControl"
+        "PercSubmitButtonControl",
       );
       addEvents(newElem);
       $("#perc-form-dnd-fields").append(newElem);
@@ -147,7 +147,7 @@
     //Add Entry field
     $(".form-entry-field-label").on("click", function () {
       var newElem = $.PercFormController().getNewFieldEditor(
-        "PercEntryFieldControl"
+        "PercEntryFieldControl",
       );
       addEvents(newElem);
       $("#perc-form-dnd-fields").append(newElem);
@@ -158,7 +158,7 @@
     // Add Drop down field
     $(".form-drop-down-label").on("click", function () {
       var newElem = $.PercFormController().getNewFieldEditor(
-        "PercDropDownControl"
+        "PercDropDownControl",
       );
       addEvents(newElem);
       $("#perc-form-dnd-fields").append(newElem);
@@ -169,7 +169,7 @@
     // Add Data Drop down field
     $(".form-data-drop-down-label").on("click", function () {
       var newElem = $.PercFormController().getNewFieldEditor(
-        "PercDataDropDownControl"
+        "PercDataDropDownControl",
       );
       addEvents(newElem);
       $("#perc-form-dnd-fields").append(newElem);
@@ -180,7 +180,7 @@
     //Add Text field
     $(".form-text-label").on("click", function () {
       var newElem = $.PercFormController().getNewFieldEditor(
-        "PercTextFieldControl"
+        "PercTextFieldControl",
       );
       addEvents(newElem);
       $("#perc-form-dnd-fields").append(newElem);
@@ -192,7 +192,7 @@
     //Add Hidden field
     $(".form-hidden-field-label").on("click", function () {
       var newElem = $.PercFormController().getNewFieldEditor(
-        "PercHiddenFieldControl"
+        "PercHiddenFieldControl",
       );
       addEvents(newElem);
       $("#perc-form-dnd-fields").append(newElem);
@@ -204,7 +204,7 @@
     //Add Honeypot field
     $(".form-perc-honeypot-label").on("click", function () {
       var newElem = $.PercFormController().getNewFieldEditor(
-        "PercHoneypotFieldControl"
+        "PercHoneypotFieldControl",
       );
       addEvents(newElem);
       $("#perc-form-dnd-fields").append(newElem);
@@ -216,7 +216,7 @@
     //Add recaptcha field
     $(".form-perc-recaptcha-label").on("click", function () {
       var newElem = $.PercFormController().getNewFieldEditor(
-        "PercRecaptchaFieldControl"
+        "PercRecaptchaFieldControl",
       );
       addEvents(newElem);
       $("#perc-form-dnd-fields").append(newElem);
@@ -273,7 +273,7 @@
         $(this).sortable("refresh");
       },
       containment: $("#perc-form-dnd-fields").parents(
-        "#perc-content-edit-content"
+        "#perc-content-edit-content",
       ),
     });
 
@@ -333,7 +333,7 @@
     $("input[name='formuniquenamevalidator']").parent("div").hide();
     //Add the Form pre submit handler
     window.parent.jQuery.PercContentPreSubmitHandlers.addHandler(
-      updateFormFields
+      updateFormFields,
     );
     // Meta data
     $("#perc-content-edit-metadata-link").hide();
@@ -346,23 +346,23 @@
 
     if (formData === null) {
       var newElem = $.PercFormController().getNewFieldEditor(
-        "PercTextFieldControl"
+        "PercTextFieldControl",
       );
       addEvents(newElem);
       $("#perc-form-dnd-fields").append(newElem);
       $("div.form-widget-label").text(
-        "Descriptive text can be added by selecting the edit icon in the upper right."
+        "Descriptive text can be added by selecting the edit icon in the upper right.",
       );
       newElem = $.PercFormController().getNewFieldEditor(
-        "PercEntryFieldControl"
+        "PercEntryFieldControl",
       );
       addEvents(newElem);
       $("#perc-form-dnd-fields").append(newElem);
       $("div[name='defaultValue']").text(
-        "Default text can be added to any text box."
+        "Default text can be added to any text box.",
       );
       newElem = $.PercFormController().getNewFieldEditor(
-        "PercSubmitButtonControl"
+        "PercSubmitButtonControl",
       );
       addEvents(newElem);
       $("#perc-form-dnd-fields").append(newElem);
@@ -381,7 +381,7 @@
     elem
       .find(".field-editor")
       .append(
-        "<div class = 'perc-form-ui-menu'><span class='toggle-editor'><img src='../rx_resources/widgets/form/images/edit.png' ></span><span class='delete-field'><img src='../rx_resources/widgets/form/images/delete.png'></span></div>"
+        "<div class = 'perc-form-ui-menu'><span class='toggle-editor'><img src='../rx_resources/widgets/form/images/edit.png' ></span><span class='delete-field'><img src='../rx_resources/widgets/form/images/delete.png'></span></div>",
       );
   }
 
@@ -404,7 +404,7 @@
       .append(
         "<div class = 'perc-form-ui-menu'>" +
           configButtonHtml +
-          "<span class='delete-field'><img src='../rx_resources/widgets/form/images/delete.png' alt='Delete'></span></div>"
+          "<span class='delete-field'><img src='../rx_resources/widgets/form/images/delete.png' alt='Delete'></span></div>",
       );
   }
 
@@ -460,7 +460,7 @@
 
     var formData = $.PercFormController().getFormData(
       $("." + $.PercFormConstants.FORM_CLASS),
-      $("." + $.PercFormConstants.FORM_METADATA_CLASS)
+      $("." + $.PercFormConstants.FORM_METADATA_CLASS),
     );
     var formConfig = formData.config;
     //Set the title, name and description
@@ -483,7 +483,7 @@
         $("<div/>")
           .append($.PercFormController().getRenderedForm(formData))
           .html()
-          .replace(/<input\s+([^>]*?)\s*>/gi, "<input $1 />")
+          .replace(/<input\s+([^>]*?)\s*>/gi, "<input $1 />"),
     ); // @TODO: This *will* break once we're serving as application/xhtml+xml.  Get rid of the .replace to fix.
     return success;
   }
@@ -501,7 +501,7 @@
       "<label id = 'perc-form-label-field-name' class = 'form-widget-label' >Form title:</label> <br />" +
         "<div class = 'perc-form-header-datadisplay' type = 'text' id = 'perc-form-title' size = '50'></div><br />" +
         "<label id = 'perc-form-label-description' class = 'form-widget-label perc-required-field'>Form name:</label> <br />" +
-        "<div class = 'perc-form-header-datadisplay' type = 'text' id = 'perc-form-name' size = '50'></div><br />"
+        "<div class = 'perc-form-header-datadisplay' type = 'text' id = 'perc-form-name' size = '50'></div><br />",
     );
     var metaHtml = $.PercFormController().getFormMetaDataEditor(formData);
 
@@ -516,7 +516,7 @@
     var successUrl = $("#perc-formbuild-success-url").val();
     var errorUrl = $("#perc-formbuild-error-url").val();
     var notificationFlag = $("#perc-form-metadata-email-notification").is(
-      ":checked"
+      ":checked",
     );
     var mailTo = $("#perc-formbuild-mail-to").val();
     var mailSubject = $("#perc-formbuild-mail-subject").val();
@@ -646,7 +646,7 @@
         "</div>" +
         "</div>" +
         "</div>" +
-        "</div>"
+        "</div>",
     );
     $("#perc-metadata-content")
       .html(readOnlyMetadata)
@@ -655,7 +655,7 @@
     $("#perc-form-help-text").hide();
     $("#perc-form-metadata-email-notification").prop(
       "checked",
-      notificationFlag
+      notificationFlag,
     );
 
     var formTitle = $("#perc-form-title").val();
@@ -718,7 +718,7 @@
       preferences[i].pref.addControl(
         container,
         preferenceVals[preferences[i].pref.name],
-        preferences[i].defaults
+        preferences[i].defaults,
       );
     }
 

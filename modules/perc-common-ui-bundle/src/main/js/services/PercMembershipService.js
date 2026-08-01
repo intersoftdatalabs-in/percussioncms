@@ -48,12 +48,12 @@
           callback(status, results.data);
         } else {
           var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            results.request
+            results.request,
           );
           callback(status, defMsg);
         }
       },
-      registerObj
+      registerObj,
     );
   }
 
@@ -76,12 +76,12 @@
           callback(status, results.data);
         } else {
           var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            results.request
+            results.request,
           );
           callback(status, defMsg);
         }
       },
-      sessionIdData
+      sessionIdData,
     );
   }
 
@@ -103,12 +103,12 @@
           callback(status, results.data);
         } else {
           var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            results.request
+            results.request,
           );
           callback(status, defMsg);
         }
       },
-      loginObj
+      loginObj,
     );
   }
 
@@ -133,12 +133,12 @@
           callback(status, results.data);
         } else {
           var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            results.request
+            results.request,
           );
           callback(status, defMsg);
         }
       },
-      pwResetObj
+      pwResetObj,
     );
   }
 
@@ -165,12 +165,12 @@
           callback(status, results.data);
         } else {
           var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            results.request
+            results.request,
           );
           callback(status, defMsg);
         }
       },
-      pwResetObj
+      pwResetObj,
     );
   }
 
@@ -191,11 +191,11 @@
           callback(status, results.data);
         } else {
           var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            results.request
+            results.request,
           );
           callback(status, defMsg);
         }
-      }
+      },
     );
   }
 
@@ -217,11 +217,11 @@
           callback(status, results.data);
         } else {
           var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            results.request
+            results.request,
           );
           callback(status, defMsg);
         }
-      }
+      },
     );
   }
 })(jQuery);

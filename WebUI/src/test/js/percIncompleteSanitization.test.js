@@ -62,13 +62,13 @@ describe("PercUserService findDirectoryUsers wildcard (alerts #1470/#1456)", () 
 
       it("uses a global regex for % → * conversion", () => {
         expect(src).toMatch(
-          /usernameStartsWith\s*=\s*usernameStartsWith\.replace\s*\(\s*\/%\/g\s*,\s*["']\*["']\s*\)/
+          /usernameStartsWith\s*=\s*usernameStartsWith\.replace\s*\(\s*\/%\/g\s*,\s*["']\*["']\s*\)/,
         );
       });
 
       it("does not use a first-only string replace for %", () => {
         expect(src).not.toMatch(
-          /usernameStartsWith\.replace\s*\(\s*["']%["']\s*,/
+          /usernameStartsWith\.replace\s*\(\s*["']%["']\s*,/,
         );
       });
     });
@@ -105,14 +105,14 @@ describe("perc_css_utils parse_region_css quote strip (alerts #1468/#1454)", () 
 
       it("uses a global regex to strip double-quotes", () => {
         expect(src).toMatch(
-          /cssString\s*=\s*cssString\.replace\s*\(\s*\/"\/g\s*,\s*["']{2}\s*\)/
+          /cssString\s*=\s*cssString\.replace\s*\(\s*\/"\/g\s*,\s*["']{2}\s*\)/,
         );
       });
 
       it("does not use a first-only string replace for quotes", () => {
         // Pre-fix: cssString.replace('"', "") or cssString.replace('"', "")
         expect(src).not.toMatch(
-          /cssString\.replace\s*\(\s*['"]\"['"]\s*,\s*["']{2}\s*\)/
+          /cssString\.replace\s*\(\s*['"]\"['"]\s*,\s*["']{2}\s*\)/,
         );
       });
     });
@@ -121,7 +121,7 @@ describe("perc_css_utils parse_region_css quote strip (alerts #1468/#1454)", () 
   it("behaviourally strips every double-quote", () => {
     const strip = (s) => s.replace(/"/g, "");
     expect(strip('#r1{color:"red";font:"Arial"}')).toBe(
-      "#r1{color:red;font:Arial}"
+      "#r1{color:red;font:Arial}",
     );
     expect(strip('a"b"c"d')).toBe("abcd");
   });
@@ -142,13 +142,13 @@ describe("perc_site_map getJsonObj brace strip (alert #1485)", () => {
   it("uses a global regex to strip opening braces", () => {
     // tempArrayData_arr = tempArrayData_arr[0].replace(/\{/g, "");
     expect(src).toMatch(
-      /tempArrayData_arr\[0\]\.replace\s*\(\s*\/\\\{\/g\s*,\s*["']{2}\s*\)/
+      /tempArrayData_arr\[0\]\.replace\s*\(\s*\/\\\{\/g\s*,\s*["']{2}\s*\)/,
     );
   });
 
   it("does not use a first-only string replace for {", () => {
     expect(src).not.toMatch(
-      /tempArrayData_arr\[0\]\.replace\s*\(\s*["']\{["']\s*,/
+      /tempArrayData_arr\[0\]\.replace\s*\(\s*["']\{["']\s*,/,
     );
   });
 
@@ -181,14 +181,14 @@ describe("siteimprove_integration.html (alerts #1134/#1135/#1115/#1116)", () => 
       it("strips every backslash from metadata with a global regex", () => {
         // dataStr = dataStr.replace(/\\/g, "");
         expect(src).toMatch(
-          /dataStr\s*=\s*dataStr\.replace\s*\(\s*\/\\\\\/g\s*,\s*["']{2}\s*\)/
+          /dataStr\s*=\s*dataStr\.replace\s*\(\s*\/\\\\\/g\s*,\s*["']{2}\s*\)/,
         );
       });
 
       it("does not use a first-only string replace for backslash", () => {
         // Pre-fix: dataStr.replace("\\", "")
         expect(src).not.toMatch(
-          /dataStr\.replace\s*\(\s*["']\\\\["']\s*,\s*["']{2}\s*\)/
+          /dataStr\.replace\s*\(\s*["']\\\\["']\s*,\s*["']{2}\s*\)/,
         );
       });
 
@@ -206,7 +206,7 @@ describe("siteimprove_integration.html (alerts #1134/#1135/#1115/#1116)", () => 
       it("does not use the incomplete [ / ] only escape", () => {
         // Pre-fix: name.replace(/[\[\]]/g, "\\$&") — no backslash escape
         expect(src).not.toMatch(
-          /name\s*=\s*name\.replace\s*\(\s*\/\[\\\[\\\]\]\/g/
+          /name\s*=\s*name\.replace\s*\(\s*\/\[\\\[\\\]\]\/g/,
         );
       });
     });
@@ -258,7 +258,7 @@ describe("perc_common_ui.js moment unescapeFormat (alert #1467)", () => {
     const fnStart = src.indexOf("function unescapeFormat");
     const fnBody = src.slice(fnStart, fnStart + 400);
     expect(fnBody).not.toMatch(
-      /\.replace\s*\(\s*["']\\\\["']\s*,\s*["']{2}\s*\)/
+      /\.replace\s*\(\s*["']\\\\["']\s*,\s*["']{2}\s*\)/,
     );
   });
 

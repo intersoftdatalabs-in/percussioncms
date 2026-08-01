@@ -81,7 +81,7 @@
     ) {
       validPassword = false;
       passwordErrorText = I18N.message(
-        "perc.ui.common.label@Password Six Characters"
+        "perc.ui.common.label@Password Six Characters",
       );
     } else {
       validPassword = true;

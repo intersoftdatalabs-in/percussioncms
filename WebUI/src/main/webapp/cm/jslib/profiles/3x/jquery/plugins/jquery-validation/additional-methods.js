@@ -36,7 +36,7 @@
           stripHtml(value).match(/\b\w+\b/g).length <= params
         );
       },
-      $.validator.format("Please enter {0} words or less.")
+      $.validator.format("Please enter {0} words or less."),
     );
 
     $.validator.addMethod(
@@ -47,7 +47,7 @@
           stripHtml(value).match(/\b\w+\b/g).length >= params
         );
       },
-      $.validator.format("Please enter at least {0} words.")
+      $.validator.format("Please enter at least {0} words."),
     );
 
     $.validator.addMethod(
@@ -61,7 +61,7 @@
             valueStripped.match(regex).length <= params[1])
         );
       },
-      $.validator.format("Please enter between {0} and {1} words.")
+      $.validator.format("Please enter between {0} and {1} words."),
     );
   })();
 
@@ -99,7 +99,7 @@
 
       return false;
     },
-    "Please enter a valid routing number."
+    "Please enter a valid routing number.",
   );
 
   // Accept a value from a file input based on a required mimetype
@@ -146,7 +146,7 @@
       // browser does not support element.files and the FileList feature
       return true;
     },
-    $.validator.format("Please enter a value with a valid mimetype.")
+    $.validator.format("Please enter a value with a valid mimetype."),
   );
 
   $.validator.addMethod(
@@ -154,7 +154,7 @@
     function (value, element) {
       return this.optional(element) || /^\w+$/i.test(value);
     },
-    "Letters, numbers, and underscores only please."
+    "Letters, numbers, and underscores only please.",
   );
 
   /*
@@ -187,7 +187,7 @@
       }
       return sum % 11 === 0;
     },
-    "Please specify a valid bank account number."
+    "Please specify a valid bank account number.",
   );
 
   $.validator.addMethod(
@@ -199,7 +199,7 @@
         $.validator.methods.giroaccountNL.call(this, value, element)
       );
     },
-    "Please specify a valid bank or giro account number."
+    "Please specify a valid bank or giro account number.",
   );
 
   /**
@@ -223,11 +223,11 @@
       return (
         this.optional(element) ||
         /^([A-Z]{6}[A-Z2-9][A-NP-Z1-9])(X{3}|[A-WY-Z0-9][A-Z0-9]{2})?$/.test(
-          value.toUpperCase()
+          value.toUpperCase(),
         )
       );
     },
-    "Please specify a valid BIC code."
+    "Please specify a valid BIC code.",
   );
 
   /*
@@ -290,7 +290,7 @@
       }
 
       var cifRegEx = new RegExp(
-        /^([ABCDEFGHJKLMNPQRSUVW])(\d{7})([0-9A-J])$/gi
+        /^([ABCDEFGHJKLMNPQRSUVW])(\d{7})([0-9A-J])$/gi,
       );
       var letter = value.substring(0, 1), // [ T ]
         number = value.substring(1, 8), // [ P ][ P ][ N ][ N ][ N ][ N ][ N ]
@@ -347,7 +347,7 @@
       // Can be either
       return control === control_digit || control === control_letter;
     },
-    "Please specify a valid CIF number."
+    "Please specify a valid CIF number.",
   );
 
   /*
@@ -405,7 +405,7 @@
 
       return String(firstCN).concat(secondCN) === value.substr(-2);
     },
-    "Please specify a valid CNH number."
+    "Please specify a valid CNH number.",
   );
 
   /*
@@ -485,7 +485,7 @@
 
       return true;
     },
-    "Please specify a CNPJ value number."
+    "Please specify a CNPJ value number.",
   );
 
   /*
@@ -558,7 +558,7 @@
       }
       return false;
     },
-    "Please specify a valid CPF number."
+    "Please specify a valid CPF number.",
   );
 
   // https://jqueryvalidation.org/creditcard-method/
@@ -604,7 +604,7 @@
 
       return nCheck % 10 === 0;
     },
-    "Please enter a valid credit card number."
+    "Please enter a valid credit card number.",
   );
 
   /* NOTICE: Modified version of Castle.Components.Validator.CreditCardValidator
@@ -691,7 +691,7 @@
       }
       return false;
     },
-    "Please enter a valid credit card number."
+    "Please enter a valid credit card number.",
   );
 
   /**
@@ -739,7 +739,7 @@
       regex = new RegExp(regex);
       return this.optional(element) || regex.test(value);
     },
-    "Please specify a valid currency."
+    "Please specify a valid currency.",
   );
 
   $.validator.addMethod(
@@ -748,11 +748,11 @@
       return (
         this.optional(element) ||
         /^[1-4]\d{3}\/((0?[1-6]\/((3[0-1])|([1-2][0-9])|(0?[1-9])))|((1[0-2]|(0?[7-9]))\/(30|([1-2][0-9])|(0?[1-9]))))$/.test(
-          value
+          value,
         )
       );
     },
-    $.validator.messages.date
+    $.validator.messages.date,
   );
 
   /**
@@ -804,7 +804,7 @@
       }
       return this.optional(element) || check;
     },
-    $.validator.messages.date
+    $.validator.messages.date,
   );
 
   $.validator.addMethod(
@@ -813,11 +813,11 @@
       return (
         this.optional(element) ||
         /^(0?[1-9]|[12]\d|3[01])[\.\/\-](0?[1-9]|1[012])[\.\/\-]([12]\d)?(\d\d)$/.test(
-          value
+          value,
         )
       );
     },
-    $.validator.messages.date
+    $.validator.messages.date,
   );
 
   // Older "accept" file extension method. Old docs: http://docs.jquery.com/Plugins/Validation/Methods/accept
@@ -831,7 +831,7 @@
         value.match(new RegExp("\\.(" + param + ")$", "i"))
       );
     },
-    $.validator.format("Please enter a value with a valid extension.")
+    $.validator.format("Please enter a value with a valid extension."),
   );
 
   /**
@@ -842,7 +842,7 @@
     function (value, element) {
       return this.optional(element) || /^[0-9]{1,7}$/.test(value);
     },
-    "Please specify a valid giro account number."
+    "Please specify a valid giro account number.",
   );
 
   $.validator.addMethod(
@@ -863,7 +863,7 @@
 
       return value > target.val();
     },
-    "Please enter a greater value."
+    "Please enter a greater value.",
   );
 
   $.validator.addMethod(
@@ -884,7 +884,7 @@
 
       return value >= target.val();
     },
-    "Please enter a greater value."
+    "Please enter a greater value.",
   );
 
   /**
@@ -1021,7 +1021,7 @@
         }
         if (!leadingZeroes) {
           ibancheckdigits += "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".indexOf(
-            charAt
+            charAt,
           );
         }
       }
@@ -1034,7 +1034,7 @@
       }
       return cRest === 1;
     },
-    "Please specify a valid IBAN."
+    "Please specify a valid IBAN.",
   );
 
   $.validator.addMethod(
@@ -1042,7 +1042,7 @@
     function (value, element) {
       return this.optional(element) || /^-?\d+$/.test(value);
     },
-    "A positive or negative non-decimal number please."
+    "A positive or negative non-decimal number please.",
   );
 
   $.validator.addMethod(
@@ -1051,11 +1051,11 @@
       return (
         this.optional(element) ||
         /^(25[0-5]|2[0-4]\d|[01]?\d\d?)\.(25[0-5]|2[0-4]\d|[01]?\d\d?)\.(25[0-5]|2[0-4]\d|[01]?\d\d?)\.(25[0-5]|2[0-4]\d|[01]?\d\d?)$/i.test(
-          value
+          value,
         )
       );
     },
-    "Please enter a valid IP v4 address."
+    "Please enter a valid IP v4 address.",
   );
 
   $.validator.addMethod(
@@ -1064,11 +1064,11 @@
       return (
         this.optional(element) ||
         /^((([0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){6}:[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){5}:([0-9A-Fa-f]{1,4}:)?[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){4}:([0-9A-Fa-f]{1,4}:){0,2}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){3}:([0-9A-Fa-f]{1,4}:){0,3}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){2}:([0-9A-Fa-f]{1,4}:){0,4}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){6}((\b((25[0-5])|(1\d{2})|(2[0-4]\d)|(\d{1,2}))\b)\.){3}(\b((25[0-5])|(1\d{2})|(2[0-4]\d)|(\d{1,2}))\b))|(([0-9A-Fa-f]{1,4}:){0,5}:((\b((25[0-5])|(1\d{2})|(2[0-4]\d)|(\d{1,2}))\b)\.){3}(\b((25[0-5])|(1\d{2})|(2[0-4]\d)|(\d{1,2}))\b))|(::([0-9A-Fa-f]{1,4}:){0,5}((\b((25[0-5])|(1\d{2})|(2[0-4]\d)|(\d{1,2}))\b)\.){3}(\b((25[0-5])|(1\d{2})|(2[0-4]\d)|(\d{1,2}))\b))|([0-9A-Fa-f]{1,4}::([0-9A-Fa-f]{1,4}:){0,5}[0-9A-Fa-f]{1,4})|(::([0-9A-Fa-f]{1,4}:){0,6}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){1,7}:))$/i.test(
-          value
+          value,
         )
       );
     },
-    "Please enter a valid IP v6 address."
+    "Please enter a valid IP v6 address.",
   );
 
   $.validator.addMethod(
@@ -1089,7 +1089,7 @@
 
       return value < target.val();
     },
-    "Please enter a lesser value."
+    "Please enter a lesser value.",
   );
 
   $.validator.addMethod(
@@ -1110,7 +1110,7 @@
 
       return value <= target.val();
     },
-    "Please enter a lesser value."
+    "Please enter a lesser value.",
   );
 
   $.validator.addMethod(
@@ -1118,7 +1118,7 @@
     function (value, element) {
       return this.optional(element) || /^[a-z]+$/i.test(value);
     },
-    "Letters only please."
+    "Letters only please.",
   );
 
   $.validator.addMethod(
@@ -1126,7 +1126,7 @@
     function (value, element) {
       return this.optional(element) || /^[a-z\-.,()'"\s]+$/i.test(value);
     },
-    "Letters or punctuation only please."
+    "Letters or punctuation only please.",
   );
 
   // Limit the number of files in a FileList.
@@ -1145,7 +1145,7 @@
 
       return true;
     },
-    $.validator.format("Please select no more than {0} files.")
+    $.validator.format("Please select no more than {0} files."),
   );
 
   // Limit the size of each individual file in a FileList.
@@ -1168,7 +1168,7 @@
 
       return true;
     },
-    $.validator.format("File size must not exceed {0} bytes each.")
+    $.validator.format("File size must not exceed {0} bytes each."),
   );
 
   // Limit the size of all files in a FileList.
@@ -1194,7 +1194,7 @@
 
       return true;
     },
-    $.validator.format("Total size of all files must not exceed {0} bytes.")
+    $.validator.format("Total size of all files must not exceed {0} bytes."),
   );
 
   $.validator.addMethod(
@@ -1203,11 +1203,11 @@
       return (
         this.optional(element) ||
         /^((\+|00(\s|\s?\-\s?)?)31(\s|\s?\-\s?)?(\(0\)[\-\s]?)?|0)6((\s|\s?\-\s?)?[0-9]){8}$/.test(
-          value
+          value,
         )
       );
     },
-    "Please specify a valid mobile number."
+    "Please specify a valid mobile number.",
   );
 
   $.validator.addMethod(
@@ -1220,7 +1220,7 @@
           /^((\+7|7|8)+([0-9]){10})$/.test(ruPhone_number))
       );
     },
-    "Please specify a valid mobile number."
+    "Please specify a valid mobile number.",
   );
 
   /* For UK phone functions, do the following server side processing:
@@ -1239,11 +1239,11 @@
         this.optional(element) ||
         (phone_number.length > 9 &&
           phone_number.match(
-            /^(?:(?:(?:00\s?|\+)44\s?|0)7(?:[1345789]\d{2}|624)\s?\d{3}\s?\d{3})$/
+            /^(?:(?:(?:00\s?|\+)44\s?|0)7(?:[1345789]\d{2}|624)\s?\d{3}\s?\d{3})$/,
           ))
       );
     },
-    "Please specify a valid mobile number."
+    "Please specify a valid mobile number.",
   );
 
   $.validator.addMethod(
@@ -1252,11 +1252,11 @@
       return (
         this.optional(element) ||
         /^(254|252|248|240|224|192|128)\.0\.0\.0|255\.(254|252|248|240|224|192|128|0)\.0\.0|255\.255\.(254|252|248|240|224|192|128|0)\.0|255\.255\.255\.(254|252|248|240|224|192|128|0)/i.test(
-          value
+          value,
         )
       );
     },
-    "Please enter a valid netmask."
+    "Please enter a valid netmask.",
   );
 
   /*
@@ -1277,7 +1277,7 @@
       }
 
       var nieRegEx = new RegExp(
-        /^[MXYZ]{1}[0-9]{7,8}[TRWAGMYFPDXBNJZSQVHLCKET]{1}$/gi
+        /^[MXYZ]{1}[0-9]{7,8}[TRWAGMYFPDXBNJZSQVHLCKET]{1}$/gi,
       );
       var validChars = "TRWAGMYFPDXBNJZSQVHLCKET",
         letter = value.substr(value.length - 1).toUpperCase(),
@@ -1302,7 +1302,7 @@
 
       return validChars.charAt(parseInt(number, 10) % 23) === letter;
     },
-    "Please specify a valid NIE number."
+    "Please specify a valid NIE number.",
   );
 
   /*
@@ -1322,7 +1322,7 @@
       // Basic format test
       if (
         !value.match(
-          "((^[A-Z]{1}[0-9]{7}[A-Z0-9]{1}$|^[T]{1}[A-Z0-9]{8}$)|^[0-9]{8}[A-Z]{1}$)"
+          "((^[A-Z]{1}[0-9]{7}[A-Z0-9]{1}$|^[T]{1}[A-Z0-9]{8}$)|^[0-9]{8}[A-Z]{1}$)",
         )
       ) {
         return false;
@@ -1346,7 +1346,7 @@
 
       return false;
     },
-    "Please specify a valid NIF number."
+    "Please specify a valid NIF number.",
   );
 
   /*
@@ -1373,7 +1373,7 @@
 
       return intControlNr === parseInt(value[9], 10);
     },
-    "Please specify a valid NIP number."
+    "Please specify a valid NIP number.",
   );
 
   /**
@@ -1435,7 +1435,7 @@
         return false;
       }
     },
-    "Please specify a valid NIS/PIS number."
+    "Please specify a valid NIS/PIS number.",
   );
 
   $.validator.addMethod(
@@ -1446,7 +1446,7 @@
         !$.validator.methods.equalTo.call(this, value, element, param)
       );
     },
-    "Please enter a different value, values must not be the same."
+    "Please enter a different value, values must not be the same.",
   );
 
   $.validator.addMethod(
@@ -1454,7 +1454,7 @@
     function (value, element) {
       return this.optional(element) || /^\S+$/i.test(value);
     },
-    "No white space please."
+    "No white space please.",
   );
 
   /**
@@ -1481,7 +1481,7 @@
       }
       return param.test(value);
     },
-    "Invalid format."
+    "Invalid format.",
   );
 
   /**
@@ -1493,11 +1493,11 @@
       return (
         this.optional(element) ||
         /^((\+|00(\s|\s?\-\s?)?)31(\s|\s?\-\s?)?(\(0\)[\-\s]?)?|0)[1-9]((\s|\s?\-\s?)?[0-9]){8}$/.test(
-          value
+          value,
         )
       );
     },
-    "Please specify a valid phone number."
+    "Please specify a valid phone number.",
   );
 
   /**
@@ -1526,7 +1526,7 @@
         /^(?:(?:(?:\+|00)?48)|(?:\(\+?48\)))?(?:1[2-8]|2[2-69]|3[2-49]|4[1-68]|5[0-9]|6[0-35-9]|[7-8][1-9]|9[145])\d{7}$/;
       return this.optional(element) || regexp.test(phone_number);
     },
-    "Please specify a valid phone number."
+    "Please specify a valid phone number.",
   );
 
   /* For UK phone functions, do the following server side processing:
@@ -1547,11 +1547,11 @@
         this.optional(element) ||
         (phone_number.length > 9 &&
           phone_number.match(
-            /^(?:(?:(?:00\s?|\+)44\s?|0)(?:1\d{8,9}|[23]\d{9}|7(?:[1345789]\d{8}|624\d{6})))$/
+            /^(?:(?:(?:00\s?|\+)44\s?|0)(?:1\d{8,9}|[23]\d{9}|7(?:[1345789]\d{8}|624\d{6})))$/,
           ))
       );
     },
-    "Please specify a valid uk phone number."
+    "Please specify a valid uk phone number.",
   );
 
   /* For UK phone functions, do the following server side processing:
@@ -1570,11 +1570,11 @@
         this.optional(element) ||
         (phone_number.length > 9 &&
           phone_number.match(
-            /^(?:(?:(?:00\s?|\+)44\s?)|(?:\(?0))(?:\d{2}\)?\s?\d{4}\s?\d{4}|\d{3}\)?\s?\d{3}\s?\d{3,4}|\d{4}\)?\s?(?:\d{5}|\d{3}\s?\d{3})|\d{5}\)?\s?\d{4,5})$/
+            /^(?:(?:(?:00\s?|\+)44\s?)|(?:\(?0))(?:\d{2}\)?\s?\d{4}\s?\d{4}|\d{3}\)?\s?\d{3}\s?\d{3,4}|\d{4}\)?\s?(?:\d{5}|\d{3}\s?\d{3})|\d{5}\)?\s?\d{4,5})$/,
           ))
       );
     },
-    "Please specify a valid phone number."
+    "Please specify a valid phone number.",
   );
 
   /**
@@ -1601,11 +1601,11 @@
         this.optional(element) ||
         (phone_number.length > 9 &&
           phone_number.match(
-            /^(\+?1-?)?(\([2-9]([02-9]\d|1[02-9])\)|[2-9]([02-9]\d|1[02-9]))-?[2-9]\d{2}-?\d{4}$/
+            /^(\+?1-?)?(\([2-9]([02-9]\d|1[02-9])\)|[2-9]([02-9]\d|1[02-9]))-?[2-9]\d{2}-?\d{4}$/,
           ))
       );
     },
-    "Please specify a valid phone number."
+    "Please specify a valid phone number.",
   );
 
   /*
@@ -1624,7 +1624,7 @@
         /^\d{2}.\d{3}-\d{3}?$|^\d{5}-?\d{3}?$/.test(cep_value)
       );
     },
-    "Informe um CEP válido."
+    "Informe um CEP válido.",
   );
 
   /**
@@ -1646,11 +1646,11 @@
       return (
         this.optional(element) ||
         /^[ABCEGHJKLMNPRSTVXY]\d[ABCEGHJKLMNPRSTVWXYZ] *\d[ABCEGHJKLMNPRSTVWXYZ]\d$/i.test(
-          value
+          value,
         )
       );
     },
-    "Please specify a valid postal code."
+    "Please specify a valid postal code.",
   );
 
   /* Matches Italian postcode (CAP) */
@@ -1659,7 +1659,7 @@
     function (value, element) {
       return this.optional(element) || /^\d{5}$/.test(value);
     },
-    "Please specify a valid postal code."
+    "Please specify a valid postal code.",
   );
 
   $.validator.addMethod(
@@ -1669,7 +1669,7 @@
         this.optional(element) || /^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/.test(value)
       );
     },
-    "Please specify a valid postal code."
+    "Please specify a valid postal code.",
   );
 
   // Matches UK postcode. Does not match to UK Channel Islands that have their own postcodes (non standard UK)
@@ -1679,11 +1679,11 @@
       return (
         this.optional(element) ||
         /^((([A-PR-UWYZ][0-9])|([A-PR-UWYZ][0-9][0-9])|([A-PR-UWYZ][A-HK-Y][0-9])|([A-PR-UWYZ][A-HK-Y][0-9][0-9])|([A-PR-UWYZ][0-9][A-HJKSTUW])|([A-PR-UWYZ][A-HK-Y][0-9][ABEHMNPRVWXY]))\s?([0-9][ABD-HJLNP-UW-Z]{2})|(GIR)\s?(0AA))$/i.test(
-          value
+          value,
         )
       );
     },
-    "Please specify a valid UK postcode."
+    "Please specify a valid UK postcode.",
   );
 
   /*
@@ -1728,7 +1728,7 @@
       }
       return isValid;
     },
-    $.validator.format("Please fill at least {0} of these fields.")
+    $.validator.format("Please fill at least {0} of these fields."),
   );
 
   /*
@@ -1779,8 +1779,8 @@
       return isValid;
     },
     $.validator.format(
-      "Please either skip these fields or fill at least {0} of them."
-    )
+      "Please either skip these fields or fill at least {0} of them.",
+    ),
   );
 
   /* Validates US States and/or Territories by @jdforsythe
@@ -1852,7 +1852,7 @@
       regex = caseSensitive ? new RegExp(regex) : new RegExp(regex, "i");
       return this.optional(element) || regex.test(value);
     },
-    "Please specify a valid state."
+    "Please specify a valid state.",
   );
 
   // TODO check if value starts with <, otherwise don't try stripping anything
@@ -1861,7 +1861,7 @@
     function (value, element, param) {
       return $(value).text().length >= param;
     },
-    $.validator.format("Please enter at least {0} characters.")
+    $.validator.format("Please enter at least {0} characters."),
   );
 
   $.validator.addMethod(
@@ -1872,7 +1872,7 @@
         /^([01]\d|2[0-3]|[0-9])(:[0-5]\d){1,2}$/.test(value)
       );
     },
-    "Please enter a valid time, between 00:00 and 23:59."
+    "Please enter a valid time, between 00:00 and 23:59.",
   );
 
   $.validator.addMethod(
@@ -1883,7 +1883,7 @@
         /^((0?[1-9]|1[012])(:[0-5]\d){1,2}(\ ?[AP]M))$/i.test(value)
       );
     },
-    "Please enter a valid time in 12-hour am/pm format."
+    "Please enter a valid time in 12-hour am/pm format.",
   );
 
   // Same as url, but TLD is optional
@@ -1893,11 +1893,11 @@
       return (
         this.optional(element) ||
         /^(?:(?:(?:https?|ftp):)?\/\/)(?:(?:[^\]\[?\/<~#`!@$^&*()+=}|:";',>{ ]|%[0-9A-Fa-f]{2})+(?::(?:[^\]\[?\/<~#`!@$^&*()+=}|:";',>{ ]|%[0-9A-Fa-f]{2})*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z0-9\u00a1-\uffff][a-z0-9\u00a1-\uffff_-]{0,62})?[a-z0-9\u00a1-\uffff]\.)+(?:[a-z\u00a1-\uffff]{2,}\.?)|(?:(?:[a-z0-9\u00a1-\uffff][a-z0-9\u00a1-\uffff_-]{0,62})?[a-z0-9\u00a1-\uffff])|(?:(?:[a-z0-9\u00a1-\uffff][a-z0-9\u00a1-\uffff_-]{0,62}\.)))(?::\d{2,5})?(?:[/?#]\S*)?$/i.test(
-          value
+          value,
         )
       );
     },
-    $.validator.messages.url
+    $.validator.messages.url,
   );
 
   /**
@@ -1987,7 +1987,7 @@
       }
       return false;
     },
-    "The specified vehicle identification number (VIN) is invalid."
+    "The specified vehicle identification number (VIN) is invalid.",
   );
 
   $.validator.addMethod(
@@ -1995,7 +1995,7 @@
     function (value, element) {
       return this.optional(element) || /^\d{5}(-\d{4})?$/.test(value);
     },
-    "The specified US ZIP Code is invalid."
+    "The specified US ZIP Code is invalid.",
   );
 
   $.validator.addMethod(
@@ -2003,7 +2003,7 @@
     function (value, element) {
       return this.optional(element) || /^90[2-5]\d\{2\}-\d{4}$/.test(value);
     },
-    "Your ZIP-code must be in the range 902xx-xxxx to 905xx-xxxx."
+    "Your ZIP-code must be in the range 902xx-xxxx to 905xx-xxxx.",
   );
   return $;
 });

@@ -122,7 +122,8 @@ describe("SiteWorkspace full publish (issue #936)", () => {
     fireEvent.click(screen.getByRole("button", { name: /Full$/ }));
 
     await waitFor(() => {
-      expect(screen.getByText("perc.ui.publish.title@Publish Request")).toBeTruthy();
+      // message() falls back to the segment after @ when I18N echoes the key
+      expect(screen.getByText("Publish Request")).toBeTruthy();
     });
   });
 
@@ -142,9 +143,7 @@ describe("SiteWorkspace full publish (issue #936)", () => {
     fireEvent.click(screen.getByRole("button", { name: /Full$/ }));
 
     await waitFor(() => {
-      expect(
-        screen.getByText("perc.ui.publish.modern@Publish Forbidden"),
-      ).toBeTruthy();
+      expect(screen.getByText("Publish Forbidden")).toBeTruthy();
     });
     expect(screen.queryByText("You shall not pass")).toBeNull();
   });

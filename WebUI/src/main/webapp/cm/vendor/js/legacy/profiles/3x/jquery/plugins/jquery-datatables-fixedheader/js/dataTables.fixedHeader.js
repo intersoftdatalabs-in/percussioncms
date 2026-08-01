@@ -262,7 +262,7 @@
           DataTable.util.throttle(function () {
             that.s.position.windowHeight = $(window).height();
             that.update();
-          }, 50)
+          }, 50),
         );
 
       var autoHeader = $(".fh-fixedHeader");
@@ -279,7 +279,7 @@
         "column-reorder.dt.dtfc column-visibility.dt.dtfc column-sizing.dt.dtfc responsive-display.dt.dtfc",
         function (e, ctx) {
           that.update();
-        }
+        },
       ).on("draw.dt.dtfc", function (e, ctx) {
         // For updates from our own table, don't reclone, but for all others, do
         that.update(ctx === dt.settings()[0] ? false : true);
@@ -368,12 +368,12 @@
               : {
                   top: "",
                   bottom: this.c.footerOffset,
-                }
+                },
           )
           .addClass(
             item === "footer"
               ? "dtfh-floatingparentfoot"
-              : "dtfh-floatingparenthead"
+              : "dtfh-floatingparenthead",
           )
           .append(itemDom.floating)
           .appendTo("body");
@@ -521,7 +521,7 @@
         // If scrolling is enabled we need to match the floating header to the body
         if (this._scrollEnabled()) {
           var newScrollLeft = $(
-            $(this.s.dt.table().node()).parent()
+            $(this.s.dt.table().node()).parent(),
           ).scrollLeft();
           itemDom.floating.scrollLeft(newScrollLeft);
           itemDom.floatingParent.scrollLeft(newScrollLeft);
@@ -608,7 +608,7 @@
         }
 
         $($(itemDom.host.parent()).parent()).scrollLeft(
-          scrollBody.scrollLeft()
+          scrollBody.scrollLeft(),
         );
       } else if (mode === "in") {
         // Remove the header from the read header and insert into a fixed
@@ -963,22 +963,22 @@
         this.dom.header.rightBlocker = adjustBlocker(
           "right",
           "top",
-          this.dom.header.rightBlocker
+          this.dom.header.rightBlocker,
         );
         this.dom.header.leftBlocker = adjustBlocker(
           "left",
           "top",
-          this.dom.header.leftBlocker
+          this.dom.header.leftBlocker,
         );
         this.dom.footer.rightBlocker = adjustBlocker(
           "right",
           "bottom",
-          this.dom.footer.rightBlocker
+          this.dom.footer.rightBlocker,
         );
         this.dom.footer.leftBlocker = adjustBlocker(
           "left",
           "bottom",
-          this.dom.footer.leftBlocker
+          this.dom.footer.leftBlocker,
         );
       }
     },

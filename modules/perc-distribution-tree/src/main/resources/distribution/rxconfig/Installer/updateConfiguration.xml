@@ -18,19 +18,62 @@
 			value="${version.majorVersion}.${version.minorVersion}.${version.microVersion}${optionalId}" />
 
 		<echoproperties />
-		<!-- i18n -->
+		<!-- Product i18n TMX: always force-refresh on upgrade. Bulk upgrade.excludes
+			contains rxconfig/** so CmsUi.tmx / SystemResources.tmx / DeveloperUi.tmx
+			were never overwritten; only ResourceBundle.tmx was deleted and Language
+			Tool then remerged the *old* product sources. Copy product TMX from the package
+			every upgrade. Canonical directory is lowercase rxconfig/i18n only. Uppercase
+			rxconfig/I18n is legacy; on case-sensitive Linux the two would be distinct
+			folders, so never mkdir/write the uppercase path. -->
+		<property name="install.i18n.dir"
+			location="${install.dir}/rxconfig/i18n" />
+		<property name="install.src.i18n.dir"
+			location="${install.src}/rxconfig/i18n" />
+		<!-- Legacy uppercase (read/cleanup only; do not create). -->
+		<property name="install.i18n.legacy.dir"
+			location="${install.dir}/rxconfig/I18n" />
+
+		<mkdir dir="${install.i18n.dir}" />
+
+		<echo>Refreshing product i18n TMX files under rxconfig/i18n...</echo>
+		<copy todir="${install.i18n.dir}" overwrite="true" force="true"
+			failonerror="false" verbose="true">
+			<fileset dir="${install.src.i18n.dir}"
+				erroronmissingdir="false">
+				<include name="CmsUi.tmx" />
+				<include name="SystemResources.tmx" />
+				<include name="DeveloperUi.tmx" />
+				<include name="sys_createTranslations.properties" />
+			</fileset>
+		</copy>
+
+		<delete file="${install.i18n.dir}/ResourceBundle.tmx.bak"
+			failonerror="false" verbose="true" />
 		<delete
-			file="${install.dir}/rxconfig/I18n/ResourceBundle.tmx.bak"
+			file="${install.i18n.legacy.dir}/ResourceBundle.tmx.bak"
 			failonerror="false" verbose="true" />
 
 		<echo>Backing up i18n resource bundle...</echo>
 		<copy overwrite="true" force="true"
-			file="${install.dir}/rxconfig/I18n/ResourceBundle.tmx"
-			tofile="${install.dir}/rxconfig/I18n/ResourceBundle.tmx.bak"
+			file="${install.i18n.dir}/ResourceBundle.tmx"
+			tofile="${install.i18n.dir}/ResourceBundle.tmx.bak"
+			failonerror="false" />
+		<!-- Linux dual-folder installs may still have the merged master only under
+			legacy I18n. -->
+		<copy overwrite="true" force="true"
+			file="${install.i18n.legacy.dir}/ResourceBundle.tmx"
+			tofile="${install.i18n.dir}/ResourceBundle.tmx.bak"
 			failonerror="false" />
 
-		<delete file="${install.dir}/rxconfig/I18n/ResourceBundle.tmx"
+		<delete file="${install.i18n.dir}/ResourceBundle.tmx"
 			failonerror="false" verbose="true" />
+		<delete file="${install.i18n.legacy.dir}/ResourceBundle.tmx"
+			failonerror="false" verbose="true" />
+
+		<!-- Seed empty master from package; Language Tool regenerates at startup. -->
+		<copy overwrite="true" force="true" failonerror="false"
+			file="${install.src.i18n.dir}/ResourceBundle.tmx"
+			tofile="${install.i18n.dir}/ResourceBundle.tmx" />
 
 		<copy todir="${install.dir}/rxconfig/Server" overwrite="true"
 			force="true"
@@ -49,10 +92,9 @@
 			force="true"
 			file="${install.src}/rxconfig/Server/startupProcessManager.properties" />
 
-		<!-- i18n always install or upgrade -->
+		<!-- i18n always install or upgrade (lowercase path only) -->
 		<echo>Updating i18n property file...</echo>
-		<propertyfile
-			file="${install.dir}/rxconfig/I18n/rxlt.properties">
+		<propertyfile file="${install.i18n.dir}/rxlt.properties">
 			<entry key="runAtStartup" value="true" default="true" />
 		</propertyfile>
 

@@ -27,6 +27,7 @@ import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.utils.io.PathUtils;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -804,8 +805,14 @@ public class PSFormRestService extends PSAbstractRestService implements IPSFormR
   }
 
   /** {@inheritDoc} */
+  @DELETE
+  @Path("/updateOldSiteEntries/{prevSiteName}/{newSiteName}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("deliverymanager")
   @Override
-  public Response updateOldSiteEntries(String prevSiteName, String newSiteName) {
+  public Response updateOldSiteEntries(
+      @PathParam("prevSiteName") String prevSiteName,
+      @PathParam("newSiteName") String newSiteName) {
     log.debug("Nothing to do in forms service for site: {}", prevSiteName);
     return Response.status(Response.Status.NO_CONTENT).build();
   }

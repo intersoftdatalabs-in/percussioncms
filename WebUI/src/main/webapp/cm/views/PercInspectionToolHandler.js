@@ -127,7 +127,7 @@
       ".perc-dropdown-option-Stacked",
       function () {
         itoolPreviewMouseOver("perc-row");
-      }
+      },
     );
 
     $("#perc-region-tool-menu").on(
@@ -135,7 +135,7 @@
       ".perc-dropdown-option-Stacked",
       function () {
         itoolPreviewMouseOut("perc-row");
-      }
+      },
     );
 
     // Bind the mouseOver functionality to Region Inspect Menu Items (Make Row)
@@ -145,7 +145,7 @@
       ".perc-dropdown-option-SidebySide",
       function () {
         itoolPreviewMouseOver("perc-col");
-      }
+      },
     );
 
     $("#perc-region-tool-menu").on(
@@ -153,7 +153,7 @@
       ".perc-dropdown-option-SidebySide",
       function () {
         itoolPreviewMouseOut("perc-col");
-      }
+      },
     );
 
     $("#perc-region-tool-inspector").on(
@@ -171,7 +171,8 @@
           menu.showSuperfishUl().siblings().hideSuperfishUl();
         } else {
           clearTimeout(
-            menu.parents(["ul.", "sf-js-enabled", ":first"].join(""))[0].sfTimer
+            menu.parents(["ul.", "sf-js-enabled", ":first"].join(""))[0]
+              .sfTimer,
           );
         }
         if (!$(this).is(".buttonPressed"))
@@ -190,7 +191,7 @@
         }
         if (!$(this).is(".buttonPressed"))
           $(this).css("background-position", "0px 0px");
-      }
+      },
     );
   }
 
@@ -299,7 +300,7 @@
   function applyInspectableMarkup() {
     var iframeJQuery = window.frames[0].jQuery;
     iframeJQuery(
-      ".perc-region.perc-region-leaf:not('.perc-region-itool-unselectable')"
+      ".perc-region.perc-region-leaf:not('.perc-region-itool-unselectable')",
     )
       .find(".perc-widget")
       .each(function () {
@@ -375,13 +376,11 @@
           message: I18N.message("perc.ui.iframe.view@Page Form Based Sorry"),
           consoleMsg: I18N.message("perc.ui.iframe.view@Page Form Based Info"),
         };
-        if (
-          !(
-            inspectableElements.lenght === 1 &&
-            inspectableElements.eq(0).children().length === 1 &&
-            inspectableElements.eq(0).children().eq(0).is("form")
-          )
-        ) {
+        if (!(
+          inspectableElements.lenght === 1 &&
+          inspectableElements.eq(0).children().length === 1 &&
+          inspectableElements.eq(0).children().eq(0).is("form")
+        )) {
           response.status = true;
           response.message = "";
           response.consoleMsg = "";
@@ -399,13 +398,11 @@
           message: I18N.message("perc.ui.iframe.view@Page Table Based Sorry"),
           consoleMsg: I18N.message("perc.ui.iframe.view@Page Table Based Info"),
         };
-        if (
-          !(
-            inspectableElements.length === 1 &&
-            inspectableElements.eq(0).children().length === 1 &&
-            inspectableElements.eq(0).children().eq(0).is("table")
-          )
-        ) {
+        if (!(
+          inspectableElements.length === 1 &&
+          inspectableElements.eq(0).children().length === 1 &&
+          inspectableElements.eq(0).children().eq(0).is("table")
+        )) {
           response.status = true;
           response.message = "";
           response.consoleMsg = "";
@@ -421,10 +418,10 @@
           status: false,
           //TODO: I18N TEST
           message: I18N.message(
-            "perc.ui.iframe.view@Page Not Inspectable Sorry"
+            "perc.ui.iframe.view@Page Not Inspectable Sorry",
           ),
           consoleMsg: I18N.message(
-            "perc.ui.iframe.view@Page Not Inspectable Info"
+            "perc.ui.iframe.view@Page Not Inspectable Info",
           ),
         };
         var filteredInspectableElems = inspectableElements.filter(function () {
@@ -536,7 +533,7 @@
             I18N.message("perc.ui.iframe.view@Failed to fill widget content") +
               tempContent.widgetId +
               I18N.message("perc.ui.iframe.view@Error is") +
-              err
+              err,
           );
         }
         widgetDiv.attr("ownerId", tempContent.ownerid);
@@ -584,7 +581,7 @@
               //Update the state of menu items in toolbar
               _layoutFunctions.disableToolbarMenu();
             }
-          }
+          },
         );
       }
       reactivateInspectionToolCallback = null;
@@ -603,7 +600,7 @@
         callbackFunction();
       },
       function () {},
-      options
+      options,
     );
   }
 
@@ -639,7 +636,7 @@
       iframeContents
         .find(".perc-region:first")
         .append(
-          "<div id='itool-placeholder-highlighter' style='display:none;position:absolute;z-index:60000;opacity:0.8;filter:alpha(opacity=80);'></div>"
+          "<div id='itool-placeholder-highlighter' style='display:none;position:absolute;z-index:60000;opacity:0.8;filter:alpha(opacity=80);'></div>",
         );
       highlighterDiv = iframeContents.find("#itool-placeholder-highlighter");
     }
@@ -665,7 +662,7 @@
   function addNonInspectableEvents(
     iframeContents,
     iframeJQuery,
-    highlighterDiv
+    highlighterDiv,
   ) {
     //Bind mouseenter and mouseleave event to all non-inspectable elements (including non-html widgets)
     iframeContents
@@ -721,7 +718,7 @@
           iframeContents.find(".perc-itool-selected-elem").length === 0 ||
           (event.shiftKey &&
             iframeJQuery(this).hasClass(
-              "perc-itool-multi-selectable-highlighter"
+              "perc-itool-multi-selectable-highlighter",
             )) ||
           (event.shiftKey &&
             iframeJQuery(this).hasClass("perc-itool-multi-selectable"));
@@ -757,7 +754,7 @@
           event.preventDefault();
           itoolSelectionHandler(event);
         });
-      }
+      },
     );
 
     //Show the hidden 'perc-itool-multi-selectable-highlighter' sibling on mouseleave of highlighter div
@@ -767,7 +764,7 @@
       function () {
         iframeContents.find(".perc-itool-multi-selectable-highlighter").show();
         iframeJQuery(this).hide();
-      }
+      },
     );
   }
   /**
@@ -835,11 +832,11 @@
           .append(
             "<div class = 'perc-sib-highlighter-div-" +
               index +
-              " perc-sibling-div' style='border:5px solid grey; display:none;position:absolute;z-index:50000;opacity:1;filter:alpha(opacity=100);'></div>"
+              " perc-sibling-div' style='border:5px solid grey; display:none;position:absolute;z-index:50000;opacity:1;filter:alpha(opacity=100);'></div>",
           );
 
         var sibHighlighterDiv = iframeContents.find(
-          ".perc-sib-highlighter-div-" + index
+          ".perc-sib-highlighter-div-" + index,
         );
         if (currentSibling.hasClass("perc-itool-multi-selectable"))
           sibHighlighterDiv.addClass("perc-itool-multi-selectable-highlighter");
@@ -857,7 +854,7 @@
   function highlightSelectedElements(curSelectedElem, isMultiSelected) {
     var iframeContents = _iframe.contents();
     var greenborderElem = $(
-      "<div class='perc-itool-selected-green-border' style='border:5px solid #A2C437; display:none;position:absolute;z-index:50000;opacity:1;filter:alpha(opacity=100);'></div>"
+      "<div class='perc-itool-selected-green-border' style='border:5px solid #A2C437; display:none;position:absolute;z-index:50000;opacity:1;filter:alpha(opacity=100);'></div>",
     );
     iframeContents.find(".perc-region:first").append(greenborderElem);
     greenborderElem.on("click", function () {
@@ -912,7 +909,7 @@
           .addClass(className);
       } else {
         iframeJQuery(this).wrap(
-          "<div class='perc-widget perc-itool-nov-div-wrapper perc-itools-wrapper perc-itool-region-puff'></div>"
+          "<div class='perc-widget perc-itool-nov-div-wrapper perc-itools-wrapper perc-itool-region-puff'></div>",
         );
       }
     });
@@ -921,7 +918,7 @@
     if (selElems.length === 1 && selElems.is("div")) {
       selElems
         .addClass(
-          "perc-itool-region-puff-self perc-make-me-region perc-self-wrapper perc-itools-wrapper"
+          "perc-itool-region-puff-self perc-make-me-region perc-self-wrapper perc-itools-wrapper",
         )
         .addClass(className);
       highlightSiblings(selElems);
@@ -929,7 +926,7 @@
       selElems.wrapAll(
         "<div  class='perc-widget perc-itool-multi-wrapper perc-itool-nov-div-wrapper perc-itool-region-puff-self perc-self-wrapper perc-itools-wrapper " +
           className +
-          "'></div>"
+          "'></div>",
       );
       highlightSiblings(iframeJQuery(selElems[0]).parent());
     }
@@ -953,12 +950,12 @@
     if (selElems.length === 1) {
       iframeJQuery(".perc-itool-selected-green-border").css(
         "border-color",
-        "#00afea"
+        "#00afea",
       );
     } else {
       highlightSelectedElements(
         iframeJQuery(".perc-itool-multi-wrapper"),
-        true
+        true,
       );
       iframeJQuery(".perc-itool-selected-green-border")
         .parent(".perc-itool-selected-green-border")
@@ -990,7 +987,7 @@
       .removeClass(className);
     iframeJQuery(".perc-itool-region-puff-self")
       .removeClass(
-        "perc-itool-region-puff-self perc-make-me-region perc-self-wrapper"
+        "perc-itool-region-puff-self perc-make-me-region perc-self-wrapper",
       )
       .removeClass(className);
     iframeContents.find(".perc-sibling-div").remove();
@@ -1024,15 +1021,15 @@
     var iframeContents = _iframe.contents();
     var iframeJQuery = window.frames[0].jQuery;
     iframeJQuery(".perc-itool-highlighter").removeClass(
-      "perc-itool-highlighter"
+      "perc-itool-highlighter",
     );
     iframeJQuery(".perc-itool-selected-elem").removeClass(
-      "perc-itool-selected-elem"
+      "perc-itool-selected-elem",
     );
     iframeJQuery("#itool-placeholder-highlighter").remove();
     iframeJQuery(".perc-itool-selected-green-border").remove();
     iframeJQuery(".perc-itool-selected-elem-off").removeClass(
-      "perc-itool-selected-elem-off"
+      "perc-itool-selected-elem-off",
     );
     iframeJQuery(".perc-text-node-wrapper").contents().unwrap();
     iframeContents.find("#perc-next-sib-wrapper").remove();
@@ -1045,7 +1042,7 @@
       .removeClass("perc-pre-next-wrapper");
     iframeContents.find(".perc-sibling-div").remove();
     iframeJQuery(".perc-itool-multi-selectable").removeClass(
-      "perc-itool-multi-selectable"
+      "perc-itool-multi-selectable",
     );
     iframeContents
       .find(".perc-region-puff")
@@ -1068,15 +1065,15 @@
     var iframeContents = _iframe.contents();
     var iframeJQuery = window.frames[0].jQuery;
     iframeJQuery(".perc-itool-selected-elem").removeClass(
-      "perc-itool-selected-elem"
+      "perc-itool-selected-elem",
     );
     iframeJQuery("#itool-placeholder-highlighter").remove();
     iframeJQuery(".perc-itool-selected-elem-off").removeClass(
-      "perc-itool-selected-elem-off"
+      "perc-itool-selected-elem-off",
     );
     iframeJQuery(".perc-text-node-wrapper").contents().unwrap();
     iframeJQuery(".perc-itool-multi-selectable").removeClass(
-      "perc-itool-multi-selectable"
+      "perc-itool-multi-selectable",
     );
     //Move out the zero size div element from its parent
     var zeroElemParent = iframeJQuery(".perc-zero-size-elem").parent().parent();
@@ -1256,7 +1253,7 @@
               updateRegionsArray.push(regItem);
             }
           });
-        }
+        },
       );
 
       lastParentRegionPuff =
@@ -1306,15 +1303,15 @@
               scontent.isTransparent = isTransparent;
               scontent.ownerid = widOwnerId;
               splittedContent.push(scontent);
-            }
+            },
           );
           splittedRegionContent.push(splittedContent);
-        }
+        },
       );
     });
     _layoutFunctions.layoutController.removeWidgetParentRegion(
       oriWidgetId,
-      true
+      true,
     );
     updateRegionProperties(updateRegionsArray);
   }

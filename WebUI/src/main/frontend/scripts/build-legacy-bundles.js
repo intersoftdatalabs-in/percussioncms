@@ -12,7 +12,7 @@ const path = require("path");
 // Paths are relative to the WebUI directory (4 levels up from scripts/)
 // scripts/ -> src/main/frontend/ -> src/main/ -> src/ -> WebUI/
 const WEBUI_DIR = path.dirname(
-  path.dirname(path.dirname(path.dirname(__dirname)))
+  path.dirname(path.dirname(path.dirname(__dirname))),
 );
 // Legacy source tree lives under cm/ (plugins, jslib, services, css, …).
 // Bundle configs list paths relative to that root (e.g. plugins/perc_utils.js).
@@ -31,7 +31,7 @@ const DELIVERY_COMMON_JS_DIR = path.join(
   "perc-common-ui-bundle",
   "src",
   "main",
-  "js"
+  "js",
 );
 
 /** Intermediate bundles that must not be empty (phase-1 outputs). */
@@ -101,7 +101,7 @@ function resolvePath(filePath, baseDir = WAR_DIR) {
     }
     // Fall back to jslib/ if npm module not found (shouldn't happen if npm install worked)
     console.warn(
-      `  ⚠️  npm module not found for ${filePath}, falling back to jslib/`
+      `  ⚠️  npm module not found for ${filePath}, falling back to jslib/`,
     );
   }
 
@@ -112,7 +112,7 @@ function resolvePath(filePath, baseDir = WAR_DIR) {
   if (filePath.startsWith(deliveryPrefix)) {
     return path.join(
       DELIVERY_COMMON_JS_DIR,
-      filePath.slice(deliveryPrefix.length)
+      filePath.slice(deliveryPrefix.length),
     );
   }
 
@@ -220,8 +220,8 @@ function buildBundlesFromConfig(configFile, processingPhase = 1, options = {}) {
     }
     throw new Error(
       `${configFile}: ${parts.join(
-        ", "
-      )} while building intermediate bundles (source root: ${WAR_DIR})`
+        ", ",
+      )} while building intermediate bundles (source root: ${WAR_DIR})`,
     );
   }
 
@@ -253,7 +253,7 @@ const STANDALONE_NPM_COPIES = [
  */
 function syncStandaloneNpmLibraries() {
   console.log(
-    "📋 Phase 0: Syncing standalone npm libraries to target/generated-webui/cm/..."
+    "📋 Phase 0: Syncing standalone npm libraries to target/generated-webui/cm/...",
   );
 
   STANDALONE_NPM_COPIES.forEach(({ src, dest }) => {
@@ -290,7 +290,7 @@ function assertRequiredIntermediates() {
     const size = fs.statSync(out).size;
     if (size < minBytes) {
       throw new Error(
-        `Required intermediate bundle too small (${size} bytes): ${out}`
+        `Required intermediate bundle too small (${size} bytes): ${out}`,
       );
     }
   }
@@ -339,7 +339,7 @@ function main() {
             console.log(`  ✓ ${nonMinFile} (alias for ${minFile})`);
           } catch (err) {
             console.error(
-              `  ❌ Error creating alias ${nonMinFile}: ${err.message}`
+              `  ❌ Error creating alias ${nonMinFile}: ${err.message}`,
             );
           }
         }
@@ -358,7 +358,7 @@ function main() {
             console.log(`  ✓ ${nonMinFile} (alias for ${minFile})`);
           } catch (err) {
             console.error(
-              `  ❌ Error creating alias ${nonMinFile}: ${err.message}`
+              `  ❌ Error creating alias ${nonMinFile}: ${err.message}`,
             );
           }
         }

@@ -16,11 +16,16 @@
  */
 
 import React, { useState } from 'react';
+import { message, MSG } from '../i18n/message';
 
 interface AvailableGadget {
   id: string;
   name: string;
+  /** TMX key for localized name; optional for tests that pass plain strings. */
+  nameKey?: string;
   description?: string;
+  /** TMX key for localized description; optional for tests. */
+  descriptionKey?: string;
   category?: string;
 }
 
@@ -47,16 +52,26 @@ export const AddGadgetModal: React.FC<AddGadgetModalProps> = ({
 
   if (!isOpen) return null;
 
+  const resolveName = (g: AvailableGadget): string =>
+    g.nameKey ? message(g.nameKey) : g.name;
+  const resolveDesc = (g: AvailableGadget): string => {
+    const fromKey = g.descriptionKey ? message(g.descriptionKey) : '';
+    return fromKey || g.description || '';
+  };
+
+  const lc = (s: string) => s.toLowerCase();
   const filteredGadgets = availableGadgets.filter((gadget) => {
-    const matchesSearch =
-      gadget.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      gadget.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch;
+    const term = lc(searchTerm);
+    if (!term) return true;
+    return (
+      lc(resolveName(gadget)).includes(term) ||
+      lc(resolveDesc(gadget)).includes(term)
+    );
   });
 
   const groupedGadgets = filteredGadgets.reduce(
     (acc, gadget) => {
-      const category = gadget.category || 'Other';
+      const category = gadget.category || message(MSG.MODAL_DEFAULT_CATEGORY);
       if (!acc[category]) {
         acc[category] = [];
       }
@@ -104,7 +119,9 @@ export const AddGadgetModal: React.FC<AddGadgetModalProps> = ({
             alignItems: 'center',
           } as React.CSSProperties}
         >
-          <h2 style={{ margin: 0, fontSize: '1.5em' }}>Add Gadget</h2>
+          <h2 style={{ margin: 0, fontSize: '1.5em' }}>
+            {message(MSG.MODAL_ADD_GADGET_TITLE)}
+          </h2>
           <button
             style={{
               background: 'none',
@@ -114,6 +131,7 @@ export const AddGadgetModal: React.FC<AddGadgetModalProps> = ({
               color: '#666',
             } as React.CSSProperties}
             onClick={onClose}
+            aria-label={message(MSG.MODAL_ADD_GADGET_TITLE)}
           >
             ✕
           </button>
@@ -123,7 +141,7 @@ export const AddGadgetModal: React.FC<AddGadgetModalProps> = ({
         <div style={{ padding: '16px 20px' } as React.CSSProperties}>
           <input
             type="text"
-            placeholder="Search gadgets..."
+            placeholder={message(MSG.MODAL_SEARCH_PLACEHOLDER)}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
@@ -140,8 +158,11 @@ export const AddGadgetModal: React.FC<AddGadgetModalProps> = ({
         {/* Gadgets List */}
         <div style={{ padding: '0 20px 20px' } as React.CSSProperties}>
           {Object.entries(groupedGadgets).length === 0 ? (
-            <p style={{ color: '#999', textAlign: 'center', padding: '40px 0' }}>
-              No gadgets found
+            <p
+              style={{ color: '#999', textAlign: 'center', padding: '40px 0' }}
+              data-testid="add-gadget-empty"
+            >
+              {message(MSG.MODAL_NO_RESULTS)}
             </p>
           ) : (
             Object.entries(groupedGadgets).map(([category, gadgets]) => (
@@ -149,9 +170,17 @@ export const AddGadgetModal: React.FC<AddGadgetModalProps> = ({
                 <h3 style={{ marginBottom: '12px', color: '#333', fontSize: '0.95em' }}>
                   {category}
                 </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' } as React.CSSProperties}>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '8px',
+                  } as React.CSSProperties}
+                >
                   {gadgets.map((gadget) => {
                     const isActive = activeGadgetIds.has(gadget.id);
+                    const displayName = resolveName(gadget);
+                    const displayDesc = resolveDesc(gadget);
                     return (
                       <div
                         key={gadget.id}
@@ -175,16 +204,28 @@ export const AddGadgetModal: React.FC<AddGadgetModalProps> = ({
                           (e.currentTarget as HTMLDivElement).style.borderColor = '#e0e0e0';
                         }}
                       >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' } as React.CSSProperties}>
+                        <div
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'flex-start',
+                          } as React.CSSProperties}
+                        >
                           <div style={{ flex: 1 } as React.CSSProperties}>
                             <div style={{ fontWeight: '600', marginBottom: '4px', color: '#333' }}>
-                              {gadget.name}
+                              {displayName}
                             </div>
-                            {gadget.description && (
-                              <div style={{ fontSize: '0.85em', color: '#666', lineHeight: '1.3' }}>
-                                {gadget.description}
+                            {displayDesc ? (
+                              <div
+                                style={{
+                                  fontSize: '0.85em',
+                                  color: '#666',
+                                  lineHeight: '1.3',
+                                }}
+                              >
+                                {displayDesc}
                               </div>
-                            )}
+                            ) : null}
                           </div>
                           <button
                             onClick={() => onAdd(gadget.id)}
@@ -201,7 +242,9 @@ export const AddGadgetModal: React.FC<AddGadgetModalProps> = ({
                               whiteSpace: 'nowrap',
                             } as React.CSSProperties}
                           >
-                            {isActive ? 'Added' : 'Add'}
+                            {isActive
+                              ? message(MSG.MODAL_ADDED_BUTTON)
+                              : message(MSG.MODAL_ADD_BUTTON)}
                           </button>
                         </div>
                       </div>

@@ -43,7 +43,7 @@
           if ("undefined" !== typeof blogList && blogList.length) {
             rootElem.append(createTitleHtml(dataObj));
             var listElem = $("<ol>").addClass(
-              "perc-most-read-list perc-list-main"
+              "perc-most-read-list perc-list-main",
             );
             if (!Array.isArray(blogList)) {
               blogList = JSON.parse(blogList);
@@ -54,7 +54,7 @@
             rootElem.append(listElem);
             currentElem.append(rootElem);
           }
-        }
+        },
       );
     });
   }
@@ -85,7 +85,7 @@
       title = $("<div/>").append(
         $("<" + elemName + "/>")
           .addClass("perc-most-read-list-title")
-          .text(settings.listTitle)
+          .text(settings.listTitle),
       );
     }
     return title;
@@ -127,7 +127,7 @@
           // entry.folder + entry.name; sanitize before navigation so a value
           // like "javascript:..." cannot execute via the click handler.
           window.location = $.PercServiceUtils.sanitizeUrlForHref(pagePath);
-        })
+        }),
     );
 
     //Page date
@@ -138,12 +138,12 @@
     ) {
       moment.locale(locale);
       datePage = moment(entry.properties["dcterms:created"]).formatWithJDF(
-        dateFormat
+        dateFormat,
       );
     }
     if ("false" === settings.hideDate) {
       pageItem.append(
-        $("<p/>").addClass("perc-most-read-list-date-container").text(datePage)
+        $("<p/>").addClass("perc-most-read-list-date-container").text(datePage),
       );
     }
     // Page summary
@@ -160,7 +160,7 @@
         $(link)
           .attr(
             "class",
-            "perc-no-update-link-text perc-most-read-list-more-link"
+            "perc-no-update-link-text perc-most-read-list-more-link",
           )
           // CodeQL js/xss-through-dom (alert #987): see #986 - pagePath flows
           // from server data into the anchor href; sanitize.
@@ -174,7 +174,7 @@
         }
       }
       pageItem.append(
-        $("<div/>").addClass("perc-most-read-page-summary").html(summary)
+        $("<div/>").addClass("perc-most-read-page-summary").html(summary),
       );
     }
     return pageItem;

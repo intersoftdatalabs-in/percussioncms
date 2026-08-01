@@ -156,8 +156,27 @@ public class PSI18nStartupManager implements IPSNotificationListener {
     return doRun;
   }
 
+  /**
+   * Resolve rxlt.properties under the canonical lowercase {@code i18n} directory, falling back to
+   * the legacy uppercase {@code I18n} name when only that exists (case-sensitive installs). Writes
+   * always target the canonical path via {@link #getCanonicalPropFile()}.
+   */
   private File getPropFile() {
-    return new File(PSServer.getBaseConfigDir(), "I18n/rxlt.properties");
+    File canonical = getCanonicalPropFile();
+    if (canonical.isFile()) {
+      return canonical;
+    }
+    File legacy =
+        new File(PSServer.getBaseConfigDir(), "I18n" + File.separator + "rxlt.properties");
+    if (legacy.isFile()) {
+      return legacy;
+    }
+    return canonical;
+  }
+
+  /** Canonical lowercase path for rxlt.properties (never create uppercase I18n on Linux). */
+  private File getCanonicalPropFile() {
+    return new File(PSServer.getBaseConfigDir(), "i18n" + File.separator + "rxlt.properties");
   }
 
   private void resetRunFlag() {
@@ -165,12 +184,18 @@ public class PSI18nStartupManager implements IPSNotificationListener {
   }
 
   private void resetRunFlag(boolean value) {
-    File propFile = getPropFile();
+    File propFile = getCanonicalPropFile();
     Properties props = new Properties();
     props.setProperty(RUN_AT_STARTUP, Boolean.toString(value));
 
-    try (OutputStream out = Files.newOutputStream(propFile.toPath())) {
-      props.store(out, null);
+    try {
+      File parent = propFile.getParentFile();
+      if (parent != null) {
+        Files.createDirectories(parent.toPath());
+      }
+      try (OutputStream out = Files.newOutputStream(propFile.toPath())) {
+        props.store(out, null);
+      }
     } catch (IOException e) {
       log.warn(
           "Unable to write to file {}. Error: {}", propFile, PSExceptionUtils.getMessageForLog(e));

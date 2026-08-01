@@ -82,7 +82,7 @@ function resolvePath(filePath, baseDir = WAR_DIR) {
     }
     // Fall back to jslib/ if npm module not found (shouldn't happen if npm install worked)
     console.warn(
-      `  ⚠️  npm module not found for ${filePath}, falling back to jslib/`
+      `  ⚠️  npm module not found for ${filePath}, falling back to jslib/`,
     );
   }
 
@@ -180,7 +180,7 @@ const STANDALONE_NPM_COPIES = [
  */
 function syncStandaloneNpmLibraries() {
   console.log(
-    "📋 Phase 0: Syncing standalone npm libraries to target/generated-webui/cm/..."
+    "📋 Phase 0: Syncing standalone npm libraries to target/generated-webui/cm/...",
   );
 
   STANDALONE_NPM_COPIES.forEach(({ src, dest }) => {
@@ -239,7 +239,7 @@ function main() {
           console.log(`  ✓ ${nonMinFile} (alias for ${minFile})`);
         } catch (err) {
           console.error(
-            `  ❌ Error creating alias ${nonMinFile}: ${err.message}`
+            `  ❌ Error creating alias ${nonMinFile}: ${err.message}`,
           );
         }
       }
@@ -256,7 +256,7 @@ function main() {
           console.log(`  ✓ ${nonMinFile} (alias for ${minFile})`);
         } catch (err) {
           console.error(
-            `  ❌ Error creating alias ${nonMinFile}: ${err.message}`
+            `  ❌ Error creating alias ${nonMinFile}: ${err.message}`,
           );
         }
       }

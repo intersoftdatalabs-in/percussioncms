@@ -67,14 +67,14 @@
 
         $(node.tr ? node.tr : node.span).toggleClass(
           opts.hoverClass + " " + opts.addClass,
-          flag
+          flag,
         );
       });
     },
     treeDestroy: function (ctx) {
       this._superApply(arguments);
       ctx.widget.element.removeClass(
-        "ui-widget ui-widget-content ui-corner-all"
+        "ui-widget ui-widget-content ui-corner-all",
       );
     },
     nodeRenderStatus: function (ctx) {

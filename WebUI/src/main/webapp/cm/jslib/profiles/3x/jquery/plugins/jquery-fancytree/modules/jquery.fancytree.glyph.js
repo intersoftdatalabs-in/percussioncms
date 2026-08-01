@@ -224,7 +224,7 @@
       if (opts.preset) {
         FT.assert(
           !!PRESETS[opts.preset],
-          "Invalid value for `options.glyph.preset`: " + opts.preset
+          "Invalid value for `options.glyph.preset`: " + opts.preset,
         );
         opts.map = $.extend({}, PRESETS[opts.preset], opts.map);
       } else {
@@ -279,8 +279,8 @@
           icon = node.selected
             ? "checkboxSelected"
             : node.partsel
-            ? "checkboxUnknown"
-            : "checkbox";
+              ? "checkboxUnknown"
+              : "checkbox";
           // span.className = "fancytree-checkbox " + map[icon];
           setIcon(node, span, "fancytree-checkbox", opts, icon);
         }
@@ -319,7 +319,7 @@
           //
           span = $(
             ".fancytree-statusnode-" + status,
-            node[this.nodeContainerAttrName]
+            node[this.nodeContainerAttrName],
           )
             .find(".fancytree-icon")
             .get(0);

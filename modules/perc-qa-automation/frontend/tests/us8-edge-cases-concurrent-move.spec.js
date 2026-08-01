@@ -78,12 +78,15 @@ test.describe("T092c / Edge Cases #3 — concurrent rename/move 409", () => {
 
       // Drive the conflict via pageA's clipboard summary view; assert
       // the row carries data-conflict="true" (T092c UI contract).
-      await pageA.evaluate((errJson) => {
-        const evt = new CustomEvent("test:simulate-paste-failure", {
-          detail: JSON.parse(errJson),
-        });
-        document.dispatchEvent(evt);
-      }, JSON.stringify({ status: 409, statusText: "Conflict" }));
+      await pageA.evaluate(
+        (errJson) => {
+          const evt = new CustomEvent("test:simulate-paste-failure", {
+            detail: JSON.parse(errJson),
+          });
+          document.dispatchEvent(evt);
+        },
+        JSON.stringify({ status: 409, statusText: "Conflict" }),
+      );
 
       // The Vitest surface is the authoritative test; this spec is the
       // documentation of the two-context scenario. The test passes when
@@ -91,12 +94,12 @@ test.describe("T092c / Edge Cases #3 — concurrent rename/move 409", () => {
       // which proves the modern explorer mounts cleanly under the
       // concurrent-user load that the Edge Case describes.
       await expect(
-        pageA.locator('[data-testid="perc-explorer-host"]')
+        pageA.locator('[data-testid="perc-explorer-host"]'),
       ).toBeVisible({
         timeout: 15_000,
       });
       await expect(
-        pageB.locator('[data-testid="perc-explorer-host"]')
+        pageB.locator('[data-testid="perc-explorer-host"]'),
       ).toBeVisible({
         timeout: 15_000,
       });

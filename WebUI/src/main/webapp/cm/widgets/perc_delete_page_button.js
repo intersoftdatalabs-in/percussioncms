@@ -27,7 +27,7 @@
     var btn = $(
       '<a id="perc-finder-delete" class="perc-font-icon icon-remove fas fa-trash" title="' +
         I18N.message("perc.ui.delete.page.button@Click Delete Page") +
-        '" href="#" ></a>'
+        '" href="#" ></a>',
     )
       .off()
       .perc_button()
@@ -55,14 +55,14 @@
             $.perc_utils.alert_dialog({
               title: I18N.message("perc.ui.page.general@Warning"),
               content: I18N.message(
-                "perc.ui.delete.page.button@Delete Permissions"
+                "perc.ui.delete.page.button@Delete Permissions",
               ),
             });
             return;
           } else {
             handleDelete();
           }
-        }
+        },
       );
     }
 
@@ -83,7 +83,7 @@
         $.PercAssetService.forceDeleteAsset(
           assetId,
           delete_success(assetId, "asset"),
-          asset_delete_handle_error
+          asset_delete_handle_error,
         );
       });
     }
@@ -101,7 +101,7 @@
         $.PercPageService.forceDeletePage(
           pageId,
           delete_success(pageId, "page"),
-          page_delete_handle_error
+          page_delete_handle_error,
         );
       });
     }
@@ -115,7 +115,7 @@
       var result = $.PercDeleteItemHelper.extractDeleteErrorMessage(
         data,
         spec.PathItem.name,
-        type
+        type,
       );
       if (result.canForceDelete) {
         if ($("#perc-finder-delete-approved-ok").is(":visible")) {
@@ -126,7 +126,7 @@
           title,
           result.content,
           result.chkBoxId,
-          forceDeleteCallback
+          forceDeleteCallback,
         );
       } else {
         ut.alert_dialog({
@@ -142,7 +142,7 @@
       title,
       content,
       chkBoxId,
-      forceDeleteCallback
+      forceDeleteCallback,
     ) {
       var dia = $("<div/>")
         .append(warnOpenSpan + content + warnCloseSpan)
@@ -184,11 +184,11 @@
                   }
                 });
                 $("#perc-finder-delete-approved-ok").removeClass(
-                  "ui-state-disabled"
+                  "ui-state-disabled",
                 );
               } else {
                 $("#perc-finder-delete-approved-ok").addClass(
-                  "ui-state-disabled"
+                  "ui-state-disabled",
                 );
               }
             });
@@ -212,14 +212,14 @@
               null,
               null,
               null,
-              null
+              null,
             );
           }, 200);
         },
         function (result) {
           $.unblockUI();
           site_delete_handle_error(result);
-        }
+        },
       );
     }
 
@@ -234,7 +234,7 @@
         function () {
           delete_success(assetId, "asset");
         },
-        asset_delete_handle_error
+        asset_delete_handle_error,
       );
     }
 
@@ -247,7 +247,7 @@
           mcol_path[1],
           function (data) {
             cbDfSuccess(data);
-          }
+          },
         );
       } else {
         // call validation as usual
@@ -255,7 +255,7 @@
           mcol_path.join("/"),
           mcol_path[mcol_path.length - 1],
           mcol_path[1],
-          cbDfSuccess
+          cbDfSuccess,
         );
       }
     }
@@ -293,7 +293,7 @@
                   // prepare confirm dialog asking if they really want to remove the page
                   checkIfLinkedPage(spec);
                 },
-                page_delete_handle_error
+                page_delete_handle_error,
               );
             }
           }
@@ -320,7 +320,7 @@
             $.PercPathService.deleteFSFolder(
               url.join("/"),
               mcol_path[mcol_path.length - 1],
-              cbDfSuccess
+              cbDfSuccess,
             );
           } else if (spec.PathItem.type === "FSFile") {
             let url = "";
@@ -337,7 +337,7 @@
             $.PercWebResourcesService.deleteFile(
               url,
               mcol_path[mcol_path.length - 1],
-              cbDfSuccess
+              cbDfSuccess,
             );
           }
 
@@ -351,11 +351,11 @@
               function () {
                 checkIfLinkedPageForAsset(spec);
               },
-              asset_delete_handle_error
+              asset_delete_handle_error,
             );
           }
         },
-        ut.show_error
+        ut.show_error,
       );
     }
 
@@ -418,7 +418,7 @@
           page_delete_handle_error(
             results.request,
             results.textstatus,
-            results.error
+            results.error,
           );
         } else {
           delete_asset();
@@ -430,7 +430,7 @@
         $.PercServiceUtils.TYPE_PUT,
         false,
         serviceCallback,
-        data
+        data,
       );
     }
 
@@ -496,7 +496,7 @@
           page_delete_handle_error(
             results.request,
             results.textstatus,
-            results.error
+            results.error,
           );
         } else {
           delete_page(spec);
@@ -508,7 +508,7 @@
         $.PercServiceUtils.TYPE_PUT,
         false,
         serviceCallback,
-        data
+        data,
       );
     }
     // recycles an item.  now calls purge_page() if path starts with /Recycling.
@@ -523,7 +523,7 @@
         function () {
           delete_success(spec.PathItem.id, "page");
         },
-        page_delete_handle_error
+        page_delete_handle_error,
       );
     }
     function purge_item(id, path, type) {
@@ -557,7 +557,7 @@
             validateIfPageCanBeDeleted(spec, result.data, takeDownUrl);
           }
         },
-        null
+        null,
       );
     }
 
@@ -582,7 +582,7 @@
             validateIfAssetCanBeDeleted(spec, result.data, takeDownUrl);
           }
         },
-        null
+        null,
       );
     }
 
@@ -634,7 +634,7 @@
           null,
           querystring.path,
           null,
-          mem
+          mem,
         );
       }
     }
@@ -714,7 +714,7 @@
             .removeClass("ui-enabled")
             .addClass("ui-disabled")
             .off("click");
-        }
+        },
       );
     }
 

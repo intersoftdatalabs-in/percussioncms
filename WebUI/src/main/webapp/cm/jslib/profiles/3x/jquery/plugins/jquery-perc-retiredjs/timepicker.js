@@ -231,7 +231,7 @@
       this.tpDiv = $(
         '<div id="' +
           this._mainDivId +
-          '" class="ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all " style=" display: none; position: absolute;"></div>'
+          '" class="ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all " style=" display: none; position: absolute;"></div>',
       );
       this._generateHtml();
     },
@@ -327,12 +327,12 @@
       var hdrHeight = $(
         "#" +
           $.datepicker._mainDivId +
-          " > div.ui-datepicker-header:first-child"
+          " > div.ui-datepicker-header:first-child",
       ).height();
 
       $("#" + this._mainDivId + " > div.ui-datepicker-header:first-child").css(
         "height",
-        hdrHeight
+        hdrHeight,
       );
 
       this.tpDiv.css({

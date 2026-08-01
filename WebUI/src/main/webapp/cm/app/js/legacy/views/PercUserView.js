@@ -154,7 +154,7 @@
 
       importDialog.dialog({
         title: I18N.message(
-          "perc.ui.users.import.dialogs@ImportDirectoryUsers"
+          "perc.ui.users.import.dialogs@ImportDirectoryUsers",
         ),
         autoOpen: false,
         closeOnEscape: true,
@@ -213,7 +213,7 @@
       importButton.on("click", function () {
         if (
           importButton.hasClass(
-            "perc-users-directory-users-import-button-disabled"
+            "perc-users-directory-users-import-button-disabled",
           )
         )
           return;
@@ -229,7 +229,7 @@
         if (selectedUserNames.length === 0) {
           alertDialog(
             I18N.message("perc.ui.page.general@Warning"),
-            I18N.message("perc.ui.users.import.dialogs@SelectOneUser")
+            I18N.message("perc.ui.users.import.dialogs@SelectOneUser"),
           );
           return;
         }
@@ -242,7 +242,7 @@
       narrowSearchLabel.text(
         I18N.message("perc.ui.users.import.dialogs@NarrowSearch", [
           maxNumberOfUsers,
-        ])
+        ]),
       );
 
       //
@@ -274,11 +274,11 @@
     function enableImportButton() {
       importButton.attr(
         "title",
-        I18N.message("perc.ui.users.import.tooltips@ClickToImport")
+        I18N.message("perc.ui.users.import.tooltips@ClickToImport"),
       );
       importButton.addClass("perc-users-directory-users-import-button-enabled");
       importButton.removeClass(
-        "perc-users-directory-users-import-button-disabled"
+        "perc-users-directory-users-import-button-disabled",
       );
     }
 
@@ -288,13 +288,13 @@
     function disableImportButton() {
       importButton.attr(
         "title",
-        I18N.message("perc.ui.users.import.tooltips@SelectUsersToImport")
+        I18N.message("perc.ui.users.import.tooltips@SelectUsersToImport"),
       );
       importButton.addClass(
-        "perc-users-directory-users-import-button-disabled"
+        "perc-users-directory-users-import-button-disabled",
       );
       importButton.removeClass(
-        "perc-users-directory-users-import-button-enabled"
+        "perc-users-directory-users-import-button-enabled",
       );
     }
 
@@ -330,26 +330,26 @@
 
       // build the message with plus table and display in an alert dialog
       var message = I18N.message(
-        "perc.ui.users.import.dialogs@LdapImportFailed"
+        "perc.ui.users.import.dialogs@LdapImportFailed",
       );
       message = $.perc_utils.replaceURLWithHTMLLinks(message);
       message += "<br/><br/>" + table;
       alertDialog(
         I18N.message("perc.ui.users.import.dialogs@ErrorImportingUsers"),
         message,
-        450
+        450,
       );
     }
 
     function showImportError() {
       // build the message and display in an alert dialog
       var message = I18N.message(
-        "perc.ui.users.import.dialogs@LdapImportFailed"
+        "perc.ui.users.import.dialogs@LdapImportFailed",
       );
       alertDialog(
         I18N.message("perc.ui.users.import.dialogs@ErrorImportingUsers"),
         message,
-        450
+        450,
       );
     }
 
@@ -413,7 +413,7 @@
         ellipsis = username.length > 20 ? "..." : "";
         htmlLi = htmlLi.replace(
           /_username_/g,
-          username.substring(0, 20) + ellipsis
+          username.substring(0, 20) + ellipsis,
         );
         // append html to DOM
         $userListElement.append(htmlLi);
@@ -475,8 +475,8 @@
             alertDialog(
               I18N.message("perc.ui.page.general@Warning"),
               I18N.message(
-                "perc.ui.perc.user.view@Cannot User Currently Logged In"
-              )
+                "perc.ui.perc.user.view@Cannot User Currently Logged In",
+              ),
             );
             return;
           }
@@ -540,12 +540,12 @@
     function disableUserImport() {
       directoryServiceAvailable = false;
       startUserImportButton.removeClass(
-        "perc-users-import-users-button-enabled"
+        "perc-users-import-users-button-enabled",
       );
       startUserImportButton.addClass("perc-users-import-users-button-disabled");
       startUserImportButton.attr(
         "title",
-        I18N.message("perc.ui.users.import.tooltips@UserImportUnavailable")
+        I18N.message("perc.ui.users.import.tooltips@UserImportUnavailable"),
       );
       startUserImportButton.off();
     }
@@ -716,7 +716,7 @@
       // get assigned role being removed
       var assignedRoleList = $("#perc-users-assigned-roles > select");
       var assignedRoleSelected = $(
-        "#perc-users-assigned-roles > select > option:selected"
+        "#perc-users-assigned-roles > select > option:selected",
       );
       var selectedAssignedRoleValue = assignedRoleList.val();
 
@@ -727,7 +727,7 @@
       ) {
         alertDialog(
           I18N.message("perc.ui.page.general@Warning"),
-          I18N.message("perc.ui.perc.user.view@Cannot Remove Admin")
+          I18N.message("perc.ui.perc.user.view@Cannot Remove Admin"),
         );
         return;
       }
@@ -740,7 +740,7 @@
         .val(selectedAssignedRoleValue)
         .text(selectedAssignedRoleValue);
       var availableRoles = $("#perc-users-available-roles > select").append(
-        availableRole
+        availableRole,
       );
 
       dirtyController.setDirty(true, "user");
@@ -753,7 +753,7 @@
       // get assigned role being removed
       var availableRoleList = $("#perc-users-available-roles > select");
       var availableRoleSelected = $(
-        "#perc-users-available-roles > select > option:selected"
+        "#perc-users-available-roles > select > option:selected",
       );
       var selectedAvailableRoleValue = availableRoleList.val();
       if (selectedAvailableRoleValue == null) return;
@@ -764,7 +764,7 @@
         .val(selectedAvailableRoleValue)
         .text(selectedAvailableRoleValue);
       var assignedRoles = $("#perc-users-assigned-roles > select").append(
-        assignedRole
+        assignedRole,
       );
 
       dirtyController.setDirty(true, "user");
@@ -791,7 +791,7 @@
               I18N.message("perc.ui.users.import.dialogs@UserAlreadyExists", [
                 username,
                 currentUserList[u],
-              ])
+              ]),
             );
             return;
           }

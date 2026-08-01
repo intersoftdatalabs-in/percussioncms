@@ -75,7 +75,7 @@ ps.assertType = function (value, type) {
   if (!valid) {
     var typeName = type.name || type.toString();
     throw new Error(
-      "assertType failed: expected " + typeName + ", got " + typeof value
+      "assertType failed: expected " + typeName + ", got " + typeof value,
     );
   }
 };
@@ -170,8 +170,8 @@ ps.Stack.prototype.toArray = function () {
 ps.util._getCookie = function (name) {
   var match = document.cookie.match(
     new RegExp(
-      "(?:^|;\\s*)" + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "=([^;]*)"
-    )
+      "(?:^|;\\s*)" + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "=([^;]*)",
+    ),
   );
   return match ? decodeURIComponent(match[1]) : null;
 };

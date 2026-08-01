@@ -36,7 +36,7 @@ const PROBE_PATH = PRODUCT === "dts" ? "/" : "/Rhythmyx/login";
 test.describe(`${PRODUCT} on ${DB_TYPE} database`, () => {
   test(`should respond on ${PROBE_PATH} for ${DB_TYPE}`, async ({ page }) => {
     console.log(
-      `Probing ${PRODUCT} at ${BASE_URL}${PROBE_PATH} (db=${DB_TYPE})...`
+      `Probing ${PRODUCT} at ${BASE_URL}${PROBE_PATH} (db=${DB_TYPE})...`,
     );
 
     await page.goto(`${BASE_URL}${PROBE_PATH}`, { timeout: 120000 });

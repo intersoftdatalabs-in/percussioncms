@@ -77,7 +77,7 @@ function buildQuery() {
 
   var jxl_start_date = $.datepicker.formatDate(
     "yy/mm/dd",
-    new Date(p_start_date)
+    new Date(p_start_date),
   );
 
   var p_end_date = $('[name="end_date"]').val();
@@ -168,7 +168,7 @@ function buildQuery() {
       $(document).ready(function () {
         populateTemplateTypes(
           getSiteFromFolderPath($('[name="site_path"]').val()),
-          pageTemplatesOptionsArray
+          pageTemplatesOptionsArray,
         );
       });
     }
@@ -199,8 +199,8 @@ function buildQuery() {
                 tpl.name +
                 "'>" +
                 tpl.name +
-                "</span></div>"
-            )
+                "</span></div>",
+            ),
           );
         }
         $(".perc-pagetemplates-chkbox").on("change", function () {
@@ -218,7 +218,7 @@ function buildQuery() {
     function showSites() {
       $(document).ready(function () {
         var path = $.PercFinderTreeConstants.convertFolderPathToPath(
-          $('[name="site_path"]').val()
+          $('[name="site_path"]').val(),
         );
         if (!path) path = "/site";
         $("#perc-folder-selector").PercFinderTree({
@@ -244,7 +244,7 @@ function buildQuery() {
           ) {
             populateTemplateTypes(
               getSiteFromFolderPath(pathItem.folderPath),
-              []
+              [],
             );
           }
           //Save site_path
@@ -289,12 +289,12 @@ function buildQuery() {
         .val($('[name="category_page_result"]').val())
         .on("blur", function () {
           $('[name="category_page_result"]').val(
-            $("#display_category_page_result").val()
+            $("#display_category_page_result").val(),
           );
         })
         .on("change", function () {
           $('[name="category_page_result"]').val(
-            $("#display_category_page_result").val()
+            $("#display_category_page_result").val(),
           );
         });
       $("#display_title_contains")

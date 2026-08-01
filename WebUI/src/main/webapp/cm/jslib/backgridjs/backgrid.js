@@ -399,8 +399,8 @@
           date && parts[1]
             ? parts[1]
             : this.TIME_RE.test(parts[0])
-            ? parts[0]
-            : "";
+              ? parts[0]
+              : "";
       }
 
       var YYYYMMDD = this.DATE_RE.exec(date) || [];
@@ -421,8 +421,8 @@
           HHmmssSSS[1] * 1 || null,
           HHmmssSSS[2] * 1 || null,
           HHmmssSSS[3] * 1 || null,
-          HHmmssSSS[5] * 1 || null
-        )
+          HHmmssSSS[5] * 1 || null,
+        ),
       );
 
       var result = "";
@@ -564,8 +564,8 @@
       return _.isArray(rawValue)
         ? rawValue
         : rawValue != null
-        ? [rawValue]
-        : [];
+          ? [rawValue]
+          : [];
     },
   });
 
@@ -668,7 +668,7 @@
   */
     render: function () {
       this.$el.val(
-        this.formatter.fromRaw(this.model.get(this.column.get("name")))
+        this.formatter.fromRaw(this.model.get(this.column.get("name"))),
       );
       return this;
     },
@@ -791,7 +791,7 @@
       }
       this.formatter = Backgrid.resolveNameToClass(
         this.column.get("formatter") || this.formatter,
-        "Formatter"
+        "Formatter",
       );
       this.editor = Backgrid.resolveNameToClass(this.editor, "CellEditor");
       this.listenTo(
@@ -799,7 +799,7 @@
         "change:" + this.column.get("name"),
         function () {
           if (!this.$el.hasClass("editor")) this.render();
-        }
+        },
       );
       this.listenTo(this.model, "backgrid:error", this.renderError);
     },
@@ -811,7 +811,7 @@
     render: function () {
       this.$el.empty();
       this.$el.text(
-        this.formatter.fromRaw(this.model.get(this.column.get("name")))
+        this.formatter.fromRaw(this.model.get(this.column.get("name"))),
       );
       this.delegateEvents();
       return this;
@@ -861,7 +861,7 @@
           model,
           column,
           this,
-          this.currentEditor
+          this.currentEditor,
         );
       }
     },
@@ -932,7 +932,7 @@
     render: function () {
       this.$el.empty();
       var formattedValue = this.formatter.fromRaw(
-        this.model.get(this.column.get("name"))
+        this.model.get(this.column.get("name")),
       );
       this.$el.append(
         $("<a>", {
@@ -940,7 +940,7 @@
           href: formattedValue,
           title: formattedValue,
           target: "_blank",
-        }).text(formattedValue)
+        }).text(formattedValue),
       );
       this.delegateEvents();
       return this;
@@ -964,14 +964,14 @@
     render: function () {
       this.$el.empty();
       var formattedValue = this.formatter.fromRaw(
-        this.model.get(this.column.get("name"))
+        this.model.get(this.column.get("name")),
       );
       this.$el.append(
         $("<a>", {
           tabIndex: -1,
           href: "mailto:" + formattedValue,
           title: formattedValue,
-        }).text(formattedValue)
+        }).text(formattedValue),
       );
       this.delegateEvents();
       return this;
@@ -1101,7 +1101,7 @@
           this.editor.attributes,
           {
             placeholder: placeholder,
-          }
+          },
         ),
       });
     },
@@ -1253,9 +1253,9 @@
           tabIndex: -1,
           type: "checkbox",
           checked: this.formatter.fromRaw(
-            this.model.get(this.column.get("name"))
+            this.model.get(this.column.get("name")),
           ),
-        })
+        }),
       );
       this.delegateEvents();
       return this;
@@ -1281,7 +1281,7 @@
 
     /** @property {function(Object, ?Object=): string} template */
     template: _.template(
-      '<option value="<%- value %>" <%= selected ? \'selected="selected"\' : "" %>><%- text %></option>'
+      '<option value="<%- value %>" <%= selected ? \'selected="selected"\' : "" %>><%- text %></option>',
     ),
 
     setOptionValues: function (optionValues) {
@@ -1319,7 +1319,7 @@
 
       var optionValues = _.result(this, "optionValues");
       var selectedValues = this.formatter.fromRaw(
-        this.model.get(this.column.get("name"))
+        this.model.get(this.column.get("name")),
       );
 
       if (!_.isArray(optionValues))
@@ -1343,18 +1343,18 @@
               text: optionText,
               value: optionValue,
               selected: selectedValues.indexOf(optionValue) > -1,
-            })
+            }),
           );
         } else if (_.isObject(optionValue)) {
           optgroupName = optionValue.name;
           optgroup = $("<optgroup></optgroup>", { label: optgroupName });
           optgroup.append(
-            this._renderOptions(optionValue.values, selectedValues)
+            this._renderOptions(optionValue.values, selectedValues),
           );
           this.$el.append(optgroup);
         } else {
           throw TypeError(
-            "optionValues elements must be a name-value pair or an object hash of { name: 'optgroup label', value: [option name-value pairs] }"
+            "optionValues elements must be a name-value pair or an object hash of { name: 'optgroup label', value: [option name-value pairs] }",
           );
         }
       }
@@ -1477,7 +1477,7 @@
             editor.setOptionValues(this.optionValues);
             editor.setMultiple(this.multiple);
           }
-        }
+        },
       );
     },
 
@@ -1491,7 +1491,7 @@
 
       var optionValues = this.optionValues;
       var rawData = this.formatter.fromRaw(
-        this.model.get(this.column.get("name"))
+        this.model.get(this.column.get("name")),
       );
 
       var selectedText = [];
@@ -1530,7 +1530,7 @@
       } catch (ex) {
         if (ex instanceof TypeError) {
           throw TypeError(
-            "'optionValues' must be of type {Array.<Array>|Array.<{name: string, values: Array.<Array>}>}"
+            "'optionValues' must be of type {Array.<Array>|Array.<{name: string, values: Array.<Array>}>}",
           );
         }
         throw ex;
@@ -1607,7 +1607,7 @@
 
       var headerCell = Backgrid.resolveNameToClass(
         this.get("headerCell"),
-        "HeaderCell"
+        "HeaderCell",
       );
       var cell = Backgrid.resolveNameToClass(this.get("cell"), "Cell");
       this.set({ cell: cell, headerCell: headerCell }, { silent: true });
@@ -1681,7 +1681,7 @@
               else cell.$el.hide();
             }
           }
-        }
+        },
       );
 
       this.listenTo(columns, "add", function (column, columns) {
@@ -1880,7 +1880,7 @@
       sortByColName,
       direction,
       comparator,
-      collection
+      collection,
     ) {
       if (collection == this.collection) {
         if (sortByColName !== this.column.get("name")) this.direction(null);
@@ -1981,7 +1981,7 @@
         columnName,
         direction,
         comparator,
-        this.collection
+        this.collection,
       );
     },
 
@@ -1997,7 +1997,7 @@
       var lcid = left.cid,
         rcid = right.cid;
       if (!_.isUndefined(lcid) && !_.isUndefined(rcid)) {
-        (lcid = lcid.slice(1) * 1), (rcid = rcid.slice(1) * 1);
+        ((lcid = lcid.slice(1) * 1), (rcid = rcid.slice(1) * 1));
         if (lcid < rcid) return -1;
         else if (lcid > rcid) return 1;
       }
@@ -2177,7 +2177,7 @@
           new EmptyRow({
             emptyText: this.emptyText,
             columns: this.columns,
-          })
+          }),
         );
       }
     },
@@ -2541,7 +2541,7 @@
         this.body = new (this.body.remove().constructor)(passedThruOptions);
         if (this.footer) {
           this.footer = new (this.footer.remove().constructor)(
-            passedThruOptions
+            passedThruOptions,
           );
         }
         this.render();

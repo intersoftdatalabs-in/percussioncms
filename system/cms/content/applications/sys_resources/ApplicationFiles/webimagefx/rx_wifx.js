@@ -90,7 +90,7 @@ function rxRedirect(url) {
     redirect = url;
   } else if (stringStartsWith(url, "../../")) {
     alert(
-      "rxRedirect cannot handle relative urls with a depth of 2 or more levels."
+      "rxRedirect cannot handle relative urls with a depth of 2 or more levels.",
     );
     return;
   } else if (
@@ -224,7 +224,7 @@ function wifxCopyAllFormFields(theForm) {
         wifxAddFormField(
           currentEl.name,
           selections,
-          currentEl.type == "select-multiple"
+          currentEl.type == "select-multiple",
         );
       } else if (
         currentEl.type.length == 0 ||

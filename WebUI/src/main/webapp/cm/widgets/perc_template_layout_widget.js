@@ -108,7 +108,7 @@ var gSelectTemp = null;
               self.selectedRegion.css("height", $("#perc-region-height").val());
               self.selectedRegion.css(
                 "padding",
-                $("#perc-region-padding").val()
+                $("#perc-region-padding").val(),
               );
               self.selectedRegion.css("margin", $("#perc-region-margin").val());
 
@@ -120,7 +120,7 @@ var gSelectTemp = null;
               ) {
                 // region name has changed, axe the original property.
                 eval(
-                  "delete self.helper.regionCSS." + self.originalRegionId + ";"
+                  "delete self.helper.regionCSS." + self.originalRegionId + ";",
                 ); // HAAAAAAAAAAACK!
               }
               $("#perc-menu").css("display", "none");
@@ -228,13 +228,13 @@ var gSelectTemp = null;
           function (html) {
             self._load(html);
             self.renderCSS(false);
-          }
+          },
         );
       } else {
         alert(
           I18N.message(
-            "perc.ui.template.layout.widget@Unable To Determine Page Or Template ID"
-          )
+            "perc.ui.template.layout.widget@Unable To Determine Page Or Template ID",
+          ),
         );
       }
     },
@@ -315,7 +315,7 @@ var gSelectTemp = null;
         w = Math.floor(
           (parentInnerWidth -
             childNumber * 2 * (self.padding + self.borderWidth)) /
-            childNumber
+            childNumber,
         );
         if (isNaN(w) || w < 0) return;
         horizParent.children().each(function () {
@@ -382,7 +382,7 @@ var gSelectTemp = null;
             moveWidget,
             moveWidgetFromRegion,
             moveWidgetToRegion,
-            pos
+            pos,
           );
           self._autoSizeHorizontal();
         },
@@ -394,12 +394,12 @@ var gSelectTemp = null;
       //
       $(".perc-widget").on("click", function (event) {
         event.stopPropagation(); // dont propagate event to parents
-        $(".perc-region").each(function () // unhighlight other regions
-        {
+        $(".perc-region").each(function () {
+          // unhighlight other regions
           $(this).removeClass("perc-selected");
         });
-        $(".perc-widget").each(function () // unhighlight other widgets
-        {
+        $(".perc-widget").each(function () {
+          // unhighlight other widgets
           $(this).removeClass("perc-selected");
         });
         $(this).addClass("perc-selected"); // highlight this widget
@@ -532,13 +532,13 @@ var gSelectTemp = null;
             self.helper.moveRegion(
               $(this).attr("id"),
               self.hoveringRegion.attr("id"),
-              true
+              true,
             );
           else
             self.helper.moveRegion(
               $(this).attr("id"),
               self.hoveringRegion.attr("id"),
-              false
+              false,
             );
 
           self.render();
@@ -580,13 +580,13 @@ var gSelectTemp = null;
             self.helper.moveRegion(
               $(this).attr("id"),
               self.hoveringRegion.attr("id"),
-              true
+              true,
             );
           else
             self.helper.moveRegion(
               $(this).attr("id"),
               self.hoveringRegion.attr("id"),
-              false
+              false,
             );
 
           self.render();
@@ -637,7 +637,7 @@ var gSelectTemp = null;
                   -1
               ) {
                 alert(
-                  I18N.message("perc.ui.template.layout.widget@Region Locked")
+                  I18N.message("perc.ui.template.layout.widget@Region Locked"),
                 );
                 return;
               }
@@ -681,7 +681,7 @@ var gSelectTemp = null;
             //	newWidget = self.helper.createNewWidget("PSWidget_TestProperties", self.helper.getRegion(regionId));
             newWidget = self.helper.createNewWidget(
               widgetDefinitionId,
-              self.helper.getRegion(regionId)
+              self.helper.getRegion(regionId),
             );
 
             widget = self.helper.addWidget(newWidget, regionId, true);
@@ -711,17 +711,17 @@ var gSelectTemp = null;
           if (property === "width" || property === "height") {
             $("#" + selector).css(
               property,
-              this.helper.regionCSS[selector][property]
+              this.helper.regionCSS[selector][property],
             );
           } else {
             $("#" + selector).css(
               property,
-              this.helper.regionCSS[selector][property]
+              this.helper.regionCSS[selector][property],
             );
           }
           $("#" + selector).css(
             property,
-            this.helper.regionCSS[selector][property]
+            this.helper.regionCSS[selector][property],
           );
         }
       }

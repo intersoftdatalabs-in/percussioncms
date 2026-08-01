@@ -34,7 +34,7 @@ const ROOT = resolve(__dirname, "../../../..");
 // Load and evaluate the shim — JFeed and jfeedText land on the global scope
 const shimCode = readFileSync(
   resolve(ROOT, "src/main/js/shims/jfeed-shim.js"),
-  "utf8"
+  "utf8",
 );
 // In ESM strict mode, direct eval() scopes function declarations locally.
 // Appending "; JFeed" causes eval to return the declared function, while

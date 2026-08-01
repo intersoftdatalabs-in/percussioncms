@@ -34,11 +34,11 @@ import jquery from "jquery";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SRC = resolve(
   __dirname,
-  "../../main/webapp/cm/widgets/PercDataTable/PercDataTable.js"
+  "../../main/webapp/cm/widgets/PercDataTable/PercDataTable.js",
 );
 const WRONG_SRC = resolve(
   __dirname,
-  "../../main/webapp/cm/widgets/PercDataTableWrong/PercDataTable.js"
+  "../../main/webapp/cm/widgets/PercDataTableWrong/PercDataTable.js",
 );
 
 function loadPercDataTable($) {
@@ -56,7 +56,7 @@ function loadPercDataTable($) {
     "jQuery",
     "window",
     "document",
-    src + "\n; return jQuery.fn.PercDataTable;"
+    src + "\n; return jQuery.fn.PercDataTable;",
   );
   run($, globalThis, globalThis.document);
   return $.fn.PercDataTable;
@@ -76,7 +76,7 @@ function loadPercDataTableWrong($) {
     "window",
     "document",
     "gadgets",
-    src + "\n; return jQuery.fn.percDataTable;"
+    src + "\n; return jQuery.fn.percDataTable;",
   );
   run($, globalThis, globalThis.document, undefined);
   return $.fn.percDataTable;

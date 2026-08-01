@@ -64,6 +64,17 @@ public final class DbInstallConfigResolver {
   /** CLI key for silent/non-interactive mode (--silent or --no-tty). */
   public static final String SILENT_KEY = "silent";
 
+  /**
+   * CLI key for the optional "install sample sites" flag. Maps to {@code --demo-sites} / {@code
+   * --no-demo-sites} and the {@link #DEMO_SITES_SYSTEM_PROPERTY} system property. Default {@code
+   * false}. Sample seeding only runs on new installs; upgrades ignore the flag and never overwrite
+   * an existing repository with the seed XML.
+   */
+  public static final String DEMO_SITES_KEY = "demo-sites";
+
+  /** ANT-visible system property propagated by {@code Main.execJar}. */
+  public static final String DEMO_SITES_SYSTEM_PROPERTY = "install.demo.sites";
+
   private static final String MARIADB_DRIVER_CLASS = "org.mariadb.jdbc.Driver";
   private static final String MYSQL_COMPAT_DRIVER_NAME = "mysql";
   private static final String MSSQL_DRIVER_CLASS = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
@@ -715,6 +726,35 @@ public final class DbInstallConfigResolver {
     if (!isBlank(value)) {
       target.put(key, value.trim());
     }
+  }
+
+  /**
+   * Parse the {@code --demo-sites} / {@code --no-demo-sites} CLI flag (also accepted via the {@link
+   * #DEMO_SITES_SYSTEM_PROPERTY} system property). Default {@code false}. Mirrors the truthy
+   * parsing used by {@link ObsoleteInstallDirCleaner#parseCleanInstallDirFlag}.
+   *
+   * @param cliOptions parsed CLI options map; may be null
+   * @return true when the operator opted in to sample-site seeding
+   */
+  public static boolean parseDemoSitesFlag(Map<String, String> cliOptions) {
+    String fromCli =
+        cliOptions == null
+            ? null
+            : firstNonBlank(cliOptions.get(DEMO_SITES_KEY), cliOptions.get("install.demo.sites"));
+    String fromSys = System.getProperty(DEMO_SITES_SYSTEM_PROPERTY);
+    String raw = firstNonBlank(fromCli, fromSys);
+    if (raw == null || raw.isBlank()) {
+      return false;
+    }
+    String v = raw.trim().toLowerCase(java.util.Locale.ROOT);
+    if ("true".equals(v) || "yes".equals(v) || "y".equals(v) || "1".equals(v)) {
+      return true;
+    }
+    if ("false".equals(v) || "no".equals(v) || "n".equals(v) || "0".equals(v)) {
+      return false;
+    }
+    // bare --demo-sites yields "true" from parseArgs; unparseable values fall back to false.
+    return Boolean.parseBoolean(raw);
   }
 
   /** CLI arguments parsed from the preinstall invocation. */

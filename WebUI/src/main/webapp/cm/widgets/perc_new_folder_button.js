@@ -26,7 +26,7 @@
     var btn = $(
       "<a id='perc-finder-new-folder' class='perc-font-icon ui-disabled' href='#' title='" +
         I18N.message("perc.ui.new.folder.button@Click New Folder") +
-        "'><span class='icon-plus fas fa-plus'></span><span class='icon-folder-close fas fa-folder'></span></a>"
+        "'><span class='icon-plus fas fa-plus'></span><span class='icon-folder-close fas fa-folder'></span></a>",
     )
       .perc_button()
       .on("click", function (evt) {
@@ -49,7 +49,7 @@
             $.perc_utils.alert_dialog({
               title: I18N.message("perc.ui.page.general@Warning"),
               content: I18N.message(
-                "perc.ui.new.folder.button@Permissions to Create Folder"
+                "perc.ui.new.folder.button@Permissions to Create Folder",
               ),
             });
             return;
@@ -75,10 +75,10 @@
                     content: result,
                   });
                 }
-              }
+              },
             );
           }
-        }
+        },
       );
     }
 
@@ -120,7 +120,7 @@
             ) {
               enableButton(false);
             }
-          }
+          },
         );
       }
     }

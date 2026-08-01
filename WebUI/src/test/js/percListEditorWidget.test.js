@@ -44,7 +44,7 @@ import { beforeEach, afterEach, describe, it, expect, vi } from "vitest";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SRC_PATH = resolve(
   __dirname,
-  "../../main/webapp/cm/plugins/PercListEditorWidget.js"
+  "../../main/webapp/cm/plugins/PercListEditorWidget.js",
 );
 
 let $;
@@ -133,7 +133,7 @@ describe("source-pattern (anti-regression for js/xss-through-dom)", () => {
     // string with attacker-controlled usernames, then `.append(li)`
     // parses it as HTML.
     expect(src).not.toMatch(
-      /\.replace\(\s*\/_username_\/g\s*,\s*listItems\[u\]\s*\)/
+      /\.replace\(\s*\/_username_\/g\s*,\s*listItems\[u\]\s*\)/,
     );
   });
 });
@@ -146,7 +146,7 @@ describe("title1 / title2 sink", () => {
     const malicious = "<script>window.__pwned=true</script>";
     makeWidget({ title1: malicious });
     const scripts = document.querySelectorAll(
-      "#perc-list-editor-host #perc-ui-permission-users-title script"
+      "#perc-list-editor-host #perc-ui-permission-users-title script",
     );
     expect(scripts.length, "no <script> from title1").toBe(0);
     expect(window.__pwned).toBeUndefined();
@@ -156,7 +156,7 @@ describe("title1 / title2 sink", () => {
     const malicious = '<img src="x" onerror="window.__pwned=1">';
     makeWidget({ title1: malicious });
     const imgs = document.querySelectorAll(
-      "#perc-list-editor-host #perc-ui-permission-users-title img"
+      "#perc-list-editor-host #perc-ui-permission-users-title img",
     );
     expect(imgs.length, "no <img> from title1").toBe(0);
     expect(window.__pwned).toBeUndefined();
@@ -165,7 +165,7 @@ describe("title1 / title2 sink", () => {
   it("renders a benign title1 as inert text", () => {
     makeWidget({ title1: "Hello World" });
     const t1 = document.querySelector(
-      "#perc-list-editor-host #perc-ui-permission-users-title"
+      "#perc-list-editor-host #perc-ui-permission-users-title",
     );
     expect(t1).toBeTruthy();
     expect(t1.textContent).toBe("Hello World");
@@ -178,7 +178,7 @@ describe("username sink via setListItems", () => {
     widget = makeWidget();
     widget.setListItems(["<script>window.__pwned=true</script>"]);
     const scripts = document.querySelectorAll(
-      "#perc-list-editor-host #perc-ui-permission-user-list script"
+      "#perc-list-editor-host #perc-ui-permission-user-list script",
     );
     expect(scripts.length, "no <script> from username").toBe(0);
     expect(window.__pwned).toBeUndefined();
@@ -189,12 +189,12 @@ describe("username sink via setListItems", () => {
     widget.setListItems(['<img src="x" onerror="window.__pwned=1">']);
     document
       .querySelectorAll(
-        "#perc-list-editor-host #perc-ui-permission-user-list *"
+        "#perc-list-editor-host #perc-ui-permission-user-list *",
       )
       .forEach((el) => {
         for (const attr of el.attributes) {
           expect(/^on/i.test(attr.name), `inline handler ${attr.name}`).toBe(
-            false
+            false,
           );
         }
       });
@@ -206,12 +206,12 @@ describe("username sink via setListItems", () => {
     widget.setListItems(['a" onmouseover="window.__pwned=1" data-x="']);
     document
       .querySelectorAll(
-        "#perc-list-editor-host #perc-ui-permission-user-list *"
+        "#perc-list-editor-host #perc-ui-permission-user-list *",
       )
       .forEach((el) => {
         for (const attr of el.attributes) {
           expect(/^on/i.test(attr.name), `inline handler ${attr.name}`).toBe(
-            false
+            false,
           );
         }
       });
@@ -222,7 +222,7 @@ describe("username sink via setListItems", () => {
     widget = makeWidget();
     widget.setListItems(["Alice", "Bob"]);
     const items = document.querySelectorAll(
-      "#perc-list-editor-host #perc-ui-permission-user-list li"
+      "#perc-list-editor-host #perc-ui-permission-user-list li",
     );
     expect(items.length).toBe(2);
     const names = Array.from(items).map((li) => {
@@ -255,7 +255,7 @@ describe("public API", () => {
     ];
     for (const name of expected) {
       expect(typeof api[name], `api.${name} should be a function`).toBe(
-        "function"
+        "function",
       );
     }
   });

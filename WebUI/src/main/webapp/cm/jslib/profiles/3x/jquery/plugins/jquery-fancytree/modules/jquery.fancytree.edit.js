@@ -136,7 +136,7 @@
    */
   $.ui.fancytree._FancytreeNodeClass.prototype.editEnd = function (
     applyChanges,
-    _event
+    _event,
   ) {
     var newVal,
       node = this,
@@ -225,7 +225,7 @@
    */
   $.ui.fancytree._FancytreeNodeClass.prototype.editCreateNode = function (
     mode,
-    init
+    init,
   ) {
     var newNode,
       tree = this.tree,

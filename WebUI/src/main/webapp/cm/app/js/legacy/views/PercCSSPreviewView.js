@@ -48,7 +48,7 @@
       allWidgets,
       "perc-widget-puff",
       "perc-region-active",
-      widgetMenu
+      widgetMenu,
     );
 
     initWidgetEditDialog();
@@ -80,7 +80,7 @@
         } else if (currentView === $.PercNavigationManager.VIEW_EDITOR) {
           var currentTabIndex2 = $("#perc-pageEditor-tabs").tabs(
             "option",
-            "active"
+            "active",
           );
           if (currentTabIndex2 === 2) {
             dirtyController.setDirty(true, "page", saveCSS);
@@ -95,7 +95,7 @@
       var cssController = P.cssController(
         model,
         $("#frame"),
-        P.CSSPreviewView($("#frame"), model)
+        P.CSSPreviewView($("#frame"), model),
       );
       if (currentView === $.PercNavigationManager.VIEW_EDITOR) {
         cssController.save(callback);
@@ -127,7 +127,7 @@
             $(__this).text(scriptOn);
             $(__this).attr(
               "title",
-              I18N.message("perc.ui.content.view@Turns On JavaScript")
+              I18N.message("perc.ui.content.view@Turns On JavaScript"),
             );
             model.setJavaScriptOff(true);
             initRender();
@@ -135,7 +135,7 @@
             $(__this).text(scriptOff);
             $(__this).attr(
               "title",
-              I18N.message("perc.ui.content.view@Turns Off JavaScript")
+              I18N.message("perc.ui.content.view@Turns Off JavaScript"),
             );
             model.setJavaScriptOff(false);
             initRender();
@@ -158,7 +158,7 @@
               handleScripts();
             },
             function () {},
-            options
+            options,
           );
         } else {
           handleScripts();
@@ -213,7 +213,7 @@
         widgetDefinitionId,
         refreshRender,
         "CssPref",
-        model.getWidgetByName
+        model.getWidgetByName,
       );
     }
 
@@ -231,20 +231,20 @@
         afterRender();
         $("#frame").attr("perc-view-type", "style");
         var frwrapper = $.PercViewReadyManager.getWrapper(
-          "perc-ui-component-editor-frame"
+          "perc-ui-component-editor-frame",
         );
         if (frwrapper != null)
           frwrapper.handleComponentProgress(
             "perc-ui-component-editor-frame",
-            "complete"
+            "complete",
           );
         var tbwrapper = $.PercViewReadyManager.getWrapper(
-          "perc-ui-component-editor-toolbar"
+          "perc-ui-component-editor-toolbar",
         );
         if (tbwrapper != null)
           tbwrapper.handleComponentProgress(
             "perc-ui-component-editor-toolbar",
-            "complete"
+            "complete",
           );
       });
     }

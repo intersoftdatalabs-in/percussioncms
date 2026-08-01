@@ -614,7 +614,9 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("deliverymanager")
   @Override
-  public Response updateOldSiteEntries(String prevSiteName, String newSiteName) {
+  public Response updateOldSiteEntries(
+      @PathParam("prevSiteName") String prevSiteName,
+      @PathParam("newSiteName") String newSiteName) {
     PSCommentsRestService.log.info("Attempting to update comments for site name: {}", prevSiteName);
     boolean result = this.commentService.updateCommentsForRenameSite(prevSiteName, newSiteName);
     if (!result) {

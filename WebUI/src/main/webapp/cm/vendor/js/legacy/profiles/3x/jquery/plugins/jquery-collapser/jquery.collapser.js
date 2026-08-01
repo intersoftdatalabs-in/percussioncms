@@ -117,7 +117,7 @@
           },
           function () {
             toggleElement($(this), 1);
-          }
+          },
         );
       } else {
         $(this).toggle(
@@ -126,7 +126,7 @@
           },
           function () {
             toggleElement($(this), 2);
-          }
+          },
         );
       }
 

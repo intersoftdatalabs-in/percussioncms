@@ -75,7 +75,7 @@
     <tx:annotation-driven transaction-manager="txManager"/>
 
     <bean id="txManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-        <property name="entityManagerFactory" ref="sessionFactoryProxy" />
+        <property name="entityManagerFactory" ref="feedsSessionFactoryName" />
     </bean>
 
     <!-- Hibernate SessionFactory -->
@@ -96,11 +96,10 @@
         <property name="rssFeedsIP" value="${rss.feeds.ip}" />
     </bean>
 
+    <!-- PSFeedDao only accepts SessionFactory via constructor (no setter). -->
     <bean id="feedsDao" class="com.percussion.delivery.feeds.services.rdbms.PSFeedDao"
-          autowire="constructor" lazy-init="true">
-        <property name="sessionFactory">
-            <ref bean="feedsSessionFactoryName" />
-        </property>
+          lazy-init="true">
+        <constructor-arg ref="feedsSessionFactoryName" />
     </bean>
 
     <bean id="httpClient"

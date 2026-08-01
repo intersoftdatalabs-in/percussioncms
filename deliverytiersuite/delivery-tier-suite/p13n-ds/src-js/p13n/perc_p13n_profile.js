@@ -59,22 +59,22 @@ perc_p13n.bindOnProfileEditor = function (callback, win) {
 
 perc_p13n.getProfileEditor = function (win) {
   perc_p13n.log.debug(
-    "Getting Profile Editor for window: " + win.location.href
+    "Getting Profile Editor for window: " + win.location.href,
   );
   if (typeof win.p13nProfileEditor != "undefined") {
     perc_p13n.log.debug(
-      "Profile Editor is attached to the window object: " + win.location.href
+      "Profile Editor is attached to the window object: " + win.location.href,
     );
     return win.p13nProfileEditor;
   } else if (typeof top.p13nProfileEditor != "undefined") {
     perc_p13n.log.debug(
       "Profile Editor is attached to the parent window object for: " +
-        win.location.href
+        win.location.href,
     );
     return top.p13nProfileEditor;
   } else if (top == win) {
     perc_p13n.log.debug(
-      "Creating Profile Editor for window: " + win.location.href
+      "Creating Profile Editor for window: " + win.location.href,
     );
     win.p13nProfileEditor = new P13NProfileEditor();
     perc_p13n.triggerOnProfileEditor(win.p13nProfileEditor);
@@ -86,7 +86,8 @@ perc_p13n.getProfileEditor = function (win) {
 		parent.p13nProfileEditor = new P13NProfileEditor();
 		*/
     perc_p13n.log.warn(
-      "Profile Editor was not loaded in parent for window: " + win.location.href
+      "Profile Editor was not loaded in parent for window: " +
+        win.location.href,
     );
     return null;
   }
@@ -141,7 +142,7 @@ P13NProfileEditor.prototype.__registerMenu = function () {
   q("#p13nMenuAA").click(willDo("openAAPage", this));
   q("#p13nMenuHideorShow").toggle(
     willDo("hideOutLine", this),
-    willDo("showOutLine", this)
+    willDo("showOutLine", this),
   );
   this.log.debug("Finished Registering Menu");
 };
@@ -194,7 +195,7 @@ P13NProfileEditor.prototype.loadProfileEditor = function (options, func) {
   var purl = this.profileEditorUrl;
   if (jQuery.browser.msie) {
     this.log.debug(
-      "Browser is IE so we reload the whole sidebar frame: " + purl
+      "Browser is IE so we reload the whole sidebar frame: " + purl,
     );
     var params = "";
     if (!options) {
@@ -211,7 +212,7 @@ P13NProfileEditor.prototype.loadProfileEditor = function (options, func) {
       function () {
         p.onProfileEditorLoad();
         callback(p);
-      }
+      },
     );
   }
 };
@@ -227,7 +228,7 @@ P13NProfileEditor.prototype.refreshProfileEditor = function (force) {
 
 P13NProfileEditor.prototype.refreshProfileEditorWithTracking = function (
   data,
-  params
+  params,
 ) {
   this.log.debug("Refreshing profile Editor.");
   var p = this;
@@ -242,7 +243,7 @@ P13NProfileEditor.prototype.refreshProfileEditorWithTracking = function (
       .fadeIn("fast")
       .html('<div class="message">' + message + "</div>")
       .append(
-        '<div class="actionName">Action: ' + params.actionName + "</div>"
+        '<div class="actionName">Action: ' + params.actionName + "</div>",
       );
     //.toggle(function(){$(this).hide();}, function(){$(this).show();});
   });
@@ -310,7 +311,7 @@ P13NProfileEditor.prototype.onUserDataSave = function () {
 P13NProfileEditor.prototype.onProfileDataSubmit = function (
   domObj,
   responseText,
-  statusText
+  statusText,
 ) {
   this.log.debug("onProfileDataSubmitted");
   var q = queryFrom(this.getSidebarDocument());
@@ -365,7 +366,7 @@ P13NProfileEditor.prototype.onProfileDataSubmit = function (
     //     (silent data-loss regression).
     if (typeof responseText !== "string" || responseText.length === 0) {
       this.log.error(
-        "onProfileDataSubmit: empty or non-string response; falling back to loadProfileEditor"
+        "onProfileDataSubmit: empty or non-string response; falling back to loadProfileEditor",
       );
       this.loadProfileEditor();
       return;
@@ -377,7 +378,7 @@ P13NProfileEditor.prototype.onProfileDataSubmit = function (
     var pane = container.find("#ProfileEditPane");
     if (pane.length === 0) {
       this.log.error(
-        "onProfileDataSubmit: scrubbed response missing #ProfileEditPane; skipping replace"
+        "onProfileDataSubmit: scrubbed response missing #ProfileEditPane; skipping replace",
       );
       return;
     }
@@ -440,7 +441,7 @@ P13NProfileEditor.prototype.refreshPreviewPage = function (force) {
   } else {
     this.log.debug(
       "not refreshing page because previewPageIsDirty=" +
-        this.previewPageIsDirty
+        this.previewPageIsDirty,
     );
   }
   /*

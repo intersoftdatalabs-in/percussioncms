@@ -15,7 +15,7 @@
   <script>
     function getSiteImproveCookie() {
       var result = document.cookie.match(
-        new RegExp("siteimprove_credentials" + "=([^;]+)")
+        new RegExp("siteimprove_credentials" + "=([^;]+)"),
       );
       result && (result = result[1]);
       return result;
@@ -47,7 +47,7 @@
         if (viewType === "editor" && idParam !== "" && idParam !== null) {
           pagePath = $.PercNavigationManager.getPath();
           pagePath = pagePath.substring(
-            pagePath.split("/", 2).join("/").length + 1
+            pagePath.split("/", 2).join("/").length + 1,
           );
           //this means we are trying to load SI information for a site
           //that does not have siteimprove enabled or trying to load
@@ -71,7 +71,7 @@
           success: function (data) {
             if (data === "" || typeof data === "undefined") {
               console.log(
-                "Not able to retrieve token from Siteimprove endpoint.  Please make sure Siteimprove is enabled for this site if desired."
+                "Not able to retrieve token from Siteimprove endpoint.  Please make sure Siteimprove is enabled for this site if desired.",
               );
               $(".si-toggle-container").hide();
               $(".si-iframe-container").hide();
@@ -101,7 +101,7 @@
                   function () {
                     console.log(
                       "Sending a page-specific url to Siteimprove for page: " +
-                        page_url
+                        page_url,
                     );
                   },
                 ]);
@@ -115,7 +115,7 @@
                   function () {
                     console.log(
                       "Sending a domain-specific url to Siteimprove for site: " +
-                        siteName
+                        siteName,
                     );
                   },
                 ]);
@@ -125,7 +125,7 @@
               var s = document.createElement("script");
               s.setAttribute(
                 "src",
-                "https://cdn.siteimprove.net/cms/overlay.js"
+                "https://cdn.siteimprove.net/cms/overlay.js",
               );
               s.setAttribute("async", "true");
               document.body.appendChild(s);

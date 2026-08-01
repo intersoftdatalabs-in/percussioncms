@@ -45,7 +45,10 @@
 
 #perc-css-theme-editor-area {
   text-align: left;
-  font-family: Courier New, Courier, monospace;
+  font-family:
+    Courier New,
+    Courier,
+    monospace;
   width: 100%;
   border: 1px solid black;
   overflow: auto;

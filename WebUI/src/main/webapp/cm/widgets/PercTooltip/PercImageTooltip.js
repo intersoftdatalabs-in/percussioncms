@@ -65,7 +65,7 @@
       .addClass("perc-tooltip")
       .addClass("perc-tooltip-arrow-down")
       .append(
-        $("<div/>").addClass("perc-tooltip-content").append("Title Goes Here")
+        $("<div/>").addClass("perc-tooltip-content").append("Title Goes Here"),
       )
       .css("position", "absolute")
       .css("top", "-10000px")

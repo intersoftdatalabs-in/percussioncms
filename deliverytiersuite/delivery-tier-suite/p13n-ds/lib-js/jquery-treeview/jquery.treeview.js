@@ -38,7 +38,7 @@
         },
         function () {
           $(this).removeClass(className);
-        }
+        },
       );
     },
     heightToggle: function (animated, callback) {
@@ -66,7 +66,7 @@
           (settings.collapsed ? "" : "." + CLASSES.closed) +
             ":not(." +
             CLASSES.open +
-            ")"
+            ")",
         )
           .find(">ul")
           .hide();
@@ -114,7 +114,7 @@
         {
           cookieId: "treeview",
         },
-        settings
+        settings,
       );
 
       if (settings.add) {
@@ -139,7 +139,7 @@
               $("div." + CLASSES.hitarea, tree).filter(function () {
                 // for plain toggle, no filter is provided, otherwise we need to check the parent element
                 return filter ? $(this).parent("." + filter).length : true;
-              })
+              }),
             );
             return false;
           };
@@ -161,7 +161,7 @@
           .swapClass(CLASSES.collapsableHitarea, CLASSES.expandableHitarea)
           .swapClass(
             CLASSES.lastCollapsableHitarea,
-            CLASSES.lastExpandableHitarea
+            CLASSES.lastExpandableHitarea,
           )
           .end()
           // swap classes for parent li
@@ -180,7 +180,7 @@
             .replaceClass(CLASSES.collapsableHitarea, CLASSES.expandableHitarea)
             .replaceClass(
               CLASSES.lastCollapsableHitarea,
-              CLASSES.lastExpandableHitarea
+              CLASSES.lastExpandableHitarea,
             )
             .end()
             .replaceClass(CLASSES.collapsable, CLASSES.expandable)

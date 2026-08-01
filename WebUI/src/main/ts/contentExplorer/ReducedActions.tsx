@@ -29,6 +29,7 @@
  */
 
 import React, { useCallback, useState } from "react";
+import { formatApiError } from "../api/client";
 import { addNewFolder, deleteItem, moveItem, renameFolder } from "../api/contentExplorer/pathApi";
 import type { PSPathItem } from "../api/contentExplorer/types";
 import { message } from "../i18n/message";
@@ -111,7 +112,9 @@ export function ReducedActions({
       try {
         await fn();
       } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err);
+        // handleResponse throws plain ApiError objects — use formatApiError
+        // so shells never surface "[object Object]".
+        const msg = formatApiError(err, message(EXPLORER_MSG.ERROR_GENERIC));
         onError?.(msg);
       } finally {
         setPending(null);

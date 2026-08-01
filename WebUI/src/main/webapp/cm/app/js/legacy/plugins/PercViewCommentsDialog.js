@@ -74,7 +74,7 @@
                   removeDocumentScrollbars();
                   dialog.remove();
                   window.location.reload();
-                }
+                },
               );
             } else {
               removeDocumentScrollbars();
@@ -112,12 +112,12 @@
     function saveApproveRejectedStateChanges(
       sitename,
       approveRejectedStateChanges,
-      callback
+      callback,
     ) {
       $.PercCommentsGadgetService().setCommentModeration(
         sitename,
         approveRejectedStateChanges,
-        callback
+        callback,
       );
     }
 

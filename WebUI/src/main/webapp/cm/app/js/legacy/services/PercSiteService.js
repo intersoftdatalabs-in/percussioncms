@@ -49,12 +49,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      siteProps
+      siteProps,
     );
   }
 
@@ -74,11 +74,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -98,15 +98,15 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           var defaultCode = $.PercServiceUtils.extractGlobalErrorCode(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg, defaultCode);
         }
       },
-      postObject
+      postObject,
     );
   }
 
@@ -126,15 +126,15 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           var defaultCode = $.PercServiceUtils.extractGlobalErrorCode(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg, defaultCode);
         }
       },
-      postObject
+      postObject,
     );
   }
 
@@ -152,11 +152,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -194,11 +194,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -214,11 +214,11 @@
           callback(true, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback(false, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -240,11 +240,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -279,12 +279,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      serviceParam
+      serviceParam,
     );
   }
 
@@ -306,12 +306,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = I18N.message(
-            "perc.ui.site.service@Unexpected Error Importing"
+            "perc.ui.site.service@Unexpected Error Importing",
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      serviceParam
+      serviceParam,
     );
   }
 
@@ -342,12 +342,12 @@
           // be an error
           serviceStatus = $.PercServiceUtils.STATUS_ERROR;
           data = I18N.message(
-            "perc.ui.site.service@Unexpected Error Importing"
+            "perc.ui.site.service@Unexpected Error Importing",
           );
         }
 
         callback(serviceStatus, data);
-      }
+      },
     );
   }
 
@@ -376,12 +376,12 @@
           // be an error
           serviceStatus = $.PercServiceUtils.STATUS_ERROR;
           data = I18N.message(
-            "perc.ui.site.service@Unexpected Error Importing"
+            "perc.ui.site.service@Unexpected Error Importing",
           );
         }
 
         callback(serviceStatus, data);
-      }
+      },
     );
   }
 
@@ -404,11 +404,11 @@
           // be an error
           serviceStatus = $.PercServiceUtils.STATUS_ERROR;
           data = I18N.message(
-            "perc.ui.site.service@Unexpected Error Importing"
+            "perc.ui.site.service@Unexpected Error Importing",
           );
         }
         callback(serviceStatus, data);
-      }
+      },
     );
   }
 
@@ -432,11 +432,11 @@
           deferred.resolve(result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           deferred.reject(defaultMsg);
         }
-      }
+      },
     );
     return deferred.promise();
   }

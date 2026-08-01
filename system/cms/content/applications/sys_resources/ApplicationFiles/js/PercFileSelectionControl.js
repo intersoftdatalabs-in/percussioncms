@@ -37,7 +37,7 @@
         $.topFrameJQuery.PercCreateNewAssetDialog(
           "percFile",
           successCallback,
-          cancelCallback
+          cancelCallback,
         );
       };
 

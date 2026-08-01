@@ -18,7 +18,7 @@
           for (t = 0; t < e.options.aliases.length; t++)
             A.push(e.options.aliases[t].toLowerCase());
         for (r = is(e.fn, "function") ? e.fn() : e.fn, n = 0; n < A.length; n++)
-          (o = A[n]),
+          ((o = A[n]),
             (i = o.split(".")),
             1 === i.length
               ? (Modernizr[i[0]] = r)
@@ -26,7 +26,7 @@
                   Modernizr[i[0]] instanceof Boolean ||
                   (Modernizr[i[0]] = new Boolean(Modernizr[i[0]])),
                 (Modernizr[i[0]][i[1]] = r)),
-            classes.push((r ? "" : "no-") + i.join("-"));
+            classes.push((r ? "" : "no-") + i.join("-")));
       }
   }
   function setClasses(A) {
@@ -49,7 +49,7 @@
         n = Modernizr[r[0]];
       if ((2 == r.length && (n = n[r[1]]), "undefined" != typeof n))
         return Modernizr;
-      (e = "function" == typeof e ? e() : e),
+      ((e = "function" == typeof e ? e() : e),
         1 == r.length
           ? (Modernizr[r[0]] = e)
           : (!Modernizr[r[0]] ||
@@ -57,7 +57,7 @@
               (Modernizr[r[0]] = new Boolean(Modernizr[r[0]])),
             (Modernizr[r[0]][r[1]] = e)),
         setClasses([(e && 0 != e ? "" : "no-") + r.join("-")]),
-        Modernizr._trigger(A, e);
+        Modernizr._trigger(A, e));
     }
     return Modernizr;
   }
@@ -65,12 +65,12 @@
     return "function" != typeof document.createElement
       ? document.createElement(arguments[0])
       : isSVG
-      ? document.createElementNS.call(
-          document,
-          "http://www.w3.org/2000/svg",
-          arguments[0]
-        )
-      : document.createElement.apply(document, arguments);
+        ? document.createElementNS.call(
+            document,
+            "http://www.w3.org/2000/svg",
+            arguments[0],
+          )
+        : document.createElement.apply(document, arguments);
   }
   function cssToDOM(A) {
     return A.replace(/([a-z])-([a-z])/g, function (A, e, t) {
@@ -84,7 +84,10 @@
   }
   function getBody() {
     var A = document.body;
-    return A || ((A = createElement(isSVG ? "svg" : "body")), (A.fake = !0)), A;
+    return (
+      A || ((A = createElement(isSVG ? "svg" : "body")), (A.fake = !0)),
+      A
+    );
   }
   function injectElementWithStyles(A, e, t, r) {
     var n,
@@ -95,10 +98,10 @@
       s = createElement("div"),
       l = getBody();
     if (parseInt(t, 10))
-      for (; t--; )
-        (i = createElement("div")),
+      for (; t--;)
+        ((i = createElement("div")),
           (i.id = r ? r[t] : a + (t + 1)),
-          s.appendChild(i);
+          s.appendChild(i));
     return (
       (n = createElement("style")),
       (n.type = "text/css"),
@@ -137,7 +140,7 @@
         var o = n.error ? "error" : "log";
         n[o].call(
           n,
-          "getComputedStyle returning null, its possible modernizr test results are inaccurate"
+          "getComputedStyle returning null, its possible modernizr test results are inaccurate",
         );
       }
     } else r = !e && A.currentStyle && A.currentStyle[t];
@@ -149,18 +152,18 @@
   function nativeTestProps(A, e) {
     var t = A.length;
     if ("CSS" in window && "supports" in window.CSS) {
-      for (; t--; ) if (window.CSS.supports(domToCSS(A[t]), e)) return !0;
+      for (; t--;) if (window.CSS.supports(domToCSS(A[t]), e)) return !0;
       return !1;
     }
     if ("CSSSupportsRule" in window) {
-      for (var r = []; t--; ) r.push("(" + domToCSS(A[t]) + ":" + e + ")");
+      for (var r = []; t--;) r.push("(" + domToCSS(A[t]) + ":" + e + ")");
       return (
         (r = r.join(" or ")),
         injectElementWithStyles(
           "@supports (" + r + ") { #modernizr { position: absolute; } }",
           function (A) {
             return "absolute" == computedStyle(A, null, "position");
-          }
+          },
         )
       );
     }
@@ -177,11 +180,10 @@
     for (
       var i, d, a, s, l, c = ["modernizr", "tspan", "samp"];
       !mStyle.style && c.length;
-
     )
-      (i = !0),
+      ((i = !0),
         (mStyle.modElem = createElement(c.shift())),
-        (mStyle.style = mStyle.modElem.style);
+        (mStyle.style = mStyle.modElem.style));
     for (a = A.length, d = 0; a > d; d++)
       if (
         ((s = A[d]),
@@ -189,13 +191,13 @@
         contains(s, "-") && (s = cssToDOM(s)),
         mStyle.style[s] !== undefined)
       ) {
-        if (r || is(t, "undefined")) return n(), "pfx" == e ? s : !0;
+        if (r || is(t, "undefined")) return (n(), "pfx" == e ? s : !0);
         try {
           mStyle.style[s] = t;
         } catch (u) {}
-        if (mStyle.style[s] != l) return n(), "pfx" == e ? s : !0;
+        if (mStyle.style[s] != l) return (n(), "pfx" == e ? s : !0);
       }
-    return n(), !1;
+    return (n(), !1);
   }
   function fnBind(A, e) {
     return function () {
@@ -221,12 +223,12 @@
   }
   function detectDeleteDatabase(A, e) {
     var t = A.deleteDatabase(e);
-    (t.onsuccess = function () {
+    ((t.onsuccess = function () {
       addTest("indexeddb.deletedatabase", !0);
     }),
       (t.onerror = function () {
         addTest("indexeddb.deletedatabase", !1);
-      });
+      }));
   }
   function testAllProps(A, e, t) {
     return testPropsAll(A, undefined, undefined, e, t);
@@ -256,7 +258,7 @@
       },
     },
     Modernizr = function () {};
-  (Modernizr.prototype = ModernizrProto),
+  ((Modernizr.prototype = ModernizrProto),
     (Modernizr = new Modernizr()),
     Modernizr.addTest("applicationcache", "applicationCache" in window),
     Modernizr.addTest(
@@ -268,7 +270,7 @@
           return !1;
         }
       },
-      { aliases: ["blob-constructor"] }
+      { aliases: ["blob-constructor"] },
     ),
     Modernizr.addTest("cookies", function () {
       try {
@@ -285,7 +287,7 @@
     }),
     Modernizr.addTest(
       "cors",
-      "XMLHttpRequest" in window && "withCredentials" in new XMLHttpRequest()
+      "XMLHttpRequest" in window && "withCredentials" in new XMLHttpRequest(),
     ),
     Modernizr.addTest("customelements", "customElements" in window),
     Modernizr.addTest("customprotocolhandler", function () {
@@ -299,17 +301,17 @@
     }),
     Modernizr.addTest(
       "customevent",
-      "CustomEvent" in window && "function" == typeof window.CustomEvent
+      "CustomEvent" in window && "function" == typeof window.CustomEvent,
     ),
     Modernizr.addTest(
       "dataview",
-      "undefined" != typeof DataView && "getFloat64" in DataView.prototype
+      "undefined" != typeof DataView && "getFloat64" in DataView.prototype,
     ),
     Modernizr.addTest("eventlistener", "addEventListener" in window),
     Modernizr.addTest("geolocation", "geolocation" in navigator),
     Modernizr.addTest(
       "json",
-      "JSON" in window && "parse" in JSON && "stringify" in JSON
+      "JSON" in window && "parse" in JSON && "stringify" in JSON,
     ),
     Modernizr.addTest("notification", function () {
       if (!window.Notification || !window.Notification.requestPermission)
@@ -325,19 +327,19 @@
     Modernizr.addTest("postmessage", "postMessage" in window),
     Modernizr.addTest(
       "queryselector",
-      "querySelector" in document && "querySelectorAll" in document
+      "querySelector" in document && "querySelectorAll" in document,
     ),
     Modernizr.addTest("serviceworker", "serviceWorker" in navigator),
     Modernizr.addTest(
       "svg",
       !!document.createElementNS &&
         !!document.createElementNS("http://www.w3.org/2000/svg", "svg")
-          .createSVGRect
+          .createSVGRect,
     ),
     Modernizr.addTest("templatestrings", function () {
       var supports;
       try {
-        eval("``"), (supports = !0);
+        (eval("``"), (supports = !0));
       } catch (e) {}
       return !!supports;
     }),
@@ -357,21 +359,21 @@
       "ie8compat",
       !window.addEventListener &&
         !!document.documentMode &&
-        7 === document.documentMode
-    );
+        7 === document.documentMode,
+    ));
   var supports = !1;
   try {
     supports = "WebSocket" in window && 2 === window.WebSocket.CLOSING;
   } catch (e) {}
-  Modernizr.addTest("websockets", supports),
+  (Modernizr.addTest("websockets", supports),
     Modernizr.addTest("xdomainrequest", "XDomainRequest" in window),
     Modernizr.addTest("webaudio", function () {
       var A = "webkitAudioContext" in window,
         e = "AudioContext" in window;
       return Modernizr._config.usePrefixes ? A || e : e;
-    });
+    }));
   var CSS = window.CSS;
-  Modernizr.addTest("cssescape", CSS ? "function" == typeof CSS.escape : !1),
+  (Modernizr.addTest("cssescape", CSS ? "function" == typeof CSS.escape : !1),
     Modernizr.addTest("focuswithin", function () {
       try {
         document.querySelector(":focus-within");
@@ -379,15 +381,15 @@
         return !1;
       }
       return !0;
-    });
+    }));
   var newSyntax = "CSS" in window && "supports" in window.CSS,
     oldSyntax = "supportsCSS" in window;
-  Modernizr.addTest("supports", newSyntax || oldSyntax),
+  (Modernizr.addTest("supports", newSyntax || oldSyntax),
     Modernizr.addTest("target", function () {
       var A = window.document;
       if (!("querySelectorAll" in A)) return !1;
       try {
-        return A.querySelectorAll(":target"), !0;
+        return (A.querySelectorAll(":target"), !0);
       } catch (e) {
         return !1;
       }
@@ -395,7 +397,7 @@
     Modernizr.addTest("microdata", "getItems" in document),
     Modernizr.addTest(
       "mutationobserver",
-      !!window.MutationObserver || !!window.WebKitMutationObserver
+      !!window.MutationObserver || !!window.WebKitMutationObserver,
     ),
     Modernizr.addTest("passiveeventlisteners", function () {
       var A = !1;
@@ -464,7 +466,7 @@
       (function () {
         "use strict";
         return !this;
-      })()
+      })(),
     ),
     Modernizr.addTest("es5string", function () {
       return !(!String.prototype || !String.prototype.trim);
@@ -495,10 +497,10 @@
     Modernizr.addTest("es5undefined", function () {
       var A, e;
       try {
-        (e = window.undefined),
+        ((e = window.undefined),
           (window.undefined = 12345),
           (A = "undefined" == typeof window.undefined),
-          (window.undefined = e);
+          (window.undefined = e));
       } catch (t) {
         return !1;
       }
@@ -530,7 +532,7 @@
         Array.prototype.values &&
         Array.from &&
         Array.of
-      )
+      ),
     ),
     Modernizr.addTest("arrow", function () {
       try {
@@ -542,7 +544,7 @@
     }),
     Modernizr.addTest(
       "es6collections",
-      !!(window.Map && window.Set && window.WeakMap && window.WeakSet)
+      !!(window.Map && window.Set && window.WeakMap && window.WeakSet),
     ),
     Modernizr.addTest("generators", function () {
       try {
@@ -573,7 +575,7 @@
         Math.hypot &&
         Math.trunc &&
         Math.fround
-      )
+      ),
     ),
     Modernizr.addTest(
       "es6number",
@@ -587,11 +589,11 @@
         Number.isInteger(Number.MAX_SAFE_INTEGER) &&
         Number.isInteger(Number.MIN_SAFE_INTEGER) &&
         Number.isFinite(Number.EPSILON)
-      )
+      ),
     ),
     Modernizr.addTest(
       "es6object",
-      !!(Object.assign && Object.is && Object.setPrototypeOf)
+      !!(Object.assign && Object.is && Object.setPrototypeOf),
     ),
     Modernizr.addTest("promises", function () {
       return (
@@ -621,13 +623,13 @@
         String.prototype.startsWith &&
         String.prototype.endsWith &&
         String.prototype.includes
-      )
+      ),
     ),
     Modernizr.addTest("devicemotion", "DeviceMotionEvent" in window),
     Modernizr.addTest("deviceorientation", "DeviceOrientationEvent" in window),
     Modernizr.addTest(
       "filereader",
-      !!(window.File && window.FileList && window.FileReader)
+      !!(window.File && window.FileList && window.FileReader),
     ),
     Modernizr.addTest("beacon", "sendBeacon" in navigator),
     Modernizr.addTest("lowbandwidth", function () {
@@ -641,18 +643,18 @@
       (function () {
         if ("undefined" == typeof XMLHttpRequest) return !1;
         var A = new XMLHttpRequest();
-        return A.open("get", "/", !0), "response" in A;
-      })()
+        return (A.open("get", "/", !0), "response" in A);
+      })(),
     ),
     Modernizr.addTest(
       "xhr2",
-      "XMLHttpRequest" in window && "withCredentials" in new XMLHttpRequest()
+      "XMLHttpRequest" in window && "withCredentials" in new XMLHttpRequest(),
     ),
     Modernizr.addTest("speechsynthesis", "SpeechSynthesisUtterance" in window),
     Modernizr.addTest("localstorage", function () {
       var A = "modernizr";
       try {
-        return localStorage.setItem(A, A), localStorage.removeItem(A), !0;
+        return (localStorage.setItem(A, A), localStorage.removeItem(A), !0);
       } catch (e) {
         return !1;
       }
@@ -660,7 +662,7 @@
     Modernizr.addTest("sessionstorage", function () {
       var A = "modernizr";
       try {
-        return sessionStorage.setItem(A, A), sessionStorage.removeItem(A), !0;
+        return (sessionStorage.setItem(A, A), sessionStorage.removeItem(A), !0);
       } catch (e) {
         return !1;
       }
@@ -689,7 +691,7 @@
     Modernizr.addTest("urlsearchparams", "URLSearchParams" in window),
     Modernizr.addTest(
       "getUserMedia",
-      "mediaDevices" in navigator && "getUserMedia" in navigator.mediaDevices
+      "mediaDevices" in navigator && "getUserMedia" in navigator.mediaDevices,
     ),
     Modernizr.addTest("websocketsbinary", function () {
       var A,
@@ -707,16 +709,16 @@
     }),
     Modernizr.addTest("framed", window.location != top.location),
     Modernizr.addTest("sharedworkers", "SharedWorker" in window),
-    Modernizr.addTest("webworkers", "Worker" in window);
+    Modernizr.addTest("webworkers", "Worker" in window));
   var prefixes = ModernizrProto._config.usePrefixes
     ? " -webkit- -moz- -o- -ms- ".split(" ")
     : ["", ""];
-  (ModernizrProto._prefixes = prefixes),
-    Modernizr.addTest("contains", is(String.prototype.contains, "function"));
+  ((ModernizrProto._prefixes = prefixes),
+    Modernizr.addTest("contains", is(String.prototype.contains, "function")));
   var docElement = document.documentElement;
-  Modernizr.addTest(
+  (Modernizr.addTest(
     "contextmenu",
-    "contextMenu" in docElement && "HTMLMenuItemElement" in window
+    "contextMenu" in docElement && "HTMLMenuItemElement" in window,
   ),
     Modernizr.addTest("cssall", "all" in docElement.style),
     Modernizr.addTest("willchange", "willChange" in docElement.style),
@@ -725,7 +727,7 @@
       return (
         "createDocumentFragment" in document && "appendChild" in docElement
       );
-    });
+    }));
   var isSVG = "svg" === docElement.nodeName.toLowerCase(),
     html5;
   isSVG ||
@@ -744,14 +746,14 @@
       }
       function n(A, e) {
         var t = h.elements;
-        "string" != typeof t && (t = t.join(" ")),
+        ("string" != typeof t && (t = t.join(" ")),
           "string" != typeof A && (A = A.join(" ")),
           (h.elements = t + " " + A),
-          s(e);
+          s(e));
       }
       function o(A) {
         var e = E[A[f]];
-        return e || ((e = {}), g++, (A[f] = g), (E[g] = e)), e;
+        return (e || ((e = {}), g++, (A[f] = g), (E[g] = e)), e);
       }
       function i(A, t, r) {
         if ((t || (t = e), c)) return t.createElement(A);
@@ -761,8 +763,8 @@
           (n = r.cache[A]
             ? r.cache[A].cloneNode()
             : m.test(A)
-            ? (r.cache[A] = r.createElem(A)).cloneNode()
-            : r.createElem(A)),
+              ? (r.cache[A] = r.createElem(A)).cloneNode()
+              : r.createElem(A)),
           !n.canHaveChildren || w.test(A) || n.tagUrn
             ? n
             : r.frag.appendChild(n)
@@ -780,7 +782,7 @@
         return n;
       }
       function a(A, e) {
-        e.cache ||
+        (e.cache ||
           ((e.cache = {}),
           (e.createElem = A.createElement),
           (e.createFrag = A.createDocumentFragment),
@@ -795,11 +797,13 @@
                 .join()
                 .replace(/[\w\-:]+/g, function (A) {
                   return (
-                    e.createElem(A), e.frag.createElement(A), 'c("' + A + '")'
+                    e.createElem(A),
+                    e.frag.createElement(A),
+                    'c("' + A + '")'
                   );
                 }) +
-              ");return n}"
-          )(h, e.frag));
+              ");return n}",
+          )(h, e.frag)));
       }
       function s(A) {
         A || (A = e);
@@ -810,7 +814,7 @@
             r.hasCSS ||
             (r.hasCSS = !!t(
               A,
-              "article,aside,dialog,figcaption,figure,footer,header,hgroup,main,nav,section{display:block}mark{background:#FF0;color:#000}template{display:none}"
+              "article,aside,dialog,figcaption,figure,footer,header,hgroup,main,nav,section{display:block}mark{background:#FF0;color:#000}template{display:none}",
             )),
           c || a(A, r),
           A
@@ -830,7 +834,7 @@
       !(function () {
         try {
           var A = e.createElement("a");
-          (A.innerHTML = "<xyz></xyz>"),
+          ((A.innerHTML = "<xyz></xyz>"),
             (l = "hidden" in A),
             (c =
               1 == A.childNodes.length ||
@@ -842,9 +846,9 @@
                   "undefined" == typeof A.createDocumentFragment ||
                   "undefined" == typeof A.createElement
                 );
-              })());
+              })()));
         } catch (t) {
-          (l = !0), (c = !0);
+          ((l = !0), (c = !0));
         }
       })();
       var h = {
@@ -861,9 +865,9 @@
         createDocumentFragment: d,
         addElements: n,
       };
-      (A.html5 = h),
+      ((A.html5 = h),
         s(e),
-        "object" == typeof module && module.exports && (module.exports = h);
+        "object" == typeof module && module.exports && (module.exports = h));
     })("undefined" != typeof window ? window : this, document);
   var omPrefixes = "Moz O ms Webkit",
     domPrefixes = ModernizrProto._config.usePrefixes
@@ -871,7 +875,7 @@
       : [];
   ModernizrProto._domPrefixes = domPrefixes;
   var hasOwnProp;
-  !(function () {
+  (!(function () {
     var A = {}.hasOwnProperty;
     hasOwnProp =
       is(A, "undefined") || is(A.call, "undefined")
@@ -884,21 +888,21 @@
   })(),
     (ModernizrProto._l = {}),
     (ModernizrProto.on = function (A, e) {
-      this._l[A] || (this._l[A] = []),
+      (this._l[A] || (this._l[A] = []),
         this._l[A].push(e),
         Modernizr.hasOwnProperty(A) &&
           setTimeout(function () {
             Modernizr._trigger(A, Modernizr[A]);
-          }, 0);
+          }, 0));
     }),
     (ModernizrProto._trigger = function (A, e) {
       if (this._l[A]) {
         var t = this._l[A];
-        setTimeout(function () {
+        (setTimeout(function () {
           var A, r;
           for (A = 0; A < t.length; A++) (r = t[A])(e);
         }, 0),
-          delete this._l[A];
+          delete this._l[A]);
       }
     }),
     Modernizr._q.push(function () {
@@ -906,7 +910,7 @@
     }),
     Modernizr.addAsyncTest(function () {
       var A = new Image();
-      (A.onerror = function () {
+      ((A.onerror = function () {
         addTest("exiforientation", !1, { aliases: ["exif-orientation"] });
       }),
         (A.onload = function () {
@@ -915,56 +919,56 @@
           });
         }),
         (A.src =
-          "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/4QAiRXhpZgAASUkqAAgAAAABABIBAwABAAAABgASAAAAAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAABAAIDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD+/iiiigD/2Q==");
+          "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/4QAiRXhpZgAASUkqAAgAAAABABIBAwABAAAABgASAAAAAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAABAAIDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD+/iiiigD/2Q=="));
     }),
     Modernizr.addAsyncTest(function () {
       function A() {
-        clearTimeout(e),
+        (clearTimeout(e),
           window.removeEventListener("deviceproximity", A),
-          addTest("proximity", !0);
+          addTest("proximity", !0));
       }
       var e,
         t = 300;
       "ondeviceproximity" in window && "onuserproximity" in window
         ? (window.addEventListener("deviceproximity", A),
           (e = setTimeout(function () {
-            window.removeEventListener("deviceproximity", A),
-              addTest("proximity", !1);
+            (window.removeEventListener("deviceproximity", A),
+              addTest("proximity", !1));
           }, t)))
         : addTest("proximity", !1);
     }),
     Modernizr.addAsyncTest(function () {
       var A = new Image();
-      (A.onload = A.onerror =
+      ((A.onload = A.onerror =
         function () {
           addTest("jpeg2000", 1 == A.width);
         }),
         (A.src =
-          "data:image/jp2;base64,/0//UQAyAAAAAAABAAAAAgAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAEBwEBBwEBBwEBBwEB/1IADAAAAAEAAAQEAAH/XAAEQED/ZAAlAAFDcmVhdGVkIGJ5IE9wZW5KUEVHIHZlcnNpb24gMi4wLjD/kAAKAAAAAABYAAH/UwAJAQAABAQAAf9dAAUBQED/UwAJAgAABAQAAf9dAAUCQED/UwAJAwAABAQAAf9dAAUDQED/k8+kEAGvz6QQAa/PpBABr994EAk//9k=");
+          "data:image/jp2;base64,/0//UQAyAAAAAAABAAAAAgAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAEBwEBBwEBBwEBBwEB/1IADAAAAAEAAAQEAAH/XAAEQED/ZAAlAAFDcmVhdGVkIGJ5IE9wZW5KUEVHIHZlcnNpb24gMi4wLjD/kAAKAAAAAABYAAH/UwAJAQAABAQAAf9dAAUBQED/UwAJAgAABAQAAf9dAAUCQED/UwAJAwAABAQAAf9dAAUDQED/k8+kEAGvz6QQAa/PpBABr994EAk//9k="));
     }),
     Modernizr.addAsyncTest(function () {
       var A = new Image();
-      (A.onload = A.onerror =
+      ((A.onload = A.onerror =
         function () {
           addTest("jpegxr", 1 == A.width, { aliases: ["jpeg-xr"] });
         }),
         (A.src =
-          "data:image/vnd.ms-photo;base64,SUm8AQgAAAAFAAG8AQAQAAAASgAAAIC8BAABAAAAAQAAAIG8BAABAAAAAQAAAMC8BAABAAAAWgAAAMG8BAABAAAAHwAAAAAAAAAkw91vA07+S7GFPXd2jckNV01QSE9UTwAZAYBxAAAAABP/gAAEb/8AAQAAAQAAAA==");
+          "data:image/vnd.ms-photo;base64,SUm8AQgAAAAFAAG8AQAQAAAASgAAAIC8BAABAAAAAQAAAIG8BAABAAAAAQAAAMC8BAABAAAAWgAAAMG8BAABAAAAHwAAAAAAAAAkw91vA07+S7GFPXd2jckNV01QSE9UTwAZAYBxAAAAABP/gAAEb/8AAQAAAQAAAA=="));
     }),
     Modernizr.addAsyncTest(function () {
       var A = new Image();
-      (A.onerror = function () {
+      ((A.onerror = function () {
         addTest("webpalpha", !1, { aliases: ["webp-alpha"] });
       }),
         (A.onload = function () {
           addTest("webpalpha", 1 == A.width, { aliases: ["webp-alpha"] });
         }),
         (A.src =
-          "data:image/webp;base64,UklGRkoAAABXRUJQVlA4WAoAAAAQAAAAAAAAAAAAQUxQSAwAAAABBxAR/Q9ERP8DAABWUDggGAAAADABAJ0BKgEAAQADADQlpAADcAD++/1QAA==");
+          "data:image/webp;base64,UklGRkoAAABXRUJQVlA4WAoAAAAQAAAAAAAAAAAAQUxQSAwAAAABBxAR/Q9ERP8DAABWUDggGAAAADABAJ0BKgEAAQADADQlpAADcAD++/1QAA=="));
     }),
     Modernizr.addAsyncTest(function () {
       var A = new Image();
-      (A.onerror = function () {
+      ((A.onerror = function () {
         addTest("webpanimation", !1, { aliases: ["webp-animation"] });
       }),
         (A.onload = function () {
@@ -973,17 +977,17 @@
           });
         }),
         (A.src =
-          "data:image/webp;base64,UklGRlIAAABXRUJQVlA4WAoAAAASAAAAAAAAAAAAQU5JTQYAAAD/////AABBTk1GJgAAAAAAAAAAAAAAAAAAAGQAAABWUDhMDQAAAC8AAAAQBxAREYiI/gcA");
+          "data:image/webp;base64,UklGRlIAAABXRUJQVlA4WAoAAAASAAAAAAAAAAAAQU5JTQYAAAD/////AABBTk1GJgAAAAAAAAAAAAAAAAAAAGQAAABWUDhMDQAAAC8AAAAQBxAREYiI/gcA"));
     }),
     Modernizr.addAsyncTest(function () {
       function A(A, e, t) {
         function r(e) {
           var r = e && "load" === e.type ? 1 == n.width : !1,
             o = "webp" === A;
-          addTest(A, o && r ? new Boolean(r) : r), t && t(e);
+          (addTest(A, o && r ? new Boolean(r) : r), t && t(e));
         }
         var n = new Image();
-        (n.onerror = r), (n.onload = r), (n.src = e);
+        ((n.onerror = r), (n.onload = r), (n.src = e));
       }
       var e = [
           {
@@ -1013,26 +1017,25 @@
       "svgasimg",
       document.implementation.hasFeature(
         "http://www.w3.org/TR/SVG11/feature#Image",
-        "1.1"
-      )
+        "1.1",
+      ),
     ),
     Modernizr.addAsyncTest(function () {
       function A() {
         var A = new Image();
-        (A.onerror = function () {
-          addTest("datauri", !0),
+        ((A.onerror = function () {
+          (addTest("datauri", !0),
             (Modernizr.datauri = new Boolean(!0)),
-            (Modernizr.datauri.over32kb = !1);
+            (Modernizr.datauri.over32kb = !1));
         }),
           (A.onload = function () {
-            addTest("datauri", !0),
+            (addTest("datauri", !0),
               (Modernizr.datauri = new Boolean(!0)),
-              (Modernizr.datauri.over32kb = 1 == A.width && 1 == A.height);
-          });
+              (Modernizr.datauri.over32kb = 1 == A.width && 1 == A.height));
+          }));
         for (
           var e = "R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
           e.length < 33e3;
-
         )
           e = "\r\n" + e;
         A.src = "data:image/gif;base64," + e;
@@ -1042,21 +1045,21 @@
           addTest("datauri", !1);
         }, 10);
       var e = new Image();
-      (e.onerror = function () {
+      ((e.onerror = function () {
         addTest("datauri", !1);
       }),
         (e.onload = function () {
           1 == e.width && 1 == e.height ? A() : addTest("datauri", !1);
         }),
         (e.src =
-          "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==");
+          "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="));
     }),
     Modernizr.addAsyncTest(function () {
       function A() {
-        addTest("blobworkers", !1), e();
+        (addTest("blobworkers", !1), e());
       }
       function e() {
-        d && r.revokeObjectURL(d), i && i.terminate(), a && clearTimeout(a);
+        (d && r.revokeObjectURL(d), i && i.terminate(), a && clearTimeout(a));
       }
       try {
         var t = window.BlobBuilder,
@@ -1084,15 +1087,15 @@
         try {
           n = new Blob([l], { type: "text/javascript" });
         } catch (c) {}
-        n || ((o = new t()), o.append(l), (n = o.getBlob())),
+        (n || ((o = new t()), o.append(l), (n = o.getBlob())),
           (d = r.createObjectURL(n)),
           (i = new Worker(d)),
           (i.onmessage = function (A) {
-            addTest("blobworkers", s === A.data), e();
+            (addTest("blobworkers", s === A.data), e());
           }),
           (i.onerror = A),
           (a = setTimeout(A, 200)),
-          i.postMessage(s);
+          i.postMessage(s));
       } catch (c) {
         A();
       }
@@ -1101,24 +1104,24 @@
       try {
         var A = "Modernizr",
           e = new Worker(
-            "data:text/javascript;base64,dGhpcy5vbm1lc3NhZ2U9ZnVuY3Rpb24oZSl7cG9zdE1lc3NhZ2UoZS5kYXRhKX0="
+            "data:text/javascript;base64,dGhpcy5vbm1lc3NhZ2U9ZnVuY3Rpb24oZSl7cG9zdE1lc3NhZ2UoZS5kYXRhKX0=",
           );
-        (e.onmessage = function (t) {
-          e.terminate(), addTest("dataworkers", A === t.data), (e = null);
+        ((e.onmessage = function (t) {
+          (e.terminate(), addTest("dataworkers", A === t.data), (e = null));
         }),
           (e.onerror = function () {
-            addTest("dataworkers", !1), (e = null);
+            (addTest("dataworkers", !1), (e = null));
           }),
           setTimeout(function () {
             addTest("dataworkers", !1);
           }, 200),
-          e.postMessage(A);
+          e.postMessage(A));
       } catch (t) {
         setTimeout(function () {
           addTest("dataworkers", !1);
         }, 0);
       }
-    });
+    }));
   var cssomPrefixes = ModernizrProto._config.usePrefixes
     ? omPrefixes.split(" ")
     : [];
@@ -1163,7 +1166,7 @@
     var e = !("onblur" in document.documentElement);
     return A;
   })();
-  (ModernizrProto.hasEvent = hasEvent),
+  ((ModernizrProto.hasEvent = hasEvent),
     Modernizr.addTest("hashchange", function () {
       return hasEvent("hashchange", window) === !1
         ? !1
@@ -1174,47 +1177,47 @@
     Modernizr.addTest("pointerevents", function () {
       var A = !1,
         e = domPrefixes.length;
-      for (A = Modernizr.hasEvent("pointerdown"); e-- && !A; )
+      for (A = Modernizr.hasEvent("pointerdown"); e-- && !A;)
         hasEvent(domPrefixes[e] + "pointerdown") && (A = !0);
       return A;
-    });
+    }));
   var prefixedCSSValue = function (A, e) {
     var t = !1,
       r = createElement("div"),
       n = r.style;
     if (A in n) {
       var o = domPrefixes.length;
-      for (n[A] = e, t = n[A]; o-- && !t; )
-        (n[A] = "-" + domPrefixes[o] + "-" + e), (t = n[A]);
+      for (n[A] = e, t = n[A]; o-- && !t;)
+        ((n[A] = "-" + domPrefixes[o] + "-" + e), (t = n[A]));
     }
-    return "" === t && (t = !1), t;
+    return ("" === t && (t = !1), t);
   };
-  (ModernizrProto.prefixedCSSValue = prefixedCSSValue),
+  ((ModernizrProto.prefixedCSSValue = prefixedCSSValue),
     Modernizr.addTest("audio", function () {
       var A = createElement("audio"),
         e = !1;
       try {
-        (e = !!A.canPlayType),
+        ((e = !!A.canPlayType),
           e &&
             ((e = new Boolean(e)),
             (e.ogg = A.canPlayType('audio/ogg; codecs="vorbis"').replace(
               /^no$/,
-              ""
+              "",
             )),
             (e.mp3 = A.canPlayType('audio/mpeg; codecs="mp3"').replace(
               /^no$/,
-              ""
+              "",
             )),
             (e.opus =
               A.canPlayType('audio/ogg; codecs="opus"') ||
               A.canPlayType('audio/webm; codecs="opus"').replace(/^no$/, "")),
             (e.wav = A.canPlayType('audio/wav; codecs="1"').replace(
               /^no$/,
-              ""
+              "",
             )),
             (e.m4a = (
               A.canPlayType("audio/x-m4a;") || A.canPlayType("audio/aac;")
-            ).replace(/^no$/, "")));
+            ).replace(/^no$/, ""))));
       } catch (t) {}
       return e;
     }),
@@ -1231,7 +1234,7 @@
     Modernizr.addTest("contenteditable", function () {
       if ("contentEditable" in docElement) {
         var A = createElement("div");
-        return (A.contentEditable = !0), "true" === A.contentEditable;
+        return ((A.contentEditable = !0), "true" === A.contentEditable);
       }
     }),
     Modernizr.addTest("emoji", function () {
@@ -1255,28 +1258,28 @@
       var A = createElement("video"),
         e = !1;
       try {
-        (e = !!A.canPlayType),
+        ((e = !!A.canPlayType),
           e &&
             ((e = new Boolean(e)),
             (e.ogg = A.canPlayType('video/ogg; codecs="theora"').replace(
               /^no$/,
-              ""
+              "",
             )),
             (e.h264 = A.canPlayType('video/mp4; codecs="avc1.42E01E"').replace(
               /^no$/,
-              ""
+              "",
             )),
             (e.webm = A.canPlayType('video/webm; codecs="vp8, vorbis"').replace(
               /^no$/,
-              ""
+              "",
             )),
             (e.vp9 = A.canPlayType('video/webm; codecs="vp9"').replace(
               /^no$/,
-              ""
+              "",
             )),
             (e.hls = A.canPlayType(
-              'application/x-mpegURL; codecs="avc1.42E01E"'
-            ).replace(/^no$/, "")));
+              'application/x-mpegURL; codecs="avc1.42E01E"',
+            ).replace(/^no$/, ""))));
       } catch (t) {}
       return e;
     }),
@@ -1306,16 +1309,16 @@
     }),
     Modernizr.addTest(
       "adownload",
-      !window.externalHost && "download" in createElement("a")
+      !window.externalHost && "download" in createElement("a"),
     ),
     Modernizr.addTest("audioloop", "loop" in createElement("audio")),
     Modernizr.addAsyncTest(function () {
       function A(t) {
         clearTimeout(e);
         var n = t !== undefined && "loadeddata" === t.type ? !0 : !1;
-        r.removeEventListener("loadeddata", A, !1),
+        (r.removeEventListener("loadeddata", A, !1),
           addTest("audiopreload", n),
-          r.parentNode && r.parentNode.removeChild(r);
+          r.parentNode && r.parentNode.removeChild(r));
       }
       var e,
         t = 300,
@@ -1323,7 +1326,7 @@
         n = r.style;
       if (!(Modernizr.audio && "preload" in r))
         return void addTest("audiopreload", !1);
-      (n.position = "absolute"), (n.height = 0), (n.width = 0);
+      ((n.position = "absolute"), (n.height = 0), (n.width = 0));
       try {
         if (Modernizr.audio.mp3)
           r.src =
@@ -1342,12 +1345,12 @@
       } catch (o) {
         return void addTest("audiopreload", !1);
       }
-      r.setAttribute("preload", "auto"),
+      (r.setAttribute("preload", "auto"),
         (r.style.cssText = "display:none"),
         docElement.appendChild(r),
         setTimeout(function () {
-          r.addEventListener("loadeddata", A, !1), (e = setTimeout(A, t));
-        }, 0);
+          (r.addEventListener("loadeddata", A, !1), (e = setTimeout(A, t)));
+        }, 0));
     }),
     Modernizr.addTest("canvasblending", function () {
       if (Modernizr.canvas === !1) return !1;
@@ -1356,9 +1359,9 @@
         A.globalCompositeOperation = "screen";
       } catch (e) {}
       return "screen" === A.globalCompositeOperation;
-    });
+    }));
   var canvas = createElement("canvas");
-  Modernizr.addTest("todataurljpeg", function () {
+  (Modernizr.addTest("todataurljpeg", function () {
     return (
       !!Modernizr.canvas &&
       0 === canvas.toDataURL("image/jpeg").indexOf("data:image/jpeg")
@@ -1401,13 +1404,13 @@
       var A = "width:",
         e = "calc(10px);",
         t = createElement("a");
-      return (t.style.cssText = A + prefixes.join(e + A)), !!t.style.length;
+      return ((t.style.cssText = A + prefixes.join(e + A)), !!t.style.length);
     }),
     Modernizr.addTest("cubicbezierrange", function () {
       var A = createElement("a");
       return (
         (A.style.cssText = prefixes.join(
-          "transition-timing-function:cubic-bezier(1,0,0,1.1); "
+          "transition-timing-function:cubic-bezier(1,0,0,1.1); ",
         )),
         !!A.style.length
       );
@@ -1423,17 +1426,20 @@
         o > n;
         n++
       )
-        (A = 0 === n ? "to " : ""),
+        ((A = 0 === n ? "to " : ""),
           (r +=
             e +
             prefixes[n] +
             "linear-gradient(" +
             A +
-            "left top, #9f9, white);");
+            "left top, #9f9, white);"));
       Modernizr._config.usePrefixes && (r += e + "-webkit-" + t);
       var i = createElement("a"),
         d = i.style;
-      return (d.cssText = r), ("" + d.backgroundImage).indexOf("gradient") > -1;
+      return (
+        (d.cssText = r),
+        ("" + d.backgroundImage).indexOf("gradient") > -1
+      );
     }),
     Modernizr.addTest("multiplebgs", function () {
       var A = createElement("a").style;
@@ -1446,12 +1452,13 @@
     Modernizr.addTest("opacity", function () {
       var A = createElement("a").style;
       return (
-        (A.cssText = prefixes.join("opacity:.55;")), /^0.55$/.test(A.opacity)
+        (A.cssText = prefixes.join("opacity:.55;")),
+        /^0.55$/.test(A.opacity)
       );
     }),
     Modernizr.addTest("csspointerevents", function () {
       var A = createElement("a").style;
-      return (A.cssText = "pointer-events:auto"), "auto" === A.pointerEvents;
+      return ((A.cssText = "pointer-events:auto"), "auto" === A.pointerEvents);
     }),
     Modernizr.addTest("csspositionsticky", function () {
       var A = "position:",
@@ -1499,14 +1506,15 @@
     Modernizr.addTest("dataset", function () {
       var A = createElement("div");
       return (
-        A.setAttribute("data-a-b", "c"), !(!A.dataset || "c" !== A.dataset.aB)
+        A.setAttribute("data-a-b", "c"),
+        !(!A.dataset || "c" !== A.dataset.aB)
       );
     }),
     Modernizr.addTest("hidden", "hidden" in createElement("a")),
     Modernizr.addTest("outputelem", "value" in createElement("output")),
     Modernizr.addTest(
       "progressbar",
-      createElement("progress").max !== undefined
+      createElement("progress").max !== undefined,
     ),
     Modernizr.addTest("meter", createElement("meter").max !== undefined),
     Modernizr.addTest("ruby", function () {
@@ -1522,7 +1530,7 @@
         );
       }
       function e() {
-        docElement.removeChild(t), (t = null), (r = null), (n = null);
+        (docElement.removeChild(t), (t = null), (r = null), (n = null));
       }
       var t = createElement("ruby"),
         r = createElement("rt"),
@@ -1544,23 +1552,23 @@
     Modernizr.addTest("time", "valueAsDate" in createElement("time")),
     Modernizr.addTest(
       "texttrackapi",
-      "function" == typeof createElement("video").addTextTrack
+      "function" == typeof createElement("video").addTextTrack,
     ),
     Modernizr.addTest("track", "kind" in createElement("track")),
     Modernizr.addTest("unknownelements", function () {
       var A = createElement("a");
-      return (A.innerHTML = "<xyz></xyz>"), 1 === A.childNodes.length;
+      return ((A.innerHTML = "<xyz></xyz>"), 1 === A.childNodes.length);
     }),
     Modernizr.addTest("capture", "capture" in createElement("input")),
     Modernizr.addTest("fileinput", function () {
       if (
         navigator.userAgent.match(
-          /(Android (1.0|1.1|1.5|1.6|2.0|2.1))|(Windows Phone (OS 7|8.0))|(XBLWP)|(ZuneWP)|(w(eb)?OSBrowser)|(webOS)|(Kindle\/(1.0|2.0|2.5|3.0))/
+          /(Android (1.0|1.1|1.5|1.6|2.0|2.1))|(Windows Phone (OS 7|8.0))|(XBLWP)|(ZuneWP)|(w(eb)?OSBrowser)|(webOS)|(Kindle\/(1.0|2.0|2.5|3.0))/,
         )
       )
         return !1;
       var A = createElement("input");
-      return (A.type = "file"), !A.disabled;
+      return ((A.type = "file"), !A.disabled);
     }),
     Modernizr.addTest("fileinputdirectory", function () {
       var A = createElement("input"),
@@ -1598,7 +1606,7 @@
     Modernizr.addTest(
       "placeholder",
       "placeholder" in createElement("input") &&
-        "placeholder" in createElement("textarea")
+        "placeholder" in createElement("textarea"),
     ),
     Modernizr.addTest("sandbox", "sandbox" in createElement("iframe")),
     Modernizr.addTest("seamless", "seamless" in createElement("iframe")),
@@ -1608,7 +1616,7 @@
       var A = new Image(),
         e = createElement("canvas"),
         t = e.getContext("2d");
-      (A.onload = function () {
+      ((A.onload = function () {
         addTest("apng", function () {
           return "undefined" == typeof e.getContext
             ? !1
@@ -1616,7 +1624,7 @@
         });
       }),
         (A.src =
-          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACGFjVEwAAAABAAAAAcMq2TYAAAANSURBVAiZY2BgYPgPAAEEAQB9ssjfAAAAGmZjVEwAAAAAAAAAAQAAAAEAAAAAAAAAAAD6A+gBAbNU+2sAAAARZmRBVAAAAAEImWNgYGBgAAAABQAB6MzFdgAAAABJRU5ErkJggg==");
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACGFjVEwAAAABAAAAAcMq2TYAAAANSURBVAiZY2BgYPgPAAEEAQB9ssjfAAAAGmZjVEwAAAAAAAAAAQAAAAEAAAAAAAAAAAD6A+gBAbNU+2sAAAARZmRBVAAAAAEImWNgYGBgAAAABQAB6MzFdgAAAABJRU5ErkJggg=="));
     }),
     Modernizr.addTest("imgcrossorigin", "crossOrigin" in createElement("img")),
     Modernizr.addAsyncTest(function () {
@@ -1644,21 +1652,21 @@
     Modernizr.addTest(
       "inputformaction",
       !!("formAction" in createElement("input")),
-      { aliases: ["input-formaction"] }
+      { aliases: ["input-formaction"] },
     ),
     Modernizr.addTest(
       "inputformenctype",
       !!("formEnctype" in createElement("input")),
-      { aliases: ["input-formenctype"] }
+      { aliases: ["input-formenctype"] },
     ),
     Modernizr.addTest(
       "inputformmethod",
-      !!("formMethod" in createElement("input"))
+      !!("formMethod" in createElement("input")),
     ),
     Modernizr.addTest(
       "inputformtarget",
       !!("formtarget" in createElement("input")),
-      { aliases: ["input-formtarget"] }
+      { aliases: ["input-formtarget"] },
     ),
     Modernizr.addTest("scriptasync", "async" in createElement("script")),
     Modernizr.addTest("scriptdefer", "defer" in createElement("script")),
@@ -1675,11 +1683,11 @@
     }),
     Modernizr.addTest(
       "textareamaxlength",
-      !!("maxLength" in createElement("textarea"))
+      !!("maxLength" in createElement("textarea")),
     ),
     Modernizr.addAsyncTest(function () {
       function A(i) {
-        n++, clearTimeout(e);
+        (n++, clearTimeout(e));
         var d = (i && "playing" === i.type) || 0 !== o.currentTime;
         return !d && r > n
           ? void (e = setTimeout(A, t))
@@ -1695,7 +1703,7 @@
         i = o.style;
       if (!(Modernizr.video && "autoplay" in o))
         return void addTest("videoautoplay", !1);
-      (i.position = "absolute"), (i.height = 0), (i.width = 0);
+      ((i.position = "absolute"), (i.height = 0), (i.width = 0));
       try {
         if (Modernizr.video.ogg)
           o.src =
@@ -1708,16 +1716,16 @@
       } catch (d) {
         return void addTest("videoautoplay", !1);
       }
-      o.setAttribute("autoplay", ""),
+      (o.setAttribute("autoplay", ""),
         (i.cssText = "display:none"),
         docElement.appendChild(o),
         setTimeout(function () {
-          o.addEventListener("playing", A, !1), (e = setTimeout(A, t));
-        }, 0);
+          (o.addEventListener("playing", A, !1), (e = setTimeout(A, t)));
+        }, 0));
     }),
     Modernizr.addTest(
       "videocrossorigin",
-      "crossOrigin" in createElement("video")
+      "crossOrigin" in createElement("video"),
     ),
     Modernizr.addTest("videoloop", "loop" in createElement("video")),
     Modernizr.addTest("videopreload", "preload" in createElement("video")),
@@ -1725,25 +1733,25 @@
       if (((Modernizr.webglextensions = !1), Modernizr.webgl)) {
         var A, e, t;
         try {
-          (A = createElement("canvas")),
+          ((A = createElement("canvas")),
             (e = A.getContext("webgl") || A.getContext("experimental-webgl")),
-            (t = e.getSupportedExtensions());
+            (t = e.getSupportedExtensions()));
         } catch (r) {
           return;
         }
         e !== undefined && (Modernizr.webglextensions = new Boolean(!0));
-        for (var n = -1, o = t.length; ++n < o; )
+        for (var n = -1, o = t.length; ++n < o;)
           Modernizr.webglextensions[t[n]] = !0;
         A = undefined;
       }
-    });
+    }));
   var inputElem = createElement("input"),
     inputattrs =
       "autocomplete autofocus list placeholder max min multiple pattern required step".split(
-        " "
+        " ",
       ),
     attrs = {};
-  (Modernizr.input = (function (A) {
+  ((Modernizr.input = (function (A) {
     for (var e = 0, t = A.length; t > e; e++)
       attrs[A[e]] = !!(A[e] in inputElem);
     return (
@@ -1754,15 +1762,15 @@
       attrs
     );
   })(inputattrs)),
-    Modernizr.addTest("datalistelem", Modernizr.input.list);
+    Modernizr.addTest("datalistelem", Modernizr.input.list));
   var inputtypes =
       "search tel url email datetime date month week time datetime-local number range color".split(
-        " "
+        " ",
       ),
     inputs = {};
-  (Modernizr.inputtypes = (function (A) {
+  ((Modernizr.inputtypes = (function (A) {
     for (var e, t, r, n = A.length, o = "1)", i = 0; n > i; i++)
-      inputElem.setAttribute("type", (e = A[i])),
+      (inputElem.setAttribute("type", (e = A[i])),
         (r = "text" !== inputElem.type && "style" in inputElem),
         r &&
           ((inputElem.value = o),
@@ -1780,7 +1788,7 @@
               (r = /^(url|email)$/.test(e)
                 ? inputElem.checkValidity && inputElem.checkValidity() === !1
                 : inputElem.value != o)),
-        (inputs[A[i]] = !!r);
+        (inputs[A[i]] = !!r));
     return inputs;
   })(inputtypes)),
     Modernizr.addAsyncTest(function () {
@@ -1801,7 +1809,7 @@
             }),
             e && s.contains(e))
           ) {
-            for (; e.parentNode !== s; ) e = e.parentNode;
+            for (; e.parentNode !== s;) e = e.parentNode;
             s.removeChild(e);
           }
         };
@@ -1828,8 +1836,8 @@
           s.appendChild(a),
           !("Pan" in a || e))
         )
-          return t(s), n("blocked", a), void r(s);
-        (i = function () {
+          return (t(s), n("blocked", a), void r(s));
+        ((i = function () {
           return (
             t(s),
             docElement.contains(s)
@@ -1845,9 +1853,9 @@
                 setTimeout(i, 1e3))
           );
         }),
-          setTimeout(i, 10);
+          setTimeout(i, 10));
       }
-    });
+    }));
   var mq = (function () {
     var A = window.matchMedia || window.msMatchMedia;
     return A
@@ -1867,29 +1875,30 @@
                     ? window.getComputedStyle(A, null)
                     : A.currentStyle
                   ).position;
-              }
+              },
             ),
             e
           );
         };
   })();
-  (ModernizrProto.mq = mq),
+  ((ModernizrProto.mq = mq),
     Modernizr.addTest("mediaqueries", mq("only all")),
     Modernizr.addTest("hovermq", mq("(hover)")),
     Modernizr.addTest(
       "pointermq",
-      mq("(pointer:coarse),(pointer:fine),(pointer:none)")
-    );
+      mq("(pointer:coarse),(pointer:fine),(pointer:none)"),
+    ));
   var testStyles = (ModernizrProto.testStyles = injectElementWithStyles);
-  Modernizr.addTest("mathml", function () {
+  (Modernizr.addTest("mathml", function () {
     var A;
     return (
       testStyles(
         "#modernizr{position:absolute;display:inline-block}",
         function (e) {
-          (e.innerHTML += "<math><mfrac><mi>xx</mi><mi>yy</mi></mfrac></math>"),
-            (A = e.offsetHeight > e.offsetWidth);
-        }
+          ((e.innerHTML +=
+            "<math><mfrac><mi>xx</mi><mi>yy</mi></mfrac></math>"),
+            (A = e.offsetHeight > e.offsetWidth));
+        },
       ),
       A
     );
@@ -1921,13 +1930,13 @@
         function (A) {
           for (var e = [".", ".", "m", "m"], t = 0; t < e.length; t++) {
             var r = createElement("span");
-            (r.innerHTML = e[t]),
+            ((r.innerHTML = e[t]),
               (r.className = t % 2 ? "mono" : ""),
               A.appendChild(r),
-              (e[t] = r.clientWidth);
+              (e[t] = r.clientWidth));
           }
           return e[0] !== e[1] && e[2] === e[3];
-        }
+        },
       );
     }),
     Modernizr.addTest("unicode", function () {
@@ -1938,12 +1947,12 @@
         testStyles(
           "#modernizr{font-family:Arial,sans;font-size:300em;}",
           function (r) {
-            (e.innerHTML = isSVG ? "妇" : "&#5987;"),
+            ((e.innerHTML = isSVG ? "妇" : "&#5987;"),
               (t.innerHTML = isSVG ? "☆" : "&#9734;"),
               r.appendChild(e),
               r.appendChild(t),
-              (A = "offsetWidth" in e && e.offsetWidth !== t.offsetWidth);
-          }
+              (A = "offsetWidth" in e && e.offsetWidth !== t.offsetWidth));
+          },
         ),
         A
       );
@@ -1953,7 +1962,7 @@
         "#modernizr {width:100px;height:100px;overflow:scroll}",
         function (A) {
           return A.offsetWidth === A.clientWidth;
-        }
+        },
       );
     }),
     Modernizr.addTest("checked", function () {
@@ -1967,7 +1976,7 @@
             A.appendChild(e),
             20 === e.offsetLeft
           );
-        }
+        },
       );
     }),
     testStyles(
@@ -1975,11 +1984,11 @@
       function (A) {
         var e,
           t = A.childNodes;
-        (e = t[0].offsetLeft < t[1].offsetLeft),
-          Modernizr.addTest("displaytable", e, { aliases: ["display-table"] });
+        ((e = t[0].offsetLeft < t[1].offsetLeft),
+          Modernizr.addTest("displaytable", e, { aliases: ["display-table"] }));
       },
-      2
-    );
+      2,
+    ));
   var blacklist = (function () {
     var A = navigator.userAgent,
       e = A.match(/w(eb)?osbrowser/gi),
@@ -1989,7 +1998,7 @@
         parseFloat(RegExp.$1) >= 9;
     return e || t;
   })();
-  blacklist
+  (blacklist
     ? Modernizr.addTest("fontface", !1)
     : testStyles(
         '@font-face {font-family:"font";src:url("https://")}',
@@ -2003,20 +2012,20 @@
               : "",
             o = /src/i.test(n) && 0 === n.indexOf(e.split(" ")[0]);
           Modernizr.addTest("fontface", o);
-        }
+        },
       ),
     testStyles(
       '#modernizr{font:0/0 a}#modernizr:after{content:":)";visibility:hidden;font:7px/1 a}',
       function (A) {
         Modernizr.addTest("generatedcontent", A.offsetHeight >= 6);
-      }
+      },
     ),
     Modernizr.addTest("hairline", function () {
       return testStyles(
         "#modernizr {border:.5px solid transparent}",
         function (A) {
           return 1 === A.offsetHeight;
-        }
+        },
       );
     }),
     Modernizr.addTest("cssinvalid", function () {
@@ -2024,8 +2033,8 @@
         "#modernizr input{height:0;border:0;padding:0;margin:0;width:10px} #modernizr input:invalid{width:50px}",
         function (A) {
           var e = createElement("input");
-          return (e.required = !0), A.appendChild(e), e.clientWidth > 10;
-        }
+          return ((e.required = !0), A.appendChild(e), e.clientWidth > 10);
+        },
       );
     }),
     testStyles(
@@ -2033,10 +2042,10 @@
       function (A) {
         Modernizr.addTest(
           "lastchild",
-          A.lastChild.offsetWidth > A.firstChild.offsetWidth
+          A.lastChild.offsetWidth > A.firstChild.offsetWidth,
         );
       },
-      2
+      2,
     ),
     testStyles(
       "#modernizr div {width:1px} #modernizr div:nth-child(2n) {width:2px;}",
@@ -2045,7 +2054,7 @@
           t = t && e[r].offsetWidth === (r % 2) + 1;
         Modernizr.addTest("nthchild", t);
       },
-      5
+      5,
     ),
     testStyles(
       "#modernizr{overflow: scroll; width: 40px; height: 40px; }#" +
@@ -2058,9 +2067,9 @@
       function (A) {
         Modernizr.addTest(
           "cssscrollbar",
-          "scrollWidth" in A && 30 == A.scrollWidth
+          "scrollWidth" in A && 30 == A.scrollWidth,
         );
-      }
+      },
     ),
     Modernizr.addTest("siblinggeneral", function () {
       return testStyles(
@@ -2068,32 +2077,32 @@
         function (A) {
           return 200 == A.lastChild.offsetWidth;
         },
-        2
+        2,
       );
     }),
     testStyles(
       "#modernizr{position: absolute; top: -10em; visibility:hidden; font: normal 10px arial;}#subpixel{float: left; font-size: 33.3333%;}",
       function (A) {
         var e = A.firstChild;
-        (e.innerHTML = "This is a text written in Arial"),
+        ((e.innerHTML = "This is a text written in Arial"),
           Modernizr.addTest(
             "subpixelfont",
             window.getComputedStyle
               ? "44px" !==
                   window.getComputedStyle(e, null).getPropertyValue("width")
-              : !1
-          );
+              : !1,
+          ));
       },
       1,
-      ["subpixel"]
+      ["subpixel"],
     ),
     Modernizr.addTest("cssvalid", function () {
       return testStyles(
         "#modernizr input{height:0;border:0;padding:0;margin:0;width:10px} #modernizr input:valid{width:50px}",
         function (A) {
           var e = createElement("input");
-          return A.appendChild(e), e.clientWidth > 10;
-        }
+          return (A.appendChild(e), e.clientWidth > 10);
+        },
       );
     }),
     Modernizr.addTest("details", function () {
@@ -2101,11 +2110,11 @@
         e = createElement("details");
       return "open" in e
         ? (testStyles("#modernizr details{display:block}", function (t) {
-            t.appendChild(e),
+            (t.appendChild(e),
               (e.innerHTML = "<summary>a</summary>b"),
               (A = e.offsetHeight),
               (e.open = !0),
-              (A = A != e.offsetHeight);
+              (A = A != e.offsetHeight));
           }),
           A)
         : !1;
@@ -2122,9 +2131,9 @@
         var t = document.createEvent("KeyboardEvent");
         A = !1;
         var r = function (e) {
-          (A = !0), e.preventDefault(), e.stopPropagation();
+          ((A = !0), e.preventDefault(), e.stopPropagation());
         };
-        t.initKeyEvent(
+        (t.initKeyEvent(
           "keypress",
           !0,
           !0,
@@ -2134,14 +2143,14 @@
           !1,
           !1,
           0,
-          "e".charCodeAt(0)
+          "e".charCodeAt(0),
         ),
           docElement.appendChild(e),
           e.addEventListener("input", r, !1),
           e.focus(),
           e.dispatchEvent(t),
           e.removeEventListener("input", r, !1),
-          docElement.removeChild(e);
+          docElement.removeChild(e));
       } catch (n) {
         A = !1;
       }
@@ -2158,28 +2167,28 @@
         A.addEventListener(
           "submit",
           function (A) {
-            (!window.opera || window.operamini) && A.preventDefault(),
-              A.stopPropagation();
+            ((!window.opera || window.operamini) && A.preventDefault(),
+              A.stopPropagation());
           },
-          !1
+          !1,
         ),
         (A.innerHTML =
           '<input name="modTest" required="required" /><button></button>'),
         testStyles(
           "#modernizr form{position:absolute;top:-99999em}",
           function (r) {
-            r.appendChild(A),
+            (r.appendChild(A),
               (e = A.getElementsByTagName("input")[0]),
               e.addEventListener(
                 "invalid",
                 function (A) {
-                  (t = !0), A.preventDefault(), A.stopPropagation();
+                  ((t = !0), A.preventDefault(), A.stopPropagation());
                 },
-                !1
+                !1,
               ),
               (Modernizr.formvalidationmessage = !!e.validationMessage),
-              A.getElementsByTagName("button")[0].click();
-          }
+              A.getElementsByTagName("button")[0].click());
+          },
         ),
         t
       );
@@ -2193,15 +2202,15 @@
         r = (function () {
           return docElement.insertBefore(
             t,
-            docElement.firstElementChild || docElement.firstChild
+            docElement.firstElementChild || docElement.firstChild,
           );
         })();
       e.innerHTML = '<input type="number" value="1.0" step="0.1"/>';
       var n = e.childNodes[0];
-      r.appendChild(e), n.focus();
+      (r.appendChild(e), n.focus());
       try {
-        document.execCommand("SelectAll", !1),
-          document.execCommand("InsertText", !1, "1,1");
+        (document.execCommand("SelectAll", !1),
+          document.execCommand("InsertText", !1, "1,1"));
       } catch (o) {}
       return (
         (A =
@@ -2210,16 +2219,16 @@
         t.fake && r.parentNode.removeChild(r),
         A
       );
-    });
+    }));
   var modElem = { elem: createElement("modernizr") };
-  Modernizr._q.push(function () {
+  (Modernizr._q.push(function () {
     delete modElem.elem;
   }),
     Modernizr.addTest("csschunit", function () {
       var A,
         e = modElem.elem.style;
       try {
-        (e.fontSize = "3ch"), (A = -1 !== e.fontSize.indexOf("ch"));
+        ((e.fontSize = "3ch"), (A = -1 !== e.fontSize.indexOf("ch")));
       } catch (t) {
         A = !1;
       }
@@ -2229,7 +2238,7 @@
       var A,
         e = modElem.elem.style;
       try {
-        (e.fontSize = "3ex"), (A = -1 !== e.fontSize.indexOf("ex"));
+        ((e.fontSize = "3ex"), (A = -1 !== e.fontSize.indexOf("ex")));
       } catch (t) {
         A = !1;
       }
@@ -2246,9 +2255,9 @@
     Modernizr.addTest("bdi", function () {
       var A = createElement("div"),
         e = createElement("bdi");
-      (e.innerHTML = "&#1573;"), A.appendChild(e), docElement.appendChild(A);
+      ((e.innerHTML = "&#1573;"), A.appendChild(e), docElement.appendChild(A));
       var t = "rtl" === computedStyle(e, null, "direction");
-      return docElement.removeChild(A), t;
+      return (docElement.removeChild(A), t);
     }),
     testStyles("#modernizr { height: 50vh; }", function (A) {
       var e = parseInt(window.innerHeight / 2, 10),
@@ -2268,10 +2277,10 @@
           a = parseInt(computedStyle(e, null, "width"), 10);
         Modernizr.addTest(
           "cssvmaxunit",
-          roundedEquals(d, a) || roundedEquals(d, a - n)
+          roundedEquals(d, a) || roundedEquals(d, a - n),
         );
       },
-      3
+      3,
     ),
     testStyles(
       "#modernizr1{width: 50vm;width:50vmin}#modernizr2{width:50px;height:50px;overflow:scroll}#modernizr3{position:fixed;top:0;left:0;bottom:0;right:0}",
@@ -2286,16 +2295,16 @@
           a = parseInt(computedStyle(e, null, "width"), 10);
         Modernizr.addTest(
           "cssvminunit",
-          roundedEquals(d, a) || roundedEquals(d, a - n)
+          roundedEquals(d, a) || roundedEquals(d, a - n),
         );
       },
-      3
+      3,
     ),
     testStyles("#modernizr { width: 50vw; }", function (A) {
       var e = parseInt(window.innerWidth / 2, 10),
         t = parseInt(computedStyle(A, null, "width"), 10);
       Modernizr.addTest("cssvwunit", roundedEquals(t, e));
-    });
+    }));
   var mStyle = { style: modElem.elem.style };
   Modernizr._q.unshift(function () {
     delete mStyle.style;
@@ -2315,19 +2324,19 @@
     }
     return "response" in e && e.responseType == A;
   };
-  Modernizr.addTest("xhrresponsetypearraybuffer", testXhrType("arraybuffer")),
+  (Modernizr.addTest("xhrresponsetypearraybuffer", testXhrType("arraybuffer")),
     Modernizr.addTest("xhrresponsetypeblob", testXhrType("blob")),
     Modernizr.addTest("xhrresponsetypedocument", testXhrType("document")),
     Modernizr.addTest("xhrresponsetypejson", testXhrType("json")),
-    Modernizr.addTest("xhrresponsetypetext", testXhrType("text"));
+    Modernizr.addTest("xhrresponsetypetext", testXhrType("text")));
   var toStringFn = {}.toString;
-  Modernizr.addTest("svgclippaths", function () {
+  (Modernizr.addTest("svgclippaths", function () {
     return (
       !!document.createElementNS &&
       /SVGClipPath/.test(
         toStringFn.call(
-          document.createElementNS("http://www.w3.org/2000/svg", "clipPath")
-        )
+          document.createElementNS("http://www.w3.org/2000/svg", "clipPath"),
+        ),
       )
     );
   }),
@@ -2338,9 +2347,9 @@
           toStringFn.call(
             document.createElementNS(
               "http://www.w3.org/2000/svg",
-              "foreignObject"
-            )
-          )
+              "foreignObject",
+            ),
+          ),
         )
       );
     }),
@@ -2349,12 +2358,12 @@
         !!document.createElementNS &&
         /SVGAnimate/.test(
           toStringFn.call(
-            document.createElementNS("http://www.w3.org/2000/svg", "animate")
-          )
+            document.createElementNS("http://www.w3.org/2000/svg", "animate"),
+          ),
         )
       );
     }),
-    (ModernizrProto.testAllProps = testPropsAll);
+    (ModernizrProto.testAllProps = testPropsAll));
   var prefixed = (ModernizrProto.prefixed = function (A, e, t) {
       return 0 === A.indexOf("@")
         ? atRule(A)
@@ -2369,7 +2378,7 @@
     aliases: ["battery-api"],
   });
   var crypto = prefixed("crypto", window);
-  Modernizr.addTest("crypto", !!prefixed("subtle", crypto)),
+  (Modernizr.addTest("crypto", !!prefixed("subtle", crypto)),
     Modernizr.addTest("intl", !!prefixed("Intl", window)),
     Modernizr.addTest("dart", !!prefixed("startDart", navigator)),
     Modernizr.addTest("forcetouch", function () {
@@ -2383,7 +2392,7 @@
       !(
         !prefixed("exitFullscreen", document, !1) &&
         !prefixed("cancelFullScreen", document, !1)
-      )
+      ),
     ),
     Modernizr.addTest("gamepads", !!prefixed("getGamepads", navigator)),
     Modernizr.addTest("pagevisibility", !!prefixed("hidden", document, !1)),
@@ -2397,7 +2406,7 @@
     Modernizr.addTest(
       "requestanimationframe",
       !!prefixed("requestAnimationFrame", window),
-      { aliases: ["raf"] }
+      { aliases: ["raf"] },
     ),
     Modernizr.addAsyncTest(function () {
       var A;
@@ -2407,14 +2416,14 @@
       if (A) {
         var t = "modernizr-" + Math.random(),
           r = A.open(t);
-        (r.onerror = function () {
+        ((r.onerror = function () {
           r.error && "InvalidStateError" === r.error.name
             ? addTest("indexeddb", !1)
             : (addTest("indexeddb", !0), detectDeleteDatabase(A, t));
         }),
           (r.onsuccess = function () {
-            addTest("indexeddb", !0), detectDeleteDatabase(A, t);
-          });
+            (addTest("indexeddb", !0), detectDeleteDatabase(A, t));
+          }));
       } else addTest("indexeddb", !1);
     }),
     Modernizr.addAsyncTest(function () {
@@ -2431,14 +2440,14 @@
         return !1;
       try {
         A.deleteDatabase(n).onsuccess = function () {
-          (e = A.open(n, 1)),
+          ((e = A.open(n, 1)),
             (e.onupgradeneeded = function () {
               e.result.createObjectStore("store");
             }),
             (e.onsuccess = function () {
               t = e.result;
               try {
-                (r = t
+                ((r = t
                   .transaction("store", "readwrite")
                   .objectStore("store")
                   .put(new Blob(), "key")),
@@ -2447,13 +2456,13 @@
                   }),
                   (r.onerror = function () {
                     o = !1;
-                  });
+                  }));
               } catch (i) {
                 o = !1;
               } finally {
-                addTest("indexeddbblob", o), t.close(), A.deleteDatabase(n);
+                (addTest("indexeddbblob", o), t.close(), A.deleteDatabase(n));
               }
-            });
+            }));
         };
       } catch (i) {
         addTest("indexeddbblob", !1);
@@ -2465,7 +2474,7 @@
       var A = 0.2,
         e = prefixed("battery", navigator);
       return !!(e && !e.charging && e.level <= A);
-    });
+    }));
   var crypto = prefixed("crypto", window),
     supportsGetRandomValues;
   if (crypto && "getRandomValues" in crypto && "Uint32Array" in window) {
@@ -2473,10 +2482,10 @@
       values = crypto.getRandomValues(array);
     supportsGetRandomValues = values && is(values[0], "number");
   }
-  Modernizr.addTest("getrandomvalues", !!supportsGetRandomValues),
+  (Modernizr.addTest("getrandomvalues", !!supportsGetRandomValues),
     Modernizr.addTest(
       "backgroundblendmode",
-      prefixed("backgroundBlendMode", "text")
+      prefixed("backgroundBlendMode", "text"),
     ),
     Modernizr.addTest("objectfit", !!prefixed("objectFit"), {
       aliases: ["object-fit"],
@@ -2492,13 +2501,13 @@
         o = createElement("div"),
         i = createElement("div"),
         d = "modernizr_flow_for_regions_check";
-      (o.innerText = "M"),
+      ((o.innerText = "M"),
         (n.style.cssText = "top: 150px; left: 150px; padding: 0px;"),
         (i.style.cssText = "width: 50px; height: 50px; padding: 42px;"),
         (i.style[A] = d),
         n.appendChild(o),
         n.appendChild(i),
-        docElement.appendChild(n);
+        docElement.appendChild(n));
       var a,
         s,
         l = o.getBoundingClientRect();
@@ -2530,38 +2539,38 @@
         t = createElement("div"),
         r = createElement("div"),
         n = createElement("span");
-      (r.style.cssText =
+      ((r.style.cssText =
         "position: absolute; left: 50px; width: 100px; height: 20px;" +
         e +
         ":end;"),
         (n.innerText = "X"),
         t.appendChild(r),
         t.appendChild(n),
-        docElement.appendChild(t);
+        docElement.appendChild(t));
       var o = n.offsetLeft;
-      return docElement.removeChild(t), (r = n = t = undefined), 150 == o;
+      return (docElement.removeChild(t), (r = n = t = undefined), 150 == o);
     }),
     Modernizr.addTest("filesystem", !!prefixed("requestFileSystem", window)),
     Modernizr.addTest(
       "requestautocomplete",
-      !!prefixed("requestAutocomplete", createElement("form"))
+      !!prefixed("requestAutocomplete", createElement("form")),
     ),
     Modernizr.addTest(
       "speechrecognition",
-      !!prefixed("SpeechRecognition", window)
-    );
+      !!prefixed("SpeechRecognition", window),
+    ));
   var url = prefixed("URL", window, !1);
-  (url = url && window[url]),
+  ((url = url && window[url]),
     Modernizr.addTest(
       "bloburls",
-      url && "revokeObjectURL" in url && "createObjectURL" in url
+      url && "revokeObjectURL" in url && "createObjectURL" in url,
     ),
     Modernizr.addAsyncTest(function () {
       function A() {
-        addTest("transferables", !1), e();
+        (addTest("transferables", !1), e());
       }
       function e() {
-        d && URL.revokeObjectURL(d), a && a.terminate(), n && clearTimeout(n);
+        (d && URL.revokeObjectURL(d), a && a.terminate(), n && clearTimeout(n));
       }
       var t = !!(
         Modernizr.blobconstructor &&
@@ -2577,19 +2586,19 @@
           i = new Blob([o], { type: "text/javascript" }),
           d = URL.createObjectURL(i),
           a = new Worker(d);
-        (a.onerror = A),
+        ((a.onerror = A),
           (n = setTimeout(A, 200)),
           (r = new ArrayBuffer(1)),
           a.postMessage(r, [r]),
           addTest("transferables", 0 === r.byteLength),
-          e();
+          e());
       } catch (s) {
         A();
       }
     }),
     Modernizr.addTest(
       "peerconnection",
-      !!prefixed("RTCPeerConnection", window)
+      !!prefixed("RTCPeerConnection", window),
     ),
     Modernizr.addTest("datachannel", function () {
       if (!Modernizr.peerconnection) return !1;
@@ -2606,7 +2615,7 @@
     (ModernizrProto.testAllProps = testAllProps),
     Modernizr.addTest(
       "ligatures",
-      testAllProps("fontFeatureSettings", '"liga" 1')
+      testAllProps("fontFeatureSettings", '"liga" 1'),
     ),
     Modernizr.addTest("cssanimations", testAllProps("animationName", "a", !0)),
     Modernizr.addTest("csspseudoanimations", function () {
@@ -2643,34 +2652,34 @@
     }),
     Modernizr.addTest(
       "bgrepeatround",
-      testAllProps("backgroundRepeat", "round")
+      testAllProps("backgroundRepeat", "round"),
     ),
     Modernizr.addTest(
       "bgrepeatspace",
-      testAllProps("backgroundRepeat", "space")
+      testAllProps("backgroundRepeat", "space"),
     ),
     Modernizr.addTest(
       "backgroundsize",
-      testAllProps("backgroundSize", "100%", !0)
+      testAllProps("backgroundSize", "100%", !0),
     ),
     Modernizr.addTest("bgsizecover", testAllProps("backgroundSize", "cover")),
     Modernizr.addTest(
       "borderimage",
-      testAllProps("borderImage", "url() 1", !0)
+      testAllProps("borderImage", "url() 1", !0),
     ),
     Modernizr.addTest("borderradius", testAllProps("borderRadius", "0px", !0)),
     Modernizr.addTest("boxshadow", testAllProps("boxShadow", "1px 1px", !0)),
     Modernizr.addTest(
       "boxsizing",
       testAllProps("boxSizing", "border-box", !0) &&
-        (document.documentMode === undefined || document.documentMode > 7)
+        (document.documentMode === undefined || document.documentMode > 7),
     ),
     (function () {
       Modernizr.addTest("csscolumns", function () {
         var A = !1,
           e = testAllProps("columnCount");
         try {
-          (A = !!e), A && (A = new Boolean(A));
+          ((A = !!e), A && (A = new Boolean(A)));
         } catch (t) {}
         return A;
       });
@@ -2694,19 +2703,19 @@
         r < t.length;
         r++
       )
-        (A = t[r].toLowerCase()),
+        ((A = t[r].toLowerCase()),
           (e = testAllProps("column" + t[r])),
           ("breakbefore" === A || "breakafter" === A || "breakinside" == A) &&
             (e = e || testAllProps(t[r])),
-          Modernizr.addTest("csscolumns." + A, e);
+          Modernizr.addTest("csscolumns." + A, e));
     })(),
     Modernizr.addTest(
       "cssgridlegacy",
-      testAllProps("grid-columns", "10px", !0)
+      testAllProps("grid-columns", "10px", !0),
     ),
     Modernizr.addTest(
       "cssgrid",
-      testAllProps("grid-template-rows", "none", !0)
+      testAllProps("grid-template-rows", "none", !0),
     ),
     Modernizr.addTest("ellipsis", testAllProps("textOverflow", "ellipsis")),
     Modernizr.addTest("cssfilters", function () {
@@ -2721,7 +2730,7 @@
     Modernizr.addTest("flexbox", testAllProps("flexBasis", "1px", !0)),
     Modernizr.addTest(
       "flexboxlegacy",
-      testAllProps("boxDirection", "reverse", !0)
+      testAllProps("boxDirection", "reverse", !0),
     ),
     Modernizr.addTest("flexboxtweener", testAllProps("flexAlign", "end", !0)),
     Modernizr.addTest("flexwrap", testAllProps("flexWrap", "wrap", !0)),
@@ -2799,7 +2808,7 @@
               n = "lebowski",
               o = !1,
               i = document.body.firstElementChild || document.body.firstChild;
-            (r.innerHTML = n + A + n),
+            ((r.innerHTML = n + A + n),
               document.body.insertBefore(r, i),
               document.body.insertBefore(t, r),
               t.setSelectionRange
@@ -2809,7 +2818,7 @@
                   e.collapse(!0),
                   e.moveEnd("character", 0),
                   e.moveStart("character", 0),
-                  e.select());
+                  e.select()));
             try {
               window.find
                 ? (o = window.find(n + n))
@@ -2819,7 +2828,9 @@
               o = !1;
             }
             return (
-              document.body.removeChild(r), document.body.removeChild(t), o
+              document.body.removeChild(r),
+              document.body.removeChild(t),
+              o
             );
           } catch (d) {
             return !1;
@@ -2856,17 +2867,17 @@
     Modernizr.addTest("cssmask", testAllProps("maskRepeat", "repeat-x", !0)),
     Modernizr.addTest(
       "overflowscrolling",
-      testAllProps("overflowScrolling", "touch", !0)
+      testAllProps("overflowScrolling", "touch", !0),
     ),
     Modernizr.addTest(
       "cssreflections",
-      testAllProps("boxReflect", "above", !0)
+      testAllProps("boxReflect", "above", !0),
     ),
     Modernizr.addTest("cssresize", testAllProps("resize", "both", !0)),
     Modernizr.addTest("scrollsnappoints", testAllProps("scrollSnapType")),
     Modernizr.addTest(
       "shapes",
-      testAllProps("shapeOutside", "content-box", !0)
+      testAllProps("shapeOutside", "content-box", !0),
     ),
     Modernizr.addTest("textalignlast", testAllProps("textAlignLast")),
     Modernizr.addTest("csstransforms", function () {
@@ -2891,13 +2902,13 @@
         "}#modernizr.trigger:before { font-size:10px; }";
       return (
         Modernizr.testStyles(e, function (e) {
-          window.getComputedStyle(e, ":before").getPropertyValue("font-size"),
+          (window.getComputedStyle(e, ":before").getPropertyValue("font-size"),
             (e.className += "trigger"),
             (A =
               "5px" ===
               window
                 .getComputedStyle(e, ":before")
-                .getPropertyValue("font-size"));
+                .getPropertyValue("font-size")));
         }),
         A
       );
@@ -2907,7 +2918,7 @@
     testRunner(),
     setClasses(classes),
     delete ModernizrProto.addTest,
-    delete ModernizrProto.addAsyncTest;
+    delete ModernizrProto.addAsyncTest);
   for (var i = 0; i < Modernizr._q.length; i++) Modernizr._q[i]();
   window.Modernizr = Modernizr;
 })(window, document);

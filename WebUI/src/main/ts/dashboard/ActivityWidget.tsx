@@ -24,6 +24,7 @@ import {
   type ContentActivityRow,
 } from "../api/dashboard/gadgetApi";
 import { formatApiError } from "../api/home/homeApi";
+import { message, MSG } from "../i18n/message";
 import { styles } from "./dashboard.styles";
 
 export interface ActivityWidgetProps {
@@ -43,7 +44,7 @@ export interface ActivityWidgetProps {
  * with {@code ContentActivityRequest}. Not a user-action timeline.</p>
  */
 export const ActivityWidget: React.FC<ActivityWidgetProps> = ({
-  title = "Activity",
+  title,
   path: pathProp,
   durationType = "days",
   duration = 30,
@@ -83,11 +84,13 @@ export const ActivityWidget: React.FC<ActivityWidgetProps> = ({
     return () => window.clearInterval(id);
   }, [load, refreshInterval]);
 
+  const heading = title ?? message(MSG.GADGET_ACTIVITY);
+
   const renderContent = () => {
     if (isLoading) {
       return (
         <div style={styles.widgetLoading} data-testid="activity-widget-loading">
-          <p>Loading activity...</p>
+          <p>{message(MSG.ACTIVITY_LOADING)}</p>
         </div>
       );
     }
@@ -95,7 +98,7 @@ export const ActivityWidget: React.FC<ActivityWidgetProps> = ({
     if (error) {
       return (
         <div style={styles.widgetError} data-testid="activity-widget-error">
-          <p>Error: {error}</p>
+          <p>{message(MSG.ERROR_GENERIC)}: {error}</p>
         </div>
       );
     }
@@ -103,10 +106,10 @@ export const ActivityWidget: React.FC<ActivityWidgetProps> = ({
     if (rows.length === 0) {
       return (
         <div style={styles.widgetContent} data-testid="activity-widget-empty">
-          <p>No content activity for this path and duration.</p>
+          <p>{message(MSG.ACTIVITY_EMPTY)}</p>
           {resolvedPath ? (
             <p style={{ fontSize: "0.85em", color: "#666" }}>
-              Path: {resolvedPath} · last {duration} {durationType}
+              {message(MSG.ACTIVITY_PATH)}: {resolvedPath} · last {duration} {durationType}
             </p>
           ) : null}
         </div>
@@ -130,7 +133,7 @@ export const ActivityWidget: React.FC<ActivityWidgetProps> = ({
               <div style={{ fontWeight: 600, color: "#333" }}>{row.name}</div>
               {row.siteName && row.siteName !== row.name ? (
                 <div style={{ fontSize: "0.8em", color: "#666" }}>
-                  Site: {row.siteName}
+                  {message(MSG.ACTIVITY_SITE)}: {row.siteName}
                 </div>
               ) : null}
               <div
@@ -143,11 +146,11 @@ export const ActivityWidget: React.FC<ActivityWidgetProps> = ({
                   color: "#444",
                 }}
               >
-                <span>Published: {row.publishedItems}</span>
-                <span>Pending: {row.pendingItems}</span>
-                <span>New: {row.newItems}</span>
-                <span>Updated: {row.updatedItems}</span>
-                <span>Archived: {row.archivedItems}</span>
+                <span>{message(MSG.ACTIVITY_PUBLISHED)}: {row.publishedItems}</span>
+                <span>{message(MSG.ACTIVITY_PENDING)}: {row.pendingItems}</span>
+                <span>{message(MSG.ACTIVITY_NEW)}: {row.newItems}</span>
+                <span>{message(MSG.ACTIVITY_UPDATED)}: {row.updatedItems}</span>
+                <span>{message(MSG.ACTIVITY_ARCHIVED)}: {row.archivedItems}</span>
               </div>
             </li>
           ))}
@@ -158,7 +161,7 @@ export const ActivityWidget: React.FC<ActivityWidgetProps> = ({
 
   return (
     <div style={styles.widget} data-testid="activity-widget">
-      <div style={styles.widgetTitle}>{title}</div>
+      <div style={styles.widgetTitle}>{heading}</div>
       {renderContent()}
     </div>
   );

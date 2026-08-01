@@ -26,16 +26,16 @@
     maxlength: $.validator.format("Vul hier maximaal {0} tekens in."),
     minlength: $.validator.format("Vul hier minimaal {0} tekens in."),
     rangelength: $.validator.format(
-      "Vul hier een waarde in van minimaal {0} en maximaal {1} tekens."
+      "Vul hier een waarde in van minimaal {0} en maximaal {1} tekens.",
     ),
     range: $.validator.format(
-      "Vul hier een waarde in van minimaal {0} en maximaal {1}."
+      "Vul hier een waarde in van minimaal {0} en maximaal {1}.",
     ),
     max: $.validator.format(
-      "Vul hier een waarde in kleiner dan of gelijk aan {0}."
+      "Vul hier een waarde in kleiner dan of gelijk aan {0}.",
     ),
     min: $.validator.format(
-      "Vul hier een waarde in groter dan of gelijk aan {0}."
+      "Vul hier een waarde in groter dan of gelijk aan {0}.",
     ),
     step: $.validator.format("Vul hier een veelvoud van {0} in."),
 

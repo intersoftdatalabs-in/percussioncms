@@ -203,4 +203,52 @@ class DtsInstallerJarContainsDeploymentCommonLibTest {
       fail("Unexpected entries under " + COMMON_LIB_PATH_PREFIX + ": " + invalid);
     }
   }
+
+  /**
+   * Product embedded default is H2 (#548). Cargo must not package Derby into Tomcat {@code
+   * common/lib} — MANIFEST Class-Path locale jars cause StandardJarScanner NoSuchFileException
+   * WARNs on every startup, and new installs do not use Derby.
+   */
+  @Test
+  void shippingJarDoesNotBundleDerbyInCommonLib() throws IOException {
+    Path jar = Path.of("target", "delivery-tier-distribution.jar");
+    if (!Files.isRegularFile(jar)) {
+      return;
+    }
+
+    List<String> derbyHits = new ArrayList<>();
+    boolean h2Found = false;
+    try (ZipFile zip = new ZipFile(jar.toFile())) {
+      zip.stream()
+          .map(ZipEntry::getName)
+          .filter(name -> name.startsWith(COMMON_LIB_PATH_PREFIX))
+          .filter(name -> name.endsWith(".jar"))
+          .forEach(
+              name -> {
+                String base = name.substring(COMMON_LIB_PATH_PREFIX.length()).toLowerCase();
+                if (base.startsWith("derby")) {
+                  derbyHits.add(name);
+                }
+              });
+      h2Found =
+          zip.stream()
+              .map(ZipEntry::getName)
+              .filter(n -> n.startsWith(COMMON_LIB_PATH_PREFIX) && n.endsWith(".jar"))
+              .map(n -> n.substring(COMMON_LIB_PATH_PREFIX.length()).toLowerCase())
+              .anyMatch(base -> base.startsWith("h2-"));
+    }
+
+    if (!derbyHits.isEmpty()) {
+      fail(
+          "Shipping jar must not put Derby on Tomcat common/lib (embedded default is H2)."
+              + " Found: "
+              + derbyHits
+              + ". Remove org.apache.derby:* from cargo container dependencies in pom.xml.");
+    }
+    assertTrue(
+        h2Found,
+        "Shipping jar must include H2 under "
+            + COMMON_LIB_PATH_PREFIX
+            + " (cargo container dependency com.h2database:h2).");
+  }
 }

@@ -30,22 +30,22 @@ function assert(cond, msg) {
 
 // --- #946 webimagefx: do not embed raw location.href in script src ---
 const wifx = read(
-  "system/cms/content/applications/sys_resources/ApplicationFiles/webimagefx/webimagefx.js"
+  "system/cms/content/applications/sys_resources/ApplicationFiles/webimagefx/webimagefx.js",
 );
 assert(
   !/window\.location\.href\.substring/.test(wifx),
-  "webimagefx does not build license path from location.href.substring"
+  "webimagefx does not build license path from location.href.substring",
 );
 assert(
   /location\.pathname/.test(wifx) &&
     /location\.(protocol|host|origin)/.test(wifx),
-  "webimagefx builds license path from origin + pathname"
+  "webimagefx builds license path from origin + pathname",
 );
 assert(
   /\[\^A-Za-z0-9\._\\\-\/\]/.test(wifx) ||
     /\/\^\\\/\[A-Za-z0-9\._\\-\\\/\]\*/.test(wifx) ||
     wifx.includes("A-Za-z0-9._"),
-  "webimagefx allow-lists CMS root path characters"
+  "webimagefx allow-lists CMS root path characters",
 );
 
 // Behavioural: mirror getWifxLicenseHandlerPath path allow-list
@@ -63,37 +63,37 @@ function mockLicensePath(pathname, protocol, host) {
 assert(
   mockLicensePath("/Rhythmyx/ui/foo", "https:", "cms.example") ===
     "https://cms.example/Rhythmyx/rx_wep/ektron?licensekey=webimagefx1",
-  "normal CMS path yields fixed license URL"
+  "normal CMS path yields fixed license URL",
 );
 assert(
   mockLicensePath('/Rhythmyx"><script>', "https:", "cms.example") ===
     "https://cms.example/Rhythmyx/rx_wep/ektron?licensekey=webimagefx1",
-  "path with quote/angle brackets falls back to /Rhythmyx"
+  "path with quote/angle brackets falls back to /Rhythmyx",
 );
 
 // --- #945 mobile preview: escape title/url before document.write ---
 const mobile = read(
-  "system/cms/content/applications/sys_resources/ApplicationFiles/mobilepreview/js/PercMobilePreview.js"
+  "system/cms/content/applications/sys_resources/ApplicationFiles/mobilepreview/js/PercMobilePreview.js",
 );
 assert(
   /function escapeHtml\s*\(/.test(mobile),
-  "PercMobilePreview defines escapeHtml"
+  "PercMobilePreview defines escapeHtml",
 );
 assert(
   /function safeSameOriginHttpUrl\s*\(/.test(mobile),
-  "PercMobilePreview defines safeSameOriginHttpUrl"
+  "PercMobilePreview defines safeSameOriginHttpUrl",
 );
 assert(
   /safeTitle|escapeHtml\s*\(\s*d\.title/.test(mobile),
-  "document title is escaped before write"
+  "document title is escaped before write",
 );
 assert(
   /safeFrameSrc|escapeHtml\s*\(\s*prurl/.test(mobile),
-  "iframe src is escaped before write"
+  "iframe src is escaped before write",
 );
 assert(
   !/d\.write\s*\(\s*['"]<!DOCTYPE[\s\S]*\+\s*d\.title\s*\+/.test(mobile),
-  "raw d.title is not concatenated into document.write"
+  "raw d.title is not concatenated into document.write",
 );
 
 // Behavioural escapeHtml / safeSameOriginHttpUrl mirrors
@@ -118,28 +118,28 @@ function safeSameOriginHttpUrl(rawUrl, origin) {
 assert(
   escapeHtml("<script>alert(1)</script>") ===
     "&lt;script&gt;alert(1)&lt;/script&gt;",
-  "escapeHtml encodes script tags"
+  "escapeHtml encodes script tags",
 );
 assert(
   escapeHtml('x" onload="y') === "x&quot; onload=&quot;y",
-  "escapeHtml encodes attribute breakout quotes"
+  "escapeHtml encodes attribute breakout quotes",
 );
 assert(
   safeSameOriginHttpUrl("https://evil.example/pwn", "https://cms.example") ===
     "https://cms.example/",
-  "cross-origin iframe src rejected"
+  "cross-origin iframe src rejected",
 );
 assert(
   safeSameOriginHttpUrl("javascript:alert(1)", "https://cms.example") ===
     "https://cms.example/",
-  "javascript: iframe src rejected"
+  "javascript: iframe src rejected",
 );
 assert(
   safeSameOriginHttpUrl(
     "https://cms.example/page?percmobilepreview=",
-    "https://cms.example"
+    "https://cms.example",
   ).startsWith("https://cms.example/"),
-  "same-origin http(s) preserved"
+  "same-origin http(s) preserved",
 );
 
 if (failed) {

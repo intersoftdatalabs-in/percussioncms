@@ -66,7 +66,7 @@
             list.append(
               $("<option></option>")
                 .attr("value", sites[i].id)
-                .text(sites[i].name)
+                .text(sites[i].name),
             );
           }
 
@@ -119,7 +119,7 @@
 
       //Add the pre-submit handler to prepare data for saving.
       window.parent.jQuery.PercContentPreSubmitHandlers.addHandler(
-        _preSubmitHandler
+        _preSubmitHandler,
       );
 
       //Widget behavioral events
@@ -201,7 +201,7 @@
       }
 
       $("#perc-content-edit-sys_title").val(
-        $("#perc-content-edit-configurationName").val()
+        $("#perc-content-edit-configurationName").val(),
       );
 
       //Get the Widget data and convert it to a JSON string that can be saved.

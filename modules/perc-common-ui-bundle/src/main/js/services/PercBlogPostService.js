@@ -42,7 +42,7 @@
 
     var serviceUrl = $.PercServiceUtils.joinURL(
       deliveryUrl,
-      "/perc-metadata-services/metadata/blog/getCurrent"
+      "/perc-metadata-services/metadata/blog/getCurrent",
     );
 
     $.PercServiceUtils.makeXdmJsonRequest(
@@ -54,12 +54,12 @@
           callback(true, results.data);
         } else {
           var defMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            results.request
+            results.request,
           );
           callback(false, defMsg);
         }
       },
-      queryString
+      queryString,
     );
 
     /*var results = [

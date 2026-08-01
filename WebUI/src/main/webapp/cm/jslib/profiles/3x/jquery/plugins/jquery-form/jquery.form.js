@@ -185,7 +185,7 @@
         type: method || $.ajaxSettings.type,
         iframeSrc: iframeSrc,
       },
-      options
+      options,
     );
 
     // hook for manipulating the form data before it is extracted;
@@ -438,7 +438,7 @@
 
                 options.uploadProgress(event, position, total, percent);
               },
-              false
+              false,
             );
           }
 
@@ -517,7 +517,7 @@
       } else {
         $io = $(
           '<iframe name="' + id + '" src="' + s.iframeSrc + '" />',
-          ownerDocument
+          ownerDocument,
         );
         $io.css({ position: "absolute", top: "-1000px", left: "-1000px" });
       }
@@ -719,16 +719,16 @@
                       '<input type="hidden" name="' +
                         s.extraData[n].name +
                         '">',
-                      ownerDocument
+                      ownerDocument,
                     )
                       .val(s.extraData[n].value)
-                      .appendTo(form)[0]
+                      .appendTo(form)[0],
                   );
                 } else {
                   extraInputs.push(
                     $('<input type="hidden" name="' + n + '">', ownerDocument)
                       .val(s.extraData[n])
-                      .appendTo(form)[0]
+                      .appendTo(form)[0],
                   );
                 }
               }
@@ -1082,7 +1082,7 @@
       // is your DOM ready?  http://docs.jquery.com/Tutorials:Introducing_$(document).ready()
       log(
         "terminating; zero elements found by selector" +
-          ($.isReady ? "" : " (DOM not ready)")
+          ($.isReady ? "" : " (DOM not ready)"),
       );
 
       return this;
@@ -1097,7 +1097,7 @@
           "click.form-plugin",
           this.selector,
           options,
-          captureSubmittingElement
+          captureSubmittingElement,
         );
 
       return this;
@@ -1230,7 +1230,7 @@
           a.push({ name: n, value: $(el).val(), type: el.type });
           a.push(
             { name: n + ".x", value: form.clk_x },
-            { name: n + ".y", value: form.clk_y }
+            { name: n + ".y", value: form.clk_y },
           );
         }
         continue;
@@ -1278,7 +1278,7 @@
         a.push({ name: n, value: $input.val() });
         a.push(
           { name: n + ".x", value: form.clk_x },
-          { name: n + ".y", value: form.clk_y }
+          { name: n + ".y", value: form.clk_y },
         );
       }
     }

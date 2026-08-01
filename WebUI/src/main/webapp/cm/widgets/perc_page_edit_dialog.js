@@ -112,7 +112,7 @@
           $("#edit-page-metadata").append(
             "<iframe name='edit-page-metadata-frame' id='edit-page-metadata-frame' height='100%' style='border:0;' width='100%' src='" +
               ifrUrl +
-              "' ></iframe>"
+              "' ></iframe>",
           );
           $("#edit-page-metadata-frame").on("load", function () {
             _formatPageContent();
@@ -121,7 +121,7 @@
         error: function (request, textstatus, error) {
           alert(
             I18N.message("perc.ui.page.edit.dialog@Unable To See Content") +
-              pageid
+              pageid,
           );
         },
       });
@@ -137,7 +137,7 @@
       var iframeContainer = $("#edit-page-metadata-frame").contents();
       $.perc_filterField(
         $("#edit-page-metadata-frame").contents().find("[name=sys_title]"),
-        $.perc_textFilters.URL
+        $.perc_textFilters.URL,
       );
       $("#edit-page-metadata-frame")
         .contents()
@@ -203,9 +203,9 @@
         .before(
           '<div id = "perc-date-override">Override Post Date</div><span class = "perc-date-override-msg">' +
             I18N.message(
-              "perc.ui.page.edit.dialog@Page Will Appear Published"
+              "perc.ui.page.edit.dialog@Page Will Appear Published",
             ) +
-            "<br /></span>"
+            "<br /></span>",
         );
       var fieldGroups = [
         {
@@ -227,7 +227,7 @@
         {
           groupName: "perc-tagCat-container",
           groupLabel: I18N.message(
-            "perc.ui.page.edit.dialog@Tags And Categories"
+            "perc.ui.page.edit.dialog@Tags And Categories",
           ),
           fieldNames: ["page_tags", "page_categories_tree"],
         },
@@ -398,7 +398,7 @@
             content: msg,
             okCallBack: function () {
               $.PercNavigationManager.goToLocation(
-                $.PercNavigationManager.VIEW_EDITOR
+                $.PercNavigationManager.VIEW_EDITOR,
               );
             },
           });
@@ -439,7 +439,7 @@
                     content: msg,
                   });
                 }
-              }
+              },
             );
           });
         }
@@ -455,7 +455,7 @@
           .contents()
           .find("#perc-content-edit-sys_title")
           .val()
-          .trim()
+          .trim(),
       );
       $("#edit-page-metadata-frame")
         .contents()

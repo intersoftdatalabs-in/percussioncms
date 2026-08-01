@@ -33,7 +33,7 @@
     $.perc_textAutoFill(
       $("#perc-feed-title"),
       $("#perc-feed-name"),
-      $.perc_autoFillTextFilters.URL
+      $.perc_autoFillTextFilters.URL,
     );
     $.perc_filterField($("#perc-feed-name"), $.perc_autoFillTextFilters.URL);
     $("#perc-content-edit-metadata-link").removeClass("perc-spacer").css({
@@ -47,7 +47,7 @@
     $(".ui-dialog-buttonpane").css("height", "50px");
 
     var metaFields = $(
-      "#perc-feed-name, #perc-feed-title, #perc-feed-description"
+      "#perc-feed-name, #perc-feed-title, #perc-feed-description",
     );
     metaFields.css("width", 315);
 
@@ -58,17 +58,17 @@
     $("#perc-feed-title").after(
       "<div class = 'perc-disabled datadisplay' style = 'padding-bottom:4px;'>" +
         $("#perc-feed-title").val() +
-        "</div>"
+        "</div>",
     );
     $("#perc-feed-name").after(
       "<div class = 'perc-disabled datadisplay' style = 'padding-bottom:4px;'>" +
         $("#perc-feed-name").val() +
-        "</div>"
+        "</div>",
     );
     $("#perc-feed-description").after(
       "<div class = 'perc-disabled datadisplay' style = 'width:310px; height:77px;padding-top:0px'>" +
         $("#perc-feed-description").val() +
-        "</div>"
+        "</div>",
     );
 
     if (!$("#perc-enable-feed").is(":checked")) {
@@ -86,7 +86,7 @@
   });
   $(document).on("click", "#perc-enable-feed", function () {
     var metaFields = $(
-      "#perc-feed-name, #perc-feed-title, #perc-feed-description"
+      "#perc-feed-name, #perc-feed-title, #perc-feed-description",
     );
     metaFields.toggleClass("perc-rss-disabled");
     if ($("#perc-feed-name").hasClass("perc-rss-disabled")) {

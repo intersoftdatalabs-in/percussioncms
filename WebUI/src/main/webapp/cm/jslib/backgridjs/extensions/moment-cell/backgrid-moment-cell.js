@@ -18,7 +18,7 @@
      @constructor
    */
   var MomentFormatter = (Backgrid.Extension.MomentFormatter = function (
-    options
+    options,
   ) {
     _.extend(this, this.defaults, options);
   });
@@ -85,10 +85,10 @@
       var m = this.modelInUnixOffset
         ? moment(rawData)
         : this.modelInUnixTimestamp
-        ? moment.unix(rawData)
-        : this.modelInUTC
-        ? moment.utc(rawData, this.modelFormat, this.modelLang)
-        : moment(rawData, this.modelFormat, this.modelLang);
+          ? moment.unix(rawData)
+          : this.modelInUTC
+            ? moment.utc(rawData, this.modelFormat, this.modelLang)
+            : moment(rawData, this.modelFormat, this.modelLang);
 
       if (this.displayInUnixOffset) return +m;
 
@@ -113,10 +113,10 @@
       var m = this.displayInUnixOffset
         ? moment(+formattedData)
         : this.displayInUnixTimestamp
-        ? moment.unix(+formattedData)
-        : this.displayInUTC
-        ? moment.utc(formattedData, this.displayFormat, this.displayLang)
-        : moment(formattedData, this.displayFormat, this.displayLang);
+          ? moment.unix(+formattedData)
+          : this.displayInUTC
+            ? moment.utc(formattedData, this.displayFormat, this.displayLang)
+            : moment(formattedData, this.displayFormat, this.displayLang);
 
       if (!m || !m.isValid()) return;
 
@@ -162,7 +162,7 @@
       var formatterOptions = _.pick(options, formatterDefaultKeys);
 
       this.formatter = new this.formatter(
-        _.extend({}, formatterDefaults, classAttrs, formatterOptions)
+        _.extend({}, formatterDefaults, classAttrs, formatterOptions),
       );
 
       this.editor = this.editor.extend({
@@ -171,7 +171,7 @@
           this.editor.prototype.attributes || this.editor.attributes || {},
           {
             placeholder: this.formatter.displayFormat,
-          }
+          },
         ),
       });
     },

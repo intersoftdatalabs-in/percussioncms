@@ -61,7 +61,7 @@ var assetPagination = null;
     // determine the width of the native scrollbar
     // http://visualpulse.net/forums/index.php?topic=120.0
     $("body").append(
-      '<div id="perc-wide_scroll_div_one" style="width:50px;height:50px;overflow-y:hidden;position:absolute;top:-200px;left:-200px;"><div id="wide_scroll_div_two" style="height:100px;width:100%"></div></div>'
+      '<div id="perc-wide_scroll_div_one" style="width:50px;height:50px;overflow-y:hidden;position:absolute;top:-200px;left:-200px;"><div id="wide_scroll_div_two" style="height:100px;width:100%"></div></div>',
     );
     var SCROLLBAR_WIDTH =
       $("#perc-wide_scroll_div_one").width() -
@@ -80,11 +80,11 @@ var assetPagination = null;
       ut = $.perc_utils,
       current_path = [],
       currentItem = null;
-    (actionListeners = []),
+    ((actionListeners = []),
       (openListeners = []),
       (_finderPathIdArray = {}),
-      (_percCompareService = $.PercCompareService());
-    (path_changed = function (p) {
+      (_percCompareService = $.PercCompareService()));
+    ((path_changed = function (p) {
       current_path = p;
     }),
       (finderOpenInProgress = false),
@@ -96,7 +96,7 @@ var assetPagination = null;
         FINDER_OPEN_END: "open_end",
       }),
       (isLibMode =
-        typeof gInitialScreen !== "undefined" && gInitialScreen === "library");
+        typeof gInitialScreen !== "undefined" && gInitialScreen === "library"));
     //Preload images
     $.perc_utils.preLoadImages("/cm/images/images/loading.gif");
 
@@ -127,7 +127,7 @@ var assetPagination = null;
     $("body").on(
       "click",
       ".perc-action-goto-or-search",
-      finder_do_goto_or_search
+      finder_do_goto_or_search,
     );
     $.perc_filterField($("#mcol-path-summary"), $.perc_textFilters.PATH);
     $("#mcol-path-summary").on("keyup", function (evt) {
@@ -225,7 +225,7 @@ var assetPagination = null;
             ) {
               var viewWrapper = $.PercComponentWrapper(
                 "perc-action-finder-go-clicked",
-                ["perc-ui-component-finder"]
+                ["perc-ui-component-finder"],
               );
               var isWrapperSet = $.PercViewReadyManager.setWrapper(viewWrapper);
               if (!isWrapperSet) {
@@ -264,7 +264,7 @@ var assetPagination = null;
             });
             refresh();
           }
-        }
+        },
       );
     }
 
@@ -433,7 +433,7 @@ var assetPagination = null;
         height = $(".perc-finder-body").height();
         $finder_columns.css(
           "height",
-          height - get_scrollbar_width(n) - toolbar
+          height - get_scrollbar_width(n) - toolbar,
         );
       }
 
@@ -471,13 +471,13 @@ var assetPagination = null;
         $(".perc-finder-body").resizable(
           "option",
           "maxHeight",
-          defaults.get_max_height()
+          defaults.get_max_height(),
         );
       });
 
       // initialize height from the cookie or use default
       set_finder_body_height(
-        integer(get_finder_height_from_cookie(), defaults.height)
+        integer(get_finder_height_from_cookie(), defaults.height),
       );
 
       // expose method to update the finder height
@@ -601,7 +601,7 @@ var assetPagination = null;
         $(this).removeClass("mcol-opened");
       });
       var fwrapper = $.PercViewReadyManager.getWrapper(
-        "perc-ui-component-finder"
+        "perc-ui-component-finder",
       );
       if (
         $.PercNavigationManager.getView() ===
@@ -614,7 +614,7 @@ var assetPagination = null;
 
         var viewWrapper = $.PercComponentWrapper(
           "perc-action-finder-refresh",
-          compArray
+          compArray,
         );
         var isWrapperSet = $.PercViewReadyManager.setWrapper(viewWrapper);
         if (!isWrapperSet) {
@@ -661,7 +661,7 @@ var assetPagination = null;
           dir,
           [next.data("name")],
           path_sans_name,
-          function () {}
+          function () {},
         );
       };
     }
@@ -715,7 +715,7 @@ var assetPagination = null;
       //Load the directory contents from the server
       $(".perc-finder-panel-loading").remove();
       dir_container(dir).append(
-        '<div class="perc-finder-panel-loading"><span class="icon-spinner icon-spin icon-2x"></span>&nbsp;Loading...</div>'
+        '<div class="perc-finder-panel-loading"><span class="icon-spinner icon-spin icon-2x"></span>&nbsp;Loading...</div>',
       );
       loader(onLoad, dir);
       function onLoad(children, content) {
@@ -758,12 +758,12 @@ var assetPagination = null;
           dir_children(dir).filter(".mcol-opened").removeClass("mcol-opened");
 
           fwrapper = $.PercViewReadyManager.getWrapper(
-            "perc-ui-component-finder"
+            "perc-ui-component-finder",
           );
           if (fwrapper != null)
             fwrapper.handleComponentProgress(
               "perc-ui-component-finder",
-              "complete"
+              "complete",
             );
           //Call the continuation.
           if (k) {
@@ -789,12 +789,12 @@ var assetPagination = null;
         }
         update_finder_height();
         fwrapper = $.PercViewReadyManager.getWrapper(
-          "perc-ui-component-finder"
+          "perc-ui-component-finder",
         );
         if (fwrapper != null)
           fwrapper.handleComponentProgress(
             "perc-ui-component-finder",
-            "processing"
+            "processing",
           );
       }
     }
@@ -805,7 +805,7 @@ var assetPagination = null;
       dir.data("startIndex", newStartIndex);
       load_folder(
         dir,
-        $(this).closest(".perc-paging-finder").is(".perc-paging-finder-bottom")
+        $(this).closest(".perc-paging-finder").is(".perc-paging-finder-bottom"),
       );
     }
 
@@ -815,7 +815,7 @@ var assetPagination = null;
       dir.data("startIndex", newStartIndex);
       load_folder(
         dir,
-        $(this).closest(".perc-paging-finder").is(".perc-paging-finder-bottom")
+        $(this).closest(".perc-paging-finder").is(".perc-paging-finder-bottom"),
       );
     }
 
@@ -839,12 +839,12 @@ var assetPagination = null;
         var children = {};
         $.each(
           $.perc_utils.convertCXFArray(
-            folder_spec.PagedItemList.childrenInPage
+            folder_spec.PagedItemList.childrenInPage,
           ),
           function () {
             //Use the postfix "_item" to avoid reserved name collision (e.g. toString, watch, toSource, etc).
             children[ut.extract_path_end(this.path) + "_item"] = this;
-          }
+          },
         );
         dir.data("totalResult", folder_spec.PagedItemList.childrenCount);
         dir.data("startIndex", folder_spec.PagedItemList.startIndex);
@@ -885,15 +885,15 @@ var assetPagination = null;
                 .text("<<")
                 .on("click", function (evt) {
                   pagePrevious(evt, $(this));
-                })
+                }),
             )
             .append(
               $('<a class="perc-paging-finder-next"/>')
                 .text(">>")
                 .on("click", function (evt) {
                   pageNext(evt, $(this));
-                })
-            )
+                }),
+            ),
         )
         .addClass(position);
       header = $("<div/>").append(header).append("<div style='clear:both'/>");
@@ -924,7 +924,7 @@ var assetPagination = null;
       var nItems = totalResult;
       var headerText = nItems + " item" + (nItems !== 1 ? "s" : "");
       var header = $(
-        '<div class="perc-paging-finder perc-paging-finder-top "/>'
+        '<div class="perc-paging-finder perc-paging-finder-top "/>',
       )
         .data("name", position)
         .append($('<span class="perc-paging-text" />').text(headerText))
@@ -975,11 +975,11 @@ var assetPagination = null;
             dir.data("path").indexOf("Sites") > -1)
         ) {
           dir_container(dir).prepend(
-            pagingHeaderCountOnly(dir, "perc-paging-finder-top")
+            pagingHeaderCountOnly(dir, "perc-paging-finder-top"),
           );
         } else {
           dir_container(dir).prepend(
-            pagingHeader(dir, "perc-paging-finder-top")
+            pagingHeader(dir, "perc-paging-finder-top"),
           );
         }
       }
@@ -1005,12 +1005,12 @@ var assetPagination = null;
         $("#mcol-path-summary").val(new_path.join("/"));
         //err( "Child \"" + path[0] + "\" does not exist" );
         var fwrapper = $.PercViewReadyManager.getWrapper(
-          "perc-ui-component-finder"
+          "perc-ui-component-finder",
         );
         if (fwrapper != null)
           fwrapper.handleComponentProgress(
             "perc-ui-component-finder",
-            "complete"
+            "complete",
           );
       } else if (next.is(".mcol-opened")) {
         //Element has already been opened - just continue
@@ -1113,15 +1113,15 @@ var assetPagination = null;
               icon.title +
               "' aria-hidden='" +
               icon.decorative +
-              "' />"
-          )
+              "' />",
+          ),
         )
         .append(
           $(
             "<div class='perc-finder-item-name' style='cursor: default; text-overflow : ellipsis;overflow : hidden'>" +
               spec.name +
-              "</div>"
-          )
+              "</div>",
+          ),
         )
         .attr("title", spec.name)
         .data("tag", pref + (spec.name + "").toLowerCase())
@@ -1210,7 +1210,7 @@ var assetPagination = null;
             itemPath,
             targetPath,
             ui.draggable.data("spec").type,
-            targetType
+            targetType,
           )
         )
           return;
@@ -1287,7 +1287,7 @@ var assetPagination = null;
               var content = data;
               if (
                 data.indexOf(
-                  "item with the same name already exists in the folder"
+                  "item with the same name already exists in the folder",
                 ) !== -1
               ) {
                 var itemLabel = "asset";
@@ -1307,7 +1307,7 @@ var assetPagination = null;
                 content: content,
               });
             }
-          }
+          },
         );
       }
 
@@ -1471,7 +1471,7 @@ var assetPagination = null;
           ) {
             var viewWrapper = $.PercComponentWrapper(
               "perc-action-finder-item-clicked",
-              ["perc-ui-component-finder"]
+              ["perc-ui-component-finder"],
             );
             var isWrapperSet = $.PercViewReadyManager.setWrapper(viewWrapper);
             if (!isWrapperSet) {
@@ -1578,7 +1578,7 @@ var assetPagination = null;
             }
 
             var lastModifiedDateParts = $.perc_utils.splitDateTime(
-              itemProps.lastModifiedDate
+              itemProps.lastModifiedDate,
             );
 
             if (spec.path.split("/")[1] === $.perc_paths.DESIGN_ROOT_NO_SLASH) {
@@ -1664,14 +1664,14 @@ var assetPagination = null;
             refresh();
           }
           var fwrapper = $.PercViewReadyManager.getWrapper(
-            "perc-ui-component-finder"
+            "perc-ui-component-finder",
           );
           if (fwrapper != null)
             fwrapper.handleComponentProgress(
               "perc-ui-component-finder",
-              "complete"
+              "complete",
             );
-        }
+        },
       );
     }
 
@@ -1690,7 +1690,7 @@ var assetPagination = null;
         if (status == $.PercServiceUtils.STATUS_SUCCESS) {
           var nRef = window.open(
             result,
-            "percAssetPreviewWindow" + id.replace(/-/g, "")
+            "percAssetPreviewWindow" + id.replace(/-/g, ""),
           );
           $(nRef.document).ready(function () {
             if (revId) {
@@ -1751,7 +1751,7 @@ var assetPagination = null;
             // as whether to open in a tab or window.
             var nRef = window.open(
               href,
-              "percPagePreviewWindow" + id.replace(/-/g, "")
+              "percPagePreviewWindow" + id.replace(/-/g, ""),
             );
             $(nRef.document).ready(function () {
               if (revId) {
@@ -1772,7 +1772,7 @@ var assetPagination = null;
             var msg = "";
             if (errorCode == "cannot.find.item") {
               msg = I18N.message(
-                "perc.ui.common.error@Preview Content Deleted"
+                "perc.ui.common.error@Preview Content Deleted",
               );
             } else {
               msg = result;
@@ -1783,7 +1783,7 @@ var assetPagination = null;
               content: msg,
             });
           }
-        }
+        },
       );
     }
 
@@ -1792,7 +1792,7 @@ var assetPagination = null;
       itemName,
       selectedRev,
       latestRev,
-      allRevisions
+      allRevisions,
     ) {
       _percCompareService = $.PercCompareService();
       _percCompareService.params.itemId = itemId;
@@ -1837,7 +1837,7 @@ var assetPagination = null;
           // as whether to open in a tab or window.
           var nRef = window.open(
             href,
-            "percPagePreviewWindow" + id.replace(/-/g, "")
+            "percPagePreviewWindow" + id.replace(/-/g, ""),
           );
           $(nRef.document).ready(function () {
             if (revId) {
@@ -1899,12 +1899,12 @@ var assetPagination = null;
           var children = {};
           $.each(
             $.perc_utils.convertCXFArray(
-              folder_spec.PagedItemList.childrenInPage
+              folder_spec.PagedItemList.childrenInPage,
             ),
             function () {
               //Use the postfix "_item" to avoid reserved name collision (e.g. toString, watch, toSource, etc).
               children[ut.extract_path_end(this.path) + "_item"] = this;
-            }
+            },
           );
           dir.data("path", path);
           //set the startIndex of the child element, if was not provided the child param the service return the original startindex
@@ -2003,7 +2003,7 @@ var assetPagination = null;
       fdir
         .find(".ui-resizable")
         .append(
-          '<div class="ui-resizable-handle ui-resizable-e perc-resize-disabled" />'
+          '<div class="ui-resizable-handle ui-resizable-e perc-resize-disabled" />',
         );
       return fdir;
     }
@@ -2011,7 +2011,7 @@ var assetPagination = null;
     function make_top_level(dir) {
       var dv = $(
         "<div class='perc-finder-table'>" +
-          "<table><tr id='perc-finder-table-top'></tr></table></div>"
+          "<table><tr id='perc-finder-table-top'></tr></table></div>",
       );
       dv.find("tr").append(dir);
       return dv;

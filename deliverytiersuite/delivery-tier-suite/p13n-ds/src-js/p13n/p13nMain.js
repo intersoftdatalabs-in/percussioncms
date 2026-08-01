@@ -55,7 +55,7 @@ p13nLoadProfileEditor = function () {
   $("#ProfileEditPane").load(
     profileEditorUrl,
     {},
-    p13nProfileEditorLoadedRefreshContentPage
+    p13nProfileEditorLoadedRefreshContentPage,
   );
 };
 
@@ -63,7 +63,7 @@ p13nRefreshProfileEditor = function () {
   $("#ProfileEditPane").load(
     profileEditorUrl + " #ProfileEditPane",
     {},
-    p13nProfileEditorLoaded
+    p13nProfileEditorLoaded,
   );
 };
 
@@ -75,7 +75,7 @@ p13nNewProfile = function () {
   $("#ProfileEditPane").load(
     profileEditorUrl,
     { newProfile: "true" },
-    p13nProfileEditorLoadedRefreshContentPage
+    p13nProfileEditorLoadedRefreshContentPage,
   );
 };
 
@@ -287,7 +287,7 @@ p13nProfileChange = function () {
   $("#ProfileEditPane").load(
     profileEditorUrl,
     params,
-    p13nProfileEditorLoadedRefreshContentPage
+    p13nProfileEditorLoadedRefreshContentPage,
   );
 };
 

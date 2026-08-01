@@ -46,7 +46,7 @@
 
       if (status == $.PercServiceUtils.STATUS_ERROR) {
         var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-          result.request
+          result.request,
         );
         $.perc_utils.alert_dialog({
           title: I18N.message("perc.ui.publish.title@Error"),
@@ -60,7 +60,7 @@
         function () {
           var currentPageId = $(this).attr("id");
           $.perc_finder().launchPagePreview(currentPageId);
-        }
+        },
       );
     }
 
@@ -178,7 +178,7 @@
         ],
         oLanguage: {
           sZeroRecords: I18N.message(
-            "perc.ui.site.impact.view@No Templates Found"
+            "perc.ui.site.impact.view@No Templates Found",
           ),
           oPaginate: {
             sFirst: "&lt;&lt;",
@@ -222,7 +222,7 @@
           .launchPagePreviewByPath(data.pagePath, data.pageId);
       } else {
         alert(
-          I18N.message("perc.ui.site.impact.view@Unable To Load Preview Page")
+          I18N.message("perc.ui.site.impact.view@Unable To Load Preview Page"),
         );
       }
     }

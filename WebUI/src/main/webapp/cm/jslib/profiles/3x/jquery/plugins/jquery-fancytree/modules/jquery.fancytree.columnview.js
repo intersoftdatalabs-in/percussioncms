@@ -63,11 +63,11 @@
 
       _assert(
         $.inArray("table", this.options.extensions) < 0,
-        "columnview extensions must not use ext-table"
+        "columnview extensions must not use ext-table",
       );
       _assert(
         tree.columnCount >= 2,
-        "columnview target must be a table with at least two columns"
+        "columnview target must be a table with at least two columns",
       );
 
       $ul.removeClass("fancytree-container").removeAttr("tabindex");

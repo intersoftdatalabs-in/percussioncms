@@ -34,7 +34,7 @@
         if_leaf(spec.pathItem);
       },
       prepare_folder_items(if_folder),
-      if_error
+      if_error,
     );
 
     function prepare_folder_items(callback) {
@@ -120,7 +120,7 @@
       function (pathItem) {
         k(pathItem.PathItem.folderPath);
       },
-      err
+      err,
     );
   }
 
@@ -141,13 +141,13 @@
           function (spec) {
             k(spec, pathclone);
           },
-          err
+          err,
         );
       },
       function (spec) {
         k(spec, pathclone);
       },
-      err
+      err,
     );
   }
 
@@ -175,7 +175,7 @@
           });
         }
       },
-      err
+      err,
     );
   }
 
@@ -218,7 +218,7 @@
                     " of " +
                     maxRetries +
                     " for path: " +
-                    path_str
+                    path_str,
                 );
                 setTimeout(doOpen, retryDelay);
               } else {
@@ -245,7 +245,7 @@
                     " of " +
                     maxRetries +
                     " for path: " +
-                    path_str
+                    path_str,
                 );
                 setTimeout(doOpen, retryDelay);
               } else {

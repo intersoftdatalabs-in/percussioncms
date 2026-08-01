@@ -86,7 +86,7 @@
 
     dialog = $(dialog_content).perc_dialog({
       title: I18N.message(
-        "perc.ui.saveassharedassetdialog.title@Save As Shared Asset"
+        "perc.ui.saveassharedassetdialog.title@Save As Shared Asset",
       ),
       id: "perc-saveas-shared-asset-dialog",
       width: 686,
@@ -117,7 +117,7 @@
     // Filter invaid characters in Name field
     $.perc_filterField(
       dialog.find("#perc-saveas-shared-asset-dialog-name"),
-      $.perc_textFilters.URL
+      $.perc_textFilters.URL,
     );
   }
 
@@ -140,7 +140,7 @@
     $("#perc-saveas-shared-asset-dialog-path-label").html(
       I18N.message("perc.ui.saveassharedassetdialog.label@Where:") +
         " " +
-        pathVal
+        pathVal,
     );
   }
 
@@ -195,16 +195,16 @@
         displayError(
           errorLabelsSelectors.name,
           I18N.message(
-            "perc.ui.saveassharedassetdialog.errormessage@Asset Name is required."
-          )
+            "perc.ui.saveassharedassetdialog.errormessage@Asset Name is required.",
+          ),
         );
       }
       if (selectedPathNull) {
         displayError(
           errorLabelsSelectors.where,
           I18N.message(
-            "perc.ui.saveassharedassetdialog.errormessage@Selected Path is required."
-          )
+            "perc.ui.saveassharedassetdialog.errormessage@Selected Path is required.",
+          ),
         );
       }
 
@@ -223,8 +223,8 @@
         displayError(
           errorLabelsSelectors.where,
           I18N.message(
-            "perc.ui.saveassharedassetdialog.errormessage@You do not have permission to create an asset here."
-          )
+            "perc.ui.saveassharedassetdialog.errormessage@You do not have permission to create an asset here.",
+          ),
         );
         return;
       }
@@ -239,13 +239,13 @@
             displayError(
               errorLabelsSelectors.where,
               I18N.message(
-                "perc.ui.saveassharedassetdialog.errormessage@You do not have permission to create an asset here."
-              )
+                "perc.ui.saveassharedassetdialog.errormessage@You do not have permission to create an asset here.",
+              ),
             );
           } else {
             okCallback();
           }
-        }
+        },
       );
     }
 
@@ -266,14 +266,14 @@
             displayError(
               errorLabelsSelectors.where,
               I18N.message(
-                "perc.ui.saveassharedassetdialog.errormessage@You are not authorized to create a new asset."
-              )
+                "perc.ui.saveassharedassetdialog.errormessage@You are not authorized to create a new asset.",
+              ),
             );
           } else {
             okCallback();
           }
         },
-        selectedPath
+        selectedPath,
       );
     }
 
@@ -294,13 +294,13 @@
             displayError(
               errorLabelsSelectors.name,
               I18N.message(
-                "perc.ui.saveassharedassetdialog.errormessage@An asset with the same name already exists."
-              )
+                "perc.ui.saveassharedassetdialog.errormessage@An asset with the same name already exists.",
+              ),
             );
           } else {
             okCallback();
           }
-        }
+        },
       );
     }
 
@@ -317,7 +317,7 @@
           .find(
             "div.perc-widget[widgetid=" +
               dialogOptions.widgetData.widgetid +
-              "]"
+              "]",
           )
           .attr("assetid");
       }
@@ -334,7 +334,7 @@
           } else {
             okCallback(result);
           }
-        }
+        },
       );
     }
 

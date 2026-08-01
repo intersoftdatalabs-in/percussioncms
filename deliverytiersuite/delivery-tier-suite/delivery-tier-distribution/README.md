@@ -9,15 +9,38 @@ This module contains all the configuration files for DTS. For e.g.
 * DTS tomcat configurations
 etc...
 
+## Last-install user defaults
+
+After a **successful** DTS install, non-secret settings are merged into the same file used by the CMS
+installer:
+
+```text
+~/.intsof/percussion/last-install.properties
+```
+
+- Production installs use the `dts.prod.*` prefix
+- Staging installs use the `dts.stage.*` prefix
+- Includes `*.version` (version installed) and `*.install.directory`
+- Passwords are never written
+
+On subsequent runs, missing CLI values (including install path) are filled from the matching prefix.
+See `InstallerUserSettings` and `com.intsof.common:utilities`.
+
 ## Runtime platform (Jakarta EE 11 / Tomcat 11)
 
-|          Item           |                                    Value                                    |
-|-------------------------|-----------------------------------------------------------------------------|
-| Tomcat version property | `${tomcat.version}` (currently **11.0.x**) in `delivery-tier-suite/pom.xml` |
-| Cargo container         | **`tomcat11x`** via `cargo-maven3-plugin`                                   |
-| Conf overlay source     | `src/main/tomcat11/`                                                        |
-| Windows Procrun         | `rootFiles/tomcat11.exe` + `tomcat11w.exe` (installed by `installDts.xml`)  |
-| Windows service scripts | `DTSProductionService.bat` / `DTSStagingService.bat` → **`tomcat11.exe`**   |
+|            Item             |                                         Value                                         |
+|-----------------------------|---------------------------------------------------------------------------------------|
+| Tomcat version property     | `${tomcat.version}` (currently **11.0.x**) in `delivery-tier-suite/pom.xml`           |
+| Cargo container             | **`tomcat11x`** via `cargo-maven3-plugin`                                             |
+| Conf overlay source         | `src/main/tomcat11/`                                                                  |
+| Windows Procrun             | `rootFiles/tomcat11.exe` + `tomcat11w.exe` (installed by `installDts.xml`)            |
+| Windows service scripts     | `DTSProductionService.bat` / `DTSStagingService.bat` → **`tomcat11.exe`**             |
+| Embedded DB (new install)   | **H2** under `Deployment/Server/h2data/` (`-Dperc.h2.data.home`)                      |
+| Shared JDBC on `common/lib` | H2 + external drivers (jTDS, MariaDB, MSSQL, Oracle, HikariCP) — **not** Apache Derby |
+
+**HTTPS (Tomcat 11):** `conf/server.xml` uses nested `<SSLHostConfig>` / `<Certificate>` (legacy Connector `keystoreFile` attributes no longer create a default SSL host config). Keystore defaults: `conf/.keystore`, type **PKCS12**, password from `conf/perc/perc-catalina.properties`.
+
+**Derby:** Not packaged into the shipping Tomcat `common/lib`. Upgrade-time Derby→H2 migration still runs offline from `installDts.xml` (`PSMigrateDtsEmbeddedRepository` / `PSUpgradeDerby` via perc-ant). Do not re-add `org.apache.derby` cargo container dependencies without an explicit migration-window reason.
 
 Residual checklist: `docs/ai-generated/tasks/667-jakarta-ee11-residual-checklist/README.md` (issue #667).
 

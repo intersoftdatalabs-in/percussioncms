@@ -18,6 +18,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import {
   DEFAULT_LOGIN_HREF,
+  loginHrefWithLocale,
   readLogoutBootstrap,
   sanitizeLoginHref,
 } from "@/logout/bootstrap";
@@ -60,7 +61,7 @@ describe("readLogoutBootstrap", () => {
   it("returns defaults when bootstrap is missing", () => {
     const boot = readLogoutBootstrap();
     expect(boot.locale).toBe("en-us");
-    expect(boot.loginHref).toBe(DEFAULT_LOGIN_HREF);
+    expect(boot.loginHref).toBe(`${DEFAULT_LOGIN_HREF}?j_locale=en-us`);
   });
 
   it("reads and sanitizes host JSON", () => {
@@ -75,7 +76,7 @@ describe("readLogoutBootstrap", () => {
 
     const boot = readLogoutBootstrap();
     expect(boot.locale).toBe("fr-fr");
-    expect(boot.loginHref).toBe("/rxlogin.jsp");
+    expect(boot.loginHref).toBe("/rxlogin.jsp?j_locale=fr-fr");
   });
 
   it("falls back when loginHref is hostile", () => {
@@ -88,6 +89,53 @@ describe("readLogoutBootstrap", () => {
     });
     document.body.appendChild(el);
 
-    expect(readLogoutBootstrap().loginHref).toBe(DEFAULT_LOGIN_HREF);
+    // Hostile href → DEFAULT_LOGIN_HREF, then j_locale appended from bootstrap locale
+    expect(readLogoutBootstrap().loginHref).toBe(
+      `${DEFAULT_LOGIN_HREF}?j_locale=en-us`,
+    );
+  });
+
+  it("appends j_locale from bootstrap when host omitted it", () => {
+    const el = document.createElement("script");
+    el.id = "perc-logout-bootstrap";
+    el.type = "application/json";
+    el.textContent = JSON.stringify({
+      locale: "fr-fr",
+      loginHref: "login",
+    });
+    document.body.appendChild(el);
+
+    expect(readLogoutBootstrap().loginHref).toBe("login?j_locale=fr-fr");
+  });
+
+  it("preserves j_locale already present on host href", () => {
+    const el = document.createElement("script");
+    el.id = "perc-logout-bootstrap";
+    el.type = "application/json";
+    el.textContent = JSON.stringify({
+      locale: "fr-fr",
+      loginHref: "login?j_locale=fr-fr",
+    });
+    document.body.appendChild(el);
+
+    expect(readLogoutBootstrap().loginHref).toBe("login?j_locale=fr-fr");
+  });
+});
+
+describe("loginHrefWithLocale", () => {
+  it("appends j_locale with ? or & as needed", () => {
+    expect(loginHrefWithLocale("login", "es-es")).toBe("login?j_locale=es-es");
+    expect(loginHrefWithLocale("login?return=/cm/app", "de-de")).toBe(
+      "login?return=/cm/app&j_locale=de-de",
+    );
+    expect(loginHrefWithLocale("/rxlogin.jsp", "hi-in")).toBe(
+      "/rxlogin.jsp?j_locale=hi-in",
+    );
+  });
+
+  it("does not double-append j_locale", () => {
+    expect(loginHrefWithLocale("login?j_locale=fr-fr", "es-es")).toBe(
+      "login?j_locale=fr-fr",
+    );
   });
 });

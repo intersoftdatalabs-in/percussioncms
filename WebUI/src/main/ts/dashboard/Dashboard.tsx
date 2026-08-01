@@ -31,9 +31,12 @@ import { DashboardLayout, type DashboardWidget } from "./DashboardLayout";
 import { AddGadgetModal, type AddGadgetModalProps } from "./AddGadgetModal";
 import { useDashboardConfig, type WidgetConfig } from "./hooks/useDashboardConfig";
 import {
+  GADGET_CATALOG,
   loadPreferredGadgetIds,
   PREFERRED_GADGETS_EVENT,
+  type GadgetCatalogEntry,
 } from "./gadgetsCatalog";
+import { message, MSG } from "../i18n/message";
 import { WelcomeWidget } from "./WelcomeWidget";
 import { ActivityWidget } from "./ActivityWidget";
 import { WorkflowStatusWidget } from "./WorkflowStatusWidget";
@@ -59,272 +62,116 @@ import { WidgetConfigurationWidget } from "./WidgetConfigurationWidget";
 /**
  * Available gadgets registry for the dashboard.
  *
- * <p>Maps gadget IDs to their component types, names, and descriptions.</p>
+ * <p>Names + descriptions are sourced from
+ * {@link GADGET_CATALOG} and rendered through
+ * {@link message} at use sites so locale switches re-render.</p>
  */
 interface GadgetInfo {
   id: string;
+  /** TMX key for the localized name. */
+  nameKey: string;
+  /** English fallback shown by tests / when TMX is unavailable. */
   name: string;
   component: React.ComponentType<any>;
-  description?: string;
-  category?: string;
+  /** TMX key for the localized description. */
+  descriptionKey: string;
+  /** English fallback description. */
+  description: string;
+  category: string;
 }
 
-const AVAILABLE_GADGETS: GadgetInfo[] = [
-  {
-    id: "welcome",
-    name: "Welcome",
-    component: WelcomeWidget,
-    description: "Welcome message and dashboard introduction",
-    category: "System",
-  },
-  {
-    id: "workflow",
-    name: "Pages By Status",
-    component: WorkflowStatusWidget,
-    description: "Pages grouped by workflow state (classic Pages By Status)",
-    category: "Content Management",
-  },
-  {
-    id: "activity",
-    name: "Activity",
-    component: ActivityWidget,
-    description: "Content activity metrics by path and duration",
-    // GadgetRegistry.xml group "Deprecated" (v8.1.7 #722 / #885)
-    category: "Deprecated",
-  },
-  {
-    id: "process-monitor",
-    name: "Process Monitor",
-    component: ProcessMonitorWidget,
-    description: "System process and monitoring status",
-    category: "System",
-  },
-  {
-    id: "effectiveness",
-    name: "What's Working",
-    component: EffectivenessWidget,
-    description:
-      "Effectiveness scores (requires Google Analytics — see Google Setup)",
-    category: "Analytics",
-  },
-  {
-    id: "assets-status",
-    name: "Assets By Status",
-    component: AssetsStatusWidget,
-    description: "Asset workflow status distribution",
-    category: "Content Management",
-  },
-  {
-    id: "bulk-upload",
-    name: "Bulk Upload",
-    component: BulkUploadWidget,
-    description: "Upload files into Assets/uploads",
-    category: "Content Management",
-  },
-  {
-    id: "reports",
-    name: "Reports",
-    component: ReportsWidget,
-    description: "Quick CMS reports hub (SEO, forms, comments, activity)",
-    category: "Analytics",
-  },
-  {
-    id: "traffic",
-    name: "Traffic",
-    component: TrafficWidget,
-    description:
-      "Content traffic series (visits need Google Analytics profile)",
-    category: "Analytics",
-  },
-  {
-    id: "blogs",
-    name: "Blogs",
-    component: BlogsWidget,
-    description: "Blog listings and management",
-    category: "Content Management",
-  },
-  {
-    id: "comments",
-    name: "Comments",
-    component: CommentsWidget,
-    description: "Latest visitor comments and feedback",
-    category: "Content Management",
-  },
-  {
-    id: "forms-tracker",
-    name: "Form Tracker",
-    component: FormsTrackerWidget,
-    description: "Form submission tracking and analytics",
-    category: "Content Management",
-  },
-  {
-    id: "cookie-consent",
-    name: "Cookie Consent",
-    component: CookieConsentWidget,
-    description: "GDPR compliance and cookie consent status",
-    category: "Compliance",
-  },
-  {
-    id: "seo-audit",
-    name: "SEO Audit",
-    component: SEOAuditWidget,
-    description: "SEO health metrics and recommendations",
-    category: "Analytics",
-  },
-  {
-    id: "google-setup",
-    name: "Google Setup",
-    component: GoogleSetupWidget,
-    description:
-      "Google Analytics provider status (required for Traffic / What's Working)",
-    category: "Analytics",
-  },
-  {
-    id: "membership",
-    name: "Membership",
-    component: MembershipWidget,
-    description: "User membership information and statistics",
-    // GadgetRegistry.xml group "Deprecated" (v8.1.7 #722 / #885)
-    category: "Deprecated",
-  },
-  {
-    id: "sitewide-framework",
-    name: "Sitewide Framework",
-    component: SitewideFrameworkWidget,
-    description: "Framework configuration and module status",
-    category: "System",
-  },
-  {
-    id: "siteimprove",
-    name: "Siteimprove",
-    component: SiteimproveWidget,
-    description: "Accessibility and quality metrics from Siteimprove",
-    // GadgetRegistry.xml group "Deprecated" (v8.1.7 #722 / #885)
-    category: "Deprecated",
-  },
-  {
-    id: "iframe",
-    name: "External Content",
-    component: IframeWidget,
-    description: "Embedded external content and dashboards",
-    category: "External",
-  },
-  {
-    id: "global-variables",
-    name: "Global Variables",
-    component: GlobalVariablesWidget,
-    description: "System-wide global variables and configuration settings",
-    category: "System",
-  },
-  {
-    id: "widget-configuration",
-    name: "Dashboard Configuration",
-    component: WidgetConfigurationWidget,
-    description: "Manage dashboard widgets and configuration",
-    // GadgetRegistry.xml group "Deprecated" (v8.1.7 #722 / #885)
-    category: "Deprecated",
-  },
-];
+/**
+ * Component lookup. Names + descriptions live in
+ * {@link GADGET_CATALOG} so headers / descriptions stay in sync
+ * with the gadgets catalog.
+ */
+const GADGET_COMPONENTS: Record<string, React.ComponentType<any>> = {
+  welcome: WelcomeWidget,
+  workflow: WorkflowStatusWidget,
+  activity: ActivityWidget,
+  "process-monitor": ProcessMonitorWidget,
+  effectiveness: EffectivenessWidget,
+  "assets-status": AssetsStatusWidget,
+  "bulk-upload": BulkUploadWidget,
+  reports: ReportsWidget,
+  traffic: TrafficWidget,
+  blogs: BlogsWidget,
+  comments: CommentsWidget,
+  "forms-tracker": FormsTrackerWidget,
+  "cookie-consent": CookieConsentWidget,
+  "seo-audit": SEOAuditWidget,
+  "google-setup": GoogleSetupWidget,
+  membership: MembershipWidget,
+  "sitewide-framework": SitewideFrameworkWidget,
+  siteimprove: SiteimproveWidget,
+  iframe: IframeWidget,
+  "global-variables": GlobalVariablesWidget,
+  "widget-configuration": WidgetConfigurationWidget,
+};
+
+function catalogToGadgetInfo(entry: GadgetCatalogEntry): GadgetInfo {
+  return {
+    id: entry.id,
+    nameKey: entry.nameKey,
+    name: entry.name,
+    component: GADGET_COMPONENTS[entry.id] ?? (() => null),
+    descriptionKey: entry.descriptionKey,
+    description: entry.description,
+    category: entry.category,
+  };
+}
+
+const AVAILABLE_GADGETS: GadgetInfo[] = GADGET_CATALOG.map(catalogToGadgetInfo);
 
 /**
  * Default Home Gadgets layout — verified CMS/DTS APIs only.
  * Delivery-backed gadgets (Comments, Cookie Consent, Membership) and SEO /
  * Siteimprove are available via Add Gadget; shells without REST peers stay
- * honest “not available” placeholders.
+ * honest "not available" placeholders.
  */
-const DEFAULT_GADGETS: DashboardWidget[] = [
-  {
-    id: "welcome",
-    name: "Welcome",
-    component: WelcomeWidget,
-    props: { userName: "User" },
-    position: { column: "left", order: 0 },
-  },
-  {
-    id: "blogs",
-    name: "Blogs",
-    component: BlogsWidget,
-    props: {},
-    position: { column: "left", order: 1 },
-  },
-  {
-    id: "workflow",
-    name: "Pages By Status",
-    component: WorkflowStatusWidget,
-    props: {},
-    position: { column: "left", order: 2 },
-  },
-  {
-    id: "activity",
-    name: "Activity",
-    component: ActivityWidget,
-    props: {},
-    position: { column: "right", order: 0 },
-  },
-  {
-    id: "assets-status",
-    name: "Assets By Status",
-    component: AssetsStatusWidget,
-    props: {},
-    position: { column: "right", order: 1 },
-  },
-  {
-    id: "process-monitor",
-    name: "Process Monitor",
-    component: ProcessMonitorWidget,
-    props: {},
-    position: { column: "right", order: 2 },
-  },
-  {
-    id: "google-setup",
-    name: "Google Setup",
-    component: GoogleSetupWidget,
-    props: {},
-    position: { column: "left", order: 3 },
-  },
-  {
-    id: "traffic",
-    name: "Traffic",
-    component: TrafficWidget,
-    props: {},
-    position: { column: "right", order: 3 },
-  },
-  {
-    id: "effectiveness",
-    name: "What's Working",
-    component: EffectivenessWidget,
-    props: {},
-    position: { column: "right", order: 4 },
-  },
-  {
-    id: "forms-tracker",
-    name: "Form Tracker",
-    component: FormsTrackerWidget,
-    props: {},
-    position: { column: "left", order: 4 },
-  },
-  {
-    id: "comments",
-    name: "Comments",
-    component: CommentsWidget,
-    props: {},
-    position: { column: "right", order: 5 },
-  },
-  {
-    id: "global-variables",
-    name: "Global Variables",
-    component: GlobalVariablesWidget,
-    props: {},
-    position: { column: "left", order: 5 },
-  },
-  {
-    id: "cookie-consent",
-    name: "Cookie Consent",
-    component: CookieConsentWidget,
-    props: {},
-    position: { column: "right", order: 6 },
-  },
+const DEFAULT_GADGET_IDS = [
+  "welcome",
+  "blogs",
+  "workflow",
+  "activity",
+  "assets-status",
+  "process-monitor",
+  "google-setup",
+  "traffic",
+  "effectiveness",
+  "forms-tracker",
+  "comments",
+  "global-variables",
+  "cookie-consent",
 ];
+
+const DEFAULT_GADGETS: DashboardWidget[] = (() => {
+  const leftIds = new Set([
+    "welcome",
+    "blogs",
+    "workflow",
+    "google-setup",
+    "forms-tracker",
+    "global-variables",
+  ]);
+  let leftOrder = 0;
+  let rightOrder = 0;
+  return DEFAULT_GADGET_IDS.map((id) => {
+    const info = AVAILABLE_GADGETS.find((g) => g.id === id);
+    const isLeft = leftIds.has(id);
+    const order = isLeft ? leftOrder++ : rightOrder++;
+    return {
+      id,
+      name: info?.name ?? id,
+      component: info?.component ?? (() => null),
+      props: id === "welcome" ? { userName: "User" } : {},
+      position: {
+        column: (isLeft ? "left" : "right") as "left" | "right",
+        order,
+      },
+    } satisfies DashboardWidget;
+  });
+})();
 
 /** Build layout tiles from preferred catalog ids (session layout prefs). */
 function buildGadgetsFromIds(ids: string[]): DashboardWidget[] {
@@ -455,7 +302,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
       AVAILABLE_GADGETS.map((gadget) => ({
         id: gadget.id,
         name: gadget.name,
+        nameKey: gadget.nameKey,
         description: gadget.description,
+        descriptionKey: gadget.descriptionKey,
         category: gadget.category,
       })),
     []
@@ -548,7 +397,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           color: "#999",
         }}
       >
-        <p>Loading gadgets…</p>
+        <p>{message(MSG.DASHBOARD_LOADING)}</p>
       </div>
     );
   }
@@ -559,6 +408,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       {configError && userId ? (
         <div
           data-testid="dashboard-config-warning"
+          role="alert"
           style={{
             padding: "10px 16px",
             color: "#664d03",
@@ -567,8 +417,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
             fontSize: "0.9rem",
           }}
         >
-          Could not load saved gadget layout ({configError}). Showing defaults.{" "}
-          <a href={legacyDashboardUrl}>Legacy dashboard</a>
+          <span style={{ fontWeight: 600 }}>
+            {message(MSG.DASHBOARD_LAYOUT_WARNING_TITLE)}:{" "}
+          </span>
+          {message(MSG.DASHBOARD_LAYOUT_WARNING_PREFIX)} ({configError}).{" "}
+          <a href={legacyDashboardUrl}>{message(MSG.DASHBOARD_LEGACY_LINK)}</a>
         </div>
       ) : null}
 
@@ -584,7 +437,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         }}
       >
         <h1 style={{ margin: 0, fontSize: embedded ? "1.15em" : "1.5em", color: "#333" }}>
-          {embedded ? "Gadgets" : "Dashboard"}
+          {message(embedded ? MSG.DASHBOARD_EMBEDDED_TITLE : MSG.DASHBOARD_TITLE)}
         </h1>
         <button
           type="button"
@@ -600,7 +453,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             fontSize: "0.95em",
           }}
         >
-          + Add Gadget
+          + {message(MSG.DASHBOARD_ADD_GADGET)}
         </button>
       </div>
 

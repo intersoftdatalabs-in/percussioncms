@@ -46,22 +46,22 @@
             $.PercServiceUtils.STATUS_SUCCESS,
             result.data,
             I18N.message(
-              "perc.ui.gadgets.cookieConsent@Success retrieving cookie consent entries"
-            )
+              "perc.ui.gadgets.cookieConsent@Success retrieving cookie consent entries",
+            ),
           );
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback(
             $.PercServiceUtils.STATUS_ERROR,
             defaultMsg,
             I18N.message(
-              "perc.ui.gadgets.cookieConsent@No cookie consent entries found"
-            )
+              "perc.ui.gadgets.cookieConsent@No cookie consent entries found",
+            ),
           );
         }
-      }
+      },
     );
   }
 
@@ -83,22 +83,22 @@
             $.PercServiceUtils.STATUS_SUCCESS,
             result.data,
             I18N.message(
-              "perc.ui.gadgets.cookieConsent@Success retrieving cookie consent entries"
-            )
+              "perc.ui.gadgets.cookieConsent@Success retrieving cookie consent entries",
+            ),
           );
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback(
             $.PercServiceUtils.STATUS_ERROR,
             defaultMsg,
             I18N.message(
-              "perc.ui.gadgets.cookieConsent@No cookie consent entries found"
-            )
+              "perc.ui.gadgets.cookieConsent@No cookie consent entries found",
+            ),
           );
         }
-      }
+      },
     );
   }
 
@@ -120,14 +120,14 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
       "",
       "text/csv",
-      "text"
+      "text",
     );
   }
 

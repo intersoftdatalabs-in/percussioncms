@@ -38,7 +38,7 @@
             okCallBack: function () {
               setDisplayDate(
                 $('[name="start_date"]').val(),
-                "display_start_date"
+                "display_start_date",
               );
               return false;
             },
@@ -99,7 +99,7 @@
     $("#categorylist-title").on("click", function () {
       $("#criteria_for_list").toggle();
       $("#categorylist-title").toggleClass(
-        "categorylist-expand-image categorylist-close-image"
+        "categorylist-expand-image categorylist-close-image",
       );
     });
   }
@@ -108,7 +108,7 @@
     $("#categorylist-title").on("click", function () {
       $("#criteria_for_list").toggle();
       $("#categorylist-title").toggleClass(
-        "categorylist-expand-image categorylist-close-image"
+        "categorylist-expand-image categorylist-close-image",
       );
     });
 
@@ -149,11 +149,11 @@
             $("#perc_display_template_list").append(buff);
           } else {
             var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-              result.request
+              result.request,
             );
             $.perc_utils.alert_dialog({ title: "Error", content: defaultMsg });
           }
-        }
+        },
       );
     }
   }

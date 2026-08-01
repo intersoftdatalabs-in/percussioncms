@@ -8,6 +8,7 @@ import {
   loadPreferredGadgetIds,
   savePreferredGadgetIds,
 } from "./gadgetsCatalog";
+import { message, MSG } from "../i18n/message";
 import { styles } from "./dashboard.styles";
 
 export interface WidgetConfigurationWidgetProps {
@@ -21,7 +22,7 @@ export interface WidgetConfigurationWidgetProps {
  */
 export const WidgetConfigurationWidget: React.FC<
   WidgetConfigurationWidgetProps
-> = ({ title = "Dashboard Configuration" }) => {
+> = ({ title }) => {
   const initial = useMemo(() => {
     const saved = loadPreferredGadgetIds();
     if (saved && saved.length > 0) return new Set(saved);
@@ -44,7 +45,7 @@ export const WidgetConfigurationWidget: React.FC<
   }, []);
 
   const [selected, setSelected] = useState<Set<string>>(initial);
-  const [message, setMessage] = useState<string | null>(null);
+  const [message_, setMessage] = useState<string | null>(null);
 
   const toggle = (id: string) => {
     setSelected((prev) => {
@@ -58,11 +59,11 @@ export const WidgetConfigurationWidget: React.FC<
   const apply = () => {
     const ids = GADGET_CATALOG.map((g) => g.id).filter((id) => selected.has(id));
     if (ids.length === 0) {
-      setMessage("Select at least one gadget.");
+      setMessage(message(MSG.WIDGET_CONFIG_EMPTY));
       return;
     }
     savePreferredGadgetIds(ids);
-    setMessage("Layout applied for this browser session. Refresh if tiles did not update.");
+    setMessage(message(MSG.WIDGET_CONFIG_APPLIED));
   };
 
   const byCategory = useMemo(() => {
@@ -77,18 +78,17 @@ export const WidgetConfigurationWidget: React.FC<
 
   return (
     <div style={styles.widget} data-testid="widget-configuration-widget">
-      <div style={styles.widgetTitle}>{title}</div>
+      <div style={styles.widgetTitle}>{title ?? message(MSG.GADGET_DASHBOARD_CONFIG)}</div>
       <div style={styles.widgetContent}>
         <p style={{ fontSize: "0.85em", color: "#666", marginTop: 0 }}>
-          Choose which gadgets appear on Home for this session. You can also use
-          Add Gadget on the dashboard toolbar.
+          {message(MSG.WIDGET_CONFIG_HINT)}
         </p>
-        {message ? (
+        {message_ ? (
           <p
             data-testid="widget-configuration-message"
             style={{ fontSize: "0.85em", color: "#2e7d32" }}
           >
-            {message}
+            {message_}
           </p>
         ) : null}
         <div
@@ -118,9 +118,9 @@ export const WidgetConfigurationWidget: React.FC<
                     data-testid={`widget-config-cb-${g.id}`}
                   />
                   <span>
-                    <strong>{g.name}</strong>
+                    <strong>{message(g.nameKey)}</strong>
                     <div style={{ color: "#666", fontSize: "0.9em" }}>
-                      {g.description}
+                      {message(g.descriptionKey)}
                     </div>
                   </span>
                 </label>
@@ -134,7 +134,7 @@ export const WidgetConfigurationWidget: React.FC<
           data-testid="widget-configuration-apply"
           style={{ padding: "8px 14px", marginTop: 8 }}
         >
-          Apply layout
+          {message(MSG.WIDGET_CONFIG_APPLY)}
         </button>
       </div>
     </div>

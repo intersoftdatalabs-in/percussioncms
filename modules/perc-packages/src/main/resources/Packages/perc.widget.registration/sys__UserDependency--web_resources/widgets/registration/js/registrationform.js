@@ -17,7 +17,7 @@
 
 $(document).ready(function () {
   $(
-    "#perc-registration-form, #perc-password-reset, #perc-password-request, #perc-registration-cform"
+    "#perc-registration-form, #perc-password-reset, #perc-password-request, #perc-registration-cform",
   ).each(function () {
     var myRules = {
       "perc-registration-email-field": {

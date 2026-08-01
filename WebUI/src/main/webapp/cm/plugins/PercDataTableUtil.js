@@ -58,7 +58,9 @@
         let name = colsInfo[k].name;
         let dataUpdater = colsInfo[k].dataUpdater;
         dataRow.push(
-          typeof dataUpdater === "function" ? dataUpdater(name, row) : row[name]
+          typeof dataUpdater === "function"
+            ? dataUpdater(name, row)
+            : row[name],
         );
       }
       var percContent = { rowContent: dataRow, rowData: row };
@@ -87,8 +89,8 @@
         column.width === -1
           ? "*"
           : $.browser.msie
-          ? column.width - 20
-          : column.width
+            ? column.width - 20
+            : column.width,
       );
       dtConfig.percTypes.push({ sType: column.type });
     }

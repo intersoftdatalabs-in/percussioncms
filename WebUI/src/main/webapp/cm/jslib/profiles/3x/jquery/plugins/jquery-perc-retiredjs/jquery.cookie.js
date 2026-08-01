@@ -13,7 +13,7 @@ jQuery.cookie = function (e, i, o) {
     }
     return t;
   }
-  (o = o || {}), null === i && ((i = ""), (o.expires = -1));
+  ((o = o || {}), null === i && ((i = ""), (o.expires = -1)));
   var s,
     m = "";
   o.expires &&

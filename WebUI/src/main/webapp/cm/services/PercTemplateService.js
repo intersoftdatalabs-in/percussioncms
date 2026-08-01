@@ -93,7 +93,7 @@
     templateName,
     outerRegionName,
     regionName,
-    callback
+    callback,
   ) {
     $.PercServiceUtils.makeJsonRequest(
       $.perc_paths.REGION_CSS +
@@ -112,11 +112,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -141,11 +141,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -169,11 +169,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -189,7 +189,7 @@
     themeName,
     templateName,
     deletedRegionsJSON,
-    callback
+    callback,
   ) {
     $.PercServiceUtils.makeJsonRequest(
       $.perc_paths.REGION_CSS_MERGE + "/" + themeName + "/" + templateName,
@@ -200,12 +200,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      deletedRegionsJSON
+      deletedRegionsJSON,
     );
   }
 
@@ -226,12 +226,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      regionJSON
+      regionJSON,
     );
   }
 
@@ -251,7 +251,7 @@
     templateName,
     outerRegionName,
     regionName,
-    callback
+    callback,
   ) {
     $.PercServiceUtils.makeJsonRequest(
       $.perc_paths.REGION_CSS +
@@ -270,11 +270,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -363,7 +363,7 @@
           this.ownerId,
           this.supportedCtypes,
           this.assetShared,
-          this.relationshipId
+          this.relationshipId,
         );
       });
       callback(assetDropCriteria);
@@ -435,7 +435,7 @@
       getUrl,
       $.PercServiceUtils.TYPE_GET,
       false,
-      serviceCallback
+      serviceCallback,
     );
   }
 
@@ -455,11 +455,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -482,7 +482,7 @@
       $.PercServiceUtils.TYPE_POST,
       false,
       serviceCallback,
-      newWidgetObj
+      newWidgetObj,
     );
   }
 
@@ -505,7 +505,7 @@
       url,
       $.PercServiceUtils.TYPE_GET,
       false,
-      serviceCallback
+      serviceCallback,
     );
   }
 
@@ -538,16 +538,16 @@
         if (status === $.PercServiceUtils.STATUS_SUCCESS) {
           callback(
             $.PercServiceUtils.STATUS_SUCCESS,
-            result.data.TemplateSummary
+            result.data.TemplateSummary,
           );
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      serviceParam
+      serviceParam,
     );
   }
 
@@ -576,12 +576,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = I18N.message(
-            "perc.ui.site.service@Unexpected Error Importing"
+            "perc.ui.site.service@Unexpected Error Importing",
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      serviceParam
+      serviceParam,
     );
   }
 
@@ -608,12 +608,12 @@
           // be an error
           serviceStatus = $.PercServiceUtils.STATUS_ERROR;
           data = I18N.message(
-            "perc.ui.site.service@Unexpected Error Importing"
+            "perc.ui.site.service@Unexpected Error Importing",
           );
         }
 
         callback(serviceStatus, data);
-      }
+      },
     );
   }
 
@@ -640,12 +640,12 @@
           // be an error
           serviceStatus = $.PercServiceUtils.STATUS_ERROR;
           data = I18N.message(
-            "perc.ui.site.service@Unexpected Error Importing"
+            "perc.ui.site.service@Unexpected Error Importing",
           );
         }
 
         callback(serviceStatus, data);
-      }
+      },
     );
   }
 
@@ -670,12 +670,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data.Template);
         } else {
           var defaultMsg = I18N.message(
-            "perc.ui.site.service@Error Creating Template"
+            "perc.ui.site.service@Error Creating Template",
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      serviceParam
+      serviceParam,
     );
   }
 
@@ -695,12 +695,12 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
         } else {
           var defaultMsg = I18N.message(
-            "perc.ui.template.service@Error Migrating Content"
+            "perc.ui.template.service@Error Migrating Content",
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      migrateContentRestData
+      migrateContentRestData,
     );
   }
 
@@ -723,7 +723,7 @@
           var defaultMsg = I18N.message("perc.ui.publish.title@Error");
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 })(jQuery);

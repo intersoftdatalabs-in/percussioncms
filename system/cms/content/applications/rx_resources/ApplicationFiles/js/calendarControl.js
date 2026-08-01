@@ -56,7 +56,7 @@ function updateCalendar() {
   $("#perc-content-edit-page_end_date").val(endDate);
   if (startDate === "" && endDate !== "") {
     $("#perc-content-edit-page_calendar").append(
-      '<label style="display: block;" for="page_calendar" class="perc_field_error">Start date must be less than End date.</label>'
+      '<label style="display: block;" for="page_calendar" class="perc_field_error">Start date must be less than End date.</label>',
     );
     return false;
   }
@@ -66,7 +66,7 @@ function updateCalendar() {
     p_start_date_temp[1] - 1,
     p_start_date_temp[2],
     p_start_date_temp[3],
-    p_start_date_temp[4]
+    p_start_date_temp[4],
   );
   var p_end_date_temp = endDate.replace(/-|:| /g, ",").split(",");
   p_end_date = new Date(
@@ -74,18 +74,18 @@ function updateCalendar() {
     p_end_date_temp[1] - 1,
     p_end_date_temp[2],
     p_end_date_temp[3],
-    p_end_date_temp[4]
+    p_end_date_temp[4],
   );
 
   if (p_start_date >= p_end_date) {
     $("#perc-content-edit-page_calendar").append(
-      '<label style="display: block;" for="page_calendar" class="perc_field_error">Start date must be less than End date.</label>'
+      '<label style="display: block;" for="page_calendar" class="perc_field_error">Start date must be less than End date.</label>',
     );
     return false;
   }
   if ($("#page_calendar").val().length > 0 && startDate === "") {
     $("#perc-content-edit-page_calendar").append(
-      '<label style="display: block;" for="page_calendar" class="perc_field_error">Start date must not be empty, if at least one calendar is selected.</label>'
+      '<label style="display: block;" for="page_calendar" class="perc_field_error">Start date must not be empty, if at least one calendar is selected.</label>',
     );
     return false;
   }

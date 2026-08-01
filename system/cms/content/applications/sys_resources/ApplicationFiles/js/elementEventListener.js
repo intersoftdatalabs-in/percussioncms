@@ -48,7 +48,7 @@ function updateKeepAlive() {
       if (xhttp.readyState === 4) {
         if (xhttp.status === 200) {
           console.log(
-            "Extend session request is successful ! " + xhttp.responseText
+            "Extend session request is successful ! " + xhttp.responseText,
           );
         } else {
           console.log("Error", xhttp.statusText);

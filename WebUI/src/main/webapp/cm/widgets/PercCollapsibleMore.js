@@ -127,7 +127,7 @@
     var isCollapsed = secondLine.attr("collapsed") === "true";
 
     var secondLineHeightCollapsed = secondLine.data(
-      "secondLineHeightCollapsed"
+      "secondLineHeightCollapsed",
     );
     var expandIcon = secondLine.data("expandIcon");
     var collapseIcon = secondLine.data("collapseIcon");

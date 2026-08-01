@@ -62,7 +62,7 @@
           "  <div class='ui-layout-south'>" +
           "    <div id='perc_buttons' style='z-index: 100;'></div>" +
           "  </div>" +
-          "</form></div>"
+          "</form></div>",
       ).perc_dialog({
         title: I18N.message("perc.ui.newassetdialog.title@New Asset"),
         buttons: buttons,
@@ -77,7 +77,7 @@
                   contentId,
                   function (status) {
                     _submit();
-                  }
+                  },
                 );
               } else {
                 _submit();
@@ -99,7 +99,7 @@
                 } else
                   $.PercNavigationManager.goTo(
                     $.PercNavigationManager.VIEW_EDITOR,
-                    true
+                    true,
                   );
               }
             },
@@ -160,7 +160,7 @@
                   // we only care about the last 3 digits after the last dash '-'
                   // because of a legacy representation
                   var oldFolderId = folderId.substring(
-                    folderId.lastIndexOf("-") + 1
+                    folderId.lastIndexOf("-") + 1,
                   );
 
                   // append the folder id to the URL of the form
@@ -180,21 +180,21 @@
                     editorUrl,
                     path,
                     pathArray,
-                    true
+                    true,
                   );
                   $("#perc-page-button")
                     .html("Asset:")
                     .append(
-                      "<span id='perc-pageEditor-menu-name'> (New Asset)</span>"
+                      "<span id='perc-pageEditor-menu-name'> (New Asset)</span>",
                     );
                   $.PercNavigationManager.clearId();
 
                   //Hide the inline help when in Editor mode and fix the iframe height.
                   $("#perc-editor-inline-help").hide();
                   fixIframeHeight();
-                }
+                },
               );
-            }
+            },
           );
         },
       });
@@ -223,7 +223,7 @@
             // create the div and insert it into the place holder
             itemContainer.append(createAssetEditorEntry(assetEditor));
             datalistContainer.append(
-              createAssetEditorListEntry(assetEditor, index)
+              createAssetEditorListEntry(assetEditor, index),
             );
 
             //Wire the keydown event
@@ -276,15 +276,15 @@
             $firstItem = $(".perc-items .item:first");
             $("#perc-select-template").val($firstItem.find(".item-id").text());
             $("#perc-editor-url").val(
-              $firstItem.find(".item-editor-url").text()
+              $firstItem.find(".item-editor-url").text(),
             );
             $("#perc-workflow-id").val(
-              $firstItem.find(".item-workflow-id").text()
+              $firstItem.find(".item-workflow-id").text(),
             );
             $firstItem.addClass("perc-selected-item");
             index++;
           }
-        }
+        },
       );
 
       $("#perc-item-filter").on("keydown", function (event) {
@@ -365,7 +365,7 @@
             $.perc_utils.alert_dialog({
               title: I18N.message("perc.ui.publish.title@Error"),
               content: I18N.message(
-                "perc.ui.new.asset.dialog@Unknown Error Asset"
+                "perc.ui.new.asset.dialog@Unknown Error Asset",
               ),
             });
             return;
@@ -384,7 +384,7 @@
               // we only care about the last 3 digits after the last dash '-'
               // because of a legacy representation
               var oldFolderId = folderId.substring(
-                folderId.lastIndexOf("-") + 1
+                folderId.lastIndexOf("-") + 1,
               );
 
               // append the folder id to the URL of the form
@@ -404,21 +404,21 @@
                 editorUrl,
                 path,
                 folderPath.split("/"),
-                true
+                true,
               );
               $("#perc-page-button")
                 .html("Asset:")
                 .append(
-                  "<span id='perc-pageEditor-menu-name'> (New Asset)</span>"
+                  "<span id='perc-pageEditor-menu-name'> (New Asset)</span>",
                 );
               $.PercNavigationManager.clearId();
 
               //Hide the inline help when in Editor mode and fix the iframe height.
               $("#perc-editor-inline-help").hide();
               fixIframeHeight();
-            }
+            },
           );
-        }
+        },
       );
     };
 
@@ -434,7 +434,7 @@
             $.perc_utils.alert_dialog({
               title: I18N.message("perc.ui.page.general@Warning"),
               content: I18N.message(
-                "perc.ui.new.asset.dialog@Permission For Asset"
+                "perc.ui.new.asset.dialog@Permission For Asset",
               ),
             });
           } else {
@@ -459,7 +459,7 @@
                   $.perc_utils.alert_dialog({
                     title: I18N.message("perc.ui.new.asset.dialog@New Asset"),
                     content: I18N.message(
-                      "perc.ui.new.asset.dialog@Not Authorized Asset"
+                      "perc.ui.new.asset.dialog@Not Authorized Asset",
                     ),
                   });
                 } else {
@@ -480,15 +480,15 @@
                       {
                         lastLocation: $.PercNavigationManager.getBookmark(),
                         lastOpenedItem: $.PercNavigationManager.getId(),
-                      }
+                      },
                     );
                   });
                 }
               },
-              folderPath
+              folderPath,
             );
           }
-        }
+        },
       );
     }
 
@@ -528,7 +528,7 @@
     var newAssetButton = $(
       '<a id="mcol-new-asset" class="perc-font-icon" title="' +
         I18N.message("perc.ui.new.asset.dialog@Click New Asset") +
-        '" href="#" class="ui-disabled"><span class="icon-plus fas fa-plus"></span><span class="icon-file-alt fas fa-file"></span></a>'
+        '" href="#" class="ui-disabled"><span class="icon-plus fas fa-plus"></span><span class="icon-file-alt fas fa-file"></span></a>',
     ).perc_button();
     function updateBtn(path) {
       finderPath = path;
@@ -556,7 +556,7 @@
               ) {
                 enableButton(false);
               }
-            }
+            },
           );
         }
       } else {

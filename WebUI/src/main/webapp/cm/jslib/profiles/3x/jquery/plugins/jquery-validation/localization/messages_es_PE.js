@@ -25,13 +25,13 @@
     equalTo: "Por favor, escriba el mismo valor de nuevo.",
     extension: "Por favor, escriba un valor con una extensión permitida.",
     maxlength: $.validator.format(
-      "Por favor, no escriba más de {0} caracteres."
+      "Por favor, no escriba más de {0} caracteres.",
     ),
     minlength: $.validator.format(
-      "Por favor, no escriba menos de {0} caracteres."
+      "Por favor, no escriba menos de {0} caracteres.",
     ),
     rangelength: $.validator.format(
-      "Por favor, escriba un valor entre {0} y {1} caracteres."
+      "Por favor, escriba un valor entre {0} y {1} caracteres.",
     ),
     range: $.validator.format("Por favor, escriba un valor entre {0} y {1}."),
     max: $.validator.format("Por favor, escriba un valor menor o igual a {0}."),

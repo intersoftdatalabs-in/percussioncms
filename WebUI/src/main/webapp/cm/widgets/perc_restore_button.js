@@ -22,7 +22,7 @@
   var itemName;
   $.perc_build_restore_button = function (finderRef, content) {
     var btn = $(
-      "<a id='perc-finder-restore-item' href='#' title='Click to restore the selected item'>Restore Item</a>"
+      "<a id='perc-finder-restore-item' href='#' title='Click to restore the selected item'>Restore Item</a>",
     ).on("click", function (event) {
       restorePageValidate(event);
     });
@@ -31,7 +31,7 @@
       $.PercBlockUI($.PercBlockUIMode.CURSORONLY);
       var selectedItem = $(".mcol-opened.perc_last_selected");
       var selectedItemList = $(
-        "#perc-finder-listview .perc-datatable-row-highlighted"
+        "#perc-finder-listview .perc-datatable-row-highlighted",
       );
 
       if (!(isItem() || isFolder()) && selectedItemList.length === 0) return;
@@ -68,7 +68,7 @@
               title: I18N.message("perc.ui.copy.page.button@Copy Page"),
               content:
                 I18N.message(
-                  "perc.ui.copy.page.button@Copy Page Authorization"
+                  "perc.ui.copy.page.button@Copy Page Authorization",
                 ) +
                 itemName +
                 ".'",
@@ -78,7 +78,7 @@
           } else {
             restoreSelection(itemId);
           }
-        }
+        },
       );
     }
 
@@ -94,7 +94,7 @@
       } else {
         console.warn(
           "The seleted item for restore is not an asset, page, or folder.",
-          id
+          id,
         );
         return;
       }
@@ -132,7 +132,7 @@
           enableButtonRestore(false);
         } else {
           var selectedItemList = $(
-            "#perc-finder-listview .perc-datatable-row-highlighted"
+            "#perc-finder-listview .perc-datatable-row-highlighted",
           );
           // This is present to select items under List mode in CM1 UI.
           if (selectedItemList.length > 0) {
@@ -192,13 +192,13 @@
     function isItem() {
       return (
         $(".mcol-opened.perc_last_selected").hasClass(
-          "perc-listing-category-ASSET"
+          "perc-listing-category-ASSET",
         ) ||
         $(".mcol-opened.perc_last_selected").hasClass(
-          "perc-listing-category-PAGE"
+          "perc-listing-category-PAGE",
         ) ||
         $(".mcol-opened.perc_last_selected").hasClass(
-          "perc-listing-category-LANDING_PAGE"
+          "perc-listing-category-LANDING_PAGE",
         )
       );
     }
@@ -209,10 +209,10 @@
     function isPage() {
       return (
         $(".mcol-opened.perc_last_selected").hasClass(
-          "perc-listing-category-PAGE"
+          "perc-listing-category-PAGE",
         ) ||
         $(".mcol-opened.perc_last_selected").hasClass(
-          "perc-listing-category-LANDING_PAGE"
+          "perc-listing-category-LANDING_PAGE",
         )
       );
     }
@@ -222,7 +222,7 @@
      */
     function isLandingPage() {
       return $(".mcol-opened.perc_last_selected").hasClass(
-        "perc-listing-category-LANDING_PAGE"
+        "perc-listing-category-LANDING_PAGE",
       );
     }
 
@@ -232,7 +232,7 @@
      */
     function isAsset() {
       return $(".mcol-opened.perc_last_selected").hasClass(
-        "perc-listing-category-ASSET"
+        "perc-listing-category-ASSET",
       );
     }
 
@@ -242,10 +242,10 @@
     function isFolder() {
       return (
         $(".mcol-opened.perc_last_selected").hasClass(
-          "perc-listing-category-FOLDER"
+          "perc-listing-category-FOLDER",
         ) ||
         $(".mcol-opened.perc_last_selected").hasClass(
-          "perc-listing-category-SECTION_FOLDER"
+          "perc-listing-category-SECTION_FOLDER",
         )
       );
     }
@@ -274,7 +274,7 @@
             callback(result !== $.PercFolderHelper().PERMISSION_READ);
             return;
           }
-        }
+        },
       );
     }
 

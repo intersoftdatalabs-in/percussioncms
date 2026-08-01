@@ -67,7 +67,7 @@ ps.workflow.WorkflowActions = function () {
         title: "Workflow Actions",
       },
       "420px",
-      "250px"
+      "250px",
     );
 
     var _this = this;
@@ -95,7 +95,7 @@ ps.workflow.WorkflowActions = function () {
     this.wfActionPane = document.getElementById("ps.workflow.actionPane");
     if (this._isUserAuthorized()) {
       this.wfActionSelector = document.getElementById(
-        "ps.workflow.workflowActionSelect"
+        "ps.workflow.workflowActionSelect",
       );
       this.wfCommentText = document.getElementById("ps.workflow.commentText");
       this.wfAdhocUsers = document.getElementById("ps.workflow.adhocUsers");
@@ -119,14 +119,14 @@ ps.workflow.WorkflowActions = function () {
         this.wfActionSelector,
         "onchange",
         this,
-        "onWfActionChanged"
+        "onWfActionChanged",
       );
       if (this.wgtAdhocSearch) {
         ps.event.connect(
           this.wgtAdhocSearch,
           "onClick",
           this,
-          "openAdhocSearchDialog"
+          "openAdhocSearchDialog",
         );
       }
       ps.event.connect(submit, "onClick", this, "executeWorkflowAction");
@@ -137,7 +137,7 @@ ps.workflow.WorkflowActions = function () {
         this.wgtButtonClose,
         "onClick",
         this,
-        "onWfActionCancelled"
+        "onWfActionCancelled",
       );
       ps.util.setDialogSize(this.wfDlg, 420, 125);
     }
@@ -152,7 +152,7 @@ ps.workflow.WorkflowActions = function () {
     var wfurl = ps.util.addParamToUrl(
       this.workflowActionsUrl,
       "sys_contentid",
-      this.contentId
+      this.contentId,
     );
     this.wfDlg.setUrl(wfurl);
     this.wfDlg.show();
@@ -171,7 +171,7 @@ ps.workflow.WorkflowActions = function () {
     if (this.wfCommentText) {
       if (!this.wfCommentRequiredStar) {
         this.wfCommentRequiredStar = document.getElementById(
-          "ps.workflow.commentStar"
+          "ps.workflow.commentStar",
         );
       }
 
@@ -216,12 +216,12 @@ ps.workflow.WorkflowActions = function () {
     var wfurl = ps.util.addParamToUrl(
       this.adhocSearchUrl,
       "sys_contentid",
-      this.contentId
+      this.contentId,
     );
     wfurl = ps.util.addParamToUrl(
       wfurl,
       "sys_transitionid",
-      this.actionId.getTransitionId()
+      this.actionId.getTransitionId(),
     );
     this.adhocSearchPane.cacheContent = false;
     var _this = this;
@@ -241,14 +241,14 @@ ps.workflow.WorkflowActions = function () {
         _this.wgtButtonSearch,
         "onClick",
         _this,
-        "onSearchClicked"
+        "onSearchClicked",
       );
       ps.event.connect(_this.wgtButtonAdd, "onClick", _this, "onAddClicked");
       ps.event.connect(
         _this.wgtButtonClose,
         "onClick",
         _this,
-        "onSearchClosed"
+        "onSearchClosed",
       );
     });
     this.adhocSearchPane.setUrl(wfurl);
@@ -275,7 +275,7 @@ ps.workflow.WorkflowActions = function () {
         titleBarDisplay: false,
         executeScripts: true,
       },
-      div
+      div,
     );
 
     this.wfAdhocPane.setContent(
@@ -300,7 +300,7 @@ ps.workflow.WorkflowActions = function () {
         "</tr></table></td>\n" +
         "</tr>\n" +
         '<tr><td width="100%" height="100%"/></tr>\n' +
-        "</table>"
+        "</table>",
     );
 
     this.adhocSearchPane = ps.widget.byId("ps.workflow.adhocSearchPane");
@@ -323,7 +323,7 @@ ps.workflow.WorkflowActions = function () {
       alert(
         "Comment must be entered for workflow transition <" +
           this.actionId.getActionLabel() +
-          ">."
+          ">.",
       );
       return false;
     }
@@ -343,7 +343,7 @@ ps.workflow.WorkflowActions = function () {
         this.contentId,
         this.actionId.getWfAction(),
         this._getComment(),
-        this._getAdhocUsers()
+        this._getAdhocUsers(),
       );
       checkOutStatusChanged = true;
       newStatus = "1";
@@ -352,7 +352,7 @@ ps.workflow.WorkflowActions = function () {
         this.contentId,
         this.actionId.getWfAction(),
         this._getComment(),
-        this._getAdhocUsers()
+        this._getAdhocUsers(),
       );
       if (
         ps.aa.controller.activeId.isCheckout() ||
@@ -386,12 +386,12 @@ ps.workflow.WorkflowActions = function () {
       checkOutStatus === "0" ||
         checkOutStatus === "1" ||
         checkOutStatus === "2",
-      "checkOutStatus must be 0, 1, or 2"
+      "checkOutStatus must be 0, 1, or 2",
     );
 
     //get all ids from tree model by passing the active contentid
     var results = ps.aa.controller.treeModel.getAllIdsByContentId(
-      this.contentId
+      this.contentId,
     );
     ps.assertType(results, ps.collections.ArrayList);
     var oldIds = new Array();
@@ -433,22 +433,22 @@ ps.workflow.WorkflowActions = function () {
     var wfurl = ps.util.addParamToUrl(
       this.adhocResultsUrl,
       "sys_contentid",
-      this.contentId
+      this.contentId,
     );
     wfurl = ps.util.addParamToUrl(
       wfurl,
       "sys_transitionid",
-      this.actionId.getTransitionId()
+      this.actionId.getTransitionId(),
     );
     wfurl = ps.util.addParamToUrl(
       wfurl,
       "rolename",
-      this.adhocRoleSelect.value
+      this.adhocRoleSelect.value,
     );
     wfurl = ps.util.addParamToUrl(
       wfurl,
       "namefilter",
-      "%" + this.nameFilterText.value + "%"
+      "%" + this.nameFilterText.value + "%",
     );
     var mm = this;
     ps.event.connect(this.adhocResultsPane, "onLoad", function () {
@@ -456,7 +456,7 @@ ps.workflow.WorkflowActions = function () {
       mm.adhocUsersChk = new Array();
       for (var i = 0; i < count; i++) {
         mm.adhocUsersChk[i] = document.getElementById(
-          "ps.workflow.adhocusercheckbox_" + i
+          "ps.workflow.adhocusercheckbox_" + i,
         );
       }
     });

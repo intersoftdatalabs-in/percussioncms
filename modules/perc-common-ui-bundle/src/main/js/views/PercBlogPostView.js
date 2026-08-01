@@ -81,7 +81,7 @@
             if (null !== navEntries.next) {
               $(".perc-newer-post-wrapper a").attr(
                 "href",
-                navEntries.next.pagepath.replace("/" + siteName, "")
+                navEntries.next.pagepath.replace("/" + siteName, ""),
               );
               if ("blogTitle" === blogNavText) {
                 $(".perc-newer-post-title").text(navEntries.next.linktext);
@@ -98,7 +98,7 @@
             if (null !== navEntries.previous) {
               $(".perc-older-post-wrapper a").attr(
                 "href",
-                navEntries.previous.pagepath.replace("/" + siteName, "")
+                navEntries.previous.pagepath.replace("/" + siteName, ""),
               );
               if ("blogTitle" === blogNavText) {
                 $(".perc-older-post-title").text(navEntries.previous.linktext);
@@ -114,11 +114,11 @@
           } else {
             $(".perc-blog")
               .find(
-                ".perc-blog-nav-left-wrapper , .perc-blog-nav-right-wrapper"
+                ".perc-blog-nav-left-wrapper , .perc-blog-nav-right-wrapper",
               )
               .hide();
           }
-        }
+        },
       );
     });
   }
@@ -154,8 +154,8 @@
           $(this).attr(
             "href",
             $.PercServiceUtils.sanitizeUrlForHref(
-              blogIndexPage + "?filter=" + tag + encodedQuery
-            )
+              blogIndexPage + "?filter=" + tag + encodedQuery,
+            ),
           );
         });
 
@@ -175,8 +175,8 @@
           $(this).attr(
             "href",
             $.PercServiceUtils.sanitizeUrlForHref(
-              blogIndexPage + "?filter=" + category + encodedQuery
-            )
+              blogIndexPage + "?filter=" + category + encodedQuery,
+            ),
           );
         });
     });
@@ -200,7 +200,7 @@
         $.PercMostReadBlogPostsService.trackBlogPost(
           blogPostFullPath,
           deliveryUrl,
-          $.noop
+          $.noop,
         );
     });
   }

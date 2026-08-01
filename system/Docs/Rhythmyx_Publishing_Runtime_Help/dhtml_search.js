@@ -4,7 +4,7 @@ Page[0] = new Array(
   "The dialogs available through the Rhythmyx Publishing Runtime Help are used to run Publishing Editions, to monitor running publishing jobs, and to review logs of previous publishing jobs.",
   "For details about Publishing concepts, see the Rhythmyx Concepts Guide.  For details about implementing Publishing, see the Rhythmyx Implementation Guide, Setting Up the Production Environment, and the Publishing Design Help.  For more information about running, monitoring, and troubleshooting publishing jobs, see the Rhythmyx Administration Manual. For technical information about the Publishing engine, see the Rhythmyx Technical Reference Manual.",
   "About Publishing Runtime",
-  "17934.htm"
+  "17934.htm",
 );
 Page[1] = new Array(
   "The Publishing Runtime Interface includes the following dialogs:",
@@ -14,7 +14,7 @@ Page[1] = new Array(
   "Published Item Details",
   "Publishing Status",
   "Publishing Runtime Dialogs",
-  "17939.htm"
+  "17939.htm",
 );
 Page[2] = new Array(
   "Rhythmyx displays the Runtime Edition dialog when you click on an Edition in the Navigation pane.  Use this dialog to manually start or cancel an Edition, or to review logs for the Edition.",
@@ -22,7 +22,7 @@ Page[2] = new Array(
   "If the Edition is not currently running, the dialog displays a [Start] button.  Click this button to start the Edition manually.  If the Edition is currently running, the dialog displays a [Stop] button.  Click this button to stop the Edition.",
   "The list of logs can be sorted on any column.  Click the column header to sort based on that column.  ",
   "Runtime Edition",
-  "17940.htm"
+  "17940.htm",
 );
 Page[3] = new Array(
   "Rhythmyx displays the Publishing Logs dialog when you click Publishing Logs under any Edition.  This dialog displays all publishing logs for all Editions published to the Site.  Use this dialog to access publishing logs for the Site.",
@@ -46,7 +46,7 @@ Page[3] = new Array(
   "The publishing job was aborted.  ",
   "In some cases, the total number of Content Items reported in the log may not equal the total number of Content Items queued for processing.  Logs results are only recorded for Content Items that have been processed by the Assembly Engine.  Content Items that have been queued but not assembled will not have log results. ",
   "Publishing Logs",
-  "17941.htm"
+  "17941.htm",
 );
 Page[4] = new Array(
   "Rhythmyx displays the Log View dialog when you click on a specific Log entry in either the Runtime Edition dialog or Publishing Logs dialog and is used to review publishing log data.  The Log View dialog displays a list of the Content Items processed when the Edition was run and summary data for each Content Item.  Summary includes data on whether publishing of the Content Item succeeded or failed. You can access details for each Content Item. ",
@@ -59,12 +59,12 @@ Page[4] = new Array(
   "Delivery Type",
   "To sort, click the heading of the column you want to use to sort.  Click once to sort in ascending order.  Click again to sort in descending order.",
   "Log View",
-  "17942.htm"
+  "17942.htm",
 );
 Page[5] = new Array(
   "Rhythmyx displays the Publishing Status dialog when you click Publishing Status in the Navigation pane.  The Publishing Status dialog displays summary information about all Editions that were run in the previous hour.  You can click on any Edition to display the Runtime Edition dialog for that Edition.",
   "Publishing Status",
-  "17944.htm"
+  "17944.htm",
 );
 Page[6] = new Array(
   "In a production environment, Rhythmyx usually runs Editions automatically on a defined schedule.  In the development environment, Editions are usually run manually so you can review the results of your modifications as you develop your system.  (Editions are sometimes run manually in the production environment as well.)  To run an Edition:",
@@ -75,7 +75,7 @@ Page[6] = new Array(
   "Rhythmyx starts running the Edition.  The dialog displays runtime status data, including a progress bar indicating progress in processing the Edition, the start time of the Edition, and the elapsed time of Edition processing.  Note that due to differences in system performance, a total processing time for the Edition cannot be projected.",
   "When processing of the Edition is complete, a new Published Log Entry is added to the dialog and the status data is removed.",
   "Running an Edition",
-  "17945.htm"
+  "17945.htm",
 );
 Page[7] = new Array(
   "When you cancel an Edition, all processing of that Edition stops and any output that has not been delivered is discarded.  Delivered output is not changed, however.  ",
@@ -86,19 +86,19 @@ Page[7] = new Array(
   "In the Menu bar, click Stop.",
   "You can also cancel an Edition from the Runtime Edition dialog.  If the Edition is running, the Stop menu option is enabled.  Click Stop to cancel the Edition.",
   "Cancelling an Edition",
-  "17946.htm"
+  "17946.htm",
 );
 Page[8] = new Array(
   "Rhythmyx displays the Published Item Detail dialog when you double-click on a Content Item in the Log View dialog and is used to review publishing log data.     This dialog displays detailed publishing information for the Content Item in the Edition job.  If publishing of the Content Item failed, a detailed error message explaining the failure is displayed.  In the screenshot below, for example, the FTP server could not authenticate Rhythmyx when it tried to deliver the Content Item.",
   "Published Item Detail",
-  "17943.htm"
+  "17943.htm",
 );
 Page[9] = new Array(
   "Log data can be exported as an XML file.  ",
   "To export data from the Publishing Logs dialog, select the log you want to export and from the Menu bar, choose Edit &gt; Export Selected Log as XML.",
   "To export data from the Log View, in the Menu bar, choose Edit &gt; Export Log as XML.",
   "Exporting Log Data",
-  "17957.htm"
+  "17957.htm",
 );
 Page[10] = new Array(
   "Rhythmyx maintains a log of the results of each Edition publishing job.  You can access these logs in two ways:",
@@ -123,7 +123,7 @@ Page[10] = new Array(
   "The Log View displays a list of the Content Items published with summary information about each Content Item.  For details about a Content Item, double-click on the Content Item.  Rhythmyx displays the Published Item Details in the View and Edit pane.",
   "The Published Item Details includes publishing details for the Content Item in the Edition job.  If publishing of the Content Item failed, the dialog displays an detailed error message.",
   "Reviewing Publishing Logs",
-  "17947.htm"
+  "17947.htm",
 );
 Page[11] = new Array(
   "Under the default configuration, Rhythmyx automatically purges publishing logs after one month.  You can modify this configuration to change the frequency with which logs are pruned and to archive pruned logs instead of purging them.  For details about configuring these options, see the Rhythmyx Administration Manual.",
@@ -136,13 +136,13 @@ Page[11] = new Array(
   "to archive the logs, in the Menu bar, choose Action &gt; Archive Selected Logs.",
   "Archived logs are stored in the directory &lt;Rhythmyxroot&gt;/AppServer/server/rx/deploy/publogx.war as XML files with the name publog_&lt;id&gt;.xml where &lt;id&gt; is the publishing job ID of the archived log; for example, publog_109.xml. ",
   "Pruning Publishing Logs",
-  "17949.htm"
+  "17949.htm",
 );
 Page[12] = new Array(
   "For an overview of the status of all Editions currently running or recently run in the system, in the Navigation pane, click Publishing Status.  The View and Edit pane displays the Publishing Status dialog",
   "This dialog displays summaries of all Editions either currently running or that finished processing in the past hour.  For details about a specific Edition, click on that Edition to see the Runtime Edition dialog.",
   "Reviewing Publishing Status",
-  "17948.htm"
+  "17948.htm",
 );
 Page[13] = new Array(
   "Use Publishing logs to monitor the publication of localized content.",
@@ -151,7 +151,7 @@ Page[13] = new Array(
   "See the document Internationalizing and Localizing Rhythmyx for more information about localization.",
   "If Rhythmyx publishes your Editions or Edition, but does not publish some content items, republish the failed content.",
   "Monitoring Publication of Localized Content",
-  "Monitoring_Publication_of_Localized_Content.htm"
+  "Monitoring_Publication_of_Localized_Content.htm",
 );
 Page[14] = new Array(
   "Rhythmxy maintains a record of all Content Items published to a Site.  You may occasionally need to clear this record.  The most common case when a Site record should be cleared is when published files have been deleted from the delivery location, rendering the published Site out of sync with the Site record in the database, but other cases may occur as well.",
@@ -160,7 +160,7 @@ Page[14] = new Array(
   "In the Menu bar, choose Action &gt; Delete Site Item Entries.",
   "Note that once a Site record is cleared, an incremental publish will act as a full publish (Rhythmyx will have no record of any Content Items being published to that Site.)  Recommended practice is to run a full publish of a Site immediately after clearing the Site record to update the record with current data.  Incremental publishing runs after this full publish will work correctly.",
   "Clearing a Site Record",
-  "20126.htm"
+  "20126.htm",
 );
 var PageCount = 15;
 

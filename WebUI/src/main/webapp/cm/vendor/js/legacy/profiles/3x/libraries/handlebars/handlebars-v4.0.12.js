@@ -55,7 +55,7 @@ THE SOFTWARE.
         module.exports,
         module,
         module.exports,
-        __webpack_require__
+        __webpack_require__,
       );
 
       /******/ // Flag the module as loaded
@@ -98,7 +98,7 @@ THE SOFTWARE.
         var _handlebarsCompilerAst = __webpack_require__(35);
 
         var _handlebarsCompilerAst2 = _interopRequireDefault(
-          _handlebarsCompilerAst
+          _handlebarsCompilerAst,
         );
 
         var _handlebarsCompilerBase = __webpack_require__(36);
@@ -108,19 +108,19 @@ THE SOFTWARE.
         var _handlebarsCompilerJavascriptCompiler = __webpack_require__(42);
 
         var _handlebarsCompilerJavascriptCompiler2 = _interopRequireDefault(
-          _handlebarsCompilerJavascriptCompiler
+          _handlebarsCompilerJavascriptCompiler,
         );
 
         var _handlebarsCompilerVisitor = __webpack_require__(39);
 
         var _handlebarsCompilerVisitor2 = _interopRequireDefault(
-          _handlebarsCompilerVisitor
+          _handlebarsCompilerVisitor,
         );
 
         var _handlebarsNoConflict = __webpack_require__(34);
 
         var _handlebarsNoConflict2 = _interopRequireDefault(
-          _handlebarsNoConflict
+          _handlebarsNoConflict,
         );
 
         var _create = _handlebarsRuntime2["default"].create;
@@ -194,7 +194,7 @@ THE SOFTWARE.
         var _handlebarsSafeString = __webpack_require__(21);
 
         var _handlebarsSafeString2 = _interopRequireDefault(
-          _handlebarsSafeString
+          _handlebarsSafeString,
         );
 
         var _handlebarsException = __webpack_require__(6);
@@ -213,7 +213,7 @@ THE SOFTWARE.
         var _handlebarsNoConflict = __webpack_require__(34);
 
         var _handlebarsNoConflict2 = _interopRequireDefault(
-          _handlebarsNoConflict
+          _handlebarsNoConflict,
         );
 
         // For compatibility and usage outside of module systems, make the Handlebars object a namespace
@@ -332,7 +332,7 @@ THE SOFTWARE.
             if (_utils.toString.call(name) === objectType) {
               if (fn) {
                 throw new _exception2["default"](
-                  "Arg not supported with multiple helpers"
+                  "Arg not supported with multiple helpers",
                 );
               }
               _utils.extend(this.helpers, name);
@@ -352,7 +352,7 @@ THE SOFTWARE.
                 throw new _exception2["default"](
                   'Attempting to register a partial called "' +
                     name +
-                    '" as undefined'
+                    '" as undefined',
                 );
               }
               this.partials[name] = partial;
@@ -366,7 +366,7 @@ THE SOFTWARE.
             if (_utils.toString.call(name) === objectType) {
               if (fn) {
                 throw new _exception2["default"](
-                  "Arg not supported with multiple decorators"
+                  "Arg not supported with multiple decorators",
                 );
               }
               _utils.extend(this.decorators, name);
@@ -635,7 +635,7 @@ THE SOFTWARE.
         var _helpersBlockHelperMissing = __webpack_require__(11);
 
         var _helpersBlockHelperMissing2 = _interopRequireDefault(
-          _helpersBlockHelperMissing
+          _helpersBlockHelperMissing,
         );
 
         var _helpersEach = __webpack_require__(12);
@@ -645,7 +645,7 @@ THE SOFTWARE.
         var _helpersHelperMissing = __webpack_require__(13);
 
         var _helpersHelperMissing2 = _interopRequireDefault(
-          _helpersHelperMissing
+          _helpersHelperMissing,
         );
 
         var _helpersIf = __webpack_require__(14);
@@ -710,14 +710,14 @@ THE SOFTWARE.
                   var data = _utils.createFrame(options.data);
                   data.contextPath = _utils.appendContextPath(
                     options.data.contextPath,
-                    options.name
+                    options.name,
                   );
                   options = { data: data };
                 }
 
                 return fn(context, options);
               }
-            }
+            },
           );
         };
 
@@ -756,7 +756,7 @@ THE SOFTWARE.
               contextPath =
                 _utils.appendContextPath(
                   options.data.contextPath,
-                  options.ids[0]
+                  options.ids[0],
                 ) + ".";
             }
 
@@ -786,7 +786,7 @@ THE SOFTWARE.
                   data: data,
                   blockParams: _utils.blockParams(
                     [context[field], field],
-                    [contextPath + field, null]
+                    [contextPath + field, null],
                   ),
                 });
             }
@@ -855,10 +855,10 @@ THE SOFTWARE.
                 throw new _exception2["default"](
                   'Missing helper: "' +
                     arguments[arguments.length - 1].name +
-                    '"'
+                    '"',
                 );
               }
-            }
+            },
           );
         };
 
@@ -974,7 +974,7 @@ THE SOFTWARE.
                 data = _utils.createFrame(options.data);
                 data.contextPath = _utils.appendContextPath(
                   options.data.contextPath,
-                  options.ids[0]
+                  options.ids[0],
                 );
               }
 
@@ -982,7 +982,7 @@ THE SOFTWARE.
                 data: data,
                 blockParams: _utils.blockParams(
                   [context],
-                  [data && data.contextPath]
+                  [data && data.contextPath],
                 ),
               });
             } else {
@@ -1035,7 +1035,7 @@ THE SOFTWARE.
                   container.partials = _utils.extend(
                     {},
                     original,
-                    props.partials
+                    props.partials,
                   );
                   var ret = fn(context, options);
                   container.partials = original;
@@ -1046,7 +1046,7 @@ THE SOFTWARE.
               props.partials[options.args[0]] = options.fn;
 
               return ret;
-            }
+            },
           );
         };
 
@@ -1071,7 +1071,7 @@ THE SOFTWARE.
             if (typeof level === "string") {
               var levelMap = _utils.indexOf(
                 logger.methodMap,
-                level.toLowerCase()
+                level.toLowerCase(),
               );
               if (levelMap >= 0) {
                 level = levelMap;
@@ -1179,7 +1179,7 @@ THE SOFTWARE.
                   runtimeVersions +
                   ") or downgrade your runtime to an older version (" +
                   compilerVersions +
-                  ")."
+                  ").",
               );
             } else {
               // Use the embedded version info since the runtime doesn't know about this revision yet
@@ -1187,7 +1187,7 @@ THE SOFTWARE.
                 "Template was precompiled with a newer version of Handlebars than the current runtime. " +
                   "Please update your runtime to a newer version (" +
                   compilerInfo[1] +
-                  ")."
+                  ").",
               );
             }
           }
@@ -1197,12 +1197,12 @@ THE SOFTWARE.
           /* istanbul ignore next */
           if (!env) {
             throw new _exception2["default"](
-              "No environment passed to template"
+              "No environment passed to template",
             );
           }
           if (!templateSpec || !templateSpec.main) {
             throw new _exception2["default"](
-              "Unknown template object: " + typeof templateSpec
+              "Unknown template object: " + typeof templateSpec,
             );
           }
 
@@ -1224,20 +1224,20 @@ THE SOFTWARE.
               this,
               partial,
               context,
-              options
+              options,
             );
             var result = env.VM.invokePartial.call(
               this,
               partial,
               context,
-              options
+              options,
             );
 
             if (result == null && env.compile) {
               options.partials[options.name] = env.compile(
                 partial,
                 templateSpec.compilerOptions,
-                env
+                env,
               );
               result = options.partials[options.name](context, options);
             }
@@ -1258,7 +1258,7 @@ THE SOFTWARE.
               throw new _exception2["default"](
                 "The partial " +
                   options.name +
-                  " could not be compiled when running in runtime-only mode"
+                  " could not be compiled when running in runtime-only mode",
               );
             }
           }
@@ -1268,7 +1268,7 @@ THE SOFTWARE.
             strict: function strict(obj, name) {
               if (!(name in obj)) {
                 throw new _exception2["default"](
-                  '"' + name + '" not defined in ' + obj
+                  '"' + name + '" not defined in ' + obj,
                 );
               }
               return obj[name];
@@ -1302,7 +1302,7 @@ THE SOFTWARE.
               data,
               declaredBlockParams,
               blockParams,
-              depths
+              depths,
             ) {
               var programWrapper = this.programs[i],
                 fn = this.fn(i);
@@ -1314,7 +1314,7 @@ THE SOFTWARE.
                   data,
                   declaredBlockParams,
                   blockParams,
-                  depths
+                  depths,
                 );
               } else if (!programWrapper) {
                 programWrapper = this.programs[i] = wrapProgram(this, i, fn);
@@ -1379,7 +1379,7 @@ THE SOFTWARE.
                   container.partials,
                   data,
                   blockParams,
-                  depths
+                  depths,
                 )
               );
             }
@@ -1389,7 +1389,7 @@ THE SOFTWARE.
               container,
               options.depths || [],
               data,
-              blockParams
+              blockParams,
             );
             return main(context, options);
           }
@@ -1402,13 +1402,13 @@ THE SOFTWARE.
               if (templateSpec.usePartial) {
                 container.partials = container.merge(
                   options.partials,
-                  env.partials
+                  env.partials,
                 );
               }
               if (templateSpec.usePartial || templateSpec.useDecorators) {
                 container.decorators = container.merge(
                   options.decorators,
-                  env.decorators
+                  env.decorators,
                 );
               }
             } else {
@@ -1433,7 +1433,7 @@ THE SOFTWARE.
               data,
               0,
               blockParams,
-              depths
+              depths,
             );
           };
           return ret;
@@ -1446,7 +1446,7 @@ THE SOFTWARE.
           data,
           declaredBlockParams,
           blockParams,
-          depths
+          depths,
         ) {
           function prog(context) {
             var options =
@@ -1470,7 +1470,7 @@ THE SOFTWARE.
               container.partials,
               options.data || data,
               blockParams && [options.blockParams].concat(blockParams),
-              currentDepths
+              currentDepths,
             );
           }
 
@@ -1480,7 +1480,7 @@ THE SOFTWARE.
             container,
             depths,
             data,
-            blockParams
+            blockParams,
           );
 
           prog.program = i;
@@ -1537,7 +1537,7 @@ THE SOFTWARE.
                 options.partials = Utils.extend(
                   {},
                   options.partials,
-                  fn.partials
+                  fn.partials,
                 );
               }
             })();
@@ -1549,7 +1549,7 @@ THE SOFTWARE.
 
           if (partial === undefined) {
             throw new _exception2["default"](
-              "The partial " + options.name + " could not be found"
+              "The partial " + options.name + " could not be found",
             );
           } else if (partial instanceof Function) {
             return partial(context, options);
@@ -1574,7 +1574,7 @@ THE SOFTWARE.
           container,
           depths,
           data,
-          blockParams
+          blockParams,
         ) {
           if (fn.decorator) {
             var props = {};
@@ -1585,7 +1585,7 @@ THE SOFTWARE.
               depths && depths[0],
               data,
               blockParams,
-              depths
+              depths,
             );
             Utils.extend(prog, props);
           }
@@ -1647,7 +1647,7 @@ THE SOFTWARE.
                   fn(1);
                 }),
             "Object",
-            exp
+            exp,
           );
         };
 
@@ -1671,8 +1671,8 @@ THE SOFTWARE.
             target = IS_GLOBAL
               ? global
               : IS_STATIC
-              ? global[name]
-              : (global[name] || {})[PROTOTYPE],
+                ? global[name]
+                : (global[name] || {})[PROTOTYPE],
             key,
             own,
             out;
@@ -1688,21 +1688,21 @@ THE SOFTWARE.
               IS_GLOBAL && typeof target[key] != "function"
                 ? source[key]
                 : // bind timers to global for call from export context
-                IS_BIND && own
-                ? ctx(out, global)
-                : // wrap global constructors for prevent change them in library
-                IS_WRAP && target[key] == out
-                ? (function (C) {
-                    var F = function (param) {
-                      return this instanceof C ? new C(param) : C(param);
-                    };
-                    F[PROTOTYPE] = C[PROTOTYPE];
-                    return F;
-                    // make static versions for prototype methods
-                  })(out)
-                : IS_PROTO && typeof out == "function"
-                ? ctx(Function.call, out)
-                : out;
+                  IS_BIND && own
+                  ? ctx(out, global)
+                  : // wrap global constructors for prevent change them in library
+                    IS_WRAP && target[key] == out
+                    ? (function (C) {
+                        var F = function (param) {
+                          return this instanceof C ? new C(param) : C(param);
+                        };
+                        F[PROTOTYPE] = C[PROTOTYPE];
+                        return F;
+                        // make static versions for prototype methods
+                      })(out)
+                    : IS_PROTO && typeof out == "function"
+                      ? ctx(Function.call, out)
+                      : out;
             if (IS_PROTO)
               (exports[PROTOTYPE] || (exports[PROTOTYPE] = {}))[key] = out;
           }
@@ -1725,8 +1725,8 @@ THE SOFTWARE.
           typeof window != "undefined" && window.Math == Math
             ? window
             : typeof self != "undefined" && self.Math == Math
-            ? self
-            : Function("return this")());
+              ? self
+              : Function("return this")());
         if (typeof __g == "number") __g = global; // eslint-disable-line no-undef
 
         /***/
@@ -1815,7 +1815,7 @@ THE SOFTWARE.
           exports,
           (function () {
             return this;
-          })()
+          })(),
         );
 
         /***/
@@ -2157,7 +2157,7 @@ THE SOFTWARE.
               yy,
               yystate,
               $$,
-              _$
+              _$,
               /**/
             ) {
               var $0 = $$.length - 1;
@@ -2209,7 +2209,7 @@ THE SOFTWARE.
                     $$[$0 - 2],
                     $$[$0 - 1],
                     $$[$0],
-                    this._$
+                    this._$,
                   );
                   break;
                 case 12:
@@ -2226,7 +2226,7 @@ THE SOFTWARE.
                     $$[$0 - 1],
                     $$[$0],
                     false,
-                    this._$
+                    this._$,
                   );
                   break;
                 case 14:
@@ -2236,7 +2236,7 @@ THE SOFTWARE.
                     $$[$0 - 1],
                     $$[$0],
                     true,
-                    this._$
+                    this._$,
                   );
                   break;
                 case 15:
@@ -2280,7 +2280,7 @@ THE SOFTWARE.
                       $$[$0],
                       $$[$0],
                       false,
-                      this._$
+                      this._$,
                     ),
                     program = yy.prepareProgram([inverse], $$[$0 - 1].loc);
                   program.chained = true;
@@ -2308,7 +2308,7 @@ THE SOFTWARE.
                     $$[$0 - 1],
                     $$[$0 - 4],
                     yy.stripFlags($$[$0 - 4], $$[$0]),
-                    this._$
+                    this._$,
                   );
                   break;
                 case 23:
@@ -2318,7 +2318,7 @@ THE SOFTWARE.
                     $$[$0 - 1],
                     $$[$0 - 4],
                     yy.stripFlags($$[$0 - 4], $$[$0]),
-                    this._$
+                    this._$,
                   );
                   break;
                 case 24:
@@ -2338,7 +2338,7 @@ THE SOFTWARE.
                     $$[$0 - 2],
                     $$[$0 - 1],
                     $$[$0],
-                    this._$
+                    this._$,
                   );
                   break;
                 case 26:
@@ -3997,7 +3997,7 @@ THE SOFTWARE.
                     "Parse Error: multiple actions possible at state: " +
                       state +
                       ", token: " +
-                      symbol
+                      symbol,
                   );
                 }
                 switch (action[0]) {
@@ -4042,7 +4042,7 @@ THE SOFTWARE.
                       this.yy,
                       action[1],
                       vstack,
-                      lstack
+                      lstack,
                     );
                     if (typeof r !== "undefined") {
                       return r;
@@ -4119,7 +4119,7 @@ THE SOFTWARE.
                 this._input = ch + this._input;
                 this.yytext = this.yytext.substr(
                   0,
-                  this.yytext.length - len - 1
+                  this.yytext.length - len - 1,
                 );
                 //this.yyleng -= len;
                 this.offset -= len;
@@ -4158,7 +4158,7 @@ THE SOFTWARE.
               pastInput: function pastInput() {
                 var past = this.matched.substr(
                   0,
-                  this.matched.length - this.match.length
+                  this.matched.length - this.match.length,
                 );
                 return (
                   (past.length > 20 ? "..." : "") +
@@ -4232,7 +4232,7 @@ THE SOFTWARE.
                     this.yy,
                     this,
                     rules[index],
-                    this.conditionStack[this.conditionStack.length - 1]
+                    this.conditionStack[this.conditionStack.length - 1],
                   );
                   if (this.done && this._input) this.done = false;
                   if (token) return token;
@@ -4246,7 +4246,7 @@ THE SOFTWARE.
                       (this.yylineno + 1) +
                       ". Unrecognized text.\n" +
                       this.showPosition(),
-                    { text: "", token: null, line: this.yylineno }
+                    { text: "", token: null, line: this.yylineno },
                   );
                 }
               },
@@ -4281,13 +4281,13 @@ THE SOFTWARE.
               yy,
               yy_,
               $avoiding_name_collisions,
-              YY_START
+              YY_START,
               /**/
             ) {
               function strip(start, end) {
                 return (yy_.yytext = yy_.yytext.substr(
                   start,
-                  yy_.yyleng - end
+                  yy_.yyleng - end,
                 ));
               }
 
@@ -4661,7 +4661,7 @@ THE SOFTWARE.
                 // so our parent can determine if we actually are standalone
                 openStandalone: isNextWhitespace(program.body),
                 closeStandalone: isPrevWhitespace(
-                  (firstInverse || program).body
+                  (firstInverse || program).body,
                 ),
               };
 
@@ -4730,7 +4730,7 @@ THE SOFTWARE.
 
           if (prev.type === "ContentStatement") {
             return (sibling || !isRoot ? /\r?\n\s*?$/ : /(^|\r?\n)\s*?$/).test(
-              prev.original
+              prev.original,
             );
           }
         }
@@ -4747,7 +4747,7 @@ THE SOFTWARE.
 
           if (next.type === "ContentStatement") {
             return (sibling || !isRoot ? /^\s*?\r?\n/ : /^\s*?(\r?\n|$)/).test(
-              next.original
+              next.original,
             );
           }
         }
@@ -4772,7 +4772,7 @@ THE SOFTWARE.
           var original = current.value;
           current.value = current.value.replace(
             multiple ? /^\s+/ : /^[ \t]*\r?\n?/,
-            ""
+            "",
           );
           current.rightStripped = current.value !== original;
         }
@@ -4798,7 +4798,7 @@ THE SOFTWARE.
           var original = current.value;
           current.value = current.value.replace(
             multiple ? /\s+$/ : /[ \t]+$/,
-            ""
+            "",
           );
           current.leftStripped = current.value !== original;
           return current.leftStripped;
@@ -4842,7 +4842,7 @@ THE SOFTWARE.
                     '" found when accepting ' +
                     name +
                     " on " +
-                    node.type
+                    node.type,
                 );
               }
               node[name] = value;
@@ -4882,7 +4882,7 @@ THE SOFTWARE.
             if (!this[object.type]) {
               throw new _exception2["default"](
                 "Unknown type: " + object.type,
-                object
+                object,
               );
             }
 
@@ -4992,7 +4992,7 @@ THE SOFTWARE.
 
             throw new _exception2["default"](
               open.path.original + " doesn't match " + close,
-              errorNode
+              errorNode,
             );
           }
         }
@@ -5115,7 +5115,7 @@ THE SOFTWARE.
           inverseAndProgram,
           close,
           inverted,
-          locInfo
+          locInfo,
         ) {
           if (close && close.path) {
             validateClose(openBlock, close);
@@ -5132,7 +5132,7 @@ THE SOFTWARE.
             if (decorator) {
               throw new _exception2["default"](
                 "Unexpected inverse block on decorator",
-                inverseAndProgram
+                inverseAndProgram,
               );
             }
 
@@ -5329,7 +5329,7 @@ THE SOFTWARE.
             if (!this[node.type]) {
               throw new _exception2["default"](
                 "Unknown type: " + node.type,
-                node
+                node,
               );
             }
 
@@ -5400,7 +5400,7 @@ THE SOFTWARE.
             var params = this.setupFullMustacheParams(
                 decorator,
                 program,
-                undefined
+                undefined,
               ),
               path = decorator.path;
 
@@ -5420,7 +5420,7 @@ THE SOFTWARE.
             if (params.length > 1) {
               throw new _exception2["default"](
                 "Unsupported number of partial arguments: " + params.length,
-                partial
+                partial,
               );
             } else if (!params.length) {
               if (this.options.explicitPartialContext) {
@@ -5518,7 +5518,7 @@ THE SOFTWARE.
               throw new _exception2["default"](
                 "You specified knownHelpersOnly, but used the unknown helper " +
                   name,
-                sexpr
+                sexpr,
               );
             } else {
               path.strict = true;
@@ -5529,7 +5529,7 @@ THE SOFTWARE.
                 "invokeHelper",
                 params.length,
                 path.original,
-                _ast2["default"].helpers.simpleId(path)
+                _ast2["default"].helpers.simpleId(path),
               );
             }
           },
@@ -5557,7 +5557,7 @@ THE SOFTWARE.
                 path.parts,
                 path.falsy,
                 path.strict,
-                scoped
+                scoped,
               );
             }
           },
@@ -5694,7 +5694,7 @@ THE SOFTWARE.
                     "pushId",
                     "BlockParam",
                     blockParamIndex,
-                    blockParamChild
+                    blockParamChild,
                   );
                 } else {
                   value = val.original || value;
@@ -5716,7 +5716,7 @@ THE SOFTWARE.
             sexpr,
             program,
             inverse,
-            omitEmpty
+            omitEmpty,
           ) {
             var params = sexpr.params;
             this.pushParams(params);
@@ -5755,7 +5755,7 @@ THE SOFTWARE.
           ) {
             throw new _exception2["default"](
               "You must pass a string or Handlebars AST to Handlebars.precompile. You passed " +
-                input
+                input,
             );
           }
 
@@ -5781,7 +5781,7 @@ THE SOFTWARE.
           ) {
             throw new _exception2["default"](
               "You must pass a string or Handlebars AST to Handlebars.compile. You passed " +
-                input
+                input,
             );
           }
 
@@ -5802,7 +5802,7 @@ THE SOFTWARE.
                 environment,
                 options,
                 undefined,
-                true
+                true,
               );
             return env.template(templateSpec);
           }
@@ -5999,7 +5999,7 @@ THE SOFTWARE.
               this.compileStack.length
             ) {
               throw new _exception2["default"](
-                "Compile completed with content left on stack"
+                "Compile completed with content left on stack",
               );
             }
 
@@ -6007,7 +6007,7 @@ THE SOFTWARE.
               this.useDecorators = true;
 
               this.decorators.prepend(
-                "var decorators = container.decorators;\n"
+                "var decorators = container.decorators;\n",
               );
               this.decorators.push("return fn;");
 
@@ -6024,7 +6024,7 @@ THE SOFTWARE.
                 ]);
               } else {
                 this.decorators.prepend(
-                  "function(fn, props, container, depth0, data, blockParams, depths) {\n"
+                  "function(fn, props, container, depth0, data, blockParams, depths) {\n",
                 );
                 this.decorators.push("}\n");
                 this.decorators = this.decorators.merge();
@@ -6216,7 +6216,7 @@ THE SOFTWARE.
               this.source.prepend(
                 "var " +
                   varDeclarations.substring(2) +
-                  (appendFirst ? "" : ";\n")
+                  (appendFirst ? "" : ";\n"),
               );
             }
 
@@ -6234,7 +6234,7 @@ THE SOFTWARE.
           // invoking blockHelperMissing.
           blockValue: function blockValue(name) {
             var blockHelperMissing = this.aliasable(
-                "helpers.blockHelperMissing"
+                "helpers.blockHelperMissing",
               ),
               params = [this.contextName(0)];
             this.setupHelperArgs(name, 0, params);
@@ -6243,7 +6243,7 @@ THE SOFTWARE.
             params.splice(1, 0, blockName);
 
             this.push(
-              this.source.functionCall(blockHelperMissing, "call", params)
+              this.source.functionCall(blockHelperMissing, "call", params),
             );
           },
 
@@ -6256,7 +6256,7 @@ THE SOFTWARE.
           ambiguousBlockValue: function ambiguousBlockValue() {
             // We're being a bit cheeky and reusing the options value from the prior exec
             var blockHelperMissing = this.aliasable(
-                "helpers.blockHelperMissing"
+                "helpers.blockHelperMissing",
               ),
               params = [this.contextName(0)];
             this.setupHelperArgs("", 0, params, true);
@@ -6341,7 +6341,7 @@ THE SOFTWARE.
                 "(",
                 this.popStack(),
                 ")",
-              ])
+              ]),
             );
           },
 
@@ -6377,7 +6377,7 @@ THE SOFTWARE.
             parts,
             falsy,
             strict,
-            scoped
+            scoped,
           ) {
             var i = 0;
 
@@ -6435,7 +6435,7 @@ THE SOFTWARE.
 
             if (this.options.strict || this.options.assumeObjects) {
               this.push(
-                strictLookup(this.options.strict && strict, this, parts, type)
+                strictLookup(this.options.strict && strict, this, parts, type),
               );
               return;
             }
@@ -6579,7 +6579,7 @@ THE SOFTWARE.
             var foundDecorator = this.nameLookup(
                 "decorators",
                 name,
-                "decorator"
+                "decorator",
               ),
               options = this.setupHelperArgs(name, paramSize);
 
@@ -6616,7 +6616,7 @@ THE SOFTWARE.
             lookup.push(")");
 
             this.push(
-              this.source.functionCall(lookup, "call", helper.callParams)
+              this.source.functionCall(lookup, "call", helper.callParams),
             );
           },
 
@@ -6630,7 +6630,7 @@ THE SOFTWARE.
           invokeKnownHelper: function invokeKnownHelper(paramSize, name) {
             var helper = this.setupHelper(paramSize, name);
             this.push(
-              this.source.functionCall(helper.name, "call", helper.callParams)
+              this.source.functionCall(helper.name, "call", helper.callParams),
             );
           },
 
@@ -6657,7 +6657,7 @@ THE SOFTWARE.
             var helperName = (this.lastHelper = this.nameLookup(
               "helpers",
               name,
-              "helper"
+              "helper",
             ));
 
             var lookup = [
@@ -6672,7 +6672,7 @@ THE SOFTWARE.
               lookup[0] = "(helper = ";
               lookup.push(
                 " != null ? helper : ",
-                this.aliasable("helpers.helperMissing")
+                this.aliasable("helpers.helperMissing"),
               );
             }
 
@@ -6725,7 +6725,7 @@ THE SOFTWARE.
             params.push(options);
 
             this.push(
-              this.source.functionCall("container.invokePartial", "", params)
+              this.source.functionCall("container.invokePartial", "", params),
             );
           },
 
@@ -6770,7 +6770,7 @@ THE SOFTWARE.
                   "].path[" +
                   name[1] +
                   "]" +
-                  (child ? " + " + JSON.stringify("." + child) : "")
+                  (child ? " + " + JSON.stringify("." + child) : ""),
               );
             } else if (type === "PathExpression") {
               this.pushString(name);
@@ -6805,7 +6805,7 @@ THE SOFTWARE.
                   child,
                   options,
                   this.context,
-                  !this.precompile
+                  !this.precompile,
                 );
                 this.context.decorators[index] = compiler.decorators;
                 this.context.environments[index] = child;
@@ -6877,8 +6877,8 @@ THE SOFTWARE.
               this.source.push(
                 this.appendToBuffer(
                   this.source.quotedString(this.pendingContent),
-                  this.pendingLocation
-                )
+                  this.pendingLocation,
+                ),
               );
               this.pendingContent = undefined;
             }
@@ -7022,14 +7022,14 @@ THE SOFTWARE.
                 name,
                 paramSize,
                 params,
-                blockHelper
+                blockHelper,
               );
             var foundHelper = this.nameLookup("helpers", name, "helper"),
               callContext = this.aliasable(
                 this.contextName(0) +
                   " != null ? " +
                   this.contextName(0) +
-                  " : (container.nullContext || {})"
+                  " : (container.nullContext || {})",
               );
 
             return {
@@ -7114,7 +7114,7 @@ THE SOFTWARE.
             helper,
             paramSize,
             params,
-            useRegister
+            useRegister,
           ) {
             var options = this.setupParams(helper, paramSize, params);
             options = this.objectLiteral(options);
@@ -7299,7 +7299,7 @@ THE SOFTWARE.
             return new SourceNode(
               loc.start.line,
               loc.start.column,
-              this.srcFile
+              this.srcFile,
             );
           },
           wrap: function wrap(chunk) {
@@ -7318,7 +7318,7 @@ THE SOFTWARE.
               loc.start.line,
               loc.start.column,
               this.srcFile,
-              chunk
+              chunk,
             );
           },
 
@@ -7388,6 +7388,6 @@ THE SOFTWARE.
         /***/
       },
       /******/
-    ]
+    ],
   );
 });

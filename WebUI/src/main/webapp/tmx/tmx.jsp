@@ -1,5 +1,6 @@
 <%@ page import="java.util.*,com.percussion.i18n.PSTmxResourceBundle"%>
     <%@ page import="com.percussion.services.utils.jspel.PSRoleUtilities" %>
+    <%@ page import="com.percussion.security.validation.XSSValidation" %>
     <%@ page pageEncoding="UTF-8" contentType="text/javascript; charset=UTF-8" %>
 
 
@@ -76,15 +77,25 @@
         String[] prefixes = prefix.split(",");
         PSTmxResourceBundle tmxBundle = PSTmxResourceBundle.getInstance();
         Iterator keys = tmxBundle.getKeys(locale);
-        Map accepted = new HashMap();
-        while(keys.hasNext())
+        // LinkedHashMap preserves stable key order for easier diffs / tests.
+        Map accepted = new LinkedHashMap();
+        if (keys != null)
         {
-            String key = (String)keys.next();
-            if(!prefix.equals("*") && !accept(prefixes, key))
-                continue;
-            String val = tmxBundle.getString(key, locale).replaceAll("\"", "\\\"");
-            val = val.replaceAll("\n", "\\\\n").replaceAll("\t", "");
-            accepted.put(key, val);
+            while(keys.hasNext())
+            {
+                String key = (String)keys.next();
+                if(!prefix.equals("*") && !accept(prefixes, key))
+                    continue;
+                // Keep raw strings here; escape per output mode below.
+                // Do NOT use naive replaceAll("\"","\\\"") — FR/IT (and other)
+                // catalog values embed literal " and newlines. That produced
+                // invalid JS object literals so the login locale dropdown could
+                // load the script without updating I18N.message (chrome stuck
+                // on the previous locale). Escape with XSSValidation /
+                // escapeEcmaScript at emit time.
+                String val = tmxBundle.getString(key, locale);
+                accepted.put(key, val == null ? "" : val);
+            }
         }
 
         if(mode.equals("js"))
@@ -102,8 +113,13 @@
             while(keyset.hasNext())
             {
                 String key = (String)keyset.next();
+                String rawVal = (String)accepted.get(key);
+                String safeKey = XSSValidation.escapeJavaScript(key);
+                String safeVal = XSSValidation.escapeJavaScript(rawVal);
+                if (safeKey == null) safeKey = "";
+                if (safeVal == null) safeVal = "";
 
-        %>"<%= key %>": "<%= (String)accepted.get(key) %>"<%if(keyset.hasNext()) out.print(",");%>
+        %>"<%= safeKey %>": "<%= safeVal %>"<%if(keyset.hasNext()) out.print(",");%>
         <%}%>
     };
 
@@ -165,10 +181,15 @@
             while(keyset.hasNext())
             {
                 String key = (String)keyset.next();
+                String rawVal = (String)accepted.get(key);
+                String safeKey = XSSValidation.escapeJavaScript(key);
+                String safeVal = XSSValidation.escapeJavaScript(rawVal);
+                if (safeKey == null) safeKey = "";
+                if (safeVal == null) safeVal = "";
                 out.print("\"");
-                out.print(key);
+                out.print(safeKey);
                 out.print("\": \"");
-                out.print((String)accepted.get(key));
+                out.print(safeVal);
                 out.print("\"");
                 if(keyset.hasNext())
                     out.print(",");
@@ -183,18 +204,20 @@
             while(keyset.hasNext())
             {
                 String key = (String)keyset.next();
+                String rawVal = (String)accepted.get(key);
+                if (rawVal == null) rawVal = "";
                 out.print("<message key=\"");
                 out.print(key
-                    .replaceAll("&", "&amp;")
-                    .replaceAll("<", "&lt;")
-                    .replaceAll(">", "&gt;")
-                    .replaceAll("\"", "&quot;"));
+                    .replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;")
+                    .replace("\"", "&quot;"));
                 out.print("\">");
-                out.print(((String)accepted.get(key))
-                    .replaceAll("&", "&amp;")
-                    .replaceAll("<", "&lt;")
-                    .replaceAll(">", "&gt;")
-                    .replaceAll("\"", "&quot;"));
+                out.print(rawVal
+                    .replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;")
+                    .replace("\"", "&quot;"));
                 out.println("</message>");
             }
             out.println("</tmxmessages>");

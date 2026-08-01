@@ -66,7 +66,7 @@ test.describe("US2 host-folder-picker migration (SC-002)", () => {
     await page.goto(DIALOG_URL, { waitUntil: "networkidle" });
     const confirm = page.locator('[data-testid="content-browser-confirm"]');
     const summary = page.locator(
-      '[data-testid="content-browser-selection-summary"]'
+      '[data-testid="content-browser-selection-summary"]',
     );
     await expect(confirm).toBeVisible({ timeout: 15_000 });
     await expect(confirm).toBeDisabled();
@@ -81,7 +81,7 @@ test.describe("US2 host-folder-picker migration (SC-002)", () => {
     await expect(cancelBtn).toBeVisible({ timeout: 15_000 });
     await cancelBtn.focus();
     const focusedTag = await page.evaluate(
-      () => document.activeElement?.tagName
+      () => document.activeElement?.tagName,
     );
     expect(focusedTag).toBe("BUTTON");
   });
@@ -91,7 +91,7 @@ test.describe("US2 host-folder-picker migration (SC-002)", () => {
   }) => {
     await page.goto(DIALOG_URL, { waitUntil: "networkidle" });
     await expect(
-      page.locator('[data-testid="perc-content-browser-root"]')
+      page.locator('[data-testid="perc-content-browser-root"]'),
     ).toBeVisible({ timeout: 15_000 });
     await expectNoSeriousA11yViolations(page, {
       scope: '[data-testid="perc-content-browser-root"]',

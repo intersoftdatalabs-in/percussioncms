@@ -38,11 +38,11 @@
           callback($.PercServiceUtils.STATUS_SUCCESS, result);
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
-      }
+      },
     );
   }
 
@@ -70,16 +70,16 @@
         if (status === $.PercServiceUtils.STATUS_SUCCESS) {
           callback(
             $.PercServiceUtils.STATUS_SUCCESS,
-            result.data.psmap.entries.entry.value
+            result.data.psmap.entries.entry.value,
           );
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      object
+      object,
     );
   }
 
@@ -106,16 +106,16 @@
         if (status === $.PercServiceUtils.STATUS_SUCCESS) {
           callback(
             $.PercServiceUtils.STATUS_SUCCESS,
-            convertMapToArray(result.data.psmap.entries)
+            convertMapToArray(result.data.psmap.entries),
           );
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      object
+      object,
     );
   }
 
@@ -167,16 +167,16 @@
         if (status === $.PercServiceUtils.STATUS_SUCCESS) {
           callback(
             $.PercServiceUtils.STATUS_SUCCESS,
-            result.data.psmap.entries.entry.value
+            result.data.psmap.entries.entry.value,
           );
         } else {
           var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-            result.request
+            result.request,
           );
           callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
         }
       },
-      object
+      object,
     );
   }
 
@@ -197,7 +197,7 @@
       false,
       $.noop,
       logData,
-      $.noop
+      $.noop,
     );
   }
 })(jQuery);

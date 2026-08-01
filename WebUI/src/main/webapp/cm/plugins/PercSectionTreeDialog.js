@@ -43,7 +43,7 @@
     treeLabel,
     dlgTitle,
     okButton,
-    okCallback
+    okCallback,
   ) {
     var self = this;
     var $dialog = null;
@@ -56,14 +56,14 @@
               .text(treeLabel)
               .append(
                 $("<div id='perc-movesection-tree' />").append(
-                  $("<ul/>").append(buildSectionTreeList(result.SectionNode))
-                )
-              )
+                  $("<ul/>").append(buildSectionTreeList(result.SectionNode)),
+                ),
+              ),
           )
           .append(
             $("<div class='ui-layout-south'/>").append(
-              $("<div id='perc_buttons' style='z-index: 100;'>")
-            )
+              $("<div id='perc_buttons' style='z-index: 100;'>"),
+            ),
           )
 
           .perc_dialog({
@@ -160,7 +160,7 @@
             .attr("href", "#")
             .text(menuTitle)
             .attr("data-icon", "section.png")
-            .data("sectionName", menuTitle)
+            .data("sectionName", menuTitle),
         );
 
       if (sectionNode.childNodes !== "") {

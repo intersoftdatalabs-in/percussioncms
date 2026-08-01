@@ -27,7 +27,7 @@
   $.perc_assign_workflow_sites_folder_dialog = {
     createDialog: createDialog,
     WORKFLOW_ASSIGNMENT_INPROCESS_MESSAGE: I18N.message(
-      "perc.ui.assign.workflow@Worklow Assignment In Process"
+      "perc.ui.assign.workflow@Worklow Assignment In Process",
     ),
   };
 
@@ -74,7 +74,7 @@
           // Get unassigned folders
           var unassignedFolders = getUnassignedFolders(
             selectedSitesPaths,
-            selectedWorkflow
+            selectedWorkflow,
           );
           var appliedFolders = selectedCustomCheckboxes;
           var jsonAssignements = {
@@ -111,7 +111,7 @@
               function () {
                 theDialog.remove();
                 $.unblockUI();
-              }
+              },
             );
           }
           $.PercFolderService.isWorkflowAssignmentInProgress(function (status) {
@@ -145,7 +145,7 @@
     selectedCustomCheckboxes = [];
     // Info title of the apply icon.
     var infoTitle = I18N.message(
-      "perc.ui.assign.workflow@Apply Settings to Folder"
+      "perc.ui.assign.workflow@Apply Settings to Folder",
     );
     // Clear the dialog variable, just in case
     selectedWorkflowName = selectedWorkflow;
@@ -158,7 +158,7 @@
     dialog.append(
       '<div class="perc-loading-warning-message" style="margin-left:20px;margin-bottom:5px;"><img src="../css/fancytree/skin/loading.gif" style="vertical-align:bottom"/>' +
         I18N.message("perc.ui.assign.workflow@Workflow Loading") +
-        " </div>"
+        " </div>",
     );
 
     // Create Sites collapsible panel
@@ -167,26 +167,26 @@
         $('<div id="perc-assign-workflow-sites-title"></div>')
           .append(
             $(
-              '<div id="perc-assign-workflow-sites-expander" style="display: inline;"></div>'
+              '<div id="perc-assign-workflow-sites-expander" style="display: inline;"></div>',
             )
               .append(
                 $(
                   '<div id="perc-assign-workflow-sites-title-span" role="button" tabindex="0" title="' +
                     I18N.message("perc.ui.workflow.view@Minimize") +
-                    '" class="perc-assign-workflow-expander-image collapsed">&nbsp;</div>'
-                )
+                    '" class="perc-assign-workflow-expander-image collapsed">&nbsp;</div>',
+                ),
               )
               .append(
                 "<span>" +
                   I18N.message(
-                    "perc.ui.assign.workflow@Sites Collapsible Panel"
+                    "perc.ui.assign.workflow@Sites Collapsible Panel",
                   ) +
-                  "</span>"
+                  "</span>",
               )
               .on("click", function () {
                 $("#perc-assign-workflow-sites-tree-wrapper").toggle();
                 $("#perc-assign-workflow-sites-title-span").toggleClass(
-                  "collapsed"
+                  "collapsed",
                 );
                 swapShowInfoSpans("sites");
 
@@ -198,14 +198,14 @@
                 ) {
                   $(topSpan).attr(
                     "title",
-                    I18N.message("perc.ui.workflow.view@Minimize")
+                    I18N.message("perc.ui.workflow.view@Minimize"),
                   );
                 } else if (
                   combinedClass == "perc-assign-workflow-expander-image"
                 ) {
                   $(topSpan).attr(
                     "title",
-                    I18N.message("perc.ui.workflow.view@Maximize")
+                    I18N.message("perc.ui.workflow.view@Maximize"),
                   );
                 }
               })
@@ -213,24 +213,24 @@
                 if (event.code == "Enter" || event.code == "Space") {
                   document.activeElement.click();
                 }
-              })
+              }),
           )
           .append(
             $(
               '<span class="perc-assign-workflow-sites-apply-top">Apply <span class="perc-assign-workflow-sites-apply-top-icon" title="' +
                 infoTitle +
-                '"/></span>'
-            )
-          )
-      )
+                '"/></span>',
+            ),
+          ),
+      ),
     );
 
     var tree_container = $('<div id="perc-assign-workflow-sites-tree"></div>');
 
     dialog.append(
       $('<div id="perc-assign-workflow-sites-tree-wrapper"></div>').append(
-        tree_container
-      )
+        tree_container,
+      ),
     );
 
     // Create Assets collapsible panel
@@ -239,26 +239,26 @@
         $('<div id="perc-assign-workflow-assets-title"></div>')
           .append(
             $(
-              '<div id="perc-assign-workflow-assets-expander" style="display: inline;"></div>'
+              '<div id="perc-assign-workflow-assets-expander" style="display: inline;"></div>',
             )
               .append(
                 $(
                   '<div id="perc-assign-workflow-assets-title-span" role="button" tabindex="0" title="' +
                     I18N.message("perc.ui.workflow.view@Minimize") +
-                    '" class="perc-assign-workflow-expander-image collapsed">&nbsp;</div>'
-                )
+                    '" class="perc-assign-workflow-expander-image collapsed">&nbsp;</div>',
+                ),
               )
               .append(
                 "<span> " +
                   I18N.message(
-                    "perc.ui.assign.workflow@Assets Collapsible Panel"
+                    "perc.ui.assign.workflow@Assets Collapsible Panel",
                   ) +
-                  " </span>"
+                  " </span>",
               )
               .on("click", function () {
                 $("#perc-assign-workflow-assets-tree-wrapper").toggle();
                 $("#perc-assign-workflow-assets-title-span").toggleClass(
-                  "collapsed"
+                  "collapsed",
                 );
                 swapShowInfoSpans("assets");
 
@@ -270,14 +270,14 @@
                 ) {
                   $(topSpan).attr(
                     "title",
-                    I18N.message("perc.ui.workflow.view@Minimize")
+                    I18N.message("perc.ui.workflow.view@Minimize"),
                   );
                 } else if (
                   combinedClass == "perc-assign-workflow-expander-image"
                 ) {
                   $(topSpan).attr(
                     "title",
-                    I18N.message("perc.ui.workflow.view@Maximize")
+                    I18N.message("perc.ui.workflow.view@Maximize"),
                   );
                 }
               })
@@ -285,25 +285,25 @@
                 if (event.code == "Enter" || event.code == "Space") {
                   document.activeElement.click();
                 }
-              })
+              }),
           )
           .append(
             $(
               '<span class="perc-assign-workflow-assets-apply-top">Apply <span class="perc-assign-workflow-assets-apply-top-icon" title="' +
                 infoTitle +
-                '"/></span>'
-            )
-          )
-      )
+                '"/></span>',
+            ),
+          ),
+      ),
     );
 
     var tree_container_assets = $(
-      '<div id="perc-assign-workflow-assets-tree"></div>'
+      '<div id="perc-assign-workflow-assets-tree"></div>',
     );
     dialog.append(
       $('<div id="perc-assign-workflow-assets-tree-wrapper"></div>').append(
-        tree_container_assets
-      )
+        tree_container_assets,
+      ),
     );
 
     dialog.perc_dialog({
@@ -352,32 +352,32 @@
       $(
         "<span>" +
           I18N.message("perc.ui.assign.workflow@Workflow Tree Apply") +
-          "</span>"
+          "</span>",
       )
         .addClass("perc-assign-workflow-sites-apply-bottom")
-        .hide()
+        .hide(),
     );
     tree_container_assets.append(
       $(
         "<span>" +
           I18N.message("perc.ui.assign.workflow@Workflow Tree Apply") +
-          "</span>"
+          "</span>",
       )
         .addClass("perc-assign-workflow-assets-apply-bottom")
-        .hide()
+        .hide(),
     );
 
     // Adds the warning message just after the trees container
     $("#perc-assign-workflow-wrapper").after(
       '<div class="perc-assign-workflow-warning"> ' +
         I18N.message(
-          "perc.ui.assign.workflow@Workflow Processing Warning Background"
+          "perc.ui.assign.workflow@Workflow Processing Warning Background",
         ) +
         " <br /> " +
         I18N.message(
-          "perc.ui.assign.workflow@Workflow Processing Warning Exclusion"
+          "perc.ui.assign.workflow@Workflow Processing Warning Exclusion",
         ) +
-        "</div>"
+        "</div>",
     );
 
     return dialog;
@@ -410,10 +410,10 @@
             loadSiteFolders();
             loadAssetFolders();
           },
-          true
+          true,
         );
       },
-      true
+      true,
     );
   }
   function loadSiteFolders() {
@@ -424,7 +424,7 @@
         if (status === $.PercServiceUtils.STATUS_ERROR) {
           $.perc_utils.alert_dialog({
             title: I18N.message(
-              "perc.ui.assign.workflow@Loading Site Folders Error"
+              "perc.ui.assign.workflow@Loading Site Folders Error",
             ),
             content: result,
           });
@@ -441,7 +441,7 @@
         originalSitesJson.folderItem =
           result.GetAssginedFoldersJobStatus.folderItems;
         showFolderTrees();
-      }
+      },
     );
   }
   function loadAssetFolders() {
@@ -452,7 +452,7 @@
         if (status === $.PercServiceUtils.STATUS_ERROR) {
           $.perc_utils.alert_dialog({
             title: I18N.messsage(
-              "perc.ui.assign.workflow@Loading Asset Folders Error"
+              "perc.ui.assign.workflow@Loading Asset Folders Error",
             ),
             content: result,
           });
@@ -469,7 +469,7 @@
         originalAssetsJson.folderItem =
           result.GetAssginedFoldersJobStatus.folderItems;
         showFolderTrees();
-      }
+      },
     );
   }
   function showFolderTrees() {
@@ -482,7 +482,7 @@
           $("#datatree-workflow-sites").fancytree("getRoot").children,
           function () {
             customOnExpand(this);
-          }
+          },
         );
         if (originalSitesJson.folderItem.length > 0)
           $("span.perc-assign-workflow-sites-apply-bottom").show();
@@ -493,7 +493,7 @@
           $("#datatree-workflow-assets").fancytree("getRoot").children,
           function () {
             customOnExpand(this);
-          }
+          },
         );
         if (originalAssetsJson.folderItem.length > 0)
           $("span.perc-assign-workflow-assets-apply-bottom").show();
@@ -512,7 +512,7 @@
   function swapShowInfoSpans(treeType) {
     if (
       $("#perc-assign-workflow-" + treeType + "-title-span").hasClass(
-        "collapsed"
+        "collapsed",
       )
     ) {
       $(".perc-assign-workflow-" + treeType + "-apply-top").show();
@@ -552,15 +552,15 @@
         .on("click", function (eventHandler) {
           if (
             !$(eventHandler.currentTarget).hasClass(
-              "fancytree-custom-checkbox-disabled"
+              "fancytree-custom-checkbox-disabled",
             )
           ) {
             $(eventHandler.currentTarget).toggleClass(
-              "fancytree-custom-checkbox-selected"
+              "fancytree-custom-checkbox-selected",
             );
             if (
               $(eventHandler.currentTarget).hasClass(
-                "fancytree-custom-checkbox-selected"
+                "fancytree-custom-checkbox-selected",
               )
             ) {
               if ($.inArray(node.data.key, selectedCustomCheckboxes) === -1) {
@@ -570,7 +570,7 @@
             } else {
               selectedCustomCheckboxes.splice(
                 $.inArray(node.data.key, selectedCustomCheckboxes),
-                1
+                1,
               );
               selectCustomCheckboxRecursive(false, node);
             }
@@ -646,7 +646,7 @@
       .removeClass("fancytree-custom-checkbox-selected");
     selectedCustomCheckboxes.splice(
       $.inArray(node.data.key, selectedCustomCheckboxes),
-      1
+      1,
     );
   }
 
@@ -783,7 +783,7 @@
     for (i in selectedSitesPaths) {
       var indexInOriginal = $.inArray(
         selectedSitesPaths[i],
-        originalAssignedPaths
+        originalAssignedPaths,
       );
       if (indexInOriginal > -1) {
         // Changes de originalAssinedPath array

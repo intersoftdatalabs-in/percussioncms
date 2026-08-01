@@ -273,7 +273,7 @@ function _showWorkflowTabHelp(helpPage) {
     var hwin = window.open(
       "../Docs/Rhythmyx/Rhythmyx_Workflow_Tab_Help/index.htm?toc.htm?" +
         helpPage,
-      "HelpWindow"
+      "HelpWindow",
     );
     hwin.focus();
   }
@@ -366,7 +366,7 @@ function isTagAttrib(type, name) {
     "id",
     "vspace",
     "hspace",
-    "name"
+    "name",
   );
   if (type.toLowerCase() == "applet") {
     var temp1 = ["codebase", "archive", "code", "mayscript"];

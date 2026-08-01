@@ -26,7 +26,7 @@
     maxlength: $.validator.format("{0} 文字以内で入力してください。"),
     minlength: $.validator.format("{0} 文字以上で入力してください。"),
     rangelength: $.validator.format(
-      "{0} 文字から {1} 文字までの値を入力してください。"
+      "{0} 文字から {1} 文字までの値を入力してください。",
     ),
     range: $.validator.format("{0} から {1} までの値を入力してください。"),
     step: $.validator.format("{0} の倍数を入力してください。"),

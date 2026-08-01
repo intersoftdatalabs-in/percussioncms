@@ -71,14 +71,14 @@
       .addClass("perc-tooltip")
       .addClass("perc-tooltip-arrow-down")
       .append(
-        $("<div/>").addClass("perc-tooltip-content").append("Title Goes Here")
+        $("<div/>").addClass("perc-tooltip-content").append("Title Goes Here"),
       )
       .append(
         $("<div/>")
           .addClass("perc-tooltip-arrow-bottom perc-tooltip-arrow")
           .append(
-            "<img src='/cm/widgets/PercTooltip/PercTooltipArrowDown.png'/>"
-          )
+            "<img src='/cm/widgets/PercTooltip/PercTooltipArrowDown.png'/>",
+          ),
       )
       .css("position", "absolute")
       .css("top", "-10000px")
@@ -175,7 +175,7 @@
             element.data(
               "events".click[0] &&
                 element.data("events").click[0].data &&
-                element.data("events").click[0].handler
+                element.data("events").click[0].handler,
             )
           ) {
             let e = { data: element.data("events").click[0].data };

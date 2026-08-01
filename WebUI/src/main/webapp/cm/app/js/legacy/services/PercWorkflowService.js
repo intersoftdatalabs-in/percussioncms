@@ -61,7 +61,7 @@
       url,
       $.PercServiceUtils.TYPE_GET,
       false,
-      callback
+      callback,
     );
   }
   /**
@@ -79,7 +79,7 @@
   function checkOut(itemId, callback) {
     if ($.perc_utils.isBlankString(itemId)) {
       $.perc_utils.debug(
-        I18N.message("perc.ui.workflow.service@Blank Item ID checkOut")
+        I18N.message("perc.ui.workflow.service@Blank Item ID checkOut"),
       );
       return false;
     }
@@ -89,7 +89,7 @@
       url,
       $.PercServiceUtils.TYPE_GET,
       false,
-      callback
+      callback,
     );
   }
 
@@ -102,7 +102,7 @@
   function checkIn(itemId, callback) {
     if ($.perc_utils.isBlankString(itemId)) {
       $.perc_utils.debug(
-        I18N.message("perc.ui.workflow.service@Blank Item ID checkIn")
+        I18N.message("perc.ui.workflow.service@Blank Item ID checkIn"),
       );
       return false;
     }
@@ -112,7 +112,7 @@
       url,
       $.PercServiceUtils.TYPE_GET,
       false,
-      callback
+      callback,
     );
   }
 
@@ -133,7 +133,7 @@
   function getTransitions(itemId, callback) {
     if ($.perc_utils.isBlankString(itemId)) {
       $.perc_utils.debug(
-        I18N.message("perc.ui.workflow.service@Blank Item ID getTransitions")
+        I18N.message("perc.ui.workflow.service@Blank Item ID getTransitions"),
       );
       return false;
     }
@@ -143,7 +143,7 @@
       url,
       $.PercServiceUtils.TYPE_GET,
       false,
-      callback
+      callback,
     );
   }
 
@@ -157,7 +157,7 @@
   function transition(itemId, transitionName, comment, callback) {
     if ($.perc_utils.isBlankString(itemId)) {
       $.perc_utils.debug(
-        I18N.message("perc.ui.workflow.service@Blank Item ID Transition")
+        I18N.message("perc.ui.workflow.service@Blank Item ID Transition"),
       );
       return false;
     }
@@ -174,7 +174,7 @@
       url,
       $.PercServiceUtils.TYPE_GET,
       false,
-      callback
+      callback,
     );
   }
 
@@ -195,7 +195,7 @@
   function forceCheckOut(itemId, callback) {
     if ($.perc_utils.isBlankString(itemId)) {
       $.perc_utils.debug(
-        I18N.message("perc.ui.workflow.service@Blank Item ID")
+        I18N.message("perc.ui.workflow.service@Blank Item ID"),
       );
       return false;
     }
@@ -205,7 +205,7 @@
       url,
       $.PercServiceUtils.TYPE_GET,
       false,
-      callback
+      callback,
     );
   }
 
@@ -218,7 +218,7 @@
   function isCheckedOutToCurrentUser(itemId, callback) {
     if ($.perc_utils.isBlankString(itemId)) {
       $.perc_utils.debug(
-        I18N.message("perc.ui.workflow.service@Blank Item ID")
+        I18N.message("perc.ui.workflow.service@Blank Item ID"),
       );
       return false;
     }
@@ -228,7 +228,7 @@
       url,
       $.PercServiceUtils.TYPE_GET,
       false,
-      callback
+      callback,
     );
   }
 
@@ -242,7 +242,7 @@
   function isApproveAvailableToCurrentUser(folderPath, callback) {
     if ($.perc_utils.isBlankString(folderPath)) {
       $.perc_utils.debug(
-        I18N.message("perc.ui.workflow.service@Blank folderPath")
+        I18N.message("perc.ui.workflow.service@Blank folderPath"),
       );
       return false;
     }
@@ -252,7 +252,7 @@
       url,
       $.PercServiceUtils.TYPE_GET,
       false,
-      callback
+      callback,
     );
   }
 
@@ -296,7 +296,7 @@
       Url,
       $.PercServiceUtils.TYPE_GET,
       false,
-      serviceCallback
+      serviceCallback,
     );
   }
 
@@ -331,7 +331,7 @@
       $.PercServiceUtils.TYPE_PUT,
       false,
       serviceCallback,
-      StepObj
+      StepObj,
     );
   }
 
@@ -386,7 +386,7 @@
       $.PercServiceUtils.TYPE_POST,
       false,
       serviceCallback,
-      newStepObj
+      newStepObj,
     );
   }
   /**
@@ -412,7 +412,7 @@
       Url,
       $.PercServiceUtils.TYPE_DELETE,
       false,
-      serviceCallback
+      serviceCallback,
     );
   }
 
@@ -430,7 +430,7 @@
         callback(false, [results.request, results.textstatus, results.error]);
       } else {
         results.data.EnumVals.entries = $.perc_utils.convertCXFArray(
-          results.data.EnumVals.entries
+          results.data.EnumVals.entries,
         );
         callback(true, [results.data, results.textstatus]);
       }
@@ -439,7 +439,7 @@
       Url,
       $.PercServiceUtils.TYPE_GET,
       false,
-      serviceCallback
+      serviceCallback,
     );
   }
 
@@ -456,7 +456,7 @@
         callback(false, [results.request, results.textstatus, results.error]);
       } else {
         results.data.EnumVals.entries = $.perc_utils.convertCXFArray(
-          results.data.EnumVals.entries
+          results.data.EnumVals.entries,
         );
         callback(true, results.data);
       }
@@ -465,7 +465,7 @@
       Url,
       $.PercServiceUtils.TYPE_GET,
       false,
-      serviceCallback
+      serviceCallback,
     );
   }
 
@@ -489,7 +489,7 @@
       Url,
       $.PercServiceUtils.TYPE_GET,
       false,
-      serviceCallback
+      serviceCallback,
     );
   }
 
@@ -525,7 +525,7 @@
       $.PercServiceUtils.TYPE_POST,
       false,
       serviceCallback,
-      workflowObj
+      workflowObj,
     );
   }
 
@@ -559,7 +559,7 @@
       $.PercServiceUtils.TYPE_PUT,
       false,
       serviceCallback,
-      workflowObj
+      workflowObj,
     );
   }
 
@@ -595,7 +595,7 @@
       Url,
       $.PercServiceUtils.TYPE_DELETE,
       false,
-      serviceCallback
+      serviceCallback,
     );
   }
 
@@ -621,7 +621,7 @@
       $.PercServiceUtils.TYPE_POST,
       false,
       serviceCallback,
-      approvalItems
+      approvalItems,
     );
   }
 
@@ -648,7 +648,7 @@
       Url,
       $.PercServiceUtils.TYPE_GET,
       false,
-      serviceCallback
+      serviceCallback,
     );
   }
 })(jQuery);

@@ -36,7 +36,7 @@
     var serviceCallback = function (status, results) {
       if (status === $.PercServiceUtils.STATUS_ERROR) {
         var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-          results.request
+          results.request,
         );
         callback(false, defaultMsg);
       } else {
@@ -49,7 +49,7 @@
       $.PercServiceUtils.TYPE_POST,
       false,
       serviceCallback,
-      searchCriteriaObj
+      searchCriteriaObj,
     );
   }
 
@@ -59,13 +59,13 @@
     var serviceCallback = function (status, results) {
       if (status === $.PercServiceUtils.STATUS_ERROR) {
         var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-          results.request
+          results.request,
         );
         callback(false, defaultMsg);
       } else if (status === $.PercServiceUtils.STATUS_ABORT) {
         callback(
           false,
-          I18N.message("perc.ui.search.service@Server Taking Too Long")
+          I18N.message("perc.ui.search.service@Server Taking Too Long"),
         );
       } else {
         callback(true, results.data);
@@ -77,7 +77,7 @@
       false,
       serviceCallback,
       searchCriteriaObj,
-      serviceCallback
+      serviceCallback,
     );
   }
   function getAsyncSearchExtendedResult(searchCriteriaObj, callback) {
@@ -86,13 +86,13 @@
     var serviceCallback = function (status, results) {
       if (status === $.PercServiceUtils.STATUS_ERROR) {
         var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-          results.request
+          results.request,
         );
         callback(false, defaultMsg);
       } else if (status === $.PercServiceUtils.STATUS_ABORT) {
         callback(
           false,
-          I18N.message("perc.ui.search.service@Server Taking Too Long")
+          I18N.message("perc.ui.search.service@Server Taking Too Long"),
         );
       } else {
         callback(true, results.data);
@@ -104,7 +104,7 @@
       false,
       serviceCallback,
       searchCriteriaObj,
-      serviceCallback
+      serviceCallback,
     );
   }
 })(jQuery);

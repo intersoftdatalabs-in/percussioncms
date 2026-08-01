@@ -77,7 +77,7 @@
       if (this.currentWidgetDefinition != null) {
         // override the default definition values with the widget values parsed when loading widgets from template or page object
         self.currentWidgetDefinition.setValuesFromWidgetProperties(
-          widget.properties
+          widget.properties,
         );
         // display dialog
         $("#perc-widget-edit").dialog("open");
@@ -181,8 +181,8 @@
         error: function () {
           alert(
             I18N.message(
-              "perc.ui.layout.controller@Unable To Retrieve Widget Lib"
-            )
+              "perc.ui.layout.controller@Unable To Retrieve Widget Lib",
+            ),
           );
         },
       });
@@ -376,7 +376,7 @@
             default_value,
             display_name,
             name,
-            enumValues
+            enumValues,
           );
         });
       } else {
@@ -410,7 +410,7 @@
     default_value,
     display_name,
     name,
-    enumValues
+    enumValues,
   ) {
     this.datatype = datatype;
     this.default_value = default_value;

@@ -98,8 +98,8 @@
             $("<small>").html(
               I18N.message("perc.ui.siteSummary@Referenced by") +
                 ": " +
-                warning["refUri"]
-            )
+                warning["refUri"],
+            ),
           )
           .appendTo($div);
         $("<dd>").text(warning.suggestion).appendTo($div);
@@ -151,7 +151,7 @@
         .empty()
         .addClass("perc-log-header");
       displayAbridgedLogMessage(siteSummaryData.abridged_log_message).appendTo(
-        $ui
+        $ui,
       );
     } else {
       $content
@@ -170,7 +170,7 @@
         .find(".perc-site-summary-warnings .perc-log-footer")
         .empty();
       displayAbridgedLogMessage(siteSummaryData.abridged_log_message).appendTo(
-        $ui
+        $ui,
       );
     }
   }
@@ -187,7 +187,7 @@
     // handle error status
     if (status === $.PercServiceUtils.STATUS_ERROR) {
       var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-        siteSummaryData.request
+        siteSummaryData.request,
       );
       $.perc_utils.alert_dialog({
         title: I18N.message("perc.ui.publish.title@Error"),
@@ -230,7 +230,7 @@
     event.preventDefault();
     $.PercSiteSummaryService.getSiteSummaryData(
       getSiteId(),
-      createDialogAndOpen
+      createDialogAndOpen,
     );
   }
 
@@ -239,7 +239,7 @@
     event.preventDefault();
     $.PercSiteSummaryService.getSiteSummaryData(
       getSiteId(),
-      renderSiteSummaryData
+      renderSiteSummaryData,
     );
   }
 
@@ -276,7 +276,7 @@
     $("body").on(
       "click",
       ".perc-site-summary-action.perc-open-dialog",
-      onOpenDialog
+      onOpenDialog,
     );
     $("body").on(
       "keydown",
@@ -285,7 +285,7 @@
         if (event.code == "Enter" || event.code == "Space") {
           document.activeElement.click();
         }
-      }
+      },
     );
   });
 })(jQuery);

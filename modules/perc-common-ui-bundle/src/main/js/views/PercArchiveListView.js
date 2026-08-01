@@ -89,7 +89,7 @@
               }
 
               var ul = $("<ul>").addClass(
-                "perc-archive-list-wrapper perc-archive-hierarchical"
+                "perc-archive-list-wrapper perc-archive-hierarchical",
               );
 
               for (var i = 0; i < itemToList; i++) {
@@ -130,10 +130,10 @@
                   } else {
                     query = JSON.parse(strJSON);
                     query.criteria.push(
-                      "dcterms:created >= '" + yearParam1 + "'"
+                      "dcterms:created >= '" + yearParam1 + "'",
                     );
                     query.criteria.push(
-                      "dcterms:created <= '" + yearParam2 + "'"
+                      "dcterms:created <= '" + yearParam2 + "'",
                     );
                     encodedQuery =
                       "&query=" + encodeURIComponent(JSON.stringify(query));
@@ -206,10 +206,10 @@
                     } else {
                       query = JSON.parse(strJSON);
                       query.criteria.push(
-                        "dcterms:created >= '" + dateParam1 + "'"
+                        "dcterms:created >= '" + dateParam1 + "'",
                       );
                       query.criteria.push(
-                        "dcterms:created <= '" + dateParam2 + "'"
+                        "dcterms:created <= '" + dateParam2 + "'",
                       );
                       encodedQuery =
                         "&query=" + encodeURIComponent(JSON.stringify(query));
@@ -226,7 +226,7 @@
                       a = $("<a>")
                         .attr(
                           "href",
-                          $.PercServiceUtils.sanitizeUrlForHref(href)
+                          $.PercServiceUtils.sanitizeUrlForHref(href),
                         )
                         .text(linkText);
                     }
@@ -260,7 +260,7 @@
               }
               var listCounter = 0;
               var ul = $("<ul>").addClass(
-                ".perc-archive-list-wrapper perc-archive-flat"
+                ".perc-archive-list-wrapper perc-archive-flat",
               );
               for (var i = 0; i < archiveList.years.length; i++) {
                 var row = archiveList.years[i];
@@ -315,10 +315,10 @@
                   } else {
                     var query = JSON.parse(strJSON);
                     query.criteria.push(
-                      "dcterms:created >= '" + dateParam1 + "'"
+                      "dcterms:created >= '" + dateParam1 + "'",
                     );
                     query.criteria.push(
-                      "dcterms:created <= '" + dateParam2 + "'"
+                      "dcterms:created <= '" + dateParam2 + "'",
                     );
                     var encodedQuery =
                       "&query=" + encodeURIComponent(JSON.stringify(query));
@@ -363,7 +363,7 @@
                 .append(ul);
             }
           }
-        }
+        },
       );
     });
   }

@@ -23,7 +23,7 @@
       var deferred = $.Deferred();
       if (!path) {
         deferred.reject(
-          I18N.message("perc.ui.contributor.ui.adaptor@Path Empty")
+          I18N.message("perc.ui.contributor.ui.adaptor@Path Empty"),
         );
       } else {
         path = getNormalizedPath(path);
@@ -36,7 +36,7 @@
       var pathType = getPathType(path);
       if (!path || !id || pathType === "unknown") {
         deferred.reject(
-          I18N.message("perc.ui.contributor.ui.adaptor@Path Preview")
+          I18N.message("perc.ui.contributor.ui.adaptor@Path Preview"),
         );
       } else {
         if (pathType === "site") {
@@ -52,7 +52,7 @@
       var pathType = getPathType(path);
       if (!path || !id || pathType === "unknown") {
         deferred.reject(
-          I18N.message("perc.ui.contributor.ui.adaptor@Path and ID Copy")
+          I18N.message("perc.ui.contributor.ui.adaptor@Path and ID Copy"),
         );
       } else {
         if (pathType === "site") {
@@ -60,27 +60,27 @@
             if (status === $.PercServiceUtils.STATUS_SUCCESS) {
               if (result.data === "" || typeof result.data != "string") {
                 deferred.reject(
-                  I18N.message("perc.ui.contributor.ui.adaptor@Failed Copy")
+                  I18N.message("perc.ui.contributor.ui.adaptor@Failed Copy"),
                 );
               } else {
                 deferred.resolve(
                   I18N.message("perc.ui.contributor.ui.adaptor@Copied Page") +
                     id +
                     I18N.message(
-                      "perc.ui.contributor.ui.adaptor@Added Page To Recent"
-                    )
+                      "perc.ui.contributor.ui.adaptor@Added Page To Recent",
+                    ),
                 );
               }
             } else {
               var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-                result.request
+                result.request,
               );
               deferred.reject(defaultMsg);
             }
           });
         } else {
           deferred.reject(
-            I18N.message("perc.ui.contributor.ui.adaptor@Asset Copy")
+            I18N.message("perc.ui.contributor.ui.adaptor@Asset Copy"),
           );
         }
       }
@@ -91,7 +91,7 @@
       var pathType = getPathType(path);
       if (!path || !id || pathType === "unknown") {
         deferred.reject(
-          I18N.message("perc.ui.contributor.ui.adaptor@Path and ID delete")
+          I18N.message("perc.ui.contributor.ui.adaptor@Path and ID delete"),
         );
       } else {
         if (pathType === "site") {
@@ -101,7 +101,7 @@
               if (result) {
                 var retObj = {
                   content: I18N.message(
-                    "perc.ui.contributor.ui.adaptor@Landing Page Delete"
+                    "perc.ui.contributor.ui.adaptor@Landing Page Delete",
                   ),
                   canForceDelete: false,
                 };
@@ -112,8 +112,8 @@
                   function () {
                     deferred.resolve(
                       I18N.message(
-                        "perc.ui.contributor.ui.adaptor@Deleted Selected Item"
-                      )
+                        "perc.ui.contributor.ui.adaptor@Deleted Selected Item",
+                      ),
                     );
                   },
                   function (data) {
@@ -121,10 +121,10 @@
                       $.PercDeleteItemHelper.extractDeleteErrorMessage(
                         data,
                         name,
-                        "page"
+                        "page",
                       );
                     deferred.reject(result);
-                  }
+                  },
                 );
               }
             })
@@ -137,18 +137,18 @@
             function () {
               deferred.resolve(
                 I18N.message(
-                  "perc.ui.contributor.ui.adaptor@Deleted Selected Item"
-                )
+                  "perc.ui.contributor.ui.adaptor@Deleted Selected Item",
+                ),
               );
             },
             function (data) {
               var result = $.PercDeleteItemHelper.extractDeleteErrorMessage(
                 data,
                 name,
-                "asset"
+                "asset",
               );
               deferred.reject(result);
-            }
+            },
           );
         }
       }
@@ -159,7 +159,7 @@
       var pathType = getPathType(path);
       if (!path || !id || pathType === "unknown") {
         deferred.reject(
-          I18N.message("perc.ui.contributor.ui.adaptor@Path and ID delete")
+          I18N.message("perc.ui.contributor.ui.adaptor@Path and ID delete"),
         );
       } else {
         if (pathType === "site") {
@@ -168,18 +168,18 @@
             function () {
               deferred.resolve(
                 I18N.message(
-                  "perc.ui.contributor.ui.adaptor@Deleted Selected Item"
-                )
+                  "perc.ui.contributor.ui.adaptor@Deleted Selected Item",
+                ),
               );
             },
             function (data) {
               var result = $.PercDeleteItemHelper.extractDeleteErrorMessage(
                 data,
                 name,
-                "page"
+                "page",
               );
               deferred.reject(result.content);
-            }
+            },
           );
         } else {
           $.PercAssetService.forceDeleteAsset(
@@ -187,18 +187,18 @@
             function () {
               deferred.resolve(
                 I18N.message(
-                  "perc.ui.contributor.ui.adaptor@Deleted Selected Item"
-                )
+                  "perc.ui.contributor.ui.adaptor@Deleted Selected Item",
+                ),
               );
             },
             function (data) {
               var result = $.PercDeleteItemHelper.extractDeleteErrorMessage(
                 data,
                 name,
-                "asset"
+                "asset",
               );
               deferred.reject(result.content);
-            }
+            },
           );
         }
       }
@@ -270,7 +270,7 @@
           deferred.resolve(sites);
         } else {
           deferred.reject(
-            I18N.message("perc.ui.contributor.ui.adaptor@Failed To Get Sites")
+            I18N.message("perc.ui.contributor.ui.adaptor@Failed To Get Sites"),
           );
         }
       });
@@ -357,21 +357,21 @@
                     function (page) {
                       $.PercNavigationManager.openPage(
                         getNormalizedPath(fullPath),
-                        true
+                        true,
                       );
                     },
                     function (request) {
                       var defaultMsg =
                         $.PercServiceUtils.extractDefaultErrorMessage(request);
                       deferred.reject(defaultMsg);
-                    }
+                    },
                   );
                 }
               },
-              folderPath
+              folderPath,
             );
           }
-        }
+        },
       );
 
       return deferred.promise();
@@ -491,7 +491,7 @@
           } else {
             deferred.reject(result);
           }
-        }
+        },
       );
       return deferred.promise();
     }
@@ -546,7 +546,7 @@
                       : folderPath;
                   $.PercRecentListService.setRecent(
                     "asset-folder",
-                    recFolderPath
+                    recFolderPath,
                   );
                   $.PercNavigationManager.goToLocation(
                     $.PercNavigationManager.VIEW_EDIT_ASSET,
@@ -559,14 +559,14 @@
                     {
                       widgetId: widgetId,
                       folderPath: folderPath,
-                    }
+                    },
                   );
                 }
               },
-              folderPath
+              folderPath,
             );
           }
-        }
+        },
       );
       return deferred.promise();
     }
@@ -592,7 +592,7 @@
           } else {
             deferred.reject(result);
           }
-        }
+        },
       );
       return deferred.promise();
     }
@@ -614,7 +614,7 @@
           } else {
             deferred.reject(result);
           }
-        }
+        },
       );
       return deferred.promise();
     }
@@ -654,7 +654,7 @@
             deferred.resolve(result.data);
           }
         },
-        null
+        null,
       );
       return deferred.promise();
     }
@@ -672,7 +672,7 @@
             deferred.resolve(result.PathItem.category === "LANDING_PAGE");
           }
         },
-        null
+        null,
       );
       return deferred.promise();
     }

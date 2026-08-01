@@ -136,7 +136,7 @@
       selectionid,
       siteArray,
       selectedArray,
-      allSitesOption
+      allSitesOption,
     ) {
       var optionsAsString = "";
       if (allSitesOption) {
@@ -197,7 +197,7 @@
           "#perc-category-site-dropdown",
           sitesList,
           null,
-          true
+          true,
         );
         sitename = $("#perc-category-site-dropdown").find(":selected").val();
         controller.getCategories(sitename);
@@ -238,7 +238,7 @@
           if (!$.PercNavigationManager.isAdmin()) {
             alertDialog(
               I18N.message("perc.ui.category.view@User Admin"),
-              I18N.message("perc.ui.category.view@User Admin Delete")
+              I18N.message("perc.ui.category.view@User Admin Delete"),
             );
             return;
           }
@@ -266,7 +266,7 @@
           if (!$.PercNavigationManager.isAdmin()) {
             alertDialog(
               I18N.message("perc.ui.category.view@User Admin"),
-              I18N.message("perc.ui.category.view@User Admin Delete")
+              I18N.message("perc.ui.category.view@User Admin Delete"),
             );
             return;
           }
@@ -293,7 +293,7 @@
           if (!$.PercNavigationManager.isAdmin()) {
             alertDialog(
               I18N.message("perc.ui.category.view@User Admin"),
-              I18N.message("perc.ui.category.view@User Admin Delete")
+              I18N.message("perc.ui.category.view@User Admin Delete"),
             );
             return;
           }
@@ -306,7 +306,7 @@
           if (tree.count() === 1)
             alertDialog(
               I18N.message("perc.ui.category.view@Delete Category"),
-              I18N.message("perc.ui.category.view@Cannot Delete Node")
+              I18N.message("perc.ui.category.view@Cannot Delete Node"),
             );
           else {
             isDelete = true;
@@ -329,7 +329,7 @@
           if (!$.PercNavigationManager.isAdmin()) {
             alertDialog(
               I18N.message("perc.ui.category.view@User Admin"),
-              I18N.message("perc.ui.category.view@User Admin Edit")
+              I18N.message("perc.ui.category.view@User Admin Edit"),
             );
             return;
           }
@@ -526,7 +526,7 @@
           if (typeof console !== "undefined" && console.warn) {
             console.warn(
               "PercCategoryView: fancytree destroy failed; continuing re-init",
-              e
+              e,
             );
           }
           // Best-effort cleanup of widget data so re-init can attach cleanly.
@@ -641,7 +641,7 @@
 
       $("#perc-category-selectable-field").prop("disabled", true);
       $("#perc-category-selectable-field").addClass(
-        "perc-category-field-readonly"
+        "perc-category-field-readonly",
       );
       $("#perc-category-selectable-field").attr("aria-disabled", "true");
       var selectable = node.data.selectable;
@@ -653,7 +653,7 @@
 
       $("#perc-category-show-in-page-field").prop("disabled", true);
       $("#perc-category-show-in-page-field").addClass(
-        "perc-category-field-readonly"
+        "perc-category-field-readonly",
       );
       $("#perc-category-show-in-page-field").attr("aria-disabled", "true");
       var sinpmd = node.data.showInPgMetaData;
@@ -670,7 +670,7 @@
       addSitesToDropdown(
         "#perc-allowedsites-field",
         getAllowedSites(node),
-        getSelectedSites(node)
+        getSelectedSites(node),
       );
 
       $("#perc-category-createdby-field").val(node.data.createdBy);
@@ -695,7 +695,7 @@
       });
 
       $("#perc-category-name-field").removeClass(
-        "perc-category-field-readonly"
+        "perc-category-field-readonly",
       );
 
       $("#perc-allowedsites-field").removeClass("perc-category-field-readonly");
@@ -704,17 +704,17 @@
 
       $("#perc-category-selectable-field").prop("disabled", false);
       $("#perc-category-selectable-field").removeClass(
-        "perc-category-field-readonly"
+        "perc-category-field-readonly",
       );
       $("#perc-category-selectable-field").attr("aria-disabled", "false");
 
       $(
-        '#perc-category-selectable-field option[value="' + sitename + '"]'
+        '#perc-category-selectable-field option[value="' + sitename + '"]',
       ).prop("disabled", true);
 
       $("#perc-category-selectable-field option").on("click", function () {
         $(
-          '#perc-category-selectable-field option[value="' + sitename + '"]'
+          '#perc-category-selectable-field option[value="' + sitename + '"]',
         ).prop("selected", true);
       });
 
@@ -954,12 +954,12 @@
       if (node.hasChildren() === false) {
         confirmDialog(
           I18N.message("perc.ui.category.view@Delete Category"),
-          I18N.message("perc.ui.category.view@Are You Sure")
+          I18N.message("perc.ui.category.view@Are You Sure"),
         );
       } else {
         confirmDialog(
           I18N.message("perc.ui.category.view@Delete Category"),
-          I18N.message("perc.ui.category.view@Category And Children Deleted")
+          I18N.message("perc.ui.category.view@Category And Children Deleted"),
         );
       }
     }
@@ -987,7 +987,7 @@
               delete dict.tooltip;
               delete dict.saved;
               delete dict.unselectable;
-            })
+            }),
           );
         }
       });
@@ -1016,7 +1016,7 @@
           node.data.saved = true;
           editing = false;
         },
-        function () {}
+        function () {},
       );
     }
 
@@ -1147,7 +1147,7 @@
       ) {
         alertDialog(
           I18N.message("perc.ui.category.view@Select A Site"),
-          I18N.message("perc.ui.category.view@Select A Site Content")
+          I18N.message("perc.ui.category.view@Select A Site Content"),
         );
         return;
       }

@@ -113,6 +113,17 @@ class DtsInstallerJarContainsTomcatTreeTest {
       assertTrue(
           catalinaProps.contains("common/lib"),
           "catalina.properties common.loader must include common/lib for perc-tomcat-common");
+
+      // Tomcat 11 HTTPS: nested SSLHostConfig required (legacy Connector keystore* attrs fail).
+      assertTrue(
+          serverXml.contains("<SSLHostConfig"),
+          "server.xml HTTPS connector must nest SSLHostConfig for Tomcat 11");
+      assertTrue(
+          serverXml.contains("certificateKeystoreFile=\"${https.keystoreFile}\""),
+          "server.xml SSLHostConfig Certificate must set certificateKeystoreFile");
+      assertTrue(
+          !serverXml.matches("(?s).*(?<![A-Za-z])keystoreFile=\"\\$\\{https\\.keystoreFile\\}\".*"),
+          "server.xml must not put legacy keystoreFile on the Connector");
     }
   }
 
@@ -135,5 +146,23 @@ class DtsInstallerJarContainsTomcatTreeTest {
                 + " in shipping jar; Cargo package was not staged into"
                 + " distribution/Deployment/Server before jar packaging."
                 + " See antrun id=stage-cargo-package-into-assembly.");
+  }
+
+  /**
+   * Source-tree guard (always runs): Tomcat 11 HTTPS must use nested SSLHostConfig even when the
+   * shipping jar has not been rebuilt in this workspace.
+   */
+  @Test
+  void sourceServerXmlNestsSslHostConfigForTomcat11() throws IOException {
+    Path serverXml = Path.of("src", "main", "tomcat11", "conf", "server.xml");
+    assertTrue(Files.isRegularFile(serverXml), () -> "missing " + serverXml.toAbsolutePath());
+    String s = Files.readString(serverXml, StandardCharsets.UTF_8);
+    assertTrue(s.contains("<SSLHostConfig"), "source server.xml must nest SSLHostConfig");
+    assertTrue(
+        s.contains("certificateKeystoreFile=\"${https.keystoreFile}\""),
+        "source server.xml Certificate must use ${https.keystoreFile}");
+    assertTrue(
+        !s.matches("(?s).*(?<![A-Za-z])keystoreFile=\"\\$\\{https\\.keystoreFile\\}\".*"),
+        "source server.xml must not put legacy keystoreFile on the Connector");
   }
 }

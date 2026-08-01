@@ -234,7 +234,7 @@
       // matches[2] = params, not including leading ?/#
       // matches[3] = if in 'querystring' mode, hash including leading #, otherwise ''
       matches = url.match(
-        is_fragment ? /^([^#]*)\#?(.*)$/ : /^([^#?]*)\??([^#]*)(#?.*)/
+        is_fragment ? /^([^#]*)\#?(.*)$/ : /^([^#?]*)\??([^#]*)(#?.*)/,
       );
 
       // Get the hash if in 'querystring' mode, and it exists.
@@ -245,7 +245,7 @@
         // string into the URL wholesale, without converting it into an object.
         qs = params.replace(
           is_fragment ? re_trim_fragment : re_trim_querystring,
-          ""
+          "",
         );
       } else {
         // Convert relevant params in url to object.
@@ -261,8 +261,8 @@
           merge_mode === 2
             ? params // passed params replace url params
             : merge_mode === 1
-            ? $.extend({}, params, url_params) // url params override passed params
-            : $.extend({}, url_params, params); // passed params override url params
+              ? $.extend({}, params, url_params) // url params override passed params
+              : $.extend({}, url_params, params); // passed params override url params
 
         // Convert params object to a string.
         qs = jq_param(qs);
@@ -289,7 +289,7 @@
   jq_param[str_fragment] = jq_param_fragment = curry(
     jq_param_sub,
     1,
-    get_fragment
+    get_fragment,
   );
 
   // Section: Deparam (from string)
@@ -356,10 +356,10 @@
             val && !isNaN(val)
               ? +val // number
               : val === "undefined"
-              ? undefined // undefined
-              : coerce_types[sanitizeKey(val)] !== undefined
-              ? coerce_types[sanitizeKey(val)] // true, false, null
-              : val; // string
+                ? undefined // undefined
+                : coerce_types[sanitizeKey(val)] !== undefined
+                  ? coerce_types[sanitizeKey(val)] // true, false, null
+                  : val; // string
         }
 
         if (keys_last) {
@@ -408,7 +408,7 @@
   function sanitizeKey(t) {
     return t &&
       ["_proto_", "__proto__", "constructor", "prototype"].indexOf(
-        t.toLowerCase()
+        t.toLowerCase(),
       ) !== -1
       ? t.toUpperCase()
       : t;
@@ -468,7 +468,7 @@
       url_or_params = is_string(url_or_params)
         ? url_or_params.replace(
             is_fragment ? re_trim_fragment : re_trim_querystring,
-            ""
+            "",
           )
         : url_or_params;
     }
@@ -479,7 +479,7 @@
   jq_deparam[sanitizeKey(str_querystring)] = curry(jq_deparam_sub, 0);
   jq_deparam[sanitizeKey(str_fragment)] = jq_deparam_fragment = curry(
     jq_deparam_sub,
-    1
+    1,
   );
 
   // Section: Element manipulation
@@ -680,7 +680,7 @@
       url = jq_param_fragment(
         loc[sanitizeKey(str_href)],
         has_args ? params : {},
-        has_args ? merge_mode : 2
+        has_args ? merge_mode : 2,
       );
 
     // Set new window.location.href. If hash is empty, use just # to prevent
@@ -829,7 +829,7 @@
           handler.apply(this, arguments);
         };
       },
-    }
+    },
   );
 })(jQuery, this);
 
@@ -983,7 +983,7 @@
         // Otherwise, we need to stop ours (if possible).
         fake_onhashchange.stop();
       },
-    }
+    },
   );
 
   // fake_onhashchange does all the work of triggering the window.onhashchange

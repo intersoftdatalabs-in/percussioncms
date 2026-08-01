@@ -30,7 +30,7 @@
         function (fp) {
           createPage(fp, params, k, err);
         },
-        err
+        err,
       );
     } else {
       if (false)
@@ -119,7 +119,7 @@
   function new_asset(path, folder_spec, callback, errorCallback) {
     if (!$.perc_fakes.page_service.new_asset) {
       errorCallback(
-        I18N.message("perc.ui.page.manager@New Asset Not Implemented")
+        I18N.message("perc.ui.page.manager@New Asset Not Implemented"),
       );
     } else {
       //Call callback with asset id

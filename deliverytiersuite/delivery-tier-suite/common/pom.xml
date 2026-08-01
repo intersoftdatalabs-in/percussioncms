@@ -47,6 +47,29 @@
             <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
+        <!--
+          Jersey / jackson-jakarta-rs-json-provider need the Jakarta XML Bind
+          annotation module (tools.jackson.module…). Without it ServletContainer
+          fails with NoClassDefFoundError: JakartaXmlBindAnnotationIntrospector.
+        -->
+        <dependency>
+            <groupId>tools.jackson.module</groupId>
+            <artifactId>jackson-module-jakarta-xmlbind-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>tools.jackson.jakarta.rs</groupId>
+            <artifactId>jackson-jakarta-rs-json-provider</artifactId>
+        </dependency>
+        <!-- Liquibase 5 optional SPI (YAML/JSON parsers, LoadDataChange).
+             Suite depMgmt overrides parent test-scope for opencsv. -->
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+        </dependency>
         <dependency>
             <groupId>jakarta.annotation</groupId>
             <artifactId>jakarta.annotation-api</artifactId>
@@ -69,6 +92,34 @@
             <!-- Required at compile time so PSPreAuthenticatedProcessingFilter's transitive
                  GenericFilterBean superclass is on the classpath. -->
         </dependency>
+        <!--
+          Every DTS service beans.xml defines JpaTransactionManager /
+          LocalContainerEntityManagerFactoryBean / LocalSessionFactoryBean.
+          spring-orm was only test-scoped on WAR modules → missing at runtime.
+        -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+        </dependency>
+        <!--
+          perc-datasources.xml sets hibernate.cache.region.factory_class to
+          org.hibernate.cache.jcache.JCacheRegionFactory (Hibernate 7 strategy
+          alias → internal JCacheRegionFactory). Needs hibernate-jcache + a JCache
+          provider (ehcache jakarta) + javax/jakarta cache API.
+        -->
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-jcache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <classifier>jakarta</classifier>
+        </dependency>
+        <dependency>
+            <groupId>javax.cache</groupId>
+            <artifactId>cache-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
@@ -76,6 +127,17 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
+        </dependency>
+        <!--
+          Required for Spring Security XML namespace
+          (http://www.springframework.org/schema/security) used by every DTS
+          service WEB-INF/security.xml. Without this jar Tomcat fails with:
+          Unable to locate Spring NamespaceHandler for XML schema namespace
+          [.../schema/security]
+        -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -97,6 +159,15 @@
             <artifactId>perc-security-utils</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <!--
+          PSInputValidatorFilter is declared in every DTS service web.xml.
+          Package servlet-utils into WARs via this shared module; Tomcat common/lib
+          does not ship it, and cargo only put it on the test container classpath.
+        -->
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>servlet-utils</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>perc-legacy</artifactId>
@@ -113,11 +184,14 @@
             <artifactId>jersey-client</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- Jersey 4: use modular jersey-* + jakarta.ws.rs-api (jaxrs-ri bundle discontinued) -->
+        <!--
+          Jersey 4: modular jersey-* + jakarta.ws.rs-api (jaxrs-ri discontinued).
+          Compile scope so WARs that depend on this module package the API —
+          Tomcat does not provide JAX-RS (see suite pom dependencyManagement).
+        -->
         <dependency>
             <groupId>jakarta.ws.rs</groupId>
             <artifactId>jakarta.ws.rs-api</artifactId>
-            <scope>provided</scope>
         </dependency>
         <!-- Previously transitive via jaxrs-ri; required for @Xml* annotations in this module -->
         <dependency>

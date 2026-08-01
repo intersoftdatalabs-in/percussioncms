@@ -16,7 +16,7 @@ test.describe("Unified Publishing UI - Design Infrastructure (US4)", () => {
 
     // Verify Design tree / explorer container is visible
     const designContainer = page.locator(
-      ".perc-publishing-design-container, .perc-coming-soon"
+      ".perc-publishing-design-container, .perc-coming-soon",
     );
     await expect(designContainer).toBeVisible();
   });

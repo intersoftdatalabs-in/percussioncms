@@ -61,7 +61,7 @@
     idx,
     buttons,
     page,
-    pages
+    pages,
   ) {
     var api = new DataTable.Api(settings);
     var classes = settings.oClasses;
@@ -148,7 +148,7 @@
                   tabindex: settings.iTabIndex,
                   class: "pagination-link " + btnClass,
                   disabled: disabled,
-                }).html(btnDisplay)
+                }).html(btnDisplay),
               )
               .appendTo(container);
 
@@ -173,7 +173,7 @@
     } catch (e) {}
 
     var nav = $(
-      '<nav class="pagination" role="navigation" aria-label="pagination"><ul class="pagination-list"></ul></nav>'
+      '<nav class="pagination" role="navigation" aria-label="pagination"><ul class="pagination-list"></ul></nav>',
     );
     $(host).empty().append(nav);
 
@@ -196,7 +196,7 @@
 
     // Length menu drop down - needs to be wrapped with a div
     $("div.dataTables_length select", api.table().container()).wrap(
-      '<div class="select">'
+      '<div class="select">',
     );
 
     // Filtering input

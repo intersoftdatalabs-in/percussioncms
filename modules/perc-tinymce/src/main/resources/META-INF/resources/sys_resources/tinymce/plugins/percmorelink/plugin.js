@@ -11,7 +11,7 @@ tinymce.PluginManager.add("percmorelink", function (editor, url) {
     sep.replace(/[\?\.\*\[\]\(\)\{\}\+\^\$\:]/g, function (a) {
       return "\\" + a;
     }),
-    "g"
+    "g",
   );
 
   /**

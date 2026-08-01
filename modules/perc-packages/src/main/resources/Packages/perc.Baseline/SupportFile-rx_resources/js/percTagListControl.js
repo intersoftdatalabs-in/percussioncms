@@ -21,7 +21,7 @@
 (function ($) {
   $(document).ready(function () {
     window.parent.jQuery.PercContentPreSubmitHandlers.addHandler(
-      updateTagListField
+      updateTagListField,
     );
 
     //Allow selection of multiple values

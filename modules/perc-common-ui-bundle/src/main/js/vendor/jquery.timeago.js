@@ -167,7 +167,7 @@
     updateFromDOM: function () {
       $(this).data("timeago", {
         datetime: $t.parse(
-          $t.isTime(this) ? $(this).attr("datetime") : $(this).attr("title")
+          $t.isTime(this) ? $(this).attr("datetime") : $(this).attr("title"),
         ),
       });
       refresh.apply(this);
@@ -224,7 +224,7 @@
       if ($t.settings.localeTitle) {
         element.attr(
           "title",
-          element.data("timeago").datetime.toLocaleString()
+          element.data("timeago").datetime.toLocaleString(),
         );
       } else if (
         text.length > 0 &&

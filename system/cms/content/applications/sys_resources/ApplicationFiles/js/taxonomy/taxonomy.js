@@ -53,7 +53,7 @@
     // remove spaces because format is now  '1 , 2 , 7'
     return $.trim($("#" + tax_get_save_load_id(theTreeDivId)).val()).replace(
       / /g,
-      ""
+      "",
     );
   }
 
@@ -162,7 +162,7 @@
         theTreeDivId,
         this.id,
         tax_html_escape(tax_get_li_a_text(this)),
-        true
+        true,
       );
     });
     tax_get_unchecked_nodes(theTreeDivId).each(function () {
@@ -181,7 +181,7 @@
   function tax_tree_search(theTreeDivId) {
     $("#" + theTreeDivId).jstree(
       "search",
-      $("#" + theTreeDivId + "_search").val()
+      $("#" + theTreeDivId + "_search").val(),
     );
   }
 
@@ -209,7 +209,7 @@
     $("#" + theTreeDivId + "_dropdown").autocomplete(
       "option",
       "source",
-      the_url
+      the_url,
     );
   }
 
@@ -260,7 +260,7 @@
             "#" +
               $("#" + theTreeDivId + " li")
                 .first()
-                .attr("id")
+                .attr("id"),
           );
         }
       })
@@ -294,7 +294,7 @@
             data: function (n) {
               return {
                 only_expand_children: $("#" + theTreeDivId).data(
-                  "only_expand_children"
+                  "only_expand_children",
                 ),
                 nodeID: n.attr ? tax_unprefix_id(n.attr("id")) : "",
               };
@@ -349,7 +349,7 @@
     if (methods[method]) {
       return methods[method].apply(
         this,
-        Array.prototype.slice.call(arguments, 1)
+        Array.prototype.slice.call(arguments, 1),
       );
     } else if (typeof method === "object" || !method) {
       return methods.init.apply(this, arguments);

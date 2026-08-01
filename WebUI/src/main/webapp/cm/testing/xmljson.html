@@ -23,21 +23,21 @@
 
           var json = $.perc_utils.unxml(
             $.perc_schemata.page,
-            $.xmlDOM(orig_xml)
+            $.xmlDOM(orig_xml),
           );
 
           //Check that the JSON has basic characteristics of the XML
           equals(
             json.Page.regionBranches.regions[0].children[0].regionId,
             "rid",
-            "XML->JSON preserves structure"
+            "XML->JSON preserves structure",
           );
 
           var rexml = $.perc_utils.rexml($.perc_schemata.page, json);
 
           var rejson = $.perc_utils.unxml(
             $.perc_schemata.page,
-            $.xmlDOM(rexml)
+            $.xmlDOM(rexml),
           );
 
           //check that the JSON structure is preserved by translating to and from XML

@@ -21,7 +21,7 @@
 
   if (typeof window.bootstrap === "undefined") {
     console.error(
-      "Bootstrap 5 is required. Please load Bootstrap before loading this compatibility layer."
+      "Bootstrap 5 is required. Please load Bootstrap before loading this compatibility layer.",
     );
     return;
   }

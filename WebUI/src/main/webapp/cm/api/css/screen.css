@@ -244,7 +244,8 @@
   display: block;
 }
 .swagger-section .swagger-ui-wrap pre {
-  font-family: "Anonymous Pro", "Menlo", "Consolas", "Bitstream Vera Sans Mono",
+  font-family:
+    "Anonymous Pro", "Menlo", "Consolas", "Bitstream Vera Sans Mono",
     "Courier New", monospace;
   background-color: #fcf6db;
   border: 1px solid #e5e0c6;
@@ -445,7 +446,8 @@
 }
 .swagger-section .swagger-ui-wrap .markdown p code,
 .swagger-section .swagger-ui-wrap .markdown li code {
-  font-family: "Anonymous Pro", "Menlo", "Consolas", "Bitstream Vera Sans Mono",
+  font-family:
+    "Anonymous Pro", "Menlo", "Consolas", "Bitstream Vera Sans Mono",
     "Courier New", monospace;
   background-color: #f0f0f0;
   color: black;
@@ -512,7 +514,8 @@
   vertical-align: middle;
 }
 .swagger-section .swagger-ui-wrap .code {
-  font-family: "Anonymous Pro", "Menlo", "Consolas", "Bitstream Vera Sans Mono",
+  font-family:
+    "Anonymous Pro", "Menlo", "Consolas", "Bitstream Vera Sans Mono",
     "Courier New", monospace;
 }
 .swagger-section
@@ -629,7 +632,8 @@
   color: #666666;
 }
 .swagger-section .swagger-ui-wrap .markdown pre {
-  font-family: "Anonymous Pro", "Menlo", "Consolas", "Bitstream Vera Sans Mono",
+  font-family:
+    "Anonymous Pro", "Menlo", "Consolas", "Bitstream Vera Sans Mono",
     "Courier New", monospace;
   background-color: #fcf6db;
   border: 1px solid #e5e0c6;
@@ -1160,7 +1164,8 @@
   div.response
   div.block
   pre {
-  font-family: "Anonymous Pro", "Menlo", "Consolas", "Bitstream Vera Sans Mono",
+  font-family:
+    "Anonymous Pro", "Menlo", "Consolas", "Bitstream Vera Sans Mono",
     "Courier New", monospace;
   padding: 10px;
   font-size: 0.9em;

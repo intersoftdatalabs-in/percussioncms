@@ -57,7 +57,7 @@ function checkBeforeClose() {
                 window.opener,
                 "Selected",
                 ps_theForm.sys_contentid.value,
-                ""
+                "",
               );
             }
             window.opener.ps_updateFlag = false;
@@ -87,7 +87,7 @@ function ps_openFullEditor() {
   if (ps_isFormDirty() === true) {
     if (
       confirm(
-        "Changes have been made.\nDo you want to save before opening full editor?"
+        "Changes have been made.\nDo you want to save before opening full editor?",
       )
     ) {
       saveItem = true;
@@ -258,7 +258,7 @@ function md5_vm_test() {
  */
 function core_md5(x, len) {
   /* append padding */
-  x[len >> 5] |= 0x80 << len % 32;
+  x[len >> 5] |= 0x80 << (len % 32);
   x[(((len + 64) >>> 9) << 4) + 14] = len;
 
   var a = 1732584193;
@@ -410,7 +410,7 @@ function str2binl(str) {
   var bin = [];
   var mask = (1 << chrsz) - 1;
   for (var i = 0; i < str.length * chrsz; i += chrsz)
-    bin[i >> 5] |= (str.charCodeAt(i / chrsz) & mask) << i % 32;
+    bin[i >> 5] |= (str.charCodeAt(i / chrsz) & mask) << (i % 32);
   return bin;
 }
 

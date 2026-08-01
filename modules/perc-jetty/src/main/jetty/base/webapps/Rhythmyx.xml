@@ -4,10 +4,6 @@
 	<Set name="war"><SystemProperty name="jetty.base" default="." />/webapps/Rhythmyx</Set>
 
 	<Call name="setInitParameter">
-		<Arg>org.eclipse.jetty.servlet.Default.useFileMappedBuffer</Arg>
-		<Arg>false</Arg>
-	</Call>
-	<Call name="setInitParameter">
 		<Arg>org.eclipse.jetty.servlet.Default.dirAllowed</Arg>
 		<Arg>false</Arg>
 	</Call>

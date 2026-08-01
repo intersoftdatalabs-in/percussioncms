@@ -87,7 +87,7 @@
           $("#edit-page-metadata").append(
             "<iframe name='edit-page-metadata-frame' id='edit-page-metadata-frame' height='100%' style='border:0;' width='100%' src='" +
               ifrUrl +
-              "' ></iframe>"
+              "' ></iframe>",
           );
           $("#edit-page-metadata-frame").on("load", function () {
             _addFieldGroups();
@@ -97,7 +97,7 @@
         error: function (request, textstatus, error) {
           alert(
             I18N.message("perc.ui.page.edit.dialog@Unable To See Content") +
-              templateId
+              templateId,
           );
         },
       });
@@ -125,7 +125,7 @@
           var ceField = iframeContainer
             .find("input[value='" + doctypeSelected + "']")
             .trigger("click");
-        }
+        },
       );
     }
 
@@ -133,24 +133,24 @@
       var iframeContainer = $("#edit-page-metadata-frame").contents();
 
       var additionalHeadContent = iframeContainer.find(
-        "textarea[id='additional_head_content']"
+        "textarea[id='additional_head_content']",
       );
       var afterBodyStartContent = iframeContainer.find(
-        "textarea[id='code_insert_after_body_start']"
+        "textarea[id='code_insert_after_body_start']",
       );
       var beforeBodyCloseContent = iframeContainer.find(
-        "textarea[id='code_insert_before_body_close']"
+        "textarea[id='code_insert_before_body_close']",
       );
       var protectedRegion = iframeContainer.find(
-        "input[id='perc-content-edit-protected_region']"
+        "input[id='perc-content-edit-protected_region']",
       );
       var protectedRegionText = iframeContainer.find(
-        "input[id='perc-content-edit-protected_region_text']"
+        "input[id='perc-content-edit-protected_region_text']",
       );
 
       var docTypeRadio = iframeContainer.find('input[name="doctype"]:checked');
       var docTypeTxt = iframeContainer.find(
-        'textarea[id="perc_template_metadata_custom_doctype"]'
+        'textarea[id="perc_template_metadata_custom_doctype"]',
       );
 
       var metadataObj = {
@@ -187,7 +187,7 @@
               content: result,
             });
           }
-        }
+        },
       );
     }
 
@@ -197,7 +197,7 @@
 
       $.perc_filterField(
         $("#edit-page-metadata-frame").contents().find("[name=sys_title]"),
-        $.perc_textFilters.URL
+        $.perc_textFilters.URL,
       );
 
       var fieldGroups = [
@@ -277,7 +277,7 @@
       //Bind the click on radio button
       iframeContainer.find("input[name='doctype']").on("click", function () {
         var textarea = iframeContainer.find(
-          "textarea[id='perc_template_metadata_custom_doctype']"
+          "textarea[id='perc_template_metadata_custom_doctype']",
         );
         if ($(this).attr("value") === "html5") {
           textarea

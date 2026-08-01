@@ -242,8 +242,8 @@ li.ui-state-disabled #perc-tab-reports:hover {
   padding-right: 20px;
 }
 .perc-itemname-list li.perc-default-server-marker.perc-disabled {
-  background: url("../images/images/defaultCheck.png") no-repeat scroll 220px -16px
-    #e6e6e9;
+  background: url("../images/images/defaultCheck.png") no-repeat scroll
+    220px -16px #e6e6e9;
 }
 .perc-itemname-list li.perc-staging-server-marker {
   background: url("../images/images/staging-marker.png") no-repeat scroll 220px
@@ -394,7 +394,8 @@ li.ui-state-disabled #perc-tab-reports:hover {
 }
 
 #perc-default-server.perc-disabled {
-  background: url("../images/images/defaultCheck.png") no-repeat scroll 0px -20px;
+  background: url("../images/images/defaultCheck.png") no-repeat scroll
+    0px -20px;
 }
 
 .perc-warning-message {

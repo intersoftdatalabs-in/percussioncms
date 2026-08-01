@@ -209,7 +209,7 @@
             o.dialogTitle +
             '"><p><span class="ui-icon ui-icon-alert no-close" style="float: left; margin: 0 7px 20px 0;"></span>' +
             o.dialogMessageTimeout +
-            ' <span id="logouttime"/></p></div>'
+            ' <span id="logouttime"/></p></div>',
         );
 
         alertDialog = $("#session-warning");

@@ -18,7 +18,7 @@
 var system = require("system");
 if (system.args.length < 5) {
   console.log(
-    "Usage: phantomjs.exe webcap.js <url> <imagePath> <width> <height> [<userAgent>]"
+    "Usage: phantomjs.exe webcap.js <url> <imagePath> <width> <height> [<userAgent>]",
   );
   phantom.exit();
 }

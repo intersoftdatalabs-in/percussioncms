@@ -39,7 +39,7 @@
     editorUrl,
     path,
     pathArray,
-    isNewAsset
+    isNewAsset,
   ) {
     // get the frame at the bottom
     frame = $("#frame");
@@ -84,14 +84,14 @@
       $(
         '<button name="perc_wizard_save" class="btn btn-primary" id="perc-save-content" style="float:right; background-color: #00a8df; border-color: #00a3d9; color: #ffffff; border-radius: 4px; display:inline-block; cursor:pointer; padding-top: 6px; padding-bottom: 6px; padding-left: 12px; padding-right: 12px; text-align: center; font: 13.333px Arial !important; font-weight: normal; white-space: normal; vertical-align: middle; margin-top:11.5px; border-style:outset; border-width:2px;">' +
           I18N.message("perc.ui.common.label@Save") +
-          " </button>"
+          " </button>",
       ).appendTo(menuId);
 
       // render cancel button
       $(
         '<button class="btn btn-primary" id="perc-cancel-content" style="float:right; background-color: #00a8df; border-color: #00a3d9; color: #ffffff; border-radius: 4px; display:inline-block; cursor:pointer; padding-top: 6px; padding-bottom: 6px; padding-left: 12px; padding-right: 12px; text-align: center; font: 13.333px Arial !important; font-weight: normal; white-space: normal; vertical-align: middle;margin-top:11.5px; border-style:outset; border-width:2px ">' +
           I18N.message("perc.ui.change.pw@Close") +
-          "</button>"
+          "</button>",
       ).appendTo(menuId);
 
       // submit the form when save button is clicked
@@ -134,14 +134,14 @@
                 $.PercNavigationManager.getId(),
                 name,
                 $.PercNavigationManager.getPath(),
-                $.PercNavigationManager.PATH_TYPE_ASSET
+                $.PercNavigationManager.PATH_TYPE_ASSET,
               );
               $.unblockUI();
             } else {
               $.unblockUI();
               $.perc_utils.alert_dialog({ title: "Error", content: result });
             }
-          }
+          },
         );
       }
     } else {
@@ -164,7 +164,7 @@
       $.PercSiteImpactView.renderSiteImpact(
         $.PercNavigationManager.getId(),
         $.PercSiteImpactView.ITEM_TYPE_ASSET,
-        frame.contents().find("#perc-site-impact-panel")
+        frame.contents().find("#perc-site-impact-panel"),
       );
     }
   }
@@ -223,7 +223,7 @@
       assetId,
       assetName,
       folderPath + "/" + assetName,
-      $.PercNavigationManager.PATH_TYPE_ASSET
+      $.PercNavigationManager.PATH_TYPE_ASSET,
     );
   }
 
@@ -287,9 +287,9 @@
         loadAsset(
           $.perc_paths.ASSETS_ROOT + assetPath,
           frame.contents().find("[name=sys_title]").val(),
-          res.AssetFolderRelationship.assetId
+          res.AssetFolderRelationship.assetId,
         );
-      }
+      },
     );
   }
 })(jQuery);
