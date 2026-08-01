@@ -133,7 +133,7 @@
 <div id="perc-region-edit-rename-confirm-dialog" title=<i18n:message key = "perc.ui.page.general@Warning"/> style="display:none;">
     <table>
         <tr>
-            <td><i18n:message key = "perc.ui.template.layout@Delete Content Of Region"/> "<span id="perc-region-edit-rename-confirm-dialog-id-label"></span>". <i18n:message key = "perc.ui.template.layout@What To Do"/></td>
+            <td><i18n:message key = "perc.ui.template.layout@Region CSS Settings Exist"/> "<span id="perc-region-edit-rename-confirm-dialog-id-label"></span>". <i18n:message key = "perc.ui.template.layout@What To Do"/></td>
         </tr>
         <tr>
             <td style='text-align:left'>&nbsp;</td>
