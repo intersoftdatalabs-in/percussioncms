@@ -274,13 +274,14 @@
         </dependency>
         <!-- Embedded JMS: Apache Artemis (not ActiveMQ Classic). Restores
              88ca5716b0 after merge 3755de7510 reintroduced Classic 5.7.0
-             (Dependabot #79 CVE-2012-6092, #80 CVE-2013-1880). -->
+             (Dependabot #79 CVE-2012-6092, #80 CVE-2013-1880).
+             Coordinates: org.apache.artemis (TLP); Netty is transitive only. -->
         <dependency>
-            <groupId>org.apache.activemq</groupId>
+            <groupId>org.apache.artemis</groupId>
             <artifactId>artemis-server</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.activemq</groupId>
+            <groupId>org.apache.artemis</groupId>
             <artifactId>artemis-jakarta-client</artifactId>
         </dependency>
         <dependency>

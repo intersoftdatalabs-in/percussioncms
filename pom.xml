@@ -80,7 +80,7 @@
         <ant.contrib.version>1.0b3</ant.contrib.version>
         <ant.version>1.10.14</ant.version>
         <aopalliance.version>1.0</aopalliance.version>
-        <artemis.version>2.52.0</artemis.version>
+        <artemis.version>2.55.0</artemis.version>
         <avalon.version>4.1.5</avalon.version>
         <awssdk.version>1.12.797</awssdk.version>
         <batik.version>1.19</batik.version>
@@ -215,7 +215,6 @@
         <mockito.version>5.21.0</mockito.version>
         <mssql.version>13.3.1.jre11-preview</mssql.version>
         <mysql.connector.version>8.4.0</mysql.connector.version>
-        <nettyall.version>4.2.16.Final</nettyall.version>
         <ojdbc17.version>23.26.0.0.0</ojdbc17.version>
         <opencsv.version>5.12.0</opencsv.version>
         <oracle.version>12.1.0.1</oracle.version>
@@ -487,11 +486,6 @@
                 <scope>test</scope>
             </dependency>
             <!-- End Junit 5-->
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-all</artifactId>
-                <version>${nettyall.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.mortbay.jasper</groupId>
                 <artifactId>apache-jsp</artifactId>
@@ -1043,13 +1037,15 @@
                 <artifactId>commons-compress</artifactId>
                 <version>${commons.compress.version}</version>
             </dependency>
+            <!-- Apache Artemis TLP coordinates (org.apache.artemis); packages remain
+                 org.apache.activemq.artemis.* for API compatibility. -->
             <dependency>
-                <groupId>org.apache.activemq</groupId>
+                <groupId>org.apache.artemis</groupId>
                 <artifactId>artemis-server</artifactId>
                 <version>${artemis.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.activemq</groupId>
+                <groupId>org.apache.artemis</groupId>
                 <artifactId>artemis-jakarta-client</artifactId>
                 <version>${artemis.version}</version>
             </dependency>
