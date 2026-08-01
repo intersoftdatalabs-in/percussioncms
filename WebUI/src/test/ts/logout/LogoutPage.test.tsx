@@ -50,6 +50,19 @@ describe("LogoutPage", () => {
     expect(link.textContent).toMatch(/Sign in again/i);
   });
 
+
+  it("exposes data-i18n-key on localized pilot chrome", () => {
+    render(<LogoutPage bootstrap={baseBootstrap} />);
+    expect(screen.getByTestId("perc-logout-title").getAttribute("data-i18n-key")).toBe(
+      "perc.ui.logout.modern@Signed out",
+    );
+    expect(
+      screen.getByTestId("perc-logout-message").getAttribute("data-i18n-key"),
+    ).toBe("perc.ui.logout.modern@You have been logged out.");
+    expect(
+      screen.getByTestId("perc-logout-sign-in").getAttribute("data-i18n-key"),
+    ).toBe("perc.ui.logout.modern@Sign in again");
+  });
   it("does not render jQuery legacy markup or form post", () => {
     render(<LogoutPage bootstrap={baseBootstrap} />);
     expect(document.querySelector("#loginform")).toBeNull();

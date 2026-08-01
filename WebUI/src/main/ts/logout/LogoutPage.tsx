@@ -21,6 +21,8 @@ import { ThemeProvider } from "../ui-themes/ThemeProvider";
 import { useTheme } from "../ui-themes/ThemeProvider";
 // Reuse login card chrome so logout stays pixel-aligned with the front door.
 import loginStyles from "../login/LoginPage.module.css";
+import { i18nKeyAttr } from "../i18n/i18nDom";
+import { ensureMkdLanguage } from "../i18n/mkdLanguage";
 import { LOGOUT_KEYS, t } from "./i18n";
 import type { LogoutBootstrap } from "./types";
 import styles from "./LogoutPage.module.css";
@@ -39,6 +41,12 @@ function LogoutBody({ bootstrap }: LogoutPageProps): React.ReactElement {
     document.title = `${t(LOGOUT_KEYS.TITLE)} — Percussion CMS`;
   }, [bootstrap.locale]);
 
+  useEffect(() => {
+    ensureMkdLanguage({
+      locale: () => bootstrap.locale || "en-us",
+    });
+  }, [bootstrap.locale]);
+
   return (
     <div className={loginStyles.page} data-testid="perc-logout-page">
       <BrandBar />
@@ -54,11 +62,19 @@ function LogoutBody({ bootstrap }: LogoutPageProps): React.ReactElement {
               data-testid="perc-logout-logo"
             />
           </div>
-          <h1 className={loginStyles.title} data-testid="perc-logout-title">
+          <h1
+            className={`${loginStyles.title} mkd-lang-target`}
+            data-testid="perc-logout-title"
+            {...i18nKeyAttr(LOGOUT_KEYS.TITLE)}
+          >
             {t(LOGOUT_KEYS.TITLE)}
           </h1>
           <p className={loginStyles.subtitle}>{theme.brand.productName}</p>
-          <p className={styles.message} data-testid="perc-logout-message">
+          <p
+            className={`${styles.message} mkd-lang-target`}
+            data-testid="perc-logout-message"
+            {...i18nKeyAttr(LOGOUT_KEYS.MESSAGE)}
+          >
             {t(LOGOUT_KEYS.MESSAGE)}
           </p>
           <div className={styles.actions}>
@@ -66,6 +82,7 @@ function LogoutBody({ bootstrap }: LogoutPageProps): React.ReactElement {
               className={styles.loginLink}
               href={bootstrap.loginHref}
               data-testid="perc-logout-sign-in"
+              {...i18nKeyAttr(LOGOUT_KEYS.SIGN_IN)}
             >
               {t(LOGOUT_KEYS.SIGN_IN)}
             </a>

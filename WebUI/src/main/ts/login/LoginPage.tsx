@@ -19,6 +19,8 @@ import React, { useEffect, useState } from "react";
 import { BrandBar, BrandFooter } from "../ui-themes/components";
 import { ThemeProvider } from "../ui-themes/ThemeProvider";
 import { useTheme } from "../ui-themes/ThemeProvider";
+import { i18nKeyAttr } from "../i18n/i18nDom";
+import { ensureMkdLanguage, configureMkdLanguage } from "../i18n/mkdLanguage";
 import { LOGIN_KEYS, t } from "./i18n";
 import { LocaleSelect } from "./LocaleSelect";
 import { ensureTmxLoaded } from "./tmxLoader";
@@ -109,6 +111,15 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
     applyDocumentLocale(locale, bootstrap.localeFormat);
   }, [locale, bootstrap.localeFormat]);
 
+  // Opt-in @mkd/language correction triggers (third-party experiment).
+  useEffect(() => {
+    ensureMkdLanguage({ locale: () => locale });
+  }, []);
+
+  useEffect(() => {
+    configureMkdLanguage({ locale: () => locale });
+  }, [locale]);
+
   // Keep the browser tab title in sync with the selected locale chrome.
   useEffect(() => {
     document.title = `${t(LOGIN_KEYS.TITLE)} — Percussion CMS`;
@@ -138,7 +149,11 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
               data-testid="perc-login-logo"
             />
           </div>
-          <h1 className={styles.title} data-testid="perc-login-title">
+          <h1
+            className={`${styles.title} mkd-lang-target`}
+            data-testid="perc-login-title"
+            {...i18nKeyAttr(LOGIN_KEYS.TITLE)}
+          >
             {t(LOGIN_KEYS.TITLE)}
           </h1>
           <p className={styles.subtitle}>{theme.brand.productName}</p>
@@ -170,7 +185,11 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
             />
 
             <div className={styles.formGroup}>
-              <label className={styles.label} htmlFor="perc-login-username">
+              <label
+                className={styles.label}
+                htmlFor="perc-login-username"
+                {...i18nKeyAttr(LOGIN_KEYS.USERNAME)}
+              >
                 {t(LOGIN_KEYS.USERNAME)}
               </label>
               <input
@@ -189,7 +208,11 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
             </div>
 
             <div className={styles.formGroup}>
-              <label className={styles.label} htmlFor="perc-login-password">
+              <label
+                className={styles.label}
+                htmlFor="perc-login-password"
+                {...i18nKeyAttr(LOGIN_KEYS.PASSWORD)}
+              >
                 {t(LOGIN_KEYS.PASSWORD)}
               </label>
               <input
@@ -208,7 +231,11 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
             </div>
 
             <div className={styles.formGroup}>
-              <label className={styles.label} htmlFor="perc-login-locale">
+              <label
+                className={styles.label}
+                htmlFor="perc-login-locale"
+                {...i18nKeyAttr(LOGIN_KEYS.LOCALE)}
+              >
                 {t(LOGIN_KEYS.LOCALE)}
               </label>
               {/*
@@ -236,7 +263,10 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
                 onChange={(e) => onSelectUiChange(e.target.checked)}
                 data-testid="perc-login-select-ui"
               />
-              <label htmlFor="perc-login-select-ui">
+              <label
+                htmlFor="perc-login-select-ui"
+                {...i18nKeyAttr(LOGIN_KEYS.USE_LEGACY)}
+              >
                 {t(LOGIN_KEYS.USE_LEGACY)}
               </label>
             </div>
@@ -246,6 +276,7 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
               id="perc-login-button"
               className={styles.submit}
               data-testid="perc-login-submit"
+              {...i18nKeyAttr(LOGIN_KEYS.SUBMIT)}
             >
               {t(LOGIN_KEYS.SUBMIT)}
             </button>

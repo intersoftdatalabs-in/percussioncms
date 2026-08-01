@@ -17,6 +17,9 @@
 venv/
 *.egg-info/
 dist/
+# Vendored third-party packages ship their built dist/ (e.g. @mkd/language).
+!WebUI/vendor/**/dist/
+!WebUI/vendor/**/dist/**
 
 # --- Kilo Code (.kilo): track Speckit workflows + package manifests ---
 # Keep memory-bank local (high-churn / stale-risk vs AGENTS.md + constitution)
