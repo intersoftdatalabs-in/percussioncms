@@ -12,6 +12,35 @@ Out of scope for spec 994 (must NOT be touched):
 
 ## Scripts
 
+### `prune-stale-worktrees.py` / `prune-stale-worktrees.bat`
+
+List or remove **stale git worktrees** left by agent sessions (Kilo / Grok / etc.).
+
+- **Purpose**: Free disk after PRs merge. Full monorepo worktrees under `.kilo/worktrees/`, `~/.grok/worktrees/`, etc. fill disks quickly when not cleaned up. Complements root `AGENTS.md` → **Git worktree hygiene (HARD GATE)** and `.kilo/rules/worktree-hygiene.md`.
+- **Usage**:
+
+  ```bash
+  # Dry-run (default): show keep vs remove using gh PR state
+  python3 scripts/prune-stale-worktrees.py
+
+  # Remove worktrees whose branches have MERGED or CLOSED PRs
+  python3 scripts/prune-stale-worktrees.py --apply --force --delete-local-branches
+
+  # Also drop worktrees with no linked PR
+  python3 scripts/prune-stale-worktrees.py --apply --force --include-no-pr --delete-local-branches
+  ```
+
+  Windows:
+
+  ```bat
+  scripts\prune-stale-worktrees.bat
+  scripts\prune-stale-worktrees.bat --apply --force --delete-local-branches
+  ```
+
+- **Keeps**: main worktree, current cwd worktree, locked worktrees, branches with **open** PRs (unless `--include-open`).
+- **Prereqs**: `git`; `gh` authenticated (unless `--skip-gh` with `--include-no-pr` only).
+- **Tests**: `python3 -m pytest scripts/test_prune_stale_worktrees.py -v` (or `python3 scripts/test_prune_stale_worktrees.py`).
+
 ### `derby-surface-inventory.py` / `derby-surface-inventory.bat`
 
 Repo-wide inventory of Apache Derby surface area for feature **#548** (default embedded DB migration).

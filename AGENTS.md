@@ -235,6 +235,60 @@ In the PR description (or a short comment before “ready for review”), record
 
 Failing this section is a **hard gate** equal to a failing Erlang review: fix, re-run clean install, then open/update the PR.
 
+## Git worktree hygiene (HARD GATE)
+
+Agent sessions (Kilo, Grok, etc.) often create **full monorepo git worktrees** under `.kilo/worktrees/`, `.worktrees/`, or `~/.grok/worktrees/`. Each copy is multi‑GB. Leaving them after a PR merges is a common disk-fill failure mode and can slow tooling that walks the tree.
+
+### When this applies
+
+Any time an agent **creates or works inside** a disposable git worktree for a feature/fix branch (not the primary developer checkout).
+
+### Required sequence (end of task)
+
+1. **While the PR is open** — keep the worktree if you still need it for review fixes; do not create additional worktrees for the same branch without removing the old one.
+2. **When the PR is submitted and you are done for the session** — if no further commits are expected from that worktree, remove it (preferred) or document why it must stay.
+3. **When the PR is merged or closed** — **must** remove the worktree before ending the session:
+
+   ```bash
+   # Run from the primary (main) checkout — not from inside the disposable worktree
+   git worktree remove --force <worktree-path>
+   git worktree prune
+   # optional if the branch is fully merged / no longer needed locally
+   git branch -D <branch-name>
+   ```
+
+4. **Periodic cleanup** (any machine with leftover agent worktrees):
+
+   ```bash
+   # Dry-run (default): list keep vs remove using GitHub PR state via gh
+   python3 scripts/prune-stale-worktrees.py
+   # Apply: remove worktrees whose branches have MERGED/CLOSED PRs
+   python3 scripts/prune-stale-worktrees.py --apply --force --delete-local-branches
+   ```
+
+   Windows:
+
+   ```bat
+   scripts\prune-stale-worktrees.bat
+   scripts\prune-stale-worktrees.bat --apply --force --delete-local-branches
+   ```
+
+### Hard bans
+
+* **Do not** leave full-tree agent worktrees behind after PR merge/close “for later.”
+* **Do not** nest dozens of `.kilo/worktrees/*` copies of this monorepo.
+* **Do not** remove the primary worktree, a worktree with an **open** PR (unless the human ordered it), or the worktree you are currently running in (switch to main first).
+* **Do not** use OS temp for worktrees; prefer repo-local `.kilo/worktrees/` (gitignored) or the agent host’s designated worktree root, then **delete when done**.
+
+### Evidence
+
+When finishing a PR-oriented agent task that used a worktree, the session summary should state either:
+
+* “Worktree removed: `<path>`”, or
+* “Worktree kept: `<path>` — reason: open PR #N / human requested retain”
+
+Kilo rule: `.kilo/rules/worktree-hygiene.md`. Script docs: `scripts/README.md`.
+
 ## **Project Rules**
 
 * Be creative, but DO NOT *invent* third-party APIs, libraries, functions, or syntax that does not actually exist. If it doesn't exist in real docs (MDN, JDK 21, official Percussion docs, etc.): Ask user to clarify.
@@ -250,6 +304,7 @@ Failing this section is a **hard gate** equal to a failing Erlang review: fix, r
 * **IMPORTANT — WebUI + Playwright:** When changing a **product UI screen** under `WebUI/` (React SPA, login, shell chrome, user-visible flows), agents **MUST** also create or update Playwright specs in `modules/perc-qa-automation/` for the changed behavior. Vitest alone is not sufficient for screen work. See `WebUI/AGENTS.md` → **Playwright (HARD GATE)** and `modules/perc-qa-automation/AGENTS.md`.
 * **IMPORTANT — Pre-PR Spotless:** Before every final PR commit, run `./mvnw spotless:apply` **first**, then `./mvnw spotless:check` **second** (JDK 21 + Maven wrapper). Do not check-only first. Spotless covers **Java, docs/Markdown, JS, and TS** (and other configured globs)—not Java only. If Spotless rewrites files **outside** your task scope, **do not** fold them into the feature PR: commit only in-scope files there, and open a second **`chore: Spotless cleanup`** PR for the unrelated formatting. Do not panic or abandon the feature work. See **Pre-PR Spotless formatting (HARD GATE)** above.
 * **IMPORTANT — Pre-PR build:** Before opening or updating a GitHub PR, **`cd` into each module you changed** and run repo-root `mvnw` / `mvnw.cmd` **`clean install` standalone** (not default root `-pl -am` reactor builds). Code must compile, tests must pass, and there must be **no new warnings**. Use a full/partial reactor only when the change requires it. See **Pre-PR Maven verification (HARD GATE)** above. CI is not a substitute for this local gate.
+* **IMPORTANT — Worktree hygiene:** If you used a git worktree for the task, remove it when the PR is merged/closed (or when the session ends and no further worktree commits are expected). Use `python3 scripts/prune-stale-worktrees.py --apply --force --delete-local-branches` for bulk cleanup of MERGED/CLOSED PR worktrees. See **Git worktree hygiene (HARD GATE)** above.
 * Always use the #codebase or root `./` context when resolving missing interfaces or classes.
 * You MUST respect rate limits when calling 3rd party API's. All 3rd party API integrations must be implemented with rate limit detection and exponential backoff logic.
 * You MUST NOT share or leak secrets, tokens, or keys over the wire, in logs, or in LLM sessions.  If you see MKD-REDACTED in a session, that means you leaked a secret.
