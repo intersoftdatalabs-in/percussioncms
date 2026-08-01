@@ -50,8 +50,8 @@ public class InstallUtilRunningServerTest {
 
   @Test
   void checkTomcatServerRunning_falseWhenLiteralPortFree() throws Exception {
-    int freePort = findFreePort();
-    Path root = writeDtsLayout(freePort, false);
+    int[] ports = findDistinctFreePorts(2);
+    Path root = writeDtsLayout(ports[0], ports[1], false);
     assertFalse(
         InstallUtil.checkTomcatServerRunning(root.toString()),
         "free connector port must not look like a running DTS");
@@ -59,9 +59,9 @@ public class InstallUtilRunningServerTest {
 
   @Test
   void checkTomcatServerRunning_trueWhenLiteralPortBound() throws Exception {
-    int port = findFreePort();
-    Path root = writeDtsLayout(port, false);
-    try (ServerSocket hold = new ServerSocket(port)) {
+    int[] ports = findDistinctFreePorts(2);
+    Path root = writeDtsLayout(ports[0], ports[1], false);
+    try (ServerSocket hold = new ServerSocket(ports[0])) {
       hold.setReuseAddress(true);
       assertTrue(
           InstallUtil.checkTomcatServerRunning(root.toString()),
@@ -71,9 +71,9 @@ public class InstallUtilRunningServerTest {
 
   @Test
   void checkTomcatServerRunning_resolvesCatalinaPlaceholderWhenBound() throws Exception {
-    int port = findFreePort();
-    Path root = writeDtsLayout(port, true);
-    try (ServerSocket hold = new ServerSocket(port)) {
+    int[] ports = findDistinctFreePorts(2);
+    Path root = writeDtsLayout(ports[0], ports[1], true);
+    try (ServerSocket hold = new ServerSocket(ports[0])) {
       hold.setReuseAddress(true);
       assertTrue(
           InstallUtil.checkTomcatServerRunning(root.toString()),
@@ -83,9 +83,23 @@ public class InstallUtilRunningServerTest {
 
   @Test
   void checkTomcatServerRunning_placeholderFreePortIsOffline() throws Exception {
-    int freePort = findFreePort();
-    Path root = writeDtsLayout(freePort, true);
-    assertFalse(InstallUtil.checkTomcatServerRunning(root.toString()));
+    int[] ports = findDistinctFreePorts(2);
+    Path root = writeDtsLayout(ports[0], ports[1], true);
+    assertFalse(
+        InstallUtil.checkTomcatServerRunning(root.toString()),
+        "free connector + shutdown ports must not look like a running DTS");
+  }
+
+  @Test
+  void checkTomcatServerRunning_trueWhenOnlyShutdownPortBound() throws Exception {
+    int[] ports = findDistinctFreePorts(2);
+    Path root = writeDtsLayout(ports[0], ports[1], false);
+    try (ServerSocket hold = new ServerSocket(ports[1])) {
+      hold.setReuseAddress(true);
+      assertTrue(
+          InstallUtil.checkTomcatServerRunning(root.toString()),
+          "bound Server shutdown port is a secondary running signal");
+    }
   }
 
   @Test
@@ -117,11 +131,21 @@ public class InstallUtilRunningServerTest {
   }
 
   /**
+   * @param connectorPort HTTP connector port (literal or value of {@code ${http.port}})
+   * @param shutdownPort {@code Server/@port} — must be free for offline assertions; never hardcode
+   *     product default {@code 8005} (a running local DTS would flake offline tests)
    * @param usePlaceholder when true, server.xml uses {@code ${http.port}} and properties file sets
    *     the real port
    */
-  private Path writeDtsLayout(int connectorPort, boolean usePlaceholder) throws IOException {
-    Path root = temp.resolve("dtsRoot-" + connectorPort + (usePlaceholder ? "-ph" : "-lit"));
+  private Path writeDtsLayout(int connectorPort, int shutdownPort, boolean usePlaceholder)
+      throws IOException {
+    Path root =
+        temp.resolve(
+            "dtsRoot-"
+                + connectorPort
+                + "-"
+                + shutdownPort
+                + (usePlaceholder ? "-ph" : "-lit"));
     Path conf = root.resolve("Deployment").resolve("Server").resolve("conf");
     Path perc = conf.resolve("perc");
     Files.createDirectories(perc);
@@ -130,13 +154,13 @@ public class InstallUtilRunningServerTest {
     String xml =
         """
         <?xml version="1.0" encoding="UTF-8"?>
-        <Server port="8005" shutdown="SHUTDOWN">
+        <Server port="%s" shutdown="SHUTDOWN">
           <Service name="Catalina">
             <Connector port="%s" protocol="HTTP/1.1"/>
           </Service>
         </Server>
         """
-            .formatted(portAttr);
+            .formatted(Integer.toString(shutdownPort), portAttr);
     Files.writeString(conf.resolve("server.xml"), xml, StandardCharsets.UTF_8);
 
     if (usePlaceholder) {
@@ -153,5 +177,35 @@ public class InstallUtilRunningServerTest {
       ss.setReuseAddress(true);
       return ss.getLocalPort();
     }
+  }
+
+  /**
+   * Allocate {@code n} distinct free ports. Holds all sockets open until the last bind so the OS
+   * cannot re-issue the same ephemeral port twice in a row.
+   */
+  private static int[] findDistinctFreePorts(int n) throws IOException {
+    if (n < 1) {
+      throw new IllegalArgumentException("n must be >= 1");
+    }
+    ServerSocket[] holders = new ServerSocket[n];
+    int[] ports = new int[n];
+    try {
+      for (int i = 0; i < n; i++) {
+        holders[i] = new ServerSocket(0);
+        holders[i].setReuseAddress(true);
+        ports[i] = holders[i].getLocalPort();
+      }
+    } finally {
+      for (ServerSocket ss : holders) {
+        if (ss != null) {
+          try {
+            ss.close();
+          } catch (IOException ignored) {
+            // best-effort close of probe sockets
+          }
+        }
+      }
+    }
+    return ports;
   }
 }
