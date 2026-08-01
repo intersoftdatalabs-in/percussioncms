@@ -17,7 +17,6 @@
  */
 package com.percussion.share.web.service;
 
-import tools.jackson.core.JacksonException;
 import com.percussion.cms.IPSConstants;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.share.service.exception.IPSValidationException;
@@ -33,6 +32,7 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import tools.jackson.core.JacksonException;
 
 /**
  * Maps all runtime exceptions into a valid {@link PSErrors error object} for REST serialization.

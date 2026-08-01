@@ -20,13 +20,12 @@
 package com.percussion.category.data;
 
 import com.fasterxml.jackson.annotation.*;
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 import com.percussion.share.data.PSAbstractDataObject;
 import jakarta.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 /** Represents a category tree for Percussion CMS. */
 @XmlRootElement(name = "CategoryTree")

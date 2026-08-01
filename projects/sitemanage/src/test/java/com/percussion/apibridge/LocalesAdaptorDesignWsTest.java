@@ -7,7 +7,6 @@ package com.percussion.apibridge;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -47,8 +46,7 @@ class LocalesAdaptorDesignWsTest {
     when(designWs.loadLocales(anyList(), eq(false), eq(false), any(), any()))
         .thenReturn(List.of(loc));
 
-    LocalesAdaptor adaptor =
-        new LocalesAdaptor(designWs, lang -> Optional.empty(), Set::of);
+    LocalesAdaptor adaptor = new LocalesAdaptor(designWs, lang -> Optional.empty(), Set::of);
     List<LocaleSummary> list = adaptor.listLocales(null);
 
     assertEquals(1, list.size());
@@ -62,8 +60,7 @@ class LocalesAdaptorDesignWsTest {
     IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
     when(designWs.findLocales(isNull(), isNull())).thenReturn(List.of());
 
-    LocalesAdaptor adaptor =
-        new LocalesAdaptor(designWs, lang -> Optional.empty(), Set::of);
+    LocalesAdaptor adaptor = new LocalesAdaptor(designWs, lang -> Optional.empty(), Set::of);
     assertTrue(adaptor.listLocales(null).isEmpty());
     verify(designWs).findLocales(null, null);
   }

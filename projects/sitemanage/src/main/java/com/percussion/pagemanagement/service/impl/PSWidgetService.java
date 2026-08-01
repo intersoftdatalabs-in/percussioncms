@@ -17,8 +17,6 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service.impl;
 
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 import com.percussion.metadata.service.IPSMetadataService;
 import com.percussion.pagemanagement.dao.IPSWidgetDao;
 import com.percussion.pagemanagement.data.PSWidgetDefinition;
@@ -52,6 +50,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
+import tools.jackson.databind.json.JsonMapper;
 
 @Component("widgetService")
 public class PSWidgetService implements IPSWidgetService {

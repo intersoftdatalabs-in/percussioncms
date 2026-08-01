@@ -18,7 +18,6 @@ package com.percussion.analytics.service.impl;
 
 import static com.percussion.share.service.exception.PSParameterValidationUtils.validateParameters;
 
-import tools.jackson.core.JacksonException;
 import com.percussion.analytics.data.PSAnalyticsProviderConfig;
 import com.percussion.analytics.error.IPSAnalyticsErrorMessageHandler;
 import com.percussion.analytics.error.PSAnalyticsProviderException;
@@ -41,6 +40,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import tools.jackson.core.JacksonException;
 
 /**
  * Implementation of the analytics provider service. Sunny Sal: "Analytics config—now with extra

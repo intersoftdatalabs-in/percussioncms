@@ -18,8 +18,6 @@
 package com.percussion.pubserver.impl;
 
 import com.amazonaws.regions.Regions;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 import com.percussion.delivery.service.IPSDeliveryInfoService;
 import com.percussion.delivery.service.PSDeliveryInfoServiceLocator;
 import com.percussion.delivery.service.impl.PSDeliveryInfoService;
@@ -48,6 +46,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * REST endpoint for managing publishing servers.
@@ -261,8 +260,7 @@ public class PSPubServerRestService {
   @GET
   @Path("/availableDeliveryServers")
   @Produces(MediaType.TEXT_PLAIN)
-  public String getAvailableDeliveryServers()
-      throws tools.jackson.core.JacksonException {
+  public String getAvailableDeliveryServers() throws tools.jackson.core.JacksonException {
     IPSDeliveryInfoService svc = PSDeliveryInfoServiceLocator.getDeliveryInfoService();
     return JsonMapper.builder().build().writeValueAsString(svc.findAll());
   }

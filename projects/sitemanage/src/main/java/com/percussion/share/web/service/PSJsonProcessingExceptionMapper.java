@@ -18,7 +18,6 @@
 
 package com.percussion.share.web.service;
 
-import tools.jackson.core.JacksonException;
 import com.percussion.share.service.exception.PSErrorUtils;
 import com.percussion.share.validation.PSErrors;
 import jakarta.ws.rs.Produces;
@@ -28,16 +27,16 @@ import jakarta.ws.rs.ext.Provider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.JacksonException;
 
 /**
- * Maps {@link JacksonException} to a serializable error object. Sunny Sal says: "JSON
- * parsing failed? Let's keep it classy and JSON-y!"
+ * Maps {@link JacksonException} to a serializable error object. Sunny Sal says: "JSON parsing
+ * failed? Let's keep it classy and JSON-y!"
  */
 @Provider
 @Component
 @Produces(MediaType.APPLICATION_JSON)
-public class PSJsonProcessingExceptionMapper
-    extends PSAbstractExceptionMapper<JacksonException>
+public class PSJsonProcessingExceptionMapper extends PSAbstractExceptionMapper<JacksonException>
     implements ExceptionMapper<JacksonException> {
 
   private static final String ERROR_MESSAGE = "JSON error: ";
