@@ -113,7 +113,7 @@ cd WebUI
 ```bash
 cd WebUI/src/main/frontend
 npm run build:modern     # tsc + vite
-npm run test             # Vitest
+npm run test             # Vitest (also runs in Maven test phase — see Testing)
 npm run dev              # HMR when wired to a running CMS
 ```
 
@@ -167,6 +167,17 @@ cp WebUI/target/generated-webui/cm/modern/assets/perc-modern-ui.css \
 ## Testing Guidelines
 
 ### React/TypeScript (Vitest)
+
+**Maven (preferred pre-PR / CI):** WebUI’s `frontend-maven-plugin` runs `npm run test` (Vitest) in the **`test`** phase after the modern/legacy builds. A failing Vitest suite fails the module build the same way Surefire does for Java. Skip with `-DskipTests` (or `-Dmaven.test.skip=true`) like other unit tests.
+
+```bash
+cd WebUI
+../mvnw test
+# or full gate:
+../mvnw clean install
+```
+
+**Frontend-only iteration:**
 
 ```bash
 cd WebUI/src/main/frontend
