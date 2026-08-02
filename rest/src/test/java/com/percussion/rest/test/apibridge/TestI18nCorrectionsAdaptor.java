@@ -27,8 +27,8 @@ import org.springframework.stereotype.Component;
  * Spring test stub for {@link I18nCorrectionsAdaptor}. Required for ApplicationContext load after
  * constructor injection on {@code I18nCorrectionsResource}.
  *
- * <p>HTTP-layer behavior is covered by {@link
- * com.percussion.rest.i18n.I18nCorrectionsResourceTest} (Mockito).
+ * <p>HTTP-layer behavior is covered by {@link com.percussion.rest.i18n.I18nCorrectionsResourceTest}
+ * (Mockito).
  */
 @Component
 @Lazy

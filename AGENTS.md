@@ -16,13 +16,13 @@ This repository is a large mono-repo with many modules.  This code base has a lo
 
 **In scope as “rules” / agent instructions** (non-exhaustive):
 
-| Path / class | Examples |
-|--------------|----------|
-| Root / module agent guides | `AGENTS.md`, `AGENTS.local.md`, `Claude.md`, module `AGENTS.md` |
-| AI skills, agents, prompts | `modules/ai-shared-develop/src/main/resources/skills/**`, `.../agents/**`, `.../prompts/**` |
-| Review pattern memory | `.../skills/erlang-review/patterns.md` |
-| Tool-host project rules / workflows | `.kilocode/**`, `.grok/**` project rules, agent workflows that dictate agent behavior |
-| Agent-facing process docs that bind agents | sections in `REVIEW.md` / similar that prescribe agent gates |
+|                Path / class                |                                          Examples                                           |
+|--------------------------------------------|---------------------------------------------------------------------------------------------|
+| Root / module agent guides                 | `AGENTS.md`, `AGENTS.local.md`, `Claude.md`, module `AGENTS.md`                             |
+| AI skills, agents, prompts                 | `modules/ai-shared-develop/src/main/resources/skills/**`, `.../agents/**`, `.../prompts/**` |
+| Review pattern memory                      | `.../skills/erlang-review/patterns.md`                                                      |
+| Tool-host project rules / workflows        | `.kilocode/**`, `.grok/**` project rules, agent workflows that dictate agent behavior       |
+| Agent-facing process docs that bind agents | sections in `REVIEW.md` / similar that prescribe agent gates                                |
 
 **Required agent behavior:**
 
@@ -91,15 +91,15 @@ Tool-agnostic one-shot prompt: `modules/ai-shared-develop/src/main/resources/pro
 
 ### Failure modes this gate targets
 
-| Symptom agents see | Underlying mistake |
-|--------------------|--------------------|
-| Cascade of unrelated Spring tests (`ApplicationContext failure threshold`, Roles/Users/MainTest all red) | Shared test/runtime context scans new production beans; injection graph incomplete on the test classpath |
-| “My new unit test passed” but module suite fails | Verified only the new class, not the **module** clean install / shared contexts |
-| Reflection / mock `IllegalArgumentException` on static fields | Stubbed with a **supertype or wrong type** (e.g. `Properties` where field is `PSProperties`) |
-| UI feature “done” but QA/E2E missing | Vitest/unit only; product screen requires Playwright companion |
-| REST resource “done” but rest suite broken | Mockito resource test only; no Spring test stub for adaptor interface; or sitemanage impl without rest interface closure |
-| Works on author machine, fails Windows/Linux CI | Non-portable paths, wrong separators, case-only assumptions |
-| PR “fixed” but merge still blocked | Code fix without review-thread reply/resolve; Spotless out-of-scope dump; incomplete gates |
+|                                            Symptom agents see                                            |                                                    Underlying mistake                                                    |
+|----------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| Cascade of unrelated Spring tests (`ApplicationContext failure threshold`, Roles/Users/MainTest all red) | Shared test/runtime context scans new production beans; injection graph incomplete on the test classpath                 |
+| “My new unit test passed” but module suite fails                                                         | Verified only the new class, not the **module** clean install / shared contexts                                          |
+| Reflection / mock `IllegalArgumentException` on static fields                                            | Stubbed with a **supertype or wrong type** (e.g. `Properties` where field is `PSProperties`)                             |
+| UI feature “done” but QA/E2E missing                                                                     | Vitest/unit only; product screen requires Playwright companion                                                           |
+| REST resource “done” but rest suite broken                                                               | Mockito resource test only; no Spring test stub for adaptor interface; or sitemanage impl without rest interface closure |
+| Works on author machine, fails Windows/Linux CI                                                          | Non-portable paths, wrong separators, case-only assumptions                                                              |
+| PR “fixed” but merge still blocked                                                                       | Code fix without review-thread reply/resolve; Spotless out-of-scope dump; incomplete gates                               |
 
 ### Mandatory method (every non-trivial change)
 
@@ -115,13 +115,13 @@ Tool-agnostic one-shot prompt: `modules/ai-shared-develop/src/main/resources/pro
 
 ### Illustrative companions (not exhaustive — always re-derive from peers)
 
-| Change class | Companions agents routinely under-deliver |
-|--------------|-------------------------------------------|
+|                        Change class                         |                                                                    Companions agents routinely under-deliver                                                                    |
+|-------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | New `rest` `@PSSiteManageBean` resource + adaptor interface | Wire DTOs; sitemanage apibridge impl; Mockito resource test; **Spring test stub adaptor** on rest test classpath; sitemanage adaptor tests; full `rest` module test suite green |
-| WebUI product screen / user-visible flow | Component tests **and** Playwright under `modules/perc-qa-automation/` |
-| Feature gated on `PSServer` / server.properties | Config keys documented; unit tests that stub **`PSProperties`** (not bare `Properties`) and restore statics in `@AfterEach` |
-| New locale / i18n surface | TMX / locale matrix peers; UI + server + QA pieces that existing locales already touch |
-| Installer / packaging / deployer | Lockstep scripts, fixtures, and platform entrypoints (`.bat`/`.cmd` where required) |
+| WebUI product screen / user-visible flow                    | Component tests **and** Playwright under `modules/perc-qa-automation/`                                                                                                          |
+| Feature gated on `PSServer` / server.properties             | Config keys documented; unit tests that stub **`PSProperties`** (not bare `Properties`) and restore statics in `@AfterEach`                                                     |
+| New locale / i18n surface                                   | TMX / locale matrix peers; UI + server + QA pieces that existing locales already touch                                                                                          |
+| Installer / packaging / deployer                            | Lockstep scripts, fixtures, and platform entrypoints (`.bat`/`.cmd` where required)                                                                                             |
 
 Module `AGENTS.md` files may specialize this table; they do not replace the method above.
 

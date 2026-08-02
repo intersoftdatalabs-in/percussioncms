@@ -236,11 +236,11 @@ Failed to load ApplicationContext
 ApplicationContext failure threshold (1) exceeded   ← cascade on RolesTest/UsersTest/MainTest/…
 ```
 
-|                  Layer                   |                            What to add                            |                                 Why                                  |
-|------------------------------------------|-------------------------------------------------------------------|----------------------------------------------------------------------|
-| Mockito resource unit test               | `*ResourceTest` mocking `IXxxAdaptor`                             | HTTP mapping / status codes                                          |
-| **Spring context stub (required)**       | `TestXxxAdaptor` implementing the interface                       | Lets `MainTest` / subclasses load ApplicationContext                 |
-| sitemanage adaptor unit test             | `*AdaptorImplTest` mocking domain services                        | Gate / GCM / domain behavior                                         |
+|               Layer                |                 What to add                 |                         Why                          |
+|------------------------------------|---------------------------------------------|------------------------------------------------------|
+| Mockito resource unit test         | `*ResourceTest` mocking `IXxxAdaptor`       | HTTP mapping / status codes                          |
+| **Spring context stub (required)** | `TestXxxAdaptor` implementing the interface | Lets `MainTest` / subclasses load ApplicationContext |
+| sitemanage adaptor unit test       | `*AdaptorImplTest` mocking domain services  | Gate / GCM / domain behavior                         |
 
 **Required stub location and annotations** (copy an existing peer):
 
@@ -257,7 +257,7 @@ ApplicationContext failure threshold (1) exceeded   ← cascade on RolesTest/Use
 3. [ ] **`TestXxxAdaptor` / `XxxTestAdaptor` Spring stub in rest test sources**
 4. [ ] sitemanage apibridge impl + unit tests
 5. [ ] Run from module: `cd rest && ../mvnw test` (Windows: `..\mvnw.cmd test`) and confirm
-      **zero** `Failed to load ApplicationContext` / `No qualifying bean of type` errors
+   **zero** `Failed to load ApplicationContext` / `No qualifying bean of type` errors
 
 Do **not** “fix” missing stubs by removing constructor injection, making the adaptor optional, or
 excluding the resource from component-scan unless product design explicitly requires it.
