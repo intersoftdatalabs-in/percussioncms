@@ -56,11 +56,11 @@ locales stay stable across installs.
   canonical form.
 - **Ship locale matrix** (bases + regionals) is defined in `RXLOCALE`
   (`cmsTableData.xml`) and mirrored in TMX headers / `RXLOCALEFORMAT`.
-  **Base / language-only** codes (`ISBASE=1`): `ar`, `bn`, `de`, `es`,
-  `fr`, `he`, `hi`, `it`, `nl`, `pl`, `pt`, `ru`, `sv`, `te`, `tr`.
-  **Regionals** (`ISBASE=0`) include e.g. `de-de`, `de-at`, `es-es`,
-  `es-mx`, `fr-fr`, `fr-ca`, `he-il`, `hi-in`, `it-it`, `nl-nl`,
-  `pt-br`, `pt-pt`, `tr-tr`, `zh-cn`, `zh-tw`, plus additional
+  - **Base / language-only** codes (`ISBASE=1`): `ar`, `bn`, `de`, `es`,
+    `fr`, `he`, `hi`, `it`, `nl`, `pl`, `pt`, `ru`, `sv`, `te`, `tr`, `uk`.
+  - **Regionals** (`ISBASE=0`) include e.g. `de-de`, `de-at`, `es-es`,
+    `es-mx`, `fr-fr`, `fr-ca`, `he-il`, `hi-in`, `it-it`, `nl-nl`,
+    `pt-br`, `pt-pt`, `tr-tr`, `uk-ua`, `zh-cn`, `zh-tw`, plus additional
   `es-*` / `fr-*` / `de-*` variants listed in the TMX header. Product string fallback when no
   locale is set is always **`en-us`**. Do not introduce a code outside
   this set without updating `RXLOCALE` **and** `RXLOCALEFORMAT` in
@@ -321,7 +321,7 @@ affected key — the script XML-escapes `<seg>` content via
 | SystemResources.tmx | System/editor resources | base + regional matrix (header) | `src/main/resources/i18n/` |
 
 **Base locales** (`RXLOCALE.ISBASE=1`): `ar`, `bn`, `de`, `es`, `fr`,
-`he`, `hi`, `it`, `nl`, `pl`, `pt`, `ru`, `sv`, `te`, `tr`. TMX bodies
+`he`, `hi`, `it`, `nl`, `pl`, `pt`, `ru`, `sv`, `te`, `tr`, `uk`. TMX bodies
 store shared strings under these tags; regionals hold dialect overrides
 only.
 

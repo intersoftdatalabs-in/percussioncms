@@ -80,9 +80,10 @@ languages in their `<header>` `<prop type="supportedlanguage">` lines:
 | Louisiana Creole | `lou`                                                             |
 | Telugu           | `te` (base)                                                       |
 | Turkish          | `tr` (base), `tr-tr`                                              |
+| Ukrainian        | `uk` (base), `uk-ua`                                              |
 
 **Base locales** (`RXLOCALE.ISBASE=1`): `ar`, `bn`, `de`, `es`, `fr`, `he`,
-`hi`, `it`, `nl`, `pl`, `pt`, `ru`, `sv`, `te`, `tr`. Prefer storing shared
+`hi`, `it`, `nl`, `pl`, `pt`, `ru`, `sv`, `te`, `tr`, `uk`. Prefer storing shared
 translations under the base tag; regionals hold dialect overrides only.
 Lookup chain: regional → base → `en-us`. Format profiles live in
 `RXLOCALEFORMAT` (mirrored by `PSLocaleFormatDefaults`).
