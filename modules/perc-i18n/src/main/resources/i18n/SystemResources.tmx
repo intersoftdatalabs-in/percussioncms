@@ -1769,7 +1769,8 @@
       <tuv xml:lang="pt"><seg>Pesquisa de pasta: {0}</seg></tuv>
       <tuv xml:lang="te"><seg>ఫోల్డర్ శోధన: {0}</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>文件夹搜索：{0}</seg></tuv>
-    <tuv xml:lang="ru"><seg>Поиск по папке: {0}</seg></tuv><tuv xml:lang="he"><seg>חיפוש תיקיות: {0}</seg></tuv></tu>
+
+    <tuv xml:lang="fr-ca"><seg>Recherche de dossier : {0}</seg></tuv><tuv xml:lang="ru"><seg>Поиск по папке: {0}</seg></tuv><tuv xml:lang="he"><seg>חיפוש תיקיות: {0}</seg></tuv></tu>
     <tu tuid="com.percussion.cx.PSSearchDialog@Customize...">
       <tuv xml:lang="en-us"><seg>Customize...</seg></tuv>
       <tuv xml:lang="ar"><seg>تخصيص...</seg></tuv>
@@ -1806,7 +1807,8 @@
       <tuv xml:lang="hi"><seg>अधिकतम परिणाम 0 और &lt;{0}&gt; के बीच की संख्या होनी चाहिए</seg></tuv>
       <tuv xml:lang="it"><seg>Il numero massimo di risultati deve essere un numero compreso tra 0 e &lt;{0}&gt;</seg></tuv>
       <tuv xml:lang="nl"><seg>Maximale resultaten moeten een getal tussen 0 en &lt;{0}&gt; zijn</seg></tuv>
-    <tuv xml:lang="ru"><seg>Максимальное количество результатов должно быть числом от 0 до &lt;{0}&gt;.</seg></tuv><tuv xml:lang="he"><seg>התוצאות המקסימליות חייבות להיות מספר בין 0 ל-&lt;{0}&gt;</seg></tuv></tu>
+
+    <tuv xml:lang="fr-ca"><seg>Les résultats maximum doivent être un nombre compris entre 0 et &lt;{0}&gt;</seg></tuv><tuv xml:lang="ru"><seg>Максимальное количество результатов должно быть числом от 0 до &lt;{0}&gt;.</seg></tuv><tuv xml:lang="he"><seg>התוצאות המקסימליות חייבות להיות מספר בין 0 ל-&lt;{0}&gt;</seg></tuv></tu>
     <tu tuid="com.percussion.search.ui.PSSearchSimplePanel@Case Sensitive:">
       <tuv xml:lang="en-us"><seg>Case Sensitive:</seg></tuv>
       <tuv xml:lang="ar"><seg>حساسية الموضوع:</seg></tuv>
@@ -4973,7 +4975,8 @@ Wilt u het foutenlogboek nu bekijken?</seg></tuv>
       <tuv xml:lang="pt"><seg>sys_revision inválido u003d propriedade {0} para ação {1}</seg></tuv>
       <tuv xml:lang="te"><seg>invalid sys_revision u003d {1} చర్య కోసం {0} ఆస్తి</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>{1} 操作的 sys_revision u003d {0} 属性无效</seg></tuv>
-    <tuv xml:lang="ru"><seg>неверное свойство sys_revision u003d {0} для действия {1}</seg></tuv><tuv xml:lang="he"><seg>sys_revision לא חוקי u003d מאפיין {0} עבור פעולה {1}</seg></tuv></tu>
+
+    <tuv xml:lang="fr-ca"><seg>sys_revision = propriété {0} non valide pour {1} action</seg></tuv><tuv xml:lang="ru"><seg>неверное свойство sys_revision u003d {0} для действия {1}</seg></tuv><tuv xml:lang="he"><seg>sys_revision לא חוקי u003d מאפיין {0} עבור פעולה {1}</seg></tuv></tu>
     <tu tuid="2251">
       <tuv xml:lang="en-us"><seg>An error occurred while using the search web service. Message: {0}</seg></tuv>
       <tuv xml:lang="ar"><seg>حدث خطأ أثناء استخدام خدمة البحث على الويب. الرسالة: {0}</seg></tuv>
@@ -5968,7 +5971,10 @@ RetrievalWare కాన్ఫిగరేషన్ ఫైల్ ''{0}''లో �
       <tuv xml:lang="zh-tw"><seg>读取“{1}”时未找到标识符
 RetrievalWare 配置文件“{0}”中的块
 靠近以下文本{2}</seg></tuv>
-    <tuv xml:lang="ru"><seg>Идентификатор не найден при чтении ''{1}'' 
+
+    <tuv xml:lang="fr-ca"><seg>Un identifiant n'a pas été trouvé lors de la lecture d'un ''{1}'' 
+bloc dans le fichier de configuration de RetrievalWare ''{0}'' 
+à côté du texte suivant {2}</seg></tuv><tuv xml:lang="ru"><seg>Идентификатор не найден при чтении ''{1}'' 
 блок в файле конфигурации RetrivalWare ''{0}'' 
 рядом со следующим текстом {2}</seg></tuv><tuv xml:lang="he"><seg>מזהה לא נמצא בעת קריאת ''{1}'' 
 לחסום בקובץ התצורה של RetrievalWare ''{0}'' 
@@ -5986,7 +5992,8 @@ RetrievalWare 配置文件“{0}”中的块
       <tuv xml:lang="pt"><seg>Ocorreu um erro de sintaxe ao ler o arquivo de configuração do RetrievalWare ''{0}''.  O erro foi: ''{1}''. O erro foi encontrado próximo ao seguinte texto: {2}</seg></tuv>
       <tuv xml:lang="te"><seg>RetrievalWare కాన్ఫిగరేషన్ ఫైల్ ''{0}''ని చదువుతున్నప్పుడు సింటాక్స్ లోపం సంభవించింది.  లోపం: ''{1}''. కింది వచనానికి సమీపంలో లోపం ఏర్పడింది: {2}</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>读取 RetrievalWare 配置文件“{0}”时发生语法错误。  错误是：“{1}”。在以下文本附近遇到错误：{2}</seg></tuv>
-    <tuv xml:lang="ru"><seg>Произошла синтаксическая ошибка при чтении файла конфигурации RetrivalWare ''{0}''.  Ошибка: ''{1}''. Ошибка обнаружена рядом со следующим текстом: {2}.</seg></tuv><tuv xml:lang="he"><seg>אירעה שגיאת תחביר במהלך קריאת קובץ התצורה ''{0}'' של RetrievalWare.  השגיאה הייתה: ''{1}''. השגיאה אירעה ליד הטקסט הבא: {2}</seg></tuv></tu>
+
+    <tuv xml:lang="fr-ca"><seg>Une erreur de syntaxe s'est produite lors de la lecture du fichier de configuration RetrievalWare ''{0}''.  L'erreur était : "{1}". L'erreur s'est produite à proximité du texte suivant : {2}</seg></tuv><tuv xml:lang="ru"><seg>Произошла синтаксическая ошибка при чтении файла конфигурации RetrivalWare ''{0}''.  Ошибка: ''{1}''. Ошибка обнаружена рядом со следующим текстом: {2}.</seg></tuv><tuv xml:lang="he"><seg>אירעה שגיאת תחביר במהלך קריאת קובץ התצורה ''{0}'' של RetrievalWare.  השגיאה הייתה: ''{1}''. השגיאה אירעה ליד הטקסט הבא: {2}</seg></tuv></tu>
     <tu tuid="16401">
       <tuv xml:lang="en-us"><seg>Temp file used for indexing - ''{0}'': a problem occurred with this file: {1}</seg></tuv>
       <tuv xml:lang="ar"><seg>الملف المؤقت المستخدم للفهرسة - ''{0}'': حدثت مشكلة في هذا الملف: {1}</seg></tuv>
@@ -6280,7 +6287,8 @@ RetrievalWare 配置文件“{0}”中的块
       <tuv xml:lang="pt"><seg>Falha na autenticação do diretório ''{0}'' e autenticação ''{1}''. O erro foi: {2}</seg></tuv>
       <tuv xml:lang="te"><seg>డైరెక్టరీ ''{0}'' మరియు ''{1}'' ప్రమాణీకరణ కోసం ప్రమాణీకరణ విఫలమైంది. లోపం: {2}</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>目录“{0}”和身份验证“{1}”失败。错误是：{2}</seg></tuv>
-    <tuv xml:lang="ru"><seg>Не удалось выполнить аутентификацию для каталога ''{0}'' и аутентификацию ''{1}''. Ошибка была: {2}</seg></tuv><tuv xml:lang="he"><seg>האימות נכשל עבור הספרייה ''{0}'' והאימות ''{1}''. השגיאה הייתה: {2}</seg></tuv></tu>
+
+    <tuv xml:lang="fr-ca"><seg>L'authentification a échoué pour le répertoire ''{0}'' et l'authentification ''{1}''. L'erreur était : {2}</seg></tuv><tuv xml:lang="ru"><seg>Не удалось выполнить аутентификацию для каталога ''{0}'' и аутентификацию ''{1}''. Ошибка была: {2}</seg></tuv><tuv xml:lang="he"><seg>האימות נכשל עבור הספרייה ''{0}'' והאימות ''{1}''. השגיאה הייתה: {2}</seg></tuv></tu>
     <tu tuid="17001">
       <tuv xml:lang="en-us"><seg>The data supplied for extraction contains a file type that is not supported.</seg></tuv>
       <tuv xml:lang="ar"><seg>تحتوي البيانات المقدمة للاستخراج على نوع ملف غير مدعوم.</seg></tuv>
@@ -8126,7 +8134,8 @@ You have selected to copy the source Site Subfolder with the following options:
       <tuv xml:lang="pt"><seg>https://translate.google.com/translate?hl=en&amp;sl=auto&amp;tl=pt&amp;u=https://percussioncmshelp.intsof.com/percussion-cm1/install-setup/installing-cm1/system-requirements#browsers</seg></tuv>
       <tuv xml:lang="te"><seg>https://translate.google.com/translate?hl=en&amp;sl=auto&amp;tl=te&amp;u=https://percussioncmshelp.intsof.com/percussion-cm1/install-setup/installing-cm1/system-requirements#browsers</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>https://translate.google.com/translate?hl=en&amp;sl=auto&amp;tl=zh-tw&amp;u=https://percussioncmshelp.intsof.com/percussion-cm1/install-setup/installing-cm1/system-requirements#browsers</seg></tuv>
-    <tuv xml:lang="ru"><seg>https://translate.google.com/translate?hl=emj&amp;sl=auto&amp;tl=ru&amp;u=https://percussioncmshelp.intsof.com/percussion-cm1/install-setup/installing-cm1/system-requirements#browsers</seg></tuv><tuv xml:lang="he"><seg>https://translate.google.com/translate?hl=emj&amp;sl=auto&amp;tl=he&amp;u=https://percussioncmshelp.intsof.com/percussion-cm1/install-setup/installing-cm1/system-requirements#browsers</seg></tuv></tu>
+
+    <tuv xml:lang="fr-ca"><seg>https://translate.google.com/translate?hl=en&amp;sl=auto&amp;tl=fr-ca&amp;u=https://percussioncmshelp.intsof.com/percussion-cm1/install-setup/installing-cm1/system-requirements#browsers</seg></tuv><tuv xml:lang="ru"><seg>https://translate.google.com/translate?hl=emj&amp;sl=auto&amp;tl=ru&amp;u=https://percussioncmshelp.intsof.com/percussion-cm1/install-setup/installing-cm1/system-requirements#browsers</seg></tuv><tuv xml:lang="he"><seg>https://translate.google.com/translate?hl=emj&amp;sl=auto&amp;tl=he&amp;u=https://percussioncmshelp.intsof.com/percussion-cm1/install-setup/installing-cm1/system-requirements#browsers</seg></tuv></tu>
     <tu tuid="jsp_unsupported@supported browser link text">
       <tuv xml:lang="en-us"><seg>here</seg></tuv>
       <tuv xml:lang="ar"><seg>هنا</seg></tuv>

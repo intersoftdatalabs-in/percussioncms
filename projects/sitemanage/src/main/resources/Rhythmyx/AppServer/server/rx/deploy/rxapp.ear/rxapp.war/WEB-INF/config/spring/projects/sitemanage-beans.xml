@@ -87,6 +87,11 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="restEditionsResource"/>
             <ref bean="restExtensionsResource"/>
             <ref bean="restItemFilterResource"/>
+            <ref bean="restKeywordsResource"/>
+            <ref bean="restLocalesResource"/>
+            <ref bean="restSharedFieldsResource"/>
+            <ref bean="restSlotsResource"/>
+            <ref bean="restSystemDefResource"/>
             <ref bean="restJexlResource"/>
             <ref bean="restLocationSchemeResource"/>
             <ref bean="restMimeTypesResource"/>
