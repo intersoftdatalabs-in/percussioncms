@@ -81,10 +81,10 @@ The i18n crowdsource path (mkd-gcm) needs the native shared library `mkd_gcm_ffi
 
 Every production build of this module unpacks `dev.monkeyking:mkd-gcm-natives` (version `${mkd.gcm.version}`) and flattens:
 
-| Platform | File in `<installdir>/bin` |
-|----------|----------------------------|
-| Windows x86_64 | `mkd_gcm_ffi.dll` |
-| Linux x86_64 | `libmkd_gcm_ffi.so` |
+|    Platform    | File in `<installdir>/bin` |
+|----------------|----------------------------|
+| Windows x86_64 | `mkd_gcm_ffi.dll`          |
+| Linux x86_64   | `libmkd_gcm_ffi.so`        |
 
 Staging: `maven-dependency-plugin` execution `stage-gcm-natives` → `_gcm-native-stage/`, then ANT in `installDistributionFiles.xml` copies into `bin/` and deletes the stage dir. Missing natives fail the build (install `mkd-gcm-natives` to local `.m2` until published).
 

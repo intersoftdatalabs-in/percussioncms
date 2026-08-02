@@ -701,30 +701,34 @@
 		<echo>Creating jetty work directory..</echo>
 		<mkdir dir="${assembly-directory}/jetty/base/work" />
 
-		<!-- GCM FFI natives for i18n corrections (mkd-gcm). StartJetty sets
-			-Djna.library.path=${installdir}/bin (and LD_LIBRARY_PATH / PATH). Unpack is
-			done by maven-dependency-plugin execution id=stage-gcm-natives into
-			${assembly-directory}/_gcm-native-stage (platform paths under
-			dev/monkeyking/gcm/native/<platform>/). Flatten both Win64 + Linux64 shared
-			libs into bin/ so one distribution works on either host. Fail loud if the
-			expected files are missing (empty fileset would be a silent no-op). -->
+		<!-- GCM FFI natives for i18n corrections (mkd-gcm). StartJetty sets -Djna.library.path=${installdir}/bin
+			(and LD_LIBRARY_PATH / PATH). Unpack is done by maven-dependency-plugin execution
+			id=stage-gcm-natives into ${assembly-directory}/_gcm-native-stage (platform
+			paths under dev/monkeyking/gcm/native/<platform>/). Flatten both Win64 +
+			Linux64 shared libs into bin/ so one distribution works on either host. Fail
+			loud if the expected files are missing (empty fileset would be a silent no-op). -->
 		<echo>Staging mkd_gcm_ffi natives into bin/..</echo>
 		<mkdir dir="${assembly-directory}/bin" />
-		<fail message="Missing staged Windows mkd_gcm_ffi.dll (mkd-gcm-natives ${mkd.gcm.version} not installed to local .m2?)">
+		<fail
+			message="Missing staged Windows mkd_gcm_ffi.dll (mkd-gcm-natives ${mkd.gcm.version} not installed to local .m2?)">
 			<condition>
 				<not>
-					<available file="${assembly-directory}/_gcm-native-stage/dev/monkeyking/gcm/native/windows-x86_64/mkd_gcm_ffi.dll" />
+					<available
+						file="${assembly-directory}/_gcm-native-stage/dev/monkeyking/gcm/native/windows-x86_64/mkd_gcm_ffi.dll" />
 				</not>
 			</condition>
 		</fail>
-		<fail message="Missing staged Linux libmkd_gcm_ffi.so (mkd-gcm-natives ${mkd.gcm.version} not installed to local .m2?)">
+		<fail
+			message="Missing staged Linux libmkd_gcm_ffi.so (mkd-gcm-natives ${mkd.gcm.version} not installed to local .m2?)">
 			<condition>
 				<not>
-					<available file="${assembly-directory}/_gcm-native-stage/dev/monkeyking/gcm/native/linux-x86_64/libmkd_gcm_ffi.so" />
+					<available
+						file="${assembly-directory}/_gcm-native-stage/dev/monkeyking/gcm/native/linux-x86_64/libmkd_gcm_ffi.so" />
 				</not>
 			</condition>
 		</fail>
-		<copy todir="${assembly-directory}/bin" flatten="true" overwrite="true">
+		<copy todir="${assembly-directory}/bin" flatten="true"
+			overwrite="true">
 			<fileset dir="${assembly-directory}/_gcm-native-stage">
 				<include name="**/mkd_gcm_ffi.dll" />
 				<include name="**/libmkd_gcm_ffi.so" />

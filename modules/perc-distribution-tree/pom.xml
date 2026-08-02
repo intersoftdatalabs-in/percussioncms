@@ -36,11 +36,11 @@
         <extensions-directory>${basedir}/target/extensions</extensions-directory>
         <exts.store>${assembly-directory}/Extensions</exts.store>
         <jetty-directory>${basedir}/target/jetty</jetty-directory>
+        <!-- GCM FFI natives (mkd_gcm_ffi) staged into distribution/bin for StartJetty jna.library.path -->
+        <mkd.gcm.version>0.2.0</mkd.gcm.version>
         <packages-directory>${basedir}/target/packages</packages-directory>
         <rxapps-directory>${basedir}/target/rxapps</rxapps-directory>
         <rxapps.source>${rxapps-directory}/perc-rxapps-${project.version}</rxapps.source>
-        <!-- GCM FFI natives (mkd_gcm_ffi) staged into distribution/bin for StartJetty jna.library.path -->
-        <mkd.gcm.version>0.2.0</mkd.gcm.version>
     </properties>
     <dependencies>
         <dependency>
