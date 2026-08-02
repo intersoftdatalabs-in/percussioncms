@@ -39,6 +39,8 @@
         <packages-directory>${basedir}/target/packages</packages-directory>
         <rxapps-directory>${basedir}/target/rxapps</rxapps-directory>
         <rxapps.source>${rxapps-directory}/perc-rxapps-${project.version}</rxapps.source>
+        <!-- GCM FFI natives (mkd_gcm_ffi) staged into distribution/bin for StartJetty jna.library.path -->
+        <mkd.gcm.version>0.2.0</mkd.gcm.version>
     </properties>
     <dependencies>
         <dependency>
@@ -140,6 +142,14 @@
             <groupId>com.percussion</groupId>
             <artifactId>perc-system</artifactId>
             <version>${project.parent.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Build-time only: GCM native shared libs extracted into distribution/bin/
+             (StartJetty sets -Djna.library.path=<installdir>/bin). Local .m2 until published. -->
+        <dependency>
+            <groupId>dev.monkeyking</groupId>
+            <artifactId>mkd-gcm-natives</artifactId>
+            <version>${mkd.gcm.version}</version>
             <scope>provided</scope>
         </dependency>
         <!-- Build-time only: JDBC drivers staged into the distribution's jetty/base/lib/jdbc/ folder.
@@ -598,6 +608,29 @@
                             <outputDirectory>${assembly-directory}/_jdbc-stage</outputDirectory>
                             <failOnAnyMissingDependency>true</failOnAnyMissingDependency>
                             <includeTypes>jar</includeTypes>
+                        </configuration>
+                    </execution>
+                    <!-- Unpack mkd-gcm-natives platform shared libraries so ANT can flatten them
+                         into distribution/bin/ (consumed via StartJetty -Djna.library.path).
+                         Main artifact ships windows-x86_64 + linux-x86_64 under
+                         dev/monkeyking/gcm/native/<platform>/. -->
+                    <execution>
+                        <id>stage-gcm-natives</id>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>dev.monkeyking</groupId>
+                                    <artifactId>mkd-gcm-natives</artifactId>
+                                    <version>${mkd.gcm.version}</version>
+                                    <type>jar</type>
+                                    <outputDirectory>${assembly-directory}/_gcm-native-stage</outputDirectory>
+                                    <includes>dev/monkeyking/gcm/native/**</includes>
+                                </artifactItem>
+                            </artifactItems>
                         </configuration>
                     </execution>
                 </executions>

@@ -75,6 +75,19 @@ cd modules/perc-distribution-tree
 - **`src/main/assembly/perc-assembly.xml`**: Maven Assembly plugin descriptor for distribution packaging
 - **`pom.xml`**: Maven configuration with `maven-antrun-plugin` and `maven-assembly-plugin`
 
+## Bundled GCM natives (`bin/`)
+
+The i18n crowdsource path (mkd-gcm) needs the native shared library `mkd_gcm_ffi` on the Jetty process library path. `StartJetty.sh` / `StartJetty.bat` set `-Djna.library.path=<installdir>/bin` (and `LD_LIBRARY_PATH` / `PATH`).
+
+Every production build of this module unpacks `dev.monkeyking:mkd-gcm-natives` (version `${mkd.gcm.version}`) and flattens:
+
+| Platform | File in `<installdir>/bin` |
+|----------|----------------------------|
+| Windows x86_64 | `mkd_gcm_ffi.dll` |
+| Linux x86_64 | `libmkd_gcm_ffi.so` |
+
+Staging: `maven-dependency-plugin` execution `stage-gcm-natives` → `_gcm-native-stage/`, then ANT in `installDistributionFiles.xml` copies into `bin/` and deletes the stage dir. Missing natives fail the build (install `mkd-gcm-natives` to local `.m2` until published).
+
 ## Bundled JDBC Drivers
 
 Every production build of this module ships a curated JDBC driver set into `jetty/base/lib/jdbc/` of the assembled distribution. The drivers are sourced from parent-POM-managed Maven coordinates and staged into `target/classes/distribution/_jdbc-stage/` by the `stage-jdbc-drivers` execution of `maven-dependency-plugin`, then copied into `jetty/base/lib/jdbc/` by the ANT script.
