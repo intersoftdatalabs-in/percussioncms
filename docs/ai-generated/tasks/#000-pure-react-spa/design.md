@@ -445,9 +445,9 @@ Login is intentionally first so the story is “pure React UI from the front doo
 ### Phase 0 — React Login + minimal SPA boot (start immediately)
 
 - Add `react-router-dom` if needed for post-login app (login page may be a dedicated public document).
-- **`LoginPage` / `LoginApp`** React component: username, password, locale, optional Select UI, error display, Intersoft/theme chrome.
+- **`LoginPage` / `LoginApp`** React component: username, password, locale, error display, Intersoft/theme chrome.
 - Thin public server document (replace or forward `rxlogin.jsp` → SPA login host) with CSRF + TMX + `#root` + modern bundle.
-- **Auth stays server-side:** form POST to existing `/login` (`j_username`, `j_password`, `j_locale`, `j_selectUI`, CSRF) — same as today’s `rxlogin.jsp`. Do **not** invent a parallel login REST API unless product later requires it.
+- **Auth stays server-side:** form POST to existing `/login` (`j_username`, `j_password`, `j_locale`, CSRF) — same as today’s `rxlogin.jsp`. Do **not** invent a parallel login REST API unless product later requires it.
 - Locales: bootstrap JSON from the login JSP (server iterates `PSLocaleManager` as today) — XSS-safe encoding.
 - Success redirect / default return: `proxyURL + /cm/app/spa.jsp?entry=home` (query contract).
 - Error: show `j_error` (and any server error query params) in React UI.
@@ -650,7 +650,7 @@ Manual QA (short):
 
 1. Add `LoginPage` (or `login/LoginApp`) under `WebUI/src/main/ts/` — modern React UI matching product theme direction (`ui-themes` where practical).
 2. Thin public host: rewrite/replace runtime path for `rxlogin.jsp` (or forward it) so the **visible** page is React + CSRF + TMX + locales bootstrap. Keep old JSP as reference until cleanup if needed.
-3. Form: multipart POST to **`login`** with `j_username`, `j_password`, `j_locale`, `j_selectUI` + CSRF token field (same contract as current `rxlogin.jsp`).
+3. Form: multipart POST to **`login`** with `j_username`, `j_password`, `j_locale` + CSRF token field (same contract as current `rxlogin.jsp`).
 4. Locales list from server bootstrap JSON (XSS-safe), not hardcoded.
 5. Display login errors (`j_error` / server error params) in React.
 6. On successful auth, server continues existing login flow; ensure post-login landing targets **`proxyURL + /cm/app/spa.jsp?entry=home`** (or allowlisted `return` query). Coordinate with security filter / default view if required.
@@ -688,7 +688,7 @@ Editor/template/arch React; Track A; GWT/Desktop; Redux; dual-mode infrastructur
 |----------|----------------------------------------------------------------|
 | Page     | `WebUI/src/main/webapp/rxlogin.jsp` (~165 lines)               |
 | Form     | `<csrf:form … action="login" enctype="multipart/form-data">`   |
-| Fields   | `j_username`, `j_password`, `j_locale`, `j_selectUI`           |
+| Fields   | `j_username`, `j_password`, `j_locale`                         |
 | Error    | `j_error` request param rendered into page                     |
 | Locales  | Server `PSLocaleManager.getLocales()` in JSP                   |
 | Security | `system-security-conf.xml`: `/rxlogin.jsp`, `/login` anonymous |

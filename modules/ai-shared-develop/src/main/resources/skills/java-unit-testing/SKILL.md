@@ -91,8 +91,29 @@ When not assigned specific tasks, prioritize:
 | `assertThat` (hamcrest) | Use native JUnit 5 assertions |
 | `ExpectedException`     | `assertThrows()`              |
 
+## Percussion CMS monorepo specifics
+
+Root `AGENTS.md` → **Change-class completeness (HARD GATE)** is the general rule. Before finishing
+tests for a change: name the change class, copy companions from a peer implementation, match
+production types in fakes, and green the **module** suite (not only `-Dtest=MyNewTest`).
+
+### Shared ApplicationContext / component-scan suites
+
+If production beans are component-scanned into a shared test context, every new constructor/field
+injection that context will attempt needs a test-classpath bean (or the suite cascades failures).
+
+**Instance — rest + sitemanage adaptors:** resource injects `IXxxAdaptor` → need Mockito resource
+test **and** Spring stub (`TestXxxAdaptor` `@Component` `@Lazy`) **and** sitemanage impl tests.
+See `rest/AGENTS.md`.
+
+### Exact types when faking statics / fields
+
+Reflective `Field.set` and some DI paths require the **declared** type, not a convenient supertype.
+
+**Instance — `PSServer.ms_serverProps`:** use `com.percussion.util.PSProperties`, not
+`java.util.Properties`. Restore in `@AfterEach`. See `projects/sitemanage/AGENTS.md`.
+
 ## Excluded Paths
 
 Do NOT work on tests in:
 - `modules/CMLight-Main-cactus-tests/` — integration tests, handled separately
-TAMPERED

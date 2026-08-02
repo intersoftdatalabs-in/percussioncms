@@ -24,15 +24,8 @@ const destroyMock = vi.fn();
 
 vi.mock("@mkd/language", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@mkd/language")>();
-  class NoopSubmissionClient {
-    constructor(public debug = false) {}
-    async submit(): Promise<void> {
-      /* no-op */
-    }
-  }
   return {
     ...actual,
-    NoopSubmissionClient,
     init: (...args: unknown[]) => {
       initMock(...args);
       return {
@@ -133,6 +126,9 @@ describe("mkdLanguage adapter", () => {
       expect(typeof opts.getMessageId).toBe("function");
       expect((opts as { zIndex?: number }).zIndex).toBe(20000);
       expect((opts as { respectIgnore?: boolean }).respectIgnore).toBe(true);
+      expect((opts as { postUrl?: string }).postUrl).toBe(
+        "/Rhythmyx/rest/i18n/corrections",
+      );
       expect(document.getElementById("perc-mkd-lang-theme")).toBeTruthy();
 
       // second call reconfigures rather than stacking

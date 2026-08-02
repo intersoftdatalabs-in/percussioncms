@@ -10,6 +10,30 @@ capabilities: ["code-generation", "refactoring", "documentation", "testing", "de
 
 This repository is a large mono-repo with many modules.  This code base has a lot of history and is currently in the process of being modernized and refactored; Do not assume that all code is up to date with current best practices.  When making code changes, follow these guidelines:
 
+## Human review of agent rules (HARD GATE — read first)
+
+**The human owner reviews every rule change before it is committed.** Agents may draft or propose instruction updates; they must **not** commit, push, or open/update a PR that ships rule changes until the human has explicitly reviewed and approved those rule diffs.
+
+**In scope as “rules” / agent instructions** (non-exhaustive):
+
+|                Path / class                |                                          Examples                                           |
+|--------------------------------------------|---------------------------------------------------------------------------------------------|
+| Root / module agent guides                 | `AGENTS.md`, `AGENTS.local.md`, `Claude.md`, module `AGENTS.md`                             |
+| AI skills, agents, prompts                 | `modules/ai-shared-develop/src/main/resources/skills/**`, `.../agents/**`, `.../prompts/**` |
+| Review pattern memory                      | `.../skills/erlang-review/patterns.md`                                                      |
+| Tool-host project rules / workflows        | `.kilocode/**`, `.grok/**` project rules, agent workflows that dictate agent behavior       |
+| Agent-facing process docs that bind agents | sections in `REVIEW.md` / similar that prescribe agent gates                                |
+
+**Required agent behavior:**
+
+1. **Draft** rule edits in the working tree when a gap is real (prefer general principles over one-off case notes).
+2. **Stop before commit** of those files — call out the rule diff explicitly in the session summary.
+3. **Wait** for human review and explicit approval (e.g. “commit the AGENTS change”, “rules LGTM”).
+4. **Do not** bury rule changes inside a product-feature commit without calling them out; prefer a separate commit or an uncommitted draft until approved.
+5. Product/code/test fixes may still proceed under normal gates; **rule files** remain blocked until human review.
+
+This gate is **stricter than Erlang**: even a clean code review does not authorize committing unreviewed agent rules.
+
 ## Project Context
 
 - **Name** `Percussion CMS`
@@ -60,6 +84,46 @@ Before `git commit`, `git push`, or opening/updating a GitHub PR for changes you
 7. Refresh pattern memory from Kilo/GitHub PR review history (including closed PRs): `python3 scripts/erlang-harvest-review-patterns.py --apply` (Windows: `scripts\erlang-harvest-review-patterns.bat --apply`). See `scripts/README.md`.
 
 Tool-agnostic one-shot prompt: `modules/ai-shared-develop/src/main/resources/prompts/erlang-review-uncommitted.md`.
+
+## Change-class completeness (HARD GATE)
+
+**Most agent CI / suite failures here are not “one missing test file.”** They come from delivering only the **primary** artifact of a multi-layer change class while leaving required **companions** incomplete — or from test fakes that do not match production types and wiring.
+
+### Failure modes this gate targets
+
+|                                            Symptom agents see                                            |                                                    Underlying mistake                                                    |
+|----------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| Cascade of unrelated Spring tests (`ApplicationContext failure threshold`, Roles/Users/MainTest all red) | Shared test/runtime context scans new production beans; injection graph incomplete on the test classpath                 |
+| “My new unit test passed” but module suite fails                                                         | Verified only the new class, not the **module** clean install / shared contexts                                          |
+| Reflection / mock `IllegalArgumentException` on static fields                                            | Stubbed with a **supertype or wrong type** (e.g. `Properties` where field is `PSProperties`)                             |
+| UI feature “done” but QA/E2E missing                                                                     | Vitest/unit only; product screen requires Playwright companion                                                           |
+| REST resource “done” but rest suite broken                                                               | Mockito resource test only; no Spring test stub for adaptor interface; or sitemanage impl without rest interface closure |
+| Works on author machine, fails Windows/Linux CI                                                          | Non-portable paths, wrong separators, case-only assumptions                                                              |
+| PR “fixed” but merge still blocked                                                                       | Code fix without review-thread reply/resolve; Spotless out-of-scope dump; incomplete gates                               |
+
+### Mandatory method (every non-trivial change)
+
+1. **Name the change class** — not the file. Examples: “new public REST adaptor surface”, “WebUI product screen”, “server.properties-gated feature”, “locale pack”, “installer/Ant step”, “shared static server state used in unit tests”.
+2. **Discover companions before coding finishes** — open a **peer** that already implemented the same class (grep/list same package / same annotations / same test base classes). Copy the **full set** of artifact kinds, not just the main class shape.
+3. **Build a closure checklist** from peers + module `AGENTS.md` (production + test + docs + packaging as applicable). Treat “unit test for the class I wrote” as **one line**, not the whole checklist.
+4. **Match production types and wiring in tests** — when faking statics, Spring beans, or config:
+   * Use the **exact field/bean type** production uses (subclasses matter for `Field.set` and DI).
+   * If production code is component-scanned into a shared test `ApplicationContext`, the test classpath must satisfy **every** new constructor/field injection that context will attempt — not only the class under test.
+5. **Verify at the blast-radius layer** — `cd` into **each changed module** and run standalone `…/mvnw clean install` (see **Pre-PR Maven verification**). A green focused `-Dtest=MyNewTest` is necessary but **not sufficient** when the module has shared Spring/CXF contexts or broad Surefire suites.
+6. **Read the first failure, not the cascade** — “failure threshold exceeded” / long lists of sibling tests are almost always **one** root cause earlier in the log (`No qualifying bean`, `BeanCreationException`, wrong type on reflective set, etc.).
+7. **Prefer general rules when documenting gaps** — if instructions missed a companion, fix the **change-class** rule (this section + module `AGENTS.md`), not only a ticket-specific footnote. **Rule file commits still require human review** (see top of this file).
+
+### Illustrative companions (not exhaustive — always re-derive from peers)
+
+|                        Change class                         |                                                                    Companions agents routinely under-deliver                                                                    |
+|-------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| New `rest` `@PSSiteManageBean` resource + adaptor interface | Wire DTOs; sitemanage apibridge impl; Mockito resource test; **Spring test stub adaptor** on rest test classpath; sitemanage adaptor tests; full `rest` module test suite green |
+| WebUI product screen / user-visible flow                    | Component tests **and** Playwright under `modules/perc-qa-automation/`                                                                                                          |
+| Feature gated on `PSServer` / server.properties             | Config keys documented; unit tests that stub **`PSProperties`** (not bare `Properties`) and restore statics in `@AfterEach`                                                     |
+| New locale / i18n surface                                   | TMX / locale matrix peers; UI + server + QA pieces that existing locales already touch                                                                                          |
+| Installer / packaging / deployer                            | Lockstep scripts, fixtures, and platform entrypoints (`.bat`/`.cmd` where required)                                                                                             |
+
+Module `AGENTS.md` files may specialize this table; they do not replace the method above.
 
 ## Pre-PR Spotless formatting (HARD GATE)
 
@@ -290,6 +354,8 @@ Kilo rule: `.kilo/rules/worktree-hygiene.md`. Script docs: `scripts/README.md`.
 
 ## **Project Rules**
 
+* **Human reviews all agent rules before commit** — see **Human review of agent rules (HARD GATE)** at the top of this file. Draft rules freely; do not commit rule/instruction files without explicit human approval.
+* **Change-class completeness** — deliver the full companion closure for the change class (peers + module AGENTS + module suite), not only the primary class and a single unit test. See **Change-class completeness (HARD GATE)**.
 * Be creative, but DO NOT *invent* third-party APIs, libraries, functions, or syntax that does not actually exist. If it doesn't exist in real docs (MDN, JDK 21, official Percussion docs, etc.): Ask user to clarify.
 * If instructions are unclear or you can't find needed info: ask the user for clarification and guidance — don't guess.
 * Base EVERY output on:
@@ -299,7 +365,7 @@ Kilo rule: `.kilo/rules/worktree-hygiene.md`. Script docs: `scripts/README.md`.
 * ALWAYS add generated scripts to repo script dir or module script dir if script is specific to a module.
 * ALWAYS update relevant script dir `README.md` files with doc on script purpose and usage scanrios when creating/editing scripts.
 * ALWAYS document your work in comments, README, or maven site documentation.
-* **IMPORTANT** you must ALWAYS update or create unit tests for any code change that you make, new or edited. And the tests must pass. No exceptions.
+* **IMPORTANT** you must ALWAYS update or create unit tests for any code change that you make, new or edited. And the tests must pass. No exceptions. Unit tests for the new class alone do **not** replace module-suite / shared-context verification when the change class participates in those contexts.
 * **IMPORTANT — WebUI + Playwright:** When changing a **product UI screen** under `WebUI/` (React SPA, login, shell chrome, user-visible flows), agents **MUST** also create or update Playwright specs in `modules/perc-qa-automation/` for the changed behavior. Vitest alone is not sufficient for screen work. See `WebUI/AGENTS.md` → **Playwright (HARD GATE)** and `modules/perc-qa-automation/AGENTS.md`.
 * **IMPORTANT — Pre-PR Spotless:** Before every final PR commit, run `./mvnw spotless:apply` **first**, then `./mvnw spotless:check` **second** (JDK 21 + Maven wrapper). Do not check-only first. Spotless covers **Java, docs/Markdown, JS, and TS** (and other configured globs)—not Java only. If Spotless rewrites files **outside** your task scope, **do not** fold them into the feature PR: commit only in-scope files there, and open a second **`chore: Spotless cleanup`** PR for the unrelated formatting. Do not panic or abandon the feature work. See **Pre-PR Spotless formatting (HARD GATE)** above.
 * **IMPORTANT — Pre-PR build:** Before opening or updating a GitHub PR, **`cd` into each module you changed** and run repo-root `mvnw` / `mvnw.cmd` **`clean install` standalone** (not default root `-pl -am` reactor builds). Code must compile, tests must pass, and there must be **no new warnings**. Use a full/partial reactor only when the change requires it. See **Pre-PR Maven verification (HARD GATE)** above. CI is not a substitute for this local gate.

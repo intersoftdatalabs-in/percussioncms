@@ -96,6 +96,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="restLocationSchemeResource"/>
             <ref bean="restMimeTypesResource"/>
             <ref bean="restPreferencesResource"/>
+            <ref bean="restI18nCorrectionsResource"/>
             <ref bean="restRolesResource" />
             <ref bean="restSitesResource" />
             <ref bean="restTemplatesResource"/>

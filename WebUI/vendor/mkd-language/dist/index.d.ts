@@ -19,7 +19,7 @@ interface CorrectionSubmission {
     messageId: string | null;
     /** Optional rationale. */
     notes: string;
-    /** User contact email (may be empty). */
+    /** User contact email (required for submit). Used for reply-to on approve/reject. */
     email: string;
     /** Content locale the correction applies to (BCP 47). */
     locale: string;
@@ -90,8 +90,33 @@ interface InitOptions {
     includeSelectors?: string[];
     /** Subtree root to scan. Default: document.documentElement */
     root?: ParentNode;
-    /** Submission backend. Default: NoopSubmissionClient */
+    /**
+     * Submission backend. Default:
+     * - {@link HttpSubmissionClient} when {@link postUrl} is set
+     * - {@link NoopSubmissionClient} otherwise
+     *
+     * Explicit `client` always wins over `postUrl`.
+     */
     client?: SubmissionClient;
+    /**
+     * Host REST endpoint that accepts {@link CorrectionSubmission} as JSON.
+     *
+     * **Integration link for plugins:** e.g. Percussion React sets
+     * `postUrl` to a server route that holds the GCM token and calls the
+     * Java thin SDK → Rust `mkd-gcm` → NNTP. The browser never sees the PAT.
+     *
+     * Ignored when `client` is provided.
+     */
+    postUrl?: string;
+    /**
+     * Extra headers for {@link postUrl} posts (CSRF, etc.).
+     * String map or getter re-read on each submit.
+     */
+    postHeaders?: HeadersInit | (() => HeadersInit | undefined);
+    /**
+     * fetch credentials for {@link postUrl}. Default `same-origin`.
+     */
+    postCredentials?: RequestCredentials;
     /**
      * If true (default), skip elements matching
      * [data-mkd-lang-ignore] or .mkd-lang-ignore
@@ -130,6 +155,41 @@ declare function init(options?: InitOptions): MkdLanguageHandle;
 declare class NoopSubmissionClient implements SubmissionClient {
     private readonly debug;
     constructor(debug?: boolean);
+    submit(payload: CorrectionSubmission): Promise<void>;
+}
+
+type HttpSubmissionOptions = {
+    /**
+     * Absolute or same-origin URL of the host REST endpoint that accepts
+     * {@link CorrectionSubmission} as JSON (e.g. Percussion BFF).
+     */
+    postUrl: string;
+    /**
+     * Extra headers (e.g. CSRF). `Content-Type: application/json` is always set.
+     * String or getter re-read on each submit.
+     */
+    headers?: HeadersInit | (() => HeadersInit | undefined);
+    /**
+     * fetch credentials mode. Default `same-origin` so session cookies work
+     * for same-site host endpoints without forcing cross-site cookies.
+     */
+    credentials?: RequestCredentials;
+    /** Optional fetch implementation (tests). Default: global fetch. */
+    fetchImpl?: typeof fetch;
+};
+/**
+ * POSTs the correction JSON body to a host URL.
+ *
+ * Host (Percussion, etc.) validates the session, attaches the server-side
+ * GCM token, and calls the Java (or other) thin SDK → Rust mkd-gcm → NNTP.
+ * The browser never holds the GCM PAT.
+ */
+declare class HttpSubmissionClient implements SubmissionClient {
+    private readonly postUrl;
+    private readonly headers?;
+    private readonly credentials;
+    private readonly fetchImpl;
+    constructor(options: HttpSubmissionOptions);
     submit(payload: CorrectionSubmission): Promise<void>;
 }
 
@@ -216,10 +276,33 @@ type MessageIdProps = {
  */
 declare function messageIdProps(key: string, options?: MessageIdPropsOptions): MessageIdProps;
 
-type UiStringKey = 'trigger.ariaLabel' | 'dialog.title' | 'tab.text' | 'tab.aria' | 'field.currentText' | 'field.proposedText' | 'field.messageId' | 'field.messageIdMissing' | 'field.locale' | 'field.notes' | 'field.email' | 'field.ariaLabelCurrent' | 'field.ariaLabelProposed' | 'field.ariaLabelledby' | 'field.ariaLabelledbyHelp' | 'field.title' | 'field.ariaEmpty' | 'action.submit' | 'action.cancel' | 'action.submitting' | 'error.localeRequired' | 'error.noChange' | 'error.proposedRequired' | 'error.submitFailed' | 'status.success' | 'status.failure';
+type UiStringKey = 'trigger.ariaLabel' | 'dialog.title' | 'tab.text' | 'tab.aria' | 'field.currentText' | 'field.proposedText' | 'field.messageId' | 'field.messageIdMissing' | 'field.locale' | 'field.notes' | 'field.email' | 'field.ariaLabelCurrent' | 'field.ariaLabelProposed' | 'field.ariaLabelledby' | 'field.ariaLabelledbyHelp' | 'field.title' | 'field.ariaEmpty' | 'action.submit' | 'action.cancel' | 'action.submitting' | 'error.localeRequired' | 'error.noChange' | 'error.proposedRequired' | 'error.emailRequired' | 'error.emailInvalid' | 'error.submitFailed' | 'status.success' | 'status.failure' | 'footer.privacy' | 'footer.accessibility' | 'footer.terms' | 'footer.copyright';
 type UiCatalog = Record<UiStringKey, string>;
+/**
+ * Stable message ids for library chrome — hosts and crowdsource pipelines
+ * can target these like any app key (`mkd.language.ui.*`).
+ */
+declare const UI_MESSAGE_IDS: Record<UiStringKey, string>;
+/** Legal footer destinations (product-owned). */
+declare const FOOTER_LINKS: {
+    readonly privacy: "https://monkeyking.dev/privacy";
+    readonly accessibility: "https://monkeyking.dev/accessibility";
+    readonly terms: "https://monkeyking.dev/terms";
+};
 
-/** Register additional catalogs at runtime (tests / future locales). */
+/** Register additional catalogs at runtime (tests / crowdsourced packs). */
 declare function registerCatalog(locale: string, catalog: UiCatalog): void;
+/** Locales with a built-in catalog (not including runtime registrations). */
+declare function builtInLocales(): string[];
 
-export { type CorrectionSubmission, type InitOptions, type LocaleValue, MESSAGE_ID_ATTR, type MessageIdProps, type MessageIdPropsOptions, type MkdLanguageHandle, NoopSubmissionClient, type SubmissionClient, TARGET_CLASS, type TrackedMessage, type TrackedMessageResolve, type UiCatalog, type UiStringKey, createTrackedMessage, init, messageIdProps, normalizeTrackedText, registerCatalog };
+type ValidationResult = {
+    ok: true;
+} | {
+    ok: false;
+    errorKey: 'error.localeRequired' | 'error.noChange' | 'error.proposedRequired' | 'error.emailRequired' | 'error.emailInvalid';
+};
+/** Practical email check (not full RFC 5322). */
+declare function isValidEmail(email: string): boolean;
+declare function validateSubmission(payload: Pick<CorrectionSubmission, 'locale' | 'currentText' | 'proposedText' | 'currentAriaLabel' | 'proposedAriaLabel' | 'notes' | 'email'>): ValidationResult;
+
+export { type CorrectionSubmission, FOOTER_LINKS, HttpSubmissionClient, type HttpSubmissionOptions, type InitOptions, type LocaleValue, MESSAGE_ID_ATTR, type MessageIdProps, type MessageIdPropsOptions, type MkdLanguageHandle, NoopSubmissionClient, type SubmissionClient, TARGET_CLASS, type TrackedMessage, type TrackedMessageResolve, UI_MESSAGE_IDS, type UiCatalog, type UiStringKey, builtInLocales, createTrackedMessage, init, isValidEmail, messageIdProps, normalizeTrackedText, registerCatalog, validateSubmission };
