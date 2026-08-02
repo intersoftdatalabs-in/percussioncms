@@ -12,6 +12,36 @@ Out of scope for spec 994 (must NOT be touched):
 
 ## Scripts
 
+### `generate-third-party-inventory.py` / `generate-third-party-inventory.bat`
+
+Merge **Maven** and **npm** third-party license inventories into a single
+`THIRD-PARTY.txt` (issue [#1689](https://github.com/intersoftdatalabs-in/percussioncms/issues/1689)).
+
+- **Purpose**: `license-maven-plugin` only sees Maven GAVs. Product UI also ships npm
+  production deps from `package-lock.json`. This script writes the npm half and merges
+  both into one file for the installer.
+- **Usage**:
+
+  ```bash
+  # After Maven inventory exists:
+  ./mvnw license:aggregate-add-third-party
+  python3 scripts/generate-third-party-inventory.py --require-maven
+
+  # Windows:
+  mvnw.cmd license:aggregate-add-third-party
+  scripts\generate-third-party-inventory.bat --require-maven
+  ```
+
+- **Inputs**:
+  - `target/generated-sources/license/THIRD-PARTY-MAVEN.txt` (from license-maven-plugin)
+  - `src/license/npm-package-locks.txt` (list of product package-lock.json paths)
+- **Outputs** (under `target/generated-sources/license/`):
+  - `THIRD-PARTY-NPM.txt` — npm production intermediate
+  - `THIRD-PARTY.txt` — **merged** inventory (shipped)
+- **Tests**: `python3 -m pytest scripts/test_generate_third_party_inventory.py -v`
+  (or `python3 scripts/test_generate_third_party_inventory.py`)
+- **Docs**: `src/license/README.md`
+
 ### `prune-stale-worktrees.py` / `prune-stale-worktrees.bat`
 
 List or remove **stale git worktrees** left by agent sessions (Kilo / Grok / etc.).

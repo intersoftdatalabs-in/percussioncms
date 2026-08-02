@@ -70,6 +70,13 @@ public class ThirdPartyInventoryPackagingTest {
     assertTrue(
         text.toLowerCase().contains("license") || text.contains("("),
         "Packaged THIRD-PARTY.txt should look like a license inventory");
+    // Merged inventory (Maven + npm) — issue #1689
+    assertTrue(
+        text.contains("Maven third-party dependencies"),
+        "Packaged THIRD-PARTY.txt should include the Maven inventory section");
+    assertTrue(
+        text.contains("npm third-party dependencies") || text.contains("npm:"),
+        "Packaged THIRD-PARTY.txt should include the npm production inventory");
   }
 
   @Test
