@@ -90,7 +90,7 @@ public class I18nCorrectionsResource {
     } catch (WebApplicationException e) {
       throw e;
     } catch (Exception e) {
-      log.error("i18n correction submit failed: {}", e.toString());
+      log.error("i18n correction submit failed", e);
       throw new WebApplicationException("Failed to submit correction.", e, 502);
     }
   }

@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.percussion.apibridge.mkd.MkdGcmCorrectionService;
@@ -31,14 +32,15 @@ import com.percussion.rest.i18n.I18nCorrectionSubmission;
 import com.percussion.server.PSServer;
 import com.percussion.util.PSProperties;
 import java.lang.reflect.Field;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
- * Gates only — GCM post is mocked. Role membership uses static getUserRoles; we only assert
- * validation and disabled/empty-roles paths that do not need a live session.
+ * Gates and happy-path mapping with mocked GCM. Role membership is injectable so unit tests do not
+ * need a live session.
  */
 @Tag("UnitTest")
 public class I18nCorrectionsAdaptorImplTest {
@@ -104,30 +106,44 @@ public class I18nCorrectionsAdaptorImplTest {
     assertTrue(MkdLanguageConfig.rolesEmpty());
     setProp(MkdLanguageConfig.PROP_ROLES, "*");
     assertTrue(MkdLanguageConfig.rolesAllowAll());
-    assertTrue(MkdLanguageConfig.userInAllowedRoles(java.util.List.of("Admin")));
+    assertTrue(MkdLanguageConfig.userInAllowedRoles(List.of("Admin")));
     setProp(MkdLanguageConfig.PROP_ROLES, "Translations_Team, Admin");
-    assertTrue(MkdLanguageConfig.userInAllowedRoles(java.util.List.of("Admin")));
-    assertTrue(!MkdLanguageConfig.userInAllowedRoles(java.util.List.of("Editor")));
+    assertTrue(MkdLanguageConfig.userInAllowedRoles(List.of("Admin")));
+    assertTrue(!MkdLanguageConfig.userInAllowedRoles(List.of("Editor")));
   }
 
   @Test
   public void mapsToOkWhenGcmReturns() throws Exception {
-    // Enabled + * still needs getUserRoles() at runtime — only test mapping when we
-    // bypass by subclassing submit's role path is hard; test service mapping instead.
     MkdGcmCorrectionService gcm = mock(MkdGcmCorrectionService.class);
     when(gcm.postCorrection(any())).thenReturn("mid-xyz");
     setProp(MkdLanguageConfig.PROP_ENABLED, "true");
     setProp(MkdLanguageConfig.PROP_ROLES, "*");
-    // Without live session getUserRoles may throw → SecurityException. Accept either ok or
-    // security.
-    I18nCorrectionsAdaptorImpl adaptor = new I18nCorrectionsAdaptorImpl(gcm);
-    try {
-      I18nCorrectionResult r = adaptor.submit(sampleBody());
-      assertEquals("ok", r.getStatus());
-      assertEquals("mid-xyz", r.getGcmMessageId());
-    } catch (SecurityException expectedInUnitEnv) {
-      assertTrue(expectedInUnitEnv.getMessage().toLowerCase().contains("role"));
-    }
+    I18nCorrectionSubmission body = sampleBody();
+    I18nCorrectionsAdaptorImpl adaptor =
+        new I18nCorrectionsAdaptorImpl(gcm, () -> List.of("Admin"));
+
+    I18nCorrectionResult r = adaptor.submit(body);
+    assertEquals("ok", r.getStatus());
+    assertEquals("mid-xyz", r.getGcmMessageId());
+    verify(gcm).postCorrection(body);
+  }
+
+  @Test
+  public void rejectsWhenUserNotInAllowedRoles() throws Exception {
+    MkdGcmCorrectionService gcm = mock(MkdGcmCorrectionService.class);
+    setProp(MkdLanguageConfig.PROP_ENABLED, "true");
+    setProp(MkdLanguageConfig.PROP_ROLES, "Translations_Team");
+    I18nCorrectionsAdaptorImpl adaptor =
+        new I18nCorrectionsAdaptorImpl(gcm, () -> List.of("Editor"));
+    SecurityException ex =
+        assertThrows(SecurityException.class, () -> adaptor.submit(sampleBody()));
+    assertTrue(ex.getMessage().toLowerCase().contains("role"));
+  }
+
+  @Test
+  public void invalidGcmPortFallsBackToDefault() throws Exception {
+    setProp(MkdLanguageConfig.PROP_GCM_PORT, "11199o");
+    assertEquals(MkdLanguageConfig.DEFAULT_GCM_PORT, MkdLanguageConfig.gcmPort());
   }
 
   private static I18nCorrectionSubmission sampleBody() {

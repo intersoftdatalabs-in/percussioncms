@@ -32,7 +32,8 @@ public interface I18nCorrectionsAdaptor {
    * @throws IllegalArgumentException validation failure (maps to 400)
    * @throws SecurityException not allowed / feature off for user (maps to 403)
    * @throws IllegalStateException not configured / native lib missing (maps to 503)
-   * @throws RuntimeException transport/backend failure (maps to 502)
+   * @throws RuntimeException transport/backend failure (maps to 502; resource must not echo the
+   *     exception message to clients — may contain SDK/token details)
    */
   I18nCorrectionResult submit(I18nCorrectionSubmission submission);
 }

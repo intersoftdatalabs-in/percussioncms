@@ -46,7 +46,8 @@ test.describe("Legacy UI removal (GH-1688)", () => {
     test.setTimeout(45_000);
     await loginAsAdmin(page);
 
-    await page.goto(`${BASE_URL}/Rhythmyx/index.jsp`);
+    // Legacy dashboard still includes header.jsp (React SPA shell / index.jsp does not).
+    await page.goto(`${BASE_URL}/Rhythmyx/cm/app/dashboard.jsp`);
     await expect(page.locator("#perc-rhythmyx-ui")).toHaveCount(0);
     await expect(
       page.locator('a[href="/Rhythmyx/sys_cx/mainpage.html"]'),

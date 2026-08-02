@@ -87,4 +87,15 @@ public class I18nCorrectionsResourceTest {
             WebApplicationException.class, () -> resource.submit(new I18nCorrectionSubmission()));
     assertEquals(503, ex.getResponse().getStatus());
   }
+
+  @Test
+  public void backendFailureMapsTo502WithoutLeakingMessage() {
+    when(adaptor.submit(any())).thenThrow(new RuntimeException("token=secret leaked"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.submit(new I18nCorrectionSubmission()));
+    assertEquals(502, ex.getResponse().getStatus());
+    assertEquals("Failed to submit correction.", ex.getMessage());
+  }
 }
+

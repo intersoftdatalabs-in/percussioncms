@@ -67,7 +67,8 @@ public class MkdGcmCorrectionService {
               + " LD_LIBRARY_PATH / PATH / -Djna.library.path)",
           e);
     } catch (GcmException e) {
-      throw new RuntimeException("GCM rejected correction: " + e.getMessage(), e);
+      // Do not concatenate SDK message text (may echo tokens/PII) into the wrapper message.
+      throw new MkdGcmBackendException("GCM rejected correction", e);
     }
   }
 

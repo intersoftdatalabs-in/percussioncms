@@ -27,10 +27,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- Needed at compile time for PSWorkFlowUtils.sendMailWithAttachment (AssetsResource). -->
+        <!-- Needed at compile time for PSWorkFlowUtils.sendMailWithAttachment (AssetsResource).
+             Version from parent dependencyManagement (${commons-email.version}). -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-email</artifactId>
+            <version>${commons-email.version}</version>
         </dependency>
         <!-- Swagger annotations kept for source-level OpenAPI documentation support.
              All runtime Swagger/OpenAPI features moved to perc-openapi-webapp. -->

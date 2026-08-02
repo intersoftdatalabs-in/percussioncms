@@ -21,7 +21,6 @@ import com.percussion.security.PSEncryptProperties;
 import com.percussion.security.PSEncryptor;
 import com.percussion.server.PSServer;
 import com.percussion.utils.io.PathUtils;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -102,6 +101,8 @@ public final class MkdLanguageConfig {
     try {
       return Integer.parseInt(p);
     } catch (NumberFormatException e) {
+      log.warn(
+          "Invalid {} value '{}'; using default port {}", PROP_GCM_PORT, p, DEFAULT_GCM_PORT);
       return DEFAULT_GCM_PORT;
     }
   }
@@ -123,7 +124,9 @@ public final class MkdLanguageConfig {
   /**
    * Decrypt PAT from server.properties. Does not log the value.
    *
-   * @return plaintext token or null
+   * @return plaintext token or null when the property is missing/blank
+   * @throws IllegalStateException when the property is present as {@code ENC(...)} but decryption
+   *     fails (wrong key / secure dir) — distinct from "not configured"
    */
   public static String gcmTokenPlain() {
     String raw = StringUtils.trimToNull(PSServer.getProperty(PROP_GCM_TOKEN, ""));
@@ -137,28 +140,15 @@ public final class MkdLanguageConfig {
         // Strip ENC(...) wrapper then decrypt with product encryptor.
         return PSEncryptProperties.decryptProperty(raw, null, secureDir, null);
       } catch (Exception e) {
-        log.error("Failed to decrypt {}", PROP_GCM_TOKEN);
-        return null;
+        log.error("Failed to decrypt {}", PROP_GCM_TOKEN, e);
+        throw new IllegalStateException(
+            PROP_GCM_TOKEN
+                + " is set as ENC(...) but could not be decrypted (check secure key /"
+                + " secure dir)",
+            e);
       }
     }
     return raw;
-  }
-
-  /**
-   * If token is plaintext in server.properties, encrypt and rewrite (best-effort).
-   *
-   * @param serverPropsFile path to server.properties
-   */
-  public static void encryptTokenAtStartupIfPlain(File serverPropsFile) {
-    if (serverPropsFile == null || !serverPropsFile.isFile()) {
-      return;
-    }
-    try {
-      String secureDir = PathUtils.getRxDir(null).getAbsolutePath().concat(PSEncryptor.SECURE_DIR);
-      PSEncryptProperties.encryptFile(serverPropsFile, List.of(PROP_GCM_TOKEN), secureDir);
-    } catch (Exception e) {
-      log.warn("Could not encrypt {} at startup: {}", PROP_GCM_TOKEN, e.toString());
-    }
   }
 
   public static boolean userInAllowedRoles(List<String> userRoles) {

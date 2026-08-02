@@ -26,6 +26,8 @@ import com.percussion.rest.i18n.I18nCorrectionSubmission;
 import com.percussion.rest.i18n.I18nCorrectionsAdaptor;
 import com.percussion.system.utils.PSSiteManageBean;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,15 +39,26 @@ public class I18nCorrectionsAdaptorImpl implements I18nCorrectionsAdaptor {
   private static final Logger log = LogManager.getLogger(I18nCorrectionsAdaptorImpl.class);
 
   private final MkdGcmCorrectionService gcmService;
-  private boolean warnedEmptyRoles;
+  private final Supplier<List<String>> userRolesSupplier;
+  private final AtomicBoolean warnedEmptyRoles = new AtomicBoolean(false);
 
   public I18nCorrectionsAdaptorImpl() {
-    this(new MkdGcmCorrectionService());
+    this(new MkdGcmCorrectionService(), () -> getUserRoles());
   }
 
-  /** Test / DI constructor. */
+  /** Test / DI constructor (production role resolution). */
   public I18nCorrectionsAdaptorImpl(MkdGcmCorrectionService gcmService) {
+    this(gcmService, () -> getUserRoles());
+  }
+
+  /**
+   * Test constructor with injectable role supplier so happy-path GCM mapping is deterministic
+   * without a live session.
+   */
+  public I18nCorrectionsAdaptorImpl(
+      MkdGcmCorrectionService gcmService, Supplier<List<String>> userRolesSupplier) {
     this.gcmService = gcmService;
+    this.userRolesSupplier = userRolesSupplier;
   }
 
   @Override
@@ -65,9 +78,8 @@ public class I18nCorrectionsAdaptorImpl implements I18nCorrectionsAdaptor {
     }
 
     if (MkdLanguageConfig.rolesEmpty()) {
-      if (!warnedEmptyRoles) {
+      if (warnedEmptyRoles.compareAndSet(false, true)) {
         MkdLanguageConfig.warnIfEnabledWithoutRoles();
-        warnedEmptyRoles = true;
       }
       throw new SecurityException(
           "i18n corrections require perc.mkd.language.roles (e.g. Translations_Team or *)");
@@ -75,7 +87,7 @@ public class I18nCorrectionsAdaptorImpl implements I18nCorrectionsAdaptor {
 
     List<String> userRoles;
     try {
-      userRoles = getUserRoles();
+      userRoles = userRolesSupplier.get();
     } catch (Exception e) {
       log.debug("Could not resolve user roles for i18n correction gate", e);
       throw new SecurityException("Unable to resolve user roles for i18n corrections");
