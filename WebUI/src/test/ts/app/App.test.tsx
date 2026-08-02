@@ -118,12 +118,13 @@ describe("App shell", () => {
   });
 
   it("renders TopNav and embedded Home shell from entry query", async () => {
+    window.history.replaceState({}, "", "/cm/app/home");
     render(
       <App
         bootstrap={bootstrap}
         entrySearch="?entry=home"
         basename="/cm/app"
-      />,
+      />
     );
     expect(screen.getByTestId("perc-spa-topnav")).toBeTruthy();
     expect(screen.getByTestId("perc-spa-user-name").textContent).toContain(
@@ -180,6 +181,7 @@ describe("App shell", () => {
   });
 
   it("loads WorkflowAdminShell for admin entry", async () => {
+    window.history.replaceState({}, "", "/cm/app/workflow/roles");
     render(
       <App
         bootstrap={bootstrap}
@@ -196,6 +198,7 @@ describe("App shell", () => {
   });
 
   it("loads AdminShell for admin tools entry", async () => {
+    window.history.replaceState({}, "", "/cm/app/admin/tools");
     render(
       <App
         bootstrap={bootstrap}
