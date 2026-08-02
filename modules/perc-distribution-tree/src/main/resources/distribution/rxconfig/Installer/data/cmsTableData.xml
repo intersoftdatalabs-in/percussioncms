@@ -12593,6 +12593,26 @@
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">60</column>
+            <column name="LANGUAGESTRING">uk</column>
+            <column name="DISPLAYNAME">Ukrainian</column>
+            <column name="SORTORDER">165</column>
+            <column name="DESCRIPTION">Ukrainian language (generic base locale)</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">1</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LOCALEID">61</column>
+            <column name="LANGUAGESTRING">uk-ua</column>
+            <column name="DISPLAYNAME">Ukrainian (Ukraine)</column>
+            <column name="SORTORDER">166</column>
+            <column name="DESCRIPTION">Ukrainian language used in Ukraine</column>
+            <column name="STATUS">1</column>
+            <column name="ISBASE">0</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
             <column name="LOCALEID">19</column>
             <column name="LANGUAGESTRING">te</column>
             <column name="DISPLAYNAME">Telugu</column>
@@ -13560,6 +13580,40 @@
             <column name="FIRSTDAYOFWEEK">1</column>
             <column name="MEASUREMENTSYSTEM">metric</column>
             <column name="DEFAULTTZ">Europe/Istanbul</column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">uk</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd.MM.yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP"> </column>
+            <column name="CURRENCYCODE">UAH</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ"></column>
+            <column name="NUMBERINGSYSTEM">latn</column>
+            <column name="CALENDAR">gregory</column>
+            <column name="VERSION">0</column>
+        </row>
+        <row onTableCreateOnly="no" action="i">
+            <column name="LANGUAGESTRING">uk-ua</column>
+            <column name="TEXTDIR">ltr</column>
+            <column name="DATEPATTERN">dd.MM.yyyy</column>
+            <column name="TIMEPATTERN">HH:mm</column>
+            <column name="DATETIMEPATTERN"></column>
+            <column name="DECIMALSEP">,</column>
+            <column name="GROUPINGSEP"> </column>
+            <column name="CURRENCYCODE">UAH</column>
+            <column name="CURRENCYPATTERN"></column>
+            <column name="FIRSTDAYOFWEEK">1</column>
+            <column name="MEASUREMENTSYSTEM">metric</column>
+            <column name="DEFAULTTZ">Europe/Kyiv</column>
             <column name="NUMBERINGSYSTEM">latn</column>
             <column name="CALENDAR">gregory</column>
             <column name="VERSION">0</column>

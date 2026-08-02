@@ -18,6 +18,7 @@ package com.percussion.i18n;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
@@ -124,6 +125,34 @@ public class PSLocaleFormatResolverTest {
     assertTrue(shipped.containsKey("tr"));
     assertEquals("EUR", shipped.get("de").getCurrencyCode());
     assertEquals("EUR", shipped.get("fr").getCurrencyCode());
+  }
+
+  @Test
+  public void productDefaults_coverUkrainian() {
+    Map<String, PSLocaleFormat> shipped = PSLocaleFormatDefaults.shipped();
+    // Base uk — no TZ (regional uk-ua carries the only TZ override)
+    assertTrue(shipped.containsKey("uk"));
+    PSLocaleFormat uk = shipped.get("uk");
+    assertEquals("UAH", uk.getCurrencyCode());
+    assertEquals(PSLocaleFormat.TEXT_DIR_LTR, uk.getTextDir());
+    assertEquals("dd.MM.yyyy", uk.getDatePattern());
+    assertEquals("HH:mm", uk.getTimePattern());
+    assertEquals(PSLocaleFormat.FIRST_DAY_MONDAY, uk.getFirstDayOfWeek());
+    assertEquals(PSLocaleFormat.MEASUREMENT_METRIC, uk.getMeasurementSystem());
+    assertNull(uk.getDefaultTz(), "base uk should not declare a timezone");
+
+    // Regional uk-ua inherits base format and overrides only the timezone
+    assertTrue(shipped.containsKey("uk-ua"));
+    PSLocaleFormat ukUa = shipped.get("uk-ua");
+    assertEquals("UAH", ukUa.getCurrencyCode());
+    assertEquals(PSLocaleFormat.TEXT_DIR_LTR, ukUa.getTextDir());
+    assertEquals("dd.MM.yyyy", ukUa.getDatePattern());
+    assertEquals("HH:mm", ukUa.getTimePattern());
+    assertEquals("Europe/Kyiv", ukUa.getDefaultTz());
+    assertEquals(PSLocaleFormat.FIRST_DAY_MONDAY, ukUa.getFirstDayOfWeek());
+
+    // Regional inherits from base via the standard lookup chain
+    assertEquals(List.of("uk-ua", "uk", "en-us"), PSLocaleFormatResolver.lookupChain("uk-ua"));
   }
 
   @Test
