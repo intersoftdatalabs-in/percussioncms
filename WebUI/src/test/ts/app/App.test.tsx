@@ -193,8 +193,9 @@ describe("App shell", () => {
     );
     expect(screen.queryByTestId("nav-admin")).toBeNull();
     expect(screen.queryByTestId("nav-publish")).toBeNull();
-    // Drain Home shell async updates so this case does not race act() warnings
-    // against the next test when run under full-suite load.
+    // Intentional: non-admin home still mounts HomeShell; awaiting it drains
+    // lazy-load + RecentSection updates so the next test does not see act()
+    // races under full-suite load (not only a nav-absence assertion).
     await screen.findByTestId("home-shell", {}, { timeout: SHELL_TIMEOUT });
   });
 

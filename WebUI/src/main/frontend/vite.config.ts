@@ -50,6 +50,11 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": resolve(__dirname, "../ts"),
+      // Vendored package (file:../../../vendor/mkd-language). Keep in
+      // lockstep with WebUI/vite.config.ts so Vitest from this
+      // workingDirectory (Maven frontend-maven-plugin) resolves the same way
+      // as runs from the WebUI root.
+      "@mkd/language": resolve(__dirname, "../../../vendor/mkd-language"),
     },
   },
   // Allow Vitest to load tests and sources outside frontend/ (WebUI/src/test/ts).
