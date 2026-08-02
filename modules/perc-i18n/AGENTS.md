@@ -61,11 +61,11 @@ locales stay stable across installs.
   - **Regionals** (`ISBASE=0`) include e.g. `de-de`, `de-at`, `es-es`,
     `es-mx`, `fr-fr`, `fr-ca`, `he-il`, `hi-in`, `it-it`, `nl-nl`,
     `pt-br`, `pt-pt`, `tr-tr`, `uk-ua`, `zh-cn`, `zh-tw`, plus additional
-  `es-*` / `fr-*` / `de-*` variants listed in the TMX header. Product string fallback when no
-  locale is set is always **`en-us`**. Do not introduce a code outside
-  this set without updating `RXLOCALE` **and** `RXLOCALEFORMAT` in
-  `modules/perc-distribution-tree/.../cmsTableData.xml` first (and
-  `PSLocaleFormatDefaults` / WebUI `SHIP_LOCALE_ENDONYMS`).
+    `es-*` / `fr-*` / `de-*` variants listed in the TMX header. Product string fallback when no
+    locale is set is always **`en-us`**. Do not introduce a code outside
+    this set without updating `RXLOCALE` **and** `RXLOCALEFORMAT` in
+    `modules/perc-distribution-tree/.../cmsTableData.xml` first (and
+    `PSLocaleFormatDefaults` / WebUI `SHIP_LOCALE_ENDONYMS`).
 - **Header `<prop type="supportedlanguage">` lines** list every
   base + regional the product recognizes (see development TMX header).
   The header is the source of truth for "what languages ship out of
