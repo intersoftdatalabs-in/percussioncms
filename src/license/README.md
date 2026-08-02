@@ -6,22 +6,22 @@ The **versioned** third-party dependency / license inventory is **not** hand-edi
 
 It is produced at build time and written to a **single** merged file:
 
-| Piece | How |
-|-------|-----|
-| Maven / Java dependencies | [`org.codehaus.mojo:license-maven-plugin`](https://www.mojohaus.org/license-maven-plugin/) `aggregate-add-third-party` on the reactor root → `THIRD-PARTY-MAVEN.txt` |
+|                  Piece                  |                                                                                                                                 How                                                                                                                                  |
+|-----------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Maven / Java dependencies               | [`org.codehaus.mojo:license-maven-plugin`](https://www.mojohaus.org/license-maven-plugin/) `aggregate-add-third-party` on the reactor root → `THIRD-PARTY-MAVEN.txt`                                                                                                 |
 | npm production dependencies + **merge** | [`ThirdPartyLicenseInventory`](../../modules/intsof-common-utilities/src/main/java/com/intsof/common/utilities/license/ThirdPartyLicenseInventory.java) in `com.intsof.common:utilities` (generic, product-agnostic) → `THIRD-PARTY-NPM.txt` + **`THIRD-PARTY.txt`** |
-| Ship | `perc-distribution-tree` copies merged `THIRD-PARTY.txt` into the installer assembly root |
+| Ship                                    | `perc-distribution-tree` copies merged `THIRD-PARTY.txt` into the installer assembly root                                                                                                                                                                            |
 
 Issue [#1689](https://github.com/intersoftdatalabs-in/percussioncms/issues/1689).
 
-| Artifact | Location |
-|----------|----------|
-| Merged inventory (authoritative) | `${repo-root}/target/generated-sources/license/THIRD-PARTY.txt` |
-| Maven intermediate | `…/THIRD-PARTY-MAVEN.txt` |
-| npm intermediate | `…/THIRD-PARTY-NPM.txt` |
-| Shipped with installer | `THIRD-PARTY.txt` at the root of the `perc-distribution-tree` assembly |
-| Product notice (stable prose) | root `NOTICE.txt` — product copyright + pointer only |
-| Startup / About blurb | `system` resource key `thirdPartyCopyright` — same pointer, **no version pins** |
+|             Artifact             |                                    Location                                     |
+|----------------------------------|---------------------------------------------------------------------------------|
+| Merged inventory (authoritative) | `${repo-root}/target/generated-sources/license/THIRD-PARTY.txt`                 |
+| Maven intermediate               | `…/THIRD-PARTY-MAVEN.txt`                                                       |
+| npm intermediate                 | `…/THIRD-PARTY-NPM.txt`                                                         |
+| Shipped with installer           | `THIRD-PARTY.txt` at the root of the `perc-distribution-tree` assembly          |
+| Product notice (stable prose)    | root `NOTICE.txt` — product copyright + pointer only                            |
+| Startup / About blurb            | `system` resource key `thirdPartyCopyright` — same pointer, **no version pins** |
 
 Do **not** reintroduce hand-curated component lists or dependency version pins into
 `NOTICE.txt` or `thirdPartyCopyright`.
