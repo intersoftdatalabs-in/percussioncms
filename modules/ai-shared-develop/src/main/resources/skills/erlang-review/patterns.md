@@ -11,6 +11,13 @@
 ## Hard gates (always scan)
 
 - Missing **behavioral** unit tests for new/changed non-trivial logic
+- **Incomplete change-class closure** — primary artifact shipped without required companions
+  discovered from peers / module AGENTS (shared Spring test stubs, Playwright for WebUI screens,
+  packaging lockstep files, both sides of rest↔sitemanage adaptor surfaces, etc.). “Unit test for
+  the new class” is not the full closure when the class is scanned into shared contexts
+- Test fakes that use the **wrong type** for reflective/static/DI substitution (supertype where
+  field type is a subclass; missing bean type on a scanned ApplicationContext)
+- Focused green `-Dtest=…` treated as sufficient when module-wide suite / shared context would fail
 - Tests that only grep source strings / assert tokens without exercising behavior
 - Non-portable filesystem path joins (`"/"` or `"\\"` concatenation) — use `Path` / `Files`
 - Unix-only absolute roots (`/tmp`, `/var`, `/home`, …) or Windows-only `C:\…` in shared code/tests
@@ -25,6 +32,8 @@
 - Path containment / “safe path” checks must use a trusted root, not a parent derived from untrusted input
 - Filename-only sanitizers are not path-traversal protection when callers pass full paths
 - Duplicate method declarations (or other changes that prevent compilation) are hard bugs
+- Agent **rule/instruction** file changes committed without explicit human review (root AGENTS.md
+  **Human review of agent rules**)
 
 ## Recurring findings
 
@@ -42,6 +51,13 @@
 - Vacuous assertions (`message != null || cause != null`) that any exception would pass
 - Tests that only assert “something was thrown” without SSRF/validation keywords are too weak for security helpers
 - Tests must not depend on uncommitted fixtures or wrong absolute/base directories for path-safety cases
+- Shared Spring/CXF test contexts that component-scan production beans fail the **whole suite** when
+  a new injectable dependency has no test-classpath implementation — look for the first
+  `No qualifying bean` / `BeanCreationException`, not the later “failure threshold exceeded” cascade
+- Reflective substitution of production statics must use the **declared field type** (exact class),
+  restore in teardown, and not assign a bare supertype instance when the field is a subclass
+- Instances (not the whole rule): rest `MainTest` needs Spring test stubs for new adaptor interfaces;
+  `PSServer.ms_serverProps` is `PSProperties` not `java.util.Properties`
 
 ### Security / config
 

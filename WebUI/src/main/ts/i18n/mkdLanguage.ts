@@ -18,24 +18,20 @@
 /**
  * Thin adapter for third-party {@code @mkd/language} (crowdsource translation UX).
  *
- * <p>Alpha: opt-in via query or localStorage; submissions use the library
- * no-op client (optional debug log). Catalog keys come from tracked
- * {@link message} resolutions ({@link getTrackedMessageId}) — product screens
- * do not need per-element {@code data-i18n-key} for alpha. Library design and
- * GCM live outside this monorepo.</p>
+ * <p>Opt-in via query/localStorage. Submissions POST to
+ * {@link MKD_LANGUAGE_CORRECTIONS_URL} (server holds GCM PAT). Catalog keys come
+ * from tracked {@link message}. Server gates: {@code perc.mkd.language.enabled}
+ * + roles. Library design lives outside this monorepo.</p>
  *
- * <p>Enable (developer / experiment):</p>
+ * <p>Enable UX:</p>
  * <ul>
  *   <li>Query: {@code ?mkdLang=1} (or {@code 0} to force off)</li>
  *   <li>localStorage: {@code perc-mkd-lang} = {@code 1} | {@code 0}</li>
  * </ul>
  */
 
-import {
-  init,
-  NoopSubmissionClient,
-  type MkdLanguageHandle,
-} from "@mkd/language";
+import { init, type MkdLanguageHandle } from "@mkd/language";
+import { getCsrfToken } from "../api/csrf";
 import { I18N_KEY_ATTR } from "./i18nDom";
 import { getTrackedMessageId } from "./message";
 
@@ -44,6 +40,9 @@ export const MKD_LANG_STORAGE_KEY = "perc-mkd-lang";
 
 /** Query parameter for the opt-in experiment flag. */
 export const MKD_LANG_QUERY_PARAM = "mkdLang";
+
+/** Same-origin BFF for language corrections (session + CSRF). */
+export const MKD_LANGUAGE_CORRECTIONS_URL = "/Rhythmyx/rest/i18n/corrections";
 
 export interface EnsureMkdLanguageOptions {
   /**
@@ -177,6 +176,14 @@ export function ensureMkdLanguage(
   lastLocaleRef = options.locale;
   ensureMkdThemeTokens();
 
+  const postHeaders = (): Record<string, string> => {
+    const csrf = getCsrfToken();
+    if (!csrf?.token) {
+      return {};
+    }
+    return { [csrf.headerName]: csrf.token };
+  };
+
   try {
     if (handle) {
       handle.configure({
@@ -184,7 +191,8 @@ export function ensureMkdLanguage(
         uiLocale: options.uiLocale ?? options.locale,
         getUserEmail: options.getUserEmail,
         debug,
-        client: new NoopSubmissionClient(debug),
+        postUrl: MKD_LANGUAGE_CORRECTIONS_URL,
+        postHeaders,
         messageIdAttr: I18N_KEY_ATTR,
         getMessageId: getTrackedMessageId,
         scanMessageIdAttr: true,
@@ -208,7 +216,9 @@ export function ensureMkdLanguage(
       // Above SPA modals / dialogs (typical product chrome ~1000–5000).
       zIndex: 20000,
       respectIgnore: true,
-      client: new NoopSubmissionClient(debug),
+      // Host BFF → GCM; token never in the browser
+      postUrl: MKD_LANGUAGE_CORRECTIONS_URL,
+      postHeaders,
       debug,
     });
     return handle;
@@ -240,7 +250,7 @@ export function configureMkdLanguage(
       uiLocale: partial.uiLocale ?? locale,
       getUserEmail: partial.getUserEmail,
       debug,
-      client: new NoopSubmissionClient(debug),
+      postUrl: MKD_LANGUAGE_CORRECTIONS_URL,
       messageIdAttr: I18N_KEY_ATTR,
       getMessageId: getTrackedMessageId,
     });

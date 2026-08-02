@@ -93,6 +93,11 @@ IPS*DesignWs / design system APIs  (SOAP reference)
    `WebApplicationException` with 403/404) when the resource expects that contract.
 6. Unit tests under `src/test/java/com/percussion/apibridge/` (or next to the domain service tests
    for pure service logic).
+7. When the rest resource is new or injects a **new** adaptor interface, the **rest** module also
+   needs a Spring test stub (`TestXxxAdaptor` under `rest/.../test/apibridge/`). This is an instance
+   of root [AGENTS.md](../../AGENTS.md) → **Change-class completeness** — see also
+   [rest/AGENTS.md](../../rest/AGENTS.md). Without the stub, `rest` `MainTest` / `RolesTest` /
+   `UsersTest` fail with `No qualifying bean of type '…Adaptor'`.
 
 ### What does *not* belong in apibridge
 
@@ -126,18 +131,47 @@ Use this as the template for any new public REST feature that needs sitemanage d
 ## Building & testing
 
 ```bash
-# From repo root — always use the Maven wrapper (JDK 21)
-./mvnw -pl projects/sitemanage -am test
+# Prefer standalone module builds (from module dir) — see root AGENTS.md Pre-PR Maven gate
+cd projects/sitemanage && ../../mvnw clean install
+cd rest && ../mvnw clean install   # when rest interfaces/resources/stubs changed too
 
 # Focused tests
-./mvnw -pl projects/sitemanage -Dtest=PSRelationshipSummaryServiceTest,RelationshipSummaryAdaptorTest test
-./mvnw -pl rest -Dtest=RelationshipSummaryResourceTest test
+cd projects/sitemanage && ../../mvnw test -Dtest=I18nCorrectionsAdaptorImplTest
+cd rest && ../mvnw test -Dtest=MainTest,I18nCorrectionsResourceTest
 ```
 
-Windows: `mvnw.cmd` with the same `-pl` arguments.
+Windows: `mvnw.cmd` with the same relative paths.
 
 If Maven reports a **cyclic reference** between `rest` and `sitemanage`, inspect `rest/pom.xml` first —
 a sitemanage dependency there is almost always the cause.
+
+### Stubbing `PSServer` / server.properties in unit tests
+
+Instance of root **Change-class completeness** → *match production types in test fakes*.
+
+`PSServer.ms_serverProps` is typed **`com.percussion.util.PSProperties`** (extends
+`java.util.Properties`), **not** plain `java.util.Properties`.
+
+Reflective tests that do `propsField.set(null, new Properties())` fail with:
+
+```text
+IllegalArgumentException: Can not set static com.percussion.util.PSProperties field
+com.percussion.server.PSServer.ms_serverProps to java.util.Properties
+```
+
+**Do:**
+
+```java
+import com.percussion.util.PSProperties;
+
+propsField.set(null, new PSProperties());
+// cast previous / current field values to PSProperties
+```
+
+**Do not** assign a bare `java.util.Properties` instance to that field. Reading via
+`PSServer.getProperty` / `getServerProps()` still works because `PSProperties` is-a `Properties`.
+
+Always restore the previous static value in `@AfterEach`.
 
 ## Cross-platform
 

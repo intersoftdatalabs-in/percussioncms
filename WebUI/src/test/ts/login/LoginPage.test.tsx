@@ -251,7 +251,6 @@ describe("LoginPage", () => {
           "perc.ui.login.modern@User name": "Nombre de usuario",
           "perc.ui.login.modern@Password": "Contraseña",
           "perc.ui.login.modern@Locale": "Idioma",
-          "perc.ui.login.modern@Use legacy UI": "Usar IU heredada",
           "perc.ui.login.modern@Login": "Iniciar sesión",
         };
         return map[k] ?? k;

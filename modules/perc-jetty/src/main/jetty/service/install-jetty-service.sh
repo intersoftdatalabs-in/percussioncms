@@ -228,7 +228,8 @@ JETTY_BASE=${JETTY_BASE}
 JETTY_DEFAULTS=${JETTY_DEFAULTS}
 JETTY_CONF=${JETTY_CONF}
 JETTY_START_LOG=${JETTY_BASE}/logs/start.log
-JAVA_OPTIONS="-XX:+DisableAttachMechanism -Drxdeploydir=${rxDir} -Djetty_perc_defaults=${JETTY_DEFAULTS}"
+JAVA_OPTIONS="-XX:+DisableAttachMechanism -Drxdeploydir=${rxDir} -Djetty_perc_defaults=${JETTY_DEFAULTS} -Djna.library.path=${rxDir}/bin"
+LD_LIBRARY_PATH=${rxDir}/bin${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 JETTY_RUN=${JETTY_RUN}
 JETTY_PID=${JETTY_RUN}/rxjetty.pid
 JETTY_ARGS="--include-jetty-dir=${JETTY_DEFAULTS}"

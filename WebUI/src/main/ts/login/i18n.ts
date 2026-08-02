@@ -35,7 +35,6 @@ export const LOGIN_KEYS = {
   USERNAME: "perc.ui.login.modern@User name",
   PASSWORD: "perc.ui.login.modern@Password",
   LOCALE: "perc.ui.login.modern@Locale",
-  USE_LEGACY: "perc.ui.login.modern@Use legacy UI",
   SUBMIT: "perc.ui.login.modern@Login",
 } as const;
 

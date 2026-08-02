@@ -391,23 +391,8 @@
       <tuv xml:lang="zh-cn"><seg>关于</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>关于</seg></tuv>
     <tuv xml:lang="ru"><seg>О</seg></tuv><tuv xml:lang="he"><seg>אוֹדוֹת</seg></tuv></tu>
-    <tu tuid="perc.ui.common.label@Rhythmyx UI">
-      <tuv xml:lang="en-us"><seg>Rhythmyx UI</seg></tuv>
-      <tuv xml:lang="ar"><seg>واجهة المستخدم إيقاعي</seg></tuv>
-      <tuv xml:lang="bn"><seg>Rhythmyx UI</seg></tuv>
-      <tuv xml:lang="de"><seg>Rhythmyx-Benutzeroberfläche</seg></tuv>
-      <tuv xml:lang="es"><seg>Interfaz de usuario de Rhythmyx</seg></tuv>
-      <tuv xml:lang="fr"><seg>Interface utilisateur de Rhythmyx</seg></tuv>
-      <tuv xml:lang="hi"><seg>रिदमिक्स यूआई</seg></tuv>
-      <tuv xml:lang="it"><seg>Interfaccia utente di Rhythmyx</seg></tuv>
-      <tuv xml:lang="ja-jp"><seg>リズミックスUI</seg></tuv>
-      <tuv xml:lang="nl"><seg>Rhythmyx-gebruikersinterface</seg></tuv>
-      <tuv xml:lang="pt"><seg>IU do Rhythmyx</seg></tuv>
-      <tuv xml:lang="te"><seg>రిథమిక్స్ UI</seg></tuv>
-      <tuv xml:lang="zh-cn"><seg>Rhythmyx 用户界面</seg></tuv>
-      <tuv xml:lang="zh-tw"><seg>Rhythmyx 用户界面</seg></tuv>
-    <tuv xml:lang="ru"><seg>Пользовательский интерфейс Ритмикса</seg></tuv><tuv xml:lang="he"><seg>Rhythmyx UI</seg></tuv></tu>
     <tu tuid="perc.ui.common.label@Next">
+
       <tuv xml:lang="en-us"><seg>Next</seg></tuv>
       <tuv xml:lang="ar"><seg>التالي</seg></tuv>
       <tuv xml:lang="bn"><seg>পরবর্তী</seg></tuv>
@@ -26252,22 +26237,6 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>语言环境</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>语言环境</seg></tuv>
     <tuv xml:lang="ru"><seg>Языковой стандарт</seg></tuv><tuv xml:lang="he"><seg>מקום</seg></tuv></tu>
-    <tu tuid="perc.ui.login.modern@Use legacy UI">
-      <tuv xml:lang="en-us"><seg>Use legacy UI</seg></tuv>
-      <tuv xml:lang="ar"><seg>استخدم واجهة المستخدم القديمة</seg></tuv>
-      <tuv xml:lang="bn"><seg>লিগ্যাসি UI ব্যবহার করুন</seg></tuv>
-      <tuv xml:lang="de"><seg>Verwenden Sie eine ältere Benutzeroberfläche</seg></tuv>
-      <tuv xml:lang="es"><seg>Usar IU heredada</seg></tuv>
-      <tuv xml:lang="fr"><seg>Utiliser l'ancienne interface utilisateur</seg></tuv>
-      <tuv xml:lang="hi"><seg>विरासत यूआई का उपयोग करें</seg></tuv>
-      <tuv xml:lang="it"><seg>Utilizza l'interfaccia utente precedente</seg></tuv>
-      <tuv xml:lang="ja-jp"><seg>従来の UI を使用する</seg></tuv>
-      <tuv xml:lang="nl"><seg>Gebruik een verouderde gebruikersinterface</seg></tuv>
-      <tuv xml:lang="pt"><seg>Use UI legada</seg></tuv>
-      <tuv xml:lang="te"><seg>లెగసీ UIని ఉపయోగించండి</seg></tuv>
-      <tuv xml:lang="zh-cn"><seg>使用旧版用户界面</seg></tuv>
-      <tuv xml:lang="zh-tw"><seg>使用旧版用户界面</seg></tuv>
-    <tuv xml:lang="ru"><seg>Использовать устаревший интерфейс</seg></tuv><tuv xml:lang="he"><seg>השתמש בממשק משתמש מדור קודם</seg></tuv></tu>
     <tu tuid="perc.ui.login.modern@Login">
       <tuv xml:lang="en-us"><seg>Login</seg></tuv>
       <tuv xml:lang="ar"><seg>تسجيل الدخول</seg></tuv>

@@ -96,7 +96,7 @@ Out of scope: layout, brand, server-side locale registration, anything outside `
 - **Locale tag normalization must mirror `PSTmxResourceBundle.normalizeLang`** (lowercase, `_`→`-`) — done in `localeLabels.ts` and `tmxLoader.ts` via a single shared `normalizeTag()` helper to avoid drift.
 - **Race conditions on rapid dropdown scrubbing.** Multiple `tmx.jsp` fetches may be in flight. The loader dedupes via a `data-perc-tmx-locale` marker and a module-level `Map<locale, Promise<void>>` so concurrent calls share the same promise. We **do not** remove the injected `<script>` after `load` (the script may carry state) — we mark it loaded and rely on browser HTTP cache for repeat selections.
 - **Preserving user input across re-render.** Use `tmxReady` to re-key the **inner card body** (not the `<form>` or `<input>` elements) so typed username/password survive dropdown changes.
-- **CSRF safety.** Only `j_locale`, `j_username`, `j_password`, `j_selectUI` are submitted; locale-change never invalidates CSRF.
+- **CSRF safety.** Only `j_locale`, `j_username`, `j_password` are submitted; locale-change never invalidates CSRF.
 - **No jQuery introduced** in `WebUI/src/main/ts/**` (per product lock #2). No new `import "jquery"` and no `window.$` usage.
 - **Cross-platform paths / line endings:** no filesystem changes; nothing to harden on this axis.
 - **Java / DB unchanged.** No `system/**` Java edits, no `PSLocale` schema change, no `RXLOCALE` data change. Diff is purely TypeScript in `WebUI/src/main/ts/login/**` and one JSP (`rxlogin.jsp`) plus optional TMX unit additions.

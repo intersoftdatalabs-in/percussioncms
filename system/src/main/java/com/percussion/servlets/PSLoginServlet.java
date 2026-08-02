@@ -25,7 +25,6 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import com.percussion.auditlog.PSActionOutcome;
 import com.percussion.auditlog.PSAuditLogService;
 import com.percussion.auditlog.PSAuthenticationEvent;
-import com.percussion.cms.IPSConstants;
 import com.percussion.content.IPSMimeContentTypes;
 import com.percussion.i18n.PSI18nUtils;
 import com.percussion.security.IPSSecurityErrors;
@@ -120,8 +119,6 @@ public class PSLoginServlet extends HttpServlet {
     }
 
     String redirect;
-    String legacyUI;
-    legacyUI = request.getParameter(LEGACY_UI_PARAM);
     try {
       boolean isBehindProxy = PSServer.isRequestBehindProxy(request);
       if (isBehindProxy) {
@@ -134,15 +131,13 @@ public class PSLoginServlet extends HttpServlet {
       }
     } catch (NullPointerException ex) {
       // Default
-      if (!Boolean.parseBoolean(legacyUI)) redirect = CMS_INDEX_PAGE;
-      else redirect = LEGACY_INDEX_PAGE;
+      redirect = CMS_INDEX_PAGE;
     }
 
     String sep = "?";
-    // if the original request was for the login page, redirect to CX
+    // if the original request was for the login page, redirect to CMS SPA
     if (redirect.endsWith(loginPage)) {
-      if (!Boolean.parseBoolean(legacyUI)) redirect = CMS_INDEX_PAGE;
-      else redirect = LEGACY_INDEX_PAGE;
+      redirect = CMS_INDEX_PAGE;
     } else if (request.getQueryString() != null) {
       redirect += sep + request.getQueryString();
     }
@@ -292,7 +287,6 @@ public class PSLoginServlet extends HttpServlet {
     String uid = null;
     String pwd = null;
     String locale;
-    String legacyUI = "false";
 
     // Checking for maximum users allowed in the system, if reached maximum, then don't allow more
     // users
@@ -328,14 +322,6 @@ public class PSLoginServlet extends HttpServlet {
         uid = psreq.getParameter("j_username");
         pwd = psreq.getParameter("j_password");
         locale = psreq.getParameter("j_locale");
-        legacyUI = psreq.getParameter(LEGACY_UI_PARAM);
-
-        if (legacyUI == null || legacyUI.equalsIgnoreCase("off")) legacyUI = "false";
-        else if (legacyUI.equalsIgnoreCase("on")) legacyUI = "true";
-
-        request
-            .getSession()
-            .setAttribute(IPSConstants.LEGACY_UI_ATTR, Boolean.parseBoolean(legacyUI));
 
         if (locale != null) {
           request.getSession().setAttribute(PSI18nUtils.USER_SESSION_OBJECT_SYS_LANG, locale);
@@ -356,7 +342,7 @@ public class PSLoginServlet extends HttpServlet {
     }
     if (!StringUtils.isBlank(uid)) {
       // handle authentication
-      authenticate(request, response, uid, pwd, Boolean.parseBoolean(legacyUI));
+      authenticate(request, response, uid, pwd);
 
     } else {
       // return login page
@@ -454,7 +440,7 @@ public class PSLoginServlet extends HttpServlet {
       return PSRedirectValidation.validateRedirectUrl(candidate, allowed);
     }
 
-    // App-relative UI entry points (index.jsp, Rhythmyx/sys_cx/mainpage.html)
+    // App-relative UI entry points (index.jsp)
     if (candidate.contains("..") || candidate.indexOf(':') >= 0) {
       return null;
     }
@@ -525,11 +511,7 @@ public class PSLoginServlet extends HttpServlet {
    * @throws ServletException
    */
   private void authenticate(
-      HttpServletRequest request,
-      HttpServletResponse response,
-      String uid,
-      String pwd,
-      boolean legacyUI)
+      HttpServletRequest request, HttpServletResponse response, String uid, String pwd)
       throws IOException, ServletException {
     try {
 
@@ -537,16 +519,7 @@ public class PSLoginServlet extends HttpServlet {
 
       String redirect = (String) sess.getAttribute(REDIRECT_URL);
       if (redirect == null) {
-        if (!legacyUI) {
-          redirect = CMS_INDEX_PAGE;
-        } else {
-          redirect = LEGACY_INDEX_PAGE;
-        }
-
-      } else {
-        if (legacyUI) {
-          redirect = LEGACY_INDEX_PAGE;
-        }
+        redirect = CMS_INDEX_PAGE;
       }
 
       request = PSSecurityFilter.authenticate(request, response, uid, pwd);
@@ -665,9 +638,6 @@ public class PSLoginServlet extends HttpServlet {
    */
   private static final String CMS_INDEX_PAGE = "/cm/app/spa.jsp?entry=home";
 
-  private static final String LEGACY_INDEX_PAGE = "Rhythmyx/sys_cx/mainpage.html";
-
-  /** Constant for the "user" directory. */
   private static final String USER_DIR = "user";
 
   /** Name of the user defined login page. */
@@ -684,8 +654,6 @@ public class PSLoginServlet extends HttpServlet {
    * login page while doing form based authentication.
    */
   public static final String REDIRECT_URL = "RX_REDIRECT_URL";
-
-  public static final String LEGACY_UI_PARAM = "j_selectUI";
 
   /** logger */
   private static final Logger log = LogManager.getLogger(SECURITY_LOG);

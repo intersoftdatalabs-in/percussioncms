@@ -49,6 +49,12 @@
             <artifactId>rest</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <!-- GCM language corrections: thin JNA SDK (local .m2 until published to MonkeyKing Central). -->
+        <dependency>
+            <groupId>dev.monkeyking</groupId>
+            <artifactId>mkd-gcm-sdk</artifactId>
+            <version>0.2.0</version>
+        </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>perc-thumbnail</artifactId>
