@@ -11,6 +11,45 @@ Product-agnostic Java utilities for Intersoft Data Labs projects
 | License      | Apache License 2.0                              |
 | Copyright    | Intersoft Data Labs                             |
 
+## Third-party license inventory (`license.ThirdPartyLicenseInventory`)
+
+Product-agnostic merge of a Maven-oriented inventory text file with **production**
+npm packages from `package-lock.json` (lockfileVersion 2/3 `packages` map). No
+Jackson or other runtime dependencies — includes a small JSON subset parser.
+
+```java
+import com.intsof.common.utilities.license.ThirdPartyLicenseInventory;
+import java.nio.file.Path;
+
+// Library API
+var npm =
+    ThirdPartyLicenseInventory.readProductionPackagesFromLockFile(
+        Path.of("frontend/package-lock.json"), Path.of("."));
+String section = ThirdPartyLicenseInventory.formatNpmSection(npm);
+String merged =
+    ThirdPartyLicenseInventory.mergeMavenAndNpm(mavenText, section, "My product inventory");
+
+// Or write files (Maven half + lock list → merged THIRD-PARTY.txt)
+ThirdPartyLicenseInventory.generateMergedInventory(
+    projectRoot,
+    outDir,
+    ThirdPartyLicenseInventory.DEFAULT_MAVEN_FILE_NAME,
+    ThirdPartyLicenseInventory.DEFAULT_NPM_FILE_NAME,
+    ThirdPartyLicenseInventory.DEFAULT_MERGED_FILE_NAME,
+    lockListFile,
+    "My product inventory",
+    true);
+```
+
+CLI (`main`) for Maven `exec-maven-plugin:java`:
+
+```text
+java -cp utilities-0.0.1.jar com.intsof.common.utilities.license.ThirdPartyLicenseInventory \
+  --root <project-root> --require-maven [--title "..."] [--lock-list path] [--out-dir path]
+```
+
+Tests: `ThirdPartyLicenseInventoryTest`.
+
 ## User configuration (`UserConfiguration`)
 
 Provides a portable per-user config root:

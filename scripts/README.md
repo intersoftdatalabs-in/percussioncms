@@ -12,6 +12,18 @@ Out of scope for spec 994 (must NOT be touched):
 
 ## Scripts
 
+### Third-party license inventory (Maven + npm merge)
+
+**Not a Python script.** Merged inventory generation for issue #1689 lives in
+`com.intsof.common:utilities` as
+`com.intsof.common.utilities.license.ThirdPartyLicenseInventory` (generic Java API +
+`main` for `exec-maven-plugin:java`). Product wiring:
+
+- Root: `license-maven-plugin` → `THIRD-PARTY-MAVEN.txt`
+- `perc-distribution-tree`: Java merge → `THIRD-PARTY.txt` + copy into assembly
+
+See `src/license/README.md` and `modules/intsof-common-utilities/README.md`.
+
 ### `prune-stale-worktrees.py` / `prune-stale-worktrees.bat`
 
 List or remove **stale git worktrees** left by agent sessions (Kilo / Grok / etc.).

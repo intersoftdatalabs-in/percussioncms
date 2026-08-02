@@ -1,0 +1,11 @@
+# Product-shipped npm package-lock.json paths (relative to repo root).
+# One path per line. Comments (#) and blank lines are ignored.
+#
+# Only product UI / delivery frontends belong here — not QA automation
+# (modules/perc-qa-automation) or pure build tooling lockfiles.
+#
+# The WebUI SPA is built from src/main/frontend (see WebUI/pom.xml
+# frontend-maven-plugin workingDirectory). Do not also list WebUI/package-lock.json
+# or production packages will be double-counted.
+
+WebUI/src/main/frontend/package-lock.json

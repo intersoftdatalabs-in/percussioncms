@@ -393,6 +393,60 @@
                     </execution>
                 </executions>
             </plugin>
+            <!--
+              Ship product license artifacts at the distribution root (issue #1689):
+              - LICENSE.txt / NOTICE.txt from the reactor root (stable product prose)
+              - THIRD-PARTY.txt merged inventory (Maven + npm production)
+
+              Maven half is produced on the reactor root (license-maven-plugin →
+              THIRD-PARTY-MAVEN.txt). The exec-maven-plugin execution
+              merge-third-party-inventory (below, with setup-home / verify-jdbc) merges
+              npm package-lock production packages via
+              com.intsof.common.utilities.license.ThirdPartyLicenseInventory, then this
+              copy runs. Standalone: from repo root first run
+                mvnw.cmd license:aggregate-add-third-party
+              (full reactor load required — do not use -N).
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven.resources.plugin.version}</version>
+                <executions>
+                    <!--
+                      generate-resources (not process-resources): antrun assembly is also wired early
+                      and can fail the process-resources phase (e.g. missing WebUI/target in standalone
+                      builds) before later process-resources executions run. Copy licenses first.
+                      Declared after merge-third-party-inventory so THIRD-PARTY.txt exists.
+                    -->
+                    <execution>
+                        <id>copy-license-inventory</id>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <outputDirectory>${assembly-directory}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${maven.multiModuleProjectDirectory}</directory>
+                                    <includes>
+                                        <include>LICENSE.txt</include>
+                                        <include>NOTICE.txt</include>
+                                    </includes>
+                                    <filtering>false</filtering>
+                                </resource>
+                                <resource>
+                                    <directory>${maven.multiModuleProjectDirectory}/target/generated-sources/license</directory>
+                                    <includes>
+                                        <include>THIRD-PARTY.txt</include>
+                                    </includes>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
@@ -735,6 +789,30 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <executions>
+                    <!-- Issue #1689: merge Maven THIRD-PARTY-MAVEN.txt + npm package-lock
+                         production packages into a single THIRD-PARTY.txt (before copy-license-inventory). -->
+                    <execution>
+                        <id>merge-third-party-inventory</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <mainClass>com.intsof.common.utilities.license.ThirdPartyLicenseInventory</mainClass>
+                            <classpathScope>runtime</classpathScope>
+                            <arguments>
+                                <argument>--root</argument>
+                                <argument>${maven.multiModuleProjectDirectory}</argument>
+                                <argument>--out-dir</argument>
+                                <argument>${maven.multiModuleProjectDirectory}/target/generated-sources/license</argument>
+                                <argument>--lock-list</argument>
+                                <argument>${maven.multiModuleProjectDirectory}/src/license/npm-package-locks.txt</argument>
+                                <argument>--title</argument>
+                                <argument>Percussion CMS third-party dependency license inventory</argument>
+                                <argument>--require-maven</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
                     <!-- Setup the jetty distribution as a jetty.home/jetty.base combo using
 						start.ini configuration mechanism -->
                     <execution>
