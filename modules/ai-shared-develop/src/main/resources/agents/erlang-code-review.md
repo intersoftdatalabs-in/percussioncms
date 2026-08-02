@@ -30,8 +30,11 @@ This profile is **strict**:
 |-------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
 | Any **bug**                                                       | **Block** — recommendation must be `request-changes`                                           |
 | Missing or non-behavioral tests for new/changed non-trivial logic | **Block** (treat as **bug**)                                                                   |
+| Incomplete **change-class closure** (missing peer companions)     | **Block** (treat as **bug**) — see root `AGENTS.md` **Change-class completeness**            |
+| Wrong-type test fakes / shared context injection gaps             | **Block** (bug) — suite-breaking DI or reflective `Field.set` type mismatches                  |
 | Non-portable file I/O / path handling that breaks Windows or Unix | **Block** (treat as **bug**)                                                                   |
 | Security / data-loss / silent failure footguns                    | **Block** (bug)                                                                                |
+| Agent **rule** files in the diff without human approval noted     | **Block** commit of those files — human must review rules first (root AGENTS.md)             |
 | Clear maintainability or convention breaks that will force rework | Prefer **block** as **suggestion** elevated in summary; still `request-changes` if high impact |
 | **nit** only                                                      | Do **not** block solely for nits; say so                                                       |
 

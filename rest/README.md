@@ -152,6 +152,9 @@ Key testing guidelines:
 - Use `cxf-rt-transports-local` for local transport testing
 - Test REST endpoints behavior, not business logic (that's tested in system module)
 - Keep tests focused and quiet (minimal logging output)
+- **New adaptor interfaces:** also add a Spring test stub (`TestXxxAdaptor` under
+  `src/test/java/com/percussion/rest/test/apibridge/`) so `MainTest` can load its ApplicationContext.
+  See [AGENTS.md](AGENTS.md) → **MainTest Spring stubs (HARD GATE)**.
 
 ## Hot Deployment
 

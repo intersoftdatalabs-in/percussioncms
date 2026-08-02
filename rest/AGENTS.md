@@ -71,7 +71,9 @@ Database & Internal Services
    (same pattern as `PreferencesAdaptor`, `UserAdaptor`, `RelationshipSummaryAdaptor`).
 3. Unit-test the resource in `rest` (mock the interface). Unit-test the adaptor in `sitemanage`
    (mock domain services).
-4. Register beans via `@PSSiteManageBean` / component-scan — do not invent a rest→sitemanage Maven edge.
+4. **Also** add a Spring test stub for the adaptor interface (see **MainTest Spring stubs** below).
+   Mockito unit tests alone are **not** enough.
+5. Register beans via `@PSSiteManageBean` / component-scan — do not invent a rest→sitemanage Maven edge.
 
 See also `projects/sitemanage/AGENTS.md` (apibridge side) and README.md.
 
@@ -216,7 +218,51 @@ Use the standard error response structure from `com.percussion.rest.errors.*` pa
 
 ## Testing
 
-### Quick Test Structure
+### MainTest Spring stubs (instance of root **Change-class completeness**)
+
+This is **one** rest-module instance of the monorepo hard gate in root `AGENTS.md` →
+**Change-class completeness**. The general failure mode is “primary artifact + one unit test”
+without peer companions and without verifying the **shared** test context.
+
+`MainTest.ContextConfiguration` component-scans `com.percussion.rest` and loads every
+`@PSSiteManageBean` / `@Component` resource. Production adaptor **implementations** live only in
+**sitemanage**, so the rest test classpath has **no** real `IXxxAdaptor` beans.
+
+If a resource constructor- or field-injects an adaptor and there is no test stub bean, Spring fails with:
+
+```text
+UnsatisfiedDependencyException: No qualifying bean of type '...IXxxAdaptor'
+Failed to load ApplicationContext
+ApplicationContext failure threshold (1) exceeded   ← cascade on RolesTest/UsersTest/MainTest/…
+```
+
+|                  Layer                   |                            What to add                            |                                 Why                                  |
+|------------------------------------------|-------------------------------------------------------------------|----------------------------------------------------------------------|
+| Mockito resource unit test               | `*ResourceTest` mocking `IXxxAdaptor`                             | HTTP mapping / status codes                                          |
+| **Spring context stub (required)**       | `TestXxxAdaptor` implementing the interface                       | Lets `MainTest` / subclasses load ApplicationContext                 |
+| sitemanage adaptor unit test             | `*AdaptorImplTest` mocking domain services                        | Gate / GCM / domain behavior                                         |
+
+**Required stub location and annotations** (copy an existing peer):
+
+- Preferred package: `rest/src/test/java/com/percussion/rest/test/apibridge/TestXxxAdaptor.java`
+- Or package-local: `rest/src/test/java/com/percussion/rest/<area>/XxxTestAdaptor.java`
+- Annotate with `@Component` + `@Lazy` (same as `TestLocalesAdaptor`, `TestSystemDefAdaptor`,
+  `RelationshipSummaryTestAdaptor`, `RoleTestAdaptor`, …)
+- Implement every interface method with trivial stubs (`null`, `List.of()`, fixed ok result)
+
+**Checklist when adding a new resource that injects a new adaptor interface:**
+
+1. [ ] Resource + interface + DTOs in rest
+2. [ ] Mockito `*ResourceTest` in rest
+3. [ ] **`TestXxxAdaptor` / `XxxTestAdaptor` Spring stub in rest test sources**
+4. [ ] sitemanage apibridge impl + unit tests
+5. [ ] Run from module: `cd rest && ../mvnw test` (Windows: `..\mvnw.cmd test`) and confirm
+      **zero** `Failed to load ApplicationContext` / `No qualifying bean of type` errors
+
+Do **not** “fix” missing stubs by removing constructor injection, making the adaptor optional, or
+excluding the resource from component-scan unless product design explicitly requires it.
+
+### Quick Test Structure (Mockito resource tests)
 
 ```java
 @ExtendWith(MockitoExtension.class)
