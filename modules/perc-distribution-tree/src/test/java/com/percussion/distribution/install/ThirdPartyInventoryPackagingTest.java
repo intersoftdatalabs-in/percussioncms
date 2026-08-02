@@ -67,16 +67,16 @@ public class ThirdPartyInventoryPackagingTest {
 
     String text = Files.readString(assemblyCopy, StandardCharsets.UTF_8);
     assertFalse(text.isBlank(), "Packaged THIRD-PARTY.txt must not be blank");
-    assertTrue(
-        text.toLowerCase().contains("license") || text.contains("("),
-        "Packaged THIRD-PARTY.txt should look like a license inventory");
-    // Merged inventory (Maven + npm) — issue #1689
+    // Merged inventory shape (Maven + npm) — issue #1689
     assertTrue(
         text.contains("Maven third-party dependencies"),
-        "Packaged THIRD-PARTY.txt should include the Maven inventory section");
+        "Packaged THIRD-PARTY.txt should include the Maven inventory section header");
     assertTrue(
-        text.contains("npm third-party dependencies") || text.contains("npm:"),
-        "Packaged THIRD-PARTY.txt should include the npm production inventory");
+        text.contains("npm third-party dependencies (production)"),
+        "Packaged THIRD-PARTY.txt should include the npm production section header");
+    assertTrue(
+        text.contains("npm:"),
+        "Packaged THIRD-PARTY.txt should list at least one npm:coordinate entry");
   }
 
   @Test

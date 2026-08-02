@@ -20,7 +20,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.intsof.common.utilities.license.ThirdPartyLicenseInventory.GenerateResult;
+import com.intsof.common.utilities.license.ThirdPartyLicenseInventory.NpmCollectionResult;
 import com.intsof.common.utilities.license.ThirdPartyLicenseInventory.NpmPackage;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -81,6 +85,84 @@ class ThirdPartyLicenseInventoryTest {
   }
 
   @Test
+  void readProductionPackagesFromLockFileThrowsWhenMissing() {
+    Path missing = tempDir.resolve("no-such-package-lock.json");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> ThirdPartyLicenseInventory.readProductionPackagesFromLockFile(missing, tempDir));
+  }
+
+  @Test
+  void collectReportsMissingLockListAndMissingListedLocks() throws Exception {
+    Path missingList = tempDir.resolve("missing-list.txt");
+    NpmCollectionResult absent =
+        ThirdPartyLicenseInventory.collectProductionPackagesFromLockList(tempDir, missingList);
+    assertTrue(absent.lockListFileMissing());
+    assertTrue(absent.packages().isEmpty());
+
+    Path list = tempDir.resolve("locks.txt");
+    Files.writeString(list, "ui/package-lock.json\n", StandardCharsets.UTF_8);
+    NpmCollectionResult missingLock =
+        ThirdPartyLicenseInventory.collectProductionPackagesFromLockList(tempDir, list);
+    assertFalse(missingLock.lockListFileMissing());
+    assertEquals(1, missingLock.missingLockFiles().size());
+    assertTrue(missingLock.packages().isEmpty());
+
+    assertThrows(
+        IllegalStateException.class,
+        () -> ThirdPartyLicenseInventory.requireCompleteNpmSources(missingLock, list));
+    assertThrows(
+        IllegalStateException.class,
+        () -> ThirdPartyLicenseInventory.readProductionPackagesFromLockList(tempDir, list));
+  }
+
+  @Test
+  void readLockListThrowsWhenListFileMissing() {
+    assertThrows(
+        IllegalStateException.class,
+        () ->
+            ThirdPartyLicenseInventory.readLockList(
+                tempDir, tempDir.resolve("does-not-exist.txt")));
+  }
+
+  @Test
+  void npmPackageNormalizesBlankLicense() {
+    NpmPackage pkg = new NpmPackage("x", "1.0.0", "  ", "src");
+    assertEquals("Unknown license", pkg.license());
+  }
+
+  @Test
+  void licenseFromMetaViaLockSupportsMapAndListForms() throws Exception {
+    Path lock = tempDir.resolve("package-lock.json");
+    Files.writeString(
+        lock,
+        """
+        {
+          "lockfileVersion": 3,
+          "packages": {
+            "node_modules/a": {
+              "version": "1.0.0",
+              "license": { "type": "BSD-3-Clause" }
+            },
+            "node_modules/b": {
+              "version": "2.0.0",
+              "license": ["MIT", "Apache-2.0"]
+            }
+          }
+        }
+        """,
+        StandardCharsets.UTF_8);
+    List<NpmPackage> pkgs =
+        ThirdPartyLicenseInventory.readProductionPackagesFromLockFile(lock, tempDir);
+    assertEquals(
+        "BSD-3-Clause",
+        pkgs.stream().filter(p -> p.name().equals("a")).findFirst().orElseThrow().license());
+    assertEquals(
+        "MIT OR Apache-2.0",
+        pkgs.stream().filter(p -> p.name().equals("b")).findFirst().orElseThrow().license());
+  }
+
+  @Test
   void mergeContainsBothSections() {
     String merged =
         ThirdPartyLicenseInventory.mergeMavenAndNpm(
@@ -95,7 +177,7 @@ class ThirdPartyLicenseInventoryTest {
   }
 
   @Test
-  void generateMergedInventoryWritesFiles() throws Exception {
+  void generateMergedInventoryWritesFilesAndReportsCount() throws Exception {
     Path root = tempDir;
     Path out = root.resolve("out");
     Files.createDirectories(out);
@@ -121,7 +203,7 @@ class ThirdPartyLicenseInventoryTest {
     Path list = root.resolve("locks.txt");
     Files.writeString(list, "ui/package-lock.json\n", StandardCharsets.UTF_8);
 
-    Path merged =
+    GenerateResult result =
         ThirdPartyLicenseInventory.generateMergedInventory(
             root,
             out,
@@ -132,15 +214,17 @@ class ThirdPartyLicenseInventoryTest {
             "Test product inventory",
             true);
 
-    String text = Files.readString(merged, StandardCharsets.UTF_8);
+    assertEquals(1, result.npmPackageCount());
+    assertTrue(result.mavenPresent());
+    assertTrue(result.missingLockFiles().isEmpty());
+    String text = Files.readString(result.mergedPath(), StandardCharsets.UTF_8);
     assertTrue(text.contains("guava"));
     assertTrue(text.contains("jquery"));
     assertTrue(text.contains("npm:jquery:3.7.1"));
-    assertTrue(Files.isRegularFile(out.resolve(ThirdPartyLicenseInventory.DEFAULT_NPM_FILE_NAME)));
   }
 
   @Test
-  void requireMavenFailsWhenMissing() {
+  void generateMergedInventoryFailsWhenMavenMissingAndRequired() {
     Path out = tempDir.resolve("out");
     Path list = tempDir.resolve("locks.txt");
     assertThrows(
@@ -155,6 +239,47 @@ class ThirdPartyLicenseInventoryTest {
                 list,
                 null,
                 true));
+  }
+
+  @Test
+  void runMainStrictFailsOnMissingLockList() throws Exception {
+    Path out = tempDir.resolve("out");
+    Files.createDirectories(out);
+    Files.writeString(
+        out.resolve(ThirdPartyLicenseInventory.DEFAULT_MAVEN_FILE_NAME),
+        "Lists of 0 third-party dependencies.\n",
+        StandardCharsets.UTF_8);
+    ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
+    ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
+    int code =
+        ThirdPartyLicenseInventory.runMain(
+            new String[] {
+              "--root",
+              tempDir.toString(),
+              "--out-dir",
+              out.toString(),
+              "--lock-list",
+              tempDir.resolve("no-list.txt").toString(),
+              "--require-maven"
+            },
+            new PrintStream(outBuf, true, StandardCharsets.UTF_8),
+            new PrintStream(errBuf, true, StandardCharsets.UTF_8));
+    assertEquals(1, code);
+    String err = errBuf.toString(StandardCharsets.UTF_8);
+    assertTrue(err.contains("ERROR:"));
+    assertTrue(err.contains("package-lock list") || err.contains("missing"));
+  }
+
+  @Test
+  void runMainHelpExitsZero() {
+    ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
+    int code =
+        ThirdPartyLicenseInventory.runMain(
+            new String[] {"--help"},
+            new PrintStream(outBuf, true, StandardCharsets.UTF_8),
+            new PrintStream(new ByteArrayOutputStream(), true, StandardCharsets.UTF_8));
+    assertEquals(0, code);
+    assertTrue(outBuf.toString(StandardCharsets.UTF_8).contains("Usage:"));
   }
 
   @Test

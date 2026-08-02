@@ -199,25 +199,71 @@ public final class ThirdPartyLicenseInventory {
   }
 
   /**
+   * Result of collecting production npm packages from a lock-list file.
+   *
+   * @param packages sorted union of production packages
+   * @param missingLockFiles absolute paths listed in the lock-list that are not regular files
+   * @param lockListFileMissing {@code true} when the lock-list path itself is not a regular file
+   */
+  public record NpmCollectionResult(
+      List<NpmPackage> packages, List<Path> missingLockFiles, boolean lockListFileMissing) {
+
+    /** Creates an immutable result. */
+    public NpmCollectionResult {
+      packages = List.copyOf(Objects.requireNonNull(packages, "packages"));
+      missingLockFiles = List.copyOf(Objects.requireNonNull(missingLockFiles, "missingLockFiles"));
+    }
+  }
+
+  /**
+   * Result of writing a merged inventory.
+   *
+   * @param mergedPath path to the merged {@code THIRD-PARTY.txt} (or equivalent)
+   * @param npmPackageCount number of production npm packages included
+   * @param mavenPresent whether the Maven inventory file was present
+   * @param missingLockFiles listed package-lock paths that were missing (empty when none)
+   */
+  public record GenerateResult(
+      Path mergedPath, int npmPackageCount, boolean mavenPresent, List<Path> missingLockFiles) {
+
+    /** Creates an immutable result. */
+    public GenerateResult {
+      Objects.requireNonNull(mergedPath, "mergedPath");
+      missingLockFiles = List.copyOf(Objects.requireNonNull(missingLockFiles, "missingLockFiles"));
+    }
+  }
+
+  /**
    * Reads every lockfile listed in {@code lockListFile} and unions production packages.
    *
    * <p>List file format (UTF-8): one path per line, relative to {@code projectRoot}. Blank lines
    * and lines whose first non-whitespace character is {@code #} are ignored. Paths may use {@code
    * /} or {@code \} separators; they are resolved with {@link Path}.
    *
+   * <p>Missing listed lockfiles are recorded in {@link NpmCollectionResult#missingLockFiles()} —
+   * they are not silently ignored without a trace. Use {@link
+   * #requireCompleteNpmSources(NpmCollectionResult, Path)} to fail the build when sources are
+   * incomplete.
+   *
    * @param projectRoot root directory for resolving relative lock paths and source labels
    * @param lockListFile list of package-lock.json paths
-   * @return sorted union of production packages
-   * @throws IOException if the list or a listed lockfile cannot be read
+   * @return packages plus any missing listed lock paths
+   * @throws IOException if the list file exists but cannot be read, or a present lockfile cannot be
+   *     parsed
    */
-  public static List<NpmPackage> readProductionPackagesFromLockList(
+  public static NpmCollectionResult collectProductionPackagesFromLockList(
       Path projectRoot, Path lockListFile) throws IOException {
     Objects.requireNonNull(projectRoot, "projectRoot");
     Objects.requireNonNull(lockListFile, "lockListFile");
+    if (!Files.isRegularFile(lockListFile)) {
+      return new NpmCollectionResult(List.of(), List.of(), true);
+    }
     List<Path> locks = readLockList(projectRoot, lockListFile);
     Map<String, NpmPackage> byKey = new TreeMap<>();
+    List<Path> missing = new ArrayList<>();
     for (Path lock : locks) {
       if (!Files.isRegularFile(lock)) {
+        missing.add(lock);
         continue;
       }
       for (NpmPackage pkg : readProductionPackagesFromLockFile(lock, projectRoot)) {
@@ -226,22 +272,66 @@ public final class ThirdPartyLicenseInventory {
     }
     List<NpmPackage> list = new ArrayList<>(byKey.values());
     Collections.sort(list);
-    return List.copyOf(list);
+    return new NpmCollectionResult(list, missing, false);
+  }
+
+  /**
+   * Convenience wrapper: collects packages and fails if the lock-list file or any listed lockfile
+   * is missing.
+   *
+   * @param projectRoot project root
+   * @param lockListFile lock list
+   * @return sorted production packages
+   * @throws IOException on I/O failure
+   * @throws IllegalStateException if the lock list or any listed lockfile is missing
+   */
+  public static List<NpmPackage> readProductionPackagesFromLockList(
+      Path projectRoot, Path lockListFile) throws IOException {
+    NpmCollectionResult result = collectProductionPackagesFromLockList(projectRoot, lockListFile);
+    requireCompleteNpmSources(result, lockListFile);
+    return result.packages();
+  }
+
+  /**
+   * Fails when npm sources are incomplete (missing lock-list file or missing listed lockfiles).
+   *
+   * @param result collection result
+   * @param lockListFile path used for the error message
+   * @throws IllegalStateException if sources are incomplete
+   */
+  public static void requireCompleteNpmSources(NpmCollectionResult result, Path lockListFile) {
+    Objects.requireNonNull(result, "result");
+    Objects.requireNonNull(lockListFile, "lockListFile");
+    if (result.lockListFileMissing()) {
+      throw new IllegalStateException(
+          "npm package-lock list file is missing: "
+              + lockListFile
+              + ". Create the list (one package-lock.json path per line) or pass --lock-list.");
+    }
+    if (!result.missingLockFiles().isEmpty()) {
+      StringBuilder sb = new StringBuilder("Missing package-lock.json file(s) listed in ");
+      sb.append(lockListFile).append(':');
+      for (Path p : result.missingLockFiles()) {
+        sb.append("\n  - ").append(p);
+      }
+      throw new IllegalStateException(sb.toString());
+    }
   }
 
   /**
    * Parses a lock-list file into absolute lockfile paths.
    *
    * @param projectRoot root for relative entries
-   * @param lockListFile list file
-   * @return absolute paths (missing files are still returned so callers can warn)
+   * @param lockListFile list file (must exist as a regular file)
+   * @return absolute paths in list order (may include paths that do not yet exist on disk)
    * @throws IOException if the list file cannot be read
+   * @throws IllegalStateException if the list file is not a regular file
    */
   public static List<Path> readLockList(Path projectRoot, Path lockListFile) throws IOException {
     Objects.requireNonNull(projectRoot, "projectRoot");
     Objects.requireNonNull(lockListFile, "lockListFile");
     if (!Files.isRegularFile(lockListFile)) {
-      return List.of();
+      throw new IllegalStateException("npm package-lock list file is missing: " + lockListFile);
     }
     List<Path> out = new ArrayList<>();
     for (String raw : Files.readAllLines(lockListFile, StandardCharsets.UTF_8)) {
@@ -323,20 +413,25 @@ public final class ThirdPartyLicenseInventory {
   /**
    * Reads the Maven inventory and package-lock list, writes npm intermediate and merged outputs.
    *
+   * <p>When {@code requireCompleteSources} is {@code true} (typical for product builds), both the
+   * Maven inventory and the full npm lock-list (file present and every listed package-lock present)
+   * are required. When {@code false}, missing Maven inventory yields an empty Maven section;
+   * incomplete npm sources still fail only if the lock-list file is required by {@link
+   * #requireCompleteNpmSources} — callers should pass {@code true} for CI.
+   *
    * @param projectRoot project / repository root
    * @param outDir output directory (created if missing)
    * @param mavenFileName Maven inventory file name under {@code outDir}
    * @param npmFileName intermediate npm file name under {@code outDir}
    * @param mergedFileName merged file name under {@code outDir}
-   * @param lockListFile package-lock list file (absolute or relative paths per {@link
-   *     #readLockList(Path, Path)})
+   * @param lockListFile package-lock list file
    * @param documentTitle title line for the merged document; may be null
-   * @param requireMaven if true, fail when the Maven inventory file is missing
-   * @return path to the merged inventory
+   * @param requireCompleteSources if true, fail when Maven inventory or any npm source is missing
+   * @return generate result including package count (no second lockfile pass required)
    * @throws IOException on I/O failure
-   * @throws IllegalStateException if {@code requireMaven} and the Maven file is absent
+   * @throws IllegalStateException if required sources are incomplete
    */
-  public static Path generateMergedInventory(
+  public static GenerateResult generateMergedInventory(
       Path projectRoot,
       Path outDir,
       String mavenFileName,
@@ -344,7 +439,7 @@ public final class ThirdPartyLicenseInventory {
       String mergedFileName,
       Path lockListFile,
       String documentTitle,
-      boolean requireMaven)
+      boolean requireCompleteSources)
       throws IOException {
     Objects.requireNonNull(projectRoot, "projectRoot");
     Objects.requireNonNull(outDir, "outDir");
@@ -358,10 +453,11 @@ public final class ThirdPartyLicenseInventory {
     Path npmPath = outDir.resolve(npmFileName);
     Path mergedPath = outDir.resolve(mergedFileName);
 
+    boolean mavenPresent = Files.isRegularFile(mavenPath);
     String mavenText;
-    if (Files.isRegularFile(mavenPath)) {
+    if (mavenPresent) {
       mavenText = Files.readString(mavenPath, StandardCharsets.UTF_8);
-    } else if (requireMaven) {
+    } else if (requireCompleteSources) {
       throw new IllegalStateException(
           "Maven inventory missing: "
               + mavenPath
@@ -370,13 +466,19 @@ public final class ThirdPartyLicenseInventory {
       mavenText = "";
     }
 
-    List<NpmPackage> npmPackages = readProductionPackagesFromLockList(projectRoot, lockListFile);
-    String npmText = formatNpmSection(npmPackages);
+    NpmCollectionResult npmResult =
+        collectProductionPackagesFromLockList(projectRoot, lockListFile);
+    if (requireCompleteSources) {
+      requireCompleteNpmSources(npmResult, lockListFile);
+    }
+
+    String npmText = formatNpmSection(npmResult.packages());
     writeUtf8Lf(npmPath, npmText);
 
     String merged = mergeMavenAndNpm(mavenText, npmText, documentTitle);
     writeUtf8Lf(mergedPath, merged);
-    return mergedPath;
+    return new GenerateResult(
+        mergedPath, npmResult.packages().size(), mavenPresent, npmResult.missingLockFiles());
   }
 
   /**
@@ -392,7 +494,8 @@ public final class ThirdPartyLicenseInventory {
    *   <li>{@code --lock-list <file>} — package-lock list (default: {@code
    *       <root>/src/license/npm-package-locks.txt})
    *   <li>{@code --title <text>} — merged document title
-   *   <li>{@code --require-maven} — fail if Maven inventory is missing
+   *   <li>{@code --require-maven} — fail if Maven inventory <em>or</em> npm lock-list / listed
+   *       package-lock files are missing (strict product-build mode)
    *   <li>{@code --maven-name}, {@code --npm-name}, {@code --merged-name} — override file names
    * </ul>
    *
@@ -418,7 +521,7 @@ public final class ThirdPartyLicenseInventory {
     Path outDir = null;
     Path lockList = null;
     String title = null;
-    boolean requireMaven = false;
+    boolean requireCompleteSources = false;
     String mavenName = DEFAULT_MAVEN_FILE_NAME;
     String npmName = DEFAULT_NPM_FILE_NAME;
     String mergedName = DEFAULT_MERGED_FILE_NAME;
@@ -431,7 +534,7 @@ public final class ThirdPartyLicenseInventory {
           case "--out-dir" -> outDir = Path.of(requireValue(args, ++i, a));
           case "--lock-list" -> lockList = Path.of(requireValue(args, ++i, a));
           case "--title" -> title = requireValue(args, ++i, a);
-          case "--require-maven" -> requireMaven = true;
+          case "--require-maven" -> requireCompleteSources = true;
           case "--maven-name" -> mavenName = requireValue(args, ++i, a);
           case "--npm-name" -> npmName = requireValue(args, ++i, a);
           case "--merged-name" -> mergedName = requireValue(args, ++i, a);
@@ -471,20 +574,29 @@ public final class ThirdPartyLicenseInventory {
     }
 
     try {
-      Path merged =
+      GenerateResult result =
           generateMergedInventory(
-              root, outDir, mavenName, npmName, mergedName, lockList, title, requireMaven);
-      long npmCount =
-          Files.isRegularFile(outDir.resolve(npmName))
-              ? readProductionPackagesFromLockList(root, lockList).size()
-              : 0L;
+              root,
+              outDir,
+              mavenName,
+              npmName,
+              mergedName,
+              lockList,
+              title,
+              requireCompleteSources);
+      if (!requireCompleteSources && !result.missingLockFiles().isEmpty()) {
+        err.println("WARNING: missing package-lock.json file(s) (npm inventory incomplete):");
+        for (Path p : result.missingLockFiles()) {
+          err.println("  - " + p);
+        }
+      }
       out.println(
           "Wrote "
-              + merged
+              + result.mergedPath()
               + " (Maven present="
-              + Files.isRegularFile(outDir.resolve(mavenName))
+              + result.mavenPresent()
               + ", npm packages="
-              + npmCount
+              + result.npmPackageCount()
               + ")");
       return 0;
     } catch (IllegalStateException | IllegalArgumentException ex) {
@@ -501,6 +613,8 @@ public final class ThirdPartyLicenseInventory {
         "Usage: ThirdPartyLicenseInventory --root <dir> [--out-dir <dir>] [--lock-list <file>]");
     out.println("       [--title <text>] [--require-maven] [--maven-name name] [--npm-name name]");
     out.println("       [--merged-name name]");
+    out.println(
+        "  --require-maven  Fail if Maven inventory or npm lock-list / listed locks are missing");
   }
 
   private static String requireValue(String[] args, int index, String flag) {
