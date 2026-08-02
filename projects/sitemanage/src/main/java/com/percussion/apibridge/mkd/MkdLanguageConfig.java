@@ -184,7 +184,13 @@ public final class MkdLanguageConfig {
     }
   }
 
+  /**
+   * Safe config summary for logs. Does not decrypt the token (and therefore cannot throw on bad
+   * {@code ENC(...)} material).
+   */
   public static String summaryForLog() {
+    boolean tokenSet =
+        StringUtils.isNotBlank(StringUtils.trimToEmpty(PSServer.getProperty(PROP_GCM_TOKEN, "")));
     return String.format(
         Locale.ROOT,
         "enabled=%s roles=%s host=%s port=%d groupSet=%s tokenSet=%s",
@@ -193,6 +199,6 @@ public final class MkdLanguageConfig {
         gcmHost(),
         gcmPort(),
         gcmGroup() != null,
-        gcmTokenPlain() != null);
+        tokenSet);
   }
 }

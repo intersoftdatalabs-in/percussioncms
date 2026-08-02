@@ -146,6 +146,17 @@ public class I18nCorrectionsAdaptorImplTest {
     assertEquals(MkdLanguageConfig.DEFAULT_GCM_PORT, MkdLanguageConfig.gcmPort());
   }
 
+  @Test
+  public void summaryForLogDoesNotDecryptToken() throws Exception {
+    setProp(MkdLanguageConfig.PROP_ENABLED, "true");
+    setProp(MkdLanguageConfig.PROP_ROLES, "*");
+    setProp(MkdLanguageConfig.PROP_GCM_TOKEN, "ENC(not-a-real-ciphertext)");
+    // Must not throw IllegalStateException from decrypt path.
+    String summary = MkdLanguageConfig.summaryForLog();
+    assertTrue(summary.contains("tokenSet=true"));
+    assertTrue(summary.contains("enabled=true"));
+  }
+
   private static I18nCorrectionSubmission sampleBody() {
     I18nCorrectionSubmission body = new I18nCorrectionSubmission();
     body.setEmail("u@example.com");
