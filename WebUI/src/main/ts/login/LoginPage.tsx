@@ -27,8 +27,6 @@ import { ensureTmxLoaded } from "./tmxLoader";
 import type { LocaleFormatBootstrap, LoginBootstrap } from "./types";
 import styles from "./LoginPage.module.css";
 
-const SELECT_UI_STORAGE_KEY = "perc-login-select-ui-checked";
-
 /** Well-known RTL primary language subtags (bootstrap may refine for selected locale). */
 const RTL_PRIMARY = new Set(["ar", "he", "fa", "ur"]);
 
@@ -65,16 +63,7 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
   const [locale, setLocale] = useState(
     bootstrap.selectedLocale || bootstrap.locales[0]?.name || "en-us",
   );
-  const [selectUi, setSelectUi] = useState(false);
   const [tmxReady, setTmxReady] = useState(0);
-
-  useEffect(() => {
-    try {
-      setSelectUi(localStorage.getItem(SELECT_UI_STORAGE_KEY) === "true");
-    } catch {
-      // private mode / blocked storage — ignore
-    }
-  }, []);
 
   useEffect(() => {
     const el = document.getElementById("perc-login-username");
@@ -82,15 +71,6 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
       el.focus();
     }
   }, []);
-
-  const onSelectUiChange = (checked: boolean): void => {
-    setSelectUi(checked);
-    try {
-      localStorage.setItem(SELECT_UI_STORAGE_KEY, String(checked));
-    } catch {
-      // ignore
-    }
-  };
 
   const onLocaleChange = (next: string): void => {
     setLocale(next);
@@ -158,10 +138,12 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
           </h1>
           <p className={styles.subtitle}>{theme.brand.productName}</p>
 
-          {/*
-            Native form POST to existing /login servlet (multipart).
-            Do not convert to fetch/XHR — session cookie + redirect flow is server-owned.
-          */}
+           {/*
+             Native form POST to existing /login servlet (multipart).
+             Posted fields: j_username, j_password, j_locale, CSRF token,
+             and sys_redirect. Do not convert to fetch/XHR — session cookie
+             + redirect flow is server-owned.
+           */}
           <form
             id="loginform"
             name="loginform"
@@ -254,23 +236,6 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
                 tabIndex={3}
                 data-testid="perc-login-locale"
               />
-            </div>
-
-            <div className={styles.checkboxRow}>
-              <input
-                type="checkbox"
-                id="perc-login-select-ui"
-                name="j_selectUI"
-                checked={selectUi}
-                onChange={(e) => onSelectUiChange(e.target.checked)}
-                data-testid="perc-login-select-ui"
-              />
-              <label
-                htmlFor="perc-login-select-ui"
-                {...i18nKeyAttr(LOGIN_KEYS.USE_LEGACY)}
-              >
-                {t(LOGIN_KEYS.USE_LEGACY)}
-              </label>
             </div>
 
             <button

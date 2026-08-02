@@ -110,8 +110,7 @@
               %>| <a tabindex="3" role="button" href="/rest/api-docs?url=/rest/openapi.json&docExpansion=none&deepLinking=true&filter=true&tagsSorter=alpha" target="_blank" rel="noopener noreferrer" title="REST API Documentation">API</a>
 				<%}%>| <a tabindex="4" role="button" href="https://percussioncmscommunity.intsof.com/" target="_blank" rel="noopener noreferrer" title="<i18n:message key="perc.ui.common.label@Percussion Community"/>"><i18n:message key="perc.ui.common.label@Percussion Community"/></a>
 				| <a tabindex="5" role="button" href="javascript:void(0)" id="perc-help-about" title="<i18n:message key="perc.ui.common.label@About"/>"><i18n:message key="perc.ui.common.label@About"/></a>
-				| <a tabindex="6" role="button" href="/Rhythmyx/sys_cx/mainpage.html" id="perc-rhythmyx-ui"  title="<i18n:message key="perc.ui.common.label@Rhythmyx UI"/>"><i18n:message key="perc.ui.common.label@Rhythmyx UI"/></a>
-				| <a tabindex="7" role="button" href="/Rhythmyx/logout" title="<i18n:message key="perc.ui.common.label@Log Out"/>"><i18n:message key="perc.ui.common.label@Log Out"/></a>
+				| <a tabindex="6" role="button" href="/Rhythmyx/logout" title="<i18n:message key="perc.ui.common.label@Log Out"/>"><i18n:message key="perc.ui.common.label@Log Out"/></a>
 				<span id="perc-ui-view-indicator" class="<%=className%>"></span>
     </div>
 

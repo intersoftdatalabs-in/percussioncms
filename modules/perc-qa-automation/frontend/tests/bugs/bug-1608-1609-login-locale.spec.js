@@ -18,7 +18,7 @@
  * Regression: login locale dropdown (GH-1608, GH-1609).
  *
  * <p><b>GH-1609</b> — Selecting a locale must retranslate login chrome
- * (title, field labels, legacy checkbox, submit, document title) via
+ * (title, field labels, submit, document title) via
  * dynamic TMX reload. Requires {@code perc.ui.login.modern@*} keys in
  * the live install's TMX catalog ({@code rxconfig/i18n/CmsUi.tmx}).</p>
  *
@@ -46,7 +46,6 @@ const HI_CHROME = {
   // "पासवर्ड" — TMX segment for the j_password field label
   pwdLabel: "\u092A\u093E\u0938\u0935\u0930\u094D\u0921",
   locale: "स्थान",
-  legacy: "विरासत यूआई का उपयोग करें",
   submit: "लॉग इन करें",
 };
 
@@ -111,9 +110,9 @@ test.describe("Login locale (GH-1608 / GH-1609)", () => {
     await expect(page.locator('label[for="perc-login-locale"]')).toHaveText(
       HI_CHROME.locale,
     );
-    await expect(page.locator('label[for="perc-login-select-ui"]')).toHaveText(
-      HI_CHROME.legacy,
-    );
+    // Regression: legacy UI checkbox is removed (GH-1688)
+    await expect(page.locator("#perc-login-select-ui")).toHaveCount(0);
+    await expect(page.locator('input[name="j_selectUI"]')).toHaveCount(0);
     await expect(page.getByTestId("perc-login-submit")).toHaveText(
       HI_CHROME.submit,
     );
