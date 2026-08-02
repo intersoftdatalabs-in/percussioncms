@@ -6,22 +6,22 @@ The **versioned** third-party dependency / license inventory is **not** hand-edi
 
 It is produced at build time and written to a **single** merged file:
 
-| Piece | How |
-|-------|-----|
-| Maven / Java dependencies | [`org.codehaus.mojo:license-maven-plugin`](https://www.mojohaus.org/license-maven-plugin/) `aggregate-add-third-party` → `THIRD-PARTY-MAVEN.txt` |
-| npm production dependencies | `scripts/generate-third-party-inventory.py` reads product `package-lock.json` files listed in `npm-package-locks.txt` → `THIRD-PARTY-NPM.txt` |
-| **Shipped inventory** | Same script **merges** both halves → **`THIRD-PARTY.txt`** |
+|            Piece            |                                                                       How                                                                        |
+|-----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
+| Maven / Java dependencies   | [`org.codehaus.mojo:license-maven-plugin`](https://www.mojohaus.org/license-maven-plugin/) `aggregate-add-third-party` → `THIRD-PARTY-MAVEN.txt` |
+| npm production dependencies | `scripts/generate-third-party-inventory.py` reads product `package-lock.json` files listed in `npm-package-locks.txt` → `THIRD-PARTY-NPM.txt`    |
+| **Shipped inventory**       | Same script **merges** both halves → **`THIRD-PARTY.txt`**                                                                                       |
 
 Issue [#1689](https://github.com/intersoftdatalabs-in/percussioncms/issues/1689).
 
-| Artifact | Location |
-|----------|----------|
-| Merged inventory (authoritative) | `${repo-root}/target/generated-sources/license/THIRD-PARTY.txt` |
-| Maven intermediate | `…/THIRD-PARTY-MAVEN.txt` |
-| npm intermediate | `…/THIRD-PARTY-NPM.txt` |
-| Shipped with installer | `THIRD-PARTY.txt` at the root of the `perc-distribution-tree` assembly |
-| Product notice (stable prose) | root `NOTICE.txt` — product copyright + pointer only |
-| Startup / About blurb | `system` resource key `thirdPartyCopyright` — same pointer, **no version pins** |
+|             Artifact             |                                    Location                                     |
+|----------------------------------|---------------------------------------------------------------------------------|
+| Merged inventory (authoritative) | `${repo-root}/target/generated-sources/license/THIRD-PARTY.txt`                 |
+| Maven intermediate               | `…/THIRD-PARTY-MAVEN.txt`                                                       |
+| npm intermediate                 | `…/THIRD-PARTY-NPM.txt`                                                         |
+| Shipped with installer           | `THIRD-PARTY.txt` at the root of the `perc-distribution-tree` assembly          |
+| Product notice (stable prose)    | root `NOTICE.txt` — product copyright + pointer only                            |
+| Startup / About blurb            | `system` resource key `thirdPartyCopyright` — same pointer, **no version pins** |
 
 Do **not** reintroduce hand-curated component lists or dependency version pins into
 `NOTICE.txt` or `thirdPartyCopyright`. That was the drift failure mode this automation

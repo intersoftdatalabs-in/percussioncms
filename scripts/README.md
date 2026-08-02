@@ -31,7 +31,6 @@ Merge **Maven** and **npm** third-party license inventories into a single
   mvnw.cmd license:aggregate-add-third-party
   scripts\generate-third-party-inventory.bat --require-maven
   ```
-
 - **Inputs**:
   - `target/generated-sources/license/THIRD-PARTY-MAVEN.txt` (from license-maven-plugin)
   - `src/license/npm-package-locks.txt` (list of product package-lock.json paths)
