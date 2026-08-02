@@ -393,6 +393,56 @@
                     </execution>
                 </executions>
             </plugin>
+            <!--
+              Ship product license artifacts at the distribution root (issue #1689):
+              - LICENSE.txt / NOTICE.txt from the reactor root (stable product prose)
+              - THIRD-PARTY.txt from license-maven-plugin aggregate output (versioned inventory)
+
+              The inventory is generated on the reactor root during generate-resources.
+              Full-reactor builds therefore have it before this late module runs. Standalone
+              builds of this module alone must generate it first from the repo root:
+                mvnw.cmd license:aggregate-add-third-party
+              (full reactor load required — do not use -N, or the inventory is empty).
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven.resources.plugin.version}</version>
+                <executions>
+                    <!--
+                      generate-resources (not process-resources): antrun assembly is also wired early
+                      and can fail the process-resources phase (e.g. missing WebUI/target in standalone
+                      builds) before later process-resources executions run. Copy licenses first.
+                    -->
+                    <execution>
+                        <id>copy-license-inventory</id>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <outputDirectory>${assembly-directory}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${maven.multiModuleProjectDirectory}</directory>
+                                    <includes>
+                                        <include>LICENSE.txt</include>
+                                        <include>NOTICE.txt</include>
+                                    </includes>
+                                    <filtering>false</filtering>
+                                </resource>
+                                <resource>
+                                    <directory>${maven.multiModuleProjectDirectory}/target/generated-sources/license</directory>
+                                    <includes>
+                                        <include>THIRD-PARTY.txt</include>
+                                    </includes>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
