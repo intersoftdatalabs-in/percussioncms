@@ -243,8 +243,6 @@
         <postgresql.version>42.7.12</postgresql.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <!-- Used by merge-third-party-inventory (scripts/generate-third-party-inventory.py). Override: -Dpython.executable=python3 -->
-        <python.executable>python</python.executable>
         <quartz.version>2.5.2</quartz.version>
         <rome.version>2.1.0</rome.version>
         <saxon.version>6.5.3</saxon.version>
@@ -3050,10 +3048,11 @@
             </plugin>
             <!--
               Build-generated third-party dependency license inventory (issue #1689).
-              Maven half: license-maven-plugin → THIRD-PARTY-MAVEN.txt
-              npm half + merge: scripts/generate-third-party-inventory.py → THIRD-PARTY.txt
+              Maven half only here: license-maven-plugin → THIRD-PARTY-MAVEN.txt
+              npm half + merge run later in perc-distribution-tree via
+              com.intsof.common.utilities.license.ThirdPartyLicenseInventory (after utilities is built).
               Do NOT hand-curate component lists in NOTICE.txt or thirdPartyCopyright.
-              inherited=false so only the reactor root runs these goals.
+              inherited=false so only the reactor root runs the aggregate goal.
             -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -3062,7 +3061,7 @@
                 <inherited>false</inherited>
                 <configuration>
                     <outputDirectory>${maven.multiModuleProjectDirectory}/target/generated-sources/license</outputDirectory>
-                    <!-- Intermediate Maven-only file; merge script writes final THIRD-PARTY.txt -->
+                    <!-- Intermediate Maven-only file; Java merger writes final THIRD-PARTY.txt -->
                     <thirdPartyFilename>THIRD-PARTY-MAVEN.txt</thirdPartyFilename>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <sortArtifactByName>true</sortArtifactByName>
@@ -3091,33 +3090,6 @@
                             <goal>aggregate-add-third-party</goal>
                         </goals>
                         <phase>generate-resources</phase>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- Merge Maven + npm production inventories into a single THIRD-PARTY.txt -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>${maven.exec.plugin.version}</version>
-                <inherited>false</inherited>
-                <executions>
-                    <execution>
-                        <id>merge-third-party-inventory</id>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <phase>generate-resources</phase>
-                        <configuration>
-                            <!-- Override with -Dpython.executable=python3 when needed -->
-                            <executable>${python.executable}</executable>
-                            <workingDirectory>${maven.multiModuleProjectDirectory}</workingDirectory>
-                            <arguments>
-                                <argument>${maven.multiModuleProjectDirectory}/scripts/generate-third-party-inventory.py</argument>
-                                <argument>--root</argument>
-                                <argument>${maven.multiModuleProjectDirectory}</argument>
-                                <argument>--require-maven</argument>
-                            </arguments>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

@@ -396,14 +396,46 @@
             <!--
               Ship product license artifacts at the distribution root (issue #1689):
               - LICENSE.txt / NOTICE.txt from the reactor root (stable product prose)
-              - THIRD-PARTY.txt from license-maven-plugin aggregate output (versioned inventory)
+              - THIRD-PARTY.txt merged inventory (Maven + npm production)
 
-              The inventory is generated on the reactor root during generate-resources.
-              Full-reactor builds therefore have it before this late module runs. Standalone
-              builds of this module alone must generate it first from the repo root:
+              Maven half is produced on the reactor root (license-maven-plugin →
+              THIRD-PARTY-MAVEN.txt). This late module merges npm package-lock production
+              packages via com.intsof.common.utilities.license.ThirdPartyLicenseInventory
+              (utilities is already built earlier in the reactor), then copies the merged
+              file into the assembly.
+
+              Standalone: from repo root first run
                 mvnw.cmd license:aggregate-add-third-party
-              (full reactor load required — do not use -N, or the inventory is empty).
+              (full reactor load required — do not use -N).
             -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>merge-third-party-inventory</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <mainClass>com.intsof.common.utilities.license.ThirdPartyLicenseInventory</mainClass>
+                            <classpathScope>runtime</classpathScope>
+                            <arguments>
+                                <argument>--root</argument>
+                                <argument>${maven.multiModuleProjectDirectory}</argument>
+                                <argument>--out-dir</argument>
+                                <argument>${maven.multiModuleProjectDirectory}/target/generated-sources/license</argument>
+                                <argument>--lock-list</argument>
+                                <argument>${maven.multiModuleProjectDirectory}/src/license/npm-package-locks.txt</argument>
+                                <argument>--title</argument>
+                                <argument>Percussion CMS third-party dependency license inventory</argument>
+                                <argument>--require-maven</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -413,6 +445,7 @@
                       generate-resources (not process-resources): antrun assembly is also wired early
                       and can fail the process-resources phase (e.g. missing WebUI/target in standalone
                       builds) before later process-resources executions run. Copy licenses first.
+                      Declared after merge-third-party-inventory so THIRD-PARTY.txt exists.
                     -->
                     <execution>
                         <id>copy-license-inventory</id>
