@@ -94,6 +94,8 @@ export const SHIP_LOCALE_ENDONYMS: Readonly<Record<string, string>> = {
   te: "తెలుగు",
   tr: "Türkçe",
   "tr-tr": "Türkçe (Türkiye)",
+  uk: "українська",
+  "uk-ua": "українська (Україна)",
   "zh-cn": "中文 (简体)",
   "zh-tw": "中文 (繁體)",
 };
@@ -133,6 +135,7 @@ const LANGUAGE_DEFAULT_REGION: Readonly<Record<string, string>> = {
   sv: "SE",
   te: "IN",
   tr: "TR",
+  uk: "UA",
   zh: "CN",
 };
 

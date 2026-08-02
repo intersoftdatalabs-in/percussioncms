@@ -122,6 +122,12 @@ describe("login/localeLabels", () => {
       expect(localeLabel("tr-tr", "en-us", "Turkish (Turkey)")).toBe(
         "tr-tr - Türkçe (Türkiye)",
       );
+      expect(localeLabel("uk", "en-us", "Ukrainian")).toBe(
+        "uk - українська",
+      );
+      expect(localeLabel("uk-ua", "en-us", "Ukrainian (Ukraine)")).toBe(
+        "uk-ua - українська (Україна)",
+      );
       expect(localeLabel("hi-in", "en-us", "Hindi (India)")).toBe(
         "hi-in - हिन्दी (भारत)",
       );
@@ -189,6 +195,8 @@ describe("login/localeLabels", () => {
       expect(localeRegionCode("he")).toBe("IL");
       expect(localeRegionCode("he-il")).toBe("IL");
       expect(localeRegionCode("hi")).toBe("IN");
+      expect(localeRegionCode("uk")).toBe("UA");
+      expect(localeRegionCode("uk-ua")).toBe("UA");
     });
 
     it("maps region codes to emoji (text fallback)", () => {

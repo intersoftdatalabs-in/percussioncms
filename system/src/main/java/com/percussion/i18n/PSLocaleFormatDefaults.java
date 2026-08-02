@@ -735,6 +735,32 @@ public final class PSLocaleFormatDefaults {
     put(
         m,
         fmt(
+            "uk",
+            PSLocaleFormat.TEXT_DIR_LTR,
+            "dd.MM.yyyy",
+            "HH:mm",
+            ",",
+            " ",
+            "UAH",
+            PSLocaleFormat.FIRST_DAY_MONDAY,
+            PSLocaleFormat.MEASUREMENT_METRIC,
+            null));
+    put(
+        m,
+        fmt(
+            "uk-ua",
+            PSLocaleFormat.TEXT_DIR_LTR,
+            "dd.MM.yyyy",
+            "HH:mm",
+            ",",
+            " ",
+            "UAH",
+            PSLocaleFormat.FIRST_DAY_MONDAY,
+            PSLocaleFormat.MEASUREMENT_METRIC,
+            "Europe/Kyiv"));
+    put(
+        m,
+        fmt(
             "te",
             PSLocaleFormat.TEXT_DIR_LTR,
             "dd/MM/yyyy",
