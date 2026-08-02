@@ -20,9 +20,7 @@ package com.percussion.rest.i18n;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-/**
- * DOM source snapshot from {@code @mkd/language} correction payload.
- */
+/** DOM source snapshot from {@code @mkd/language} correction payload. */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Schema(description = "Element source metadata from the language correction client")
 public class I18nCorrectionSource {

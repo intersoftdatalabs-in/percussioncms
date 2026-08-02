@@ -30,9 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Forwards browser language corrections to GCM when configured and role-gated.
- */
+/** Forwards browser language corrections to GCM when configured and role-gated. */
 @PSSiteManageBean
 public class I18nCorrectionsAdaptorImpl implements I18nCorrectionsAdaptor {
 

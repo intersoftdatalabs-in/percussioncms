@@ -29,8 +29,8 @@ import com.percussion.apibridge.mkd.MkdLanguageConfig;
 import com.percussion.rest.i18n.I18nCorrectionResult;
 import com.percussion.rest.i18n.I18nCorrectionSubmission;
 import com.percussion.server.PSServer;
+import com.percussion.util.PSProperties;
 import java.lang.reflect.Field;
-import java.util.Properties;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -43,16 +43,16 @@ import org.junit.jupiter.api.Test;
 @Tag("UnitTest")
 public class I18nCorrectionsAdaptorImplTest {
 
-  private Properties previousProps;
+  private PSProperties previousProps;
   private Field propsField;
 
   @BeforeEach
   public void captureServerProps() throws Exception {
     propsField = PSServer.class.getDeclaredField("ms_serverProps");
     propsField.setAccessible(true);
-    previousProps = (Properties) propsField.get(null);
-    Properties p = new Properties();
-    propsField.set(null, p);
+    previousProps = (PSProperties) propsField.get(null);
+    // Field type is PSProperties (extends java.util.Properties); plain Properties cannot be set.
+    propsField.set(null, new PSProperties());
   }
 
   @AfterEach
@@ -61,7 +61,7 @@ public class I18nCorrectionsAdaptorImplTest {
   }
 
   private void setProp(String key, String value) throws Exception {
-    Properties p = (Properties) propsField.get(null);
+    PSProperties p = (PSProperties) propsField.get(null);
     if (value == null) {
       p.remove(key);
     } else {
@@ -118,7 +118,8 @@ public class I18nCorrectionsAdaptorImplTest {
     when(gcm.postCorrection(any())).thenReturn("mid-xyz");
     setProp(MkdLanguageConfig.PROP_ENABLED, "true");
     setProp(MkdLanguageConfig.PROP_ROLES, "*");
-    // Without live session getUserRoles may throw → SecurityException. Accept either ok or security.
+    // Without live session getUserRoles may throw → SecurityException. Accept either ok or
+    // security.
     I18nCorrectionsAdaptorImpl adaptor = new I18nCorrectionsAdaptorImpl(gcm);
     try {
       I18nCorrectionResult r = adaptor.submit(sampleBody());

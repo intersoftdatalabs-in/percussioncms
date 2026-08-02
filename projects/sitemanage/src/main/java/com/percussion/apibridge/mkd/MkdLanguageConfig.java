@@ -54,7 +54,8 @@ public final class MkdLanguageConfig {
   private MkdLanguageConfig() {}
 
   public static boolean isEnabled() {
-    return Boolean.parseBoolean(StringUtils.trimToEmpty(PSServer.getProperty(PROP_ENABLED, "false")));
+    return Boolean.parseBoolean(
+        StringUtils.trimToEmpty(PSServer.getProperty(PROP_ENABLED, "false")));
   }
 
   /**
@@ -153,10 +154,8 @@ public final class MkdLanguageConfig {
       return;
     }
     try {
-      String secureDir =
-          PathUtils.getRxDir(null).getAbsolutePath().concat(PSEncryptor.SECURE_DIR);
-      PSEncryptProperties.encryptFile(
-          serverPropsFile, List.of(PROP_GCM_TOKEN), secureDir);
+      String secureDir = PathUtils.getRxDir(null).getAbsolutePath().concat(PSEncryptor.SECURE_DIR);
+      PSEncryptProperties.encryptFile(serverPropsFile, List.of(PROP_GCM_TOKEN), secureDir);
     } catch (Exception e) {
       log.warn("Could not encrypt {} at startup: {}", PROP_GCM_TOKEN, e.toString());
     }

@@ -43,7 +43,8 @@ public class MkdGcmCorrectionService {
     String token = MkdLanguageConfig.gcmTokenPlain();
     if (StringUtils.isBlank(group) || StringUtils.isBlank(token)) {
       throw new IllegalStateException(
-          "GCM not configured (set perc.mkd.gcm.group and perc.mkd.gcm.token in server.properties)");
+          "GCM not configured (set perc.mkd.gcm.group and perc.mkd.gcm.token in"
+              + " server.properties)");
     }
 
     CorrectionSubmission sdk = toSdk(submission);
