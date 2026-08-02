@@ -729,8 +729,7 @@
     ) {
       return content;
     }
-    var text =
-      content === null || content === undefined ? "" : String(content);
+    var text = content === null || content === undefined ? "" : String(content);
     var parsed = new DOMParser().parseFromString(text, "text/html");
     percSanitizeDialogNode(parsed.body);
     return $(parsed.body.childNodes);
