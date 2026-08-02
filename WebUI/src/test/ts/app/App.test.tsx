@@ -117,6 +117,11 @@ describe("App shell", () => {
     window.history.replaceState({}, "", "/");
   });
 
+  // Lazy feature shells routinely resolve in a few hundred ms; under full
+  // suite load they occasionally exceed RTL's 1000ms default. Keep waits
+  // consistent so App tests do not flake on slower CI agents.
+  const SHELL_TIMEOUT = 8000;
+
   it("renders TopNav and embedded Home shell from entry query", async () => {
     window.history.replaceState({}, "", "/cm/app/home");
     render(
@@ -124,15 +129,15 @@ describe("App shell", () => {
         bootstrap={bootstrap}
         entrySearch="?entry=home"
         basename="/cm/app"
-      />
+      />,
     );
     expect(screen.getByTestId("perc-spa-topnav")).toBeTruthy();
     expect(screen.getByTestId("perc-spa-user-name").textContent).toContain(
       "demo",
     );
-    await waitFor(() => {
-      expect(screen.getByTestId("home-shell")).toBeTruthy();
-    });
+    expect(
+      await screen.findByTestId("home-shell", {}, { timeout: SHELL_TIMEOUT }),
+    ).toBeTruthy();
   });
 
   it("shows publish nav for designer and loads PublishingShell", async () => {
@@ -147,7 +152,13 @@ describe("App shell", () => {
       />,
     );
     expect(screen.getByTestId("nav-publish")).toBeTruthy();
-    expect(await screen.findByTestId("publishing-shell", {}, { timeout: 5000 })).toBeTruthy();
+    expect(
+      await screen.findByTestId(
+        "publishing-shell",
+        {},
+        { timeout: SHELL_TIMEOUT },
+      ),
+    ).toBeTruthy();
   });
 
   it("shows developer nav for designer and loads DeveloperShell", async () => {
@@ -161,14 +172,18 @@ describe("App shell", () => {
     );
     expect(screen.getByTestId("nav-developer")).toBeTruthy();
     expect(
-      await screen.findByTestId("perc-developer-shell", {}, { timeout: 5000 }),
+      await screen.findByTestId(
+        "perc-developer-shell",
+        {},
+        { timeout: SHELL_TIMEOUT },
+      ),
     ).toBeTruthy();
     expect(
       screen.getByTestId("tab-developer-templates").getAttribute("aria-selected"),
     ).toBe("true");
   });
 
-  it("hides admin tools for non-admin", () => {
+  it("hides admin tools for non-admin", async () => {
     render(
       <App
         bootstrap={{ ...bootstrap, isAdmin: false, isDesigner: false }}
@@ -178,6 +193,9 @@ describe("App shell", () => {
     );
     expect(screen.queryByTestId("nav-admin")).toBeNull();
     expect(screen.queryByTestId("nav-publish")).toBeNull();
+    // Drain Home shell async updates so this case does not race act() warnings
+    // against the next test when run under full-suite load.
+    await screen.findByTestId("home-shell", {}, { timeout: SHELL_TIMEOUT });
   });
 
   it("loads WorkflowAdminShell for admin entry", async () => {
@@ -189,9 +207,13 @@ describe("App shell", () => {
         basename="/cm/app"
       />,
     );
-    await waitFor(() => {
-      expect(screen.getByTestId("perc-workflow-admin-shell")).toBeTruthy();
-    });
+    expect(
+      await screen.findByTestId(
+        "perc-workflow-admin-shell",
+        {},
+        { timeout: SHELL_TIMEOUT },
+      ),
+    ).toBeTruthy();
     expect(screen.getByTestId("tab-roles").getAttribute("aria-selected")).toBe(
       "true",
     );
@@ -206,9 +228,13 @@ describe("App shell", () => {
         basename="/cm/app"
       />,
     );
-    await waitFor(() => {
-      expect(screen.getByTestId("perc-admin-shell")).toBeTruthy();
-    });
+    expect(
+      await screen.findByTestId(
+        "perc-admin-shell",
+        {},
+        { timeout: SHELL_TIMEOUT },
+      ),
+    ).toBeTruthy();
     expect(screen.getByTestId("tab-tools").getAttribute("aria-selected")).toBe(
       "true",
     );
@@ -222,11 +248,14 @@ describe("App shell", () => {
         basename="/cm/app"
       />,
     );
-    await waitFor(() => {
-      const app = screen.queryByTestId("widget-builder-app");
-      const disabled = screen.queryByTestId("wb-disabled");
-      expect(app ?? disabled).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        const app = screen.queryByTestId("widget-builder-app");
+        const disabled = screen.queryByTestId("wb-disabled");
+        expect(app ?? disabled).toBeTruthy();
+      },
+      { timeout: SHELL_TIMEOUT },
+    );
   });
 
   it("redirects non-admin away from workflow to home", async () => {
@@ -234,13 +263,12 @@ describe("App shell", () => {
       <App
         bootstrap={{ ...bootstrap, isAdmin: false, isDesigner: true }}
         entrySearch="?entry=workflow"
-      
         basename="/cm/app"
       />,
     );
-    await waitFor(() => {
-      expect(screen.getByTestId("home-shell")).toBeTruthy();
-    });
+    expect(
+      await screen.findByTestId("home-shell", {}, { timeout: SHELL_TIMEOUT }),
+    ).toBeTruthy();
   });
 
   it("redirects non-admin away from admin tools to home", async () => {
@@ -248,13 +276,12 @@ describe("App shell", () => {
       <App
         bootstrap={{ ...bootstrap, isAdmin: false, isDesigner: true }}
         entrySearch="?entry=admin"
-      
         basename="/cm/app"
       />,
     );
-    await waitFor(() => {
-      expect(screen.getByTestId("home-shell")).toBeTruthy();
-    });
+    expect(
+      await screen.findByTestId("home-shell", {}, { timeout: SHELL_TIMEOUT }),
+    ).toBeTruthy();
     expect(screen.queryByTestId("perc-admin-shell")).toBeNull();
   });
 
@@ -268,13 +295,12 @@ describe("App shell", () => {
           isWidgetBuilderActive: true,
         }}
         entrySearch="?entry=widget-builder"
-      
         basename="/cm/app"
       />,
     );
-    await waitFor(() => {
-      expect(screen.getByTestId("home-shell")).toBeTruthy();
-    });
+    expect(
+      await screen.findByTestId("home-shell", {}, { timeout: SHELL_TIMEOUT }),
+    ).toBeTruthy();
     expect(screen.queryByTestId("widget-builder-app")).toBeNull();
   });
 
@@ -283,13 +309,12 @@ describe("App shell", () => {
       <App
         bootstrap={{ ...bootstrap, isWidgetBuilderActive: false }}
         entrySearch="?entry=widget-builder"
-      
         basename="/cm/app"
       />,
     );
-    await waitFor(() => {
-      expect(screen.getByTestId("home-shell")).toBeTruthy();
-    });
+    expect(
+      await screen.findByTestId("home-shell", {}, { timeout: SHELL_TIMEOUT }),
+    ).toBeTruthy();
     expect(screen.queryByTestId("widget-builder-app")).toBeNull();
   });
 
@@ -306,13 +331,16 @@ describe("App shell", () => {
         <App
           bootstrap={bootstrap}
           entrySearch="?entry=explorer&path=/Sites"
-        
-        basename="/cm/app"
-      />,
+          basename="/cm/app"
+        />,
       );
-      await waitFor(() => {
-        expect(screen.getByTestId("content-explorer-shell")).toBeTruthy();
-      });
+      expect(
+        await screen.findByTestId(
+          "content-explorer-shell",
+          {},
+          { timeout: SHELL_TIMEOUT },
+        ),
+      ).toBeTruthy();
       expect(screen.queryByTestId("route-explorer")).toBeNull();
     } finally {
       vi.unstubAllGlobals();
