@@ -101,8 +101,7 @@ public final class MkdLanguageConfig {
     try {
       return Integer.parseInt(p);
     } catch (NumberFormatException e) {
-      log.warn(
-          "Invalid {} value '{}'; using default port {}", PROP_GCM_PORT, p, DEFAULT_GCM_PORT);
+      log.warn("Invalid {} value '{}'; using default port {}", PROP_GCM_PORT, p, DEFAULT_GCM_PORT);
       return DEFAULT_GCM_PORT;
     }
   }

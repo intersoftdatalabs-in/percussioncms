@@ -98,4 +98,3 @@ public class I18nCorrectionsResourceTest {
     assertEquals("Failed to submit correction.", ex.getMessage());
   }
 }
-
