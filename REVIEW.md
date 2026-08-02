@@ -115,6 +115,13 @@ from the base branch, never from the feature branch under review.
 
 ## Comment style
 
+- **Be concise, brief, and precise.** Prefer a short paragraph or a few
+  tight bullets over essays. Lead with the defect and the fix; skip
+  restating the whole file history. Wordy reviews burn review budget and
+  bury the signal (Minimax/Kilo: if it needs a TL;DR, rewrite it).
+- **Use light humor to soften negative feedback** — never sarcasm at the
+  author, never jokes that obscure the finding. One dry line is enough;
+  then state the concrete issue and the preferred mitigation.
 - Leave comments on the exact line via the GitHub PR review API.
 - Frame findings as suggestions the human can accept or reject; never as
   demands.

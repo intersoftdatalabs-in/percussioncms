@@ -121,25 +121,39 @@ class BundledGcmNativesLockstepTest {
 
   private static Path resolveModuleFile(String relative) throws IOException {
     Path cwd = Paths.get("").toAbsolutePath().normalize();
-    Path[] candidates =
-        new Path[] {
-          cwd.resolve(relative),
-          cwd.resolve("modules/perc-distribution-tree").resolve(relative),
-          cwd.resolve("../../modules/perc-distribution-tree").resolve(relative).normalize(),
-        };
-    for (Path p : candidates) {
-      if (p != null && Files.isRegularFile(p.normalize())) {
-        Path n = p.normalize();
-        if (relative.endsWith("pom.xml")) {
-          String text = Files.readString(n, StandardCharsets.UTF_8);
-          if (text.contains("<artifactId>perc-distribution-tree</artifactId>")) {
-            return n;
-          }
-        } else {
-          return n;
-        }
+    Path moduleRoot = findDistributionTreeModuleRoot(cwd);
+    Path target = moduleRoot.resolve(relative).normalize();
+    if (!Files.isRegularFile(target)) {
+      throw new IOException(
+          "Could not locate " + relative + " under " + moduleRoot + " (cwd=" + cwd + ")");
+    }
+    if (relative.endsWith("pom.xml")) {
+      String text = Files.readString(target, StandardCharsets.UTF_8);
+      if (!text.contains("<artifactId>perc-distribution-tree</artifactId>")) {
+        throw new IOException("Resolved pom is not perc-distribution-tree: " + target);
       }
     }
-    throw new IOException("Could not locate " + relative + " from " + cwd);
+    return target;
+  }
+
+  /** Walk up from cwd until modules/perc-distribution-tree is found (module or repo root). */
+  private static Path findDistributionTreeModuleRoot(Path start) throws IOException {
+    Path dir = start;
+    while (dir != null) {
+      Path asModule = dir.resolve("pom.xml");
+      if (Files.isRegularFile(asModule)) {
+        String text = Files.readString(asModule, StandardCharsets.UTF_8);
+        if (text.contains("<artifactId>perc-distribution-tree</artifactId>")) {
+          return dir;
+        }
+      }
+      Path nested = dir.resolve("modules").resolve("perc-distribution-tree");
+      Path nestedPom = nested.resolve("pom.xml");
+      if (Files.isRegularFile(nestedPom)) {
+        return nested;
+      }
+      dir = dir.getParent();
+    }
+    throw new IOException("Could not find modules/perc-distribution-tree from " + start);
   }
 }
