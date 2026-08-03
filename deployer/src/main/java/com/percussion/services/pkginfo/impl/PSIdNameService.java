@@ -37,6 +37,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @PSBaseBean("sys_idNameService")
 public class PSIdNameService implements IPSIdNameService {
+
+  /** Default constructor for use by Spring. */
+  public PSIdNameService() {}
+
   @PersistenceContext private EntityManager entityManager;
 
   private IPSCacheAccess cache;
@@ -168,10 +172,20 @@ public class PSIdNameService implements IPSIdNameService {
     }
   }
 
+  /**
+   * Returns the cache used by this service.
+   *
+   * @return the cache, may be <code>null</code>.
+   */
   public IPSCacheAccess getCache() {
     return cache;
   }
 
+  /**
+   * Sets the cache used by this service.
+   *
+   * @param cache the cache, may not be <code>null</code>.
+   */
   public void setCache(IPSCacheAccess cache) {
     if (cache == null) {
       throw new IllegalArgumentException("cache may not be null");

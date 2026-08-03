@@ -40,6 +40,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Table(name = "PSX_PKG_ELEMENT")
 public class PSPkgElement implements Serializable {
 
+  /** No-arg constructor required by JPA. */
   public PSPkgElement() {
     // For Hibernate
   }

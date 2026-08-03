@@ -37,6 +37,10 @@ import org.apache.commons.lang3.StringUtils;
 
 /** Utility class for detecting modifications to packaged elements. */
 public class PSPkgHelper {
+
+  /** Default constructor for use via static methods. */
+  public PSPkgHelper() {}
+
   /**
    * Detects modifications to packaged elements made outside configuration.
    *
@@ -223,7 +227,11 @@ public class PSPkgHelper {
     return version;
   }
 
-  /** Used by config service unit tests to enable/disable package helper. */
+  /**
+   * Used by config service unit tests to enable/disable package helper.
+   *
+   * @param enabledFlag <code>true</code> to enable the package helper.
+   */
   public static void setEnabled(boolean enabledFlag) {
     enabled = enabledFlag;
   }

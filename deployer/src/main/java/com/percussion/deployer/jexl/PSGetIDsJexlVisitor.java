@@ -34,6 +34,10 @@ import org.apache.commons.lang3.StringUtils;
  * @author vamsinukala
  */
 public class PSGetIDsJexlVisitor extends PSBaseJexlParserVisitor {
+
+  /** Default constructor for use by callers. */
+  public PSGetIDsJexlVisitor() {}
+
   /** The list of ids if any that need to be mapped may be <code>empty</code> */
   private List<String> m_ids = new ArrayList<>();
 

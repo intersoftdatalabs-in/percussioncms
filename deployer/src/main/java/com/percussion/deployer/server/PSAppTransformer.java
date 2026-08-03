@@ -105,6 +105,10 @@ import org.apache.commons.lang3.StringUtils;
  * objectstore elements.
  */
 public class PSAppTransformer {
+
+  /** Default constructor for use via the service locator. */
+  public PSAppTransformer() {}
+
   /**
    * Checks the supplied item data for literals and adds the required mappings to the supplied list.
    *
@@ -2114,7 +2118,7 @@ public class PSAppTransformer {
    *
    * @param mappings the list, assumed not <code>null</code>.
    * @param bindings the jexl bindings from which to retrieve the values, never <code>null</code>
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors processing the bindings.
    */
   public static void checkJexlBinding(
       List<PSApplicationIDTypeMapping> mappings, List<PSJexlBinding> bindings)
@@ -2268,7 +2272,7 @@ public class PSAppTransformer {
    *     contain a context appropriate for this method.
    * @param idMap The idMap to use for the transform,may not be <code>null</code>
    * @param bindings the jexl bindings that are indexed, never <code>null</code> may be empty
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors transforming the bindings.
    */
   public static void transformJexlBinding(
       PSApplicationIDTypeMapping mapping, PSIdMap idMap, PSJexlBindings bindings)
@@ -2317,7 +2321,7 @@ public class PSAppTransformer {
    *     contain a context appropriate for this method.
    * @param idMap The idMap to use for the transform,may not be <code>null</code>
    * @param je the jexl expression helper never <code>null</code>
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors transforming the binding parameter.
    */
   public static void transformJexlBindingParam(
       PSJexlBinding binding,

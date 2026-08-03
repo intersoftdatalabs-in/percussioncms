@@ -51,6 +51,10 @@ import org.w3c.dom.Document;
  * the export descriptor name.
  */
 public class PSExportJob extends PSDeployJob {
+
+  /** Default constructor for use by the job framework. */
+  public PSExportJob() {}
+
   /**
    * Restores the export descriptor from the supplied document, and validates that the user is
    * authorized to perform this job. Saves the security token from the request to use for subsequent

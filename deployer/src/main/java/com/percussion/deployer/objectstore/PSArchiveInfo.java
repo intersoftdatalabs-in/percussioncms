@@ -40,6 +40,7 @@ public class PSArchiveInfo implements IPSDeployComponent {
    *     the format expected.
    * @throws IllegalArgumentException if <code>src</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException if <code>src</code> is malformed.
+   * @throws PSDeployException if there are any errors restoring from XML.
    */
   public PSArchiveInfo(Element src) throws PSUnknownNodeTypeException, PSDeployException {
     if (src == null) throw new IllegalArgumentException("src may not be null");
@@ -179,7 +180,11 @@ public class PSArchiveInfo implements IPSDeployComponent {
     m_editable = value;
   }
 
-  /** Returns <code>true</code> if package is editable. */
+  /**
+   * Returns whether the package is editable.
+   *
+   * @return <code>true</code> if package is editable.
+   */
   public boolean isEditable() {
     return m_editable;
   }
@@ -334,7 +339,9 @@ public class PSArchiveInfo implements IPSDeployComponent {
   }
 
   /**
-   * @return the created
+   * Returns the time the package was created.
+   *
+   * @return the created time as the number of milliseconds since the epoch
    */
   public long getCreated() {
     return m_created;

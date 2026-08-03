@@ -32,6 +32,10 @@ import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
  * @author YuBingChen
  */
 public class PSNamespacehandler extends NamespaceHandlerSupport {
+
+  /** Default constructor for use by Spring. */
+  public PSNamespacehandler() {}
+
   /** Register parsers for all custom elements. */
   @Override
   public void init() {

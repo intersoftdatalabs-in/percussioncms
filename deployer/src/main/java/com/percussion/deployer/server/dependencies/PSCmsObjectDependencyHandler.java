@@ -358,6 +358,11 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
   /**
    * Convenience method that calls {@link #getRelationshipProcessor(PSSecurityToken, Map)
    * getRelationshipProcessor(tok, null)}
+   *
+   * @param tok the security token to use to obtain the relationship processor, may not be <code>
+   *     null</code>.
+   * @return the relationship processor, never <code>null</code>.
+   * @throws PSDeployException if there are any errors obtaining the relationship processor.
    */
   protected PSRelationshipProcessor getRelationshipProcessor(PSSecurityToken tok)
       throws PSDeployException {

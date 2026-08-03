@@ -76,6 +76,10 @@ import org.w3c.dom.Document;
 
 /** Job to install objects from a deployment archive using an import descriptor. */
 public class PSImportJob extends PSDeployJob {
+
+  /** Default constructor for use by the job framework. */
+  public PSImportJob() {}
+
   private static final Logger log = LogManager.getLogger(PSImportJob.class);
 
   /**

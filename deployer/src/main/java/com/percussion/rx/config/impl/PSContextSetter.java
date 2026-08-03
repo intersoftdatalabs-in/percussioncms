@@ -33,6 +33,9 @@ import java.util.Objects;
  */
 public class PSContextSetter extends PSSimplePropertySetter {
 
+  /** Default constructor for use by Spring. */
+  public PSContextSetter() {}
+
   @Override
   protected boolean applyProperty(
       Object obj,
@@ -93,5 +96,6 @@ public class PSContextSetter extends PSSimplePropertySetter {
     context.setDefaultSchemeId(schemeId);
   }
 
+  /** The property name for the default location scheme. */
   public static final String DEFAULT_SCHEME = "defaultLocationScheme";
 }

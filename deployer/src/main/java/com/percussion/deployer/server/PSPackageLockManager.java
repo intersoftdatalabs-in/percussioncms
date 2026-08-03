@@ -42,6 +42,9 @@ import org.xml.sax.SAXException;
  */
 public class PSPackageLockManager {
 
+  /** Default constructor for use by Spring. */
+  public PSPackageLockManager() {}
+
   private static final Logger log = LogManager.getLogger(PSPackageLockManager.class);
 
   /**

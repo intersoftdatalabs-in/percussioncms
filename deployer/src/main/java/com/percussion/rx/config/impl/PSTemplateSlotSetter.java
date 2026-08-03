@@ -42,6 +42,10 @@ import org.apache.logging.log4j.Logger;
  * @author YuBingChen
  */
 public class PSTemplateSlotSetter extends PSPropertySetterWithValidation {
+
+  /** Default constructor for use by Spring. */
+  public PSTemplateSlotSetter() {}
+
   @Override
   protected boolean applyProperty(
       Object obj,

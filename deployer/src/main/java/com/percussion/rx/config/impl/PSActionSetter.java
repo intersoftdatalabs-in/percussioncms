@@ -38,7 +38,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
 
+/**
+ * Property setter for {@link PSAction} objects. Handles setting URL parameters and visibility
+ * contexts on actions during local config apply.
+ */
 public class PSActionSetter extends PSSimplePropertySetter {
+
+  /** Default constructor for use by Spring and the framework. */
+  public PSActionSetter() {}
+
   @Override
   protected boolean applyProperty(
       Object obj,

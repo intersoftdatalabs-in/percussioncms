@@ -67,7 +67,7 @@ public class PSCommunityDefDependencyHandler extends PSDataObjectDependencyHandl
    * @param def The def for the type supported by this handler. May not be <code>null</code> and
    *     must be of the type supported by this class. See {@link #getType()} for more info.
    * @param dependencyMap The full dependency map. May not be <code>null</code>.
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors initializing the handler.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSCommunityDefDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap)

@@ -73,26 +73,56 @@ public class PSMappingElement implements Comparable<PSMappingElement> {
     return m_parentId != null;
   }
 
+  /**
+   * Returns the id of this mapping element.
+   *
+   * @return the id, never <code>null</code>.
+   */
   public String getId() {
     return m_id;
   }
 
+  /**
+   * Returns the name of this mapping element.
+   *
+   * @return the name, never <code>null</code>.
+   */
   public String getName() {
     return m_name;
   }
 
+  /**
+   * Returns the type of this mapping element.
+   *
+   * @return the type, never <code>null</code>.
+   */
   public String getType() {
     return m_type;
   }
 
+  /**
+   * Returns the parent id of this mapping element.
+   *
+   * @return the parent id, may be <code>null</code>.
+   */
   public String getParentId() {
     return m_parentId;
   }
 
+  /**
+   * Returns the parent name of this mapping element.
+   *
+   * @return the parent name, may be <code>null</code>.
+   */
   public String getParentName() {
     return m_parentName;
   }
 
+  /**
+   * Returns the parent type of this mapping element.
+   *
+   * @return the parent type, may be <code>null</code>.
+   */
   public String getParentType() {
     return m_parentType;
   }

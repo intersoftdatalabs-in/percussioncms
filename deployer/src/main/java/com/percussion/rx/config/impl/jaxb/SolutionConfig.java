@@ -63,14 +63,20 @@ import java.util.List;
 @XmlRootElement(name = "SolutionConfig")
 public class SolutionConfig {
 
+  /** Default constructor for JAXB. */
+  public SolutionConfig() {}
+
+  /** The description of the solution configuration, may be {@code null}. */
   protected String description;
 
+  /** The list of property or property-set objects in this solution configuration. */
   @XmlElements({
     @XmlElement(name = "property", type = Property.class),
     @XmlElement(name = "propertySet", type = PropertySet.class)
   })
   protected List<Object> propertyOrPropertySet;
 
+  /** The required name of the solution configuration. */
   @XmlAttribute(required = true)
   protected String name;
 

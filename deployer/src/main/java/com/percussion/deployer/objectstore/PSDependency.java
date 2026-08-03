@@ -166,6 +166,9 @@ public abstract class PSDependency
   /**
    * Convenience method to call {@link #setIsIncluded(boolean, boolean)} as setIsIncluded(boolean,
    * false).
+   *
+   * @param isIncluded <code>true</code> to mark this dependency as included in the package, <code>
+   *     false</code> to mark it as excluded.
    */
   public void setIsIncluded(boolean isIncluded) {
     setIsIncluded(isIncluded, false);
@@ -1229,7 +1232,11 @@ public abstract class PSDependency
     }
   }
 
-  // see IPSDeployComponent
+  /**
+   * Copies the state from the supplied deploy component.
+   *
+   * @param obj the source deploy component, may not be <code>null</code>.
+   */
   public void copyFrom(IPSDeployComponent obj) {
     if (obj == null) throw new IllegalArgumentException("obj may not be null");
 
@@ -1266,6 +1273,11 @@ public abstract class PSDependency
     }
   }
 
+  /**
+   * Copy constructor.
+   *
+   * @param dep the source dependency, may not be <code>null</code>.
+   */
   public PSDependency(PSDependency dep) {
     this.m_displayName = dep.m_displayName;
     this.m_dependencyType = dep.m_dependencyType;

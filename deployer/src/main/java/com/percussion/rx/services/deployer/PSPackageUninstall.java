@@ -45,6 +45,9 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSPackageUninstall implements IPSPackageUninstaller {
 
+  /** Default constructor for use by Spring. */
+  public PSPackageUninstall() {}
+
   /**
    * Uninstalls the packages. Creates uninstall messages with the returned results.
    *

@@ -274,10 +274,16 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
    * @throws PSDeployException
    */
   /**
-   * Not Spring-managed — do not put {@code @Transactional} here. Persistence runs under {@link
+   * Saves the supplied item filter with the supplied version.
+   *
+   * <p>Not Spring-managed — do not put {@code @Transactional} here. Persistence runs under {@link
    * com.percussion.deployer.services.impl.PSDeployService}'s transaction (and the filter service's
    * own {@code @Transactional} join). Nested annotations on non-proxied handlers are ignored and
    * mislead maintainers.
+   *
+   * @param f the item filter to save, may not be <code>null</code>.
+   * @param ver the version number to set, may be <code>null</code>.
+   * @throws PSDeployException if there are any errors saving the filter.
    */
   public void saveFilter(IPSItemFilter f, Integer ver) throws PSDeployException {
     // Apply version once. Do not null-then-restore on a managed entity elsewhere in the TX —
@@ -307,16 +313,16 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
   /**
    * Deserialize the filter and alter its properties so as to be unique.
    *
-   * @param tok
+   * @param tok the security token, may not be <code>null</code>.
    * @param archive the ArchiveHandler to use to retrieve the files from the archive, may not be
    *     <code>null</code>
-   * @param dep
+   * @param dep the dependency being processed, may not be <code>null</code>.
    * @param depFile the PSDependencyFile that was retrieved from the archive may not be <code>null
    *     </code>
-   * @param ctx
+   * @param ctx the import context, may not be <code>null</code>.
    * @param filter if any, pre-loaded
    * @return the deserialized filter
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   public IPSItemFilter generateFilterFromFile(
       PSSecurityToken tok,
@@ -394,7 +400,7 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
    *
    * @param depId the guid
    * @return <code>null</code> if slot is not found else get DA SLOT
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   public IPSItemFilter findFilterByDependencyID(String depId) throws PSDeployException {
     if (depId == null || depId.trim().length() == 0)
@@ -472,7 +478,7 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
    * @param ctx import context never <code>null</code>
    * @param isNew if <code>true</code>, then don't transform the idType
    * @return the filter with tranforms performed
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   public IPSItemFilter doTransforms(
       IPSItemFilter filter, PSDependency dep, PSImportCtx ctx, boolean isNew)

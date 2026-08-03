@@ -124,20 +124,20 @@ public class PSCatalogResultSet implements IPSDeployComponent {
   /**
    * Serializes this object's state to its XML representation. Format is:
    *
-   * <pre><code>
-   *    %lt;!--
+   * <pre>
+   *    &lt;!--
    *       Please see {@link PSCatalogResult#toXml(Document) toXml} for the
-   *       format of the <code>PSXCatalogResult</code>
-   *    -->
-   *    %lt;!ELEMENT PSXCatalogResultSet(PSXCatalogResultColumnMeta?,
-   *       PSXCatalogResult*))>
-   *    %li;!--
+   *       format of the PSXCatalogResult
+   *    --&gt;
+   *    &lt;!ELEMENT PSXCatalogResultSet(PSXCatalogResultColumnMeta?,
+   *       PSXCatalogResult*))&gt;
+   *    &lt;!--
    *    The definition of the result columns. Please see {@link
    *    PSCatalogResultColumn#toXml(Document) toXml} for the format of the
-   *    <code>PSXCatalogResultColumn</code>
-   *    -->
-   *    %lt;!ELEMENT PSXCatalogResultColumnMeta (PSXCatalogResultColumn+)>
-   * </code></pre>
+   *    PSXCatalogResultColumn
+   *    --&gt;
+   *    &lt;!ELEMENT PSXCatalogResultColumnMeta (PSXCatalogResultColumn+)&gt;
+   * </pre>
    *
    * See {@link IPSDeployComponent#toXml(Document)} for more info.
    */

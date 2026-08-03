@@ -121,6 +121,7 @@ public class PSDbmsInfo implements IPSDeployComponent {
    * @throws IllegalArgumentException if <code>src</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
    *     by the class.
+   * @throws PSDeployException if there are any errors restoring from XML.
    */
   public PSDbmsInfo(Element src) throws PSUnknownNodeTypeException, PSDeployException {
     fromXml(src);
@@ -531,10 +532,21 @@ public class PSDbmsInfo implements IPSDeployComponent {
     }
   }
 
+  /**
+   * Returns whether the password is encrypted.
+   *
+   * @return <code>true</code> if the password is encrypted; <code>false</code> otherwise.
+   */
   public boolean isPasswordEncrypted() {
     return passwordEncrypted;
   }
 
+  /**
+   * Sets whether the password is encrypted.
+   *
+   * @param passwordEncrypted <code>true</code> if the password is encrypted; <code>false</code>
+   *     otherwise.
+   */
   public void setPasswordEncrypted(boolean passwordEncrypted) {
     this.passwordEncrypted = passwordEncrypted;
   }
@@ -544,6 +556,10 @@ public class PSDbmsInfo implements IPSDeployComponent {
     return (PSDbmsInfo) super.clone();
   }
 
+  /**
+   * Wraps connection information for a single database used by {@link PSDbmsInfo}. Implements
+   * {@link IPSConnectionInfo} so it can be used by the connection framework.
+   */
   public class PSDbmsConnectionInfo implements IPSConnectionInfo {
     private String m_datasource = null;
 
@@ -560,10 +576,20 @@ public class PSDbmsInfo implements IPSDeployComponent {
       return Objects.hash(m_datasource);
     }
 
+    /**
+     * Creates a new PSDbmsConnectionInfo for the supplied datasource.
+     *
+     * @param dataSrc the datasource name, may not be <code>null</code>.
+     */
     public PSDbmsConnectionInfo(String dataSrc) {
       m_datasource = dataSrc;
     }
 
+    /**
+     * Returns the datasource name.
+     *
+     * @return the datasource name, never <code>null</code>.
+     */
     public String getDataSource() {
       return m_datasource;
     }
@@ -622,8 +648,10 @@ public class PSDbmsInfo implements IPSDeployComponent {
   // private members for XML representation
   // datasource is public since it can be used during reading/writing archive
   // manifest.
+  /** The XML element name for the datasource. */
   public static final String DATASOURCE_XML_ELEMENT = "datasource";
 
+  /** The XML element name for the driver. */
   private static final String DRIVER_XML_ELEMENT = "driver";
 
   private static final String SERVER_XML_ELEMENT = "server";

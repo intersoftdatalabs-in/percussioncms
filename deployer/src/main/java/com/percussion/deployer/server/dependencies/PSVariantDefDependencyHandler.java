@@ -94,6 +94,7 @@ public class PSVariantDefDependencyHandler extends PSDataObjectDependencyHandler
    * Utility method to find the Variant by a given guid(as a STRINGGGGGG)
    *
    * @param depId the guid
+   * @param loadSlots flag indicating whether the template slots should be loaded.
    * @return <code>null</code> if Variant is not found
    */
   protected static PSAssemblyTemplate findVariantByDependencyID(String depId, boolean loadSlots) {
@@ -107,7 +108,7 @@ public class PSVariantDefDependencyHandler extends PSDataObjectDependencyHandler
    * @param ctx import context never <code>null</code>
    * @param dep the dependency never <code>null</code>
    * @return do the transforms on the passed in template and return it back
-   * @throws PSDeployException
+   * @throws PSDeployException if the transforms fail.
    */
   public PSAssemblyTemplate doTransforms(PSAssemblyTemplate t, PSImportCtx ctx, PSDependency dep)
       throws PSDeployException {

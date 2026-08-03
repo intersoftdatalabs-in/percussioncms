@@ -31,6 +31,9 @@ import jakarta.persistence.Converter;
 @Converter
 public class BooleanToCharConverter implements AttributeConverter<Boolean, String> {
 
+  /** Default constructor for JPA. */
+  public BooleanToCharConverter() {}
+
   /**
    * Converts the Boolean attribute to a String for storing in the database.
    *

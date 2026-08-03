@@ -148,9 +148,9 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler {
   /**
    * acl dependency is returned based on ACL dep id (**NOT ITS PARENT**)
    *
-   * @param tok
+   * @param tok The security token to use, may not be {@code null}.
    * @param id the guid for the acl dependency
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors loading the ACL dependency.
    */
   @Override
   public PSDependency getDependency(PSSecurityToken tok, String id) throws PSDeployException {

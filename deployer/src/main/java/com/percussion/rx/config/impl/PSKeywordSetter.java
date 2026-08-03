@@ -35,6 +35,9 @@ import java.util.List;
  */
 public class PSKeywordSetter extends PSSimplePropertySetter {
 
+  /** Default constructor for use by Spring. */
+  public PSKeywordSetter() {}
+
   @Override
   protected boolean applyProperty(
       Object obj,

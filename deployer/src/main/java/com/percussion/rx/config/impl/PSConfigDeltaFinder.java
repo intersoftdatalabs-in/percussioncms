@@ -25,6 +25,10 @@ import java.util.Map;
  * @author bjoginipally
  */
 public class PSConfigDeltaFinder {
+
+  /** Default constructor for use by Spring. */
+  public PSConfigDeltaFinder() {}
+
   /**
    * Returns the delta of new properties and old properties. If a property exists in new property
    * and not in old then it is considered as delta.

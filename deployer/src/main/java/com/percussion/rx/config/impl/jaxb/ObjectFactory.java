@@ -50,39 +50,86 @@ public class ObjectFactory {
    */
   public ObjectFactory() {}
 
+  /**
+   * Creates a new {@link Entry} instance.
+   *
+   * @return a new Entry object
+   */
   public Entry createEntry() {
     return new Entry();
   }
 
+  /**
+   * Creates a new {@link Property} instance.
+   *
+   * @return a new Property object
+   */
   public Property createProperty() {
     return new Property();
   }
 
+  /**
+   * Creates a new {@link Pair} instance.
+   *
+   * @return a new Pair object
+   */
   public Pair createPair() {
     return new Pair();
   }
 
+  /**
+   * Creates a new {@link PropertySet} instance.
+   *
+   * @return a new PropertySet object
+   */
   public PropertySet createPropertySet() {
     return new PropertySet();
   }
 
+  /**
+   * Creates a new {@link Property.Pvalues} instance.
+   *
+   * @return a new Property.Pvalues object
+   */
   public Property.Pvalues createPropertyPvalues() {
     return new Property.Pvalues();
   }
 
+  /**
+   * Creates a new {@link SolutionConfigurations} instance.
+   *
+   * @return a new SolutionConfigurations object
+   */
   public SolutionConfigurations createSolutionConfigurations() {
     return new SolutionConfigurations();
   }
 
+  /**
+   * Creates a new {@link SolutionConfig} instance.
+   *
+   * @return a new SolutionConfig object
+   */
   public SolutionConfig createSolutionConfig() {
     return new SolutionConfig();
   }
 
+  /**
+   * Wraps the supplied string value in a {@code description} XML element.
+   *
+   * @param value the string value to wrap, may be {@code null}
+   * @return a {@link JAXBElement} representing the description element
+   */
   @XmlElementDecl(namespace = "", name = "description")
   public JAXBElement<String> createDescription(String value) {
     return new JAXBElement<>(_Description_QNAME, String.class, null, value);
   }
 
+  /**
+   * Wraps the supplied string value in a {@code pvalue} XML element.
+   *
+   * @param value the string value to wrap, may be {@code null}
+   * @return a {@link JAXBElement} representing the pvalue element
+   */
   @XmlElementDecl(namespace = "", name = "pvalue")
   public JAXBElement<String> createPvalue(String value) {
     return new JAXBElement<>(_Pvalue_QNAME, String.class, null, value);

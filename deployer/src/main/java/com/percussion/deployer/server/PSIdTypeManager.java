@@ -50,6 +50,9 @@ import org.w3c.dom.Document;
  */
 public class PSIdTypeManager {
 
+  /** Default constructor for use by Spring. */
+  public PSIdTypeManager() {}
+
   /**
    * Loads the existing map for the specified dependency key.
    *
@@ -109,6 +112,12 @@ public class PSIdTypeManager {
   /**
    * Convenience method that calls {@link #loadIdTypes(PSSecurityToken, PSDependency, boolean, Map,
    * Map) loadIdTypes(tok, dep, false, null, null)}.
+   *
+   * @param tok the security token, may not be <code>null</code>.
+   * @param dep the dependency, may not be <code>null</code>.
+   * @return the ID types, may be <code>null</code>.
+   * @throws PSDeployException if there are any errors.
+   * @throws PSNotFoundException if a referenced object is not found.
    */
   public static PSApplicationIDTypes loadIdTypes(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {

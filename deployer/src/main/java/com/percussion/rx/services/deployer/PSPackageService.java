@@ -46,6 +46,14 @@ import org.springframework.stereotype.Service;
 @Service(value = "packageService")
 public class PSPackageService {
 
+  /** Default constructor for use by Spring. */
+  public PSPackageService() {}
+
+  /**
+   * REST endpoint: returns all packages.
+   *
+   * @return the list of installed packages, never <code>null</code>.
+   */
   @GET
   @Path("/packages")
   @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -71,6 +79,13 @@ public class PSPackageService {
     return packages;
   }
 
+  /**
+   * REST endpoint: reapplies visibility settings to the supplied packages.
+   *
+   * @param packageNames comma separated list of package names to reapply visibility to, may not be
+   *     blank.
+   * @return the UI response indicating success or failure, never <code>null</code>.
+   */
   @GET
   @Path("/reapplyVisibility")
   @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -88,6 +103,13 @@ public class PSPackageService {
     }
   }
 
+  /**
+   * REST endpoint: reapplies configuration settings to the supplied packages.
+   *
+   * @param packageNames comma separated list of package names to reapply configuration to, may not
+   *     be blank.
+   * @return the UI response indicating success or failure, never <code>null</code>.
+   */
   @GET
   @Path("/reapplyConfigs")
   @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -105,6 +127,11 @@ public class PSPackageService {
     }
   }
 
+  /**
+   * REST endpoint: returns the communities associated with each package.
+   *
+   * @return the package / community associations, never <code>null</code>.
+   */
   @GET
   @Path("/packageCommunities")
   @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -136,6 +163,11 @@ public class PSPackageService {
     return result;
   }
 
+  /**
+   * REST endpoint: returns the packages associated with each community.
+   *
+   * @return the community / package associations, never <code>null</code>.
+   */
   @GET
   @Path("/communityPackages")
   @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -143,6 +175,13 @@ public class PSPackageService {
     return PSPackageServiceHelper.getCommunityPackages();
   }
 
+  /**
+   * REST endpoint: updates the communities associated with a package.
+   *
+   * @param packageName the package name, may not be blank.
+   * @param selectedComms comma separated list of community names to associate with the package.
+   * @return the UI response indicating success or failure, never <code>null</code>.
+   */
   @POST
   @Path("/updatePackageCommunities")
   @Consumes("application/x-www-form-urlencoded")
@@ -161,6 +200,13 @@ public class PSPackageService {
     return response;
   }
 
+  /**
+   * REST endpoint: updates the packages associated with a community.
+   *
+   * @param communityName the community name, may not be blank.
+   * @param selectedPkgs comma separated list of package names to associate with the community.
+   * @return the UI response indicating success or failure, never <code>null</code>.
+   */
   @POST
   @Path("/updateCommunityPackages")
   @Consumes("application/x-www-form-urlencoded")
@@ -178,6 +224,13 @@ public class PSPackageService {
     return response;
   }
 
+  /**
+   * REST endpoint: uninstalls the supplied packages.
+   *
+   * @param packageNames the package name to uninstall, may not be <code>null</code>.
+   * @return the uninstall messages, never <code>null</code>.
+   * @throws PSNotFoundException if a referenced package cannot be found.
+   */
   @POST
   @Path("/uninstallPackage")
   @Consumes("application/x-www-form-urlencoded")
@@ -190,6 +243,13 @@ public class PSPackageService {
     return msgs;
   }
 
+  /**
+   * REST endpoint: checks package dependencies before uninstall.
+   *
+   * @param packageName the package name, may not be <code>null</code>.
+   * @return the uninstall messages, never <code>null</code>.
+   * @throws PSNotFoundException if a referenced package cannot be found.
+   */
   @POST
   @Path("/checkPackageDependencies")
   @Consumes("application/x-www-form-urlencoded")
@@ -202,6 +262,12 @@ public class PSPackageService {
     return msgs;
   }
 
+  /**
+   * REST endpoint: returns the validation results for the supplied package.
+   *
+   * @param packageName the package name, may not be <code>null</code>.
+   * @return the UI response containing the validation results, never <code>null</code>.
+   */
   @GET
   @Path("/validationResults")
   @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -213,6 +279,11 @@ public class PSPackageService {
     }
   }
 
+  /**
+   * REST endpoint: returns the server user session timeout.
+   *
+   * @return the UI response containing the session timeout in seconds, never <code>null</code>.
+   */
   @GET
   @Path("serverTimeout")
   @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -221,6 +292,12 @@ public class PSPackageService {
     return new PSPkgUiResponse(PSPkgUiResponseType.SUCCESS, String.valueOf(sto));
   }
 
+  /**
+   * REST endpoint: converts an installed package to its source representation.
+   *
+   * @param packageName the package name to convert, may not be <code>null</code>.
+   * @return the UI response indicating success or failure, never <code>null</code>.
+   */
   @POST
   @Path("/convertPackage")
   @Consumes("application/x-www-form-urlencoded")

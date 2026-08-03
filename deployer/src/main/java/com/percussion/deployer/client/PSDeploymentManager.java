@@ -271,7 +271,7 @@ public class PSDeploymentManager {
    * </table> }
    *
    * @return an Iterator over zero or more {@literal Map<String, String>} objects.
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   public Iterator<Map<String, String>> getDependencyToPackageNameIndex() throws PSDeployException {
 
@@ -803,7 +803,7 @@ public class PSDeploymentManager {
   /**
    * Validate local config file specified against the localConfig.xsd.
    *
-   * @param localConfig
+   * @param localConfig the local config file to validate, may not be <code>null</code>.
    * @return If valid returns <code>null</code>, else returns a list of validation error strings.
    * @throws PSDeployException if any error occurs.
    */
@@ -1201,7 +1201,7 @@ public class PSDeploymentManager {
    * @param targetFile The file on the local file system to which the configDef is written. May not
    *     be <code>null</code>.
    * @return The job control handle, never <code>null</code>.
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   public IPSDeployJobControl createConfigDef(String descName, final File targetFile)
       throws PSDeployException {
@@ -1259,7 +1259,7 @@ public class PSDeploymentManager {
    * @param configDef The file on the local file system to which the default config will be based
    *     on. May not be <code>null</code>.
    * @return The job control handle, never <code>null</code>.
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   public IPSDeployJobControl createDefaultConfig(
       String descName, final File targetFile, final File configDef) throws PSDeployException {
@@ -1310,11 +1310,13 @@ public class PSDeploymentManager {
     }
   }
 
-  /*
-   * To convert the InputStream to String we use the
-   * BufferedReader.readLine() method. We iterate until the BufferedReader
-   * return null which means there's no more data to read. Each line will
+  /**
+   * To convert the InputStream to String we use the BufferedReader.readLine() method. We iterate
+   * until the BufferedReader return null which means there's no more data to read. Each line will
    * appended to a StringBuilder and returned as String.
+   *
+   * @param is the input stream to read, may not be <code>null</code>.
+   * @return the contents of the stream as a String, never <code>null</code>.
    */
   public String convertStreamToString(InputStream is) {
 
@@ -1350,7 +1352,7 @@ public class PSDeploymentManager {
    * @param targetFile The file on the local file system to which the summary is written. May not be
    *     <code>null</code>.
    * @return The job control handle, never <code>null</code>.
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   public IPSDeployJobControl createDescriptorSummary(String descName, final File targetFile)
       throws PSDeployException {

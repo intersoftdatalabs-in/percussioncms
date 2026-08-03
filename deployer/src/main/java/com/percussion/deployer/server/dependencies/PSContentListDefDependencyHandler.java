@@ -257,8 +257,9 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
   /**
    * From the contentList map, return a list of all the contentList names
    *
+   * @param nameFilter optional name filter, may be <code>null</code> to return all.
    * @return iterator on a set of names
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors loading the names.
    */
   public Iterator getContentListNames(String nameFilter) throws PSDeployException {
     init();
@@ -407,7 +408,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
    * @param cList the actual content list may be <code>null</code>, if null, create a new content
    *     list and deserialize on it, else use the given contentlist from persistence
    * @return the content list
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors loading or creating the content list.
    */
   protected IPSContentList generateContentListFromFile(
       PSArchiveHandler archive, PSDependencyFile depFile, IPSContentList cList)
@@ -846,11 +847,11 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
   /**
    * Content list name has to be unique
    *
-   * @param type
-   * @param currentName
+   * @param type the type enum, may not be <code>null</code>.
+   * @param currentName the current name to base the unique name on, may not be <code>null</code>.
    * @return a unique content list name
-   * @throws IllegalArgumentException
-   * @throws PSDeployException
+   * @throws IllegalArgumentException if any param is invalid.
+   * @throws PSDeployException if there are any errors generating a unique name.
    */
   public String getUniqueElementName(PSTypeEnum type, String currentName)
       throws IllegalArgumentException, PSDeployException {

@@ -29,11 +29,23 @@ import org.w3c.dom.Element;
  */
 public class PSDatasourceMap implements IPSDeployComponent {
 
+  /**
+   * Creates a new datasource map from the supplied source and target.
+   *
+   * @param src the source datasource, may be <code>null</code>.
+   * @param tgt the target datasource, may be <code>null</code>.
+   */
   public PSDatasourceMap(String src, String tgt) {
     m_srcDataSource = src;
     m_tgtDataSource = tgt;
   }
 
+  /**
+   * Restores this object from its XML representation.
+   *
+   * @param src the source XML element, may not be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML is malformed.
+   */
   public PSDatasourceMap(Element src) throws PSUnknownNodeTypeException {
     fromXml(src);
   }
@@ -49,7 +61,11 @@ public class PSDatasourceMap implements IPSDeployComponent {
     copyFrom(source);
   }
 
-  /** set the sourceDataSource may be <code>null</code> */
+  /**
+   * Sets the source datasource.
+   *
+   * @param datasrc the source datasource, may be <code>null</code>.
+   */
   public void setSrc(String datasrc) {
     m_srcDataSource = datasrc;
   }
@@ -63,7 +79,11 @@ public class PSDatasourceMap implements IPSDeployComponent {
     return m_srcDataSource;
   }
 
-  /** set the targetDataSource may be <code>null</code> */
+  /**
+   * Sets the target datasource.
+   *
+   * @param datasrc the target datasource, may be <code>null</code>.
+   */
   public void setTarget(String datasrc) {
     m_tgtDataSource = datasrc;
   }
@@ -81,7 +101,9 @@ public class PSDatasourceMap implements IPSDeployComponent {
    * A convenience method which will return either the sourceDataSource or targetDataSource
    * depending on the index from the tabledata.
    *
-   * @param ix
+   * @param ix the column index, either {@link #SOURCE_INDEX} or {@link #TARGET_INDEX}.
+   * @return the source or target datasource depending on the supplied index, may be <code>null
+   *     </code>.
    */
   public String getColumnData(int ix) {
     if (ix == SOURCE_INDEX) return getSrc();

@@ -66,6 +66,11 @@ public class PSAppConditionalIdContext extends PSApplicationIdContext {
   /**
    * Convenience method that calls {@link #isSameConditional(PSConditional, boolean)
    * isSameConditional(cond, false)}
+   *
+   * @param cond The conditional to compare against this context's current conditional value, may
+   *     not be <code>null</code>.
+   * @return <code>true</code> if the supplied conditional matches this context's current
+   *     conditional, <code>false</code> otherwise.
    */
   public boolean isSameConditional(PSConditional cond) {
     return isSameConditional(cond, false);

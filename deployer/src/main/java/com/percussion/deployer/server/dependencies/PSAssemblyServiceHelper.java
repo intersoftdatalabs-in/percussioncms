@@ -257,7 +257,7 @@ public class PSAssemblyServiceHelper {
    * Utility method to get TemplatesMap
    *
    * @return the hashmap of templates
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors loading the templates.
    */
   public HashMap<String, IPSAssemblyTemplate> getNamedTemplatesMap() throws PSDeployException {
     if (m_namedTemplatesMap != null) {
@@ -286,7 +286,7 @@ public class PSAssemblyServiceHelper {
    * Convenience method to return all VARIANTS to be known as Legacry Templates
    *
    * @return a map of &lt;template name, Template&gt;
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors loading the legacy templates.
    */
   public HashMap<String, IPSAssemblyTemplate> getLegacyTemplatesMap() throws PSDeployException {
     m_legacyTemplatesMap.clear();

@@ -59,12 +59,18 @@ import java.util.List;
 @XmlRootElement(name = "SolutionConfigurations")
 public class SolutionConfigurations {
 
+  /** Default constructor for JAXB. */
+  public SolutionConfigurations() {}
+
+  /** The list of {@link SolutionConfig} objects, required. */
   @XmlElement(name = "SolutionConfig", required = true)
   protected List<SolutionConfig> solutionConfig;
 
+  /** The required publisher prefix. */
   @XmlAttribute(required = true)
   protected String publisherPrefix;
 
+  /** The required publisher name. */
   @XmlAttribute(required = true)
   protected String publisherName;
 

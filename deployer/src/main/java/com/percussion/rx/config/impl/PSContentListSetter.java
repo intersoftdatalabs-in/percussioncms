@@ -40,6 +40,9 @@ import java.util.Objects;
  */
 public class PSContentListSetter extends PSSimplePropertySetter {
 
+  /** Default constructor for use by Spring. */
+  public PSContentListSetter() {}
+
   @Override
   protected boolean applyProperty(
       Object obj,
@@ -148,8 +151,15 @@ public class PSContentListSetter extends PSSimplePropertySetter {
     cList.setFilterId(filter.getGUID());
   }
 
+  /** The property name for the expander parameters. */
   public static final String EXPANDER_PARAMS = "expanderParams";
+
+  /** The property name for the generator parameters. */
   public static final String GEN_PARAMS = "generatorParams";
+
+  /** The property name for the delivery type. */
   public static final String DELIVERY_TYPE = "deliveryType";
+
+  /** The property name for the filter. */
   public static final String FILTER = "filter";
 }

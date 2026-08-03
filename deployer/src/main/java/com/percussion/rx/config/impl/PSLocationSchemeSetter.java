@@ -43,6 +43,9 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSLocationSchemeSetter extends PSSimplePropertySetter {
 
+  /** Default constructor for use by Spring. */
+  public PSLocationSchemeSetter() {}
+
   @Override
   public boolean applyProperties(Object obj, ObjectState state, List<IPSAssociationSet> aSets) {
     boolean isApplied = processGenerator(obj);
@@ -240,11 +243,11 @@ public class PSLocationSchemeSetter extends PSSimplePropertySetter {
   private static final Logger log = LogManager.getLogger(PSLocationSchemeSetter.class);
 
   /** The JEXL expression property name. */
+  public static final String EXPRESSION = "expression";
+
   /** JEXL assembly location generator FQN (was on retired JSF PSLocationSchemeEditor). */
   public static final String JEXL_GENERATOR =
       "Java/global/percussion/contentassembler/sys_JexlAssemblyLocation";
-
-  public static final String EXPRESSION = "expression";
 
   /** The generator name property. */
   public static final String GENERATOR = "generator";

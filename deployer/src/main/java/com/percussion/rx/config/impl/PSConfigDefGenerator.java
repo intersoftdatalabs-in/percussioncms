@@ -132,7 +132,8 @@ public class PSConfigDefGenerator {
   /**
    * Retrieve the fragment file.
    *
-   * @throws IOException
+   * @return the fragment file contents, never <code>null</code>.
+   * @throws IOException if the fragment file cannot be read.
    */
   public String getFragementFileContents() throws IOException {
     try (var in = getClass().getResourceAsStream(FRAGMENT_FILE)) {

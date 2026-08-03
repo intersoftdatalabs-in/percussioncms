@@ -42,6 +42,10 @@ import org.apache.commons.lang3.StringUtils;
  * @author bjoginipally
  */
 public class PSRelationshipConfigEffectSetter extends PSPropertySetterWithValidation {
+
+  /** Default constructor for use by Spring. */
+  public PSRelationshipConfigEffectSetter() {}
+
   @Override
   protected boolean applyProperty(
       Object obj,

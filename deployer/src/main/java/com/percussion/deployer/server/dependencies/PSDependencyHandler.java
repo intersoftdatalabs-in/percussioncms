@@ -44,6 +44,11 @@ import org.w3c.dom.Document;
  */
 public abstract class PSDependencyHandler implements IPSDependencyHandler {
 
+  /**
+   * Returns whether id type mapping is enabled.
+   *
+   * @return <code>true</code> if id type mapping is enabled, <code>false</code> otherwise.
+   */
   public static boolean isIdTypeMappingEnabled() {
     return false; // TODO: drive this off of the operating mode
   }
@@ -300,7 +305,8 @@ public abstract class PSDependencyHandler implements IPSDependencyHandler {
    * @param key the GUID type, never <code>null</code>
    * @param dep A dependency of the type defined by this handler, may not be <code>null</code>.
    * @param childDeps a collection to which an acl dependency must be added
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors loading the ACL.
+   * @throws PSNotFoundException if a referenced ACL object cannot be found.
    */
   @Override
   public void addAclDependency(
@@ -992,6 +998,8 @@ public abstract class PSDependencyHandler implements IPSDependencyHandler {
   /**
    * Transforms the mapping of a specified association given the id and type.
    *
+   * @param tok The security token to use if objectstore access is required, may not be <code>null
+   *     </code>.
    * @param ctx The import ctx to use to get id mappings, may not be <code>null</code>.
    * @param value The value to be transformed, may not be <code>null</code>.
    * @param type The type of dependency of the value. May not be <code>null</code> or empty.
@@ -1216,7 +1224,7 @@ public abstract class PSDependencyHandler implements IPSDependencyHandler {
    * @param ctx The import context to aid in the installation, may not be <code>null</code>.
    * @param type The GUID type of the object that has been affected, may not be <code>null</code>.
    * @param isNew <code>true</code>, if it does not exist on the target system
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors adding the transaction log entry.
    */
   @Override
   public void addTransactionLogEntryByGuidType(

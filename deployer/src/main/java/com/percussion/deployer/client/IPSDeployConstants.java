@@ -30,10 +30,18 @@ public interface IPSDeployConstants {
   /** The root directory for all deployment files stored under the Rhythmyx root */
   public static final String DEPLOYMENT_ROOT = "sys_Packager";
 
+  /** The root directory for all multi-server manager files stored under the Rhythmyx root. */
   public static final String MSM_DEPLOYMENT_ROOT = "sys_MultiServerManager";
 
+  /**
+   * Identifies the operating mode the deployer is running in. The Multi-Server Manager mode manages
+   * packages across multiple servers, while the Packager mode produces deployable archives on a
+   * single server.
+   */
   enum OperatingMode {
+    /** Multi-Server Manager operating mode. */
     MultiServerManager,
+    /** Single-server Packager operating mode. */
     Packager
   }
 
@@ -50,6 +58,10 @@ public interface IPSDeployConstants {
   /** Extension to use for deployment archive files. Includes the "." in the value. */
   public static final String ARCHIVE_EXTENSION = ".ppkg";
 
+  /**
+   * Extension to use for multi-server manager deployment archive files. Includes the "." in the
+   * value.
+   */
   public static final String MSM_ARCHIVE_EXTENSION = ".pda";
 
   /** Constant for the Request properties ID type element. */
@@ -287,34 +299,66 @@ public interface IPSDeployConstants {
   /** A request parameter indicates whether to apply all communities to the imported package. */
   public static final String APPLY_TO_ALL_COMMS = "sys_pkgVisibleToAllCommunities";
 
+  /**
+   * Enumerates the ID Type Elements recognized by the deployer. Each entry corresponds to a
+   * dependency object type element name persisted in deployment descriptors.
+   */
   public enum IDTypeElement {
+    /** Request properties ID type element. */
     REQUEST_PROPERTIES("RequestProperties"),
+    /** Content Editor Field ID type element. */
     CE_FIELD("CEField"),
+    /** Content Editor UI definition ID type element. */
     CE_UI_DEF("CEUIDefinition"),
+    /** Content Editor Application Flow type element. */
     CE_APP_FLOW("CEAppFlow"),
+    /** Content Editor custom actions group type element. */
     CE_CUSTOM_ACTIONS("CECustomActionGroup"),
+    /** Content Editor input translations type element. */
     CE_INPUT_TRANSLATIONS("CEInputTranslations"),
+    /** Content Editor output translations type element. */
     CE_OUTPUT_TRANSLATIONS("CEOutputTranslations"),
+    /** Content Editor section link list type element. */
     CE_SECTION_LINK_LIST("CESectionLinkList"),
+    /** Content Editor command handler stylesheets type element. */
     CE_COMMAND_HANDLER_STYLESHEETS("CECommandHandlerStylesheets"),
+    /** Content Editor validation rules type element. */
     CE_VALIDATION_RULES("CEValidationRules"),
+    /** Pre-exit (input data exits) type element. */
     INPUT_DATA_EXITS("InputDataExits"),
+    /** Post-exit (result data exits) type element. */
     RESULT_DATA_EXITS("ResultDataExits"),
+    /** Selector type element. */
     SELECTOR("Selector"),
+    /** Result page set type element. */
     RESULT_PAGES("ResultPages"),
+    /** Data mapper type element. */
     DATA_MAPPER("DataMapper"),
+    /** Initparams type element. */
     INIT_PARAMS("InitParams"),
+    /** Extensions type element. */
     EXTENSIONS("Extensions"),
+    /** Effects type element. */
     EFFECTS("Effects"),
+    /** User properties type element. */
     USER_PROPERTIES("UserProps"),
+    /** Process check type element. */
     PROCESS_CHECKS("ProcessChecks"),
+    /** URL parameters type element. */
     URL_PARAMS("UrlParams"),
+    /** Clone field overrides type element. */
     CLONE_FIELD_OVERRIDES("CloneFieldOverrides"),
+    /** Item data field values type element. */
     ITEM_DATA("ItemData"),
+    /** Finder parameters type element. */
     SLOT_FINDER_PARAMS("SlotFinderParams"),
+    /** Content List expander parameters type element. */
     CONTENTLIST_EXPANDER_PARAMS("ExpanderParams"),
+    /** Content List generator parameters type element. */
     CONTENTLIST_GENERATOR_PARAMS("GeneratorParams"),
+    /** Item filter rule definition parameters type element. */
     RULEDEF_PARAMS("RuleDefParams"),
+    /** Template bindings type element. */
     TEMPLATE_BINDINGS("TemplateBindings");
 
     private final String value;
@@ -323,6 +367,11 @@ public interface IPSDeployConstants {
       this.value = value;
     }
 
+    /**
+     * Returns the string value used to identify this ID type element in deployment descriptors.
+     *
+     * @return the string representation of this element
+     */
     public String getValue() {
       return value;
     }

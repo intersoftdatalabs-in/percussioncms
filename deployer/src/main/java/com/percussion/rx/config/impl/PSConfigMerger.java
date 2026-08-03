@@ -39,6 +39,10 @@ import java.util.Map;
  * @author bjoginipally
  */
 public class PSConfigMerger {
+
+  /** Default constructor for use by Spring. */
+  public PSConfigMerger() {}
+
   /**
    * Merges the configuration on the design objects and saves them. Gets the design model for each
    * handler. Loads the design object for each handler. Calls the process method on each handler

@@ -26,6 +26,10 @@ import java.util.ResourceBundle;
 
 /** Describes the location of a literal id within a <code>PSApplication</code> object. */
 public abstract class PSApplicationIdContext implements IPSDeployComponent {
+
+  /** Default constructor for serialization frameworks. */
+  public PSApplicationIdContext() {}
+
   /**
    * Get the context as a <code>String</code> that can be displayed to an end user. Context objects
    * should call {@link #addParentDisplayText(String)} to append the display text of their parent

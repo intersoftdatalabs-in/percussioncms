@@ -236,7 +236,14 @@ public abstract class PSMenuActionObjectDependencyHandler extends PSCmsObjectDep
     reserveNewId(dep, idMap, action);
   }
 
-  // see IPSIdTypeHandler interface
+  /**
+   * Returns the ID types for the supplied dependency.
+   *
+   * @param tok the security token, may not be <code>null</code>.
+   * @param dep the dependency, may not be <code>null</code>.
+   * @return the ID types, never <code>null</code>.
+   * @throws PSDeployException if there are any errors.
+   */
   public PSApplicationIDTypes getIdTypes(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
@@ -270,7 +277,14 @@ public abstract class PSMenuActionObjectDependencyHandler extends PSCmsObjectDep
     return idTypes;
   }
 
-  // see IPSIdTypeHandler interface
+  /**
+   * Transforms the id types on the supplied object using the supplied id map.
+   *
+   * @param object the object to transform, may not be <code>null</code>.
+   * @param idTypes the id types, may be <code>null</code>.
+   * @param idMap the id map, may not be <code>null</code>.
+   * @throws PSDeployException if there are any errors.
+   */
   public void transformIds(Object object, PSApplicationIDTypes idTypes, PSIdMap idMap)
       throws PSDeployException {
     if (object == null) throw new IllegalArgumentException("object may not be null");

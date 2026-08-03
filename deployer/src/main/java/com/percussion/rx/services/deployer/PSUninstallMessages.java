@@ -46,6 +46,8 @@ public class PSUninstallMessages {
   }
 
   /**
+   * Get/set the value.
+   *
    * @return the messages
    */
   @XmlElement(name = "Message", type = PSUninstallMessage.class)
@@ -54,6 +56,8 @@ public class PSUninstallMessages {
   }
 
   /**
+   * Get/set the value.
+   *
    * @param messages the messages to set
    */
   public void setMessages(List<PSUninstallMessage> messages) {
@@ -89,10 +93,20 @@ public class PSUninstallMessages {
 
   private Integer status = 0;
 
+  /**
+   * Gets the status code of the uninstall operation.
+   *
+   * @return the status code, never <code>null</code>.
+   */
   public Integer getStatus() {
     return status;
   }
 
+  /**
+   * Sets the status code of the uninstall operation.
+   *
+   * @param status the status code, may be <code>null</code>.
+   */
   public void setStatus(Integer status) {
     this.status = status;
   }

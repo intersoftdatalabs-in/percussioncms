@@ -38,6 +38,10 @@ import java.util.Map;
  */
 // REFACTORED: CP-JAVA11
 public class PSTemplateSetter extends PSSimplePropertySetter {
+
+  /** Default constructor for use by Spring. */
+  public PSTemplateSetter() {}
+
   @Override
   protected boolean applyProperty(
       Object obj,

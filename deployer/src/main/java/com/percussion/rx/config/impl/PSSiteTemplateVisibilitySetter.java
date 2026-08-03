@@ -36,7 +36,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 // REFACTORED: CP-JAVA11
+
+/**
+ * Setter for site and template visibility associations.
+ *
+ * @author Percussion Software
+ */
 public class PSSiteTemplateVisibilitySetter extends PSPropertySetterWithValidation {
+
+  /** Default constructor for use by Spring. */
+  public PSSiteTemplateVisibilitySetter() {}
+
   @Override
   protected boolean applyProperty(
       Object obj,

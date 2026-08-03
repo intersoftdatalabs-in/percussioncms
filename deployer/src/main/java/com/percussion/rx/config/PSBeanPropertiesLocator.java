@@ -29,6 +29,9 @@ import com.percussion.services.PSBaseServiceLocator;
  */
 public class PSBeanPropertiesLocator extends PSBaseServiceLocator {
 
+  /** Default constructor for the locator. */
+  public PSBeanPropertiesLocator() {}
+
   private static volatile IPSBeanProperties beanProperties;
 
   /**

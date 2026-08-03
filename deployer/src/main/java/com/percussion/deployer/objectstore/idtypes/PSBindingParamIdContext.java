@@ -108,9 +108,9 @@ public class PSBindingParamIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * see above
+   * Sets the ordinal occurrence of this binding parameter within its parent's list.
    *
-   * @param occurence
+   * @param occurence the occurrence index
    */
   public void setOccurence(int occurence) {
     this.m_occurence = occurence;

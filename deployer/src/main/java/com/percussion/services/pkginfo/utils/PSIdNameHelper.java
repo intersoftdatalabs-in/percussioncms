@@ -32,6 +32,10 @@ import org.apache.commons.lang3.StringUtils;
  * name-based IDs. Uses {@link IPSIdNameService}.
  */
 public class PSIdNameHelper {
+
+  /** Default constructor for use via static methods. */
+  public PSIdNameHelper() {}
+
   /**
    * Returns a GUID for the given dependency ID and type.
    *
@@ -93,7 +97,11 @@ public class PSIdNameHelper {
     return SUPPORTED_TYPES.contains(type);
   }
 
-  /** Returns the id-name service, initializing if necessary. */
+  /**
+   * Returns the id-name service, initializing if necessary.
+   *
+   * @return the id-name service, never <code>null</code>.
+   */
   public static IPSIdNameService getIdNameService() {
     if (idNameSvc == null) {
       idNameSvc = PSIdNameServiceLocator.getIdNameService();

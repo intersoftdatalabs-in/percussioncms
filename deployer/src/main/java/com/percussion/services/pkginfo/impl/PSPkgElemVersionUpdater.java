@@ -34,6 +34,9 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class PSPkgElemVersionUpdater implements IPSPkgUpdater {
 
+  /** Default constructor for use by Spring. */
+  public PSPkgElemVersionUpdater() {}
+
   @Override
   public void configChanged(Collection<IPSGuid> ids, ConfigStatus status)
       throws PSNotFoundException {

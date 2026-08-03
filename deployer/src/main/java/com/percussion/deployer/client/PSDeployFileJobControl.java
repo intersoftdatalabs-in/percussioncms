@@ -27,6 +27,9 @@ import java.util.ResourceBundle;
 /** Job control to use when copying a file to or from the server. */
 public class PSDeployFileJobControl implements IPSDeployJobControl {
 
+  /** Default constructor for use by frameworks. */
+  public PSDeployFileJobControl() {}
+
   /**
    * Checks the status of the file copy. The result contains a value between <code>1-100</code> to
    * indicate the % done. <code>100</code> indicates that the job has completed. A result of -1
