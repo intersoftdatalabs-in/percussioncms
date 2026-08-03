@@ -42,9 +42,14 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Table(name = "PSX_PKG_DEPENDENCY")
 public class PSPkgDependency implements Serializable {
 
+  /** Default constructor for use by JPA. */
+  public PSPkgDependency() {}
+
   private static final long serialVersionUID = -6026221348840514395L;
 
   /**
+   * Get/set the value.
+   *
    * @return the id of the PSPkgDependency object
    */
   public long getId() {
@@ -73,6 +78,8 @@ public class PSPkgDependency implements Serializable {
   }
 
   /**
+   * Get/set the value.
+   *
    * @return true if the dependency is implied, false if user defined.
    */
   public Boolean isImpliedDep() {

@@ -21,18 +21,35 @@ package com.percussion.deployer.services;
 public class PSDeployServiceException extends Exception {
   private static final long serialVersionUID = 1L;
 
+  /** Default constructor for serialization frameworks. */
   public PSDeployServiceException() {
     super();
   }
 
+  /**
+   * Constructs a new exception with the supplied message and cause.
+   *
+   * @param message the detail message, may be <code>null</code>.
+   * @param cause the cause, may be <code>null</code>.
+   */
   public PSDeployServiceException(String message, Throwable cause) {
     super(message, cause);
   }
 
+  /**
+   * Constructs a new exception with the supplied message.
+   *
+   * @param message the detail message, may be <code>null</code>.
+   */
   public PSDeployServiceException(String message) {
     super(message);
   }
 
+  /**
+   * Constructs a new exception with the supplied cause.
+   *
+   * @param cause the cause, may be <code>null</code>.
+   */
   public PSDeployServiceException(Throwable cause) {
     super(cause);
   }

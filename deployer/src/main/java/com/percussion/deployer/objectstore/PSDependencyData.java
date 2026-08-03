@@ -121,7 +121,13 @@ public class PSDependencyData implements IPSDeployComponent {
     throw new UnsupportedOperationException("method not supported");
   }
 
-  // See IPSDeployComponent interface
+  /**
+   * Restores this object's state from its XML representation.
+   *
+   * @param sourceNode the XML element node, may not be <code>null</code>.
+   * @param typeMap the JDBC data type map, may not be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML is malformed.
+   */
   public void fromXml(Element sourceNode, PSJdbcDataTypeMap typeMap)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null || typeMap == null) {

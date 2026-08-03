@@ -399,12 +399,12 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
    * Convenience method that calls {@link #getDependencies(PSSecurityToken, String, String, String,
    * PSJdbcSelectFilter) getDependency(tok, table, idCol, nameCol, null)}.
    *
-   * @param tok
-   * @param table
-   * @param idCol
-   * @param nameCol
+   * @param tok The security token to use, may not be <code>null</code>.
+   * @param table The table to query, may not be <code>null</code> or empty.
+   * @param idCol The id column, may not be <code>null</code> or empty.
+   * @param nameCol The name column, may not be <code>null</code> or empty.
    * @return the list of dependencies
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors querying the database.
    */
   protected Iterator<PSDependency> getDependencies(
       PSSecurityToken tok, String table, String idCol, String nameCol) throws PSDeployException {
@@ -470,13 +470,13 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
    * Convenience method that calls {@link #getDependency(PSSecurityToken, String, String, String,
    * String, PSJdbcSelectFilter) getDependency(tok, id, table, idCol, nameCol, null)}
    *
-   * @param tok
-   * @param id
-   * @param table
-   * @param idCol
-   * @param nameCol
+   * @param tok The security token to use, may not be <code>null</code>.
+   * @param id The id of the dependency to load, may not be <code>null</code> or empty.
+   * @param table The table to query, may not be <code>null</code> or empty.
+   * @param idCol The id column, may not be <code>null</code> or empty.
+   * @param nameCol The name column, may not be <code>null</code> or empty.
    * @return the dependency
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors loading the dependency.
    */
   protected PSDependency getDependency(
       PSSecurityToken tok, String id, String table, String idCol, String nameCol)
@@ -608,7 +608,7 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
    * @param key see super class
    * @param dep see super class
    * @return see super class
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors generating the next id.
    */
   protected String getNextId(String key, PSDependency dep) throws PSDeployException {
     return getNextId(key, dep, null);
@@ -651,12 +651,12 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
    * boolean, int) getDepDataFromTable(dep, table, idCol, isDataRequired, Types.INTEGER)}. See the
    * actual implementation
    *
-   * @param dep
-   * @param table
-   * @param idCol
-   * @param isDataRequired
+   * @param dep the dependency for which data is being requested, may not be <code>null</code>.
+   * @param table the table to query, may not be <code>null</code> or empty.
+   * @param idCol the id column, may not be <code>null</code> or empty.
+   * @param isDataRequired <code>true</code> if data must be loaded; <code>false</code> if not.
    * @return the dependency data
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors loading the dependency data.
    */
   protected PSDependencyData getDepDataFromTable(
       PSDependency dep, String table, String idCol, boolean isDataRequired)
@@ -864,7 +864,7 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
    * @param ctx The import context to aid in the installation, may not be <code>null</code>.
    * @param table The name of the table that has been affected, may not be <code>null</code> or
    *     empty.
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors adding the transaction log entry.
    */
   protected void addTransactionLogForDep(PSDependency dep, PSImportCtx ctx, String table)
       throws PSDeployException {
@@ -964,13 +964,13 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
    * String, PSJdbcTableSchema, int) deleteDepIdFromTable(dep, ctx, table, idCol, schema,
    * Types.INTEGER)} See the actual implementation
    *
-   * @param dep
-   * @param ctx
-   * @param table
-   * @param idCol
-   * @param schema
+   * @param dep the dependency being deleted, may not be <code>null</code>.
+   * @param ctx the import context, may not be <code>null</code>.
+   * @param table the table to delete from, may not be <code>null</code> or empty.
+   * @param idCol the id column, may not be <code>null</code> or empty.
+   * @param schema the table schema, may not be <code>null</code>.
    * @return <code>true</code> if delete else <code>false</code>
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors deleting the dependency.
    */
   protected boolean deleteDepIdFromTable(
       PSDependency dep, PSImportCtx ctx, String table, String idCol, PSJdbcTableSchema schema)

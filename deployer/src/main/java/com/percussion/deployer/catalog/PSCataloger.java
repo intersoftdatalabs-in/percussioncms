@@ -244,6 +244,7 @@ public class PSCataloger {
   /** The constant to represent 'User Dependencies' request type. */
   public static final String TYPE_REQ_USER_DEP = "UserDependencies";
 
+  /** The list of supported request types for this cataloger. */
   public static List<String> ms_supportedReqTypes =
       List.of(
           TYPE_REQ_ARCHIVES,

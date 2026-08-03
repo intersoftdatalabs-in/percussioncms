@@ -30,9 +30,15 @@ import java.util.Optional;
  * dependencies are added or removed.
  */
 public class PSDependencyTreeContext {
+
+  /** Default constructor for use by frameworks. */
+  public PSDependencyTreeContext() {}
+
   /**
    * Convenience method that calls {@link #addPackage(PSDeployableElement, boolean) addPackage(pkg,
    * false)}
+   *
+   * @param pkg the package to add, may not be <code>null</code>.
    */
   public void addPackage(PSDeployableElement pkg) {
     addPackage(pkg, false);

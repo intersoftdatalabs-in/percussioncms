@@ -187,11 +187,8 @@ public class PSRoleDefDependencyHandler
   }
 
   /**
-   * Provides the list of child dependency types this class can discover. The child types supported
-   * by this handler are:
-   *
-   * <ol>
-   * </ol>
+   * Provides the list of child dependency types this class can discover. This handler does not
+   * discover any child dependency types.
    *
    * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
    *     </code>, does not contain <code>null</code> or empty entries.

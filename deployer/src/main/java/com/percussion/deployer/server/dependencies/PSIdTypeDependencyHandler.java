@@ -46,6 +46,13 @@ public abstract class PSIdTypeDependencyHandler extends PSDependencyHandler {
   /**
    * Convenience method that calls {@link #getIdTypeDependencies( PSSecurityToken, PSDependency,
    * PSDependencyHandler) getIdTypeDependencies(tok, dep, this)}
+   *
+   * @param tok The security token to use, may not be <code>null</code>.
+   * @param dep The dependency whose child dependencies are being requested, may not be <code>null
+   *     </code>.
+   * @return A list of child dependencies, never <code>null</code>, may be empty.
+   * @throws PSDeployException if there are any errors.
+   * @throws PSNotFoundException if a referenced dependency cannot be found.
    */
   protected List<PSDependency> getIdTypeDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
@@ -65,6 +72,7 @@ public abstract class PSIdTypeDependencyHandler extends PSDependencyHandler {
    *     </code>.
    * @return The children, never <code>null</code>, may be empty.
    * @throws PSDeployException if there are any errors.
+   * @throws PSNotFoundException if a referenced dependency cannot be found.
    */
   public static List<PSDependency> getIdTypeDependencies(
       PSSecurityToken tok, PSDependency dep, PSDependencyHandler handler)
@@ -95,6 +103,11 @@ public abstract class PSIdTypeDependencyHandler extends PSDependencyHandler {
         : List.of();
   }
 
+  /**
+   * Indicates whether id type mapping is enabled for this handler.
+   *
+   * @return <code>true</code> if id type mapping is enabled.
+   */
   public static boolean isIdTypeMappingEnabled() {
     return true;
   }

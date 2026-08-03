@@ -108,6 +108,7 @@ public class PSPkgInfo implements Serializable {
     USER
   }
 
+  /** No-arg constructor required by JPA. */
   public PSPkgInfo() {
     guid = 0;
     descriptorName = "";
@@ -218,10 +219,20 @@ public class PSPkgInfo implements Serializable {
     return origConfigDate;
   }
 
+  /**
+   * Gets the last action performed on the package.
+   *
+   * @return the last package action, never <code>null</code>.
+   */
   public PackageAction getLastAction() {
     return PackageAction.valueOf(lastAction);
   }
 
+  /**
+   * Gets the status of the last action performed on the package.
+   *
+   * @return the last package action status, never <code>null</code>.
+   */
   public PackageActionStatus getLastActionStatus() {
     return PackageActionStatus.valueOf(lastActionStatus);
   }
@@ -441,10 +452,20 @@ public class PSPkgInfo implements Serializable {
     origConfigDate.setTime(dateTime);
   }
 
+  /**
+   * Sets the last action performed on the package.
+   *
+   * @param action the last package action, may not be <code>null</code>.
+   */
   public void setLastAction(PackageAction action) {
     lastAction = action.name();
   }
 
+  /**
+   * Sets the status of the last action performed on the package.
+   *
+   * @param status the last package action status, may not be <code>null</code>.
+   */
   public void setLastActionStatus(PackageActionStatus status) {
     lastActionStatus = status.name();
   }
@@ -704,9 +725,11 @@ public class PSPkgInfo implements Serializable {
   @Column(name = "LAST_ACTION_BY_USER", nullable = false)
   private String lastActionByUser;
 
+  /** The last action performed on the package. */
   @Column(name = "LAST_ACTION", nullable = false)
   private String lastAction;
 
+  /** The status of the last action performed on the package. */
   @Column(name = "LAST_ACTION_STATUS", nullable = false)
   private String lastActionStatus;
 

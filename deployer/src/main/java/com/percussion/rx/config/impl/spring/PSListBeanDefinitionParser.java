@@ -42,6 +42,10 @@ import org.w3c.dom.Element;
  * @author YuBingChen
  */
 public class PSListBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+
+  /** Default constructor for use by Spring. */
+  public PSListBeanDefinitionParser() {}
+
   @Override
   protected Class<?> getBeanClass(Element element) {
     return ArrayList.class;

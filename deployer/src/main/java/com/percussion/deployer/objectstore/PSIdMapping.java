@@ -90,6 +90,10 @@ public class PSIdMapping implements IPSDeployComponent {
   /**
    * Convenience ctor calls {@link #PSIdMapping(String, String, String, String, String, String,
    * boolean) PSIdMapping(sourceId, sourceName, objectType, null, null, null, false)}
+   *
+   * @param sourceId the source id, may not be <code>null</code>.
+   * @param sourceName the source name, may not be <code>null</code>.
+   * @param objectType the object type, may not be <code>null</code>.
    */
   public PSIdMapping(String sourceId, String sourceName, String objectType) {
     this(sourceId, sourceName, objectType, null, null, null, false);
@@ -98,6 +102,11 @@ public class PSIdMapping implements IPSDeployComponent {
   /**
    * Convenience ctor calls {@link #PSIdMapping(String, String, String, String, String, String,
    * boolean) PSIdMapping(sourceId, sourceName, objectType, null, null, null, isNewMapping)}
+   *
+   * @param sourceId the source id, may not be <code>null</code>.
+   * @param sourceName the source name, may not be <code>null</code>.
+   * @param objectType the object type, may not be <code>null</code>.
+   * @param isNewMapping <code>true</code> if this is a new mapping being created.
    */
   public PSIdMapping(String sourceId, String sourceName, String objectType, boolean isNewMapping) {
     this(sourceId, sourceName, objectType, null, null, null, isNewMapping);
@@ -171,6 +180,9 @@ public class PSIdMapping implements IPSDeployComponent {
   /**
    * Convenience method calls {@link #setTarget(String, String, String, String) setTarget(targetId,
    * targetName, null, null)}
+   *
+   * @param targetId the target id, may not be <code>null</code> or empty.
+   * @param targetName the target name, may not be <code>null</code> or empty.
    */
   public void setTarget(String targetId, String targetName) {
     setTarget(targetId, targetName, null, null);

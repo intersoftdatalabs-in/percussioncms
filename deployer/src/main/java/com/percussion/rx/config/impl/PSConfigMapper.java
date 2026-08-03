@@ -37,6 +37,10 @@ import org.apache.logging.log4j.Logger;
  * @author YuBingChen
  */
 public class PSConfigMapper {
+
+  /** Default constructor for use by Spring. */
+  public PSConfigMapper() {}
+
   /**
    * Replace the property values for the setters defined in a spring bean file. Assumed the bean
    * file contains a list of {@link IPSConfigHandler} beans and the property values of the setters

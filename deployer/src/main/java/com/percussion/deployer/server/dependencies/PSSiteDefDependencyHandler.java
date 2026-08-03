@@ -484,11 +484,14 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
   }
 
   /**
+   * Deserializes the supplied XML representation of a site, optionally into an existing site
+   * object.
+   *
    * @param s the Site itself, may be <code>null</code>, if so create a new site using SiteManager
    *     else deserialize on the passed in Object
    * @param tmpStr the serialized form of Site representation, never <code>null</code>
    * @return the site as an Object
-   * @throws PSDeployException
+   * @throws PSDeployException if the XML cannot be deserialized.
    */
   public IPSSite deserializeDataFile(IPSSite s, String tmpStr) throws PSDeployException {
     IPSSite site = null;
@@ -586,7 +589,7 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
    *
    * @param s the site
    * @param ver the version of Site
-   * @throws PSDeployException
+   * @throws PSDeployException if the site cannot be saved.
    */
   public void saveDeserializedObject(IPSSite s, Integer ver) throws PSDeployException {
     // nullify and set it to the passed version of the site, can be null
@@ -637,7 +640,7 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
    * @param dep the dependency for which the transformation has to happen
    * @param ctx ImportContext may not be <code>null</code>
    * @param site TemplateSlot in which idtypes are to be transformed
-   * @throws PSDeployException
+   * @throws PSDeployException if the transformation fails.
    */
   public void transformSiteData(
       PSSecurityToken tok, PSDependency dep, PSImportCtx ctx, IPSSite site)

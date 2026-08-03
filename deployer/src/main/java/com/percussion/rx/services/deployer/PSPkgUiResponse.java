@@ -66,10 +66,21 @@ public class PSPkgUiResponse {
     return type;
   }
 
+  /**
+   * Sets the message associated with this response. If the supplied message is <code>null</code>,
+   * the empty string is used.
+   *
+   * @param message the response message, may be <code>null</code>.
+   */
   public void setMessage(String message) {
     this.message = StringUtils.defaultString(message);
   }
 
+  /**
+   * Sets the type of this response.
+   *
+   * @param type the response type, may not be <code>null</code>.
+   */
   public void setType(PSPkgUiResponseType type) {
     this.type = type;
   }
@@ -80,13 +91,20 @@ public class PSPkgUiResponse {
 
   /** Enum class for package UI response type, has two values: success and failure. */
   public enum PSPkgUiResponseType {
+    /** Indicates the operation failed. */
     FAILURE(0),
+    /** Indicates the operation succeeded. */
     SUCCESS(1);
 
     PSPkgUiResponseType(int value) {
       this.value = value;
     }
 
+    /**
+     * Gets the integer value of this response type.
+     *
+     * @return the integer value.
+     */
     public int getValue() {
       return value;
     }

@@ -47,6 +47,10 @@ import org.springframework.transaction.annotation.Transactional;
 @PSBaseBean("sys_pkgInfoService")
 @Transactional
 public class PSPkgInfoService implements IPSPkgInfoService {
+
+  /** Default constructor for use by Spring. */
+  public PSPkgInfoService() {}
+
   private static final Logger log = LogManager.getLogger(PSPkgInfoService.class);
 
   @PersistenceContext private EntityManager entityManager;

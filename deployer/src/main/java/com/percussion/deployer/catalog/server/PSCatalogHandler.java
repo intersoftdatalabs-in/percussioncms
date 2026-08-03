@@ -56,6 +56,10 @@ import org.w3c.dom.NodeList;
  * types and results.
  */
 public class PSCatalogHandler {
+
+  /** Default constructor for use by Spring. */
+  public PSCatalogHandler() {}
+
   /**
    * Processes the catalog request. This uses the XML document sent as the input data. The results
    * are written to the xml document.

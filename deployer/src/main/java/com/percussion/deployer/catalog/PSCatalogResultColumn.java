@@ -304,7 +304,12 @@ public class PSCatalogResultColumn implements IPSDeployComponent {
   }
 
   // XML element names and attributes
+  /** The root XML node name for this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXCatalogResultColumn";
+
+  /** The XML attribute name for the column display name. */
   private static final String XML_NAME_ATTR = "name";
+
+  /** The XML attribute name for the column data type. */
   private static final String XML_TYPE_ATTR = "type";
 }

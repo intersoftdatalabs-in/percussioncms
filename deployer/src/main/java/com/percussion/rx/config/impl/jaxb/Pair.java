@@ -58,10 +58,20 @@ import jakarta.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "pair")
 public class Pair {
 
+  /** First element of the pair. */
   protected String pvalue1;
+
+  /** Second element of the pair. */
   protected String pvalue2;
+
+  /** First value attribute of the pair. */
   @XmlAttribute protected String value1;
+
+  /** Second value attribute of the pair. */
   @XmlAttribute protected String value2;
+
+  /** Default no-arg constructor required by JAXB. */
+  public Pair() {}
 
   /**
    * Gets the value of the pvalue1 property.

@@ -394,10 +394,21 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable<PSCatalog
   private List<Object> m_columns = new ArrayList<>();
 
   // xml element names
+  /** The root XML node name for this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXCatalogResult";
+
+  /** The XML node name for the result id element. */
   private static final String XML_ID_NODE = "ID";
+
+  /** The XML node name for the display text element. */
   private static final String XML_DISP_TEXT_NODE = "DisplayText";
+
+  /** The XML node name for the columns container element. */
   private static final String XML_COLUMNS_NODE = "Columns";
+
+  /** The XML node name for a single column element. */
   private static final String XML_COLUMN_NODE = "Column";
+
+  /** The XML attribute name for the column data type. */
   private static final String XML_COL_TYPE_ATTR = "type";
 }

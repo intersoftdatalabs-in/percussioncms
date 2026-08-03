@@ -43,6 +43,7 @@ public interface IPSDeployComponent extends Cloneable {
    * @param sourceNode the XML element node to populate from, not <code>null</code>.
    * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
    *     by the class.
+   * @throws PSDeployException if there are any errors deserializing the object.
    */
   void fromXml(Element sourceNode) throws PSUnknownNodeTypeException, PSDeployException;
 

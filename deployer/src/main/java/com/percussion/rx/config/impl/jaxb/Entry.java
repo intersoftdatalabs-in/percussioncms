@@ -54,8 +54,14 @@ import jakarta.xml.bind.annotation.XmlValue;
 @XmlRootElement(name = "entry")
 public class Entry {
 
+  /** The text value of this entry. */
   @XmlValue protected String value;
+
+  /** The optional pvalue attribute of this entry. */
   @XmlAttribute protected String pvalue;
+
+  /** Default no-arg constructor required by JAXB. */
+  public Entry() {}
 
   /**
    * Gets the value of the value property.

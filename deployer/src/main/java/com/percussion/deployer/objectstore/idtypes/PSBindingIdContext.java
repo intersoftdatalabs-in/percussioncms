@@ -75,7 +75,11 @@ public class PSBindingIdContext extends PSApplicationIdContext {
     return m_index;
   }
 
-  /** Set the ordinal position of this context's binding in its parent's list. */
+  /**
+   * Set the ordinal position of this context's binding in its parent's list.
+   *
+   * @param ix the ordinal index, may be any integer
+   */
   public void setIndex(int ix) {
     m_index = ix;
   }

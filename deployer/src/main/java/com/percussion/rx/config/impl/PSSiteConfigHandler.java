@@ -37,6 +37,8 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  * @author YuBingChen
  */
 public class PSSiteConfigHandler extends PSObjectConfigHandler {
+
+  /** Default constructor for use by Spring. */
   public PSSiteConfigHandler() {
     m_siteNames.put(NAMES, null);
   }

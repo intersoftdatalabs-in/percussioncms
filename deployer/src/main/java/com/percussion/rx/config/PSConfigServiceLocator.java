@@ -29,6 +29,9 @@ import com.percussion.services.PSBaseServiceLocator;
  */
 public class PSConfigServiceLocator extends PSBaseServiceLocator {
 
+  /** Default constructor for the locator. */
+  public PSConfigServiceLocator() {}
+
   private static volatile IPSConfigService configService;
 
   /**

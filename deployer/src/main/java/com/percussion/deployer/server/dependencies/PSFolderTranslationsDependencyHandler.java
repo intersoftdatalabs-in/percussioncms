@@ -231,6 +231,7 @@ public class PSFolderTranslationsDependencyHandler extends PSFolderObjectDepende
    *
    * @param folderPath The owner folder path, may not be <code>null</code> or empty.
    * @param relationshipType The type of relationship, may not be <code>null</code> or empty.
+   * @return the composite dependency id, never <code>null</code>.
    */
   public static String createDependencyId(String folderPath, String relationshipType) {
     if (folderPath == null || folderPath.trim().length() == 0)

@@ -36,6 +36,15 @@ public class PSDeployableObject extends PSDependency {
    * Convenience ctor that calls <code>this(dependencyType, dependencyId,
    * objectType, objectTypeName, displayName, supportsIdTypes,
    * supportsIdMapping,  supportsUserDependencies, false)</code>.
+   *
+   * @param dependencyType the dependency type.
+   * @param dependencyId the dependency id.
+   * @param objectType the object type.
+   * @param objectTypeName the object type name.
+   * @param displayName the display name.
+   * @param supportsIdTypes whether id types are supported.
+   * @param supportsIdMapping whether id mapping is supported.
+   * @param supportsUserDependencies whether user dependencies are supported.
    */
   public PSDeployableObject(
       int dependencyType,

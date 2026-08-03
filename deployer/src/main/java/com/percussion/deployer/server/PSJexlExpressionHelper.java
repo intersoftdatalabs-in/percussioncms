@@ -28,6 +28,11 @@ import org.apache.commons.lang3.Validate;
 public class PSJexlExpressionHelper {
   private final Map<Integer, PSJexlBindingParamOccurence> m_paramMap = new HashMap<>();
 
+  /**
+   * Constructs a new helper from the supplied id type mapping.
+   *
+   * @param mapping the application id type mapping, may not be <code>null</code>.
+   */
   public PSJexlExpressionHelper(PSApplicationIDTypeMapping mapping) {
     Validate.notNull(mapping, "Mapping may not be null");
 
@@ -52,10 +57,24 @@ public class PSJexlExpressionHelper {
     }
   }
 
+  /**
+   * Returns the param occurrence from the supplied index.
+   *
+   * @param ix the index, may be any integer.
+   * @return the param occurrence, may be <code>null</code>.
+   */
   public PSJexlBindingParamOccurence getParamOccurenceFromIndex(int ix) {
     return m_paramMap.get(ix);
   }
 
+  /**
+   * Returns the JEXL binding param occurrence value for the supplied context.
+   *
+   * @param oldVal the old value, may not be <code>null</code> or empty.
+   * @param pCtx the param context, may not be <code>null</code>.
+   * @param occurNum the occurrence number.
+   * @return the occurrence value, may be <code>null</code>.
+   */
   public String getJexlBindingParamOccurenceValue(
       String oldVal, PSBindingParamIdContext pCtx, int occurNum) {
     Validate.notBlank(oldVal, "Old value may not be null or empty");
@@ -77,6 +96,13 @@ public class PSJexlExpressionHelper {
         : null;
   }
 
+  /**
+   * Updates the binding parameter with a new value for the supplied context.
+   *
+   * @param oldVal the old value, may not be <code>null</code> or empty.
+   * @param newVal the new value, may not be <code>null</code>.
+   * @param pCtx the param context, may not be <code>null</code>.
+   */
   public void updateBindingParam(String oldVal, String newVal, PSBindingParamIdContext pCtx) {
     Validate.notBlank(oldVal, "Old value may not be null or empty");
     Validate.notNull(newVal, "New value may not be null");

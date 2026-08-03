@@ -28,6 +28,10 @@ import org.apache.logging.log4j.Logger;
  * @author YuBingChen
  */
 public class PSBeanPropertiesSample {
+
+  /** Default constructor for use by Spring. */
+  public PSBeanPropertiesSample() {}
+
   /**
    * Returns the string property, which may be set by {@link #setStringValue(String)}.
    *

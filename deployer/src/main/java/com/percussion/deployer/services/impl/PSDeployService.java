@@ -68,12 +68,25 @@ import org.springframework.transaction.annotation.Transactional;
 public class PSDeployService implements IPSDeployService {
   private static final Logger log = LogManager.getLogger(PSDeployService.class);
 
+  /** Default constructor for use by Spring. */
+  public PSDeployService() {}
+
   private SessionFactory sessionFactory;
 
+  /**
+   * Returns the session factory used by this service.
+   *
+   * @return the session factory, may be <code>null</code>.
+   */
   public SessionFactory getSessionFactory() {
     return sessionFactory;
   }
 
+  /**
+   * Sets the session factory used by this service.
+   *
+   * @param sessionFactory the session factory, may not be <code>null</code>.
+   */
   @Autowired
   public void setSessionFactory(SessionFactory sessionFactory) {
     this.sessionFactory = sessionFactory;
@@ -82,6 +95,15 @@ public class PSDeployService implements IPSDeployService {
   /**
    * A helper method for installing dependency files within a transaction boundary. Handles
    * deserialization, applying transforms, persisting/updating via HibernateTransactionManager.
+   *
+   * @param tok the security token, may not be <code>null</code>.
+   * @param archive the archive handler, may not be <code>null</code>.
+   * @param dep the dependency being installed, may not be <code>null</code>.
+   * @param depFile the dependency file, may not be <code>null</code>.
+   * @param ctx the import context, may not be <code>null</code>.
+   * @param depHandler the dependency handler, may not be <code>null</code>.
+   * @param s the site, may not be <code>null</code>.
+   * @param ver the version, may be <code>null</code>.
    */
   @Override
   public void deserializeAndSaveSite(

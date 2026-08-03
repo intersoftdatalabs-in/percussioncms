@@ -134,6 +134,7 @@ import org.w3c.dom.Node;
 public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableRequestHandler {
   private static final Logger ms_log = LogManager.getLogger(PSDeploymentHandler.class);
 
+  /** Default constructor for use by Spring. Initializes the singleton instance. */
   public PSDeploymentHandler() {
     ms_deploymentHandler = this;
   }
@@ -653,6 +654,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
    * </code></pre>
    *     Never <code>null</code>.
    * @throws IllegalArgumentException If <code>req</code> is <code>null</code>.
+   * @throws PSDeployException if there are any errors validating the archive.
    */
   public Document validateArchive(PSRequest req) throws PSDeployException {
     if (req == null) throw new IllegalArgumentException(NULL_REQUEST_ERROR);
@@ -1322,6 +1324,8 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
   }
 
   /**
+   * Creates a new descriptor GUID and returns it as a document.
+   *
    * @return A document containing the following format:
    *     <pre><code>
    * &lt;!ELEMENT PSXDescriptorGuid&gt;
@@ -3239,17 +3243,31 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
     }
   }
 
+  /** Enumeration of the deployer subsystem types. */
   public enum PSDeployerSubsystem {
+    /** The multi-server manager subsystem. */
     MultiServerMgr,
+    /** The single-server deployer subsystem. */
     Deployer
   }
 
+  /** The currently active deployer subsystem. */
   private static PSDeployerSubsystem activeSubsystem = PSDeployerSubsystem.Deployer;
 
+  /**
+   * Returns the currently active deployer subsystem.
+   *
+   * @return the active deployer subsystem, never <code>null</code>.
+   */
   public static PSDeployerSubsystem getActiveSubsystem() {
     return activeSubsystem;
   }
 
+  /**
+   * Sets the currently active deployer subsystem.
+   *
+   * @param system the deployer subsystem to activate, may not be <code>null</code>.
+   */
   public static void setActiveSubsystem(PSDeployerSubsystem system) {
     activeSubsystem = system;
   }
@@ -3391,10 +3409,21 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
   /** The log handler for processing log table related operations. */
   PSLogHandler m_logHandler;
 
+  /** The name of the descriptor. */
   public static final String DESC_NAME = "descName";
+
+  /** The archive log id element name. */
   public static final String ARCHIVE_LOG_ID = "archiveLogId";
+
+  /** The archive ref element name. */
   public static final String ARCHIVE_REF = "archiveRef";
+
+  /** The error message returned when a null request is supplied. */
   public static final String NULL_REQUEST_ERROR = "Request may not be null";
+
+  /** The type XML attribute name. */
   public static final String TYPE_ATTR = "type";
+
+  /** The root XML element name for the save config file response document. */
   public static final String SAVE_CFG_FILE_RESPONSE = "PSXDeploySaveConfigFileResponse";
 }

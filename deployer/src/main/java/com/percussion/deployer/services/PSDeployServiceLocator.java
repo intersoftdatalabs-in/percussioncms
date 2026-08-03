@@ -23,8 +23,18 @@ import com.percussion.services.PSBaseServiceLocator;
 
 /** Service locator for deployment service. */
 public class PSDeployServiceLocator extends PSBaseServiceLocator {
+
+  /** Default constructor for the locator. */
+  public PSDeployServiceLocator() {}
+
   private static volatile IPSDeployService dsr = null;
 
+  /**
+   * Returns the singleton deploy service instance.
+   *
+   * @return the deploy service, never <code>null</code>.
+   * @throws PSMissingBeanConfigurationException if the bean is not configured.
+   */
   public static IPSDeployService getDeployService() throws PSMissingBeanConfigurationException {
     if (dsr == null) {
       synchronized (PSDeployServiceLocator.class) {

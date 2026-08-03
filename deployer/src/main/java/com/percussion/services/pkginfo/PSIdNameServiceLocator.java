@@ -23,6 +23,9 @@ import com.percussion.services.PSBaseServiceLocator;
 /** Locator for the {@link IPSIdNameService}. */
 public class PSIdNameServiceLocator extends PSBaseServiceLocator {
 
+  /** Default constructor for the locator. */
+  public PSIdNameServiceLocator() {}
+
   /**
    * Finds and returns the id-name service.
    *

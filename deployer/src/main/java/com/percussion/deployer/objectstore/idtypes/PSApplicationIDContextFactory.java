@@ -23,10 +23,15 @@ import org.w3c.dom.Element;
 
 /** Class to restore {@link PSApplicationIdContext} objects from their XML state. */
 public class PSApplicationIDContextFactory {
+
+  /** Default constructor for use via static methods. */
+  public PSApplicationIDContextFactory() {}
+
   /**
    * Creates an application id context object from its xml representatation.
    *
    * @param sourceNode the XML element node to populate from, may not be <code>null</code>.
+   * @return the new application id context, never <code>null</code>.
    * @throws IllegalArgumentException if <code>soureNode</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
    *     by the class.

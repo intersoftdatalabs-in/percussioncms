@@ -37,6 +37,19 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSPropertySetterWithValidation extends PSSimplePropertySetter {
 
+  /** Default constructor for use by Spring. */
+  public PSPropertySetterWithValidation() {}
+
+  /**
+   * Validates the supplied design object using the properties of this setter and the supplied
+   * setter.
+   *
+   * @param objName the design object name, may not be <code>null</code> or empty.
+   * @param state the object state, may not be <code>null</code>.
+   * @param setter the property setter whose properties are used to compare, may not be <code>null
+   *     </code>.
+   * @return the list of validation results, never <code>null</code>, may be empty.
+   */
   @Override
   public List<PSConfigValidation> validate(
       String objName, ObjectState state, IPSPropertySetter setter) {
@@ -64,6 +77,14 @@ public class PSPropertySetterWithValidation extends PSSimplePropertySetter {
   /**
    * Validates a specified property for a design object. Override in subclasses for custom
    * validation logic.
+   *
+   * @param objName the design object name, may not be <code>null</code> or empty.
+   * @param state the object state, may not be <code>null</code>.
+   * @param propName the property name to validate, may not be <code>null</code>.
+   * @param propValue the property value to validate, may be <code>null</code>.
+   * @param otherValue the comparison value to validate against, may be <code>null</code>.
+   * @return the list of validation results, never <code>null</code>, may be empty.
+   * @throws PSNotFoundException if a referenced object cannot be found.
    */
   protected List<PSConfigValidation> validate(
       String objName, ObjectState state, String propName, Object propValue, Object otherValue)

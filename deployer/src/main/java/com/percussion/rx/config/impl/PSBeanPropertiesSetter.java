@@ -32,6 +32,10 @@ import java.util.Map;
  * @author YuBingChen
  */
 public class PSBeanPropertiesSetter extends PSSimplePropertySetter {
+
+  /** Default constructor for use by Spring. */
+  public PSBeanPropertiesSetter() {}
+
   @Override
   public boolean applyProperties(Object obj, ObjectState state, List<IPSAssociationSet> aSets) {
     m_configProps.clear();

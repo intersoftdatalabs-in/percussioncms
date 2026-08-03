@@ -41,6 +41,10 @@ import org.apache.commons.lang3.StringUtils;
 // REFACTORED: CP-JAVA11
 
 public class PSSiteSetter extends PSPropertySetterWithValidation {
+
+  /** Default constructor for use by Spring. */
+  public PSSiteSetter() {}
+
   @Override
   protected boolean applyProperty(
       Object obj,
@@ -350,10 +354,18 @@ public class PSSiteSetter extends PSPropertySetterWithValidation {
   /** The cached Site Manager service instance. Default to <code>null</code>. */
   private IPSSiteManager m_siteMgr = null;
 
+  /** Property name: site name. */
   public static final String NAME = "name";
+
+  /** Property name: site context. */
   public static final String CONTEXT = "context";
+
+  /** Property name: site property value. */
   public static final String VALUE = "value";
+
+  /** Property name: site variables collection. */
   public static final String VARIABLES = "variables";
+
   private static final Map<String, String> ms_propNameMap = new HashMap<>();
 
   static {

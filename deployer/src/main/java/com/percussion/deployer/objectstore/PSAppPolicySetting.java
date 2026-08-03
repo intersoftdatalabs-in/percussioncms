@@ -28,6 +28,9 @@ import org.w3c.dom.Element;
  */
 public abstract class PSAppPolicySetting implements IPSDeployComponent {
 
+  /** Default constructor for serialization frameworks. */
+  public PSAppPolicySetting() {}
+
   /**
    * Determines if the app policy is enabled.
    *
@@ -61,6 +64,11 @@ public abstract class PSAppPolicySetting implements IPSDeployComponent {
    * values of the policy setting subclasses.
    *
    * <p>See {@link IPSDeployComponent#toXml(Document)} for more info.
+   *
+   * @param doc The document used to create the XML element, may not be <code>null</code>.
+   * @param xmlNodeName The name of the root XML element to create, may not be <code>null</code> or
+   *     empty.
+   * @return the newly created XML element, never <code>null</code>.
    */
   protected Element toXml(Document doc, String xmlNodeName) {
     if (doc == null) {
@@ -72,10 +80,24 @@ public abstract class PSAppPolicySetting implements IPSDeployComponent {
     return root;
   }
 
-  // see IPSDeployComponent interface
+  /**
+   * Restores this object's state from its XML representation.
+   *
+   * @param sourceNode The source XML element, may not be <code>null</code>.
+   * @param xmlNodeName The expected root XML element name, may not be <code>null</code> or empty.
+   * @throws PSUnknownNodeTypeException if the XML element name does not match.
+   * @throws IllegalArgumentException if either argument is <code>null</code> or <code>xmlNodeName
+   *     </code> is empty.
+   */
   protected void fromXml(Element sourceNode, String xmlNodeName) throws PSUnknownNodeTypeException {
     if (sourceNode == null) {
       throw new IllegalArgumentException("sourceNode may not be null");
+    }
+    if (xmlNodeName == null) {
+      throw new IllegalArgumentException("xmlNodeName may not be null");
+    }
+    if (xmlNodeName.isEmpty()) {
+      throw new IllegalArgumentException("xmlNodeName may not be empty");
     }
 
     if (!xmlNodeName.equals(sourceNode.getNodeName())) {
@@ -116,9 +138,13 @@ public abstract class PSAppPolicySetting implements IPSDeployComponent {
     return result;
   }
 
-  // Various XML attribute and values
+  /** XML attribute name for the "use setting" flag. */
   protected static final String XML_ATTR_USE_SETTING = "useSetting";
+
+  /** XML attribute value used to indicate a true (enabled) flag. */
   protected static final String XML_ATTR_TRUE = "Yes";
+
+  /** XML attribute value used to indicate a false (disabled) flag. */
   protected static final String XML_ATTR_FALSE = "No";
 
   /** Determines if the app policy is enabled. Default to <code>true</code>. */

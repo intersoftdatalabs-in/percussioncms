@@ -43,6 +43,7 @@ public class PSConfigStatus implements Serializable {
 
   private static final long serialVersionUID = 6702475588603579446L;
 
+  /** Default constructor for serialization frameworks. */
   public PSConfigStatus() {
     statusId = 0;
     configName = "";
@@ -275,6 +276,12 @@ public class PSConfigStatus implements Serializable {
       this.ordinal = ordinal;
     }
 
+    /**
+     * Returns the {@link ConfigStatus} corresponding to the supplied ordinal value.
+     *
+     * @param s the ordinal value to look up
+     * @return an {@link Optional} containing the matching enum value, or empty if not found
+     */
     public static Optional<ConfigStatus> valueOf(int s) {
       for (var type : values()) {
         if (type.getOrdinal() == s) {
@@ -284,6 +291,11 @@ public class PSConfigStatus implements Serializable {
       return Optional.empty();
     }
 
+    /**
+     * Returns the ordinal value of this configuration status.
+     *
+     * @return the ordinal value
+     */
     public int getOrdinal() {
       return ordinal;
     }

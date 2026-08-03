@@ -38,7 +38,16 @@ public class PSUpgradePluginRelationshipVersions implements IPSUpgradePlugin {
 
   private static final Logger log = LogManager.getLogger(PSUpgradePluginRelationshipVersions.class);
 
-  /** Perform updates. */
+  /** Default constructor. */
+  public PSUpgradePluginRelationshipVersions() {}
+
+  /**
+   * Perform updates.
+   *
+   * @param config the upgrade module, may not be <code>null</code>.
+   * @param elemData the configuration element data, may not be <code>null</code>.
+   * @return the plugin response indicating success or failure, never <code>null</code>.
+   */
   public PSPluginResponse process(IPSUpgradeModule config, Element elemData) {
     int respType = PSPluginResponse.SUCCESS;
     String respMsg = "";

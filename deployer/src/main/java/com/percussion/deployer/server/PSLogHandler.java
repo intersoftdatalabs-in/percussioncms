@@ -353,6 +353,10 @@ public class PSLogHandler {
   /**
    * Convenience method that calls {@link #getLogSummary(int, boolean) getLogSummary(logId, true)}
    * to return the full log summary including the log detail.
+   *
+   * @param logId the id of the log summary to retrieve.
+   * @return the log summary, may be <code>null</code> if not found.
+   * @throws PSDeployException if there are any errors.
    */
   public PSLogSummary getLogSummary(int logId) throws PSDeployException {
     return getLogSummary(logId, true);
@@ -751,6 +755,14 @@ public class PSLogHandler {
     return buildArchiveLogSummaryTableData(id, tgtServer, archiveInfo, archiveManifest);
   }
 
+  /**
+   * Creates an archive log entry.
+   *
+   * @param archiveInfo the archive info, may not be <code>null</code>.
+   * @param archiveManifest the archive manifest, may not be <code>null</code>.
+   * @return the id of the created archive log.
+   * @throws PSDeployException if there are any errors.
+   */
   public int createArchiveLog(PSArchiveInfo archiveInfo, PSArchiveManifest archiveManifest)
       throws PSDeployException {
     if (archiveInfo == null || archiveInfo.getArchiveDetail() == null)

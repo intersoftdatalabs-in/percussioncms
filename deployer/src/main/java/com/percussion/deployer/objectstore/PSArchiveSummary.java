@@ -67,6 +67,7 @@ public class PSArchiveSummary implements IPSDeployComponent {
    *     <code>null</code>.
    * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
+   * @throws PSDeployException if there are any errors restoring from XML.
    */
   public PSArchiveSummary(Element src) throws PSUnknownNodeTypeException, PSDeployException {
     if (src == null) throw new IllegalArgumentException("src may not be null");

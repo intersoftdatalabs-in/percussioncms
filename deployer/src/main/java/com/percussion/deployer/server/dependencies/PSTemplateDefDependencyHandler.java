@@ -179,7 +179,8 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
    * @param tok may not be <code>null</code>
    * @param tmp may not be <code>null</code>
    * @return List of Dependencies of SLOT type
-   * @throws PSDeployException
+   * @throws PSDeployException if the dependencies cannot be loaded.
+   * @throws PSNotFoundException if a referenced dependency cannot be found.
    */
   protected List<PSDependency> getSlotDependencies(PSSecurityToken tok, IPSAssemblyTemplate tmp)
       throws PSDeployException, PSNotFoundException {
@@ -338,7 +339,7 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
    * Utility method to remove the bindings, then remove the template
    *
    * @param t the template that needs to be deleted from the system
-   * @throws PSDeployException
+   * @throws PSDeployException if the template cannot be deleted.
    */
   @Deprecated
   protected static void deleteTemplate(IPSAssemblyTemplate t) throws PSDeployException {
@@ -518,10 +519,10 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
   /**
    * TROLL thru the object and restore the versions of child-lings ;).
    *
-   * @param t
-   * @param ver the version of template
+   * @param t the template to save, may not be <code>null</code>.
+   * @param ver the version of template.
    * @param bVer the versions list of bindings that need be restored.
-   * @throws PSDeployException
+   * @throws PSDeployException if the template cannot be saved.
    */
   public static void saveTemplate(IPSAssemblyTemplate t, Integer ver, HashMap<Long, Integer> bVer)
       throws PSDeployException {
@@ -559,7 +560,7 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
    *     a new template
    * @param ctx the import context never <code>null</code>
    * @return the actual template
-   * @throws PSDeployException
+   * @throws PSDeployException if the template cannot be generated.
    */
   public PSAssemblyTemplate generateTemplateFromFile(
       PSArchiveHandler archive,
@@ -664,7 +665,7 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
    * From the templates map, return all the template names
    *
    * @return iterator on a set of names
-   * @throws PSDeployException
+   * @throws PSDeployException if the templates cannot be loaded.
    */
   public Iterator getNewAssemblyTemplateNames() throws PSDeployException {
     init();
@@ -687,7 +688,7 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
    * @param ctx import context never <code>null</code>
    * @param dep the dependency never <code>null</code>
    * @return do the transforms on the passed in template and return it back
-   * @throws PSDeployException
+   * @throws PSDeployException if the transforms fail.
    */
   public IPSAssemblyTemplate doTransforms(PSAssemblyTemplate t, PSImportCtx ctx, PSDependency dep)
       throws PSDeployException {
@@ -796,8 +797,15 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
     return t;
   }
 
-  // see base class
-
+  /**
+   * Transforms the IDs on the supplied template using the supplied id types and id map.
+   *
+   * @param object the template whose IDs are to be transformed, may not be <code>null</code>.
+   * @param idTypes the application ID types, may be <code>null</code> in which case nothing is
+   *     done.
+   * @param idMap the id map used for the transformation, may not be <code>null</code>.
+   * @throws PSDeployException if the transformation fails.
+   */
   public void transformIds(Object object, PSApplicationIDTypes idTypes, PSIdMap idMap)
       throws PSDeployException {
     if (object == null) throw new IllegalArgumentException("object may not be null");
@@ -850,6 +858,14 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
     return bindings;
   }
 
+  /**
+   * Gets the ID types for the dependency.
+   *
+   * @param tok the security token, may not be <code>null</code>.
+   * @param dep the dependency, may not be <code>null</code>.
+   * @return the application ID types, never <code>null</code>.
+   * @throws PSDeployException if the ID types cannot be loaded.
+   */
   public PSApplicationIDTypes getIdTypes(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");

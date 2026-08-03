@@ -29,7 +29,12 @@ public class PSJexlSimpleNode {
 
   private String m_code = null;
 
-  // REFACTORED: CP-JAVA11
+  /**
+   * Constructs a new JEXL simple node wrapper.
+   *
+   * @param node the JEXL simple node, may not be <code>null</code>.
+   * @param code the source code, may not be <code>null</code>.
+   */
   public PSJexlSimpleNode(SimpleNode node, String code) {
     this.m_node = node;
     this.m_code = code;

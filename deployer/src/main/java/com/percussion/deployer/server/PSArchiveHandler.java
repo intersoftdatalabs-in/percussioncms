@@ -297,6 +297,7 @@ public class PSArchiveHandler {
    * @return The related IDTypes if the dependency exists in the current archive, and it contains
    *     the IDTypes, <code>null</code> otherwise.
    * @throws IllegalArgumentException If <code>dep</code> is <code>null</code>
+   * @throws PSDeployException if there are any errors loading the id types.
    */
   public PSApplicationIDTypes getIdTypes(PSDependency dep) throws PSDeployException {
     if (dep == null) throw new IllegalArgumentException("dep may not be null");

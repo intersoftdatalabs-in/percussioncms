@@ -36,9 +36,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Default implementation of {@link IPSConfigStatusMgr} backed by JPA. Stores and retrieves
+ * per-package configuration application status.
+ */
 @Transactional
 @PSBaseBean("sys_configStatusMgr")
 public class PSConfigStatusMgr implements IPSConfigStatusMgr {
+
+  /** Default constructor for use by Spring. */
+  public PSConfigStatusMgr() {}
+
   @PersistenceContext private EntityManager entityManager;
 
   private Session getSession() {
