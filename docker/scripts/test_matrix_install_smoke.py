@@ -43,6 +43,42 @@ class ParseAndExpandTests(unittest.TestCase):
         )
 
 
+class EnvAndPasswordTests(unittest.TestCase):
+    def test_load_env_file_ignores_comments(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / ".env.compose"
+            path.write_text(
+                "# comment\nPOSTGRES_PASSWORD=from-file\nMYSQL_PASSWORD='quoted'\n",
+                encoding="utf-8",
+            )
+            env = smoke.load_env_file(path)
+            self.assertEqual(env["POSTGRES_PASSWORD"], "from-file")
+            self.assertEqual(env["MYSQL_PASSWORD"], "quoted")
+
+    def test_build_db_services_reads_passwords_from_env(self):
+        services = smoke.build_db_services(
+            {
+                "POSTGRES_PASSWORD": "pg-secret",
+                "MYSQL_PASSWORD": "my-secret",
+                "MSSQL_SA_PASSWORD": "sa-secret",
+            }
+        )
+        self.assertEqual(services["postgresql"]["password"], "pg-secret")
+        self.assertEqual(services["mysql"]["password"], "my-secret")
+        self.assertEqual(services["sqlserver"]["password"], "sa-secret")
+        self.assertEqual(services["h2"].get("password", ""), "")
+
+    def test_require_db_passwords_fails_when_missing(self):
+        services = smoke.build_db_services({})
+        with self.assertRaises(ValueError) as ctx:
+            smoke.require_db_passwords(services, ["postgresql"])
+        self.assertIn("POSTGRES_PASSWORD", str(ctx.exception))
+
+    def test_require_db_passwords_allows_h2(self):
+        services = smoke.build_db_services({})
+        smoke.require_db_passwords(services, ["h2"])  # no raise
+
+
 class ResolveJarTests(unittest.TestCase):
     def test_resolve_uses_shipped_cms_name_only(self):
         with tempfile.TemporaryDirectory() as td:
@@ -157,7 +193,7 @@ class InstallArgvTests(unittest.TestCase):
             db_port="5432",
             db_name="percdb",
             db_user="percuser",
-            db_password="PercPass123",
+            db_password="test-db-password",
             db_schema="public",
             silent=True,
         )
@@ -337,6 +373,13 @@ class DryRunCliTests(unittest.TestCase):
             "FROM scratch\n", encoding="utf-8"
         )
         (root / "docker-compose.yml").write_text("services: {}\n", encoding="utf-8")
+        # Credentials for external DB matrix cells (mirrors .env.compose.example).
+        (root / ".env.compose.example").write_text(
+            "POSTGRES_PASSWORD=test-local-only\n"
+            "MYSQL_PASSWORD=test-local-only\n"
+            "MSSQL_SA_PASSWORD=test-local-only\n",
+            encoding="utf-8",
+        )
 
     def test_dry_run_exits_zero_for_h2(self):
         # dry-run still needs a jar on disk for resolve in run_cell —

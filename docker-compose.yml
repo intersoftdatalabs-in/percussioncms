@@ -53,29 +53,25 @@ services:
       - mysql
       - db-all
     environment:
-      MYSQL_ROOT_PASSWORD: PercRootPass123
-      MYSQL_USER: percuser
-      MYSQL_PASSWORD: PercPass123
-      MYSQL_DATABASE: percdb
+      # Credentials from .env.compose (gitignored). See .env.compose.example.
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env.compose}
+      MYSQL_USER: ${MYSQL_USER:-percuser}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env.compose}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-percdb}
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
       - --default-authentication-plugin=mysql_native_password
     ports:
-      - "3306:3306"
+      - "${MYSQL_PORT:-3306}:3306"
     volumes:
       - mysql-data:/var/lib/mysql
     healthcheck:
+      # Uses container env (no password literal in the compose file).
       test:
         [
-          "CMD",
-          "mysqladmin",
-          "ping",
-          "-h",
-          "localhost",
-          "-u",
-          "root",
-          "-pPercRootPass123",
+          "CMD-SHELL",
+          'mysqladmin ping -h localhost -u root -p"$$MYSQL_ROOT_PASSWORD" || exit 1',
         ]
       interval: 10s
       timeout: 5s
@@ -89,17 +85,17 @@ services:
       - postgres
       - db-all
     environment:
-      POSTGRES_USER: percuser
-      POSTGRES_PASSWORD: PercPass123
-      POSTGRES_DB: percdb
+      POSTGRES_USER: ${POSTGRES_USER:-percuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.compose}
+      POSTGRES_DB: ${POSTGRES_DB:-percdb}
     ports:
       # Host 5432 is often taken by a local Postgres; cells reach DB via Docker DNS
       # alias ``postgres:5432`` on perc-matrix-net (matrix-install-smoke).
-      - "5433:5432"
+      - "${POSTGRES_PORT:-5433}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U percuser -d percdb"]
+      test: ["CMD-SHELL", 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -112,18 +108,19 @@ services:
       - sqlserver
       - db-all
     environment:
-      ACCEPT_EULA: Y
-      MSSQL_SA_PASSWORD: PercPass123!
+      ACCEPT_EULA: "Y"
+      # Must meet SQL Server complexity rules (upper/lower/digit/symbol).
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?Set MSSQL_SA_PASSWORD in .env.compose}
       MSSQL_PID: Developer
     ports:
-      - "1433:1433"
+      - "${MSSQL_PORT:-1433}:1433"
     volumes:
       - sqlserver-data:/var/opt/mssql
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'PercPass123!' -Q 'SELECT 1'",
+          '/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$$MSSQL_SA_PASSWORD" -Q "SELECT 1" || exit 1',
         ]
       interval: 10s
       timeout: 5s
