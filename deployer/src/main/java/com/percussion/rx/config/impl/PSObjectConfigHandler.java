@@ -91,7 +91,11 @@ public class PSObjectConfigHandler implements IPSConfigHandler {
     return m_typeEnum;
   }
 
-  /** Sets the type enum of the design object (wired by Spring). */
+  /**
+   * Sets the type enum of the design object (wired by Spring).
+   *
+   * @param type the type enum, may be <code>null</code>.
+   */
   public void setType(PSTypeEnum type) {
     m_typeEnum = type;
   }
@@ -177,12 +181,20 @@ public class PSObjectConfigHandler implements IPSConfigHandler {
     return result;
   }
 
-  /** Gets the name of the design object from current properties. */
+  /**
+   * Gets the name of the design object from current properties.
+   *
+   * @return the collection of current names, never <code>null</code>.
+   */
   protected Collection<String> getCurNames() {
     throw new UnsupportedOperationException("getCurNames() method is not supported.");
   }
 
-  /** Gets the name of the design object from previous properties. */
+  /**
+   * Gets the name of the design object from previous properties.
+   *
+   * @return the collection of previous names, never <code>null</code>.
+   */
   protected Collection<String> getPrevNames() {
     throw new UnsupportedOperationException("getPrevNames() method is not supported.");
   }
@@ -233,6 +245,11 @@ public class PSObjectConfigHandler implements IPSConfigHandler {
 
   /**
    * Validates all setter's properties against the specified setters for a given design object name.
+   *
+   * @param name the name of the design object being validated, may not be <code>null</code>.
+   * @param state the state of the object, may not be <code>null</code>.
+   * @param oSetters the other property setters, may not be <code>null</code>.
+   * @return the list of validation results, never <code>null</code>.
    */
   protected List<PSConfigValidation> validate(
       String name, ObjectState state, List<IPSPropertySetter> oSetters) {
@@ -252,6 +269,9 @@ public class PSObjectConfigHandler implements IPSConfigHandler {
   /**
    * Gets the object names (and their state) that are defined in both the current and the specified
    * handler.
+   *
+   * @param other the other config handler, may not be <code>null</code>.
+   * @return the list of common object names, never <code>null</code>.
    */
   protected List<PSPair<String, ObjectState>> getCommonObjectNames(IPSConfigHandler other) {
     if (getType() == null || other.getType() == null || (!getType().equals(other.getType())))
