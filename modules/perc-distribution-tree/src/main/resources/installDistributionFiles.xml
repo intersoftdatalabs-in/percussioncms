@@ -717,7 +717,7 @@
 						file="${assembly-directory}/_gcm-native-stage/dev/monkeyking/gcm/native/windows-x86_64/mkd_gcm_ffi.dll" />
 				</not>
 			</condition>
-		</fail>
+		</fail> -->
 		<fail
 			message="Missing staged Linux libmkd_gcm_ffi.so (mkd-gcm-natives ${mkd.gcm.version} not installed to local .m2?)">
 			<condition>
@@ -726,7 +726,7 @@
 						file="${assembly-directory}/_gcm-native-stage/dev/monkeyking/gcm/native/linux-x86_64/libmkd_gcm_ffi.so" />
 				</not>
 			</condition>
-		</fail> 
+		</fail>
 		<copy todir="${assembly-directory}/bin" flatten="true"
 			overwrite="true">
 			<fileset dir="${assembly-directory}/_gcm-native-stage">
@@ -735,7 +735,7 @@
 			</fileset>
 		</copy>
 		<delete dir="${assembly-directory}/_gcm-native-stage"
-			failonerror="false" verbose="true" />-->
+			failonerror="false" verbose="true" />
 
 		<!-- Populate jetty/base/lib/jdbc/ with the curated JDBC driver set. The
 			staged JARs are placed in ${assembly-directory}/_jdbc-stage/ by maven-dependency-plugin
