@@ -20,7 +20,7 @@ on:
       - "modules/ai-shared-develop/AGENTS.md"
       - "docs/ai-generated/tasks/#000-webui-src-layout/**"
   push:
-    branches: [development]
+    branches: [main]
     paths:
       - "scripts/**"
       - "scripts/requirements-dev.txt"

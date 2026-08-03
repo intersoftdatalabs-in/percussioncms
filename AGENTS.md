@@ -361,7 +361,7 @@ Kilo rule: `.kilo/rules/worktree-hygiene.md`. Script docs: `scripts/README.md`.
 * Be creative, but DO NOT *invent* third-party APIs, libraries, functions, or syntax that does not actually exist. If it doesn't exist in real docs (MDN, JDK 21, official Percussion docs, etc.): Ask user to clarify.
 * If instructions are unclear or you can't find needed info: ask the user for clarification and guidance — don't guess.
 * Base EVERY output on:
-  * The currently checked-out Git branch (e.g., development, feature/auth-fix, development-8.1.x, etc)
+  * The currently checked-out Git branch (e.g., main, feature/auth-fix, etc)
   * Files in the current workspace
 * NEVER read and write to `%TEMP%` or `$TMPDIR` directories. ALWAYS use the repo temp dir.
 * ALWAYS add generated scripts to repo script dir or module script dir if script is specific to a module.
@@ -502,34 +502,32 @@ This rule applies to ALL review comments on a PR you own, including comments tha
 
 **Path-filtered on PR/push (repo-wide):** `Analyze (java-kotlin)` runs only when Java-relevant paths change; `Analyze (javascript-typescript)` only when JS/TS-relevant paths change. Docs-only changes skip both. Weekly schedule + `workflow_dispatch` still run full dual-language scans. Prefer required check name **`CodeQL`** (the always-on gate job) so skipped language jobs do not block merge.
 
-|                            Piece                            |                                                Path / command                                                |
-|-------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
-| Playbook (required reading for security/CodeQL PRs)         | `docs/ai-generated/tasks/gh-codeql-alerts/codeql-pr-playbook.md`                                             |
-| Advanced workflow (PRs + `development` + schedule + manual) | `.github/workflows/codeql.yml`                                                                               |
-| Config (`paths-ignore`, Java `packs`, `query-filters`)      | `.github/codeql/codeql-config.yml`                                                                           |
-| Custom sanitizer models                                     | `.github/codeql/models/`                                                                                     |
-| Agent skill                                                 | `modules/ai-shared-develop/src/main/resources/skills/codeql-pr/SKILL.md`                                     |
-| Verify default setup off                                    | `gh api repos/intersoftdatalabs-in/percussioncms/code-scanning/default-setup --jq .state` → `not-configured` |
+|                         Piece                          |                                                Path / command                                                |
+|--------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
+| Playbook (required reading for security/CodeQL PRs)    | `docs/ai-generated/tasks/gh-codeql-alerts/codeql-pr-playbook.md`                                             |
+| Advanced workflow (PRs + `main` + schedule + manual)   | `.github/workflows/codeql.yml`                                                                               |
+| Config (`paths-ignore`, Java `packs`, `query-filters`) | `.github/codeql/codeql-config.yml`                                                                           |
+| Custom sanitizer models                                | `.github/codeql/models/`                                                                                     |
+| Agent skill                                            | `modules/ai-shared-develop/src/main/resources/skills/codeql-pr/SKILL.md`                                     |
+| Verify default setup off                               | `gh api repos/intersoftdatalabs-in/percussioncms/code-scanning/default-setup --jq .state` → `not-configured` |
 
 Disposition ladder: **runtime fix + test → model pack barrier → sink-line `// codeql[rule-id]` → path query-filters → dismiss last**. Put suppressions on the **exact sink line** (not above multi-line builders).
 
 ## Git Branch & Maven Wrapper Information
 
-* **Toolchain today (do not target older JDKs on `development`):** parent `pom.xml` uses **`java.version` / compiler `release` = 21**. Agent instructions, Spotless (`google-java-format`), and local builds assume **JDK 21** via `JAVA_HOME` + `./mvnw` / `mvnw.cmd`. Do **not** follow stale “Java 11” or “Java 17” modernization checklists as the current baseline—those were intermediate migrations; **current product line is Java 21**.
-* Base Branch Name: **`development`**
+* **Toolchain today (do not target older JDKs on `main`):** parent `pom.xml` uses **`java.version` / compiler `release` = 21**. Agent instructions, Spotless (`google-java-format`), and local builds assume **JDK 21** via `JAVA_HOME` + `./mvnw` / `mvnw.cmd`. Do **not** follow stale “Java 11” or “Java 17” modernization checklists as the current baseline—those were intermediate migrations; **current product line is Java 21**.
+* Base Branch Name: **`main`** (default branch; formerly `development`)
   * All code changes on this branch must be compatible with **JDK 21**.
   * Prefer modern language features that compile on 21 (records, sealed types, pattern matching, virtual threads where appropriate, `var`, `Optional`, Streams, NIO `Path`).
   * Use `./mvnw` or `./mvnw.cmd` with `JAVA_HOME` pointing at JDK 21.
-* Base Branch Name: **`development-8.1.x`**
-  * Maintenance line: all code changes must remain compatible with **JDK 8**.
-  * Do not introduce JDK 9+ APIs or language features on this branch.
-  * Use `./mvnw` or `./mvnw.cmd` with a JDK 8-compatible toolchain as required by that line.
+* **Java 8 maintenance line** lives in a separate repository: [`intersoftdatalabs-in/percussioncms-java8`](https://github.com/intersoftdatalabs-in/percussioncms-java8) (formerly the `development-8.1.x` branch of this repo). Do **not** target JDK 8 or recreate `development-8.1.x` here.
 
 ## Project & Dependency Management
 
 * This is not a Spring Boot application; avoid Spring Boot dependencies.
-* Dependabot is enabled for this repository and is configured on the development branch @.github/dependabot.yml
-  * All branches requiring exclusions are managed in this dependabot.yml file, and any new exclusions must be added here.
+* Dependabot is enabled for this repository and is configured on the `main` branch in `.github/dependabot.yml`
+  * Exclusions for the Java 21 line are managed in this dependabot.yml file; any new exclusions must be added here.
+  * Java 8 Dependabot config belongs in `percussioncms-java8`, not this repo.
 * Use Maven for Java dependency management; ensure all dependencies are defined in the `pom.xml`.
 * Use npm for typescript and javascript dependency management via the Maven frontend-plugin.
 * Use the parent POM to manage shared dependencies and plugin versions.

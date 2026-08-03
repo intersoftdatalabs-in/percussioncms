@@ -2,11 +2,10 @@ name: Dependency Submission
 
 on:
   push:
-    branches: ["development", "development-8.1.x"]
+    branches: ["main"]
   schedule:
-    # Weekly cadence for both lines. Each job hardcodes `ref:` on checkout
-    # so schedule events (which default to the repo's default branch) land
-    # on the right branch.
+    # Weekly cadence. Schedule events default to the repo default branch;
+    # we still pin ref: main so the job is explicit.
     - cron: "0 6 * * 1" # Monday 06:00 UTC
   workflow_dispatch:
 
@@ -17,21 +16,21 @@ permissions:
   actions: read
 
 jobs:
-  # JDK 21 build: covers the active `development` line.
+  # JDK 21 build: active product line on main.
   dependency-submission-21:
     name: dep-submit (jdk21)
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'schedule' ||
-      (github.event_name == 'push' && github.ref == 'refs/heads/development')
+      (github.event_name == 'push' && github.ref == 'refs/heads/main')
 
     steps:
       - uses: actions/checkout@v4
         with:
           # For schedule/workflow_dispatch, force-checkout the right branch.
           # On push events this matches github.ref anyway.
-          ref: development
+          ref: main
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -58,57 +57,6 @@ jobs:
             </toolchain>
           </toolchains>
           EOF
-
-      - name: Build project to install dependencies
-        run: mvn clean install -DskipTests=true -pl !modules/perc-distribution-tree
-        continue-on-error: true
-
-      - name: Submit Dependency Snapshot
-        uses: advanced-security/maven-dependency-submission-action@v4
-        with:
-          ignore-maven-wrapper: true
-          # The action will now pick up the toolchain from ~/.m2/toolchains.xml automatically
-          maven-args: "-B -DskipTests -fn -pl !modules/perc-distribution-tree"
-
-  # JDK 8 build: covers the maintenance `development-8.1.x` line.
-  dependency-submission-8:
-    name: dep-submit (jdk8)
-    runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'schedule' ||
-      (github.event_name == 'push' && github.ref == 'refs/heads/development-8.1.x')
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          # See dep-submit-21 comment.
-          ref: development-8.1.x
-
-      - name: Set up JDK 8
-        uses: actions/setup-java@v4
-        with:
-          java-version: "8"
-          distribution: "temurin"
-          cache: maven
-
-      # NEW STEP: Create the toolchains.xml file
-      - name: Create Maven Toolchains (jdk8)
-        run: |
-          mkdir -p ~/.m2
-          echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-          <toolchains>
-            <toolchain>
-              <type>jdk</type>
-              <provides>
-                <version>1.8</version>
-                <vendor>temurin</vendor>
-              </provides>
-              <configuration>
-                <jdkHome>${{ env.JAVA_HOME }}</jdkHome>
-              </configuration>
-            </toolchain>
-          </toolchains>" > ~/.m2/toolchains.xml
 
       - name: Build project to install dependencies
         run: mvn clean install -DskipTests=true -pl !modules/perc-distribution-tree
