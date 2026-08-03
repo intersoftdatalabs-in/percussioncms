@@ -6,6 +6,8 @@ priority: "high"
 capabilities: ["code-generation", "refactoring", "documentation", "testing", "debugging", "code-review", "project-management", "internationalization", "legacy-code-maintenance", "modernization", "code-completion", "code-analysis", "dependency-management", "build-management", "git-management", "maven-management", "npm-management"]
 ---
 
+This project follows the Universal Code v1.0.0 — read https://github.com/monkeyking-hq/universal-code/blob/main/UC-EMBED-v1.0.0.md
+
 # Agent Guidelines
 
 This repository is a large mono-repo with many modules.  This code base has a lot of history and is currently in the process of being modernized and refactored; Do not assume that all code is up to date with current best practices.  When making code changes, follow these guidelines:

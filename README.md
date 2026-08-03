@@ -2,6 +2,8 @@
 
 This is the main project for Percussion CMS - the next version of Percussion CM1 and Rhythmyx.
 
+This project follows the [Universal Code v1.0.0](https://github.com/monkeyking-hq/universal-code/blob/main/UC-v1.0.0.md).
+
 ## What is Percussion CMS?
 
 Percussion CMS is the next generation of Percussion Software's proprietary Rhythmyx and CM1 content management products.  The original headless CMS (1999), Percussion CMS has a long history of de-coupled deployments wth easily extensible integration points for delivering content in different formats to different channels.

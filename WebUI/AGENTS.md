@@ -1,3 +1,5 @@
+This project follows the Universal Code v1.0.0 — read https://github.com/monkeyking-hq/universal-code/blob/main/UC-EMBED-v1.0.0.md
+
 # WebUI Module Agent Guidelines
 
 Read the root [@AGENTS.md](../AGENTS.md) for general guidelines. This file contains WebUI-specific rules that supersede general rules for this module.
