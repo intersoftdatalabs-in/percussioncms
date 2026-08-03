@@ -124,6 +124,30 @@ query-filters:
         addressed in a follow-up PR (the directory migration plan
         `docs/ai-generated/tasks/#000-webui-src-layout/webui-src-layout-migration-plan.md`
         calls for retiring `war/widgets/**`).
+  - exclude:
+      id: js/xss-through-dom
+      paths:
+        - "WebUI/src/main/webapp/cm/plugins/perc_utils.js"
+        - "WebUI/src/main/webapp/cm/app/js/legacy/plugins/perc_utils.js"
+      reason: >-
+        Documented CodeQL false positive for code-scanning alerts
+        #1745–#1748 and re-open thrash #1936–#1939 (PR #1741). Runtime
+        defense is `percSafeDialogContent()`: untrusted dialog
+        content/question strings are parsed only into a *detached*
+        Document via `DOMParser.parseFromString`, then
+        `percSanitizeDialogNode` allowlists tags (span/p/strong/table/a/…)
+        and attributes (id/class/style/href), strips event handlers and
+        unsafe attribute values (javascript:/data:/vbscript:/expression(/
+        url(), after control-char normalization). Live DOM is only reached
+        via jQuery `.append` of the *already-sanitized* node list — never
+        raw `.html(settings.content)` / `.append(settings.content)`.
+        Inline `// codeql[js/xss-through-dom]` on the parse/append sinks
+        did not stop CodeQL re-fingerprinting new alert IDs after line
+        shifts (same parseFromString blind spot as perc_page_edit_dialog
+        #1724). End-to-end coverage:
+        `WebUI/src/test/js/percUtils.test.js` and
+        `WebUI/src/main/frontend/src/test/js/percUtils.test.js`.
+        Keep both lockstep source copies in this exclude.
   # --- Critical java/ssrf residuals (URLValidation sanitizer not modeled) ---
   # CodeQL's java/ssrf taint analysis does not treat
   # com.percussion.security.validation.URLValidation as a sanitizer, even

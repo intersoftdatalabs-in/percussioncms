@@ -22,6 +22,9 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": resolve(__dirname, "src/main/ts"),
+      // Vendored package is linked under src/main/frontend/node_modules (Maven
+      // frontend workingDirectory). Alias so `npm test` from WebUI root also works.
+      "@mkd/language": resolve(__dirname, "vendor/mkd-language"),
     },
   },
   test: {

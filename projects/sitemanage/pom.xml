@@ -49,7 +49,9 @@
             <artifactId>rest</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        <!-- GCM language corrections: thin JNA SDK (local .m2 until published to MonkeyKing Central). -->
+        <!-- GCM language corrections: thin JNA SDK (local .m2 until published to MonkeyKing Central).
+             Native mkd_gcm_ffi is packaged into <installdir>/bin by perc-distribution-tree
+             (StartJetty -Djna.library.path); do not rely on classpath extraction alone. -->
         <dependency>
             <groupId>dev.monkeyking</groupId>
             <artifactId>mkd-gcm-sdk</artifactId>

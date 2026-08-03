@@ -625,21 +625,131 @@
       dlgOptions.beforeclose = saveConfirmUserSetting;
     }
 
-    // Render the question as a text node so attacker-controlled or
-    // server-supplied strings cannot inject HTML/scripts via jQuery's
-    // .append() HTML parsing. Callers that intentionally need HTML
-    // markup should sanitize the input themselves; do not reintroduce
-    // .append(settings.question) here.
-    var $question = $("<div/>");
-    if (settings.questionIsHtml) {
-      // codeql[js/xss-through-dom] reason: caller opts in to raw HTML via
-      // settings.questionIsHtml and is responsible for sanitizing the
-      // markup. Defaults to safe text rendering.
-      $question.html(settings.question);
-    } else {
-      $question.text(settings.question);
+    // codeql[js/xss-through-dom] reason: append only after percSafeDialogContent
+    // allowlist sanitizer (alerts #1745–#1748).
+    dialog = $("<div/>")
+      .append(percSafeDialogContent(settings.question)) // codeql[js/xss-through-dom]
+      .perc_dialog(dlgOptions);
+  }
+
+  // Several first-party callers of confirm_dialog()/alert_dialog()/
+  // prompt_dialog() intentionally build small formatted warnings (e.g.
+  // <span id=... style=...>, <p id=...>, <strong>, <br>, and even a
+  // <table> of affected usernames for PercUserView's LDAP-import
+  // warning, or an <a href="..."> link via
+  // perc_utils.replaceURLWithHTMLLinks()) for confirmation dialogs such
+  // as "Delete Role" or "Disable Site Security" -- a blanket
+  // text-escape would visibly break those dialogs by displaying literal
+  // tag syntax instead of the intended formatting.
+  //
+  // This allowlist sanitizer preserves that narrow, observed-in-the-wild
+  // set of structural/style tags and attributes while stripping everything
+  // else (event handler attributes, <script>/<img>/<iframe>/any other tag,
+  // javascript:/data:/vbscript: schemes, CSS expression(...), and any
+  // url(...) inside attribute values). After control-character stripping,
+  // a value such as style="background:url(java\tscript:alert(1))" becomes
+  // "...url(javascript:alert(1))..." which matches the javascript: arm of
+  // the regex; url( is also blocked outright so CSS url() exfil /
+  // tracking cannot ride the style allowlist. Modeled on the same
+  // DOMParser-based allowlist approach already used by PercPageEditSanitizer.
+  //
+  // contentIsHtml / questionIsHtml are accepted for backward compatibility
+  // (sole flag user today: PercNewPageDialog's red <span style="color:red">
+  // error, which is inside the allowlist) but every string is always
+  // sanitized — the flags never bypass the allowlist. jQuery/DOM objects
+  // pass through for trusted first-party builders that already constructed
+  // nodes via the DOM API.
+  //
+  // Residual risk: style still allows non-url decorative CSS (color, etc.).
+  // Callers must not put untrusted data into style beyond that.
+  var PERC_DIALOG_HTML_ALLOWED_TAGS = {
+    SPAN: true,
+    P: true,
+    STRONG: true,
+    B: true,
+    EM: true,
+    I: true,
+    U: true,
+    SMALL: true,
+    DIV: true,
+    BR: true,
+    // Tabular warnings (e.g. PercUserView's LDAP-import-failure dialog,
+    // which lists the affected usernames in a <table>) and links (e.g.
+    // perc_utils.replaceURLWithHTMLLinks(), which turns bare http(s)/ftp/
+    // file URLs in a message into <a href="...">...</a>).
+    TABLE: true,
+    THEAD: true,
+    TBODY: true,
+    TR: true,
+    TD: true,
+    TH: true,
+    A: true,
+  };
+  var PERC_DIALOG_HTML_ALLOWED_ATTRS = ["id", "class", "style", "href"];
+  // javascript: also covers style="...url(javascript:...)" after control
+  // chars are stripped; url( blocks remaining CSS url() vectors; expression(
+  // covers legacy IE CSS expression.
+  var PERC_DIALOG_HTML_UNSAFE_ATTR_VALUE =
+    /javascript:|data:|vbscript:|expression\s*\(|url\s*\(/i;
+
+  function percSanitizeDialogNode(parent) {
+    var children = Array.prototype.slice.call(parent.childNodes);
+    children.forEach(function (child) {
+      if (child.nodeType === 1) {
+        if (!PERC_DIALOG_HTML_ALLOWED_TAGS[child.tagName]) {
+          parent.removeChild(child);
+          return;
+        }
+        Array.prototype.slice.call(child.attributes).forEach(function (attr) {
+          var name = attr.name.toLowerCase();
+          // Strip whitespace/ASCII control characters from a throwaway
+          // copy before scheme-sniffing (never from the value actually
+          // written back to the DOM, so legitimate values like
+          // style="color: red" keep their spaces). Real URL parsers
+          // (WHATWG URL Standard, used by browsers for href navigation)
+          // strip TAB/LF/CR from anywhere in a URL before resolving its
+          // scheme, so "java\tscript:alert(1)" still resolves to a live
+          // javascript: URL even though it doesn't literally contain the
+          // substring "javascript:" -- the naive regex test alone would
+          // miss that.
+          var schemeCheckValue = attr.value.replace(
+            /[\s\u0000-\u001f\u007f]+/g,
+            "",
+          );
+          if (
+            PERC_DIALOG_HTML_ALLOWED_ATTRS.indexOf(name) === -1 ||
+            PERC_DIALOG_HTML_UNSAFE_ATTR_VALUE.test(schemeCheckValue)
+          ) {
+            child.removeAttribute(attr.name);
+          }
+        });
+        percSanitizeDialogNode(child);
+      } else if (child.nodeType !== 3) {
+        // Strip comments/CDATA/processing instructions -- only allowed
+        // elements (filtered above) and plain text nodes ever survive.
+        parent.removeChild(child);
+      }
+    });
+  }
+
+  function percSafeDialogContent(content) {
+    // Duck-type rather than `instanceof jQuery` so a jQuery object
+    // constructed by a *different* frame's jQuery instance (this file
+    // is sometimes called cross-frame, e.g. window.parent.jQuery...) is
+    // still recognized correctly.
+    if (
+      (content && typeof content.jquery === "string") ||
+      (content && content.nodeType)
+    ) {
+      return content;
     }
-    dialog = $("<div/>").append($question).perc_dialog(dlgOptions);
+    var text = content === null || content === undefined ? "" : String(content);
+    // codeql[js/xss-through-dom] reason: parse into a detached Document only;
+    // percSanitizeDialogNode allowlists tags/attrs before any live-DOM append
+    // (alerts #1745–#1748). Covered by WebUI/src/test/js/percUtils.test.js.
+    var parsed = new DOMParser().parseFromString(text, "text/html"); // codeql[js/xss-through-dom]
+    percSanitizeDialogNode(parsed.body);
+    return $(parsed.body.childNodes);
   }
 
   function alert_dialog(options) {
@@ -659,21 +769,10 @@
         : settings.width;
 
     var dialog;
-    // Render the alert content as a text node so attacker-controlled or
-    // server-supplied strings cannot inject HTML/scripts via jQuery's
-    // .append() HTML parsing. Callers that intentionally need HTML markup
-    // should sanitize the input themselves or opt in via settings.contentIsHtml.
-    var $content = $("<div/>");
-    if (settings.contentIsHtml) {
-      // codeql[js/xss-through-dom] reason: caller opts in to raw HTML via
-      // settings.contentIsHtml and is responsible for sanitizing the
-      // markup. Defaults to safe text rendering.
-      $content.html(settings.content);
-    } else {
-      $content.text(settings.content);
-    }
+    // codeql[js/xss-through-dom] reason: append only after percSafeDialogContent
+    // allowlist sanitizer (alerts #1745–#1748).
     dialog = $("<div/>")
-      .append($content)
+      .append(percSafeDialogContent(settings.content)) // codeql[js/xss-through-dom]
       .perc_dialog({
         dialogClass: "perc-alert-dialog",
         title: settings.title,
@@ -706,21 +805,13 @@
     var inputField = $(
       "<input type='text' id='perc-prompt-dialog-question' />",
     );
-    // Render the question as a text node so attacker-controlled or
-    // server-supplied strings cannot inject HTML/scripts via jQuery's
-    // .append() HTML parsing. Callers that intentionally need HTML markup
-    // should sanitize the input themselves or opt in via settings.questionIsHtml.
-    var $question = $("<label for='perc-prompt-dialog-question'/>");
-    if (settings.questionIsHtml) {
-      // codeql[js/xss-through-dom] reason: caller opts in to raw HTML via
-      // settings.questionIsHtml and is responsible for sanitizing the
-      // markup. Defaults to safe text rendering.
-      $question.html(settings.question);
-    } else {
-      $question.text(settings.question);
-    }
     var dialog = $("<div/>")
-      .append($question)
+      .append(
+        // codeql[js/xss-through-dom] reason: append only after percSafeDialogContent.
+        $("<label for='perc-prompt-dialog-question'/>").append(
+          percSafeDialogContent(settings.question), // codeql[js/xss-through-dom]
+        ),
+      )
       .append($("<br/>"))
       .append(inputField)
       .dialog({

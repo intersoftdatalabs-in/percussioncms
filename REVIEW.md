@@ -115,6 +115,14 @@ from the base branch, never from the feature branch under review.
 
 ## Comment style
 
+- **Be concise, brief, and precise.** Prefer a short paragraph or a few
+  tight bullets over essays. Lead with the defect and the preferred fix;
+  skip restating the whole file history. If a comment needs a TL;DR, rewrite
+  it until it does not.
+- **Tone:** professional first. Optional light levity may soften delivery
+  of a hard finding, but the issue and mitigation must stay unmistakable —
+  never sarcasm at the author, never a joke that could bury or dilute the
+  defect. When in doubt, skip the joke.
 - Leave comments on the exact line via the GitHub PR review API.
 - Frame findings as suggestions the human can accept or reject; never as
   demands.

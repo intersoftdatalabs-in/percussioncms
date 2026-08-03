@@ -18,49 +18,22 @@
 /**
  * Regression tests for WebUI/src/main/webapp/cm/plugins/perc_utils.js
  *
- * Closes GitHub CodeQL alerts (US2 T024 / 004) flagged on the
- * stale `shared-common.js` bundle for sinks inside `perc_utils.js`,
- * specifically:
+ * Closes GitHub CodeQL alerts (US2 T024 / 004 / US3) flagged on sinks
+ * inside `perc_utils.js`, specifically:
  *
- *   - js/incomplete-sanitization (alert #1481) -- htmlEntities() in the
- *     pre-fix source used `.replace(/'/, "&#39;")` without the global
- *     flag, so only the first apostrophe was escaped. The fix flips the
- *     regex to `.replace(/'/g, "&#39;")`. This test exercises the live
- *     function with multiple apostrophes and asserts every one is escaped.
+ *   - js/incomplete-sanitization -- htmlEntities() must use the global
+ *     flag on the apostrophe replace.
  *
- *   - js/xss-through-dom (alert #1608) -- alert_dialog() built the body
- *     via `$("<div/>").append(settings.content)`, which parses the
- *     caller-supplied string as HTML. The fix switches to `.text()` by
- *     default, with an explicit `settings.contentIsHtml` opt-in for HTML
- *     content. This test exercises both modes through the live
- *     `$.perc_utils.alert_dialog` API (the dialog content element is the
- *     actual sink).
+ *   - js/xss-through-dom -- alert_dialog / confirm_dialog / prompt_dialog
+ *     route content/question through `percSafeDialogContent()`, an
+ *     allowlist HTML sanitizer that preserves legitimate structural tags
+ *     used by first-party callers while stripping hostile tags/attrs.
  *
- *   - js/xss-through-dom (alert #1603) -- confirm_dialog() built the body
- *     via `$("<div/>").append(settings.question)`. Same fix: `.text()` by
- *     default with `settings.questionIsHtml` opt-in. This test exercises
- *     both modes through the live `$.perc_utils.confirm_dialog` API.
+ *   - js/unsafe-jquery-plugin -- `$.fn.perc_toggle` resolves string
+ *     targets via `percResolveToggleTarget` / `.find()` (Sizzle only).
  *
- *   - js/unsafe-jquery-plugin (alerts #1669-#1674) -- `$.fn.perc_toggle`
- *     forwards its argument `d` only to .hasClass(), .addClass(), and
- *     .removeClass(), none of which parse `d` as HTML, so the alert is a
- *     false positive. The source carries an inline `codeql[...]`
- *     suppression; this test pins the public API contract that callers
- *     rely on and would catch any future regression that re-introduces
- *     a true XSS sink in perc_toggle.
- *
- * Pre-fix code would let a title/question/content string containing
- * `<script>window.__pwned=true</script>` produce live DOM elements; the
- * post-fix code keeps the string as inert text by default.
- *
- * Test strategy (Constitution III fail-then-pass):
- *   - Drive the live source end-to-end via `$.perc_utils.alert_dialog`
- *     and `$.perc_utils.confirm_dialog`.
- *   - Provide stub dependencies ($.perc_dialog, I18N.message) so the
- *     dialogs render without throwing.
- *   - Inspect the actual DOM sink element to confirm the content/question
- *     was rendered as text or HTML as appropriate.
- *   - Assert that htmlEntities() escapes every apostrophe in the input.
+ * Test strategy: drive the live source end-to-end via the dialog APIs
+ * with stubbed jQuery UI `.dialog()`, then assert DOM sinks.
  */
 
 import { readFileSync } from "fs";
@@ -143,14 +116,17 @@ describe("source-pattern (anti-regression for js/xss-through-dom, js/incomplete-
   });
 
   it("alert_dialog does not use .append(settings.content) directly", () => {
-    // The fixed alert_dialog routes content through .text() or .html()
-    // depending on the contentIsHtml opt-in; it must not concatenate or
-    // .append() the raw settings.content string into the dialog body.
+    // Content must go through percSafeDialogContent (or equivalent), never
+    // raw .append(settings.content) which would HTML-parse attacker input.
     expect(code).not.toMatch(/\.append\(\s*settings\.content\s*\)/);
+    expect(code).toMatch(/percSafeDialogContent\s*\(\s*settings\.content\s*\)/);
   });
 
   it("confirm_dialog does not use .append(settings.question) directly", () => {
     expect(code).not.toMatch(/\.append\(\s*settings\.question\s*\)/);
+    expect(code).toMatch(
+      /percSafeDialogContent\s*\(\s*settings\.question\s*\)/,
+    );
   });
 
   it("perc_toggle forwards 'd' through percResolveToggleTarget (no raw $)", () => {
@@ -202,31 +178,29 @@ describe("htmlEntities sink", () => {
 });
 
 describe("alert_dialog sink", () => {
-  it("renders caller-supplied content as inert text by default", () => {
-    const malicious = "<script>window.__pwned_alert=1</script>";
+  it("strips hostile <script>/<img> tags from content", () => {
+    const malicious =
+      "before<script>window.__pwned_alert=1</script><img src=x onerror=1>after";
     $.perc_utils.alert_dialog({
       title: "alert-text-title",
       content: malicious,
     });
-    const scripts = document.body.querySelectorAll("script");
-    expect(scripts.length, "no <script> from content").toBe(0);
+    expect(document.body.querySelectorAll("script").length).toBe(0);
+    expect(document.body.querySelectorAll("img").length).toBe(0);
     expect(window.__pwned_alert).toBeUndefined();
-    // The source's $.fn.perc_dialog delegates to jQuery UI .dialog(),
-    // which our stub tags with data-jquery-ui-dialog-title.
+    // perc_dialog delegates to jQuery UI .dialog(), which our stub tags.
     const sink = document.body.querySelector(
       "[data-jquery-ui-dialog-title='alert-text-title']",
     );
     expect(sink, "alert_dialog sink must be attached to body").toBeTruthy();
-    expect(sink.querySelector("script")).toBeNull();
-    expect(sink.querySelector("img")).toBeNull();
-    expect(sink.textContent).toBe(malicious);
+    expect(sink.textContent).toContain("before");
+    expect(sink.textContent).toContain("after");
   });
 
-  it("renders content as HTML only when contentIsHtml is true", () => {
+  it("preserves allowlisted formatting HTML (no flag required)", () => {
     $.perc_utils.alert_dialog({
       title: "alert-html-title",
       content: "<b id='alert-html-marker'>bold</b>",
-      contentIsHtml: true,
     });
     const marker = document.getElementById("alert-html-marker");
     expect(marker, "<b id='alert-html-marker'> should be present").toBeTruthy();
@@ -235,28 +209,26 @@ describe("alert_dialog sink", () => {
 });
 
 describe("confirm_dialog sink", () => {
-  it("renders caller-supplied question as inert text by default", () => {
-    const malicious = "<script>window.__pwned_confirm=1</script>";
+  it("strips hostile <script> tags from question", () => {
+    const malicious = "safe<script>window.__pwned_confirm=1</script>text";
     $.perc_utils.confirm_dialog({
       title: "confirm-text-title",
       question: malicious,
     });
-    const scripts = document.body.querySelectorAll("script");
-    expect(scripts.length, "no <script> from question").toBe(0);
+    expect(document.body.querySelectorAll("script").length).toBe(0);
     expect(window.__pwned_confirm).toBeUndefined();
     const sink = document.body.querySelector(
       "[data-jquery-ui-dialog-title='confirm-text-title']",
     );
     expect(sink, "confirm_dialog sink must be attached to body").toBeTruthy();
-    expect(sink.querySelector("script")).toBeNull();
-    expect(sink.textContent).toBe(malicious);
+    expect(sink.textContent).toContain("safe");
+    expect(sink.textContent).toContain("text");
   });
 
-  it("renders question as HTML only when questionIsHtml is true", () => {
+  it("preserves allowlisted formatting HTML in question", () => {
     $.perc_utils.confirm_dialog({
       title: "confirm-html-title",
       question: "<b id='confirm-html-marker'>bold</b>",
-      questionIsHtml: true,
     });
     const marker = document.getElementById("confirm-html-marker");
     expect(
@@ -268,28 +240,27 @@ describe("confirm_dialog sink", () => {
 });
 
 describe("prompt_dialog sink", () => {
-  it("renders caller-supplied question as inert text by default", () => {
-    const malicious = "<script>window.__pwned_prompt=1</script>";
+  it("strips hostile <script> tags from question", () => {
+    const malicious = "ask<script>window.__pwned_prompt=1</script>?";
     $.perc_utils.prompt_dialog({
       title: "prompt-text-title",
       question: malicious,
     });
-    const scripts = document.body.querySelectorAll("script");
-    expect(scripts.length, "no <script> from prompt question").toBe(0);
+    expect(document.body.querySelectorAll("script").length).toBe(0);
     expect(window.__pwned_prompt).toBeUndefined();
     const label = document.body.querySelector(
       "label[for='perc-prompt-dialog-question']",
     );
     expect(label).toBeTruthy();
     expect(label.querySelector("script")).toBeNull();
-    expect(label.textContent).toBe(malicious);
+    expect(label.textContent).toContain("ask");
+    expect(label.textContent).toContain("?");
   });
 
-  it("renders question as HTML only when questionIsHtml is true", () => {
+  it("preserves allowlisted formatting HTML in question", () => {
     $.perc_utils.prompt_dialog({
       title: "prompt-html-title",
       question: "<b id='prompt-html-marker'>bold</b>",
-      questionIsHtml: true,
     });
     const marker = document.getElementById("prompt-html-marker");
     expect(
@@ -301,20 +272,19 @@ describe("prompt_dialog sink", () => {
 });
 
 // ---------------------------------------------------------------------------
-// HTML-opt-in caller pattern — pin the contract that legitimate HTML-passing
-// callers (e.g. PercNewPageDialog's "filename illegal characters" error) rely
-// on. Without the contentIsHtml:true opt-in, the styled <span> would be
-// escaped and the user would see the literal <span>...</span> text.
-// Regression found by Erlang pre-commit review of the 004/US2-T024-shared-
-// common-rebuild change set.
+// First-party HTML callers (e.g. PercNewPageDialog filename error, role
+// delete confirmations) pass allowlisted markup without needing a flag.
+// contentIsHtml remains accepted for backward compatibility but is ignored
+// — the sanitizer always runs.
 // ---------------------------------------------------------------------------
-describe("HTML opt-in caller pattern (PercNewPageDialog scenario)", () => {
-  it("renders a styled <span> as a real span when contentIsHtml is true", () => {
+describe("allowlisted HTML caller pattern (PercNewPageDialog scenario)", () => {
+  it("renders a styled <span> as a real span (sanitizer allowlist)", () => {
     const html =
       '<span style="color:red">The FileName cannot be empty and must not exceed 255 characters.</span>';
     $.perc_utils.alert_dialog({
       title: "html-span",
       content: html,
+      // legacy flag still accepted; sanitizer handles safety
       contentIsHtml: true,
     });
     const span = document.querySelector("span[style*='color:red']");

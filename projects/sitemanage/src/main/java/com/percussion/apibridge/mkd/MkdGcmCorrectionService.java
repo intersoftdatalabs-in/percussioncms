@@ -62,9 +62,14 @@ public class MkdGcmCorrectionService {
           mid);
       return mid;
     } catch (UnsatisfiedLinkError e) {
+      // Product ships Win64/Linux64 natives only (mkd-gcm-natives 0.2.0 has no Darwin
+      // artifacts). Opt-in GCM corrections need a loadable mkd_gcm_ffi for the host OS.
       throw new IllegalStateException(
-          "mkd_gcm_ffi native library not found (place under <installdir>/bin and set"
-              + " LD_LIBRARY_PATH / PATH / -Djna.library.path)",
+          "mkd_gcm_ffi native library not found for this host (product ships Windows"
+              + " x86_64 / Linux x86_64 under <installdir>/bin; macOS natives are not"
+              + " bundled until upstream mkd-gcm-natives publishes them). Place the"
+              + " library under <installdir>/bin and set LD_LIBRARY_PATH / PATH /"
+              + " -Djna.library.path if you have a platform build.",
           e);
     } catch (GcmException e) {
       // Do not concatenate SDK message text (may echo tokens/PII) into the wrapper message.
