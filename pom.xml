@@ -111,7 +111,7 @@
         <commons.rng.version>1.3</commons.rng.version>
         <commons.text.version>1.15.0</commons.text.version>
         <commons.validator.version>1.10.1</commons.validator.version>
-        <cxf.version>4.1.4</cxf.version>
+        <cxf.version>4.2.2</cxf.version>
         <derby.version>10.17.1.0</derby.version>
         <duplicate.finder.maven.plugin.version>1.4.0</duplicate.finder.maven.plugin.version>
         <eclipse-manifest-location>META-INF</eclipse-manifest-location>
@@ -126,7 +126,7 @@
         <guava.version>33.5.0-jre</guava.version>
         <gwt.maven.plugin.version>2.10.0</gwt.maven.plugin.version>
         <!-- #548 default embedded replacement (bake-off primary); Derby retained for migration window -->
-        <h2.version>2.3.232</h2.version>
+        <h2.version>2.4.240</h2.version>
         <hibernate.validator.version>8.0.1.Final</hibernate.validator.version>
         <hibernate.version>7.2.6.Final</hibernate.version>
         <hikaricp.version>7.0.2</hikaricp.version>
@@ -161,7 +161,7 @@
         <jakarta.transaction.api.version>2.0.1</jakarta.transaction.api.version>
         <jakarta.validation.api.version>3.1.1</jakarta.validation.api.version>
         <jakarta.ws.rs.version>4.0.0</jakarta.ws.rs.version>
-        <jakarta.xml.bind.version>4.0.4</jakarta.xml.bind.version>
+        <jakarta.xml.bind.version>4.0.5</jakarta.xml.bind.version>
         <jakarta.xml.soap.api.version>3.0.2</jakarta.xml.soap.api.version>
         <jasypt.version>1.9.3</jasypt.version>
         <java.cache.api.version>1.1.1</java.cache.api.version>
@@ -192,9 +192,9 @@
         <lifecycle.mapping.plugin>1.0.0</lifecycle.mapping.plugin>
         <liquibase.maven.plugin.version>5.0.1</liquibase.maven.plugin.version>
         <liquibase.version>4.17.0</liquibase.version>
-        <log4j2.version>2.25.4</log4j2.version>
+        <log4j2.version>2.26.1</log4j2.version>
         <lucene.version>8.11.4</lucene.version>
-        <mariadb.version>3.5.7</mariadb.version>
+        <mariadb.version>3.5.10</mariadb.version>
         <maven.antrun.plugin.version>3.2.0</maven.antrun.plugin.version>
         <maven.assembly.plugin.version>3.8.0</maven.assembly.plugin.version>
         <maven.build.helper.plugin.version>3.6.1</maven.build.helper.plugin.version>
@@ -205,7 +205,7 @@
         <maven.compiler.plugin.version>3.14.1</maven.compiler.plugin.version>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <maven.dependency.plugin.version>3.9.0</maven.dependency.plugin.version>
+        <maven.dependency.plugin.version>3.11.0</maven.dependency.plugin.version>
         <maven.deploy.plugin.version>3.1.4</maven.deploy.plugin.version>
         <maven.enforcer.plugin.version>3.6.2</maven.enforcer.plugin.version>
         <maven.exec.plugin.version>3.5.0</maven.exec.plugin.version>
@@ -244,7 +244,7 @@
         <plexus.utils.version>4.0.3</plexus.utils.version>
         <poi.version>5.4.0</poi.version>
         <!-- #1500 external PostgreSQL repository backend (org.postgresql:postgresql, Java 21) -->
-        <postgresql.version>42.7.12</postgresql.version>
+        <postgresql.version>42.7.13</postgresql.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quartz.version>2.5.2</quartz.version>
@@ -272,7 +272,7 @@
         <stax.version>1.0.1</stax.version>
         <surefireArgLine/>
         <swagger.ui.version>5.31.0</swagger.ui.version>
-        <swagger.version>2.2.42</swagger.version>
+        <swagger.version>2.2.52</swagger.version>
         <!-- 3.3.1 pulls junrar 7.6.0 (clears Dependabot #208/#214; was 7.5.5 on 3.2.3) -->
         <tika.version>3.3.1</tika.version>
         <!-- TinyMCE 6.8.x is the last series under the MIT license. -->
@@ -599,7 +599,7 @@
             <dependency>
                 <groupId>org.mortbay.jasper</groupId>
                 <artifactId>apache-el</artifactId>
-                <version>11.0.9</version>
+                <version>11.0.23</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -1251,7 +1251,7 @@
             <dependency>
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm</artifactId>
-                <version>9.9.1</version>
+                <version>9.10.1</version>
             </dependency>
             <dependency>
                 <groupId>oro</groupId>

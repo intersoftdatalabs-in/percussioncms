@@ -45,11 +45,11 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- Jakarta EE 11 / Tomcat 11 — align with parent jakarta.servlet.api.version (#667) -->
         <servlet.api.version>6.1.0</servlet.api.version>
-        <spring.security.version>7.0.6</spring.security.version>
+        <spring.security.version>7.1.0</spring.security.version>
         <sqlserver.version>13.3.1.jre11-preview</sqlserver.version>
         <supercsv.version>2.4.0</supercsv.version>
         <timestamp>${maven.build.timestamp}</timestamp>
-        <tomcat.version>11.0.22</tomcat.version>
+        <tomcat.version>11.0.24</tomcat.version>
         <xml.apis.version>2.0.2</xml.apis.version>
     </properties>
     <dependencyManagement>
@@ -58,7 +58,7 @@
             <dependency>
                 <groupId>org.jboss.logging</groupId>
                 <artifactId>jboss-logging</artifactId>
-                <version>3.6.1.Final</version>
+                <version>3.6.3.Final</version>
             </dependency>
             <dependency>
                 <groupId>org.javassist</groupId>
