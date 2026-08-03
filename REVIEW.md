@@ -1,7 +1,7 @@
 # REVIEW.md
 
 Repository-specific guidance for the automated reviewer (`kilo-code-bot`) on
-PRs in this repository. The base branch is `development`; this file is read
+PRs in this repository. The base branch is `main`; this file is read
 from the base branch, never from the feature branch under review.
 
 ## What matters in this repository
