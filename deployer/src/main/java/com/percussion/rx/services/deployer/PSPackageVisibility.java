@@ -46,6 +46,9 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSPackageVisibility {
 
+  /** Default constructor. */
+  public PSPackageVisibility() {}
+
   /**
    * Gets the communities of the supplied guids.
    *

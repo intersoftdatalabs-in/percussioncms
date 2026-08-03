@@ -46,6 +46,9 @@ import org.springframework.stereotype.Service;
 @Service(value = "packageService")
 public class PSPackageService {
 
+  /** Default constructor. */
+  public PSPackageService() {}
+
   @GET
   @Path("/packages")
   @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})

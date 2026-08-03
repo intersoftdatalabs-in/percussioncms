@@ -34,6 +34,9 @@ import java.util.*;
 /** Uninstalls elements of the supplied package and updates the status of package info. */
 public class PSPackageUninstaller {
 
+  /** Default constructor. */
+  public PSPackageUninstaller() {}
+
   /**
    * Uninstalls all the elements of a package and updates the package info service with the
    * uninstalled status. SYSTEM packages will not be uninstalled.
