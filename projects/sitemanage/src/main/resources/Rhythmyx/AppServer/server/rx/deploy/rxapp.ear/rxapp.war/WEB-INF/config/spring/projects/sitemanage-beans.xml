@@ -76,6 +76,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="restAclResource" />
             <ref bean="restActionMenuResource" />
             <ref bean="restCommunityResource"/>
+            <ref bean="restControlsResource"/>
             <ref bean="restDisplayFormatResource" />
             <ref bean="restFoldersResource" />
             <ref bean="restAssetResource" />
@@ -84,14 +85,18 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="restContextResource" />
             <ref bean="restDeliveryTypesResource"/>
             <ref bean="restRelationshipSummaryResource"/>
+            <ref bean="restRelationshipTypeResource"/>
             <ref bean="restEditionsResource"/>
             <ref bean="restExtensionsResource"/>
             <ref bean="restItemFilterResource"/>
             <ref bean="restKeywordsResource"/>
             <ref bean="restLocalesResource"/>
+            <ref bean="restSearchResource"/>
+            <ref bean="restServerConfigsResource"/>
             <ref bean="restSharedFieldsResource"/>
             <ref bean="restSlotsResource"/>
             <ref bean="restSystemDefResource"/>
+            <ref bean="restViewResource"/>
             <ref bean="restJexlResource"/>
             <ref bean="restLocationSchemeResource"/>
             <ref bean="restMimeTypesResource"/>
