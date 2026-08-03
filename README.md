@@ -2,7 +2,7 @@
 
 This is the main project for Percussion CMS - the next version of Percussion CM1 and Rhythmyx.
 
-This project follows the [Universal Code v1.0.0](https://github.com/monkeyking-hq/universal-code/blob/main/UC-v1.0.0.md).
+This project follows the [Universal Code v1.0.0](docs/policies/UC-v1.0.0.md) (vendored; [upstream](https://github.com/monkeyking-hq/universal-code)).
 
 ## What is Percussion CMS?
 
