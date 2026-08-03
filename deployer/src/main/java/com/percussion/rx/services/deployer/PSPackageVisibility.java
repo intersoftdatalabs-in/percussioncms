@@ -46,6 +46,9 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSPackageVisibility {
 
+  /** Default constructor for use by Spring. */
+  public PSPackageVisibility() {}
+
   /**
    * Gets the communities of the supplied guids.
    *
@@ -357,9 +360,7 @@ public class PSPackageVisibility {
   }
 
   /** List of type {@link PSTypeEnum} types that support visibility. */
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public static List<PSTypeEnum> ms_visibilitySupportedTypes = new ArrayList<>();
 
   static {
@@ -374,8 +375,6 @@ public class PSPackageVisibility {
   }
 
   /** Logger for this class. */
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public static final Logger ms_log = LogManager.getLogger("PSPackageVisibility");
 }

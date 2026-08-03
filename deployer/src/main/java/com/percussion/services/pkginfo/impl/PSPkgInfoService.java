@@ -47,6 +47,10 @@ import org.springframework.transaction.annotation.Transactional;
 @PSBaseBean("sys_pkgInfoService")
 @Transactional
 public class PSPkgInfoService implements IPSPkgInfoService {
+
+  /** Default constructor for use by Spring. */
+  public PSPkgInfoService() {}
+
   private static final Logger log = LogManager.getLogger(PSPkgInfoService.class);
 
   @PersistenceContext private EntityManager entityManager;
@@ -58,9 +62,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   // Package Information (PSPkgInfo) service methods
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public PSPkgInfo createPkgInfo(String name) {
     if (StringUtils.isBlank(name)) {
       throw new IllegalArgumentException("name may not be null or empty string");
@@ -73,9 +75,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public PSPkgInfo createPkgInfoCopy(String name) {
     if (StringUtils.isBlank(name)) {
       throw new IllegalArgumentException("name may not be null or empty string");
@@ -101,18 +101,14 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public void savePkgInfo(PSPkgInfo obj) {
     Objects.requireNonNull(obj, "obj may not be null");
     getSession().merge(obj);
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public void deletePkgInfo(IPSGuid pkgGuid) {
     deletePkgInfoChildren(pkgGuid);
     deletePkgInfoRow(pkgGuid);
@@ -133,9 +129,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public void deletePkgInfo(String name) {
     if (StringUtils.isBlank(name)) {
       throw new IllegalArgumentException("name may not be null or empty string");
@@ -147,9 +141,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public PSPkgInfo findPkgInfo(String name) {
     if (StringUtils.isBlank(name)) {
       return null;
@@ -164,27 +156,21 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public List<PSPkgInfo> findAllPkgInfos() {
     var session = getSession();
     return session.createQuery("from PSPkgInfo", PSPkgInfo.class).list();
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public PSPkgInfo loadPkgInfo(IPSGuid id) throws PSNotFoundException {
     Objects.requireNonNull(id, "id may not be null");
     return loadPkgInfoModifiable(id);
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public PSPkgInfo loadPkgInfoModifiable(IPSGuid id) throws PSNotFoundException {
     Objects.requireNonNull(id, "id may not be null");
     var pkgInfo = getSession().get(PSPkgInfo.class, id.longValue());
@@ -197,9 +183,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   // Package Information Element (PSPkgElement) service methods
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public PSPkgElement createPkgElement(IPSGuid parentId) {
     var pkgElem = new PSPkgElement();
     var guidMgr = PSGuidManagerLocator.getGuidMgr();
@@ -209,9 +193,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public void savePkgElement(PSPkgElement obj) {
     Objects.requireNonNull(obj, "obj may not be null");
     log.debug("Trying to save PackageElement: {}", obj);
@@ -220,9 +202,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public void deletePkgElement(IPSGuid id) {
     Objects.requireNonNull(id, "id may not be null");
     var session = getSession();
@@ -239,9 +219,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public List<IPSGuid> findPkgElementGuids(IPSGuid parentPkgInfoId) {
     Objects.requireNonNull(parentPkgInfoId, "parentPkgInfoId may not be null");
     var session = getSession();
@@ -257,9 +235,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public PSPkgElement findPkgElement(IPSGuid id) {
     Objects.requireNonNull(id, "id may not be null");
     var session = getSession();
@@ -270,9 +246,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public PSPkgElement findPkgElementByObject(IPSGuid objId) {
     Objects.requireNonNull(objId, "objId may not be null");
     var session = getSession();
@@ -288,9 +262,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public List<PSPkgElement> findPkgElements(IPSGuid parentPkgId) {
     var session = getSession();
     var builder = session.getCriteriaBuilder();
@@ -301,9 +273,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public List<PSPkgElement> loadPkgElements(List<IPSGuid> ids) throws PSNotFoundException {
     Objects.requireNonNull(ids, "ids may not be null");
     if (ids.isEmpty()) {
@@ -338,18 +308,14 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public PSPkgElement loadPkgElement(IPSGuid id) throws PSNotFoundException {
     Objects.requireNonNull(id, "id may not be null");
     return loadPkgElementModifiable(id);
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public PSPkgElement loadPkgElementModifiable(IPSGuid id) throws PSNotFoundException {
     Objects.requireNonNull(id, "id may not be null");
     var session = getSession();
@@ -366,9 +332,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public PSPkgDependency createPkgDependency() {
     var pkgDep = new PSPkgDependency();
     var guidMgr = PSGuidManagerLocator.getGuidMgr();
@@ -377,9 +341,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public List<IPSGuid> findDependentPkgGuids(IPSGuid guid) {
     Objects.requireNonNull(guid, "guid may not be null");
     var session = getSession();
@@ -393,9 +355,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public List<IPSGuid> findOwnerPkgGuids(IPSGuid guid) {
     Objects.requireNonNull(guid, "guid may not be null");
     var session = getSession();
@@ -409,18 +369,14 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public List<PSPkgDependency> loadPkgDependencies(IPSGuid guid, boolean depType) {
     Objects.requireNonNull(guid, "ownerGuid may not be null");
     return loadPkgDependenciesModifiable(guid, depType);
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public List<PSPkgDependency> loadPkgDependenciesModifiable(IPSGuid guid, boolean depType) {
     Objects.requireNonNull(guid, "ownerGuid may not be null");
     var session = getSession();
@@ -434,18 +390,14 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public void savePkgDependency(PSPkgDependency pkgDependency) {
     Objects.requireNonNull(pkgDependency, "pkgDependency may not be null");
     getSession().merge(pkgDependency);
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public void deletePkgDependency(long pkgDepId) {
     var session = getSession();
     var pkgDep =
@@ -461,9 +413,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public void deletePkgInfoChildren(IPSGuid pkgGuid) {
     var pkgElemGuids = findPkgElementGuids(pkgGuid);
     pkgElemGuids.forEach(this::deletePkgElement);
@@ -472,9 +422,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public void deletePkgInfoChildren(String name) {
     if (StringUtils.isBlank(name)) {
       throw new IllegalArgumentException("name may not be null or empty string");

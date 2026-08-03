@@ -29,10 +29,18 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "Message")
 public class PSUninstallMessage {
 
+  /** Default constructor for JAXB. */
   public PSUninstallMessage() {
     // For JAXB
   }
 
+  /**
+   * Constructs a new uninstall message.
+   *
+   * @param packageName the package name, may not be <code>null</code>.
+   * @param type the message type, may be <code>null</code>.
+   * @param body the message body, may be <code>null</code>.
+   */
   public PSUninstallMessage(String packageName, String type, String body) {
     setPackageName(packageName);
     setType(type);
@@ -40,44 +48,59 @@ public class PSUninstallMessage {
   }
 
   /**
-   * Get/set the value.
+   * Gets the message body.
    *
-   * @return the message body
+   * @return the message body, never <code>null</code>, may be empty.
    */
   @XmlElement(name = "body")
   public String getBody() {
     return body;
   }
 
+  /**
+   * Sets the message body.
+   *
+   * @param body the message body, may be <code>null</code>.
+   */
   public void setBody(String body) {
     this.body = body == null ? "" : body;
   }
 
   /**
-   * Get/set the value.
+   * Gets the package name.
    *
-   * @return the package name
+   * @return the package name, never <code>null</code>, may be empty.
    */
   @XmlElement(name = "package")
   public String getPackageName() {
     return packageName;
   }
 
+  /**
+   * Sets the package name.
+   *
+   * @param packageName the package name, may not be <code>null</code>.
+   */
   public void setPackageName(String packageName) {
     if (packageName == null) throw new IllegalArgumentException("packageName must not be null");
     this.packageName = packageName;
   }
 
   /**
-   * Get/set the value.
+   * Gets the message type.
    *
-   * @return the type
+   * @return the message type, never <code>null</code>, may be empty.
    */
   @XmlElement(name = "type")
   public String getType() {
     return type;
   }
 
+  /**
+   * Sets the message type.
+   *
+   * @param type the message type, may be <code>null</code>.
+   */
   public void setType(String type) {
     this.type = type == null ? "" : type;
   }

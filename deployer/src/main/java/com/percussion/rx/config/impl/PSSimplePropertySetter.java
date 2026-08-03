@@ -44,6 +44,9 @@ import org.springframework.beans.SimpleTypeConverter;
  */
 public class PSSimplePropertySetter implements IPSPropertySetter {
 
+  /** Default constructor for use by Spring. */
+  public PSSimplePropertySetter() {}
+
   /*
    * (non-Javadoc)
    * @see com.percussion.services.config.IPSPropertySetter#setProperty(java.lang.Object)

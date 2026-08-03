@@ -360,8 +360,8 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    * @return An iterator one or more <code>PSDependencyFile</code> objects. It will never be <code>
    *     null</code> or empty.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSDeployException if there are any errors. if there is no dependency file in the archive for the specified
-   *     dependency object, or any other error occurs.
+   * @throws PSDeployException if there are any errors. if there is no dependency file in the
+   *     archive for the specified dependency object, or any other error occurs.
    */
   protected static Iterator getItemDefFilesFromArchive(PSArchiveHandler archive, PSDependency dep)
       throws PSDeployException {

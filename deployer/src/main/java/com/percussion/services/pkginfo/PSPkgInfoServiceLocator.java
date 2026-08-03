@@ -23,6 +23,9 @@ import com.percussion.services.PSBaseServiceLocator;
 /** Locator for the {@link IPSPkgInfoService}. */
 public class PSPkgInfoServiceLocator extends PSBaseServiceLocator {
 
+  /** Default constructor for the locator. */
+  public PSPkgInfoServiceLocator() {}
+
   /**
    * Finds and returns the Package Info Service.
    *

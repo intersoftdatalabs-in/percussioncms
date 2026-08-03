@@ -671,7 +671,7 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
    *     </code>
    * @param slot the actual slot may be <code>null</code>
    * @return the actual template
-   * @throws PSDeployException
+   * @throws PSDeployException if the slot cannot be generated.
    */
   protected IPSTemplateSlot generateSlotFromFile(
       PSArchiveHandler archive, PSDependencyFile depFile, IPSTemplateSlot slot)

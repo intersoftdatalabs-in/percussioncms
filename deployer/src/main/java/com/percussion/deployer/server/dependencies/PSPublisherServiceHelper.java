@@ -120,8 +120,8 @@ public class PSPublisherServiceHelper {
    * Util method to fetch the expander extension by name
    *
    * @param name the extension name
-   * @return the extension
-   * @throws PSDeployException
+   * @return the extension reference, may be <code>null</code> if not found.
+   * @throws PSDeployException if the extension cannot be located.
    */
   public PSExtensionRef getExpanderExtensionRef(String name) throws PSDeployException {
     if (name == null || name.trim().length() == 0) return null;
@@ -134,8 +134,8 @@ public class PSPublisherServiceHelper {
    * Given the extension name, return its reference
    *
    * @param name the extension name may not be <code>null</code>
-   * @return the extension
-   * @throws PSDeployException
+   * @return the extension reference, may be <code>null</code> if not found.
+   * @throws PSDeployException if the extension cannot be located.
    */
   public PSExtensionRef getGeneratorExtensionRef(String name) throws PSDeployException {
     if (name == null || name.trim().length() == 0) return null;
@@ -149,8 +149,8 @@ public class PSPublisherServiceHelper {
    * Given the extension name, return its reference
    *
    * @param name the extension name may not be <code>null</code>
-   * @return the extension reference
-   * @throws PSDeployException
+   * @return the extension reference, may be <code>null</code> if not found.
+   * @throws PSDeployException if the extension cannot be located.
    */
   public static PSExtensionRef getItemFilterRuleExtensionRef(String name) throws PSDeployException {
     if (name == null || name.trim().length() == 0) return null;
@@ -161,8 +161,8 @@ public class PSPublisherServiceHelper {
   /**
    * Util method to return a named ContentList
    *
-   * @return a map of {@literal <contentlist_name, IPSContentList>}
-   * @throws PSDeployException
+   * @return a map of {@literal <contentlist_name, IPSContentList>}, never <code>null</code>.
+   * @throws PSDeployException if the content lists cannot be loaded.
    */
   public Map<String, IPSContentList> getNamedContentListMap() throws PSDeployException {
     getContentLists();
@@ -175,7 +175,7 @@ public class PSPublisherServiceHelper {
    * @param nameFilter a name filter, only content lists with names that include the given string
    *     will be returned. Equivalent to %filter% in SQL. never <code>null</code> but can be empty.
    * @return a list of content lists, might be empty, but never <code>null</code>
-   * @throws PSDeployException
+   * @throws PSDeployException if the content lists cannot be loaded.
    */
   public List<String> getAllContentListNames(String nameFilter) throws PSDeployException {
     if (nameFilter == null) {
@@ -200,9 +200,9 @@ public class PSPublisherServiceHelper {
    * A helper method to generate an id so that Assembly/Publisher services can alter the index after
    * deserialization of the particular type but before saving the session. we get PK Violations
    *
-   * @param type
-   * @param curId
-   * @return a long guid
+   * @param type the object type for which to generate an id, may not be <code>null</code>.
+   * @param curId the current id as a string, used as a fallback when generating an id fails.
+   * @return a long guid, never less than zero on success.
    */
   public long getNextIdByType(PSTypeEnum type, String curId) {
     if (type == null) throw new IllegalArgumentException("PSTypeEnum Key cannot be null");
@@ -222,8 +222,8 @@ public class PSPublisherServiceHelper {
   /**
    * Util method to get content lists by GUIDs
    *
-   * @return a {@literal Map<IPSGuid, IPSContentList>}
-   * @throws PSDeployException
+   * @return a {@literal Map<IPSGuid, IPSContentList>}, never <code>null</code>.
+   * @throws PSDeployException if the content lists cannot be loaded.
    */
   public Map<IPSGuid, IPSContentList> getGuidContentListMap() throws PSDeployException {
     getContentLists();

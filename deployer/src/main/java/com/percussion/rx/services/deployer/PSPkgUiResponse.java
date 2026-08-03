@@ -31,9 +31,6 @@ import org.apache.commons.lang3.StringUtils;
 public class PSPkgUiResponse {
 
   /** No-arg constructor for the framework. */
-  /**
-   * REST endpoint.
-   */
   public PSPkgUiResponse() {
     // For JAXB
   }
@@ -55,9 +52,6 @@ public class PSPkgUiResponse {
    * @return message, never {@code null}, may be empty.
    */
   @XmlElement(name = "message")
-  /**
-   * REST endpoint.
-   */
   public String getMessage() {
     return message;
   }
@@ -68,22 +62,24 @@ public class PSPkgUiResponse {
    * @return response type.
    */
   @XmlElement(name = "type")
-  /**
-   * REST endpoint.
-   */
   public PSPkgUiResponseType getType() {
     return type;
   }
 
   /**
-   * REST endpoint.
+   * Sets the message associated with this response. If the supplied message is <code>null</code>,
+   * the empty string is used.
+   *
+   * @param message the response message, may be <code>null</code>.
    */
   public void setMessage(String message) {
     this.message = StringUtils.defaultString(message);
   }
 
   /**
-   * REST endpoint.
+   * Sets the type of this response.
+   *
+   * @param type the response type, may not be <code>null</code>.
    */
   public void setType(PSPkgUiResponseType type) {
     this.type = type;
@@ -94,17 +90,21 @@ public class PSPkgUiResponse {
   private PSPkgUiResponseType type;
 
   /** Enum class for package UI response type, has two values: success and failure. */
-  /**
-   * REST endpoint.
-   */
   public enum PSPkgUiResponseType {
+    /** Indicates the operation failed. */
     FAILURE(0),
+    /** Indicates the operation succeeded. */
     SUCCESS(1);
 
     PSPkgUiResponseType(int value) {
       this.value = value;
     }
 
+    /**
+     * Gets the integer value of this response type.
+     *
+     * @return the integer value.
+     */
     public int getValue() {
       return value;
     }

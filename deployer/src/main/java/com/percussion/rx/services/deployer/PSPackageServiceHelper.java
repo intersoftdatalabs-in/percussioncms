@@ -40,6 +40,9 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSPackageServiceHelper {
 
+  /** Default constructor for use via static methods. */
+  public PSPackageServiceHelper() {}
+
   /**
    * Checks for the package validation and returns the results as {@link PSPkgUiResponse}.
    *

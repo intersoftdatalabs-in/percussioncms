@@ -134,9 +134,7 @@ import org.w3c.dom.Node;
 public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableRequestHandler {
   private static final Logger ms_log = LogManager.getLogger(PSDeploymentHandler.class);
 
-  /**
-   * Default constructor for use by Spring. Initializes the singleton instance.
-   */
+  /** Default constructor for use by Spring. Initializes the singleton instance. */
   public PSDeploymentHandler() {
     ms_deploymentHandler = this;
   }

@@ -31,10 +31,18 @@ import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
  * @author YuBingChen
  */
 public class PSPropertyPlaceholderConfigurer extends PropertyPlaceholderConfigurer {
-  @Override
+
+  /** Default constructor for use by Spring. */
+  public PSPropertyPlaceholderConfigurer() {}
+
   /**
-   * REST endpoint.
+   * Resolves the supplied placeholder.
+   *
+   * @param placeholder the placeholder name, may not be <code>null</code>.
+   * @param props the properties to use, may not be <code>null</code>.
+   * @return the resolved value, may be <code>null</code>.
    */
+  @Override
   protected String resolvePlaceholder(String placeholder, Properties props) {
     var value = super.resolvePlaceholder(placeholder, props);
     if (value != null) {

@@ -42,6 +42,9 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Table(name = "PSX_PKG_DEPENDENCY")
 public class PSPkgDependency implements Serializable {
 
+  /** Default constructor for use by JPA. */
+  public PSPkgDependency() {}
+
   private static final long serialVersionUID = -6026221348840514395L;
 
   /**
@@ -128,9 +131,7 @@ public class PSPkgDependency implements Serializable {
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public boolean equals(Object b) {
     if (!(b instanceof PSPkgDependency)) {
       return false;
@@ -145,9 +146,7 @@ public class PSPkgDependency implements Serializable {
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public int hashCode() {
     return new HashCodeBuilder()
         .append(pkgDependencyId)
@@ -158,9 +157,7 @@ public class PSPkgDependency implements Serializable {
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public String toString() {
     return "PSPkgDependency{"
         + "pkgDependencyId="

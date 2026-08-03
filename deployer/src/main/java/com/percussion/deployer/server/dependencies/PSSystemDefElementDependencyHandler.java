@@ -316,7 +316,14 @@ public class PSSystemDefElementDependencyHandler extends PSContentEditorObjectDe
     }
   }
 
-  // see IPSIdTypeHandler interface
+  /**
+   * Gets the ID types for the dependency.
+   *
+   * @param tok the security token, may not be <code>null</code>.
+   * @param dep the dependency, may not be <code>null</code>.
+   * @return the application ID types, never <code>null</code>.
+   * @throws PSDeployException if the ID types cannot be loaded.
+   */
   public PSApplicationIDTypes getIdTypes(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
@@ -359,7 +366,15 @@ public class PSSystemDefElementDependencyHandler extends PSContentEditorObjectDe
     return idTypes;
   }
 
-  // see IPSIdTypeHandler interface
+  /**
+   * Transforms the IDs on the supplied object using the supplied id types and id map.
+   *
+   * @param object the object whose IDs are to be transformed, may not be <code>null</code>.
+   * @param idTypes the application ID types, may be <code>null</code> in which case nothing is
+   *     done.
+   * @param idMap the id map used for the transformation, may not be <code>null</code>.
+   * @throws PSDeployException if the transformation fails.
+   */
   public void transformIds(Object object, PSApplicationIDTypes idTypes, PSIdMap idMap)
       throws PSDeployException {
     if (object == null) throw new IllegalArgumentException("object may not be null");

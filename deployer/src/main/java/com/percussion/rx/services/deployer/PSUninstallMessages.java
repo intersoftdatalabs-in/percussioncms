@@ -93,10 +93,20 @@ public class PSUninstallMessages {
 
   private Integer status = 0;
 
+  /**
+   * Gets the status code of the uninstall operation.
+   *
+   * @return the status code, never <code>null</code>.
+   */
   public Integer getStatus() {
     return status;
   }
 
+  /**
+   * Sets the status code of the uninstall operation.
+   *
+   * @param status the status code, may be <code>null</code>.
+   */
   public void setStatus(Integer status) {
     this.status = status;
   }

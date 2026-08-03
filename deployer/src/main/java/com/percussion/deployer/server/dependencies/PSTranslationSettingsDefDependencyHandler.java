@@ -344,7 +344,7 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
    * @param depFile the PSDependencyFile that was retrieved from the archive may not be <code>null
    *     </code>
    * @return the actual template
-   * @throws PSDeployException
+   * @throws PSDeployException if the translation settings cannot be generated.
    */
   protected List<PSAutoTranslation> generateTranslationSettingsFromFile(
       PSArchiveHandler archive, PSDependencyFile depFile) throws PSDeployException {
@@ -437,8 +437,16 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
     PSDependencyUtils.reserveNewId(dep, idMap, getType());
   }
 
-  // see base class
-
+  /**
+   * Transforms the IDs in the supplied translation settings list using the supplied id types and id
+   * map.
+   *
+   * @param object the list of translation settings, may not be <code>null</code>.
+   * @param idTypes the application ID types, may be <code>null</code> in which case nothing is
+   *     done.
+   * @param idMap the id map used for the transformation, may not be <code>null</code>.
+   * @throws PSDeployException if the transformation fails.
+   */
   public void transformIds(Object object, PSApplicationIDTypes idTypes, PSIdMap idMap)
       throws PSDeployException {
     if (object == null) throw new IllegalArgumentException("object may not be null");

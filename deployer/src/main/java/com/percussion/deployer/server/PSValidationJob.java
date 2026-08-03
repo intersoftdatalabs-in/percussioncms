@@ -46,11 +46,22 @@ import org.w3c.dom.Document;
  */
 public class PSValidationJob extends PSDeployJob {
 
+  /** Default constructor. */
+  public PSValidationJob() {}
+
   /**
    * Restores the import descriptor from the supplied document, and validates that the user is
    * authorized to perform this job. Saves the security token from the request to use for subsequent
    * operations during the run method. <br>
    * See Base class for more info.
+   *
+   * @param id the job id.
+   * @param descriptor the document holding the import descriptor, may not be <code>null</code>.
+   * @param req the request that initialized the job, may not be <code>null</code>.
+   * @param initParams the initialization parameters, may be <code>null</code>.
+   * @throws PSAuthenticationFailedException if the user cannot be authenticated.
+   * @throws PSAuthorizationException if the user is not authorized to run this job.
+   * @throws PSJobException if the descriptor cannot be parsed.
    */
   @Override
   public void init(int id, Document descriptor, PSRequest req, Properties initParams)
@@ -113,6 +124,7 @@ public class PSValidationJob extends PSDeployJob {
    * @param jobHandle Job handle to record status, not {@code null}
    * @param tok Security token representing current user session, not {@code null}.
    * @throws PSDeployException If there are any errors.
+   * @throws PSNotFoundException if a referenced dependency cannot be found.
    */
   public void validate(PSImportDescriptor descriptor, IPSJobHandle jobHandle, PSSecurityToken tok)
       throws PSDeployException, PSNotFoundException {

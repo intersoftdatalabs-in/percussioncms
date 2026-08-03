@@ -45,6 +45,9 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSPackageUninstall implements IPSPackageUninstaller {
 
+  /** Default constructor for use by Spring. */
+  public PSPackageUninstall() {}
+
   /**
    * Uninstalls the packages. Creates uninstall messages with the returned results.
    *
@@ -53,18 +56,14 @@ public class PSPackageUninstall implements IPSPackageUninstaller {
    * @return list of uninstall messages, never {@code null}, may be empty.
    */
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public List<PSUninstallMessage> uninstallPackages(String packageNames)
       throws PSNotFoundException {
     return uninstallPackages(packageNames, false);
   }
 
   @Override
-  /**
-   * REST endpoint.
-   */
+  /** REST endpoint. */
   public List<PSUninstallMessage> uninstallPackages(String packageName, boolean isRevertEntry)
       throws PSNotFoundException {
     var messages = new ArrayList<PSUninstallMessage>();
