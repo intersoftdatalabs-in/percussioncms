@@ -1,3 +1,5 @@
+This project follows the Universal Code v1.0.0 — read https://github.com/monkeyking-hq/universal-code/blob/main/UC-EMBED-v1.0.0.md
+
 # AGENTS.md — extensions-main module
 
 > **For AI agents:** Read this file first before making any changes to the extensions-main module.

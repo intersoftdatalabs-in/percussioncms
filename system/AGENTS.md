@@ -1,3 +1,5 @@
+This project follows the Universal Code v1.0.0 — read https://github.com/monkeyking-hq/universal-code/blob/main/UC-EMBED-v1.0.0.md
+
 # System Module - Agent Guidelines (AGENTS.md)
 
 **This file guides agents on working with the Percussion CMS system module. READ THIS BEFORE STARTING ANY TASK IN THIS MODULE.**

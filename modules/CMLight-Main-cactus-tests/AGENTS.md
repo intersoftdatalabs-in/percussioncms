@@ -1,3 +1,5 @@
+This project follows the Universal Code v1.0.0 — read https://github.com/monkeyking-hq/universal-code/blob/main/UC-EMBED-v1.0.0.md
+
 # Instructions for Agents
 
 * **ALWAYS: read this complete file, the module's README.md and any linked documentation before proceeding with any task related to this module.**
