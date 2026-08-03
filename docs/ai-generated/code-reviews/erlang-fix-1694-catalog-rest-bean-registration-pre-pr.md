@@ -52,13 +52,13 @@ production code, no tests, no path/file I/O, and no agent rules.
 
 Five beans × four required checks. All rows pass.
 
-| Bean id (XML `ref bean=`)            | Resource exists w/ matching `@PSSiteManageBean` | Apibridge `IXxxAdaptor` impl in `projects/sitemanage` | `TestXxxAdaptor` Spring stub in `rest` test classpath | Mockito `*ResourceTest` in `rest` |
-|--------------------------------------|------------------------------------------------|-------------------------------------------------------|-------------------------------------------------------|------------------------------------|
-| `restControlsResource`               | ✓ `rest/src/main/java/com/percussion/rest/cecontrols/ControlsResource.java:29` `@PSSiteManageBean(value="restControlsResource")` | ✓ `projects/sitemanage/src/main/java/com/percussion/apibridge/ControlAdaptor.java` | ✓ `rest/src/test/java/com/percussion/rest/test/apibridge/TestControlAdaptor.java:14 implements IControlAdaptor` | ✓ `rest/src/test/java/com/percussion/rest/cecontrols/ControlsResourceTest.java` |
-| `restSearchResource`                 | ✓ `rest/src/main/java/com/percussion/rest/searches/SearchResource.java:29` `@PSSiteManageBean(value="restSearchResource")`     | ✓ `projects/sitemanage/src/main/java/com/percussion/apibridge/SearchAdaptor.java`  | ✓ `rest/src/test/java/com/percussion/rest/test/apibridge/TestSearchAdaptor.java:27 implements ISearchAdaptor`     | ✓ `rest/src/test/java/com/percussion/rest/searches/SearchResourceTest.java` |
-| `restViewResource`                   | ✓ `rest/src/main/java/com/percussion/rest/views/ViewResource.java:29` `@PSSiteManageBean(value="restViewResource")`           | ✓ `projects/sitemanage/src/main/java/com/percussion/apibridge/ViewAdaptor.java`    | ✓ `rest/src/test/java/com/percussion/rest/test/apibridge/TestViewAdaptor.java:27 implements IViewAdaptor`        | ✓ `rest/src/test/java/com/percussion/rest/views/ViewResourceTest.java` |
-| `restServerConfigsResource`          | ✓ `rest/src/main/java/com/percussion/rest/serverconfigs/ServerConfigsResource.java:29` `@PSSiteManageBean(value="restServerConfigsResource")` | ✓ `projects/sitemanage/src/main/java/com/percussion/apibridge/ServerConfigAdaptor.java` | ✓ `rest/src/test/java/com/percussion/rest/test/apibridge/TestServerConfigAdaptor.java:14 implements IServerConfigAdaptor` | ✓ `rest/src/test/java/com/percussion/rest/serverconfigs/ServerConfigsResourceTest.java` |
-| `restRelationshipTypeResource`       | ✓ `rest/src/main/java/com/percussion/rest/relationshiptypes/RelationshipTypeResource.java:42` `@PSSiteManageBean(value="restRelationshipTypeResource")` | ✓ `projects/sitemanage/src/main/java/com/percussion/apibridge/RelationshipTypeAdaptor.java` | ✓ `rest/src/test/java/com/percussion/rest/test/apibridge/TestRelationshipTypeAdaptor.java:27 implements IRelationshipTypeAdaptor` | ✓ `rest/src/test/java/com/percussion/rest/relationshiptypes/RelationshipTypeResourceTest.java` |
+|   Bean id (XML `ref bean=`)    |                                                     Resource exists w/ matching `@PSSiteManageBean`                                                     |                    Apibridge `IXxxAdaptor` impl in `projects/sitemanage`                    |                                       `TestXxxAdaptor` Spring stub in `rest` test classpath                                       |                               Mockito `*ResourceTest` in `rest`                                |
+|--------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
+| `restControlsResource`         | ✓ `rest/src/main/java/com/percussion/rest/cecontrols/ControlsResource.java:29` `@PSSiteManageBean(value="restControlsResource")`                        | ✓ `projects/sitemanage/src/main/java/com/percussion/apibridge/ControlAdaptor.java`          | ✓ `rest/src/test/java/com/percussion/rest/test/apibridge/TestControlAdaptor.java:14 implements IControlAdaptor`                   | ✓ `rest/src/test/java/com/percussion/rest/cecontrols/ControlsResourceTest.java`                |
+| `restSearchResource`           | ✓ `rest/src/main/java/com/percussion/rest/searches/SearchResource.java:29` `@PSSiteManageBean(value="restSearchResource")`                              | ✓ `projects/sitemanage/src/main/java/com/percussion/apibridge/SearchAdaptor.java`           | ✓ `rest/src/test/java/com/percussion/rest/test/apibridge/TestSearchAdaptor.java:27 implements ISearchAdaptor`                     | ✓ `rest/src/test/java/com/percussion/rest/searches/SearchResourceTest.java`                    |
+| `restViewResource`             | ✓ `rest/src/main/java/com/percussion/rest/views/ViewResource.java:29` `@PSSiteManageBean(value="restViewResource")`                                     | ✓ `projects/sitemanage/src/main/java/com/percussion/apibridge/ViewAdaptor.java`             | ✓ `rest/src/test/java/com/percussion/rest/test/apibridge/TestViewAdaptor.java:27 implements IViewAdaptor`                         | ✓ `rest/src/test/java/com/percussion/rest/views/ViewResourceTest.java`                         |
+| `restServerConfigsResource`    | ✓ `rest/src/main/java/com/percussion/rest/serverconfigs/ServerConfigsResource.java:29` `@PSSiteManageBean(value="restServerConfigsResource")`           | ✓ `projects/sitemanage/src/main/java/com/percussion/apibridge/ServerConfigAdaptor.java`     | ✓ `rest/src/test/java/com/percussion/rest/test/apibridge/TestServerConfigAdaptor.java:14 implements IServerConfigAdaptor`         | ✓ `rest/src/test/java/com/percussion/rest/serverconfigs/ServerConfigsResourceTest.java`        |
+| `restRelationshipTypeResource` | ✓ `rest/src/main/java/com/percussion/rest/relationshiptypes/RelationshipTypeResource.java:42` `@PSSiteManageBean(value="restRelationshipTypeResource")` | ✓ `projects/sitemanage/src/main/java/com/percussion/apibridge/RelationshipTypeAdaptor.java` | ✓ `rest/src/test/java/com/percussion/rest/test/apibridge/TestRelationshipTypeAdaptor.java:27 implements IRelationshipTypeAdaptor` | ✓ `rest/src/test/java/com/percussion/rest/relationshiptypes/RelationshipTypeResourceTest.java` |
 
 **Companion closure check** (per `projects/sitemanage/AGENTS.md` →
 **apibridge architecture → Adaptor implementation checklist** +
@@ -102,6 +102,7 @@ new resource, interface, or adaptor. The `MainTest` Spring context risk
 ## Findings
 
 ### Issue 1 — Severity: informational
+
 - File: `projects/sitemanage/src/main/resources/Rhythmyx/AppServer/server/rx/deploy/rxapp.ear/rxapp.war/WEB-INF/config/spring/projects/sitemanage-beans.xml:90`
 - Description: `/services/extensions/catalog` is also listed in #1694 as
   returning 500 on QA install, but `restExtensionsResource` is **already**
@@ -121,14 +122,15 @@ new resource, interface, or adaptor. The `MainTest` Spring context risk
 - Pattern-id: (no pattern match; out-of-scope note)
 
 ### Issue 2 — Severity: nit
+
 - File: same XML
 - Description: The `<jaxrs:serviceBeans>` list now mixes three
   formatting styles:
   - `restCommunityResource"/>` (no space before self-closing slash — pre-existing)
   - `restAclResource" />`, `restControlsResource"/>`, etc. (single space before slash — pre-existing + new)
-  The new lines are consistent with their immediate neighbors in the
-  block. No change needed; the inconsistency is pre-existing and not
-  introduced by this diff.
+    The new lines are consistent with their immediate neighbors in the
+    block. No change needed; the inconsistency is pre-existing and not
+    introduced by this diff.
 - Suggestion: None — leave for a future spotless-XML / general cleanup.
   Do not block.
 - Status: open (informational, not blocking)
@@ -198,3 +200,4 @@ new resource, interface, or adaptor. The `MainTest` Spring context risk
   "new `IXxxAdaptor` → register `<ref bean>` in `sitemanage-beans.xml`"
   step of the `projects/sitemanage/AGENTS.md` **apibridge**
   implementation checklist.
+
