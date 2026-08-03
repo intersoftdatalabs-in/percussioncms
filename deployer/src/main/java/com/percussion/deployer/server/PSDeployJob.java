@@ -72,6 +72,11 @@ public abstract class PSDeployJob extends PSJobRunner implements IPSJobHandle {
     initUserInfo(req);
   }
 
+  /**
+   * Initializes the user info from the supplied request.
+   *
+   * @param req the request, may not be <code>null</code>.
+   */
   protected void initUserInfo(PSRequest req) {
     m_securityToken = req.getSecurityToken();
     PSUserEntry[] userEntries =

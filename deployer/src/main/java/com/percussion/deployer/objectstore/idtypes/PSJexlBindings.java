@@ -29,6 +29,9 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class PSJexlBindings {
 
+  /** Default constructor for use by serialization frameworks. */
+  public PSJexlBindings() {}
+
   /** The bindings that are being transformed with new IDs. */
   private List<PSJexlBinding> m_bindings = new ArrayList<>();
 

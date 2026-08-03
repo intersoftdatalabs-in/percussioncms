@@ -1273,6 +1273,11 @@ public abstract class PSDependency
     }
   }
 
+  /**
+   * Copy constructor.
+   *
+   * @param dep the source dependency, may not be <code>null</code>.
+   */
   public PSDependency(PSDependency dep) {
     this.m_displayName = dep.m_displayName;
     this.m_dependencyType = dep.m_dependencyType;

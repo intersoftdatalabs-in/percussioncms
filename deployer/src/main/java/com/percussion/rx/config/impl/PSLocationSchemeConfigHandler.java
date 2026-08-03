@@ -46,6 +46,12 @@ import org.apache.commons.lang3.StringUtils;
  * @author YuBingChen
  */
 public class PSLocationSchemeConfigHandler extends PSObjectConfigHandler {
+
+  /**
+   * Default constructor for use by Spring.
+   *
+   * @see #m_extraProperties
+   */
   public PSLocationSchemeConfigHandler() {
     m_extraProperties.put(CONTEXTS, null);
     m_extraProperties.put(CONTENT_TYPE, null);

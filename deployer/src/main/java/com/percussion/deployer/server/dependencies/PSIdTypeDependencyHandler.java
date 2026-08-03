@@ -101,6 +101,11 @@ public abstract class PSIdTypeDependencyHandler extends PSDependencyHandler {
         : List.of();
   }
 
+  /**
+   * Indicates whether id type mapping is enabled for this handler.
+   *
+   * @return <code>true</code> if id type mapping is enabled.
+   */
   public static boolean isIdTypeMappingEnabled() {
     return true;
   }

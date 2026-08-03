@@ -150,6 +150,9 @@ public class PSPkgElementDependency implements Serializable {
   }
 
   @Override
+  /**
+   * REST endpoint.
+   */
   public boolean equals(Object b) {
     if (!(b instanceof PSPkgElementDependency)) {
       return false;
@@ -165,6 +168,9 @@ public class PSPkgElementDependency implements Serializable {
   }
 
   @Override
+  /**
+   * REST endpoint.
+   */
   public int hashCode() {
     return new HashCodeBuilder()
         .append(guid)
@@ -176,6 +182,9 @@ public class PSPkgElementDependency implements Serializable {
   }
 
   @Override
+  /**
+   * REST endpoint.
+   */
   public String toString() {
     return "PSPkgElementDependency{"
         + "guid="

@@ -32,6 +32,9 @@ import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
  */
 public class PSPropertyPlaceholderConfigurer extends PropertyPlaceholderConfigurer {
   @Override
+  /**
+   * REST endpoint.
+   */
   protected String resolvePlaceholder(String placeholder, Properties props) {
     var value = super.resolvePlaceholder(placeholder, props);
     if (value != null) {

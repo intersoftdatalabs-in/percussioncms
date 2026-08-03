@@ -1379,6 +1379,11 @@ public class PSDeploymentServerConnection {
     return operatingMode;
   }
 
+  /**
+   * Sets the operating mode for this connection.
+   *
+   * @param operatingMode the operating mode, may not be <code>null</code>.
+   */
   public void setOperatingMode(IPSDeployConstants.OperatingMode operatingMode) {
     this.operatingMode = operatingMode;
   }

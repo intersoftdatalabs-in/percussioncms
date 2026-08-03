@@ -37,6 +37,7 @@ public class PSImportDescriptor extends PSDescriptor {
    * @param src The source XML element, may not be <code>null</code>.
    * @throws IllegalArgumentException if <code>src</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException if <code>src</code> is malformed.
+   * @throws PSDeployException if there are any errors restoring from XML.
    */
   public PSImportDescriptor(Element src) throws PSUnknownNodeTypeException, PSDeployException {
     if (src == null) throw new IllegalArgumentException("src may not be null");
@@ -67,7 +68,10 @@ public class PSImportDescriptor extends PSDescriptor {
 
   /**
    * Add all packages as import packages, sets the archive ref to what's defined in the export
-   * descriptor
+   * descriptor.
+   *
+   * @param archiveInfo the archive info, may not be <code>null</code>.
+   * @return the configured import descriptor, never <code>null</code>.
    */
   @SuppressWarnings("rawtypes")
   public static PSImportDescriptor configureFromArchive(PSArchiveInfo archiveInfo) {
@@ -127,6 +131,7 @@ public class PSImportDescriptor extends PSDescriptor {
    * compared, but the child dependencies are ignored.
    *
    * @param pkg The package to check, may not be <code>null</code>.
+   * @return <code>true</code> if the supplied package is contained in this descriptor.
    * @throws IllegalArgumentException if <code>pkg</code> is <code>null</code>.
    */
   public boolean isPackageIncluded(PSDeployableElement pkg) {

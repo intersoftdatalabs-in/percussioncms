@@ -46,6 +46,16 @@ import org.springframework.stereotype.Service;
 @Service(value = "packageService")
 public class PSPackageService {
 
+  /** Default constructor for use by Spring. */
+  /**
+   * REST endpoint.
+   */
+  public PSPackageService() {}
+
+  /** REST endpoint: returns all packages. */
+  /**
+   * REST endpoint.
+   */
   @GET
   @Path("/packages")
   @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -71,6 +81,9 @@ public class PSPackageService {
     return packages;
   }
 
+  /**
+   * REST endpoint.
+   */
   @GET
   @Path("/reapplyVisibility")
   @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -88,6 +101,9 @@ public class PSPackageService {
     }
   }
 
+  /**
+   * REST endpoint.
+   */
   @GET
   @Path("/reapplyConfigs")
   @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -105,6 +121,9 @@ public class PSPackageService {
     }
   }
 
+  /**
+   * REST endpoint.
+   */
   @GET
   @Path("/packageCommunities")
   @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -136,6 +155,9 @@ public class PSPackageService {
     return result;
   }
 
+  /**
+   * REST endpoint.
+   */
   @GET
   @Path("/communityPackages")
   @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -143,6 +165,9 @@ public class PSPackageService {
     return PSPackageServiceHelper.getCommunityPackages();
   }
 
+  /**
+   * REST endpoint.
+   */
   @POST
   @Path("/updatePackageCommunities")
   @Consumes("application/x-www-form-urlencoded")
@@ -161,6 +186,9 @@ public class PSPackageService {
     return response;
   }
 
+  /**
+   * REST endpoint.
+   */
   @POST
   @Path("/updateCommunityPackages")
   @Consumes("application/x-www-form-urlencoded")
@@ -178,6 +206,9 @@ public class PSPackageService {
     return response;
   }
 
+  /**
+   * REST endpoint.
+   */
   @POST
   @Path("/uninstallPackage")
   @Consumes("application/x-www-form-urlencoded")
@@ -190,6 +221,9 @@ public class PSPackageService {
     return msgs;
   }
 
+  /**
+   * REST endpoint.
+   */
   @POST
   @Path("/checkPackageDependencies")
   @Consumes("application/x-www-form-urlencoded")
@@ -202,6 +236,9 @@ public class PSPackageService {
     return msgs;
   }
 
+  /**
+   * REST endpoint.
+   */
   @GET
   @Path("/validationResults")
   @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -213,6 +250,9 @@ public class PSPackageService {
     }
   }
 
+  /**
+   * REST endpoint.
+   */
   @GET
   @Path("serverTimeout")
   @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -221,6 +261,9 @@ public class PSPackageService {
     return new PSPkgUiResponse(PSPkgUiResponseType.SUCCESS, String.valueOf(sto));
   }
 
+  /**
+   * REST endpoint.
+   */
   @POST
   @Path("/convertPackage")
   @Consumes("application/x-www-form-urlencoded")
@@ -361,6 +404,9 @@ public class PSPackageService {
   static final String PACKAGE_UNLOCKED = "Unlocked";
 
   /** Separator used for separating communities. */
+  /**
+   * REST endpoint.
+   */
   public static final String NAME_SEPARATOR = ",";
 
   /** The logger for this class. */

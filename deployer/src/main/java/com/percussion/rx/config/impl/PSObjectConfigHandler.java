@@ -45,6 +45,9 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  */
 public class PSObjectConfigHandler implements IPSConfigHandler {
 
+  /** Default constructor for use by Spring. */
+  public PSObjectConfigHandler() {}
+
   @Override
   public boolean process(Object obj, ObjectState state, List<IPSAssociationSet> aSets) {
     boolean changed = false;

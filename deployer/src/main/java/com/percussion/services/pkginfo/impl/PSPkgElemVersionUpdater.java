@@ -35,6 +35,9 @@ import org.apache.commons.lang3.StringUtils;
 public class PSPkgElemVersionUpdater implements IPSPkgUpdater {
 
   @Override
+  /**
+   * REST endpoint.
+   */
   public void configChanged(Collection<IPSGuid> ids, ConfigStatus status)
       throws PSNotFoundException {
     Objects.requireNonNull(ids, "ids may not be null");
@@ -43,6 +46,9 @@ public class PSPkgElemVersionUpdater implements IPSPkgUpdater {
   }
 
   @Override
+  /**
+   * REST endpoint.
+   */
   public void preConfiguration(String name) throws PSNotFoundException {
     if (StringUtils.isBlank(name)) {
       throw new IllegalArgumentException("name may not be blank");

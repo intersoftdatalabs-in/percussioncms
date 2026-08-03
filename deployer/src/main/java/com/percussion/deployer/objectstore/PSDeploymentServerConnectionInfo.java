@@ -145,22 +145,47 @@ public class PSDeploymentServerConnectionInfo implements IPSDeployComponent {
     m_isPwdEncrypted = info.m_isPwdEncrypted;
   }
 
+  /**
+   * Returns whether the password is encrypted.
+   *
+   * @return <code>true</code> if the password is encrypted.
+   */
   public boolean isPwdEncrypted() {
     return m_isPwdEncrypted;
   }
 
+  /**
+   * Returns the password.
+   *
+   * @return the password, may be <code>null</code>.
+   */
   public String getPassword() {
     return m_password;
   }
 
+  /**
+   * Returns the port.
+   *
+   * @return the port number.
+   */
   public int getPort() {
     return m_port;
   }
 
+  /**
+   * Returns the server name.
+   *
+   * @return the server name, never <code>null</code>.
+   */
   public String getServer() {
     return m_server;
   }
 
+  /**
+   * Returns the user id.
+   *
+   * @return the user id, never <code>null</code>.
+   */
   public String getUserid() {
     return m_userid;
   }

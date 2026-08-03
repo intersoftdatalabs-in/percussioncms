@@ -40,6 +40,9 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class PSEditionSetter extends PSSimplePropertySetter {
 
+  /** Default constructor for use by Spring. */
+  public PSEditionSetter() {}
+
   @Override
   protected boolean applyProperty(
       Object obj,

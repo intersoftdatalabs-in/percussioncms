@@ -40,11 +40,11 @@ import org.apache.logging.log4j.Logger;
 
 /** Client that enables server-side deployment operations. */
 public class PSLocalDeployerClient implements IPSPackageInstaller {
-  private static final Logger log = LogManager.getLogger(PSLocalDeployerClient.class);
 
-  public PSLocalDeployerClient() {
-    // Default constructor
-  }
+  /** Default constructor for use by Spring. */
+  public PSLocalDeployerClient() {}
+
+  private static final Logger log = LogManager.getLogger(PSLocalDeployerClient.class);
 
   @Override
   public void installPackage(File packageFile) throws PSDeployException, PSNotFoundException {

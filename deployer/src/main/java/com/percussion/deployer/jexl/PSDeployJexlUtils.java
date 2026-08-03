@@ -36,7 +36,7 @@ public class PSDeployJexlUtils {
    *     or empty
    * @return list of ids from the binding that need to be mapped, never <code>null</code>, may be
    *     empty
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors parsing the expression.
    */
   public static List<String> getIdsFromBinding(String val) throws PSDeployException {
     if (StringUtils.isBlank(val)) {

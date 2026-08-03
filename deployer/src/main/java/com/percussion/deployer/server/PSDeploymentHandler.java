@@ -3256,10 +3256,20 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
   /** The currently active deployer subsystem. */
   private static PSDeployerSubsystem activeSubsystem = PSDeployerSubsystem.Deployer;
 
+  /**
+   * Returns the currently active deployer subsystem.
+   *
+   * @return the active deployer subsystem, never <code>null</code>.
+   */
   public static PSDeployerSubsystem getActiveSubsystem() {
     return activeSubsystem;
   }
 
+  /**
+   * Sets the currently active deployer subsystem.
+   *
+   * @param system the deployer subsystem to activate, may not be <code>null</code>.
+   */
   public static void setActiveSubsystem(PSDeployerSubsystem system) {
     activeSubsystem = system;
   }
@@ -3403,9 +3413,19 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
 
   /** The name of the descriptor. */
   public static final String DESC_NAME = "descName";
+
+  /** The archive log id element name. */
   public static final String ARCHIVE_LOG_ID = "archiveLogId";
+
+  /** The archive ref element name. */
   public static final String ARCHIVE_REF = "archiveRef";
+
+  /** The error message returned when a null request is supplied. */
   public static final String NULL_REQUEST_ERROR = "Request may not be null";
+
+  /** The type XML attribute name. */
   public static final String TYPE_ATTR = "type";
+
+  /** The root XML element name for the save config file response document. */
   public static final String SAVE_CFG_FILE_RESPONSE = "PSXDeploySaveConfigFileResponse";
 }

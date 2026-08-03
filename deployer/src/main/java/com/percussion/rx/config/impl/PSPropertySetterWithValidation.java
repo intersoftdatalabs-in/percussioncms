@@ -38,6 +38,9 @@ import org.apache.logging.log4j.Logger;
 public class PSPropertySetterWithValidation extends PSSimplePropertySetter {
 
   @Override
+  /**
+   * REST endpoint.
+   */
   public List<PSConfigValidation> validate(
       String objName, ObjectState state, IPSPropertySetter setter) {
     var properties = getProperties();

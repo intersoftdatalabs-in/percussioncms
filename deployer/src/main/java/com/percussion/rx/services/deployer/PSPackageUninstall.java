@@ -53,12 +53,18 @@ public class PSPackageUninstall implements IPSPackageUninstaller {
    * @return list of uninstall messages, never {@code null}, may be empty.
    */
   @Override
+  /**
+   * REST endpoint.
+   */
   public List<PSUninstallMessage> uninstallPackages(String packageNames)
       throws PSNotFoundException {
     return uninstallPackages(packageNames, false);
   }
 
   @Override
+  /**
+   * REST endpoint.
+   */
   public List<PSUninstallMessage> uninstallPackages(String packageName, boolean isRevertEntry)
       throws PSNotFoundException {
     var messages = new ArrayList<PSUninstallMessage>();

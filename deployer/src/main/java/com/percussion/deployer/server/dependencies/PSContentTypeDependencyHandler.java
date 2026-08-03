@@ -117,7 +117,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    *     </code>.
    * @param name the application name that is a ContentEditor
    * @return an iterator for CE dependencies from the DataSet
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   private List<PSDependency> getCEChildDependencies(PSSecurityToken tok, String name)
       throws PSDeployException, PSNotFoundException {
@@ -215,7 +215,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    *     </code>.
    * @param dep the ContentType Dependency may not be <code>null</code>
    * @return set of template dependencies
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   private Set<PSDependency> getTemplateDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
@@ -312,7 +312,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    * @param item the item definition, never <code>null</code>
    * @return The dependency file object, it will never be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSDeployException if any other error occurs.
+   * @throws PSDeployException if there are any errors. if any other error occurs.
    */
   protected PSDependencyFile getDepFileFromItemDef(PSItemDefinition item) throws PSDeployException {
     if (item == null) throw new IllegalArgumentException("depData may not be null");
@@ -333,7 +333,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    *
    * @param node node definition never <code>null</code>
    * @return the dependency file
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   protected PSDependencyFile getDepFileFromNodeDef(IPSNodeDefinition node)
       throws PSDeployException {
@@ -360,7 +360,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    * @return An iterator one or more <code>PSDependencyFile</code> objects. It will never be <code>
    *     null</code> or empty.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSDeployException if there is no dependency file in the archive for the specified
+   * @throws PSDeployException if there are any errors. if there is no dependency file in the archive for the specified
    *     dependency object, or any other error occurs.
    */
   protected static Iterator getItemDefFilesFromArchive(PSArchiveHandler archive, PSDependency dep)
@@ -427,7 +427,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    * @param dep the Content Type dependency, assumed not <code>null</code>.
    * @return all schema dependency files of the specified Content Type dependency, never <code>null
    *     </code>.
-   * @throws PSDeployException if an error occurs.
+   * @throws PSDeployException if there are any errors. if an error occurs.
    */
   private List<PSDependencyFile> getSchemaDepFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
@@ -462,7 +462,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    * @param item if not <code>null</code>, use it for deserialization else ask service to create a
    *     new template
    * @return the actual template
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   protected PSItemDefinition generateItemDefFromFile(
       PSArchiveHandler archive, PSDependencyFile depFile, PSItemDefinition item)
@@ -507,7 +507,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    * @param node if not <code>null</code>, use it for deserialization else ask service to create a
    *     new node
    * @return the actual node
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   protected IPSNodeDefinition generateNodeDefFromFile(
       PSArchiveHandler archive, PSDependencyFile depFile, IPSNodeDefinition node)
@@ -538,7 +538,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    * @param item the definition either deserialized or loaded by the system
    * @param clMapping the mapping for this dependency
    * @return PSItemDefinition with the new ContentTypeID
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   private PSItemDefinition transformElementIdFromMapping(
       PSDependency dep, PSItemDefinition item, PSIdMapping clMapping) throws PSDeployException {
@@ -574,8 +574,8 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    * @param dep the dependency never <code>null</code>
    * @param ctx the import context never <code>null</code>
    * @param item the item definition never <code>null</code>
-   * @throws PSDeployException
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
+   * @throws PSDeployException if there are any errors.
    */
   private void transformContentTypeParams(
       PSSecurityToken tok,
@@ -615,7 +615,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    * @param descSet the cvDescriptors describing the contenttype<==>Template relationships may be
    *     <code>null</code>
    * @param isNew boolean if the ContentType does not yet exist on the system
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    * @return a set of PSContentTemplateDescriptors
    */
   private Set<PSContentTemplateDesc> doTransforms(
@@ -644,7 +644,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    *
    * @param s node which needs to be saved/updated
    * @param ver the version of node
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   public void saveNode(IPSNodeDefinition s, Integer ver) throws PSDeployException {
     // nullify and set it to the passed version of the template, can be null
@@ -674,7 +674,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    * @param dep the dependency never <code>null</code>
    * @param ctx import context never <code>null</code>
    * @return the set of template relationships: cvDescriptors
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   private Set<PSContentTemplateDesc> getTemplateRelationships(
       PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx) throws PSDeployException {
@@ -705,7 +705,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    * Helper to catalog templates by guids
    *
    * @return the set of template guids as strings
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   private Set<String> catalogTemplates() throws PSDeployException {
     IPSAssemblyService aSvc = PSAssemblyServiceLocator.getAssemblyService();
@@ -730,7 +730,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    * @param id the contenttype id never <code>null</code>
    * @param isNew boolean <code>true</code> if itemDefinition is new
    * @return the ContentTypeTemplateDescriptor set
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   private Set<PSContentTemplateDesc> transformCVDescriptorMappings(
       PSImportCtx ctx, Set<PSContentTemplateDesc> descSet, int id, boolean isNew)
@@ -835,7 +835,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    * @param file the to be saved schema, assumed not <code>null</code>.
    * @param archive the archive, assumed not <code>null</code>.
    * @param isNew <code>true</code> if save the schema for a new Content Type.
-   * @throws PSDeployException if an error occurs.
+   * @throws PSDeployException if there are any errors. if an error occurs.
    */
   private void saveSchema(PSDependencyFile file, PSArchiveHandler archive, boolean isNew)
       throws PSDeployException {
@@ -873,7 +873,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    * @param ctx the import context, assumed not <code>null</code>.
    * @return the item definition and version pair. The value of the 1st and 2nd may be <code>null
    *     </code> if the Content Type does not exist. The returned object never <code>null</code>.
-   * @throws PSDeployException if an error occurs.
+   * @throws PSDeployException if there are any errors. if an error occurs.
    */
   private PSPair<PSItemDefinition, Integer> getExistingItemDef(PSDependency dep, PSImportCtx ctx)
       throws PSDeployException {
@@ -912,7 +912,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    * @param archive the archive, assumed not <code>null</code>.
    * @param dep the Content Type dependency, assumed not <code>null</code>.
    * @param ctx the import context, assumed not <code>null</code>.
-   * @throws PSDeployException if an error occurs.
+   * @throws PSDeployException if there are any errors. if an error occurs.
    */
   private void saveItemDef(
       PSDependencyFile itemFile,
@@ -1076,7 +1076,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    * @param node the IPSNodeDefinition, all it does is save one lookup of a node may not be <code>
    *     null</code>
    * @return the ItemDefinition for the node def, never <code>null</code>
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   private PSItemDefinition findContentTypeByNodeDef(IPSNodeDefinition node)
       throws PSDeployException {
@@ -1100,7 +1100,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    *
    * @param depId the guid
    * @return <code>null</code> if Variant is not found
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   private PSItemDefinition findItemDefByDependencyID(String depId) throws PSDeployException {
     if (depId == null || depId.trim().length() == 0)
@@ -1336,7 +1336,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    *     </code>.
    * @param id the dependency id as a string never <code>null</code>
    * @return the application may be <code>null</code>
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   private PSApplication getCEAppFromDependencyID(PSSecurityToken tok, String id)
       throws PSDeployException {
@@ -1431,7 +1431,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    *
    * @param item the item defintion never <code>null</code>
    * @param ctx the import context never <code>null</code>
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   private void transformWorkflowIds(PSItemDefinition item, PSImportCtx ctx)
       throws PSDeployException {
@@ -1506,7 +1506,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    * @param dep the dependency, assumed not <code>null</code>.
    * @param ctx import context, assumed not <code>null</code>.
    * @param ce the content editor, assumed not <code>null</code>.
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   private void removeWorkflowAssociations(
       PSSecurityToken tok, PSDependency dep, PSImportCtx ctx, PSContentEditor ce)
@@ -1548,7 +1548,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    * @param dep the dependency, assumed not <code>null</code>.
    * @param ctx import context, assumed not <code>null</code>.
    * @param descSet the content type template descriptors, assumed not <code>null</code>.
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   private void removeTemplateAssociations(
       PSSecurityToken tok, PSDependency dep, PSImportCtx ctx, Set<PSContentTemplateDesc> descSet)

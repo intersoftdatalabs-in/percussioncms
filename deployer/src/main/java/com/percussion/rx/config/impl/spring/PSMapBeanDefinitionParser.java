@@ -41,6 +41,10 @@ import org.w3c.dom.Element;
  * @author YuBingChen
  */
 public class PSMapBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+
+  /** Default constructor for use by Spring. */
+  public PSMapBeanDefinitionParser() {}
+
   @Override
   protected Class<?> getBeanClass(Element element) {
     return HashMap.class;

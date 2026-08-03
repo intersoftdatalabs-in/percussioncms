@@ -33,10 +33,17 @@ import org.apache.commons.text.WordUtils;
 /** Generates a summary report for a package descriptor. */
 public class PSDescriptorSummaryReport {
 
+  /** Default constructor. */
   public PSDescriptorSummaryReport() {
     // Default constructor
   }
 
+  /**
+   * Generates the summary report for the supplied export descriptor.
+   *
+   * @param desc the export descriptor, may not be <code>null</code>.
+   * @return the generated report as a String, never <code>null</code>.
+   */
   public String getReport(PSExportDescriptor desc) {
     handleElements(desc);
     var sb = new StringBuilder();
@@ -230,10 +237,19 @@ public class PSDescriptorSummaryReport {
     return results;
   }
 
+  /** Map of design objects discovered for the descriptor, never <code>null</code>. */
   protected PSMultiValueHashMap<String, String> m_designObjects;
+
+  /** Map of dependency relationships between design objects, never <code>null</code>. */
   protected PSMultiValueHashMap<String, String> m_dependsMap;
+
+  /** Map of associations between design objects, never <code>null</code>. */
   protected PSMultiValueHashMap<String, String> m_assocMap;
+
+  /** Categories referenced by the descriptor, never <code>null</code>. */
   protected Set<String> m_cats;
+
+  /** Files referenced by the descriptor, never <code>null</code>. */
   protected Set<String> m_files;
 
   private static final String NEWLINE = "\r\n";

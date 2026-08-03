@@ -40,6 +40,9 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Table(name = "PSX_PKG_ELEMENT")
 public class PSPkgElement implements Serializable {
 
+  /**
+   * REST endpoint.
+   */
   public PSPkgElement() {
     // For Hibernate
   }
@@ -157,6 +160,9 @@ public class PSPkgElement implements Serializable {
   }
 
   @Override
+  /**
+   * REST endpoint.
+   */
   public boolean equals(Object b) {
     if (!(b instanceof PSPkgElement)) {
       return false;
@@ -173,6 +179,9 @@ public class PSPkgElement implements Serializable {
   }
 
   @Override
+  /**
+   * REST endpoint.
+   */
   public int hashCode() {
     return new HashCodeBuilder()
         .append(guid)
@@ -185,6 +194,9 @@ public class PSPkgElement implements Serializable {
   }
 
   @Override
+  /**
+   * REST endpoint.
+   */
   public String toString() {
     return "PSPkgElement{"
         + "guid="

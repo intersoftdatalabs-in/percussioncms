@@ -108,6 +108,9 @@ public class PSPkgInfo implements Serializable {
     USER
   }
 
+  /**
+   * REST endpoint.
+   */
   public PSPkgInfo() {
     guid = 0;
     descriptorName = "";
@@ -218,10 +221,16 @@ public class PSPkgInfo implements Serializable {
     return origConfigDate;
   }
 
+  /**
+   * REST endpoint.
+   */
   public PackageAction getLastAction() {
     return PackageAction.valueOf(lastAction);
   }
 
+  /**
+   * REST endpoint.
+   */
   public PackageActionStatus getLastActionStatus() {
     return PackageActionStatus.valueOf(lastActionStatus);
   }
@@ -441,10 +450,16 @@ public class PSPkgInfo implements Serializable {
     origConfigDate.setTime(dateTime);
   }
 
+  /**
+   * REST endpoint.
+   */
   public void setLastAction(PackageAction action) {
     lastAction = action.name();
   }
 
+  /**
+   * REST endpoint.
+   */
   public void setLastActionStatus(PackageActionStatus status) {
     lastActionStatus = status.name();
   }
@@ -555,6 +570,9 @@ public class PSPkgInfo implements Serializable {
   }
 
   @Override
+  /**
+   * REST endpoint.
+   */
   public boolean equals(Object b) {
     if (!(b instanceof PSPkgInfo)) {
       return false;
@@ -582,6 +600,9 @@ public class PSPkgInfo implements Serializable {
   }
 
   @Override
+  /**
+   * REST endpoint.
+   */
   public int hashCode() {
     return new HashCodeBuilder()
         .append(guid)
@@ -605,6 +626,9 @@ public class PSPkgInfo implements Serializable {
   }
 
   @Override
+  /**
+   * REST endpoint.
+   */
   public String toString() {
     return "PSPkgInfo{"
         + "guid="

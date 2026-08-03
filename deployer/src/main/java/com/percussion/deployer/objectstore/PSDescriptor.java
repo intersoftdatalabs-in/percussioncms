@@ -332,8 +332,10 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   }
 
   /**
-   * @param version the version to set, defaults to 1.0.0 if value passed in is <code>null</code>,
-   *     empty. This value will be formatted
+   * Sets the version, defaulting to 1.0.0 if the supplied value is <code>null</code> or empty. The
+   * value will be formatted.
+   *
+   * @param version the version to set, may be <code>null</code> or empty.
    */
   public void setVersion(String version) {
     m_version = StringUtils.defaultString(formatVersion(version, true, true), DEFAULT_VERSION);
@@ -349,8 +351,10 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   }
 
   /**
-   * @param cmsMinVersion the cmsMinVersion to set, defaults to 6.0.0 if value passed in is <code>
-   *     null</code>, empty. This value will be formatted
+   * Sets the minimum required CMS version, defaulting to 6.0.0 if the supplied value is <code>null
+   * </code> or empty. The value will be formatted.
+   *
+   * @param cmsMinVersion the cmsMinVersion to set, may be <code>null</code> or empty.
    */
   public void setCmsMinVersion(String cmsMinVersion) {
     m_cmsMinVersion =
@@ -377,11 +381,13 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   }
 
   /**
-   * @param pkgName the name of the package
+   * Sets a package dependency on this descriptor.
+   *
+   * @param pkgName the name of the package, may not be <code>null</code>.
    * @param pkgVersion package version allowed, defaults to 1.0.0 if value passed in is <code>null
    *     </code>, empty. This value will be formatted by {@link #formatVersion(String, boolean,
    *     boolean)}.
-   * @param pkgImplied
+   * @param pkgImplied <code>true</code> if the dependency is implied.
    */
   public void setPkgDep(String pkgName, String pkgVersion, boolean pkgImplied) {
     Map<String, String> pkgDepMap = new HashMap<>();
@@ -395,6 +401,8 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   }
 
   /**
+   * Returns the list of package dependency maps.
+   *
    * @return ArrayList of package dependency Maps
    *     <p>Map keys are: XML_PKG_DEP_NAME XML_PKG_DEP_VERSION
    */
@@ -620,20 +628,52 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   public static final String DEFAULT_CMS_MIN_VERSION = "6.6.0";
 
   // private Xml constants
+  /** XML attribute name for the id. */
   private static final String XML_ATTR_ID = "id";
+
+  /** XML attribute name for the name. */
   private static final String XML_ATTR_NAME = "name";
+
+  /** XML attribute name for the url. */
   private static final String XML_ATTR_URL = "url";
+
+  /** XML attribute name for the minimum version. */
   private static final String XML_ATTR_MIN = "min";
+
+  /** XML attribute name for the maximum version. */
   private static final String XML_ATTR_MAX = "max";
+
+  /** XML element name for the Description element. */
   private static final String XML_EL_DESC = "Description";
+
+  /** XML element name for the Publisher element. */
   private static final String XML_EL_PUBLISHER = "Publisher";
+
+  /** XML element name for the CmsVersion element. */
   private static final String XML_EL_CMS_VERSION = "CmsVersion";
+
+  /** XML element name for the Version element. */
   private static final String XML_EL_VERSION = "Version";
+
+  /** XML element name for the ImplConfigFile element. */
   private static final String XML_EL_IMPL_CONFIG_FILE = "ImplConfigFile";
+
+  /** XML element name for the LocalConfigFile element. */
+  /** XML element name for the LocalConfigFile element. */
   private static final String XML_EL_LOCAL_CONFIG_FILE = "LocalConfigFile";
+
+  /** XML element name for the PKGDependencies root element. */
   private static final String XML_PKG_DEP_ROOT_NAME = "PKGDependencies";
+
+  /** XML element name for the PKGDependency element. */
   private static final String XML_PKG_DEP_EL_NAME = "PKGDependency";
+
+  /** XML attribute name for the dependency package name. */
   public static final String XML_PKG_DEP_NAME = "name";
+
+  /** XML attribute name for the dependency package version. */
   public static final String XML_PKG_DEP_VERSION = "pkgVersion";
+
+  /** XML attribute name for the dependency implied flag. */
   public static final String XML_PKG_DEP_IMPLIED = "PKGDepImplied";
 }

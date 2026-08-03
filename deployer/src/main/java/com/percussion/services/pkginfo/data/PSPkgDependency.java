@@ -128,6 +128,9 @@ public class PSPkgDependency implements Serializable {
   }
 
   @Override
+  /**
+   * REST endpoint.
+   */
   public boolean equals(Object b) {
     if (!(b instanceof PSPkgDependency)) {
       return false;
@@ -142,6 +145,9 @@ public class PSPkgDependency implements Serializable {
   }
 
   @Override
+  /**
+   * REST endpoint.
+   */
   public int hashCode() {
     return new HashCodeBuilder()
         .append(pkgDependencyId)
@@ -152,6 +158,9 @@ public class PSPkgDependency implements Serializable {
   }
 
   @Override
+  /**
+   * REST endpoint.
+   */
   public String toString() {
     return "PSPkgDependency{"
         + "pkgDependencyId="

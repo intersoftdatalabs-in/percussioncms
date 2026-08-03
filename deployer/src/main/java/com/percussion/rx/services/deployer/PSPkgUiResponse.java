@@ -31,6 +31,9 @@ import org.apache.commons.lang3.StringUtils;
 public class PSPkgUiResponse {
 
   /** No-arg constructor for the framework. */
+  /**
+   * REST endpoint.
+   */
   public PSPkgUiResponse() {
     // For JAXB
   }
@@ -52,6 +55,9 @@ public class PSPkgUiResponse {
    * @return message, never {@code null}, may be empty.
    */
   @XmlElement(name = "message")
+  /**
+   * REST endpoint.
+   */
   public String getMessage() {
     return message;
   }
@@ -62,14 +68,23 @@ public class PSPkgUiResponse {
    * @return response type.
    */
   @XmlElement(name = "type")
+  /**
+   * REST endpoint.
+   */
   public PSPkgUiResponseType getType() {
     return type;
   }
 
+  /**
+   * REST endpoint.
+   */
   public void setMessage(String message) {
     this.message = StringUtils.defaultString(message);
   }
 
+  /**
+   * REST endpoint.
+   */
   public void setType(PSPkgUiResponseType type) {
     this.type = type;
   }
@@ -79,6 +94,9 @@ public class PSPkgUiResponse {
   private PSPkgUiResponseType type;
 
   /** Enum class for package UI response type, has two values: success and failure. */
+  /**
+   * REST endpoint.
+   */
   public enum PSPkgUiResponseType {
     FAILURE(0),
     SUCCESS(1);

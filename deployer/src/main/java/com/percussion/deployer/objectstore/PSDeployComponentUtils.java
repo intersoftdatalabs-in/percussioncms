@@ -106,6 +106,7 @@ public class PSDeployComponentUtils {
   /**
    * Copy a list from an iterator.
    *
+   * @param <T> the type of elements in the iterator.
    * @param iter The iterator to be copied, may not <code>null</code>.
    * @return The copied list, will not be <code>null</code>, but may be empty.
    */

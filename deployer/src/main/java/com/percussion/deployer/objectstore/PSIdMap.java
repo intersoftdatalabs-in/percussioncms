@@ -277,6 +277,10 @@ public class PSIdMap implements IPSDeployComponent {
    * Convenience method for {@link #isMapped(String, String, String, String) isMapped(sourceId,
    * objectType, null, null)}. Please see the link for more information. This should be called only
    * if the supplied source id does not have a parent id.
+   *
+   * @param sourceId the source id, may not be <code>null</code> or empty.
+   * @param objectType the object type, may not be <code>null</code> or empty.
+   * @return <code>true</code> if the supplied source id is mapped, <code>false</code> otherwise.
    */
   public boolean isMapped(String sourceId, String objectType) {
     if (sourceId == null || sourceId.trim().length() == 0)

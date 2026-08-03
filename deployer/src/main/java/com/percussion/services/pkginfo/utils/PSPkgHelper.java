@@ -224,6 +224,9 @@ public class PSPkgHelper {
   }
 
   /** Used by config service unit tests to enable/disable package helper. */
+  /**
+   * REST endpoint.
+   */
   public static void setEnabled(boolean enabledFlag) {
     enabled = enabledFlag;
   }
@@ -245,6 +248,9 @@ public class PSPkgHelper {
   }
 
   /** Constant indicating a package element has been modified outside allowed configuration. */
+  /**
+   * REST endpoint.
+   */
   public static final long OBJECT_MODIFIED_VERSION = -1L;
 
   /** The package info service, may be null. */

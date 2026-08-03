@@ -28,6 +28,9 @@ import org.apache.commons.jexl3.parser.SimpleNode;
  */
 public class PSJexlParserUtils {
 
+  /** Default constructor for use via static methods. */
+  public PSJexlParserUtils() {}
+
   /**
    * Internal Engine subclass used to expose the protected {@code parse()} method for AST
    * construction without using reflection. This is required because the internal JEXL3 {@code

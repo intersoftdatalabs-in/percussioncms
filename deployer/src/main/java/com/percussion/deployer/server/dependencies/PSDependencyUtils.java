@@ -85,6 +85,9 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSDependencyUtils {
 
+  /** Default constructor for use via static methods. */
+  public PSDependencyUtils() {}
+
   private static final Logger log = LogManager.getLogger(PSDependencyUtils.class);
 
   /**

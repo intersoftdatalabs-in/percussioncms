@@ -357,6 +357,9 @@ public class PSPackageVisibility {
   }
 
   /** List of type {@link PSTypeEnum} types that support visibility. */
+  /**
+   * REST endpoint.
+   */
   public static List<PSTypeEnum> ms_visibilitySupportedTypes = new ArrayList<>();
 
   static {
@@ -371,5 +374,8 @@ public class PSPackageVisibility {
   }
 
   /** Logger for this class. */
+  /**
+   * REST endpoint.
+   */
   public static final Logger ms_log = LogManager.getLogger("PSPackageVisibility");
 }
