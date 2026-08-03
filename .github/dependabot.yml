@@ -14,3 +14,23 @@ updates:
           - ">=2"
       - dependency-name: "com.percussion:*"
         versions: [">= 0"]
+
+  # npm / frontend packages (lockfiles present). Dual WebUI roots stay in lockstep:
+  # WebUI/package.json and WebUI/src/main/frontend (Maven frontend-maven-plugin).
+  # Skip WebUI/vendor/mkd-language (local file: package, no lockfile).
+  - package-ecosystem: "npm"
+    directories:
+      - "/WebUI"
+      - "/WebUI/src/main/frontend"
+      - "/modules/perc-common-ui-bundle"
+      - "/modules/perc-qa-automation/frontend"
+      - "/modules/perc-tinymce"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    target-branch: "main"
+    groups:
+      npm-production:
+        dependency-type: "production"
+      npm-development:
+        dependency-type: "development"
