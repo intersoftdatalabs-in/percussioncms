@@ -19,9 +19,9 @@ package com.percussion.apibridge.mkd;
 
 import com.percussion.rest.i18n.I18nCorrectionSource;
 import com.percussion.rest.i18n.I18nCorrectionSubmission;
-import dev.monkeyking.gcm.CorrectionSubmission;
-import dev.monkeyking.gcm.GcmClient;
-import dev.monkeyking.gcm.GcmException;
+//import dev.monkeyking.gcm.CorrectionSubmission;
+//import dev.monkeyking.gcm.GcmClient;
+//import dev.monkeyking.gcm.GcmException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,7 +39,7 @@ public class MkdGcmCorrectionService {
    * @return GCM Message-ID when available
    */
   public String postCorrection(I18nCorrectionSubmission submission) {
-    String group = MkdLanguageConfig.gcmGroup();
+ /*    String group = MkdLanguageConfig.gcmGroup();
     String token = MkdLanguageConfig.gcmTokenPlain();
     if (StringUtils.isBlank(group) || StringUtils.isBlank(token)) {
       throw new IllegalStateException(
@@ -74,10 +74,11 @@ public class MkdGcmCorrectionService {
     } catch (GcmException e) {
       // Do not concatenate SDK message text (may echo tokens/PII) into the wrapper message.
       throw new MkdGcmBackendException("GCM rejected correction", e);
-    }
+    } */
+    return null; // TODO: remove this when mkd-gcm is available
   }
 
-  protected GcmClient openClient() {
+  /* protected GcmClient openClient() {
     String url = MkdLanguageConfig.gcmUrl();
     if (StringUtils.isNotBlank(url)) {
       return GcmClient.connectUrl(url);
@@ -88,10 +89,11 @@ public class MkdGcmCorrectionService {
           "GCM host not configured (perc.mkd.gcm.host or perc.mkd.gcm.url)");
     }
     return GcmClient.connect(host, MkdLanguageConfig.gcmPort());
+    return null; // TODO: remove this when mkd-gcm is available
   }
 
   static CorrectionSubmission toSdk(I18nCorrectionSubmission in) {
-    CorrectionSubmission out = new CorrectionSubmission();
+     CorrectionSubmission out = new CorrectionSubmission();
     out.currentText = in.getCurrentText();
     out.proposedText = in.getProposedText();
     out.currentAriaLabel = in.getCurrentAriaLabel();
@@ -113,5 +115,6 @@ public class MkdGcmCorrectionService {
       out.source = s;
     }
     return out;
-  }
+
+  } */
 }
