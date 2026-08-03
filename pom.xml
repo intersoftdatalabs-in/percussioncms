@@ -194,7 +194,7 @@
         <liquibase.version>4.17.0</liquibase.version>
         <log4j2.version>2.25.4</log4j2.version>
         <lucene.version>8.11.4</lucene.version>
-        <mariadb.version>3.5.7</mariadb.version>
+        <mariadb.version>3.5.10</mariadb.version>
         <maven.antrun.plugin.version>3.2.0</maven.antrun.plugin.version>
         <maven.assembly.plugin.version>3.8.0</maven.assembly.plugin.version>
         <maven.build.helper.plugin.version>3.6.1</maven.build.helper.plugin.version>
