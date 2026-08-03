@@ -12,10 +12,10 @@
 
 ## Changes reviewed
 
-| Path | Role |
-|------|------|
-| `WebUI/src/main/frontend/package.json` | Declare dependency for Maven npm install |
-| `WebUI/src/main/frontend/package-lock.json` | Lockfile for reproducible install |
+|                         Path                          |                                                                      Role                                                                       |
+|-------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| `WebUI/src/main/frontend/package.json`                | Declare dependency for Maven npm install                                                                                                        |
+| `WebUI/src/main/frontend/package-lock.json`           | Lockfile for reproducible install                                                                                                               |
 | `WebUI/src/main/ts/country-flag-icons-react-3x2.d.ts` | Ambient types: path map `"*"` → `node_modules/*` resolves nested package `main` (`index.cjs`) and misses package `exports.types` / `index.d.ts` |
 
 ## Issues
@@ -30,3 +30,4 @@ N/A — npm metadata and TypeScript ambient module only.
 
 - `tsc --noEmit` from `WebUI/src/main/frontend` (exit 0 after fix)
 - Vite build previously resolved the package when present under `frontend/node_modules`
+
