@@ -63,6 +63,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import shutil
 import subprocess
 import sys
@@ -72,7 +73,7 @@ import urllib.request
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Sequence, Set, Tuple
+from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Set, Tuple
 
 LOG = logging.getLogger("matrix-install-smoke")
 
@@ -81,6 +82,8 @@ EXIT_INVOCATION = 1
 EXIT_CELL_FAILED = 2
 
 DEFAULT_COMPOSE_FILE = "docker-compose.yml"
+DEFAULT_ENV_FILE = ".env.compose"
+ENV_FILE_FALLBACK = ".env.compose.example"
 MATRIX_IMAGE_TAG = "percussion-matrix-cell:local"
 MATRIX_NETWORK = "perc-matrix-net"
 
@@ -90,8 +93,16 @@ DTS_HOST_PORT = 9983
 CMS_PROBE_PATH = "/Rhythmyx/login"
 DTS_PROBE_PATH = "/"
 
-# DB service names + compose profiles already in docker-compose.yml
-DB_SERVICES: Dict[str, Dict[str, str]] = {
+# Compose service name → stable container_name from docker-compose.yml
+CONTAINER_BY_SERVICE: Dict[str, str] = {
+    "postgres": "percussion-postgres",
+    "mysql": "percussion-mysql",
+    "sqlserver": "percussion-sqlserver",
+}
+
+PRODUCTS = ("cms", "dts")
+# Static shape without passwords (passwords resolved from env / .env.compose).
+_DB_SERVICE_BASE: Dict[str, Dict[str, str]] = {
     "h2": {
         "profile": "",
         "service": "",
@@ -106,7 +117,7 @@ DB_SERVICES: Dict[str, Dict[str, str]] = {
         "port": "5432",
         "container_host": "postgres",
         "user": "percuser",
-        "password": "PercPass123",
+        "password_env": "POSTGRES_PASSWORD",
         "name": "percdb",
         "schema": "public",
     },
@@ -117,7 +128,7 @@ DB_SERVICES: Dict[str, Dict[str, str]] = {
         "port": "3306",
         "container_host": "mysql",
         "user": "percuser",
-        "password": "PercPass123",
+        "password_env": "MYSQL_PASSWORD",
         "name": "percdb",
     },
     "sqlserver": {
@@ -127,20 +138,99 @@ DB_SERVICES: Dict[str, Dict[str, str]] = {
         "port": "1433",
         "container_host": "sqlserver",
         "user": "sa",
-        "password": "PercPass123!",
+        "password_env": "MSSQL_SA_PASSWORD",
         "name": "percdb",
     },
 }
 
-# Compose service name → stable container_name from docker-compose.yml
-CONTAINER_BY_SERVICE: Dict[str, str] = {
-    "postgres": "percussion-postgres",
-    "mysql": "percussion-mysql",
-    "sqlserver": "percussion-sqlserver",
-}
+DB_TYPES = tuple(_DB_SERVICE_BASE.keys())
 
-PRODUCTS = ("cms", "dts")
-DB_TYPES = tuple(DB_SERVICES.keys())
+
+def load_env_file(path: Path) -> Dict[str, str]:
+    """Parse a simple ``KEY=VALUE`` env file (no export, no multi-line)."""
+    out: Dict[str, str] = {}
+    if not path.is_file():
+        return out
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, val = line.partition("=")
+        key = key.strip()
+        if not key:
+            continue
+        val = val.strip()
+        if len(val) >= 2 and val[0] == val[-1] and val[0] in ("'", '"'):
+            val = val[1:-1]
+        out[key] = val
+    return out
+
+
+def resolve_env_file(repo_root: Path, env_file: Optional[Path] = None) -> Path:
+    """Prefer ``.env.compose``, fall back to ``.env.compose.example``."""
+    if env_file is not None:
+        return env_file.resolve()
+    preferred = (repo_root / DEFAULT_ENV_FILE).resolve()
+    if preferred.is_file():
+        return preferred
+    return (repo_root / ENV_FILE_FALLBACK).resolve()
+
+
+def _pick_env(env: Mapping[str, str], *keys: str, default: str = "") -> str:
+    """First non-empty value from ``env`` then ``os.environ``."""
+    for key in keys:
+        if not key:
+            continue
+        val = (env.get(key) or os.environ.get(key) or "").strip()
+        if val:
+            return val
+    return default
+
+
+def build_db_services(env: Mapping[str, str]) -> Dict[str, Dict[str, str]]:
+    """Build DB metadata; passwords come from env keys (never hardcoded)."""
+    services: Dict[str, Dict[str, str]] = {}
+    for name, base in _DB_SERVICE_BASE.items():
+        meta = {k: v for k, v in base.items() if k != "password_env"}
+        pwd_key = base.get("password_env", "")
+        if pwd_key:
+            meta["password"] = _pick_env(env, pwd_key)
+        if name == "postgresql":
+            meta["user"] = _pick_env(env, "POSTGRES_USER", default=meta.get("user", "percuser"))
+            meta["name"] = _pick_env(env, "POSTGRES_DB", default=meta.get("name", "percdb"))
+        elif name == "mysql":
+            meta["user"] = _pick_env(env, "MYSQL_USER", default=meta.get("user", "percuser"))
+            meta["name"] = _pick_env(env, "MYSQL_DATABASE", default=meta.get("name", "percdb"))
+        elif name == "sqlserver":
+            meta["user"] = "sa"
+        services[name] = meta
+    return services
+
+
+def require_db_passwords(
+    services: Mapping[str, Mapping[str, str]], db_types: Iterable[str]
+) -> None:
+    """Fail fast if an external DB cell lacks a password from env."""
+    missing: List[str] = []
+    for db_type in db_types:
+        meta = services.get(db_type) or {}
+        if not meta.get("service"):
+            continue
+        if not (meta.get("password") or "").strip():
+            pwd_key = _DB_SERVICE_BASE.get(db_type, {}).get("password_env", "PASSWORD")
+            missing.append(f"{db_type} ({pwd_key})")
+    if missing:
+        raise ValueError(
+            "Missing DB password(s) for: "
+            + ", ".join(missing)
+            + ". Copy .env.compose.example to .env.compose and set credentials "
+            "(or export the matching env vars)."
+        )
+
+
+# Module-level snapshot for unit tests that only need host/port/service shape.
+# Passwords empty unless process env already has them (never hardcoded).
+DB_SERVICES: Dict[str, Dict[str, str]] = build_db_services(os.environ)
 
 
 def db_container_name(service: str) -> str:
@@ -152,7 +242,7 @@ def external_db_types(db_types: Iterable[str]) -> Set[str]:
     """Return matrix DB keys that use an external compose service (not H2)."""
     out: Set[str] = set()
     for db_type in db_types:
-        meta = DB_SERVICES.get(db_type) or {}
+        meta = _DB_SERVICE_BASE.get(db_type) or {}
         if meta.get("service"):
             out.add(db_type)
     return out
@@ -425,6 +515,8 @@ def start_db(
     db_type: str,
     *,
     dry_run: bool,
+    db_services: Mapping[str, Mapping[str, str]],
+    env_file: Optional[Path] = None,
 ) -> Optional[bool]:
     """Start an external compose DB for ``db_type`` if needed.
 
@@ -436,7 +528,7 @@ def start_db(
         ``--dry-run``).
         ``False`` if the container was already running (operator-owned / reused).
     """
-    meta = DB_SERVICES[db_type]
+    meta = db_services[db_type]
     profile = meta.get("profile") or ""
     service = meta.get("service") or ""
     if not profile or not service:
@@ -457,12 +549,18 @@ def start_db(
             "compose",
             "-f",
             str(compose_file),
-            "--profile",
-            profile,
-            "up",
-            "-d",
-            service,
         ]
+        if env_file is not None and env_file.is_file():
+            argv.extend(["--env-file", str(env_file)])
+        argv.extend(
+            [
+                "--profile",
+                profile,
+                "up",
+                "-d",
+                service,
+            ]
+        )
         _run(argv, dry_run=dry_run, check=not dry_run)
         started_by_matrix = True
 
@@ -487,6 +585,8 @@ def stop_external_dbs(
     db_types: Iterable[str],
     *,
     dry_run: bool,
+    db_services: Mapping[str, Mapping[str, str]],
+    env_file: Optional[Path] = None,
 ) -> None:
     """Stop external compose DB services (no volume wipe).
 
@@ -494,7 +594,7 @@ def stop_external_dbs(
     ``docker compose … stop <service>`` (not ``down -v``).
     """
     for db_type in sorted(set(db_types)):
-        meta = DB_SERVICES.get(db_type) or {}
+        meta = db_services.get(db_type) or {}
         profile = meta.get("profile") or ""
         service = meta.get("service") or ""
         if not profile or not service:
@@ -512,20 +612,23 @@ def stop_external_dbs(
             dry_run=dry_run,
             check=False,
         )
-        _run(
+        argv = [
+            "docker",
+            "compose",
+            "-f",
+            str(compose_file),
+        ]
+        if env_file is not None and env_file.is_file():
+            argv.extend(["--env-file", str(env_file)])
+        argv.extend(
             [
-                "docker",
-                "compose",
-                "-f",
-                str(compose_file),
                 "--profile",
                 profile,
                 "stop",
                 service,
-            ],
-            dry_run=dry_run,
-            check=False,
+            ]
         )
+        _run(argv, dry_run=dry_run, check=False)
 
 
 def _docker_container_running(name: str) -> bool:
@@ -596,6 +699,8 @@ def run_cell(
     probe_timeout: int,
     dry_run: bool,
     log_dir: Path,
+    db_services: Mapping[str, Mapping[str, str]],
+    env_file: Optional[Path] = None,
     started_dbs: Optional[Set[str]] = None,
     engaged_dbs: Optional[Set[str]] = None,
 ) -> CellResult:
@@ -604,7 +709,7 @@ def run_cell(
     host_port = CMS_HOST_PORT if cell.product == "cms" else DTS_HOST_PORT
     probe_url = build_probe_url(cell.product, host_port)
     cell_log = log_dir / f"matrix-{cell.cell_id}-{_ts()}.log"
-    db_meta = DB_SERVICES[cell.db_type]
+    db_meta = dict(db_services[cell.db_type])
 
     try:
         jar = resolve_installer_jar(repo_root, cell.product)
@@ -622,7 +727,14 @@ def run_cell(
     LOG.info("Cell %s using jar %s (%s bytes)", cell.cell_id, jar, jar.stat().st_size if jar.is_file() else 0)
 
     destroy_container(name, dry_run=dry_run)
-    ownership = start_db(repo_root, compose_file, cell.db_type, dry_run=dry_run)
+    ownership = start_db(
+        repo_root,
+        compose_file,
+        cell.db_type,
+        dry_run=dry_run,
+        db_services=db_services,
+        env_file=env_file,
+    )
     if ownership is not None:
         if engaged_dbs is not None:
             engaged_dbs.add(cell.db_type)
@@ -737,6 +849,15 @@ def _build_parser() -> argparse.ArgumentParser:
         help="docker-compose.yml path (default: <repo>/docker-compose.yml)",
     )
     p.add_argument(
+        "--env-file",
+        type=Path,
+        default=None,
+        help=(
+            "Env file for compose DB credentials (default: <repo>/.env.compose, "
+            "fallback .env.compose.example). Passwords must not be committed."
+        ),
+    )
+    p.add_argument(
         "--keep",
         action="store_true",
         help=(
@@ -790,17 +911,28 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     script_path = Path(__file__).resolve()
     repo_root = (args.repo_root or repo_root_from(script_path)).resolve()
     compose_file = (args.compose_file or (repo_root / DEFAULT_COMPOSE_FILE)).resolve()
+    env_file = resolve_env_file(repo_root, args.env_file)
+    file_env = load_env_file(env_file)
+    # Process env overrides file values for passwords/users.
+    merged_env: Dict[str, str] = dict(file_env)
+    merged_env.update({k: v for k, v in os.environ.items() if v})
+    db_services = build_db_services(merged_env)
+    # Keep module snapshot in sync for any helper still reading DB_SERVICES.
+    DB_SERVICES.clear()
+    DB_SERVICES.update(db_services)
     log_dir = repo_root / "docker" / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
 
     try:
         products = parse_csv(args.product, PRODUCTS, "product")
         dbs = parse_csv(args.db, DB_TYPES, "db")
+        require_db_passwords(db_services, dbs)
     except ValueError as exc:
         LOG.error("%s", exc)
         print(f"RESULT:FAIL STEP:matrix LOG:")
         return EXIT_INVOCATION
 
+    LOG.info("Using compose env file %s", env_file)
     cells = expand_matrix(products, dbs)
     # Engaged = external DBs we actually start_db()'d for a cell (not merely selected).
     engaged_external: Set[str] = set()
@@ -834,6 +966,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 probe_timeout=args.probe_timeout,
                 dry_run=args.dry_run,
                 log_dir=log_dir,
+                db_services=db_services,
+                env_file=env_file,
                 started_dbs=started_by_matrix,
                 engaged_dbs=engaged_external,
             )
@@ -875,7 +1009,13 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 "Tearing down external DBs: %s",
                 ", ".join(sorted(to_stop)),
             )
-            stop_external_dbs(compose_file, to_stop, dry_run=args.dry_run)
+            stop_external_dbs(
+                compose_file,
+                to_stop,
+                dry_run=args.dry_run,
+                db_services=db_services,
+                env_file=env_file,
+            )
         elif engaged_external and (args.keep or args.keep_db):
             LOG.info(
                 "Leaving external DBs running (%s)",

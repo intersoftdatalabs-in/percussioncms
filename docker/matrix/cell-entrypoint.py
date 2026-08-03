@@ -75,7 +75,8 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--db-port", default=os.environ.get("DB_PORT", ""))
     p.add_argument("--db-name", default=os.environ.get("DB_NAME", "percdb"))
     p.add_argument("--db-user", default=os.environ.get("DB_USER", "percuser"))
-    p.add_argument("--db-password", default=os.environ.get("DB_PASSWORD", "PercPass123"))
+    # Password must come from the cell env (matrix harness / compose). No default secret.
+    p.add_argument("--db-password", default=os.environ.get("DB_PASSWORD", ""))
     p.add_argument("--db-schema", default=os.environ.get("DB_SCHEMA", ""))
     p.add_argument(
         "--silent",
