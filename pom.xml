@@ -244,7 +244,7 @@
         <plexus.utils.version>4.0.3</plexus.utils.version>
         <poi.version>5.4.0</poi.version>
         <!-- #1500 external PostgreSQL repository backend (org.postgresql:postgresql, Java 21) -->
-        <postgresql.version>42.7.12</postgresql.version>
+        <postgresql.version>42.7.13</postgresql.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quartz.version>2.5.2</quartz.version>
