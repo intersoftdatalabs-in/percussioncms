@@ -74,6 +74,7 @@ public class PSExportDescriptor extends PSDescriptor {
    *     **JUST** needs the PSDescriptor element
    * @throws IllegalArgumentException if <code>src</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException if <code>src</code> is malformed.
+   * @throws PSDeployException if there are any errors restoring from XML.
    */
   public PSExportDescriptor(Element src, boolean readShortDesc)
       throws PSUnknownNodeTypeException, PSDeployException {
@@ -99,6 +100,7 @@ public class PSExportDescriptor extends PSDescriptor {
    * @param src The source XML element, may not be <code>null</code>.
    * @throws IllegalArgumentException if <code>src</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException if <code>src</code> is malformed.
+   * @throws PSDeployException if there are any errors restoring from XML.
    */
   public PSExportDescriptor(Element src) throws PSUnknownNodeTypeException, PSDeployException {
     if (src == null) throw new IllegalArgumentException("src may not be null");
@@ -452,11 +454,16 @@ public class PSExportDescriptor extends PSDescriptor {
   /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXExportDescriptor";
 
-  /** constants to identify the type of archives - normal, sample or support */
+  /** Constant indicating a normal archive type. */
   public static final int ARCHIVE_TYPE_NORMAL = 0;
 
+  /** Constant indicating a sample archive type. */
   public static final int ARCHIVE_TYPE_SAMPLE = 1;
+
+  /** Constant indicating a support archive type. */
   public static final int ARCHIVE_TYPE_SUPPORT = 2;
+
+  /** String constants used to identify the type of archives in the XML representation. */
   public static final String[] ARCHIVE_TYPE_ENUM = {"normal", "sample", "support"};
 
   /**

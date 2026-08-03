@@ -271,7 +271,7 @@ public class PSDeploymentManager {
    * </table> }
    *
    * @return an Iterator over zero or more {@literal Map<String, String>} objects.
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   public Iterator<Map<String, String>> getDependencyToPackageNameIndex() throws PSDeployException {
 
@@ -803,7 +803,7 @@ public class PSDeploymentManager {
   /**
    * Validate local config file specified against the localConfig.xsd.
    *
-   * @param localConfig
+   * @param localConfig the local config file to validate, may not be <code>null</code>.
    * @return If valid returns <code>null</code>, else returns a list of validation error strings.
    * @throws PSDeployException if any error occurs.
    */

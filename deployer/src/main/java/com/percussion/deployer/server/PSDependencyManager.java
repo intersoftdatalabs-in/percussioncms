@@ -399,6 +399,8 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
    * @param jobHandle The job handle to use to update the status, may not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any other errors.
+   * @throws PSAssemblyException if there are assembly errors.
+   * @throws PSNotFoundException if a referenced object is not found.
    */
   public void restoreFromArchive(
       PSSecurityToken tok,
@@ -1244,7 +1246,7 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
    *
    * @param depType dependency type never <code>null</code>
    * @return the dependency handler based on the type never <code>null</code>
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   public PSDependencyHandler getDependencyHandler(String depType) throws PSDeployException {
     if (StringUtils.isBlank(depType))

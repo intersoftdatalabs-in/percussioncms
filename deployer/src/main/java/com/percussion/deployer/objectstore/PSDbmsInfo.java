@@ -648,8 +648,10 @@ public class PSDbmsInfo implements IPSDeployComponent {
   // private members for XML representation
   // datasource is public since it can be used during reading/writing archive
   // manifest.
+  /** The XML element name for the datasource. */
   public static final String DATASOURCE_XML_ELEMENT = "datasource";
 
+  /** The XML element name for the driver. */
   private static final String DRIVER_XML_ELEMENT = "driver";
 
   private static final String SERVER_XML_ELEMENT = "server";

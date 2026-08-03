@@ -93,7 +93,7 @@ public class PSDependencyUtils {
    * @param depId may not be <code>null</code> or empty
    * @param depTypeName is the dependencyType name
    * @return the long value of the guid
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   public static long getGuidValFromString(String depId, String depTypeName)
       throws PSDeployException {
@@ -122,7 +122,7 @@ public class PSDependencyUtils {
    *   <li>New Element Type For GUID types, it is handled by IPSGuidManager.createGuid(...)
    * </ol>
    *
-   * @param dep
+   * @param dep the dependency for which to get the next id, may not be <code>null</code>.
    * @return get the next id <b>may return</b> <code>null</code>
    */
   public static String getNextId(PSDependency dep) {
@@ -146,7 +146,7 @@ public class PSDependencyUtils {
    * @param dep Dependency for which we are trying to reserve an id never <code>null</code>
    * @param idMap reserve an id in the mapping for later use during install never <code>null</code>
    * @param depType dependencyTpe ( may not be GUID type ) never <code>null</code>
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   public static void reserveNewId(PSDependency dep, PSIdMap idMap, String depType)
       throws PSDeployException {
@@ -184,7 +184,7 @@ public class PSDependencyUtils {
   /**
    * A util to do a quick copy
    *
-   * @param oldMap
+   * @param oldMap the source map to clone, may not be <code>null</code>.
    * @return a cloned map
    */
   //
@@ -203,7 +203,7 @@ public class PSDependencyUtils {
   /**
    * A util to do a quick copy of a map of PSPair
    *
-   * @param oldMap
+   * @param oldMap the source map to clone, may not be <code>null</code>.
    * @return a cloned map
    */
   //
@@ -231,7 +231,7 @@ public class PSDependencyUtils {
    * @param ctx never <code>null</code>
    * @param clMapping the id mapping
    * @return the IPSCatalogItem never <code>null</code>
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   public static Object transformElementId(
       Object o, PSDependency dep, PSImportCtx ctx, PSIdMapping clMapping) throws PSDeployException {
@@ -260,7 +260,7 @@ public class PSDependencyUtils {
    *
    * @param appStr the url string
    * @return the application name
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   public static String getColumnAppName(String appStr) throws PSDeployException {
     if (StringUtils.isBlank(appStr))
@@ -318,7 +318,7 @@ public class PSDependencyUtils {
    * @param archive the archive in which this dependencyFile exists never <code>null</code>
    * @param depFile the dependency File never <code>null</code>
    * @return file content as a String
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   public static String getFileContentAsString(PSArchiveHandler archive, PSDependencyFile depFile)
       throws PSDeployException {
@@ -355,7 +355,7 @@ public class PSDependencyUtils {
    * @param ctx the import context never <code>null</code>
    * @param tmpId the template id never <code>null</code>
    * @return the mapping if it exists else throws an exception
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   public static PSIdMapping getTemplateOrVariantMapping(
       PSDependencyHandler dep, PSImportCtx ctx, String tmpId) throws PSDeployException {

@@ -1232,7 +1232,11 @@ public abstract class PSDependency
     }
   }
 
-  // see IPSDeployComponent
+  /**
+   * Copies the state from the supplied deploy component.
+   *
+   * @param obj the source deploy component, may not be <code>null</code>.
+   */
   public void copyFrom(IPSDeployComponent obj) {
     if (obj == null) throw new IllegalArgumentException("obj may not be null");
 

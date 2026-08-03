@@ -44,6 +44,11 @@ import org.w3c.dom.Document;
  */
 public abstract class PSDependencyHandler implements IPSDependencyHandler {
 
+  /**
+   * Returns whether id type mapping is enabled.
+   *
+   * @return <code>true</code> if id type mapping is enabled, <code>false</code> otherwise.
+   */
   public static boolean isIdTypeMappingEnabled() {
     return false; // TODO: drive this off of the operating mode
   }

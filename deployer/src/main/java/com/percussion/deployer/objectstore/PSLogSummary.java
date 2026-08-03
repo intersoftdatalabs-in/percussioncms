@@ -51,6 +51,7 @@ public class PSLogSummary implements IPSDeployComponent {
    *     be <code>null</code>.
    * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
+   * @throws PSDeployException if there are any errors restoring from XML.
    */
   public PSLogSummary(Element source) throws PSUnknownNodeTypeException, PSDeployException {
     if (source == null) throw new IllegalArgumentException("source may not be null");

@@ -110,6 +110,13 @@ public class PSFolderContentsDescriptorBuilder {
     m_sourceFolderId = sourceFolderPath.replaceFirst("^//", "");
   }
 
+  /**
+   * Builds a deployable element using the supplied job handle for tracking.
+   *
+   * @param job the job handle to use for tracking, may not be <code>null</code>.
+   * @return the deployable element, never <code>null</code>.
+   * @throws PSDeployException if there are any errors.
+   */
   public PSDeployableElement build(IPSJobHandle job) throws PSDeployException {
     if (job == null) throw new IllegalArgumentException("IPSJobHandle may not be null");
 
@@ -117,6 +124,12 @@ public class PSFolderContentsDescriptorBuilder {
     return build();
   }
 
+  /**
+   * Builds a deployable element from the configured source folder and source manager.
+   *
+   * @return the deployable element, never <code>null</code>.
+   * @throws PSDeployException if there are any errors.
+   */
   public PSDeployableElement build() throws PSDeployException {
     assert m_sourceFolderId != null;
     assert m_sourceMgr != null;
