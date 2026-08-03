@@ -52,6 +52,7 @@ public abstract class PSIdTypeDependencyHandler extends PSDependencyHandler {
    *     </code>.
    * @return A list of child dependencies, never <code>null</code>, may be empty.
    * @throws PSDeployException if there are any errors.
+   * @throws PSNotFoundException if a referenced dependency cannot be found.
    */
   protected List<PSDependency> getIdTypeDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
@@ -71,6 +72,7 @@ public abstract class PSIdTypeDependencyHandler extends PSDependencyHandler {
    *     </code>.
    * @return The children, never <code>null</code>, may be empty.
    * @throws PSDeployException if there are any errors.
+   * @throws PSNotFoundException if a referenced dependency cannot be found.
    */
   public static List<PSDependency> getIdTypeDependencies(
       PSSecurityToken tok, PSDependency dep, PSDependencyHandler handler)

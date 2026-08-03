@@ -186,9 +186,9 @@ public class PSArchive {
    *     <code>PSArchiveDetail</code> object if one has been stored (see {@link
    *     PSArchiveInfo#getArchiveDetail() getArchiveDetail}. If <code>false</code>, detail will not
    *     be included.
+   * @return the archive info, never <code>null</code>.
    * @throws IllegalStateException if {@link #close()} has been called.
    * @throws PSDeployException if there are any errors.
-   * @return the archive info, may be <code>null</code> if the archive is being created.
    */
   public PSArchiveInfo getArchiveInfo(boolean includeDetail) throws PSDeployException {
     PSArchiveInfo result = null;

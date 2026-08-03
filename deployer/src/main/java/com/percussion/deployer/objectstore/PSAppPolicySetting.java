@@ -86,10 +86,18 @@ public abstract class PSAppPolicySetting implements IPSDeployComponent {
    * @param sourceNode The source XML element, may not be <code>null</code>.
    * @param xmlNodeName The expected root XML element name, may not be <code>null</code> or empty.
    * @throws PSUnknownNodeTypeException if the XML element name does not match.
+   * @throws IllegalArgumentException if either argument is <code>null</code> or <code>xmlNodeName
+   *     </code> is empty.
    */
   protected void fromXml(Element sourceNode, String xmlNodeName) throws PSUnknownNodeTypeException {
     if (sourceNode == null) {
       throw new IllegalArgumentException("sourceNode may not be null");
+    }
+    if (xmlNodeName == null) {
+      throw new IllegalArgumentException("xmlNodeName may not be null");
+    }
+    if (xmlNodeName.isEmpty()) {
+      throw new IllegalArgumentException("xmlNodeName may not be empty");
     }
 
     if (!xmlNodeName.equals(sourceNode.getNodeName())) {

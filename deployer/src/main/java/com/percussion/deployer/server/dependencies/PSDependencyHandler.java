@@ -306,6 +306,7 @@ public abstract class PSDependencyHandler implements IPSDependencyHandler {
    * @param dep A dependency of the type defined by this handler, may not be <code>null</code>.
    * @param childDeps a collection to which an acl dependency must be added
    * @throws PSDeployException if there are any errors loading the ACL.
+   * @throws PSNotFoundException if a referenced ACL object cannot be found.
    */
   @Override
   public void addAclDependency(

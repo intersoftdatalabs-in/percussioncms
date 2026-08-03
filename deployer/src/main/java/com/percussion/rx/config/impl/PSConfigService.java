@@ -262,11 +262,9 @@ public class PSConfigService implements IPSConfigService {
    *
    * @param cfgName the configuration name to validate, never <code>null</code> or empty.
    * @return the list of validation results, never <code>null</code>, may be empty.
-   * @throws FileNotFoundException if the configuration file cannot be found.
    * @throws JAXBException if the configuration file cannot be parsed.
    */
-  public List<PSConfigValidation> validateConfig(String cfgName)
-      throws FileNotFoundException, JAXBException {
+  public List<PSConfigValidation> validateConfig(String cfgName) throws JAXBException {
     if (StringUtils.isBlank(cfgName))
       throw new IllegalArgumentException("Configure name must not be blank.");
 
@@ -595,7 +593,8 @@ public class PSConfigService implements IPSConfigService {
   /**
    * Returns the configuration registration manager.
    *
-   * @return the configuration registration manager, never <code>null</code>.
+   * @return the configuration registration manager, may be <code>null</code> before Spring
+   *     dependency injection has completed.
    */
   @Override
   public IPSConfigRegistrationMgr getConfigRegistrationMgr() {
@@ -665,7 +664,8 @@ public class PSConfigService implements IPSConfigService {
     if (!f.exists()) {
       return Collections.emptySet();
     }
-    return (Collection<String>) PSConfigUtils.loadObjectFromFile(f);
+    var loaded = (Collection<String>) PSConfigUtils.loadObjectFromFile(f);
+    return loaded == null ? Collections.emptySet() : loaded;
   }
 
   /**
