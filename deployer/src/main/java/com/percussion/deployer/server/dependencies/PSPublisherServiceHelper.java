@@ -58,6 +58,8 @@ public class PSPublisherServiceHelper {
   }
 
   /**
+   * Get/set the value.
+   *
    * @return the service handler
    */
   public IPSPublisherService getPublisherSvc() {

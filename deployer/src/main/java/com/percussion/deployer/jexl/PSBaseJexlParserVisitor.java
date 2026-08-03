@@ -118,10 +118,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * @author vamsinukala
+ * A basic visitor pattern for a jexl expression or a script. Subclasses implement the visitor
+ * pattern to traverse jexl ASTs.
  */
-/** A basic visitor pattern for a jexl expression or a script. */
 public abstract class PSBaseJexlParserVisitor extends ParserVisitor {
+
+  /** Default constructor for subclass use. */
+  public PSBaseJexlParserVisitor() {}
 
   private static final Logger log = LogManager.getLogger(PSBaseJexlParserVisitor.class);
 

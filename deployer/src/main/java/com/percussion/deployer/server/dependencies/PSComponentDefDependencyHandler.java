@@ -51,6 +51,7 @@ public class PSComponentDefDependencyHandler extends PSDataObjectDependencyHandl
    *     must be of the type supported by this class. See {@link #getType()} for more info.
    * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
+   * @throws PSDeployException if there are any errors initializing the handler.
    */
   public PSComponentDefDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap)
       throws PSDeployException {

@@ -85,19 +85,35 @@ import java.util.List;
 @XmlRootElement(name = "property")
 public class Property {
 
+  /** Optional human-readable description of the property. */
   protected String description;
+
+  /** Optional single string value of the property. */
   protected String pvalue;
+
+  /** Optional collection of values for properties that take multiple values. */
   protected Property.Pvalues pvalues;
+
+  /** Optional nested property sets contained within this property. */
   protected List<PropertySet> propertySet;
 
+  /** Required name of the property. */
   @XmlAttribute(required = true)
   protected String name;
 
+  /** Optional scalar value of the property. */
   @XmlAttribute protected String value;
 
+  /**
+   * Action to take when applying the property. Allowed values are defined by the schema and default
+   * to {@code replace} when not set.
+   */
   @XmlAttribute
   @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
   protected String action;
+
+  /** Default no-arg constructor required by JAXB. */
+  public Property() {}
 
   /**
    * Gets the value of the description property.
@@ -167,6 +183,8 @@ public class Property {
    * </pre>
    *
    * <p>Objects of the following type(s) are allowed in the list {@link PropertySet }
+   *
+   * @return the list of PropertySet objects
    */
   public List<PropertySet> getPropertySet() {
     if (propertySet == null) {
@@ -253,8 +271,14 @@ public class Property {
       propOrder = {"pvalue", "pair"})
   public static class Pvalues {
 
+    /** The list of pvalue string elements. */
     protected List<String> pvalue;
+
+    /** The list of pair elements. */
     protected List<Pair> pair;
+
+    /** Default no-arg constructor required by JAXB. */
+    public Pvalues() {}
 
     /**
      * Gets the value of the pvalue property.
@@ -270,6 +294,8 @@ public class Property {
      * </pre>
      *
      * <p>Objects of the following type(s) are allowed in the list {@link String }
+     *
+     * @return the list of pvalue strings
      */
     public List<String> getPvalue() {
       if (pvalue == null) {
@@ -292,6 +318,8 @@ public class Property {
      * </pre>
      *
      * <p>Objects of the following type(s) are allowed in the list {@link Pair }
+     *
+     * @return the list of Pair objects
      */
     public List<Pair> getPair() {
       if (pair == null) {

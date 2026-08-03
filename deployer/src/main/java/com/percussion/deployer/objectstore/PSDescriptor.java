@@ -58,6 +58,7 @@ public abstract class PSDescriptor implements IPSDeployComponent {
    * @param src The source XML element, may not be <code>null</code>.
    * @throws IllegalArgumentException if <code>src</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException if <code>src</code> is malformed.
+   * @throws PSDeployException if there are any errors restoring from XML.
    */
   protected PSDescriptor(Element src) throws PSUnknownNodeTypeException, PSDeployException {
     if (src == null) throw new IllegalArgumentException("src may not be null");
@@ -268,6 +269,8 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   }
 
   /**
+   * Get/set the value.
+   *
    * @return the publisher name
    */
   public String getPublisherName() {
@@ -275,6 +278,8 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   }
 
   /**
+   * Get/set the value.
+   *
    * @param publisherName the publisher name to set
    */
   public void setPublisherName(String publisherName) {
@@ -282,6 +287,8 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   }
 
   /**
+   * Get/set the value.
+   *
    * @return the publisher URL
    */
   public String getPublisherUrl() {
@@ -289,6 +296,8 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   }
 
   /**
+   * Get/set the value.
+   *
    * @param publisherUrl the publisher Url to set
    */
   public void setPublisherUrl(String publisherUrl) {
@@ -296,6 +305,8 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   }
 
   /**
+   * Get/set the value.
+   *
    * @return the id
    */
   public String getId() {
@@ -303,6 +314,8 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   }
 
   /**
+   * Get/set the value.
+   *
    * @param id the id to set
    */
   public void setId(String id) {
@@ -310,6 +323,8 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   }
 
   /**
+   * Get/set the value.
+   *
    * @return the version
    */
   public String getVersion() {
@@ -325,6 +340,8 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   }
 
   /**
+   * Get/set the value.
+   *
    * @return the cmsMinVersion
    */
   public String getCmsMinVersion() {
@@ -342,6 +359,8 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   }
 
   /**
+   * Get/set the value.
+   *
    * @return the cmsMaxVersion
    */
   public String getCmsMaxVersion() {
@@ -349,6 +368,8 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   }
 
   /**
+   * Get/set the value.
+   *
    * @param cmsMaxVersion the cmsMaxVersion to set. This value will be formatted
    */
   public void setCmsMaxVersion(String cmsMaxVersion) {
@@ -382,6 +403,8 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   }
 
   /**
+   * Get/set the value.
+   *
    * @return the configDef file
    */
   public String getConfigDefFile() {
@@ -389,6 +412,8 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   }
 
   /**
+   * Get/set the value.
+   *
    * @param configFile config def file to set
    */
   public void setConfigDefFile(String configFile) {
@@ -396,6 +421,8 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   }
 
   /**
+   * Get/set the value.
+   *
    * @return the local configFile
    */
   public String getLocalConfigFile() {
@@ -403,6 +430,8 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   }
 
   /**
+   * Get/set the value.
+   *
    * @param configFile the local configFile to set
    */
   public void setLocalConfigFile(String configFile) {

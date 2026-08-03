@@ -74,19 +74,32 @@ import java.util.List;
 @XmlRootElement(name = "propertySet")
 public class PropertySet {
 
+  /** Optional human-readable description of the property set. */
   protected String description;
 
+  /**
+   * The list of nested Property and PropertySet elements contained within this property set. May
+   * contain instances of {@link Property} or {@link PropertySet}.
+   */
   @XmlElements({
     @XmlElement(name = "property", type = Property.class),
     @XmlElement(name = "propertySet", type = PropertySet.class)
   })
   protected List<Object> propertySetOrProperty;
 
+  /**
+   * Action to take when applying the property set. Allowed values are defined by the schema and
+   * default to {@code update} when not set.
+   */
   @XmlAttribute
   @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
   protected String action;
 
+  /** Optional name of the property set. */
   @XmlAttribute protected String name;
+
+  /** Default no-arg constructor required by JAXB. */
+  public PropertySet() {}
 
   /**
    * Gets the value of the description property.

@@ -46,6 +46,12 @@ public abstract class PSIdTypeDependencyHandler extends PSDependencyHandler {
   /**
    * Convenience method that calls {@link #getIdTypeDependencies( PSSecurityToken, PSDependency,
    * PSDependencyHandler) getIdTypeDependencies(tok, dep, this)}
+   *
+   * @param tok The security token to use, may not be <code>null</code>.
+   * @param dep The dependency whose child dependencies are being requested, may not be <code>null
+   *     </code>.
+   * @return A list of child dependencies, never <code>null</code>, may be empty.
+   * @throws PSDeployException if there are any errors.
    */
   protected List<PSDependency> getIdTypeDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {

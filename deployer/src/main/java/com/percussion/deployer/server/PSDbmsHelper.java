@@ -193,6 +193,7 @@ public class PSDbmsHelper {
    * Util method to retrieve the datasource name
    *
    * @return the datasource name
+   * @throws PSDeployException if there are any errors.
    */
   public String findADataSource() throws PSDeployException {
     return getDataSourceInfo().getDataSource().getName();

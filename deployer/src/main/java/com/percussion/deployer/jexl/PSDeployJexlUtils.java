@@ -21,7 +21,12 @@ import com.percussion.error.PSDeployException;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
+/** Utility methods for parsing deployment JEXL expressions and extracting id references. */
 public class PSDeployJexlUtils {
+
+  /** Default constructor for use via static methods. */
+  public PSDeployJexlUtils() {}
+
   /**
    * Create an ID visitor that takes the binding string and parses the expression/script to a tree.
    * Then the visitor will collect all the nodes that can have an integer or a String representation

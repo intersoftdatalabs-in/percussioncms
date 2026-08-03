@@ -37,6 +37,10 @@ import org.apache.logging.log4j.Logger;
  * <code>localConfig.xsd</code>.
  */
 public class PSConfigNormalizer {
+
+  /** Default constructor for use by Spring. */
+  public PSConfigNormalizer() {}
+
   /**
    * Normalizes the supplied configuration file.
    *

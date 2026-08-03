@@ -47,6 +47,9 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class PSContentTypeSetter extends PSSimplePropertySetter {
 
+  /** Default constructor for use by Spring. */
+  public PSContentTypeSetter() {}
+
   @Override
   protected boolean applyProperty(
       Object obj,

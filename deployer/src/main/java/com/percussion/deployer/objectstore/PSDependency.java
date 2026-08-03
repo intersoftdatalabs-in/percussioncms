@@ -166,6 +166,9 @@ public abstract class PSDependency
   /**
    * Convenience method to call {@link #setIsIncluded(boolean, boolean)} as setIsIncluded(boolean,
    * false).
+   *
+   * @param isIncluded <code>true</code> to mark this dependency as included in the package, <code>
+   *     false</code> to mark it as excluded.
    */
   public void setIsIncluded(boolean isIncluded) {
     setIsIncluded(isIncluded, false);

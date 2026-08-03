@@ -40,6 +40,8 @@ public class PSUninstallMessage {
   }
 
   /**
+   * Get/set the value.
+   *
    * @return the message body
    */
   @XmlElement(name = "body")
@@ -52,6 +54,8 @@ public class PSUninstallMessage {
   }
 
   /**
+   * Get/set the value.
+   *
    * @return the package name
    */
   @XmlElement(name = "package")
@@ -65,6 +69,8 @@ public class PSUninstallMessage {
   }
 
   /**
+   * Get/set the value.
+   *
    * @return the type
    */
   @XmlElement(name = "type")

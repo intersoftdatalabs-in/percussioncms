@@ -77,15 +77,24 @@ public interface IPSUninstallResult {
 
   /** The uninstall message type enum. */
   enum PSUninstallResultType {
+    /** Uninstall completed successfully. */
     SUCCESS(1),
+    /** Uninstall produced an informational message. */
     INFO(2),
+    /** Uninstall produced a warning. */
     WARN(3),
+    /** Uninstall failed with an error. */
     ERROR(4);
 
     PSUninstallResultType(int type) {
       this.type = type;
     }
 
+    /**
+     * Returns the integer value that identifies this uninstall result type.
+     *
+     * @return the integer value of this result type
+     */
     public int getValue() {
       return type;
     }

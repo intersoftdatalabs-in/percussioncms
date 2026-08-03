@@ -38,8 +38,12 @@ import java.util.StringTokenizer;
 import java.util.stream.Stream;
 import org.w3c.dom.Element;
 
-/** Class for utility methods used by deployment components */
+/** Class for utility methods used by deployment components. */
 public class PSDeployComponentUtils {
+
+  /** Default constructor for use via static methods. */
+  public PSDeployComponentUtils() {}
+
   /**
    * Utility method to get a required attibute value, validating that it is not <code>null</code> or
    * empty.

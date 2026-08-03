@@ -73,7 +73,9 @@ public class PSDeploymentServerConnection {
    * @param info contains the connection details, assumed not <code>null</code>
    * @param overrideLock If <code>true</code>, then the lock is acquired by the user no matter what,
    *     if <code>false</code> then sessionid has to match for lock acquisition.
+   * @param mode The operating mode.
    * @throws IllegalArgumentException if any param is invalid.
+   * @throws PSAuthenticationFailedException if authentication fails.
    * @throws PSAuthorizationException If the user is not authorized to access the server for
    *     deployment operations.
    * @throws PSServerException if there are any errors communicating with the server.
@@ -101,16 +103,17 @@ public class PSDeploymentServerConnection {
   /**
    * Construct a connection using the http protocol. Calls
    *
-   * @param server
-   * @param port
-   * @param userid
-   * @param password
-   * @param isPwdEncrypted
-   * @param overrideLock
-   * @throws PSAuthenticationFailedException
-   * @throws PSAuthorizationException
-   * @throws PSServerException
-   * @throws PSDeployException
+   * @param server The name of the server to connect to.
+   * @param port The port on the server.
+   * @param userid The user id to connect using.
+   * @param password The password.
+   * @param isPwdEncrypted Whether the password is encrypted.
+   * @param overrideLock Whether to override an existing lock.
+   * @param mode The operating mode.
+   * @throws PSAuthenticationFailedException if authentication fails.
+   * @throws PSAuthorizationException if not authorized.
+   * @throws PSServerException if the server cannot be reached.
+   * @throws PSDeployException for any other errors.
    */
   public PSDeploymentServerConnection(
       String server,
@@ -146,6 +149,7 @@ public class PSDeploymentServerConnection {
    *     to the server.
    * @param overrideLock If <code>true</code>, then the lock is acquired by the user no matter what,
    *     if <code>false</code> then sessionid has to match for lock acquisition.
+   * @param mode The operating mode.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSAuthenticationFailedException If the user cannot be authenticated by the server.
    * @throws PSAuthorizationException If the user is not authorized to access the server for
@@ -355,6 +359,15 @@ public class PSDeploymentServerConnection {
   /**
    * Executes the specified request against the server. Convenience version that calls {@link
    * #execute(String, Document, Map) execute(type, req, null)}
+   *
+   * @param type the request type, may not be <code>null</code> or empty.
+   * @param req the request document, may not be <code>null</code>.
+   * @return the response document, may be <code>null</code>.
+   * @throws PSAuthenticationFailedException if authentication fails.
+   * @throws PSAuthorizationException if not authorized.
+   * @throws PSServerException if the server cannot be reached.
+   * @throws PSDeployException for any other errors.
+   * @throws PSServerLockException if the server lock cannot be acquired.
    */
   public Document execute(String type, Document req)
       throws PSAuthenticationFailedException,
@@ -1353,9 +1366,15 @@ public class PSDeploymentServerConnection {
    */
   private boolean m_bLicensed = true;
 
+  /** The operating mode for this connection, never <code>null</code>. */
   private IPSDeployConstants.OperatingMode operatingMode =
       IPSDeployConstants.OperatingMode.Packager;
 
+  /**
+   * Returns the operating mode for this connection.
+   *
+   * @return the operating mode, never <code>null</code>.
+   */
   public IPSDeployConstants.OperatingMode getOperatingMode() {
     return operatingMode;
   }

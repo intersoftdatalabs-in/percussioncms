@@ -44,7 +44,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Default implementation of {@link IPSConfigService}. Provides methods to apply local
+ * configuration, register installed packages, and listen for package installation notifications.
+ */
 public class PSConfigService implements IPSConfigService {
+
+  /** Default constructor for use by Spring. */
+  public PSConfigService() {}
+
   /*
    * (non-Javadoc)
    * @see com.percussion.rx.config.IPSConfigService#notifyPackageInstalled(java.lang.String)
@@ -156,6 +164,13 @@ public class PSConfigService implements IPSConfigService {
     return lcFile.exists() && dcFile.exists() && cdFile.exists();
   }
 
+  /**
+   * Applies the local configuration from the supplied file to the design objects.
+   *
+   * @param localConfigFile the local configuration file, never <code>null</code>.
+   * @param changesOnly if <code>true</code> only changes from the last successful configuration are
+   *     applied; otherwise the full configuration is applied.
+   */
   public void applyLocalConfiguration(File localConfigFile, boolean changesOnly) {
     Objects.requireNonNull(localConfigFile, "file must not be null");
 
@@ -167,6 +182,15 @@ public class PSConfigService implements IPSConfigService {
     applyLocalConfiguration(localConfigFile, prevProps, changesOnly);
   }
 
+  /**
+   * Applies the local configuration from the supplied file against the supplied previous properties
+   * to the design objects.
+   *
+   * @param localConfigFile the local configuration file, never <code>null</code>.
+   * @param prevProps the previous configuration properties, never <code>null</code>.
+   * @param changesOnly if <code>true</code> only changes from the previous properties are applied;
+   *     otherwise the full configuration is applied.
+   */
   public void applyLocalConfiguration(
       File localConfigFile, Map<String, Object> prevProps, boolean changesOnly) {
     Objects.requireNonNull(localConfigFile, "file must not be null");
@@ -233,6 +257,14 @@ public class PSConfigService implements IPSConfigService {
     }
   }
 
+  /**
+   * Validates the supplied configuration name.
+   *
+   * @param cfgName the configuration name to validate, never <code>null</code> or empty.
+   * @return the list of validation results, never <code>null</code>, may be empty.
+   * @throws FileNotFoundException if the configuration file cannot be found.
+   * @throws JAXBException if the configuration file cannot be parsed.
+   */
   public List<PSConfigValidation> validateConfig(String cfgName)
       throws FileNotFoundException, JAXBException {
     if (StringUtils.isBlank(cfgName))
@@ -332,6 +364,11 @@ public class PSConfigService implements IPSConfigService {
     return Collections.emptyList();
   }
 
+  /**
+   * De-applies the supplied configuration.
+   *
+   * @param cfgName the name of the configuration to de-apply, never <code>null</code> or empty.
+   */
   @Override
   public void deApplyConfiguration(String cfgName) {
     if (StringUtils.isBlank(cfgName))
@@ -364,6 +401,16 @@ public class PSConfigService implements IPSConfigService {
     }
   }
 
+  /**
+   * De-applies the supplied configuration using the supplied config definition, default, and local
+   * config input streams.
+   *
+   * @param configName the name of the configuration to de-apply, never <code>null</code> or empty.
+   * @param configDefPath the path of the configuration definition, may not be <code>null</code> or
+   *     empty.
+   * @param defaultCfg the default config input stream, may not be <code>null</code>.
+   * @param localCfg the local config input stream, may not be <code>null</code>.
+   */
   public void deApplyConfiguration(
       String configName, String configDefPath, InputStream defaultCfg, InputStream localCfg)
       throws PSNotFoundException {
@@ -509,6 +556,13 @@ public class PSConfigService implements IPSConfigService {
     return configuration;
   }
 
+  /**
+   * Returns the configuration file for the supplied type and package.
+   *
+   * @param type the configuration type, never <code>null</code>.
+   * @param packageName the package name, never <code>null</code> or empty.
+   * @return the configuration file, never <code>null</code>.
+   */
   @Override
   public File getConfigFile(ConfigTypes type, String packageName) {
     Objects.requireNonNull(type, "type cannot be null.");
@@ -538,20 +592,40 @@ public class PSConfigService implements IPSConfigService {
     return new File(PSServer.getRxDir(), sb.toString());
   }
 
+  /**
+   * Returns the configuration registration manager.
+   *
+   * @return the configuration registration manager, never <code>null</code>.
+   */
   @Override
   public IPSConfigRegistrationMgr getConfigRegistrationMgr() {
     return m_configRegMgr;
   }
 
+  /**
+   * Sets the configuration registration manager.
+   *
+   * @param mgr the configuration registration manager, may not be <code>null</code>.
+   */
   public void setConfigRegistrationService(IPSConfigRegistrationMgr mgr) {
     Objects.requireNonNull(mgr, "mgr must not be null");
     m_configRegMgr = mgr;
   }
 
+  /**
+   * Returns the configuration status manager.
+   *
+   * @return the configuration status manager, may be <code>null</code>.
+   */
   public IPSConfigStatusMgr getConfigStatusManager() {
     return m_configStatusMgr;
   }
 
+  /**
+   * Sets the configuration status manager.
+   *
+   * @param mgr the configuration status manager, may be <code>null</code>.
+   */
   public void setConfigStatusManager(IPSConfigStatusMgr mgr) {
     m_configStatusMgr = mgr;
   }
@@ -568,12 +642,23 @@ public class PSConfigService implements IPSConfigService {
     m_configChangeListeners.add(listener);
   }
 
+  /**
+   * Initializes the community visibility file for the supplied package.
+   *
+   * @param pkgName the package name, never <code>null</code> or empty.
+   */
   @Override
   public void initVisibility(String pkgName) {
     var f = getConfigFile(ConfigTypes.VISIBILITY, pkgName);
     if (!f.exists()) PSConfigUtils.saveObjectToFile(new HashSet<String>(), f);
   }
 
+  /**
+   * Loads the community visibility list for the supplied package.
+   *
+   * @param pkgName the package name, never <code>null</code> or empty.
+   * @return the list of community names, never <code>null</code>, may be empty.
+   */
   @Override
   public Collection<String> loadCommunityVisibility(String pkgName) {
     var f = getConfigFile(ConfigTypes.VISIBILITY, pkgName);
@@ -583,6 +668,13 @@ public class PSConfigService implements IPSConfigService {
     return (Collection<String>) PSConfigUtils.loadObjectFromFile(f);
   }
 
+  /**
+   * Saves the community visibility list for the supplied package.
+   *
+   * @param communities the list of community names, never <code>null</code>.
+   * @param pkgName the package name, never <code>null</code> or empty.
+   * @param isReplace if <code>true</code> replaces the existing list, otherwise merges with it.
+   */
   @Override
   public void saveCommunityVisibility(
       Collection<String> communities, String pkgName, boolean isReplace) {
@@ -594,12 +686,22 @@ public class PSConfigService implements IPSConfigService {
     PSConfigUtils.saveObjectToFile(commSet, f);
   }
 
-  // Constants for config def, local, default and visibility config suffixes.
+  /** Suffix used for the config definition file. */
   private static final String CONFIG_DEF_FILE_SUFFIX = "_configDef";
+
+  /** Suffix used for the local config file. */
   private static final String LOCAL_CONFIG_FILE_SUFFIX = "_localConfig";
+
+  /** Suffix used for the default config file. */
   private static final String DEFAULT_CONFIG_FILE_SUFFIX = "_defaultConfig";
+
+  /** Suffix used for the visibility file. */
   private static final String VISIBILITY_FILE_SUFFIX = "_visibility";
+
+  /** Directory name used to back up local config files. */
   public static final String LOCAL_CONFIG_BACKUP_DIR = "Backup";
+
+  /** Base path for config files relative to the Rhythmyx root. */
   public static final String CONFIG_FILE_BASE = "rxconfig/Packages/";
 
   private static final Logger ms_logger = LogManager.getLogger("PSConfigService");

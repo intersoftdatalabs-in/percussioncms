@@ -98,6 +98,11 @@ public class PSAppDataMappingIdContext extends PSApplicationIdContext {
   /**
    * Convenience method that calls {@link #isSameMapping(PSDataMapping, boolean)
    * isSameMapping(mapping, false)}
+   *
+   * @param mapping The mapping to compare against this context's current mapping value, may not be
+   *     <code>null</code>.
+   * @return <code>true</code> if the supplied mapping matches this context's current mapping,
+   *     <code>false</code> otherwise.
    */
   public boolean isSameMapping(PSDataMapping mapping) {
     return isSameMapping(mapping, false);

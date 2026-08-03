@@ -42,6 +42,9 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSConfigRegistrationMgr implements IPSConfigRegistrationMgr, IPSNotificationListener {
 
+  /** Default constructor for use by Spring. */
+  public PSConfigRegistrationMgr() {}
+
   @Override
   public void register(String configName) {
     if (StringUtils.isBlank(configName))
@@ -140,6 +143,8 @@ public class PSConfigRegistrationMgr implements IPSConfigRegistrationMgr, IPSNot
   }
 
   /**
+   * Returns the file monitor service used by this manager.
+   *
    * @return Returns the file monitor service. May be null.
    */
   public IPSFileMonitorService getFileMonitorService() {

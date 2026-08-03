@@ -32,6 +32,9 @@ import org.w3c.dom.Document;
  */
 public class PSDbmsMapManager {
 
+  /** Default constructor for use by Spring. */
+  public PSDbmsMapManager() {}
+
   /**
    * Get a server's <code>PSDbmsMap</code> object from the file system if exist, otherwise get a
    * newly created one.

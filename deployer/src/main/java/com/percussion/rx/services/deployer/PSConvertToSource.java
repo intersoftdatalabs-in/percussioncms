@@ -36,6 +36,9 @@ import org.apache.commons.io.FileUtils;
  */
 public class PSConvertToSource {
 
+  /** Default constructor for use by Spring. */
+  public PSConvertToSource() {}
+
   /**
    * Converts an installed package to a source package.
    *

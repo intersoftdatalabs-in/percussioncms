@@ -68,7 +68,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
+/**
+ * Utility methods used by the local config framework. Provides XML document loading, XStream
+ * serialization helpers, and resource lookup for configuration data.
+ */
 public class PSConfigUtils {
+
+  /** Default constructor for use via static methods. */
+  public PSConfigUtils() {}
 
   private static void initSecurityFramework(XStream stream) {
     stream.addPermission(NoTypePermission.NONE);
@@ -309,6 +316,12 @@ public class PSConfigUtils {
     return condCol;
   }
 
+  /**
+   * Converts the supplied iterator of condition objects into a list of maps for serialization.
+   *
+   * @param conditionsIter the iterator over {@link PSRule} objects, never <code>null</code>.
+   * @return the list of condition maps, never <code>null</code>, may be empty.
+   */
   public static List<Map<String, Object>> getCondtionsDef(Iterator conditionsIter) {
     Objects.requireNonNull(conditionsIter, "conditionsIter must not be null");
     var conds = new ArrayList<Map<String, Object>>();
@@ -444,6 +457,14 @@ public class PSConfigUtils {
     return new PSRule(callSet);
   }
 
+  /**
+   * Returns a map representing the supplied extension call definition.
+   *
+   * @param call the extension call, may not be <code>null</code>.
+   * @param propName the property name to use as the key for the extension reference, may not be
+   *     <code>null</code> or empty.
+   * @return the map representing the extension call, never <code>null</code>.
+   */
   public static Map<String, Object> getExtensionCallDef(PSExtensionCall call, String propName) {
     var map = new HashMap<String, Object>();
     map.put(propName, call.getExtensionRef().getFQN());
@@ -552,17 +573,22 @@ public class PSConfigUtils {
   /** The logger for this class */
   private static final Logger log = LogManager.getLogger(PSConfigUtils.class);
 
-  // Constants for property names
+  /** The property name for the "name" property. */
   public static final String PROP_NAME = "name";
 
+  /** The property name for the "extensionParams" property. */
   public static final String PROP_EXTENSION_PARAMS = "extensionParams";
 
+  /** The property name for the "type" property. */
   private static final String PROP_TYPE = "type";
 
+  /** The property name for the "rules" property. */
   private static final String PROP_RULES = "rules";
 
+  /** The property name for the "boolean" property. */
   private static final String PROP_BOOLEAN = "boolean";
 
+  /** The property name for the "variable2" property. */
   private static final String PROP_VARIABLE2 = "variable2";
 
   private static final String PROP_VARIABLE1 = "variable1";

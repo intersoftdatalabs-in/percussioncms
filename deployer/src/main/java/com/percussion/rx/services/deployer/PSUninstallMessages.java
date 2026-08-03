@@ -46,6 +46,8 @@ public class PSUninstallMessages {
   }
 
   /**
+   * Get/set the value.
+   *
    * @return the messages
    */
   @XmlElement(name = "Message", type = PSUninstallMessage.class)
@@ -54,6 +56,8 @@ public class PSUninstallMessages {
   }
 
   /**
+   * Get/set the value.
+   *
    * @param messages the messages to set
    */
   public void setMessages(List<PSUninstallMessage> messages) {

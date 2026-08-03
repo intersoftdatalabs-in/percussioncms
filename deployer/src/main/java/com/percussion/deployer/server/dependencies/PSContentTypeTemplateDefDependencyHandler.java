@@ -179,12 +179,14 @@ public class PSContentTypeTemplateDefDependencyHandler extends PSDependencyHandl
   }
 
   /**
+   * Generates a template by deserializing the supplied dependency file.
+   *
    * @param archive the ArchiveHandler to use to retrieve the files from the archive, may not be
    *     <code>null</code>
    * @param depFile the PSDependencyFile that was retrieved from the archive may not be <code>null
    *     </code>
    * @return the actual template
-   * @throws PSDeployException
+   * @throws PSDeployException if there are any errors.
    */
   protected IPSAssemblyTemplate generateTemplateFromFile(
       PSArchiveHandler archive, PSDependencyFile depFile) throws PSDeployException {

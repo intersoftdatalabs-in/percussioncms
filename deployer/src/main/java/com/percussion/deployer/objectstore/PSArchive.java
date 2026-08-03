@@ -88,6 +88,8 @@ public class PSArchive {
   }
 
   /**
+   * Indicates whether this archive is in writing mode.
+   *
    * @return <code>true</code> if the object is in writing mode, it can only process writing
    *     operations; <code>false</code> if it is in read only mode.
    */
@@ -96,6 +98,8 @@ public class PSArchive {
   }
 
   /**
+   * Indicates whether this archive has been closed.
+   *
    * @return <code>true</code> if the object has been closed; <code>false</code> otherwise.
    */
   public boolean isClosed() {
@@ -184,6 +188,7 @@ public class PSArchive {
    *     be included.
    * @throws IllegalStateException if {@link #close()} has been called.
    * @throws PSDeployException if there are any errors.
+   * @return the archive info, may be <code>null</code> if the archive is being created.
    */
   public PSArchiveInfo getArchiveInfo(boolean includeDetail) throws PSDeployException {
     PSArchiveInfo result = null;
@@ -367,8 +372,12 @@ public class PSArchive {
    * <p>Version of {@link #storeFile(File, archiveEntryPath)} with an additional <code>extra</code>
    * parameter described below.
    *
+   * @param file the file to be stored, may not be <code>null</code> and must exist
+   * @param archiveEntryPath the path of the entry in the archive where the file should be stored,
+   *     may not be <code>null</code> or empty
    * @param extra the value to be set in the optional extra field data for the entry corresponding
    *     to the specified file entry, may be <code>null</code>
+   * @throws PSDeployException if there are any errors.
    */
   public void storeFile(File file, String archiveEntryPath, byte[] extra) throws PSDeployException {
     if (file == null) throw new IllegalArgumentException("file may not be null");

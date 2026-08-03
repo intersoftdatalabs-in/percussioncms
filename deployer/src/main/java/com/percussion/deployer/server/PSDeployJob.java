@@ -32,6 +32,10 @@ import java.util.Properties;
 
 /** Base class for all deployment jobs. */
 public abstract class PSDeployJob extends PSJobRunner implements IPSJobHandle {
+
+  /** Default constructor for use by the job framework. */
+  public PSDeployJob() {}
+
   /**
    * Validates that the user is authorized to perform this job. Saves the security token from the
    * request to use for subsequent operations during the run method.

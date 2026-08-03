@@ -45,6 +45,8 @@ public class PSPkgDependency implements Serializable {
   private static final long serialVersionUID = -6026221348840514395L;
 
   /**
+   * Get/set the value.
+   *
    * @return the id of the PSPkgDependency object
    */
   public long getId() {
@@ -73,6 +75,8 @@ public class PSPkgDependency implements Serializable {
   }
 
   /**
+   * Get/set the value.
+   *
    * @return true if the dependency is implied, false if user defined.
    */
   public Boolean isImpliedDep() {
