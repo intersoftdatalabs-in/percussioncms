@@ -126,7 +126,7 @@
         <guava.version>33.5.0-jre</guava.version>
         <gwt.maven.plugin.version>2.10.0</gwt.maven.plugin.version>
         <!-- #548 default embedded replacement (bake-off primary); Derby retained for migration window -->
-        <h2.version>2.3.232</h2.version>
+        <h2.version>2.4.240</h2.version>
         <hibernate.validator.version>8.0.1.Final</hibernate.validator.version>
         <hibernate.version>7.2.6.Final</hibernate.version>
         <hikaricp.version>7.0.2</hikaricp.version>
@@ -192,7 +192,7 @@
         <lifecycle.mapping.plugin>1.0.0</lifecycle.mapping.plugin>
         <liquibase.maven.plugin.version>5.0.1</liquibase.maven.plugin.version>
         <liquibase.version>4.17.0</liquibase.version>
-        <log4j2.version>2.25.4</log4j2.version>
+        <log4j2.version>2.26.1</log4j2.version>
         <lucene.version>8.11.4</lucene.version>
         <mariadb.version>3.5.7</mariadb.version>
         <maven.antrun.plugin.version>3.2.0</maven.antrun.plugin.version>
@@ -272,7 +272,7 @@
         <stax.version>1.0.1</stax.version>
         <surefireArgLine/>
         <swagger.ui.version>5.31.0</swagger.ui.version>
-        <swagger.version>2.2.42</swagger.version>
+        <swagger.version>2.2.52</swagger.version>
         <!-- 3.3.1 pulls junrar 7.6.0 (clears Dependabot #208/#214; was 7.5.5 on 3.2.3) -->
         <tika.version>3.3.1</tika.version>
         <!-- TinyMCE 6.8.x is the last series under the MIT license. -->

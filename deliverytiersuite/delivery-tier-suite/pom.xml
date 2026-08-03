@@ -49,7 +49,7 @@
         <sqlserver.version>13.3.1.jre11-preview</sqlserver.version>
         <supercsv.version>2.4.0</supercsv.version>
         <timestamp>${maven.build.timestamp}</timestamp>
-        <tomcat.version>11.0.22</tomcat.version>
+        <tomcat.version>11.0.24</tomcat.version>
         <xml.apis.version>2.0.2</xml.apis.version>
     </properties>
     <dependencyManagement>
