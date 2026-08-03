@@ -46,14 +46,9 @@ import org.springframework.stereotype.Service;
 @Service(value = "packageService")
 public class PSPackageService {
 
-  /** Default constructor for use by Spring. */
+  /** Default constructor. */
   public PSPackageService() {}
 
-  /**
-   * REST endpoint: returns all packages.
-   *
-   * @return the list of installed packages, never <code>null</code>.
-   */
   @GET
   @Path("/packages")
   @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})

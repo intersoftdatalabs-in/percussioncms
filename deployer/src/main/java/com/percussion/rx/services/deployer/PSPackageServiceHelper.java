@@ -40,7 +40,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSPackageServiceHelper {
 
-  /** Default constructor for use via static methods. */
+  /** Default constructor. */
   public PSPackageServiceHelper() {}
 
   /**

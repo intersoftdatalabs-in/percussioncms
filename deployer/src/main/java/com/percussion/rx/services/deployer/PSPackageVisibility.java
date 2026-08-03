@@ -46,7 +46,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSPackageVisibility {
 
-  /** Default constructor for use by Spring. */
+  /** Default constructor. */
   public PSPackageVisibility() {}
 
   /**

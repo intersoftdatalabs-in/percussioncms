@@ -34,7 +34,7 @@ import java.util.*;
 /** Uninstalls elements of the supplied package and updates the status of package info. */
 public class PSPackageUninstaller {
 
-  /** Default constructor for use by Spring. */
+  /** Default constructor. */
   public PSPackageUninstaller() {}
 
   /**
