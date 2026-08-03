@@ -132,6 +132,10 @@
         <hikaricp.version>7.0.2</hikaricp.version>
         <httpcomponents.core.version>4.4.16</httpcomponents.core.version>
         <httpcomponents.version>4.5.14</httpcomponents.version>
+        <!-- HC5: upper-bound pin for enforcer (AntiSamy 1.7.8 pulls 5.4.4/5.3.4;
+             AWS SDK apache5-client ${aws.sdk.v2.version} pulls 5.6.2/5.4.3). -->
+        <httpcomponents.client5.version>5.6.2</httpcomponents.client5.version>
+        <httpcomponents.core5.version>5.4.3</httpcomponents.core5.version>
         <install.jre.version>8.222.10.1</install.jre.version>
         <!-- Intersoft common utilities (semver; independent of CMS product version) -->
         <intsof.common.utilities.version>0.0.1</intsof.common.utilities.version>
@@ -1689,6 +1693,24 @@
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient-cache</artifactId>
                 <version>${httpcomponents.version}</version>
+            </dependency>
+            <!-- Apache HttpComponents 5.x (client5 / core5). Managed so ESAPI/AntiSamy
+                 and AWS SDK v2 apache5-client converge on the same versions
+                 (RequireUpperBoundDeps + dependencyConvergence). -->
+            <dependency>
+                <groupId>org.apache.httpcomponents.client5</groupId>
+                <artifactId>httpclient5</artifactId>
+                <version>${httpcomponents.client5.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents.core5</groupId>
+                <artifactId>httpcore5</artifactId>
+                <version>${httpcomponents.core5.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents.core5</groupId>
+                <artifactId>httpcore5-h2</artifactId>
+                <version>${httpcomponents.core5.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
