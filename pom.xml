@@ -130,12 +130,12 @@
         <hibernate.validator.version>8.0.1.Final</hibernate.validator.version>
         <hibernate.version>7.2.6.Final</hibernate.version>
         <hikaricp.version>7.0.2</hikaricp.version>
-        <httpcomponents.core.version>4.4.16</httpcomponents.core.version>
-        <httpcomponents.version>4.5.14</httpcomponents.version>
         <!-- HC5: upper-bound pin for enforcer (AntiSamy 1.7.8 pulls 5.4.4/5.3.4;
              AWS SDK apache5-client ${aws.sdk.v2.version} pulls 5.6.2/5.4.3). -->
         <httpcomponents.client5.version>5.6.2</httpcomponents.client5.version>
+        <httpcomponents.core.version>4.4.16</httpcomponents.core.version>
         <httpcomponents.core5.version>5.4.3</httpcomponents.core5.version>
+        <httpcomponents.version>4.5.14</httpcomponents.version>
         <install.jre.version>8.222.10.1</install.jre.version>
         <!-- Intersoft common utilities (semver; independent of CMS product version) -->
         <intsof.common.utilities.version>0.0.1</intsof.common.utilities.version>

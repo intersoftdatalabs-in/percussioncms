@@ -17,12 +17,10 @@
 
 package com.percussion.apibridge.mkd;
 
-import com.percussion.rest.i18n.I18nCorrectionSource;
 import com.percussion.rest.i18n.I18nCorrectionSubmission;
-//import dev.monkeyking.gcm.CorrectionSubmission;
-//import dev.monkeyking.gcm.GcmClient;
-//import dev.monkeyking.gcm.GcmException;
-import org.apache.commons.lang3.StringUtils;
+// import dev.monkeyking.gcm.CorrectionSubmission;
+// import dev.monkeyking.gcm.GcmClient;
+// import dev.monkeyking.gcm.GcmException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -39,7 +37,7 @@ public class MkdGcmCorrectionService {
    * @return GCM Message-ID when available
    */
   public String postCorrection(I18nCorrectionSubmission submission) {
- /*    String group = MkdLanguageConfig.gcmGroup();
+    /*    String group = MkdLanguageConfig.gcmGroup();
     String token = MkdLanguageConfig.gcmTokenPlain();
     if (StringUtils.isBlank(group) || StringUtils.isBlank(token)) {
       throw new IllegalStateException(
