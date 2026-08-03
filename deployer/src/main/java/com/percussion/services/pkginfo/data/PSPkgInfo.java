@@ -108,7 +108,7 @@ public class PSPkgInfo implements Serializable {
     USER
   }
 
-  /** REST endpoint. */
+  /** No-arg constructor required by JPA. */
   public PSPkgInfo() {
     guid = 0;
     descriptorName = "";
@@ -576,7 +576,6 @@ public class PSPkgInfo implements Serializable {
   }
 
   @Override
-  /** REST endpoint. */
   public boolean equals(Object b) {
     if (!(b instanceof PSPkgInfo)) {
       return false;
@@ -604,7 +603,6 @@ public class PSPkgInfo implements Serializable {
   }
 
   @Override
-  /** REST endpoint. */
   public int hashCode() {
     return new HashCodeBuilder()
         .append(guid)
@@ -628,7 +626,6 @@ public class PSPkgInfo implements Serializable {
   }
 
   @Override
-  /** REST endpoint. */
   public String toString() {
     return "PSPkgInfo{"
         + "guid="

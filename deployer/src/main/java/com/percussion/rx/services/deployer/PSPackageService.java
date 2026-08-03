@@ -438,7 +438,6 @@ public class PSPackageService {
   static final String PACKAGE_UNLOCKED = "Unlocked";
 
   /** Separator used for separating communities. */
-  /** REST endpoint. */
   public static final String NAME_SEPARATOR = ",";
 
   /** The logger for this class. */
