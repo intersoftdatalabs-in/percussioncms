@@ -272,7 +272,7 @@
         <stax.version>1.0.1</stax.version>
         <surefireArgLine/>
         <swagger.ui.version>5.31.0</swagger.ui.version>
-        <swagger.version>2.2.42</swagger.version>
+        <swagger.version>2.2.52</swagger.version>
         <!-- 3.3.1 pulls junrar 7.6.0 (clears Dependabot #208/#214; was 7.5.5 on 3.2.3) -->
         <tika.version>3.3.1</tika.version>
         <!-- TinyMCE 6.8.x is the last series under the MIT license. -->
