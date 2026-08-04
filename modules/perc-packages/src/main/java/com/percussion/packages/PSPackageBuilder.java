@@ -60,12 +60,12 @@ public final class PSPackageBuilder {
 
   /**
    * Program entry point invoked by the {@code exec-maven-plugin} during the {@code prepare-package}
-   * phase. Expects exactly three arguments: the packages source directory, the output directory for
-   * the generated {@code .ppkg} files, and a scratch directory used while reorganizing the package
-   * contents.
+   * phase. Expects at least three arguments: the packages source directory, the output directory
+   * for the generated {@code .ppkg} files, and a scratch directory used while reorganizing the
+   * package contents. Any additional positional arguments beyond the first three are ignored.
    *
    * <p>Usage: {@code PSPackageBuilder <packagesDir> <outputDir> <tempDir>}. Exits with a non-zero
-   * status if the arguments are missing or the packages directory does not exist.
+   * status if fewer than three arguments are supplied or the packages directory does not exist.
    *
    * @param args command-line arguments; must contain at least three entries ordered {@code
    *     <packagesDir> <outputDir> <tempDir>}.
