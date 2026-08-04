@@ -28,6 +28,10 @@ import java.util.List;
 public class PSMetadataDatedEntries {
   private List<PSMetadataDatedEvent> events;
 
+  /**
+   * No-arg constructor required by the JSON binding layer. Initialises the events list so that
+   * {@link #add(PSMetadataDatedEvent)} can be called immediately.
+   */
   public PSMetadataDatedEntries() {
     events = new ArrayList<>();
   }
@@ -42,14 +46,18 @@ public class PSMetadataDatedEntries {
   }
 
   /**
-   * @return the events, may be empty but never <code>null</code>.
+   * Returns the list of events currently held by this instance.
+   *
+   * @return the events list, may be empty but never {@code null}.
    */
   public List<PSMetadataDatedEvent> getEvents() {
     return events;
   }
 
   /**
-   * @param events the events to set.
+   * Replaces the list of events.
+   *
+   * @param events the events to set; may be {@code null}.
    */
   public void setEvents(List<PSMetadataDatedEvent> events) {
     this.events = events;

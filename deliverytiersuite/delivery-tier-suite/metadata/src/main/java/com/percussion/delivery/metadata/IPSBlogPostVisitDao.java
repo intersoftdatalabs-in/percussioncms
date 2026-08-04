@@ -21,7 +21,11 @@ import com.percussion.delivery.metadata.rdbms.impl.PSDbBlogPostVisit;
 import java.util.Collection;
 import java.util.List;
 
-/** */
+/**
+ * Data-access object for blog-post visit records. Backed by the {@code PSDbBlogPostVisit} RDBMS
+ * entity, this interface defines the persistence operations used by the DTS metadata micro-service
+ * to record and aggregate visits on published blog pages.
+ */
 public interface IPSBlogPostVisitDao {
 
   /**
@@ -78,5 +82,13 @@ public interface IPSBlogPostVisitDao {
    */
   public List<PSDbBlogPostVisit> findBlogPostVisit(String pagepath);
 
+  /**
+   * Updates stored blog post visit records after a site has been renamed so the {@code siteName}
+   * column reflects the new site name.
+   *
+   * @param prevSiteName the previous site name to be replaced; may be <code>null</code>.
+   * @param newSiteName the new site name to use as the replacement; may be <code>null</code>.
+   * @throws Exception if the underlying database update fails.
+   */
   public void updatePostsAfterSiteRename(String prevSiteName, String newSiteName) throws Exception;
 }

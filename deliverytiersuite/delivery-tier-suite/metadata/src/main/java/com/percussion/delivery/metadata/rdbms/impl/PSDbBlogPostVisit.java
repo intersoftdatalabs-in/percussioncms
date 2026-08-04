@@ -35,33 +35,44 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-/** Page visit object */
+/**
+ * Hibernate-backed entity that represents a single recorded visit to a published blog post.
+ *
+ * <p>Page visit object.
+ */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSBlogPostVisit")
 @Table(name = "BLOG_POST_VISIT")
 public class PSDbBlogPostVisit implements IPSBlogPostVisit, Serializable {
   private static final long serialVersionUID = 1L;
 
+  /** Surrogate primary key for this visit row. */
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "VISIT_ID")
   private long visitId;
 
+  /** Published site-relative page path of the visited blog post. */
   @Column(length = 2000)
   private String pagepath;
 
+  /** Calendar date of the visit. */
   @Basic
   @Temporal(TemporalType.DATE)
   private Date hitDate;
 
+  /** Cumulative hit count for the page path on {@link #hitDate}. */
   @Basic private BigInteger hitCount;
 
+  /** No-arg constructor required by Hibernate. */
   public PSDbBlogPostVisit() {}
 
   /**
-   * @param pagepath
-   * @param hitDate
-   * @param hitCount
+   * Constructs a fully-populated visit entity.
+   *
+   * @param pagepath the page path of the visited blog post; may not be {@code null} or empty.
+   * @param hitDate the date the visit occurred; may not be {@code null}.
+   * @param hitCount the cumulative hit count for this page path; may not be {@code null}.
    */
   public PSDbBlogPostVisit(String pagepath, Date hitDate, BigInteger hitCount) {
     if (pagepath == null || pagepath.length() == 0)
@@ -88,18 +99,38 @@ public class PSDbBlogPostVisit implements IPSBlogPostVisit, Serializable {
     this.pagepath = path;
   }
 
+  /**
+   * Returns the date the visit occurred.
+   *
+   * @return the hit date, may be {@code null}.
+   */
   public Date getHitDate() {
     return Optional.ofNullable(hitDate).map(Date::getTime).map(Date::new).orElse(null);
   }
 
+  /**
+   * Sets the date the visit occurred.
+   *
+   * @param hitDate the hit date to set; may be {@code null}.
+   */
   public void setHitDate(Date hitDate) {
     this.hitDate = Optional.ofNullable(hitDate).map(Date::getTime).map(Date::new).orElse(null);
   }
 
+  /**
+   * Returns the cumulative hit count for this page path.
+   *
+   * @return the hit count, may be {@code null}.
+   */
   public BigInteger getHitCount() {
     return hitCount;
   }
 
+  /**
+   * Sets the cumulative hit count for this page path.
+   *
+   * @param hitCount the hit count to set; may not be {@code null}.
+   */
   public void setHitCount(BigInteger hitCount) {
     this.hitCount = hitCount;
   }

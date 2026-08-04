@@ -49,13 +49,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
 
+/**
+ * Hibernate-backed implementation of {@link IPSMetadataDao}. Reads, writes and queries the indexed
+ * metadata entries via JPA criteria queries and HQL wrapped in Spring transactions.
+ */
 // TODO: Remove me @SuppressFBWarnings("UNSAFE_HASH_EQUALS")
 @Repository
 @Scope("singleton")
 public class PSMetadataDao implements IPSMetadataDao {
 
+  /** No-arg constructor required by Spring. The session factory is injected via the setter. */
+  public PSMetadataDao() {}
+
   private SessionFactory sessionFactory;
 
+  /**
+   * Sets the Hibernate {@link SessionFactory} used by this DAO.
+   *
+   * @param sessionFactory the session factory to use; may not be {@code null}.
+   */
   @Autowired
   public void setSessionFactory(SessionFactory sessionFactory) {
     this.sessionFactory = sessionFactory;
@@ -66,6 +78,10 @@ public class PSMetadataDao implements IPSMetadataDao {
 
   private static final PSHashCalculator hashCalculator = new PSHashCalculator();
 
+  /**
+   * Regex used to derive the directory portion of a pagepath for {@link
+   * #getAllIndexedDirectories()}.
+   */
   private final Pattern patternToGetDirectoryFromPagepath = Pattern.compile("(.+)/[^/]+");
 
   public void delete(Collection<String> pagepaths) {

@@ -22,8 +22,10 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
- * This class holds a generic pair of objects
+ * This class holds a generic pair of objects.
  *
+ * @param <A> the type of the first element held by this pair.
+ * @param <B> the type of the second element held by this pair.
  * @author dougrand
  */
 public class PSPair<A, B> {
@@ -31,7 +33,7 @@ public class PSPair<A, B> {
 
   private B m_second;
 
-  /** Default ctor */
+  /** Default ctor. Creates an empty pair with both elements set to {@code null}. */
   public PSPair() {
     //
   }
@@ -48,28 +50,36 @@ public class PSPair<A, B> {
   }
 
   /**
-   * @return Returns the first.
+   * Returns the first element of the pair.
+   *
+   * @return the first element, may be <code>null</code>.
    */
   public A getFirst() {
     return m_first;
   }
 
   /**
-   * @return Returns the second.
+   * Returns the second element of the pair.
+   *
+   * @return the second element, may be <code>null</code>.
    */
   public B getSecond() {
     return m_second;
   }
 
   /**
-   * @param first The first to set.
+   * Replaces the first element of the pair.
+   *
+   * @param first the first element to set; may be <code>null</code>.
    */
   public void setFirst(A first) {
     m_first = first;
   }
 
   /**
-   * @param second The second to set.
+   * Replaces the second element of the pair.
+   *
+   * @param second the second element to set; may be <code>null</code>.
    */
   public void setSecond(B second) {
     m_second = second;

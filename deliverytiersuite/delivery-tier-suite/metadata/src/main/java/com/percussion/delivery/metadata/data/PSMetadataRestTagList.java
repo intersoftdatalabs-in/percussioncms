@@ -19,14 +19,31 @@ package com.percussion.delivery.metadata.data;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Represents a list of {@link PSMetadataRestTag} instances. */
+/**
+ * Represents a list of {@link PSMetadataRestTag} instances. Returned by the {@code /tags/get} REST
+ * endpoint.
+ */
 public class PSMetadataRestTagList {
+  /** Backend list of tag entries; never {@code null}. */
   private List<PSMetadataRestTag> properties = new ArrayList<>();
 
+  /** No-arg constructor required by the JSON binding layer. */
+  public PSMetadataRestTagList() {}
+
+  /**
+   * Returns the underlying list of tag entries.
+   *
+   * @return the properties list, may be empty but never <code>null</code>.
+   */
   public List<PSMetadataRestTag> getProperties() {
     return properties;
   }
 
+  /**
+   * Replaces the tag entries.
+   *
+   * @param properties the properties to set; may be <code>null</code>.
+   */
   public void setProperties(List<PSMetadataRestTag> properties) {
     this.properties = properties;
   }

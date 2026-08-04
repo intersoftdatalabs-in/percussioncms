@@ -27,30 +27,37 @@ import java.util.Properties;
  * @author erikserating
  */
 public class PSPropertyDatatypeMappings {
+  /** Datatype properties injected by Spring; never {@code null} after initialisation. */
   protected Properties datatypeMappings;
 
+  /** No-arg constructor required by Spring. */
   public PSPropertyDatatypeMappings() {}
 
   /**
-   * @return the mappings
+   * Returns the raw datatype mappings.
+   *
+   * @return the mappings, may be <code>null</code> before Spring initialisation.
    */
   public Properties getDatatypeMappings() {
     return datatypeMappings;
   }
 
   /**
-   * @param mappings the mappings to set
+   * Sets the raw datatype mappings.
+   *
+   * @param mappings the mappings to set; may be <code>null</code>.
    */
   public void setDatatypeMappings(Properties mappings) {
     this.datatypeMappings = mappings;
   }
 
   /**
-   * Given a datatype (key), it returns a VALUETYPE object according to it. For example, "STRING"
-   * will return the VALUETYPE.STRING value.
+   * Given a datatype (key), it returns a {@link VALUETYPE} object according to it. For example,
+   * {@code "STRING"} will return the {@link VALUETYPE#STRING} value.
    *
-   * @param key Datatype key (STRING, DATE, NUMBER, etc).
-   * @return VALUETYPE va
+   * @param key Datatype key (STRING, DATE, NUMBER, etc); may not be {@code null}.
+   * @return the resolved {@link VALUETYPE} value, falling back to {@link VALUETYPE#STRING} when no
+   *     mapping is configured.
    */
   public VALUETYPE getDatatype(String key) {
     if (datatypeMappings == null)

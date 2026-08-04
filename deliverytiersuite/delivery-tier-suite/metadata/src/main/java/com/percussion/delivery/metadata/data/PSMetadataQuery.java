@@ -83,20 +83,36 @@ public class PSMetadataQuery {
 
   private String currentPageId;
 
+  /** JSON / Jackson field name for {@link #setCriteria(List)} / {@link #getCriteria()}. */
   public static final String FIELD_CRITERIA = "criteria";
 
+  /** JSON / Jackson field name for {@link #setMaxResults(int)} / {@link #getMaxResults()}. */
   public static final String FIELD_MAX_RESULTS = "maxResults";
 
+  /**
+   * JSON / Jackson field name for {@link #setTotalMaxResults(int)} / {@link #getTotalMaxResults()}.
+   */
   public static final String FIELD_TOTAL_MAX_RESULTS = "totalMaxResults";
 
+  /** JSON / Jackson field name for {@link #setStartIndex(int)} / {@link #getStartIndex()}. */
   public static final String FIELD_START_INDEX = "startIndex";
 
+  /** JSON / Jackson field name for {@link #setOrderBy(String)} / {@link #getOrderBy()}. */
   public static final String FIELD_ORDER_BY = "orderBy";
 
+  /**
+   * JSON / Jackson field name for {@link #setReturnTotalEntries(boolean)} / {@link
+   * #getReturnTotalEntries()}.
+   */
   public static final String FIELD_RETURN_TOTAL_ENTRIES = "returnTotalEntries";
 
+  /**
+   * JSON / Jackson field name for {@link #setPagingPagesText(String)} / {@link
+   * #getPagingPagesText()}.
+   */
   public static final String FIELD_PAGING_PAGES_TEXT = "pagingPagesText";
 
+  /** Default no-arg constructor required by Jackson. */
   public PSMetadataQuery() {}
 
   /**
@@ -154,91 +170,164 @@ public class PSMetadataQuery {
   }
 
   /**
-   * @return the criteria
+   * Returns the query criteria list.
+   *
+   * @return the criteria list, may be <code>null</code>.
    */
   public List<String> getCriteria() {
     return criteria;
   }
 
   /**
-   * @return the maxResults
+   * Returns the page-size used to drive pagination.
+   *
+   * @return the maxResults value.
    */
   public int getMaxResults() {
     return maxResults;
   }
 
   /**
-   * @return the startIndex
+   * Returns the zero-based start index for pagination.
+   *
+   * @return the startIndex value.
    */
   public int getStartIndex() {
     return startIndex;
   }
 
   /**
-   * @return the orderBy
+   * Returns the {@code ORDER BY} clause.
+   *
+   * @return the orderBy clause, may be <code>null</code>.
    */
   public String getOrderBy() {
     return orderBy;
   }
 
   /**
-   * @return the returnTotalEntries
+   * Returns whether the response should also carry the total number of matching entries.
+   *
+   * @return the returnTotalEntries flag.
    */
   public boolean getReturnTotalEntries() {
     return returnTotalEntries;
   }
 
   /**
-   * @return the pagination label
+   * Returns the pagination label used by the client to render the pager UI.
+   *
+   * @return the pagination label, may be <code>null</code>.
    */
   public String getPagingPagesText() {
     return pagingPagesText;
   }
 
+  /**
+   * Returns whether the request originates from a context where blog post visits should be tracked.
+   *
+   * @return the {@code trackBlogPost} flag.
+   */
   public boolean isTrackBlogPost() {
     return trackBlogPost;
   }
 
+  /**
+   * Sets whether the request originates from a context where blog post visits should be tracked.
+   *
+   * @param trackBlogPost the {@code trackBlogPost} flag to set.
+   */
   public void setTrackBlogPost(boolean trackBlogPost) {
     this.trackBlogPost = trackBlogPost;
   }
 
+  /**
+   * Returns the full path of the blog post being viewed, if any.
+   *
+   * @return the blog post full path, may be <code>null</code>.
+   */
   public String getBlogPostFullPath() {
     return blogPostFullPath;
   }
 
+  /**
+   * Sets the full path of the blog post being viewed.
+   *
+   * @param blogPostFullPath the blog post full path to set; may be <code>null</code>.
+   */
   public void setBlogPostFullPath(String blogPostFullPath) {
     this.blogPostFullPath = blogPostFullPath;
   }
 
+  /**
+   * Returns the configured query limit enforced by the client.
+   *
+   * @return the totalMaxResults value, never negative.
+   */
   public int getTotalMaxResults() {
     return totalMaxResults;
   }
 
+  /**
+   * Sets the configured query limit enforced by the client.
+   *
+   * @param totalMaxResults the totalMaxResults value to set; may not be negative.
+   */
   public void setTotalMaxResults(int totalMaxResults) {
     this.totalMaxResults = totalMaxResults;
   }
 
+  /**
+   * Returns the field used to sort the tag aggregation when no specific {@code orderBy} is
+   * supplied.
+   *
+   * @return the sortTagsBy field name, may be <code>null</code>.
+   */
   public String getSortTagsBy() {
     return sortTagsBy;
   }
 
+  /**
+   * Sets the field used to sort the tag aggregation when no specific {@code orderBy} is supplied.
+   *
+   * @param sortTagsBy the sortTagsBy field name to set; may be <code>null</code>.
+   */
   public void setSortTagsBy(String sortTagsBy) {
     this.sortTagsBy = sortTagsBy;
   }
 
+  /**
+   * Returns the id of the current page within the paginated result set.
+   *
+   * @return the currentPageId, may be <code>null</code>.
+   */
   public String getCurrentPageId() {
     return currentPageId;
   }
 
+  /**
+   * Sets the id of the current page within the paginated result set.
+   *
+   * @param currentPageId the currentPageId to set; may be <code>null</code>.
+   */
   public void setCurrentPageId(String currentPageId) {
     this.currentPageId = currentPageId;
   }
 
+  /**
+   * Returns whether the query was made from the editor / preview vs the published website.
+   *
+   * @return the {@code editMode} flag.
+   */
   public boolean isEditMode() {
     return isEditMode;
   }
 
+  /**
+   * Sets whether the query was made from the editor / preview vs the published website.
+   *
+   * @param editMode the {@code editMode} flag to set.
+   */
   public void setEditMode(boolean editMode) {
     this.isEditMode = editMode;
   }

@@ -50,6 +50,7 @@ public class PSDbMetadataEntry implements IPSMetadataEntry, Serializable {
 
   private static final long serialVersionUID = 1L;
 
+  /** Hash of {@link #pagepath}; used as the database primary key. */
   @Id
   @Column(length = 40)
   @Nationalized
@@ -57,24 +58,32 @@ public class PSDbMetadataEntry implements IPSMetadataEntry, Serializable {
 
   // This column may be marked as unique, but keep in mind that unique
   // keys greater than 767 characters are not supported on MySQL.
+  /** Published site-relative page path of the indexed entry. */
   @Column(length = 2000)
   @Nationalized
   private String pagepath;
 
+  /** Page name (last path segment) of the indexed entry. */
   @Basic @Nationalized private String name;
 
+  /** Folder path that contains the page (without the site prefix). */
   @Column(length = 2000)
   @Nationalized
   private String folder;
 
+  /** Link text associated with the page. */
   @Basic @Nationalized private String linktext;
 
+  /** Lower-case copy of {@link #linktext} used for case-insensitive lookups. */
   @Basic @Nationalized private String linktext_lower;
 
+  /** Content type of the page (e.g. {@code page}, {@code asset}). */
   @Basic @Nationalized private String type;
 
+  /** Site name the page belongs to. */
   @Basic @Nationalized private String site;
 
+  /** Properties attached to this entry, eagerly fetched and cascade-deleted with the entry. */
   @OnDelete(action = OnDeleteAction.CASCADE)
   @OneToMany(
       fetch = FetchType.EAGER,
@@ -87,17 +96,19 @@ public class PSDbMetadataEntry implements IPSMetadataEntry, Serializable {
   /** HashCalculator instance used to get the hash of the metadata entry's pagepath. */
   private static PSHashCalculator hashCalculator = new PSHashCalculator();
 
+  /** No-arg constructor required by Hibernate. */
   public PSDbMetadataEntry() {}
 
   /**
-   * Ctor
+   * Constructs a fully populated metadata entry.
    *
-   * @param name the file name, cannot be <code>null</code> or empty.
+   * @param name the file name; cannot be <code>null</code> or empty.
    * @param folder the folder path of the containing folder without the site folder. Cannot be
    *     <code>null</code> or empty.
-   * @param pagepath the path of the file including sitefolder. This is used as a unique key for the
-   *     entry. Cannot be <code>null</code> or empty.
-   * @param type
+   * @param pagepath the path of the file including the site folder. This is used as a unique key
+   *     for the entry. Cannot be <code>null</code> or empty.
+   * @param type the content type of the page; cannot be <code>null</code>.
+   * @param site the site this page belongs to; cannot be <code>null</code> or empty.
    */
   public PSDbMetadataEntry(String name, String folder, String pagepath, String type, String site) {
     if (name == null || name.length() == 0)
@@ -145,14 +156,19 @@ public class PSDbMetadataEntry implements IPSMetadataEntry, Serializable {
   }
 
   /**
-   * @return the pagepathHash
+   * Returns the hash of this entry's pagepath. Used as the database primary key so equality is
+   * case-sensitive and independent of length-based pagepath differences.
+   *
+   * @return the pagepathHash, never <code>null</code> after the entry has been persisted.
    */
   public String getPagepathHash() {
     return pagepathHash;
   }
 
   /**
-   * @return the page path
+   * Returns the page path associated with this entry.
+   *
+   * @return the page path, may be <code>null</code>.
    */
   public String getPagepath() {
     return pagepath;
@@ -212,7 +228,9 @@ public class PSDbMetadataEntry implements IPSMetadataEntry, Serializable {
   }
 
   /**
-   * @return the properties
+   * Returns a defensive copy of the properties attached to this entry.
+   *
+   * @return a cloned set of the properties, never <code>null</code>, may be empty.
    */
   public Set<IPSMetadataProperty> getProperties() {
     if (properties == null) return null;
@@ -222,7 +240,9 @@ public class PSDbMetadataEntry implements IPSMetadataEntry, Serializable {
   }
 
   /**
-   * @param properties the properties to set
+   * Replaces the properties attached to this entry with the supplied set.
+   *
+   * @param properties the properties to set; may be <code>null</code>.
    */
   public void setProperties(Set<IPSMetadataProperty> properties) {
     if (properties == null) this.properties = null;
@@ -238,10 +258,16 @@ public class PSDbMetadataEntry implements IPSMetadataEntry, Serializable {
     this.properties = dbprops;
   }
 
+  /** Clears all the properties attached to this entry. */
   public void clearProperties() {
     if (properties != null) properties.clear();
   }
 
+  /**
+   * Adds a single property to the entry.
+   *
+   * @param prop the property to add; may be <code>null</code>.
+   */
   public void addProperty(IPSMetadataProperty prop) {
     ((PSDbMetadataProperty) prop).setMetadataEntry(this);
     this.properties.add((PSDbMetadataProperty) prop);

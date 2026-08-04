@@ -17,23 +17,53 @@
 
 package com.percussion.delivery.metadata.data;
 
+/**
+ * Simple two-property holder used by the metadata REST layer to carry an opaque key together with a
+ * target URL. Typically populated from request data and serialized verbatim to clients.
+ */
 public class HrefData {
 
+  /** Opaque identifier for the link. */
   private String key;
+
+  /** Destination URL the link points at. */
   private String url;
 
+  /** No-arg constructor required by the JSON binding layer. */
+  public HrefData() {}
+
+  /**
+   * Returns the opaque link key.
+   *
+   * @return the key, may be <code>null</code>.
+   */
   public String getKey() {
     return key;
   }
 
+  /**
+   * Sets the opaque link key.
+   *
+   * @param key the key to set; may be <code>null</code>.
+   */
   public void setKey(String key) {
     this.key = key;
   }
 
+  /**
+   * Returns the destination URL.
+   *
+   * @return the URL, may be <code>null</code>.
+   */
   public String getUrl() {
     return url;
   }
 
+  /**
+   * Sets the destination URL.
+   *
+   * @param url the URL to set; may be <code>null</code>.
+   */
   public void setUrl(String url) {
     this.url = url;
   }

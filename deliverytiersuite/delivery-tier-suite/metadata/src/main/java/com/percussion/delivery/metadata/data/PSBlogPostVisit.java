@@ -22,14 +22,32 @@ import java.math.BigInteger;
 import java.util.Date;
 import java.util.Optional;
 
+/**
+ * Lightweight transport model for blog-post visit data captured by the DTS blog visit tracking
+ * service. Mirrors {@link IPSBlogPostVisit} but lives in the {@code data} package so it can be
+ * marshalled to JSON without dragging in the Hibernate entity that backs persistence.
+ */
 public class PSBlogPostVisit implements IPSBlogPostVisit {
 
+  /** Published site-relative page path of the visited blog post. */
   private String pagePath;
+
+  /** Date the visit occurred. Stored defensively-copied to keep the value immutable. */
   private Date date;
+
+  /** Cumulative hit count for this page path. */
   private BigInteger hitCount;
 
+  /** No-arg constructor required by the JSON / JAXB binding layer. */
   public PSBlogPostVisit() {}
 
+  /**
+   * Construct a fully-populated visit record.
+   *
+   * @param pagePath the page path of the visited blog post; may be {@code null}.
+   * @param date the date the visit occurred; may be {@code null}.
+   * @param hitCount the cumulative hit count; may be {@code null}.
+   */
   public PSBlogPostVisit(String pagePath, Date date, BigInteger hitCount) {
     this.pagePath = pagePath;
     this.date = Optional.ofNullable(date).map(Date::getTime).map(Date::new).orElse(null);

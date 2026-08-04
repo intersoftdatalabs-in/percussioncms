@@ -43,6 +43,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
+ * Hibernate-backed implementation of {@link IPSCookieConsentDao}. Reads and writes cookie-consent
+ * entries through JPA criteria queries wrapped in Spring-managed transactions.
+ *
  * @author chriswright
  */
 @Repository
@@ -50,8 +53,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
 public class PSCookieConsentDao implements IPSCookieConsentDao {
 
+  /** No-arg constructor required by Spring. The session factory is injected via the setter. */
+  public PSCookieConsentDao() {}
+
   private SessionFactory sessionFactory;
 
+  /**
+   * Sets the Hibernate {@link SessionFactory} used by this DAO.
+   *
+   * @param sessionFactory the session factory to use; may not be {@code null}.
+   */
   @Autowired
   public void setSessionFactory(SessionFactory sessionFactory) {
     this.sessionFactory = sessionFactory;

@@ -19,14 +19,31 @@ package com.percussion.delivery.metadata.data;
 
 import jakarta.xml.bind.annotation.XmlRootElement;
 
+/**
+ * Request payload for the blog post visit tracking endpoint. Carries the {@link #getPagePath()
+ * pagePath} captured by the client.
+ */
 @XmlRootElement(name = "visit")
 public class PSVisitRestEntry {
   private String pagePath;
 
+  /** No-arg constructor required by the JAX-RS binding layer. */
+  public PSVisitRestEntry() {}
+
+  /**
+   * Returns the page path being visited.
+   *
+   * @return the pagePath, may be <code>null</code>.
+   */
   public String getPagePath() {
     return pagePath;
   }
 
+  /**
+   * Sets the page path being visited.
+   *
+   * @param pagePath the pagePath to set; may be <code>null</code>.
+   */
   public void setPagePath(String pagePath) {
     this.pagePath = pagePath;
   }

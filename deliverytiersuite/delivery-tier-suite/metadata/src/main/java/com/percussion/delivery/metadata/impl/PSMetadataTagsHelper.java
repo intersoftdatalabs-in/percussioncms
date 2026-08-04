@@ -36,24 +36,34 @@ import java.util.Map.Entry;
  */
 public class PSMetadataTagsHelper {
 
+  /** Metadata property name used to look up tag references on a metadata entry. */
   public static final String REFERENCES = "perc:tags";
 
+  /** JSON / map key carrying the tag name. */
   public static final String TAG_NAME = "tagName";
 
+  /** JSON / map key carrying the tag occurrence count. */
   public static final String TAG_COUNT = "tagCount";
 
+  /** JSON / map key carrying the list of property entries. */
   public static final String PROPERTIES = "properties";
 
+  /** Sort-mode value used to indicate descending-by-count ordering. */
   public static final String COUNT_SORT = "count";
 
+  /** No-arg constructor; the helper is stateless aside from its comparator instances. */
+  public PSMetadataTagsHelper() {}
+
   /**
-   * This method is responsible for return the list with tags and their occurrences. First iterate
-   * by page and later by PropertyPage.
+   * Returns the list of (tag, occurrence) pairs for the supplied metadata entries. First iterates
+   * by page and later by property page.
    *
-   * @param results assumed not <code>null</code>.
-   * @param sortOrder
-   * @return List PSPair String, Integer
-   * @throws ServletException
+   * @param results the metadata entries to process; assumed not <code>null</code>.
+   * @param sortOrder the sort mode - {@code "count"} to sort by descending occurrence, anything
+   *     else sorts alphabetically; may be <code>null</code>.
+   * @return a list of {@link PSPair} entries where {@code first} is the tag name and {@code second}
+   *     is the occurrence count; never <code>null</code>, may be empty.
+   * @throws ServletException if the iteration fails.
    */
   public List<PSPair<String, Integer>> processTags(List<IPSMetadataEntry> results, String sortOrder)
       throws ServletException {

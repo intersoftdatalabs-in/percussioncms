@@ -32,6 +32,9 @@ import org.apache.commons.lang3.time.FastDateFormat;
  */
 public class PSDatedEntriesHelper {
 
+  /** No-arg constructor; the helper is stateless aside from its formatter instance. */
+  public PSDatedEntriesHelper() {}
+
   /** Constants names for the page properties. */
   private static final String SUMMARY_PROPERTY_NAME = "dcterms:abstract";
 
@@ -39,10 +42,11 @@ public class PSDatedEntriesHelper {
   private static final String END_DATE_PROPERTY_NAME = "perc:end_date";
 
   /** Constant for the date formater. */
+  /** Date formatter used to render the start / end timestamps of the dated event payload. */
   private FastDateFormat formatter = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
   /**
-   * This method is responsible for return the list with entries with their properties:
+   * Returns the dated-entries payload assembled from the supplied metadata index results:
    *
    * <ul>
    *   <li>page title
@@ -52,9 +56,9 @@ public class PSDatedEntriesHelper {
    *   <li>page url
    * </ul>
    *
-   * @param results assumed not <code>null</code>.
-   * @return a {@link PSMetadataDatedEntries} object containing the entries.
-   * @throws Exception
+   * @param results the metadata entries to process; assumed not {@code null}.
+   * @return a populated {@link PSMetadataDatedEntries} object.
+   * @throws Exception if the processing fails or the supplied results are invalid.
    */
   public PSMetadataDatedEntries getDatedEntries(List<IPSMetadataEntry> results) throws Exception {
     if (results == null) throw new IllegalArgumentException("Results can not be null");

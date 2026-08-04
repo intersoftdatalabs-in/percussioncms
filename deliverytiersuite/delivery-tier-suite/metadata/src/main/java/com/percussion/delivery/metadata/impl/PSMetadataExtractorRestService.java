@@ -52,11 +52,19 @@ import org.springframework.stereotype.Component;
 @Path("/indexer")
 @Component
 public class PSMetadataExtractorRestService {
+  /** Class-level logger. */
   public static final Logger log = LogManager.getLogger(PSMetadataExtractorRestService.class);
 
   private final PSPropertyDatatypeMappings datatypeMappings;
   private IPSMetadataIndexerService indexer;
 
+  /**
+   * Resolves the {@code XSRF-TOKEN} cookie on the inbound request and copies the value into the
+   * response headers so the browser-side framework can pick it up.
+   *
+   * @param request the inbound HTTP request; may be {@code null}.
+   * @param response the outbound HTTP response; may be {@code null}.
+   */
   @HEAD
   @Path("/csrf")
   public void csrf(@Context HttpServletRequest request, @Context HttpServletResponse response) {
@@ -72,6 +80,14 @@ public class PSMetadataExtractorRestService {
     }
   }
 
+  /**
+   * Constructs the REST resource with the supplied dependencies.
+   *
+   * @param indexer the indexer service used to persist incoming metadata entries; may not be {@code
+   *     null}.
+   * @param datatypeMappings the property datatype mappings used to resolve each property's {@link
+   *     VALUETYPE}; may not be {@code null}.
+   */
   @Inject
   @Autowired
   public PSMetadataExtractorRestService(
@@ -80,6 +96,13 @@ public class PSMetadataExtractorRestService {
     this.datatypeMappings = datatypeMappings;
   }
 
+  /**
+   * Indexes a single metadata entry under the supplied page path.
+   *
+   * @param headers the inbound request headers; may be {@code null}.
+   * @param path the page path under which the entry should be indexed; may not be {@code null}.
+   * @param entry the metadata entry to persist; may be {@code null} to skip the request.
+   */
   @Path("/entry/{pagePath:.*}")
   @POST
   @RolesAllowed("deliverymanager")
@@ -114,6 +137,11 @@ public class PSMetadataExtractorRestService {
     }
   }
 
+  /**
+   * Deletes the metadata entry stored under the supplied page path.
+   *
+   * @param path the page path whose entry should be removed; may not be {@code null}.
+   */
   @Path("/entry/{pagePath:.*}")
   @DELETE
   @RolesAllowed("deliverymanager")

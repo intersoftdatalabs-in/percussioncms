@@ -16,24 +16,50 @@
  */
 package com.percussion.delivery.metadata.data;
 
-/** Represents an object with a tag name and the count of pages that are tagged with it. */
+/**
+ * Represents an object with a tag name and the count of pages that are tagged with it. Returned by
+ * the {@code /tags/get} REST endpoint.
+ */
 public class PSMetadataRestTag {
   private String tagName;
 
   private Integer tagCount;
 
+  /** No-arg constructor required by the JSON binding layer. */
+  public PSMetadataRestTag() {}
+
+  /**
+   * Returns the tag name.
+   *
+   * @return the tagName, may be <code>null</code>.
+   */
   public String getTagName() {
     return tagName;
   }
 
+  /**
+   * Sets the tag name.
+   *
+   * @param tagName the tagName to set; may be <code>null</code>.
+   */
   public void setTagName(String tagName) {
     this.tagName = tagName;
   }
 
+  /**
+   * Returns the page count associated with the tag.
+   *
+   * @return the tagCount, may be <code>null</code>.
+   */
   public Integer getTagCount() {
     return tagCount;
   }
 
+  /**
+   * Sets the page count associated with the tag.
+   *
+   * @param tagCount the tagCount to set; may be <code>null</code>.
+   */
   public void setTagCount(Integer tagCount) {
     this.tagCount = tagCount;
   }

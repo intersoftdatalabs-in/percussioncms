@@ -24,11 +24,25 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
+ * Comparator that orders tag JSON objects alphabetically by their {@code TAG_NAME} property. Used
+ * by the metadata indexer when rendering tag lists that should not be re-ordered by visit count.
+ *
  * @author davidpardini
  */
 public class AlphaOrderTagComparator implements Comparator<JSONObject> {
   private static final Logger log = LogManager.getLogger(AlphaOrderTagComparator.class);
 
+  /** No-arg constructor. Spring / JAXB-friendly; the comparator is stateless. */
+  public AlphaOrderTagComparator() {}
+
+  /**
+   * Compares two tag JSON objects alphabetically by their {@code TAG_NAME} value.
+   *
+   * @param o1 the first tag object to compare; may be <code>null</code>.
+   * @param o2 the second tag object to compare; may be <code>null</code>.
+   * @return a negative integer, zero or a positive integer following the {@link Comparator}
+   *     contract. Returns {@code 0} when the {@code TAG_NAME} cannot be read from either object.
+   */
   public int compare(JSONObject o1, JSONObject o2) {
     JSONObject ob1 = o1;
     JSONObject ob2 = o2;

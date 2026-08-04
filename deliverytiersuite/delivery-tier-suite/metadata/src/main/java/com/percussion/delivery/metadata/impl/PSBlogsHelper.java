@@ -38,15 +38,19 @@ import java.util.Locale;
  */
 public class PSBlogsHelper {
 
+  /** Metadata property name used to look up the blog creation date on each entry. */
   public static final String BLOG_PROPERTY_NAME = "dcterms:created";
 
+  /** No-arg constructor; the helper is stateless aside from its comparator instances. */
+  public PSBlogsHelper() {}
+
   /**
-   * This method is responsible for returning the list of the associated posts by date. The date is
-   * organized by year and month. Each node shows the number of posts for that month. The year shows
-   * the aggregate amount for all of the months posted that year.
+   * Processes the supplied metadata entries to assemble the blog archive grouped by year and month.
    *
-   * @param results entries containing the collection of metadata entries.
-   * @return PSMetadataRestBlogList contains the list organized by year and month.
+   * @param results entries containing the collection of metadata entries; may not be {@code null}.
+   * @return a populated {@link PSMetadataRestBlogList}; never {@code null}.
+   * @throws Exception if the supplied results are {@code null} or the in-progress aggregation
+   *     fails.
    */
   public PSMetadataRestBlogList getProcessedBlogs(List<IPSMetadataEntry> results) throws Exception {
     if (results == null) throw new IllegalArgumentException("Results can not be null");

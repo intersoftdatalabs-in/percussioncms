@@ -44,19 +44,23 @@ public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
 
   private static final long serialVersionUID = 1L;
 
+  /** ISO-8601 formatter used when parsing date-typed properties from their string form. */
   FastDateFormat sdf = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss");
 
-  /** Property name. For example: dcterms:creator */
+  /** Property name. For example: {@code dcterms:creator}. */
   private String name;
 
+  /** Declared value type of this property. */
   @XmlTransient private VALUETYPE valuetype = VALUETYPE.STRING;
 
   /**
-   * Value of the metadata property. It may be a String, Date or Double. You can get the value type
-   * by reading the "valuetype" field.
+   * Value of the metadata property. It may be a {@link String}, {@link Date} or {@link Double}. The
+   * runtime value type can be inspected via the {@link #getValuetype() valuetype} field.
    */
   private Serializable value;
 
+  /** Default JAXB / no-arg constructor. */
+  /** Default JAXB / no-arg constructor. */
   public PSMetadataProperty() {
     // Default constructor
   }
@@ -87,8 +91,8 @@ public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
   /**
    * Convenience ctor to create a number value type property from an int value.
    *
-   * @param name name cannot be <code>null</code> or empty.
-   * @param value
+   * @param name the property name; cannot be <code>null</code> or empty.
+   * @param value the int value to wrap.
    */
   public PSMetadataProperty(String name, int value) {
     this(name, VALUETYPE.NUMBER, value);
@@ -97,8 +101,8 @@ public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
   /**
    * Convenience ctor to create a number value type property from a double value.
    *
-   * @param name name cannot be <code>null</code> or empty.
-   * @param value
+   * @param name the property name; cannot be <code>null</code> or empty.
+   * @param value the double value to wrap.
    */
   public PSMetadataProperty(String name, double value) {
     this(name, VALUETYPE.NUMBER, value);
@@ -107,8 +111,8 @@ public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
   /**
    * Convenience ctor to create a number value type property from a float value.
    *
-   * @param name name cannot be <code>null</code> or empty.
-   * @param value
+   * @param name the property name; cannot be <code>null</code> or empty.
+   * @param value the float value to wrap.
    */
   public PSMetadataProperty(String name, float value) {
     this(name, VALUETYPE.NUMBER, value);
@@ -117,8 +121,8 @@ public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
   /**
    * Convenience ctor to create a number value type property from a long value.
    *
-   * @param name name cannot be <code>null</code> or empty.
-   * @param value
+   * @param name the property name; cannot be <code>null</code> or empty.
+   * @param value the long value to wrap.
    */
   public PSMetadataProperty(String name, long value) {
     this(name, VALUETYPE.NUMBER, value);
@@ -127,8 +131,8 @@ public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
   /**
    * Convenience ctor to create a number value type property from a short value.
    *
-   * @param name name cannot be <code>null</code> or empty.
-   * @param value
+   * @param name the property name; cannot be <code>null</code> or empty.
+   * @param value the short value to wrap.
    */
   public PSMetadataProperty(String name, short value) {
     this(name, VALUETYPE.NUMBER, value);
@@ -167,6 +171,12 @@ public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
     return valuetype;
   }
 
+  /**
+   * Sets the {@link VALUETYPE} of this property. Coerces the underlying value to the supplied type
+   * when possible.
+   *
+   * @param type the new value type; may not be {@code null}.
+   */
   @XmlTransient
   public void setValuetype(VALUETYPE type) {
     valuetype = type;
@@ -184,11 +194,23 @@ public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
     return value;
   }
 
+  /**
+   * Returns the string representation of the underlying property value.
+   *
+   * @return the {@code toString} of the value, never {@code null} after the property has been
+   *     initialised.
+   */
   @XmlElement(name = "value")
   public String getStringValue() {
     return value.toString();
   }
 
+  /**
+   * Replaces the underlying value with the supplied string and marks the property as {@link
+   * VALUETYPE#STRING}.
+   *
+   * @param value the string value to set; may be {@code null}.
+   */
   @XmlElement(name = "value")
   public void setStringValue(String value) {
     this.value = value;
@@ -237,12 +259,24 @@ public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
         .toString();
   }
 
+  /**
+   * Returns the property as a {@link Date} when the declared value type is {@code DATE}.
+   *
+   * @return the date value.
+   * @throws RuntimeException if the value type is not {@code DATE}.
+   */
   public Date getDatevalue() {
     if (valuetype != VALUETYPE.DATE)
       throw new RuntimeException("Cannot return a date for property type " + valuetype.toString());
     return (Date) value;
   }
 
+  /**
+   * Returns the property as a {@link Double} when the declared value type is {@code NUMBER}.
+   *
+   * @return the numeric value.
+   * @throws RuntimeException if the value type is not {@code NUMBER}.
+   */
   public Double getNumbervalue() {
     if (valuetype != VALUETYPE.NUMBER)
       throw new RuntimeException(
@@ -250,28 +284,53 @@ public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
     return (Double) value;
   }
 
+  /**
+   * Returns the property as a {@link String}.
+   *
+   * @return the string value, never {@code null}.
+   */
   public String getStringvalue() {
     return StringUtils.defaultString(value.toString());
   }
 
+  /**
+   * Sets the date value of this property.
+   *
+   * @param val the date value to set; may be {@code null}.
+   */
   @XmlTransient
   public void setDatevalue(Date val) {
     valuetype = VALUETYPE.DATE;
     value = val;
   }
 
+  /**
+   * Sets the numeric value of this property.
+   *
+   * @param val the numeric value to set; may be {@code null}.
+   */
   @XmlTransient
   public void setNumbervalue(Double val) {
     valuetype = VALUETYPE.NUMBER;
     value = val;
   }
 
+  /**
+   * Sets the string value of this property.
+   *
+   * @param val the string value to set; may be {@code null}.
+   */
   @XmlTransient
   public void setStringvalue(String val) {
     valuetype = VALUETYPE.STRING;
     value = val;
   }
 
+  /**
+   * Sets the free-text (long string) value of this property.
+   *
+   * @param val the text value to set; may be {@code null}.
+   */
   @XmlTransient
   public void setTextvalue(String val) {
     valuetype = VALUETYPE.TEXT;
@@ -279,6 +338,11 @@ public class PSMetadataProperty implements Serializable, IPSMetadataProperty {
     value = val;
   }
 
+  /**
+   * Sets the untyped value of this property, coercing to the declared value type when one is set.
+   *
+   * @param val the value to set; may be {@code null}.
+   */
   @XmlTransient
   public void setValue(Object val) {
     if (valuetype == null) {

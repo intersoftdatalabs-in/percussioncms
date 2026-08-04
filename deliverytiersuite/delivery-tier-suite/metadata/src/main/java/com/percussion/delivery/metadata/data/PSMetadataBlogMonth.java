@@ -26,11 +26,14 @@ public class PSMetadataBlogMonth {
 
   private Integer count;
 
+  /** No-arg constructor required by the JSON binding layer. */
   public PSMetadataBlogMonth() {}
 
   /**
-   * @param month
-   * @param count
+   * Constructs a fully-populated month entry.
+   *
+   * @param month the localized month name to display.
+   * @param count the number of blog posts that landed in this month.
    */
   public PSMetadataBlogMonth(String month, Integer count) {
     super();
@@ -39,28 +42,36 @@ public class PSMetadataBlogMonth {
   }
 
   /**
-   * @return the month
+   * Returns the localized month name.
+   *
+   * @return the month, may be {@code null}.
    */
   public String getMonth() {
     return month;
   }
 
   /**
-   * @param month the month to set
+   * Sets the localized month name.
+   *
+   * @param month the month to set; may be {@code null}.
    */
   public void setMonth(String month) {
     this.month = month;
   }
 
   /**
-   * @return the count
+   * Returns the number of blog posts that landed in this month.
+   *
+   * @return the count, may be {@code null}.
    */
   public Integer getCount() {
     return count;
   }
 
   /**
-   * @param count the number of counts to set
+   * Sets the number of blog posts that landed in this month.
+   *
+   * @param count the number of counts to set.
    */
   public void setCount(Integer count) {
     this.count = count;

@@ -41,6 +41,11 @@ public class PSCookieConsentService implements IPSCookieConsentService {
 
   private final IPSCookieConsentDao consentDao;
 
+  /**
+   * Constructs the service with the supplied consent DAO.
+   *
+   * @param consentDao the cookie-consent DAO used by this service; may not be {@code null}.
+   */
   @Autowired
   public PSCookieConsentService(IPSCookieConsentDao consentDao) {
     log.debug("Initializing consentDao.");

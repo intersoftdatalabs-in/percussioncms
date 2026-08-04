@@ -42,8 +42,18 @@ public class PSCookieConsent implements IPSCookieConsent {
   private boolean optIn;
   private Date consentDate;
 
+  /** No-arg constructor required by the JSON binding layer. */
   public PSCookieConsent() {}
 
+  /**
+   * Constructs a fully populated cookie-consent entry.
+   *
+   * @param siteName the site the consent was captured for; may not be {@code null}.
+   * @param serviceName the service / cookie name the consent applies to; may not be {@code null}.
+   * @param consentDate the date the consent was captured; may not be {@code null}.
+   * @param ip the originating client IP; may not be {@code null}.
+   * @param optIn {@code true} if the client opted in, {@code false} otherwise.
+   */
   public PSCookieConsent(
       String siteName, String serviceName, Date consentDate, String ip, boolean optIn) {
 

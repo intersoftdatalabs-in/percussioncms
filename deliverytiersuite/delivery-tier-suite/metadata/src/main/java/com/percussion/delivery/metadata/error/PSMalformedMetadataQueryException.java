@@ -17,34 +17,43 @@
 package com.percussion.delivery.metadata.error;
 
 /**
+ * Signals that a single element of a metadata query criteria expression could not be parsed into
+ * the name / operation / value triple consumed by the indexer.
+ *
  * @author erikserating
  */
 public class PSMalformedMetadataQueryException extends Exception {
 
   private static final long serialVersionUID = 1L;
 
-  /** */
+  /** Default no-arg constructor. */
   public PSMalformedMetadataQueryException() {
     super();
   }
 
   /**
-   * @param message
-   * @param cause
+   * Constructs an instance with the given message and cause.
+   *
+   * @param message the detail message describing the parse failure; may be <code>null</code>.
+   * @param cause the underlying cause; may be <code>null</code>.
    */
   public PSMalformedMetadataQueryException(String message, Throwable cause) {
     super(message, cause);
   }
 
   /**
-   * @param message
+   * Constructs an instance with the given message.
+   *
+   * @param message the detail message describing the parse failure; may be <code>null</code>.
    */
   public PSMalformedMetadataQueryException(String message) {
     super(message);
   }
 
   /**
-   * @param cause
+   * Constructs an instance wrapping the given cause.
+   *
+   * @param cause the underlying cause; may be <code>null</code>.
    */
   public PSMalformedMetadataQueryException(Throwable cause) {
     super(cause);

@@ -38,7 +38,11 @@ public class PSMetadataBlogYear {
   private List<PSMetadataBlogMonth> months;
 
   /**
-   * @param year
+   * Constructs a year bucket initialised with zero counts and an empty slot for every month up to
+   * and including the supplied {@code year}. If {@code year} is the current year only the months up
+   * to "now" are created; otherwise all twelve are.
+   *
+   * @param year the year to initialise, may be <code>null</code>.
    */
   public PSMetadataBlogYear(Integer year) {
     super();
@@ -64,56 +68,83 @@ public class PSMetadataBlogYear {
     this.months = emptyMonths;
   }
 
+  /**
+   * Internal helper that orders months alphabetically (used as a fallback comparator for archive
+   * views).
+   */
   class MonthOrderBlogsComparator implements Comparator<PSMetadataBlogMonth> {
+
+    /**
+     * Compares two months alphabetically by their display name.
+     *
+     * @param o1 the first month to compare.
+     * @param o2 the second month to compare.
+     * @return a negative integer, zero or a positive integer following the {@link Comparator}
+     *     contract.
+     */
     public int compare(PSMetadataBlogMonth o1, PSMetadataBlogMonth o2) {
       return o1.getMonth().compareTo(o2.getMonth());
     }
   }
 
   /**
-   * @return the year
+   * Returns the year represented by this entry.
+   *
+   * @return the year value.
    */
   public Integer getYear() {
     return year;
   }
 
   /**
-   * @param year the year to set
+   * Sets the year represented by this entry.
+   *
+   * @param year the year to set.
    */
   public void setYear(Integer year) {
     this.year = year;
   }
 
   /**
-   * @param yearCount the year count to set
+   * Sets the year-overall post count for this entry.
+   *
+   * @param yearCount the year count to set.
    */
   public void setYearCount(Integer yearCount) {
     this.yearCount = yearCount;
   }
 
   /**
-   * @return the count for the year
+   * Returns the total number of posts that landed in this year.
+   *
+   * @return the count for the year.
    */
   public Integer getYearCount() {
     return yearCount;
   }
 
   /**
-   * @return the months
+   * Returns the list of month buckets for this year, each pre-populated with a count of zero.
+   *
+   * @return the months list, never <code>null</code>, may be empty.
    */
   public List<PSMetadataBlogMonth> getMonths() {
     return months;
   }
 
   /**
-   * @param months the months to set
+   * Replaces the list of month buckets.
+   *
+   * @param months the months to set.
    */
   public void setMonths(List<PSMetadataBlogMonth> months) {
     this.months = months;
   }
 
   /**
-   * @param month the month to be add
+   * Adds a single month bucket to the months list.
+   *
+   * @param month the month to add.
    */
   public void addMonth(PSMetadataBlogMonth month) {
     this.months.add(month);

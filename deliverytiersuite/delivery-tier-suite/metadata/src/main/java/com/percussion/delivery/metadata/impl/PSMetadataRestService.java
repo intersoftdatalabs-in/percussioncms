@@ -79,18 +79,33 @@ public class PSMetadataRestService extends PSAbstractRestService implements IPSM
   /** The metadata query service reference. Injected in the ctor. Never <code>null</code>. */
   @Autowired private IPSMetadataQueryService queryService;
 
+  /** Injected metadata indexer service. Never <code>null</code> after Spring initialisation. */
   @Autowired private IPSMetadataIndexerService indexer;
 
+  /** Injected metadata DAO. Never <code>null</code> after Spring initialisation. */
   @Autowired private IPSMetadataDao dao;
 
+  /** Injected blog post visit service. Never <code>null</code> after Spring initialisation. */
   @Autowired private IPSBlogPostVisitService visitService;
+
+  /** Injected cookie consent service. Never <code>null</code> after Spring initialisation. */
   @Autowired private IPSCookieConsentService cookieService;
 
   /** Logger for this class. */
   private static final Logger log = LogManager.getLogger(PSMetadataRestService.class);
 
+  /** No-arg constructor required by JAX-RS. */
   public PSMetadataRestService() {}
 
+  /**
+   * Constructs the REST resource with all required collaborators.
+   *
+   * @param service the metadata query service; may not be {@code null}.
+   * @param indexer the metadata indexer service; may not be {@code null}.
+   * @param dao the metadata DAO; may not be {@code null}.
+   * @param visitService the blog post visit service; may not be {@code null}.
+   * @param cookieService the cookie consent service; may not be {@code null}.
+   */
   @Autowired
   public PSMetadataRestService(
       IPSMetadataQueryService service,
@@ -105,6 +120,13 @@ public class PSMetadataRestService extends PSAbstractRestService implements IPSM
     this.cookieService = cookieService;
   }
 
+  /**
+   * Resolves the {@code XSRF-TOKEN} cookie on the inbound request and copies the value into the
+   * response headers so the browser-side framework can pick it up.
+   *
+   * @param request the inbound HTTP request; may be {@code null}.
+   * @param response the outbound HTTP response; may be {@code null}.
+   */
   @HEAD
   @Path("/csrf")
   public void csrf(@Context HttpServletRequest request, @Context HttpServletResponse response) {

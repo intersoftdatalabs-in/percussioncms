@@ -40,8 +40,15 @@ public class PSMetadataIndexerService implements IPSMetadataIndexerService {
   /* Connector to be notified of data change events */
   private IPSServiceDataChangeListener connector;
   private List<IPSServiceDataChangeListener> listeners = new ArrayList<>();
+
+  /** Service identifiers advertised to {@link IPSServiceDataChangeListener} callbacks. */
   private final String[] PERC_METADATA_SERVICES = {"perc-metadata-services"};
 
+  /**
+   * Constructs the service with the supplied DAO.
+   *
+   * @param dao the metadata DAO used to satisfy all read / write requests; may not be {@code null}.
+   */
   @Autowired
   public PSMetadataIndexerService(IPSMetadataDao dao) {
     this.dao = dao;
@@ -223,10 +230,20 @@ public class PSMetadataIndexerService implements IPSMetadataIndexerService {
     }
   }
 
+  /**
+   * Returns the connector used to notify external systems of metadata data-change events.
+   *
+   * @return the connector, may be <code>null</code>.
+   */
   public IPSServiceDataChangeListener getConnector() {
     return connector;
   }
 
+  /**
+   * Sets the connector and also registers it as a metadata listener.
+   *
+   * @param connector the connector to register; may be <code>null</code>.
+   */
   public void setConnector(IPSServiceDataChangeListener connector) {
     this.connector = connector;
     this.addMetadataListener(connector);

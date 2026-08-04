@@ -35,6 +35,7 @@ public class PSCookieConsentQuery extends PSCookieConsent {
 
   private List<String> services;
 
+  /** No-arg constructor required by the JAX-RS / Jackson binding layer. */
   public PSCookieConsentQuery() {
     super();
   }
@@ -65,10 +66,20 @@ public class PSCookieConsentQuery extends PSCookieConsent {
     setServices(services);
   }
 
+  /**
+   * Returns the list of services/cookies approved by the client.
+   *
+   * @return the services list, may be {@code null} but never contains {@code null} entries.
+   */
   public List<String> getServices() {
     return services;
   }
 
+  /**
+   * Replaces the list of services/cookies approved by the client.
+   *
+   * @param services the services list to set; may be {@code null}.
+   */
   public void setServices(List<String> services) {
     this.services = services;
   }

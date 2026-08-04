@@ -23,6 +23,9 @@ package com.percussion.delivery.metadata.utils;
  * @author miltonpividori
  */
 public class PSPagepathUtils {
+  /** Suppresses the default public constructor; the class only exposes static helpers. */
+  private PSPagepathUtils() {}
+
   /**
    * Normalizes a file path, replacing '\' character by '/'.
    *

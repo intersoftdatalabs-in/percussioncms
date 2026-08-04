@@ -22,7 +22,8 @@ import java.util.List;
 
 /**
  * Represents an object with a category name, the count of pages that are categorized with it and
- * their children.
+ * their children. Used by the metadata REST service to carry the category tree returned by the
+ * {@code /categories/get} endpoint.
  */
 public class PSMetadataRestCategory {
   private String category;
@@ -31,12 +32,15 @@ public class PSMetadataRestCategory {
 
   private List<PSMetadataRestCategory> children;
 
+  /** No-arg constructor required by the JSON binding layer. */
   public PSMetadataRestCategory() {
     super();
   }
 
   /**
-   * @param category
+   * Constructs a category node with an empty count pair and child list.
+   *
+   * @param category the category name; may not be {@code null}.
    */
   public PSMetadataRestCategory(String category) {
     super();
@@ -46,9 +50,11 @@ public class PSMetadataRestCategory {
   }
 
   /**
-   * @param category
-   * @param count
-   * @param children
+   * Constructs a fully-populated category node.
+   *
+   * @param category the category name; may not be {@code null}.
+   * @param count the count pair (own / total) for this category; may not be {@code null}.
+   * @param children the child categories; may not be {@code null}.
    */
   public PSMetadataRestCategory(
       String category, PSPair<Integer, Integer> count, List<PSMetadataRestCategory> children) {
@@ -59,42 +65,54 @@ public class PSMetadataRestCategory {
   }
 
   /**
-   * @return the category
+   * Returns the category name.
+   *
+   * @return the category, may be <code>null</code>.
    */
   public String getCategory() {
     return category;
   }
 
   /**
-   * @param category the category to set
+   * Sets the category name.
+   *
+   * @param category the category to set; may be <code>null</code>.
    */
   public void setCategory(String category) {
     this.category = category;
   }
 
   /**
-   * @return the count
+   * Returns the count pair (own / total) for this category.
+   *
+   * @return the count, may be <code>null</code>.
    */
   public PSPair<Integer, Integer> getCount() {
     return count;
   }
 
   /**
-   * @param count the count to set
+   * Sets the count pair for this category.
+   *
+   * @param count the count to set; may be <code>null</code>.
    */
   public void setCount(PSPair<Integer, Integer> count) {
     this.count = count;
   }
 
   /**
-   * @return the children
+   * Returns the immediate child categories.
+   *
+   * @return the children list, may be <code>null</code>.
    */
   public List<PSMetadataRestCategory> getChildren() {
     return children;
   }
 
   /**
-   * @param children the children to set
+   * Replaces the immediate child categories.
+   *
+   * @param children the children to set; may be <code>null</code>.
    */
   public void setChildrens(List<PSMetadataRestCategory> children) {
     this.children = children;

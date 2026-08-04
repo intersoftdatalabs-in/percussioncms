@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.percussion.delivery.metadata;
 
 import com.percussion.delivery.metadata.data.*;
@@ -36,6 +37,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * JAX-RS resource surface for the DTS metadata micro-service. Wraps the {@link
+ * IPSMetadataIndexerService} and the cookie-consent services so they can be exercised over HTTP by
+ * the published-site clients.
+ *
  * @author natechadwick
  */
 public interface IPSMetadataRestService extends IPSRestService {
@@ -73,6 +78,12 @@ public interface IPSMetadataRestService extends IPSRestService {
   @Produces(MediaType.APPLICATION_JSON)
   public abstract PSMetadataRestTagList getTags(PSMetadataQuery metadataQuery);
 
+  /**
+   * Returns a paginated list of blog entries that match the supplied metadata query.
+   *
+   * @param metadataQuery A PSMetadataQuery containing the query. Never <code>null</code>.
+   * @return the blog aggregation result, never <code>null</code>, may be empty.
+   */
   @POST
   @Path("/blog/getCurrent")
   @Produces(MediaType.APPLICATION_JSON)
@@ -93,6 +104,12 @@ public interface IPSMetadataRestService extends IPSRestService {
   @Produces(MediaType.APPLICATION_JSON)
   public abstract List<PSMetadataRestCategory> getCategories(PSMetadataQuery metadataQuery);
 
+  /**
+   * Returns the list of blog posts that match the supplied metadata query.
+   *
+   * @param metadataQuery A PSMetadataQuery containing the query. Never <code>null</code>.
+   * @return the blog list result, never <code>null</code>, may be empty.
+   */
   @POST
   @Path("/blogs/get")
   @Produces(MediaType.APPLICATION_JSON)
@@ -136,12 +153,16 @@ public interface IPSMetadataRestService extends IPSRestService {
   public abstract Set<String> getAllIndexedDirectories();
 
   /**
-   * @return the indexerService
+   * Returns the indexer service that backs this REST resource.
+   *
+   * @return the indexerService, never <code>null</code>.
    */
   public abstract IPSMetadataIndexerService getIndexerService();
 
   /**
-   * @param indexerService the indexerService to set
+   * Replaces the indexer service that backs this REST resource.
+   *
+   * @param indexerService the indexerService to set; may not be <code>null</code>.
    */
   public abstract void setIndexerService(IPSMetadataIndexerService indexerService);
 
@@ -152,6 +173,8 @@ public interface IPSMetadataRestService extends IPSRestService {
    * @param category - The updated category json String.
    * @param sitename - Site in which the category is modified
    * @param deliveryserver - Staging or Production
+   * @return the response payload describing the outcome of the category update; never <code>null
+   *     </code>.
    */
   @POST
   @Path("/categories/update/{sitename}/{deliveryserver}")
@@ -161,16 +184,32 @@ public interface IPSMetadataRestService extends IPSRestService {
       @PathParam("sitename") String sitename,
       @PathParam("deliveryserver") String deliveryserver);
 
+  /**
+   * Reports the running status of the visit tracking scheduler.
+   *
+   * @return the status payload, never <code>null</code>.
+   */
   @GET
   @Path("/visits/status")
   @Produces(MediaType.APPLICATION_JSON)
   public abstract String getVisitServiceStatus();
 
+  /**
+   * Returns the most-visited blog posts matching the supplied visit query.
+   *
+   * @param visitQuery the visit query; may be <code>null</code>.
+   * @return the list of blog post entries, never <code>null</code>, may be empty.
+   */
   @GET
   @Path("/topblogposts")
   @Produces(MediaType.APPLICATION_JSON)
   public abstract List<PSMetadataRestEntry> getTopVisitedBlogPosts(PSVisitQuery visitQuery);
 
+  /**
+   * Tracks a blog post visit captured from a client.
+   *
+   * @param visitEntry the visit entry to record; may be <code>null</code>.
+   */
   @POST
   @Path("/trackblogpost")
   @Consumes(MediaType.APPLICATION_JSON)
@@ -202,9 +241,11 @@ public interface IPSMetadataRestService extends IPSRestService {
       @PathParam("csvFileName") String csvFileName);
 
   /**
-   * Gets all cookie consent entries in .CSV format.
+   * Gets all cookie consent entries for the supplied site in .CSV format.
    *
-   * @param csvFileName - the name of the file.
+   * @param siteName - the site the cookie consent entries are reported for; may not be {@code
+   *     null}.
+   * @param csvFileName - the name of the file to produce.
    * @return A .CSV file never <code>null</code>. May be empty.
    */
   @GET
