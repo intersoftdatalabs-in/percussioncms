@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,10 +61,30 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
- * Helper methods for handling serialization to and from XML. This sets up betwixt with default
- * classes that handle the translation of class names to element names and in particular sets up
- * type mapping information to assist in converting back from xml; an area that betwixt is very weak
- * in.
+ * Helper methods for handling serialization to and from XML.
+ *
+ * <p><strong>Production engine (issue #1887 / epic #505):</strong> public {@link #writeToXml},
+ * {@link #readFromXML} entry points default to Jackson XML via {@link
+ * PSJacksonXmlSerializationHelper}. Naming uses {@link PSXmlElementNameMapper}. Commons Betwixt
+ * remains on the classpath and is still available as an emergency rollback only.
+ *
+ * <p><strong>Rollback flag:</strong> set system property {@value #ENGINE_PROPERTY} to {@value
+ * #ENGINE_BETWIXT} to force the legacy Betwixt path. Default is {@value #ENGINE_JACKSON}. Remove
+ * this flag when domain slices and #1824 (Betwixt POM removal) complete — do not leave dual engines
+ * indefinitely.
+ *
+ * <p>Public API preserved: {@link #addType}, {@link #readFromXML}, {@link #writeToXml}, {@link
+ * #getIdFromXml}, {@link #rewriteLegacyNullRoot}. Methods remain {@code synchronized} until Betwixt
+ * is fully removed and concurrency is re-proven.
+ *
+ * <p><strong>Approved XML deviations vs historical Betwixt writes:</strong>
+ *
+ * <ul>
+ *   <li>Betwixt graph-identity {@code id="…"} attributes on complex elements are not emitted by
+ *       Jackson (property values live in child elements).
+ *   <li>Property / collection item element names for unannotated domain beans may differ until
+ *       domain migration slices add Jackson annotations or shared mix-ins (#1888+).
+ * </ul>
  *
  * @author dougrand
  */
@@ -72,6 +92,23 @@ import org.xml.sax.helpers.DefaultHandler;
 public class PSXmlSerializationHelper {
   /** Static for logging */
   private static final Logger log = LogManager.getLogger(PSXmlSerializationHelper.class);
+
+  /**
+   * System property selecting the XML serialization engine for {@link #writeToXml} / {@link
+   * #readFromXML}.
+   *
+   * <p>Values: {@value #ENGINE_JACKSON} (default) or {@value #ENGINE_BETWIXT} (rollback).
+   *
+   * <p><strong>Removal plan:</strong> drop this property and Betwixt code paths after domain
+   * consumer migration (#1823 slices) and {@code commons-betwixt} removal (#1824).
+   */
+  public static final String ENGINE_PROPERTY = "com.percussion.xml.serialization.engine";
+
+  /** Default production engine. */
+  public static final String ENGINE_JACKSON = "jackson";
+
+  /** Emergency rollback engine (Betwixt). */
+  public static final String ENGINE_BETWIXT = "betwixt";
 
   /** Static used for method lookup */
   static final Class[] NOARGS = new Class[0];
@@ -112,7 +149,7 @@ public class PSXmlSerializationHelper {
 
   /**
    * Betwixt {@link NameMapper} that delegates type naming to {@link PSXmlElementNameMapper} so the
-   * Jackson parallel helper and Betwixt share one naming strategy (issue #1822 / epic #505).
+   * Jackson helper and Betwixt share one naming strategy (issue #1822 / epic #505).
    *
    * <p>Strips {@code PS}/{@code IPS}, flattens multi-cap runs, then hyphenates (see {@link
    * PSXmlElementNameMapper}). Betwixt uses the same mapper instance for element and attribute name
@@ -207,6 +244,8 @@ public class PSXmlSerializationHelper {
       throw new IllegalArgumentException("type may not be null");
     }
     ms_typeMap.put(elementName, type);
+    // Keep Jackson type registry in lock-step (polymorphic / collection items).
+    PSJacksonXmlSerializationHelper.addType(elementName, type);
   }
 
   /**
@@ -219,9 +258,18 @@ public class PSXmlSerializationHelper {
     if (type == null) {
       throw new IllegalArgumentException("type may not be null");
     }
-    PSNameMapper mapper = new PSNameMapper();
-    String name = mapper.mapTypeToElementName(type.getSimpleName());
+    String name = PSXmlElementNameMapper.mapTypeToElementName(type.getSimpleName());
     addType(name, type);
+  }
+
+  /**
+   * Whether the public facade uses Jackson (default) or the Betwixt rollback path.
+   *
+   * @return {@code true} when Jackson is selected (including blank/unknown property values)
+   */
+  public static boolean isJacksonEngine() {
+    String value = System.getProperty(ENGINE_PROPERTY, ENGINE_JACKSON);
+    return !ENGINE_BETWIXT.equalsIgnoreCase(StringUtils.trimToEmpty(value));
   }
 
   /** Holds the suppression strategy singleton. */
@@ -352,25 +400,33 @@ public class PSXmlSerializationHelper {
   }
 
   /**
-   * Write the given object to an XML string. This method uses the commons betwixt library to
-   * serialize the object using reflection. Please note that you must have public methods for each
-   * and every property you wish to persist to the XML string.
+   * Write the given object to an XML string. Default engine is Jackson ({@link
+   * PSJacksonXmlSerializationHelper}); set {@value #ENGINE_PROPERTY}={@value #ENGINE_BETWIXT} for
+   * the legacy Betwixt path.
    *
    * <p>Properties that should not be persisted should have the {@link IPSXmlSerialization}
    * annotation added to their <code>get</code> or <code>is</code> methods.
    *
-   * <p>Note: ph - This method needs to be synchronized because the underlying implementation
-   * library is not thread safe. What I found was that when serializing an object to xml, sometimes
-   * an empty document would be created even though the object was valid. This only happened when
-   * several objects were being processed at the same time. The beanutils jars reported a threading
-   * issue fixed in v1.8, but I tried the latest jars, and they didn't resolve the issue.
+   * <p>Note: methods stay synchronized until Betwixt is removed and concurrency is re-proven
+   * (historical Betwixt / BeanUtils threading issues; keep the gate for the dual-engine period).
    *
    * @param object the object to write, never <code>null</code>
    * @return the XML representation of the object
    * @throws IOException if there's a problem writing the object
-   * @throws SAXException if there's a problem writing the object
+   * @throws SAXException if there's a problem writing the object (Betwixt path)
    */
   public static synchronized String writeToXml(Object object) throws IOException, SAXException {
+    if (object == null) {
+      throw new IllegalArgumentException("object may not be null");
+    }
+    if (isJacksonEngine()) {
+      return PSJacksonXmlSerializationHelper.writeToXml(object);
+    }
+    return writeToXmlBetwixt(object);
+  }
+
+  /** Legacy Betwixt write path (rollback only). */
+  private static String writeToXmlBetwixt(Object object) throws IOException, SAXException {
     Writer w = new StringWriter();
     BeanWriter writer = new BeanWriter(w);
     standardBetwixtConfiguration(writer);
@@ -420,9 +476,9 @@ public class PSXmlSerializationHelper {
   }
 
   /**
-   * Read the object's information from the given XML source using the betwixt library. If your
-   * object has one or more properties that are expressed as abstract classes or interfaces, you
-   * must register the needed classes by calling {@link #addType(String, Class)}.
+   * Read the object's information from the given XML source. If your object has one or more
+   * properties that are expressed as abstract classes or interfaces, you must register the needed
+   * classes by calling {@link #addType(String, Class)}.
    *
    * @param xmlsource the xml source, never <code>null</code> or empty
    * @param object the object to read, never <code>null</code>
@@ -435,7 +491,7 @@ public class PSXmlSerializationHelper {
     if (object == null) {
       throw new IllegalArgumentException("object may not be null");
     }
-    Object restored = readFromXML(xmlsource, object != null ? object.getClass() : null);
+    Object restored = readFromXML(xmlsource, object.getClass());
     try {
       BeanUtils.copyProperties(object, restored);
       return object;
@@ -450,20 +506,72 @@ public class PSXmlSerializationHelper {
   }
 
   /**
-   * Read the object's information from the given XML source using the betwixt library. If your
-   * object has one or more properties that are expressed as abstract classes or interfaces, you
-   * must register the needed classes by calling {@link #addType(String, Class)}.
+   * Read the object's information from the given XML source. Default engine is Jackson; set {@value
+   * #ENGINE_PROPERTY}={@value #ENGINE_BETWIXT} for the legacy Betwixt path. If your object has one
+   * or more properties that are expressed as abstract classes or interfaces, you must register the
+   * needed classes by calling {@link #addType(String, Class)}.
    *
    * @param xmlString the xml source, never <code>null</code> or empty
-   * @return clazz the class to read, may be <code>null</code>
+   * @param clazz the class to read, may be <code>null</code> (resolved from root element via type
+   *     map when possible)
+   * @return restored object, never {@code null} on success
    * @throws IOException
    * @throws SAXException
    */
-  public static Object readFromXML(String xmlString, Class clazz) throws IOException, SAXException {
+  public static synchronized Object readFromXML(String xmlString, Class clazz)
+      throws IOException, SAXException {
     if (StringUtils.isBlank(xmlString)) {
       throw new IllegalArgumentException("xmlString may not be null or empty");
     }
 
+    if (isJacksonEngine()) {
+      return readFromXMLJackson(xmlString, clazz);
+    }
+    return readFromXMLBetwixt(xmlString, clazz);
+  }
+
+  /**
+   * Jackson deserialize path for the public facade.
+   *
+   * @param xmlString never blank
+   * @param clazz target type, may be {@code null} (resolved from root via {@link #ms_typeMap})
+   */
+  private static Object readFromXMLJackson(String xmlString, Class clazz)
+      throws IOException, SAXException {
+    Class<?> target = clazz;
+    String parseXml = rewriteLegacyNullRoot(xmlString, target);
+
+    if (target == null) {
+      target = resolveClassFromRootElement(parseXml);
+      if (target == null) {
+        String rootName = peekRootElementName(parseXml);
+        throw new SAXException(
+            "No bean found"
+                + (rootName != null ? ", root element '" + rootName + "'" : "")
+                + ". Register the root type with addType or pass an explicit Class.");
+      }
+      // If root was still legacy <null>, rewrite now that type is known
+      parseXml = rewriteLegacyNullRoot(parseXml, target);
+    }
+
+    try {
+      return PSJacksonXmlSerializationHelper.readFromXml(parseXml, target);
+    } catch (IOException e) {
+      String rootName = peekRootElementName(parseXml);
+      throw new SAXException(
+          "No bean found"
+              + " for "
+              + target.getName()
+              + (rootName != null ? ", root element '" + rootName + "'" : "")
+              + ": "
+              + e.getMessage(),
+          e);
+    }
+  }
+
+  /** Legacy Betwixt read path (rollback only). */
+  private static Object readFromXMLBetwixt(String xmlString, Class clazz)
+      throws IOException, SAXException {
     // Rewrite legacy Betwixt root <null>…</null> to the mapped type element name
     // before parsing. Package payloads (keywords, etc.) were often written with a
     // root of "null"; Betwixt 0.7 only allows one registered name per class, and
@@ -512,18 +620,50 @@ public class PSXmlSerializationHelper {
   }
 
   /**
+   * Resolve a registered implementation class from the document root element name.
+   *
+   * @param xmlString XML to peek, never blank
+   * @return registered class or {@code null}
+   */
+  private static Class<?> resolveClassFromRootElement(String xmlString) {
+    String rootName = peekRootElementName(xmlString);
+    if (StringUtils.isBlank(rootName)) {
+      return null;
+    }
+    return ms_typeMap.get(rootName);
+  }
+
+  /**
+   * Best-effort root element local name (no full schema validation).
+   *
+   * @param xmlString never blank
+   * @return root tag name or {@code null}
+   */
+  private static String peekRootElementName(String xmlString) {
+    try {
+      Document doc = PSXmlDocumentBuilder.createXmlDocument(new StringReader(xmlString), false);
+      if (doc != null && doc.getDocumentElement() != null) {
+        return doc.getDocumentElement().getTagName();
+      }
+    } catch (Exception e) {
+      log.debug("Could not peek root element name: {}", PSExceptionUtils.getMessageForLog(e));
+    }
+    return null;
+  }
+
+  /**
    * When {@code clazz} is provided and the document root is the legacy element name {@code null},
-   * rewrite open/close root tags to the Betwixt-mapped type name (via {@link PSNameMapper}).
+   * rewrite open/close root tags to the mapped type name (via {@link PSXmlElementNameMapper}).
    *
    * <p>Package archives under {@code modules/perc-packages} commonly contain keyword XML whose root
-   * is {@code <null id="…">} rather than {@code <keyword>}. Left unchanged, Betwixt cannot bind the
-   * root and {@link #readFromXML(String, Class)} fails with "No bean found".
+   * is {@code <null id="…">} rather than {@code <keyword>}. Left unchanged, neither Betwixt nor
+   * Jackson can bind the root and {@link #readFromXML(String, Class)} fails with "No bean found".
    *
    * @param xmlString original XML, never blank
    * @param clazz target type, may be {@code null} (no rewrite)
-   * @return XML ready for Betwixt (possibly unchanged)
+   * @return XML ready for deserialize (possibly unchanged)
    */
-  static String rewriteLegacyNullRoot(String xmlString, Class<?> clazz) {
+  public static String rewriteLegacyNullRoot(String xmlString, Class<?> clazz) {
     if (clazz == null || StringUtils.isBlank(xmlString)) {
       return xmlString;
     }
@@ -532,8 +672,7 @@ public class PSXmlSerializationHelper {
       return xmlString;
     }
 
-    PSNameMapper mapper = new PSNameMapper();
-    String mapped = mapper.mapTypeToElementName(clazz.getSimpleName());
+    String mapped = PSXmlElementNameMapper.mapTypeToElementName(clazz.getSimpleName());
     if (StringUtils.isBlank(mapped) || "null".equals(mapped)) {
       return xmlString;
     }
