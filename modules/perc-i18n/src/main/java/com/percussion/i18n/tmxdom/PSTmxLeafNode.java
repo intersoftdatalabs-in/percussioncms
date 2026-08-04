@@ -22,6 +22,11 @@ import org.w3c.dom.Text;
 
 /** Implementation of the interface {@link IPSTmxLeafNode} */
 public abstract class PSTmxLeafNode extends PSTmxNode implements IPSTmxLeafNode {
+  /** Creates an empty leaf node. */
+  protected PSTmxLeafNode() {
+    super();
+  }
+
   /** Value associated with this node. A leaf node will normally have a value which is a string. */
   protected String m_Value = null;
 

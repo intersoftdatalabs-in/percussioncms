@@ -29,7 +29,11 @@ public class PSFatalException extends RuntimeException {
     super();
   }
 
-  /** Constructor that takes the error message, simply delegates to its base class counterpart. */
+  /**
+   * Constructor that takes the error message, simply delegates to its base class counterpart.
+   *
+   * @param msg the fatal error message.
+   */
   public PSFatalException(String msg) {
     super(msg);
   }

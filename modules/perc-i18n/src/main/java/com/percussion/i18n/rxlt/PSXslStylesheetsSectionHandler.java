@@ -45,6 +45,11 @@ import org.w3c.dom.Text;
  * &lt;/psxi18n:lookupkeys&gt; &lt;/p&gt;
  */
 public class PSXslStylesheetsSectionHandler extends PSIdleDotter implements IPSSectionHandler {
+  /** Creates a handler for XSL stylesheet resources. */
+  public PSXslStylesheetsSectionHandler() {
+    super();
+  }
+
   /*
    * Implementation of the interface defined in the interface.
    * See {@link IPSSectionHandler#process(Element)} for

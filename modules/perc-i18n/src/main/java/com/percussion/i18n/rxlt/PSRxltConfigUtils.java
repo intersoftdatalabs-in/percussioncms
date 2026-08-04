@@ -21,28 +21,59 @@ package com.percussion.i18n.rxlt;
  * Percussion Language Tool.
  */
 public class PSRxltConfigUtils {
-  /*
-   * Names of the attributes used in the configuration file
-   */
+  /** Creates the configuration constants holder. */
+  public PSRxltConfigUtils() {
+    super();
+  }
+
+  /** Name of the Rhythmyx root attribute. */
   public static final String ATTR_RXROOT = "rxroot";
+
+  /** Name of the file path attribute. */
   public static final String ATTR_FILE_PATH = "filepath";
+
+  /** Name of the section identifier attribute. */
   public static final String ATTR_SECTIONID = "sectionid";
+
+  /** Name of the process attribute. */
   public static final String ATTR_PROCESS = "process";
+
+  /** Name of the name attribute. */
   public static final String ATTR_NAME = "name";
+
+  /** Name of the action identifier attribute. */
   public static final String ATTR_ACTIONID = "actionid";
+
+  /** Name of the language string attribute. */
   public static final String ATTR_LANGUAGESTRING = "languagestring";
+
+  /** Name of the display name attribute. */
   public static final String ATTR_DISPLAYNAME = "displayname";
+
+  /** Name of the description attribute. */
   public static final String ATTR_DESCRIPTION = "description";
+
+  /** Name of the keep-missing-only attribute. */
   public static final String ATTR_KEEPMISSINGONLY = "keepmissingkeysonly";
+
+  /** Name of the output file attribute. */
   public static final String ATTR_OUTPUTFILE = "outputfile";
+
+  /** Name of the mnemonic attribute. */
   public static final String ATTR_MNEMONIC = "mnemonic";
+
+  /** Name of the tooltip attribute. */
   public static final String ATTR_TOOLTIP = "tooltip";
 
-  /*
-   * Names of the elements used in the configuration file
-   */
+  /** Name of a configuration section element. */
   public static final String ELEM_SECTION = "section";
+
+  /** Name of the configuration sections element. */
   public static final String ELEM_SECTIONS = "sections";
+
+  /** Name of a configuration action element. */
   public static final String ELEM_ACTION = "action";
+
+  /** Name of the configuration actions element. */
   public static final String ELEM_ACTIONS = "actions";
 }

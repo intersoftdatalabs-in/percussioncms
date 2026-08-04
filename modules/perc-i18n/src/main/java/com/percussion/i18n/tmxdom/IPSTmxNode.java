@@ -28,7 +28,7 @@ public interface IPSTmxNode {
    * node. Merge rules are specified in the interface {@link IPSTmxMergeConfig}.
    *
    * @param node must not be <code>null</code>
-   * @throws PSTmxDomException
+   * @throws PSTmxDomException if the node cannot be merged.
    */
   void merge(IPSTmxNode node) throws PSTmxDomException;
 

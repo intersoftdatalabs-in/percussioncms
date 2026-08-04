@@ -31,6 +31,11 @@ import java.util.logging.Logger;
  * method and provides some static utility methods to provide information about the tool.
  */
 public class PSRxltMain {
+  /** Creates the language tool entry point. */
+  public PSRxltMain() {
+    super();
+  }
+
   private static final Logger log = Logger.getLogger("I18N");
 
   /**
@@ -38,7 +43,7 @@ public class PSRxltMain {
    * ? displays the usage syntax, -noui runs the tool without user interaction using default
    * settings and -R&lt;rxroot&gt; sets the Rhythmyx root directory to the specified one.
    *
-   * @param args
+   * @param args optional command-line arguments controlling the tool.
    */
   public static void main(String[] args) {
     boolean ui = true;
@@ -69,6 +74,13 @@ public class PSRxltMain {
     process(ui, rxroot);
   }
 
+  /**
+   * Processes the configured language tool actions.
+   *
+   * @param ui <code>true</code> to run with user interaction.
+   * @param rxroot the Rhythmyx root directory.
+   * @return <code>true</code> when processing completes successfully.
+   */
   public static boolean process(boolean ui, String rxroot) {
     PSCommandLineProcessor processor = null;
     try (BufferedReader conReader = new BufferedReader(new InputStreamReader(System.in))) {

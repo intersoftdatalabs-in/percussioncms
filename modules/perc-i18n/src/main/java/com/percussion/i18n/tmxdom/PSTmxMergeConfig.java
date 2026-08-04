@@ -40,8 +40,8 @@ public class PSTmxMergeConfig implements IPSTmxMergeConfig {
    * Constructor. Loads the default merge configuration document from the class file archive and
    * builds map of configuration parameter property map.
    *
-   * @throws IOException
-   * @throws SAXException
+   * @throws IOException if the default merge configuration cannot be read.
+   * @throws SAXException if the default merge configuration cannot be parsed.
    */
   public PSTmxMergeConfig() throws IOException, SAXException {
     try (InputStream is = getClass().getResourceAsStream(DEFAULT_MERGE_CONFIG_FILE_NAME)) {
@@ -54,7 +54,7 @@ public class PSTmxMergeConfig implements IPSTmxMergeConfig {
    * parameter maps.
    *
    * @param doc Must not be <code>null</code>.
-   * @throws IllegalArgumentException
+   * @throws IllegalArgumentException if <code>doc</code> is <code>null</code>.
    */
   public PSTmxMergeConfig(Document doc) {
     setConfigDoc(doc);

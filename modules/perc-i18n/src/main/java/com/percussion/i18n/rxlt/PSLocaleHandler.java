@@ -65,6 +65,10 @@ import org.xml.sax.SAXException;
  * data from being garbage collected.
  */
 public class PSLocaleHandler implements IPSActionHandler {
+  /** Creates a locale action handler. */
+  public PSLocaleHandler() {
+    super();
+  }
 
   private static final Logger log = LogManager.getLogger(PSLocaleHandler.class);
 
@@ -772,9 +776,10 @@ public class PSLocaleHandler implements IPSActionHandler {
    */
   private static final String COL_SORT_ORDER = "SORTORDER";
 
-  /*
-   * main method for test purpose.
-   * @param args
+  /**
+   * Runs the locale handler from the command line.
+   *
+   * @param args command-line arguments for the test invocation.
    */
   @SuppressWarnings("unused")
   public static void main(String[] args) {

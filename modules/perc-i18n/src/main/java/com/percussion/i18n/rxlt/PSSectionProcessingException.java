@@ -38,6 +38,12 @@ public class PSSectionProcessingException extends RuntimeException {
     super(msg);
   }
 
+  /**
+   * Constructor that takes the error message and cause.
+   *
+   * @param msg must not be <code>null</code>.
+   * @param t the cause of the section processing failure.
+   */
   public PSSectionProcessingException(String msg, Throwable t) {
     super(msg, t);
   }

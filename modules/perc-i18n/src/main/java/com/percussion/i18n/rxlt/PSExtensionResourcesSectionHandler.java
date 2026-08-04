@@ -44,6 +44,11 @@ import org.w3c.dom.Element;
  * implementing the extensions.
  */
 public class PSExtensionResourcesSectionHandler extends PSIdleDotter implements IPSSectionHandler {
+  /** Creates a handler for extension resource sections. */
+  public PSExtensionResourcesSectionHandler() {
+    super();
+  }
+
   /*
    * Implementation of the method defined in the interface.
    * See {@link IPSSectionHandler#process(Element)} for

@@ -218,8 +218,9 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
    * Just like {@link #getString(String, String)}, except it gets the mnemonic of the specified
    * translation unit (key, language).
    *
-   * @return The mnemonic of the specified unit, <code>0</code> if cannot find the mnemonic for the
-   *     specified translation unit.
+   * @param key the translation key to inspect.
+   * @param language the language of the translation unit.
+   * @return the mnemonic, or <code>0</code> if unavailable.
    */
   public int getMnemonic(String key, String language) {
     PSTmxUnit unit = getUnit(key, language);
@@ -230,8 +231,9 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
    * Just like {@link #getString(String, String)}, except it gets the tooltip of the specified
    * translation unit (key, language).
    *
-   * @return The tooltip of the specified unit, <code>null</code> if cannot find the tooltip for the
-   *     specified translation unit.
+   * @param key the translation key to inspect.
+   * @param language the language of the translation unit.
+   * @return the tooltip, or <code>null</code> if unavailable.
    */
   public String getTooltip(String key, String language) {
     PSTmxUnit unit = getUnit(key, language);
@@ -403,7 +405,10 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
    */
   private static boolean ms_Debug = false;
 
+  /** Legacy system resource i18n path relative to the installation root. */
   public static final String RX_RESOURCES_I18NPATH = "rx_resources" + File.separator + "I18n";
+
+  /** Legacy system resource i18n path relative to the installation root. */
   public static final String SYS_RESOURCES_I18NPATH = "sys_resources" + File.separator + "I18n";
 
   /**
@@ -465,7 +470,12 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
     }
   }
 
-  /** This method loads/reloads the i18n resource to cache. */
+  /**
+   * Loads or reloads the TMX resources into the cache.
+   *
+   * @return <code>true</code> if all resource locations load successfully; otherwise <code>false
+   *     </code>.
+   */
   public synchronized boolean loadResources() {
     boolean ret = true;
 
@@ -674,8 +684,8 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
    * @param rxroot Rhythmyx root directory as string. Must not be <code>null</code>, may be <code>
    *     empty</code>.
    * @return DOM document of the TMX resource file.
-   * @throws FileNotFoundException
-   * @throws SAXException
+   * @throws FileNotFoundException if the master resource file cannot be opened.
+   * @throws SAXException if the master resource document cannot be parsed.
    */
   public static Document getMasterResourceDoc(String rxroot) throws SAXException, IOException {
     synchronized (m_masterResourceMonitor) {
@@ -740,6 +750,7 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
    * @throws IllegalArgumentException if <code>doc</code> is <code>null</code>.
    * @throws IOException if any IO errors occur.
    * @throws SAXException if there is a problem reloading the resources.
+   * @throws ParserConfigurationException if a parser cannot be configured while reloading.
    */
   public void saveMasterResourceBundle(IPSTmxDocument doc, boolean reload)
       throws IOException, SAXException, ParserConfigurationException {

@@ -78,7 +78,12 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
     }
   }
 
-  /** Convenience ctor that calls {@link #PSTmxDocument(Document, boolean) this(DOMDoc, true)} */
+  /**
+   * Convenience constructor that enables default-language variants.
+   *
+   * @param DOMDoc the input XML DOM document, must not be <code>null</code>.
+   * @throws PSTmxDomException if initialization fails.
+   */
   public PSTmxDocument(Document DOMDoc) throws PSTmxDomException {
     this(DOMDoc, true);
   }
@@ -143,7 +148,7 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
    *
    * @return String representation of the sorted XML document associated with this TMX document.
    *     Never <code>null</code> or <code>empty</code>.
-   * @throws PSTmxDomException
+   * @throws PSTmxDomException if the document cannot be converted to a string.
    */
   public String toString() throws PSTmxDomException {
     Document tempDoc = m_DOMDocument;
@@ -416,8 +421,13 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
   }
 
   /**
-   * Convenience method that calls {@link #transformXML(Document, Document, Map)
-   * transformXML(srcDoc, xslDoc, null)}
+   * Convenience method that transforms a source document with an XSL document.
+   *
+   * @param srcDoc source document, must not be <code>null</code>.
+   * @param xslDoc XSL document, must not be <code>null</code>.
+   * @return the transformed XML DOM document, never <code>null</code>.
+   * @throws SAXException if the transformation source cannot be processed.
+   * @throws TransformerException if the transformation fails.
    */
   public static Document transformXML(Document srcDoc, Document xslDoc)
       throws SAXException, TransformerException {
@@ -439,9 +449,9 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
    *     in the stylesheet, the supplied parameter is silently ignored. May be <code>
    * null</code> if no parameters are to be supplied.
    * @return the transformed XML DOM Document. Never <code>null</code>.
-   * @throws SAXException
-   * @throws TransformerException
-   * @throws IllegalArgumentException
+   * @throws SAXException if the source or stylesheet cannot be processed.
+   * @throws TransformerException if the transformation fails.
+   * @throws IllegalArgumentException if either document is <code>null</code>.
    */
   public static Document transformXML(Document srcDoc, Document xslDoc, Map<String, Object> params)
       throws SAXException, TransformerException {
@@ -533,7 +543,7 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
   /**
    * main method for testing purpose.
    *
-   * @param args
+   * @param args command-line arguments for the test invocation.
    */
   public static void main(String[] args) {
 

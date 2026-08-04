@@ -21,6 +21,11 @@ package com.percussion.i18n.rxlt;
  * operations consuming lot of time can extend this class to display idle dots during that opertion.
  */
 public class PSIdleDotter extends Thread {
+  /** Creates an idle-dot display thread. */
+  public PSIdleDotter() {
+    super();
+  }
+
   /**
    * Implementation of the Thread's run method. Writes dots at a regular time interval as long as
    * the process is not ended and m_displayDot flag is <code>true</code>.
