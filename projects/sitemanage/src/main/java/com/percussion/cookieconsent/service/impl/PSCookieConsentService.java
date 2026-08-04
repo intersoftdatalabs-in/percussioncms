@@ -59,6 +59,12 @@ public class PSCookieConsentService implements IPSCookieConsentService {
   private static final String DTS_URL = "/perc-metadata-services/metadata/consent/log";
   private static final String TOTAL_ENTRIES_URL = DTS_URL + "/totals";
 
+  /**
+   * Empty JSON object returned when DTS indexer is missing or unreachable so Home gadgets receive
+   * HTTP 200 with empty totals instead of HTTP 500.
+   */
+  static final String EMPTY_TOTALS_JSON = "{}";
+
   @Autowired @Lazy private IPSPubServerService pubServerService;
 
   /** The delivery service initialized by constructor, never {@code null}. */
@@ -127,21 +133,33 @@ public class PSCookieConsentService implements IPSCookieConsentService {
       var deliveryServer = findServer(siteName);
 
       if (deliveryServer == null) {
-        throw new WebApplicationException(
-            "Cannot find service of: " + PSDeliveryInfo.SERVICE_INDEXER);
+        log.warn(
+            "Cannot find delivery indexer for cookie consent totals (site={}); returning empty"
+                + " totals",
+            siteName);
+        return EMPTY_TOTALS_JSON;
       }
 
-      var deliveryClient = new PSDeliveryClient();
-      var response =
-          deliveryClient.getString(
-              new PSDeliveryActionOptions(
-                  deliveryServer, TOTAL_ENTRIES_URL + "/" + siteName, HttpMethodType.GET, true));
+      try {
+        var deliveryClient = new PSDeliveryClient();
+        var response =
+            deliveryClient.getString(
+                new PSDeliveryActionOptions(
+                    deliveryServer, TOTAL_ENTRIES_URL + "/" + siteName, HttpMethodType.GET, true));
 
-      if (response != null) {
-        log.debug(SecureStringUtils.stripAllLineBreaks(response));
+        if (response != null) {
+          log.debug(SecureStringUtils.stripAllLineBreaks(response));
+          return response;
+        }
+        return EMPTY_TOTALS_JSON;
+      } catch (RuntimeException e) {
+        log.warn(
+            "DTS cookie consent totals unreachable for site {}: {}; returning empty totals",
+            siteName,
+            PSExceptionUtils.getMessageForLog(e));
+        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+        return EMPTY_TOTALS_JSON;
       }
-
-      return response;
     } catch (PSValidationException
         | IPSPubServerService.PSPubServerServiceException
         | PSNotFoundException e) {
@@ -159,21 +177,29 @@ public class PSCookieConsentService implements IPSCookieConsentService {
     var deliveryServer = findServer();
 
     if (deliveryServer == null) {
-      throw new WebApplicationException(
-          "Cannot find service of: " + PSDeliveryInfo.SERVICE_INDEXER);
+      log.warn("Cannot find delivery indexer for cookie consent totals; returning empty totals");
+      return EMPTY_TOTALS_JSON;
     }
 
-    var deliveryClient = new PSDeliveryClient();
-    var response =
-        deliveryClient.getString(
-            new PSDeliveryActionOptions(
-                deliveryServer, TOTAL_ENTRIES_URL, HttpMethodType.GET, true));
+    try {
+      var deliveryClient = new PSDeliveryClient();
+      var response =
+          deliveryClient.getString(
+              new PSDeliveryActionOptions(
+                  deliveryServer, TOTAL_ENTRIES_URL, HttpMethodType.GET, true));
 
-    if (response != null) {
-      log.debug(SecureStringUtils.stripAllLineBreaks(response));
+      if (response != null) {
+        log.debug(SecureStringUtils.stripAllLineBreaks(response));
+        return response;
+      }
+      return EMPTY_TOTALS_JSON;
+    } catch (RuntimeException e) {
+      log.warn(
+          "DTS cookie consent totals unreachable: {}; returning empty totals",
+          PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      return EMPTY_TOTALS_JSON;
     }
-
-    return response;
   }
 
   @Override
