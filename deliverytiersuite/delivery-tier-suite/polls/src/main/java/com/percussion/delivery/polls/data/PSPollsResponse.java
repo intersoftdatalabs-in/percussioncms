@@ -27,31 +27,63 @@ public class PSPollsResponse {
   private PollResponseStatus status;
   private Object result;
 
+  /** Default constructor required for JAX-RS binding frameworks. */
   public PSPollsResponse() {}
 
+  /**
+   * Constructs a new polls response.
+   *
+   * @param status the overall response status, not {@code null}.
+   * @param result the response result payload; for {@link PollResponseStatus#ERROR} status this is
+   *     conventionally an error message string, for {@link PollResponseStatus#SUCCESS} status it is
+   *     the response body. May be {@code null}.
+   */
   public PSPollsResponse(PollResponseStatus status, Object result) {
     this.status = status;
     this.result = result;
   }
 
+  /**
+   * Gets the response status.
+   *
+   * @return the status, never {@code null}.
+   */
   public PollResponseStatus getStatus() {
     return status;
   }
 
+  /**
+   * Sets the response status.
+   *
+   * @param status the status, not {@code null}.
+   */
   public void setStatus(PollResponseStatus status) {
     this.status = status;
   }
 
+  /**
+   * Gets the response result.
+   *
+   * @return the result object, may be {@code null}.
+   */
   public Object getResult() {
     return result;
   }
 
+  /**
+   * Sets the response result.
+   *
+   * @param result the result object, may be {@code null}.
+   */
   public void setResult(Object result) {
     this.result = result;
   }
 
+  /** Enumerates the possible overall states for a polls response. */
   public enum PollResponseStatus {
+    /** The polls response represents a successful operation. */
     SUCCESS,
+    /** The polls response represents a failed operation; the result is the error message. */
     ERROR
   }
 }

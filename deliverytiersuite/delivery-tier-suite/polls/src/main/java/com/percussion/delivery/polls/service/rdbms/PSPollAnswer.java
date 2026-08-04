@@ -29,30 +29,18 @@ import jakarta.persistence.Version;
 import java.io.Serializable;
 
 // REFACTORED: CP-JAVA11
+/**
+ * JPA entity mapping for a poll answer stored in the {@code PERC_ANSWERS} table. Implements the
+ * {@link IPSPollAnswer} contract and is owned by {@link PSPoll}.
+ */
 @Entity
 @Table(name = "PERC_ANSWERS")
 public class PSPollAnswer implements IPSPollAnswer, Serializable {
 
   private static final long serialVersionUID = 1L;
 
-  @Id
-  @GeneratedValue
-  @Column(name = "ANSWER_ID")
-  private long id;
-
-  @Column(name = "ANSWER", nullable = false, length = 4000)
-  private String answer;
-
-  @Column(name = "COUNT")
-  private int count;
-
-  @Version
-  @Column(name = "VERSION")
-  private Integer version;
-
-  @ManyToOne(optional = false)
-  @JoinColumn(name = "POLL_ID")
-  private PSPoll poll;
+  /** Default constructor required by JPA; do not use to create new instances outside the DAO. */
+  public PSPollAnswer() {}
 
   @Override
   public long getId() {
@@ -84,24 +72,66 @@ public class PSPollAnswer implements IPSPollAnswer, Serializable {
     this.count = count;
   }
 
-  /** Returns the version. */
+  /**
+   * Returns the version.
+   *
+   * @return the version, may be {@code null} when first persisted.
+   */
   public Integer getVersion() {
     return version;
   }
 
+  /**
+   * Gets the poll this answer belongs to.
+   *
+   * @return the owning poll, may be {@code null}.
+   */
   public PSPoll getPoll() {
     return poll;
   }
 
+  /**
+   * Sets the poll this answer belongs to.
+   *
+   * @param poll the owning poll, not {@code null}.
+   */
   public void setPoll(PSPoll poll) {
     this.poll = poll;
   }
 
-  /** Sets the version. Can only be set once. */
+  /**
+   * Sets the version. Can only be set once.
+   *
+   * @param version the version to set, may be {@code null}.
+   */
   public void setVersion(Integer version) {
     if (this.version != null && version != null) {
       throw new IllegalStateException("Version can only be set once");
     }
     this.version = version;
   }
+
+  /** JPA-assigned numeric primary key. */
+  @Id
+  @GeneratedValue
+  @Column(name = "ANSWER_ID")
+  private long id;
+
+  /** The answer text; up to 4000 characters and not null. */
+  @Column(name = "ANSWER", nullable = false, length = 4000)
+  private String answer;
+
+  /** Current number of votes for this answer. */
+  @Column(name = "COUNT")
+  private int count;
+
+  /** JPA optimistic-locking version column. */
+  @Version
+  @Column(name = "VERSION")
+  private Integer version;
+
+  /** The poll this answer belongs to; the join column is required. */
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "POLL_ID")
+  private PSPoll poll;
 }

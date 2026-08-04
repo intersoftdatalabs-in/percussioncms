@@ -33,52 +33,114 @@ public class PSRestPoll {
   private Map<String, Boolean> pollSubmits;
   private boolean restrictBySession;
 
+  /** Default constructor required for JAX-RS binding frameworks. */
   public PSRestPoll() {}
 
+  /**
+   * Gets the poll name.
+   *
+   * @return the poll name, may be {@code null} when not yet set.
+   */
   public String getPollName() {
     return pollName;
   }
 
+  /**
+   * Sets the poll name.
+   *
+   * @param pollName the poll name, not {@code null}.
+   */
   public void setPollName(String pollName) {
     this.pollName = pollName;
   }
 
+  /**
+   * Gets the poll question.
+   *
+   * @return the poll question, may be {@code null} when not yet set.
+   */
   public String getPollQuestion() {
     return pollQuestion;
   }
 
+  /**
+   * Sets the poll question.
+   *
+   * @param pollQuestion the poll question, not {@code null}.
+   */
   public void setPollQuestion(String pollQuestion) {
     this.pollQuestion = pollQuestion;
   }
 
+  /**
+   * Gets the poll results: a map of answer text to current vote count.
+   *
+   * @return the poll results map, may be {@code null} when not yet set.
+   */
   public Map<String, Integer> getPollResults() {
     return pollResults;
   }
 
+  /**
+   * Sets the poll results.
+   *
+   * @param pollResults the poll results map, not {@code null}.
+   */
   public void setPollResults(Map<String, Integer> pollResults) {
     this.pollResults = pollResults;
   }
 
+  /**
+   * Gets the per-session submission map for the poll (key=question, value=whether the user has
+   * already voted in the current session).
+   *
+   * @return the map of session submissions, may be {@code null} when not yet set.
+   */
   public Map<String, Boolean> getPollSubmits() {
     return pollSubmits;
   }
 
+  /**
+   * Sets the per-session submission map for the poll.
+   *
+   * @param pollSubmits the map of session submissions, not {@code null}.
+   */
   public void setPollSubmits(Map<String, Boolean> pollSubmits) {
     this.pollSubmits = pollSubmits;
   }
 
+  /**
+   * Gets the total number of votes cast for this poll.
+   *
+   * @return the total votes, zero or higher.
+   */
   public int getTotalVotes() {
     return totalVotes;
   }
 
+  /**
+   * Sets the total number of votes cast for this poll.
+   *
+   * @param totalVotes the total votes, zero or higher.
+   */
   public void setTotalVotes(int totalVotes) {
     this.totalVotes = totalVotes;
   }
 
+  /**
+   * Returns whether the poll is restricted to one submission per session.
+   *
+   * @return {@code true} if restricted by session, {@code false} otherwise.
+   */
   public boolean isRestrictBySession() {
     return restrictBySession;
   }
 
+  /**
+   * Sets whether the poll is restricted to one submission per session.
+   *
+   * @param restrictBySession {@code true} to restrict by session, {@code false} otherwise.
+   */
   public void setRestrictBySession(boolean restrictBySession) {
     this.restrictBySession = restrictBySession;
   }
