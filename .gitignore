@@ -35,8 +35,43 @@ dist/
 .kilo/rules/memory-bank-instructions.md
 .kilo/kilo.json
 
-# Personal agent state (always local)
-.grok
+# Personal agent state under .grok (always local).
+# Only shareable project workflow scripts + their README are versioned.
+# Memory, sessions, rules, auth, worktrees, caches, etc. stay ignored.
+.grok/*
+!.grok/workflows/
+# Ignore everything under workflows by default, then re-include shareables only
+# (must un-ignore parent dirs before nested files — gitignore last-match wins)
+.grok/workflows/**
+!.grok/workflows/**/
+!.grok/workflows/*.rhai
+!.grok/workflows/**/*.rhai
+!.grok/workflows/README.md
+!.grok/workflows/**/README.md
+# Belt-and-suspenders: never track personal Grok state (even if layout drifts)
+.grok/memory/
+.grok/memtrace/
+.grok/rules/
+.grok/sessions/
+.grok/worktrees/
+.grok/plugin-data/
+.grok/logs/
+.grok/skills/
+.grok/bin/
+.grok/bundled/
+.grok/downloads/
+.grok/marketplace-cache/
+.grok/relocations/
+.grok/vendor/
+.grok/completions/
+.grok/docs/
+.grok/**/auth.json
+.grok/**/config.toml
+.grok/**/trusted_folders.toml
+.grok/**/*.local.*
+.grok/**/*.lock
+.grok/**/active_sessions.json
+.grok/**/models_cache.json
 
 docker/dev-data
 .env.compose
