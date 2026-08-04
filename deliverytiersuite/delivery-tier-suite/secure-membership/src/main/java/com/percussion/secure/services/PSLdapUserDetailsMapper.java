@@ -50,6 +50,9 @@ public class PSLdapUserDetailsMapper extends LdapUserDetailsMapper {
   private static final String ROLE_ADMIN = "Domain Admins";
   private String accessGroupFileName;
 
+  /** No-op default constructor. */
+  public PSLdapUserDetailsMapper() {}
+
   @Override
   public UserDetails mapUserFromContext(
       DirContextOperations ctx, String username, Collection<? extends GrantedAuthority> authority) {
@@ -75,6 +78,13 @@ public class PSLdapUserDetailsMapper extends LdapUserDetailsMapper {
         allAuthorities);
   }
 
+  /**
+   * Reads the configured access-group XML file and returns the list of role names declared on its
+   * {@code security:intercept-url} {@code access} attributes.
+   *
+   * @return the list of access groups parsed from the XML file, never {@code null} but may be empty
+   *     if the file is missing or contains no groups.
+   */
   public List<String> getAccessGroupsFromXML() {
     var groups = new ArrayList<String>();
     String accessString;
@@ -110,10 +120,22 @@ public class PSLdapUserDetailsMapper extends LdapUserDetailsMapper {
     return groups;
   }
 
+  /**
+   * Gets the configured access-group XML file path (resolved against the running web application's
+   * real path by {@link #getAccessGroupsFromXML()}).
+   *
+   * @return the configured file name, or {@code null} if none has been configured.
+   */
   public String getAccessGroupFileName() {
     return accessGroupFileName;
   }
 
+  /**
+   * Sets the access-group XML file path that {@link #getAccessGroupsFromXML()} reads.
+   *
+   * @param accessGroupFileName the web-application-relative path to the XML file, never {@code
+   *     null}.
+   */
   public void setAccessGroupFileName(String accessGroupFileName) {
     this.accessGroupFileName = accessGroupFileName;
   }

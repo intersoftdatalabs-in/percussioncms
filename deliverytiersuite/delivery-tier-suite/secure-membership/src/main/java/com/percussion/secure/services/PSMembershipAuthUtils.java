@@ -34,6 +34,8 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
+ * Static helpers for the secure-membership flow.
+ *
  * @deprecated This class is part of the deprecated secure-membership module.
  */
 @Deprecated
@@ -41,6 +43,18 @@ public class PSMembershipAuthUtils {
 
   private static final Logger log = LogManager.getLogger(PSMembershipAuthUtils.class);
 
+  /** No-op default constructor. */
+  public PSMembershipAuthUtils() {}
+
+  /**
+   * Reads the supplied access-group XML file and returns the list of role names declared on its
+   * {@code intercept-url} {@code access} attributes.
+   *
+   * @param accessGroupFileName the web-application-relative path to the XML file, assumed not
+   *     {@code null}.
+   * @return the list of access groups parsed from the XML file, never {@code null} but may be empty
+   *     if the file is missing or contains no groups.
+   */
   public static List<String> getAccessGroupsFromXML(String accessGroupFileName) {
     var groups = new ArrayList<String>();
     String accessString;

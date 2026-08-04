@@ -36,6 +36,14 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 public class PSMembershipLoginHandler extends SavedRequestAwareAuthenticationSuccessHandler {
   private PSMembershipConfiguration membershipConfig;
 
+  /** No-op default constructor. */
+  public PSMembershipLoginHandler() {}
+
+  /**
+   * Sets the membership-service configuration this handler reads to build the session cookie.
+   *
+   * @param membershipConfig the membership-service configuration, assumed not {@code null}.
+   */
   public void setMembershipConfig(PSMembershipConfiguration membershipConfig) {
     this.membershipConfig = membershipConfig;
   }

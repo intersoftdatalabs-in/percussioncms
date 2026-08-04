@@ -20,6 +20,10 @@ package com.percussion.secure.data;
 import java.util.Objects;
 
 /**
+ * Spring-bound configuration object for the secure-membership module. Holds the membership-service
+ * host, protocol, port, session-cookie name and LDAP switch that drive the {@code
+ * com.percussion.secure.services} package.
+ *
  * @deprecated This class is part of the deprecated secure-membership module.
  */
 @Deprecated
@@ -30,6 +34,9 @@ public class PSMembershipConfiguration {
   private String membershipServicePort;
   private String membershipSessionCookieName;
   private String useLdap;
+
+  /** No-op default constructor. */
+  public PSMembershipConfiguration() {}
 
   /** Set on first access by {@link #getBaseUrl()}, not modified after that. */
   private String baseUrl = null;

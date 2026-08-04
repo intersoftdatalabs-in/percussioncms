@@ -88,8 +88,10 @@ public class PSLdapMembershipAuthProvider extends AbstractLdapAuthenticationProv
   ContextFactory contextFactory = new ContextFactory();
 
   /**
+   * Constructs a provider that authenticates users against the supplied Active Directory URL.
+   *
    * @param domain the domain name (may be null or empty)
-   * @param url an LDAP url (or multiple URLs)
+   * @param url an LDAP url (or multiple URLs); must be non-empty.
    */
   public PSLdapMembershipAuthProvider(String domain, String url) {
     Assert.isTrue(StringUtils.hasText(url), "Url cannot be empty");
@@ -99,34 +101,74 @@ public class PSLdapMembershipAuthProvider extends AbstractLdapAuthenticationProv
     rootDn = this.domain == null ? null : rootDnFromDomain(this.domain);
   }
 
+  /**
+   * Gets the LDAP search filter used to look up a user entry during authentication.
+   *
+   * @return the configured user search filter, or {@code null} if not yet configured.
+   */
   public String getUserSearchFilter() {
     return userSearchFilter;
   }
 
+  /**
+   * Sets the LDAP search filter used to look up a user entry during authentication.
+   *
+   * @param userSearchFilter the LDAP search filter to use, never {@code null}.
+   */
   public void setUserSearchFilter(String userSearchFilter) {
     this.userSearchFilter = userSearchFilter;
   }
 
+  /**
+   * Gets the attribute on the user's group entry that maps to a Spring Security role.
+   *
+   * @return the configured group role attribute, or {@code null} if not yet configured.
+   */
   public String getGroupRoleAttribute() {
     return groupRoleAttribute;
   }
 
+  /**
+   * Sets the attribute on the user's group entry that maps to a Spring Security role.
+   *
+   * @param groupRoleAttribute the attribute name to read from the group entry.
+   */
   public void setGroupRoleAttribute(String groupRoleAttribute) {
     this.groupRoleAttribute = groupRoleAttribute;
   }
 
+  /**
+   * Gets the LDAP search filter used to enumerate the groups the user belongs to.
+   *
+   * @return the configured group search filter, or {@code null} if not yet configured.
+   */
   public String getGroupSearchFilter() {
     return groupSearchFilter;
   }
 
+  /**
+   * Sets the LDAP search filter used to enumerate the groups the user belongs to.
+   *
+   * @param groupSearchFilter the LDAP search filter to use.
+   */
   public void setGroupSearchFilter(String groupSearchFilter) {
     this.groupSearchFilter = groupSearchFilter;
   }
 
+  /**
+   * Gets the LDAP search base under which user groups are enumerated.
+   *
+   * @return the configured group search base, or {@code null} if not yet configured.
+   */
   public String getGroupSearchBase() {
     return groupSearchBase;
   }
 
+  /**
+   * Sets the LDAP search base under which user groups are enumerated.
+   *
+   * @param groupSearchBase the LDAP search base to use.
+   */
   public void setGroupSearchBase(String groupSearchBase) {
     this.groupSearchBase = groupSearchBase;
   }
