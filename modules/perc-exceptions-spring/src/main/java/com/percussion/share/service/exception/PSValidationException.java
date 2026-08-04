@@ -33,38 +33,73 @@ import com.percussion.share.validation.PSValidationErrors;
 public abstract class PSValidationException extends PSDataServiceException
     implements IPSValidationException {
 
+  /** The validation errors carried by this exception; may be {@code null}. */
   private PSValidationErrors validationErrors;
 
+  /**
+   * Constructs a validation exception that wraps the given validation errors.
+   *
+   * @param validationErrors the validation errors to wrap, never {@code null}.
+   */
   public PSValidationException(PSValidationErrors validationErrors) {
     super(validationErrors.toString());
     setValidationErrors(validationErrors);
   }
 
+  /**
+   * Constructs a validation exception with the given message.
+   *
+   * @param message the detail message, may be {@code null}.
+   */
   public PSValidationException(String message) {
     super(message);
   }
 
+  /**
+   * Constructs a validation exception with the given message and cause.
+   *
+   * @param message the detail message, may be {@code null}.
+   * @param cause the underlying cause, may be {@code null}.
+   */
   public PSValidationException(String message, Throwable cause) {
     super(message, cause);
   }
 
+  /**
+   * Constructs a validation exception that wraps the given cause.
+   *
+   * @param cause the underlying cause, may be {@code null}.
+   */
   public PSValidationException(Throwable cause) {
     super(cause);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   *
+   * @return the wrapped validation errors, may be {@code null} when the exception was constructed
+   *     without a {@link PSValidationErrors} instance.
+   */
+  @Override
   public PSValidationErrors getValidationErrors() {
     return validationErrors;
   }
 
+  /**
+   * Replaces the validation errors carried by this exception.
+   *
+   * @param validationErrors the new validation errors, may be {@code null}.
+   */
   public void setValidationErrors(PSValidationErrors validationErrors) {
     this.validationErrors = validationErrors;
   }
 
   /**
-   * This exception will be thrown if its invalid.
+   * Throws this exception if any validation errors are present.
    *
-   * @return never <code>null</code>.
+   * @return this exception for fluent chaining, never {@code null}.
+   * @throws PSValidationException always thrown when this exception is currently in an invalid
+   *     state (i.e. it carries validation errors).
    */
   public PSValidationException throwIfInvalid() throws PSValidationException {
     if (validationErrors != null && validationErrors.hasErrors()) {

@@ -28,21 +28,49 @@ public class PSBeanValidationException extends PSSpringValidationException {
 
   private static final long serialVersionUID = 8097878230304938879L;
 
+  /**
+   * Constructs a bean validation exception that wraps the given cause.
+   *
+   * @param cause the underlying cause, may be {@code null}.
+   */
   public PSBeanValidationException(Throwable cause) {
     super(cause);
   }
 
+  /**
+   * Constructs a bean validation exception for the given target and method.
+   *
+   * @param target the bean being validated, may be {@code null}.
+   * @param methodName the canonical name used to identify the bean in the resulting binding result,
+   *     never {@code null}.
+   */
   public PSBeanValidationException(Object target, String methodName) {
     super(methodName);
     init(target, methodName);
   }
 
+  /**
+   * Constructs a bean validation exception with a custom message and cause.
+   *
+   * @param target the bean being validated, may be {@code null}.
+   * @param methodName the canonical name used to identify the bean in the resulting binding result,
+   *     never {@code null}.
+   * @param message the detail message, may be {@code null}.
+   * @param cause the underlying cause, may be {@code null}.
+   */
   public PSBeanValidationException(
       Object target, String methodName, String message, Throwable cause) {
     super(message, cause);
     init(target, methodName);
   }
 
+  /**
+   * Initializes this exception with a Spring {@link BeanPropertyBindingResult} for the supplied
+   * target.
+   *
+   * @param target the bean being validated, may be {@code null}.
+   * @param objectName the name to associate with the binding result, never {@code null}.
+   */
   protected void init(Object target, String objectName) {
     setSpringValidationErrors(new BeanPropertyBindingResult(target, objectName));
   }

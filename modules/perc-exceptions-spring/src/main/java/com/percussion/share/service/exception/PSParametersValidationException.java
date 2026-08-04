@@ -26,9 +26,14 @@ import com.percussion.share.validation.PSValidationErrors;
  */
 public class PSParametersValidationException extends PSValidationException {
 
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * Constructs a parameters validation exception that wraps the given validation errors.
+   *
+   * @param validationErrors the validation errors to wrap, never {@code null}.
+   */
   public PSParametersValidationException(PSValidationErrors validationErrors) {
     super(validationErrors);
   }
-
-  private static final long serialVersionUID = 1L;
 }

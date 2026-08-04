@@ -39,14 +39,33 @@ public class PSSpringOvalValidator implements Validator, InitializingBean {
 
   private net.sf.oval.Validator validator;
 
+  /**
+   * Constructs a validator that delegates to the supplied OVal validator.
+   *
+   * @param validator the OVal validator to delegate to, never {@code null}.
+   */
   public PSSpringOvalValidator(net.sf.oval.Validator validator) {
     this.validator = validator;
   }
 
+  /**
+   * Indicates whether this validator supports the given class. This implementation returns {@code
+   * true} for all classes because OVal itself is consulted at validation time.
+   *
+   * @param clazz the candidate class, never {@code null}.
+   * @return always {@code true}.
+   */
   public boolean supports(Class<?> clazz) {
     return true;
   }
 
+  /**
+   * Validates the given target, writing any constraint violations and nested-property errors into
+   * the supplied {@link Errors} container.
+   *
+   * @param target the object to validate, may be {@code null} only when OVal accepts it.
+   * @param errors the container that receives any validation errors, never {@code null}.
+   */
   public void validate(Object target, Errors errors) {
     doValidate(target, errors, "");
   }
@@ -110,14 +129,30 @@ public class PSSpringOvalValidator implements Validator, InitializingBean {
     return list;
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * @throws Exception if the underlying OVal validator has not been configured.
+   */
+  @Override
   public void afterPropertiesSet() throws Exception {
     Assert.notNull(validator, "Property [validator] is not set");
   }
 
+  /**
+   * Returns the OVal validator that backs this Spring adapter.
+   *
+   * @return the OVal validator, may be {@code null} until {@link #setValidator} is called.
+   */
   public net.sf.oval.Validator getValidator() {
     return validator;
   }
 
+  /**
+   * Sets the OVal validator that backs this Spring adapter.
+   *
+   * @param validator the OVal validator to delegate to, never {@code null}.
+   */
   public void setValidator(net.sf.oval.Validator validator) {
     this.validator = validator;
   }

@@ -18,12 +18,18 @@ package com.percussion.share.service.exception;
 
 import com.percussion.share.validation.PSValidationErrors;
 
+/**
+ * Marks a {@link RuntimeException} that exposes its underlying {@link PSValidationErrors} so the
+ * errors can be serialized (for example, across a REST boundary).
+ *
+ * @author adamgent
+ */
 public interface IPSValidationException {
 
   /**
-   * Serializable Validation errors.
+   * Returns the serializable validation errors carried by this exception.
    *
-   * @return maybe <code>null</code>.
+   * @return the validation errors, may be {@code null} when no errors have been recorded.
    */
   public PSValidationErrors getValidationErrors();
 }

@@ -38,12 +38,27 @@ import java.util.List;
 @JsonRootName(value = "Errors")
 public class PSErrors {
 
+  /** Default constructor required for JAXB serialization. */
+  public PSErrors() {
+    super();
+  }
+
   private PSObjectError globalError;
 
+  /**
+   * Returns the single global error associated with this object, or {@code null} when none is set.
+   *
+   * @return the global error, may be {@code null}.
+   */
   public PSObjectError getGlobalError() {
     return globalError;
   }
 
+  /**
+   * Sets the single global error associated with this object.
+   *
+   * @param globalError the global error, may be {@code null}.
+   */
   public void setGlobalError(PSObjectError globalError) {
     this.globalError = globalError;
   }
@@ -62,6 +77,7 @@ public class PSErrors {
     private List<String> arguments;
     private PSErrorCause cause;
 
+    /** Default no-arg constructor required for JAXB serialization. */
     public PSObjectError() {
       super();
     }
@@ -76,6 +92,11 @@ public class PSErrors {
       return arguments;
     }
 
+    /**
+     * Sets the message-format arguments that will be substituted into {@link #getDefaultMessage()}.
+     *
+     * @param arguments the message arguments, may be {@code null}.
+     */
     public void setArguments(List<String> arguments) {
       this.arguments = arguments;
     }
@@ -89,22 +110,47 @@ public class PSErrors {
       return defaultMessage;
     }
 
+    /**
+     * Sets the default message after sanitizing it for safe HTML rendering.
+     *
+     * @param defaultMessage the default message to sanitize and store, may be {@code null}.
+     */
     public void setDefaultMessage(String defaultMessage) {
       this.defaultMessage = SecureStringUtils.sanitizeStringForHTML(defaultMessage);
     }
 
+    /**
+     * Returns the error code that identifies the type of error.
+     *
+     * @return the error code, may be {@code null}.
+     */
     public String getCode() {
       return code;
     }
 
+    /**
+     * Sets the error code after sanitizing it for safe HTML rendering.
+     *
+     * @param code the error code to sanitize and store, may be {@code null}.
+     */
     public void setCode(String code) {
       this.code = SecureStringUtils.sanitizeStringForHTML(code);
     }
 
+    /**
+     * Returns the underlying cause wrapper, if any.
+     *
+     * @return the cause wrapper, may be {@code null}.
+     */
     public PSErrorCause getCause() {
       return cause;
     }
 
+    /**
+     * Sets the underlying cause wrapper.
+     *
+     * @param cause the cause wrapper, may be {@code null}.
+     */
     public void setCause(PSErrorCause cause) {
       this.cause = cause;
     }

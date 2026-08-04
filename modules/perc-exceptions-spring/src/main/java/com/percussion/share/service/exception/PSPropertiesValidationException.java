@@ -30,14 +30,30 @@ import org.springframework.validation.MapBindingResult;
 public class PSPropertiesValidationException extends PSSpringValidationException {
 
   private static final long serialVersionUID = 1L;
+
+  /** The property map that backs the binding result; never {@code null}. */
   private Map<String, Object> properties = new HashMap<>();
 
+  /**
+   * Constructs a properties validation exception for the given target and method.
+   *
+   * @param target the property-like object being validated, may be {@code null}.
+   * @param methodName the name to associate with the resulting binding result, never {@code null}.
+   */
   public PSPropertiesValidationException(Object target, String methodName) {
     super(methodName);
     init(target, methodName);
     setProperties(getProperties());
   }
 
+  /**
+   * Constructs a properties validation exception with a custom message and cause.
+   *
+   * @param target the property-like object being validated, may be {@code null}.
+   * @param methodName the name to associate with the resulting binding result, never {@code null}.
+   * @param message the detail message, may be {@code null}.
+   * @param cause the underlying cause, may be {@code null}.
+   */
   public PSPropertiesValidationException(
       Object target, String methodName, String message, Throwable cause) {
     super(message, cause);
@@ -45,19 +61,41 @@ public class PSPropertiesValidationException extends PSSpringValidationException
     setProperties(getProperties());
   }
 
+  /**
+   * Initializes the binding result for the given target using its runtime type.
+   *
+   * @param target the property-like object being validated, may be {@code null}.
+   * @param objectName the name to associate with the resulting binding result, never {@code null}.
+   */
   protected void init(Object target, String objectName) {
     init(getProperties(), objectName);
   }
 
+  /**
+   * Initializes the binding result with the supplied property map.
+   *
+   * @param properties the property map to validate, never {@code null}.
+   * @param objectName the name to associate with the resulting binding result, never {@code null}.
+   */
   protected void init(Map<String, Object> properties, String objectName) {
     MapBindingResult mbr = new MapBindingResult(properties, objectName);
     setSpringValidationErrors(mbr);
   }
 
+  /**
+   * Returns the underlying property map that backs the binding result.
+   *
+   * @return the property map, never {@code null}.
+   */
   public Map<String, Object> getProperties() {
     return properties;
   }
 
+  /**
+   * Replaces the underlying property map and rebuilds the binding result.
+   *
+   * @param parameters the new property map, never {@code null}.
+   */
   public void setProperties(Map<String, Object> parameters) {
     this.properties = parameters;
     init(parameters, getObjectName());

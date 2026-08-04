@@ -31,14 +31,27 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class PSValidationErrorsBuilder {
 
+  /** The {@link PSValidationErrors} being built up by this builder. */
   private PSValidationErrors validationErrors;
 
+  /**
+   * Constructs a new builder that records errors against the given object or method name.
+   *
+   * @param objectName the name of the method or object being validated, never {@code null}.
+   */
   public PSValidationErrorsBuilder(String objectName) {
     super();
     this.validationErrors = new PSValidationErrors();
     this.validationErrors.setMethodName(objectName);
   }
 
+  /**
+   * Records a global error with the supplied code and default message.
+   *
+   * @param code the error code, may be {@code null}.
+   * @param defaultMessage the default message, may be {@code null}.
+   * @return this builder for fluent chaining, never {@code null}.
+   */
   public PSValidationErrorsBuilder reject(String code, String defaultMessage) {
     PSObjectError objectError = new PSObjectError();
     objectError.setCode(code);
@@ -47,6 +60,15 @@ public class PSValidationErrorsBuilder {
     return this;
   }
 
+  /**
+   * Records a field error with the supplied code, default message, and rejected value.
+   *
+   * @param field the name of the field that failed validation, never {@code null}.
+   * @param code the error code, never {@code null}.
+   * @param defaultMessage the default message, never {@code null}.
+   * @param value the value that was rejected, may be {@code null}.
+   * @return this builder for fluent chaining, never {@code null}.
+   */
   public PSValidationErrorsBuilder rejectField(
       String field, String code, String defaultMessage, Object value) {
     notNull(field, "field cannot be null");
@@ -60,25 +82,61 @@ public class PSValidationErrorsBuilder {
     return this;
   }
 
+  /**
+   * Convenience rule that records a field error when the supplied value is {@code null}.
+   *
+   * @param field the name of the field being validated, never {@code null}.
+   * @param value the value to check, may be {@code null}.
+   * @return this builder for fluent chaining, never {@code null}.
+   */
   public PSValidationErrorsBuilder rejectIfNull(String field, Object value) {
     if (value == null) return rejectField(field, field + " cannot be null", value);
     return this;
   }
 
+  /**
+   * Convenience rule that records a field error when the supplied value is {@code null}, empty, or
+   * contains only whitespace.
+   *
+   * @param field the name of the field being validated, never {@code null}.
+   * @param value the value to check, may be {@code null}.
+   * @return this builder for fluent chaining, never {@code null}.
+   */
   public PSValidationErrorsBuilder rejectIfBlank(String field, String value) {
     if (StringUtils.isBlank(value)) return rejectField(field, field + " cannot be blank", value);
     return this;
   }
 
+  /**
+   * Records a field error using the current method name (configured on the underlying {@link
+   * PSValidationErrors}) as the error code prefix.
+   *
+   * @param field the name of the field that failed validation, never {@code null}.
+   * @param defaultMessage the default message, may be {@code null}.
+   * @param value the value that was rejected, may be {@code null}.
+   * @return this builder for fluent chaining, never {@code null}.
+   */
   public PSValidationErrorsBuilder rejectField(String field, String defaultMessage, Object value) {
     rejectField(field, validationErrors.getMethodName() + "#" + field, defaultMessage, value);
     return this;
   }
 
+  /**
+   * Returns the current state of the validation errors and resets the builder's view of them.
+   *
+   * @return the validation errors accumulated so far, never {@code null}.
+   */
   public PSValidationErrors build() {
     return validationErrors;
   }
 
+  /**
+   * Convenience method that throws a {@link PSParametersValidationException} if any errors have
+   * been recorded.
+   *
+   * @return this builder for fluent chaining, never {@code null}.
+   * @throws PSValidationException always thrown when this builder is currently in an invalid state.
+   */
   public PSValidationErrorsBuilder throwIfInvalid() throws PSValidationException {
     new PSParametersValidationException(validationErrors).throwIfInvalid();
     return this;
