@@ -282,7 +282,7 @@
         <!-- with this project's Apache 2.0 license for distribution. -->
         <!-- Do NOT upgrade past 6.8.x without a legal review. -->
         <tinymce.version>6.8.6</tinymce.version>
-        <twelvemonkeys.version>3.13.1</twelvemonkeys.version>
+        <twelvemonkeys.version>3.14.0</twelvemonkeys.version>
         <velocity.tools.version>3.1</velocity.tools.version>
         <velocity.version>2.4.1</velocity.version>
         <versionString>INTERNAL</versionString>
