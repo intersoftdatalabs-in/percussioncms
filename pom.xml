@@ -94,7 +94,7 @@
         <!-- CodeMirror 5.x (MIT-licensed). The vendor copy in perc-tinymce is managed via this WebJar. -->
         <!-- Do NOT upgrade to CodeMirror 6.x without refactoring source.html and the codemirror plugin; -->
         <!-- CodeMirror 6 has a completely different API. -->
-        <codemirror.version>5.65.20</codemirror.version>
+        <codemirror.version>6.65.7</codemirror.version>
         <commons-cli.version>1.11.0</commons-cli.version>
         <!-- WebUI → artemis-server → commons-configuration2; Dependabot floor ≥2.15.0 (issue #1676) -->
         <commons-configuration2.version>2.15.1</commons-configuration2.version>
