@@ -58,6 +58,19 @@ public final class PSPackageBuilder {
     this.tempDir = tempDir;
   }
 
+  /**
+   * Program entry point invoked by the {@code exec-maven-plugin} during the {@code prepare-package}
+   * phase. Expects exactly three arguments: the packages source directory, the output directory for
+   * the generated {@code .ppkg} files, and a scratch directory used while reorganizing the package
+   * contents.
+   *
+   * <p>Usage: {@code PSPackageBuilder <packagesDir> <outputDir> <tempDir>}. Exits with a non-zero
+   * status if the arguments are missing or the packages directory does not exist.
+   *
+   * @param args command-line arguments; must contain at least three entries ordered {@code
+   *     <packagesDir> <outputDir> <tempDir>}.
+   * @throws IOException if an I/O error occurs while preparing, walking or zipping package files.
+   */
   public static void main(String[] args) throws IOException {
     if (args.length < 3) {
       System.err.println("Usage: PSPackageBuilder <packagesDir> <outputDir> <tempDir>");
