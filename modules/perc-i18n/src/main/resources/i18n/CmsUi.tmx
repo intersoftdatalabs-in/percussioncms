@@ -24960,6 +24960,25 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>家</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>家</seg></tuv>
     <tuv xml:lang="ru"><seg>Дом</seg></tuv><tuv xml:lang="he"><seg>בַּיִת</seg></tuv><tuv xml:lang="uk"><seg>додому</seg></tuv></tu>
+    <tu tuid="perc.ui.home.modern@Gadgets">
+      <tuv xml:lang="en-us"><seg>Gadgets</seg></tuv>
+      <tuv xml:lang="ar"><seg>الأدوات</seg></tuv>
+      <tuv xml:lang="bn"><seg>গ্যাজেট</seg></tuv>
+      <tuv xml:lang="de"><seg>Gadgets</seg></tuv>
+      <tuv xml:lang="es"><seg>artilugios</seg></tuv>
+      <tuv xml:lang="fr"><seg>Gadgets</seg></tuv>
+      <tuv xml:lang="hi"><seg>गैजेट</seg></tuv>
+      <tuv xml:lang="it"><seg>Gadget</seg></tuv>
+      <tuv xml:lang="ja-jp"><seg>ガジェット</seg></tuv>
+      <tuv xml:lang="nl"><seg>Gadgets</seg></tuv>
+      <tuv xml:lang="pl"><seg>Gadżety</seg></tuv>
+      <tuv xml:lang="pt"><seg>Gadgets</seg></tuv>
+      <tuv xml:lang="sv"><seg>Prylar</seg></tuv>
+      <tuv xml:lang="te"><seg>గాడ్జెట్లు</seg></tuv>
+      <tuv xml:lang="tr"><seg>Araçlar</seg></tuv>
+      <tuv xml:lang="zh-cn"><seg>小工具</seg></tuv>
+      <tuv xml:lang="zh-tw"><seg>小工具</seg></tuv>
+    <tuv xml:lang="ru"><seg>Гаджеты</seg></tuv><tuv xml:lang="he"><seg>גאדג'טים</seg></tuv><tuv xml:lang="uk"><seg>гаджети</seg></tuv></tu>
     <tu tuid="perc.ui.home.modern@Library">
       <tuv xml:lang="en-us"><seg>Library</seg></tuv>
       <tuv xml:lang="ar"><seg>مكتبة</seg></tuv>
