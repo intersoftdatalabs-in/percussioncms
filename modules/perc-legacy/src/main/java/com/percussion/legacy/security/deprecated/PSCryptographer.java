@@ -41,10 +41,11 @@ import java.util.Date;
 public class PSCryptographer {
 
   /**
-   * Default no-arg constructor required for proxy-based instantiation frameworks; this class is a
-   * static utility and should not be instantiated.
+   * Private no-arg constructor that suppresses the default public constructor so the class behaves
+   * as a true static utility. This class only exposes {@code static} methods and is never meant to
+   * be instantiated.
    */
-  public PSCryptographer() {
+  private PSCryptographer() {
     super();
   }
 
