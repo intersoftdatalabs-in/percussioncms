@@ -79,7 +79,9 @@ public class PSSlushBucketPanel extends HLayout
    }
 
    /**
-    * 
+    * Returns the data records currently selected in the right-hand grid of
+    * this slush bucket panel.
+    *
     * @return the string array of selected data from the right grid. Never
     * <code>null</code> may be empty.
     */
@@ -96,8 +98,10 @@ public class PSSlushBucketPanel extends HLayout
    }
 
    /**
-    * 
-    * @return returns the ListGrid object corresponding to the left grid shown
+    * Returns the left-hand list grid that displays the available items for
+    * the slush bucket.
+    *
+    * @return the {@link ListGrid} object corresponding to the left grid shown
     * in this panel. Never <code>null</code>.
     */
    public ListGrid getLeftGrid()
@@ -106,8 +110,10 @@ public class PSSlushBucketPanel extends HLayout
    }
 
    /**
-    * 
-    * @return returns the ListGrid object corresponding to the right grid shown
+    * Returns the right-hand list grid that displays the selected items for
+    * the slush bucket.
+    *
+    * @return the {@link ListGrid} object corresponding to the right grid shown
     * in this panel. Never <code>null</code>.
     */
    public ListGrid getRightGrid()

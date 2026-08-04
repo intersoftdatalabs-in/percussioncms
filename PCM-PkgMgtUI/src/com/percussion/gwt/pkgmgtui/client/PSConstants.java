@@ -18,6 +18,11 @@ package com.percussion.gwt.pkgmgtui.client;
 
 import java.util.Arrays;
 
+/**
+ * Package management UI constants shared by the GWT client side. Houses
+ * non-translatable defaults such as spacing and resize options used across
+ * the package management widgets.
+ */
 public class PSConstants
 {
     private PSConstants(){}
@@ -32,10 +37,23 @@ public class PSConstants
     private static final String[] dialogResizeOptions = { "L", "B", "R", "T",
             "BL", "BR", "TL", "TR" };
 
+    /**
+     * Returns the default members margin used when laying out vertical stacks
+     * of widgets (for example the transfer buttons in a slush bucket panel).
+     *
+     * @return the default members margin in pixels.
+     */
     public static int getMembersMargin() {
         return membersMargin;
     }
 
+    /**
+     * Returns the default dialog resize handle options used by the package
+     * management dialogs (corners and edges the user may drag from).
+     *
+     * @return a defensive copy of the resize options array; never
+     *     <code>null</code>.
+     */
     public static String[] getDialogResizeOptions() {
         /* Return a copy to avoid vulnerability */
         return Arrays.copyOf(dialogResizeOptions,dialogResizeOptions.length);
