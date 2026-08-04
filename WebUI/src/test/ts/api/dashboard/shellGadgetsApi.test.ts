@@ -59,7 +59,8 @@ describe("shellGadgetsApi", () => {
     });
     vi.stubGlobal("fetch", fetchMock);
     vi.mocked(csrf.getCsrfToken).mockReturnValue({
-      headerName: "OWASP_CSRFTOKEN",
+      // Match production csrf.ts DEFAULT_HEADER_NAME (hyphen, not underscore).
+      headerName: "OWASP-CSRFTOKEN",
       token: "csrf-token-value",
     });
 
@@ -89,7 +90,7 @@ describe("shellGadgetsApi", () => {
     expect(form.get("approveOnUpload")).toBe("true");
     expect(form.get("file")).toBeInstanceOf(File);
     const headers = init.headers as Headers;
-    expect(headers.get("OWASP_CSRFTOKEN")).toBe("csrf-token-value");
+    expect(headers.get("OWASP-CSRFTOKEN")).toBe("csrf-token-value");
     expect(headers.get("Accept")).toMatch(/json/);
 
     vi.unstubAllGlobals();
