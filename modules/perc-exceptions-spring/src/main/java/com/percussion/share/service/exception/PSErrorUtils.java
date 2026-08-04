@@ -30,6 +30,23 @@ import com.percussion.share.validation.PSErrors.PSObjectError;
  */
 public class PSErrorUtils {
 
+  /**
+   * Default constructor required for proxy-based instantiation frameworks; this is a static utility
+   * class and should not be instantiated.
+   */
+  public PSErrorUtils() {
+    super();
+  }
+
+  /**
+   * Creates a {@link PSErrors} object that represents the given exception. The resulting errors
+   * object contains a single global error whose code is taken from {@link
+   * IPSException#getErrorCode()} when applicable or the exception class's canonical name otherwise.
+   *
+   * @param exception the exception to convert, never {@code null}.
+   * @return the populated errors object, never {@code null}.
+   * @throws NullPointerException if {@code exception} is {@code null}.
+   */
   public static PSErrors createErrorsFromException(Throwable exception) {
     notNull(exception, "exception cannot be null");
     PSErrors errors = new PSErrors();
@@ -57,22 +74,51 @@ public class PSErrorUtils {
     return errors;
   }
 
+  /**
+   * Wraps the given errors in a runtime exception that carries them forward.
+   *
+   * @param errors the errors to wrap, never {@code null}.
+   * @return a {@link PSProxyException} carrying the supplied errors, never {@code null}.
+   * @throws NullPointerException if {@code errors} is {@code null}.
+   */
   public static RuntimeException createExceptionFromErrors(PSErrors errors) {
     notNull(errors, "errors cannot be null");
     return new PSProxyException(errors);
   }
 
+  /**
+   * A runtime exception that carries a {@link PSErrors} payload across boundaries where checked
+   * exceptions cannot be thrown.
+   *
+   * @author adamgent
+   */
   public static class PSProxyException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
+
+    /** The message returned by {@link #getMessage()}; may be {@code null}. */
     private String message;
+
+    /** The wrapped errors; never {@code null} after {@link #convert(PSErrors)} is invoked. */
     protected PSErrors errors;
 
+    /**
+     * Constructs a proxy exception that wraps the supplied errors.
+     *
+     * @param errors the errors to carry, may be {@code null} until {@link #convert(PSErrors)} is
+     *     called.
+     */
     public PSProxyException(PSErrors errors) {
       super();
       this.errors = errors;
     }
 
+    /**
+     * Replaces the carried errors and synchronizes this exception's message with the global error's
+     * default message.
+     *
+     * @param errors the new errors to carry, never {@code null}.
+     */
     protected void convert(PSErrors errors) {
       this.errors = errors;
       notNull(errors, "errors cannot be null");
@@ -85,6 +131,11 @@ public class PSErrorUtils {
       return message;
     }
 
+    /**
+     * Sets the message returned by {@link #getMessage()}.
+     *
+     * @param message the message to expose, may be {@code null}.
+     */
     protected void setMessage(String message) {
       this.message = message;
     }

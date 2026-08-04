@@ -25,18 +25,38 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 /**
- * See springs {@link Validator}.
+ * Adapter that wraps the OVal-based Spring {@link SpringValidator} and exposes a {@link
+ * PSBeanValidationException}-aware contract for validating plain Java bean objects. See Spring's
+ * {@link Validator} for the general contract.
  *
  * @author adamgent
  * @param <FULL> the class to be validated.
  */
 public abstract class PSAbstractBeanValidator<FULL> implements Validator {
+  /**
+   * Default constructor required for proxy-based instantiation frameworks; subclasses provide the
+   * bean-specific behavior via {@link #doValidation(Object, PSBeanValidationException)}.
+   */
+  protected PSAbstractBeanValidator() {
+    super();
+  }
+
+  /** The wrapped OVal Spring validator. */
   private SpringValidator ovalValidator = new SpringValidator();
 
   {
     ovalValidator.setValidator(new net.sf.oval.Validator());
   }
 
+  /**
+   * Validates the given object and returns the resulting exception container.
+   *
+   * @param obj the object to validate, never {@code null}.
+   * @return a {@link PSBeanValidationException} that aggregates any validation errors; the
+   *     exception is never {@code null} but is only meant to be thrown via {@link
+   *     PSBeanValidationException#throwIfInvalid()}.
+   * @throws PSValidationException if {@code obj} is {@code null}.
+   */
   public PSBeanValidationException validate(FULL obj) throws PSValidationException {
 
     PSParameterValidationUtils.rejectIfNull("validate", "object", obj);
@@ -46,13 +66,40 @@ public abstract class PSAbstractBeanValidator<FULL> implements Validator {
     return e;
   }
 
+  /**
+   * Template method that subclasses override to perform bean-specific validation in addition to
+   * OVal constraint checks.
+   *
+   * @param obj the object being validated, never {@code null}.
+   * @param e the exception container into which additional errors should be recorded, never {@code
+   *     null}.
+   * @throws PSValidationException if validation cannot proceed; the exception is added as a
+   *     suppressed error on {@code e}.
+   */
   protected abstract void doValidation(FULL obj, PSBeanValidationException e)
       throws PSValidationException;
 
+  /**
+   * Delegates the Spring {@link Validator#supports(Class)} contract to the underlying OVal
+   * validator.
+   *
+   * @param clazz the candidate target class, never {@code null}.
+   * @return {@code true} if the underlying validator supports {@code clazz}.
+   */
   public boolean supports(Class<?> clazz) {
     return ovalValidator.supports(clazz);
   }
 
+  /**
+   * Validates the given object using the wrapped OVal validator and then forwards to {@link
+   * #doValidation(Object, PSBeanValidationException)} when the {@link Errors} container is a {@link
+   * PSBeanValidationException}.
+   *
+   * @param object the object to validate, may be {@code null} only when the wrapped validator
+   *     accepts it.
+   * @param errors the Spring {@link Errors} container to populate; must be a {@link
+   *     PSBeanValidationException} to receive the additional {@link #doValidation} pass.
+   */
   public void validate(Object object, Errors errors) {
     try {
       ovalValidator.validate(object, errors);
