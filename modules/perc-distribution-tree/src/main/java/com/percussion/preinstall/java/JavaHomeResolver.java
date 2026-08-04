@@ -408,30 +408,61 @@ public final class JavaHomeResolver {
       this.attempts = List.copyOf(attempts);
     }
 
+    /**
+     * Builds a successful resolution result.
+     *
+     * @param home resolved Java home directory; never {@code null}.
+     * @param source origin that produced the resolution; never {@code null}.
+     * @param attempts attempts recorded during resolution; may be empty for a successful result.
+     * @return resolution result marked as successful.
+     */
     public static ResolutionResult success(
         Path home, ResolutionSource source, List<Attempt> attempts) {
       return new ResolutionResult(true, home, source, attempts);
     }
 
+    /**
+     * Builds a failed resolution result.
+     *
+     * @param attempts attempts recorded during resolution; never {@code null}.
+     * @return resolution result marked as failed with no resolved Java home.
+     */
     public static ResolutionResult failure(List<Attempt> attempts) {
       return new ResolutionResult(false, null, ResolutionSource.NONE, attempts);
     }
 
+    /**
+     * Returns whether the resolution succeeded.
+     *
+     * @return {@code true} when a Java home was resolved.
+     */
     public boolean success() {
       return success;
     }
 
-    /** Resolved Java home path; null when resolution failed. */
+    /**
+     * Resolved Java home path; null when resolution failed.
+     *
+     * @return the resolved Java home path, or {@code null} when resolution failed.
+     */
     public Path javaHome() {
       return javaHome;
     }
 
-    /** Source that produced the successful resolution, or {@link ResolutionSource#NONE}. */
+    /**
+     * Source that produced the successful resolution, or {@link ResolutionSource#NONE}.
+     *
+     * @return the source of the successful resolution.
+     */
     public ResolutionSource source() {
       return source;
     }
 
-    /** Attempts recorded during resolution (empty on success). */
+    /**
+     * Attempts recorded during resolution (empty on success).
+     *
+     * @return immutable list of resolution attempts; never {@code null}.
+     */
     public List<Attempt> attempts() {
       return attempts;
     }

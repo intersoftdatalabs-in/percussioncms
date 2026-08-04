@@ -111,7 +111,11 @@ public final class InteractiveInstallWizard {
    * Same as {@link #runPhase1(DbInstallConfigResolver.ParsedArgs, boolean, InstallPrompt)} with an
    * explicit unattended Java home (tests inject a fixture home).
    *
-   * @param unattendedJavaHome explicit Java home override, or null to discover
+   * @param parsedArgs CLI parse result (path may be null).
+   * @param interactive whether to prompt.
+   * @param prompt operator I/O; required when interactive.
+   * @param unattendedJavaHome explicit Java home override, or null to discover.
+   * @return result with proceed flag and exit code when aborted.
    */
   public static Phase1Result runPhase1(
       DbInstallConfigResolver.ParsedArgs parsedArgs,
@@ -125,8 +129,13 @@ public final class InteractiveInstallWizard {
    * Same as {@link #runPhase1(DbInstallConfigResolver.ParsedArgs, boolean, InstallPrompt, Path)}
    * with injectable user-settings home (tests) or null for {@code user.home}.
    *
+   * @param parsedArgs CLI parse result (path may be null).
+   * @param interactive whether to prompt.
+   * @param prompt operator I/O; required when interactive.
+   * @param unattendedJavaHome explicit Java home override, or null to discover.
    * @param userSettingsHome optional home override for {@link InstallerUserSettings}; null =
-   *     default
+   *     default.
+   * @return result with proceed flag and exit code when aborted.
    */
   public static Phase1Result runPhase1(
       DbInstallConfigResolver.ParsedArgs parsedArgs,
