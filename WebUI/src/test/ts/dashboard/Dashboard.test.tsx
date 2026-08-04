@@ -18,6 +18,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { Dashboard } from "@/dashboard";
+import { MSG } from "@/i18n/message";
 
 describe("Dashboard Component", () => {
   beforeEach(() => {
@@ -28,12 +29,30 @@ describe("Dashboard Component", () => {
   afterEach(() => {
     // Clean up
     window.history.pushState({}, "", "/");
+    delete (window as { I18N?: unknown }).I18N;
   });
 
   it("should render the dashboard root", () => {
     render(<Dashboard />);
     expect(screen.getByTestId("dashboard-root")).toBeDefined();
     expect(screen.getByTestId("dashboard-add-gadget")).toBeDefined();
+  });
+
+  it("resolves Add Gadget button via window.I18N.message (GH-1840)", () => {
+    // Dashboard already uses message(MSG.DASHBOARD_ADD_GADGET); stub the
+    // product TMX catalog and assert the button does not stay on English fallback.
+    (window as unknown as { I18N: { message: (k: string) => string } }).I18N = {
+      message: (k: string) => {
+        if (k === MSG.DASHBOARD_ADD_GADGET) {
+          return "गैजेट जोड़ें";
+        }
+        return k;
+      },
+    };
+    render(<Dashboard />);
+    const btn = screen.getByTestId("dashboard-add-gadget");
+    expect(btn.textContent).toContain("गैजेट जोड़ें");
+    expect(btn.textContent).not.toMatch(/Add Gadget/);
   });
 
   it("should render default gadgets including Welcome and Blogs", () => {

@@ -26387,5 +26387,25 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
     <tu tuid="perc.ui.dashboard.modern@Dashboard Configuration">
       <tuv xml:lang="en-us"><seg>Dashboard Configuration</seg></tuv>
     <tuv xml:lang="ar"><seg>تكوين لوحة القيادة</seg></tuv><tuv xml:lang="de"><seg>Dashboard-Konfiguration</seg></tuv><tuv xml:lang="es"><seg>Configuración del panel</seg></tuv><tuv xml:lang="fr"><seg>Configuration du tableau de bord</seg></tuv><tuv xml:lang="hi"><seg>डैशबोर्ड कॉन्फ़िगरेशन</seg></tuv><tuv xml:lang="it"><seg>Configurazione del cruscotto</seg></tuv><tuv xml:lang="ja-jp"><seg>ダッシュボードの構成</seg></tuv><tuv xml:lang="nl"><seg>Dashboardconfiguratie</seg></tuv><tuv xml:lang="pt"><seg>Configuração do painel</seg></tuv><tuv xml:lang="zh-cn"><seg>仪表板配置</seg></tuv><tuv xml:lang="zh-tw"><seg>仪表板配置</seg></tuv><tuv xml:lang="te"><seg>డాష్u200cబోర్డ్ కాన్ఫిగరేషన్</seg></tuv><tuv xml:lang="bn"><seg>ড্যাশবোর্ড কনফিগারেশন</seg></tuv><tuv xml:lang="ru"><seg>Конфигурация информационной панели</seg></tuv><tuv xml:lang="he"><seg>תצורת לוח המחוונים</seg></tuv><tuv xml:lang="uk"><seg>Конфігурація приладової панелі</seg></tuv></tu>
+    <!-- Dashboard modern chrome: Add Gadget button + modal title (MSG.DASHBOARD_ADD_GADGET / MSG.MODAL_ADD_GADGET_TITLE) -->
+    <tu tuid="perc.ui.dashboard.modern@Add Gadget">
+      <tuv xml:lang="en-us"><seg>Add Gadget</seg></tuv>
+      <tuv xml:lang="ar"><seg>إضافة الأداة</seg></tuv>
+      <tuv xml:lang="bn"><seg>গ্যাজেট যোগ করুন</seg></tuv>
+      <tuv xml:lang="de"><seg>Gadget hinzufügen</seg></tuv>
+      <tuv xml:lang="es"><seg>Agregar gadget</seg></tuv>
+      <tuv xml:lang="fr"><seg>Ajouter un gadget</seg></tuv>
+      <tuv xml:lang="hi"><seg>गैजेट जोड़ें</seg></tuv>
+      <tuv xml:lang="it"><seg>Aggiungi gadget</seg></tuv>
+      <tuv xml:lang="ja-jp"><seg>ガジェットの追加</seg></tuv>
+      <tuv xml:lang="nl"><seg>Gadget toevoegen</seg></tuv>
+      <tuv xml:lang="pl"><seg>Dodaj gadżet</seg></tuv>
+      <tuv xml:lang="pt"><seg>Adicionar gadget</seg></tuv>
+      <tuv xml:lang="sv"><seg>Lägg till gadget</seg></tuv>
+      <tuv xml:lang="te"><seg>గాడ్జెట్ జోడించండి</seg></tuv>
+      <tuv xml:lang="tr"><seg>Gadget Ekle</seg></tuv>
+      <tuv xml:lang="zh-cn"><seg>添加小工具</seg></tuv>
+      <tuv xml:lang="zh-tw"><seg>添加小工具</seg></tuv>
+    <tuv xml:lang="ru"><seg>Добавить гаджет</seg></tuv><tuv xml:lang="he"><seg>הוסף גאדג'ט</seg></tuv><tuv xml:lang="uk"><seg>Додати гаджет</seg></tuv></tu>
   </body>
 </tmx>
