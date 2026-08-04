@@ -220,12 +220,8 @@
 			</fileset>
 		</copy>
 
-		<mkdir dir="${assembly-directory}/rxconfig/esapi" />
-		<copy todir="${assembly-directory}/rxconfig/esapi">
-			<fileset
-				dir="${basedir}/../perc-security-utils/src/main/resources/esapi"
-				includes="**/*" />
-		</copy>
+		<!-- ESAPI resources removed (issue #1800 / #1675): no longer packaged
+			under rxconfig/esapi after OWASP Java Encoder migration. -->
 
 		<!-- Install Velocity Configuration Files -->
 		<mkdir dir="${assembly-directory}/rxconfig/velocity" />

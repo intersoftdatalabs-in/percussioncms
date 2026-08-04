@@ -289,14 +289,9 @@
 				<include name=".legacy-key" />
 			</fileset>
 		</copy>
-		<mkdir dir="${install.dir}/rxconfig/esapi" />
-		<copy todir="${install.dir}/rxconfig/esapi/" failonerror="true"
-			overwrite="false" verbose="true">
-			<fileset dir="${install.src}/rxconfig/esapi/"
-				defaultexcludes="no">
-				<include name="**/*" />
-			</fileset>
-		</copy>
+		<!-- ESAPI resources removed (issue #1800 / #1675): distribution no longer
+			ships rxconfig/esapi after OWASP Java Encoder migration. Existing installs
+			may still have the directory; leave it untouched. -->
 		<echo>Configuring Datasource...</echo>
 		<if>
 			<!-- don't try to migrate configuration if it has already been done -->

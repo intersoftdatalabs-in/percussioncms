@@ -154,7 +154,7 @@ the same durability strategy as `var/`):
 |           Path            |                              Role                              |
 |---------------------------|----------------------------------------------------------------|
 | `ObjectStore/`            | CMS object store (design-time apps, content editor defs, etc.) |
-| `rxconfig/`               | Server runtime config (Installer, I18n, ESAPI, categories, …)  |
+| `rxconfig/`               | Server runtime config (Installer, I18n, categories, …)         |
 | `jetty/base/`             | Jetty base (logs, webapps overlay, runtime jetty config)       |
 | `Deployment/Server/conf/` | DTS Tomcat/conf and perc datasources                           |
 
