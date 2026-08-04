@@ -16,6 +16,8 @@
  */
 package com.percussion.services.utils.xml;
 
+import com.percussion.services.guidmgr.data.PSGuid;
+import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.xml.IPSXmlSerialization;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -24,16 +26,20 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
+import tools.jackson.core.JacksonException;
 import tools.jackson.databind.BeanDescription;
+import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.PropertyNamingStrategies;
 import tools.jackson.databind.SerializationConfig;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.deser.std.FromStringDeserializer;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ser.BeanPropertyWriter;
 import tools.jackson.databind.ser.ValueSerializerModifier;
+import tools.jackson.databind.ser.std.ToStringSerializer;
 import tools.jackson.dataformat.xml.JacksonXmlAnnotationIntrospector;
 import tools.jackson.dataformat.xml.XmlMapper;
 import tools.jackson.dataformat.xml.XmlWriteFeature;
@@ -63,6 +69,9 @@ import tools.jackson.dataformat.xml.XmlWriteFeature;
  * <p><strong>Approved XML deviations vs historical Betwixt writes:</strong> Jackson does not emit
  * Betwixt graph-identity {@code id="…"} attributes on complex elements (values live in child
  * elements).
+ *
+ * <p>{@link IPSGuid} / {@link PSGuid} use string form (same as historical Betwixt {@code
+ * PSBetwixtObjectConverter}) via a registered module (issue #1888).
  */
 public final class PSJacksonXmlSerializationHelper {
 
@@ -186,17 +195,76 @@ public final class PSJacksonXmlSerializationHelper {
     SimpleModule suppressModule = new SimpleModule("ps-ips-xml-serialization-suppress");
     suppressModule.setSerializerModifier(new IpsXmlSuppressionModifier());
 
+    SimpleModule guidModule = new SimpleModule("ps-ips-guid-string");
+    // Match Betwixt PSBetwixtObjectConverter: IPSGuid ↔ toString / new PSGuid(String)
+    guidModule.addSerializer(IPSGuid.class, new ToStringSerializer(IPSGuid.class));
+    guidModule.addSerializer(PSGuid.class, new ToStringSerializer(PSGuid.class));
+    guidModule.addDeserializer(IPSGuid.class, new IpsGuidFromStringDeserializer());
+    guidModule.addDeserializer(PSGuid.class, new PsGuidFromStringDeserializer());
+
     return XmlMapper.builder()
         .defaultUseWrapper(true)
         .propertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE)
         .annotationIntrospector(new PsJacksonXmlAnnotationIntrospector())
         .addModule(suppressModule)
+        .addModule(guidModule)
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         // Betwixt pretty-prints; keep Jackson pretty for readable golden comparison
         .enable(SerializationFeature.INDENT_OUTPUT)
         // Avoid empty XML declaration quirks when comparing to Betwixt body fragments
         .disable(XmlWriteFeature.WRITE_XML_DECLARATION)
         .build();
+  }
+
+  /**
+   * Deserializes package/design {@code <guid>} string values into {@link IPSGuid}, matching {@link
+   * PSBetwixtObjectConverter#stringToObject}.
+   */
+  static final class IpsGuidFromStringDeserializer extends FromStringDeserializer<IPSGuid> {
+    private static final long serialVersionUID = 1L;
+
+    IpsGuidFromStringDeserializer() {
+      super(IPSGuid.class);
+    }
+
+    @Override
+    protected IPSGuid _deserialize(String value, DeserializationContext ctxt)
+        throws JacksonException {
+      if (StringUtils.isBlank(value)) {
+        return null;
+      }
+      try {
+        return new PSGuid(value.trim());
+      } catch (RuntimeException ex) {
+        return (IPSGuid)
+            ctxt.handleWeirdStringValue(
+                IPSGuid.class, value, "not a valid PSGuid string: %s", ex.getMessage());
+      }
+    }
+  }
+
+  /** Concrete {@link PSGuid} string deserializer (same wire form as {@link IPSGuid}). */
+  static final class PsGuidFromStringDeserializer extends FromStringDeserializer<PSGuid> {
+    private static final long serialVersionUID = 1L;
+
+    PsGuidFromStringDeserializer() {
+      super(PSGuid.class);
+    }
+
+    @Override
+    protected PSGuid _deserialize(String value, DeserializationContext ctxt)
+        throws JacksonException {
+      if (StringUtils.isBlank(value)) {
+        return null;
+      }
+      try {
+        return new PSGuid(value.trim());
+      } catch (RuntimeException ex) {
+        return (PSGuid)
+            ctxt.handleWeirdStringValue(
+                PSGuid.class, value, "not a valid PSGuid string: %s", ex.getMessage());
+      }
+    }
   }
 
   /**
