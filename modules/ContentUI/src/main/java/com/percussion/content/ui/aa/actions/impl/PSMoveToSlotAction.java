@@ -49,6 +49,11 @@ import org.json.JSONException;
  */
 public class PSMoveToSlotAction extends PSAAActionBase {
 
+  /** No-op default constructor. */
+  public PSMoveToSlotAction() {
+    super();
+  }
+
   /* (non-Javadoc)
    * @see com.percussion.content.ui.aa.actions.IPSAAClientAction#execute(java.util.Map)
    */

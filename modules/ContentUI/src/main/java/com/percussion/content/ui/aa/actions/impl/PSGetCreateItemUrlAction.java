@@ -24,8 +24,17 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
-/** */
+/**
+ * Resolves the URL that should be opened when the user clicks "Create Item" for an AA-related item.
+ * The result is returned as a {@link PSActionResponse} carrying the URL and any required
+ * pre-populated query parameters.
+ */
 public class PSGetCreateItemUrlAction extends PSAAActionBase {
+
+  /** No-op default constructor. */
+  public PSGetCreateItemUrlAction() {
+    super();
+  }
 
   public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
     Object obj = getParameter(params, PARAM_NAME_PARENT_FOLDER_PATH);

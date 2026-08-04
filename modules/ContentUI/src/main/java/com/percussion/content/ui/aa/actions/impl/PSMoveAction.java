@@ -39,6 +39,11 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class PSMoveAction extends PSAAActionBase {
 
+  /** No-op default constructor. */
+  public PSMoveAction() {
+    super();
+  }
+
   // see base class for details
   public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
     PSAAObjectId objectId = getObjectId(params);

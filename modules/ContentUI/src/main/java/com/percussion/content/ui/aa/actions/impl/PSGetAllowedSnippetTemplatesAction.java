@@ -63,6 +63,11 @@ import org.json.JSONObject;
  */
 public class PSGetAllowedSnippetTemplatesAction extends PSAAActionBase {
 
+  /** No-op default constructor. */
+  public PSGetAllowedSnippetTemplatesAction() {
+    super();
+  }
+
   // See interface for details
   public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
     PSAAObjectId objectId = getObjectId(params);

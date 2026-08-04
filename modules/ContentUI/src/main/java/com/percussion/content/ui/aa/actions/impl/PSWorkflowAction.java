@@ -47,6 +47,11 @@ import java.util.StringTokenizer;
  */
 public class PSWorkflowAction extends PSAAActionBase {
 
+  /** No-op default constructor. */
+  public PSWorkflowAction() {
+    super();
+  }
+
   /* (non-Javadoc)
    * @see com.percussion.content.ui.aa.actions.IPSAAClientAction#execute(java.util.Map)
    */

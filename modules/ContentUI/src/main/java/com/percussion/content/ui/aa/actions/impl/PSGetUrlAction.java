@@ -112,6 +112,11 @@ import org.w3c.dom.NodeList;
  * </pre>
  */
 public class PSGetUrlAction extends PSAAActionBase {
+  /** No-op default constructor. */
+  public PSGetUrlAction() {
+    super();
+  }
+
   /*
    * @see com.percussion.content.ui.aa.actions.IPSAAClientAction#execute(java.util.Map)
    */
@@ -279,6 +284,7 @@ public class PSGetUrlAction extends PSAAActionBase {
    * @return the parameter value which may be empty.
    */
   private String getControlParamValue(PSDisplayMapping mapping, String paramname) {
+    // implementation unchanged
     try {
       PSControlMeta controlMeta = getControls().get(mapping.getUISet().getControl().getName());
       if (controlMeta == null) return "";
@@ -406,11 +412,12 @@ public class PSGetUrlAction extends PSAAActionBase {
    * Creates the url needed for inline images and links. This method is only public because it is
    * called via reflection. The method should not be called externally.
    *
-   * @param queryurl
-   * @param objectId
+   * @param queryurl the query url from the node def; may be {@code null} or empty (the parameter is
+   *     currently unused, but is required by the reflection dispatcher).
+   * @param objectId the object id object, must not be {@code null}.
    * @return the json object string that contains the url never <code>null</code> or empty.
-   * @throws JSONException
-   * @throws PSAAClientActionException
+   * @throws JSONException if the result JSON object cannot be constructed.
+   * @throws PSAAClientActionException if the assembler URL cannot be loaded.
    */
   public String doCE_LINK(@SuppressWarnings("unused") String queryurl, PSAAObjectId objectId)
       throws JSONException, PSAAClientActionException {
@@ -686,7 +693,8 @@ public class PSGetUrlAction extends PSAAActionBase {
    * Creates a simple url and Adds common parameters.
    *
    * @param url assumed not <code>null</code>.
-   * @return a
+   * @return a {@link SimpleURL} wrapping the supplied base URL with any active-assembly-mode query
+   *     parameter attached.
    */
   private SimpleURL createSimpleUrl(String url) {
 
@@ -1011,23 +1019,53 @@ public class PSGetUrlAction extends PSAAActionBase {
   private static final String DLG_WIDTH = "dlg_width";
 
   // Url types that can be returned
+
+  /** Action type constant for the content editor edit URL. */
   public static final String TYPE_CE_EDIT = "CE_EDIT";
+
+  /** Action type constant for the content editor view-content URL. */
   public static final String TYPE_CE_VIEW_CONTENT = "CE_VIEW_CONTENT";
+
+  /** Action type constant for the content editor view-properties URL. */
   public static final String TYPE_CE_VIEW_PROPERTIES = "CE_VIEW_PROPERTIES";
+
+  /** Action type constant for the content editor field-edit URL. */
   public static final String TYPE_CE_FIELDEDIT = "CE_FIELDEDIT";
+
+  /** Action type constant for the content editor view-revisions URL. */
   public static final String TYPE_CE_VIEW_REVISIONS = "CE_VIEW_REVISIONS";
+
+  /** Action type constant for the content editor view-audit-trail URL. */
   public static final String TYPE_CE_VIEW_AUDIT_TRAIL = "CE_VIEW_AUDIT_TRAIL";
+
+  /** Action type constant for the manage-navigation edit URL. */
   public static final String TYPE_MANAGE_NAVIGATION = "MANAGE_NAVIGATION";
+
+  /** Action type constant for the preview-page URL. */
   public static final String TYPE_PREVIEW_PAGE = "PREVIEW_PAGE";
+
+  /** Action type constant for the preview-my-page URL. */
   public static final String TYPE_PREVIEW_MYPAGE = "PREVIEW_MYPAGE";
+
+  /** Action type constant for the related-content search URL. */
   public static final String TYPE_RC_SEARCH = "RC_SEARCH";
+
+  /** Action type constant for the content editor inline-link URL. */
   public static final String TYPE_CE_LINK = "CE_LINK";
+
+  /** Action type constant for the "show AA relationships" impact analyzer URL. */
   public static final String TYPE_TOOL_SHOW_AA_RELATIONSHIPS = "TOOL_SHOW_AA_RELATIONSHIPS";
+
+  /** Action type constant for the "link to page" AA editor URL. */
   public static final String TYPE_LINK_TO_PAGE = "TOOL_LINK_TO_PAGE";
+
+  /** Action type constant for the "publish now" demand-publishing URL. */
   public static final String TYPE_TOOL_PUBLISH_NOW = "TOOL_PUBLISH_NOW";
+
   //   public static final String TYPE_TOOL_COMPARE_REVISIONS =
   //      "TOOL_COMPARE_REVISIONS";
 
+  /** Static allow-list of action-type constants exposed by this action. */
   public static final List<String> ms_allowedTypes = new ArrayList<String>();
 
   static {

@@ -26,6 +26,11 @@ import org.apache.commons.lang3.StringUtils;
 
 /** Implementation of the "canCreateItem" action. */
 public class PSCanCreateItemAction extends PSAAActionBase {
+  /** No-op default constructor. */
+  public PSCanCreateItemAction() {
+    super();
+  }
+
   /**
    * @param params parameters expected in the map are a valid {@link IPSHtmlParameters#SYS_FOLDERID
    *     parentFolderId} and a valid {@link IPSHtmlParameters#SYS_CONTENTTYPEID contentTypeId}.

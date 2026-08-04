@@ -36,6 +36,11 @@ import java.util.Map;
  */
 public class PSGetRootFoldersAction extends PSAAActionBase {
 
+  /** No-op default constructor. */
+  public PSGetRootFoldersAction() {
+    super();
+  }
+
   /**
    * Executes the action to retrieve root folders for the current user context.
    *

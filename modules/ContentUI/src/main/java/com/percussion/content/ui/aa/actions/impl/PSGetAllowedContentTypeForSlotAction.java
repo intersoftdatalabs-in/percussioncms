@@ -50,6 +50,11 @@ import org.json.JSONObject;
  */
 public class PSGetAllowedContentTypeForSlotAction extends PSAAActionBase {
 
+  /** No-op default constructor. */
+  public PSGetAllowedContentTypeForSlotAction() {
+    super();
+  }
+
   /*
    * (non-Javadoc)
    *

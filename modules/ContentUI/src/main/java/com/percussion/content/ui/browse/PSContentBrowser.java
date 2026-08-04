@@ -73,6 +73,10 @@ import org.json.JSONObject;
  * strings that are meant to be parsed to JavaScript to objects.
  */
 public class PSContentBrowser {
+
+  /** No-op default constructor. */
+  public PSContentBrowser() {}
+
   /**
    * Get all registered sites from the system that are visible to the user based on folder security.
    *
@@ -124,7 +128,7 @@ public class PSContentBrowser {
    *
    * @param path not null
    * @return not null maybe empty.
-   * @throws PSErrorException
+   * @throws PSErrorException if the content webservice fails to load the folder children.
    */
   public static List<PSItemSummary> findAndFilterItemSummaries(String path)
       throws PSErrorException {
@@ -142,8 +146,8 @@ public class PSContentBrowser {
    *     null</code>.
    * @return root folder objects as JSON string that resolves to a JSON array. Never <code>null
    *     </code> or empty. May return a string that resolves to empty JSON array.
-   * @throws PSErrorException
-   * @throws JSONException
+   * @throws PSErrorException if the content webservice fails to load the folder children.
+   * @throws JSONException if the result array cannot be constructed.
    */
   public static String getRootFolders(IPSRequestContext request)
       throws PSErrorException, JSONException {
@@ -175,9 +179,9 @@ public class PSContentBrowser {
    *     JSON array. Never <code>null</code> or empty. May return a string that resolves to empty
    *     JSON array.
    * @throws PSSiteManagerException if site in the provided path does not exist.
-   * @throws PSErrorException
-   * @throws JSONException
-   * @throws PSAssemblyException
+   * @throws PSErrorException if the content webservice fails to load folder children.
+   * @throws JSONException if the result array cannot be constructed.
+   * @throws PSAssemblyException if the assembly service fails while loading slot content.
    */
   public static String getSiteFolderChildren(
       IPSRequestContext request, String absSiteFolderPath, String contentTypeId, String slotId)
@@ -359,9 +363,9 @@ public class PSContentBrowser {
    * @param folderName name of the new folder to create, must not be <code>null</code> or empty.
    * @return JSON string that resolves to a JSON object representing the newly created folder, never
    *     <code>null</code> or empty.
-   * @throws PSSiteManagerException
-   * @throws PSErrorException
-   * @throws JSONException
+   * @throws PSSiteManagerException if the site in the provided path cannot be resolved.
+   * @throws PSErrorException if the content webservice fails to add the folder.
+   * @throws JSONException if the result JSON object cannot be constructed.
    */
   public static String createSiteFolder(
       IPSRequestContext request, String parentSiteFolderPath, String folderName)
@@ -414,7 +418,7 @@ public class PSContentBrowser {
    * @param request request context to load the folder permissions, must not be <code>null</code>.
    * @param folderId contentid of the folder, must not be <code>null</code> or empty.
    * @return <code>true</code> if user can create, <code>false</code> otherwise.
-   * @throws PSCmsException
+   * @throws PSCmsException if the legacy CMS cannot evaluate folder write permission.
    */
   public static boolean canCreateFolder(IPSRequestContext request, String folderId)
       throws PSCmsException {
@@ -435,7 +439,7 @@ public class PSContentBrowser {
    * @param parentFolderId contentid of the parent folder, must not be <code>null</code> or empty.
    * @param contentType content type id string, must correspond to a type known to the system.
    * @return <code>true</code> if user can create, <code>false</code> otherwise.
-   * @throws PSCmsException
+   * @throws PSCmsException if the legacy CMS cannot evaluate folder write permission.
    */
   public static boolean canCreateItem(
       IPSRequestContext request, String parentFolderId, String contentType) throws PSCmsException {
@@ -511,7 +515,7 @@ public class PSContentBrowser {
    * @param absFolderPath absolute folder path must start with '//'.
    * @return summaries of the child folders and items of the supplied folder. Never <code>null
    *     </code> may be empty.
-   * @throws PSErrorException
+   * @throws PSErrorException if the content webservice fails to load folder children.
    */
   private static List<PSItemSummary> getFolderChildrenSummaries(
       IPSRequestContext request, String absFolderPath) throws PSErrorException {
@@ -551,6 +555,7 @@ public class PSContentBrowser {
    * @return the label (or name if label is empty) of the content type, not blank.
    */
   private static String getContentTypeLabel(long contentTypeId) {
+    // body unchanged
     try {
       return PSItemDefManager.getInstance().contentTypeIdToLabel(contentTypeId);
     } catch (PSInvalidContentTypeException e) {
@@ -564,6 +569,8 @@ public class PSContentBrowser {
    * Generates HTML for name field.
    *
    * @param name the name string to generate HTML for. Not <code>null</code>.
+   * @return the name wrapped in an {@code <a href="#">} tag so the client JavaScript can attach its
+   *     own click handler.
    */
   public static String getNameHtml(final String name) {
     assert name != null;
@@ -579,7 +586,7 @@ public class PSContentBrowser {
    * @param summary item summary object assumed not <code>null</code>.
    * @param iconMap map of content ids and icon paths, assumed not <code>null</code>.
    * @return corresponding JSON object, nevr <code>null</code>.
-   * @throws JSONException
+   * @throws JSONException if the result object cannot be constructed.
    */
   static JSONObject summaryToJsonObject(PSItemSummary summary, Map<String, String> iconMap)
       throws JSONException {
@@ -599,7 +606,7 @@ public class PSContentBrowser {
    * @param folderPath folder path in the form of "//Sites/foo/bar to return the id of the folder
    *     "bar", must not be <code>null</code> or empty.
    * @return the contentid for the folder.
-   * @throws PSErrorException
+   * @throws PSErrorException if the content webservice fails to resolve the folder path.
    */
   public static int getIdForPath(String folderPath) throws PSErrorException {
     if (StringUtils.isBlank(folderPath))
@@ -619,8 +626,8 @@ public class PSContentBrowser {
    *     content typeid.
    * @return New item url as registered with the system for the given content type. All the required
    *     parameters are added including the parent folderid. Never <code>null</code> or empty.
-   * @throws PSSiteManagerException
-   * @throws PSErrorException
+   * @throws PSSiteManagerException if the site in the supplied path cannot be resolved.
+   * @throws PSErrorException if the content webservice fails to resolve the parent folder path.
    */
   public static String getNewItemUrlBySiteFolderPath(String parentPath, String ctypeid)
       throws PSSiteManagerException, PSErrorException, PSNotFoundException {

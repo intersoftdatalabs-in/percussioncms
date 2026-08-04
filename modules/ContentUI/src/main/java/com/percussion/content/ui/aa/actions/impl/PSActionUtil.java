@@ -161,6 +161,7 @@ public abstract class PSActionUtil {
    * @param slotid cannot be <code>null</code> or empty.
    * @return the template slot object, never <code>null</code>.
    * @throws PSNotFoundException if the slot does not exist.
+   * @throws PSAssemblyException if the assembly service fails while loading the slot.
    */
   protected static IPSTemplateSlot loadSlot(String slotid)
       throws PSNotFoundException, PSAssemblyException {
@@ -181,7 +182,7 @@ public abstract class PSActionUtil {
    *
    * @param result the assembly result, cannot be <code>null</code>.
    * @return the body content string, never <code>null</code>. May be empty.
-   * @throws Exception
+   * @throws Exception if parsing the assembly result HTML or computing the body fails.
    */
   protected static String getBodyContent(IPSAssemblyResult result) throws Exception {
     byte[] res = result.getResultData();
@@ -212,6 +213,14 @@ public abstract class PSActionUtil {
     return false;
   }
 
+  /**
+   * Helper method to obtain the set of content-type GUIDs allowed for the supplied slot id.
+   *
+   * @param slotid slot ID string, must not be {@code null} or empty and must be a valid slot.
+   * @return the set of allowed content-type GUIDs, never {@code null} but possibly empty.
+   * @throws PSAssemblyException if the assembly service fails while loading the slot.
+   * @throws PSNotFoundException if the slot does not exist.
+   */
   public static Set<IPSGuid> getAllowedContentIdsForSlot(String slotid)
       throws PSAssemblyException, PSNotFoundException {
     IPSTemplateSlot slotObj = loadSlot(slotid);
@@ -229,6 +238,8 @@ public abstract class PSActionUtil {
    * @param slotid slot ID string, must not be <code>null</code> or empty and must be a valid slot.
    * @return list of node definitions, never <code>null</code> may be empty. Sorted by names of the
    *     definitions.
+   * @throws PSAssemblyException if the assembly service fails while loading the slot.
+   * @throws PSNotFoundException if the slot does not exist.
    */
   public static List<IPSNodeDefinition> getAllowedNodeDefsForSlot(String slotid)
       throws PSAssemblyException, PSNotFoundException {
@@ -258,8 +269,6 @@ public abstract class PSActionUtil {
    * Helper that resolves the supplied site name object and folder path objects following these
    * rules.
    *
-   * <p>
-   *
    * <ol>
    *   <li>If site name object is <code>null</code> then the {@link IPSHtmlParameters#SYS_SITEID}
    *       value in the returned map is set to <code>null</code> even if the folder path resolves to
@@ -284,8 +293,8 @@ public abstract class PSActionUtil {
    *     <code>null</code> for {@link IPSHtmlParameters#SYS_FOLDERID} in the map.
    * @return map of {@link IPSHtmlParameters#SYS_SITEID} and {@link IPSHtmlParameters#SYS_FOLDERID}
    *     with <code>null</code> or non <code>null</code> values.
-   * @throws PSSiteManagerException
-   * @throws PSErrorException
+   * @throws PSSiteManagerException if the site in the supplied path cannot be resolved.
+   * @throws PSErrorException if the content webservice fails to look up the folder.
    */
   public static Map<String, IPSGuid> resolveSiteFolders(Object siteNameObj, Object folderPathObj)
       throws PSSiteManagerException, PSErrorException, PSNotFoundException {

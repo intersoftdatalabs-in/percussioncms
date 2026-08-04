@@ -1010,6 +1010,8 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
   }
 
   /**
+   * Looks up the content type id for the supplied content type name.
+   *
    * @param name A content type name. May be <code>null</code>.
    * @return A positive id if a content type exists with the supplied name, otherwise, -1.
    */
@@ -1024,7 +1026,13 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
     return id;
   }
 
-  /** This is protected only to allow removal of PSServer dependency for unit testing. */
+  /**
+   * Reads the {@code allowTrueInlineTemplates} server property.
+   *
+   * <p>This is protected only to allow removal of the {@link PSServer} dependency for unit testing.
+   *
+   * @return {@code true} if the server property is {@code "true"}; {@code false} otherwise.
+   */
   protected boolean isAllowTrueInlineTemplates() {
     Properties serverProps = PSServer.getServerProps();
     String isAllowValue = serverProps.getProperty("allowTrueInlineTemplates", "false");

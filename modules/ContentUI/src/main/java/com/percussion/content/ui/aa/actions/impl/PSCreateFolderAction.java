@@ -35,6 +35,11 @@ import java.util.Map;
  */
 public class PSCreateFolderAction extends PSAAActionBase {
 
+  /** No-op default constructor. */
+  public PSCreateFolderAction() {
+    super();
+  }
+
   /**
    * Executes the create folder action.
    *

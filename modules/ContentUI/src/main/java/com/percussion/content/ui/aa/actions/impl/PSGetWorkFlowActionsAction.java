@@ -43,6 +43,11 @@ import org.json.simple.JSONObject;
  */
 public class PSGetWorkFlowActionsAction extends PSAAActionBase {
 
+  /** No-op default constructor. */
+  public PSGetWorkFlowActionsAction() {
+    super();
+  }
+
   /* (non-Javadoc)
    * @see com.percussion.content.ui.aa.actions.IPSAAClientAction#execute(java.util.Map)
    */

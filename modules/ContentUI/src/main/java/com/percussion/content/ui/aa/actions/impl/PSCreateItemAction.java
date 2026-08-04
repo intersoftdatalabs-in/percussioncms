@@ -73,6 +73,11 @@ import org.json.JSONObject;
  */
 public class PSCreateItemAction extends PSAAActionBase {
 
+  /** No-op default constructor. */
+  public PSCreateItemAction() {
+    super();
+  }
+
   /*
    * (non-Javadoc)
    * @see com.percussion.content.ui.aa.actions.IPSAAClientAction#execute(java.util.Map)

@@ -30,6 +30,11 @@ import java.util.Map;
  * <p>Required parameters: None - uses request context to determine search scope.
  */
 public class PSGetSearchResultsAction extends PSAAActionBase {
+  /** No-op default constructor. */
+  public PSGetSearchResultsAction() {
+    super();
+  }
+
   /**
    * Executes the search and returns results.
    *

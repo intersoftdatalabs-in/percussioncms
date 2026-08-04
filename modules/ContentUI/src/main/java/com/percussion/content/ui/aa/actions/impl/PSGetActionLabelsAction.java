@@ -34,6 +34,11 @@ import org.json.JSONArray;
  * @author paulhoward
  */
 public class PSGetActionLabelsAction extends PSAAActionBase {
+  /** No-op default constructor. */
+  public PSGetActionLabelsAction() {
+    super();
+  }
+
   /**
    * For each supplied name, search for a matching <code>PSAction</code> that has that name
    * (case-insensitive.) If found, add the name and label to the result.

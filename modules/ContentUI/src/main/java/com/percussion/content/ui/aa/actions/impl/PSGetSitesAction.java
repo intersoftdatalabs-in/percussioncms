@@ -31,6 +31,11 @@ import java.util.Map;
  */
 public class PSGetSitesAction extends PSAAActionBase {
 
+  /** No-op default constructor. */
+  public PSGetSitesAction() {
+    super();
+  }
+
   /**
    * Executes the get sites action.
    *

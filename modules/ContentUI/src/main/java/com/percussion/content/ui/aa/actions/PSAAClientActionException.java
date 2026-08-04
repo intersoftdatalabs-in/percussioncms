@@ -26,22 +26,39 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class PSAAClientActionException extends Exception {
 
-  // see base class for detail
+  /** Default no-argument constructor; see {@link Exception#Exception()}. */
   public PSAAClientActionException() {
     super();
   }
 
-  // see base class for detail
+  /**
+   * Constructs an exception with the supplied message and cause. See {@link
+   * Exception#Exception(String, Throwable)}.
+   *
+   * @param message the detail message, may be {@code null}.
+   * @param cause the underlying cause; if it is an {@link InvocationTargetException} the nested
+   *     cause is unwrapped.
+   */
   public PSAAClientActionException(String message, Throwable cause) {
     super(message, maybeGetNestedException(cause));
   }
 
-  // see base class for detail
+  /**
+   * Constructs an exception with the supplied message. See {@link Exception#Exception(String)}.
+   *
+   * @param message the detail message, may be {@code null}.
+   */
   public PSAAClientActionException(String message) {
     super(message);
   }
 
-  // see base class for detail
+  /**
+   * Constructs an exception wrapping the supplied cause. See {@link
+   * Exception#Exception(Throwable)}.
+   *
+   * @param cause the underlying cause; if it is an {@link InvocationTargetException} the nested
+   *     cause is unwrapped.
+   */
   public PSAAClientActionException(Throwable cause) {
     super(maybeGetNestedException(cause));
   }

@@ -58,6 +58,11 @@ import org.json.JSONArray;
  * @author paulhoward
  */
 public class PSGetActionVisibilityAction extends PSAAActionBase {
+  /** No-op default constructor. */
+  public PSGetActionVisibilityAction() {
+    super();
+  }
+
   /**
    * For each supplied name, search for a matching <code>PSAction</code> that has that name
    * (case-insensitive.) If found, calculate whether the action would be visible given the context

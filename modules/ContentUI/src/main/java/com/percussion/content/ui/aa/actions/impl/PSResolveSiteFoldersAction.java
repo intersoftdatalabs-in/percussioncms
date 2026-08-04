@@ -27,6 +27,11 @@ import org.json.JSONObject;
 /** Resolves the id values for the passed in site and site folder. */
 public class PSResolveSiteFoldersAction extends PSAAActionBase {
 
+  /** No-op default constructor. */
+  public PSResolveSiteFoldersAction() {
+    super();
+  }
+
   /* (non-Javadoc)
    * @see com.percussion.content.ui.aa.actions.IPSAAClientAction#execute(java.util.Map)
    */
@@ -57,5 +62,6 @@ public class PSResolveSiteFoldersAction extends PSAAActionBase {
   /** Parameter names of this action. */
   public static String FOLDER_PATH = "folderPath";
 
+  /** Parameter name of the site name that owns the folder (optional). */
   public static String SITE_NAME = "siteName";
 }

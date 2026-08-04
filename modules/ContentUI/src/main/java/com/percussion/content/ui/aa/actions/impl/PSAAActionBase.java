@@ -42,6 +42,9 @@ import org.json.JSONException;
  */
 public abstract class PSAAActionBase implements IPSAAClientAction {
 
+  /** No-op default constructor. */
+  public PSAAActionBase() {}
+
   /**
    * Creates a new <code>IPSRequestContext</code> from the request stored in thread local.
    *
@@ -147,6 +150,11 @@ public abstract class PSAAActionBase implements IPSAAClientAction {
   /**
    * This is the same as {@link #getParameter(Map, String)} except it throws
    * IllegalArgumentException if the specified parameter does not exist.
+   *
+   * @param params the map of params, cannot be {@code null}.
+   * @param key the param name key cannot be {@code null} or empty.
+   * @return the parameter value (never {@code null}).
+   * @throws IllegalArgumentException if no value is mapped under {@code key}.
    */
   protected Object getParameterRqd(Map<String, Object> params, String key) {
     Object value = getParameter(params, key);
@@ -265,11 +273,15 @@ public abstract class PSAAActionBase implements IPSAAClientAction {
     return rawUrl.substring(0, rawUrl.indexOf("/", 1));
   }
 
+  /** Parameter name for the parent folder path. */
   public static final String PARAM_NAME_PARENT_FOLDER_PATH = "parentFolderPath";
 
+  /** Parameter name for the AA result category. */
   public static final String PARAM_NAME_CATEGORY = "category";
 
+  /** Category value that groups the response items by site. */
   public static final String PARAM_CATEGORY_SITES = "sites";
 
+  /** Category value that groups the response items by folder. */
   public static final String PARAM_CATEGORY_FOLDERS = "folders";
 }

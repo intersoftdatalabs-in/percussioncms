@@ -28,6 +28,11 @@ import org.json.JSONObject;
 /** Retrieves the mime type of the assembled snippet. Expects an objectid for the snippet. */
 public class PSGetSnippetMimeTypeAction extends PSAAActionBase {
 
+  /** No-op default constructor. */
+  public PSGetSnippetMimeTypeAction() {
+    super();
+  }
+
   // see interface for more detail
   public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
     PSAAObjectId objectId = getObjectId(params);
