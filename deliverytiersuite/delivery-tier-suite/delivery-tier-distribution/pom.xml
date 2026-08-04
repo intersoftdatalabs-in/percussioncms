@@ -918,6 +918,40 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>unpack-userconfiguration</id>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.intsof.common</groupId>
+                                    <artifactId>utilities</artifactId>
+                                    <version>${intsof.common.utilities.version}</version>
+                                    <type>jar</type>
+                                    <!--
+                                      GH-1825: InstallerUserSettings opens
+                                      com.intsof.common.utilities.UserConfiguration
+                                      (and AppConfigurationFolder) at wizard start.
+                                      java -jar has no external classpath, so the
+                                      compile-only utilities dependency never reaches
+                                      the fat installer jar unless we stage classes
+                                      into project.build.outputDirectory — same
+                                      pattern as unpack-pathvalidation (GH-1180).
+
+                                      Full jar is ~27 KB with no third-party runtime
+                                      deps; prefer full unpack over brittle class
+                                      lists so nested/transitive types cannot be
+                                      missed later.
+                                    -->
+                                    <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                                    <excludes>META-INF/MANIFEST.MF,META-INF/maven/**</excludes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>copy-deployment-server-common-lib</id>
                         <goals>
                             <goal>copy</goal>
@@ -1097,9 +1131,10 @@
                         </configuration>
                     </execution>
                     <!--
-                      GH-1180 regression gate: the packaged installer jar must contain
-                      PathValidation after the minimal shade. Runs on every verify so a
-                      future pom change cannot drop the shade without failing the build.
+                      GH-1180 / GH-1825 regression gate: the packaged installer jar must
+                      contain PathValidation (minimal shade) and UserConfiguration
+                      (utilities unpack). Runs on every verify so a future pom change
+                      cannot drop the shade/unpack without failing the build.
                     -->
                     <execution>
                         <id>verify-pathvalidation-shaded</id>
@@ -1125,6 +1160,14 @@
                                     <contains string="${dts.installer.listing}" substring="org/apache/logging/log4j/LogManager.class"/>
                                 </condition>
                                 <fail message="GH-1180: ${dts.installer.jar} is missing log4j-api (LogManager) required by PathValidation." unless="dts.has.log4j.api"/>
+                                <condition property="dts.has.userconfiguration">
+                                    <contains string="${dts.installer.listing}" substring="com/intsof/common/utilities/UserConfiguration.class"/>
+                                </condition>
+                                <fail message="GH-1825: ${dts.installer.jar} is missing UserConfiguration.class — unpack-userconfiguration of com.intsof.common:utilities failed or was removed." unless="dts.has.userconfiguration"/>
+                                <condition property="dts.has.appconfigurationfolder">
+                                    <contains string="${dts.installer.listing}" substring="com/intsof/common/utilities/AppConfigurationFolder.class"/>
+                                </condition>
+                                <fail message="GH-1825: ${dts.installer.jar} is missing AppConfigurationFolder.class — unpack-userconfiguration of com.intsof.common:utilities failed or was removed." unless="dts.has.appconfigurationfolder"/>
                                 <condition property="dts.has.server.xml">
                                     <contains string="${dts.installer.listing}" substring="distribution/Deployment/Server/conf/server.xml"/>
                                 </condition>
@@ -1133,7 +1176,7 @@
                                     <contains string="${dts.installer.listing}" substring="distribution/Deployment/Server/webapps/perc-metadata-services.war"/>
                                 </condition>
                                 <fail message="DTS installer jar missing perc-metadata-services.war (Cargo package not staged)." unless="dts.has.metadata.war"/>
-                                <echo message="GH-1180: PathValidation + log4j-api + Tomcat/server.xml + metadata war present in ${dts.installer.jar}"/>
+                                <echo message="GH-1180/GH-1825: PathValidation + log4j-api + UserConfiguration + Tomcat/server.xml + metadata war present in ${dts.installer.jar}"/>
                             </target>
                         </configuration>
                     </execution>
