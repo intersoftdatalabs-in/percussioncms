@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,16 @@ import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
-import java.util.Optional;
 
-/** Represents a Content Type in Percussion CMS. */
+/**
+ * Represents a Content Type summary in Percussion CMS.
+ *
+ * <p>Wire getters return plain types (not {@code Optional}) so Jackson/CXF JSON always emits {@code
+ * name}, {@code label}, and {@code guid} when set. Optional-returning getters historically dropped
+ * those fields under {@code @JsonInclude(NON_NULL)} when the mapper did not unwrap {@code
+ * Optional}, leaving only {@code hideFromMenu} on the list wire shape (issue #1693). Matches {@link
+ * ContentTypeDetail} getter style.
+ */
 @XmlRootElement(name = "ContentType")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Represents a Content Type")
@@ -69,64 +76,64 @@ public class ContentType {
 
   public ContentType() {}
 
-  public Optional<Guid> getGuid() {
-    return Optional.ofNullable(guid);
+  public Guid getGuid() {
+    return guid;
   }
 
   public void setGuid(Guid guid) {
     this.guid = guid;
   }
 
-  public Optional<Guid> getObjectType() {
-    return Optional.ofNullable(objectType);
+  public Guid getObjectType() {
+    return objectType;
   }
 
   public void setObjectType(Guid objectType) {
     this.objectType = objectType;
   }
 
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
+  public String getName() {
+    return name;
   }
 
   public void setName(String name) {
     this.name = name;
   }
 
-  public Optional<String> getLabel() {
-    return Optional.ofNullable(label);
+  public String getLabel() {
+    return label;
   }
 
   public void setLabel(String label) {
     this.label = label;
   }
 
-  public Optional<String> getDescription() {
-    return Optional.ofNullable(description);
+  public String getDescription() {
+    return description;
   }
 
   public void setDescription(String description) {
     this.description = description;
   }
 
-  public Optional<String> getNewRequest() {
-    return Optional.ofNullable(newRequest);
+  public String getNewRequest() {
+    return newRequest;
   }
 
   public void setNewRequest(String newRequest) {
     this.newRequest = newRequest;
   }
 
-  public Optional<String> getQueryRequest() {
-    return Optional.ofNullable(queryRequest);
+  public String getQueryRequest() {
+    return queryRequest;
   }
 
   public void setQueryRequest(String queryRequest) {
     this.queryRequest = queryRequest;
   }
 
-  public Optional<String> getUpdateRequest() {
-    return Optional.ofNullable(updateRequest);
+  public String getUpdateRequest() {
+    return updateRequest;
   }
 
   public void setUpdateRequest(String updateRequest) {

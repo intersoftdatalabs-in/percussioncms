@@ -18,18 +18,25 @@
 package com.percussion.rest.contenttypes;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.percussion.rest.Guid;
+import com.percussion.rest.JacksonContextResolver;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.UriInfo;
 import java.net.URI;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.ObjectMapper;
 
 @Tag("UnitTest")
 public class ContentTypesResourceDetailTest {
@@ -47,11 +54,56 @@ public class ContentTypesResourceDetailTest {
   }
 
   @Test
+  public void listContentTypesReturnsNameLabelGuid() {
+    ContentType ct = sampleContentType();
+    when(adaptor.listContentTypes(any())).thenReturn(List.of(ct));
+
+    List<ContentType> list = resource.listContentTypes();
+    assertEquals(1, list.size());
+    ContentType first = list.get(0);
+    assertEquals("percPage", first.getName());
+    assertEquals("Page", first.getLabel());
+    assertNotNull(first.getGuid());
+    assertFalse(first.isHideFromMenu());
+  }
+
+  @Test
+  public void listContentTypesJsonIsNotHideFromMenuOnly() {
+    ContentType ct = sampleContentType();
+    when(adaptor.listContentTypes(any())).thenReturn(List.of(ct));
+
+    List<ContentType> list = resource.listContentTypes();
+    ObjectMapper mapper = new JacksonContextResolver().getContext(ContentType.class);
+    String json = mapper.writeValueAsString(new ContentTypeList(list));
+
+    assertTrue(json.contains("\"name\""), json);
+    assertTrue(json.contains("percPage"), json);
+    assertTrue(json.contains("\"label\""), json);
+    assertTrue(json.contains("Page"), json);
+    assertTrue(json.contains("\"guid\""), json);
+    // Regression: live install returned only hideFromMenu per item (#1693)
+    assertFalse(
+        json.replaceAll("\\s", "").contains("{\"hideFromMenu\":false}")
+            && !json.contains("\"name\""),
+        json);
+  }
+
+  @Test
   public void getContentTypeReturnsDetail() {
     ContentTypeDetail d = new ContentTypeDetail();
     d.setName("percPage");
     when(adaptor.getContentType(any(), eq("percPage"))).thenReturn(d);
     assertEquals("percPage", resource.getContentType("percPage").getName());
+  }
+
+  private static ContentType sampleContentType() {
+    ContentType ct = new ContentType();
+    ct.setName("percPage");
+    ct.setLabel("Page");
+    ct.setDescription("Page content type");
+    ct.setGuid(new Guid("0-2-311"));
+    ct.setHideFromMenu(false);
+    return ct;
   }
 
   @Test
