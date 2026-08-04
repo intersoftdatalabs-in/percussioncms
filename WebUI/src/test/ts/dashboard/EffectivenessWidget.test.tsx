@@ -2,11 +2,12 @@
  * Copyright 1999-2026 Percussion Software, Inc.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { EffectivenessWidget } from "@/dashboard/EffectivenessWidget";
 import * as gadgetApi from "@/api/dashboard/gadgetApi";
 import * as analyticsApi from "@/api/dashboard/analyticsApi";
+import { MSG } from "@/i18n/message";
 
 vi.mock("@/api/dashboard/gadgetApi", async (importOriginal) => {
   const actual =
@@ -32,6 +33,32 @@ describe("EffectivenessWidget", () => {
     vi.mocked(analyticsApi.isAnalyticsProviderConfigured)
       .mockReset()
       .mockResolvedValue(true);
+    delete (window as { I18N?: unknown }).I18N;
+  });
+
+  afterEach(() => {
+    delete (window as { I18N?: unknown }).I18N;
+  });
+
+  it("localizes default title via I18N when key resolves (GH-1834)", async () => {
+    (window as unknown as { I18N: { message: (k: string) => string } }).I18N = {
+      message: (k: string) =>
+        k === MSG.GADGET_WHATS_WORKING ? "क्या काम कर रहा है" : k,
+    };
+    vi.mocked(analyticsApi.isAnalyticsProviderConfigured).mockResolvedValue(
+      false,
+    );
+    render(<EffectivenessWidget refreshInterval={0} />);
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("effectiveness-widget-needs-analytics"),
+      ).toBeDefined();
+    });
+    const titleEl = screen
+      .getByTestId("effectiveness-widget")
+      .querySelector("div");
+    expect(titleEl?.textContent).toBe("क्या काम कर रहा है");
+    expect(titleEl?.textContent).not.toBe("What's Working");
   });
 
   it("prompts for Google Setup when analytics missing", async () => {
