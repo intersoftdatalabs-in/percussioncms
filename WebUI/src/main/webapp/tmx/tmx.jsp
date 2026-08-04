@@ -1,6 +1,6 @@
 <%@ page import="java.util.*,com.percussion.i18n.PSTmxResourceBundle"%>
+    <%@ page import="com.percussion.i18n.PSTmxJsCatalog" %>
     <%@ page import="com.percussion.services.utils.jspel.PSRoleUtilities" %>
-    <%@ page import="com.percussion.security.validation.XSSValidation" %>
     <%@ page pageEncoding="UTF-8" contentType="text/javascript; charset=UTF-8" %>
 
 
@@ -40,18 +40,12 @@
                  <!ELEMENT tmxmessages (message+)>
 
 
+    Catalog collection and JS/JSON escaping live in {@link com.percussion.i18n.PSTmxJsCatalog}
+    so sparse regional locales (e.g. hi-in → hi → en-us) and Devanagari / quoted segments
+    are regression-tested offline (GH-1611). Do not re-introduce naive replaceAll("\"","\\\"")
+    escaping here.
+
     --%>
-    <%!
-        public boolean accept(String[] prefixes, String key)
-        {
-            for(int i = 0; i < prefixes.length; i++)
-            {
-                if(key.startsWith(prefixes[i]))
-                    return true;
-            }
-            return false;
-        }
-    %>
     <%
         String jspstart = "<" + "%";
         String jspend = "%" + ">";
@@ -74,29 +68,10 @@
             prefix = "javascript.";
         if(mode == null || mode.length() == 0)
             mode = "js";
-        String[] prefixes = prefix.split(",");
-        PSTmxResourceBundle tmxBundle = PSTmxResourceBundle.getInstance();
-        Iterator keys = tmxBundle.getKeys(locale);
-        // LinkedHashMap preserves stable key order for easier diffs / tests.
-        Map accepted = new LinkedHashMap();
-        if (keys != null)
-        {
-            while(keys.hasNext())
-            {
-                String key = (String)keys.next();
-                if(!prefix.equals("*") && !accept(prefixes, key))
-                    continue;
-                // Keep raw strings here; escape per output mode below.
-                // Do NOT use naive replaceAll("\"","\\\"") — FR/IT (and other)
-                // catalog values embed literal " and newlines. That produced
-                // invalid JS object literals so the login locale dropdown could
-                // load the script without updating I18N.message (chrome stuck
-                // on the previous locale). Escape with XSSValidation /
-                // escapeEcmaScript at emit time.
-                String val = tmxBundle.getString(key, locale);
-                accepted.put(key, val == null ? "" : val);
-            }
-        }
+        // Same accepted map as unit-tested for sys_lang=hi-in / prefix=perc.ui. (GH-1611).
+        // Null getKeys, null keys, and empty values are handled inside collectAccepted.
+        Map accepted = PSTmxJsCatalog.collectAccepted(
+            PSTmxResourceBundle.getInstance(), locale, prefix);
 
         if(mode.equals("js"))
         {
@@ -107,20 +82,7 @@
         this.I18N = {};
     }
     var __tmxMessageMap = {
-        <%
-
-            Iterator keyset = accepted.keySet().iterator();
-            while(keyset.hasNext())
-            {
-                String key = (String)keyset.next();
-                String rawVal = (String)accepted.get(key);
-                String safeKey = XSSValidation.escapeJavaScript(key);
-                String safeVal = XSSValidation.escapeJavaScript(rawVal);
-                if (safeKey == null) safeKey = "";
-                if (safeVal == null) safeVal = "";
-
-        %>"<%= safeKey %>": "<%= safeVal %>"<%if(keyset.hasNext()) out.print(",");%>
-        <%}%>
+        <%= PSTmxJsCatalog.toJsObjectEntries(accepted) %>
     };
 
     function psxGetLocalMessage(key, args) {
@@ -176,25 +138,7 @@
         else if(mode.equals("json"))
         {
             response.setContentType("application/json");
-            Iterator keyset = accepted.keySet().iterator();
-            out.print("{\"tmxmessages\": {");
-            while(keyset.hasNext())
-            {
-                String key = (String)keyset.next();
-                String rawVal = (String)accepted.get(key);
-                String safeKey = XSSValidation.escapeJavaScript(key);
-                String safeVal = XSSValidation.escapeJavaScript(rawVal);
-                if (safeKey == null) safeKey = "";
-                if (safeVal == null) safeVal = "";
-                out.print("\"");
-                out.print(safeKey);
-                out.print("\": \"");
-                out.print(safeVal);
-                out.print("\"");
-                if(keyset.hasNext())
-                    out.print(",");
-            }
-            out.print("}}");
+            out.print(PSTmxJsCatalog.toJsonDocument(accepted));
         }
         else if(mode.equals("xml"))
         {
@@ -204,6 +148,7 @@
             while(keyset.hasNext())
             {
                 String key = (String)keyset.next();
+                if (key == null) continue;
                 String rawVal = (String)accepted.get(key);
                 if (rawVal == null) rawVal = "";
                 out.print("<message key=\"");
