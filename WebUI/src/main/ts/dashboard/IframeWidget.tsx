@@ -138,6 +138,8 @@ export const IframeWidget: React.FC<IframeWidgetProps> = ({
         ) : null}
         {active ? (
           <iframe
+            // Same string as widget heading: prop title or MSG.GADGET_EXTERNAL_CONTENT fallback
+            // (intentional a11y — avoids empty/undefined title when prop omitted).
             title={heading}
             src={active}
             // Restrictive sandbox: no same-origin + scripts combo.

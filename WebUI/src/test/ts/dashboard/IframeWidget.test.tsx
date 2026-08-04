@@ -57,4 +57,17 @@ describe("IframeWidget", () => {
     expect(screen.getByTestId("iframe-src-error")).toBeDefined();
     expect(screen.queryByTitle("Embed")).toBeNull();
   });
+
+  it("uses localized External Content fallback for iframe accessible name when title omitted", () => {
+    // Without I18N, message() falls back to text after @ in MSG.GADGET_EXTERNAL_CONTENT
+    render(<IframeWidget />);
+    fireEvent.change(screen.getByTestId("iframe-src-input"), {
+      target: { value: "https://example.com/embed" },
+    });
+    fireEvent.click(screen.getByTestId("iframe-src-apply"));
+    const iframe = screen.getByTitle("External Content") as HTMLIFrameElement;
+    expect(iframe.src).toContain("example.com");
+    // Widget heading and iframe title stay aligned for a11y
+    expect(screen.getByText("External Content")).toBeDefined();
+  });
 });
