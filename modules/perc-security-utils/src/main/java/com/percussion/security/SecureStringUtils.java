@@ -41,9 +41,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.owasp.encoder.Encode;
-import org.owasp.esapi.ESAPI;
-import org.owasp.esapi.errors.EncodingException;
-import org.owasp.esapi.reference.DefaultEncoder;
 
 /**
  * A centralized utility class with static methods for performing a variety of secure string
@@ -148,22 +145,93 @@ public class SecureStringUtils {
   /**
    * To be used when sending queries to LDAP.
    *
+   * <p>Escapes LDAP filter special characters using RFC 4515 hex-style escapes, matching the former
+   * ESAPI {@code encodeForLDAP} behavior without requiring the ESAPI library. Forward slash is
+   * escaped as {@code \2f} for Microsoft Active Directory / ADSI compatibility (ESAPI and Microsoft
+   * document this as required; RFC 4515 allows it).
+   *
    * @param query An LDAP query
-   * @param encodeWildcards true to encode wildcards, false to leave them
-   * @return A string encoded for LDAP, wild cards are not encoded.
+   * @param encodeWildcards true to encode wildcards ({@code *}), false to leave them
+   * @return A string encoded for LDAP, or {@code null} if {@code query} is null
    */
   public static String sanitizeStringForLDAP(String query, boolean encodeWildcards) {
-    return DefaultEncoder.getInstance().encodeForLDAP(query, encodeWildcards);
+    return encodeForLdap(query, encodeWildcards);
   }
 
   /**
    * Use this method to encode a string provided externally for JavaScript / JSON.
    *
    * @param s The string to encode
-   * @return Returns the supplied string encoded for a JSON
+   * @return Returns the supplied string encoded for a JSON context, or {@code null} if {@code s} is
+   *     null
    */
   public static String sanitizeForJson(String s) {
-    return DefaultEncoder.getInstance().encodeForJavaScript(s);
+    if (s == null) {
+      return null;
+    }
+    return Encode.forJavaScript(s);
+  }
+
+  /**
+   * LDAP filter-value encoding (RFC 4515 style hex escapes).
+   *
+   * <p>Escapes: {@code \} → {@code \5c}, {@code /} → {@code \2f}, {@code (} → {@code \28}, {@code
+   * )} → {@code \29}, NUL → {@code \00}, and optionally {@code *} → {@code \2a}. Non-ASCII
+   * characters (code point ≥ 128) are escaped as UTF-8 hex bytes.
+   *
+   * <p>{@code /} → {@code \2f} intentionally mirrors ESAPI {@code DefaultEncoder.encodeForLDAP}:
+   * Microsoft ADSI requires forward-slash escaping in search filters; RFC 4515 §3 permits it.
+   * Removing the escape would diverge from prior ESAPI behavior used by callers such as user
+   * directory lookups.
+   *
+   * @param input value to encode; may be null
+   * @param encodeWildcards whether to escape {@code *}
+   * @return encoded value, or null if input is null
+   */
+  static String encodeForLdap(String input, boolean encodeWildcards) {
+    if (input == null) {
+      return null;
+    }
+    StringBuilder sb = new StringBuilder(input.length());
+    for (int i = 0; i < input.length(); i++) {
+      char c = input.charAt(i);
+      switch (c) {
+        case '\\':
+          sb.append("\\5c");
+          break;
+        case '/':
+          // ESAPI encodeForLDAP + Microsoft ADSI: '/' MUST be escaped in filters
+          sb.append("\\2f");
+          break;
+        case '*':
+          if (encodeWildcards) {
+            sb.append("\\2a");
+          } else {
+            sb.append(c);
+          }
+          break;
+        case '(':
+          sb.append("\\28");
+          break;
+        case ')':
+          sb.append("\\29");
+          break;
+        case '\0':
+          sb.append("\\00");
+          break;
+        default:
+          if (c >= 128) {
+            byte[] utf8 = String.valueOf(c).getBytes(StandardCharsets.UTF_8);
+            for (byte b : utf8) {
+              sb.append(String.format("\\%02x", b & 0xff));
+            }
+          } else {
+            sb.append(c);
+          }
+          break;
+      }
+    }
+    return sb.toString();
   }
 
   /** Maximum allowed filename length. */
@@ -1278,21 +1346,26 @@ public class SecureStringUtils {
   }
 
   /**
-   * URL encodes a string.
+   * URL encodes a string for use as a URI component (percent-encoding via OWASP Java Encoder).
    *
-   * @param s the string to encode
-   * @return URL encoded string
+   * <p>Does not swallow encoder failures: unexpected runtime errors from the encoder are logged and
+   * rethrown so callers are not handed a silently empty component.
+   *
+   * @param s the string to encode; may be null
+   * @return URL encoded string, or null if {@code s} is null
+   * @throws RuntimeException if the encoder fails for the given input
    */
   public static String urlEncode(String s) {
-    String ret = "";
-
-    try {
-      ret = DefaultEncoder.getInstance().encodeForURL(s);
-    } catch (EncodingException e) {
-      log.error(e.getMessage());
+    if (s == null) {
+      return null;
     }
-
-    return ret;
+    try {
+      return Encode.forUriComponent(s);
+    } catch (RuntimeException e) {
+      log.error("urlEncode failed for input length {}: {}", s.length(), e.getMessage());
+      log.debug(e);
+      throw e;
+    }
   }
 
   /**
@@ -1482,21 +1555,12 @@ public class SecureStringUtils {
    * Utility to sanitize a string for use in a SQL statement.
    *
    * @param str User provided string
-   * @param dbType The type of database that should be used for encoding if an ESAPI Codec is
-   *     available for the DB.
-   * @return The sanitized string, will use {@link #sanitizeStringForFileSystem(String)} if no ESAPI
-   *     codec is available.
+   * @param dbType The type of database (retained for API compatibility; database-specific codecs
+   *     are not used — all types share {@link #sanitizeStringForSQLStatement(String)})
+   * @return The sanitized string
    */
   public static String sanitizeStringForSQLStatement(String str, DatabaseType dbType) {
     return sanitizeStringForSQLStatement(str);
-
-    /**
-     * This is not Consistent across multiple DB Types and thus commented. Codec codec;
-     * switch(dbType){ case DERBY: case DB2: codec = new DB2Codec(); break; case MYSQL: codec = new
-     * MySQLCodec(MySQLCodec.Mode.STANDARD); break; case ORACLE: codec = new OracleCodec(); break;
-     * default: codec = null; } if(codec == null) { return sanitizeStringForSQLStatement(str);
-     * }else{ return DefaultEncoder.getInstance().encodeForSQL(codec,str); }*
-     */
   }
 
   /**
@@ -1516,8 +1580,8 @@ public class SecureStringUtils {
     if (path == null) return ret;
 
     try {
-      // Url decode path
-      ret = ESAPI.encoder().decodeFromURL(path);
+      // Url decode path (percent-encoding; replaces former ESAPI decodeFromURL)
+      ret = URLDecoder.decode(path, StandardCharsets.UTF_8);
 
       // Normalize backslashes to slashes
       ret = ret.replace("\\", "/");
@@ -1548,7 +1612,7 @@ public class SecureStringUtils {
         ret = null;
       }
 
-    } catch (EncodingException e) {
+    } catch (IllegalArgumentException e) {
       log.warn(
           "Error decoding wild path {}. Error: {}", path, PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -1648,7 +1712,8 @@ public class SecureStringUtils {
   public static boolean isHTML(String src) {
     boolean ret = false;
     if (src != null && !StringUtils.isEmpty(src)) {
-      if (!src.equals(ESAPI.encoder().encodeForHTML(src))) {
+      // Detect markup-sensitive characters by comparing with OWASP HTML encoding
+      if (!src.equals(Encode.forHtml(src))) {
         ret = true;
       }
     }
@@ -1664,7 +1729,8 @@ public class SecureStringUtils {
   public static boolean isXML(String src) {
     boolean ret = false;
     if (src != null && !StringUtils.isEmpty(src)) {
-      if (!src.equals(ESAPI.encoder().encodeForXML(src))) {
+      // Detect markup-sensitive characters by comparing with OWASP XML encoding
+      if (!src.equals(Encode.forXml(src))) {
         ret = true;
       }
     }

@@ -299,10 +299,6 @@
                     <artifactId>bcprov-jdk18on</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.owasp.esapi</groupId>
-                    <artifactId>esapi</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>com.github.javafaker</groupId>
                     <artifactId>javafaker</artifactId>
                 </exclusion>
