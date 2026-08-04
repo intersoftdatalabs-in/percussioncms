@@ -29,23 +29,36 @@ import java.util.List;
  *
  * @author rafaelsalis
  */
+/**
+ * This class is responsible for process the categories list metadata and return the JSONObject with
+ * the list properties with categories and their occurrences.
+ *
+ * @author rafaelsalis
+ */
 public class PSMetadataCategoriesHelper {
 
+  /** No-arg constructor; the helper is stateless aside from its static field tables. */
+  public PSMetadataCategoriesHelper() {}
+
+  /** Metadata property name used to look up category references on a metadata entry. */
   public static final String REFERENCES = "perc:category";
 
+  /** Display-name key for the category node. */
   public static final String CATEGORY_NAME = "categoryName";
 
+  /** Key under which the occurrence count for a category node is stored. */
   public static final String CATEGORY_COUNT = "categoryCount";
 
+  /** Key under which the raw properties list for a category node is stored. */
   public static final String PROPERTIES = "properties";
 
   /**
-   * This method is responsible for return the list with categories, their occurrences and their
-   * childrens. First iterate by page and later by PropertyPage.
+   * Returns the list of categories for the supplied metadata entries, along with the occurrence
+   * counts and their children. First iterates by page and later by property page.
    *
-   * @param results assumed not <code>null</code>.
-   * @return PSMetadataRestCategory
-   * @throws ServletException
+   * @param results the metadata entries to process; assumed not <code>null</code>.
+   * @return the populated list of {@link PSMetadataRestCategory} nodes; never <code>null</code>.
+   * @throws ServletException if the underlying iteration fails.
    */
   public List<PSMetadataRestCategory> processCategories(List<IPSMetadataEntry> results)
       throws ServletException {
@@ -76,14 +89,17 @@ public class PSMetadataCategoriesHelper {
   }
 
   /**
-   * This method is responsible for return the list with categories, their * occurrences and their
-   * childrens. First iterate by page and later by * PropertyPage.
+   * Returns the category tree assembled from the supplied aggregated category summary rows. Each
+   * row is expected to be an {@code Object[]} shaped as {@code [count, name, stringvalue]}, e.g.:
    *
-   * @param categorySummary Passes List of Array with "Count: {} Name {} Cat: {}", c[0], c[1], c[2]
-   *     Object[2,"perc:category","/Categories/Color/Blue"
-   *     Object[1,"perc:category","/Categories/Color/Red"
-   * @return PSMetadataRestCategory
-   * @throws ServletException
+   * <pre>
+   *   Object[2,"perc:category","/Categories/Color/Blue"]
+   *   Object[1,"perc:category","/Categories/Color/Red"]
+   * </pre>
+   *
+   * @param categorySummary the pre-aggregated category rows; assumed not <code>null</code>.
+   * @return the populated list of category nodes; never <code>null</code>.
+   * @throws ServletException if the underlying iteration fails.
    */
   public List<PSMetadataRestCategory> processCategorySummary(List<Object[]> categorySummary)
       throws ServletException {
@@ -160,6 +176,12 @@ public class PSMetadataCategoriesHelper {
     }
   }
 
+  /**
+   * Recursively sorts the supplied category tree (and its children) alphabetically by category
+   * name, using a case-insensitive comparison.
+   *
+   * @param categoryTree the root of the category tree to sort in place; may not be {@code null}.
+   */
   public void alphaOrderCategories(PSMetadataRestCategory categoryTree) {
     // Sort the children
     alphaOrderChildrens(categoryTree.getChildren());

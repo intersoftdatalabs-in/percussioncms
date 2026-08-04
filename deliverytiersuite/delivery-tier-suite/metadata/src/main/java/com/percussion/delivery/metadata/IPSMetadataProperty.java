@@ -19,20 +19,32 @@ package com.percussion.delivery.metadata;
 
 import java.util.Date;
 
+/**
+ * A typed value attached to an {@link IPSMetadataEntry}. Each property carries the name of the
+ * underlying Dublin Core or Percussion field it represents, the declared value type and one of the
+ * strongly typed accessors ({@code datevalue}, {@code numbervalue}, {@code stringvalue}, {@code
+ * textvalue}) used by the indexer to materialize the property.
+ */
 public interface IPSMetadataProperty {
 
   /**
-   * @return the name
+   * Returns the property name.
+   *
+   * @return the property name, may be <code>null</code>.
    */
   public String getName();
 
   /**
-   * @param name the name to set
+   * Sets the property name.
+   *
+   * @param name the property name to set; may be <code>null</code>.
    */
   public void setName(String name);
 
   /**
-   * @return the valuetype
+   * Returns the declared value type of this property.
+   *
+   * @return the value type, never <code>null</code>.
    */
   public VALUETYPE getValuetype();
 
@@ -43,24 +55,67 @@ public interface IPSMetadataProperty {
    */
   public Object getValue();
 
+  /**
+   * Returns the property as a {@link Date} when the declared value type is {@code DATE}.
+   *
+   * @return the date value, may be <code>null</code>.
+   */
   public Date getDatevalue();
 
+  /**
+   * Returns the property as a {@link Double} when the declared value type is {@code NUMBER}.
+   *
+   * @return the numeric value, may be <code>null</code>.
+   */
   public Double getNumbervalue();
 
+  /**
+   * Returns the property as a {@link String} when the declared value type is {@code STRING}.
+   *
+   * @return the string value, may be <code>null</code>.
+   */
   public String getStringvalue();
 
+  /**
+   * Sets the date value of this property.
+   *
+   * @param val the date value to set; may be <code>null</code>.
+   */
   public void setDatevalue(Date val);
 
+  /**
+   * Sets the numeric value of this property.
+   *
+   * @param val the numeric value to set; may be <code>null</code>.
+   */
   public void setNumbervalue(Double val);
 
+  /**
+   * Sets the string value of this property.
+   *
+   * @param val the string value to set; may be <code>null</code>.
+   */
   public void setStringvalue(String val);
 
+  /**
+   * Sets the free-text (long string) value of this property.
+   *
+   * @param val the text value to set; may be <code>null</code>.
+   */
   public void setTextvalue(String val);
 
+  /**
+   * The declared value type categories recognised by the metadata indexer. Used by {@link
+   * IPSMetadataProperty#getValuetype()} to pick the appropriate underlying column.
+   */
   public enum VALUETYPE {
+    /** A calendar date / timestamp value. */
     DATE,
+    /** A numeric value (stored as a double). */
     NUMBER,
+    /** A short string value. */
     STRING,
+    /** A long-form / free-text value. */
     TEXT
   }
 }

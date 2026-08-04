@@ -43,12 +43,24 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Hibernate-backed implementation of {@link IPSBlogPostVisitDao}. Reads and writes blog-post visit
+ * entries through JPA criteria queries wrapped in Spring-managed transactions.
+ */
 @Repository
 @Scope("singleton")
 public class PSBlogPostVisitDao implements IPSBlogPostVisitDao {
 
+  /** No-arg constructor required by Spring. The session factory is injected via the setter. */
+  public PSBlogPostVisitDao() {}
+
   private SessionFactory sessionFactory;
 
+  /**
+   * Sets the Hibernate {@link SessionFactory} used by this DAO.
+   *
+   * @param sessionFactory the session factory to use; may not be {@code null}.
+   */
   @Autowired
   public void setSessionFactory(SessionFactory sessionFactory) {
     this.sessionFactory = sessionFactory;
@@ -180,6 +192,13 @@ public class PSBlogPostVisitDao implements IPSBlogPostVisitDao {
     return session.createQuery(criteriaQuery).getResultList();
   }
 
+  /**
+   * Finds a blog-post visit by the supplied page path and exact hit date.
+   *
+   * @param pagepath the page path to match; may not be {@code null} nor empty.
+   * @param date the exact hit date to match; may be {@code null}.
+   * @return the matching visit, or {@code null} if none was found.
+   */
   @Transactional(isolation = Isolation.READ_UNCOMMITTED, readOnly = true)
   public PSDbBlogPostVisit findBlogPostVisitByDate(String pagepath, Date date) {
     Validate.notEmpty(pagepath, "pagepath cannot be null nor empty");

@@ -20,27 +20,37 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Represents a hashSet of {@link PSMetadataBlogYear} instances.
+ * Represents a hashSet of {@link PSMetadataBlogYear} instances, used by the blog aggregation REST
+ * endpoints to carry the year-grouped archive that is rendered on the client.
  *
  * @author leonardohildt
  */
 public class PSMetadataBlogEntry {
   private Set<PSMetadataBlogYear> years;
 
+  /** No-arg constructor required by the JSON binding layer. */
+  /**
+   * No-arg constructor required by the JSON binding layer. Initialises the years set so the
+   * resulting instance is immediately usable.
+   */
   public PSMetadataBlogEntry() {
     super();
     this.years = new HashSet<>();
   }
 
   /**
-   * @return the years
+   * Returns the set of years currently tracked by this entry.
+   *
+   * @return the years, never <code>null</code>, may be empty.
    */
   public Set<PSMetadataBlogYear> getYears() {
     return years;
   }
 
   /**
-   * @param years the years to set
+   * Replaces the per-year bucket list.
+   *
+   * @param years the years to set; may be <code>null</code>.
    */
   public void setYears(Set<PSMetadataBlogYear> years) {
     this.years = years;

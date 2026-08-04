@@ -22,6 +22,10 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
+ * Data-access object for cookie-consent entries captured by the DTS metadata micro-service. Backed
+ * by the {@code PSDbCookieConsent} RDBMS entity, this interface defines the persistence operations
+ * used to record and aggregate client cookie consents per site.
+ *
  * @author chriswright
  */
 public interface IPSCookieConsentDao {
@@ -50,13 +54,18 @@ public interface IPSCookieConsentDao {
    */
   public Collection<IPSCookieConsent> getAllCookieStatsForSite(String siteName);
 
-  /** Deletes all cookie consent entries from the DB. */
+  /**
+   * Deletes all cookie consent entries from the DB.
+   *
+   * @throws Exception if the underlying database operation fails.
+   */
   public void deleteAll() throws Exception;
 
   /**
    * Deletes all cookie consent entries for the specified site.
    *
    * @param siteName - the site in which to delete the entries for.
+   * @throws Exception if the underlying database operation fails.
    */
   public void deleteForSite(String siteName) throws Exception;
 
@@ -64,6 +73,7 @@ public interface IPSCookieConsentDao {
    * Gets the totals from DB for all sites.
    *
    * @return Key/value pair with siteName/total being pair.
+   * @throws Exception if the underlying database operation fails.
    */
   public Map<String, Integer> getTotalsForAllSites() throws Exception;
 
@@ -73,9 +83,17 @@ public interface IPSCookieConsentDao {
    *
    * @param siteName - the site in which to retrieve entries for.
    * @return A map representation of each serviceName/total for site.
-   * @throws Exception
+   * @throws Exception if the underlying database operation fails.
    */
   public Map<String, Integer> getTotalsForSite(String siteName) throws Exception;
 
+  /**
+   * Rewrites stored cookie consent entries so that any reference to {@code oldSiteName} is replaced
+   * with {@code newSiteName}.
+   *
+   * @param oldSiteName the previous site name; may be <code>null</code>.
+   * @param newSiteName the new site name; may be <code>null</code>.
+   * @throws Exception if the underlying database operation fails.
+   */
   public void updateOldSiteName(String oldSiteName, String newSiteName) throws Exception;
 }

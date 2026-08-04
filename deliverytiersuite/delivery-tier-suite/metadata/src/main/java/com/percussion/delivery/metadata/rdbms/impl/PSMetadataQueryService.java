@@ -49,6 +49,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
+ * Spring-managed service that implements {@link IPSMetadataQueryService} and translates raw {@link
+ * PSMetadataQuery} expressions into the HQL executed against the DTS metadata database.
+ *
  * @author erikserating
  */
 @Service
@@ -57,9 +60,17 @@ import org.springframework.transaction.annotation.Transactional;
     isolation = Isolation.READ_UNCOMMITTED,
     readOnly = true)
 public class PSMetadataQueryService implements IPSMetadataQueryService {
+  /** Hibernate {@link SessionFactory} injected by Spring; never <code>null</code>. */
   private SessionFactory sessionFactory;
+
+  /** Local hash calculator used for string / text value comparisons. */
   private PSHashCalculator hashCalculator = new PSHashCalculator();
 
+  /**
+   * Sets the Hibernate {@link SessionFactory} used by this service.
+   *
+   * @param sessionFactory the session factory to use; may not be {@code null}.
+   */
   @Autowired
   public void setSessionFactory(SessionFactory sessionFactory) {
     this.sessionFactory = sessionFactory;
@@ -71,13 +82,17 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
   /** Property datatype mappings, loaded by Spring. */
   protected PSPropertyDatatypeMappings datatypeMappings;
 
+  /** Default page-size cap applied to every query. */
   private Integer queryLimit = 500;
 
   /**
-   * ctor
+   * Constructs the service with the supplied Spring-injected dependencies.
    *
-   * @param datatypeMappings
-   * @param queryLimit
+   * @param datatypeMappings the property datatype mappings used to resolve column names for the
+   *     various {@link com.percussion.delivery.metadata.IPSMetadataProperty.VALUETYPE} branches;
+   *     may not be {@code null}.
+   * @param queryLimit the configured maximum number of rows a single query may return; may not be
+   *     {@code null}.
    */
   public PSMetadataQueryService(PSPropertyDatatypeMappings datatypeMappings, Integer queryLimit) {
     this.datatypeMappings = datatypeMappings;
@@ -88,7 +103,12 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
    * "SELECT DISTINCT COUNT(ENTRY_ID), [name],stringvalue\n" + "FROM PERC_PAGE_METADATA_PROPERTIES
    * WHERE\n" + "NAME = 'perc:category'\n" + "GROUP BY name, stringvalue ORDER BY stringvalue";
    *
-   * @param query
+   * @param query the metadata query driving the category aggregation; may not be <code>null
+   *     </code>.
+   * @return a list of {@code [count, name, stringvalue]} rows representing the aggregated
+   *     categories, never <code>null</code>, may be empty.
+   * @throws PSMalformedMetadataQueryException if the supplied query contains an unparsable
+   *     criterion.
    */
   public List<Object[]> executeCategoryQuery(PSMetadataQuery query)
       throws PSMalformedMetadataQueryException {
@@ -299,12 +319,13 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
     return cats;
   }
 
-  /*
-   * (non-Javadoc)
+  /**
+   * Executes the supplied metadata query against the indexer database.
    *
-   * @see
-   * com.percussion.metadata.IPSMetadataQueryService#executeQuery(com.percussion
-   * .metadata.IPSMetadataQuery)
+   * @param query the metadata query to execute; may not be <code>null</code>.
+   * @return a pair whose first element is the list of matching entries (never <code>null</code>,
+   *     may be empty) and whose second element is the total number of matching rows.
+   * @throws Exception if the query fails to execute or to parse.
    */
   public PSPair<List<IPSMetadataEntry>, Integer> executeQuery(PSMetadataQuery query)
       throws Exception {
@@ -794,13 +815,21 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
   /** constant for the Apache Derby driver type. */
   public static final String JDBC_DERBY_DRIVER = "derby";
 
+  /** Literal HQL keyword used to introduce the {@code ESCAPE} clause of a {@code LIKE}. */
   public static final String HQL_ESCAPE = "escape";
 
+  /** Character used to escape the special LIKE wildcards. */
   public static final char ESCAPE_CHAR = '=';
 
+  /** Cached URL of the active JDBC connection, populated lazily. */
   private static String jdbcConnectionUrl = null;
 
   @Override
+  /**
+   * Returns the configured maximum number of rows a single query may return.
+   *
+   * @return the queryLimit, never <code>null</code>.
+   */
   public Integer getQueryLimit() {
     return this.queryLimit;
   }
@@ -810,6 +839,11 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
     this.queryLimit = limit;
   }
 
+  /**
+   * Returns the open Hibernate session used for non-transactional queries.
+   *
+   * @return an open session, never <code>null</code>.
+   */
   private Session getSession() {
 
     return sessionFactory.openSession();

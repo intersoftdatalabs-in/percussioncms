@@ -32,8 +32,18 @@ import org.glassfish.jersey.server.spring.SpringWebApplicationInitializer;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 import tools.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 
+/**
+ * JAX-RS {@link jakarta.ws.rs.ApplicationPath application} that wires up the metadata micro-service
+ * REST surface. Registers the request-scoped Spring filter, the Spring/Jersey integration
+ * listeners, the metadata REST resources, the {@code deliverymanager} role filter, the
+ * uncaught-error mapper and the Jackson JSON provider under a single {@code "/"} application path.
+ */
 @ApplicationPath("/")
 public class PSMetadataApplication extends ResourceConfig {
+  /**
+   * Constructs the application context and registers the Spring / Jersey integration listeners, the
+   * metadata REST resources, the role filter, the uncaught-error mapper and the JSON provider.
+   */
   @SuppressWarnings("this-escape")
   public PSMetadataApplication() {
     register(RequestContextFilter.class);

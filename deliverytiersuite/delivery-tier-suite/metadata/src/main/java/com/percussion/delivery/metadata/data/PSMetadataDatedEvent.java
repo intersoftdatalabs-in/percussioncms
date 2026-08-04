@@ -34,6 +34,9 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class PSMetadataDatedEvent {
 
+  /** No-arg constructor required by the JSON binding layer. */
+  public PSMetadataDatedEvent() {}
+
   private String title;
 
   private String summary;
@@ -51,6 +54,8 @@ public class PSMetadataDatedEvent {
   private String textBackground = StringUtils.EMPTY;
 
   /**
+   * Returns the page title.
+   *
    * @return the title of the page, never <code>null</code> or empty.
    */
   public String getTitle() {
@@ -58,6 +63,8 @@ public class PSMetadataDatedEvent {
   }
 
   /**
+   * Sets the page title.
+   *
    * @param title sets the page title, never <code>null</code> or empty.
    */
   public void setTitle(String title) {
@@ -65,6 +72,8 @@ public class PSMetadataDatedEvent {
   }
 
   /**
+   * Returns the page summary.
+   *
    * @return the page summary, it may be <code>null</code> or empty if the page summary is unknown.
    */
   public String getSummary() {
@@ -72,6 +81,8 @@ public class PSMetadataDatedEvent {
   }
 
   /**
+   * Sets the page summary.
+   *
    * @param summary the page summary to set, may be <code>null</code> or empty.
    */
   public void setSummary(String summary) {
@@ -79,6 +90,8 @@ public class PSMetadataDatedEvent {
   }
 
   /**
+   * Returns the page start date as a formatted string.
+   *
    * @return the page start date, it may be <code>null</code> or empty if the page start date is
    *     unknown.
    */
@@ -87,6 +100,8 @@ public class PSMetadataDatedEvent {
   }
 
   /**
+   * Sets the page start date as a formatted string.
+   *
    * @param start sets the page start date, may be <code>null</code> or empty.
    */
   public void setStart(String start) {
@@ -94,6 +109,8 @@ public class PSMetadataDatedEvent {
   }
 
   /**
+   * Returns the page end date as a formatted string.
+   *
    * @return the page end date, it may be <code>null</code> or empty if the page end date is
    *     unknown.
    */
@@ -102,6 +119,8 @@ public class PSMetadataDatedEvent {
   }
 
   /**
+   * Sets the page end date as a formatted string.
+   *
    * @param end sets the page end date, may be <code>null</code> or empty.
    */
   public void setEnd(String end) {
@@ -109,6 +128,8 @@ public class PSMetadataDatedEvent {
   }
 
   /**
+   * Returns the page url.
+   *
    * @return the page url, never <code>null</code> or empty.
    */
   public String getUrl() {
@@ -116,6 +137,8 @@ public class PSMetadataDatedEvent {
   }
 
   /**
+   * Sets the page url.
+   *
    * @param url sets the page url, never <code>null</code> or empty.
    */
   public void setUrl(String url) {
@@ -123,6 +146,8 @@ public class PSMetadataDatedEvent {
   }
 
   /**
+   * Returns whether this event spans the entire day.
+   *
    * @return the all day value.
    */
   public boolean isAllDay() {
@@ -130,6 +155,8 @@ public class PSMetadataDatedEvent {
   }
 
   /**
+   * Sets whether this event spans the entire day.
+   *
    * @param allDay sets the all day.
    */
   public void setAllDay(boolean allDay) {
@@ -137,6 +164,8 @@ public class PSMetadataDatedEvent {
   }
 
   /**
+   * Returns the text color used when rendering the event.
+   *
    * @return the text color, may be empty but never <code>null</code>.
    */
   public String getTextColor() {
@@ -144,6 +173,8 @@ public class PSMetadataDatedEvent {
   }
 
   /**
+   * Sets the text color used when rendering the event.
+   *
    * @param textColor sets the text color, may be empty but never <code>null</code>.
    */
   public void setTextColor(String textColor) {
@@ -151,6 +182,8 @@ public class PSMetadataDatedEvent {
   }
 
   /**
+   * Returns the text background color used when rendering the event.
+   *
    * @return the text background, may be empty but never <code>null</code>.
    */
   public String getTextBackground() {
@@ -158,6 +191,8 @@ public class PSMetadataDatedEvent {
   }
 
   /**
+   * Sets the text background color used when rendering the event.
+   *
    * @param textBackground sets the text background, may be empty but never <code>null</code>.
    */
   public void setTextBackground(String textBackground) {

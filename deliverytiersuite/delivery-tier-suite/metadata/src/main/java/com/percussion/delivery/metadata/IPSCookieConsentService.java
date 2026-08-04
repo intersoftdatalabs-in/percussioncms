@@ -22,6 +22,10 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
+ * Service contract for the DTS cookie-consent tracking feature. Records and aggregates the
+ * opt-in/opt-out decisions captured from clients visiting published pages, both globally and per
+ * site.
+ *
  * @author chriswright
  */
 public interface IPSCookieConsentService {
@@ -57,14 +61,18 @@ public interface IPSCookieConsentService {
    */
   public Collection<IPSCookieConsent> getAllConsentStatsForSite(String siteName);
 
-  /** Deletes all cookie consent entries from the database. */
+  /**
+   * Deletes all cookie consent entries from the database.
+   *
+   * @throws Exception if the underlying database operation fails.
+   */
   public void deleteAllCookieConsentEntries() throws Exception;
 
   /**
    * Deletes all cookie consent entries for the specified site.
    *
    * @param siteName - the site in which to delete the entries for.
-   * @throws Exception
+   * @throws Exception if the underlying database operation fails.
    */
   public void deleteCookieConsentEntriesForSite(String siteName) throws Exception;
 
@@ -72,6 +80,7 @@ public interface IPSCookieConsentService {
    * Gets cookie consent totals for all sites.
    *
    * @return A map which contains corresponding siteName/cookie totals.
+   * @throws Exception if the underlying database operation fails.
    */
   public Map<String, Integer> getAllConsentEntryTotals() throws Exception;
 
@@ -81,6 +90,7 @@ public interface IPSCookieConsentService {
    *
    * @param siteName - the name of the site to find entries for.
    * @return A map which contains key/value pairs for service/cookie name and total entries.
+   * @throws Exception if the underlying database operation fails.
    */
   public Map<String, Integer> getCookieConsentEntryTotalsPerSite(String siteName) throws Exception;
 }

@@ -43,18 +43,47 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/**
+ * Default Spring-managed implementation of {@link IPSBlogPostVisitService}. Buffers visit and
+ * cookie-consent data in memory and flushes both to the database on a scheduled runnable.
+ */
 @Component
 public class PSBlogPostVisitService implements IPSBlogPostVisitService, InitializingBean {
+  /** In-memory buffer of pending blog post visit entries awaiting the next flush. */
   private Map<String, IPSBlogPostVisit> inMemoryVisitMap = new ConcurrentHashMap<>();
+
+  /** In-memory buffer of pending cookie-consent entries awaiting the next flush. */
   private List<PSCookieConsentQuery> inMemoryCookieConsentMap = new ArrayList<>();
+
+  /** Scheduled executor that periodically flushes the in-memory buffers. */
   private ScheduledExecutorService visitExecutor = Executors.newScheduledThreadPool(1);
+
+  /** Timestamp (epoch millis) of the last successful flush. */
   private long lastSave;
+
+  /** DAO injected by Spring for blog-post-visit persistence. Never <code>null</code>. */
   private IPSBlogPostVisitDao visitDao;
+
+  /** Service injected by Spring for cookie-consent persistence. Never <code>null</code>. */
   private IPSCookieConsentService cookieService;
+
+  /** Class-level logger. */
   private static final Logger log = LogManager.getLogger(PSBlogPostVisitService.class);
+
+  /** Delay (in seconds) before the scheduled visit-flush runnable executes for the first time. */
   private Integer schedulerInitialDelay = INTIAL_DELAY_SECONDS;
+
+  /** Delay (in seconds) between successive visit-flush runs of the scheduled runnable. */
   private Integer schedulerSaveInterval = SAVE_INTERVAL_SECONDS;
 
+  /**
+   * Constructs the service with the supplied Spring collaborators.
+   *
+   * @param visitDao the visit DAO injected by Spring; may not be {@code null}.
+   * @param cookieService the cookie consent service injected by Spring; may not be {@code null}.
+   * @param schedulerSaveInterval the scheduler save interval in seconds; may be {@code null} to
+   *     fall back to {@link #SAVE_INTERVAL_SECONDS}.
+   */
   @Autowired
   public PSBlogPostVisitService(
       IPSBlogPostVisitDao visitDao,
@@ -179,6 +208,11 @@ public class PSBlogPostVisitService implements IPSBlogPostVisitService, Initiali
     return !((System.currentTimeMillis() - lastSave) >= (2 * schedulerSaveInterval * 1000));
   }
 
+  /**
+   * Spring {@link PreDestroy @PreDestroy} hook. Shuts down the visit-flush scheduled executor and
+   * waits briefly for outstanding flushes to complete before shutting the thread down forcefully if
+   * necessary.
+   */
   @PreDestroy
   public void beandestroy() {
     log.debug("Calling most-read-blog-posts thread shutdown.");

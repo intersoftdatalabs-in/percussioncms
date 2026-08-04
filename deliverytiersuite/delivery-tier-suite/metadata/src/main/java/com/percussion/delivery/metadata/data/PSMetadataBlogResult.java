@@ -16,6 +16,11 @@
  */
 package com.percussion.delivery.metadata.data;
 
+/**
+ * Carries the previous / current / next blog entry pointers returned by the blog pagination REST
+ * endpoint. The three slots are populated only when a corresponding neighbour exists in the blog
+ * archive; otherwise they remain {@code null}.
+ */
 public class PSMetadataBlogResult {
   private PSMetadataRestEntry previous;
 
@@ -23,43 +28,59 @@ public class PSMetadataBlogResult {
 
   private PSMetadataRestEntry next;
 
+  /** No-arg constructor required by the JSON binding layer. */
+  public PSMetadataBlogResult() {}
+
   /**
-   * @return the previous
+   * Returns the previous blog entry, or {@code null} if the current entry is the oldest one
+   * indexed.
+   *
+   * @return the previous entry, may be <code>null</code>.
    */
   public PSMetadataRestEntry getPrevious() {
     return previous;
   }
 
   /**
-   * @param previous the previous to set
+   * Sets the previous blog entry.
+   *
+   * @param previous the previous entry to set; may be <code>null</code>.
    */
   public void setPrevious(PSMetadataRestEntry previous) {
     this.previous = previous;
   }
 
   /**
-   * @return the current
+   * Returns the current blog entry being viewed.
+   *
+   * @return the current entry, may be <code>null</code>.
    */
   public PSMetadataRestEntry getCurrent() {
     return current;
   }
 
   /**
-   * @param current the current to set
+   * Sets the current blog entry being viewed.
+   *
+   * @param current the current entry to set; may be <code>null</code>.
    */
   public void setCurrent(PSMetadataRestEntry current) {
     this.current = current;
   }
 
   /**
-   * @return the next
+   * Returns the next blog entry, or {@code null} if the current entry is the newest one indexed.
+   *
+   * @return the next entry, may be <code>null</code>.
    */
   public PSMetadataRestEntry getNext() {
     return next;
   }
 
   /**
-   * @param next the next to set
+   * Sets the next blog entry.
+   *
+   * @param next the next entry to set; may be <code>null</code>.
    */
   public void setNext(PSMetadataRestEntry next) {
     this.next = next;

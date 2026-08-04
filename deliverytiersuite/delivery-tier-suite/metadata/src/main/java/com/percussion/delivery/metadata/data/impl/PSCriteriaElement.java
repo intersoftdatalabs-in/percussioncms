@@ -26,6 +26,10 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
+ * Represents a single criterion expression such as {@code dcterms:title like '%foo%'} and exposes
+ * the parsed name / operation / value triple. Used by the metadata query service to assemble the
+ * HQL/Hibernate queries emitted by the indexer.
+ *
  * @author erikserating
  */
 public class PSCriteriaElement {
@@ -48,7 +52,7 @@ public class PSCriteriaElement {
    * Parses the raw criteria string and adds the values to this object.
    *
    * @param rawCriteria assumed not <code>null</code>.
-   * @throws PSMalformedMetadataQueryException
+   * @throws PSMalformedMetadataQueryException if the criteria string is malformed.
    */
   private void parse(String rawCriteria) throws PSMalformedMetadataQueryException {
     int firstApos = rawCriteria.indexOf("'");
@@ -181,40 +185,64 @@ public class PSCriteriaElement {
   }
 
   /**
-   * @return the name
+   * Returns the property name parsed from the criteria expression.
+   *
+   * @return the name, may be <code>null</code>.
    */
   public String getName() {
     return name;
   }
 
   /**
-   * @return the operation
+   * Returns the textual operator parsed from the criteria expression.
+   *
+   * @return the operation, may be <code>null</code>.
    */
   public String getOperation() {
     return operation;
   }
 
+  /**
+   * Returns the strongly-typed operator parsed from the criteria expression.
+   *
+   * @return the operation type, may be <code>null</code>.
+   */
   public OPERATION_TYPE getOperationType() {
     return OPERATORS.get(operation);
   }
 
   /**
-   * @return the value
+   * Returns the property value parsed from the criteria expression.
+   *
+   * @return the value, may be <code>null</code>.
    */
   public String getValue() {
     return value;
   }
 
+  /** Prefix used when reporting a malformed criteria string. */
   public static final String MALFORMED = "Query criteria element is malformed: ";
 
+  /**
+   * Operators recognised by the criteria parser. Each value maps back to the textual operator
+   * literal used in raw criteria expressions.
+   */
   public static enum OPERATION_TYPE {
+    /** Strict-greater-than {@code >} comparison. */
     GREATER_THAN,
+    /** Greater-than-or-equal {@code >=} comparison. */
     GREATER_THAN_EQUAL,
+    /** Equality {@code =} comparison. */
     EQUAL,
+    /** Membership {@code IN (...)} comparison. */
     IN,
+    /** Strict-less-than {@code <} comparison. */
     LESS_THAN,
+    /** Less-than-or-equal {@code <=} comparison. */
     LESS_THAN_EQUAL,
+    /** SQL LIKE comparison. */
     LIKE,
+    /** Inequality {@code <>} / {@code !=} comparison. */
     NOT_EQUAL
   }
 

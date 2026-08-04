@@ -28,10 +28,19 @@ import java.util.Set;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 /**
+ * Static utility helpers shared by the metadata query services and friends. The class centralises
+ * the parsing of criteria values, the column-name lookup for the various {@link
+ * com.percussion.delivery.metadata.IPSMetadataProperty.VALUETYPE} branches and the HQL sort-order /
+ * sort-property coercion.
+ *
  * @author erikserating
  */
 public abstract class PSMetadataQueryServiceHelper {
 
+  /**
+   * Suppresses the default public constructor. This class only exposes static methods and is not
+   * meant to be instantiated.
+   */
   private PSMetadataQueryServiceHelper() {}
 
   /**
@@ -50,9 +59,19 @@ public abstract class PSMetadataQueryServiceHelper {
     ENTRY_PROPERTY_KEYS.add("site");
   }
 
-  /** 2011-01-21T09:36:05 */
+  /** ISO-8601 formatter for dates such as {@code 2011-01-21T09:36:05} used in metadata queries. */
   public static FastDateFormat dateFormat = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss");
 
+  /**
+   * Resolves the declared {@link VALUETYPE} for the supplied property name, stripping any namespace
+   * prefix first.
+   *
+   * @param name the property name (optionally namespace-prefixed with {@code prefix:localName});
+   *     may not be {@code null}.
+   * @param datatypeMappings the property datatype mappings used to resolve the value type; may not
+   *     be {@code null}.
+   * @return the resolved {@link VALUETYPE}, never {@code null}.
+   */
   public static VALUETYPE getDatatype(String name, PSPropertyDatatypeMappings datatypeMappings) {
     String nameWithOutNamespace;
 
@@ -62,6 +81,19 @@ public abstract class PSMetadataQueryServiceHelper {
     return datatypeMappings.getDatatype(nameWithOutNamespace);
   }
 
+  /**
+   * Parses the supplied comma / quoted value into the typed list expected by an HQL {@code IN}
+   * expression. Returns a list of {@link Double} for {@link VALUETYPE#NUMBER} entries, {@link
+   * java.util.Date} for {@link VALUETYPE#DATE} entries, and string hashes for text entries.
+   *
+   * @param key the property key; may not be {@code null}.
+   * @param val the raw value list string; may not be {@code null}.
+   * @param datatypeMappings the datatype mappings used to resolve the value type; may not be {@code
+   *     null}.
+   * @param hashCalc the hash calculator used to derive string hashes; may not be {@code null}.
+   * @return the parsed typed list, never <code>null</code>, may be empty.
+   * @throws ParseException if a date in the supplied value fails to parse.
+   */
   public static List<Object> parseToList(
       String key,
       String val,
@@ -97,11 +129,15 @@ public abstract class PSMetadataQueryServiceHelper {
   }
 
   /**
-   * For the provided propertyName it returns the column names that belongs to in the database,
-   * default return column name is stringvalue
+   * For the provided {@link PSCriteriaElement} it returns the column name in the database that
+   * matches its declared value type. Defaults to the {@code stringvalue} column when the property
+   * has no explicit type.
    *
-   * @param ce
-   * @param datatypeMappings
+   * @param ce the criteria element whose value column is to be resolved; may not be <code>null
+   *     </code>.
+   * @param datatypeMappings the property datatype mappings used to map names to value types; may
+   *     not be <code>null</code>.
+   * @return the name of the column backing the property's value type.
    */
   public static String getValueColumnName(
       PSCriteriaElement ce, PSPropertyDatatypeMappings datatypeMappings) {
@@ -129,11 +165,14 @@ public abstract class PSMetadataQueryServiceHelper {
   }
 
   /**
-   * For the provided propertyName it returns the column names that belongs to in the database,
-   * default return column name is stringvalue
+   * For the supplied property name it returns the column name in the database that matches its
+   * declared value type. Defaults to the {@code stringvalue} column when the property has no
+   * explicit type.
    *
-   * @param name
-   * @param datatypeMappings
+   * @param name the property name to resolve; may not be <code>null</code>.
+   * @param datatypeMappings the property datatype mappings used to map names to value types; may
+   *     not be <code>null</code>.
+   * @return the name of the column backing the property's value type.
    */
   public static String getValueColumnName(
       String name, PSPropertyDatatypeMappings datatypeMappings) {
@@ -160,7 +199,9 @@ public abstract class PSMetadataQueryServiceHelper {
    * Returns the sorting order based on the passed in orderby string, if nothing is there in the
    * orderby then the default would be asc
    *
-   * @param orderBy
+   * @param orderBy the textual ordering suffix to inspect; may be <code>null</code>.
+   * @return {@link com.percussion.delivery.metadata.IPSMetadataQueryService#SORT_ORDER_ASCEND} or
+   *     {@link com.percussion.delivery.metadata.IPSMetadataQueryService#SORT_ORDER_DESCEND}.
    */
   public static String getSortingOrder(String orderBy) {
     return orderBy.toLowerCase().endsWith(IPSMetadataQueryService.SORT_ORDER_DESCEND)
@@ -174,7 +215,9 @@ public abstract class PSMetadataQueryServiceHelper {
    * "dcterms:created asc" and the method returns dcterms:created Ex: orderBy = "dcterms:created
    * asc" and the method returns dcterms:created
    *
-   * @param orderBy cannot be <code>null</code> or empty
+   * @param orderBy the {@code orderBy} string to strip the asc/desc suffix from; cannot be <code>
+   *     null</code> or empty.
+   * @return the sort property name with the asc/desc suffix removed; never <code>null</code>.
    */
   public static String getSortPropertyName(String orderBy) {
     String sortProperty = orderBy;
@@ -188,6 +231,15 @@ public abstract class PSMetadataQueryServiceHelper {
     return sortProperty;
   }
 
+  /**
+   * Determines the {@code asc}/{@code desc} ordering for a single property within a comma-separated
+   * {@code orderBy} expression.
+   *
+   * @param name the property whose ordering should be returned; may be <code>null</code>.
+   * @param orderBy the {@code orderBy} clause to scan; may not be <code>null</code>.
+   * @return the resolved sort order, or {@link IPSMetadataQueryService#SORT_ORDER_ASCEND} when the
+   *     property is not found in the clause.
+   */
   public static String getSortingOrderForProperty(String name, String orderBy) {
 
     String sortOrder = IPSMetadataQueryService.SORT_ORDER_ASCEND;

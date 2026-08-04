@@ -14,12 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.percussion.delivery.metadata.data;
 
 import java.util.Date;
 import java.util.Set;
 
 /**
+ * Result-row abstraction returned by the DTS metadata query service. Exposes typed accessors so
+ * callers can read the value of a property by key without first inspecting the underlying data-type
+ * column.
+ *
  * @author erikserating
  */
 public interface IPSMetadataQueryResult {
@@ -115,13 +120,22 @@ public interface IPSMetadataQueryResult {
    */
   public Set<String> keySet();
 
-  /** The data type enumeration. */
+  /**
+   * The data type enumeration used by {@link #getDataType(String)} to report the underlying value
+   * type of a property.
+   */
   public enum DataType {
+    /** Calendar date / timestamp value. */
     DATE,
+    /** Single-precision floating-point numeric value. */
     FLOAT,
+    /** Double-precision floating-point numeric value. */
     DOUBLE,
+    /** Long-integer numeric value. */
     LONG,
+    /** Integer numeric value. */
     INT,
+    /** Short-string value. */
     STRING
   }
 }

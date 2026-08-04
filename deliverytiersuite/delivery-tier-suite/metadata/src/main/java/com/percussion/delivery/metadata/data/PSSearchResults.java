@@ -20,8 +20,8 @@ package com.percussion.delivery.metadata.data;
 import java.util.List;
 
 /**
- * Represents count for total entries and list of PSDbMetadataEntry objects for requested page
- * number and page size
+ * Represents count for total entries and list of {@link PSMetadataRestEntry} objects for requested
+ * page number and page size. Returned by the {@code /metadata/get} REST endpoint.
  *
  * @author radharanisonnathi
  */
@@ -29,31 +29,40 @@ public class PSSearchResults {
   private Integer totalEntries;
   private List<PSMetadataRestEntry> resultEntries;
 
+  /** No-arg constructor required by the JSON binding layer. */
   public PSSearchResults() {}
 
   /**
-   * @return the results
+   * Returns the list of result entries for the requested page.
+   *
+   * @return the results, may be <code>null</code>.
    */
   public List<PSMetadataRestEntry> getResults() {
     return resultEntries;
   }
 
   /**
-   * @param resultEntries the results to set
+   * Replaces the result entries.
+   *
+   * @param resultEntries the results to set; may be <code>null</code>.
    */
   public void setResults(List<PSMetadataRestEntry> resultEntries) {
     this.resultEntries = resultEntries;
   }
 
   /**
-   * @return total entries after the search
+   * Returns the total number of entries matched by the search.
+   *
+   * @return the total number of entries after the search, may be <code>null</code>.
    */
   public Integer getTotalEntries() {
     return totalEntries;
   }
 
   /**
-   * @param totalEntries entries to set
+   * Sets the total number of entries matched by the search.
+   *
+   * @param totalEntries the total entries to set; may be <code>null</code>.
    */
   public void setTotalEntries(Integer totalEntries) {
     this.totalEntries = totalEntries;

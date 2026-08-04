@@ -33,6 +33,9 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
+ * Hibernate-managed entity backing a single cookie-consent entry as recorded by the DTS metadata
+ * micro-service.
+ *
  * @author chriswright
  */
 @Entity
@@ -41,34 +44,50 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 public class PSDbCookieConsent implements IPSCookieConsent, Serializable {
   private static final long serialVersionUID = 1L;
 
+  /** Surrogate primary key for this consent entry. */
   @Id
   @GeneratedValue
   @Column(name = "CONSENT_ID")
   private long consentId;
 
+  /** Originating client IP that submitted the consent. */
   @Basic
   @Column(length = 100, name = "IP_ADDRESS")
   private String ip;
 
+  /** Service / cookie name the consent applies to. */
   @Basic
   @Column(length = 2000, name = "SERVICE_NAME")
   private String serviceName;
 
+  /** Site the consent was captured for. */
   @Basic
   @Column(length = 255, name = "SITE_NAME")
   private String siteName;
 
+  /** {@code true} when the client opted in to the cookie. */
   @Basic
   @Column(name = "OPT_IN")
   private boolean optIn;
 
+  /** Date the consent was captured. */
   @Basic
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "CONSENT_DATE")
   private Date consentDate;
 
+  /** No-arg constructor required by Hibernate. */
   public PSDbCookieConsent() {}
 
+  /**
+   * Constructs a fully-populated cookie-consent entity.
+   *
+   * @param siteName the site the consent was captured for; may not be {@code null}.
+   * @param serviceName the service / cookie name the consent applies to; may not be {@code null}.
+   * @param consentDate the date the consent was captured; may not be {@code null}.
+   * @param ip the originating client IP; may not be {@code null}.
+   * @param optIn {@code true} if the client opted in, {@code false} otherwise.
+   */
   public PSDbCookieConsent(
       String siteName, String serviceName, Date consentDate, String ip, boolean optIn) {
 

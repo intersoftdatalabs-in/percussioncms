@@ -36,33 +36,43 @@ public class PSMetadataEntry implements Serializable, IPSMetadataEntry {
 
   private static final long serialVersionUID = 1L;
 
+  /** Published site-relative page path of the indexed entry. */
   private String pagepath;
 
+  /** Page name (last path segment) of the indexed entry. */
   private String name;
 
+  /** Folder path that contains the page (without the site prefix). */
   private String folder;
 
+  /** Link text associated with the page. */
   private String linktext;
 
+  /** Content type of the page. */
   private String type;
 
+  /** Site name the page belongs to. */
   private String site;
 
+  /** Properties attached to this entry. */
   @XmlElementWrapper(name = "property")
   @XmlElement(type = PSMetadataProperty.class)
   private Set<PSMetadataProperty> properties = new HashSet<>();
 
+  /** No-arg constructor required by JAXB. */
+  /** No-arg constructor required by JAXB. */
   public PSMetadataEntry() {}
 
   /**
-   * Ctor
+   * Constructs a fully populated metadata entry.
    *
-   * @param name the file name, cannot be <code>null</code> or empty.
+   * @param name the file name; cannot be <code>null</code> or empty.
    * @param folder the folder path of the containing folder without the site folder. Cannot be
    *     <code>null</code> or empty.
-   * @param pagepath the path of the file including sitefolder. This is used as a unique key for the
+   * @param pagepath the path of the file including the site folder. Used as a unique key for the
    *     entry. Cannot be <code>null</code> or empty.
-   * @param type
+   * @param type the content type of the page; may not be <code>null</code>.
+   * @param site the site this page belongs to; cannot be <code>null</code> or empty.
    */
   public PSMetadataEntry(String name, String folder, String pagepath, String type, String site) {
     if (name == null || name.length() == 0)

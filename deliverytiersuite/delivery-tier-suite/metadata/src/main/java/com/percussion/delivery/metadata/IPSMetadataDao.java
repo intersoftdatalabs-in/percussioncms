@@ -22,7 +22,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-/** */
+/**
+ * Data-access object for indexed metadata entries. Backed by the {@code PSDbMetadataEntry} RDBMS
+ * entity, this interface defines the persistence operations used by the DTS metadata indexer to
+ * store, query and remove per-page metadata entries and their associated properties.
+ */
 public interface IPSMetadataDao {
 
   /**
@@ -93,9 +97,30 @@ public interface IPSMetadataDao {
    */
   public List<String> getAllSites();
 
+  /**
+   * Returns the set of indexed directory paths known to the indexer.
+   *
+   * @return a set of directory paths, never <code>null</code>, may be empty.
+   */
   public Set<String> getAllIndexedDirectories();
 
+  /**
+   * Determines whether any of the supplied metadata entries differ from the currently persisted
+   * state and therefore need to be re-indexed.
+   *
+   * @param entries the entries to compare against the persisted state; may not be <code>null</code>
+   *     .
+   * @return <code>true</code> if at least one entry is dirty.
+   */
   public boolean hasDirtyEntries(Collection<IPSMetadataEntry> entries);
 
+  /**
+   * Rewrites the stored {@code perc:category} property values so any reference to {@code
+   * oldCategoryName} is replaced with {@code newCategoryName}.
+   *
+   * @param oldCategoryName the previous category name; may be <code>null</code>.
+   * @param newCategoryName the new category name; may be <code>null</code>.
+   * @return the number of property rows updated, never negative.
+   */
   public int updateByCategoryProperty(String oldCategoryName, String newCategoryName);
 }

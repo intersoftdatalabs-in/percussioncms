@@ -42,7 +42,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Nationalized;
 
 /**
- * Represents a metadata property namnatue value pair.
+ * Represents a metadata property name / value pair attached to a {@link PSDbMetadataEntry}.
  *
  * @author erikserating
  */
@@ -59,35 +59,44 @@ public class PSDbMetadataProperty implements IPSMetadataProperty, Serializable {
 
   private static final long serialVersionUID = 1L;
 
+  /** Surrogate primary key for this property row. */
   @Id
   @Column(unique = true, name = "ID", nullable = false)
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
+  /** Declared value type of this property. */
   @Basic @Nationalized private VALUETYPE valuetype;
 
+  /** Short string value of this property (used for {@link VALUETYPE#STRING} entries). */
   @Column(length = 4000)
   @Nationalized
   private String stringvalue;
 
-  /** Property name. For example: dcterms:creator */
+  /** Property name, e.g. {@code dcterms:creator}. */
   @Column(nullable = false, length = PSDbMetadataProperty.MAX_PROPERTY_NAME_LENGTH)
   @Nationalized
   private String name;
 
+  /** Long-form text value (used for {@link VALUETYPE#TEXT} entries). */
   @Column(length = Integer.MAX_VALUE)
   @Nationalized
   @Lob
   @Basic(fetch = FetchType.LAZY)
   private String textvalue;
 
+  /** Date value of this property (used for {@link VALUETYPE#DATE} entries). */
   @Basic
   @Temporal(TemporalType.TIMESTAMP)
   private Date datevalue;
 
+  /** Numeric value of this property (used for {@link VALUETYPE#NUMBER} entries). */
   @Basic private Double numbervalue;
 
-  /** Hash of the property's value. It's updated when calculateHash function is called. */
+  /**
+   * Hash of the property's value. It's updated when the {@link #calculateHash(Object)} function is
+   * called.
+   */
   @Column(name = "VALUE_HASH", nullable = false, length = 40)
   @Nationalized
   private String valueHash;
@@ -95,6 +104,7 @@ public class PSDbMetadataProperty implements IPSMetadataProperty, Serializable {
   /** This field represents the max length that the name of an instance of this class can have. */
   public static final int MAX_PROPERTY_NAME_LENGTH = 100;
 
+  /** No-arg constructor required by Hibernate. */
   public PSDbMetadataProperty() {}
 
   /** HashCalculator instance used to get the hash of the metadata property's value. */
@@ -169,8 +179,8 @@ public class PSDbMetadataProperty implements IPSMetadataProperty, Serializable {
   /**
    * Convenience ctor to create a number value type property from an int value.
    *
-   * @param name name cannot be <code>null</code> or empty.
-   * @param value
+   * @param name the property name; cannot be <code>null</code> or empty.
+   * @param value the int value to wrap.
    */
   public PSDbMetadataProperty(String name, int value) {
     this(name, VALUETYPE.NUMBER, value);
@@ -179,8 +189,8 @@ public class PSDbMetadataProperty implements IPSMetadataProperty, Serializable {
   /**
    * Convenience ctor to create a number value type property from a double value.
    *
-   * @param name name cannot be <code>null</code> or empty.
-   * @param value
+   * @param name the property name; cannot be <code>null</code> or empty.
+   * @param value the double value to wrap.
    */
   public PSDbMetadataProperty(String name, double value) {
     this(name, VALUETYPE.NUMBER, value);
@@ -189,8 +199,8 @@ public class PSDbMetadataProperty implements IPSMetadataProperty, Serializable {
   /**
    * Convenience ctor to create a number value type property from a float value.
    *
-   * @param name name cannot be <code>null</code> or empty.
-   * @param value
+   * @param name the property name; cannot be <code>null</code> or empty.
+   * @param value the float value to wrap.
    */
   public PSDbMetadataProperty(String name, float value) {
     this(name, VALUETYPE.NUMBER, value);
@@ -199,8 +209,8 @@ public class PSDbMetadataProperty implements IPSMetadataProperty, Serializable {
   /**
    * Convenience ctor to create a number value type property from a long value.
    *
-   * @param name name cannot be <code>null</code> or empty.
-   * @param value
+   * @param name the property name; cannot be <code>null</code> or empty.
+   * @param value the long value to wrap.
    */
   public PSDbMetadataProperty(String name, long value) {
     this(name, VALUETYPE.NUMBER, value);
@@ -209,8 +219,8 @@ public class PSDbMetadataProperty implements IPSMetadataProperty, Serializable {
   /**
    * Convenience ctor to create a number value type property from a short value.
    *
-   * @param name name cannot be <code>null</code> or empty.
-   * @param value
+   * @param name the property name; cannot be <code>null</code> or empty.
+   * @param value the short value to wrap.
    */
   public PSDbMetadataProperty(String name, short value) {
     this(name, VALUETYPE.NUMBER, value);
@@ -227,14 +237,18 @@ public class PSDbMetadataProperty implements IPSMetadataProperty, Serializable {
   }
 
   /**
-   * @return the metadataEntry
+   * Returns the owning metadata entry, populated by the JPA {@code @ManyToOne} association.
+   *
+   * @return the metadataEntry, may be <code>null</code> for transient instances.
    */
   public PSDbMetadataEntry getMetadataEntry() {
     return entry;
   }
 
   /**
-   * @param metadataEntry the metadataEntry to set
+   * Sets the owning metadata entry.
+   *
+   * @param metadataEntry the metadataEntry to set.
    */
   public void setMetadataEntry(PSDbMetadataEntry metadataEntry) {
     entry = metadataEntry;
@@ -254,18 +268,27 @@ public class PSDbMetadataProperty implements IPSMetadataProperty, Serializable {
     this.name = name;
   }
 
+  /** Owning metadata entry, populated through the JPA {@code @ManyToOne} association. */
   @ManyToOne(optional = false)
   @JoinColumns(@JoinColumn(name = "ENTRY_ID", referencedColumnName = "pagepathhash"))
   private PSDbMetadataEntry entry;
 
+  /**
+   * Returns the cached hash of this property's value.
+   *
+   * @return the value hash as a {@link String}, never <code>null</code> after the property has been
+   *     initialised.
+   */
   public String getHash() {
     return valueHash;
   }
 
   /**
-   * Calculates the hash of the given value, using HashCalculator. If the parameter is null, then
-   * the hash is calculated over an empty string. If not, the hash is calculated over the result of
-   * 'toString' method on the parameter.
+   * Calculates the hash of the given value, using {@link PSHashCalculator}. If the parameter is
+   * {@code null} then the hash is calculated over an empty string. If not, the hash is calculated
+   * over the result of {@code toString()} on the parameter.
+   *
+   * @param value the value to hash; may be <code>null</code>.
    */
   public void calculateHash(Object value) {
     if (value == null) valueHash = hashCalculator.calculateHash(StringUtils.EMPTY);
@@ -280,7 +303,9 @@ public class PSDbMetadataProperty implements IPSMetadataProperty, Serializable {
   }
 
   /**
-   * @param valuetype the valuetype to set
+   * Sets the declared value type of this property.
+   *
+   * @param valuetype the valuetype to set.
    */
   public void setValuetype(VALUETYPE valuetype) {
     this.valuetype = valuetype;
@@ -340,7 +365,10 @@ public class PSDbMetadataProperty implements IPSMetadataProperty, Serializable {
   }
 
   /**
-   * @return the textvalue
+   * Returns the long-form free-text value of this property.
+   *
+   * @return the textvalue, may be <code>null</code> when this property has a non-text value type or
+   *     when no value has been set.
    */
   public String getTextvalue() {
     return textvalue;
@@ -390,6 +418,11 @@ public class PSDbMetadataProperty implements IPSMetadataProperty, Serializable {
     calculateHash(this.numbervalue);
   }
 
+  /**
+   * Returns the surrogate primary key for this property.
+   *
+   * @return the database id, never negative after the property has been persisted.
+   */
   public int getId() {
     return this.id;
   }

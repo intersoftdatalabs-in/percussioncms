@@ -19,82 +19,122 @@ package com.percussion.delivery.metadata;
 
 import java.util.Set;
 
+/**
+ * A single indexed metadata entry representing one published page in the DTS metadata indexer. An
+ * entry exposes the identifying fields of the page (name, folder, pagepath, link text, type and
+ * site) along with a collection of {@link IPSMetadataProperty} values that capture the indexed
+ * Dublin Core and Percussion metadata.
+ */
 public interface IPSMetadataEntry {
 
   /**
-   * @return the name
+   * Returns the page name.
+   *
+   * @return the page name, may be <code>null</code>.
    */
   public String getName();
 
   /**
-   * @param name the name to set
+   * Sets the page name.
+   *
+   * @param name the page name to set; may be <code>null</code>.
    */
   public void setName(String name);
 
   /**
-   * @return the folder
+   * Returns the folder the page lives under.
+   *
+   * @return the folder path, may be <code>null</code>.
    */
   public String getFolder();
 
   /**
-   * @param folder the folder to set
+   * Sets the folder the page lives under.
+   *
+   * @param folder the folder path to set; may be <code>null</code>.
    */
   public void setFolder(String folder);
 
   /**
-   * @return the page path
+   * Returns the page path.
+   *
+   * @return the page path, may be <code>null</code>.
    */
   public String getPagepath();
 
   /**
-   * @param path the pagepath to set
+   * Sets the pagepath.
+   *
+   * @param path the pagepath to set; may be <code>null</code>.
    */
   public void setPagepath(String path);
 
   /**
-   * @return the linktext
+   * Returns the link text associated with the page.
+   *
+   * @return the link text, may be <code>null</code>.
    */
   public String getLinktext();
 
   /**
-   * @param linktext the linktext to set
+   * Sets the link text associated with the page.
+   *
+   * @param linktext the link text to set; may be <code>null</code>.
    */
   public void setLinktext(String linktext);
 
   /**
-   * @return the type
+   * Returns the content type of the page.
+   *
+   * @return the type, may be <code>null</code>.
    */
   public String getType();
 
   /**
-   * @param type the type to set
+   * Sets the content type of the page.
+   *
+   * @param type the content type to set; may be <code>null</code>.
    */
   public void setType(String type);
 
   /**
-   * @return the site
+   * Returns the site the page belongs to.
+   *
+   * @return the site name, may be <code>null</code>.
    */
   public String getSite();
 
   /**
-   * @param site the site to set
+   * Sets the site the page belongs to.
+   *
+   * @param site the site name to set; may be <code>null</code>.
    */
   public void setSite(String site);
 
   /**
-   * @return the properties. This returns a cloned set of properties changing the value of these
-   *     directly will not affect the property values in the entry. To change property values on the
-   *     entry you must passed the properties back to the entries {@link #setProperties(Set)}
-   *     method.
+   * Returns the properties attached to this entry. This returns a cloned set of properties changing
+   * the value of these directly will not affect the property values in the entry. To change
+   * property values on the entry you must passed the properties back to the entries {@link
+   * #setProperties(Set)} method.
+   *
+   * @return the properties, never <code>null</code>, may be empty.
    */
   public Set<IPSMetadataProperty> getProperties();
 
   /**
-   * @param properties the properties to set
+   * Replaces the properties attached to this entry.
+   *
+   * @param properties the properties to set; may be <code>null</code>.
    */
   public void setProperties(Set<IPSMetadataProperty> properties);
 
+  /**
+   * Adds a single property to the entry's property set.
+   *
+   * @param prop the property to add; may be <code>null</code>.
+   */
   public void addProperty(IPSMetadataProperty prop);
 
+  /** Clears all properties from the entry. */
   public void clearProperties();
 }
