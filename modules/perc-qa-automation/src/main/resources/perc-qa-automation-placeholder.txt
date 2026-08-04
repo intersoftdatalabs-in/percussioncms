@@ -1,0 +1,1 @@
+﻿This module intentionally ships no Java sources. The deliverable is the Playwright/Node.js test bundle under rontend/. See README.md and AGENTS.md for usage.

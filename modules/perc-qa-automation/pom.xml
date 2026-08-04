@@ -17,23 +17,56 @@
         <!-- Layer-1 install matrix defaults (opt-in profile matrix-smoke) -->
         <matrix.product>cms</matrix.product>
         <matrix.skip.image.build>true</matrix.skip.image.build>
+        <!--
+            Skip the default Java compilation; this module contains no Java sources.
+            Only the Playwright / Node.js test bundle matters here.
+        -->
+        <maven.compiler.skip>true</maven.compiler.skip>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <dependencies>
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <version>6.9.6</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.percussion</groupId>
-            <artifactId>perc-shared-test-resources</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
     <build>
+        <resources>
+            <resource>
+                <filtering>false</filtering>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
         <plugins>
+            <!--
+                Disable the default-compile and default-testCompile executions; this
+                module has no Java sources. Keeps the build quiet without changing
+                semantics for the JS/Playwright test flow.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-compile</id>
+                        <phase>none</phase>
+                    </execution>
+                    <execution>
+                        <id>default-testCompile</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--
+                Disable the attach-javadocs execution; this module has no Java
+                sources, so the Javadoc jar would always be empty. Skipping it
+                also removes the "No Javadoc in project" notice and keeps the
+                install step focused on the test bundle.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
