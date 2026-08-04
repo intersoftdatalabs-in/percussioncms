@@ -23,6 +23,7 @@ import {
 } from "../api/dashboard/deliveryGadgetsApi";
 import { formatApiError } from "../api/home/homeApi";
 import { styles } from "./dashboard.styles";
+import { message, MSG } from "../i18n/message";
 
 export interface SEOAuditWidgetProps {
   title?: string;
@@ -36,9 +37,10 @@ export interface SEOAuditWidgetProps {
  * Invented {@code /services/seo/audit} does not exist.</p>
  */
 export const SEOAuditWidget: React.FC<SEOAuditWidgetProps> = ({
-  title = "SEO Audit",
+  title,
   refreshInterval = 120000,
 }) => {
+  const heading = title ?? message(MSG.GADGET_SEO_AUDIT);
   const [rows, setRows] = useState<SeoPageRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -67,7 +69,7 @@ export const SEOAuditWidget: React.FC<SEOAuditWidgetProps> = ({
   if (isLoading) {
     return (
       <div style={styles.widget} data-testid="seo-audit-widget">
-        <div style={styles.widgetTitle}>{title}</div>
+        <div style={styles.widgetTitle}>{heading}</div>
         <div style={styles.widgetLoading}>Loading SEO audit...</div>
       </div>
     );
@@ -75,7 +77,7 @@ export const SEOAuditWidget: React.FC<SEOAuditWidgetProps> = ({
   if (error) {
     return (
       <div style={styles.widget} data-testid="seo-audit-widget">
-        <div style={styles.widgetTitle}>{title}</div>
+        <div style={styles.widgetTitle}>{heading}</div>
         <div style={styles.widgetError} data-testid="seo-audit-error">
           {error}
         </div>
@@ -85,7 +87,7 @@ export const SEOAuditWidget: React.FC<SEOAuditWidgetProps> = ({
   if (rows.length === 0) {
     return (
       <div style={styles.widget} data-testid="seo-audit-widget">
-        <div style={styles.widgetTitle}>{title}</div>
+        <div style={styles.widgetTitle}>{heading}</div>
         <div style={styles.widgetContent} data-testid="seo-audit-empty">
           No non-SEO pages found for the default path and workflow.
         </div>
@@ -95,7 +97,7 @@ export const SEOAuditWidget: React.FC<SEOAuditWidgetProps> = ({
 
   return (
     <div style={styles.widget} data-testid="seo-audit-widget">
-      <div style={styles.widgetTitle}>{title}</div>
+      <div style={styles.widgetTitle}>{heading}</div>
       <div style={styles.widgetContent} data-testid="seo-audit-list">
         <div style={{ fontSize: "0.85em", color: "#666", marginBottom: "8px" }}>
           {rows.length} page{rows.length === 1 ? "" : "s"} with SEO issues

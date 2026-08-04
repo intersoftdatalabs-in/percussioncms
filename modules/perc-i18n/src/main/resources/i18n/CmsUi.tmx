@@ -4757,7 +4757,7 @@ Documentación' href='https://percussioncmshelp.intsof.com/'&gt;percussioncmshel
       <tuv xml:lang="hi"><seg>अनुभाग &amp; लैंडिंग  पेज</seg></tuv>
       <tuv xml:lang="it"><seg>Sezione e pagina di destinazione</seg></tuv>
       <tuv xml:lang="nl"><seg>Sectie en landingspagina</seg></tuv>
-    <tuv xml:lang="ru"><seg>Раздел и целевая страница</seg></tuv><tuv xml:lang="he"><seg>מדור ודף נחיתה</seg></tuv><tuv xml:lang="uk"><seg>Розділ і цільова сторінка</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Раздел и целевая страница</seg></tuv><tuv xml:lang="he"><seg>מדור ודף נחיתה</seg></tuv><tuv xml:lang="uk"><seg>Розділ і цільова сторінка</seg></tuv><tuv xml:lang="bn"><seg>বিভাগ এবং অবতরণ পৃষ্ঠা</seg></tuv><tuv xml:lang="de"><seg>Abschnitt und Zielseite</seg></tuv><tuv xml:lang="ja-jp"><seg>セクションとランディング ページ</seg></tuv><tuv xml:lang="pt"><seg>Seção e página de destino</seg></tuv><tuv xml:lang="te"><seg>విభాగం &amp; ల్యాండింగ్ పేజీ</seg></tuv><tuv xml:lang="zh-cn"><seg>部分和登陆页面</seg></tuv><tuv xml:lang="zh-tw"><seg>部分和登陆页面</seg></tuv></tu>
     <tu tuid="perc.ui.newSectionDialog.label@Section link">
       <tuv xml:lang="en-us"><seg>Section link</seg></tuv>
       <tuv xml:lang="ar"><seg>رابط القسم</seg></tuv>
@@ -6328,7 +6328,7 @@ Doorgaan?</seg></tuv>
       <tuv xml:lang="te"><seg>చివరి సవరణ</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>最后修改者</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>最后修改者</seg></tuv>
-    <tuv xml:lang="ru"><seg>Последний модификатор</seg></tuv><tuv xml:lang="he"><seg>שינוי אחרון</seg></tuv><tuv xml:lang="uk"><seg>Останній модифікатор</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Последний модификатор</seg></tuv><tuv xml:lang="he"><seg>שינוי אחרון</seg></tuv><tuv xml:lang="uk"><seg>Останній модифікатор</seg></tuv><tuv xml:lang="bn"><seg>সর্বশেষ সংশোধক</seg></tuv></tu>
     <tu tuid="perc.ui.revisionDialog.label@Actions">
       <tuv xml:lang="en-us"><seg>Actions</seg></tuv>
       <tuv xml:lang="ar"><seg>الإجراءات</seg></tuv>
@@ -6375,7 +6375,7 @@ Doorgaan?</seg></tuv>
       <tuv xml:lang="te"><seg>డైరెక్టరీ వినియోగదారులను దిగుమతి చేయండి</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>导入目录用户</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>导入目录用户</seg></tuv>
-    <tuv xml:lang="ru"><seg>Импортировать пользователей каталога</seg></tuv><tuv xml:lang="he"><seg>ייבוא u200bu200bמשתמשי ספרייה</seg></tuv><tuv xml:lang="uk"><seg>Імпорт користувачів каталогу</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Импортировать пользователей каталога</seg></tuv><tuv xml:lang="he"><seg>ייבוא u200bu200bמשתמשי ספרייה</seg></tuv><tuv xml:lang="uk"><seg>Імпорт користувачів каталогу</seg></tuv><tuv xml:lang="bn"><seg>ডিরেক্টরি ব্যবহারকারীদের আমদানি করুন</seg></tuv></tu>
     <tu tuid="perc.ui.users.import.tooltips@UserImportUnavailable">
       <tuv xml:lang="en-us"><seg>User import currently unavailable</seg></tuv>
       <tuv xml:lang="ar"><seg>استيراد المستخدم غير متاح حاليًا</seg></tuv>
@@ -7046,7 +7046,7 @@ Doorgaan?</seg></tuv>
       <tuv xml:lang="te"><seg>ఈ నేపథ్యంలో ప్రాసెసింగ్ పూర్తవుతుంది మరియు పూర్తి చేయడానికి కొంత సమయం పట్టవచ్చు.</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>处理将在后台完成，可能需要一段时间才能完成。</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>处理将在后台完成，可能需要一段时间才能完成。</seg></tuv>
-    <tuv xml:lang="ru"><seg>Обработка будет завершена в фоновом режиме и может занять некоторое время.</seg></tuv><tuv xml:lang="he"><seg>העיבוד יושלם ברקע ועשוי להימשך זמן מה.</seg></tuv><tuv xml:lang="uk"><seg>Обробка буде завершена у фоновому режимі та може зайняти деякий час.</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Обработка будет завершена в фоновом режиме и может занять некоторое время.</seg></tuv><tuv xml:lang="he"><seg>העיבוד יושלם ברקע ועשוי להימשך זמן מה.</seg></tuv><tuv xml:lang="uk"><seg>Обробка буде завершена у фоновому режимі та може зайняти деякий час.</seg></tuv><tuv xml:lang="bn"><seg>প্রক্রিয়াকরণ পটভূমিতে সম্পন্ন হবে এবং সম্পূর্ণ হতে কিছু সময় লাগতে পারে।</seg></tuv></tu>
     <tu tuid="perc.ui.assign.workflow@Workflow Processing Warning Exclusion">
       <tuv xml:lang="en-us"><seg>Checked out items will be excluded.</seg></tuv>
       <tuv xml:lang="ar"><seg>سيتم استبعاد العناصر التي تم سحبها.</seg></tuv>
@@ -9398,7 +9398,7 @@ Doorgaan?</seg></tuv>
       <tuv xml:lang="te"><seg>ప్రత్యక్ష సైట్లు</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>实时站点</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>实时站点</seg></tuv>
-    <tuv xml:lang="ru"><seg>Живые сайты</seg></tuv><tuv xml:lang="uk"><seg>Живі сайти</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Живые сайты</seg></tuv><tuv xml:lang="uk"><seg>Живі сайти</seg></tuv><tuv xml:lang="he"><seg>אתרים חיים</seg></tuv></tu>
     <tu tuid="perc.ui.gadgets.licenseMonitor@Live Pages">
       <tuv xml:lang="en-us"><seg>Live Pages</seg></tuv>
       <tuv xml:lang="ar"><seg>الصفحات الحية</seg></tuv>
@@ -9446,7 +9446,7 @@ Doorgaan?</seg></tuv>
       <tuv xml:lang="te"><seg>పరిమితికి మించి రోజులు</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>超过限制天数</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>超过限制天数</seg></tuv>
-    <tuv xml:lang="ru"><seg>дней сверх лимита</seg></tuv><tuv xml:lang="uk"><seg>днів понад ліміт</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>дней сверх лимита</seg></tuv><tuv xml:lang="uk"><seg>днів понад ліміт</seg></tuv><tuv xml:lang="he"><seg>ימים מעל הגבול</seg></tuv></tu>
     <tu tuid="perc.ui.gadgets.licenseMonitor@Over limit">
       <tuv xml:lang="en-us"><seg>Over limit</seg></tuv>
       <tuv xml:lang="ar"><seg>أكثر من الحد</seg></tuv>
@@ -15657,7 +15657,7 @@ Doorgaan?</seg></tuv>
       <tuv xml:lang="te"><seg>మరింత సహాయం</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>更多帮助</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>更多帮助</seg></tuv>
-    <tuv xml:lang="ru"><seg>Дополнительная помощь</seg></tuv><tuv xml:lang="uk"><seg>Додаткова допомога</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Дополнительная помощь</seg></tuv><tuv xml:lang="uk"><seg>Додаткова допомога</seg></tuv><tuv xml:lang="he"><seg>עזרה נוספת</seg></tuv></tu>
     <tu tuid="perc.ui.design.title@Edit Template">
       <tuv xml:lang="en-us"><seg>Template Editor</seg></tuv>
       <tuv xml:lang="ar"><seg>محرر القالب</seg></tuv>
@@ -15752,7 +15752,7 @@ Doorgaan?</seg></tuv>
       <tuv xml:lang="pt"><seg>Você não pode remover a função 'Administrador' do seu próprio perfil.</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>您无法从自己的个人资料中删除“管理员”角色。</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>您无法从自己的个人资料中删除“管理员”角色。</seg></tuv>
-    <tuv xml:lang="ru"><seg>Вы не можете удалить роль «Администратор» из своего профиля.</seg></tuv><tuv xml:lang="he"><seg>אינך יכול להסיר את תפקיד 'מנהל' מהפרופיל שלך.</seg></tuv><tuv xml:lang="uk"><seg>Ви не можете видалити роль «Адміністратор» зі свого профілю.</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Вы не можете удалить роль «Администратор» из своего профиля.</seg></tuv><tuv xml:lang="he"><seg>אינך יכול להסיר את תפקיד 'מנהל' מהפרופיל שלך.</seg></tuv><tuv xml:lang="uk"><seg>Ви не можете видалити роль «Адміністратор» зі свого профілю.</seg></tuv><tuv xml:lang="te"><seg>మీరు మీ స్వంత ప్రొఫైల్ నుండి 'అడ్మిన్' పాత్రను తీసివేయలేరు.</seg></tuv></tu>
     <tu tuid="perc.ui.workflow.steps.view@Submit">
       <tuv xml:lang="en-us"><seg>Submit</seg></tuv>
       <tuv xml:lang="ar"><seg>يُقدِّم</seg></tuv>
@@ -19763,7 +19763,7 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
       <tuv xml:lang="pt"><seg>Funções disponíveis:</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>可用角色：</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>可用角色：</seg></tuv>
-    <tuv xml:lang="ru"><seg>Доступные роли:</seg></tuv><tuv xml:lang="he"><seg>תפקידים זמינים:</seg></tuv><tuv xml:lang="uk"><seg>Доступні ролі:</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Доступные роли:</seg></tuv><tuv xml:lang="he"><seg>תפקידים זמינים:</seg></tuv><tuv xml:lang="uk"><seg>Доступні ролі:</seg></tuv><tuv xml:lang="te"><seg>అందుబాటులో ఉన్న పాత్రలు:</seg></tuv></tu>
     <tu tuid="perc.ui.users@ArrowKeys">
       <tuv xml:lang="en-us"><seg>Use the arrow keys to toggle between options.</seg></tuv>
       <tuv xml:lang="ar"><seg>استخدم مفاتيح الأسهم للتبديل بين الخيارات.</seg></tuv>
@@ -20211,7 +20211,7 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
       <tuv xml:lang="te"><seg>ప్రాంతం కంటెంట్u200cను తొలగించండి.</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>删除区域内容。</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>刪除區域內容。</seg></tuv>
-    <tuv xml:lang="uk"><seg>Видалити вміст регіону.</seg></tuv></tu>
+    <tuv xml:lang="uk"><seg>Видалити вміст регіону.</seg></tuv><tuv xml:lang="ru"><seg>Удалить содержимое региона.</seg></tuv><tuv xml:lang="he"><seg>מחק את התוכן של האזור.</seg></tuv></tu>
     <tu tuid="perc.ui.template.layout@Region CSS Settings Exist">
       <tuv xml:lang="en-us"><seg>There are already region based CSS settings for region</seg></tuv>
       <tuv xml:lang="ar"><seg>توجد بالفعل إعدادات CSS تعتمد على المنطقة للمنطقة</seg></tuv>
@@ -20498,7 +20498,7 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
       <tuv xml:lang="pt"><seg>Inspetor de Projetos</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>设计检验员</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>设计检验员</seg></tuv>
-    <tuv xml:lang="ru"><seg>Инспектор дизайна</seg></tuv><tuv xml:lang="he"><seg>מפקח עיצוב</seg></tuv><tuv xml:lang="uk"><seg>Інспектор з проектування</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Инспектор дизайна</seg></tuv><tuv xml:lang="he"><seg>מפקח עיצוב</seg></tuv><tuv xml:lang="uk"><seg>Інспектор з проектування</seg></tuv><tuv xml:lang="te"><seg>డిజైన్ ఇన్స్పెక్టర్</seg></tuv></tu>
     <tu tuid="perc.ui.template.layout@Undo">
       <tuv xml:lang="en-us"><seg>Undo</seg></tuv>
       <tuv xml:lang="ar"><seg>تراجع</seg></tuv>
@@ -22417,7 +22417,7 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
       <tuv xml:lang="pt"><seg>Biblioteca de ativos</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>资源库</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>资源库</seg></tuv>
-    <tuv xml:lang="ru"><seg>Библиотека активов</seg></tuv><tuv xml:lang="he"><seg>ספריית נכסים</seg></tuv><tuv xml:lang="uk"><seg>Бібліотека активів</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Библиотека активов</seg></tuv><tuv xml:lang="he"><seg>ספריית נכסים</seg></tuv><tuv xml:lang="uk"><seg>Бібліотека активів</seg></tuv><tuv xml:lang="te"><seg>ఆస్తి లైబ్రరీ</seg></tuv></tu>
     <tu tuid="perc.ui.images@ArrowIconAlt">
       <tuv xml:lang="en-us"><seg>Down Arrow</seg></tuv>
       <tuv xml:lang="ar"><seg>سهم لأسفل</seg></tuv>
@@ -23457,7 +23457,7 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
       <tuv xml:lang="pt"><seg>Nenhum histórico de publicação encontrado para:</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>未找到以下内容的发布历史：</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>未找到以下内容的发布历史：</seg></tuv>
-    <tuv xml:lang="ru"><seg>Не найдена история публикаций для:</seg></tuv><tuv xml:lang="he"><seg>לא נמצאה היסטוריית פרסום עבור:</seg></tuv><tuv xml:lang="uk"><seg>Немає історії публікацій для:</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Не найдена история публикаций для:</seg></tuv><tuv xml:lang="he"><seg>לא נמצאה היסטוריית פרסום עבור:</seg></tuv><tuv xml:lang="uk"><seg>Немає історії публікацій для:</seg></tuv><tuv xml:lang="te"><seg>దీని కోసం ప్రచురణ చరిత్ర కనుగొనబడలేదు:</seg></tuv></tu>
     <tu tuid="perc.ui.publishing.history@Publishing History">
       <tuv xml:lang="en-us"><seg>Publishing History</seg></tuv>
       <tuv xml:lang="ar"><seg>تاريخ النشر</seg></tuv>
@@ -23872,7 +23872,7 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
       <tuv xml:lang="pt"><seg>Clique para criar variável global</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>点击创建全局变量</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>点击创建全局变量</seg></tuv>
-    <tuv xml:lang="ru"><seg>Нажмите, чтобы создать глобальную переменную</seg></tuv><tuv xml:lang="he"><seg>לחץ כדי ליצור משתנה גלובלי</seg></tuv><tuv xml:lang="uk"><seg>Натисніть, щоб створити глобальну змінну</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Нажмите, чтобы создать глобальную переменную</seg></tuv><tuv xml:lang="he"><seg>לחץ כדי ליצור משתנה גלובלי</seg></tuv><tuv xml:lang="uk"><seg>Натисніть, щоб створити глобальну змінну</seg></tuv><tuv xml:lang="te"><seg>గ్లోబల్ వేరియబుల్ సృష్టించడానికి క్లిక్ చేయండి</seg></tuv></tu>
     <tu tuid="perc.ui.global.variables.gadget@Not Found">
       <tuv xml:lang="en-us"><seg>No Global Variables Found</seg></tuv>
       <tuv xml:lang="ar"><seg>لم يتم العثور على متغيرات عمومية</seg></tuv>
@@ -24351,7 +24351,7 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
       <tuv xml:lang="pt"><seg>Arquivos não compatíveis com ADA</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>不符合 ADA 的文件</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>不符合 ADA 的文件</seg></tuv>
-    <tuv xml:lang="ru"><seg>Файлы, не соответствующие ADA</seg></tuv><tuv xml:lang="he"><seg>קבצים שאינם תואמי ADA</seg></tuv><tuv xml:lang="uk"><seg>Файли, несумісні з ADA</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Файлы, не соответствующие ADA</seg></tuv><tuv xml:lang="he"><seg>קבצים שאינם תואמי ADA</seg></tuv><tuv xml:lang="uk"><seg>Файли, несумісні з ADA</seg></tuv><tuv xml:lang="te"><seg>నాన్-ADA కంప్లైంట్ ఫైల్స్</seg></tuv></tu>
     <tu tuid="perc.ui.reports.gadget@Non-ADA Compliant Images">
       <tuv xml:lang="en-us"><seg>Non-ADA Compliant Images</seg></tuv>
       <tuv xml:lang="ar"><seg>الصور غير المتوافقة مع ADA</seg></tuv>
@@ -25170,7 +25170,7 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
       <tuv xml:lang="te"><seg>ఈ సిస్టమ్ కోసం విడ్జెట్ బిల్డర్ ప్రారంభించబడలేదు.</seg></tuv>
       <tuv xml:lang="zh-cn"><seg>该系统未启用 Widget Builder。</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>该系统未启用 Widget Builder。</seg></tuv>
-    <tuv xml:lang="ru"><seg>Widget Builder не включен для этой системы.</seg></tuv><tuv xml:lang="uk"><seg>Widget Builder не ввімкнено для цієї системи.</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Widget Builder не включен для этой системы.</seg></tuv><tuv xml:lang="uk"><seg>Widget Builder не ввімкнено для цієї системи.</seg></tuv><tuv xml:lang="he"><seg>Widget Builder אינו מופעל עבור מערכת זו.</seg></tuv></tu>
     <tu tuid="perc.ui.widgetbuilder.modern@Empty">
       <tuv xml:lang="en-us"><seg>No widget definitions yet.</seg></tuv>
       <tuv xml:lang="ar"><seg>لا توجد تعريفات القطعة حتى الآن.</seg></tuv>
@@ -25739,7 +25739,7 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
       <tuv xml:lang="hi"><seg>Sites &amp; Servers</seg></tuv>
       <tuv xml:lang="it"><seg>Siti e server</seg></tuv>
       <tuv xml:lang="nl"><seg>Sites en servers</seg></tuv>
-    <tuv xml:lang="ru"><seg>Сайты и серверы</seg></tuv><tuv xml:lang="he"><seg>אתרים ושרתים</seg></tuv><tuv xml:lang="uk"><seg>Сайти та сервери</seg></tuv></tu>
+    <tuv xml:lang="ru"><seg>Сайты и серверы</seg></tuv><tuv xml:lang="he"><seg>אתרים ושרתים</seg></tuv><tuv xml:lang="uk"><seg>Сайти та сервери</seg></tuv><tuv xml:lang="bn"><seg>সাইট এবং সার্ভার</seg></tuv><tuv xml:lang="de"><seg>Websites und Server</seg></tuv><tuv xml:lang="ja-jp"><seg>サイトとサーバー</seg></tuv><tuv xml:lang="pt"><seg>Sites e servidores</seg></tuv><tuv xml:lang="te"><seg>సైట్లు మరియు సర్వర్లు</seg></tuv><tuv xml:lang="zh-cn"><seg>站点和服务器</seg></tuv><tuv xml:lang="zh-tw"><seg>站点和服务器</seg></tuv></tu>
     <tu tuid="perc.ui.publish.modern@Logs">
       <tuv xml:lang="en-us"><seg>Logs</seg></tuv>
       <tuv xml:lang="ar"><seg>سجلات</seg></tuv>
@@ -26363,5 +26363,29 @@ Niet-opgeslagen wijzigingen in '{1}' kunnen verloren gaan.</seg></tuv>
     <tu tuid="perc.ui.dashboard.modern@user">
       <tuv xml:lang="en-us"><seg>user</seg></tuv>
     <tuv xml:lang="ar"><seg>مستخدم</seg></tuv><tuv xml:lang="bn"><seg>ব্যবহারকারী</seg></tuv><tuv xml:lang="de"><seg>Benutzer</seg></tuv><tuv xml:lang="es"><seg>usuario</seg></tuv><tuv xml:lang="fr"><seg>utilisateur</seg></tuv><tuv xml:lang="hi"><seg>उपयोगकर्ता</seg></tuv><tuv xml:lang="it"><seg>utente</seg></tuv><tuv xml:lang="ja-jp"><seg>ユーザー</seg></tuv><tuv xml:lang="nl"><seg>gebruiker</seg></tuv><tuv xml:lang="pl"><seg>użytkownik</seg></tuv><tuv xml:lang="pt"><seg>usuário</seg></tuv><tuv xml:lang="sv"><seg>användare</seg></tuv><tuv xml:lang="te"><seg>వినియోగదారు</seg></tuv><tuv xml:lang="tr"><seg>kullanıcı</seg></tuv><tuv xml:lang="zh-cn"><seg>用户</seg></tuv><tuv xml:lang="zh-tw"><seg>用户</seg></tuv><tuv xml:lang="ru"><seg>пользователь</seg></tuv><tuv xml:lang="he"><seg>מִשׁתַמֵשׁ</seg></tuv><tuv xml:lang="uk"><seg>користувача</seg></tuv></tu>
+    <tu tuid="perc.ui.dashboard.modern@Activity">
+      <tuv xml:lang="en-us"><seg>Activity</seg></tuv>
+    <tuv xml:lang="ar"><seg>نشاط</seg></tuv><tuv xml:lang="bn"><seg>কার্যকলাপ</seg></tuv><tuv xml:lang="de"><seg>Aktivität</seg></tuv><tuv xml:lang="es"><seg>Actividad</seg></tuv><tuv xml:lang="fr"><seg>Activité</seg></tuv><tuv xml:lang="hi"><seg>गतिविधि</seg></tuv><tuv xml:lang="it"><seg>Attività</seg></tuv><tuv xml:lang="ja-jp"><seg>活動</seg></tuv><tuv xml:lang="nl"><seg>Activiteit</seg></tuv><tuv xml:lang="pt"><seg>Atividade</seg></tuv><tuv xml:lang="te"><seg>కార్యాచరణ</seg></tuv><tuv xml:lang="zh-cn"><seg>活动</seg></tuv><tuv xml:lang="zh-tw"><seg>活动</seg></tuv><tuv xml:lang="ru"><seg>Активность</seg></tuv><tuv xml:lang="he"><seg>פְּעִילוּת</seg></tuv><tuv xml:lang="uk"><seg>діяльність</seg></tuv></tu>
+    <tu tuid="perc.ui.dashboard.modern@What's Working">
+      <tuv xml:lang="en-us"><seg>What's Working</seg></tuv>
+    <tuv xml:lang="ar"><seg>ما العمل</seg></tuv><tuv xml:lang="bn"><seg>কি কাজ করছে</seg></tuv><tuv xml:lang="de"><seg>Was funktioniert</seg></tuv><tuv xml:lang="es"><seg>¿Qué está funcionando?</seg></tuv><tuv xml:lang="fr"><seg>Qu'est-ce qui fonctionne</seg></tuv><tuv xml:lang="hi"><seg>क्या काम कर रहा है</seg></tuv><tuv xml:lang="it"><seg>Cosa funziona</seg></tuv><tuv xml:lang="ja-jp"><seg>何が機能しているのか</seg></tuv><tuv xml:lang="nl"><seg>Wat werkt</seg></tuv><tuv xml:lang="pt"><seg>O que está funcionando</seg></tuv><tuv xml:lang="te"><seg>ఏమి పని చేస్తోంది</seg></tuv><tuv xml:lang="zh-cn"><seg>什么在起作用</seg></tuv><tuv xml:lang="zh-tw"><seg>什么在起作用</seg></tuv><tuv xml:lang="ru"><seg>Что работает</seg></tuv><tuv xml:lang="he"><seg>מה עובד</seg></tuv><tuv xml:lang="uk"><seg>Що працює</seg></tuv></tu>
+    <tu tuid="perc.ui.dashboard.modern@Reports">
+      <tuv xml:lang="en-us"><seg>Reports</seg></tuv>
+    <tuv xml:lang="ar"><seg>التقارير</seg></tuv><tuv xml:lang="bn"><seg>রিপোর্ট</seg></tuv><tuv xml:lang="de"><seg>Berichte</seg></tuv><tuv xml:lang="es"><seg>Informes</seg></tuv><tuv xml:lang="fr"><seg>Rapports</seg></tuv><tuv xml:lang="hi"><seg>रिपोर्टों</seg></tuv><tuv xml:lang="it"><seg>Rapporti</seg></tuv><tuv xml:lang="ja-jp"><seg>レポート</seg></tuv><tuv xml:lang="nl"><seg>Rapporten</seg></tuv><tuv xml:lang="pt"><seg>Relatórios</seg></tuv><tuv xml:lang="te"><seg>నివేదికలు</seg></tuv><tuv xml:lang="zh-cn"><seg>报告</seg></tuv><tuv xml:lang="zh-tw"><seg>报告</seg></tuv><tuv xml:lang="ru"><seg>Отчеты</seg></tuv><tuv xml:lang="he"><seg>דוחות</seg></tuv><tuv xml:lang="uk"><seg>Звіти</seg></tuv></tu>
+    <tu tuid="perc.ui.dashboard.modern@Form Tracker">
+      <tuv xml:lang="en-us"><seg>Form Tracker</seg></tuv>
+    <tuv xml:lang="ar"><seg>تعقب النموذج</seg></tuv><tuv xml:lang="bn"><seg>ফর্ম ট্র্যাকার</seg></tuv><tuv xml:lang="de"><seg>Formular-Tracker</seg></tuv><tuv xml:lang="es"><seg>Rastreador de formularios</seg></tuv><tuv xml:lang="fr"><seg>Suivi des formulaires</seg></tuv><tuv xml:lang="hi"><seg>फॉर्म ट्रैकर</seg></tuv><tuv xml:lang="it"><seg>Tracciatore di moduli</seg></tuv><tuv xml:lang="ja-jp"><seg>フォームトラッカー</seg></tuv><tuv xml:lang="nl"><seg>Formuliertracker</seg></tuv><tuv xml:lang="pt"><seg>Rastreador de formulário</seg></tuv><tuv xml:lang="te"><seg>ఫారమ్ ట్రాకర్</seg></tuv><tuv xml:lang="zh-cn"><seg>表格追踪器</seg></tuv><tuv xml:lang="zh-tw"><seg>表格追踪器</seg></tuv><tuv xml:lang="ru"><seg>Трекер форм</seg></tuv><tuv xml:lang="he"><seg>מעקב אחר טפסים</seg></tuv><tuv xml:lang="uk"><seg>Трекер форм</seg></tuv></tu>
+    <tu tuid="perc.ui.dashboard.modern@External Content">
+      <tuv xml:lang="en-us"><seg>External Content</seg></tuv>
+    <tuv xml:lang="ar"><seg>المحتوى الخارجي</seg></tuv><tuv xml:lang="bn"><seg>বাহ্যিক বিষয়বস্তু</seg></tuv><tuv xml:lang="de"><seg>Externer Inhalt</seg></tuv><tuv xml:lang="es"><seg>Contenido externo</seg></tuv><tuv xml:lang="fr"><seg>Contenu externe</seg></tuv><tuv xml:lang="hi"><seg>बाहरी सामग्री</seg></tuv><tuv xml:lang="it"><seg>Contenuto esterno</seg></tuv><tuv xml:lang="ja-jp"><seg>外部コンテンツ</seg></tuv><tuv xml:lang="nl"><seg>Externe inhoud</seg></tuv><tuv xml:lang="pt"><seg>Conteúdo Externo</seg></tuv><tuv xml:lang="te"><seg>బాహ్య కంటెంట్</seg></tuv><tuv xml:lang="zh-cn"><seg>外部内容</seg></tuv><tuv xml:lang="zh-tw"><seg>外部内容</seg></tuv><tuv xml:lang="ru"><seg>Внешний контент</seg></tuv><tuv xml:lang="he"><seg>תוכן חיצוני</seg></tuv><tuv xml:lang="uk"><seg>Зовнішній вміст</seg></tuv></tu>
+    <tu tuid="perc.ui.dashboard.modern@Google Setup">
+      <tuv xml:lang="en-us"><seg>Google Setup</seg></tuv>
+    <tuv xml:lang="ar"><seg>إعداد جوجل</seg></tuv><tuv xml:lang="bn"><seg>গুগল সেটআপ</seg></tuv><tuv xml:lang="de"><seg>Google-Setup</seg></tuv><tuv xml:lang="es"><seg>Configuración de Google</seg></tuv><tuv xml:lang="fr"><seg>Configuration Google</seg></tuv><tuv xml:lang="hi"><seg>गूगल सेटअप</seg></tuv><tuv xml:lang="it"><seg>Configurazione di Google</seg></tuv><tuv xml:lang="ja-jp"><seg>Googleのセットアップ</seg></tuv><tuv xml:lang="nl"><seg>Google-installatie</seg></tuv><tuv xml:lang="pt"><seg>Configuração do Google</seg></tuv><tuv xml:lang="te"><seg>Google సెటప్</seg></tuv><tuv xml:lang="zh-cn"><seg>谷歌设置</seg></tuv><tuv xml:lang="zh-tw"><seg>谷歌设置</seg></tuv><tuv xml:lang="ru"><seg>Настройка Google</seg></tuv><tuv xml:lang="he"><seg>הגדרות גוגל</seg></tuv><tuv xml:lang="uk"><seg>Налаштування Google</seg></tuv></tu>
+    <tu tuid="perc.ui.dashboard.modern@Blogs">
+      <tuv xml:lang="en-us"><seg>Blogs</seg></tuv>
+    <tuv xml:lang="ar"><seg>مدونات</seg></tuv><tuv xml:lang="bn"><seg>ব্লগ</seg></tuv><tuv xml:lang="de"><seg>Blogs</seg></tuv><tuv xml:lang="es"><seg>Blogs</seg></tuv><tuv xml:lang="fr"><seg>Blogues</seg></tuv><tuv xml:lang="hi"><seg>ब्लॉग</seg></tuv><tuv xml:lang="it"><seg>Blog</seg></tuv><tuv xml:lang="ja-jp"><seg>ブログ</seg></tuv><tuv xml:lang="nl"><seg>Blogs</seg></tuv><tuv xml:lang="pt"><seg>Blogues</seg></tuv><tuv xml:lang="zh-cn"><seg>博客</seg></tuv><tuv xml:lang="zh-tw"><seg>博客</seg></tuv><tuv xml:lang="te"><seg>బ్లాగులు</seg></tuv><tuv xml:lang="ru"><seg>Блоги</seg></tuv><tuv xml:lang="he"><seg>בלוגים</seg></tuv><tuv xml:lang="uk"><seg>Блоги</seg></tuv></tu>
+    <tu tuid="perc.ui.dashboard.modern@Dashboard Configuration">
+      <tuv xml:lang="en-us"><seg>Dashboard Configuration</seg></tuv>
+    <tuv xml:lang="ar"><seg>تكوين لوحة القيادة</seg></tuv><tuv xml:lang="de"><seg>Dashboard-Konfiguration</seg></tuv><tuv xml:lang="es"><seg>Configuración del panel</seg></tuv><tuv xml:lang="fr"><seg>Configuration du tableau de bord</seg></tuv><tuv xml:lang="hi"><seg>डैशबोर्ड कॉन्फ़िगरेशन</seg></tuv><tuv xml:lang="it"><seg>Configurazione del cruscotto</seg></tuv><tuv xml:lang="ja-jp"><seg>ダッシュボードの構成</seg></tuv><tuv xml:lang="nl"><seg>Dashboardconfiguratie</seg></tuv><tuv xml:lang="pt"><seg>Configuração do painel</seg></tuv><tuv xml:lang="zh-cn"><seg>仪表板配置</seg></tuv><tuv xml:lang="zh-tw"><seg>仪表板配置</seg></tuv><tuv xml:lang="te"><seg>డాష్u200cబోర్డ్ కాన్ఫిగరేషన్</seg></tuv><tuv xml:lang="bn"><seg>ড্যাশবোর্ড কনফিগারেশন</seg></tuv><tuv xml:lang="ru"><seg>Конфигурация информационной панели</seg></tuv><tuv xml:lang="he"><seg>תצורת לוח המחוונים</seg></tuv><tuv xml:lang="uk"><seg>Конфігурація приладової панелі</seg></tuv></tu>
   </body>
 </tmx>

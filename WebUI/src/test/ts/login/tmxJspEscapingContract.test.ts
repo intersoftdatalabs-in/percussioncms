@@ -39,6 +39,7 @@ describe("tmx.jsp JS escaping contract", () => {
   it("emits mode=js entries via PSTmxJsCatalog (not naive replaceAll)", () => {
     expect(text).toContain("com.percussion.i18n.PSTmxJsCatalog");
     expect(text).toContain("PSTmxJsCatalog.toJsObjectEntries");
+    expect(text).toContain("PSTmxJsCatalog.collectAccepted");
     // Must not regress to the broken one-liner escape in the JSP.
     expect(text).not.toMatch(
       /getString\([^)]+\)\.replaceAll\(\s*"\\""\s*,\s*"\\\\\\""\s*\)/,

@@ -2,10 +2,11 @@
  * Copyright 1999-2026 Percussion Software, Inc.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { AssetsStatusWidget } from "@/dashboard/AssetsStatusWidget";
 import * as gadgetApi from "@/api/dashboard/gadgetApi";
+import { MSG } from "@/i18n/message";
 
 vi.mock("@/api/dashboard/gadgetApi", async (importOriginal) => {
   const actual =
@@ -19,6 +20,33 @@ vi.mock("@/api/dashboard/gadgetApi", async (importOriginal) => {
 describe("AssetsStatusWidget", () => {
   beforeEach(() => {
     vi.mocked(gadgetApi.fetchAssetsByStatusSummary).mockReset();
+    delete (window as { I18N?: unknown }).I18N;
+  });
+
+  afterEach(() => {
+    delete (window as { I18N?: unknown }).I18N;
+  });
+
+  it("localizes default title via I18N when key resolves (GH-1828)", async () => {
+    (window as unknown as { I18N: { message: (k: string) => string } }).I18N = {
+      message: (k: string) =>
+        k === MSG.GADGET_ASSETS_BY_STATUS ? "स्थिति के अनुसार संपत्ति" : k,
+    };
+    vi.mocked(gadgetApi.fetchAssetsByStatusSummary).mockResolvedValue({
+      path: "/Assets",
+      workflow: "Default Workflow",
+      totalItems: 0,
+      buckets: [],
+    });
+    render(<AssetsStatusWidget refreshInterval={0} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("assets-status-widget")).toBeDefined();
+    });
+    const titleEl = screen
+      .getByTestId("assets-status-widget")
+      .querySelector("div");
+    expect(titleEl?.textContent).toBe("स्थिति के अनुसार संपत्ति");
+    expect(titleEl?.textContent).not.toBe("Assets By Status");
   });
 
   it("renders asset status buckets", async () => {

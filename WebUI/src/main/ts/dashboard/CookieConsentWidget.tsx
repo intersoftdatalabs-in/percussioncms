@@ -23,6 +23,7 @@ import {
 } from "../api/dashboard/deliveryGadgetsApi";
 import { formatApiError } from "../api/home/homeApi";
 import { styles } from "./dashboard.styles";
+import { message, MSG } from "../i18n/message";
 
 export interface CookieConsentWidgetProps {
   title?: string;
@@ -36,9 +37,10 @@ export interface CookieConsentWidgetProps {
  * Invented {@code /services/compliance/cookie-consent} does not exist.</p>
  */
 export const CookieConsentWidget: React.FC<CookieConsentWidgetProps> = ({
-  title = "Cookie Consent",
+  title,
   refreshInterval = 60000,
 }) => {
+  const heading = title ?? message(MSG.GADGET_COOKIE_CONSENT);
   const [totals, setTotals] = useState<CookieConsentTotals | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -72,7 +74,7 @@ export const CookieConsentWidget: React.FC<CookieConsentWidgetProps> = ({
   if (isLoading) {
     return (
       <div style={styles.widget} data-testid="cookie-consent-widget">
-        <div style={styles.widgetTitle}>{title}</div>
+        <div style={styles.widgetTitle}>{heading}</div>
         <div style={styles.widgetLoading}>Loading cookie consent...</div>
       </div>
     );
@@ -80,7 +82,7 @@ export const CookieConsentWidget: React.FC<CookieConsentWidgetProps> = ({
   if (error) {
     return (
       <div style={styles.widget} data-testid="cookie-consent-widget">
-        <div style={styles.widgetTitle}>{title}</div>
+        <div style={styles.widgetTitle}>{heading}</div>
         <div style={styles.widgetError} data-testid="cookie-consent-error">
           {error}
         </div>
@@ -90,7 +92,7 @@ export const CookieConsentWidget: React.FC<CookieConsentWidgetProps> = ({
   if (!totals || (totals.bySite.length === 0 && totals.grandTotal === 0)) {
     return (
       <div style={styles.widget} data-testid="cookie-consent-widget">
-        <div style={styles.widgetTitle}>{title}</div>
+        <div style={styles.widgetTitle}>{heading}</div>
         <div style={styles.widgetContent} data-testid="cookie-consent-empty">
           No cookie consent log entries found.
         </div>
@@ -100,7 +102,7 @@ export const CookieConsentWidget: React.FC<CookieConsentWidgetProps> = ({
 
   return (
     <div style={styles.widget} data-testid="cookie-consent-widget">
-      <div style={styles.widgetTitle}>{title}</div>
+      <div style={styles.widgetTitle}>{heading}</div>
       <div style={styles.widgetContent} data-testid="cookie-consent-list">
         <div style={{ fontWeight: 600, marginBottom: "8px" }}>
           Total entries:{" "}

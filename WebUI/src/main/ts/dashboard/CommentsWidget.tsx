@@ -23,6 +23,7 @@ import {
 } from "../api/dashboard/deliveryGadgetsApi";
 import { formatApiError } from "../api/home/homeApi";
 import { styles } from "./dashboard.styles";
+import { message, MSG } from "../i18n/message";
 
 export interface CommentsWidgetProps {
   title?: string;
@@ -37,10 +38,11 @@ export interface CommentsWidgetProps {
  * Invented {@code /services/comments/latest} does not exist.</p>
  */
 export const CommentsWidget: React.FC<CommentsWidgetProps> = ({
-  title = "Comments",
+  title,
   refreshInterval = 60000,
   maxComments = 12,
 }) => {
+  const heading = title ?? message(MSG.GADGET_COMMENTS);
   const [site, setSite] = useState<string | null>(null);
   const [pages, setPages] = useState<PageCommentsSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -133,7 +135,7 @@ export const CommentsWidget: React.FC<CommentsWidgetProps> = ({
 
   return (
     <div style={styles.widget} data-testid="comments-widget">
-      <div style={styles.widgetTitle}>{title}</div>
+      <div style={styles.widgetTitle}>{heading}</div>
       {renderContent()}
     </div>
   );

@@ -12,6 +12,7 @@ import {
 } from "../api/dashboard/deliveryGadgetsApi";
 import { formatApiError } from "../api/home/homeApi";
 import { styles } from "./dashboard.styles";
+import { message as i18nMessage, MSG } from "../i18n/message";
 
 export interface SiteimproveWidgetProps {
   title?: string;
@@ -22,9 +23,10 @@ export interface SiteimproveWidgetProps {
  * Classic **Siteimprove** gadget — view/store token + site config status.
  */
 export const SiteimproveWidget: React.FC<SiteimproveWidgetProps> = ({
-  title = "Siteimprove",
+  title,
   refreshInterval = 120000,
 }) => {
+  const heading = title ?? i18nMessage(MSG.GADGET_SITEIMPROVE);
   const [status, setStatus] = useState<SiteimproveStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -89,7 +91,7 @@ export const SiteimproveWidget: React.FC<SiteimproveWidgetProps> = ({
   if (isLoading) {
     return (
       <div style={styles.widget} data-testid="siteimprove-widget">
-        <div style={styles.widgetTitle}>{title}</div>
+        <div style={styles.widgetTitle}>{heading}</div>
         <div style={styles.widgetLoading}>Loading Siteimprove...</div>
       </div>
     );
@@ -97,7 +99,7 @@ export const SiteimproveWidget: React.FC<SiteimproveWidgetProps> = ({
 
   return (
     <div style={styles.widget} data-testid="siteimprove-widget">
-      <div style={styles.widgetTitle}>{title}</div>
+      <div style={styles.widgetTitle}>{heading}</div>
       <div style={styles.widgetContent} data-testid="siteimprove-status">
         {error ? (
           <div style={{ ...styles.widgetError, marginBottom: 8 }}>{error}</div>

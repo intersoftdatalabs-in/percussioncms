@@ -276,7 +276,7 @@ export const MSG = {
   GADGET_SITEIMPROVE: "perc.ui.site.improve.gadget@SITEIMPROVE",
   GADGET_TRAFFIC: "perc.ui.traffic.gadget@TRAFFIC",
   GADGET_ACTIVITY: "perc.ui.dashboard.modern@Activity",
-  GADGET_WHATS_WORKING: "perc.ui.dashboard.modern@What&apos;s Working",
+  GADGET_WHATS_WORKING: "perc.ui.dashboard.modern@What's Working",
   GADGET_REPORTS: "perc.ui.dashboard.modern@Reports",
   GADGET_FORM_TRACKER: "perc.ui.dashboard.modern@Form Tracker",
   GADGET_EXTERNAL_CONTENT: "perc.ui.dashboard.modern@External Content",

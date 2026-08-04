@@ -23,6 +23,7 @@ import {
 } from "../api/dashboard/gadgetApi";
 import { formatApiError } from "../api/home/homeApi";
 import { styles } from "./dashboard.styles";
+import { message, MSG } from "../i18n/message";
 
 export interface AssetsStatusWidgetProps {
   title?: string;
@@ -39,11 +40,12 @@ export interface AssetsStatusWidgetProps {
  * does not exist.</p>
  */
 export const AssetsStatusWidget: React.FC<AssetsStatusWidgetProps> = ({
-  title = "Assets By Status",
+  title,
   path,
   workflow,
   refreshInterval = 30000,
 }) => {
+  const heading = title ?? message(MSG.GADGET_ASSETS_BY_STATUS);
   const [data, setData] = useState<PagesByStatusResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -177,7 +179,7 @@ export const AssetsStatusWidget: React.FC<AssetsStatusWidgetProps> = ({
 
   return (
     <div style={styles.widget} data-testid="assets-status-widget">
-      <div style={styles.widgetTitle}>{title}</div>
+      <div style={styles.widgetTitle}>{heading}</div>
       {renderContent()}
     </div>
   );

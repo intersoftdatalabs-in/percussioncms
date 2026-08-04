@@ -24,6 +24,7 @@ import {
 } from "../api/dashboard/gadgetApi";
 import { formatApiError } from "../api/home/homeApi";
 import { styles } from "./dashboard.styles";
+import { message, MSG } from "../i18n/message";
 
 export interface EffectivenessWidgetProps {
   title?: string;
@@ -40,10 +41,11 @@ export interface EffectivenessWidgetProps {
  * config (server rejects with “Analytics has not been setup yet”).</p>
  */
 export const EffectivenessWidget: React.FC<EffectivenessWidgetProps> = ({
-  title = "What's Working",
+  title,
   refreshInterval = 60000,
   durationDays = 30,
 }) => {
+  const heading = title ?? message(MSG.GADGET_WHATS_WORKING);
   const [path, setPath] = useState("");
   const [rows, setRows] = useState<EffectivenessRow[]>([]);
   const [analyticsOk, setAnalyticsOk] = useState<boolean | null>(null);
@@ -204,7 +206,7 @@ export const EffectivenessWidget: React.FC<EffectivenessWidgetProps> = ({
 
   return (
     <div style={styles.widget} data-testid="effectiveness-widget">
-      <div style={styles.widgetTitle}>{title}</div>
+      <div style={styles.widgetTitle}>{heading}</div>
       {renderContent()}
     </div>
   );

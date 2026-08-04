@@ -27,6 +27,7 @@ import {
 } from "../api/dashboard/analyticsApi";
 import { formatApiError } from "../api/home/homeApi";
 import { styles } from "./dashboard.styles";
+import { message as i18nMessage, MSG } from "../i18n/message";
 
 export interface GoogleSetupWidgetProps {
   title?: string;
@@ -42,11 +43,12 @@ export interface GoogleSetupWidgetProps {
  * and site → GA profile mapping for Traffic / What's Working.
  */
 export const GoogleSetupWidget: React.FC<GoogleSetupWidgetProps> = ({
-  title = "Google Setup",
+  title,
   refreshInterval = 0,
   allowDelete = true,
   allowConfigure = true,
 }) => {
+  const heading = title ?? i18nMessage(MSG.GADGET_GOOGLE_SETUP);
   const [summary, setSummary] = useState<
     Awaited<ReturnType<typeof fetchGoogleSetupSummary>> | null
   >(null);
@@ -184,7 +186,7 @@ export const GoogleSetupWidget: React.FC<GoogleSetupWidgetProps> = ({
   if (isLoading) {
     return (
       <div style={styles.widget} data-testid="google-setup-widget">
-        <div style={styles.widgetTitle}>{title}</div>
+        <div style={styles.widgetTitle}>{heading}</div>
         <div style={styles.widgetLoading} data-testid="google-setup-loading">
           Loading Google setup data...
         </div>
@@ -219,7 +221,7 @@ export const GoogleSetupWidget: React.FC<GoogleSetupWidgetProps> = ({
 
   return (
     <div style={styles.widget} data-testid="google-setup-widget">
-      <div style={styles.widgetTitle}>{title}</div>
+      <div style={styles.widgetTitle}>{heading}</div>
       <div style={styles.widgetContent} data-testid="google-setup-content">
         {error ? (
           <div

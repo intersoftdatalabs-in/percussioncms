@@ -2,10 +2,11 @@
  * Copyright 1999-2026 Percussion Software, Inc.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { ActivityWidget } from "@/dashboard/ActivityWidget";
 import * as gadgetApi from "@/api/dashboard/gadgetApi";
+import { MSG } from "@/i18n/message";
 
 vi.mock("@/api/dashboard/gadgetApi", async (importOriginal) => {
   const actual =
@@ -23,6 +24,26 @@ describe("ActivityWidget", () => {
     vi.mocked(gadgetApi.resolveDefaultActivityPath)
       .mockReset()
       .mockResolvedValue("/Sites/Demo");
+    delete (window as { I18N?: unknown }).I18N;
+  });
+
+  afterEach(() => {
+    delete (window as { I18N?: unknown }).I18N;
+  });
+
+  it("localizes default title via I18N when key resolves (GH-1826)", async () => {
+    (window as unknown as { I18N: { message: (k: string) => string } }).I18N = {
+      message: (k: string) =>
+        k === MSG.GADGET_ACTIVITY ? "गतिविधि" : k,
+    };
+    vi.mocked(gadgetApi.fetchContentActivity).mockResolvedValue([]);
+    render(<ActivityWidget refreshInterval={0} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("activity-widget-empty")).toBeDefined();
+    });
+    const titleEl = screen.getByTestId("activity-widget").querySelector("div");
+    expect(titleEl?.textContent).toBe("गतिविधि");
+    expect(titleEl?.textContent).not.toBe("Activity");
   });
 
   it("shows empty state when no activity rows", async () => {

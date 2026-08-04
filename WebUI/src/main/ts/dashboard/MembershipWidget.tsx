@@ -23,6 +23,7 @@ import {
 } from "../api/dashboard/deliveryGadgetsApi";
 import { formatApiError } from "../api/home/homeApi";
 import { styles } from "./dashboard.styles";
+import { message, MSG } from "../i18n/message";
 
 export interface MembershipWidgetProps {
   title?: string;
@@ -36,9 +37,10 @@ export interface MembershipWidgetProps {
  * Invented {@code /services/membership/list} does not exist.</p>
  */
 export const MembershipWidget: React.FC<MembershipWidgetProps> = ({
-  title = "Membership",
+  title,
   refreshInterval = 60000,
 }) => {
+  const heading = title ?? message(MSG.GADGET_MEMBERSHIP);
   const [site, setSite] = useState<string | null>(null);
   const [users, setUsers] = useState<MembershipUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -75,7 +77,7 @@ export const MembershipWidget: React.FC<MembershipWidgetProps> = ({
   if (isLoading) {
     return (
       <div style={styles.widget} data-testid="membership-widget">
-        <div style={styles.widgetTitle}>{title}</div>
+        <div style={styles.widgetTitle}>{heading}</div>
         <div style={styles.widgetLoading}>Loading membership...</div>
       </div>
     );
@@ -83,7 +85,7 @@ export const MembershipWidget: React.FC<MembershipWidgetProps> = ({
   if (error) {
     return (
       <div style={styles.widget} data-testid="membership-widget">
-        <div style={styles.widgetTitle}>{title}</div>
+        <div style={styles.widgetTitle}>{heading}</div>
         <div style={styles.widgetError} data-testid="membership-error">
           {error}
         </div>
@@ -93,7 +95,7 @@ export const MembershipWidget: React.FC<MembershipWidgetProps> = ({
   if (!site) {
     return (
       <div style={styles.widget} data-testid="membership-widget">
-        <div style={styles.widgetTitle}>{title}</div>
+        <div style={styles.widgetTitle}>{heading}</div>
         <div style={styles.widgetContent}>No sites available.</div>
       </div>
     );
@@ -101,7 +103,7 @@ export const MembershipWidget: React.FC<MembershipWidgetProps> = ({
 
   return (
     <div style={styles.widget} data-testid="membership-widget">
-      <div style={styles.widgetTitle}>{title}</div>
+      <div style={styles.widgetTitle}>{heading}</div>
       <div style={styles.widgetContent} data-testid="membership-list">
         <div style={{ fontSize: "0.85em", color: "#666", marginBottom: "8px" }}>
           Site: {site} · {users.length} member{users.length === 1 ? "" : "s"}

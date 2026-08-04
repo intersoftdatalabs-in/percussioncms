@@ -2,10 +2,11 @@
  * Copyright 1999-2026 Percussion Software, Inc.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { WorkflowStatusWidget } from "@/dashboard/WorkflowStatusWidget";
 import * as gadgetApi from "@/api/dashboard/gadgetApi";
+import { MSG } from "@/i18n/message";
 
 vi.mock("@/api/dashboard/gadgetApi", async (importOriginal) => {
   const actual =
@@ -19,6 +20,33 @@ vi.mock("@/api/dashboard/gadgetApi", async (importOriginal) => {
 describe("WorkflowStatusWidget", () => {
   beforeEach(() => {
     vi.mocked(gadgetApi.fetchPagesByStatusSummary).mockReset();
+    delete (window as { I18N?: unknown }).I18N;
+  });
+
+  afterEach(() => {
+    delete (window as { I18N?: unknown }).I18N;
+  });
+
+  it("localizes default title via I18N when key resolves (GH-1831)", async () => {
+    (window as unknown as { I18N: { message: (k: string) => string } }).I18N = {
+      message: (k: string) =>
+        k === MSG.GADGET_PAGES_BY_STATUS ? "स्थिति के अनुसार पेज" : k,
+    };
+    vi.mocked(gadgetApi.fetchPagesByStatusSummary).mockResolvedValue({
+      path: "/Sites/Demo",
+      workflow: "Default Workflow",
+      buckets: [],
+      totalItems: 0,
+    });
+    render(<WorkflowStatusWidget refreshInterval={0} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("workflow-status-widget")).toBeDefined();
+    });
+    const titleEl = screen
+      .getByTestId("workflow-status-widget")
+      .querySelector("div");
+    expect(titleEl?.textContent).toBe("स्थिति के अनुसार पेज");
+    expect(titleEl?.textContent).not.toBe("Pages By Status");
   });
 
   it("shows empty state when no pages", async () => {
