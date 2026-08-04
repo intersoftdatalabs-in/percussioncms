@@ -2,10 +2,11 @@
  * Copyright 1999-2026 Percussion Software, Inc.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { CommentsWidget } from "@/dashboard/CommentsWidget";
 import * as api from "@/api/dashboard/deliveryGadgetsApi";
+import { MSG } from "@/i18n/message";
 
 vi.mock("@/api/dashboard/deliveryGadgetsApi", async (importOriginal) => {
   const actual =
@@ -16,6 +17,29 @@ vi.mock("@/api/dashboard/deliveryGadgetsApi", async (importOriginal) => {
 describe("CommentsWidget", () => {
   beforeEach(() => {
     vi.mocked(api.fetchDefaultPagesWithComments).mockReset();
+    delete (window as { I18N?: unknown }).I18N;
+  });
+
+  afterEach(() => {
+    delete (window as { I18N?: unknown }).I18N;
+  });
+
+  it("localizes default title via I18N when key resolves (GH-1835)", async () => {
+    (window as unknown as { I18N: { message: (k: string) => string } }).I18N = {
+      message: (k: string) =>
+        k === MSG.GADGET_COMMENTS ? "टिप्पणियाँ" : k,
+    };
+    vi.mocked(api.fetchDefaultPagesWithComments).mockResolvedValue({
+      site: "Demo",
+      pages: [],
+    });
+    render(<CommentsWidget refreshInterval={0} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("comments-widget")).toBeDefined();
+    });
+    const titleEl = screen.getByTestId("comments-widget").querySelector("div");
+    expect(titleEl?.textContent).toBe("टिप्पणियाँ");
+    expect(titleEl?.textContent).not.toBe("COMMENTS");
   });
 
   it("lists pages with comments", async () => {

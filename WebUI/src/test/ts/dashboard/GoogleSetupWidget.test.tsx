@@ -2,10 +2,11 @@
  * Copyright 1999-2026 Percussion Software, Inc.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { GoogleSetupWidget } from "@/dashboard/GoogleSetupWidget";
 import * as analyticsApi from "@/api/dashboard/analyticsApi";
+import { MSG } from "@/i18n/message";
 
 vi.mock("@/api/dashboard/analyticsApi", async (importOriginal) => {
   const actual =
@@ -26,6 +27,31 @@ describe("GoogleSetupWidget", () => {
     vi.mocked(analyticsApi.fetchAnalyticsProfiles).mockReset();
     vi.mocked(analyticsApi.testAnalyticsConnection).mockReset();
     vi.mocked(analyticsApi.saveAnalyticsSiteMappings).mockReset();
+    delete (window as { I18N?: unknown }).I18N;
+  });
+
+  afterEach(() => {
+    delete (window as { I18N?: unknown }).I18N;
+  });
+
+  it("localizes default title via I18N when key resolves (GH-1833)", async () => {
+    (window as unknown as { I18N: { message: (k: string) => string } }).I18N = {
+      message: (k: string) =>
+        k === MSG.GADGET_GOOGLE_SETUP ? "गूगल सेटअप" : k,
+    };
+    vi.mocked(analyticsApi.fetchGoogleSetupSummary).mockResolvedValue({
+      provider: { configured: false, userId: null, siteProfiles: [] },
+      sites: [],
+    });
+    render(<GoogleSetupWidget />);
+    await waitFor(() => {
+      expect(screen.getByTestId("google-setup-content")).toBeDefined();
+    });
+    const titleEl = screen
+      .getByTestId("google-setup-widget")
+      .querySelector("div");
+    expect(titleEl?.textContent).toBe("गूगल सेटअप");
+    expect(titleEl?.textContent).not.toBe("Google Setup");
   });
 
   it("shows not configured and configure form", async () => {
