@@ -88,6 +88,7 @@ Detailed audit notes (grep tables, historical faces dump pointers):
 | `ui/pubruntime/index.jsp`                  | Redirect → modern Runtime section | Done              | 301 → `/cm/app/?view=publish&section=runtime`   |
 | `dce_header.jsp` Runtime link              | Points to modern Runtime          | Done              | No deep faces URL                               |
 | Remaining `ui/pubruntime/*.jsp` deep pages | **Keep packaged** until #1818     | Deferred (RET-06) | Product **nav** callers: **zero** (audit #1817) |
+| `PSDemandPublishServlet` post-queue UI     | Rewired off `DemandPublish.jsp`   | Done (#1842)      | Redirect → modern shell status (see note below) |
 
 **Tracked files (2026-08-04)** — `WebUI/src/main/webapp/ui/pubruntime/` (13 JSPs):
 
@@ -95,7 +96,7 @@ Detailed audit notes (grep tables, historical faces dump pointers):
 |---------------------------------|-----------------------------|--------------------|----------------------------------------|-------------------------------|
 | `index.jsp`                     | entry                       | n/a (redirect)     | —                                      | **KEEP** redirect             |
 | `PubRuntimeAuthentication.jsp`  | include                     | none               | included by Runtime pages              | Delete with Runtime faces set |
-| `DemandPublish.jsp`             | **no** (plain JSP progress) | none               | **`PSDemandPublishServlet` forward**   | **KEEP / rewire first**       |
+| `DemandPublish.jsp`             | **no** (plain JSP progress) | none               | **Servlet rewired (#1842)**            | **Delete** (no live consumer) |
 | `ActiveJobStatus.jsp`           | yes                         | none               | —                                      | Delete                        |
 | `AllPubLogs.jsp`                | yes                         | none               | —                                      | Delete                        |
 | `DeleteSiteItemLogsWarning.jsp` | yes                         | none               | —                                      | Delete                        |
@@ -106,6 +107,17 @@ Detailed audit notes (grep tables, historical faces dump pointers):
 | `RuntimeEdition.jsp`            | yes                         | none               | —                                      | Delete                        |
 | `RuntimeEditionList.jsp`        | yes                         | none               | —                                      | Delete                        |
 | `SitePubLogs.jsp`               | yes                         | none               | —                                      | Delete                        |
+
+**RET-06 residual — DemandPublish servlet rewire (issue #1842, 2026-08-04):**
+`system/.../PSDemandPublishServlet` no longer forwards to
+`/ui/pubruntime/DemandPublish.jsp` after `queueDemandWork` succeeds.
+It now `sendRedirect`s to the modern Publishing shell peer
+`publishingShellHref({ section: 'status' })` →
+`{contextPath}/cm/app/?view=publish&section=status` (URL path separators only).
+Demand `requestid` is **not** appended: modern shell deep-link contract has no
+request-id filter. **`web.xml` mapping `/publisher/demandpublishing` is kept.**
+**JSP file delete still deferred** under #1818 — this rewire only removes the
+live server-side consumer so DemandPublish.jsp can be deleted safely later.
 
 **Sign-off**: Entry-path retirement Done; deep-page file deletion **explicitly deferred** to #1818 after UAT + non-nav rewires.  
 **Tracking issue**: [#1372](https://github.com/intersoftdatalabs-in/percussioncms/issues/1372) · audit [#1817](https://github.com/intersoftdatalabs-in/percussioncms/issues/1817)
@@ -194,13 +206,13 @@ Recoverable at: `git show aa46aa5f86^:WebUI/src/main/webapp/WEB-INF/publishing-f
 
 These are **not** product-nav, but are **product/engine** callers. Deleting the target pages without rewiring breaks demand publish / scheduled-edition log links / seed menus.
 
-|           Owner           |                                                     Code / data                                                     |                   Target                   |                                                        Recommended rewire                                                        |
-|---------------------------|---------------------------------------------------------------------------------------------------------------------|--------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
-| Demand publish servlet    | `system/business/.../PSDemandPublishServlet.java`                                                                   | Forward `/ui/pubruntime/DemandPublish.jsp` | Modern Runtime status (or thin non-JSF progress page kept under a non-faces path)                                                |
-| Demand servlet mapping    | `web.xml` url-pattern `/publisher/demandpublishing` (WebUI + cm + war)                                              | Same servlet                               | Keep mapping; change forward target only                                                                                         |
-| Publish Now action seed   | `modules/perc-distribution-tree/.../cmsTableData.xml` ACTIONID 217 `Publish_Now` URL `../ui/publishing/publish.jsp` | Demand publish JSP                         | Point at modern item publish-now / REST-backed UI (US6) or servlet path                                                          |
-| Publish Now FF seed       | `.../RxffTableData.xml`, `system/FastForward/Core/Config/Data/RxffTableData.xml`                                    | Same URL                                   | Same                                                                                                                             |
-| Scheduled edition log URL | `system/services/.../PSRunEdition.getPublishingLogURL()`                                                            | `/ui/pubruntime/JobPubLog.faces?…`         | Modern `view=publish&section=logs` (+ job id query if supported); **current `.faces` URL is already non-functional** without JSF |
+|           Owner           |                                                     Code / data                                                     |                                 Target                                  |                                                        Recommended rewire                                                        |
+|---------------------------|---------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
+| Demand publish servlet    | `system/business/.../PSDemandPublishServlet.java`                                                                   | ~~Forward `/ui/pubruntime/DemandPublish.jsp`~~ → redirect modern status | **Done (#1842):** `sendRedirect` → `{contextPath}/cm/app/?view=publish&section=status`                                           |
+| Demand servlet mapping    | `web.xml` url-pattern `/publisher/demandpublishing` (WebUI + cm + war)                                              | Same servlet                                                            | **Kept** (#1842); only post-queue UI target changed                                                                              |
+| Publish Now action seed   | `modules/perc-distribution-tree/.../cmsTableData.xml` ACTIONID 217 `Publish_Now` URL `../ui/publishing/publish.jsp` | Demand publish JSP                                                      | Point at modern item publish-now / REST-backed UI (US6) or servlet path                                                          |
+| Publish Now FF seed       | `.../RxffTableData.xml`, `system/FastForward/Core/Config/Data/RxffTableData.xml`                                    | Same URL                                                                | Same                                                                                                                             |
+| Scheduled edition log URL | `system/services/.../PSRunEdition.getPublishingLogURL()`                                                            | `/ui/pubruntime/JobPubLog.faces?…`                                      | Modern `view=publish&section=logs` (+ job id query if supported); **current `.faces` URL is already non-functional** without JSF |
 
 ### Installer / distribution peers (no delete in #1817)
 
@@ -277,7 +289,7 @@ These are **not** product-nav, but are **product/engine** callers. Deleting the 
 
 ## Deletion checklist — Child C Runtime (#1818)
 
-**Prereqs**: #1817 (Done) · prefer after or with #1819 · #1371 UAT or human ack · rewire `DemandPublish.jsp` servlet forward and `PSRunEdition` JobPubLog URL.
+**Prereqs**: #1817 (Done) · prefer after or with #1819 · #1371 UAT or human ack · **DemandPublish servlet rewire Done (#1842)** · `PSRunEdition` JobPubLog URL rewire (see #1844).
 
 ### Delete (Runtime-exclusive deep faces / chrome)
 
@@ -287,6 +299,7 @@ These are **not** product-nav, but are **product/engine** callers. Deleting the 
 - [ ] `ErrorMessage.jsp`
 - [ ] `ItemPubLog.jsp`
 - [ ] `JobPubLog.jsp` (after `PSRunEdition` rewire)
+- [ ] `DemandPublish.jsp` (**servlet rewired #1842** — safe to delete with Runtime set)
 - [ ] `NoSelectionWarning.jsp`
 - [ ] `RuntimeEdition.jsp`
 - [ ] `RuntimeEditionList.jsp`
@@ -296,7 +309,7 @@ These are **not** product-nav, but are **product/engine** callers. Deleting the 
 ### Keep
 
 - [ ] `index.jsp` (modern Runtime redirect)
-- [ ] `DemandPublish.jsp` until `PSDemandPublishServlet` rewired (or rewire + replace progress UI in same PR)
+- [x] `PSDemandPublishServlet` post-queue UI rewired (#1842) — keep `/publisher/demandpublishing` mapping
 
 ### Faces-config / packaging
 
@@ -308,7 +321,7 @@ These are **not** product-nav, but are **product/engine** callers. Deleting the 
 
 - [ ] Modern Runtime / Status / Logs sections load
 - [ ] `ui/pubruntime/index.jsp` still redirects
-- [ ] `/publisher/demandpublishing` still returns a usable progress/result UI
+- [ ] `/publisher/demandpublishing` still queues demand work and redirects to modern Status (#1842)
 - [ ] Scheduled edition completion links open modern logs (after rewire)
 
 ---
