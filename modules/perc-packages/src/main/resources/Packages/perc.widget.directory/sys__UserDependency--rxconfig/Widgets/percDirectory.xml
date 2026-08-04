@@ -212,6 +212,19 @@
        <div class="$!rootclass">
 #if( ! $perc.widgetContents.isEmpty() )
 ##
+## Schema.org ItemList JSON-LD (built while iterating $directoryResults)
+## Multi-instance de-dupe uses script id, same pattern as percPerson / percOrganization / percDepartment.
+##
+#set( $scriptSchemaId = "perc-directory-schema-" + $assetContentId )##
+#set( $directorySchema = $rx.string.getJSONObject() )##
+#set( $dummy = $directorySchema.put("@context", "http://schema.org") )##
+#set( $dummy = $directorySchema.put("@type", "ItemList") )##
+#if( "$!{directoryTitle}" != "" )##
+#set( $dummy = $directorySchema.put("name", $directoryTitle) )##
+#end##
+#set( $itemListElement = $rx.string.getJSONArray() )##
+#set( $schemaItemPosition = 0 )##
+##
 ## Script to Initialize perc-directory.js
 ##
 #if( $orgSearchId == -1 )##
@@ -475,6 +488,58 @@
 ##
 #set( $personCaption = $person.getProperty('personCaption').String )##
 ##
+## Schema.org Person entry for this directory result (ItemList element)
+##
+#set( $personSchema = $rx.string.getJSONObject() )##
+#set( $dummy = $personSchema.put("@type", "Person") )##
+#set( $personFullName = "" )##
+#if( "$!{personNamePrefix}" != "" && "$!{personNamePrefix}" != "#" )##
+#set( $personFullName = $personFullName + $personNamePrefix + " " )##
+#set( $dummy = $personSchema.put("honorificPrefix", $personNamePrefix) )##
+#end##
+#if( "$!{personFirstName}" != "" && "$!{personFirstName}" != "#" )##
+#set( $personFullName = $personFullName + $personFirstName + " " )##
+#set( $dummy = $personSchema.put("givenName", $personFirstName) )##
+#end##
+#if( "$!{personLastName}" != "" && "$!{personLastName}" != "#" )##
+#set( $personFullName = $personFullName + $personLastName )##
+#set( $dummy = $personSchema.put("familyName", $personLastName) )##
+#end##
+#set( $personFullName = $personFullName.trim() )##
+#if( "$!{personFullName}" != "" )##
+#set( $dummy = $personSchema.put("name", $personFullName) )##
+#end##
+#if( "$!{dptName}" != "" && "$!{dptName}" != "#" )##
+#set( $worksForOrg = $rx.string.getJSONObject() )##
+#set( $dummy = $worksForOrg.put("@type", "Organization") )##
+#if( "$!{orgName}" != "" && "$!{orgName}" != "#" )##
+#set( $dummy = $worksForOrg.put("name", $orgName) )##
+#end##
+#set( $deptOrg = $rx.string.getJSONObject() )##
+#set( $dummy = $deptOrg.put("@type", "Organization") )##
+#set( $dummy = $deptOrg.put("name", $dptName) )##
+#set( $dummy = $worksForOrg.put("department", $deptOrg) )##
+#set( $dummy = $personSchema.put("worksFor", $worksForOrg) )##
+#elseif( "$!{orgName}" != "" && "$!{orgName}" != "#" )##
+#set( $dummy = $personSchema.put("worksFor", $orgName) )##
+#end##
+#if( "$!{personTitle}" != "" && "$!{personTitle}" != "#" )##
+#set( $dummy = $personSchema.put("jobTitle", $personTitle) )##
+#end##
+#if( "$!{personPhone}" != "" && "$!{personPhone}" != "#" )##
+#set( $dummy = $personSchema.put("telephone", $personPhone) )##
+#end##
+#if( "$!{personEmail}" != "" && "$!{personEmail}" != "#" )##
+#set( $personMailTo = "mailto:" + $personEmail )##
+#set( $dummy = $personSchema.put("email", $personMailTo) )##
+#end##
+#set( $schemaItemPosition = $schemaItemPosition + 1 )##
+#set( $listItem = $rx.string.getJSONObject() )##
+#set( $dummy = $listItem.put("@type", "ListItem") )##
+#set( $dummy = $listItem.put("position", $schemaItemPosition) )##
+#set( $dummy = $listItem.put("item", $personSchema) )##
+#set( $dummy = $itemListElement.put($listItem) )##
+##
 ##
 ## HTML for disply
 ##
@@ -673,6 +738,17 @@
 #end## --( $person in $directoryResults )--
 ##
 #end## --( $directoryResults.size() > 0 )--
+##
+## Emit Schema.org ItemList JSON-LD into page head (once per widget instance)
+##
+#if( $itemListElement.length() > 0 )##
+#set( $dummy = $directorySchema.put("numberOfItems", $itemListElement.length()) )##
+#set( $dummy = $directorySchema.put("itemListElement", $itemListElement) )##
+#set( $addlHead = $perc.page.getAdditionalHeadContent() )##
+#if( !($addlHead.contains($scriptSchemaId)) )##
+$perc.page.setAdditionalHeadContent("$!{addlHead}<script async id='$!{scriptSchemaId}' type='application/ld+json'>$!{directorySchema}</script>")##
+#end##
+#end## --( $itemListElement.length() > 0 )--
 ##
 #if( $directoryLayoutFormat == "table" )##
                     </tbody>
