@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,22 @@
 
 package com.percussion.rest.contenttypes;
 
+import com.percussion.rest.Guid;
 import java.net.URI;
 import java.util.List;
 
+/** Standalone test adaptor with populated list items for #1693 serialization coverage. */
 public class ContentTypesTestAdaptor implements IContentTypesAdaptor {
+
+  private static ContentType samplePage() {
+    ContentType ct = new ContentType();
+    ct.setName("percPage");
+    ct.setLabel("Page");
+    ct.setDescription("Page content type");
+    ct.setGuid(new Guid("0-2-311"));
+    ct.setHideFromMenu(false);
+    return ct;
+  }
 
   /**
    * List all content types available to the System.
@@ -30,7 +42,7 @@ public class ContentTypesTestAdaptor implements IContentTypesAdaptor {
    */
   @Override
   public List<ContentType> listContentTypes(URI baseUri) {
-    return null;
+    return List.of(samplePage());
   }
 
   /**
@@ -42,7 +54,7 @@ public class ContentTypesTestAdaptor implements IContentTypesAdaptor {
    */
   @Override
   public List<ContentType> listContentTypes(URI baseUri, int siteId) {
-    return null;
+    return List.of(samplePage());
   }
 
   /**
@@ -54,7 +66,7 @@ public class ContentTypesTestAdaptor implements IContentTypesAdaptor {
    */
   @Override
   public List<ContentType> listContentTypesByFilter(URI baseUri, ContentTypeFilter filter) {
-    return null;
+    return List.of(samplePage());
   }
 
   @Override

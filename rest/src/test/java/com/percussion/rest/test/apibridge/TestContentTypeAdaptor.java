@@ -19,6 +19,7 @@
 
 package com.percussion.rest.test.apibridge;
 
+import com.percussion.rest.Guid;
 import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeDetail;
 import com.percussion.rest.contenttypes.ContentTypeFilter;
@@ -27,12 +28,22 @@ import java.net.URI;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
-/** Test adaptor for ContentType API bridge. */
+/** Test adaptor for ContentType API bridge (Spring MainTest companion stub). */
 @Component
 public class TestContentTypeAdaptor implements IContentTypesAdaptor {
 
   public TestContentTypeAdaptor() {
     // Default constructor
+  }
+
+  private static ContentType samplePage() {
+    ContentType ct = new ContentType();
+    ct.setName("percPage");
+    ct.setLabel("Page");
+    ct.setDescription("Page content type");
+    ct.setGuid(new Guid("0-2-311"));
+    ct.setHideFromMenu(false);
+    return ct;
   }
 
   /**
@@ -43,7 +54,7 @@ public class TestContentTypeAdaptor implements IContentTypesAdaptor {
    */
   @Override
   public List<ContentType> listContentTypes(URI baseUri) {
-    return null;
+    return List.of(samplePage());
   }
 
   /**
@@ -55,7 +66,7 @@ public class TestContentTypeAdaptor implements IContentTypesAdaptor {
    */
   @Override
   public List<ContentType> listContentTypes(URI baseUri, int siteId) {
-    return null;
+    return List.of(samplePage());
   }
 
   /**
@@ -67,7 +78,7 @@ public class TestContentTypeAdaptor implements IContentTypesAdaptor {
    */
   @Override
   public List<ContentType> listContentTypesByFilter(URI baseUri, ContentTypeFilter filter) {
-    return null;
+    return List.of(samplePage());
   }
 
   @Override
