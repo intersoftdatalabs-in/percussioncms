@@ -168,10 +168,21 @@ describe("renderGalleryEntry (name sink)", () => {
     $.Percussion.cssGalleryView(controller);
     fireGetThemeList([{ name: malicious, thumbUrl: "/img/t.png" }]);
 
+    // Secure render always creates exactly one thumbnail <img> from thumbUrl
+    // via the jQuery DOM API. Under jQuery 4 that element is present; the
+    // theme *name* must never parse as HTML or add an onerror handler img.
     const imgs = document.querySelectorAll(
       "#perc-css-gallery #perc-themes-table img",
     );
-    expect(imgs.length, "no <img> from theme name").toBe(0);
+    expect(imgs.length, "only the thumbUrl thumbnail <img>").toBe(1);
+    expect(imgs[0].getAttribute("src")).toBe("/img/t.png");
+    expect(imgs[0].hasAttribute("onerror")).toBe(false);
+    expect(imgs[0].getAttribute("onerror")).toBeNull();
+
+    const names = document.querySelectorAll(".perc-css-gallery-item-name");
+    expect(names.length).toBe(1);
+    expect(names[0].textContent).toBe(malicious);
+    expect(names[0].querySelector("img")).toBeNull();
     expect(window.__pwned).toBeUndefined();
   });
 

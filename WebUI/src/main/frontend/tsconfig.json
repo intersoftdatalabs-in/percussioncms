@@ -15,15 +15,14 @@
     "declaration": false,
     "outDir": "../../../target/generated-webui/cm/modern",
     "rootDir": "../ts",
-    "baseUrl": ".",
     "paths": {
       "@/*": ["../ts/*"],
-      "react": ["node_modules/@types/react"],
-      "react-dom": ["node_modules/@types/react-dom"],
-      "react/jsx-runtime": ["node_modules/@types/react/jsx-runtime"],
-      "react-dom/*": ["node_modules/@types/react-dom/*"],
-      "*": ["node_modules/*"],
-      "react-router": ["node_modules/react-router/dist/production/index.d.ts"]
+      "react": ["./node_modules/@types/react"],
+      "react-dom": ["./node_modules/@types/react-dom"],
+      "react/jsx-runtime": ["./node_modules/@types/react/jsx-runtime"],
+      "react-dom/*": ["./node_modules/@types/react-dom/*"],
+      "*": ["./node_modules/*"],
+      "react-router": ["./node_modules/react-router/dist/production/index.d.ts"]
     },
     "typeRoots": ["./node_modules/@types"]
   },
