@@ -1,0 +1,18 @@
+<!--
+  Golden snapshot from Betwixt PSXmlSerializationHelper.writeToXml(SampleKeyword pilot).
+  Captured for issue #1822 / epic #505. Betwixt may also emit graph-identity id="…" attributes
+  on complex elements; tests strip those for logical tree compare (property values live in elements).
+-->
+<sample-keyword>
+  <choices>
+    <sample-choice>
+      <id>2</id>
+      <label>ACT</label>
+      <sequence>1</sequence>
+      <value>ACT</value>
+    </sample-choice>
+  </choices>
+  <id>1</id>
+  <label>Time_Zones</label>
+  <value>401</value>
+</sample-keyword>
