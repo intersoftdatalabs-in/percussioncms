@@ -192,6 +192,15 @@ public final class PSPathInjectionGuard {
   /**
    * Convenience overload that accepts the base directory as a String. Equivalent to {@code
    * requireUnderBase(new File(baseDir), userInput)}.
+   *
+   * @param baseDir the base directory that the resolved path must be contained within; see {@link
+   *     #requireUnderBase(File, String)} for the full contract.
+   * @param userInput a user-supplied path or filename; see {@link #requireUnderBase(File, String)}
+   *     for the full contract.
+   * @return a {@link File} whose canonical path is contained within {@code baseDir}'s canonical
+   *     path.
+   * @throws IllegalArgumentException if the resolved path escapes {@code baseDir} (path-traversal
+   *     attempt), if either argument is null, or if the canonical-path computation fails.
    */
   public static File requireUnderBase(String baseDir, String userInput) {
     return requireUnderBase(new File(baseDir), userInput);
@@ -200,6 +209,15 @@ public final class PSPathInjectionGuard {
   /**
    * Convenience overload that builds a {@link Path} from the result of {@link
    * #requireUnderBase(File, String)}.
+   *
+   * @param baseDir the base directory that the resolved path must be contained within; see {@link
+   *     #requireUnderBase(File, String)} for the full contract.
+   * @param userInput a user-supplied path or filename; see {@link #requireUnderBase(File, String)}
+   *     for the full contract.
+   * @return a {@link Path} whose canonical form is contained within {@code baseDir}'s canonical
+   *     path.
+   * @throws IllegalArgumentException if the resolved path escapes {@code baseDir} (path-traversal
+   *     attempt), if either argument is null, or if the canonical-path computation fails.
    */
   public static Path requireUnderBasePath(File baseDir, String userInput) {
     return Paths.get(requireUnderBase(baseDir, userInput).toURI());
@@ -223,6 +241,10 @@ public final class PSPathInjectionGuard {
    * path separators) is a traversal marker. Callers that need segment-aware traversal detection
    * should use {@link #requireSafeFileName} (single-segment) or {@link #requireUnderBase}
    * (multi-segment with canonical-path containment check).
+   *
+   * @param value the value to check, may be {@code null}.
+   * @return {@code true} if the value is non-empty and contains a NUL byte, backslash, or forward
+   *     slash; {@code false} otherwise (including when {@code value} is {@code null} or empty).
    */
   public static boolean containsForbiddenCharacters(String value) {
     if (StringUtils.isEmpty(value)) {

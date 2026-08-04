@@ -29,6 +29,10 @@ public final class URLGlobMatcher {
   /**
    * Builds a comparable absolute URL string: {@code scheme://host[:port]/path[?query]} with scheme
    * and host lowercased. Port is omitted when not explicit ({@code -1}).
+   *
+   * @param url the URL to normalize, must not be {@code null}.
+   * @return the normalized URL string, never {@code null}.
+   * @throws IllegalArgumentException if {@code url} is {@code null}.
    */
   public static String normalize(URL url) {
     if (url == null) {
@@ -59,6 +63,12 @@ public final class URLGlobMatcher {
    * Returns true if {@code normalizedUrl} matches the glob {@code pattern} ({@code *} matches any
    * sequence including empty). Matching is case-sensitive on the already-normalized string
    * (scheme/host lowercased by {@link #normalize(URL)}).
+   *
+   * @param pattern the glob pattern to test against, may be {@code null} or empty. A blank pattern
+   *     or a single {@code *} matches nothing.
+   * @param normalizedUrl the normalized URL string (output of {@link #normalize(URL)}) to test.
+   * @return {@code true} if the normalized URL matches the glob pattern; {@code false} otherwise
+   *     (including when either argument is {@code null} or when the pattern is blank).
    */
   public static boolean matches(String pattern, String normalizedUrl) {
     if (pattern == null || normalizedUrl == null) {
