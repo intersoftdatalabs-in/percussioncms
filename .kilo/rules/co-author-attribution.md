@@ -8,3 +8,7 @@
 
 ```
 
+\* In addition, every agent-authored PR (and residual issue) \*MUST\* carry GitHub
+  labels for daily status reporting: `operator:kilo` + `model:<session model id>`.
+  See `.kilo/rules/operator-pr-labels.md` (same scheme as Grok `night-issue-prs`).
+
