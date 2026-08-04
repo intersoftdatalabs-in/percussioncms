@@ -36,7 +36,6 @@ import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.PSSiteManagerException;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
-import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -216,18 +215,51 @@ public class PSRunEdition implements IPSTask, IPSPublishingJobStatusCallback
    }
    
    /**
-    * @return the URL for viewing the publishing log.
+    * @return the absolute URL for viewing publishing logs in the modern shell.
     */
    private String getPublishingLogURL()
    {
       String protocol = "http";
       if (PSServer.getListenerPort() == PSServer.getSslListenerPort())
          protocol = "https";
-      String url = protocol + "://" + PSServer.getFullyQualifiedHostName() + ":"
-            + PSServer.getListenerPort() + PSServer.getRequestRoot()
-            + "/ui/pubruntime/JobPubLog.faces?"
-            + IPSHtmlParameters.PUBLISH_JOB_ID + "=" + m_jobId;
-      return url;
+      return buildPublishingLogURL(
+            protocol,
+            PSServer.getFullyQualifiedHostName(),
+            PSServer.getListenerPort(),
+            PSServer.getRequestRoot());
+   }
+
+   /**
+    * Builds the absolute publishing-logs deep link used in task notification templates
+    * ({@code $sys.editionLogUrl}).
+    * <p>
+    * Targets the modern Publishing shell — peer WebUI {@code publishingShellHref({ section:
+    * 'logs' })} → {@code /cm/app/?view=publish&section=logs}. Host/port/protocol/request-root
+    * assembly uses URL path separators only ({@code /}); never OS file separators.
+    * <p>
+    * <b>Job id query:</b> the modern shell deep-link contract supports {@code section}, optional
+    * {@code siteId}/{@code serverId}, but not a job-id filter. The legacy
+    * {@code JobPubLog.faces?sys_publishingJobId=} query is intentionally omitted (faces stack
+    * already removed). Callers land on the Logs section; job-level drill-down remains a future
+    * shell enhancement.
+    *
+    * @param protocol {@code http} or {@code https}, never {@code null} or blank
+    * @param host fully qualified host name, never {@code null} or blank
+    * @param port listener port
+    * @param requestRoot CMS request root (e.g. {@code /Rhythmyx} or empty); may be {@code null}
+    * @return absolute URL, never {@code null}
+    */
+   static String buildPublishingLogURL(
+         String protocol, String host, int port, String requestRoot)
+   {
+      if (StringUtils.isBlank(protocol))
+         throw new IllegalArgumentException("protocol may not be null or blank");
+      if (StringUtils.isBlank(host))
+         throw new IllegalArgumentException("host may not be null or blank");
+      // URL path elements always use '/'; do not use File.separator
+      String root = requestRoot == null ? "" : requestRoot;
+      return protocol + "://" + host + ":" + port + root
+            + "/cm/app/?view=publish&section=logs";
    }
    
    /**
