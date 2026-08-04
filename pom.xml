@@ -337,7 +337,7 @@
                 <artifactId>Java-WebSocket</artifactId>
                 <version>${java.websocket.version}</version>
             </dependency>
-            <!-- WebUI → artemis-server transitive; security floor for Dependabot (#1676) -->
+            <!-- WebUI → artemis-server → commons-configuration2; Dependabot floor ≥2.15.0 (issue #1676) -->
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-configuration2</artifactId>
