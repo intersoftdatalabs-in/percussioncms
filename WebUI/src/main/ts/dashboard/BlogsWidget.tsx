@@ -35,6 +35,7 @@ import {
   titleToPageFileName,
   toRepositoryCmsPath,
 } from "../home/create/filenameUtils";
+import { message, MSG } from "../i18n/message";
 
 export interface BlogsWidgetProps {
   title?: string;
@@ -48,9 +49,10 @@ export interface BlogsWidgetProps {
  * the <strong>blog section itself</strong> (classic Blogs gadget responsibility).</p>
  */
 export const BlogsWidget: React.FC<BlogsWidgetProps> = ({
-  title = "Blogs",
+  title,
   refreshInterval = 60000,
 }) => {
+  const heading = title ?? message(MSG.GADGET_BLOGS);
   const [blogs, setBlogs] = useState<BlogSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -96,7 +98,7 @@ export const BlogsWidget: React.FC<BlogsWidgetProps> = ({
           gap: 8,
         }}
       >
-        <span>{title}</span>
+        <span>{heading}</span>
         <button
           type="button"
           data-testid="blogs-widget-create-section"

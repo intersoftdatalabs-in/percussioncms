@@ -23,6 +23,7 @@ import {
 } from "../api/dashboard/gadgetApi";
 import { formatApiError } from "../api/home/homeApi";
 import { styles } from "./dashboard.styles";
+import { message, MSG } from "../i18n/message";
 
 export interface ProcessMonitorWidgetProps {
   title?: string;
@@ -36,9 +37,10 @@ export interface ProcessMonitorWidgetProps {
  * (classic {@code PROCESS_STATUS_ALL}). Not {@code /services/monitor/all}.</p>
  */
 export const ProcessMonitorWidget: React.FC<ProcessMonitorWidgetProps> = ({
-  title = "Process Monitor",
+  title,
   refreshInterval = 30000,
 }) => {
+  const heading = title ?? message(MSG.GADGET_PROCESS_MONITOR);
   const [monitors, setMonitors] = useState<ProcessMonitorRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -152,7 +154,7 @@ export const ProcessMonitorWidget: React.FC<ProcessMonitorWidgetProps> = ({
 
   return (
     <div style={styles.widget} data-testid="process-monitor-widget">
-      <div style={styles.widgetTitle}>{title}</div>
+      <div style={styles.widgetTitle}>{heading}</div>
       {renderContent()}
     </div>
   );

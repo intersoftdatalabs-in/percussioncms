@@ -10,6 +10,7 @@ import {
 } from "../api/dashboard/shellGadgetsApi";
 import { formatApiError } from "../api/home/homeApi";
 import { styles } from "./dashboard.styles";
+import { message, MSG } from "../i18n/message";
 
 export interface SitewideFrameworkWidgetProps {
   title?: string;
@@ -21,9 +22,10 @@ export interface SitewideFrameworkWidgetProps {
  * {@code GET /services/pagemanagement/theme/summary/all}
  */
 export const SitewideFrameworkWidget: React.FC<SitewideFrameworkWidgetProps> = ({
-  title = "Sitewide Framework",
+  title,
   refreshInterval = 0,
 }) => {
+  const heading = title ?? message(MSG.GADGET_SITEWIDE_FRAMEWORK);
   const [themes, setThemes] = useState<ThemeSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -52,7 +54,7 @@ export const SitewideFrameworkWidget: React.FC<SitewideFrameworkWidgetProps> = (
   if (isLoading) {
     return (
       <div style={styles.widget} data-testid="sitewide-framework-widget">
-        <div style={styles.widgetTitle}>{title}</div>
+        <div style={styles.widgetTitle}>{heading}</div>
         <div style={styles.widgetLoading}>Loading themes…</div>
       </div>
     );
@@ -60,7 +62,7 @@ export const SitewideFrameworkWidget: React.FC<SitewideFrameworkWidgetProps> = (
   if (error) {
     return (
       <div style={styles.widget} data-testid="sitewide-framework-widget">
-        <div style={styles.widgetTitle}>{title}</div>
+        <div style={styles.widgetTitle}>{heading}</div>
         <div style={styles.widgetError}>{error}</div>
       </div>
     );
@@ -68,7 +70,7 @@ export const SitewideFrameworkWidget: React.FC<SitewideFrameworkWidgetProps> = (
 
   return (
     <div style={styles.widget} data-testid="sitewide-framework-widget">
-      <div style={styles.widgetTitle}>{title}</div>
+      <div style={styles.widgetTitle}>{heading}</div>
       <div style={styles.widgetContent} data-testid="sitewide-framework-list">
         <p style={{ fontSize: "0.85em", color: "#666", marginTop: 0 }}>
           Installed themes ({themes.length}). Open Design to edit CSS / regions.

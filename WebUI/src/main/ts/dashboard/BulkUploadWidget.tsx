@@ -11,6 +11,7 @@ import {
 } from "../api/dashboard/shellGadgetsApi";
 import { formatApiError } from "../api/home/homeApi";
 import { styles } from "./dashboard.styles";
+import { message, MSG } from "../i18n/message";
 
 export interface BulkUploadWidgetProps {
   title?: string;
@@ -22,8 +23,9 @@ export interface BulkUploadWidgetProps {
  * Uses {@code /cm/uploadAssetFile} (PSAssetUploadServlet).
  */
 export const BulkUploadWidget: React.FC<BulkUploadWidgetProps> = ({
-  title = "Bulk Upload",
+  title,
 }) => {
+  const heading = title ?? message(MSG.GADGET_BULK_UPLOAD);
   const [folder, setFolder] = useState("/Assets/uploads/");
   const [assetType, setAssetType] = useState<UploadAssetType>("file");
   const [approve, setApprove] = useState(false);
@@ -55,7 +57,7 @@ export const BulkUploadWidget: React.FC<BulkUploadWidgetProps> = ({
 
   return (
     <div style={styles.widget} data-testid="bulk-upload-widget">
-      <div style={styles.widgetTitle}>{title}</div>
+      <div style={styles.widgetTitle}>{heading}</div>
       <div style={styles.widgetContent}>
         <p style={{ fontSize: "0.85em", color: "#666", marginTop: 0 }}>
           Upload files into the Assets tree (classic bulk upload servlet).

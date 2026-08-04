@@ -35,6 +35,7 @@ import {
 } from "../api/dashboard/gadgetApi";
 import { formatApiError } from "../api/home/homeApi";
 import { styles } from "./dashboard.styles";
+import { message, MSG } from "../i18n/message";
 
 export interface TrafficWidgetProps {
   title?: string;
@@ -51,11 +52,12 @@ export interface TrafficWidgetProps {
  * profile mapping (see Google Setup).</p>
  */
 export const TrafficWidget: React.FC<TrafficWidgetProps> = ({
-  title = "Traffic",
+  title,
   refreshInterval = 300000,
   daysRange = 30,
   granularity = "DAY",
 }) => {
+  const heading = title ?? message(MSG.GADGET_TRAFFIC);
   const [result, setResult] = useState<ContentTrafficResult | null>(null);
   const [analyticsOk, setAnalyticsOk] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -236,7 +238,7 @@ export const TrafficWidget: React.FC<TrafficWidgetProps> = ({
 
   return (
     <div style={styles.widget} data-testid="traffic-widget">
-      <div style={styles.widgetTitle}>{title}</div>
+      <div style={styles.widgetTitle}>{heading}</div>
       {renderContent()}
     </div>
   );

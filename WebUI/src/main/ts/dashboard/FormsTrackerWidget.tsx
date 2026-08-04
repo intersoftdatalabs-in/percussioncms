@@ -24,6 +24,7 @@ import {
 } from "../api/dashboard/gadgetApi";
 import { formatApiError } from "../api/home/homeApi";
 import { styles } from "./dashboard.styles";
+import { message, MSG } from "../i18n/message";
 
 export interface FormsTrackerWidgetProps {
   title?: string;
@@ -39,10 +40,11 @@ export interface FormsTrackerWidgetProps {
  * Invented path {@code /services/forms/tracker} does not exist.</p>
  */
 export const FormsTrackerWidget: React.FC<FormsTrackerWidgetProps> = ({
-  title = "Form Tracker",
+  title,
   site: siteProp,
   refreshInterval = 60000,
 }) => {
+  const heading = title ?? message(MSG.GADGET_FORM_TRACKER);
   const [forms, setForms] = useState<FormSummaryRow[]>([]);
   const [site, setSite] = useState<string | null>(siteProp ?? null);
   const [isLoading, setIsLoading] = useState(true);
@@ -148,7 +150,7 @@ export const FormsTrackerWidget: React.FC<FormsTrackerWidgetProps> = ({
 
   return (
     <div style={styles.widget} data-testid="forms-tracker-widget">
-      <div style={styles.widgetTitle}>{title}</div>
+      <div style={styles.widgetTitle}>{heading}</div>
       {renderContent()}
     </div>
   );

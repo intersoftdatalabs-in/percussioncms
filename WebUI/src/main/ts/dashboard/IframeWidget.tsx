@@ -4,6 +4,7 @@
 
 import React, { useState } from "react";
 import { styles } from "./dashboard.styles";
+import { message, MSG } from "../i18n/message";
 
 const STORAGE_KEY = "perc.home.gadget.iframe.src";
 
@@ -57,9 +58,10 @@ function readStoredUrl(): string {
  * Only http(s) URLs are accepted for the iframe {@code src} attribute.
  */
 export const IframeWidget: React.FC<IframeWidgetProps> = ({
-  title = "Iframe",
+  title,
   src: srcProp,
 }) => {
+  const heading = title ?? message(MSG.GADGET_EXTERNAL_CONTENT);
   const initialSafe =
     sanitizeEmbedUrl(srcProp ?? "") || readStoredUrl() || "";
   const [draft, setDraft] = useState(initialSafe);
@@ -93,7 +95,7 @@ export const IframeWidget: React.FC<IframeWidgetProps> = ({
       data-testid="iframe-widget"
       data-mkd-lang-ignore="1"
     >
-      <div style={styles.widgetTitle}>{title}</div>
+      <div style={styles.widgetTitle}>{heading}</div>
       <div style={styles.widgetContent}>
         <div
           style={{
@@ -136,7 +138,9 @@ export const IframeWidget: React.FC<IframeWidgetProps> = ({
         ) : null}
         {active ? (
           <iframe
-            title={title}
+            // Same string as widget heading: prop title or MSG.GADGET_EXTERNAL_CONTENT fallback
+            // (intentional a11y — avoids empty/undefined title when prop omitted).
+            title={heading}
             src={active}
             // Restrictive sandbox: no same-origin + scripts combo.
             sandbox="allow-scripts allow-popups allow-forms"

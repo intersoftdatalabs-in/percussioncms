@@ -23,6 +23,7 @@ import {
 } from "../api/dashboard/gadgetApi";
 import { formatApiError } from "../api/home/homeApi";
 import { styles } from "./dashboard.styles";
+import { message, MSG } from "../i18n/message";
 
 export interface GlobalVariablesWidgetProps {
   title?: string;
@@ -36,9 +37,10 @@ export interface GlobalVariablesWidgetProps {
  * Invented path {@code /services/admin/variables} does not exist.</p>
  */
 export const GlobalVariablesWidget: React.FC<GlobalVariablesWidgetProps> = ({
-  title = "Global Variables",
+  title,
   refreshInterval = 0,
 }) => {
+  const heading = title ?? message(MSG.GADGET_GLOBAL_VARIABLES);
   const [variables, setVariables] = useState<GlobalVariableEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -71,7 +73,7 @@ export const GlobalVariablesWidget: React.FC<GlobalVariablesWidgetProps> = ({
   if (isLoading) {
     return (
       <div style={styles.widget} data-testid="global-variables-widget">
-        <div style={styles.widgetTitle}>{title}</div>
+        <div style={styles.widgetTitle}>{heading}</div>
         <div style={styles.widgetLoading} data-testid="global-variables-loading">
           Loading variables...
         </div>
@@ -82,7 +84,7 @@ export const GlobalVariablesWidget: React.FC<GlobalVariablesWidgetProps> = ({
   if (error) {
     return (
       <div style={styles.widget} data-testid="global-variables-widget">
-        <div style={styles.widgetTitle}>{title}</div>
+        <div style={styles.widgetTitle}>{heading}</div>
         <div style={styles.widgetError} data-testid="global-variables-error">
           {error}
         </div>
@@ -93,7 +95,7 @@ export const GlobalVariablesWidget: React.FC<GlobalVariablesWidgetProps> = ({
   if (variables.length === 0) {
     return (
       <div style={styles.widget} data-testid="global-variables-widget">
-        <div style={styles.widgetTitle}>{title}</div>
+        <div style={styles.widgetTitle}>{heading}</div>
         <div style={styles.widgetContent} data-testid="global-variables-empty">
           No variables available
         </div>
@@ -103,7 +105,7 @@ export const GlobalVariablesWidget: React.FC<GlobalVariablesWidgetProps> = ({
 
   return (
     <div style={styles.widget} data-testid="global-variables-widget">
-      <div style={styles.widgetTitle}>{title}</div>
+      <div style={styles.widgetTitle}>{heading}</div>
       <div style={styles.widgetContent} data-testid="global-variables-list">
         <div style={{ fontSize: "0.85em", fontWeight: 600, marginBottom: "8px" }}>
           Total Variables: <span style={{ color: "#007ea8" }}>{variables.length}</span>

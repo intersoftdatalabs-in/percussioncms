@@ -10,6 +10,7 @@ import {
 } from "../api/dashboard/shellGadgetsApi";
 import { formatApiError } from "../api/home/homeApi";
 import { styles } from "./dashboard.styles";
+import { message, MSG } from "../i18n/message";
 
 export interface ReportsWidgetProps {
   title?: string;
@@ -21,9 +22,10 @@ export interface ReportsWidgetProps {
  * (SEO issues, forms, comments, activity) instead of a non-existent list API.
  */
 export const ReportsWidget: React.FC<ReportsWidgetProps> = ({
-  title = "Reports",
+  title,
   refreshInterval = 120000,
 }) => {
+  const heading = title ?? message(MSG.GADGET_REPORTS);
   const [snap, setSnap] = useState<ReportsHubSnapshot | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -52,7 +54,7 @@ export const ReportsWidget: React.FC<ReportsWidgetProps> = ({
   if (isLoading) {
     return (
       <div style={styles.widget} data-testid="reports-widget">
-        <div style={styles.widgetTitle}>{title}</div>
+        <div style={styles.widgetTitle}>{heading}</div>
         <div style={styles.widgetLoading}>Loading reports…</div>
       </div>
     );
@@ -60,7 +62,7 @@ export const ReportsWidget: React.FC<ReportsWidgetProps> = ({
   if (error) {
     return (
       <div style={styles.widget} data-testid="reports-widget">
-        <div style={styles.widgetTitle}>{title}</div>
+        <div style={styles.widgetTitle}>{heading}</div>
         <div style={styles.widgetError}>{error}</div>
       </div>
     );
@@ -68,7 +70,7 @@ export const ReportsWidget: React.FC<ReportsWidgetProps> = ({
   if (!snap) {
     return (
       <div style={styles.widget} data-testid="reports-widget">
-        <div style={styles.widgetTitle}>{title}</div>
+        <div style={styles.widgetTitle}>{heading}</div>
         <div style={styles.widgetContent}>No report data.</div>
       </div>
     );
@@ -85,7 +87,7 @@ export const ReportsWidget: React.FC<ReportsWidgetProps> = ({
 
   return (
     <div style={styles.widget} data-testid="reports-widget">
-      <div style={styles.widgetTitle}>{title}</div>
+      <div style={styles.widgetTitle}>{heading}</div>
       <div style={styles.widgetContent} data-testid="reports-hub">
         <p style={{ fontSize: "0.85em", color: "#666", marginTop: 0 }}>
           Snapshot for {snap.path}

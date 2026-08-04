@@ -2,10 +2,11 @@
  * Copyright 1999-2026 Percussion Software, Inc.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { BlogsWidget } from "@/dashboard/BlogsWidget";
 import * as homeApi from "@/api/home/homeApi";
+import { MSG } from "@/i18n/message";
 
 vi.mock("@/api/home/homeApi", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/api/home/homeApi")>();
@@ -33,6 +34,7 @@ vi.mock("@/api/client", async (importOriginal) => {
 
 describe("BlogsWidget", () => {
   beforeEach(() => {
+    delete (window as { I18N?: unknown }).I18N;
     vi.mocked(homeApi.fetchAllBlogs).mockReset();
     vi.mocked(homeApi.fetchSites).mockReset().mockResolvedValue([{ name: "Demo" }]);
     vi.mocked(homeApi.fetchBlogListTemplates)
@@ -41,6 +43,23 @@ describe("BlogsWidget", () => {
     vi.mocked(homeApi.fetchBlogPostTemplates)
       .mockReset()
       .mockResolvedValue([{ id: "post-t", name: "Blog Post Tmpl" }]);
+  });
+
+  afterEach(() => {
+    delete (window as { I18N?: unknown }).I18N;
+  });
+
+  it("localizes default title via I18N when key resolves (GH-1829)", async () => {
+    (window as unknown as { I18N: { message: (k: string) => string } }).I18N = {
+      message: (k: string) => (k === MSG.GADGET_BLOGS ? "ब्लॉग" : k),
+    };
+    vi.mocked(homeApi.fetchAllBlogs).mockResolvedValue([]);
+    render(<BlogsWidget refreshInterval={0} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("blogs-widget-empty")).toBeDefined();
+    });
+    expect(screen.getByText("ब्लॉग")).toBeDefined();
+    expect(screen.queryByText("Blogs")).toBeNull();
   });
 
   it("shows empty state when no blogs", async () => {
