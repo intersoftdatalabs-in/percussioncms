@@ -60,9 +60,6 @@ import org.apache.logging.log4j.Logger;
 public class PSTrafficService implements IPSTrafficService {
 
   private static final Logger log = LogManager.getLogger(PSTrafficService.class);
-  private static final String NOT_FOUND_ERROR =
-      "Unable to retrieve analytics data. Please use the Google Setup gadget to select a profile"
-          + " for the desired site(s).";
 
   private final IPSActivityService activityService;
   private final IPSAnalyticsProviderQueryService analyticsService;
@@ -112,13 +109,21 @@ public class PSTrafficService implements IPSTrafficService {
     try {
       siteInfo = siteDataService.findByPath(path);
     } catch (Exception e) {
-      throw new PSTrafficServiceException(NOT_FOUND_ERROR);
+      // Empty install / unknown path: Home gadgets should get empty series (HTTP 200), not 500.
+      log.warn(
+          "Content traffic path not found or site unavailable (path={}); returning empty traffic"
+              + " series. Cause: {}",
+          path,
+          PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      return emptyContentTraffic(request);
     }
 
     PSDateRange range;
     try {
       range = createPSDateRange(startDate, endDate, granularity);
     } catch (ParseException e) {
+      // Malformed date / granularity remain real validation errors.
       throw new PSTrafficServiceException(e.getMessage());
     }
 
@@ -243,6 +248,30 @@ public class PSTrafficService implements IPSTrafficService {
     }
 
     return itemPropList;
+  }
+
+  /**
+   * Empty traffic payload for gadget-friendly empty installs / unknown paths. Series lists are
+   * non-null empty so clients can chart without null checks.
+   */
+  private PSContentTraffic emptyContentTraffic(PSContentTrafficRequest request) {
+    PSContentTraffic results = new PSContentTraffic();
+    results.setDates(new ArrayList<>());
+    results.setPageUpdates(new ArrayList<>());
+    results.setNewPages(new ArrayList<>());
+    results.setLivePages(new ArrayList<>());
+    results.setTakeDowns(new ArrayList<>());
+    results.setVisits(new ArrayList<>());
+    results.setUpdateTotals(new ArrayList<>());
+    if (request != null) {
+      if (request.getStartDate() != null) {
+        results.setStartDate(request.getStartDate());
+      }
+      if (request.getEndDate() != null) {
+        results.setEndDate(request.getEndDate());
+      }
+    }
+    return results;
   }
 
   /**
