@@ -3,6 +3,7 @@
 <%@ page import="com.percussion.services.utils.jspel.PSRoleUtilities" %>
 <%@ page import="com.percussion.utils.container.IPSConnector" %>
 <%@ page import="com.percussion.server.PSServer" %>
+<%@ page import="com.percussion.webui.util.PSProxyHostScheme" %>
 <%@ taglib uri="/WEB-INF/tmxtags.tld" prefix="i18n" %>
 <%@ taglib uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" prefix="csrf" %>
 
@@ -26,12 +27,15 @@
 
     int nonSslPort = request.getServerPort();//connector.getPort();
     String hostAddress = request.getServerName();//connector.getCallbackHost();
+    // Default to the inbound request scheme so HTTPS front-ends stay HTTPS when proxyScheme is unset.
     String hostScheme = request.getScheme();
     String debug = request.getParameter("debug");
 
     if(PSServer.isRequestBehindProxy(request)) {
         nonSslPort  = Integer.valueOf(PSServer.getProperty("proxyPort",""+nonSslPort));
-        hostScheme  = PSServer.getProperty("proxyScheme", "http");
+        // Prefer configured proxyScheme; fall back to request scheme (not hardcoded "http").
+        // Logs WARN/ERROR when configured scheme mismatches the request (mixed-content risk).
+        hostScheme  = PSProxyHostScheme.resolveBehindProxy(hostScheme, PSServer.getProperty("proxyScheme"));
         hostAddress = PSServer.getProperty("publicCmsHostname", "localhost");
         if(nonSslPort == 80 || nonSslPort == 443){
             nonSslPort = -1;
