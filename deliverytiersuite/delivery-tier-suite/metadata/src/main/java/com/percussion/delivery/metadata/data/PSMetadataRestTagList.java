@@ -42,9 +42,13 @@ public class PSMetadataRestTagList {
   /**
    * Replaces the tag entries.
    *
-   * @param properties the properties to set; may be <code>null</code>.
+   * <p>To preserve the {@link #getProperties() never-null} contract, a {@code null} argument is
+   * normalized to an empty list rather than assigned as-is.
+   *
+   * @param properties the properties to set; may be {@code null}, in which case an empty list is
+   *     stored.
    */
   public void setProperties(List<PSMetadataRestTag> properties) {
-    this.properties = properties;
+    this.properties = properties == null ? new ArrayList<>() : properties;
   }
 }
