@@ -273,7 +273,7 @@
         <sqlite.version>3.51.1.0</sqlite.version>
         <stax.version>1.0.1</stax.version>
         <surefireArgLine/>
-        <swagger.ui.version>5.31.0</swagger.ui.version>
+        <swagger.ui.version>5.32.11</swagger.ui.version>
         <swagger.version>2.2.52</swagger.version>
         <!-- 3.3.1 pulls junrar 7.6.0 (clears Dependabot #208/#214; was 7.5.5 on 3.2.3) -->
         <tika.version>3.3.1</tika.version>
