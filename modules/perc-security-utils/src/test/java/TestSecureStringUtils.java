@@ -137,16 +137,66 @@ public class TestSecureStringUtils {
 
   @Test
   public void testIsHTML() {
-    assertFalse(SecureStringUtils.isXML("x"));
-    assertTrue(SecureStringUtils.isXML("<div></div>"));
-    assertTrue(SecureStringUtils.isXML("<a href='#'>x</a>"));
+    assertFalse(SecureStringUtils.isHTML("x"));
+    assertFalse(SecureStringUtils.isHTML(null));
+    assertFalse(SecureStringUtils.isHTML(""));
+    assertTrue(SecureStringUtils.isHTML("<div></div>"));
+    assertTrue(SecureStringUtils.isHTML("<a href='#'>x</a>"));
+    assertTrue(SecureStringUtils.isHTML("a&b"));
+    assertTrue(SecureStringUtils.isHTML("\"quoted\""));
   }
 
   @Test
   public void testIsXML() {
     assertFalse(SecureStringUtils.isXML("x"));
+    assertFalse(SecureStringUtils.isXML(null));
+    assertFalse(SecureStringUtils.isXML(""));
     assertTrue(SecureStringUtils.isXML("<div></div>"));
     assertTrue(SecureStringUtils.isXML("<a href='#'>x</a>"));
+    assertTrue(SecureStringUtils.isXML("a&b"));
+  }
+
+  @Test
+  public void testSanitizeStringForLDAP() {
+    assertNull(SecureStringUtils.sanitizeStringForLDAP(null, true));
+    assertEquals("plain", SecureStringUtils.sanitizeStringForLDAP("plain", true));
+    assertEquals("a\\2ab", SecureStringUtils.sanitizeStringForLDAP("a*b", true));
+    assertEquals("a*b", SecureStringUtils.sanitizeStringForLDAP("a*b", false));
+    assertEquals("a\\28b\\29c", SecureStringUtils.sanitizeStringForLDAP("a(b)c", true));
+    assertEquals("a\\5cb", SecureStringUtils.sanitizeStringForLDAP("a\\b", true));
+    assertEquals("a\\2fb", SecureStringUtils.sanitizeStringForLDAP("a/b", true));
+    assertEquals("a\\00b", SecureStringUtils.sanitizeStringForLDAP("a\0b", true));
+    // Non-ASCII → UTF-8 hex escapes (café = c3 a9 for é)
+    assertEquals("caf\\c3\\a9", SecureStringUtils.sanitizeStringForLDAP("café", true));
+  }
+
+  @Test
+  public void testSanitizeForJson() {
+    assertNull(SecureStringUtils.sanitizeForJson(null));
+    assertEquals("plain", SecureStringUtils.sanitizeForJson("plain"));
+    // OWASP JS encoder escapes quotes, angle brackets, and backslashes
+    String encoded = SecureStringUtils.sanitizeForJson("a'b\"c</script>\\");
+    assertNotNull(encoded);
+    assertFalse(encoded.contains("'") && encoded.contains("\""));
+    assertTrue(encoded.contains("\\x27") || encoded.contains("\\'"));
+  }
+
+  @Test
+  public void testUrlEncode() {
+    assertNull(SecureStringUtils.urlEncode(null));
+    assertEquals("plain", SecureStringUtils.urlEncode("plain"));
+    // Space and reserved URI component chars are percent-encoded
+    assertEquals("a%20b%2Fc%3Fd%3De%26f", SecureStringUtils.urlEncode("a b/c?d=e&f"));
+    assertFalse(SecureStringUtils.urlEncode("<script>").contains("<"));
+  }
+
+  @Test
+  public void testSanitizeStringForHTML() {
+    assertNull(SecureStringUtils.sanitizeStringForHTML(null));
+    assertEquals("hello", SecureStringUtils.sanitizeStringForHTML("hello"));
+    String encoded = SecureStringUtils.sanitizeStringForHTML("<script>alert(1)</script>");
+    assertFalse(encoded.contains("<script>"));
+    assertTrue(encoded.contains("&lt;") || encoded.contains("&#"));
   }
 
   @Test

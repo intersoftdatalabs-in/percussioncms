@@ -117,7 +117,7 @@
         <eclipse-manifest-location>META-INF</eclipse-manifest-location>
         <ehcache.version>3.10.8</ehcache.version>
         <esapi.encoder.version>1.4.0</esapi.encoder.version>
-        <esapi.version>2.7.0.0</esapi.version>
+        <!-- full org.owasp.esapi removed (issue #1675); OWASP Java Encoder only -->
         <failsafeArgLine/>
         <fop.version>2.11</fop.version>
         <glassfish.jakarta.el.version>4.0.2</glassfish.jakarta.el.version>
@@ -1201,25 +1201,8 @@
                 <artifactId>encoder-jsp</artifactId>
                 <version>${esapi.encoder.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.owasp.esapi</groupId>
-                <artifactId>esapi</artifactId>
-                <version>${esapi.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.xmlgraphics</groupId>
-                        <artifactId>xmlgraphics-commons</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>commons-lang</groupId>
-                        <artifactId>commons-lang</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
+            <!-- org.owasp.esapi dependencyManagement removed (issue #1675): sole consumers
+                 migrated to org.owasp.encoder; dropped transitive commons-configuration 1.x -->
             <dependency>
                 <groupId>org.owasp</groupId>
                 <artifactId>csrfguard</artifactId>
