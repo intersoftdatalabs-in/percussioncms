@@ -389,6 +389,15 @@
         <url-pattern>/servlet/tdschemaxml</url-pattern>
     </servlet-mapping>
     
+    <!--
+      Exact /uploadAssetFile: modern Bulk Upload POSTs /cm/uploadAssetFile with no pathInfo.
+      /* covers legacy callers that append a trailing path segment.
+      GH-1812: prefix-only mapping caused HTTP 405 on the exact path.
+    -->
+    <servlet-mapping>
+        <servlet-name>assetUploadServlet</servlet-name>
+        <url-pattern>/uploadAssetFile</url-pattern>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>assetUploadServlet</servlet-name>
         <url-pattern>/uploadAssetFile/*</url-pattern>
