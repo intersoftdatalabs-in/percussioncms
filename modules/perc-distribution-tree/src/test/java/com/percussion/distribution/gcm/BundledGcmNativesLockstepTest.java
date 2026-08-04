@@ -29,6 +29,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -37,7 +38,14 @@ import org.junit.jupiter.api.Test;
  *
  * <p>Analogous to JDBC {@code BundledJdbcDrivers} / {@code InstallXmlDeleteSetTest}: a version or
  * platform-path rename must update every contract site in the same commit.
+ *
+ * <p>Disabled while mkd-gcm-natives staging is commented out (not yet on Maven Central). Re-enable
+ * with the pom dependency, {@code stage-gcm-natives} unpack, and ANT block in {@code
+ * installDistributionFiles.xml}.
  */
+@Disabled(
+    "mkd-gcm-natives staging temporarily disabled until artifact is on Central; see pom.xml +"
+        + " installDistributionFiles.xml")
 class BundledGcmNativesLockstepTest {
 
   private static final Pattern POM_PROPERTY =

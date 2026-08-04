@@ -36,7 +36,9 @@
         <extensions-directory>${basedir}/target/extensions</extensions-directory>
         <exts.store>${assembly-directory}/Extensions</exts.store>
         <jetty-directory>${basedir}/target/jetty</jetty-directory>
-        <!-- GCM FFI natives (mkd_gcm_ffi) staged into distribution/bin for StartJetty jna.library.path -->
+        <!-- GCM FFI natives (mkd_gcm_ffi) staged into distribution/bin for StartJetty jna.library.path.
+             Staging currently DISABLED (dependency + stage-gcm-natives + ANT block commented) until
+             mkd-gcm-natives is on Maven Central. Keep version property for lockstep re-enable. -->
         <mkd.gcm.version>0.2.0</mkd.gcm.version>
         <packages-directory>${basedir}/target/packages</packages-directory>
         <rxapps-directory>${basedir}/target/rxapps</rxapps-directory>
@@ -144,8 +146,9 @@
             <version>${project.parent.version}</version>
             <scope>provided</scope>
         </dependency>
-        <!-- Build-time only: GCM native shared libs extracted into distribution/bin/
-             (StartJetty sets -Djna.library.path=<installdir>/bin). Local .m2 until published.
+        <!-- TEMP DISABLED until mkd-gcm-natives is on Maven Central (re-enable with ANT + stage-gcm-natives).
+             Build-time only: GCM native shared libs extracted into distribution/bin/
+             (StartJetty sets -Djna.library.path=<installdir>/bin).
         <dependency>
             <groupId>dev.monkeyking</groupId>
             <artifactId>mkd-gcm-natives</artifactId>
@@ -610,10 +613,11 @@
                             <includeTypes>jar</includeTypes>
                         </configuration>
                     </execution>
-                    <!-- Unpack mkd-gcm-natives platform shared libraries so ANT can flatten them
+                    <!-- TEMP DISABLED until mkd-gcm-natives is on Maven Central (re-enable with ANT + dependency).
+                         Unpack mkd-gcm-natives platform shared libraries so ANT can flatten them
                          into distribution/bin/ (consumed via StartJetty -Djna.library.path).
                          Main artifact ships windows-x86_64 + linux-x86_64 under
-                         dev/monkeyking/gcm/native/<platform>/. 
+                         dev/monkeyking/gcm/native/<platform>/.
                     <execution>
                         <id>stage-gcm-natives</id>
                         <goals>
