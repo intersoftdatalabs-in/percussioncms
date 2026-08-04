@@ -21,6 +21,10 @@ import com.percussion.delivery.polls.data.IPSPoll;
 import java.util.Map;
 
 // REFACTORED: CP-JAVA11
+/**
+ * Service contract for looking up and saving polls. Implementations delegate persistence to an
+ * {@link IPSPollsDao}.
+ */
 public interface IPSPollsService {
   /**
    * Finds the poll with the supplied poll name. Returns <code>null</code> if not found.

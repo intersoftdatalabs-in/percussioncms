@@ -51,13 +51,26 @@ public class PSPollsRestService extends PSAbstractRestService implements IPSPoll
   private static final Logger log = LogManager.getLogger(PSPollsRestService.class);
   private IPSPollsService pollsService;
 
+  /** Default constructor required for Spring component-scanned instantiation paths. */
   public PSPollsRestService() {}
 
+  /**
+   * Spring-injected constructor.
+   *
+   * @param pollsService the polls service to delegate business operations to, not {@code null}.
+   */
   @Autowired
   public PSPollsRestService(IPSPollsService pollsService) {
     this.pollsService = pollsService;
   }
 
+  /**
+   * HEAD endpoint that echoes an {@code XSRF-TOKEN} cookie as a header pair ({@code X-CSRF-HEADER}
+   * → {@code X-XSRF-TOKEN} and {@code X-CSRF-TOKEN} → cookie value).
+   *
+   * @param request the current HTTP servlet request, not {@code null}.
+   * @param response the current HTTP servlet response, not {@code null}.
+   */
   @HEAD
   @Path("/csrf")
   public void csrf(@Context HttpServletRequest request, @Context HttpServletResponse response) {
@@ -165,6 +178,12 @@ public class PSPollsRestService extends PSAbstractRestService implements IPSPoll
     return (sessVar == null) ? "true" : "false";
   }
 
+  /**
+   * Converts the supplied domain poll into the REST representation used by the polls REST API.
+   *
+   * @param poll the source poll, not {@code null}.
+   * @return the converted REST poll, never {@code null}.
+   */
   private PSRestPoll convertToRestPoll(IPSPoll poll) {
     var restPoll = new PSRestPoll();
     restPoll.setPollName(poll.getPollName());
@@ -180,6 +199,11 @@ public class PSPollsRestService extends PSAbstractRestService implements IPSPoll
     return restPoll;
   }
 
+  /**
+   * Returns the polls module's reported version, logging it on the way through.
+   *
+   * @return the polls module version string.
+   */
   public String getVersion() {
     var version = super.getVersion();
     log.info("getVersion() from PSPollsRestService ...{}", version);

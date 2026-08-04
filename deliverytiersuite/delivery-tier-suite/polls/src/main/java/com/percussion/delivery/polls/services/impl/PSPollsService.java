@@ -29,9 +29,18 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 
 // REFACTORED: CP-JAVA11
+/**
+ * Default {@link IPSPollsService} implementation. Looks up polls via the supplied {@link
+ * IPSPollsDao} and reconciles incoming vote maps against the stored answers before persisting.
+ */
 public class PSPollsService implements IPSPollsService {
   private IPSPollsDao pollsDao;
 
+  /**
+   * Spring-injected constructor.
+   *
+   * @param pollsDao the polls DAO to delegate persistence to, not {@code null}.
+   */
   @Autowired
   public PSPollsService(IPSPollsDao pollsDao) {
     this.pollsDao = pollsDao;
@@ -65,9 +74,9 @@ public class PSPollsService implements IPSPollsService {
    * Updates poll answers in the database poll answers set. Adds new answers or increments count for
    * existing answers.
    *
-   * @param dbPollAnswers Set of poll answers from DB
-   * @param pollAnswers Map of answer text to boolean (true if selected)
-   * @param poll The poll entity
+   * @param dbPollAnswers Set of poll answers from DB, may be empty but not {@code null}.
+   * @param pollAnswers Map of answer text to boolean (true if selected), not {@code null}.
+   * @param poll The poll entity, not {@code null}.
    */
   private void updateAnswers(
       Set<IPSPollAnswer> dbPollAnswers, Map<String, Boolean> pollAnswers, PSPoll poll) {

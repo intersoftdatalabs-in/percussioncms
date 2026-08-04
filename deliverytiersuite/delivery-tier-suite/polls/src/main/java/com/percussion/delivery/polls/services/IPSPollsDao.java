@@ -21,14 +21,45 @@ import com.percussion.delivery.polls.data.IPSPoll;
 import com.percussion.delivery.polls.data.IPSPollAnswer;
 
 // REFACTORED: CP-JAVA11
+/**
+ * Data access object contract for the polls feature. Implementations are responsible for reading
+ * and writing polls to a backing store (typically a relational database via JPA).
+ */
 public interface IPSPollsDao {
+  /**
+   * Finds the poll with the supplied poll name.
+   *
+   * @param pollName the poll name to look up, not {@code null}.
+   * @return the matching {@link IPSPoll}, or {@code null} when no poll with that name exists.
+   */
   IPSPoll find(String pollName);
 
+  /**
+   * Finds the poll whose question matches the supplied value.
+   *
+   * @param pollQuestion the poll question to look up, not {@code null}.
+   * @return the matching {@link IPSPoll}, or {@code null} when no poll with that question exists.
+   */
   IPSPoll findByQuestion(String pollQuestion);
 
+  /**
+   * Creates a new empty {@link IPSPoll} instance ready for population.
+   *
+   * @return a new empty poll, never {@code null}.
+   */
   IPSPoll createEmptyPoll();
 
+  /**
+   * Creates a new empty {@link IPSPollAnswer} instance ready for population.
+   *
+   * @return a new empty poll answer, never {@code null}.
+   */
   IPSPollAnswer createEmptyAnswer();
 
+  /**
+   * Saves the supplied poll (insert or update).
+   *
+   * @param poll the poll to persist, not {@code null}.
+   */
   void save(IPSPoll poll);
 }

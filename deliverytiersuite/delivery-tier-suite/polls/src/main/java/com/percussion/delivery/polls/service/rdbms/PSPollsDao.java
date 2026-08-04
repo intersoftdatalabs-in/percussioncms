@@ -25,13 +25,27 @@ import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
 // REFACTORED: CP-JAVA11
+/**
+ * JPA-backed implementation of {@link IPSPollsDao}. Delegates queries to the JPA {@link
+ * EntityManager} for the polls feature (typically injected via Spring).
+ */
 @Transactional
 public class PSPollsDao implements IPSPollsDao {
+
+  /**
+   * Default constructor required for Spring's component-scanned instantiation paths; the DAO is not
+   * usable in that state because no {@link EntityManager} has been injected.
+   */
+  public PSPollsDao() {}
 
   /** Transaction-scoped EntityManager proxy (typically from SharedEntityManagerBean). */
   private EntityManager entityManager;
 
-  /** Setter-injected from Spring XML. */
+  /**
+   * Setter-injected from Spring XML.
+   *
+   * @param entityManager the transaction-scoped JPA {@link EntityManager}, not {@code null}.
+   */
   public void setEntityManager(EntityManager entityManager) {
     this.entityManager = entityManager;
   }
@@ -94,6 +108,12 @@ public class PSPollsDao implements IPSPollsDao {
     return new PSPollAnswer();
   }
 
+  /**
+   * Returns the underlying Hibernate {@link Session} for the injected {@link EntityManager}.
+   *
+   * @return the Hibernate session, never {@code null}.
+   * @throws IllegalStateException when no {@link EntityManager} has been injected yet.
+   */
   private Session getSession() {
     if (entityManager == null) {
       throw new IllegalStateException("EntityManager has not been injected");

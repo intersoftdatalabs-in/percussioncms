@@ -33,6 +33,11 @@ import tools.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
  */
 @ApplicationPath("/")
 public class PSPollsApplication extends ResourceConfig {
+  /**
+   * Registers the Jersey resources and features used by the polls REST application: the polls REST
+   * service, request/response logging, roles-based access control, the standard error mappers and
+   * the JSON binding provider.
+   */
   public PSPollsApplication() {
     // RequestContextFilter registration removed; Jersey 2.x Spring integration does not require it.
     // Removed AutowiredInjectResolver registration; not required for Jersey 2.x Spring integration.

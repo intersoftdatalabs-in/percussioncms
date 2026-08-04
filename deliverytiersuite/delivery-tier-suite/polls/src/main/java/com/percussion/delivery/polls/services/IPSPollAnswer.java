@@ -18,16 +18,50 @@
 package com.percussion.delivery.polls.services;
 
 // REFACTORED: CP-JAVA11
+/**
+ * Lightweight poll answer contract used by service interfaces. Concrete implementations are
+ * typically the JPA-backed {@code PSPollAnswer} entity.
+ */
 public interface IPSPollAnswer {
+  /**
+   * Gets the answer's persistence id.
+   *
+   * @return the id.
+   */
   long getId();
 
+  /**
+   * Sets the answer's persistence id.
+   *
+   * @param id the id.
+   */
   void setId(long id);
 
+  /**
+   * Gets the answer text.
+   *
+   * @return the answer text, never {@code null}.
+   */
   String getAnswer();
 
+  /**
+   * Sets the answer text.
+   *
+   * @param answer the answer text, not {@code null}.
+   */
   void setAnswer(String answer);
 
+  /**
+   * Gets the number of times this answer has been selected.
+   *
+   * @return the count, zero or higher.
+   */
   int getCount();
 
+  /**
+   * Sets the number of times this answer has been selected.
+   *
+   * @param count the count, zero or higher.
+   */
   void setCount(int count);
 }

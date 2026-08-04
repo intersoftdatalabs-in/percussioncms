@@ -24,39 +24,34 @@ import java.io.Serializable;
 import java.util.Set;
 
 // REFACTORED: CP-JAVA11
+/**
+ * JPA entity mapping for a poll stored in the {@code PERC_POLLS} table. Implements the {@link
+ * IPSPoll} contract and serves as the persistence-side parent of {@link PSPollAnswer}.
+ */
 @Entity
 @Table(name = "PERC_POLLS")
 public class PSPoll implements IPSPoll, Serializable {
 
   private static final long serialVersionUID = 1L;
 
-  @Id
-  @GeneratedValue
-  @Column(name = "POLL_ID")
-  private long pollId;
+  /** Default constructor required by JPA; do not use to create new instances outside the DAO. */
+  public PSPoll() {}
 
-  @Column(name = "POLL_NAME", nullable = false, length = 256)
-  private String pollName;
-
-  @Column(name = "POLL_QUESTION", nullable = false, length = 4000)
-  private String pollQuestion;
-
-  @OneToMany(
-      cascade = CascadeType.ALL,
-      fetch = FetchType.EAGER,
-      mappedBy = "poll",
-      targetEntity = PSPollAnswer.class,
-      orphanRemoval = true)
-  private Set<IPSPollAnswer> pollAnswers;
-
-  @Version
-  @Column(name = "VERSION")
-  private Integer version;
-
+  /**
+   * Gets the persistence id of this poll. Note that {@link #getId()} returns the {@link Long}
+   * string form, while this accessor returns the underlying {@code long}.
+   *
+   * @return the numeric persistence id.
+   */
   public long getPollId() {
     return pollId;
   }
 
+  /**
+   * Sets the persistence id of this poll. Use with care; JPA generally manages the id itself.
+   *
+   * @param id the numeric persistence id.
+   */
   public void setPollId(long id) {
     this.pollId = id;
   }
@@ -101,16 +96,70 @@ public class PSPoll implements IPSPoll, Serializable {
     this.pollAnswers = pollAnswers;
   }
 
-  /** Returns the version. */
+  @Override
+  public String toString() {
+    return "PSPoll{"
+        + "pollId="
+        + pollId
+        + ", pollName='"
+        + pollName
+        + '\''
+        + ", pollQuestion='"
+        + pollQuestion
+        + '\''
+        + ", pollAnswers="
+        + pollAnswers
+        + ", version="
+        + version
+        + '}';
+  }
+
+  /**
+   * Returns the version used by JPA optimistic locking.
+   *
+   * @return the version, may be {@code null} for new (not-yet-persisted) instances.
+   */
   public Integer getVersion() {
     return version;
   }
 
-  /** Sets the version. Can only be set once. */
+  /**
+   * Sets the version used by JPA optimistic locking. Can only be set once.
+   *
+   * @param version the version, may be {@code null}.
+   */
   public void setVersion(Integer version) {
     if (this.version != null && version != null) {
       throw new IllegalStateException("Version can only be set once");
     }
     this.version = version;
   }
+
+  /** JPA-assigned numeric primary key. */
+  @Id
+  @GeneratedValue
+  @Column(name = "POLL_ID")
+  private long pollId;
+
+  /** The poll's display name; up to 256 characters and not null. */
+  @Column(name = "POLL_NAME", nullable = false, length = 256)
+  private String pollName;
+
+  /** The poll's question text; up to 4000 characters and not null. */
+  @Column(name = "POLL_QUESTION", nullable = false, length = 4000)
+  private String pollQuestion;
+
+  /** Eagerly-loaded collection of answers owned by this poll; orphans are auto-removed. */
+  @OneToMany(
+      cascade = CascadeType.ALL,
+      fetch = FetchType.EAGER,
+      mappedBy = "poll",
+      targetEntity = PSPollAnswer.class,
+      orphanRemoval = true)
+  private Set<IPSPollAnswer> pollAnswers;
+
+  /** JPA optimistic-locking version column. */
+  @Version
+  @Column(name = "VERSION")
+  private Integer version;
 }
