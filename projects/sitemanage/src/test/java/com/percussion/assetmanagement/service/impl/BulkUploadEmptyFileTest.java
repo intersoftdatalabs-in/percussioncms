@@ -71,6 +71,40 @@ class BulkUploadEmptyFileTest {
     assertTrue(text.contains("err.put(\"error\""));
     // Generic Exception path must not surface raw e.getMessage() to the client
     assertTrue(text.contains("Upload failed due to an unexpected server error."));
+    // Multipart POST entry point used by Bulk Upload (GH-1812)
+    assertTrue(text.contains("protected void doPost"));
+    assertTrue(text.contains("@MultipartConfig"));
+  }
+
+  /**
+   * GH-1812: client {@code resolveAssetUploadUrl()} POSTs exact {@code /cm/uploadAssetFile}.
+   * Prefix-only {@code /uploadAssetFile/*} does not match that path on servlet containers, so
+   * web.xml must declare an exact {@code /uploadAssetFile} mapping (and may keep /* for legacy).
+   */
+  @Test
+  void webXmlMapsExactUploadAssetFileForBulkUploadPost() throws Exception {
+    Path root = resolveRepoRoot();
+    Path[] webXmls = {
+      root.resolve("WebUI/src/main/webapp/WEB-INF/web.xml"),
+      root.resolve("WebUI/src/main/webapp/cm/WEB-INF/web.xml"),
+      root.resolve("WebUI/war/WEB-INF/web.xml"),
+    };
+    for (Path webXml : webXmls) {
+      if (!Files.isRegularFile(webXml)) {
+        fail("missing web.xml: " + webXml);
+      }
+      String text = Files.readString(webXml, StandardCharsets.UTF_8);
+      assertTrue(
+          text.contains("<url-pattern>/uploadAssetFile</url-pattern>"),
+          "exact /uploadAssetFile mapping required in " + webXml);
+      assertTrue(
+          text.contains("<url-pattern>/uploadAssetFile/*</url-pattern>"),
+          "prefix /uploadAssetFile/* mapping should remain in " + webXml);
+      // Mapping must bind to the asset upload servlet, not an unrelated name
+      assertTrue(
+          text.contains("<servlet-name>assetUploadServlet</servlet-name>"),
+          "assetUploadServlet must be declared in " + webXml);
+    }
   }
 
   /** Pure-function coverage of empty/whitespace guard + message (GH-728 / #775). */
