@@ -44,7 +44,7 @@ for how the bundle is exposed to the Jetty server.
 mvn clean install
 ```
 
-The output is `target/perc-jetty-logging-8.2.0-SNAPSHOT.jar` (and its `jar-with-dependencies`
+The output is `target/perc-jetty-logging-<version>.jar` (and its `jar-with-dependencies`
 classifier when the assembly descriptor runs), which is then unpacked into the Jetty
 distribution by `perc-jetty`.
 
