@@ -47,36 +47,36 @@ Detailed audit notes (grep tables, historical faces dump pointers):
 
 **Tracked files (2026-08-04)** — `WebUI/src/main/webapp/ui/publishing/` (28 JSPs):
 
-|                  File                   |         Faces historical?         | Product-nav caller |        Non-nav residual         |      #1819 disposition       |
-|-----------------------------------------|-----------------------------------|--------------------|---------------------------------|------------------------------|
-| `index.jsp`                             | entry                             | n/a (redirect)     | —                               | **KEEP** redirect            |
-| `error.jsp`                             | error page                        | none               | self-includes                   | Delete with Design faces set |
-| `menu.jsp`                              | nav chrome                        | none               | faces tree only                 | Delete                       |
-| `PubDesignAuthentication.jsp`           | include                           | none               | included by Design pages        | Delete with Design pages     |
-| `publish.jsp`                           | demand publish UI (not faces nav) | none               | **Publish_Now** seed action URL | **KEEP / rewire first**      |
-| `AddContextVariable.jsp`                | yes                               | none               | —                               | Delete                       |
-| `AssociateContentlist.jsp`              | yes                               | none               | —                               | Delete                       |
-| `ContentlistEditor.jsp`                 | yes                               | none               | —                               | Delete                       |
-| `ContentlistView.jsp`                   | yes                               | none               | —                               | Delete                       |
-| `ContextEditor.jsp`                     | yes                               | none               | —                               | Delete                       |
-| `ContextList.jsp`                       | yes                               | none               | —                               | Delete                       |
-| `DeliveryTypeEditor.jsp`                | yes                               | none               | —                               | Delete                       |
-| `DeliveryTypeList.jsp`                  | yes                               | none               | —                               | Delete                       |
-| `EditionEditor.jsp`                     | yes                               | none               | —                               | Delete                       |
-| `EditionList.jsp`                       | yes                               | none               | —                               | Delete                       |
-| `ItemBrowser.jsp`                       | yes                               | none               | —                               | Delete                       |
-| `LocationSchemeEditor.jsp`              | yes                               | none               | —                               | Delete                       |
-| `LocationSchemeLegacyEditor.jsp`        | yes                               | none               | —                               | Delete                       |
-| `LocationSchemeParamEditor.jsp`         | yes                               | none               | —                               | Delete                       |
-| `NoSchemeParameterSelectionWarning.jsp` | yes                               | none               | —                               | Delete                       |
-| `NoSelectionWarning.jsp`                | yes                               | none               | —                               | Delete                       |
-| `RemoveConfirmation.jsp`                | yes                               | none               | —                               | Delete                       |
-| `RemoveLocationScheme.jsp`              | yes                               | none               | —                               | Delete                       |
-| `SaveChildSchemeChangesWarning.jsp`     | yes                               | none               | —                               | Delete                       |
-| `SelectEditionFromOtherSite.jsp`        | yes                               | none               | —                               | Delete                       |
-| `SiteEditor.jsp`                        | yes                               | none               | —                               | Delete                       |
-| `SiteList.jsp`                          | yes                               | none               | —                               | Delete                       |
-| `SiteRootBrowser.jsp`                   | yes                               | none               | —                               | Delete                       |
+|                  File                   |         Faces historical?         | Product-nav caller |                    Non-nav residual                    |                        #1819 disposition                         |
+|-----------------------------------------|-----------------------------------|--------------------|--------------------------------------------------------|------------------------------------------------------------------|
+| `index.jsp`                             | entry                             | n/a (redirect)     | —                                                      | **KEEP** redirect                                                |
+| `error.jsp`                             | error page                        | none               | self-includes                                          | Delete with Design faces set                                     |
+| `menu.jsp`                              | nav chrome                        | none               | faces tree only                                        | Delete                                                           |
+| `PubDesignAuthentication.jsp`           | include                           | none               | included by Design pages                               | Delete with Design pages                                         |
+| `publish.jsp`                           | demand publish UI (not faces nav) | none               | Seed rewired (#1843) → `../publisher/demandpublishing` | **KEEP** until #1819 (do not delete here); no seed consumer left |
+| `AddContextVariable.jsp`                | yes                               | none               | —                                                      | Delete                                                           |
+| `AssociateContentlist.jsp`              | yes                               | none               | —                                                      | Delete                                                           |
+| `ContentlistEditor.jsp`                 | yes                               | none               | —                                                      | Delete                                                           |
+| `ContentlistView.jsp`                   | yes                               | none               | —                                                      | Delete                                                           |
+| `ContextEditor.jsp`                     | yes                               | none               | —                                                      | Delete                                                           |
+| `ContextList.jsp`                       | yes                               | none               | —                                                      | Delete                                                           |
+| `DeliveryTypeEditor.jsp`                | yes                               | none               | —                                                      | Delete                                                           |
+| `DeliveryTypeList.jsp`                  | yes                               | none               | —                                                      | Delete                                                           |
+| `EditionEditor.jsp`                     | yes                               | none               | —                                                      | Delete                                                           |
+| `EditionList.jsp`                       | yes                               | none               | —                                                      | Delete                                                           |
+| `ItemBrowser.jsp`                       | yes                               | none               | —                                                      | Delete                                                           |
+| `LocationSchemeEditor.jsp`              | yes                               | none               | —                                                      | Delete                                                           |
+| `LocationSchemeLegacyEditor.jsp`        | yes                               | none               | —                                                      | Delete                                                           |
+| `LocationSchemeParamEditor.jsp`         | yes                               | none               | —                                                      | Delete                                                           |
+| `NoSchemeParameterSelectionWarning.jsp` | yes                               | none               | —                                                      | Delete                                                           |
+| `NoSelectionWarning.jsp`                | yes                               | none               | —                                                      | Delete                                                           |
+| `RemoveConfirmation.jsp`                | yes                               | none               | —                                                      | Delete                                                           |
+| `RemoveLocationScheme.jsp`              | yes                               | none               | —                                                      | Delete                                                           |
+| `SaveChildSchemeChangesWarning.jsp`     | yes                               | none               | —                                                      | Delete                                                           |
+| `SelectEditionFromOtherSite.jsp`        | yes                               | none               | —                                                      | Delete                                                           |
+| `SiteEditor.jsp`                        | yes                               | none               | —                                                      | Delete                                                           |
+| `SiteList.jsp`                          | yes                               | none               | —                                                      | Delete                                                           |
+| `SiteRootBrowser.jsp`                   | yes                               | none               | —                                                      | Delete                                                           |
 
 **Sign-off**: Entry-path retirement Done; deep-page file deletion **explicitly deferred** to #1819 after UAT + non-nav rewires.  
 **Tracking issue**: [#1372](https://github.com/intersoftdatalabs-in/percussioncms/issues/1372) · audit [#1817](https://github.com/intersoftdatalabs-in/percussioncms/issues/1817)
@@ -93,21 +93,21 @@ Detailed audit notes (grep tables, historical faces dump pointers):
 
 **Tracked files (2026-08-04)** — `WebUI/src/main/webapp/ui/pubruntime/` (13 JSPs):
 
-|              File               |      Faces historical?      | Product-nav caller |            Non-nav residual            |       #1818 disposition       |
-|---------------------------------|-----------------------------|--------------------|----------------------------------------|-------------------------------|
-| `index.jsp`                     | entry                       | n/a (redirect)     | —                                      | **KEEP** redirect             |
-| `PubRuntimeAuthentication.jsp`  | include                     | none               | included by Runtime pages              | Delete with Runtime faces set |
-| `DemandPublish.jsp`             | **no** (plain JSP progress) | none               | **Servlet rewired (#1842)**            | **Delete** (no live consumer) |
-| `ActiveJobStatus.jsp`           | yes                         | none               | —                                      | Delete                        |
-| `AllPubLogs.jsp`                | yes                         | none               | —                                      | Delete                        |
-| `DeleteSiteItemLogsWarning.jsp` | yes                         | none               | —                                      | Delete                        |
-| `ErrorMessage.jsp`              | yes                         | none               | —                                      | Delete                        |
-| `ItemPubLog.jsp`                | yes                         | none               | —                                      | Delete                        |
-| `JobPubLog.jsp`                 | yes                         | none               | **`PSRunEdition` rewired (#1844)**     | **Delete** (no live consumer) |
-| `NoSelectionWarning.jsp`        | yes                         | none               | —                                      | Delete                        |
-| `RuntimeEdition.jsp`            | yes                         | none               | —                                      | Delete                        |
-| `RuntimeEditionList.jsp`        | yes                         | none               | —                                      | Delete                        |
-| `SitePubLogs.jsp`               | yes                         | none               | —                                      | Delete                        |
+|              File               |      Faces historical?      | Product-nav caller |          Non-nav residual          |       #1818 disposition       |
+|---------------------------------|-----------------------------|--------------------|------------------------------------|-------------------------------|
+| `index.jsp`                     | entry                       | n/a (redirect)     | —                                  | **KEEP** redirect             |
+| `PubRuntimeAuthentication.jsp`  | include                     | none               | included by Runtime pages          | Delete with Runtime faces set |
+| `DemandPublish.jsp`             | **no** (plain JSP progress) | none               | **Servlet rewired (#1842)**        | **Delete** (no live consumer) |
+| `ActiveJobStatus.jsp`           | yes                         | none               | —                                  | Delete                        |
+| `AllPubLogs.jsp`                | yes                         | none               | —                                  | Delete                        |
+| `DeleteSiteItemLogsWarning.jsp` | yes                         | none               | —                                  | Delete                        |
+| `ErrorMessage.jsp`              | yes                         | none               | —                                  | Delete                        |
+| `ItemPubLog.jsp`                | yes                         | none               | —                                  | Delete                        |
+| `JobPubLog.jsp`                 | yes                         | none               | **`PSRunEdition` rewired (#1844)** | **Delete** (no live consumer) |
+| `NoSelectionWarning.jsp`        | yes                         | none               | —                                  | Delete                        |
+| `RuntimeEdition.jsp`            | yes                         | none               | —                                  | Delete                        |
+| `RuntimeEditionList.jsp`        | yes                         | none               | —                                  | Delete                        |
+| `SitePubLogs.jsp`               | yes                         | none               | —                                  | Delete                        |
 
 **RET-06 residual — DemandPublish servlet rewire (issue #1842, 2026-08-04):**
 `system/.../PSDemandPublishServlet` no longer forwards to
@@ -218,13 +218,13 @@ Recoverable at: `git show aa46aa5f86^:WebUI/src/main/webapp/WEB-INF/publishing-f
 
 These are **not** product-nav, but are **product/engine** callers. Deleting the target pages without rewiring breaks demand publish / scheduled-edition log links / seed menus.
 
-|           Owner           |                                                     Code / data                                                     |                                 Target                                  |                                                        Recommended rewire                                                        |
-|---------------------------|---------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
-| Demand publish servlet    | `system/business/.../PSDemandPublishServlet.java`                                                                   | ~~Forward `/ui/pubruntime/DemandPublish.jsp`~~ → redirect modern status | **Done (#1842):** `sendRedirect` → `{contextPath}/cm/app/?view=publish&section=status`                                           |
-| Demand servlet mapping    | `web.xml` url-pattern `/publisher/demandpublishing` (WebUI + cm + war)                                              | Same servlet                                                            | **Kept** (#1842); only post-queue UI target changed                                                                              |
-| Publish Now action seed   | `modules/perc-distribution-tree/.../cmsTableData.xml` ACTIONID 217 `Publish_Now` URL `../ui/publishing/publish.jsp` | Demand publish JSP                                                      | Point at modern item publish-now / REST-backed UI (US6) or servlet path                                                          |
-| Publish Now FF seed       | `.../RxffTableData.xml`, `system/FastForward/Core/Config/Data/RxffTableData.xml`                                    | Same URL                                                                | Same                                                                                                                             |
-| Scheduled edition log URL | `system/services/.../PSRunEdition.getPublishingLogURL()`                                                            | `/ui/pubruntime/JobPubLog.faces?…`                                      | Modern `view=publish&section=logs` (+ job id query if supported); **current `.faces` URL is already non-functional** without JSF |
+|           Owner           |                                                   Code / data                                                   |                                 Target                                  |                                                                                                               Recommended rewire                                                                                                                |
+|---------------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Demand publish servlet    | `system/business/.../PSDemandPublishServlet.java`                                                               | ~~Forward `/ui/pubruntime/DemandPublish.jsp`~~ → redirect modern status | **Done (#1842):** `sendRedirect` → `{contextPath}/cm/app/?view=publish&section=status`                                                                                                                                                          |
+| Demand servlet mapping    | `web.xml` url-pattern `/publisher/demandpublishing` (WebUI + cm + war)                                          | Same servlet                                                            | **Kept** (#1842); only post-queue UI target changed                                                                                                                                                                                             |
+| Publish Now action seed   | `modules/perc-distribution-tree/.../cmsTableData.xml` ACTIONID 217 `Publish_Now`                                | ~~`../ui/publishing/publish.jsp`~~ → `../publisher/demandpublishing`    | **Done (#1843 + #1884):** URL → `PSDemandPublishServlet`; `action="r"` / `onTableCreateOnly="no"` so upgrades replace existing ACTION 217 rows (peer of FF `EI_Publish_Now`). Params unchanged (`sys_contentid`, `sys_folderid`, `sys_siteid`). |
+| Publish Now FF seed       | `.../RxffTableData.xml`, `system/FastForward/Core/Config/Data/RxffTableData.xml` ACTIONID 1012 `EI_Publish_Now` | Same servlet path                                                       | **Done (#1843):** same URL rewire; already `action="r"` / `onTableCreateOnly="no"`; FF params keep `sys_editionid` + content/folder ids.                                                                                                        |
+| Scheduled edition log URL | `system/services/.../PSRunEdition.getPublishingLogURL()`                                                        | `/ui/pubruntime/JobPubLog.faces?…`                                      | **Done (#1844):** modern `view=publish&section=logs`                                                                                                                                                                                            |
 
 ### Installer / distribution peers (no delete in #1817)
 
@@ -232,7 +232,7 @@ These are **not** product-nav, but are **product/engine** callers. Deleting the 
 |------------------------|-------------------------------------------------------------------------------------------------|-------------------------------------------------------------------|
 | Upgrade cleanup target | `modules/perc-distribution-tree/src/main/resources/distribution/rxconfig/Installer/install.xml` | Already deletes residual `publishing-faces-config.xml` on upgrade |
 | Cleanup unit test      | `.../ObsoleteWebInfArtifactsCleanupTest.java`                                                   | Guards the install.xml contract                                   |
-| Seed menu URL          | `cmsTableData.xml` / `RxffTableData.xml`                                                        | Residual `publish.jsp` URL (rewire, not packaging-only)           |
+| Seed menu URL          | `cmsTableData.xml` / `RxffTableData.xml`                                                        | **Rewired (#1843)** + **upgrade replace (#1884)** for ACTION 217  |
 | WAR packaging          | WebUI war packages `ui/publishing/**` and `ui/pubruntime/**` as static webapp files             | #1820 asserts only redirects remain after B+C                     |
 
 ### Docs / bookmark / external refs (preserve or redirect)
@@ -248,7 +248,7 @@ These are **not** product-nav, but are **product/engine** callers. Deleting the 
 
 ## Deletion checklist — Child B Design (#1819)
 
-**Prereqs**: #1817 (Done) · #1371 UAT or human ack · rewire `ui/publishing/publish.jsp` consumers **or** explicitly KEEP that file out of the delete set.
+**Prereqs**: #1817 (Done) · #1371 UAT or human ack · **Publish_Now seed rewired (#1843)** — `publish.jsp` may be deleted in #1819 or kept only if another consumer appears.
 
 ### Delete (Design-exclusive deep faces / chrome)
 
@@ -282,7 +282,7 @@ These are **not** product-nav, but are **product/engine** callers. Deleting the 
 ### Keep
 
 - [ ] `index.jsp` (modern Design redirect)
-- [ ] `publish.jsp` until Publish_Now seed / demand path rewired (or rewire in same PR as #1819)
+- [ ] `publish.jsp` — seed rewired (#1843); optional KEEP for #1819 delete pass (no seed consumer); do not delete in packaging-only PRs
 
 ### Faces-config / packaging
 
@@ -295,7 +295,7 @@ These are **not** product-nav, but are **product/engine** callers. Deleting the 
 
 - [ ] Modern Design section loads
 - [ ] `ui/publishing/index.jsp` still redirects
-- [ ] Item publish-now / Publish_Now still works (if publish.jsp kept or rewired)
+- [ ] Item publish-now / Publish_Now still works via `/publisher/demandpublishing` (seed #1843; upgrade replace #1884 rewrites existing ACTION 217 rows on tabledata load)
 
 ---
 

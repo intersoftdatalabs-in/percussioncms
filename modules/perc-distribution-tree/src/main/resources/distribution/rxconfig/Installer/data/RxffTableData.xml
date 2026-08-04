@@ -7334,12 +7334,15 @@ $rx.location.getFirstDefined($sys.item,'rx:inactiveimg_ext,rx:sys_suffix', '.gif
 			<column name="HANDLER">SERVER</column>
 			<column name="VERSION">0</column>
 		</row>
+		<!-- URL rewired from legacy ui/publishing/publish.jsp to PSDemandPublishServlet
+		     mapping (RET-06 / issue #1843). Params (sys_editionid, sys_contentid, sys_folderid)
+		     unchanged. -->
 		<row action="r" onTableCreateOnly="no">
 			<column name="ACTIONID">1012</column>
 			<column name="NAME">EI_Publish_Now</column>
 			<column name="DISPLAYNAME">EI Publish Now</column>
 			<column name="DESCRIPTION">Publish the selected folders or items immediately</column>
-			<column name="URL">../ui/publishing/publish.jsp</column>
+			<column name="URL">../publisher/demandpublishing</column>
 			<column name="SORTORDER">350</column>
 			<column name="TYPE">MENUITEM</column>
 			<column name="HANDLER">SERVER</column>

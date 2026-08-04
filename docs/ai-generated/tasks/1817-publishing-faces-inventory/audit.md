@@ -63,15 +63,15 @@ Outcome → JSP table: see removal inventory section **Historical faces outcomes
 
 ## Grep consumer audit (non-nav residuals)
 
-|                        Location                        |                           Match                            |                    Classification                     |
-|--------------------------------------------------------|------------------------------------------------------------|-------------------------------------------------------|
-| `PSDemandPublishServlet.java`                          | `getRequestDispatcher("/ui/pubruntime/DemandPublish.jsp")` | **Required rewire** before deleting DemandPublish.jsp |
-| web.xml (×3 trees)                                     | `/publisher/demandpublishing` → DemandPublishingServlet    | Keep mapping                                          |
-| `PSRunEdition.java`                                    | builds `/ui/pubruntime/JobPubLog.faces?…`                  | **Required rewire** (already dead without JSF)        |
-| `cmsTableData.xml` / `RxffTableData.xml` / FastForward | `../ui/publishing/publish.jsp` Publish_Now                 | **Required rewire** or KEEP publish.jsp               |
-| `dce_header.jsp`                                       | modern section links only                                  | Nav OK                                                |
-| Deep JSPs themselves                                   | mutual includes of auth / Trinidad tags                    | Dead without JSF runtime; packaged residual only      |
-| Modern TS under `src/main/ts/publishing`               | design/runtime React sections                              | Replacement product UI — retain                       |
+|                        Location                        |                           Match                            |                                                          Classification                                                          |
+|--------------------------------------------------------|------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
+| `PSDemandPublishServlet.java`                          | `getRequestDispatcher("/ui/pubruntime/DemandPublish.jsp")` | **Required rewire** before deleting DemandPublish.jsp                                                                            |
+| web.xml (×3 trees)                                     | `/publisher/demandpublishing` → DemandPublishingServlet    | Keep mapping                                                                                                                     |
+| `PSRunEdition.java`                                    | builds `/ui/pubruntime/JobPubLog.faces?…`                  | **Required rewire** (already dead without JSF)                                                                                   |
+| `cmsTableData.xml` / `RxffTableData.xml` / FastForward | Publish_Now / EI_Publish_Now seed URL                      | **Done (#1843 + #1884):** `../publisher/demandpublishing`; ACTION 217 `action=r` / `onTableCreateOnly=no` upgrades existing rows |
+| `dce_header.jsp`                                       | modern section links only                                  | Nav OK                                                                                                                           |
+| Deep JSPs themselves                                   | mutual includes of auth / Trinidad tags                    | Dead without JSF runtime; packaged residual only                                                                                 |
+| Modern TS under `src/main/ts/publishing`               | design/runtime React sections                              | Replacement product UI — retain                                                                                                  |
 
 ## File counts (tracked)
 
