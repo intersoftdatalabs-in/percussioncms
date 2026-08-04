@@ -77,5 +77,9 @@ class PSRunEditionTest {
     assertThrows(
         IllegalArgumentException.class,
         () -> PSRunEdition.buildPublishingLogURL(null, "host", 80, ""));
+    // StringUtils.isBlank(null) is true — host must be non-null and non-blank
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PSRunEdition.buildPublishingLogURL("http", null, 80, ""));
   }
 }
