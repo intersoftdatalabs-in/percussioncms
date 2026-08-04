@@ -26,7 +26,15 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-/** GH-962: installer script contracts (systemd preferred, init.d fallback, no dual-register). */
+/**
+ * GH-962: installer script contracts (systemd preferred, init.d fallback, no dual-register).
+ *
+ * <p>Structural tests that verify the shipped {@code install-jetty-service.sh} honors the
+ * systemd-first contract: when systemd is available the installer registers a native unit and skips
+ * SysV / chkconfig registration; the {@code --initd} flag forces the legacy path. The uninstall
+ * path tracks which registration mechanism was used so cleanup is symmetric with install. Tests are
+ * read-only on the script source; they do not actually install or uninstall services.
+ */
 class InstallJettyServiceScriptTest {
 
   private static final Path INSTALL_SCRIPT =

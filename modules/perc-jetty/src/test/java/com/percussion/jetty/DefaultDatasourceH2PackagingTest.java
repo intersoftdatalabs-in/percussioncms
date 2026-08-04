@@ -24,7 +24,15 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-/** Jetty packaging defaults for #548 H2 embedded repository (QC-013 / T026). */
+/**
+ * Jetty packaging defaults for #548 H2 embedded repository (QC-013 / T026).
+ *
+ * <p>Structural tests that guard the shipped {@code perc-ds.properties} and {@code perc.mod}
+ * overlays against regressions that would either re-introduce the legacy Derby network server or
+ * silently drop the H2 driver as the default embedded repository. Tests resolve their fixture files
+ * relative to the module directory so they pass under both single-module and reactor (multi-module)
+ * surefire invocations.
+ */
 @Tag("UnitTest")
 class DefaultDatasourceH2PackagingTest {
 
