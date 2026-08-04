@@ -15,12 +15,16 @@
  */
 package com.percussion.i18n;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedHashSet;
+import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Stream;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.junit.jupiter.api.Test;
@@ -80,11 +84,102 @@ public class PSTmxResourceBundleScanTest {
     }
   }
 
+  /**
+   * SPA TopNav / UserMenu keys under {@code perc.ui.dashboard.modern@} must ship with at least
+   * {@code en-us} and base {@code hi} so Hindi (India) login does not fall back to English chrome
+   * (GH-1841). Live username/role values are not TMX keys and stay out of scope.
+   */
+  @Test
+  public void cmsUi_shellChromeKeys_haveEnUsAndHindi() throws Exception {
+    Path cmsUi = Paths.get("src", "main", "resources", "i18n", "CmsUi.tmx").toAbsolutePath();
+    if (!Files.isRegularFile(cmsUi)) {
+      return;
+    }
+
+    Set<String> required =
+        Set.of(
+            "perc.ui.dashboard.modern@Administration",
+            "perc.ui.dashboard.modern@Admin tools",
+            "perc.ui.dashboard.modern@Explorer",
+            "perc.ui.dashboard.modern@Developer",
+            "perc.ui.dashboard.modern@Main",
+            "perc.ui.dashboard.modern@Dashboard gadgets on Home",
+            "perc.ui.dashboard.modern@CMS design tools (content types, templates, ...)",
+            "perc.ui.dashboard.modern@Signed in as",
+            "perc.ui.dashboard.modern@user");
+
+    Document doc = parse(cmsUi);
+    NodeList tus = doc.getElementsByTagName("tu");
+    Set<String> found = new LinkedHashSet<>();
+    for (int i = 0; i < tus.getLength(); i++) {
+      Element tu = (Element) tus.item(i);
+      String tuid = tu.getAttribute("tuid");
+      if (!required.contains(tuid)) {
+        continue;
+      }
+      found.add(tuid);
+      Set<String> langs = new LinkedHashSet<>();
+      String enSeg = null;
+      String hiSeg = null;
+      NodeList tuvs = tu.getElementsByTagName("tuv");
+      for (int j = 0; j < tuvs.getLength(); j++) {
+        Element tuv = (Element) tuvs.item(j);
+        String lang = normalizeLangAttr(readXmlLang(tuv));
+        if (lang.isEmpty()) {
+          continue;
+        }
+        langs.add(lang);
+        NodeList segs = tuv.getElementsByTagName("seg");
+        if (segs.getLength() == 0) {
+          continue;
+        }
+        String seg = segs.item(0).getTextContent();
+        if ("en-us".equals(lang)) {
+          enSeg = seg;
+        } else if ("hi".equals(lang)) {
+          hiSeg = seg;
+        }
+      }
+      assertTrue(langs.contains("en-us"), tuid + " missing en-us");
+      assertTrue(langs.contains("hi"), tuid + " missing hi (base for hi-in)");
+      assertNotNull(enSeg, tuid + " en-us seg null");
+      assertFalse(enSeg.isBlank(), tuid + " en-us seg blank");
+      assertNotNull(hiSeg, tuid + " hi seg null");
+      assertFalse(hiSeg.isBlank(), tuid + " hi seg blank");
+      assertFalse(
+          enSeg.equals(hiSeg),
+          tuid + " hi must differ from en-us for localized shell chrome, got: " + hiSeg);
+    }
+    assertTrue(
+        found.containsAll(required),
+        "CmsUi.tmx missing shell chrome TUs: "
+            + required.stream().filter(k -> !found.contains(k)).toList());
+  }
+
+  private static String readXmlLang(Element tuv) {
+    String lang = tuv.getAttributeNS("http://www.w3.org/XML/1998/namespace", "lang");
+    if (lang == null || lang.isBlank()) {
+      lang = tuv.getAttribute("xml:lang");
+    }
+    if (lang == null || lang.isBlank()) {
+      lang = tuv.getAttribute("lang");
+    }
+    return lang;
+  }
+
+  private static String normalizeLangAttr(String raw) {
+    if (raw == null || raw.isBlank()) {
+      return "";
+    }
+    return raw.trim().toLowerCase(Locale.ROOT).replace('_', '-');
+  }
+
   private static Document parse(Path f) throws Exception {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     factory.setIgnoringComments(true);
     factory.setIgnoringElementContentWhitespace(true);
     factory.setValidating(false);
+    factory.setNamespaceAware(true);
     var is = new InputSource(f.toUri().toASCIIString());
     return factory.newDocumentBuilder().parse(is);
   }
