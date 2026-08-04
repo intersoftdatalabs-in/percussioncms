@@ -163,7 +163,8 @@ class InstallerUserSettingsTest {
     new InstallerUserSettings(tempHome, InstallerUserSettings.PREFIX_CMS)
         .save(prior, "8.2.0", Map.of("db.type", "h2"), null);
 
-    // Empty path answer accepts default; then H2 password prompts + demo-sites + confirm
+    // Empty path answer accepts default; then H2 menu default + password prompts + demo-sites +
+    // confirm. Saved path must appear as the editable default, not skip the path prompt.
     ScriptedPrompt prompt = new ScriptedPrompt("", "", "operator-pwd", "operator-pwd", "", "");
     Path javaHome = Path.of(System.getProperty("java.home")).toAbsolutePath().normalize();
     DbInstallConfigResolver.ParsedArgs parsed =
@@ -172,11 +173,16 @@ class InstallerUserSettingsTest {
         InteractiveInstallWizard.runPhase1(parsed, true, prompt, javaHome, tempHome);
     assertTrue(result.proceed());
     assertEquals(prior.toAbsolutePath().normalize(), result.installPath());
+    assertTrue(
+        prompt.sawInstallDirectoryPrompt,
+        "interactive mode must prompt for install directory when path comes only from"
+            + " last-install.properties");
   }
 
   /** Minimal scripted console for wizard tests. */
   private static final class ScriptedPrompt implements InstallPrompt {
     private final java.util.ArrayDeque<String> answers = new java.util.ArrayDeque<>();
+    private boolean sawInstallDirectoryPrompt;
 
     ScriptedPrompt(String... answers) {
       for (String a : answers) {
@@ -192,6 +198,9 @@ class InstallerUserSettingsTest {
 
     @Override
     public String readLine(String prompt) {
+      if (prompt != null && prompt.contains("Installation directory")) {
+        sawInstallDirectoryPrompt = true;
+      }
       return answers.isEmpty() ? "" : answers.removeFirst();
     }
 

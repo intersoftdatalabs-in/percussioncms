@@ -280,6 +280,65 @@ class InteractiveInstallWizardTest {
     assertEquals(savedInstall.toAbsolutePath().normalize(), result.installPath());
   }
 
+  /**
+   * Regression: last-install path must be an editable default in interactive mode, not a forced
+   * destination that skips the directory prompt (operator cannot change install root).
+   */
+  @Test
+  void interactivePromptsWithSavedPathAsDefaultAndAcceptsEmpty() throws Exception {
+    Path savedInstall = tempDir.resolve("prior-install");
+    Files.createDirectories(savedInstall);
+    InstallerUserSettings settings =
+        new InstallerUserSettings(isolatedUserHome(), InstallerUserSettings.PREFIX_CMS);
+    settings.save(savedInstall, "8.2.0", Map.of(), runningJavaHome().toString());
+
+    // empty path → accept default; H2 menu; CMS DB password + confirm; demo-sites; confirm Y
+    ScriptedPrompt prompt = new ScriptedPrompt("", "1", "secret", "secret", "", "y");
+    DbInstallConfigResolver.ParsedArgs parsed =
+        new DbInstallConfigResolver.ParsedArgs(null, Map.of());
+    InteractiveInstallWizard.Phase1Result result =
+        runPhase1Isolated(parsed, true, prompt, runningJavaHome());
+    assertTrue(result.proceed());
+    assertEquals(savedInstall.toAbsolutePath().normalize(), result.installPath());
+    String out = prompt.outputsAsString();
+    assertTrue(
+        out.contains("Installation directory"),
+        "interactive mode must prompt for install directory even when last-install has a path;"
+            + " was:\n"
+            + out);
+    assertTrue(
+        out.contains(savedInstall.toAbsolutePath().normalize().toString())
+            || out.contains(savedInstall.toString()),
+        "path prompt must show saved install path as default; was:\n" + out);
+  }
+
+  /**
+   * Regression: operator can override last-install directory by typing a different path at the
+   * prompt.
+   */
+  @Test
+  void interactiveAllowsChangingSavedInstallDirectory() throws Exception {
+    Path savedInstall = tempDir.resolve("old-install");
+    Path newInstall = tempDir.resolve("new-install");
+    Files.createDirectories(savedInstall);
+    InstallerUserSettings settings =
+        new InstallerUserSettings(isolatedUserHome(), InstallerUserSettings.PREFIX_CMS);
+    settings.save(savedInstall, "8.2.0", Map.of(), runningJavaHome().toString());
+
+    // different path → H2; password + confirm; demo-sites; confirm Y
+    ScriptedPrompt prompt =
+        new ScriptedPrompt(newInstall.toString(), "1", "secret", "secret", "", "y");
+    DbInstallConfigResolver.ParsedArgs parsed =
+        new DbInstallConfigResolver.ParsedArgs(null, Map.of());
+    InteractiveInstallWizard.Phase1Result result =
+        runPhase1Isolated(parsed, true, prompt, runningJavaHome());
+    assertTrue(result.proceed());
+    assertEquals(newInstall.toAbsolutePath().normalize(), result.installPath());
+    assertTrue(
+        prompt.outputsAsString().contains("Installation directory"),
+        "must still show the install-directory prompt when last-install path exists");
+  }
+
   @Test
   void summaryDetectsUpgradeWhenVersionPropertiesPresent() throws Exception {
     Path install = tempDir.resolve("upgrade-root");

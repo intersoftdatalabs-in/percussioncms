@@ -124,6 +124,10 @@ public final class InstallerUserSettings {
    * Apply saved defaults to a parsed CLI result: fill install path and missing option keys only.
    * Explicit CLI values always win.
    *
+   * <p>When the install path is filled from last-install settings, interactive callers must still
+   * treat it as a <em>default</em> for a path prompt (see {@link InteractiveInstallWizard}), not as
+   * a CLI-supplied path that skips operator confirmation of the directory.
+   *
    * @param parsedArgs CLI parse result
    * @return new parse result with defaults merged
    */

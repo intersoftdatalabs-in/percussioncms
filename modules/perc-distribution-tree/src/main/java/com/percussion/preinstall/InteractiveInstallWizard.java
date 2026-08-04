@@ -30,7 +30,8 @@ import java.util.Objects;
 /**
  * Console wizard for CMS preinstall (issue #1513).
  *
- * <p><strong>Phase 1:</strong> installation directory (when missing) and summary + confirm.
+ * <p><strong>Phase 1:</strong> installation directory (prompted when not supplied on the CLI;
+ * last-install path is the editable default only) and summary + confirm.
  *
  * <p><strong>Phase 2:</strong> Java home selection ({@link JavaInstallSelection}) after path.
  *
@@ -93,6 +94,16 @@ public final class InteractiveInstallWizard {
    * Phase 1–2: ensure install path, select/persist Java home, resolve DB config from existing
    * CLI/env defaults, show summary, and confirm when interactive.
    *
+   * <p>Install path rules:
+   *
+   * <ul>
+   *   <li>CLI path always wins (no path re-prompt in interactive mode).
+   *   <li>Interactive with no CLI path always prompts; last-install path is only the default the
+   *       operator may accept or change.
+   *   <li>Silent / non-TTY with no CLI path uses the last-install path when present, otherwise
+   *       usage abort.
+   * </ul>
+   *
    * @param parsedArgs CLI parse result (path may be null)
    * @param interactive whether to prompt
    * @param prompt operator I/O; required when interactive
@@ -150,6 +161,10 @@ public final class InteractiveInstallWizard {
 
     InstallerUserSettings userSettings =
         new InstallerUserSettings(userSettingsHome, InstallerUserSettings.PREFIX_CMS);
+    // Track CLI path before defaults: applyDefaults fills install.directory from
+    // ~/.intsof/percussion/last-install.properties for silent reuse, but interactive mode must
+    // still prompt so the operator can change the directory (saved value is the default only).
+    boolean pathFromCli = parsedArgs.installPath() != null;
     DbInstallConfigResolver.ParsedArgs withDefaults = userSettings.applyDefaults(parsedArgs);
 
     Path installPath = withDefaults.installPath();
@@ -158,15 +173,23 @@ public final class InteractiveInstallWizard {
             ? new LinkedHashMap<>(withDefaults.options())
             : new LinkedHashMap<>();
 
-    if (installPath == null) {
-      if (!interactive) {
-        return Phase1Result.abort(EXIT_USAGE, usageMessage());
-      }
-      installPath = promptForInstallPath(prompt, userSettings.loadInstallDirectory().orElse(null));
+    if (pathFromCli) {
+      installPath = installPath.toAbsolutePath().normalize();
+    } else if (interactive) {
+      // Always prompt when the operator did not pass a path on the CLI. Saved last-install path
+      // (if any) is offered as the editable default, not a forced destination.
+      Path defaultPath =
+          installPath != null
+              ? installPath.toAbsolutePath().normalize()
+              : userSettings.loadInstallDirectory().orElse(null);
+      installPath = promptForInstallPath(prompt, defaultPath);
       if (installPath == null) {
         return Phase1Result.abort(EXIT_ABORTED, "Installation cancelled: no install directory.");
       }
+    } else if (installPath == null) {
+      return Phase1Result.abort(EXIT_USAGE, usageMessage());
     } else {
+      // Silent / non-TTY: honor last-install path from applyDefaults
       installPath = installPath.toAbsolutePath().normalize();
     }
 
