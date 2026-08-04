@@ -39,26 +39,32 @@ import java.text.MessageFormat;
 import java.util.List;
 
 /**
- * Invokes demand publishing and presents a user interface to allow the user to
- * see the current status of the publishing job associated with the demand
- * request.
+ * Invokes demand publishing and redirects the browser to the modern Publishing
+ * shell status section so the user can monitor related publish jobs.
  * <p>
- * After queuing the request, this servlet invokes a JSP to present the progress
- * data.
- * 
- * @author dougrand 
+ * After queuing the request, this servlet no longer forwards to the legacy
+ * {@code /ui/pubruntime/DemandPublish.jsp} progress page (rewired for RET-06 /
+ * issue #1842). The {@code /publisher/demandpublishing} mapping is retained.
+ *
+ * @author dougrand
  */
 public class PSDemandPublishServlet extends HttpServlet
 {
    /**
-    * 
+    *
     */
    private static final long serialVersionUID = 1L;
    private static final Logger log = LogManager.getLogger("publish-jsp");
 
+   /**
+    * Modern Publishing shell status deep link — peer WebUI {@code
+    * publishingShellHref({ section: 'status' })}.
+    */
+   static final String PUBLISHING_STATUS_PATH = "/cm/app/?view=publish&section=status";
+
    /*
     * (non-Javadoc)
-    * 
+    *
     * @see jakarta.servlet.http.HttpServlet#service(jakarta.servlet.http.HttpServletRequest,
     *      jakarta.servlet.http.HttpServletResponse)
     */
@@ -127,9 +133,34 @@ public class PSDemandPublishServlet extends HttpServlet
          throw new ServletException(e);
       }
 
-      request.setAttribute("requestid", requestId);
-      var dispatcher = request.getRequestDispatcher("/ui/pubruntime/DemandPublish.jsp");
-      dispatcher.forward(request, resp);
+      log.info("Demand publishing queued requestId={}; redirecting to modern Publishing status", requestId);
+      // Context-relative redirect — URL path separators only (not File.separator)
+      var redirectUrl = buildPublishingStatusRedirectURL(request.getContextPath());
+      resp.sendRedirect(resp.encodeRedirectURL(redirectUrl));
+   }
+
+   /**
+    * Builds the context-relative redirect target used after a successful demand-publish
+    * queue.
+    * <p>
+    * Targets the modern Publishing shell — peer WebUI {@code publishingShellHref({ section:
+    * 'status' })} → {@code /cm/app/?view=publish&section=status}. Path assembly uses URL
+    * separators only ({@code /}); never OS file separators.
+    * <p>
+    * <b>Request id:</b> the modern shell deep-link contract supports {@code section} and
+    * optional {@code siteId}/{@code serverId}, but not a demand {@code requestid} filter.
+    * The legacy JSP progress page attribute is intentionally not carried on the query
+    * string; callers land on the Status section.
+    *
+    * @param contextPath servlet context path (e.g. {@code /Rhythmyx} or empty); may be
+    *     {@code null}
+    * @return context-relative redirect URL, never {@code null}
+    */
+   static String buildPublishingStatusRedirectURL(String contextPath)
+   {
+      // URL path elements always use '/'; do not use File.separator
+      String root = contextPath == null ? "" : contextPath;
+      return root + PUBLISHING_STATUS_PATH;
    }
 
    /**

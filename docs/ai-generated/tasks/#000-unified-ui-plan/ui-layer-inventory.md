@@ -170,19 +170,19 @@ PSContentExplorerHeader, PSContentExplorerLoginPanel, etc.
 
 **Publishing JSP pages (28)**:
 
-|                       Page                        |            Feature            |
-|---------------------------------------------------|-------------------------------|
-| `SiteList.jsp` / `SiteEditor.jsp`                 | Publishing site management    |
-| `EditionList.jsp` / `EditionEditor.jsp`           | Edition management            |
-| `ContentlistView.jsp` / `ContentlistEditor.jsp`   | Content list management       |
-| `ContextList.jsp` / `ContextEditor.jsp`           | Publishing context management |
-| `DeliveryTypeList.jsp` / `DeliveryTypeEditor.jsp` | Delivery type management      |
-| `LocationSchemeEditor.jsp`                        | Location scheme configuration |
-| `ActiveJobStatus.jsp`                             | Active publishing job status  |
-| `RuntimeEdition.jsp` / `RuntimeEditionList.jsp`   | Runtime edition execution     |
-| `AllPubLogs.jsp` / `SitePubLogs.jsp`              | Publishing logs               |
-| `JobPubLog.jsp` / `ItemPubLog.jsp`                | Job/item level logs           |
-| `DemandPublish.jsp`                               | On-demand publishing          |
+|                       Page                        |                                                                           Feature                                                                            |
+|---------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `SiteList.jsp` / `SiteEditor.jsp`                 | Publishing site management                                                                                                                                   |
+| `EditionList.jsp` / `EditionEditor.jsp`           | Edition management                                                                                                                                           |
+| `ContentlistView.jsp` / `ContentlistEditor.jsp`   | Content list management                                                                                                                                      |
+| `ContextList.jsp` / `ContextEditor.jsp`           | Publishing context management                                                                                                                                |
+| `DeliveryTypeList.jsp` / `DeliveryTypeEditor.jsp` | Delivery type management                                                                                                                                     |
+| `LocationSchemeEditor.jsp`                        | Location scheme configuration                                                                                                                                |
+| `ActiveJobStatus.jsp`                             | Active publishing job status                                                                                                                                 |
+| `RuntimeEdition.jsp` / `RuntimeEditionList.jsp`   | Runtime edition execution                                                                                                                                    |
+| `AllPubLogs.jsp` / `SitePubLogs.jsp`              | Publishing logs                                                                                                                                              |
+| `JobPubLog.jsp` / `ItemPubLog.jsp`                | Job/item level logs                                                                                                                                          |
+| `DemandPublish.jsp`                               | On-demand publishing — server consumer rewired (#1842): `PSDemandPublishServlet` → `/cm/app/?view=publish&section=status`; JSP delete still deferred (#1818) |
 
 ---
 
