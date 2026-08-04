@@ -93,10 +93,16 @@ public class PSDESEncryptor implements IPSEncryptor {
     30, 6, 22, 11, 4, 25
   }; // position index starts from 1, not 0
 
+  /** Length of {@link #InitialPermutation}. */
   public static final int initialPermLen = InitialPermutation.length;
+
+  /** Length of {@link #EArray}. */
   public static final int eArrayLen = EArray.length;
+
+  /** Length of {@link #PArray}. */
   public static final int pArrayLen = PArray.length;
 
+  /** DES substitution box S[1] — 4 rows of 16 columns (FIPS 46-2, table 1). */
   public static final int[][] substitutionBox1 = { // S[1]
     {14, 4, 13, 1, 2, 15, 11, 8, 3, 10, 6, 12, 5, 9, 0, 7},
     {0, 15, 7, 4, 14, 2, 13, 1, 10, 6, 12, 11, 9, 5, 3, 8},
@@ -104,6 +110,7 @@ public class PSDESEncryptor implements IPSEncryptor {
     {15, 12, 8, 2, 4, 9, 1, 7, 5, 11, 3, 14, 10, 0, 6, 13},
   };
 
+  /** DES substitution box S[2] — 4 rows of 16 columns (FIPS 46-2, table 2). */
   public static final int[][] substitutionBox2 = { // S[2]
     {15, 1, 8, 14, 6, 11, 3, 4, 9, 7, 2, 13, 12, 0, 5, 10},
     {3, 13, 4, 7, 15, 2, 8, 14, 12, 0, 1, 10, 6, 9, 11, 5},
@@ -111,6 +118,7 @@ public class PSDESEncryptor implements IPSEncryptor {
     {13, 8, 10, 1, 3, 15, 4, 2, 11, 6, 7, 12, 0, 5, 14, 9},
   };
 
+  /** DES substitution box S[3] — 4 rows of 16 columns (FIPS 46-2, table 3). */
   public static final int[][] substitutionBox3 = { // S[3]
     {10, 0, 9, 14, 6, 3, 15, 5, 1, 13, 12, 7, 11, 4, 2, 8},
     {13, 7, 0, 9, 3, 4, 6, 10, 2, 8, 5, 14, 12, 11, 15, 1},
@@ -118,6 +126,7 @@ public class PSDESEncryptor implements IPSEncryptor {
     {1, 10, 13, 0, 6, 9, 8, 7, 4, 15, 14, 3, 11, 5, 2, 12},
   };
 
+  /** DES substitution box S[4] — 4 rows of 16 columns (FIPS 46-2, table 4). */
   public static final int[][] substitutionBox4 = { // S[4]
     {7, 13, 14, 3, 0, 6, 9, 10, 1, 2, 8, 5, 11, 12, 4, 15},
     {13, 8, 11, 5, 6, 15, 0, 3, 4, 7, 2, 12, 1, 10, 14, 9},
@@ -125,6 +134,7 @@ public class PSDESEncryptor implements IPSEncryptor {
     {3, 15, 0, 6, 10, 1, 13, 8, 9, 4, 5, 11, 12, 7, 2, 14},
   };
 
+  /** DES substitution box S[5] — 4 rows of 16 columns (FIPS 46-2, table 5). */
   public static final int[][] substitutionBox5 = { // S[5]
     {2, 12, 4, 1, 7, 10, 11, 6, 8, 5, 3, 15, 13, 0, 14, 9},
     {14, 11, 2, 12, 4, 7, 13, 1, 5, 0, 15, 10, 3, 9, 8, 6},
@@ -132,6 +142,7 @@ public class PSDESEncryptor implements IPSEncryptor {
     {11, 8, 12, 7, 1, 14, 2, 13, 6, 15, 0, 9, 10, 4, 5, 3},
   };
 
+  /** DES substitution box S[6] — 4 rows of 16 columns (FIPS 46-2, table 6). */
   public static final int[][] substitutionBox6 = { // S[6]
     {12, 1, 10, 15, 9, 2, 6, 8, 0, 13, 3, 4, 14, 7, 5, 11},
     {10, 15, 4, 2, 7, 12, 9, 5, 6, 1, 13, 14, 0, 11, 3, 8},
@@ -139,6 +150,7 @@ public class PSDESEncryptor implements IPSEncryptor {
     {4, 3, 2, 12, 9, 5, 15, 10, 11, 14, 1, 7, 6, 0, 8, 13},
   };
 
+  /** DES substitution box S[7] — 4 rows of 16 columns (FIPS 46-2, table 7). */
   public static final int[][] substitutionBox7 = { // S[7]
     {4, 11, 2, 14, 15, 0, 8, 13, 3, 12, 9, 7, 5, 10, 6, 1},
     {13, 0, 11, 7, 4, 9, 1, 10, 14, 3, 5, 12, 2, 15, 8, 6},
@@ -146,6 +158,7 @@ public class PSDESEncryptor implements IPSEncryptor {
     {6, 11, 13, 8, 1, 4, 10, 7, 9, 5, 0, 15, 14, 2, 3, 12},
   };
 
+  /** DES substitution box S[8] — 4 rows of 16 columns (FIPS 46-2, table 8). */
   public static final int[][] substitutionBox8 = { // S[8]
     {13, 2, 8, 4, 6, 15, 11, 1, 10, 9, 3, 14, 5, 0, 12, 7},
     {1, 15, 13, 8, 10, 3, 7, 4, 12, 5, 6, 11, 0, 14, 9, 2},

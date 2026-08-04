@@ -41,6 +41,12 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
 
   private String keyLocation;
 
+  /**
+   * Returns the first legacy hard-coded security key (decrypted with {@link
+   * PSEncryptor#decryptLegacyKey(String)}). Returns an empty string if decryption fails.
+   *
+   * @return the legacy security key, or an empty string on failure.
+   */
   @Deprecated
   public String OLD_SECURITY_KEY() {
     try {
@@ -52,6 +58,12 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
     }
   }
 
+  /**
+   * Returns the second legacy hard-coded security key (decrypted with {@link
+   * PSEncryptor#decryptLegacyKey(String)}). Returns an empty string if decryption fails.
+   *
+   * @return the legacy security key, or an empty string on failure.
+   */
   @Deprecated
   public String OLD_SECURITY_KEY2() {
     try {
@@ -71,9 +83,11 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
   private static PSLegacyEncrypter instance;
 
   /**
-   * Simgleton accessor to get a legacy encryptor
+   * Singleton accessor to get a legacy encryptor.
    *
-   * @return Instance of PSLegacyEncrypter
+   * @param keyLocation path to the encryption key store; may be {@code null} for callers that only
+   *     access the legacy constant methods.
+   * @return the singleton {@link PSLegacyEncrypter} instance, never {@code null}.
    */
   public static PSLegacyEncrypter getInstance(String keyLocation) {
     synchronized (PSLegacyEncrypter.class) {
@@ -181,6 +195,8 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
   /**
    * The constant for the partone key for the Rx encryption algorithm. The constant is encrypted by
    * the {@link #rot13(char)} method.
+   *
+   * @return the part-one key string, or an empty string on decryption failure.
    */
   @Deprecated
   public String PART_ONE() {
@@ -196,6 +212,8 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
   /**
    * The constant for the parttwo key for the Rx encryption algorithm. The constant is encrypted by
    * the {@link #rot13(char)} method.
+   *
+   * @return the part-two key string, or an empty string on decryption failure.
    */
   @Deprecated
   public String PART_TWO() {
@@ -251,7 +269,8 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
    * @param str The string to decrypt, may not be <code>null</code>, may be empty.
    * @param key The secret key that was used to encrypt the string, may not be <code>null</code> or
    *     empty.
-   * @param legacyDecryptor
+   * @param legacyDecryptor optional secondary decryptor retained for legacy caller compatibility;
+   *     ignored by this implementation.
    * @return The decrypted string, never <code>null</code>, may be empty.
    */
   @Deprecated
@@ -388,14 +407,20 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
    *
    * @param encrypted The encrypted credentials
    * @param pw The password to use for decryption.
-   * @throws PSEncryptionException
+   * @throws PSEncryptionException always — legacy credential decryption is not implemented in this
+   *     module.
    */
   @Override
   public String decryptCredentials(String encrypted, String pw) throws PSEncryptionException {
     throw new PSEncryptionException("Not implemented");
   }
 
-  /** Encryption seed key. */
+  /**
+   * Returns the legacy encryption seed key (decrypted with {@link
+   * PSEncryptor#decryptLegacyKey(String)}).
+   *
+   * @return the encryption seed key, or an empty string on failure.
+   */
   @Deprecated
   public String CRYPT_KEY() {
     try {
@@ -406,6 +431,12 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
     }
   }
 
+  /**
+   * Returns the legacy email-encryption key (decrypted with {@link
+   * PSEncryptor#decryptLegacyKey(String)}).
+   *
+   * @return the email encryption key, or an empty string on failure.
+   */
   @Deprecated
   public String EMAIL_CRYPT_KEY() {
     try {
@@ -416,6 +447,12 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
     }
   }
 
+  /**
+   * Returns the legacy default encryption key (decrypted with {@link
+   * PSEncryptor#decryptLegacyKey(String)}).
+   *
+   * @return the default encryption key, or an empty string on failure.
+   */
   @Deprecated
   public String DEFAULT_KEY() {
     try {
@@ -426,6 +463,12 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
     }
   }
 
+  /**
+   * Returns the legacy "invalid driver" sentinel string (decrypted with {@link
+   * PSEncryptor#decryptLegacyKey(String)}).
+   *
+   * @return the invalid-driver sentinel, or an empty string on failure.
+   */
   @Deprecated
   public String INVALID_DRIVER() {
     try {
@@ -437,6 +480,12 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
     }
   }
 
+  /**
+   * Returns the legacy "invalid credentials" sentinel string (decrypted with {@link
+   * PSEncryptor#decryptLegacyKey(String)}).
+   *
+   * @return the invalid-credentials sentinel, or an empty string on failure.
+   */
   @Deprecated
   public String INVALID_CRED() {
     try {
@@ -448,11 +497,16 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
     }
   }
 
+  /** Legacy hard-coded username for the demo user (kept for upgrade paths). */
   @Deprecated public static final String LEGACY_USER_PWD = "demo";
 
+  /** Legacy hard-coded encrypted form of {@link #LEGACY_USER_PWD} (kept for upgrade paths). */
   @Deprecated
   public static final String LEGACY_USER_PWD_ENC = "89e495e7941cf9e40e6980d14a16bf023ccd4c91";
 
+  /**
+   * Legacy hard-coded encryption key used by the legacy publisher server (kept for upgrade paths).
+   */
   @Deprecated public static final String PUBSERVER_ENCRYPTION_KEY = "p3$Y&ND8#Zdefghl";
 
   /** Constant to use for part one key when encrypting/decrypting the password. */
