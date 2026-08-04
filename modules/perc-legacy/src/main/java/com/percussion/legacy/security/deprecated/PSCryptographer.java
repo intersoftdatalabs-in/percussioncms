@@ -28,9 +28,27 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Date;
 
-/** This class is used to encrypt and decrypt using percussion encryption algorithms. */
+/**
+ * This class is used to encrypt and decrypt using percussion encryption algorithms.
+ *
+ * <p>Legacy "lasagna" symmetric scheme retained solely so upgrade paths can decrypt historical
+ * ciphertext written by older Percussion CMS releases. New code MUST use {@code PSEncryptor}
+ * (AES/GCM) instead.
+ *
+ * @author Tas Giakouminakis
+ */
 @Deprecated
 public class PSCryptographer {
+
+  /**
+   * Private no-arg constructor that suppresses the default public constructor so the class behaves
+   * as a true static utility. This class only exposes {@code static} methods and is never meant to
+   * be instantiated.
+   */
+  private PSCryptographer() {
+    super();
+  }
+
   /**
    * Decrypts the specified string using the "lasagna" method. Requires the two keys that were used
    * to encrypt the string originally.
@@ -40,6 +58,9 @@ public class PSCryptographer {
    * @param key2 The second key used when encrypting the string. May not be <code>null</code> or
    *     empty.
    * @param str The string to decrypt. If <code>null</code> or empty, an empty string is returned.
+   * @param key the {@link IPSKey} implementation to drive the underlying DES block cipher;
+   *     typically obtained via {@link PSEncryptionKeyFactory}. May be {@code null}, in which case
+   *     the call short-circuits and returns an empty string.
    * @return The decrypted string, never <code>null</code>, may be empty.
    * @throws IllegalArgumentException if <code>key1</code> or <code>key2</code> is <code>null</code>
    *     or empty.
@@ -187,12 +208,29 @@ public class PSCryptographer {
     }
   }
 
+  /**
+   * Decrypts the specified string using the "lasagna" method, constructing a fresh DES key via
+   * {@link PSEncryptionKeyFactory}.
+   *
+   * @param key1 The first key used when encrypting the string. May not be {@code null} or empty.
+   * @param key2 The second key used when encrypting the string. May not be {@code null} or empty.
+   * @param str The string to decrypt. If {@code null} or empty, an empty string is returned.
+   * @return The decrypted string, never {@code null}, may be empty.
+   */
   @Deprecated
   public static String decrypt(String key1, String key2, String str) {
     IPSKey key = PSEncryptionKeyFactory.getKeyGenerator(PSEncryptionKeyFactory.DES_ALGORITHM);
     return decryptWithAlgo(key1, key2, str, key);
   }
 
+  /**
+   * Decrypts the specified string using the legacy algorithm that derives {@code key2} from {@code
+   * userStr} (or a synthetic "invalid driver" string when {@code userStr} is empty).
+   *
+   * @param userStr the user identifier (may be empty or {@code null}); used to seed the second key.
+   * @param str the encrypted payload to decrypt.
+   * @return the decrypted string, or an empty string on failure.
+   */
   @Deprecated
   public static String decryptWithOldAlgo(String userStr, String str) {
     try {

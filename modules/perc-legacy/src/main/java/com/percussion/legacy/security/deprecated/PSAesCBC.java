@@ -85,6 +85,13 @@ public class PSAesCBC {
     this(new byte[16]);
   }
 
+  /**
+   * Constructs an AES/CBC decryptor for the given raw key.
+   *
+   * @param rawKey the raw AES key bytes; must be non-null and non-empty. The supplied bytes are
+   *     copied/truncated/padded to exactly 16 bytes (the AES-128 block) before being wrapped in a
+   *     {@link SecretKeySpec}.
+   */
   public PSAesCBC(byte[] rawKey) {
     if (rawKey == null || rawKey.length == 0) {
       throw new IllegalArgumentException("Key must not be null or empty");
@@ -218,6 +225,12 @@ public class PSAesCBC {
    *
    * <p>Still AES/CBC (weak relative to GCM). Prefer {@code PSEncryptor} for any new product
    * ciphertext. Kept for {@link PSLegacyEncrypter} compatibility during migration.
+   *
+   * @param plaintextUtf8 the UTF-8 plaintext bytes to encrypt; must be non-{@code null}.
+   * @return the encrypted payload in the {@code [16-byte IV][ciphertext bytes]} layout, never
+   *     {@code null}.
+   * @throws GeneralSecurityException if the underlying JCE provider cannot produce a valid
+   *     AES/CBC/PKCS5Padding cipher for the configured key.
    */
   public byte[] encrypt(byte[] plaintextUtf8) throws GeneralSecurityException {
     if (plaintextUtf8 == null) {
