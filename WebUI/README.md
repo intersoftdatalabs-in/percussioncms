@@ -4,7 +4,45 @@ This module contains the support for the User Interface for CMS.
 
 ## Building
 
-mvn clean install
+```bash
+cd WebUI
+../mvnw clean install
+```
+
+### Frontend-only (Vite / Vitest / ESLint)
+
+Maven uses `WebUI/src/main/frontend` as the npm working directory
+(`frontend-maven-plugin`). Prefer that cwd for day-to-day frontend work:
+
+```bash
+cd WebUI/src/main/frontend
+npm ci
+npm run build:modern   # tsc --noEmit + vite
+npm run test           # Vitest
+npm run lint           # ESLint 10 flat config → product sources in ../ts
+```
+
+The WebUI module root also has a twin `package.json` / `eslint.config.mjs`
+for developers who run from `WebUI/`:
+
+```bash
+cd WebUI
+npm run lint           # eslint src/main/ts
+```
+
+#### ESLint notes (issue #1593)
+
+* Flat config only (`eslint.config.mjs`). No `.eslintrc*`.
+* ESLint **10** — drop obsolete CLI flags such as `--ext`.
+* Scope: product React/TypeScript under `src/main/ts` (not legacy `webapp` JS).
+* Parser: `@babel/eslint-parser` with TypeScript + JSX plugins.
+  **typescript-eslint** currently hard-rejects TypeScript 7.x (this module uses
+  `typescript@^7`); switch when typescript-eslint supports TS ≥7.1
+  (typescript-eslint#10940).
+* Baseline: `react-hooks/rules-of-hooks` is error; noisy Babel-without-types
+  rules (`no-unused-vars`, `set-state-in-effect`, etc.) are off/warn so
+  `npm run lint` exits 0. Tighten later with type-aware lint.
+* Lint is not yet bound in `frontend-maven-plugin` (dev/agent gate via npm).
 
 ## Layout
 
