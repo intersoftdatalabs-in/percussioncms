@@ -12,8 +12,15 @@
         <packages.output.dir>${basedir}/target/distribution/Packages</packages.output.dir>
         <packages.source.dir>${basedir}/src/main/resources/Packages</packages.source.dir>
         <packages.temp.dir>${basedir}/target/temp/Packages</packages.temp.dir>
+        <skipTests>false</skipTests>
     </properties>
-    <dependencies/>
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
     <build>
         <resources>
             <resource>
