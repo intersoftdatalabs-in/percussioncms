@@ -62,6 +62,12 @@ public final class VerifyJdbcDrivers {
 
   private VerifyJdbcDrivers() {}
 
+  /**
+   * Build-gate entry point; asserts the assembled distribution ships the expected JDBC drivers.
+   *
+   * @param args CLI arguments; supports {@code --artifact <jar>} and {@code --expected-driver-glob
+   *     <comma-separated-globs>}.
+   */
   public static void main(String[] args) {
     int code;
     try {

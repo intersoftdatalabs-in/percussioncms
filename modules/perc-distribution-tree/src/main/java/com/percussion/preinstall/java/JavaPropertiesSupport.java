@@ -207,7 +207,15 @@ public final class JavaPropertiesSupport {
     return os.toLowerCase(Locale.ROOT).contains("win") ? ".exe" : "";
   }
 
-  /** Result of loading {@code java.properties}. */
+  /**
+   * Result of loading {@code java.properties}.
+   *
+   * @param location location of the properties file; may be {@code null} when {@link #present()} is
+   *     {@code false}.
+   * @param properties loaded property key/value pairs; never {@code null}.
+   * @param present {@code true} when the file existed and was parseable.
+   * @param error I/O error if the file existed but could not be read, or {@code null}.
+   */
   public record JavaLoadResult(
       /** Location of the properties file. */
       Path location,
@@ -218,7 +226,11 @@ public final class JavaPropertiesSupport {
       /** I/O error if the file existed but could not be read, or null. */
       IOException error) {
 
-    /** Returns the property keys for debug logging. */
+    /**
+     * Returns the property keys for debug logging.
+     *
+     * @return mutable list of property keys; never {@code null}.
+     */
     public List<String> keysForDebug() {
       return new ArrayList<>(properties.keySet());
     }
@@ -232,7 +244,13 @@ public final class JavaPropertiesSupport {
       return "java.properties " + (present ? "loaded" : "absent") + " keys=" + keysForDebug();
     }
 
-    /** Formats a path for log output, substituting {@code <null>} when null. */
+    /**
+     * Formats a path for log output, substituting {@code <null>} when null.
+     *
+     * @param path path to format; may be {@code null}.
+     * @return the path's {@code toString()} value, or {@code <null>} when {@code path} is {@code
+     *     null}.
+     */
     public static String forLogPath(Path path) {
       return path == null ? "<null>" : path.toString();
     }

@@ -58,7 +58,12 @@ public final class CheckNoGlobDeletes {
 
   private CheckNoGlobDeletes() {}
 
-  /** Entry point for the build gate; returns via {@link BuildGateMains#complete(int, String)}. */
+  /**
+   * Entry point for the build gate; returns via {@link BuildGateMains#complete(int, String)}.
+   *
+   * @param args CLI arguments; supports {@code --install-xml <path>}. When omitted, the {@code
+   *     --install-xml} path defaults to the installer's {@code install.xml}.
+   */
   public static void main(String[] args) {
     BuildGateMains.complete(run(args), "CheckNoGlobDeletes");
   }
