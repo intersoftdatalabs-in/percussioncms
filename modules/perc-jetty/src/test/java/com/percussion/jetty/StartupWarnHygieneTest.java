@@ -152,6 +152,14 @@ class StartupWarnHygieneTest {
     assertFalse(
         jvm.contains("xml.catalog.staticCatalog=static-catalog"),
         "xml.catalog.staticCatalog must not be set to the property name string");
+    // Issue #1800 / #1675: full ESAPI removed; do not point JVM at former ESAPI config dir.
+    String jvmActive = stripComments(jvm);
+    assertFalse(
+        jvmActive.contains("org.owasp.esapi.resources"),
+        "jvm.ini must not set org.owasp.esapi.resources after ESAPI removal");
+    assertFalse(
+        jvmActive.contains("rxconfig/esapi"),
+        "jvm.ini must not reference the removed rxconfig/esapi directory");
   }
 
   /** GH-1486: ShutdownService configuration (not STOP.PORT ShutdownMonitor on server). */
