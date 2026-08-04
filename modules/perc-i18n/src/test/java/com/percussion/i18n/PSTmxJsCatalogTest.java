@@ -154,6 +154,13 @@ public class PSTmxJsCatalogTest {
     assertEquals("a\\\"b", PSTmxJsCatalog.fallbackEscape("a\"b"));
     assertEquals("a\\nb", PSTmxJsCatalog.fallbackEscape("a\nb"));
     assertEquals("a\\\\b", PSTmxJsCatalog.fallbackEscape("a\\b"));
+    // Full C0 range (not only n/r/t) must be escaped as JSON unicode escapes for validity.
+    // Expected form is backslash + "u" + four hex digits (split so the source stays legal).
+    assertEquals("a\\" + "u0000b", PSTmxJsCatalog.fallbackEscape("a" + (char) 0 + "b"));
+    assertEquals("a\\" + "u0008b", PSTmxJsCatalog.fallbackEscape("a" + '\b' + "b"));
+    assertEquals("a\\" + "u000cb", PSTmxJsCatalog.fallbackEscape("a" + '\f' + "b"));
+    assertEquals("a\\" + "u001fb", PSTmxJsCatalog.fallbackEscape("a" + (char) 0x1f + "b"));
+    assertEquals("a\\" + "u2028b", PSTmxJsCatalog.fallbackEscape("a" + '\u2028' + "b"));
   }
 
   /**
@@ -185,12 +192,9 @@ public class PSTmxJsCatalogTest {
     for (String lang : new String[] {"hi-in", "hi", "en-us"}) {
       Map<String, String> accepted = PSTmxJsCatalog.collectAccepted(bundle, lang, PERC_UI_PREFIX);
       assertNotNull(accepted, "accepted map for " + lang);
-      // hi-in must resolve keys via language-only/default chain (sparse regional).
-      if ("hi-in".equals(lang) || "hi".equals(lang) || "en-us".equals(lang)) {
-        assertFalse(
-            accepted.isEmpty(),
-            "expected perc.ui. keys for " + lang + " after loading product TMX");
-      }
+      // hi-in / hi resolve via language-only/default chain (sparse regional); en-us has full pack.
+      assertFalse(
+          accepted.isEmpty(), "expected perc.ui. keys for " + lang + " after loading product TMX");
 
       for (Map.Entry<String, String> e : accepted.entrySet()) {
         assertNotNull(e.getKey(), "null key in accepted for " + lang);

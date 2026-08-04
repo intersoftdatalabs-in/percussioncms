@@ -174,7 +174,9 @@ public final class PSTmxJsCatalog {
 
   /**
    * Minimal fallback when {@link XSSValidation#escapeJavaScript(String)} fails. Escapes backslash,
-   * quotes, and common control characters only.
+   * quotes, line/paragraph separators, and the full C0 control range ({@code U+0000}–{@code
+   * U+001F}) so the result remains valid JSON / JS string content even if the primary escaper
+   * throws.
    */
   static String fallbackEscape(String input) {
     StringBuilder sb = new StringBuilder(input.length() + 16);
@@ -200,13 +202,18 @@ public final class PSTmxJsCatalog {
           sb.append("\\t");
           break;
         case '\u2028':
-          sb.append("\\u2028");
+          sb.append('\\').append("u2028");
           break;
         case '\u2029':
-          sb.append("\\u2029");
+          sb.append('\\').append("u2029");
           break;
         default:
-          sb.append(c);
+          // Full C0 range (NUL..US) as JSON unicode escapes so catalog stays valid if fallback runs.
+          if (c < 0x20) {
+            sb.append('\\').append(String.format("u%04x", (int) c));
+          } else {
+            sb.append(c);
+          }
       }
     }
     return sb.toString();
