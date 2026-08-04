@@ -2,6 +2,8 @@
 
 Project workflows live here and are invocable by name (e.g. `/night-issue-prs` or the workflow tool with `name: "night-issue-prs"`).
 
+**Git:** only `*.rhai` and `README.md` under this folder are versioned. The rest of `.grok/` (memory, sessions, rules, worktrees, auth, caches, etc.) stays gitignored.
+
 ## `night-issue-prs`
 
 Unattended overnight worker:
