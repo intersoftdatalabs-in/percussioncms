@@ -65,7 +65,11 @@ public class PSLocaleRxResourceCopyHandler extends PSIdleDotter {
     m_languagestring = languageString;
   }
 
-  /** Calls {@link #processResourceCopy(boolean) processResourceCopy(true)} */
+  /**
+   * Copies resources using the default logging behavior.
+   *
+   * @throws IOException if file copying fails for IO reasons
+   */
   public void processResourceCopy() throws IOException {
     processResourceCopy(true);
   }
@@ -426,7 +430,7 @@ public class PSLocaleRxResourceCopyHandler extends PSIdleDotter {
   /**
    * Main method for testing purpose.
    *
-   * @param args
+   * @param args command-line arguments for the test invocation.
    */
   public static void main(String[] args) {
     PSLocaleRxResourceCopyHandler localeRxResourceCopyHandler =

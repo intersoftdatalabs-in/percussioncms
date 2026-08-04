@@ -17,4 +17,5 @@
 
 package com.percussion.i18n;
 
+/** Defines the common marker interface for internationalization utilities. */
 public interface IPSI18nUtils {}

@@ -24,6 +24,11 @@ import org.w3c.dom.Element;
  * interface.
  */
 public abstract class PSTmxNode implements IPSTmxNode {
+  /** Creates an empty TMX node. */
+  protected PSTmxNode() {
+    super();
+  }
+
   /*
    * Default implementation of the method defined in the interface.
    */

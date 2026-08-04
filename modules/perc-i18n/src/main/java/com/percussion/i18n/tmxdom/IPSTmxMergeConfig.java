@@ -40,7 +40,7 @@ public interface IPSTmxMergeConfig {
    *
    * @param doc XML document containg the merge configuration settings. Must not be <code>null
    *     </code>
-   * @throws IllegalArgumentException
+   * @throws IllegalArgumentException if the document is <code>null</code>.
    */
   void setConfigDoc(Document doc);
 

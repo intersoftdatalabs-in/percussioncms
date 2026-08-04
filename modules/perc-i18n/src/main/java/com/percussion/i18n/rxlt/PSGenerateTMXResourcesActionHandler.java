@@ -53,6 +53,11 @@ import org.w3c.dom.NodeList;
  * the server TMX document. This is important to get all the existing translations preserved. </em>
  */
 public class PSGenerateTMXResourcesActionHandler implements IPSActionHandler {
+  /** Creates a handler for generating TMX resources. */
+  public PSGenerateTMXResourcesActionHandler() {
+    super();
+  }
+
   /*
    * Implementation of the method defined in the interface
    */

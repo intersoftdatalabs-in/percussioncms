@@ -54,6 +54,11 @@ import org.w3c.dom.Element;
  * @author dougrand
  */
 public class PSJspHandler extends PSIdleDotter implements IPSSectionHandler {
+  /** Creates a handler for JSP resources. */
+  public PSJspHandler() {
+    super();
+  }
+
   private static final String JETTY_APP_SERVER = "jetty/base/webapps";
 
   /**

@@ -43,6 +43,10 @@ import org.apache.logging.log4j.Logger;
  * from other packages.
  */
 public class PSI18nUtils implements IPSI18nUtils {
+  /** Creates the internationalization utility. */
+  public PSI18nUtils() {
+    super();
+  }
 
   private static final Logger log = LogManager.getLogger(PSI18nUtils.class);
 
@@ -302,7 +306,7 @@ public class PSI18nUtils implements IPSI18nUtils {
    * @param inputDateString date string to be parsed.
    * @param inputLocale the Locale to be used while parsing.
    * @return Date object parsed, never <code>null</code>.
-   * @throws IllegalArgumentException
+   * @throws IllegalArgumentException if the input date string is invalid.
    * @see PSDataTypeConverter
    */
   public static Date parseStringToDate(String inputDateString, Locale inputLocale) {
@@ -330,7 +334,7 @@ public class PSI18nUtils implements IPSI18nUtils {
    * @return parsed Date object
    * @see com.percussion.util.PSDataTypeConverter#parseStringToDate(String, StringBuilder, Locale)
    * @throws IllegalArgumentException if the supplied date string is <code>null</code> or empty.
-   * @throws ParseException
+   * @throws ParseException if the input date cannot be parsed using the supplied pattern.
    */
   public static Date parseStringToDate(
       String inpuDateString, String inputPattern, Locale inputLocale) throws ParseException {
@@ -420,7 +424,7 @@ public class PSI18nUtils implements IPSI18nUtils {
    * <p>Remove all null or empty keys from the array list of keys. This means all empty keys are
    * ignored in building the final lookup key
    *
-   * <p>
+   * <p>The key construction rules are:
    *
    * <ul>
    *   <li>Every subkey is appended with {@link #LOOKUP_KEY_SEPARATOR} except the last two subkeys.
@@ -514,7 +518,7 @@ public class PSI18nUtils implements IPSI18nUtils {
   /**
    * main method for testing
    *
-   * @param args
+   * @param args command-line arguments for the test invocation.
    */
   public static void main(String[] args) {
     List<String> list = new ArrayList<>();

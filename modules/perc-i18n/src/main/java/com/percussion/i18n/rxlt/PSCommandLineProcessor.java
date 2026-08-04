@@ -596,10 +596,20 @@ public class PSCommandLineProcessor {
     return logEnabled;
   }
 
+  /**
+   * Determines whether idle dots are enabled.
+   *
+   * @return <code>true</code> when idle dots are enabled.
+   */
   public static boolean areDotsEnabled() {
     return dotsEnabled;
   }
 
+  /**
+   * Enables or disables idle dots.
+   *
+   * @param enabled <code>true</code> to enable idle dots.
+   */
   public static void setDotsEnabled(boolean enabled) {
     dotsEnabled = enabled;
   }

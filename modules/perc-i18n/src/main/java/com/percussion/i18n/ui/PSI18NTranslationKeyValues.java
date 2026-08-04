@@ -48,6 +48,7 @@ public class PSI18NTranslationKeyValues {
    * <code>Element</code>.
    *
    * @param sourceNode must not be <code>null</code> and must constrain to said dtd.
+   * @throws PSBeansException if the source XML cannot be processed.
    */
   public void fromXml(Element sourceNode) throws PSBeansException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode must not be null");
@@ -141,6 +142,9 @@ public class PSI18NTranslationKeyValues {
    * document retrieved by the request to the url.
    *
    * @param requester with the must not be <code>null</code>.
+   * @throws IOException if the remote request cannot be completed.
+   * @throws SAXException if the response XML cannot be parsed.
+   * @throws PSBeansException if the response XML cannot be processed.
    */
   public void load(IPSRemoteRequester requester)
       throws IOException, SAXException, PSBeansException {
@@ -223,6 +227,8 @@ public class PSI18NTranslationKeyValues {
   }
 
   /**
+   * Returns the mnemonic for a key.
+   *
    * @param key the key to lookup, must never be <code>null</code> or empty
    * @return the mnemonic or <code>0</code> if the key is not found or the mnemonic was not defined
    */

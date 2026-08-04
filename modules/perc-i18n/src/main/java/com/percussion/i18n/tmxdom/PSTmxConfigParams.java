@@ -24,6 +24,11 @@ import java.util.Map;
  * additional checking.
  */
 public class PSTmxConfigParams {
+  /** Creates an empty configuration parameter collection. */
+  public PSTmxConfigParams() {
+    super();
+  }
+
   /** Hash map of parameter name-value pairs. */
   protected Map<String, String> m_ConfigParamMap = new HashMap<>();
 

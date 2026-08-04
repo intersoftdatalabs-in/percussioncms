@@ -42,6 +42,7 @@ public class PSActionProcessingException extends RuntimeException {
    * Constructor that takes the error message.
    *
    * @param msg must not be <code>null</code>.
+   * @param e the cause of the action processing failure.
    */
   public PSActionProcessingException(String msg, Throwable e) {
     super(msg, e);
