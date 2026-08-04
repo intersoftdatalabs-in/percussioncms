@@ -23,6 +23,11 @@ import javax.swing.*;
 ////////////////////////////////////////////////////////////////////////////////
 public class UTFixedButton extends JButton {
 
+  /** No-op default constructor. */
+  public UTFixedButton() {
+    super();
+  }
+
   private static final long serialVersionUID = 1L;
 
   /** The size of button used by default by this class. */

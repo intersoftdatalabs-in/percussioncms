@@ -32,9 +32,8 @@ public class ErrorDialogs {
   /**
    * Constructs the object.
    *
-   * @param parent the parent window of the error dialog, may not be <code>null
-   * </code>
-   * @throws IllegalArgumentException if parent is <code>null</code>
+   * @param parent the parent window of the error dialog, may not be {@code null}.
+   * @throws IllegalArgumentException if {@code parent} is {@code null}.
    */
   public ErrorDialogs(Window parent) {
     if (parent == null) throw new IllegalArgumentException("parent may not be null.");
@@ -55,8 +54,15 @@ public class ErrorDialogs {
   }
 
   /**
-   * Convenience constructor, calls {@link #showErrorDialog(Component, String, String, int)
-   * showErrorDialog(Component, MessageFormat.format(String, Object[]), String, int)}
+   * Convenience overload that formats {@code errorMsg} with {@code msgArgs} before delegating to
+   * {@link #showErrorDialog(Component, String, String, int)}.
+   *
+   * @param parent the owner {@link Component} of this error dialog, may be {@code null}.
+   * @param errorMsg the error message template to format, may be {@code null} or empty.
+   * @param msgArgs the {@link MessageFormat} arguments for {@code errorMsg}; may be {@code null}.
+   * @param errorTitle the title text of the dialog; if {@code null} the default error title is
+   *     used.
+   * @param type the {@code JOptionPane} message type.
    */
   public static void showErrorDialog(
       Component parent, String errorMsg, Object[] msgArgs, String errorTitle, int type) {

@@ -40,6 +40,11 @@ import javax.swing.*;
  * or the db flag is present, but never both.
  */
 public class PSSearchAdvancedPanel extends PSPropertyPanel implements ActionListener {
+  /** No-op default constructor. */
+  public PSSearchAdvancedPanel() {
+    super();
+  }
+
   /**
    * Creates the advanced search panel.
    *

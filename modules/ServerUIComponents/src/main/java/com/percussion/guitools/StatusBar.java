@@ -31,6 +31,11 @@ import javax.swing.border.BevelBorder;
  * <p>In the future, additional things could be added to the panel.
  */
 public class StatusBar extends JPanel {
+  /** No-op default constructor. */
+  public StatusBar() {
+    super();
+  }
+
   /**
    * Initializes the status bar with supplied message as default message and displays the same
    * message in the label.

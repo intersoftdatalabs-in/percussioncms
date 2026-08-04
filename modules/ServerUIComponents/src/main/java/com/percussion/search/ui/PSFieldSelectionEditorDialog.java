@@ -74,6 +74,11 @@ import org.apache.oro.text.perl.Perl5Util;
  */
 public class PSFieldSelectionEditorDialog extends PSDialog {
 
+  /** No-op default constructor. */
+  public PSFieldSelectionEditorDialog() {
+    super();
+  }
+
   private static final int ADDITIONAL_BUTTON_BORDER_HEIGHT = 8;
   private static final int ADDITIONAL_BUTTON_BORDER_WIDTH = 10;
 
@@ -89,9 +94,10 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
   /**
    * Constructs the dialog.
    *
-   * @param frame - the parent frame.
-   * @param dbComponent
-   * @param ceCatlg
+   * @param frame the parent frame; may be {@code null}.
+   * @param dbComponent the database component the dialog edits; never {@code null}.
+   * @param ceCatlg the field cataloger used to look up content-editor fields; never {@code null}.
+   * @param inWorkbench flag indicating this dialog was launched from the Eclipse based workbench.
    * @param inWorkbench flag indicating this dialog was launched from the Eclipse based workbench
    */
   public PSFieldSelectionEditorDialog(
@@ -128,9 +134,10 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
   /**
    * Constructs the dialog.
    *
-   * @param dialog - the parent dialog.
-   * @param dbComponent
-   * @param ceCatlg
+   * @param dialog the parent dialog; may be {@code null}.
+   * @param dbComponent the database component the dialog edits; never {@code null}.
+   * @param ceCatlg the field cataloger used to look up content-editor fields; never {@code null}.
+   * @param inWorkbench flag indicating this dialog was launched from the Eclipse based workbench.
    * @param inWorkbench flag indicating this dialog was launched from the Eclipse based workbench
    */
   public PSFieldSelectionEditorDialog(

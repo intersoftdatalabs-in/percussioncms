@@ -25,6 +25,11 @@ import javax.swing.*;
  */
 public class UTFixedLabel extends JLabel {
 
+  /** No-op default constructor. */
+  public UTFixedLabel() {
+    super();
+  }
+
   private static final long serialVersionUID = 1L;
 
   public UTFixedLabel(String label, int position) {

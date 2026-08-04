@@ -25,6 +25,11 @@ import javax.swing.*;
  */
 public class UTFixedHeightTextField extends JTextField {
 
+  /** No-op default constructor. */
+  public UTFixedHeightTextField() {
+    super();
+  }
+
   private static final long serialVersionUID = 1L;
 
   /** Overridden to return the preferred size for the control. */

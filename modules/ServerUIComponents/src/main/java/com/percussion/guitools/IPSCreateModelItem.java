@@ -17,9 +17,10 @@
 package com.percussion.guitools;
 
 /**
+ * This interface allows a model to state that it can create new instances of an appropriate type
+ * for itself.
+ *
  * @author DougRand
- *     <p>This interface allows a model to state that it can create new instances of an appropriate
- *     type for itself.
  */
 public interface IPSCreateModelItem {
   /**

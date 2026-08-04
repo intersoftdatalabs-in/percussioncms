@@ -49,24 +49,29 @@ public class PropertyTablePanel extends JPanel implements KeyListener, FocusList
   public static final int VALUE_COLUMN = 1;
 
   /**
-   * Convenience ctor that calls {@link #PropertyTablePanel(String[], int, boolean)
-   * PropertTablePanel(colNames, rows, <code>false</code>)}.
+   * Convenience constructor that calls {@link #PropertyTablePanel(String[], int, boolean)
+   * PropertyTablePanel(colNames, rows, false)}.
+   *
+   * @param colNames the column header labels, must not be {@code null}.
+   * @param rows the initial number of rows in the table.
    */
   public PropertyTablePanel(String[] colNames, int rows) {
     this(colNames, rows, false);
   }
 
   /**
-   * Convenience ctor that calls {@link #PropertyTablePanel(String[], int, boolean)
-   * PropertyTablePanel(DEFAULT_HEADERS, 1, <code>true</code>)}.
+   * Convenience constructor that calls {@link #PropertyTablePanel(String[], int, boolean)
+   * PropertyTablePanel(DEFAULT_HEADERS, 1, true)}.
    */
   public PropertyTablePanel() {
     this(DEFAULT_HEADERS, 1, true);
   }
 
   /**
-   * Convenience ctor that calls {@link #PropertyTablePanel(String[], int, boolean)
-   * PropertyTablePanel(DEFAULT_HEADERS, rows, <code>true</code>)}.
+   * Convenience constructor that calls {@link #PropertyTablePanel(String[], int, boolean)
+   * PropertyTablePanel(DEFAULT_HEADERS, rows, true)}.
+   *
+   * @param rows the initial number of rows in the table.
    */
   public PropertyTablePanel(int rows) {
     this(DEFAULT_HEADERS, rows, true);
@@ -417,6 +422,11 @@ public class PropertyTablePanel extends JPanel implements KeyListener, FocusList
     dtm.fireTableDataChanged();
   }
 
+  /**
+   * Sets the preferred size of the scroll pane wrapping the table.
+   *
+   * @param d the preferred size, may be {@code null} in which case the call is a no-op.
+   */
   public void setScrollPaneSize(Dimension d) {
     m_jsp.setPreferredSize(d);
   }

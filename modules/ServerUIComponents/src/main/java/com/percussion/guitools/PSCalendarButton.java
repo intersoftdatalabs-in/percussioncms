@@ -41,6 +41,11 @@ import javax.swing.*;
  * #DATE_UPDATED_CMD} respectively.
  */
 public class PSCalendarButton extends JButton implements ActionListener, Serializable {
+  /** No-op default constructor. */
+  public PSCalendarButton() {
+    super();
+  }
+
   private static final long serialVersionUID = 1L;
 
   /**
@@ -126,7 +131,12 @@ public class PSCalendarButton extends JButton implements ActionListener, Seriali
     }
   }
 
-  /** Creates dialog to show. */
+  /**
+   * Creates the calendar dialog that pops up when the button is clicked. Subclasses may override to
+   * provide a customized dialog.
+   *
+   * @return the calendar dialog, never {@code null}.
+   */
   protected PSCalendarDialog createDialog() {
     return new PSCalendarDialog(m_frame);
   }

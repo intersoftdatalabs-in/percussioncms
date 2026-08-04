@@ -97,7 +97,14 @@ public class PSCalendarField extends JPanel implements ActionListener {
     add(m_calendarButton);
   }
 
-  /** Creates calendar button. */
+  /**
+   * Creates the calendar button used by this field. Subclasses may override to customize the button
+   * (e.g. attaching additional listeners).
+   *
+   * @param frame the parent frame for the calendar button; may be {@code null}.
+   * @param date the initial date for the button; may be {@code null}.
+   * @return the calendar button, never {@code null}.
+   */
   protected PSCalendarButton createCalendarButton(final Frame frame, final Date date) {
     return new PSCalendarButton(frame, date);
   }
@@ -120,10 +127,20 @@ public class PSCalendarField extends JPanel implements ActionListener {
     return fieldToDate();
   }
 
+  /**
+   * Returns the date text-field contents formatted via the configured output format.
+   *
+   * @return the formatted date string; never {@code null}.
+   */
   public String getDateString() {
     return toString();
   }
 
+  /**
+   * Sets whether the field height is fixed.
+   *
+   * @param fixed {@code true} to fix the field height; {@code false} to let it grow.
+   */
   public void setHeightFixed(boolean fixed) {
     m_fixedHeight = fixed;
   }
@@ -174,9 +191,11 @@ public class PSCalendarField extends JPanel implements ActionListener {
   }
 
   /**
-   * Return the date passed in as a formatted string based on the outputFormat
+   * Formats the supplied date using this field's configured output format.
    *
-   * @return formatted date string, Never <code>null</code>. May be empty.
+   * @param date the date to format; may be {@code null}, in which case the empty string is
+   *     returned.
+   * @return the formatted date string, never {@code null}; may be empty.
    */
   public String toString(Date date) {
     if (null == date) return "";

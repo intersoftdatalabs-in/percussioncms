@@ -29,37 +29,64 @@ import javax.swing.*;
  * JLabel</code> for ease of use.
  */
 public class PSLabel extends JLabel {
-  // see base class
+  /** Default constructor; see {@link JLabel#JLabel()}. */
   public PSLabel() {
     super();
     init();
   }
 
-  // see base class
+  /**
+   * Constructs a label displaying the supplied icon; see {@link JLabel#JLabel(Icon)}.
+   *
+   * @param image the icon to display; may be {@code null}.
+   */
   public PSLabel(Icon image) {
     super(image);
     init();
   }
 
-  // see base class
+  /**
+   * Constructs a label displaying the supplied icon and alignment; see {@link JLabel#JLabel(Icon,
+   * int)}.
+   *
+   * @param image the icon to display; may be {@code null}.
+   * @param horizontalAlignment one of the {@code SwingConstants} horizontal alignment values.
+   */
   public PSLabel(Icon image, int horizontalAlignment) {
     super(image, horizontalAlignment);
     init();
   }
 
-  // see base class
+  /**
+   * Constructs a label displaying the supplied text; see {@link JLabel#JLabel(String)}.
+   *
+   * @param text the label text; may be {@code null}.
+   */
   public PSLabel(String text) {
     super(text);
     init();
   }
 
-  // see base class
+  /**
+   * Constructs a label displaying the supplied text, icon, and alignment; see {@link
+   * JLabel#JLabel(String, Icon, int)}.
+   *
+   * @param text the label text; may be {@code null}.
+   * @param icon the icon to display; may be {@code null}.
+   * @param horizontalAlignment one of the {@code SwingConstants} horizontal alignment values.
+   */
   public PSLabel(String text, Icon icon, int horizontalAlignment) {
     super(text, icon, horizontalAlignment);
     init();
   }
 
-  // see base class
+  /**
+   * Constructs a label displaying the supplied text with the given alignment; see {@link
+   * JLabel#JLabel(String, int)}.
+   *
+   * @param text the label text; may be {@code null}.
+   * @param horizontalAlignment one of the {@code SwingConstants} horizontal alignment values.
+   */
   public PSLabel(String text, int horizontalAlignment) {
     super(text, horizontalAlignment);
     init();

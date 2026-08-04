@@ -31,21 +31,24 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
 /**
+ * A useful common subclass of JTable that provides additional helper methods to avoid the use of
+ * the embedded models for columns, rows and such.
+ *
  * @author DougRand
- *     <p>A useful common subclass of JTable taht provides additional helper methods to avoid the
- *     use of the embedded models for columns, rows and such.
  */
 public class PSJTable extends JTable {
 
-  /**
-   * @see javax.swing.JTable#JTable()
-   */
+  /** Default constructor; delegates to {@link javax.swing.JTable#JTable()}. */
   public PSJTable() {
 
     // XXX Auto-generated constructor stub
   }
 
   /**
+   * Constructs a table with the supplied row and column data.
+   *
+   * @param rowData the initial row data; may be {@code null}.
+   * @param columnNames the column header labels; may be {@code null}.
    * @see javax.swing.JTable#JTable(java.util.Vector, java.util.Vector)
    */
   public PSJTable(Vector rowData, Vector columnNames) {
@@ -53,6 +56,11 @@ public class PSJTable extends JTable {
   }
 
   /**
+   * Constructs a table with the supplied table, column, and selection models.
+   *
+   * @param dm the data model for the table.
+   * @param cm the column model for the table.
+   * @param sm the row selection model for the table.
    * @see javax.swing.JTable#JTable(javax.swing.table.TableModel,
    *     javax.swing.table.TableColumnModel, javax.swing.ListSelectionModel)
    */
@@ -61,6 +69,10 @@ public class PSJTable extends JTable {
   }
 
   /**
+   * Constructs a table with the supplied table and column models.
+   *
+   * @param dm the data model for the table.
+   * @param cm the column model for the table.
    * @see javax.swing.JTable#JTable(javax.swing.table.TableModel,
    *     javax.swing.table.TableColumnModel)
    */
@@ -69,6 +81,9 @@ public class PSJTable extends JTable {
   }
 
   /**
+   * Constructs a table with the supplied data model.
+   *
+   * @param dm the data model for the table.
    * @see javax.swing.JTable#JTable(javax.swing.table.TableModel)
    */
   public PSJTable(TableModel dm) {
@@ -76,6 +91,10 @@ public class PSJTable extends JTable {
   }
 
   /**
+   * Constructs a table with the supplied row data and column headers.
+   *
+   * @param rowData the initial row data.
+   * @param columnNames the column header labels.
    * @see javax.swing.JTable#JTable(java.lang.Object[][], java.lang.Object[])
    */
   public PSJTable(Object[][] rowData, Object[] columnNames) {
@@ -83,6 +102,10 @@ public class PSJTable extends JTable {
   }
 
   /**
+   * Constructs an empty table with the supplied number of rows and columns.
+   *
+   * @param numRows the initial number of rows.
+   * @param numColumns the initial number of columns.
    * @see javax.swing.JTable#JTable(int, int)
    */
   public PSJTable(int numRows, int numColumns) {
@@ -112,7 +135,7 @@ public class PSJTable extends JTable {
    * Appends a row to the model. The model will notify all listeners. The argument may not be <code>
    * null</code> or an exception will be thrown.
    *
-   * @param newRow
+   * @param newRow the row to append; may not be {@code null}.
    */
   public void addRow(Object newRow) {
     if (newRow == null) {

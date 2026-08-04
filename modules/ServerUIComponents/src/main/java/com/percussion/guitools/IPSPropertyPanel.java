@@ -20,23 +20,40 @@ package com.percussion.guitools;
 import java.util.List;
 import javax.swing.*;
 
+/**
+ * Interface for property-row panels: a Swing panel that lays out a label column on the left and one
+ * or more controls on the right, with optional mnemonic and tooltip support.
+ */
 public interface IPSPropertyPanel {
 
   /**
    * Convenience method for {@link #addPropertyRow(String, JComponent[]) addPropertyRow(String,
    * control[])}.
+   *
+   * @param name the label to use for the row, may not be {@code null} or empty.
+   * @param control the single control to add, may not be {@code null}.
    */
   public void addPropertyRow(String name, JComponent control);
 
   /**
    * Convenience method for {@link #addPropertyRow(String, JComponent[], JComponent, char, String)
    * addPropertyRow(String, control[], control, mnemonic, null)}.
+   *
+   * @param name the label to use for the row, may not be {@code null} or empty.
+   * @param control the single control to add, may not be {@code null}.
+   * @param mnemonic the mnemonic key to use, provide {@code 0} if no mnemonic is used.
    */
   public void addPropertyRow(String name, JComponent control, char mnemonic);
 
   /**
    * Convenience method for {@link #addPropertyRow(String, JComponent[], JComponent, char, String)
    * addPropertyRow(String, control[], mnControl, mnemonic, tooltip)}.
+   *
+   * @param name the label to use for the row, may not be {@code null} or empty.
+   * @param control the primary control to add, may not be {@code null}.
+   * @param mnControl the control that gets the mnemonic attached; may be {@code null}.
+   * @param mnemonic the mnemonic key to use, provide {@code 0} if no mnemonic is used.
+   * @param tooltip the tool tip for {@code mnControl}; may be {@code null} or empty.
    */
   public void addPropertyRow(
       String name, JComponent control, JComponent mnControl, char mnemonic, String tooltip);
@@ -44,6 +61,9 @@ public interface IPSPropertyPanel {
   /**
    * Convenience method for {@link #addPropertyRow(String, JComponent[], JComponent, char, String)
    * addPropertyRow(String, control[], null, 0, null)}.
+   *
+   * @param name the label to use for the row, may not be {@code null} or empty.
+   * @param controls the list of controls to add, may not be {@code null} or empty.
    */
   public void addPropertyRow(String name, JComponent[] controls);
 

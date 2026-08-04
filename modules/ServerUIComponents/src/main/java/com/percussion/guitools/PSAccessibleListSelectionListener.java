@@ -27,6 +27,11 @@ import javax.swing.event.ListSelectionListener;
  * changed.
  */
 public class PSAccessibleListSelectionListener implements ListSelectionListener {
+  /** No-op default constructor. */
+  public PSAccessibleListSelectionListener() {
+    super();
+  }
+
   /**
    * Override to set the accessible name on selection change
    *

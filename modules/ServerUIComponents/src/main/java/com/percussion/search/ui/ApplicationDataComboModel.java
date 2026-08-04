@@ -27,6 +27,11 @@ import javax.swing.*;
  * Model that may be used for a combo box with the data representing all existing display formats.
  */
 public class ApplicationDataComboModel extends DefaultComboBoxModel {
+  /** No-op default constructor. */
+  public ApplicationDataComboModel() {
+    super();
+  }
+
   /**
    * Static call to populate the model with data and return the model
    *

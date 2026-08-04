@@ -34,6 +34,11 @@ import javax.swing.*;
  */
 ////////////////////////////////////////////////////////////////////////////////
 public class UTStandardCommandPanel extends JPanel implements ActionListener {
+  /** No-op default constructor. */
+  public UTStandardCommandPanel() {
+    super();
+  }
+
   /**
    * Create the standard command panel containing an OK, Cancel and Help button.
    *
