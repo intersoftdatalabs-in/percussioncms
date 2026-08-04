@@ -25,6 +25,11 @@ import javax.swing.text.PlainDocument;
 
 /** Just like a standard text field except for restricting the number of characters in the field. */
 public class UTFixedCharTextField extends JTextField implements Serializable {
+  /** No-op default constructor. */
+  public UTFixedCharTextField() {
+    super();
+  }
+
   private static final long serialVersionUID = 1L;
 
   /**

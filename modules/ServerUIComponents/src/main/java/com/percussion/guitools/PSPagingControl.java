@@ -52,6 +52,11 @@ import javax.swing.text.PlainDocument;
  */
 public class PSPagingControl extends JPanel {
 
+  /** No-op default constructor. */
+  public PSPagingControl() {
+    super();
+  }
+
   public PSPagingControl(int pageCount, int currentPage) {
     if (pageCount < 1) throw new IllegalArgumentException("count must be greater than 0.");
     if (currentPage > pageCount)

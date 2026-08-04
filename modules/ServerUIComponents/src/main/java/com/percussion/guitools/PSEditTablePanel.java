@@ -27,12 +27,18 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableModel;
 
 /**
+ * A JPanel with a PSEditTable along with buttons to add/remove rows from the table. Accessors are
+ * provided to allow a caller to obtain the parts of this panel in order to modify it or add
+ * additional components.
+ *
  * @author DougRand
- *     <p>A JPanel with a PSEditTable along with buttons to add/remove rows from the table.
- *     Accessors are provided to allow a caller to obtain the parts of this panel in order to modify
- *     it or add additional components.
  */
 public class PSEditTablePanel extends JPanel {
+  /** No-op default constructor. */
+  public PSEditTablePanel() {
+    super();
+  }
+
   /**
    * Internal table instance is created during initialization and is never updated afterward. The
    * table can be accessed and modified by external code for many valid reasons.
@@ -68,8 +74,11 @@ public class PSEditTablePanel extends JPanel {
 
   /** Action to add a row to the table */
   protected class PanelAddActionListener implements ActionListener {
-    /* (non-Javadoc)
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+    /**
+     * Invoked when the user clicks "Add". Delegates to {@link #addRow()}, wrapping any checked
+     * exception as a runtime exception.
+     *
+     * @param arg0 the action event; ignored.
      */
     public void actionPerformed(ActionEvent arg0) {
       try {
@@ -229,6 +238,13 @@ public class PSEditTablePanel extends JPanel {
    * created and added to the model, which will cause the table&apos;s listeners to be notified and
    * the view to be updated. Last, start up the editor on the new row in the new row column
    * specified in the constructor.
+   */
+  /**
+   * Adds a new empty row to the underlying table model and starts the cell editor on the configured
+   * "new row" column.
+   *
+   * @throws InstantiationException if the model cannot be instantiated.
+   * @throws IllegalAccessException if the model constructor is not accessible.
    */
   public void addRow() throws InstantiationException, IllegalAccessException {
     IPSCreateModelItem createModel = (IPSCreateModelItem) m_table.getModel();

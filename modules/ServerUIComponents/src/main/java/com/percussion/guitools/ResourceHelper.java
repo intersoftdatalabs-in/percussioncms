@@ -41,9 +41,17 @@ import javax.swing.*;
  * from the caller's point of view.
  */
 public class ResourceHelper {
+
+  /** No-op default constructor. */
+  public ResourceHelper() {}
+
   /**
    * Returns the character that is the mnemonic for the for the supplied action, or 0 if the action
    * does not have a mnemonic.
+   *
+   * @param rb the resource bundle to search; must not be {@code null}.
+   * @param strBaseKeyName the base key name (the {@code mn_} prefix is added internally).
+   * @return the mnemonic character, or {@code 0} if the action does not have a mnemonic.
    */
   public static char getMnemonic(PSResources rb, String strBaseKeyName) {
     try {
@@ -56,6 +64,10 @@ public class ResourceHelper {
   /**
    * Checks the supplied resource bundle for an accelerator key by the supplied name. If one is
    * found it is returned, otherwise null is returned.
+   *
+   * @param rb the resource bundle to search; must not be {@code null}.
+   * @param strBaseKeyName the base key name (the {@code ks_} prefix is added internally).
+   * @return the accelerator {@link KeyStroke}, or {@code null} if not found.
    */
   public static KeyStroke getAccelKey(PSResources rb, String strBaseKeyName) {
     try {
@@ -68,6 +80,10 @@ public class ResourceHelper {
   /**
    * Checks the supplied resource bundle for a tool tip string by the supplied name. If a non-empty
    * one is found it is returned, otherwise null is returned.
+   *
+   * @param rb the resource bundle to search; must not be {@code null}.
+   * @param strBaseKeyName the base key name (the {@code tt_} prefix is added internally).
+   * @return the tool tip string, or {@code null} if not found or empty.
    */
   public static String getToolTipText(PSResources rb, String strBaseKeyName) {
     try {
@@ -103,9 +119,12 @@ public class ResourceHelper {
   }
 
   /**
-   * @return the point found in the supplied resource bundle under the supplied key name. If one is
-   *     not found, a point of 0,0 is returned. If debugging is enabled and the resource isn't
-   *     found, an assertion is issued.
+   * Returns the point found in the supplied resource bundle under the supplied key name.
+   *
+   * @param rb the resource bundle to search; must not be {@code null}.
+   * @param strBaseKeyName the base key name (the {@code pt_} prefix is added internally).
+   * @return the {@link Point} found in the resource bundle; a fresh {@code Point(0,0)} is returned
+   *     if one is not found or is of the wrong type.
    */
   public static Point getPoint(PSResources rb, String strBaseKeyName) {
     Point pt = null;

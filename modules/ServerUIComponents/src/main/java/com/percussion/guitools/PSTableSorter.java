@@ -50,6 +50,11 @@ import javax.swing.table.TableModel;
  * types of sources do not indicate a sorting change and should generally be ignored.
  */
 public class PSTableSorter extends PSTableMap {
+  /** No-op default constructor. */
+  public PSTableSorter() {
+    super();
+  }
+
   /**
    * Creates this table sorter from the supplied model. Sorting is enabled by default.
    *

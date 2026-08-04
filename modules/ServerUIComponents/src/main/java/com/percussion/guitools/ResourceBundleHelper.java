@@ -20,12 +20,13 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
+ * Helper to access resource bundles from jar files.
+ *
+ * <p>The resources for a given class are expected to exist in a file called
+ * <i>classname</i>Resources.properties in the same place as the .class file. This means that the
+ * properties file will normally be included in the same jar file as the class that is using it.
+ *
  * @author DougRand
- *     <p>Helper to access resource bundles from jar files. This file is simply a compilation of
- *     what is done elsewhere with some minor refactoring. The resources for a given class are
- *     expected to exist in a file called <i>classname</i>Resources.properties in the same place as
- *     the .class file. This means that the properties file will normally be included in the same
- *     jar file as the class that is using it.
  */
 public class ResourceBundleHelper {
   /** Bundle value should never be <code>null</code> after the constructor is run. */

@@ -36,8 +36,6 @@ import javax.swing.*;
  *
  * <p>Example usage:
  *
- * <p>
- *
  * <pre>
  * <code>
  *       PSCalendarDialog dialog = new PSCalendarDialog(ownerFrame);
@@ -54,6 +52,11 @@ import javax.swing.*;
  * initial date.
  */
 public class PSCalendarDialog extends JDialog implements Serializable {
+  /** No-op default constructor. */
+  public PSCalendarDialog() {
+    super();
+  }
+
   private static final long serialVersionUID = 1L;
 
   /**

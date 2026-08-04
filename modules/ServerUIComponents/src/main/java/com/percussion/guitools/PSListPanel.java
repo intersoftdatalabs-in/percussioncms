@@ -47,6 +47,11 @@ import javax.swing.event.ListSelectionListener;
  * the contents of this panel.
  */
 public class PSListPanel extends JPanel implements ListSelectionListener {
+  /** No-op default constructor. */
+  public PSListPanel() {
+    super();
+  }
+
   /**
    * Constructs an empty list panel. Panels should then be added using one of the <code>addPanel()
    * </code> methods. By default, the first panel in the list is selected if any panels have been

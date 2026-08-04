@@ -41,6 +41,11 @@ import javax.swing.event.ListSelectionListener;
  * from the target list and them back into source list.
  */
 public class PSSourceTargetListPanel extends JPanel {
+  /** No-op default constructor. */
+  public PSSourceTargetListPanel() {
+    super();
+  }
+
   /**
    * Constructs the panel.
    *

@@ -57,6 +57,11 @@ import javax.swing.*;
  * </ul>
  */
 public class PSSearchSimplePanel extends PSPropertyPanel implements ActionListener {
+  /** No-op default constructor. */
+  public PSSearchSimplePanel() {
+    super();
+  }
+
   /**
    * Creates the simple search panel.
    *

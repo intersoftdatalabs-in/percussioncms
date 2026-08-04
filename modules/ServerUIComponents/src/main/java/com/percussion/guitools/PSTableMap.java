@@ -29,6 +29,11 @@ import javax.swing.table.TableModel;
  * coding standards.
  */
 public class PSTableMap extends AbstractTableModel implements TableModelListener {
+  /** No-op default constructor. */
+  public PSTableMap() {
+    super();
+  }
+
   /**
    * Constructs the object with supplied model as the model to route the requests and adds itself as
    * listener to the internal model to know about its changes.

@@ -29,14 +29,23 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 
 /**
+ * Border that is drawn only when the component has focus.
+ *
+ * <p>Components without focus have an empty border drawn. The border uses the supplied color, but
+ * if no color is specified it will use the component's foreground color. If there is no foreground
+ * color then red is used.
+ *
+ * <p>This class also implements a {@link FocusListener} to enable the component to repaint the
+ * border on focus changes.
+ *
  * @author dougrand
- *     <p>This border is drawn only when the component has focus. Components without focus have an
- *     empty border drawn. The border uses the supplied color, but if no color is specified it will
- *     use the component's foreground color. If there is no foreground color then red is used.
- *     <p>This class also implements a {@link FocusListener} to enable the component to repaint the
- *     border on focus changes.
  */
 public class PSFocusBorder extends AbstractBorder implements FocusListener, Serializable {
+  /** No-op default constructor. */
+  public PSFocusBorder() {
+    super();
+  }
+
   private static final long serialVersionUID = 1L;
 
   /**

@@ -23,12 +23,13 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableCellRenderer;
 
-/** the cell renderer when JTextArea object is stored within a table cell. */
+/** Cell renderer used when a {@link JTextArea} object is stored within a table or list cell. */
 public class UTMultiLineCellRenderer extends JTextArea
     implements TableCellRenderer, ListCellRenderer, Serializable {
 
   private static final long serialVersionUID = 1L;
 
+  /** Constructs the renderer with line wrap, word-wrap, and a small empty border configured. */
   public UTMultiLineCellRenderer() {
     super();
     noFocusBorder = new EmptyBorder(1, 2, 1, 2);
@@ -38,22 +39,44 @@ public class UTMultiLineCellRenderer extends JTextArea
     setBorder(noFocusBorder);
   }
 
+  /**
+   * Sets the unselected foreground color as well as delegating to the superclass.
+   *
+   * @param c the new foreground color; may be {@code null}.
+   */
   public void setForeground(Color c) {
     super.setForeground(c);
     unselectedForeground = c;
   }
 
+  /**
+   * Sets the unselected background color as well as delegating to the superclass.
+   *
+   * @param c the new background color; may be {@code null}.
+   */
   public void setBackground(Color c) {
     super.setBackground(c);
     unselectedBackground = c;
   }
 
+  /** Resets the foreground and background colors when the look-and-feel is updated. */
   public void updateUI() {
     super.updateUI();
     setForeground(null);
     setBackground(null);
   }
 
+  /**
+   * Renders the supplied table cell value using this renderer's colors and border.
+   *
+   * @param table the target table; must not be {@code null}.
+   * @param value the cell value; may be {@code null}.
+   * @param isSelected {@code true} if the cell is selected.
+   * @param hasFocus {@code true} if the cell has focus.
+   * @param row the cell row.
+   * @param column the cell column.
+   * @return this renderer.
+   */
   public Component getTableCellRendererComponent(
       JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
     if (isSelected) {
@@ -83,6 +106,16 @@ public class UTMultiLineCellRenderer extends JTextArea
     return this;
   }
 
+  /**
+   * Renders the supplied list cell value using this renderer's colors and border.
+   *
+   * @param list the target list; must not be {@code null}.
+   * @param value the cell value; may be {@code null}.
+   * @param index the cell index.
+   * @param isSelected {@code true} if the cell is selected.
+   * @param cellHasFocus {@code true} if the cell has focus.
+   * @return this renderer.
+   */
   public Component getListCellRendererComponent(
       JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
     if (isSelected) {
@@ -108,10 +141,20 @@ public class UTMultiLineCellRenderer extends JTextArea
     return this;
   }
 
+  /**
+   * Renders the supplied value into the text area.
+   *
+   * @param value the value to render; may be {@code null}, in which case the empty string is
+   *     rendered.
+   */
   protected void setValue(Object value) {
     setText((value == null) ? "" : value.toString());
   }
 
+  /**
+   * {@link UIResource} variant of the renderer used by the Swing pluggable look-and-feel
+   * architecture.
+   */
   public static class UIResource extends UTMultiLineCellRenderer
       implements javax.swing.plaf.UIResource {
 

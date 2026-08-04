@@ -63,21 +63,43 @@ public class PSDialog extends JDialog {
     init(false);
   }
 
+  /**
+   * Constructs a PSDialog wrapping the supplied parent dialog.
+   *
+   * @param d the parent dialog, may be {@code null}.
+   */
   public PSDialog(Dialog d) {
     super(d, true);
     init(true);
   }
 
+  /**
+   * Constructs a PSDialog with the supplied parent dialog and title.
+   *
+   * @param d the parent dialog, may be {@code null}.
+   * @param title the title for the dialog, may be {@code null}.
+   */
   public PSDialog(Dialog d, String title) {
     super(d, title, true);
     init(false);
   }
 
+  /**
+   * Constructs a PSDialog wrapping the supplied parent frame.
+   *
+   * @param f the parent frame, may be {@code null}.
+   */
   public PSDialog(Frame f) {
     super(f, true);
     init(true);
   }
 
+  /**
+   * Constructs a PSDialog with the supplied parent frame and title.
+   *
+   * @param f the parent frame, may be {@code null}.
+   * @param title the title for the dialog, may be {@code null}.
+   */
   public PSDialog(Frame f, String title) {
     super(f, title, true);
     init(false);
@@ -87,7 +109,11 @@ public class PSDialog extends JDialog {
   // PUBLIC METHODS
   //
 
-  /** Returns a reference to the current ValidationFramework. */
+  /**
+   * Returns a reference to the current ValidationFramework.
+   *
+   * @return the validation framework, never {@code null}.
+   */
   public ValidationFramework getValidationFramework() {
     return m_componentTest;
   }
@@ -95,7 +121,8 @@ public class PSDialog extends JDialog {
   /**
    * Reinitializes the ValidationFramework within the PSDialog.
    *
-   * @param c an array of Component v an array of ValidationConstraint
+   * @param c an array of {@link Component} entries to validate; may be {@code null}.
+   * @param v an array of {@link ValidationConstraint} entries to apply; may be {@code null}.
    */
   public void setValidationFramework(Component[] c, ValidationConstraint[] v) {
     m_componentTest.setFramework(this, c, v);
@@ -111,7 +138,12 @@ public class PSDialog extends JDialog {
     return m_componentTest.checkValidity();
   }
 
-  /** Centers the dialog on the screen, based on its current size. */
+  /**
+   * Centers the dialog on the screen, based on its current size.
+   *
+   * <p>If the supplied location cannot be mapped to a graphics device, the dialog position is left
+   * unchanged.
+   */
   public void center() {
     Rectangle bounds = getScreenBoundsAt(this.getLocation());
     Dimension size = getSize();
@@ -122,6 +154,12 @@ public class PSDialog extends JDialog {
     }
   }
 
+  /**
+   * Returns the screen bounds of the graphics device that contains the supplied point.
+   *
+   * @param pos the screen position to look up; may be {@code null}.
+   * @return the matching device bounds, or {@code null} if no device contains the point.
+   */
   public static Rectangle getScreenBoundsAt(Point pos) {
     GraphicsDevice gd = getGraphicsDeviceAt(pos);
     Rectangle bounds = null;
@@ -131,6 +169,12 @@ public class PSDialog extends JDialog {
     return bounds;
   }
 
+  /**
+   * Returns the graphics device that contains the supplied screen point.
+   *
+   * @param pos the screen position to look up; may be {@code null}.
+   * @return the matching graphics device, or {@code null} if no device contains the point.
+   */
   public static GraphicsDevice getGraphicsDeviceAt(Point pos) {
 
     GraphicsDevice device = null;
@@ -151,6 +195,12 @@ public class PSDialog extends JDialog {
     return device;
   }
 
+  /**
+   * Returns the bounds of the supplied graphics device's default configuration.
+   *
+   * @param device the graphics device; must not be {@code null}.
+   * @return the matching {@link Rectangle} bounds; never {@code null}.
+   */
   public static Rectangle getDeviceBounds(GraphicsDevice device) {
 
     GraphicsConfiguration gc = device.getDefaultConfiguration();

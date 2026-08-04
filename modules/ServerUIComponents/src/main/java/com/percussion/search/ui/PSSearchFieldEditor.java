@@ -74,10 +74,22 @@ import org.xml.sax.SAXException;
  * com.percussion.cms.objectstore.PSSearchField} objects.
  */
 public class PSSearchFieldEditor extends JPanel {
+  /** No-op default constructor. */
+  public PSSearchFieldEditor() {
+    super();
+  }
+
   /**
-   * Convenience ctor that calls {@link #PSSearchFieldEditor(Iterator, Map, IPSRemoteRequester,
-   * Properties, PSContentEditorFieldCataloger) PSSearchFieldEditor(fields, filterMap,
-   * remoteRequester, null, fieldCatalog)}
+   * Convenience constructor that calls {@link #PSSearchFieldEditor(Iterator, Map,
+   * IPSRemoteRequester, Properties, PSContentEditorFieldCataloger) PSSearchFieldEditor(fields,
+   * filterMap, remoteRequester, null, fieldCatalog)}.
+   *
+   * @param fields iterator over zero or more {@code PSSearchField} objects, never {@code null}.
+   * @param filterMap can be {@code null}; key is the field name as a String, value is a {@code
+   *     PSSearchFieldFilter} object.
+   * @param remoteRequester reference to the remote requester, never {@code null}.
+   * @param fieldCatalog the catalog of content editor fields from the server, may not be {@code
+   *     null}.
    */
   public PSSearchFieldEditor(
       Iterator fields,
@@ -88,9 +100,18 @@ public class PSSearchFieldEditor extends JPanel {
   }
 
   /**
-   * Convenience ctor that calls {@link #PSSearchFieldEditor(Iterator, Map, IPSRemoteRequester,
-   * Properties, PSContentEditorFieldCataloger) PSSearchFieldEditor(fields, filterMap,
-   * remoteRequester, null, fieldCatalog, boolean)}
+   * Convenience constructor that calls {@link #PSSearchFieldEditor(Iterator, Map,
+   * IPSRemoteRequester, Properties, PSContentEditorFieldCataloger, boolean)
+   * PSSearchFieldEditor(fields, filterMap, remoteRequester, null, fieldCatalog, boolean)}.
+   *
+   * @param fields iterator over zero or more {@code PSSearchField} objects, never {@code null}.
+   * @param filterMap can be {@code null}; key is the field name as a String, value is a {@code
+   *     PSSearchFieldFilter} object.
+   * @param remoteRequester reference to the remote requester, never {@code null}.
+   * @param fieldCatalog the catalog of content editor fields from the server, may not be {@code
+   *     null}.
+   * @param inWorkbench flag indicating that this dialog was launched from within the Eclipse
+   *     workbench.
    */
   public PSSearchFieldEditor(
       Iterator fields,
@@ -102,9 +123,14 @@ public class PSSearchFieldEditor extends JPanel {
   }
 
   /**
-   * Convenience ctor that calls {@link #PSSearchFieldEditor(Iterator, Map, IPSRemoteRequester,
-   * PSContentEditorFieldCataloger) PSSearchFieldEditor(fields, null, remoteRequester,
-   * fieldCatalog)}
+   * Convenience constructor that calls {@link #PSSearchFieldEditor(Iterator, Map,
+   * IPSRemoteRequester, PSContentEditorFieldCataloger) PSSearchFieldEditor(fields, null,
+   * remoteRequester, fieldCatalog)}.
+   *
+   * @param fields iterator over zero or more {@code PSSearchField} objects, never {@code null}.
+   * @param remoteRequester reference to the remote requester, never {@code null}.
+   * @param fieldCatalog the catalog of content editor fields from the server, may not be {@code
+   *     null}.
    */
   public PSSearchFieldEditor(
       Iterator fields,
@@ -114,9 +140,16 @@ public class PSSearchFieldEditor extends JPanel {
   }
 
   /**
-   * Convenience ctor that calls {@link #PSSearchFieldEditor(Iterator, Map, IPSRemoteRequester,
-   * PSContentEditorFieldCataloger) PSSearchFieldEditor(fields, null, remoteRequester, fieldCatalog,
-   * boolean)}
+   * Convenience constructor that calls {@link #PSSearchFieldEditor(Iterator, Map,
+   * IPSRemoteRequester, PSContentEditorFieldCataloger, boolean) PSSearchFieldEditor(fields, null,
+   * remoteRequester, fieldCatalog, boolean)}.
+   *
+   * @param fields iterator over zero or more {@code PSSearchField} objects, never {@code null}.
+   * @param remoteRequester reference to the remote requester, never {@code null}.
+   * @param fieldCatalog the catalog of content editor fields from the server, may not be {@code
+   *     null}.
+   * @param inWorkbench flag indicating that this dialog was launched from within the Eclipse
+   *     workbench.
    */
   public PSSearchFieldEditor(
       Iterator fields,
@@ -127,9 +160,17 @@ public class PSSearchFieldEditor extends JPanel {
   }
 
   /**
-   * Convenience ctor that calls {@link #PSSearchFieldEditor(Iterator, Map, IPSRemoteRequester,
-   * Properties, PSContentEditorFieldCataloger) PSSearchFieldEditor(fields, filterMap,
-   * remoteRequester, props, fieldCatalog, false)}
+   * Convenience constructor that calls {@link #PSSearchFieldEditor(Iterator, Map,
+   * IPSRemoteRequester, Properties, PSContentEditorFieldCataloger, boolean)
+   * PSSearchFieldEditor(fields, filterMap, remoteRequester, props, fieldCatalog, false)}.
+   *
+   * @param fields iterator over zero or more {@code PSSearchField} objects, never {@code null}.
+   * @param filterMap can be {@code null}; key is the field name as a String, value is a {@code
+   *     PSSearchFieldFilter} object.
+   * @param remoteRequester reference to the remote requester, never {@code null}.
+   * @param props unused; may be {@code null}.
+   * @param fieldCatalog the catalog of content editor fields from the server, may not be {@code
+   *     null}.
    */
   public PSSearchFieldEditor(
       Iterator fields,
@@ -422,17 +463,26 @@ public class PSSearchFieldEditor extends JPanel {
     }
   }
 
-  /** Creates calendar field. */
+  /**
+   * Creates the calendar field used by this editor. Subclasses may override to customize.
+   *
+   * @return the calendar field, never {@code null}.
+   */
   protected PSCalendarField createCalendarField() {
     return new PSCalendarField();
   }
 
-  /** Creates a button for the provided date. */
+  /**
+   * Creates a calendar button for the provided date.
+   *
+   * @param date the initial date for the button; may be {@code null}.
+   * @return the calendar button, never {@code null}.
+   */
   protected PSCalendarButton createCalendarButton(Date date) {
     return new PSCalendarButton(null, date);
   }
 
-  /** Field change selection inteface. */
+  /** Field change selection interface. */
   private interface CustomFieldSelectionEvent {
     /**
      * Returns selection as a map of params. A set of name/value pairs. Each key is a String, while
