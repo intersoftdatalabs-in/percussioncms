@@ -1,0 +1,9 @@
+<community>
+	<description>Default community</description>
+	<guid>0-13-1001</guid>
+	<name>Default</name>
+	<roles>
+		<long>2001</long>
+		<long>2002</long>
+	</roles>
+</community>

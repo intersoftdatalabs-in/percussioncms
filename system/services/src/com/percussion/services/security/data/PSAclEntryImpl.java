@@ -16,30 +16,39 @@
  */
 package com.percussion.services.security.data;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.percussion.security.IPSTypedPrincipal;
+import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
+import com.percussion.security.shim.acl.Permission;
 import com.percussion.services.security.IPSAclEntry;
 import com.percussion.services.security.PSPermissions;
 import com.percussion.services.security.PSTypedPrincipal;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
-import com.percussion.security.IPSTypedPrincipal;
-import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
 import com.percussion.utils.xml.IPSXmlSerialization;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import java.security.Principal;
+import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.*;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.*;
-import java.security.Principal;
-import com.percussion.security.shim.acl.Permission;
-import java.util.*;
-
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
- * Implementation of the interface {@link IPSAclEntry}
- * 
+ * Implementation of the interface {@link IPSAclEntry}.
+ *
+ * <p>Nested package element name is {@code entry} (registered from {@link PSAclImpl}). Derived
+ * boolean flags ({@code user}/{@code community}/…) and {@code typed-principal} are omitted on
+ * modern Jackson write; package read tolerates them (issue #1889 / epic #505).
+ *
  * @since 08-Aug-2005 3:09:34 PM
  * @version 6.0
  */
@@ -51,6 +60,14 @@ import java.util.*;
  */
 @Table(name = "PSX_ACLENTRIES")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSAclEntryImpl")
+@JacksonXmlRootElement(localName = "entry")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonPropertyOrder({"aclId", "id", "name", "psPermissions", "type"})
 public class PSAclEntryImpl implements IPSAclEntry
 {
    private static final Logger log = LogManager.getLogger(PSAclEntryImpl.class);
@@ -116,31 +133,33 @@ public class PSAclEntryImpl implements IPSAclEntry
     * 
     * @return ACL Id greater than 0 for a valid object.
     */
+   @JsonProperty
    public long getAclId()
    {
       return acl != null ? acl.getId() : aclId;
    }
 
+   /**
+    * Set ACL id for serialization. Package XML / parent linking may re-apply the value; last write
+    * wins (issue #1889).
+    */
    public void setAclId(long aclId)
    {
       long current = getAclId();
       if (current == aclId)
          return;
-      
-      if (current != 0)
-         throw new IllegalStateException("Cannot change the ACLId");
-      
       this.aclId = aclId;
    }
 
+   /**
+    * Set the entry id. Package XML may emit both a Betwixt graph-identity {@code id} attribute and
+    * a child {@code <id>} element; Jackson applies both, so last write wins (issue #1889).
+    */
    public void setId(long id)
    {
       if (this.id == id)
          return;
-      if (this.id != 0)
-         throw new IllegalStateException("Cannot change the Id");
-      
-      this.id = (id == -1 )? 0 : id;
+      this.id = (id == -1) ? 0 : id;
    }
    
    /**
@@ -149,6 +168,7 @@ public class PSAclEntryImpl implements IPSAclEntry
     * @return unique ideentifier for the entry. Not equal to
     * {@link #UNINITIALIZED_ID} for a valid object.
     */
+   @JsonProperty
    public long getId()
    {
       return id;
@@ -157,6 +177,7 @@ public class PSAclEntryImpl implements IPSAclEntry
    /* (non-Javadoc)
     * @see com.percussion.services.security.IPSAclEntry#getName()
     */
+   @JsonProperty
    public String getName()
    {
       return name;
@@ -200,6 +221,7 @@ public class PSAclEntryImpl implements IPSAclEntry
     * @see java.security.acl.AclEntry#getPrincipal()
     */
    @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public Principal getPrincipal()
    {
       return new PSTypedPrincipal(name, PrincipalTypes.valueOf(type));
@@ -210,6 +232,7 @@ public class PSAclEntryImpl implements IPSAclEntry
     * 
     * @see com.percussion.security.acl.IPSAclEntry#isUser()
     */
+   @JsonIgnore
    public boolean isUser()
    {
       return ((PSTypedPrincipal) getPrincipal()).isUser();
@@ -220,6 +243,7 @@ public class PSAclEntryImpl implements IPSAclEntry
     * 
     * @see com.percussion.services.security.IPSAclEntry#isGroup()
     */
+   @JsonIgnore
    public boolean isGroup()
    {
       return ((PSTypedPrincipal) getPrincipal()).isGroup();
@@ -230,6 +254,7 @@ public class PSAclEntryImpl implements IPSAclEntry
     * 
     * @see com.percussion.services.security.IPSAclEntry#isSystemEntry()
     */
+   @JsonIgnore
    public boolean isSystemEntry()
    {
       return ((PSTypedPrincipal) getPrincipal()).isSystemEntry();
@@ -240,6 +265,7 @@ public class PSAclEntryImpl implements IPSAclEntry
     * 
     * @see com.percussion.services.security.IPSAclEntry#isSystemCommunity()
     */
+   @JsonIgnore
    public boolean isSystemCommunity()
    {
       return ((PSTypedPrincipal) getPrincipal()).isSystemCommunity();
@@ -251,6 +277,7 @@ public class PSAclEntryImpl implements IPSAclEntry
     * @see com.percussion.security.acl.IPSAclEntry#isType(
     * com.percussion.security.acl.IPSAclEntry.ENTRY_TYPE)
     */
+   @JsonIgnore
    public boolean isType(PrincipalTypes entryType)
    {
       return ((PSTypedPrincipal) getPrincipal()).isType(entryType);
@@ -261,6 +288,7 @@ public class PSAclEntryImpl implements IPSAclEntry
     * 
     * @see com.percussion.security.acl.IPSAclEntry#getType()
     */
+   @JsonProperty
    public PrincipalTypes getType()
    {
       return ((PSTypedPrincipal) getPrincipal()).getPrincipalType();
@@ -290,6 +318,7 @@ public class PSAclEntryImpl implements IPSAclEntry
     * 
     * @see com.percussion.security.acl.IPSAclEntry#isCommunity()
     */
+   @JsonIgnore
    public boolean isCommunity()
    {
       return ((PSTypedPrincipal) getPrincipal()).isCommunity();
@@ -298,6 +327,7 @@ public class PSAclEntryImpl implements IPSAclEntry
    /**
     * @return false always.
     */
+   @JsonIgnore
    public boolean isNegative()
    {
       return false;
@@ -347,6 +377,7 @@ public class PSAclEntryImpl implements IPSAclEntry
     * 
     * @see com.percussion.security.acl.IPSAclEntry#isRole()
     */
+   @JsonIgnore
    public boolean isRole()
    {
       return ((PSTypedPrincipal) getPrincipal()).isRole();
@@ -508,10 +539,11 @@ public class PSAclEntryImpl implements IPSAclEntry
    }
 
    /**
-    * Strictly for serialization
+    * Strictly for serialization (Betwixt adder). Jackson uses {@link #setPsPermissions(Collection)}.
     * 
     * @param access permission to set must not be <code>null</code>.
     */
+   @JsonIgnore
    public void addPsPermission(PSAccessLevelImpl access)
    {
       if (access == null)
@@ -528,6 +560,7 @@ public class PSAclEntryImpl implements IPSAclEntry
     */
 
    @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public void addPermission(PSAccessLevelImpl access)
    {
       addPsPermission( access);
@@ -535,13 +568,40 @@ public class PSAclEntryImpl implements IPSAclEntry
 
    
    /**
-    * Strictly for serialization
+    * Strictly for serialization. Nested package element is {@code ps-permission}.
     * 
     * @return set of access levels, never <code>null</code> may be empty.
     */
+   @JsonProperty
+   @JacksonXmlElementWrapper(localName = "ps-permissions")
+   @JacksonXmlProperty(localName = "ps-permission")
    public Collection<PSAccessLevelImpl> getPsPermissions()
    {
-      return psPermissions;
+      // Stable order for design-object XML / golden parity (backing store is a Set).
+      return psPermissions.stream()
+          .sorted(Comparator.comparingInt(a -> a.getPermission().getOrdinal()))
+          .collect(java.util.stream.Collectors.toList());
+   }
+
+   /**
+    * Set permissions from design-object XML (Jackson collection restore).
+    *
+    * @param accessLevels permissions, may be {@code null} or empty
+    */
+   public void setPsPermissions(Collection<PSAccessLevelImpl> accessLevels)
+   {
+      psPermissions.clear();
+      if (accessLevels == null)
+      {
+         return;
+      }
+      for (PSAccessLevelImpl access : accessLevels)
+      {
+         if (access != null)
+         {
+            addPsPermission(access);
+         }
+      }
    }
 
    /**
@@ -551,6 +611,7 @@ public class PSAclEntryImpl implements IPSAclEntry
     */
 
    @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public Collection<PSAccessLevelImpl> getPermissions()
    {
       return getPsPermissions();
@@ -569,6 +630,7 @@ public class PSAclEntryImpl implements IPSAclEntry
    /* (non-Javadoc)
     * @see com.percussion.services.security.IPSAclEntry#isOwner()
     */
+   @JsonIgnore
    public boolean isOwner()
    {
       for (PSAccessLevelImpl access : psPermissions)
@@ -611,6 +673,7 @@ public class PSAclEntryImpl implements IPSAclEntry
    }
 
    @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public PSAclImpl getAcl()
    {
       return acl;
@@ -688,6 +751,7 @@ public class PSAclEntryImpl implements IPSAclEntry
     * 
     * @see com.percussion.services.security.IPSAclEntry#getTypedPrincipal()
     */
+   @JsonIgnore
    public IPSTypedPrincipal getTypedPrincipal()
    {
       return new PSTypedPrincipal(getName(), getType());
