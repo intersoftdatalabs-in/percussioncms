@@ -35,8 +35,10 @@ dist/
 .kilo/rules/memory-bank-instructions.md
 .kilo/kilo.json
 
-# Personal agent state (always local)
-.grok
+# Personal agent state (always local), except shareable Grok workflows
+.grok/*
+!.grok/workflows/
+!.grok/workflows/**
 
 docker/dev-data
 .env.compose
