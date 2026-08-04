@@ -162,18 +162,25 @@ java -jar delivery-tier-distribution.jar <install-or-upgrade-folder>
 `MainDTSPreInstall` validates Zip entry paths with
 `com.percussion.security.validation.PathValidation` (CWE-22 / ZipSlip). That class
 lives in `perc-security-utils` and is **not** on a thin jar classpath when using
-`java -jar`.
+`java -jar`. Likewise, `InstallerUserSettings` needs
+`com.intsof.common.utilities.UserConfiguration` from `com.intsof.common:utilities`
+(compile dependency only unless staged into the jar).
 
-**GH-1180:** package runs a **minimal** `maven-shade-plugin` step that merges only:
+**GH-1180 / GH-1825:** `maven-dependency-plugin` unpacks required classes into
+`${project.build.outputDirectory}` so `maven-jar-plugin` ships them in the fat
+installer jar:
 
-|               Artifact               |           What is included            |
-|--------------------------------------|---------------------------------------|
-| `com.percussion:perc-security-utils` | `PathValidation` + nested types only  |
-| `org.apache.logging.log4j:log4j-api` | Required by `PathValidation`'s logger |
+|               Artifact               |           What is included            |             Execution id             |
+|--------------------------------------|---------------------------------------|--------------------------------------|
+| `com.percussion:perc-security-utils` | `PathValidation` + nested types only  | `unpack-pathvalidation`              |
+| `org.apache.logging.log4j:log4j-api` | Required by `PathValidation`'s logger | `unpack-pathvalidation`              |
+| `com.intsof.common:utilities`        | Full jar (~27 KB; no 3rd-party deps)  | `unpack-userconfiguration` (GH-1825) |
 
 This is intentionally **not** a full `jar-with-dependencies` (unlike
 `perc-distribution-tree`), so wars/Tomcat/Spring stay out of the installer jar.
 
-Verify phase fails the build if `PathValidation.class` or `LogManager.class` is
-missing from the packaged jar (`verify-pathvalidation-shaded` antrun).
+Verify phase fails the build if `PathValidation.class`, `LogManager.class`,
+`UserConfiguration.class`, or `AppConfigurationFolder.class` is missing from the
+packaged jar (`verify-pathvalidation-shaded` antrun). Unit tests under
+`DtsInstallerJarContains*` assert the same jar listing invariants.
 
