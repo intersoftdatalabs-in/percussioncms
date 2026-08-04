@@ -4,13 +4,14 @@
  * Legacy Bundle Builder (stale WebUI/scripts/ entry point).
  *
  * Canonical script used by Maven / frontend-maven-plugin:
- *   WebUI/src/main/frontend/scripts/build-legacy-bundles.js
+ *   WebUI/src/main/frontend/scripts/build-legacy-bundles.cjs
  *
  * Prefer: cd src/main/frontend && npm run build:legacy
  *
  * This copy remains for accidental root package.json invocations. Standalone
  * npm mins must go to target/generated-webui only (issue #1510) — never war/
- * or src/main/webapp.
+ * or src/main/webapp. Kept as .cjs so require() works under package
+ * `"type": "module"`.
  */
 
 const fs = require("fs");
