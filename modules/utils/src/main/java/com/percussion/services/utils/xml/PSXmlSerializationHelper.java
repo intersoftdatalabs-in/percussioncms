@@ -111,40 +111,17 @@ public class PSXmlSerializationHelper {
   }
 
   /**
-   * The name mapper translates from our naming conventions to a simpler convention (by stripping PS
-   * or IPS from class names). In addition, it takes awkward mixed case names, like AAType, that the
-   * default behavior of the HyphenatedNameMapper turns into a-a-type and turns it into Aatype,
-   * which the mapper handles more benignly.
+   * Betwixt {@link NameMapper} that delegates type naming to {@link PSXmlElementNameMapper} so the
+   * Jackson parallel helper and Betwixt share one naming strategy (issue #1822 / epic #505).
+   *
+   * <p>Strips {@code PS}/{@code IPS}, flattens multi-cap runs, then hyphenates (see {@link
+   * PSXmlElementNameMapper}). Betwixt uses the same mapper instance for element and attribute name
+   * mapping ({@link #createXMLIntrospector()}).
    */
   static class PSNameMapper extends HyphenatedNameMapper {
+    @Override
     public String mapTypeToElementName(String name) {
-      if (name.startsWith("PS")) name = name.substring(2);
-      else if (name.startsWith("IPS")) name = name.substring(3);
-
-      if (name.contains("$")) {
-        int i = name.indexOf("$");
-        name = name.substring(i + 1);
-      }
-
-      // Proper case multiple capitals, i.e. GUID -> Guid
-      StringBuilder b = new StringBuilder();
-      boolean was_cap = false;
-      for (int i = 0; i < name.length(); i++) {
-        char ch = name.charAt(i);
-        if (Character.isUpperCase(ch)) {
-          if (was_cap) {
-            b.append(Character.toLowerCase(ch));
-            continue;
-          } else {
-            was_cap = true;
-          }
-        } else {
-          was_cap = false;
-        }
-        b.append(ch);
-      }
-
-      return super.mapTypeToElementName(b.toString());
+      return PSXmlElementNameMapper.mapTypeToElementName(name);
     }
   }
 
