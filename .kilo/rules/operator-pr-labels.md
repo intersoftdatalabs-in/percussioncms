@@ -1,8 +1,10 @@
 # Operator + model labels on PRs and residual issues (HARD GATE)
 
 Applies to **every Kilo Code session** in this repository (Nate, Vijay, and any
-other operator using Kilo). Same scheme as Grok overnight workflow
-`night-issue-prs` and `scripts/daily-status.py`.
+other operator using Kilo). Same scheme as the Grok overnight workflow
+`night-issue-prs` (see `.kilo/rules/co-author-attribution.md` and host-local
+Grok workflow docs under `.grok/` — that tree is **gitignored** and is not a
+tracked source of truth in this repository).
 
 ## Why
 
@@ -22,10 +24,14 @@ activity** + these labels (and author filters such as excluding
 `vijaya-boddipudi` when requested for *human* status views — **still label your
 agent PRs** so agent work is attributable).
 
-Canonical write-up also lives in:
+**Canonical write-up for Kilo (in this repository):** this file. Peer rule:
+`.kilo/rules/co-author-attribution.md` (Co-Authored footer + pointer here).
 
-- `.grok/workflows/README.md` → **Operator + model labels**
-- `scripts/daily-status.py` / `scripts/README.md`
+Do **not** chase:
+
+- `.grok/workflows/README.md` — host-local / gitignored (not committed)
+- `scripts/daily-status.py` — not present in this repository; operators may use
+  private host tooling for reports, but agent gates live in `.kilo/rules/`
 
 ## HARD GATE — every PR you open or update as Kilo
 
@@ -112,4 +118,4 @@ Both use **the same labels** when Kilo authors the PR:
 
 - Pre-commit Erlang: `.kilo/rules/pre-commit-review.md`
 - Co-author footer: `.kilo/rules/co-author-attribution.md`
-- Daily report script: `scripts/daily-status.py` (`--no-labels` for heuristic-only)
+- Root PR review resolution gate: `AGENTS.md` / `REVIEW.md` (reply + resolve threads)
