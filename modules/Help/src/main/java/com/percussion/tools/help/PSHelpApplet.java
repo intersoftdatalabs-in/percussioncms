@@ -29,6 +29,14 @@ public class PSHelpApplet extends JApplet {
 
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Default no-arg constructor required for applet instantiation by the browser/JVM. The applet is
+   * initialized via {@link #init()} rather than through this constructor.
+   */
+  public PSHelpApplet() {
+    super();
+  }
+
   /** Init function for applet. Gets helpset file url and help topic id from applet parameters. */
   public void init() {
     // Get the JavaHelp helpset file and attach the protocol based on its

@@ -101,6 +101,8 @@ public class PSJavaHelp {
 
   /**
    * Convenience method to call {@link #setHelpSet(String, String) setHelpSet(helpSetURL, null)}.
+   *
+   * @param helpSetURL the url of the helpset file, may not be {@code null} or empty.
    */
   public void setHelpSet(String helpSetURL) {
     setHelpSet(helpSetURL, null);
@@ -157,6 +159,10 @@ public class PSJavaHelp {
   /**
    * Convenience method for {@link #getHelpSetURL(String, boolean, String) getHelpSetURL(hsFilePath,
    * false, null)}. Please see the link for description of the method and its parameter.
+   *
+   * @param hsFilePath the helpset file for which to get url, may be {@code null} or empty.
+   * @return the url string, may be {@code null} or empty if supplied helpset file path is {@code
+   *     null} or empty.
    */
   public static String getHelpSetURL(String hsFilePath) {
     return getHelpSetURL(hsFilePath, false, null);
@@ -165,6 +171,8 @@ public class PSJavaHelp {
   /**
    * Convenience method for {@link #launchHelp(String, boolean, Window)} launchHelp(helpID, false,
    * null) }. Assumes the help frame is not parented by any dialog.
+   *
+   * @param helpID a key that is used to retrieve the HTML help file, may be {@code null} or empty.
    */
   public static void launchHelp(String helpID) {
     launchHelp(helpID, false, null);
