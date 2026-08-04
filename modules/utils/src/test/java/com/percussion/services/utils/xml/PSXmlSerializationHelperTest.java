@@ -18,20 +18,41 @@
 package com.percussion.services.utils.xml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /**
- * Regression for package-deploy keyword install: Betwixt payloads often use a root element named
- * {@code null} instead of the mapped type name. Deserialization must still restore the bean.
+ * Facade regression for {@link PSXmlSerializationHelper} after the Jackson cutover (#1887 / epic
+ * #505). Covers legacy {@code <null>} root rewrite, golden pilot shapes, round-trip, suppress
+ * annotation, and Betwixt rollback engine property.
  */
 class PSXmlSerializationHelperTest {
 
-  /** Minimal bean shaped like packaged keyword/choice XML. */
+  @BeforeAll
+  static void registerChoiceTypes() {
+    PSXmlSerializationHelper.addType(
+        "choice", PSJacksonXmlSerializationHelperTest.SampleChoice.class);
+    PSXmlSerializationHelper.addType(
+        "sample-choice", PSJacksonXmlSerializationHelperTest.SampleChoice.class);
+    PSXmlSerializationHelper.addType(PSJacksonXmlSerializationHelperTest.SampleKeyword.class);
+  }
+
+  @AfterEach
+  void clearEngineProperty() {
+    System.clearProperty(PSXmlSerializationHelper.ENGINE_PROPERTY);
+  }
+
+  /** Minimal unannotated bean for rewrite-only cases (no nested collection assert). */
   public static class SampleKeyword {
     private long id;
     private String label;
@@ -108,6 +129,19 @@ class PSXmlSerializationHelperTest {
     public void setSequence(int sequence) {
       this.sequence = sequence;
     }
+  }
+
+  @Test
+  void defaultEngineIsJackson() {
+    System.clearProperty(PSXmlSerializationHelper.ENGINE_PROPERTY);
+    assertTrue(PSXmlSerializationHelper.isJacksonEngine());
+  }
+
+  @Test
+  void betwixtEnginePropertyForcesRollback() {
+    System.setProperty(
+        PSXmlSerializationHelper.ENGINE_PROPERTY, PSXmlSerializationHelper.ENGINE_BETWIXT);
+    assertFalse(PSXmlSerializationHelper.isJacksonEngine());
   }
 
   @Test
@@ -215,5 +249,131 @@ class PSXmlSerializationHelperTest {
     SampleKeyword restored = (SampleKeyword) PSXmlSerializationHelper.readFromXML(xml, target);
     assertEquals("Demo", restored.getLabel());
     assertEquals("7", restored.getValue());
+  }
+
+  @Test
+  void facadeWriteMatchesGoldenFixture() throws Exception {
+    // Use Jackson pilot DTO (simple name SampleKeyword → root sample-keyword).
+    PSJacksonXmlSerializationHelperTest.SampleKeyword original = jacksonPilotKeyword();
+    String facadeXml = PSXmlSerializationHelper.writeToXml(original);
+    String golden = loadResource("com/percussion/services/utils/xml/sample-keyword-golden.xml");
+    PSJacksonXmlSerializationHelperTest.assertLogicalXmlParity(golden, facadeXml);
+  }
+
+  @Test
+  void facadeJacksonRoundTripRestoresNestedChoices() throws Exception {
+    PSJacksonXmlSerializationHelperTest.SampleKeyword original = jacksonPilotKeyword();
+    String xml = PSXmlSerializationHelper.writeToXml(original);
+    assertTrue(xml.contains("sample-keyword"), xml);
+    assertTrue(xml.contains("sample-choice"), xml);
+
+    PSJacksonXmlSerializationHelperTest.SampleKeyword target =
+        new PSJacksonXmlSerializationHelperTest.SampleKeyword();
+    PSJacksonXmlSerializationHelperTest.SampleKeyword restored =
+        (PSJacksonXmlSerializationHelperTest.SampleKeyword)
+            PSXmlSerializationHelper.readFromXML(xml, target);
+    assertSame(target, restored);
+    assertEquals(original.getId(), restored.getId());
+    assertEquals(original.getLabel(), restored.getLabel());
+    assertEquals(original.getValue(), restored.getValue());
+    assertEquals(1, restored.getChoices().size());
+    assertEquals("ACT", restored.getChoices().get(0).getLabel());
+  }
+
+  @Test
+  void facadeReadAcceptsLegacyNullRootWithSampleChoiceItems() throws Exception {
+    String legacy =
+        """
+        <?xml version="1.0" encoding="utf-8"?>
+        <null>
+          <choices>
+            <sample-choice>
+              <id>2</id>
+              <label>ACT</label>
+              <sequence>1</sequence>
+              <value>ACT</value>
+            </sample-choice>
+          </choices>
+          <id>1</id>
+          <label>Time_Zones</label>
+          <value>401</value>
+        </null>
+        """;
+
+    PSJacksonXmlSerializationHelperTest.SampleKeyword restored =
+        (PSJacksonXmlSerializationHelperTest.SampleKeyword)
+            PSXmlSerializationHelper.readFromXML(
+                legacy, new PSJacksonXmlSerializationHelperTest.SampleKeyword());
+    assertEquals("Time_Zones", restored.getLabel());
+    assertEquals("401", restored.getValue());
+    assertEquals(1L, restored.getId());
+    assertNotNull(restored.getChoices());
+    assertEquals(1, restored.getChoices().size());
+    assertEquals("ACT", restored.getChoices().get(0).getLabel());
+  }
+
+  @Test
+  void facadeHonorsIpsXmlSerializationSuppress() throws Exception {
+    PSJacksonXmlSerializationHelperTest.SampleKeyword original = jacksonPilotKeyword();
+    original.setInternalOnly("secret-must-not-appear");
+    String xml = PSXmlSerializationHelper.writeToXml(original);
+    assertFalse(xml.contains("secret-must-not-appear"), xml);
+    assertFalse(xml.contains("internal-only"), xml);
+    assertFalse(xml.contains("internalOnly"), xml);
+  }
+
+  @Test
+  void betwixtRollbackEngineStillWritesAndReadsScalars() throws Exception {
+    System.setProperty(
+        PSXmlSerializationHelper.ENGINE_PROPERTY, PSXmlSerializationHelper.ENGINE_BETWIXT);
+    assertFalse(PSXmlSerializationHelper.isJacksonEngine());
+
+    SampleKeyword original = new SampleKeyword();
+    original.setId(9);
+    original.setLabel("Rollback");
+    original.setValue("9");
+
+    String xml = PSXmlSerializationHelper.writeToXml(original);
+    assertNotNull(xml);
+    assertTrue(xml.contains("sample-keyword") || xml.contains("SampleKeyword"), xml);
+
+    SampleKeyword target = new SampleKeyword();
+    SampleKeyword restored = (SampleKeyword) PSXmlSerializationHelper.readFromXML(xml, target);
+    assertEquals("Rollback", restored.getLabel());
+    assertEquals("9", restored.getValue());
+  }
+
+  @Test
+  void addTypeRegistersOnJacksonHelper() {
+    class LocalMarker {
+      // marker type for registry only
+    }
+    String name = "local-marker-" + System.nanoTime();
+    PSXmlSerializationHelper.addType(name, LocalMarker.class);
+    assertEquals(LocalMarker.class, PSJacksonXmlSerializationHelper.typeMapView().get(name));
+  }
+
+  private static PSJacksonXmlSerializationHelperTest.SampleKeyword jacksonPilotKeyword() {
+    PSJacksonXmlSerializationHelperTest.SampleKeyword k =
+        new PSJacksonXmlSerializationHelperTest.SampleKeyword();
+    k.setId(1L);
+    k.setLabel("Time_Zones");
+    k.setValue("401");
+    PSJacksonXmlSerializationHelperTest.SampleChoice c =
+        new PSJacksonXmlSerializationHelperTest.SampleChoice();
+    c.setId(2L);
+    c.setLabel("ACT");
+    c.setValue("ACT");
+    c.setSequence(1);
+    k.getChoices().add(c);
+    return k;
+  }
+
+  private static String loadResource(String classpath) throws Exception {
+    try (InputStream in =
+        PSXmlSerializationHelperTest.class.getClassLoader().getResourceAsStream(classpath)) {
+      assertNotNull(in, "missing test resource: " + classpath);
+      return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+    }
   }
 }

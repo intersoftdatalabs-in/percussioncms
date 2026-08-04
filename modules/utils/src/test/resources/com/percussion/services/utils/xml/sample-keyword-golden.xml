@@ -1,7 +1,9 @@
 <!--
-  Golden snapshot from Betwixt PSXmlSerializationHelper.writeToXml(SampleKeyword pilot).
-  Captured for issue #1822 / epic #505. Betwixt may also emit graph-identity id="…" attributes
-  on complex elements; tests strip those for logical tree compare (property values live in elements).
+  Golden snapshot from Betwixt write of SampleKeyword pilot (issue #1822).
+  Production facade PSXmlSerializationHelper defaults to Jackson (#1887) which matches this
+  logical tree. Betwixt may also emit graph-identity id="…" attributes on complex elements;
+  tests strip those for logical tree compare (property values live in elements). Approved
+  deviation: Jackson does not emit those id attributes.
 -->
 <sample-keyword>
   <choices>

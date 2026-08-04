@@ -39,11 +39,12 @@ import tools.jackson.dataformat.xml.XmlMapper;
 import tools.jackson.dataformat.xml.XmlWriteFeature;
 
 /**
- * Parallel Jackson XML serialization helper beside {@link PSXmlSerializationHelper}.
+ * Jackson XML serialization engine used by {@link PSXmlSerializationHelper} (production default as
+ * of issue #1887 / epic #505 slice 1).
  *
- * <p><strong>This is not the production default.</strong> Call sites continue to use {@link
- * PSXmlSerializationHelper} (Commons Betwixt). This helper exists so slice #1822 / epic #505 can
- * prove wire parity with golden snapshots before any cutover (#1823).
+ * <p>Call sites should continue to use the {@link PSXmlSerializationHelper} facade. This helper may
+ * also be invoked directly by tests and dual-path diagnostics. Betwixt remains on the classpath for
+ * emergency rollback via {@link PSXmlSerializationHelper#ENGINE_PROPERTY}.
  *
  * <p>Naming strategy (see {@link PSXmlElementNameMapper}):
  *
@@ -51,13 +52,17 @@ import tools.jackson.dataformat.xml.XmlWriteFeature;
  *   <li>Root elements: {@link PSXmlElementNameMapper#mapTypeToElementName(String)} (PS/IPS strip +
  *       multi-cap flatten + hyphenation)
  *   <li>Property elements: kebab-case ({@link PropertyNamingStrategies#KEBAB_CASE}) matching
- *       Betwixt {@code HyphenatedNameMapper} for properties
+ *       historical Betwixt {@code HyphenatedNameMapper} for properties
  *   <li>Collections: wrapper element enabled by default (Betwixt-style {@code
  *       <choices><choice/>…</choices>})
  * </ul>
  *
  * <p>Legacy package payloads with root {@code <null>} are rewritten via {@link
  * PSXmlSerializationHelper#rewriteLegacyNullRoot(String, Class)} before deserialize.
+ *
+ * <p><strong>Approved XML deviations vs historical Betwixt writes:</strong> Jackson does not emit
+ * Betwixt graph-identity {@code id="…"} attributes on complex elements (values live in child
+ * elements).
  */
 public final class PSJacksonXmlSerializationHelper {
 
@@ -168,8 +173,12 @@ public final class PSJacksonXmlSerializationHelper {
     return MAPPER;
   }
 
-  /** Snapshot of registered element→type entries (for tests). */
-  static Map<String, Class<?>> typeMapView() {
+  /**
+   * Snapshot of registered element→type entries (for tests and diagnostics).
+   *
+   * @return unmodifiable copy, never {@code null}
+   */
+  public static Map<String, Class<?>> typeMapView() {
     return Map.copyOf(TYPE_MAP);
   }
 
