@@ -9,6 +9,13 @@
     </parent>
     <artifactId>perc-rxapps</artifactId>
     <version>8.2.0-SNAPSHOT</version>
+    <name>perc-rxapps</name>
+    <description>Assembles the Rhythmyx (Rx) application distribution that the CMS installer
+        deploys into the running server. The module has no Java sources of its own; it uses the
+        maven-antrun-plugin to drive the system/rxAppsCopy.xml Ant script that copies the bundled
+        Rhythmyx application support, ObjectStore, and FastForward sample content out of the
+        build tree into target/distribution/, and the maven-assembly-plugin to package that tree
+        as the RxApp + RxFastForward tar.gz / zip artifacts that the installer ships.</description>
     <properties>
         <assembly-directory>${basedir}/target/distribution</assembly-directory>
         <jetty-directory>${basedir}/target/jetty</jetty-directory>
