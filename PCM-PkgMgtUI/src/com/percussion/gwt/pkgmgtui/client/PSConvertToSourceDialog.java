@@ -36,6 +36,11 @@ import com.smartgwt.client.widgets.grid.ListGridField;
 import com.smartgwt.client.widgets.grid.ListGridRecord;
 import com.smartgwt.client.widgets.layout.HLayout;
 
+/**
+ * Dialog that prompts the user to convert a deployed package back to a
+ * source package on the server. Created with the panels wired up by the
+ * no-arg package-private constructor.
+ */
 public class PSConvertToSourceDialog extends Dialog
 {
    /**

@@ -46,6 +46,16 @@ public class PkgMgtUI implements EntryPoint
 {
 
    /**
+    * Default constructor. Provided so that Javadoc generation does not warn
+    * about an implicit default constructor; GWT requires a no-arg entry
+    * point class.
+    */
+   public PkgMgtUI()
+   {
+      super();
+   }
+
+   /**
     * This is the entry point method.
     */
    public void onModuleLoad()

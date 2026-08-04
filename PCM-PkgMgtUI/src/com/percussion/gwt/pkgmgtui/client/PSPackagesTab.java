@@ -62,6 +62,16 @@ public class PSPackagesTab
 {
 
    private static final String BR_TAG="<br/>";
+
+   /**
+    * Default constructor. Provided so that Javadoc generation does not warn
+    * about an implicit default constructor; this class is instantiated by
+    * the GWT package management UI entry point.
+    */
+   public PSPackagesTab()
+   {
+      super();
+   }
    /**
     * Creates the packages tab. Gets the packages info through rest and creates
     * a table to hold that data and returns the tab.

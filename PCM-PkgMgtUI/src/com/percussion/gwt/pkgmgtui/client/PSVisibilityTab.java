@@ -47,6 +47,16 @@ import java.util.List;
 public class PSVisibilityTab
 {
    /**
+    * Default constructor. Provided so that Javadoc generation does not warn
+    * about an implicit default constructor; this class is instantiated by
+    * the GWT package management UI entry point.
+    */
+   public PSVisibilityTab()
+   {
+      super();
+   }
+
+   /**
     * Creates the tab and places controls in it and returns the tab.
     * 
     * @return Tab, never <code>null</code>.
