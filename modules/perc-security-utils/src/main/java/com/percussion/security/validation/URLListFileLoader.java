@@ -35,8 +35,13 @@ public final class URLListFileLoader {
 
   private static final Logger log = LogManager.getLogger(URLListFileLoader.class);
 
+  /** Default filename of the per-server allow-list file under {@code rxconfig/Server}. */
   public static final String ALLOWED_FILE_NAME = "allowedUrls.properties";
+
+  /** Default filename of the per-server block-list file under {@code rxconfig/Server}. */
   public static final String BLOCKED_FILE_NAME = "blockedUrls.properties";
+
+  /** Directory beneath the install root that holds the URL allow/block list files. */
   public static final String SERVER_RELATIVE_DIR = "rxconfig/Server";
 
   /** Classpath resource path for default allow template. */
@@ -47,11 +52,17 @@ public final class URLListFileLoader {
   public static final String DEFAULT_BLOCKED_RESOURCE =
       "com/percussion/security/validation/blockedUrls.properties";
 
+  /** No-op utility constructor. */
   private URLListFileLoader() {}
 
   /**
    * Parses active URL patterns from a list file. Comments ({@code #}), blank lines, and lone {@code
    * *} are ignored.
+   *
+   * @param file the URL list file to parse, may be {@code null}.
+   * @return an immutable list of pattern strings, never {@code null} but possibly empty if the file
+   *     is {@code null}, missing, or contains no active patterns.
+   * @throws IOException if the file cannot be read.
    */
   public static List<String> parsePatterns(Path file) throws IOException {
     if (file == null || !Files.isRegularFile(file)) {
@@ -83,7 +94,14 @@ public final class URLListFileLoader {
    * If {@code target} does not exist, copies the classpath default resource to it. Parent
    * directories are created as needed. Existing files are never modified.
    *
-   * @return true if a new file was created
+   * @param target the file to seed; if {@code null} or already existing, the method is a no-op
+   *     (returning {@code false} in the latter case).
+   * @param classpathResource the classpath-relative path of the default template resource, must not
+   *     be {@code null}.
+   * @return {@code true} if a new file was created; {@code false} if the file already existed or
+   *     either argument was {@code null}.
+   * @throws IOException if the parent directories cannot be created or the resource cannot be
+   *     copied.
    */
   public static boolean seedIfMissing(Path target, String classpathResource) throws IOException {
     if (target == null || classpathResource == null) {
@@ -107,7 +125,14 @@ public final class URLListFileLoader {
     }
   }
 
-  /** Seeds both allow and block files under {@code serverConfigDir} when missing. */
+  /**
+   * Seeds both allow and block files under {@code serverConfigDir} when missing. No-op if the
+   * supplied directory is {@code null}.
+   *
+   * @param serverConfigDir the directory under which to create the default allow / block files; may
+   *     be {@code null} (in which case the call is a no-op).
+   * @throws IOException if any of the seed copies fails.
+   */
   public static void seedServerConfigDir(Path serverConfigDir) throws IOException {
     if (serverConfigDir == null) {
       return;
@@ -119,6 +144,9 @@ public final class URLListFileLoader {
   /**
    * Resolves install-root {@code rxconfig/Server} from {@code rxdeploydir} system property, or
    * {@code null} if unset/blank.
+   *
+   * @return the resolved server-config directory, or {@code null} if the {@code rxdeploydir} system
+   *     property is unset / blank.
    */
   public static Path resolveServerConfigDirFromRxDeployDir() {
     String rx = System.getProperty("rxdeploydir");
@@ -128,7 +156,14 @@ public final class URLListFileLoader {
     return Path.of(rx.trim(), "rxconfig", "Server");
   }
 
-  /** Loads patterns after optional seed; returns empty list if file still absent. */
+  /**
+   * Loads patterns after optional seed; returns empty list if file still absent.
+   *
+   * @param file the URL list file to load; may be {@code null}.
+   * @param seedResource classpath resource to seed the file with if it does not yet exist.
+   * @return an immutable list of pattern strings, never {@code null} but possibly empty.
+   * @throws IOException if the seed or the read fails.
+   */
   public static List<String> loadPatternsAfterSeed(Path file, String seedResource)
       throws IOException {
     if (file == null) {
@@ -138,7 +173,13 @@ public final class URLListFileLoader {
     return parsePatterns(file);
   }
 
-  /** Reads classpath resource as UTF-8 string (for tests). */
+  /**
+   * Reads classpath resource as UTF-8 string (for tests).
+   *
+   * @param resource the classpath resource to read, must not be {@code null}.
+   * @return the resource contents decoded as UTF-8.
+   * @throws IOException if the resource cannot be found or read.
+   */
   public static String readClasspathResource(String resource) throws IOException {
     try (InputStream in = URLListFileLoader.class.getClassLoader().getResourceAsStream(resource)) {
       if (in == null) {

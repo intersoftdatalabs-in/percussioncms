@@ -53,6 +53,14 @@ public class URLValidation {
 
   private URLValidation() {}
 
+  /**
+   * Convenience overload that validates {@code url} using the {@link
+   * URLValidationConfig#getDefault() default configuration}.
+   *
+   * @param url the URL to validate, must not be {@code null}.
+   * @throws IllegalArgumentException if {@code url} is {@code null}.
+   * @throws SecurityException if the URL is rejected by the default validation configuration.
+   */
   public static void validateURL(URL url) {
     validateURL(url, URLValidationConfig.getDefault());
   }
@@ -133,10 +141,32 @@ public class URLValidation {
             host));
   }
 
+  /**
+   * Convenience overload that parses {@code urlString} and validates it using the {@link
+   * URLValidationConfig#getDefault() default configuration}.
+   *
+   * @param urlString the URL string to parse and validate, must not be {@code null} or empty.
+   * @return the parsed {@link URL}.
+   * @throws MalformedURLException if {@code urlString} is not a valid URL.
+   * @throws IllegalArgumentException if {@code urlString} is {@code null} or empty.
+   * @throws SecurityException if the parsed URL is rejected by the default validation
+   *     configuration.
+   */
   public static URL validateURLString(String urlString) throws MalformedURLException {
     return validateURLString(urlString, URLValidationConfig.getDefault());
   }
 
+  /**
+   * Parses {@code urlString} and validates it against {@code config}.
+   *
+   * @param urlString the URL string to parse and validate, must not be {@code null} or empty.
+   * @param config validation configuration (allow/block lists); may be {@code null} to fall back to
+   *     {@link URLValidationConfig#getDefault()}.
+   * @return the parsed {@link URL}.
+   * @throws MalformedURLException if {@code urlString} is not a valid URL.
+   * @throws IllegalArgumentException if {@code urlString} is {@code null} or empty.
+   * @throws SecurityException if the parsed URL is rejected by the supplied configuration.
+   */
   public static URL validateURLString(String urlString, URLValidationConfig config)
       throws MalformedURLException {
     if (urlString == null || urlString.isEmpty()) {
