@@ -10,6 +10,11 @@
     <artifactId>perc-jetty-jars</artifactId>
     <packaging>pom</packaging>
     <name>perc-jetty-jars</name>
+    <description>Assembles the run-time jar bundle (database drivers, XML parsing, connection
+        pooling, JASPIC, and CMS utility jars) that the perc-jetty distribution loads from
+        Jetty/defaults/lib/perc/ and Jetty/defaults/lib/perc-logging/. Contains no Java
+        sources of its own; its only artifact is the maven-assembly-plugin jar-with-dependencies
+        output that perc-jetty unpacks into the Jetty distribution.</description>
     <properties>
         <assembly-directory>${basedir}/target/distribution</assembly-directory>
         <jetty-directory>${basedir}/target/jetty</jetty-directory>
