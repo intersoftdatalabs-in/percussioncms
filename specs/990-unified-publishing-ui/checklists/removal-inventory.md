@@ -89,6 +89,7 @@ Detailed audit notes (grep tables, historical faces dump pointers):
 | `dce_header.jsp` Runtime link              | Points to modern Runtime          | Done              | No deep faces URL                               |
 | Remaining `ui/pubruntime/*.jsp` deep pages | **Keep packaged** until #1818     | Deferred (RET-06) | Product **nav** callers: **zero** (audit #1817) |
 | `PSDemandPublishServlet` post-queue UI     | Rewired off `DemandPublish.jsp`   | Done (#1842)      | Redirect → modern shell status (see note below) |
+| `PSRunEdition` `$sys.editionLogUrl`        | Rewired off `JobPubLog.faces`     | Done (#1844)      | Modern shell logs deep link (see note below)    |
 
 **Tracked files (2026-08-04)** — `WebUI/src/main/webapp/ui/pubruntime/` (13 JSPs):
 
@@ -102,7 +103,7 @@ Detailed audit notes (grep tables, historical faces dump pointers):
 | `DeleteSiteItemLogsWarning.jsp` | yes                         | none               | —                                      | Delete                        |
 | `ErrorMessage.jsp`              | yes                         | none               | —                                      | Delete                        |
 | `ItemPubLog.jsp`                | yes                         | none               | —                                      | Delete                        |
-| `JobPubLog.jsp`                 | yes                         | none               | **`PSRunEdition` builds `.faces` URL** | Rewire URL then Delete        |
+| `JobPubLog.jsp`                 | yes                         | none               | **`PSRunEdition` rewired (#1844)**     | **Delete** (no live consumer) |
 | `NoSelectionWarning.jsp`        | yes                         | none               | —                                      | Delete                        |
 | `RuntimeEdition.jsp`            | yes                         | none               | —                                      | Delete                        |
 | `RuntimeEditionList.jsp`        | yes                         | none               | —                                      | Delete                        |
@@ -118,6 +119,17 @@ Demand `requestid` is **not** appended: modern shell deep-link contract has no
 request-id filter. **`web.xml` mapping `/publisher/demandpublishing` is kept.**
 **JSP file delete still deferred** under #1818 — this rewire only removes the
 live server-side consumer so DemandPublish.jsp can be deleted safely later.
+
+**RET-06 residual — JobPubLog consumer rewire (issue #1844, 2026-08-04):**
+`system/.../PSRunEdition.getPublishingLogURL()` no longer builds
+`/ui/pubruntime/JobPubLog.faces?sys_publishingJobId=…` (faces stack already gone).
+It now targets the modern Publishing shell peer
+`publishingShellHref({ section: 'logs' })` →
+`{protocol}://{host}:{port}{requestRoot}/cm/app/?view=publish&section=logs`.
+Job-id query is **not** appended: modern shell deep-link contract has no job-id
+filter yet (only `section` / optional `siteId` / `serverId`). **JSP file delete
+still deferred** under #1818 / packaging follow-up — this rewire only removes the
+live server-side consumer so JobPubLog.jsp can be deleted safely later.
 
 **Sign-off**: Entry-path retirement Done; deep-page file deletion **explicitly deferred** to #1818 after UAT + non-nav rewires.  
 **Tracking issue**: [#1372](https://github.com/intersoftdatalabs-in/percussioncms/issues/1372) · audit [#1817](https://github.com/intersoftdatalabs-in/percussioncms/issues/1817)
