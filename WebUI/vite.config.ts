@@ -34,6 +34,10 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "jsdom",
+    // Same setup as src/main/frontend/vite.config.ts so `npm test` from
+    // WebUI root also gets the jsdom location navigation mock, canvas
+    // stubs, and jest-dom matchers.
+    setupFiles: [resolve(__dirname, "src/main/frontend/vitest.setup.ts")],
     include: [
       "src/test/ts/**/*.{test,spec}.{ts,tsx}",
       "src/test/js/**/*.{test,spec}.js",

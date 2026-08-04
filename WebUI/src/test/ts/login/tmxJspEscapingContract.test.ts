@@ -23,6 +23,11 @@ import { describe, expect, it } from "vitest";
  * login I18N map. Naive replaceAll of quotes left FR/IT strings like
  * Sélectionnez "Remplacer" as invalid JS, so dropdown locale changes for those
  * languages never reassigned window.I18N.message.
+ *
+ * Escaping lives in {@code PSTmxJsCatalog.toJsObjectEntries} (GH-1611), which
+ * uses {@code XSSValidation.escapeJavaScript} offline-tested in perc-i18n.
+ * The JSP must call that helper rather than inlining XSSValidation or a
+ * broken one-liner replaceAll.
  */
 describe("tmx.jsp JS escaping contract", () => {
   const jspPath = resolve(
@@ -31,12 +36,15 @@ describe("tmx.jsp JS escaping contract", () => {
   );
   const text = readFileSync(jspPath, "utf8");
 
-  it("uses XSSValidation.escapeJavaScript for mode=js emission", () => {
-    expect(text).toContain("com.percussion.security.validation.XSSValidation");
-    expect(text).toContain("XSSValidation.escapeJavaScript");
-    // Must not regress to the broken one-liner escape.
+  it("emits mode=js entries via PSTmxJsCatalog (not naive replaceAll)", () => {
+    expect(text).toContain("com.percussion.i18n.PSTmxJsCatalog");
+    expect(text).toContain("PSTmxJsCatalog.toJsObjectEntries");
+    // Must not regress to the broken one-liner escape in the JSP.
     expect(text).not.toMatch(
       /getString\([^)]+\)\.replaceAll\(\s*"\\""\s*,\s*"\\\\\\""\s*\)/,
     );
+    // Must not re-introduce inline XSSValidation calls that bypass the catalog
+    // helper (locale fallback + regression tests live on PSTmxJsCatalog).
+    expect(text).not.toContain("XSSValidation.escapeJavaScript");
   });
 });

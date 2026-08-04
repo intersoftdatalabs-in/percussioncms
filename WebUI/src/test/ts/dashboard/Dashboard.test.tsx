@@ -16,7 +16,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { Dashboard } from "@/dashboard";
 
 describe("Dashboard Component", () => {
@@ -51,15 +51,17 @@ describe("Dashboard Component", () => {
     expect(gridContainer).toBeDefined();
   });
 
-  it("should detect legacy dashboard flag", () => {
-    // Set legacy flag in URL
+  it("should detect legacy dashboard flag and navigate via location.href", async () => {
+    // Set legacy flag in URL — Dashboard useEffect redirects to legacyDashboardUrl.
+    // Shared vitest.setup mock applies href assignment via history so this is
+    // observable under jsdom (raw jsdom emits "Not implemented: navigation").
     window.history.pushState({}, "", "/?legacyDashboard=true");
 
-    const originalLocation = window.location.href;
     try {
       render(<Dashboard legacyDashboardUrl="/legacy.jsp" />);
-      // Navigation would happen - we can't test it directly in jsdom
-      // but we can verify the component handles the param
+      await waitFor(() => {
+        expect(window.location.pathname).toBe("/legacy.jsp");
+      });
     } finally {
       window.history.pushState({}, "", "/");
     }
