@@ -4,6 +4,18 @@ This directory holds the docker-compose stack, operator-facing control scripts, 
 
 Per spec 994 (`specs/994-python-build-scripts/spec.md`): the original `.sh` wrappers around these scripts have been removed (FR-004). Windows, Linux, and macOS operators now invoke the Python entry points identically (`python3 scripts/<name>.py` or `python3 docker/scripts/<name>.py`).
 
+## Credentials (no secrets in compose)
+
+DB passwords are **not** hardcoded in `docker-compose.yml`. Copy the example env file and set local-only values:
+
+```bash
+cp .env.compose.example .env.compose
+# edit MYSQL_*/POSTGRES_*/MSSQL_* passwords as needed
+docker compose --env-file .env.compose --profile postgres up -d
+```
+
+`.env.compose` is gitignored. Matrix install smoke loads the same file (or `--env-file`) so cell `DB_PASSWORD` matches the compose DB.
+
 ## Two stacks (do not confuse them)
 
 |          Stack           |                                    Purpose                                    |                   How to run                    |

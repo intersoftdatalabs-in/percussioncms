@@ -77,6 +77,15 @@ cd modules/perc-distribution-tree
 
 ## Bundled GCM natives (`bin/`)
 
+**Temporarily disabled** until `dev.monkeyking:mkd-gcm-natives` is published to Maven Central. The following are commented out so distribution builds do not require a local `.m2` install of the artifact:
+
+- `pom.xml` — `mkd-gcm-natives` dependency and `stage-gcm-natives` unpack execution
+- `installDistributionFiles.xml` — fail/copy of `mkd_gcm_ffi` into `bin/`
+- `BundledGcmNativesLockstepTest` — `@Disabled` until staging is re-enabled
+- `sitemanage` — `mkd-gcm-sdk` dependency (already commented)
+
+When re-enabling, restore all of the above in one change. Intended behavior:
+
 The i18n crowdsource path (mkd-gcm) needs the native shared library `mkd_gcm_ffi` on the Jetty process library path. `StartJetty.sh` / `StartJetty.bat` set `-Djna.library.path=<installdir>/bin` (and `LD_LIBRARY_PATH` / `PATH`).
 
 Every production build of this module unpacks `dev.monkeyking:mkd-gcm-natives` (version `${mkd.gcm.version}`) and flattens the **platforms shipped by that artifact**:
@@ -88,9 +97,9 @@ Every production build of this module unpacks `dev.monkeyking:mkd-gcm-natives` (
 
 **macOS (arm64 / x86_64):** `mkd-gcm-natives` **0.2.0 does not ship** Darwin shared libraries. The product still installs and runs on macOS; GCM correction submit is an **opt-in** feature. On hosts without a loadable `mkd_gcm_ffi`, `MkdGcmCorrectionService` catches `UnsatisfiedLinkError` and surfaces a clear configuration error (place the library under `<installdir>/bin` and set `jna.library.path` / `PATH` / `LD_LIBRARY_PATH` when/if a Darwin native is published). Do not invent macOS includes until upstream ships them — otherwise the ANT `<fail>` / empty stage would either block the whole CMS build or silently omit files.
 
-Lockstep: `pom.xml` property `${mkd.gcm.version}` + dependency version, `stage-gcm-natives` unpack includes, and `installDistributionFiles.xml` `<available>` / `<include>` names are asserted by `BundledGcmNativesLockstepTest`.
+Lockstep: `pom.xml` property `${mkd.gcm.version}` + dependency version, `stage-gcm-natives` unpack includes, and `installDistributionFiles.xml` `<available>` / `<include>` names are asserted by `BundledGcmNativesLockstepTest` (when re-enabled).
 
-Staging: `maven-dependency-plugin` execution `stage-gcm-natives` → `_gcm-native-stage/`, then ANT in `installDistributionFiles.xml` copies into `bin/` and deletes the stage dir. Missing **Windows/Linux** natives fail the build (install `mkd-gcm-natives` to local `.m2` until published).
+Staging: `maven-dependency-plugin` execution `stage-gcm-natives` → `_gcm-native-stage/`, then ANT in `installDistributionFiles.xml` copies into `bin/` and deletes the stage dir.
 
 ## Bundled JDBC Drivers
 

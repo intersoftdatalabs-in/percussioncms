@@ -757,7 +757,14 @@ public final class DbInstallConfigResolver {
     return Boolean.parseBoolean(raw);
   }
 
-  /** CLI arguments parsed from the preinstall invocation. */
+  /**
+   * CLI arguments parsed from the preinstall invocation.
+   *
+   * @param installPath install root path supplied via {@code --install-dir} (or derived from the
+   *     installer's CWD); never {@code null}.
+   * @param options parsed {@code --key=value} pairs keyed by the long option name; never {@code
+   *     null}.
+   */
   public record ParsedArgs(Path installPath, Map<String, String> options) {}
 
   /**
@@ -769,11 +776,17 @@ public final class DbInstallConfigResolver {
   public record ResolvedDbConfig(Map<String, String> systemProperties, String source) {
     /**
      * Defaults source to {@code "default"}; used by tests and callers that only have properties.
+     *
+     * @param systemProperties map of {@code perc.db.*} keys for the ANT JVM
      */
     public ResolvedDbConfig(Map<String, String> systemProperties) {
       this(systemProperties, "default");
     }
 
+    /**
+     * Canonical constructor: defensively copies {@code systemProperties} (stripping null keys /
+     * values) and defaults {@code source} to {@code "default"} when {@code null}.
+     */
     public ResolvedDbConfig {
       // Map.copyOf rejects null keys/values; filter defensively.
       Map<String, String> copy = new HashMap<>();

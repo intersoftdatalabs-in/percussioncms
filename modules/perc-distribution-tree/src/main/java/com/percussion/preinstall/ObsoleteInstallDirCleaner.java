@@ -36,7 +36,10 @@ import java.util.function.Function;
  */
 public final class ObsoleteInstallDirCleaner {
 
+  /** CLI flag name ({@code --clean-install-dir}) that forces silent cleanup of obsolete paths. */
   public static final String FLAG_KEY = "clean-install-dir";
+
+  /** System property equivalent of {@link #FLAG_KEY} ({@code -Dclean.install.dir=...}). */
   public static final String FLAG_SYSTEM_PROPERTY = "clean.install.dir";
 
   static final String PRE_INSTALL = "PreInstall";
@@ -49,10 +52,33 @@ public final class ObsoleteInstallDirCleaner {
 
   private ObsoleteInstallDirCleaner() {}
 
+  /**
+   * One obsolete directory candidate discovered under the install root.
+   *
+   * @param relativeName path relative to the install root.
+   * @param absolutePath absolute, normalized path on disk.
+   * @param sizeBytes best-effort size estimate in bytes.
+   */
   public record Candidate(String relativeName, Path absolutePath, long sizeBytes) {}
 
+  /**
+   * A candidate whose deletion failed; surfaced in {@link CleanupResult#failed()}.
+   *
+   * @param path path that could not be deleted.
+   * @param message human-readable failure reason.
+   */
   public record FailedPath(Path path, String message) {}
 
+  /**
+   * Outcome of the cleanup pass for an upgrade install root.
+   *
+   * @param candidates all candidates discovered (deleted + retained + failed).
+   * @param proceeded {@code true} when the deletion step actually ran.
+   * @param decisionSource human-readable label describing how the decision was made.
+   * @param deleted paths that were successfully deleted.
+   * @param failed paths that could not be deleted (with their failure reason).
+   * @param retained candidates that were intentionally kept.
+   */
   public record CleanupResult(
       List<Candidate> candidates,
       boolean proceeded,
@@ -61,6 +87,7 @@ public final class ObsoleteInstallDirCleaner {
       List<FailedPath> failed,
       List<Candidate> retained) {
 
+    /** Canonical constructor: defensively copies all list fields. */
     public CleanupResult {
       candidates = List.copyOf(candidates);
       deleted = List.copyOf(deleted);
@@ -68,12 +95,23 @@ public final class ObsoleteInstallDirCleaner {
       retained = List.copyOf(retained);
     }
 
+    /**
+     * Returns whether the upgrade may proceed after cleanup.
+     *
+     * @return {@code true} always — cleanup is best-effort and never blocks the upgrade.
+     */
     public boolean continueUpgrade() {
       return true;
     }
   }
 
-  /** True when the install root looks like an existing product install (upgrade target). */
+  /**
+   * True when the install root looks like an existing product install (upgrade target).
+   *
+   * @param installRoot candidate install root directory; may be {@code null}.
+   * @return {@code true} when {@code installRoot} contains either {@code Version.properties} or an
+   *     {@code ObjectStore} directory; {@code false} otherwise.
+   */
   public static boolean isUpgradeInstallRoot(Path installRoot) {
     if (installRoot == null || !Files.isDirectory(installRoot, NO_FOLLOW)) {
       return false;
@@ -86,6 +124,9 @@ public final class ObsoleteInstallDirCleaner {
 
   /**
    * Parse {@code --clean-install-dir} from CLI options and optional system property. Default false.
+   *
+   * @param cliOptions CLI option map (key=&gt;value); may be {@code null}.
+   * @return {@code true} when the flag is present with a truthy value; {@code false} otherwise.
    */
   public static boolean parseCleanInstallDirFlag(java.util.Map<String, String> cliOptions) {
     String fromCli =
@@ -110,8 +151,11 @@ public final class ObsoleteInstallDirCleaner {
   /**
    * List eligible obsolete candidates under the install root.
    *
+   * @param installRoot directory to scan; must resolve to an existing product install.
    * @param majorVersion existing product major, or 0 if unknown
    * @param minorVersion existing product minor, or 0 if unknown
+   * @return immutable list of obsolete candidates; never {@code null}.
+   * @throws IOException if scanning the install root fails.
    */
   public static List<Candidate> listEligibleCandidates(
       Path installRoot, int majorVersion, int minorVersion) throws IOException {
@@ -137,6 +181,11 @@ public final class ObsoleteInstallDirCleaner {
 
   /**
    * JBoss bak is not eligible when on 5.3-era upgrade path without AppServer (cannot recreate bak).
+   *
+   * @param installRoot install root directory being upgraded.
+   * @param majorVersion existing product major version.
+   * @param minorVersion existing product minor version.
+   * @return {@code true} when the JBoss bak directory can be safely deleted.
    */
   public static boolean isJBossBakEligible(Path installRoot, int majorVersion, int minorVersion) {
     boolean oldFiveThree = majorVersion == 5 && minorVersion < 4;
@@ -146,6 +195,14 @@ public final class ObsoleteInstallDirCleaner {
     return Files.isDirectory(installRoot.resolve(APP_SERVER), NO_FOLLOW);
   }
 
+  /**
+   * Best-effort size estimate of the file or directory tree at {@code path}. Does not follow
+   * directory symlinks; symlinks contribute their own size only.
+   *
+   * @param path path to measure; may be {@code null}.
+   * @return size in bytes; {@code 0} when {@code path} does not exist.
+   * @throws IOException if a filesystem traversal fails.
+   */
   public static long estimateSizeBytes(Path path) throws IOException {
     if (path == null || !Files.exists(path, NO_FOLLOW)) {
       return 0L;
@@ -182,6 +239,12 @@ public final class ObsoleteInstallDirCleaner {
     return total[0];
   }
 
+  /**
+   * Formats a byte count using the largest unit (B/KB/MB/GB) that yields a value &lt; 1024.
+   *
+   * @param bytes size in bytes; negative values are treated as zero.
+   * @return human-readable size string.
+   */
   public static String formatSize(long bytes) {
     if (bytes < 0) {
       bytes = 0;
@@ -204,6 +267,11 @@ public final class ObsoleteInstallDirCleaner {
   /**
    * True if {@code path} is a strict child of {@code installRoot} after normalization (no {@code
    * ..} escape).
+   *
+   * @param installRoot parent install root directory; may be {@code null}.
+   * @param path candidate path to test; may be {@code null}.
+   * @return {@code true} when {@code path} resolves to an entry strictly below {@code installRoot}
+   *     without any {@code ..} segments.
    */
   public static boolean isUnderInstallRoot(Path installRoot, Path path) {
     if (installRoot == null || path == null) {
@@ -229,6 +297,10 @@ public final class ObsoleteInstallDirCleaner {
   /**
    * Decision matrix: whether to delete without prompting, require prompt, or retain.
    *
+   * @param upgrade {@code true} when the installer is performing an upgrade.
+   * @param cleanFlag {@code true} when {@code --clean-install-dir} was supplied.
+   * @param interactive {@code true} when the installer is running interactively.
+   * @param hasCandidates {@code true} when at least one obsolete candidate was found.
    * @return {@code PROCEED}, {@code PROMPT}, or {@code RETAIN}
    */
   public static Decision decide(
@@ -245,13 +317,22 @@ public final class ObsoleteInstallDirCleaner {
     return Decision.RETAIN;
   }
 
+  /** Outcome of the cleanup decision matrix. */
   public enum Decision {
+    /** Delete the obsolete directories without prompting. */
     PROCEED,
+    /** Prompt the operator before deleting the obsolete directories. */
     PROMPT,
+    /** Keep the obsolete directories in place. */
     RETAIN
   }
 
-  /** Interpret interactive answer; empty/default is no. */
+  /**
+   * Interpret interactive answer; empty/default is no.
+   *
+   * @param answer raw answer supplied by the operator; may be {@code null}.
+   * @return {@code true} when {@code answer} is {@code y} or {@code yes} (case-insensitive).
+   */
   public static boolean isAffirmativeAnswer(String answer) {
     if (answer == null) {
       return false;
@@ -260,6 +341,13 @@ public final class ObsoleteInstallDirCleaner {
     return "y".equalsIgnoreCase(a) || "yes".equalsIgnoreCase(a);
   }
 
+  /**
+   * Builds the operator-facing prompt for the obsolete-directory cleanup pass.
+   *
+   * @param installRoot install root directory whose obsolete candidates will be summarized.
+   * @param candidates list of obsolete candidates to display.
+   * @return multi-line prompt terminated with {@code [y/N]: }.
+   */
   public static String buildPromptText(Path installRoot, List<Candidate> candidates) {
     StringBuilder sb = new StringBuilder();
     sb.append("The following obsolete directories were found under ")
@@ -281,6 +369,12 @@ public final class ObsoleteInstallDirCleaner {
     return sb.toString();
   }
 
+  /**
+   * Formats a cleanup result as a multi-line report suitable for installer logs.
+   *
+   * @param result cleanup pass result to render.
+   * @return multi-line report; never {@code null}.
+   */
   public static String formatCleanupReport(CleanupResult result) {
     StringBuilder sb = new StringBuilder();
     sb.append("--- Obsolete install directory cleanup ---\n");
@@ -321,7 +415,14 @@ public final class ObsoleteInstallDirCleaner {
   /**
    * Run the cleanup flow for an upgrade install root.
    *
+   * @param installRoot directory to scan; must be a product install root.
+   * @param majorVersion existing product major version, or 0 if unknown.
+   * @param minorVersion existing product minor version, or 0 if unknown.
+   * @param cleanFlag {@code true} when {@code --clean-install-dir} was supplied.
+   * @param interactive {@code true} when the installer is running interactively.
    * @param lineReader if non-null and decision is PROMPT, called with prompt text to read answer
+   * @return summary of candidates that were deleted, retained, or failed.
+   * @throws IOException if filesystem traversal or deletion fails.
    */
   public static CleanupResult run(
       Path installRoot,

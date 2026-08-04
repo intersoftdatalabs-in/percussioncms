@@ -42,9 +42,10 @@ const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// src/test/js -> frontend root scripts/
+// src/test/js -> frontend root scripts/ (CommonJS builder stays .cjs under
+// package `"type": "module"` so createRequire can load its exports).
 const builder = require(
-  path.resolve(__dirname, "../../../scripts/build-legacy-bundles.js"),
+  path.resolve(__dirname, "../../../scripts/build-legacy-bundles.cjs"),
 );
 
 const {

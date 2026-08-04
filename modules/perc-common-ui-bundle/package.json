@@ -10,10 +10,10 @@
   },
   "devDependencies": {
     "esbuild": "0.28.1",
-    "jquery": "^3.6.0",
-    "jsdom": "^26.1.0",
+    "jquery": "^4.0.0",
+    "jsdom": "^30.0.1",
     "moment": "^2.30.1",
     "moment-jdateformatparser": "^1.2.1",
-    "vitest": "^4.1.0"
+    "vitest": "^4.1.10"
   }
 }

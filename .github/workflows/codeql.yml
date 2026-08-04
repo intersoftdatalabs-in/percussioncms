@@ -32,9 +32,9 @@ name: "CodeQL Advanced"
 
 on:
   push:
-    branches: ["development"]
+    branches: ["main"]
   pull_request:
-    branches: ["development"]
+    branches: ["main"]
   schedule:
     - cron: "44 2 * * 4"
   # Manual re-scan after config changes or after disabling Code Quality / default setup

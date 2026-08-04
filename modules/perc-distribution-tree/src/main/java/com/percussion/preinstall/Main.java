@@ -64,34 +64,86 @@ public class Main {
 
   private static final Logger log = LogManager.getLogger(Main.class);
 
+  /** Default distribution directory name within the staged installation. */
   public static String DISTRIBUTION_DIR = "distribution";
+
+  /** System property name carrying the explicit preinstall Java home override. */
   public static final String PERC_JAVA_HOME = "perc.java.home";
+
+  /** Standard JVM system property name for the Java home directory. */
   public static final String JAVA_HOME = "java.home";
+
+  /** System property name carrying the running product version. */
   public static final String PERCUSSION_VERSION = "percversion";
+
+  /** Prefix for the temporary extraction directory created during install. */
   public static final String INSTALL_TEMPDIR = "percInstallTmp_";
+
+  /** Artifact name of the bundled ANT helper JAR loaded by the installer. */
   public static final String PERC_ANT_JAR = "perc-ant";
+
+  /** System property name that flags a development environment to the installer. */
   public static final String DEVELOPMENT = "DEVELOPMENT";
 
   /** Name of the ANT build file inside the installer directory. */
   public static final String ANT_INSTALL = "install.xml";
 
+  /** Standard JVM system property name for the temp directory. */
   public static final String JAVA_TEMP = "java.io.tmpdir";
+
+  /** Name of the file under the install root that stores the resolved product version. */
   public static final String VERSION_PROPERTIES = "Version.properties";
+
   private static final String INSTALLATION_PROPS_PATH = "/jetty/base/etc/installation.properties";
   private static final String SERVER_PROPS_PATH = "/rxconfig/Server/server.properties";
   private static final String JETTY_JDBC_PATH = "/jetty/base/lib/jdbc/";
   private static final String OLD_JDBC_LIST_PATH = "/rxconfig/Installer/oldJdbcJarsList.txt";
+
+  /** Temporary extraction directory created during install; may be {@code null} until set. */
   public static File tmpFolder;
+
+  /** Resolved value of the {@link #DEVELOPMENT} system property (defaults to {@code false}). */
   public static String developmentFlag = "false";
+
+  /**
+   * Resolved product version string; populated from the {@link #PERCUSSION_VERSION} system
+   * property.
+   */
   public static String percVersion;
+
+  /** Current line number being processed on stdout; tracked for diagnostics. */
   public static AtomicInteger currentLineNo = new AtomicInteger(0);
+
+  /** Current line number being processed on stderr; tracked for diagnostics. */
   public static AtomicInteger currentErrLineNo = new AtomicInteger(0);
+
+  /**
+   * Debug flag (string {@code "true"}/{@code "false"}) sourced from the {@code DEBUG} system
+   * property.
+   */
   public static volatile String debug = "false";
+
+  /** Process exit code of the last ANT invocation; {@code 0} when none yet completed. */
   public static Integer processCode = 0;
+
+  /** Aggregated error flag set when any phase of the install reported an error. */
   public static Boolean error = false;
+
+  /** Major version discovered from the existing {@code Version.properties} (or 0 when unknown). */
   public static int majorVersion = 0;
+
+  /** Minor version discovered from the existing {@code Version.properties} (or 0 when unknown). */
   public static int minorVersion = 0;
 
+  /** Explicit no-op constructor to satisfy {@code -Xdoclint}. */
+  public Main() {}
+
+  /**
+   * Pre-install entry point; orchestrates extraction, Java home selection, DB config resolution,
+   * and the ANT installer invocation.
+   *
+   * @param args CLI arguments parsed by {@link DbInstallConfigResolver#parseArgs(String[])}.
+   */
   public static void main(String[] args) {
     try {
 
@@ -404,6 +456,16 @@ public class Main {
     }
   }
 
+  /**
+   * Extracts a ZIP archive into {@code destPath}, filtering entries whose names start with {@code
+   * folderPrefix} (the prefix is stripped before write).
+   *
+   * @param archiveFile archive to extract; must exist.
+   * @param destPath destination directory; created if missing.
+   * @param folderPrefix path prefix required of each entry; entries without this prefix are
+   *     skipped.
+   * @throws IOException if any entry cannot be read or written.
+   */
   public static void extractArchive(Path archiveFile, Path destPath, String folderPrefix)
       throws IOException {
 
@@ -460,6 +522,17 @@ public class Main {
     }
   }
 
+  /**
+   * Executes the bundled installer JAR with the supplied resolved DB configuration.
+   *
+   * @param jar path to the bundled installer JAR.
+   * @param execPath working directory for the spawned process.
+   * @param installDir target install directory passed to the installer.
+   * @param resolvedDbConfig DB configuration to surface via system properties on the child JVM.
+   * @return process exit code returned by the spawned JVM.
+   * @throws IOException if the child process cannot be started.
+   * @throws InterruptedException if the wait is interrupted.
+   */
   public static Integer execJar(
       Path jar,
       Path execPath,
@@ -646,6 +719,12 @@ public class Main {
     }
   }
 
+  /**
+   * Updates the user Spring configuration files under the install root.
+   *
+   * @param installDir install root directory whose {@code
+   *     jetty/base/webapps/Rhythmyx/WEB-INF/config/user/spring/} tree will be refreshed.
+   */
   public static void updateUserSpringConfig(Path installDir) {
     String userSprinXMLDir =
         installDir.toAbsolutePath().toString()
@@ -678,6 +757,12 @@ public class Main {
     }
   }
 
+  /**
+   * Updates the category XML under the install root during upgrade flows.
+   *
+   * @param installDir install root directory whose {@code rx_resources/category/category.xml} is
+   *     updated.
+   */
   public static void updateCategoryXMLForUpgrade(Path installDir) {
     String categoryXMLDir =
         installDir.toAbsolutePath().toString() + "/rx_resources/category/category.xml";
@@ -720,6 +805,13 @@ public class Main {
     }
   }
 
+  /**
+   * Replaces all occurrences of {@code replaceToken} with {@code replaceValue} in {@code file}.
+   *
+   * @param file target file whose contents are rewritten in place.
+   * @param replaceToken literal token to replace.
+   * @param replaceValue replacement value.
+   */
   public static void replaceTokens(File file, String replaceToken, String replaceValue) {
     Replace r = new Replace();
     r.setFile(file);
@@ -730,6 +822,15 @@ public class Main {
     r.execute();
   }
 
+  /**
+   * Updates Jetty's server port and SSL settings to the pre-upgrade values from the legacy {@code
+   * JBossServerXML_BAK/server.xml} snapshot when present.
+   *
+   * @param installDir install root directory whose Jetty configuration will be updated.
+   * @throws ParserConfigurationException if the XML parser cannot be configured.
+   * @throws IOException if the legacy settings file cannot be read.
+   * @throws SAXException if the legacy XML cannot be parsed.
+   */
   public static void updateJettyServerPortAndSSLToPreUpgradeSettings(Path installDir)
       throws ParserConfigurationException, IOException, SAXException {
     String oldServerXMLDir = installDir.toAbsolutePath().toString() + "/JBossServerXML_BAK/";
@@ -810,6 +911,15 @@ public class Main {
     writeInstallationPropertiesForJetty(installDir, "perc.ssl.protocols=", newProtocol);
   }
 
+  /**
+   * Writes the Jetty installation properties file under the install root, replacing the supplied
+   * token with {@code value}.
+   *
+   * @param installDir install root directory.
+   * @param replaceToken literal token to replace in the properties file.
+   * @param value replacement value.
+   * @throws IOException if the properties file cannot be read or written.
+   */
   public static void writeInstallationPropertiesForJetty(
       Path installDir, String replaceToken, String value) throws IOException {
     AtomicReference<String> replaceString = new AtomicReference<>("");
@@ -832,6 +942,12 @@ public class Main {
     replaceTokens(installationPropertiesFile, replaceString.get(), replaceValue.get());
   }
 
+  /**
+   * Updates SSL-related entries in the Jetty {@code server.properties} under the install root.
+   *
+   * @param installDir install root directory whose Jetty server properties will be updated.
+   * @throws IOException if the properties file cannot be read or written.
+   */
   public static void updateServerPropsForJettySSL(Path installDir) throws IOException {
     String serverPropertiesFilePath = installDir.toAbsolutePath().toString() + SERVER_PROPS_PATH;
     File serverPropertiesFile = new File(serverPropertiesFilePath);

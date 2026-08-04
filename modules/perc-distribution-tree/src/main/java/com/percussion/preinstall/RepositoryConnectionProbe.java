@@ -79,10 +79,21 @@ public final class RepositoryConnectionProbe {
    * @param message operator-facing detail (never contains password)
    */
   public record ProbeResult(ProbeStatus status, String message) {
+    /**
+     * Returns whether the probe counts as a successful outcome.
+     *
+     * @return {@code true} when {@link #status} is {@link ProbeStatus#SUCCESS} or {@link
+     *     ProbeStatus#SKIPPED_EMBEDDED}.
+     */
     public boolean isSuccess() {
       return status == ProbeStatus.SUCCESS || status == ProbeStatus.SKIPPED_EMBEDDED;
     }
 
+    /**
+     * Returns whether the probe may be retried.
+     *
+     * @return {@code true} when {@link #status} is {@link ProbeStatus#FAILED}.
+     */
     public boolean mayRetry() {
       return status == ProbeStatus.FAILED;
     }

@@ -176,9 +176,20 @@ public final class JavaInstallSelection {
     return os.toLowerCase(Locale.ROOT).contains("win") ? "java.exe" : "java";
   }
 
-  /** Result of a successful selection. */
+  /**
+   * Result of a successful selection.
+   *
+   * @param javaHome resolved {@code JAVA_HOME} directory; never {@code null}.
+   * @param launcher path to the JVM executable under {@code javaHome}; never {@code null}.
+   * @param source diagnostic label describing where the selection came from (e.g. {@code env},
+   *     {@code system}, {@code discovery}).
+   */
   public record SelectionOutcome(Path javaHome, Path launcher, String source) {
-    /** Human-readable summary of the selected Java home and its source. */
+    /**
+     * Returns a human-readable summary of the selected Java home and its source.
+     *
+     * @return single-line summary suitable for installer logs.
+     */
     public String summary() {
       return "JAVA_HOME=" + javaHome + " source=" + source;
     }
@@ -186,12 +197,21 @@ public final class JavaInstallSelection {
 
   /** Thrown when no candidate is found or selection is invalid. */
   public static final class JavaSelectionException extends Exception {
-    /** Creates an exception with the supplied message. */
+    /**
+     * Creates an exception with the supplied message.
+     *
+     * @param message human-readable description of the failure.
+     */
     public JavaSelectionException(String message) {
       super(message);
     }
 
-    /** Creates an exception with the supplied message and cause. */
+    /**
+     * Creates an exception with the supplied message and cause.
+     *
+     * @param message human-readable description of the failure.
+     * @param cause underlying cause; may be {@code null}.
+     */
     public JavaSelectionException(String message, Throwable cause) {
       super(message, cause);
     }
@@ -200,7 +220,12 @@ public final class JavaInstallSelection {
   /** Strategy for reading a line of operator input during interactive selection. */
   @FunctionalInterface
   public interface InteractivePrompt {
-    /** Reads a line of input from the operator. */
+    /**
+     * Reads a line of input from the operator.
+     *
+     * @param prompt text to display before reading the line.
+     * @return the operator-supplied line (without trailing newline); may be {@code null} on EOF.
+     */
     String readLine(String prompt);
   }
 }

@@ -75,7 +75,11 @@ public class InputStreamLineBuffer {
             });
   }
 
-  /** Returns true while the reader thread is still alive. */
+  /**
+   * Returns true while the reader thread is still alive.
+   *
+   * @return {@code true} while the background reader thread is still running.
+   */
   public boolean isAlive() {
     return isAlive;
   }
@@ -86,17 +90,29 @@ public class InputStreamLineBuffer {
     inputCatcher.start();
   }
 
-  /** Returns true when at least one buffered line is available. */
+  /**
+   * Returns true when at least one buffered line is available.
+   *
+   * @return {@code true} when one or more lines are ready to be consumed via {@link #getNext()}.
+   */
   public boolean hasNext() {
     return lines.size() > 0;
   }
 
-  /** Returns and removes the next buffered line, or null if none are available. */
+  /**
+   * Returns and removes the next buffered line, or null if none are available.
+   *
+   * @return the next buffered line, or {@code null} when the buffer is empty.
+   */
   public String getNext() {
     return lines.poll();
   }
 
-  /** Returns milliseconds elapsed since the most recent line was read. */
+  /**
+   * Returns milliseconds elapsed since the most recent line was read.
+   *
+   * @return milliseconds elapsed since the last buffered line was read.
+   */
   public long timeElapsed() {
     return (System.currentTimeMillis() - lastTimeModified);
   }

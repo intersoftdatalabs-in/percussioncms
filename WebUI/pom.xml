@@ -849,15 +849,19 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
             </plugin>
-            <!-- TwelveMonkeys dependencies loaded via SPI by IIOProviderContextListener in web.xml -->
+            <!--
+              ImageIO codecs are loaded via SPI by IIOProviderContextListener (web.xml), so the
+              dependency analyzer cannot see bytecode refs. Force-mark imageio-* only.
+
+              Do NOT list servlet-utils or twelvemonkeys.servlet:servlet here: they are already
+              detected as used (web.xml / compile classpath). maven-dependency-plugin 3.11+
+              fails analyze-only if usedDependencies overlaps detected used deps.
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <configuration>
                     <usedDependencies>
-                        <!-- Runtime: PSContextLoaderListener / perc-system need servlet-utils on WAR classpath -->
-                        <usedDependency>com.percussion:servlet-utils</usedDependency>
-                        <usedDependency>com.twelvemonkeys.servlet:servlet</usedDependency>
                         <usedDependency>com.twelvemonkeys.imageio:imageio-core</usedDependency>
                         <usedDependency>com.twelvemonkeys.imageio:imageio-bmp</usedDependency>
                         <usedDependency>com.twelvemonkeys.imageio:imageio-jpeg</usedDependency>

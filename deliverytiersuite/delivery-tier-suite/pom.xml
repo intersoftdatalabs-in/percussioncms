@@ -45,11 +45,13 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- Jakarta EE 11 / Tomcat 11 — align with parent jakarta.servlet.api.version (#667) -->
         <servlet.api.version>6.1.0</servlet.api.version>
-        <spring.security.version>7.0.6</spring.security.version>
+        <!-- Align with spring-security-ldap 7.1.x (declares spring-ldap-core 4.1.0) -->
+        <spring.ldap.version>4.1.0</spring.ldap.version>
+        <spring.security.version>7.1.0</spring.security.version>
         <sqlserver.version>13.3.1.jre11-preview</sqlserver.version>
         <supercsv.version>2.4.0</supercsv.version>
         <timestamp>${maven.build.timestamp}</timestamp>
-        <tomcat.version>11.0.22</tomcat.version>
+        <tomcat.version>11.0.24</tomcat.version>
         <xml.apis.version>2.0.2</xml.apis.version>
     </properties>
     <dependencyManagement>
@@ -58,7 +60,7 @@
             <dependency>
                 <groupId>org.jboss.logging</groupId>
                 <artifactId>jboss-logging</artifactId>
-                <version>3.6.1.Final</version>
+                <version>3.6.3.Final</version>
             </dependency>
             <dependency>
                 <groupId>org.javassist</groupId>
@@ -234,7 +236,27 @@
             <dependency>
                 <groupId>org.springframework.ldap</groupId>
                 <artifactId>spring-ldap-core</artifactId>
-                <version>4.0.4</version>
+                <version>${spring.ldap.version}</version>
+                <!--
+                  spring-ldap-core 4.1.x pulls micrometer-core 1.17.0; Spring Framework 7.0.x
+                  still manages observation/commons at 1.16.6. DTS does not use LDAP observation
+                  metrics — exclude so RequireUpperBoundDeps / DependencyConvergence pass
+                  (same approach as spring-security-* micrometer exclusions above).
+                -->
+                <exclusions>
+                    <exclusion>
+                        <groupId>io.micrometer</groupId>
+                        <artifactId>micrometer-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>io.micrometer</groupId>
+                        <artifactId>micrometer-observation</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>io.micrometer</groupId>
+                        <artifactId>micrometer-commons</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>

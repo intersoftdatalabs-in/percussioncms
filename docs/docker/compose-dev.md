@@ -79,11 +79,10 @@ Developer self-signed mode (explicit opt-in):
 
 ## Database prerequisites and verification
 
-- MySQL container bootstraps database/user from `.env.compose` values:
-  - `MYSQL_DATABASE`
-  - `MYSQL_USER`
-  - `MYSQL_PASSWORD`
-  - `MYSQL_ROOT_PASSWORD`
+- Database containers bootstrap credentials from `.env.compose` (never from literals in `docker-compose.yml`):
+  - MySQL: `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_ROOT_PASSWORD`
+  - PostgreSQL: `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`
+  - SQL Server: `MSSQL_SA_PASSWORD` (must meet SQL Server complexity rules)
 - The MySQL service runs with UTF-8 defaults (`utf8mb4`, `utf8mb4_unicode_ci`).
 - Installer defaults use embedded **H2** unless installation/runtime configs target an external RDBMS or a legacy Derby path for migration testing.
 

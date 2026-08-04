@@ -89,7 +89,11 @@ public final class JavaCandidateDiscovery {
     return List.copyOf(eligible);
   }
 
-  /** Convenience overload: discovers and filters to eligible in one pass. */
+  /**
+   * Convenience overload: discovers and filters to eligible in one pass.
+   *
+   * @return immutable list of eligible candidates; never {@code null}.
+   */
   public static List<Candidate> discoverEligible() {
     return eligible(discover());
   }
@@ -245,17 +249,29 @@ public final class JavaCandidateDiscovery {
       return JavaHomeResolver.isSupportedMajor(major);
     }
 
-    /** Absolute path to the candidate Java home. */
+    /**
+     * Absolute path to the candidate Java home.
+     *
+     * @return the resolved Java home path; never {@code null}.
+     */
     public Path path() {
       return path;
     }
 
-    /** Version display string (e.g. {@code "21"} or {@code "1.8"}). */
+    /**
+     * Version display string (e.g. {@code "21"} or {@code "1.8"}).
+     *
+     * @return the parsed version, or an empty string when not available.
+     */
     public String versionDisplay() {
       return versionDisplay;
     }
 
-    /** True when the candidate meets the minimum major version and launcher is executable. */
+    /**
+     * True when the candidate meets the minimum major version and launcher is executable.
+     *
+     * @return {@code true} when the candidate is suitable for the installer.
+     */
     public boolean eligible() {
       return eligible;
     }

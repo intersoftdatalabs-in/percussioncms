@@ -55,8 +55,13 @@ public final class InstallerUserSettings {
   /** DTS staging property prefix. */
   public static final String PREFIX_DTS_STAGE = "dts.stage.";
 
+  /** Property key for the resolved install directory. */
   public static final String KEY_INSTALL_DIRECTORY = "install.directory";
+
+  /** Property key for the resolved product version. */
   public static final String KEY_VERSION = "version";
+
+  /** Property key for the resolved {@code JAVA_HOME}. */
   public static final String KEY_JAVA_HOME = "java.home";
 
   /** Option keys (without prefix) that may be persisted / restored. Never includes passwords. */
