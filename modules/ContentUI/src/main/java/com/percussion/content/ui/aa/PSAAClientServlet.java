@@ -38,6 +38,9 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSAAClientServlet extends HttpServlet {
 
+  /** No-op default constructor. */
+  public PSAAClientServlet() {}
+
   private static final Logger log = LogManager.getLogger(PSAAClientServlet.class);
 
   // Generic client-facing error message used to avoid leaking internal exception details

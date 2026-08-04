@@ -70,6 +70,11 @@ import org.json.JSONObject;
  */
 public class PSGetTemplateImagesForContentTypeAction extends PSAAActionBase {
 
+  /** No-op default constructor. */
+  public PSGetTemplateImagesForContentTypeAction() {
+    super();
+  }
+
   public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
     Object obj = getParameter(params, IPSHtmlParameters.SYS_CONTENTTYPEID);
     if (obj == null || obj.toString().trim().length() == 0) {

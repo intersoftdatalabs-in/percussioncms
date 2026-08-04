@@ -26,6 +26,11 @@ import org.apache.commons.lang3.StringUtils;
 
 /** Implementation of the "canCreateFolder" action. */
 public class PSCanCreateFolderAction extends PSAAActionBase {
+  /** No-op default constructor. */
+  public PSCanCreateFolderAction() {
+    super();
+  }
+
   /**
    * @param params the parameter expected in the map is a valid {@link
    *     IPSHtmlParameters#SYS_FOLDERID parentFolderId}

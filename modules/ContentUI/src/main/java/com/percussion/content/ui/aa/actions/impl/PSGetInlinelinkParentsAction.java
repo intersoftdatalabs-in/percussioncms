@@ -46,6 +46,11 @@ import org.json.JSONException;
  * </ul>
  */
 public class PSGetInlinelinkParentsAction extends PSAAActionBase {
+  /** No-op default constructor. */
+  public PSGetInlinelinkParentsAction() {
+    super();
+  }
+
   /*
    *  (non-Javadoc)
    * @see com.percussion.content.ui.aa.actions.IPSAAClientAction#execute(java.util.Map)
@@ -125,5 +130,6 @@ public class PSGetInlinelinkParentsAction extends PSAAActionBase {
   /** Input parameter names of this action. */
   public static String MANAGED_IDS = "managedIds";
 
+  /** Parameter name of the dependent content id whose inline-link parents are being requested. */
   public static String DEPENDENT_ID = "dependentId";
 }

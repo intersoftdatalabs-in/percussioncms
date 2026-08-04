@@ -31,6 +31,11 @@ import java.util.Map;
  */
 public class PSGetLocaleCountAction extends PSAAActionBase {
 
+  /** No-op default constructor. */
+  public PSGetLocaleCountAction() {
+    super();
+  }
+
   /**
    * Executes the action to retrieve the count of defined locales.
    *

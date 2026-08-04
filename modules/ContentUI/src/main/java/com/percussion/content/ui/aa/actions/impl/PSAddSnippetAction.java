@@ -47,6 +47,11 @@ import java.util.Map;
  */
 public class PSAddSnippetAction extends PSAAActionBase {
 
+  /** No-op default constructor. */
+  public PSAddSnippetAction() {
+    super();
+  }
+
   /* (non-Javadoc)
    * @see com.percussion.content.ui.aa.actions.IPSAAClientAction#execute(java.util.Map)
    */
@@ -97,9 +102,18 @@ public class PSAddSnippetAction extends PSAAActionBase {
   /** Parameter names of this action. */
   public static String OWNER_ID = "ownerId";
 
+  /** Parameter name of the dependent content id that the new snippet will be added under. */
   public static String DEPENDENT_ID = "dependentId";
+
+  /** Parameter name of the slot that will receive the new snippet. */
   public static String SLOT_ID = "slotId";
+
+  /** Parameter name of the template id used to assemble the new snippet. */
   public static String TEMPLATE_ID = "templateId";
+
+  /** Parameter name of the folder path that will receive the new snippet (optional). */
   public static String FOLDER_PATH = "folderPath";
+
+  /** Parameter name of the site name that owns the folder (optional). */
   public static String SITE_NAME = "siteName";
 }

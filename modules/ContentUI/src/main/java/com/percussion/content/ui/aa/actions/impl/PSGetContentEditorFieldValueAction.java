@@ -44,6 +44,11 @@ import java.util.Map;
  */
 public class PSGetContentEditorFieldValueAction extends PSAAActionBase {
 
+  /** No-op default constructor. */
+  public PSGetContentEditorFieldValueAction() {
+    super();
+  }
+
   /**
    * Executes the action to retrieve a field value from a content item.
    *

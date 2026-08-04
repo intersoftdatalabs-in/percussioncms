@@ -52,6 +52,11 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class PSGetSnippetPickerSlotContentAction extends PSAAActionBase {
 
+  /** No-op default constructor. */
+  public PSGetSnippetPickerSlotContentAction() {
+    super();
+  }
+
   /*
    * (non-Javadoc)
    *

@@ -53,6 +53,9 @@ public class PSAutoLinkGenerationProperties {
    * The location of the file the properties are loaded from when the no-param ctor is used. Made
    * public so users of this class can monitor the file and call when the file changes if they
    * desire.
+   *
+   * @return the absolute {@link File} pointing at {@code autoLinkGeneration.properties} under the
+   *     server's rx config dir; never {@code null}.
    */
   public File getDefaultConfigFile() {
     return new File(PSServer.getRxConfigDir() + "/autoLinkGeneration.properties");

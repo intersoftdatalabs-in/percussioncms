@@ -42,6 +42,11 @@ import java.util.Map;
  * </ul>
  */
 public class PSGetChildrenAction extends PSAAActionBase {
+  /** No-op default constructor. */
+  public PSGetChildrenAction() {
+    super();
+  }
+
   /**
    * Retrieves children (folders or sites) for a given parent folder.
    *

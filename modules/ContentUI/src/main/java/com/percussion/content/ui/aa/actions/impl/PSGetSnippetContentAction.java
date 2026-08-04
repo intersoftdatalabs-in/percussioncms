@@ -34,6 +34,11 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class PSGetSnippetContentAction extends PSAAActionBase {
 
+  /** No-op default constructor. */
+  public PSGetSnippetContentAction() {
+    super();
+  }
+
   // see interface for more detail
   public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
     PSAAObjectId objectId = getObjectId(params);

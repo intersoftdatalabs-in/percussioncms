@@ -33,6 +33,11 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class PSGetFieldContentAction extends PSAAActionBase {
 
+  /** No-op default constructor. */
+  public PSGetFieldContentAction() {
+    super();
+  }
+
   // see interface for more detail
   public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
     PSAAObjectId objectId = getObjectId(params);

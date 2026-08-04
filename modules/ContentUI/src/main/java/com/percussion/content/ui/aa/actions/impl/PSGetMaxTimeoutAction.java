@@ -35,6 +35,11 @@ import java.util.Map;
  */
 public class PSGetMaxTimeoutAction extends PSAAActionBase {
 
+  /** No-op default constructor. */
+  public PSGetMaxTimeoutAction() {
+    super();
+  }
+
   /**
    * Executes the action to return the maximum timeout value.
    *

@@ -38,6 +38,11 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class PSGetItemPathAction extends PSAAActionBase {
 
+  /** No-op default constructor. */
+  public PSGetItemPathAction() {
+    super();
+  }
+
   /*
    * (non-Javadoc)
    * @see com.percussion.content.ui.aa.actions.IPSAAClientAction#execute(java.util.Map)

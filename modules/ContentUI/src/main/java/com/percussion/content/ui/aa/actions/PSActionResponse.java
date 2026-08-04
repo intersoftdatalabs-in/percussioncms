@@ -19,6 +19,12 @@ package com.percussion.content.ui.aa.actions;
 /** A little container class to bundle up the information needed for an action response. */
 public class PSActionResponse {
 
+  /**
+   * Constructs a response holding the supplied data and MIME-type index.
+   *
+   * @param responseData the response body, may be {@code null}.
+   * @param responseType one of the {@code RESPONSE_TYPE_*} constants on this class.
+   */
   public PSActionResponse(String responseData, int responseType) {
     m_responseData = responseData;
     m_responseType = responseType;

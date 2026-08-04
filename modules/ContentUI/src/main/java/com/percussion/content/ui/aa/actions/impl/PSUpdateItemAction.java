@@ -43,6 +43,11 @@ import org.json.JSONObject;
  */
 public class PSUpdateItemAction extends PSAAActionBase {
 
+  /** No-op default constructor. */
+  public PSUpdateItemAction() {
+    super();
+  }
+
   /**
    * Executes the item update through the content editor.
    *

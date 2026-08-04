@@ -47,6 +47,11 @@ import org.json.JSONObject;
  * returns a JSON object with name as validationError and value as actual validation error.
  */
 public class PSSetContentEditorFieldValueAction extends PSAAActionBase {
+  /** No-op default constructor. */
+  public PSSetContentEditorFieldValueAction() {
+    super();
+  }
+
   // see interface for more detail
   public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
     PSAAObjectId objectId = getObjectId(params);

@@ -82,6 +82,10 @@ public class PSAAObjectId {
    * Creates a string that can be passed to the ctor of this class to create an instance targeted as
    * a snippet in a slot.
    *
+   * @param contentId the sys_contentid of the snippet item.
+   * @param templateId the sys_variantid (template id) of the snippet item.
+   * @param contentTypeId the sys_contenttypeid of the snippet item.
+   * @param slotId the sys_slotid that owns the snippet.
    * @return Always valid. All values except the supplied ones are null.
    */
   public static String createObjectString(
@@ -116,7 +120,7 @@ public class PSAAObjectId {
    * mentioned in the class description.
    *
    * @param objectId String representing the JSON array of values
-   * @throws JSONException
+   * @throws JSONException if the supplied string cannot be parsed as a JSON array.
    */
   public PSAAObjectId(String objectId) throws JSONException {
     JSONArray obj = new JSONArray(objectId);
@@ -130,6 +134,11 @@ public class PSAAObjectId {
   /**
    * Constructs object id for page type. Calls {@link #PSAAObjectId(PSAANodeType, IPSAssemblyItem,
    * String)} with page node type and null for slot name.
+   *
+   * @param item the assembly work item, must not be {@code null}.
+   * @throws PSAssemblyException if the assembly service fails while loading slot / template.
+   * @throws PSMissingBeanConfigurationException if the assembly service is not loaded.
+   * @throws JSONException if the JSON array cannot be constructed from the item parameters.
    */
   public PSAAObjectId(IPSAssemblyItem item)
       throws PSAssemblyException, PSMissingBeanConfigurationException, JSONException {
@@ -139,6 +148,12 @@ public class PSAAObjectId {
   /**
    * Constructs object id for supplied node type. Calls {@link #PSAAObjectId(PSAANodeType,
    * IPSAssemblyItem, String)} with null for slot name.
+   *
+   * @param nodeType the AA node type, must not be {@code null}.
+   * @param item the assembly work item, must not be {@code null}.
+   * @throws PSAssemblyException if the assembly service fails while loading slot / template.
+   * @throws PSMissingBeanConfigurationException if the assembly service is not loaded.
+   * @throws JSONException if the JSON array cannot be constructed from the item parameters.
    */
   public PSAAObjectId(PSAANodeType nodeType, IPSAssemblyItem item)
       throws PSAssemblyException, PSMissingBeanConfigurationException, JSONException {
@@ -152,9 +167,9 @@ public class PSAAObjectId {
    * @param item The assembly work item must not be <code>null</code>.
    * @param name The name of the slot or field, may be <code>null</code> for nodetype page but must
    *     not be null or empty for node types slot,snippet and field.
-   * @throws PSAssemblyException
-   * @throws PSMissingBeanConfigurationException
-   * @throws JSONException
+   * @throws PSAssemblyException if the assembly service fails while loading slot / template.
+   * @throws PSMissingBeanConfigurationException if the assembly service is not loaded.
+   * @throws JSONException if the JSON array cannot be constructed from the item parameters.
    */
   public PSAAObjectId(PSAANodeType nodeType, IPSAssemblyItem item, String name)
       throws PSAssemblyException, PSMissingBeanConfigurationException, JSONException {
@@ -278,7 +293,7 @@ public class PSAAObjectId {
    * @param paramname The name of the parameter that needs to be added.
    * @param params The map of parameter name and values. If the value is null then, JSONObject.NULL
    *     is placed in the array.
-   * @throws JSONException
+   * @throws JSONException if the JSON array put fails.
    */
   private void addParamToJsonArray(String paramname, Map<String, String> params)
       throws JSONException {
@@ -291,7 +306,7 @@ public class PSAAObjectId {
    *
    * @param paramname cannot be <code>null</code> or empty and must be valid for this object.
    * @param value may be <code>null</code> or empty.
-   * @throws JSONException
+   * @throws JSONException if the JSON array put fails.
    */
   public void modifyParam(String paramname, String value) throws JSONException {
     if (StringUtils.isBlank(paramname))
@@ -343,8 +358,8 @@ public class PSAAObjectId {
    *
    * @param cid Content id
    * @return PSComponentSummary object or <code>null</code>, if the item is not found.
-   * @throws PSMissingBeanConfigurationException
-   * @throws NumberFormatException
+   * @throws PSMissingBeanConfigurationException if the legacy CMS object manager is not loaded.
+   * @throws NumberFormatException if the supplied {@code cid} is not a valid integer.
    */
   public static PSComponentSummary getItemSummary(int cid)
       throws PSMissingBeanConfigurationException, NumberFormatException {
@@ -357,8 +372,8 @@ public class PSAAObjectId {
    * Helper method to get the component summary for the content id contained in this object.
    *
    * @return PSComponentSummary object or <code>null</code>, if the item is not found.
-   * @throws PSMissingBeanConfigurationException
-   * @throws NumberFormatException
+   * @throws PSMissingBeanConfigurationException if the legacy CMS object manager is not loaded.
+   * @throws NumberFormatException if the stored content id is not a valid integer.
    */
   public PSComponentSummary getItemSummary()
       throws PSMissingBeanConfigurationException, NumberFormatException {
@@ -716,6 +731,14 @@ public class PSAAObjectId {
   }
 
   // For testing
+
+  /**
+   * Command-line smoke test that prints the parsed parameters for a sample Page, Slot, Snippet and
+   * Field object id. Intended for development and debugging only; production code does not call
+   * this method.
+   *
+   * @param args command-line arguments (ignored).
+   */
   public static void main(String[] args) {
     String pageJsonArray = "[0,335,500,301,306,0,0,311,1,null,null,null,null]";
     String slotJsonArray = "[1,335,505,301,306,0,0,311,1,518,null,null,null]";

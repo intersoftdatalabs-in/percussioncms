@@ -64,6 +64,10 @@ import org.w3c.dom.Element;
  * generated are nodes readiliy renderable in the dojo table widget in the form of JSON object.
  */
 public class PSSearchResult {
+
+  /** No-op default constructor. */
+  public PSSearchResult() {}
+
   /**
    * Get search results as JSON string that is parseable as a JSON array that can directly be used
    * in rendering the rows in dojo filtering table.
@@ -72,12 +76,12 @@ public class PSSearchResult {
    *     form parameters.
    * @return JSON string as explained above, never <code>null</code> or empty. May resolve to an
    *     empty JavaScript array.
-   * @throws PSCmsException
-   * @throws PSExtensionProcessingException
-   * @throws PSUnknownNodeTypeException
-   * @throws PSSearchException
-   * @throws JSONException
-   * @throws PSAssemblyException
+   * @throws PSCmsException if the legacy CMS objectstore fails to look up the search definition.
+   * @throws PSExtensionProcessingException if the search extension fails to execute.
+   * @throws PSUnknownNodeTypeException if the supplied request XML is not a valid search request.
+   * @throws PSSearchException if the search fails.
+   * @throws JSONException if the result JSON array cannot be constructed.
+   * @throws PSAssemblyException if the assembly service fails while loading slot content.
    */
   public String getSearchResults(IPSRequestContext request)
       throws PSCmsException,

@@ -35,7 +35,8 @@ public interface IPSAAClientAction {
    *     parameters are not needed.
    * @return an action response object that contains the response data and the response return type.
    *     Never <code>null</code>.
-   * @throws PSAAClientActionException
+   * @throws PSAAClientActionException if the action cannot be executed for any reason (missing
+   *     required parameters, underlying service failure, etc.).
    */
   public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException;
 

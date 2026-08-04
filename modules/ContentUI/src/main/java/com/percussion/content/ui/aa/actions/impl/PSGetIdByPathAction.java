@@ -41,6 +41,11 @@ import org.json.JSONObject;
  */
 public class PSGetIdByPathAction extends PSAAActionBase {
 
+  /** No-op default constructor. */
+  public PSGetIdByPathAction() {
+    super();
+  }
+
   /*
    * (non-Javadoc)
    *

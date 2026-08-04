@@ -31,6 +31,11 @@ import org.json.JSONObject;
  */
 public class PSGetContentTypeByContentIdAction extends PSAAActionBase {
 
+  /** No-op default constructor. */
+  public PSGetContentTypeByContentIdAction() {
+    super();
+  }
+
   /* (non-Javadoc)
    * @see com.percussion.content.ui.aa.actions.IPSAAClientAction#execute(java.util.Map)
    */

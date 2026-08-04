@@ -41,6 +41,11 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class PSGetSlotContentAction extends PSAAActionBase {
 
+  /** No-op default constructor. */
+  public PSGetSlotContentAction() {
+    super();
+  }
+
   /**
    * Retrieves the assembled HTML content for the specified slot.
    *

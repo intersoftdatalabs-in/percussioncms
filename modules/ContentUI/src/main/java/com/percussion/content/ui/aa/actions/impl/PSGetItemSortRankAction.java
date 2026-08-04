@@ -31,6 +31,11 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class PSGetItemSortRankAction extends PSAAActionBase {
 
+  /** No-op default constructor. */
+  public PSGetItemSortRankAction() {
+    super();
+  }
+
   // see interface for more detail
   public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
     String rid = (String) getParameter(params, IPSHtmlParameters.SYS_RELATIONSHIPID);
