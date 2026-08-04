@@ -40,6 +40,15 @@ public class PSMembershipLogoutHandler extends SimpleUrlLogoutSuccessHandler {
   private static final Client msClient = ClientBuilder.newClient();
   private PSMembershipConfiguration membershipConfig;
 
+  /** No-op default constructor. */
+  public PSMembershipLogoutHandler() {}
+
+  /**
+   * Sets the membership-service configuration this handler reads to call the membership logout
+   * endpoint.
+   *
+   * @param membershipConfig the membership-service configuration, assumed not {@code null}.
+   */
   public void setMembershipConfig(PSMembershipConfiguration membershipConfig) {
     this.membershipConfig = membershipConfig;
   }

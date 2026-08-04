@@ -59,15 +59,32 @@ public class PSMembershipAuthProvider extends AbstractUserDetailsAuthenticationP
   private String accessGroupFileName;
   private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
+  /**
+   * Sets the membership-service configuration this provider uses to build the membership REST URLs
+   * and to read the {@code useLdap} switch.
+   *
+   * @param membershipConfig the membership-service configuration, assumed not {@code null}.
+   */
   public void setMembershipConfig(PSMembershipConfiguration membershipConfig) {
     this.membershipConfig = membershipConfig;
   }
 
+  /**
+   * Sets the LDAP authentication provider used when {@code membershipConfig.useLdap=yes}.
+   *
+   * @param ldapMembershipAuthProvider the LDAP provider, assumed not {@code null}.
+   */
   public void setLdapMembershipAuthProvider(
       PSLdapMembershipAuthProvider ldapMembershipAuthProvider) {
     this.ldapMembershipAuthProvider = ldapMembershipAuthProvider;
   }
 
+  /**
+   * Sets the access-group XML file path used to authorize the user after a successful login.
+   *
+   * @param accessGroupFileName the web-application-relative path to the XML file, never {@code
+   *     null}.
+   */
   public void setAccessGroupFileName(String accessGroupFileName) {
     this.accessGroupFileName = accessGroupFileName;
   }

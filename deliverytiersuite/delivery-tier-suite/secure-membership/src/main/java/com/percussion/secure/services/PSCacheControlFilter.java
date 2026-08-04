@@ -27,11 +27,20 @@ import java.io.IOException;
 import java.util.Date;
 
 /**
+ * Servlet {@link Filter} that disables browser and proxy caching of responses produced by the
+ * secure-membership flows. Sets the {@code Expires}, {@code Last-Modified}, {@code Cache-Control}
+ * and {@code Pragma} response headers to values that force every intermediate cache to revalidate
+ * with the server before reusing the response.
+ *
  * @deprecated This class is part of the deprecated secure-membership module.
  */
 @Deprecated
 public class PSCacheControlFilter implements Filter {
   // REFACTORED: CP-JAVA11
+
+  /** No-op default constructor. */
+  public PSCacheControlFilter() {}
+
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
