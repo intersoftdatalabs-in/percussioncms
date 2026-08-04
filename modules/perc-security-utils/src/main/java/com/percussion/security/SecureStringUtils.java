@@ -146,7 +146,9 @@ public class SecureStringUtils {
    * To be used when sending queries to LDAP.
    *
    * <p>Escapes LDAP filter special characters using RFC 4515 hex-style escapes, matching the former
-   * ESAPI {@code encodeForLDAP} behavior without requiring the ESAPI library.
+   * ESAPI {@code encodeForLDAP} behavior without requiring the ESAPI library. Forward slash is
+   * escaped as {@code \2f} for Microsoft Active Directory / ADSI compatibility (ESAPI and Microsoft
+   * document this as required; RFC 4515 allows it).
    *
    * @param query An LDAP query
    * @param encodeWildcards true to encode wildcards ({@code *}), false to leave them
@@ -177,6 +179,11 @@ public class SecureStringUtils {
    * )} → {@code \29}, NUL → {@code \00}, and optionally {@code *} → {@code \2a}. Non-ASCII
    * characters (code point ≥ 128) are escaped as UTF-8 hex bytes.
    *
+   * <p>{@code /} → {@code \2f} intentionally mirrors ESAPI {@code DefaultEncoder.encodeForLDAP}:
+   * Microsoft ADSI requires forward-slash escaping in search filters; RFC 4515 §3 permits it.
+   * Removing the escape would diverge from prior ESAPI behavior used by callers such as user
+   * directory lookups.
+   *
    * @param input value to encode; may be null
    * @param encodeWildcards whether to escape {@code *}
    * @return encoded value, or null if input is null
@@ -193,6 +200,7 @@ public class SecureStringUtils {
           sb.append("\\5c");
           break;
         case '/':
+          // ESAPI encodeForLDAP + Microsoft ADSI: '/' MUST be escaped in filters
           sb.append("\\2f");
           break;
         case '*':
@@ -1340,8 +1348,12 @@ public class SecureStringUtils {
   /**
    * URL encodes a string for use as a URI component (percent-encoding via OWASP Java Encoder).
    *
+   * <p>Does not swallow encoder failures: unexpected runtime errors from the encoder are logged and
+   * rethrown so callers are not handed a silently empty component.
+   *
    * @param s the string to encode; may be null
-   * @return URL encoded string, empty string if encoding fails, or null if {@code s} is null
+   * @return URL encoded string, or null if {@code s} is null
+   * @throws RuntimeException if the encoder fails for the given input
    */
   public static String urlEncode(String s) {
     if (s == null) {
@@ -1350,8 +1362,9 @@ public class SecureStringUtils {
     try {
       return Encode.forUriComponent(s);
     } catch (RuntimeException e) {
-      log.error(e.getMessage());
-      return "";
+      log.error("urlEncode failed for input length {}: {}", s.length(), e.getMessage());
+      log.debug(e);
+      throw e;
     }
   }
 

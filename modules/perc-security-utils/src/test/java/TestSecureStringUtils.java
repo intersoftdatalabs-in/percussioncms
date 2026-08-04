@@ -177,7 +177,9 @@ public class TestSecureStringUtils {
     // OWASP JS encoder escapes quotes, angle brackets, and backslashes
     String encoded = SecureStringUtils.sanitizeForJson("a'b\"c</script>\\");
     assertNotNull(encoded);
-    assertFalse(encoded.contains("'") && encoded.contains("\""));
+    // Each quote type must be escaped independently (do not AND the checks)
+    assertFalse(encoded.contains("'"), "single quote must be escaped in JS/JSON encoding");
+    assertFalse(encoded.contains("\""), "double quote must be escaped in JS/JSON encoding");
     assertTrue(encoded.contains("\\x27") || encoded.contains("\\'"));
   }
 
