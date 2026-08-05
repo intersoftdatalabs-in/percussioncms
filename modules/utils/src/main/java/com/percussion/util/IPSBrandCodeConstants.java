@@ -24,23 +24,58 @@ import java.util.List;
 
 /** Constants representing the IDs of components. */
 public interface IPSBrandCodeConstants {
+  /** Component id for the CMS repository. */
   public static final int REPOSITORY = 1;
+
+  /** Component id for the CMS server. */
   public static final int SERVER = 2;
+
+  /** Component id for the publisher. */
   public static final int PUBLISHER = 4;
+
+  /** Component id for the development tools. */
   public static final int DEVELOPMENT_TOOLS = 8;
+
+  /** Component id for the database publisher. */
   public static final int DATABASE_PUBLISHER = 16;
+
+  /** Component id for the BEA accelerator. */
   public static final int BEA_ACCELERATOR = 32;
+
+  /** Component id for the multi-server manager. */
   public static final int MULTI_SERVER_MANANGER = 64;
+
+  /** Component id for the content connector. */
   public static final int CONTENT_CONNECTOR = 128;
+
+  /** Component id for the Microsoft Word integration. */
   public static final int WORD = 256;
+
+  /** Component id for the inline editing feature. */
   public static final int INLINE_EDITING = 512;
+
+  /** Component id for the Sprinta feature. */
   public static final int SPRINTA = 1024;
+
+  /** Component id for the application server. */
   public static final int APPLICATION_SERVER = 2048;
+
+  /** Component id for the web-services listener. */
   public static final int WEB_SERVICES_LISTENER = 4096;
+
+  /** Component id for the document assembler. */
   public static final int DOCUMENT_ASSEMBLER = 8192;
+
+  /** Component id for the WebSphere accelerator. */
   public static final int WEBSPHERE_ACCELERATOR = 16384;
+
+  /** Component id for the Convera search. */
   public static final int CONVERA_SEARCH = 32768;
+
+  /** Component id for the Ektron WEP XML feature. */
   public static final int EKTRON_WEP_XML = 65536;
+
+  /** Component id for the Ektron WebImageFX feature. */
   public static final int EKTRON_WEBIMAGEFX = 131072;
 
   /** Represents types of servers for which codes can be generated. */

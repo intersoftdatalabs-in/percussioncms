@@ -283,7 +283,7 @@ public class InstallUtil {
    * @param database The name of the database. May not be <code>null</code>.
    * @param schema The schema for this connection. May not be <code>null</code> .
    * @return <code>true</code> if the database is setup for unicode, <code>false</code> otherwise.
-   * @throws SQLException
+   * @throws SQLException if a database access error occurs
    */
   public static boolean checkForUnicode(
       Connection conn, String driver, String database, String schema) throws SQLException {
@@ -341,7 +341,7 @@ public class InstallUtil {
    * @param database the name of the database, may not be <code>null</code>
    * @param schema the schema for this connection, may not be <code>null</code>
    * @return <code>true</code> if the database contains the table, <code>false</code> otherwise.
-   * @throws SQLException
+   * @throws SQLException if a database access error occurs
    */
   public static boolean checkTableExists(
       String table, Connection conn, String database, String schema) throws SQLException {
@@ -378,7 +378,7 @@ public class InstallUtil {
    *
    * @param conn connection to the database, may not be <code>null</code>
    * @param statement specifies the action to be taken, may not be <code>null</code>
-   * @throws SQLException
+   * @throws SQLException if a database access error occurs
    */
   public static void executeStatement(Connection conn, String statement) throws SQLException {
 
