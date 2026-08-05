@@ -16,13 +16,10 @@
  */
 
 import React, { useEffect, useState } from "react";
-import {
-  isSessionRedirectError,
-  type ApiError,
-} from "../api/client";
 import { listContentTypes } from "../api/developer/contentTypesApi";
 import type { ContentTypeSummary } from "../api/developer/types";
 import { ContentTypeDetailPanel } from "./ContentTypeDetailPanel";
+import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
 function displayId(ct: ContentTypeSummary): string {
@@ -32,20 +29,6 @@ function displayId(ct: ContentTypeSummary): string {
   if (g.uuid != null) return String(g.uuid);
   if (g.longValue != null) return String(g.longValue);
   return "—";
-}
-
-function errorMessage(err: unknown): string {
-  if (isSessionRedirectError(err)) {
-    return DEV_MSG.SESSION_REDIRECT;
-  }
-  const api = err as ApiError;
-  if (api && typeof api.status === "number") {
-    return `${DEV_MSG.CT_ERROR} (${api.status} ${api.statusText || ""})`.trim();
-  }
-  if (err instanceof Error && err.message) {
-    return `${DEV_MSG.CT_ERROR} ${err.message}`;
-  }
-  return DEV_MSG.CT_ERROR;
 }
 
 function selectionKey(ct: ContentTypeSummary): string {
@@ -83,9 +66,9 @@ export function ContentTypesPanel(): React.ReactElement {
       })
       .catch((err: unknown) => {
         if (cancelled) return;
-        // Session redirect navigates away; still leave loading so UI does not hang
+        // Session redirect navigates away; still leave an error so UI does not hang
         // if navigation is delayed or blocked.
-        setError(errorMessage(err));
+        setError(panelErrMsg(err, DEV_MSG.CT_ERROR));
         setItems([]);
       });
     return () => {
