@@ -34,7 +34,7 @@ Repo-relative (forward slashes for docs; use OS path APIs in code/scripts):
 | Specs                        | `modules/perc-qa-automation/frontend/tests/`                                 |
 | Default failure output       | `modules/perc-qa-automation/frontend/test-results/`                          |
 | HTML report (when enabled)   | `modules/perc-qa-automation/frontend/playwright-report/`                     |
-| Manual screenshot convention | `modules/perc-qa-automation/frontend/tests/screenshots/` (see module AGENTS) |
+| Manual screenshot convention | `modules/perc-qa-automation/frontend/tests/screenshots/` (see [modules/perc-qa-automation/AGENTS.md](../../modules/perc-qa-automation/AGENTS.md)) |
 
 These output dirs are **gitignored** (see `modules/perc-qa-automation/.gitignore`). **Never commit** `test-results/`, `playwright-report/`, or screenshot dumps.
 
@@ -204,8 +204,11 @@ gh issue comment <ISSUE_NUMBER> --body-file path/to/comment.md
 # From modules/perc-qa-automation/frontend — Unix / Git Bash
 # Replace FAIL_DIR with the subdirectory under test-results/ for the failure
 mkdir -p ../../../tmp
-zip -r ../../../tmp/playwright-fail.zip "test-results/${FAIL_DIR}" \
-  $(test -f "test-results/${FAIL_DIR}/error-context.md" && echo "test-results/${FAIL_DIR}/error-context.md")
+zip_args=("test-results/${FAIL_DIR}")
+if [ -f "test-results/${FAIL_DIR}/error-context.md" ]; then
+  zip_args+=("test-results/${FAIL_DIR}/error-context.md")
+fi
+zip -r ../../../tmp/playwright-fail.zip "${zip_args[@]}"
 ```
 
 ```powershell
