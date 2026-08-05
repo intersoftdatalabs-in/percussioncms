@@ -160,7 +160,7 @@
         <dependency>
             <groupId>com.vladsch.boxed-json</groupId>
             <artifactId>boxed-json</artifactId>
-            <version>0.5.32</version>
+            <version>0.5.34</version>
         </dependency>
         <!-- JUnit 5 for testing -->
         <dependency>
