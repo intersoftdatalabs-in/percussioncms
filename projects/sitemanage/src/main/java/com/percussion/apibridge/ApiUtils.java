@@ -211,10 +211,11 @@ public class ApiUtils {
     return ret;
   }
 
-  /***
-   * Takes a list of PSCommunity instances and returns a CommunityList
-   * @param ps_communities
+  /**
+   * Takes a list of PSCommunity instances and returns a CommunityList.
    *
+   * @param ps_communities the list of PSCommunity instances, never {@code null}
+   * @return the corresponding CommunityList, never {@code null}
    */
   public static CommunityList convertPSCommunities(List<PSCommunity> ps_communities) {
 
@@ -225,10 +226,11 @@ public class ApiUtils {
     return new CommunityList(communities);
   }
 
-  /***
-   * Takes a CommunityList and returns a list of PSCommunity objects
-   * @param communities
+  /**
+   * Takes a CommunityList and returns a list of PSCommunity objects.
    *
+   * @param communities the CommunityList, never {@code null}
+   * @return the corresponding list of PSCommunity objects, never {@code null}
    */
   public static List<PSCommunity> convertCommunityList(CommunityList communities) {
 
@@ -240,10 +242,11 @@ public class ApiUtils {
     return ret;
   }
 
-  /***
-   * Takes a Community and returns a PSCommunity
-   * @param c
+  /**
+   * Takes a Community and returns a PSCommunity.
    *
+   * @param c the rest compatible Community, never {@code null}
+   * @return the corresponding PSCommunity, never {@code null}
    */
   public static PSCommunity convertCommunity(Community c) {
     PSCommunity p = new PSCommunity();
@@ -259,10 +262,11 @@ public class ApiUtils {
     return p;
   }
 
-  /***
-   * Takes a community role list and returns a List of IPSGuids
-   * @param roleList
+  /**
+   * Takes a community role list and returns a List of PSCommunityRoleAssociation objects.
    *
+   * @param roleList the rest compatible CommunityRoleList, may be {@code null}
+   * @return the corresponding list of PSCommunityRoleAssociation objects, never {@code null}
    */
   public static Collection<PSCommunityRoleAssociation> convertCommunityRoleList(
       CommunityRoleList roleList) {
@@ -280,14 +284,21 @@ public class ApiUtils {
     return ret;
   }
 
+  /**
+   * Converts an ObjectTypeEnum to a PSTypeEnum.
+   *
+   * @param type the rest compatible ObjectTypeEnum
+   * @return the corresponding PSTypeEnum
+   */
   public static PSTypeEnum convertObjectTypeEnum(ObjectTypeEnum type) {
     return PSTypeEnum.valueOf(type.name());
   }
 
-  /***
-   * Takes a list of PSCommunityVisibilities and returns a CommunityVisibilityList
-   * @param ps_visibilities
+  /**
+   * Takes a list of PSCommunityVisibilities and returns a CommunityVisibilityList.
    *
+   * @param ps_visibilities the list of PSCommunityVisibility objects, never {@code null}
+   * @return the corresponding CommunityVisibilityList, never {@code null}
    */
   public static Collection<? extends CommunityVisibility> convertPSCommunityVisibilities(
       List<PSCommunityVisibility> ps_visibilities) {
@@ -298,6 +309,12 @@ public class ApiUtils {
     return new CommunityVisibilityList(visibilities);
   }
 
+  /**
+   * Converts a single PSCommunityVisibility to its REST representation.
+   *
+   * @param pv the PSCommunityVisibility, never {@code null}
+   * @return the corresponding CommunityVisibility, never {@code null}
+   */
   public static CommunityVisibility convertPSCommunityVisibility(PSCommunityVisibility pv) {
 
     CommunityVisibility ret =
