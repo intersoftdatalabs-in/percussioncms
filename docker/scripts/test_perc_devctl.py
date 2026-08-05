@@ -26,6 +26,7 @@ SCRIPTS = Path(__file__).resolve().parent
 _PORT_ENV_KEYS = (
     "QA_CMS_HOST_PORT",
     "CMS_HOST_PORT",
+    "DTS_HOST_PORT",
     "CMS_PORT",
     "DTS_PORT",
     "VERIFY_CMS_URL",

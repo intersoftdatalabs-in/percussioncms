@@ -60,24 +60,32 @@ perc-devctl.py qa-down [--container NAME]
 
 Each subcommand writes full output to a timestamped file under `docker/logs/<label>-<ts>.log` and emits a single `RESULT:OK STEP:<label> LOG:<path>` (or `RESULT:FAIL`) line on stdout so agent workflows can parse the result without parsing free-form output.
 
-#### Host ports / freeport (multi-worktree) — #2001
+#### Host ports / freeport (multi-worktree) — #2001 / #2005
 
-`perc-devctl.py` no longer hardcodes published host ports for the **dev verify** probes or **QA CMS** cell. Resolution order (cross-platform stdlib `socket` bind to port `0` — no Unix-only tooling):
+`perc-devctl.py` and `matrix-install-smoke.py` resolve published host ports via shared helpers in `docker/scripts/perc_host_ports.py` (cross-platform stdlib `socket` bind to port `0` — no Unix-only tooling):
 
 1. **Env override** (wins):
    - Dev stack: `CMS_PORT`, `DTS_PORT` (compose already maps these), or full `VERIFY_CMS_URL` / `VERIFY_DTS_URL`
-   - QA cell: `QA_CMS_HOST_PORT` or `CMS_HOST_PORT`
-2. **Preferred baseline when free** on loopback: CMS `9992`, DTS `9980`, QA CMS `9993`
+   - QA / matrix CMS cell: `QA_CMS_HOST_PORT` or `CMS_HOST_PORT`
+   - Matrix DTS cell: `DTS_HOST_PORT`
+2. **Preferred baseline when free** on loopback: compose CMS `9992`, compose DTS `9980`, matrix/QA CMS `9993`, matrix DTS `9983`
 3. Else **ephemeral freeport** so a second worktree does not hit `address already in use`
 
 **Discover allocated ports:**
 
 - `perc-devctl.py up` prints `CMS_PORT=…`, `DTS_PORT=…`, and the resolved `VERIFY_*_URL` lines
 - `perc-devctl.py qa-up` prints `QA_CMS_HOST_PORT=…` and `TEST_CMS_URL=http://127.0.0.1:<port>`
+- `matrix-install-smoke.py` pins `CMS_HOST_PORT` / `QA_CMS_HOST_PORT` / `DTS_HOST_PORT` for the cell it starts; probe URL and docker `-p` always use that same port
 
-Pin ports across sessions by exporting those env vars before `up` / `qa-up` / `verify`. Tear-down (`down` / `qa-down`) frees the docker publish mapping; the host port itself is not reserved after the container exits.
+**Playwright / `TEST_CMS_URL` contract:**
 
-**Scope note:** matrix-install-smoke still defaults its own `CMS_HOST_PORT=9993` until a follow-up wires freeport into matrix docker `-p` (see #2001 residual). `qa-up` exports `QA_CMS_HOST_PORT` / `CMS_HOST_PORT` for that consumer.
+|       Consumer        |                                                        Source of base URL                                                        |
+|-----------------------|----------------------------------------------------------------------------------------------------------------------------------|
+| After `qa-up`         | Use the printed `TEST_CMS_URL` (or `http://127.0.0.1:$QA_CMS_HOST_PORT`)                                                         |
+| After matrix `--keep` | `http://127.0.0.1:$CMS_HOST_PORT` (export pinned by the harness)                                                                 |
+| CI / local override   | Export `TEST_CMS_URL` **and** matching `QA_CMS_HOST_PORT` / `CMS_HOST_PORT` before `qa-up` so publish + probe + Playwright agree |
+
+Do **not** hardcode `http://127.0.0.1:9993` in agent scripts — 9993 is only the preferred baseline when free. Pin ports across sessions by exporting those env vars before `up` / `qa-up` / `matrix-install-smoke` / `verify`. Tear-down (`down` / `qa-down` / cell destroy) frees the docker publish mapping; the host port itself is not reserved after the container exits.
 
 #### QA mode (`qa-up` / `qa-health` / `qa-down`)
 
@@ -111,10 +119,10 @@ ENTRYPOINT ["/usr/local/bin/python3", "/usr/local/bin/install-update.py"]
 
 Ephemeral cells mount the real installer jars (not a fictional `perc-preinstall.jar`):
 
-| Product |            Installer jar (customer-shipped assembly only)            |        Start after install        |           Default host probe           |
-|---------|----------------------------------------------------------------------|-----------------------------------|----------------------------------------|
-| CMS     | `modules/perc-distribution-tree/target/perc-distribution-tree.jar`   | `jetty/StartJetty.sh`             | `http://127.0.0.1:9993/Rhythmyx/login` |
-| DTS     | `…/delivery-tier-distribution/target/delivery-tier-distribution.jar` | `TomcatStartup.sh` / `startup.sh` | `http://127.0.0.1:9983/`               |
+| Product |            Installer jar (customer-shipped assembly only)            |        Start after install        |        Preferred host probe (when free / no env)        |
+|---------|----------------------------------------------------------------------|-----------------------------------|---------------------------------------------------------|
+| CMS     | `modules/perc-distribution-tree/target/perc-distribution-tree.jar`   | `jetty/StartJetty.sh`             | `http://127.0.0.1:<CMS_HOST_PORT\|9993>/Rhythmyx/login` |
+| DTS     | `…/delivery-tier-distribution/target/delivery-tier-distribution.jar` | `TomcatStartup.sh` / `startup.sh` | `http://127.0.0.1:<DTS_HOST_PORT\|9983>/`               |
 
 Do **not** use `*-SNAPSHOT.jar` — those are plain module jars without the runnable installer main class. Package with `mvn package` so the assembly `finalName` jars exist and are non-empty.
 
@@ -137,7 +145,9 @@ python3 docker/scripts/matrix-install-smoke.py --product dts --db h2,postgresql,
 
 # Leave cell up for Playwright Layer 2 (perc-qa-automation)
 python3 docker/scripts/matrix-install-smoke.py --product cms --db postgresql --keep
-TEST_CMS_URL=http://localhost:9993 TEST_DB_TYPE=postgresql \
+# Prefer printed/pinned CMS_HOST_PORT (or set CMS_HOST_PORT before matrix).
+# Example when preferred 9993 was free:
+TEST_CMS_URL=http://127.0.0.1:${CMS_HOST_PORT:-9993} TEST_DB_TYPE=postgresql \
   npm test --prefix modules/perc-qa-automation/frontend -- tests/install.spec.js
 
 # Destroy cells but keep external DBs for a follow-up matrix run
