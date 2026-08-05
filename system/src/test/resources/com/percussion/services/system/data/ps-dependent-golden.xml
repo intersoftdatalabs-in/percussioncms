@@ -1,0 +1,7 @@
+<!-- Golden snapshot for production PSDependent Jackson wire shape (issue
+	#1993 / epic #505). Derived display-type omitted; type stores PSTypeEnum
+	name. -->
+<dependent>
+	<id>2001</id>
+	<type>TEMPLATE</type>
+</dependent>
