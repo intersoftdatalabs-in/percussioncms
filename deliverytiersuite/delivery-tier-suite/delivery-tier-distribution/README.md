@@ -113,7 +113,7 @@ before writing Procrun `--JavaHome` or `/etc/default/<service>`. See
 `specs/991-system-java-home/quickstart.md` for re-point steps (edit
 `java.properties`, restart — no JRE folder required).
 
-## Linux services (systemd) — GH-962
+## Linux services (systemd) — GH-962 / dual-ship (GH-1978)
 
 Production and Staging installers under `src/main/rootFiles/` prefer **native systemd**
 when available:
@@ -128,7 +128,14 @@ Ops notes: `README-systemd.md` (dry-run / non-root limitations, migration uninst
 init.d retained as start helper + fallback). Flags: `--systemd`, `--initd`. Install requires
 root (no product `--dry-run`). Windows `.bat` unchanged.
 
+**Dual-ship policy:** keep init.d until a live Linux soak signs off (do not remove
+init.d / #1976 without ops review). `installDts.xml` places the role-specific
+installer **and** `dts-tomcat.service.in` under `Deployment/Server/` (scripts are
+intentionally excluded from the install-root bulk `*` copy so only Production or
+Staging is selected). Packaging guard: `DtsLinuxServiceDualShipPackagingTest`.
+
 ```bash
+cd Deployment/Server
 sudo ./DTSProductionService.sh install
 # flags: --systemd (require) | --initd (force SysV)
 sudo systemctl start PercussionProductionDTS
