@@ -43,6 +43,14 @@ import java.net.UnknownHostException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Reflection-based proxy around the Jetty <code>org.eclipse.jetty.start.Main</code> class.
+ *
+ * <p>Loads the supplied Jetty <code>start.jar</code> into a dedicated {@link URLClassLoader} so
+ * that Jetty can be started in-process from the Percussion CMS service wrapper without forking a
+ * new JVM. Methods on this proxy use reflection so that the wrapper does not take a hard
+ * compile-time dependency on the internal Jetty start API.
+ */
 public class MainProxy {
 
   private static final Logger log = LogManager.getLogger(MainProxy.class);
@@ -51,6 +59,12 @@ public class MainProxy {
 
   private Object main = null;
 
+  /**
+   * Loads the Jetty start class from <code>startJar</code> via a dedicated {@link URLClassLoader}
+   * and stores a newly constructed instance for later reflective invocation.
+   *
+   * @param startJar the Jetty <code>start.jar</code> file, must exist and be readable
+   */
   public MainProxy(File startJar) {
     URLClassLoader child = null;
     try {
@@ -73,6 +87,14 @@ public class MainProxy {
     }
   }
 
+  /**
+   * Invokes Jetty's <code>processCommandLine</code> method via reflection and wraps the returned
+   * opaque configuration object in a {@link StartArgsProxy}.
+   *
+   * @param args the command-line arguments to forward to Jetty, never <code>null</code>
+   * @return a {@link StartArgsProxy} wrapping the Jetty result, or <code>null</code> if the
+   *     reflective invocation fails for any reason
+   */
   public StartArgsProxy processCommandLine(String[] args) {
 
     try {
@@ -91,6 +113,13 @@ public class MainProxy {
     return null;
   }
 
+  /**
+   * Invokes Jetty's <code>start</code> method via reflection using the supplied wrapped start
+   * arguments.
+   *
+   * @param startArgs the proxy wrapping Jetty's start-args configuration object, must not be <code>
+   *     null</code>
+   */
   public void start(StartArgsProxy startArgs) {
     try {
       Method startCommand = main.getClass().getMethod("start", startArgs.getInstance().getClass());
@@ -101,6 +130,18 @@ public class MainProxy {
     }
   }
 
+  /**
+   * Sends a Jetty-style stop command to the loopback address on <code>port</code> using <code>key
+   * </code>, and waits up to <code>timeout</code> seconds for Jetty to report <code>"Stopped"
+   * </code>.
+   *
+   * @param port the loopback TCP port on which Jetty is listening for stop commands
+   * @param key the stop key expected by Jetty, appended with <code>"\r\nstop\r\n"</code>
+   * @param timeout the maximum number of seconds to wait for the stop response; a non-positive
+   *     value disables the wait
+   * @return <code>true</code> if Jetty reported <code>"Stopped"</code> within the timeout, <code>
+   *     false</code> otherwise
+   */
   public boolean stop(int port, String key, int timeout) {
     try (Socket s = new Socket()) {
       s.connect(new InetSocketAddress(InetAddress.getLoopbackAddress(), port), 2000);

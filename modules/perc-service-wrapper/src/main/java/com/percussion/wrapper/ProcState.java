@@ -17,12 +17,34 @@
 
 package com.percussion.wrapper;
 
+/**
+ * Represents the lifecycle states that a managed process can be in.
+ *
+ * <p>This enumeration is used by {@link StartWrapper} and its subclasses to track and persist the
+ * current operational state of each wrapped service (Jetty, Production DTS, Staging DTS) so that
+ * the wrapper can resume monitoring across restarts and react to status requests consistently.
+ *
+ * @author luisteixeira
+ */
 public enum ProcState {
+  /** The service is not installed on this host and therefore cannot be started. */
   NOT_INSTALLED,
+
+  /** The service process is not currently running. */
   STOPPED,
+
+  /** The service process has been launched and is initializing. */
   STARTING,
+
+  /** The service process is running and has reported it is ready to accept work. */
   STARTED,
+
+  /** The service process is in an error state and is not operating normally. */
   ERROR,
+
+  /** A stop request has been issued and the service is shutting down. */
   STOPPING,
+
+  /** The service process failed to start or has terminated unexpectedly. */
   FAILED
 }
