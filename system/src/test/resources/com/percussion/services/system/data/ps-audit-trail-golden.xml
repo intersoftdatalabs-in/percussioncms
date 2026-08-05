@@ -1,0 +1,34 @@
+<!-- Golden snapshot for production PSAuditTrail Jackson wire shape (issue
+	#1920 / epic #505). Nested package item element is audit. -->
+<audit-trail>
+	<audits>
+		<audit>
+			<actor>editor</actor>
+			<current-revision>false</current-revision>
+			<edit-revision>true</edit-revision>
+			<event-time>20240115T120000000</event-time>
+			<id>1001</id>
+			<publishable>true</publishable>
+			<state-id>5</state-id>
+			<state-name>Public</state-name>
+			<transition-comment>ship it</transition-comment>
+			<transition-id>12</transition-id>
+			<transition-name>Publish</transition-name>
+		</audit>
+		<audit>
+			<actor>reviewer</actor>
+			<current-revision>true</current-revision>
+			<edit-revision>false</edit-revision>
+			<event-time>20240115T120000000</event-time>
+			<id>1002</id>
+			<publishable>false</publishable>
+			<state-id>3</state-id>
+			<state-name>Review</state-name>
+			<transition-comment>ready</transition-comment>
+			<transition-id>9</transition-id>
+			<transition-name>Submit</transition-name>
+		</audit>
+	</audits>
+	<current-revision>2</current-revision>
+	<edit-revision>3</edit-revision>
+</audit-trail>

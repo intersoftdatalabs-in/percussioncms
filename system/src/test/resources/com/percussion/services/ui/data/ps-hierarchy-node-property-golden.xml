@@ -1,0 +1,8 @@
+<!-- Golden snapshot for production PSHierarchyNodeProperty Jackson wire
+	shape (issue #1920 / epic #505). Scalar node-id (not historical betwixt parentGuid).
+	Version suppressed. -->
+<hierarchy-node-property>
+	<name>displayOrder</name>
+	<node-id>200</node-id>
+	<value>10</value>
+</hierarchy-node-property>

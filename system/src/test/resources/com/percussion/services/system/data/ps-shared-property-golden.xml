@@ -1,0 +1,7 @@
+<!-- Golden snapshot for production PSSharedProperty Jackson wire shape (issue
+	#1920 / epic #505). Hibernate version suppressed. -->
+<shared-property>
+	<guid>0-29-55</guid>
+	<name>sys_prop_sample</name>
+	<value>sample-value</value>
+</shared-property>

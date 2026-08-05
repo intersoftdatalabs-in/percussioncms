@@ -1,0 +1,16 @@
+<!-- Golden snapshot for production PSAudit Jackson wire shape (issue #1920
+	/ epic #505). Derived guid omitted; event-time uses Betwixt-compatible ISO8601
+	pattern in UTC. -->
+<audit>
+	<actor>editor</actor>
+	<current-revision>true</current-revision>
+	<edit-revision>false</edit-revision>
+	<event-time>20240115T120000000</event-time>
+	<id>1001</id>
+	<publishable>true</publishable>
+	<state-id>5</state-id>
+	<state-name>Public</state-name>
+	<transition-comment>ship it</transition-comment>
+	<transition-id>12</transition-id>
+	<transition-name>Publish</transition-name>
+</audit>
