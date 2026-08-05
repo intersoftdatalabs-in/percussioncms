@@ -180,55 +180,117 @@ public interface IPSBrandCodeMap {
    */
   public List<String> getRhythmyxVersions() throws CodeException;
 
+  /** Name of the component map XML file. */
   public static final String COMPONENT_MAP_FILE = "ComponentMap.xml";
 
   /** Constants for the Xml Elements and Attributes in the component map xml */
   public static final String EL_COMPONENT_MAP = "componentmap";
 
+  /** Element name for the list of current versions. */
   public static final String EL_CURRENT_VERSIONS = "currentVersions";
+
+  /** Element name for a single current version. */
   public static final String EL_CURRENT_VERSION = "currentVersion";
+
+  /** Element name for the components collection. */
   public static final String EL_COMPONENTS = "components";
+
+  /** Element name for a single component. */
   public static final String EL_COMPONENT = "component";
+
+  /** Element name for the properties collection. */
   public static final String EL_PROPERTIES = "properties";
+
+  /** Element name for a single property. */
   public static final String EL_PROPERTY = "property";
+
+  /** Element name for a brand-code map. */
   public static final String EL_MAP = "map";
+
+  /** Element name for the supported versions collection. */
   public static final String EL_SUPPORTED_VERSIONS = "supportedVersions";
+
+  /** Element name for a single Rhythmyx version. */
   public static final String EL_RX_VERSION = "rxversion";
+
+  /** Element name for the parts collection. */
   public static final String EL_PARTS = "parts";
+
+  /** Element name for a single part. */
   public static final String EL_PART = "part";
+
+  /** Element name for the licenses collection. */
   public static final String EL_LICENSES = "licenses";
+
+  /** Element name for a single license. */
   public static final String EL_LICENSE = "license";
 
+  /** Attribute name carrying a string value. */
   public static final String ATTR_VALUE = "value";
+
+  /** Attribute name carrying a display name. */
   public static final String ATTR_NAME = "name";
+
+  /** Attribute name carrying the numeric id. */
   public static final String ATTR_ID = "id";
+
+  /** Attribute name carrying the Rhythmyx version. */
   public static final String ATTR_RHYTHMYX_VERSION = "RhythmyxVersion";
+
+  /** Attribute name carrying the version. */
   public static final String ATTR_VERSION = "version";
+
+  /** Attribute name carrying the minimum supported build number. */
   public static final String ATTR_BUILD_FROM = "buildFrom";
+
+  /** Attribute name carrying the maximum supported build number. */
   public static final String ATTR_BUILD_TO = "buildTo";
+
+  /** Attribute name carrying the owning component id. */
   public static final String ATTR_COMPONENT_ID = "componentid";
+
+  /** Attribute name carrying the required part id. */
   public static final String ATTR_REQUIRED_PART_ID = "requiredpartid";
+
+  /** Attribute name carrying the selected optional part id. */
   public static final String ATTR_SELECTED_OPTIONAL_PART_ID = "optionalpartidselected";
+
+  /** Attribute name carrying the unselected optional part id. */
   public static final String ATTR_UNSELECTED_OPTIONAL_PART_ID = "optionalpartidunselected";
+
+  /** Attribute name carrying the properties id. */
   public static final String ATTR_PROPERTIES_ID = "propertiesid";
+
+  /** Attribute name carrying the deprecated version marker. */
   public static final String ATTR_DEPRECATED = "deprecatedVersion";
+
+  /** Attribute name carrying the extended-product-info support flag. */
   public static final String ATTR_SUPPORTS_EXTENDED_PRODUCT_INFO = "supportsExtendedProductInfo";
+
+  /** Attribute name carrying the limited server types. */
   public static final String ATTR_LIMITED_SERVER_TYPES = "limitedServerTypes";
 
+  /** Required attributes for a {@link #EL_COMPONENT} element. */
   public static final String[] REQ_ATTRIBUTES_EL_COMPONENT = {ATTR_NAME, ATTR_ID};
 
+  /** Required attributes for a {@link #EL_PROPERTY} element. */
   public static final String[] REQ_ATTRIBUTES_EL_PROPERTY = {ATTR_NAME, ATTR_ID};
 
+  /** Required attributes for a {@link #EL_RX_VERSION} element. */
   public static final String[] REQ_ATTRIBUTES_EL_RX_VERSION = {
     ATTR_VALUE, ATTR_BUILD_FROM, ATTR_BUILD_TO
   };
 
+  /** Required attributes for a {@link #EL_PART} element. */
   public static final String[] REQ_ATTRIBUTES_EL_PART = {ATTR_NAME, ATTR_ID, ATTR_COMPONENT_ID};
 
+  /** Optional attributes for a {@link #EL_PART} element. */
   public static final String[] OPT_ATTRIBUTES_EL_PART = {ATTR_DEPRECATED};
 
+  /** Required attributes for a {@link #EL_LICENSE} element. */
   public static final String[] REQ_ATTRIBUTES_EL_LICENSE = {ATTR_NAME, ATTR_ID, ATTR_PROPERTIES_ID};
 
+  /** Optional attributes for a {@link #EL_LICENSE} element. */
   public static final String[] OPT_ATTRIBUTES_EL_LICENSE = {
     ATTR_REQUIRED_PART_ID,
     ATTR_SELECTED_OPTIONAL_PART_ID,
@@ -236,6 +298,7 @@ public interface IPSBrandCodeMap {
     ATTR_LIMITED_SERVER_TYPES
   };
 
+  /** Required attributes for a {@link #EL_CURRENT_VERSION} element. */
   public static final String[] REQ_ATTRIBUTES_EL_CURRENT_VERSION = {
     ATTR_RHYTHMYX_VERSION, ATTR_VALUE
   };
@@ -243,8 +306,15 @@ public interface IPSBrandCodeMap {
   /** Constants for the type of parts */
   public static final int PARTS_TYPE_REQUIRED = 1;
 
+  /** Bit flag: the optional parts that have been selected by the customer. */
   public static final int PARTS_TYPE_OPTIONAL_SELECTED = 2;
+
+  /** Bit flag: the optional parts that have not been selected by the customer. */
   public static final int PARTS_TYPE_OPTIONAL_UNSELECTED = 4;
+
+  /** Bit flag: all optional parts, whether selected or not. */
   public static final int PARTS_TYPE_OPTIONAL = 6;
+
+  /** Bit flag: every part type (required and optional combined). */
   public static final int PARTS_TYPE_ALL = 7;
 }
