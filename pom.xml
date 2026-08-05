@@ -146,7 +146,7 @@
         <jackson.annotation.api.version>2.22</jackson.annotation.api.version>
         <!-- AWS SDK v1 / SolrJ still use com.fasterxml Jackson 2.x; product runtime is tools.jackson 3.x -->
         <jackson.fasterxml.version>2.22.1</jackson.fasterxml.version>
-        <jackson.version>3.1.5</jackson.version>
+        <jackson.version>3.2.1</jackson.version>
         <jakarta.activation.version>2.1.4</jakarta.activation.version>
         <jakarta.annotation.api.version>3.0.0</jakarta.annotation.api.version>
         <jakarta.el.api.version>6.0.1</jakarta.el.api.version>
