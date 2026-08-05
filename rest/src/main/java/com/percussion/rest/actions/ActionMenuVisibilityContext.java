@@ -26,41 +26,89 @@ import java.util.Objects;
 @Schema(description = "Represents a Visibility Context for an Action Menu")
 public class ActionMenuVisibilityContext {
 
+  /** Context name. */
   private String name;
+
+  /** Free-form description. */
   private String description;
+
+  /** Allowed values for the context. */
   private String values;
+
+  /** Owning UI context. */
   private UIContext uiContext;
 
+  /** No-op constructor. */
   public ActionMenuVisibilityContext() {}
 
+  /**
+   * Returns the owning UI context.
+   *
+   * @return the UI context
+   */
   public UIContext getUiContext() {
     return uiContext;
   }
 
+  /**
+   * Sets the owning UI context.
+   *
+   * @param uiContext the new UI context
+   */
   public void setUiContext(UIContext uiContext) {
     this.uiContext = uiContext;
   }
 
+  /**
+   * Returns the context name.
+   *
+   * @return the name
+   */
   public String getName() {
     return name;
   }
 
+  /**
+   * Sets the context name.
+   *
+   * @param name the new name
+   */
   public void setName(String name) {
     this.name = name;
   }
 
+  /**
+   * Returns the context description.
+   *
+   * @return the description
+   */
   public String getDescription() {
     return description;
   }
 
+  /**
+   * Sets the context description.
+   *
+   * @param description the new description
+   */
   public void setDescription(String description) {
     this.description = description;
   }
 
+  /**
+   * Returns the context values.
+   *
+   * @return the values
+   */
   public String getValue() {
     return values;
   }
 
+  /**
+   * Sets the context values.
+   *
+   * @param values the new values
+   */
   public void setValue(String values) {
     this.values = values;
   }
