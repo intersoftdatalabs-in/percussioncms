@@ -3,10 +3,18 @@
 #   @SERVICE_NAME@  @DESCRIPTION@  @PID_FILE@  @ENV_FILE@  @INIT_SCRIPT@
 #
 # Type=forking: catalina.sh start backgrounds Tomcat and writes CATALINA_PID.
-# Do not change Type without verifying fork+PIDFile behavior.
+# If start ever ran in the foreground without writing PIDFile, systemd would hang
+# until TimeoutStartSec. Do not change Type without verifying fork+PIDFile behavior.
+#
 # TimeoutStartSec=1800 allows slow starts without false systemd timeout.
-# Journal captures stdout/stderr; app logs remain under CATALINA_BASE/logs.
+# Stdout/stderr go to the journal; detailed app logs remain under CATALINA_BASE/logs.
 # No ExecReload: Tomcat init helper uses start/stop (full restart is systemctl restart).
+#
+# User=/privilege model: no User= in this unit. The unit runs as root so the init.d
+# start helper (ExecStart) can manage pid dirs and drop/set ownership consistently
+# with the historic SysV path. Install scripts chown the Tomcat tree to the install
+# directory owner; process identity follows the helper (same as init.d-only installs).
+# See README-systemd.md next to this template after packaging.
 
 [Unit]
 Description=@DESCRIPTION@
@@ -22,6 +30,7 @@ TimeoutStartSec=1800
 TimeoutStopSec=120
 StandardOutput=journal
 StandardError=journal
+# No User= here — privilege model is documented above (contract: present or documented).
 KillMode=control-group
 Restart=on-failure
 RestartSec=10

@@ -26,7 +26,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /**
- * GH-962 / specs/988: structural contract for the shipped systemd unit template.
+ * GH-962 / specs/988 / GH-1977: structural contract for the shipped systemd unit template.
  *
  * @see specs/988-linux-systemd-services/contracts/systemd-unit-contract.md
  */
@@ -35,13 +35,19 @@ class SystemdUnitTemplateTest {
   private static final Path UNIT_TEMPLATE =
       Path.of("src", "main", "jetty", "service", "percussion-cms.service.in");
 
+  private static final Path README =
+      Path.of("src", "main", "jetty", "service", "README-systemd.md");
+
   private static String unitText;
+  private static String readmeText;
 
   @BeforeAll
   static void load() throws Exception {
     assertTrue(
         Files.isRegularFile(UNIT_TEMPLATE), () -> "missing " + UNIT_TEMPLATE.toAbsolutePath());
+    assertTrue(Files.isRegularFile(README), () -> "missing " + README.toAbsolutePath());
     unitText = Files.readString(UNIT_TEMPLATE, StandardCharsets.UTF_8);
+    readmeText = Files.readString(README, StandardCharsets.UTF_8);
   }
 
   @Test
@@ -65,7 +71,6 @@ class SystemdUnitTemplateTest {
   @Test
   void unit_hasLongStartTimeoutAndJournal() {
     assertTrue(unitText.contains("TimeoutStartSec=1800"), "TimeoutStartSec default 30m (FR-005)");
-    // Parse numeric value for contract min 900
     int timeout = extractTimeoutStartSec(unitText);
     assertTrue(timeout >= 900, "TimeoutStartSec must be >= 900, was " + timeout);
     assertTrue(unitText.contains("StandardOutput=journal"), "journal stdout");
@@ -77,6 +82,48 @@ class SystemdUnitTemplateTest {
     assertTrue(unitText.contains("[Install]"), "[Install]");
     assertTrue(unitText.contains("WantedBy=multi-user.target"), "WantedBy");
     assertTrue(unitText.contains("After=network.target"), "After=network");
+  }
+
+  @Test
+  void unit_hasDescriptionAndPrivilegeModelDocumented() {
+    // Contract: Description= non-empty (placeholder at ship time)
+    assertTrue(unitText.contains("Description=@DESCRIPTION@"), "Description placeholder");
+    // Contract: User= present OR documented — unit uses init helper privilege drop
+    boolean hasUserDirective = unitText.lines().anyMatch(l -> l.trim().startsWith("User="));
+    boolean documentsPrivilege =
+        unitText.contains("User=")
+            || unitText.contains("privilege")
+            || unitText.contains("JETTY_USER");
+    assertTrue(
+        hasUserDirective || documentsPrivilege,
+        "User= key or privilege model documentation required by contract");
+  }
+
+  @Test
+  void readme_documentsFlagsDryRunAndMigration() {
+    assertTrue(readmeText.contains("--systemd"), "documents --systemd");
+    assertTrue(readmeText.contains("--initd"), "documents --initd");
+    assertTrue(
+        readmeText.toLowerCase().contains("dry-run") || readmeText.contains("non-root"),
+        "documents dry-run / non-root limitations");
+    assertTrue(
+        readmeText.contains("must be run")
+            || readmeText.toLowerCase().contains("requires root")
+            || readmeText.toLowerCase().contains("require root"),
+        "documents root requirement");
+    assertTrue(readmeText.contains("uninstall"), "documents uninstall");
+    assertTrue(
+        readmeText.toLowerCase().contains("migration")
+            || readmeText.contains("uninstall then install"),
+        "documents migration uninstall→install");
+    assertTrue(
+        readmeText.contains("init.d") || readmeText.contains("SysV"),
+        "documents init.d helper/fallback retained");
+    assertTrue(
+        readmeText.contains("not removed")
+            || readmeText.contains("Start helper")
+            || readmeText.contains("start helper"),
+        "documents init.d remains start helper + fallback");
   }
 
   private static int extractTimeoutStartSec(String text) {

@@ -27,10 +27,12 @@ Native systemd install is provided under `src/main/jetty/service/`:
 
 - `install-jetty-service.sh` — prefers systemd when available; `--initd` forces SysV
 - `percussion-cms.service.in` — unit template (`Type=forking`, `TimeoutStartSec=1800`, journal)
-- `README-systemd.md` — operator install / migrate / journal notes
+- `README-systemd.md` — operator install / migrate / journal notes, **dry-run / non-root**
+  limitations (no `--dry-run` flag; install requires root), and migration uninstall→install
 
 ```bash
 sudo ./install-jetty-service.sh PercussionCMS install
+# flags: --systemd (require) | --initd (force SysV; init.d also remains ExecStart helper)
 sudo systemctl start PercussionCMS
 journalctl -u PercussionCMS -n 50 --no-pager
 ```
