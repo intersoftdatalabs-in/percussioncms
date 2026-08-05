@@ -17,36 +17,40 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.services.content.data;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
-
+import com.percussion.utils.xml.IPSXmlSerialization;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.Optional;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.xml.sax.SAXException;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
- * Represents a single keyword choice with enhanced Java 11 support.
+ * Represents a single keyword choice.
  *
- * <p>Keyword choices are used to define selectable options within a keyword.
- * This class provides comprehensive functionality for managing choice data with
- * modern Java 11 features including validation, serialization, and safe navigation.
- *
- * <p>Key features:
- * <ul>
- *   <li>Enhanced null safety with Objects.requireNonNull()</li>
- *   <li>Optional-based safe value access</li>
- *   <li>Immutable factory methods</li>
- *   <li>Comprehensive validation with clear error messages</li>
- * </ul>
+ * <p>Nested package item element name is {@code choice} (registered from {@link PSKeyword}), not
+ * the default mapped type name {@code keyword-choice}. {@link JacksonXmlRootElement} applies to
+ * standalone {@link #toXML()}/{@link #fromXML(String)} only.
  *
  * @since Java 11 Modernization
  */
+@JacksonXmlRootElement(localName = "keyword-choice")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonPropertyOrder({"description", "label", "sequence", "value"})
 public class PSKeywordChoice implements Serializable {
 
    /**
@@ -121,6 +125,8 @@ public class PSKeywordChoice implements Serializable {
     *
     * @return Optional containing the value if non-null, empty Optional otherwise
     */
+   @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public Optional<String> getValueOptional() {
       return Optional.ofNullable(value);
    }
@@ -130,6 +136,7 @@ public class PSKeywordChoice implements Serializable {
     *
     * @return the keyword choice value, never {@code null}, may be empty
     */
+   @JsonProperty
    public String getValue() {
       return value != null ? value : "";
    }
@@ -149,6 +156,7 @@ public class PSKeywordChoice implements Serializable {
     * 
     * @return the keyword choice label, never {@code null} or empty
     */
+   @JsonProperty
    public String getLabel() {
       return label;
    }
@@ -171,6 +179,8 @@ public class PSKeywordChoice implements Serializable {
     *
     * @return Optional containing the description if non-null, empty Optional otherwise
     */
+   @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public Optional<String> getDescriptionOptional() {
       return Optional.ofNullable(description);
    }
@@ -180,6 +190,7 @@ public class PSKeywordChoice implements Serializable {
     *
     * @return the keyword choice description, may be {@code null} or empty
     */
+   @JsonProperty
    public String getDescription() {
       return description;
    }
@@ -198,6 +209,7 @@ public class PSKeywordChoice implements Serializable {
     *
     * @return the 0-based display sequence, never {@code null}
     */
+   @JsonProperty
    public Integer getSequence() {
       return sequence != null ? sequence : 0;
    }

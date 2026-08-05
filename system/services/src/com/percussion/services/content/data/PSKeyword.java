@@ -17,6 +17,10 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.services.content.data;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.percussion.services.catalog.IPSCatalogItem;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -25,14 +29,6 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.xml.IPSXmlSerialization;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,7 +36,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.Version;
-
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -48,6 +49,9 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.xml.sax.SAXException;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
  * This object represents a single keyword with enhanced Java 11 support.
@@ -66,9 +70,33 @@ import org.xml.sax.SAXException;
  *
  * @since Java 11 Modernization
  */
+/**
+ * Design-object XML root is {@code keyword} (PS/IPS strip + hyphenation). Nested package archives
+ * use item element {@code choice} (not the mapped type name {@code keyword-choice}) — pinned via
+ * Jackson annotations and {@link PSXmlSerializationHelper#addType(String, Class)} (issue #1888 /
+ * epic #505).
+ */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSKeyword")
 @Table(name = "RXLOOKUP")
+@JacksonXmlRootElement(localName = "keyword")
+// Opt-in XML surface: catalog interface default methods must not leak into design XML.
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonPropertyOrder({
+  "choices",
+  "description",
+  "guid",
+  "id",
+  "keywordType",
+  "label",
+  "sequence",
+  "value"
+})
 public class PSKeyword implements Serializable, IPSCatalogSummary,
    IPSCatalogItem, IPSCloneTuner {
 
@@ -115,7 +143,7 @@ public class PSKeyword implements Serializable, IPSCatalogSummary,
 
    static {
       // Package XML uses <choice> (collection singular of "choices"), not the mapped type name
-      // "keyword-choice". Register once for Betwixt (not on every fromXML call).
+      // "keyword-choice". Register once for Betwixt + Jackson type maps (not on every fromXML).
       PSXmlSerializationHelper.addType("choice", PSKeywordChoice.class);
    }
 
@@ -180,6 +208,7 @@ public class PSKeyword implements Serializable, IPSCatalogSummary,
     * 
     * @return the keyword type, never <code>null</code> or empty.
     */
+   @JsonProperty
    public String getKeywordType()
    {
       return keywordType;
@@ -209,6 +238,7 @@ public class PSKeyword implements Serializable, IPSCatalogSummary,
     * 
     * @return the keyword value, never <code>null</code>, may be empty.
     */
+   @JsonProperty
    public String getValue()
    {
       return (value != null) ? value : "";
@@ -236,6 +266,7 @@ public class PSKeyword implements Serializable, IPSCatalogSummary,
     * 
     * @return the keyword label, never <code>null</code> or empty.
     */
+   @JsonProperty
    public String getLabel()
    {
       return label;
@@ -269,6 +300,7 @@ public class PSKeyword implements Serializable, IPSCatalogSummary,
     * 
     * @return the keyword description, may be <code>null</code> or empty.
     */
+   @JsonProperty
    public String getDescription()
    {
       return description;
@@ -290,6 +322,7 @@ public class PSKeyword implements Serializable, IPSCatalogSummary,
     * 
     * @return the 0 based display sequence.
     */
+   @JsonProperty
    public Integer getSequence()
    {
       return sequence;
@@ -314,6 +347,8 @@ public class PSKeyword implements Serializable, IPSCatalogSummary,
     *
     * @return Optional containing the list of choices, never null
     */
+   @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public Optional<List<PSKeywordChoice>> getChoicesOptional() {
       return Optional.ofNullable(m_choices);
    }
@@ -321,8 +356,15 @@ public class PSKeyword implements Serializable, IPSCatalogSummary,
    /**
     * Get the keyword choices (legacy method for backward compatibility).
     *
+    * <p>Jackson pins nested items to package element name {@code choice} (matches historical
+    * {@code PSKeyword.betwixt} and {@link PSXmlSerializationHelper#addType} registration). Without
+    * this annotation Jackson would emit the mapped type name {@code keyword-choice}.
+    *
     * @return the list of choices, never {@code null}, may be empty
     */
+   @JsonProperty
+   @JacksonXmlElementWrapper(localName = "choices")
+   @JacksonXmlProperty(localName = "choice")
    public List<PSKeywordChoice> getChoices() {
       return m_choices != null ? m_choices : List.of();
    }
@@ -339,9 +381,13 @@ public class PSKeyword implements Serializable, IPSCatalogSummary,
    /**
     * Set a keyword choice, either inserts a new one or updated an existing one
     * based on the label case insensitive.
+    *
+    * <p>Ignored by Jackson (conflicts with collection item name {@code choice}); use
+    * {@link #setChoices(List)} for XML restore. Still used by service/API callers.
     * 
     * @param choice the keyword choice to set, not <code>null</code>.
     */
+   @JsonIgnore
    public void setChoice(PSKeywordChoice choice)
    {
       if (choice == null)
@@ -363,10 +409,12 @@ public class PSKeyword implements Serializable, IPSCatalogSummary,
    }
 
    /**
-    * Necessary for betwixt serialization
+    * Necessary for Betwixt rollback serialization ({@code PSKeyword.betwixt} updater). Jackson uses
+    * {@link #setChoices(List)} instead.
     * 
-    * @param choice
+    * @param choice the keyword choice to add, not {@code null}
     */
+   @JsonIgnore
    public void addChoice(PSKeywordChoice choice)
    {
       if (choice == null)
@@ -423,6 +471,7 @@ public class PSKeyword implements Serializable, IPSCatalogSummary,
     * 
     * @return The lookup id, <code>null</code> if not initialized yet.
     */
+   @JsonProperty
    public long getId()
    {
       return this.m_id;
@@ -479,6 +528,11 @@ public class PSKeyword implements Serializable, IPSCatalogSummary,
     * 
     * @see IPSCatalogSummary#getGUID()
     */
+   /**
+    * Catalog GUID. Jackson emits/reads string form via shared {@code IPSGuid} converter in {@code
+    * PSJacksonXmlSerializationHelper} (parity with Betwixt {@code PSBetwixtObjectConverter}).
+    */
+   @JsonProperty("guid")
    public IPSGuid getGUID()
    {
       return new PSGuid(PSTypeEnum.KEYWORD_DEF, m_id);
@@ -489,6 +543,12 @@ public class PSKeyword implements Serializable, IPSCatalogSummary,
     * 
     * @see IPSCatalogSummary#getName()
     */
+   /**
+    * Alias of {@link #getLabel()} for {@link IPSCatalogSummary}. Jackson omits {@code <name>}
+    * (duplicate of {@code <label>}); packages historically emitted both with the same value and
+    * read tolerates extra {@code name}. Betwixt rollback still emits name.
+    */
+   @JsonIgnore
    public String getName()
    {
       return getLabel();
@@ -499,7 +559,13 @@ public class PSKeyword implements Serializable, IPSCatalogSummary,
     * 
     * @see IPSCatalogSummary#getType()
     */
+   /**
+    * Catalog type name ({@code KEYWORD_DEF}). Jackson omits {@code <type>}; packages may still
+    * contain a legacy {@code <type>} element which is ignored on Jackson read. Betwixt rollback
+    * still emits type.
+    */
    @Override
+   @JsonIgnore
    public String getType()
    {
       return PSTypeEnum.KEYWORD_DEF.name();

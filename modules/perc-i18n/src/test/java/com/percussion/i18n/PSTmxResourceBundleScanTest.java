@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,9 +46,9 @@ public class PSTmxResourceBundleScanTest {
 
   @Test
   public void sourceTmxHeaders_haveRequiredTmx14Attributes() throws Exception {
-    Path dir = Paths.get("src", "main", "resources", "i18n").toAbsolutePath();
-    if (!Files.isDirectory(dir)) {
-      // The test only runs against the source tree checked out alongside the module.
+    Path dir = resolveI18nDir();
+    if (dir == null) {
+      // Source tree not available (e.g. dependency-only classpath) — nothing to scan.
       return;
     }
     try (Stream<Path> stream = Files.list(dir)) {
@@ -91,10 +93,9 @@ public class PSTmxResourceBundleScanTest {
    */
   @Test
   public void cmsUi_shellChromeKeys_haveEnUsAndHindi() throws Exception {
-    Path cmsUi = Paths.get("src", "main", "resources", "i18n", "CmsUi.tmx").toAbsolutePath();
-    if (!Files.isRegularFile(cmsUi)) {
-      return;
-    }
+    Path cmsUi = resolveCmsUiTmx();
+    assertNotNull(cmsUi, "CmsUi.tmx not found (cwd=" + Paths.get("").toAbsolutePath() + ")");
+    assertTrue(Files.isRegularFile(cmsUi), "CmsUi.tmx not a regular file: " + cmsUi);
 
     Set<String> required =
         Set.of(
@@ -156,7 +157,133 @@ public class PSTmxResourceBundleScanTest {
             + required.stream().filter(k -> !found.contains(k)).toList());
   }
 
+  /**
+   * Residual Home dashboard body / modal / description keys (GH-1852) under {@code
+   * perc.ui.dashboard.modern@}, {@code welcome@}, and {@code activity@} must ship with at least
+   * {@code en-us} and base {@code de} so non-English locales do not fall back to English for gadget
+   * body chrome. Gadget <em>title</em> keys owned by open PR #1851 and shell chrome owned by
+   * #1863/#1870 are intentionally out of this set.
+   *
+   * <p>Representative residual set (modal, config, welcome, activity, gadget desc, widget body) —
+   * full backfill is larger; this set is a canary for the change class.
+   */
+  @Test
+  public void cmsUi_dashboardModernBodyKeys_haveEnUsAndGerman() throws Exception {
+    Path cmsUi = resolveCmsUiTmx();
+    assertNotNull(cmsUi, "CmsUi.tmx not found (cwd=" + Paths.get("").toAbsolutePath() + ")");
+    assertTrue(Files.isRegularFile(cmsUi), "CmsUi.tmx not a regular file: " + cmsUi);
+
+    // Representative residual set: modal, config, welcome, activity, gadget desc, widget body.
+    Set<String> required =
+        Set.of(
+            "perc.ui.dashboard.modern@Add",
+            "perc.ui.dashboard.modern@Added",
+            "perc.ui.dashboard.modern@Search gadgets...",
+            "perc.ui.dashboard.modern@No gadgets found",
+            "perc.ui.dashboard.modern@Other",
+            "perc.ui.dashboard.modern@Loading gadgets",
+            "perc.ui.dashboard.modern@Apply layout",
+            "perc.ui.dashboard.modern@Select at least one gadget.",
+            "perc.ui.dashboard.modern@Welcome message and dashboard introduction",
+            "perc.ui.dashboard.modern@Content activity metrics by path and duration",
+            "perc.ui.dashboard.modern@Loading comments",
+            "perc.ui.dashboard.modern@No sites available.",
+            "perc.ui.dashboard.modern@Loading effectiveness",
+            "perc.ui.dashboard.modern@Google Analytics is not configured",
+            "perc.ui.dashboard.modern@Not available in React Home",
+            "perc.ui.dashboard.welcome@Good morning",
+            "perc.ui.dashboard.welcome@Using Percussion CMS",
+            "perc.ui.dashboard.welcome@Site Management",
+            "perc.ui.dashboard.activity@Loading activity",
+            "perc.ui.dashboard.activity@No activity for path",
+            "perc.ui.dashboard.activity@Published",
+            "perc.ui.dashboard.activity@Pending");
+
+    Document doc = parse(cmsUi);
+    NodeList tus = doc.getElementsByTagName("tu");
+    Set<String> found = new LinkedHashSet<>();
+    for (int i = 0; i < tus.getLength(); i++) {
+      Element tu = (Element) tus.item(i);
+      String tuid = tu.getAttribute("tuid");
+      if (!required.contains(tuid)) {
+        continue;
+      }
+      found.add(tuid);
+      Set<String> langs = new LinkedHashSet<>();
+      String enSeg = null;
+      String deSeg = null;
+      NodeList tuvs = tu.getElementsByTagName("tuv");
+      for (int j = 0; j < tuvs.getLength(); j++) {
+        Element tuv = (Element) tuvs.item(j);
+        String lang = normalizeLangAttr(readXmlLang(tuv));
+        if (lang.isEmpty()) {
+          continue;
+        }
+        langs.add(lang);
+        NodeList segs = tuv.getElementsByTagName("seg");
+        if (segs.getLength() == 0) {
+          continue;
+        }
+        String seg = segs.item(0).getTextContent();
+        if ("en-us".equals(lang)) {
+          enSeg = seg;
+        } else if ("de".equals(lang)) {
+          deSeg = seg;
+        }
+      }
+      assertTrue(langs.contains("en-us"), "missing en-us for residual dashboard key: " + tuid);
+      assertNotNull(enSeg, "empty en-us seg for: " + tuid);
+      assertFalse(enSeg.isBlank(), "blank en-us seg for: " + tuid);
+      assertTrue(langs.contains("de"), "missing de for residual dashboard key: " + tuid);
+      assertNotNull(deSeg, "empty de seg for: " + tuid);
+      assertFalse(deSeg.isBlank(), "blank de seg for: " + tuid);
+    }
+    Set<String> missing = new LinkedHashSet<>(required);
+    missing.removeAll(found);
+    assertTrue(missing.isEmpty(), "CmsUi.tmx missing residual dashboard keys: " + missing);
+  }
+
+  /**
+   * Resolve {@code CmsUi.tmx} portably: prefer the test classpath resource (Maven surefire), then
+   * fall back to common source-tree locations relative to the process working directory.
+   */
+  private static Path resolveCmsUiTmx() throws URISyntaxException {
+    URL url = PSTmxResourceBundleScanTest.class.getResource("/i18n/CmsUi.tmx");
+    if (url != null && "file".equalsIgnoreCase(url.getProtocol())) {
+      Path p = Paths.get(url.toURI());
+      if (Files.isRegularFile(p)) {
+        return p;
+      }
+    }
+    Path[] candidates =
+        new Path[] {
+          Paths.get("src", "main", "resources", "i18n", "CmsUi.tmx"),
+          Paths.get("modules", "perc-i18n", "src", "main", "resources", "i18n", "CmsUi.tmx"),
+        };
+    for (Path c : candidates) {
+      Path abs = c.toAbsolutePath().normalize();
+      if (Files.isRegularFile(abs)) {
+        return abs;
+      }
+    }
+    return null;
+  }
+
+  /** Resolve the source {@code i18n} directory for header scans, or null if unavailable. */
+  private static Path resolveI18nDir() throws URISyntaxException {
+    Path cmsUi = resolveCmsUiTmx();
+    if (cmsUi != null) {
+      Path parent = cmsUi.getParent();
+      if (parent != null && Files.isDirectory(parent)) {
+        return parent;
+      }
+    }
+    Path dir = Paths.get("src", "main", "resources", "i18n").toAbsolutePath().normalize();
+    return Files.isDirectory(dir) ? dir : null;
+  }
+
   private static String readXmlLang(Element tuv) {
+    // Namespace-aware parsers (see parse()) expose xml:lang via the XML NS URI first.
     String lang = tuv.getAttributeNS("http://www.w3.org/XML/1998/namespace", "lang");
     if (lang == null || lang.isBlank()) {
       lang = tuv.getAttribute("xml:lang");
@@ -164,7 +291,7 @@ public class PSTmxResourceBundleScanTest {
     if (lang == null || lang.isBlank()) {
       lang = tuv.getAttribute("lang");
     }
-    return lang;
+    return lang != null ? lang : "";
   }
 
   private static String normalizeLangAttr(String raw) {
