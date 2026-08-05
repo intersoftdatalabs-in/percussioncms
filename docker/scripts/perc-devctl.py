@@ -58,7 +58,6 @@ import argparse
 import logging
 import os
 import shlex
-import socket
 import subprocess
 import sys
 import time
@@ -67,6 +66,13 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable, List, Optional, Sequence
+
+# Sibling freeport helpers (stdlib only). Ensure scripts dir is importable
+# when this file is loaded via importlib (unit tests) or as a script.
+_SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+from perc_host_ports import find_free_port, is_port_free, resolve_host_port  # noqa: E402
 
 LOG = logging.getLogger("perc-devctl")
 
@@ -111,62 +117,7 @@ QA_PROBE_TIMEOUT_SECONDS_DEFAULT = 900
 QA_PROBE_INTERVAL_SECONDS_DEFAULT = 5
 
 
-# ---------------------------------------------------------------------------
-# Freeport / host-port resolution (cross-platform; stdlib only) — #2001
-# ---------------------------------------------------------------------------
-
-
-def find_free_port(host: str = "127.0.0.1") -> int:
-    """Allocate an ephemeral free TCP port via bind(port=0).
-
-    Cross-platform (Windows / Linux / macOS). Uses stdlib ``socket`` only —
-    no Unix-only tooling. The port is free at return time; a short TOCTOU
-    race remains until the consumer binds (docker / compose).
-    """
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.bind((host, 0))
-        return int(sock.getsockname()[1])
-
-
-def is_port_free(port: int, host: str = "127.0.0.1") -> bool:
-    """Return True if ``port`` can be bound on ``host`` right now."""
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            sock.bind((host, port))
-            return True
-    except OSError:
-        return False
-
-
-def resolve_host_port(
-    *env_keys: str,
-    preferred: Optional[int] = None,
-) -> int:
-    """Resolve a host TCP port for published docker services.
-
-    Order:
-      1. First non-empty environment variable among ``env_keys`` (integer).
-      2. ``preferred`` when that port is free on the loopback interface.
-      3. :func:`find_free_port` ephemeral allocation.
-
-    Env override lets operators pin ports across worktrees or match an
-    already-running stack. Leaving env unset prefers the historical single-
-    worktree defaults when free, otherwise allocates a free port so a second
-    worktree does not fail with ``address already in use``.
-    """
-    for key in env_keys:
-        raw = os.environ.get(key, "").strip()
-        if not raw:
-            continue
-        try:
-            return int(raw)
-        except ValueError as exc:
-            raise ValueError(
-                f"env {key}={raw!r} is not an integer host port"
-            ) from exc
-    if preferred is not None and is_port_free(preferred):
-        return preferred
-    return find_free_port()
+# Freeport primitives live in perc_host_ports.py (shared with matrix) — #2001/#2005.
 
 
 def resolve_verify_cms_url() -> str:
@@ -243,7 +194,7 @@ def ensure_qa_cms_host_port() -> int:
     """Resolve QA CMS host port and pin it for child processes / discovery."""
     port = resolve_qa_cms_host_port()
     os.environ["QA_CMS_HOST_PORT"] = str(port)
-    # Shared name matrix-install-smoke residual (#2001 follow-up) will read.
+    # matrix-install-smoke reads CMS_HOST_PORT / QA_CMS_HOST_PORT for docker -p (#2005).
     os.environ.setdefault("CMS_HOST_PORT", str(port))
     return port
 
@@ -1036,7 +987,7 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
 
     Host port is resolved via :func:`ensure_qa_cms_host_port` (env override
     or freeport) and exported as ``QA_CMS_HOST_PORT`` / ``CMS_HOST_PORT`` so
-    operators and residual matrix freeport wiring can discover it.
+    matrix-install-smoke docker ``-p`` and operators / Playwright agree (#2005).
     """
     repo_root, _env_file, _compose_file = paths
     log_dir = _log_dir(repo_root)

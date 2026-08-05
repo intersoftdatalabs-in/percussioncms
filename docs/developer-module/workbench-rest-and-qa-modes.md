@@ -119,26 +119,31 @@ cd modules/perc-distribution-tree && ../../mvnw package -DskipTests
 # 1) UP — silent install + start CMS on H2; waits until /Rhythmyx/login is ready
 python docker/scripts/perc-devctl.py qa-up
 # optional: --timeout-seconds 900  --skip-image-build
+# Host port: QA_CMS_HOST_PORT / CMS_HOST_PORT env, else preferred 9993 when free, else freeport.
+# qa-up prints QA_CMS_HOST_PORT=… and TEST_CMS_URL=http://127.0.0.1:<port>
 
 # 2) HEALTH — re-check readiness (clear RESULT:FAIL + timeout if not ready)
 python docker/scripts/perc-devctl.py qa-health
 # optional: --timeout-seconds 120  --interval-seconds 5
 
-# 3) (later slices) Playwright against the stack only — no DEV_PERCUSSION_INSTALL
-#    TEST_CMS_URL=http://127.0.0.1:9993  TEST_DB_TYPE=h2  TEST_PRODUCT=cms
+# 3) Playwright against the stack only — no DEV_PERCUSSION_INSTALL
+#    Use the TEST_CMS_URL printed by qa-up (do not hardcode :9993 — multi-worktree freeport).
+#    TEST_CMS_URL=http://127.0.0.1:$QA_CMS_HOST_PORT  TEST_DB_TYPE=h2  TEST_PRODUCT=cms
 #    ADMIN_USERNAME=Admin  (password printed by qa-up or via docker exec)
 
-# 4) DOWN — destroy the cell; frees host port 9993; no multi-GB orphans by default
+# 4) DOWN — destroy the cell; frees the published host port; no multi-GB orphans by default
 python docker/scripts/perc-devctl.py qa-down
 ```
 
-|  Output / constant   |                         Value                          |
-|----------------------|--------------------------------------------------------|
-| Published base URL   | `http://127.0.0.1:9993` (`TEST_CMS_URL`)               |
-| Probe path           | `/Rhythmyx/login`                                      |
-| Container name       | `perc-matrix-cms-h2`                                   |
-| Admin user           | `Admin` (password from install generated passwords)    |
-| RESULT line contract | `RESULT:OK\|FAIL STEP:qa-up\|qa-health\|qa-down LOG:…` |
+|  Output / constant   |                                  Value                                   |
+|----------------------|--------------------------------------------------------------------------|
+| Published base URL   | `TEST_CMS_URL` from `qa-up` (`http://127.0.0.1:<port>`)                  |
+| Preferred baseline   | Host port `9993` when free and no env override                           |
+| Env override         | `QA_CMS_HOST_PORT` or `CMS_HOST_PORT` (matrix docker `-p` uses the same) |
+| Probe path           | `/Rhythmyx/login`                                                        |
+| Container name       | `perc-matrix-cms-h2`                                                     |
+| Admin user           | `Admin` (password from install generated passwords)                      |
+| RESULT line contract | `RESULT:OK\|FAIL STEP:qa-up\|qa-health\|qa-down LOG:…`                   |
 
 **Tear-down policy:** `qa-down` runs `docker rm -f` on the QA cell. The install lives **inside** the container (no named multi-GB volume by default), so removing the container frees ports and disk. Prefer `qa-down` after every agent session; do not leave `perc-matrix-cms-h2` running overnight unless debugging.
 

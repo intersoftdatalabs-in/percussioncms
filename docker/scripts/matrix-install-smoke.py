@@ -75,6 +75,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Set, Tuple
 
+# Sibling freeport helpers (stdlib only). Ensure scripts dir is importable
+# when this file is loaded via importlib (unit tests) or as a script.
+_SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+from perc_host_ports import find_free_port, is_port_free, resolve_host_port  # noqa: E402
+
 LOG = logging.getLogger("matrix-install-smoke")
 
 EXIT_OK = 0
@@ -87,9 +94,14 @@ ENV_FILE_FALLBACK = ".env.compose.example"
 MATRIX_IMAGE_TAG = "percussion-matrix-cell:local"
 MATRIX_NETWORK = "perc-matrix-net"
 
-# Host ports published for single-cell sequential runs (one CMS, one DTS at a time).
-CMS_HOST_PORT = 9993
-DTS_HOST_PORT = 9983
+# Preferred host ports when free and no env override (single-worktree baseline).
+# Multi-worktree: set CMS_HOST_PORT / QA_CMS_HOST_PORT / DTS_HOST_PORT (or leave
+# unset so freeport allocates) — see resolve_matrix_host_port / docker/README.md.
+# Historical constants kept as aliases for callers/tests that still reference them.
+PREFERRED_CMS_HOST_PORT = 9993
+PREFERRED_DTS_HOST_PORT = 9983
+CMS_HOST_PORT = PREFERRED_CMS_HOST_PORT  # preferred baseline (not a pinned bind)
+DTS_HOST_PORT = PREFERRED_DTS_HOST_PORT
 CMS_PROBE_PATH = "/Rhythmyx/login"
 DTS_PROBE_PATH = "/"
 
@@ -393,6 +405,56 @@ def resolve_installer_jar(repo_root: Path, product: str) -> Path:
 def build_probe_url(product: str, host_port: int) -> str:
     path = CMS_PROBE_PATH if product == "cms" else DTS_PROBE_PATH
     return f"http://127.0.0.1:{host_port}{path}"
+
+
+def resolve_matrix_host_port(product: str) -> int:
+    """Resolve published host port for a matrix cell (env or freeport).
+
+    CMS (aligned with ``perc-devctl`` QA cell / ``TEST_CMS_URL``):
+
+      1. ``QA_CMS_HOST_PORT`` or ``CMS_HOST_PORT`` env (integer)
+      2. Preferred :data:`PREFERRED_CMS_HOST_PORT` (9993) when free
+      3. Ephemeral freeport
+
+    DTS:
+
+      1. ``DTS_HOST_PORT`` env
+      2. Preferred :data:`PREFERRED_DTS_HOST_PORT` (9983) when free
+      3. Ephemeral freeport
+
+    Does not pin env by itself — use :func:`ensure_matrix_host_port` when
+    the chosen port should be visible to child processes / operators.
+    """
+    product = product.lower().strip()
+    if product == "cms":
+        return resolve_host_port(
+            "QA_CMS_HOST_PORT",
+            "CMS_HOST_PORT",
+            preferred=PREFERRED_CMS_HOST_PORT,
+        )
+    if product == "dts":
+        return resolve_host_port(
+            "DTS_HOST_PORT",
+            preferred=PREFERRED_DTS_HOST_PORT,
+        )
+    raise ValueError(f"Unknown product for host port: {product}")
+
+
+def ensure_matrix_host_port(product: str) -> int:
+    """Resolve matrix host port and pin discovery env for operators / Playwright.
+
+    CMS pins ``CMS_HOST_PORT`` and ``QA_CMS_HOST_PORT`` (setdefault for the
+    second key when already set by ``perc-devctl qa-up``). DTS pins
+    ``DTS_HOST_PORT``.
+    """
+    port = resolve_matrix_host_port(product)
+    product = product.lower().strip()
+    if product == "cms":
+        os.environ["CMS_HOST_PORT"] = str(port)
+        os.environ.setdefault("QA_CMS_HOST_PORT", str(port))
+    elif product == "dts":
+        os.environ["DTS_HOST_PORT"] = str(port)
+    return port
 
 
 def build_docker_run_argv(
@@ -706,8 +768,16 @@ def run_cell(
 ) -> CellResult:
     started = time.time()
     name = cell_container_name(cell)
-    host_port = CMS_HOST_PORT if cell.product == "cms" else DTS_HOST_PORT
+    # Env override (QA_CMS_HOST_PORT / CMS_HOST_PORT / DTS_HOST_PORT) or freeport
+    # so multi-worktree agents do not collide on preferred 9993/9983 (#2005).
+    host_port = ensure_matrix_host_port(cell.product)
     probe_url = build_probe_url(cell.product, host_port)
+    LOG.info(
+        "Cell %s host publish %s → probe %s",
+        cell.cell_id,
+        host_port,
+        probe_url,
+    )
     cell_log = log_dir / f"matrix-{cell.cell_id}-{_ts()}.log"
     db_meta = dict(db_services[cell.db_type])
 
