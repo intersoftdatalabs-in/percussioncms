@@ -231,7 +231,7 @@
         <maven.toolchains.plugin.version>3.2.0</maven.toolchains.plugin.version>
         <maven.version>[3.6,)</maven.version>
         <maven.war.plugin.version>3.5.1</maven.war.plugin.version>
-        <mockito.version>5.21.0</mockito.version>
+        <mockito.version>5.23.0</mockito.version>
         <mssql.version>13.3.1.jre11-preview</mssql.version>
         <mysql.connector.version>8.4.0</mysql.connector.version>
         <!-- Artemis modular Netty (not netty-all); Dependabot needs ≥4.1.136.Final -->
