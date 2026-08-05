@@ -68,6 +68,7 @@ public class PSUserManagementEvent extends AbstractEvent {
    * @param action the user-management action being recorded, never {@code null}.
    * @param outcome the outcome of the action, never {@code null}.
    */
+  @SuppressWarnings("this-escape")
   public PSUserManagementEvent(
       HttpServletRequest request, UserEventActions action, PSActionOutcome outcome) {
     super();

@@ -65,6 +65,7 @@ public class PSContentEvent extends AbstractEvent {
    * @param request the HTTP request that triggered the event, never {@code null}.
    * @param outcome the outcome of the action, never {@code null}.
    */
+  @SuppressWarnings("this-escape")
   public PSContentEvent(
       String guid,
       String contentId,
@@ -139,6 +140,7 @@ public class PSContentEvent extends AbstractEvent {
   }
 
   /** Constructs an empty event with the content observer pre-assigned. */
+  @SuppressWarnings("this-escape")
   public PSContentEvent() {
     super();
 
