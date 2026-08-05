@@ -17,12 +17,35 @@ Unattended overnight worker:
 
 Opens **PRs only** (never merges). Oversized issues become child issues, not mega-PRs.
 
+### Multi-phase status → parent GitHub issue (not repo markdown)
+
+Concurrent overnight runs must **not** keep epic/slice progress in committed files under
+`docs/ai-generated/tasks/` (or similar). Those PRs fight each other on every tick.
+
+| Store | Purpose |
+|-------|---------|
+| **Parent issue body** — section `## Agent progress (night-issue-prs)` | Living slice table (see columns below) |
+| **Parent issue comments** | Append-only run history (split created, PR opened, blocked) |
+| **Child / residual issues** | One PR-sized unit; body links `Parent: #N` |
+| **`scratch/night-report.md`** | **This run only** (workflow UI). Never commit as the epic tracker |
+
+Parent body table columns (must match the work-agent prompt):
+
+```markdown
+| Slice | Issue | Status | PR | Notes | Updated |
+```
+
+Statuses: `open` | `in_progress` | `pr_opened` | `blocked` | `done` | `skipped`.
+
+Workers **upsert** the parent body section (`gh issue view` → edit section → `gh issue edit --body-file`) and post a short comment after each meaningful step.
+
 ### Why residual issues + PR review follow-up
 
 | Gap without it | What we do |
 |----------------|------------|
 | Partial PRs leave “rest of the work” only in chat | **Always** log residual work as GitHub issues (or plan them in dry_run) linked to parent + PR |
 | Split plans disappear if only a comment | Child issues for each slice; residual URLs in structured result |
+| Multi-agent runs thrash merge conflicts on `docs/ai-generated/tasks/**` status markdown | Multi-phase status lives on the **parent GitHub issue** (`## Agent progress (night-issue-prs)` + comments), not committed trackers |
 | Same-area overnight PRs (i18n/TMX/gadgets) go **CONFLICTING** and block each other | **PR follow-up** rebases onto base **oldest-first**, resolves conflicts |
 | Review threads (human or AI) sit forever while newer conflicts win `max_prs` | Threads are **merge blockers equal to conflicts**; selection is **oldest first** |
 | Empty issue queue early-complete skipped babysit | Empty triage still runs PR follow-up |

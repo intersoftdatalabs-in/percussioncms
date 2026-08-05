@@ -30,9 +30,9 @@ let meta = #{
         #{ title: "Discover", detail: "list open issues via gh" },
         #{ title: "Triage", detail: "size, order, split vs implement" },
         #{ title: "PR follow-up (pre)", detail: "drain merge blockers before new issue PRs" },
-        #{ title: "Work", detail: "implement or split; log residual follow-up issues" },
+        #{ title: "Work", detail: "implement or split; track multi-phase status on parent GH issue" },
         #{ title: "PR follow-up (post)", detail: "catch PRs opened this run + remaining blockers" },
-        #{ title: "Report", detail: "scratch night report" },
+        #{ title: "Report", detail: "scratch night report (run-local only; not epic status)" },
     ],
 };
 
@@ -215,11 +215,14 @@ triage_prompt += "SIZE RULES:\n";
 triage_prompt += "- One PR should touch a small module set (ideally 1-3 Maven modules) and ship tests.\n";
 triage_prompt += "- Javadoc-only module cleanup is implement.\n";
 triage_prompt += "- Multi-module product features without a narrow first slice are split.\n";
-triage_prompt += "- If implement is a slice of a large issue, set slice_title + put the rest in split_plan.\n\n";
+triage_prompt += "- If implement is a slice of a large issue, set slice_title + put the rest in split_plan.\n";
+triage_prompt += "- Prefer open child/slice issues that already list a Parent #N over inventing new\n";
+triage_prompt += "  markdown task trackers. Multi-phase status lives on the PARENT GitHub issue.\n\n";
 triage_prompt += "Use tools (gh issue view, codebase grep/read) to refine scope before deciding.\n";
 triage_prompt += "Do not invent issue numbers not in the inventory.\n";
 triage_prompt += "Order queue by: safest/easiest first, then impact.\n";
 triage_prompt += "work_summary must be a concrete agent instruction for the implementer (or splitter).\n";
+triage_prompt += "If the issue is a slice, include PARENT # and 'update parent Agent progress section' in work_summary.\n";
 
 let triage = agent(triage_prompt, #{
     label: "triage-queue",
@@ -327,8 +330,8 @@ pr_prompt_core += "    Also list human_threads_still_open for visibility.\n\n";
 
 pr_prompt_core += "SCOPE:\n";
 pr_prompt_core += "1) gh auth status first; active account for " + repo + ".\n";
-pr_prompt_core += "2) Touch only: author is active gh user, OR head branch fix/issue-|feat/issue-|\n";
-pr_prompt_core += "   fix/installer- from this agent lineage.\n";
+pr_prompt_core += "2) Touch only: author is active gh user, OR head branch matches prefix\n";
+pr_prompt_core += "   fix/issue- OR feat/issue- OR fix/installer- from this agent lineage.\n";
 pr_prompt_core += "3) Skip pure drafts unless they are merge blockers.\n";
 pr_prompt_core += "4) After each successful push, git fetch origin before the next PR.\n";
 pr_prompt_core += "5) NEVER edit threads on other humans' PRs unless co-author / overnight bot PR.\n\n";
@@ -462,11 +465,39 @@ for item in queue {
     work_prompt += "5) After PR (or abandon): leave the tree on the feature branch or switch back\n";
     work_prompt += "   cleanly so the next issue can branch from origin/" + base_branch + ".\n\n";
 
+    work_prompt += "PARENT-ISSUE STATUS TRACKING (hard — multi-phase / multi-issue work):\n";
+    work_prompt += "Cross-run progress for epics, splits, and residual slices MUST live on GitHub\n";
+    work_prompt += "issues — NOT in committed repo markdown. Concurrent overnight runs thrash merge\n";
+    work_prompt += "conflicts when they all edit docs/ai-generated/tasks/*.md (or similar trackers).\n";
+    work_prompt += "Rules:\n";
+    work_prompt += "P1) Identify PARENT_TRACKER:\n";
+    work_prompt += "    - If this issue body says Part of #N / Parent #N / slice of #N, PARENT = N.\n";
+    work_prompt += "    - Else if disposition is split (this issue is the epic), PARENT = " + inum.to_string() + ".\n";
+    work_prompt += "    - Else for a single-shot issue, PARENT = " + inum.to_string() + " (self).\n";
+    work_prompt += "P2) Maintain a single living section on the PARENT issue BODY titled exactly:\n";
+    work_prompt += "    ## Agent progress (night-issue-prs)\n";
+    work_prompt += "    Include a markdown table of slices/children:\n";
+    work_prompt += "    | Slice | Issue | Status | PR | Notes | Updated |\n";
+    work_prompt += "    Status values: open | in_progress | pr_opened | blocked | done | skipped\n";
+    work_prompt += "    Upsert by: gh issue view PARENT --json body → edit section in place →\n";
+    work_prompt += "    gh issue edit PARENT --body-file <temp> (portable path; use repo tmp/ or OS temp).\n";
+    work_prompt += "    Never delete other body sections. If section missing, append it at end of body.\n";
+    work_prompt += "P3) Also post a short timestamped COMMENT on PARENT after each meaningful step\n";
+    work_prompt += "    (split created, PR opened, residual filed, blocked) so history is append-only.\n";
+    work_prompt += "P4) HARD BAN for overnight multi-phase status:\n";
+    work_prompt += "    - Do NOT create or update docs/ai-generated/tasks/** status/checklist markdown\n";
+    work_prompt += "      solely to track epic/slice progress across runs.\n";
+    work_prompt += "    - Do NOT commit scratch/night-report.md or similar run reports to git.\n";
+    work_prompt += "    - Product/code docs that are part of the fix itself are fine; progress trackers are not.\n";
+    work_prompt += "P5) Child/residual issue bodies must link PARENT and state their slice role; leave unassigned.\n\n";
+
     work_prompt += "RESIDUAL WORK (hard requirement for implement/split/partial):\n";
     work_prompt += "Anything not finished in this PR/session must not only live in chat.\n";
     work_prompt += "If dry_run=false: create GitHub issues with gh issue create for each residual slice\n";
-    work_prompt += "  (title/body link parent #" + inum.to_string() + " and any PR URL; leave unassigned).\n";
+    work_prompt += "  (title/body link PARENT tracker + this issue #" + inum.to_string() + " and any PR URL;\n";
+    work_prompt += "  leave unassigned).\n";
     work_prompt += "  Label residual issues: operator:grok, operator:night-issue-prs, model:grok-4.5.\n";
+    work_prompt += "  Then update PARENT ## Agent progress table + comment (P2/P3).\n";
     work_prompt += "If dry_run=true: list planned residual issue titles in summary only (do not create).\n";
     work_prompt += "Put created URLs in residual_issue_urls (space-separated). child_issue_urls is for\n";
     work_prompt += "planned split slices; residual_issue_urls is for leftover after a partial implement.\n\n";
@@ -475,20 +506,27 @@ for item in queue {
         work_prompt += "ACTION: disposition is skip. Do not change code. Confirm why in summary.\n";
         work_prompt += "status=skipped. Optional: comment on the issue only if dry_run is false and\n";
         work_prompt += "a short clarification helps humans; prefer no comment if nothing useful.\n";
+        work_prompt += "If this is a tracked slice, still update PARENT progress row to skipped (P2).\n";
     } else if disp == "split" {
-        work_prompt += "ACTION: disposition is split.\n";
+        work_prompt += "ACTION: disposition is split (multi-phase plan on the PARENT issue).\n";
         if dry_run {
             work_prompt += "dry_run=true: write the split plan + residual follow-up titles in summary;\n";
-            work_prompt += "do NOT create issues. status=dry_run\n";
+            work_prompt += "do NOT create issues or edit issue bodies. status=dry_run\n";
         } else {
-            work_prompt += "1) Post a parent-issue comment with a numbered breakdown of PR-sized slices.\n";
+            work_prompt += "1) PARENT = #" + inum.to_string() + " (this issue is the epic tracker).\n";
             work_prompt += "2) Create child issues with gh issue create --repo " + repo + " for each slice\n";
-            work_prompt += "   (title like issue " + inum.to_string() + " slice N), body linking parent.\n";
+            work_prompt += "   (title like issue " + inum.to_string() + " slice N: <short>), body:\n";
+            work_prompt += "   Parent: #" + inum.to_string() + ", slice goal, out of scope, acceptance.\n";
             work_prompt += "   Labels: operator:grok, operator:night-issue-prs, model:grok-4.5 (create if missing).\n";
             work_prompt += "   Leave children unassigned. Record URLs in child_issue_urls.\n";
-            work_prompt += "3) Do NOT implement code in this step unless the FIRST slice is tiny AND you\n";
+            work_prompt += "3) Upsert PARENT body section ## Agent progress (night-issue-prs) with the full\n";
+            work_prompt += "   slice table (all children open, PRs empty). Do NOT put the plan only in a\n";
+            work_prompt += "   markdown file under docs/.\n";
+            work_prompt += "4) Comment on PARENT summarizing the split + child issue numbers.\n";
+            work_prompt += "5) Do NOT implement code in this step unless the FIRST slice is tiny AND you\n";
             work_prompt += "   can finish gates tonight; default is split-only.\n";
-            work_prompt += "4) If you ship a first-slice PR, file residual issues for remaining slices too.\n";
+            work_prompt += "6) If you ship a first-slice PR, update that row to pr_opened + PR link on PARENT,\n";
+            work_prompt += "   and file residual issues for remaining slices if not already children.\n";
             work_prompt += "status=split_only (or pr_opened if you also shipped the first slice).\n";
         }
     } else {
@@ -516,17 +554,22 @@ for item in queue {
             work_prompt += "   with --label operator:grok --label operator:night-issue-prs --label model:grok-4.5\n";
             work_prompt += "   body: Summary, Test plan, gates evidence, Fixes or Partial for issue.\n";
             work_prompt += "   Also put Operator: Grok: night-issue-prs (model grok-4.5) in the PR body.\n";
+            work_prompt += "   Link PARENT tracker issue in the PR body when this is a slice.\n";
             work_prompt += "H) Do not merge.\n";
             work_prompt += "I) If Partial: create residual follow-up issues with the SAME operator: + model: labels;\n";
-            work_prompt += "   link them from the PR body and parent issue comment. Leave unassigned.\n";
-            work_prompt += "J) Do not resolve review threads on OTHER people PRs in this step.\n";
+            work_prompt += "   link them from the PR body; leave unassigned; update PARENT progress table.\n";
+            work_prompt += "J) After PR (or fail/block): update PARENT ## Agent progress row for this issue\n";
+            work_prompt += "   (status pr_opened/blocked + PR URL + notes) and post a PARENT comment.\n";
+            work_prompt += "K) Do not resolve review threads on OTHER people PRs in this step.\n";
+            work_prompt += "L) Do not write multi-phase progress into docs/ai-generated markdown trackers.\n";
             work_prompt += "status=pr_opened on success, status=failed with summary of blockers on failure.\n";
         }
     }
 
     work_prompt += "\nIf implementation reveals the issue is too large mid-flight:\n";
     work_prompt += "- Stop coding sprawl. Prefer split_only + residual/child issues over a mega-PR.\n";
-    work_prompt += "- Discard incomplete WIP on the branch if not PR-ready (keep tree clean).\n\n";
+    work_prompt += "- Discard incomplete WIP on the branch if not PR-ready (keep tree clean).\n";
+    work_prompt += "- Record the split on PARENT issue progress (P2/P3), not in a new docs markdown file.\n\n";
     work_prompt += "Return structured status fields. pr_url, branch, residual_issue_urls when applicable.\n";
 
     let work = agent(work_prompt, #{
@@ -616,16 +659,20 @@ let report_prompt = "";
 report_prompt += "Write a concise overnight report in GitHub-flavored markdown for the human.\n";
 report_prompt += "Repo: " + repo + "\n";
 report_prompt += "dry_run=" + dry_run.to_string() + "\n\n";
+report_prompt += "This report is RUN-LOCAL only (scratch/night-report.md). It is NOT the multi-phase\n";
+report_prompt += "epic tracker — that lives on parent GitHub issue bodies under\n";
+report_prompt += "## Agent progress (night-issue-prs). Do not recommend committing this file to git.\n\n";
 report_prompt += "Triage notes:\n" + json_encode(triage_notes) + "\n\n";
 report_prompt += "Issue work results (JSON):\n" + json_encode(results) + "\n\n";
 report_prompt += "PR follow-up PRE result (JSON, may be empty):\n" + json_encode(pr_followup_result) + "\n\n";
 report_prompt += "PR follow-up POST result (JSON, may be empty):\n" + json_encode(pr_followup_post_result) + "\n\n";
 report_prompt += "Include:\n";
-report_prompt += "1) Table: issue | status | PR | child/residual issue links | summary\n";
+report_prompt += "1) Table: issue | status | PR | child/residual issue links | parent tracker | summary\n";
 report_prompt += "2) Table: open PRs followed up | conflicts | threads resolved | residual issues\n";
 report_prompt += "3) List still-open HUMAN review threads AND merge_blockers_still_open (conflicts,\n";
 report_prompt += "   unresolved bot/human threads, CI) - human cannot merge with any of these\n";
 report_prompt += "4) Morning review order and what was deferred\n";
+report_prompt += "5) Note any PARENT issues whose ## Agent progress section should be checked\n";
 report_prompt += "Return ONLY the markdown body (no code fence wrapper).\n";
 
 let report_agent = agent(report_prompt, #{
