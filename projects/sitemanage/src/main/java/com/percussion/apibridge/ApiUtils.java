@@ -287,7 +287,7 @@ public class ApiUtils {
   /**
    * Converts an ObjectTypeEnum to a PSTypeEnum.
    *
-   * @param type the rest compatible ObjectTypeEnum
+   * @param type the rest compatible ObjectTypeEnum, never {@code null}
    * @return the corresponding PSTypeEnum
    */
   public static PSTypeEnum convertObjectTypeEnum(ObjectTypeEnum type) {
