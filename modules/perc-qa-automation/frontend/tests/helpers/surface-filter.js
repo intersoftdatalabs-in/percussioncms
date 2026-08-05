@@ -176,9 +176,13 @@ function formatSurfaceCommand(opts, meta) {
     return prefix;
   }
   // Quote args that contain spaces or shell metacharacters for display only.
+  // Escape backslashes first, then double-quotes (CodeQL js/incomplete-sanitization).
   const quoted = args.map((a) => {
     if (/[\s"'$&|;<>]/.test(a)) {
-      return `"${a.replace(/"/g, '\\"')}"`;
+      const escaped = String(a)
+        .replace(/\\/g, "\\\\")
+        .replace(/"/g, '\\"');
+      return `"${escaped}"`;
     }
     return a;
   });
