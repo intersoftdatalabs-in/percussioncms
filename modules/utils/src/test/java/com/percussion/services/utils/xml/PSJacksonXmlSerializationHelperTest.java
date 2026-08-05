@@ -231,6 +231,23 @@ class PSJacksonXmlSerializationHelperTest {
   }
 
   @Test
+  void ipsGuidSerializesAndDeserializesAsBetwixtStringForm() throws Exception {
+    // Parity with PSBetwixtObjectConverter — required for package <guid> elements (#1888).
+    SampleWithGuid original = new SampleWithGuid();
+    original.setId(513L);
+    original.setGuid(new com.percussion.services.guidmgr.data.PSGuid("0-5-513"));
+
+    String xml = PSJacksonXmlSerializationHelper.writeToXml(original);
+    assertTrue(xml.contains("<guid>0-5-513</guid>") || xml.contains(">0-5-513<"), xml);
+
+    SampleWithGuid restored =
+        PSJacksonXmlSerializationHelper.readFromXml(xml, SampleWithGuid.class);
+    assertNotNull(restored.getGuid());
+    assertEquals("0-5-513", restored.getGuid().toString());
+    assertEquals(513L, restored.getId());
+  }
+
+  @Test
   void ipsXmlSerializationSuppressIsHonoredByJackson() throws Exception {
     SampleKeyword original = pilotKeyword();
     original.setInternalOnly("secret-must-not-appear");

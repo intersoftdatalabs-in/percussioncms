@@ -16,6 +16,10 @@
  */
 package com.percussion.services.security.data;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.percussion.services.catalog.IPSCatalogItem;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -25,15 +29,6 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.xml.IPSXmlSerialization;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -44,22 +39,42 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
-
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.*;
 import org.xml.sax.SAXException;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
- * Persist a single community definition including all role 
- * associations.
+ * Persist a single community definition including all role associations.
+ *
+ * <p>Design-object XML root is {@code community}. Historical {@code PSCommunity.betwixt} hides
+ * {@code roleAssociations} / {@code siteAssociations}; Jackson honors that via {@link JsonIgnore}
+ * on {@link #getRoleAssociations()} (issue #1889 / epic #505). Role membership is wired as scalar
+ * {@code roles} long ids ({@link #getRoles()} / {@link #setRoles(Collection)}).
  */
 @Entity
 @DynamicUpdate
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSCommunity")
 @Table(name = "RXCOMMUNITY")
+@JacksonXmlRootElement(localName = "community")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonPropertyOrder({"description", "guid", "name", "roles"})
 public class PSCommunity implements Serializable, IPSCatalogSummary, 
    IPSCatalogItem, IPSCloneTuner
 {
@@ -152,6 +167,7 @@ public class PSCommunity implements Serializable, IPSCatalogSummary,
     * @return the unique id.
     */
    @IPSXmlSerialization(suppress=true)
+   @JsonIgnore
    public long getId()
    {
       return id;
@@ -163,11 +179,13 @@ public class PSCommunity implements Serializable, IPSCatalogSummary,
     * @param id the new unique id, can only be set once, not changeable 
     *    afterwards.
     */
+   /**
+    * Set the unique id. BeanUtils property-copy after Jackson deserialize may re-apply id after
+    * {@link #setGUID(IPSGuid)}; allow overwrite for design-object XML restore (parity with
+    * {@code PSKeyword#setId}, issue #1889).
+    */
    public void setId(long id)
    {
-      if (this.id != UNINITIALIZED_ID)
-         throw new IllegalStateException("cannot change the unique id"); 
-
       this.id = id;
    }
 
@@ -176,6 +194,8 @@ public class PSCommunity implements Serializable, IPSCatalogSummary,
     * 
     * @return the object version, <code>null</code> if not initialized yet.
     */
+   @IPSXmlSerialization(suppress = true)
+   @JsonIgnore
    public Integer getVersion()
    {
       return version;
@@ -203,6 +223,7 @@ public class PSCommunity implements Serializable, IPSCatalogSummary,
     * 
     * @return the community name, never <code>null</code> or empty.
     */
+   @JsonProperty
    public String getName()
    {
       return name;
@@ -226,6 +247,7 @@ public class PSCommunity implements Serializable, IPSCatalogSummary,
     * 
     * @return the community description, may be <code>null</code> or empty.
     */
+   @JsonProperty
    public String getDescription()
    {
       return description;
@@ -298,6 +320,11 @@ public class PSCommunity implements Serializable, IPSCatalogSummary,
    /* (non-Javadoc)
     * @see IPSCatalogSummary#getGUID()
     */
+   /**
+    * Catalog GUID. Jackson emits/reads string form via shared {@code IPSGuid} converter in {@code
+    * PSJacksonXmlSerializationHelper}.
+    */
+   @JsonProperty("guid")
    public IPSGuid getGUID()
    {
       return new PSGuid(PSTypeEnum.COMMUNITY_DEF, id);
@@ -306,6 +333,7 @@ public class PSCommunity implements Serializable, IPSCatalogSummary,
    /* (non-Javadoc)
     * @see IPSCatalogSummary#getType()
     */
+   @JsonIgnore
    public String getType()
    {
       return PSTypeEnum.COMMUNITY_DEF.name();
@@ -314,6 +342,7 @@ public class PSCommunity implements Serializable, IPSCatalogSummary,
    /* (non-Javadoc)
     * @see IPSCatalogSummary#getLabel()
     */
+   @JsonIgnore
    public String getLabel()
    {
       return getName();
@@ -327,9 +356,8 @@ public class PSCommunity implements Serializable, IPSCatalogSummary,
       if (newguid == null)
          throw new IllegalArgumentException("newguid may not be null");
 
-      if (id != UNINITIALIZED_ID)
-         throw new IllegalStateException("cannot change the unique guid"); 
-
+      // Allow overwrite on design-object XML restore (BeanUtils + Jackson); same pattern as
+      // PSKeyword#setGUID (issue #1889).
       id = newguid.longValue();
    }
 
@@ -350,15 +378,19 @@ public class PSCommunity implements Serializable, IPSCatalogSummary,
    }
 
    /**
-    * Get all community role associations definied for this community. The
+    * Get all community role associations defined for this community. The
     * returned collection may be modified but no change to the underlying
     * association will be made until the corresponding
     * {@link #setRoleAssociations(Collection) method} is called with the new
     * data.
+    *
+    * <p>Suppressed from design XML (historical {@code PSCommunity.betwixt}
+    * {@code hide property="roleAssociations"}). Wire form uses {@link #getRoles()}.
     * 
     * @return a collection with all defined community role associations, never
     *    <code>null</code>, may be empty.
     */
+   @JsonIgnore
    public Collection<IPSGuid> getRoleAssociations()
    {
       Collection<IPSGuid> associations = new ArrayList<>();
@@ -397,24 +429,37 @@ public class PSCommunity implements Serializable, IPSCatalogSummary,
       if (roleId == null)
          throw new IllegalArgumentException("roleId cannot be null");
 
-      roleAssociations.add(new PSCommunityRoleAssociation(
-         new PSGuid(PSTypeEnum.COMMUNITY_DEF, id), roleId));
+      // Use host/type/uuid assemble so BeanUtils property-copy order (roles before guid/id)
+      // cannot throw "Type does not match" on a partially-initialized community (issue #1889).
+      long communityUuid = id == UNINITIALIZED_ID ? 0L : (id & 0xFFFFFFFFL);
+      roleAssociations.add(
+          new PSCommunityRoleAssociation(
+              new PSGuid(0L, PSTypeEnum.COMMUNITY_DEF, communityUuid), roleId));
    }
    
    /**
-    * Add a role for the serialization
+    * Add a role for serialization (Betwixt adder). Jackson uses {@link #setRoles(Collection)}.
+    *
+    * <p>Design XML may store either a bare role UUID or a composite {@link IPSGuid#longValue()};
+    * both are normalized to a ROLE-typed guid (issue #1889).
+    *
     * @param rid an id that corresponds to a guid
     */
+   @JsonIgnore
    public void addRole(long rid)
    {
-      addRoleAssociation(new PSGuid(rid));
+      long uuid = rid & 0xFFFFFFFFL;
+      addRoleAssociation(new PSGuid(PSTypeEnum.ROLE, uuid));
    } 
    
    /**
-    * Get the roles for serialization
-    * @return the roles for serialization, never <code>null</code> but may be
-    * empty
+    * Get the roles for design-object XML serialization (scalar role ids).
+    *
+    * @return the roles for serialization, never <code>null</code> but may be empty
     */
+   @JsonProperty
+   @JacksonXmlElementWrapper(localName = "roles")
+   @JacksonXmlProperty(localName = "long")
    public Collection<Long> getRoles()
    {
       Collection<IPSGuid> ras = getRoleAssociations();
@@ -423,7 +468,29 @@ public class PSCommunity implements Serializable, IPSCatalogSummary,
       {
          rval.add(ra.longValue());
       }
-      return rval;
+      // Stable order for design-object XML / golden parity
+      return rval.stream().sorted().collect(java.util.stream.Collectors.toList());
+   }
+
+   /**
+    * Set roles from design-object XML (Jackson collection restore).
+    *
+    * @param roles role long ids, may be {@code null} or empty
+    */
+   public void setRoles(Collection<Long> roles)
+   {
+      roleAssociations.clear();
+      if (roles == null)
+      {
+         return;
+      }
+      for (Long rid : roles)
+      {
+         if (rid != null)
+         {
+            addRole(rid.longValue());
+         }
+      }
    }
    
    /**

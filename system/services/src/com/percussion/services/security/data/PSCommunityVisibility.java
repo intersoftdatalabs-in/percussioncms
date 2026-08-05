@@ -16,29 +16,41 @@
  */
 package com.percussion.services.security.data;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.percussion.services.catalog.IPSCatalogItem;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.catalog.data.PSObjectSummary;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.utils.guid.IPSGuid;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.xml.sax.SAXException;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
- * This class is a container for all visible design objects for a specific
- * community.
+ * Container for design object summaries visible to a community.
+ *
+ * <p>Design-object XML root is {@code community-visibility}. Nested {@link PSObjectSummary}
+ * elements use the catalog type's own serialization surface (issue #1889 / epic #505).
  */
+@JacksonXmlRootElement(localName = "community-visibility")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonPropertyOrder({"guid", "visibleObjects"})
 public class PSCommunityVisibility implements Serializable, IPSCatalogItem
 {
    /**
@@ -82,6 +94,9 @@ public class PSCommunityVisibility implements Serializable, IPSCatalogItem
     * @return a set of visible object summaries, never <code>null</code>, 
     *    may be empty.
     */
+   @JsonProperty
+   @JacksonXmlElementWrapper(localName = "visible-objects")
+   @JacksonXmlProperty(localName = "object-summary")
    public Set<PSObjectSummary> getVisibleObjects()
    {
       return visibleObjects;
@@ -107,6 +122,7 @@ public class PSCommunityVisibility implements Serializable, IPSCatalogItem
     * @param summary the summary of a visible design object, not 
     *    <code>null</code>.
     */
+   @JsonIgnore
    public void addVisibleObject(PSObjectSummary summary)
    {
       if (summary == null)
@@ -121,6 +137,7 @@ public class PSCommunityVisibility implements Serializable, IPSCatalogItem
     * @param summaries the visible objects to add, not <code>null</code>, 
     *    may be empty.
     */
+   @JsonIgnore
    public void addAllVisibleObjects(List<PSObjectSummary> summaries)
    {
       if (summaries == null)
@@ -132,6 +149,7 @@ public class PSCommunityVisibility implements Serializable, IPSCatalogItem
    /* (non-Javadoc)
     * @see IPSCatalogItem#getGUID()
     */
+   @JsonProperty("guid")
    public IPSGuid getGUID()
    {
       return new PSGuid(PSTypeEnum.COMMUNITY_DEF, id);
