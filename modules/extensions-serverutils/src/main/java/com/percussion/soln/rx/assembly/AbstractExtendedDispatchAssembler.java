@@ -25,10 +25,19 @@ import com.percussion.utils.jexl.PSJexlEvaluator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * Base class for {@link PSDispatchAssembler}-style assemblers that delegate Jexl binding and result
+ * handling to an {@link AbstractAssemblyHelper}.
+ */
 public abstract class AbstractExtendedDispatchAssembler extends PSDispatchAssembler {
 
   /** The log instance to use for this class, never <code>null</code>. */
   private static final Log log = LogFactory.getLog(AbstractExtendedDispatchAssembler.class);
+
+  /** No-op constructor. */
+  public AbstractExtendedDispatchAssembler() {
+    // no-op
+  }
 
   @Override
   public IPSAssemblyResult assembleSingle(IPSAssemblyItem item) {
@@ -50,5 +59,10 @@ public abstract class AbstractExtendedDispatchAssembler extends PSDispatchAssemb
     }
   }
 
+  /**
+   * Returns the helper that supplies Jexl bindings and result post-processing.
+   *
+   * @return the assembly helper for this assembler
+   */
   protected abstract AbstractAssemblyHelper getAssemblyHelper();
 }

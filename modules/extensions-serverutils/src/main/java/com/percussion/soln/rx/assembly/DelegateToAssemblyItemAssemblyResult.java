@@ -30,17 +30,37 @@ import java.io.InputStream;
 import java.util.Map;
 import javax.jcr.Node;
 
+/**
+ * Base {@link IPSAssemblyResult} implementation that delegates most of its accessor surface to an
+ * inner {@link IPSAssemblyItem}.
+ */
 public abstract class DelegateToAssemblyItemAssemblyResult implements IPSAssemblyResult {
 
   /** Safe to serialize */
   private static final long serialVersionUID = 1L;
 
+  /** The assembly item whose state is exposed through this result. May be <code>null</code>. */
   private IPSAssemblyItem assemblyItem;
 
+  /** No-op constructor. */
+  public DelegateToAssemblyItemAssemblyResult() {
+    // no-op
+  }
+
+  /**
+   * Returns the wrapped assembly item.
+   *
+   * @return the assembly item, may be {@code null}
+   */
   public IPSAssemblyItem getAssemblyItem() {
     return assemblyItem;
   }
 
+  /**
+   * Sets the wrapped assembly item.
+   *
+   * @param assemblyItem the assembly item to wrap
+   */
   public void setAssemblyItem(IPSAssemblyItem assemblyItem) {
     this.assemblyItem = assemblyItem;
   }
@@ -183,6 +203,11 @@ public abstract class DelegateToAssemblyItemAssemblyResult implements IPSAssembl
     assemblyItem.setPublish(pub);
   }
 
+  /**
+   * Sets the reference id on the wrapped assembly item.
+   *
+   * @param referenceId the new reference id
+   */
   public void setReferenceId(int referenceId) {
     assemblyItem.setReferenceId(referenceId);
   }
