@@ -68,7 +68,8 @@ public interface IPSClientBasedJunitTest extends IPSUnitTestConfigHelper {
    * </tr>
    * </table>
    *
-   * @throws IOException
+   * @throws IOException if the configured properties file for the requested connection type cannot
+   *     be loaded.
    */
   static Properties getConnectionProps(int type) throws IOException {
     throw new IllegalArgumentException("class needs to override getConnectionProps");
