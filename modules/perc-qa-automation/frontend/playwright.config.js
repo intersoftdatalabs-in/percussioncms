@@ -6,9 +6,18 @@ const {
 } = require("./tests/helpers/resolve-cms-env");
 
 // Load module-root .env for local human runs (QA mode typically injects env).
-require("dotenv").config({
+const dotenvResult = require("dotenv").config({
   path: path.resolve(__dirname, "../.env"),
 });
+if (dotenvResult.error) {
+  // Missing .env is normal in QA/CI (env is injected). Surface parse errors only.
+  const code = dotenvResult.error.code;
+  if (code !== "ENOENT") {
+    console.warn(
+      `playwright.config.js: dotenv failed to load ../.env (${dotenvResult.error.message})`,
+    );
+  }
+}
 
 const resolvedBase = resolveCmsBaseUrl(process.env, {
   fallbackUrl: DEV_FALLBACK_URL,

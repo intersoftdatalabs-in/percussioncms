@@ -143,7 +143,20 @@ function discoverInstallUrl() {
     "jetty/base/etc/installation.properties",
     "jetty.http.port",
   );
-  updateEnvFile("DEV_PERCUSSION_URL", discovered);
+  // Explicit first-run side effect for human dev mode: persist discovered URL
+  // so subsequent requires do not re-read install properties. Opt out with
+  // PERC_QA_SKIP_ENV_WRITE=1 (unit/inspection loads). QA mode never reaches
+  // here (hasQaModeUrlEnv / DEV_PERCUSSION_URL short-circuit above).
+  if (process.env.PERC_QA_SKIP_ENV_WRITE === "1") {
+    console.log(
+      "Skipping .env write for discovered DEV_PERCUSSION_URL (PERC_QA_SKIP_ENV_WRITE=1)",
+    );
+  } else {
+    console.log(
+      `Persisting discovered DEV_PERCUSSION_URL to .env for next run: ${discovered}`,
+    );
+    updateEnvFile("DEV_PERCUSSION_URL", discovered);
+  }
   return discovered;
 }
 
@@ -156,6 +169,12 @@ const PERCUSSION_URL = resolved.url;
 
 if (resolved.source === "TEST_CMS_URL" || resolved.source === "CMS_HOST_PORT") {
   console.log(`CMS base URL from ${resolved.source}: ${PERCUSSION_URL}`);
+} else if (resolved.source === "DEV_PERCUSSION_URL") {
+  console.log(`CMS base URL from DEV_PERCUSSION_URL: ${PERCUSSION_URL}`);
+} else if (resolved.source === "install") {
+  console.log(
+    `CMS base URL from install discovery (DEV_PERCUSSION_INSTALL): ${PERCUSSION_URL}`,
+  );
 } else if (resolved.source === "fallback") {
   console.log(
     `CMS base URL fallback (set TEST_CMS_URL for QA mode or DEV_PERCUSSION_URL / DEV_PERCUSSION_INSTALL for dev): ${PERCUSSION_URL}`,

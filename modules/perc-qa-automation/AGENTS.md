@@ -38,9 +38,7 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
 - **URL precedence:** `TEST_CMS_URL` (aliases `CMS_BASE_URL`, `QA_CMS_URL`) >
   `QA_CMS_HOST_PORT` / `CMS_HOST_PORT` → `http://127.0.0.1:<port>` >
   `DEV_PERCUSSION_URL` > install discovery > fallback.
-- **Do not hardcode `:9993`** as the only host port (freeport multi-worktree —
-
-  # 2005/#2014). Prefer the `TEST_CMS_URL` printed by `qa-up`.
+- **Do not hardcode `:9993`** as the only host port (freeport multi-worktree; issues #2005/#2014). Prefer the `TEST_CMS_URL` printed by `qa-up`.
 
 - **Admin creds:** `ADMIN_USERNAME=Admin` (default); password from env / `qa-up`
   output / `docker exec` — **never commit secrets**.

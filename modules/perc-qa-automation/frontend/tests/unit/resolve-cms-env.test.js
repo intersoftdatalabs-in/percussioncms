@@ -110,6 +110,23 @@ describe("resolveCmsBaseUrl", () => {
     assert.equal(r.source, "DEV_PERCUSSION_URL");
   });
 
+  it("rejects invalid host port and falls back when DEV_PERCUSSION_URL is absent", () => {
+    const r = resolveCmsBaseUrl({ CMS_HOST_PORT: "not-a-port" });
+    assert.equal(r.source, "fallback");
+    assert.equal(r.url, DEV_FALLBACK_URL);
+  });
+
+  it("rejects host ports outside the valid TCP range (1-65535)", () => {
+    const tooHigh = resolveCmsBaseUrl({
+      CMS_HOST_PORT: "99999",
+      DEV_PERCUSSION_URL: "http://localhost:9992",
+    });
+    assert.equal(tooHigh.source, "DEV_PERCUSSION_URL");
+    const zeroPad = resolveCmsBaseUrl({ CMS_HOST_PORT: "00000" });
+    // "00000" parses as 0 → out of range → treat as unset → fallback
+    assert.equal(zeroPad.source, "fallback");
+  });
+
   it("documents TEST_CMS_URL as the primary CMS_URL_ENV_KEYS entry", () => {
     assert.equal(CMS_URL_ENV_KEYS[0], "TEST_CMS_URL");
   });

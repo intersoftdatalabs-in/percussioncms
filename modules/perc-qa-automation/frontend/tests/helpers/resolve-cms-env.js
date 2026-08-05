@@ -84,11 +84,15 @@ function firstHostPort(env) {
   if (!raw) {
     return null;
   }
-  // Accept plain digits or accidental "9993" with whitespace; reject garbage.
+  // Accept plain digits (2–5 chars); reject garbage and ports outside 1–65535.
   if (!/^\d{2,5}$/.test(raw)) {
     return null;
   }
-  return raw;
+  const port = Number.parseInt(raw, 10);
+  if (!Number.isFinite(port) || port < 1 || port > 65535) {
+    return null;
+  }
+  return String(port);
 }
 
 /**
