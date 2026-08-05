@@ -1,9 +1,12 @@
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE hibernate-configuration PUBLIC
 		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
-		"file:hibernate-configuration-3.0.dtd">
+		"classpath:/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
 
+	<!-- Prefer packagesToScan on LocalSessionFactoryBean in Spring test beans.
+	     If configLocation still points here, DTD must resolve from the classpath
+	     (not a CWD-relative file: URL, which breaks under Maven Surefire). -->
 	<session-factory>
 		<mapping
 			class="com.percussion.membership.data.rdbms.impl.PSMembership" />
