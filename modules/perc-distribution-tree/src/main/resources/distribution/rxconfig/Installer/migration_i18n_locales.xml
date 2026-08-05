@@ -5,12 +5,46 @@
 	where PROPERTYNAME='sys_lang' - hi → hi-in; underscore/legacy tags → lower-case
 	hyphen; es stays es * CONTENTSTATUS.LOCALE (issue text may say CT_LOCALE)
 	- es → es-es; other tags normalized only; never deletes rows Dry-run: -Di18n.locale.migration.dryRun=true
-	or dryRun="true" on the task. -->
+	or dryRun="true" on the task. GH-2011: Nested <ant inheritRefs="true"> applies
+	parent references only AFTER this build file is configured. A project-level
+	classpathref="ant.deps" that depends solely on the parent path id therefore
+	fails with "Reference ant.deps not found". Rebuild ant.deps locally from
+	inherited install.dir / install.src (inheritAll properties are available
+	during configure). Mirror the install.xml filesets needed for perc-ant JDBC
+	and extension jars; erroronmissingdir so partial layouts still configure. -->
 <project name="migration_i18n_locales"
 	default="migrateI18nLocales">
 
+	<!-- Local path id (self-contained). Do not rely on parent inheritRefs for
+		project-level taskdef classpathref. -->
+	<path id="ant.deps">
+		<fileset dir="${install.dir}/jetty/base/lib/jdbc"
+			erroronmissingdir="false">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${install.src}/jetty/base/lib/jdbc"
+			erroronmissingdir="false">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${install.src}/jetty/defaults/lib/perc"
+			erroronmissingdir="false">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${install.src}/jetty/defaults/lib/perc-logging"
+			erroronmissingdir="false">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset
+			dir="${install.src}/jetty/base/webapps/Rhythmyx/WEB-INF/lib"
+			erroronmissingdir="false">
+			<include name="perc-toolkit-*.jar" />
+			<include name="extensions-*.jar" />
+		</fileset>
+	</path>
+
 	<!-- Nested <ant> projects do not inherit parent taskdefs; re-register from
-		ant.deps (path id defined in install.xml, inherited via inheritRefs). -->
+		local ant.deps (perc-ant system classloader also has the class when run via
+		java -jar perc-ant). -->
 	<taskdef name="PSMigrateI18nLocaleCodes"
 		classname="com.percussion.ant.install.PSMigrateI18nLocaleCodes"
 		classpathref="ant.deps" onerror="ignore" />
