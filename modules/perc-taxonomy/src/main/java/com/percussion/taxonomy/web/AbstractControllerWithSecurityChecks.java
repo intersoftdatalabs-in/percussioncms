@@ -67,7 +67,11 @@ public class AbstractControllerWithSecurityChecks {
     }
 
     /**
-     * @return the parsed node id, or <code>null</code> if the request had no node id.
+     * Returns the parsed node id as an unboxed {@link Integer}.
+     *
+     * @return the parsed node id, unboxed via {@link Integer#intValue()}.
+     * @throws NullPointerException if no node id was parsed from the request. Callers that need to
+     *     handle the missing-id case should use {@link #getNodeIDCanBeNull()} instead.
      */
     public Integer getNodeID() {
       return nodeID.intValue();
@@ -216,13 +220,13 @@ public class AbstractControllerWithSecurityChecks {
   }
 
   /**
-   * Verifies that the current user can edit the supplied taxonomy node, throwing if not.
+   * Verifies that the current user can edit the supplied taxonomy node, throwing a plain {@link
+   * Exception} (currently; a dedicated subclass is the long-term replacement) if not.
    *
    * @param node the taxonomy node being edited, never <code>null</code>.
    * @throws Exception when the current user is not authorized to edit the node.
    */
   protected void verifyNodeIsEditable(Node node) throws Exception {
-    // TODO throw new class
     if (!canEditNode(node)) {
       throw new Exception("Taxonomy Permission Exception: cannot edit node");
     }
@@ -234,9 +238,8 @@ public class AbstractControllerWithSecurityChecks {
    *
    * @param node the taxonomy node being checked, never <code>null</code>.
    * @return <code>true</code> when the current user is authorized to edit the node.
-   * @throws Exception reserved for future implementation.
    */
-  protected boolean canEditNode(Node node) throws Exception {
+  protected boolean canEditNode(Node node) {
     boolean ret = false;
 
     if (TaxonomySecurityHelper.amITaxonomyAdmin()) {
