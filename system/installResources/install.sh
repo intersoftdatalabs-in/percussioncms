@@ -81,7 +81,7 @@ CLASSPATH=${CLASSPATH}:$pwd/jdbc/mysql/mysql-connector-java-5.1.12-bin.jar
 #CLASSPATH=${CLASSPATH}:$pwd/Tools/mail/activation.jar
 #CLASSPATH=${CLASSPATH}:$pwd/Tools/regex/jakarta-oro-2.0.6.jar
 #CLASSPATH=${CLASSPATH}:$pwd/Tools/Ant/lib/ant.jar
-#CLASSPATH=${CLASSPATH}:${JAVA_HOME}/lib/tools.jar
+# (removed) tools.jar — not available on JDK 9+/21; see issue #1937
 #CLASSPATH=${CLASSPATH}:$pwd/Tools/Commons/commons-codec-1.11.jar
 #CLASSPATH=${CLASSPATH}:$pwd/build/dist/lib/rxff.jar
 #CLASSPATH=${CLASSPATH}:$pwd/build/dist/lib/rxtaxonomy.jar
