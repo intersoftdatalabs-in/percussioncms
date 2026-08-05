@@ -199,19 +199,21 @@ public class PSHierarchyNode implements Serializable, IPSCatalogSummary, IPSCata
 
   /**
    * Set the object version. The version can only be set once in the life cycle of this object.
+   * Pass {@code null} to clear the version (same pattern as {@code PSKeyword}/{@code
+   * PSTemplateSlot}) so design webservice callers can re-init via {@code setVersion(null)} then
+   * {@code setVersion(n)}.
    *
-   * @param version the version of the object, must be >= 0.
+   * @param version the version of the object, must be >= 0, or {@code null} to clear
    */
   @JsonIgnore
   public void setVersion(Integer version) {
-    // Null-safe for BeanUtils copy after Jackson design-object XML restore (issue #1920).
-    if (version == null) {
-      return;
-    }
-    if (this.version != null)
+    if (this.version != null && version != null) {
       throw new IllegalStateException("version can only be initialized once");
+    }
 
-    if (version < 0) throw new IllegalArgumentException("version must be >= 0");
+    if (version != null && version < 0) {
+      throw new IllegalArgumentException("version must be >= 0");
+    }
 
     this.version = version;
   }
@@ -298,14 +300,15 @@ public class PSHierarchyNode implements Serializable, IPSCatalogSummary, IPSCata
   }
 
   /**
-   * BeanUtils / Jackson setter for {@link #getNodeType()}. Allows design-object XML restore into a
-   * fresh instance (issue #1920).
+   * Jackson design-object XML setter for {@link #getNodeType()}. Restores into a fresh instance
+   * (issue #1920). Unlike {@link #setType(NodeType)}, this is not one-shot — restore may run after
+   * default construction with {@code type == 0}.
    *
-   * @param nt the node type, may be {@code null} (ignored)
+   * @param nt the node type, not {@code null}
    */
   public void setNodeType(NodeType nt) {
     if (nt == null) {
-      return;
+      throw new IllegalArgumentException("nt cannot be null");
     }
     type = nt.getOrdinal();
   }
@@ -315,13 +318,13 @@ public class PSHierarchyNode implements Serializable, IPSCatalogSummary, IPSCata
    * {@link #setNodeType(NodeType)} / {@link #setTypeInt(int)}.
    *
    * @param nt The new hierarchy node type, not <code>null</code>.
-   * @throws IllegalStateException If called more than once with a different type already set.
+   * @throws IllegalStateException If called more than once (any second call when type is already
+   *     non-zero).
    */
   public void setType(NodeType nt) {
     if (nt == null) throw new IllegalArgumentException("nt cannot be null");
 
-    // Allow idempotent re-set of the same value for BeanUtils copy after Jackson restore.
-    if (type != 0 && type != nt.getOrdinal()) {
+    if (type != 0) {
       throw new IllegalStateException("Can only set the type once.");
     }
 
@@ -350,21 +353,22 @@ public class PSHierarchyNode implements Serializable, IPSCatalogSummary, IPSCata
   }
 
   /**
-   * Get all hierarchy node properties. Sorted {@link TreeMap} for deterministic design-object XML /
-   * goldens.
+   * Get all hierarchy node properties. Never {@code null}; sorting is applied on write via {@link
+   * #setProperties(Map)} so getters do not reassign the field (Kilo review on #1920).
    *
    * @return the hierarchy node properties, never <code>null</code>, may be empty.
    */
   @JsonProperty
   public Map<String, String> getProperties() {
-    if (!(properties instanceof TreeMap)) {
-      properties = new TreeMap<>(properties == null ? Map.of() : properties);
+    if (properties == null) {
+      properties = new TreeMap<>();
     }
     return properties;
   }
 
   /**
-   * Set new hierarchy node properties.
+   * Set new hierarchy node properties. Always stored as a sorted {@link TreeMap} for deterministic
+   * design-object XML / goldens.
    *
    * @param properties the new hierarchy node properties, may be <code>null</code> or empty. All
    *     supplied properties must have a valid id. All properties will be attached to this node.

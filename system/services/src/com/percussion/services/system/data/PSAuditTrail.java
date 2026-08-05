@@ -33,9 +33,14 @@ import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 /**
  * This object represents a single audit trail.
  *
- * <p>Design-object XML root is {@code audit-trail}. Nested package item element is {@code audit}
- * (registered via {@link PSXmlSerializationHelper#addType}). Jackson opt-in property surface (issue
- * #1920 / epic #505).
+ * <p>Design-object XML root is {@code audit-trail}. Nested package item element is {@code audit}.
+ * Jackson opt-in property surface (issue #1920 / epic #505).
+ *
+ * <p><b>Nested type registration (two engines, one name):</b> Jackson binds nested items via {@link
+ * JacksonXmlProperty}{@code (localName="audit")} on {@link #getAudits()}. The static {@link
+ * PSXmlSerializationHelper#addType} registration is retained for the Betwixt rollback engine and
+ * for polymorphic list restore helpers that still consult the shared type map. Both paths use the
+ * same element name {@code audit} → {@link PSAudit}; they are complementary, not competing owners.
  */
 @JacksonXmlRootElement(localName = "audit-trail")
 @JsonAutoDetect(
@@ -56,7 +61,8 @@ public class PSAuditTrail implements Serializable {
   private List<PSAudit> audits = new ArrayList<>();
 
   static {
-    // Nested package item element name for polymorphic list restore.
+    // Betwixt / helper type-map path (Jackson uses @JacksonXmlProperty on getAudits()).
+    // Same key+class as Jackson annotations — intentional dual registration for dual engines.
     PSXmlSerializationHelper.addType("audit", PSAudit.class);
   }
 

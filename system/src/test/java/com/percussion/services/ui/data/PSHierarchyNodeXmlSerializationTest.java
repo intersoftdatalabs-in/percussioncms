@@ -20,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.services.catalog.PSTypeEnum;
@@ -27,7 +29,10 @@ import com.percussion.services.guidmgr.data.PSDesignGuid;
 import com.percussion.services.guidmgr.data.PSGuid;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
@@ -156,6 +161,74 @@ class PSHierarchyNodeXmlSerializationTest {
     assertEquals(99L, restored.getNodeId());
     assertEquals("legacyKey", restored.getName());
     assertEquals("legacyVal", restored.getValue());
+  }
+
+  @Test
+  void hierarchyNodeSetTypeIsOneShotStrict() {
+    PSDesignGuid guid = new PSDesignGuid(new PSGuid(PSTypeEnum.HIERARCHY_NODE, 1L));
+    PSHierarchyNode node =
+        new PSHierarchyNode("n", guid, PSHierarchyNode.NodeType.FOLDER);
+    assertThrows(
+        IllegalStateException.class, () -> node.setType(PSHierarchyNode.NodeType.FOLDER));
+    assertThrows(
+        IllegalStateException.class, () -> node.setType(PSHierarchyNode.NodeType.PLACEHOLDER));
+    assertThrows(IllegalArgumentException.class, () -> node.setType(null));
+  }
+
+  @Test
+  void hierarchyNodeSetNodeTypeRejectsNullButAllowsOverwrite() {
+    PSHierarchyNode node = new PSHierarchyNode();
+    assertThrows(IllegalArgumentException.class, () -> node.setNodeType(null));
+    node.setNodeType(PSHierarchyNode.NodeType.FOLDER);
+    assertEquals(PSHierarchyNode.NodeType.FOLDER, node.getNodeType());
+    // Jackson restore path may re-assign on a fresh instance; not one-shot.
+    node.setNodeType(PSHierarchyNode.NodeType.PLACEHOLDER);
+    assertEquals(PSHierarchyNode.NodeType.PLACEHOLDER, node.getNodeType());
+  }
+
+  @Test
+  void hierarchyNodeSetVersionOneShotWithNullClear() {
+    PSHierarchyNode node = new PSHierarchyNode();
+    node.setVersion(0);
+    assertEquals(0, node.getVersion());
+    assertThrows(IllegalStateException.class, () -> node.setVersion(1));
+    // Null clears so design WS can re-init (peer: PSKeyword / PSTemplateSlot).
+    node.setVersion(null);
+    assertNull(node.getVersion());
+    node.setVersion(2);
+    assertEquals(2, node.getVersion());
+    assertThrows(IllegalArgumentException.class, () -> {
+      node.setVersion(null);
+      node.setVersion(-1);
+    });
+  }
+
+  @Test
+  void hierarchyNodeGetPropertiesDoesNotReassignField() {
+    PSHierarchyNode node = new PSHierarchyNode();
+    Map<String, String> first = node.getProperties();
+    assertTrue(first instanceof TreeMap);
+    assertSame(first, node.getProperties());
+    Map<String, String> incoming = new HashMap<>();
+    incoming.put("b", "2");
+    incoming.put("a", "1");
+    node.setProperties(incoming);
+    Map<String, String> after = node.getProperties();
+    assertTrue(after instanceof TreeMap);
+    assertEquals("1", after.get("a"));
+    assertSame(after, node.getProperties());
+  }
+
+  @Test
+  void hierarchyNodePropertySetVersionOneShotWithNullClear() {
+    PSHierarchyNodeProperty prop =
+        new PSHierarchyNodeProperty("k", "v", new PSGuid(PSTypeEnum.HIERARCHY_NODE, 1L));
+    prop.setVersion(0);
+    assertThrows(IllegalStateException.class, () -> prop.setVersion(1));
+    prop.setVersion(null);
+    assertNull(prop.getVersion());
+    prop.setVersion(3);
+    assertEquals(3, prop.getVersion());
   }
 
   private static PSHierarchyNode sampleNode() {

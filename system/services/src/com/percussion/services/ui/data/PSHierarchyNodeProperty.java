@@ -120,19 +120,21 @@ public class PSHierarchyNodeProperty implements Serializable {
 
   /**
    * Set the object version. The version can only be set once in the life cycle of this object.
+   * Pass {@code null} to clear the version (same pattern as {@code PSKeyword}/{@code
+   * PSTemplateSlot}) so design webservice callers can re-init via {@code setVersion(null)} then
+   * {@code setVersion(n)}.
    *
-   * @param version the version of the object, must be >= 0.
+   * @param version the version of the object, must be >= 0, or {@code null} to clear
    */
   @JsonIgnore
   public void setVersion(Integer version) {
-    // Null-safe for BeanUtils copy after Jackson design-object XML restore (issue #1920).
-    if (version == null) {
-      return;
-    }
-    if (this.version != null)
+    if (this.version != null && version != null) {
       throw new IllegalStateException("version can only be initialized once");
+    }
 
-    if (version < 0) throw new IllegalArgumentException("version must be >= 0");
+    if (version != null && version < 0) {
+      throw new IllegalArgumentException("version must be >= 0");
+    }
 
     this.version = version;
   }

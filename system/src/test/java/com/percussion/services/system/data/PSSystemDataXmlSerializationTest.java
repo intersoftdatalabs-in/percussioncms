@@ -19,6 +19,8 @@ package com.percussion.services.system.data;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.services.catalog.PSTypeEnum;
@@ -234,6 +236,22 @@ class PSSystemDataXmlSerializationTest {
     assertEquals("legacy_prop", restored.getName());
     assertEquals("legacy_value", restored.getValue());
     assertEquals(55L, restored.getGUID().getUUID());
+  }
+
+  @Test
+  void sharedPropertySetVersionOneShotWithNullClear() {
+    PSSharedProperty property = new PSSharedProperty("name", "value");
+    property.setVersion(0);
+    assertEquals(0, property.getVersion());
+    assertThrows(IllegalStateException.class, () -> property.setVersion(1));
+    property.setVersion(null);
+    assertNull(property.getVersion());
+    property.setVersion(2);
+    assertEquals(2, property.getVersion());
+    assertThrows(IllegalArgumentException.class, () -> {
+      property.setVersion(null);
+      property.setVersion(-1);
+    });
   }
 
   private static PSAudit sampleAudit() {
