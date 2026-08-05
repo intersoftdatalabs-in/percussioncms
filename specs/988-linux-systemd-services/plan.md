@@ -79,7 +79,9 @@ Windows `install-jetty-service.bat` — **no behavioral change** (regression-onl
 | Installer    | Prefer systemd when `systemctl` + `/run/systemd/system` exist; else init.d                |
 | Dual install | On systemd path, **do not** also register chkconfig/update-rc.d                           |
 | Fallback     | Keep init.d install when not systemd or `--initd` flag                                    |
-| DTS          | Out of scope for this feature                                                             |
+| DTS          | **In scope** (extension T024–T027 / PR #1334) — Production + Staging Tomcat installers    |
+
+> **Inventory (2026 / #1975):** validated path tables and packaging gaps live in [inventory.md](./inventory.md). Do not treat the older “DTS out of scope” note as current product scope.
 
 ## Story → PR Strategy (constitution workflow)
 

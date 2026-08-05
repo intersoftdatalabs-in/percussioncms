@@ -77,6 +77,14 @@
 - [x] T026 Structural tests `DtsSystemdUnitTemplateTest` + `DtsServiceInstallScriptTest`
 - [x] T027 Update delivery-tier-distribution README + expand 988 spec scope for DTS
 
+## Phase 8: Inventory re-validation (#1975 / #962 slice 1)
+
+**Goal**: Validate source + packaging inventory on `main`; dual-ship still present; no live soak  
+- [x] T028 Write durable inventory `inventory.md` (CMS Jetty + DTS + packaging chain + dual-ship)
+- [x] T029 Record Gap A (`defaults/bin/rxjetty.sh` missing after #662) and Gap B (DTS `.in` not co-located with service scripts under `installDts.xml`) for residual product fixes
+- [ ] T030 Residual: restore/ship CMS `rxjetty.sh` + structural presence test
+- [ ] T031 Residual: fix DTS unit template packaging or resolution path
+
 ## Dependencies & Execution Order
 
 - Setup → Foundational → US1 → US2 → US3 → Polish

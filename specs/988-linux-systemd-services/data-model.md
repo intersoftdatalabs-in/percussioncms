@@ -36,7 +36,16 @@ This feature is **ops configuration**, not a CMS domain/database model. Entities
 
 ## InitdScript (fallback)
 
-Existing `/etc/init.d/<serviceName>` generated from `rxjetty.sh` — unchanged role when systemd path not used.
+Existing `/etc/init.d/<serviceName>` generated from the CMS Jetty start-helper template
+(`jetty/defaults/bin/rxjetty.sh` at install time via `install-jetty-service.sh`) —
+unchanged **role** when systemd path not used (helper still backs `ExecStart` on the
+systemd path).
+
+> **Inventory note (#1975):** the source template path
+> `modules/perc-jetty/src/main/jetty/defaults/bin/rxjetty.sh` is **missing on main**
+> (deleted with legacy `system/Tools/jetty` in Jetty 12 restructure). See
+> [inventory.md](./inventory.md) Gap A. DTS generates its init helper from
+> `catalina.sh` instead of a separate product template.
 
 ## State transitions (operator)
 
