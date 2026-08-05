@@ -11,7 +11,7 @@ Unattended overnight worker:
 1. **Discover** open GitHub issues  
 2. **Triage** (implement / split / skip)  
 3. **Work** sequential implement or split — **file residual follow-up issues** for leftover work  
-4. **PR follow-up** (optional, default on) — **merge conflicts** (rebase), then CI, then **review thread reply+resolve** on *our* open PRs only  
+4. **PR follow-up** (optional, default on) — tech need first (conflicts → CI → review threads); human and AI threads **equal**, human only as **tie-break** on *our* open PRs  
 5. **Report** → `scratch/night-report.md`
 
 Opens **PRs only** (never merges). Oversized issues become child issues, not mega-PRs.
@@ -23,8 +23,9 @@ Opens **PRs only** (never merges). Oversized issues become child issues, not meg
 | Partial PRs leave “rest of the work” only in chat | **Always** log residual work as GitHub issues (or plan them in dry_run) linked to parent + PR |
 | Split plans disappear if only a comment | Child issues for each slice; residual URLs in structured result |
 | Same-area overnight PRs (i18n/TMX/gadgets) go **CONFLICTING** and block each other | **PR follow-up** rebases onto base **oldest-first**, resolves conflicts, then CI/review |
+| Review threads (human or AI) invisible / under-reported | Inventory **all** owned PRs; human and bot threads are **equal** selection; report still lists open human threads for visibility |
 | Agent PRs sit blocked on review/CI | **PR follow-up** phase fixes + **inline reply + `resolveReviewThread`** per root `AGENTS.md` |
-| Fake-green: resolve without fix | Never resolve without mitigation reply citing commit; open residual issue if judgment needed |
+| Fake-green: resolve without fix | Never bare-resolve (human or bot); mitigation + resolve, or residual issue and **leave OPEN** |
 
 ### When to use
 
@@ -98,15 +99,21 @@ name=night-issue-prs args={"max_issues": 1, "max_prs": 8, "include_pr_followup":
 
 For a pure PR-babysit night, prefer `max_issues: 1` with a label filter that matches nothing (or a known empty set) so Work is nearly empty, and raise `max_prs`. Watch in `/workflows`. Result path: `scratch/night-report.md`.
 
-### PR follow-up: conflicts + order
+### PR follow-up: tech need + equal review threads + human tie-break
 
-1. **Priority to pick:** CONFLICTING/DIRTY → failing CI → unresolved review threads → (optional) BEHIND base  
-2. **Process oldest first** (`createdAt` ascending) so same-area stacks (i18n, gadgets) unstick bottom-up  
-3. **Rebase** each selected PR onto `origin/<base_branch>` before CI/review work  
-4. **Resolve** conflict markers carefully (union TMX/locale keys; keep both non-overlapping adds)  
-5. **Push** with `git push --force-with-lease` only after a history-rewriting rebase (never bare `--force`)  
-6. Then CI fixes + review reply+`resolveReviewThread`  
-7. Unresolvable conflicts → residual issue, leave PR open (no fake resolve)
+1. **Inventory** GraphQL `reviewThreads` on every owned open PR (human and bot both visible)  
+2. **Select up to `max_prs` by technical need:**  
+   - Tier A: CONFLICTING/DIRTY  
+   - Tier B: failing CI  
+   - Tier C: unresolved review threads (**human and AI equal**)  
+   - Tier D: optional BEHIND base  
+3. **Within a tier only:** prefer PRs with unresolved **human** threads, then oldest `createdAt`  
+4. On each PR: conflicts → CI → all unresolved threads (same fix/reply/resolve rules; human first only if equal difficulty)  
+5. Rebase with careful conflict resolution; push **`--force-with-lease` only** after history rewrite  
+6. Never bare-resolve: fix + mitigation + resolve, or residual + **leave OPEN**  
+7. Report `human_threads_still_open` after a fresh full re-query (visibility, not a separate work queue)
+
+**#1955 lesson:** a MERGEABLE PR with a human freeport thread was under-reported as “no threads.” Fix is full inventory + treating review threads as a real tier (not human-only special-casing that jumps the queue).
 
 ### Safety model
 
@@ -117,6 +124,7 @@ For a pure PR-babysit night, prefer `max_issues: 1` with a label filter that mat
 - Spotless → clean install → tests before PR  
 - `unassigned_only` avoids stepping on humans  
 - PR follow-up only on **our** open PRs; hard gate reply+resolve (never bare resolve)  
+- Human and AI review comments **equal**; human is a **tie-break** when tech need is equal  
 - Residual / child issues left **unassigned** for the backlog  
 
 ### Operator + model labels (daily status)
