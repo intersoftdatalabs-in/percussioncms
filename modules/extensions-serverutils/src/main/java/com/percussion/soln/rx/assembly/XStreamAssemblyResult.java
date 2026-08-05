@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
  * {@link IPSAssemblyResult} implementation whose payload is the XStream-serialized form of a Java
  * object supplied by the caller.
  */
+@SuppressWarnings("serial")
 public class XStreamAssemblyResult extends MutableAssemblyResult implements IPSAssemblyResult {
   /** Safe to serialize */
   private static final long serialVersionUID = 1L;

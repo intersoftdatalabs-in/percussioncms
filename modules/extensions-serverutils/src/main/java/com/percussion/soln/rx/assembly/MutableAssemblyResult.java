@@ -74,6 +74,7 @@ public class MutableAssemblyResult extends DelegateToAssemblyItemAssemblyResult 
    * @param resultData the in-memory payload
    * @param mimeType the payload mime type
    */
+  @SuppressWarnings("this-escape")
   public MutableAssemblyResult(IPSAssemblyItem assemblyItem, byte[] resultData, String mimeType) {
     super();
     this.setAssemblyItem(assemblyItem);

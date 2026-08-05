@@ -116,6 +116,7 @@ public abstract class AbstractAssemblyHelper {
    * @return the resulting bound value
    * @throws Exception if evaluation fails or the existing value is of an incompatible type
    */
+  @SuppressWarnings("unchecked")
   public static <T> T bindExpression(PSJexlEvaluator eval, JxltEngine.Expression exp, T value)
       throws Exception {
 
@@ -151,6 +152,7 @@ public abstract class AbstractAssemblyHelper {
    * @return the evaluated value
    * @throws Exception if evaluation fails
    */
+  @SuppressWarnings("unchecked")
   public static <T> T evalExpression(PSJexlEvaluator eval, JxltEngine.Expression exp, Class<T> k)
       throws Exception {
     PSScript script = new PSScript(exp.asString());
