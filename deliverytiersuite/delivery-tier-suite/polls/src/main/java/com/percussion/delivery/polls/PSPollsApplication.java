@@ -38,6 +38,7 @@ public class PSPollsApplication extends ResourceConfig {
    * service, request/response logging, roles-based access control, the standard error mappers and
    * the JSON binding provider.
    */
+  @SuppressWarnings("this-escape")
   public PSPollsApplication() {
     // RequestContextFilter registration removed; Jersey 2.x Spring integration does not require it.
     // Removed AutowiredInjectResolver registration; not required for Jersey 2.x Spring integration.
