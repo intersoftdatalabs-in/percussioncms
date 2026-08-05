@@ -16,36 +16,41 @@
  */
 package com.percussion.services.workflow.data;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.percussion.services.catalog.IPSCatalogItem;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.utils.guid.IPSGuid;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.Objects;
-
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.Table;
-
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Objects;
 import org.xml.sax.SAXException;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
  * Represents an assigned state role.
+ *
+ * <p>Design-object nested element is {@code assigned-role} (issue #1890 / epic #505).
  */
 @Entity
 @Table(name = "STATEROLES")
 @IdClass(PSAssignedRolePK.class)
-public class PSAssignedRole implements Serializable, IPSCatalogItem
-{
+@JacksonXmlRootElement(localName = "assigned-role")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+public class PSAssignedRole implements Serializable, IPSCatalogItem {
    private static final long serialVersionUID = 1L;
 
    @Id
@@ -79,32 +84,28 @@ public class PSAssignedRole implements Serializable, IPSCatalogItem
    /* (non-Javadoc)
     * @see IPSCatalogSummary#getGUID()
     */
-   public IPSGuid getGUID()
-   {
+   @JsonProperty("guid")
+   public IPSGuid getGUID() {
       return new PSGuid(PSTypeEnum.WORKFLOW_ROLE, roleId);
    }
 
    /* (non-Javadoc)
     * @see IPSCatalogItem#setGUID(IPSGuid)
     */
-   public void setGUID(IPSGuid newguid) throws IllegalStateException
-   {
-      if (newguid == null)
-         throw new IllegalArgumentException("newguid may not be null");
+   public void setGUID(IPSGuid newguid) throws IllegalStateException {
+      if (newguid == null) throw new IllegalArgumentException("newguid may not be null");
 
-      if (roleId != 0)
-         throw new IllegalStateException("cannot change existing guid");
-
+      // Allow overwrite on design-object XML restore (BeanUtils + Jackson).
       roleId = newguid.longValue();
    }
-   
+
    /**
     * Get the id of the state to which this role is assigned.
-    * 
+    *
     * @return The id.
     */
-   public long getStateId()
-   {
+   @JsonProperty
+   public long getStateId() {
       return stateId;
    }
 
@@ -120,11 +121,11 @@ public class PSAssignedRole implements Serializable, IPSCatalogItem
 
    /**
     * Get the id of the workflow in which this role is assigned.
-    * 
+    *
     * @return The workflow id.
     */
-   public long getWorkflowId()
-   {
+   @JsonProperty
+   public long getWorkflowId() {
       return workflowId;
    }
 
@@ -140,11 +141,11 @@ public class PSAssignedRole implements Serializable, IPSCatalogItem
 
    /**
     * Get the assignment type for this assigned role.
-    * 
+    *
     * @return the role assignment type, never <code>null</code>.
     */
-   public PSAssignmentTypeEnum getAssignmentType()
-   {
+   @JsonProperty
+   public PSAssignmentTypeEnum getAssignmentType() {
       return PSAssignmentTypeEnum.valueOf(assignmentType);
    }
    
@@ -163,11 +164,11 @@ public class PSAssignedRole implements Serializable, IPSCatalogItem
    
    /**
     * The the adhoc assignment type for this role.
-    * 
+    *
     * @return the adhoc assignment type, never <code>null</code>.
     */
-   public PSAdhocTypeEnum getAdhocType()
-   {
+   @JsonProperty
+   public PSAdhocTypeEnum getAdhocType() {
       return PSAdhocTypeEnum.valueOf(adhocType);
    }
    
@@ -186,11 +187,11 @@ public class PSAssignedRole implements Serializable, IPSCatalogItem
    
    /**
     * Should this assigned role being notified?
-    * 
+    *
     * @return <code>true</code> if it should, <code>false</code> otherwise.
     */
-   public boolean isDoNotify()
-   {
+   @JsonProperty
+   public boolean isDoNotify() {
       return doNotify == 'y' || doNotify == 'Y';
    }
 
@@ -206,11 +207,11 @@ public class PSAssignedRole implements Serializable, IPSCatalogItem
    
    /**
     * Should items in this state being shown to the assigned roles inbox?
-    * 
+    *
     * @return <code>true</code> if it should, <code>false</code> otherwise.
     */
-   public boolean isShowInInbox()
-   {
+   @JsonProperty
+   public boolean isShowInInbox() {
       return showInInbox == 'y' || showInInbox == 'Y';
    }
    

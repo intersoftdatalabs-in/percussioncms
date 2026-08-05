@@ -1,0 +1,142 @@
+<workflow>
+	<administrator-role>Admin</administrator-role>
+	<description>Two-state sample for Jackson golden/round-trip</description>
+	<guid>0-23-12</guid>
+	<initial-state-id>1</initial-state-id>
+	<label>Sample Multi-State</label>
+	<name>Sample Multi-State</name>
+	<notification-defs>
+		<notification-def>
+			<body>Please review the content item.</body>
+			<description>Notification template for users.</description>
+			<guid>0-24-1</guid>
+			<subject>Content is awaiting your approval</subject>
+			<workflow-id>12</workflow-id>
+		</notification-def>
+	</notification-defs>
+	<roles>
+		<role>
+			<description>desc_Admin</description>
+			<guid>0-25-1</guid>
+			<name>Admin</name>
+			<workflow-id>12</workflow-id>
+		</role>
+		<role>
+			<description>desc_Editor</description>
+			<guid>0-25-2</guid>
+			<name>Editor</name>
+			<workflow-id>12</workflow-id>
+		</role>
+	</roles>
+	<states>
+		<state>
+			<adhoc-enabled>false</adhoc-enabled>
+			<aging-transitions />
+			<assigned-roles>
+				<assigned-role>
+					<adhoc-type>DISABLED</adhoc-type>
+					<assignment-type>ASSIGNEE</assignment-type>
+					<do-notify>false</do-notify>
+					<guid>0-25-1</guid>
+					<show-in-inbox>true</show-in-inbox>
+					<state-id>1</state-id>
+					<workflow-id>12</workflow-id>
+				</assigned-role>
+			</assigned-roles>
+			<content-valid-value>n</content-valid-value>
+			<description>Where draft content is first created</description>
+			<guid>0-26-1</guid>
+			<label>Draft</label>
+			<name>Draft</name>
+			<publishable>false</publishable>
+			<sort-order>10</sort-order>
+			<state-id>1</state-id>
+			<transitions>
+				<transition>
+					<allow-all-roles>false</allow-all-roles>
+					<approvals>1</approvals>
+					<default-transition>true</default-transition>
+					<description>Submit for review</description>
+					<guid>0-27-10</guid>
+					<label>Submit</label>
+					<name>Submit</name>
+					<notifications>
+						<notification>
+							<ccrecipients>
+								<ccrecipients>admin@example.com</ccrecipients>
+							</ccrecipients>
+							<guid>0-150-101</guid>
+							<notification-id>1</notification-id>
+							<recipients>
+								<recipients>editor@example.com</recipients>
+							</recipients>
+							<state-role-recipient-type>TO_STATE_RECIPIENTS</state-role-recipient-type>
+							<transition-id>10</transition-id>
+							<workflow-id>12</workflow-id>
+						</notification>
+					</notifications>
+					<requires-comment>OPTIONAL</requires-comment>
+					<state-id>1</state-id>
+					<to-state>2</to-state>
+					<transition-action
+						xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+						xsi:nil="true" />
+					<transition-roles>
+						<transition-role>
+							<guid>0-25-1</guid>
+							<role-id>1</role-id>
+							<transition-id>10</transition-id>
+							<workflow-id>12</workflow-id>
+						</transition-role>
+					</transition-roles>
+					<trigger>Submit</trigger>
+					<workflow-id>12</workflow-id>
+				</transition>
+			</transitions>
+			<workflow-id>12</workflow-id>
+		</state>
+		<state>
+			<adhoc-enabled>false</adhoc-enabled>
+			<aging-transitions>
+				<aging-transition>
+					<description>agingDesc_20</description>
+					<guid>0-27-20</guid>
+					<interval>1</interval>
+					<label>agingLabel_20</label>
+					<name>agingLabel_20</name>
+					<notifications />
+					<state-id>2</state-id>
+					<system-field>CONTENTSTARTDATE</system-field>
+					<to-state>3</to-state>
+					<transition-action
+						xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+						xsi:nil="true" />
+					<trigger>Age20</trigger>
+					<type>SYSTEM_FIELD</type>
+					<workflow-id>12</workflow-id>
+				</aging-transition>
+			</aging-transitions>
+			<assigned-roles>
+				<assigned-role>
+					<adhoc-type>DISABLED</adhoc-type>
+					<assignment-type>ASSIGNEE</assignment-type>
+					<do-notify>true</do-notify>
+					<guid>0-25-2</guid>
+					<show-in-inbox>true</show-in-inbox>
+					<state-id>2</state-id>
+					<workflow-id>12</workflow-id>
+				</assigned-role>
+			</assigned-roles>
+			<content-valid-value>n</content-valid-value>
+			<description>Content is reviewed here</description>
+			<guid>0-26-2</guid>
+			<label>Review</label>
+			<name>Review</name>
+			<publishable>false</publishable>
+			<sort-order>20</sort-order>
+			<state-id>2</state-id>
+			<transitions />
+			<workflow-id>12</workflow-id>
+		</state>
+	</states>
+</workflow>

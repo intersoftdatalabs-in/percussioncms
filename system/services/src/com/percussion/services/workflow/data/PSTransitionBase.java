@@ -18,21 +18,21 @@ package com.percussion.services.workflow.data;
 
 import static org.apache.commons.lang3.Validate.notNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.utils.guid.IPSGuid;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import jakarta.persistence.Table;
-
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 /**
- * Base class for (non-persistent) transition types
+ * Base class for (non-persistent) transition types. Jackson design-XML property annotations shared
+ * by {@link PSTransition} and {@link PSAgingTransition} (issue #1890 / epic #505).
  */
-public abstract class PSTransitionBase implements IPSTransitionBase
-{
+public abstract class PSTransitionBase implements IPSTransitionBase {
    /**
     * Compiler generated serial version ID used for serialization.
     */
@@ -59,47 +59,42 @@ public abstract class PSTransitionBase implements IPSTransitionBase
    /* (non-Javadoc)
     * @see IPSCatalogSummary#getGUID()
     */
-   public IPSGuid getGUID()
-   {
+   @JsonProperty("guid")
+   public IPSGuid getGUID() {
       return new PSGuid(PSTypeEnum.WORKFLOW_TRANSITION, transitionId);
    }
 
    /* (non-Javadoc)
     * @see IPSCatalogItem#setGUID(IPSGuid)
     */
-   public void setGUID(IPSGuid newguid) throws IllegalStateException
-   {
-      if (newguid == null)
-         throw new IllegalArgumentException("newguid may not be null");
+   public void setGUID(IPSGuid newguid) throws IllegalStateException {
+      if (newguid == null) throw new IllegalArgumentException("newguid may not be null");
 
-      if (transitionId != 0)
-         throw new IllegalStateException("cannot change existing guid");
-
+      // Allow overwrite on design-object XML restore (BeanUtils + Jackson).
       transitionId = newguid.longValue();
    }
-   
+
    /**
     * Get the workflow id
-    * 
+    *
     * @return the workflowid
     */
-   public long getWorkflowId()
-   {
+   @JsonProperty
+   public long getWorkflowId() {
       return workflowId;
    }
-   
-   public void setWorkflowId(long id)
-   {
+
+   public void setWorkflowId(long id) {
       workflowId = id;
    }
-   
+
    /**
     * Get the from state id.
-    * 
+    *
     * @return the id.
     */
-   public long getStateId()
-   {
+   @JsonProperty
+   public long getStateId() {
       return stateId;
    }
 
@@ -115,16 +110,16 @@ public abstract class PSTransitionBase implements IPSTransitionBase
    /* (non-Javadoc)
     * @see IPSCatalogSummary#getName()
     */
-   public String getName()
-   {
+   @JsonProperty
+   public String getName() {
       return getLabel();
    }
 
    /* (non-Javadoc)
     * @see IPSCatalogSummary#getLabel()
     */
-   public String getLabel()
-   {
+   @JsonProperty
+   public String getLabel() {
       return label;
    }
 
@@ -140,8 +135,8 @@ public abstract class PSTransitionBase implements IPSTransitionBase
    /* (non-Javadoc)
     * @see IPSCatalogSummary#getDescription()
     */
-   public String getDescription()
-   {
+   @JsonProperty
+   public String getDescription() {
       return description;
    }
 
@@ -158,8 +153,8 @@ public abstract class PSTransitionBase implements IPSTransitionBase
     * (non-Javadoc)
     * @see com.percussion.services.workflow.data.IPSTransitionBase#getTrigger()
     */
-   public String getTrigger()
-   {
+   @JsonProperty
+   public String getTrigger() {
       return trigger;
    }
 
@@ -176,8 +171,8 @@ public abstract class PSTransitionBase implements IPSTransitionBase
     * (non-Javadoc)
     * @see com.percussion.services.workflow.data.IPSTransitionBase#getToState()
     */
-   public long getToState()
-   {
+   @JsonProperty
+   public long getToState() {
       return toState;
    }
 
@@ -194,8 +189,8 @@ public abstract class PSTransitionBase implements IPSTransitionBase
     * (non-Javadoc)
     * @see com.percussion.services.workflow.data.IPSTransitionBase#getTransitionAction()
     */
-   public String getTransitionAction()
-   {
+   @JsonProperty
+   public String getTransitionAction() {
       return transitionAction;
    }
 
@@ -212,8 +207,10 @@ public abstract class PSTransitionBase implements IPSTransitionBase
     * (non-Javadoc)
     * @see com.percussion.services.workflow.data.IPSTransitionBase#getNotifications()
     */
-   public List<PSNotification> getNotifications()
-   {
+   @JsonProperty
+   @JacksonXmlElementWrapper(localName = "notifications")
+   @JacksonXmlProperty(localName = "notification")
+   public List<PSNotification> getNotifications() {
       return notifications;
    }
 
@@ -231,17 +228,15 @@ public abstract class PSTransitionBase implements IPSTransitionBase
    
    /**
     * Add a notification to the existing notifications.
-    * <p>
-    * Note, this method is required to support the underlying implementation of 
-    * {@link #toXML()} and {@link #fromXML(String)} methods for the list of 
-    * {@link PSNotification} objects.
-    * 
+    *
+    * <p>Ignored by Jackson; use {@link #setNotifications(List)} for XML restore.
+    *
     * @param notification the to be added notification, not <code>null</code>.
     */
-   public void addNotification(PSNotification notification)
-   {
+   @JsonIgnore
+   public void addNotification(PSNotification notification) {
       notNull(notification);
-      
+
       notifications.add(notification);
    }
 }

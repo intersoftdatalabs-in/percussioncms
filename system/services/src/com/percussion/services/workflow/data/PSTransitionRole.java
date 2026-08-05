@@ -18,38 +18,42 @@ package com.percussion.services.workflow.data;
 
 import static org.apache.commons.lang3.Validate.notNull;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.percussion.services.catalog.IPSCatalogItem;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.utils.guid.IPSGuid;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.Objects;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.Table;
-
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Objects;
 import org.xml.sax.SAXException;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
- * Represents associations between transitions and workflow roles.  Required
- * because using an @JoinTable annotation doesn't work with PSWORKFLOWAPPID on
- * both sides of the join table due to Hiberate bug HHH-1338 (see
- * http://opensource2.atlassian.com/projects/hibernate/browse/HHH-1338).
+ * Represents associations between transitions and workflow roles. Required because using an
+ * @JoinTable annotation doesn't work with PSWORKFLOWAPPID on both sides of the join table due to
+ * Hiberate bug HHH-1338 (see http://opensource2.atlassian.com/projects/hibernate/browse/HHH-1338).
+ *
+ * <p>Design-object nested element is {@code transition-role} (issue #1890 / epic #505).
  */
 @Entity
 @Table(name = "TRANSITIONROLES")
 @IdClass(PSTransitionRolePK.class)
-public class PSTransitionRole implements Serializable, IPSCatalogItem
-{
+@JacksonXmlRootElement(localName = "transition-role")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+public class PSTransitionRole implements Serializable, IPSCatalogItem {
    private static final long serialVersionUID = 1L;
 
    @Id
@@ -66,11 +70,11 @@ public class PSTransitionRole implements Serializable, IPSCatalogItem
    
    /**
     * Get the id of the workflow role.
-    * 
+    *
     * @return the id.
     */
-   public long getRoleId()
-   {
+   @JsonProperty
+   public long getRoleId() {
       return roleId;
    }
 
@@ -86,11 +90,11 @@ public class PSTransitionRole implements Serializable, IPSCatalogItem
    
    /**
     * Get the id of the transition for which this notification is specified.
-    * 
+    *
     * @return the id.
     */
-   public long getTransitionId()
-   {
+   @JsonProperty
+   public long getTransitionId() {
       return transitionId;
    }
 
@@ -116,36 +120,33 @@ public class PSTransitionRole implements Serializable, IPSCatalogItem
 
    /**
     * Get the workflow id
-    * 
+    *
     * @return The id.
     */
-   public long getWorkflowId()
-   {
+   @JsonProperty
+   public long getWorkflowId() {
       return workflowId;
    }
 
    /**
     * Gets the guid of the referenced role id.
-    * 
+    *
     * @see IPSCatalogItem#getGUID()
     */
-   public IPSGuid getGUID()
-   {
+   @JsonProperty("guid")
+   public IPSGuid getGUID() {
       return new PSGuid(PSTypeEnum.WORKFLOW_ROLE, roleId);
    }
 
    /**
     * Set the guid fo the referenced role id
+    *
     * @see IPSCatalogItem#setGUID(IPSGuid)
     */
-   public void setGUID(IPSGuid newguid) throws IllegalStateException
-   {
-      if (newguid == null)
-         throw new IllegalArgumentException("newguid may not be null");
+   public void setGUID(IPSGuid newguid) throws IllegalStateException {
+      if (newguid == null) throw new IllegalArgumentException("newguid may not be null");
 
-      if (roleId != 0)
-         throw new IllegalStateException("cannot change existing guid");
-
+      // Allow overwrite on design-object XML restore (BeanUtils + Jackson).
       roleId = newguid.longValue();
    }
    

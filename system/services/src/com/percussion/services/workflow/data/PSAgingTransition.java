@@ -16,21 +16,29 @@
  */
 package com.percussion.services.workflow.data;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
-
 import java.io.IOException;
 import java.util.Objects;
-
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.SAXException;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
- * Represents an aging transition
+ * Represents an aging transition.
+ *
+ * <p>Design-object nested element is {@code aging-transition} (issue #1890 / epic #505).
  */
-public class PSAgingTransition extends PSTransitionBase implements IPSAgingTransition
-{
+@JacksonXmlRootElement(localName = "aging-transition")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+public class PSAgingTransition extends PSTransitionBase implements IPSAgingTransition {
    /**
     * Compiler generated serial version ID used for serialization.
     */
@@ -43,23 +51,30 @@ public class PSAgingTransition extends PSTransitionBase implements IPSAgingTrans
    private String systemField;
    
 
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.services.workflow.data.IPSAgingTransition#getType()
-    */
    /**
-    * Return the aging type enum. New method to support string-based {@code getType()} on the interface.
+    * Return the aging type enum. Wire form is enum name under {@code <type>} (design XML).
     */
-   public PSAgingTypeEnum getAgingTypeEnum()
-   {
+   @JsonProperty("type")
+   public PSAgingTypeEnum getAgingTypeEnum() {
       return PSAgingTypeEnum.valueOf(type);
+   }
+
+   /**
+    * Jackson / design-XML setter for {@code <type>} (enum name).
+    *
+    * @param agingType the aging transition type, may not be {@code null}
+    */
+   @JsonProperty("type")
+   public void setAgingTypeEnum(PSAgingTypeEnum agingType) {
+      if (agingType == null) throw new IllegalArgumentException("agingType may not be null");
+      type = agingType.getValue();
    }
 
    /* (non-Javadoc)
     * @see com.percussion.services.workflow.data.IPSAgingTransition#getType()
     */
-   public String getType()
-   {
+   @JsonIgnore
+   public String getType() {
       PSAgingTypeEnum t = getAgingTypeEnum();
       return t == null ? null : t.name();
    }
@@ -68,20 +83,28 @@ public class PSAgingTransition extends PSTransitionBase implements IPSAgingTrans
     * (non-Javadoc)
     * @see com.percussion.services.workflow.data.IPSAgingTransition#setType(com.percussion.services.workflow.data.PSAgingTransition.PSAgingTypeEnum)
     */
-   public void setType(PSAgingTypeEnum agingType)
-   {
-      if (agingType == null)
-         throw new IllegalArgumentException("agingType may not be null");
-      
-      type = agingType.getValue();
+   public void setType(PSAgingTypeEnum agingType) {
+      setAgingTypeEnum(agingType);
+   }
+
+   /**
+    * BeanUtils property-copy bridge after Jackson deserialize ({@link #getType()} returns String).
+    *
+    * @param typeName enum name, may be blank
+    */
+   public void setType(String typeName) {
+      if (StringUtils.isBlank(typeName)) {
+         return;
+      }
+      setAgingTypeEnum(PSAgingTypeEnum.valueOf(typeName.trim()));
    }
 
    /*
     * (non-Javadoc)
     * @see com.percussion.services.workflow.data.IPSAgingTransition#getInterval()
     */
-   public long getInterval()
-   {
+   @JsonProperty
+   public long getInterval() {
       return interval == null ? 1 : interval;
    }
 
@@ -98,8 +121,8 @@ public class PSAgingTransition extends PSTransitionBase implements IPSAgingTrans
     * (non-Javadoc)
     * @see com.percussion.services.workflow.data.IPSAgingTransition#getSystemField()
     */
-   public String getSystemField()
-   {
+   @JsonProperty
+   public String getSystemField() {
       return systemField;
    }
 
@@ -208,9 +231,7 @@ public class PSAgingTransition extends PSTransitionBase implements IPSAgingTrans
       private int mi_value;
    }
    
-   static
-   {
-      // Register types with XML serializer for read creation of objects
+   static {
       PSXmlSerializationHelper.addType("notification", PSNotification.class);
    }
 }

@@ -16,37 +16,41 @@
  */
 package com.percussion.services.workflow.data;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.percussion.services.catalog.IPSCatalogItem;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.utils.guid.IPSGuid;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.Objects;
-
-
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.Table;
-
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Objects;
 import org.xml.sax.SAXException;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
- * Represents a workflow notification definitions
+ * Represents a workflow notification definition.
+ *
+ * <p>Design-object nested element is {@code notification-def} (issue #1890 / epic #505).
  */
 @Entity
 @Table(name = "NOTIFICATIONS")
 @IdClass(PSNotificationDefPK.class)
-public class PSNotificationDef implements Serializable, IPSCatalogItem
-{
+@JacksonXmlRootElement(localName = "notification-def")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+public class PSNotificationDef implements Serializable, IPSCatalogItem {
    /**
     * Compiler generated serial version ID used for serialization.
     */
@@ -74,32 +78,28 @@ public class PSNotificationDef implements Serializable, IPSCatalogItem
    /* (non-Javadoc)
     * @see IPSCatalogSummary#getGUID()
     */
-   public IPSGuid getGUID()
-   {
+   @JsonProperty("guid")
+   public IPSGuid getGUID() {
       return new PSGuid(PSTypeEnum.WORKFLOW_NOTIFICATION, notificationId);
    }
 
    /* (non-Javadoc)
     * @see IPSCatalogItem#setGUID(IPSGuid)
     */
-   public void setGUID(IPSGuid newguid) throws IllegalStateException
-   {
-      if (newguid == null)
-         throw new IllegalArgumentException("newguid may not be null");
+   public void setGUID(IPSGuid newguid) throws IllegalStateException {
+      if (newguid == null) throw new IllegalArgumentException("newguid may not be null");
 
-      if (notificationId != 0)
-         throw new IllegalStateException("cannot change existing guid");
-
+      // Allow overwrite on design-object XML restore (BeanUtils + Jackson).
       notificationId = newguid.longValue();
    }
 
    /**
     * Get the subject text for this notification.
-    * 
+    *
     * @return the notification subject text, may be <code>null</code> or empty.
     */
-   public String getSubject()
-   {
+   @JsonProperty
+   public String getSubject() {
       return subject;
    }
    
@@ -115,11 +115,11 @@ public class PSNotificationDef implements Serializable, IPSCatalogItem
 
    /**
     * The body text for this notification.
-    * 
+    *
     * @return the notification body text, may be <code>null</code> or empty.
     */
-   public String getBody()
-   {
+   @JsonProperty
+   public String getBody() {
       return body;
    }
    
@@ -135,11 +135,11 @@ public class PSNotificationDef implements Serializable, IPSCatalogItem
 
    /**
     * A description for this notification.
-    * 
+    *
     * @return the notification description, may be <code>null</code> or empty.
     */
-   public String getDescription()
-   {
+   @JsonProperty
+   public String getDescription() {
       return description;
    }
    
@@ -165,11 +165,11 @@ public class PSNotificationDef implements Serializable, IPSCatalogItem
 
    /**
     * Get the workflow id
-    * 
+    *
     * @return The id.
     */
-   public long getWorkflowId()
-   {
+   @JsonProperty
+   public long getWorkflowId() {
       return workflowId;
    }
 

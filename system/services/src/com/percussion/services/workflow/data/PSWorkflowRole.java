@@ -16,37 +16,43 @@
  */
 package com.percussion.services.workflow.data;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.percussion.services.catalog.IPSCatalogItem;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.utils.guid.IPSGuid;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.Objects;
-
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.Table;
-
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.xml.sax.SAXException;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
  * Represents a workflow role.
+ *
+ * <p>Design-object nested element is {@code role} (not mapped type name {@code workflow-role}) —
+ * issue #1890 / epic #505.
  */
 @Entity
 @Table(name = "ROLES")
 @IdClass(PSWorkflowRolePK.class)
-public class PSWorkflowRole implements Serializable, IPSCatalogItem
-{
+@JacksonXmlRootElement(localName = "role")
+@JsonAutoDetect(
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
+public class PSWorkflowRole implements Serializable, IPSCatalogItem {
    /**
     * Compiler generated serial version ID used for serialization.
     */
@@ -71,52 +77,47 @@ public class PSWorkflowRole implements Serializable, IPSCatalogItem
    /* (non-Javadoc)
     * @see IPSCatalogSummary#getGUID()
     */
-   public IPSGuid getGUID()
-   {
+   @JsonProperty("guid")
+   public IPSGuid getGUID() {
       return new PSGuid(PSTypeEnum.WORKFLOW_ROLE, roleId);
    }
 
    /* (non-Javadoc)
     * @see IPSCatalogItem#setGUID(IPSGuid)
     */
-   public void setGUID(IPSGuid newguid) throws IllegalStateException
-   {
-      if (newguid == null)
-         throw new IllegalArgumentException("newguid may not be null");
+   public void setGUID(IPSGuid newguid) throws IllegalStateException {
+      if (newguid == null) throw new IllegalArgumentException("newguid may not be null");
 
-      if (roleId != 0)
-         throw new IllegalStateException("cannot change existing guid");
-
+      // Allow overwrite on design-object XML restore (BeanUtils + Jackson).
       roleId = newguid.longValue();
    }
 
    /**
     * Get the workflow id of this state
-    * 
+    *
     * @param id The id.
     */
-   public void setWorkflowId(long id)
-   {
+   public void setWorkflowId(long id) {
       workflowId = id;
    }
 
    /**
     * Get the workflow id
-    * 
+    *
     * @return The id.
     */
-   public long getWorkflowId()
-   {
+   @JsonProperty
+   public long getWorkflowId() {
       return workflowId;
    }
-   
+
    /**
     * Get the workflow role name.
-    * 
+    *
     * @return the workflow role name, never <code>null</code> or empty.
     */
-   public String getName()
-   {
+   @JsonProperty
+   public String getName() {
       return name;
    }
    
@@ -136,12 +137,11 @@ public class PSWorkflowRole implements Serializable, IPSCatalogItem
 
    /**
     * Get the workflow role description.
-    * 
-    * @return a description for this workflow role, may be <code>null</code>
-    *    or empty.
+    *
+    * @return a description for this workflow role, may be <code>null</code> or empty.
     */
-   public String getDescription()
-   {
+   @JsonProperty
+   public String getDescription() {
       return description;
    }
    
