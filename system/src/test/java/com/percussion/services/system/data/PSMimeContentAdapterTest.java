@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,11 @@
  */
 package com.percussion.services.system.data;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.content.IPSMimeContentTypes;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -26,39 +30,32 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.tools.PSTestUtils;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import org.junit.jupiter.api.Test;
 
-/** Unit tests for the {@link PSMimeContentAdapter} class. */
-public class PSMimeContentAdapterTest {
+/** Unit tests for the {@link PSMimeContentAdapter} class (programming interface + buffering). */
+class PSMimeContentAdapterTest {
+
   /**
    * Tests the programming interface.
    *
    * @throws Exception If the test fails
    */
-  public void testInterface() throws Exception {
+  @Test
+  void testInterface() throws Exception {
     String data = "some content...";
-    ByteArrayInputStream in = new ByteArrayInputStream(data.getBytes());
+    ByteArrayInputStream in = new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8));
 
     PSMimeContentAdapter content = new PSMimeContentAdapter();
     // test defaults
-    assertEquals(content.getCharacterEncoding(), PSCharSetsConstants.rxStdEnc());
-    assertEquals(content.getMimeType(), IPSMimeContentTypes.MIME_TYPE_OCTET_STREAM);
-    assertEquals(content.getTransferEncoding(), IPSMimeContentTypes.MIME_ENC_BASE64);
+    assertEquals(PSCharSetsConstants.rxStdEnc(), content.getCharacterEncoding());
+    assertEquals(IPSMimeContentTypes.MIME_TYPE_OCTET_STREAM, content.getMimeType());
+    assertEquals(IPSMimeContentTypes.MIME_ENC_BASE64, content.getTransferEncoding());
     assertNotNull(content.getContent());
-    assertTrue(content.getContentLength() == -1);
+    assertEquals(-1, content.getContentLength());
 
-    try {
-      content.getGUID();
-      fail("should have thrown");
-    } catch (IllegalStateException e) {
-      // TODO: handle exception
-    }
-
-    try {
-      content.getName();
-      fail("should have thrown");
-    } catch (IllegalStateException e) {
-      // TODO: handle exception
-    }
+    assertThrows(IllegalStateException.class, content::getGUID);
+    assertThrows(IllegalStateException.class, content::getName);
 
     // test setters
     PSTestUtils.testSetter(content, "GUID", null, IPSGuid.class, true);
@@ -69,28 +66,32 @@ public class PSMimeContentAdapterTest {
     PSTestUtils.testSetter(content, "Name", null, true);
     PSTestUtils.testSetter(content, "Name", "", true);
     PSTestUtils.testSetter(content, "Name", "test", false);
-    PSTestUtils.testSetter(content, "Content", null, InputStream.class, true);
+    // Null content clears the buffer (BeanUtils-safe for XML restore property order).
+    content.setContent(null);
+    assertNotNull(content.getContent());
+    assertEquals(0, content.getContent().readAllBytes().length);
     PSTestUtils.testSetter(content, "Content", in, InputStream.class, false);
-    PSTestUtils.testSetter(content, "ContentLength", new Long(-2), long.class, true);
-    PSTestUtils.testSetter(content, "ContentLength", new Long(100), long.class, false);
+    assertEquals(data, new String(content.getContent().readAllBytes(), StandardCharsets.UTF_8));
+    // Stream is buffered — second read still returns the payload.
+    assertEquals(data, new String(content.getContent().readAllBytes(), StandardCharsets.UTF_8));
+    PSTestUtils.testSetter(content, "ContentLength", Long.valueOf(-2), long.class, true);
+    PSTestUtils.testSetter(content, "ContentLength", Long.valueOf(100), long.class, false);
     PSTestUtils.testSetter(content, "MimeType", null, true);
     PSTestUtils.testSetter(content, "MimeType", "", true);
     PSTestUtils.testSetter(content, "MimeType", "test", false);
 
-    try {
-      content.setGUID(new PSGuid(PSTypeEnum.CONFIGURATION, 456));
-      fail("should have thrown");
-    } catch (IllegalStateException e) {
-      // TODO: handle exception
-    }
+    assertThrows(
+        IllegalStateException.class,
+        () -> content.setGUID(new PSGuid(PSTypeEnum.CONFIGURATION, 456)));
 
     PSTestUtils.testSetter(content, "CharacterEncoding", null, true);
     PSTestUtils.testSetter(content, "CharacterEncoding", "", true);
 
-    PSTestUtils.testSetter(content, "AttachmentId", new Long(1), long.class, false);
+    PSTestUtils.testSetter(content, "AttachmentId", Long.valueOf(1), long.class, false);
     assertNull(content.getContent());
+    assertTrue(content.isContentAttached());
 
-    content.setContent(in);
-    assertEquals(content.getAttachmentId(), -1);
+    content.setContent(new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8)));
+    assertEquals(-1, content.getAttachmentId());
   }
 }
