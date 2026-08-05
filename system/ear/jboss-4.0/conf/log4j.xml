@@ -234,11 +234,6 @@
 	<!-- Setup the Rhythmyx loggers -->
 	<!-- =========================== -->
 
-	<!-- Rhythmyx turn off excessive logger from betwixt -->
-	<logger name="org.apache.commons.betwixt.io.BeanReader">
-		<level value="ERROR" />
-	</logger>
-
 	<!-- Rhythmyx turn off excessive log messages from hibernate -->
 	<logger name="org.hibernate">
 		<level value="ERROR" />
