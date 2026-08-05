@@ -59,7 +59,8 @@ if not defined JAVA_HOME (
 )
 
 set PR_JVM="%JAVA_HOME%\bin\server\jvm.dll"
-set PR_CLASSPATH="%JETTY_HOME%\start.jar;%JAVA_HOME%\lib\tools.jar"
+REM Issue #1804: do not append %JAVA_HOME%\lib\tools.jar — absent on JDK 9+ (product is JDK 21).
+set PR_CLASSPATH="%JETTY_HOME%\start.jar"
 
 @REM JVM Configuration
 set PR_JVMMS=128
