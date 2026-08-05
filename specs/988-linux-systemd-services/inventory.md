@@ -232,9 +232,9 @@ modules/perc-jetty/src/main/assembly/jetty-assembly.xml
 modules/perc-distribution-tree (unpack perc-jetty → jetty/)
 
 # DTS source + installer
-delivery-tier-distribution/src/main/rootFiles/DTS*Service.sh
-delivery-tier-distribution/src/main/rootFiles/dts-tomcat.service.in
-delivery-tier-distribution/src/main/rootFiles/rxconfig/Installer/installDts.xml
+deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/src/main/rootFiles/DTS*Service.sh
+deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/src/main/rootFiles/dts-tomcat.service.in
+deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/src/main/rootFiles/rxconfig/Installer/installDts.xml
 
 # Dual-ship greps
 --initd / use_systemd_install / SysV boot registration skipped
