@@ -29,6 +29,22 @@ import org.apache.xml.resolver.CatalogManager;
 import org.apache.xml.resolver.tools.CatalogResolver;
 import org.xml.sax.InputSource;
 
+/**
+ * A {@link CatalogResolver} tailored for Percussion CMS XML processing.
+ *
+ * <p>Builds a {@link CatalogManager} that prefers system IDs and uses a <em>private</em> catalog
+ * instance ({@code useStaticCatalog=false}) so one resolver's parse failures cannot corrupt a
+ * process-wide static catalog. Catalog file paths still come from {@code xml.catalog.files} /
+ * {@code CatalogManager.properties} when set by the JVM (see {@code perc-jetty jvm.ini}). This
+ * product does not ship a classpath {@code CatalogManager.properties}; {@code
+ * ignoreMissingProperties=true} avoids a noisy CatalogManager warning on every resolver
+ * construction. Operators still configure catalogs via the JVM system properties above.
+ *
+ * <p>An optional {@link IPSInternalRequestURIResolver} may be installed to short-circuit catalog
+ * lookups for URIs that should be resolved by the running application.
+ *
+ * @author Percussion Software
+ */
 public class PSCatalogResolver extends CatalogResolver {
 
   private static final Logger log = LogManager.getLogger(PSCatalogResolver.class);
@@ -50,8 +66,11 @@ public class PSCatalogResolver extends CatalogResolver {
   }
 
   /**
+   * Creates a {@link CatalogManager} configured for Percussion CMS usage.
+   *
    * @param privateCatalog when {@code true}, use a non-static (per-manager) catalog; when {@code
    *     false}, allow CatalogManager's shared static catalog
+   * @return a non-null, fully configured {@link CatalogManager}
    */
   static CatalogManager createCatalogManager(boolean privateCatalog) {
     CatalogManager manager = new CatalogManager();
@@ -64,10 +83,22 @@ public class PSCatalogResolver extends CatalogResolver {
     return manager;
   }
 
+  /**
+   * Returns the optional internal-request URI resolver installed on this catalog resolver.
+   *
+   * @return the installed resolver, or {@code null} if no resolver has been installed
+   */
   public IPSInternalRequestURIResolver getInternalRequestURIResolver() {
     return internalRequestURIResolver;
   }
 
+  /**
+   * Installs an internal-request URI resolver that will be consulted before this catalog resolver
+   * performs its catalog-driven resolution.
+   *
+   * @param internalRequestURIResolver the resolver to install; may be {@code null} to clear any
+   *     previously installed resolver
+   */
   public void setInternalRequestURIResolver(
       IPSInternalRequestURIResolver internalRequestURIResolver) {
     this.internalRequestURIResolver = internalRequestURIResolver;
@@ -172,10 +203,22 @@ public class PSCatalogResolver extends CatalogResolver {
   }
 
   /**
-   * JAXP URIResolver API
+   * JAXP URIResolver entry point used by XSLT processors when they encounter an {@code
+   * xsl:include}, {@code xsl:import}, or {@code document()} function.
    *
-   * @param href
-   * @param base
+   * <p>If an {@link IPSInternalRequestURIResolver} is installed and returns a non-null source for
+   * the given URI, that source is returned and catalog lookup is skipped. Otherwise, the underlying
+   * {@link CatalogResolver} is consulted. If the catalog does not contain a mapping the caller is
+   * signaled via a {@link TransformerException} so that the XSLT processor does not silently fall
+   * back to network I/O.
+   *
+   * @param href the URI from the {@code href} attribute or {@code document()} call, may be
+   *     relative; a blank or {@code null} value resolves to {@code null}
+   * @param base the base URI used to resolve {@code href} when an absolute URI is required; may be
+   *     {@code null}
+   * @return a non-null {@link Source} for the resolved URI
+   * @throws TransformerException if the URI cannot be resolved through the internal resolver or the
+   *     configured catalogs
    */
   @Override
   public Source resolve(String href, String base) throws TransformerException {

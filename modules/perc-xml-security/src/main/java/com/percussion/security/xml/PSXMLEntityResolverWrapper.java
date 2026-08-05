@@ -29,10 +29,35 @@ import org.apache.xerces.xni.parser.XMLInputSource;
 import org.apache.xml.resolver.tools.CatalogResolver;
 import org.xml.sax.InputSource;
 
+/**
+ * Wraps a {@link CatalogResolver} as an Xerces {@link XMLEntityResolver} so that XML parsers
+ * created via {@link PSSecureXMLUtils} can resolve external entities through the configured XML
+ * catalog instead of falling back to the network.
+ *
+ * <p>When the catalog cannot resolve an entity, this wrapper returns a no-op input source rather
+ * than throwing, so the parser simply sees an empty stream and proceeds.
+ *
+ * @author Percussion Software
+ */
 public class PSXMLEntityResolverWrapper implements XMLEntityResolver {
   private CatalogResolver resolver = new CatalogResolver();
   private static final Logger log = LogManager.getLogger(PSXMLEntityResolverWrapper.class);
 
+  /**
+   * Creates a new wrapper that delegates external-entity resolution to a freshly-instantiated
+   * {@link CatalogResolver}.
+   */
+  public PSXMLEntityResolverWrapper() {
+    // no-op
+  }
+
+  /**
+   * Converts a SAX {@link InputSource} into an Xerces {@link XMLInputSource}, copying the public
+   * id, system id, byte/character streams, and encoding.
+   *
+   * @param is the SAX input source to convert, assumed not {@code null}
+   * @return a non-null Xerces input source equivalent to {@code is}
+   */
   private XMLInputSource getXmlInput(InputSource is) {
     XMLInputSource source = new XMLInputSource(is.getPublicId(), is.getSystemId(), null);
     source.setByteStream(is.getByteStream());
@@ -42,11 +67,14 @@ public class PSXMLEntityResolverWrapper implements XMLEntityResolver {
   }
 
   /**
-   * Resolves an external parsed entity. If the entity cannot be resolved, this method should return
-   * null.
+   * Resolves an external parsed entity through the wrapped {@link CatalogResolver}. If the entity
+   * cannot be resolved, returns a no-op {@link XMLInputSource} so the parser sees an empty stream
+   * rather than failing outright.
    *
-   * @param resourceIdentifier location of the XML resource to resolve
-   * @throws XNIException Thrown on general error.
+   * @param resourceIdentifier location of the XML resource to resolve, assumed not {@code null}
+   * @return a non-null {@link XMLInputSource} for the resolved entity, or a no-op source when the
+   *     catalog does not contain a mapping for {@code resourceIdentifier}
+   * @throws XNIException if an unrecoverable error occurs while consulting the catalog
    * @see XMLResourceIdentifier
    */
   @Override

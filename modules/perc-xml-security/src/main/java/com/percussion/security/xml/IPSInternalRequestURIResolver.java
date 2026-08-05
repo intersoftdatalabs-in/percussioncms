@@ -21,6 +21,18 @@ import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 
+/**
+ * Marker extension of {@link URIResolver} used to delegate URI resolution to handlers that can
+ * service requests internal to the Percussion CMS (for example, XSL includes / imports that should
+ * be served from the running application rather than from the filesystem or network).
+ *
+ * <p>Implementations are installed on a {@link PSCatalogResolver} via {@link
+ * PSCatalogResolver#setInternalRequestURIResolver(IPSInternalRequestURIResolver)}; when a lookup is
+ * performed the catalog resolver consults the installed instance before falling back to its
+ * catalog-driven logic.
+ *
+ * @author Percussion Software
+ */
 public interface IPSInternalRequestURIResolver extends URIResolver {
 
   /**
